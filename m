@@ -1,9 +1,10 @@
-From: "alex x." <mckee@flygt.com>
-Subject: I found a website with the best online casino games around!
-Date: Wed, 27 Jun 2007 15:30:14 +0100
-Message-ID: <82363958.84212856@april.com>
+From: "Rudolph Loukas" <interfacersincm@interfacersinc.com>
+Subject: re:Can't be a lover anymore?
+Date: Thu, 1 Jan 2004 16:33:50 -0120
+Message-ID: <01c3d085$09532ea0$6c822ecf@interfacersincm>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -11,88 +12,14 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: listlorenai-devel@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+Special summer offer from MyCanadianPharmacy. 50% discount for every item from really astonishing selection of products. Don’t waste time. 
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+http://chordbody.hk
 
-<title>Sorry I missed you at the big game&#8230; but I think I found an even
-better one</title>
+Purchase world class products and pay less than you could pay for American drugs of the same quality. Order any item from really wide selection of safe and quality 100% generic products and save money.  You will appreciate the level of MyCanadianPharmacy's service and fast delivery. 
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	mso-ansi-language:FR;
-	mso-fareast-language:EN-US;
-	mso-bidi-language:HE;}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=EN link=blue vlink=purple style='tab-interval:35.4pt'>
-
-<div class=Section1>
-
-<p class=MsoNormal><span lang=FR>Sorry I missed you at the big game&#8230; but
-I think I found an even better one!<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>I found a website with the best online casino
-games around - from great table action to slots and tournaments&#8230;
-<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>Plus - If you visit their site today
-you&#8217;ll get a free $555 bonus!<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>So&#8230; what&#8217;re you waiting for? 
-<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>You really should check it out!
-<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR>
-<a href="http://vipzone.hk/">
-http://vipzone.hk/</a><o:p></o:p></span></p>
-
-</div>
-
-</body>
-
-</html>
+We are flexible and take care of every customer.
+http://chordbody.hk

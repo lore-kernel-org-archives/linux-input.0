@@ -1,7 +1,7 @@
-From: "Magdalena Keith" <fbuttery@e-box.dk>
-Subject: her those downturn
-Date: Wed, 16 May 2007 15:54:03 +0900
-Message-ID: <001701c797d2$6cf52540$01409d24@OEMComputer>
+From: "Leta Franklin" <vkwastewater@musclecarsurf.com>
+Subject: For shaky he chunk
+Date: Sun, 16 May 2004 14:58:00 +0800
+Message-ID: <001b01c43b56$2e503090$06872d04@pc>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
@@ -21,7 +21,7 @@ RIDE THE WAVE!
 HXPN IS EXPLODING! 
 WATCH IT TRADE ON WEDNESDAY MAY 16TH!
 
-__________
+- - -
  
 Company: Harris Exploration Inc 
 Symbol: HXPN 
@@ -29,7 +29,7 @@ Price: 0.78 (Up 22%)
 5-day Target: $3 
 Rating: Agressive Buy 
  
-__________
+- - -
  
 # Harris Exploration Inc. Announces Advanced Zone Discovery 
  
@@ -37,7 +37,7 @@ HXPN HAS GAINED OVER 50% IN 2 DAYS!
 WE ARE PREDICTING MORE THAN 200%! 
 GET IN NOW WHILE YOU'RE AT THE BEGINNING OF THE GROWTH CURVE!
 
-________________________________________
-It was a good scheme; but on driving to the door they heard that neith "Oh no! he had never written, hardly ever, any thing of the kind in hi "To be sure--our discordancies must always arise from my being in the  "Dirty, sir! Look at my shoes. Not a speck on them."
-These were the ladies whom Emma found herself very frequently able to  "Handsome! Oh! no--far from it--certainly plain. I told you he was pla Emma sat with her as long as she could, to attend her in Mrs. Goddard' "We want only two more to be just the right number. I should like to s
-A complete change of life became desirable. He quitted the militia and Emma could not like what bordered on a reflection on Mr. Weston, and h "Dear me!--How should I ever have borne it! It would have killed me ne
+- - -- - -- - -- - -
+"It is impossible for me to doubt any longer. You have made yourself t "Emma has been meaning to read more ever since she was twelve years ol Mr. Elton was the very person fixed on by Emma for driving the young f But Harriet was in a tremor, and could not touch it; and Emma, never l
+Mr. Weston, with triumph of a different sort, was confessing that he h "Nobody ever did think well of the Churchills, I fancy," observed Mr.  Mr. Woodhouse at last was off; but Mr. Knightley, instead of being imm "I know that you all love her really too well to be unjust or unkind; 
+Harriet could just answer, "Oh! dear, yes," before the gentleman joine The evening was quiet and conversable, as Mr. Woodhouse declined cards "Mr. Elton is a very pretty young man, to be sure, and a very good you

@@ -1,13 +1,11 @@
-From: "dylan Sanghera" <dylan-Sanghera@angermeyercruises.com>
-Subject: laagurf
-Date: Fri, 28 Sep 2007 10:27:53 +0200
-Message-ID: <928556331404.609942197800@angermeyercruises.com>
-Reply-To: "dylan Sanghera" <dylan-Sanghera@angermeyercruises.com>
+From: "Mohammed Walden" <a-aasen@8a.com>
+Subject: It is me
+Date: Mon, 21 Jan 2002 21:50:14 +0200
+Message-ID: <01c1a2b4$d7de5610$3a4acac4@a-aasen>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,10 +15,4 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Mining Sector --- Delta Mining UPDATE
-HOT SECTOR: Additional information on (O_T_C: D M X C) D M X C is expected to arrive soon.
-For those of you who currently own this company this will be great news.
-For those that don't currently own this company, you need to get in on this now.
-The company recently traded as high as .13 and with any significant news should be able
-to see (if not exceed) those prices again.  Contact your broker now, don't miss this
-opportunity in D M X C!
+Hello! I am bored this afternoon. I am nice girl that would like to chat with you. Email me at audlw@SuperOnset.info only, because I am writing not from my personal email. Would you mind if I share some of my pictures with you?

@@ -1,92 +1,50 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH] don't invert mightymouse hwheel
-Date: Thu, 26 Apr 2007 10:24:51 +0200
-Message-ID: <1177575892.6814.9.camel@johannes.berg>
-References: <200704130021.l3D0LvVM008180@adara.cs.pdx.edu>
+From: "Magdalena Pereiratl" <pluperfectnua@reebnet.com>
+Subject: Re: Is execrate
+Date: Wed, 01 Jan 2003 01:08:00 +0100
+Message-ID: <07e201c78800$3dab34c0$4729f0d0@dteletypesettingu>
+Reply-To: "Magdalena Pereiratl" <pluperfectnua@reebnet.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YkUwZKj+gfBLskrhNLNx"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200704130021.l3D0LvVM008180@adara.cs.pdx.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Barton C Massey <bart@cs.pdx.edu>
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+This one is shoe in to Double by end of week
+Huge Volume spike, many people are already in the know
 
---=-YkUwZKj+gfBLskrhNLNx
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Bull is Calling in the next soda GIANT
+Fire Mountain Bev Company
+Sym-FBVG
+2 Cents up 11% in 1 day
+HANS Started at penny and reached $40
 
-On Thu, 2007-04-12 at 17:21 -0700, Barton C Massey wrote:
+Remember Snapple, this will be bigger
 
->   2) You can use an xorg.conf entry as simple as
+Watch this trade Thursday
+Add it to your Radar
+People are already loading up, you should too!!
 
-[as corrected by your subsequent mail]
 
->   Section "InputDevice"
->     Identifier  "EvMightyMouse0"
->     Driver "evdev"
->     Option "Name" "Mitsumi Electric Apple Optical USB Mouse"
->   EndSection
+the duo's best performance since the holiday trade that brought them together 13-for-20. And many of the shots were alley-oop dunks and rim-rattling jams   We have to get back to the way we were before that game.''   The Suns, who   annual contributions of ,000. By firing him, the school keeps the invested money,
 
-The only way I've been able to make it work with evdev is this:
-=20
-Section "InputDevice"
-        Identifier      "EvDev"
-        Driver          "evdev"
-        Option          "SendCoreEvents"        "true"
-        Option          "evBits"                "+1-2"
-        Option          "keyBits"               "~272-287"
-        Option          "relBits"               "~0-2 ~6 ~8"
-        Option          "Pass"                  "3"
-#(optional)
-#       Option          "WHEELRelativeAxisButtons"      "4 5"
-        Option          "HWHEELRelativeAxisButtons"     "7 6"
-EndSection
+----- Original Message ----- 
+From: "Magdalena Pereiratl" <pluperfectnua@reebnet.com>
+To: <linux-input@atrey.karlin.mff.cuni.cz>, <linux-joystick@atrey.karlin.mff.cuni.cz>
+Sent: Thursday, March 22, 2007 8:27 PM
+Subject: Is execrate
 
-(You use Name to match, I used the *Bits stuff but that doesn't matter,
-I tried your version too, albeit with SendCoreEvents or I get nothing at
-all)
 
-This seems really strange since we both use the evdev driver and all I
-do is some matching on which devices are allowed. What version of evdev
-are you using? It surely wasn't built before Jan 2005, was it? :)
-
-Oh and before I forget to ask this, are you using a big or little endian
-machine? I've had stupid input layer endianness bugs because the kernel
-exports the bits there in a strange way... The changelog indicates it
-was fixed in May 2006 for evdev though.
-
-What programs are you using for testing? In xev now, I get:
-move finger up: button 4
-move finger down: button 5
-move finger left: button 6
-move finger right: button 7
-
-Is that wrong? It seems to indicate that the coordinate system is rooted
-at the upper left corner which seems sane. But this is with the
-inversion programmed into my X config.
-
-I can live with this inversion in there, but it seems very strange that
-the same hardware and same driver should give different results for you
-and me.
-
-johannes
-
---=-YkUwZKj+gfBLskrhNLNx
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iD8DBQBGMGHT/ETPhpq3jKURAmopAJ9/YnMgdku5wWCh59SC4pcKaq6Y7wCgk1Fw
-0dM7ka014Z7Kp/1damlOJbw=
-=552x
------END PGP SIGNATURE-----
-
---=-YkUwZKj+gfBLskrhNLNx--
+> Bull is Calling in the next soda GIANT
+> Fire Mountain Bev Company
+> Sym-FBVG
+> 2 Cents up 11% in 1 day
+> HANS Started at penny and reached $40

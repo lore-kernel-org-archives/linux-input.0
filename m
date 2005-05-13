@@ -1,44 +1,66 @@
-From: Pavel Machek <pavel@suse.cz>
-Subject: Re: [2/6] 2.6.21-rc2: known regressions
-Date: Sat, 10 Mar 2007 00:35:08 +0100
-Message-ID: <20070309233508.GB2197@elf.ucw.cz>
-References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il> <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org> <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu> <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org> <20070309174821.GA31754@linuxtv.org>
+From: "Margaret Mayer" <njsuicidal@arigola.com>
+Subject: My so cortland
+Date: Fri, 13 May 2005 10:40:15 -0700
+Message-ID: <001301c557a8$56072c00$04ec67ac@ncgd1xcete7lc1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0010_01C557A8.56072C00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <20070309174821.GA31754@linuxtv.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi!
-
-> > You're better off using the VGA console, and lettign X re-initialize the 
-> > graphics device. That generally at least has a reasonably good chance of 
-> > working.
-> > 
-> > Re-initializing graphics modes really is very hard. You can try with the 
-> > BIOS video hack (I forget the kernel command line to turn it on), but we 
-> > really do end up depending on X doing it better.
-> 
-> acpi_sleep=s3_bios has always worked for me on my ThinkPad T42p.
-> 
-> Even if one doesn't use the fb console at all, radeonfb apparently
-> is still required on some ThinkPad models to work around BIOS bugs:
-> 
-> http://www.thinkwiki.org/wiki/Problem_with_high_power_drain_in_ACPI_sleep#Radeon_GPU_not_powered_off
+------=_NextPart_000_0010_01C557A8.56072C00
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
 
-s2ram should be able to work around this, it has parts from
-radeontool. (suspend.sf.net).
+
+YOU'VE SEEN IT BEFORE YOU SAY?!!
 
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+Promoting sym: MRDYPrice: $0.04 5 Day Target price: $0.2Action: Strong =
+buy!
+
+All signs show that this one is going to Explode!!
+
+Check the news of MRDY, linux-input!!
+
+
+
+------=_NextPart_000_0010_01C557A8.56072C00
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2462.1081" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0000 size=3D3D4><FONT =
+size=3D3><STRONG>YOU'VE SEEN IT BEFORE YOU SAY?...</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003399 size=3D=
+2>Promoting sym: <b>MRDY</b><br>Price: $0.04 <br>5 Day Target price: =
+$0.2<br>Action: Strong buy.</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3300 size=3D3>All =
+signs show that this one is going to Explode!!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000000 size=3D2>Check =
+the news of MRDY, linux-input.</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0010_01C557A8.56072C00--

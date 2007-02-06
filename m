@@ -1,132 +1,151 @@
-From: "Magic-Jackpot Casino" <lousewort@ubi.com>
-Subject: Bis 1000 Euro frei!
-Date: Fri, 06 Apr 2007 08:00:30 -0200
-Message-ID: <76614520.20442493@pierce.com>
+From: "Briana Burnette" <kofbullermanngow@bullermann.net>
+Subject: Less weight - more pleasure and joy
+Date: Tue, 6 Feb 2007 09:22:48 -0200
+Message-ID: <279338646.65381494838070@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------E9258409016758"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: cech@atrey.karlin.mff.cuni.cz
+To: lukor@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+------------E9258409016758
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 
-<title>Sind Sie auf der Suche nach einem neuen, 
-aufregenden Spielangebot </title>
+Anatrim – The up-to-the-moment and most fascinating product for over-weight people is made available now – As you could see on BBC
+Do you know excessive body kilograms kill a plenty of people around the whole world? We believe that you hate the unsightly look of people like those and the social stigmata attached to them. 
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+Moreover, you can not withstand pressure of fatal eating habits of yours. If it sounds familiar, then we have something for you!
 
-</head>
+Here Anatrim comes, the recent product for the reduction of your body’s extra weight. The most astonishing thing is that Anatrim improves the quality of your life, soothing your feeling of hunger and giving you better spirit. Read some e-mails from our customers:
 
-<body lang=EN-US link=blue vlink=purple style='tab-interval:35.4pt'>
+"This is a great thing! 
 
-<div class=Section1>
+Instead of eating anything close at hand and watching TV continually 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Sind Sie auf der Suche nach einem neuen, aufregenden Spielangebot? 
-</span><o:p></o:p></p>
+I became rather more interested in taking exercise.
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+ Anatrim put me on the right path.
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Magic Jackpot ist momentan die warscheinlich aufregendste 
-Moglichkeit dazu ! </span><o:p></o:p></p>
+ I have a great form now and there are lots of men following me with their eyes!"
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+Silvia D., Bellevue WA
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Wenn BlackJack oder Roulette zu Ihren Lieblingsspielen gehoren, 
-bieten Magic Jackpot's Live-Dealer das Gefuhl eines echten Casinos. 
-</span><o:p></o:p></p>
+"I tried some passive weight losing, you know, but with no result. I could not restrain my ravenous hunger. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+One day I heard about Anatrim in the media advertisement and it brought a great influence on me.
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Wenn Slot-Machinen zu Ihren Favoriten gehoren, konnen Sie den 
-hochsten Preis aller Zeiten beim Video-Slot Millionaire's Lane 
-gewinnen, insgesamt $5 000 000 !</span><o:p></o:p></p>
+ I had tried to use it, and my wife said to me that I'm a different person now, 5 months later. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+30 pounds have gone away and it is still far to an end! 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Fur den Anfing bietet Magic Jackpots einen magischen Bonus 
-als Willkommensgeschenk !</span><o:p></o:p></p>
+And you know, the bedroom thing is cool, too."
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+Mike Brown, Las Vegas
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie Heute noch bei Magic Jackpot ein und Ihr Kontostand 
-wird umgehend mit einem 100% Bonus verdoppelt.
-</span></p>
+Anatrim helps you to realize that you doesn’t have such a great need for that much food. It lifts your mood up, provides you with extra energy, and attacks useless kilos. Especial thanks to its powerful comprehensive formula!!
+Pry out latest intelligence! 
 
-<p class=MsoNormal><span style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+------------E9258409016758
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie 20$ ein, spielen Sie mit 40$</span></p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Check out the wonders of pound melting</TITLE>
+</HEAD>
+<BODY>
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie 250$ ein, spielen Sie mit 500$</span><o:p></o:p></p>
+<p>
+<center>
+<b>
+<a href="http://www.ekocab.com/?kxdsxmtaxuae">Anatrim – The up-to-the-moment and most fascinating product for over-weight people is made available now – As you could see on BBC</a>
+</b>
+</center>
+<b>
+Do you know excessive body kilograms kill a plenty of people around the whole world? We believe that you hate the unsightly look of people like those and the social stigmata attached to them. 
+<b>
+Moreover, you can not withstand pressure of fatal eating habits of yours. If it sounds familiar, then we have something for you!
+</b>
+</b>
+<br>
+<br>
+<b>
+Here Anatrim comes, the recent product for the reduction of your body’s extra weight. The most astonishing thing is that Anatrim improves the quality of your life, soothing your feeling of hunger and giving you better spirit. Read some e-mails from our customers:
+</b>
+<br>
+<br>
+<b>
+<i>
+"This is a great thing! 
+<b>
+<i>
+Instead of eating anything close at hand and watching TV continually 
+<b>
+<i>
+I became rather more interested in taking exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim put me on the right path.
+</i>
+</b>
+ I have a great form now and there are lots of men following me with their eyes!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Silvia D., Bellevue WA
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"I tried some passive weight losing, you know, but with no result. I could not restrain my ravenous hunger. 
+<b>
+<i>
+One day I heard about Anatrim in the media advertisement and it brought a great influence on me.
+</i>
+</b>
+ I had tried to use it, and my wife said to me that I'm a different person now, 5 months later. 
+<b>
+<i>
+30 pounds have gone away and it is still far to an end! 
+</i>
+</b>
+And you know, the bedroom thing is cool, too."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Mike Brown, Las Vegas
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps you to realize that you doesn’t have such a great need for that much food. It lifts your mood up, provides you with extra energy, and attacks useless kilos. Especial thanks to its powerful comprehensive formula!!
+</b>
+<b>
+<center>
+<a href="http://www.ekocab.com/?kxdsxmtaxuae">Pry out latest intelligence!</a>
+</center>
+</b>
+</p> 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Der Live-Kundendienst steht bei eventuellen Ruckfragen oder 
-sonstigen Anliegen, 24 Stunden am Tag zur Verfugung, was den 
-Genuess schneller Auszahlungen garantiert !</span>
-<o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<a href="http://www.magicbonus.org/lang-de/">
-http://www.magicbonus.org/lang-de/</a><u3:p></u3:p></span></p>
-
-</div>
-
-</body>
-
-</html>
+</BODY></HTML>
+------------E9258409016758--

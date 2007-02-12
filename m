@@ -1,86 +1,45 @@
-From: "Cheri Simmons" <vcentennial@dagtus.org>
-Subject: He shelby is pronto
-Date: Mon, 12 Feb 2007 09:44:04 -0500
-Message-ID: <001601c74e8a$b70bb680$06729524@brooklynd2117e>
+From: "SanTresa WHELAN" <bumblingscoexists@marianie.pl>
+Subject: WARNER write: Today's prognosis...
+Date: Mon, 12 Feb 2007 14:53:24 +0000 (UTC)
+Message-ID: <01c74eb5$1b8c11c0$6c822ecf@bumblingscoexists>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C74E8A.B70BB680"
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Mon, 12 Feb 2007 14:50:16 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: listproc@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C74E8A.B70BB680
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+Glad to see you, gentlemen.
+I think all of you have already seen the results of the last market day.
+
+And today we give you the best stock at the best price for today.
+The Company has released news on friday. 
+Here it is (read full version on your favorite news site)
+
+-
+Marshall Holdings International, Inc. Announces Subsidiary 3rd Quarter Results Over 1.5 Million, an Increase of 147%
+
+Marshall Holdings International, Inc. (MHII) announced that the 3rd quarter financials for its wholly owned subsidiary are final. Marshall Distributing 3rd quarter revenues resulted in an increase of 147% over the same period in 2005. The total revenues for the quarter were excess of 1.5 million.
+"The Company continues to grow and once again surpassed all expectations", said Jamie Plante, CFO." 
+-
 
 
+Friday last result -> 0.021 (+ 23.52%) 
+Friday High on 0.024 (+ 41 %)
+With such news Monday expectations-> more then 0.040 (+ 90.47 %) 
+
+You absolutly know for a certainty which ones are real or not.
+This one is real.
+The Campaign has just started. More information will be soon.
+To Grab MHII - is the first thing to do.
 
 
-
-Trading 0ppprtunity For You!!
-
-
-Lookup: MISJCurrent: $0.17Target: $0.95Expected: Steadily climb for the =
-top.
-
-
-
-All signs show that this one is going to Explode...
-
-
-
-More info:
-
-
-Medical Institutional Services Corporation was founded by the needof =
-innovated and technological focus on customer service in the =
-MedicalSupply & Pharmaceutical Industry..
-
-The hottest news are released for MISJ, linux-input!
-
-
-------=_NextPart_000_0013_01C74E8A.B70BB680
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2600.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#003399 size=3D=
-3D4><FONT size=3D4><STRONG>Trading 0ppprtunity For =
-You..</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D=
-3>Lookup: MISJ<br>Current: $0.17<br>Target: $0.95<br>Expected: Steadily =
-climb for the top..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#3300FF size=3D3>All =
-signs show that this one is going to Explode!</FONT></DIV>
-<BR>
-<DIV align=3Dright><FONT face=3DGeorgia color=3D#FF0033 size=3D2>More =
-info:</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0066 size=3D=
-4>Medical Institutional Services Corporation was founded by the =
-need<br>of innovated and technological focus on customer service in the =
-Medical<br>Supply & Pharmaceutical Industry...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0000 size=3D4>The =
-hottest news are released for MISJ, linux-input!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0013_01C74E8A.B70BB680--
+7178757445796A33667173726B6873337F6E79776866777E70776E336B337A6E68
+caizeir

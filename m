@@ -1,42 +1,82 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: extend EV_LED
-Date: Mon, 12 Feb 2007 13:31:52 -0500
-Message-ID: <d120d5000702121031o1ea5ff20lf4e0946c8c1e2980@mail.gmail.com>
-References: <45CEE9AB.2020208@freemail.hu>
+From: "Jewel Eaton" <qtroutman@fiendcat.com>
+Subject: To esoteric my commonweal
+Date: Tue, 13 Feb 2007 02:03:23 +0800
+Message-ID: <000f01c74f13$51e7b0e0$06be6894@zh11>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_000C_01C74F13.51E7B0E0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45CEE9AB.2020208@freemail.hu>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On 2/11/07, N=E9meth M=E1rton <nm127@freemail.hu> wrote:
->
-> Extend EV_LED handling code so that it can handle not
-> only two states (on/off) but also others. For example
-> a LED can blink using hardware acceleration. The code
-> changed so that it is similar to the code at EV_SND.
->
+------=_NextPart_000_000C_01C74F13.51E7B0E0
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
 
-I am not sure we would need this, could you explain what are you
-trying to use input leds for?
 
-Generally speaking leds within input subsystem are supposed to be very
-simple on/off objects, mostly for reporting state of input devices
-(keyboards), I am not even sure that LED_MAIL and LED_CHARGING make
-much sense here. For more compex objects(blinking/different
-colors/different brightness) we have a separate LED subsystem
-(drivers/leds).
+YOU'VE SEEN IT BEFORE YOU SAY?.
 
---=20
-Dmitry
+Search for: MISJCurrent price: $0.17Target: $0.95Market: bullish!!!
+
+
+WATCH IT LIKE A HAWK!!
+
+
+
+More info:
+
+
+
+Medical Institutional Services Corporation was founded by the needof =
+innovated and technological focus on customer service in the =
+MedicalSupply & Pharmaceutical Industry..
+
+
+MISJ has a nice fresh news, linux-input!!
+
+------=_NextPart_000_000C_01C74F13.51E7B0E0
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.2600.2963" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0000 size=3D=
+3D4><FONT size=3D2><STRONG>YOU'VE SEEN IT BEFORE YOU =
+SAY?...</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0000 size=3D4>Search =
+for: MISJ<br>Current price: $0.17<br>Target: $0.95<br>Market: =
+bullish!!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D4>WATCH =
+IT LIKE A HAWK!!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dright><FONT face=3DGeorgia color=3D#CC3333 size=3D3>More =
+info:</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0066 size=3D=
+4>Medical Institutional Services Corporation was founded by the =
+need<br>of innovated and technological focus on customer service in the =
+Medical<br>Supply & Pharmaceutical Industry..</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0066 size=3D3>MISJ =
+has a nice fresh news, linux-input..</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_000C_01C74F13.51E7B0E0--

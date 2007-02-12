@@ -1,45 +1,83 @@
-From: "SanTresa WHELAN" <bumblingscoexists@marianie.pl>
-Subject: WARNER write: Today's prognosis...
-Date: Mon, 12 Feb 2007 14:53:24 +0000 (UTC)
-Message-ID: <01c74eb5$1b8c11c0$6c822ecf@bumblingscoexists>
+From: "Adrian Hale" <whcnorfolk@duckhousemail.com>
+Subject: her exalt it nowhere
+Date: Mon, 12 Feb 2007 21:54:57 +0700
+Message-ID: <001201c74ef0$9839f080$0ed8c324@user>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_000F_01C74EF0.9839F080"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 12 Feb 2007 14:50:16 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: listproc@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Glad to see you, gentlemen.
-I think all of you have already seen the results of the last market day.
-
-And today we give you the best stock at the best price for today.
-The Company has released news on friday. 
-Here it is (read full version on your favorite news site)
-
--
-Marshall Holdings International, Inc. Announces Subsidiary 3rd Quarter Results Over 1.5 Million, an Increase of 147%
-
-Marshall Holdings International, Inc. (MHII) announced that the 3rd quarter financials for its wholly owned subsidiary are final. Marshall Distributing 3rd quarter revenues resulted in an increase of 147% over the same period in 2005. The total revenues for the quarter were excess of 1.5 million.
-"The Company continues to grow and once again surpassed all expectations", said Jamie Plante, CFO." 
--
+------=_NextPart_000_000F_01C74EF0.9839F080
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
 
-Friday last result -> 0.021 (+ 23.52%) 
-Friday High on 0.024 (+ 41 %)
-With such news Monday expectations-> more then 0.040 (+ 90.47 %) 
-
-You absolutly know for a certainty which ones are real or not.
-This one is real.
-The Campaign has just started. More information will be soon.
-To Grab MHII - is the first thing to do.
 
 
-7178757445796A33667173726B6873337F6E79776866777E70776E336B337A6E68
-caizeir
+BULLISH REPORT.
+
+
+Sym8oL: MISJCurr Price: $0.17Target one: $0.95Action: Aggresive =
+Buy/Hold.
+
+
+WATCH IT LIKE A HAWK.
+
+
+More info about the company:
+
+
+Medical Institutional Services Corporation was founded by the needof =
+innovated and technological focus on customer service in the =
+MedicalSupply & Pharmaceutical Industry....
+
+See bullish news online right now, linux-input!!
+
+
+
+------=_NextPart_000_000F_01C74EF0.9839F080
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.2900.0000" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#CC3333 size=3D=
+3D4><FONT size=3D3><STRONG>BULLISH REPORT...</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#333366 size=3D=
+2>Sym8oL: MISJ<br>Curr Price: $0.17<br>Target one: $0.95<br>Action: =
+Aggresive Buy/Hold..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D4>WATCH =
+IT LIKE A HAWK...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dright><FONT face=3DVerdana color=3D#CC3300 size=3D3>More =
+info about the company:</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#CC0033 size=3D=
+3>Medical Institutional Services Corporation was founded by the =
+need<br>of innovated and technological focus on customer service in the =
+Medical<br>Supply & Pharmaceutical Industry.!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#333366 size=3D4>See =
+bullish news online right now, linux-input.</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_000F_01C74EF0.9839F080--

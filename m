@@ -1,78 +1,90 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: extend EV_LED
-Date: Wed, 14 Feb 2007 14:49:46 -0500
-Message-ID: <d120d5000702141149g772840e7h87e4362b3f380bc0@mail.gmail.com>
-References: <d120d5000702121031o1ea5ff20lf4e0946c8c1e2980@mail.gmail.com>
-	 <freemail.20070114200635.96983@fm13.freemail.hu>
+From: "Cornelia Moore" <qsetscrew@hentooth.co.uk>
+Subject: My barrier at selectric
+Date: Wed, 14 Feb 2007 20:57:14 +0100
+Message-ID: <001501c7507b$157706b0$005da304@charo86ur58919>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0012_01C7507B.157706B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <freemail.20070114200635.96983@fm13.freemail.hu>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On 2/14/07, N=E9meth M=E1rton <nm127@freemail.hu> wrote:
->
->
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> =EDrta:
->
-> > On 2/11/07, N=E9meth M=E1rton <nm127@freemail.hu> wrote:
-> > >
-> > > Extend EV_LED handling code so that it can handle not
-> > > only two states (on/off) but also others. For example
-> > > a LED can blink using hardware acceleration. The code
-> > > changed so that it is similar to the code at EV_SND.
-> > >
-> >
-> > Hi,
-> >
-> > I am not sure we would need this, could you explain what
-> are you
-> > trying to use input leds for?
-> >
-> > Generally speaking leds within input subsystem are
-> supposed to be very
-> > simple on/off objects, mostly for reporting state of input
-> devices
-> > (keyboards), I am not even sure that LED_MAIL and
-> LED_CHARGING make
-> > much sense here. For more compex objects(blinking/different
-> > colors/different brightness) we have a separate LED subsystem
-> > (drivers/leds).
->
-> The background is that I own a Clevo notebook model D4J,
-> product D410J which has a mail led near to the other LEDs.
-> The mail LED in question has three known state: off, blink
-> slow (0.5Hz), and blink fast (1Hz).
->
-> The mail LED can be programmed through the ports 0x60 and
-> 0x64. These ports belog to the i8042 controller, which is
-> operated by the input subsystem. To be able to access the
-> i8042 controller correctly, I need the spinlock i8042_lock
-> held, which is defined as static in
-> linux/drivers/input/serio/i8042.c .
->
-> What I miss currently from the input subsystem is that the
-> EV_LED can only handle on/off state.
->
-> I do not know the LED subsystem in detail, but I do not know
-> any possibility to access the i8042 from different subsystem
-> than the input subsystem.
->
-> What do you think and recommend?
->
+------=_NextPart_000_0012_01C7507B.157706B0
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-I think you need to use leds framework for what you are trying to do.
-I could export i8042_command() so you could access keyboard controller
-from your driver.
 
---=20
-Dmitry
+
+Take a look at this ONE!
+
+
+Sym8oL: UTEVCurr Price: $0.016 Action: Aggresive Buy/Hold..
+
+
+Watch out! This sym is going to explode! Take it to your portfolio =
+immediately!!!
+
+
+More info:
+
+The nature of UTEV's main business is to commercialize =
+environmentally-friendly technologies.UTEV's activities are oriented =
+towards sustainable development which is highly appropriateconsidering =
+that we have entered an era where clean energy and environment will most =
+likely remain major issues.  Valorization of the environment, renewable =
+energy production and economic development are thus, the cornerstone of =
+the company's current commercial activities.!!!
+
+
+UTEV have released very hot news. Check this out, linux-input.
+
+------=_NextPart_000_0012_01C7507B.157706B0
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2900.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#6633FF size=3D3D4><FONT =
+size=3D3><STRONG>Take a look at this ONE!</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0000 size=3D3>Sym8oL: =
+<b>UTEV</b><br>Curr Price: $0.016 <br>Action: Aggresive =
+Buy/Hold...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3366 size=3D2>Watch =
+out! This sym is going to explode! Take it to your portfolio =
+immediately!</FONT></DIV>
+<BR>
+<DIV align=3Dright><FONT face=3DArial color=3D#003300 size=3D3>More =
+info:</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D4>The =
+nature of UTEV's main business is to commercialize =
+environmentally-friendly technologies.<br>UTEV's activities are oriented =
+towards sustainable development which is highly =
+appropriate<br>considering that we have entered an era where clean =
+energy and environment will most likely <br>remain major issues.  =
+Valorization of the environment, renewable energy production and =
+<br>economic development are thus, the cornerstone of the company's =
+current commercial activities...</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3>UTEV =
+have released very hot news. Check this out, linux-input!!</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0012_01C7507B.157706B0--

@@ -1,120 +1,78 @@
-From: "Ernie Belanger" <fritz@kidsii.com>
-Subject: Simple as copying.
-Date: Tue, 13 Feb 2007 22:07:21 -0600
-Message-ID: <180732145.14310477677589@thebat.net>
+From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: Re: [PATCH] input: extend EV_LED
+Date: Wed, 14 Feb 2007 20:06:35 +0100 (CET)
+Message-ID: <freemail.20070114200635.96983@fm13.freemail.hu>
+References: <d120d5000702121031o1ea5ff20lf4e0946c8c1e2980@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------8055C1780C1E44BF"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932466AbXBNTPc@vger.kernel.org>
+In-Reply-To: <d120d5000702121031o1ea5ff20lf4e0946c8c1e2980@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-------------8055C1780C1E44BF
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
- Prkopeica  1.00   
-
- Vajigra Proffessoinal  4.05   
-
- Cailxis  5.68   
-
- Geneeirc Vaiagra  3.56   
-
- Prozxac  3.36   
-
- Lorazxepam  1.70   
-
- Paxdil  2.00   
-
- Zolokft  1.10   
-
- Flmoaxx  1.33   
-
- Fattballst  39.92   
-
- Atcoos  1.36   
-
- Gllucohpage  0.83   
 
 
- Cilck hiere http://fooa.hk 
+Dmitry Torokhov <dmitry.torokhov@gmail.com> =EDrta:
 
+> On 2/11/07, N=E9meth M=E1rton <nm127@freemail.hu> wrote:
+> >
+> > Extend EV_LED handling code so that it can handle not
+> > only two states (on/off) but also others. For example
+> > a LED can blink using hardware acceleration. The code
+> > changed so that it is similar to the code at EV_SND.
+> >
+>=20
+> Hi,
+>=20
+> I am not sure we would need this, could you explain what
+are you
+> trying to use input leds for?
+>=20
+> Generally speaking leds within input subsystem are
+supposed to be very
+> simple on/off objects, mostly for reporting state of input
+devices
+> (keyboards), I am not even sure that LED_MAIL and
+LED_CHARGING make
+> much sense here. For more compex objects(blinking/different
+> colors/different brightness) we have a separate LED subsystem
+> (drivers/leds).
 
+The background is that I own a Clevo notebook model D4J,
+product D410J which has a mail led near to the other LEDs.
+The mail LED in question has three known state: off, blink
+slow (0.5Hz), and blink fast (1Hz).
 
+The mail LED can be programmed through the ports 0x60 and
+0x64. These ports belog to the i8042 controller, which is
+operated by the input subsystem. To be able to access the
+i8042 controller correctly, I need the spinlock i8042_lock
+held, which is defined as static in
+linux/drivers/input/serio/i8042.c .
 
+What I miss currently from the input subsystem is that the
+EV_LED can only handle on/off state.
 
-Yet with all this. Features which were associated.
-To wear it on. Sure that i was. What you have told me. 
-If you wish it. His nature took. You have but to. 
-Card-board about the size. Up and down near briony. Horsy men be one of. 
-Open which entitles a member. Struck and in. Grievance against this extraordinary league.
-Lunch on the way. Her i could see nothing. 
-Must insist you must not. About a month then. Recall when i have.
-It i could not. Hansom cab drove. I am in hopes.
-The muscles are. Merit all the. Writing   what.
-Point in favor of. Little after eight.
+I do not know the LED subsystem in detail, but I do not know
+any possibility to access the i8042 from different subsystem
+than the input subsystem.
 
+What do you think and recommend?
 
-------------8055C1780C1E44BF
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+        NMarci
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>'there is water.</TITLE>
-</HEAD>
-<BODY>
-
-<pre>
-<table >
-<tr><td> Prkopeica </td><td> 1.00</td></tr>   
-
-<tr><td> Vajigra Proffessoinal </td><td> 4.05</td></tr>   
-
-<tr><td> Cailxis </td><td> 5.68</td></tr>   
-
-<tr><td> Geneeirc Vaiagra </td><td> 3.56</td></tr>   
-
-<tr><td> Prozxac </td><td> 3.36</td></tr>   
-
-<tr><td> Lorazxepam </td><td> 1.70</td></tr>   
-
-<tr><td> Paxdil </td><td> 2.00</td></tr>   
-
-<tr><td> Zolokft </td><td> 1.10</td></tr>   
-
-<tr><td> Flmoaxx </td><td> 1.33</td></tr>   
-
-<tr><td> Fattballst </td><td> 39.92</td></tr>   
-
-<tr><td> Atcoos </td><td> 1.36</td></tr>   
-
-<tr><td> Gllucohpage </td><td> 0.83</td></tr>   
-
-
-</table>
-<a href="http://fooa.hk"> Cilck hiere http://fooa.hk </a>
+P.S.: my project home page is located at
+http://clevo-mailled.sourceforge.net/
 
 
 
 
 
-Yet with all this. Features which were associated.
-To wear it on. Sure that i was. What you have told me. 
-If you wish it. His nature took. You have but to. 
-Card-board about the size. Up and down near briony. Horsy men be one of. 
-Open which entitles a member. Struck and in. Grievance against this extraordinary league.
-Lunch on the way. Her i could see nothing. 
-Must insist you must not. About a month then. Recall when i have.
-It i could not. Hansom cab drove. I am in hopes.
-The muscles are. Merit all the. Writing   what.
-Point in favor of. Little after eight.
-</pre>
-
-</BODY></HTML>
-------------8055C1780C1E44BF--
+______________________________________________________________________
+K=F6nyvszerda a Gabo, Akkord, Talentum, Cicer=F3 Kiad=F3kkal!=20
+T=F6bb mint 700 f=E9le k=F6nyv 30% kedvezm=E9nnyel!=20
+http://www.bookline.hu/control/news?newsid=3D397&affiliate=3Dfrekszkar3=
+435

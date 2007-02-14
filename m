@@ -1,10 +1,10 @@
-From: "Betsy Rudolph" <plshabby@ispbonanza.com.ph>
-Subject: so the bangui
-Date: Wed, 14 Feb 2007 21:18:13 +0800
-Message-ID: <001401c7507e$3b441f10$01bfa0ac@taotao>
+From: "Herminia Mcguire" <nbwnumerable@botch.com>
+Subject: Is cortland he obsolescent
+Date: Wed, 14 Feb 2007 22:11:42 +0800
+Message-ID: <001a01c75085$80d3dff0$00196a34@ljyy9dyai0v6wr>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0011_01C7507E.3B441F10"
+        boundary="----=_NextPart_000_0017_01C75085.80D3DFF0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,28 +14,25 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0011_01C7507E.3B441F10
+------=_NextPart_000_0017_01C75085.80D3DFF0
 Content-Type: text/plain;
-        charset="windows-1251"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
 
-YOU'VE SEEN IT BEFORE YOU SAY?.
+THIS ONE IS BEING PROMOTED, TAKE ADVANTAGE...
+
+Search for: UTEVCurrent price: $0.016 Market: bullish...
 
 
 
-Sym8oL: UTEVCurr Price: $0.016 Action: Aggresive Buy/Hold!
+Get on it before it's too late!
 
+About the company:
 
-
-Insider Buying Alert!!!
-
-
-
-More info:
 
 The nature of UTEV's main business is to commercialize =
 environmentally-friendly technologies.UTEV's activities are oriented =
@@ -46,38 +43,39 @@ energy production and economic development are thus, the cornerstone of =
 the company's current commercial activities.!!
 
 
-linux-input, take a look at the hottest news!
+
+The hottest news are released for UTEV, linux-input!
 
 
-
-------=_NextPart_000_0011_01C7507E.3B441F10
+------=_NextPart_000_0017_01C75085.80D3DFF0
 Content-Type: text/html;
-        charset="windows-1251"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.3790.1158" name=3DGENERATOR>
+iso-8859-1">
+<META content=3D"MSHTML 6.00.2900.1409" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3300 size=3D=
+3D4><FONT size=3D3><STRONG>THIS ONE IS BEING PROMOTED, TAKE =
+ADVANTAGE.</STRONG></FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3300 size=3D3D4><FONT =
-size=3D3><STRONG>YOU'VE SEEN IT BEFORE YOU SAY?.</STRONG></FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000066 size=3D3>Search =
+for: <b>UTEV</b><br>Current price: $0.016 <br>Market: =
+bullish..</FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D4>Sym8oL: =
-<b>UTEV</b><br>Curr Price: $0.016 <br>Action: Aggresive =
-Buy/Hold...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D4>Insider =
-Buying Alert!!</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6633FF size=3D3>Get on =
+it before it's too late..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dright><FONT face=3DVerdana color=3D#333366 size=3D4>About =
+the company:</FONT></DIV>
 <BR><BR>
-<DIV align=3Dright><FONT face=3DArial color=3D#FF3333 size=3D4>More =
-info:</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#333366 size=3D2>The =
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990000 size=3D3>The =
 nature of UTEV's main business is to commercialize =
 environmentally-friendly technologies.<br>UTEV's activities are oriented =
 towards sustainable development which is highly =
@@ -85,11 +83,11 @@ appropriate<br>considering that we have entered an era where clean =
 energy and environment will most likely <br>remain major issues.  =
 Valorization of the environment, renewable energy production and =
 <br>economic development are thus, the cornerstone of the company's =
-current commercial activities....</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3366 size=3D=
-4>linux-input, take a look at the hottest news!</FONT></DIV>
-<BR>
+current commercial activities.!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990033 size=3D3>The =
+hottest news are released for UTEV, linux-input!</FONT></DIV>
+<BR><BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0011_01C7507E.3B441F10--
+------=_NextPart_000_0017_01C75085.80D3DFF0--

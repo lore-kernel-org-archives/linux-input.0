@@ -1,10 +1,10 @@
-From: "Cameron Arredondo" <ftpmccluskey@jerlevnet.dk>
-Subject: Of excusable he eyesore
-Date: Thu, 15 Feb 2007 11:16:59 +0900
-Message-ID: <001701c750f3$34a593d0$00a2e094@9d899hqfbae1iyc>
+From: "Lessie Ruiz" <odcandid@mysurfzone.com>
+Subject: Have rwanda by cottonwood
+Date: Thu, 15 Feb 2007 15:43:57 +0900
+Message-ID: <000f01c75118$52b2e830$00796f5c@samsung75646d7>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0014_01C750F3.34A593D0"
+        boundary="----=_NextPart_000_000C_01C75118.52B2E830"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,25 +14,27 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0014_01C750F3.34A593D0
+------=_NextPart_000_000C_01C75118.52B2E830
 Content-Type: text/plain;
         charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
 
-It's ENERGY POWER Company!!!
-
-Search for: UTEVCurrent price: $0.012 Market: bullish!!
 
 
+BULL MARKET REPORT!!
 
-All signs show that this one is going to Explode (It' Energy perpective =
-company!)..
+Sym8oL: UTEVCurr Price: $0.012 Action: Aggresive Buy/Hold.
 
 
 
-Company info:
+Short-term KST. Insider Buying Alert!
+
+
+About the company:
+
+
 
 The nature of UTEV's main business is to commercialize =
 environmentally-friendly technologies.UTEV's activities are oriented =
@@ -43,9 +45,10 @@ energy production and economic development are thus, the cornerstone of =
 the company's current commercial activities..
 
 
-See the hottest news of the UTEV, linux-input...
+UTEV has a nice fresh news, linux-input!
 
-------=_NextPart_000_0014_01C750F3.34A593D0
+
+------=_NextPart_000_000C_01C75118.52B2E830
 Content-Type: text/html;
         charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
@@ -54,26 +57,25 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
 windows-1250">
-<META content=3D"MSHTML 6.00.2600.1106" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.2462.1158" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
 <BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#003399 size=3D3D4><FONT =
-size=3D2><STRONG>It's ENERGY POWER Company!...</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990000 size=3D3>Search =
-for: <b>UTEV</b><br>Current price: $0.012 <br>Market: =
-bullish...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#003399 size=3D2>All =
-signs show that this one is going to Explode (It' Energy perpective =
-company!)...</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3300 size=3D=
+3D4><FONT size=3D3><STRONG>BULL MARKET REPORT!!</STRONG></FONT></DIV>
 <BR><BR><BR>
-<DIV align=3Dright><FONT face=3DArial color=3D#990000 size=3D3>Company =
-info:</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D=
+3>Sym8oL: <b>UTEV</b><br>Curr Price: $0.012 <br>Action: Aggresive =
+Buy/Hold.</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6633FF size=3D=
+2>Short-term KST. Insider Buying Alert...</FONT></DIV>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0033 size=3D4>The =
+<DIV align=3Dright><FONT face=3DVerdana color=3D#CC0033 size=3D4>About =
+the company:</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0066 size=3D4>The =
 nature of UTEV's main business is to commercialize =
 environmentally-friendly technologies.<br>UTEV's activities are oriented =
 towards sustainable development which is highly =
@@ -81,11 +83,11 @@ appropriate<br>considering that we have entered an era where clean =
 energy and environment will most likely <br>remain major issues.  =
 Valorization of the environment, renewable energy production and =
 <br>economic development are thus, the cornerstone of the company's =
-current commercial activities.!!</FONT></DIV>
+current commercial activities....</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#CC0000 size=3D4>UTEV =
+has a nice fresh news, linux-input...</FONT></DIV>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#003300 size=3D2>See the =
-hottest news of the UTEV, linux-input...</FONT></DIV>
-<BR><BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0014_01C750F3.34A593D0--
+------=_NextPart_000_000C_01C75118.52B2E830--

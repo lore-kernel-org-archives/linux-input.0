@@ -1,84 +1,56 @@
-From: Pavel Machek <pavel@ucw.cz>
+From: Richard Purdie <rpurdie@rpsys.net>
 Subject: Re: [PATCH] input: extend EV_LED
-Date: Fri, 16 Feb 2007 00:24:38 +0100
-Message-ID: <20070215232438.GB4176@elf.ucw.cz>
-References: <freemail.20070115234756.58787@fm13.freemail.hu> <1171580944.5839.38.camel@localhost.localdomain>
+Date: Thu, 15 Feb 2007 23:36:04 +0000
+Message-ID: <1171582564.5839.44.camel@localhost.localdomain>
+References: <freemail.20070115234756.58787@fm13.freemail.hu>
+	 <1171580944.5839.38.camel@localhost.localdomain>
+	 <20070215232438.GB4176@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <1171580944.5839.38.camel@localhost.localdomain>
+In-Reply-To: <20070215232438.GB4176@elf.ucw.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: =?iso-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi!
-
-> > > > >I do not know the LED subsystem in detail, but I do not 
-> > > > >know any possibility to access the i8042 from different 
-> > > > >subsystem than the input subsystem.
-> > > > >
-> > > > >What do you think and recommend?
-> > > > 
-> > > > I think you need to use leds framework for what you are 
-> > > > trying to do.
-> > > 
-> > > I'm actually not sure if led framework can do that. It was
-> > > designed for leds on gpios, and handles blinking itself.
+On Fri, 2007-02-16 at 00:24 +0100, Pavel Machek wrote:
+> > The led framework is generic. If you can write a function to turn it
+> > on/off you can drive it with the LED framework.
 > 
-> The led framework is generic. If you can write a function to turn it
-> on/off you can drive it with the LED framework.
+> Even if that function is slow and sleeps?
 
-Even if that function is slow and sleeps?
+The LED class itself can call in interrupt context so you'd have to
+schedule a workqueue if you need to sleep.
 
-> > > But he could export two leds :-).
-> >
-> > what do you mean about two leds? The first one would be
-> > off/0.5Hz and the other off/1Hz?
+> > One way I've come up with is adds capability to the class to have LED
+> > specific triggers and you can then expose these hardware capabilities as
+> > an extra trigger specific to the LED.
 > > 
-> > I read in linux/Documentation/led-class.txt the following:
-> > 
-> > | Some leds can be programmed to flash in hardware. As this
-> > isn't a generic
-> > | LED device property, this should be exported as a device
-> > specific sysfs
-> > | attribute rather than part of the class if this
-> > functionality is required.
-> > 
-> > Does it mean that neither the input subsystem nor the led
-> > subsystem is designed for hardware acelerated blinking leds?
-> > Is there any usual way what attribute a hw accelerated
-> > blinking LED_MAIL should export?
+> > Another proposal more specific to this use case was to have some
+> > information behind the scenes which the software timer based trigger
+> > could use to turn on the "hardware acceleration" if present and capable
+> > of the requested mode. This might just need a function pointer in the
+> > core so could be quite neat.
 > 
-> This has been discussed in several places several times. The problem
-> with hardware accelerated flashing is that you're are often limited to
-> certain constraints (this case being no exception) and indicating what
-> these are to userspace in a generic fashion is difficult.
+> I do not think we want to permit this led to run in "not accelerated"
+> mode. I believe i8042 accesses are pretty expensive.
+
+Which means they probably won't work well with the standard triggers.
+Not something we can do much about though...
+
+> > Nether patch exists yet.
 > 
-> One way I've come up with is adds capability to the class to have LED
-> specific triggers and you can then expose these hardware capabilities as
-> an extra trigger specific to the LED.
-> 
-> Another proposal more specific to this use case was to have some
-> information behind the scenes which the software timer based trigger
-> could use to turn on the "hardware acceleration" if present and capable
-> of the requested mode. This might just need a function pointer in the
-> core so could be quite neat.
+> Yep, interested party should create one of them :-). (And I'd prefer
+> the first one, due to i8042 slowness).
 
-I do not think we want to permit this led to run in "not accelerated"
-mode. I believe i8042 accesses are pretty expensive.
+Right, patches welcome :)
 
-> Nether patch exists yet.
+Cheers,
 
-Yep, interested party should create one of them :-). (And I'd prefer
-the first one, due to i8042 slowness).
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Richard

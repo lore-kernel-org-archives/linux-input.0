@@ -1,65 +1,47 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] input: extend EV_LED
-Date: Fri, 16 Feb 2007 15:04:51 +0100
-Message-ID: <20070216140451.GA8904@elf.ucw.cz>
-References: <20070215174009.GA6535@ucw.cz> <freemail.20070115234756.58787@fm13.freemail.hu>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Add Cobalt button interface driver support
+Date: Fri, 16 Feb 2007 10:15:11 -0500
+Message-ID: <d120d5000702160715x6f64853y59abb8a22e7d164c@mail.gmail.com>
+References: <20070216123608.733f04a3.yoichi_yuasa@tripeaks.co.jp>
+	 <200702152309.44563.dtor@insightbb.com>
+	 <200702160815.l1G8FEIr078415@mbox33.po.2iij.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200702160815.l1G8FEIr078415@mbox33.po.2iij.net>
 Content-Disposition: inline
-In-Reply-To: <freemail.20070115234756.58787@fm13.freemail.hu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: =?iso-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi!
+On 2/16/07, Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
+> +
+> +static int cobalt_buttons_open(struct inode *inode, struct file *file)
+> +{
+> +       buttons_timer.expires = jiffies + msecs_to_jiffies(BUTTONS_POLL_INTERVAL);
+> +       add_timer(&buttons_timer);
+> +
+> +       return nonseekable_open(inode, file);
+> +
+> +}
 
-> > > >I do not know the LED subsystem in detail, but I do not 
-> > > >know
-> > > >any possibility to access the i8042 from different 
-> > > >subsystem
-> > > >than the input subsystem.
-> > > >
-> > > >What do you think and recommend?
-> > > 
-> > > I think you need to use leds framework for what you are 
-> > > trying to do.
-> > 
-> > I'm actually not sure if led framework can do that. It was
-> designed
-> > for leds on gpios, and handles blinking itself.
-> > 
-> > But he could export two leds :-).
-> 
-> Hi,
-> 
-> what do you mean about two leds? The first one would be
-> off/0.5Hz and the other off/1Hz?
+Hi,
 
+I am sorry, I was not clear enough - when I was talking about adding
+cobalt_buttons_open/close I was not asking you to add a misc device to
+the driver. I was talking about setting up open() and close() methods
+in input_dev structure. These methods are called by input core when
+first (or last) user opens or closes one of input interfaces, such as
+/dev/input/eventX, /dev/input/jsX, etc and so it is naturally to
+start/stop polling device from these functions.
 
-Somethinglike that.
-
-> I read in linux/Documentation/led-class.txt the following:
-> 
-> | Some leds can be programmed to flash in hardware. As this
-> isn't a generic
-> | LED device property, this should be exported as a device
-> specific sysfs
-> | attribute rather than part of the class if this
-> functionality is required.
-> 
-> Does it mean that neither the input subsystem nor the led
-> subsystem is designed for hardware acelerated blinking leds?
-
-Seems so.
-
-
+Does this make sense?
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Dmitry

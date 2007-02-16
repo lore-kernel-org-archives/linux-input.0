@@ -1,63 +1,56 @@
-From: "johann deneux" <johann.deneux@gmail.com>
-Subject: [PATCH] Added devices handled by hid-lgff
-Date: Fri, 16 Feb 2007 16:47:37 +0100
-Message-ID: <38b3b7c0702160747x73ddc74dua38fc88f9c0b5b8d@mail.gmail.com>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Added device to hid-ff
+Date: Fri, 16 Feb 2007 11:03:14 -0500
+Message-ID: <d120d5000702160803g54616f28ya1d13fb4bb78503b@mail.gmail.com>
+References: <38b3b7c0702151056m7c396952j81199783f654bf7a@mail.gmail.com>
+	 <op.tns2alf2a64tfs@localhost>
+	 <d120d5000702151142l5dca88f7nc71f58473fa27040@mail.gmail.com>
+	 <45D4B9AB.70509@gmail.com>
+	 <38b3b7c0702160743g67ae3e55pbccad84eefc2368b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_6295_11515098.1171640857056"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <38b3b7c0702160743g67ae3e55pbccad84eefc2368b@mail.gmail.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, dmitry <dmitry.torokhov@gmail.com>
+To: johann deneux <johann.deneux@gmail.com>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>, "STenyaK (Bruno Gonzalez)" <stenyak@gmail.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Valentin Zagura <puthre@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_6295_11515098.1171640857056
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On 2/16/07, johann deneux <johann.deneux@gmail.com> wrote:
+> On 2/15/07, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> > Dmitry Torokhov wrote:
+> > > On 2/15/07, STenyaK (Bruno Gonzalez) <stenyak@gmail.com> wrote:
+> > >> Sorry for not providing a proper patch, could you please also add
+> > >>         {0x46d, 0xc294, hid_lgff_init}, // Logitech G25 wheel
+> > >> to the list? I tested it here and that wheel is also working.
+> > >>
+> > >
+> > > OK.
+> > >
+> >
+> > Hmm.. Shouldn't an entry also be added to the devices[] list in
+> > hid-lgff.c for these devices? (and it seems one device is already
+> > missing from there in the current kernel).
+> >
+> > I'm not able to check right now, but I think some earlier kernels may
+> > have defaulted to ff_joystick if no entry is present in devices[], hence
+> > these devices working for some without the entry.
+> > (so the alternative is to restore that behaviour)
+>
+> Yes, defaulting to joystick was the way it was when I wrote hid-lgff.c, and
+> I guess Valentin made his original patch on a kernel where defaulting was
+> still there.
+> I'll send a separate mail with the patch adding the devices there too, but I
+> personally think defaulting was nice. Was there a reason behind the removal?
+>
 
-Device ids that were recently added to hid-ff.c must also be added to
-hid-lgff.c
+Simple oversight. I think we should restore defaulting.
 
-Signed-off-by: Johann Deneux < johann.deneux@gmail.com>
-
---- linux-2.6.20.orig/drivers/usb/input/hid-lgff.c    2007-02-04 19:44:
-54.000000000 +0100
-+++ linux-2.6.20/drivers/usb/input/hid-lgff.c    2007-02-16 16:32:
-02.000000000 +0100
-@@ -3,6 +3,7 @@
-  * Logitech, namely:
-  * - WingMan Cordless RumblePad
-  * - WingMan Force 3D
-+ * - A bunch of steering wheels
-  *
-  *  Copyright (c) 2002-2004 Johann Deneux
-  *  Copyright (c) 2006 Anssi Hannula < anssi.hannula@gmail.com>
-@@ -52,6 +53,8 @@ static const struct device_type devices[
-     { 0x046d, 0xc211, ff_rumble },
-     { 0x046d, 0xc219, ff_rumble },
-     { 0x046d, 0xc283, ff_joystick },
-+    { 0x046d, 0xc294, ff_joystick },
-+    { 0x046d, 0xc295, ff_joystick },
-     { 0x0000, 0x0000, ff_joystick }
- };
-
-------=_Part_6295_11515098.1171640857056
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Device ids that were recently added to hid-ff.c must also be added to hid-lgff.c<br><br>Signed-off-by: Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
-
-
-johann.deneux@gmail.com</a>&gt;<br><br>--- linux-2.6.20.orig/drivers/usb/input/hid-lgff.c&nbsp;&nbsp;&nbsp; 2007-02-04 19:44:54.000000000 +0100<br>+++ linux-2.6.20/drivers/usb/input/hid-lgff.c&nbsp;&nbsp;&nbsp; 2007-02-16 16:32:02.000000000 +0100<br>
-@@ -3,6 +3,7 @@
-<br>&nbsp; * Logitech, namely:<br>&nbsp; * - WingMan Cordless RumblePad<br>&nbsp; * - WingMan Force 3D<br>+ * - A bunch of steering wheels<br>&nbsp; *<br>&nbsp; *&nbsp; Copyright (c) 2002-2004 Johann Deneux<br>&nbsp; *&nbsp; Copyright (c) 2006 Anssi Hannula &lt;
-<a href="mailto:anssi.hannula@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">anssi.hannula@gmail.com</a>&gt;<br>@@ -52,6 +53,8 @@ static const struct device_type devices[<br>&nbsp;&nbsp;&nbsp;&nbsp; { 0x046d, 0xc211, ff_rumble },
-<br>&nbsp;&nbsp;&nbsp;&nbsp; { 0x046d, 0xc219, ff_rumble },<br>&nbsp;&nbsp;&nbsp;&nbsp; { 0x046d, 0xc283, ff_joystick },
-<br>+&nbsp;&nbsp;&nbsp; { 0x046d, 0xc294, ff_joystick },<br>+&nbsp;&nbsp;&nbsp; { 0x046d, 0xc295, ff_joystick },<br>&nbsp;&nbsp;&nbsp;&nbsp; { 0x0000, 0x0000, ff_joystick }<br>&nbsp;};<br>&nbsp;<br><br>
-
-------=_Part_6295_11515098.1171640857056--
+-- 
+Dmitry

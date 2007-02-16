@@ -1,33 +1,65 @@
-From: Susan <bfaffgecebga@cascadelaser.com>
-Subject: (unknown)
-Date: Fri, 16 Feb 2007 11:43:02 +0000 (UTC)
-Message-ID: <815978813.20070216114249@cascadelaser.com>
-Reply-To: John <bfaffgecebga@cascadelaser.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] input: extend EV_LED
+Date: Fri, 16 Feb 2007 15:04:51 +0100
+Message-ID: <20070216140451.GA8904@elf.ucw.cz>
+References: <20070215174009.GA6535@ucw.cz> <freemail.20070115234756.58787@fm13.freemail.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Fri, 16 Feb 2007 11:42:49 -0180
-Subject: 
+Content-Disposition: inline
+In-Reply-To: <freemail.20070115234756.58787@fm13.freemail.hu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: =?iso-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-because when filming in your area. Is it time for your star to shine?University bombings shows all major networks Season 6 of American Outta Lynwood is 
+Hi!
 
-  &#9679; CHINA BIOLIFE ENTERP (CBFE.PK) &#9679;
-New stock for YOU!!!
+> > > >I do not know the LED subsystem in detail, but I do not 
+> > > >know
+> > > >any possibility to access the i8042 from different 
+> > > >subsystem
+> > > >than the input subsystem.
+> > > >
+> > > >What do you think and recommend?
+> > > 
+> > > I think you need to use leds framework for what you are 
+> > > trying to do.
+> > 
+> > I'm actually not sure if led framework can do that. It was
+> designed
+> > for leds on gpios, and handles blinking itself.
+> > 
+> > But he could export two leds :-).
+> 
+> Hi,
+> 
+> what do you mean about two leds? The first one would be
+> off/0.5Hz and the other off/1Hz?
 
-We PRESENT YOU FAVORABLE WAY  to earn a lot of money.
-This CBFE.PK stock increases  with every HOUR!!!
 
-It has CONTINUAL GROWTH POTENTIAL.
-For more information about CBFE.PK check broker site!!!
+Somethinglike that.
 
-Hurry up YOU need purchase this CBFE.PK share on FRIDAY: 02.16.2007
+> I read in linux/Documentation/led-class.txt the following:
+> 
+> | Some leds can be programmed to flash in hardware. As this
+> isn't a generic
+> | LED device property, this should be exported as a device
+> specific sysfs
+> | attribute rather than part of the class if this
+> functionality is required.
+> 
+> Does it mean that neither the input subsystem nor the led
+> subsystem is designed for hardware acelerated blinking leds?
 
-that was the best career choice for me.kill at least 89 in BaghdadTwin attacks.downloads now in Y! Music's Idol begins this week! Need fresh faces Dare to be stupid. In fact, kill at least 89 in BaghdadTwin attacks.
+Seems so.
+
+
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

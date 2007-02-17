@@ -1,7 +1,7 @@
-From: "Tena Natalie" <swv3zyz@voicenet.com>
-Subject: Drugs/Pills at low price, Discrete packaging, Mail order to your door, Worldwide delivery bhmanj
-Date: Sat, 17 Feb 2007 15:27:17 +0300
-Message-ID: <358y605q.6223678@voicenet.com>
+From: "Laquanda Madelyn" <pzebo2eqdz@cinbell.com>
+Subject: man, listen to me, give yourself 3 inches longer uef
+Date: Sat, 17 Feb 2007 13:42:55 +0100
+Message-ID: <455e744s.0261998@cinbell.com>
 Mime-Version: 1.0
 Content-Type: text/html;
 	charset="iso-8859-1"
@@ -12,22 +12,17 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: ksp@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 <html>
-<head>
-<meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head>
-<body>
-<font color=FFD9FF size=1>enemy rose occasion taught. goodbye reached independence?</font>
-<center><table border=1 cellspacing=0 cellpadding=10 width=500 bordercolor=000000><tr><td bgcolor=B0FB40 align=left><font face=arial size=2 color=000000><center><font size=6 color=1111FF><b>Global Pharmacy</b></font></center><br>
-<font size=2 color=000000>Global Pharmacy is your convenient, safe and 
-private online source for FDA approved pharmacy prescriptions. We sell the exact generic equivalents of US FDA approved prescription drugs through 
-our fully-licensed overseas pharmacy. We will ship to you the next day after you place the order<br><br>We have all Top Selling meds that cover your needs, 30 popular meds 
-to choose from<br><br>
-<center><b><A HREF=http://www.gobeter.com targe=_blank>
-<font size=5 color=FF0000>Limited time offer, Order Today<br>Please click here</font></A></b></center></font><br>
-</td></tr></table></center><font color=FFD9FF size=1>horses matter fool enemy modern development. light free corner if?</font>
-</body>
+<font color=CDFF9B size=1>length sale young calling greater shook? obliged spoke fail motor?</font><center><table border=8 cellspacing=0 cellpadding=5 width=550 bordercolor=FBDFFF>
+<tr><td bgcolor=ffffff align=left><font size=2 face=tahoma color=000000><font size=5 color=F90000><b><center>Do you feel insecure with your PenisSize?</center></font><br><font color=000000 size=2>That HerbalKing is the worlds 
+NO.1 choice 
+for PenisEnlargement as 
+rated by leading mens magazines 
+and that the results are permanent</font></b><br><br><font size=2 color=008000>100% Satisfaction Guaanteed Or Your Money Back!</font><br><br>
+» Gain Up to 3+ Inches In Length <br>» Increase YourPenis Width (Girth) 
+By upto 20%<br>» Help Stop PrematureEjaculation!<br>» Produce Stronger, Rock HardErections<br>» 100% Safe To Take, With NO Side Effects<br>» Fast Shipping WorldWide<br>» No Pumps! No Surgery! No Exercises<br>» 100% MoneyBack Guaranteed<br>» 3 FREE Bottles Of HerbalKing<br><br><center><a href=http://www.aaums.net target=_blank><font size=5 color=0000F4><u><b>Get yourself 
+3-inches more now</b></font></u></a><br><br></center></td></tr></table><font color=CDFF9B size=1>pay hard evil young turn, bridge blue central times pride,</font>
 </html>

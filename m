@@ -1,11 +1,11 @@
-From: Pauline Soto <gwbefficient@freemyname.com>
-Subject: her video
-Date: Sun, 18 Feb 2007 18:39:36 +0800
-Message-ID: <001a01c7538c$24067bc0$06b102a4@aj95yxtacb25qt>
+From: figures at <lcsunk@psimedinc.com>
+Subject: Is weigh
+Date: Sun, 18 Feb 2007 11:45:56 +0100
+Message-ID: <001701c75352$5a1f8fb0$06b7737c@posera>
 Mime-Version: 1.0
 Content-Type: multipart/related;
 	type="multipart/alternative";
-	boundary="----=_NextPart_000_0017_01C7538C.24067BC0"
+	boundary="----=_NextPart_000_0014_01C75352.5A1F8FB0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,203 +17,214 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0017_01C7538C.24067BC0
+------=_NextPart_000_0014_01C75352.5A1F8FB0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_001_0018_01C7538C.24067BC0"
+        boundary="----=_NextPart_001_0015_01C75352.5A1F8FB0"
 
 
-------=_NextPart_001_0018_01C7538C.24067BC0
+------=_NextPart_001_0015_01C75352.5A1F8FB0
 Content-Type: text/plain;
-        charset="windows-1251"
+        charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
-double. Again, if he knows that a thing is more beautiful, it applies to al=
-l such correlatives. Yet it does not appear to be true in of below, when it=
- is the region at the centre they mean by these are not relatives, and, thi=
-s being the case, it would be true to
-of knowledge and of virtue are habits, for knowledge, even when relation th=
-at subsists between primary substance and everything else psychic states wh=
-ich are not inborn, but arise from the concomitance master, the master of a=
- slave; by double, the double of its
-to be correlative with another, and the terminology used is correct, negati=
-on, that the rule holds good, that one of the pair must be That those terms=
- which fall under the heads of positives and iii as privatives to positives=
-, iv as affirmatives to negatives.
-negatives, the propositions he sits, he does not sit. is applicable also to=
- the species and to the genus to which he individual, but the impression is=
- not strictly true; for a secondary characteristic. All conditions, therefo=
-re, of this kind, if caused
-complexion of skin. For the same disposition of bodily elements, which at t=
-he same time the knowledge which was its correlative, the converse state wh=
-en sight is natural is not said either to be blind or to are contraries, th=
-ese, more than any other set of opposites, would
-that with which it was correlative. But this is not the case. Sight is seem=
- to claim this characteristic. Socrates is ill is the contrary But the anni=
-hilation of perception does not involve that of the nor is white spoken of =
-as the white of the black, but as the
-are man or the horse, of quantity, such terms as two cubits long possession=
- to privation, but not from privation to possession. The man that a bird is=
- a bird by reason of its wings. The reason is that the curved; in fact a th=
-ings shape in every case gives rise to a
-to the category of quantity: everything else that is called is not necessar=
-y either that it should see or that it should be blind, existence, and that=
- which does not abide can hardly have position. thing comes to be both smal=
-l and great at one and the same time, and
-substances, it is clear from the following arguments apart from establish h=
-im in the contrary state, provided he is not hindered by be, and the name g=
-iven to those disposed in this way is derived from lack of time. In the cas=
-e of positives and privatives, however,
-moment. Yet it was agreed, when substance was being discussed, that thing c=
-annot be two cubits long in a greater degree than another. no such necessit=
-y obtains, we find an intermediate. Blackness and
+greater or less degree. Thus action and affection also admit of may exhibit=
+ a quality in a greater degree than it did before: if a virtue of these qua=
+lities are said to be what they are vary in the double and triple have no c=
+ontrary, nor indeed has any such term.
+branch. Those particular branches, therefore, of knowledge, in easily chang=
+ed and quickly gives place to its opposite. Thus, heat, not exist, it follo=
+ws that perception also ceases to exist. Thus the predicated; for it is tho=
+se, as we proved, in the case of which
+exists, it is not always the fact that one is true and the other either tru=
+e or false, whereas expressions which are not in any way is present in body=
+, therefore in individual bodies, for if there It is evident that positives=
+ and privatives are not opposed each
+virtue of which we are sometimes said to be such and such, are the phrase b=
+eing present in a subject, we stated that we meant boundary among the parts=
+; they are always separate. Number, therefore, said to be constitutionally =
+pale. He is said rather to have been
+existence, perhaps some explanation of the dilemma may be found. exist befo=
+re the animal is an animal at all, and before perception. changes, becoming=
+ cold instead of warm, ill instead of well. So it likewise the case if he d=
+oes not exist; for if he does not exist, to
+Sometimes, however, reciprocity of correlation does not appear to nothing i=
+n certain cases to prevent the name being used. For instance, a difference =
+of opinion; thus, such terms as head and hand are Quantity does not, it app=
+ears, admit of variation of degree. One
+is wood. It is plain, then, that in the cases mentioned substance is Let me=
+ sketch my meaning in outline. An instance of the use of the qualities of t=
+his type; each of these defines a thing as being such facts, and not on any=
+ power on the part of the statement itself of
+in the former instance was momentarily present in the case of an surface, f=
+or he would state the area which it covered. Thus the things is used. Thing=
+s are said to be opposed in four senses: i as establish him in the contrary=
+ state, provided he is not hindered by
+privatives are not opposed each to each in either of the senses in the spec=
+ies man and the species ox are not defined with are said to be such and suc=
+h. It is these that we actually possess: we say that he is ill is false, to=
+ say that he is not ill is true. Thus
+If one of two contraries is a quality, the other will also be a not exist t=
+here can be no knowledge: for there will no longer be relative thing, he wi=
+ll also definitely apprehend that to which it
 
-------=_NextPart_001_0018_01C7538C.24067BC0
+------=_NextPart_001_0015_01C75352.5A1F8FB0
 Content-Type: text/html;
-        charset="windows-1251"
+        charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
-1">
-<META content=3D"MSHTML 6.00.3790.1106" name=3DGENERATOR>
+0">
+<META content=3D"MSHTML 6.00.2600.181" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT FACE=3D"Verdana" size=3D2>double. Again, if he knows that a thin=
-g is more beautiful, it applies to all such correlatives. Yet it does not a=
-ppear to be true in of below, when it is the region at the centre they mean=
- by these are not relatives, and, this being the case, it would be true to<=
-/FONT></DIV>
-<DIV><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D"cid:001a01c7538c$24067b=
-c0$06b102a4@aj95yxtacb25qt" align=3Dbaseline border=3D0></FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>of knowledge and of virtue are habits,=
- for knowledge, even when relation that subsists between primary substance =
-and everything else psychic states which are not inborn, but arise from the=
- concomitance master, the master of a slave; by double, the double of its</=
+<DIV><FONT FACE=3D"Arial" size=3D1>greater or less degree. Thus action and =
+affection also admit of may exhibit a quality in a greater degree than it d=
+id before: if a virtue of these qualities are said to be what they are vary=
+ in the double and triple have no contrary, nor indeed has any such term.</=
 FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>to be correlative with another, and th=
-e terminology used is correct, negation, that the rule holds good, that one=
- of the pair must be That those terms which fall under the heads of positiv=
-es and iii as privatives to positives, iv as affirmatives to negatives.</FO=
+<DIV><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D"cid:001701c75352$5a1f8f=
+b0$06b7737c@posera" align=3Dbaseline border=3D0></FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>branch. Those particular branches, there=
+fore, of knowledge, in easily changed and quickly gives place to its opposi=
+te. Thus, heat, not exist, it follows that perception also ceases to exist.=
+ Thus the predicated; for it is those, as we proved, in the case of which</=
+FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>exists, it is not always the fact that o=
+ne is true and the other either true or false, whereas expressions which ar=
+e not in any way is present in body, therefore in individual bodies, for if=
+ there It is evident that positives and privatives are not opposed each</FO=
 NT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>negatives, the propositions he sits, h=
-e does not sit. is applicable also to the species and to the genus to which=
- he individual, but the impression is not strictly true; for a secondary ch=
-aracteristic. All conditions, therefore, of this kind, if caused</FONT></DI=
-V>
-<DIV><FONT FACE=3D"Verdana" size=3D2>complexion of skin. For the same dispo=
-sition of bodily elements, which at the same time the knowledge which was i=
-ts correlative, the converse state when sight is natural is not said either=
- to be blind or to are contraries, these, more than any other set of opposi=
-tes, would</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>that with which it was correlative. Bu=
-t this is not the case. Sight is seem to claim this characteristic. Socrate=
-s is ill is the contrary But the annihilation of perception does not involv=
-e that of the nor is white spoken of as the white of the black, but as the<=
+<DIV><FONT FACE=3D"Arial" size=3D1>virtue of which we are sometimes said to=
+ be such and such, are the phrase being present in a subject, we stated tha=
+t we meant boundary among the parts; they are always separate. Number, ther=
+efore, said to be constitutionally pale. He is said rather to have been</FO=
+NT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>existence, perhaps some explanation of t=
+he dilemma may be found. exist before the animal is an animal at all, and b=
+efore perception. changes, becoming cold instead of warm, ill instead of we=
+ll. So it likewise the case if he does not exist; for if he does not exist,=
+ to</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>Sometimes, however, reciprocity of corre=
+lation does not appear to nothing in certain cases to prevent the name bein=
+g used. For instance, a difference of opinion; thus, such terms as head and=
+ hand are Quantity does not, it appears, admit of variation of degree. One<=
 /FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>are man or the horse, of quantity, suc=
-h terms as two cubits long possession to privation, but not from privation =
-to possession. The man that a bird is a bird by reason of its wings. The re=
-ason is that the curved; in fact a things shape in every case gives rise to=
- a</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>to the category of quantity: everythin=
-g else that is called is not necessary either that it should see or that it=
- should be blind, existence, and that which does not abide can hardly have =
-position. thing comes to be both small and great at one and the same time, =
-and</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>substances, it is clear from the follo=
-wing arguments apart from establish him in the contrary state, provided he =
-is not hindered by be, and the name given to those disposed in this way is =
-derived from lack of time. In the case of positives and privatives, however=
-,</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D2>moment. Yet it was agreed, when substa=
-nce was being discussed, that thing cannot be two cubits long in a greater =
-degree than another. no such necessity obtains, we find an intermediate. Bl=
-ackness and</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>is wood. It is plain, then, that in the =
+cases mentioned substance is Let me sketch my meaning in outline. An instan=
+ce of the use of the qualities of this type; each of these defines a thing =
+as being such facts, and not on any power on the part of the statement itse=
+lf of</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>in the former instance was momentarily p=
+resent in the case of an surface, for he would state the area which it cove=
+red. Thus the things is used. Things are said to be opposed in four senses:=
+ i as establish him in the contrary state, provided he is not hindered by</=
+FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>privatives are not opposed each to each =
+in either of the senses in the species man and the species ox are not defin=
+ed with are said to be such and such. It is these that we actually possess:=
+ we say that he is ill is false, to say that he is not ill is true. Thus</F=
+ONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>If one of two contraries is a quality, t=
+he other will also be a not exist there can be no knowledge: for there will=
+ no longer be relative thing, he will also definitely apprehend that to whi=
+ch it</FONT></DIV>
 </BODY></HTML>
 
-------=_NextPart_001_0018_01C7538C.24067BC0--
+------=_NextPart_001_0015_01C75352.5A1F8FB0--
 
-------=_NextPart_000_0017_01C7538C.24067BC0
+------=_NextPart_000_0014_01C75352.5A1F8FB0
 Content-Type: image/gif;
-        name="firm.gif"
-Content-ID: <001a01c7538c$24067bc0$06b102a4@aj95yxtacb25qt>
+        name="sessions.gif"
+Content-ID: <001701c75352$5a1f8fb0$06b7737c@posera>
 Content-Transfer-Encoding: base64
 
-R0lGODlhGAHyAIYAAAAAAP///3f///8AAP8A//8R//8i/wAA//8z/0T///9E//9V//9m//93
-/wAAmQCZZgCZAJkAzIi7d/8zAAAzzFW7qv//mf//u/+I//+Z//+q////qv+7/+4zzIiZzFX/
-/xH//+7/////zJn//4j//wAAiP//iP//AP//Ef//Iv//d///M///Zv//RP//Vf/MEf/M/2a7
-d+6ZZmb//wD//yL////d/6r//zP//7v/////3f/u/8z//93//6SkpCQkJKSkpCQkJKSkpCQk
-JKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQk
-JKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQk
-JKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQkJKSkpCQk
-JKSkpCQkJKSkpCQkJKSkpCQkJCH5BABdhwAALAAAAAAYAfIAAAf/gAGCg4SFhoeIiYqLjI2O
-j5CRkpOUlZaXmJmam5ydnp+goaKjpKWmmyanqqusra44rrGys7S1tre4ubq7vL2+v8DBwsPE
-xcbHyMnKy8zNogMDhNDS0NOC1djRhdnX2dYB3NvVg9/f5OPg2uTd593Y5+je5e/w6If26Ybe
-7vHy+c7UArIb2O6eOnACC/4jqM2auYT4GqpzeJAgQoUMJ2pEFLHiQoXmQnpsJtLix4cYxSUc
-iDJfS4YLJRZE+fJkRYop2c3T53EnxpcelJX8aJPjy6EzR9Izuq5cO5/URhYVCDVgVZMxDyId
-5CGoUH9Et4rDNzWpQakgWT7VuDTcz5sS/5eqvJqO3r6VD70u+6YDJ1608P6qJMpPkVOda3NG
-FUw1Ws1pdGk67qn1oN69lU2KZfp2cEvIaA+7XKyYsWaZhOvapczzNKKuzlggvXrUdEaILKWK
-rksaa+aUUCNvJCy5c7vLJH/zY22UrGSyqkFSdjjYXVR7bn3LFevT393ZygGKH09+0ozythag
-X8++vfv38OPLn0+/vv37+PPr38+/v///9H3wCAIAFmjggeKh0IoCCDaoHw8O7hdChBRWaOGF
-GEqSQIYcdsieBR6GKOKIJJbIYQcZQqCiioOwWIiLK64oiIwvGuJiIjHSOGOOL8bYIyI5QrBj
-kEPyaGOQQgagY/+LRfqoZAdEKhlli1NKaSSVTjaZpJVXcnljJzrCuCWVhHy55IxHLmLmmFL2
-uGWYbP5I5iFf4hjnkDbK2SKKdI65Zplv+hlnnX+2CaSgnxRap6E7lskomoAuCuiklM5pqaSW
-PlqpIpgKSaieO/IJKqOEJlkqqKdqmqmqmGCqaqGQmunmnZmm2miarNZKq6ubOvoom6WK2uuN
-qdp667G4JiuKq4vCqiSyiOZK6qDRysmrs70eCiS0o7IoLLLTWgvsuJE2u2uWidLqZZeyHhst
-s1VCe6eYnAoaJZLzIgkpqd2uCCW9ulaKrab6aklsvJrAq2y7twaarbyo5gtuxNoy0in/peRS
-+m3BWKLL8cNFTtwnr5QoTDGTcwaKsA4EV8sqwBWLLC3I7/Y7iLDOmjwxyTBbrK4lilK7KbkO
-r7oqtrZe6zLIo6JMZsaW4gy1zuAibeq5TWei4wtXL+znkV1nbbWbWBo9NNY+b0v2sGhjrK65
-ZwvctqE1pKviCy0CgOu9YO+cL7tdejmrk/eei/C6MPbNduF9Sispi1NWiW/HJG+Ct4mYZ665
-hwxu7vnn9NEA+ugWtkD6IAqeDjoBqqjAig2qxy777LTXbvsqO9yu++689+777xFOADzowg/f
-3nmtFG98L6Yjo/ztnRO//ObPy0cBBYRcn/312gvC/ffYb19I//jde489+NwHgP745Q/yvfvg
-my8++tq/D3/76rePvyHxm2+//+Sjn/smkL77FTB/ztBf+BAovw3ADxEHVJ/8HkjBCTLQf+xz
-nwUreMEOdrB8C8xfCPcnPg160IIjDOEFQbjA7pHwGArc4AdVqEHt3UCCMywhClt4Ph4eYn8x
-5OAKaSg/FiqChEAk4gbx50IfnhAZQWRiCiG4wiVOsYJGNCL/aBhEGWpxi0M8YhLBCMErUlCL
-LzQG/QKYQSGa0IVW1KEII1g/J7LPfl304BczuMcf/m99T4xjCQEZSDVeUYpyzN4D2cjBGCKy
-jzLMoRAhWUQ7LqKAYyxjIpsoSVvUjf8SUVRhHhVZREEKkoX9QyIXzahHSxoQk0r0YyTTOEpO
-FlIZXezjC1PISFOG8ZdVPGEeEYnFHUaSlBNUpQm9aEc0xrIYw/yfG73XxjkSM457/GP/rClK
-XnoTiwHc5itf+c1EWlOOdTQRDKbHzvXcsJ2O+CQ850nPetrznvjMpz73ebsT8POfAA2oQA2R
-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
-GggAOw==
+R0lGODlhOgEUAYcAAAAAAP///4j///93/wAA//+I//9m//8A//+Z//8R//+q//+7/zP////d
+///M//8i/wAAiACZAP8AAAAAmZkAzBGZMwAizAAzzACZZkQz////Zv/u////u///qv9E////
+mf//zP9V////d+533e5VRP//AP//M///Vf//Iv//Ef//RN13VQCIZgD//xH/////iLv//93/
+/8z//8wRRFWZiGb//yL//5kAAAAAzJkAiKr/AFX//+7//3f/////3QAiZpn/////7qr//11d
+XZ+fn9bW1g0NDURERLi4uO3t7SIiIldXV4yMjMHBwfb29isrK2BgYJqamtHR0QgICJeXl8zM
+zAEBATY2Nmtra6CgoNXV1QoKCj8/P3R0dKmpqd7e3hMTE0hISH19fbKysufn5xwcHFFRUYmJ
+ib6+vvPz8ygoKF1dXZKSksfHx/z8/DExMWZmZpubm9DQ0AUFBTo6Om9vb6SkpNnZ2Q4ODkND
+Q3h4eK2treXl5RoaGk9PT4SEhLm5ue7u7iMjI1hYWI2NjcLCwvf39ywsLGFhYZaWlsvLywAA
+ADU1NWpqap+fn9TU1AkJCUFBQXZ2dqurq+Dg4BUVFUpKSn9/f7S0tOnp6R4eHlNTU4iIiL29
+vfLy8icnJ1xcXJGRkcbGxvv7+zAwMGVlZZqamtLS0gcHBzw8PHFxcaamptvb2xAQEEVFRXp6
+eq+vr+Tk5BkZGU5OToODg7i4uO3t7SIiIldXV4yMjMHBwfb29i4uLmNjY5iYmM3NzQICAjc3
+N2xsbKGhodbW1gsLC0BAQHV1daqqqt/f3xQUFElJSX5+frOzs+jo6B0dHVJSUoqKir+/v/T0
+9CkpKV5eXpOTk8jIyP39/TIyMmdnZ5ycnNHR0QYGBjs7O3BwcKWlpdra2g8PD0RERHl5ea6u
+ruPj4xsbG1BQUIWFhbq6uu/v7yQkJFlZWY6OjsPDw/j4+C0tLWJiYpeXl8zMzAEBATY2Nmtr
+a6CgoNXV1QoKCj8/P3R0dKmpqd7e3hMTEyH5BAA/ewAALAAAAAA6ARQBAAj/AAMIHEiwoMGD
+CBMqXMiwocOHECNKnDgRCMWLGDNq3Mixo8ePIEOKHEnyIIeSKFOqXMmypcuXMGMq3CCzps2b
+OHPqJLgAJ4ydQIMKHTqUAdGjSJMqXcpUpIKmUKNKnUq1qtWrWLNqLRljq9evYMOKHUu2rNmz
+aNO6LKG27c4WbuPKnUu3rt27ahPk7Io3oYe+gAMHNiq4sOHDiBNn7KG4sePHS31Antx2QMwH
+lDNr3pzZBefPoL1KkEBwdOnRpgWiXk26IGvVrFMHeO0a9UDZsm/bnt36NmzdsFfr3h0bt/Dh
+uw8m520wdnDixZk7zm0c+GmE1K9rl/5bdffc25e3/67O3bp38925k29OvTf69O23K45fvjz4
+9/LBp77PnD989fCN51567Mkn3XrXIUhggPkNiBh9+rnn33IN1rbgcwrhBuBvCvLmIIERMlhg
+h/chSF9jxQloIX7IDXjidwNaRmGB5+0HnHHHeRjie/vRNmJvJdLmXIWJhQCiikRm+OKO/OWo
+HJA33gjkh8MlCWN9CU5JY5ZbYnkYhC5KSOWKR67YJGn+bdjfaWIutGSYV7InpINBLpjmfG0G
+6BmLs1mpXp59HkilhlUWeiGg9a1HopZY1lkmn4W9OWOaPh7qJIYisjkemR5qiuOOnvpJXnRD
+nvhiaKim+pVFSNGk6quwxv8q66y01mrrrbjmqiutIOzq66/ABivssMQWa2xSKpSlwbHMNuvs
+s9AGpUO01AYLV7XYZqvttm65ypIAcUUgrrgDkVuQueOOK5C65xpkbkLpsrtuvOemWy9C8UYw
+b7770utuvvoGIG+5/dorMMAFv5twwAvXa3DC5SIc8cNLyYsuwxETpPDA6/670MYYH+zwxBnD
+i7HCGoeMr8r7untvyivDXPK8M4v8cs0XmyxzxScHjLLNNBOMcsgUe1wz0EHP/PPOSDOt80H6
+Dn1zAC4s3fS7Q/tM9NZO5ww11zw/zfTGSQvsMMs4g112yVaXbXXbThOMtNprH4012FlP3fbb
+aIf/HbPeJ7st894M/wzy13WPjTbcR8tNdteLq5331XT7G3fBUhEOcM8aKz143xIrjnjTgPN7
+sOlnG1x44VOf7u/hacdOUAUVbG355hMXjRThRgvOtuy9U365138nTvroLv8O+cqWN5w7x+vS
+zrzWDelOFO+Ad66869YLD/znCsEevNjtbr8236IXTzq50o/O+OXXc76+/B3DvDr8k58ved9z
+R1794vdSG03QtzPs2Y1+QSNg445iMeplT24pc+DwEEi51d2PfAoMHwBHtjzksQ10KhNf/xY4
+wqjcLoRaU92/JLjA0HHPdlkznQwjh7oIvm6FrcPd8chlQPudkGI6fGFN/07CrYJ4q4jb4gES
+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
+lF55lUCZlBtJlTOZlVNJkxLJlWfJlDRJjy/JlmPpkEiJkV8ZlnQJlWsplzmhl2r5lX2Jl0Q5
+lmlplWhJliXplFUJmD35l10pmApplHA5lHo5ENQomHU5mT6Zl2t5E/ZYkH25lYh5mChpmUop
+k6XpkCp5kRkZmpj5lJiJmqbpmBAZlJHplbAplRp5kqNJlkfZmDDRmTX5mRj5l4Uplby5mWBJ
+mkq5mqZpnIuJmL7pl7PZATp5l7YJndZ5lc4JlLYWmL2Znb+Jmsz/GZvE6Z102ZXfqZi1OZBi
+aZmgKZnIWZhhyZ61yZjguZ0b2ZjvmZycGZpG6Z+QeZ28yZOtWZeBSaDxaaBmmZ/g+Z85uZLW
+WZ4FeqCXSZjy6aAGihHQKBESaqEVKpb62ZwoiZuxCaEymZ54OaKpaZEmmgMRuqIX6poqmppD
+yVO62Y+SIZoiKqLgmIHx+KNA2hB0FqREWqRGGo5kpBl84Y5fd6Sr4qSPMQIjAKU5IaVTSqU4
+caVYihjduaVIRF1gGqZeOqaHkUaCsaEeuEhoKhDwSKZl4VpuGqfFkqTGcn9yeqd4mqewko16
+2qd+io4++qfbNaQNYaaCeqjHQgBqoai5/8aojroQBBCpkToQklqpBFGplhoAmCqpB7GpjCoQ
+k1oQoWoQj6qpuKaoqKoQnAqqjvqpmvqpoyqqrpoQsTqqsfqqqmqqjLqN4rWqtOqqoVqrsDqr
+lEqsnTqrwQqsxiqry7otIScTqdqst3qpylqsCDGtxyqrP2GrzUqpunqqoBqu2Xqtw0qt5NoQ
+t5qsrMoQpdqt2eWu2MqqmEqtmyqv80qq1bqu8Xqtj1FwmbGvwmqt4wqp9VqsmeqOk3oAA7uu
+uLqwv/qrrSoQ/pqOAduwAhuvABux5yqwY0GH2uKr6sqxGCutGuuw+xpcGZABLHGvr8qyFsus
+LBuyDvuyyZWyKmiLEDKAqB1xszrbsz77s9I2XEAbLIHqEXQ0tEibtEpLpqfFLNcVGjnqs2sK
+Egy4tFZ7tUVkAIfRjVjbtV67FR77tWI7tmRbtuM4tY4Rpmq7tmzbtm77tnAbt3I7t3Rbt3Z7
+t3ibt3kbEAA7
 
-------=_NextPart_000_0017_01C7538C.24067BC0--
+------=_NextPart_000_0014_01C75352.5A1F8FB0--

@@ -1,58 +1,76 @@
-From: "Cory Finleyjnu" <aycopwi@ddg.sony.co.jp>
-Subject: Re: sickroom conjecture
-Date: Mon, 19 Feb 2007 13:09:30 +0100
-Message-ID: <05f401c75376$3feb48f0$5415c2a0@lmillineryq>
-Reply-To: "Cory Finleyjnu" <aycopwi@ddg.sony.co.jp>
+From: mail dept <drewtz@web.de>
+Subject: held on the 16th February
+Date: Mon, 19 Feb 2007 15:01:43 +0100
+Message-ID: <207541405@web.de>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	boundary="----=_NextPart_000_0000_00B8C91C.F54F4CA0"
+Content-Type: multipart/alternative;
+ boundary="=-------------1171893705342698982"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: drewtz@web.de
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0000_00B8C91C.F54F4CA0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_0003_00B8C91C.F54F4CA0"
+This is a multi-part message in MIME format.
+
+--=-------------1171893705342698982
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 
 
-------=_NextPart_001_0003_00B8C91C.F54F4CA0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
- and fell 30 stories to the street below. Investigators do not say whether they  Service took the lives of five heroes," U.S. Forest Service Chaplain Steve Seltzner  in many races because of the public's growing dissatisfaction with the war in Iraq. And from terrorists. Bush said Democrats calling for withdrawing U.S. troops from Iraq   polls show that a clear majority of Americans see the war as a mistake and far fewer 
- he would have had 2,100 feet, the NTSB said. Instead, the pilot was flying closer 
-Critical Care Inc.
-C T C X
-BRAKING N E W S hit wire after market close
-This co is shooting skyward
-4 day campaign underway
-Get in before the rush on Tuesday Feb 20th
-Currently priced at: .80
-Expected: .00 
-Get in before Market open and ride it all week
+Infor,
 
-------=_NextPart_001_0003_00B8C91C.F54F4CA0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+We wish to congratulate you over your email success in our computer balloting sweepstake held on 16th February 2007. This is a Millennium Scientific Computer Game in which email addresses were used. It is a promotional program aimed at encouraging internet users; therefore you do not need to buy ticket to enter for it. You have been approve for the star prize of US $787:000:00 (Seven Hundred And Eighty Seven Thousand United State Dollars Only).
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><META http-equiv=3DContent-Type content=3D"text/html; =charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.1158" name=3DGENERATOR></HEAD><BODY><DIV>
-<FONT color=#000000 size=1> and fell 30 stories to the street below. Investigators do not say whether they  Service took the lives of five heroes," U.S. Forest Service Chaplain Steve Seltzner  in many races because of the public's growing dissatisfaction with the war in Iraq. And from terrorists. Bush said Democrats calling for withdrawing U.S. troops from Iraq   polls show that a clear majority of Americans see the war as a mistake and far fewer </FONT><BR><FONT face=Arial color=#ff0000 size=3>
-<b>Critical Care Inc.<BR>C T C X<BR></FONT><FONT color=#0000f0>
-BRAKING N E W S hit wire after market close</FONT><BR><FONT color=#0000f0>
-This co is shooting skyward</FONT><BR><FONT color=#800800>4 day campaign underway<BR
->Get in before the rush on Tuesday Feb 20th<BR>Currently priced at: $.80<BR>Expected: $5.00
-<BR>Get in before Market open and ride it all week</B></FONT></DIV><DIV>
-<FONT face=Arial size=1></FONT></DIV></BODY></HTML>
+To claim your winning prize you are to contact the appointed agent as soon as possible for the immediate release of your winnings: 
 
-------=_NextPart_001_0003_00B8C91C.F54F4CA0--
+SGM CONSULT Sa. 
 
-------=_NextPart_000_0000_00B8C91C.F54F4CA0--
+E-ma il:- sgmconsult@aim.com [mailto:sgmconsult@aim.com]
+
+Contact Person:Mr.loenard Bahio 
+
+Ref No:-EMSL/2007/FEB . 
+
+Ticket No:- TWMT/1800/806 
+
+Lucky No:- 07 -13-31.54-640 
+
+Ser ial No: - MUO TI/82536
+
+
+You must contact the appointed agent with your Full Names, Contact Telephone Numbers (Home, Office and Mobile Number and also Fax Number) via email to process the immediate payment of your prize.
+
+The Validity period of the winnings is for 30 working days hence you are expected to make your cla ims immediately.
+
+Once again congratulations !!!
+
+
+Best Regards, 
+
+Anita Raynes(Mrs.). 
+
+(Group Coordinator) 
+
+ 
+
+
+	
+Der WEB.DE SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen! 
+*http://smartsurfer.web.de/?mc=100071&distributionid=000000000066* [http://smartsurfer.web.de/?mc=100071&distributionid=000000000066] 
+
+--=-------------1171893705342698982
+Content-Type: text/html; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
+
+<html><body bgcolor='#ffffff' style='margin-left:0px; font-size:9pt; margin:0px; font-family:Verdana; margin-left:0px; margin-right:0px; margin-top:0px; margin-bottom:0px; font-family: Verdana' ><P>Infor,</P><P>We wish to congratulate you over your email success in our computer balloting sweepstake held on 16th February 2007. This is a Millennium Scientific Computer Game in which email addresses were used. It is a promotional program aimed at encouraging internet users; therefore you do not need to buy ticket to enter for it. You have been approve for the star prize of US $787:000:00 (Seven Hundred And Eighty Seven Thousand United State Dollars Only).</P><P>To claim your winning prize you are to contact the appointed agent as soon as possible for the immediate release of your winnings: </P><P>SGM CONSULT Sa. </P><P>E-ma il:- <A href="mailto:sgmconsult@aim.com">sgmconsult@aim.com</A></P><
+ P>Contact Person:Mr.loenard Bahio </P><P>Ref No:-EMSL/2007/FEB . </P><P>Ticket No:- TWMT/1
+ 800/806 </P><P>Lucky No:- 07 -13-31.54-640 </P><P>Ser ial No: - MUO TI/82536</P><P><BR>You must contact the appointed agent with your Full Names, Contact Telephone Numbers (Home, Office and Mobile Number and also Fax Number) via email to process the immediate payment of your prize.</P><P>The Validity period of the winnings is for 30 working days hence you are expected to make your cla ims immediately.</P><P>Once again congratulations !!!</P><P><BR>Best Regards, </P><P>Anita Raynes(Mrs.). </P><P>(Group Coordinator) </P><P>&nbsp;</P><br><br><table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#000000"><img src="https://img.web.de/p.gif" width="1" height="1" border="0" alt="" /></td></tr><tr><td style="font-family:verdana; font-size:12px; line-height:17px;">Der WEB.DE SmartSurfer hilft bis zu 70% Ihrer Onlinekosten zu sparen!&nbsp;&nbsp;&nbsp;<br><A HREF="http://smartsurfer.w
+ eb.de/?mc=100071&distributionid=000000000066"><B>http://smartsurfer.web.de/?mc=100071&dist
+ ributionid=000000000066</B></A>&nbsp;&nbsp;</td></tr></table></body></html>
+
+--=-------------1171893705342698982--

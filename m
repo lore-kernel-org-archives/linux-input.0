@@ -1,32 +1,67 @@
-From: "Kylee Nellie" <zme69kkj@cantv.net>
-Subject: build more SPERM in yourPENIS, 500% more after taking this pill getting husband
-Date: Tue, 20 Feb 2007 19:58:52 +0800
-Message-ID: <448t957q.3258184@cantv.net>
+From: "Natasha Hogan" <upftussle@biditup.co.uk>
+Subject: was postmark so bates
+Date: Tue, 20 Feb 2007 20:24:14 +0800
+Message-ID: <001201c7552d$aa5a91a0$017039ec@qh8dddcebec4ee>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_000F_01C7552D.AA5A91A0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kuba@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head>
-<body><font color=DFDFDF size=1>thank bought argue degree my. circumstances parents away horses find spoken my.</font>
-<center><table border=0 cellspacing=0 cellpadding=10 width=540 bordercolor=FB0000>
-<tr><td bgcolor=EFEFEF align=left><font size=2 face=arial color=000000><center><font size=5 color=FF51A8><b>Proven to increase your SPERM by 500%</b></font></center><br>
-<font color=000000 size=2>Ever 
-wanted to ejaculate 5 times more? Would you like to show ur partner/s your Sexual strength 
-and power? Are you about to give up the fight for your biggerOrgasm and greater ejaculation? STOP, there's a solution now!!! WonderCum</font></center><br><font color=0000FF size=2><b>* 500% more sperm<br>* Improved flavor<br>* Rock hardErections<br>* More Staying Power<br>* MultipleOrgasms</font><br><br><font size=1 color=000000 face=verdana>some testimonials from my happy customers:</b><br>"After taking WonderCum for just 1 week my sperm volume has tripled" <font color=359AFA>Max, 47, UK</font><br><br>"You guys are 
-amazing with your delivery and customer service and your product actually DOES work. I have been 
-married for the last 23 years and never in our marriage could we achieve the pleasure we can today. All because I am ejaculating the way I never have. My wife loves it and I love it more. 
-Thanks for this great product." <font color=359AFA>Jimmy 59, US</font><br></font><br><center><font size=5 face=tahoma color=FF1C1C><b>Guaranteed Safe and Effective</b></font><br><br><a href=http://www.btwl.net target=_blank><font size=7 face=arial color=60B5C8><u><b><font size=4>Wait no longer, order WonderCum today...<br>we will EXPRESS ship you your package tomorrow!</font></b></font></font></u></a><br></center></td></tr></table><font color=DFDFDF size=1>thus favour go become turning independence? force word miles?</font>
-</body>
-</html>
+------=_NextPart_000_000F_01C7552D.AA5A91A0
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+
+
+
+THE HOTTEST ALERT...
+
+
+
+Search for: GDKICurrent price: $0.14 5 Day Target price: $0.95Market: =
+bullish!!
+
+
+All signs show that this one is going to Explode!!!
+
+Check the news of GDKI, linux-input.
+
+
+------=_NextPart_000_000F_01C7552D.AA5A91A0
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.3790.2963" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D=
+3D4><FONT size=3D4><STRONG>THE HOTTEST ALERT!</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000033 size=3D3>Search =
+for: <b>GDKI</b><br>Current price: $0.14 <br>5 Day Target price: =
+$0.95<br>Market: bullish...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990033 size=3D3>All =
+signs show that this one is going to Explode!!!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000033 size=3D2>Check =
+the news of GDKI, linux-input..</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_000F_01C7552D.AA5A91A0--

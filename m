@@ -1,8 +1,8 @@
-From: Roman Stankovsky <franklinpep220@yahoo.co.uk>
-Subject: YUKOS OIL.
-Date: Tue, 20 Feb 2007 07:17:10 -0800
-Message-ID: <200702201517.l1KFHAf06372@lsh411.van.ca.siteprotect.com>
-Reply-To: romanstanko444@yahoo.com
+From: Info <infotinaoffice@myway.com>
+Subject: Re: (Congratulations!!!!) You won!!!
+Date: Tue, 20 Feb 2007 15:56:03 +0100 (CET)
+Message-ID: <20070220145603.1FD6C3C3B45@atari.zlib.nl>
+Reply-To: infotinaoffice@myway.com
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
@@ -15,38 +15,40 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dear Friend
-=20
-I am ROMAN STANKOVSKY and I represent Mr. Mikhail B. khodorkovsky the for=
-mer C.E.O of Yukos Oil Company in Russia. I have a very sensitive and con=
-fidential brief from him to ask for your partnership in re-profiling fund=
-s in a private bank investment portfolio in London I will give the  detai=
-ls, but in summary, the funds are coming via Bank Menatep in Russia.
 
-You can catch more of the story on This website below or you can watch mo=
-re of CNN or BBC to get more news about my boss.
+First Bank of N igeria Plc
+WESTERN UNION LOTTERY OFFICE=20
+Plot 67-68 ground floor to 21st floor=20
+Victoria island lagos=20
 
-http://www.mosnews.com/mn-files/khodorkovsky.shtml
-http://www.mbktrial.com/
-http://news.bbc.co.uk/1/hi/business/3213505.stm
-http://www.themoscowtimes.com/stories/2005/04/11/041.html
-http://www.nndb.com/people/633/000025558/
 
-This is a legitimate transaction. You will be paid 5% of the portfolio in=
-vestment value as your "management fees". If you are interested, please w=
-rite back to me via my private E-mail and provide me with your confidenti=
-al telephone number,fax number and email address and I will
-provide further details and if you are satisfied I can proceed with the i=
-nstructions.
+NOTICE WESTERN UNION LOTTERY WINERS OF THE SEASON=20
 
-l suggest that you contact me only via my private email:
-(romanstanko444@yahoo.com).
+Dear esteemed customer,
+(congratulations!!!!) The First Bank of Nigerian plc congratulates you to=
+day as one of her lottery lucky winers of the season , the first bank, We=
+stern Union Lottery promotion was made open to all 1-2-3-and 4-time patro=
+nizers of western union round the globe by means of sending or receiving =
+money from their business partners , loved ones , friends and well wisher=
+s via Western Union Money Transfer system as one of the fastest electroni=
+c wire transfer medium.
+Email address ballot was carry by our lotto machine and your email happen=
+ed to be one of the winners that emerge from the list.  the lottery amoun=
+t to be won by a customer is us$1million dollars each for a lucky winer, =
+on your response as a lucky winner.
 
-Please we can not afford any political problems because of recent events =
-in Russia. So I will advice you keep this to your self.Finally, please  n=
-ote that this must be concluded within reasonable time frame therefore yo=
-ur  prompt reply is essential. And also I will like to invest in your cou=
-ntry , after which the  fund is your position.
-Write me back. I look forward to it.
+Your Western Union Lottery winning  reference numbers are Reference  No. =
+- 545000358,  Pin Code No - 44779 and MTC No.- Undisclosed.
 
-ROMAN STANKOVSKY
+Now contact Mr. John Oko the processing official  with this information b=
+elow for the immediate claim of your money.=20
+Name: Mr. John Oko
+Email: westernunion6@yahoo.com
+Tel: +234-805-7972210
+Contact Mr.  John Oko  with your reference numbers for  more directives f=
+or the claims.
+
+Yours faithfuly,
+
+Mrs. Tina Uzor
+CUSTOMER<<<SERVICE DEPT, FIRST <<BANK<<NG<<PLC)

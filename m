@@ -1,41 +1,49 @@
-From: Rodolfo Giometti <giometti@enneenne.com>
-Subject: Re: [PATCH] PXA27x keyboard support
-Date: Wed, 21 Feb 2007 15:07:11 +0100
-Message-ID: <20070221140710.GA13951@enneenne.com>
-References: <20061120155518.GA6910@enneenne.com> <20061120160516.GC6910@enneenne.com> <200611240109.22900.dtor@insightbb.com> <20061124143534.GI11606@enneenne.com> <Pine.LNX.4.64.0611241030440.9647@xanadu.home>
+From: "Maxwell Louis" <locomotive'sstreamlining@savelemurs.com>
+Subject: Tiered of been passed over for that promotion because you don’t have the proper Degree?
+Date: Wed, 21 Feb 2007 15:01:15 +0000 (UTC)
+Message-ID: <01c755c8$009df300$6c822ecf@locomotive'sstreamlining>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0611241030440.9647@xanadu.home>
+Date: Wed, 21 Feb 2007 14:53:09 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Nicolas Pitre <nico@cam.org>, Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-arm-kernel@lists.arm.linux.org.uk
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+Hi.
 
-I'm working again on PXA27x keyboard support since I'd like to add
-backlight support.
+Want the degree but can’t find the time? 
 
-Since my hardware doesn't support "direct interface" but only "matrix
-scan" what I can do is to integrate as much possible of the code of
-your patch into the new driver so if someone has a mainstone can do an
-easy port.
+WHAT A GREAT IDEA!
 
-It could be acceptable?
+We provide a concept that will allow anyone with sufficient work experience to obtain a fully verifiable University Degree.
 
-Ciao,
+Bachelors, Masters or even a Doctorate.
 
-Rodolfo
+Think of it, within four to six weeks, you too could be a college graduate.
 
--- 
+Many people share the same frustration, they are all doing the work of the person that has the degree and the person that has the degree is getting all the money.
 
-GNU/Linux Solutions                  e-mail:    giometti@enneenne.com
-Linux Device Driver                             giometti@gnudd.com
-Embedded Systems                     		giometti@linux.it
-UNIX programming                     phone:     +39 349 2432127
+Don’t you think that it is time you were paid fair compensation for the level of work you are already doing?
+
+This is your chance to finally make the right move and receive your due benefits.
+
+If you are like most people, you are more than qualified with your experience, but are lacking that prestigious piece of paper known as a diploma that is often the passport to success.
+
+CALL US TODAY AND GIVE YOUR WORK
+
+EXPERIENCE THE CHANCE TO EARN YOU
+
+THE HIGHER COMPENSATION YOU DESERVE! 
+
+1-213-596-5778
+
+
+ Patterns--the lessons U++SP.833IT:
+will load patterns into your  H)YX6'HPEF2+:;87KOCLQ1B06-6

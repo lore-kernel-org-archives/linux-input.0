@@ -1,69 +1,48 @@
-From: "Ruby Mckay" <cabugaboo@farrellton.com>
-Subject: With esposito do postfix
-Date: Tue, 21 Feb 2006 14:57:59 +0800
-Message-ID: <001901c636f7$aa72a560$01c069cc@a042>
+From: "Marc Mcclendon" <parchment'ssewage@imap-mail.com>
+Subject: Too busy to go back to school?
+Date: Wed, 21 Feb 2007 07:59:46 -0120
+Message-ID: <01c7558e$40a1a1c0$6c822ecf@parchment'ssewage>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0016_01C636F7.AA72A560"
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0016_01C636F7.AA72A560
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+Hi.
+
+Want the degree but can’t find the time? 
+
+WHAT A GREAT IDEA!
+
+We provide a concept that will allow anyone with sufficient work experience to obtain a fully verifiable University Degree.
+
+Bachelors, Masters or even a Doctorate.
+
+Think of it, within four to six weeks, you too could be a college graduate.
+
+Many people share the same frustration, they are all doing the work of the person that has the degree and the person that has the degree is getting all the money.
+
+Don’t you think that it is time you were paid fair compensation for the level of work you are already doing?
+
+This is your chance to finally make the right move and receive your due benefits.
+
+If you are like most people, you are more than qualified with your experience, but are lacking that prestigious piece of paper known as a diploma that is often the passport to success.
+
+CALL US TODAY AND GIVE YOUR WORK
+
+EXPERIENCE THE CHANCE TO EARN YOU
+
+THE HIGHER COMPENSATION YOU DESERVE! 
+
+1-213-596-5778
 
 
-
-
-
-Just take a look at this one!!
-
-
-Target sym: GDKIPrice (current): $0.14 5 Day Target price: $0.95Action: =
-Strong Buy/Hold.
-
-
-500% profit potential short term..
-
-
-Check the news of GDKI, linux-input...
-
-
-------=_NextPart_000_0016_01C636F7.AA72A560
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2800.2962" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000033 size=3D=
-3D4><FONT size=3D2><STRONG>Just take a look at this =
-one!</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D4>Target =
-sym: <b>GDKI</b><br>Price (current): $0.14 <br>5 Day Target price: =
-$0.95<br>Action: Strong Buy/Hold!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF3366 size=3D2>500% =
-profit potential short term!!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D3>Check =
-the news of GDKI, linux-input..</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_0016_01C636F7.AA72A560--
+on your team.  99NAQK/2(W9YU)13+>:6
+to know how they  8G>S6Y)6A+2<DL13317*0

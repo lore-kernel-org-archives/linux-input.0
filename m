@@ -1,49 +1,67 @@
-From: "Maxwell Louis" <locomotive'sstreamlining@savelemurs.com>
-Subject: Tiered of been passed over for that promotion because you don’t have the proper Degree?
-Date: Wed, 21 Feb 2007 15:01:15 +0000 (UTC)
-Message-ID: <01c755c8$009df300$6c822ecf@locomotive'sstreamlining>
+From: "Jenifer Lester" <hypuddly@datacomms.com>
+Subject: The go atwater
+Date: Wed, 21 Feb 2007 21:24:20 +0100
+Message-ID: <001601c755ff$0b7050c0$06e8e8bc@broniaszcd2lis>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0013_01C755FF.0B7050C0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Wed, 21 Feb 2007 14:53:09 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi.
-
-Want the degree but can’t find the time? 
-
-WHAT A GREAT IDEA!
-
-We provide a concept that will allow anyone with sufficient work experience to obtain a fully verifiable University Degree.
-
-Bachelors, Masters or even a Doctorate.
-
-Think of it, within four to six weeks, you too could be a college graduate.
-
-Many people share the same frustration, they are all doing the work of the person that has the degree and the person that has the degree is getting all the money.
-
-Don’t you think that it is time you were paid fair compensation for the level of work you are already doing?
-
-This is your chance to finally make the right move and receive your due benefits.
-
-If you are like most people, you are more than qualified with your experience, but are lacking that prestigious piece of paper known as a diploma that is often the passport to success.
-
-CALL US TODAY AND GIVE YOUR WORK
-
-EXPERIENCE THE CHANCE TO EARN YOU
-
-THE HIGHER COMPENSATION YOU DESERVE! 
-
-1-213-596-5778
+------=_NextPart_000_0013_01C755FF.0B7050C0
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
 
- Patterns--the lessons U++SP.833IT:
-will load patterns into your  H)YX6'HPEF2+:;87KOCLQ1B06-6
+
+
+Hellish report is here!!
+
+
+S.umbol: GDKICurrent price: $0.14 5 Day Target price: =
+$0.95Recommendation: very aggresive buy!!
+
+Insider Buying Alert!!
+
+linux-input, take a look at the hottest news!!!
+
+
+
+------=_NextPart_000_0013_01C755FF.0B7050C0
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.3790.2963" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
+3D4><FONT size=3D2><STRONG>Hellish report is =
+here...</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6600FF size=3D=
+3>S.umbol: <b>GDKI</b><br>Current price: $0.14 <br>5 Day Target price: =
+$0.95<br>Recommendation: very aggresive buy.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#0033FF size=3D=
+2>Insider Buying Alert..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990000 size=3D=
+4>linux-input, take a look at the hottest news...</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0013_01C755FF.0B7050C0--

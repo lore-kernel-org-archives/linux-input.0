@@ -1,68 +1,27 @@
-From: "Jacquelyn Staton" <dqucould@hispeed.ch>
-Subject: On mitt do fiche
-Date: Thu, 22 Feb 2007 14:30:27 +0900
-Message-ID: <001301c7568e$3ad34ea0$002f742c@clsrn15d8l60r9>
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: Getting touchscreen to work on Fujitsu B6210
+Date: Wed, 21 Feb 2007 22:16:29 -0800
+Message-ID: <20070221221629.59088fed@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0010_01C7568E.3AD34EA0"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0010_01C7568E.3AD34EA0
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+I did a little investigation and the touchscreen on B6210 is
+attached via the 8250 serial port. I tried enabling it with
+inputattach but seem to get garbage.
 
+I can extract the initialization code from the evtouch driver
+to a usermode program and read information from /dev/ttyS0.
 
+The lifebook psmouse extension won't work because it tries
+to grab the 8042 (touchpad) rather than the touch screen.
 
-
-
-Get it before the RUSH...
-
-
-
-Search for: CBRJCurrent price: $1.70 Market: bullish!!
-
-
-
-We see this as a huge profit taking a deal!
-
-See the hottest news of the CBRJ, linux-input...
-
-
-------=_NextPart_000_0010_01C7568E.3AD34EA0
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.3790.0000" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3300 size=3D3D4><FONT =
-size=3D2><STRONG>Get it before the RUSH..</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D2>Search =
-for: <b>CBRJ</b><br>Current price: $1.70 <br>Market: =
-bullish...</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0033 size=3D3>We see =
-this as a huge profit taking a deal.</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D4>See the =
-hottest news of the CBRJ, linux-input.</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0010_01C7568E.3AD34EA0--
+Ideas?

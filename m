@@ -1,10 +1,10 @@
-From: "Opal Nichols" <hhcelluloid@fluto.no>
-Subject: by so grandma
-Date: Wed, 21 Feb 2007 21:26:09 -0600
-Message-ID: <001601c755ff$29d8e450$06b3d364@82hdfha1b8fnuhs>
+From: "Jacquelyn Staton" <dqucould@hispeed.ch>
+Subject: On mitt do fiche
+Date: Thu, 22 Feb 2007 14:30:27 +0900
+Message-ID: <001301c7568e$3ad34ea0$002f742c@clsrn15d8l60r9>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C755FF.29D8E450"
+        boundary="----=_NextPart_000_0010_01C7568E.3AD34EA0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,55 +14,55 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C755FF.29D8E450
+------=_NextPart_000_0010_01C7568E.3AD34EA0
 Content-Type: text/plain;
-        charset="iso-8859-1"
+        charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
-This gem is really movable!
 
-Lookup: CBRJCurrent: $1.70 Expected: Steadily climb for the top...
-
-
-SOMEBODY KNOWS SOMETHING...
+Get it before the RUSH...
 
 
 
-See bullish news online right now, linux-input...
+Search for: CBRJCurrent price: $1.70 Market: bullish!!
 
 
 
-------=_NextPart_000_0013_01C755FF.29D8E450
+We see this as a huge profit taking a deal!
+
+See the hottest news of the CBRJ, linux-input...
+
+
+------=_NextPart_000_0010_01C7568E.3AD34EA0
 Content-Type: text/html;
-        charset="iso-8859-1"
+        charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.2462.2963" name=3DGENERATOR>
+windows-1252">
+<META content=3D"MSHTML 6.00.3790.0000" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990000 size=3D=
-3D4><FONT size=3D2><STRONG>This gem is really =
-movable...</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000066 size=3D=
-4>Lookup: <b>CBRJ</b><br>Current: $1.70 <br>Expected: Steadily climb for =
-the top..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3333 size=3D=
-3>SOMEBODY KNOWS SOMETHING..</FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3300 size=3D3>See =
-bullish news online right now, linux-input...</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3300 size=3D3D4><FONT =
+size=3D2><STRONG>Get it before the RUSH..</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D2>Search =
+for: <b>CBRJ</b><br>Current price: $1.70 <br>Market: =
+bullish...</FONT></DIV>
 <BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0033 size=3D3>We see =
+this as a huge profit taking a deal.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D4>See the =
+hottest news of the CBRJ, linux-input.</FONT></DIV>
+<BR><BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0013_01C755FF.29D8E450--
+------=_NextPart_000_0010_01C7568E.3AD34EA0--

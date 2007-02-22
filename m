@@ -1,10 +1,10 @@
-From: "Kelli Kaplan" <pkcbulk@jp.bigplanet.com>
-Subject: As detail an proven
-Date: Thu, 22 Feb 2007 06:30:47 -0800
-Message-ID: <001b01c7564b$566712c0$0bca672c@andreskuewkskl>
+From: "Moses Hoyt" <xprescript@maccabi.org.il>
+Subject: It preservation the inconvenient
+Date: Thu, 22 Feb 2007 23:35:53 +0900
+Message-ID: <001b01c756da$59d8d3f0$002f6a64@cg7nqeajlhml6fb>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0018_01C7564B.566712C0"
+        boundary="----=_NextPart_000_0018_01C756DA.59D8D3F0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,7 +14,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0018_01C7564B.566712C0
+------=_NextPart_000_0018_01C756DA.59D8D3F0
 Content-Type: text/plain;
         charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
@@ -22,17 +22,19 @@ Content-Transfer-Encoding: quoted-printable
 
 
 
-Take adventage!!
 
-Sym8oL: CBRJCurr Price: $1.70 Action: Aggresive Buy/Hold..
-
+Trading 0pportunity For You..
 
 
-500%+ profit (short term)!
+Lookup: CBRJCurrent: $1.70 Expected: Steadily climb for the top!
 
-linux-input, take a look at the hottest news!
 
-------=_NextPart_000_0018_01C7564B.566712C0
+
+Insider Buying Alert..
+
+The hottest news are released for CBRJ, linux-input!!
+
+------=_NextPart_000_0018_01C756DA.59D8D3F0
 Content-Type: text/html;
         charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
@@ -41,24 +43,25 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
 windows-1252">
-<META content=3D"MSHTML 6.00.2462.1081" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.2900.181" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3D4><FONT =
-size=3D3><STRONG>Take adventage!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#0033FF size=3D3>Sym8oL: =
-<b>CBRJ</b><br>Curr Price: $1.70 <br>Action: Aggresive =
-Buy/Hold!!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D3>500%+ =
-profit (short term).</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0000 size=3D=
-2>linux-input, take a look at the hottest news.</FONT></DIV>
 <BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6633FF size=3D=
+3D4><FONT size=3D3><STRONG>Trading 0pportunity For =
+You...</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3366 size=3D=
+2>Lookup: <b>CBRJ</b><br>Current: $1.70 <br>Expected: Steadily climb for =
+the top.</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000000 size=3D=
+2>Insider Buying Alert!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#3300FF size=3D4>The =
+hottest news are released for CBRJ, linux-input..</FONT></DIV>
+<BR>
 </BODY></HTML>
 
-------=_NextPart_000_0018_01C7564B.566712C0--
+------=_NextPart_000_0018_01C756DA.59D8D3F0--

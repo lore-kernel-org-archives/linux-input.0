@@ -1,64 +1,94 @@
-From: "David Holbrook" <dwpbailm@pbail.com>
-Subject: fwd:Special discount on medications.
-Date: Fri, 23 Feb 2007 08:23:56 -0120
-Message-ID: <01c75723$f61dabc0$6c822ecf@dwpbailm>
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+Subject: Re: [KJ][RFC][PATCH] BIT macro cleanup
+Date: Fri, 23 Feb 2007 09:56:37 +0100
+Message-ID: <45DEAC45.7090105@student.ltu.se>
+References: <3b44d3fb0702222056k1d2a9b57q69a3555a09a9058e@mail.gmail.com> <3b44d3fb0702230014x4ee4a1dewdc624c54b3635e15@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C75734.B9A67BC0"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <3b44d3fb0702230014x4ee4a1dewdc624c54b3635e15@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Milind Choudhary <milindchoudhary@gmail.com>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Milind Choudhary wrote:
+> Hi all
+>     working towards the cleanup of BIT macro,
+> I've added one to <linux/bitops.h> & cleaned some obvious users.
+>
+> include/linux/input.h also has a BIT macro
+> which does a wrap
+> so currently i've done something like
+>
+> +#undef BIT
+> #define BIT(nr)        (1UL << ((nr) % BITS_PER_LONG))
+>
+> Is it advisible to move this macro to bitops.h with some other name
+>
+> +#define BITWRAP(nr)    (1UL << ((nr) % BITS_PER_LONG))
+>
+> & make the whole input subsystem use it
+> The change is huge, more than 125 files using input.h
+> & almost all use the BIT macro.
+It is as a big of change, but have you dismissed the "BIT(nr % 
+BITS_PER_LONG)" approach?
+I really think this has to be broken down into a patch-set.
 
-------=_NextPart_000_0006_01C75734.B9A67BC0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+<snip>
+> diff --git a/fs/select.c b/fs/select.c
+> index fe0893a..4bbe8ed 100644
+> --- a/fs/select.c
+> +++ b/fs/select.c
+> @@ -180,7 +180,6 @@ get_max:
+>        return max;
+> }
+>
+> -#define BIT(i)         (1UL << ((i)&(__NFDBITS-1)))
+Are you sure you can just delete this one?
 
-Dear,Nowadays, more and more Americans are buying medications abroad as drug prices in the USA are higher than in other countries. The most important thing is to find trustworthy online store.Such store is MyCanadianPharmacy online store. Here you can find all medications you're looking for at really lower prices. You don't have to buy expensive American medications anymore!Ordering has never been safer or more convenient. http://www.juaa.hkSecurity and confidentiality is essential and guaranteed.Best regards,David Holbrook
+<snip>
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index bde65c8..e4203d1 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -908,9 +908,11 @@ struct ff_effect {
+> #include <linux/fs.h>
+> #include <linux/timer.h>
+> #include <linux/mod_devicetable.h>
+> +//#include <linux/bitops.h>
+You added and commented it out?
+>
+> #define NBITS(x) (((x)/BITS_PER_LONG)+1)
+> -#define BIT(x) (1UL<<((x)%BITS_PER_LONG))
+> +#undef BIT
+> +#define BIT(nr)        (1UL << ((nr) % BITS_PER_LONG))
+Why did you change x to nr? The other defines seems to use x.
+> #define LONG(x) ((x)/BITS_PER_LONG)
+>
+> #define INPUT_KEYCODE(dev, scancode) ((dev->keycodesize == 1) ?
+> ((u8*)dev->keycode)[scancode] : \
+> diff --git a/include/video/sstfb.h b/include/video/sstfb.h
+> index baa163f..b52f073 100644
+> --- a/include/video/sstfb.h
+> +++ b/include/video/sstfb.h
+> @@ -68,7 +68,6 @@
+> #  define print_var(X,Y...)
+> #endif
+>
+> -#define BIT(x)         (1ul<<(x))
+> #define POW2(x)                (1ul<<(x))
+Maybe you can clean up POW2 as well (or define it as "#define POW2(x) 
+BIT(x)")
 
+Also, it seems your mail-client swapped the tabs to spaces (aka not able 
+to apply).
 
-------=_NextPart_000_0006_01C75734.B9A67BC0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Other then what I have commented on, it looks good.
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html>
-<body bgcolor=3D"#FFFFFF" link=3D"#6F7AC8">
-<p><font face=3D"Verdana" size=3D"2" color=3D"#000000"><b>Dear</b>,</font><=
-/p>
-<p><font face=3D"Verdana" size=3D"2">Nowadays, more and more Americans are =
-buying medications abroad as drug prices in the USA are higher than in othe=
-r countries. The most important thing is to find trustworthy online store.<=
-br>Such store is <a href=3D"http://www.juaa.hk">MyCanadianPharmacy</a> onli=
-ne store. </font></p>
-<p><font face=3D"Verdana" size=3D"2">Here you can find all medications you'=
-re looking for at really lower prices. You don't have to buy expensive Amer=
-ican medications anymore!</font></p>
-<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://www.juaa.hk"><b>Orde=
-ring has never been safer or more convenient.</b></a><br> <b>http://www.jua=
-a.hk</b></font></p>
-<p><font face=3D"Verdana" size=3D"2">Security and confidentiality is essent=
-ial and guaranteed.</font></p>
-<p><font face=3D"Verdana" size=3D"2">Best regards,<br>David Holbrook</font>=
-</p>
-</body>
-</html>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C75734.B9A67BC0--
+Richard Knutsson

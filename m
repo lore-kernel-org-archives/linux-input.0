@@ -1,66 +1,219 @@
-From: "Dallas Gallo" <fxcrowberry@acn.waw.pl>
-Subject: An usurpation is mockernut
-Date: Fri, 23 Feb 2007 08:41:58 +0700
-Message-ID: <001001c75727$25ab41b0$0509aa0c@zulkifli>
+From: "Angel Holman" <limpidity'saviatrices@fromnewmexico.com>
+Subject: Too busy to go back to school, but need a University Degree to get ahead?
+Date: Fri, 23 Feb 2007 01:50:11 +0000 (UTC)
+Message-ID: <01c756ec$f623f250$6c822ecf@limpidity'saviatrices>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000D_01C75727.25AB41B0"
+	boundary="----=_NextPart_000_0006_01C756F5.57E85A50"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Fri, 23 Feb 2007 01:50:14 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000D_01C75727.25AB41B0
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C756F5.57E85A50
 Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
+
+
+
+You have the experience but lack the proper University Degree.
 
 
 
 
-THE BULL REPORT!!
-
-Promoting sym: GDKIPrice: $0.14 5 Day Target price: $0.95Action: Strong =
-buy!
-
-Short-term KST. Insider Buying Alert!
 
 
-GDKI has a nice fresh news, linux-input!
+ 
+
+University Degree
+
+ 
+
+OBTAIN A PROSPEROUS FUTURE, MONEY-EARNING POWER,
+AND THE PRESTIGE THAT COMES WITH HAVING THE CAREER POSITION YOUÒVE ALWAYS
+DREAMED OF. DIPLOMA FROM PRESTIGIOUS NON-ACCREDITED UNVERSITIES BASED ON YOUR
+PRESENT KNOWLEDGE AND PROFESSIONAL EXPERIENCE.
+
+ 
+
+If you qualify, no
+required tests, classes, books or examinations.
+
+ 
+
+Confidentiality
+Assured
+
+ 
+
+1-213-596-5778
+
+24 hours a day, 7 days a week including Sundays and
+Holidays
+
+ 
+
+ 
+
+
+Fri, 23 Feb 2007 01:50:14 -0060
+of patterns with others  2772-5FT
+environment. In other  1I)13Y0>@64='W5:@='EFON7/GB,C+
 
 
 
-------=_NextPart_000_000D_01C75727.25AB41B0
+
+
+------=_NextPart_000_0006_01C756F5.57E85A50
 Content-Type: text/html;
-        charset="windows-1250"
+	charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.3790.2869" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3333 size=3D=
-3D4><FONT size=3D2><STRONG>THE BULL REPORT..</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
-4>Promoting sym: <b>GDKI</b><br>Price: $0.14 <br>5 Day Target price: =
-$0.95<br>Action: Strong buy...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
-2>Short-term KST. Insider Buying Alert!!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990000 size=3D4>GDKI =
-has a nice fresh news, linux-input..</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-------=_NextPart_000_000D_01C75727.25AB41B0--
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml"
+xmlns:o=3D"urn:schemas-microsoft-com:office:office"
+xmlns:w=3D"urn:schemas-microsoft-com:office:word"
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
+1">
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<title>You have the experience but lack the proper University Degree.</titl=
+e>
+<style>
+<!--
+  @font-face
+	{font-family:Georgia;
+	panose-1:2 4 5 2 5 4 5 2 3 3;
+	mso-font-charset:204;
+	mso-generic-font-family:roman;
+	mso-font-pitch:variable;
+	mso-font-signature:647 0 0 0 159 0;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 90.0pt 72.0pt 90.0pt;
+	mso-header-margin:36.0pt;
+	mso-footer-margin:36.0pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span la=
+ng=3DEN-US
+style=3D'font-size:16.0pt;font-family:Georgia'><o:p>=A0</o:p></span></b></p=
+>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span la=
+ng=3DEN-US
+style=3D'font-size:22.0pt;font-family:Georgia'>University Degree<o:p></o:p>=
+</span></b></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-family:Georgia'><o:p>=A0</o:p></span></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-family:Georgia'>OBTAIN A PROSPEROUS FUTURE, MONEY-EARNING POW=
+ER,
+AND THE PRESTIGE THAT COMES WITH HAVING THE CAREER POSITION YOU=D2VE ALWAYS
+DREAMED OF. DIPLOMA FROM PRESTIGIOUS NON-ACCREDITED UNVERSITIES BASED ON YO=
+UR
+PRESENT KNOWLEDGE AND PROFESSIONAL EXPERIENCE.<o:p></o:p></span></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-family:Georgia'><o:p>=A0</o:p></span></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span class=
+=3DGramE><i><span
+lang=3DEN-US style=3D'font-size:14.0pt;font-family:Georgia'>If you qualify,=
+ no
+required tests, classes, books or examinations.</span></i></span><i><span
+lang=3DEN-US style=3D'font-size:14.0pt;font-family:Georgia'><o:p></o:p></sp=
+an></i></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-family:Georgia'><o:p>=A0</o:p></span></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b style=3D=
+'mso-bidi-font-weight:
+normal'><span lang=3DEN-US style=3D'font-size:18.0pt;font-family:Georgia'>C=
+onfidentiality
+Assured<o:p></o:p></span></b></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-size:16.0pt;font-family:Georgia'><o:p>=A0</o:p></span></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b><span la=
+ng=3DEN-US
+style=3D'font-size:20.0pt;font-family:Georgia;color:red'>1-213-596-5778<o:p=
+></o:p></span></b></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-family:Georgia'>24 hours a day, 7 days a week including Sunda=
+ys and
+Holidays<o:p></o:p></span></p>
+
+<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><span lang=
+=3DEN-US
+style=3D'font-size:16.0pt;font-family:Georgia'><o:p>=A0</o:p></span></p>
+
+<p class=3DMsoNormal><span lang=3DEN-US><o:p>=A0</o:p></span></p>
+
+</div>
+<center>
+Fri, 23 Feb 2007 01:50:14 -0060
+of patterns with others  2772-5FT<br>
+environment. In other  1I)13Y0>@64=3D'W5:@=3D'EFON7/GB,C+<br>
+</center>
+</body>
+
+</html>
+
+</body>
+</html>
+
+------=_NextPart_000_0006_01C756F5.57E85A50--

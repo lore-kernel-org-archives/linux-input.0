@@ -1,44 +1,56 @@
 From: Vojtech Pavlik <vojtech@suse.cz>
 Subject: Re: [KJ][RFC][PATCH] BIT macro cleanup
-Date: Sat, 24 Feb 2007 11:46:38 +0100
-Message-ID: <20070224104638.GA3609@suse.cz>
-References: <3b44d3fb0702222056k1d2a9b57q69a3555a09a9058e@mail.gmail.com> <3b44d3fb0702230014x4ee4a1dewdc624c54b3635e15@mail.gmail.com>
+Date: Sat, 24 Feb 2007 12:11:24 +0100
+Message-ID: <20070224111124.GB3609@suse.cz>
+References: <3b44d3fb0702230215o2fbd5a3y25729e481a447149@mail.gmail.com> <45DEF5EE.4030002@student.ltu.se> <d120d5000702230657s1860efb3o6986277901f13d03@mail.gmail.com> <45DF1165.2080003@student.ltu.se> <d120d5000702230905r6b50a1bbm3b71551f855cdf01@mail.gmail.com> <45DF2F57.2080309@student.ltu.se> <d120d5000702231037q511f8073n47beed320f097458@mail.gmail.com> <45DF3C53.4030100@student.ltu.se> <d120d5000702231358j55cd6665x2add335ceb904c22@mail.gmail.com> <45DF6E20.9060604@student.ltu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Content-Disposition: inline
-In-Reply-To: <3b44d3fb0702230014x4ee4a1dewdc624c54b3635e15@mail.gmail.com>
+In-Reply-To: <45DF6E20.9060604@student.ltu.se>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Milind Choudhary <milindchoudhary@gmail.com>
-Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Milind Choudhary <milindchoudhary@gmail.com>, kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Feb 23, 2007 at 01:44:41PM +0530, Milind Choudhary wrote:
-> Hi all
-> 	working towards the cleanup of BIT macro,
-> I've added one to <linux/bitops.h> & cleaned some obvious users.
-> 
-> include/linux/input.h also has a BIT macro
-> which does a wrap
-> so currently i've done something like
-> 
-> +#undef BIT
-> #define BIT(nr)        (1UL << ((nr) % BITS_PER_LONG))
- 
-Since the previous definition of
+On Fri, Feb 23, 2007 at 11:43:44PM +0100, Richard Knutsson wrote:
 
-#define BIT(nr)		(1UL << (nr))
+> >I am saying that IMO input's BIT definition should be
+> >adequate for 99% of potential users and that I would be OK with moving
+> >said BIT definition from input.h to bitops.h and maybe supplementing
+> >it with LLBIT. I am also saying that I do not want BITWRAP, BITSWAP
+> >(what swap btw?) nor BIT(x % BITS_PER_LONG) in input drivers.
 
-gives the same results as the above one for all reasonable usage
-scenarios (you don't want to supply nr larger than BITS_PER_LONG),
-why not just use the modulo version everywhere?
+And I totally agree with Dmitry. The "% BITS_PER_LONG" doesn't hurt
+other users, and it's needed for larger-than-single-long bit arrays.
 
-The only problem I see is that the compiler would not warn where nr IS
-too large.
+> Is the reason for the modulo to put a bitmask larger then the variable 
+> into an array?
+
+The complementary LONG() macro will tell you the index of an array of
+longs where the bit should be set.
+
+> I did just a quick 'grep' for "BIT(" in drivers/input/ 
+> and from what I saw, most (or all?) of the values are defined constants 
+> and those in input.h were noway near the limits of a 'long'.
+
+Well, many do not need it, but for example BIT(BTN_LEFT) does, and
+that's used in a lot of places.
+
+> The reason I don't like it with modulo is simply because it hides 
+> potential bugs (when x is to big). 
+
+That would be my only concern - losing compiler warnings.
+
+> And what about the "1%"?
+
+The 1% will need either LLBIT or an extra % 8.
+
+> IMHO BIT should be as simple as possible.
 
 -- 
 Vojtech Pavlik

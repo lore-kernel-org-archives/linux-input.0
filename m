@@ -1,44 +1,73 @@
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-Subject: Re: [KJ][RFC][PATCH] BIT macro cleanup
-Date: Sun, 25 Feb 2007 16:45:03 +0100
-Message-ID: <45E1AEFF.5050202@student.ltu.se>
-References: <45DEF5EE.4030002@student.ltu.se> <d120d5000702230657s1860efb3o6986277901f13d03@mail.gmail.com> <45DF1165.2080003@student.ltu.se> <d120d5000702230905r6b50a1bbm3b71551f855cdf01@mail.gmail.com> <45DF2F57.2080309@student.ltu.se> <d120d5000702231037q511f8073n47beed320f097458@mail.gmail.com> <45DF3C53.4030100@student.ltu.se> <d120d5000702231358j55cd6665x2add335ceb904c22@mail.gmail.com> <45DF6E20.9060604@student.ltu.se> <20070224111124.GB3609@suse.cz> <20070224191001.GA9547@arun.site>
+From: "Anitas Raineyt" <ryitransversal@bermanco.com>
+Subject: Wall Street Micro News Report
+Date: Sun, 25 Feb 2007 16:56:06 +0100
+Message-ID: <20070225155618.5805CC7C4A@atrey.karlin.mff.cuni.cz>
+Reply-To: "Anitas Raineyt" <ryitransversal@bermanco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070224191001.GA9547@arun.site>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Milind Arun Choudhary <milindchoudhary@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Milind Arun Choudhary wrote:
-> why bitops.h? coz BIT qualifies for a "bitop" 
-> & bitops.h is  inclued by kernel.h, hence accessible from every part 
-> of the tree without mucb efforts
->   
-I don't think there is anyone who objects to this
-> c>but it is not sutaible for  those who want to go beyond this limit, 
-> as they will not be warned 
->   
-And this is the reason for this overly long thread :)
-> So all we need is  people to be carefull  before passing anything to BIT
->   
-This is the difficult thing to do
-> so  now i think it should be ok to have
->
-> #define BIT(nr) (1UL << ((nr) % BITS_PER_LONG))
-> #define LLBIT(nr) (1ULL << (nr))
->
->
-> thoughts
->   
-Since you guys seems in agreement about the silenced compiler-warnings, 
-then I will rest my case.
+Big News Expected Monday!
 
-Richard Knutsson
+CARBON RACE CORP. (CBRJ.PK)
+Price: 1.95
+Up 0.20 (11.43%) on Friday
+Already started to climb. 
+
+This one did very well during last marketing campaign. Very Well!
+
+Big News Just Out 
+
+Friday, February 23, 2007
+
+Carbon Race Corporation to Introduce Carbon Fiber Competition and 
+Junior Class Race/Recreational Kart Designs at Kart Expo International
+Thursday February 22, 8:00 am ET 
+
+
+CHICAGO, IL--(MARKET WIRE)--Feb 22, 2007 -- Carbon Race Corporation 
+(Other OTC:CBRJ.PK - News) will introduce two new Karts, MKI Competition 
+and MKI Junior, at the Kart Expo(TM) International, North America's Largest
+ Kart Show, to be held at the Renaissance Schaumburg Hotel and Convention 
+Center, Schaumburg, IL, February 24-25. Carbon Race's MKI Kart is the 
+industry's first full monocoque chassis manufactured with advanced 
+composite/carbon fiber technology, and has been engineered using wind 
+tunnel testing for greater aerodynamics and Formula 1-like ground effects.
+Carbon Race has introduced Formula Car technology -- monocoque hulls, 
+carbon fiber composites, and wind tunnel testing -- into products for 
+a much wider Motorsports market. The MKI Junior Kart is designed for 
+competitive youth racing, where numerous pro drivers started, and will 
+be an exceptional step-up recreational Kart. The MKI Competition Kart 
+is widely used for racing by the very experienced driver. Other race 
+and recreational products are with the Carbon Race design and engineering 
+teams now.
+ 
+ 
+"Our customers are interested in innovation, engineering supremacy, 
+style and performance. The importance of such product development 
+and manufacturing for the worldwide market can't be overstated. 
+With our new design and engineering innovation, we are positioning 
+the company to excel in the marketplace. These products tend to sell
+faster and will generate increased profits," 
+commented Lynnette Knafelc, CEO of CBRJ.
+
+About Carbon Race Corporation
+
+Carbon Race Corporation is a design, engineering and manufacturing 
+company, focused on advanced composite material products, using the 
+company's proprietary "Carbon Fiber" technology. The company has a 
+state-of-the-art R&D, design and engineering facility in Paruzzaro, 
+Italy to provide lightweight and cost-effective solutions to aviation, 
+automotive, sporting, racing, building materials and various
+other markets. For more information, 
+
+
+
+on terror. "If they say they want to win the war on terror, but call for America  "President Bush has never had a plan to win in Iraq, and now that Democrats and   off life support and died this week. The last time so many firefighters were killed FAA said the rule change -- a temporary one -- was made for safety reasons. The NTSB's to the middle of the river, leaving a smaller margin for error, the staff report said.

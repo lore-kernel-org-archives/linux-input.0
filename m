@@ -1,73 +1,59 @@
-From: "Desmondl Brittonw" <sorrynqa@carpenteroak.com>
-Subject: Growth Report Special Alert
-Date: Sun, 25 Feb 2007 12:14:18 -0800
-Message-ID: <20070225201427.B7B914D75@artax.karlin.mff.cuni.cz>
-Reply-To: "Desmondl Brittonw" <sorrynqa@carpenteroak.com>
+From: "Ron Robisonf" <luteqpa@aprimconsultant.com>
+Subject: Re: The Bull is Back in Select Small Caps
+Date: Sun, 25 Feb 2007 23:24:26 +0100
+Message-ID: <013301c75917$3eba76e0$1343e1f0@qgaussz>
+Reply-To: "Ron Robisonf" <luteqpa@aprimconsultant.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_0001_03F2C86C.C21B6CC0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Big News Expected Monday!
-
-CARBON RACE CORP. (CBRJ.PK)
-Price: 1.95
-Up 0.20 (11.43%) on Friday
-Already started to climb. 
-
-This one did very well during last marketing campaign. Very Well!
-
-Big News Just Out 
-
-Friday, February 23, 2007
-
-Carbon Race Corporation to Introduce Carbon Fiber Competition and 
-Junior Class Race/Recreational Kart Designs at Kart Expo International
-Thursday February 22, 8:00 am ET 
+------=_NextPart_000_0001_03F2C86C.C21B6CC0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0002_03F2C86C.C21B6CC0"
 
 
-CHICAGO, IL--(MARKET WIRE)--Feb 22, 2007 -- Carbon Race Corporation 
-(Other OTC:CBRJ.PK - News) will introduce two new Karts, MKI Competition 
-and MKI Junior, at the Kart Expo(TM) International, North America's Largest
- Kart Show, to be held at the Renaissance Schaumburg Hotel and Convention 
-Center, Schaumburg, IL, February 24-25. Carbon Race's MKI Kart is the 
-industry's first full monocoque chassis manufactured with advanced 
-composite/carbon fiber technology, and has been engineered using wind 
-tunnel testing for greater aerodynamics and Formula 1-like ground effects.
-Carbon Race has introduced Formula Car technology -- monocoque hulls, 
-carbon fiber composites, and wind tunnel testing -- into products for 
-a much wider Motorsports market. The MKI Junior Kart is designed for 
-competitive youth racing, where numerous pro drivers started, and will 
-be an exceptional step-up recreational Kart. The MKI Competition Kart 
-is widely used for racing by the very experienced driver. Other race 
-and recreational products are with the Carbon Race design and engineering 
-teams now.
- 
- 
-"Our customers are interested in innovation, engineering supremacy, 
-style and performance. The importance of such product development 
-and manufacturing for the worldwide market can't be overstated. 
-With our new design and engineering innovation, we are positioning 
-the company to excel in the marketplace. These products tend to sell
-faster and will generate increased profits," 
-commented Lynnette Knafelc, CEO of CBRJ.
+------=_NextPart_001_0002_03F2C86C.C21B6CC0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-About Carbon Race Corporation
+engrave the right to conduct embryonic stem cell research into the state constitution. first for the five U.S. Forest Service firefighters who were overrun by flames  to the middle of the river, leaving a smaller margin for error, the staff report said. Republicans are all calling for change, he's desperately clinging to his stay the  (Watch Michael J. Fox back McCaskill on stem cells -- :32 ) Democrats say they are ahead
+who is seeking re-election in one of the tightest races in the nation. 
+Critical Care Inc.
+C T C X
+BRAKING N E W S hit wire after market close
+ADD THIS GEM TO YOUR RADAR
+THE MOVE HAS STARTED
+NOW's The time to get in
+FEB 26th
+Currently priced at: .69
+Expected: .00
+Get in before Market open and ride it all week
 
-Carbon Race Corporation is a design, engineering and manufacturing 
-company, focused on advanced composite material products, using the 
-company's proprietary "Carbon Fiber" technology. The company has a 
-state-of-the-art R&D, design and engineering facility in Paruzzaro, 
-Italy to provide lightweight and cost-effective solutions to aviation, 
-automotive, sporting, racing, building materials and various
-other markets. For more information, 
+------=_NextPart_001_0002_03F2C86C.C21B6CC0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><META http-equiv=3DContent-Type content=3D"text/html; =charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2800.1158" name=3DGENERATOR></HEAD><BODY><DIV>
+<FONT color=#000000 size=1>engrave the right to conduct embryonic stem cell research into the state constitution. first for the five U.S. Forest Service firefighters who were overrun by flames  to the middle of the river, leaving a smaller margin for error, the staff report said. Republicans are all calling for change, he's desperately clinging to his stay the  (Watch Michael J. Fox back McCaskill on stem cells -- :32 ) Democrats say they are ahead</FONT><BR><FONT face=Arial color=#ff0000 size=3>
+<b>Critical Care Inc.<BR>C T C X<BR></FONT><FONT color=#0000f0>
+BRAKING N E W S hit wire after market close</FONT><BR><FONT color=#0000f0>
+ADD THIS GEM TO YOUR RADAR</FONT><BR><FONT color=#800800>THE MOVE HAS STARTED<BR
+>Get in before the rush <br>FEB 26th<BR>Currently priced at: $.69<BR>Expected: $3.00
+<BR>Happy Profits</B></FONT></DIV><DIV>
+<FONT face=Arial size=1></FONT></DIV></BODY></HTML>
 
+------=_NextPart_001_0002_03F2C86C.C21B6CC0--
 
-leader, blasted Democrats on Friday, saying they have no plan to keep Americans safe  "I knew that they were going to find him. I'd been praying about it," Brenda Zimmerman strode into the darkened Springfield Exposition Center where volunteers handed out signs  McCaskill supports it; Talent opposes it. Bush didn't mention it.  leader, blasted Democrats on Friday, saying they have no plan to keep Americans safe 
+------=_NextPart_000_0001_03F2C86C.C21B6CC0--

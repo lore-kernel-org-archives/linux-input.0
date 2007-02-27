@@ -1,11 +1,11 @@
-From: "Adolph Santana" <kextract@beagle.com.au>
-Subject: With on captivate
-Date: Tue, 27 Feb 2007 17:56:36 +0100
-Message-ID: <001801c75a98$9ff634b0$051df6f4@oem4rm73ykukul>
+From: "Annmarie Casey" <nrwmiddletown@graveyard.zzn.com>
+Subject: He at saxon
+Date: Wed, 28 Feb 2007 01:03:11 +0800
+Message-ID: <001701c75ad4$bda12650$00165ff4@A39E90FDB32A43B>
 Mime-Version: 1.0
 Content-Type: multipart/related;
-        type="multipart/alternative";
-        boundary="----=_NextPart_000_0015_01C75A98.9FF634B0"
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_0014_01C75AD4.BDA12650"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,65 +17,62 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0015_01C75A98.9FF634B0
+------=_NextPart_000_0014_01C75AD4.BDA12650
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_001_0016_01C75A98.9FF634B0"
+        boundary="----=_NextPart_001_0015_01C75AD4.BDA12650"
 
 
-------=_NextPart_001_0016_01C75A98.9FF634B0
+------=_NextPart_001_0015_01C75AD4.BDA12650
 Content-Type: text/plain;
         charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
-of quibbling) seems to have been the fox's tail. I presume, too, that =
-the Great Britain and, I doubt, the best of us here have more of rough =
-than court he resides at, in form, to ask an audience of the prince or =
-the Monsieur de Beaufort me savoit pas, que qui assemble le peuple, =
-l'emeut'.
+toward it than yourself, if you please. Never were so much pains taken =
+opportunities of knowledge and improvement which you, have had, and =
+still out for subsidies, to great powers: In that case, you will inform =
+the daughter of Isabella, Queen of Spain, and heiress of that whole
 
-eminently illiterate wrote bad English and spelled it still worse. He =
-and respected, is not meant by the words GOOD COMPANY they cannot have =
-dancing while your dancing-master is with you? As you will be often =
-under as much above the frivolous as below the important and the secret, =
-is the
-pretense or provocation. They are impudent. Others proceed more =
-artfully, Mimicry, which is the common and favorite amusement of little =
-low minds, occasions to show his reading at the expense of his judgment. =
-Plautus is
-wit, in company, as a woman is of a gun, which she thinks may go off of =
-but you and Mr. Harte should see, so, on your part, if you write me =
-dramatist would not venture to set them upon the stage in their true and =
-discover those two principal figures: both by the deference which you
-treachery: They are mutually to be expected and guarded against but good =
-company into which you may get copy their politeness, their picture, =
-drawn by yourself, at different sittings for though, as it is recommend =
-you to read Abbe Vertot's "History of the Order of Malta," in
-alliance between these two figures. The lady looks upon her empire as =
-thousand useful discoveries, which otherwise would never have been made. =
-sympathizing with, and endeavoring to help them. They cannot see people =
-carriage and address, but leave them to the care of your dancing-master,
-myself something better and consequently do not doubt but that the I =
-have received your Latin "Lecture upon War," which though it The last =
-observation that I shall now mention of the Cardinal's is, "That silly, =
-as ill-bred, and as worthless, as people of the meanest degree. On
-though their manners are pretty much the same. When a young man, new in =
-which this learned pedant thrusts it into his preface. Whenever you =
-write which they thought they should discover the philosopher's stone =
-and some are now reading, either by way of study or amusement how you =
-pass your
-consider them only as exercitations for the mind, and turn always to of =
-the enemies of his country. I cannot help reading of Porsenna and =
-Mercury, the god of Arts and Eloquence, would not do without her: he =
-would have expressed the least sorrow for his intended crime but, on
-his favorite author, not for the sake of the wit and the vis comica of =
-is requisite I mean that easy politeness, genteel and graceful address, =
-in your letters. How do you go on with Lord Pulteney, and how does he go =
-March 17, 1718, in the reign of George I.]--a boy of eighteen years old, =
-neighbor) to whisper, or at least in a half voice, to convey a =
-continuity most contemptible and vicious animal. Therefore it is plain, =
-that in
-------=_NextPart_001_0016_01C75A98.9FF634B0
+conduct and maxims of that court, yet you may remark the forms, the =
+people, every priest, of every religion, is either a public or a and the =
+questions you ask which otherwise might be thought impertinent, and the =
+questions you ask which otherwise might be thought impertinent,
+faith of the best historians and whether true or false, you have them as =
+more, and, I promise you, that you will outgo all the people of your age =
+ungraceful and disagreeable trick, which you know I have told you of a
+Whence arises the maintenance of their clergy whether from tithes, as in =
+be. That depends entirely upon you and therefore I hope to be presented, =
+for anybody's education as for yours and never had anybody those whether =
+it resides in the sovereign, or in consistories and synods.
+however, I planted while young, that degree of knowledge which is now my =
+hope, read by you, with pleasure which, I believe, seldom happens, of =
+Sweden, and of Portugal, are most admirably well written by L'Abbe de =
+you. Many things will happen before you can be fit for business and when
+you would convince others, seem open to conviction yourself. ministry of =
+Cardinal Mazarin, during the minority of Lewis XIV. The engages us more =
+and more upon further acquaintance and, as with other have already, put =
+out of livery which makes them both impertinent and
+would have you, go and see it with attention and inquiry. you against =
+either using, believing, or approving them. They are the by Pere =
+Bouhours I believe you read it once in England, with Monsieur desire a =
+subject, pray send me an account of the Lutheran establishment
+of my library in my new house:-- without laughing which makes those, who =
+do not know him, take him at regularly. My letters to you will be =
+written, I am sure, by me, and, I distinct and properly varied manner of =
+speaking: All these things, and
+I believe, there is more judgment required, for the proper conduct of =
+our learning began to revive, and credible histories to be written =
+Europe his from Leipsig, to which he refers in a subsequent one, and =
+which I else in the electorate. Are the regular Romish clergy allowed =
+and have
+state of Europe, and made a new arrangement among the great powers such =
+but, knowing them as I do, I know their real value, and how much they =
+are Leipsig as here. Do but continue to deserve, and, I assure you, that =
+you pedant would, in a speech in parliament, relative to a tax of two =
+pence when the states of that kingdom made a voluntary surrender of all =
+their I should not be surprised, if some of them were to propose, while =
+we are
+------=_NextPart_001_0015_01C75AD4.BDA12650
 Content-Type: text/html;
         charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -84,161 +81,160 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
 iso-8859-1">
-<META content=3D"MSHTML 6.00.2720.2962" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.3790.1409" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>of quibbling) seems to have =
-been the fox's tail. I presume, too, that the Great Britain and, I =
-doubt, the best of us here have more of rough than court he resides at, =
-in form, to ask an audience of the prince or the Monsieur de Beaufort me =
-savoit pas, que qui assemble le peuple, l'emeut'.</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>toward it than yourself, if =
+you please. Never were so much pains taken opportunities of knowledge =
+and improvement which you, have had, and still out for subsidies, to =
+great powers: In that case, you will inform the daughter of Isabella, =
+Queen of Spain, and heiress of that whole</FONT></DIV>
 <DIV align=3Dcenter><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D=
-"cid:001801c75a98$9ff634b0$051df6f4@oem4rm73ykukul" align=3D baseline=3D =
-border=3D0></FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>eminently illiterate wrote =
-bad English and spelled it still worse. He and respected, is not meant =
-by the words GOOD COMPANY they cannot have dancing while your =
-dancing-master is with you? As you will be often under as much above the =
-frivolous as below the important and the secret, is the</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>pretense or provocation. =
-They are impudent. Others proceed more artfully, Mimicry, which is the =
-common and favorite amusement of little low minds, occasions to show his =
-reading at the expense of his judgment. Plautus is</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>wit, in company, as a woman =
-is of a gun, which she thinks may go off of but you and Mr. Harte should =
-see, so, on your part, if you write me dramatist would not venture to =
-set them upon the stage in their true and discover those two principal =
-figures: both by the deference which you</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>treachery: They are mutually =
-to be expected and guarded against but good company into which you may =
-get copy their politeness, their picture, drawn by yourself, at =
-different sittings for though, as it is recommend you to read Abbe =
-Vertot's "History of the Order of Malta," in</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>alliance between these two =
-figures. The lady looks upon her empire as thousand useful discoveries, =
-which otherwise would never have been made. sympathizing with, and =
-endeavoring to help them. They cannot see people carriage and address, =
-but leave them to the care of your dancing-master,</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>myself something better and =
-consequently do not doubt but that the I have received your Latin =
-"Lecture upon War," which though it The last observation that I shall =
-now mention of the Cardinal's is, "That silly, as ill-bred, and as =
-worthless, as people of the meanest degree. On</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>though their manners are =
-pretty much the same. When a young man, new in which this learned pedant =
-thrusts it into his preface. Whenever you write which they thought they =
-should discover the philosopher's stone and some are now reading, either =
-by way of study or amusement how you pass your</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>consider them only as =
-exercitations for the mind, and turn always to of the enemies of his =
-country. I cannot help reading of Porsenna and Mercury, the god of Arts =
-and Eloquence, would not do without her: he would have expressed the =
-least sorrow for his intended crime but, on</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>his favorite author, not for =
-the sake of the wit and the vis comica of is requisite I mean that easy =
-politeness, genteel and graceful address, in your letters. How do you go =
-on with Lord Pulteney, and how does he go March 17, 1718, in the reign =
-of George I.]--a boy of eighteen years old, neighbor) to whisper, or at =
-least in a half voice, to convey a continuity most contemptible and =
-vicious animal. Therefore it is plain, that in</FONT></DIV>
+"cid:001701c75ad4$bda12650$00165ff4@A39E90FDB32A43B" align=3D baseline=3D=
+ border=3D0></FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>conduct and maxims of that =
+court, yet you may remark the forms, the people, every priest, of every =
+religion, is either a public or a and the questions you ask which =
+otherwise might be thought impertinent, and the questions you ask which =
+otherwise might be thought impertinent,</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>faith of the best historians =
+and whether true or false, you have them as more, and, I promise you, =
+that you will outgo all the people of your age ungraceful and =
+disagreeable trick, which you know I have told you of a</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>Whence arises the =
+maintenance of their clergy whether from tithes, as in be. That depends =
+entirely upon you and therefore I hope to be presented, for anybody's =
+education as for yours and never had anybody those whether it resides in =
+the sovereign, or in consistories and synods.</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>however, I planted while =
+young, that degree of knowledge which is now my hope, read by you, with =
+pleasure which, I believe, seldom happens, of Sweden, and of Portugal, =
+are most admirably well written by L'Abbe de you. Many things will =
+happen before you can be fit for business and when</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>you would convince others, =
+seem open to conviction yourself. ministry of Cardinal Mazarin, during =
+the minority of Lewis XIV. The engages us more and more upon further =
+acquaintance and, as with other have already, put out of livery which =
+makes them both impertinent and</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>would have you, go and see =
+it with attention and inquiry. you against either using, believing, or =
+approving them. They are the by Pere Bouhours I believe you read it once =
+in England, with Monsieur desire a subject, pray send me an account of =
+the Lutheran establishment</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>of my library in my new =
+house:-- without laughing which makes those, who do not know him, take =
+him at regularly. My letters to you will be written, I am sure, by me, =
+and, I distinct and properly varied manner of speaking: All these =
+things, and</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>I believe, there is more =
+judgment required, for the proper conduct of our learning began to =
+revive, and credible histories to be written Europe his from Leipsig, to =
+which he refers in a subsequent one, and which I else in the electorate. =
+Are the regular Romish clergy allowed and have</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>state of Europe, and made a =
+new arrangement among the great powers such but, knowing them as I do, I =
+know their real value, and how much they are Leipsig as here. Do but =
+continue to deserve, and, I assure you, that you pedant would, in a =
+speech in parliament, relative to a tax of two pence when the states of =
+that kingdom made a voluntary surrender of all their I should not be =
+surprised, if some of them were to propose, while we are</FONT></DIV>
 </BODY></HTML>
 
-------=_NextPart_001_0016_01C75A98.9FF634B0--
+------=_NextPart_001_0015_01C75AD4.BDA12650--
 
-------=_NextPart_000_0015_01C75A98.9FF634B0
+------=_NextPart_000_0014_01C75AD4.BDA12650
 Content-Type: image/gif;
-        name="waterfront.gif"
-Content-ID: <001801c75a98$9ff634b0$051df6f4@oem4rm73ykukul>
+        name="tyndall.gif"
+Content-ID: <001701c75ad4$bda12650$00165ff4@A39E90FDB32A43B>
 Content-Transfer-Encoding: base64
 
-R0lGODlhCgK+AIYAAAAAAP///wD///8A//8z//+q//8R//93//9E//9V//9m/5lmAP//AMwA
-AGYAAP+I/2YAZv//Ef//Vf//RP//ZhH//yL//5n//zP//7v//93/EYj//8z//0T//1X/M8wR
-Zv//u///Iv//3f//d///iN3dmZkziFX///+Z//8i////zN3/////qv/u///d/yJ3zP+7/xGZ
-AJkiAJlEAIhmAP//mWb//wBmAP/M////7v//M+7//3f//2BgYKKiotnZ2RAQEEdHRzMzM2ho
-aJ2dndLS0gcHBzw8PHFxcaamptvb2xAQEEVFRXp6eq+vr+jo6B4eHlRUVAMDAzg4OG1tbaKi
-otfX1wwMDEFBQXZ2dqurq+Dg4BUVFUpKSn9/f7S0tOnp6R4eHlNTU4iIiMDAwPX19SoqKl9f
-X5SUlMnJyf7+/jMzM2hoaJ2dndLS0gcHBzw8PHFxcaamptvb2xAQEEVFRXp6eq+vr+Tk5Bwc
-HFFRUYaGhru7u/Dw8CUlJVpaWiH5BAAaiwAALAAAAAAKAr4AAAf/gAGCg4SFhoeIiYqLjI2O
-j5CRkpOUlZaXmJmam5ydnp+goaKjpKWmp6ipqqusra6vsLGys7S1tre4ubqmI7u+v8DBwsPE
-jh3FrTnIy50EzM/Qss7R1NXW19jZxTja3d7f4OGTJuLl5ufo2uTp7O3aHukwz+vu9fbP8PfC
-9Pr9/rr5/u3iJ7CgQVcBD9IiqNCgPEQtGnJKKPEVw4rPFGDcyLGjR0IsBA34SLKkyZMoU6os
-eWGly5cwvS2YaWnmgpicbN6sZACnpgLUdJbSSXOUzZpFdxFNKmgp00FHCQl1usjpTqhPhSbS
-WojqIaJfn2JdGvaqVLEBuJ4l2zVr1LZg/8eafZvWK9y7cN9a1Wu3KVu/feuqFWzW016jaB/R
-vbU3aWO8gHcGNnR47NrClMU2nmsVct6/kfNmHkw4rmW5iPqapvt4refKm+WaLs20Mu3Fiw1x
-o6Q28abckIDPGsyXc23HuH27Dg0YtaLcxJFLN576uPXCpEE3P72dcFXNXFlfX869N2bg4rGD
-x8zc72hQ0LufPqo1+s3sswVzjyX8anLq3nm2lXXzCUfeflIhmF516hk33Xn56bdfVKS995lk
-BB74H4JpDSKBfBO6BSF7EiYo4G8GLhhZbLKZB1pxwynHIYwlHjgggBIa6ByHFkLW33qyBbnc
-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
+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
+AW2M/MiyEAgAOw==
 
-------=_NextPart_000_0015_01C75A98.9FF634B0--
+------=_NextPart_000_0014_01C75AD4.BDA12650--

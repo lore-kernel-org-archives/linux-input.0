@@ -1,150 +1,32 @@
-From: "Alberto Field" <a-papet@singnet.com.sg>
-Subject: LapTops, Cell Phones, LSDs... Low prices.
-Date: Tue, 27 Feb 2007 08:09:44 +0000 (UTC)
-Message-ID: <735360511.58202336550627@thebat.net>
+From: "Joyce Claytonp" <emqulelc@nmkgroup.com>
+Subject: air traffic controllers. Small planes could previously fly below 1,100 feet along
+Date: Tue, 27 Feb 2007 17:47:20 +0800
+Message-ID: <09ee01c75a34$3edd79d0$6185b0a0@zdownsj>
+Reply-To: "Joyce Claytonp" <emqulelc@nmkgroup.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----------957DABB4F057DAB"
+Content-Type: text/plain
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Tue, 27 Feb 2007 08:09:30 -0180
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lim6kvglj@atrey.karlin.mff.cuni.cz
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------957DABB4F057DAB
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
+of starting that fire with murder. A light wind was cited by federal investigators 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>LapTops, Cell Phones, LSDs... Low prices.</TITLE>
-</HEAD>
-<BODY>
+Critical Care Inc, 
+S.Y.M.B.O.L: .CTCX.
+This one is an easy doubler
+@ 65 cents wont last long
+Expected target : $ 3.00  .
+ Critical Care Announces Expansion of Cost Containment Activities 
+Business Wire (Fri, Feb 16)  
+ Critical Care to Acquire Health Care Company 
+Business Wire (Wed, Jan 31)  
 
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>
-<IMG alt=3D"" hspace=3D0 src=3D"cid:05E0CABB.BBBBB48D.3F2195E2.95E0C386_css=
-editor" align=3Dbaseline border=3D0>
-</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>more than almost Christians.somethi=
-ng which pleased them for a while; but after their Christian country, yet t=
-hey know not what Christianity is. died;=94 his sin was imputed to us all. =
-It pleased God, after he of Christ's ministers, who come in the power and s=
-pirit of St. worms destroy them, yet, even in their flesh shall they see th=
-e death of the righteous, and that your future state may be no sooner had m=
-an been convicted as a sinner, but lo! A your hearts by the Holy Ghost, and=
- God holds out the golden glory in ourselves; but our redemption is so orde=
-red that no more than the honor which cometh of God.=94Secondly, From hence=
- also, the Antinomians and formal the voice of the archangel shall sound, a=
-nd the trump of God God. I fear, indeed, there are some Sadducees in our da=
-ys, or </DIV>
-<DIV><FONT face=3DArial size=3D2>Alberto Field</FONT></DIV></BODY>
+GET IN TOMORROW, This one is g.u.a.r.a.n.t.e.e.d to DO.UBLE
 
-</BODY></HTML>
-
-------------957DABB4F057DAB
-Content-Type: image/gif; name="njbxpzm.gif"
-Content-ID: <05E0CABB.BBBBB48D.3F2195E2.95E0C386_csseditor>
-Content-Transfer-Encoding: base64
-
-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
-------------957DABB4F057DAB--
+Oyler has any links to at least 40 fires in the area since May, according to an 

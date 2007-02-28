@@ -1,67 +1,41 @@
-From: "Cornelius Polk" <lbgoboist@golddesigner.com>
-Subject: Have atlantes by rhapsody
-Date: Wed, 28 Feb 2007 22:14:13 +0800
-Message-ID: <000f01c75b86$399e00f0$01c0cf34@843B940680CF4B4>
+From: "Sheetal Zarnicki" <thirstiestkilldeers@kudowa.pl>
+Subject: Conversation tips
+Date: Wed, 28 Feb 2007 14:53:57 +0000 (UTC)
+Message-ID: <01c75b48$3ea7dd70$6c822ecf@thirstiestkilldeers>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000C_01C75B86.399E00F0"
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Wed, 28 Feb 2007 14:53:45 +0180
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000C_01C75B86.399E00F0
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Nowadays
+energy supply problems are standing for all people.
+Prices for oil, gas, coal are rising higher and higher.
+
+The governments of many states discuss using of the renewed kinds of energy such as biofuel, energy of the sun and so on. But the question of saving energy also is of great importance. In a view of  it energy conservations is needed vitaly. One of perspective directions is the technology hydrogen. But Proton Exchange Membrane is needed in order to improve this technology. It's developing now by the following company.
 
 
+AC Energy, Inc is an electrochemical power company pioneering strategic energy
+pathways in the milliwatts to kilowatts range. AC Energy is creating
+energy solutions designed for all facets of modern life.
 
+The fuel cell technology, Proton Exchange Membrane ("PEM") is
+touted as the "Catalyst for the Hydrogen Age".
 
-Alert for you..
+PEM, declared as the major candidate to replace the internal
+combustion engine, has created investor interest. Experienced developers, knowledgeable in commercialization questions, possess the expertise to capitalize on new concepts.
+The strategies of AC Energy have an excellent understanding of these
+issues and elive that because the Company has experienced team that certain market niches can be dominated by it.
 
+Read more about Proton exchange membrane at wikipedia.
+AC Energy symbol is ACEN
 
-
-Campaign for: GDKIPrice: $0.125 5 Day Target price: $0.95Market: =
-hellish..
-
-
-
-Insider Buying Alert...
-
-The hottest news are released for GDKI, linux-input...
-
-------=_NextPart_000_000C_01C75B86.399E00F0
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.3790.2962" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#003300 size=3D=
-3D4><FONT size=3D3><STRONG>Alert for you!</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#990033 size=3D=
-4>Campaign for: <b>GDKI</b><br>Price: $0.125 <br>5 Day Target price: =
-$0.95<br>Market: hellish!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0000 size=3D=
-3>Insider Buying Alert!!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#990000 size=3D3>The =
-hottest news are released for GDKI, linux-input..</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000C_01C75B86.399E00F0--
+Watch, trade, invest, buy it today on Feb 28 2007 for tomorrow and beyond tomorrow.

@@ -1,10 +1,10 @@
-From: "Fran Santiago" <peclectic@jami1.com>
-Subject: Not mahayana an delineate
-Date: Wed, 28 Feb 2007 21:55:56 +0800
-Message-ID: <001401c75b83$73534970$069c5374@lhj4>
+From: "Vonda Donnelly" <wvmarquette@2vias.com.ar>
+Subject: Be as buff
+Date: Wed, 28 Feb 2007 15:05:28 +0100
+Message-ID: <001601c75b4a$6e57bde0$051728a4@pc>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0011_01C75B83.73534970"
+        boundary="----=_NextPart_000_0013_01C75B4A.6E57BDE0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,52 +14,50 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0011_01C75B83.73534970
+------=_NextPart_000_0013_01C75B4A.6E57BDE0
 Content-Type: text/plain;
-        charset="iso-8859-1"
+        charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
-Get it before the RUSH...
+BULL MARKET REPORT..
 
+Target sym: GDKIPrice (current): $0.125 5 Day Target price: $0.95Action: =
+Strong Buy/Hold.
 
-Campaign for: GDKIPrice: $0.125 5 Day Target price: $0.95Market: =
-hellish!
+All signs show that this one is going to Explode!!!
 
+The hottest news are released for GDKI, linux-input!!
 
-TRADE SMART AND WIN WITH US NOW!!!
-
-GDKI have released very hot news. Check this out, linux-input.
-
-------=_NextPart_000_0011_01C75B83.73534970
+------=_NextPart_000_0013_01C75B4A.6E57BDE0
 Content-Type: text/html;
-        charset="iso-8859-1"
+        charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.2462.2969" name=3DGENERATOR>
+windows-1251">
+<META content=3D"MSHTML 6.00.2720.3000" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0033 size=3D3D4><FONT =
-size=3D3><STRONG>Get it before the RUSH!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0066 size=3D=
-4>Campaign for: <b>GDKI</b><br>Price: $0.125 <br>5 Day Target price: =
-$0.95<br>Market: hellish!</FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000066 size=3D3>TRADE =
-SMART AND WIN WITH US NOW!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6600FF size=3D4>GDKI =
-have released very hot news. Check this out, linux-input...</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6633FF size=3D3D4><FONT =
+size=3D2><STRONG>BULL MARKET REPORT!</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#333366 size=3D4>Target =
+sym: <b>GDKI</b><br>Price (current): $0.125 <br>5 Day Target price: =
+$0.95<br>Action: Strong Buy/Hold.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3300 size=3D4>All =
+signs show that this one is going to Explode.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000066 size=3D2>The =
+hottest news are released for GDKI, linux-input...</FONT></DIV>
 <BR>
 </BODY></HTML>
 
-------=_NextPart_000_0011_01C75B83.73534970--
+------=_NextPart_000_0013_01C75B4A.6E57BDE0--

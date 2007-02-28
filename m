@@ -1,69 +1,225 @@
-From: "Kareem Keen" <rveracity@cvicse.com>
-Subject: in verity he safari
-Date: Wed, 28 Feb 2007 18:22:51 +0100
-Message-ID: <000f01c75b65$e9ef7f40$0019533c@kgbrpr41ff2uwj>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Fix locking in mousedev
+Date: Wed, 28 Feb 2007 11:06:31 -0800
+Message-ID: <20070228110631.86a150e4.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000C_01C75B65.E9EF7F40"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: dtor@insightbb.com
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000C_01C75B65.E9EF7F40
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+If a process is closing /dev/input/mice and an mouse disconnects simulta-
+neously, the system is likely to oops. This usually happens when someone
+hits <Alt><Ctrl>F1 or logs out from X, and flips a KVM while the system
+is reacting.
 
+I reproduced the issue by running this:
+  while true; do cat </dev/null >/dev/input/mice; done
+This way, it oopses on 2nd or 3rd disconnect reliably. With the patch,
+I can disconnect the mouse 20 times.
 
+Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
 
-THIS ONE IS BEING PROMOTED, TAKE ADVANTAGE!
+---
 
+Discussion
 
+One of the race scenarios is related to the list of handles. The cat
+calls mousedev_close -> mixdev_release, does list_for_each to walk for
+all handles for a given handler. Iterations are longish while it does
+input_close_device -> hidinput_close -> usbhid_close -> usb_kill_urb,
+which sleeps briefly. Into this gap goes khubd and does hid_disconnect ->
+hidinput_disconnect -> input_unregister_device. This corrupts the list
+of handles which cat process is walking.
 
-Target sym: GDKIPrice (current): $0.125 5 Day Target price: $0.95Action: =
-Strong Buy/Hold..
+I was unable to devise a scheme to protect the stock h_list adequately,
+so I implemented a private list of mousedev instances, which can be
+protected correctly.
 
-500% profit guaranted.
+Dmitry, please consider getting rid of the list of handles entirely.
+The other major user is drivers/char/keyboard.c.
 
+Other than that, the patch is straightforward. It adds a static mutex
+to guard common data structures. It has to be static because instances
+of mousedev share common structures, such as the mousedev_table[].
 
+This should be uncontroversial, but please let me know if I missed
+something obvious.
 
-GDKI has a nice fresh news, linux-input!!!
+-- Pete
 
-
-
-------=_NextPart_000_000C_01C75B65.E9EF7F40
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2800.1409" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D=
-3D4><FONT size=3D3><STRONG>THIS ONE IS BEING PROMOTED, TAKE =
-ADVANTAGE..</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6633FF size=3D4>Target =
-sym: <b>GDKI</b><br>Price (current): $0.125 <br>5 Day Target price: =
-$0.95<br>Action: Strong Buy/Hold.</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D4>500% =
-profit guaranted..</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#333366 size=3D4>GDKI =
-has a nice fresh news, linux-input!!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000C_01C75B65.E9EF7F40--
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 664bcc8..2425c2a 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -20,6 +20,7 @@
+ #include <linux/init.h>
+ #include <linux/input.h>
+ #include <linux/smp_lock.h>
++#include <linux/mutex.h>
+ #include <linux/random.h>
+ #include <linux/major.h>
+ #include <linux/device.h>
+@@ -64,6 +65,7 @@ struct mousedev {
+ 	char name[16];
+ 	wait_queue_head_t wait;
+ 	struct list_head list;
++	struct list_head h_node;
+ 	struct input_handle handle;
+ 
+ 	struct mousedev_hw_data packet;
+@@ -108,10 +110,13 @@ static unsigned char mousedev_imps_seq[] = { 0xf3, 200, 0xf3, 100, 0xf3, 80 };
+ static unsigned char mousedev_imex_seq[] = { 0xf3, 200, 0xf3, 200, 0xf3, 80 };
+ 
+ static struct input_handler mousedev_handler;
++static LIST_HEAD(mousedev_h_list);
+ 
+ static struct mousedev *mousedev_table[MOUSEDEV_MINORS];
+ static struct mousedev mousedev_mix;
+ 
++static DEFINE_MUTEX(mousedev_lock);
++
+ #define fx(i)  (mousedev->old_x[(mousedev->pkt_count - (i)) & 03])
+ #define fy(i)  (mousedev->old_y[(mousedev->pkt_count - (i)) & 03])
+ 
+@@ -366,11 +371,9 @@ static void mousedev_free(struct mousedev *mousedev)
+ 
+ static void mixdev_release(void)
+ {
+-	struct input_handle *handle;
+-
+-	list_for_each_entry(handle, &mousedev_handler.h_list, h_node) {
+-		struct mousedev *mousedev = handle->private;
++	struct mousedev *mousedev;
+ 
++	list_for_each_entry(mousedev, &mousedev_h_list, h_node) {
+ 		if (!mousedev->open) {
+ 			if (mousedev->exist)
+ 				input_close_device(&mousedev->handle);
+@@ -386,6 +389,7 @@ static int mousedev_release(struct inode * inode, struct file * file)
+ 
+ 	mousedev_fasync(-1, file, 0);
+ 
++	mutex_lock(&mousedev_lock);
+ 	list_del(&list->node);
+ 
+ 	if (!--list->mousedev->open) {
+@@ -398,6 +402,7 @@ static int mousedev_release(struct inode * inode, struct file * file)
+ 				mousedev_free(list->mousedev);
+ 		}
+ 	}
++	mutex_unlock(&mousedev_lock);
+ 
+ 	kfree(list);
+ 	return 0;
+@@ -406,7 +411,6 @@ static int mousedev_release(struct inode * inode, struct file * file)
+ static int mousedev_open(struct inode * inode, struct file * file)
+ {
+ 	struct mousedev_list *list;
+-	struct input_handle *handle;
+ 	struct mousedev *mousedev;
+ 	int i;
+ 
+@@ -417,11 +421,16 @@ static int mousedev_open(struct inode * inode, struct file * file)
+ #endif
+ 		i = iminor(inode) - MOUSEDEV_MINOR_BASE;
+ 
+-	if (i >= MOUSEDEV_MINORS || !mousedev_table[i])
++	mutex_lock(&mousedev_lock);
++	if (i >= MOUSEDEV_MINORS || !mousedev_table[i]) {
++		mutex_unlock(&mousedev_lock);
+ 		return -ENODEV;
++	}
+ 
+-	if (!(list = kzalloc(sizeof(struct mousedev_list), GFP_KERNEL)))
++	if (!(list = kzalloc(sizeof(struct mousedev_list), GFP_KERNEL))) {
++		mutex_unlock(&mousedev_lock);
+ 		return -ENOMEM;
++	}
+ 
+ 	spin_lock_init(&list->packet_lock);
+ 	list->pos_x = xres / 2;
+@@ -432,16 +441,16 @@ static int mousedev_open(struct inode * inode, struct file * file)
+ 
+ 	if (!list->mousedev->open++) {
+ 		if (list->mousedev->minor == MOUSEDEV_MIX) {
+-			list_for_each_entry(handle, &mousedev_handler.h_list, h_node) {
+-				mousedev = handle->private;
++			list_for_each_entry(mousedev, &mousedev_h_list, h_node) {
+ 				if (!mousedev->open && mousedev->exist)
+-					input_open_device(handle);
++					input_open_device(&mousedev->handle);
+ 			}
+ 		} else
+ 			if (!mousedev_mix.open && list->mousedev->exist)
+ 				input_open_device(&list->mousedev->handle);
+ 	}
+ 
++	mutex_unlock(&mousedev_lock);
+ 	return 0;
+ }
+ 
+@@ -604,7 +613,6 @@ static ssize_t mousedev_read(struct file * file, char __user * buffer, size_t co
+ 	return count;
+ }
+ 
+-/* No kernel lock - fine */
+ static unsigned int mousedev_poll(struct file *file, poll_table *wait)
+ {
+ 	struct mousedev_list *list = file->private_data;
+@@ -631,14 +639,19 @@ static struct input_handle *mousedev_connect(struct input_handler *handler, stru
+ 	struct class_device *cdev;
+ 	int minor = 0;
+ 
++	mutex_lock(&mousedev_lock);
++
+ 	for (minor = 0; minor < MOUSEDEV_MINORS && mousedev_table[minor]; minor++);
+ 	if (minor == MOUSEDEV_MINORS) {
++		mutex_unlock(&mousedev_lock);
+ 		printk(KERN_ERR "mousedev: no more free mousedev devices\n");
+ 		return NULL;
+ 	}
+ 
+-	if (!(mousedev = kzalloc(sizeof(struct mousedev), GFP_KERNEL)))
++	if (!(mousedev = kzalloc(sizeof(struct mousedev), GFP_KERNEL))) {
++		mutex_unlock(&mousedev_lock);
+ 		return NULL;
++	}
+ 
+ 	INIT_LIST_HEAD(&mousedev->list);
+ 	init_waitqueue_head(&mousedev->wait);
+@@ -664,6 +677,9 @@ static struct input_handle *mousedev_connect(struct input_handler *handler, stru
+ 	sysfs_create_link(&input_class.subsys.kset.kobj, &cdev->kobj,
+ 			  mousedev->name);
+ 
++	list_add_tail(&mousedev->h_node, &mousedev_h_list);
++
++	mutex_unlock(&mousedev_lock);
+ 	return &mousedev->handle;
+ }
+ 
+@@ -672,6 +688,9 @@ static void mousedev_disconnect(struct input_handle *handle)
+ 	struct mousedev *mousedev = handle->private;
+ 	struct mousedev_list *list;
+ 
++	mutex_lock(&mousedev_lock);
++	list_del(&mousedev->h_node);
++
+ 	sysfs_remove_link(&input_class.subsys.kset.kobj, mousedev->name);
+ 	class_device_destroy(&input_class,
+ 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
+@@ -687,6 +706,7 @@ static void mousedev_disconnect(struct input_handle *handle)
+ 			input_close_device(handle);
+ 		mousedev_free(mousedev);
+ 	}
++	mutex_unlock(&mousedev_lock);
+ }
+ 
+ static const struct input_device_id mousedev_ids[] = {

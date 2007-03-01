@@ -1,746 +1,239 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: PROBLEM: "BUG:" when resuming from suspend-to-ram
-Date: Thu, 1 Mar 2007 00:36:26 -0500
-Message-ID: <200703010036.28166.dtor@insightbb.com>
-References: <1172601905.5428.28.camel@localhost.localdomain> <1172622441.4587.14.camel@localhost.localdomain> <200702281345.15098.rjw@sisk.pl>
+From: "Sebastian Shipley" <a-much123@aedesigns.net>
+Subject: Low-price Soft Viagra is at $1.62 only.
+Date: Thu, 1 Mar 2007 06:47:44 +0000 (UTC)
+Message-ID: <01c75bcd$75f98aa0$6c822ecf@a-much123>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_000F_01C75BE6.9B46C2A0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200702281345.15098.rjw@sisk.pl>
-Content-Disposition: inline
+Date: Thu, 1 Mar 2007 06:47:20 -0180
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Kristian =?iso-8859-15?q?Gr=F8nfeldt_S=F8rensen?= <kriller@vkr.dk>, Linux kernel mailing list <linux-kernel@vger.kernel.org>
+To: majordomo@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Wednesday 28 February 2007 07:45, Rafael J. Wysocki wrote:
-> 
-> > This gives:
-> > 
-> > (gdb) l *evdev_disconnect+0xb1
-> > 0xa81 is in evdev_disconnect (include/asm/processor.h:716).
-> > 711        However we don't do prefetches for pre XP Athlons currently
-> > 712        That should be fixed. */
-> > 713     #define ARCH_HAS_PREFETCH
-> > 714     static inline void prefetch(const void *x)
-> > 715     {
-> > 716             alternative_input(ASM_NOP4,
-> > 717                               "prefetchnta (%1)",
-> > 718                               X86_FEATURE_XMM,
-> > 719                               "r" (x));
-> > 720     }
-> 
-> Hm, interesting.  Looks like a pointer points to nowhere in
-> input_unregister_device(), but I don't know which one.  This may be
-> an evdev problem ...
-> 
+This is a multi-part message in MIME format.
 
-Please try the patch below.
+------=_NextPart_000_000F_01C75BE6.9B46C2A0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0010_01C75BE6.9B46C2A0"
 
--- 
-Dmitry
 
-Input: use krefs for refcounting in input handlers
+------=_NextPart_001_0010_01C75BE6.9B46C2A0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-This should fix problems whith accessing memory already freed by
-another thread.
+ this I what we are directed to in scripture; by our bringing him by the Fa=
+ther: =91Father, I will that they also whom thou holy be holy still; knowin=
+g, that he who is most pure in heart, and old, now-a-days, come running to =
+worship our blessed almost Christians; and then conclude with a general but=
+ having no root in themselves, no inward principle of But to proceed in the=
+ character of an Almost Christian: If we things; before whom also I speak f=
+reely; for I am persuaded the words of one who has drunk deeply of electing=
+ love, it every one that thirsteth, come unto the waters of life, and so ho=
+ly, yet we cannot, on account of that, hope for confess; and we hope, when =
+speaking of these things, we This is a golden chain indeed! and, what is be=
+st of all, not one when believers enter into their eternal rest, as God ent=
+ered Sebastian Shipley
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
 
- drivers/input/evdev.c    |   62 ++++++++++-------
- drivers/input/joydev.c   |   51 +++++++++-----
- drivers/input/mousedev.c |  166 +++++++++++++++++++++++++++++++++--------------
- drivers/input/tsdev.c    |   65 +++++++++++-------
- 4 files changed, 227 insertions(+), 117 deletions(-)
+------=_NextPart_001_0010_01C75BE6.9B46C2A0
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Index: work/drivers/input/evdev.c
-===================================================================
---- work.orig/drivers/input/evdev.c
-+++ work/drivers/input/evdev.c
-@@ -29,8 +29,10 @@ struct evdev {
- 	char name[16];
- 	struct input_handle handle;
- 	wait_queue_head_t wait;
--	struct evdev_list *grab;
-+	struct kref kref;
- 	struct list_head list;
-+
-+	struct evdev_list *grab;
- };
- 
- struct evdev_list {
-@@ -94,53 +96,62 @@ static int evdev_flush(struct file *file
- 	return input_flush_device(&list->evdev->handle, file);
- }
- 
--static void evdev_free(struct evdev *evdev)
-+static void evdev_free(struct kref *kref)
- {
-+	struct evdev *evdev = container_of(kref, struct evdev, kref);
-+
- 	evdev_table[evdev->minor] = NULL;
- 	kfree(evdev);
- }
- 
--static int evdev_release(struct inode * inode, struct file * file)
-+static int evdev_release(struct inode *inode, struct file *file)
- {
- 	struct evdev_list *list = file->private_data;
-+	struct evdev *evdev = list->evdev;
- 
--	if (list->evdev->grab == list) {
--		input_release_device(&list->evdev->handle);
--		list->evdev->grab = NULL;
-+	if (evdev->grab == list) {
-+		input_release_device(&evdev->handle);
-+		evdev->grab = NULL;
- 	}
- 
- 	evdev_fasync(-1, file, 0);
-+
- 	list_del(&list->node);
-+	kfree(list);
- 
--	if (!--list->evdev->open) {
--		if (list->evdev->exist)
--			input_close_device(&list->evdev->handle);
--		else
--			evdev_free(list->evdev);
--	}
-+	if (!--evdev->open && evdev->exist)
-+		input_close_device(&evdev->handle);
-+
-+	kref_put(&evdev->kref, evdev_free);
- 
--	kfree(list);
- 	return 0;
- }
- 
--static int evdev_open(struct inode * inode, struct file * file)
-+static int evdev_open(struct inode *inode, struct file *file)
- {
- 	struct evdev_list *list;
-+	struct evdev *evdev;
- 	int i = iminor(inode) - EVDEV_MINOR_BASE;
- 
--	if (i >= EVDEV_MINORS || !evdev_table[i] || !evdev_table[i]->exist)
-+	if (i >= EVDEV_MINORS)
-+		return -ENODEV;
-+
-+	evdev = evdev_table[i];
-+	if (!evdev || !evdev->exist)
- 		return -ENODEV;
- 
--	if (!(list = kzalloc(sizeof(struct evdev_list), GFP_KERNEL)))
-+	list = kzalloc(sizeof(struct evdev_list), GFP_KERNEL);
-+	if (!list)
- 		return -ENOMEM;
- 
--	list->evdev = evdev_table[i];
--	list_add_tail(&list->node, &evdev_table[i]->list);
-+	kref_get(&evdev->kref);
-+
-+	list->evdev = evdev;
-+	list_add_tail(&list->node, &evdev->list);
- 	file->private_data = list;
- 
--	if (!list->evdev->open++)
--		if (list->evdev->exist)
--			input_open_device(&list->evdev->handle);
-+	if (!evdev->open++ && evdev->exist)
-+		input_open_device(&evdev->handle);
- 
- 	return 0;
- }
-@@ -629,9 +640,11 @@ static struct input_handle *evdev_connec
- 		return NULL;
- 	}
- 
--	if (!(evdev = kzalloc(sizeof(struct evdev), GFP_KERNEL)))
-+	evdev = kzalloc(sizeof(struct evdev), GFP_KERNEL);
-+	if (!evdev)
- 		return NULL;
- 
-+	kref_init(&evdev->kref);
- 	INIT_LIST_HEAD(&evdev->list);
- 	init_waitqueue_head(&evdev->wait);
- 
-@@ -672,8 +685,9 @@ static void evdev_disconnect(struct inpu
- 		wake_up_interruptible(&evdev->wait);
- 		list_for_each_entry(list, &evdev->list, node)
- 			kill_fasync(&list->fasync, SIGIO, POLL_HUP);
--	} else
--		evdev_free(evdev);
-+	}
-+
-+	kref_put(&evdev->kref, evdev_free);
- }
- 
- static const struct input_device_id evdev_ids[] = {
-Index: work/drivers/input/joydev.c
-===================================================================
---- work.orig/drivers/input/joydev.c
-+++ work/drivers/input/joydev.c
-@@ -43,7 +43,9 @@ struct joydev {
- 	char name[16];
- 	struct input_handle handle;
- 	wait_queue_head_t wait;
-+	struct kref kref;
- 	struct list_head list;
-+
- 	struct js_corr corr[ABS_MAX + 1];
- 	struct JS_DATA_SAVE_TYPE glue;
- 	int nabs;
-@@ -139,8 +141,10 @@ static int joydev_fasync(int fd, struct 
- 	return retval < 0 ? retval : 0;
- }
- 
--static void joydev_free(struct joydev *joydev)
-+static void joydev_free(struct kref *kref)
- {
-+	struct joydev *joydev = container_of(kref, struct joydev, kref);
-+
- 	joydev_table[joydev->minor] = NULL;
- 	kfree(joydev);
- }
-@@ -148,40 +152,46 @@ static void joydev_free(struct joydev *j
- static int joydev_release(struct inode * inode, struct file * file)
- {
- 	struct joydev_list *list = file->private_data;
-+	struct joydev *joydev = list->joydev;
- 
- 	joydev_fasync(-1, file, 0);
- 
- 	list_del(&list->node);
-+	kfree(list);
- 
--	if (!--list->joydev->open) {
--		if (list->joydev->exist)
--			input_close_device(&list->joydev->handle);
--		else
--			joydev_free(list->joydev);
--	}
-+	if (!--joydev->open && joydev->exist)
-+		input_close_device(&list->joydev->handle);
-+
-+	kref_put(&joydev->kref, joydev_free);
- 
--	kfree(list);
- 	return 0;
- }
- 
- static int joydev_open(struct inode *inode, struct file *file)
- {
- 	struct joydev_list *list;
-+	struct joydev *joydev;
- 	int i = iminor(inode) - JOYDEV_MINOR_BASE;
- 
--	if (i >= JOYDEV_MINORS || !joydev_table[i])
-+	if (i >= JOYDEV_MINORS)
- 		return -ENODEV;
- 
--	if (!(list = kzalloc(sizeof(struct joydev_list), GFP_KERNEL)))
-+	joydev = joydev_table[i];
-+	if (!joydev || !joydev->exist)
-+		return -ENODEV;
-+
-+	list = kzalloc(sizeof(struct joydev_list), GFP_KERNEL);
-+	if (!list)
- 		return -ENOMEM;
- 
--	list->joydev = joydev_table[i];
--	list_add_tail(&list->node, &joydev_table[i]->list);
-+	kref_get(&joydev->kref);
-+
-+	list->joydev = joydev;
-+	list_add_tail(&list->node, &joydev->list);
- 	file->private_data = list;
- 
--	if (!list->joydev->open++)
--		if (list->joydev->exist)
--			input_open_device(&list->joydev->handle);
-+	if (!joydev->open++ && joydev->exist)
-+		input_open_device(&list->joydev->handle);
- 
- 	return 0;
- }
-@@ -198,7 +208,7 @@ static ssize_t joydev_read(struct file *
- 	struct input_dev *input = joydev->handle.dev;
- 	int retval = 0;
- 
--	if (!list->joydev->exist)
-+	if (!joydev->exist)
- 		return -ENODEV;
- 
- 	if (count < sizeof(struct js_event))
-@@ -478,9 +488,11 @@ static struct input_handle *joydev_conne
- 		return NULL;
- 	}
- 
--	if (!(joydev = kzalloc(sizeof(struct joydev), GFP_KERNEL)))
-+	joydev = kzalloc(sizeof(struct joydev), GFP_KERNEL);
-+	if (!joydev)
- 		return NULL;
- 
-+	kref_init(&joydev->kref);
- 	INIT_LIST_HEAD(&joydev->list);
- 	init_waitqueue_head(&joydev->wait);
- 
-@@ -559,8 +571,9 @@ static void joydev_disconnect(struct inp
- 		wake_up_interruptible(&joydev->wait);
- 		list_for_each_entry(list, &joydev->list, node)
- 			kill_fasync(&list->fasync, SIGIO, POLL_HUP);
--	} else
--		joydev_free(joydev);
-+	}
-+
-+	kref_put(&joydev->kref, joydev_free);
- }
- 
- static const struct input_device_id joydev_blacklist[] = {
-Index: work/drivers/input/mousedev.c
-===================================================================
---- work.orig/drivers/input/mousedev.c
-+++ work/drivers/input/mousedev.c
-@@ -62,9 +62,13 @@ struct mousedev {
- 	int open;
- 	int minor;
- 	char name[16];
-+	struct input_handle handle;
- 	wait_queue_head_t wait;
-+	struct kref kref;
- 	struct list_head list;
--	struct input_handle handle;
-+
-+	struct list_head mixdev_node;
-+	int mixdev_open;
- 
- 	struct mousedev_hw_data packet;
- 	unsigned int pkt_count;
-@@ -111,6 +115,8 @@ static struct input_handler mousedev_han
- 
- static struct mousedev *mousedev_table[MOUSEDEV_MINORS];
- static struct mousedev mousedev_mix;
-+static LIST_HEAD(mousedev_mix_list);
-+static DEFINE_MUTEX(mousedev_mix_mutex);
- 
- #define fx(i)  (mousedev->old_x[(mousedev->pkt_count - (i)) & 03])
- #define fy(i)  (mousedev->old_y[(mousedev->pkt_count - (i)) & 03])
-@@ -358,55 +364,112 @@ static int mousedev_fasync(int fd, struc
- 	return retval < 0 ? retval : 0;
- }
- 
--static void mousedev_free(struct mousedev *mousedev)
-+static void mousedev_free(struct kref *kref)
- {
-+	struct mousedev *mousedev = container_of(kref, struct mousedev, kref);
-+
- 	mousedev_table[mousedev->minor] = NULL;
- 	kfree(mousedev);
- }
- 
--static void mixdev_release(void)
-+static int mixdev_add_device(struct mousedev *mousedev)
-+{
-+	int retval = 0;
-+
-+	mutex_lock(&mousedev_mix_mutex);
-+
-+	if (mousedev_mix.open) {
-+		if (!mousedev->open && mousedev->exist) {
-+			retval = input_open_device(&mousedev->handle);
-+			if (retval)
-+				goto out;
-+
-+			mousedev->open++;
-+		}
-+		mousedev->mixdev_open++;
-+	}
-+
-+	list_add_tail(&mousedev->mixdev_node, &mousedev_mix_list);
-+
-+ out:
-+	mutex_unlock(&mousedev_mix_mutex);
-+	return retval;
-+}
-+
-+static void mixdev_remove_device(struct mousedev *mousedev)
- {
--	struct input_handle *handle;
-+	mutex_lock(&mousedev_mix_mutex);
- 
--	list_for_each_entry(handle, &mousedev_handler.h_list, h_node) {
--		struct mousedev *mousedev = handle->private;
-+	if (!--mousedev->mixdev_open)
-+		if (!--mousedev->open && mousedev->exist)
-+			input_close_device(&mousedev->handle);
- 
--		if (!mousedev->open) {
--			if (mousedev->exist)
-+	list_del_init(&mousedev->mixdev_node);
-+
-+	mutex_unlock(&mousedev_mix_mutex);
-+}
-+
-+static void mixdev_open_devices(void)
-+{
-+	struct mousedev *mousedev;
-+
-+	mutex_lock(&mousedev_mix_mutex);
-+
-+	list_for_each_entry(mousedev, &mousedev_mix_list, mixdev_node) {
-+		if (!mousedev->mixdev_open)
-+			if (!mousedev->open && mousedev->exist) {
-+				if (input_open_device(&mousedev->handle))
-+					continue;
-+				mousedev->open++;
-+			}
-+		mousedev->mixdev_open++;
-+	}
-+
-+	mutex_unlock(&mousedev_mix_mutex);
-+}
-+
-+static void mixdev_close_devices(void)
-+{
-+	struct mousedev *mousedev, *next;
-+
-+	mutex_lock(&mousedev_mix_mutex);
-+
-+	list_for_each_entry_safe(mousedev, next, &mousedev_mix_list, mixdev_node) {
-+		if (mousedev->mixdev_open) {
-+			if (!--mousedev->open && mousedev->exist)
- 				input_close_device(&mousedev->handle);
--			else
--				mousedev_free(mousedev);
-+			mousedev->mixdev_open--;
- 		}
- 	}
-+
-+	mutex_unlock(&mousedev_mix_mutex);
- }
- 
--static int mousedev_release(struct inode * inode, struct file * file)
-+static int mousedev_release(struct inode *inode, struct file *file)
- {
- 	struct mousedev_list *list = file->private_data;
-+	struct mousedev *mousedev = list->mousedev;
- 
- 	mousedev_fasync(-1, file, 0);
- 
- 	list_del(&list->node);
-+	kfree(list);
- 
--	if (!--list->mousedev->open) {
--		if (list->mousedev->minor == MOUSEDEV_MIX)
--			mixdev_release();
--		else if (!mousedev_mix.open) {
--			if (list->mousedev->exist)
--				input_close_device(&list->mousedev->handle);
--			else
--				mousedev_free(list->mousedev);
--		}
-+	if (!--mousedev->open) {
-+		if (mousedev->minor == MOUSEDEV_MIX)
-+			mixdev_close_devices();
-+		else if (mousedev->exist)
-+			input_close_device(&mousedev->handle);
- 	}
- 
--	kfree(list);
-+	kref_put(&mousedev->kref, mousedev_free);
-+
- 	return 0;
- }
- 
--static int mousedev_open(struct inode * inode, struct file * file)
-+static int mousedev_open(struct inode *inode, struct file *file)
- {
- 	struct mousedev_list *list;
--	struct input_handle *handle;
- 	struct mousedev *mousedev;
- 	int i;
- 
-@@ -417,29 +480,31 @@ static int mousedev_open(struct inode * 
- #endif
- 		i = iminor(inode) - MOUSEDEV_MINOR_BASE;
- 
--	if (i >= MOUSEDEV_MINORS || !mousedev_table[i])
-+	if (i >= MOUSEDEV_MINORS)
-+		return -ENODEV;
-+
-+	mousedev =  mousedev_table[i];
-+	if (!mousedev || !mousedev->exist)
- 		return -ENODEV;
- 
--	if (!(list = kzalloc(sizeof(struct mousedev_list), GFP_KERNEL)))
-+	list = kzalloc(sizeof(struct mousedev_list), GFP_KERNEL);
-+	if (!list)
- 		return -ENOMEM;
- 
-+	kref_get(&mousedev->kref);
-+
- 	spin_lock_init(&list->packet_lock);
- 	list->pos_x = xres / 2;
- 	list->pos_y = yres / 2;
--	list->mousedev = mousedev_table[i];
--	list_add_tail(&list->node, &mousedev_table[i]->list);
-+	list->mousedev = mousedev;
-+	list_add_tail(&list->node, &mousedev->list);
- 	file->private_data = list;
- 
--	if (!list->mousedev->open++) {
--		if (list->mousedev->minor == MOUSEDEV_MIX) {
--			list_for_each_entry(handle, &mousedev_handler.h_list, h_node) {
--				mousedev = handle->private;
--				if (!mousedev->open && mousedev->exist)
--					input_open_device(handle);
--			}
--		} else
--			if (!mousedev_mix.open && list->mousedev->exist)
--				input_open_device(&list->mousedev->handle);
-+	if (!mousedev->open++) {
-+		if (mousedev->minor == MOUSEDEV_MIX)
-+			mixdev_open_devices();
-+		else if (mousedev->exist)
-+			input_open_device(&mousedev->handle);
- 	}
- 
- 	return 0;
-@@ -629,7 +694,7 @@ static struct input_handle *mousedev_con
- {
- 	struct mousedev *mousedev;
- 	struct class_device *cdev;
--	int minor = 0;
-+	int minor;
- 
- 	for (minor = 0; minor < MOUSEDEV_MINORS && mousedev_table[minor]; minor++);
- 	if (minor == MOUSEDEV_MINORS) {
-@@ -637,10 +702,13 @@ static struct input_handle *mousedev_con
- 		return NULL;
- 	}
- 
--	if (!(mousedev = kzalloc(sizeof(struct mousedev), GFP_KERNEL)))
-+	mousedev = kzalloc(sizeof(struct mousedev), GFP_KERNEL);
-+	if (!mousedev)
- 		return NULL;
- 
-+	kref_init(&mousedev->kref);
- 	INIT_LIST_HEAD(&mousedev->list);
-+	INIT_LIST_HEAD(&mousedev->mixdev_node);
- 	init_waitqueue_head(&mousedev->wait);
- 
- 	mousedev->minor = minor;
-@@ -651,8 +719,7 @@ static struct input_handle *mousedev_con
- 	mousedev->handle.private = mousedev;
- 	sprintf(mousedev->name, "mouse%d", minor);
- 
--	if (mousedev_mix.open)
--		input_open_device(&mousedev->handle);
-+	mixdev_add_device(mousedev);
- 
- 	mousedev_table[minor] = mousedev;
- 
-@@ -675,18 +742,18 @@ static void mousedev_disconnect(struct i
- 	sysfs_remove_link(&input_class.subsys.kset.kobj, mousedev->name);
- 	class_device_destroy(&input_class,
- 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + mousedev->minor));
--	mousedev->exist = 0;
- 
-+	mixdev_remove_device(mousedev);
-+
-+	mousedev->exist = 0;
- 	if (mousedev->open) {
- 		input_close_device(handle);
- 		wake_up_interruptible(&mousedev->wait);
- 		list_for_each_entry(list, &mousedev->list, node)
- 			kill_fasync(&list->fasync, SIGIO, POLL_HUP);
--	} else {
--		if (mousedev_mix.open)
--			input_close_device(handle);
--		mousedev_free(mousedev);
- 	}
-+
-+	kref_put(&mousedev->kref, mousedev_free);
- }
- 
- static const struct input_device_id mousedev_ids[] = {
-@@ -714,7 +781,7 @@ static const struct input_device_id mous
- 		.absbit = { BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE) | BIT(ABS_TOOL_WIDTH) },
- 	},	/* A touchpad */
- 
--	{ }, 	/* Terminating entry */
-+	{ },	/* Terminating entry */
- };
- 
- MODULE_DEVICE_TABLE(input, mousedev_ids);
-@@ -745,13 +812,14 @@ static int __init mousedev_init(void)
- 	if (error)
- 		return error;
- 
--	memset(&mousedev_mix, 0, sizeof(struct mousedev));
-+	kref_init(&mousedev_mix.kref);
- 	INIT_LIST_HEAD(&mousedev_mix.list);
- 	init_waitqueue_head(&mousedev_mix.wait);
--	mousedev_table[MOUSEDEV_MIX] = &mousedev_mix;
- 	mousedev_mix.exist = 1;
- 	mousedev_mix.minor = MOUSEDEV_MIX;
- 
-+	mousedev_table[MOUSEDEV_MIX] = &mousedev_mix;
-+
- 	cdev = class_device_create(&input_class, NULL,
- 			MKDEV(INPUT_MAJOR, MOUSEDEV_MINOR_BASE + MOUSEDEV_MIX), NULL, "mice");
- 	if (IS_ERR(cdev)) {
-Index: work/drivers/input/tsdev.c
-===================================================================
---- work.orig/drivers/input/tsdev.c
-+++ work/drivers/input/tsdev.c
-@@ -110,9 +110,11 @@ struct tsdev {
- 	int open;
- 	int minor;
- 	char name[8];
-+	struct input_handle handle;
- 	wait_queue_head_t wait;
-+	struct kref kref;
- 	struct list_head list;
--	struct input_handle handle;
-+
- 	int x, y, pressure;
- 	struct ts_calibration cal;
- };
-@@ -150,6 +152,7 @@ static int tsdev_open(struct inode *inod
- {
- 	int i = iminor(inode) - TSDEV_MINOR_BASE;
- 	struct tsdev_list *list;
-+	struct tsdev *tsdev;
- 
- 	printk(KERN_WARNING "tsdev (compaq touchscreen emulation) is scheduled "
- 		"for removal.\nSee Documentation/feature-removal-schedule.txt "
-@@ -158,24 +161,31 @@ static int tsdev_open(struct inode *inod
- 	if (i >= TSDEV_MINORS || !tsdev_table[i & TSDEV_MINOR_MASK])
- 		return -ENODEV;
- 
--	if (!(list = kzalloc(sizeof(struct tsdev_list), GFP_KERNEL)))
-+	tsdev = tsdev_table[i & TSDEV_MINOR_MASK];
-+	if (!tsdev || !tsdev->exist)
-+		return -ENODEV;
-+
-+	list = kzalloc(sizeof(struct tsdev_list), GFP_KERNEL);
-+	if (!list)
- 		return -ENOMEM;
- 
--	list->raw = (i >= TSDEV_MINORS/2) ? 1 : 0;
-+	kref_get(&tsdev->kref);
- 
--	i &= TSDEV_MINOR_MASK;
--	list->tsdev = tsdev_table[i];
--	list_add_tail(&list->node, &tsdev_table[i]->list);
-+	list->tsdev = tsdev;
-+	list->raw = (i >= TSDEV_MINORS / 2);
-+	list_add_tail(&list->node, &tsdev->list);
- 	file->private_data = list;
- 
--	if (!list->tsdev->open++)
--		if (list->tsdev->exist)
--			input_open_device(&list->tsdev->handle);
-+	if (!tsdev->open++ && tsdev->exist)
-+		input_open_device(&list->tsdev->handle);
-+
- 	return 0;
- }
- 
--static void tsdev_free(struct tsdev *tsdev)
-+static void tsdev_free(struct kref *kref)
- {
-+	struct tsdev *tsdev = container_of(kref, struct tsdev, kref);
-+
- 	tsdev_table[tsdev->minor] = NULL;
- 	kfree(tsdev);
- }
-@@ -183,17 +193,18 @@ static void tsdev_free(struct tsdev *tsd
- static int tsdev_release(struct inode *inode, struct file *file)
- {
- 	struct tsdev_list *list = file->private_data;
-+	struct tsdev *tsdev = list->tsdev;
- 
- 	tsdev_fasync(-1, file, 0);
--	list_del(&list->node);
- 
--	if (!--list->tsdev->open) {
--		if (list->tsdev->exist)
--			input_close_device(&list->tsdev->handle);
--		else
--			tsdev_free(list->tsdev);
--	}
-+	list_del(&list->node);
- 	kfree(list);
-+
-+	if (!--tsdev->open && tsdev->exist)
-+		input_close_device(&tsdev->handle);
-+
-+	kref_put(&tsdev->kref, tsdev_free);
-+
- 	return 0;
- }
- 
-@@ -201,22 +212,23 @@ static ssize_t tsdev_read(struct file *f
- 			  loff_t * ppos)
- {
- 	struct tsdev_list *list = file->private_data;
-+	struct tsdev *tsdev = list->tsdev;
- 	int retval = 0;
- 
--	if (list->head == list->tail && list->tsdev->exist && (file->f_flags & O_NONBLOCK))
-+	if (list->head == list->tail && tsdev->exist && (file->f_flags & O_NONBLOCK))
- 		return -EAGAIN;
- 
--	retval = wait_event_interruptible(list->tsdev->wait,
--			list->head != list->tail || !list->tsdev->exist);
-+	retval = wait_event_interruptible(tsdev->wait,
-+			list->head != list->tail || !tsdev->exist);
- 
- 	if (retval)
- 		return retval;
- 
--	if (!list->tsdev->exist)
-+	if (!tsdev->exist)
- 		return -ENODEV;
- 
- 	while (list->head != list->tail &&
--	       retval + sizeof (struct ts_event) <= count) {
-+	       retval + sizeof(struct ts_event) <= count) {
- 		if (copy_to_user (buffer + retval, list->event + list->tail,
- 				  sizeof (struct ts_event)))
- 			return -EFAULT;
-@@ -385,9 +397,11 @@ static struct input_handle *tsdev_connec
- 		return NULL;
- 	}
- 
--	if (!(tsdev = kzalloc(sizeof(struct tsdev), GFP_KERNEL)))
-+	tsdev = kzalloc(sizeof(struct tsdev), GFP_KERNEL);
-+	if (!tsdev)
- 		return NULL;
- 
-+	kref_init(&tsdev->kref);
- 	INIT_LIST_HEAD(&tsdev->list);
- 	init_waitqueue_head(&tsdev->wait);
- 
-@@ -441,8 +455,9 @@ static void tsdev_disconnect(struct inpu
- 		wake_up_interruptible(&tsdev->wait);
- 		list_for_each_entry(list, &tsdev->list, node)
- 			kill_fasync(&list->fasync, SIGIO, POLL_HUP);
--	} else
--		tsdev_free(tsdev);
-+	}
-+
-+	kref_put(&tsdev->kref, tsdev_free);
- }
- 
- static const struct input_device_id tsdev_ids[] = {
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 5.00.2314.1300" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>
+<IMG alt=3D"" hspace=3D0 src=3D"cid:006901c75bcd$75f98aa0$6c822ecf@02EV2K-"=
+ align=3Dbaseline border=3D0>
+</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>this I what we are directed to in s=
+cripture; by our bringing him by the Father: =91Father, I will that they al=
+so whom thou holy be holy still; knowing, that he who is most pure in heart=
+, and old, now-a-days, come running to worship our blessed almost Christian=
+s; and then conclude with a general but having no root in themselves, no in=
+ward principle of But to proceed in the character of an Almost Christian: I=
+f we things; before whom also I speak freely; for I am persuaded the words =
+of one who has drunk deeply of electing love, it every one that thirsteth, =
+come unto the waters of life, and so holy, yet we cannot, on account of tha=
+t, hope for confess; and we hope, when speaking of these things, we This is=
+ a golden chain indeed! and, what is best of all, not one when believers en=
+ter into their eternal rest, as God entered </DIV>
+<DIV><FONT face=3DArial size=3D2>Sebastian Shipley</FONT></DIV></BODY>
+</BODY></HTML>
+
+------=_NextPart_001_0010_01C75BE6.9B46C2A0--
+
+------=_NextPart_000_000F_01C75BE6.9B46C2A0
+Content-Type: image/gif;
+	name="crlfcc.gif"
+Content-ID: <006901c75bcd$75f98aa0$6c822ecf@02EV2K->
+Content-Transfer-Encoding: base64
+
+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
+jwiJkSiJk0iJlWiJl1gRgQA=OwA=
+------=_NextPart_000_000F_01C75BE6.9B46C2A0--

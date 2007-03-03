@@ -1,10 +1,10 @@
-From: "Tiffany Villa" <fgrady@bestonsearch.com>
-Subject: My by sandblast
-Date: Sun, 4 Mar 2007 19:39:51 +0100
-Message-ID: <001301c75e95$47dd6c20$00195f24@personale1aiym>
+From: "Brittney Munoz" <jjlwhether@boinman.com>
+Subject: I bump in northernmost
+Date: Sat, 3 Mar 2007 23:51:11 +0100
+Message-ID: <001301c75def$79fdc6b0$01c0c2ec@kamilkz1weyyhn>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0010_01C75E95.47DD6C20"
+        boundary="----=_NextPart_000_0010_01C75DEF.79FDC6B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,25 +14,30 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0010_01C75E95.47DD6C20
+------=_NextPart_000_0010_01C75DEF.79FDC6B0
 Content-Type: text/plain;
         charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 
 
-Alert for you..
 
-Lookup: ARSSCurrent: $0.15 5 Day Target price: $0.75Expected: Steadily =
-climb for the top...
+Take a look at this ONE!
 
 
+Search for: ARSSCurrent price: $0.15 5 Day Target price: $0.75Market: =
+bullish...
 
-All signs show that this one is going to Explode...
 
-See bullish news online right now, linux-input.
 
-------=_NextPart_000_0010_01C75E95.47DD6C20
+TRADE SMART AND WIN WITH US!!
+
+
+
+See the hottest news of the ARSS, linux-input...
+
+
+------=_NextPart_000_0010_01C75DEF.79FDC6B0
 Content-Type: text/html;
         charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
@@ -41,24 +46,24 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
 windows-1252">
-<META content=3D"MSHTML 6.00.2900.1158" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.2600.4682" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D3D4><FONT =
-size=3D3><STRONG>Alert for you...</STRONG></FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#333366 size=3D3D4><FONT =
+size=3D4><STRONG>Take a look at this ONE.</STRONG></FONT></DIV>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0000 size=3D3>Lookup: =
-<b>ARSS</b><br>Current: $0.15 <br>5 Day Target price: $0.75<br>Expected: =
-Steadily climb for the top!</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990033 size=3D3>Search =
+for: <b>ARSS</b><br>Current price: $0.15 <br>5 Day Target price: =
+$0.75<br>Market: bullish!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000000 size=3D4>TRADE =
+SMART AND WIN WITH US!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0033 size=3D4>See the =
+hottest news of the ARSS, linux-input!</FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D4>All =
-signs show that this one is going to Explode!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3300 size=3D2>See =
-bullish news online right now, linux-input.</FONT></DIV>
-<BR><BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0010_01C75E95.47DD6C20--
+------=_NextPart_000_0010_01C75DEF.79FDC6B0--

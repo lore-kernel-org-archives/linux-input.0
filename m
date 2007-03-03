@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <webinfoonline07@bellsouth.net>
 Subject: Certified...Winner......<< Confirm  Reciept >>........
-Date: Sat, 3 Mar 2007 8:30:38 -0500
-Message-ID: <20070303133038.XVDC1662.ibm62aec.bellsouth.net@mail.bellsouth.net>
+Date: Sat, 3 Mar 2007 8:30:44 -0500
+Message-ID: <20070303133044.XVEL1662.ibm62aec.bellsouth.net@mail.bellsouth.net>
 Reply-To: infocenterdepartment01@yahoo.co.uk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1

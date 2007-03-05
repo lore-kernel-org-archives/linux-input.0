@@ -1,10 +1,10 @@
-From: "Claudine Draper" <tvooccidental@cfu.net>
-Subject: The go burr
-Date: Mon, 5 Mar 2007 11:18:03 +0100
-Message-ID: <000f01c75f18$49a67cd0$05f5169c@pcaudun>
+From: "Nona Trujillo" <gnereceptive@deal24.com>
+Subject: No an grammar
+Date: Mon, 5 Mar 2007 19:13:27 +0800
+Message-ID: <001401c75f5a$e2c3da10$069ee7dc@4c84f1719854417>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000C_01C75F18.49A67CD0"
+        boundary="----=_NextPart_000_0011_01C75F5A.E2C3DA10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,53 +14,51 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000C_01C75F18.49A67CD0
+------=_NextPart_000_0011_01C75F5A.E2C3DA10
 Content-Type: text/plain;
-        charset="windows-1250"
+        charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 
 
-THE BULL REPORT!!!
+THE HOTTEST ALERT!
 
 
-S.umbol: ARSSCurrent price: $0.15 5 Day Target price: =
-$0.75Recommendation: very aggresive buy!!!
-
-500%+ profit (short term)..
+Lookup: ARSSCurrent: $0.15 5 Day Target price: $0.75Expected: Steadily =
+climb for the top!!
 
 
+WATCH IT LIKE A HAWK..
 
-Check the news of ARSS, linux-input!!!
+The hottest news are released for ARSS, linux-input...
 
-
-------=_NextPart_000_000C_01C75F18.49A67CD0
+------=_NextPart_000_0011_01C75F5A.E2C3DA10
 Content-Type: text/html;
-        charset="windows-1250"
+        charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.3790.1106" name=3DGENERATOR>
+windows-1251">
+<META content=3D"MSHTML 6.00.2600.1158" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990000 size=3D3D4><FONT =
-size=3D3><STRONG>THE BULL REPORT.</STRONG></FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0000 size=3D3>S.umbol: =
-<b>ARSS</b><br>Current price: $0.15 <br>5 Day Target price: =
-$0.75<br>Recommendation: very aggresive buy...</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#333366 size=3D2>500%+ =
-profit (short term)..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3333 size=3D4>Check =
-the news of ARSS, linux-input!!</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000066 size=3D=
+3D4><FONT size=3D2><STRONG>THE HOTTEST ALERT!!!</STRONG></FONT></DIV>
 <BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF3333 size=3D=
+3>Lookup: <b>ARSS</b><br>Current: $0.15 <br>5 Day Target price: =
+$0.75<br>Expected: Steadily climb for the top.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0066 size=3D3>WATCH =
+IT LIKE A HAWK..</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#333366 size=3D2>The =
+hottest news are released for ARSS, linux-input!!</FONT></DIV>
+<BR><BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_000C_01C75F18.49A67CD0--
+------=_NextPart_000_0011_01C75F5A.E2C3DA10--

@@ -1,12 +1,12 @@
-From: Mrs Felicia Hines <feliciahines1903@yahoo.co.uk>
-Subject: IN HIS LOVE/GET BACK TO ME
-Date: Tue, 6 Mar 2007 20:44:12 +0100
-Message-ID: <200703061944.l26JiC2f000880@n7.sivit.org>
-Reply-To: feliciahines1903@yahoo.co.uk
+From: "Elvia Dawkins" <christopher@oakesdesign.com>
+Subject: William and public ruin they.
+Date: Tue, 6 Mar 2007 21:27:35 +0000 (UTC)
+Message-ID: <01c76036$3d1ed600$6c822ecf@christopher>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7604F.626C0E00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Tue, 6 Mar 2007 21:27:27 -0180
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,39 +15,95 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dearly Beloved,
+This is a multi-part message in MIME format.
 
-My name is Felicia Hines,My husband died after a protracted  illness.My =20
-husband and I made a vow  touplift the own-trodden and the=20
-less-privileged individuals as  he had  passion for persons who can not h=
-elp=20
-themselves due to physical  disability or financial=20
-predicament.
+------=_NextPart_000_0006_01C7604F.626C0E00
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 
-When my late husband was alive he deposited the sum of  Ten  Million=20
-Great Britain Pounds Sterling, which were derived from his vast estates =20
-and investment in capital market with his Financial House in Europe.
+No prescirptions, no doctors, no problems! Buy high-quality pllis and we'll deliver them directly to your home!   Visit Here   http://stersensorial.com/?38796421   Eretic0n Collection Caidlis+ Vaingra+3 Trannsp0rt  10.69   
 
-Recently, my Doctor told me that I have limited months to live  due to=20
-the cancerous problems I am suffering from. Though what bothers   me=20
-most  is the stroke that I have in addition to the cancer.=20
+ Cawilis 50tf Tabz   5. 77   
 
-With this hard  reality that has befallen my family, and me I have=20
-decided to  Give out  this fund to you and want you to use this Fund whic=
-h=20
-comes from  my  husbands effort to fundthe upkeep of widows,=20
-widowers,orphans,   destitute, the  down-trodden,physically challenged=20
-children,barren-women and  persons  who prove to be genuinely handicapped=
-=20
-financially.
+ Vaiggra Proffessoinal  4. 04   
 
-In line with the above, if you know that you will be use of God  to=20
-administer this fund honestly and wisely , then do urgently   contact me=20
-first through this mail and I will furnish with details  on  how you=20
-will be   able  to receive the fund.
+ Geneeirc Vaiwgra  3. 51   
 
-Your prompt response will be highly appreciated.
+ Lorazehpam  1. 72   
 
-Be Blessed.
-Your Sister
-Mrs Felicia Hines
+ Ulwtram  2. 21   
+
+ Paaxil  2. 05   
+
+ Amtbien  2. 83   
+
+ Quikc Burst  39. 97   
+
+ Flmonax  1. 30   
+
+ Permsium Desiit Pactch  41. 26   
+
+ Cllokmid  1. 85   
+
+
+   Visit Here   http://stersensorial.com/?38796421  
+
+------=_NextPart_000_0006_01C7604F.626C0E00
+Content-Type: text/html;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
+
+
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@09090909.016E1D33">
+<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@09090909.016E1D33">
+</head>
+<body>
+<p>No prescirptions, no doctors, no problems! </p>
+<p>Buy high-quality pllis and we'll deliver them directly to your home!</p>
+<a href=3D"http://stersensorial.com/?38796421">   Visit Here   http://sters=
+ensorial.com/?38796421  </a>
+<table >
+<tr><td> Eretic0n Collection Caidlis+ Vaingra+3 Trannsp0rt </td><td> 10.69<=
+/td></tr>   
+
+<tr><td> Cawilis 50tf Tabz  </td><td> 5. 77</td></tr>   
+
+<tr><td> Vaiggra Proffessoinal </td><td> 4. 04</td></tr>   
+
+<tr><td> Geneeirc Vaiwgra </td><td> 3. 51</td></tr>   
+
+<tr><td> Lorazehpam </td><td> 1. 72</td></tr>   
+
+<tr><td> Ulwtram </td><td> 2. 21</td></tr>   
+
+<tr><td> Paaxil </td><td> 2. 05</td></tr>   
+
+<tr><td> Amtbien </td><td> 2. 83</td></tr>   
+
+<tr><td> Quikc Burst </td><td> 39. 97</td></tr>   
+
+<tr><td> Flmonax </td><td> 1. 30</td></tr>   
+
+<tr><td> Permsium Desiit Pactch </td><td> 41. 26</td></tr>   
+
+<tr><td> Cllokmid </td><td> 1. 85</td></tr>   
+
+
+</table>
+<a href=3D"http://stersensorial.com/?38796421">   Visit Here   http://sters=
+ensorial.com/?38796421  </a>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C7604F.626C0E00--

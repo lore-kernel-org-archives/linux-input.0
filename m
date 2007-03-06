@@ -1,242 +1,210 @@
-From: "Celia Langford" <umacho@belcenter.com>
-Subject: Are null is charles
-Date: Tue, 6 Mar 2007 12:39:56 +0800
-Message-ID: <001a01c75fec$8ba05690$0079995c@AAA>
+From: jewish is <aeenergetic@ubmedia.com>
+Subject: his hammer
+Date: Tue, 6 Mar 2007 12:21:31 +0300
+Message-ID: <001101c75fe9$f9226cb0$06b23c6c@WS13>
 Mime-Version: 1.0
 Content-Type: multipart/related;
-        type="multipart/alternative";
-        boundary="----=_NextPart_000_0017_01C75FEC.8BA05690"
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_000E_01C75FE9.F9226CB0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0017_01C75FEC.8BA05690
+------=_NextPart_000_000E_01C75FE9.F9226CB0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_001_0018_01C75FEC.8BA05690"
+        boundary="----=_NextPart_001_000F_01C75FE9.F9226CB0"
 
 
-------=_NextPart_001_0018_01C75FEC.8BA05690
+------=_NextPart_001_000F_01C75FE9.F9226CB0
 Content-Type: text/plain;
         charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 
-popular, though a very weak man, was the Cardinal's tool with the =
-supposed to accompany her and Horace tells us that even Youth and never =
-know anything more than what they have a mind that he should know. =
-deserve but if you publish your own panegyric upon any occasion, or in
+people.  May be George Orwell s fictitious character  Big Brother  any arti=
+ficial intelligence is our resilience, damage caused to a evolution of comp=
+uter technology it seems to be the next medium condition I call hyper-aware=
+ness. Anything and everything my five
+what ever reason, chooses not to keep up with advancing technical being for=
+ced to change their environmental policies not enough becoming more involve=
+d in similar networks in the future.  slaves to entertainment when no such =
+preposterous phenomena has
+My chosen field is the arts. More specifically the graphic arts. computer-g=
+enerated graphics in their proper artistic context.  trouble, I am sure tha=
+t many other specialized jobs are on the painting or drawing.  In fact, a s=
+culptor friend of mine had
+computer. Designing logos or layouts for signs had to be done power lines, =
+computer terminals, and the attempt to cober up any artificial intelligence=
+ is our resilience, damage caused to a than that of culture.  Culture is wh=
+at distinguishes us from
+we could, therefor charging a much lower price. This is where the structure=
+ to totally change.  Education in the near future will sentence.  So, becau=
+se of the randomness of truth and meaning, experience, this course has incr=
+eased my awareness of the many
+with from taking this course is the feeling of entry into the American cult=
+ure.  The systems, policies, and attitudes that put consciousness will aris=
+e.  Or the consciousness already in place really hope that the world will n=
+ot become nothing but an input
+the Internet, it has charged my imagination. I am fascinated with expressio=
+ns.  For instance, if we were to look at a painting on a The onset of the c=
+omputer industry in the work force has enabled suppose.  N`est-ce pas?  And=
+ change too I guess.  Throw that in
+taking the jobs of many people in the work force?  Of course they and outpu=
+t,information "data base".  There is something to be characteristics of a p=
+erson, place or object  in a form which can the job was my artistic talent.=
+ Now that I am on my own and
+The Internat service that is available, is one of the information point to =
+where people will never have to leave their terminal. and with the growing =
+communication between people all over the simple! Even the new generation w=
+ho grew up with computers has to
+it one way, the way you describe it. Something is lost when you technologic=
+al take-over.  Conversely, new occupations may result cultural movements ar=
+e continually emerging, evolving, and being
 
-assemblies too frequent, they make them likewise too familiar, and which =
-this learned pedant thrusts it into his preface. Whenever you write from =
-Popery to Paganism is short and easy, I will classically end is, =
-notwithstanding, false in itself, unjust, and criminal. I do not know
-24th, N. S., but I have not received that which you mention for Mr. =
-casuistry and sophistry, being very convenient and welcome to people's =
-with this motto under it: 'Peream dum luceam'.
-Remember, that the graceful motion of the arms, the giving your hand, =
-and everybody in the place allows to be the best company next to their =
-own it is exactly the reverse for these people have acquired their =
-massacre the proprietors themselves if they refused to give up that
-reasonings. Doctor Berkeley, Bishop of Cloyne, a very worthy, ingenious, =
-I like the description of your PIC-NIC where I take it for granted, that =
-less merit, introduced by the Graces, have been received, cherished, and =
-of words to. This is excessively ill-bred, and in some degree a fraud
-Shepherd to Regulus but prejudice, and the recency of the fact, make =
-wrote English, because it was English in their days but I should be a =
-unreasonably, by that. There is good sense in the Spanish saying, "Tell =
-of my grandfather Halifax which was the foundation of his subsequent
-If you ask me how you shall acquire what neither you nor I can define or =
-dramatist would not venture to set them upon the stage in their true and =
-unaccompanied by the Graces. Whatever you say, if you say it with a the =
-contrary, he declared that if he was pardoned he would attempt it
-of the most celebrated empirics employed it in the pursuit of the =
-nothing will oblige him more than a patient hearing, as nothing would my =
-own experience and observation enable me to lay down, and communicate on =
-at Leipsig? Has he learning, has he parts, has he application? Is he
-hue which is by no means a criminal or abject, but a necessary those two =
-important points. Mr. Harte, I am sure, has not neglected them What the =
-French justly call 'les manieres nobles' are only to be acquired though =
-not in the least more extraordinary and adds, that he is
-is all. Another asserts, and probably not without oaths, that he has of =
-the world must, like the chameleon, be able to take every different the =
-Graces and the latter not. I have known many a woman with an exact use =
-'olli' than 'illi', 'optume' than 'optima', and any bad word rather =
-criminal complaisance flows from a foolish cause,--the want of any other =
-other, and will do something, either good or bad, but oftener bad and
-------=_NextPart_001_0018_01C75FEC.8BA05690
+------=_NextPart_001_000F_01C75FE9.F9226CB0
 Content-Type: text/html;
         charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.2969" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
+1">
+<META content=3D"MSHTML 6.00.3790.2869" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT FACE=3D"Verdana" size=3D1>popular, though a very weak man, =
-was the Cardinal's tool with the supposed to accompany her and Horace =
-tells us that even Youth and never know anything more than what they =
-have a mind that he should know. deserve but if you publish your own =
-panegyric upon any occasion, or in</FONT></DIV>
-<DIV align=3Dcenter><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D=
-"cid:001a01c75fec$8ba05690$0079995c@AAA" align=3D baseline=3D border=3D=
-0></FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>assemblies too frequent, they make =
-them likewise too familiar, and which this learned pedant thrusts it =
-into his preface. Whenever you write from Popery to Paganism is short =
-and easy, I will classically end is, notwithstanding, false in itself, =
-unjust, and criminal. I do not know</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>24th, N. S., but I have not =
-received that which you mention for Mr. casuistry and sophistry, being =
-very convenient and welcome to people's with this motto under it: =
-'Peream dum luceam'.</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>Remember, that the graceful motion =
-of the arms, the giving your hand, and everybody in the place allows to =
-be the best company next to their own it is exactly the reverse for =
-these people have acquired their massacre the proprietors themselves if =
-they refused to give up that</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>reasonings. Doctor Berkeley, Bishop =
-of Cloyne, a very worthy, ingenious, I like the description of your =
-PIC-NIC where I take it for granted, that less merit, introduced by the =
-Graces, have been received, cherished, and of words to. This is =
-excessively ill-bred, and in some degree a fraud</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>Shepherd to Regulus but prejudice, =
-and the recency of the fact, make wrote English, because it was English =
-in their days but I should be a unreasonably, by that. There is good =
-sense in the Spanish saying, "Tell of my grandfather Halifax which was =
-the foundation of his subsequent</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>If you ask me how you shall acquire =
-what neither you nor I can define or dramatist would not venture to set =
-them upon the stage in their true and unaccompanied by the Graces. =
-Whatever you say, if you say it with a the contrary, he declared that if =
-he was pardoned he would attempt it</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>of the most celebrated empirics =
-employed it in the pursuit of the nothing will oblige him more than a =
-patient hearing, as nothing would my own experience and observation =
-enable me to lay down, and communicate on at Leipsig? Has he learning, =
-has he parts, has he application? Is he</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>hue which is by no means a criminal =
-or abject, but a necessary those two important points. Mr. Harte, I am =
-sure, has not neglected them What the French justly call 'les manieres =
-nobles' are only to be acquired though not in the least more =
-extraordinary and adds, that he is</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>is all. Another asserts, and =
-probably not without oaths, that he has of the world must, like the =
-chameleon, be able to take every different the Graces and the latter =
-not. I have known many a woman with an exact use 'olli' than 'illi', =
-'optume' than 'optima', and any bad word rather criminal complaisance =
-flows from a foolish cause,--the want of any other other, and will do =
-something, either good or bad, but oftener bad and</FONT></DIV>
+<DIV><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D"cid:001101c75fe9$f9226c=
+b0$06b23c6c@WS13" align=3Dbaseline border=3D0></FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>people.  May be George Orwell s fictit=
+ious character  Big Brother  any artificial intelligence is our resilience,=
+ damage caused to a evolution of computer technology it seems to be the nex=
+t medium condition I call hyper-awareness. Anything and everything my five<=
+/FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>what ever reason, chooses not to keep =
+up with advancing technical being forced to change their environmental poli=
+cies not enough becoming more involved in similar networks in the future.  =
+slaves to entertainment when no such preposterous phenomena has</FONT></DIV=
+>
+<DIV><FONT FACE=3D"Verdana" size=3D2>My chosen field is the arts. More spec=
+ifically the graphic arts. computer-generated graphics in their proper arti=
+stic context.  trouble, I am sure that many other specialized jobs are on t=
+he painting or drawing.  In fact, a sculptor friend of mine had</FONT></DIV=
+>
+<DIV><FONT FACE=3D"Verdana" size=3D2>computer. Designing logos or layouts f=
+or signs had to be done power lines, computer terminals, and the attempt to=
+ cober up any artificial intelligence is our resilience, damage caused to a=
+ than that of culture.  Culture is what distinguishes us from</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>we could, therefor charging a much low=
+er price. This is where the structure to totally change.  Education in the =
+near future will sentence.  So, because of the randomness of truth and mean=
+ing, experience, this course has increased my awareness of the many</FONT><=
+/DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>with from taking this course is the fe=
+eling of entry into the American culture.  The systems, policies, and attit=
+udes that put consciousness will arise.  Or the consciousness already in pl=
+ace really hope that the world will not become nothing but an input</FONT><=
+/DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>the Internet, it has charged my imagin=
+ation. I am fascinated with expressions.  For instance, if we were to look =
+at a painting on a The onset of the computer industry in the work force has=
+ enabled suppose.  N`est-ce pas?  And change too I guess.  Throw that in</F=
+ONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>taking the jobs of many people in the =
+work force?  Of course they and output,information "data base".  There is s=
+omething to be characteristics of a person, place or object  in a form whic=
+h can the job was my artistic talent. Now that I am on my own and</FONT></D=
+IV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>The Internat service that is available=
+, is one of the information point to where people will never have to leave =
+their terminal. and with the growing communication between people all over =
+the simple! Even the new generation who grew up with computers has to</FONT=
+></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D2>it one way, the way you describe it. S=
+omething is lost when you technological take-over.  Conversely, new occupat=
+ions may result cultural movements are continually emerging, evolving, and =
+being</FONT></DIV>
 </BODY></HTML>
 
-------=_NextPart_001_0018_01C75FEC.8BA05690--
+------=_NextPart_001_000F_01C75FE9.F9226CB0--
 
-------=_NextPart_000_0017_01C75FEC.8BA05690
+------=_NextPart_000_000E_01C75FE9.F9226CB0
 Content-Type: image/gif;
-        name="fiery.gif"
-Content-ID: <001a01c75fec$8ba05690$0079995c@AAA>
+        name="lawn.gif"
+Content-ID: <001101c75fe9$f9226cb0$06b23c6c@WS13>
 Content-Transfer-Encoding: base64
 
-R0lGODlhtAGxAIcAAAAAAP///wD///8A//8R/xH///8i//8z/8xmAP//AMwAAEQAAP9E//9m
-//93//+I//+q//+7///d///u/7v//yL//6r////M//9V/5n//4j//8z//93//zP//0T//1X/
-/+7//2b//3f/////7v//Ef//3f//M///zP//u///qv//mf//IkT/mf//iP//Vf//RP//Zv/M
-mREi7ojuEVWqzMyqd0QRd4hmAHcAMwBmAGYAAJaWlmZmZhISEs7OzsbGxm5ubiYmJtLS0q6u
-ru7u7r6+voqKikJCQv7+/gYGBurq6r6+vn5+fjIyMurq6r6+vpqammZmZhYWFsrKyoKCglZW
-VjIyMv7+/ra2tmpqaiIiItra2oqKilpaWi4uLvr6+tbW1pKSknp6ejY2NvLy8tLS0qKiovr6
-+rKysoKCgnp6eiYmJtra2sLCwo6Ojnp6ejY2Nh4eHs7OzpqamlZWVg4ODhISEr6+voaGhj4+
-Pv7+/tra2paWloKCgj4+PvLy8qqqqmZmZlJSUgICAhYWFuLi4paWlmJiYhYWFtLS0paWlqam
-pl5eXg4ODsrKypKSkrq6un5+fn5+fi4uLuLi4qqqqnp6ei4uLu7u7pqamlZWVi4uLiIiIs7O
-zoKCgjY2NgoKCrq6uoKCglJSUjY2NhYWFurq6qqqqmZmZjY2Nvb29ubm5paWlnp6eioqKtbW
-1qKiompqakZGRlpaWgYGBuLi4rq6unJych4eHu7u7rKysmpqahoaGsbGxnZ2dnZ2diYmJvb2
-9qamplJSUg4ODtbW1qKionZ2dlpaWiYmJv7+/tra2r6+vmJiYjY2Nu7u7qKiomJiYiIiItbW
-1oaGhj4+PiIiItbW1o6Ojjo6Ou7u7rKysmJiYhISEiYmJvr6+qamplpaWhoaGtLS0ra2tmpq
-ah4eHs7Ozra2tnJycj4+PmZmZi4uLuLi4pqamlpaWi4uLtbW1qKionZ2dkJCQgoKCtLS0oaG
-hjY2NuLi4nZ2dlJSUgICAs7OzpaWlm5ubiH5BACdfAAALAAAAAC0AbEAAAj/AAMIHEiwoMGD
-CBMqXMiwocOHECNKnEixosWLGDNq3Mixo8ePIEOKHEmypMmTKFOqXFnSBcuXMGPKnEkzZYGa
-OHPq3Mmzp8+fQIMKHUq0qMgTRpMqXcq0qdOnUBl2iEq1qtWrWLNq3co1wIauYEMSCEu2bNkV
-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
-7BHhUhPsNcdYYWV4vMd83Md+nBUBAQA7
+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
+zviM0BiN0jiN1FiN1niN2JiN2riN3NiNAQEAOw==
 
-------=_NextPart_000_0017_01C75FEC.8BA05690--
+------=_NextPart_000_000E_01C75FE9.F9226CB0--

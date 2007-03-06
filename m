@@ -1,41 +1,32 @@
-From: NATIONAL LOTTERY <Shalazar@shaw.ca>
-Subject: MICROSOFT LOTTERY 2007
-Date: Tue, 06 Mar 2007 17:37:29 +0100
-Message-ID: <f31de49893e2.45eda6d9__37392.4559601166$1173199182$gmane$org@shaw.ca>
-Reply-To: anthonywalker_claimsagent@yahoo.com
+From: Margaret <mupprtmv@borrell.com>
+Subject: The kernel and C library have become that
+Date: Tue, 6 Mar 2007 19:18:02 -0420
+Message-ID: <01c76024$290fd0e0$6c822ecf@mupprtmv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-language: en
-Content-disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+videos or older children joy that is a cherished  contribute to depression Jennifer Gervasio stressed-out 
 
+Nothing could be better than &#9679; CAMBRIDGE RESOURCES (CBRP.PK) &#9679; STOCK!!!
+New CBRP.PK STOCK this is EXCELLENT CHANCE  to BE a rich man!!!
 
-We are pleased to inform you of the announcement today of our end of 
-year winners of the MSW MEGA JACKPOT LOTTO WINNINGS PROGRAMS held on 
-25TH JANUARY 2007.
+Forecasts for YOU is only positive just grab this CBRP.PK SHARE!!!
+Trust us cause we GUARANTEE  U the real profit!!!
 
-Your company or your personal e-mail address, is attached to winning 
-number 25-12MAR-2007-02MSW, with serial number S/N-00168 drew the lucky 
-numbers 887-13-865-37-10-83, and consequently won in the first lottery 
-category. You have therefore been approved for a lump sum pay out of 
-500,000.00 GBP ( FIVE HUNDRED THOUSAND POUNDS STERLING) credited to file 
-REF NO: MSW-L/200-26937. This is from total prize money of GBP 
-2,500,000.00 POUNDS, shared among the Five (5)international winners in this 
-category.
+Cambridge resources corp. continues to seek and acquire producing OIL & GAS companies THROUGHOUT NORTH AMERICA AND AROUND THE WORLD.
 
-To claim your winning prize, you must first contact the claims 
-department by email.The claims officer contact email is: 
+For more information about CBRP.PK check broker site!!!
 
-Name: MR.ANTHONY WALKER
-E-mail:anthonywalker_claimsagent@yahoo.com
+Hurry up YOU need grab this CBRP.PK SHARE on Tuesday: 03.06.07!!!
 
-Sincerely,
-Mr.Anthony Walker
+annual meeting in Gervasio said her relate to others and really need for activities can be 

@@ -1,44 +1,66 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input: add sensable phantom driver
-Date: Wed, 7 Mar 2007 11:56:27 -0500
-Message-ID: <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>
-References: <2460126662758025813@fi.muni.cz>
-	 <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>
-	 <45EEEAA3.50009@gmail.com>
+From: "Laverne Brewer" <efestival@mo-net.com>
+Subject: Of as fermion
+Date: Thu, 8 Mar 2007 01:05:34 +0800
+Message-ID: <001801c7611e$2a416370$002f803c@lue1eizpxbzm3f>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0015_01C7611E.2A416370"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45EEEAA3.50009@gmail.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Greg KH <gregkh@suse.de>
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On 3/7/07, Jiri Slaby <jirislaby@gmail.com> wrote:
-> Dmitry Torokhov napsal(a):
-> > Hi Jiri,
->
-> Hi.
->
-> > On 3/7/07, Jiri Slaby <jirislaby@gmail.com> wrote:
-> >> add sensable phantom driver
-> > ...
-> >
-> > General question - can this driver use force-feedback mecahnisms
-> > already present in kernel instead of exporting raw datastream to
-> > userspace. What are shortcomings of kernels force-feedback
-> > implemenattion that make it insufficient for phantom?
->
-> I didn't even think about it, sorry. Does any problem with rate about 2kHz come
-> on your mind before I'll try to rewrite it?
+------=_NextPart_000_0015_01C7611E.2A416370
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
-No, not really.
 
--- 
-Dmitry
+
+
+Alert for you...
+
+
+Search for: NNCPCurrent price: $0.019 (UP! 58.33%) 5 Day Target price: =
+$0.15Market: bullish!!!
+
+Short-term KST. Short-Term Bullish!!!
+
+
+
+The hottest news are released for NNCP, linux-input!
+
+------=_NextPart_000_0015_01C7611E.2A416370
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.3790.2963" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6600FF size=3D=
+3D4><FONT size=3D3><STRONG>Alert for you!!</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0000 size=3D2>Search =
+for: <b>NNCP</b><br>Current price: $0.019 (UP! 58.33%) <br>5 Day Target =
+price: $0.15<br>Market: bullish..</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0000 size=3D=
+4>Short-term KST. Short-Term Bullish...</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D2>The =
+hottest news are released for NNCP, linux-input!</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0015_01C7611E.2A416370--

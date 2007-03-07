@@ -1,85 +1,367 @@
-From: "Simon Lambuqt" <oifegduwv@abt-system.com.pl>
-Subject: Have pearlite
-Date: Wed, 07 Mar 2007 12:13:29 +0700
-Message-ID: <015d01c76148$3abb51b0$1639b8f0@aegano>
-Reply-To: "Simon Lambuqt" <oifegduwv@abt-system.com.pl>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [PATCH] INPUT/keyboard: PXA27x keyboard support
+Date: Wed, 7 Mar 2007 00:35:36 -0500
+Message-ID: <200703070035.38380.dtor@insightbb.com>
+References: <20061120155518.GA6910@enneenne.com> <20070222224701.GB6179@enneenne.com> <20070302160540.GA5001@enneenne.com>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	boundary="----=_NextPart_000_0002_01D7A99F.C10C5DF0"
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070302160540.GA5001@enneenne.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Rodolfo Giometti <giometti@enneenne.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk, Nicolas Pitre <nico@cam.org>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0002_01D7A99F.C10C5DF0
-Content-Type: multipart/alternative;
-	boundary="----=_1OEBOUND;"
+Hi Rodolfo,
 
+On Friday 02 March 2007 11:05, Rodolfo Giometti wrote:
+> Hello, here my last patch for the PXA27x keyboard support updated to
+> linux-2.6.21-rc2.
+> 
+> I added power management support (suspend/resume code).
 
-------=_1OEBOUND;
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+The patch has bunch of issues that are hard to list because it was sent as
+an attachment... Examples are: REL_WHEEL does not belong to evbit, using 
+input_free_device() is not allowed after input_unregister_device(), etc.
+I tried to fix everything I notoiced; if you could try the patch below
+and verify that it still works I will apply it to teh input tree.
 
-of five funerals began Friday, and praised authorities for charging the man accused 
+Thanks.
 
-NUTRIONE CORPORATION 
-SymBOL : NNCP
-Current P : $ 0.019
-5 day Exp : $ 0.50
+-- 
+Dmitry
 
-NutriOne Successfully Launches Canadian Operation and Sells Over 600,000 Units 
-Market Wire (Mon, Feb 26)  
- NutriOne Announces It Has Concluded Its Agreement With Research in Nutrition and Nutraceuticals (RINN) 
-Market Wire (Fri, Feb 23)  
+From: Rodolfo Giometti <giometti@enneenne.com>
 
-REAL COMPANY, REAL PRODUCTS
+Input: add support for PXA27x keyboard controller
 
-Get IN Before the rush Monday
+Signed-off-by: Rodolfo Giometti <giometti@enneenne.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Service took the lives of five heroes," U.S. Forest Service Chaplain Steve Seltzner
+ drivers/input/keyboard/Kconfig             |    9 +
+ drivers/input/keyboard/Makefile            |    1 
+ drivers/input/keyboard/pxa27x_keyboard.c   |  258 +++++++++++++++++++++++++++++
+ include/asm-arm/arch-pxa/pxa27x_keyboard.h |   13 +
+ 4 files changed, 281 insertions(+)
 
-------=_1OEBOUND;
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">=
-<HTML><HEAD>=
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">=
-<META content="MSHTML 6.00.2800.3000" name=GENERATOR>=
-<STYLE></STYLE>=
-</HEAD>=
-<BODY bgColor=#ffffff>=
-<DIV><FONT face="Arial Black" size=2>=
-of five funerals began Friday, and praised authorities for charging the man accused =
-</FONT></DIV>=
-<DIV><FONT face="Arial Black" size=2 color=#ff0000>=
-NUTRIONE CORPORATION=
-</FONT></DIV>
-<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
-SymBOL : NNCP=
-</FONT></DIV>=
-<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
-Current P : $ 0.019 ( +53% TODAY)=
-</FONT></DIV>=
-<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
-5 day Exp : $ 0.20<br><br>=
-GET IN TOMORROW=
-</FONT></DIV>=
-<BR></FONT></DIV>=
-<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
-REAL COMPANY, REAL PRODUCTS=
-</FONT></DIV>=
-<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
-Get IN Before the rush Monday</FONT></DIV>=
-<DIV><FONT face="Arial Black" size=2>=
-Service took the lives of five heroes," U.S. Forest Service Chaplain Steve Seltzner=
-</FONT></DIV></BODY></HTML>=
-------=_1OEBOUND;--
-
-------=_NextPart_000_0002_01D7A99F.C10C5DF0--
+Index: work/drivers/input/keyboard/Kconfig
+===================================================================
+--- work.orig/drivers/input/keyboard/Kconfig
++++ work/drivers/input/keyboard/Kconfig
+@@ -203,6 +203,15 @@ config KEYBOARD_OMAP
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called omap-keypad.
+ 
++config KEYBOARD_PXA27x
++	tristate "PXA27x keyboard support"
++	depends on PXA27x
++	help
++	  Enable support for PXA27x matrix keyboard controller
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called pxa27x_keyboard.
++
+ config KEYBOARD_AAED2000
+ 	tristate "AAED-2000 keyboard"
+ 	depends on MACH_AAED2000
+Index: work/drivers/input/keyboard/Makefile
+===================================================================
+--- work.orig/drivers/input/keyboard/Makefile
++++ work/drivers/input/keyboard/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_KEYBOARD_SPITZ)		+= spitzkb
+ obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
+ obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
+ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
++obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keyboard.o
+ obj-$(CONFIG_KEYBOARD_AAED2000)		+= aaed2000_kbd.o
+ obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
+ 
+Index: work/drivers/input/keyboard/pxa27x_keyboard.c
+===================================================================
+--- /dev/null
++++ work/drivers/input/keyboard/pxa27x_keyboard.c
+@@ -0,0 +1,258 @@
++/*
++ * linux/drivers/input/keyboard/pxa27x_keyboard.c
++ *
++ * Driver for the pxa27x matrix keyboard controller.
++ *
++ * Created:	Feb 22, 2007
++ * Author:	Rodolfo Giometti <giometti@linux.it>
++ *
++ * Based on a previous implementations by Kevin O'Connor
++ * <kevin_at_koconnor.net> and Alex Osborne <bobofdoom@gmail.com> and
++ * on some suggestions by Nicolas Pitre <nico@cam.org>.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
++#include <linux/input.h>
++#include <linux/device.h>
++#include <linux/platform_device.h>
++
++#include <asm/mach-types.h>
++#include <asm/mach/arch.h>
++#include <asm/mach/map.h>
++
++#include <asm/arch/hardware.h>
++#include <asm/arch/pxa-regs.h>
++#include <asm/arch/irqs.h>
++#include <asm/arch/pxa27x_keyboard.h>
++
++#define DRIVER_NAME		"pxa27x-keyboard"
++
++#define KPASMKP(col)		(col/2 == 0 ? KPASMKP0 : \
++				 col/2 == 1 ? KPASMKP1 : \
++				 col/2 == 2 ? KPASMKP2 : KPASMKP3)
++#define KPASMKPx_MKC(row, col)	(1 << (row + 16 * (col % 2)))
++
++static irqreturn_t pxakbd_irq_handler(int irq, void *dev_id)
++{
++	struct platform_device *pdev = dev_id;
++	struct pxa27x_keyboard_platform_data *pdev = dev->platform_data;
++	struct input_dev *input_dev = platform_get_drvdata(pdev);
++	unsigned long kpc = KPC;
++	int p, row, col, rel;
++
++	if (kpc & KPC_DI) {
++		unsigned long kpdk = KPDK;
++
++		if (!(kpdk & KPDK_DKP)) {
++			/* better luck next time */
++		} else if (kpc & KPC_REE0) {
++			unsigned long kprec = KPREC;
++			KPREC = 0x7f;
++
++			if (kprec & KPREC_OF0)
++				rel = (kprec & 0xff) + 0x7f;
++			else if (kprec & KPREC_UF0)
++				rel = (kprec & 0xff) - 0x7f - 0xff;
++			else
++				rel = (kprec & 0xff) - 0x7f;
++
++			if (rel) {
++				input_report_rel(input_dev, REL_WHEEL, rel);
++				input_sync(input_dev);
++			}
++		}
++	}
++
++	if (kpc & KPC_MI) {
++		/* report the status of every button */
++		for (row = 0; row < pdev->nr_rows; row++) {
++			for (col = 0; col < pdev->nr_cols; col++) {
++				p = KPASMKP(col) & KPASMKPx_MKC(row, col) ?
++					1 : 0;
++				pr_debug("keycode %x - pressed %x\n",
++						pdev->keycodes[row][col], p);
++				input_report_key(input_dev,
++						pdev->keycodes[row][col], p);
++			}
++		}
++		input_sync(input_dev);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static int pxakbd_open(struct input_dev *dev)
++{
++	/* Set keypad control register */
++	KPC |= (KPC_ASACT |
++		KPC_MS_ALL |
++		(2<<6) | KPC_REE0 | KPC_DK_DEB_SEL |
++		KPC_ME | KPC_MIE | KPC_DE | KPC_DIE);
++
++	KPC &= ~KPC_AS;         /* disable automatic scan */
++	KPC &= ~KPC_IMKP;       /* do not ignore multiple keypresses */
++
++	/* Set rotary count to mid-point value */
++	KPREC = 0x7F;
++
++	/* Enable unit clock */
++	pxa_set_cken(CKEN19_KEYPAD, 1);
++
++	return 0;
++}
++
++static void pxakbd_close(struct input_dev *dev)
++{
++	/* Disable clock unit */
++	pxa_set_cken(CKEN19_KEYPAD, 0);
++}
++
++#ifdef CONFIG_PM
++static int pxakbd_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	struct pxa27x_keyboard_platform_data *pdata = pdev->dev.platform_data;
++
++	/* Save controller status */
++	pdata->reg_kpc = KPC;
++	pdata->reg_kprec = KPREC;
++
++	return 0;
++}
++
++static int pxakbd_resume(struct platform_device *pdev)
++{
++	struct pxa27x_keyboard_platform_data *pdata = pdev->dev.platform_data;
++	struct input_dev *input_dev = platform_get_drvdata(pdev);
++
++	mutex_lock(&input_dev->mutex);
++
++	if (input_dev->users) {
++		/* Restore controller status */
++		KPC = pdata->reg_kpc;
++		KPREC = pdata->reg_kprec;
++
++		/* Enable unit clock */
++		pxa_set_cken(CKEN19_KEYPAD, 1);
++	}
++
++	mutex_unlock(&input_dev->mutex);
++
++	return 0;
++}
++#else
++#define pxakbd_suspend	NULL
++#define pxakbd_resume	NULL
++#endif
++
++static int __devinit pxakbd_probe(struct platform_device *pdev)
++{
++	struct pxa27x_keyboard_platform_data *pdata = pdev->dev.platform_data;
++	struct input_dev *input_dev;
++	int i, row, col, error;
++
++	/* Create and register the input driver. */
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		printk(KERN_ERR "Cannot request keypad device\n");
++		return -ENOMEM;
++	}
++
++	input_dev->name = DRIVER_NAME;
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->open = pxakbd_open;
++	input_dev->close = pxakbd_close;
++	input_dev->cdev.dev = &pdev->dev;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP) | BIT(EV_REL);
++	input_dev->relbit[LONG(REL_WHEEL)] = BIT(REL_WHEEL);
++	for (row = 0; row < pdata->nr_rows; row++) {
++		for (col = 0; col < pdata->nr_cols; col++) {
++			int code = pdata->keycodes[row][col];
++			if (code > 0)
++				set_bit(code, input_dev->keybit);
++		}
++	}
++
++	error = request_irq(IRQ_KEYPAD, pxakbd_irq_handler, SA_INTERRUPT,
++			    DRIVER_NAME, pdev);
++	if (error) {
++		printk(KERN_ERR "Cannot request keypad IRQ\n");
++		pxa_set_cken(CKEN19_KEYPAD, 0);
++		goto err_free_dev;
++	}
++
++	platform_set_drvdata(pdev, input_dev);
++
++	/* Register the input device */
++	error = input_register_device(input_dev);
++	if (error)
++		goto err_free_irq;
++
++	/* Setup GPIOs. */
++	for (i = 0; i < pdata->nr_rows + pdata->nr_cols; i++)
++		pxa_gpio_mode(pdata->gpio_modes[i]);
++
++	/*
++	 * Store rows/cols info into keyboard registers.
++	 */
++
++	KPC |= (pdata->nr_rows - 1) << 26;
++	KPC |= (pdata->nr_cols - 1) << 23;
++
++	for (col = 0; col < pdata->nr_cols; col++)
++		KPC |= KPC_MS0 << col;
++
++	return 0;
++
++ err_free_irq:
++	platform_set_drvdata(pdev, NULL);
++	free_irq(IRQ_KEYPAD, pdev);
++ err_free_dev:
++	input_free_device(input_dev);
++	return error;
++}
++
++static int __devexit pxakbd_remove(struct platform_device *pdev)
++{
++	struct input_dev *input_dev = platform_get_drvdata(pdev);
++
++	input_unregister_device(input_dev);
++	free_irq(IRQ_KEYPAD, pdev);
++	platform_set_drvdata(pdev, NULL);
++
++	return 0;
++}
++
++static struct platform_driver pxakbd_driver = {
++	.probe		= pxakbd_probe,
++	.remove		= __devexit_p(pxakbd_remove),
++	.suspend	= pxakbd_suspend,
++	.resume		= pxakbd_resume,
++	.driver		= {
++		.name	= DRIVER_NAME,
++	},
++};
++
++static int __init pxakbd_init(void)
++{
++	return platform_driver_register(&pxakbd_driver);
++}
++
++static void __exit pxakbd_exit(void)
++{
++	platform_driver_unregister(&pxakbd_driver);
++}
++
++module_init(pxakbd_init);
++module_exit(pxakbd_exit);
++
++MODULE_DESCRIPTION("PXA27x Matrix Keyboard Driver");
++MODULE_LICENSE("GPL");
+Index: work/include/asm-arm/arch-pxa/pxa27x_keyboard.h
+===================================================================
+--- /dev/null
++++ work/include/asm-arm/arch-pxa/pxa27x_keyboard.h
+@@ -0,0 +1,13 @@
++#define PXAKBD_MAXROW		8
++#define PXAKBD_MAXCOL		8
++
++struct pxa27x_keyboard_platform_data {
++	int nr_rows, nr_cols;
++	int keycodes[PXAKBD_MAXROW][PXAKBD_MAXCOL];
++	int gpio_modes[PXAKBD_MAXROW + PXAKBD_MAXCOL];
++
++#ifdef CONFIG_PM
++	u32 reg_kpc;
++	u32 reg_kprec;
++#endif
++};

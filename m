@@ -1,83 +1,175 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [2/6] 2.6.21-rc2: known regressions
-Date: Wed, 7 Mar 2007 08:10:45 -0800 (PST)
-Message-ID: <Pine.LNX.4.64.0703070746150.5963@woody.linux-foundation.org>
-References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org>
- <20070305015034.GG3441@stusta.de> <45EE9D52.9060807@garzik.org>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 1/1] Input: add sensable phantom driver
+Date: Wed, 07 Mar 2007 17:38:59 +0100
+Message-ID: <45EEEAA3.50009@gmail.com>
+References: <2460126662758025813@fi.muni.cz> <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45EE9D52.9060807@garzik.org>
+In-Reply-To: <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jeff Garzik <jeff@garzik.org>, Ash Milsted <thatistosayiseenem@gawab.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, pavel@suse.cz, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Greg KH <gregkh@suse.de>
 List-Id: linux-input@vger.kernel.org
 
+Dmitry Torokhov napsal(a):
+> Hi Jiri,
 
+Hi.
 
-On Wed, 7 Mar 2007, Jeff Garzik wrote:
->
-> Adrian Bunk wrote:
-> > Subject    : AT keyboard only works with pci=noacpi
-> > References : http://lkml.org/lkml/2007/3/3/68
-> > Submitter  : Ash Milsted <thatistosayiseenem@gawab.com>
-> > Status     : unknown
+> On 3/7/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+>> add sensable phantom driver
+> ...
 > 
-> sounds like a BIOS bug, even though it appears to be a regression?
+> General question - can this driver use force-feedback mecahnisms
+> already present in kernel instead of exporting raw datastream to
+> userspace. What are shortcomings of kernels force-feedback
+> implemenattion that make it insufficient for phantom?
 
-So?
+I didn't even think about it, sorry. Does any problem with rate about 2kHz come 
+on your mind before I'll try to rewrite it?
 
-BIOS bugs are not bugs we can fix, they are things we have to work around. 
-They are like hardware bugs in a network chip: a "driver" that doesn't 
-work around a BIOS bug is simply a *buggy* driver, exactly the same way a 
-network driver has to work around errata in the hardware.
+>> +#define phantom_remap(io, vma, addr)   ({                              \
+>> +       vma->vm_pgoff = (addr) >> PAGE_SHIFT;                           \
+>> +       io ## remap_pfn_range(vma, (vma)->vm_start, (vma)->vm_pgoff,    \
+>> +               (vma)->vm_end - (vma)->vm_start, (vma)->vm_page_prot);  \
+>> +})
+>> +
+>> +static int phantom_mmap(struct file *file, struct vm_area_struct *vma)
+>> +{
+>> +       struct phantom_device *dev = file->private_data;
+>> +       int retval;
+>> +
+>> +       switch (vma->vm_pgoff) {
+>> +       case 0:
+>> +               retval = phantom_remap(, vma, virt_to_phys(dev->stat));
+> 
+> This really hurts my eyes. Is there any reason for using the macro here?
 
-So it doesn't really matter if something is a BIOS bug or not. It's not 
-reasonable to expect people to upgrade their BIOS'es - even if such an 
-upgrade were to exist (which is fairly rare in itself). 
+Not necessarilly. (It remained here from times, when this driver was not 
+intended to be merged, since rtc workaround. Now we have a source of the 2.4 
+driver.). Anyway, if the ff layer was used, I'll get the whole mmap away.
 
-If it used to work, that just makes it (a) doubly important to try to fix 
-it, since regressions are BAD BAD BAD and (b) a fair amount *easier* to 
-fix, since we can hopefully get an idea of what broke it.
+>> +               break;
+>> +       case 1:
+>> +               retval = phantom_remap(io_, vma, dev->ibase);
+>> +               break;
+>> +       default:
+>> +               retval = phantom_remap(io_, vma, dev->obase);
+>> +       }
+>> +
+>> +       return retval ? -EINVAL : 0;
+>> +}
+>> +
+>> +
+>> +static int __devinit phantom_probe(struct pci_dev *pdev,
+>> +       const struct pci_device_id *pci_id)
+>> +{
+>> +       struct phantom_device *pht;
+>> +       unsigned int minor;
+>> +       int retval;
+>> +
+>> +       retval = pci_enable_device(pdev);
+>> +       if (retval)
+>> +               goto err;
+>> +
+>> +       minor = phantom_get_free();
+>> +       if (minor == PHANTOM_MAX_MINORS) {
+>> +               dev_err(&pdev->dev, "too many devices found!\n");
+>> +               retval = -EIO;
+>> +               goto err;
+>> +       }
+>> +
+>> +       phantom_devices[minor] = 1;
+> 
+> Locking? In face of multithreaded PCI probes it might be needed.
 
-Ash, can you try to use "git bisect" to figure where it started? But 
-perhaps just try -rc3 first to see if it's been fixed?
+I think, this is the same issue?
 
-The working setups (whether with irqfixup or with pci=noacpi seem to both 
-have a nice
+<cite from="akpm" date="12/19/06">
+On Sat, 16 Dec 2006 02:09:48 +0100 (CET)
+Jiri Slaby <jirislaby@gmail.com> wrote:
 
-	input: AT Translated Set 2 keyboard as /class/input/inputX
+ > isicom, fix probe race
+ >
+ > Fix two race conditions in the probe function with mutex.
+ >
+ > ...
+ >
+ >  static int __devinit isicom_probe(struct pci_dev *pdev,
+ >       const struct pci_device_id *ent)
+ >  {
+ > +     static DEFINE_MUTEX(probe_lock);
 
-but the nonworking one does not. But even the nonworking one actually 
-*found* the controller:
+hm.  How can isicom_probe() race with itself?  Even with the dreaded
+multithreaded-pci-probing?  It's only called once, by a single thread.
 
-	PNP: PS/2 Controller [PNP0303:PS2K] at 0x60,0x64 irq 1
-	PNP: PS/2 controller doesn't have AUX irq; using default 12
-	serio: i8042 KBD port at 0x60,0x64 irq 1
-	serio: i8042 AUX port at 0x60,0x64 irq 12
-	mice: PS/2 mouse device common for all mice
+Confused.
+</cite>
 
-which probably means that the "atkbd_probe()" function fails (probably 
-because it never gets a reply, which in turn is probably because the 
-interrupt routing is broken).
+What do you think? Greg?
 
-If you use "atkbd.reset=1" on the kernel command line, you would probably 
-get a message like "keyboard reset failed"..
+>> +
+>> +       retval = pci_request_regions(pdev, "phantom");
+>> +       if (retval)
+>> +               goto err_null;
+>> +
+>> +       retval = -ENOMEM;
+>> +       pht = kzalloc(sizeof(*pht), GFP_KERNEL);
+>> +       if (pht == NULL) {
+>> +               dev_err(&pdev->dev, "unable to allocate device\n");
+>> +               goto err_reg;
+>> +       }
+>> +
+>> +       pht->stat = (void *)__get_free_page(GFP_KERNEL | __GFP_WAIT);
+>> +       if (pht->stat == NULL)
+>> +               goto err_fr;
+>> +
+>> +       pht->caddr = pci_iomap(pdev, 0, 0);
+>> +       if (pht->caddr == NULL) {
+>> +               dev_err(&pdev->dev, "can't remap conf space\n");
+>> +               goto err_frp;
+>> +       }
+>> +       pht->ibase = pci_resource_start(pdev, 2);
+>> +       pht->obase = pci_resource_start(pdev, 3);
+>> +
+>> +       mutex_init(&pht->open_lock);
+>> +       init_waitqueue_head(&pht->wait);
+>> +
+>> +       phantom_write_cfgl(pht, 0, PHN_IRQCTL);
+>> +       retval = request_irq(pdev->irq, phantom_isr,
+>> +                       IRQF_SHARED | IRQF_DISABLED, "phantom", pht);
+>> +       if (retval) {
+>> +               dev_err(&pdev->dev, "can't establish ISR\n");
+>> +               goto err_unm;
+>> +       }
+>> +
+>> +       cdev_init(&pht->cdev, &phantom_file_ops);
+>> +       pht->cdev.owner = THIS_MODULE;
+>> +       retval = cdev_add(&pht->cdev, MKDEV(phantom_major, minor), 1);
+>> +       if (retval) {
+>> +               dev_err(&pdev->dev, "chardev registration failed\n");
+>> +               goto err_irq;
+>> +       }
+>> +
+>> +       device_create(phantom_class, &pdev->dev, MKDEV(phantom_major, 
+>> minor),
+>> +                       "phantom%u", minor);
+>> +
+> 
+> Error handling is needed.
 
-Now, the most likely cause is obviously just the ACPI changes that mess up 
-irq routing somehow, but it would be important to figure out *what* makes 
-it happen, which is why "git bisect" would be wonderful to try.
+Creating of sysfs node is not requisite, isn't it? (But yes, I'll at least spit 
+some warning out.)
 
-So Ash, if you get the git tree, just start with
-
-	git bisect start
-	git bisect good v2.6.20
-	git bisect bad v2.6.21-rc1
-
-and off you go.. git isn't really that hard to use any more.
-
-		Linus
+thanks for comments,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

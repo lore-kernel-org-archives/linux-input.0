@@ -1,70 +1,85 @@
-From: "Carol Atkinson" <kcomponent@mfire.com>
-Subject: He it reformatory
-Date: Wed, 7 Mar 2007 10:23:02 +0800
-Message-ID: <001101c760a3$0cb7b410$001ac884@ljh>
+From: "Simon Lambuqt" <oifegduwv@abt-system.com.pl>
+Subject: Have pearlite
+Date: Wed, 07 Mar 2007 12:13:29 +0700
+Message-ID: <015d01c76148$3abb51b0$1639b8f0@aegano>
+Reply-To: "Simon Lambuqt" <oifegduwv@abt-system.com.pl>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000E_01C760A3.0CB7B410"
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_0002_01D7A99F.C10C5DF0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000E_01C760A3.0CB7B410
+------=_NextPart_000_0002_01D7A99F.C10C5DF0
+Content-Type: multipart/alternative;
+	boundary="----=_1OEBOUND;"
+
+
+------=_1OEBOUND;
 Content-Type: text/plain;
-        charset="windows-1250"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
+of five funerals began Friday, and praised authorities for charging the man accused 
 
+NUTRIONE CORPORATION 
+SymBOL : NNCP
+Current P : $ 0.019
+5 day Exp : $ 0.50
 
+NutriOne Successfully Launches Canadian Operation and Sells Over 600,000 Units 
+Market Wire (Mon, Feb 26)  
+ NutriOne Announces It Has Concluded Its Agreement With Research in Nutrition and Nutraceuticals (RINN) 
+Market Wire (Fri, Feb 23)  
 
+REAL COMPANY, REAL PRODUCTS
 
-THIS ONE IS BEING PROMOTED, TAKE ADVANTAGE.
+Get IN Before the rush Monday
 
-S.umbol: NNCPCurrent price: $0.019 (UP! 58.33%) 5 Day Target price: =
-$0.15Recommendation: very aggresive buy!!!
+Service took the lives of five heroes," U.S. Forest Service Chaplain Steve Seltzner
 
-
-
-500% profit guaranted.
-
-
-NNCP has a nice fresh news, linux-input!
-
-
-
-------=_NextPart_000_000E_01C760A3.0CB7B410
+------=_1OEBOUND;
 Content-Type: text/html;
-        charset="windows-1250"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2900.1081" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6600FF size=3D3D4><FONT =
-size=3D2><STRONG>THIS ONE IS BEING PROMOTED, TAKE =
-ADVANTAGE.</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3333 size=3D=
-4>S.umbol: <b>NNCP</b><br>Current price: $0.019 (UP! 58.33%) <br>5 Day =
-Target price: $0.15<br>Recommendation: very aggresive buy.</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3333 size=3D2>500% =
-profit guaranted...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D3>NNCP =
-has a nice fresh news, linux-input!</FONT></DIV>
-<BR>
-</BODY></HTML>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">=
+<HTML><HEAD>=
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">=
+<META content="MSHTML 6.00.2800.3000" name=GENERATOR>=
+<STYLE></STYLE>=
+</HEAD>=
+<BODY bgColor=#ffffff>=
+<DIV><FONT face="Arial Black" size=2>=
+of five funerals began Friday, and praised authorities for charging the man accused =
+</FONT></DIV>=
+<DIV><FONT face="Arial Black" size=2 color=#ff0000>=
+NUTRIONE CORPORATION=
+</FONT></DIV>
+<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
+SymBOL : NNCP=
+</FONT></DIV>=
+<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
+Current P : $ 0.019 ( +53% TODAY)=
+</FONT></DIV>=
+<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
+5 day Exp : $ 0.20<br><br>=
+GET IN TOMORROW=
+</FONT></DIV>=
+<BR></FONT></DIV>=
+<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
+REAL COMPANY, REAL PRODUCTS=
+</FONT></DIV>=
+<DIV><FONT face="Arial Black" color=#ff0000 size=2>=
+Get IN Before the rush Monday</FONT></DIV>=
+<DIV><FONT face="Arial Black" size=2>=
+Service took the lives of five heroes," U.S. Forest Service Chaplain Steve Seltzner=
+</FONT></DIV></BODY></HTML>=
+------=_1OEBOUND;--
 
-------=_NextPart_000_000E_01C760A3.0CB7B410--
+------=_NextPart_000_0002_01D7A99F.C10C5DF0--

@@ -1,13 +1,13 @@
 From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: [2/6] 2.6.21-rc2: known regressions
-Date: Fri, 9 Mar 2007 00:12:46 +0100
-Message-ID: <20070308231246.GA6267@elte.hu>
-References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il> <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org> <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu>
+Date: Fri, 9 Mar 2007 00:28:57 +0100
+Message-ID: <20070308232857.GA8347@elte.hu>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il> <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org> <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu> <20070308231246.GA6267@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Content-Disposition: inline
-In-Reply-To: <20070308230705.GA4611@elte.hu>
+In-Reply-To: <20070308231246.GA6267@elte.hu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -20,20 +20,27 @@ List-Id: linux-input@vger.kernel.org
 
 * Ingo Molnar <mingo@elte.hu> wrote:
 
-> Here's another suspend/resume artifact: one of my boxes wouldnt 
-> resume, it hangs at:
+> > Here's another suspend/resume artifact: one of my boxes wouldnt 
+> > resume, it hangs at:
+> > 
+> > [    1.456633] pci 0000:00:18.2: resuming
+> > [    1.456641] pci 0000:00:18.3: resuming
+> > [    1.456648] 8139too 0000:05:07.0: resuming
+> > [    1.456667] radeonfb 0000:01:00.0: resuming
+> > 
+> > the box is pingable but otherwise no console and it's hung as well. [I 
+> > got the log above via netconsole]
 > 
-> [    1.456633] pci 0000:00:18.2: resuming
-> [    1.456641] pci 0000:00:18.3: resuming
-> [    1.456648] 8139too 0000:05:07.0: resuming
-> [    1.456667] radeonfb 0000:01:00.0: resuming
-> 
-> the box is pingable but otherwise no console and it's hung as well. [I 
-> got the log above via netconsole]
+> unfortunately there's no way to get any backtrace out of the system at 
+> this point - the timer interrupts are not active yet here, so i cannot 
+> use the softlockup_tick patch to sample the lockup. Since it's 
+> pingable i'll try to hack a dump_stack() into icmp_reply() ;-)
 
-unfortunately there's no way to get any backtrace out of the system at 
-this point - the timer interrupts are not active yet here, so i cannot 
-use the softlockup_tick patch to sample the lockup. Since it's pingable 
-i'll try to hack a dump_stack() into icmp_reply() ;-)
+didnt succeed at that - no netconsole output during the hang. But the 
+RADEON_FB .config options definitely make the difference. The video card 
+in question is:
+
+01:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon X300 (PCIE)]
+01:00.1 Display controller: ATI Technologies Inc RV370 [Radeon X300SE]
 
 	Ingo

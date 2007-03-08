@@ -1,46 +1,63 @@
-From: Ingo Molnar <mingo@elte.hu>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [2/6] 2.6.21-rc2: known regressions
-Date: Fri, 9 Mar 2007 00:28:57 +0100
-Message-ID: <20070308232857.GA8347@elte.hu>
-References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il> <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org> <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu> <20070308231246.GA6267@elte.hu>
+Date: Thu, 8 Mar 2007 15:49:17 -0800 (PST)
+Message-ID: <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org>
+	<20070305015034.GG3441@stusta.de>
+	<20070308123143.GF5149@mellanox.co.il>
+	<Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org>
+	<20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <20070308231246.GA6267@elte.hu>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Michael S. Tsirkin" <mst@mellanox.co.il>, Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, pavel@suse.cz, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, "Eric W. Biederman" <ebiederm@xmission.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-pm-bounces@lists.osdl.org>
+In-Reply-To: <20070308230705.GA4611@elte.hu>
+List-Unsubscribe: <https://lists.osdl.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.osdl.org?subject=unsubscribe>
+List-Archive: <http://lists.osdl.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.osdl.org>
+List-Help: <mailto:linux-pm-request@lists.osdl.org?subject=help>
+List-Subscribe: <https://lists.osdl.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.osdl.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.osdl.org
+Errors-To: linux-pm-bounces@lists.osdl.org
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Jens Axboe <jens.axboe@oracle.com>, linux-input@atrey.karlin.mff.cuni.cz, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, linux-usb-devel@lists.sourceforge.net, Jeff Chua <jeff.chua.linux@gmail.com>, Meelis Roos <mroos@linux.ee>, Janosch Machowinski <jmachowinski@gmx.de>, linux-pm@lists.osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>, linux-acpi@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Thomas Meyer <thomas.mey@web.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
 
-> > Here's another suspend/resume artifact: one of my boxes wouldnt 
-> > resume, it hangs at:
-> > 
-> > [    1.456633] pci 0000:00:18.2: resuming
-> > [    1.456641] pci 0000:00:18.3: resuming
-> > [    1.456648] 8139too 0000:05:07.0: resuming
-> > [    1.456667] radeonfb 0000:01:00.0: resuming
-> > 
-> > the box is pingable but otherwise no console and it's hung as well. [I 
-> > got the log above via netconsole]
-> 
-> unfortunately there's no way to get any backtrace out of the system at 
-> this point - the timer interrupts are not active yet here, so i cannot 
-> use the softlockup_tick patch to sample the lockup. Since it's 
-> pingable i'll try to hack a dump_stack() into icmp_reply() ;-)
+On Fri, 9 Mar 2007, Ingo Molnar wrote:
+> =
 
-didnt succeed at that - no netconsole output during the hang. But the 
-RADEON_FB .config options definitely make the difference. The video card 
-in question is:
+> disabling the following radeonfb options in the .config made resume work =
 
-01:00.0 VGA compatible controller: ATI Technologies Inc RV370 5B60 [Radeon X300 (PCIE)]
-01:00.1 Display controller: ATI Technologies Inc RV370 [Radeon X300SE]
+> again:
 
-	Ingo
+In general, don't even *try* to use radeonfb for suspend/resume.
+
+I don't think it has ever worked, except on some very rare laptops =
+
+(largely PPC Macs) where people had enough information to set up the =
+
+PLL's.
+
+I don't think the other framebuffer drivers are much better.
+
+You're better off using the VGA console, and lettign X re-initialize the =
+
+graphics device. That generally at least has a reasonably good chance of =
+
+working.
+
+Re-initializing graphics modes really is very hard. You can try with the =
+
+BIOS video hack (I forget the kernel command line to turn it on), but we =
+
+really do end up depending on X doing it better.
+
+Some day we may have modesetting support in the kernel for some graphics =
+
+hw, right now it's pretty damn spotty.
+
+		Linus

@@ -1,10 +1,10 @@
-From: "Milagros Bynum" <jcashier@hawkhost.com>
-Subject: On expurgate in weldon
-Date: Thu, 8 Mar 2007 03:49:15 +0200
-Message-ID: <001301c76134$edfad1a0$062a650c@xppro>
+From: "Joan Mejia" <nmtpudding@96168.com>
+Subject: On referenda do ethic
+Date: Thu, 8 Mar 2007 00:25:43 -0600
+Message-ID: <001c01c76118$bee979f0$0066d9b4@office81ee42d6>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0010_01C76134.EDFAD1A0"
+        boundary="----=_NextPart_000_0019_01C76118.BEE979F0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,55 +14,55 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0010_01C76134.EDFAD1A0
+------=_NextPart_000_0019_01C76118.BEE979F0
 Content-Type: text/plain;
-        charset="windows-1252"
+        charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
-Alert for you!!!
+
+Take a look at this ONE..
 
 
-Search for: NNCPCurrent price: $0.025 (UP! 31.6%) 5 Day Target price: =
-$0.15Market: bullish..
+Sym8oL: NNCPCurr Price: $0.025 (UP! 31.6%) 5 Day Target price: =
+$0.15Action: Aggresive Buy/Hold!
 
 
-
-All signs show that this one is going to Explode!!
-
-See the news, linux-input...
+500%+ profit (short term).
 
 
+The hottest news are released for NNCP, linux-input.
 
-------=_NextPart_000_0010_01C76134.EDFAD1A0
+
+------=_NextPart_000_0019_01C76118.BEE979F0
 Content-Type: text/html;
-        charset="windows-1252"
+        charset="windows-1251"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2600.1081" name=3DGENERATOR>
+windows-1251">
+<META content=3D"MSHTML 6.00.2600.2969" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#333366 size=3D3D4><FONT =
-size=3D4><STRONG>Alert for you...</STRONG></FONT></DIV>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3366 size=3D2>Search =
-for: <b>NNCP</b><br>Current price: $0.025 (UP! 31.6%) <br>5 Day Target =
-price: $0.15<br>Market: bullish..</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3366 size=3D3D4><FONT =
+size=3D4><STRONG>Take a look at this ONE...</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D3>Sym8oL: =
+<b>NNCP</b><br>Curr Price: $0.025 (UP! 31.6%) <br>5 Day Target price: =
+$0.15<br>Action: Aggresive Buy/Hold..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3333 size=3D4>500%+ =
+profit (short term)!!</FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#0033FF size=3D2>All =
-signs show that this one is going to Explode...</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0000 size=3D4>See the =
-news, linux-input...</FONT></DIV>
-<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3300 size=3D2>The =
+hottest news are released for NNCP, linux-input!!</FONT></DIV>
+<BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0010_01C76134.EDFAD1A0--
+------=_NextPart_000_0019_01C76118.BEE979F0--

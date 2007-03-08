@@ -1,267 +1,427 @@
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Subject: Re: [2/6] 2.6.21-rc2: known regressions
-Date: Thu, 8 Mar 2007 14:31:43 +0200
-Message-ID: <20070308123143.GF5149@mellanox.co.il>
-References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+From: "badmouth" <wlnmxl@roj.com>
+Subject: Nici un mare corupt nu este in inchisoare sau pus sa plateasca printr-o sentinta judecatoreasca ramasa definitiva.
+Date: Thu, 8 Mar 2007 20:52:10 +0800
+Message-ID: <000a01c76181$8ec6fef0$46237aa7@qir>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="JP+T4n/bALQSJXh8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20070305015034.GG3441@stusta.de>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, pavel@suse.cz, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, greg@kroah.com, linux-usb-devel@lists.sourceforge.net, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_0006_01C761C4.9CD61AB0"
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+------=_NextPart_000_0006_01C761C4.9CD61AB0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0007_01C761C4.9CDB23C0"
+
+------=_NextPart_001_0007_01C761C4.9CDB23C0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
 
---JP+T4n/bALQSJXh8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Nu suntem bagati in seama in UE cu toate ca suntem membri. i have done =
+benchmarks comparing db2 vs oracle and oracle rac.
+But why are we producing so much data?
+wish all of my readers a happy and safe Halloween. But calm down and =
+let's look at the survey results.
+Handling performance problems is truly an enterprise-wide endeavor. If =
+an organization business requires the data to conduct business and make =
+money then that data will be retained.
+Every time Red Hat distributes a new version we will resynchronize with =
+their code. Getting your metadata definitions and domains setup =
+accurately before you start populating your data is always a good idea.
+My employer, NEON Enterprise Software and Software Engineering are close =
+partners and I was happy to come to Europe to promote Bind ImpactExpert.
+Otherwise, just stay the heck out of that line of business. Consider, =
+for example, "The Beatles".
+------=_NextPart_001_0007_01C761C4.9CDB23C0
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-> Quoting Adrian Bunk <bunk@stusta.de>:
-> Subject: [2/6] 2.6.21-rc2: known regressions
-> 
-> Subject    : ThinkPad T60: no screen after suspend to RAM
-> References : http://lkml.org/lkml/2007/2/22/391
-> Submitter  : Michael S. Tsirkin <mst@mellanox.co.il>
-> Status     : unknown
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-2">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2><IMG alt=3D"constellation"=20
+hspace=3D0=20
+src=3D"cid:000501c76181$8eadd1a0$46237aa7@qir" align=3Dbaseline=20
+border=3D0></FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Nu suntem bagati in seama in UE cu =
+toate ca suntem=20
+membri. i have done benchmarks comparing db2 vs oracle and oracle =
+rac.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>But why are we producing so much =
+data?</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>wish all of my readers a happy and safe =
+Halloween.=20
+But calm down and let's look at the survey results.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Handling performance problems is truly =
+an=20
+enterprise-wide endeavor. If an organization business requires the data =
+to conduct=20
+business and make money then that data will be retained.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Every time Red Hat distributes a new =
+version we=20
+will resynchronize with their code. Getting your metadata definitions =
+and domains=20
+setup accurately before you start populating your data is always a =
+good=20
+idea.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>My employer, NEON Enterprise Software =
+and Software=20
+Engineering are close partners and I was happy to come to Europe to =
+promote Bind=20
+ImpactExpert.</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2>Otherwise, just stay the heck out of =
+that line of=20
+business. Consider, for example, "The =
+Beatles".</FONT></DIV></BODY></HTML>
 
-Here's the status with -rc3: better, but still does not work as well as 2.6.20.
+------=_NextPart_001_0007_01C761C4.9CDB23C0--
 
-1. Switching to console VT, and running s2ram, I am able to resume to console
-   (I have not tested with echo mem > /sys/power/state yet, both work OK
-    with 2.6.20)
-   This seems to take about as long as with 2.6.20.
-   During this time, I see some messages on console (see attached log)
+------=_NextPart_000_0006_01C761C4.9CD61AB0
+Content-Type: image/gif;
+	name="off-limits.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <000501c76181$8eadd1a0$46237aa7@qir>
 
-2. First disk access after resume takes a couple of minutes
-   (seemed instant with 2.6.20) during this time no new messages show on console
+R0lGODdh1gLYAPUNAM7n8vPZ4f/j3cfM4djO+efP/8z9yCcTDQ5/TzxHm7IzZCyIP4dmpG66T19t
+b66VXywNgxZCs5HmJaRmqo4ks1tTJvYuy/deX1QUTrf4UpUDAQygxOmHqwb3on7uqoG0BrYUbk7K
+iYoGYsJT4DxaDcOsex72S3aY8YlAYARidA2JfEWOxvduFiss8xvs5PKkf4kS579s/uHCJvIRPv/w
+mwMYD1j3BAS3Fwy24AefrJZfGm3+6hJy9UGG7uz/KAvyCywAAAAA1gLYAAAG/0CAcEgsGo+AAXLJ
+bDqFhGg0QK1ar9SnVojter/YQkFALpvP6LR6zTYb3oaidE6v2+/0rR6Kn7b/ZWCCg4R7SGKIiV2A
+jH+Gj5BIhJORlUUDmJmam5ydnp+goaKjpJyJp6ipYo1lfa6vBJOyenC1tqq4uaeyVZVKQ6zBwsNr
+vMaCpaWQpIHHzoOAAXVvqbBTsrbZtgKyxMTa4OHi4+TZQ8/Gn+W67O3u7/CrZvH08GnW+Pn6+/yu
+bHptLB1hJFCLN3QIoXlbyLAhGn3JQj1KaAwevjIFz1FclCajEV4eQwr5hLCeqo3PpFRBMwoQP5Ew
+YzZByKpcOYcOZQpEybMnSv+dRu40UWkyl7Zj/ZLWwRlMks+nUGVFnIpJDDmgIaNqTWizq9ev5aiK
+HRsqFdiuTL1hrZS2LTEkC5dsvUJOwBaymtSQw8t3lCBvfQNPnVuo0lmwa52AaUe4sePHkJ0lnmwo
+l1vAgn9R1uLl4h+lntVsHr2567OiqFWBXs2PHoBhRjZFprLgSoLF9BicYuD4wJXaUJMpUHCgeKYG
+DBQwYEBkQYLlDA5kOpCAeoIEow5guC59gDAEBxQs2LBhAQIyBxzSVnCd+RP3R7ooT66AtMzMnBDg
+H2Ce5BXDh9V12RlwLLDAKVssUNAwT+mRGmIzJQRcFbd9UY9uifDWmG9WTOj/k3DEGYcJcvM199xy
+3Q1AnXXYiaIdd5h8F9545Z0nQHoNrdeeFvB9hMV8w9kX036a6Idff55gAWCA4gxI4BsGIqiFggIx
+6JODqEH4hC5sUDlEj0ggoEcCRSTQljlCiDkEAmpu8dQBC4zAJgL1AXDAcgaSKURx4bGnJnQuuMBA
+DUKAM8BzwynXYkTRVbeccpgs0MkraSRAZ3E0KACImYw0ygCbCzhphlOzHaNhT899YR+YANkVExXD
+DXJqh1awpg88hLxRqlZP8LeJpLocAM8CGIpRbCJd6VEnAGzykVRCFVbBAhWzgkfbFRwqYJsgswZw
+IC5pXIEAFt1agYYgHnor/4gQrC6x7J4ejbWrLOkGkAhnWGwwbxfj7gvGcmAI4SURYtpBFhGZrXTG
+EqI2LIAqmzRXRJvVUfdtAZYWJ14BrhB3XRQHSDFfcVHUqy0VEEBXLxa3XZcunQogoOEbCBhILBwI
+GABdArVYuhzP2pgRKhoAMDCAAWSwRwYDZ2h64xk2roFjGUwLcN6dywlQjgLZKMiAgT2KZ2CbS+h5
+xHDLkV00AFfgggAu1yXwwANtzCdAxWbIvEBxZWhKHZtUN90GCgKAXXXSfHJ4WxEHOCHzn0OYl6gQ
+T5MRteXLOYBGAqmwqRwiAygwAAIJSIqJdfyZPl2ImoiuAAqLHoq1kZlYuv+A6JygYcGNz5FRRXLF
+2ZaAeLbFHMB1gvwQooe8ORctFddFoEA9QnqU2vWIvPaHzNfRaWMCDVynAA8HvEHdcjYwoA0dCBAg
+PgEMRHHB8OyVTkDIBEhsJ7EMOHCA2myzAtOQJ0AESEACf6PW/0g3PCHYYIEHqICenmOz5YxjaBhJ
+0952JATiOI8BejLP3uB0uTQczi7uSU7NNvgEsmHiZ8MpXZpuEDfiNKFdABBP4gbWOC14IAItsNma
+4LQABzgAhxpkzwK9ZJ7oUAcABCCWpRIFMjr4oGN3spkCopA2mUUninVIgCtqxiIxWo0E/xtb0gLX
+N0eVzkMms92n+hWzRCH/DzzzOVEUnuM9Ao5sjtCrjglOBis2wSlITCgdCBcosDl9zUsQAJuBzEe/
+OWqjOSDcGxHC8zXwDCFjndxMLPzVIJ0ggAXFKV0Ii8BEPTRuaTLDnMv4xqnhkGFoByjBdcjAKW7w
+i4FXUEAIukesABhAOcUxUPkM4JxacM0AcDpcL9UQqrOxKW1D8GBx2qRElzlhYHbaU7+oMM4AcKIK
+qssEsTRhuhnlyWig6M5wKtCddFWLFzIjYoUm8BswcIhDARjnBwF2vB7CKwDdIqQXzNMhmklxOI2L
+QJq+1AQmEottxPla2qhAgt91qGZiw2DlzHBCA/GSBGUwqY1wN5zTSTEB/x/4ACYspU7VpSgTBpgT
+OcvpBUISNDnVuQBBvXW7RFEhAlVoQKwEAdAqGMBScEiReNg0g9jhBxfqsAkoSOkTB/QzoAEgAgWG
+0AI99Ig6YgCpDoU1vQIMRwzCSmsXITYdFR1ABey0TnhahEyLme5TifhWADyWKnR5oanKoYJv6EMr
+XtgTVl/l1o+uYAJyGo44XhjCWO10px6CqUfgHJMQzCYwJvTQoBqqWc2wGU4i6Ak+3EnCJ3BXO0yA
+6gBGlBTuVJdOTGArmLQZ4XCAw1AQWgE8w9NpFaaWUjJgoqWhW9RyfDW6mVboa8+pGLWssFSEeqE6
+E3geGGSQhtuNzaR38/9ciNZYhl22QXNoEKnT7paAF8SPBgx5xRcuw5dGUOZdBXibW08R1wJcrADH
+QoQZmCsAp7VPCgJgGtMoMNwIWy6lBmJqFWqGiALDCwCkBQCVbnfN5Xy4Pe86gtq0xcxaWKACUIJS
+M9+gPlsIgqcVqg3BADHfMoDgDEMTaYRJVa343a8IZ92CBhjXQSYvQU1eqlN9nptYdXHXWCD0Ik+v
+cD864O/Bo+TNbfxETito45nQDA+NbTEBOHBtAbZY5huG07NsyDmnOdMZoiyVs2c+8zo0qwWb3pCC
+WljwDUB7qp7qBLMUH6FdPOyh2frErmwWhxxwHu0nR0LdQ3HXCtWDoq3/VFJKJuxHBL96YYiQiwkC
+JMpAGnCFGOewgCjEzEDs2eKdtgi/5+zRec7hNR6ETQDwoMeLFqATLyuWnKppajgeQOnSiBPDEqIB
+ARWQAZ9slJwUsGkCzr3p/2YaEe4Nh07GOgVP72DkORCbAB0AmaWuswKrciJubCrdc83DpgZISgpi
+1MIDYCa+PSlnARjAABKZJQQLZLODxJkT5DY5BBx8TQgrIEIaemw1XtKJfukB6d22qbVwAJWIaqI2
+BCOngBMwTokLRA8KitODBeOJT7xsMJKoayToVgfY7WwdbTVqs5mKp1FWPUKIhdCBRvGJXf3mc8lC
+yqZBcI90VcjAcZcL/zYFdAAyoWaY76Sy1SrwBdXsVPU2qdPqVy8g1n2YtRRq7eoV5vp+yeGir90H
+7OF1bA7GvhGylU3f4jR7jdCWdoSp7ac2YFvbJF+8txEAbgGoSBPjPlS5QXjutiZ43XZot8joEO/7
+zTsB9Q4Fvklnuqn2+997zN8TBh7DBtrp4AlfuJoc3uQcRnxOlaa4ECxOpYwDAw0c/97HIWq12438
+fyUHx8nH1sHwrFxgLX95xQB3o5kfoOZlwNoIcWSmqarTtlSeKZxcFvRMQHcARDeQ0YmFOk0o/QhN
+X1FxoI6A8LFp6jZTdTeWZdGidRvGdcTidWAXdgMxdpMQCl2AL78lQP+/gzbpAgIg8D+DoFCDRQUq
+giKLEjttVQDeUmKDkC6EBDMaWAUxA1JDAANLgCLUQQjVMVzS4D4MoAL/JwVGhk7QoyRNsEA1syZl
+8gRLF2I5MAR+FVpHAAOUZlBwcgFSeAYn9AefMkdmIB4KEFNtIGQdd0sXJWK9t2lrQwQx0AS0g36Y
+wAMGAgMw8Atm0yxysR51wkSplGiIhjRN40FCw0nJd3AkVSln4F4RpkhZmDeXcwO8ATV7Y21qUIVf
+0j1IFh3M0ibO0Tj75wTiQVpq8oMsODbOYBZMEgcMmBFJQYL/EWpcRQjjNGqu+Iqw2A+QgT2oYR7h
+cU08QSS6GArwpIv/CLGLOLUNTAGMfXESq2hOxJiMgVGKTFiKlDGKTEKLifAsWhEzDCACIrAvGuEF
+5DALhQIHX7BlsjAHSBCL5ngNxwgGorEHG7GL6UgIDvgM0DiPyeKMTlAA9piPr8ITDnOO/ggaDjMg
++jgAztAQyfAEXoAXkdER+vgINlE9CaGP7ziRc3FOFEmPBrAaJsGOE7mMkBCQIPkHFKkVsHAMwiCN
+KJkIOfKODZmPIwkVPvIYSvGSD8gJMZGSu0ARIbmTPMmThwEAGGkAYkGTRDkJamCSPZmUB1GUW6EH
+EZgYbSB7BTGPh4AaKNE8C6ACs7I8dMQyVcABecIhorKQO0kEV+ER/0zBlKkIFMfQkAfTknBZEKVi
+CUHpFYlBEVipldyVTF25LVQAlpdIBWMJGTxpluMQEmmplr2AFW05kGMRl5BZCXO5JHV5lpE5PHky
+hLc3T58CYkbgHoqCHZYSmaSSWVtQmcKolA1TEalABP/YB0ixGpX5mlIgD6p5mwuxHww4F0KiFAM3
+B0Z2Il8DJ2AURXT3ZV4UBWBmB7jQBcpIJKQZL885ndQJCmfxJKgJBwaZCbjZnUmJk0WhDeA5nqhQ
+mTUGBxqiABwwAiPQRN5FVNdCLRMQXuJlDN2pmKVSncTIBIsZFLTpj/sZnUfgj7iCFI8hoJQhKik2
+YkVwATkkYt5UJ/9xqAAl4FpLlxGdAGoIah/eOSD66Y5z4QpY0KFq0JwXiZFWEQ7FEJFs2Z+RYJf2
+4QXlZGENNifEch6SQy3FFAAu0ILJxILtMRtSoBOoiJ/ocJRGmgVDQJv7WAX/OAh4UI780BMkmpSE
+gJKmqQei4JRZKhCviD88OB0/04sl0DqakAAUQAHDg3kZkAEyFQq+VJMRw59AaAj/aQdGSqfn6KRD
+uqF+WgRVihnKeKf7ICRJciVFoJMLo3FLQKhxV59dGhKOWpKTYCsQOS//KJGE8QRdwQ7ZWY+JOpKI
+UCrm2Cq3SZ7wsAyaMKl3YBLPUD2BGhc68Y9ToZQoEQWTkaR/cSb/tWAJ1zMYTxl2CYGq2fMIm8Cq
+zFkPryoksaoWswqgEWGrG4Grd6mr+8WrcOCrqQGsdaqKL/mho9AHijGZMiEqf2oJzwCSCGEQBECs
+ugAH+LgFDoGsdJAWDmkTbYAS9icS1tqvxjCuFGkN4CoWaTCwpRmpQjIO6ICQ6DCwz+mlrmg98ZAR
+/ooFrggOm/EPAfQMDps7K+qiYrcGFrkRwsCADpOPnuCu7OCLrKmyqBEM6SAYFRsw1XqrhXquTvAJ
+DSiSI8oG79CsTJEPM+tUMIoEn3pJGxsc+jmpRzuKBeGyULut3IkT91IETXu1TStKdeAmxoC14lmk
+CGETtIkLRFAY/zh7tmi7BB37CbjgtW77BpAZtdcjBW87DqfgX6W4lgebEGzAD1Rxj+AJtGkhL1GR
+tpLZE3WLtAwZnWVgGkPbGImrnQ7hHYvLgEEZCawgrI8LpRBGBpWhYM3AVXtLk5sguMQwCJEAi25h
+t6lKmm2xsEyAEwgbIbqaq+jwFfQKGptLlHMwG+q6LpCgutgKDhPrumkBuyHLELNLp7Vbs86Au7lL
+jbs7kr07vWAwFYbLFqZLNE7gCHaKCXuQmk7yknJLrKNiBPM4D+U7npHbvu5bC9IIl9MavfqAmMIQ
+iz25D4qgjmRgjqoCCYchuo+wvWW5B31wFHwqovZ5m9kbl8LACf+1oJRXmxgj6xOMsIt4ar1PMZ5J
+Kgd3Wj1rGxEDbK47u44NXAn0uxQBybdxShdYe8KA2qFaIBj9ABOgkaCuUgkouQ+s0AmIQcBAHJDZ
+ibyhCrwwISXOq8FJ+sDM8LFKSxUUARrusKckuwYpvBpoi6oxqcTGcLMeERl9EcQ4wRrdSQ+i8Lxv
+8BB9MLl4AY2W0LlivBBdUVR7EyA5ExOOZgnJkZmIoCuIyrBagSiY1bXaIBEAm44MQY9cDBXri5MC
+CcOK+Ypr9T9y1wedwAEaq3QXSjAiMR8g9CkYSzmtEIt7MAx0MkfDE8dmQMSX4LGqHLQpLI1g8cpW
+grrMyr1cuor/qzHJpAMLl5zJRnAdaNjJOwPKSKs9/UvKpsoKp5xvHCfGrIwwrkzLDXHFsvwV1Ayz
+ZksalSuBRQkIQjZNi7oEBQYPMRADuiBg0jiC6VagVnC30rpQV1AuvBm+4xDCUyGNi7zP6djI/DwI
+8VDOYiAy2EgsJdMBDbBHM8CD7sM5FTB67VFOj4QF4AEnVhYA1sEbJ1M0hrdwwQcAYnAxMEM6GfIz
+NTAGsJQ27bVgK213ZnACCDA300REzpGFevUHXtheRHQ4ISAAHsAd4ZdehAe0h9qUTdDI9dCT8/jP
+AZsPTvK+n4pm2eA/UVg+0VFUCwQl85ECXzNnWoYAOUCKGyDM/80hcbfTQQwAARBwJzfQQSFggeIo
+mIWzfQwwA9xQP9xBR3MkAZ0pYsOh1mwHf5hXO3HDR5HyKPXzXF20podyhUDVBHlcNMGmhR0kJmkj
+acRiAoPk0Z8Ltno7EkbACP541KpRB0OrHlvxqZQSqK2Mz387leOwBigp0ImwA8r0NQGGZWLQVpGU
+IYjAzsfyVonAOb/NORcdAByATnPyc6FwRHHTiw3gRXCSLSECWRj9Vc9TAlbwPBySLsABPM4MPTXj
+g/60luBkNpy4J6SFQ1BtE7sCDossanOABi5Lj3mAs9ZqpaG2yebRPd5WhnKYQk4GACqwBAZSBCDA
+SuKUSty0RP8xc0NFA0JEECLTDYXPrYRFIKETLnwDzkowJzNKCEKjCeGPVgQvQIaMQ1qbzLWF65qh
+4TDRms14e7avHA8N0d5+HAbU06hKEYieW4YqXh+gyWhpAh8NFn7hgEgP90nLdCdxY2i2AGfiIGcv
+kGhSHlViEC0xUyHi1d3bTYEaelOaN+bnN+aGA75I4HIb/qD6w+YTIz7sMTArLhNTytSEcMVSSbCy
+rQrZW4zuULFBfAfVwSaDxGvDwyfsQQA6YGu8RncyMxwWoAHtJnpS8D8QBWYVbjO/NlxgejviQyeh
+kE4IcAH7FkOIROH8tic0bUMgZiBp+kSaJs1ZJoMvhHT6UTL/LDJM4voztz1tNoNWIZ0KH+BW25QI
+GsPO9iDjl6HjKPm6clrUQFjAMIyzymvB+foUj5QASLVhESA9x/OeX+5dqaQt7tcJQJUAEuAhDMQb
+/fI4q7UsITLiTABOy8I/4kEEIq5JIf50X0JEreXmZSI27+IoDCABm7RAzHGCRORVGyZcVtBUFPIF
+9MGBXfCzBBGZvaoFc2DGMX4ZOP7xh0G18YDnsBmPpnku+Jnt205O3a4tt1Eu14XR1EHuz2Xu9ZPu
+xxWk7T5HCWhpf/NNGR45jzIw+W5QduJERn/VCmJQkY2ZZ83ky2HwSojwSbtQC39cDr9cXQCp1GJU
+gmDxgECa/xn/BBsfD7U6ICCf9l4h8hZB8ncQACb/lCiPnyT/ZDBDARzA2T6yv3fu9gSQlBCvMJWM
+jiHq99VblJJav+ibrWXLC8nACpna+FHxGUitCjk87UXME+4MsprIl5hPmvTsnEYbDkJi5yBhCZkh
+BqY/CA6LpG3j2XI9ykmxFvdCni08i2qf+7ofyqpsEE7ynxuRCj9huLvy+THhJEn8L/mmIfxAd/ng
+RKRGs48mPnLm7nhIQqSTZ8fEb+wBDg9T+eB5jKWg7AOSC6PLC9No+DysoQXh2vuqj6vsGAHJFw3Q
+J1MkFmnICDi3ENtEJ3LCS0CgSCRiCsHxgVgsGMtAoLlUHP8WA+vgmNVuuV3vFxwWj8lfwxmdVq/Z
+6+cbHo9rCXX7nQDQ7/l9/x8wUHCQsMxQTC5RcZGxMfEQMlJyklLL8RIzM5OQc1ATUwGuQKGg1PQU
+FdUmlTX14MBKjYFhDVCh7xZggQ8hQe+kj0FPmO+g8xiZ73MZzrDtGfrsC48Ajvq6jjn5NPnqKxk8
+XHycvPvqHD1dfR2d2V2ztbVy3rDc/j6Y704Gb4GAIQGCOgoWmCr4asqpBAqEIEDFMFWCWQwKsLsC
+Sx1GK0KsVDmXoCM6BunelTRpchAWL/FYtrI3z+KAJ9FormmJD2fOZCfhlDuZrmXFmENjBmVViWdS
+pY2ocZr/MuRALl19EACYguBVVF8AhkCdZSDAgQRZESCAU/YJnwVDpAra9afXEAZShbwqC0HPAoIL
+EOJURM+SI52DAVCT1GgQvZpn9JTsRAAwJaOTKVe2nApbZs2b69QkGhOQ5shllpZuFvhNU0JPx0p9
+u6fq1axC9HQd+zXsWLtm36ANoJYtp9dUu87dU/fA3bx7++L7O/oSYZ2GIyEWpHhx43ePR0u6/B18
+eFOcyZcn4Pkzu9CZu48x/b79EiYHZhwxogWBAAZHSpQ4cuA/ALMQcIE4EjiLtzheCQCbOBr4zQ+s
+lhhijwQWKIsBDyqcS4GypPsQxBA7WYxENd6DMBwwWDpR/5MUARMxRMeQQQXGPsS7EZVPrimHHUZO
+GQAjkK6QaAAErHglpAE8uiKUsOKoAI4htjjmDQYUccggUgqg6BVi9Girxj5YTCtEZ0osMcw00zTN
+vDbd5GxMbQCZI7067ayTFTnUdJGeS7bIT4v7AGKIASr0O6IsRP/bL4sE7NtiAS0kkKCLRMdgdMAn
+EgyLt9cQcG3PUEUF4EwD9njijmTaA4MRNoIq1VRk4iQTnFbevJWzUTtZ5M4eS8MVWDtgVC2cLpto
+4jioBIgU0Ff+++9TISYQlK8DOEQ0CgQwFYAhBVC4lIGyDpggAvuqXSiLSAdU11EtpJsV3njlnZdF
+XT+cN/9USkY8451pgv2XWHtBhIAhifbwMi8ARhLJipEKHq5bvWATCypeytqUkQxeIaHAJ4xt8gkr
+4RBZ5Dc4iUdgfAB+s1eL6H0Z5jkk8TWOoAKohJyWdR4KVlhj/hloOfCwUK4XGICMjpWxGYK8I+xY
+Mejo9Oi5plWtpqela3b2BgyL2Pgm5bD/MFnswWS+moxG0F77Rb+iZEhbRT5je20Qb6U77aj1Lo3P
+LUrqlWqa9n4j8MINT2ccHFnZdXBUlX4ccmHLnvw6vA1ZmZHICWhZT0JK9aNFylWlROdTYzYcdfQ+
+K28MzvfWHHbNRJ+9D8svBzjzyF3vyfMzQd+E9k4qKV3/O5hTP/6ZOlkXY/fG3WGNYJO6S0UAZ7l4
+Zas/0hnCyCEDUoJIKyyUD/E+hlP4y+8R2EG4cLHihTleigkEbOZVikTx/MPTJ3Lk/fc/eHs6h/DA
+AADnxeF/0ZCX/iISBWthKU9vWBDfBuG+C6llBCOICicAMgQM7IEvDLHAFPSAgAlcbC2NOBAcOmat
+8UmkERrQyxJ68YQhyCcBFrAhXw4Wjq39EB0BJIoQ1zGIxQXQgM+JzAFDBwi8lW1vJfPYJXxjEoZg
+IioVqMCnetMxBoFMEQ/wYkASMQsbKqgRB6CVMQBQlT0QwB+S6wMbe8gVNSTgDHrBowG+0gbb0S12
+m9ta/8+YaLJPRCJYRtEDEAdwmR+2oXglWQwjY7KMK5gmkkILZB0OgAcF1CEBBIBKHOugBFLa4QAe
+8IBe7rAXvtyhUNYSji7OhzCuXGdb1eMCHtP1pzA0AFL2GdrmMhMCPHRSlMPkJBzX4iZ7SO8IoppH
+YhABM0peE5vZtEIgNlmHTqQCaEjECQNPIYUO8aUUDqDCWpZgivGh4kKE6kUBuHIhJSQHNmVpyyL0
+2SEWxsGLigiok95AqBXKwYyKWGYrOUkBHdzwk+ZhAAVAGa26DC2U//rjERjBh412QZyV+2gWBDbS
+LKTBFIxDEe3WEYbg/UxbE3JjCfkgFQIwpB/HHIgCZv/RoYyWUiDlSY6EUImHoGYGmXYgpQEKJpY0
+ZIUW0TiAGhBwBom4r6rQaNTFehOVBzygBlKciDW6Gbs0UDCkYqOG/+ynzSLqYR6pSisA3OoyfEnn
+Ge84qBz2aqAVXmFhV/CmhTSgAZ6uwIDieEUbj2PUX25BQFwwQLqkMAZAZYFRubTsAVrQAnehQyMI
+eID46qoeUVHNpF1oB7zI2Ypt4iOC7uADO1r7KsZIB2xqSuDxwMGv0vQ1Sou4IhzAGAAQaAqNvcGY
+cJkwi4Mmp0qbGkIcAFIlNQagr9dNgAQwcYaoomEBZ1AAJAGxQT/QsTY9ZEgGzveHkfIkC2VdHnZg
+tZP/Qi4ltSSdqzLqJSrgOcckwH2DgJ8w3ILG4bgBwNh1NbVcRRBkIs9NULii1Nfqhky7yd1ud/mo
+hvAylbx/MO8c+5A9Yay3vX5470niK1/ORIZq9r1vUvIbzf2a7kSj+q/AsCuKUxyAFRfYAIa0VADw
+BWQupegFDWhwISArmSEFCQpWXiFlU3TQWuV8RQhQ0ZW1mEJbhEpyAZxMheS0xAWt4amUn0wZJuxF
+IqWw0FDHYh9HYS+yS7zZJIaFK1Zxs02DyQIcSvvDZdQW0aeo8aIZvbY7SA0c6NXDlVnBABywgAVR
+8cZVF/BBEDoXvV2RtCAYImJ8FmMi17OeAAJggHUK/wENSiiLRMYbDayIC7xnknWVp3oGsUwEDd91
+dYhFNGMWV3NwZLgxONjh4ms84hDhcN5l1PSJ9TzbNKNhCEcdkdtKXbbR3N4zSPebFPotukYLnIxK
+0ZrETGhht2ioWaLpXRlDkJUzhU7PsjnhBX7P9prI8IK+CR6TzVRmT4Qu+L/LYVJjP1wOkCjVSBn+
+Rlz59j3O1rjsTkaZkiQ62eEmg1zZjRhJIEPjgtg4yf9Qb5dwolSCyQmr5cZInqJwCLQ9Sm5htNgI
+KaETQ+0FVYZ+7kncZ5eWCoOFLLithSCd5hC3zh6QHSdgSX0RLs8fHshxpl5pvbXLoIfZlgKOAc8w
+hP8OpjFkAcOcPF9MW2IQAlumkAUqW2hV1rKLFqzl3C9UqQkMEUt0u1L2D4Ed8aW4BDRo1sR3jVvk
+ks1rJtaw8szgyN3O6xXeTCOlqwHCllpYgnvgpk/l2v0+8WiznEuR5VIUKkclEQBWYmmkJ6QwZEfV
+jASbhBUJqh3SalJatCtOGMu/KbXF1wnWje15q4G+dpQlfYdM32DUH0H1XW49RV6/+gJIj/Z2kUkA
+cA8F3WeG95piMHRlG6rh10P50zl+m5IffwAzv5ATjJI5AaskvixJSbICSC5CCoSkSEyJIc5BW8Il
+FqShCyJl1Y5AXewuDCKL9chM+xjIIQYqAIqruPj/qYaOIJfArTpK4zLwLwC0LuQsx5ESzwXJaf4A
+5vlEhUKILi7eggpm7X0AgArkYi4WJcIiBUh0IzkUUPCGAgq6Za8whsAe7LoG6gMBSo+mS4U+ZRZg
+yajsIB20gAh7SQs0K/LQzf4EjQt2JhBOBE6YbwzXEB88ZLYoZi6WJKus6gzmcNisisq0ZQ6FzcM+
+zCmKo44qRDjWgo6kosCeIB4whC1iTw60ggrJL7kaYQFxj8HOaKV0BVcsCYgi7wkKjpJi8OqyzXIm
+rRQA4wXjwTSiAWWoSRIicFmmIDlWjQQlkKdS7Qiebs0uaxZjAgw8hI5sCUxEbBZmyipITBw042jg
+/8gOfmqhJKoaikuKUBATKkObqATiPGqjqsZdbOQyuOAN7KRwVuIFT8LFpBETHvH2iKtkKrGL9o4C
+uTDX0KDXfG0ebY36xgIN8DGPhsMN98Dn4qCK+KI0hIBDQAaGQgaMOLBjOmOPXkEe7TDeIjLGyoQ0
+PNEih2Ic0uAi76RpkEITrEA8dOaAyseIvoO/rAhkOiJiEjBJRCIupuAK9AKFlgQWnYtJEAIjL2RC
+cIEt2sU+ymICBWAhsiI5GgV7gjIOWqYAFsKeUGEuxOUUJARi+KKnsgd7FkIcFMFE1KYStjIRlg/y
+xNEF/UWOyMFPVgUszVEtY4bawiRvCuoDOcQsQP+GHQus7wpljKKsY8CC/KrlLKosE5ygEfUv95Rg
+ZLqCp/bqhs7yC9iBGPmgKzJvLRKqoEzpMbuFDY1uDECxrDqnbAIpM09LIhctKMwuimJpLDiQbAah
+H68NG8Rg9CRBcKApDIKSbSYnXtAmNHeTM3tTjj5jNy2uQU4Tz1STVgShNf9gM2DTNs0EGo6tNm0H
+N+FFN4OTDX3TN/cAOK1z5dwhCgolatjhTGKGbfwo3CSSDayz4SBhR/htI18rRk4x0VxMOe8AbSSJ
+L+UlPxvnELAu5lbzHpbhQ/zG3ESnkKxAv+wB416mrvqrPrGzDuxkdiC0I8OQCygSNY5TPfcE/Rr/
+jV7uL16KDd+ycw++Y+0EoOPk81UGZ3LAKeI2akNfoj1QwcbU0/J4BydwJUYBoAxUBnfWEhHrzXks
+tDHfkyhaQU7GAQ8ogwyxL91wNKSeQeVYBkGvBj0JSeoChhzEzcfqjUIxR+aU9EvH1DeJwj3kbREy
+FEjX9L7GQb+szb2UTYCwCexmVEgh7gvkwULDRB1OLjR5y4mIFGd280r/Ez4AI3VUVFFNYW7ecnB+
+ZAAKlQ2MjQwSqFeSIg0EddA6yjQbh0xjcCnupzva815QguE8snEgVVLdYMYq9X8ulScyVVOjThGk
+zXk+df5C1WpI9fFk5N/uM/iscRlq4VRnleZg/yVYNNVN2DRYhZMzkqdX/iCBULFAeycNZOUTWiZE
+Ak457cVIgcIk429Vn2HdxEGbIEEkX+ZqpNFWTyQoYGIoNmNc1YAo0vBmdlQQCm3RsNRBj+Hv3iAS
+xHNeJ8tY2dPyEhQQQJJ6CpZhEVZXyhVfj2FlYEQd4uVb3SopuUa1LtYiPIEZGrZP0tR2fOYkInZs
+wjOb2kZGQZZlR7ZQNYcrP2pMFjV/1qEleMJk52RWOFZn5tVyMEknWHZfaoJS3YNF0HNd02Jj1SFn
+xYZm6YkT7HXGqHQdDMCuPLNsfjYs6WZgu/Z/dGJhJwEPvrVlaZVZvQBXlQYT/OBp9WfqREVz8v+L
+r6JiQhYiZAKAkb6nAWMF0LqzJCoxiAJ1C9BAM05Ja3gWcetKRRNXHSZCY9ujcKLCIZ/qnKgKDRgi
+IssCtVDUD2AtIhl3taKmPw2EbtfCbqEAb4FIbyP1tvp240wCcAdIcOHtDAp3M0AXdxlpcXO3YWbh
+cbsjcmFRDaJCCSxXvGpttzS3Z2q0pvYo3nh3/KLmQbWQHWjILtrJyBTHY9BRkzhjFsMAUBxBaQyX
+RYzTXurPD1IsJx6zMKghZkTEt4AyWvIPfObOYyREN25v8ESJGedrDDzvmnIOenWmbcMVHEqNRyVw
+NJRuEr4XDKAOLfmAGMZOELKn2oAGEiC46jj/laY8Nk5qDFMYOBLWc1OrpMLu9nJrbdYMwJQiso8W
+Y0SvwXDnr2zJoN6GwCmXEsl+bAnGLCheIRUmQi9OYe7CxZ1qz8oSMS4WYiPSoXs6sIeNEyDlowMH
+bKhAZlMYqzbukhCMAYUkmPpew4KlSOiiURHmovAKynQDCjmeCwqkwBEOBIUOzJ42pfyIy4X26ild
+0Qv4OD8shIH1YqgGpHo6CD9yENzkY9vSxQe/sBcikIYWefK0JSvgoC7jwA8A4o5BprgCgqeCK/Au
+AYwmKCG9yEokggzEoiidJpSiIhmVqgn+4ZWXRqmG5lioQSNi8iLGr4MUrK+oLAoJB4YxuV19/4Ql
+Mm/GCDMsYFFbVmgBC+V0G4EyC4osOsV087cDY0mZE2EsvOxuIY9RgJIJPgUMCKAX4qJQ7CAOBbmU
+8CAZ3UfwIgqpbqMJfor2AAKZkooAkkp+Hxn9FAyftUJT+EJcrkvv5KKF5oN4wbeeu3lRsIJ7ru9P
+wkU31KW5JkKDuQCn+qHKJqSiujkg6iBc9KKn6kCPmMMOPmWo4qgHqY+N2GmdOmYyqyWX1UE+okAB
+NqJQlIAoIGwKfFco39FcdHIWbhGHlI5/qKGDxEfvLkanhEqVBRPJSjdkBqXvGOFQBOAfYImiP6Uf
+pkQqClEi1KdCkgOQfTRXFulig6aKqvoOgv+KexBwDBaZ7y4mKkIGmyfsbdNLGVaICjumr6QYuQYs
+QWqRoj0GnqDMyhLgFLi5EvPSWAZbstG4qU4DUqwlC+5DCTqoCUSQngtFArclPxghmglKwc7CcQKr
+/85hYYxFAIcip9HBQhTQCrrnCmxbtYVkKC/GAPeiYGRCQgYMr4dy8JLQiwQbdUdGU/bCjLkZQaZI
+sslPCPjiERmsrRehB8+iCaisEi2kS1sBQ9ynFDrEFBCYjtaJNf1RgmvKfCJEvYchYbRYF8Ri7srh
+5XRlxgxMgb/wP0zXHSswz/TDrgEis7EnkVuMM/TZpHeqGkSmEu/wGerRAD5srNmi1+zQQoL/rRaR
+tw1uyp056VicS6T9gVCU6qJ5KsHlI6mmu0syqpmBMqL6t3+pASvugJQUHDLPCxCeTjcgyBQSgQOL
+S6YXQTU55IXsUvCspTco+qBKj3sW6UKebihqOrYHILYng/vGW0uwgsxWr0tisc2S2CjY6SGIuMjA
+85KPcxaIF4EtGIERBoEDwThGDH0qBCDlIEEOqlMOscDW/K7lYLcIoXFAZAnae34UBqAuQTAliIWe
+sItKZlPciBGCklm4ZRi5RQS3YD8qWC1ygRjxiVP6zjeapGB80gtMffYyvcDfoEAMrMeIK40abLgW
+LLoJChqlmbsvrAO38Fk0PZhSHT/GoDkj/yW4kpvVA1F+SJGxt6S8IQIDC4Bi2AyemlhJxCUmVFtJ
+btsQgrKoFTiXnM4nA7wCMzoolc4IXBkM+S6zY3MCD5C0VDKY/4kJYT1KOhc2jkMP2MhL3LxpQTQw
+B+oxicGwJ2IQwFxbTIEKoqxDjhejE6S5JLcR+Agxp4oJ9sin8uiqVDoadtqu6zBcqqxkuiUUmiQH
+EboRoHEjhK4sbjuWWHvNmAAA1QF/F6J7PiUPPeJC3EeAF4bVpRm7gJK42ACiY8kgdjor5EwmL6Yl
+sGciKK2cXi/Kj17JCoAaIiYrSikxS/ofwKfKSogg4SYvPoXHWVMiosXKIKhWO10sLuY4mP9gjlSa
+7Tv4JLmZIEq9qsPMN+5afeQAFXoh53F4FKISS1pDKoNCCIpMzgqmCWItXAgiDUSeL/LIuyQ/j5Tg
+4gMnTSABaMVkGRZdU/LBKiaC4AXB4LM84es+q8TsKVl9zacg4jtoKCccIMSrFzB+GKdg41X+wj+e
+CkK+W6o4LKJcIpAb5a1c5W2bknN5Lr4z5p24B2m+tjvkejtCD+OiYayg5xnhlIG+oIT+14C4FOaD
+u5Ge+spi6X9tFpzeIKD+kcE/e6s+yq7enLN+LkSa66nA62mtQ8L+8GkDOcseCBSKRaGIKBYCyqUS
+4HQuFIcEovocMp7OA0JaRTzBWgCzHEj/DIWJhJLBQDAUVeVBcf6akcbEAr4uKuhVFSXUIRwsEOkt
+AqItoikkMCwYVMJ1UVYaCAktHFRmMoBq9kUhJGimqq6qjrm+wsaOCdDW2t7Wmunu8jbJ/kItjB2M
+iQH0ISwkABceIBKHfQEYH04ta1UdZDkRdHt/EySueScQPF1vVa0BA0wJAWwfSxGLCWNfeXLFLqE7
+xWcT62dvTJ81/WJJWXNAz4I3h/RgYZAAiSIkRxjpWYixwERGiSYl+pZIWblux9ShG6By5Uo3kdwM
+UIKgTEUGXJzp6chIkkOIXZQsWKJsHhOQiZgUisSG15NJIO+xO+dp4LlXb6IMiwpFDhU3/5qcaUsl
+qpICVpUIvmkHrZ+bK5KOUY0lpoyUo0tOcTkYidg2Y/60CDkECxxhcLgOa02seDHjxq8OQ44s2Vbh
+ypYvY748eTMuPmC72NLCiyVplb127TttdjVrVZgZqG4tW9Pp2gE24s6tWw9n275/2+YsfDjx4saP
+I2aHfDnk0s5Zzo4ufTr16qqAm2GunbNjLYsWb9bmZin28uZXm/e9uwCD9e7fw1+UeT79+uDS489f
+5jn//v5XaqefgEt0V6BWAVgn24C+RBWfg+91t6Bv8+WnhX3dBBALIwNsd4uESvwXooim6WJggUhQ
+V9iAJrIIQGVmAHPhN72s9yEvm0XF3/+DOxZBGCwBDNCiaDYSWeQSrQCgoHlC2HQaEorN4woXfi0m
+42UK0CckY3EdQ4aN2o0YpnMMiFmmmf3tIomAMy2xSC2LaMQjEjrJqRsahVWRYIK1ANMhZ7z5adwr
+RqqnR2O26ZkgIlGgwlovtAyyiBwXafGUK20lxsoYZhVFqIQElPQNAlZ6A6MTiVbChHMIiKnAqv0d
+cJwZQXlqlxkH/GYHcLgOSJ6AkUWByzTQaDmGpxkqtpF5hDHYYp1yokqbjSEqUcsagSZymBu53MUm
+Xboe22m4y36DJTgHWFmsYgfF0pJzrvJ3wJmkkWkmfHHC+V57uqkyVrSNRtuav6qURV3/oAcTp64W
+AWs6howIT8YLJEIIxQStSijgxikgktkJq/4lEKYzIQ9wCkucOLeGc84EqQVPrkzqibUCLLoAZ5MY
+VAsCAlABhy2HVKFALTZHIYUAFjVTr0oOwbFjIIvsW4AQzlzcSxxU30VXGwHUMQQTiFgKhTsKnAM2
+pgunAkDGGSdS1SltN0UsYGtkO1kfge1srSfvAPOSM2XwWsYkNG3s0BK4ouFtL0FNXUYVfZQhCR/i
+nqGEAS1fOgbf8HhCJTyweC6LGnKjE5c7xBawkCFPOovRuBUKWdgrYRInMSfgVl11xm8sNUDHQ3zc
+H8kijqySySuhXJrKpbE8xsuaPx4r/y0J0DzSzSRRDynPVTDw85RC00L01Efv4YzSvn8RdXxP6xH1
+1IjYdjX8MmkdAGxdVw023GJDUnZDZz+hFWsL2zLeRhWbvEIpdZPM3SZlC89sTnSS+NvXdDE4ixVu
+DnQ4gxxswzgpOC4ZijuDRKoGGyUs5XKwiIcTNjcJfYyBhVCJyuhc9gTToQF1qpMD61ikrNelR0uy
+c8W8zAQQidSLTE8gVh/AUggowMEN25JMrD7SPSrmYwp98AZJCuMMApSmCsoTAmmQAbSP2SSKnlhJ
+ALQlkTXEgRZyeCNWyJBGONDKGZPyWgAY5UQ6iDAZvvoNr8jDJptMrGq6oELRKBaADv/SgVdvdEMd
+MNaQzwAlDjGTCaPcoItbIFIaLeycQW7IpS7cLnC7SOOUDocJPZ5mJHzAyhJO6LiDeOIqCmkhKufh
+H5sYgowqWcPu6qWQOxpPJSzzzwJI40hnXMIKS4QFu2IRh2TkQyXgsmUAuiCJU2QPiZSUngDKQB/0
+fGgMz4EYO431umkQ5C9NacobH3dDG7qCCRmDIxx6MRO1kU1tgAnoE7pRBTyNygyOrCUo5XjF8EGG
+IpGwiBHYJzUkTCJoUaOTIsACzX3hEQkW3VBpaHFFcoIvcQCZjHiit0SjxE0L0KgDHwLjBFxWJTFy
+uwJB4TnNYnjinr+QIRRi+IuDoEP/ADY7TPZmRrNaXHES1moqZCIxVZ1hograw6ocucKZvF1RCOEz
+RNdsAT5c5O0wjLhIEXBSALbiCy+IWEMt+THI2igMGL7x0IdUkte/fq5SUBylEx75xmbU9TdNSmwb
+OwOpvFH1WriY4i0kewutmvUWS11qLcgJrNt19rLhY5okdKYtSSRiooTAJlvXV4R99dGhi0LDZLj3
+EXJ2k6786Kk9rjml3saCSz/a4Kwq+7PDdMKyVNTWLTx7mLQexrmdFRwK+REAAoyKHKGqjLm64YZu
+TGFR3yUAAyqDx/JmpiTmEoJBozkOb6CXMN3FzFOhekXQVHK3VEDs1lRVxP8COMAC//aPfwdMPNIE
+72PDG4C8WDK84JEmSasYmAEorIpMJGIUmvDKKpzBigz3SLvnAgd654tdyBT2hONhQzuM2uIreAtc
+FUQKUNpwTSaMkBe40gZOOtLaAlRkI/hKnUVqZpEouKEhr6Uu1wBn3SXIeBeq1NUgc2eGpRgFWZHx
+bPaoyjPMZNcb840vAQSRL47MqQh9sMiPd6KTP7CHFHmqcCqEUIlPbAJgq6EEFcqyBrKI5YRboCYs
+3qUS7/pLFHo2QCYq8WdLMKwSBh5RKp4FxN+Q6jSGqEbghgC5u/xPIYy1jTe7oki6KLPB9fJCF4gF
+kIacY3d8OAcw33JTVBJz0IIVXf9DDAINKv26gTBsB0ae8dG2SnE8SEvEbjSmlmTc+n8AfMXIslEP
+gmZMe55+KCV3Zw8RetQJNJtlsCYTCU5slnxGqKg24MwRkOhRD5VxRyKyK8JGGgaUdYGjSWWZvW6C
+U5rbIFZAuZLs2a3km5teGtCUYryRaFKZyBNjaUxJjPDO9JJR9MfttKCMq/0CKB8XDz+4ADhTtJJ+
+l2aCfYTFDlIRoE27sdLKdVGNxdr1VtngZpRrMw8Koman8KCFeCYBrwGgYSRM9KgxjI0GmT5uIFQS
+7jA0SR5udhPKYHnkqH3RNT7epg5gYYindZNM5LFEHHwIUbupsJIGq4Rn04sMT5z/YYu8UDaTtjrN
+KTTYxyVAlGfhxawc/UBV0UmRG+FI8gLmc8n3knce7O0GarvWjcaDA/PlsHxmGg9McLSaAF80hxQk
+MkMArEMWxkAqT7w3FI9PLXQWlELPVSkUrF0XvDE3j1YMYJxJAzg3mEsMsgDrCnYG6r/LKY/xXQRz
++qDr+fR1OQDgEwiEA3/SqBrXKg5VcyDFZEHPGj9uIm1+6jRfSL5ZzPfbL37yM4IdtiFiafADi+Ow
+aDIP9VNfs+/XxJSKqQyK+52GgRSH/43IAH4f8nFGph2LExRRPhHgBJoH/MWfXuGVOtVfED2GoJiI
+/iFM//mfYgRgGaQGBZZIgRwg/wKGiALWHANuhgN6CgSyYA2aCcP8V/o1H/zJAhDB4A+Sz/IRiA6a
+iAXuxnA1CxE+AQqiYO0EB8JExfRFhhFyBJ2I1BC4hzW41RW2Gb+owhfUgVmECISJCDYJ0wA0hC8h
+DyP1wUokw9eRhmWIx3aRyvmlgvQo4f9wDwIJVIvYxl0xofsBYm04RGXkVZrkB+0AYXH8gnMECApK
+H32kBzCB0O0hQs/dyv80BGeh0ilIxvE9ECSYT3rYHhM8ASjNls8IgEsQU2fBAViATz11wf5BxlT0
+2gN1iHSZWzk5mcToR2S02htOQQvp4J0ZQHwQ4WosWoKsUnkcQjPgip/sRpBhFP8Vykk32GE2VoI1
+PosO7oImKAYeNQSrOIFglGM1AUZWTMNcQFJ5RNkgngYBmJghCtU0/d3hLIXtLYUinVoZEFmaIcGQ
+7YhA6ob6JEGT8QImcqCUMCQRCp24bYYmVIaZvEmz7YaeIIC02EanKWTxtYhw9VSf4EjruEcBumAv
+KKGnxAfy8UJQeBKNHUlGsoZMakLBLBpNUgdOpgIqpFajGcCUoMGG/eRNyEbBrIJPTkIlUBieiYLH
+DcmsPAcXMA/SdQJLYEIUhF8hZFFtPKNL1FXR6A41CsDOeJRZodJY0oJ/HN3bDUAnNJPEDdPwhEwT
+wR3SMUo/PA86eJMz/NQ8WRP/FQBUTzWDNMETHGwOGNQBs4mUFV5UWWJV3kiXM6GhNrBEOxSNi0mJ
+INnQFFDJIZgeMFjDKaRjNQxDQegVbCADTSDZ4QBO4NCRpxgYO8jHhexIERVJf8gB1aQdadQlG60S
+rURZR2paHrDHSMwRRuHNRdANyiVHTDwkPHyTOXJOMwzBKM3DE8kCGiQN1F1Kn9XFTbFNGvpDA+WY
+GbzBooBL3yVZ4BTClalBzwCFpyVCKVrQrGzbFD2UZdVUaBbeFLiEAMjD2kTCEr1iHQRJSKKjPyQD
+7UUCHVBnxshEXWwdCUXCfB6OQGKBtE1P0WiM3fBY0YxWkk0RI3GBWfYBSNzZ/15YAyiMxxe0RsaI
+3U4uCjahEDRBwmk4xXnyCpJd5T12S3x+00KBSJkwxzsp4ZEyAzQNxEEQFbXR1BU4zwmWwdB0VrYM
+k1Uij1uqGoS9Zbw8R/RwAUbdBCKI1N5IQRF0IM1A0yFoFnOZllJ54lYplXBA2SL5iuLk2Kf1lyrB
+I02Yp4xJUs41gV+sxdkMnFAEVQv9nD0cBJX04jZhTOTUaWLpFnHVmODI2AldjJDuQjIgKgrBETC1
+Qb3pDo55y8XYhXb2GmMygkEWgO/AXSIYTyTM4vm8wtPd1DUkZi7BxgntI61cUiT9inBIqX6kgi3A
+zivghmVIRw/qx1GAyyAJJ/9QqIPF0ERjNN0aXWlpeALdqIwBLJqFqQKeHWWdXUMWIMOuxcJhcBYu
+tOubTlbPtOtZJYfmWMjlgUM5BKTyIJgyFYJBiEiXDgCkpYJMAoyd1aRZcGalYl0eMZ4yVJdMHII/
+qZz99FfWRCzrEEvgmZRjZdYqKgNYbIbQCKocpCGH0dkq6JmHGeOEiZ1SMEU5WsVAlSMXYM8vyA3f
+JMTXyR1aruJDzdYiascpshNG9Mb8MYZZFNazMs6TTeriVGvFWAy2LpG2Ip1zdCsffGu4tga5Xpi5
+/kW6+uW6uiuwPBdkSMTjfCyKwcy9hkO+lllb8SuWMti/Ls9/CCzBaoLB1qT/UW6Cwu7X1fkp1zzs
+UhjSxPICm3iLijnOk2ks0bYrLfZsLcRiyNrdLpZsMsQByorrypKr127Yy1aqAIYOC/EN0NysLORs
+wYUXJ/QsWAGtOAgtcxAtxBjtZqxf0rJCJGpD0ERf5MHX72IXdFUPUzUV0NkP1umYxaDqIiGFrlxQ
+xe5ClLEJXgbUNQQNlDor4NVXLRQsK4irHcCDQ2ivzKINweTEa0ENRDDCkF2EAVFjbgikTzIaKPDU
+EgLiUihQxWbDpQIccALPhHbq0iScSvCj0+IY9+6flwkAvTYw0XGPcIhVVxHd3aEUU9nCAhEvpBSF
+8prnj3IdlEGvPk0rVfBl/5ecQwGpDayl3r5kFFsFon6wYPrxyYKw4QglDTeNhLewBx2dAkV8QWuR
+RHv8B4N2zdi6DE+MRAs9KNVV7Xgk6gTNZ075Qxb4jiJKLs+EKlXp4nkaBGdlERzcn850DRXIkXGt
+4numlXNljxx4m3AwsJdBZmqNovRCmVP0L8AlRHv+L0h4ixb5ry7Qii3tYzXUGy30ob3KFC8ZnVE2
+Wn99wUjUhuTAaCFlld9hYjCmXNYplCAZRG3k0u5kiEB82//sDtnS6+WOo+GN287UqhwVhFLgQiTS
+Mjg4Ry3jMi77xpncbfhxjcl9DR7UklJkFAnbHjh5sCBjDXtCxiztTLpFD/9n5IMZm9QbTPAZH9cq
+CgBrsOtzeRS9hiRPjUwx6FFUaGE9ylMc9Ayx7JQ9rE0Qb6RCDe4jeWoI+2jkGKaMGWbE/jKv7Gi1
+zB3deexYilMG38cZ9IujvdInyCk2i4c1MLBxLcotzJGXRTTNTIoiu0JBhA7oxMEi09MSQRM7QEOq
+rcTenM/wnA/SwRF2LKLrmCCSJgY36sYnZcZpjO4FLq3E9ClAb0cMP0pkaB86CQhjPLQ73EIuK/Xu
+feMlw4E2bp/MMcQzQhOPnK/SynSBfCNUc3V0jPE2RwdQL+RgAIe6kJ9jUMZSL3UMSqJY44ex9VxW
+mwj2JKhcL+EuFM0c2LX/Y0zg7KrLb9jh7BqHNgqtWssg+NngmQBR7Bi2igD2+bm1EtC0eyAhaiRG
+YvvHJ361YHP2cET2Z9tIv2xHY4RzsfyPfvR0TO91yIF2ayNtiyAffEigayO2gTHBZE9283V2ZJxK
+2rBIBhqIE3/kK1CdBVbDd6CeVpR27doubt/ubh8GUIeGFkgGdjj3dTv3h8BfY9NyNsahYQMRf8if
+SQa38QlXccPfcRtKctOQLDAgdrsJdEd3DE83c+OCdcN3fhuhdpMfd0eid7NEY4d3BJp3sUg2RSDB
+jAkIZoQEYZAZmBGAfHvDL/xgUb/C8602ktqhf1NIUMv3h4M4mGR2ddP2/yT/MhqA31pyqRpw21hG
+EYAq6tq4zPsAw+YSEOoVAgspnXDf0IoNg9B9Jj0RgziEwTQQufGRiABmuB+SS2MrR4hLBktEDH7I
+CcR0tWxoiY1ghoUYSAzb9yIewtSUG72mFR/4LviYzRooLiqlEai+Gk4DU/TyGBe8gRzhj9FIBqfZ
+bChOlgNrzDqHk0RMzVquEwzGcA0GjH4n+IAoIpRD+ZLrIIdzt4HZoWPgalHBk9QaFgUBcALbDyeY
+zzAtClz2h8AmnE8ypVKARWvQr98i7BcSTMuCq6PpGf1GC6S3S0l1NqOTLcT4kIM4urqhdbA3R5lg
+xi+GOBMQu3Hgh0R4Ov/P4ZjG2FJwYowoNigdkKqH66JzgY9biirFKuMy/q0B/FTpmC864/pqV+Ze
+I1+6Y2CJP+BMK/qzFBGPtHuvLzvl3g4cGNQ3xFeYFUQ3mJjmgcP1LtGlIwRUDJI/S2oveBm9LhAu
+IjJ7x0NfyA1V8PhJ1lwdunuLYKOSfB9370K+yze85+5VG0BZe8mESB++BztZusPeBtwQkMUeyQG+
++rt31V0XgNc8vGJ6qUMyBDSVanGSmXEAdVg1gBNZqBFNSkTXuDAgIDh7zBESXeEWvkc6sTuJ28Z/
+bMYAwHf3AQOB2V+9fiBnXHl0ILdWL0impH0CskN/mMTKnwYtdP1z2GH/eXhwOUqDMUyKs0eqtWKM
+HuUP3viGxuBOL+ZWDiXhRq+nWwTNQORoWsBDuc76lHhtqHL1kYS1R8ZCw3Q8AJD8LWD2d0t6ZRTH
+glhGsnaHnqRg6MM+i6yC3qdgEPuU2nAPeUTZphL+1xh+/FizplsqOFXiL2giwfVMdY6nFImBhWUC
+KmD+TvLE5ltO57MD6Hf86NtC6Qf46aO+Ey74i9ifgbi+ksf++SvMZryr9hOHb0tYNr47V5I3Ec4H
+RIL4/xkfFd4IOwEYVHO/SAKBQDgUDoxHZFJJYDadTyg0MKVWrddpVGvgdr1fsBcwJpfNZ3RavV4r
+lVh4XB5PzO13K1G//+f3/XwDPEE4tkLDwrg/xUXGRsdHyEiiKq1Ky0tMy0O2sE6wAtDQUElSvcqq
+s8hNNLxV11dY1sHBUoHZK6FB0V3eXt9f4GDhYV8o18woqlq9W7tYteU9t2ni6t1o7GxF5ExP72/w
+cM9n8rXmM2veQu6naXej9Hj5eeuA9yTRcjRx/lntPn2u/jWiF6xWQIQJX10ZkFCdGnanmk2Ms4ni
+xSr8vJRSaKYTkjug/uEaWNLkSZRF3LVKgxELSpd5/kwU56wjuoIPy1DJme7eT6DuxKXsE9PKTaQt
+pwR1E7CRUThEpU6lygfqVayzNG7lOo6NOwJZxYo1N9asUTaDkq4FgP/FGrJGZeN4LeSmD1O80zLJ
+c8J2lZGITuKZeiInrzu/fqsu4ppGy+EkXbsilFy5U+I1xCSJcgLZ8+eVZ1H18vvZEVsoXK1AJsJL
+tNgkATCnmhSH2NnZsKjISlRL5h4oAnrefs0QNF4/r3MvZ37IdNy1qbeuPtx6V3GssZsDYGZ7GO7t
+hnafmbPsN2EnwocLw079eNDkosPPD/jevpGE9/Xfo79q8SOkZjFjDuKueCUXc2ajSL/2jGIHlv8e
+uSMwCp/oj4wuItzjkCGAucXDBffzLBeykgqgQgJERAJFFpu40AwVY8PqRcw05Mg5puAAZwjdsuqn
+in9oI4qMBqMiyCD/IeqK8Z4im8SqRSaMyovGM5pY70prqNQSxrwYWeUccpr5iTzs6LPxTDSfclKQ
+JLd0BaQ14xRwNigxYcoRkh6BLC2bAAjHzebkjFPDy9SAI57K6gzrjuPkcKW87mLC0peZsLLsUssm
+rdAtYHYSNIB4PqUFki4IIUObtTAVB1BWW01oKbywcJUNRt4pY5q10tTwougUhXJSYIPNBylhexF1
+rOYsQ9UvK3x1tk5DlpQWqGPnHKNYbLMFpdqrZmXLPTcMQIOYMCEdQlT/IsmLW3bHS0jXokRb9A5v
+DRkoCVh0KkPNdqeo18Qq3hEXJ2HKlSNSOdOFZN1+ue0IXqvkFeRf/1r/wfcVfU+F+CAiFppoY0Z+
+GQij4NDME89j4+1zjT/U4ILijpxUcApVa7b5Zpy56ikbqEC+ESk/hmpTLlNf+cKQnLs6rT+UMEy6
+soBW9utZqpnQNssvKap6675aBWORW3h8xueRgNyjYQe5rqTUW3grGmZWsbsvZrSn+OWLeYtDrCNu
+7hB62WfUrmSNcHbx9ekvJOGw6WinHRNuyCOnr0tVJH8mmNxekxZoEtdk42qRxK7PcdJBu+SkORBX
+XYybIp4joShKf6Nu2mtf0w/Bc49Idt57DwqZYAQF3ZdmKLRcKWQJB4McYwBGQ3foBR/bYhVrBhvU
+4b/DjmzRv7WdXf/u24xpdcvsS2NJ24n2J8L1dfWXzO/xCF9lPEIho2vmzuKqwrib7K+aL5gPDeir
+nfpG9Z/2pel9A4qf/OZ3Nl2A4n4uCpRZ9mc8QMmMPtnjYKjEEgoDUamBRfJUu4IkpA1lDSMGHOEs
+LuG7IxxLSw/kQxTMoL0G5miB+XPJueIHHWZloQlNUWEIDSYqqEVte48AhyAKtpYPbUtWxPoF/PrQ
+QWFc7Hif2gUXsAjCOMBwbyxsD/nMCAYnTOSLa8yJkQTguA6Jwgg1Y5MCucUFtB1vOd3aRIVeNgYa
+dgxmgFtcIA1ZFf/Fom6tO+QJiYQWN9npeYHxRA9LYhGahcNRrPLAxSa+0a5O3AJnbBQWh3AkRlSC
+xhCcgdZXlkSp7rnqKNzpgyVWiIhbNESJFyHF4c64lWVEr2qkgMXqnmShs5Aye3G6xC+7YAhulJAn
+8rikK+gCzUwEMpVwMkok1OKnr2WjdJCggp246UAAKYQKpGvkzxIzCGcGoklALEQ8+6Uas5Sjl8Ik
+wCYG4g3ZuAxxFRvadtyIQDsoM2UCyJwg7DlPLx3ioezCZ/KmFwl+9rOQ2QCo8p5GUIbO56CLCQkp
+jxUEADs=
 
-3. When I switch to X (CTRL-ALT-F7), X hangs after drawing a couple of windows
-   after waiting for some 10 min, I rebooted.
-   no new messages showed up in /var/log/messages
-
-log attached
-   
--- 
-MST
-
-
---JP+T4n/bALQSJXh8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=newlog
-
-Mar  8 08:47:20 localhost kernel: Inspecting /boot/System.map-2.6.21-rc3-work
-Mar  8 08:47:20 localhost kernel: Loaded 31265 symbols from /boot/System.map-2.6.21-rc3-work.
-Mar  8 08:47:20 localhost kernel: Symbols match kernel version 2.6.21.
-Mar  8 08:47:20 localhost kernel: No module symbols loaded - kernel modules not enabled. 
-Mar  8 08:47:20 localhost kernel: 1
-Mar  8 08:47:20 localhost kernel: [   15.317823] ata2: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:47:20 localhost kernel: [   15.317897] scsi2 : ahci
-Mar  8 08:47:20 localhost kernel: [   15.379836] ata3: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:47:20 localhost kernel: [   15.379909] scsi3 : ahci
-Mar  8 08:47:20 localhost kernel: [   15.441854] ata4: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:47:20 localhost kernel: [   15.441999] scsi 0:0:0:0: Direct-Access     ATA      HTS541080G9SA00  MB4I PQ: 0 ANSI: 5
-Mar  8 08:47:20 localhost kernel: [   15.442216] SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
-Mar  8 08:47:20 localhost kernel: [   15.442292] sda: Write Protect is off
-Mar  8 08:47:20 localhost kernel: [   15.443138] SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-Mar  8 08:47:20 localhost kernel: [   15.443256] SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
-Mar  8 08:47:20 localhost kernel: [   15.443330] sda: Write Protect is off
-Mar  8 08:47:20 localhost kernel: [   15.443406] SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-Mar  8 08:47:20 localhost kernel: [   15.443490]  sda: sda1 sda2 sda3 sda4 < sda5 sda6 >
-Mar  8 08:47:20 localhost kernel: [   15.845145] sd 0:0:0:0: Attached scsi disk sda
-Mar  8 08:47:20 localhost kernel: [   15.845290] sd 0:0:0:0: Attached scsi generic sg0 type 0
-Mar  8 08:47:20 localhost kernel: [   15.845797] ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 19 (level, low) -> IRQ 21
-Mar  8 08:47:20 localhost kernel: [   15.845946] ehci_hcd 0000:00:1d.7: EHCI Host Controller
-Mar  8 08:47:20 localhost kernel: [   15.846106] ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-Mar  8 08:47:20 localhost kernel: [   15.846229] ehci_hcd 0000:00:1d.7: debug port 1
-Mar  8 08:47:20 localhost kernel: [   15.846315] ehci_hcd 0000:00:1d.7: irq 21, io mem 0xee444000
-Mar  8 08:47:20 localhost kernel: [   15.850269] ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
-Mar  8 08:47:20 localhost kernel: [   15.850508] usb usb1: configuration #1 chosen from 1 choice
-Mar  8 08:47:20 localhost kernel: [   15.850630] hub 1-0:1.0: USB hub found
-Mar  8 08:47:20 localhost kernel: [   15.850697] hub 1-0:1.0: 8 ports detected
-Mar  8 08:47:20 localhost kernel: [   15.862005] USB Universal Host Controller Interface driver v3.0
-Mar  8 08:47:20 localhost kernel: [   15.862135] ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:47:20 localhost kernel: [   15.862268] uhci_hcd 0000:00:1d.0: UHCI Host Controller
-Mar  8 08:47:20 localhost kernel: [   15.862381] uhci_hcd 0000:00:1d.0: new USB bus registered, assigned bus number 2
-Mar  8 08:47:20 localhost kernel: [   15.862484] uhci_hcd 0000:00:1d.0: irq 20, io base 0x00001820
-Mar  8 08:47:20 localhost kernel: [   15.862702] usb usb2: configuration #1 chosen from 1 choice
-Mar  8 08:47:20 localhost kernel: [   15.862821] hub 2-0:1.0: USB hub found
-Mar  8 08:47:20 localhost kernel: [   15.862887] hub 2-0:1.0: 2 ports detected
-Mar  8 08:47:20 localhost kernel: [   15.892543] ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 17 (level, low) -> IRQ 22
-Mar  8 08:47:20 localhost kernel: [   15.892676] uhci_hcd 0000:00:1d.1: UHCI Host Controller
-Mar  8 08:47:20 localhost kernel: [   15.892789] uhci_hcd 0000:00:1d.1: new USB bus registered, assigned bus number 3
-Mar  8 08:47:20 localhost kernel: [   15.892894] uhci_hcd 0000:00:1d.1: irq 22, io base 0x00001840
-Mar  8 08:47:20 localhost kernel: [   15.893113] usb usb3: configuration #1 chosen from 1 choice
-Mar  8 08:47:20 localhost kernel: [   15.893229] hub 3-0:1.0: USB hub found
-Mar  8 08:47:20 localhost kernel: [   15.893296] hub 3-0:1.0: 2 ports detected
-Mar  8 08:47:20 localhost kernel: [   15.933182] ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 23
-Mar  8 08:47:20 localhost kernel: [   15.933314] uhci_hcd 0000:00:1d.2: UHCI Host Controller
-Mar  8 08:47:20 localhost kernel: [   15.933427] uhci_hcd 0000:00:1d.2: new USB bus registered, assigned bus number 4
-Mar  8 08:47:20 localhost kernel: [   15.933577] uhci_hcd 0000:00:1d.2: irq 23, io base 0x00001860
-Mar  8 08:47:20 localhost kernel: [   15.933797] usb usb4: configuration #1 chosen from 1 choice
-Mar  8 08:47:20 localhost kernel: [   15.933915] hub 4-0:1.0: USB hub found
-Mar  8 08:47:20 localhost kernel: [   15.933981] hub 4-0:1.0: 2 ports detected
-Mar  8 08:47:20 localhost kernel: [   15.976494] ACPI: PCI Interrupt 0000:00:1d.3[D] -> GSI 19 (level, low) -> IRQ 21
-Mar  8 08:47:20 localhost kernel: [   15.976627] uhci_hcd 0000:00:1d.3: UHCI Host Controller
-Mar  8 08:47:20 localhost kernel: [   15.976740] uhci_hcd 0000:00:1d.3: new USB bus registered, assigned bus number 5
-Mar  8 08:47:20 localhost kernel: [   15.976843] uhci_hcd 0000:00:1d.3: irq 21, io base 0x00001880
-Mar  8 08:47:20 localhost kernel: [   15.977060] usb usb5: configuration #1 chosen from 1 choice
-Mar  8 08:47:20 localhost kernel: [   15.977196] hub 5-0:1.0: USB hub found
-Mar  8 08:47:20 localhost kernel: [   15.977263] hub 5-0:1.0: 2 ports detected
-Mar  8 08:47:20 localhost kernel: [   16.040824] Initializing USB Mass Storage driver...
-Mar  8 08:47:20 localhost kernel: [   16.157808] usb 5-2: new full speed USB device using uhci_hcd and address 2
-Mar  8 08:47:20 localhost kernel: [   16.221329] usb 5-2: configuration #1 chosen from 1 choice
-Mar  8 08:47:20 localhost kernel: [   16.224625] usbcore: registered new interface driver usb-storage
-Mar  8 08:47:20 localhost kernel: [   16.224692] USB Mass Storage support registered.
-Mar  8 08:47:20 localhost kernel: [   16.224886] PNP: PS/2 Controller [PNP0303:KBD,PNP0f13:MOU] at 0x60,0x64 irq 1,12
-Mar  8 08:47:20 localhost kernel: [   16.233142] serio: i8042 KBD port at 0x60,0x64 irq 1
-Mar  8 08:47:20 localhost kernel: [   16.233211] serio: i8042 AUX port at 0x60,0x64 irq 12
-Mar  8 08:47:20 localhost kernel: [   16.233366] mice: PS/2 mouse device common for all mice
-Mar  8 08:47:20 localhost kernel: [   16.233716] Advanced Linux Sound Architecture Driver Version 1.0.14rc3 (Tue Mar 06 13:10:00 2007 UTC).
-Mar  8 08:47:20 localhost kernel: [   16.234221] ACPI: PCI Interrupt 0000:00:1b.0[B] -> GSI 17 (level, low) -> IRQ 22
-Mar  8 08:47:20 localhost kernel: [   16.236937] input: AT Translated Set 2 keyboard as /class/input/input3
-Mar  8 08:47:20 localhost kernel: [   16.444361] ALSA device list:
-Mar  8 08:47:20 localhost kernel: [   16.444428]   #0: HDA Intel at 0xee240000 irq 22
-Mar  8 08:47:20 localhost kernel: [   16.444525] nf_conntrack version 0.5.0 (7168 buckets, 57344 max)
-Mar  8 08:47:20 localhost kernel: [   16.444736] ip_tables: (C) 2000-2006 Netfilter Core Team
-Mar  8 08:47:20 localhost kernel: [   16.444809] TCP cubic registered
-Mar  8 08:47:20 localhost kernel: [   16.444887] NET: Registered protocol family 1
-Mar  8 08:47:20 localhost kernel: [   16.444953] NET: Registered protocol family 17
-Mar  8 08:47:20 localhost kernel: [   16.445019] ieee80211: 802.11 data/management/control stack, git-1.1.13
-Mar  8 08:47:20 localhost kernel: [   16.445087] ieee80211: Copyright (C) 2004-2005 Intel Corporation <jketreno@linux.intel.com>
-Mar  8 08:47:20 localhost kernel: [   16.445185] Starting balanced_irq
-Mar  8 08:47:20 localhost kernel: [   16.445254] Using IPI No-Shortcut mode
-Mar  8 08:47:20 localhost kernel: [   16.472663] kjournald starting.  Commit interval 5 seconds
-Mar  8 08:47:20 localhost kernel: [   16.472735] EXT3-fs: mounted filesystem with ordered data mode.
-Mar  8 08:47:20 localhost kernel: [   16.472864] VFS: Mounted root (ext3 filesystem) readonly.
-Mar  8 08:47:20 localhost kernel: [   16.473029] Freeing unused kernel memory: 184k freed
-Mar  8 08:47:20 localhost kernel: [   16.473122] Write protecting the kernel read-only data: 902k
-Mar  8 08:47:20 localhost kernel: [   24.658491] Intel(R) PRO/1000 Network Driver - version 7.3.20-k2
-Mar  8 08:47:20 localhost kernel: [   24.658576] Copyright (c) 1999-2006 Intel Corporation.
-Mar  8 08:47:20 localhost kernel: [   24.658761] ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:47:20 localhost kernel: [   24.733801] e1000: 0000:02:00.0: e1000_probe: (PCI Express:2.5Gb/s:Width x1) 00:16:41:54:6c:47
-Mar  8 08:47:20 localhost kernel: [   24.815441] e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
-Mar  8 08:47:20 localhost kernel: [   25.282292] Adding 1951824k swap on /dev/sda6.  Priority:-1 extents:1 across:1951824k
-Mar  8 08:47:20 localhost kernel: [   25.343370] EXT3 FS on sda3, internal journal
-Mar  8 08:47:20 localhost kernel: [   25.697608] Synaptics Touchpad, model: 1, fw: 6.2, id: 0x81a0b1, caps: 0xa04793/0x300000
-Mar  8 08:47:20 localhost kernel: [   25.697710] serio: Synaptics pass-through port at isa0060/serio1/input0
-Mar  8 08:47:20 localhost kernel: [   25.742946] input: SynPS/2 Synaptics TouchPad as /class/input/input4
-Mar  8 08:47:20 localhost kernel: [   30.419349] NTFS volume version 3.1.
-Mar  8 08:47:20 localhost kernel: [   31.156204] IBM TrackPoint firmware: 0x0e, buttons: 3/3
-Mar  8 08:47:20 localhost kernel: [   31.426442] input: TPPS/2 IBM TrackPoint as /class/input/input5
-Mar  8 08:47:22 localhost hpiod: 0.9.7 accepting connections at 50899... 
-Mar  8 08:47:26 localhost kernel: [   39.389386] [drm] Initialized i915 1.6.0 20060119 on minor 0
-Mar  8 08:48:07 localhost kernel: <1] pcieport-driver 0000:00:1c.3: LATE suspend
-Mar  8 08:48:07 localhost kernel: [    2.183443] Intel machine check architecture supported.
-Mar  8 08:48:07 localhost kernel: [    2.183451] Intel machine check reporting enabled on CPU#0.
-Mar  8 08:48:07 localhost kernel: [    2.183982] Enabling non-boot CPUs ...
-Mar  8 08:48:07 localhost kernel: [    2.321035] SMP alternatives: switching to SMP code
-Mar  8 08:48:07 localhost kernel: [    2.321241] Booting processor 1/1 eip 3000
-Mar  8 08:48:07 localhost kernel: [    2.332199] Initializing CPU#1
-Mar  8 08:48:07 localhost kernel: [    3.143727] Calibrating delay using timer specific routine.. 20089.15 BogoMIPS (lpj=100445793)
-Mar  8 08:48:07 localhost kernel: [    3.143746] monitor/mwait feature present.
-Mar  8 08:48:07 localhost kernel: [    3.143751] CPU: L1 I cache: 32K, L1 D cache: 32K
-Mar  8 08:48:07 localhost kernel: [    3.143755] CPU: L2 cache: 2048K
-Mar  8 08:48:07 localhost kernel: [    3.143759] CPU: Physical Processor ID: 0
-Mar  8 08:48:07 localhost kernel: [    3.143761] CPU: Processor Core ID: 1
-Mar  8 08:48:07 localhost kernel: [    3.143774] Intel machine check architecture supported.
-Mar  8 08:48:07 localhost kernel: [    3.143783] Intel machine check reporting enabled on CPU#1.
-Mar  8 08:48:07 localhost kernel: [    3.144104] CPU1: Intel Genuine Intel(R) CPU           T2400  @ 1.83GHz stepping 08
-Mar  8 08:48:07 localhost kernel: [    3.144892] speedstep-centrino with X86_SPEEDSTEP_CENTRINO_ACPI config is deprecated.
-Mar  8 08:48:07 localhost kernel: [    3.144896]  Use X86_ACPI_CPUFREQ (acpi-cpufreq) instead.
-Mar  8 08:48:07 localhost kernel: [    3.144936] CPU1 is up
-Mar  8 08:48:07 localhost kernel: [    3.440273] ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:07 localhost kernel: [    3.527272] ACPI: PCI Interrupt 0000:00:1b.0[B] -> GSI 17 (level, low) -> IRQ 22
-Mar  8 08:48:07 localhost kernel: [    3.912917] ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:07 localhost kernel: [    3.912966] usb usb2: root hub lost power or was reset
-Mar  8 08:48:07 localhost kernel: [    3.912988] ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 17 (level, low) -> IRQ 22
-Mar  8 08:48:07 localhost kernel: [    3.913036] usb usb3: root hub lost power or was reset
-Mar  8 08:48:07 localhost kernel: [    3.913055] ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 23
-Mar  8 08:48:07 localhost kernel: [    3.913102] usb usb4: root hub lost power or was reset
-Mar  8 08:48:07 localhost kernel: [    3.913120] ACPI: PCI Interrupt 0000:00:1d.3[D] -> GSI 19 (level, low) -> IRQ 21
-Mar  8 08:48:07 localhost kernel: [    3.913168] usb usb5: root hub lost power or was reset
-Mar  8 08:48:07 localhost kernel: [    3.914015] ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 19 (level, low) -> IRQ 21
-Mar  8 08:48:07 localhost kernel: [    3.914205] ACPI: PCI Interrupt 0000:00:1f.1[C] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:07 localhost kernel: [    3.914407] ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:07 localhost kernel: [    3.922880] ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:07 localhost kernel: [    3.928614] ACPI: PCI Interrupt 0000:15:00.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:07 localhost kernel: [    3.928638] pnp: Device 00:08 does not support activation.
-Mar  8 08:48:07 localhost kernel: [    3.928641] pnp: Device 00:09 does not support activation.
-Mar  8 08:48:07 localhost kernel: [    4.209165] ata2: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:48:07 localhost kernel: [    4.209179] ata3: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:48:07 localhost kernel: [    4.209191] ata4: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:48:07 localhost kernel: [    4.849894] atkbd.c: Unknown key released (translated set 2, code 0xe0 on isa0060/serio0).
-Mar  8 08:48:07 localhost kernel: [    4.849896] atkbd.c: Use 'setkeycodes e060 <keycode>' to make it known.
-Mar  8 08:48:07 localhost kernel: [    4.850297] atkbd.c: Unknown key pressed (translated set 2, code 0x63 on isa0060/serio0).
-Mar  8 08:48:07 localhost kernel: [    4.850300] atkbd.c: Use 'setkeycodes 63 <keycode>' to make it known.
-Mar  8 08:48:07 localhost kernel: [    5.826771] Restarting tasks ... <6>usb 5-2: USB disconnect, address 2
-Mar  8 08:48:07 localhost kernel: [    5.839206] done.
-Mar  8 08:48:07 localhost kernel: [    6.702776] ata1: waiting for device to spin up (7 secs)
-Mar  8 08:48:07 localhost kernel: [    6.775788] usb 5-2: new full speed USB device using uhci_hcd and address 3
-Mar  8 08:48:07 localhost kernel: [    6.866806] usb 5-2: configuration #1 chosen from 1 choice
-Mar  8 08:48:07 localhost kernel: [   11.334773] ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-Mar  8 08:48:07 localhost kernel: [   11.673734] ata1.00: configured for UDMA/100
-Mar  8 08:48:07 localhost kernel: [   11.696311] SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
-Mar  8 08:48:07 localhost kernel: [   11.697691] sda: Write Protect is off
-Mar  8 08:48:07 localhost kernel: [   11.708467] SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-Mar  8 08:48:16 localhost kernel: <>[   19.841599] button button_power:00: suspend
-Mar  8 08:48:16 localhost kernel: [   19.841607] Disabling non-boot CPUs ...
-Mar  8 08:48:16 localhost kernel: [   19.847811] Breaking affinity for irq 12
-Mar  8 08:48:16 localhost kernel: [   20.444974] CPU 1 is now offline
-Mar  8 08:48:16 localhost kernel: [   20.444980] SMP alternatives: switching to UP code
-Mar  8 08:48:16 localhost kernel: [   20.445823] CPU1 is down
-Mar  8 08:48:16 localhost kernel: [    2.423903] Intel machine check architecture supported.
-Mar  8 08:48:16 localhost kernel: [    2.423911] Intel machine check reporting enabled on CPU#0.
-Mar  8 08:48:16 localhost kernel: [    2.424444] Enabling non-boot CPUs ...
-Mar  8 08:48:16 localhost kernel: [    2.534642] SMP alternatives: switching to SMP code
-Mar  8 08:48:16 localhost kernel: [    2.534847] Booting processor 1/1 eip 3000
-Mar  8 08:48:16 localhost kernel: [    2.545805] Initializing CPU#1
-Mar  8 08:48:16 localhost kernel: [    3.357337] Calibrating delay using timer specific routine.. 20089.13 BogoMIPS (lpj=100445659)
-Mar  8 08:48:16 localhost kernel: [    3.357357] monitor/mwait feature present.
-Mar  8 08:48:16 localhost kernel: [    3.357362] CPU: L1 I cache: 32K, L1 D cache: 32K
-Mar  8 08:48:16 localhost kernel: [    3.357365] CPU: L2 cache: 2048K
-Mar  8 08:48:16 localhost kernel: [    3.357369] CPU: Physical Processor ID: 0
-Mar  8 08:48:16 localhost kernel: [    3.357372] CPU: Processor Core ID: 1
-Mar  8 08:48:16 localhost kernel: [    3.357384] Intel machine check architecture supported.
-Mar  8 08:48:16 localhost kernel: [    3.357394] Intel machine check reporting enabled on CPU#1.
-Mar  8 08:48:16 localhost kernel: [    3.357711] CPU1: Intel Genuine Intel(R) CPU           T2400  @ 1.83GHz stepping 08
-Mar  8 08:48:16 localhost kernel: [    3.358503] speedstep-centrino with X86_SPEEDSTEP_CENTRINO_ACPI config is deprecated.
-Mar  8 08:48:16 localhost kernel: [    3.358507]  Use X86_ACPI_CPUFREQ (acpi-cpufreq) instead.
-Mar  8 08:48:16 localhost kernel: [    3.358548] CPU1 is up
-Mar  8 08:48:16 localhost kernel: [    3.653795] ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:16 localhost kernel: [    3.740900] ACPI: PCI Interrupt 0000:00:1b.0[B] -> GSI 17 (level, low) -> IRQ 22
-Mar  8 08:48:16 localhost kernel: [    4.126569] ACPI: PCI Interrupt 0000:00:1d.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:16 localhost kernel: [    4.126619] usb usb2: root hub lost power or was reset
-Mar  8 08:48:16 localhost kernel: [    4.126639] ACPI: PCI Interrupt 0000:00:1d.1[B] -> GSI 17 (level, low) -> IRQ 22
-Mar  8 08:48:16 localhost kernel: [    4.126686] usb usb3: root hub lost power or was reset
-Mar  8 08:48:16 localhost kernel: [    4.126705] ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 23
-Mar  8 08:48:16 localhost kernel: [    4.126752] usb usb4: root hub lost power or was reset
-Mar  8 08:48:16 localhost kernel: [    4.126772] ACPI: PCI Interrupt 0000:00:1d.3[D] -> GSI 19 (level, low) -> IRQ 21
-Mar  8 08:48:16 localhost kernel: [    4.126819] usb usb5: root hub lost power or was reset
-Mar  8 08:48:16 localhost kernel: [    4.127659] ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 19 (level, low) -> IRQ 21
-Mar  8 08:48:16 localhost kernel: [    4.127848] ACPI: PCI Interrupt 0000:00:1f.1[C] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:16 localhost kernel: [    4.128049] ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:16 localhost kernel: [    4.136510] ACPI: PCI Interrupt 0000:02:00.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:16 localhost kernel: [    4.142247] ACPI: PCI Interrupt 0000:15:00.0[A] -> GSI 16 (level, low) -> IRQ 20
-Mar  8 08:48:16 localhost kernel: [    4.142271] pnp: Device 00:08 does not support activation.
-Mar  8 08:48:16 localhost kernel: [    4.142274] pnp: Device 00:09 does not support activation.
-Mar  8 08:48:16 localhost kernel: [    4.421975] ata2: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:48:16 localhost kernel: [    4.421989] ata3: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:48:16 localhost kernel: [    4.422001] ata4: SATA link down (SStatus 0 SControl 0)
-Mar  8 08:48:16 localhost kernel: [    5.971047] Restarting tasks ... done.
-Mar  8 08:48:16 localhost kernel: [    6.012513] usb 5-2: USB disconnect, address 3
-Mar  8 08:48:16 localhost kernel: [    6.891677] ata1: waiting for device to spin up (7 secs)
-Mar  8 08:48:16 localhost kernel: [    6.958587] usb 5-2: new full speed USB device using uhci_hcd and address 4
-Mar  8 08:48:16 localhost kernel: [    7.049506] usb 5-2: configuration #1 chosen from 1 choice
-Mar  8 08:48:16 localhost kernel: [   11.547844] ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-Mar  8 08:48:16 localhost kernel: [   11.885459] ata1.00: configured for UDMA/100
-Mar  8 08:48:16 localhost kernel: [   11.913910] SCSI device sda: 156301488 512-byte hdwr sectors (80026 MB)
-Mar  8 08:48:16 localhost kernel: [   11.914575] sda: Write Protect is off
-Mar  8 08:48:16 localhost kernel: [   11.914868] SCSI device sda: write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-Mar  8 08:48:16 localhost shutdown[4092]: shutting down for system halt
-
-
---JP+T4n/bALQSJXh8--
+------=_NextPart_000_0006_01C761C4.9CD61AB0--

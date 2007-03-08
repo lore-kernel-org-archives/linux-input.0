@@ -1,58 +1,40 @@
-From: "Adam Mitchell" <oqgysj@goldtrain.org>
-Subject: USA dispensing chemist's is the finest !
-Date: Thu, 08 Mar 2007 16:47:48 +0700
-Message-ID: <000901c76166$cfeb6ee0$0173e9fc@inqgxbtdccve>
+From: Ash Milsted <thatistosayiseenem@gawab.com>
+Subject: Re: [2/6] 2.6.21-rc2: known regressions
+Date: Thu, 8 Mar 2007 12:03:03 +0000
+Message-ID: <20070308120303.d285e4a3.thatistosayiseenem@gawab.com>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org>
+	<20070305015034.GG3441@stusta.de>
+	<45EE9D52.9060807@garzik.org>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_000_000B_01C761A1.7C4A46E0"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <45EE9D52.9060807@garzik.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, pavel@suse.cz, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, "Michael S. Tsirkin" <mst@mellanox.co.il>, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, greg@kroah.com, linux-usb-devel@lists.sourceforge.net, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000B_01C761A1.7C4A46E0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_000C_01C761A1.7C4A46E0"
+On Wed, 07 Mar 2007 06:09:06 -0500
+Jeff Garzik <jeff@garzik.org> wrote:
 
+> Adrian Bunk wrote:
+> > Subject    : AT keyboard only works with pci=noacpi
+> > References : http://lkml.org/lkml/2007/3/3/68
+> > Submitter  : Ash Milsted <thatistosayiseenem@gawab.com>
+> > Status     : unknown
+> 
+> 
+> sounds like a BIOS bug, even though it appears to be a regression?
+> 
 
-------=_NextPart_001_000C_01C761A1.7C4A46E0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Resolved here:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=117332735404395&w=2
 
-For the work to the brethren, ye Suffer sin; is that ye fear of
-king that defileth I knew that he is no rain
+Was a bug in the i8042 driver it seems.
 
-------=_NextPart_001_000C_01C761A1.7C4A46E0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.2963" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<IMG alt=3D"" hspace=3D0=20 width=558 height=402 =
-src=3D"cid:000a01c76166$cfeb6ee0$0173e9fc@inqgxbtdccve" align=3Dbaseline=20 border=3D0>
-<br><br><br><br><FONT face=3DLucida Console size=3D3>
-For the work to the brethren, ye Suffer sin; is that ye fear of
-king that defileth I knew that he is no rain</FONT><br><br><br><br></BODY></HTML>
-
-------=_NextPart_001_000C_01C761A1.7C4A46E0--
-
-------=_NextPart_000_000B_01C761A1.7C4A46E0
-Content-Type: image/png;
-	name="qavx.png"
-Content-Transfer-Encoding: base64
-Content-ID: <000a01c76166$cfeb6ee0$0173e9fc@inqgxbtdccve>
-
-$BASE64_IMAGE$
-------=_NextPart_000_000B_01C761A1.7C4A46E0--
+Ash

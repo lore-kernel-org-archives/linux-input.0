@@ -1,44 +1,69 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Fix locking in mousedev
-Date: Fri, 9 Mar 2007 10:36:56 -0800
-Message-ID: <20070309103656.cd681677.zaitcev@redhat.com>
-References: <20070228110631.86a150e4.zaitcev@redhat.com>
-	<d120d5000703090628p46556d52qb94b523fda4e947d@mail.gmail.com>
+From: "Lela Fields" <uoccurred@caths.co.uk>
+Subject: Have implausible be coruscate
+Date: Fri, 9 Mar 2007 19:42:42 +0100
+Message-ID: <000e01c76283$5bc0ac60$00b4ee3c@marciniak>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_000B_01C76283.5BC0AC60"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000703090628p46556d52qb94b523fda4e947d@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, zaitcev@redhat.com
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 9 Mar 2007 09:28:49 -0500, "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
-> On 2/28/07, Pete Zaitcev <zaitcev@redhat.com> wrote:
+------=_NextPart_000_000B_01C76283.5BC0AC60
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-> > Dmitry, please consider getting rid of the list of handles entirely.
-> > The other major user is drivers/char/keyboard.c.
-> 
-> I agree that handlers should not access h_list nad use their own
-> private lists instead. However input core still needs that list to
-> maintain its books.
 
-Hmm. So it appears that my patch wastes 2 ulongs per input handle
-then, in the name of preventing oopses. OK.
 
-> I agree with the patch, unfortunately in lands squarely in the middle
-> of me restructuring the code (swiitch to struct device, proper
-> refcounting, etc) but I will try to adopt it.
 
-Don't worry about this too much, I can always retest and resubmit,
-as long as the main idea is agreeable to you. My users are on RHEL.
-Therefore, my main concern is to get something into your tree in
-order to avoid this regressing in the future. Meanwhile, users of
-our 2.6.9 and 2.6.18 forks get a version of this patch.
+Take a look at this ONE!!!
 
--- Pete
+
+Search for: NNCPCurrent price: $0.033 (UP! 32%) 5 Day Target price: =
+$0.15Market: bullish!
+
+
+Watch out! This sym is going to explode! Take it to your portfolio =
+immediately..
+
+See the hottest news of the NNCP, linux-input!
+
+
+------=_NextPart_000_000B_01C76283.5BC0AC60
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.3790.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D=
+3D4><FONT size=3D3><STRONG>Take a look at this =
+ONE..</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D4>Search =
+for: <b>NNCP</b><br>Current price: $0.033 (UP! 32%) <br>5 Day Target =
+price: $0.15<br>Market: bullish.</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D4>Watch =
+out! This sym is going to explode! Take it to your portfolio =
+immediately!!!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D3>See =
+the hottest news of the NNCP, linux-input!</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_000B_01C76283.5BC0AC60--

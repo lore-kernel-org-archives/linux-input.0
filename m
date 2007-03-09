@@ -1,71 +1,81 @@
-From: "Leah Griffith" <zgkapok@cen.quik.com>
-Subject: you do quash
-Date: Sat, 3 Mar 2007 06:01:02 +0900
-Message-ID: <000e01c75d59$a8698a70$069ee724@CompanyID>
+From: HGHLife <jxfitzpatrick@execs.com>
+Subject: Decrease fat reserves
+Date: Fri, 09 Mar 2007 11:53:59 +0300
+Message-ID: <368001c76228$ca5c680e$6c3e342b@execs.com>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000B_01C75D59.A8698A70"
+    boundary="----=_NextPart_000_0000_F866C093.830E710C"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000B_01C75D59.A8698A70
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0000_F866C093.830E710C
 Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+    charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
+ HGH Life will help you
 
+ Decrease fat reserves in the body  Increase muscle and bone mass  Improve
+your skin  Give your libido a boost  Sleep deeper and need less of it 
+Increase your energy and metabolism  Maintain and increase your memory
+ Intensify mental alertness and concentration  Improve overall physical
+and mental well-being   Just one bottle of HGH Life will completely change
+your life! Satisfaction guaranteed or your money back!
 
+Visit our online shop!
 
-
-This one will explode.
-
-
-
-Sym8oL: NNCPCurr Price: $0.033 (UP! 32%) 5 Day Target price: =
-$0.15Action: Aggresive Buy/Hold!
-
-
-Here comes the REAL BIG ONE!!!
-
-
-
-See bullish news online right now, linux-input..
-
-
-
-------=_NextPart_000_000B_01C75D59.A8698A70
+  
+------=_NextPart_000_0000_F866C093.830E710C
 Content-Type: text/html;
-        charset="windows-1250"
+    charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2462.2963" name=3DGENERATOR>
-<STYLE></STYLE>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#0033FF size=3D3D4><FONT =
-size=3D2><STRONG>This one will explode!!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D2>Sym8oL: =
-<b>NNCP</b><br>Curr Price: $0.033 (UP! 32%) <br>5 Day Target price: =
-$0.15<br>Action: Aggresive Buy/Hold!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D4>Here =
-comes the REAL BIG ONE!...</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3300 size=3D2>See =
-bullish news online right now, linux-input.</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
+<BODY text=3D#000000 bgColor=3D#ffffff>
 
-------=_NextPart_000_000B_01C75D59.A8698A70--
+<font size=3D"3" face=3D"Times New Roman"><p><font face=3D"Arial" =
+color=3D"#006600" size=3D"6"><strong>HGH Life&trade; will help =
+you</strong></font></p>
+<ul>
+    <li><font face=3D"Arial" size=3D"2">Decrease fat reserves in the =
+body </font></li>
+    <li><font face=3D"Arial" size=3D"2">Increase muscle and bone mass =
+</font></li>
+    <li><font face=3D"Arial" size=3D"2">Improve your skin =
+</font></li>
+    <li><font face=3D"Arial" size=3D"2">Give your libido a boost =
+</font></li>
+    <li><font face=3D"Arial" size=3D"2">Sleep deeper and need less of it=
+ </font></li>
+    <li><font face=3D"Arial" size=3D"2">Increase your energy and =
+metabolism </font></li>
+    <li><font face=3D"Arial" size=3D"2">Maintain and increase your =
+memory </font></li>
+    <li><font face=3D"Arial" size=3D"2">Intensify mental alertness and =
+concentration </font></li>
+    <li><font face=3D"Arial" size=3D"2">Improve overall physical and =
+mental well-being </font></li>
+</ul>
+<p><font face=3D"Arial"><strong>Just one bottle of HGH Life&trade; will =
+completely change your life! <br />Satisfaction guaranteed or your money=
+ back!</strong></font></p>
+<p><font face=3D"Arial" color=3D"#0000ff" size=3D"4"><a =
+href=3D"http://dancgtyee.com"><strong>Visit our online =
+shop!</strong></a></font></p></font>
+</BODY>
+</HTML>
+
+------=_NextPart_000_0000_F866C093.830E710C--

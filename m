@@ -1,43 +1,44 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Fix locking in mousedev
-Date: Fri, 9 Mar 2007 15:54:39 -0500
-Message-ID: <d120d5000703091254t350216b3wfb679a53294b0e5a@mail.gmail.com>
-References: <20070228110631.86a150e4.zaitcev@redhat.com>
-	 <d120d5000703090628p46556d52qb94b523fda4e947d@mail.gmail.com>
-	 <20070309103656.cd681677.zaitcev@redhat.com>
+From: Pavel Machek <pavel@suse.cz>
+Subject: Re: [2/6] 2.6.21-rc2: known regressions
+Date: Sat, 10 Mar 2007 00:35:08 +0100
+Message-ID: <20070309233508.GB2197@elf.ucw.cz>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il> <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org> <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu> <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org> <20070309174821.GA31754@linuxtv.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070309103656.cd681677.zaitcev@redhat.com>
 Content-Disposition: inline
+In-Reply-To: <20070309174821.GA31754@linuxtv.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Ingo Molnar <mingo@elte.hu>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.
 List-Id: linux-input@vger.kernel.org
 
-On 3/9/07, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> On Fri, 9 Mar 2007 09:28:49 -0500, "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
-> > On 2/28/07, Pete Zaitcev <zaitcev@redhat.com> wrote:
->
-> > > Dmitry, please consider getting rid of the list of handles entirely.
-> > > The other major user is drivers/char/keyboard.c.
-> >
-> > I agree that handlers should not access h_list nad use their own
-> > private lists instead. However input core still needs that list to
-> > maintain its books.
->
-> Hmm. So it appears that my patch wastes 2 ulongs per input handle
-> then, in the name of preventing oopses. OK.
->
+Hi!
 
-Think about the time when everyone switches to evdev-based input
-drivers. Then we can forget about mousedev wasting some extra memory
-;)
+> > You're better off using the VGA console, and lettign X re-initialize the 
+> > graphics device. That generally at least has a reasonably good chance of 
+> > working.
+> > 
+> > Re-initializing graphics modes really is very hard. You can try with the 
+> > BIOS video hack (I forget the kernel command line to turn it on), but we 
+> > really do end up depending on X doing it better.
+> 
+> acpi_sleep=s3_bios has always worked for me on my ThinkPad T42p.
+> 
+> Even if one doesn't use the fb console at all, radeonfb apparently
+> is still required on some ThinkPad models to work around BIOS bugs:
+> 
+> http://www.thinkwiki.org/wiki/Problem_with_high_power_drain_in_ACPI_sleep#Radeon_GPU_not_powered_off
+
+
+s2ram should be able to work around this, it has parts from
+radeontool. (suspend.sf.net).
+
 
 -- 
-Dmitry
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,10 +1,10 @@
-From: "Penelope Woodard" <xwarmup@Comcast.net>
-Subject: That of redmond
-Date: Fri, 9 Mar 2007 17:27:33 +0100
-Message-ID: <001c01c76270$94656280$00175b7c@latifawxp6irii>
+From: "Bernadine Munoz" <uvwequatorial@apatit.com>
+Subject: On mathematik in casebook
+Date: Fri, 9 Mar 2007 13:29:22 -0300
+Message-ID: <001001c7624f$9897c490$0614e24c@alineztxofg0ck>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0019_01C76270.94656280"
+        boundary="----=_NextPart_000_000D_01C7624F.9897C490"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,55 +14,56 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0019_01C76270.94656280
+------=_NextPart_000_000D_01C7624F.9897C490
 Content-Type: text/plain;
-        charset="windows-1251"
+        charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
-THE HOTTEST ALERT.
+
+HOT ALERT...
+
+
+Sym8oL: NNCPCurr Price: $0.033 (UP! 32%) 5 Day Target price: =
+$0.15Action: Aggresive Buy/Hold!!!
+
+Get on it before it's too late!!
 
 
 
-Promoting sym: NNCPPrice: $0.033 (UP! 32%) 5 Day Target price: =
-$0.15Action: Strong buy!!
+linux-input, take a look at the hottest news.
 
 
-Short-term KST. Short-Term Bullish!!
 
-
-See the hottest news of the NNCP, linux-input..
-
-
-------=_NextPart_000_0019_01C76270.94656280
+------=_NextPart_000_000D_01C7624F.9897C490
 Content-Type: text/html;
-        charset="windows-1251"
+        charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.2969" name=3DGENERATOR>
+windows-1250">
+<META content=3D"MSHTML 6.00.2600.2869" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D=
-3D4><FONT size=3D3><STRONG>THE HOTTEST ALERT!!!</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D=
-3>Promoting sym: <b>NNCP</b><br>Price: $0.033 (UP! 32%) <br>5 Day Target =
-price: $0.15<br>Action: Strong buy...</FONT></DIV>
 <BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D=
-3>Short-term KST. Short-Term Bullish..</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D3D4><FONT =
+size=3D4><STRONG>HOT ALERT...</STRONG></FONT></DIV>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000033 size=3D2>See =
-the hottest news of the NNCP, linux-input...</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0066 size=3D3>Sym8oL: =
+<b>NNCP</b><br>Curr Price: $0.033 (UP! 32%) <br>5 Day Target price: =
+$0.15<br>Action: Aggresive Buy/Hold...</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0000 size=3D2>Get on =
+it before it's too late...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3333 size=3D=
+4>linux-input, take a look at the hottest news!!</FONT></DIV>
 <BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0019_01C76270.94656280--
+------=_NextPart_000_000D_01C7624F.9897C490--

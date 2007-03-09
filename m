@@ -1,73 +1,68 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Fix locking in mousedev
-Date: Fri, 9 Mar 2007 09:28:49 -0500
-Message-ID: <d120d5000703090628p46556d52qb94b523fda4e947d@mail.gmail.com>
-References: <20070228110631.86a150e4.zaitcev@redhat.com>
+From: "Penelope Woodard" <xwarmup@Comcast.net>
+Subject: That of redmond
+Date: Fri, 9 Mar 2007 17:27:33 +0100
+Message-ID: <001c01c76270$94656280$00175b7c@latifawxp6irii>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0019_01C76270.94656280"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070228110631.86a150e4.zaitcev@redhat.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi Pete,
+------=_NextPart_000_0019_01C76270.94656280
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
-On 2/28/07, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> If a process is closing /dev/input/mice and an mouse disconnects simulta-
-> neously, the system is likely to oops. This usually happens when someone
-> hits <Alt><Ctrl>F1 or logs out from X, and flips a KVM while the system
-> is reacting.
->
-> I reproduced the issue by running this:
->  while true; do cat </dev/null >/dev/input/mice; done
-> This way, it oopses on 2nd or 3rd disconnect reliably. With the patch,
-> I can disconnect the mouse 20 times.
->
-> Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
->
-> ---
->
-> Discussion
->
-> One of the race scenarios is related to the list of handles. The cat
-> calls mousedev_close -> mixdev_release, does list_for_each to walk for
-> all handles for a given handler. Iterations are longish while it does
-> input_close_device -> hidinput_close -> usbhid_close -> usb_kill_urb,
-> which sleeps briefly. Into this gap goes khubd and does hid_disconnect ->
-> hidinput_disconnect -> input_unregister_device. This corrupts the list
-> of handles which cat process is walking.
->
-> I was unable to devise a scheme to protect the stock h_list adequately,
-> so I implemented a private list of mousedev instances, which can be
-> protected correctly.
->
-> Dmitry, please consider getting rid of the list of handles entirely.
-> The other major user is drivers/char/keyboard.c.
->
 
-I agree that handlers should not access h_list nad use their own
-private lists instead. However input core still needs that list to
-maintain its books.
 
-> Other than that, the patch is straightforward. It adds a static mutex
-> to guard common data structures. It has to be static because instances
-> of mousedev share common structures, such as the mousedev_table[].
->
-> This should be uncontroversial, but please let me know if I missed
-> something obvious.
->
 
-I agree with the patch, unfortunately in lands squarely in the middle
-of me restructuring the code (swiitch to struct device, proper
-refcounting, etc) but I will try to adopt it.
+THE HOTTEST ALERT.
 
--- 
-Dmitry
+
+
+Promoting sym: NNCPPrice: $0.033 (UP! 32%) 5 Day Target price: =
+$0.15Action: Strong buy!!
+
+
+Short-term KST. Short-Term Bullish!!
+
+
+See the hottest news of the NNCP, linux-input..
+
+
+------=_NextPart_000_0019_01C76270.94656280
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.2462.2969" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D=
+3D4><FONT size=3D3><STRONG>THE HOTTEST ALERT!!!</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D=
+3>Promoting sym: <b>NNCP</b><br>Price: $0.033 (UP! 32%) <br>5 Day Target =
+price: $0.15<br>Action: Strong buy...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D=
+3>Short-term KST. Short-Term Bullish..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000033 size=3D2>See =
+the hottest news of the NNCP, linux-input...</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0019_01C76270.94656280--

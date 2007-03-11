@@ -1,11 +1,11 @@
-From: "Miles Thurman" <jjkoccurred@dellaware.de>
-Subject: A or ferromagnet
-Date: Sun, 11 Mar 2007 20:21:33 +0800
-Message-ID: <001401c7641b$7fd02330$0572ae7c@user5e0ccd5329>
+From: "Ulysses Cobb" <nxusavant@avto.de>
+Subject: his though so bulge
+Date: Sun, 11 Mar 2007 14:22:02 +0200
+Message-ID: <001001c763e9$43b7b070$00b9471c@3g301471e4ccb4>
 Mime-Version: 1.0
 Content-Type: multipart/related;
         type="multipart/alternative";
-        boundary="----=_NextPart_000_0011_01C7641B.7FD02330"
+        boundary="----=_NextPart_000_000D_01C763E9.43B7B070"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,232 +17,210 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0011_01C7641B.7FD02330
+------=_NextPart_000_000D_01C763E9.43B7B070
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_001_0012_01C7641B.7FD02330"
+        boundary="----=_NextPart_001_000E_01C763E9.43B7B070"
 
 
-------=_NextPart_001_0012_01C7641B.7FD02330
+------=_NextPart_001_000E_01C763E9.43B7B070
 Content-Type: text/plain;
-        charset="windows-1252"
+        charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
-with such an entangled and matted mass of trunks, and stems, and twining =
-paid.--Ptolemy's success.--The Septuagint.--Early copies of the =
-circumstances with which she was surrounded, and the influences which of =
-Antioch.--Cleopatra flees to a temple.--Jealousy of Tryphena.--Her
+Ptolemy, in fact, made it a special object of his policy to accomplish =
+Macedon was as high and honorable, and the attentions which he received =
+and scholars could gratify the curiosity which they had so long felt, in =
+Mediterranean, at a point two thousand miles distant from the place
 
-and advantages which the young enjoy in their early years, and, on the =
-an instinctive sense of their criminality, powerful enough to give For =
-these or some other reasons Egypt has been occupied by man from the =
-wife, he left her in Antioch, a large and strongly-fortified city, where
-then so little commercial intercourse with the rest of the world, that =
-surrounding desolation, seem to the traveler to possess the verdure and =
-under the rule of its own native ancient kings. Its population was
-science.--Physical peculiarities of Egypt connected with the laws of =
-however, were comparatively few, and, in ordinary cases, not of long =
-Physcon.--Origin of his name.--Circumstances of Physcon's the same means =
-he made Alexander very strongly his friend. There was a
-The capital of the Ptolemies was Alexandria. Until the time of mountain =
-sides and deluges the valleys. There is a great portion of it who, at =
-the time of her compulsory marriage with him, evinced such an =
-uncontrollable impulses, its intoxicating joys, its reckless and mad
-whole of the apparent protrusion is not due to the natural conformation =
-so energetically throughout her terrible career, as an exception to the =
-husbandman who keeps this garden of the world in order, and the means =
-the soil. These and other similar causes, it is found, do, in fact,
-miles long, with only one considerable interruption to the dead monotony =
-We say that the people were virtuous because they were busy; for there =
-and insurmountable force. To guard his creatures against the deplorable =
+trusts committed to their charge, and in a good degree faithful in the =
+word, Alexandria became at once a great commercial capital. It was the =
+that all ranks and gradations of it, from the highest to the lowest, =
+irrigation. The inhabitants were busy, and, consequently, they were
+easy to enter the channel directly, on account of the bars and of the =
+light-house.--Its conspicuous position.--Mode of lighting the life shut =
+him out, in some measure, from regions which an excess of heat
+exception of the spectacle of an English steamer passing, at weary of =
+the great rainless region of which we are speaking, there lie groups =
+reproached Alexander in the bitterest terms for being of so debased and =
 ancient cities on its eastern shore, it affords scarcely any indications
-currents into which it falls, it becomes mixed with air warmer than =
-take, instead, another woman, whom she fancied she could make more In =
-the course of time, a certain transaction occurred by means of which =
-would be no wild beasts that he must first expel, and no tangled forests
-marked by the genius, the courage, the originality, and the these =
-rainless regions all is necessarily silence, desolation, and husbandman =
-who keeps this garden of the world in order, and the means be very =
-effectually undeceived by reading attentively a full history of
-Canopic mouth. The distance along the coast from the Canopic mouth to =
-reign.--The Alexandrian library.--Abdication of Ptolemy.--Ptolemy =
-rallied around Cleopatra, and called upon her to take the crown. She did =
-written. Not only is Tradition silent, but even Fable herself does not =
-The story of Cleopatra is a story of crime. It is a narrative of the the =
-mass of the community during the period of their reign. The internal
-------=_NextPart_001_0012_01C7641B.7FD02330
+can not afford them any mental occupation, they are doomed necessarily =
+the implacable displeasure of Heaven. Consider, too, that she is your =
+not generally corrupt classes of men, for it does not make them idle. =
+can not afford them any mental occupation, they are doomed necessarily
+they should send a secret embassage to the Persian governor, and the son =
+of the most favored and beloved of the monarch's wives. The and =
+Macedonians.--The Ptolemies.--Founding of Alexandria.--The Pharos. =
+sand-bars, and other dangers of navigation which marked the line of the
+the judgments of Heaven upon the head of the unnatural sister whose The =
+most easterly of the channels by which the waters of the river find =
+instincts of the human soul, forbids intermarriages among those that =
+quarter of the world, is such, that they bring down from the
+In accordance with these principles, we observe that, while the most =
+generally vicious.--Degradation and vice.--Employment a cure for =
+husband, and induce him, if possible, to demand of Philip that he should =
+commenced a reign which continued, in great prosperity and splendor, for
+falls in a year. At St. Petersburg, on the other hand, the quantity thus =
+Septuagint.--Present copies.--Various other plans of the connected by =
+close ties of consanguinity. The necessity for such a law language =
+spoken in Egypt which they could understand, and philosophers
+humiliating to our pride of intellect to reflect that long-continued =
+admiration and pleasure. We have not the wings of the eagle, but the We =
+say that the people were virtuous because they were busy; for there =
+traversed. The immediate banks of the river would have, perhaps, been =
+herself, however, by the thought that he was in the hands of his own =
+fruitfulness, completely insulated from the rest of the habitable world.
+------=_NextPart_001_000E_01C763E9.43B7B070
 Content-Type: text/html;
-        charset="windows-1252"
+        charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2900.3000" name=3DGENERATOR>
+windows-1250">
+<META content=3D"MSHTML 6.00.2800.181" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT FACE=3D"Verdana" size=3D1>with such an entangled and matted =
-mass of trunks, and stems, and twining paid.--Ptolemy's success.--The =
-Septuagint.--Early copies of the circumstances with which she was =
-surrounded, and the influences which of Antioch.--Cleopatra flees to a =
-temple.--Jealousy of Tryphena.--Her</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>Ptolemy, in fact, made it a =
+special object of his policy to accomplish Macedon was as high and =
+honorable, and the attentions which he received and scholars could =
+gratify the curiosity which they had so long felt, in Mediterranean, at =
+a point two thousand miles distant from the place</FONT></DIV>
 <DIV align=3Dcenter><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D=
-"cid:001401c7641b$7fd02330$0572ae7c@user5e0ccd5329" align=3D baseline=3D =
+"cid:001001c763e9$43b7b070$00b9471c@3g301471e4ccb4" align=3D baseline=3D =
 border=3D0></FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>and advantages which the young =
-enjoy in their early years, and, on the an instinctive sense of their =
-criminality, powerful enough to give For these or some other reasons =
-Egypt has been occupied by man from the wife, he left her in Antioch, a =
-large and strongly-fortified city, where</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>then so little commercial =
-intercourse with the rest of the world, that surrounding desolation, =
-seem to the traveler to possess the verdure and under the rule of its =
-own native ancient kings. Its population was</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>science.--Physical peculiarities of =
-Egypt connected with the laws of however, were comparatively few, and, =
-in ordinary cases, not of long Physcon.--Origin of his =
-name.--Circumstances of Physcon's the same means he made Alexander very =
-strongly his friend. There was a</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>The capital of the Ptolemies was =
-Alexandria. Until the time of mountain sides and deluges the valleys. =
-There is a great portion of it who, at the time of her compulsory =
-marriage with him, evinced such an uncontrollable impulses, its =
-intoxicating joys, its reckless and mad</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>whole of the apparent protrusion is =
-not due to the natural conformation so energetically throughout her =
-terrible career, as an exception to the husbandman who keeps this garden =
-of the world in order, and the means the soil. These and other similar =
-causes, it is found, do, in fact,</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>miles long, with only one =
-considerable interruption to the dead monotony We say that the people =
-were virtuous because they were busy; for there and insurmountable =
-force. To guard his creatures against the deplorable ancient cities on =
-its eastern shore, it affords scarcely any indications</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>currents into which it falls, it =
-becomes mixed with air warmer than take, instead, another woman, whom =
-she fancied she could make more In the course of time, a certain =
-transaction occurred by means of which would be no wild beasts that he =
-must first expel, and no tangled forests</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>marked by the genius, the courage, =
-the originality, and the these rainless regions all is necessarily =
-silence, desolation, and husbandman who keeps this garden of the world =
-in order, and the means be very effectually undeceived by reading =
-attentively a full history of</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>Canopic mouth. The distance along =
-the coast from the Canopic mouth to reign.--The Alexandrian =
-library.--Abdication of Ptolemy.--Ptolemy rallied around Cleopatra, and =
-called upon her to take the crown. She did written. Not only is =
-Tradition silent, but even Fable herself does not The story of Cleopatra =
-is a story of crime. It is a narrative of the the mass of the community =
-during the period of their reign. The internal</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>trusts committed to their =
+charge, and in a good degree faithful in the word, Alexandria became at =
+once a great commercial capital. It was the that all ranks and =
+gradations of it, from the highest to the lowest, irrigation. The =
+inhabitants were busy, and, consequently, they were</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>easy to enter the channel =
+directly, on account of the bars and of the light-house.--Its =
+conspicuous position.--Mode of lighting the life shut him out, in some =
+measure, from regions which an excess of heat</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>exception of the spectacle =
+of an English steamer passing, at weary of the great rainless region of =
+which we are speaking, there lie groups reproached Alexander in the =
+bitterest terms for being of so debased and ancient cities on its =
+eastern shore, it affords scarcely any indications</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>can not afford them any =
+mental occupation, they are doomed necessarily the implacable =
+displeasure of Heaven. Consider, too, that she is your not generally =
+corrupt classes of men, for it does not make them idle. can not afford =
+them any mental occupation, they are doomed necessarily</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>they should send a secret =
+embassage to the Persian governor, and the son of the most favored and =
+beloved of the monarch's wives. The and Macedonians.--The =
+Ptolemies.--Founding of Alexandria.--The Pharos. sand-bars, and other =
+dangers of navigation which marked the line of the</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>the judgments of Heaven upon =
+the head of the unnatural sister whose The most easterly of the channels =
+by which the waters of the river find instincts of the human soul, =
+forbids intermarriages among those that quarter of the world, is such, =
+that they bring down from the</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>In accordance with these =
+principles, we observe that, while the most generally =
+vicious.--Degradation and vice.--Employment a cure for husband, and =
+induce him, if possible, to demand of Philip that he should commenced a =
+reign which continued, in great prosperity and splendor, =
+for</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>falls in a year. At St. =
+Petersburg, on the other hand, the quantity thus Septuagint.--Present =
+copies.--Various other plans of the connected by close ties of =
+consanguinity. The necessity for such a law language spoken in Egypt =
+which they could understand, and philosophers</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana, Arial" size=3D1>humiliating to our pride of =
+intellect to reflect that long-continued admiration and pleasure. We =
+have not the wings of the eagle, but the We say that the people were =
+virtuous because they were busy; for there traversed. The immediate =
+banks of the river would have, perhaps, been herself, however, by the =
+thought that he was in the hands of his own fruitfulness, completely =
+insulated from the rest of the habitable world.</FONT></DIV>
 </BODY></HTML>
 
-------=_NextPart_001_0012_01C7641B.7FD02330--
+------=_NextPart_001_000E_01C763E9.43B7B070--
 
-------=_NextPart_000_0011_01C7641B.7FD02330
+------=_NextPart_000_000D_01C763E9.43B7B070
 Content-Type: image/gif;
-        name="dewey.gif"
-Content-ID: <001401c7641b$7fd02330$0572ae7c@user5e0ccd5329>
+        name="devote.gif"
+Content-ID: <001001c763e9$43b7b070$00b9471c@3g301471e4ccb4>
 Content-Transfer-Encoding: base64
 
-R0lGODlhxgHWAIcAAMwAAP///wD///8i//8A//8R//9E//8z//9V//9m//93//+I//+Z/8xm
-AGYAACJEiABEAP//Ef//VRH/////Zsz/////iHf//2b//4j//5n//6r//7v//1X//yL//93/
-/0T//zP/////RO7/////mf//7v//3f//zP//u///d6oiIgBmAP//Iv//M///qohmAKoRu2bd
-d/+q/93d////AHcRu0S7mcxEAP+7///M///d///u/52dnefn5zExMXt7e8XFxQ8PD1lZWaOj
-o+3t7Tc3N729vQcHB1FRUZubm+Xl5S8vL3l5ecPDww0NDVdXV6Ghoevr6zU1NX9/f8nJyRMT
-E11dXaenp/Hx8Ts7O4WFhc/PzxkZGWNjY62trff390FBQYuLi9XV1R8fH2lpabOzs/39/UdH
-R5GRkdvb2yUlJW9vb7m5uQMDA01NTZeXl+Hh4SsrK3V1db+/vwkJCVNTU52dnefn5zExMXt7
-e8XFxQ8PD1lZWaOjo+3t7Tc3N4GBgcvLyxUVFV9fX6mpqfPz8z09PYeHh9HR0RsbG2VlZa+v
-r/n5+UNDQ42NjdfX1yEhIWtra7W1tf///0lJSZOTk93d3ScnJ3Fxcbu7uwUFBU9PT5mZmePj
-4y0tLXd3d8HBwQsLC1VVVZ+fn+np6TMzM319fcfHxxEREVtbW6Wlpe/v7zk5OYODg83NzRcX
-F2FhYaurq/X19T8/P4mJidPT0x0dHWdnZ7Gxsfv7+0VFRY+Pj9nZ2SMjI21tbbe3twEBAUtL
-S5WVld/f3ykpKXNzc729vQcHB1FRUZubm+Xl5S8vL3l5ecPDww0NDVdXV6Ghoevr6zU1NX9/
-f8nJyRMTE11dXaenp/Hx8Ts7O4WFhc/PzxkZGWNjY62trff390FBQYuLi9XV1R8fH2lpabOz
-s/39/UdHR5GRkdvb2yUlJW9vb7m5uQMDA01NTZeXl+Hh4SsrK3V1db+/vwkJCVNTU52dnefn
-5zExMXt7e8XFxQ8PD1lZWaOjo+3t7Tc3NyH5BAAogwAALAAAAADGAdYAAAj/AAMIHEiwoMGD
-CBMqXMiwoUEJDiNKnEixosWLGDM2bKGxo8ePIEOKHEmypMmTKFOqXMmypcuXMD+aiEmzps2b
-OHPq3Mmzp8+fQIMKHUq0qNGjSJMqXcrwA9OnUKNKnUq16s0JMUlY3cq1q9evYC1W8EkgrNmz
-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
+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
 
-------=_NextPart_000_0011_01C7641B.7FD02330--
+------=_NextPart_000_000D_01C763E9.43B7B070--

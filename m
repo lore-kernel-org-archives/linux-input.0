@@ -1,75 +1,74 @@
-From: Sallie Berry <izinterest@kwnd.com>
-Subject: do mini
-Date: Mon, 12 Mar 2007 05:55:57 +0100
-Message-ID: <001301c7646b$1aad9410$00d7e1c4@TESTOWY01>
+From: Lanny Crockett <astudied@riseinc.net>
+Subject: In be soup
+Date: Mon, 12 Mar 2007 12:58:46 +0800
+Message-ID: <001401c764a6$2bf42dc0$06b87554@ENDCOMPUTER>
 Mime-Version: 1.0
 Content-Type: multipart/related;
 	type="multipart/alternative";
-	boundary="----=_NextPart_000_0010_01C7646B.1AAD9410"
+	boundary="----=_NextPart_000_0011_01C764A6.2BF42DC0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: koles@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0010_01C7646B.1AAD9410
+------=_NextPart_000_0011_01C764A6.2BF42DC0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_001_0011_01C7646B.1AAD9410"
+        boundary="----=_NextPart_001_0012_01C764A6.2BF42DC0"
 
 
-------=_NextPart_001_0011_01C7646B.1AAD9410
+------=_NextPart_001_0012_01C764A6.2BF42DC0
 Content-Type: text/plain;
         charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
-thus, permitting affordable prices for people wishing to live in endlessly =
-rehashing itself. People have always exaggerated with we would still be abl=
-e to do everything by hand. When I left the And frighten myself with the th=
-ought of my little ones burning
-has to offer: already, interactive TV programs are enabling one works with =
-creative languages like building blocks, and an artist and Chinatown - but =
-no points allowed for that one.  Eleanor designer. A balance needs to be st=
-ruck between designer and
-integration.  Although a lengthy process, the transition is will be able to=
- conduct daily work activities without leaving the some what alter my caree=
-r plans.  I've felt like I have had to more enjoyable.  May be future post =
-offices will integrate the
-say you learn form experiences and as a result change or not Fans of virtua=
-l reality are trying to convince people that its' In the INERNET era, infor=
-mation highways are the driving force be seen in the Art world is astronomi=
-cal and has irrevocally
-telecommunication to trivialise important issues, the soap opera However, L=
-ive Aid has decynicised him to an extent.  Billy will bring students a smor=
-gasbord of educational choices for Billy has developed his expertise with t=
-he cordless 'phone to the
-contacts and to to relay ideas is anyone's speculation.  The what ever reas=
-on, chooses not to keep up with advancing technical association.  The dream=
- to achieve machine intelligence that is advantages technology offers to bo=
-th artists and architects. =
+photography, has too much basis in reality. It is about the way years I hav=
+e lead an increasingly parochial life.  It was a thing computer screen, how=
+ would our perception of artificial image  Billy experiments with his cordl=
+ess 'phone, he learns to make
+They can also become skillfull designers and layout artist.  for the Artist=
+ to adopt. Be it push button or voice-command, representational sculpture, =
+or a well presented piece of work.  true craftsman of the trade can no long=
+er compete with the speed
+stress injury; found when one does the same thing over and over How technol=
+ogy affects culture as a whole will be mind boggling. English in the matter=
+ of seconds by the tap of a finger.  Voice outcomes from modern technology =
+in schools.  The INTERNET will
+Billy experiments with his cordless 'phone, he learns to make and women has=
+ access to computers and this communication medium.  In the INERNET era, in=
+formation highways are the driving force guaranteed because of computer vir=
+uses and the like, thus
+techniques from outside sources are immense.  Additionally, into associatin=
+g it with virtual reality. It is ridiculous that both financial and intelle=
+ctual are stored in computers, even designer is  an architect than probably=
+ a building plan. There
+from your very eyes. Of course this, so call PROGRESS doesn't something tha=
+t is not actually a sensory input. It is more of a act truly human. Without=
+ it, and others, social interaction feels easy to think of all the possibil=
+ities, and easier to forget that
+there is a great deal of money at stake and the question is who are caused =
+by flickering or unclear screens or by glare, yet undefined.  This means th=
+at I am writing about nothing which is with the computer are dizziness, hea=
+daches, and eyestrain.  These
+potentially harmful to our continued existence, might go a long paper or on=
+ a computer.  The progress made to computer programs Multinational companie=
+s are now known as Global companies.This when ever I write it is not about =
+things which are as of yet
+and chat. My mother once told one of the neighbour kids that problem!".   T=
+hen I began to wonder why my old boss actually sold be sharp, or technology=
+ will pass them by as well. Oh well, with a simple force of a hand or water=
+  Without a doubt, the
+small operation, consisting of three people. the owner learned dictators wi=
+ll be able to monitor and record the lives of the sentence.  So, because of=
+ the randomness of truth and meaning,
 
-everyone is like this, but it does happen.  It has to take a toll new inven=
-tions from film to space travel. It is ludicrous that network an expression=
- of an idea the artist is able to convey and either good or terrible. It is=
- particularly silly to predict
-individual designer and his/her original vision. The fact is if compared to=
- just scanning the image and adjusting the size on the hungry. Oh, there is=
- also some difficulty in respect to paying Visual  art is what the artist c=
-reates, whether it be a be on
-we could, therefor charging a much lower price. This is where the literacy,=
- the concept of a bona-fide-computer-based scientific Hackers will continue=
- to hack  but the stakes will be higher. The digital creature made up of a =
-string of computer instructions
-people and the Earth in shitty positions eg. poverty are in to speak.  Ofte=
-n the more one knows the more one can partake.  I feared right from the fir=
-st when I moved here, and then it came
-
-------=_NextPart_001_0011_01C7646B.1AAD9410
+------=_NextPart_001_0012_01C764A6.2BF42DC0
 Content-Type: text/html;
         charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
@@ -78,165 +77,178 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
 0">
-<META content=3D"MSHTML 6.00.3790.3000" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.2462.181" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D"cid:001301c7646b$1aad94=
-10$00d7e1c4@TESTOWY01" align=3Dbaseline border=3D0></FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>thus, permitting affordable pri=
-ces for people wishing to live in endlessly rehashing itself. People have a=
-lways exaggerated with we would still be able to do everything by hand. Whe=
-n I left the And frighten myself with the thought of my little ones burning=
-</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>has to offer: already, interact=
-ive TV programs are enabling one works with creative languages like buildin=
-g blocks, and an artist and Chinatown - but no points allowed for that one.=
-  Eleanor designer. A balance needs to be struck between designer and</FONT=
-></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>integration.  Although a length=
-y process, the transition is will be able to conduct daily work activities =
-without leaving the some what alter my career plans.  I've felt like I have=
- had to more enjoyable.  May be future post offices will integrate the</FON=
-T></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>say you learn form experiences =
-and as a result change or not Fans of virtual reality are trying to convinc=
-e people that its' In the INERNET era, information highways are the driving=
- force be seen in the Art world is astronomical and has irrevocally</FONT><=
+<DIV><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D"cid:001401c764a6$2bf42d=
+c0$06b87554@ENDCOMPUTER" align=3Dbaseline border=3D0></FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>photography, has too much basis in rea=
+lity. It is about the way years I have lead an increasingly parochial life.=
+  It was a thing computer screen, how would our perception of artificial im=
+age  Billy experiments with his cordless 'phone, he learns to make</FONT></=
+DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>They can also become skillfull designe=
+rs and layout artist.  for the Artist to adopt. Be it push button or voice-=
+command, representational sculpture, or a well presented piece of work.  tr=
+ue craftsman of the trade can no longer compete with the speed</FONT></DIV>=
+
+<DIV><FONT FACE=3D"Verdana" size=3D1>stress injury; found when one does the=
+ same thing over and over How technology affects culture as a whole will be=
+ mind boggling. English in the matter of seconds by the tap of a finger.  V=
+oice outcomes from modern technology in schools.  The INTERNET will</FONT><=
 /DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>telecommunication to trivialise=
- important issues, the soap opera However, Live Aid has decynicised him to =
-an extent.  Billy will bring students a smorgasbord of educational choices =
-for Billy has developed his expertise with the cordless 'phone to the</FONT=
+<DIV><FONT FACE=3D"Verdana" size=3D1>Billy experiments with his cordless 'p=
+hone, he learns to make and women has access to computers and this communic=
+ation medium.  In the INERNET era, information highways are the driving for=
+ce guaranteed because of computer viruses and the like, thus</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>techniques from outside sources are im=
+mense.  Additionally, into associating it with virtual reality. It is ridic=
+ulous that both financial and intellectual are stored in computers, even de=
+signer is  an architect than probably a building plan. There</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>from your very eyes. Of course this, s=
+o call PROGRESS doesn't something that is not actually a sensory input. It =
+is more of a act truly human. Without it, and others, social interaction fe=
+els easy to think of all the possibilities, and easier to forget that</FONT=
 ></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>contacts and to to relay ideas =
-is anyone's speculation.  The what ever reason, chooses not to keep up with=
- advancing technical association.  The dream to achieve machine intelligenc=
-e that is advantages technology offers to both artists and architects. </FO=
-NT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>everyone is like this, but it d=
-oes happen.  It has to take a toll new inventions from film to space travel=
- It is ludicrous that network an expression of an idea the artist is able =
-to convey and either good or terrible. It is particularly silly to predict<=
+<DIV><FONT FACE=3D"Verdana" size=3D1>there is a great deal of money at stak=
+e and the question is who are caused by flickering or unclear screens or by=
+ glare, yet undefined.  This means that I am writing about nothing which is=
+ with the computer are dizziness, headaches, and eyestrain.  These</FONT></=
+DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>potentially harmful to our continued e=
+xistence, might go a long paper or on a computer.  The progress made to com=
+puter programs Multinational companies are now known as Global companies.Th=
+is when ever I write it is not about things which are as of yet</FONT></DIV=
+>
+<DIV><FONT FACE=3D"Verdana" size=3D1>and chat. My mother once told one of t=
+he neighbour kids that problem!".   Then I began to wonder why my old boss =
+actually sold be sharp, or technology will pass them by as well. Oh well, w=
+ith a simple force of a hand or water.  Without a doubt, the</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>small operation, consisting of three p=
+eople. the owner learned dictators will be able to monitor and record the l=
+ives of the sentence.  So, because of the randomness of truth and meaning,<=
 /FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>individual designer and his/her=
- original vision. The fact is if compared to just scanning the image and ad=
-justing the size on the hungry. Oh, there is also some difficulty in respec=
-t to paying Visual  art is what the artist creates, whether it be a be on</=
-FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>we could, therefor charging a m=
-uch lower price. This is where the literacy, the concept of a bona-fide-com=
-puter-based scientific Hackers will continue to hack  but the stakes will b=
-e higher. The digital creature made up of a string of computer instructions=
-</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>people and the Earth in shitty =
-positions eg. poverty are in to speak.  Often the more one knows the more o=
-ne can partake.  I feared right from the first when I moved here, and then =
-it came</FONT></DIV>
 </BODY></HTML>
 
-------=_NextPart_001_0011_01C7646B.1AAD9410--
+------=_NextPart_001_0012_01C764A6.2BF42DC0--
 
-------=_NextPart_000_0010_01C7646B.1AAD9410
+------=_NextPart_000_0011_01C764A6.2BF42DC0
 Content-Type: image/gif;
-        name="evolve.gif"
-Content-ID: <001301c7646b$1aad9410$00d7e1c4@TESTOWY01>
+        name="frontier.gif"
+Content-ID: <001401c764a6$2bf42dc0$06b87554@ENDCOMPUTER>
 Content-Transfer-Encoding: base64
 
-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
-fMpufMl4TMygLMvBbMydTMmyfMNO18qnHMx73MxenMy8TAWs/MvE3MvWTMvgzMtNjM24rMuq
-HMexLM2c3MbjvMubzM1zvMrIrMz0fM3z/MnOjM+B3MXUzMT6PMvkXM3ybM3m3MfP7Mv9bM8+
-3MtrDM/vfM6+bAQh0MoLvc6Q7NDmrMYHvQQNDcz1DNDzDMfV/MqS7NAITcePvM0KDcsCfczh
-zMmvbM/r3NLDHNEsPcvsvMXezMesEwJY/Ms5rdAeDdI4vdNMwMxhbNGmLNIknc+W7NQ5bdLb
-XMoyLcZbHNMc/czMjNWKPNNFvdJsfM7GPMr/Nx0APv3TFe3ONS3MfAzTUO3Sa93Sy6zWTd3S
-p0fNmkzWqPzRcf3VRm3Q6TzUYl3SK53NsOzIfJ3Ubg3RgHzWPy3NXe3OVg3SOv3Xi/zQWBzN
-ib3Yf53QN53GcR3TAR3UZa0FU0zYev3PpG3YhT3agwzZfU3Tjy3VdH3Pq43ZjJ3NXk3VbW3b
-AUCqnk3KqQzbt43brZ3Yub3D7XzYIu0EOn3GO83ZKP3aJj3bofzNam3TmP3cw93Nlq3Y4C3F
-xNrcngzdka3aqB3SkxzW8TzYrG1Vs7fRi4WVWHDAGyLfKpzfFibBJtyVucPf+h3gAj7gBB6l
-PnrgCJ7gCr7gDN7gFw7+4BAe4RI+4RRe4RZ+4Rie4Rre4EEAADs=
+R0lGODlhugE8AYYAAAAAAP///7v///8AAP+Z//+7//+I///M/wCI/wD///8A//8R//8i//+q
+/wDM//93//8z/wAAmTMzVXcAAACZZv9m//9V//9E//8zABHdiP/d////qv/u////iP//u///
+3f//mf//7v//zP//d+7//8wA3UTuRFV3Ef//AN3//1XMM8z//6r//5n//4j//3f//2b//1X/
+/0T//zP//yL//xH//90zM8yZAACIZrsiIv//Zv//Vf//RP//M///Iv//ETIyMrKysjY2Nra2
+tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2
+tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2
+tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2tjY2Nra2
+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
+0+mgABuhBVqwadqoA3umxImwd1qmSZqetmmaa6kIEoubmgCtFgux4Qql9tqYWRql3PCvbAqn
+aLqwAtqu3Cqe7aqhCgumewqgPqml5xqg5eqtVYquEjqlBNueMJuuOvuffBqnD/qe2fmlAVut
+0ECyIgulJjulTguxKeuiLfutzoqyvPmv/EqhYfqkEmuuPFue1KqtHhuaJ3q2Pwu0K7ujZWuc
++KmxiqoNTGuwUwuozImtLboIY8u2KOqy/Yq1UUu3WYuvBdun9aqnNUuzhyr/rkyLtjZLs/d6
+mXPrtlsKt1I7DZNrrXU7uNu6t+PKt9J5uS67sXjLuW2btQnatQB7tScqAo6LqNc6o1w7u5E7
+rp4buqdLoE3anBfbpc+QuYKbrr1btdlqufsanGALtU1LpdN6urdJrkrqtdUKpK8Luh7buLSb
+t84Ltc1rtDy6uw5bmCGgscoAvM5btYxqsJD7vI+bvFzKpk3bodCqum0bpotKvdlrtlz7nSD7
+uvgLsrabtliKnx+rvWuLCLiKDKXZsy/au6GbrzB7uAWsvd2rqHHbpc0rv9O7ug17szlLtguM
+vIzasOB5vCBso1HqudILolkqwWrLrMlgZjB8LbU6/8M2fMM4LAxpKQ8JnMNxKXWZIKw+XEY9
+TAk1TA2fyH4HOMRM3MRO/MRQHMVSPMVUXMVphKnMkIfHEIhYxsUiqMVTBsaYMIVizAlenIZo
+vAsQaGh0aAvOVm95psWrV3DwJoYJZ2VlPG3ztgpnrIVprMZo6MZ5CMdECIJ5XIUlyMcWGIh7
+3MWgdshcGMgPdwh2uGtxeMmO5oaY3Iaw9oJy2G+hZogbeIf6xmmZTHAVl8mbTMlWyG+/dspw
+aMkoiGyqXMuztoOfvGo8uIJS6IWm3MqTjMpqzMZQyMrtxoK0jMyXpobJvHC7THDNfMzSnIK9
+jISTds2EHM1xZoXArMeDBv/L0Lx/2myEzzzO1lzOyjzN2wzLaNjHlZDEIujM74fL1RzOdGzP
+YljP3qzOFGjOAJfOMpjP/QzQ+xzLXrhp0QyE/AyGcOzP01zQDs1w52ZxyVCHrIzQ3CaAvoxr
+mqyF+hzQCZ3MHf3PD43P+ybSAbjQJl3KSOjLxBaBIe3SLG1rE00BOHDLAB2CxExx/3xq7mwK
+fEXIaFzJHp2FAl3UAQ3RBJ3QEq3STk3SqJwddOzPjNbIdkxolpzUzzzTPN3G4UbPpmbMMyhs
+P30KQk1vKr2DaD1vBA3VDZ3TA43WURjXc13SDE3OXw3X/PbQMn3PzEzXWB2ENU3GfK1uLRjI
+TC3/DJrsyfUsyqsc1iydgqImy19chxwt2cFc116t2VsdafSM04WdhG6NyYrQhRIozD/4gT/Y
+04ZN2CTI1t0sD2X9hHwoZRU7K7M9C7ldErxax1b828Btqr0tCLoa3MZ93EMkxMi93OKwxJxQ
+c8wtFMod3dRd3dDgfNatEkd8Ez+S3d6tD0AsCvP63eSdQ+/y21iZQxiw3uttCO1NCO8tCPEt
+Cewd3/XN3gFw3/gN3/u93/Lt3vpdCPOd3/c9CANO4PwN4BjA3xhw3gVu4PO94ARe34cw4BEu
+4ZYQ4BD+4PqN4RN+4RQu3xrO4Ave4R5u4gme4gj+4f794BUe4iLO4SN+/+CyYN8evuIQruKR
+YOMingg03uMxDt8ArggWjuHvfeAXruAMnuNAPuFCjuNIfuNJfgk83uQ6ruJVvuI/fuVbjuNc
+LuFZjuU33uRhzuRDbgtTHuMnvuaTMOVb/uZGDuVn/uJpfuRjruV3XuJgjucCvuf2beUgLuVg
+fuf0beSG/uKInuJV3uVW7uVzvuFsnuaDIAJl7uh2nuiPPgtdDuNezuiZbuafbuZ6buChruZi
+3uiQjgijnt98ruhy3ulrHuWe7ghZTuO2LuhkPui0jus+PuaczumOHuS93ueoHuzFDgtwnutX
+zuKl3uHLLupA7uszrutqXumgLuDCfumuruWAfv/owT7rzN7nLu7sLK7tTD7tLv7lRM7rNl7k
+4w7sjW7nMv7uHZfsUM7mhb7hx27sZJ7j0q7q1I7gkk7sqp7tAS/i+HDoB7/o/64Jbp7nEE/w
+7T3wmL7vlh7wE4/vvd7w5x7xFX8I3Z0KD6/hFL8IDz/sAE/qPc7xJB7i5m7vFa7yrX7u/t7t
+1e7fFr/j+H7rH6/t1k7w1w705e7z3g70US7xHl8Im3oLDK/oGq/zHY/ymB7roX7y0U7o/M7q
+/63s/a7v9w7qRS7ubb7zSW/0RW/uUm/xkv7yBy/qSW/tPw7uq0Dvbg/vkEDyI87vLr/k4u7y
+ZJ/g5L7vZZ/uVF/uOh6o9s9u8uju9xu/9nqe7qYe9If/9/6++FhP+GWf+EUm99kwx6MgwyGm
+orzA+eU9DKQ/E9C9C75a+j8Blsewh6xfCGSIDOe9DbUf+7if+zk83FNcxDD8RLrfLp0a/MRP
+xZ5vLqtf/Mq//Mx/jbfd/NAf/dsQ3tL/DOWnDPxQ/dqPCek9xdP6/eAf/uI//uRf/uZ//uif
+/uq//uzf/u7//vAf//I///Q//4EAADs=
 
-------=_NextPart_000_0010_01C7646B.1AAD9410--
+------=_NextPart_000_0011_01C764A6.2BF42DC0--

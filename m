@@ -1,67 +1,57 @@
-From: "Mia Carey" <jppboot@internetmoneysite.com>
-Subject: It in quip
-Date: Tue, 13 Mar 2007 22:16:31 +0900
-Message-ID: <001001c765bd$afcb9e90$0e20dd4c@postman>
+From: "Jiri Slaby" <jirislaby@gmail.com>
+Subject: Re: [PATCH 1/1] Input: add sensable phantom driver
+Date: Tue, 13 Mar 2007 17:19:04 +0100
+Message-ID: <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com>
+References: <2460126662758025813@fi.muni.cz>
+	 <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>
+	 <45EEEAA3.50009@gmail.com>
+	 <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000D_01C765BD.AFCB9E90"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Greg KH <gregkh@suse.de>, Anssi Hannula <anssi.hannula@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000D_01C765BD.AFCB9E90
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Cc: Anssi Hannula <anssi.hannula@gmail.com>
 
+On 3/7/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 3/7/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+> > Dmitry Torokhov napsal(a):
+> > > Hi Jiri,
+> >
+> > Hi.
+> >
+> > > On 3/7/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+> > >> add sensable phantom driver
+> > > ...
+> > >
+> > > General question - can this driver use force-feedback mecahnisms
+> > > already present in kernel instead of exporting raw datastream to
+> > > userspace. What are shortcomings of kernels force-feedback
+> > > implemenattion that make it insufficient for phantom?
+> >
+> > I didn't even think about it, sorry. Does any problem with rate about 2kHz come
+> > on your mind before I'll try to rewrite it?
+>
+> No, not really.
 
+Hmm, after going through input and ff layer, I figured out, that it's
+possible to pass only a direction to constant effect. I think, there
+is no possibility to pass 3D force (or vector) to the ff layer, isn't
+it?
 
-
-This one is hardly promoted..
-
-
-
-S.umbol: CBRPCurrent price: $0.03 5 Day Target price: =
-$0.3Recommendation: very aggresive buy!!!
-
-Insider Buying Alert!
-
-
-
-CBRP have released very hot news. Check this out, linux-input.
-
-------=_NextPart_000_000D_01C765BD.AFCB9E90
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2600.0000" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0033 size=3D3D4><FONT =
-size=3D3><STRONG>This one is hardly promoted..</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0000 size=3D4>S.umbol: =
-<b>CBRP</b><br>Current price: $0.03 <br>5 Day Target price: =
-$0.3<br>Recommendation: very aggresive buy!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D4>Insider =
-Buying Alert..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0000 size=3D4>CBRP =
-have released very hot news. Check this out, linux-input...</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000D_01C765BD.AFCB9E90--
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

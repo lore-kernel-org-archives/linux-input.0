@@ -1,65 +1,47 @@
-From: Mr Moses Uzoegbu <mosesuzo@myway.com>
-Subject: Greetings,
-Date: 13 Mar 2007 22:18:49 +0100
-Message-ID: <20070313211849.9485.qmail@mlsedv-online.de>
-Reply-To: mosesuzoegbu@sify.com
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom
+ driver]
+Date: Tue, 13 Mar 2007 23:16:46 +0100
+Message-ID: <45F722CE.9000602@gmail.com>
+References: <2460126662758025813@fi.muni.cz>	 <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>	 <45EEEAA3.50009@gmail.com>	 <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>	 <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com> <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: johann deneux <johann.deneux@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
+Why did you remove all Cced people? Anyway I filtered some of them out
 
-Greetings,
+johann deneux napsal(a):
+> You are right, the direction in ff_effect is meant to be an angle.
+> A dirty solution would be to use the 16 bits as two 8-bits angles. Or 
 
-I professionally advise that you digest and assimilate this that I have b=
-rought forth to you before taking your next decision. Be informed that th=
-is is legal and has little or nor risk and I would in my discreation keep=
- it as discreet as possible.
+That would be a problem as I need 3x 16bits.
 
-One Mr. Elf Rogers who worked with shell oil in Nigeria, was
-killed by the Niger-delta Millitants in 2005. Mr. Elf Rogers
-left the sum of $2.5M in cash and $1.2M in share debenture stocks of a re=
-putable company in our deposit,which has accumulated a great amount of di=
-vidend. Until now no relation of his has come forward to claim this estat=
-e. So the bank has taken it upon itself to look for his next of=20
-kin as he left no traces of any or any will.
+> maybe we should change the API. I don't think there are many 
+> applications using force feedback yet, so maybe that should be ok?
+> 
+> If we change the API, we should remove the assumption that a device has 
+> at most two axes to render effects. We could for instance have a 
+> magnitude argument for each axis which is capable of rendering effects. 
+> That might be necessary even for more common gaming devices like racing 
+> wheels: One can think pedals could also be capable of force feedback 
+> some day, not just the steering wheel.
 
-You can also get information's on this web site
-http://www.turkishweekly.net/news.php?id=3D31543
+I can do that, but in that case, I need to know how people (especially those 
+input one) want me to do...
 
-I am Moses Uzoegbu and below is my profile:My Position Head of Risk Manag=
-ement Department and the Bank=92s Chief Compliance Officer Of Ibtc Charte=
-red Bank
-
-This is the link to get my profile http://www.ibtc.com/management.asp
-Our Bank's website: www.ibtc.com
-
-
-Please note that the priority of coming to you is for us to work together=
- in getting this estate out for ourselves. I need you to make available t=
-o me the following datas:
-
-YOUR FULL NAME
-DIRECT PHONE AND FAX Oltrogge FOR PROPER COMMUICATION
-RESIDENT ADDRESS
-MARITAL STATUS
-OCCUPATION
-YOUR ID. i.e INTERNATIONAL PASSPORT OR DRIVERS LINECES
-
-With this I would validate an application of claim and forward it to the =
-bank's foreign remittance department that is in charge of such transactio=
-n for formal commencement of reviews to this regards.
-
-Please Note if you know you are not capable of handling this
-transaction please dont reply.
-
-Regards
-
-Mr Moses Uzoegbu
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

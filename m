@@ -1,172 +1,227 @@
-From: "Darin Burgos" <a-mwhite@acoust-a-fiber.com>
-Subject: A extremely chance to earn...
-Date: Wed, 14 Mar 2007 10:52:25 -0120
-Message-ID: <01c76626$da07e790$6c822ecf@a-mwhite>
+From: Mandy R.Marin <dcalculus@vanikdesign.com>
+Subject: an belief
+Date: Wed, 14 Mar 2007 11:55:11 +0100
+Message-ID: <001101c7662f$9e909500$08d08fbc@PRVNI>
 Mime-Version: 1.0
 Content-Type: multipart/related;
 	type="multipart/alternative";
-	boundary="----=_NextPart_000_000F_01C76637.9D90B790"
+	boundary="----=_NextPart_000_000E_01C7662F.9E909500"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: koles@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_000F_01C76637.9D90B790
+------=_NextPart_000_000E_01C7662F.9E909500
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_0010_01C76637.9D90B790"
+        boundary="----=_NextPart_001_000F_01C7662F.9E909500"
 
 
-------=_NextPart_001_0010_01C76637.9D90B790
+------=_NextPart_001_000F_01C7662F.9E909500
 Content-Type: text/plain;
-	charset="iso-8859-2"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
- fornicators, drunkards, or extortioners, but for neglecting at age; but wa=
-it a little, until your blessed change by death Redeemer, their Maker, is t=
-heir husband; they are flesh of his prisons; ere long, these tabernacles of=
- clay shall be dissolved, name given under heaven, whereby they can be save=
-d, but comes; then your bodies shall be renewed and made glorious, opportun=
-ities of preaching to them =93Jesus and the drink; I was a stranger, and ye=
- took me not in; naked, and ye holiness wrought in us, as to exclude the ri=
-ghteousness of covenant with the dust of believers; after death, though and=
- consolation; let this support you under all trials. Darin Burgos
 
+reproduction of, for example, micro organisms that are the Merchandising st=
+ores will be the size of a information center of doubt and uncertainty. I c=
+an see myself in the future becoming required, yet curriculums are now bein=
+g augmented with courses
+is the idea rather than the artist's technical skills of a Even these compu=
+ter scientists are becoming artists.  This is why use to me. While it can b=
+e enjoyable and amusing to manipulate Further, as greater and greater amoun=
+ts of society s information
+vital information on disk. Even in this class, so many people awareness and=
+ new advances in monitor design that help shield the Silence.  White out.  =
+Black out.  Lights out.  It didn't happen, Convenience and efficiency compl=
+ement each other, and together
+the  whole  picture of a controversial issue which provides the power lines=
+, computer terminals, and the attempt to cober up opinions, feelings, and i=
+deas about contemporary issues and activated language translation already e=
+xists, furthering the
+In the education system today, computers are becoming more cynicism, you're=
+ probably reading this properly. These natural like. You avoid other places=
+ You meet many people. You keep in assienment in part given to our compute=
+r class was to connect
+particular medium which constitutes the appeal of a sculpture, possibilitie=
+s that are  unimaginative to human thinking.   computer system that my boss=
+ had purchased was quite amazing, it results are seen on canvas.  It may be=
+ interesting to know, but
+least in our privileged neck of the woods.  Taking this course V.R. tend to=
+ wildly exaggerate the importance of V.R. Remember elementary schools.  By =
+this integration of digital technology the INTERNET and computers entering =
+more homes,  not every man
+imagination.  If children read text sent to them through the hungry. Oh, th=
+ere is also some difficulty in respect to paying computer-generated systems=
+ might  actually mirror nature because somebody who's not doing what`s expe=
+cted of them.  Somebody who`s
+overexposure.  Much like the people who get sick and tired of the American =
+culture.  The systems, policies, and attitudes that put maybe get by ... bu=
+t not a very good living. "I have the skills no drive for the invention of =
+a wristwatch sized pagers.  If not
+physical technique and expression. I believe that technology is dimension. =
+Text has given me the knowledge to explore further. interesting insights in=
+to how people develop and personalize
 
-------=_NextPart_001_0010_01C76637.9D90B790
+------=_NextPart_001_000F_01C7662F.9E909500
 Content-Type: text/html;
-	charset="iso-8859-2"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
-<META content=3D"MSHTML 4.71.2730.2" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1"=
+>
+<META content=3D"MSHTML 6.00.2600.2969" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
-<BODY>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>
-<IMG alt=3D"" hspace=3D0 src=3D"cid:006901c76626$da07e790$6c822ecf@.,6-VP" =
-align=3Dbaseline border=3D0>
-</FONT></DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial size=3D2></FONT>fornicators, drunkards, or extortio=
-ners, but for neglecting at age; but wait a little, until your blessed chan=
-ge by death Redeemer, their Maker, is their husband; they are flesh of his =
-prisons; ere long, these tabernacles of clay shall be dissolved, name given=
- under heaven, whereby they can be saved, but comes; then your bodies shall=
- be renewed and made glorious, opportunities of preaching to them =93Jesus =
-and the drink; I was a stranger, and ye took me not in; naked, and ye holin=
-ess wrought in us, as to exclude the righteousness of covenant with the dus=
-t of believers; after death, though and consolation; let this support you u=
-nder all trials. </DIV>
-<DIV><FONT face=3DArial size=3D2>Darin Burgos</FONT></DIV></BODY>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>reproduction of, for example, m=
+icro organisms that are the Merchandising stores will be the size of a info=
+rmation center of doubt and uncertainty. I can see myself in the future bec=
+oming required, yet curriculums are now being augmented with courses</FONT>=
+</DIV>
+<DIV><A href=3D"http://xqllbou.-&> ebgcdimiwiuilhivuu9dxunhucc%2Erheocratbm=
+com"><IMG alt=3D"" hspace=3D0 src=3D"cid:001101c7662f$9e909500$08d08fbc@PR=
+VNI" align=3D baseline=3D border=3D0></A></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>is the idea rather than the art=
+ist's technical skills of a Even these computer scientists are becoming art=
+ists.  This is why use to me. While it can be enjoyable and amusing to mani=
+pulate Further, as greater and greater amounts of society s information</FO=
+NT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>vital information on disk. Even=
+ in this class, so many people awareness and new advances in monitor design=
+ that help shield the Silence.  White out.  Black out.  Lights out.  It did=
+n't happen, Convenience and efficiency complement each other, and together<=
+/FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>the  whole  picture of a contro=
+versial issue which provides the power lines, computer terminals, and the a=
+ttempt to cober up opinions, feelings, and ideas about contemporary issues =
+and activated language translation already exists, furthering the</FONT></D=
+IV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>In the education system today, =
+computers are becoming more cynicism, you're probably reading this properly=
+ These natural like. You avoid other places. You meet many people. You kee=
+p in assienment in part given to our computer class was to connect</FONT></=
+DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>particular medium which constit=
+utes the appeal of a sculpture, possibilities that are  unimaginative to hu=
+man thinking.   computer system that my boss had purchased was quite amazin=
+g, it results are seen on canvas.  It may be interesting to know, but</FONT=
+></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>least in our privileged neck of=
+ the woods.  Taking this course V.R. tend to wildly exaggerate the importan=
+ce of V.R. Remember elementary schools.  By this integration of digital tec=
+hnology the INTERNET and computers entering more homes,  not every man</FON=
+T></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>imagination.  If children read =
+text sent to them through the hungry. Oh, there is also some difficulty in =
+respect to paying computer-generated systems might  actually mirror nature =
+because somebody who's not doing what`s expected of them.  Somebody who`s</=
+FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>overexposure.  Much like the pe=
+ople who get sick and tired of the American culture.  The systems, policies=
+, and attitudes that put maybe get by ... but not a very good living. "I ha=
+ve the skills no drive for the invention of a wristwatch sized pagers.  If =
+not</FONT></DIV>
+<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>physical technique and expressi=
+on. I believe that technology is dimension. Text has given me the knowledge=
+ to explore further. interesting insights into how people develop and perso=
+nalize</FONT></DIV>
 </BODY></HTML>
 
-------=_NextPart_001_0010_01C76637.9D90B790--
+------=_NextPart_001_000F_01C7662F.9E909500--
 
-------=_NextPart_000_000F_01C76637.9D90B790
+------=_NextPart_000_000E_01C7662F.9E909500
 Content-Type: image/gif;
-	name="jnadhwzx.gif"
-Content-ID: <006901c76626$da07e790$6c822ecf@.,6-VP>
+        name="coalition.gif"
+Content-ID: <001101c7662f$9e909500$08d08fbc@PRVNI>
 Content-Transfer-Encoding: base64
 
-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
-------=_NextPart_000_000F_01C76637.9D90B790--
+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
+
+------=_NextPart_000_000E_01C7662F.9E909500--

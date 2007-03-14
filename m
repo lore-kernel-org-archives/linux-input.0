@@ -1,64 +1,57 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] wistron_btns: More keymaps
-Date: Wed, 14 Mar 2007 09:54:27 -0400
-Message-ID: <d120d5000703140654y4d8cb0a3oafd49c48a045bd77@mail.gmail.com>
-References: <45ECA23A.5010503@tremplin-utc.net>
-	 <d120d5000703060536k7743ece9hb20fa4d1f7ad7ad7@mail.gmail.com>
-	 <45ED8809.70309@tremplin-utc.net> <45F72D37.6090004@tremplin-utc.net>
+Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom driver]
+Date: Wed, 14 Mar 2007 11:02:37 -0400
+Message-ID: <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
+References: <2460126662758025813@fi.muni.cz>
+	 <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>
+	 <45EEEAA3.50009@gmail.com>
+	 <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>
+	 <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com>
+	 <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>
+	 <45F722CE.9000602@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45F72D37.6090004@tremplin-utc.net>
+In-Reply-To: <45F722CE.9000602@gmail.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Eric Piel <Eric.Piel@tremplin-utc.net>
-Cc: mitr@volny.cz, otauber@web.de, linux-kernel@vger.kernel.org, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Vojtech Pavlik <vojtech@suse.cz>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: johann deneux <johann.deneux@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Hi Eric,
-
-On 3/13/07, Eric Piel <Eric.Piel@tremplin-utc.net> wrote:
-> Hello,
+On 3/13/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+> Why did you remove all Cced people? Anyway I filtered some of them out
 >
-> As a sequel to my patch "Wistron button support for TravelMate 610" of
-> last week, here is a bigger addition of keymaps for the wistron_btns.
+> johann deneux napsal(a):
+> > You are right, the direction in ff_effect is meant to be an angle.
+> > A dirty solution would be to use the 16 bits as two 8-bits angles. Or
 >
-> Patch 1 adds all the database of acerhk which fits this driver (about 25
-> more laptops).
-> Patch 2 adds a generic map that should fit most users but has the
-> disadvantage of not being automatic.
+> That would be a problem as I need 3x 16bits.
 >
-> Dmitry, I've tried to make them against your tree. Still, if they don't
-> apply cleanly, just tell me and I'll try harder!
+> > maybe we should change the API. I don't think there are many
+> > applications using force feedback yet, so maybe that should be ok?
+> >
+> > If we change the API, we should remove the assumption that a device has
+> > at most two axes to render effects. We could for instance have a
+> > magnitude argument for each axis which is capable of rendering effects.
+> > That might be necessary even for more common gaming devices like racing
+> > wheels: One can think pedals could also be capable of force feedback
+> > some day, not just the steering wheel.
+>
+> I can do that, but in that case, I need to know how people (especially those
+> input one) want me to do...
 >
 
-I have couple of comments/requests:
+Since we have no idea how many programs (if any) are using force
+feedback interface I would be wary of changing existing effcets and
+rather add new set of 3D effects.
 
-1. KEY_OPEN and KEY_CLOSE should not be used to signal state of the
-lid, they correspond to Accpication Control Open and Close keys from
-USB HID HUT spec:
-
-     http://www.usb.org/developers/devclass_docs/Hut1_12.pdf
-
-SW_LID shoudl be used to signal lid state instead.
-
-2. I also have a concern about using KEY_SCREEN to signal toggling
-display on and off. I am CCing Vojtech - he must know what the
-original intent of this key code was. BTW, when user presses
-corresponding button - does the display actually goes off? Maybe we
-need another switch.
-
-3. The number of keymap tables grew considerably ;) Do you think it
-woudl make sense to allocate memory for keymap at device creation time
-and copy selected keymap and them mark all original keymaps as
-__initdata so they are discarded one module completed initialization?
-
-Thank you.
+Do we have any idea if there any users of FF out there?
 
 -- 
 Dmitry

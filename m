@@ -1,46 +1,66 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom
- driver]
-Date: Wed, 14 Mar 2007 19:15:33 +0100
-Message-ID: <45F83BC5.7020606@gmail.com>
-References: <2460126662758025813@fi.muni.cz>	 <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>	 <45EEEAA3.50009@gmail.com>	 <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>	 <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com>	 <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>	 <45F722CE.9000602@gmail.com> <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com> <45F82626.8000108@gmail.com> <45F83930.4060401@gmail.com>
+From: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/2] wistron_btns: More keymaps
+Date: Wed, 14 Mar 2007 19:25:59 +0100
+Message-ID: <20070314182559.GC5264@suse.cz>
+References: <45ECA23A.5010503@tremplin-utc.net> <d120d5000703060536k7743ece9hb20fa4d1f7ad7ad7@mail.gmail.com> <45ED8809.70309@tremplin-utc.net> <45F72D37.6090004@tremplin-utc.net> <d120d5000703140654y4d8cb0a3oafd49c48a045bd77@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45F83930.4060401@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <d120d5000703140654y4d8cb0a3oafd49c48a045bd77@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, johann deneux <johann.deneux@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Eric Piel <Eric.Piel@tremplin-utc.net>, mitr@volny.cz, otauber@web.de, linux-kernel@vger.kernel.org, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Anssi Hannula napsal(a):
-> Jiri Slaby wrote:
->> Dmitry Torokhov napsal(a):
->>> On 3/13/07, Jiri Slaby <jirislaby@gmail.com> wrote:
->>>> Why did you remove all Cced people? Anyway I filtered some of them out
->>>>
->>>> johann deneux napsal(a):
->>>>> You are right, the direction in ff_effect is meant to be an angle.
->>>>> A dirty solution would be to use the 16 bits as two 8-bits angles. Or
->>>> That would be a problem as I need 3x 16bits.
+On Wed, Mar 14, 2007 at 09:54:27AM -0400, Dmitry Torokhov wrote:
+> Hi Eric,
 > 
-> Interesting. What kind of device is that? i.e. what is the third
-> direction value?
+> On 3/13/07, Eric Piel <Eric.Piel@tremplin-utc.net> wrote:
+> >Hello,
+> >
+> >As a sequel to my patch "Wistron button support for TravelMate 610" of
+> >last week, here is a bigger addition of keymaps for the wistron_btns.
+> >
+> >Patch 1 adds all the database of acerhk which fits this driver (about 25
+> >more laptops).
+> >Patch 2 adds a generic map that should fit most users but has the
+> >disadvantage of not being automatic.
+> >
+> >Dmitry, I've tried to make them against your tree. Still, if they don't
+> >apply cleanly, just tell me and I'll try harder!
+> >
+> 
+> I have couple of comments/requests:
+> 
+> 1. KEY_OPEN and KEY_CLOSE should not be used to signal state of the
+> lid, they correspond to Accpication Control Open and Close keys from
+> USB HID HUT spec:
+> 
+>     http://www.usb.org/developers/devclass_docs/Hut1_12.pdf
+> 
+> SW_LID shoudl be used to signal lid state instead.
+> 
+> 2. I also have a concern about using KEY_SCREEN to signal toggling
+> display on and off. I am CCing Vojtech - he must know what the
+> original intent of this key code was. BTW, when user presses
+> corresponding button - does the display actually goes off? Maybe we
+> need another switch.
 
-6DOF sensable phantom:
-http://www.sensable.com/haptic-phantom-premium-6dof.htm
+Sorry, Dmitry, I probably should have documented it back then, I don't
+have the slightest idea anymore.
 
-X,Y,Z,RX,RY,RZ+BUT as inputs
-X,Y,Z motors as FF
+> 3. The number of keymap tables grew considerably ;) Do you think it
+> woudl make sense to allocate memory for keymap at device creation time
+> and copy selected keymap and them mark all original keymaps as
+> __initdata so they are discarded one module completed initialization?
+> 
+> Thank you.
 
-regards,
 -- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Vojtech Pavlik
+Director SuSE Labs

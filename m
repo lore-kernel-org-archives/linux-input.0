@@ -1,83 +1,146 @@
-From: "=?ISO-8859-1?Q?STenyaK_(Bruno_Gonz=E1lez)?=" <stenyak@gmail.com>
-Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom driver]
-Date: Wed, 14 Mar 2007 19:47:00 +0100
-Message-ID: <8e4ff20a0703141147n4b690ab8g4cc8138d1ecc94e1@mail.gmail.com>
-References: <2460126662758025813@fi.muni.cz>
-	 <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com>
-	 <45EEEAA3.50009@gmail.com>
-	 <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>
-	 <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com>
-	 <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>
-	 <45F722CE.9000602@gmail.com>
-	 <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
-	 <45F82626.8000108@gmail.com> <45F83930.4060401@gmail.com>
+From: "Georgette Covington" <jbauer@goldenware.com>
+Subject: Dating business
+Date: Wed, 14 Mar 2007 18:45:09 +0300
+Message-ID: <01c76668$e4165810$6c822ecf@jbauer>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_Part_64337_14215107.1173898020513"
+	boundary="----=_NextPart_000_0007_01C7664F.BEC92010"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45F83930.4060401@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, johann deneux <johann.deneux@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: 0rfelyus@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_64337_14215107.1173898020513
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is a multi-part message in MIME format.
 
-On 3/14/07, Anssi Hannula <anssi.hannula@gmail.com> wrote:
->
-> >> Do we have any idea if there any users of FF out there?
-> >
-> > At least me :). I'm using it for wheel and joystick in modules for
-> locally
-> > developped multiplatform virtual reality system.
->
-> Wine and BZflag come to mind, though I think the support is quite
-> limited in both.
->
+------=_NextPart_000_0007_01C7664F.BEC92010
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-There's also vDrift (racing sim), they added support very recently.
-I plan to add it in my car sim too, but there's still nothing coded.
+Hello,My name is Anna. I write to you with the interesting partnership
+  offer. I am working in dating business on the Internet. Dating has big
+  popularity and I have good money on  this.
+  
+  How work a dating business?Users of a site pay till 49.95 $ for=20=
+membership. The paid users of a
+  site have an opportunity to write the letter to other members and
+  chatting in online.The most popular payment for dating sites is=20=
+payment through instant
+  billing. I have contacted with the company which gives billing system
+  to dating sites, but to me responded, that they cannot give billing
+  service to me because my country has a low economic level. They have
+  advised to find the partner from the country with more favorable
+  economic  conditions. The billing company does not work with=20=
+Macedonia therefore I search
+  the partner outside my  country and consequently I write to you.What=20=
+I offer to you?I offer you of 40 percents from the income of a site. It=20=
+is a minimum
+  5000 $ monthly.What work you will need do to? Absolutely all of work=20=
+on a site will be made by me. You do not need
+  to have any skills of work in the Internet, have your own company or
+  special education. All that you will need to do, it just one time in
+  every 15 days go to the your bank and receive money from site. Then
+  you will send 60 percents to me and get 40 percents to=20=
+yourselves.What benefit I will have?I am working in dating business=20=
+already long time and I know that
+  after connection a site with billing systems, the monthly income will
+  grow in some times.I offer you really easy work with good and=20=
+constantly growing monthly
+  earnings! Our  partnership practically will not distract you from work
+  or your private life. I want that you knew that my offer is absolutely
+  legal and that will work for us together!I understand that for=20=
+acceptance of any decision is necessary more
+  information, but please write to me back and I shall give you more
+  detailed information. Write to me and you will  understand that my
+  offer really work. I hope to receive your prompt reply.Please write=20=
+to me back to: annaivanich@megafona.netBest Regards,
+  Annap.s. I wish to add that for our partnership will not be necessary=20=
+your
+  financial expenses. You only will earn on our partnership!
 
-I have a question: if the force is to be 3D, why only 3 possible values?
-What would they be, 3 torques or 3 forces? In the case of car sims (ff
-steering wheels), only one axis of torque is usually used (except for 6 dof
-platforms, as mentioned).
+------=_NextPart_000_0007_01C7664F.BEC92010
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-By the way, is this the correct list for asking trivial questions (such as
-questions about how the ff api works), or is it only for development of
-kernel?
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<p>Hello,</p>
+<p>My name is Anna. I write to you with the interesting partnership<br />
+  offer. I am working in dating business on the Internet. Dating has=20=
+big<br />
+  popularity and I have good money on  this.<br />
+  <br />
+  How work a dating business?</p>
+<p>Users of a site pay till 49.95 $ for membership. The paid users of=20=
+a<br />
+  site have an opportunity to write the letter to other members and<br />
+  chatting in online.</p>
+<p>The most popular payment for dating sites is payment through=20=
+instant<br />
+  billing. I have contacted with the company which gives billing=20=
+system<br />
+  to dating sites, but to me responded, that they cannot give=20=
+billing<br />
+  service to me because my country has a low economic level. They=20=
+have<br />
+  advised to find the partner from the country with more favorable<br />
+  economic  conditions. </p>
+<p>The billing company does not work with Macedonia therefore I=20=
+search<br />
+  the partner outside my  country and consequently I write to you.</p>
+<p>What I offer to you?</p>
+<p>I offer you of 40 percents from the income of a site. It is a=20=
+minimum<br />
+  5000 $ monthly.</p>
+<p>What work you will need do to? </p>
+<p>Absolutely all of work on a site will be made by me. You do not=20=
+need<br />
+  to have any skills of work in the Internet, have your own company=20=
+or<br />
+  special education. All that you will need to do, it just one time=20=
+in<br />
+  every 15 days go to the your bank and receive money from site.=20=
+Then<br />
+  you will send 60 percents to me and get 40 percents to yourselves.</p>
+<p>What benefit I will have?</p>
+<p>I am working in dating business already long time and I know that<br=20=
+/>
+  after connection a site with billing systems, the monthly income=20=
+will<br />
+  grow in some times.</p>
+<p>I offer you really easy work with good and constantly growing=20=
+monthly<br />
+  earnings! Our  partnership practically will not distract you from=20=
+work<br />
+  or your private life. I want that you knew that my offer is=20=
+absolutely<br />
+  legal and that will work for us together!</p>
+<p>I understand that for acceptance of any decision is necessary=20=
+more<br />
+  information, but please write to me back and I shall give you more<br=20=
+/>
+  detailed information. Write to me and you will  understand that my<br=20=
+/>
+  offer really work. I hope to receive your prompt reply.</p>
+<p>Please write to me back to: <a=20=
+href=3D"mailto:annaivanich@megafona.net">annaivanich@megafona.net</a></p>
+<p>Best Regards,<br />
+  Anna</p>
+<p>p.s. I wish to add that for our partnership will not be necessary=20=
+your<br />
+  financial expenses. You only will earn on our partnership!<br />
+</p>
 
--- 
-Saludos,
-     STenyaK
+</BODY></HTML>
 
-_______________________________________________
-Site:   http://1ksurvivor.homeip.net  <1kSurvivor>
-         http://motorsport-sim.org     <Motorsport>
-         http://kwh.iespana.es         <KuantikalWareHouse>
-         http://emuletutorial.info     <EmuleTutorial>
-ICQ:    153709484
-Mail:   stenyak AT gmail DOT com
-
-------=_Part_64337_14215107.1173898020513
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-<br><br><div><span class="gmail_quote">On 3/14/07, <b class="gmail_sendername">Anssi Hannula</b> &lt;<a href="mailto:anssi.hannula@gmail.com">anssi.hannula@gmail.com</a>&gt; wrote:</span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
-&gt;&gt; Do we have any idea if there any users of FF out there?<br>&gt;<br>&gt; At least me :). I&#39;m using it for wheel and joystick in modules for locally<br>&gt; developped multiplatform virtual reality system.<br><br>
-Wine and BZflag come to mind, though I think the support is quite<br>limited in both.<br></blockquote></div><br>There&#39;s also vDrift (racing sim), they added support very recently.<br>I plan to add it in my car sim too, but there&#39;s still nothing coded.
-<br><br>I have a question: if the force is to be 3D, why only 3 possible values? What would they be, 3 torques or 3 forces? In the case of car sims (ff steering wheels), only one axis of torque is usually used (except for 6 dof platforms, as mentioned).
-<br><br>By the way, is this the correct list for asking trivial questions (such as questions about how the ff api works), or is it only for development of kernel?<br clear="all"><br>-- <br>Saludos,<br>&nbsp;&nbsp;&nbsp;&nbsp; STenyaK<br><br>
-_______________________________________________<br>Site:&nbsp;&nbsp; <a href="http://1ksurvivor.homeip.net">http://1ksurvivor.homeip.net</a>&nbsp;&nbsp;&lt;1kSurvivor&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://motorsport-sim.org">http://motorsport-sim.org
-</a>&nbsp;&nbsp;&nbsp;&nbsp; &lt;Motorsport&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://kwh.iespana.es">http://kwh.iespana.es</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;KuantikalWareHouse&gt;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="http://emuletutorial.info">http://emuletutorial.info</a>&nbsp;&nbsp;&nbsp;&nbsp; &lt;EmuleTutorial&gt;
-<br>ICQ:&nbsp;&nbsp;&nbsp;&nbsp;153709484<br>Mail:&nbsp;&nbsp; stenyak AT gmail DOT com
-
-------=_Part_64337_14215107.1173898020513--
+------=_NextPart_000_0007_01C7664F.BEC92010--

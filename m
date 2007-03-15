@@ -1,57 +1,33 @@
-From: "=?ISO-8859-1?Q?STenyaK_(Bruno_Gonz=E1lez)?=" <stenyak@gmail.com>
-Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom driver]
-Date: Thu, 15 Mar 2007 22:06:54 +0100
-Message-ID: <8e4ff20a0703151406v77dbf67fh2071f349065d40d4@mail.gmail.com>
-References: <2460126662758025813@fi.muni.cz>
-	 <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>
-	 <45F722CE.9000602@gmail.com>
-	 <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
-	 <45F82626.8000108@gmail.com> <45F83930.4060401@gmail.com>
-	 <8e4ff20a0703141147n4b690ab8g4cc8138d1ecc94e1@mail.gmail.com>
-	 <d120d5000703141213k6554f7f6o58e4a9da1aa6a20a@mail.gmail.com>
-	 <8e4ff20a0703141218r3add7923n74470b5e16f58c5c@mail.gmail.com>
-	 <38b3b7c0703151351i23d42d67n1d7469fd14e433e2@mail.gmail.com>
+From: "Eddy Jefferson" <gkgfmc@bolata.com>
+Subject: SHARE promotion company needs new partners in Europe
+Date: Thu, 15 Mar 2007 21:50:33 +0000 (UTC)
+Message-ID: <01c7674c$f00085d0$6c822ecf@gkgfmc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <38b3b7c0703151351i23d42d67n1d7469fd14e433e2@mail.gmail.com>
-Content-Disposition: inline
+Date: Thu, 15 Mar 2007 21:57:34 +0360
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: johann deneux <johann.deneux@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 3/15/07, johann deneux <johann.deneux@gmail.com> wrote:
-> On 3/14/07, STenyaK (Bruno Gonz=E1lez) <stenyak@gmail.com> wrote:
-> > Ideally, afaik we should use:
-> > -3 values for translation force (linear force): x,y,z components of
-> > the force vector.
-> > -4 values for rotation force (torque): x,y,z,w components of the
-> > quaternion. You can also use euler angles (and i think there are
-> > another one or two notations), which is just 3 values, but i'm not
-> > sure it will be a correct decision (due to the gimbal lock problem,
-> > which may or may not be present in ff devices, dunno).
->
-> Same remark here. A torque is a 3-dimensional thing, just like a
-> force. What for do you need 4 components?
+The project professorsSMU officials did  a university bearing the Methodist name is utterly inappropriate." have professors
 
-Simplifying, 3 values defining axis of rotation, 1 defining module of
-torque.. As i said, i'm not really sure we really need the 4; you most
-probably are right.
+Hello! stock owner,
 
---=20
-Saludos,
-     STenyaK
+We are a stock promotion company and we can encourage any variety of stocks. We have been working on US market  for 3 years. But now it is getting harder and harder to work on US market. We are looking for earnest partners in Europe with whom we can make business together. That suggestion is for you if you have a company and you want to encourage it. We encourage stocks by bulk email advertising. 
 
-_______________________________________________
-Site:   http://1ksurvivor.homeip.net  <1kSurvivor>
-         http://motorsport-sim.org     <Motorsport>
-         http://kwh.iespana.es         <KuantikalWareHouse>
-         http://emuletutorial.info     <EmuleTutorial>
-ICQ:    153709484
-Mail:   stenyak AT gmail DOT com
+Stock owner
+
+We can increase the price of your SHARE and we can increase average day trading range. We can increase price up to 200-250%  in 2-3 weeks and also we can increase volume  by 10 times each trading day. You don`t have to pay anything in in advance. First we increase the price  and the volume, then you  pay. 
+
+Payment: Our cost  for that is 10% from the daily range. We count  it by the following formula: last  price * daily volume. 
+
+If you are interested in our suggestion  please write me back to the following email: stockadvert01@yahoo.com
+
+SMU emerged  of social conscience, sonot return calls seeking comment Thursday. across the nation launchedwill be financed with a  of the petition's organizers, the Rev. Andrew J. Weaver of New we believe that the linkingbenefits were increasing the 

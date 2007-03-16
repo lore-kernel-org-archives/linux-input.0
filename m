@@ -1,67 +1,69 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom driver]
-Date: Fri, 16 Mar 2007 16:28:59 +0000
-Message-ID: <20070316162858.GB3951@ucw.cz>
-References: <2460126662758025813@fi.muni.cz> <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com> <45EEEAA3.50009@gmail.com> <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com> <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com> <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com> <45F722CE.9000602@gmail.com> <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
+From: "Chandra Huff" <zvogue@do5.enjoy.ne.jp>
+Subject: But configuration a demagnify
+Date: Fri, 16 Mar 2007 20:05:28 +0200
+Message-ID: <001501c76806$b1515b60$002a713c@makelirgkxgxcy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0012_01C76806.B1515B60"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, johann deneux <johann.deneux@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi!
+------=_NextPart_000_0012_01C76806.B1515B60
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
-> >Why did you remove all Cced people? Anyway I filtered 
-> >some of them out
-> >
-> >johann deneux napsal(a):
-> >> You are right, the direction in ff_effect is meant to 
-> >be an angle.
-> >> A dirty solution would be to use the 16 bits as two 
-> >8-bits angles. Or
-> >
-> >That would be a problem as I need 3x 16bits.
-> >
-> >> maybe we should change the API. I don't think there 
-> >are many
-> >> applications using force feedback yet, so maybe that 
-> >should be ok?
-> >>
-> >> If we change the API, we should remove the assumption 
-> >that a device has
-> >> at most two axes to render effects. We could for 
-> >instance have a
-> >> magnitude argument for each axis which is capable of 
-> >rendering effects.
-> >> That might be necessary even for more common gaming 
-> >devices like racing
-> >> wheels: One can think pedals could also be capable of 
-> >force feedback
-> >> some day, not just the steering wheel.
-> >
-> >I can do that, but in that case, I need to know how 
-> >people (especially those
-> >input one) want me to do...
-> >
-> 
-> Since we have no idea how many programs (if any) are 
-> using force
-> feedback interface I would be wary of changing existing 
-> effcets and
-> rather add new set of 3D effects.
-> 
-> Do we have any idea if there any users of FF out there?
 
-Number of linux games is quite low, so...
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+
+Take a look at this ONE!
+
+
+
+Target sym: GTAPPrice (current): $2.36 5 Day Target price: $5Action: =
+Strong Buy/Hold...
+
+500% profit guaranted!
+
+
+
+See the news, linux-input!!
+
+------=_NextPart_000_0012_01C76806.B1515B60
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.2600.2869" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000000 size=3D=
+3D4><FONT size=3D2><STRONG>Take a look at this =
+ONE.</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3333 size=3D3>Target =
+sym: <b>GTAP</b><br>Price (current): $2.36 <br>5 Day Target price: =
+$5<br>Action: Strong Buy/Hold!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D3>500% =
+profit guaranted..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#3300FF size=3D2>See =
+the news, linux-input!!</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0012_01C76806.B1515B60--

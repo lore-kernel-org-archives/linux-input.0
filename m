@@ -1,42 +1,67 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [Linux-usb-users] reset low speed USB device using uhci_hcd
- (fwd)
-Date: Fri, 16 Mar 2007 11:10:08 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0703161109130.6067-100000@iolanthe.rowland.org>
-References: <45FAA976.5050307@rootdir.de>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom driver]
+Date: Fri, 16 Mar 2007 16:28:59 +0000
+Message-ID: <20070316162858.GB3951@ucw.cz>
+References: <2460126662758025813@fi.muni.cz> <d120d5000703070647t223f8858i8c495dcc3e1378a2@mail.gmail.com> <45EEEAA3.50009@gmail.com> <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com> <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com> <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com> <45F722CE.9000602@gmail.com> <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45FAA976.5050307@rootdir.de>
+Content-Disposition: inline
+In-Reply-To: <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Claas Langbehn <claas@rootdir.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Slaby <jirislaby@gmail.com>, johann deneux <johann.deneux@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 16 Mar 2007, Claas Langbehn wrote:
+Hi!
 
-> Hello!
-> 
-> >> Going on a limb here - faulty USB cable causes USB resets which throws
-> >> off legacy emulation (which is done in SMM as well as KBC controller)
-> >> which causes KCB to lose bytes. I would expect also seeing some
-> >> keypresses not being registered but losing release is much more
-> >> visible...
-> >>     
+> >Why did you remove all Cced people? Anyway I filtered 
+> >some of them out
 > >
-> > It's possible.  But the USB drivers try to take control of the host 
-> > controllers away from the SMM BIOS.  How could legacy support work with 
-> > both SMM and the Linux USBHID system trying to handle it?
-> >   
-> Please tell me what I can do to help to debug this strange behaviour.
-> Repuducing the USB resets is easy, but reproducing the PS/2 influence
-> takes long, since its hardly visible.
+> >johann deneux napsal(a):
+> >> You are right, the direction in ff_effect is meant to 
+> >be an angle.
+> >> A dirty solution would be to use the 16 bits as two 
+> >8-bits angles. Or
+> >
+> >That would be a problem as I need 3x 16bits.
+> >
+> >> maybe we should change the API. I don't think there 
+> >are many
+> >> applications using force feedback yet, so maybe that 
+> >should be ok?
+> >>
+> >> If we change the API, we should remove the assumption 
+> >that a device has
+> >> at most two axes to render effects. We could for 
+> >instance have a
+> >> magnitude argument for each axis which is capable of 
+> >rendering effects.
+> >> That might be necessary even for more common gaming 
+> >devices like racing
+> >> wheels: One can think pedals could also be capable of 
+> >force feedback
+> >> some day, not just the steering wheel.
+> >
+> >I can do that, but in that case, I need to know how 
+> >people (especially those
+> >input one) want me to do...
+> >
+> 
+> Since we have no idea how many programs (if any) are 
+> using force
+> feedback interface I would be wary of changing existing 
+> effcets and
+> rather add new set of 3D effects.
+> 
+> Do we have any idea if there any users of FF out there?
 
-My advice is don't do anything and don't worry about it.  It really isn't 
-an important problem.
+Number of linux games is quite low, so...
 
-Alan Stern
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

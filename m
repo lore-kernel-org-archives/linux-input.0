@@ -1,10 +1,10 @@
-From: "Chandra Huff" <zvogue@do5.enjoy.ne.jp>
-Subject: But configuration a demagnify
-Date: Fri, 16 Mar 2007 20:05:28 +0200
-Message-ID: <001501c76806$b1515b60$002a713c@makelirgkxgxcy>
+From: "Lucia Gallegos" <hbmodesto@mainstream.net>
+Subject: He as vary
+Date: Fri, 16 Mar 2007 19:13:56 +0100
+Message-ID: <001501c767ff$85a03920$00c572d4@STICKERSHOP02>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0012_01C76806.B1515B60"
+        boundary="----=_NextPart_000_0012_01C767FF.85A03920"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,56 +14,53 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0012_01C76806.B1515B60
+------=_NextPart_000_0012_01C767FF.85A03920
 Content-Type: text/plain;
-        charset="windows-1251"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
+THE INTERNET SECTOR IS HOT AGAIN.
 
-Take a look at this ONE!
-
-
-
-Target sym: GTAPPrice (current): $2.36 5 Day Target price: $5Action: =
-Strong Buy/Hold...
-
-500% profit guaranted!
+Campaign for: GTAPPrice: $2.36 5 Day Target price: $5Market: hellish.
 
 
+This sym is gaining momentum!!
 
-See the news, linux-input!!
+The hottest news are released for GTAP, linux-input!!!
 
-------=_NextPart_000_0012_01C76806.B1515B60
+
+
+------=_NextPart_000_0012_01C767FF.85A03920
 Content-Type: text/html;
-        charset="windows-1251"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2600.2869" name=3DGENERATOR>
+iso-8859-1">
+<META content=3D"MSHTML 6.00.3790.4682" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000000 size=3D=
-3D4><FONT size=3D2><STRONG>Take a look at this =
-ONE.</STRONG></FONT></DIV>
 <BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3333 size=3D3>Target =
-sym: <b>GTAP</b><br>Price (current): $2.36 <br>5 Day Target price: =
-$5<br>Action: Strong Buy/Hold!!</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000000 size=3D=
+3D4><FONT size=3D2><STRONG>THE INTERNET SECTOR IS HOT =
+AGAIN!!</STRONG></FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D3>500% =
-profit guaranted..</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#3300FF size=3D2>See =
-the news, linux-input!!</FONT></DIV>
-<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0033 size=3D=
+4>Campaign for: <b>GTAP</b><br>Price: $2.36 <br>5 Day Target price: =
+$5<br>Market: hellish..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D2>This =
+sym is gaining momentum!!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF3333 size=3D2>The =
+hottest news are released for GTAP, linux-input!!!</FONT></DIV>
+<BR>
 </BODY></HTML>
 
-------=_NextPart_000_0012_01C76806.B1515B60--
+------=_NextPart_000_0012_01C767FF.85A03920--

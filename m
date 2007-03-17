@@ -1,162 +1,465 @@
-From: Landon <Trey@hicat.ne.jp>
-Subject: the best prices for impotence med$!
-Date: Sat, 17 Mar 2007 22:00:45 +0200
-Message-ID: <001201c768df$b6a12bc0$2860bf4c@pc>
+From: "johann deneux" <johann.deneux@gmail.com>
+Subject: [PATCH] iforce: Use usb_kill_urb instead of usb_unlink_urb.
+Date: Sat, 17 Mar 2007 22:43:00 +0100
+Message-ID: <38b3b7c0703171443j2f50f913r76ab111ba7ed109f@mail.gmail.com>
+References: <38b3b7c0703171439n10025a7bx55a588911eb765d6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-        boundary="----=_NextPart_000_000F_01C768DF.B6A12BC0"
+Content-Type: multipart/alternative;
+	boundary="----=_Part_108580_16030027.1174167780836"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <38b3b7c0703171439n10025a7bx55a588911eb765d6@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000F_01C768DF.B6A12BC0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_001_0010_01C768DF.B6A12BC0"
+------=_Part_108580_16030027.1174167780836
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-------=_NextPart_001_0010_01C768DF.B6A12BC0
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+commit 0ba8785483c2ee7f56e8f242e000f6cd17a7da40
+Author: Johann Deneux <johann.deneux@gmail.com>
+Date:   Sat Mar 17 22:23:44 2007 +0100
 
+    iforce: Use usb_kill_urb instead of usb_unlink_urb.
 
-------=_NextPart_001_0010_01C768DF.B6A12BC0
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+    Using usb_unlink_urb can cause iforce_open to fail when called soon
+after iforce_release.
+    Also updated my email address and replaced calls to printk() by dbg(),
+warn(), info(), err()...
 
+    Signed-off-by: Johann Deneux < johann.deneux@gmail.com>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-125=
-1">
-<META content=3D"MSHTML 6.00.2900.2180" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2> assured Asian leaders that the U.S. engag=
-ement of <BR>Korea's announcement on Oct. 31 that it was prepared <BR>partn=
-er in liberalizing trade, confronting North Korea's <BR>He said if North Ko=
-rea chooses a peaceful path, <BR>partner in liberalizing trade, confronting=
- North Korea's <BR>would hold North Korea fully accountable for the <BR>
-</FONT></DIV>
-<DIV><a href=3D"http://jfudtr.jisw.hk/?62876803"><IMG alt=3D"" hspace=3D0 =
+diff --git a/drivers/input/joystick/iforce/iforce-ff.cb/drivers/input/joystick/iforce/iforce-
+ff.c
+index 8fb0c19..f2a4381 100644
+--- a/drivers/input/joystick/iforce/iforce- ff.c
++++ b/drivers/input/joystick/iforce/iforce-ff.c
+@@ -2,7 +2,7 @@
+  * $Id: iforce-ff.c,v 1.9 2002/02/02 19:28:35 jdeneux Exp $
+  *
+  *  Copyright (c) 2000-2002 Vojtech Pavlik < vojtech@ucw.cz>
+- *  Copyright (c) 2001-2002 Johann Deneux <deneux@ifrance.com>
++ *  Copyright (c) 2001-2002, 2007 Johann Deneux < johann.deneux@gmail.com>
+  *
+  *  USB/RS232 I-Force joysticks and wheels.
+  */
+@@ -205,7 +205,7 @@ static int need_condition_modifier(struct ff_effect
+*old, struct ff_effect *new)
+int i;
 
-src=3D"cid:001201c768df$b6a12bc0$2860bf4c@pc" align=3Dbaseline border=3D0><=
-/a></DIV>
-<DIV><FONT face=3DArial size=3D2>to return to the negotiating table after a=
- one-year <BR>Bush said the United States will remain a reliable <BR>Korea =
-"are speaking with one voice."<BR>With China's influence on the rise and hi=
-s own stature <BR>Bush said the five nations involved in talks with North <=
-BR>He said if North Korea chooses a peaceful path, <BR>He said if North Kor=
-ea chooses a peaceful path, <BR>are prepared "to provide security assurance=
-s, economic<BR>midterm elections to anti-war, anti-free trade <BR>Asia will=
- not diminish.<BR> assured Asian leaders that the U.S. engagement of <BR>
-</FONT></DIV>
-</BODY></HTML>
+if (new->type != FF_SPRING && new->type != FF_FRICTION) {
+- printk(KERN_WARNING "iforce.c: bad effect type in
+need_condition_modifier\n");
++ warn("bad effect type in need_condition_modifier");
+return 0;
+}
 
+@@ -227,7 +227,7 @@ static int need_condition_modifier(struct ff_effect
+*old, struct ff_effect *new)
+static int need_magnitude_modifier(struct ff_effect *old, struct ff_effect
+*effect)
+{
+if (effect->type != FF_CONSTANT) {
+- printk(KERN_WARNING "iforce.c: bad effect type in
+need_envelope_modifier\n");
++ warn("bad effect type in need_envelope_modifier");
+return 0;
+}
 
-------=_NextPart_001_0010_01C768DF.B6A12BC0--
+@@ -258,7 +258,7 @@ static int need_envelope_modifier(struct ff_effect *old,
+struct ff_effect *effec
+break;
 
-------=_NextPart_000_000F_01C768DF.B6A12BC0
-Content-Type: image/gif;
-        name="jioz_50.gif"
-Content-ID: <001201c768df$b6a12bc0$2860bf4c@pc>
-Content-Transfer-Encoding: base64
+default:
+- printk(KERN_WARNING "iforce.c: bad effect type in
+need_envelope_modifier\n");
++ warn("bad effect type in need_envelope_modifier");
+}
 
-R0lGODlh5gHSAIcAAAAAAP///+7///8A/wD///8i//8z//9E//9V//9m//8R//93//+I//+Z
-//+q//+7//8AABH//yL//zP//0T//1X//2b//3f//4j//5n//6r//7v//5mId8z//zMRiP//
-MxHMM8wiRAB37t0z////AP//Ef//RGb/Iv/M/93uVf//d///Iv//mTNV7v/d////qv//Zv//
-Vf//u///zP//3d3/////7v//iP/u/2pqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpqaurq6mpq
-aurq6mpqaurq6mpqaurq6mpqaurq6mpqaiH5BAANigAALAAAAADmAdIAAAj/AAMIHEiwoMGD
-CBMqXMiwocOHECNKFGhgosWLGDNq3Mixo8ePDTWAHEmypMmTKFOq/EhipcuXMGPKnEmzps2b
-OGUmyMmzp8+ZFX4KHUq0qNGjSJMqtcggZdClUKNKnUq1qtWrWLNq3cq1q9evYMOKHUu2rNmz
-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
-HMd0jBYGWcd4bBEHnMd83MdZFxAAOw==
-------=_NextPart_000_000F_01C768DF.B6A12BC0--
+return 0;
+@@ -271,7 +271,7 @@ static int need_envelope_modifier(struct ff_effect *old,
+struct ff_effect *effec
+static int need_period_modifier(struct ff_effect *old, struct ff_effect
+*new)
+{
+if (new->type != FF_PERIODIC) {
+- printk(KERN_WARNING "iforce.c: bad effect type in
+need_period_modifier\n");
++ warn("bad effect type in need_period_modifier");
+return 0;
+}
+return (old->u.periodic.period != new->u.periodic.period
+diff --git a/drivers/input/joystick/iforce/iforce-main.cb/drivers/input/joystick/iforce/iforce-
+main.c
+index 3393a37..bd5a6de 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -2,7 +2,7 @@
+  * $Id: iforce-main.c,v 1.19 2002/07/07 10:22:50 jdeneux Exp $
+  *
+  *  Copyright (c) 2000-2002 Vojtech Pavlik <vojtech@ucw.cz>
+- *  Copyright (c) 2001-2002 Johann Deneux <deneux@ifrance.com >
++ *  Copyright (c) 2001-2002, 2007 Johann Deneux <johann.deneux@gmail.com>
+  *
+  *  USB/RS232 I-Force joysticks and wheels.
+  */
+@@ -29,7 +29,7 @@
+
+#include "iforce.h"
+
+-MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>, Johann Deneux <
+deneux@ifrance.com>");
++MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>, Johann Deneux <
+johann.deneux@gmail.com>");
+MODULE_DESCRIPTION("USB/RS232 I-Force joysticks and wheels driver");
+MODULE_LICENSE("GPL");
+
+@@ -220,7 +220,7 @@ static void iforce_release(struct input_dev *dev)
+/* Check: no effects should be present in memory */
+for (i = 0; i < dev->ff->max_effects; i++) {
+if (test_bit(FF_CORE_IS_USED, iforce->core_effects[i].flags)) {
+- printk(KERN_WARNING "iforce_release: Device still owns effects\n");
++ warn("iforce_release: Device still owns effects");
+break;
+}
+}
+@@ -232,7 +232,7 @@ static void iforce_release(struct input_dev *dev)
+switch (iforce->bus) {
+#ifdef CONFIG_JOYSTICK_IFORCE_USB
+case IFORCE_USB:
+- usb_unlink_urb(iforce->irq);
++ usb_kill_urb(iforce->irq);
+
+/* The device was unplugged before the file
+* was released */
+@@ -324,7 +324,7 @@ int iforce_init_device(struct iforce *iforce)
+break;
+
+if (i == 20) { /* 5 seconds */
+- printk(KERN_ERR "iforce-main.c: Timeout waiting for response from
+device.\n");
++ err("Timeout waiting for response from device.");
+error = -ENODEV;
+goto fail;
+}
+@@ -336,26 +336,26 @@ int iforce_init_device(struct iforce *iforce)
+if (!iforce_get_id_packet(iforce, "M"))
+input_dev->id.vendor = (iforce->edata[2] << 8) | iforce->edata[1];
+else
+- printk(KERN_WARNING "iforce-main.c: Device does not respond to id packet
+M\n");
++ warn("Device does not respond to id packet M");
+
+if (!iforce_get_id_packet(iforce, "P"))
+input_dev->id.product = (iforce->edata[2] << 8) | iforce->edata[1];
+else
+- printk(KERN_WARNING "iforce-main.c: Device does not respond to id packet
+P\n");
++ warn("Device does not respond to id packet P");
+
+if (!iforce_get_id_packet(iforce, "B"))
+iforce->device_memory.end = (iforce->edata[2] << 8) | iforce->edata[1];
+else
+- printk(KERN_WARNING "iforce-main.c: Device does not respond to id packet
+B\n");
++ warn("Device does not respond to id packet B");
+
+if (!iforce_get_id_packet(iforce, "N"))
+ff_effects = iforce->edata[1];
+else
+- printk(KERN_WARNING "iforce-main.c: Device does not respond to id packet
+N\n");
++ warn("Device does not respond to id packet N");
+
+/* Check if the device can store more effects than the driver can really
+handle */
+if (ff_effects > IFORCE_EFFECTS_MAX) {
+- printk(KERN_WARNING "iforce: Limiting number of effects to %d (device
+reports %d)\n",
++ warn("Limiting number of effects to %d (device reports %d)",
+       IFORCE_EFFECTS_MAX, ff_effects);
+ff_effects = IFORCE_EFFECTS_MAX;
+}
+@@ -457,8 +457,6 @@ int iforce_init_device(struct iforce *iforce)
+if (error)
+goto fail;
+
+- printk(KERN_DEBUG "iforce->dev->open = %p\n", iforce->dev->open);
+-
+return 0;
+
+  fail: input_free_device(input_dev);
+diff --git a/drivers/input/joystick/iforce/iforce-
+packets.cb/drivers/input/joystick/iforce/iforce-
+packets.c
+index 808f059..21c4e13 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -2,7 +2,7 @@
+  * $Id: iforce-packets.c,v 1.16 2002/07/07 10:22:50 jdeneux Exp $
+  *
+  *  Copyright (c) 2000-2002 Vojtech Pavlik <vojtech@ucw.cz>
+- *  Copyright (c) 2001-2002 Johann Deneux < deneux@ifrance.com>
++ *  Copyright (c) 2001-2002, 2007 Johann Deneux <johann.deneux@gmail.com>
+  *
+  *  USB/RS232 I-Force joysticks and wheels.
+  */
+@@ -39,10 +39,10 @@ void iforce_dump_packet(char *msg, u16 cmd, unsigned
+char *data)
+{
+int i;
+
+- printk(KERN_DEBUG "iforce.c: %s ( cmd = %04x, data = ", msg, cmd);
++ printk(KERN_DEBUG __FILE__ ": %s cmd = %04x, data = ", msg, cmd);
+for (i = 0; i < LO(cmd); i++)
+printk("%02x ", data[i]);
+- printk(")\n");
++ printk("\n");
+}
+
+/*
+@@ -65,8 +65,9 @@ int iforce_send_packet(struct iforce *iforce, u16 cmd,
+unsigned char* data)
+head = iforce->xmit.head;
+tail = iforce->xmit.tail;
+
++
+if (CIRC_SPACE(head, tail, XMIT_SIZE) < n+2) {
+- printk(KERN_WARNING "iforce.c: not enough space in xmit buffer to send new
+packet\n");
++ warn("not enough space in xmit buffer to send new packet");
+spin_unlock_irqrestore(&iforce->xmit_lock, flags);
+return -1;
+}
+@@ -126,8 +127,6 @@ int iforce_control_playback(struct iforce* iforce, u16
+id, unsigned int value)
+{
+unsigned char data[3];
+
+-printk(KERN_DEBUG "iforce-packets.c: control_playback %d %d\n", id, value);
+-
+data[0] = LO(id);
+data[1] = (value > 0) ? ((value > 1) ? 0x41 : 0x01) : 0;
+data[2] = LO(value);
+@@ -151,7 +150,7 @@ static int mark_core_as_ready(struct iforce *iforce,
+unsigned short addr)
+return 0;
+}
+}
+- printk(KERN_WARNING "iforce-packets.c: unused effect %04x updated !!!\n",
+addr);
++ warn("unused effect %04x updated !!!", addr);
+return -1;
+}
+
+@@ -162,7 +161,7 @@ void iforce_process_packet(struct iforce *iforce, u16
+cmd, unsigned char *data)
+static int being_used = 0;
+
+if (being_used)
+- printk(KERN_WARNING "iforce-packets.c: re-entrant call to iforce_process
+%d\n", being_used);
++ warn("re-entrant call to iforce_process %d", being_used);
+being_used++;
+
+#ifdef CONFIG_JOYSTICK_IFORCE_232
+@@ -266,7 +265,7 @@ int iforce_get_id_packet(struct iforce *iforce, char
+*packet)
+return -1;
+}
+#else
+- printk(KERN_ERR "iforce_get_id_packet: iforce->bus = USB!\n");
++ err("iforce_get_id_packet: iforce->bus = USB!");
+#endif
+break;
+
+@@ -284,13 +283,12 @@ int iforce_get_id_packet(struct iforce *iforce, char
+*packet)
+return -1;
+}
+#else
+- printk(KERN_ERR "iforce_get_id_packet: iforce->bus = SERIO!\n");
++ err("iforce_get_id_packet: iforce->bus = SERIO!");
+#endif
+break;
+
+default:
+- printk(KERN_ERR "iforce_get_id_packet: iforce->bus = %d\n",
+-        iforce->bus);
++ err("iforce_get_id_packet: iforce->bus = %d", iforce->bus);
+break;
+}
+
+diff --git a/drivers/input/joystick/iforce/iforce-serio.cb/drivers/input/joystick/iforce/iforce-
+serio.c
+index ec4be53..7b4bc19 100644
+--- a/drivers/input/joystick/iforce/iforce-serio.c
++++ b/drivers/input/joystick/iforce/iforce-serio.c
+@@ -2,7 +2,7 @@
+  * $Id: iforce-serio.c,v 1.4 2002/01/28 22:45:00 jdeneux Exp $
+  *
+  *  Copyright (c) 2000-2001 Vojtech Pavlik <vojtech@ucw.cz>
+- *  Copyright (c) 2001 Johann Deneux <deneux@ifrance.com>
++ *  Copyright (c) 2001, 2007 Johann Deneux <johann.deneux@gmail.com>
+  *
+  *  USB/RS232 I-Force joysticks and wheels.
+  */
+diff --git a/drivers/input/joystick/iforce/iforce-
+usb.cb/drivers/input/joystick/iforce/iforce-
+usb.c
+index 80cdebc..750099d 100644
+--- a/drivers/input/joystick/iforce/iforce-usb.c
++++ b/drivers/input/joystick/iforce/iforce-usb.c
+@@ -2,7 +2,7 @@
+  * $Id: iforce-usb.c ,v 1.16 2002/06/09 11:08:04 jdeneux Exp $
+  *
+  *  Copyright (c) 2000-2002 Vojtech Pavlik <vojtech@ucw.cz>
+- *  Copyright (c) 2001-2002 Johann Deneux < deneux@ifrance.com>
++ *  Copyright (c) 2001-2002, 2007 Johann Deneux <johann.deneux@gmail.com>
+  *
+  *  USB/RS232 I-Force joysticks and wheels.
+  */
+@@ -65,7 +65,7 @@ void iforce_usb_xmit(struct iforce *iforce)
+XMIT_INC(iforce->xmit.tail, n);
+
+if ( (n=usb_submit_urb(iforce->out, GFP_ATOMIC)) ) {
+- printk(KERN_WARNING "iforce-usb.c: iforce_usb_xmit: usb_submit_urb failed
+%d\n", n);
++ warn("usb_submit_urb failed %d\n", n);
+}
+
+/* The IFORCE_XMIT_RUNNING bit is not cleared here. That's intended.
+@@ -110,7 +110,7 @@ static void iforce_usb_out(struct urb *urb)
+struct iforce *iforce = urb->context;
+
+if (urb->status) {
+- printk(KERN_DEBUG "iforce_usb_out: urb->status %d, exiting", urb->status);
++ dbg("urb->status %d, exiting", urb->status);
+return;
+}
+
+@@ -190,10 +190,9 @@ fail:
+/* Called by iforce_delete() */
+void iforce_usb_delete(struct iforce* iforce)
+{
+- usb_unlink_urb(iforce->irq);
+-/* Is it ok to unlink those ? */
+- usb_unlink_urb(iforce->out);
+- usb_unlink_urb(iforce->ctrl);
++ usb_kill_urb(iforce->irq);
++ usb_kill_urb(iforce->out);
++ usb_kill_urb(iforce->ctrl);
+
+usb_free_urb(iforce->irq);
+usb_free_urb(iforce->out);
+diff --git a/drivers/input/joystick/iforce/iforce.h
+b/drivers/input/joystick/iforce/iforce.h
+index ffaeaef..dadcf4f 100644
+--- a/drivers/input/joystick/iforce/iforce.h
++++ b/drivers/input/joystick/iforce/iforce.h
+@@ -2,7 +2,7 @@
+  * $Id: iforce.h,v 1.13 2002/07/07 10:22:50 jdeneux Exp $
+  *
+  *  Copyright (c) 2000-2002 Vojtech Pavlik <vojtech@ucw.cz>
+- *  Copyright (c) 2001-2002 Johann Deneux < deneux@ifrance.com>
++ *  Copyright (c) 2001-2002, 2007 Johann Deneux <johann.deneux@gmail.com>
+  *
+  *  USB/RS232 I-Force joysticks and wheels.
+  */
+
+------=_Part_108580_16030027.1174167780836
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+commit 0ba8785483c2ee7f56e8f242e000f6cd17a7da40<br>Author: Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">johann.deneux@gmail.com</a>&gt;<br>
+Date:&nbsp;&nbsp; Sat Mar 17 22:23:44 2007 +0100<br><br>&nbsp;&nbsp;&nbsp;&nbsp;iforce: Use usb_kill_urb instead of usb_unlink_urb.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;Using usb_unlink_urb can cause iforce_open to fail when called soon after iforce_release.<br>&nbsp;&nbsp;&nbsp;&nbsp;Also updated my email address and replaced calls to printk() by dbg(), warn(), info(), err()...<br>&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Signed-off-by: Johann Deneux &lt;
+<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">johann.deneux@gmail.com</a>&gt;<br><br>diff --git a/drivers/input/joystick/iforce/iforce-ff.c b/drivers/input/joystick/iforce/iforce-
+ff.c<br>index 8fb0c19..f2a4381 100644<br>--- a/drivers/input/joystick/iforce/iforce-
+ff.c<br>+++ b/drivers/input/joystick/iforce/iforce-ff.c<br>@@ -2,7 +2,7 @@<br>&nbsp;&nbsp;* $Id: iforce-ff.c,v 1.9 2002/02/02 19:28:35 jdeneux Exp $<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;Copyright (c) 2000-2002 Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+
+vojtech@ucw.cz</a>&gt;<br>- *&nbsp;&nbsp;Copyright (c) 2001-2002 Johann Deneux &lt;<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">deneux@ifrance.com</a>&gt;<br>+ *&nbsp;&nbsp;Copyright (c) 2001-2002, 2007 Johann Deneux &lt;
+<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+johann.deneux@gmail.com</a>&gt;<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;USB/RS232 I-Force joysticks and wheels.<br>&nbsp;&nbsp;*/<br>@@ -205,7 +205,7 @@ static int need_condition_modifier(struct ff_effect *old, struct ff_effect *new)<br> 	int i;<br> <br> 	if (new-&gt;type != FF_SPRING &amp;&amp; new-&gt;type != FF_FRICTION) {
+<br>-		printk(KERN_WARNING &quot;iforce.c: bad effect type in need_condition_modifier\n&quot;);<br>+		warn(&quot;bad effect type in need_condition_modifier&quot;);<br> 		return 0;<br> 	}<br> <br>@@ -227,7 +227,7 @@ static int need_condition_modifier(struct ff_effect *old, struct ff_effect *new)
+<br> static int need_magnitude_modifier(struct ff_effect *old, struct ff_effect *effect)<br> {<br> 	if (effect-&gt;type != FF_CONSTANT) {<br>-		printk(KERN_WARNING &quot;iforce.c: bad effect type in need_envelope_modifier\n&quot;);
+<br>+		warn(&quot;bad effect type in need_envelope_modifier&quot;);<br> 		return 0;<br> 	}<br> <br>@@ -258,7 +258,7 @@ static int need_envelope_modifier(struct ff_effect *old, struct ff_effect *effec<br> 		break;<br> <br>
+
+ 	default:<br>-		printk(KERN_WARNING &quot;iforce.c: bad effect type in need_envelope_modifier\n&quot;);<br>+		warn(&quot;bad effect type in need_envelope_modifier&quot;);<br> 	}<br> <br> 	return 0;<br>@@ -271,7 +271,7 @@ static int need_envelope_modifier(struct ff_effect *old, struct ff_effect *effec
+<br> static int need_period_modifier(struct ff_effect *old, struct ff_effect *new)<br> {<br> 	if (new-&gt;type != FF_PERIODIC) {<br>-		printk(KERN_WARNING &quot;iforce.c: bad effect type in need_period_modifier\n&quot;);
+<br>
++		warn(&quot;bad effect type in need_period_modifier&quot;);<br> 		return 0;<br> 	}<br> 	return (old-&gt;u.periodic.period != new-&gt;u.periodic.period<br>diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-
+main.c<br>index 3393a37..bd5a6de 100644<br>--- a/drivers/input/joystick/iforce/iforce-main.c<br>+++ b/drivers/input/joystick/iforce/iforce-main.c<br>@@ -2,7 +2,7 @@<br>&nbsp;&nbsp;* $Id: iforce-main.c,v 1.19 2002/07/07 10:22:50 jdeneux Exp $
+<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;Copyright (c) 2000-2002 Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">vojtech@ucw.cz</a>&gt;<br>- *&nbsp;&nbsp;Copyright (c) 2001-2002 Johann Deneux &lt;
+<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">deneux@ifrance.com</a>
+&gt;<br>+ *&nbsp;&nbsp;Copyright (c) 2001-2002, 2007 Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">johann.deneux@gmail.com</a>&gt;<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;USB/RS232 I-Force joysticks and wheels.
+<br>&nbsp;&nbsp;*/<br>@@ -29,7 +29,7 @@<br>
+ <br> #include &quot;iforce.h&quot;<br> <br>-MODULE_AUTHOR(&quot;Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">vojtech@ucw.cz</a>&gt;, Johann Deneux &lt;
+<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">deneux@ifrance.com</a>&gt;&quot;);
+<br>+MODULE_AUTHOR(&quot;Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">vojtech@ucw.cz</a>&gt;, Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+johann.deneux@gmail.com</a>&gt;&quot;);<br> MODULE_DESCRIPTION(&quot;USB/RS232 I-Force joysticks and wheels driver&quot;);
+<br> MODULE_LICENSE(&quot;GPL&quot;);<br> <br>@@ -220,7 +220,7 @@ static void iforce_release(struct input_dev *dev)<br> 		/* Check: no effects should be present in memory */<br> 		for (i = 0; i &lt; dev-&gt;ff-&gt;max_effects; i++) {
+<br> 			if (test_bit(FF_CORE_IS_USED, iforce-&gt;core_effects[i].flags)) {<br>-				printk(KERN_WARNING &quot;iforce_release: Device still owns effects\n&quot;);<br>+				warn(&quot;iforce_release: Device still owns effects&quot;);
+<br> 				break;<br> 			}<br> 		}<br>@@ -232,7 +232,7 @@ static void iforce_release(struct input_dev *dev)<br> 	switch (iforce-&gt;bus) {<br> #ifdef CONFIG_JOYSTICK_IFORCE_USB<br> 		case IFORCE_USB:<br>-			usb_unlink_urb(iforce-&gt;irq);
+<br>+			usb_kill_urb(iforce-&gt;irq);<br> <br> 			/* The device was unplugged before the file<br> 			 * was released */<br>@@ -324,7 +324,7 @@ int iforce_init_device(struct iforce *iforce)<br> 			break;<br> <br> 	if (i == 20) { /* 5 seconds */
+<br>-		printk(KERN_ERR &quot;iforce-main.c: Timeout waiting for response from device.\n&quot;);<br>+		err(&quot;Timeout waiting for response from device.&quot;);<br> 		error = -ENODEV;<br> 		goto fail;<br> 	}<br>@@ -336,26 +336,26 @@ int iforce_init_device(struct iforce *iforce)
+<br> 	if (!iforce_get_id_packet(iforce, &quot;M&quot;))<br> 		input_dev-&gt;id.vendor = (iforce-&gt;edata[2] &lt;&lt; 8) | iforce-&gt;edata[1];<br> 	else<br>-		printk(KERN_WARNING &quot;iforce-main.c: Device does not respond to id packet M\n&quot;);
+<br>+		warn(&quot;Device does not respond to id packet M&quot;);<br> <br> 	if (!iforce_get_id_packet(iforce, &quot;P&quot;))<br> 		input_dev-&gt;id.product = (iforce-&gt;edata[2] &lt;&lt; 8) | iforce-&gt;edata[1];<br> 	else
+<br>-		printk(KERN_WARNING &quot;iforce-main.c: Device does not respond to id packet P\n&quot;);<br>+		warn(&quot;Device does not respond to id packet P&quot;);<br> <br> 	if (!iforce_get_id_packet(iforce, &quot;B&quot;))
+<br>
+ 		iforce-&gt;device_memory.end = (iforce-&gt;edata[2] &lt;&lt; 8) | iforce-&gt;edata[1];<br> 	else<br>-		printk(KERN_WARNING &quot;iforce-main.c: Device does not respond to id packet B\n&quot;);<br>+		warn(&quot;Device does not respond to id packet B&quot;);
+<br> <br> 	if (!iforce_get_id_packet(iforce, &quot;N&quot;))<br> 		ff_effects = iforce-&gt;edata[1];<br> 	else<br>-		printk(KERN_WARNING &quot;iforce-main.c: Device does not respond to id packet N\n&quot;);<br>+		warn(&quot;Device does not respond to id packet N&quot;);
+<br> <br> 	/* Check if the device can store more effects than the driver can really handle */<br> 	if (ff_effects &gt; IFORCE_EFFECTS_MAX) {<br>-		printk(KERN_WARNING &quot;iforce: Limiting number of effects to %d (device reports %d)\n&quot;,
+<br>+		warn(&quot;Limiting number of effects to %d (device reports %d)&quot;,<br> 		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IFORCE_EFFECTS_MAX, ff_effects);<br> 		ff_effects = IFORCE_EFFECTS_MAX;<br> 	}<br>@@ -457,8 +457,6 @@ int iforce_init_device(struct iforce *iforce)
+<br> 	if (error)<br> 		goto fail;<br> <br>-	printk(KERN_DEBUG &quot;iforce-&gt;dev-&gt;open = %p\n&quot;, iforce-&gt;dev-&gt;open);<br>-<br> 	return 0;<br> <br>&nbsp;&nbsp;fail:	input_free_device(input_dev);<br>diff --git a/drivers/input/joystick/iforce/iforce-
+packets.c b/drivers/input/joystick/iforce/iforce-packets.c<br>index 808f059..21c4e13 100644<br>--- a/drivers/input/joystick/iforce/iforce-packets.c<br>+++ b/drivers/input/joystick/iforce/iforce-packets.c<br>@@ -2,7 +2,7 @@
+<br>&nbsp;&nbsp;* $Id: iforce-packets.c,v 1.16 2002/07/07 10:22:50 jdeneux Exp $<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;Copyright (c) 2000-2002 Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+vojtech@ucw.cz</a>&gt;<br>- *&nbsp;&nbsp;Copyright (c) 2001-2002 Johann Deneux &lt;
+<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">deneux@ifrance.com</a>&gt;<br>+ *&nbsp;&nbsp;Copyright (c) 2001-2002, 2007 Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+johann.deneux@gmail.com</a>&gt;<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;USB/RS232 I-Force joysticks and wheels.
+<br>&nbsp;&nbsp;*/<br>@@ -39,10 +39,10 @@ void iforce_dump_packet(char *msg, u16 cmd, unsigned char *data)<br> {<br> 	int i;<br> <br>-	printk(KERN_DEBUG &quot;iforce.c: %s ( cmd = %04x, data = &quot;, msg, cmd);<br>+	printk(KERN_DEBUG __FILE__ &quot;: %s cmd = %04x, data = &quot;, msg, cmd);
+<br> 	for (i = 0; i &lt; LO(cmd); i++)<br> 		printk(&quot;%02x &quot;, data[i]);<br>-	printk(&quot;)\n&quot;);<br>+	printk(&quot;\n&quot;);<br> }<br> <br> /*<br>@@ -65,8 +65,9 @@ int iforce_send_packet(struct iforce *iforce, u16 cmd, unsigned char* data)
+<br> 	head = iforce-&gt;xmit.head;<br> 	tail = iforce-&gt;xmit.tail;<br> <br>+<br> 	if (CIRC_SPACE(head, tail, XMIT_SIZE) &lt; n+2) {<br>-		printk(KERN_WARNING &quot;iforce.c: not enough space in xmit buffer to send new packet\n&quot;);
+<br>+		warn(&quot;not enough space in xmit buffer to send new packet&quot;);<br> 		spin_unlock_irqrestore(&amp;iforce-&gt;xmit_lock, flags);<br> 		return -1;<br> 	}<br>@@ -126,8 +127,6 @@ int iforce_control_playback(struct iforce* iforce, u16 id, unsigned int value)
+<br> {<br> 	unsigned char data[3];<br> <br>-printk(KERN_DEBUG &quot;iforce-packets.c: control_playback %d %d\n&quot;, id, value);<br>-<br> 	data[0] = LO(id);<br> 	data[1] = (value &gt; 0) ? ((value &gt; 1) ? 0x41 : 0x01) : 0;
+<br> 	data[2] = LO(value);<br>@@ -151,7 +150,7 @@ static int mark_core_as_ready(struct iforce *iforce, unsigned short addr)<br> 			return 0;<br> 		}<br> 	}<br>-	printk(KERN_WARNING &quot;iforce-packets.c: unused effect %04x updated !!!\n&quot;, addr);
+<br>+	warn(&quot;unused effect %04x updated !!!&quot;, addr);<br> 	return -1;<br> }<br> <br>@@ -162,7 +161,7 @@ void iforce_process_packet(struct iforce *iforce, u16 cmd, unsigned char *data)<br> 	static int being_used = 0;
+<br> <br> 	if (being_used)<br>-		printk(KERN_WARNING &quot;iforce-packets.c: re-entrant call to iforce_process %d\n&quot;, being_used);<br>+		warn(&quot;re-entrant call to iforce_process %d&quot;, being_used);<br> 	being_used++;
+<br> <br> #ifdef CONFIG_JOYSTICK_IFORCE_232<br>@@ -266,7 +265,7 @@ int iforce_get_id_packet(struct iforce *iforce, char *packet)<br> 			return -1;<br> 		}<br> #else<br>-		printk(KERN_ERR &quot;iforce_get_id_packet: iforce-&gt;bus = USB!\n&quot;);
+<br>+		err(&quot;iforce_get_id_packet: iforce-&gt;bus = USB!&quot;);<br> #endif<br> 		break;<br> <br>@@ -284,13 +283,12 @@ int iforce_get_id_packet(struct iforce *iforce, char *packet)<br> 			return -1;<br> 		}<br> #else
+<br>
+-		printk(KERN_ERR &quot;iforce_get_id_packet: iforce-&gt;bus = SERIO!\n&quot;);<br>+		err(&quot;iforce_get_id_packet: iforce-&gt;bus = SERIO!&quot;);<br> #endif<br> 		break;<br> <br> 	default:<br>-		printk(KERN_ERR &quot;iforce_get_id_packet: iforce-&gt;bus = %d\n&quot;,
+<br>-		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; iforce-&gt;bus);<br>+		err(&quot;iforce_get_id_packet: iforce-&gt;bus = %d&quot;, iforce-&gt;bus);<br> 		break;<br> 	}<br> <br>diff --git a/drivers/input/joystick/iforce/iforce-serio.c b/drivers/input/joystick/iforce/iforce-
+serio.c<br>index ec4be53..7b4bc19 100644<br>--- a/drivers/input/joystick/iforce/iforce-serio.c<br>+++ b/drivers/input/joystick/iforce/iforce-serio.c<br>@@ -2,7 +2,7 @@<br>&nbsp;&nbsp;* $Id: iforce-serio.c,v 1.4 2002/01/28 22:45:00 jdeneux Exp $
+<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;Copyright (c) 2000-2001 Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">vojtech@ucw.cz</a>&gt;<br>- *&nbsp;&nbsp;Copyright (c) 2001 Johann Deneux &lt;
+<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">deneux@ifrance.com</a>&gt;
+<br>+ *&nbsp;&nbsp;Copyright (c) 2001, 2007 Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">johann.deneux@gmail.com</a>&gt;<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;USB/RS232 I-Force joysticks and wheels.
+<br>&nbsp;&nbsp;*/<br>diff --git a/drivers/input/joystick/iforce/iforce-
+usb.c b/drivers/input/joystick/iforce/iforce-usb.c<br>index 80cdebc..750099d 100644<br>--- a/drivers/input/joystick/iforce/iforce-usb.c<br>+++ b/drivers/input/joystick/iforce/iforce-usb.c<br>@@ -2,7 +2,7 @@<br>&nbsp;&nbsp;* $Id: iforce-usb.c
+
+,v 1.16 2002/06/09 11:08:04 jdeneux Exp $<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;Copyright (c) 2000-2002 Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">vojtech@ucw.cz</a>
+&gt;<br>- *&nbsp;&nbsp;Copyright (c) 2001-2002 Johann Deneux &lt;<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+deneux@ifrance.com</a>&gt;<br>+ *&nbsp;&nbsp;Copyright (c) 2001-2002, 2007 Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">johann.deneux@gmail.com</a>
+&gt;<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;USB/RS232 I-Force joysticks and wheels.<br>&nbsp;&nbsp;*/<br>
+@@ -65,7 +65,7 @@ void iforce_usb_xmit(struct iforce *iforce)<br> 	XMIT_INC(iforce-&gt;xmit.tail, n);<br> <br> 	if ( (n=usb_submit_urb(iforce-&gt;out, GFP_ATOMIC)) ) {<br>-		printk(KERN_WARNING &quot;iforce-usb.c: iforce_usb_xmit: usb_submit_urb failed %d\n&quot;, n);
+<br>+		warn(&quot;usb_submit_urb failed %d\n&quot;, n);<br> 	}<br> <br> 	/* The IFORCE_XMIT_RUNNING bit is not cleared here. That&#39;s intended.<br>@@ -110,7 +110,7 @@ static void iforce_usb_out(struct urb *urb)<br> 	struct iforce *iforce = urb-&gt;context;
+<br> <br> 	if (urb-&gt;status) {<br>-		printk(KERN_DEBUG &quot;iforce_usb_out: urb-&gt;status %d, exiting&quot;, urb-&gt;status);<br>+		dbg(&quot;urb-&gt;status %d, exiting&quot;, urb-&gt;status);<br> 		return;<br> 	}<br>
+
+ <br>@@ -190,10 +190,9 @@ fail:<br> /* Called by iforce_delete() */<br> void iforce_usb_delete(struct iforce* iforce)<br> {<br>-	usb_unlink_urb(iforce-&gt;irq);<br>-/* Is it ok to unlink those ? */<br>-	usb_unlink_urb(iforce-&gt;out);
+<br>-	usb_unlink_urb(iforce-&gt;ctrl);<br>+	usb_kill_urb(iforce-&gt;irq);<br>+	usb_kill_urb(iforce-&gt;out);<br>+	usb_kill_urb(iforce-&gt;ctrl);<br> <br> 	usb_free_urb(iforce-&gt;irq);<br> 	usb_free_urb(iforce-&gt;out);<br>
+
+diff --git a/drivers/input/joystick/iforce/iforce.h b/drivers/input/joystick/iforce/iforce.h<br>index ffaeaef..dadcf4f 100644<br>--- a/drivers/input/joystick/iforce/iforce.h<br>+++ b/drivers/input/joystick/iforce/iforce.h
+<br>@@ -2,7 +2,7 @@<br>&nbsp;&nbsp;* $Id: iforce.h,v 1.13 2002/07/07 10:22:50 jdeneux Exp $<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;Copyright (c) 2000-2002 Vojtech Pavlik &lt;<a href="mailto:vojtech@ucw.cz" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+vojtech@ucw.cz</a>&gt;<br>- *&nbsp;&nbsp;Copyright (c) 2001-2002 Johann Deneux &lt;
+<a href="mailto:deneux@ifrance.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">deneux@ifrance.com</a>&gt;<br>+ *&nbsp;&nbsp;Copyright (c) 2001-2002, 2007 Johann Deneux &lt;<a href="mailto:johann.deneux@gmail.com" target="_blank" onclick="return top.js.OpenExtLink(window,event,this)">
+johann.deneux@gmail.com</a>&gt;<br>&nbsp;&nbsp;*<br>&nbsp;&nbsp;*&nbsp;&nbsp;USB/RS232 I-Force joysticks and wheels.
+<br>&nbsp;&nbsp;*/<br>
+
+------=_Part_108580_16030027.1174167780836--

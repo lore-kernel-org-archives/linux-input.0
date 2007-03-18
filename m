@@ -1,327 +1,143 @@
-From: =?UTF-8?B?w4lyaWMgUGllbA==?= <Eric.Piel@tremplin-utc.net>
-Subject: [PATCH 3/3] wistron_btns: Declare keymaps as initdata
-Date: Sun, 18 Mar 2007 22:10:44 +0100
-Message-ID: <45FDAAD4.1090404@tremplin-utc.net>
-References: <45ECA23A.5010503@tremplin-utc.net> <d120d5000703060536k7743ece9hb20fa4d1f7ad7ad7@mail.gmail.com> <45ED8809.70309@tremplin-utc.net> <45F72D37.6090004@tremplin-utc.net> <d120d5000703140654y4d8cb0a3oafd49c48a045bd77@mail.gmail.com> <20070314182559.GC5264@suse.cz> <d120d5000703141158t4d02b8b7pc4ab967722dac@mail.gmail.com> <20070314190254.GA5843@suse.cz> <45F91F73.8040200@tremplin-utc.net>
+From: "Hector Benson" <169stocknews@toughmancontest.com>
+Subject: Career growth in any European Union country
+Date: Mon, 19 Mar 2007 02:36:59 +0300
+Message-ID: <01c769cf$77af1c60$6c822ecf@169stocknews>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------070902030500000501030006"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C769A5.8ED91460"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45F91F73.8040200@tremplin-utc.net>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, mitr@volny.cz, otauber@web.de, linux-kernel@vger.kernel.org, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070902030500000501030006
-Content-Type: text/plain; charset=UTF-8; format=flowed
+
+------=_NextPart_000_0006_01C769A5.8ED91460
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 
-This patch declares keymaps as initdata, so they are discarded at 
-runtime, saving about 1kb (10% of the module size). This idea to save 
-memory comes from Dmitry Torokhov.
 
-Eric
 
---------------070902030500000501030006
-Content-Type: text/x-patch;
- name="wistron_btns-keymap-initdata-2.6.21-b.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="wistron_btns-keymap-initdata-2.6.21-b.patch"
+A:hover {color: red; font-weight: bold}
 
-From: Eric Piel <eric.piel@tremplin-utc.net>
 
-wriston_btns: Declare keymaps as initdata
 
-As the number of keymaps increases and is very unlikely to reduce, this patch
-helps to reduce the memory consumption. Declare all the keymaps as __initdata,
-and copy during the detection the right keymap. On my x86, this make the module
-size at runtime going from 10616 to 9428: a bit more than 1kb saved.
 
-Signed-off-by: Eric Piel <eric.piel@tremplin-utc.net>
+Attention to all European Union and North 
+America Residents!
+Asian Based Science and Medicine Research Centre is looking for new partners in 
+Europe and North America.
+We run monthly “discover new genius” competitions in different European 
+Institutes and Universities with the main purpose of bringing the brightest of 
+all talented and promising minds to our Research Centre for further improvement 
+and development of their genuine talents. 
+We look forward to have them introducing new bio-chemistry and medicine, 
+agricultural and environmental epoch-making discoveries for the sake of our 
+common future.
+We are looking for enthusiastic individuals in Europe and North America to help 
+our program.
+The position we have available is the “Processing Courier”.
+Monthly salary: 4000 EURMinimum requirements:
+Age limit: over 21.
+Knowledge required: PC, Internet, Communication ability.
+Recommended: mobile and land line telephone number.
+Assist our brightest winners in making their way to our Research Centre with the 
+help of our European and North American sponsors.
+For further information about our program and possible employment with the 
+Company, please reply to this email and specify the country You are from
+Tokyo Science and Medicine research Centre
+“Discover new genius” Department
 
---- linux-2.6.21/drivers/input/misc/wistron_btns.c~full	2007-03-17 10:09:14.000000000 +0100
-+++ linux-2.6.21/drivers/input/misc/wistron_btns.c	2007-03-18 19:15:57.000000000 +0100
-@@ -50,7 +50,7 @@
- MODULE_AUTHOR("Miloslav Trmac <mitr@volny.cz>");
- MODULE_DESCRIPTION("Wistron laptop button driver");
- MODULE_LICENSE("GPL v2");
--MODULE_VERSION("0.1");
-+MODULE_VERSION("0.2");
- 
- static int force; /* = 0; */
- module_param(force, bool, 0);
-@@ -266,11 +266,11 @@ static int __init dmi_matched(struct dmi
- 	return 1;
- }
- 
--static struct key_entry keymap_empty[] = {
-+static struct key_entry keymap_empty[] __initdata = {
- 	{ KE_END, 0 }
- };
- 
--static struct key_entry keymap_fs_amilo_pro_v2000[] = {
-+static struct key_entry keymap_fs_amilo_pro_v2000[] __initdata = {
- 	{ KE_KEY,  0x01, {KEY_HELP} },
- 	{ KE_KEY,  0x11, {KEY_PROG1} },
- 	{ KE_KEY,  0x12, {KEY_PROG2} },
-@@ -280,7 +280,7 @@ static struct key_entry keymap_fs_amilo_
- 	{ KE_END,  0 }
- };
- 
--static struct key_entry keymap_fujitsu_n3510[] = {
-+static struct key_entry keymap_fujitsu_n3510[] __initdata = {
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
- 	{ KE_KEY, 0x12, {KEY_PROG2} },
- 	{ KE_KEY, 0x36, {KEY_WWW} },
-@@ -292,7 +292,7 @@ static struct key_entry keymap_fujitsu_n
- 	{ KE_END, 0 }
- };
- 
--static struct key_entry keymap_wistron_ms2111[] = {
-+static struct key_entry keymap_wistron_ms2111[] __initdata = {
- 	{ KE_KEY,  0x11, {KEY_PROG1} },
- 	{ KE_KEY,  0x12, {KEY_PROG2} },
- 	{ KE_KEY,  0x13, {KEY_PROG3} },
-@@ -301,7 +301,7 @@ static struct key_entry keymap_wistron_m
- 	{ KE_END, FE_MAIL_LED }
- };
- 
--static struct key_entry keymap_wistron_md40100[] = {
-+static struct key_entry keymap_wistron_md40100[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x31, {KEY_MAIL} },
-@@ -310,7 +310,7 @@ static struct key_entry keymap_wistron_m
- 	{ KE_END, FE_MAIL_LED | FE_WIFI_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_wistron_ms2141[] = {
-+static struct key_entry keymap_wistron_ms2141[] __initdata = {
- 	{ KE_KEY,  0x11, {KEY_PROG1} },
- 	{ KE_KEY,  0x12, {KEY_PROG2} },
- 	{ KE_WIFI, 0x30 },
-@@ -323,7 +323,7 @@ static struct key_entry keymap_wistron_m
- 	{ KE_END,  0 }
- };
- 
--static struct key_entry keymap_acer_aspire_1500[] = {
-+static struct key_entry keymap_acer_aspire_1500[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -336,7 +336,7 @@ static struct key_entry keymap_acer_aspi
- 	{ KE_END, FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_aspire_1600[] = {
-+static struct key_entry keymap_acer_aspire_1600[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
- 	{ KE_KEY, 0x08, {KEY_MUTE} },
-@@ -352,7 +352,7 @@ static struct key_entry keymap_acer_aspi
- };
- 
- /* 3020 has been tested */
--static struct key_entry keymap_acer_aspire_5020[] = {
-+static struct key_entry keymap_acer_aspire_5020[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
- 	{ KE_KEY, 0x05, {KEY_SWITCHVIDEOMODE} }, /* Display selection */
-@@ -366,7 +366,7 @@ static struct key_entry keymap_acer_aspi
- 	{ KE_END, FE_MAIL_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_2410[] = {
-+static struct key_entry keymap_acer_travelmate_2410[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x6d, {KEY_POWER} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -379,7 +379,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_MAIL_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_110[] = {
-+static struct key_entry keymap_acer_travelmate_110[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
-@@ -396,7 +396,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_MAIL_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_300[] = {
-+static struct key_entry keymap_acer_travelmate_300[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
-@@ -412,7 +412,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_MAIL_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_380[] = {
-+static struct key_entry keymap_acer_travelmate_380[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x03, {KEY_POWER} }, /* not 370 */
-@@ -426,7 +426,7 @@ static struct key_entry keymap_acer_trav
- };
- 
- /* unusual map */
--static struct key_entry keymap_acer_travelmate_220[] = {
-+static struct key_entry keymap_acer_travelmate_220[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x11, {KEY_MAIL} },
-@@ -436,7 +436,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_WIFI_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_230[] = {
-+static struct key_entry keymap_acer_travelmate_230[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -446,7 +446,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_WIFI_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_240[] = {
-+static struct key_entry keymap_acer_travelmate_240[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
-@@ -460,7 +460,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_350[] = {
-+static struct key_entry keymap_acer_travelmate_350[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -471,7 +471,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_MAIL_LED | FE_WIFI_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_acer_travelmate_360[] = {
-+static struct key_entry keymap_acer_travelmate_360[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -486,7 +486,7 @@ static struct key_entry keymap_acer_trav
- /* Wifi subsystem only activate the led. Therefore we need to pass
-  * wifi event as a normal key, then userspace can really change the wifi state.
-  * TODO we need to export led state to userspace (wifi and mail) */
--static struct key_entry keymap_acer_travelmate_610[] = {
-+static struct key_entry keymap_acer_travelmate_610[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -498,7 +498,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_MAIL_LED | FE_WIFI_LED }
- };
- 
--static struct key_entry keymap_acer_travelmate_630[] = {
-+static struct key_entry keymap_acer_travelmate_630[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
-@@ -514,7 +514,7 @@ static struct key_entry keymap_acer_trav
- 	{ KE_END, FE_MAIL_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_aopen_1559as[] = {
-+static struct key_entry keymap_aopen_1559as[] __initdata = {
- 	{ KE_KEY,  0x01, {KEY_HELP} },
- 	{ KE_KEY,  0x06, {KEY_PROG3} },
- 	{ KE_KEY,  0x11, {KEY_PROG1} },
-@@ -525,7 +525,7 @@ static struct key_entry keymap_aopen_155
- 	{ KE_END,  0 },
- };
- 
--static struct key_entry keymap_fs_amilo_d88x0[] = {
-+static struct key_entry keymap_fs_amilo_d88x0[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x08, {KEY_MUTE} },
- 	{ KE_KEY, 0x31, {KEY_MAIL} },
-@@ -536,7 +536,7 @@ static struct key_entry keymap_fs_amilo_
- 	{ KE_END, FE_MAIL_LED | FE_WIFI_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_wistron_md2900[] = {
-+static struct key_entry keymap_wistron_md2900[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x11, {KEY_PROG1} },
-@@ -547,7 +547,7 @@ static struct key_entry keymap_wistron_m
- 	{ KE_END, FE_MAIL_LED | FE_UNTESTED }
- };
- 
--static struct key_entry keymap_wistron_md96500[] = {
-+static struct key_entry keymap_wistron_md96500[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x05, {KEY_SWITCHVIDEOMODE} }, /* Display selection */
-@@ -568,7 +568,7 @@ static struct key_entry keymap_wistron_m
- 	{ KE_END, FE_UNTESTED }
- };
- 
--static struct key_entry keymap_wistron_generic[] = {
-+static struct key_entry keymap_wistron_generic[] __initdata = {
- 	{ KE_KEY, 0x01, {KEY_HELP} },
- 	{ KE_KEY, 0x02, {KEY_CONFIG} },
- 	{ KE_KEY, 0x03, {KEY_POWER} },
-@@ -920,6 +920,26 @@ static struct dmi_system_id dmi_ids[] __
- 	{ NULL, }
- };
- 
-+/* Copy the good keymap, as the original ones are free'd */
-+static int __init copy_keymap(void)
-+{
-+	const struct key_entry *key;
-+	struct key_entry *new_keymap;
-+	unsigned int length = 1;
-+
-+	for (key = keymap; key->type != KE_END; key++)
-+		length++;
-+
-+	new_keymap = kmalloc(length * sizeof(struct key_entry), GFP_KERNEL);
-+	if (!new_keymap)
-+		return -ENOMEM;
-+
-+	memcpy(new_keymap, keymap, length * sizeof(struct key_entry));
-+	keymap = new_keymap;
-+
-+	return 0;
-+}
-+
- static int __init select_keymap(void)
- {
- 	dmi_check_system(dmi_ids);
-@@ -940,7 +960,8 @@ static int __init select_keymap(void)
- 		}
- 		keymap = keymap_empty;
- 	}
--	return 0;
-+
-+	return copy_keymap();
- }
- 
-  /* Input layer interface */
-@@ -1203,6 +1224,7 @@ static void __exit wb_module_exit(void)
- 	platform_device_unregister(wistron_device);
- 	platform_driver_unregister(&wistron_driver);
- 	unmap_bios();
-+	kfree(keymap);
- }
- 
- module_init(wb_module_init);
 
---------------070902030500000501030006--
+
+
+
+------=_NextPart_000_0006_01C769A5.8ED91460
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+
+
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@FB2C6739.4D318FB2">
+<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@FB2C6739.4D318FB2">
+</head>
+<body>
+<html>
+
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
+252">
+<style fprolloverstyle>A:hover {color: red; font-weight: bold}
+</style>
+</head>
+
+<body bgcolor=3D"#FF9900">
+
+<p align=3D"left"><b><font size=3D"4">Attention to all European Union and N=
+orth 
+America Residents!<br>
+</font></b><br>
+Asian Based Science and Medicine Research Centre is looking for new partner=
+s in 
+Europe and North America.<br>
+<br>
+We run monthly =93discover new genius=94 competitions in different European=
+ 
+Institutes and Universities with the main purpose of bringing the brightest=
+ of 
+all talented and promising minds to our Research Centre for further improve=
+ment 
+and development of their genuine talents. <br>
+<br>
+We look forward to have them introducing new bio-chemistry and medicine, 
+agricultural and environmental epoch-making discoveries for the sake of our=
+ 
+common future.<br>
+<br>
+We are looking for enthusiastic individuals in Europe and North America to =
+help 
+our program.<br>
+<br>
+The position we have available is the =93Processing Courier=94.<br>
+Monthly salary: <b>4000 EUR</b><br>
+<br>
+<u>Minimum requirements:<br>
+<br>
+Age limit: over 21.<br>
+Knowledge required: PC, Internet, Communication ability.<br>
+Recommended: mobile and land line telephone number.</u><br>
+<br>
+Assist our brightest winners in making their way to our Research Centre wit=
+h the 
+help of our European and North American sponsors.<br>
+<br>
+For further information about our program and possible employment with the 
+Company,<b> <a href=3D"mailto:infinity.corp.as@gmail.com">please reply </a>=
+</b>to this email and specify the country You are from<br>
+<br>
+<br>
+Tokyo Science and Medicine research Centre<br>
+=93Discover new genius=94 Department</p>
+
+</body>
+
+</html>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C769A5.8ED91460--

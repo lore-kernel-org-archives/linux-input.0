@@ -1,177 +1,31 @@
-From: "Edwardo Donovan" <hebwasecalodgingdab@wasecalodging.com>
-Subject: Make yourself more attractive to others
-Date: Sun, 18 Mar 2007 12:46:54 -0100
-Message-ID: <218764855.76273366537154@thhebat.net>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [2/6] 2.6.21-rc2: known regressions
+Date: Sun, 18 Mar 2007 17:07:07 +0100
+Message-ID: <20070318160707.GC12673@elte.hu>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org> <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il> <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org> <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu> <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org> <20070309111957.GA3928@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------5FF8B6E90167CB6"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <20070309111957.GA3928@elf.ucw.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <jens.axboe@oracle.com>, Jeff Chua <jeff.chua.linux@gmail.com>, linux-pm@lists.osdl.org, lenb@kernel.org, linux-acpi@vger.kernel.org, luming.yu@intel.com, Arkadiusz Miskiewicz <arekm@maven.pl>, Konstantin Karasyov <konstantin.a.karasyov@intel.com>, Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net, Thomas Meyer <thomas.mey@web.de>, Meelis Roos <mroos@linux.ee>, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, Janosch Machowinski <jmachowinski@gmx.de>, vladimir.p.lebedev@intel.com, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, "Eric W. Biederman" <ebie>
 List-Id: linux-input@vger.kernel.org
 
-------------5FF8B6E90167CB6
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
 
-Anatrim =96 The very up-to-date and most fascinating product for=20=
-over-weight people is now available =96 As told on Oprah
-Do you realize that superfluous body kilograms kill more and more=20=
-people around the planet? We know that you hate the ugly appearance of=20=
-people like those and the low status they obviously have in society. 
+* Pavel Machek <pavel@ucw.cz> wrote:
 
-Or, maybe, you can=92t withstand pressure of pernicious eating habits=20=
-of yours. This all sounds familiar? Then we have something for you!
+> > Some day we may have modesetting support in the kernel for some 
+> > graphics hw, right now it's pretty damn spotty.
+> 
+> Yep, that's the way to go.
 
-Introducing Anatrim, the recent product for the reduction of your=20=
-body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
-the quality of your life by repressing your feeling of hunger and giving=20=
-you better cheer. Here you may read what people say to us on this product:
+hey, i wildly supported this approach ever since 1996, when GGI came up
+:-/
 
-"This is a great thing! 
-
-Instead of always glutting myself with food and watching TV continually 
-
-I became rather more interested in doing sport.
-
- Anatrim made me stride on confidently.
-
- I=92m more fit now and there are lots of men following me with their=20=
-eyes!"
-
-Victoria K., Chicago
-
-"I tried some passive weight reducing, you know, but with no result.=20=
-This terrible appetite would just rush in and spoil everything. 
-
-Once I heard about Anatrim in the media and I was really effected at=20=
-the information.
-
- I had attempted using it, and my wife said to me that I'm a different=20=
-person now, 4 months later. 
-
-30 pounds have gone away and I keep losing them! 
-
-And you know, I=92m a passionate lover again."
-
-Mike Brown, Bellevue WA
-
-Anatrim helps you to realize your body doesn=92t need that much food.=20=
-It raises your spirit, provides you with extra energy, and attacks=20=
-needless kilos. Great thanks to its powerful comprehensive formula!!
-Worm out latest intelligence! 
-
-------------5FF8B6E90167CB6
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Stop being obese and unhappy</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href=3D"http://pillfnjwc.lekt.hk">Anatrim =96 The very up-to-date=20=
-and most fascinating product for over-weight people is now available =96=20=
-As told on Oprah</a>
-</b>
-</center>
-<b>
-Do you realize that superfluous body kilograms kill more and more=20=
-people around the planet? We know that you hate the ugly appearance of=20=
-people like those and the low status they obviously have in society. 
-<b>
-Or, maybe, you can=92t withstand pressure of pernicious eating habits=20=
-of yours. This all sounds familiar? Then we have something for you!
-</b>
-</b>
-<br>
-<br>
-<b>
-Introducing Anatrim, the recent product for the reduction of your=20=
-body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
-the quality of your life by repressing your feeling of hunger and giving=20=
-you better cheer. Here you may read what people say to us on this product:
-</b>
-<br>
-<br>
-<b>
-<i>
-"This is a great thing! 
-<b>
-<i>
-Instead of always glutting myself with food and watching TV continually 
-<b>
-<i>
-I became rather more interested in doing sport.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me stride on confidently.
-</i>
-</b>
- I=92m more fit now and there are lots of men following me with their=20=
-eyes!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Victoria K., Chicago
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"I tried some passive weight reducing, you know, but with no result.=20=
-This terrible appetite would just rush in and spoil everything. 
-<b>
-<i>
-Once I heard about Anatrim in the media and I was really effected at=20=
-the information.
-</i>
-</b>
- I had attempted using it, and my wife said to me that I'm a different=20=
-person now, 4 months later. 
-<b>
-<i>
-30 pounds have gone away and I keep losing them! 
-</i>
-</b>
-And you know, I=92m a passionate lover again."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Mike Brown, Bellevue WA
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim helps you to realize your body doesn=92t need that much food.=20=
-It raises your spirit, provides you with extra energy, and attacks=20=
-needless kilos. Great thanks to its powerful comprehensive formula!!
-</b>
-<b>
-<center>
-<a href=3D"http://pillfnjwc.lekt.hk">Worm out latest intelligence!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------5FF8B6E90167CB6--
+	Ingo

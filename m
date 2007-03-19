@@ -1,87 +1,71 @@
-From: Paul Walmsley <paul@booyaka.com>
-Subject: Re: [PATCH 0/7] usbhid: add load-time and run-time USB HID quirks
- configuration
-Date: Mon, 19 Mar 2007 14:10:15 -0600 (MDT)
-Message-ID: <Pine.LNX.4.64.0703191322010.9906@utopia.booyaka.com>
-References: <Pine.LNX.4.64.0703182032400.21893@utopia.booyaka.com>
- <Pine.LNX.4.64.0703191408400.5030@twin.jikos.cz>
+From: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: [linux-pm] [2/6] 2.6.21-rc2: known regressions
+Date: Mon, 19 Mar 2007 16:33:25 -0400
+Message-ID: <45FEF395.9050409@tmr.com>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org>	 <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il>	 <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org>	 <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu>	 <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org>	 <20070309111957.GA3928@elf.ucw.cz>  <20070318160707.GC12673@elte.hu> <1174236045.6832.9.camel@localhost>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0703191408400.5030@twin.jikos.cz>
+In-Reply-To: <1174236045.6832.9.camel@localhost>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: jg@laptop.org
+Cc: Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, Arkadiusz Miskiewicz <arekm@maven.pl>, linux-pm@lists.osdl.org, Jens Axboe <jens.axboe@oracle.com>, linux-input@atrey.karlin.mff.cuni.cz, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, linux-usb-devel@lists.sourceforge.net, Jeff Chua <jeff.chua.linux@gmail.com>, Meelis Roos <mroos@linux.ee>, Janosch Machowinski <jmachowinski@gmx.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>, linux-acpi@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Thomas Meyer <thomas.mey@web.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-Hello Jiri,
+Jim Gettys wrote:
+> On Sun, 2007-03-18 at 17:07 +0100, Ingo Molnar wrote:
+>> * Pavel Machek <pavel@ucw.cz> wrote:
+>>
+>>>> Some day we may have modesetting support in the kernel for some 
+>>>> graphics hw, right now it's pretty damn spotty.
+>>> Yep, that's the way to go.
+>> hey, i wildly supported this approach ever since 1996, when GGI came up
+>> :-/
+>>
+> 
+> So wildly you wrote tons of code.... ;-).
+> 
+> More seriously, at the time, XFree86 would have spat in your face for
+> any such thing.  Thankfully, times are changing.
+> 
+> Also more seriously, a somewhat hybrid approach is in order for mode
+> setting: simple mode setting isn't much code and is required for sane
+> behavior on crash (it is nice to get oopses onto a screen); but the full
+> blown mode setting/configuration problem is so large that on some
+> hardware, it is likely left best left to a helper process (not the X
+> server).
+> 
+> Also key to get sane behavior out of the scheduler is to get the X
+> server to yield (sleep in the kernel) rather than busy waiting when the
+> GPU is busy; a standardized interface for this for both fbdev and dri is
+> in order.  Right now, X is a misbehaving compute bound process rather
+> than the properly interactive process it can/should/will be, releasing
+> the CPU whenever the hardware is busy. Needless to say, this wastes
+> cycles and hurts interactivity with just about any scheduler you can
+> devise. It isn't as if this is hard; on UNIX systems we did it in 1984
+> or thereabouts.
 
-thanks for the review.
-
-On Mon, 19 Mar 2007, Jiri Kosina wrote:
-
-> You can currently "force" HID_QUIRK_IGNORE for the device that has been
-> already bound to usbhid driver through 'unbind' file in sysfs. This lets
-> you to ask usbhid driver to release the device. So you can just have
-> HID_QUIRK_HIDDEV quirk set, and bind/unbind the device depending whether
-> you want to use hiddev driver or a separate driver.
-
-Thanks, I was unaware of that 'unbind' feature.  Defining HID_QUIRK_HIDDEV 
-by default seems sort of kludgy, but it would probably work for my 
-purposes.  Certainly my preference would still be for some sort of boot or 
-runtime configuration for this, so the device is associated with the 
-proper driver upon initial plugin.
-
-> Also your solution cosumes significantly more memory (adding 16 bits to
-> every hid_blacklist entry, duplicating the information into list that in
-> most cases will stay intact and just mirror the contents of
-> hid_blacklist). Not that it's a big issue, but still worth noting.
-
-Right now there are about 160 entries in the hid_blacklist, so adding the 
-mask costs about 320 bytes extra.  If that's a concern, a bigger issue is 
-the list_head added to each hid_blacklist entry - two pointers per entry - 
-so, 1280 bytes on a 32-bit machine (not counting the list head itself)
-
-If you'd rather not to have the mask code in the patch, I'll drop it. 
-It's only in there to remove the runtime-immutable special-case code for 
-Wacom and Codemercs devices, so it's not really useful for my specific 
-concern.
-
-> There are also some CodingStyle issues (like inconsistent usage of "return
-> something" and "return(something);" and over-commenting on some places (no
-> need to say that we are going to allocate memory before calling kmalloc(),
-> etc.), but these are not that important now.
-
-If you ultimately decide you want the patchset, I'll respin it with these 
-issues resolved to your satisfaction.
-
-> To summarize: do you see any other application of your aproach, for any
-> currently existing devices/drivers, that can't be accomplished by
-> unbinding the usbhid driver from the device?
-
-Aside from other devices that have a similar HIDDEV/IGNORE situation, 
-there are two other possible uses that occur to me - but I don't know if 
-either one is compelling enough to justify the extra code involved in the 
-patchset.  I suspect that runtime quirks configuration would probably be 
-useful for testing new HID devices.  I can also foresee a situation where 
-a manufacturer revises a device, and an existing quirk is no longer 
-applicable for some users, or a new quirk needs to be added for particular 
-users.  But, these are both theoretical use cases.  Since the patches have 
-been useful for me, I wouldn't mind seeing them in mainline, but I don't 
-have any stake in it either way.
-
-(re procfs usage)
-> This is unfortunately also not going to fly - the general rule of thumb is
-> that no new entries should be added into /proc. You could acomplish the
-> very same functionality through sysfs, right?
-
-Yes - if you decide that you want the patchset, I'll convert it to sysfs.
+What you say sounds good, assuming that the cost of a sleep is less than 
+the cost of the busy wait. But this may be hardware, the waits may be 
+very small and frequent, and if it's hitting a small hardware window 
+like retrace, delays in response will cause the time period to be missed 
+completely. This probably less critical with very smart cards, many of 
+us don't run them.
+> 
+> Of course, in 1996, XFree86 would have ignored any such interfaces, in
+> its insane quest for operating system independent user space drivers
+> requiring no standard kernel interfaces.... (it is the second part of
+> this where the true insanity lay).
+>                                   - Jim
+> 
 
 
-regards,
-
-- Paul
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   "We have more to fear from the bungling of the incompetent than from
+the machinations of the wicked."  - from Slashdot

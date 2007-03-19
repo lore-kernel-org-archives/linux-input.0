@@ -1,10 +1,9 @@
-From: "Hector Benson" <169stocknews@toughmancontest.com>
-Subject: Career growth in any European Union country
-Date: Mon, 19 Mar 2007 02:36:59 +0300
-Message-ID: <01c769cf$77af1c60$6c822ecf@169stocknews>
+From: Paul Walmsley <paul@booyaka.com>
+Subject: [PATCH 1/7] usbhid: specify explicit size for hid_blacklist.quirks
+Date: Sun, 18 Mar 2007 22:21:46 -0600 (MDT)
+Message-ID: <Pine.LNX.4.64.0703182037050.21893@utopia.booyaka.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C769A5.8ED91460"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,130 +13,38 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C769A5.8ED91460
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+From: Paul Walmsley <paul@booyaka.com>
 
+Explicitly specify the size of the hid_blacklist quirks member, to guard
+against surprises on architectures where unsigned ints aren't 32 bits long.
 
+Signed-off-by: Paul Walmsley <paul@booyaka.com>
 
-A:hover {color: red; font-weight: bold}
+---
+  dev/drivers/usb/input/hid-core.c |    5 +++--
+  1 file changed, 3 insertions(+), 2 deletions(-)
 
+Index: linux/dev/drivers/usb/input/hid-core.c
+===================================================================
+--- linux.orig/dev/drivers/usb/input/hid-core.c
++++ linux/dev/drivers/usb/input/hid-core.c
+@@ -772,7 +772,7 @@ void usbhid_init_reports(struct hid_devi
+  static const struct hid_blacklist {
+  	__u16 idVendor;
+  	__u16 idProduct;
+-	unsigned quirks;
++	__u32 quirks;
+  } hid_blacklist[] = {
 
-
-
-Attention to all European Union and North 
-America Residents!
-Asian Based Science and Medicine Research Centre is looking for new partners in 
-Europe and North America.
-We run monthly “discover new genius” competitions in different European 
-Institutes and Universities with the main purpose of bringing the brightest of 
-all talented and promising minds to our Research Centre for further improvement 
-and development of their genuine talents. 
-We look forward to have them introducing new bio-chemistry and medicine, 
-agricultural and environmental epoch-making discoveries for the sake of our 
-common future.
-We are looking for enthusiastic individuals in Europe and North America to help 
-our program.
-The position we have available is the “Processing Courier”.
-Monthly salary: 4000 EURMinimum requirements:
-Age limit: over 21.
-Knowledge required: PC, Internet, Communication ability.
-Recommended: mobile and land line telephone number.
-Assist our brightest winners in making their way to our Research Centre with the 
-help of our European and North American sponsors.
-For further information about our program and possible employment with the 
-Company, please reply to this email and specify the country You are from
-Tokyo Science and Medicine research Centre
-“Discover new genius” Department
-
-
-
-
-
-------=_NextPart_000_0006_01C769A5.8ED91460
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
-
-
-<meta name=3DProgId content=3DWord.Document>
-<meta name=3DGenerator content=3D"Microsoft Word 10">
-<meta name=3DOriginator content=3D"Microsoft Word 10">
-<link rel=3DFile-List href=3D"cid:filelist.xml@FB2C6739.4D318FB2">
-<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@FB2C6739.4D318FB2">
-</head>
-<body>
-<html>
-
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dwindows-1=
-252">
-<style fprolloverstyle>A:hover {color: red; font-weight: bold}
-</style>
-</head>
-
-<body bgcolor=3D"#FF9900">
-
-<p align=3D"left"><b><font size=3D"4">Attention to all European Union and N=
-orth 
-America Residents!<br>
-</font></b><br>
-Asian Based Science and Medicine Research Centre is looking for new partner=
-s in 
-Europe and North America.<br>
-<br>
-We run monthly =93discover new genius=94 competitions in different European=
- 
-Institutes and Universities with the main purpose of bringing the brightest=
- of 
-all talented and promising minds to our Research Centre for further improve=
-ment 
-and development of their genuine talents. <br>
-<br>
-We look forward to have them introducing new bio-chemistry and medicine, 
-agricultural and environmental epoch-making discoveries for the sake of our=
- 
-common future.<br>
-<br>
-We are looking for enthusiastic individuals in Europe and North America to =
-help 
-our program.<br>
-<br>
-The position we have available is the =93Processing Courier=94.<br>
-Monthly salary: <b>4000 EUR</b><br>
-<br>
-<u>Minimum requirements:<br>
-<br>
-Age limit: over 21.<br>
-Knowledge required: PC, Internet, Communication ability.<br>
-Recommended: mobile and land line telephone number.</u><br>
-<br>
-Assist our brightest winners in making their way to our Research Centre wit=
-h the 
-help of our European and North American sponsors.<br>
-<br>
-For further information about our program and possible employment with the 
-Company,<b> <a href=3D"mailto:infinity.corp.as@gmail.com">please reply </a>=
-</b>to this email and specify the country You are from<br>
-<br>
-<br>
-Tokyo Science and Medicine research Centre<br>
-=93Discover new genius=94 Department</p>
-
-</body>
-
-</html>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C769A5.8ED91460--
+  	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_EDGE, HID_QUIRK_DUPLICATE_USAGES },
+@@ -1059,7 +1059,8 @@ static struct hid_device *usb_hid_config
+  	struct usb_device *dev = interface_to_usbdev (intf);
+  	struct hid_descriptor *hdesc;
+  	struct hid_device *hid;
+-	unsigned quirks = 0, rsize = 0;
++	__u32 quirks = 0;
++	unsigned rsize = 0;
+  	char *rdesc;
+  	int n, len, insize = 0;
+  	struct usbhid_device *usbhid;

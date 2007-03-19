@@ -1,85 +1,54 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] wistron_btns: More keymaps
-Date: Mon, 19 Mar 2007 17:28:06 -0400
-Message-ID: <d120d5000703191428t11f2df22w5f28d49d2ecfcd52@mail.gmail.com>
-References: <45ECA23A.5010503@tremplin-utc.net>
-	 <d120d5000703060536k7743ece9hb20fa4d1f7ad7ad7@mail.gmail.com>
-	 <45ED8809.70309@tremplin-utc.net> <45F72D37.6090004@tremplin-utc.net>
-	 <d120d5000703140654y4d8cb0a3oafd49c48a045bd77@mail.gmail.com>
-	 <20070314182559.GC5264@suse.cz>
-	 <d120d5000703141158t4d02b8b7pc4ab967722dac@mail.gmail.com>
-	 <20070314190254.GA5843@suse.cz> <45F91F73.8040200@tremplin-utc.net>
+From: Jim Gettys <jg@laptop.org>
+Subject: Re: [linux-pm] [2/6] 2.6.21-rc2: known regressions
+Date: Mon, 19 Mar 2007 18:08:21 -0400
+Message-ID: <1174342101.6832.173.camel@localhost>
+References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org>
+	 <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il>
+	 <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org>
+	 <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu>
+	 <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org>
+	 <20070309111957.GA3928@elf.ucw.cz>  <20070318160707.GC12673@elte.hu>
+	 <1174236045.6832.9.camel@localhost>  <45FEF395.9050409@tmr.com>
+Reply-To: jg@laptop.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <45F91F73.8040200@tremplin-utc.net>
-Content-Disposition: inline
+In-Reply-To: <45FEF395.9050409@tmr.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: =?ISO-8859-1?Q?=C9ric_Piel?= <Eric.Piel@tremplin-utc.net>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, mitr@volny.cz, otauber@web.de, linux-kernel@vger.kernel.org, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, Arkadiusz Miskiewicz <arekm@maven.pl>, linux-pm@lists.osdl.org, Jens Axboe <jens.axboe@oracle.com>, linux-input@atrey.karlin.mff.cuni.cz, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, linux-usb-devel@lists.sourceforge.net, Jeff Chua <jeff.chua.linux@gmail.com>, Meelis Roos <mroos@linux.ee>, Janosch Machowinski <jmachowinski@gmx.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>, linux-acpi@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Thomas Meyer <thomas.mey@web.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On 3/15/07, =C9ric Piel <Eric.Piel@tremplin-utc.net> wrote:
-> 03/14/2007 08:02 PM, Vojtech Pavlik wrote/a =E9crit:
-> > On Wed, Mar 14, 2007 at 02:58:49PM -0400, Dmitry Torokhov wrote:
-> >
-> >>>> 2. I also have a concern about using KEY_SCREEN to signal toggling
-> >>>> display on and off. I am CCing Vojtech - he must know what the
-> >>>> original intent of this key code was. BTW, when user presses
-> >>>> corresponding button - does the display actually goes off? Maybe we
-> >>>> need another switch.
-> >>> Sorry, Dmitry, I probably should have documented it back then, I don'=
-t
-> >>> have the slightest idea anymore.
-> >>>
-> >> That's what I was afraid of ;) Well, maybe we should just use it to
-> >> indicate display switch and add a comment to that effect to input.h...
-> >
-> > Digging somewhat deeper into my memory, I think it just so happened tha=
-t
-> > there was a keyboard with a key with a pictogram of a computer screen o=
-n
-> > it with no really defined purpose. Since at that time there was only a
-> > limited number of different extended keyboard types, it was added.
-> >
-> > I think it'd make sense to use it eg. for the key that switches between
-> > internal and external output on laptops, if the laptop generates a
-> > keycode for the key at all. But maybe that function is already taken by
-> > KEY_SWITCHVIDEOMODE ...
->
-> Ok, so let me summarize:
->
-> There are two kinds of keys on those laptops (for which we are not sure
-> about the keycode that it should generate):
-> * Laptop screen on/off
-> * Display output selection (for instance: laptop/external/both)
->
-> The possible keycodes that we could assign to them:
-> KEY_SCREEN
-> KEY_MEDIA
-> KEY_MODE
-> KEY_VIDEO
-> KEY_SWITCHVIDEOMODE
-> KEY_COMPUTER
-> KEY_PC
->
->  From the discussion, I had the feeling this association would be the
-> less incorrect:
-> Screen on/off : KEY_SCREEN
+On Mon, 2007-03-19 at 16:33 -0400, Bill Davidsen wrote:
 
-It looks like DVB folks chose to ise KEY_SCREEN and KEY_WINDOW to
-switch applications between full screen and windowed modes so we'll
-have to invent our own keycode. KEY_DISPLAYTOGGLE anyone?
+> 
+> What you say sounds good, assuming that the cost of a sleep is less than 
+> the cost of the busy wait. But this may be hardware, the waits may be 
+> very small and frequent, and if it's hitting a small hardware window 
+> like retrace, delays in response will cause the time period to be missed 
+> completely. This probably less critical with very smart cards, many of 
+> us don't run them.
+> > 
 
-> Display selection : KEY_SWITCHVIDEOMODE
->
+Actually, various strategies involving short busy waiting, or looking at
+DMA address registers before sleeping were commonplace.  But a
+syscall/sleep/wakeup is/was pretty fast.  If you have an operation
+blitting the screen (e.g. scrolling), it takes a bit of time for the GPU
+to execute the command.  I see this right now on OLPC, where a wonderful
+music application needs to scroll (most of) the screen left),
+periodically, and we're losing samples sometimes at those operation.
 
-I agree here.
+Remember also, that being nice to everyone else by sleeping, there are
+more cycles to go around, and the scheduler can nicely boost the X
+server's priority as it will for "interactive" processes that are being
+cooperative.
+                                - Jim
 
---=20
-Dmitry
+-- 
+Jim Gettys
+One Laptop Per Child

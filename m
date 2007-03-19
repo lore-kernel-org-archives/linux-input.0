@@ -1,7 +1,8 @@
 From: Paul Walmsley <paul@booyaka.com>
-Subject: [PATCH 1/7] usbhid: specify explicit size for hid_blacklist.quirks
-Date: Sun, 18 Mar 2007 22:21:46 -0600 (MDT)
-Message-ID: <Pine.LNX.4.64.0703182037050.21893@utopia.booyaka.com>
+Subject: [PATCH 0/7] usbhid: add load-time and run-time USB HID quirks
+ configuration
+Date: Sun, 18 Mar 2007 22:21:41 -0600 (MDT)
+Message-ID: <Pine.LNX.4.64.0703182032400.21893@utopia.booyaka.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -14,37 +15,28 @@ To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 
-From: Paul Walmsley <paul@booyaka.com>
+The USB HID quirk list ('hid_blacklist') is a compile-time fixed array
+in the current kernel.  Any modifications require editing the module
+source and recompiling.  Some distributions compile the usbhid code
+into the kernel, thus requiring that the entire kernel be rebuilt.
 
-Explicitly specify the size of the hid_blacklist quirks member, to guard
-against surprises on architectures where unsigned ints aren't 32 bits long.
+For most HID devices, this is not a major problem, since quirks are
+unlikely to change often.  Some devices, however, have multiple
+drivers available, requiring different HID quirks.  For example, the
+LabJack U12 data acquisition device requires HID_QUIRK_IGNORE for one
+driver and HID_QUIRK_HIDDEV for another.  With a static hid_blacklist
+array, switching between the two is quite difficult.
 
-Signed-off-by: Paul Walmsley <paul@booyaka.com>
+This series of patches fixes this problem by adding a new module
+parameter 'hid_quirks' which allows quirks to be modified at boot or
+module load-time.  These quirks can also be reviewed and configured at
+runtime via a procfs file, /proc/usbhid/device_quirks.  (This latter
+ability is controlled by the Kconfig option CONFIG_USBHID_PROC_FS.)  The 
+patches also add a new field 'idProductMask' to the hid_blacklist, so some 
+of the multiple-device vendor quirks can be converted into list entries 
+efficiently.
 
----
-  dev/drivers/usb/input/hid-core.c |    5 +++--
-  1 file changed, 3 insertions(+), 2 deletions(-)
+Against 2.6.21-rc4.  Comments welcome,
 
-Index: linux/dev/drivers/usb/input/hid-core.c
-===================================================================
---- linux.orig/dev/drivers/usb/input/hid-core.c
-+++ linux/dev/drivers/usb/input/hid-core.c
-@@ -772,7 +772,7 @@ void usbhid_init_reports(struct hid_devi
-  static const struct hid_blacklist {
-  	__u16 idVendor;
-  	__u16 idProduct;
--	unsigned quirks;
-+	__u32 quirks;
-  } hid_blacklist[] = {
 
-  	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_DINOVO_EDGE, HID_QUIRK_DUPLICATE_USAGES },
-@@ -1059,7 +1059,8 @@ static struct hid_device *usb_hid_config
-  	struct usb_device *dev = interface_to_usbdev (intf);
-  	struct hid_descriptor *hdesc;
-  	struct hid_device *hid;
--	unsigned quirks = 0, rsize = 0;
-+	__u32 quirks = 0;
-+	unsigned rsize = 0;
-  	char *rdesc;
-  	int n, len, insize = 0;
-  	struct usbhid_device *usbhid;
+- Paul

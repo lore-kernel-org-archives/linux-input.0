@@ -1,189 +1,178 @@
-From: "Stacey Bonds" <bodwilcekdax@wilcek.net>
-Subject: Be leaner and slimmer by next week
-Date: Tue, 20 Mar 2007 20:16:45 +0500
-Message-ID: <351141711.34422824522976@thhebat.net>
+From: "Claude Lindsey" <hodauffachvar@auffach.com>
+Subject: Stop the painful craving for more food
+Date: Tue, 20 Mar 2007 22:35:18 -0100
+Message-ID: <251273891.21253457801495@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------098FB25D35D3C01"
+  boundary="----------744B821A29E821"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-video@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------098FB25D35D3C01
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+------------744B821A29E821
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
+Anatrim =96 The newest and most fascinating product for weighty people=20=
+available =96 As seen on BBC
+Did you know that superfluous body kilos kill very much people every=20=
+year? We know you hate the ugly look of people like those and the social=20=
+stigmata attached to them. 
 
+Or, maybe, you have not the will to withstand pressure of your=20=
+pernicious eating habits. This all sounds familiar? Then we have=20=
+something for you!
 
-Anatrim – The very up-to-date and most exciting flesh loss product is now readily available – As seen on BBC.
+Here Anatrim comes, the new product for the elimination of your=20=
+body=92s extra weight. The most astounding thing is that Anatrim improves=20=
+the quality of your life by soothing your feeling of hunger and giving=20=
+you joyful spirit. Read some notes received from our customers:
 
-Can you remember all the situations when you said to yourself you would do anything to get rid of this desperately growing number of kilos? Happily, now no major price is to be paid. Thanks to Anatrim, the ground-shaking kilos-melting mixture, you can achieve healthier life style and become really thinner. Just look at what people state!
+"This is a great thing! 
 
-"I hate to confess but I was terribly addicted to food. 
+Instead of gorging anything close at hand and watching TV constantly 
 
-I swallowed up all this rubbish 
+I became rather more interested in doing exercise.
 
-and just could not stop. 
+ Anatrim made me stride on confidently.
 
-This suffering stopped after I started taking Anatrim! 
+ I am in a great form now and there are lots of men in my way!"
 
-Oh, God,
+Rita R., San Francisco
 
- my craving for food vanished, 
+"I tried some passive weight burning, but with little result. This=20=
+terrible hunger would just rush in and spoil everything. 
 
-mood improved and I turned to the happiest person in the world 28 pounds in 2.3 months. 
+Once I was told on Anatrim the media by and I rather liked the=20=
+information.
 
-So, I can tell you now I turned to the happiest person in the world!"
- 
+ I had tried using it, and my wife told me that I'm a different person=20=
+now, 4 months later. 
 
-Lusia R., Texas
+30 pounds have gone away and it=92s not a limit! 
 
- 
-"I had weight problems since a boy. 
+And you know, I=92m a passionate lover again."
 
-You can't imagine how I abhorred being mocked at school. 
+Serge Smith, Boston
 
-I abhorred my weight and I abhorred even myself. 
+Anatrim helps you to understand that you got no such great need for the=20=
+constant eating. It raises your mood up, gives you additional energy, and=20=
+attacks needless kilos. All thanks to its mighty newly-elaborated formula!!
+Worm out more useful information! 
 
-After trying this and that I learned about Anatrim. 
-
-It literally pulled me out of this dreadful nightmare! Many thanks and a great respect to you, fellows."
-
- 
-Charley Mock, New York
-
- 
-"Know what? My marriage was saved thanks to Anatrim! I got into this circle, depression – eating more – just more depression. My wife was about to leave the overweight psycho I was turning in. 
-
-My best friend pointed to your web site and I ordered up pack of Anatrim at the same time. 
-
-The final result was splendid, my appetite came to acceptable level, I was often in a good mood, and, be sure, I went some belt holes back. And you see me, the bed became cool also!"
-
- 
-Mikkey
-
- There are lots of sincere gratitudes left by delighted people trying Anatrim. Don’t you wanna join the thousands and thousands of slim women and men and take this all-natural appetite-reducing power lifting product now!
-
-Do not decline the preposition!
-
-
-------------098FB25D35D3C01
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+------------744B821A29E821
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
+<HTML><HEAD><TITLE>Check out the wonders of pound melting</TITLE>
 </HEAD>
 <BODY>
 
 <p>
 <center>
 <b>
-<a href="http://qrouegutl.wergolid.net">
-Anatrim – The very up-to-date and most exciting flesh loss product is now readily available – As seen on BBC.
-</a>
+<a href=3D"http://zqniwwwulcfa.trynof.com">Anatrim =96 The newest and=20=
+most fascinating product for weighty people available =96 As seen on=20=
+BBC</a>
+</b>
 </center>
-Can you remember all the situations when you said to yourself you would do anything to get rid of this desperately growing number of kilos? Happily, now no major price is to be paid. Thanks to Anatrim, the ground-shaking kilos-melting mixture, you can achieve healthier life style and become really thinner. Just look at what people state!
+<b>
+Did you know that superfluous body kilos kill very much people every=20=
+year? We know you hate the ugly look of people like those and the social=20=
+stigmata attached to them. 
+<b>
+Or, maybe, you have not the will to withstand pressure of your=20=
+pernicious eating habits. This all sounds familiar? Then we have=20=
+something for you!
+</b>
+</b>
 <br>
 <br>
-<i>
-"I hate to confess but I was terribly addicted to food. 
 <b>
-<i>
-I swallowed up all this rubbish 
-<b>
-<i>
-and just could not stop. 
-</i>
+Here Anatrim comes, the new product for the elimination of your=20=
+body=92s extra weight. The most astounding thing is that Anatrim improves=20=
+the quality of your life by soothing your feeling of hunger and giving=20=
+you joyful spirit. Read some notes received from our customers:
 </b>
-</i>
-</b>
-This suffering stopped after I started taking Anatrim! 
-<b>
-<i>
-Oh, God,
-</i>
-</b>
-<b>
-<i>
- my craving for food vanished, 
-<b>
-<i>
-mood improved and I turned to the happiest person in the world 28 pounds in 2.3 months. 
-</i>
-</b>
-</i>
-</b>
-So, I can tell you now I turned to the happiest person in the world!"
-</i> 
 <br>
 <br>
 <b>
 <i>
-Lusia R., Texas
+"This is a great thing! 
+<b>
+<i>
+Instead of gorging anything close at hand and watching TV constantly 
+<b>
+<i>
+I became rather more interested in doing exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim made me stride on confidently.
+</i>
+</b>
+ I am in a great form now and there are lots of men in my way!"
 </i>
 </b>
 <br>
-<br>
- <i>
-"I had weight problems since a boy. 
-<b>
-<i>
-You can't imagine how I abhorred being mocked at school. 
-</i>
-</b>
-<b>
-<i>
-I abhorred my weight and I abhorred even myself. 
-<b>
-<i>
-After trying this and that I learned about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-It literally pulled me out of this dreadful nightmare! Many thanks and a great respect to you, fellows."
-</i>
- <br>
 <br>
 <b>
 <i>
-Charley Mock, New York
+Rita R., San Francisco
 </i>
 </b>
 <br>
-<br>
- <i>
-"Know what? My marriage was saved thanks to Anatrim! I got into this circle, depression – eating more – just more depression. My wife was about to leave the overweight psycho I was turning in. 
-<b>
-<i>
-My best friend pointed to your web site and I ordered up pack of Anatrim at the same time. 
-</i>
-</b>
-The final result was splendid, my appetite came to acceptable level, I was often in a good mood, and, be sure, I went some belt holes back. And you see me, the bed became cool also!"
-</i>
- <br>
 <br>
 <b>
 <i>
-Mikkey
+"I tried some passive weight burning, but with little result. This=20=
+terrible hunger would just rush in and spoil everything. 
+<b>
+<i>
+Once I was told on Anatrim the media by and I rather liked the=20=
+information.
+</i>
+</b>
+ I had tried using it, and my wife told me that I'm a different person=20=
+now, 4 months later. 
+<b>
+<i>
+30 pounds have gone away and it=92s not a limit! 
+</i>
+</b>
+And you know, I=92m a passionate lover again."
 </i>
 </b>
 <br>
 <br>
- There are lots of sincere gratitudes left by delighted people trying Anatrim. Don’t you wanna join the thousands and thousands of slim women and men and take this all-natural appetite-reducing power lifting product now!
+<b>
+<i>
+Serge Smith, Boston
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps you to understand that you got no such great need for the=20=
+constant eating. It raises your mood up, gives you additional energy, and=20=
+attacks needless kilos. All thanks to its mighty newly-elaborated formula!!
+</b>
+<b>
 <center>
-<a href="http://qrbtemkkmkk.wergolid.net">
-Do not decline the preposition!
-</a>
+<a href=3D"http://zqniwwwulcfa.trynof.com">Worm out more useful=20=
+information!</a>
 </center>
 </b>
-</p>
+</p> 
 
 </BODY></HTML>
-------------098FB25D35D3C01--
+------------744B821A29E821--

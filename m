@@ -1,57 +1,68 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH 0/7] usbhid: add load-time and run-time USB HID quirks
- configuration
-Date: Tue, 20 Mar 2007 18:26:07 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0703201814560.5030@twin.jikos.cz>
-References: <Pine.LNX.4.64.0703182032400.21893@utopia.booyaka.com>
- <Pine.LNX.4.64.0703191408400.5030@twin.jikos.cz>
- <Pine.LNX.4.64.0703191322010.9906@utopia.booyaka.com>
+From: "Susie Coon" <dxmandarin@laviu.com.ar>
+Subject: Are in cinnabar
+Date: Tue, 20 Mar 2007 19:36:56 +0100
+Message-ID: <001901c76b27$acc9c770$014de6b4@xhemi94eef3901>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0016_01C76B27.ACC9C770"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0703191322010.9906@utopia.booyaka.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Paul Walmsley <paul@booyaka.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 19 Mar 2007, Paul Walmsley wrote:
+------=_NextPart_000_0016_01C76B27.ACC9C770
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-> > Also your solution cosumes significantly more memory (adding 16 bits to
-> > every hid_blacklist entry, duplicating the information into list that in
-> > most cases will stay intact and just mirror the contents of
-> > hid_blacklist). Not that it's a big issue, but still worth noting.
-> Right now there are about 160 entries in the hid_blacklist, so adding the mask
-> costs about 320 bytes extra.  If that's a concern, a bigger issue is the
-> list_head added to each hid_blacklist entry - two pointers per entry - so,
-> 1280 bytes on a 32-bit machine (not counting the list head itself)
 
-Hi Paul,
 
-What is your opinion on an alternative aproach - the hid_blacklist[] could 
-stay intact, and the linked list in your patch will be used in a slightly 
-different way - it will be used to define *exceptions* (which will be 
-possible to be tuned in runtime) from hid_blacklist, rather than 
-duplicating the information which is already present there?
 
-> If you'd rather not to have the mask code in the patch, I'll drop it. It's
-> only in there to remove the runtime-immutable special-case code for Wacom and
-> Codemercs devices, so it's not really useful for my specific concern.
 
-My opinion is that two exceptions (wacom and codemercs) can be easily 
-handled by few lines of code, and extending the hid_blacklist[] just 
-because of these two users looks maybe a little bit over-generalized to 
-me.
+BULLISH REPORT.
 
-Anyway, I think that the possibility to modify the hid_blakclist[] in 
-runtime could be useful. If you agree with the above and would care to 
-redo the pathces in such way, I would be inclined to merge them.
 
-Thanks,
+Gem: CHVCCurr Price: $1.17 5 Day Target price: $5Action: Aggresive Buy!!
 
--- 
-Jiri Kosina
+
+
+All signs show that this one is going to Explode!!
+
+
+See the news, linux-input...
+
+
+------=_NextPart_000_0016_01C76B27.ACC9C770
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6600FF size=3D=
+3D4><FONT size=3D4><STRONG>BULLISH REPORT!!</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D2>Gem: =
+<b>CHVC</b><br>Curr Price: $1.17 <br>5 Day Target price: $5<br>Action: =
+Aggresive Buy..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D3>All =
+signs show that this one is going to Explode...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000000 size=3D4>See =
+the news, linux-input.</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0016_01C76B27.ACC9C770--

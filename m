@@ -1,57 +1,221 @@
-From: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: [linux-pm] [2/6] 2.6.21-rc2: known regressions
-Date: Tue, 20 Mar 2007 10:44:44 -0400
-Message-ID: <45FFF35C.20003@tmr.com>
-References: <Pine.LNX.4.64.0702272105220.12485@woody.linux-foundation.org>	 <20070305015034.GG3441@stusta.de> <20070308123143.GF5149@mellanox.co.il>	 <Pine.LNX.4.64.0703080954220.10832@woody.linux-foundation.org>	 <20070308192554.GA2999@elte.hu> <20070308230705.GA4611@elte.hu>	 <Pine.LNX.4.64.0703081545110.10832@woody.linux-foundation.org>	 <20070309111957.GA3928@elf.ucw.cz>  <20070318160707.GC12673@elte.hu>	 <1174236045.6832.9.camel@localhost>  <45FEF395.9050409@tmr.com> <1174342101.6832.173.camel@localhost>
+From: "Harry Hunt" <bodwhmltddax@whmltd.com>
+Subject: Stop gaining weight and get the figure you want
+Date: Tue, 20 Mar 2007 15:09:11 -0100
+Message-ID: <334421796.51402974508647@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------E7AC6E731FB01F4"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1174342101.6832.173.camel@localhost>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jg@laptop.org
-Cc: Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@ucw.cz>, Ash Milsted <thatistosayiseenem@gawab.com>, dmitry.torokhov@gmail.com, Arkadiusz Miskiewicz <arekm@maven.pl>, linux-pm@lists.osdl.org, Jens Axboe <jens.axboe@oracle.com>, linux-input@atrey.karlin.mff.cuni.cz, Alexey Starikovskiy <alexey.y.starikovskiy@linux.intel.com>, linux-usb-devel@lists.sourceforge.net, Jeff Chua <jeff.chua.linux@gmail.com>, Meelis Roos <mroos@linux.ee>, Janosch Machowinski <jmachowinski@gmx.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>, linux-acpi@vger.kernel.org, "Eric W. Biederman" <ebiederm@xmission.com>, Thomas Meyer <thomas.mey@web.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Jim Gettys wrote:
-> On Mon, 2007-03-19 at 16:33 -0400, Bill Davidsen wrote:
->
->   
->> What you say sounds good, assuming that the cost of a sleep is less than 
->> the cost of the busy wait. But this may be hardware, the waits may be 
->> very small and frequent, and if it's hitting a small hardware window 
->> like retrace, delays in response will cause the time period to be missed 
->> completely. This probably less critical with very smart cards, many of 
->> us don't run them.
->>     
->
-> Actually, various strategies involving short busy waiting, or looking at
-> DMA address registers before sleeping were commonplace.  But a
-> syscall/sleep/wakeup is/was pretty fast.  If you have an operation
-> blitting the screen (e.g. scrolling), it takes a bit of time for the GPU
-> to execute the command.  I see this right now on OLPC, where a wonderful
-> music application needs to scroll (most of) the screen left),
-> periodically, and we're losing samples sometimes at those operation.
->   
-None of that conflicts with what I said, but what works on an LCD may 
-not be appropriate for a CRT. With even moderate 1024x768@70 timing the 
-horizontal retrace happens ~50k/sec, and that's not an appropriate 
-syscall rate. I'm just pointing out that some things a video interface 
-does with simple hardware involve lots of very small windows. Don't read 
-that as "don't do it," just "be careful HOW you do it."
-> Remember also, that being nice to everyone else by sleeping, there are
-> more cycles to go around, and the scheduler can nicely boost the X
-> server's priority as it will for "interactive" processes that are being
-> cooperative.
-I'm going to cautiously guess that the problem might be not "how much" 
-but "how soon." That is, latency might be more important than giving the 
-server a lot of CPU.
+------------E7AC6E731FB01F4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+
+Anatrim =96 The newest and most enchanting flesh loss product is now=20=
+readily available =96 As told on Oprah.
+
+Do you count up all the cases when you appeal to yourself to do=20=
+anything for being delivered from this desperately growing number of=20=
+kilos? Fortunately, now no big sacrifice is required. Thanks to Anatrim,=20=
+the ground-shaking pound-melting medley, you can achieve healthier=20=
+lifestyle and a really slender figure. Have a look at what people say!
+
+"It=92s unbearably difficult to acknowledge it but I was terribly=20=
+addicted to food. 
+
+I greedily swallowed up all this trash 
+
+and just could not stop. 
+
+This ruinous passion ceased when I started course with Anatrim! 
+
+Holy God,
+
+ my appetite vanished, 
+
+mood improved and I turned to the happiest person 24 pounds in 2.8=20=
+months. 
+
+I can tell you now I became the happiest person in the world!"
+ 
+
+Linda F., Chicago
+
+ 
+"Since my early childhood I was a weighty boy. 
+
+You can't even fancy how I hated being mocked at school. 
+
+I detested my stoutness and I abhorred even myself. 
+
+After trying this and that I learned about Anatrim. 
+
+This stuff literally took me out of this dreadful nightmare! Many=20=
+thanks and a great respect to you, guys."
+
+ 
+Mike Brown, Chicago
+
+ 
+"Do you know what? Thanks to Anatrim my marriage was happily saved! I=20=
+got into this circle, depression =96 more eating =96 even more=20=
+depression. My wife was about to leave the overweight psycho I was=20=
+turning in. 
+
+One my best friend pointed at your web page and I ordered Anatrim right=20=
+off. 
+
+The results were great, my appetite came to normal level, I was in a=20=
+good mood oftener, and, be sure, I went some belt holes back. And you=20=
+see, the bedroom became cool, too!"
+
+ 
+Frank
+
+ There is a lot of sincere gratitudes left by delighted people taking=20=
+Anatrim. Why don't you add yourself to the thousands and thousands of=20=
+slim clients and try this all-natural appetite-reducing power boosting=20=
+product now!
+
+Don=92t decline your opportunity!
+
+------------E7AC6E731FB01F4
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Check out the wonders of pound melting</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href=3D"http://ytikzgiaquih.modlerit.com">
+Anatrim =96 The newest and most enchanting flesh loss product is now=20=
+readily available =96 As told on Oprah.
+</a>
+</center>
+Do you count up all the cases when you appeal to yourself to do=20=
+anything for being delivered from this desperately growing number of=20=
+kilos? Fortunately, now no big sacrifice is required. Thanks to Anatrim,=20=
+the ground-shaking pound-melting medley, you can achieve healthier=20=
+lifestyle and a really slender figure. Have a look at what people say!
+<br>
+<br>
+<i>
+"It=92s unbearably difficult to acknowledge it but I was terribly=20=
+addicted to food. 
+<b>
+<i>
+I greedily swallowed up all this trash 
+<b>
+<i>
+and just could not stop. 
+</i>
+</b>
+</i>
+</b>
+This ruinous passion ceased when I started course with Anatrim! 
+<b>
+<i>
+Holy God,
+</i>
+</b>
+<b>
+<i>
+ my appetite vanished, 
+<b>
+<i>
+mood improved and I turned to the happiest person 24 pounds in 2.8=20=
+months. 
+</i>
+</b>
+</i>
+</b>
+I can tell you now I became the happiest person in the world!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Linda F., Chicago
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a weighty boy. 
+<b>
+<i>
+You can't even fancy how I hated being mocked at school. 
+</i>
+</b>
+<b>
+<i>
+I detested my stoutness and I abhorred even myself. 
+<b>
+<i>
+After trying this and that I learned about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+This stuff literally took me out of this dreadful nightmare! Many=20=
+thanks and a great respect to you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Mike Brown, Chicago
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Do you know what? Thanks to Anatrim my marriage was happily saved! I=20=
+got into this circle, depression =96 more eating =96 even more=20=
+depression. My wife was about to leave the overweight psycho I was=20=
+turning in. 
+<b>
+<i>
+One my best friend pointed at your web page and I ordered Anatrim right=20=
+off. 
+</i>
+</b>
+The results were great, my appetite came to normal level, I was in a=20=
+good mood oftener, and, be sure, I went some belt holes back. And you=20=
+see, the bedroom became cool, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Frank
+</i>
+</b>
+<br>
+<br>
+ There is a lot of sincere gratitudes left by delighted people taking=20=
+Anatrim. Why don't you add yourself to the thousands and thousands of=20=
+slim clients and try this all-natural appetite-reducing power boosting=20=
+product now!
+<center>
+<a href=3D"http://ytikzgiaquih.modlerit.com">
+Don=92t decline your opportunity!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------E7AC6E731FB01F4--

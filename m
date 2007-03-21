@@ -1,31 +1,45 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom
- driver]
-Date: Wed, 21 Mar 2007 14:32:44 +0100
-Message-ID: <460133FC.5020809@gmail.com>
-References: <2460126662758025813@fi.muni.cz>	 <d120d5000703070856of068f19k62c5a7ce1f829336@mail.gmail.com>	 <4af2d03a0703130919nb4893b1ja9ec795dcf4bf53c@mail.gmail.com>	 <38b3b7c0703131450v2646e63fj2be4b9dda7f928c0@mail.gmail.com>	 <45F722CE.9000602@gmail.com>	 <d120d5000703140802jb48bc74tbbe7ee2b120b1798@mail.gmail.com>	 <45F82626.8000108@gmail.com> <45F83930.4060401@gmail.com>	 <8e4ff20a0703141147n4b690ab8g4cc8138d1ecc94e1@mail.gmail.com>	 <d120d5000703141213k6554f7f6o58e4a9da1aa6a20a@mail.gmail.com> <8e4ff20a0703141218r3add7923n74470b5e16f58c5c@mail.gmail.com> <4601339C.6010706@gmail.com>
+From: "Tara Tammer" <supinerustproofing@whig.com>
+Subject: Tara wrote:
+Date: Wed, 21 Mar 2007 14:39:11 +0000 (UTC)
+Message-ID: <01c76bc6$a3a9cf60$6c822ecf@supinerustproofing>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <4601339C.6010706@gmail.com>
+Date: Wed, 21 Mar 2007 14:38:49 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: =?UTF-8?B?IlNUZW55YUsgKEJydW5vIEdvbnrDoWxleiki?= <stenyak@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>, johann deneux <johann.deneux@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Jiri Slaby napsal(a):
-> - something else? (did I forget something)
+Winner after Winner!  That's what we Bring to our Readers!
 
-Maybe someone's (Dmitry's?) idea with envelopes?
+What happens when that perfect small cap issue releases astounding news 
+and gets a massive PR campaign behind it?  It Takes Off!!!
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Irwin Resources (IWRS)
+Last      $0.50
+Target  $1.50
+
+Do not miss this one.  These small caps Really Fly when people take 
+notice, and Believe us they are going to take notice this Wednesday!
+
+
+
+
+
+There you want to catch your defects before they go into the field.  
+He is, unless I'm mistaken,the paid host.  
+(For example changing tables or some other behavior that causes a memory leak.)  
+> I hope I have helped you. 
+Who in the hell do you think you are, Mike Sexton is a proffesional player, as well as a savvy business man.  
+A post on RGP is not just a question or a rant to the responsible person it is a public thing that allows others to be forewarned.  
+If I contact customer service at (for the umpteenth time) they will tell me again they are working on it and all will be fine.  
+I hinted an earlier post that something might be very wrong with the software running larger tournaments.   
+Especially if the tune is repetitive as is the case with.  
+> is very clearly the joke of the big online rooms.  
+It is total hell if you have to solve a system down at a customers site. 

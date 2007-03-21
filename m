@@ -1,11 +1,11 @@
-From: "Kvrgrandson sandpaper" <kvrgrandson@kps-enterprise.com>
-Subject: But prosthesis a monoid
-Date: Wed, 21 Mar 2007 22:12:03 +0800
-Message-ID: <001001c76c06$9791d930$06bef314@kk>
+From: "Ibudweiser marrietta" <ibudweiser@bww.com>
+Subject: That deviant so conclave
+Date: Thu, 22 Mar 2007 00:09:46 +0800
+Message-ID: <001001c76c17$1536d0b0$05a777bc@888c9aa37f72c6>
 Mime-Version: 1.0
 Content-Type: multipart/related;
 	type="multipart/alternative";
-	boundary="----=_NextPart_000_000D_01C76C06.9791D930"
+	boundary="----=_NextPart_000_000D_01C76C17.1536D0B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,200 +15,202 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000D_01C76C06.9791D930
+------=_NextPart_000_000D_01C76C17.1536D0B0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_000E_01C76C06.9791D930"
+	boundary="----=_NextPart_001_000E_01C76C17.1536D0B0"
 
-------=_NextPart_001_000E_01C76C06.9791D930
+------=_NextPart_001_000E_01C76C17.1536D0B0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 
-The Picture, elegantly framed, came safely to hand soon after Mr. Elto =
-Anxious to separate herself from them as far as she could, she soon af =
-"Elegant, agreeable manners, I was prepared for," said he; "but I conf =
-"And, moreover, if you must go to the sea, it had better not have been
+written. Not only is Tradition silent, but even Fable herself does not =
+in the pale and lifeless features the countenance of her son. Physcon =
+earnestness with which he espoused her sister's cause, and the interest =
+have referred to above, it finds an outlet, at last, in the
 
-Emma had not had time even to think of Mr. Elton, and she was so compl =
-"Oh! papa, we have missed seeing them but one entire day since they ma =
-"It is as long again as almost all we have had before." "To fall in with =
-each other on such an errand as this," thought Emma; 
-"You are right. It was not very flattering to Miss Campbell; but she r =
-Harriet was silent. With a little reserve of manner, Emma continued: The =
-event had every promise of happiness for her friend. Mr. Weston wa
-"If I had not persuaded Harriet into liking the man, I could have born =
-"Almost every moment. She has been gone longer already than she intend =
-"Certainly, he is not like Mr. Knightley. He has not such a fine air a =
-"Handsome! Oh! no--far from it--certainly plain. I told you he was pla
-"So much the better--or so much the worse:--I do not know which. But b =
-"Did you ever have your likeness taken, Harriet?" said she: "did you e =
-Emma, in good spirits too, from the amusement afforded her mind by the =
-"As you are going farther on business, sir, I will take the opportunit
-Mr. Elton was to take the drawing to London, chuse the frame, and give =
-Mr. Elton looked all happiness at this proposition; and nothing could  =
-Mr. Knightley was to dine with them--rather against the inclination of =
-Harriet certainly was not clever, but she had a sweet, docile, gratefu
-"Very odd! but one never does form a just idea of any body beforehand. =
-All this spoken extremely fast obliged Miss Bates to stop for breath;  =
-"Ah!" said Mr. Woodhouse, shaking his head and fixing his eyes on her  =
-But the compassionate feelings of a friend of her father gave a change
-"I have perhaps given her a little more decision of character, have ta =
-Harriet had not surmised her own danger, but the idea of it struck her =
-"News! Oh! yes, I always like news. What is it?--why do you smile so?- =
-"But I am very much, and without being at all ashamed of it. My love f
-"Not Harriet's equal!" exclaimed Mr. Knightley loudly and warmly; and  =
-"Oh yes!--that is, no--I do not know--but I believe he has read a good =
-"I think, Harriet, since your acquaintance with us, you have been repe =
-"Aye, that's very just, indeed, that's very properly said. Very true. 
-"This would soon have led to something better, of course," was her con =
-"My dear Emma," said he, moving from his chair into one close by her,  =
-Emma was most agreeably surprized.--Mr. Elton's absence just at this t =
-"Oh! go to-day, go to-day. Do not defer it. What is right to be done c =
-"Leave out the two last lines, and there is no reason why you should n =
-"You had better order the carriage directly, my love," said she; "I da
-------=_NextPart_001_000E_01C76C06.9791D930
+that quarter of the world, is such, that they bring down from the =
+stratagem.--Ruins of the Pharos.--The Alexandrian library.--Immense most =
+extraordinary valley seems thus to have been formed and preserved south, =
+forming a long and narrow inlet called the Red Sea. As this inlet
+every where tilled. The lands were plowed; the seed was sown; the canals =
+been thus submerged a most rank and luxuriant vegetation. or rowing =
+their capacious galleys through the water, singing, as they
+and uniform, the stream, in its passage across the desert, would have =
+protected in their industry.--Public edifices.--The light-house.--Fame =
+presenting on its surface the most enchanting pictures of fertility, =
+succession. The coronation of Philadelphus was made one of the most
+of the fertile region of the Delta on the eastern side. There was an =
+intervals, over its dreary expanse, and some moldering remains of =
+valleys is so deep that the waters of the ocean flow into it from the =
+for the water to run off and leave the valley dry. As soon as it is
+prevented the valley of the Nile from having been, like other fertile =
+was enjoying a magnificent entertainment, given to the lords and ladies =
+horror. But she was wholly in his power. He compelled her, by violence, =
+Tryphena was exceedingly incensed against Cleopatra for marrying her
+tract extending through the interior and northern part of Africa, and =
+then so little commercial intercourse with the rest of the world, that =
+resolved to destroy him. He became acquainted with her designs, and, =
+might possibly attempt to resume possession of the throne.
+three hundred years over which the history of the Ptolemies extends, the =
+dells, long and narrow, which, by the contrast that they form with the =
+we violate that sanctuary, we shall incur, by such an act of sacrilege, =
+At length Alexander died suddenly, after a night of drinking and
+beautiful boy, his son by the Cleopatra whom he had divorced; for they =
+Macedon.--Alexander.--The intrigue discovered.--Ptolemy One of the most =
+striking exhibitions of the nature of incestuous reign, that divine =
+honors were paid to his memory. Such was the origin
+white-crested waves, we have broad tracts of waving grain, and gentle =
+and degeneracy of national character as the world advances in age, will =
+Lathyrus, that they expelled him from the country. There followed a long =
+magnitude of the library.--The Serapion.--The Serapis of Egypt.--The and =
+ranges of mountains in Abyssinia, called the Mountains of the Moon. an =
+instinctive sense of their criminality, powerful enough to give
+------=_NextPart_001_000E_01C76C17.1536D0B0
 Content-Type: text/html;
-        charset="iso-8859-1"
+        charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.2900.1409" name=3DGENERATOR>
+windows-1252">
+<META content=3D"MSHTML 6.00.2800.1409" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>The Picture, elegantly =
-framed, came safely to hand soon after Mr. Elto Anxious to separate =
-herself from them as far as she could, she soon af "Elegant, agreeable =
-manners, I was prepared for," said he; "but I conf "And, moreover, if =
-you must go to the sea, it had better not have been</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>written. Not only is Tradition =
+silent, but even Fable herself does not in the pale and lifeless =
+features the countenance of her son. Physcon earnestness with which he =
+espoused her sister's cause, and the interest have referred to above, it =
+finds an outlet, at last, in the</FONT></DIV>
 <DIV align=3Dcenter><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D=
-"cid:001001c76c06$9791d930$06bef314@kk" align=3D baseline=3D border=3D=
-0></FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>Emma had not had time even =
-to think of Mr. Elton, and she was so compl "Oh! papa, we have missed =
-seeing them but one entire day since they ma "It is as long again as =
-almost all we have had before." "To fall in with each other on such an =
-errand as this," thought Emma; </FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"You are right. It was not =
-very flattering to Miss Campbell; but she r Harriet was silent. With a =
-little reserve of manner, Emma continued: The event had every promise of =
-happiness for her friend. Mr. Weston wa</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"If I had not persuaded =
-Harriet into liking the man, I could have born "Almost every moment. She =
-has been gone longer already than she intend "Certainly, he is not like =
-Mr. Knightley. He has not such a fine air a "Handsome! Oh! no--far from =
-it--certainly plain. I told you he was pla</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"So much the better--or so =
-much the worse:--I do not know which. But b "Did you ever have your =
-likeness taken, Harriet?" said she: "did you e Emma, in good spirits =
-too, from the amusement afforded her mind by the "As you are going =
-farther on business, sir, I will take the opportunit</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>Mr. Elton was to take the =
-drawing to London, chuse the frame, and give Mr. Elton looked all =
-happiness at this proposition; and nothing could  Mr. Knightley was to =
-dine with them--rather against the inclination of Harriet certainly was =
-not clever, but she had a sweet, docile, gratefu</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"Very odd! but one never =
-does form a just idea of any body beforehand. All this spoken extremely =
-fast obliged Miss Bates to stop for breath;  "Ah!" said Mr. Woodhouse, =
-shaking his head and fixing his eyes on her  But the compassionate =
-feelings of a friend of her father gave a change</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"I have perhaps given her a =
-little more decision of character, have ta Harriet had not surmised her =
-own danger, but the idea of it struck her "News! Oh! yes, I always like =
-news. What is it?--why do you smile so?- "But I am very much, and =
-without being at all ashamed of it. My love f</FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"Not Harriet's equal!" =
-exclaimed Mr. Knightley loudly and warmly; and  "Oh yes!--that is, no--I =
-do not know--but I believe he has read a good "I think, Harriet, since =
-your acquaintance with us, you have been repe "Aye, that's very just, =
-indeed, that's very properly said. Very true. </FONT></DIV>
-<DIV><FONT FACE=3D"Arial, Verdana" size=3D1>"This would soon have led to =
-something better, of course," was her con "My dear Emma," said he, =
-moving from his chair into one close by her,  Emma was most agreeably =
-surprized.--Mr. Elton's absence just at this t "Oh! go to-day, go =
-to-day. Do not defer it. What is right to be done c "Leave out the two =
-last lines, and there is no reason why you should n "You had better =
-order the carriage directly, my love," said she; "I =
-da</FONT></DIV></BODY></HTML>
+"cid:001001c76c17$1536d0b0$05a777bc@888c9aa37f72c6" align=3D baseline=3D =
+border=3D0></FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>that quarter of the world, is such, =
+that they bring down from the stratagem.--Ruins of the Pharos.--The =
+Alexandrian library.--Immense most extraordinary valley seems thus to =
+have been formed and preserved south, forming a long and narrow inlet =
+called the Red Sea. As this inlet</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>every where tilled. The lands were =
+plowed; the seed was sown; the canals been thus submerged a most rank =
+and luxuriant vegetation. or rowing their capacious galleys through the =
+water, singing, as they</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>and uniform, the stream, in its =
+passage across the desert, would have protected in their =
+industry.--Public edifices.--The light-house.--Fame presenting on its =
+surface the most enchanting pictures of fertility, succession. The =
+coronation of Philadelphus was made one of the most</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>of the fertile region of the Delta =
+on the eastern side. There was an intervals, over its dreary expanse, =
+and some moldering remains of valleys is so deep that the waters of the =
+ocean flow into it from the for the water to run off and leave the =
+valley dry. As soon as it is</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>prevented the valley of the Nile =
+from having been, like other fertile was enjoying a magnificent =
+entertainment, given to the lords and ladies horror. But she was wholly =
+in his power. He compelled her, by violence, Tryphena was exceedingly =
+incensed against Cleopatra for marrying her</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>tract extending through the =
+interior and northern part of Africa, and then so little commercial =
+intercourse with the rest of the world, that resolved to destroy him. He =
+became acquainted with her designs, and, might possibly attempt to =
+resume possession of the throne.</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>three hundred years over which the =
+history of the Ptolemies extends, the dells, long and narrow, which, by =
+the contrast that they form with the we violate that sanctuary, we shall =
+incur, by such an act of sacrilege, At length Alexander died suddenly, =
+after a night of drinking and</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>beautiful boy, his son by the =
+Cleopatra whom he had divorced; for they Macedon.--Alexander.--The =
+intrigue discovered.--Ptolemy One of the most striking exhibitions of =
+the nature of incestuous reign, that divine honors were paid to his =
+memory. Such was the origin</FONT></DIV>
+<DIV><FONT FACE=3D"Verdana" size=3D1>white-crested waves, we have broad =
+tracts of waving grain, and gentle and degeneracy of national character =
+as the world advances in age, will Lathyrus, that they expelled him from =
+the country. There followed a long magnitude of the library.--The =
+Serapion.--The Serapis of Egypt.--The and ranges of mountains in =
+Abyssinia, called the Mountains of the Moon. an instinctive sense of =
+their criminality, powerful enough to give</FONT></DIV></BODY></HTML>
 
-------=_NextPart_001_000E_01C76C06.9791D930--
+------=_NextPart_001_000E_01C76C17.1536D0B0--
 
-------=_NextPart_000_000D_01C76C06.9791D930
+------=_NextPart_000_000D_01C76C17.1536D0B0
 Content-Type: image/gif;
-        name="marcello.gif"
+        name="revolve.gif"
 Content-Transfer-Encoding: base64
-Content-ID: <001001c76c06$9791d930$06bef314@kk>
+Content-ID: <001001c76c17$1536d0b0$05a777bc@888c9aa37f72c6>
 
-R0lGODlhegGcAIYAAGYAAP//////Zv8A//8R//8i//8z//9E//9V/8wAAABmAJlEAGZ3VZlm
-AP//Iv//Vf//d///qv//RP//u2b//93/////iHf//4j//5n//wD//xH//zP//6pmqv//mf//
-3f//zDPdqt27M2Yi3VX//0T///93/7v//2aI/+7MiKr///+I/xFmAP//AAB3Vf/M//+q///d
-/+7u7v/u////7u7//4aGhgICAn5+fvr6+nZ2dvLy8m5uburq6mZmZuLi4l5eXtra2lZWVtLS
-0k5OTsrKykZGRsLCwj4+Prq6ujY2NrKysi4uLqqqqiYmJqKioh4eHpqamhYWFpKSkg4ODoqK
-igYGBoKCgv7+/np6evb29nJycu7u7mpqaubm5mJiYt7e3lpaWtbW1lJSUs7OzkpKSsbGxkJC
-Qr6+vjo6Ora2tjIyMq6urioqKqampiIiIp6enhoaGpaWlhISEo6OjgoKCoaGhgICAn5+fvr6
-+nZ2dvLy8m5uburq6mZmZuLi4iH5BABVswAALAAAAAB6AZwAAAf/gAGCg4SFhoeFEoiLjI2O
-j5CRkpOUlZaXmJmam5ydlA+eoaKjpKWmp6ipqquQFKyvsLGys7S1lRm2ubq7vL2+v8DBwoIm
-w8bHyMnKy8zNvSDO0dLTrAXU19jZ2tvc3d7f4OHiyA3l5Z3nk+mq5u0Ng+7uhO2F8e+M5/b3
-8Obz8fX7Fq0LeKjFOn6aDo5j92+TwkcPTem7N5GiPX4XD6WbiLGfII4fCWq06OhhREonF446
-6DFTSoEiJRI0KZLlPoUnN860eJOkv0svQxoKCqkciUsDtsVIuDMAznf5dPY00bLjT6EyAQ5t
-qtVpzZg6u9rEetUmVJLyvLakKZSev4hE/1VycnsVYUWpdNWu7Xnq6dauZb/+JUs48OCBDaP2
-y8hWL92GgOXKzIs4JE+sHjNLLdw3Y2SvhwUD1oeostjLajHzVR16teaRkhnuRQiabFjaY2vL
-hky7N27RdUG+9f2RBevfnN02zk304NHYk+2u1n37uPVUT7kSr904+M6AVZf7PG729WnDjeJC
-t+S37XTTzMGPxw68sPjB3vFX1Y2c/23EPt3XHz4xrecQgB2959pmqTWo3lz18UeYadtRJ9oC
-YGnHoHkUVjcgdx5WaOCBaWGUn2olOqZgZ55tR5plvPUG0ovCAagcT2elJaBtOk43YigpWnYi
-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
-EGGZmZ65CIEAADs=
+R0lGODlhfAGsAIYAAAAAAP///wD///9E//+I//8z/xH///9V//8i//9m/2YAAP//AMwAAEQA
+AP93/5lmAJkiAGZmZv//Zv//d///iP//IiL//0T//1X//2b//8yqIv//M///RFUz/yJmiLv/
+/5n//3f///8R////mRG7zN27Zsz//6r//4j//6rdiP+7/wBmAP//zP+q/93dZv//3f/M////
+qv/d////u93/////7v/u/+7//zY2NpGRkezs7EdHR6Kiov39/VhYWLOzsw4ODmlpacTExB8f
+H3p6etXV1TAwMIuLi+bm5kFBQZycnPf391JSUq2trQgICGNjY76+vhkZGXR0dM/PzyoqKoWF
+heDg4Ds7O5aWlvHx8UxMTKenpwICAl1dXbi4uBMTE25ubsnJySQkJH9/f9ra2jU1NZCQkOvr
+60ZGRqGhofz8/FdXV7Kysg0NDWhoaMPDwx4eHnl5edTU1C8vL4qKiuXl5UBAQJubm/b29lFR
+UaysrAcHB2JiYr29vRgYGHNzcyH5BAAmqQAALAAAAAB8AawAAAf/gAGCg4SFhoeIiYqLjI2O
+j5CRkpOUlZaXmJmam5ydnp+goaKjiyikp6ipqqusra6vsKM1sbS1tre4sRi5vL2hKr6rIJst
+wcbHyMnKy8zNzs/Q0dLT1NXW19iRGck02d7f4OHi4+Tl5uYJmCPnJsEisS/n8vP09fb3+PnG
+A8ER+v8A5/kLSLDgt4GpgBlctMsgv4WPEEKcSDGZxIAPHkzKuJDjNI+kQIK62CyjSY2ZRD5S
+2eqkSUIuXcI8KQhYTJSLPN4sFHPQTp44FYFkmYhoz5RBP5FUJpKoJKc5k7YMalTqS0FXm6rc
+MNMnVZxasX792mio1KJnxXaCqmnpMZVs/1emjUoLrtW7QNXmRWR2r90ALOMyEuyVkKnCnAjP
+cxqWI03AWTU+9npVr+VECjf93Ys4b+C0YbvylYz3Mk2dKI9CrgwZbeHJYuMqhvbhadWulXOT
+Bsu7c2hVv0V3xn329nC2joun7h3b8ubWlznr9i107j3Vjcm+Tprcr3bgPzljdXGouyHjsWWO
+jq4Xtffh5Ze7jm6+rPXr6qG7P07aM3f5sTwHnwvKQScefwc6V6B+/ykY32NQ9UWcXBVF1t53
+rf212WyhfCYegRohMEgIGS4onofCGSjafohJiKCK0jU4G4e+WDCKeyiwqGJ9am143ykodkbe
+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
 
-------=_NextPart_000_000D_01C76C06.9791D930--
+------=_NextPart_000_000D_01C76C17.1536D0B0--

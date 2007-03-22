@@ -1,125 +1,179 @@
-From: "RoyalEURO casino" <librate@notimexico.com>
-Subject: 300% Bonus auf ihre erste einzahlung
-Date: Thu, 22 Mar 2007 10:55:21 -0300
-Message-ID: <54968163.01624876@horizon.com>
+From: "Melody Penn" <syfavatekdof@avatek.ca>
+Subject: Get out of the obese crowd
+Date: Thu, 22 Mar 2007 14:09:34 +0500
+Message-ID: <207192727.16221458987702@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------34F291534F215A86"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: mj@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+------------34F291534F215A86
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-=
-1">
+Anatrim =96 The up-to-the-moment and most exciting product for=20=
+over-weight people available =96 As told on ABC
+Did you see superfluous body kilos kill more and more people around the=20=
+whole world? We believe that you hate the unattractive appearance of=20=
+those people and the social stigmata attached to them. 
 
-<title>Online Casinos sind dafuer bekannt, ihren Spielern,=20
-gro&#223;z&uuml;gige Ersteinzahlungsbonusse=20
-zu geben</title>
+Or, maybe, you can not resist a pressure of terrible eating habits of=20=
+yours. If you think it sounds familiar, then we got something for your=20=
+consideration!
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+Here there is Anatrim, the new product for the elimination of your=20=
+body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
+the quality of your life by making you crave food less and giving you=20=
+better spirit. Here=92re what people write to us about this product:
 
-</head>
+"It=92s outstanding! 
 
-<body lang=3DRU link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4pt'>
+Instead of gorging anything close at hand and watching TV 
 
-<div class=3DSection1>
+I became keen on taking exercise.
 
-<p class=3DMsoNormal>Online Casinos sind dafuer bekannt, ihren Spielern,=20
-gro&#223;z&uuml;gige Ersteinzahlungsbonusse zu geben.
-<o:p></o:p></p>
+ Anatrim made me stride on confidently.
 
-<p class=3DMsoNormal><o:p>&nbsp;</o:p></p>
+ I=92m more fit now and lots of men fix their eyes on me!"
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-Aber einen so grossen Bonus haben Sie noch nie erhalten!
-<o:p></o:p></span></p>
+Silvia D., Boston
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-<o:p>&nbsp;</o:p></span></p>
+"I tried some passive weight reducing, you know, but with no result. It=20=
+was very hard for me to hold back and not to eat something just at hand. 
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-300% Bonus auf Ihre erste Einzahlung auf bis zu=20
-300&#8364; Bonus!<o:p></o:p></span></p>
+One day I was told about Anatrim my very best friend by and I was=20=
+really effected by the information.
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-<o:p>&nbsp;</o:p></span></p>
+ I had tried to take it, and my wife told me I look very good now, 3=20=
+months later. 
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-Ein echt k&ouml;niglicher Bonus!
-<o:p></o:p></span></p>
+31 pounds have gone away and it=92s still far to an end! 
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-<o:p>&nbsp;</o:p></span></p>
+And you know, I=92m an impetuous lover again."
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-Royal Euro Casino bietet Ihnen die neueste Generatin an=20
-Software und eine elegante gaming Atmosph&auml;re. Mit einer Auswahl=20
-an &uuml;ber 100 Casino Spielen und einer immer=20
-verf&uuml;gbaren Kundenbetreuung kann man nicht mehr verlangen.
-<o:p></o:p></span></p>
+Steve Doubt, Las Vegas
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-<o:p>&nbsp;</o:p></span></p>
+Anatrim gives you an opportunity to understand that you got no such=20=
+great need for that much food. It improves your spirit, gives you extra=20=
+energy, and attacks useless kilos. Great thanks to its mighty=20=
+newly-elaborated formula!!
+Elicit more useful information! 
+------------34F291534F215A86
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-<p class=3DMsoNormal><a href=3D"http://www.royalgames.org/lang-de/">
-http://www.royalgames.org/lang-de/</a>
-<span lang=3DEN-US style=3D'mso-ansi-language:EN-US'><o:p></o:p></span></=
-p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Healthy living with less fat</TITLE>
+</HEAD>
+<BODY>
 
-<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
->
-<o:p>&nbsp;</o:p></span></p>
+<p>
+<center>
+<b>
+<a href=3D"http://hcyqesfbeuc.hreninfo.com">Anatrim =96 The=20=
+up-to-the-moment and most exciting product for over-weight people=20=
+available =96 As told on ABC</a>
+</b>
+</center>
+<b>
+Did you see superfluous body kilos kill more and more people around the=20=
+whole world? We believe that you hate the unattractive appearance of=20=
+those people and the social stigmata attached to them. 
+<b>
+Or, maybe, you can not resist a pressure of terrible eating habits of=20=
+yours. If you think it sounds familiar, then we got something for your=20=
+consideration!
+</b>
+</b>
+<br>
+<br>
+<b>
+Here there is Anatrim, the new product for the elimination of your=20=
+body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
+the quality of your life by making you crave food less and giving you=20=
+better spirit. Here=92re what people write to us about this product:
+</b>
+<br>
+<br>
+<b>
+<i>
+"It=92s outstanding! 
+<b>
+<i>
+Instead of gorging anything close at hand and watching TV 
+<b>
+<i>
+I became keen on taking exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim made me stride on confidently.
+</i>
+</b>
+ I=92m more fit now and lots of men fix their eyes on me!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Silvia D., Boston
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"I tried some passive weight reducing, you know, but with no result. It=20=
+was very hard for me to hold back and not to eat something just at hand. 
+<b>
+<i>
+One day I was told about Anatrim my very best friend by and I was=20=
+really effected by the information.
+</i>
+</b>
+ I had tried to take it, and my wife told me I look very good now, 3=20=
+months later. 
+<b>
+<i>
+31 pounds have gone away and it=92s still far to an end! 
+</i>
+</b>
+And you know, I=92m an impetuous lover again."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Steve Doubt, Las Vegas
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim gives you an opportunity to understand that you got no such=20=
+great need for that much food. It improves your spirit, gives you extra=20=
+energy, and attacks useless kilos. Great thanks to its mighty=20=
+newly-elaborated formula!!
+</b>
+<b>
+<center>
+<a href=3D"http://hcyqesfbeuc.hreninfo.com">Elicit more useful=20=
+information!</a>
+</center>
+</b>
+</p> 
 
-<p class=3DMsoNormal>
-<span lang=3DEN-US style=3D'mso-ansi-language:EN-US'>
-Kommen und Spielen Sie bei Royal Euro Casino!<o:p></o:p></span></p>
-
-</div>
-
-</body>
-
-</html>
+</BODY></HTML>
+------------34F291534F215A86--

@@ -1,63 +1,216 @@
-From: =?shift-jis?B?aW5mb3JtYXRpb24=?= <toij6565@yahoo.co.jp>
-Subject: (unknown)
-Date: Thu, 22 Mar 2007 11:51:28 +0100 (CET)
-Message-ID: <20070322105128.2409652B3@artax.karlin.mff.cuni.cz>
+From: "Ivory Winston" <syfautrysphotographydof@autrysphotography.net>
+Subject: Melt away pounds with Anatrim
+Date: Thu, 22 Mar 2007 11:32:37 -0100
+Message-ID: <311371572.23248681145009@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------FD36EF67B8297BF"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Subject: 
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lwav67p@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-逆援助交際とは？
-http://yokm.effers.com/celeb/
-
-逆援助交際とは、女性が男性を選び、デートなどを楽しむかわりに、
-女性が男性を金銭的にサポートするものです。
-
-男性が女性をサポートする援助交際と違い、違法性は全くありません。
-今、女性が経済的に自立できる社会になり、多くの女性が逆援助交際を楽しんでいます。 
+------------FD36EF67B8297BF
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
 
 
-なんで？って思うかもしれないけど、結構当たり前の理由なんです。
+Anatrim =96 The up-to-the-moment and most enchanting flesh loss product=20=
+is made available now =96 As shown on ABC.
 
-経済的には自立できているのに、相変わらず恋愛は男性主導。
-普通の出会い系サイトで遊ぼうと思っても、投稿したら何百件とメールが届いたり、
-サクラと勘違いされたり・・・。
+Do you remember all the situations when you told yourself you would do=20=
+any thing to get rid of this quickly growing number of kilos?=20=
+Fortunately, now no major price is to be paid. Thanks to Anatrim, the=20=
+ground-breaking pound-melting medley, you can achieve healthier life=20=
+style and become really slimmer. Just look at what people write!
 
-女性が「遊びたい」って思っても、まだまだそういう環境がないんです。
+"It=92s rather difficult to acknowledge it but I was a junk food addict. 
 
-最近ホストに関する番組をよくみかけますが、
-これも女性が「遊び」を求めているっていう証拠かもしれませんね。
+I greedily swallowed up all this garbige 
 
-でも、ホストってすごくお金がかかるし、よっぽどのセレブじゃない限り難しいですよね。。
-「ホスト遊びじゃお金がかかりすぎるし・・・。でももっとオトコと自由に遊びたい！」 
+and could not stop. 
 
-逆援助交際の人気が高まっているのはこういった理由からです。
-「恋の記念日」も、すでに多くの女性にご利用いただいています。
+This ruinous passion finished after I started taking Anatrim! 
 
-「恋の記念日」で、アナタも新しい遊びを試してみませんか？
+God,
 
-新規の無料男性会員様へは、いますぐ使える無料ポイントを発行しております。
-http://yokm.effers.com/celeb/
+ my inclination to eat constantly disappeared, 
 
-┌───────────────────────
-│     配信停止はコチラまで。
-│     DeliveryStop
-│     max@orange07.flnet.org
-│
-│【配信停止手続きの際は】
-│必ず件名に「配信停止」とお書き下さい。
-│件名に「配信停止」と記載されていない場合は処理が行えません。
-│尚、停止には数日間ほどお時間をいただく場合がございます。
-│停止まで数日、数回メールが送信されることがございますが、
-│何卒ご了承ください。
-└───────────────────────
+mood increased and I=92m the happiest person 29 pounds in 2.2 months. 
+
+I can tell you now I became the happiest person on the planet!"
+ 
+
+Amelia B., Las Vegas
+
+ 
+"Since my early childhood I was a bulky boy. 
+
+It=92s difficult to imagine how I detested being derided at school. 
+
+I abhorred the weight and I abhorred even myself. 
+
+After trying this and that I learned about Anatrim. 
+
+It literally pulled me out of this awful nightmare! A lot of thanks to=20=
+you, guys."
+
+ 
+Mikkey Fox, San Diego
+
+ 
+"You know what? Anatrim saved my marriage! I fell down into the circle,=20=
+depression =96 more eating =96 just more depression. My wife was about to=20=
+leave me as I was turning in overweight psycho. 
+
+My best friend pointed at your site and I ordered pack of Anatrim right=20=
+off. 
+
+The results were splendid, my appetite came to acceptable level, I was=20=
+in a good mood oftener, and, be sure, I became able to tighten my belt on=20=
+some holes. And the sex became fantastic, too!"
+
+ 
+Francis
+
+ There is a lot of testimonials delighted people leave after taking=20=
+Anatrim. Don=92t you gonna add yourself to the thousands and thousands of=20=
+slender women and men and take this all-natural appetite-suppressing=20=
+energy boosting product now!
+
+Do not miss the opportunity!
+
+
+------------FD36EF67B8297BF
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Control your weight and appetite</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href=3D"http://blemgaaen.hreninfo.com">
+Anatrim =96 The up-to-the-moment and most enchanting flesh loss product=20=
+is made available now =96 As shown on ABC.
+</a>
+</center>
+Do you remember all the situations when you told yourself you would do=20=
+any thing to get rid of this quickly growing number of kilos?=20=
+Fortunately, now no major price is to be paid. Thanks to Anatrim, the=20=
+ground-breaking pound-melting medley, you can achieve healthier life=20=
+style and become really slimmer. Just look at what people write!
+<br>
+<br>
+<i>
+"It=92s rather difficult to acknowledge it but I was a junk food addict. 
+<b>
+<i>
+I greedily swallowed up all this garbige 
+<b>
+<i>
+and could not stop. 
+</i>
+</b>
+</i>
+</b>
+This ruinous passion finished after I started taking Anatrim! 
+<b>
+<i>
+God,
+</i>
+</b>
+<b>
+<i>
+ my inclination to eat constantly disappeared, 
+<b>
+<i>
+mood increased and I=92m the happiest person 29 pounds in 2.2 months. 
+</i>
+</b>
+</i>
+</b>
+I can tell you now I became the happiest person on the planet!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Amelia B., Las Vegas
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a bulky boy. 
+<b>
+<i>
+It=92s difficult to imagine how I detested being derided at school. 
+</i>
+</b>
+<b>
+<i>
+I abhorred the weight and I abhorred even myself. 
+<b>
+<i>
+After trying this and that I learned about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally pulled me out of this awful nightmare! A lot of thanks to=20=
+you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Mikkey Fox, San Diego
+</i>
+</b>
+<br>
+<br>
+ <i>
+"You know what? Anatrim saved my marriage! I fell down into the circle,=20=
+depression =96 more eating =96 just more depression. My wife was about to=20=
+leave me as I was turning in overweight psycho. 
+<b>
+<i>
+My best friend pointed at your site and I ordered pack of Anatrim right=20=
+off. 
+</i>
+</b>
+The results were splendid, my appetite came to acceptable level, I was=20=
+in a good mood oftener, and, be sure, I became able to tighten my belt on=20=
+some holes. And the sex became fantastic, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Francis
+</i>
+</b>
+<br>
+<br>
+ There is a lot of testimonials delighted people leave after taking=20=
+Anatrim. Don=92t you gonna add yourself to the thousands and thousands of=20=
+slender women and men and take this all-natural appetite-suppressing=20=
+energy boosting product now!
+<center>
+<a href=3D"http://omyqhnjxrcd.hreninfo.com">
+Do not miss the opportunity!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------FD36EF67B8297BF--

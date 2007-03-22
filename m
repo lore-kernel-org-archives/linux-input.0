@@ -1,216 +1,125 @@
-From: "Ivory Winston" <syfautrysphotographydof@autrysphotography.net>
-Subject: Melt away pounds with Anatrim
-Date: Thu, 22 Mar 2007 11:32:37 -0100
-Message-ID: <311371572.23248681145009@thhebat.net>
+From: "RoyalEURO casino" <librate@notimexico.com>
+Subject: 300% Bonus auf ihre erste einzahlung
+Date: Thu, 22 Mar 2007 10:55:21 -0300
+Message-ID: <54968163.01624876@horizon.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------FD36EF67B8297BF"
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lwav67p@atrey.karlin.mff.cuni.cz
+To: mj@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------FD36EF67B8297BF
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
+<html>
 
+<head>
+<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-=
+1">
 
-Anatrim =96 The up-to-the-moment and most enchanting flesh loss product=20=
-is made available now =96 As shown on ABC.
+<title>Online Casinos sind dafuer bekannt, ihren Spielern,=20
+gro&#223;z&uuml;gige Ersteinzahlungsbonusse=20
+zu geben</title>
 
-Do you remember all the situations when you told yourself you would do=20=
-any thing to get rid of this quickly growing number of kilos?=20=
-Fortunately, now no major price is to be paid. Thanks to Anatrim, the=20=
-ground-breaking pound-melting medley, you can achieve healthier life=20=
-style and become really slimmer. Just look at what people write!
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:2.0cm 42.5pt 2.0cm 3.0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
 
-"It=92s rather difficult to acknowledge it but I was a junk food addict. 
+</head>
 
-I greedily swallowed up all this garbige 
+<body lang=3DRU link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4pt'>
 
-and could not stop. 
+<div class=3DSection1>
 
-This ruinous passion finished after I started taking Anatrim! 
+<p class=3DMsoNormal>Online Casinos sind dafuer bekannt, ihren Spielern,=20
+gro&#223;z&uuml;gige Ersteinzahlungsbonusse zu geben.
+<o:p></o:p></p>
 
-God,
+<p class=3DMsoNormal><o:p>&nbsp;</o:p></p>
 
- my inclination to eat constantly disappeared, 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+Aber einen so grossen Bonus haben Sie noch nie erhalten!
+<o:p></o:p></span></p>
 
-mood increased and I=92m the happiest person 29 pounds in 2.2 months. 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+<o:p>&nbsp;</o:p></span></p>
 
-I can tell you now I became the happiest person on the planet!"
- 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+300% Bonus auf Ihre erste Einzahlung auf bis zu=20
+300&#8364; Bonus!<o:p></o:p></span></p>
 
-Amelia B., Las Vegas
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+<o:p>&nbsp;</o:p></span></p>
 
- 
-"Since my early childhood I was a bulky boy. 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+Ein echt k&ouml;niglicher Bonus!
+<o:p></o:p></span></p>
 
-It=92s difficult to imagine how I detested being derided at school. 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+<o:p>&nbsp;</o:p></span></p>
 
-I abhorred the weight and I abhorred even myself. 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+Royal Euro Casino bietet Ihnen die neueste Generatin an=20
+Software und eine elegante gaming Atmosph&auml;re. Mit einer Auswahl=20
+an &uuml;ber 100 Casino Spielen und einer immer=20
+verf&uuml;gbaren Kundenbetreuung kann man nicht mehr verlangen.
+<o:p></o:p></span></p>
 
-After trying this and that I learned about Anatrim. 
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+<o:p>&nbsp;</o:p></span></p>
 
-It literally pulled me out of this awful nightmare! A lot of thanks to=20=
-you, guys."
+<p class=3DMsoNormal><a href=3D"http://www.royalgames.org/lang-de/">
+http://www.royalgames.org/lang-de/</a>
+<span lang=3DEN-US style=3D'mso-ansi-language:EN-US'><o:p></o:p></span></=
+p>
 
- 
-Mikkey Fox, San Diego
+<p class=3DMsoNormal><span lang=3DEN-US style=3D'mso-ansi-language:EN-US'=
+>
+<o:p>&nbsp;</o:p></span></p>
 
- 
-"You know what? Anatrim saved my marriage! I fell down into the circle,=20=
-depression =96 more eating =96 just more depression. My wife was about to=20=
-leave me as I was turning in overweight psycho. 
+<p class=3DMsoNormal>
+<span lang=3DEN-US style=3D'mso-ansi-language:EN-US'>
+Kommen und Spielen Sie bei Royal Euro Casino!<o:p></o:p></span></p>
 
-My best friend pointed at your site and I ordered pack of Anatrim right=20=
-off. 
+</div>
 
-The results were splendid, my appetite came to acceptable level, I was=20=
-in a good mood oftener, and, be sure, I became able to tighten my belt on=20=
-some holes. And the sex became fantastic, too!"
+</body>
 
- 
-Francis
-
- There is a lot of testimonials delighted people leave after taking=20=
-Anatrim. Don=92t you gonna add yourself to the thousands and thousands of=20=
-slender women and men and take this all-natural appetite-suppressing=20=
-energy boosting product now!
-
-Do not miss the opportunity!
-
-
-------------FD36EF67B8297BF
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Control your weight and appetite</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href=3D"http://blemgaaen.hreninfo.com">
-Anatrim =96 The up-to-the-moment and most enchanting flesh loss product=20=
-is made available now =96 As shown on ABC.
-</a>
-</center>
-Do you remember all the situations when you told yourself you would do=20=
-any thing to get rid of this quickly growing number of kilos?=20=
-Fortunately, now no major price is to be paid. Thanks to Anatrim, the=20=
-ground-breaking pound-melting medley, you can achieve healthier life=20=
-style and become really slimmer. Just look at what people write!
-<br>
-<br>
-<i>
-"It=92s rather difficult to acknowledge it but I was a junk food addict. 
-<b>
-<i>
-I greedily swallowed up all this garbige 
-<b>
-<i>
-and could not stop. 
-</i>
-</b>
-</i>
-</b>
-This ruinous passion finished after I started taking Anatrim! 
-<b>
-<i>
-God,
-</i>
-</b>
-<b>
-<i>
- my inclination to eat constantly disappeared, 
-<b>
-<i>
-mood increased and I=92m the happiest person 29 pounds in 2.2 months. 
-</i>
-</b>
-</i>
-</b>
-I can tell you now I became the happiest person on the planet!"
-</i> 
-<br>
-<br>
-<b>
-<i>
-Amelia B., Las Vegas
-</i>
-</b>
-<br>
-<br>
- <i>
-"Since my early childhood I was a bulky boy. 
-<b>
-<i>
-It=92s difficult to imagine how I detested being derided at school. 
-</i>
-</b>
-<b>
-<i>
-I abhorred the weight and I abhorred even myself. 
-<b>
-<i>
-After trying this and that I learned about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-It literally pulled me out of this awful nightmare! A lot of thanks to=20=
-you, guys."
-</i>
- <br>
-<br>
-<b>
-<i>
-Mikkey Fox, San Diego
-</i>
-</b>
-<br>
-<br>
- <i>
-"You know what? Anatrim saved my marriage! I fell down into the circle,=20=
-depression =96 more eating =96 just more depression. My wife was about to=20=
-leave me as I was turning in overweight psycho. 
-<b>
-<i>
-My best friend pointed at your site and I ordered pack of Anatrim right=20=
-off. 
-</i>
-</b>
-The results were splendid, my appetite came to acceptable level, I was=20=
-in a good mood oftener, and, be sure, I became able to tighten my belt on=20=
-some holes. And the sex became fantastic, too!"
-</i>
- <br>
-<br>
-<b>
-<i>
-Francis
-</i>
-</b>
-<br>
-<br>
- There is a lot of testimonials delighted people leave after taking=20=
-Anatrim. Don=92t you gonna add yourself to the thousands and thousands of=20=
-slender women and men and take this all-natural appetite-suppressing=20=
-energy boosting product now!
-<center>
-<a href=3D"http://omyqhnjxrcd.hreninfo.com">
-Do not miss the opportunity!
-</a>
-</center>
-</b>
-</p>
-
-</BODY></HTML>
-------------FD36EF67B8297BF--
+</html>

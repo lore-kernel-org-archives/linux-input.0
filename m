@@ -1,179 +1,104 @@
-From: "Melody Penn" <syfavatekdof@avatek.ca>
-Subject: Get out of the obese crowd
-Date: Thu, 22 Mar 2007 14:09:34 +0500
-Message-ID: <207192727.16221458987702@thhebat.net>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom driver]
+Date: Thu, 22 Mar 2007 11:50:11 -0400
+Message-ID: <200703221150.12403.dtor@insightbb.com>
+References: <2460126662758025813@fi.muni.cz> <46018FB8.1080601@gmail.com> <38b3b7c0703211503s3a8ee177v5b149cfd5975de8c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------34F291534F215A86"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <38b3b7c0703211503s3a8ee177v5b149cfd5975de8c@mail.gmail.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: johann deneux <johann.deneux@gmail.com>
+Cc: Jiri Slaby <jirislaby@gmail.com>, "\"STenyaK (Bruno =?iso-8859-1?q?Gonz=E1lez?=)\"" <stenyak@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------34F291534F215A86
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+On Wednesday 21 March 2007 18:03, johann deneux wrote:
+> On 3/21/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+> > Dmitry Torokhov napsal(a):
+> > > On 3/21/07, johann deneux <johann.deneux@gmail.com> wrote:
+> > >> I would suggest adding a new effect type (3d effect) and extending the
+> > >> union in struct ff_effect.
+> > >> Let me know if I'm too vague, I already suggested that solution but
+> > >> got no answer. I wonder if my mail got lost, nobody understood what I
+> > >> said, or if it's just a plain bad idea.
+> > >>
+> > >
+> > > My concern with a new 3D effect is that it will be a very "simple"
+> > > effect with only constant force apllied. That might be enough for
+> > > phantom but may not be sufficient for future devices. If we add
+> > > ability to specify a "plane" for an effect we will be able to add
+> > > envelopes on top of more complex effects and get desired combined
+> > > effcet.
+> >
+> > I didn't get this too much, because I don't understand the FF layer well so
+> > far. How is this going to work? Let's say, we have 3 torque values computed
+> > in US, and this structure:
+> >
+> > struct ff_effect {
+> >     __u16 direction;
+> >     struct ff_trigger trigger;
+> >     struct ff_replay replay;
+> >
+> >     struct ff_constant_effect {
+> >         __s16 level;
+> >         struct ff_envelope {
+> >              __u16 attack_length;
+> >              __u16 attack_level;
+> >              __u16 fade_length;
+> >              __u16 fade_level;
+> >         };
+> >     };
+> > };
+> >
+> > and need to pass the three 16bits torques into s16 ioaddr[0..2]. How?
+> >
+> 
+> Stupid question, I have forgotten the details of ioctl: Wouldn't the
+> following work?
+> 
+> struct ff_effect {
+>         __u16 type;
+>         __s16 id;
+>         __u16 direction;
+>         struct ff_trigger trigger;
+>         struct ff_replay replay;
+> 
+>         union {
+>                 struct ff_constant_effect constant;
+>                 struct ff_ramp_effect ramp;
+>                 struct ff_periodic_effect periodic;
+>                 struct ff_condition_effect condition[2]; /* One for each axis */
+>                 struct ff_rumble_effect rumble;
+>         } u;
+> 
+>         /* New member: Specify a plane in the 3d space. */
+>         struct ff_ruct ff_plane plane;
+> };
+> 
+> Would that pose compatibility issues? If the input layer knows the
+> size of the struct the user-space application is sending, it knows if
+> it's safe to look into the "plane" member. If it is, and the device
+> driver is capable of handling 3d effects, then fine. If it is but the
+> device driver can't handle it, return an error code. If it isn't, just
+> do whatever it's currently doing.
 
-Anatrim =96 The up-to-the-moment and most exciting product for=20=
-over-weight people available =96 As told on ABC
-Did you see superfluous body kilos kill more and more people around the=20=
-whole world? We believe that you hate the unattractive appearance of=20=
-those people and the social stigmata attached to them. 
+No, the kernel would not know that there is more data unless we add a new
+ioctl number.
 
-Or, maybe, you can not resist a pressure of terrible eating habits of=20=
-yours. If you think it sounds familiar, then we got something for your=20=
-consideration!
+> 
+> Alternatively, one could leave ff_effect effect untouched and find
+> another way to specify the plane, e.g. another ioctl.
 
-Here there is Anatrim, the new product for the elimination of your=20=
-body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
-the quality of your life by making you crave food less and giving you=20=
-better spirit. Here=92re what people write to us about this product:
+I was thinking about a new ioctl to specify a plane for a specific effect,
+but probably extending the structure and having 2 distinct ioctls (with
+and without plane) is cleaner.
 
-"It=92s outstanding! 
-
-Instead of gorging anything close at hand and watching TV 
-
-I became keen on taking exercise.
-
- Anatrim made me stride on confidently.
-
- I=92m more fit now and lots of men fix their eyes on me!"
-
-Silvia D., Boston
-
-"I tried some passive weight reducing, you know, but with no result. It=20=
-was very hard for me to hold back and not to eat something just at hand. 
-
-One day I was told about Anatrim my very best friend by and I was=20=
-really effected by the information.
-
- I had tried to take it, and my wife told me I look very good now, 3=20=
-months later. 
-
-31 pounds have gone away and it=92s still far to an end! 
-
-And you know, I=92m an impetuous lover again."
-
-Steve Doubt, Las Vegas
-
-Anatrim gives you an opportunity to understand that you got no such=20=
-great need for that much food. It improves your spirit, gives you extra=20=
-energy, and attacks useless kilos. Great thanks to its mighty=20=
-newly-elaborated formula!!
-Elicit more useful information! 
-------------34F291534F215A86
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Healthy living with less fat</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href=3D"http://hcyqesfbeuc.hreninfo.com">Anatrim =96 The=20=
-up-to-the-moment and most exciting product for over-weight people=20=
-available =96 As told on ABC</a>
-</b>
-</center>
-<b>
-Did you see superfluous body kilos kill more and more people around the=20=
-whole world? We believe that you hate the unattractive appearance of=20=
-those people and the social stigmata attached to them. 
-<b>
-Or, maybe, you can not resist a pressure of terrible eating habits of=20=
-yours. If you think it sounds familiar, then we got something for your=20=
-consideration!
-</b>
-</b>
-<br>
-<br>
-<b>
-Here there is Anatrim, the new product for the elimination of your=20=
-body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
-the quality of your life by making you crave food less and giving you=20=
-better spirit. Here=92re what people write to us about this product:
-</b>
-<br>
-<br>
-<b>
-<i>
-"It=92s outstanding! 
-<b>
-<i>
-Instead of gorging anything close at hand and watching TV 
-<b>
-<i>
-I became keen on taking exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me stride on confidently.
-</i>
-</b>
- I=92m more fit now and lots of men fix their eyes on me!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Silvia D., Boston
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"I tried some passive weight reducing, you know, but with no result. It=20=
-was very hard for me to hold back and not to eat something just at hand. 
-<b>
-<i>
-One day I was told about Anatrim my very best friend by and I was=20=
-really effected by the information.
-</i>
-</b>
- I had tried to take it, and my wife told me I look very good now, 3=20=
-months later. 
-<b>
-<i>
-31 pounds have gone away and it=92s still far to an end! 
-</i>
-</b>
-And you know, I=92m an impetuous lover again."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Steve Doubt, Las Vegas
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim gives you an opportunity to understand that you got no such=20=
-great need for that much food. It improves your spirit, gives you extra=20=
-energy, and attacks useless kilos. Great thanks to its mighty=20=
-newly-elaborated formula!!
-</b>
-<b>
-<center>
-<a href=3D"http://hcyqesfbeuc.hreninfo.com">Elicit more useful=20=
-information!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------34F291534F215A86--
+-- 
+Dmitry

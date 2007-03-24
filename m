@@ -1,14 +1,10 @@
-From: "Preston Gallov" <smithuda@lovelholywell.freeserve.co.uk>
-Subject: Re: That whiteface
-Date: Sat, 24 Mar 2007 20:07:19 +0100
-Message-ID: <062201c76f06$3cda66d0$0624f1f0@zsparlinga>
-Reply-To: "Preston Gallov" <smithuda@lovelholywell.freeserve.co.uk>
+From: "Kristina Heath" <dwquomom@quomo.com>
+Subject: University Degree breaks the glass ceiling over your head.
+Date: Sat, 24 Mar 2007 20:26:57 +0000
+Message-ID: <01c76e52$c4e4a180$6c822ecf@dwquomom>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C76E52.C4E4A180"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -18,28 +14,67 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Our Last pick Doubled in 48 hours
+This is a multi-part message in MIME format.
 
-Ground floor to the future
-Critical C A R E New
-SYM-C-C-T-I
-Cannot go wrong at 20 cents
-This could hit  in short and over  in the long run
+------=_NextPart_000_0006_01C76E52.C4E4A180
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-This is a Real Business not a fly by night
-Get in Monday, Don't Regret later!!
-
- their fourth straight win, a 131-107 blowout of the Phoenix Suns on Saturday  coach on March 31, 2011, to earn a deferred-compensation package after the school's  also had 44 against Seattle on Dec. 28 in one of his first few games with the  exhaustion.   ''We're still feeling it,'' Steve Nash said. ''It was a big win.
-
------ Original Message ----- 
-From: "Preston Gallov" <smithuda@lovelholywell.freeserve.co.uk>
-To: <linux-input@atrey.karlin.mff.cuni.cz>
-Sent: Thursday, March 22, 2007 8:27 PM
-Subject: That whiteface
+A Genuine University Degree in 4-6 weeks!Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them.Within 4-6 weeks.No Study Required.100% Verifiable.These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysSat, 24 Mar 2007 20:26:57 +0000Had you that craft to reaveHoweer.
 
 
-> Ground floor to the future
-> Critical C A R E New
-> SYM-C-C-T-I
-> Cannot go wrong at 20 cents
-> This could hit  in short and over  in the long run
+------=_NextPart_000_0006_01C76E52.C4E4A180
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office"=20=
+xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20=
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-1">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html><head>
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+<style type=3D"text/css"><!--
+new22 { font-size: 22pt; font-family: Georgia; color: #000000;=20=
+text-align: center; font-weight: bold;}
+new12 { font-size: 12pt; font-family: Georgia; color: #000000;=20=
+text-align: center;}
+new14 { font-size: 14pt; font-family: Georgia; color: #000000;=20=
+text-align: center; font-style: italic;}
+new18 { font-size: 18pt; font-family: Georgia; color: #000000;=20=
+text-align: center; font-weight: bold;}
+new20 { font-size: 20pt; font-family: Georgia; color: #FF0000;=20=
+text-align: center; font-weight: bold;}
+new6 { font-size: 8pt; font-family: Georgia; color: #000000;=20=
+text-align: center;}
+
+--></style></head>
+<body bgcolor=3D"#FFFFFF">
+<div class=3D"new22">A Genuine University Degree in 4-6 weeks!</div><br>
+<div class=3D"new12">Have you ever thought that the only thing stopping=20=
+you from a great job and better pay was a few letters behind you name?=20=
+<br>Well now you can get them.</div><br>
+<div class=3D"new14">Within 4-6 weeks.<br>No Study Required.<br>100%=20=
+Verifiable.</div><br>
+<div class=3D"new12">These are real, genuine degrees that include=20=
+Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable=20=
+and certified transcripts are also available.</div><br>
+<div class=3D"new14">Just call the number below.<br>You=92ll thank me=20=
+later=85</div><br>
+<div class=3D"new20">1-682-626-0008</div>
+<div class=3D"new12">24 hours a day, 7 days a week including Sundays=20=
+and Holidays</div><br><br>
+<div class=3D"new6">Sat, 24 Mar 2007 20:26:57 +0000Had you that craft=20=
+to reaveHoweer.</div>
+</body>
+</html>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C76E52.C4E4A180--

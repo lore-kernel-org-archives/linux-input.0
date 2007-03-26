@@ -1,49 +1,51 @@
-From: UK LOTTERY BOARD <infounit_web2007@bellsouth.net>
-Subject: Dear Winner............(Confirm Receipt of Winnings)
-Date: Mon, 26 Mar 2007 17:03:23 -0400
-Message-ID: <20070326210323.ZGOG15873.ibm61aec.bellsouth.net@mail.bellsouth.net>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Fix sudden warps in mousedev
+Date: Mon, 26 Mar 2007 14:42:06 -0700
+Message-ID: <20070326144206.93805eeb.zaitcev@redhat.com>
+References: <20070324001610.724a820a.zaitcev@redhat.com>
+	<200703250134.03416.dtor@insightbb.com>
+	<20070325111930.f6428509.zaitcev@redhat.com>
+	<200703252319.39676.dtor@insightbb.com>
+	<20070326121718.3940a579.zaitcev@redhat.com>
+	<d120d5000703261230h1724e453je2c14769fc099ad3@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <d120d5000703261230h1724e453je2c14769fc099ad3@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: info@uklottery.co.uk
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, zaitcev@redhat.com
 List-Id: linux-input@vger.kernel.org
 
-REFERENCE NUMBER:UK/786543X4/28
-BATCH NUMBER:034/099/YX46
-TICKET NUMBER:005-4432-971-878
+On Mon, 26 Mar 2007 15:30:42 -0400, "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
 
+> Regarding the synaptics driver and scroll problem. Yesterday I
+> scrolled twice through entire Remarque's "Spark of Life" off lib.ru
+> (once with 0.14.2 and once with latest git pull) and did not see any
+> scrollbar getting "stuck". Could it be newer xorg problem instead of
+> individual driver problem? I am using whatever xorg was installed in
+> FC3 which is somewhat dated... Also, could it be that the scroll issue
+> happens only in a certain application?
 
-          WINNING   NOTIFICATION
-We are pleased to inform you today 26th march, 2007 of the result of the =
-winners of the  UK NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held on the 2=
-0th of march, 2007.
+It's not a "scroll" issue. The issue is that the "up" event is getting
+lost. It can be observed with any GUI elements, such as buttons.
+However, since the event is delivered upon any motion, there's no
+harm done with a button. Needless to say, this is not application
+specific. It may be GNOME specific though.
 
-You have therefore been approved for a lump sum pay out of =A31,000,000 (=
-One Million Britain pounds sterlings) in cash credited to file XYL/265104=
-60037/06.
+FC-3 is far too old to be a good reference. I don't even know if it
+has a usable synaptics module in its pre-modular X. You may be looking
+at very different software stack.
 
-To file for your claim, please contact our claims agent;
+I don't think that you need to concern yourself with this too much
+at present. If X11 people (e.g. Kristian) present evidence that kernel
+fails to deliver an event, then we'll look at it. However it might
+help if evtest continued to work when X11 reads from /dev/input/eventN.
+It was an unpleasant surprise that it doesn't.
 
-Agents Name: Dr.Pinkett Brown
-Email:info.ukclaaimsagent@yahoo.co.uk
-Phone Number:+44-704-570-5528
-
-Provide him with the information below:
-
-1.Full Name:
-2.Full Address:
-3.Marital Status:
-4.Occupation:
-5.Age:
-6.Sex:
-7.Nationality:
-8.Country Of Residence:
-9.Telephone Number:
-
-Congratulations once more from all members and staffs of this program.
+-- Pete

@@ -1,9 +1,13 @@
-From: "Magic-Jackpot Casino" <fishy@firmenich.com>
-Subject: Bis 1000 Euro frei!
-Date: Mon, 26 Mar 2007 11:36:59 -0300
-Message-ID: <15439029.36378229@sociometry.com>
+From: "Hunterv Bernardo" <kiuganda@action.sk>
+Subject: Re: cloudy recriminatory
+Date: Mon, 26 Mar 2007 21:54:53 -0800
+Message-ID: <053301c76f06$3ecc38d0$0074a4c0@asparlingp>
+Reply-To: "Hunterv Bernardo" <kiuganda@action.sk>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -11,122 +15,31 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: pavel@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+Our Last pick Doubled in 48 hours
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+Bull is Calling
+Critical Care NEW
+Sym-CCTI	
+20 Cents is a STEAL
+This is projected to go to $1
 
-<title>Sind Sie auf der Suche nach einem neuen, 
-aufregenden Spielangebot </title>
+This is a Real Business not a fly by night
+Get in Monday, Don't Regret later!!
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+Louis Bullock in what the NCAA said was the largest financial scandal in   night.   Carmelo Anthony augmented Iverson's night by adding 29 points in   a list of candidates, but declined to identify any of the coaches.  "Michigan's ways. But at Michigan, we have a tradition of winning Big Ten and national 
 
-</head>
+----- Original Message ----- 
+From: "Hunterv Bernardo" <kiuganda@action.sk>
+To: <linux-input@atrey.karlin.mff.cuni.cz>
+Sent: Thursday, March 22, 2007 8:27 PM
+Subject: cloudy recriminatory
 
-<body lang=EN-US link=blue vlink=purple style='tab-interval:35.4pt'>
 
-<div class=Section1>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Sind Sie auf der Suche nach einem neuen, aufregenden Spielangebot? 
-</span><o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Magic Jackpot ist momentan die warscheinlich aufregendste 
-Moglichkeit dazu ! </span><o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Wenn BlackJack oder Roulette zu Ihren Lieblingsspielen gehoren, 
-bieten Magic Jackpot's Live-Dealer das Gefuhl eines echten Casinos. 
-</span><o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Wenn Slot-Machinen zu Ihren Favoriten gehoren, konnen Sie den 
-hochsten Preis aller Zeiten beim Video-Slot Millionaire's Lane 
-gewinnen, insgesamt $5 000 000 !</span><o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Fur den Anfing bietet Magic Jackpots einen magischen Bonus 
-als Willkommensgeschenk !</span><o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie Heute noch bei Magic Jackpot ein und Ihr Kontostand 
-wird umgehend mit einem 100% Bonus verdoppelt.
-</span></p>
-
-<p class=MsoNormal><span style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie 20$ ein, spielen Sie mit 40$</span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie 250$ ein, spielen Sie mit 500$</span><o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Der Live-Kundendienst steht bei eventuellen Ruckfragen oder 
-sonstigen Anliegen, 24 Stunden am Tag zur Verfugung, was den 
-Genuess schneller Auszahlungen garantiert !</span>
-<o:p></o:p></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
-
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<a href="http://www.realmagiccasino.com/lang-de/">
-http://www.realmagiccasino.com/lang-de/</a><u3:p></u3:p></span></p>
-
-</div>
-
-</body>
-
-</html>
+> Bull is Calling
+> Critical Care NEW
+> Sym-CCTI	
+> 20 Cents is a STEAL
+> This is projected to go to $1

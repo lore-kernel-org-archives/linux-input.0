@@ -1,11 +1,11 @@
-From: funfun_0506@yahoo.co.jp
-Subject: =?iso-2022-jp?B?g1qDdIOMi+SKeZWUgsWBQYN0g4qBW4OBgVuDi4LwjmeCwYLEg0GDTIKzgvGCxoOBgVuDi4K3gumCzILNglGVqoLFiq6XuYLFgquC3IK3gUI=?=
-Date: Tue, 27 Mar 2007 00:32:36 +0200 (CEST)
-Message-ID: <14428.5789029256$1174948361@news.gmane.org>
+From: "Goldie Spanbuer" <dweskillm@eskill.is>
+Subject: fwd:Men's Health Pharmacy bulletin.
+Date: Tue, 27 Mar 2007 00:11:56 -0900
+Message-ID: <664943851.55356566344403@thhebat.net>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
+  charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,11 +15,14 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+CanadianPharmacy warns you about the growing threat of drug poisoning=20=
+caused by low-quality medications sold by underground online pharmacies=20=
+without a license. Choose the best and save on it =96 purchase real=20=
+generic medications from licensed manufacturers at CanadianPharmacy.
 
-まずは、アキさん宛てに貴方のアドレスを送ってください
-http://pe-yong.sakura.ne.jp/sehure
-そうしたら返信で帰ってくるメールを確認くださいね！
-私書箱にはアキさんのアドレスが返信で帰って来るので早めに連絡してあげてくださいね。
-フリーメールで連絡する際はyahoo・goo・livedoor…など各種で繋がります。
-お金も一切必要ありませんからね！気軽にめるめるで連絡してください
-http://pe-yong.sakura.ne.jp/sehure
+Don=92t waste your money on the meds of questionable quality =96 shop=20=
+at CanadianPharmacy.
+http://nonoq.heardage.hk/?625244182150
+
+Absolutely legal, licensed and CHEAP pills at your choice. Confidential=20=
+purchase. Instant shipping.

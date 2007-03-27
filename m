@@ -1,72 +1,106 @@
-From: "Mabel Conway" <hzpotato@masyuk.com>
-Subject: As wag those midget
-Date: Tue, 27 Mar 2007 18:26:25 +0900
-Message-ID: <001201c7709d$bf9248c0$01e0ce6c@athena>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom
+ driver]
+Date: Tue, 27 Mar 2007 14:20:02 +0200
+Message-ID: <46090BF2.2000105@gmail.com>
+References: <2460126662758025813@fi.muni.cz> <46018FB8.1080601@gmail.com> <38b3b7c0703211503s3a8ee177v5b149cfd5975de8c@mail.gmail.com> <200703221150.12403.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000F_01C7709D.BF9248C0"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200703221150.12403.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: johann deneux <johann.deneux@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, =?UTF-8?B?IlNUZW55YUsgKEJydW5vIEdvbnrDoWxleiki?= <stenyak@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000F_01C7709D.BF9248C0
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Dmitry Torokhov napsal(a):
+> On Wednesday 21 March 2007 18:03, johann deneux wrote:
+>> On 3/21/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+>>> Dmitry Torokhov napsal(a):
+>>>> On 3/21/07, johann deneux <johann.deneux@gmail.com> wrote:
+>>>>> I would suggest adding a new effect type (3d effect) and extending the
+>>>>> union in struct ff_effect.
+>>>>> Let me know if I'm too vague, I already suggested that solution but
+>>>>> got no answer. I wonder if my mail got lost, nobody understood what I
+>>>>> said, or if it's just a plain bad idea.
+>>>>>
+>>>> My concern with a new 3D effect is that it will be a very "simple"
+>>>> effect with only constant force apllied. That might be enough for
+>>>> phantom but may not be sufficient for future devices. If we add
+>>>> ability to specify a "plane" for an effect we will be able to add
+>>>> envelopes on top of more complex effects and get desired combined
+>>>> effcet.
+>>> I didn't get this too much, because I don't understand the FF layer well so
+>>> far. How is this going to work? Let's say, we have 3 torque values computed
+>>> in US, and this structure:
+>>>
+>>> struct ff_effect {
+>>>     __u16 direction;
+>>>     struct ff_trigger trigger;
+>>>     struct ff_replay replay;
+>>>
+>>>     struct ff_constant_effect {
+>>>         __s16 level;
+>>>         struct ff_envelope {
+>>>              __u16 attack_length;
+>>>              __u16 attack_level;
+>>>              __u16 fade_length;
+>>>              __u16 fade_level;
+>>>         };
+>>>     };
+>>> };
+>>>
+>>> and need to pass the three 16bits torques into s16 ioaddr[0..2]. How?
+>>>
+>> Stupid question, 
 
+Sorry to be out for so long, maybe I'm stupid idiot, that understands
+nothing, but:
 
+>> I have forgotten the details of ioctl: Wouldn't the
+>> following work?
 
+No, at least, as far as I understand this. I have computed _torques_, not
+forces vector (this was misleading info in my first post), the question is
+"how can I pass torques through plane and direction entries into KS?".
 
+>> struct ff_effect {
+>>         __u16 type;
+>>         __s16 id;
+>>         __u16 direction;
+>>         struct ff_trigger trigger;
+>>         struct ff_replay replay;
+>>
+>>         union {
+>>                 struct ff_constant_effect constant;
+>>                 struct ff_ramp_effect ramp;
+>>                 struct ff_periodic_effect periodic;
+>>                 struct ff_condition_effect condition[2]; /* One for each axis */
+>>                 struct ff_rumble_effect rumble;
+>>         } u;
+>>
+>>         /* New member: Specify a plane in the 3d space. */
+>>         struct ff_ruct ff_plane plane;
+>> };
+[...]
+>> Alternatively, one could leave ff_effect effect untouched and find
+>> another way to specify the plane, e.g. another ioctl.
+> 
+> I was thinking about a new ioctl to specify a plane for a specific effect,
+> but probably extending the structure and having 2 distinct ioctls (with
+> and without plane) is cleaner.
 
-This one will explode..
+This sounds good for me, if I (or someone) have forces vector, but it
+doesn't help me in my situation.
 
-
-Lookup: PLMACurrent: $0.02 5 Day Target price: $0.1Expected: Steadily =
-climb for the top!
-
-
-
-TRADE SMART AND WIN WITH US..
-
-
-
-The hottest news are released for PLMA, linux-input, call to broker!!!!
-
-
-
-------=_NextPart_000_000F_01C7709D.BF9248C0
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2600.2869" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0033 size=3D3D4><FONT =
-size=3D4><STRONG>This one will explode!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0000 size=3D2>Lookup: =
-<b>PLMA</b><br>Current: $0.02 <br>5 Day Target price: $0.1<br>Expected: =
-Steadily climb for the top..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3333 size=3D4>TRADE =
-SMART AND WIN WITH US!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D3>The =
-hottest news are released for PLMA, linux-input, call to =
-broker!...</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000F_01C7709D.BF9248C0--
+thanks,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

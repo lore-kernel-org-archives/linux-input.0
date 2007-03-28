@@ -1,66 +1,73 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: appletouch quirk doesn't run at resume
-Date: Wed, 28 Mar 2007 09:24:06 -0400
-Message-ID: <d120d5000703280624q62c26ffbs80e31d557bf3c72b@mail.gmail.com>
-References: <Pine.LNX.4.64.0703160925270.26106@woody.linux-foundation.org>
-	 <1174078066.13341.279.camel@localhost.localdomain>
-	 <1174087552.13341.332.camel@localhost.localdomain>
-	 <45FBBDEA.9060708@m3y3r.de> <20070318004240.GO752@stusta.de>
-	 <Pine.LNX.4.64.0703181934530.4195@jikos.suse.cz>
-	 <45FD8CA3.10405@m3y3r.de>
-	 <Pine.LNX.4.64.0703182020070.4195@jikos.suse.cz>
-	 <4609866C.4060602@m3y3r.de>
-	 <Pine.LNX.4.64.0703281414410.29565@twin.jikos.cz>
+From: "Vasilj Khoa" <wettingclacking@geniusnet.ro>
+Subject: dty xq gxcqkh
+Date: Wed, 28 Mar 2007 14:14:28 -0540
+Message-ID: <01c77143$658ebfb0$6c822ecf@wettingclacking>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7718E.D57667B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0703281414410.29565@twin.jikos.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Thomas Meyer <thomas@m3y3r.de>, Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>, Soeren Sonnenburg <kernel@nn7.de>, linux-input@atrey.karlin.mff.cuni.cz, Peter Osterlund <petero2@telia.com>
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 3/28/07, Jiri Kosina <jikos@jikos.cz> wrote:
-> On Tue, 27 Mar 2007, Thomas Meyer wrote:
->
-> > It seems, that after the resume all usb devices gets removed and plug in
-> > again (virtually!). This results in a new input device name:
->
-> Yes, this is what actually happens. JFYI see current thread on lkml which
-> is a bit realted - http://lkml.org/lkml/2007/3/27/149 if interested.
->
-> > This change confuses the X synaptics driver:
-> > Touchpad no synaptics event device found (checked 11 nodes)
-> > Touchpad The /dev/input/event* device nodes seem to be missing
-> > (EE) xf86OpenSerial: Cannot open device /dev/input/event2
-> >         No such file or directory.
-> > (WW) Touchpad: cannot open input device
-> > One could say that the synaptics driver rightly complains about the
-> > missing event2 device! So is this a bug in the X synaptics driver?
->
-> You can of course work this around by adding an udev rule such as
->
-> SUBSYSTEM=="input",KERNEL=="event*",SYSFS{name}=="appletouch",SYMLINK+="input/appletouchpad"
->
-> and the let Xorg use /dev/input/appletouchpad, which will always be a
-> symlink to the correct device.
->
+This is a multi-part message in MIME format.
 
-I am not sure if this would help... According to the excerpt from X
-log synaptics driver attempted to scan evdev devices and locate the
-touchpad. However if this scan happen before udev had a chance to
-process the event and create new /dev/input/eventX device node it will
-fail.
+------=_NextPart_000_0006_01C7718E.D57667B0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-I wonder if we should adjust the X driver to spin for a couple of
-seconds in EventAutoDevProbe if the touchpad was already seen once...
-Peter?
+Hello. Let me say a few words about myself. My full name is Dr. Abraham Morgentaler, an associate professor of urology at Harvard Medical School and author of The Viarga Myth: The Surprising Impact on Love and Relationships.It's my opinion about Viarga:
+  - Viarga seems to be changing not only the firmness of a man's penes, 
+  it also seems to be changing the way people think about relationships. 
+  - Viarga is really one of the most famous drug in medicine in the last 50 years. 
+  It's remarkable, but the effect of Viarga is so far beyond its pure medical indication. The effects are psychological, they're attitudinal, they're behavioral and they're societal...
+  - Viarga has turned out to be a window into certainly the minds of the psyche of men but also of women and what it is that relationships means for us. 
+- The Viarga experience has shown us that men care deeply about being a good sexual partner,they want not just to be adequate but to be admired. Viarga can play into that.I advise you to visit the site.Abraham Morgentaler.
 
--- 
-Dmitry
+
+------=_NextPart_000_0006_01C7718E.D57667B0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-1">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<body>
+<p>Hello. Let me say a few words about myself. My full name is Dr. Abraham =
+Morgentaler, an associate professor of urology at Harvard Medical School an=
+d author of The Viarga Myth: The Surprising Impact on Love and Relationship=
+s.</p>
+<p><strong>It's my opinion about Viarga</strong>:<br>
+  - Viarga seems to be changing not only the firmness of a man's penes, 
+  it also seems to be changing the way people think about relationships. <b=
+r>
+  - Viarga is really one of the most famous drug in medicine in the last 50=
+ years. 
+  It's remarkable, but the effect of Viarga is so far beyond its pure medic=
+al indication. The effects are psychological, they're attitudinal, they're =
+behavioral and they're societal...<br>
+  - Viarga has turned out to be a window into certainly the minds of the ps=
+yche of men but also of women and what it is that relationships means for u=
+s. <br>
+- The Viarga experience has shown us that men care deeply about being a goo=
+d sexual partner,they want not just to be adequate but to be admired. Viarg=
+a can play into that.</p>
+<p><a href=3D"http://roomcatch.hk"><strong>I advise you to visit the site.<=
+/strong></a></p>
+<p>Abraham Morgentaler.</p>
+</body>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C7718E.D57667B0--

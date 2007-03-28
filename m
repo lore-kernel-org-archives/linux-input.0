@@ -1,51 +1,50 @@
-From: Matt Keenan <tank.en.mate@gmail.com>
-Subject: Re: Fix sudden warps in mousedev
-Date: Wed, 28 Mar 2007 21:51:34 +0100
-Message-ID: <460AD556.9090408@gmail.com>
-References: <20070324001610.724a820a.zaitcev@redhat.com>	 <d120d5000703261230h1724e453je2c14769fc099ad3@mail.gmail.com>	 <20070326144206.93805eeb.zaitcev@redhat.com>	 <200703262114.45287.dtor@insightbb.com> <460934D7.9030700@redhat.com>	 <d120d5000703270846y87e4283m4009ff0a9f65dac4@mail.gmail.com>	 <4609409F.2070203@redhat.com> <d120d5000703270919y16ae3e56kb7d2fbd293213939@mail.gmail.com>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: FF layer restrictions [Was: [PATCH 1/1] Input: add sensable phantom
+ driver]
+Date: Thu, 29 Mar 2007 00:16:19 +0200
+Message-ID: <460AE933.6010209@gmail.com>
+References: <2460126662758025813@fi.muni.cz> <460983D6.7070409@gmail.com> <38b3b7c0703271434u2fddc4d1jc2b9af097e9c95b2@mail.gmail.com> <200703272308.34441.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000703270919y16ae3e56kb7d2fbd293213939@mail.gmail.com>
+In-Reply-To: <200703272308.34441.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Chuck Ebbert <cebbert@redhat.com>, Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Peter Osterlund <petero2@telia.com>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: johann deneux <johann.deneux@gmail.com>, =?UTF-8?B?IlNUZW55YUsgKEJydW4=?= =?UTF-8?B?byBHb256w6FsZXopIg==?= <stenyak@gmail.com>, Anssi Hannula <anssi.hannula@gmail.com>, Linux kernel mailing list <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On 3/27/07, Chuck Ebbert <cebbert@redhat.com> wrote:
->> Dmitry Torokhov wrote:
->> >>
->> >> And why did the mouse numbers all get rearranged in 2.6.20, e.g.
->> >> mouse1 became mouse2 for many people?
->> >
->> > Input devices are not guaranteed to be stable.
->> >
+Dmitry Torokhov napsal(a):
+> On Tuesday 27 March 2007 17:34, johann deneux wrote:
+>> What about adding a member to ff_effect which would be the number of the motor?
+>> We can't change the layout of ff_effect too much though, so we have to
+>> find unused bits and put them to work.
 >>
->> So people with z-axis mice need to redo their X config for each
->> kernel release when the device numbers change? Or should they
->> be using some other configuration?
+>> For instance, we could replace
 >>
->> People using this now have X crashes on kernel upgrade because
->> event1 became event2:
+>> __u16 type;
 >>
->>        Driver      "evdev"
->>        Option      "Device" "/dev/input/event1"
+>> by
 >>
->
-> I'd recommend matching on "phys" or individual capabilities bits
-> instead of device node. See "man evdev".
->
-I wrote a few udev rules to create specific /dev nodes for X with evedv 
-(I run with multiple X users / screens / keyboards / mice on one 
-machine).  I can forward you the udev rules and helper scripts if you 
-want.  This means that you can hardcode the /dev nodes in your xorg.conf 
-file and udev will make sure they don't move on you.  I wrote this up in 
-the early days of evdev development before the phys stuff was there.
+>> __u8 motor;
+>> __u8 type;
+>>
+> 
+> Splitting type field seems to be a good idea.
 
-Matt
+Maybe stupid question, but what about endianness + backward compatibility?
+If we split it into motor,type sequence, it would break LE (untouched BE),
+if we do type,motor, it is OK for LE (broken BE).
+
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+ B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+
+Hnus <hnus@fi.muni.cz> is an alias for /dev/null

@@ -1,8 +1,10 @@
-From: Online MensHealth <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: Doc Lacey
-Date: Thu, 29 Mar 2007 03:54:58 +0200 (CEST)
-Message-ID: <20070329185459.11638.qmail@xser2.bttc.ru>
-Content-Type: text/html
+From: TMS Logistik GmbH <Fletcher@tms-logistik.de>
+Subject: KD 18496 Webshop Bestellung 27.03.2007
+Date: Thu, 29 Mar 2007 16:04:38 +0900
+Message-ID: <A3C52CE8.5303103@niss.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -12,85 +14,62 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<style>
+Guten Tag,
 
-(He's away on business, and his wife is out all day at work, and I'm
-guessing neither of them has much of a clue of the right way to go
-about it, any more than I do really)
+Vielen Dank fur Ihre Bestellung!
 
+Die von Ihnen bestellten Waren sind vollstandig am Lager und werden umgeh=
+end
+durch die Logistikabteilung an Sie versandt.
 
->
+http://bluerain.co.kr/
 
-<!
-
-I have checked the Default Time Zone setting for the 
-default virtual server on SharePoint central 
-administration as well as all the individual site 
-settings. Every where it is configured to use GMT-06.00 - 
-Central Time (US & Canada). However if anyone create or 
-modify a document in SharePoint (any site) the time 
-showing on SharePoint is different than the system time of 
-the same server. Suppose if the current time on the server 
-clock is 2.34 AM, then the modified document time on the 
-SharePoint would be 1.34 AM. 
+Um eine schnellstmogliche Bearbeitung Ihre Ruckfragen gewahrleisten zu
+konnen,
+bitten wir Sie bei Ruckfragen immer Ihre Kundennummer 18496 und
+Belegnummer [3816712] anzugeben.
 
 
+Vielen Dank
 
->
+Mit freundlichem Grub
 
-<! 
-Sorry, but your problem does not imply a bug in PHP itself.  For a
-list of more appropriate places to ask for help using PHP, please
+Eberhard Schmidt
 
-appropriate forum for asking support questions. 
+TMS Logistik GmbH
 
-</style><a target="_blank"  href="http://www.feedsbeans.cd/index1.htm" ><img src="http://skymbo.hk/1.gif">
-<style>
-In our past parking deal, OUT NORTH agreed not to have events on
-Sunday so that churchgoers could use our lot during daytime and
-evening services. Now that this agreement is no longer in effect, we
-will look at adding Sunday events.
-Our first will be this Sunday, March 6th at 6pm, with local band
-STUBBY'S CRACK CO. headlining a concert of work by young musicians as
-part of our Alaska Artist Access program. Details will be available
-online later this week; low-price tickets will be sold at the door
-only, and earplugs will be available for purchase>
+Call Center:
+tel (0180) 31 57 16 21 - 0,09 EUR/min aus dem dt. Festnetz/T-Com
+fax (030) 90 16 - 29 19
+web www.tms-logistik.de
 
-Actually, looks like I screwed up the placement anyways, and the slave 
-goes on the end.
+Niederlassung Berlin
+Albrechstrasse 117
+D-01271 Berlin
 
-Jim, you probably don't have to worry about it either way.
-I know I shouldn't bitch, and that this is proof that resources are 
-needed, like volunteers, and that I should volunteer, but I just 
-can't do it right now. It was just too hard on my heart seeing 
-first hand what goes on. I salute all of the volunteers in rescue 
-groups that do this stuff on a regular basis and make a difference.
-Groeten en knuffels van ICY aan iedereen van nltest!
+-------------------------------------------------------------------------=
+---
+------------------
 
-En ja het gaat goed maar haar....
-Nog steeds wel RSI, maar wel langzaam minderend....
+  Auf den Punkt gebracht - Ihre Vorteile als TMS Logistik Kunde
+-------------------------------------------------------------------------=
+---
+------------------
 
--- 
-Dolfy
-- Webstek : - Nieuwsgroep : 
--  (Ook bereikbaar via groupsgoogle
-- Rain... Is that what you call this? I like it.' (Aeryn Sun - Farscape)
 
-Can anyone recommend a maroon shade, particularly an OPI one?  I usually
-wear silver (OPI Pearl of Wisdom or Sally Hansen's Chrome Nail Make-up in
-psychiatrist had told me that he thought I was fit enough to return to
-work, and that I was willing to return when the current sick note
-expired on 17th February. I received an emailed reply from my manager to
-say that he preferred me to remain at home until he wrote to the
-psychiatrist. To be precise, his email said: "I would much prefer it,
+  o 14 Tage Ruckgaberecht fur originalverpackte Neuware
+  o Beratung durch unsere Fachverkaufer
+  o Transparente Preisgestaltung und Verfugbarkeitsanzeige
+  o Rundumschutz durch optionales Servicepaket
+  o Kostenfreie Parkplatze
+  o Bequeme Zusendung durch uns oder DHL moglich
+  o Kostenfreier 80-seitiger Gesamtkatalog - auch per Post nach Hause
 
-Bonjour,
+-------------------------------------------------------------------------=
+---
+------------------
 
-Je vais effectuer ce soir ma premiere photo du ciel profond avec mon
-Arcane 180 F/D 6.
-Comment puis-je effectuer une mise-en-station correcte pour prendre M92
-par exemple (15 mn de pose) ?
-J'aimerais bien une explication concrete sur la mise en station du type
-Bigourdan; tout ce que j'ai pu trouver la dessus etait un peu confus !
-
-</style>
+  TMS Logistik - seit 12 Jahren erfolgreich in Berlin
+-------------------------------------------------------------------------=
+---
+------------------

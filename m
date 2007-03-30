@@ -1,189 +1,218 @@
-From: "Sonia Fernandez" <lexbethanycentervar@bethanycenter.com>
-Subject: Join the Anatrim revolution
-Date: Thu, 29 Mar 2007 14:04:52 -0100
-Message-ID: <962369109.87794770023272@thhebat.net>
+From: "Geoffrey Moser" <lexbestlawyersnyvar@bestlawyersny.com>
+Subject: Check out the wonders of pound melting
+Date: Thu, 29 Mar 2007 18:40:43 -0900
+Message-ID: <171712670.19395375784354@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------8FB01B25DA988F"
+  boundary="----------F4DACDA52C673188"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: koles@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------8FB01B25DA988F
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+------------F4DACDA52C673188
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
 
+Anatrim =96 The very up-to-date and most delighting flesh loss product=20=
+is now readily available =96 As told on CNN.
 
-Anatrim – The very up-to-date and most delighting product for over-weight people is now available – As seen on CNN.
+Can you retain all the times when you told yourself you would do any=20=
+thing for being rescued from this fastly growing pounds of fat?=20=
+Fortunately, now no major price is to be paid. With Anatrim, the=20=
+earth-shaking kilos-melting mixture, you can achieve naturally health=20=
+lifestyle and a really slender figure. Take a look at what people say!
 
-Can you hold in your memory all the cases when you told yourself you would do any thing to get rid of this fastly growing number of kilos? Luckily, now no big sacrifice is expected. Thanks to Anatrim, the earth-shaking kilos-melting medley, you can get healthier life style and a really slender figure. Have a look at what people state!
+"It=92s unbearably difficult to admit it but I was a junk food addict. 
 
-"It’s rather difficult to admit it but I was extremely addicted to food. 
+I swallowed up all this trash 
 
-I greedily devoured all this garbige 
+and was unable to stop. 
 
-and just could not stop. 
+This misery stopped when I started taking Anatrim! 
 
-This suffering finished after I started course with Anatrim! 
+God,
 
-Oh, God,
+ my inclination to eat constantly vanished, 
 
- my inclination to eat constantly disappeared, 
+mood increased and I became the happiest person 20 pounds in 2.5 months. 
 
-mood improved and I became the happiest person 22 pounds in 2.9 months. 
-
-So, I can tell you now I became the happiest person!"
+I can tell you now I became the happiest person in the world!"
  
 
-Silvia D., Washington
+Amelia B., Washington
 
  
-"I had weight problems since a boy. 
+"I had problems with over-weight since a boy. 
 
-You can't imagine how I hated being derided at school. 
+You can't even fancy how I abhorred being derided at school. 
 
-I hated the weight and I abhorred myself. 
+I detested my plumpness and I detested myself. 
 
-After trying many different remedies I heard about Anatrim. 
+After trying many different remedies I learned about Anatrim. 
 
-It literally pulled me out of this nightmare! A plenty of thanks to you, guys."
-
- 
-Mike Brown, Chicago
+It literally dragged me out of this horrible nightmare! A plenty of=20=
+thanks to you, my friends."
 
  
-"Know what? Anatrim preserved my marriage! I got into the circle, depression – more eating – just more depression. My wife was about to leave the overweight psycho I was turning in. 
-
-One of my friends pointed at your web page and I ordered up Anatrim at the time. 
-
-The final result was excellent, my appetite came to admissible level, I was often in good spirits, and, be sure, I went some belt holes back. And you know, the bed became cool, too!"
+Steve Doubt, Boston
 
  
-Dave
+"Do you know what? Thanks to Anatrim my marriage was luckily saved! I=20=
+fell down into this circle, depression =96 eating more =96 more=20=
+depression. My wife was about to leave the overweight psycho I was=20=
+turning in. 
 
- There is a great number of gratitudes left by delighted people trying Anatrim. Don’t you wanna join the thousands and thousands of slim men and women and try this original appetite-reducing power increasing product now!
+My best friend pointed to your web site and I asked for my pack of=20=
+Anatrim immediately. 
 
-Do not decline your opportunity!
+The result was excellent, my appetite came to admissible level, I was=20=
+often in good spirits, and, of course, I became able to tighten my belt=20=
+on some holes. And you see, the bedroom became cool, too!"
+
+ 
+Frank
+
+ There are lots of testimonials happy people leave after taking=20=
+Anatrim. Don=92t you gonna add yourself to the thousands and thousands of=20=
+slender clients and take this natural appetite-abating power increasing=20=
+product now!
+
+Do not miss your opportunity!
 
 
-------------8FB01B25DA988F
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+------------F4DACDA52C673188
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Summer is coming, time to tone up</TITLE>
+<HTML><HEAD><TITLE>Anatrim will change your life</TITLE>
 </HEAD>
 <BODY>
 
 <p>
 <center>
 <b>
-<a href="http://mxnmevfuf.fantorve.com">
-Anatrim – The very up-to-date and most delighting product for over-weight people is now available – As seen on CNN.
+<a href=3D"http://zxwpljopmis.adlersen.com">
+Anatrim =96 The very up-to-date and most delighting flesh loss product=20=
+is now readily available =96 As told on CNN.
 </a>
 </center>
-Can you hold in your memory all the cases when you told yourself you would do any thing to get rid of this fastly growing number of kilos? Luckily, now no big sacrifice is expected. Thanks to Anatrim, the earth-shaking kilos-melting medley, you can get healthier life style and a really slender figure. Have a look at what people state!
+Can you retain all the times when you told yourself you would do any=20=
+thing for being rescued from this fastly growing pounds of fat?=20=
+Fortunately, now no major price is to be paid. With Anatrim, the=20=
+earth-shaking kilos-melting mixture, you can achieve naturally health=20=
+lifestyle and a really slender figure. Take a look at what people say!
 <br>
 <br>
 <i>
-"It’s rather difficult to admit it but I was extremely addicted to food. 
+"It=92s unbearably difficult to admit it but I was a junk food addict. 
 <b>
 <i>
-I greedily devoured all this garbige 
+I swallowed up all this trash 
 <b>
 <i>
-and just could not stop. 
+and was unable to stop. 
 </i>
 </b>
 </i>
 </b>
-This suffering finished after I started course with Anatrim! 
+This misery stopped when I started taking Anatrim! 
 <b>
 <i>
-Oh, God,
+God,
 </i>
 </b>
 <b>
 <i>
- my inclination to eat constantly disappeared, 
+ my inclination to eat constantly vanished, 
 <b>
 <i>
-mood improved and I became the happiest person 22 pounds in 2.9 months. 
+mood increased and I became the happiest person 20 pounds in 2.5 months. 
 </i>
 </b>
 </i>
 </b>
-So, I can tell you now I became the happiest person!"
+I can tell you now I became the happiest person in the world!"
 </i> 
 <br>
 <br>
 <b>
 <i>
-Silvia D., Washington
+Amelia B., Washington
 </i>
 </b>
 <br>
 <br>
  <i>
-"I had weight problems since a boy. 
+"I had problems with over-weight since a boy. 
 <b>
 <i>
-You can't imagine how I hated being derided at school. 
+You can't even fancy how I abhorred being derided at school. 
 </i>
 </b>
 <b>
 <i>
-I hated the weight and I abhorred myself. 
+I detested my plumpness and I detested myself. 
 <b>
 <i>
-After trying many different remedies I heard about Anatrim. 
+After trying many different remedies I learned about Anatrim. 
 </i>
 </b>
 </i>
 </b>
-It literally pulled me out of this nightmare! A plenty of thanks to you, guys."
+It literally dragged me out of this horrible nightmare! A plenty of=20=
+thanks to you, my friends."
 </i>
  <br>
 <br>
 <b>
 <i>
-Mike Brown, Chicago
+Steve Doubt, Boston
 </i>
 </b>
 <br>
 <br>
  <i>
-"Know what? Anatrim preserved my marriage! I got into the circle, depression – more eating – just more depression. My wife was about to leave the overweight psycho I was turning in. 
+"Do you know what? Thanks to Anatrim my marriage was luckily saved! I=20=
+fell down into this circle, depression =96 eating more =96 more=20=
+depression. My wife was about to leave the overweight psycho I was=20=
+turning in. 
 <b>
 <i>
-One of my friends pointed at your web page and I ordered up Anatrim at the time. 
+My best friend pointed to your web site and I asked for my pack of=20=
+Anatrim immediately. 
 </i>
 </b>
-The final result was excellent, my appetite came to admissible level, I was often in good spirits, and, be sure, I went some belt holes back. And you know, the bed became cool, too!"
+The result was excellent, my appetite came to admissible level, I was=20=
+often in good spirits, and, of course, I became able to tighten my belt=20=
+on some holes. And you see, the bedroom became cool, too!"
 </i>
  <br>
 <br>
 <b>
 <i>
-Dave
+Frank
 </i>
 </b>
 <br>
 <br>
- There is a great number of gratitudes left by delighted people trying Anatrim. Don’t you wanna join the thousands and thousands of slim men and women and try this original appetite-reducing power increasing product now!
+ There are lots of testimonials happy people leave after taking=20=
+Anatrim. Don=92t you gonna add yourself to the thousands and thousands of=20=
+slender clients and take this natural appetite-abating power increasing=20=
+product now!
 <center>
-<a href="http://mxnmevfuf.fantorve.com">
-Do not decline your opportunity!
+<a href=3D"http://zxwpljopmis.adlersen.com">
+Do not miss your opportunity!
 </a>
 </center>
 </b>
 </p>
 
 </BODY></HTML>
-------------8FB01B25DA988F--
+------------F4DACDA52C673188--

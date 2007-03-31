@@ -1,13 +1,10 @@
-From: "TVivian Deloris" <awybathosho@athabascalake.com>
-Subject: Re: In trigonometry
-Date: Sat, 31 Mar 2007 16:13:36 +0100
-Message-ID: <09dd01c77406$3bdf69d0$7539a0e0@idownsidea>
-Reply-To: "TVivian Deloris" <awybathosho@athabascalake.com>
+From: gyouzai0101@yahoo.co.jp
+Subject: =?iso-2022-jp?B?guKCwYLPguiYQZeNkOaC8IzwireCtYK9gueCt4KugsmJ74Kigr2CooLFgreC5oLLgUg=?=
+Date: Sat, 31 Mar 2007 19:06:05 +0200 (CEST)
+Message-ID: <4904.7963614159$1175360772@news.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
+	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -18,28 +15,25 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This one is GURANTEED to Double by end of week
+é¿ç€âÔÇ§éûÇ…Ç»Ç¡ÇΩÇÁòAóçêÊÇímÇ¡ÇƒÇ®Ç©Ç»Ç¢Ç∆ïsà¿Åc
+Ç∆évÇ¡ÇƒÇ¢ÇÈãMï˚ÅIÇ‡ÇøÇÎÇÒòAóçêÊåä∑ÇëOíÒÇ∆ÇµÇΩèóê´Ç™ìoò^ÇµÇƒÇ®ÇËÇ‹Ç∑ÇÃ
+Ç≈
+ÉÅÉãóFÇ©ÇÁénÇﬂÇÈéñÇÕÇ‡ÇøÇÎÇÒÇÃéñÅAèoâÔÇ¢Ç÷ÇÃïsà¿Ç‡è≠Ç»Ç≠Çƒà¿êSÇ≈Ç∑ÅI
+éûä‘ÇÇ©ÇØÇΩÇ≠Ç»Ç¢ÇªÇÒÇ»ãMï˚ÅI
+Ç‚Ç¡ÇœÇËòAóçêÊÇåä∑ÇµÇΩÇÁÇ∑ÇÆÇ…âÔÇ¢ÇΩÇ¢Ç≈Ç∑ÇÊÇÀÅH
+ëÂè‰ïvÇ≈Ç∑ÅI
+ë¶âÔÇ¢äÛñ]ÇÃèóê´Ç‡ÉvÉçÉtÉBÅ[ÉãÇå©ÇÍÇŒàÍî≠Ç≈Ç∑ÅI
+http://recipeforhate.sakura.ne.jp/kinjyo
+Å@ÅôÅàÅFÅDÅBÅö.ÅdÅJÅãÅãÅöÅã.ÅFÅNÅôÅBÅÊÅö.ÅKÅJÅBÅôÅBÅÊÅBÅôÅ@
 
-Experience a Charging Bull
-Critical CARE NEW
-Sym-CCTI	
-Extremely b ullish at 18 Cents
-Short or long, this one cant go wrong
-
-Get in Monday don't regret later
-You wanna experience this one !!
-
-starter in the mid-1980s.  Amaker's wife, Dr. Stephanie Pinder-Amaker, is   They lost to Detroit 105-83 Friday night, which D'Antoni blamed on emotional the University of Michigan's associate dean of students.  Martin said he had throwing rocks in an ocean.''   The Suns have lost twice - by a combined 46 
-
------ Original Message ----- 
-From: "TVivian Deloris" <awybathosho@athabascalake.com>
-To: <linux-input@atrey.karlin.mff.cuni.cz>
-Sent: Thursday, March 22, 2007 8:27 PM
-Subject: In trigonometry
+Å@ÉÅÅ[ÉãÉAÉhÉåÉXÅAî‘çÜåä∑é©óRÅôé ÉÅåä∑ÅAäœóóé©óRÅô
+Å@ÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅP
+Å@ìoò^ñ≥óøÇ≈çDÇ´Ç»ÇæÇØóVÇ◊ÇÈÅI
+Å@ÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅP
+Å@ÉtÉäÅ[ÉÅÅ[ÉãÇ≈óòópÇ≈Ç´ÇÈÇ©ÇÁà¿êSÇµÇƒóVÇ◊ÇÈÅô
+Å@ÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅPÅP
+Å@ÅôÅàÅFÅDÅBÅö.ÅdÅJÅãÅãÅöÅã.ÅFÅNÅôÅBÅÊÅö.ÅKÅJÅBÅôÅBÅÊÅBÅôÅ@
 
 
-> Experience a Charging Bull
-> Critical CARE NEW
-> Sym-CCTI	
-> Extremely b ullish at 18 Cents
-> Short or long, this one cant go wrong
+ñ≥óøìoò^ÇÕÇ±Ç±Ç©ÇÁÅô
+http://recipeforhate.sakura.ne.jp/kinjyo

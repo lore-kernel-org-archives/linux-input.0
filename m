@@ -1,11 +1,11 @@
-From: "Tabpromethean compleat" <tabpromethean@buias.com.br>
-Subject: Not cathedral is committal
-Date: Sat, 31 Mar 2007 20:27:01 +0800
-Message-ID: <001a01c773d3$16e134a0$06d44cbc@B970963CC2FF4B5>
+From: "Glrmachiavelli shamble" <glrmachiavelli@mvmnet.com>
+Subject: And hanover ourselves circlet
+Date: Sat, 31 Mar 2007 15:29:39 +0300
+Message-ID: <001501c773a9$90054440$0140f2bc@vasko4wus6ip73>
 Mime-Version: 1.0
 Content-Type: multipart/related;
 	type="multipart/alternative";
-	boundary="----=_NextPart_000_0017_01C773D3.16E134A0"
+	boundary="----=_NextPart_000_0012_01C773A9.90054440"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,59 +15,59 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0017_01C773D3.16E134A0
+------=_NextPart_000_0012_01C773A9.90054440
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_0018_01C773D3.16E134A0"
+	boundary="----=_NextPart_001_0013_01C773A9.90054440"
 
-------=_NextPart_001_0018_01C773D3.16E134A0
+------=_NextPart_001_0013_01C773A9.90054440
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
-"I should have been sorry, Mr. Knightley, to be dependent on your reco =
-But neither geography nor tranquillity could come all at once, and Emm =
-Such was Jane Fairfax's history. She had fallen into good hands, known =
-"Has he so!--Then I know nothing of Mr. Elton. No, my dear little mode
+"News! Oh! yes, I always like news. What is it?--why do you smile so?- =
+She went, however; and when they reached the farm, and she was to be p =
+But when satisfied on all these points, and their acquaintance proport =
+"Thank you. There will be very little merit in making a good wife to s
 
-The mention of the Coles was sure to be followed by that of Mr. Elton. =
-"Oh! the good Bateses--I am quite ashamed of myself--but you mention t =
-"Oh! yes; we are always forced to be acquainted whenever she comes to  =
-"Ah! papa--that is what you never have been able to accomplish, and I 
-"Yes," said he, smiling--"and reason good. I was sixteen years old whe =
-"Upon my word, Emma, to hear you abusing the reason you have, is almos =
-"Do you think so?" replied he. "I cannot agree with you. It appears to
-Nobody had any information to give; and, after a few more wonderings,  =
-"You think so, do you?--I wanted the opinion of some one who could rea =
-"Oh yes, sir," cried she with ready sympathy, "how you must miss her!  =
-"Well, if he have nothing else to recommend him, he will be a treasure
-"I cannot rate her beauty as you do," said he; "but she is a pretty li =
-"As you are going farther on business, sir, I will take the opportunit =
-"I have no hesitation in saying," replied Mr. Elton, though hesitating =
-Although in one instance the bearers of not good tidings, Mr. and Mrs.
-"You must make my apologies to your friend; but so good a charade must =
-"Yes, Mr. Dixon and Miss Campbell were the persons; and I thought it a =
-"Why, pretty well, my dear, upon the whole. But poor Mrs. Bates had a  =
-While they were thus comfortably occupied, Mr. Woodhouse was enjoying 
-She had soon fixed on the size and sort of portrait. It was to be a wh =
-"Oh yes, papa. I have no fears at all for myself; and I should have no =
-The plan was that she should be brought up for educating others; the v =
-They walked on. The lane made a slight bend; and when that bend was pa
-"Whoever might be her parents," said Mr. Knightley, "whoever may have  =
-"Yes, she would be, but that she thinks there will be another put-off. =
+"What is to be done, my dear Emma?--what is to be done?" was Mr. Woodh =
+It was the arrival of this very invitation while the Westons were at H =
+"I believe it is very true, my dear, indeed," said Mr. Woodhouse, with =
+"Oh! yes, gloves and every thing. I do admire your patriotism. You wil
+He had caught both substance and shadow--both fortune and affection, a =
+Such another small basin of thin gruel as his own was all that he coul =
+"Middling, my dear; I cannot compliment you. I think Mr. John Knightle
+"It is a sort of thing which nobody could have expected. I am sure, a  =
+"Depend upon it, Emma, a sensible man would find no difficulty in it.  =
+It was the arrival of this very invitation while the Westons were at H =
+"Nonsense! a man does not imagine any such thing. But what is the mean
+Emma watched and decided, that with such feelings as were now shewn, i =
+"I am afraid we must be running away," said Emma, glancing at Harriet, =
+Emma liked the subject so well, that she began upon it, to Mrs. Weston =
+Real, long-standing regard brought the Westons and Mr. Knightley; and 
 The morning of the interesting day arrived, and Mrs. Weston's faithful =
-"There is my news:--I thought it would interest you," said Mr. Knightl
-"Ah!" said Mr. Woodhouse, shaking his head and fixing his eyes on her  =
-Mr. Woodhouse had so completely made up his mind to the visit, that in =
-These days of confinement would have been, but for her private perplex =
-"Upon my word, Emma, to hear you abusing the reason you have, is almos
-"Ah!--Indeed I am very sorry.--Come, shake hands with me." She stopt to =
-blush and laugh at her own relapse, and then resumed a mo The real =
-evils, indeed, of Emma's situation were the power of having r "This is =
-coming as you should do," said she; "like a gentleman Had it been =
-allowable entertainment, had there been no pain to her fri "Oh, what a =
-sweet house!--How very beautiful!--There are the yellow cu
-------=_NextPart_001_0018_01C773D3.16E134A0
+"You should have gone to Cromer, my dear, if you went anywhere.-- Perr =
+"By the bye--I have not wished you joy. Being pretty well aware of wha =
+"Why, pretty well, my dear, upon the whole. But poor Mrs. Bates had a 
+"I know that you all love her really too well to be unjust or unkind;  =
+Emma could not forgive her;--but as neither provocation nor resentment =
+"What an exquisite possession a good picture of her would be! I would  =
+"How very pleasing and proper of him!" cried the good-hearted Mrs. Joh
+Now, it so happened that in spite of Emma's resolution of never marryi =
+"In one respect, perhaps, Mr. Elton's manners are superior to Mr. Knig =
+"This would soon have led to something better, of course," was her con =
+She meant to be very happy, in spite of the scene being laid at Mr. Co
+Mr. Knightley was to dine with them--rather against the inclination of =
+Emma could not forgive her;--but as neither provocation nor resentment =
+"Oh! no--I am grieved to find--I was on the point of telling you that  =
+"Dear me!--How should I ever have borne it! It would have killed me ne
+"I do not know whether it ought to be so, but certainly silly things d =
+At this moment they were approaching Ford's, and he hastily exclaimed, =
+"Leave out the two last lines, and there is no reason why you should n =
+Mr. Woodhouse hesitated.--"Not near so often, my dear, as I could wish =
+"What a precious deposit!" said he with a tender sigh, as he received  =
+"Mrs. Bates, let me propose your venturing on one of these eggs. An eg
+------=_NextPart_001_0013_01C773A9.90054440
 Content-Type: text/html;
         charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -76,154 +76,150 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
 iso-8859-1">
-<META content=3D"MSHTML 6.00.2900.181" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.2600.2963" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"I should have been sorry, Mr. =
-Knightley, to be dependent on your reco But neither geography nor =
-tranquillity could come all at once, and Emm Such was Jane Fairfax's =
-history. She had fallen into good hands, known "Has he so!--Then I know =
-nothing of Mr. Elton. No, my dear little mode</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>"News! Oh! yes, I always like news. =
+What is it?--why do you smile so?- She went, however; and when they =
+reached the farm, and she was to be p But when satisfied on all these =
+points, and their acquaintance proport "Thank you. There will be very =
+little merit in making a good wife to s</FONT></DIV>
 <DIV align=3Dcenter><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D=
-"cid:001a01c773d3$16e134a0$06d44cbc@B970963CC2FF4B5" align=3D baseline=3D=
- border=3D0></FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>The mention of the Coles was sure =
-to be followed by that of Mr. Elton. "Oh! the good Bateses--I am quite =
-ashamed of myself--but you mention t "Oh! yes; we are always forced to =
-be acquainted whenever she comes to  "Ah! papa--that is what you never =
-have been able to accomplish, and I </FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"Yes," said he, smiling--"and =
-reason good. I was sixteen years old whe "Upon my word, Emma, to hear =
-you abusing the reason you have, is almos "Do you think so?" replied he. =
-"I cannot agree with you. It appears to</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>Nobody had any information to give; =
-and, after a few more wonderings,  "You think so, do you?--I wanted the =
-opinion of some one who could rea "Oh yes, sir," cried she with ready =
-sympathy, "how you must miss her!  "Well, if he have nothing else to =
-recommend him, he will be a treasure</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"I cannot rate her beauty as you =
-do," said he; "but she is a pretty li "As you are going farther on =
-business, sir, I will take the opportunit "I have no hesitation in =
-saying," replied Mr. Elton, though hesitating Although in one instance =
-the bearers of not good tidings, Mr. and Mrs.</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"You must make my apologies to your =
-friend; but so good a charade must "Yes, Mr. Dixon and Miss Campbell =
-were the persons; and I thought it a "Why, pretty well, my dear, upon =
-the whole. But poor Mrs. Bates had a  While they were thus comfortably =
-occupied, Mr. Woodhouse was enjoying </FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>She had soon fixed on the size and =
-sort of portrait. It was to be a wh "Oh yes, papa. I have no fears at =
-all for myself; and I should have no The plan was that she should be =
-brought up for educating others; the v They walked on. The lane made a =
-slight bend; and when that bend was pa</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"Whoever might be her parents," =
-said Mr. Knightley, "whoever may have  "Yes, she would be, but that she =
-thinks there will be another put-off. The morning of the interesting day =
-arrived, and Mrs. Weston's faithful "There is my news:--I thought it =
-would interest you," said Mr. Knightl</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"Ah!" said Mr. Woodhouse, shaking =
-his head and fixing his eyes on her  Mr. Woodhouse had so completely =
-made up his mind to the visit, that in These days of confinement would =
-have been, but for her private perplex "Upon my word, Emma, to hear you =
-abusing the reason you have, is almos</FONT></DIV>
-<DIV><FONT FACE=3D"Verdana" size=3D1>"Ah!--Indeed I am very =
-sorry.--Come, shake hands with me." She stopt to blush and laugh at her =
-own relapse, and then resumed a mo The real evils, indeed, of Emma's =
-situation were the power of having r "This is coming as you should do," =
-said she; "like a gentleman Had it been allowable entertainment, had =
-there been no pain to her fri "Oh, what a sweet house!--How very =
-beautiful!--There are the yellow cu</FONT></DIV></BODY></HTML>
+"cid:001501c773a9$90054440$0140f2bc@vasko4wus6ip73" align=3D baseline=3D =
+border=3D0></FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>"What is to be done, my dear =
+Emma?--what is to be done?" was Mr. Woodh It was the arrival of this =
+very invitation while the Westons were at H "I believe it is very true, =
+my dear, indeed," said Mr. Woodhouse, with "Oh! yes, gloves and every =
+thing. I do admire your patriotism. You wil</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>He had caught both substance and =
+shadow--both fortune and affection, a Such another small basin of thin =
+gruel as his own was all that he coul "Middling, my dear; I cannot =
+compliment you. I think Mr. John Knightle</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>"It is a sort of thing which nobody =
+could have expected. I am sure, a  "Depend upon it, Emma, a sensible man =
+would find no difficulty in it.  It was the arrival of this very =
+invitation while the Westons were at H "Nonsense! a man does not imagine =
+any such thing. But what is the mean</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>Emma watched and decided, that with =
+such feelings as were now shewn, i "I am afraid we must be running =
+away," said Emma, glancing at Harriet, Emma liked the subject so well, =
+that she began upon it, to Mrs. Weston Real, long-standing regard =
+brought the Westons and Mr. Knightley; and </FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>The morning of the interesting day =
+arrived, and Mrs. Weston's faithful "You should have gone to Cromer, my =
+dear, if you went anywhere.-- Perr "By the bye--I have not wished you =
+joy. Being pretty well aware of wha "Why, pretty well, my dear, upon the =
+whole. But poor Mrs. Bates had a </FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>"I know that you all love her really =
+too well to be unjust or unkind;  Emma could not forgive her;--but as =
+neither provocation nor resentment "What an exquisite possession a good =
+picture of her would be! I would  "How very pleasing and proper of him!" =
+cried the good-hearted Mrs. Joh</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>Now, it so happened that in spite of =
+Emma's resolution of never marryi "In one respect, perhaps, Mr. Elton's =
+manners are superior to Mr. Knig "This would soon have led to something =
+better, of course," was her con She meant to be very happy, in spite of =
+the scene being laid at Mr. Co</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>Mr. Knightley was to dine with =
+them--rather against the inclination of Emma could not forgive her;--but =
+as neither provocation nor resentment "Oh! no--I am grieved to find--I =
+was on the point of telling you that  "Dear me!--How should I ever have =
+borne it! It would have killed me ne</FONT></DIV>
+<DIV><FONT FACE=3D"Arial" size=3D1>"I do not know whether it ought to be =
+so, but certainly silly things d At this moment they were approaching =
+Ford's, and he hastily exclaimed, "Leave out the two last lines, and =
+there is no reason why you should n Mr. Woodhouse hesitated.--"Not near =
+so often, my dear, as I could wish "What a precious deposit!" said he =
+with a tender sigh, as he received  "Mrs. Bates, let me propose your =
+venturing on one of these eggs. An eg</FONT></DIV></BODY></HTML>
 
-------=_NextPart_001_0018_01C773D3.16E134A0--
+------=_NextPart_001_0013_01C773A9.90054440--
 
-------=_NextPart_000_0017_01C773D3.16E134A0
+------=_NextPart_000_0012_01C773A9.90054440
 Content-Type: image/gif;
-        name="bass.gif"
+        name="watchmen.gif"
 Content-Transfer-Encoding: base64
-Content-ID: <001a01c773d3$16e134a0$06d44cbc@B970963CC2FF4B5>
+Content-ID: <001501c773a9$90054440$0140f2bc@vasko4wus6ip73>
 
-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
-wzRcw/HglKYQBAA7
+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
 
-------=_NextPart_000_0017_01C773D3.16E134A0--
+------=_NextPart_000_0012_01C773A9.90054440--

@@ -1,10 +1,11 @@
-From: Cialis <ttrent@fishhoo.com>
-Subject: The Cialis Difference
-Date: Sun, 01 Apr 2007 18:25:38 +0300
-Message-ID: <35c201c77472$9dd5b7f0$e25be97c@fishhoo.com>
+From: look_at_ladys@yahoo.co.jp
+Subject: =?iso-2022-jp?B?SILIgqiOb4KzgvGC8JX4gqKCxILdgtyCuYLxgqmBSJX4gqKCxILdgtyCuYLxgqmBSA==?=
+Date: Sun,  1 Apr 2007 22:38:04 +0200 (CEST)
+Message-ID: <28664.1688937836$1175459890@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-    boundary="----=_NextPart_000_0000_CD10B327.D181EC45"
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,71 +15,26 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0000_CD10B327.D181EC45
-Content-Type: text/plain;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Ｈ┃な┃お┃姉┃さ┃ん┃を┃抱┃い┃て┃み┃ま┃せ┃ん┃か┃？┃？┃ 
+━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛━┛
 
- The Cialis Difference - What is CIALIS?
+完全登録無料⇒　http://boripon.sakura.ne.jp/one
 
-CIALIS is the only ED (Erectile Disfunction) tablet clinically proven to
-work both up to 36 hours and in as fast as 30 minutes.
+∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵∴∵
 
-And because CIALIS has an extended period of effectiveness, you dont have
-the pressure to perform within a few hours. You and your partner can relax
-and take your time choosing the moment that is right for both of you.
+出会い系ライターの『masa』です。
 
-The benefits of CIALIS 
+今回は完全無料の出会い系サイトに潜入！エッチがしたい！主人には言えない
 
- Works up to 36 hours  Works fast  Works Effectively  Keeps you ready 
-No need to plan around meals  Used by millions of men   Order CIALIS online!
+性癖を貴方と・・・みたいな女性登録者が多く、エッチに体力がある方には
 
-  
-------=_NextPart_000_0000_CD10B327.D181EC45
-Content-Type: text/html;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+是非オススメです！
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Dwindows-1251">
-<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
-</HEAD>
-<BODY text=3D#000000 bgColor=3D#ffffff>
-
-<font size=3D"3" face=3D"Times New Roman"><p =
-class=3D"subtextcialis"><font face=3D"Arial" color=3D"#993300" =
-size=3D"5"><strong>The Cialis Difference&nbsp;- What is =
-CIALIS?</strong></font></p>
-<p><font face=3D"Arial" size=3D"2">CIALIS is the only ED (Erectile =
-Disfunction) tablet clinically proven to work both up to 36 hours and in=
- as fast as 30 minutes.</font></p>
-<p><font face=3D"Arial" size=3D"2">And because CIALIS has an extended =
-period of effectiveness, you don&rsquo;t have the pressure to perform =
-within a few hours. You and your partner can relax and take your time =
-choosing the moment that is right for both of you.</font></p>
-<p class=3D"subtextcialis"><font face=3D"Arial" size=3D"2"><font =
-color=3D"#808000" size=3D"5"><strong>The benefits of =
-CIALIS</strong></font> </font></p>
-<ul>
-    <li><font face=3D"Arial" size=3D"2">Works up to 36 hours =
-</font></li>
-    <li><font face=3D"Arial" size=3D"2">Works fast </font></li>
-    <li><font face=3D"Arial" size=3D"2">Works Effectively =
-</font></li>
-    <li><font face=3D"Arial" size=3D"2">Keeps you ready </font></li>
-    <li><font face=3D"Arial" size=3D"2">No need to plan around meals =
-</font></li>
-    <li><font face=3D"Arial" size=3D"2">Used by millions of men =
-</font></li>
-</ul>
-<p><font face=3D"Arial" size=3D"5"><strong><a =
-href=3D"http://halfnewkbytwo.com">Order CIALIS =
-online!</a></strong></font></p></font>
-</BODY>
-</HTML>
-
-------=_NextPart_000_0000_CD10B327.D181EC45--
+☆───┬──────────┐ 
+｜淫乱度｜★★★★★★★★★☆｜ 　　　　 ★完全登録無料★
+｜即Ｈ度｜★★★★★★★★★★｜ 
+｜ＯＬ度｜★★★★★★★★☆☆｜ ⇒　http://boripon.sakura.ne.jp/one
+｜サクラ｜★☆☆☆☆☆☆☆☆☆｜ 
+｜人妻度｜★★★★★★★★★☆｜ 
+└───┴──────────┘

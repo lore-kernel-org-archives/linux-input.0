@@ -1,10 +1,10 @@
-From: "Clay Lusk" <jewbluenegox@bluene.net>
-Subject: Watch your body change with Anatrim
-Date: Sun, 1 Apr 2007 15:01:01 +0300
-Message-ID: <643165703.10179812055065@thhebat.net>
+From: Cialis <ttrent@fishhoo.com>
+Subject: The Cialis Difference
+Date: Sun, 01 Apr 2007 18:25:38 +0300
+Message-ID: <35c201c77472$9dd5b7f0$e25be97c@fishhoo.com>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------7A52CDA5094673"
+    boundary="----=_NextPart_000_0000_CD10B327.D181EC45"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,205 +14,71 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------7A52CDA5094673
-Content-Type: text/plain; charset=us-ascii
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0000_CD10B327.D181EC45
+Content-Type: text/plain;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+
+ The Cialis Difference - What is CIALIS?
+
+CIALIS is the only ED (Erectile Disfunction) tablet clinically proven to
+work both up to 36 hours and in as fast as 30 minutes.
+
+And because CIALIS has an extended period of effectiveness, you dont have
+the pressure to perform within a few hours. You and your partner can relax
+and take your time choosing the moment that is right for both of you.
+
+The benefits of CIALIS 
+
+ Works up to 36 hours  Works fast  Works Effectively  Keeps you ready 
+No need to plan around meals  Used by millions of men   Order CIALIS online!
+
+  
+------=_NextPart_000_0000_CD10B327.D181EC45
+Content-Type: text/html;
+    charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-
-Anatrim =96 The newest and most attracting product for corpulent people=20=
-is made available now =96 As were seen on ABC.
-
-Do you recall all the times when you appeal to yourself to do any thing=20=
-for being rescued from this quickly growing pounds of fat? Happily, now=20=
-no big price is to be paid. With Anatrim, the ground-breaking=20=
-weight-reducing combination of elements, you can achieve healthier=20=
-lifestyle and become really slimmer. Just look at what our customers state!
-
-"It=92s rather difficult to acknowledge it but I was a junk food addict. 
-
-I greedily devoured all this trash 
-
-and was unable to stop. 
-
-This torment ceased after I started course of taking Anatrim! 
-
-God,
-
- my craving for food vanished, 
-
-spirits increased and I=92m the happiest person on the planet 29 pounds=20=
-in 2.1 months. 
-
-So, I can tell you now I=92m the happiest person!"
- 
-
-Rita R., New York
-
- 
-"Since my early childhood I was a weighty boy. 
-
-You can't even fancy how I detested being mocked at school. 
-
-I abhorred my weight and I detested even myself. 
-
-After trying this and that I learned about Anatrim. 
-
-This stuff literally pulled me out of this dreadful nightmare! Many and=20=
-many thanks to you, guys."
-
- 
-Steve Burbon, Colorado
-
- 
-"You know what? Thanks to Anatrim my marriage was luckily saved! I fell=20=
-down into the circle, depression =96 more eating =96 just more=20=
-depression. My wife was going to leave the overweight psycho I was=20=
-turning in. 
-
-Once one of my friends showed me web site and I called for Anatrim at=20=
-once. 
-
-The results were magnficent, my appetite came to acceptable level, I=20=
-was often in good spirits, and, of course, I tightened my belt with no=20=
-regrets. And you know, the sex became fantastic, too!"
-
- 
-Rikky
-
- There is a lot of thanks happy people leave after taking Anatrim.=20=
-Don=92t you wanna add yourself to the tens of thousands of slim clients=20=
-and take this natural appetite abating power raising product now!
-
-Don=92t lose your opportunity!
-
-
-------------7A52CDA5094673
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Get your ideal weight with this natural method</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Dwindows-1251">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
 </HEAD>
-<BODY>
+<BODY text=3D#000000 bgColor=3D#ffffff>
 
-<p>
-<center>
-<b>
-<a href=3D"http://www.keson.hk/?jcabuhbzo">
-Anatrim =96 The newest and most attracting product for corpulent people=20=
-is made available now =96 As were seen on ABC.
-</a>
-</center>
-Do you recall all the times when you appeal to yourself to do any thing=20=
-for being rescued from this quickly growing pounds of fat? Happily, now=20=
-no big price is to be paid. With Anatrim, the ground-breaking=20=
-weight-reducing combination of elements, you can achieve healthier=20=
-lifestyle and become really slimmer. Just look at what our customers state!
-<br>
-<br>
-<i>
-"It=92s rather difficult to acknowledge it but I was a junk food addict. 
-<b>
-<i>
-I greedily devoured all this trash 
-<b>
-<i>
-and was unable to stop. 
-</i>
-</b>
-</i>
-</b>
-This torment ceased after I started course of taking Anatrim! 
-<b>
-<i>
-God,
-</i>
-</b>
-<b>
-<i>
- my craving for food vanished, 
-<b>
-<i>
-spirits increased and I=92m the happiest person on the planet 29 pounds=20=
-in 2.1 months. 
-</i>
-</b>
-</i>
-</b>
-So, I can tell you now I=92m the happiest person!"
-</i> 
-<br>
-<br>
-<b>
-<i>
-Rita R., New York
-</i>
-</b>
-<br>
-<br>
- <i>
-"Since my early childhood I was a weighty boy. 
-<b>
-<i>
-You can't even fancy how I detested being mocked at school. 
-</i>
-</b>
-<b>
-<i>
-I abhorred my weight and I detested even myself. 
-<b>
-<i>
-After trying this and that I learned about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-This stuff literally pulled me out of this dreadful nightmare! Many and=20=
-many thanks to you, guys."
-</i>
- <br>
-<br>
-<b>
-<i>
-Steve Burbon, Colorado
-</i>
-</b>
-<br>
-<br>
- <i>
-"You know what? Thanks to Anatrim my marriage was luckily saved! I fell=20=
-down into the circle, depression =96 more eating =96 just more=20=
-depression. My wife was going to leave the overweight psycho I was=20=
-turning in. 
-<b>
-<i>
-Once one of my friends showed me web site and I called for Anatrim at=20=
-once. 
-</i>
-</b>
-The results were magnficent, my appetite came to acceptable level, I=20=
-was often in good spirits, and, of course, I tightened my belt with no=20=
-regrets. And you know, the sex became fantastic, too!"
-</i>
- <br>
-<br>
-<b>
-<i>
-Rikky
-</i>
-</b>
-<br>
-<br>
- There is a lot of thanks happy people leave after taking Anatrim.=20=
-Don=92t you wanna add yourself to the tens of thousands of slim clients=20=
-and take this natural appetite abating power raising product now!
-<center>
-<a href=3D"http://www.keson.hk/?jcabuhbzo">
-Don=92t lose your opportunity!
-</a>
-</center>
-</b>
-</p>
+<font size=3D"3" face=3D"Times New Roman"><p =
+class=3D"subtextcialis"><font face=3D"Arial" color=3D"#993300" =
+size=3D"5"><strong>The Cialis Difference&nbsp;- What is =
+CIALIS?</strong></font></p>
+<p><font face=3D"Arial" size=3D"2">CIALIS is the only ED (Erectile =
+Disfunction) tablet clinically proven to work both up to 36 hours and in=
+ as fast as 30 minutes.</font></p>
+<p><font face=3D"Arial" size=3D"2">And because CIALIS has an extended =
+period of effectiveness, you don&rsquo;t have the pressure to perform =
+within a few hours. You and your partner can relax and take your time =
+choosing the moment that is right for both of you.</font></p>
+<p class=3D"subtextcialis"><font face=3D"Arial" size=3D"2"><font =
+color=3D"#808000" size=3D"5"><strong>The benefits of =
+CIALIS</strong></font> </font></p>
+<ul>
+    <li><font face=3D"Arial" size=3D"2">Works up to 36 hours =
+</font></li>
+    <li><font face=3D"Arial" size=3D"2">Works fast </font></li>
+    <li><font face=3D"Arial" size=3D"2">Works Effectively =
+</font></li>
+    <li><font face=3D"Arial" size=3D"2">Keeps you ready </font></li>
+    <li><font face=3D"Arial" size=3D"2">No need to plan around meals =
+</font></li>
+    <li><font face=3D"Arial" size=3D"2">Used by millions of men =
+</font></li>
+</ul>
+<p><font face=3D"Arial" size=3D"5"><strong><a =
+href=3D"http://halfnewkbytwo.com">Order CIALIS =
+online!</a></strong></font></p></font>
+</BODY>
+</HTML>
 
-</BODY></HTML>
-------------7A52CDA5094673--
+------=_NextPart_000_0000_CD10B327.D181EC45--

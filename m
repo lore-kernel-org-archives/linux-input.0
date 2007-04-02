@@ -1,10 +1,10 @@
-From: look_at_ladys@yahoo.co.jp
-Subject: =?iso-2022-jp?B?SILIgqiOb4KzgvGC8JX4gqKCxILdgtyCuYLxgqmBSJX4gqKCxILdgtyCuYLxgqmBSA==?=
-Date: Sun,  1 Apr 2007 22:38:04 +0200 (CEST)
-Message-ID: <28664.1688937836$1175459890@news.gmane.org>
+From: "Bernadine Prestonl" <veridicpya@cerberus-isc.com>
+Subject: Re: baneberry tun
+Date: Mon, 02 Apr 2007 13:12:57 +0800
+Message-ID: <026d01c77501$3dbd47e0$1954f8d0@xresolves>
+Reply-To: "Bernadine Prestonl" <veridicpya@cerberus-isc.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-2022-jp"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -15,26 +15,10 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-
-‚g„«‚È„«‚¨„«Žo„«‚³„«‚ñ„«‚ð„«•ø„«‚¢„«‚Ä„«‚Ý„«‚Ü„«‚¹„«‚ñ„«‚©„«H„«H„« 
-„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®„ª„®
-
-Š®‘S“o˜^–³—¿Ë@http://boripon.sakura.ne.jp/one
-
-ˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæˆæ
-
-o‰ï‚¢Œnƒ‰ƒCƒ^[‚Ìwmasax‚Å‚·B
-
-¡‰ñ‚ÍŠ®‘S–³—¿‚Ìo‰ï‚¢ŒnƒTƒCƒg‚Éö“üIƒGƒbƒ`‚ª‚µ‚½‚¢IŽål‚É‚ÍŒ¾‚¦‚È‚¢
-
-«•È‚ð‹M•û‚ÆEEE‚Ý‚½‚¢‚È—«“o˜^ŽÒ‚ª‘½‚­AƒGƒbƒ`‚É‘Ì—Í‚ª‚ ‚é•û‚É‚Í
-
-¥”ñƒIƒXƒXƒ‚Å‚·I
-
-™„Ÿ„Ÿ„Ÿ„¦„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„¢ 
-bˆú—“xbššššššššš™b @@@@ šŠ®‘S“o˜^–³—¿š
-b‘¦‚g“xbššššššššššb 
-b‚n‚k“xbšššššššš™™b Ë@http://boripon.sakura.ne.jp/one
-bƒTƒNƒ‰bš™™™™™™™™™b 
-blÈ“xbššššššššš™b 
-„¤„Ÿ„Ÿ„Ÿ„¨„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„Ÿ„£
+Hot Stock Alert
+Guaranteed to Double
+Bull is Calling
+Critical CARE NEW
+SYmb-C_C_T_I 
+16 Cents is a STEAL
+Short or long, this one cant go wrong

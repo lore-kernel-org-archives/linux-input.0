@@ -1,119 +1,70 @@
-From: LOTTERY BOARD <uklotterydept111@bellsouth.net>
-Subject: OFFICIAL PRIZE NOTIFICATION
-Date: Mon, 2 Apr 2007 11:31:08 -0400
-Message-ID: <20070402153109.GRAS21879.ibm58aec.bellsouth.net@mail.bellsouth.net>
-Reply-To: uklotterycustomercare2007@yahoo.co.uk
+From: Aristeu Rozanski <arozansk@redhat.com>
+Subject: [RFC] psmouse: add support for 4th button using the 4th bit
+Date: Mon, 2 Apr 2007 16:48:10 -0400
+Message-ID: <20070402204810.GC14838@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: uklottery@yahoo.co.uk
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-THE LOTTERY DEPARTMENT=20
-Uk National Lottery
-Globe House 4 Temple Place
-London WC2R 2PG
-=20
-TRACK    N=BA: 51024060210=20
+Some mice like the Cortron Trackball use the fourth bit of the first byte
+(yes, that one that the protocol tells to be always 1, oh well) to represent
+the fourth button. This patch adds an option to use the fourth bit to
+represent the fourth button.
 
-         OFFICIAL PRIZE NOTIFICATION=20
-=20
-This is to inform you that have been selected for a cash prize of =A3 1.0=
-00.000.00( One million  Great British=20
+Please comment on this and please keep me on Cc list, I'm not subscribed to
+linux-input.
 
-Pounds) , International programs held on the  31st of  March   2007  in t=
-he London Uk.
-=20
-The selection process was carried out through random selection in our com=
-puterized  email   selection=20
-
-system(ess) from a database of over 250,000 email addresses drawn from al=
-l the continents of the world.
-=20
-The Uk National  Lottery is approved by the British Gaming Board and  als=
-o Licensed by the The=20
-
-International Association of Gaming Regulators (IAGR). This  lottery is t=
-he 3rd of its kind  and we intend to=20
-
-sensitize the public.
-=20
-=20
-=20
-To begin the processing of your prize you are to contact your claims offi=
-cer through our accredited Prize=20
-
-Transfer agents as  stated below:
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Contact Person: Mr.Donald Wilson.
-Telephone: +447011133851,+447011133851
-                     +4470457 00846
-
-E-mail:uklotterycustomercare2007@yahoo.co.uk
-
-E-mail:uklotterycustomercare2007@yahoo.co.uk
-
-Time to call(10am to 5pm london time   GMT  )
- =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-contact him, please provide him with the following codes below:
- Secret pin code x7pwyz2005
- Serial number 5368/02=20
-REF No: UK/9420X2/68
-TICKET No: 56475600545188
-
-You are also advised to provide him with the under listed information=20
-as soon as possible:
-=20
-=20
-          Claims Requirements:
-1.Name in=20
-full--------------------------------------------------------------
-2.Address----------------------------------------------------------------=
 ---
-3.Nationality------------------------------------------------------------=
----
-4.Age--------------------------------------------------------------------=
----
-5.Occupation-------------------------------------------------------------=
----
-6.Phone/Fax--------------------------------------------------------------=
----
-7.Present=20
-Country-----------------------------------------------------------
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=20
-=20
-If  you do not contact your claims agent within 7 working days of this no=
-tification,your winnings  would be=20
+ drivers/input/mouse/psmouse-base.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-revoked. Winners are advised to keep their winning details/information fr=
-om the public to avoid fraudulent=20
-
- claim (IMPORTANT)pending the transfer/claim by Winner.=20
-=20
-*Winner under the age of 18 are automatically disqualified.*Staff of the =
-Uk National  Lottery   are not to=20
-
-partake in this Lottery.
-=20
-Accept my hearty congratulations once again!
-=20
-Regards
-=20
-Victor Brown (Mr)
-NB:
-Note that you are not to reply to this E-mail,please contact your claims =
-officer directly to start  the =20
-
-processing of your claims application form.
+--- linus-2.6.orig/drivers/input/mouse/psmouse-base.c
++++ linus-2.6/drivers/input/mouse/psmouse-base.c
+@@ -64,6 +64,13 @@ static unsigned int psmouse_resync_time;
+ module_param_named(resync_time, psmouse_resync_time, uint, 0644);
+ MODULE_PARM_DESC(resync_time, "How long can mouse stay idle before forcing resync (in seconds, 0 = never).");
+ 
++static unsigned int psmouse_4th_bit_as_button;
++module_param_named(4th_bit_as_button, psmouse_4th_bit_as_button, uint, 0);
++MODULE_PARM_DESC(4th_bit_as_button, "Interpret the 4th bit of the first byte "
++		 "as 4th button. Some mice like Cortron Trackballs use the "
++		 "4th bit (which should be always set) of the first byte as "
++		 "4th button");
++
+ PSMOUSE_DEFINE_ATTR(protocol, S_IWUSR | S_IRUGO,
+ 			NULL,
+ 			psmouse_attr_show_protocol, psmouse_attr_set_protocol);
+@@ -176,6 +183,14 @@ static psmouse_ret_t psmouse_process_byt
+ 		packet[1] |= (packet[0] & 0x40) << 1;
+ 	}
+ 
++ /*
++ * Use the 4th bit of the first package as button
++ */
++	if (psmouse_4th_bit_as_button) {
++		input_report_key(dev, BTN_SIDE, (packet[0] >> 3) & 1);
++		packet[0] |= 0x08;
++	}
++
+ /*
+  * Generic PS/2 Mouse
+  */
+@@ -643,6 +658,9 @@ static int psmouse_extensions(struct psm
+ 		psmouse_reset(psmouse);
+ 	}
+ 
++	if (psmouse_4th_bit_as_button)
++		set_bit(BTN_SIDE, psmouse->dev->keybit);
++
+ 	return PSMOUSE_PS2;
+ }
+ 

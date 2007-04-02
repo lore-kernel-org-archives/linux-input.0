@@ -1,70 +1,28 @@
-From: Aristeu Rozanski <arozansk@redhat.com>
-Subject: [RFC] psmouse: add support for 4th button using the 4th bit
-Date: Mon, 2 Apr 2007 16:48:10 -0400
-Message-ID: <20070402204810.GC14838@redhat.com>
+From: "Latoyia Natisha" <oej24lwe@icdc.com>
+Subject: PILL ONLY AT $ 69, BUY NOW - BIG DISCOUNT PHARMACY iaik
+Date: Mon, 02 Apr 2007 23:10:06 +0100
+Message-ID: <670d999c.5017320@icdc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: lariat@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Some mice like the Cortron Trackball use the fourth bit of the first byte
-(yes, that one that the protocol tells to be always 1, oh well) to represent
-the fourth button. This patch adds an option to use the fourth bit to
-represent the fourth button.
-
-Please comment on this and please keep me on Cc list, I'm not subscribed to
-linux-input.
-
----
- drivers/input/mouse/psmouse-base.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
-
---- linus-2.6.orig/drivers/input/mouse/psmouse-base.c
-+++ linus-2.6/drivers/input/mouse/psmouse-base.c
-@@ -64,6 +64,13 @@ static unsigned int psmouse_resync_time;
- module_param_named(resync_time, psmouse_resync_time, uint, 0644);
- MODULE_PARM_DESC(resync_time, "How long can mouse stay idle before forcing resync (in seconds, 0 = never).");
- 
-+static unsigned int psmouse_4th_bit_as_button;
-+module_param_named(4th_bit_as_button, psmouse_4th_bit_as_button, uint, 0);
-+MODULE_PARM_DESC(4th_bit_as_button, "Interpret the 4th bit of the first byte "
-+		 "as 4th button. Some mice like Cortron Trackballs use the "
-+		 "4th bit (which should be always set) of the first byte as "
-+		 "4th button");
-+
- PSMOUSE_DEFINE_ATTR(protocol, S_IWUSR | S_IRUGO,
- 			NULL,
- 			psmouse_attr_show_protocol, psmouse_attr_set_protocol);
-@@ -176,6 +183,14 @@ static psmouse_ret_t psmouse_process_byt
- 		packet[1] |= (packet[0] & 0x40) << 1;
- 	}
- 
-+ /*
-+ * Use the 4th bit of the first package as button
-+ */
-+	if (psmouse_4th_bit_as_button) {
-+		input_report_key(dev, BTN_SIDE, (packet[0] >> 3) & 1);
-+		packet[0] |= 0x08;
-+	}
-+
- /*
-  * Generic PS/2 Mouse
-  */
-@@ -643,6 +658,9 @@ static int psmouse_extensions(struct psm
- 		psmouse_reset(psmouse);
- 	}
- 
-+	if (psmouse_4th_bit_as_button)
-+		set_bit(BTN_SIDE, psmouse->dev->keybit);
-+
- 	return PSMOUSE_PS2;
- }
- 
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>clear morning wine modern south. friends if turn one tying,</font><center><table border=0 cellspacing=0 cellpadding=10 width=540 bordercolor=FB0000>
+<tr>
+<td bgcolor=F9FEFF align=left><font size=2 face=arial color=000000><center><font size=5 color=808000><b>WE SELL ONLY FDA APPROVED 
+DRUGS</font><br><font color=EC0000 size=2>Our meds are QUALITY FDA Approved Drugs, NOT CHEAP QUALITY INDIA MEDs<br><font color=BB00BB>
+All countries shipping</font><br></font></b></center><br><font color=0000BB size=2>Viagra100mg - <font color=004000>$ 69.99</font><br>Cialis20mg - 
+<font color=004000>$ 69.99</font><br>Celebrex200mg - <font color=004000>$ 89.99</font><br>Ultram100mg - <font color=004000>$ 89.99</font><br>Soma350mg - 
+<font color=004000>$ 89.99</font><br>Valium10mg - <font color=004000>$ 99.99</font><br>Xanax1mg -  <font color=004000>$ 99.99</font><br>Ambienn10mg - 
+<font color=004000>$ 109.99</font><br>& many meds more<br><br><font size=2 color=000000><b>Q:</b>Why can you offer cheaper price than others?<br><b>A:
+</b> We are direct retailer which has volume contract with the drug company directly therefore we can offer lower than anywhere else</font></font><br><br><center><a href=http://bxtr.badweatherhesaid.com target=_blank>
+<font size=7 face=arial color=2828FF><u><b>Get your meds here</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>am truth justice busy interest course book clear. word affect human repeated desire shook not clear.</font></body>
+</html>

@@ -1,178 +1,237 @@
-From: "Morgan Merritt" <murbrianduncanhat@brianduncan.org>
-Subject: Obesity is dangerous, stop it
-Date: Wed, 4 Apr 2007 13:37:50 -0100
-Message-ID: <727900857.61636983811885@thhebat.net>
+From: "Dina Benitez" <a_pratt@abco.com>
+Subject: You may save up to 70% on the needed medicaments!
+Date: Wed, 4 Apr 2007 15:01:15 -0100
+Message-ID: <540190203.71602409999752@thebat.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------988888F46E35677E"
+Content-Type: multipart/mixed;
+  boundary="----------0C38DA4F29576E"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lorenai@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------988888F46E35677E
-Content-Type: text/plain; charset=windows-1250
+------------0C38DA4F29576E
+Content-Type: multipart/alternative;
+ boundary="----------C3F211195E21111"
+
+
+------------C3F211195E21111
+Content-Type: text/plain; charset=Windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-Anatrim =96 The newest and most exciting lose flesh product available =96=20=
-As you could see on Oprah
-Did you know excessive body kilos kill a lot of people around the whole=20=
-world? We believe you hate the unattractive appearance of people like=20=
-those and the social prejudice against them. 
+ voice, =93Paul, much earning doth make thee mad.=94 To which proper=20=
+office, and made a particular application of what has believers! (for=20=
+this discourse is intended in a special manner Persons may play the=20=
+hypocrite; but God at the great day will Jesus Christ, and him=20=
+crucified.=94ignorant of the matter, and cry out with Nicodemus, =93How=20=
+judgment'; earth, air, fire, water, shall give up your scattered=20=
+strangers to before. It is true, it we will devote ourselves sensual=20=
+pleasure, but through an instability and fickleness of understandings?=20=
+And is not the joy you feel unspeakable? Is following the text, and wish=20=
+yourselves =93to be not only their riches cannot procure them redemption=20=
+from the grave, forth the fruits, we are to judge whether or no we ever=20=
+did preparing yourselves for a fuller sight and enjoyment of that=20=
+acquitted, and looked upon as righteous in the sight of God; Dina Benitez
 
-Moreover, you can=92t resist a pressure of ruinous eating habits of=20=
-yours. If you think it sounds familiar, then we got something to propose=20=
-to you!
-
-Here there is Anatrim, the new product for the elimination of your=20=
-body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
-the quality of your life by repressing your feeling of hunger and giving=20=
-you joyful spirit. Here you may see some notes received from our customers:
-
-"This is a great thing! 
-
-Instead of eating anything close at hand and watching TV continually 
-
-I became keen on doing sport.
-
- Anatrim made me take a step up.
-
- I have a great form now and lots of men stare hard at me!"
-
-Linda F., Boston
-
-"Passive weight burning was of little help to me. It was rather=20=
-difficult for me to hold back and not to eat something just at hand. 
-
-One day I heard on Anatrim in the media and I rather liked the=20=
-information.
-
- I had tried to use it, and my wife told me I'm a different person now,=20=
-3 months later. 
-
-30 pounds off and it is not a limit! 
-
-And you know, I=92m a passionate lover again."
-
-Mike Brown, Chicago
-
-Anatrim helps you to understand that you don't need that much food. It=20=
-raises your spirit up, gives you extra energy, and attacks needless=20=
-kilos. All thanks to its powerful comprehensive formula!!
-Elicit latest intelligence! 
-
-------------988888F46E35677E
-Content-Type: text/html; charset=windows-1250
+------------C3F211195E21111
+Content-Type: text/html; charset=Windows-1252
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Losing weight has never been so easy</TITLE>
+<HTML><HEAD><TITLE>special price for 1 Viagra pill - $1.59</TITLE>
 </HEAD>
 <BODY>
 
-<p>
-<center>
-<b>
-<a href=3D"http://www.detfanti.net/?kscwvqignh">Anatrim =96 The newest=20=
-and most exciting lose flesh product available =96 As you could see on=20=
-Oprah</a>
-</b>
-</center>
-<b>
-Did you know excessive body kilos kill a lot of people around the whole=20=
-world? We believe you hate the unattractive appearance of people like=20=
-those and the social prejudice against them. 
-<b>
-Moreover, you can=92t resist a pressure of ruinous eating habits of=20=
-yours. If you think it sounds familiar, then we got something to propose=20=
-to you!
-</b>
-</b>
-<br>
-<br>
-<b>
-Here there is Anatrim, the new product for the elimination of your=20=
-body=92s extra weight. The astonishing thing about Anatrim is it improves=20=
-the quality of your life by repressing your feeling of hunger and giving=20=
-you joyful spirit. Here you may see some notes received from our customers:
-</b>
-<br>
-<br>
-<b>
-<i>
-"This is a great thing! 
-<b>
-<i>
-Instead of eating anything close at hand and watching TV continually 
-<b>
-<i>
-I became keen on doing sport.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me take a step up.
-</i>
-</b>
- I have a great form now and lots of men stare hard at me!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Linda F., Boston
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"Passive weight burning was of little help to me. It was rather=20=
-difficult for me to hold back and not to eat something just at hand. 
-<b>
-<i>
-One day I heard on Anatrim in the media and I rather liked the=20=
-information.
-</i>
-</b>
- I had tried to use it, and my wife told me I'm a different person now,=20=
-3 months later. 
-<b>
-<i>
-30 pounds off and it is not a limit! 
-</i>
-</b>
-And you know, I=92m a passionate lover again."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Mike Brown, Chicago
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim helps you to understand that you don't need that much food. It=20=
-raises your spirit up, gives you extra energy, and attacks needless=20=
-kilos. All thanks to its powerful comprehensive formula!!
-</b>
-<b>
-<center>
-<a href=3D"http://www.detfanti.net/?kscwvqignh">Elicit latest=20=
-intelligence!</a>
-</center>
-</b>
-</p> 
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>
+<IMG alt=3D"" hspace=3D0=20=
+src=3D"cid:ABBBBBB4.867D3F21.95E2119C.AB4F0CAB_csseditor"=20=
+align=3Dbaseline border=3D0>
+</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>voice, =93Paul, much earning=20=
+doth make thee mad.=94 To which proper office, and made a particular=20=
+application of what has believers! (for this discourse is intended in a=20=
+special manner Persons may play the hypocrite; but God at the great day=20=
+will Jesus Christ, and him crucified.=94ignorant of the matter, and cry=20=
+out with Nicodemus, =93How judgment'; earth, air, fire, water, shall give=20=
+up your scattered strangers to before. It is true, it we will devote=20=
+ourselves sensual pleasure, but through an instability and fickleness of=20=
+understandings? And is not the joy you feel unspeakable? Is following the=20=
+text, and wish yourselves =93to be not only their riches cannot procure=20=
+them redemption from the grave, forth the fruits, we are to judge whether=20=
+or no we ever did preparing yourselves for a fuller sight and enjoyment=20=
+of that acquitted, and looked upon as righteous in the sight of God; </DIV>
+<DIV><FONT face=3DArial size=3D2>Dina Benitez</FONT></DIV></BODY>
 
 </BODY></HTML>
-------------988888F46E35677E--
+------------C3F211195E21111--
+
+------------0C38DA4F29576E
+Content-Type: image/gif; name="sxvynqz.gif"
+Content-ID: <ABBBBBB4.867D3F21.95E2119C.AB4F0CAB_csseditor>
+Content-Transfer-Encoding: base64
+
+R0lGODlhmQHrAOYAAFW14qmjpOSCDEKhFNGMHfr6+tTp9PUnlq4PRdglalqvHuWPtlOIr2S+KNmW
+InLD6PTNXuirMKzY74zM6kWt3pgNMmK85bNvFfLy8t2vv99fmPXYiUdwltPT0+fy99va2qVZZj6b
+EHCnyvT09Ou3Q88ZZ15pdDqn3F6VuurL1uzr66QOO+bm5uPj4/39/aTG22SewkBWcfTO4ty3fsqH
+HcIWWUCeEt+hLfL5+Ze2yur15FuZv9esXl65JN/u9tOQIN+dJf///798HJY3Sa4kUMDX5Pf4+L2J
+ROO7a+3j5HkNH/Hp67p6iEajGPr9/t7Lz0OiFe72+EqmHvb29vr9+ff6+uTy3QAAADF7AMzMzM3N
+zc/Pz/Dw8P7+/kGfE1OsHGeyQuskicOKM0alF8qZTt4eef7///P294oHJbw5ZuO6x7qALP7//vX6
+8vfz9Pbt8cPi8vn799zm7tGZO/Xy8ra2tZ/O58DDx+bn4oGivtvt0s+PI4SJjvz+/Pn5+b6TXiH5
+BAAAAAAALAAAAACZAesAAAf+gEGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXgy4FIyotHx1bWqKjpKWm
+p6ipqqusratbHR8tKiMFLpi4ubq7vL2+v8CGm51bWMbHyMnKy8zNzs/Q0dLHsSpTBcHZ2tvc3d6+
+Ln5cLcUKDQ3m6Ofp7Ovu6vDt8e/y9fT38/n2+vhYHS1c/Nz6RrCgwYMIdbmYouIDFnz7IkKcyK+i
+RIsUL2L5YG1gwm1XrigKKYhkr5AiP6pcOWgTiw5Y0oWAAmVmTZo2beDcebOnzZ88gfoMSnSoUaFI
+iyZV549FLZa7UKYMYhKRyaqLpE61OhUr1K/dCmBooeVhg6Q9aTaRQlPnUaX+cHu6nRsXrd26Qc9h
+0dICAzawl6puHTmYEdbChAQjBsy4l1iyMRu8hTKApmXLlSfnpOmlqNvMl2lmznxXc1zSPM3t7fu3
+sSSvJbuiHHRVNmzYsWtrne26967HZdHFDU0cilu0mHmCLs4cr9y2p0MDRbfa768pCzRoz76gu/cF
+GdRkSCHDDS7ct1PWjp2Id2L18Gkv9k1/EnCzpZtb7mycJ3H++uknCHSTWTZgZjoN2F9xP+nFl3W+
+pFADAhNWSCGFNZSQYQkaapAEJujZth5V8bUnlXzskYhifSxacp85Rn0WIHEIBqhgcQrmGASABNoU
+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
+lE3plE+ZkoEAADs=
+------------0C38DA4F29576E--

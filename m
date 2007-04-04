@@ -1,66 +1,52 @@
-From: "Karl Pickett" <karl.pickett@gmail.com>
-Subject: [PATCH] Make ati_remote button repeat sensitivity soft-configurable
-Date: Tue, 3 Apr 2007 20:34:17 -0400
-Message-ID: <f9be06770704031734k11ec894fpdf1afe385108aece@mail.gmail.com>
+From: UK LOTTERY <online_webinfo@bellsouth.net>
+Subject: FIND REF No: UK/9420X2/68
+Date: Tue, 3 Apr 2007 21:36:28 -0400
+Message-ID: <20070404013628.KGVN993.ibm70aec.bellsouth.net@mail.bellsouth.net>
+Reply-To: claimsagent_bendaniels@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, dmitry.torokhov@gmail.com
+To: uklottery@yahoo.com
 List-Id: linux-input@vger.kernel.org
 
-The ati_remote driver is a little too sensitive for my wife... if you
-do anything but barely tap the button you can get multiple events
-reported.  We prefer a more conservative no-repeat setting.  This is a
-pretty trivial patch which just makes one hard coded value soft
-configurable and does not change the default.
+REF No: UK/9420X2/68
+BATCH No: 074/05/ZY369
+TICKET No: 20511465463-7644
+SERIAL No: S/N-00168
+LUCKY No: 887-13-865-37-10-83
 
---- linux-source-2.6.20/drivers/usb/input/ati_remote.c.kjp
-2006-12-07 22:50:56.000000000 -0500
-+++ linux-source-2.6.20/drivers/usb/input/ati_remote.c  2007-04-03
-20:19:24.000000000 -0400
-@@ -119,7 +119,9 @@
-  * and we have to take this into account for an accurate repeat
-  * behaviour.
-  */
--#define FILTER_TIME    60 /* msec */
-+#define FILTER_TIME    60 /* millisec between each repeat */
-+
-+#define FILTER_MAX     5 /* number of repeats to ignore */
+                                                        FINAL NOTIFICATIO=
+N
 
- static unsigned long channel_mask;
- module_param(channel_mask, ulong, 0644);
-@@ -133,6 +135,11 @@
- module_param(repeat_filter, int, 0644);
- MODULE_PARM_DESC(repeat_filter, "Repeat filter time, default =3D 60 msec")=
-;
+We are pleased to inform you of the result of  the winners of the  UK NAT=
+IONAL LOTTERY ONLINE PROMO PROGRAMME, held on the 28th of February, 2007.
 
-+static int repeat_filter_max =3D FILTER_MAX;
-+module_param(repeat_filter_max, int, 0644);
-+MODULE_PARM_DESC(repeat_filter_max,
-+       "Number of repeats to ignore, default =3D 5");
-+
- #define dbginfo(dev, format, arg...) do { if (debug) dev_info(dev ,
-format , ## arg); } while (0)
- #undef err
- #define err(format, arg...) printk(KERN_ERR format , ## arg)
-@@ -515,7 +522,7 @@
-                ati_remote->old_jiffies =3D jiffies;
+You have therefore been approved for a lump sum pay out of =C2=A31,450,00=
+0 (One Million,Four Hundred and Fifty Thousand Pound Sterling) in cash cr=
+edited to file XYL/26510460037/06 .To file for your claim,  contact our c=
+laims agent,
 
-                if (ati_remote->repeat_count > 0 &&
--                   ati_remote->repeat_count < 5)
-+                   ati_remote->repeat_count < repeat_filter_max)
-                        return;
+The Consultant Contact are below:
+Mr Ben Daniels,=20
+email:claimsagent_bendaniels@yahoo.co.uk=20
+D/L : +4477011137666
 
+Provide him with the information below:
 
+1.Full Name:
+2.Full Address:
+3.Marital Status:
+4.Occupation:
+5.Age:
+6.Sex:
+7.Nationality:
+8.Country Of Residence:
+9.Telephone Number:
 
-
---=20
-Karl Pickett
-The most wasted of all days is one without laughter.=97E.E. Cummings
+Congratulations once more from all members and staffs of this program.

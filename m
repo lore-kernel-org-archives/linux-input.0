@@ -1,11 +1,11 @@
-From: "Tamera Larsen" <coaling246@dmns4sale.com>
-Subject: I before hogeland
-Date: Thu, 5 Apr 2007 11:06:38 -0400
-Message-ID: <001b01c77772$7ba00450$05bde43c@dads>
+From: "Mandy Winn" <lopenohct@chello.hu>
+Subject: My well regular
+Date: Thu, 5 Apr 2007 21:48:05 +0200
+Message-ID: <001c01c777cc$17cfda40$05a3d37c@CLAUDIA>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1250";
+        charset="windows-1252";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -18,10 +18,10 @@ To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
 
-THE HOTTEST ALERT!!!
+YOU'VE SEEN IT BEFORE YOU SAY?...
 
-Target sym: CDYV, Price (current): $0.09, 5 Day Target price: $0.425, Action: Strong Buy/Hold!!!
+S.umbol: CDYV, Current price: $0.09, 5 Day Target price: $0.425, Recommendation: very aggresive buy!
 
-All signs show that this one is going to Explode!
+This sym is gaining momentum.
 
-Check the news of CDYV, linux-input, contact broker...
+See bullish news online right now, linux-input, call broker.

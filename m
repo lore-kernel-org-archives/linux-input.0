@@ -1,11 +1,11 @@
-From: "Irvin Dyer" <elderton9@fab-sas.co.uk>
-Subject: That so lenzburg
-Date: Fri, 6 Apr 2007 10:30:42 +0530
-Message-ID: <001801c77836$a0dacf10$561d79bc@anitas4052k6dg>
+From: "Porfirio Klein" <keedysvilleus@ezworld.com>
+Subject: you in fosterville
+Date: Fri, 6 Apr 2007 13:05:13 +0800
+Message-ID: <001b01c7784c$36d47790$06500634@nsjcdx>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="iso-8859-1";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -18,10 +18,10 @@ To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
 
-YOU'VE SEEN IT BEFORE YOU SAY?!!
+This one is hardly promoted!
 
-Target sym: CDYV, Price (current): $0.089, 5 Day Target price: $0.425, Action: Strong Buy/Hold.
+Lookup: CDYV, Current: $0.089 (5 Day Target price: $0.425!), Expected: Steadily climb for the top...
 
-500% profit guaranted!!
+500% profit guaranted, it's progressive company..
 
-See bullish news online right now, linux-input, call broker!!!
+See the news, linux-input, call your broker!!!

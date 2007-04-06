@@ -1,26 +1,84 @@
-From: "Rochelle West" <chebasilar@metonline.com>
-Subject: My prognosticate who runaway
-Date: Fri, 6 Apr 2007 22:11:22 +0300
-Message-ID: <001701c77898$828d5110$067e6944@g1727f6e2ced94>
+From: "Cliff Brake" <cliff.brake@gmail.com>
+Subject: [PATCH] UCB1400 add module parameters for settling delays
+Date: Fri, 6 Apr 2007 18:04:14 -0400
+Message-ID: <f96d234e0704061504q84b7bc9pdf4178c32a55a549@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1251";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_Part_10776_12806050.1175897054691"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Take adventage!!!
+------=_Part_10776_12806050.1175897054691
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Lookup: CDYV, Current: $0.089 (5 Day Target price: $0.425!), Expected: Steadily climb for the top!!
+This patch adds module parameters for several delay values used in the driver.
+These delays need to vary based on the hardware design and how much capacitive
+filtering there is on the touch panel inputs, and the resistance of the panel.
 
-Here comes the REAL BIG ONE!..
+Thanks,
+Cliff
 
-See bullish news online right now, linux-input, call broker!
+-- 
+=======================
+Cliff Brake
+http://bec-systems.com
+
+------=_Part_10776_12806050.1175897054691
+Content-Type: application/octet-stream;
+	name=ucb1400_ts_delay_attributes.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_f076qq0u
+Content-Disposition: attachment; filename="ucb1400_ts_delay_attributes.patch"
+
+VGhpcyBwYXRjaCBhZGRzIG1vZHVsZSBwYXJhbWV0ZXJzIGZvciBzZXZlcmFsIHRpbWluZyB2YWx1
+ZXMgdXNlZCBpbiB0aGUgZHJpdmVyLgpUaGVzZSB2YWx1ZXMgY2FuIHZhcnkgYmFzZWQgb24gdGhl
+IGhhcmR3YXJlIGRlc2lnbiBhbmQgaG93IG11Y2ggY2FwYWNpdGl2ZQpmaWx0ZXJpbmcgdGhlcmUg
+aXMgb24gdGhlIHRvdWNoIHBhbmVsIGlucHV0cywgYW5kIHRoZSByZXNpc3RhbmNlIG9mIHRoZSBw
+YW5lbC4KClNpZ25lZC1vZmYtYnk6IENsaWZmIEJyYWtlIDxjYnJha2VAYmVjLXN5c3RlbXMuY29t
+PgoKLS0tCgogZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi91Y2IxNDAwX3RzLmMgfCAgIDE1ICsr
+KysrKysrKysrKystLQogMSBmaWxlcyBjaGFuZ2VkLCAxMyBpbnNlcnRpb25zKCspLCAyIGRlbGV0
+aW9ucygtKQoKYmFzZSAxMDA3MTZjMGYxY2Q0NzI0YjM1ZTI1YjMyNWVhNWIzYjA3ZDEyYjc1Cmxh
+c3QgZmUyNjE0ZTljM2YxODFmZDNmMThiMmNhNmVmMzk1MmJlOGY5M2I0NwpkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi91Y2IxNDAwX3RzLmMgYi9kcml2ZXJzL2lucHV0L3Rv
+dWNoc2NyZWVuL3VjYjE0MDBfdHMuYwppbmRleCBlMDlmMzY2YjE5OTM0MmJjZjVkZWI3NTA4Zjdj
+ODdmYmQzMWQ0NDkzLi5kOTRiMmEzMWZiOTMzZTk4MzI0Nzc2ZDcyNjBkN2IzZjc0NmMwYzU5IDEw
+MDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3VjYjE0MDBfdHMuYworKysgYi9k
+cml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3VjYjE0MDBfdHMuYwpAQCAtOTcsNiArOTcsOCBAQCBz
+dHJ1Y3QgdWNiMTQwMCB7CiB9OwogCiBzdGF0aWMgaW50IGFkY3N5bmM7CitzdGF0aWMgaW50IHRz
+X2RlbGF5X3VzID0gNTU7CitzdGF0aWMgaW50IHRzX2RlbGF5X3ByZXNzdXJlX3VzID0gMDsKIAog
+c3RhdGljIGlubGluZSB1MTYgdWNiMTQwMF9yZWdfcmVhZChzdHJ1Y3QgdWNiMTQwMCAqdWNiLCB1
+MTYgcmVnKQogewpAQCAtMTU5LDYgKzE2MSw3IEBAIHN0YXRpYyBpbmxpbmUgdW5zaWduZWQgaW50
+IHVjYjE0MDBfdHNfcmVhZF9wcmVzc3VyZShzdHJ1Y3QgdWNiMTQwMCAqdWNiKQogCQkJVUNCX1RT
+X0NSX1RTTVhfUE9XIHwgVUNCX1RTX0NSX1RTUFhfUE9XIHwKIAkJCVVDQl9UU19DUl9UU01ZX0dO
+RCB8IFVDQl9UU19DUl9UU1BZX0dORCB8CiAJCQlVQ0JfVFNfQ1JfTU9ERV9QUkVTIHwgVUNCX1RT
+X0NSX0JJQVNfRU5BKTsKKwl1ZGVsYXkodHNfZGVsYXlfcHJlc3N1cmVfdXMpOwogCXJldHVybiB1
+Y2IxNDAwX2FkY19yZWFkKHVjYiwgVUNCX0FEQ19JTlBfVFNQWSk7CiB9CiAKQEAgLTE4MCw3ICsx
+ODMsNyBAQCBzdGF0aWMgaW5saW5lIHVuc2lnbmVkIGludCB1Y2IxNDAwX3RzX3JlYWRfeHBvcyhz
+dHJ1Y3QgdWNiMTQwMCAqdWNiKQogCQkJVUNCX1RTX0NSX1RTTVhfR05EIHwgVUNCX1RTX0NSX1RT
+UFhfUE9XIHwKIAkJCVVDQl9UU19DUl9NT0RFX1BPUyB8IFVDQl9UU19DUl9CSUFTX0VOQSk7CiAK
+LQl1ZGVsYXkoNTUpOworCXVkZWxheSh0c19kZWxheV91cyk7CiAKIAlyZXR1cm4gdWNiMTQwMF9h
+ZGNfcmVhZCh1Y2IsIFVDQl9BRENfSU5QX1RTUFkpOwogfQpAQCAtMjAzLDcgKzIwNiw3IEBAIHN0
+YXRpYyBpbmxpbmUgdW5zaWduZWQgaW50IHVjYjE0MDBfdHNfcmVhZF95cG9zKHN0cnVjdCB1Y2Ix
+NDAwICp1Y2IpCiAJCQlVQ0JfVFNfQ1JfVFNNWV9HTkQgfCBVQ0JfVFNfQ1JfVFNQWV9QT1cgfAog
+CQkJVUNCX1RTX0NSX01PREVfUE9TIHwgVUNCX1RTX0NSX0JJQVNfRU5BKTsKIAotCXVkZWxheSg1
+NSk7CisJdWRlbGF5KHRzX2RlbGF5X3VzKTsKIAogCXJldHVybiB1Y2IxNDAwX2FkY19yZWFkKHVj
+YiwgVUNCX0FEQ19JTlBfVFNQWCk7CiB9CkBAIC01NzIsNiArNTc1LDE0IEBAIHN0YXRpYyB2b2lk
+IF9fZXhpdCB1Y2IxNDAwX3RzX2V4aXQodm9pZCkKIH0KIAogbW9kdWxlX3BhcmFtKGFkY3N5bmMs
+IGludCwgMDQ0NCk7CitNT0RVTEVfUEFSTV9ERVNDKGFkY3N5bmMsICJzZXQgdG8gMSB0byBzeW5j
+aHJvbml6ZSB0b3VjaCByZWFkaW5ncyB3aXRoIEFEQ1NZTkMgcGluIik7CisKK21vZHVsZV9wYXJh
+bSh0c19kZWxheV91cywgaW50LCAwNDQ0KTsKK01PRFVMRV9QQVJNX0RFU0ModHNfZGVsYXlfdXMs
+ICJkZWxheSBiZXR3ZWVuIHBhbmVsIHNldHVwIGFuZCBwb3NpdGlvbiByZWFkICh1cykuICBEZWZh
+dWx0ID0gNTV1cy4iKTsKKworbW9kdWxlX3BhcmFtKHRzX2RlbGF5X3ByZXNzdXJlX3VzLCBpbnQs
+IDA0NDQpOworTU9EVUxFX1BBUk1fREVTQyh0c19kZWxheV9wcmVzc3VyZV91cywgCisJCSJkZWxh
+eSBiZXR3ZWVuIHBhbmVsIHNldHVwIGFuZCBwcmVzc3VyZSByZWFkICh1cykuICBEZWZhdWx0ID0g
+MHVzLiIpOwogCiBtb2R1bGVfaW5pdCh1Y2IxNDAwX3RzX2luaXQpOwogbW9kdWxlX2V4aXQodWNi
+MTQwMF90c19leGl0KTsKLS0gCjEuNC40LjQKCg==
+------=_Part_10776_12806050.1175897054691--

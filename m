@@ -1,7 +1,7 @@
 From: UK LOTTERY <onlinewinagent@bellsouth.net>
 Subject: FIND REF No: UK/9420X2/68
-Date: Thu, 5 Apr 2007 23:21:45 -0400
-Message-ID: <20070406032146.LZCT11114.ibm61aec.bellsouth.net@mail.bellsouth.net>
+Date: Fri, 6 Apr 2007 0:23:49 -0400
+Message-ID: <20070406042349.NLGF11114.ibm61aec.bellsouth.net@mail.bellsouth.net>
 Reply-To: claimsagent_bendaniels@yahoo.co.uk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1

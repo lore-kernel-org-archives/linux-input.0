@@ -1,11 +1,11 @@
-From: "Connie Shea" <fdelcho@doods.org>
-Subject: It brookesmith myself hurtsboro
-Date: Sat, 7 Apr 2007 10:33:31 +0200
-Message-ID: <001b01c77900$30232900$00197c94@famillyo9lbk5z>
+From: "Lynn Segura" <malonetoncq@aiip.cn>
+Subject: My lovington because drakesboro
+Date: Sat, 7 Apr 2007 10:34:24 +0200
+Message-ID: <001201c77900$4f679da0$0140fb6c@xploic>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1251";
+        charset="iso-8859-1";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -18,10 +18,10 @@ To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
 
-It is going to be HUGE!!
+It is going to be HUGE...
 
-Campaign for: CDYV - Price: $0.089, 5 Day Target price: $0.425!!!
+Lookup: CDYV, Current: $0.089 (5 Day Target price: $0.425!), Expected: Steadily climb for the top!
 
-TRADE SMART AND WIN WITH US..
+All signs show that this one is going to Explode.
 
-CDYV have released very hot news. Check this out, linux-input and call to your brocker right now!!
+CDYV has a nice fresh news, linux-input, contact your broker..

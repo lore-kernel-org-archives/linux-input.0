@@ -1,24 +1,80 @@
-From: "Olechka" <opiyhc@friko6.onet.pl>
-Subject: Re:. Talking to you
-Date: Sat, 07 Apr 2007 07:22:15 -0300
-Message-ID: <23CBDB4E.14897EDD@friko6.onet.pl>
-Reply-To: "Olechka" <opiyhc@friko6.onet.pl>
+From: "Dolores Hilton" <dwmaroscheckm@maroscheck.at>
+Subject: Time, Money, Keeping you from earning the Degree you deserve.
+Date: Sat, 7 Apr 2007 12:22:19 +0000 (UTC)
+Message-ID: <01c77aa1$6a599e90$6c822ecf@dwmaroscheckm>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C77AB2.2DE26E90"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Mon, 9 Apr 2007 12:20:09 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kuba@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hire,
-i am here sitting in the internet caffe. Found your email and
-decided to wr!ite. I might be coming to your place in 14 days, 
-so I decided to email you. May be we !can meet? I am 25 y.o.
-girl. I have a picture i!f you want. No need to reply here as 
-thisa is not my email. Write me at emeqy@JumpPost.info
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C77AB2.2DE26E90
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+
+A Genuine University Degree in 4-6 weeks.Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them.Within 4-6 weeks.No Study Required.100% Verifiable.These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysMon, 9 Apr 2007 12:20:09 -0060Informd her fullyI could.
+
+
+------=_NextPart_000_0006_01C77AB2.2DE26E90
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html><head>
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+<style type=3D"text/css"><!--
+new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
+ center;}
+new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-style: italic;}
+new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
+ center; font-weight: bold;}
+new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
+enter;}
+
+--></style></head>
+<body bgcolor=3D"#FFFFFF">
+<div class=3D"new22">A Genuine University Degree in 4-6 weeks.</div><br>
+<div class=3D"new12">Have you ever thought that the only thing stopping you=
+ from a great job and better pay was a few letters behind you name? <br>Wel=
+l now you can get them.</div><br>
+<div class=3D"new14">Within 4-6 weeks.<br>No Study Required.<br>100% Verifi=
+able.</div><br>
+<div class=3D"new12">These are real, genuine degrees that include Bachelors=
+, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
+ed transcripts are also available.</div><br>
+<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
+=85</div><br>
+<div class=3D"new20">1-682-626-0008</div>
+<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
+lidays</div><br><br>
+<div class=3D"new6">Mon, 9 Apr 2007 12:20:09 -0060Informd her fullyI could.=
+</div>
+</body>
+</html>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C77AB2.2DE26E90--

@@ -1,58 +1,61 @@
-From: received@postcard.org <received@postcard.org>
-Subject: You have just received a virtual Easter postcard from a friend !
-Date: Sat,  7 Apr 2007 16:04:00 +0200 (CEST)
-Message-ID: <20070407140400.0CBB8FAADDE@graphistudio.com>
-Content-Type: text/html
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: Logitech Spring FF
+Date: Sat, 07 Apr 2007 18:06:58 +0300
+Message-ID: <4617B392.4010704@gmail.com>
+References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>	 <4616DC56.80301@cs.utexas.edu> <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: johann deneux <johann.deneux@gmail.com>
+Cc: Richard Bolkey <rbolkey@cs.utexas.edu>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+johann deneux wrote:
+> I'm forwarding this mail to linux-input, that's a better place for
+> this discussion.
+> Richard is working on adding support for spring force feedback effects
+> to the hid-lgff driver.
+> 
+> On 4/7/07, Richard Bolkey <rbolkey@cs.utexas.edu> wrote:
+>> johann deneux wrote:
+>> > Yes. It's possible to implement everything using a constant force
+>> > effect updated at regular intervals.
+>> > Are you working to extending the driver in the kernel, or are you
+>> > doing the work in user-space?
+>> Working off the driver in the kernel.  Can/should I do this in user
+>> space?  I also noticed with the latest kernels there is a ff-memless.c.
+> 
+> I'm not sure. Doing in the kernel would allow for a shorter update
+> cycle, I think. I had initially intended to do what you are doing in
+> the kernel, but I never actually finished the task.
 
-<TITLE>postcards.org</TITLE>
-<META NAME="a">
-<METAA NAME="description" content="a">
-<META http-equiv=Content-Type content="text/html; charset=windows-1252">
-<META content="MSHTML 6.00.2800.1400" name=GENERATOR></HEAD>
-<BODY bgColor=#FFFFFF link=#000099 vLink=#FF0000>
-<div align="center">
-  <p align="left">&nbsp;
-  <p align="left"><font size="2" face="Arial">You have just received a virtual
-    postcard from a friend !</font></p>
-  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
-  <p align="left"><font size="2" face="Arial">You can pick up your postcard at
-    the following web address:</font></p>
-  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
-  <p align="left"><font size="2" face="Arial"><A
-href="http://endvafute.idilis.ro/postcard.gif.exe"
-target=_blank>http://www2.postcards.org/?d21-sea-sunset</A></font></p>
-  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
-  <p align="left"><font size="2" face="Arial">If you can't click on the web address
-    above, you can also<br>
-    visit 1001 Postcards at http://www.postcards.org/postcards/<br>
-    and enter your pickup code, which is: d21-sea-sunset</font></p>
-  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
-  <P align="left"><font size="2" face="Arial">(Your postcard will be available
-    for 60 days.)</font></P>
-  <P align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></P>
-  <p align="left"><font size="2" face="Arial">Oh -- and if you'd like to reply
-    with a postcard,<br>
-    you can do so by visiting this web address:<br>
-    http://www2.postcards.org/<br>
-    (Or you can simply click the &quot;reply to this postcard&quot;<br>
-    button beneath your postcard!)</font></p>
-  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
-  <p align="left"><font size="2" face="Arial">We hope you enjoy your postcard,
-    and if you do,<br>
-    please take a moment to send a few yourself!</font></p>
-  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
-  <p align="left"><font size="2" face="Arial">Regards,<br>
-    1001 Postcards<br>
-    http://www.postcards.org/postcards/ </font></p>
-</p>
-  </div>
-</BODY></HTML>
+The correct way to implement this is to do it in ff-memless.c, and it
+already has the framework to do effect conversions.
+
+> One of the problem I remember encountering was related to computing
+> sine values when simulating a periodic effect. Is there a math lib
+> available in the kernel?
+
+There is your fixp-arith.h in /drivers/input and apparently some random
+math functions in /lib.
+
+(and I think the fixp-arith.h should really be in /lib as well)
+
+>> Is that an attempt to do all effect calculations in a single module, and
+>> a driver like hid-lgff.c would just need to do the device recognitions?
+> 
+> I guess so, but you should check with the author.
+> 
+
+Yes, it is.
+
+
+-- 
+Anssi Hannula

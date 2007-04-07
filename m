@@ -1,51 +1,217 @@
-From: "ms joy" <ms_joy05@hotmail.fr>
-Subject: Hi,
-Date: Sat, 07 Apr 2007 17:02:48 +0000
-Message-ID: <BAY118-F26F25FE39A51B968D27FBB825B0@phx.gbl>
-Reply-To: ms_joy10@yahoo.fr
+From: "Leo Lovell" <turbykathleenkeatingqaf@bykathleenkeating.com>
+Subject: Make yourself more attractive to others
+Date: Sat, 7 Apr 2007 17:05:17 -0100
+Message-ID: <633839662.56801755019669@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: multipart/alternative;
+  boundary="----------F291C72153BB48"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-How are you today? I know that my letter will meet you as a surprise.
+------------F291C72153BB48
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-I am Joy Moses, i am 19,  My mother was an African American while my father 
-was from the french speaking colony of Cote D' Ivoire, i was living with my 
-mother not too far from Charleston building, 601 57th Street, Charleston 
-West Virginia USA. And i attended Charleston senior High School, 1201 
-Washington Street E, Charleston, WV. I lost my mother sometimes ago and 
-after her death i came to meet my father for the very first time in Cote d' 
-Ivoire West Africa, though he was also living in the state before he 
-relocated back to Cote d' Ivoire to set up a business.
 
-Exactely two months and one week after i came to meet my father with the 
-help of US consulates he died, he was very sick when i came to meet him. But 
-before his death there were some document he gave to me and he told me that 
-everything he worked for in his life time is in the document when i 
-crosscheck the document i discovered that my late father deposited $ 10.5 
-Million dollars in a bank here, Ten million five hundred thousand US 
-dollars.
-The reason he deposited the money  was because of there political problem in 
-this country.While I am telling you is that i am just a girl and there is 
-little or nothing i could do on my own and again if my late father relative 
-find out that my late father left this kind of money in my care i don't know 
-what they might do to me, so i need you to help me contact the bank for 
-transfer  the money into your own bank account , and take me along with you. 
-If you do this for me apart from the love i will also offer you 20% of the 
-total money for helping me.
+Anatrim =96 The up-to-the-moment and most enchanting product for=20=
+weighty people is now easily available =96 As seen on BBC.
 
-Please i requested for your trust and understanding because it might sound 
-unbeleivable but it is the truth, Please get back as soon as posible.
-Sincerely,
-Miss Joy Moses.
+Do you recall all the situations when you told yourself you would do=20=
+anything to get rid of this fastly growing pounds of fat? Happily, now no=20=
+great price is to be paid. With Anatrim, the earth-shaking kilos-melting=20=
+medley, you can achieve healthier life style and become really thinner.=20=
+Take a look at what people state!
 
-_________________________________________________________________
-Personnalisez votre Messenger avec Live.com 
-http://www.windowslive.fr/livecom/
+"I hate to admit it but I was extremely addicted to food. 
+
+I greedily devoured all this trash 
+
+and was unable to stop. 
+
+This ruinous passion stopped when I started course of taking Anatrim! 
+
+God,
+
+ my inclination to eat constantly disappeared, 
+
+mood improved and I=92m the happiest person in the world 25 pounds in=20=
+2.4 months. 
+
+So, I can tell you now I=92m the happiest person!"
+ 
+
+Victoria K., New York
+
+ 
+"Since my early childhood I was a weighty boy. 
+
+You can't even fancy how I abhorred being ridiculed at school. 
+
+I detested my plumpness and I detested myself. 
+
+After trying this and that I heard about Anatrim. 
+
+It literally took me out of this dreadful nightmare! The very sincere=20=
+thanks to you, guys."
+
+ 
+Dave Klark, Las Vegas
+
+ 
+"Know what? Thanks to Anatrim my marriage was luckily saved! I got into=20=
+this circle, depression =96 more eating =96 just more depression. My wife=20=
+was about to leave me as I was turning in overweight psycho. 
+
+My best friend pointed at your web site and I called for Anatrim at=20=
+once. 
+
+The final result was great, my appetite came to admissible level, I was=20=
+often in good spirits, and, certainly, I went some belt holes back. And=20=
+you know, the sex became fantastic also!"
+
+ 
+Mike
+
+ There is a great number of testimonial letters left by happy people=20=
+trying Anatrim. Don=92t you gonna join the tens of thousands of slim=20=
+people and try this all-natural appetite-suppressing power lifting=20=
+product now!
+
+Don=92t lose the chance!
+
+------------F291C72153BB48
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Burn pounds off with Anatrim</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href=3D"http://www.athamber.net/?ygkgudptag">
+Anatrim =96 The up-to-the-moment and most enchanting product for=20=
+weighty people is now easily available =96 As seen on BBC.
+</a>
+</center>
+Do you recall all the situations when you told yourself you would do=20=
+anything to get rid of this fastly growing pounds of fat? Happily, now no=20=
+great price is to be paid. With Anatrim, the earth-shaking kilos-melting=20=
+medley, you can achieve healthier life style and become really thinner.=20=
+Take a look at what people state!
+<br>
+<br>
+<i>
+"I hate to admit it but I was extremely addicted to food. 
+<b>
+<i>
+I greedily devoured all this trash 
+<b>
+<i>
+and was unable to stop. 
+</i>
+</b>
+</i>
+</b>
+This ruinous passion stopped when I started course of taking Anatrim! 
+<b>
+<i>
+God,
+</i>
+</b>
+<b>
+<i>
+ my inclination to eat constantly disappeared, 
+<b>
+<i>
+mood improved and I=92m the happiest person in the world 25 pounds in=20=
+2.4 months. 
+</i>
+</b>
+</i>
+</b>
+So, I can tell you now I=92m the happiest person!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Victoria K., New York
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a weighty boy. 
+<b>
+<i>
+You can't even fancy how I abhorred being ridiculed at school. 
+</i>
+</b>
+<b>
+<i>
+I detested my plumpness and I detested myself. 
+<b>
+<i>
+After trying this and that I heard about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally took me out of this dreadful nightmare! The very sincere=20=
+thanks to you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Dave Klark, Las Vegas
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Know what? Thanks to Anatrim my marriage was luckily saved! I got into=20=
+this circle, depression =96 more eating =96 just more depression. My wife=20=
+was about to leave me as I was turning in overweight psycho. 
+<b>
+<i>
+My best friend pointed at your web site and I called for Anatrim at=20=
+once. 
+</i>
+</b>
+The final result was great, my appetite came to admissible level, I was=20=
+often in good spirits, and, certainly, I went some belt holes back. And=20=
+you know, the sex became fantastic also!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Mike
+</i>
+</b>
+<br>
+<br>
+ There is a great number of testimonial letters left by happy people=20=
+trying Anatrim. Don=92t you gonna join the tens of thousands of slim=20=
+people and try this all-natural appetite-suppressing power lifting=20=
+product now!
+<center>
+<a href=3D"http://www.athamber.net/?ygkgudptag">
+Don=92t lose the chance!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------F291C72153BB48--

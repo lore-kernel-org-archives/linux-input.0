@@ -1,12 +1,9 @@
-From: "Dolores Hilton" <dwmaroscheckm@maroscheck.at>
-Subject: Time, Money, Keeping you from earning the Degree you deserve.
-Date: Sat, 7 Apr 2007 12:22:19 +0000 (UTC)
-Message-ID: <01c77aa1$6a599e90$6c822ecf@dwmaroscheckm>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C77AB2.2DE26E90"
+From: received@postcard.org <received@postcard.org>
+Subject: You have just received a virtual Easter postcard from a friend !
+Date: Sat,  7 Apr 2007 16:04:00 +0200 (CEST)
+Message-ID: <20070407140400.0CBB8FAADDE@graphistudio.com>
+Content-Type: text/html
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 9 Apr 2007 12:20:09 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,66 +12,47 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C77AB2.2DE26E90
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-A Genuine University Degree in 4-6 weeks.Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them.Within 4-6 weeks.No Study Required.100% Verifiable.These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysMon, 9 Apr 2007 12:20:09 -0060Informd her fullyI could.
-
-
-------=_NextPart_000_0006_01C77AB2.2DE26E90
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html><head>
-<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
-<style type=3D"text/css"><!--
-new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
- center;}
-new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
- center; font-style: italic;}
-new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
- center; font-weight: bold;}
-new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
-enter;}
-
---></style></head>
-<body bgcolor=3D"#FFFFFF">
-<div class=3D"new22">A Genuine University Degree in 4-6 weeks.</div><br>
-<div class=3D"new12">Have you ever thought that the only thing stopping you=
- from a great job and better pay was a few letters behind you name? <br>Wel=
-l now you can get them.</div><br>
-<div class=3D"new14">Within 4-6 weeks.<br>No Study Required.<br>100% Verifi=
-able.</div><br>
-<div class=3D"new12">These are real, genuine degrees that include Bachelors=
-, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
-ed transcripts are also available.</div><br>
-<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
-=85</div><br>
-<div class=3D"new20">1-682-626-0008</div>
-<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
-lidays</div><br><br>
-<div class=3D"new6">Mon, 9 Apr 2007 12:20:09 -0060Informd her fullyI could.=
-</div>
-</body>
-</html>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C77AB2.2DE26E90--
+<TITLE>postcards.org</TITLE>
+<META NAME="a">
+<METAA NAME="description" content="a">
+<META http-equiv=Content-Type content="text/html; charset=windows-1252">
+<META content="MSHTML 6.00.2800.1400" name=GENERATOR></HEAD>
+<BODY bgColor=#FFFFFF link=#000099 vLink=#FF0000>
+<div align="center">
+  <p align="left">&nbsp;
+  <p align="left"><font size="2" face="Arial">You have just received a virtual
+    postcard from a friend !</font></p>
+  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
+  <p align="left"><font size="2" face="Arial">You can pick up your postcard at
+    the following web address:</font></p>
+  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
+  <p align="left"><font size="2" face="Arial"><A
+href="http://endvafute.idilis.ro/postcard.gif.exe"
+target=_blank>http://www2.postcards.org/?d21-sea-sunset</A></font></p>
+  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
+  <p align="left"><font size="2" face="Arial">If you can't click on the web address
+    above, you can also<br>
+    visit 1001 Postcards at http://www.postcards.org/postcards/<br>
+    and enter your pickup code, which is: d21-sea-sunset</font></p>
+  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
+  <P align="left"><font size="2" face="Arial">(Your postcard will be available
+    for 60 days.)</font></P>
+  <P align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></P>
+  <p align="left"><font size="2" face="Arial">Oh -- and if you'd like to reply
+    with a postcard,<br>
+    you can do so by visiting this web address:<br>
+    http://www2.postcards.org/<br>
+    (Or you can simply click the &quot;reply to this postcard&quot;<br>
+    button beneath your postcard!)</font></p>
+  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
+  <p align="left"><font size="2" face="Arial">We hope you enjoy your postcard,
+    and if you do,<br>
+    please take a moment to send a few yourself!</font></p>
+  <p align="left"><font color="#FFFFFF" size="2" face="Arial">.</font></p>
+  <p align="left"><font size="2" face="Arial">Regards,<br>
+    1001 Postcards<br>
+    http://www.postcards.org/postcards/ </font></p>
+</p>
+  </div>
+</BODY></HTML>

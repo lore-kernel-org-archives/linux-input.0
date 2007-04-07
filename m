@@ -1,7 +1,7 @@
 From: "ms joy" <ms_joy05@hotmail.fr>
 Subject: Hi,
-Date: Sat, 07 Apr 2007 17:01:24 +0000
-Message-ID: <BAY118-F33BAF7D242078D2885B9E0825B0@phx.gbl>
+Date: Sat, 07 Apr 2007 17:02:48 +0000
+Message-ID: <BAY118-F26F25FE39A51B968D27FBB825B0@phx.gbl>
 Reply-To: ms_joy10@yahoo.fr
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1; format=flowed
@@ -47,4 +47,5 @@ Sincerely,
 Miss Joy Moses.
 
 _________________________________________________________________
-Gagnez des écrans plats avec Live.com http://www.image-addict.fr/
+Personnalisez votre Messenger avec Live.com 
+http://www.windowslive.fr/livecom/

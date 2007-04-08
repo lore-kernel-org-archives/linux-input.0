@@ -1,10 +1,10 @@
-From: Vicky <Garland@nilestyle.com>
+From: Vicky <Violet@otenet.gr>
 Subject: Sexy Lady sucht was interessantes in Deutschland!
-Date: Sun, 8 Apr 2007 02:11:44 +0200
-Message-ID: <F814AD8B.5407064@nilestyle.com>
+Date: Sun, 8 Apr 2007 01:13:02 +0100
+Message-ID: <541B2B9C.9655485@otenet.gr>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
- boundary="------------030303040601070305040603"
+ boundary="------------070907010501070003090906"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,7 +15,7 @@ To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030303040601070305040603
+--------------070907010501070003090906
 Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
@@ -121,8 +121,8 @@ span></p>
 
 <p class=3DMsoNormal><span lang=3DDE style=3D'mso-ansi-language:DE'>Sie k=
 &ouml;nnen
-meine Bilder aus meiner Webseite sehen: <a href=3D"http://geocities.com/K=
-atCalypso0760">http://sexyvicky_h.com</a><o:p></o:p></span></p>
+meine Bilder aus meiner Webseite sehen: <a href=3D"http://geocities.com/A=
+meBecky1213">http://sexyvicky_h.com</a><o:p></o:p></span></p>
 
 <p class=3DMsoNormal><span lang=3DDE style=3D'mso-ansi-language:DE'><o:p>=
 &nbsp;</o:p></span></p>
@@ -141,7 +141,7 @@ Vicky <o:p></o:p></span></p>
 
 </body>
 
---------------030303040601070305040603
+--------------070907010501070003090906
 Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
@@ -255,8 +255,8 @@ span></p>
 
 <p class=3DMsoNormal><span lang=3DDE style=3D'mso-ansi-language:DE'>Sie k=
 &ouml;nnen
-meine Bilder aus meiner Webseite sehen: <a href=3D"http://geocities.com/K=
-atCalypso0760">http://sexyvicky_h.com</a><o:p></o:p></span></p>
+meine Bilder aus meiner Webseite sehen: <a href=3D"http://geocities.com/A=
+meBecky1213">http://sexyvicky_h.com</a><o:p></o:p></span></p>
 
 <p class=3DMsoNormal><span lang=3DDE style=3D'mso-ansi-language:DE'><o:p>=
 &nbsp;</o:p></span></p>
@@ -277,4 +277,4 @@ Vicky <o:p></o:p></span></p>
 </body>
 </html>
 
---------------030303040601070305040603--
+--------------070907010501070003090906--

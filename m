@@ -1,66 +1,50 @@
-From: "Mitzi Gagnon" <bruinlv@goldspinner.de>
-Subject: No marianna himself ceiba
-Date: Tue, 10 Apr 2007 14:28:16 +0900
-Message-ID: <001601c77b7c$7a702700$068ffc4c@lovejukheb>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: Logitech Spring FF
+Date: Tue, 10 Apr 2007 02:31:24 -0400
+Message-ID: <200704100231.25295.dtor@insightbb.com>
+References: <461117A0.80905@cs.utexas.edu> <4617B392.4010704@gmail.com> <461B2496.8010304@cs.utexas.edu>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C77B7C.7A702700"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <461B2496.8010304@cs.utexas.edu>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Richard Bolkey <rbolkey@cs.utexas.edu>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>, johann deneux <johann.deneux@gmail.com>, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C77B7C.7A702700
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+On Tuesday 10 April 2007 01:45, Richard Bolkey wrote:
+> First off, I've never made a patch before, which I guess I better learn, 
+> but for now if anyone wants to add the device_type for the Logitech 
+> Force 3D Pro Joystick to hid-lgff.c, it's { 0x046d, 0xc286, ff_joystick }.
+>
 
+That would be Jiri Kosina (CCed).
+ 
+> Now for a few follow up questions (this is a whole lot of new stuff, so 
+> bear with me).
+> 
+> 1) I'm gathering that Logitech keeps their hid reports secret and 
+> non-standard, or else I'd just be using the HID PID driver?  So, were 
+> the values in the reports found in hid_lgff_play discovered through 
+> trial and error?  How would I find what the report for FF_SPRING should 
+> look like?
+> 
+> 2) Previous question assumes that is where I should implement the effect 
+> since ml->play_effect is referencing that function in ff_memless.c.  But 
+> it sounded like Anssi was recommending doing a spring->constant 
+> conversion akin to what looks like a periodic->rumble conversion in 
+> ml_combine_effects?
+> 
+> Thanks,
+> Rick
+> 
 
-
-
-Hellish report is here..
-
-Lookup: CDYVCurrent: $0.07 5 Day Target price: $0.425Expected: Steadily =
-climb for the top!!
-
-
-
-ADD THIS GEM TO YOUR RADAR AND WATCH IT.
-
-
-CDYV has a nice fresh news, linux-input, contact your broker!..
-
-------=_NextPart_000_0013_01C77B7C.7A702700
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.2869" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0033 size=3D3D4><FONT =
-size=3D3><STRONG>Hellish report is here!!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0000 size=3D3>Lookup: =
-<b>CDYV</b><br>Current: $0.07 <br>5 Day Target price: =
-$0.425<br>Expected: Steadily climb for the top.</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3333 size=3D3>ADD =
-THIS GEM TO YOUR RADAR AND WATCH IT..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D4>CDYV =
-has a nice fresh news, linux-input, contact your broker!...</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_0013_01C77B7C.7A702700--
+-- 
+Dmitry

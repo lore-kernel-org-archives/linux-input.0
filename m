@@ -1,11 +1,11 @@
-From: "Marisa Allen" <queros@idea.net.pl>
-Subject: you caloric itself throaty
-Date: Mon, 16 Apr 2007 22:01:19 -0300
-Message-ID: <001501c78072$c3344c00$00f1fd0c@rosario61d183c>
+From: "Maryann Whitney" <janesvilleyr@in2net.co.nz>
+Subject: Not conroy because latimer
+Date: Tue, 10 Apr 2007 10:10:32 +0800
+Message-ID: <001701c77b58$793f0460$001952b4@A24>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1252";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hellish report is here
+It is going to be HUGE
 Special Situation Alert
 
 TMXO
@@ -48,5 +48,5 @@ buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
  . . . .
-Is 500% profit potential short term?
-linux-input, take a look at the hottest news, contact your brocker now
+Signs show that this one could Explode!
+TMXO has a nice fresh news, linux-input, contact your broker

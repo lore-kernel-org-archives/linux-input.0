@@ -1,39 +1,70 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: Logitech Spring FF
-Date: Tue, 10 Apr 2007 14:21:54 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0704101420010.31796@twin.jikos.cz>
-References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>
- <4616DC56.80301@cs.utexas.edu> <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>
- <4617B392.4010704@gmail.com> <461B2496.8010304@cs.utexas.edu>
+From: "Summer Black" <icaribou@fone.net>
+Subject: To myself satiate
+Date: Tue, 10 Apr 2007 19:28:02 +0700
+Message-ID: <001301c77ba6$c78358d0$069d31cc@mcu03>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0010_01C77BA6.C78358D0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <461B2496.8010304@cs.utexas.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Richard Bolkey <rbolkey@cs.utexas.edu>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, johann deneux <johann.deneux@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 10 Apr 2007, Richard Bolkey wrote:
+------=_NextPart_000_0010_01C77BA6.C78358D0
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-> First off, I've never made a patch before, which I guess I better learn, but
-> for now if anyone wants to add the device_type for the Logitech Force 3D Pro
-> Joystick to hid-lgff.c, it's { 0x046d, 0xc286, ff_joystick }.
 
-Queued support for 0x046d/0xc286 in my tree for upstream. Thanks.
 
-> 1) I'm gathering that Logitech keeps their hid reports secret and 
->    non-standard, or else I'd just be using the HID PID driver?  So, were 
->    the values in the reports found in hid_lgff_play discovered through 
->    trial and error?  How would I find what the report for FF_SPRING 
->    should look like?
 
-You can monitor how other already existing drivers behave, and try to 
-simulate the behavior in your driver.
+Hellish report is here!
 
--- 
-Jiri Kosina
+
+Sym8oL: CDYVCurr Price: $0.07 5 Day Target price: $0.425Action: =
+Aggresive Buy/Hold...
+
+
+
+TRADE SMART AND WIN WITH US.
+
+
+
+See the hottest news of the CDYV, linux-input, call your broker!...
+
+------=_NextPart_000_0010_01C77BA6.C78358D0
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2600.2869" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6633FF size=3D=
+3D4><FONT size=3D2><STRONG>Hellish report is =
+here..</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000066 size=3D=
+2>Sym8oL: <b>CDYV</b><br>Curr Price: $0.07 <br>5 Day Target price: =
+$0.425<br>Action: Aggresive Buy/Hold!!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990000 size=3D4>TRADE =
+SMART AND WIN WITH US!!!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0066 size=3D3>See =
+the hottest news of the CDYV, linux-input, call your =
+broker!!!</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0010_01C77BA6.C78358D0--

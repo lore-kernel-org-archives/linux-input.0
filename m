@@ -1,50 +1,39 @@
-From: Mrs betty nene <loto-club115@spannermail.com>
-Subject: CONGRATULATION  YOUR  EMAIL  WAS  ONE  OF  THE  LUCKY  WINNER????
-Date: Tue, 10 Apr 2007 18:09:58 +0200
-Message-ID: <20070410141002.A18D34FDD@artax.karlin.mff.cuni.cz>
-Reply-To: trustsecurity115@hotmail.com
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: Logitech Spring FF
+Date: Tue, 10 Apr 2007 14:21:54 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0704101420010.31796@twin.jikos.cz>
+References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>
+ <4616DC56.80301@cs.utexas.edu> <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>
+ <4617B392.4010704@gmail.com> <461B2496.8010304@cs.utexas.edu>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <461B2496.8010304@cs.utexas.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Richard Bolkey <rbolkey@cs.utexas.edu>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>, johann deneux <johann.deneux@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+On Tue, 10 Apr 2007, Richard Bolkey wrote:
 
-Elgordo Lottery Award 2007.
-Pol.Lasao, Area Anardi
-155, 28090 Madrid.
-Spain Branch.
-Dear Beneficiary
+> First off, I've never made a patch before, which I guess I better learn, but
+> for now if anyone wants to add the device_type for the Logitech Force 3D Pro
+> Joystick to hid-lgff.c, it's { 0x046d, 0xc286, ff_joystick }.
 
-We wish to congratulate you over your email success in our computer balloting held on 20th Febuary. 2007. This is a Scientific Computer Game in which email addresses were used. It is a promotional program aimed at encouraging internet users; Meaning, you do not need to buy ticket to enter for it. Your email account have been picked as one of the ten winning email address in 2007.Therefore you have been approve for the star prize of EUR777,000.00 (Seven Hundred And seventy-seven Thousand euros Only).
+Queued support for 0x046d/0xc286 in my tree for upstream. Thanks.
 
-With the underlisted winning details:-
+> 1) I'm gathering that Logitech keeps their hid reports secret and 
+>    non-standard, or else I'd just be using the HID PID driver?  So, were 
+>    the values in the reports found in hid_lgff_play discovered through 
+>    trial and error?  How would I find what the report for FF_SPRING 
+>    should look like?
 
-Ref N0:-ES/WIN/008/05/SPA
-Batch NO:-EU/2907/908/06.
-Ticket No:- SPA/7007/77
-Lucky No:- 1-18-40-40-77
-Serial No: - MAD /20622
+You can monitor how other already existing drivers behave, and try to 
+simulate the behavior in your driver.
 
-All participants were selected through a computer balloting system drawn from one Million E-mail addresses from Canada, Australia, United States, Asia, Europe, Middle East, Africa and Oceania as part of our international promotions program which is conducted annually.This Lottery was promoted and sponsored by a conglomerate of some multinational companies to promote the use of internet around the world.
-
-To claim your prize,Simply contact:-
-Mr MAUREEN SCOTT (Head Of Dept- Award Payment Department)
-TEL. +34-622-600-118  or  +34-675-630-148
-E-mail: trustsecurity115@hotmail.com or loto-club115@spannermail.com 
-
-Please quote your reference, batch and winning numbers as well as your full name, address and telephone number .We advice all winners to keep this information confidential from the public until your claim is processed and your prize released to you. This is part of our security protocol to avoid double claiming and unwarranted taking advantage of this programme by non -participant or unofficial personnel.
-
-Note, All winning must be claimed within 30 days from this notification otherwise all funds will be returned as Unclaimed.
-
-Thank you
-For Your Anticipate 
-Co-Operation.
-Mrs. Betty Nene
-Lottery coordinator.
-
-ANY MAIL RECIEVED OF THIS SUCH WITH ANY OTHER TRADE MARK OR ADDRESS SHOULD BE FOWARDED TO YOUR CLAIMS AGENT IMMEDIATELY, THIS WILL HELP US TO FIGHT INTERNET LOTTERY SCAM, AND LOTTERY IMPOSTERS.
-   
+-- 
+Jiri Kosina

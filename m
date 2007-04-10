@@ -1,31 +1,30 @@
 From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] UCB1400 add module parameters for settling delays
-Date: Tue, 10 Apr 2007 01:01:47 -0400
-Message-ID: <200704100101.47798.dtor@insightbb.com>
-References: <f96d234e0704061504q84b7bc9pdf4178c32a55a549@mail.gmail.com>
+Subject: Re: [PATCH] Make ati_remote button repeat sensitivity soft-configurable (V2)
+Date: Tue, 10 Apr 2007 01:03:05 -0400
+Message-ID: <200704100103.06854.dtor@insightbb.com>
+References: <f9be06770704050723p1a01f9adyae8fc671c91edb7c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+  charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <f96d234e0704061504q84b7bc9pdf4178c32a55a549@mail.gmail.com>
+In-Reply-To: <f9be06770704050723p1a01f9adyae8fc671c91edb7c@mail.gmail.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Cliff Brake <cliff.brake@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: Karl Pickett <karl.pickett@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Vincent Vanackere <vincent.vanackere@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Friday 06 April 2007 18:04, Cliff Brake wrote:
-> This patch adds module parameters for several delay values used in the driver.
-> These delays need to vary based on the hardware design and how much capacitive
-> filtering there is on the touch panel inputs, and the resistance of the panel.
->
+On Thursday 05 April 2007 10:23, Karl Pickett wrote:
+> Dmitry, please use this instead of my previous patch. =A0Thanks to
+> Vincent for the code review , fixes, and testing.
+>=20
 
-Applied to the input tree, thank you. 
+Applied to the input tree; thank you Karl and Vincent.
 
--- 
+=2D-=20
 Dmitry

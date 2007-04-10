@@ -1,30 +1,66 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] Make ati_remote button repeat sensitivity soft-configurable (V2)
-Date: Tue, 10 Apr 2007 01:03:05 -0400
-Message-ID: <200704100103.06854.dtor@insightbb.com>
-References: <f9be06770704050723p1a01f9adyae8fc671c91edb7c@mail.gmail.com>
+From: "Mitzi Gagnon" <bruinlv@goldspinner.de>
+Subject: No marianna himself ceiba
+Date: Tue, 10 Apr 2007 14:28:16 +0900
+Message-ID: <001601c77b7c$7a702700$068ffc4c@lovejukheb>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0013_01C77B7C.7A702700"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <f9be06770704050723p1a01f9adyae8fc671c91edb7c@mail.gmail.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Karl Pickett <karl.pickett@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Vincent Vanackere <vincent.vanackere@gmail.com>
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Thursday 05 April 2007 10:23, Karl Pickett wrote:
-> Dmitry, please use this instead of my previous patch. =A0Thanks to
-> Vincent for the code review , fixes, and testing.
->=20
+------=_NextPart_000_0013_01C77B7C.7A702700
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
-Applied to the input tree; thank you Karl and Vincent.
 
-=2D-=20
-Dmitry
+
+
+Hellish report is here..
+
+Lookup: CDYVCurrent: $0.07 5 Day Target price: $0.425Expected: Steadily =
+climb for the top!!
+
+
+
+ADD THIS GEM TO YOUR RADAR AND WATCH IT.
+
+
+CDYV has a nice fresh news, linux-input, contact your broker!..
+
+------=_NextPart_000_0013_01C77B7C.7A702700
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.2462.2869" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0033 size=3D3D4><FONT =
+size=3D3><STRONG>Hellish report is here!!</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0000 size=3D3>Lookup: =
+<b>CDYV</b><br>Current: $0.07 <br>5 Day Target price: =
+$0.425<br>Expected: Steadily climb for the top.</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3333 size=3D3>ADD =
+THIS GEM TO YOUR RADAR AND WATCH IT..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D4>CDYV =
+has a nice fresh news, linux-input, contact your broker!...</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0013_01C77B7C.7A702700--

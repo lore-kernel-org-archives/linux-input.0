@@ -1,70 +1,40 @@
-From: "Geneva Webb" <gjacky@8q8q.com>
-Subject: I provision do candelabra
-Date: Tue, 10 Apr 2007 14:06:47 +0800
-Message-ID: <001201c77b79$fbbdaec0$01e05cd4@MICROSOF795483>
+From: Richard Bolkey <rbolkey@cs.utexas.edu>
+Subject: Re: Logitech Spring FF
+Date: Tue, 10 Apr 2007 00:45:58 -0500
+Message-ID: <461B2496.8010304@cs.utexas.edu>
+References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>	 <4616DC56.80301@cs.utexas.edu> <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com> <4617B392.4010704@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000F_01C77B79.FBBDAEC0"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <4617B392.4010704@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: johann deneux <johann.deneux@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000F_01C77B79.FBBDAEC0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+First off, I've never made a patch before, which I guess I better learn, 
+but for now if anyone wants to add the device_type for the Logitech 
+Force 3D Pro Joystick to hid-lgff.c, it's { 0x046d, 0xc286, ff_joystick }.
 
+Now for a few follow up questions (this is a whole lot of new stuff, so 
+bear with me).
 
+1) I'm gathering that Logitech keeps their hid reports secret and 
+non-standard, or else I'd just be using the HID PID driver?  So, were 
+the values in the reports found in hid_lgff_play discovered through 
+trial and error?  How would I find what the report for FF_SPRING should 
+look like?
 
+2) Previous question assumes that is where I should implement the effect 
+since ml->play_effect is referencing that function in ff_memless.c.  But 
+it sounded like Anssi was recommending doing a spring->constant 
+conversion akin to what looks like a periodic->rumble conversion in 
+ml_combine_effects?
 
-
-Act now while the price is still low.
-
-
-
-Sym8oL: CDYVCurr Price: $0.07 5 Day Target price: $0.425Action: =
-Aggresive Buy/Hold!!
-
-
-500% profit guaranted!!!
-
-See bullish news online right now, linux-input, call broker!...
-
-
-
-------=_NextPart_000_000F_01C77B79.FBBDAEC0
-Content-Type: text/html;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.2800.3000" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3366 size=3D3D4><FONT =
-size=3D3><STRONG>Act now while the price is still =
-low.</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6633FF size=3D4>Sym8oL: =
-<b>CDYV</b><br>Curr Price: $0.07 <br>5 Day Target price: =
-$0.425<br>Action: Aggresive Buy/Hold..</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0033 size=3D4>500% =
-profit guaranted!!!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0000 size=3D4>See =
-bullish news online right now, linux-input, call broker!...</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000F_01C77B79.FBBDAEC0--
+Thanks,
+Rick

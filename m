@@ -1,69 +1,41 @@
-From: "Reva Holmes" <dolrudolph@funcent.com>
-Subject: on from churchillian
-Date: Wed, 11 Apr 1990 10:16:50 +0800
-Message-ID: <001c01b46d15$215dc420$001add14@430E3C61EE8D4B9>
+From: Dysfunction <ebutcher@virgilio.it>
+Subject: RE:
+Date: Wed, 11 Apr 2007 08:21:45 +0300
+Message-ID: <2cbb01c77bf9$36da905f$55d2cb84@virgilio.it>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0019_01B46D15.215DC420"
+Content-Type: text/plain;
+	format=flowed;
+	charset="koi8-r";
+	reply-type=original
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0019_01B46D15.215DC420
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+Dont forget that shipping is free for on-line orders of Penis Enlarge Patch. 
+
+http://www.stoawrel.net/
+
+Would you like to show a bigger bulge in your pants? Take a look at Penis Enlarge Patch.
 
 
 
 
 
-This one will explode!!!
-
-
-Sym8oL: WDSCCurr Price: $0.015 5 Day Target price: $0.075Action: =
-Aggresive Buy/Hold.
 
 
 
-Bullish profit guaranted (500+%).
 
 
-See the news, linux-input, call your broker!.
 
 
-------=_NextPart_000_0019_01B46D15.215DC420
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2800.2963" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3300 size=3D3D4><FONT =
-size=3D4><STRONG>This one will explode...</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0000 size=3D2>Sym8oL: =
-<b>WDSC</b><br>Curr Price: $0.015 <br>5 Day Target price: =
-$0.075<br>Action: Aggresive Buy/Hold!!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0033 size=3D4>Bullish =
-profit guaranted (500+%)!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0000 size=3D2>See the =
-news, linux-input, call your broker!!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
 
-------=_NextPart_000_0019_01B46D15.215DC420--
+------------------------
+   It was very still in the twilight where they stood. The faint murmur of a prayer came down from above, and while it lasted both were as though held motionless by its mesmeric monotony. Then at the boom of the organ, the lads last shred of self-control vanished. He burst again into muffled weary sobs, the light from the furnace glistening redly on his streaming cheeks. It aint right, Uncle Jehiel. I feel as though I was murderin somethin! But I cant help it. Ill go, Ill do as you say, but --  
+   And always the pine tree had grown, insolent in the pride of a creature set in the right surroundings. The imprisoned man had felt himself dwarfed by its height. But now, he looked up at it again, and laughed aloud. It had come late, but it had come. He was fifty-seven years old, almost three-score, but all his life was still to be lived. He said to himself that some folks lived their lives while they did their work, but he had done all his tasks first, and now he could live. The unexpected arrival of the timber merchant and the sale of that piece of land hed never thought would bring him a cent -- was not that an evident sign that Providence was with him? He was too old and broken now to work his way about as he had planned at first, but here had come this six hundred dollars like rain from the sky. He would start as soon as he could sell his stock. 
+     If he  had known what it had cost me to acquire  my art,  he would alsoave  known that it would  break any collector to buy it.  Harris and I  hadbeen hard at work  on  our  German  during  several weeks at  that time, andalthough  we had  made good progress,  it  had been accomplished under great

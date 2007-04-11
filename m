@@ -1,105 +1,192 @@
-From: Roman Moravcik <roman.moravcik@gmail.com>
-Subject: Re: [PATCH] gpio_keys ev_sw support
-Date: Wed, 11 Apr 2007 10:06:17 +0200
-Message-ID: <461C96F9.5000808@gmail.com>
-References: <461BC11C.7020401@gmail.com> <d120d5000704101120x4c292ae1w94b281b718a158d1@mail.gmail.com>
+From: Paul Walmsley <paul@booyaka.com>
+Subject: [PATCH 6/7] usbhid: add 'quirks' module parameter
+Date: Wed, 11 Apr 2007 00:50:17 -0600 (MDT)
+Message-ID: <Pine.LNX.4.64.0704110036570.28726@utopia.booyaka.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000704101120x4c292ae1w94b281b718a158d1@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, kernel-discuss@handhelds.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+From: Paul Walmsley <paul@booyaka.com>
 
-Dmitry Torokhov  wrote / nap=EDsal(a):
->> This patch adds software event support to gpio_keys driver.
->>
->
-> Just for the record EV_SW is not software event but switch event.
-> Switch, as opposed to a key that returns to "off" state when released,
-> keeps it's state until toggled again.
+Add a 'quirks' module parameter for the usbhid module, so users can
+add or modify quirks at module load time.
 
-Ops, sorry. Yes, EV_SW is switch event not software event.
-I don't why i wrote software.
->>
->> -    input->evbit[0] =3D BIT(EV_KEY);
->> +    input->evbit[0] =3D BIT(EV_KEY) | BIT(EV_SW);
->>
->
-> You should not set these bits unconditionally but rather scan supplied
-> keymap and set appropriately.
->
-Ok, EV_SW bit is set conditionally now.
 
->> --- a/include/linux/gpio_keys.h    2007-02-25 16:21:52.000000000 +0100
->> +++ b/include/linux/gpio_keys.h    2007-04-05 20:23:31.000000000 +0200
->> @@ -6,6 +6,7 @@
->>     int gpio;
->>     int active_low;
->>     char *desc;
->> +    int type;
->
-> Would not it make sense to keep type close to keycode element?
->
-Moved behind the keycode.
+Signed-off-by: Paul Walmsley <paul@booyaka.com>
 
-Roman
+---
+  Documentation/kernel-parameters.txt |    8 ++++++
+  drivers/usb/input/hid-core.c        |   26 +++++++++++++++++++
+  drivers/usb/input/hid-quirks.c      |   47 ++++++++++++++++++++++++++++++++++++
+  include/linux/hid-quirks.h          |    7 +++--
+  4 files changed, 86 insertions(+), 2 deletions(-)
 
-This patch adds switch event support to gpio_keys driver.
+Index: dev/drivers/usb/input/hid-core.c
+===================================================================
+--- dev.orig/drivers/usb/input/hid-core.c
++++ dev/drivers/usb/input/hid-core.c
+@@ -46,6 +46,10 @@
 
-Signed-off-by: Roman Moravcik <roman.moravcik@gmail.com>
+  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+  				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
++
++int usbhid_quirks_init(char **quirks_param);
++void usbhid_quirks_exit(void);
++
+  /*
+   * Module parameters.
+   */
+@@ -55,6 +59,22 @@ module_param_named(mousepoll, hid_mousep
+  MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
 
-diff -Naur a/drivers/input/keyboard/gpio_keys.c=20
-b/drivers/input/keyboard/gpio_keys.c
---- a/drivers/input/keyboard/gpio_keys.c    2007-02-25=20
-19:50:43.000000000 +0100
-+++ b/drivers/input/keyboard/gpio_keys.c    2007-04-10=20
-20:42:31.000000000 +0200
-@@ -39,7 +39,10 @@
-         if (irq =3D=3D gpio_to_irq(gpio)) {
-             int state =3D (gpio_get_value(gpio) ? 1 : 0) ^=20
-(pdata->buttons[i].active_low);
-=20
--            input_report_key(input, pdata->buttons[i].keycode, state);
-+            if (pdata->buttons[i].type =3D=3D EV_SW)
-+                input_report_switch(input, pdata->buttons[i].keycode,=20
-state);
-+            else
-+                input_report_key(input, pdata->buttons[i].keycode, state=
-);
-             input_sync(input);
-         }
-     }
-@@ -84,7 +87,12 @@
-                 irq, error);
-             goto fail;
-         }
--        set_bit(code, input->keybit);
-+        if (pdata->buttons[i].type =3D=3D EV_SW) {
-+            input->evbit[0] |=3D BIT(EV_SW);
-+            set_bit(code, input->swbit);
-+        } else {
-+            set_bit(code, input->keybit);
-+        }
-     }
-=20
-     error =3D input_register_device(input);
-diff -Naur a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
---- a/include/linux/gpio_keys.h    2007-02-25 16:21:52.000000000 +0100
-+++ b/include/linux/gpio_keys.h    2007-04-10 20:31:25.000000000 +0200
-@@ -3,6 +3,7 @@
- struct gpio_keys_button {
-     /* Configuration parameters */
-     int keycode;
-+    int type;
-     int gpio;
-     int active_low;
-     char *desc;
+  /*
++ * Quirks specified at module load time
++ */
++static char *quirks_param[MAX_USBHID_BOOT_QUIRKS] = { [ 0 ... (MAX_USBHID_BOOT_QUIRKS - 1) ] = NULL };
++
++/*
++ * Example of modload quirks usage: passing "quirks=0xcd5:0x1:0x4" at
++ * boot tells the USB HID driver to ignore (0x4) vendor ID 0x0cd5, product
++ * ID 0x0001.  HID quirk values are defined in include/linux/hid-quirks.h
++ */
++module_param_array_named(quirks, quirks_param, charp, NULL, 0444);
++MODULE_PARM_DESC(quirks, "Add/modify USB HID quirks by specifying "
++                 " quirks=vendorID:productID:quirks"
++                 " where vendorID, productID, and quirks are all in"
++                 " 0x-prefixed hex");
++
++/*
+   * Input submission and I/O error handler.
+   */
+
+@@ -1027,6 +1047,9 @@ static struct usb_driver hid_driver = {
+  static int __init hid_init(void)
+  {
+  	int retval;
++	retval = usbhid_quirks_init(quirks_param);
++        if (retval)
++                goto usbhid_quirks_init_fail;
+  	retval = hiddev_init();
+  	if (retval)
+  		goto hiddev_init_fail;
+@@ -1039,6 +1062,8 @@ static int __init hid_init(void)
+  usb_register_fail:
+  	hiddev_exit();
+  hiddev_init_fail:
++        usbhid_quirks_exit();
++usbhid_quirks_init_fail:
+  	return retval;
+  }
+
+@@ -1046,6 +1071,7 @@ static void __exit hid_exit(void)
+  {
+  	usb_deregister(&hid_driver);
+  	hiddev_exit();
++        usbhid_quirks_exit();
+  }
+
+  module_init(hid_init);
+Index: dev/drivers/usb/input/hid-quirks.c
+===================================================================
+--- dev.orig/drivers/usb/input/hid-quirks.c
++++ dev/drivers/usb/input/hid-quirks.c
+@@ -658,3 +658,50 @@ static void usbhid_remove_all_equirks(vo
+  }
+
+
++/* Module load/unload hooks for equirks handling */
++
++/**
++ * usbhid_quirks_init: apply USB HID quirks specified at module load time
++ *
++ * Description:
++ *
++ *
++ * Returns: 0 OK, -error on failure.
++ */
++int usbhid_quirks_init(char **quirks_param)
++{
++	u16 idVendor, idProduct;
++	u32 quirks;
++	int n = 0, m;
++
++	for (; quirks_param[n] && n < MAX_USBHID_BOOT_QUIRKS; n++) {
++
++		m = sscanf(quirks_param[n], "0x%hx:0x%hx:0x%x",
++			   &idVendor, &idProduct, &quirks);
++
++		if (m != 3 ||
++		    usbhid_modify_equirk(idVendor, idProduct, quirks) != 0) {
++			printk(KERN_WARNING
++			       "Could not parse HID quirk module param %s\n",
++			       quirks_param[n]);
++
++		}
++	}
++
++	return 0;
++}
++
++/**
++ * usbhid_quirks_exit: release memory associated with extra_quirks
++ *
++ * Description:
++ *     Release all memory associated with extra quirks.  Called upon
++ *     module unload.
++ *
++ * Returns: nothing
++ */
++void usbhid_quirks_exit(void)
++{
++	usbhid_remove_all_equirks();
++}
++
+Index: dev/include/linux/hid-quirks.h
+===================================================================
+--- dev.orig/include/linux/hid-quirks.h
++++ dev/include/linux/hid-quirks.h
+@@ -2,6 +2,11 @@
+  #define __HID_QUIRKS_H
+
+  /*
++ * Increase this if you need to configure more HID quirks at module load time
++ */
++#define MAX_USBHID_BOOT_QUIRKS 4
++
++/*
+   * HID device quirks.
+   */
+
+@@ -32,6 +37,4 @@ u32 usbhid_lookup_any_quirk(const u16 id
+
+  int usbhid_modify_equirk(const u16 idVendor, const u16 idProduct, const u32 quirks);
+
+-
+-
+  #endif /* __HID_QUIRKS_H */
+Index: dev/Documentation/kernel-parameters.txt
+===================================================================
+--- dev.orig/Documentation/kernel-parameters.txt
++++ dev/Documentation/kernel-parameters.txt
+@@ -1797,6 +1797,14 @@ and is between 256 and 4096 characters.
+  	usbhid.mousepoll=
+  			[USBHID] The interval which mice are to be polled at.
+
++	usbhid.quirks=
++			[USBHID] Add, modify, or remove USB HID device quirks.
++			The format is one or more strings of
++			vendorID:productID:quirks format; e.g.,
++			"usbhid.quirks=0xcd4:0x1:0x4" will add
++			a quirk 0x4 (or replace an existing quirk) for
++			vendor 0xcd4 product 0x1.
++
+  	vdso=		[IA-32,SH]
+  			vdso=1: enable VDSO (default)
+  			vdso=0: disable VDSO mapping

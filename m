@@ -1,47 +1,181 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 0/7] usbhid: quirks cleanup, add dynamic quirks, ConfigFS
- interface
-Date: Thu, 12 Apr 2007 18:51:03 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0704121832020.19492@jikos.suse.cz>
-References: <Pine.LNX.4.64.0704110003460.28726@utopia.booyaka.com>
- <Pine.LNX.4.64.0704111440330.5079@jikos.suse.cz> <Pine.LNX.4.64.0704111635590.5079@jikos.suse.cz>
- <Pine.LNX.4.64.0704111231010.28726@utopia.booyaka.com>
- <Pine.LNX.4.64.0704121737130.12991@twin.jikos.cz>
- <Pine.LNX.4.64.0704120945571.9207@utopia.booyaka.com>
+From: "Addie Lackey" <tyccedalssal@cedals.com>
+Subject: Getting thinner can be enjoyable
+Date: Wed, 11 Apr 2007 22:21:04 +0600
+Message-ID: <912680813.47190470263616@thhebat.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+  boundary="----------44BFDA6E4B80555C"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0704120945571.9207@utopia.booyaka.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Paul Walmsley <paul@booyaka.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Joel Becker <joel.becker@oracle.com>
+To: linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 12 Apr 2007, Paul Walmsley wrote:
+------------44BFDA6E4B80555C
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-> Now, another implementation approach would be to get rid of the quirk 
-> type names entirely, to use a path such as:
-> 
->  /usbhid/quirks_runtime/<vendor_id>:<product_id>
-> 
-> with the last component being a r/w configfs attribute containing the quirks
-> value.  Is that what you are proposing?  I considered it when I did the
-> initial implementation.  The problem with it is that there seems to be no way
-> for userspace to create new configfs files/attributes -- only configfs
-> directories.
+Anatrim =96 The latest and most enchanting product for weighty people is=20=
+made available now =96 As were told on ABC
+Did you see excessive body kilograms kill more and more people every=20=
+year? We believe you hate the unattractive appearance of people like=20=
+those and the social stigmata attached to them. 
 
-Yes, this was my very original thought - I really somehow don't think that 
-having to duplicate every new quirk is a nice solution. Joel, is there any 
-specific reason why configfs doesn't allow this please?
+Moreover, you can not resist a pressure of baneful eating habits of=20=
+yours. If you see it sounds familiar, then we have something for you!
 
-Or we could reconsider going back to the idea of using sysfs.
+Here Anatrim comes, the ultimate product for the elimination of your=20=
+body=92s extra weight. The amazing thing about Anatrim is it raises the=20=
+quality of your life by making you crave food less and giving you better=20=
+spirit. Here you may see what people say on this product:
 
-Thanks a lot,
+"This is a great thing! 
 
--- 
-Jiri Kosina
-SUSE Labs
+Instead of watching TV continually and gorging anything close at hand 
+
+I became keen on exercise.
+
+ Anatrim made me take a step up.
+
+ I feel fit as a fiddle now and lots of men cast their covert glances=20=
+at me!"
+
+Lusia R., Washington
+
+"I tried some passive weight reducing, but almost with no result. This=20=
+terrible hunger would just rush in and spoil everything. 
+
+Once I was told about Anatrim my very best friend by and it brought a=20=
+great influence on me.
+
+ I had tried taking it, and my wife told me that I'm a different person=20=
+now, 5 months later. 
+
+28 pounds have gone away and I keep losing them! 
+
+And you know, I=92m a passionate lover again."
+
+Serge Smith, Boston
+
+Anatrim helps your brain to understand that you got no such great need=20=
+for that much food. It raises your spirit, provides you with energy, and=20=
+attacks unnecessary kilos. Great thanks to its mighty comprehensive=20=
+formula!!
+Pry out more information! 
+------------44BFDA6E4B80555C
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Stop the painful craving for more food</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.sdiolnar.net/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7wuziyn">Anatrim=20=
+=96 The latest and most enchanting product for weighty people is made=20=
+available now =96 As were told on ABC</a>
+</b>
+</center>
+<b>
+Did you see excessive body kilograms kill more and more people every=20=
+year? We believe you hate the unattractive appearance of people like=20=
+those and the social stigmata attached to them. 
+<b>
+Moreover, you can not resist a pressure of baneful eating habits of=20=
+yours. If you see it sounds familiar, then we have something for you!
+</b>
+</b>
+<br>
+<br>
+<b>
+Here Anatrim comes, the ultimate product for the elimination of your=20=
+body=92s extra weight. The amazing thing about Anatrim is it raises the=20=
+quality of your life by making you crave food less and giving you better=20=
+spirit. Here you may see what people say on this product:
+</b>
+<br>
+<br>
+<b>
+<i>
+"This is a great thing! 
+<b>
+<i>
+Instead of watching TV continually and gorging anything close at hand 
+<b>
+<i>
+I became keen on exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim made me take a step up.
+</i>
+</b>
+ I feel fit as a fiddle now and lots of men cast their covert glances=20=
+at me!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Lusia R., Washington
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"I tried some passive weight reducing, but almost with no result. This=20=
+terrible hunger would just rush in and spoil everything. 
+<b>
+<i>
+Once I was told about Anatrim my very best friend by and it brought a=20=
+great influence on me.
+</i>
+</b>
+ I had tried taking it, and my wife told me that I'm a different person=20=
+now, 5 months later. 
+<b>
+<i>
+28 pounds have gone away and I keep losing them! 
+</i>
+</b>
+And you know, I=92m a passionate lover again."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Serge Smith, Boston
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps your brain to understand that you got no such great need=20=
+for that much food. It raises your spirit, provides you with energy, and=20=
+attacks unnecessary kilos. Great thanks to its mighty comprehensive=20=
+formula!!
+</b>
+<b>
+<center>
+<a=20=
+href=3D"http://www.sdiolnar.net/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7wuziyn">Pry=20=
+out more information!</a>
+</center>
+</b>
+</p> 
+
+</BODY></HTML>
+------------44BFDA6E4B80555C--

@@ -1,66 +1,49 @@
-From: "Jerry Crouch" <cglenhead@ap.att.com>
-Subject: Is mainesburg to amado
-Date: Mon, 23 Apr 2007 19:35:03 +0200
-Message-ID: <000f01c785de$7d3ad4f0$06d7f784@ppp6h2490vppiz>
+From: "TESLEEM SUBAIR" <tessy@libyamail.net>
+Subject: Please Sponsor Me
+Date: Wed, 11 Apr 2007 20:24:04 +0100
+Message-ID: <076901c77c6e$f7ad8760$0701a8c0@JUS0559323>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000C_01C785DE.7D3AD4F0"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Class: urn:content-classes:message
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000C_01C785DE.7D3AD4F0
-Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+TESLEEM SUBAIR has sent you the following message. 
+ 
+*** TESLEEM wrote: *** 
 
+Hello,
 
+I am raising money for WaterAid and would really welcome your support.
 
+Please take a moment to visit my online fundraising page and make a donation. It's really easy - you can donate by credit or debit card at the following address:
 
+http://www.justgiving.com/KAZRAM
 
-HOT ALERT!!
+All donations are secure and sent electronically to WaterAid.  If you are a UK taxpayer, Justgiving will automatically reclaim 28% Gift Aid on your behalf, so your donation is worth even more.  Please join me in supporting WaterAid and a fabulous cause.
 
-Promoting sym: ASVPPrice: $0.64 1 Day Target price: $1Action: Strong =
-buy..
+Thanks and best wishes,
+TESLEEM
 
-This sym is gaining momentum..
+*** About donating online *** 
+ 
+It's very easy to support TESLEEM online - just go to their page at the web address below where you can make a donation. 
+ 
+Web Address: http://www.justgiving.com/KAZRAM 
+ 
+Donating takes a matter of minutes and is totally secure. You can leave a message with your donation too. 
 
-
-
-See the news, linux-input, call your broker.
-
-------=_NextPart_000_000C_01C785DE.7D3AD4F0
-Content-Type: text/html;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2600.1158" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC0033 size=3D3D4><FONT =
-size=3D4><STRONG>HOT ALERT...</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D=
-3>Promoting sym: <b>ASVP</b><br>Price: $0.64 <br>1 Day Target price: =
-$1<br>Action: Strong buy!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003399 size=3D2>This =
-sym is gaining momentum!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3333 size=3D2>See the =
-news, linux-input, call your broker!!!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000C_01C785DE.7D3AD4F0--
+If you pay UK tax, Justgiving will automatically reclaim and add 28% Gift Aid to your donation at no cost to you, so it's even better for the charity. 
+ 
+*** Disclaimer *** 
+ 
+Justgiving is not responsible for the content of this email, and anything written in this email does not necessarily reflect Justgiving's views or opinions. Please note that neither the email address nor name of the sender have been verified. 
+ 
+If you feel you have received this email in error or as a result of abuse of our email service, please foward this mail to memberservices@justgiving.com. Thank you.

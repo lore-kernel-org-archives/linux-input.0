@@ -1,66 +1,36 @@
-From: "Josefa Gill" <vsunbeam@gonetservices.biz>
-Subject: In do uracil
-Date: Wed, 11 Apr 2007 21:39:51 +0900
-Message-ID: <001601c77c82$703961f0$007aea14@pc41>
+From: "San" <tarybravri@datacodex.com>
+Subject: Traders Daily Report
+Date: Wed, 11 Apr 2007 13:02:42 -0300
+Message-ID: <164C5E7425BED4A.6E0AF59864@datacodex.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C77C82.703961F0"
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_0005_01C77C39.B0FC3FD0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C77C82.703961F0
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-
-
-
-Just take a look at this one!!!
-
-
-Search for: WDSCCurrent price: $0.015 5 Day Target price: $0.075Market: =
-bullish.
-
-
-Here comes the REAL BIG ONE!...
-
-
-See the news, linux-input, call your broker!...
-
-------=_NextPart_000_0013_01C77C82.703961F0
+------=_NextPart_000_0005_01C77C39.B0FC3FD0
 Content-Type: text/html;
-        charset="windows-1251"
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.3790.4682" name=3DGENERATOR>
-<STYLE></STYLE>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990000 size=3D3D4><FONT =
-size=3D4><STRONG>Just take a look at this one!!!</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003399 size=3D4>Search =
-for: <b>WDSC</b><br>Current price: $0.015 <br>5 Day Target price: =
-$0.075<br>Market: bullish!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6633FF size=3D2>Here =
-comes the REAL BIG ONE!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990000 size=3D3>See the =
-news, linux-input, call your broker!!!!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
+<BODY>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><I>Investors are paying attention to <B>CPMM. Volume Up 120.7%</B></I></FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><I>China Premium Lifestyle</I></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Symbol: <B>CPMM</B></FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Close: <B>$0.28  UP +0.02 (+7.69%)</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><I>China Premium Lifestyle Reports 2006 Results:</I></FONT></DIV>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Consolidated sales/year were $71.5 million, 47% increase over the 2005 fiscal year. On the 2nd day (Apr 10) financials are posted Volume has 120% increased.</FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B><U>What will it do on the 3rd day (Apr 11)? More news is expected.</U></B></FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_0013_01C77C82.703961F0--
+------=_NextPart_000_0005_01C77C39.B0FC3FD0--

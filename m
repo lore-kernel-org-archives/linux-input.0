@@ -1,57 +1,33 @@
-From: Richard Purdie <rpurdie@rpsys.net>
-Subject: Re: Getting touchscreen to work on Fujitsu B6210
-Date: Tue, 10 Apr 2007 23:40:24 +0100
-Message-ID: <1176244824.5809.108.camel@localhost.localdomain>
-References: <20070221221629.59088fed@localhost>
-	 <200704040116.58366.dtor@insightbb.com> <20070405133615.6536eea5@localhost>
-	 <200704052227.19831.dtor@insightbb.com>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: Logitech Spring FF (effect on/off)
+Date: Wed, 11 Apr 2007 06:01:56 +0300
+Message-ID: <461C4FA4.5070105@gmail.com>
+References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>	 <4616DC56.80301@cs.utexas.edu>	 <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>	 <4617B392.4010704@gmail.com> <461B2496.8010304@cs.utexas.edu> <38b3b7c0704100251v485d6fdu1ff8e2524a4f023b@mail.gmail.com> <461C4E24.9060408@cs.utexas.edu>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200704052227.19831.dtor@insightbb.com>
+In-Reply-To: <461C4E24.9060408@cs.utexas.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Stephen Hemminger <shemminger@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: Richard Bolkey <rbolkey@cs.utexas.edu>
+Cc: johann deneux <johann.deneux@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2007-04-05 at 22:27 -0400, Dmitry Torokhov wrote:
-> > > On Thursday 22 February 2007 01:16, Stephen Hemminger wrote:
-> > > > I did a little investigation and the touchscreen on B6210 is
-> > > > attached via the 8250 serial port. I tried enabling it with
-> > > > inputattach but seem to get garbage.
-> > > > 
-> > > > I can extract the initialization code from the evtouch driver
-> > > > to a usermode program and read information from /dev/ttyS0.
-> > > > 
-> > > > The lifebook psmouse extension won't work because it tries
-> > > > to grab the 8042 (touchpad) rather than the touch screen.
->
-> Could ypou please load evbug module or run evtest utility and
-> verify that the driver produces reasonable events?
-> 
-> > Do I need an Xorg driver for it? 
-> 
-> Mousedev (i.e. /dev/input/{mouseX|mice} will provide crude
-> emulation of normal mouse; there is evtouch X driver that
-> should work better. You may also try evdev X driver from
-> recent releases of x.org; as far as I know they want it to
-> supesede evtouch eventually.
-> 
-> There are also solutions based on tslib library that allows
-> touchscreen calibrating, etc. but I am not familiar with it
-> so I am CCing Richard Purdie.
+Richard Bolkey kirjoitti:
+> Alright, I can turn the spring effect on; however, I can't turn it off 
+> right now.  There is a separate report that needs to be sent to turn off 
+> the spring effect for each axis.  I can't see an obvious place to put 
+> that kind of functionality into the framework of ff-memless.  I'm 
+> wondering if this means my device isn't "memoryless"?  Any advice?
 
-http://tslib.berlios.de/
+For the FF_RUMBLE and FF_CONSTANT effects, if I remember correctly, 
+ff-memless sends a zero-magnitude effect to the device driver when the 
+effect is supposed to be turned off. You can do it similarly for the 
+spring effect.
 
-It has some test routines (ts_print, ts_test) and a calibration routine
-(ts_calibrate) which should let you see what's going on. I've found them
-invaluable for testing kernel touchscreen drivers.
-
-Regards,
-
-Richard
+-- 
+Anssi Hannula

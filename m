@@ -1,24 +1,31 @@
-From: Richard Bolkey <rbolkey@cs.utexas.edu>
-Subject: Re: Logitech Spring FF (effect on/off)
-Date: Tue, 10 Apr 2007 21:55:32 -0500
-Message-ID: <461C4E24.9060408@cs.utexas.edu>
-References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>	 <4616DC56.80301@cs.utexas.edu>	 <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>	 <4617B392.4010704@gmail.com> <461B2496.8010304@cs.utexas.edu> <38b3b7c0704100251v485d6fdu1ff8e2524a4f023b@mail.gmail.com>
+From: "Novella Aleen" <qjy9phcdf@dog.com>
+Subject: SPECIAL PHARMACY  DISCOUNT, you pay & we ship, no question asked, established by reputable Canadian Doctor scjct
+Date: Wed, 11 Apr 2007 12:28:24 +0900
+Message-ID: <239c565k.8350222@dog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/html;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <38b3b7c0704100251v485d6fdu1ff8e2524a4f023b@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: johann deneux <johann.deneux@gmail.com>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Alright, I can turn the spring effect on; however, I can't turn it off 
-right now.  There is a separate report that needs to be sent to turn off 
-the spring effect for each axis.  I can't see an obvious place to put 
-that kind of functionality into the framework of ff-memless.  I'm 
-wondering if this means my device isn't "memoryless"?  Any advice?
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>quickly usedto gray meant glass how. necessary met twenty-one buy?</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>
+Express Drug Mart</center></b></font><br><font color=000000 size=1>We are the best price on all high 
+quality meds. Established by a reputable Canadian Doctor and 
+Scientist, Express Drugmart's mission is to provide you with a secure online environment to purchase the 
+safest, quality medication<br><br><font color=000000 size=2>
+<b>Viagraa (Brand & Generic available) - <font color=F20000>as LOW as .25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>
+as LOW as .25 a dose</font><br>Valiumm - <font color=F20000>as LOW as .50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only .50 per  D0SE
+</font>
+<br>Ambienn - <font color=F20000>only .65 per  D0SE</font><br>Ativann - <font color=F20000>only .50 per  D0SE</font><br>Somaa - <font color=F20000>only .50 per  D0SE</font><br>Clenbuterol - <font color=F20000>only .50 per 
+D0SE</font><br>Meridiaa (brand name) - <font color=F20000>only .99 per  D0SE
+</font><br></b></font><br><center><a href=http://bxde.downforthegoodo.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>foot repeated and parents either buy wine how. modern hat number letters suddenly wrong disease how.</font>
+</body>
+</html>
+http://www.zief.pl/iraq.jpg

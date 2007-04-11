@@ -1,7 +1,7 @@
 From: Paul Walmsley <paul@booyaka.com>
-Subject: [PATCH 4/6 RESEND] usbhid: add support for dynamically-created quirks
-Date: Wed, 11 Apr 2007 13:09:11 -0600 (MDT)
-Message-ID: <Pine.LNX.4.64.0704111307040.28726@utopia.booyaka.com>
+Subject: [PATCH 5/6] usbhid: add 'quirks' module parameter
+Date: Wed, 11 Apr 2007 13:09:41 -0600 (MDT)
+Message-ID: <Pine.LNX.4.64.0704111308020.28726@utopia.booyaka.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -13,208 +13,180 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-
 From: Paul Walmsley <paul@booyaka.com>
 
-Add internal support for dynamically-allocated HID quirks, "dquirks"
-(for "dynamic quirks").  Includes several functions to add/modify quirks
-from the list.  This code is used by the next patch to implement quirk
-modification upon module load.
+Add a 'quirks' module parameter for the usbhid module, so users can
+add or modify quirks at module load time.
 
 
 Signed-off-by: Paul Walmsley <paul@booyaka.com>
 
 ---
-  drivers/hid/usbhid/hid-quirks.c |  147 ++++++++++++++++++++++++++++++++++++++--
-  include/linux/hid-quirks.h      |    2
-  2 files changed, 145 insertions(+), 4 deletions(-)
+  Documentation/kernel-parameters.txt |    8 ++++++
+  drivers/hid/usbhid/hid-core.c       |   26 +++++++++++++++++++
+  drivers/hid/usbhid/hid-quirks.c     |   47 ++++++++++++++++++++++++++++++++++++
+  include/linux/hid-quirks.h          |    7 +++--
+  4 files changed, 86 insertions(+), 2 deletions(-)
 
+Index: hid/drivers/hid/usbhid/hid-core.c
+===================================================================
+--- hid.orig/drivers/hid/usbhid/hid-core.c
++++ hid/drivers/hid/usbhid/hid-core.c
+@@ -47,6 +47,10 @@
+
+  static char *hid_types[] = {"Device", "Pointer", "Mouse", "Device", "Joystick",
+  				"Gamepad", "Keyboard", "Keypad", "Multi-Axis Controller"};
++
++int usbhid_quirks_init(char **quirks_param);
++void usbhid_quirks_exit(void);
++
+  /*
+   * Module parameters.
+   */
+@@ -56,6 +60,22 @@ module_param_named(mousepoll, hid_mousep
+  MODULE_PARM_DESC(mousepoll, "Polling interval of mice");
+
+  /*
++ * Quirks specified at module load time
++ */
++static char *quirks_param[MAX_USBHID_BOOT_QUIRKS] = { [ 0 ... (MAX_USBHID_BOOT_QUIRKS - 1) ] = NULL };
++
++/*
++ * Example of modload quirks usage: passing "quirks=0xcd5:0x1:0x4" at
++ * boot tells the USB HID driver to ignore (0x4) vendor ID 0x0cd5, product
++ * ID 0x0001.  HID quirk values are defined in include/linux/hid-quirks.h
++ */
++module_param_array_named(quirks, quirks_param, charp, NULL, 0444);
++MODULE_PARM_DESC(quirks, "Add/modify USB HID quirks by specifying "
++		 " quirks=vendorID:productID:quirks"
++		 " where vendorID, productID, and quirks are all in"
++		 " 0x-prefixed hex");
++
++/*
+   * Input submission and I/O error handler.
+   */
+
+@@ -1107,6 +1127,9 @@ static struct usb_driver hid_driver = {
+  static int __init hid_init(void)
+  {
+  	int retval;
++	retval = usbhid_quirks_init(quirks_param);
++	if (retval)
++		goto usbhid_quirks_init_fail;
+  	retval = hiddev_init();
+  	if (retval)
+  		goto hiddev_init_fail;
+@@ -1119,6 +1142,8 @@ static int __init hid_init(void)
+  usb_register_fail:
+  	hiddev_exit();
+  hiddev_init_fail:
++	usbhid_quirks_exit();
++usbhid_quirks_init_fail:
+  	return retval;
+  }
+
+@@ -1126,6 +1151,7 @@ static void __exit hid_exit(void)
+  {
+  	usb_deregister(&hid_driver);
+  	hiddev_exit();
++	usbhid_quirks_exit();
+  }
+
+  module_init(hid_init);
 Index: hid/drivers/hid/usbhid/hid-quirks.c
 ===================================================================
 --- hid.orig/drivers/hid/usbhid/hid-quirks.c
 +++ hid/drivers/hid/usbhid/hid-quirks.c
-@@ -39,7 +39,9 @@
-  #include "usbhid.h"
-
-  static const struct hid_blacklist *usbhid_exists_squirk(const u16 idVendor, const u16 idProduct);
--
-+static struct hid_blacklist *usbhid_exists_dquirk(const u16 idVendor, const u16 idProduct);
-+static void usbhid_remove_all_dquirks(void);
-+
-
-  #define USB_VENDOR_ID_A4TECH		0x09da
-  #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
-@@ -470,6 +472,16 @@ static const struct hid_blacklist {
-
-
-
-+/* Dynamic HID quirks list - specified at runtime	 */
-+struct quirks_list_struct {
-+	struct hid_blacklist hid_bl_item;
-+	struct list_head node;
-+};
-+
-+static LIST_HEAD(dquirks_list);
-+static DECLARE_RWSEM(dquirks_rwsem);
-+
-+
-  /**
-   * usbhid_lookup_quirk: return any quirks associated with a USB HID device
-   * @idVendor: the 16-bit USB vendor ID, in native byteorder
-@@ -495,9 +507,16 @@ u32 usbhid_lookup_quirk(const u16 idVend
-  		    idProduct <= USB_DEVICE_ID_CODEMERCS_IOW_LAST)
-  			return 0;
-
--	ble = usbhid_exists_squirk(idVendor, idProduct);
--	if (ble)
--		quirks = ble->quirks;
-+	down_read(&dquirks_rwsem);
-+
-+ 	ble = usbhid_exists_dquirk(idVendor, idProduct);
-+ 	if (!ble)
-+ 		ble = usbhid_exists_squirk(idVendor, idProduct);
-+
-+ 	if (ble)
-+ 		quirks = ble->quirks;
-+
-+ 	up_read(&dquirks_rwsem);
-
-  	return quirks;
-  }
-@@ -534,3 +553,123 @@ static const struct hid_blacklist *usbhi
-  	return ble;
+@@ -673,3 +673,50 @@ static void usbhid_remove_all_dquirks(vo
   }
 
-+
-+/* Runtime ("dynamic") quirks manipulation functions */
-+
-+/**
-+ * usbhid_exists_dquirk: find any dynamic quirks for a USB HID device
-+ * @idVendor: the 16-bit USB vendor ID, in native byteorder
-+ * @idProduct: the 16-bit USB product ID, in native byteorder
-+ *
-+ * Description:
-+ *         Scans dquirks_list for a matching dynamic quirk and returns
-+ *         the pointer to the relevant struct hid_blacklist if found.
-+ *         Must be called with a read lock held on dquirks_rwsem.
-+ *
-+ * Returns: NULL if no quirk found, struct hid_blacklist * if found.
-+ */
-+static struct hid_blacklist *usbhid_exists_dquirk(const u16 idVendor,
-+						  const u16 idProduct)
-+{
-+	struct quirks_list_struct *q;
-+	struct hid_blacklist *ble = NULL;
-+
-+	WARN_ON(idVendor == 0);
-+
-+	list_for_each_entry(q, &dquirks_list, node) {
-+		if (q->hid_bl_item.idVendor == idVendor &&
-+		    q->hid_bl_item.idProduct == idProduct) {
-+			ble = &q->hid_bl_item;
-+			break;
-+		}
-+	}
-+
-+	if (ble != NULL)
-+		dbg("Found dynamic quirk 0x%x for USB HID vendor 0x%hx prod 0x%hx\n",
-+		    ble->quirks, ble->idVendor,  ble->idProduct);
-+
-+	return ble;
-+}
-+
+
++/* Module load/unload hooks for dquirks handling */
 +
 +/**
-+ * usbhid_modify_dquirk: add/replace a HID quirk
-+ * @idVendor: the 16-bit USB vendor ID, in native byteorder
-+ * @idProduct: the 16-bit USB product ID, in native byteorder
-+ * @quirks: the u32 quirks value to add/replace
++ * usbhid_quirks_init: apply USB HID quirks specified at module load time
 + *
 + * Description:
-+ *         If an dynamic quirk exists in memory for this (idVendor,
-+ *         idProduct) pair, replace its quirks value with what was
-+ *         provided.  Otherwise, add the quirk to the dynamic quirks list.
++ *
 + *
 + * Returns: 0 OK, -error on failure.
 + */
-+int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct,
-+			 const u32 quirks)
++int usbhid_quirks_init(char **quirks_param)
 +{
-+	struct quirks_list_struct *q_new, *q;
-+	int list_edited = 0;
++	u16 idVendor, idProduct;
++	u32 quirks;
++	int n = 0, m;
 +
-+	if (!idVendor) {
-+		dbg("Cannot add a quirk with idVendor = 0");
-+		return -EINVAL;
-+	}
++	for (; quirks_param[n] && n < MAX_USBHID_BOOT_QUIRKS; n++) {
 +
-+	q_new = kmalloc(sizeof(struct quirks_list_struct), GFP_KERNEL);
-+	if (!q_new) {
-+		dbg("Could not allocate quirks_list_struct");
-+		return -ENOMEM;
-+	}
++		m = sscanf(quirks_param[n], "0x%hx:0x%hx:0x%x",
++			   &idVendor, &idProduct, &quirks);
 +
-+	q_new->hid_bl_item.idVendor = idVendor;
-+	q_new->hid_bl_item.idProduct = idProduct;
-+	q_new->hid_bl_item.quirks = quirks;
-+
-+	down_write(&dquirks_rwsem);
-+
-+	list_for_each_entry(q, &dquirks_list, node) {
-+
-+		if (q->hid_bl_item.idVendor == idVendor &&
-+		    q->hid_bl_item.idProduct == idProduct) {
-+
-+			list_replace(&q->node, &q_new->node);
-+			kfree(q);
-+			list_edited = 1;
-+			break;
++		if (m != 3 ||
++		    usbhid_modify_dquirk(idVendor, idProduct, quirks) != 0) {
++			printk(KERN_WARNING
++			       "Could not parse HID quirk module param %s\n",
++			       quirks_param[n]);
 +
 +		}
-+
 +	}
-+
-+	if (!list_edited)
-+		list_add_tail(&q_new->node, &dquirks_list);
-+
-+	up_write(&dquirks_rwsem);
 +
 +	return 0;
 +}
 +
-+
 +/**
-+ * usbhid_remove_all_dquirks: remove all runtime HID quirks from memory
++ * usbhid_quirks_exit: release memory associated with dynamic_quirks
 + *
 + * Description:
-+ *         Free all memory associated with dynamic quirks - called before
-+ *         module unload.
++ *     Release all memory associated with dynamic quirks.  Called upon
++ *     module unload.
 + *
++ * Returns: nothing
 + */
-+static void usbhid_remove_all_dquirks(void)
++void usbhid_quirks_exit(void)
 +{
-+	struct quirks_list_struct *q, *temp;
-+
-+	down_write(&dquirks_rwsem);
-+	list_for_each_entry_safe(q, temp, &dquirks_list, node) {
-+		list_del(&q->node);
-+		kfree(q);
-+	}
-+	up_write(&dquirks_rwsem);
-+
++	usbhid_remove_all_dquirks();
 +}
-+
 +
 Index: hid/include/linux/hid-quirks.h
 ===================================================================
 --- hid.orig/include/linux/hid-quirks.h
 +++ hid/include/linux/hid-quirks.h
-@@ -31,6 +31,8 @@
+@@ -2,6 +2,11 @@
+  #define __HID_QUIRKS_H
 
-  u32 usbhid_lookup_quirk(const u16 idVendor, const u16 idProduct);
-
-+int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct, const u32 quirks);
+  /*
++ * Increase this if you need to configure more HID quirks at module load time
++ */
++#define MAX_USBHID_BOOT_QUIRKS 4
 +
++/*
+   * HID device quirks.
+   */
 
+@@ -33,6 +38,4 @@ u32 usbhid_lookup_quirk(const u16 idVend
 
+  int usbhid_modify_dquirk(const u16 idVendor, const u16 idProduct, const u32 quirks);
+
+-
+-
   #endif /* __HID_QUIRKS_H */
+Index: hid/Documentation/kernel-parameters.txt
+===================================================================
+--- hid.orig/Documentation/kernel-parameters.txt
++++ hid/Documentation/kernel-parameters.txt
+@@ -1797,6 +1797,14 @@ and is between 256 and 4096 characters.
+  	usbhid.mousepoll=
+  			[USBHID] The interval which mice are to be polled at.
+
++	usbhid.quirks=
++			[USBHID] Add, modify, or remove USB HID device quirks.
++			The format is one or more strings of
++			vendorID:productID:quirks format; e.g.,
++			"usbhid.quirks=0xcd4:0x1:0x4" will add
++			a quirk 0x4 (or replace an existing quirk) for
++			vendor 0xcd4 product 0x1.
++
+  	vdso=		[IA-32,SH]
+  			vdso=1: enable VDSO (default)
+  			vdso=0: disable VDSO mapping

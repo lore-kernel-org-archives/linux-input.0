@@ -1,31 +1,35 @@
-From: "Novella Aleen" <qjy9phcdf@dog.com>
-Subject: SPECIAL PHARMACY  DISCOUNT, you pay & we ship, no question asked, established by reputable Canadian Doctor scjct
-Date: Wed, 11 Apr 2007 12:28:24 +0900
-Message-ID: <239c565k.8350222@dog.com>
+From: "Sonny Tovarhms" <uracomparable@tdt.ts.fujitsu.co.jp>
+Subject: No angeline
+Date: Wed, 11 Apr 2007 01:35:41 -0600
+Message-ID: <NYNXHFT.578489968@207.157.42.2>
+Reply-To: "Sonny Tovarhms" <uracomparable@tdt.ts.fujitsu.co.jp>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/html
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: jk@atrey.karlin.mff.cuni.cz, knvjtsyoxyci@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>quickly usedto gray meant glass how. necessary met twenty-one buy?</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>
-Express Drug Mart</center></b></font><br><font color=000000 size=1>We are the best price on all high 
-quality meds. Established by a reputable Canadian Doctor and 
-Scientist, Express Drugmart's mission is to provide you with a secure online environment to purchase the 
-safest, quality medication<br><br><font color=000000 size=2>
-<b>Viagraa (Brand & Generic available) - <font color=F20000>as LOW as .25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>
-as LOW as .25 a dose</font><br>Valiumm - <font color=F20000>as LOW as .50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only .50 per  D0SE
-</font>
-<br>Ambienn - <font color=F20000>only .65 per  D0SE</font><br>Ativann - <font color=F20000>only .50 per  D0SE</font><br>Somaa - <font color=F20000>only .50 per  D0SE</font><br>Clenbuterol - <font color=F20000>only .50 per 
-D0SE</font><br>Meridiaa (brand name) - <font color=F20000>only .99 per  D0SE
-</font><br></b></font><br><center><a href=http://bxde.downforthegoodo.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>foot repeated and parents either buy wine how. modern hat number letters suddenly wrong disease how.</font>
+<html>
+<head>
+</head>
+<body>
+<p align="center"><b><font face="Arial Narrow"><font color="#FF0000">
+HANS and FIZ returned over 13000 % returns</font><br>
+<font color="#006600">Fire Mountain Beverage Co</font><font color="#00CC00"><br>
+</font>SYM-F B V G<br>
+Currently : 2 Cents, CHEAP!!!<br>
+<font color="#FF0000">This is projected to go to $.70 in short alone, for long look at HANS and FIZ</font><br>
+Short or long, this one cant go wrong, look at HANS and FIZ<br>Don't get left out again
+<br><br>
+engrave the right to conduct embryonic stem cell research into the state constitution.<br>
+ polls show that a clear majority of Americans see the war as a mistake and far fewer <br>
+The airplane, which also carried flight instructor Tyler Stanger, struck the building<br>
+District Attorney-elect Rod Pacheco said the evidence against Oyler was "overwhelming,"<br>
+later date. President Bush, working a southwest Missouri campaign crowd like a yell <br></font></b></p>
 </body>
 </html>
-http://www.zief.pl/iraq.jpg

@@ -1,39 +1,50 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH 0/7] usbhid: quirks cleanup, add dynamic quirks, ConfigFS
- interface
-Date: Thu, 12 Apr 2007 17:39:23 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0704121737130.12991@twin.jikos.cz>
-References: <Pine.LNX.4.64.0704110003460.28726@utopia.booyaka.com>
- <Pine.LNX.4.64.0704111440330.5079@jikos.suse.cz> <Pine.LNX.4.64.0704111635590.5079@jikos.suse.cz>
- <Pine.LNX.4.64.0704111231010.28726@utopia.booyaka.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] don't invert mightymouse hwheel
+Date: Thu, 12 Apr 2007 18:04:07 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0704121800000.19492@jikos.suse.cz>
+References: <1176330232.27324.7.camel@johannes.berg>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0704111231010.28726@utopia.booyaka.com>
+In-Reply-To: <1176330232.27324.7.camel@johannes.berg>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Paul Walmsley <paul@booyaka.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Bart Massey <bart@cs.pdx.edu>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 11 Apr 2007, Paul Walmsley wrote:
+On Thu, 12 Apr 2007, Johannes Berg wrote:
 
-> You're talking about using another static struct hid_blacklist array in 
-> place of the struct hid_quirk_types array, right?  
+> This is not true. With this X configuration:
+> 
+>     Section "InputDevice"
+>         Identifier  "EvDev"
+>         Driver      "evdev"
+>         Option      "SendCoreEvents"    "true"
+>         Option      "evBits"            "+1-2"
+>         Option      "keyBits"           "~272-287"
+>         Option      "relBits"           "~0-2 ~6 ~8"
+>         Option      "Pass"              "3"
+>     EndSection
+> I can scroll up in a window by moving my finger up, and scroll left in a
+> window by moving my finger right. That makes no sense, this patch therefore
+> removes the INVERT_HWHEEL quirk from the USB mightymouse.
 
-Hi Paul,
+Johannes, Bart, 
 
-no, in fact I was just thinking about extending the hid_blacklist[] with 
-additional field 'name', which will be used for the purpose of configfs. 
+I unfortunately don't have the hardware in question to test with. This X 
+configuration is of course perfectly valid.
 
-This way we would not have to duplicate the entries anywhere. All the 
-other fields you are currently keeping in hid_quirk_types[] could be made 
-implicitly default, only 'name' is the one that matters, right?
+Bart, as you wrote the original patch which inverted the wheel, could you 
+provide some more information please? It seems to me that you guys have 
+different versions of mightymouse ... but I wouldn't believe they would 
+have the same PID :)
 
 Thanks,
 
 -- 
 Jiri Kosina
+SUSE Labs

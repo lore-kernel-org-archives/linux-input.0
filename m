@@ -1,50 +1,63 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] don't invert mightymouse hwheel
-Date: Thu, 12 Apr 2007 18:04:07 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0704121800000.19492@jikos.suse.cz>
-References: <1176330232.27324.7.camel@johannes.berg>
+From: Paul Walmsley <paul@booyaka.com>
+Subject: Re: [PATCH 0/7] usbhid: quirks cleanup, add dynamic quirks, ConfigFS
+ interface
+Date: Thu, 12 Apr 2007 10:14:13 -0600 (MDT)
+Message-ID: <Pine.LNX.4.64.0704120945571.9207@utopia.booyaka.com>
+References: <Pine.LNX.4.64.0704110003460.28726@utopia.booyaka.com>
+ <Pine.LNX.4.64.0704111440330.5079@jikos.suse.cz> <Pine.LNX.4.64.0704111635590.5079@jikos.suse.cz>
+ <Pine.LNX.4.64.0704111231010.28726@utopia.booyaka.com>
+ <Pine.LNX.4.64.0704121737130.12991@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1176330232.27324.7.camel@johannes.berg>
+In-Reply-To: <Pine.LNX.4.64.0704121737130.12991@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Bart Massey <bart@cs.pdx.edu>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 12 Apr 2007, Johannes Berg wrote:
+On Thu, 12 Apr 2007, Jiri Kosina wrote:
 
-> This is not true. With this X configuration:
-> 
->     Section "InputDevice"
->         Identifier  "EvDev"
->         Driver      "evdev"
->         Option      "SendCoreEvents"    "true"
->         Option      "evBits"            "+1-2"
->         Option      "keyBits"           "~272-287"
->         Option      "relBits"           "~0-2 ~6 ~8"
->         Option      "Pass"              "3"
->     EndSection
-> I can scroll up in a window by moving my finger up, and scroll left in a
-> window by moving my finger right. That makes no sense, this patch therefore
-> removes the INVERT_HWHEEL quirk from the USB mightymouse.
+> On Wed, 11 Apr 2007, Paul Walmsley wrote:
+>
+>> You're talking about using another static struct hid_blacklist array in
+>> place of the struct hid_quirk_types array, right?
+>
+> no, in fact I was just thinking about extending the hid_blacklist[] with
+> additional field 'name', which will be used for the purpose of configfs.
+>
+> This way we would not have to duplicate the entries anywhere. All the
+> other fields you are currently keeping in hid_quirk_types[] could be made
+> implicitly default, only 'name' is the one that matters, right?
 
-Johannes, Bart, 
+Your last statement is correct.  The problem is that I don't see how the 
+rest of what you describe would work in the current arrangement.  Maybe 
+you could send an example of how your idea would work in terms of 
+configfs.
 
-I unfortunately don't have the hardware in question to test with. This X 
-configuration is of course perfectly valid.
+Right now, there's only one configfs attribute (= filename) per quirk type 
+- 23 of these.  Even if multiple dynamic device quirks are added, no new 
+configfs attributes are created for each file; the old ones are simply 
+reused.  The patch's current configfs directory structure is:
 
-Bart, as you wrote the original patch which inverted the wheel, could you 
-provide some more information please? It seems to me that you guys have 
-different versions of mightymouse ... but I wouldn't believe they would 
-have the same PID :)
+  /usbhid/quirks_runtime/<vendor_id>:<product_id>/<quirk type name>
 
-Thanks,
+...
 
--- 
-Jiri Kosina
-SUSE Labs
+Now, another implementation approach would be to get rid of the quirk type 
+names entirely, to use a path such as:
+
+  /usbhid/quirks_runtime/<vendor_id>:<product_id>
+
+with the last component being a r/w configfs attribute containing the 
+quirks value.  Is that what you are proposing?  I considered it when I did 
+the initial implementation.  The problem with it is that there seems to be 
+no way for userspace to create new configfs files/attributes -- only 
+configfs directories.
+
+
+- Paul

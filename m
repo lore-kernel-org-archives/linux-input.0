@@ -1,43 +1,47 @@
-From: Peter Osterlund <petero2@telia.com>
-Subject: Re: Fix sudden warps in mousedev
-Date: Wed, 11 Apr 2007 23:51:33 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0704112349490.4764@p4.localdomain>
-References: <20070324001610.724a820a.zaitcev@redhat.com>
- <d120d5000703261230h1724e453je2c14769fc099ad3@mail.gmail.com>
- <20070326144206.93805eeb.zaitcev@redhat.com> <200703262114.45287.dtor@insightbb.com>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: One odd thing about Synaptics
+Date: Wed, 11 Apr 2007 17:17:49 -0700
+Message-ID: <20070411171749.2337d620.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200703262114.45287.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+To: petero2@telia.com
+Cc: dtor@insightbb.com, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 26 Mar 2007, Dmitry Torokhov wrote:
+Hi, Peter:
 
-> On Monday 26 March 2007 17:42, Pete Zaitcev wrote:
->>
->> I don't think that you need to concern yourself with this too much
->> at present. If X11 people (e.g. Kristian) present evidence that kernel
->> fails to deliver an event, then we'll look at it. However it might
->> help if evtest continued to work when X11 reads from /dev/input/eventN.
->> It was an unpleasant surprise that it doesn't.
->
-> The driver grabs tochpad with EVIOCGRAB ioctl to prevent input events
-> from bveing delivered to X through /dev/input/mice which is still in
-> whidespread use. That's why evtest does not work. We could as Peter
-> (CCed) to implement an option to turn off grabbing so users who don't
-> use mousedev multiplexor can use evtest and other commands.
+There's one thing I wanted to report, just in case... It does not affect
+anything, but it's odd.
 
-That sounds like a useful option. Implemented in my git tree:
+Every time I lift a finger from the pad, the driver sends an event with
+odd values (X is 1 and Y is 5855):
 
-git clone http://web.telia.com/~u89404340/touchpad/synaptics/.git
+Event: time 1174695694.561806, type 1 (Key), code 330 (Touch), value 0
+Event: time 1174695694.561809, type 3 (Absolute), code 0 (X), value 1425
+Event: time 1174695694.561811, type 3 (Absolute), code 1 (Y), value 1223
+Event: time 1174695694.561813, type 3 (Absolute), code 24 (Pressure), value 20
+Event: time 1174695694.561816, -------------- Report Sync ------------
+Event: time 1174695694.573918, type 3 (Absolute), code 0 (X), value 1500
+Event: time 1174695694.573921, type 3 (Absolute), code 1 (Y), value 1265
+Event: time 1174695694.573922, type 3 (Absolute), code 24 (Pressure), value 5
+Event: time 1174695694.573924, type 3 (Absolute), code 28 (Tool Width), value 5
+Event: time 1174695694.573926, -------------- Report Sync ------------
+Event: time 1174695694.585575, type 3 (Absolute), code 0 (X), value 1
+Event: time 1174695694.585578, type 3 (Absolute), code 1 (Y), value 5855
+Event: time 1174695694.585580, type 3 (Absolute), code 24 (Pressure), value 2
+Event: time 1174695694.585582, type 1 (Key), code 325 (ToolFinger), value 0
+Event: time 1174695694.585584, type 1 (Key), code 333 (Tool Doubletap), value 1
+Event: time 1174695694.585587, -------------- Report Sync ------------
+Event: time 1174695694.622685, type 3 (Absolute), code 24 (Pressure), value 1
 
--- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+This correspods to hw.x=1, hw.y=0 in the driver. Looks like a bug somewhere.
+
+Cheers,
+-- Pete

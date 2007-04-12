@@ -1,42 +1,39 @@
-From: Dr.Borris Olga <drborrisolgaru56@mail.ru>
-Subject: GOOD DAY
-Date: 12 Apr 2007 12:22:28 +0100
-Message-ID: <20070412112228.5564.qmail@lvps212-241-193-125.vps.webfusion.co.uk>
-Reply-To: drborrisolgaru56@yahoo.de
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [PATCH 0/7] usbhid: quirks cleanup, add dynamic quirks, ConfigFS
+ interface
+Date: Thu, 12 Apr 2007 17:39:23 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0704121737130.12991@twin.jikos.cz>
+References: <Pine.LNX.4.64.0704110003460.28726@utopia.booyaka.com>
+ <Pine.LNX.4.64.0704111440330.5079@jikos.suse.cz> <Pine.LNX.4.64.0704111635590.5079@jikos.suse.cz>
+ <Pine.LNX.4.64.0704111231010.28726@utopia.booyaka.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.64.0704111231010.28726@utopia.booyaka.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Paul Walmsley <paul@booyaka.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+On Wed, 11 Apr 2007, Paul Walmsley wrote:
 
-Hello Sir/Madam,
-=20
-I am Dr.Borris Olga. and I represent Mr. Mikhail Khordokovsky former C.E.=
-O of Yukos Oil Company in Russia. I have a very sensitive and confidentia=
-l brief from this top (oligarch) to ask for your partnership in re-profil=
-ing funds US$42.3 Million. I will give the details, but in summary, the f=
-unds are coming via Bank in europe . This is a legitimate transaction.You=
- will be paid 25% for your "Management Fees".
+> You're talking about using another static struct hid_blacklist array in 
+> place of the struct hid_quirk_types array, right?  
 
+Hi Paul,
 
-If you are interested, please write back by mail: drborrisolgaru56@yahoo.=
-de =20
-and provide me with your confidential telephone number,fax number and ema=
-il  address and I will provide further details and instructions.=20
-Please keep this confidential; we can't afford more political problems.=20
+no, in fact I was just thinking about extending the hid_blacklist[] with 
+additional field 'name', which will be used for the purpose of configfs. 
 
-Finally,please note that this must be concluded within two weeks.=20
-Please advice me on your position by email immediately via=20
-drborrisolgaru56@yahoo.de , as i look forward to your mail.visite our
-=20
-website:www.yukos.com
-=20
-Regards,
-Dr.Borris Olga
+This way we would not have to duplicate the entries anywhere. All the 
+other fields you are currently keeping in hid_quirk_types[] could be made 
+implicitly default, only 'name' is the one that matters, right?
+
+Thanks,
+
+-- 
+Jiri Kosina

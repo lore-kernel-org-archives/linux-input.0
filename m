@@ -1,77 +1,96 @@
-From: "Ben Edwards" <pifchallandgew@challand.org>
-Subject: Control your weight and appetite
-Date: Fri, 13 Apr 2007 14:43:40 -0100
-Message-ID: <475237251.66794909741146@thhebat.net>
+From: "Reggie Schwartz" <pifchaikaltdgew@chaikaltd.com>
+Subject: Stop the painful craving for more food
+Date: Fri, 13 Apr 2007 18:19:44 +0700
+Message-ID: <505306806.18963818279928@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------DAA371012CFFFF"
+  boundary="----------05C93055555C1E"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lukor@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------DAA371012CFFFF
-Content-Type: text/plain; charset=Windows-1252
+------------05C93055555C1E
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
-Anatrim =96 The very up-to-date and most attracting flesh loss product is=20=
-now readily available =96 As told on CNN
-Do you understand that superfluous body kilograms kill a plenty of=20=
-people around the world? We know you hate the unsightly appearance of=20=
-those people and the social prejudice against them. 
 
-Moreover, you have not the will to withstand an assault of your fatal=20=
-eating habits. This all sounds familiar? Then we have something for you!
+Anatrim =96 The up-to-the-moment and most attracting product for=20=
+weighty people is made available now =96 As told on CNN.
 
-Here Anatrim comes, the recent product for the reduction of your=20=
-body=92s extra weight. The most amazing thing is that Anatrim raises the=20=
-quality of your life by soothing the feeling of hunger and giving you=20=
-joyful spirit. Pay you attention to some notes received from our customers:
+Can you remember all the situations when you appeal to yourself to do=20=
+any thing for being rescued from this desperately growing pounds of fat?=20=
+Luckily, now no great price is to be paid. Thanks to Anatrim, the=20=
+ground-breaking weight-reducing mixture, you can get naturally health=20=
+lifestyle and a really slender figure. Take a look at what people say!
 
-"This is wonderful! 
+"It=92s unbearably difficult to admit it but I was awfully addicted to=20=
+food. 
 
-Instead of watching TV and gorging any food easy to reach 
+I greedily swallowed up all this rubbish 
 
-I became more interested in taking exercise.
+and just could not stop. 
 
- Anatrim put me back on the right track.
+This misery passed away after I started taking Anatrim! 
 
- I feel as fit as a fiddle now and there are lots of men following me=20=
-with their eyes!"
+Oh, God,
 
-Linda F., New York
+ my appetite vanished, 
 
-"I tried some passive weight reducing, you know, but all came in vain.=20=
-It was difficult for me to hold back and not to eat something just at=20=
-hand. 
+mood increased and I turned to the happiest person 28 pounds in 2.2=20=
+months. 
 
-One day I heard about Anatrim in the commercial and I was really=20=
-effected by the information.
+So, I can tell you now I=92m the happiest person!"
+ 
 
- I had attempted taking it, and my wife told me I=92m not more a=20=
-weighty man now, 3 months later. 
+Victoria K., Colorado
 
-28 pounds off and I keep still losing them! 
+ 
+"I had problems with over-weight since a boy. 
 
-And you know, I=92m an impetuous lover again."
+You can't even fancy how I abhorred being mocked at school. 
 
-Dave Klark, Bellevue WA
+I abhorred my stoutness and I hated myself. 
 
-Anatrim helps you to realize that you got no such great need for that=20=
-much food. It improves your mood, supplies you with additional energy,=20=
-and attacks useless kilos. All thanks to its mighty newly-elaborated=20=
-formula!!
-Elicit more information! 
-------------DAA371012CFFFF
-Content-Type: text/html; charset=Windows-1252
+After trying many different remedies I learned about Anatrim. 
+
+It literally dragged me out of this dreadful nightmare! A lot of thanks=20=
+to you, fellows."
+
+ 
+Steve Burbon, Colorado
+
+ 
+"Know what? Thanks to Anatrim my marriage was saved! I went into the=20=
+circle, depression =96 eating more =96 more depression. My wife was about=20=
+to leave me as I was turning in overweight psycho. 
+
+My best friend pointed at your web page and I asked for Anatrim at the=20=
+same time. 
+
+The result was splendid, my appetite came to admissible level, I was=20=
+often in a good mood, and, be sure, I became able to tighten my belt on=20=
+some holes. And the bed became cool, too!"
+
+ 
+Frank
+
+ There are lots of gratitudes happy people leave after taking Anatrim.=20=
+Why don't you join the tens of thousands of slender people and try this=20=
+original appetite-suppressing energy lifting product now!
+
+Don=92t miss the opportunity!
+
+------------05C93055555C1E
+Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Check out the wonders of pound melting</TITLE>
+<HTML><HEAD><TITLE>Stop the painful craving for more food</TITLE>
 </HEAD>
 <BODY>
 
@@ -79,105 +98,122 @@ Content-Transfer-Encoding: quoted-printable
 <center>
 <b>
 <a=20=
-href=3D"http://www.asketrin.com/?g371707766777E70776E336B337A6E687A7445796A33667173726B6873337Fw7avwcjc">Anatrim=20=
-=96 The very up-to-date and most attracting flesh loss product is now=20=
-readily available =96 As told on CNN</a>
-</b>
+href=3D"http://www.kruba.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7fbsjht">
+Anatrim =96 The up-to-the-moment and most attracting product for=20=
+weighty people is made available now =96 As told on CNN.
+</a>
 </center>
-<b>
-Do you understand that superfluous body kilograms kill a plenty of=20=
-people around the world? We know you hate the unsightly appearance of=20=
-those people and the social prejudice against them. 
-<b>
-Moreover, you have not the will to withstand an assault of your fatal=20=
-eating habits. This all sounds familiar? Then we have something for you!
-</b>
-</b>
+Can you remember all the situations when you appeal to yourself to do=20=
+any thing for being rescued from this desperately growing pounds of fat?=20=
+Luckily, now no great price is to be paid. Thanks to Anatrim, the=20=
+ground-breaking weight-reducing mixture, you can get naturally health=20=
+lifestyle and a really slender figure. Take a look at what people say!
 <br>
 <br>
-<b>
-Here Anatrim comes, the recent product for the reduction of your=20=
-body=92s extra weight. The most amazing thing is that Anatrim raises the=20=
-quality of your life by soothing the feeling of hunger and giving you=20=
-joyful spirit. Pay you attention to some notes received from our customers:
-</b>
-<br>
-<br>
+<i>
+"It=92s unbearably difficult to admit it but I was awfully addicted to=20=
+food. 
 <b>
 <i>
-"This is wonderful! 
+I greedily swallowed up all this rubbish 
 <b>
 <i>
-Instead of watching TV and gorging any food easy to reach 
-<b>
-<i>
-I became more interested in taking exercise.
+and just could not stop. 
 </i>
 </b>
 </i>
 </b>
+This misery passed away after I started taking Anatrim! 
 <b>
 <i>
- Anatrim put me back on the right track.
+Oh, God,
 </i>
 </b>
- I feel as fit as a fiddle now and there are lots of men following me=20=
-with their eyes!"
-</i>
-</b>
-<br>
-<br>
 <b>
 <i>
-Linda F., New York
-</i>
-</b>
-<br>
-<br>
+ my appetite vanished, 
 <b>
 <i>
-"I tried some passive weight reducing, you know, but all came in vain.=20=
-It was difficult for me to hold back and not to eat something just at=20=
-hand. 
-<b>
-<i>
-One day I heard about Anatrim in the commercial and I was really=20=
-effected by the information.
+mood increased and I turned to the happiest person 28 pounds in 2.2=20=
+months. 
 </i>
 </b>
- I had attempted taking it, and my wife told me I=92m not more a=20=
-weighty man now, 3 months later. 
-<b>
-<i>
-28 pounds off and I keep still losing them! 
 </i>
 </b>
-And you know, I=92m an impetuous lover again."
-</i>
-</b>
+So, I can tell you now I=92m the happiest person!"
+</i> 
 <br>
 <br>
 <b>
 <i>
-Dave Klark, Bellevue WA
+Victoria K., Colorado
 </i>
 </b>
 <br>
 <br>
+ <i>
+"I had problems with over-weight since a boy. 
 <b>
-Anatrim helps you to realize that you got no such great need for that=20=
-much food. It improves your mood, supplies you with additional energy,=20=
-and attacks useless kilos. All thanks to its mighty newly-elaborated=20=
-formula!!
+<i>
+You can't even fancy how I abhorred being mocked at school. 
+</i>
 </b>
 <b>
+<i>
+I abhorred my stoutness and I hated myself. 
+<b>
+<i>
+After trying many different remedies I learned about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally dragged me out of this dreadful nightmare! A lot of thanks=20=
+to you, fellows."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Steve Burbon, Colorado
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Know what? Thanks to Anatrim my marriage was saved! I went into the=20=
+circle, depression =96 eating more =96 more depression. My wife was about=20=
+to leave me as I was turning in overweight psycho. 
+<b>
+<i>
+My best friend pointed at your web page and I asked for Anatrim at the=20=
+same time. 
+</i>
+</b>
+The result was splendid, my appetite came to admissible level, I was=20=
+often in a good mood, and, be sure, I became able to tighten my belt on=20=
+some holes. And the bed became cool, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Frank
+</i>
+</b>
+<br>
+<br>
+ There are lots of gratitudes happy people leave after taking Anatrim.=20=
+Why don't you join the tens of thousands of slender people and try this=20=
+original appetite-suppressing energy lifting product now!
 <center>
 <a=20=
-href=3D"http://www.asketrin.com/?g371707766777E70776E336B337A6E687A7445796A33667173726B6873337Fw7avwcjc">Elicit=20=
-more information!</a>
+href=3D"http://www.kruba.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7fbsjht">
+Don=92t miss the opportunity!
+</a>
 </center>
 </b>
-</p> 
+</p>
 
 </BODY></HTML>
-------------DAA371012CFFFF--
+------------05C93055555C1E--

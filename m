@@ -1,9 +1,10 @@
-From: Doctor Barbra <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: RE: MedHelp 838883
-Date: Fri, 13 Apr 2007 04:24:30 +0200 (CEST)
-Message-ID: <20070412-10940.4480.qmail@S0106000c6eac772c.ed.shawcable.net>
+From: "Erma Eastman" <tyccelticpharmasal@celticpharma.com>
+Subject: Be leaner and slimmer by next week
+Date: Fri, 13 Apr 2007 03:30:57 -0100
+Message-ID: <903069543.71039951564593@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/html
+Content-Type: multipart/alternative;
+  boundary="----------EC8B679DA3EC84"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -13,65 +14,176 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<style>
-Workers Compensation Tax
+------------EC8B679DA3EC84
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-COMMENTS:
-Not one of these taxes existed 100 years ago and our nation was the
-most prosperous in the world, had absolutely no national debt, had the
-largest middle class in the world and Mom could stay home to raise the
-kids and be a homemaker.
 
--CB
->
 
-<!This article approaches a subject that needs a lot of public
-discussion.    When a group's religious views can influence world-wide
-and peace,  they become a matter of interest to us all.  These are the
-people who support war in the Mid East. 
+Anatrim – The newest and most fascinating product for corpulent people available – As you could see on BBC.
 
-In this sentence -- the author sums it up well.  <gj >
+Can you count up all the cases when you appeal to yourself to do any thing to get rid of this quickly growing pounds of fat? Luckily, now no major sacrifice is expected. Thanks to Anatrim, the earth-shaking kilos-melting medley, you can achieve healthier life style and a really slender figure. Take a look at what people say!
 
-"....And in a strange sense, war is kinda good and peace is kinda bad
---  since war is a sign that the end is near and peace on earth is a
-sign of the Antichrist. Any Christian who doesnA?t agree with all this
-is deceived at best and a heretic at worst...."
+"I hate to acknowledge it but I was an awful food addict. 
 
---------------------------------------------------
+I swallowed up all this rubbish 
 
-Troubling Worldview of the 'Rapture-Ready' Christian
-</style><a target="_blank"  href="http://www.gorestaurants.net//index.html" ><img src="http://www.kraftykitties.com//1.gif">
-<style>
-by Bill Barnwell
+and was unable to stop. 
 
-When the subject of the "end-times" comes up, many Christians and
-non-Christians donA?t want to talk about it. Some Christians, annoyed
-with all the competing theories and terminology just say, "What
-difference does it make? Jesus is coming back and I just need to be
-ready." Non-Christians just assume that since Christianity isnA?t true,
-then the whole issue doesnA?t matter. Well, actually, it does matter. I
-will submit that the popular doctrines of the Left Behind series pose
-very real threats not only to Christianity, but also to the wider
-culture.
+This fatal passion left off when I started course of taking Anatrim! 
 
-continued at --
+God,
 
-<!Hello Everyone,
+ my craving for food disappeared, 
 
-I have posted once in a while to all of these groups over the years.
-Not a whole lot, but once in a while.  Some of you might remember me,
-others not.
+spirits increased and I became the happiest person in the world 20 pounds in 2.3 months. 
 
-Anyway, I caught a quick headline on the news last night about
-"Evangelical Climate Initiative", where they said that the Evanelists
-got together and decided something to the effect of "God made the earth
-and it was a sin to pollute and destroy the earth, and we need to do
-something about the greenhouse gasses and climate change."  That was
-all the news really had to say.
+I can tell you now I’m the happiest person in the world!"
+ 
 
-So I said, that sounds like the Christians are coming around to the way
-the old religions have been thinking for years (Hellinic Paganism,
-Asatru, Wiccan, Druidism, Celtic Paganism, Native American or First
-Nation Shamanism, or any of the other spiritual paths along these
-lines).
-</style>
+Silvia D., Chicago
+
+ 
+"Since my early childhood I was a bulky boy. 
+
+You can't even fancy how I detested being mocked at school. 
+
+I abhorred the weight and I detested myself. 
+
+After trying this and that I found out about Anatrim. 
+
+It literally pulled me out of this horror! Many thanks and a great respect to you, guys."
+
+ 
+Dave Klark, Colorado
+
+ 
+"Do you know what? Thanks to Anatrim my marriage was saved! I went into the circle, depression – eating more – more depression. My wife had thought to leave me as I was turning in overweight psycho. 
+
+My friend pointed at your web site and I called for pack of Anatrim immediately. 
+
+The results I achieved were great, my appetite came to normal level, I was in good spirits oftener, and, certainly, I became able to tighten my belt on some holes. And the bedroom became cool also!"
+
+ 
+Dave
+
+ There is a great number of gratitudes happy people leave after trying Anatrim. Don’t you wanna add yourself to the tens of thousands of slender customers and take this natural appetite-decreasing power raising product now!
+
+Don’t lose your opportunity!
+
+
+------------EC8B679DA3EC84
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Women will love your new figure</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href="http://www.gytab.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7mbnyla">
+Anatrim – The newest and most fascinating product for corpulent people available – As you could see on BBC.
+</a>
+</center>
+Can you count up all the cases when you appeal to yourself to do any thing to get rid of this quickly growing pounds of fat? Luckily, now no major sacrifice is expected. Thanks to Anatrim, the earth-shaking kilos-melting medley, you can achieve healthier life style and a really slender figure. Take a look at what people say!
+<br>
+<br>
+<i>
+"I hate to acknowledge it but I was an awful food addict. 
+<b>
+<i>
+I swallowed up all this rubbish 
+<b>
+<i>
+and was unable to stop. 
+</i>
+</b>
+</i>
+</b>
+This fatal passion left off when I started course of taking Anatrim! 
+<b>
+<i>
+God,
+</i>
+</b>
+<b>
+<i>
+ my craving for food disappeared, 
+<b>
+<i>
+spirits increased and I became the happiest person in the world 20 pounds in 2.3 months. 
+</i>
+</b>
+</i>
+</b>
+I can tell you now I’m the happiest person in the world!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Silvia D., Chicago
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a bulky boy. 
+<b>
+<i>
+You can't even fancy how I detested being mocked at school. 
+</i>
+</b>
+<b>
+<i>
+I abhorred the weight and I detested myself. 
+<b>
+<i>
+After trying this and that I found out about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally pulled me out of this horror! Many thanks and a great respect to you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Dave Klark, Colorado
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Do you know what? Thanks to Anatrim my marriage was saved! I went into the circle, depression – eating more – more depression. My wife had thought to leave me as I was turning in overweight psycho. 
+<b>
+<i>
+My friend pointed at your web site and I called for pack of Anatrim immediately. 
+</i>
+</b>
+The results I achieved were great, my appetite came to normal level, I was in good spirits oftener, and, certainly, I became able to tighten my belt on some holes. And the bedroom became cool also!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Dave
+</i>
+</b>
+<br>
+<br>
+ There is a great number of gratitudes happy people leave after trying Anatrim. Don’t you wanna add yourself to the tens of thousands of slender customers and take this natural appetite-decreasing power raising product now!
+<center>
+<a href="http://www.gytab.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7mbnyla">
+Don’t lose your opportunity!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------EC8B679DA3EC84--

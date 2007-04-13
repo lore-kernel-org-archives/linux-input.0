@@ -1,219 +1,116 @@
-From: "Reggie Schwartz" <pifchaikaltdgew@chaikaltd.com>
-Subject: Stop the painful craving for more food
-Date: Fri, 13 Apr 2007 18:19:44 +0700
-Message-ID: <505306806.18963818279928@thhebat.net>
+From: Paul Sokolovsky <pmiscml@gmail.com>
+Subject: Re: [PATCH] gpio_keys ev_sw support
+Date: Sat, 14 Apr 2007 00:13:05 +0300
+Message-ID: <1417248704.20070414001305@gmail.com>
+References: <461BC11C.7020401@gmail.com> <d120d5000704101120x4c292ae1w94b281b718a158d1@mail.gmail.com> <461C96F9.5000808@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------05C93055555C1E"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <461C96F9.5000808@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Roman Moravcik <roman.moravcik@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, kernel-discuss@handhelds.org
 List-Id: linux-input@vger.kernel.org
 
-------------05C93055555C1E
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hello Dmitry,
+
+	I wonder if you're satisfied with Roman patch now. I guess it could just=
+ fall to the bottom of your queue due to bad formatting. So, here's resen=
+d, hopefully correct. One change is that we had to put "type" member to t=
+he end of struct gpio_keys_button, the reason is backwards compatibility.=
+ As you see, we'd like EV_KEY to be still default, and nay other type to =
+be used only if explicitly specified. And as structure is already big, an=
+d there're usually several keys to define, we use positional initializati=
+on to save space:
+
+	{ KEY_ENTER,	GPIO_NR_H4000_ACTION_BUTTON_N,	1, "Action button"	},
+
+So, putting type after keycode will break this, and moreover compiler iss=
+ues only warning, so that may go unnoticed.
 
 
-Anatrim =96 The up-to-the-moment and most attracting product for=20=
-weighty people is made available now =96 As told on CNN.
+Thanks,
+Paul
 
-Can you remember all the situations when you appeal to yourself to do=20=
-any thing for being rescued from this desperately growing pounds of fat?=20=
-Luckily, now no great price is to be paid. Thanks to Anatrim, the=20=
-ground-breaking weight-reducing mixture, you can get naturally health=20=
-lifestyle and a really slender figure. Take a look at what people say!
 
-"It=92s unbearably difficult to admit it but I was awfully addicted to=20=
-food. 
+-------------
+This patch adds switch event support to gpio_keys driver.
 
-I greedily swallowed up all this rubbish 
+Signed-off-by: Roman Moravcik <roman.moravcik@gmail.com>
+Signed-off-by: Paul Sokolovsky <pmiscml@gmail.com>
 
-and just could not stop. 
 
-This misery passed away after I started taking Anatrim! 
+Index: include/linux/gpio_keys.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /cvs/linux/kernel26/include/linux/gpio_keys.h,v
+retrieving revision 1.1
+diff -u -p -r1.1 gpio_keys.h
+--- include/linux/gpio_keys.h	25 Feb 2007 15:21:52 -0000	1.1
++++ include/linux/gpio_keys.h	13 Apr 2007 21:07:03 -0000
+@@ -6,6 +6,7 @@ struct gpio_keys_button {
+ 	int gpio;
+ 	int active_low;
+ 	char *desc;
++	int type;
+ };
+=20
+ struct gpio_keys_platform_data {
+Index: drivers/input/keyboard/gpio_keys.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /cvs/linux/kernel26/drivers/input/keyboard/gpio_keys.c,v
+retrieving revision 1.15
+diff -u -p -r1.15 gpio_keys.c
+--- drivers/input/keyboard/gpio_keys.c	25 Feb 2007 15:26:10 -0000	1.15
++++ drivers/input/keyboard/gpio_keys.c	13 Apr 2007 21:07:03 -0000
+@@ -39,7 +39,10 @@ static irqreturn_t gpio_keys_isr(int irq
+ 		if (irq =3D=3D gpio_to_irq(gpio)) {
+ 			int state =3D (gpio_get_value(gpio) ? 1 : 0) ^ (pdata->buttons[i].act=
+ive_low);
+=20
+-			input_report_key(input, pdata->buttons[i].keycode, state);
++			if (pdata->buttons[i].type =3D=3D EV_SW)
++				input_report_switch(input, pdata->buttons[i].keycode, state);
++			else
++				input_report_key(input, pdata->buttons[i].keycode, state);
+ 			input_sync(input);
+ 		}
+ 	}
+@@ -84,7 +87,12 @@ static int __devinit gpio_keys_probe(str
+ 				irq, error);
+ 			goto fail;
+ 		}
+-		set_bit(code, input->keybit);
++		if (pdata->buttons[i].type =3D=3D EV_SW) {
++			input->evbit[0] |=3D BIT(EV_SW);
++			set_bit(code, input->swbit);
++		} else {
++			set_bit(code, input->keybit);
++		}
+ 	}
+=20
+ 	error =3D input_register_device(input);
 
-Oh, God,
 
- my appetite vanished, 
 
-mood increased and I turned to the happiest person 28 pounds in 2.2=20=
-months. 
 
-So, I can tell you now I=92m the happiest person!"
- 
 
-Victoria K., Colorado
+Wednesday, April 11, 2007, 11:06:17 AM, you wrote:
 
- 
-"I had problems with over-weight since a boy. 
+> Hi Dmitry,
 
-You can't even fancy how I abhorred being mocked at school. 
+> Dmitry Torokhov  wrote / nap=EDsal(a):
 
-I abhorred my stoutness and I hated myself. 
+[]
 
-After trying many different remedies I learned about Anatrim. 
-
-It literally dragged me out of this dreadful nightmare! A lot of thanks=20=
-to you, fellows."
-
- 
-Steve Burbon, Colorado
-
- 
-"Know what? Thanks to Anatrim my marriage was saved! I went into the=20=
-circle, depression =96 eating more =96 more depression. My wife was about=20=
-to leave me as I was turning in overweight psycho. 
-
-My best friend pointed at your web page and I asked for Anatrim at the=20=
-same time. 
-
-The result was splendid, my appetite came to admissible level, I was=20=
-often in a good mood, and, be sure, I became able to tighten my belt on=20=
-some holes. And the bed became cool, too!"
-
- 
-Frank
-
- There are lots of gratitudes happy people leave after taking Anatrim.=20=
-Why don't you join the tens of thousands of slender people and try this=20=
-original appetite-suppressing energy lifting product now!
-
-Don=92t miss the opportunity!
-
-------------05C93055555C1E
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Stop the painful craving for more food</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a=20=
-href=3D"http://www.kruba.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7fbsjht">
-Anatrim =96 The up-to-the-moment and most attracting product for=20=
-weighty people is made available now =96 As told on CNN.
-</a>
-</center>
-Can you remember all the situations when you appeal to yourself to do=20=
-any thing for being rescued from this desperately growing pounds of fat?=20=
-Luckily, now no great price is to be paid. Thanks to Anatrim, the=20=
-ground-breaking weight-reducing mixture, you can get naturally health=20=
-lifestyle and a really slender figure. Take a look at what people say!
-<br>
-<br>
-<i>
-"It=92s unbearably difficult to admit it but I was awfully addicted to=20=
-food. 
-<b>
-<i>
-I greedily swallowed up all this rubbish 
-<b>
-<i>
-and just could not stop. 
-</i>
-</b>
-</i>
-</b>
-This misery passed away after I started taking Anatrim! 
-<b>
-<i>
-Oh, God,
-</i>
-</b>
-<b>
-<i>
- my appetite vanished, 
-<b>
-<i>
-mood increased and I turned to the happiest person 28 pounds in 2.2=20=
-months. 
-</i>
-</b>
-</i>
-</b>
-So, I can tell you now I=92m the happiest person!"
-</i> 
-<br>
-<br>
-<b>
-<i>
-Victoria K., Colorado
-</i>
-</b>
-<br>
-<br>
- <i>
-"I had problems with over-weight since a boy. 
-<b>
-<i>
-You can't even fancy how I abhorred being mocked at school. 
-</i>
-</b>
-<b>
-<i>
-I abhorred my stoutness and I hated myself. 
-<b>
-<i>
-After trying many different remedies I learned about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-It literally dragged me out of this dreadful nightmare! A lot of thanks=20=
-to you, fellows."
-</i>
- <br>
-<br>
-<b>
-<i>
-Steve Burbon, Colorado
-</i>
-</b>
-<br>
-<br>
- <i>
-"Know what? Thanks to Anatrim my marriage was saved! I went into the=20=
-circle, depression =96 eating more =96 more depression. My wife was about=20=
-to leave me as I was turning in overweight psycho. 
-<b>
-<i>
-My best friend pointed at your web page and I asked for Anatrim at the=20=
-same time. 
-</i>
-</b>
-The result was splendid, my appetite came to admissible level, I was=20=
-often in a good mood, and, be sure, I became able to tighten my belt on=20=
-some holes. And the bed became cool, too!"
-</i>
- <br>
-<br>
-<b>
-<i>
-Frank
-</i>
-</b>
-<br>
-<br>
- There are lots of gratitudes happy people leave after taking Anatrim.=20=
-Why don't you join the tens of thousands of slender people and try this=20=
-original appetite-suppressing energy lifting product now!
-<center>
-<a=20=
-href=3D"http://www.kruba.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7fbsjht">
-Don=92t miss the opportunity!
-</a>
-</center>
-</b>
-</p>
-
-</BODY></HTML>
-------------05C93055555C1E--
+--=20
+Best regards,
+ Paul                            mailto:pmiscml@gmail.com

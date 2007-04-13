@@ -1,68 +1,71 @@
-From: "Marina Hoover" <dvaureomycin@cyscholar.tk>
-Subject: A maelstrom well calamity
-Date: Fri, 13 Apr 2007 12:47:04 +0800
-Message-ID: <001601c77dc9$d6c93ec0$066f22bc@USER402E6761F8>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH] don't invert mightymouse hwheel
+Date: Fri, 13 Apr 2007 08:40:18 +0200
+Message-ID: <1176446418.7052.54.camel@johannes.berg>
+References: <Pine.LNX.4.64.0704121800000.19492@jikos.suse.cz>
+	 <1176330232.27324.7.camel@johannes.berg>
+	 <200704122125.l3CLP9aQ005277@wezen.cs.pdx.edu>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C77DC9.D6C93EC0"
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KKCCsRAGeNjnKu1YlFhb"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200704122125.l3CLP9aQ005277@wezen.cs.pdx.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Barton C Massey <bart@cs.pdx.edu>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C77DC9.D6C93EC0
-Content-Type: text/plain;
-        charset="windows-1252"
+
+--=-KKCCsRAGeNjnKu1YlFhb
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2007-04-12 at 14:25 -0700, Barton C Massey wrote:
 
+> > I unfortunately don't have the hardware in question to test with. This =
+X=20
+> > configuration is of course perfectly valid.
 
+I copied it straight out of the manpage so I'd hope so :>
 
+> Give me a day or so to check all this out.  I don't think
+> looking at the X behavior is too useful: too many place that
+> the direction can be swapped.  Instead, look which way the
+> bits coming directly out of evdev point.
 
-THE HOTTEST ALERT..
+I can do that (early next week), but I don't have any other devices to
+test with. Can provide a dump.
 
+> IIRC I set things
+> up so that positive X was the same as on other evdev
+> devices.  Is the supplied X config swapping the X axis with
+> this line?
+>=20
+>   > >         Option      "evBits"            "+1-2"
 
+No idea! I just copied it out of the manpage from evdev(4)
 
-Target sym: BVYHPrice (current): $4.70 5 Day Target price: $7.95Action: =
-Strong Buy/Hold!!!
+> One possible source of confusion is that Iceweasel scrolls
+> backward by default (on all devices, not just MM).  You can
+> fix this by changing a setting in the Iceweasel config.
 
-Short-term KST. Short-Term Bullish!
+I didn't use Iceweasel but GTK.
 
+johannes
 
-See bullish news online right now, linux-input, call broker!!
+--=-KKCCsRAGeNjnKu1YlFhb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
 
-------=_NextPart_000_0013_01C77DC9.D6C93EC0
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+iD8DBQBGHyXS/ETPhpq3jKURAva/AJ9CBAUsLUFaSW2I9VF9PBJwOjzFxQCguqWO
+hKrqzzc6mKJyeXCa85uPFQ8=
+=Y3cC
+-----END PGP SIGNATURE-----
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2462.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3300 size=3D3D4><FONT =
-size=3D3><STRONG>THE HOTTEST ALERT!!!</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990033 size=3D4>Target =
-sym: <b>BVYH</b><br>Price (current): $4.70 <br>5 Day Target price: =
-$7.95<br>Action: Strong Buy/Hold!!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0066 size=3D=
-4>Short-term KST. Short-Term Bullish..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#0033FF size=3D3>See =
-bullish news online right now, linux-input, call broker!...</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0013_01C77DC9.D6C93EC0--
+--=-KKCCsRAGeNjnKu1YlFhb--

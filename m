@@ -1,7 +1,7 @@
 From: NATIONAL LOTTERY BOARD <infonotice1@bellsouth.net>
 Subject: REF No: UKNL-L/200-26937
-Date: Fri, 13 Apr 2007 18:44:32 -0400
-Message-ID: <20070413224432.UQTM8957.ibm58aec.bellsouth.net@mail.bellsouth.net>
+Date: Fri, 13 Apr 2007 18:44:30 -0400
+Message-ID: <20070413224431.UQSY8957.ibm58aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable

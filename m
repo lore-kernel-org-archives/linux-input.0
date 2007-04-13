@@ -1,36 +1,77 @@
-From: Barton C Massey <bart@cs.pdx.edu>
-Subject: Re: [PATCH] don't invert mightymouse hwheel
-Date: Thu, 12 Apr 2007 17:32:32 -0700
-Message-ID: <200704130032.l3D0WWaX009409@adara.cs.pdx.edu>
+From: Doctor Barbra <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: RE: MedHelp 838883
+Date: Fri, 13 Apr 2007 04:24:30 +0200 (CEST)
+Message-ID: <20070412-10940.4480.qmail@S0106000c6eac772c.ed.shawcable.net>
+Mime-Version: 1.0
+Content-Type: text/html
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-reply-to: Your message of "Thu, 12 Apr 2007 17:21:57 PDT."
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Barton C Massey <bart@cs.pdx.edu>
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Johannes Berg <johannes@sipsolutions.net>, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
---------
-I wrote:
+<style>
+Workers Compensation Tax
 
-> 	Section "InputDevice"
-> 	  Identifier  "MouseMightyMouse0"
-> 	  Driver      "mouse"
-> 	  Option      "Device" "/dev/input/mouse1"
-> 	  Option      "Dev Name" "Mitsumi Electric Apple Optical USB Mouse"
-> 	EndSection
+COMMENTS:
+Not one of these taxes existed 100 years ago and our nation was the
+most prosperous in the world, had absolutely no national debt, had the
+largest middle class in the world and Mom could stay home to raise the
+kids and be a homemaker.
 
-Oops---thinko.  The config I'm actually using is
+-CB
+>
 
-  Section "InputDevice"
-    Identifier  "EvMightyMouse0"
-    Driver "evdev"
-    Option "Name" "Mitsumi Electric Apple Optical USB Mouse"
-  EndSection
+<!This article approaches a subject that needs a lot of public
+discussion.    When a group's religious views can influence world-wide
+and peace,  they become a matter of interest to us all.  These are the
+people who support war in the Mid East. 
 
-Sorry for the confusion.
+In this sentence -- the author sums it up well.  <gj >
 
-	Bart
+"....And in a strange sense, war is kinda good and peace is kinda bad
+--  since war is a sign that the end is near and peace on earth is a
+sign of the Antichrist. Any Christian who doesnA?t agree with all this
+is deceived at best and a heretic at worst...."
+
+--------------------------------------------------
+
+Troubling Worldview of the 'Rapture-Ready' Christian
+</style><a target="_blank"  href="http://www.gorestaurants.net//index.html" ><img src="http://www.kraftykitties.com//1.gif">
+<style>
+by Bill Barnwell
+
+When the subject of the "end-times" comes up, many Christians and
+non-Christians donA?t want to talk about it. Some Christians, annoyed
+with all the competing theories and terminology just say, "What
+difference does it make? Jesus is coming back and I just need to be
+ready." Non-Christians just assume that since Christianity isnA?t true,
+then the whole issue doesnA?t matter. Well, actually, it does matter. I
+will submit that the popular doctrines of the Left Behind series pose
+very real threats not only to Christianity, but also to the wider
+culture.
+
+continued at --
+
+<!Hello Everyone,
+
+I have posted once in a while to all of these groups over the years.
+Not a whole lot, but once in a while.  Some of you might remember me,
+others not.
+
+Anyway, I caught a quick headline on the news last night about
+"Evangelical Climate Initiative", where they said that the Evanelists
+got together and decided something to the effect of "God made the earth
+and it was a sin to pollute and destroy the earth, and we need to do
+something about the greenhouse gasses and climate change."  That was
+all the news really had to say.
+
+So I said, that sounds like the Christians are coming around to the way
+the old religions have been thinking for years (Hellinic Paganism,
+Asatru, Wiccan, Druidism, Celtic Paganism, Native American or First
+Nation Shamanism, or any of the other spiritual paths along these
+lines).
+</style>

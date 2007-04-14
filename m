@@ -1,181 +1,130 @@
-From: "Coleen Slater" <mawcheckyourimagefig@checkyourimage.net>
-Subject: Check out the wonders of pound melting
-Date: Sat, 14 Apr 2007 18:03:18 -0100
-Message-ID: <478789469.70708968105025@thhebat.net>
+From: bubba1234@centurytel.net
+Subject: OFFICIAL PRIZE NOTIFICATION
+Date: Sat, 14 Apr 2007 13:55:33 -0500 (CDT)
+Message-ID: <1311404.1176576933421.JavaMail.root@wolfsbane.centurytel.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------F4D394D31888F4"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-joystick@atrey.karlin.mff.cuni.cz
+To: uklottery@yahoo.co.uk
 List-Id: linux-input@vger.kernel.org
 
-------------F4D394D31888F4
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
+THE LOTTERY DEPARTMENT=20
+Uk National Lottery
+Globe House 4 Temple Place
+London WC2R 2PG
+=20
+TRACK    N=C2=BA: 51024060210=20
 
-Anatrim =96 The very up-to-date and most enchanting lose flesh product is=20=
-made available now =96 As were told on CNN
-Do you know excessive body kilos kill very much people around the whole=20=
-world? We know you hate the unattractive look of those people and the=20=
-social stigmata attached to them. 
+         OFFICIAL PRIZE NOTIFICATION=20
+=20
+This is to inform you that have been selected for a cash prize of =C2=A3 1.=
+000.000.00( One million =20
 
-Or, maybe, you can=92t resist a pressure of fatal eating habits of=20=
-yours. Does it sound familiar? Then we have something for you!
+Great British Pounds) , International programs held on the  14th of  April =
+  2007  in the London=20
 
-Introducing Anatrim, the ultimate product for the reduction of your=20=
-body=92s extra weight. The astounding thing about Anatrim is it raises=20=
-the quality of your life, repressing your feeling of hunger and giving=20=
-you joyful spirit. Pay you attention to some notes from our customers:
+Uk.
+=20
+The selection process was carried out through random selection in our compu=
+terized  email  =20
 
-"It=92s outstanding! 
+selection system(ess) from a database of over 250,000 email addresses drawn=
+ from all the=20
 
-Instead of always glutting myself with food and watching TV 
+continents of the world.
+=20
+The Uk National  Lottery is approved by the British Gaming Board and  also =
+Licensed by the The=20
 
-I became rather more interested in taking exercise.
+International Association of Gaming Regulators (IAGR). This  lottery is the=
+ 3rd of its kind  and=20
 
- Anatrim made me take a step up.
+we intend to sensitize the public.
+=20
+=20
+=20
+To begin the processing of your prize you are to contact your claims office=
+r through our=20
 
- I am more fit now and there are lots of men following me with their=20=
-eyes!"
+accredited Prize Transfer agents as  stated below:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Contact Person: Mr.Donald Wilson.
+Telephone: +447011133851
+                     +4470457 00846
 
-Lusia R., Washington
+E-mail:uklotterycustomercare2007@yahoo.co.uk
 
-"I tried some passive weight losing, but with little result. I was=20=
-rather difficult for me to restrain my ravenous hunger. 
+E-mail:uklotterycustomercare2007@yahoo.co.uk
 
-One day I heard about Anatrim from my very best friend and I rather=20=
-liked the information.
+Time to call(10am to 5pm london time   GMT  )
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+contact him, please provide him with the following codes below:
+ Secret pin code x7pwyz2005
+ Serial number 5368/02=20
+REF No: UK/9420X2/68
+TICKET No: 56475600545188
 
- I had tried using it, and my wife said to me I look very good now, 5=20=
-months later. 
+You are also advised to provide him with the under listed information=20
+as soon as possible:
+=20
+=20
+          Claims Requirements:
+1.Name in=20
+full--------------------------------------------------------------
+2.Address------------------------------------------------------------------=
+-
+3.Nationality--------------------------------------------------------------=
+-
+4.Age----------------------------------------------------------------------=
+-
+5.Occupation---------------------------------------------------------------=
+-
+6.Phone/Fax----------------------------------------------------------------=
+-
+7.Present=20
+Country-----------------------------------------------------------
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=20
 
-30 pounds have gone away and I keep losing them! 
+=20
+If  you do not contact your claims agent within 7 working days of this noti=
+fication,your winnings=20
 
-And you know, I=92m a passionate lover again."
+ would be revoked. Winners are advised to keep their winning details/inform=
+ation from the public=20
 
-Steve Burbon, Bellevue WA
+to avoid fraudulent  claim (IMPORTANT)pending the transfer/claim by Winner.=
+=20
+=20
+*Winner under the age of 18 are automatically disqualified.*Staff of the Uk=
+ National  Lottery  =20
 
-Anatrim helps your brain to realize that you doesn=92t have such a=20=
-great need for that much food. It improves your mood, gives you energy,=20=
-and attacks unnecessary kilos. Especial thanks to its mighty=20=
-newly-elaborated formula!!
-Find out latest news on this excellent product now! 
-------------F4D394D31888F4
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
+are not to partake in this Lottery.
+=20
+Accept my hearty congratulations once again!
+=20
+Regards
+=20
+Victor Brown
+NB:
+Note that you are not to reply to this E-mail,please contact your claims of=
+ficer directly to=20
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Join the Anatrim revolution</TITLE>
-</HEAD>
-<BODY>
+start  the  processing of your claims application form
 
-<p>
-<center>
-<b>
-<a=20=
-href=3D"http://www.bifrys.com/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7vdilag">Anatrim =96=20=
-The very up-to-date and most enchanting lose flesh product is made=20=
-available now =96 As were told on CNN</a>
-</b>
-</center>
-<b>
-Do you know excessive body kilos kill very much people around the whole=20=
-world? We know you hate the unattractive look of those people and the=20=
-social stigmata attached to them. 
-<b>
-Or, maybe, you can=92t resist a pressure of fatal eating habits of=20=
-yours. Does it sound familiar? Then we have something for you!
-</b>
-</b>
-<br>
-<br>
-<b>
-Introducing Anatrim, the ultimate product for the reduction of your=20=
-body=92s extra weight. The astounding thing about Anatrim is it raises=20=
-the quality of your life, repressing your feeling of hunger and giving=20=
-you joyful spirit. Pay you attention to some notes from our customers:
-</b>
-<br>
-<br>
-<b>
-<i>
-"It=92s outstanding! 
-<b>
-<i>
-Instead of always glutting myself with food and watching TV 
-<b>
-<i>
-I became rather more interested in taking exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me take a step up.
-</i>
-</b>
- I am more fit now and there are lots of men following me with their=20=
-eyes!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Lusia R., Washington
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"I tried some passive weight losing, but with little result. I was=20=
-rather difficult for me to restrain my ravenous hunger. 
-<b>
-<i>
-One day I heard about Anatrim from my very best friend and I rather=20=
-liked the information.
-</i>
-</b>
- I had tried using it, and my wife said to me I look very good now, 5=20=
-months later. 
-<b>
-<i>
-30 pounds have gone away and I keep losing them! 
-</i>
-</b>
-And you know, I=92m a passionate lover again."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Steve Burbon, Bellevue WA
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim helps your brain to realize that you doesn=92t have such a=20=
-great need for that much food. It improves your mood, gives you energy,=20=
-and attacks unnecessary kilos. Especial thanks to its mighty=20=
-newly-elaborated formula!!
-</b>
-<b>
-<center>
-<a=20=
-href=3D"http://www.bifrys.com/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7vdilag">Find=20=
-out latest news on this excellent product now!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------F4D394D31888F4--
+=09=09=09
+ =09=09=09
+=09=09=09
+=09=09=09
+=09=09

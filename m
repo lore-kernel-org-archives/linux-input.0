@@ -1,50 +1,74 @@
-From: NATIONAL LOTTERY BOARD <infonotice1@bellsouth.net>
-Subject: REF No: UKNL-L/200-26937
-Date: Fri, 13 Apr 2007 18:44:30 -0400
-Message-ID: <20070413224431.UQSY8957.ibm58aec.bellsouth.net@mail.bellsouth.net>
+From: =?gb2312?B?cG1vMQ==?= <rtbcm4wpfsne@yahoo.co.jp>
+Subject: =?iso-2022-jp?B?GyRCTCQ+NUJ6OS05cCIoNDBBNEw1TkEkRzojRnwkYj1VTXYlXiVzGyhC?=
+Date: Sat, 14 Apr 2007 04:49:59 +0200 (CEST)
+Message-ID: <20070414024959.6BEC85496@artax.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset="iso-2022-jp";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: info@uklottery.co.uk
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-THE LOTTERY DEPARTMENT UK.=20
-22 Garden Close,PE9 2YP, London
+┌──────────────────────────────┐
+<送信者>
+LwhkjuTic97c@gmail.com
 
-Dear Winner
+配信停止連絡アドレス： LwhkjuTic97c@gmail.com
 
-This is to inform you that you have been selected for a cash prize of  =A3=
-1,000,000.00 (British Pounds)  held on the 8th of March 2007 in London Uk=
-.The selection process was carried out through random selection in our co=
-mputerized email selection system(ess) from a database of over 250,000 em=
-ail addresses drawn from which you were selected.
+※必ずお読みください。
+本メールマガジンは、主にYahoo!メールアドレス宛にご案内を行ってい
+ます。配信停止のご連絡をいただく際は、Yahoo!メールアドレスを差出
+人としてメールをご返信下さい。そうでない場合、停止処理が正しく行
+えませんのでご注意下さい。
+└──────────────────────────────┘
 
-REF No: UKNL-L/200-26937=20
 
-The BRITISH UK. Lottery is approved by the British Gaming Board.To begin =
-the processing of your prize you are to contact our fiduaciary claims dep=
-artment for more infomation as regards procedures to claim your prize.
-MR. Robert Gooch
-TELL:+447045700138
-Email: uk.claims0147@yahoo.co.uk=20
 
-Contact him by sending him with the underlisted informations=20
-1.Full Name:
-2.Full Address:
-3.Marital Status:
-4.Occupation:
-5.Age:
-6.Sex:
-7.Nationality:
-8.Country Of Residence:
-9.Telephone Number:
+〔今日の一句〕
 
-Congratulations once more from our members of staff and thank you for=20
-being part of our promotional program.=20
-=20
+春蘭マン
+
+あなたはマン開
+
+してますか？
+　　　　　　　　　　　　　　○。。
+━━━━━━━━━━━━━○※○━━━
+　　　　　　　　　　　　   ○○
+
+女性雑誌に多数取り上げられている
+
+超話題のあのサイトが
+
+いよいよ本格的に
+
+男性会員を募集しはじめました！
+http://black-6969.org.uk/pc/?ps4in1
+※会えるかどうかの検証済み
+
+このメールを読んでくれたアナタに真っ先にお知らせです
+
+完全無料で素人だらけ！
+
+フリメで登録も出来るから安心！
+
+となりのあの娘も
+
+近所の人妻も
+
+み〜んな気軽に登録してるよ！
+
+ちなみに僕も会えました（笑）
+
+http://black-6969.org.uk/pc/?ps4in1
+※会えるかどうかの検証済み
+
+春もここからが本番！！
+
+アナタもマン開して下さい！！

@@ -1,130 +1,109 @@
-From: bubba1234@centurytel.net
-Subject: OFFICIAL PRIZE NOTIFICATION
-Date: Sat, 14 Apr 2007 13:55:33 -0500 (CDT)
-Message-ID: <1311404.1176576933421.JavaMail.root@wolfsbane.centurytel.net>
+From: winnings115@aol.co.uk
+Subject: CONTACT YOUR PAYMENT AGENT
+Date: Sat, 14 Apr 2007 15:36:47 -0400
+Message-ID: <8C94CE36037302F-1318-5ABC@webmail-df01.sysops.aol.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+ boundary="--------MB_8C94CE36037302F_1318_A0F4_webmail-df01.sysops.aol.com"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: uklottery@yahoo.co.uk
 List-Id: linux-input@vger.kernel.org
 
-THE LOTTERY DEPARTMENT=20
-Uk National Lottery
-Globe House 4 Temple Place
-London WC2R 2PG
-=20
-TRACK    N=C2=BA: 51024060210=20
 
-         OFFICIAL PRIZE NOTIFICATION=20
-=20
-This is to inform you that have been selected for a cash prize of =C2=A3 1.=
-000.000.00( One million =20
+----------MB_8C94CE36037302F_1318_A0F4_webmail-df01.sysops.aol.com
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 
-Great British Pounds) , International programs held on the  14th of  April =
-  2007  in the London=20
+CONTACT YOUR PAYMENT AGENT 
+NOTICE... CONGRATULATIONS!!!
+Lucky Winner  2007 ,
+FROM THE OFFICE OF THE VICE PRESIDENT 
+POWERBALL EURO E-MAIL INTERNATIONAL
+PROMOTIONS/PRIZE AWARD DEPT 
+BATCH NO: PBL/67189098011/245679/1109
+REF. NO: PBL/11278998789/908796//1109
+ 
+Dear Winner, 
+ 
+This is to inform you of the release of the E-MAIL LOTTERY BALLOT 
+INTERNATIONAL/WORLD GAMING BOARD. Your name attached to ticket number 
+219028657434 with Serial number 918735625 drew the lucky numbers of 
+21-70-81-82-99, which consequently won the lottery in the 1st 
+category. 
+You have just won yourself the sum of  ONE MILLION EUROS the satellite 
+software email lottery conducted by POWERBALL EURO E-MAIL INTERNATIONAL 
+In which e-mail addresses are picked randomly by software powered by the Internet.
+ Your email address was amongst those chosen in this quarter 
+and you are to contact our CLAIMS OFFICER with the information
+below for Clearance. 
+ 
+CONTACT NAME: PETER RAYMUND
+CITY/ COUNTRY: LONDON, ENGLAND. 
+TELEPHONE: + 4470 1112 1986
+FAX: 44-87-1715-2472
+EMAIL: officer_powerball25@yahoo.gr 
+ 
+Sincerely,
+Margaret Ferguson
+________________________________________________________________________
+Check out the new free AOL Email -- 2GB of storage and industry-leading spam and email virus protection.
 
-Uk.
-=20
-The selection process was carried out through random selection in our compu=
-terized  email  =20
+----------MB_8C94CE36037302F_1318_A0F4_webmail-df01.sysops.aol.com
+Content-Transfer-Encoding: 7bit
+Content-Type: text/html; charset="us-ascii"
 
-selection system(ess) from a database of over 250,000 email addresses drawn=
- from all the=20
+<HTML><BODY>
+<div><SPAN contentEditable=false style="DISPLAY: inline-block"></SPAN>CONTACT YOUR PAYMENT AGENT </div>
 
-continents of the world.
-=20
-The Uk National  Lottery is approved by the British Gaming Board and  also =
-Licensed by the The=20
 
-International Association of Gaming Regulators (IAGR). This  lottery is the=
- 3rd of its kind  and=20
+<div>NOTICE... CONGRATULATIONS!!!</div>
 
-we intend to sensitize the public.
-=20
-=20
-=20
-To begin the processing of your prize you are to contact your claims office=
-r through our=20
 
-accredited Prize Transfer agents as  stated below:
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-Contact Person: Mr.Donald Wilson.
-Telephone: +447011133851
-                     +4470457 00846
+<div>Lucky Winner&nbsp; 2007 ,</div>
 
-E-mail:uklotterycustomercare2007@yahoo.co.uk
 
-E-mail:uklotterycustomercare2007@yahoo.co.uk
+<div>FROM THE OFFICE OF THE VICE PRESIDENT <br>
+POWERBALL EURO E-MAIL INTERNATIONAL<br>
+PROMOTIONS/PRIZE AWARD DEPT </div>
 
-Time to call(10am to 5pm london time   GMT  )
- =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-contact him, please provide him with the following codes below:
- Secret pin code x7pwyz2005
- Serial number 5368/02=20
-REF No: UK/9420X2/68
-TICKET No: 56475600545188
 
-You are also advised to provide him with the under listed information=20
-as soon as possible:
-=20
-=20
-          Claims Requirements:
-1.Name in=20
-full--------------------------------------------------------------
-2.Address------------------------------------------------------------------=
--
-3.Nationality--------------------------------------------------------------=
--
-4.Age----------------------------------------------------------------------=
--
-5.Occupation---------------------------------------------------------------=
--
-6.Phone/Fax----------------------------------------------------------------=
--
-7.Present=20
-Country-----------------------------------------------------------
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=20
+<div>BATCH NO: PBL/67189098011/245679/1109<br>
+REF. NO: PBL/11278998789/908796//1109<br>
+&nbsp;<br>
+Dear Winner, <br>
+&nbsp;<br>
+This is to inform you of the release of the E-MAIL LOTTERY BALLOT <br>
+INTERNATIONAL/WORLD GAMING BOARD. Your name attached to ticket number <br>
+219028657434 with Serial number 918735625 drew the lucky numbers of <br>
+21-70-81-82-99, which consequently won the lottery in the 1st <br>
+category. </div>
 
-=20
-If  you do not contact your claims agent within 7 working days of this noti=
-fication,your winnings=20
 
- would be revoked. Winners are advised to keep their winning details/inform=
-ation from the public=20
+<div>You have just won yourself the sum of&nbsp; ONE MILLION EUROS the satellite <br>
+software email lottery conducted by POWERBALL EURO E-MAIL INTERNATIONAL <br>
+In which e-mail addresses are picked randomly by software powered by the Internet.<br>
+&nbsp;Your email address was amongst those chosen in this quarter <br>
+and you are to contact our CLAIMS OFFICER with the information<br>
+below for Clearance. <br>
+&nbsp;<br>
+CONTACT NAME: PETER RAYMUND<br>
+CITY/ COUNTRY: LONDON, ENGLAND. <br>
+TELEPHONE: + 4470 1112 1986<br>
+FAX: 44-87-1715-2472<br>
+EMAIL: <A href="mailto:officer_powerball25@yahoo.gr">officer_powerball25@yahoo.gr</A> <br>
+&nbsp;<br>
+Sincerely,<br>
+Margaret Ferguson</div>
 
-to avoid fraudulent  claim (IMPORTANT)pending the transfer/claim by Winner.=
-=20
-=20
-*Winner under the age of 18 are automatically disqualified.*Staff of the Uk=
- National  Lottery  =20
+<div class="AOLPromoFooter">
+<hr style="margin-top:10px;" />
+<a href="http://pr.atwola.com/promoclk/100122638x1081283466x1074645346/aol?redir=http://email.aol.co.uk" target="_blank"><b>Check out the new free AOL Email</b></a> -- 2GB of storage and industry-leading spam and email virus protection.<br />
+</div>
 
-are not to partake in this Lottery.
-=20
-Accept my hearty congratulations once again!
-=20
-Regards
-=20
-Victor Brown
-NB:
-Note that you are not to reply to this E-mail,please contact your claims of=
-ficer directly to=20
+</BODY></HTML>
 
-start  the  processing of your claims application form
-
-=09=09=09
- =09=09=09
-=09=09=09
-=09=09=09
-=09=09
+----------MB_8C94CE36037302F_1318_A0F4_webmail-df01.sysops.aol.com--

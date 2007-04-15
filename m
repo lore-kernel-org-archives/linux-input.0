@@ -1,10 +1,10 @@
-From: "Trent Kenney" <dwbetem@bete.com>
-Subject: University Degree – your boss will beg you to take the promotion.
-Date: Sun, 15 Apr 2007 19:07:17 +0300
-Message-ID: <01c77f91$492e8740$6c822ecf@dwbetem>
+From: "liang McNama" <liang882@areskomis.pl>
+Subject: Stock promotion company needs new partners in Germany
+Date: Sun, 15 Apr 2007 14:06:11 -0600
+Message-ID: <47E0A736.729401AE@areskomis.pl>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C77F6F.C21CE740"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,66 +14,21 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+components Messenger MSN
 
-------=_NextPart_000_0006_01C77F6F.C21CE740
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: 7bit
+Stock promotion group is in search of new partners in Germany
+Busines proposal for stock owners
 
-A Genuine University Degree in 4-6 weeks.Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them.Within 4-6 weeks.No Study Required.100% Verifiable.These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysSun, 15 Apr 2007 19:07:17 +0300So you were a knave at his.
+Hello stock owner,
+We are a stock promotion company and we can promote any kind of stocks. We have been working on US market for 3 years. But now is is getting harder and harder to work on US market. We are in search of serious partners in Europe with whom we can make business together.That proposal is for you if you own a company and you want to promote it. We promote stocks by mass email advertising.
 
+Stock owner
 
-------=_NextPart_000_0006_01C77F6F.C21CE740
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+We can increase the price of your stock and we can increase average day trading volume. We can increase price up to 200-250% in 2-3 weeks and also we can increase volume by 10 times each trading day. You can sell almost any ammounts of shares. You don't have to pay anything in advance. First we increase the price and the volume, then you pay.
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+Payment: Our price for that is 10% from the daily volume. We count it by the following formula: last price * daily volume.
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html><head>
-<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
-<style type=3D"text/css"><!--
-new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
- center;}
-new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
- center; font-style: italic;}
-new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
- center; font-weight: bold;}
-new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
-enter;}
+If you are interested in our proposal please write me back to the following email:
+stockadvertiser1@yahoo.com
 
---></style></head>
-<body bgcolor=3D"#FFFFFF">
-<div class=3D"new22">A Genuine University Degree in 4-6 weeks.</div><br>
-<div class=3D"new12">Have you ever thought that the only thing stopping you=
- from a great job and better pay was a few letters behind you name? <br>Wel=
-l now you can get them.</div><br>
-<div class=3D"new14">Within 4-6 weeks.<br>No Study Required.<br>100% Verifi=
-able.</div><br>
-<div class=3D"new12">These are real, genuine degrees that include Bachelors=
-, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
-ed transcripts are also available.</div><br>
-<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
-=85</div><br>
-<div class=3D"new20">1-682-626-0008</div>
-<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
-lidays</div><br><br>
-<div class=3D"new6">Sun, 15 Apr 2007 19:07:17 +0300So you were a knave at h=
-is.</div>
-</body>
-</html>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C77F6F.C21CE740--
+pictures slides bundled separate Edition

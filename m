@@ -1,189 +1,151 @@
-From: "Jerry Gallegos" <pofchoquettyd@choquet.org>
-Subject: Getting thinner can be enjoyable
-Date: Sun, 15 Apr 2007 09:14:06 -0100
-Message-ID: <504467519.33044029662934@thhebat.net>
+From: "Tommy Gallo" <pofchoicehomehotlinetyd@choicehomehotline.com>
+Subject: Melt away fat easily
+Date: Sun, 15 Apr 2007 11:02:10 -0100
+Message-ID: <596525444.28082148542627@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------0C597B8297B8059"
+  boundary="----------5A8DAF053486ED3"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------0C597B8297B8059
-Content-Type: text/plain; charset=us-ascii
+------------5A8DAF053486ED3
+Content-Type: text/plain; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
 
 
+Anatrim – The very up-to-date and most exciting product for weighty people available – As told on ABC
+Did you see superfluous body kilograms kill more and more people every year? We know you hate the unattractive look of people like those and the low status they have in society. 
 
-Anatrim – The newest and most exciting lose flesh product is now available – As were seen on CNN.
+Moreover, you can not resist a siege of your ruinous eating habits. Does it sound familiar? Then we have something for you!
 
-Can you retain all the cases when you asked yourself to do any thing for being rescued from this fastly growing number of kilos? Happily, now no great price is to be paid. Thanks to Anatrim, the earth-shaking pound-melting combination of elements, you can achieve healthier lifestyle and a really slender figure. Take a look at what our customers state!
+Introducing Anatrim, the new product for the elimination of your body’s extra weight. The astonishing thing about Anatrim is it improves the quality of your life by making you crave food less and giving you better spirit. Read what people write about this product:
 
-"I hate to confess but I was an awful food addict. 
+"This is a great thing! 
 
-I swallowed up all this rubbish 
+Instead of watching TV continually and gorging everything close at hand 
 
-and could not stop. 
+I became keen on doing exercise.
 
-This suffering finished when I started course of taking Anatrim! 
+ Anatrim placed me back on the right path.
 
-Oh, God,
+ I’m in a great form now and lots of men cast their covert glances at me!"
 
- my inclination to eat constantly abated, 
+Amelia B., Chicago
 
-mood increased and I turned to the happiest person on the planet 23 pounds in 2.4 months. 
+"I tried some passive weight losing, you know, but with little result. I was rather difficult for me to hold in my ravenous hunger. 
 
-I can tell you now I became the happiest person in the world!"
- 
+One day I was told about Anatrim my very best friend by and I was really effected by the information.
 
-Silvia D., Boston
+ I had attempted taking it, and my wife said to me I’m not more a weighty man now, 3 months later. 
 
- 
-"I had weight problems since I was a boy. 
+28 pounds off and it is still far to an end! 
 
-It’s pretty hard to imagine how I abhorred being ridiculed at school. 
+And you know, the bedroom thing is cool, too."
 
-I abhorred my stoutness and I detested myself. 
+Mike Brown, New York
 
-After trying this and that I heard about Anatrim. 
+Anatrim helps you to understand you doesn’t have such a great need for the constant eating. It raises your spirit, supplies you with energy, and attacks useless kilos. All thanks to its mighty comprehensive formula!!
+Elicit more useful information! 
 
-This stuff literally took me out of this dreadful nightmare! Lots of thanks to you, guys."
-
- 
-Dave Klark, New York
-
- 
-"You know what? My marriage was saved thanks to Anatrim! I got into the circle, depression – eating more – more depression. My wife was about to leave me as I was turning in overweight psycho. 
-
-Once my friend showed me web page and I called for my pack of Anatrim right off. 
-
-The final result was magnficent, my appetite came to admissible level, I was often in good spirits, and, certainly, I became able to tighten my belt on some holes. And you see, the bed became cool, too!"
-
- 
-Joe
-
- There is a great number of gratitudes happy people leave after taking Anatrim. Why don't you add yourself to the thousands and thousands of slim customers and try this original appetite decreasing energy lifting product now!
-
-Don’t decline your opportunity!
-
-
-------------0C597B8297B8059
-Content-Type: text/html; charset=us-ascii
+------------5A8DAF053486ED3
+Content-Type: text/html; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Control your weight and appetite</TITLE>
+<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
 </HEAD>
 <BODY>
 
 <p>
 <center>
 <b>
-<a href="http://www.povica.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7cghnpx">
-Anatrim – The newest and most exciting lose flesh product is now available – As were seen on CNN.
-</a>
+<a href="http://www.dorax.hk/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7biyzfj">Anatrim – The very up-to-date and most exciting product for weighty people available – As told on ABC</a>
+</b>
 </center>
-Can you retain all the cases when you asked yourself to do any thing for being rescued from this fastly growing number of kilos? Happily, now no great price is to be paid. Thanks to Anatrim, the earth-shaking pound-melting combination of elements, you can achieve healthier lifestyle and a really slender figure. Take a look at what our customers state!
+<b>
+Did you see superfluous body kilograms kill more and more people every year? We know you hate the unattractive look of people like those and the low status they have in society. 
+<b>
+Moreover, you can not resist a siege of your ruinous eating habits. Does it sound familiar? Then we have something for you!
+</b>
+</b>
 <br>
 <br>
-<i>
-"I hate to confess but I was an awful food addict. 
 <b>
-<i>
-I swallowed up all this rubbish 
-<b>
-<i>
-and could not stop. 
-</i>
+Introducing Anatrim, the new product for the elimination of your body’s extra weight. The astonishing thing about Anatrim is it improves the quality of your life by making you crave food less and giving you better spirit. Read what people write about this product:
 </b>
-</i>
-</b>
-This suffering finished when I started course of taking Anatrim! 
-<b>
-<i>
-Oh, God,
-</i>
-</b>
-<b>
-<i>
- my inclination to eat constantly abated, 
-<b>
-<i>
-mood increased and I turned to the happiest person on the planet 23 pounds in 2.4 months. 
-</i>
-</b>
-</i>
-</b>
-I can tell you now I became the happiest person in the world!"
-</i> 
 <br>
 <br>
 <b>
 <i>
-Silvia D., Boston
+"This is a great thing! 
+<b>
+<i>
+Instead of watching TV continually and gorging everything close at hand 
+<b>
+<i>
+I became keen on doing exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim placed me back on the right path.
+</i>
+</b>
+ I’m in a great form now and lots of men cast their covert glances at me!"
 </i>
 </b>
 <br>
-<br>
- <i>
-"I had weight problems since I was a boy. 
-<b>
-<i>
-It’s pretty hard to imagine how I abhorred being ridiculed at school. 
-</i>
-</b>
-<b>
-<i>
-I abhorred my stoutness and I detested myself. 
-<b>
-<i>
-After trying this and that I heard about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-This stuff literally took me out of this dreadful nightmare! Lots of thanks to you, guys."
-</i>
- <br>
 <br>
 <b>
 <i>
-Dave Klark, New York
+Amelia B., Chicago
 </i>
 </b>
 <br>
-<br>
- <i>
-"You know what? My marriage was saved thanks to Anatrim! I got into the circle, depression – eating more – more depression. My wife was about to leave me as I was turning in overweight psycho. 
-<b>
-<i>
-Once my friend showed me web page and I called for my pack of Anatrim right off. 
-</i>
-</b>
-The final result was magnficent, my appetite came to admissible level, I was often in good spirits, and, certainly, I became able to tighten my belt on some holes. And you see, the bed became cool, too!"
-</i>
- <br>
 <br>
 <b>
 <i>
-Joe
+"I tried some passive weight losing, you know, but with little result. I was rather difficult for me to hold in my ravenous hunger. 
+<b>
+<i>
+One day I was told about Anatrim my very best friend by and I was really effected by the information.
+</i>
+</b>
+ I had attempted taking it, and my wife said to me I’m not more a weighty man now, 3 months later. 
+<b>
+<i>
+28 pounds off and it is still far to an end! 
+</i>
+</b>
+And you know, the bedroom thing is cool, too."
 </i>
 </b>
 <br>
 <br>
- There is a great number of gratitudes happy people leave after taking Anatrim. Why don't you add yourself to the thousands and thousands of slim customers and try this original appetite decreasing energy lifting product now!
+<b>
+<i>
+Mike Brown, New York
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps you to understand you doesn’t have such a great need for the constant eating. It raises your spirit, supplies you with energy, and attacks useless kilos. All thanks to its mighty comprehensive formula!!
+</b>
+<b>
 <center>
-<a href="http://www.povica.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7cghnpx">
-Don’t decline your opportunity!
-</a>
+<a href="http://www.dorax.hk/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7biyzfj">Elicit more useful information!</a>
 </center>
 </b>
-</p>
+</p> 
 
 </BODY></HTML>
-------------0C597B8297B8059--
+------------5A8DAF053486ED3--

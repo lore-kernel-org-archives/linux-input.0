@@ -1,151 +1,77 @@
-From: "Tommy Gallo" <pofchoicehomehotlinetyd@choicehomehotline.com>
-Subject: Melt away fat easily
-Date: Sun, 15 Apr 2007 11:02:10 -0100
-Message-ID: <596525444.28082148542627@thhebat.net>
+From: Canadian Doctor Rosanna <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: RE: MedHelp 1814461
+Date: Sun, 15 Apr 2007 14:16:32 +0200 (CEST)
+Message-ID: <20070414031608.16078.qmail@gabriel>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------5A8DAF053486ED3"
+Content-Type: text/html
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-joystick@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------5A8DAF053486ED3
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+<style>
+Workers Compensation Tax
 
+COMMENTS:
+Not one of these taxes existed 100 years ago and our nation was the
+most prosperous in the world, had absolutely no national debt, had the
+largest middle class in the world and Mom could stay home to raise the
+kids and be a homemaker.
 
-Anatrim – The very up-to-date and most exciting product for weighty people available – As told on ABC
-Did you see superfluous body kilograms kill more and more people every year? We know you hate the unattractive look of people like those and the low status they have in society. 
+-CB
+>
 
-Moreover, you can not resist a siege of your ruinous eating habits. Does it sound familiar? Then we have something for you!
+<!This article approaches a subject that needs a lot of public
+discussion.    When a group's religious views can influence world-wide
+and peace,  they become a matter of interest to us all.  These are the
+people who support war in the Mid East. 
 
-Introducing Anatrim, the new product for the elimination of your body’s extra weight. The astonishing thing about Anatrim is it improves the quality of your life by making you crave food less and giving you better spirit. Read what people write about this product:
+In this sentence -- the author sums it up well.  <gj >
 
-"This is a great thing! 
+"....And in a strange sense, war is kinda good and peace is kinda bad
+--  since war is a sign that the end is near and peace on earth is a
+sign of the Antichrist. Any Christian who doesnA?t agree with all this
+is deceived at best and a heretic at worst...."
 
-Instead of watching TV continually and gorging everything close at hand 
+--------------------------------------------------
 
-I became keen on doing exercise.
+Troubling Worldview of the 'Rapture-Ready' Christian
+</style><a target="_blank"  href="http://www.cyn-marbasement.com//index.html" ><img src="http://www.dynastyfilmsonline.com//1.gif">
+<style>
+by Bill Barnwell
 
- Anatrim placed me back on the right path.
+When the subject of the "end-times" comes up, many Christians and
+non-Christians donA?t want to talk about it. Some Christians, annoyed
+with all the competing theories and terminology just say, "What
+difference does it make? Jesus is coming back and I just need to be
+ready." Non-Christians just assume that since Christianity isnA?t true,
+then the whole issue doesnA?t matter. Well, actually, it does matter. I
+will submit that the popular doctrines of the Left Behind series pose
+very real threats not only to Christianity, but also to the wider
+culture.
 
- I’m in a great form now and lots of men cast their covert glances at me!"
+continued at --
 
-Amelia B., Chicago
+<!Hello Everyone,
 
-"I tried some passive weight losing, you know, but with little result. I was rather difficult for me to hold in my ravenous hunger. 
+I have posted once in a while to all of these groups over the years.
+Not a whole lot, but once in a while.  Some of you might remember me,
+others not.
 
-One day I was told about Anatrim my very best friend by and I was really effected by the information.
+Anyway, I caught a quick headline on the news last night about
+"Evangelical Climate Initiative", where they said that the Evanelists
+got together and decided something to the effect of "God made the earth
+and it was a sin to pollute and destroy the earth, and we need to do
+something about the greenhouse gasses and climate change."  That was
+all the news really had to say.
 
- I had attempted taking it, and my wife said to me I’m not more a weighty man now, 3 months later. 
-
-28 pounds off and it is still far to an end! 
-
-And you know, the bedroom thing is cool, too."
-
-Mike Brown, New York
-
-Anatrim helps you to understand you doesn’t have such a great need for the constant eating. It raises your spirit, supplies you with energy, and attacks useless kilos. All thanks to its mighty comprehensive formula!!
-Elicit more useful information! 
-
-------------5A8DAF053486ED3
-Content-Type: text/html; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href="http://www.dorax.hk/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7biyzfj">Anatrim – The very up-to-date and most exciting product for weighty people available – As told on ABC</a>
-</b>
-</center>
-<b>
-Did you see superfluous body kilograms kill more and more people every year? We know you hate the unattractive look of people like those and the low status they have in society. 
-<b>
-Moreover, you can not resist a siege of your ruinous eating habits. Does it sound familiar? Then we have something for you!
-</b>
-</b>
-<br>
-<br>
-<b>
-Introducing Anatrim, the new product for the elimination of your body’s extra weight. The astonishing thing about Anatrim is it improves the quality of your life by making you crave food less and giving you better spirit. Read what people write about this product:
-</b>
-<br>
-<br>
-<b>
-<i>
-"This is a great thing! 
-<b>
-<i>
-Instead of watching TV continually and gorging everything close at hand 
-<b>
-<i>
-I became keen on doing exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim placed me back on the right path.
-</i>
-</b>
- I’m in a great form now and lots of men cast their covert glances at me!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Amelia B., Chicago
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"I tried some passive weight losing, you know, but with little result. I was rather difficult for me to hold in my ravenous hunger. 
-<b>
-<i>
-One day I was told about Anatrim my very best friend by and I was really effected by the information.
-</i>
-</b>
- I had attempted taking it, and my wife said to me I’m not more a weighty man now, 3 months later. 
-<b>
-<i>
-28 pounds off and it is still far to an end! 
-</i>
-</b>
-And you know, the bedroom thing is cool, too."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Mike Brown, New York
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim helps you to understand you doesn’t have such a great need for the constant eating. It raises your spirit, supplies you with energy, and attacks useless kilos. All thanks to its mighty comprehensive formula!!
-</b>
-<b>
-<center>
-<a href="http://www.dorax.hk/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7biyzfj">Elicit more useful information!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------5A8DAF053486ED3--
+So I said, that sounds like the Christians are coming around to the way
+the old religions have been thinking for years (Hellinic Paganism,
+Asatru, Wiccan, Druidism, Celtic Paganism, Native American or First
+Nation Shamanism, or any of the other spiritual paths along these
+lines).
+</style>

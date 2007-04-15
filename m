@@ -1,9 +1,10 @@
-From: Canadian Doctor Rosanna <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: RE: MedHelp 1814461
-Date: Sun, 15 Apr 2007 14:16:32 +0200 (CEST)
-Message-ID: <20070414031608.16078.qmail@gabriel>
+From: "Trent Kenney" <dwbetem@bete.com>
+Subject: University Degree – your boss will beg you to take the promotion.
+Date: Sun, 15 Apr 2007 19:07:17 +0300
+Message-ID: <01c77f91$492e8740$6c822ecf@dwbetem>
 Mime-Version: 1.0
-Content-Type: text/html
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C77F6F.C21CE740"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -13,65 +14,66 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<style>
-Workers Compensation Tax
+This is a multi-part message in MIME format.
 
-COMMENTS:
-Not one of these taxes existed 100 years ago and our nation was the
-most prosperous in the world, had absolutely no national debt, had the
-largest middle class in the world and Mom could stay home to raise the
-kids and be a homemaker.
+------=_NextPart_000_0006_01C77F6F.C21CE740
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 
--CB
->
+A Genuine University Degree in 4-6 weeks.Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them.Within 4-6 weeks.No Study Required.100% Verifiable.These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysSun, 15 Apr 2007 19:07:17 +0300So you were a knave at his.
 
-<!This article approaches a subject that needs a lot of public
-discussion.    When a group's religious views can influence world-wide
-and peace,  they become a matter of interest to us all.  These are the
-people who support war in the Mid East. 
 
-In this sentence -- the author sums it up well.  <gj >
+------=_NextPart_000_0006_01C77F6F.C21CE740
+Content-Type: text/html;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-"....And in a strange sense, war is kinda good and peace is kinda bad
---  since war is a sign that the end is near and peace on earth is a
-sign of the Antichrist. Any Christian who doesnA?t agree with all this
-is deceived at best and a heretic at worst...."
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
---------------------------------------------------
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html><head>
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+<style type=3D"text/css"><!--
+new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
+ center;}
+new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-style: italic;}
+new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
+ center; font-weight: bold;}
+new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
+enter;}
 
-Troubling Worldview of the 'Rapture-Ready' Christian
-</style><a target="_blank"  href="http://www.cyn-marbasement.com//index.html" ><img src="http://www.dynastyfilmsonline.com//1.gif">
-<style>
-by Bill Barnwell
+--></style></head>
+<body bgcolor=3D"#FFFFFF">
+<div class=3D"new22">A Genuine University Degree in 4-6 weeks.</div><br>
+<div class=3D"new12">Have you ever thought that the only thing stopping you=
+ from a great job and better pay was a few letters behind you name? <br>Wel=
+l now you can get them.</div><br>
+<div class=3D"new14">Within 4-6 weeks.<br>No Study Required.<br>100% Verifi=
+able.</div><br>
+<div class=3D"new12">These are real, genuine degrees that include Bachelors=
+, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
+ed transcripts are also available.</div><br>
+<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
+=85</div><br>
+<div class=3D"new20">1-682-626-0008</div>
+<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
+lidays</div><br><br>
+<div class=3D"new6">Sun, 15 Apr 2007 19:07:17 +0300So you were a knave at h=
+is.</div>
+</body>
+</html>
+</body>
+</html>
 
-When the subject of the "end-times" comes up, many Christians and
-non-Christians donA?t want to talk about it. Some Christians, annoyed
-with all the competing theories and terminology just say, "What
-difference does it make? Jesus is coming back and I just need to be
-ready." Non-Christians just assume that since Christianity isnA?t true,
-then the whole issue doesnA?t matter. Well, actually, it does matter. I
-will submit that the popular doctrines of the Left Behind series pose
-very real threats not only to Christianity, but also to the wider
-culture.
-
-continued at --
-
-<!Hello Everyone,
-
-I have posted once in a while to all of these groups over the years.
-Not a whole lot, but once in a while.  Some of you might remember me,
-others not.
-
-Anyway, I caught a quick headline on the news last night about
-"Evangelical Climate Initiative", where they said that the Evanelists
-got together and decided something to the effect of "God made the earth
-and it was a sin to pollute and destroy the earth, and we need to do
-something about the greenhouse gasses and climate change."  That was
-all the news really had to say.
-
-So I said, that sounds like the Christians are coming around to the way
-the old religions have been thinking for years (Hellinic Paganism,
-Asatru, Wiccan, Druidism, Celtic Paganism, Native American or First
-Nation Shamanism, or any of the other spiritual paths along these
-lines).
-</style>
+------=_NextPart_000_0006_01C77F6F.C21CE740--

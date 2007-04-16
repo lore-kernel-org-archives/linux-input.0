@@ -1,89 +1,128 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH 2/6] usbhid: move all quirk handling code and data to
- usb-quirks.[ch]
-Date: Mon, 16 Apr 2007 11:14:29 +0200 (CEST)
-Message-ID: <alpine.LRH.0.98.0704161109170.24673@twin.jikos.cz>
-References: <Pine.LNX.4.64.0704111256240.28726@utopia.booyaka.com>
+From: "hzsoho hzsoho" <hzsoho2007@gmail.com>
+Subject: =?GB2312?B?ztKyu9Kq1NmOzYRlyMvZjeVYISE=?=
+Date: Mon, 16 Apr 2007 18:05:46 +0800
+Message-ID: <fb11682b0704160305w2bb71c52se2d425a95b3d30c7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="----=_Part_30154_19159579.1176717946501"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0704111256240.28726@utopia.booyaka.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Paul Walmsley <paul@booyaka.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 11 Apr 2007, Paul Walmsley wrote:
+------=_Part_30154_19159579.1176717946501
+Content-Type: text/plain; charset=GB2312; format=flowed
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-> @@ -1142,25 +715,14 @@ static struct hid_device *usb_hid_config
-> 	struct usb_device *dev = interface_to_usbdev (intf);
-> 	struct hid_descriptor *hdesc;
-> 	struct hid_device *hid;
-> -	__u32 quirks = 0;
-> +	u32 quirks = 0;
-> 	unsigned rsize = 0;
-> 	char *rdesc;
-> 	int n, len, insize = 0;
-> 	struct usbhid_device *usbhid;
->
-> -	/* Ignore all Wacom devices */
-> -	if (le16_to_cpu(dev->descriptor.idVendor) == USB_VENDOR_ID_WACOM)
-> -		return NULL;
-> -	/* ignore all Code Mercenaries IOWarrior devices */
-> -	if (le16_to_cpu(dev->descriptor.idVendor) == USB_VENDOR_ID_CODEMERCS)
-> -		if (le16_to_cpu(dev->descriptor.idProduct) >= 
-> USB_DEVICE_ID_CODEMERCS_IOW_FIRST &&
-> -		    le16_to_cpu(dev->descriptor.idProduct) <= 
-> USB_DEVICE_ID_CODEMERCS_IOW_LAST)
-> -			return NULL;
-> -
-> -	for (n = 0; hid_blacklist[n].idVendor; n++)
-> -		if ((hid_blacklist[n].idVendor == 
-> le16_to_cpu(dev->descriptor.idVendor)) &&
-> -			(hid_blacklist[n].idProduct == 
-> le16_to_cpu(dev->descriptor.idProduct)))
-> -				quirks = hid_blacklist[n].quirks;
-> +	quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
-> +				     le16_to_cpu(dev->descriptor.idProduct));
-[...]
-> +u32 usbhid_lookup_quirk(const u16 idVendor, const u16 idProduct)
-> +{
-> +	u32 quirks = 0;
-> +	int n = 0;
-> +
-> +	/* Ignore all Wacom devices */
-> +	if (idVendor == USB_VENDOR_ID_WACOM)
-> +		return 0;
-> +	/* ignore all Code Mercenaries IOWarrior devices */
-> +	if (idVendor == USB_VENDOR_ID_CODEMERCS)
-> +		if (idProduct >= USB_DEVICE_ID_CODEMERCS_IOW_FIRST &&
-> +		    idProduct <= USB_DEVICE_ID_CODEMERCS_IOW_LAST)
-> +			return 0;
-> +
-> +	for (; hid_blacklist[n].idVendor; n++)
-> +		if (hid_blacklist[n].idVendor == idVendor &&
-> +		    hid_blacklist[n].idProduct == idProduct)
-> +			quirks = hid_blacklist[n].quirks;
-> +
-> +	return quirks;
-> +}
+Ks7SsrvSqtTZjs2EZcjL2Y3lWCoKCgoKCsTjsdjtmp7p19S8utmN5VgsnumEZcjL2Y3lWMT608Df
+aCqfb7eo1sK4uyEKCgoqCgrE+sS/x7C1xLmk1/e3gLaohuEKP+6K0uIqvUvJ7Y/EysKG4SoqPyoK
+CjEuCsT60tGFkr7rxL/HsLmk1/ehosixydm1xNa709AquMTXg7XE08Ka4ioqISoKCgoKMi4gsrvQ
+0rXExPqjrNLR1NrfQLKosru+sJri1tAqCsqnyKW5pNf3KiohKgoKCjMuILTzxvOYSbXEKr9zvo6h
+otbY1fuhorLDhlShopxw0L0qKiEqCgo0LgoKCgq5q8u+vqu6hsjLwabWrs/Co6yCgMjLuaTX98G/
+1Pa806Osn2+/ybHcw+K1xCqzrJVyuaTX9yoqISoKCgoKCgo1LiC089DNxvOYSb/JzeKw/CqYSYTV
+tcTU9rzTKiohKgoKNi4KvbvNqJPtlESzzLbItcSQuruvo6wqgoDIy5Vy6Wexu4m6v3MqKiEqCgoK
+Ny4g2VnTjcnnlf67r6GigoDIy+uKxFijrM2o042jrN5ruavUT4LkKoNyuPG1xM/Cu6wqKiEqCgo4
+LgrOtIHtxvOYSZLxus+8c9bGoaKVctC91sahoptd09DNy9DdvfCjrCrE6rxv1L208yqTUbmk1/cq
+1L2bXdPQu0m0YSoqISoKCtPJ7LbS1MnPtcTUrdLyo6yCgMjLuaTX98rS0vKRqrb4yfqjrMfSysfS
+u7nJKp9vt6jX6JP1tcTKwLT6s7HB9yoKCgogz+CMprXExOPL+dTatcTG85hJ1ruV/tTauvXL+7XE
+tpDh4dOv8E4hsruV/tTauvXE47XEs6yVcrmk1/chuPyyu5X+1Nq69QrE47XEvNLNpcn6u+7Gt9l8
+IcTjyse38diTk/q1xMbw19PFrrXEjFfZTT+3v9fTtcTZSr/uP9Vs1Nq69cTjxNg/Pz8KztKyu9Kq
+1NmOzYRlyMvZjeVYwcsKCgoKICp3d3cuc29oby13ZmguY29tKiA8aHR0cDovL3d3dy5zb2hvLXdm
+aC5jb20vPgo=
+------=_Part_30154_19159579.1176717946501
+Content-Type: text/html; charset=GB2312
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-Hi Paul,
-
-actually, this seems wrong to me. In case of Wacom or IOWarrior devices, 
-we want the usb_hid_configure() to return immediately, without claiming 
-the device (and propagate -ENODEV through hid_probe()). That's what the 
-original code does, and that is correct.
-
-After you patch, the usb_hid_configure() proceeds both for Wacom and 
-IOWarrior devices, just leaving the quirks mask empty. But that's not what 
-it should do, right?
-
-Thanks,
-
--- 
-Jiri Kosina
+PHByZT48c3BhbiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxmb250IGZh
+Y2U9IlNpbXN1biI+PGZvbnQgc2l6ZT0iNiI+PGZvbnQgY29sb3I9IiNmZjAwMDAiPjxlbT7O0rK7
+0qrU2Y7NhGXIy9mN5Vg8c3BhbiBsYW5nPSJFTi1VUyI+PC9zcGFuPjwvZW0+PC9mb250PjwvZm9u
+dD48L2ZvbnQ+PC9zcGFuPgoKPC9wcmU+PHByZT48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZP
+TlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4KCjxmb250IGZhY2U9IlNpbXN1biI+Jm5ic3A7
+PC9mb250Pjwvc3Bhbj48L3ByZT48cHJlPjxzcGFuIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENP
+TE9SOiBibGFjayI+PGZvbnQgZmFjZT0iU2ltc3VuIj7E47HY7Zqe6dfUvLrZjeVYPHNwYW4gbGFu
+Zz0iRU4tVVMiPiw8L3NwYW4+numEZcjL2Y3lWMT608DfaDxzdHJvbmc+PGZvbnQgY29sb3I9IiNm
+ZjAwMDAiPp9vt6jWwri7PHNwYW4gbGFuZz0iRU4tVVMiPiE8L3NwYW4+PC9mb250PgoKCgoKPC9z
+dHJvbmc+PC9mb250Pjwvc3Bhbj48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4g
+bGFuZz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+xPrEv8ew
+tcS5pNf3t4C2qIbhPC9zcGFuPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAx
+MHB0OyBDT0xPUjogYmxhY2siPgo/PC9zcGFuPjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9O
+VC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPu6K0uI8c3Ryb25nPr1Lye2PxMrChuE8L3N0cm9u
+Zz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9S
+OiBibGFjayI+PHN0cm9uZz4/PC9zdHJvbmc+Cjwvc3Bhbj48L2ZvbnQ+PC9wcmU+PHByZT48Zm9u
+dCBmYWNlPSJTaW1zdW4iPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0
+OyBDT0xPUjogYmxhY2siPjEuIDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQt
+U0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4KxPrS0YWSvuvEv8ewuaTX96GiyLHJ2bXE1rvT0Dxz
+dHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPrjE14O1xNPCmuI8L2ZvbnQ+PC9zdHJvbmc+PC9z
+cGFuPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxh
+Y2siPjxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPiE8L2ZvbnQ+PC9zdHJvbmc+PC9zcGFu
+PjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+CgoKCjxzcGFuIGxhbmc9IkVO
+LVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjIuIDwvc3Bhbj48c3Bh
+biBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj6yu9DS
+tcTE+qOs0tHU2t9Asqiyu76wmuLW0DxzdHJvbmc+CsqnyKW5pNf3PC9zdHJvbmc+PC9zcGFuPjxz
+cGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxz
+dHJvbmc+ITwvc3Ryb25nPjwvc3Bhbj48L2ZvbnQ+PC9wcmU+PHByZT48Zm9udCBmYWNlPSJTaW1z
+dW4iPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxh
+Y2siPgozLiA8L3NwYW4+PHNwYW4gbGFuZz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7
+IENPTE9SOiBibGFjayI+tPPG85hJtcQ8c3Ryb25nPjxmb250IGNvbG9yPSIjZmYwMDAwIiBzaXpl
+PSI0Ij6/c76OoaLW2NX7oaKyw4ZUoaKccNC9PC9mb250Pjwvc3Ryb25nPjwvc3Bhbj48c3BhbiBs
+YW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4KPHN0cm9u
+Zz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+PGZvbnQgc2l6ZT0iNCI+ITwvZm9udD48L2ZvbnQ+PC9z
+dHJvbmc+PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4g
+bGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+NC4gPC9z
+cGFuPjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxh
+Y2siPgoKCgoKuavLvr6ruobIy8Gm1q7PwqOsgoDIy7mk1/fBv9T2vNOjrJ9vv8mx3MPitcQ8c3Ry
+b25nPrOslXK5pNf3PC9zdHJvbmc+PC9zcGFuPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9O
+VC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxzdHJvbmc+ITwvc3Ryb25nPjwvc3Bhbj48L2Zv
+bnQ+PC9wcmU+PHByZT48Zm9udCBmYWNlPSJTaW1zdW4iPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHls
+ZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPgoKCgoKNS4gPC9zcGFuPjxzcGFuIGxh
+bmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPrTz0M3G85hJ
+v8nN4rD8PHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+mEmE1bXE1Pa80zwvZm9udD48L3N0
+cm9uZz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENP
+TE9SOiBibGFjayI+CjxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPiE8L2ZvbnQ+PC9zdHJv
+bmc+PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4gbGFu
+Zz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Ni4gPC9zcGFu
+PjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2si
+Pgq9u82ok+2URLPMtsi1xJC6u6+jrDxzdHJvbmc+goDIy5Vy6Wexu4m6v3M8L3N0cm9uZz48L3Nw
+YW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFj
+ayI+PHN0cm9uZz4hPC9zdHJvbmc+PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9
+IlNpbXN1biI+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9S
+OiBibGFjayI+CjcuIDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTog
+MTBwdDsgQ09MT1I6IGJsYWNrIj7ZWdONyeeV/ruvoaKCgMjL64rEWKOszajTjaOs3mu5q9RPguQ8
+c3Ryb25nPjxmb250IGNvbG9yPSIjZmYwMDAwIj6DcrjxtcTPwrusPC9mb250Pjwvc3Ryb25nPjwv
+c3Bhbj48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJs
+YWNrIj4KPHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+ITwvZm9udD48L3N0cm9uZz48L3Nw
+YW4+PC9mb250PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJFTi1V
+UyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj44LiA8L3NwYW4+PHNwYW4g
+bGFuZz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Cs60ge3G
+85hJkvG6z7xz1sahopVy0L3WxqGim13T0M3L0N298KOsPGZvbnQgc2l6ZT0iNCI+PHN0cm9uZz7E
+6rxv1L208zwvc3Ryb25nPpNRuaTX9zxzdHJvbmc+1L2bXdPQu0m0YTwvc3Ryb25nPjwvZm9udD48
+L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBi
+bGFjayI+PHN0cm9uZz48Zm9udCBzaXplPSI0Ij4hPC9mb250Pjwvc3Ryb25nPjwvc3Bhbj4KPC9m
+b250PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5
+bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj7Tyey20tTJz7XE1K3S8qOsgoDIy7mk
+1/fK0tLykaq2+Mn6o6zH0srH0ru5yTxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPp9vt6jX
+6JP1tcTKwLT6s7HB9zwvZm9udD48L3N0cm9uZz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0
+eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CgoKCgo8L3NwYW4+PC9mb250Pjwv
+cHJlPgo8ZGl2Pjxmb250IHNpemU9IjQiPs/gjKa1xMTjy/nU2rXExvOYSda7lf7U2rr1y/u1xLaQ
+4eHTr/BOIbK7lf7U2rr1xOO1xLOslXK5pNf3Ibj8sruV/tTauvU8YnI+xOO1xLzSzaXJ+rvuxrfZ
+fCHE48rHt/HYk5P6tcTG8NfTxa61xIxX2U0/t7/X07XE2Uq/7j88Zm9udCBjb2xvcj0iI2ZmMDAw
+MCIgc2l6ZT0iNiI+1WzU2rr1xOPE2D8/PzwvZm9udD48YnI+PGZvbnQgZmFjZT0iU2ltc3VuIj48
+c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj48
+L3NwYW4+CjwvZm9udD48L2ZvbnQ+PC9kaXY+CjxkaXY+PGZvbnQgZmFjZT0iU2ltc3VuIj48Zm9u
+dCBzaXplPSI0Ij48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09M
+T1I6IGJsYWNrIj7O0rK70qrU2Y7NhGXIy9mN5VjByzwvc3Bhbj48c3BhbiBsYW5nPSJFTi1VUyIg
+c3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4gPC9zcGFuPjwvZm9udD48L2Zv
+bnQ+PC9kaXY+PHByZT48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsg
+Q09MT1I6IGJsYWNrIj4KCgoKPGZvbnQgZmFjZT0iU2ltc3VuIj4gPC9mb250Pjwvc3Bhbj48L3By
+ZT48cHJlPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjog
+YmxhY2siPgo8YSBvbmNsaWNrPSJyZXR1cm4gdG9wLmpzLk9wZW5FeHRMaW5rKHdpbmRvdyxldmVu
+dCx0aGlzKSIgaHJlZj0iaHR0cDovL3d3dy5zb2hvLXdmaC5jb20vIiB0YXJnZXQ9Il9ibGFuayI+
+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3Bhbj48Zm9udCBjb2xvcj0iIzAwMzM5OSIgc2l6ZT0iNiI+
+PGVtPnd3dy5zb2hvLXdmaC5jb208L2VtPjwvZm9udD48L3NwYW4+PC9mb250PjwvYT48L3NwYW4+
+CgoKCjwvcHJlPjxicj4K
+------=_Part_30154_19159579.1176717946501--

@@ -1,9 +1,10 @@
-From: "liang McNama" <liang882@areskomis.pl>
-Subject: Stock promotion company needs new partners in Germany
-Date: Sun, 15 Apr 2007 14:06:11 -0600
-Message-ID: <47E0A736.729401AE@areskomis.pl>
+From: "Felisha Tatiana" <szec7orhhy@netcarrier.com>
+Subject: SPECIAL PHARMACY DISCOUNT, you pay  & we ship, no question asked, established by reputable Canadian Doctor xf
+Date: Mon, 16 Apr 2007 09:14:20 +0600
+Message-ID: <731r432w.4361825@netcarrier.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/html;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -11,24 +12,24 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kralik@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-components Messenger MSN
-
-Stock promotion group is in search of new partners in Germany
-Busines proposal for stock owners
-
-Hello stock owner,
-We are a stock promotion company and we can promote any kind of stocks. We have been working on US market for 3 years. But now is is getting harder and harder to work on US market. We are in search of serious partners in Europe with whom we can make business together.That proposal is for you if you own a company and you want to promote it. We promote stocks by mass email advertising.
-
-Stock owner
-
-We can increase the price of your stock and we can increase average day trading volume. We can increase price up to 200-250% in 2-3 weeks and also we can increase volume by 10 times each trading day. You can sell almost any ammounts of shares. You don't have to pay anything in advance. First we increase the price and the volume, then you pay.
-
-Payment: Our price for that is 10% from the daily volume. We count it by the following formula: last price * daily volume.
-
-If you are interested in our proposal please write me back to the following email:
-stockadvertiser1@yahoo.com
-
-pictures slides bundled separate Edition
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>spoken proceeded teacher telling trees? pretty speaking fascinate,</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left>
+<font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b></font><br><font color=000000 size=1>We 
+are the best price on 
+all high quality meds. 
+Established by a 
+reputable 
+Canadian 
+Doctor and 
+Scientist, 
+Express Drugmart's mission is to provide you with a secure online 
+environment to purchase the safest, quality medication<br><br><font color=000000 size=2><b>Viagraa (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>Valiumm - <font color=F20000>as LOW 
+as $ 1.50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>
+only $ 1.50 per  D0SE</font><br>Ambienn - <font color=F20000>only $ 1.65 per  D0SE</font><br>Ativann - <font color=F20000>only $ 1.50 per  D0SE</font>
+<br>Somaa - <font color=F20000>only $ 1.50 per  D0SE</font><br>Clenbuterol - <font color=F20000>only $ 2.50 per D0SE</font><br>Meridiaa (brand name) - 
+<font color=F20000>only $ 3.99 per  D0SE</font><br></b></font><br><center><a href=http://bdi.thisisanotherimportant.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font></font></u>
+</a><br>
+</center>
+</td></tr></table><font color=FFEAD5 size=1>times reading similar gym wish break anybody. talked repeated usedto anybody.</font></body></html>

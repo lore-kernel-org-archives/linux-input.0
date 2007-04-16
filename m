@@ -1,35 +1,105 @@
-From: Paul Walmsley <paul@booyaka.com>
-Subject: Re: [PATCH 2/6] usbhid: move all quirk handling code and data to
- usb-quirks.[ch]
-Date: Mon, 16 Apr 2007 10:21:30 -0600 (MDT)
-Message-ID: <Pine.LNX.4.64.0704161020340.25900@utopia.booyaka.com>
-References: <Pine.LNX.4.64.0704111256240.28726@utopia.booyaka.com>
- <alpine.LRH.0.98.0704161109170.24673@twin.jikos.cz>
+From: LOTTERY BOARD <simmonsink@bellsouth.net>
+Subject: OFFICIAL PRIZE NOTIFICATION
+Date: Mon, 16 Apr 2007 14:01:22 -0400
+Message-ID: <20070416180122.ZVJT1166.ibm65aec.bellsouth.net@mail.bellsouth.net>
+Reply-To: uklotterycustomercare2007@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <alpine.LRH.0.98.0704161109170.24673@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: uklottery@yahoo.co.uk
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 16 Apr 2007, Jiri Kosina wrote:
+THE LOTTERY DEPARTMENT=20
+Uk National Lottery
+Globe House 4 Temple Place
+London WC2R 2PG
+=20
+TRACK    N=BA: 51024060210=20
 
-> actually, this seems wrong to me. In case of Wacom or IOWarrior devices, we 
-> want the usb_hid_configure() to return immediately, without claiming the 
-> device (and propagate -ENODEV through hid_probe()). That's what the original 
-> code does, and that is correct.
->
-> After you patch, the usb_hid_configure() proceeds both for Wacom and 
-> IOWarrior devices, just leaving the quirks mask empty. But that's not what it 
-> should do, right?
+         OFFICIAL PRIZE NOTIFICATION=20
+=20
+This is to inform you that have been selected for a cash prize of =A3 1.0=
+00.000.00( One million  Great British Pounds) , International programs he=
+ld on the  14th of  April   2007  in the London Uk.
+=20
+The selection process was carried out through random selection in our com=
+puterized  email   selection system(ess) from a database of over 250,000 =
+email addresses drawn from all the continents of the world.
+=20
+The Uk National  Lottery is approved by the British Gaming Board and  als=
+o Licensed by the The International Association of Gaming Regulators (IAG=
+R). This  lottery is the 3rd of its kind  and we intend to sensitize the =
+public.
+=20
+=20
+=20
+To begin the processing of your prize you are to contact your claims offi=
+cer through our accredited Prize Transfer agents as  stated below:
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Contact Person: Mr.Donald Wilson.
+Telephone: +447011133851
+                     +4470457 00846
 
-Yes, you're right.  I'll fix that in the revision that I will send to you.
+E-mail:uklotterycustomercare2007@yahoo.co.uk
 
+E-mail:uklotterycustomercare2007@yahoo.co.uk
 
-- Paul
+Time to call(10am to 5pm london time   GMT  )
+ =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+contact him, please provide him with the following codes below:
+ Secret pin code x7pwyz2005
+ Serial number 5368/02=20
+REF No: UK/9420X2/68
+TICKET No: 56475600545188
+
+You are also advised to provide him with the under listed information=20
+as soon as possible:
+=20
+=20
+          Claims Requirements:
+1.Name in=20
+full--------------------------------------------------------------
+2.Address----------------------------------------------------------------=
+---
+3.Nationality------------------------------------------------------------=
+---
+4.Age--------------------------------------------------------------------=
+---
+5.Occupation-------------------------------------------------------------=
+---
+6.Phone/Fax--------------------------------------------------------------=
+---
+7.Present=20
+Country-----------------------------------------------------------
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=20
+
+=20
+If  you do not contact your claims agent within 7 working days of this no=
+tification,your winnings  would be revoked. Winners are advised to keep t=
+heir winning details/information from the public to avoid fraudulent  cla=
+im (IMPORTANT)pending the transfer/claim by Winner.=20
+=20
+*Winner under the age of 18 are automatically disqualified.*Staff of the =
+Uk National  Lottery   are not to partake in this Lottery.
+=20
+Accept my hearty congratulations once again!
+=20
+Regards
+=20
+Victor Brown
+NB:
+Note that you are not to reply to this E-mail,please contact your claims =
+officer directly to start  the  processing of your claims application for=
+m

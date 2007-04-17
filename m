@@ -1,7 +1,7 @@
-From: "Maryann Whitney" <janesvilleyr@in2net.co.nz>
-Subject: Not conroy because latimer
-Date: Tue, 10 Apr 2007 10:10:32 +0800
-Message-ID: <001701c77b58$793f0460$001952b4@A24>
+From: "Earline Norman" <llfee@baldwin-net.com>
+Subject: An each variable
+Date: Tue, 17 Apr 2007 17:42:36 +0800
+Message-ID: <000f01c78117$c983afb0$000ce47c@mychatd048d0d1>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-It is going to be HUGE
+THE INTERNET SECTOR IS HOT AGAIN
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
- . . . .
-Signs show that this one could Explode!
-TMXO has a nice fresh news, linux-input, contact your broker
+- - -
+Here it comes is it going to be the REAL BIG ONE?
+See bullish news online right now, linux-input, call broker

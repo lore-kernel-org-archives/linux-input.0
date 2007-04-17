@@ -1,151 +1,75 @@
-From: "Lesa Peck" <powcivilwardiarydeq@civilwardiary.com>
-Subject: Doctors and Celebrities endorse Anatrim
-Date: Tue, 17 Apr 2007 19:43:42 +0500
-Message-ID: <701295672.58143677654822@thhebat.net>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------A21A297BFD36E80"
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: [RFC 1/2] Input: ff, add FF_RAW effect
+Date: Tue, 17 Apr 2007 22:01:58 +0200 (CEST)
+Message-ID: <210731960111436322@karneval.cz>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-kernel@vger.kernel.org
+Cc: johann deneux <johann.deneux@gmail.com>, Dmitry Torokhov <dtor@insightbb.com>, stenyak@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------A21A297BFD36E80
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+So fellows, what about these ones?
 
+--
 
-Anatrim – The up-to-the-moment and most fascinating lose flesh product is now easily available – As could be seen on ABC
-Did you know that redundant body kilograms kill a plenty of people around the planet? We know you hate the unsightly look of those people and the low status they have in modern society. 
+ff, add FF_RAW effect
 
-Moreover, you got no will to withstand an assault of your pernicious eating habits. Does it sound familiar? Then we have something for you!
+Add new FF_RAW effect for devices such Phantom. The new model has up to 6DOF
+torque force feedback independent on any 3d-or-so value.
 
-Introducing Anatrim, the recent product for the reduction of your body’s extra weight. The astonishing thing about Anatrim is it improves the quality of your life by making you crave food less and always cheering you up. Note what people write to us about this product:
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-"This is a great thing! 
+---
+commit 759e7f172031959f49e5d3a7282379e7d73621b3
+tree 906d51925ff7f95ebae8148ef2f1b2f252ef3f4e
+parent bd99756ce7fb8f3e9105b076a71046b0d8ad1f8f
+author Jiri Slaby <jirislaby@gmail.com> Tue, 17 Apr 2007 21:50:21 +0200
+committer Jiri Slaby <jirislaby@gmail.com> Tue, 17 Apr 2007 21:50:21 +0200
 
-Instead of stuffing myself with food and watching TV continually 
+ drivers/input/ff-memless.c |    4 ++++
+ include/linux/input.h      |    4 +++-
+ 2 files changed, 7 insertions(+), 1 deletions(-)
 
-I became keen on doing exercise.
-
- Anatrim made me stride on confidently.
-
- I’m more fit now and there are lots of men in my way!"
-
-Rita R., Chicago
-
-"Passive weight reducing was of no help to me. I could not restrain my ravenous appetite. 
-
-Once I heard on Anatrim in the media and it brought a great influence on me.
-
- I had attempted taking it, and my wife told me I’m not more a weighty man now, 3 months later. 
-
-28 pounds off and I continue to become slimmer! 
-
-And you know, the bedroom thing is cool, too."
-
-Dave Klark, Las Vegas
-
-Anatrim helps you to realize you got no such great need for the constant eating. It raises your spirit, supplies you with extra energy, and attacks useless kilos. All thanks to its powerful distinguished formula!!
-Pry out more! 
-
-------------A21A297BFD36E80
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Pounds down, mood up</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href="http://www.fangat.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ubqkyz">Anatrim – The up-to-the-moment and most fascinating lose flesh product is now easily available – As could be seen on ABC</a>
-</b>
-</center>
-<b>
-Did you know that redundant body kilograms kill a plenty of people around the planet? We know you hate the unsightly look of those people and the low status they have in modern society. 
-<b>
-Moreover, you got no will to withstand an assault of your pernicious eating habits. Does it sound familiar? Then we have something for you!
-</b>
-</b>
-<br>
-<br>
-<b>
-Introducing Anatrim, the recent product for the reduction of your body’s extra weight. The astonishing thing about Anatrim is it improves the quality of your life by making you crave food less and always cheering you up. Note what people write to us about this product:
-</b>
-<br>
-<br>
-<b>
-<i>
-"This is a great thing! 
-<b>
-<i>
-Instead of stuffing myself with food and watching TV continually 
-<b>
-<i>
-I became keen on doing exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me stride on confidently.
-</i>
-</b>
- I’m more fit now and there are lots of men in my way!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Rita R., Chicago
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"Passive weight reducing was of no help to me. I could not restrain my ravenous appetite. 
-<b>
-<i>
-Once I heard on Anatrim in the media and it brought a great influence on me.
-</i>
-</b>
- I had attempted taking it, and my wife told me I’m not more a weighty man now, 3 months later. 
-<b>
-<i>
-28 pounds off and I continue to become slimmer! 
-</i>
-</b>
-And you know, the bedroom thing is cool, too."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Dave Klark, Las Vegas
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim helps you to realize you got no such great need for the constant eating. It raises your spirit, supplies you with extra energy, and attacks useless kilos. All thanks to its powerful distinguished formula!!
-</b>
-<b>
-<center>
-<a href="http://www.fangat.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ubqkyz">Pry out more!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------A21A297BFD36E80--
+diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+index d226d93..3bbace9 100644
+--- a/drivers/input/ff-memless.c
++++ b/drivers/input/ff-memless.c
+@@ -275,6 +275,10 @@ static void ml_combine_effects(struct ff_effect *effect,
+ 			min(i + effect->u.rumble.weak_magnitude, 0xffffU);
+ 		break;
+ 
++	case FF_RAW:
++		memcpy(effect->u.ff_raw, new->u.ff_raw, sizeof(new->u.ff_raw));
++		break;
++
+ 	default:
+ 		printk(KERN_ERR "ff-memless: invalid type in ml_combine_effects()\n");
+ 		break;
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 2a23768..cc4ae1f 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -859,6 +859,7 @@ struct ff_effect {
+ 		struct ff_periodic_effect periodic;
+ 		struct ff_condition_effect condition[2]; /* One for each axis */
+ 		struct ff_rumble_effect rumble;
++		__u32 ff_raw[6];
+ 	} u;
+ };
+ 
+@@ -874,9 +875,10 @@ struct ff_effect {
+ #define FF_DAMPER	0x55
+ #define FF_INERTIA	0x56
+ #define FF_RAMP		0x57
++#define FF_RAW		0x58
+ 
+ #define FF_EFFECT_MIN	FF_RUMBLE
+-#define FF_EFFECT_MAX	FF_RAMP
++#define FF_EFFECT_MAX	FF_RAW
+ 
+ /*
+  * Force feedback periodic effect types

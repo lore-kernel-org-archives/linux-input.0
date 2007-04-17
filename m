@@ -1,11 +1,11 @@
-From: "Magdalena Walton" <burnips6@mountains.net.au>
-Subject: No whichever nahant
-Date: Tue, 17 Apr 2007 03:08:35 +0800
-Message-ID: <001701c7809d$afc48060$0076d5a4@moad93b3818370>
+From: "Marisa Allen" <queros@idea.net.pl>
+Subject: you caloric itself throaty
+Date: Mon, 16 Apr 2007 22:01:19 -0300
+Message-ID: <001501c78072$c3344c00$00f1fd0c@rosario61d183c>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1250";
+        charset="windows-1252";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-This gem is really movable
+Hellish report is here
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
-_____
-WATCH IT LIKE A HAWK!
+ . . . .
+Is 500% profit potential short term?
 linux-input, take a look at the hottest news, contact your brocker now

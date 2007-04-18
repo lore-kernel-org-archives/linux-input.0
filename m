@@ -1,133 +1,219 @@
-From: "Magic Jackpot Casino" <mazurka@firmenich.com>
-Subject: Bis 1000 Euro frei!
-Date: Wed, 18 Apr 2007 09:16:29 -0100
-Message-ID: <62534340.07961241@board.com>
+From: "Bud Egan" <lazclubsinzbow@clubsinz.com>
+Subject: Make your fat friends envy you
+Date: Wed, 18 Apr 2007 11:54:53 -0100
+Message-ID: <148369508.57024089521151@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------67444B80513D3DA"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jack@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+------------67444B80513D3DA
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 
-<title>Sind Sie auf der Suche nach einem neuen, 
-aufregenden Spielangebot </title>
+Anatrim =96 The latest and most enchanting product for corpulent people=20=
+available =96 As seen on ABC.
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+Do you hold in your memory all the cases when you asked yourself to do=20=
+anything for being saved from this quickly growing number of kilos?=20=
+Luckily, now no major sacrifice is required. Thanks to Anatrim, the=20=
+ground-breaking weight-reducing medley, you can get naturally health=20=
+lifestyle and become really slimmer. Just look at what our customers say!
 
-</head>
+"It=92s quite difficult to acknowledge it but I was extremely addicted=20=
+to food. 
 
-<body lang=EN-US link=blue vlink=purple style='tab-interval:35.4pt'>
+I ate all this garbige 
 
-<div class=Section1>
+and could not stop. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Sind Sie auf der Suche nach einem neuen, aufregenden Spielangebot? 
-</span><o:p></o:p></p>
+This misery left off when I started taking Anatrim! 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+Oh, God,
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Magic Jackpot ist momentan die warscheinlich aufregendste 
-Moglichkeit dazu ! </span><o:p></o:p></p>
+ my inclination to eat constantly decreased, 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+spirits improved and I=92m the happiest person 23 pounds in 2.6 months. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Wenn BlackJack oder Roulette zu Ihren Lieblingsspielen gehoren, 
-bieten Magic Jackpot's Live-Dealer das Gefuhl eines echten Casinos. 
-</span><o:p></o:p></p>
+So, I can tell you now I became the happiest person on the planet!"
+ 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+Lusia R., New York
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Wenn Slot-Machinen zu Ihren Favoriten gehoren, konnen Sie den 
-hochsten Preis aller Zeiten beim Video-Slot Millionaire's Lane 
-gewinnen, insgesamt $5 000 000 !</span><o:p></o:p></p>
+ 
+"I had problems with over-weight since I was a boy. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+It=92s difficult to imagine how I detested being ridiculed at school. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Fur den Anfing bietet Magic Jackpots einen magischen Bonus 
-als Willkommensgeschenk !</span><o:p></o:p></p>
+I detested my stoutness and I detested myself. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+After trying this and that I learned about Anatrim. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie Heute noch bei Magic Jackpot ein und Ihr Kontostand 
-wird umgehend mit einem 100% Bonus verdoppelt.
-</span></p>
+It literally dragged me out of this dreadful nightmare! Thanks and=20=
+thanks to you, guys."
 
-<p class=MsoNormal><span style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+ 
+Steve Burbon, San Diego
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie 20$ ein, spielen Sie mit 40$</span></p>
+ 
+"Know what? Anatrim preserved my marriage! I got into the circle,=20=
+depression =96 eating more =96 just more depression. My wife was going to=20=
+leave the overweight psycho I was turning in. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Zahlen Sie 250$ ein, spielen Sie mit 500$</span><o:p></o:p></p>
+One of my friends pointed at your web site and I ordered up pack of=20=
+Anatrim at the time. 
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+The results I achieved were magnficent, my appetite came to acceptable=20=
+level, I was in a good mood oftener, and, of course, I became able to=20=
+tighten my belt on some holes. And you know, the sex became fantastic=20=
+also!"
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-Der Live-Kundendienst steht bei eventuellen Ruckfragen oder 
-sonstigen Anliegen, 24 Stunden am Tag zur Verfugung, was den 
-Genuess schneller Auszahlungen garantiert !</span>
-<o:p></o:p></p>
+ 
+Tom
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<u3:p>&nbsp;</u3:p></span></p>
+ There is a lot of testimonials left by happy people taking Anatrim.=20=
+Why don't you join the thousands and thousands of slim clients and try=20=
+this original appetite decreasing power lifting product now!
 
-<p class=MsoNormal><span lang=DE style='mso-ansi-language:DE'>
-<a href="http://www.jackpot-magic.net/lang-de/">
-http://www.jackpot-magic.net/lang-de/</a>
-<u3:p></u3:p></span></p>
+Do not decline the chance!
 
-</div>
+------------67444B80513D3DA
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
 
-</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Join the thousands of people who got slim</TITLE>
+</HEAD>
+<BODY>
 
-</html>
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.plingren.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7lreqzi">
+Anatrim =96 The latest and most enchanting product for corpulent people=20=
+available =96 As seen on ABC.
+</a>
+</center>
+Do you hold in your memory all the cases when you asked yourself to do=20=
+anything for being saved from this quickly growing number of kilos?=20=
+Luckily, now no major sacrifice is required. Thanks to Anatrim, the=20=
+ground-breaking weight-reducing medley, you can get naturally health=20=
+lifestyle and become really slimmer. Just look at what our customers say!
+<br>
+<br>
+<i>
+"It=92s quite difficult to acknowledge it but I was extremely addicted=20=
+to food. 
+<b>
+<i>
+I ate all this garbige 
+<b>
+<i>
+and could not stop. 
+</i>
+</b>
+</i>
+</b>
+This misery left off when I started taking Anatrim! 
+<b>
+<i>
+Oh, God,
+</i>
+</b>
+<b>
+<i>
+ my inclination to eat constantly decreased, 
+<b>
+<i>
+spirits improved and I=92m the happiest person 23 pounds in 2.6 months. 
+</i>
+</b>
+</i>
+</b>
+So, I can tell you now I became the happiest person on the planet!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Lusia R., New York
+</i>
+</b>
+<br>
+<br>
+ <i>
+"I had problems with over-weight since I was a boy. 
+<b>
+<i>
+It=92s difficult to imagine how I detested being ridiculed at school. 
+</i>
+</b>
+<b>
+<i>
+I detested my stoutness and I detested myself. 
+<b>
+<i>
+After trying this and that I learned about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally dragged me out of this dreadful nightmare! Thanks and=20=
+thanks to you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Steve Burbon, San Diego
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Know what? Anatrim preserved my marriage! I got into the circle,=20=
+depression =96 eating more =96 just more depression. My wife was going to=20=
+leave the overweight psycho I was turning in. 
+<b>
+<i>
+One of my friends pointed at your web site and I ordered up pack of=20=
+Anatrim at the time. 
+</i>
+</b>
+The results I achieved were magnficent, my appetite came to acceptable=20=
+level, I was in a good mood oftener, and, of course, I became able to=20=
+tighten my belt on some holes. And you know, the sex became fantastic=20=
+also!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Tom
+</i>
+</b>
+<br>
+<br>
+ There is a lot of testimonials left by happy people taking Anatrim.=20=
+Why don't you join the thousands and thousands of slim clients and try=20=
+this original appetite decreasing power lifting product now!
+<center>
+<a=20=
+href=3D"http://www.plingren.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7lreqzi">
+Do not decline the chance!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------67444B80513D3DA--

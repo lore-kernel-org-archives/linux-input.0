@@ -1,11 +1,11 @@
-From: "Jodie Nixon" <lteyebright@hamlink.org>
-Subject: No mine manhole
-Date: Wed, 18 Apr 2007 16:53:22 +0200
-Message-ID: <001001c781da$1339b0b0$071b2b24@meritxell>
+From: "Gabrielle Clay" <dpcirca@gsm-tools.co.uk>
+Subject: it vade till chapman
+Date: Wed, 18 Apr 2007 20:26:19 +0200
+Message-ID: <001601c781f7$d2d61860$00647bd4@your01199f19b2>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1252";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-BULLISH REPORT
+Alert for you
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
-- - -
-Signs show that this one could Explode!
-See the hottest news of the TMXO, linux-input, call your broker
+__________
+TRADE SMART AND WIN!
+linux-input, take a look at the hottest news, contact your brocker now

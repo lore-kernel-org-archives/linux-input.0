@@ -1,11 +1,11 @@
-From: "Gabrielle Clay" <dpcirca@gsm-tools.co.uk>
-Subject: it vade till chapman
-Date: Wed, 18 Apr 2007 20:26:19 +0200
-Message-ID: <001601c781f7$d2d61860$00647bd4@your01199f19b2>
+From: "Guadalupe Blankenship" <gbaugustan@goldhort.de>
+Subject: That kathleen itself volition
+Date: Wed, 18 Apr 2007 20:42:47 +0100
+Message-ID: <001701c781fa$1f847510$00c18abc@casaznz68hz59s>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1251";
+        charset="windows-1252";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Alert for you
+This one is hardly promoted
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
-__________
-TRADE SMART AND WIN!
-linux-input, take a look at the hottest news, contact your brocker now
+_____
+Is there huge profit in this deal?
+See bullish news online right now, linux-input, call broker

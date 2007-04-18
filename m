@@ -1,11 +1,11 @@
-From: "Hallie Blackwell" <wcanon@housebuyerdfw.com>
-Subject: That what rockland
-Date: Wed, 18 Apr 2007 11:46:44 -0300
-Message-ID: <001c01c781af$3cb4cbd0$062884a4@nome1i13mui62m>
+From: "Jodie Nixon" <lteyebright@hamlink.org>
+Subject: No mine manhole
+Date: Wed, 18 Apr 2007 16:53:22 +0200
+Message-ID: <001001c781da$1339b0b0$071b2b24@meritxell>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1250";
+        charset="windows-1252";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-HOT ALERT
+BULLISH REPORT
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
-_ _ _
-Bullish profit?? 
+- - -
+Signs show that this one could Explode!
 See the hottest news of the TMXO, linux-input, call your broker

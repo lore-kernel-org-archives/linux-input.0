@@ -1,10 +1,10 @@
-From: "Maude Foote" <powclaberecologiadeq@claberecologia.com>
-Subject: Healthy living with less fat
-Date: Wed, 18 Apr 2007 07:54:24 -0100
-Message-ID: <952612287.69316610838290@thhebat.net>
+From: "Brooke Maynard" <powclairdelunadeq@clairdeluna.com>
+Subject: Summer is almost here, be ready
+Date: Wed, 18 Apr 2007 07:55:28 -0100
+Message-ID: <950925370.40206301661603@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------219C38DABBB48D"
+  boundary="----------BBBBBB4F291CEDA"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,64 +14,65 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------219C38DABBB48D
-Content-Type: text/plain; charset=us-ascii
+------------BBBBBB4F291CEDA
+Content-Type: text/plain; charset=Windows-1252
 Content-Transfer-Encoding: quoted-printable
 
-Anatrim =96 The very up-to-date and most delighting flesh loss product is=20=
-now available =96 As were told on CNN
-Do you know that redundant body kilograms kill a lot of people for=20=
-every new year? We know you hate the unsightly appearance of people like=20=
-those and the low status they have in society. 
+Anatrim =96 The newest and most fascinating product for over-weight=20=
+people is now readily available =96 As were seen on Oprah
+Do you see redundant body kilos kill more and more people around the=20=
+planet? We believe that you hate the unattractive look of those people=20=
+and the social stigmata attached to them. 
 
-Moreover, you got no will to resist a siege of fatal eating habits of=20=
-yours. If you see it sounds familiar, then we got something for your=20=
-consideration!
+Or, maybe, you have not the will to withstand a siege of your fatal=20=
+eating habits. If you see it sounds familiar, then we have something for=20=
+you!
 
-We are proudly introduce you Anatrim, the ultimate product for the=20=
-elimination of your body=92s extra weight. The amazing thing about=20=
-Anatrim is it raises the quality of your life by soothing the feeling of=20=
-hunger and giving you better spirit. Here you may see what people say on=20=
-this product:
+Here Anatrim comes, the ultimate product for the elimination of your=20=
+body=92s extra weight. The most amazing thing is that Anatrim raises the=20=
+quality of your life, making you feel no hungry and giving you better=20=
+cheer. Look at what people say to us on this product:
 
-"This is a great thing! 
+"It is wonderful! 
 
-Instead of stuffing myself with food and watching TV constantly 
+I stopped watching TV constantly and always glutting myself with food 
 
-I became keen on doing sport.
+I became keen on exercise.
 
- Anatrim made me take a step up.
+ Anatrim made me stride on confidently.
 
- I have a great shape now and lots of men devour me with their eyes!"
+ I=92m in a great fit now and there are lots of men following me with=20=
+their eyes!"
 
-Amely S., Chicago
+Amelia B., Las Vegas
 
-"I tried some passive weight losing, you know, but to no purpose. I was=20=
-very hard for me to hold in my ravenous hunger. 
+"I tried some passive weight burning, but with little result. I was=20=
+very hard for me to restrain my ravenous hunger. 
 
-Once I heard on Anatrim in the media advertisement and it brought a=20=
-great influence on me.
+One day I was told on Anatrim the media by and I was really impressed=20=
+at the information.
 
- I had tried to take it, and my wife said to me that I=92m not more a=20=
-weighty man now, 4 months later. 
+ I had attempted taking it, and my wife said I look very good now, 5=20=
+months later. 
 
-33 pounds have gone away and I continue to become slimmer! 
+34 pounds have gone away and this is not a limit! 
 
-And you know, I=92m a passionate lover again."
+And you know, it=92s rather hot in our bedroom now."
 
-Michael Burns, Bellevue WA
+Steve Burbon, New York
 
-Anatrim helps your brain to realize you got no such great need for the=20=
-constant eating. It raises your mood up, gives you energy, and attacks=20=
-unnecessary kilos. Great thanks to its mighty newly-elaborated formula!!
-Find out latest news about this great product now! 
+Anatrim helps your brain to realize that you doesn=92t have such a=20=
+great need for the constant eating. It lifts your mood up, provides you=20=
+with extra energy, and attacks useless kilos. Great thanks to its mighty=20=
+comprehensive formula!!
+Find out more useful information about this excellent product now! 
 
-------------219C38DABBB48D
-Content-Type: text/html; charset=us-ascii
+------------BBBBBB4F291CEDA
+Content-Type: text/html; charset=Windows-1252
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Achieve picture perfect weight and enjoy life</TITLE>
+<HTML><HEAD><TITLE>Obesity is dangerous, stop it</TITLE>
 </HEAD>
 <BODY>
 
@@ -79,104 +80,105 @@ Content-Transfer-Encoding: quoted-printable
 <center>
 <b>
 <a=20=
-href=3D"http://www.dorsa.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7hxznvj">Anatrim=20=
-=96 The very up-to-date and most delighting flesh loss product is now=20=
-available =96 As were told on CNN</a>
+href=3D"http://www.dorsa.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7hdmmbc">Anatrim=20=
+=96 The newest and most fascinating product for over-weight people is now=20=
+readily available =96 As were seen on Oprah</a>
 </b>
 </center>
 <b>
-Do you know that redundant body kilograms kill a lot of people for=20=
-every new year? We know you hate the unsightly appearance of people like=20=
-those and the low status they have in society. 
+Do you see redundant body kilos kill more and more people around the=20=
+planet? We believe that you hate the unattractive look of those people=20=
+and the social stigmata attached to them. 
 <b>
-Moreover, you got no will to resist a siege of fatal eating habits of=20=
-yours. If you see it sounds familiar, then we got something for your=20=
-consideration!
+Or, maybe, you have not the will to withstand a siege of your fatal=20=
+eating habits. If you see it sounds familiar, then we have something for=20=
+you!
 </b>
 </b>
 <br>
 <br>
 <b>
-We are proudly introduce you Anatrim, the ultimate product for the=20=
-elimination of your body=92s extra weight. The amazing thing about=20=
-Anatrim is it raises the quality of your life by soothing the feeling of=20=
-hunger and giving you better spirit. Here you may see what people say on=20=
-this product:
+Here Anatrim comes, the ultimate product for the elimination of your=20=
+body=92s extra weight. The most amazing thing is that Anatrim raises the=20=
+quality of your life, making you feel no hungry and giving you better=20=
+cheer. Look at what people say to us on this product:
 </b>
 <br>
 <br>
 <b>
 <i>
-"This is a great thing! 
+"It is wonderful! 
 <b>
 <i>
-Instead of stuffing myself with food and watching TV constantly 
+I stopped watching TV constantly and always glutting myself with food 
 <b>
 <i>
-I became keen on doing sport.
+I became keen on exercise.
 </i>
 </b>
 </i>
 </b>
 <b>
 <i>
- Anatrim made me take a step up.
+ Anatrim made me stride on confidently.
 </i>
 </b>
- I have a great shape now and lots of men devour me with their eyes!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Amely S., Chicago
+ I=92m in a great fit now and there are lots of men following me with=20=
+their eyes!"
 </i>
 </b>
 <br>
 <br>
 <b>
 <i>
-"I tried some passive weight losing, you know, but to no purpose. I was=20=
-very hard for me to hold in my ravenous hunger. 
-<b>
-<i>
-Once I heard on Anatrim in the media advertisement and it brought a=20=
-great influence on me.
-</i>
-</b>
- I had tried to take it, and my wife said to me that I=92m not more a=20=
-weighty man now, 4 months later. 
-<b>
-<i>
-33 pounds have gone away and I continue to become slimmer! 
-</i>
-</b>
-And you know, I=92m a passionate lover again."
+Amelia B., Las Vegas
 </i>
 </b>
 <br>
 <br>
 <b>
 <i>
-Michael Burns, Bellevue WA
+"I tried some passive weight burning, but with little result. I was=20=
+very hard for me to restrain my ravenous hunger. 
+<b>
+<i>
+One day I was told on Anatrim the media by and I was really impressed=20=
+at the information.
+</i>
+</b>
+ I had attempted taking it, and my wife said I look very good now, 5=20=
+months later. 
+<b>
+<i>
+34 pounds have gone away and this is not a limit! 
+</i>
+</b>
+And you know, it=92s rather hot in our bedroom now."
 </i>
 </b>
 <br>
 <br>
 <b>
-Anatrim helps your brain to realize you got no such great need for the=20=
-constant eating. It raises your mood up, gives you energy, and attacks=20=
-unnecessary kilos. Great thanks to its mighty newly-elaborated formula!!
+<i>
+Steve Burbon, New York
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps your brain to realize that you doesn=92t have such a=20=
+great need for the constant eating. It lifts your mood up, provides you=20=
+with extra energy, and attacks useless kilos. Great thanks to its mighty=20=
+comprehensive formula!!
 </b>
 <b>
 <center>
 <a=20=
-href=3D"http://www.dorsa.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7hxznvj">Find out=20=
-latest news about this great product now!</a>
+href=3D"http://www.dorsa.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7hdmmbc">Find out=20=
+more useful information about this excellent product now!</a>
 </center>
 </b>
 </p> 
 
 </BODY></HTML>
-------------219C38DABBB48D--
+------------BBBBBB4F291CEDA--

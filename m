@@ -1,11 +1,11 @@
-From: "Eva Farr" <blacklickk@fmgirl.com>
-Subject: his omitted into mobeetie
-Date: Tue, 17 Apr 2007 18:22:44 -0400
-Message-ID: <001201c7811d$6483ea70$062c81b4@particulokcbbt>
+From: "Bert Schmidt" <melberajs@email2me.net>
+Subject: Not centreville those arco
+Date: Wed, 18 Apr 2007 10:32:06 +0900
+Message-ID: <001301c781a4$cfaf4ba0$0079ae54@customerww348x>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1251";
+        charset="iso-8859-1";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-THE BULL REPORT
+Hellish report is here
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
------
-Bullish profit?? 
-TMXO have released very hot news. Check this out, linux-input and call to your brocker right now
+- - -
+WATCH IT LIKE A HAWK!
+See the hottest news of the TMXO, linux-input, call your broker

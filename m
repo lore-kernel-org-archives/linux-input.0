@@ -1,52 +1,44 @@
-From: "Belinda Long" <nextrovert@bulldogs.com>
-Subject: in verbosity who durham
-Date: Wed, 18 Apr 2007 22:54:28 +0300
-Message-ID: <001201c7820c$84e0ec60$06775294@home254af60dac>
+From: "johann deneux" <johann.deneux@gmail.com>
+Subject: Re: [RFC 1/2] Input: ff, add FF_RAW effect
+Date: Wed, 18 Apr 2007 22:00:53 +0200
+Message-ID: <38b3b7c0704181300p78df84f3h8fd4e74428d4e4d8@mail.gmail.com>
+References: <210731960111436322@karneval.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1251";
-        reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <210731960111436322@karneval.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@insightbb.com>, stenyak@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This one will explode
-Special Situation Alert
+Jiri,
 
-TMXO
+Which solution did you chose to implement? From what I remember, we
+last discussed Dmitry's idea of specifying an axis for an effect, then
+combine several effects to achieve complex effects.
+The implementation would specify the axis using the upper bits of the
+effect type.
 
-Trimax. are providers of Broadband over Power Line (BPL) 
-communication technologies. 
-
-OTC:TMXO - Last: 0.20 (up 8%, it is just beginning)
-
-Technologies that use the power grid to deliver 128-bit encrypted
-high-speed symmetrical broadband for data, voice and video transmission.
-
-This is a sector to be in!
+The patches you have sent seem to implement an easier, but in my
+opinion inferior solution. If this FF_RAW effect does not have
+semantics which are meaningful for other kinds of devices, I think
+using the FF API is not a good idea.
 
 
-All material herein were prepared by us based upon information
-believed to be reliable but not guaranteed to be accurate and
-should not be considered to be all inclusive. This opinion contains
-forward-looking statements that involve risks and uncertainties.You
-could lose all your money. We are not a licensed broker, broker
-dealer, market maker, investment banker, investment advisor,
-analyst or underwriter. Please consult a broker before purchasing
-or selling any securities viewed or mentioned herein. We are
-negotiating a cash price for this advertisement in the near
-future,but at this time have received nothing.  Third parties,
-affiliates, officers, directors and employees may also own or may
-buy the shares discussed in this opinion and intend to sell or
-profit in the event those shares rise or decrease in value
-
- . . . .
-Is this sym gaining momentum?
-See the hottest news of the TMXO, linux-input, call your broker
+On 4/17/07, Jiri Slaby <jirislaby@gmail.com> wrote:
+> So fellows, what about these ones?
+>
+> --
+>
+> ff, add FF_RAW effect
+>
+> Add new FF_RAW effect for devices such Phantom. The new model has up to 6DOF
+> torque force feedback independent on any 3d-or-so value.
+>

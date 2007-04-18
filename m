@@ -1,11 +1,11 @@
-From: "Guadalupe Blankenship" <gbaugustan@goldhort.de>
-Subject: That kathleen itself volition
-Date: Wed, 18 Apr 2007 20:42:47 +0100
-Message-ID: <001701c781fa$1f847510$00c18abc@casaznz68hz59s>
+From: "Belinda Long" <nextrovert@bulldogs.com>
+Subject: in verbosity who durham
+Date: Wed, 18 Apr 2007 22:54:28 +0300
+Message-ID: <001201c7820c$84e0ec60$06775294@home254af60dac>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1252";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-This one is hardly promoted
+This one will explode
 Special Situation Alert
 
 TMXO
@@ -47,6 +47,6 @@ affiliates, officers, directors and employees may also own or may
 buy the shares discussed in this opinion and intend to sell or
 profit in the event those shares rise or decrease in value
 
-_____
-Is there huge profit in this deal?
-See bullish news online right now, linux-input, call broker
+ . . . .
+Is this sym gaining momentum?
+See the hottest news of the TMXO, linux-input, call your broker

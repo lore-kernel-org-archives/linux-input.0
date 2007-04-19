@@ -1,52 +1,58 @@
-From: "Guillermo Cross" <kzcordova@negative.org>
-Subject: At till castella
-Date: Thu, 19 Apr 2007 19:17:23 +0800
-Message-ID: <001601c782b7$5b944c20$06b7c094@legendkt1ayhw6>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [RFC 1/2] Input: ff, add FF_RAW effect
+Date: Thu, 19 Apr 2007 17:38:05 +0200
+Message-ID: <46278CDD.2000007@gmail.com>
+References: <210731960111436322@karneval.cz> <462688AB.4060707@gmail.com> <38b3b7c0704182125q1928c5barad21ed603088ab04@mail.gmail.com> <200704190058.11625.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1252";
-        reply-type=original
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200704190058.11625.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: johann deneux <johann.deneux@gmail.com>, linux-kernel@vger.kernel.org, stenyak@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-THE HOTTEST ALERT
-Special Situation Alert
+Dmitry Torokhov napsal(a):
+> I have been thinking about this and I don't think that exporting motor
+> data is a good idea, at least not in case of Phantom driver. The fact
+> that there are 3 motors is a hardware implementation detail and it
+> is not interesting for general application.
 
-TMXO
+Ok, so what about torques (despite it's still something like FF_RAW or motor
+descriptor)? It seems not to be so bad called effect name -- not only
+phantom uses torques on motors as an unit of force, for example I get this
+by quick googling:
+http://www.caip.rutgers.edu/~bouzit/lrp/glove.html
+They use there some motors with 14 torque values too, so the phantom isn't
+the only device which uses this approach.
 
-Trimax. are providers of Broadband over Power Line (BPL) 
-communication technologies. 
+> My understanding that the end result of controlling these 3 motors
 
-OTC:TMXO - Last: 0.18
+Actually there is also a version with 6 motors :).
 
-Technologies that use the power grid to deliver 128-bit encrypted
-high-speed symmetrical broadband for data, voice and video transmission.
+> is a force vector (I don't know if there is such english term, this
+> is a literal translation from russian) applied to user's hand.
 
-This is a sector to be in!
+Better say torques vector. You must compute a torque for each place from the
+3d (or bigger) vector of forces in different way for each device that exists
+-- this means forces are not independent unit, torques are in the meaning of
+layer which doesn't care about what is connected above and below it.
 
+> If we are interested in using FF API we need to come up with a way
+> to express this effect without exposing implementation details of
+> one particular device.
 
-All material herein were prepared by us based upon information
-believed to be reliable but not guaranteed to be accurate and
-should not be considered to be all inclusive. This opinion contains
-forward-looking statements that involve risks and uncertainties.You
-could lose all your money. We are not a licensed broker, broker
-dealer, market maker, investment banker, investment advisor,
-analyst or underwriter. Please consult a broker before purchasing
-or selling any securities viewed or mentioned herein. We are
-negotiating a cash price for this advertisement in the near
-future,but at this time have received nothing.  Third parties,
-affiliates, officers, directors and employees may also own or may
-buy the shares discussed in this opinion and intend to sell or
-profit in the event those shares rise or decrease in value
+Still, torques are better named raw/motor values, which goes to the device
+and I'm sceptic about inventing something class-better than this.
 
------
-Here it comes is it going to be the REAL BIG ONE?
-Check the news of TMXO, linux-input, contact broker
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+ B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

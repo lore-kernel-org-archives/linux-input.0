@@ -1,40 +1,52 @@
-From: Milind Arun Choudhary <milindchoudhary@gmail.com>
-Subject: [KJ][PATCH]SPIN_LOCK_UNLOCKED cleanup in drivers/char/keyboard
-Date: Thu, 19 Apr 2007 16:49:02 +0530
-Message-ID: <20070419111902.GB11493@arun.site>
+From: "Guillermo Cross" <kzcordova@negative.org>
+Subject: At till castella
+Date: Thu, 19 Apr 2007 19:17:23 +0800
+Message-ID: <001601c782b7$5b944c20$06b7c094@legendkt1ayhw6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1252";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Kernel Janitors <kernel-janitors@lists.osdl.org>, INPUT <linux-input@atrey.karlin.mff.cuni.cz>
-Cc: Andrw Morton <akpm@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, dmitry.torokhov@gmail.com
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-SPIN_LOCK_UNLOCKED cleanup,use __SPIN_LOCK_UNLOCKED instead 
+THE HOTTEST ALERT
+Special Situation Alert
 
-Signed-off-by: Milind Arun Choudhary <milindchoudhary@gmail.com>
+TMXO
 
----
- keyboard.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Trimax. are providers of Broadband over Power Line (BPL) 
+communication technologies. 
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index cb8d691..df9bfc1 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -110,7 +110,7 @@ struct kbd_struct kbd_table[MAX_NR_CONSOLES];
- static struct kbd_struct *kbd = kbd_table;
- 
- struct vt_spawn_console vt_spawn_con = {
--	.lock = SPIN_LOCK_UNLOCKED,
-+	.lock = __SPIN_LOCK_UNLOCKED(vt_spawn_con.lock),
- 	.pid  = NULL,
- 	.sig  = 0,
- };
--- 
-Milind Arun Choudhary
+OTC:TMXO - Last: 0.18
+
+Technologies that use the power grid to deliver 128-bit encrypted
+high-speed symmetrical broadband for data, voice and video transmission.
+
+This is a sector to be in!
+
+
+All material herein were prepared by us based upon information
+believed to be reliable but not guaranteed to be accurate and
+should not be considered to be all inclusive. This opinion contains
+forward-looking statements that involve risks and uncertainties.You
+could lose all your money. We are not a licensed broker, broker
+dealer, market maker, investment banker, investment advisor,
+analyst or underwriter. Please consult a broker before purchasing
+or selling any securities viewed or mentioned herein. We are
+negotiating a cash price for this advertisement in the near
+future,but at this time have received nothing.  Third parties,
+affiliates, officers, directors and employees may also own or may
+buy the shares discussed in this opinion and intend to sell or
+profit in the event those shares rise or decrease in value
+
+-----
+Here it comes is it going to be the REAL BIG ONE?
+Check the news of TMXO, linux-input, contact broker

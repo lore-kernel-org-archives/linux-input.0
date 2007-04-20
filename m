@@ -1,82 +1,32 @@
-From: Cialis <rbrennan@japan.com>
-Subject: Benefits of Cialis
-Date: Sat, 21 Apr 2007 00:25:50 +0300
-Message-ID: <7a9801c78392$3f232932$4bac150c@japan.com>
+From: "Margie Jeffie" <ymnpz33hlc@aei.ca>
+Subject: SPECIAL PHARMACY DISCOUNT, you pay & we ship, no  question asked, established by reputable Canadian Doctor cqgx
+Date: Fri, 20 Apr 2007 22:50:03 +0100
+Message-ID: <763e250t.7560108@aei.ca>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-    boundary="----=_NextPart_000_0000_B7467D1C.AFD70F97"
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kskdiiulijwbw@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0000_B7467D1C.AFD70F97
-Content-Type: text/plain;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
- What is CIALIS?
-
-CIALIS is the only ED (Erectile Disfunction) tablet clinically proven to
-work both up to 36 hours and in as fast as 30 minutes. And because CIALIS
-has an extended period of effectiveness, you dont have the pressure to
-perform within a few hours. You and your partner can relax and take your
-time choosing the moment that is right for both of you.
-
-Benefits of CIALIS 
-
- Works up to 36 hours  Works fast  Works Effectively  Keeps you ready 
-No need to plan around meals  Used by millions of men   Buy CIALIS online!
-
-  
-------=_NextPart_000_0000_B7467D1C.AFD70F97
-Content-Type: text/html;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
-</HEAD>
-<BODY text=3D#000000 bgColor=3D#ffffff>
-
-<font size=3D"3" face=3D"Times New Roman"><p =
-class=3D"subtextcialis"><font face=3D"Tahoma" color=3D"#333300" =
-size=3D"5"><strong>What is CIALIS?</strong></font></p>
-<p><font face=3D"Tahoma" size=3D"2">CIALIS is the only ED (Erectile =
-Disfunction) tablet clinically proven to work both <br />up to 36 hours =
-and in as fast as 30 minutes. </font><font face=3D"Tahoma" =
-size=3D"2">And because CIALIS has an extended <br />period of =
-effectiveness, you don&rsquo;t have the pressure to perform within a few=
- hours. <br />You and your partner can relax and take your time choosing=
- the moment that is right for both of you.</font></p>
-<p class=3D"subtextcialis"><font size=3D"2"><font face=3D"Tahoma"><font =
-color=3D"#003300" size=3D"5"><strong>Benefits of CIALIS</strong></font> =
-</font></font></p>
-<ul>
-    <li><font face=3D"Tahoma" size=3D"2">Works up to 36 hours =
-</font></li>
-    <li><font face=3D"Tahoma" size=3D"2">Works fast </font></li>
-    <li><font face=3D"Tahoma" size=3D"2">Works Effectively =
-</font></li>
-    <li><font face=3D"Tahoma" size=3D"2">Keeps you ready </font></li>
-    <li><font face=3D"Tahoma" size=3D"2">No need to plan around meals =
-</font></li>
-    <li><font face=3D"Tahoma" size=3D"2">Used by millions of men =
-</font></li>
-</ul>
-<p><font face=3D"Tahoma" color=3D"#003300" size=3D"5"><strong><a =
-href=3D"http://leikzsforalokk.com">Buy CIALIS =
-online!</a></strong></font></p></font>
-</BODY>
-</HTML>
-
-------=_NextPart_000_0000_B7467D1C.AFD70F97--
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head>
+<body>
+<font color=FFEAD5 size=1>rich choose degree certain along east? sale wish progress pay oh sorry proceeded,</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart
+</center></b></font><br><font color=000000 size=1>We are the best price on all high quality meds. Established by a reputable Canadian Doctor and Scientist, Express 
+Drugmart's mission is to provide you with a secure online environment to purchase the safest, quality medication<br><br><font color=000000 size=2><b>Viagraa (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a 
+dose</font><br>Valiumm - <font color=F20000>as LOW as $ 1.50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only $ 1.50 per  D0SE</font><br>Ambienn - 
+<font color=F20000>only $ 1.65 per  D0SE</font><br>Ativann - <font color=F20000>only $ 1.50 per  D0SE</font><br>Somaa - <font color=F20000>only $ 1.50 per  D0SE
+</font>
+<br>
+Clenbuterol - <font color=F20000>only $ 2.50 per D0SE
+</font><br>Meridiaa (brand name) - <font color=F20000>only $ 3.99 per  D0SE</font><br></b></font><br><center>
+<a href=http://bzsc.ofitsinfunds.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font>
+</font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>learned within beautiful full was wife. using ticket somewhere wife.</font>
+</body>
+</html>

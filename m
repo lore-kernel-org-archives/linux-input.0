@@ -1,449 +1,218 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [RFC 2/2] Input: phantom, add a new driver
-Date: Thu, 19 Apr 2007 23:07:19 -0700
-Message-ID: <20070419230719.a118a132.akpm@linux-foundation.org>
-References: <210731960111436322@karneval.cz>
-	<258431179037841809@karneval.cz>
+From: "Augustine Ott" <jowcodesunos@codesu.com>
+Subject: Join the thousands of people who got slim
+Date: Fri, 20 Apr 2007 08:20:08 -0900
+Message-ID: <606709835.35122900873242@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------67A5252CD394D3"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <258431179037841809@karneval.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-kernel@vger.kernel.org, johann deneux <johann.deneux@gmail.com>, Dmitry Torokhov <dtor@insightbb.com>, stenyak@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 17 Apr 2007 22:02:10 +0200 (CEST) Jiri Slaby <jirislaby@gmail.com> wrote:
+------------67A5252CD394D3
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
 
-> phantom, add a new driver
-> 
-> Sensable Phantom is a up to 7DOF force feedback (up to 6DOF FF) device. It's
-> atypical, so it's based on the new added FF_RAW effect.
-> 
-> diff --git a/drivers/input/misc/phantom.c b/drivers/input/misc/phantom.c
-> new file mode 100644
-> index 0000000..58f55cd
-> --- /dev/null
-> +++ b/drivers/input/misc/phantom.c
-> @@ -0,0 +1,387 @@
-> +/*
-> + *  Copyright (C) 2005-2007 Jiri Slaby <jirislaby@gmail.com>
-> + *
-> + *  This program is free software; you can redistribute it and/or modify
-> + *  it under the terms of the GNU General Public License as published by
-> + *  the Free Software Foundation; either version 2 of the License, or
-> + *  (at your option) any later version.
-> + *
-> + *  You need an userspace library to cooperate with this driver. It (and other
-> + *  info) may be obtained here:
-> + *  http://www.fi.muni.cz/~xslaby/phantom.html
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/device.h>
-> +#include <linux/pci.h>
-> +#include <linux/fs.h>
-> +#include <linux/poll.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/input.h>
-> +
-> +#include <asm/io.h>
-> +
-> +#define PHANTOM_VERSION		"n0.9.4"
 
-That's an impressive version number ;)
+Anatrim =96 The very up-to-date and most fascinating product for=20=
+over-weight people is made available now =96 As could be seen on ABC.
 
-> +#define PHM_MAX_TORQUES		3
-> +
-> +#define PHN_CONTROL		0x6
-> +#define PHN_CTL_AMP		0x1
-> +#define PHN_CTL_BUT		0x2
-> +#define PHN_CTL_IRQ		0x10
-> +
-> +#define PHN_IRQCTL		0x4c
-> +
-> +#define PHN_ZERO_FORCE		2048
+Do you retain all the cases when you told yourself you would do any=20=
+thing to get rid of this desperately growing number of kilos?=20=
+Fortunately, now no major sacrifice is expected. Thanks to Anatrim, the=20=
+ground-shaking pound-melting mixture, you can get naturally health=20=
+lifestyle and become really thinner. Just look at what people write!
 
-<wonders what all those do>
+"It=92s quite difficult to admit it but I was an awful food addict. 
 
-> +#define PCI_ENCODER(dev, axis) ((0 - (int)ioread32((dev)->iaddr + (axis))) & \
-> +									0xffff)
+I greedily ate all this garbige 
 
-Is there any reason why this cannot be a lower-cased inline C function? 
-Nicer to read, typesafe, etc.
+and just could not stop. 
 
-> +#define PHB_RUNNING		1
-> +#define PHB_RESET		2
-> +
-> +static struct PH_CLASSTYPE *phantom_class;
+This misery passed away when I started course with Anatrim! 
 
-I guess that PH_CLASSTYPE is some protect-me-from-gregkh compatibility
-thing.  But there isn't such a macro in the tree.  I switched this to plain
-old `class'.
+Oh, God,
 
-> +struct phantom_device {
-> +	void __iomem *caddr;
-> +	u32 __iomem *iaddr;
-> +	u32 __iomem *oaddr;
-> +	u32 amp_bit;
-> +	s16 torques[PHM_MAX_TORQUES];
-> +	unsigned long status;
-> +
-> +	struct input_dev *idev;
-> +};
-> +
-> +static int phantom_status(struct phantom_device *dev, unsigned long newstat)
-> +{
-> +	pr_debug("phantom_status %lx %lx\n", dev->status, newstat);
-> +
-> +	if (!(dev->status & PHB_RUNNING) && (newstat & PHB_RUNNING)) {
-> +		iowrite32(PHN_CTL_IRQ | PHN_CTL_AMP, dev->iaddr + PHN_CONTROL);
-> +		dev->amp_bit = PHN_CTL_IRQ;
-> +		iowrite32(0x43, dev->caddr + PHN_IRQCTL);
-> +	} else if ((dev->status & PHB_RUNNING) && !(newstat & PHB_RUNNING))
-> +		iowrite32(0, dev->caddr + PHN_IRQCTL);
-> +
-> +	dev->status = newstat;
-> +
-> +	return 0;
-> +}
-> +
-> +static void phantom_close(struct input_dev *idev)
-> +{
-> +	struct phantom_device *dev = idev->private;
-> +
-> +	phantom_status(dev, dev->status & ~PHB_RUNNING);
-> +}
-> +
-> +static void phantom_reset(struct phantom_device *dev)
-> +{
-> +	pr_debug("resetting\n");
-> +
-> +	iowrite32(~0x1f, dev->iaddr);
-> +	wmb();
-> +	iowrite32(0x1f, dev->iaddr);
-> +	dev->status |= PHB_RESET;
-> +}
+ my craving for food disappeared, 
 
-Does the wmb here actually do anything useful?  If so, a comment is needed
-because it isn't possible to work out why that statement is there by
-reading the code.
+mood increased and I=92m the happiest person 27 pounds in 2.8 months. 
 
-> ...
->
-> +
-> +static irqreturn_t phantom_isr(int irq, void *data)
-> +{
-> +	struct phantom_device *dev = data;
-> +	struct input_dev *idev = dev->idev;
-> +	unsigned int a, hw_status;
-> +
-> +	hw_status = ioread32(dev->iaddr + PHN_CONTROL);
-> +	if (!(hw_status & PHN_CTL_IRQ))
-> +		return IRQ_NONE;
-> +
-> +	iowrite32(0, dev->iaddr);
-> +	wmb();
-> +	iowrite32(0xc0, dev->iaddr);
+I can tell you now I became the happiest person on the planet!"
+ 
 
-there too.
+Lusia R., Texas
 
-> +	if (unlikely(idev == NULL))
-> +		return IRQ_HANDLED;
+ 
+"I had problems with over-weight since I was a boy. 
 
-Can this happen?  If so, a comment explaining why would be nice.
+It=92s difficult to fancy how I abhorred being derided at school. 
 
-> +	input_report_abs(idev, ABS_X, PCI_ENCODER(dev, 0));
-> +	input_report_abs(idev, ABS_Y, PCI_ENCODER(dev, 1));
-> +	input_report_abs(idev, ABS_Z, PCI_ENCODER(dev, 2));
-> +	input_report_abs(idev, ABS_RX, PCI_ENCODER(dev, 3));
-> +	input_report_abs(idev, ABS_RY, PCI_ENCODER(dev, 4));
-> +	input_report_abs(idev, ABS_RZ, PCI_ENCODER(dev, 5));
-> +	input_report_key(idev, BTN_0, !!(hw_status & PHN_CTL_BUT));
-> +	input_sync(idev);
-> +	input_event(idev, EV_SYN, SYN_CONFIG, 0);
-> +
-> +	for (a = 0; a < PHM_MAX_TORQUES; a++)
-> +		iowrite32(dev->torques[a] + PHN_ZERO_FORCE, dev->oaddr + a);
-> +	iowrite32(dev->amp_bit, dev->iaddr + PHN_CONTROL);
-> +	dev->amp_bit ^= PHN_CTL_AMP;
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +/******************************************************************************
+I detested the weight and I hated myself. 
 
-A plain old
+After trying many different remedies I found out about Anatrim. 
 
-/*
- * Init and deinit driver
- */
+It literally dragged me out of this horrible nightmare! Many and many=20=
+thanks to you, my friends."
 
-is sufficient and typical.
+ 
+Steve Doubt, San Diego
 
-But this is not actually the most useful of comments anyway ;)
+ 
+"Do you know what? Anatrim kept my marriage intact! I went into the=20=
+circle, depression =96 more eating =96 more depression. My wife was=20=
+thinking about the leaving me as I was turning in overweight psycho. 
 
-> + * Init and deinit driver
-> + */
-> +static void __devinit phantom_init_idev(const struct pci_dev *pdev,
-> +		struct phantom_device *dev)
-> +{
-> +	struct input_dev *idev = dev->idev;
-> +
-> +	idev->private = dev;
-> +	idev->name = "Sensable Phantom";
-> +	idev->id.bustype = BUS_PCI;
+One my best friend showed me site and I ordered my pack of Anatrim=20=
+right off. 
 
-<looks>
+The final result was excellent, my appetite became normal, I was in a=20=
+good mood oftener, and, of course, I became able to tighten my belt on=20=
+some holes. And you see me, the bed became cool also!"
 
-<wonders why BUS_PCI got defined in input.h>
+ 
+Bob
 
-<and in drivers/isdn/hardware/eicon/cardtype.h>
+ There many and many testimonial letters left by delighted people=20=
+trying Anatrim. Why don't you add yourself to the tens of thousands of=20=
+slim clients and try this original appetite-abating power increasing=20=
+product now!
 
-<and in drivers/char/sxboards.h>
+Don=92t miss the opportunity!
 
-<hurriedly stops looking>
 
-> +	idev->id.vendor = pdev->vendor;
-> +	idev->id.product = pdev->device;
-> +	idev->id.version = 1;
-> +	idev->close = phantom_close;
-> +
-> +	set_bit(BTN_0, idev->keybit);
-> +	input_set_abs_params(idev, ABS_X, -0x8000, 0x7fff, 4, 0);
-> +	input_set_abs_params(idev, ABS_Y, -0x8000, 0x7fff, 4, 0);
-> +	input_set_abs_params(idev, ABS_Z, -0x8000, 0x7fff, 4, 0);
-> +	input_set_abs_params(idev, ABS_RX, -0x8000, 0x7fff, 4, 0);
-> +	input_set_abs_params(idev, ABS_RY, -0x8000, 0x7fff, 4, 0);
-> +	input_set_abs_params(idev, ABS_RZ, -0x8000, 0x7fff, 4, 0);
-> +	set_bit(FF_RAW, idev->ffbit);
-> +
-> +	set_bit(EV_KEY, idev->evbit);
-> +	set_bit(EV_ABS, idev->evbit);
-> +	set_bit(EV_FF, idev->evbit);
-> +	set_bit(FF_AUTOCENTER, idev->ffbit); /* reset phantom */
-> +}
-> +
-> +static int __devinit phantom_probe(struct pci_dev *pdev,
-> +	const struct pci_device_id *pci_id)
-> +{
-> +	struct phantom_device *pht;
-> +	int retval;
-> +
-> +	retval = pci_enable_device(pdev);
-> +	if (retval)
-> +		goto err;
-> +
-> +	retval = pci_request_regions(pdev, "phantom");
-> +	if (retval)
-> +		goto err;
+------------67A5252CD394D3
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: quoted-printable
 
-Missed a pci_disable_device() here?
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Be leaner and slimmer by next week</TITLE>
+</HEAD>
+<BODY>
 
-> +	retval = -ENOMEM;
-> +	pht = kzalloc(sizeof(*pht), GFP_KERNEL);
-> +	if (pht == NULL) {
-> +		dev_err(&pdev->dev, "unable to allocate device\n");
-> +		goto err_reg;
-> +	}
-> +
-> +	pht->caddr = pci_iomap(pdev, 0, 0);
-> +	if (pht->caddr == NULL) {
-> +		dev_err(&pdev->dev, "can't remap conf space\n");
-> +		goto err_fr;
-> +	}
-> +	pht->iaddr = pci_iomap(pdev, 2, 0);
-> +	if (pht->iaddr == NULL) {
-> +		dev_err(&pdev->dev, "can't remap input space\n");
-> +		goto err_unmc;
-> +	}
-> +	pht->oaddr = pci_iomap(pdev, 3, 0);
-> +	if (pht->oaddr == NULL) {
-> +		dev_err(&pdev->dev, "can't remap output space\n");
-> +		goto err_unmi;
-> +	}
-> +
-> +	iowrite32(0, pht->caddr + PHN_IRQCTL);
-> +	retval = request_irq(pdev->irq, phantom_isr,
-> +			IRQF_SHARED | IRQF_DISABLED, "phantom", pht);
-> +	if (retval) {
-> +		dev_err(&pdev->dev, "can't establish ISR\n");
-> +		goto err_unmo;
-> +	}
-> +
-> +	pht->idev = input_allocate_device();
-> +	if (pht->idev == NULL) {
-> +		dev_err(&pdev->dev, "can't create input device\n");
-> +		retval = -ENOMEM;
-> +		goto err_irq;
-> +	}
-> +
-> +	phantom_init_idev(pdev, pht);
-> +
-> +	retval = input_ff_create_memless(pht->idev, NULL, phantom_play);
-> +	if (retval) {
-> +		dev_err(&pdev->dev, "can't create FF device\n");
-> +		goto err_idev;
-> +	}
-> +
-> +	pht->idev->ff->set_autocenter = phantom_autocenter;
-> +
-> +	retval = input_register_device(pht->idev);
-> +	if (retval) {
-> +		dev_err(&pdev->dev, "can't register input device\n");
-> +		goto err_idev;
-> +	}
-> +
-> +	pci_set_drvdata(pdev, pht);
-> +
-> +	return 0;
-> +err_idev:
-> +	input_free_device(pht->idev);
-> +err_irq:
-> +	free_irq(pdev->irq, pht);
-> +err_unmo:
-> +	pci_iounmap(pdev, pht->oaddr);
-> +err_unmi:
-> +	pci_iounmap(pdev, pht->iaddr);
-> +err_unmc:
-> +	pci_iounmap(pdev, pht->caddr);
-> +err_fr:
-> +	kfree(pht);
-> +err_reg:
-> +	pci_release_regions(pdev);
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.budoclit.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7tftgos">
+Anatrim =96 The very up-to-date and most fascinating product for=20=
+over-weight people is made available now =96 As could be seen on ABC.
+</a>
+</center>
+Do you retain all the cases when you told yourself you would do any=20=
+thing to get rid of this desperately growing number of kilos?=20=
+Fortunately, now no major sacrifice is expected. Thanks to Anatrim, the=20=
+ground-shaking pound-melting mixture, you can get naturally health=20=
+lifestyle and become really thinner. Just look at what people write!
+<br>
+<br>
+<i>
+"It=92s quite difficult to admit it but I was an awful food addict. 
+<b>
+<i>
+I greedily ate all this garbige 
+<b>
+<i>
+and just could not stop. 
+</i>
+</b>
+</i>
+</b>
+This misery passed away when I started course with Anatrim! 
+<b>
+<i>
+Oh, God,
+</i>
+</b>
+<b>
+<i>
+ my craving for food disappeared, 
+<b>
+<i>
+mood increased and I=92m the happiest person 27 pounds in 2.8 months. 
+</i>
+</b>
+</i>
+</b>
+I can tell you now I became the happiest person on the planet!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Lusia R., Texas
+</i>
+</b>
+<br>
+<br>
+ <i>
+"I had problems with over-weight since I was a boy. 
+<b>
+<i>
+It=92s difficult to fancy how I abhorred being derided at school. 
+</i>
+</b>
+<b>
+<i>
+I detested the weight and I hated myself. 
+<b>
+<i>
+After trying many different remedies I found out about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally dragged me out of this horrible nightmare! Many and many=20=
+thanks to you, my friends."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Steve Doubt, San Diego
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Do you know what? Anatrim kept my marriage intact! I went into the=20=
+circle, depression =96 more eating =96 more depression. My wife was=20=
+thinking about the leaving me as I was turning in overweight psycho. 
+<b>
+<i>
+One my best friend showed me site and I ordered my pack of Anatrim=20=
+right off. 
+</i>
+</b>
+The final result was excellent, my appetite became normal, I was in a=20=
+good mood oftener, and, of course, I became able to tighten my belt on=20=
+some holes. And you see me, the bed became cool also!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Bob
+</i>
+</b>
+<br>
+<br>
+ There many and many testimonial letters left by delighted people=20=
+trying Anatrim. Why don't you add yourself to the tens of thousands of=20=
+slim clients and try this original appetite-abating power increasing=20=
+product now!
+<center>
+<a=20=
+href=3D"http://www.budoclit.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7tftgos">
+Don=92t miss the opportunity!
+</a>
+</center>
+</b>
+</p>
 
-err_disable:
-	pci_disable_device(pdev);
-
-> +err:
-> +	return retval;
-> +}
-> +
-> +static void __devexit phantom_remove(struct pci_dev *pdev)
-> +{
-> +	struct phantom_device *pht = pci_get_drvdata(pdev);
-> +
-> +	iowrite32(0, pht->caddr + PHN_IRQCTL);
-> +
-> +	input_unregister_device(pht->idev);
-> +
-> +	free_irq(pdev->irq, pht);
-> +
-> +	pci_iounmap(pdev, pht->oaddr);
-> +	pci_iounmap(pdev, pht->iaddr);
-> +	pci_iounmap(pdev, pht->caddr);
-> +
-> +	kfree(pht);
-> +
-> +	pci_release_regions(pdev);
-> +}
-
-#ifdef CONFIG_PM
-
-> +static int phantom_suspend(struct pci_dev *pdev, pm_message_t state)
-> +{
-> +	struct phantom_device *dev = pci_get_drvdata(pdev);
-> +
-> +	iowrite32(0, dev->caddr + PHN_IRQCTL);
-> +
-> +	return 0;
-> +}
-> +
-> +static int phantom_resume(struct pci_dev *pdev)
-> +{
-> +	struct phantom_device *dev = pci_get_drvdata(pdev);
-> +
-> +	iowrite32(0, dev->caddr + PHN_IRQCTL);
-> +
-> +	return 0;
-> +}
-
-#else
-#define phantom_suspend NULL
-#define phantom_resume NULL
-#endif
-
-(then test it with CONFIG_PM=n!)
-
-> +static struct pci_device_id phantom_pci_tbl[] __devinitdata = {
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_PLX, PCI_DEVICE_ID_PLX_9050),
-> +		.class = PCI_CLASS_BRIDGE_OTHER << 8, .class_mask = 0xffff00 },
-> +	{ 0, }
-> +};
-> +MODULE_DEVICE_TABLE(pci, phantom_pci_tbl);
-> +
-> +static struct pci_driver phantom_pci_driver = {
-> +	.name = "phantom",
-> +	.id_table = phantom_pci_tbl,
-> +	.probe = phantom_probe,
-> +	.remove = __devexit_p(phantom_remove),
-> +	.suspend = phantom_suspend,
-> +	.resume = phantom_resume
-> +};
-
-This goes into the read/write section.  Make it const?
-
-> +static ssize_t phantom_show_version(struct class *cls, char *buf)
-> +{
-> +	return sprintf(buf, PHANTOM_VERSION "\n");
-> +}
-> +
-> +static CLASS_ATTR(version, 0444, phantom_show_version, NULL);
-> +
-> +static int __init phantom_init(void)
-> +{
-> +	int retval;
-> +
-> +	phantom_class = class_create(THIS_MODULE, "phantom");
-> +	if (IS_ERR(phantom_class)) {
-> +		retval = PTR_ERR(phantom_class);
-> +		printk(KERN_ERR "phantom: can't register phantom class\n");
-> +		goto err;
-> +	}
-> +	retval = class_create_file(phantom_class, &class_attr_version);
-> +	if (retval) {
-> +		printk(KERN_ERR "phantom: can't create sysfs version file\n");
-> +		goto err_class;
-> +	}
-> +
-> +	retval = pci_register_driver(&phantom_pci_driver);
-> +	if (retval) {
-> +		printk(KERN_ERR "phantom: can't register pci driver\n");
-> +		goto err_attr;
-> +	}
-> +
-> +	printk(KERN_INFO "Phantom Linux Driver, version " PHANTOM_VERSION ", "
-> +			"init OK\n");
-> +
-> +	return 0;
-> +err_attr:
-> +	class_remove_file(phantom_class, &class_attr_version);
-> +err_class:
-> +	class_destroy(phantom_class);
-> +err:
-> +	return retval;
-> +}
-> +
-> +static void __exit phantom_exit(void)
-> +{
-> +	pci_unregister_driver(&phantom_pci_driver);
-> +
-> +	class_remove_file(phantom_class, &class_attr_version);
-> +	class_destroy(phantom_class);
-> +
-> +	pr_debug("phantom: module successfully removed\n");
-> +}
-> +
-> +module_init(phantom_init);
-> +module_exit(phantom_exit);
-> +
-> +MODULE_AUTHOR("Jiri Slaby <jirislaby@gmail.com>");
-> +MODULE_DESCRIPTION("Sensable Phantom driver");
-> +MODULE_LICENSE("GPL");
-> +MODULE_VERSION(PHANTOM_VERSION);
+</BODY></HTML>
+------------67A5252CD394D3--

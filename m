@@ -1,10 +1,10 @@
-From: "Jeff Velez" <palaceloses@protectdolphins.com>
-Subject: Been enough but i've.
-Date: Fri, 20 Apr 2007 19:29:15 -0120
-Message-ID: <01c78382$2ebe5080$6c822ecf@palaceloses>
+From: Cialis <rbrennan@japan.com>
+Subject: Benefits of Cialis
+Date: Sat, 21 Apr 2007 00:25:50 +0300
+Message-ID: <7a9801c78392$3f232932$4bac150c@japan.com>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7839B.540B8880"
+    boundary="----=_NextPart_000_0000_B7467D1C.AFD70F97"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,65 +16,67 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C7839B.540B8880
+------=_NextPart_000_0000_B7467D1C.AFD70F97
 Content-Type: text/plain;
-	charset="us-ascii"
+    charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 
+ What is CIALIS?
 
-  Hi , SurferWe d0 want to ask, did hear y0u ab0ut similar prices?
-  Vaigra Sotf Tabs as low as $4.1
-Vaigra Professoinal as low as $4.07
+CIALIS is the only ED (Erectile Disfunction) tablet clinically proven to
+work both up to 36 hours and in as fast as 30 minutes. And because CIALIS
+has an extended period of effectiveness, you dont have the pressure to
+perform within a few hours. You and your partner can relax and take your
+time choosing the moment that is right for both of you.
 
-  Xnaax as low as $2.85
-Paixl as low as $2.06
-Zolotf as low as $1.11
-Lorazpeam as low as $1.75
+Benefits of CIALIS 
 
-  Rokcit247 as low as $43.37
-Hangvoer as low as $39.99
-Zihtromax as low as $3.2
-Amoixcillin as low as $1.67
-Spremamax as low as $45
+ Works up to 36 hours  Works fast  Works Effectively  Keeps you ready 
+No need to plan around meals  Used by millions of men   Buy CIALIS online!
 
-YOU WILL LO0K M0RE ATTENTIVELY ;-)
-
-
-------=_NextPart_000_0006_01C7839B.540B8880
+  
+------=_NextPart_000_0000_B7467D1C.AFD70F97
 Content-Type: text/html;
-	charset="us-ascii"
+    charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
+</HEAD>
+<BODY text=3D#000000 bgColor=3D#ffffff>
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<div align=3D"center">
-  <p>Hi , Surfer</p>
-<a href=3D"http://dlahuia.blogspot.com/" target=3D"_blank">We d0 want to as=
-k, did hear y0u ab0ut similar prices?</a><br>
-  Vaigra Sotf Tabs as low as $4.1<br>
-Vaigra Professoinal as low as $4.07<br>
+<font size=3D"3" face=3D"Times New Roman"><p =
+class=3D"subtextcialis"><font face=3D"Tahoma" color=3D"#333300" =
+size=3D"5"><strong>What is CIALIS?</strong></font></p>
+<p><font face=3D"Tahoma" size=3D"2">CIALIS is the only ED (Erectile =
+Disfunction) tablet clinically proven to work both <br />up to 36 hours =
+and in as fast as 30 minutes. </font><font face=3D"Tahoma" =
+size=3D"2">And because CIALIS has an extended <br />period of =
+effectiveness, you don&rsquo;t have the pressure to perform within a few=
+ hours. <br />You and your partner can relax and take your time choosing=
+ the moment that is right for both of you.</font></p>
+<p class=3D"subtextcialis"><font size=3D"2"><font face=3D"Tahoma"><font =
+color=3D"#003300" size=3D"5"><strong>Benefits of CIALIS</strong></font> =
+</font></font></p>
+<ul>
+    <li><font face=3D"Tahoma" size=3D"2">Works up to 36 hours =
+</font></li>
+    <li><font face=3D"Tahoma" size=3D"2">Works fast </font></li>
+    <li><font face=3D"Tahoma" size=3D"2">Works Effectively =
+</font></li>
+    <li><font face=3D"Tahoma" size=3D"2">Keeps you ready </font></li>
+    <li><font face=3D"Tahoma" size=3D"2">No need to plan around meals =
+</font></li>
+    <li><font face=3D"Tahoma" size=3D"2">Used by millions of men =
+</font></li>
+</ul>
+<p><font face=3D"Tahoma" color=3D"#003300" size=3D"5"><strong><a =
+href=3D"http://leikzsforalokk.com">Buy CIALIS =
+online!</a></strong></font></p></font>
+</BODY>
+</HTML>
 
-  Xnaax as low as $2.85<br>
-Paixl as low as $2.06<br>
-Zolotf as low as $1.11<br>
-Lorazpeam as low as $1.75<br>
-
-  Rokcit247 as low as $43.37<br>
-Hangvoer as low as $39.99<br>
-Zihtromax as low as $3.2<br>
-Amoixcillin as low as $1.67<br>
-Spremamax as low as $45<br>
-
-<a href=3D"http://dlahuia.blogspot.com/" target=3D"_blank">YOU WILL LO0K M0=
-RE ATTENTIVELY ;-)</a>
-</div>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C7839B.540B8880--
+------=_NextPart_000_0000_B7467D1C.AFD70F97--

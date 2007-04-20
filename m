@@ -1,218 +1,98 @@
-From: "Augustine Ott" <jowcodesunos@codesu.com>
-Subject: Join the thousands of people who got slim
-Date: Fri, 20 Apr 2007 08:20:08 -0900
-Message-ID: <606709835.35122900873242@thhebat.net>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [RFC 2/2] Input: phantom, add a new driver
+Date: Fri, 20 Apr 2007 11:01:09 +0200
+Message-ID: <46288155.7060701@gmail.com>
+References: <210731960111436322@karneval.cz>	<258431179037841809@karneval.cz> <20070419230719.a118a132.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------67A5252CD394D3"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070419230719.a118a132.akpm@linux-foundation.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, johann deneux <johann.deneux@gmail.com>, Dmitry Torokhov <dtor@insightbb.com>, stenyak@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------67A5252CD394D3
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
+Andrew Morton napsal(a):
+> On Tue, 17 Apr 2007 22:02:10 +0200 (CEST) Jiri Slaby <jirislaby@gmail.com> wrote:
+> 
+>> phantom, add a new driver
+[...]
+>> +#define PHANTOM_VERSION		"n0.9.4"
+> 
+> That's an impressive version number ;)
 
+fork of 0.8 or so 2.4 linux driver -> the n in the meaning of new :)
 
-Anatrim =96 The very up-to-date and most fascinating product for=20=
-over-weight people is made available now =96 As could be seen on ABC.
+>> +#define PHM_MAX_TORQUES		3
+>> +
+>> +#define PHN_CONTROL		0x6
+>> +#define PHN_CTL_AMP		0x1
+>> +#define PHN_CTL_BUT		0x2
+>> +#define PHN_CTL_IRQ		0x10
+>> +
+>> +#define PHN_IRQCTL		0x4c
+>> +
+>> +#define PHN_ZERO_FORCE		2048
+> 
+> <wonders what all those do>
 
-Do you retain all the cases when you told yourself you would do any=20=
-thing to get rid of this desperately growing number of kilos?=20=
-Fortunately, now no major sacrifice is expected. Thanks to Anatrim, the=20=
-ground-shaking pound-melting mixture, you can get naturally health=20=
-lifestyle and become really thinner. Just look at what people write!
+I have no clue too, cut&paste from sensable 2.4 driver. But I'll document as
+much as possible.
 
-"It=92s quite difficult to admit it but I was an awful food addict. 
+>> +#define PCI_ENCODER(dev, axis) ((0 - (int)ioread32((dev)->iaddr + (axis))) & \
+>> +									0xffff)
+> 
+> Is there any reason why this cannot be a lower-cased inline C function? 
+> Nicer to read, typesafe, etc.
 
-I greedily ate all this garbige 
+yes, I'll switch it.
 
-and just could not stop. 
+>> +#define PHB_RUNNING		1
+>> +#define PHB_RESET		2
+>> +
+>> +static struct PH_CLASSTYPE *phantom_class;
+> 
+> I guess that PH_CLASSTYPE is some protect-me-from-gregkh compatibility
+> thing.  But there isn't such a macro in the tree.  I switched this to plain
+> old `class'.
 
-This misery passed away when I started course with Anatrim! 
+Yes, my bad.
 
-Oh, God,
+>> +
+>> +static irqreturn_t phantom_isr(int irq, void *data)
+>> +{
+>> +	struct phantom_device *dev = data;
+>> +	struct input_dev *idev = dev->idev;
+>> +	unsigned int a, hw_status;
+>> +
+>> +	hw_status = ioread32(dev->iaddr + PHN_CONTROL);
+>> +	if (!(hw_status & PHN_CTL_IRQ))
+>> +		return IRQ_NONE;
+>> +
+>> +	iowrite32(0, dev->iaddr);
+>> +	wmb();
+>> +	iowrite32(0xc0, dev->iaddr);
+> 
+> there too.
 
- my craving for food disappeared, 
+Seems reasonable, it can't be reordered. (I hope this holds on all archs.)
 
-mood increased and I=92m the happiest person 27 pounds in 2.8 months. 
+>> +	if (unlikely(idev == NULL))
+>> +		return IRQ_HANDLED;
+> 
+> Can this happen?  If so, a comment explaining why would be nice.
 
-I can tell you now I became the happiest person on the planet!"
- 
+In the case of DEBUG_SHIRQ=y. Comment will be added or better -- devinit code
+reordered.
 
-Lusia R., Texas
-
- 
-"I had problems with over-weight since I was a boy. 
-
-It=92s difficult to fancy how I abhorred being derided at school. 
-
-I detested the weight and I hated myself. 
-
-After trying many different remedies I found out about Anatrim. 
-
-It literally dragged me out of this horrible nightmare! Many and many=20=
-thanks to you, my friends."
-
- 
-Steve Doubt, San Diego
-
- 
-"Do you know what? Anatrim kept my marriage intact! I went into the=20=
-circle, depression =96 more eating =96 more depression. My wife was=20=
-thinking about the leaving me as I was turning in overweight psycho. 
-
-One my best friend showed me site and I ordered my pack of Anatrim=20=
-right off. 
-
-The final result was excellent, my appetite became normal, I was in a=20=
-good mood oftener, and, of course, I became able to tighten my belt on=20=
-some holes. And you see me, the bed became cool also!"
-
- 
-Bob
-
- There many and many testimonial letters left by delighted people=20=
-trying Anatrim. Why don't you add yourself to the tens of thousands of=20=
-slim clients and try this original appetite-abating power increasing=20=
-product now!
-
-Don=92t miss the opportunity!
-
-
-------------67A5252CD394D3
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Be leaner and slimmer by next week</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a=20=
-href=3D"http://www.budoclit.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7tftgos">
-Anatrim =96 The very up-to-date and most fascinating product for=20=
-over-weight people is made available now =96 As could be seen on ABC.
-</a>
-</center>
-Do you retain all the cases when you told yourself you would do any=20=
-thing to get rid of this desperately growing number of kilos?=20=
-Fortunately, now no major sacrifice is expected. Thanks to Anatrim, the=20=
-ground-shaking pound-melting mixture, you can get naturally health=20=
-lifestyle and become really thinner. Just look at what people write!
-<br>
-<br>
-<i>
-"It=92s quite difficult to admit it but I was an awful food addict. 
-<b>
-<i>
-I greedily ate all this garbige 
-<b>
-<i>
-and just could not stop. 
-</i>
-</b>
-</i>
-</b>
-This misery passed away when I started course with Anatrim! 
-<b>
-<i>
-Oh, God,
-</i>
-</b>
-<b>
-<i>
- my craving for food disappeared, 
-<b>
-<i>
-mood increased and I=92m the happiest person 27 pounds in 2.8 months. 
-</i>
-</b>
-</i>
-</b>
-I can tell you now I became the happiest person on the planet!"
-</i> 
-<br>
-<br>
-<b>
-<i>
-Lusia R., Texas
-</i>
-</b>
-<br>
-<br>
- <i>
-"I had problems with over-weight since I was a boy. 
-<b>
-<i>
-It=92s difficult to fancy how I abhorred being derided at school. 
-</i>
-</b>
-<b>
-<i>
-I detested the weight and I hated myself. 
-<b>
-<i>
-After trying many different remedies I found out about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-It literally dragged me out of this horrible nightmare! Many and many=20=
-thanks to you, my friends."
-</i>
- <br>
-<br>
-<b>
-<i>
-Steve Doubt, San Diego
-</i>
-</b>
-<br>
-<br>
- <i>
-"Do you know what? Anatrim kept my marriage intact! I went into the=20=
-circle, depression =96 more eating =96 more depression. My wife was=20=
-thinking about the leaving me as I was turning in overweight psycho. 
-<b>
-<i>
-One my best friend showed me site and I ordered my pack of Anatrim=20=
-right off. 
-</i>
-</b>
-The final result was excellent, my appetite became normal, I was in a=20=
-good mood oftener, and, of course, I became able to tighten my belt on=20=
-some holes. And you see me, the bed became cool also!"
-</i>
- <br>
-<br>
-<b>
-<i>
-Bob
-</i>
-</b>
-<br>
-<br>
- There many and many testimonial letters left by delighted people=20=
-trying Anatrim. Why don't you add yourself to the tens of thousands of=20=
-slim clients and try this original appetite-abating power increasing=20=
-product now!
-<center>
-<a=20=
-href=3D"http://www.budoclit.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7tftgos">
-Don=92t miss the opportunity!
-</a>
-</center>
-</b>
-</p>
-
-</BODY></HTML>
-------------67A5252CD394D3--
+thanks for notes,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

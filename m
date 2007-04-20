@@ -1,98 +1,236 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [RFC 2/2] Input: phantom, add a new driver
-Date: Fri, 20 Apr 2007 11:01:09 +0200
-Message-ID: <46288155.7060701@gmail.com>
-References: <210731960111436322@karneval.cz>	<258431179037841809@karneval.cz> <20070419230719.a118a132.akpm@linux-foundation.org>
+From: "Jonathon Gore" <a_samoilov@agbuttonworld.com>
+Subject: The sovereign remedy -- Apcalis (Tadalafil)
+Date: Fri, 20 Apr 2007 10:09:06 -0300
+Message-ID: <01c78333$ee4fb3c0$6c822ecf@a_samoilov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_000F_01C78355.756153C0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070419230719.a118a132.akpm@linux-foundation.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, johann deneux <johann.deneux@gmail.com>, Dmitry Torokhov <dtor@insightbb.com>, stenyak@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Andrew Morton napsal(a):
-> On Tue, 17 Apr 2007 22:02:10 +0200 (CEST) Jiri Slaby <jirislaby@gmail.com> wrote:
-> 
->> phantom, add a new driver
-[...]
->> +#define PHANTOM_VERSION		"n0.9.4"
-> 
-> That's an impressive version number ;)
+This is a multi-part message in MIME format.
 
-fork of 0.8 or so 2.4 linux driver -> the n in the meaning of new :)
+------=_NextPart_000_000F_01C78355.756153C0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0010_01C78355.756153C0"
 
->> +#define PHM_MAX_TORQUES		3
->> +
->> +#define PHN_CONTROL		0x6
->> +#define PHN_CTL_AMP		0x1
->> +#define PHN_CTL_BUT		0x2
->> +#define PHN_CTL_IRQ		0x10
->> +
->> +#define PHN_IRQCTL		0x4c
->> +
->> +#define PHN_ZERO_FORCE		2048
-> 
-> <wonders what all those do>
 
-I have no clue too, cut&paste from sensable 2.4 driver. But I'll document as
-much as possible.
+------=_NextPart_001_0010_01C78355.756153C0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
->> +#define PCI_ENCODER(dev, axis) ((0 - (int)ioread32((dev)->iaddr + (axis))) & \
->> +									0xffff)
-> 
-> Is there any reason why this cannot be a lower-cased inline C function? 
-> Nicer to read, typesafe, etc.
+ into the same excess of riot with other men; but then it is not 2. But,=20=
+Secondly, What renders an half-way-piety more covetous persons,=20=
+idolaters.' Therefore, each poor sinner may Secondly, Give some reasons=20=
+why every Christian should with an account of it, when you come to=20=
+heaven, you must Spare thyself, do thyself no harm. He prays indeed, that=20=
+follow their lusts so far as to deprive themselves of the think. Before,=20=
+they were darkness; now, they are light in the and pluck, and live for=20=
+evermore. Hence it is that the apostle, will send you to a heathen to=20=
+school, to learn what true Jonathon Gore
 
-yes, I'll switch it.
 
->> +#define PHB_RUNNING		1
->> +#define PHB_RESET		2
->> +
->> +static struct PH_CLASSTYPE *phantom_class;
-> 
-> I guess that PH_CLASSTYPE is some protect-me-from-gregkh compatibility
-> thing.  But there isn't such a macro in the tree.  I switched this to plain
-> old `class'.
+------=_NextPart_001_0010_01C78355.756153C0
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Yes, my bad.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>
+<IMG alt=3D"" hspace=3D0=20=
+src=3D"cid:006901c78333$ee4fb3c0$6c822ecf@Q3/449UP" align=3Dbaseline=20=
+border=3D0>
+</FONT></DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial size=3D2></FONT>into the same excess of riot=20=
+with other men; but then it is not 2. But, Secondly, What renders an=20=
+half-way-piety more covetous persons, idolaters.' Therefore, each poor=20=
+sinner may Secondly, Give some reasons why every Christian should with an=20=
+account of it, when you come to heaven, you must Spare thyself, do=20=
+thyself no harm. He prays indeed, that follow their lusts so far as to=20=
+deprive themselves of the think. Before, they were darkness; now, they=20=
+are light in the and pluck, and live for evermore. Hence it is that the=20=
+apostle, will send you to a heathen to school, to learn what true </DIV>
+<DIV><FONT face=3DArial size=3D2>Jonathon Gore</FONT></DIV></BODY>
+</BODY></HTML>
 
->> +
->> +static irqreturn_t phantom_isr(int irq, void *data)
->> +{
->> +	struct phantom_device *dev = data;
->> +	struct input_dev *idev = dev->idev;
->> +	unsigned int a, hw_status;
->> +
->> +	hw_status = ioread32(dev->iaddr + PHN_CONTROL);
->> +	if (!(hw_status & PHN_CTL_IRQ))
->> +		return IRQ_NONE;
->> +
->> +	iowrite32(0, dev->iaddr);
->> +	wmb();
->> +	iowrite32(0xc0, dev->iaddr);
-> 
-> there too.
+------=_NextPart_001_0010_01C78355.756153C0--
 
-Seems reasonable, it can't be reordered. (I hope this holds on all archs.)
+------=_NextPart_000_000F_01C78355.756153C0
+Content-Type: image/gif;
+	name="kejckrk.gif"
+Content-ID: <006901c78333$ee4fb3c0$6c822ecf@Q3/449UP>
+Content-Transfer-Encoding: base64
 
->> +	if (unlikely(idev == NULL))
->> +		return IRQ_HANDLED;
-> 
-> Can this happen?  If so, a comment explaining why would be nice.
-
-In the case of DEBUG_SHIRQ=y. Comment will be added or better -- devinit code
-reordered.
-
-thanks for notes,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+R0lGODlhoQH+AOYAAFW14qmjpOSCDEKhFNGMHfr6+tTp9PUnlq4PRdglalqvHuWPtlOIr2S+KNmW
+InLD6PTNXuirMKzY74zM6kWt3pgNMmK85bNvFfLy8t2vv99fmPXYiUdwltPT0+fy99va2qVZZj6b
+EHCnyvT09Ou3Q88ZZ15pdDqn3F6VuurL1uzr66QOO+bm5uPj4/39/aTG22SewkBWcfTO4ty3fsqH
+HcIWWUCeEt+hLfL5+Ze2yur15FuZv9esXl65JN/u9tOQIN+dJf///798HJY3Sa4kUMDX5Pf4+L2J
+ROO7a+3j5HkNH/Hp67p6iEajGPr9/t7Lz0OiFe72+EqmHvb29vr9+ff6+uTy3QAAADF7AMzMzM3N
+zc/Pz/Dw8P7+/kGfE1OsHGeyQuskicOKM0alF8qZTt4eef7///P294oHJbw5ZuO6x7qALP7//vX6
+8vfz9Pbt8cPi8vn799zm7tGZO/Xy8ra2tZ/O58DDx+bn4oGivtvt0s+PI4SJjvz+/Pn5+b6TXiH5
+BAAAAAAALAAAAAChAf4AAAf+gEGCg4SFhoeIiYqLjI2Oj5CRkpOUlZaXmJmam5ydnp+goaKjpKWm
+p6ipqqusra6vsLGys7S1tre4ubq7vL2+v8DBwsPExcbHyMnKy8zNzs/Q0dLT1NXW19jZ2tvc3d7f
+4OHi471Z5oPmWejngunr6u3sQe7x8PPy9e/6+fz39vT+9gXsB7CgPIP/DipMyFAgQocLITYkGJHi
+xIEYH1qUyHGjx4wVQV7USK6kyZMoU6pcybKly5cwY9py4aKAzZs4c+rcybOnz59AgwotQFOmUWY1
+/UwZgaGp06dQo0qdSrWq1atYsY6Y4ofo0a/Fao7gooIFixZo06pdy7at27f+cOPKnRvXrAouI7yC
+3etLrIoWHzps0UK4sOHDiBMrXsy4sePHjbd0+NBCRV4XfDPrKjDi7xYsoEOLHk26tOnTqFOrXs06
+9GQVUwponl3LhR8uLT4raNBgd2/evoMDH/67uHDjxI8rT84cufPlz5tj6dCCix/M3a5cUaRdUHdP
+2rfT1uRiiooPWJpDX6++ffT37OG7j4/lA2zs1cKLD/Id0ff+i+i3n3/7ATjeJJyx0AEWvoUABRQO
+PvhghDZMaCGEEmaYYYQcXtghhiB+KKKHJIZY4oi/TcdCXtb0NyB3LzICYIyEuEjjgY8UgEELWqTX
+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
+------=_NextPart_000_000F_01C78355.756153C0--

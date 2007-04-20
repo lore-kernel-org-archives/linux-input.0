@@ -1,131 +1,216 @@
-From: "emy emy" <sohowfh@gmail.com>
-Subject: =?GB2312?B?ztKyu9Kq1NmOzYRlyMvZjeVY?=
-Date: Fri, 20 Apr 2007 18:24:04 +0800
-Message-ID: <a0aabaa70704200324k65fc3336ha1c2b58db15591f9@mail.gmail.com>
-References: <a0aabaa70704200317n14c74adbja7a37ff92cb111d4@mail.gmail.com>
+From: "Rocco Quick" <jowcoextantnos@coextant.dk>
+Subject: Watch your body change with Anatrim
+Date: Fri, 20 Apr 2007 15:06:15 +0500
+Message-ID: <435982472.32214233151187@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_Part_185404_9317409.1177064644339"
+  boundary="----------D356EA9888FB09"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <a0aabaa70704200317n14c74adbja7a37ff92cb111d4@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: lukor@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_185404_9317409.1177064644339
-Content-Type: text/plain; charset=GB2312; format=flowed
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+------------D356EA9888FB09
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-Ks7SsrvSqtTZjs2EZcjL2Y3lWCoKCgoKCsTjsdjtmp7p19S8utmN5VgsnumEZcjL2Y3lWMT608Df
-aCqfb7eo1sK4uyEKCgoKKgoKxPrEv8ewtcS5pNf3t4C2qIbhCj/uitLiKr1Lye2PxMrChuEqKj8q
-CgoxLgrE+tLRhZK+68S/x7C5pNf3oaLIscnZtcTWu9PQKrjE14O1xNPCmuIqKiEqCgoKCgoyLiCy
-u9DStcTE+qOs0tHU2t9Asqiyu76wmuLW0CoKyqfIpbmk1/cqKiEqCgoKMy4gtPPG85hJtcQqv3O+
-jqGi1tjV+6GissOGVKGinHDQvSoqISoKCjQuCgoKCgq5q8u+vqu6hsjLwabWrs/Co6yCgMjLuaTX
-98G/1Pa806Osn2+/ybHcw+K1xCqzrJVyuaTX9yoqISoKCgoKCgoKNS4gtPPQzcbzmEm/yc3isPwq
-mEmE1bXE1Pa80yoqISoKCjYuCr27zaiT7ZREs8y2yLXEkLq7r6OsKoKAyMuVculnsbuJur9zKioh
-KgoKCjcuINlZ043J55X+u6+hooKAyMvrisRYo6zNqNONo6zea7mr1E+C5CqDcrjxtcTPwrusKioh
-KgoKOC4KzrSB7cbzmEmS8brPvHPWxqGilXLQvdbGoaKbXdPQzcvQ3b3wo6wqxOq8b9S9tPMqk1G5
-pNf3KtS9m13T0LtJtGEqKiEqCgrTyey20tTJz7XE1K3S8qOsgoDIy7mk1/fK0tLykaq2+Mn6o6zH
-0srH0ru5ySqfb7eo1+iT9bXEysC0+rOxwfcqCgoKCiDP4IymtcTE48v51Nq1xMbzmEnWu5X+1Nq6
-9cv7tcS2kOHh06/wTiGyu5X+1Nq69cTjtcSzrJVyuaTX9yG4/LK7lf7U2rr1CsTjtcS80s2lyfq7
-7sa32XwhxOPKx7fx2JOT+rXExvDX08WutcSMV9lNP7e/19O1xNlKv+4/1WzU2rr1xOPE2D8/PwrO
-0rK70qrU2Y7NhGXIy9mN5VjBywoKCgoKICp3d3cuc29oby13ZmguY29tKiA8aHR0cDovL3d3dy5z
-b2hvLXdmaC5jb20vPgo=
-------=_Part_185404_9317409.1177064644339
-Content-Type: text/html; charset=GB2312
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
 
-PGJyPjxzcGFuIGNsYXNzPSJnbWFpbF9xdW90ZSI+PGJyPjxicj48L3NwYW4+PHByZT48c3BhbiBz
-dHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxmb250IGZhY2U9IlNpbXN1biI+
-PGZvbnQgc2l6ZT0iNiI+PGZvbnQgY29sb3I9IiNmZjAwMDAiPjxlbT7O0rK70qrU2Y7NhGXIy9mN
-5Vg8c3BhbiBsYW5nPSJFTi1VUyI+PC9zcGFuPjwvZW0+PC9mb250PjwvZm9udD48L2ZvbnQ+PC9z
-cGFuPgoKCgo8L3ByZT48cHJlPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAx
-MHB0OyBDT0xPUjogYmxhY2siPgoKPGZvbnQgZmFjZT0iU2ltc3VuIj4mbmJzcDs8L2ZvbnQ+PC9z
-cGFuPjwvcHJlPjxwcmU+PHNwYW4gc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNr
-Ij48Zm9udCBmYWNlPSJTaW1zdW4iPsTjsdjtmp7p19S8utmN5Vg8c3BhbiBsYW5nPSJFTi1VUyI+
-LDwvc3Bhbj6e6YRlyMvZjeVYxPrTwN9oPHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+n2+3
-qNbCuLs8c3BhbiBsYW5nPSJFTi1VUyI+ITwvc3Bhbj48L2ZvbnQ+CgoKCgoKPC9zdHJvbmc+PC9m
-b250Pjwvc3Bhbj48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4gbGFuZz0iWkgt
-VFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+xPrEv8ewtcS5pNf3t4C2
-qIbhPC9zcGFuPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xP
-UjogYmxhY2siPgo/PC9zcGFuPjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAx
-MHB0OyBDT0xPUjogYmxhY2siPu6K0uI8c3Ryb25nPr1Lye2PxMrChuE8L3N0cm9uZz48L3NwYW4+
-PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+
-PHN0cm9uZz4/PC9zdHJvbmc+Cjwvc3Bhbj48L2ZvbnQ+PC9wcmU+PHByZT48Zm9udCBmYWNlPSJT
-aW1zdW4iPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjog
-YmxhY2siPjEuIDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBw
-dDsgQ09MT1I6IGJsYWNrIj4KxPrS0YWSvuvEv8ewuaTX96GiyLHJ2bXE1rvT0DxzdHJvbmc+PGZv
-bnQgY29sb3I9IiNmZjAwMDAiPrjE14O1xNPCmuI8L2ZvbnQ+PC9zdHJvbmc+PC9zcGFuPjxzcGFu
-IGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxzdHJv
-bmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPiE8L2ZvbnQ+PC9zdHJvbmc+PC9zcGFuPjwvZm9udD48
-L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+CgoKCgo8c3BhbiBsYW5nPSJFTi1VUyIgc3R5
-bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4yLiA8L3NwYW4+PHNwYW4gbGFuZz0i
-WkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+srvQ0rXExPqjrNLR
-1NrfQLKosru+sJri1tA8c3Ryb25nPgrKp8iluaTX9zwvc3Ryb25nPjwvc3Bhbj48c3BhbiBsYW5n
-PSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj48c3Ryb25nPiE8
-L3N0cm9uZz48L3NwYW4+PC9mb250PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3Bh
-biBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4KMy4g
-PC9zcGFuPjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjog
-YmxhY2siPrTzxvOYSbXEPHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCIgc2l6ZT0iNCI+v3O+
-jqGi1tjV+6GissOGVKGinHDQvTwvZm9udD48L3N0cm9uZz48L3NwYW4+PHNwYW4gbGFuZz0iRU4t
-VVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CjxzdHJvbmc+PGZvbnQg
-Y29sb3I9IiNmZjAwMDAiPjxmb250IHNpemU9IjQiPiE8L2ZvbnQ+PC9mb250Pjwvc3Ryb25nPjwv
-c3Bhbj48L2ZvbnQ+PC9wcmU+PHByZT48Zm9udCBmYWNlPSJTaW1zdW4iPjxzcGFuIGxhbmc9IkVO
-LVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjQuIDwvc3Bhbj48c3Bh
-biBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4KCgoK
-Cgq5q8u+vqu6hsjLwabWrs/Co6yCgMjLuaTX98G/1Pa806Osn2+/ybHcw+K1xDxzdHJvbmc+s6yV
-crmk1/c8L3N0cm9uZz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6
-IDEwcHQ7IENPTE9SOiBibGFjayI+PHN0cm9uZz4hPC9zdHJvbmc+PC9zcGFuPjwvZm9udD48L3By
-ZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05U
-LVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CgoKCgoKNS4gPC9zcGFuPjxzcGFuIGxhbmc9IlpI
-LVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPrTz0M3G85hJv8nN4rD8
-PHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+mEmE1bXE1Pa80zwvZm9udD48L3N0cm9uZz48
-L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBi
-bGFjayI+CjxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPiE8L2ZvbnQ+PC9zdHJvbmc+PC9z
-cGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4gbGFuZz0iRU4t
-VVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Ni4gPC9zcGFuPjxzcGFu
-IGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPgq9u82o
-k+2URLPMtsi1xJC6u6+jrDxzdHJvbmc+goDIy5Vy6Wexu4m6v3M8L3N0cm9uZz48L3NwYW4+PHNw
-YW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+PHN0
-cm9uZz4hPC9zdHJvbmc+PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1
-biI+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFj
-ayI+CjcuIDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsg
-Q09MT1I6IGJsYWNrIj7ZWdONyeeV/ruvoaKCgMjL64rEWKOszajTjaOs3mu5q9RPguQ8c3Ryb25n
-Pjxmb250IGNvbG9yPSIjZmYwMDAwIj6DcrjxtcTPwrusPC9mb250Pjwvc3Ryb25nPjwvc3Bhbj48
-c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4K
-PHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+ITwvZm9udD48L3N0cm9uZz48L3NwYW4+PC9m
-b250PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJFTi1VUyIgc3R5
-bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj44LiA8L3NwYW4+PHNwYW4gbGFuZz0i
-WkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Cs60ge3G85hJkvG6
-z7xz1sahopVy0L3WxqGim13T0M3L0N298KOsPGZvbnQgc2l6ZT0iNCI+PHN0cm9uZz7E6rxv1L20
-8zwvc3Ryb25nPpNRuaTX9zxzdHJvbmc+1L2bXdPQu0m0YTwvc3Ryb25nPjwvZm9udD48L3NwYW4+
-PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+
-PHN0cm9uZz48Zm9udCBzaXplPSI0Ij4hPC9mb250Pjwvc3Ryb25nPjwvc3Bhbj4KPC9mb250Pjwv
-cHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZP
-TlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj7Tyey20tTJz7XE1K3S8qOsgoDIy7mk1/fK0tLy
-kaq2+Mn6o6zH0srH0ru5yTxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPp9vt6jX6JP1tcTK
-wLT6s7HB9zwvZm9udD48L3N0cm9uZz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJG
-T05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CgoKCgoKPC9zcGFuPjwvZm9udD48L3ByZT4K
-PGRpdj48Zm9udCBzaXplPSI0Ij7P4IymtcTE48v51Nq1xMbzmEnWu5X+1Nq69cv7tcS2kOHh06/w
-TiGyu5X+1Nq69cTjtcSzrJVyuaTX9yG4/LK7lf7U2rr1PGJyPsTjtcS80s2lyfq77sa32XwhxOPK
-x7fx2JOT+rXExvDX08WutcSMV9lNP7e/19O1xNlKv+4/PGZvbnQgY29sb3I9IiNmZjAwMDAiIHNp
-emU9IjYiPtVs1Nq69cTjxNg/Pz88L2ZvbnQ+PGJyPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4g
-bGFuZz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+PC9zcGFu
-Pgo8L2ZvbnQ+PC9mb250PjwvZGl2Pgo8ZGl2Pjxmb250IGZhY2U9IlNpbXN1biI+PGZvbnQgc2l6
-ZT0iNCI+PHNwYW4gbGFuZz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBi
-bGFjayI+ztKyu9Kq1NmOzYRlyMvZjeVYwcs8L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxl
-PSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+IDwvc3Bhbj48L2ZvbnQ+PC9mb250Pjwv
-ZGl2PjxwcmU+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9S
-OiBibGFjayI+CgoKCgo8Zm9udCBmYWNlPSJTaW1zdW4iPiA8L2ZvbnQ+PC9zcGFuPjwvcHJlPjxw
-cmU+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFj
-ayI+CjxhIG9uY2xpY2s9InJldHVybiB0b3AuanMuT3BlbkV4dExpbmsod2luZG93LGV2ZW50LHRo
-aXMpIiBocmVmPSJodHRwOi8vd3d3LnNvaG8td2ZoLmNvbS8iIHRhcmdldD0iX2JsYW5rIj48Zm9u
-dCBmYWNlPSJTaW1zdW4iPjxzcGFuPjxmb250IGNvbG9yPSIjMDAzMzk5IiBzaXplPSI2Ij48ZW0+
-d3d3LnNvaG8td2ZoLmNvbTwvZW0+PC9mb250Pjwvc3Bhbj48L2ZvbnQ+PC9hPjwvc3Bhbj4KCgoK
-CjwvcHJlPjxicj4K
-------=_Part_185404_9317409.1177064644339--
+Anatrim =96 The latest and most delighting product for over-weight=20=
+people is now easily available =96 As told on ABC.
+
+Do you retain all the cases when you plead to yourself to do anything=20=
+for being saved from this fastly growing pounds of fat? Fortunately, now=20=
+no big sacrifice is required. Thanks to Anatrim, the earth-shaking=20=
+weight-reducing medley, you can get naturally health life style and=20=
+become really thinner. Have a look at what people say!
+
+"I hate to confess but I was exceedingly addicted to food. 
+
+I devoured all this garbige 
+
+and was unable to stop. 
+
+This fatal passion finished when I started course with Anatrim! 
+
+Holy God,
+
+ my inclination to eat constantly disappeared, 
+
+spirits increased and I=92m the happiest person 28 pounds in 2.6 months. 
+
+So, I can tell you now I became the happiest person in the world!"
+ 
+
+Amelia B., Boston
+
+ 
+"Since my early childhood I was a bulky boy. 
+
+It=92s difficult to fancy how I abhorred being ridiculed at school. 
+
+I hated my weight and I abhorred even myself. 
+
+After trying many different remedies I found out about Anatrim. 
+
+It literally dragged me out of this nightmare! The warmest thanks to=20=
+you, guys."
+
+ 
+Rikky Martin, Boston
+
+ 
+"Know what? Anatrim preserved my marriage! I fell down into the circle,=20=
+depression =96 more eating =96 more depression. My wife was about to=20=
+leave the overweight psycho I was turning in. 
+
+My friend pointed at your site and I ordered pack of Anatrim at once. 
+
+The result was splendid, my appetite came to acceptable level, I was=20=
+often in a good mood, and, of course, I became able to tighten my belt on=20=
+some holes. And you know, the bed became cool, too!"
+
+ 
+Francis
+
+ There is a lot of sincere gratitudes delighted people leave after=20=
+taking Anatrim. Don=92t you wanna join the thousands and thousands of=20=
+slim women and men and take this original appetite-suppressing energy=20=
+increasing product now!
+
+Do not decline the chance!
+
+
+------------D356EA9888FB09
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Burn pounds off with Anatrim</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.cinmoley.com/?g371707766777E70776E336B337A6E687A7445796A33667173726B6873337Fw7lbacah">
+Anatrim =96 The latest and most delighting product for over-weight=20=
+people is now easily available =96 As told on ABC.
+</a>
+</center>
+Do you retain all the cases when you plead to yourself to do anything=20=
+for being saved from this fastly growing pounds of fat? Fortunately, now=20=
+no big sacrifice is required. Thanks to Anatrim, the earth-shaking=20=
+weight-reducing medley, you can get naturally health life style and=20=
+become really thinner. Have a look at what people say!
+<br>
+<br>
+<i>
+"I hate to confess but I was exceedingly addicted to food. 
+<b>
+<i>
+I devoured all this garbige 
+<b>
+<i>
+and was unable to stop. 
+</i>
+</b>
+</i>
+</b>
+This fatal passion finished when I started course with Anatrim! 
+<b>
+<i>
+Holy God,
+</i>
+</b>
+<b>
+<i>
+ my inclination to eat constantly disappeared, 
+<b>
+<i>
+spirits increased and I=92m the happiest person 28 pounds in 2.6 months. 
+</i>
+</b>
+</i>
+</b>
+So, I can tell you now I became the happiest person in the world!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Amelia B., Boston
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a bulky boy. 
+<b>
+<i>
+It=92s difficult to fancy how I abhorred being ridiculed at school. 
+</i>
+</b>
+<b>
+<i>
+I hated my weight and I abhorred even myself. 
+<b>
+<i>
+After trying many different remedies I found out about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally dragged me out of this nightmare! The warmest thanks to=20=
+you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Rikky Martin, Boston
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Know what? Anatrim preserved my marriage! I fell down into the circle,=20=
+depression =96 more eating =96 more depression. My wife was about to=20=
+leave the overweight psycho I was turning in. 
+<b>
+<i>
+My friend pointed at your site and I ordered pack of Anatrim at once. 
+</i>
+</b>
+The result was splendid, my appetite came to acceptable level, I was=20=
+often in a good mood, and, of course, I became able to tighten my belt on=20=
+some holes. And you know, the bed became cool, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Francis
+</i>
+</b>
+<br>
+<br>
+ There is a lot of sincere gratitudes delighted people leave after=20=
+taking Anatrim. Don=92t you wanna join the thousands and thousands of=20=
+slim women and men and take this original appetite-suppressing energy=20=
+increasing product now!
+<center>
+<a=20=
+href=3D"http://www.cinmoley.com/?g371707766777E70776E336B337A6E687A7445796A33667173726B6873337Fw7lbacah">
+Do not decline the chance!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------D356EA9888FB09--

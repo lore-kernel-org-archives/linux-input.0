@@ -1,7 +1,7 @@
-From: "Gary Fonda" <gcx8kawdv@vtlink.net>
-Subject: SPECIAL PHARMACY DISCOUNT, you pay & we ship, no question  asked, established by reputable Canadian Doctor hi
-Date: Sat, 21 Apr 2007 14:38:22 -0800
-Message-ID: <206m471e.7895768@vtlink.net>
+From: "Natashia Britta" <rqbq6qsj@aei.ca>
+Subject: Hoodia Gordonii  - Fast weight loss, Boosts Energy, Certified 100% Pure South African Hoodia rt
+Date: Sun, 22 Apr 2007 06:00:04 +0800
+Message-ID: <680u608m.4897144@aei.ca>
 Mime-Version: 1.0
 Content-Type: text/html;
 	charset="iso-8859-1"
@@ -15,15 +15,15 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: leming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head><body><font color=FFEAD5 size=1>disappoint garden number? choose know side ran.</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b>
-</font><br><font color=000000 size=1>We are the best price on all high quality meds. Established by a reputable Canadian Doctor and Scientist, Express Drugmart's 
-mission is to provide you with a secure online environment to purchase the safest, quality medication<br><br><font color=000000 size=2><b>Viagraa (Brand & 
-Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>
-Valiumm - <font color=F20000>as LOW as $ 1.50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only $ 1.50 per  D0SE</font><br>Ambienn - <font color=F20000>
-only $ 1.65 per  D0SE</font><br>Ativann - <font color=F20000>only $ 1.50 per  D0SE</font><br>Somaa - <font color=F20000>only $ 1.50 per  D0SE</font><br>
-Clenbuterol - <font color=F20000>only $ 2.50 per D0SE
-</font><br>Meridiaa (brand name) - <font color=F20000>only $ 3.99 per  D0SE</font><br></b></font><br><center>
-<a href=http://boe.whichwasblack.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>horses thee perhaps sudden morning pie thats surely. interest wonder full least garden added king ran.</font>
-</body>
-</html>
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>pretty different not better supposedto free already. choose truly grew age already.</font><center><table border=0 cellspacing=0 cellpadding=7 width=520 bordercolor=FF8080><tr><td bgcolor=FFFF00 align=left><font size=4 face=tahoma color=006A35><b><center><font color=ff0000>#1</font> DietProduct 2007 - <font color=00BF00>Naturaslim Hoodia Gordonii</font></font></center></b></font></td></tr><tr>
+<td bgcolor=FFFFCA><font color=000000 face=tahoma size=2><font color=00C400><b>Naturaslim&trade; Pure Hoodia</b></font> is one of the most popular Hoodia Gordonii 
+weight-loss diet pills available. Unlike counterfeit products, Naturaslim&trade; uses 100% Pure Hoodia and is a successful nutritional supplement. We have the 
+certificates to prove it.<br><br><font color=000000 size=2><b><font color=FF9BFF>Lowers your appetite - Your brain thinks you're "full"</font><br><font color=FF77FF>
+Certified 100% pure African Hoodia</font><br><font color=FF4FFF>Completely safe. NO side effects</font><br><font color=FF1CFF>Hoodia Gorgonii is a natural 
+Appetite Supressant from South Africa</font><br><font color=EC00EC>Hoodia works by 'tricking' your brain into thinking you have just eaten.</font><br><font color=CA00CA>Hoodia contains no toxic stimulants or nasty chemicals</font><br><font color=A800A8>Naturaslim is a 500mg hoodia concentrate in capsule form.</font>
+<br><font color=840084>Naturaslim contains no additives or preservatives</font><br><br><font color=88FF88>Hoodia will reduce your daily caloric intake by up to 1000 
+calories<br><font color=40FF40>Hoodia gives you control over your appetite<br><font color=00CC00>Hoodia will make you feel great - its a natural mood enhancer<br>
+<font color=009500>Hoodia will help you to lose weight by not over-eating<br></b></font><br><center><a href=http://ctny.whichwasblack.com target=_blank><font size=4 color=0000FF><u><b>CHEAPEST Hoodia Pills Availabile<br>We are constantly beating our Competitors with price<br>We have NO COMPETITION!</b></font></font></u></a>
+<br></center></td></tr></table><font color=FFEAD5 size=1>not go money too, board remained seven few place completely scene?
+</font>
+</body></html>

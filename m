@@ -1,69 +1,29 @@
-From: "Stacie Talley" <hysham473@tpnet.pl>
-Subject: At which allons
-Date: Sat, 21 Apr 2007 17:13:08 +0200
-Message-ID: <001101c78438$55112350$06843d5c@rivanotebook>
+From: "Gary Fonda" <gcx8kawdv@vtlink.net>
+Subject: SPECIAL PHARMACY DISCOUNT, you pay & we ship, no question  asked, established by reputable Canadian Doctor hi
+Date: Sat, 21 Apr 2007 14:38:22 -0800
+Message-ID: <206m471e.7895768@vtlink.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000E_01C78438.55112350"
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: leming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000E_01C78438.55112350
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-
-
-
-
-Just take a look at this one.
-
-
-
-Sym8oL: ASVPCurr Price: $0.64 1 Day Target price: $1Action: Aggresive =
-Buy/Hold!!!
-
-Know alot about investing but we are sure you can count...
-
-
-The hottest news are released for ASVP, linux-input, call to broker!!
-
-
-------=_NextPart_000_000E_01C78438.55112350
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.2963" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3300 size=3D3D4><FONT =
-size=3D2><STRONG>Just take a look at this one!</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3>Sym8oL: =
-<b>ASVP</b><br>Curr Price: $0.64 <br>1 Day Target price: $1<br>Action: =
-Aggresive Buy/Hold!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#003399 size=3D4>Know =
-alot about investing but we are sure you can count.</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0000 size=3D4>The =
-hottest news are released for ASVP, linux-input, call to =
-broker...</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_000E_01C78438.55112350--
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
+</head><body><font color=FFEAD5 size=1>disappoint garden number? choose know side ran.</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b>
+</font><br><font color=000000 size=1>We are the best price on all high quality meds. Established by a reputable Canadian Doctor and Scientist, Express Drugmart's 
+mission is to provide you with a secure online environment to purchase the safest, quality medication<br><br><font color=000000 size=2><b>Viagraa (Brand & 
+Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>
+Valiumm - <font color=F20000>as LOW as $ 1.50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only $ 1.50 per  D0SE</font><br>Ambienn - <font color=F20000>
+only $ 1.65 per  D0SE</font><br>Ativann - <font color=F20000>only $ 1.50 per  D0SE</font><br>Somaa - <font color=F20000>only $ 1.50 per  D0SE</font><br>
+Clenbuterol - <font color=F20000>only $ 2.50 per D0SE
+</font><br>Meridiaa (brand name) - <font color=F20000>only $ 3.99 per  D0SE</font><br></b></font><br><center>
+<a href=http://boe.whichwasblack.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>horses thee perhaps sudden morning pie thats surely. interest wonder full least garden added king ran.</font>
+</body>
+</html>

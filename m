@@ -1,131 +1,70 @@
-From: "hzsoho hzsoho" <hzsoho2007@gmail.com>
-Subject: =?GB2312?B?RndkOiDO0rK70qrU2Y7NhGXIy9mN5Vg=?=
-Date: Sun, 22 Apr 2007 20:30:19 +0800
-Message-ID: <fb11682b0704220530q583ce449u369430c726df0ab@mail.gmail.com>
-References: <fb11682b0704200337m3dbc22f7qbb9551b9a0cd2210@mail.gmail.com>
+From: "Lela Burke" <hopkintonu@coolgoose.com>
+Subject: I at lackawaxen
+Date: Sun, 22 Apr 2007 18:25:05 +0530
+Message-ID: <001901c7850b$8cc82590$002a6b7c@dbms>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_Part_46334_5951065.1177245019333"
+        boundary="----=_NextPart_000_0016_01C7850B.8CC82590"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <fb11682b0704200337m3dbc22f7qbb9551b9a0cd2210@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_46334_5951065.1177245019333
-Content-Type: text/plain; charset=GB2312; format=flowed
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+------=_NextPart_000_0016_01C7850B.8CC82590
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
-Ks7SsrvSqtTZjs2EZcjL2Y3lWCoKCgoKCsTjsdjtmp7p19S8utmN5VgsnumEZcjL2Y3lWMT608Df
-aCqfb7eo1sK4uyEKCgoKCioKCsT6xL/HsLXEuaTX97eAtqiG4Qo/7orS4iq9S8ntj8TKwobhKio/
-KgoKMS4KxPrS0YWSvuvEv8ewuaTX96GiyLHJ2bXE1rvT0Cq4xNeDtcTTwpriKiohKgoKCgoKCjIu
-ILK70NK1xMT6o6zS0dTa30CyqLK7vrCa4tbQKgrKp8iluaTX9yoqISoKCgozLiC088bzmEm1xCq/
-c76OoaLW2NX7oaKyw4ZUoaKccNC9KiohKgoKNC4KCgoKCgq5q8u+vqu6hsjLwabWrs/Co6yCgMjL
-uaTX98G/1Pa806Osn2+/ybHcw+K1xCqzrJVyuaTX9yoqISoKCgoKCgoKCjUuILTz0M3G85hJv8nN
-4rD8KphJhNW1xNT2vNMqKiEqCgo2Lgq9u82ok+2URLPMtsi1xJC6u6+jrCqCgMjLlXLpZ7G7ibq/
-cyoqISoKCgo3LiDZWdONyeeV/ruvoaKCgMjL64rEWKOszajTjaOs3mu5q9RPguQqg3K48bXEz8K7
-rCoqISoKCjguCs60ge3G85hJkvG6z7xz1sahopVy0L3WxqGim13T0M3L0N298KOsKsTqvG/UvbTz
-KpNRuaTX9yrUvZtd09C7SbRhKiohKgoK08nsttLUyc+1xNSt0vKjrIKAyMu5pNf3ytLS8pGqtvjJ
-+qOsx9LKx9K7uckqn2+3qNfok/W1xMrAtPqzscH3KgoKCgoKIM/gjKa1xMTjy/nU2rXExvOYSda7
-lf7U2rr1y/u1xLaQ4eHTr/BOIbK7lf7U2rr1xOO1xLOslXK5pNf3Ibj8sruV/tTauvUKxOO1xLzS
-zaXJ+rvuxrfZfCHE48rHt/HYk5P6tcTG8NfTxa61xIxX2U0/t7/X07XE2Uq/7j/VbNTauvXE48TY
-Pz8/Cs7SsrvSqtTZjs2EZcjL2Y3lWMHLCgoKCgoKICp3d3cuc29oby13ZmguY29tKiA8aHR0cDov
-L3d3dy5zb2hvLXdmaC5jb20vPgo=
-------=_Part_46334_5951065.1177245019333
-Content-Type: text/html; charset=GB2312
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
 
-PGJyPjxzcGFuIGNsYXNzPSJnbWFpbF9xdW90ZSI+PGJyPjwvc3Bhbj48YnI+PHByZT48c3BhbiBz
-dHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxmb250IGZhY2U9IlNpbXN1biI+
-PGZvbnQgc2l6ZT0iNiI+PGZvbnQgY29sb3I9IiNmZjAwMDAiPjxlbT7O0rK70qrU2Y7NhGXIy9mN
-5Vg8c3BhbiBsYW5nPSJFTi1VUyI+PC9zcGFuPjwvZW0+PC9mb250PjwvZm9udD48L2ZvbnQ+PC9z
-cGFuPgoKCjwvcHJlPjxwcmU+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEw
-cHQ7IENPTE9SOiBibGFjayI+Cgo8Zm9udCBmYWNlPSJTaW1zdW4iPiZuYnNwOzwvZm9udD48L3Nw
-YW4+PC9wcmU+PHByZT48c3BhbiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2si
-Pjxmb250IGZhY2U9IlNpbXN1biI+xOOx2O2anunX1Ly62Y3lWDxzcGFuIGxhbmc9IkVOLVVTIj4s
-PC9zcGFuPp7phGXIy9mN5VjE+tPA32g8c3Ryb25nPjxmb250IGNvbG9yPSIjZmYwMDAwIj6fb7eo
-1sK4uzxzcGFuIGxhbmc9IkVOLVVTIj4hPC9zcGFuPjwvZm9udD4KCgoKCgoKPC9zdHJvbmc+PC9m
-b250Pjwvc3Bhbj48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4gbGFuZz0iWkgt
-VFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+xPrEv8ewtcS5pNf3t4C2
-qIbhPC9zcGFuPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xP
-UjogYmxhY2siPgo/PC9zcGFuPjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAx
-MHB0OyBDT0xPUjogYmxhY2siPu6K0uI8c3Ryb25nPr1Lye2PxMrChuE8L3N0cm9uZz48L3NwYW4+
-PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+
-PHN0cm9uZz4/PC9zdHJvbmc+Cjwvc3Bhbj48L2ZvbnQ+PC9wcmU+PHByZT48Zm9udCBmYWNlPSJT
-aW1zdW4iPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjog
-YmxhY2siPjEuIDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBw
-dDsgQ09MT1I6IGJsYWNrIj4KxPrS0YWSvuvEv8ewuaTX96GiyLHJ2bXE1rvT0DxzdHJvbmc+PGZv
-bnQgY29sb3I9IiNmZjAwMDAiPrjE14O1xNPCmuI8L2ZvbnQ+PC9zdHJvbmc+PC9zcGFuPjxzcGFu
-IGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjxzdHJv
-bmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPiE8L2ZvbnQ+PC9zdHJvbmc+PC9zcGFuPjwvZm9udD48
-L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+CgoKCgoKPHNwYW4gbGFuZz0iRU4tVVMiIHN0
-eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Mi4gPC9zcGFuPjxzcGFuIGxhbmc9
-IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPrK70NK1xMT6o6zS
-0dTa30CyqLK7vrCa4tbQPHN0cm9uZz4KyqfIpbmk1/c8L3N0cm9uZz48L3NwYW4+PHNwYW4gbGFu
-Zz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+PHN0cm9uZz4h
-PC9zdHJvbmc+PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNw
-YW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CjMu
-IDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6
-IGJsYWNrIj6088bzmEm1xDxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiIHNpemU9IjQiPr9z
-vo6hotbY1fuhorLDhlShopxw0L08L2ZvbnQ+PC9zdHJvbmc+PC9zcGFuPjxzcGFuIGxhbmc9IkVO
-LVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPgo8c3Ryb25nPjxmb250
-IGNvbG9yPSIjZmYwMDAwIj48Zm9udCBzaXplPSI0Ij4hPC9mb250PjwvZm9udD48L3N0cm9uZz48
-L3NwYW4+PC9mb250PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJF
-Ti1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj40LiA8L3NwYW4+PHNw
-YW4gbGFuZz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CgoK
-CgoKCrmry76+q7qGyMvBptauz8KjrIKAyMu5pNf3wb/U9rzTo6yfb7/JsdzD4rXEPHN0cm9uZz6z
-rJVyuaTX9zwvc3Ryb25nPjwvc3Bhbj48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0la
-RTogMTBwdDsgQ09MT1I6IGJsYWNrIj48c3Ryb25nPiE8L3N0cm9uZz48L3NwYW4+PC9mb250Pjwv
-cHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZP
-TlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj4KCgoKCgoKNS4gPC9zcGFuPjxzcGFuIGxhbmc9
-IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPrTz0M3G85hJv8nN
-4rD8PHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+mEmE1bXE1Pa80zwvZm9udD48L3N0cm9u
-Zz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9S
-OiBibGFjayI+CjxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPiE8L2ZvbnQ+PC9zdHJvbmc+
-PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4gbGFuZz0i
-RU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Ni4gPC9zcGFuPjxz
-cGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPgq9
-u82ok+2URLPMtsi1xJC6u6+jrDxzdHJvbmc+goDIy5Vy6Wexu4m6v3M8L3N0cm9uZz48L3NwYW4+
-PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+
-PHN0cm9uZz4hPC9zdHJvbmc+PC9zcGFuPjwvZm9udD48L3ByZT48cHJlPjxmb250IGZhY2U9IlNp
-bXN1biI+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBi
-bGFjayI+CjcuIDwvc3Bhbj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9IkZPTlQtU0laRTogMTBw
-dDsgQ09MT1I6IGJsYWNrIj7ZWdONyeeV/ruvoaKCgMjL64rEWKOszajTjaOs3mu5q9RPguQ8c3Ry
-b25nPjxmb250IGNvbG9yPSIjZmYwMDAwIj6DcrjxtcTPwrusPC9mb250Pjwvc3Ryb25nPjwvc3Bh
-bj48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNr
-Ij4KPHN0cm9uZz48Zm9udCBjb2xvcj0iI2ZmMDAwMCI+ITwvZm9udD48L3N0cm9uZz48L3NwYW4+
-PC9mb250PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJFTi1VUyIg
-c3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj44LiA8L3NwYW4+PHNwYW4gbGFu
-Zz0iWkgtVFciIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+Cs60ge3G85hJ
-kvG6z7xz1sahopVy0L3WxqGim13T0M3L0N298KOsPGZvbnQgc2l6ZT0iNCI+PHN0cm9uZz7E6rxv
-1L208zwvc3Ryb25nPpNRuaTX9zxzdHJvbmc+1L2bXdPQu0m0YTwvc3Ryb25nPjwvZm9udD48L3Nw
-YW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxlPSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFj
-ayI+PHN0cm9uZz48Zm9udCBzaXplPSI0Ij4hPC9mb250Pjwvc3Ryb25nPjwvc3Bhbj4KPC9mb250
-PjwvcHJlPjxwcmU+PGZvbnQgZmFjZT0iU2ltc3VuIj48c3BhbiBsYW5nPSJaSC1UVyIgc3R5bGU9
-IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6IGJsYWNrIj7Tyey20tTJz7XE1K3S8qOsgoDIy7mk1/fK
-0tLykaq2+Mn6o6zH0srH0ru5yTxzdHJvbmc+PGZvbnQgY29sb3I9IiNmZjAwMDAiPp9vt6jX6JP1
-tcTKwLT6s7HB9zwvZm9udD48L3N0cm9uZz48L3NwYW4+PHNwYW4gbGFuZz0iRU4tVVMiIHN0eWxl
-PSJGT05ULVNJWkU6IDEwcHQ7IENPTE9SOiBibGFjayI+CgoKCgoKCjwvc3Bhbj48L2ZvbnQ+PC9w
-cmU+CjxkaXY+PGZvbnQgc2l6ZT0iNCI+z+CMprXExOPL+dTatcTG85hJ1ruV/tTauvXL+7XEtpDh
-4dOv8E4hsruV/tTauvXE47XEs6yVcrmk1/chuPyyu5X+1Nq69Txicj7E47XEvNLNpcn6u+7Gt9l8
-IcTjyse38diTk/q1xMbw19PFrrXEjFfZTT+3v9fTtcTZSr/uPzxmb250IGNvbG9yPSIjZmYwMDAw
-IiBzaXplPSI2Ij7VbNTauvXE48TYPz8/PC9mb250Pjxicj48Zm9udCBmYWNlPSJTaW1zdW4iPjxz
-cGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPjwv
-c3Bhbj4KPC9mb250PjwvZm9udD48L2Rpdj4KPGRpdj48Zm9udCBmYWNlPSJTaW1zdW4iPjxmb250
-IHNpemU9IjQiPjxzcGFuIGxhbmc9IlpILVRXIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xP
-UjogYmxhY2siPs7SsrvSqtTZjs2EZcjL2Y3lWMHLPC9zcGFuPjxzcGFuIGxhbmc9IkVOLVVTIiBz
-dHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBDT0xPUjogYmxhY2siPiA8L3NwYW4+PC9mb250PjwvZm9u
-dD48L2Rpdj48cHJlPjxzcGFuIGxhbmc9IkVOLVVTIiBzdHlsZT0iRk9OVC1TSVpFOiAxMHB0OyBD
-T0xPUjogYmxhY2siPgoKCgoKCjxmb250IGZhY2U9IlNpbXN1biI+IDwvZm9udD48L3NwYW4+PC9w
-cmU+PHByZT48c3BhbiBsYW5nPSJFTi1VUyIgc3R5bGU9IkZPTlQtU0laRTogMTBwdDsgQ09MT1I6
-IGJsYWNrIj4KPGEgb25jbGljaz0icmV0dXJuIHRvcC5qcy5PcGVuRXh0TGluayh3aW5kb3csZXZl
-bnQsdGhpcykiIGhyZWY9Imh0dHA6Ly93d3cuc29oby13ZmguY29tLyIgdGFyZ2V0PSJfYmxhbmsi
-Pjxmb250IGZhY2U9IlNpbXN1biI+PHNwYW4+PGZvbnQgY29sb3I9IiMwMDMzOTkiIHNpemU9IjYi
-PjxlbT53d3cuc29oby13ZmguY29tPC9lbT48L2ZvbnQ+PC9zcGFuPjwvZm9udD48L2E+PC9zcGFu
-PgoKCgoKCjwvcHJlPjxicj48YnI+Cg==
-------=_Part_46334_5951065.1177245019333--
+
+
+
+THE BULL REPORT!!!
+
+
+Sym8oL: ASVPCurr Price: $0.64 1 Day Target price: $1Action: Aggresive =
+Buy/Hold...
+
+
+Insider Buying Alert.
+
+
+
+linux-input, take a look at the hottest news, contact your brocker now!!
+
+
+------=_NextPart_000_0016_01C7850B.8CC82590
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.2600.2969" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0000 size=3D3D4><FONT =
+size=3D2><STRONG>THE BULL REPORT..</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0000 size=3D3>Sym8oL: =
+<b>ASVP</b><br>Curr Price: $0.64 <br>1 Day Target price: $1<br>Action: =
+Aggresive Buy/Hold..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#003300 size=3D2>Insider =
+Buying Alert!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#0033FF size=3D=
+4>linux-input, take a look at the hottest news, contact your brocker =
+now...</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0016_01C7850B.8CC82590--

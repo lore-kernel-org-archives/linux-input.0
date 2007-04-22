@@ -1,181 +1,63 @@
-From: "Newton Maxwell" <pytconqualbaq@conqual.hu>
-Subject: Get your ideal weight with this natural method
-Date: Sun, 22 Apr 2007 14:03:42 -0100
-Message-ID: <531247057.81862057963020@thhebat.net>
+From: "Jamie Briggs" <dweffectencompagniem@effectencompagnie.nl>
+Subject: re:Need some help
+Date: Sun, 22 Apr 2007 15:05:49 -0540
+Message-ID: <01c784ef$b62b9c30$6c822ecf@dweffectencompagniem>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------88888FB01FB2C673"
+	boundary="----=_NextPart_000_0006_01C7853B.26134430"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-joystick@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------88888FB01FB2C673
-Content-Type: text/plain; charset=Windows-1252
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C7853B.26134430
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
+
+Dear customer.Various medical associations warn us about the growing problem of drug falsification. If you want to know how to avoid being sold fake medications, red this letter to the end.No matter how expensive the drugs you buy on the Web are – they still can be fake. Top Canadian Web pharmacy CanadianPharmacy offers you a wide choice of GENERIC medications at really low prices. If you're looking for cheap high-quality medications, visit CanadianPharmacy right now.http://whytouch.hk – no one is able to match our prices for generic medications neither in Canada nor in the USA.Sincerely yours,Jamie Briggs
+
+
+------=_NextPart_000_0006_01C7853B.26134430
+Content-Type: text/html;
+	charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
-Anatrim =96 The very up-to-date and most exciting product for weighty=20=
-people is now available =96 As told on CNN
-Do you see redundant body kilos kill a lot of people for every new=20=
-year? We believe that you hate the ugly appearance of people like those=20=
-and the low status they obviously have in modern society. 
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-Or, maybe, you=92ve not the will to withstand an assault of fatal=20=
-eating habits of yours. If it all sounds familiar, then we got something=20=
-to propose to you!
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear customer.</font=
+></p>
+<p><font face=3D"Verdana" size=3D"2">Various medical associations warn us a=
+bout the growing problem of drug falsification. If you want to know how to =
+avoid being sold fake medications, red this letter to the end.</font></p>
+<p><font face=3D"Verdana" size=3D"2">No matter how expensive the drugs you =
+buy on the Web are =96 they still can be fake. Top Canadian Web pharmacy <a=
+ href=3D"http://whytouch.hk">CanadianPharmacy</a> offers you a wide choice =
+of GENERIC medications at really low prices. If you're looking for cheap hi=
+gh-quality medications, visit <a href=3D"http://whytouch.hk">CanadianPharma=
+cy</a> right now.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://whytouch.hk">http://=
+whytouch.hk</a> =96 no one is able to match our prices for generic medicati=
+ons neither in Canada nor in the USA.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Sincerely yours,<br>Jamie Briggs</font=
+></p>
+</body>
+</html>
+</body>
+</html>
 
-Here there is Anatrim, the new product for the elimination of your=20=
-body=92s extra weight. The most astonishing thing is that Anatrim=20=
-improves the quality of your life, making you crave food less and giving=20=
-you joyful spirit. Look at some e-mails from our customers:
-
-"This is wonderful! 
-
-Instead of watching TV constantly and eating anything close at hand 
-
-I became keen on exercise.
-
- Anatrim made me stride on confidently.
-
- I am more fit now and there are lots of men around me!"
-
-Silvia D., Washington
-
-"Passive weight losing was of little help to me. I could not restrain=20=
-my ravenous appetite. 
-
-One day I heard about Anatrim from my very best friend and I was really=20=
-effected at the information.
-
- I had tried using it, and my wife told me I'm a different person now,=20=
-3 months later. 
-
-35 pounds have gone away and it=92s still far to an end! 
-
-And you know, I=92m an impetuous lover again."
-
-Michael Burns, Bellevue WA
-
-Anatrim gives you an opportunity to understand that your body doesn=92t=20=
-need that much food. It lifts your mood up, gives you additional energy,=20=
-and attacks unnecessary kilos. Especial thanks to its mighty original=20=
-formula!!
-Find out more about this excellent product now! 
-------------88888FB01FB2C673
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Join the Anatrim revolution</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a=20=
-href=3D"http://www.standive.net/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7zcuyjp">Anatrim=20=
-=96 The very up-to-date and most exciting product for weighty people is=20=
-now available =96 As told on CNN</a>
-</b>
-</center>
-<b>
-Do you see redundant body kilos kill a lot of people for every new=20=
-year? We believe that you hate the ugly appearance of people like those=20=
-and the low status they obviously have in modern society. 
-<b>
-Or, maybe, you=92ve not the will to withstand an assault of fatal=20=
-eating habits of yours. If it all sounds familiar, then we got something=20=
-to propose to you!
-</b>
-</b>
-<br>
-<br>
-<b>
-Here there is Anatrim, the new product for the elimination of your=20=
-body=92s extra weight. The most astonishing thing is that Anatrim=20=
-improves the quality of your life, making you crave food less and giving=20=
-you joyful spirit. Look at some e-mails from our customers:
-</b>
-<br>
-<br>
-<b>
-<i>
-"This is wonderful! 
-<b>
-<i>
-Instead of watching TV constantly and eating anything close at hand 
-<b>
-<i>
-I became keen on exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me stride on confidently.
-</i>
-</b>
- I am more fit now and there are lots of men around me!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Silvia D., Washington
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"Passive weight losing was of little help to me. I could not restrain=20=
-my ravenous appetite. 
-<b>
-<i>
-One day I heard about Anatrim from my very best friend and I was really=20=
-effected at the information.
-</i>
-</b>
- I had tried using it, and my wife told me I'm a different person now,=20=
-3 months later. 
-<b>
-<i>
-35 pounds have gone away and it=92s still far to an end! 
-</i>
-</b>
-And you know, I=92m an impetuous lover again."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Michael Burns, Bellevue WA
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim gives you an opportunity to understand that your body doesn=92t=20=
-need that much food. It lifts your mood up, gives you additional energy,=20=
-and attacks unnecessary kilos. Especial thanks to its mighty original=20=
-formula!!
-</b>
-<b>
-<center>
-<a=20=
-href=3D"http://www.standive.net/?g371737D6F7E796845796A33667173726B6873337F6E7A3274786E7066777E70776E336B337A6E68w7zcuyjp">Find=20=
-out more about this excellent product now!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------88888FB01FB2C673--
+------=_NextPart_000_0006_01C7853B.26134430--

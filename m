@@ -1,12 +1,15 @@
-From: "Nila Felisa" <fgpqu7glg@vtlink.net>
-Subject: Hoodia Gordonii - Fast  weight loss, Boosts Energy, Certified 100% Pure South African Hoodia awove
-Date: Mon, 23 Apr 2007 13:43:59 -0600
-Message-ID: <934c423j.5669768@vtlink.net>
+From: "Soo Yen Simons" <muddleleases@miratv.tv>
+Subject: great advertisement
+Date: Mon, 23 Apr 2007 22:00:30 +0000 (UTC)
+Message-ID: <01c785f2$bd37a970$6c822ecf@muddleleases>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
+Content-Type: text/plain;
+	format=flowed;
+	charset="Windows-1252";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Mon, 23 Apr 2007 22:00:00 +0480
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,26 +18,15 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>met wood given was. longer allowed meant was.</font>
-<center>
-<table border=0 cellspacing=0 cellpadding=7 width=520 bordercolor=FF8080><tr><td bgcolor=FFFF00 align=left><font size=4 face=tahoma color=006A35><b><center><font color=ff0000>#1</font> DietProduct 2007 - <font color=00BF00>Naturaslim Hoodia Gordonii</font></font></center></b></font></td></tr><tr><td bgcolor=FFFFCA><font color=000000 face=tahoma size=2>
-<font color=00C400><b>Naturaslim&trade; Pure Hoodia</b></font> 
-is one of the most popular Hoodia Gordonii weight-loss diet pills available. Unlike counterfeit products, Naturaslim&trade; uses 100% Pure Hoodia and is a successful nutritional supplement. We have the certificates to prove it.<br><br><font color=000000 size=2>
-<b>
-<font color=FF9BFF>Lowers your appetite - Your brain thinks you're "full"</font><br><font color=FF77FF>Certified 100% pure African Hoodia</font><br><font color=FF4FFF>
-Completely safe. NO side effects</font><br><font color=FF1CFF>Hoodia Gorgonii 
-is a natural Appetite Supressant from South Africa</font><br><font color=EC00EC>
-Hoodia works by 'tricking' your brain into thinking you have just eaten.</font>
-<br>
-<font color=CA00CA>Hoodia contains no toxic stimulants or nasty chemicals
-</font><br><font color=A800A8>Naturaslim is a 500mg hoodia concentrate in capsule form.</font><br><font color=840084>Naturaslim contains no additives 
-or preservatives</font><br><br><font color=88FF88>Hoodia will reduce your daily caloric intake by up to 1000 calories<br><font color=40FF40>Hoodia gives you control 
-over your appetite<br><font color=00CC00>Hoodia will make you feel great - its a natural mood enhancer<br><font color=009500>Hoodia will help you to lose weight by 
-not over-eating<br></b></font><br><center><a href=http://ccqe.butfailedtodoso.com target=_blank><font size=4 color=0000FF><u>
-<b>CHEAPEST Hoodia Pills Availabile
-<br>We are constantly beating our Competitors with price<br>We have NO COMPETITION!</b></font></font></u></a><br>
-</center></td></tr></table><font color=FFEAD5 size=1>luck not enemy supposedto glass profession young clear. journey luck mother was.</font>
-</body>
-</html>
+The planet has gone wireless and Mobile Airwaves (mbwc) is 
+in the right place in the right time with a Red Hot Product!
+
+We are waiting for Financial Results to be announced by the 
+company any moment.  With all the New Contracts they have 
+acquired we are awaiting Record Earnings!
+
+mbwc  is currently under priced at around 3 cents.  
+With the Mobile Airwaves being so Tightly held we expecting the inflow
+of buying to Push the price off the charts!  
+
+Get in on this Breakout Winner Early!

@@ -1,66 +1,40 @@
-From: "Celia Drake" <prefrigerate@kisnerculbertson.com>
-Subject: To nowaday the ponchartrain
-Date: Mon, 16 Apr 2007 20:49:54 +0800
-Message-ID: <001201c78068$c929ea70$00a096c4@gf>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] don't invert mightymouse hwheel
+Date: Mon, 23 Apr 2007 15:13:39 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0704231508490.5138@jikos.suse.cz>
+References: <Pine.LNX.4.64.0704130940190.19492@jikos.suse.cz>
+ <200704130021.l3D0LvVM008180@adara.cs.pdx.edu>  <200704231027.l3NAR5tA019325@murzim.cs.pdx.edu>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000F_01C78068.C929EA70"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200704231027.l3NAR5tA019325@murzim.cs.pdx.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Barton C Massey <bart@cs.pdx.edu>
+Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Johannes Berg <johannes@sipsolutions.net>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000F_01C78068.C929EA70
-Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+On Mon, 23 Apr 2007, Barton C Massey wrote:
 
+> I just tried out the Bluetooth MM with 2.6.20.4 plus the bluez patches.  
+> Everything seemed to work fine.  (Actually, it was horribly slow and 
+> laggy, but all the buttons and knobs worked and made things go in the 
+> right directions and stuff.  I'm hoping my USB BT dongle just sucks.)  
+> I don't know if 2.6.21-rc6 is flipped from 2.6.20.4, though :-). I'll 
+> try to grab a newer kernel eventually.
 
+This is strange, I have a bugreport in our bugzilla which states that BT 
+version of the mightymouse needs the very same quirk as USB version. 
+Recent kernels contain a duplication of the USB quirk for Bluetooth 
+version of the mouse, in order to make the scrollwheel work. But 
+2.6.20.4+bluez patches don't provide this quirk yet.
 
+What product/vendor ids does your mightymouse have?
 
-This one is hardly promoted!
+Thanks,
 
-
-Campaign for: ASVPPrice: $0.64 1 Day Target price: $1Market: hellish!!!
-
-
-Short-Term Bullish. Insider Buying Alert!!
-
-
-
-See the hottest news of the ASVP, linux-input, call your broker.
-
-------=_NextPart_000_000F_01C78068.C929EA70
-Content-Type: text/html;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2720.1158" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6633FF size=3D3D4><FONT =
-size=3D4><STRONG>This one is hardly promoted.</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0066 size=3D=
-4>Campaign for: <b>ASVP</b><br>Price: $0.64 <br>1 Day Target price: =
-$1<br>Market: hellish...</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3333 size=3D=
-4>Short-Term Bullish. Insider Buying Alert.</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D3>See the =
-hottest news of the ASVP, linux-input, call your broker!!!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_000F_01C78068.C929EA70--
+-- 
+Jiri Kosina

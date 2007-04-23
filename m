@@ -1,15 +1,15 @@
-From: "Soo Yen Simons" <muddleleases@miratv.tv>
-Subject: great advertisement
-Date: Mon, 23 Apr 2007 22:00:30 +0000 (UTC)
-Message-ID: <01c785f2$bd37a970$6c822ecf@muddleleases>
+From: "SANTANA Thurman" <getawayappraisals@rajavithi.go.th>
+Subject: great warning
+Date: Mon, 23 Apr 2007 23:09:56 +0000 (UTC)
+Message-ID: <01cae32f$bcfa78a0$6c822ecf@getawayappraisals>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	format=flowed;
-	charset="Windows-1252";
+	charset="iso-8859-2";
 	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 23 Apr 2007 22:00:00 +0480
+Date: Fri, 23 Apr 2010 21:55:50 +0000
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -18,15 +18,15 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-The planet has gone wireless and Mobile Airwaves (mbwc) is 
-in the right place in the right time with a Red Hot Product!
+The earth has gone wireless and Mobile Airwaves (mbwc) is 
+in the right spot with a Red Hot Product!
 
-We are waiting for Financial Results to be announced by the 
-company any moment.  With all the New Contracts they have 
+We are expecting  Financial Results to be announced by the 
+Mobile Airwaves any day.  With all the New Contracts they have 
 acquired we are awaiting Record Earnings!
 
-mbwc  is currently under priced at around 3 cents.  
-With the Mobile Airwaves being so Tightly held we expecting the inflow
+mbwc  is currently priced at around 3 cents.  
+With the company being so Tightly held we waiting for the inflow
 of buying to Push the price off the charts!  
 
 Get in on this Breakout Winner Early!

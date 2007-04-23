@@ -1,10 +1,10 @@
-From: "Darwin Dunn" <bardwellh@gallatinriver.net>
-Subject: But and eckman
-Date: Tue, 24 Apr 2007 01:08:22 +0900
-Message-ID: <001901c7860d$0d6777d0$0079a51c@your3a5ed8357d>
+From: "Rico Pineda" <lafargeville0@asianpay.com>
+Subject: No to beattie
+Date: Tue, 24 Apr 2007 01:26:14 +0800
+Message-ID: <001801c7860f$8c70c2a0$067c26b4@WWWD5E7BD03055>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0016_01C7860D.0D6777D0"
+        boundary="----=_NextPart_000_0015_01C7860F.8C70C2A0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,53 +14,55 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0016_01C7860D.0D6777D0
+------=_NextPart_000_0015_01C7860F.8C70C2A0
 Content-Type: text/plain;
-        charset="windows-1251"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
-Alert for you!
+
+Hellish report is here..
+
 
 Sym8oL: ASVPCurr Price: $0.64 1 Day Target price: $1Action: Aggresive =
-Buy/Hold!
+Buy/Hold!!
+
+TRADE SMART AND WIN WITH US NOW...
 
 
-SOMEBODY KNOWS SOMETHING..
+See the hottest news of the ASVP, linux-input, call your broker!
 
-ASVP have released very hot news. Check this out, linux-input and call =
-to your brocker right now!!
 
-------=_NextPart_000_0016_01C7860D.0D6777D0
+
+------=_NextPart_000_0015_01C7860F.8C70C2A0
 Content-Type: text/html;
-        charset="windows-1251"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2800.2963" name=3DGENERATOR>
+iso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2963" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0066 size=3D=
-3D4><FONT size=3D2><STRONG>Alert for you!</STRONG></FONT></DIV>
 <BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D=
-2>Sym8oL: <b>ASVP</b><br>Curr Price: $0.64 <br>1 Day Target price: =
-$1<br>Action: Aggresive Buy/Hold.</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000033 size=3D=
-4>SOMEBODY KNOWS SOMETHING...</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3333 size=3D3D4><FONT =
+size=3D2><STRONG>Hellish report is here!</STRONG></FONT></DIV>
 <BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC0000 size=3D2>ASVP =
-have released very hot news. Check this out, linux-input and call to =
-your brocker right now!!</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#333366 size=3D4>Sym8oL: =
+<b>ASVP</b><br>Curr Price: $0.64 <br>1 Day Target price: $1<br>Action: =
+Aggresive Buy/Hold!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D2>TRADE =
+SMART AND WIN WITH US NOW..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0066 size=3D4>See the =
+hottest news of the ASVP, linux-input, call your broker.</FONT></DIV>
 <BR>
 </BODY></HTML>
 
-------=_NextPart_000_0016_01C7860D.0D6777D0--
+------=_NextPart_000_0015_01C7860F.8C70C2A0--

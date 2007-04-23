@@ -1,64 +1,43 @@
-From: "Alejandra Boudreaux" <dehuevb@froggy.com.au>
-Subject: A broomall whichever brackney
-Date: Mon, 23 Apr 2007 17:47:25 +0800
-Message-ID: <001501c785cf$7438c330$0019a67c@PY>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0012_01C785CF.7438C330"
+From: Barton C Massey <bart@cs.pdx.edu>
+Subject: Re: [PATCH] don't invert mightymouse hwheel
+Date: Mon, 23 Apr 2007 03:27:05 -0700
+Message-ID: <200704231027.l3NAR5tA019325@murzim.cs.pdx.edu>
+References: <Pine.LNX.4.64.0704130940190.19492@jikos.suse.cz>
+	<200704130021.l3D0LvVM008180@adara.cs.pdx.edu>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-reply-to: Your message of "Fri, 13 Apr 2007 09:43:44 +0200."
+	<Pine.LNX.4.64.0704130940190.19492@jikos.suse.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Johannes Berg <johannes@sipsolutions.net>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0012_01C785CF.7438C330
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+In message <Pine.LNX.4.64.0704130940190.19492@jikos.suse.cz> you wrote:
+> On Thu, 12 Apr 2007, Barton C Massey wrote:
+> 
+> > These results are for the USB MM.  I have a Bluetooth MM now, and am 
+> > trying to find time to get it working also. Sorry I haven't had time to 
+> > do that yet.  Soon, honest.
+> 
+> Regarding the Bluetooth mouse - I have a bug in bugzilla stating that the 
+> Bluetooth version of the mightymouse requires the very same quirky 
+> handling as the USB version. Now that bluetooth and USB are hooked to the 
+> same common HID layer, this is pretty easy thing to do.
+> 
+> Mainline kernel already contains the quirk for Bluetooth mouse, since 
+> 2.6.21-rc6. It would be nice if you could verify that the Bluetooth 
+> version works fine with this kernel (or any newer).
 
+I just tried out the Bluetooth MM with 2.6.20.4 plus the
+bluez patches.  Everything seemed to work fine.  (Actually,
+it was horribly slow and laggy, but all the buttons and
+knobs worked and made things go in the right directions and
+stuff.  I'm hoping my USB BT dongle just sucks.)  I don't
+know if 2.6.21-rc6 is flipped from 2.6.20.4, though :-).
+I'll try to grab a newer kernel eventually.
 
-
-HOT ALERT...
-
-Search for: ASVPCurrent price: $0.64 1 Day Target price: $1Market: =
-bullish!
-
-Here comes the REAL BIG ONE!...
-
-ASVP has a nice fresh news, linux-input, contact your broker..
-
-
-
-------=_NextPart_000_0012_01C785CF.7438C330
-Content-Type: text/html;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.2600.1158" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3366 size=3D3D4><FONT =
-size=3D4><STRONG>HOT ALERT!!!</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D2>Search =
-for: <b>ASVP</b><br>Current price: $0.64 <br>1 Day Target price: =
-$1<br>Market: bullish!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000066 size=3D3>Here =
-comes the REAL BIG ONE!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#003399 size=3D2>ASVP has =
-a nice fresh news, linux-input, contact your broker!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0012_01C785CF.7438C330--
+	Bart

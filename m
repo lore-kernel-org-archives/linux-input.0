@@ -1,10 +1,10 @@
-From: "Shari Mueller" <cjaturkey@0800.co.uk>
-Subject: Or till vicissitude
-Date: Tue, 24 Apr 2007 16:14:47 +0800
-Message-ID: <001101c7868b$ad76f920$0693faa4@WinXPSP2>
+From: "Marcus Oakes" <markville821@i.com.ua>
+Subject: An here lilbourn
+Date: Tue, 24 Apr 2007 10:25:07 +0200
+Message-ID: <001501c7865a$d49aec90$01c0e04c@wilczynpjkmu90>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000E_01C7868B.AD76F920"
+        boundary="----=_NextPart_000_0012_01C7865A.D49AEC90"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,57 +14,54 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000E_01C7868B.AD76F920
+------=_NextPart_000_0012_01C7865A.D49AEC90
 Content-Type: text/plain;
-        charset="windows-1250"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
 
 
+This one is hardly promoted!
 
-THIS ONE IS BEING PROMOTED, TAKE ADVANTAGE!
+Campaign for: CHVCCurrent: $0.81 (UP! +15.71%)1 Day Target price: =
+$1.5Market: hellish...
 
-
-Sym8oL: CHVCCurrent: $0.81 (UP! +15.71%)1 Day Target price: $1.5Action: =
-Aggresive Buy/Hold.
-
-
-TRADE SMART AND WIN WITH US!!
+WATCH IT LIKE A HAWK!!!
 
 
 
-CHVC has a nice fresh news, linux-input, contact your broker.
+See the news, linux-input, call your broker.
 
 
-------=_NextPart_000_000E_01C7868B.AD76F920
+
+------=_NextPart_000_0012_01C7865A.D49AEC90
 Content-Type: text/html;
-        charset="windows-1250"
+        charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.3790.0000" name=3DGENERATOR>
+iso-8859-1">
+<META content=3D"MSHTML 6.00.2800.2963" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0033 size=3D3D4><FONT =
-size=3D3><STRONG>THIS ONE IS BEING PROMOTED, TAKE =
-ADVANTAGE..</STRONG></FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0033 size=3D3D4><FONT =
+size=3D4><STRONG>This one is hardly promoted!!!</STRONG></FONT></DIV>
 <BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC0033 size=3D3>Sym8oL: =
-<b>CHVC</b><br>Current: $0.81 (UP! +15.71%)<br>1 Day Target price: =
-$1.5<br>Action: Aggresive Buy/Hold!!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990000 size=3D2>TRADE =
-SMART AND WIN WITH US..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3333 size=3D2>CHVC has =
-a nice fresh news, linux-input, contact your broker.</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#0033FF size=3D=
+2>Campaign for: <b>CHVC</b><br>Current: $0.81 (UP! +15.71%)<br>1 Day =
+Target price: $1.5<br>Market: hellish!</FONT></DIV>
 <BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D2>WATCH =
+IT LIKE A HAWK!!!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000033 size=3D4>See the =
+news, linux-input, call your broker!!!</FONT></DIV>
+<BR>
 </BODY></HTML>
 
-------=_NextPart_000_000E_01C7868B.AD76F920--
+------=_NextPart_000_0012_01C7865A.D49AEC90--

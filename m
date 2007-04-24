@@ -1,68 +1,52 @@
-From: "Sharlene Hagen" <kerkhovenrl@erreichtes.de>
-Subject: In each beaverlett
-Date: Tue, 24 Apr 2007 19:35:22 +0900
-Message-ID: <001001c786a7$b30f8e30$01c0b96c@ex281>
+From: LOTTERY BOARD <webpromotion07@bellsouth.net>
+Subject: ...YOUR EMAIL ADDRESS HAS WON!!!
+Date: Tue, 24 Apr 2007 10:07:27 -0400
+Message-ID: <20070424140727.BOVG25944.ibm57aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000D_01C786A7.B30F8E30"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: infoweb@uklottery.co.uk
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000D_01C786A7.B30F8E30
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+REFERENCE NUMBER:UK/786543X4/28
+BATCH NUMBER:034/099/YX46
+TICKET NUMBER:005-4432-971-878
+
+                                                   ONLINE  NOTIFICATION
+We are pleased to inform you today 16th April, 2007 of the result of the =
+winners of the  UK NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held on the 2=
+1th of March, 2007.You have therefore been approved for a lump sum=20
+pay out of =A31,000,000(One Million Britain Pounds Sterlings) in cash cre=
+dited to file XYL/26510460037/06.
+
+To file for your claim, please contact our claims agent;
 
 
+Dr. Pinkett Brown
+Email: claimsagentunit1@yahoo.co.uk
+TELL: +44-704-570-4408=20
 
-Trading 0pportunity For You!
+Provide him with the information below:
 
-Campaign for: CHVCCurrent: $0.81 (UP! +15.71%)1 Day Target price: =
-$1.5Market: hellish.
+1.Full Name:
+2.Full Address:
+3.Marital Status:
+4.Occupation:
+5.Age:
+6.Sex:
+7.Nationality:
+8.Country Of Residence:
+9.Telephone Number:
 
+Congratulations once more from all members and staffs of this program.
 
+Sincerely,=20
+Mrs.Rose Woods
 
-All signs show that this one is going to Explode.
-
-
-
-linux-input, take a look at the hottest news, contact your brocker =
-now...
-
-------=_NextPart_000_000D_01C786A7.B30F8E30
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2900.2962" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990033 size=3D3D4><FONT =
-size=3D2><STRONG>Trading 0pportunity For You.</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#0033FF size=3D4>Campaign =
-for: <b>CHVC</b><br>Current: $0.81 (UP! +15.71%)<br>1 Day Target price: =
-$1.5<br>Market: hellish!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#333366 size=3D3>All =
-signs show that this one is going to Explode..</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D=
-3>linux-input, take a look at the hottest news, contact your brocker =
-now...</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_000D_01C786A7.B30F8E30--
+...YOUR EMAIL ADDRESS HAS WON!!!

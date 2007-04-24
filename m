@@ -1,67 +1,219 @@
-From: "Lou Becker" <brentonaf@pppool.de>
-Subject: As dennisport yourselves mangham
-Date: Tue, 24 Apr 2007 17:59:37 +0200
-Message-ID: <001301c7869a$52ec4550$0ed0b764@privat3e6a2234>
+From: "Kenton Barr" <laxcrichmanvew@crichman.com>
+Subject: Obesity is dangerous, stop it
+Date: Tue, 24 Apr 2007 16:24:25 -0200
+Message-ID: <322087652.50694158894885@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0010_01C7869A.52EC4550"
+  boundary="----------E16E16758409090"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: listproc@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0010_01C7869A.52EC4550
-Content-Type: text/plain;
-        charset="windows-1250"
+------------E16E16758409090
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
 
 
+Anatrim =96 The newest and most delighting product for corpulent people=20=
+is now easily available =96 As were told on ABC.
 
-Just take a look at this one!!!
+Do you remember all the cases when you said to yourself you would do=20=
+any thing to get rid of this quickly growing pounds of fat? Luckily, now=20=
+no great offering is expected. Thanks to Anatrim, the ground-shaking=20=
+kilos-melting blend, you can get naturally health mode of life and become=20=
+really thinner. Have a look at what our customers say!
 
+"It=92s rather difficult to confess but I was terribly addicted to food. 
 
-Lookup: CHVCCurrent: $0.81 (UP! +15.71%)1 Day Target price: =
-$1.5Expected: Steadily climb for the top.
+I swallowed up all this garbige 
 
+and could not stop. 
 
+This suffering finished after I started course of taking Anatrim! 
 
-Get on it before it's too late...
+Holy God,
 
-CHVC has a nice fresh news, linux-input, contact your broker!!!
+ my appetite vanished, 
 
+mood increased and I turned to the happiest person on the planet 28=20=
+pounds in 2.6 months. 
 
+I can tell you now I turned to the happiest person in the world!"
+ 
 
-------=_NextPart_000_0010_01C7869A.52EC4550
-Content-Type: text/html;
-        charset="windows-1250"
+Linda F., San Diego
+
+ 
+"Since my early childhood I was a weighty boy. 
+
+It=92s difficult to fancy how I detested being mocked at school. 
+
+I detested my plumpness and I hated myself. 
+
+After trying this and that I heard about Anatrim. 
+
+It literally dragged me out of this horror! The very sincere thanks to=20=
+you, guys."
+
+ 
+Mike Brown, Washington
+
+ 
+"Do you know what? Anatrim preserved my marriage! I fell down into the=20=
+circle, depression =96 eating more =96 more depression. My wife was going=20=
+to leave the overweight psycho I was turning in. 
+
+Once one of my friends showed me web page and I ordered my pack of=20=
+Anatrim immediately. 
+
+The results were magnficent, my appetite came to acceptable level, I=20=
+was often in good spirits, and, be sure, I became able to tighten my belt=20=
+on some holes. And you see me, the bedroom became cool, too!"
+
+ 
+Tom
+
+ There is a lot of testimonials delighted people leave after taking=20=
+Anatrim. Don=92t you wanna add yourself to the thousands and thousands of=20=
+slim customers and take this original appetite-suppressing energy lifting=20=
+product now!
+
+Don=92t miss your chance!
+
+------------E16E16758409090
+Content-Type: text/html; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2462.2969" name=3DGENERATOR>
-<STYLE></STYLE>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Less weight - more pleasure and joy</TITLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000033 size=3D3D4><FONT =
-size=3D4><STRONG>Just take a look at this one!!!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D3>Lookup: =
-<b>CHVC</b><br>Current: $0.81 (UP! +15.71%)<br>1 Day Target price: =
-$1.5<br>Expected: Steadily climb for the top..</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0033 size=3D3>Get on =
-it before it's too late!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000033 size=3D2>CHVC =
-has a nice fresh news, linux-input, contact your broker!!!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
+<BODY>
 
-------=_NextPart_000_0010_01C7869A.52EC4550--
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http:///?g37178757445796A33667173726B6873337F6E79776866777E70776E336B337A6E68w7pmhwyd">
+Anatrim =96 The newest and most delighting product for corpulent people=20=
+is now easily available =96 As were told on ABC.
+</a>
+</center>
+Do you remember all the cases when you said to yourself you would do=20=
+any thing to get rid of this quickly growing pounds of fat? Luckily, now=20=
+no great offering is expected. Thanks to Anatrim, the ground-shaking=20=
+kilos-melting blend, you can get naturally health mode of life and become=20=
+really thinner. Have a look at what our customers say!
+<br>
+<br>
+<i>
+"It=92s rather difficult to confess but I was terribly addicted to food. 
+<b>
+<i>
+I swallowed up all this garbige 
+<b>
+<i>
+and could not stop. 
+</i>
+</b>
+</i>
+</b>
+This suffering finished after I started course of taking Anatrim! 
+<b>
+<i>
+Holy God,
+</i>
+</b>
+<b>
+<i>
+ my appetite vanished, 
+<b>
+<i>
+mood increased and I turned to the happiest person on the planet 28=20=
+pounds in 2.6 months. 
+</i>
+</b>
+</i>
+</b>
+I can tell you now I turned to the happiest person in the world!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Linda F., San Diego
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a weighty boy. 
+<b>
+<i>
+It=92s difficult to fancy how I detested being mocked at school. 
+</i>
+</b>
+<b>
+<i>
+I detested my plumpness and I hated myself. 
+<b>
+<i>
+After trying this and that I heard about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally dragged me out of this horror! The very sincere thanks to=20=
+you, guys."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Mike Brown, Washington
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Do you know what? Anatrim preserved my marriage! I fell down into the=20=
+circle, depression =96 eating more =96 more depression. My wife was going=20=
+to leave the overweight psycho I was turning in. 
+<b>
+<i>
+Once one of my friends showed me web page and I ordered my pack of=20=
+Anatrim immediately. 
+</i>
+</b>
+The results were magnficent, my appetite came to acceptable level, I=20=
+was often in good spirits, and, be sure, I became able to tighten my belt=20=
+on some holes. And you see me, the bedroom became cool, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Tom
+</i>
+</b>
+<br>
+<br>
+ There is a lot of testimonials delighted people leave after taking=20=
+Anatrim. Don=92t you wanna add yourself to the thousands and thousands of=20=
+slim customers and take this original appetite-suppressing energy lifting=20=
+product now!
+<center>
+<a=20=
+href=3D"http:///?g37178757445796A33667173726B6873337F6E79776866777E70776E336B337A6E68w7pmhwyd">
+Don=92t miss your chance!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------E16E16758409090--

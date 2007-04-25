@@ -1,85 +1,73 @@
 From: "Zephaniah E. Hull" <warp@aehallh.com>
-Subject: Enabling/disabling input events.
-Date: Wed, 25 Apr 2007 13:24:54 -0400
-Message-ID: <20070425172454.GD4831@aehallh.com>
+Subject: Re: [PATCH] don't invert mightymouse hwheel
+Date: Wed, 25 Apr 2007 16:06:51 -0400
+Message-ID: <20070425200650.GE4831@aehallh.com>
+References: <Pine.LNX.4.64.0704121800000.19492@jikos.suse.cz> <1176330232.27324.7.camel@johannes.berg> <200704122125.l3CLP9aQ005277@wezen.cs.pdx.edu> <1176446418.7052.54.camel@johannes.berg>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6487841955927329432=="
-Return-path: <devel-bounces@laptop.org>
-List-Unsubscribe: <http://mailman.laptop.org/mailman/listinfo/devel>,
-	<mailto:devel-request@laptop.org?subject=unsubscribe>
-List-Archive: <http://mailman.laptop.org/pipermail/devel>
-List-Post: <mailto:devel@laptop.org>
-List-Help: <mailto:devel-request@laptop.org?subject=help>
-List-Subscribe: <http://mailman.laptop.org/mailman/listinfo/devel>,
-	<mailto:devel-request@laptop.org?subject=subscribe>
-Mime-version: 1.0
-Sender: devel-bounces@laptop.org
-Errors-To: devel-bounces@laptop.org
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-input@ATREY.KARLIN.MFF.CUNI.CZ, devel@laptop.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <1176446418.7052.54.camel@johannes.berg>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Barton C Massey <bart@cs.pdx.edu>, Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>
 List-Id: linux-input@vger.kernel.org
 
 
---===============6487841955927329432==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
-Content-Disposition: inline
-
-
---c3bfwLpm8qysLVxt
+--bajzpZikUji1w+G9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-The current trend is for events like power buttons and lid switches to
-be handled through the input subsystem.
+On Fri, Apr 13, 2007 at 08:40:18AM +0200, Johannes Berg wrote:
+> On Thu, 2007-04-12 at 14:25 -0700, Barton C Massey wrote:
+> 
+> > > I unfortunately don't have the hardware in question to test with. This X 
+> > > configuration is of course perfectly valid.
+> 
+> I copied it straight out of the manpage so I'd hope so :>
+> 
+> > Give me a day or so to check all this out.  I don't think
+> > looking at the X behavior is too useful: too many place that
+> > the direction can be swapped.  Instead, look which way the
+> > bits coming directly out of evdev point.
+> 
+> I can do that (early next week), but I don't have any other devices to
+> test with. Can provide a dump.
+> 
+> > IIRC I set things
+> > up so that positive X was the same as on other evdev
+> > devices.  Is the supplied X config swapping the X axis with
+> > this line?
+> > 
+> >   > >         Option      "evBits"            "+1-2"
+> 
+> No idea! I just copied it out of the manpage from evdev(4)
 
-This leaves an odd hole for cases where you wish to set the hardware
-behavior of these buttons, specificly on the OLPC we have several events
-that signal through the input system, which are capable of waking the
-system from suspend mode.  This is not always desirable, so the
-hardware leaves us a way to disable the button/switch completely, but at
-the moment there is no clean kernel interface for this.
+As the xf86-input-evdev maintainer, I can tell you quite firmly that the
+answer is a solid no.
 
-This leaves the choices of adding a separate way to control things which
-are delivered by the input system, which seems somewhat silly, or adding
-support to the input system for enabling/disabling specific events from
-an input device.
+However I can also tell you that I may infact have the behavior
+backwards in the driver. :)
 
-The latter seems more useful in the long run, but it leaves the question
-of how to do it.
+Yell, scream, and shout if that's the case.
 
-Between a few of us, we see a few possible ways to do it off the top of
-our heads:
-
- - Adding controls somewhere off in /sys/class/input. (How do we handle
-   notification of changes?)
- - Adding some ioctls to evdev. (Again, notification of changes?)
- - Writing events from userspace for these events, with odd values.
-   (Ugly, easily confuses clients listening to those events who don't
-   know what the odd values mean.)
- - Adding something like a EV_CTRL type, with CTRL_ENABLE_EVENT and
-   CTRL_DISABLE_EVENT events, encoding the 16bit types and codes of the
-   event we're enabling/disabling in the 32bit value. (How do we check
-   the current value?  Doesn't fit the existing event model.)
-
-All of these have ups and downs, and there are probably ways we have not
-thought of.
-
-So, our basic question is should this go through the input system, and
-if so how should we go about implementing it?
-
-Thank you.
 Zephaniah E. Hull.
+
 
 -- 
 	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
 	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
 	    CCs of replies from mailing lists are requested.
 
-<Upholder> Seen on the back of a T-Shirt: "I am a bomb technician.  If you see
-           me running, try to keep up."
+If I have trouble installing Linux, something is wrong. Very wrong.
+  -- Linus Torvalds on l-k.
 
---c3bfwLpm8qysLVxt
+--bajzpZikUji1w+G9
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -87,22 +75,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iD8DBQFGL47mRFMAi+ZaeAERAkbtAJ9xMJ17MgWxNZ6uCyZLyEGebCK7cwCcC0Eb
-VX/QLmFH8hB2JEi/Y4PqceU=
-=0rU9
+iD8DBQFGL7TaRFMAi+ZaeAERAvrAAJ9SbwKUwtHslgyE2aUESD1diHt4yQCg3p1i
+XqAtCSNKgyqhk2OzuppMbOQ=
+=F7/i
 -----END PGP SIGNATURE-----
 
---c3bfwLpm8qysLVxt--
-
---===============6487841955927329432==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Devel mailing list
-Devel@laptop.org
-http://mailman.laptop.org/mailman/listinfo/devel
-
---===============6487841955927329432==--
+--bajzpZikUji1w+G9--

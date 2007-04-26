@@ -1,91 +1,44 @@
-From: Investor Bertie <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: All Investors Message 2404688322
-Date: Thu, 26 Apr 2007 14:44:29 +0200 (CEST)
-Message-ID: <20070426074424.8616.qmail@1-f0ab4464c6644>
+From: "Myrtle Voss" <noncraftsbury@clicktothemagic.com>
+Subject: Of brusly at manitou
+Date: Thu, 26 Apr 2007 16:10:15 +0200
+Message-ID: <000e01c7881d$6036ed30$06a5dd14@estudiossergio>
 Mime-Version: 1.0
-Content-Type: text/html
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-<style>
+Just take a look at this one
+Special Situation Alert
 
-Hi,
+PHYA
 
-Is there an easy way to make a chart automatically include new rows as
-they are entered? 
-
-I currently have a spreadsheet with three columns: A, B and C. 
-Column A contains dates (i.e. the period, ex: June 2005)
-Column B and C contains figures for the period.
-<!I made a post FS/FT A? recently and when I finished it the message said
-your post will take 3-10 hours to appear. Not more than 5 minutes
-later I received a E-mail reply to the post. I could not view my post
-until 5.5 hours later at 12:30 in the morning. I replied back to the
-E-mail and asked him how he seen the post so quickly. He said he just
-seen it come up and that the post time delay may have something to do
-with my ISP! I sent a question to Google groups support but their
-reply was they were very busy and it may take some time to respond! I
-checked their FAQ's to no avail. My ISP is a cable company DSL hi
-speed line.
-
-Can anyone shed some light on this. Is there anything the member can
-do differently to see these posts as soon as they are released. If it
-is the ISP what do you tell them to do differently? Is there a better
-URL or IP address to access??
-
-Appreciate any replies,
-Rich
->
-
-<!When I copy and paste printed text to news group post, the line breaks from the original publication are retained and result in
-something like:
-------------------------------------------
-POSTED 8:54 a.m. EST; UPDATED 9:21 a.m. EST, March 5, 2007
-
-PACKERS CHASING BELL
-
-Bell was acquired by the Lions last week as part of the Dre' Bly deal.  As we've reported, both Bell and former Broncos tackle
-George Foster are candidates to be traded again.
-
-We're also told that the Packers contacted the Bears about the availability of running back Thomas Jones, but the Bears said that he
-is not available.  It remains to be seen whether the Bears would be willing to trade him to a team other than their intra-division
-arch-rivals.
-</style><img src="http://img70.imageshack.us/img70/7057/89741065oy8.gif">
-<style>
-------------------------------------------
-
-I think it might have something to do with
-
-Tools/Options/Send/News Sending Format
-
-Can the off the automatic word wrap be disabled?
-I've heard that there's another Two-Wheeled Tuesday somewhere
-west of the city.  Anyone been there or know of any others in the
-area?
-
-<!
-I've seen a different version of the Macross Plus LDs called 
-Macross Plus International Edition. I asked somebody about
-them and my friend said they're supposed to be something
-similar to the Pioneer LDs, english on the digital track, japanese
-on the analog, and closed captioning. Can somebody please
-confirm this? (so I can go out and buy these LDs right now :) 
-
-Wilson Verardi
+PHYA Prolonged and Active Life Service provider.
+OTC:PHYA - Last: 0.19
 
 
-><!Hi...
+This is a sector to be in!
 
-I'm selling on eBay (link below) a brand new condition copy of the &quot;jp
-airline-fleets international edition 96/97&quot;. This is the most
-comprehensive guide to the airline fleets of all countries. Includes
-info on complete fleets, types of aircraft, numbers, registration
-numbers, etc. A very impressive book.
 
-</style>
+About Physicians Adult Daycare, Inc.:
+
+We provide needed services for a PROLONGED and ACTIVE LIFE for family loved
+ones on a daily basis WITHOUT THE CONFINEMENT of a NURSING HOME. We refer to
+those who use our services as CLIENTS.
+
+
+__________
+TRADE SMART AND WIN!!
+See the hottest news of the TMXO, privacy, call your broker
+
+
+And there were gardens bright with sinuous rills, Don't throw out the baby with the bathwater. And the mome raths outgrabe. The opposite form also exists, Clothes don't make the man. Little wanderer, hie thee home!" Many hands make light work. Money is honey and the richman jocks is always funny Followup: Satisfaction brought it back, that's why the cat has nine lives And burbled as it came!

@@ -1,34 +1,84 @@
-From: "Mafalda Carmelita" <aub53vih@accessus.net>
-Subject: SPECIAL PHARMACY DISCOUNT, you pay & we ship, no question asked, established by reputable Canadian  Doctor ntr
-Date: Thu, 26 Apr 2007 23:35:18 -0800
-Message-ID: <070c338v.8691839@accessus.net>
+From: LOTTERY BOARD <weboffice009@bellsouth.net>
+Subject: Congratulation..............Dear Lucky Winner,
+Date: Thu, 26 Apr 2007 18:57:01 -0400
+Message-ID: <20070426225701.XWQB7717.ibm67aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
+To: info_uk_online@winner.com
 List-Id: linux-input@vger.kernel.org
 
-<html><head>
-<meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head><body><font color=FFEAD5 size=1>
-room bread quietly ridge talking, respect end side age taught?</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080>
-<tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b></font>
-<br>
-<font color=000000 size=1>We are the best price on all high quality meds. Established by a reputable Canadian Doctor and Scientist, Express Drugmart's mission is 
-to provide you with a secure online environment to purchase the safest, quality medication<br><br><font color=000000 size=2><b>Viagraa (Brand & Generic available) 
-- <font color=F20000>as LOW as $ 2.25 a dose</font><br>Cialiss (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 a dose</font><br>
-Valiumm - <font color=F20000>as LOW as $ 1.50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only $ 1.50 per  D0SE</font><br>Ambienn - <font color=F20000>
-only $ 1.65 per  D0SE</font><br>Ativann - <font color=F20000>only $ 1.50 per  D0SE</font><br>Somaa - <font color=F20000>only $ 1.50 per  D0SE</font><br>
-Clenbuterol - <font color=F20000>only $ 2.50 per D0SE</font><br>Meridiaa (brand name) - <font color=F20000>only $ 3.99 per  D0SE</font><br></b></font><br><center>
-<a href=http://bsuh.northkoreahad.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b>
-</font>
-</font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>become journey king wonder. work surely within proud?</font>
-</body>
-</html>
+UK NATIONAL LOTTERY HEADQUARTERS
+The Marina Offices, St Peters Yacht Basin,
+Newcastle upon Tyne, NE6 1HX England
+
+(Customer Services)
+
+BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION
+
+Dear Lucky Winner,
+
+We are please to inform you of the result of the just concluded annual  f=
+inal draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery  prog=
+rams. The online cyber lotto draws was conducted from an exclusive list o=
+f 21,000 e-mail addresses of individual and corporate bodies=20
+picked  by an advanced automated random computer search from the internet=
+, no  tickets were sold. After this automated computer ballot, your e-mai=
+l  address emerged as one of two winners in the category \"A\" with the f=
+ollowing winning information:
+
+REF No: UKNL-L/200-26937
+BATCH No: 2007MJL-01
+TICKET No: 20511465463-7644
+SERIAL No: S/N-00168
+LUCKY No: 887-13-865-37-10-83
+
+You as well as the other winner are therefore to receive a cash prize of =
+ =C2=A3 1,230,310GPD (One Million Two Hundred and Thirty Thousand Three  =
+Hundred and Ten Pounds Sterling)   each from the total payout. Your  priz=
+e award   has been insured with your e-mail address and will be =20
+transferred to  you upon meeting our requirements, statutory  obligations=
+, verifications, validations and satisfactory report. To begin the claims=
+  processing of your prize winnings you are advised to contact our licens=
+ed  and accredited claims agent for category \"A\" winners with the=20
+information below:
+
+   Mr. Charles McCoy.
+Tel:+44-704-571-6322
+Fax: +44- 707-570-0385
+
+EMAIL: info_uklotteryclaimfiduciary22@yahoo.co.uk
+
+Do fill out the claims form to Mr Charles McCoy.  in other to process
+the claims of your prize without delay.
+
+
+              PAYMENT PROCESSING FORM
+
+FULL NAMES...................................................
+CONTACT ADDRESS........................................
+TEL/FAX NUMBERS.........................................
+AGE.................................................................
+SEX..................................................................
+OCCUPATION.................................................
+NEXT OF KIN..................................................
+COUNTRY........................................................
+AMOUNT WON................................................
+WINNING EMAIL.............................................
+REFERENCE NUMBER...................................
+TICKET NUMBERS..........................................
+SERIAL NUMBERS...........................................
+
+
+Sincerely,
+Mrs. Cecilia Moore
+FOR UK NATIONAL LOTTERY
+
+Copyright (c) 1994-2007 The UK National Lottery Inc.
+All rights reserved. Terms of Service - Guideline

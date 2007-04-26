@@ -1,41 +1,91 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add Cobalt button interface driver support
-Date: Thu, 26 Apr 2007 08:29:25 -0400
-Message-ID: <d120d5000704260529x1f41a5dkc43dbffc34ba6ff0@mail.gmail.com>
-References: <20070216123608.733f04a3.yoichi_yuasa@tripeaks.co.jp>
-	 <200704040001.41494.dtor@insightbb.com>
-	 <200704050502.l3552gss048910@mbox31.po.2iij.net>
-	 <200704250134.33610.dtor@insightbb.com>
-	 <200704260640.l3Q6eP6R020764@mbox32.po.2iij.net>
+From: Investor Bertie <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: All Investors Message 2404688322
+Date: Thu, 26 Apr 2007 14:44:29 +0200 (CEST)
+Message-ID: <20070426074424.8616.qmail@1-f0ab4464c6644>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/html
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200704260640.l3Q6eP6R020764@mbox32.po.2iij.net>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 4/26/07, Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp> wrote:
-> Dmitry Torokhov <dtor@insightbb.com> wrote:
-> >
-> > Coudl you please try couple more patches, please? I wrote a generic
-> > stub for polled (as opposed to interrupt-driven) input devices and
-> > converting existing drivers to use it. Cobalt buttons seem to be
-> > a good candidate...
->
-> Looks good to me and works fine.
->
-> Acked-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+<style>
+
+Hi,
+
+Is there an easy way to make a chart automatically include new rows as
+they are entered? 
+
+I currently have a spreadsheet with three columns: A, B and C. 
+Column A contains dates (i.e. the period, ex: June 2005)
+Column B and C contains figures for the period.
+<!I made a post FS/FT A? recently and when I finished it the message said
+your post will take 3-10 hours to appear. Not more than 5 minutes
+later I received a E-mail reply to the post. I could not view my post
+until 5.5 hours later at 12:30 in the morning. I replied back to the
+E-mail and asked him how he seen the post so quickly. He said he just
+seen it come up and that the post time delay may have something to do
+with my ISP! I sent a question to Google groups support but their
+reply was they were very busy and it may take some time to respond! I
+checked their FAQ's to no avail. My ISP is a cable company DSL hi
+speed line.
+
+Can anyone shed some light on this. Is there anything the member can
+do differently to see these posts as soon as they are released. If it
+is the ISP what do you tell them to do differently? Is there a better
+URL or IP address to access??
+
+Appreciate any replies,
+Rich
 >
 
-Thank you for testing/review.
+<!When I copy and paste printed text to news group post, the line breaks from the original publication are retained and result in
+something like:
+------------------------------------------
+POSTED 8:54 a.m. EST; UPDATED 9:21 a.m. EST, March 5, 2007
 
--- 
-Dmitry
+PACKERS CHASING BELL
+
+Bell was acquired by the Lions last week as part of the Dre' Bly deal.  As we've reported, both Bell and former Broncos tackle
+George Foster are candidates to be traded again.
+
+We're also told that the Packers contacted the Bears about the availability of running back Thomas Jones, but the Bears said that he
+is not available.  It remains to be seen whether the Bears would be willing to trade him to a team other than their intra-division
+arch-rivals.
+</style><img src="http://img70.imageshack.us/img70/7057/89741065oy8.gif">
+<style>
+------------------------------------------
+
+I think it might have something to do with
+
+Tools/Options/Send/News Sending Format
+
+Can the off the automatic word wrap be disabled?
+I've heard that there's another Two-Wheeled Tuesday somewhere
+west of the city.  Anyone been there or know of any others in the
+area?
+
+<!
+I've seen a different version of the Macross Plus LDs called 
+Macross Plus International Edition. I asked somebody about
+them and my friend said they're supposed to be something
+similar to the Pioneer LDs, english on the digital track, japanese
+on the analog, and closed captioning. Can somebody please
+confirm this? (so I can go out and buy these LDs right now :) 
+
+Wilson Verardi
+
+
+><!Hi...
+
+I'm selling on eBay (link below) a brand new condition copy of the &quot;jp
+airline-fleets international edition 96/97&quot;. This is the most
+comprehensive guide to the airline fleets of all countries. Includes
+info on complete fleets, types of aircraft, numbers, registration
+numbers, etc. A very impressive book.
+
+</style>

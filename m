@@ -1,84 +1,69 @@
-From: LOTTERY BOARD <webonline44@bellsouth.net>
-Subject: Congratulation..............Dear Lucky Winner,
-Date: Wed, 25 Apr 2007 20:43:23 -0400
-Message-ID: <20070426004323.ITT7717.ibm67aec.bellsouth.net@mail.bellsouth.net>
+From: "Delia Herrera" <bristowg@mac.com>
+Subject: his elkmound or arona
+Date: Thu, 26 Apr 2007 09:28:38 +0530
+Message-ID: <001501c787e5$45a06ab0$0018d87c@server>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0012_01C787E5.45A06AB0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: uklottery@yahoo.co.uk
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-UK NATIONAL LOTTERY HEADQUARTERS
-The Marina Offices, St Peters Yacht Basin,
-Newcastle upon Tyne, NE6 1HX England
-
-(Customer Services)
-
-BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION
-
-Dear Lucky Winner,
-
-We are please to inform you of the result of the just concluded annual fi=
-nal draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery  progr=
-ams. The online cyber lotto draws was conducted from an exclusive list of=
- 21,000 e-mail addresses of individual and corporate bodies picked  by an=
- advanced automated random computer search from the internet, no  tickets=
- were sold. After this automated computer ballot, your e-mail  address em=
-erged as one of two winners in the category \"A\" with the=20
-following winning information:
-
-REF No: UKNL-L/200-26937
-BATCH No: 2007MJL-01
-TICKET No: 20511465463-7644
-SERIAL No: S/N-00168
-LUCKY No: 887-13-865-37-10-83
-
-You as well as the other winner are therefore to receive a cash prize of =
- =A3 1,230,310GPD (One Million Two Hundred and Thirty Thousand Three  Hun=
-dred and Ten Pounds Sterling)   each from the total payout. Your  prize a=
-ward   has been insured with your e-mail address and will be  transferred=
- to  you upon meeting our requirements, statutory  obligations, verificat=
-ions, validations and satisfactory report. To begin the claims  processin=
-g of your prize winnings you are advised to contact our licensed  and acc=
-redited claims agent for category \"A\" winners with the information belo=
-w:
-
-   Mr. Charles McCoy.
-Tel:+44-704-571-6322
-Fax: +44- 707-570-0385
-
-EMAIL:info_uklotteryclaimfiduciary22@yahoo.co.uk
-
-Do fill out the claims form to Mr Charles McCoy.  in other to process
-the claims of your prize without delay.
+------=_NextPart_000_0012_01C787E5.45A06AB0
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
 
-              PAYMENT PROCESSING FORM
-
-FULL NAMES...................................................
-CONTACT ADDRESS........................................
-TEL/FAX NUMBERS.........................................
-AGE.................................................................
-SEX..................................................................
-OCCUPATION.................................................
-NEXT OF KIN..................................................
-COUNTRY........................................................
-AMOUNT WON................................................
-WINNING EMAIL.............................................
-REFERENCE NUMBER...................................
-TICKET NUMBERS..........................................
-SERIAL NUMBERS...........................................
 
 
-Sincerely,
-Mrs. Cecilia Moore
-FOR UK NATIONAL LOTTERY
+THE INTERNET SECTOR IS HOT AGAIN!!
 
-Copyright (c) 1994-2007 The UK National Lottery Inc.
-All rights reserved. Terms of Service - Guideline
+
+
+Camp.aign for: CHVCCurrent: $0.69 1 Day Target price: $1.5Market: =
+hellish!!!
+
+WATCH IT LIKE A HAWK!!!
+
+
+
+See the hottest news of the CHVC, linux-input, call your broker!
+
+
+------=_NextPart_000_0012_01C787E5.45A06AB0
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.2720.1081" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990000 size=3D3D4><FONT =
+size=3D3><STRONG>THE INTERNET SECTOR IS HOT =
+AGAIN!!</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0000 size=3D=
+3>Camp.aign for: <b>CHVC</b><br>Current: $0.69 <br>1 Day Target price: =
+$1.5<br>Market: hellish!!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990033 size=3D3>WATCH =
+IT LIKE A HAWK!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990000 size=3D4>See the =
+hottest news of the CHVC, linux-input, call your broker...</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0012_01C787E5.45A06AB0--

@@ -1,146 +1,84 @@
-From: "Zephaniah E. Hull" <warp@aehallh.com>
-Subject: Re: [PATCH] don't invert mightymouse hwheel
-Date: Wed, 25 Apr 2007 20:00:37 -0400
-Message-ID: <20070426000037.GF4831@aehallh.com>
-References: <20070425200650.GE4831@aehallh.com> <Pine.LNX.4.64.0704121800000.19492@jikos.suse.cz> <1176330232.27324.7.camel@johannes.berg> <200704122125.l3CLP9aQ005277@wezen.cs.pdx.edu> <1176446418.7052.54.camel@johannes.berg> <200704252309.l3PN9RUa018798@adara.cs.pdx.edu>
+From: LOTTERY BOARD <webonline44@bellsouth.net>
+Subject: Congratulation..............Dear Lucky Winner,
+Date: Wed, 25 Apr 2007 20:43:23 -0400
+Message-ID: <20070426004323.ITT7717.ibm67aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qFgkTsE6LiHkLPZw"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <200704252309.l3PN9RUa018798@adara.cs.pdx.edu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Barton C Massey <bart@cs.pdx.edu>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, "Antonio-M. Corbi Bellot" <antonio.corbi@ua.es>, Johannes Berg <johannes@sipsolutions.net>
+To: uklottery@yahoo.co.uk
 List-Id: linux-input@vger.kernel.org
 
+UK NATIONAL LOTTERY HEADQUARTERS
+The Marina Offices, St Peters Yacht Basin,
+Newcastle upon Tyne, NE6 1HX England
 
---qFgkTsE6LiHkLPZw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+(Customer Services)
 
-Alright, note that at the moment there is no way to invert it except
-with xmodmap. (Since they get mapped as buttons, you can swap them there
-in a trivial fashion.  If you're already swapping because you're left
-handed, it's even easier.)
+BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION
 
-At the moment, we map positive hwheel to 6, and negative to 7.
+Dear Lucky Winner,
 
-We also map positive wheel to 4, and negative to 5, so that fits.
+We are please to inform you of the result of the just concluded annual fi=
+nal draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery  progr=
+ams. The online cyber lotto draws was conducted from an exclusive list of=
+ 21,000 e-mail addresses of individual and corporate bodies picked  by an=
+ advanced automated random computer search from the internet, no  tickets=
+ were sold. After this automated computer ballot, your e-mail  address em=
+erged as one of two winners in the category \"A\" with the=20
+following winning information:
 
-Once xf86-input-evdev is rewritten for the xserver input-hotplug, it
-will be a complete config file rewrite, but it will allow lots of really
-funky mapping that currently isn't supported.
+REF No: UKNL-L/200-26937
+BATCH No: 2007MJL-01
+TICKET No: 20511465463-7644
+SERIAL No: S/N-00168
+LUCKY No: 887-13-865-37-10-83
 
-(It's 1.2.x, first with the old author was 1.0.x, 1.1.x broke everything
-but worked so much better it wasn't funny.  1.2.x with the right server
-hotplug code (which I'll write if I have to, urgh) should be a similar
-improvement.)
+You as well as the other winner are therefore to receive a cash prize of =
+ =A3 1,230,310GPD (One Million Two Hundred and Thirty Thousand Three  Hun=
+dred and Ten Pounds Sterling)   each from the total payout. Your  prize a=
+ward   has been insured with your e-mail address and will be  transferred=
+ to  you upon meeting our requirements, statutory  obligations, verificat=
+ions, validations and satisfactory report. To begin the claims  processin=
+g of your prize winnings you are advised to contact our licensed  and acc=
+redited claims agent for category \"A\" winners with the information belo=
+w:
 
-Zephaniah E. Hull.
+   Mr. Charles McCoy.
+Tel:+44-704-571-6322
+Fax: +44- 707-570-0385
 
-On Wed, Apr 25, 2007 at 04:09:27PM -0700, Barton C Massey wrote:
-> As far as I can tell you have it right, all the way up the
-> stack for me.  There's so many places it can get flipped,
-> though, that it's hard to tell.
-> 
-> 	Bart
-> 
-> In message <20070425200650.GE4831@aehallh.com> you wrote:
-> > 
-> > --bajzpZikUji1w+G9
-> > Content-Type: text/plain; charset=us-ascii
-> > Content-Disposition: inline
-> > 
-> > On Fri, Apr 13, 2007 at 08:40:18AM +0200, Johannes Berg wrote:
-> > > On Thu, 2007-04-12 at 14:25 -0700, Barton C Massey wrote:
-> > > 
-> > > > > I unfortunately don't have the hardware in question to test with. This X 
-> > > > > configuration is of course perfectly valid.
-> > > 
-> > > I copied it straight out of the manpage so I'd hope so :>
-> > > 
-> > > > Give me a day or so to check all this out.  I don't think
-> > > > looking at the X behavior is too useful: too many place that
-> > > > the direction can be swapped.  Instead, look which way the
-> > > > bits coming directly out of evdev point.
-> > > 
-> > > I can do that (early next week), but I don't have any other devices to
-> > > test with. Can provide a dump.
-> > > 
-> > > > IIRC I set things
-> > > > up so that positive X was the same as on other evdev
-> > > > devices.  Is the supplied X config swapping the X axis with
-> > > > this line?
-> > > > 
-> > > >   > >         Option      "evBits"            "+1-2"
-> > > 
-> > > No idea! I just copied it out of the manpage from evdev(4)
-> > 
-> > As the xf86-input-evdev maintainer, I can tell you quite firmly that the
-> > answer is a solid no.
-> > 
-> > However I can also tell you that I may infact have the behavior
-> > backwards in the driver. :)
-> > 
-> > Yell, scream, and shout if that's the case.
-> > 
-> > Zephaniah E. Hull.
-> > 
-> > 
-> > -- 
-> > 	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
-> > 	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-> > 	    CCs of replies from mailing lists are requested.
-> > 
-> > If I have trouble installing Linux, something is wrong. Very wrong.
-> >   -- Linus Torvalds on l-k.
-> > 
-> > --bajzpZikUji1w+G9
-> > Content-Type: application/pgp-signature; name="signature.asc"
-> > Content-Description: Digital signature
-> > Content-Disposition: inline
-> > 
-> > -----BEGIN PGP SIGNATURE-----
-> > Version: GnuPG v1.4.6 (GNU/Linux)
-> > 
-> > iD8DBQFGL7TaRFMAi+ZaeAERAvrAAJ9SbwKUwtHslgyE2aUESD1diHt4yQCg3p1i
-> > XqAtCSNKgyqhk2OzuppMbOQ=
-> > =F7/i
-> > -----END PGP SIGNATURE-----
-> > 
-> > --bajzpZikUji1w+G9--
-> 
+EMAIL:info_uklotteryclaimfiduciary22@yahoo.co.uk
 
--- 
-	  1024D/E65A7801 Zephaniah E. Hull <warp@aehallh.com>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
+Do fill out the claims form to Mr Charles McCoy.  in other to process
+the claims of your prize without delay.
 
-}>No.  I just point out to troublemakers that I have an English degree,
-}>which means that I am allowed to make changes to the English language.
-}>(What _else_ could it possibly be for?)
-}Wow; in that case, my physics degree is *WAY* more useful than I
-}had thought.
-This just proves how useless a computer science degree is:  there is hardly
-any useful science involved at all.  I want my computer black magic degree!
-	-- Victoria Swann, Jonathan Dursi, and D. Joseph Creighton on ASR
 
---qFgkTsE6LiHkLPZw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+              PAYMENT PROCESSING FORM
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
+FULL NAMES...................................................
+CONTACT ADDRESS........................................
+TEL/FAX NUMBERS.........................................
+AGE.................................................................
+SEX..................................................................
+OCCUPATION.................................................
+NEXT OF KIN..................................................
+COUNTRY........................................................
+AMOUNT WON................................................
+WINNING EMAIL.............................................
+REFERENCE NUMBER...................................
+TICKET NUMBERS..........................................
+SERIAL NUMBERS...........................................
 
-iD8DBQFGL+ulRFMAi+ZaeAERAmlPAJsG6dcNWtKjBECPBjTtoCLntF0z2wCffhv7
-mhwTKkIvmSkoCKLwF7dBZlU=
-=5XD+
------END PGP SIGNATURE-----
 
---qFgkTsE6LiHkLPZw--
+Sincerely,
+Mrs. Cecilia Moore
+FOR UK NATIONAL LOTTERY
+
+Copyright (c) 1994-2007 The UK National Lottery Inc.
+All rights reserved. Terms of Service - Guideline

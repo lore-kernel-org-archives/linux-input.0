@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <weboffice009@bellsouth.net>
 Subject: Congratulation..............Dear Lucky Winner,
-Date: Thu, 26 Apr 2007 20:13:28 -0400
-Message-ID: <20070427001328.ZFVQ7717.ibm67aec.bellsouth.net@mail.bellsouth.net>
+Date: Thu, 26 Apr 2007 21:27:28 -0400
+Message-ID: <20070427012728.IWL97.ibm65aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
@@ -11,7 +11,7 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: info_uk_online@winner.com
+To: uk_online@winner.com
 List-Id: linux-input@vger.kernel.org
 
 UK NATIONAL LOTTERY HEADQUARTERS

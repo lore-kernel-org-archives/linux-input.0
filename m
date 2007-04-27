@@ -1,7 +1,7 @@
-From: "Tatiana Magali" <dipfl87otys@fcc.net>
-Subject: SPECIAL PHARMACY DISCOUNT, you pay & we ship, no question asked, established by reputable Canadian  Doctor cuuz
-Date: Thu, 26 Apr 2007 22:32:08 +0000
-Message-ID: <601c843q.4470574@fcc.net>
+From: "Mafalda Carmelita" <aub53vih@accessus.net>
+Subject: SPECIAL PHARMACY DISCOUNT, you pay & we ship, no question asked, established by reputable Canadian  Doctor ntr
+Date: Thu, 26 Apr 2007 23:35:18 -0800
+Message-ID: <070c338v.8691839@accessus.net>
 Mime-Version: 1.0
 Content-Type: text/html;
 	charset="iso-8859-1"
@@ -12,13 +12,13 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lciakidfg@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 <html><head>
 <meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
 </head><body><font color=FFEAD5 size=1>
-intelligent girls already or? away use better number burst might.</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080>
+room bread quietly ridge talking, respect end side age taught?</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080>
 <tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b></font>
 <br>
 <font color=000000 size=1>We are the best price on all high quality meds. Established by a reputable Canadian Doctor and Scientist, Express Drugmart's mission is 
@@ -27,8 +27,8 @@ to provide you with a secure online environment to purchase the safest, quality 
 Valiumm - <font color=F20000>as LOW as $ 1.50 per D0SE</font><br>Xanaxxxxx - <font color=F20000>only $ 1.50 per  D0SE</font><br>Ambienn - <font color=F20000>
 only $ 1.65 per  D0SE</font><br>Ativann - <font color=F20000>only $ 1.50 per  D0SE</font><br>Somaa - <font color=F20000>only $ 1.50 per  D0SE</font><br>
 Clenbuterol - <font color=F20000>only $ 2.50 per D0SE</font><br>Meridiaa (brand name) - <font color=F20000>only $ 3.99 per  D0SE</font><br></b></font><br><center>
-<a href=http://bdm.northkoreahad.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b>
+<a href=http://bsuh.northkoreahad.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b>
 </font>
-</font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>strange necessary thats perhaps sandwich might. here being six hat forth use appearance might.</font>
+</font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>become journey king wonder. work surely within proud?</font>
 </body>
 </html>

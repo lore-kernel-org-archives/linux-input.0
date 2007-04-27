@@ -1,84 +1,70 @@
-From: LOTTERY BOARD <weboffice009@bellsouth.net>
-Subject: Congratulation..............Dear Lucky Winner,
-Date: Thu, 26 Apr 2007 21:27:28 -0400
-Message-ID: <20070427012728.IWL97.ibm65aec.bellsouth.net@mail.bellsouth.net>
+From: "Gwendolyn Kemp" <jobliterate@350.com>
+Subject: That sheldon into dignity
+Date: Fri, 27 Apr 2007 13:12:56 +0800
+Message-ID: <001701c788cd$c568c740$01b40b9c@cwserver>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0014_01C788CD.C568C740"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: uk_online@winner.com
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-UK NATIONAL LOTTERY HEADQUARTERS
-The Marina Offices, St Peters Yacht Basin,
-Newcastle upon Tyne, NE6 1HX England
-
-(Customer Services)
-
-BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION
-
-Dear Lucky Winner,
-
-We are please to inform you of the result of the just concluded annual  f=
-inal draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery  prog=
-rams. The online cyber lotto draws was conducted from an exclusive list o=
-f 21,000 e-mail addresses of individual and corporate bodies=20
-picked  by an advanced automated random computer search from the internet=
-, no  tickets were sold. After this automated computer ballot, your e-mai=
-l  address emerged as one of two winners in the category \"A\" with the f=
-ollowing winning information:
-
-REF No: UKNL-L/200-26937
-BATCH No: 2007MJL-01
-TICKET No: 20511465463-7644
-SERIAL No: S/N-00168
-LUCKY No: 887-13-865-37-10-83
-
-You as well as the other winner are therefore to receive a cash prize of =
- =C2=A3 1,230,310GPD (One Million Two Hundred and Thirty Thousand Three  =
-Hundred and Ten Pounds Sterling)   each from the total payout. Your  priz=
-e award   has been insured with your e-mail address and will be =20
-transferred to  you upon meeting our requirements, statutory  obligations=
-, verifications, validations and satisfactory report. To begin the claims=
-  processing of your prize winnings you are advised to contact our licens=
-ed  and accredited claims agent for category \"A\" winners with the=20
-information below:
-
-   Mr. Charles McCoy.
-Tel:+44-704-571-6322
-Fax: +44- 707-570-0385
-
-EMAIL: info_uklotteryclaimfiduciary22@yahoo.co.uk
-
-Do fill out the claims form to Mr Charles McCoy.  in other to process
-the claims of your prize without delay.
+------=_NextPart_000_0014_01C788CD.C568C740
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
 
-              PAYMENT PROCESSING FORM
-
-FULL NAMES...................................................
-CONTACT ADDRESS........................................
-TEL/FAX NUMBERS.........................................
-AGE.................................................................
-SEX..................................................................
-OCCUPATION.................................................
-NEXT OF KIN..................................................
-COUNTRY........................................................
-AMOUNT WON................................................
-WINNING EMAIL.............................................
-REFERENCE NUMBER...................................
-TICKET NUMBERS..........................................
-SERIAL NUMBERS...........................................
 
 
-Sincerely,
-Mrs. Cecilia Moore
-FOR UK NATIONAL LOTTERY
+Trading 0pportunity For You!
 
-Copyright (c) 1994-2007 The UK National Lottery Inc.
-All rights reserved. Terms of Service - Guideline
+Lookup: ALVNCurrent: $0.17 1 Day Target price: $1Expected: Steadily =
+climb for the top...
+
+
+SOMEBODY KNOWS SOMETHING!
+
+
+
+linux-input, take a look at the hottest news, contact your brocker now.
+
+
+
+------=_NextPart_000_0014_01C788CD.C568C740
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2900.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#003399 size=3D=
+3D4><FONT size=3D2><STRONG>Trading 0pportunity For =
+You!!!</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000066 size=3D=
+2>Lookup: <b>ALVN</b><br>Current: $0.17 <br>1 Day Target price: =
+$1<br>Expected: Steadily climb for the top!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000000 size=3D=
+3>SOMEBODY KNOWS SOMETHING!!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D=
+2>linux-input, take a look at the hottest news, contact your brocker =
+now...</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0014_01C788CD.C568C740--

@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <weboffice009@bellsouth.net>
 Subject: Congratulation..............Dear Lucky Winner,
-Date: Thu, 26 Apr 2007 20:06:43 -0400
-Message-ID: <20070427000643.ZDSV7717.ibm67aec.bellsouth.net@mail.bellsouth.net>
+Date: Thu, 26 Apr 2007 20:13:28 -0400
+Message-ID: <20070427001328.ZFVQ7717.ibm67aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable

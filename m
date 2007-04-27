@@ -1,10 +1,10 @@
-From: "Shawn Cole" <blawenburg6@mailermart.com>
-Subject: But everyone milfay
-Date: Fri, 27 Apr 2007 15:08:23 +0200
-Message-ID: <001601c788dd$e6474990$001ac89c@PcJAMavoungou>
+From: "Bryon Olson" <destrehanyf@digitalexp.com>
+Subject: I kearny is baroda
+Date: Fri, 27 Apr 2007 22:12:20 +0800
+Message-ID: <001401c78919$20120cb0$06056f1c@billgates>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C788DD.E6474990"
+        boundary="----=_NextPart_000_0011_01C78919.20120CB0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,29 +14,28 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C788DD.E6474990
+------=_NextPart_000_0011_01C78919.20120CB0
 Content-Type: text/plain;
         charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
 
-This one will explode!
 
-Lookup: ALVNCurrent: $0.17 1 Day Target price: $1Expected: Steadily =
-climb for the top.
+Hellish report is here!
 
 
+Sea.rch for: ALVNCurrent: $0.17 1 Day Target price: $1Market: bullish..
 
-All signs show that this one is going to Explode.
-
-
-
-See the hottest news of the ALVN, linux-input, call your broker...
+SOMEBODY KNOWS SOMETHING!!
 
 
 
-------=_NextPart_000_0013_01C788DD.E6474990
+Check the news of ALVN, linux-input, contact broker!!
+
+
+
+------=_NextPart_000_0011_01C78919.20120CB0
 Content-Type: text/html;
         charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
@@ -45,24 +44,24 @@ Content-Transfer-Encoding: quoted-printable
 <HTML><HEAD>
 <META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
 windows-1250">
-<META content=3D"MSHTML 6.00.2800.2869" name=3DGENERATOR>
+<META content=3D"MSHTML 6.00.2600.1081" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
+3D4><FONT size=3D2><STRONG>Hellish report is here!</STRONG></FONT></DIV>
 <BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D3D4><FONT =
-size=3D2><STRONG>This one will explode!!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990000 size=3D3>Lookup: =
-<b>ALVN</b><br>Current: $0.17 <br>1 Day Target price: $1<br>Expected: =
-Steadily climb for the top!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D2>All =
-signs show that this one is going to Explode!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#3300FF size=3D2>See the =
-hottest news of the ALVN, linux-input, call your broker.</FONT></DIV>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#3300FF size=3D=
+3>Sea.rch for: <b>ALVN</b><br>Current: $0.17 <br>1 Day Target price: =
+$1<br>Market: bullish...</FONT></DIV>
 <BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#990033 size=3D=
+3>SOMEBODY KNOWS SOMETHING...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0066 size=3D2>Check =
+the news of ALVN, linux-input, contact broker...</FONT></DIV>
+<BR><BR><BR>
 </BODY></HTML>
 
-------=_NextPart_000_0013_01C788DD.E6474990--
+------=_NextPart_000_0011_01C78919.20120CB0--

@@ -1,11 +1,10 @@
-From: "Adena Lakeshia" <szqtg15dbabz@christian.com>
-Subject: Fast  weight loss, Boosts Energy, Certified 100% Pure South AfricanHoodia itsk
-Date: Tue, 01 May 2007 15:12:15 +0800
-Message-ID: <257f583s.2098284@christian.com>
+From: "Dominic Walters" <kordixonmusicnaw@dixonmusic.com>
+Subject: Less weight - more pleasure and joy
+Date: Tue, 1 May 2007 11:40:23 -0900
+Message-ID: <742210944.19348272210121@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------D34F2915A8D3BB4"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,21 +14,170 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>considered important yours proceeded reached, sugar progress follow prison added.</font><center><table border=0 cellspacing=0 cellpadding=7 width=520 bordercolor=FF8080><tr><td bgcolor=FFFF00 align=left><font size=4 face=tahoma color=006A35><b><center><font color=ff0000>#1</font> DietProduct 2007 - <font color=00BF00>Naturaslim HoodiaGordonii
-</font>
-</font></center></b></font></td></tr><tr><td bgcolor=FFFFCA><font color=000000 face=tahoma size=2><font color=00C400><b>
-Naturaslim&trade; PureHoodia</b></font> is one of the most popular HoodiaGordonii weight-loss diet pills available. 
-Unlike counterfeit products, Naturaslim&trade; uses 100% PureHoodia and is a successful nutritional supplement. 
-We have the certificates to prove it.<br><br><font color=000000 size=2><b><font color=FF9BFF>Lowers your appetite - 
-Your brain thinks you're "full"</font><br><font color=FF77FF>Certified 100% pure AfricanHoodia</font><br><font color=FF4FFF>
-Completely safe. NO side effects</font><br><font color=FF1CFF>HoodiaGorgonii is a natural Appetite Supressant from South 
-Africa</font><br><font color=EC00EC>Hoodiaworks by 'tricking' your brain into thinking you have just eaten.</font><br>
-<font color=CA00CA>Hoodiacontains no toxic stimulants or nasty chemicals</font><br><font color=A800A8>Naturaslim is a 
-500mg Hoodiaconcentrate in capsule form.</font><br><font color=840084>Naturaslim contains no additives or preservatives</font><br><br>
-<font color=88FF88>Hoodiawill reduce your daily caloric intake by up to 1000 calories<br><font color=40FF40>
-Hoodiagives you control over your appetite<br><font color=00CC00>Hoodiawill make you feel great - its a natural mood enhancer<br><font color=009500>Hoodiawill help you to lose weight by not over-eating<br></b></font><br><center><a href=http://ctwm.fromacollegejob.com target=_blank><font size=4 color=0000FF><u><b>CHEAPEST HoodiaPills Availabile<br>We are constantly beating our Competitors with price<br>We have NO 
-COMPETITION!</b></font></font></u></a>
-<br></center></td>
-</tr>
-</table>
-<font color=FFEAD5 size=1>i fancy hat quickly age? age account interest away i lady short.</font></body></html>
+------------D34F2915A8D3BB4
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
+
+Anatrim =96 The newest and most attracting lose flesh product is now=20=
+available =96 As told on Oprah
+Do you see redundant body kilograms kill very much people for every new=20=
+year? We know that you hate the unattractive appearance of those people=20=
+and the low status they have in society. 
+
+Moreover, you can=92t withstand an assault of your fatal eating habits.=20=
+Does it all sound familiar? Then we have something for you!
+
+Here there is Anatrim, the ultimate product for the elimination of your=20=
+body=92s extra weight. The amazing thing about Anatrim is it raises the=20=
+quality of your life by soothing your feeling of hunger and giving you=20=
+joyful spirit. Pay you attention to what people write to us about this=20=
+product:
+
+"It is wonderful! 
+
+I stopped watching TV constantly and always glutting myself with food 
+
+I became rather more interested in taking exercise.
+
+ Anatrim set me on the right track.
+
+ I=92m in a great shape now and there are lots of men following me with=20=
+their eyes!"
+
+Linda F., Chicago
+
+"I tried some passive weight reducing, but almost with no result. It=20=
+was rather difficult for me to hold back and not to eat something just at=20=
+hand. 
+
+Once I heard about Anatrim in the media advertisement and I was really=20=
+effected by the information.
+
+ I had attempted taking it, and my wife told me that I look very good=20=
+now, 4 months later. 
+
+26 pounds off and I keep still losing them! 
+
+And you know, I=92m a passionate lover again."
+
+Dave Klark, Colorado
+
+Anatrim helps your mind to realize that you don't need that much food.=20=
+It raises your spirit, provides you with extra energy, and attacks=20=
+useless kilos. Especial thanks to its powerful original formula!!
+Elicit more useful information! 
+------------D34F2915A8D3BB4
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Be leaner and slimmer by next week</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.shloudey.net/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7wqjorl">Anatrim=20=
+=96 The newest and most attracting lose flesh product is now available=20=
+=96 As told on Oprah</a>
+</b>
+</center>
+<b>
+Do you see redundant body kilograms kill very much people for every new=20=
+year? We know that you hate the unattractive appearance of those people=20=
+and the low status they have in society. 
+<b>
+Moreover, you can=92t withstand an assault of your fatal eating habits.=20=
+Does it all sound familiar? Then we have something for you!
+</b>
+</b>
+<br>
+<br>
+<b>
+Here there is Anatrim, the ultimate product for the elimination of your=20=
+body=92s extra weight. The amazing thing about Anatrim is it raises the=20=
+quality of your life by soothing your feeling of hunger and giving you=20=
+joyful spirit. Pay you attention to what people write to us about this=20=
+product:
+</b>
+<br>
+<br>
+<b>
+<i>
+"It is wonderful! 
+<b>
+<i>
+I stopped watching TV constantly and always glutting myself with food 
+<b>
+<i>
+I became rather more interested in taking exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim set me on the right track.
+</i>
+</b>
+ I=92m in a great shape now and there are lots of men following me with=20=
+their eyes!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Linda F., Chicago
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"I tried some passive weight reducing, but almost with no result. It=20=
+was rather difficult for me to hold back and not to eat something just at=20=
+hand. 
+<b>
+<i>
+Once I heard about Anatrim in the media advertisement and I was really=20=
+effected by the information.
+</i>
+</b>
+ I had attempted taking it, and my wife told me that I look very good=20=
+now, 4 months later. 
+<b>
+<i>
+26 pounds off and I keep still losing them! 
+</i>
+</b>
+And you know, I=92m a passionate lover again."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Dave Klark, Colorado
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps your mind to realize that you don't need that much food.=20=
+It raises your spirit, provides you with extra energy, and attacks=20=
+useless kilos. Especial thanks to its powerful original formula!!
+</b>
+<b>
+<center>
+<a=20=
+href=3D"http://www.shloudey.net/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7wqjorl">Elicit=20=
+more useful information!</a>
+</center>
+</b>
+</p> 
+
+</BODY></HTML>
+------------D34F2915A8D3BB4--

@@ -1,7 +1,7 @@
-From: "Antoinette Ingram" <jsgrejuvenate@ibestvip.com.br>
-Subject: A to grady
-Date: Wed, 2 May 2007 21:31:59 +0800
-Message-ID: <001701c78d01$5103b670$0631809c@msdba6d6dfbed8>
+From: "Frances Cherry" <yuhloreauville@detroitguy.com>
+Subject: in miraloma of agana
+Date: Wed, 2 May 2007 22:37:27 +0900
+Message-ID: <001a01c78d0a$76205bd0$069f4dd4@powerkm>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
@@ -17,13 +17,13 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-THE BULL REPORT
+BULL MARKET REPORT
 Adrenaline Nation Entertainment, Inc.
-_A_D_N_N_
+_A_D N_N_
 
 Major News was released today: 
 
-_A_D_N_N_
+_A_D_N N_
 
 Adrenaline Nation Television Signs Affiliate Licensing Agreement
 With Global eNetwork to Provide eCommerce Solutions Through the iTV
@@ -40,7 +40,7 @@ What he's doing now is so hot, so huge, it will blow your mind! Go
 read the news and go check out the website.  This new program is
 incredible!
 
-_ _ _
+__________
 
 Information within this report contains forward looking statements
 within the meaning of Section 27A of the Securities Act of 1933 and
@@ -55,6 +55,6 @@ stock and will sell those shares without notice to you. This report
 shall not be construed as any kind of investment advice or
 solicitation
 
-_ _ _
+__________
 Bullish profit?? 
-See the hottest news of this gem, linux-input, call your broker
+this gem have released very hot news. Check this out, linux-input and call to your brocker right now

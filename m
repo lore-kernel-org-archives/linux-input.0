@@ -1,189 +1,60 @@
-From: "Gail Pagan" <kordjmattreidnaw@djmattreid.com>
-Subject: Watch the pounds disappear
-Date: Wed, 2 May 2007 09:33:37 -0100
-Message-ID: <507580791.15107460574120@thhebat.net>
+From: "Antoinette Ingram" <jsgrejuvenate@ibestvip.com.br>
+Subject: A to grady
+Date: Wed, 2 May 2007 21:31:59 +0800
+Message-ID: <001701c78d01$5103b670$0631809c@msdba6d6dfbed8>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------67ACD39B252C6E7"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1251";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------------67ACD39B252C6E7
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+THE BULL REPORT
+Adrenaline Nation Entertainment, Inc.
+_A_D_N_N_
 
+Major News was released today: 
 
+_A_D_N_N_
 
-Anatrim – The latest and most delighting product for over-weight people is now available – As seen on CNN.
+Adrenaline Nation Television Signs Affiliate Licensing Agreement
+With Global eNetwork to Provide eCommerce Solutions Through the iTV
+MediaPlex With TelvOS Operating System Powered by Narrowstep
 
-Can you remember all the cases when you said to yourself you would do any thing for being rescued from this fastly growing number of kilos? Fortunately, now no major sacrifice is necessary. With Anatrim, the ground-shaking pound-melting combination of elements, you can get naturally health life style and a really slender figure. Have a look at what people write!
+Keith Dressel is starting his next venture so it's time to pay
+attention now.
 
-"I hate to admit it but I was extremely addicted to food. 
+Keith was a record executive responsible for over $4 billion in
+record sales.  He personally helped generate 29 gold records, 26
+platinum albums, and 85 gold singles.
 
-I swallowed up all this trash 
+What he's doing now is so hot, so huge, it will blow your mind! Go
+read the news and go check out the website.  This new program is
+incredible!
 
-and was unable to stop. 
+_ _ _
 
-This fatal passion finished when I started taking Anatrim! 
+Information within this report contains forward looking statements
+within the meaning of Section 27A of the Securities Act of 1933 and
+Section 21B of the SEC Act of 1934. Statements that involve
+discussions with respect to projections of future events are not
+statements of historical fact and may be forward looking
+statements. Don't rely on them to make a decision. Past performance
+is never indicative of future results. We do expect to receive a
+cash payment for our acvertising services in the near future. The
+amount is unknown at this time. Un-affiliated Third parties may own
+stock and will sell those shares without notice to you. This report
+shall not be construed as any kind of investment advice or
+solicitation
 
-Oh, God,
-
- my inclination to eat constantly vanished, 
-
-mood improved and I’m the happiest person on the planet 26 pounds in 2.8 months. 
-
-I can tell you now I turned to the happiest person!"
- 
-
-Amely S., Chicago
-
- 
-"Since the very childhood I was a bulky boy. 
-
-It’s difficult to fancy how I abhorred being derided at school. 
-
-I abhorred my plumpness and I hated myself. 
-
-After trying this and that I heard about Anatrim. 
-
-It literally took me out of this dreadful nightmare! A lot of thanks to you, guys."
-
- 
-Charley Mock, San Diego
-
- 
-"Do you know what? Thanks to Anatrim my marriage was saved! I went into the circle, depression – more eating – more depression. My wife was thinking about the leaving me as I was turning in overweight psycho. 
-
-One of my friends pointed to your web site and I ordered my pack of Anatrim as soon as it was possible. 
-
-The result was splendid, my appetite became normal, I was in a good mood oftener, and, be sure, I went some belt holes back. And you know, the sex became fantastic, too!"
-
- 
-Karl
-
- There many and many gratitudes left by delighted people taking Anatrim. Don’t you wanna add yourself to the thousands and thousands of slim women and men and take this natural appetite-reducing energy increasing product now!
-
-Don’t decline the chance!
-
-
-------------67ACD39B252C6E7
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Watch your body change with Anatrim</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href="http://www.bezog.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7pbnoys">
-Anatrim – The latest and most delighting product for over-weight people is now available – As seen on CNN.
-</a>
-</center>
-Can you remember all the cases when you said to yourself you would do any thing for being rescued from this fastly growing number of kilos? Fortunately, now no major sacrifice is necessary. With Anatrim, the ground-shaking pound-melting combination of elements, you can get naturally health life style and a really slender figure. Have a look at what people write!
-<br>
-<br>
-<i>
-"I hate to admit it but I was extremely addicted to food. 
-<b>
-<i>
-I swallowed up all this trash 
-<b>
-<i>
-and was unable to stop. 
-</i>
-</b>
-</i>
-</b>
-This fatal passion finished when I started taking Anatrim! 
-<b>
-<i>
-Oh, God,
-</i>
-</b>
-<b>
-<i>
- my inclination to eat constantly vanished, 
-<b>
-<i>
-mood improved and I’m the happiest person on the planet 26 pounds in 2.8 months. 
-</i>
-</b>
-</i>
-</b>
-I can tell you now I turned to the happiest person!"
-</i> 
-<br>
-<br>
-<b>
-<i>
-Amely S., Chicago
-</i>
-</b>
-<br>
-<br>
- <i>
-"Since the very childhood I was a bulky boy. 
-<b>
-<i>
-It’s difficult to fancy how I abhorred being derided at school. 
-</i>
-</b>
-<b>
-<i>
-I abhorred my plumpness and I hated myself. 
-<b>
-<i>
-After trying this and that I heard about Anatrim. 
-</i>
-</b>
-</i>
-</b>
-It literally took me out of this dreadful nightmare! A lot of thanks to you, guys."
-</i>
- <br>
-<br>
-<b>
-<i>
-Charley Mock, San Diego
-</i>
-</b>
-<br>
-<br>
- <i>
-"Do you know what? Thanks to Anatrim my marriage was saved! I went into the circle, depression – more eating – more depression. My wife was thinking about the leaving me as I was turning in overweight psycho. 
-<b>
-<i>
-One of my friends pointed to your web site and I ordered my pack of Anatrim as soon as it was possible. 
-</i>
-</b>
-The result was splendid, my appetite became normal, I was in a good mood oftener, and, be sure, I went some belt holes back. And you know, the sex became fantastic, too!"
-</i>
- <br>
-<br>
-<b>
-<i>
-Karl
-</i>
-</b>
-<br>
-<br>
- There many and many gratitudes left by delighted people taking Anatrim. Don’t you wanna add yourself to the thousands and thousands of slim women and men and take this natural appetite-reducing energy increasing product now!
-<center>
-<a href="http://www.bezog.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7pbnoys">
-Don’t decline the chance!
-</a>
-</center>
-</b>
-</p>
-
-</BODY></HTML>
-------------67ACD39B252C6E7--
+_ _ _
+Bullish profit?? 
+See the hottest news of this gem, linux-input, call your broker

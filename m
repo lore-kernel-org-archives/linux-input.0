@@ -1,181 +1,225 @@
-From: "Lenard Mayberry" <kordispetchernaw@dispetcher.de>
-Subject: Get out of the obese crowd
-Date: Wed, 2 May 2007 13:39:00 -0100
-Message-ID: <808470964.78618531934239@thhebat.net>
+From: Jan Kratochvil <honza@jikos.cz>
+Subject: [PATCH 1/3] xpad.c: Added flags into xpad_device
+ structure and removed dpad_mapping.
+Date: Wed, 2 May 2007 17:01:59 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0705021644580.13550@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------44BF67821EB80C"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Jiri Kosina <jkosina@suse.cz>, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-------------44BF67821EB80C
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+This changes are expected to simplify further improves of this driver,
+We will need to add information if the driver is xbox360 device or not.
 
-Anatrim =96 The latest and most exciting flesh loss product is now=20=
-readily available =96 As could be seen on Oprah
-Do you know that redundant body kilos kill a plenty of people for every=20=
-new year? We know that you hate the unattractive appearance of those=20=
-people and the low status they have in modern society. 
+Second option was to simply add u8 is_360, but what if we'll need to know
+if device is a wheel? Or if the device can have keyboard (or headset) attached.
 
-Or, maybe, you got no will to resist a siege of your fatal eating=20=
-habits. If it sounds familiar, then we got something for your=20=
-consideration!
+Signed-off-by: Jan Kratochvil <honza@jikos.cz>
+---
+ drivers/usb/input/xpad.c |  102 ++++++++++++++++++++++++---------------------
+ 1 files changed, 54 insertions(+), 48 deletions(-)
 
-Introducing Anatrim, the later product for the reduction of your=20=
-body=92s extra weight. The greatest thing about Anatrim is it raises the=20=
-quality of your life, making you crave less food and always cheering you=20=
-up. Here you may read what people write about this product:
+diff --git a/drivers/usb/input/xpad.c b/drivers/usb/input/xpad.c
+index e4bc76e..2a20aa2 100644
+--- a/drivers/usb/input/xpad.c
++++ b/drivers/usb/input/xpad.c
+@@ -85,9 +85,9 @@
+ 
+ /* xbox d-pads should map to buttons, as is required for DDR pads
+    but we map them to axes when possible to simplify things */
+-#define MAP_DPAD_TO_BUTTONS    0
+-#define MAP_DPAD_TO_AXES       1
+-#define MAP_DPAD_UNKNOWN       -1
++#define XPAD_FLAGS_DPAD_TO_BUTTONS    (1 << 0)
++#define XPAD_FLAGS_DPAD_TO_AXES       (1 << 1)
++#define XPAD_FLAGS_DPAD_UNKNOWN       (1 << 2)
+ 
+ static int dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+@@ -97,41 +97,41 @@ static const struct xpad_device {
+ 	u16 idVendor;
+ 	u16 idProduct;
+ 	char *name;
+-	u8 dpad_mapping;
++	u8 flags;
+ } xpad_device[] = {
+-	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", MAP_DPAD_TO_AXES },
+-	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", MAP_DPAD_TO_AXES },
+-	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", MAP_DPAD_TO_AXES },
+-	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", MAP_DPAD_TO_AXES },
+-	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", MAP_DPAD_TO_BUTTONS },
+-	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", MAP_DPAD_TO_AXES },
+-	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", MAP_DPAD_TO_AXES },
+-	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", MAP_DPAD_TO_AXES },
+-	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", MAP_DPAD_TO_AXES },
+-	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", MAP_DPAD_TO_AXES },
+-	{ 0x0738, 0x4516, "Mad Catz Control Pad", MAP_DPAD_TO_AXES },
+-	{ 0x0738, 0x4522, "Mad Catz LumiCON", MAP_DPAD_TO_AXES },
+-	{ 0x0738, 0x4526, "Mad Catz Control Pad Pro", MAP_DPAD_TO_AXES },
+-	{ 0x0738, 0x4536, "Mad Catz MicroCON", MAP_DPAD_TO_AXES },
+-	{ 0x0738, 0x4540, "Mad Catz Beat Pad", MAP_DPAD_TO_BUTTONS },
+-	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS },
+-	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0c12, 0x8810, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", MAP_DPAD_TO_AXES },
+-	{ 0x0e4c, 0x1097, "Radica Gamester Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0e4c, 0x2390, "Radica Games Jtech Controller", MAP_DPAD_TO_AXES},
+-	{ 0x0e6f, 0x0003, "Logic3 Freebird wireless Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0e6f, 0x0006, "Edge wireless Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", MAP_DPAD_TO_AXES },
+-	{ 0x0f30, 0x0202, "Joytech Advanced Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", MAP_DPAD_TO_AXES },
+-	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", MAP_DPAD_TO_AXES },
+-	{ 0x12ab, 0x8809, "Xbox DDR dancepad", MAP_DPAD_TO_BUTTONS },
+-	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS },
+-	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", MAP_DPAD_TO_AXES },
+-	{ 0x0000, 0x0000, "Generic X-Box pad", MAP_DPAD_UNKNOWN }
++	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", XPAD_FLAGS_DPAD_TO_BUTTONS },
++	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0738, 0x4516, "Mad Catz Control Pad", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0738, 0x4522, "Mad Catz LumiCON", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0738, 0x4526, "Mad Catz Control Pad Pro", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0738, 0x4536, "Mad Catz MicroCON", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0738, 0x4540, "Mad Catz Beat Pad", XPAD_FLAGS_DPAD_TO_BUTTONS },
++	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", XPAD_FLAGS_DPAD_TO_BUTTONS },
++	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0c12, 0x8810, "Zeroplus Xbox Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0e4c, 0x1097, "Radica Gamester Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0e4c, 0x2390, "Radica Games Jtech Controller", XPAD_FLAGS_DPAD_TO_AXES},
++	{ 0x0e6f, 0x0003, "Logic3 Freebird wireless Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0e6f, 0x0006, "Edge wireless Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0f30, 0x0202, "Joytech Advanced Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x12ab, 0x8809, "Xbox DDR dancepad", XPAD_FLAGS_DPAD_TO_BUTTONS },
++	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", XPAD_FLAGS_DPAD_TO_BUTTONS },
++	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", XPAD_FLAGS_DPAD_TO_AXES },
++	{ 0x0000, 0x0000, "Generic X-Box pad", XPAD_FLAGS_DPAD_UNKNOWN }
+ };
+ 
+ static const signed short xpad_btn[] = {
+@@ -140,7 +140,7 @@ static const signed short xpad_btn[] = {
+ 	-1						/* terminating entry */
+ };
+ 
+-/* only used if MAP_DPAD_TO_BUTTONS */
++/* only used if XPAD_FLAGS_DPAD_TO_BUTTONS */
+ static const signed short xpad_btn_pad[] = {
+ 	BTN_LEFT, BTN_RIGHT,		/* d-pad left, right */
+ 	BTN_0, BTN_1,			/* d-pad up, down (XXX names??) */
+@@ -154,7 +154,7 @@ static const signed short xpad_abs[] = {
+ 	-1			/* terminating entry */
+ };
+ 
+-/* only used if MAP_DPAD_TO_AXES */
++/* only used if XPAD_FLAGS_DPAD_TO_AXES */
+ static const signed short xpad_abs_pad[] = {
+ 	ABS_HAT0X, ABS_HAT0Y,	/* d-pad axes */
+ 	-1			/* terminating entry */
+@@ -177,7 +177,7 @@ struct usb_xpad {
+ 
+ 	char phys[65];			/* physical device path */
+ 
+-	int dpad_mapping;		/* map d-pad to buttons or to axes */
++	u8 flags;			/* combination of XPAD_FLAGS_* */
+ };
+ 
+ /*
+@@ -207,10 +207,10 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
+ 	input_report_abs(dev, ABS_RZ, data[11]);
+ 
+ 	/* digital pad */
+-	if (xpad->dpad_mapping == MAP_DPAD_TO_AXES) {
++	if (xpad->flags & XPAD_FLAGS_DPAD_TO_AXES) {
+ 		input_report_abs(dev, ABS_HAT0X, !!(data[2] & 0x08) - !!(data[2] & 0x04));
+ 		input_report_abs(dev, ABS_HAT0Y, !!(data[2] & 0x02) - !!(data[2] & 0x01));
+-	} else /* xpad->dpad_mapping == MAP_DPAD_TO_BUTTONS */ {
++	} else if ( xpad->flags & XPAD_FLAGS_DPAD_TO_BUTTONS ) {
+ 		input_report_key(dev, BTN_LEFT,  data[2] & 0x04);
+ 		input_report_key(dev, BTN_RIGHT, data[2] & 0x08);
+ 		input_report_key(dev, BTN_0,     data[2] & 0x01); // up
+@@ -299,7 +299,7 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
+ 		input_set_abs_params(input_dev, abs, 0, 255, 0, 0);
+ 		break;
+ 	case ABS_HAT0X:
+-	case ABS_HAT0Y:	/* the d-pad (only if MAP_DPAD_TO_AXES) */
++	case ABS_HAT0Y:	/* the d-pad (only if XPAD_FLAGS_DPAD_TO_AXES) */
+ 		input_set_abs_params(input_dev, abs, -1, 1, 0, 0);
+ 		break;
+ 	}
+@@ -334,9 +334,15 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		goto fail2;
+ 
+ 	xpad->udev = udev;
+-	xpad->dpad_mapping = xpad_device[i].dpad_mapping;
+-	if (xpad->dpad_mapping == MAP_DPAD_UNKNOWN)
+-		xpad->dpad_mapping = dpad_to_buttons;
++	xpad->flags = xpad_device[i].flags;
++	if (xpad->flags & XPAD_FLAGS_DPAD_UNKNOWN) {
++		xpad->flags &= ~XPAD_FLAGS_DPAD_UNKNOWN;
++		if (dpad_to_buttons)
++			xpad->flags |= XPAD_FLAGS_DPAD_TO_AXES;
++		else
++			xpad->flags |= XPAD_FLAGS_DPAD_TO_BUTTONS;
++	}
++
+ 	xpad->dev = input_dev;
+ 	usb_make_path(udev, xpad->phys, sizeof(xpad->phys));
+ 	strlcat(xpad->phys, "/input0", sizeof(xpad->phys));
+@@ -354,14 +360,14 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	/* set up buttons */
+ 	for (i = 0; xpad_btn[i] >= 0; i++)
+ 		set_bit(xpad_btn[i], input_dev->keybit);
+-	if (xpad->dpad_mapping == MAP_DPAD_TO_BUTTONS)
++	if (xpad->flags & XPAD_FLAGS_DPAD_TO_BUTTONS)
+ 		for (i = 0; xpad_btn_pad[i] >= 0; i++)
+ 			set_bit(xpad_btn_pad[i], input_dev->keybit);
+ 
+ 	/* set up axes */
+ 	for (i = 0; xpad_abs[i] >= 0; i++)
+ 		xpad_set_up_abs(input_dev, xpad_abs[i]);
+-	if (xpad->dpad_mapping == MAP_DPAD_TO_AXES)
++	if (xpad->flags & XPAD_FLAGS_DPAD_TO_AXES)
+ 		for (i = 0; xpad_abs_pad[i] >= 0; i++)
+ 		    xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
+ 
+-- 
+1.5.0.6
 
-"It is amazing! 
 
-Instead of gorging any food close at hand and watching TV constantly 
 
-I became more interested in doing exercise.
-
- Anatrim made me take a step up.
-
- I am more fit now and there are lots of men in my way!"
-
-Silvia D., Las Vegas
-
-"I tried some passive weight reducing, but all came in vain. I was very=20=
-hard for me to restrain my ravenous hunger. 
-
-One day I heard on Anatrim in the media advertisement and it brought a=20=
-great influence on me.
-
- I had attempted taking it, and my wife said to me that I'm a different=20=
-person now, 3 months later. 
-
-32 pounds have gone away and I keep still losing them! 
-
-And you know, the bedroom thing is cool, too."
-
-Dave Klark, Las Vegas
-
-Anatrim gives you an opportunity to understand that you doesn=92t have=20=
-such a great need for that much food. It raises your spirit, provides you=20=
-with additional energy, and attacks useless kilos. Especial thanks to its=20=
-mighty newly-elaborated formula!!
-Elicit more! 
-------------44BF67821EB80C
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Getting thinner can be enjoyable</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a=20=
-href=3D"http://www.gatim.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7sytbte">Anatrim=20=
-=96 The latest and most exciting flesh loss product is now readily=20=
-available =96 As could be seen on Oprah</a>
-</b>
-</center>
-<b>
-Do you know that redundant body kilos kill a plenty of people for every=20=
-new year? We know that you hate the unattractive appearance of those=20=
-people and the low status they have in modern society. 
-<b>
-Or, maybe, you got no will to resist a siege of your fatal eating=20=
-habits. If it sounds familiar, then we got something for your=20=
-consideration!
-</b>
-</b>
-<br>
-<br>
-<b>
-Introducing Anatrim, the later product for the reduction of your=20=
-body=92s extra weight. The greatest thing about Anatrim is it raises the=20=
-quality of your life, making you crave less food and always cheering you=20=
-up. Here you may read what people write about this product:
-</b>
-<br>
-<br>
-<b>
-<i>
-"It is amazing! 
-<b>
-<i>
-Instead of gorging any food close at hand and watching TV constantly 
-<b>
-<i>
-I became more interested in doing exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me take a step up.
-</i>
-</b>
- I am more fit now and there are lots of men in my way!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Silvia D., Las Vegas
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"I tried some passive weight reducing, but all came in vain. I was very=20=
-hard for me to restrain my ravenous hunger. 
-<b>
-<i>
-One day I heard on Anatrim in the media advertisement and it brought a=20=
-great influence on me.
-</i>
-</b>
- I had attempted taking it, and my wife said to me that I'm a different=20=
-person now, 3 months later. 
-<b>
-<i>
-32 pounds have gone away and I keep still losing them! 
-</i>
-</b>
-And you know, the bedroom thing is cool, too."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Dave Klark, Las Vegas
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim gives you an opportunity to understand that you doesn=92t have=20=
-such a great need for that much food. It raises your spirit, provides you=20=
-with additional energy, and attacks useless kilos. Especial thanks to its=20=
-mighty newly-elaborated formula!!
-</b>
-<b>
-<center>
-<a=20=
-href=3D"http://www.gatim.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7sytbte">Elicit=20=
-more!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------44BF67821EB80C--
+-------------------------------------------------------------------------
+This SF.net email is sponsored by DB2 Express
+Download DB2 Express C - the FREE version of DB2 express and take
+control of your XML. No limits. Just data. Click to get it now.
+http://sourceforge.net/powerbar/db2/
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

@@ -1,220 +1,112 @@
-From: Jan Kratochvil <honza@jikos.cz>
-Subject: [PATCH 3/3] xpad.c: Added Xbox360 gamepad rumble
-	support.
-Date: Wed, 2 May 2007 17:05:15 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0705021704180.13550@twin.jikos.cz>
+From: "Jan Kratochvil" <honza@jikos.cz>
+Subject: Re: [PATCH] playing ff effect with code greater then FF_EFFECTS can cause buffer overflow
+Date: Wed, 2 May 2007 17:31:00 +0200
+Message-ID: <35f02cc20705020831s36a1741awd699fc382c1cd309@mail.gmail.com>
+References: <Pine.LNX.4.64.0705020101460.9489@twin.jikos.cz>
+	 <200705012253.47925.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Jiri Kosina <jkosina@suse.cz>, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Content-Type: multipart/alternative;
+	boundary="----=_Part_3969_7597763.1178119860075"
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200705012253.47925.dtor@insightbb.com>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Jan Kratochvil <krata@matfyz.cz>, Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-It is enabled only if CONFIG_XPAD_FF is set to y.
+------=_Part_3969_7597763.1178119860075
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Implementation is using force feedback support for memoryless devices.
+Hi Dmitry,
 
-Signed-off-by: Jan Kratochvil <honza@jikos.cz>
----
- drivers/usb/input/Kconfig |    8 +++
- drivers/usb/input/xpad.c  |  116 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 124 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
-index a792e42..2066200 100644
---- a/drivers/usb/input/Kconfig
-+++ b/drivers/usb/input/Kconfig
-@@ -149,6 +149,14 @@ config USB_XPAD
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called xpad.
- 	  
-+config XPAD_FF
-+	default n
-+	bool "X-Box gamepad rumble support"
-+	depends on USB_XPAD && INPUT
-+	select INPUT_FF_MEMLESS
-+	---help---
-+	  Say Y here if you want to take advantage of xbox 360 rumble features. 
-+
- config USB_ATI_REMOTE
- 	tristate "ATI / X10 USB RF remote control"
- 	depends on USB && INPUT
-diff --git a/drivers/usb/input/xpad.c b/drivers/usb/input/xpad.c
-index bac9ec2..2dabde5 100644
---- a/drivers/usb/input/xpad.c
-+++ b/drivers/usb/input/xpad.c
-@@ -189,6 +189,12 @@ struct usb_xpad {
- 	unsigned char *idata;		/* input data */
- 	dma_addr_t idata_dma;
- 
-+#ifdef CONFIG_XPAD_FF
-+	struct urb *irq_out;		/* urb for interrupt out report */
-+	unsigned char *odata;		/* output data */
-+	dma_addr_t odata_dma;
-+#endif
-+
- 	char phys[65];			/* physical device path */
- 
- 	u8 flags;			/* combination of XPAD_FLAGS_* */
-@@ -340,6 +346,103 @@ exit:
- 		     __FUNCTION__, retval);
- }
- 
-+#ifdef CONFIG_XPAD_FF
-+/**
-+ * xpad_irq_out
-+ */
-+static void xpad_irq_out(struct urb *urb)
-+{
-+	int retval;
-+
-+	switch (urb->status) {
-+		case 0:
-+		/* success */
-+		break;
-+		case -ECONNRESET:
-+		case -ENOENT:
-+		case -ESHUTDOWN:
-+			/* this urb is terminated, clean up */
-+			dbg("%s - urb shutting down with status: %d",  __FUNCTION__, urb->status);
-+			return;
-+		default:
-+			dbg("%s - nonzero urb status received: %d",  __FUNCTION__, urb->status);
-+			goto exit;
-+	}
-+
-+exit:
-+	retval = usb_submit_urb(urb, GFP_ATOMIC);
-+	if (retval)
-+		err("%s - usb_submit_urb failed with result %d",
-+		   __FUNCTION__, retval);
-+} 
-+
-+int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
-+{
-+	struct usb_xpad *xpad = dev->private;
-+	if (effect->type == FF_RUMBLE) {
-+		__u16 strong = effect->u.rumble.strong_magnitude;
-+		__u16 weak = effect->u.rumble.weak_magnitude;
-+		xpad->odata[0] = 0x00; 
-+		xpad->odata[1] = 0x08; 
-+		xpad->odata[2] = 0x00; 
-+		xpad->odata[3] = strong / 256;
-+		xpad->odata[4] = weak / 256; 
-+		xpad->odata[5] = 0x00;
-+		xpad->odata[6] = 0x00;
-+		xpad->odata[7] = 0x00;
-+		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+	}
-+
-+	return 0;
-+}
-+
-+static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad)
-+{
-+	if (xpad->flags & XPAD_FLAGS_XBOX360) {
-+		struct usb_endpoint_descriptor *ep_irq_out;
-+		int rv;
-+
-+		xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN, 
-+					       GFP_ATOMIC, &xpad->odata_dma );
-+		if (!xpad->idata)
-+			goto fail1;
-+
-+		xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
-+		if (!xpad->irq_out)
-+			goto fail2;
-+
-+
-+		ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
-+		usb_fill_int_urb(xpad->irq_out, xpad->udev,
-+				 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
-+				 xpad->odata, XPAD_PKT_LEN,
-+				 xpad_irq_out, xpad, ep_irq_out->bInterval);
-+		xpad->irq_out->transfer_dma = xpad->odata_dma;
-+		xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
-+		set_bit( FF_RUMBLE, xpad->dev->ffbit );
-+		rv = input_ff_create_memless(xpad->dev, NULL, xpad_play_effect);
-+
-+		return 0;
-+
-+fail2:		usb_buffer_free(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
-+fail1:		
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+static void xpad_deinit_ff(struct usb_interface *intf, struct usb_xpad *xpad)
-+{
-+	if (xpad->flags & XPAD_FLAGS_XBOX360) {
-+		usb_kill_urb(xpad->irq_out);
-+		usb_free_urb(xpad->irq_out);
-+		usb_buffer_free(interface_to_usbdev(intf), XPAD_PKT_LEN,
-+				xpad->odata, xpad->odata_dma);
-+	}
-+}
-+#endif
-+
- static int xpad_open (struct input_dev *dev)
- {
- 	struct usb_xpad *xpad = dev->private;
-@@ -432,6 +535,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 
- 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
- 
-+#ifdef CONFIG_XPAD_FF
-+	if (xpad->flags & XPAD_FLAGS_XBOX360)
-+		input_dev->evbit[0] |= BIT(EV_FF);
-+#endif
-+
- 	/* set up buttons */
- 	for (i = 0; xpad_btn[i] >= 0; i++)
- 		set_bit(xpad_btn[i], input_dev->keybit);
-@@ -449,6 +557,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		for (i = 0; xpad_abs_pad[i] >= 0; i++)
- 		    xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
- 
-+#ifdef CONFIG_XPAD_FF
-+	if (xpad_init_ff(intf, xpad))
-+		goto fail2;
-+#endif
-+
- 	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
- 	usb_fill_int_urb(xpad->irq_in, udev,
- 			 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
-@@ -476,6 +589,9 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	usb_set_intfdata(intf, NULL);
- 	if (xpad) {
- 		usb_kill_urb(xpad->irq_in);
-+#ifdef CONFIG_XPAD_FF
-+		xpad_deinit_ff(intf, xpad);
-+#endif
- 		input_unregister_device(xpad->dev);
- 		usb_free_urb(xpad->irq_in);
- 		usb_buffer_free(interface_to_usbdev(intf), XPAD_PKT_LEN,
--- 
-1.5.0.6
+On 5/2/07, Dmitry Torokhov <dtor@insightbb.com> wrote:
+>
+> Hi Jan,
+>
+> On Tuesday 01 May 2007 19:15, Jan Kratochvil wrote:
+> > From: Jan Kratochvil <honza@jikos.cz>
+> > To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <
+> anssi.hannula@gmail.com>,
+> >     linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+> > Subject: [PATCH] playing ff effect with code greater then FF_EFFECTS can
+> cause buffer overflow
+> >
+> > Hi,
+> >   i found a bug in ff-memless.c so i fixed it. As you can see I am
+> > doing check if effect_id is less then 0, but I am aware that it is
+> useless
+> > because effect_id is actually input_event.code which is __u16, but on
+> the
+> > other side as long as the effect_id is int I feel it is correct to check
+> > whether it is > 0.
+> >
+>
+> Well spotted, thanks. However I think that the check should be moved up
+> the stack, into force feedback core. What do you think about the patch
+> below?
 
 
+Ok by me.
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+Jan Kratochvil
+
+--
+> Dmitry
+>
+>
+> Input: force feedback - make sure effect is present before playing
+>
+> Make sure that requested effect id is not out of range for the
+> device and that effect is present before requesting device to
+> play it.
+>
+> Reported-by: Jan Kratochvil <honza@jikos.cz>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>
+> drivers/input/ff-core.c |    3 ++-
+> 1 files changed, 2 insertions(+), 1 deletion(-)
+>
+> Index: work/drivers/input/ff-core.c
+> ===================================================================
+> --- work.orig/drivers/input/ff-core.c
+> +++ work/drivers/input/ff-core.c
+> @@ -281,7 +281,8 @@ int input_ff_event(struct input_dev *dev
+>                 break;
+>
+>         default:
+> -               ff->playback(dev, code, value);
+> +               if (check_effect_access(ff, code, NULL) == 0)
+> +                       ff->playback(dev, code, value);
+>                 break;
+>         }
+>
+>
+>
+
+------=_Part_3969_7597763.1178119860075
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hi Dmitry, <br><br><div><span class="gmail_quote">On 5/2/07, <b class="gmail_sendername">Dmitry Torokhov</b> &lt;<a href="mailto:dtor@insightbb.com">dtor@insightbb.com</a>&gt; wrote:</span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">
+Hi Jan,<br><br>On Tuesday 01 May 2007 19:15, Jan Kratochvil wrote:<br>&gt; From: Jan Kratochvil &lt;<a href="mailto:honza@jikos.cz">honza@jikos.cz</a>&gt;<br>&gt; To: Dmitry Torokhov &lt;<a href="mailto:dmitry.torokhov@gmail.com">
+dmitry.torokhov@gmail.com</a>&gt;<br>&gt; Cc: Jiri Kosina &lt;<a href="mailto:jkosina@suse.cz">jkosina@suse.cz</a>&gt;, Anssi Hannula &lt;<a href="mailto:anssi.hannula@gmail.com">anssi.hannula@gmail.com</a>&gt;,<br>&gt;&nbsp;&nbsp;&nbsp;&nbsp; 
+<a href="mailto:linux-input@atrey.karlin.mff.cuni.cz">linux-input@atrey.karlin.mff.cuni.cz</a>, <a href="mailto:linux-kernel@vger.kernel.org">linux-kernel@vger.kernel.org</a><br>&gt; Subject: [PATCH] playing ff effect with code greater then FF_EFFECTS can cause buffer overflow
+<br>&gt;<br>&gt; Hi,<br>&gt;&nbsp;&nbsp; i found a bug in ff-memless.c so i fixed it. As you can see I am<br>&gt; doing check if effect_id is less then 0, but I am aware that it is useless<br>&gt; because effect_id is actually input_event.code which is __u16, but on the
+<br>&gt; other side as long as the effect_id is int I feel it is correct to check<br>&gt; whether it is &gt; 0.<br>&gt;<br><br>Well spotted, thanks. However I think that the check should be moved up<br>the stack, into force feedback core. What do you think about the patch
+<br>below?</blockquote><div><br>Ok by me.<br><br>Jan Kratochvil<br></div><br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">--<br>Dmitry<br>
+<br><br>Input: force feedback - make sure effect is present before playing<br><br>Make sure that requested effect id is not out of range for the<br>device and that effect is present before requesting device to<br>play it.
+<br><br>Reported-by: Jan Kratochvil &lt;<a href="mailto:honza@jikos.cz">honza@jikos.cz</a>&gt;<br>Signed-off-by: Dmitry Torokhov &lt;<a href="mailto:dtor@mail.ru">dtor@mail.ru</a>&gt;<br>---<br><br> drivers/input/ff-core.c
+ |&nbsp;&nbsp;&nbsp;&nbsp;3 ++-<br> 1 files changed, 2 insertions(+), 1 deletion(-)<br><br>Index: work/drivers/input/ff-core.c<br>===================================================================<br>--- work.orig/drivers/input/ff-core.c<br>
++++ work/drivers/input/ff-core.c<br>@@ -281,7 +281,8 @@ int input_ff_event(struct input_dev *dev<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;default:<br>-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ff-&gt;playback(dev, code, value);<br>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (check_effect_access(ff, code, NULL) == 0)
+<br>+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ff-&gt;playback(dev, code, value);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br><br><br></blockquote></div><br>
+
+------=_Part_3969_7597763.1178119860075--

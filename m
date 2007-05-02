@@ -1,39 +1,56 @@
-From: "Carley Alexa" <yuvzz57isc@jci.com>
-Subject: Over 1,500,000 bottles sold, Safe  & Effective PenisEnlargement Herbal Pills ygayn
-Date: Thu, 03 May 2007 04:58:42 +0700
-Message-ID: <160d418i.8313360@jci.com>
+From: Greg KH <gregkh@suse.de>
+Subject: Re: [PATCH] [RFC] Added
+	USB_DEVICE_INTERFACE_PROTOCOL
+Date: Wed, 2 May 2007 15:04:33 -0700
+Message-ID: <20070502220433.GB21015@suse.de>
+References: <Pine.LNX.4.64.0705021702040.13550@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0705021702040.13550@twin.jikos.cz>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: Jan Kratochvil <honza@jikos.cz>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-<html><font color=CFCFCF size=1>interest his and page, prettier talking greater my mistress son.</font><center><table border=0 cellspacing=0 cellpadding=5 width=530><tr>
-<td bgcolor=FFFF00 align=left><font size=2 face=arial color=000000><font size=5 color=FF9090><b><center><font color=E80074>Safe 
-& Effective PenisEnlargement</font><br>Over 1,500,000 bottles soldworldwide</b></center></font></td></tr><tr><td bgcolor=FFCAFF align=left>
-<font color=3F3F3F size=2 face=arial>WeOffer a FULL MONEY BACK GUARANTEE if you are not completely satisfied with the results of Man-XL, 
-you have nothing to lose, just a lot to gain</font></td></tr><tr><td bgcolor=EFFDA2 align=left><font color=3F3F3F size=2 face=arial>A breakthrough in herbal Science has created a pill that has been designed specifically for PenisEnlargement. The 
-tests that took place over a 6 month period showed that out of the 5,000 Males 
-from around the world who participated, 
-the average gain after 5 months of taking Man-XL pills was 3.02 Inches! Amazing, PERMANENT RESULTS that will last.</font>
-</td></tr><tr><td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>Did you know... Man-XL was featured in 
-leading mens magazines such as FHM, MAXIM, plus many others, and rated No.1 choice forPenisEnlargement  Also seen on TV</font>
-</td></tr><tr><td bgcolor=EEEEEE align=left><font color=000000 size=2 face=arial>-:- Gain Up to 3+ Inches In Length<br>-:- 
-Increase YourPenis 
-Width (Girth) By upto 20%<br>-:- Help Stop PrematureEjaculation!<br>-:- Produce Stronger, Rock HardErections<br>-:- 100% Safe To Take, With NO Side Effects<br>-:- Fast Shipping WorldWide<br>-:- Doctor Approved And Recommended<br>-:-
-No Pumps, No Surgery, No Exercises<br>-:- Very discrete shipping and billing<br>
--:- 100% Money Back Guarantee<br>
--:- Up to 3 FREE Bottles Of Man-XL<br>-:- Highly 
-secure 128bit order processing<br><center><a href=http://dgag.atsouthwesternbell.com target=_blank>
-<font size=3 face=arial color=0000F4><u><b>See by yourself BEFORE & AFTER result by a customer<br>Buy This herbal EnlargementPills 
-here</b></font></u></a><br><br></center></td></tr></table>
-</center>
-<font color=CFCFCF size=1>favour lady second hat reference son. towards books gotten make might somewhere foot?</font>
-</html>
+On Wed, May 02, 2007 at 05:03:05PM +0200, Jan Kratochvil wrote:
+> The USB_DEVICE_INTERFACE_PROTOCOL will allow to match one interface
+> protocol of vendor specific device.
+> This macro is used in patch adding support for xbox360 to xpad.c
+> 
+> Signed-off-by: Jan Kratochvil <honza@jikos.cz>
+
+I have no objection to this, other than you need an additional newline
+after the #define :)
+
+Dmitry, I can take this through my tree, or you can take it through
+yours, as I think the other patches in this series depend on this.
+
+If you want to take it through yours, feel free to add:
+	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+to it.
+
+thanks,
+
+greg k-h
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by DB2 Express
+Download DB2 Express C - the FREE version of DB2 express and take
+control of your XML. No limits. Just data. Click to get it now.
+http://sourceforge.net/powerbar/db2/
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

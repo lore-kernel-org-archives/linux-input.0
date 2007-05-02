@@ -1,8 +1,8 @@
 From: Jan Kratochvil <honza@jikos.cz>
-Subject: [PATCH 2/3] xpad.c: Initial support for xbox360
-	gamepad.
-Date: Wed, 2 May 2007 17:04:16 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0705021703090.13550@twin.jikos.cz>
+Subject: [PATCH 3/3] xpad.c: Added Xbox360 gamepad rumble
+	support.
+Date: Wed, 2 May 2007 17:05:15 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0705021704180.13550@twin.jikos.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -20,170 +20,190 @@ To: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.
 Cc: linux-input@atrey.karlin.mff.cuni.cz, Jiri Kosina <jkosina@suse.cz>, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Xbox 360 gamepad is slightly different then the previous model so it has
-its own version of process_packet method.
+It is enabled only if CONFIG_XPAD_FF is set to y.
 
-Detection of this new device relies on USB_DEVICE_INTERFACE_PROTOCOL macro.
-This device got vendor specific subclass so it can't be matched with
-USB_INTERFACE_INFO and we need only one interface protocol from four
-availaible. It means USB_DEVICE can't be used either.
-
-Added xpad360_btn structure with additional buttons for x360 gamepad.
+Implementation is using force feedback support for memoryless devices.
 
 Signed-off-by: Jan Kratochvil <honza@jikos.cz>
 ---
- drivers/usb/input/xpad.c |   80 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 79 insertions(+), 1 deletions(-)
+ drivers/usb/input/Kconfig |    8 +++
+ drivers/usb/input/xpad.c  |  116 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 124 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
+index a792e42..2066200 100644
+--- a/drivers/usb/input/Kconfig
++++ b/drivers/usb/input/Kconfig
+@@ -149,6 +149,14 @@ config USB_XPAD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called xpad.
+ 	  
++config XPAD_FF
++	default n
++	bool "X-Box gamepad rumble support"
++	depends on USB_XPAD && INPUT
++	select INPUT_FF_MEMLESS
++	---help---
++	  Say Y here if you want to take advantage of xbox 360 rumble features. 
++
+ config USB_ATI_REMOTE
+ 	tristate "ATI / X10 USB RF remote control"
+ 	depends on USB && INPUT
 diff --git a/drivers/usb/input/xpad.c b/drivers/usb/input/xpad.c
-index 2a20aa2..bac9ec2 100644
+index bac9ec2..2dabde5 100644
 --- a/drivers/usb/input/xpad.c
 +++ b/drivers/usb/input/xpad.c
-@@ -8,6 +8,7 @@
-  *                    Ivan Hawkes <blackhawk@ivanhawkes.com>
-  *               2005 Dominic Cerquetti <binary1230@yahoo.com>
-  *               2006 Adam Buchbinder <adam.buchbinder@gmail.com>
-+ *               2007 Jan Kratochvil <honza@jikos.cz>
-  *
-  * This program is free software; you can redistribute it and/or
-  * modify it under the terms of the GNU General Public License as
-@@ -28,6 +29,7 @@
-  *  - information from     http://euc.jp/periphs/xbox-controller.ja.html
-  *  - the iForce driver    drivers/char/joystick/iforce.c
-  *  - the skeleton-driver  drivers/usb/usb-skeleton.c
-+ *  - Xbox 360 information http://www.free60.org/wiki/Gamepad
-  *
-  * Thanks to:
-  *  - ITO Takayuki for providing essential xpad information on his website
-@@ -88,6 +90,7 @@
- #define XPAD_FLAGS_DPAD_TO_BUTTONS    (1 << 0)
- #define XPAD_FLAGS_DPAD_TO_AXES       (1 << 1)
- #define XPAD_FLAGS_DPAD_UNKNOWN       (1 << 2)
-+#define XPAD_FLAGS_XBOX360            (1 << 3)
+@@ -189,6 +189,12 @@ struct usb_xpad {
+ 	unsigned char *idata;		/* input data */
+ 	dma_addr_t idata_dma;
  
- static int dpad_to_buttons;
- module_param(dpad_to_buttons, bool, S_IRUGO);
-@@ -130,6 +133,7 @@ static const struct xpad_device {
- 	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", XPAD_FLAGS_DPAD_TO_AXES },
- 	{ 0x12ab, 0x8809, "Xbox DDR dancepad", XPAD_FLAGS_DPAD_TO_BUTTONS },
- 	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", XPAD_FLAGS_DPAD_TO_BUTTONS },
-+	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", XPAD_FLAGS_DPAD_TO_AXES | XPAD_FLAGS_XBOX360 },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", XPAD_FLAGS_DPAD_TO_AXES },
- 	{ 0x0000, 0x0000, "Generic X-Box pad", XPAD_FLAGS_DPAD_UNKNOWN }
- };
-@@ -140,6 +144,12 @@ static const signed short xpad_btn[] = {
- 	-1						/* terminating entry */
- };
- 
-+static const signed short xpad360_btn[] = {  /* buttons for x360 controller */
-+	BTN_TL, BTN_TR, 	/* Button LB/RB */
-+	BTN_MODE,		/* The big X button */
-+	-1
-+};
++#ifdef CONFIG_XPAD_FF
++	struct urb *irq_out;		/* urb for interrupt out report */
++	unsigned char *odata;		/* output data */
++	dma_addr_t odata_dma;
++#endif
 +
- /* only used if XPAD_FLAGS_DPAD_TO_BUTTONS */
- static const signed short xpad_btn_pad[] = {
- 	BTN_LEFT, BTN_RIGHT,		/* d-pad left, right */
-@@ -160,8 +170,12 @@ static const signed short xpad_abs_pad[] = {
- 	-1			/* terminating entry */
- };
+ 	char phys[65];			/* physical device path */
  
-+/* Xbox 360 has a vendor-specific (sub)class, so we cannot match it with only 
-+ * USB_INTERFACE_INFO, more to that this device has 4 InterfaceProtocols,
-+ * but we need only one of them. */ 
- static struct usb_device_id xpad_table [] = {
- 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
-+	{ USB_DEVICE_INTERFACE_PROTOCOL(0x045e, 0x028e, 1) },	/* X-Box 360 controller */
- 	{ }
- };
- 
-@@ -236,6 +250,64 @@ static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *d
- 	input_sync(dev);
+ 	u8 flags;			/* combination of XPAD_FLAGS_* */
+@@ -340,6 +346,103 @@ exit:
+ 		     __FUNCTION__, retval);
  }
  
-+/*
-+ *	xpad360_process_packet
-+ *
-+ *	Completes a request by converting the data into events for the
-+ *	input subsystem. It is version for xbox 360 controller
-+ *
-+ *	The used report descriptor was taken from:
-+ *		http://www.free60.org/wiki/Gamepad
++#ifdef CONFIG_XPAD_FF
++/**
++ * xpad_irq_out
 + */
-+
-+static void xpad360_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
++static void xpad_irq_out(struct urb *urb)
 +{
-+	struct input_dev *dev = xpad->dev;
++	int retval;
 +
-+	/* digital pad */
-+	if (xpad->flags & XPAD_FLAGS_DPAD_TO_AXES) {
-+		input_report_abs(dev, ABS_HAT0X, !!(data[2] & 0x01) - !!((data[2] & 0x08) >> 3));
-+		input_report_abs(dev, ABS_HAT0Y, !!((data[2] & 0x02) >> 1) - !!((data[2] & 0x04) >> 2));
-+	} else if ( xpad->flags & XPAD_FLAGS_DPAD_TO_BUTTONS ) {
-+		/* dpad as buttons (right, left, down, up) */
-+		input_report_key(dev, BTN_RIGHT, (data[2] & 0x01));
-+		input_report_key(dev, BTN_LEFT, (data[2] & 0x08) >> 3);
-+		input_report_key(dev, BTN_0, (data[2] & 0x02) >> 1);
-+		input_report_key(dev, BTN_1, (data[2] & 0x04) >> 2);
++	switch (urb->status) {
++		case 0:
++		/* success */
++		break;
++		case -ECONNRESET:
++		case -ENOENT:
++		case -ESHUTDOWN:
++			/* this urb is terminated, clean up */
++			dbg("%s - urb shutting down with status: %d",  __FUNCTION__, urb->status);
++			return;
++		default:
++			dbg("%s - nonzero urb status received: %d",  __FUNCTION__, urb->status);
++			goto exit;
 +	}
 +
-+	/* start/back buttons */
-+	input_report_key(dev, BTN_START,  (data[2] & 0x10) >> 4);
-+	input_report_key(dev, BTN_BACK,   (data[2] & 0x20) >> 5);
++exit:
++	retval = usb_submit_urb(urb, GFP_ATOMIC);
++	if (retval)
++		err("%s - usb_submit_urb failed with result %d",
++		   __FUNCTION__, retval);
++} 
 +
-+	/* stick press left/right */
-+	input_report_key(dev, BTN_THUMBL, data[2] & 0x40);
-+	input_report_key(dev, BTN_THUMBR, data[2] & 0x80);
++int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
++{
++	struct usb_xpad *xpad = dev->private;
++	if (effect->type == FF_RUMBLE) {
++		__u16 strong = effect->u.rumble.strong_magnitude;
++		__u16 weak = effect->u.rumble.weak_magnitude;
++		xpad->odata[0] = 0x00; 
++		xpad->odata[1] = 0x08; 
++		xpad->odata[2] = 0x00; 
++		xpad->odata[3] = strong / 256;
++		xpad->odata[4] = weak / 256; 
++		xpad->odata[5] = 0x00;
++		xpad->odata[6] = 0x00;
++		xpad->odata[7] = 0x00;
++		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
++	}
 +
-+	/* buttons A,B,X,Y,TL,TR and MODE */
-+	input_report_key(dev, BTN_A, (data[3] & 0x10) >> 4);
-+	input_report_key(dev, BTN_B, (data[3] & 0x20) >> 5);
-+	input_report_key(dev, BTN_X, (data[3] & 0x40) >> 6);
-+	input_report_key(dev, BTN_Y, (data[3] & 0x80) >> 7);
-+	input_report_key(dev, BTN_TL, data[3] & 0x01 );
-+	input_report_key(dev, BTN_TR, (data[3] & 0x02) >> 1);
-+	input_report_key(dev, BTN_MODE, (data[3] & 0x04) >> 2);
-+
-+	/* left stick */
-+	input_report_abs(dev, ABS_X, (__s16) (((__s16)data[7] << 8) | (__s16)data[6]));
-+	input_report_abs(dev, ABS_Y, ~(__s16) (((__s16)data[9] << 8) | (__s16)data[8]));
-+
-+	/* right stick */
-+	input_report_abs(dev, ABS_RY, ~(__s16) (((__s16)data[13] << 8) | (__s16)data[12]));
-+	input_report_abs(dev, ABS_RX, (__s16) (((__s16)data[11] << 8) | (__s16)data[10]));
-+
-+	/* triggers left/right */
-+	input_report_abs(dev, ABS_Z, data[4]);
-+	input_report_abs(dev, ABS_RZ, data[5]);
-+
-+	input_sync(dev);
++	return 0;
 +}
 +
- static void xpad_irq_in(struct urb *urb)
++static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad)
++{
++	if (xpad->flags & XPAD_FLAGS_XBOX360) {
++		struct usb_endpoint_descriptor *ep_irq_out;
++		int rv;
++
++		xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN, 
++					       GFP_ATOMIC, &xpad->odata_dma );
++		if (!xpad->idata)
++			goto fail1;
++
++		xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
++		if (!xpad->irq_out)
++			goto fail2;
++
++
++		ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
++		usb_fill_int_urb(xpad->irq_out, xpad->udev,
++				 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
++				 xpad->odata, XPAD_PKT_LEN,
++				 xpad_irq_out, xpad, ep_irq_out->bInterval);
++		xpad->irq_out->transfer_dma = xpad->odata_dma;
++		xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++
++		set_bit( FF_RUMBLE, xpad->dev->ffbit );
++		rv = input_ff_create_memless(xpad->dev, NULL, xpad_play_effect);
++
++		return 0;
++
++fail2:		usb_buffer_free(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
++fail1:		
++		return -ENOMEM;
++	}
++	return 0;
++}
++
++static void xpad_deinit_ff(struct usb_interface *intf, struct usb_xpad *xpad)
++{
++	if (xpad->flags & XPAD_FLAGS_XBOX360) {
++		usb_kill_urb(xpad->irq_out);
++		usb_free_urb(xpad->irq_out);
++		usb_buffer_free(interface_to_usbdev(intf), XPAD_PKT_LEN,
++				xpad->odata, xpad->odata_dma);
++	}
++}
++#endif
++
+ static int xpad_open (struct input_dev *dev)
  {
- 	struct usb_xpad *xpad = urb->context;
-@@ -256,7 +328,10 @@ static void xpad_irq_in(struct urb *urb)
- 		goto exit;
- 	}
+ 	struct usb_xpad *xpad = dev->private;
+@@ -432,6 +535,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
  
--	xpad_process_packet(xpad, 0, xpad->idata);
+ 	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
+ 
++#ifdef CONFIG_XPAD_FF
 +	if (xpad->flags & XPAD_FLAGS_XBOX360)
-+		xpad360_process_packet(xpad, 0, xpad->idata);
-+	else
-+		xpad_process_packet(xpad, 0, xpad->idata);
- 
- exit:
- 	retval = usb_submit_urb (urb, GFP_ATOMIC);
-@@ -360,6 +435,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
++		input_dev->evbit[0] |= BIT(EV_FF);
++#endif
++
  	/* set up buttons */
  	for (i = 0; xpad_btn[i] >= 0; i++)
  		set_bit(xpad_btn[i], input_dev->keybit);
-+	if (xpad->flags & XPAD_FLAGS_XBOX360)
-+		for (i = 0; xpad360_btn[i] >= 0; i++)
-+			set_bit(xpad360_btn[i], input_dev->keybit);
- 	if (xpad->flags & XPAD_FLAGS_DPAD_TO_BUTTONS)
- 		for (i = 0; xpad_btn_pad[i] >= 0; i++)
- 			set_bit(xpad_btn_pad[i], input_dev->keybit);
+@@ -449,6 +557,11 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 		for (i = 0; xpad_abs_pad[i] >= 0; i++)
+ 		    xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
+ 
++#ifdef CONFIG_XPAD_FF
++	if (xpad_init_ff(intf, xpad))
++		goto fail2;
++#endif
++
+ 	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
+ 	usb_fill_int_urb(xpad->irq_in, udev,
+ 			 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
+@@ -476,6 +589,9 @@ static void xpad_disconnect(struct usb_interface *intf)
+ 	usb_set_intfdata(intf, NULL);
+ 	if (xpad) {
+ 		usb_kill_urb(xpad->irq_in);
++#ifdef CONFIG_XPAD_FF
++		xpad_deinit_ff(intf, xpad);
++#endif
+ 		input_unregister_device(xpad->dev);
+ 		usb_free_urb(xpad->irq_in);
+ 		usb_buffer_free(interface_to_usbdev(intf), XPAD_PKT_LEN,
 -- 
 1.5.0.6
 

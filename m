@@ -1,207 +1,58 @@
-From: Jan Kratochvil <honza@jikos.cz>
-Subject: Re: [PATCH 3/3] xpad.c: Added Xbox360 gamepad rumble support.
-Date: Thu, 3 May 2007 15:04:54 +0200 (CEST)
-Message-ID: <alpine.LRH.0.98.0705031504280.22353@twin.jikos.cz>
-References: <Pine.LNX.4.64.0705021704180.13550@twin.jikos.cz>
+From: "UMarie BRobison" <elinnovationsu@endless-promotion.de>
+Subject: rust paine
+Date: Thu, 03 May 2007 15:41:11 +0100
+Message-ID: <08f801c78d07$3eda59c0$3684d7a0@tscoots>
+Reply-To: "UMarie BRobison" <elinnovationsu@endless-promotion.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=us-ascii
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0705021704180.13550@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: knvjtsyoxyci@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
-   thanks for feedback. Improved version of this patch follows:
+ everything you're looking at right now and put your focus here.
+Major Financial News Was Released After the Market Close Today.
+ 
+HOT CHINA DEAL
+ 
+China Voice Holding Corp.
+C H V C 
 
-It is enabled only if CONFIG_XPAD_FF is set to y.
+Short Term Expected : 1 Dollar
+ 
+Here's the News
+China Voice Holding Corp. Completes Acquisition of StreamJet Inc. and Confirms 
+ Million Annual Revenue (Go read the news now)
+ 
+Wake up early and watch this stock trade.
 
-Implementation is using force feedback support for memoryless devices.
+Information within this report contains forward looking statements
+within the meaning of Section 27A of the Securities Act of 1933 and
+Section 21B of the SEC Act of 1934. Statements that involve
+discussions with respect to projections of future events are not
+statements of historical fact and may be forward looking
+statements. Don't rely on them to make a decision. Past performance
+is never indicative of future results. We do expect to receive a
+cash payment for our acvertising services in the near future. The
+amount is unknown at this time. Un-affiliated Third parties may own
+stock and will sell those shares without notice to you. This report
+shall not be construed as any kind of investment advice or
+solicitation
 
-Signed-off-by: Jan Kratochvil <honza@jikos.cz>
----
-  drivers/usb/input/Kconfig |    7 +++
-  drivers/usb/input/xpad.c  |  116 ++++++++++++++++++++++++++++++++++++++++++++-
-  2 files changed, 122 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/usb/input/Kconfig b/drivers/usb/input/Kconfig
-index a792e42..8963522 100644
---- a/drivers/usb/input/Kconfig
-+++ b/drivers/usb/input/Kconfig
-@@ -149,6 +149,13 @@ config USB_XPAD
-  	  To compile this driver as a module, choose M here: the
-  	  module will be called xpad.
-
-+config XPAD_FF
-+	bool "X-Box gamepad rumble support"
-+	depends on USB_XPAD && INPUT
-+	select INPUT_FF_MEMLESS
-+	---help---
-+	  Say Y here if you want to take advantage of xbox 360 rumble features. 
-+
-  config USB_ATI_REMOTE
-  	tristate "ATI / X10 USB RF remote control"
-  	depends on USB && INPUT
-diff --git a/drivers/usb/input/xpad.c b/drivers/usb/input/xpad.c
-index 75d1a62..d117e71 100644
---- a/drivers/usb/input/xpad.c
-+++ b/drivers/usb/input/xpad.c
-@@ -192,6 +192,12 @@ struct usb_xpad {
-  	unsigned char *idata;		/* input data */
-  	dma_addr_t idata_dma;
-
-+#ifdef CONFIG_XPAD_FF
-+	struct urb *irq_out;		/* urb for interrupt out report */
-+	unsigned char *odata;		/* output data */
-+	dma_addr_t odata_dma;
-+#endif
-+
-  	char phys[65];			/* physical device path */
-
-  	int dpad_mapping;		/* map d-pad to buttons or to axes */
-@@ -344,6 +350,106 @@ exit:
-  		     __FUNCTION__, retval);
-  }
-
-+#ifdef CONFIG_XPAD_FF
-+static void xpad_irq_out(struct urb *urb)
-+{
-+	int retval;
-+
-+	switch (urb->status) {
-+		case 0:
-+		/* success */
-+		break;
-+		case -ECONNRESET:
-+		case -ENOENT:
-+		case -ESHUTDOWN:
-+			/* this urb is terminated, clean up */
-+			dbg("%s - urb shutting down with status: %d",  __FUNCTION__, urb->status);
-+			return;
-+		default:
-+			dbg("%s - nonzero urb status received: %d",  __FUNCTION__, urb->status);
-+			goto exit;
-+	}
-+
-+exit:
-+	retval = usb_submit_urb(urb, GFP_ATOMIC);
-+	if (retval)
-+		err("%s - usb_submit_urb failed with result %d",
-+		   __FUNCTION__, retval);
-+} 
-+
-+int xpad_play_effect(struct input_dev *dev, void *data, struct ff_effect *effect)
-+{
-+	struct usb_xpad *xpad = dev->private;
-+	if (effect->type == FF_RUMBLE) {
-+		__u16 strong = effect->u.rumble.strong_magnitude;
-+		__u16 weak = effect->u.rumble.weak_magnitude;
-+		xpad->odata[0] = 0x00; 
-+		xpad->odata[1] = 0x08; 
-+		xpad->odata[2] = 0x00; 
-+		xpad->odata[3] = strong / 256;
-+		xpad->odata[4] = weak / 256; 
-+		xpad->odata[5] = 0x00;
-+		xpad->odata[6] = 0x00;
-+		xpad->odata[7] = 0x00;
-+		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+	}
-+
-+	return 0;
-+}
-+
-+static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad)
-+{
-+	if (xpad->xtype == XTYPE_XBOX360) {
-+		struct usb_endpoint_descriptor *ep_irq_out;
-+		int rv;
-+
-+		xpad->dev->evbit[0] |= BIT(EV_FF);
-+
-+		xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN, 
-+					       GFP_ATOMIC, &xpad->odata_dma );
-+		if (!xpad->idata)
-+			goto fail1;
-+
-+		xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
-+		if (!xpad->irq_out)
-+			goto fail2;
-+
-+		ep_irq_out = &intf->cur_altsetting->endpoint[1].desc;
-+		usb_fill_int_urb(xpad->irq_out, xpad->udev,
-+				 usb_sndintpipe(xpad->udev, ep_irq_out->bEndpointAddress),
-+				 xpad->odata, XPAD_PKT_LEN,
-+				 xpad_irq_out, xpad, ep_irq_out->bInterval);
-+		xpad->irq_out->transfer_dma = xpad->odata_dma;
-+		xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-+
-+		set_bit( FF_RUMBLE, xpad->dev->ffbit );
-+		if (input_ff_create_memless(xpad->dev, NULL, xpad_play_effect)) {
-+			goto fail2; 
-+		}
-+
-+		return 0;
-+
-+fail2:		usb_buffer_free(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
-+fail1: 
-+		return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
-+static void xpad_deinit_ff(struct usb_interface *intf, struct usb_xpad *xpad)
-+{
-+	if (xpad->xtype == XTYPE_XBOX360) {
-+		usb_free_urb(xpad->irq_out);
-+		usb_buffer_free(interface_to_usbdev(intf), XPAD_PKT_LEN,
-+				xpad->odata, xpad->odata_dma);
-+	}
-+}
-+#else
-+static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
-+static void xpad_deinit_ff(struct usb_interface *intf, struct usb_xpad *xpad) {};
-+#endif
-+
-+
-  static int xpad_open (struct input_dev *dev)
-  {
-  	struct usb_xpad *xpad = dev->private;
-@@ -360,6 +466,11 @@ static void xpad_close (struct input_dev *dev)
-  	struct usb_xpad *xpad = dev->private;
-
-  	usb_kill_urb(xpad->irq_in);
-+#ifdef CONFIG_XPAD_FF
-+	if (xpad->xtype == XTYPE_XBOX360) {
-+		usb_kill_urb(xpad->irq_out);
-+	}
-+#endif
-  }
-
-  static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
-@@ -448,6 +559,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
-  		for (i = 0; xpad_abs_pad[i] >= 0; i++)
-  		    xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
-
-+	if (xpad_init_ff(intf, xpad))
-+		goto fail2;
-+
-  	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
-  	usb_fill_int_urb(xpad->irq_in, udev,
-  			 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
-@@ -474,8 +588,8 @@ static void xpad_disconnect(struct usb_interface *intf)
-
-  	usb_set_intfdata(intf, NULL);
-  	if (xpad) {
--		usb_kill_urb(xpad->irq_in);
-  		input_unregister_device(xpad->dev);
-+		xpad_deinit_ff(intf, xpad);
-  		usb_free_urb(xpad->irq_in);
-  		usb_buffer_free(interface_to_usbdev(intf), XPAD_PKT_LEN,
-  				xpad->idata, xpad->idata_dma);
--- 
-1.5.0.6
+ your game.''  The Nuggets have quite the saunter thanks to their red-hot 
+in a Freedom of Information Act request.  Amaker had to be employed as Michigan's
+  For once, it was the opposition that did both.  Notes: Iverson's season-high
+ Nuggets. ... Nash, the NBA's assist leader at 11.6 a game, had just two assists
+ your game.''  The Nuggets have quite the saunter thanks to their red-hot 
+ their fourth straight win, a 131-107 blowout of the Phoenix Suns on Saturday
+Louis Bullock in what the NCAA said was the largest financial scandal in 
+They trailed 37-25 after one quarter and it only got worse from there in what
+ is 46 points against Chicago on Nov. 24 while he was still with the Sixers. He
+ coach on March 31, 2011, to earn a deferred-compensation package after the school's
+Nash said. ''They played with a lot of heart and energy and we weren't. So I 

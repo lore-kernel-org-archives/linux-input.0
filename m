@@ -1,58 +1,183 @@
-From: "UMarie BRobison" <elinnovationsu@endless-promotion.de>
-Subject: rust paine
-Date: Thu, 03 May 2007 15:41:11 +0100
-Message-ID: <08f801c78d07$3eda59c0$3684d7a0@tscoots>
-Reply-To: "UMarie BRobison" <elinnovationsu@endless-promotion.de>
+From: "Hiram Hearn" <neddsoftinfotechdoq@dsoftinfotech.com>
+Subject: A simple and safe way to weigh less
+Date: Thu, 3 May 2007 15:32:56 +0300
+Message-ID: <822376878.81412105538078@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------6EE739B01F4DA5"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: knvjtsyoxyci@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
- everything you're looking at right now and put your focus here.
-Major Financial News Was Released After the Market Close Today.
- 
-HOT CHINA DEAL
- 
-China Voice Holding Corp.
-C H V C 
+------------6EE739B01F4DA5
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-Short Term Expected : 1 Dollar
- 
-Here's the News
-China Voice Holding Corp. Completes Acquisition of StreamJet Inc. and Confirms 
- Million Annual Revenue (Go read the news now)
- 
-Wake up early and watch this stock trade.
+Anatrim =96 The up-to-the-moment and most fascinating product for=20=
+over-weight people is made available now =96 As you could see on ABC
+Did you know redundant body kilos kill a plenty of people every year?=20=
+We know you hate the unattractive look of those people and the low status=20=
+they have in modern society. 
 
-Information within this report contains forward looking statements
-within the meaning of Section 27A of the Securities Act of 1933 and
-Section 21B of the SEC Act of 1934. Statements that involve
-discussions with respect to projections of future events are not
-statements of historical fact and may be forward looking
-statements. Don't rely on them to make a decision. Past performance
-is never indicative of future results. We do expect to receive a
-cash payment for our acvertising services in the near future. The
-amount is unknown at this time. Un-affiliated Third parties may own
-stock and will sell those shares without notice to you. This report
-shall not be construed as any kind of investment advice or
-solicitation
+Moreover, you can not resist a siege of terrible eating habits of=20=
+yours. If it all sounds familiar, then we got something for your=20=
+consideration!
 
+Here comes Anatrim, the later product for the elimination of your=20=
+body=92s extra weight. The astounding thing about Anatrim is it raises=20=
+the quality of your life, repressing your feeling of hunger and giving=20=
+you better mood. Here are what people say about this product:
 
- your game.''  The Nuggets have quite the saunter thanks to their red-hot 
-in a Freedom of Information Act request.  Amaker had to be employed as Michigan's
-  For once, it was the opposition that did both.  Notes: Iverson's season-high
- Nuggets. ... Nash, the NBA's assist leader at 11.6 a game, had just two assists
- your game.''  The Nuggets have quite the saunter thanks to their red-hot 
- their fourth straight win, a 131-107 blowout of the Phoenix Suns on Saturday
-Louis Bullock in what the NCAA said was the largest financial scandal in 
-They trailed 37-25 after one quarter and it only got worse from there in what
- is 46 points against Chicago on Nov. 24 while he was still with the Sixers. He
- coach on March 31, 2011, to earn a deferred-compensation package after the school's
-Nash said. ''They played with a lot of heart and energy and we weren't. So I 
+"This is a great thing! 
+
+Instead of watching TV and gorging everything easy to reach 
+
+I became more interested in doing sport.
+
+ Anatrim made me take a step up.
+
+ I am more fit now and there are lots of men following me with their=20=
+eyes!"
+
+Amelia B., Washington
+
+"Passive weight losing was of little result to me. This terrible=20=
+appetite would just rush in and spoil everything. 
+
+Once I heard on Anatrim in the media advertisement and it brought a=20=
+great influence on me.
+
+ I had attempted using it, and my wife told me that I=92m not more a=20=
+weighty man now, 5 months later. 
+
+28 pounds have gone away and it=92s not a limit! 
+
+And you know, the bedroom thing is cool, too."
+
+Rikky Martin, Las Vegas
+
+Anatrim helps you to understand that you got no such great need for the=20=
+constant eating. It improves your mood, supplies you with extra energy,=20=
+and attacks useless kilos. All thanks to its powerful distinguished=20=
+formula!!
+Elicit latest news! 
+------------6EE739B01F4DA5
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.ansoawen.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ygcydw">Anatrim=20=
+=96 The up-to-the-moment and most fascinating product for over-weight=20=
+people is made available now =96 As you could see on ABC</a>
+</b>
+</center>
+<b>
+Did you know redundant body kilos kill a plenty of people every year?=20=
+We know you hate the unattractive look of those people and the low status=20=
+they have in modern society. 
+<b>
+Moreover, you can not resist a siege of terrible eating habits of=20=
+yours. If it all sounds familiar, then we got something for your=20=
+consideration!
+</b>
+</b>
+<br>
+<br>
+<b>
+Here comes Anatrim, the later product for the elimination of your=20=
+body=92s extra weight. The astounding thing about Anatrim is it raises=20=
+the quality of your life, repressing your feeling of hunger and giving=20=
+you better mood. Here are what people say about this product:
+</b>
+<br>
+<br>
+<b>
+<i>
+"This is a great thing! 
+<b>
+<i>
+Instead of watching TV and gorging everything easy to reach 
+<b>
+<i>
+I became more interested in doing sport.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim made me take a step up.
+</i>
+</b>
+ I am more fit now and there are lots of men following me with their=20=
+eyes!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Amelia B., Washington
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"Passive weight losing was of little result to me. This terrible=20=
+appetite would just rush in and spoil everything. 
+<b>
+<i>
+Once I heard on Anatrim in the media advertisement and it brought a=20=
+great influence on me.
+</i>
+</b>
+ I had attempted using it, and my wife told me that I=92m not more a=20=
+weighty man now, 5 months later. 
+<b>
+<i>
+28 pounds have gone away and it=92s not a limit! 
+</i>
+</b>
+And you know, the bedroom thing is cool, too."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Rikky Martin, Las Vegas
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps you to understand that you got no such great need for the=20=
+constant eating. It improves your mood, supplies you with extra energy,=20=
+and attacks useless kilos. All thanks to its powerful distinguished=20=
+formula!!
+</b>
+<b>
+<center>
+<a=20=
+href=3D"http://www.ansoawen.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ygcydw">Elicit=20=
+latest news!</a>
+</center>
+</b>
+</p> 
+
+</BODY></HTML>
+------------6EE739B01F4DA5--

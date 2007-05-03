@@ -1,58 +1,56 @@
-From: Carlos Corbacho <cathectic@gmail.com>
-Subject: Re: [PATCH] input: Add wireless and bluetooth keycodes
-Date: Thu, 3 May 2007 13:18:59 +0100
-Message-ID: <200705031318.59817.cathectic@gmail.com>
-References: <200705031215.16971.cathectic@gmail.com> <d120d5000705030458m7909bc5enc2ff6621f542c7cf@mail.gmail.com>
+From: Jan Kratochvil <honza@jikos.cz>
+Subject: Re: [PATCH 1/3] xpad.c: Added flags into xpad_device structure and
+ removed dpad_mapping.
+Date: Thu, 3 May 2007 14:40:30 +0200 (CEST)
+Message-ID: <alpine.LRH.0.98.0705031438220.22353@twin.jikos.cz>
+References: <Pine.LNX.4.64.0705021644580.13550@twin.jikos.cz>
+ <200705022238.36454.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; format=flowed; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000705030458m7909bc5enc2ff6621f542c7cf@mail.gmail.com>
-Content-Disposition: inline
+In-Reply-To: <200705022238.36454.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
-Dimitry,
+Hi Dmitry,
 
-On Thursday 03 May 2007 12:58:45 Dmitry Torokhov wrote:
-> Already have them:
+On Wed, 2 May 2007, Dmitry Torokhov wrote:
+
+> Hi Jan,
 >
-> #define KEY_BLUETOOTH           237
-> #define KEY_WLAN                238
-
-My bad.
-
-> > Also, add keycodes for these
-> > keys having a separate off state (This is true on some machines,
-> > such as many Acer laptops).
+> On Wednesday 02 May 2007 11:01, Jan Kratochvil wrote:
+>> This changes are expected to simplify further improves of this driver,
+>> We will need to add information if the driver is xbox360 device or not.
+>>
+>> Second option was to simply add u8 is_360, but what if we'll need to know
+>> if device is a wheel? Or if the device can have keyboard (or headset) attached.
+>>
 >
-> Not sure why this is needed.
+> ...
+>
+>> -#define MAP_DPAD_TO_BUTTONS    0
+>> -#define MAP_DPAD_TO_AXES       1
+>> -#define MAP_DPAD_UNKNOWN       -1
+>> +#define XPAD_FLAGS_DPAD_TO_BUTTONS    (1 << 0)
+>> +#define XPAD_FLAGS_DPAD_TO_AXES       (1 << 1)
+>> +#define XPAD_FLAGS_DPAD_UNKNOWN       (1 << 2)
+>>
+>
+> Turning this into bitmaps suggests that all of these could be set which is
+> not the case. Since there are 3 spare bytes in xpad_device structure to
+> use for additional flags/bitmaps I'd leave dpad_mapping alone.
 
-On my laptop (this also affects other Acer's), the real problem is that there 
-is no way to tell if the device is enabled or disabled[1], unless you're 
-keeping track of this yourself (not always reliable). The only thing that 
-always changes is the scancode for the button in question.
+Ok. Lets ignore this patch.
 
-It would be nice to have a separate keycode to match to the different 
-scancodes for on and off (then match these to the relevant calls), rather 
-than say for instance, mapping both wireless scancodes to KEY_WLAN, then 
-trying to keep track of the current state and then deciding on this whether 
-to disable the device in question (and then potentially deciding wrong).
+>
+> --
+> Dmitry
+>
 
--Carlos
-
-[1] The wireless/ bluetooth features on some Acer laptops are software 
-enabled, by ACPI methods calling a Windows Management Instrumentation 
-device - and to add insult to injury, the WMI interface provided doesn't give 
-us any means to find out the current state of these features.
--- 
-Uni: c.corbacho@cs.ucl.ac.uk
-Home: cathectic@gmail.com
-GPG Key ID: 0x23EE722D
+Jan Kratochvil

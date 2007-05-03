@@ -1,82 +1,102 @@
-From: "EUROMILLIONLOTTERY" <loteria27@yahoo.es>
-Subject: Euro Million Loteria Award !!!
-Date: Thu, 3 May 2007 15:23:14 -0500 (CDT)
-Message-ID: <4970.81.199.179.2.1178223794.squirrel@leveldonchange.250meg.com>
-Reply-To: robertoluis1980@aim.com
+From: Jan Kratochvil <honza@jikos.cz>
+Subject: Re: [PATCH 3/3] xpad.c: Added Xbox360 gamepad rumble support.
+Date: Thu, 3 May 2007 23:41:16 +0200 (CEST)
+Message-ID: <alpine.LRH.0.98.0705032326440.22353@twin.jikos.cz>
+References: <Pine.LNX.4.64.0705021704180.13550@twin.jikos.cz>
+ <alpine.LRH.0.98.0705031504280.22353@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; format=flowed; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <alpine.LRH.0.98.0705031504280.22353@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 List-Id: linux-input@vger.kernel.org
 
+Hi again,
+   what do you think about this? (This patch will work only against last 
+gamepad rumble support patch)
 
+Thanks for your time
+ 	Jan Kratochvil
 
+BigX button on xbox360 gamepad is surrounded by 4 green leds. This
+patch adds support to control them.
 
-Euro Million Loteria Award
-Paseo De La Castellana 15-89,
-28008 Madrid, Spain Branch.
-Ref. N=BA: ES/007/05/12/MAD.
-Batch. N=BA: GHT/2907/333/05.
-www.loteria.com
+This device understand to 14 messages (described at 
+http://www.free60.org/wiki/Gamepad#LED_Control).
 
-Prize And Award Notification
+Control is done through event interface, message type EV_LED. EV_LED isn't 
+perfect match because you are actualy not turning some led on or off but 
+more likely you are telling the gamepad what "flash effect" it should 
+play.
 
-                   YOUR E-MAIL ADDRESS WON THE LOTTERY.
+Signed-off-by: Jan Kratochvil <honza@jikos.cz>
+---
+  drivers/usb/input/xpad.c |   31 ++++++++++++++++++++++++++++---
+  1 files changed, 28 insertions(+), 3 deletions(-)
 
-We wish to congratulate you over your email success in our computer
-BALLOTING SWEEPSTAKE held on April 28th,2007. This is a millennium
-scientific computer game in which email addresses were used. It is a
-promotional program aimed at encouraging internet users; therefore you do
-not need to buy ticket to enter for it.
+diff --git a/drivers/usb/input/xpad.c b/drivers/usb/input/xpad.c
+index d117e71..8b38990 100644
+--- a/drivers/usb/input/xpad.c
++++ b/drivers/usb/input/xpad.c
+@@ -397,13 +397,33 @@ int xpad_play_effect(struct input_dev *d
+  	return 0;
+  }
 
-Your email address attached to ticket star number (9901-0148-790-691) dre=
-w
-the EUROMILLION lucky numbers 3-19-26-49-50 which consequently won the
-draw in the Second category.
++int xpad_input_event(struct input_dev *dev, unsigned int type,
++		     unsigned int code, int value)
++{
++	switch (type) {
++	case EV_FF:
++		return input_ff_event(dev,type,code,value);
++	case EV_LED: {
++		struct usb_xpad *xpad = dev->private;
++		change_bit(code,dev->led);
++		xpad->odata[0] = 0x01;
++		xpad->odata[1] = 0x03;
++		xpad->odata[2] = code;
++		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
++		return 0;
++	}
++	default:
++		return -EINVAL;
++	}
++}
++
+  static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad)
+  {
+  	if (xpad->xtype == TYPE_XBOX360) {
+  		struct usb_endpoint_descriptor *ep_irq_out;
+-		int rv;
++		int i;
 
-You have been approve for the star prize of EUR  787,248.26. (Seven
-Hundred And Eighty Seven thousand, Two Hundred And Fourty Eight Euros,
-Twenty Six Cents)
+-		xpad->dev->evbit[0] |= BIT(EV_FF);
++		xpad->dev->evbit[0] |= BIT(EV_FF) | BIT(EV_LED);
 
-CONGRATULATIONS !!!
-You are advised to keep this winning very confidential until you receive
-your lump prize in your account or optional cheque issuance to you. This
-is a protective measure to avoid double claiming by people you may tell a=
-s
-we have had cases like this before. You are required to provide the
-information below:
+  		xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN,
+  					       GFP_ATOMIC, &xpad->odata_dma );
+@@ -422,11 +442,16 @@ static int xpad_init_ff(struct usb_inter
+  		xpad->irq_out->transfer_dma = xpad->odata_dma;
+  		xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
 
-Name, Telephone Number, Fax Number, Wining Ticket Number, Reference Numbe=
-r
-and Amount Won.
-This information For processing of your winning fund should be sent to ou=
-r
-registered claim agent in address below.
+-		set_bit( FF_RUMBLE, xpad->dev->ffbit );
++		set_bit(FF_RUMBLE, xpad->dev->ffbit);
++		for (i=0;i<16;++i)
++			set_bit(i, xpad->dev->ledbit);
++
+  		if (input_ff_create_memless(xpad->dev, NULL, xpad_play_effect)) {
+  			goto fail2;
+  		}
 
-Guarantee Trust Agency.
-Mr.Luis Roberto.
-Address: Sin Numero Madrid Spain.
-Telephone: 0034636287740.
-E-mail: robertoluis1980@aim.com
++		xpad->dev->event = xpad_input_event;
++
+  		return 0;
 
-Remember, all winning must be claimed not later than May 26th, 2007.
-Please note, in order to avoid unnecessary delays and complications,
-remember to quote your reference number and batch number in all
-correspondence. Furthermore, should there be any change of address do
-inform our agent as soon as possible.
-
-ONCE AGAIN CONGRATULATION.
-
-Best Regard,
-Mrs. Emily Simon,
-Lottery Co-ordinator.
-
-The information transmitted is intended only for the person or entity to
-whom or which it is addressed. Unauthorised use, disclosure or copying is
-strictly prohibited. The sender accepts no liability for the improper
-transmission of this communication nor for any delay in its receipt.
+  fail2:		usb_buffer_free(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
+-- 
+1.4.3.4

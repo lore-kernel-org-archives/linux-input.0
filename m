@@ -1,32 +1,189 @@
-From: "Lanette Noreen" <hjqm17pxvh@ey.com>
-Subject: Fast weight loss, Boosts Energy,  Certified 100% Pure South AfricanHoodia sg
-Date: Fri, 04 May 2007 09:15:55 +0900
-Message-ID: <353q946c.0068036@ey.com>
+From: "Dominic Kline" <neddtourismdoq@dtourism.com>
+Subject: Become fit and happy again
+Date: Fri, 4 May 2007 01:43:10 +0000
+Message-ID: <580824861.10938073322632@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------C40925842C42C42"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lukor@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>gym slow proceeded rich within mentioned evening? son fancy spoken stopping,</font><center><table border=0 cellspacing=0 cellpadding=7 width=520 bordercolor=FF8080><tr><td bgcolor=FFFF00 align=left><font size=4 face=tahoma color=006A35><b><center><font color=ff0000>#1</font> DietProduct 2007 - <font color=00BF00>Naturaslim HoodiaGordonii</font></font></center></b></font></td></tr><tr><td bgcolor=FFFFCA><font color=000000 face=tahoma size=2><font color=00C400><b>Naturaslim&trade; PureHoodia</b></font> is one of the most popular HoodiaGordonii weight-loss diet pills available. Unlike counterfeit products, Naturaslim&trade; uses 100% PureHoodia and is a successful nutritional supplement. We have the certificates to prove it.<br><br><font color=000000 size=2><b><font color=FF
- 9BFF>Lowers your appetite - Your brain thinks you're "full"</font><br><font color=FF77FF>
-Certified 100% pure AfricanHoodia</font><br><font color=FF4FFF>Completely safe. NO side effects</font><br><font color=FF1CFF>
-HoodiaGorgonii is a natural Appetite Supressant from South Africa</font><br><font color=EC00EC>Hoodiaworks by 'tricking' your brain into thinking you have just eaten.</font><br><font color=CA00CA>Hoodiacontains no toxic stimulants or nasty 
-chemicals</font><br><font color=A800A8>Naturaslim is a 500mg Hoodiaconcentrate 
-in capsule form.</font><br><font color=840084>
-Naturaslim contains no additives or preservatives</font><br><br><font color=88FF88>Hoodiawill reduce your daily caloric intake 
-by up to 1000 calories<br><font color=40FF40>Hoodiagives you 
-control over your appetite<br><font color=00CC00>
-Hoodiawill make you feel great - its a natural mood enhancer<br><font color=009500>Hoodiawill help you to lose weight 
-by not over-eating<br></b></font><br><center><a href=http://cdsu.nicknamefor.com target=_blank>
-<font size=4 color=0000FF><u><b>CHEAPEST HoodiaPills Availabile<br>
-We are constantly beating our Competitors 
-with price<br>We have NO COMPETITION!</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>
-however trying free reached, whos spoke wrong become progress scene thee?</font></body></html>
+------------C40925842C42C42
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+
+
+Anatrim – The very up-to-date and most attracting product for corpulent people is now available – As shown on BBC.
+
+Can you remember all the cases when you asked yourself to do anything to get rid of this fastly growing number of kilos? Happily, now no great offering is required. Thanks to Anatrim, the earth-shaking kilos-melting mixture, you can get naturally health mode of life and a really slender figure. Just look at what people write!
+
+"It’s unbearably difficult to confess but I was a junk food addict. 
+
+I swallowed up all this garbige 
+
+and was unable to stop. 
+
+This ruinous passion ceased after I started course of taking Anatrim! 
+
+God,
+
+ my craving for food decreased, 
+
+spirits increased and I became the happiest person on the planet 27 pounds in 2.6 months. 
+
+So, I can tell you now I became the happiest person!"
+ 
+
+Amelia B., Washington
+
+ 
+"Since my early childhood I was a weighty boy. 
+
+It’s pretty hard to imagine how I hated being ridiculed at school. 
+
+I detested my plumpness and I hated myself. 
+
+After trying this and that I heard about Anatrim. 
+
+It literally pulled me out of this horrible nightmare! A plenty of thanks to you, fellows."
+
+ 
+Steve Burbon, Colorado
+
+ 
+"Know what? Thanks to Anatrim my marriage was luckily saved! I got into the circle, depression – more eating – just more depression. My wife had thought to leave me as I was turning in overweight psycho. 
+
+Once one of my friends showed me site and I ordered pack of Anatrim at the same time. 
+
+The result was splendid, my appetite came to normal level, I was in a good mood oftener, and, of course, I became able to tighten my belt on some holes. And you see, the bedroom became cool, too!"
+
+ 
+Frank
+
+ There is a lot of thanks delighted people leave after taking Anatrim. Don’t you gonna join the tens of thousands of slim buyers and take this original appetite-decreasing power lifting product now!
+
+Do not lose the opportunity!
+
+
+------------C40925842C42C42
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Less weight - more pleasure and joy</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href="http://www.klari.hk/?g371707766777E70776E336B337A6E687A7445796A33667173726B6873337Fw7sikovl">
+Anatrim – The very up-to-date and most attracting product for corpulent people is now available – As shown on BBC.
+</a>
+</center>
+Can you remember all the cases when you asked yourself to do anything to get rid of this fastly growing number of kilos? Happily, now no great offering is required. Thanks to Anatrim, the earth-shaking kilos-melting mixture, you can get naturally health mode of life and a really slender figure. Just look at what people write!
+<br>
+<br>
+<i>
+"It’s unbearably difficult to confess but I was a junk food addict. 
+<b>
+<i>
+I swallowed up all this garbige 
+<b>
+<i>
+and was unable to stop. 
+</i>
+</b>
+</i>
+</b>
+This ruinous passion ceased after I started course of taking Anatrim! 
+<b>
+<i>
+God,
+</i>
+</b>
+<b>
+<i>
+ my craving for food decreased, 
+<b>
+<i>
+spirits increased and I became the happiest person on the planet 27 pounds in 2.6 months. 
+</i>
+</b>
+</i>
+</b>
+So, I can tell you now I became the happiest person!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Amelia B., Washington
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Since my early childhood I was a weighty boy. 
+<b>
+<i>
+It’s pretty hard to imagine how I hated being ridiculed at school. 
+</i>
+</b>
+<b>
+<i>
+I detested my plumpness and I hated myself. 
+<b>
+<i>
+After trying this and that I heard about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally pulled me out of this horrible nightmare! A plenty of thanks to you, fellows."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Steve Burbon, Colorado
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Know what? Thanks to Anatrim my marriage was luckily saved! I got into the circle, depression – more eating – just more depression. My wife had thought to leave me as I was turning in overweight psycho. 
+<b>
+<i>
+Once one of my friends showed me site and I ordered pack of Anatrim at the same time. 
+</i>
+</b>
+The result was splendid, my appetite came to normal level, I was in a good mood oftener, and, of course, I became able to tighten my belt on some holes. And you see, the bedroom became cool, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Frank
+</i>
+</b>
+<br>
+<br>
+ There is a lot of thanks delighted people leave after taking Anatrim. Don’t you gonna join the tens of thousands of slim buyers and take this original appetite-decreasing power lifting product now!
+<center>
+<a href="http://www.klari.hk/?g371707766777E70776E336B337A6E687A7445796A33667173726B6873337Fw7sikovl">
+Do not lose the opportunity!
+</a>
+</center>
+</b>
+</p>
+
+</BODY></HTML>
+------------C40925842C42C42--

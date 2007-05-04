@@ -1,102 +1,32 @@
-From: Jan Kratochvil <honza@jikos.cz>
-Subject: Re: [PATCH 3/3] xpad.c: Added Xbox360 gamepad rumble support.
-Date: Thu, 3 May 2007 23:41:16 +0200 (CEST)
-Message-ID: <alpine.LRH.0.98.0705032326440.22353@twin.jikos.cz>
-References: <Pine.LNX.4.64.0705021704180.13550@twin.jikos.cz>
- <alpine.LRH.0.98.0705031504280.22353@twin.jikos.cz>
+From: "Lanette Noreen" <hjqm17pxvh@ey.com>
+Subject: Fast weight loss, Boosts Energy,  Certified 100% Pure South AfricanHoodia sg
+Date: Fri, 04 May 2007 09:15:55 +0900
+Message-ID: <353q946c.0068036@ey.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=us-ascii
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <alpine.LRH.0.98.0705031504280.22353@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi again,
-   what do you think about this? (This patch will work only against last 
-gamepad rumble support patch)
-
-Thanks for your time
- 	Jan Kratochvil
-
-BigX button on xbox360 gamepad is surrounded by 4 green leds. This
-patch adds support to control them.
-
-This device understand to 14 messages (described at 
-http://www.free60.org/wiki/Gamepad#LED_Control).
-
-Control is done through event interface, message type EV_LED. EV_LED isn't 
-perfect match because you are actualy not turning some led on or off but 
-more likely you are telling the gamepad what "flash effect" it should 
-play.
-
-Signed-off-by: Jan Kratochvil <honza@jikos.cz>
----
-  drivers/usb/input/xpad.c |   31 ++++++++++++++++++++++++++++---
-  1 files changed, 28 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/usb/input/xpad.c b/drivers/usb/input/xpad.c
-index d117e71..8b38990 100644
---- a/drivers/usb/input/xpad.c
-+++ b/drivers/usb/input/xpad.c
-@@ -397,13 +397,33 @@ int xpad_play_effect(struct input_dev *d
-  	return 0;
-  }
-
-+int xpad_input_event(struct input_dev *dev, unsigned int type,
-+		     unsigned int code, int value)
-+{
-+	switch (type) {
-+	case EV_FF:
-+		return input_ff_event(dev,type,code,value);
-+	case EV_LED: {
-+		struct usb_xpad *xpad = dev->private;
-+		change_bit(code,dev->led);
-+		xpad->odata[0] = 0x01;
-+		xpad->odata[1] = 0x03;
-+		xpad->odata[2] = code;
-+		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
-+		return 0;
-+	}
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-  static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad)
-  {
-  	if (xpad->xtype == TYPE_XBOX360) {
-  		struct usb_endpoint_descriptor *ep_irq_out;
--		int rv;
-+		int i;
-
--		xpad->dev->evbit[0] |= BIT(EV_FF);
-+		xpad->dev->evbit[0] |= BIT(EV_FF) | BIT(EV_LED);
-
-  		xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN,
-  					       GFP_ATOMIC, &xpad->odata_dma );
-@@ -422,11 +442,16 @@ static int xpad_init_ff(struct usb_inter
-  		xpad->irq_out->transfer_dma = xpad->odata_dma;
-  		xpad->irq_out->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-
--		set_bit( FF_RUMBLE, xpad->dev->ffbit );
-+		set_bit(FF_RUMBLE, xpad->dev->ffbit);
-+		for (i=0;i<16;++i)
-+			set_bit(i, xpad->dev->ledbit);
-+
-  		if (input_ff_create_memless(xpad->dev, NULL, xpad_play_effect)) {
-  			goto fail2;
-  		}
-
-+		xpad->dev->event = xpad_input_event;
-+
-  		return 0;
-
-  fail2:		usb_buffer_free(xpad->udev, XPAD_PKT_LEN, xpad->odata, xpad->odata_dma);
--- 
-1.4.3.4
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><font color=FFEAD5 size=1>gym slow proceeded rich within mentioned evening? son fancy spoken stopping,</font><center><table border=0 cellspacing=0 cellpadding=7 width=520 bordercolor=FF8080><tr><td bgcolor=FFFF00 align=left><font size=4 face=tahoma color=006A35><b><center><font color=ff0000>#1</font> DietProduct 2007 - <font color=00BF00>Naturaslim HoodiaGordonii</font></font></center></b></font></td></tr><tr><td bgcolor=FFFFCA><font color=000000 face=tahoma size=2><font color=00C400><b>Naturaslim&trade; PureHoodia</b></font> is one of the most popular HoodiaGordonii weight-loss diet pills available. Unlike counterfeit products, Naturaslim&trade; uses 100% PureHoodia and is a successful nutritional supplement. We have the certificates to prove it.<br><br><font color=000000 size=2><b><font color=FF
+ 9BFF>Lowers your appetite - Your brain thinks you're "full"</font><br><font color=FF77FF>
+Certified 100% pure AfricanHoodia</font><br><font color=FF4FFF>Completely safe. NO side effects</font><br><font color=FF1CFF>
+HoodiaGorgonii is a natural Appetite Supressant from South Africa</font><br><font color=EC00EC>Hoodiaworks by 'tricking' your brain into thinking you have just eaten.</font><br><font color=CA00CA>Hoodiacontains no toxic stimulants or nasty 
+chemicals</font><br><font color=A800A8>Naturaslim is a 500mg Hoodiaconcentrate 
+in capsule form.</font><br><font color=840084>
+Naturaslim contains no additives or preservatives</font><br><br><font color=88FF88>Hoodiawill reduce your daily caloric intake 
+by up to 1000 calories<br><font color=40FF40>Hoodiagives you 
+control over your appetite<br><font color=00CC00>
+Hoodiawill make you feel great - its a natural mood enhancer<br><font color=009500>Hoodiawill help you to lose weight 
+by not over-eating<br></b></font><br><center><a href=http://cdsu.nicknamefor.com target=_blank>
+<font size=4 color=0000FF><u><b>CHEAPEST HoodiaPills Availabile<br>
+We are constantly beating our Competitors 
+with price<br>We have NO COMPETITION!</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>
+however trying free reached, whos spoke wrong become progress scene thee?</font></body></html>

@@ -1,33 +1,299 @@
-From: "Mara Maple" <uaav7lsz@charitytunes.com>
-Subject: Best  Price, CialisXanaViagra\/aliun, A-Z pills, ship all countries pghx
-Date: Fri, 04 May 2007 18:19:12 -0500
-Message-ID: <797h596o.3843843@charitytunes.com>
+From: Florian Loitsch <linux@florian.loitsch.com>
+Subject: appletouch position calculation
+Date: Sat, 05 May 2007 03:43:10 +0200
+Message-ID: <200705050343.10647.linux@florian.loitsch.com>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-<html>
-<head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head><body><center><font color=7F7F7F size=1>raised board worthy black south. burst convenient cold mentioned force?</font>
-<br>
-<br>
-<table border=0 cellspacing=0 cellpadding=3><tr><td bgcolor=E6F3FF align=center><font size=6 color=4FA7FF face="Century Gothic">
-<b>Certified <font color=0000FF>OnlinePharmacy</font><br><font color=B700B7 size=5>All Countries Shipping</b></font>
-</font><br><table border=0 cellspacing=0 cellpadding=3 width=550><tr><td width=50% valign=top bgcolor=EFEFEF align=left>
-<font face="Century Gothic" size=3 color=000000><b>ViagraAs</b> low as $69.95<br><b>CialisAs</b> low as $99.95
-<br>
-<b>ValiumAs</b> low as $85.45<br><b>CialisSoftTabsAs</b> low as $167.50<br><b>XanaxAs</b> low as $123.45<br>plus <b>
-80 meds more</b></font></td><td width=50% valign=top bgcolor=F8F8F8 align=left><font face="Century Gothic" size=3 color=000000>
-<b>ViagraSoftTabsAs</b> low as $99.00<br><b>AmbienAs</b> low as $119.95<br><b>MeridiaAs</b> low as $99.95<br><b>
-SomaAs low</b> as $75.95<br><b>TramadolAs</b> low as $81.00<br>plus <b>80 meds more</b></font></td></tr></table>
-</b><a href=http://ksz.ingthereassembly.com target=_blank><font size=5 face="Century Gothic" color=FF0000><u><b>Best Price - Buy Now (Click Here)</b></font></font></u></a><br></center></td></tr></table><br><br><font color=7F7F7F size=1>favour sugar really matter independence need south. wonder clear evening,</font></center>
-</body></html>
+Two patches for the macbook touchpad (appletouch.c):
+
+The first one avoids the interpolation when the number of fingers changes. 
+This way user-space programs can filter the jumps that happen at that time.
+A patch for the xorg synaptics driver that does exactly that can be found 
+here:
+http://florian.loitsch.com/touchpad/synaptics/
+
+The second one implements different modes for calculating the position of the 
+touchpad configurable through the x_position_mode and y_position_mode 
+parameters. The default (0) is the average of all activated sensors (which 
+is, what has been done before). The other modes (1, 2 or 3) take into account 
+the position of each finger (resp. left-most/top finger, mean of all fingers 
+or right-most/bottom finger).
+
+I would appreciate any comments before sending them to the appletouch 
+maintainer. (btw is the maintainer Dmitry Torokhov or Alessandro Rubini?)
+
+The patches have been tested on 2.6.20.10 but apply fine on the official 
+git-repository dc87c3985e9b442c60994308a96f887579addc39
+and the linux-input git-repository 3f07d8796262f6aee135c8dd9a91210da9f888e4
+
+mfg,
+// florian loitsch
+
+>From 8e3a295013b18ca8ef2d45fe881103b90afbcea5 Mon Sep 17 00:00:00 2001
+From: Florian Loitsch <oss@florian.loitsch.com>
+Date: Sat, 5 May 2007 00:28:01 +0200
+Subject: [PATCH] don't interpolate movement on finger-change.
+
+---
+ drivers/usb/input/appletouch.c |   17 ++++++++++-------
+ 1 files changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/usb/input/appletouch.c b/drivers/usb/input/appletouch.c
+index c77291d..7ffe8e7 100644
+--- a/drivers/usb/input/appletouch.c
++++ b/drivers/usb/input/appletouch.c
+@@ -147,6 +147,7 @@ struct atp {
+ 	int			valid;		/* are the sensors valid ? */
+ 	int			x_old;		/* last reported x/y, */
+ 	int			y_old;		/* used for smoothing */
++	int			fingers_old;	/* used for smoothing too */
+ 						/* current value of the sensors */
+ 	signed char		xy_cur[ATP_XSENSORS + ATP_YSENSORS];
+ 						/* last value of the sensors */
+@@ -275,7 +276,7 @@ static inline void atp_report_fingers(struct input_dev 
+*input, int fingers)
+ 
+ static void atp_complete(struct urb* urb)
+ {
+-	int x, y, x_z, y_z, x_f, y_f;
++	int x, y, x_z, y_z, x_f, y_f, fingers;
+ 	int retval, i, j;
+ 	struct atp *dev = urb->context;
+ 
+@@ -371,7 +372,7 @@ static void atp_complete(struct urb* urb)
+ 	if (!dev->valid) {
+ 		/* first sample */
+ 		dev->valid = 1;
+-		dev->x_old = dev->y_old = -1;
++		dev->fingers_old = dev->x_old = dev->y_old = -1;
+ 		memcpy(dev->xy_old, dev->xy_cur, sizeof(dev->xy_old));
+ 
+ 		if (atp_is_geyser_3(dev)) /* No 17" Macbooks (yet) */
+@@ -418,12 +419,13 @@ static void atp_complete(struct urb* urb)
+ 	y = atp_calculate_abs(dev->xy_acc + ATP_XSENSORS, ATP_YSENSORS,
+ 			      ATP_YFACT, &y_z, &y_f);
+ 
++	fingers = max(x_f, y_f);
+ 	if (x && y) {
+ 		if (dev->x_old != -1) {
+-			x = (dev->x_old * 3 + x) >> 2;
+-			y = (dev->y_old * 3 + y) >> 2;
+-			dev->x_old = x;
+-			dev->y_old = y;
++			if (fingers == dev->fingers_old) {
++				x = (dev->x_old * 3 + x) >> 2;
++				y = (dev->y_old * 3 + y) >> 2;
++			}
+ 
+ 			if (debug > 1)
+ 				printk("appletouch: X: %3d Y: %3d "
+@@ -435,8 +437,9 @@ static void atp_complete(struct urb* urb)
+ 			input_report_abs(dev->input, ABS_Y, y);
+ 			input_report_abs(dev->input, ABS_PRESSURE,
+ 					 min(ATP_PRESSURE, x_z + y_z));
+-			atp_report_fingers(dev->input, max(x_f, y_f));
++			atp_report_fingers(dev->input, fingers);
+ 		}
++		dev->fingers_old = fingers;
+ 		dev->x_old = x;
+ 		dev->y_old = y;
+ 	}
+-- 
+1.5.1
+
+
+>From b94b05b1e90e6edc30422a62f4d2cde945a8dace Mon Sep 17 00:00:00 2001
+From: Florian Loitsch <oss@florian.loitsch.com>
+Date: Sat, 5 May 2007 01:41:51 +0200
+Subject: [PATCH] different modes to calculate the position.
+
+---
+ drivers/usb/input/appletouch.c |  123 +++++++++++++++++++++++++--------------
+ 1 files changed, 79 insertions(+), 44 deletions(-)
+
+diff --git a/drivers/usb/input/appletouch.c b/drivers/usb/input/appletouch.c
+index 7ffe8e7..863ac08 100644
+--- a/drivers/usb/input/appletouch.c
++++ b/drivers/usb/input/appletouch.c
+@@ -136,6 +136,11 @@ MODULE_DEVICE_TABLE (usb, atp_table);
+ #define ATP_GEYSER3_MODE_REQUEST_INDEX 0
+ #define ATP_GEYSER3_MODE_VENDOR_VALUE 0x04
+ 
++#define ATP_MEAN_POS 0
++#define ATP_FIRST_FINGER_POS 1
++#define ATP_MEAN_FINGER_POS 2
++#define ATP_LAST_FINGER_POS 3
++
+ /* Structure to hold all of our device specific stuff */
+ struct atp {
+ 	char			phys[64];
+@@ -183,6 +188,13 @@ static int threshold = ATP_THRESHOLD;
+ module_param(threshold, int, 0644);
+ MODULE_PARM_DESC(threshold, "Discards any change in data from a sensor 
+(trackpad has hundreds of these sensors) less than this value");
+ 
++static int x_position_mode = ATP_MEAN_POS;
++module_param(x_position_mode, int, 0644);
++MODULE_PARM_DESC(x_position_mode, "0 == mean, 1 == left-most finger, 2 == 
+mean of all fingers, 3 == right-most finger");
++static int y_position_mode = ATP_MEAN_POS;
++module_param(y_position_mode, int, 0644);
++MODULE_PARM_DESC(y_position_mode, "0 == mean, 1 == top finger, 2 == mean of 
+all fingers, 3 == bottom finger");
++
+ static int debug = 1;
+ module_param(debug, int, 0644);
+ MODULE_PARM_DESC(debug, "Activate debugging output");
+@@ -209,62 +221,85 @@ static inline int atp_is_geyser_3(struct atp *dev)
+ 		(productId == GEYSER4_JIS_PRODUCT_ID);
+ }
+ 
++/*
++ * depending on the mode either:
++ * - calculates the mean position of all active sensors (ATP_MEAN_POS)
++ * - or calculates the position of each finger and returns
++ *   * the position of the first found finger (ATP_FIRST_FINGER_POS)
++ *   * the mean position of all found fingers (ATP_MEAN_FINGER_POS)
++ *   * the position of the last found finger (ATP_LAST_FINGER_POS)
++ */
+ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+-			     int *z, int *fingers)
++			     int mode, int *z, int *fingers)
+ {
+ 	int i;
+ 	/* values to calculate mean */
+-	int pcum = 0, psum = 0;
+-	int is_increasing = 0;
++	int finger_pcum, finger_psum;
++
++	int finger_pos;
++	int res_pos = 0; /* used as tmp-accumulator too */
++	int first_finger = 1;
+ 
+ 	*fingers = 0;
+ 
+-	for (i = 0; i < nb_sensors; i++) {
+-		if (xy_sensors[i] < threshold) {
+-			if (is_increasing)
+-				is_increasing = 0;
++	i = 0;
++	*z = 0;
++	/*
++	 * As introduced by Jason Parekh still searches for humps on the sensors
++	 * (transitions from nonincreasing to increasing) instead of transitions
++	 * from low sensors (no finger reading) to high sensors (finger above
++	 * sensor) to detect fingers.
++	 */
++	do {
++		/* search first/next finger */
++		while (i < nb_sensors && xy_sensors[i] <= threshold) i++;
++		if (i >= nb_sensors)
++			break;
+ 
+-			continue;
++		/* found finger */
++		finger_pcum = (xy_sensors[i] - threshold) * i;
++		finger_psum = (xy_sensors[i] - threshold);
++		i++;
++		/* continue while increasing */
++		while (i < nb_sensors && xy_sensors[i-1] <= xy_sensors[i]) {
++			finger_pcum += (xy_sensors[i] - threshold) * i;
++			finger_psum += (xy_sensors[i] - threshold);
++			i++;
+ 		}
+ 
+-		/*
+-		 * Makes the finger detection more versatile.  For example,
+-		 * two fingers with no gap will be detected.  Also, my
+-		 * tests show it less likely to have intermittent loss
+-		 * of multiple finger readings while moving around (scrolling).
+-		 *
+-		 * Changes the multiple finger detection to counting humps on
+-		 * sensors (transitions from nonincreasing to increasing)
+-		 * instead of counting transitions from low sensors (no
+-		 * finger reading) to high sensors (finger above
+-		 * sensor)
+-		 *
+-		 * - Jason Parekh <jasonparekh@gmail.com>
+-		 */
+-		if (i < 1 || (!is_increasing && xy_sensors[i - 1] < xy_sensors[i])) {
+-			(*fingers)++;
+-			is_increasing = 1;
+-		} else if (i > 0 && xy_sensors[i - 1] >= xy_sensors[i]) {
+-			is_increasing = 0;
++		/* continue while decreasing (and staying above threshold) */
++		while (i < nb_sensors &&
++		       xy_sensors[i] > threshold &&
++		       xy_sensors[i-1] >= xy_sensors[i])
++		{
++			finger_pcum += (xy_sensors[i] - threshold) * i;
++			finger_psum += (xy_sensors[i] - threshold);
++			i++;
+ 		}
+ 
+-		/*
+-		 * Subtracts threshold so a high sensor that just passes the threshold
+-		 * won't skew the calculated absolute coordinate.  Fixes an issue
+-		 * where slowly moving the mouse would occassionaly jump a number of
+-		 * pixels (let me restate--slowly moving the mouse makes this issue
+-		 * most apparent).
+-		 */
+-		pcum += (xy_sensors[i] - threshold) * i;
+-		psum += (xy_sensors[i] - threshold);
+-	}
++		if (mode == ATP_MEAN_POS)
++			res_pos += finger_pcum;
++		else {
++			finger_pos = finger_pcum * fact / finger_psum;
++			if ((first_finger && mode == ATP_FIRST_FINGER_POS) ||
++			    mode == ATP_LAST_FINGER_POS)
++				res_pos = finger_pos;
++			else if (mode == ATP_MEAN_FINGER_POS)
++				res_pos += finger_pos;
++		}
+ 
+-	if (psum > 0) {
+-		*z = psum;
+-		return pcum * fact / psum;
+-	}
++		(*fingers)++;
++		*z += finger_psum;
+ 
+-	return 0;
++		first_finger = 0;
++	} while (i < nb_sensors);
++
++	if (mode == ATP_MEAN_POS && *fingers > 0)
++		res_pos = res_pos * fact / *z;
++	else if (mode == ATP_MEAN_FINGER_POS && *fingers > 0)
++		res_pos /= *fingers;
++
++	return res_pos;
+ }
+ 
+ static inline void atp_report_fingers(struct input_dev *input, int fingers)
+@@ -415,9 +450,9 @@ static void atp_complete(struct urb* urb)
+ 	dbg_dump("accumulator", dev->xy_acc);
+ 
+ 	x = atp_calculate_abs(dev->xy_acc, ATP_XSENSORS,
+-			      ATP_XFACT, &x_z, &x_f);
++			      ATP_XFACT, x_position_mode, &x_z, &x_f);
+ 	y = atp_calculate_abs(dev->xy_acc + ATP_XSENSORS, ATP_YSENSORS,
+-			      ATP_YFACT, &y_z, &y_f);
++			      ATP_YFACT, y_position_mode, &y_z, &y_f);
+ 
+ 	fingers = max(x_f, y_f);
+ 	if (x && y) {
+-- 
+1.5.1

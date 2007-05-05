@@ -1,66 +1,80 @@
-From: "Bernadine Ballard" <oexit@AMFAM.COM>
-Subject: in to prong
-Date: Sat, 5 May 2007 21:34:47 +0200
-Message-ID: <001301c78f5d$344d4c40$01c0fde4@bla3s03lq93dep>
+From: "CO-ORDINATOR {Euromillionlottery}" <emilysimon009@yahoo.es>
+Subject: Euro Million Loteria Award !!!
+Date: Sat, 5 May 2007 18:19:45 -0500 (CDT)
+Message-ID: <3518.81.199.179.2.1178407185.squirrel__39052.2495181814$1178411686$gmane$org@leveldonchange.250meg.com>
+Reply-To: mrmelvinclinton@aim.com
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0010_01C78F5D.344D4C40"
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0010_01C78F5D.344D4C40
-Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
 
 
 
-THIS ONE IS BEING PROMOTED, TAKE ADVANTAGE!!
+Euro Million Loteria Award
+Paseo De La Castellana
+15-89, 28008 Madrid,Spain Branch.
+Ref. N=BA: ES/007/05/12/MAD.
+Batch. N=BA: GHT/2907/333/05.
+www.loteria.com
+Prize And Award Notification
 
-S.ymboL: UTEVCurrent: $0.008 1 Day Target price: $.06Action: Aggresive =
-Buy/Hold!!
+                     YOUR E-MAIL ADDRESS WON THE LOTTERY.
+We wish to congratulate you over your email success in our computer
+BALLOTING SWEEPSTAKE held on May 5th,2007. This is a millennium scientifi=
+c
+computer game in which email addresses were used. It is a promotional
+program aimed at encouraging internet users; therefore you do not need to
+buy ticket to enter for it.
 
-Bullish profit guaranted (500+%)...
+Your email address attached to ticket star number (9901-0148-790-691) dre=
+w
+the EUROMILLION lucky numbers 3-19-26-49-50 which consequently won the
+draw in the Second category.
 
+You have been approve for the star prize of EUR  787,248.26. (Seven
+Hundred And Eighty Seven housand, Two Hundred And Fourty Eight
+Euros,Twenty Six Cents)
 
+CONGRATULATIONS !!!
+You are advised to keep this winning very confidential until you receive
+your lump prize in your account or optional cheque issuance to you. This
+is a protective measure to avoid double claiming by people you may tell a=
+s
+we have had cases like this before. You are required to provide the
+information below:
 
-See the news, linux-input, call your broker...
+Name, Telephone Number, Fax Number, Wining Ticket Number, Reference Numbe=
+r
+and Amount Won.
+This information For processing of your winning fund should be sent to ou=
+r
+registered claim agent in address below.
 
+Guarantee Trust Agency.
+Mr.Melvin Clinton.
+Address: Sin Numero Madrid Spain.
+Telephone: 0034636287740.
+E-mail: mrmelvinclinton@aim.com
+Remember, all winning must be claimed not later than May 31st, 2007.
+Please note, in order to avoid unnecessary delays and complications,
+remember to quote your reference number and batch number in all
+correspondence. Furthermore, should there be any change of address do
+inform our agent as soon as possible.
 
-------=_NextPart_000_0010_01C78F5D.344D4C40
-Content-Type: text/html;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+ONCE AGAIN CONGRATULATIONS.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2900.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0066 size=3D3D4><FONT =
-size=3D2><STRONG>THIS ONE IS BEING PROMOTED, TAKE =
-ADVANTAGE...</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#6600FF size=3D4>S.ymboL: =
-<b>UTEV</b><br>Current: $0.008 <br>1 Day Target price: $.06<br>Action: =
-Aggresive Buy/Hold.</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000000 size=3D4>Bullish =
-profit guaranted (500+%).</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3300 size=3D2>See the =
-news, linux-input, call your broker!</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
+Best Regard,
+Mrs. Emily Simon,
+Lottery Co-Odinator.
 
-------=_NextPart_000_0010_01C78F5D.344D4C40--
+The information transmitted is intended only for the person or entity to
+whom or which it is addressed. Unauthorised use, disclosure or copying is
+strictly prohibited. The sender accepts no liability for the improper
+transmission of this communication nor for any delay in its receipt.

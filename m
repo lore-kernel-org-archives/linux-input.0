@@ -1,151 +1,32 @@
-From: "Blair Rose" <menecologistepef@ecologiste.org>
-Subject: Say goodbye to extra pounds
-Date: Sat, 5 May 2007 11:02:18 -0100
-Message-ID: <220767266.53751324158798@thhebat.net>
+From: "Addie Laurice" <yruql6qxdgg@advsol.com>
+Subject: Best Price,  CialisXanaViagra\/aliun, A-Z pills, ship all countries ardx
+Date: Sat, 05 May 2007 21:03:01 +0800
+Message-ID: <544k397z.9523284@advsol.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------F842CF842CFFF8B"
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: len@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------F842CF842CFFF8B
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-
-Anatrim – The very up-to-date and most delighting lose flesh product is now available – As told on Oprah
-Did you see redundant body kilos kill more and more people every year? We know that you hate the unattractive look of people like those and the low status they obviously have in modern society. 
-
-Moreover, you can’t resist an assault of pernicious eating habits of yours. If it all sounds familiar, then we got something to propose to you!
-
-We’re proudly introduce you Anatrim, the later product for the elimination of your body’s extra weight. The most amazing thing is that Anatrim raises the quality of your life by making you eat less and always cheering you up. Read some notes received from our customers:
-
-"This is wonderful! 
-
-Instead of watching TV and gorging any food easy to reach 
-
-I became more interested in exercise.
-
- Anatrim made me stride on confidently.
-
- I am more fit now and lots of men follow me with their eyes!"
-
-Maria H., Boston
-
-"Passive weight burning was of little help to me. It was very hard for me to hold back and not to eat something just at hand. 
-
-Once I heard about Anatrim from my very best friend and I rather liked the information.
-
- I had tried using it, and my wife said to me that I’m not more a weighty man now, 4 months later. 
-
-28 pounds off and I keep still losing them! 
-
-And you know, I’m a passionate lover again."
-
-Charley Mock, Las Vegas
-
-Anatrim gives you an opportunity to realize that you got no such great need for the constant eating. It lifts your mood up, provides you with additional energy, and attacks unnecessary kilos. Great thanks to its mighty newly-elaborated formula!!
-Worm out more useful information! 
-
-------------F842CF842CFFF8B
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Get out of the obese crowd</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href="http://www.nerik.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ypdcwe">Anatrim – The very up-to-date and most delighting lose flesh product is now available – As told on Oprah</a>
-</b>
+<html>
+<head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body><center><font color=7F7F7F size=1>situation money off clear least, lady blue away wife go evil different,</font><br><br><table border=0 cellspacing=0 cellpadding=3><tr><td bgcolor=E6F3FF align=center><font size=6 color=4FA7FF face="Century Gothic"><b>Certified <font color=0000FF>OnlinePharmacy
+</font>
+<br>
+<font color=B700B7 size=5>All Countries Shipping</b></font></font><br><table border=0 cellspacing=0 cellpadding=3 width=550><tr><td width=50% valign=top bgcolor=EFEFEF align=left><font face="Century Gothic" size=3 color=000000><b>ViagraAs</b> low as $69.95<br><b>CialisAs</b> low as $99.95<br><b>ValiumAs</b> low as $85.45<br><b>CialisSoftTabsAs</b> low as $167.50<br><b>XanaxAs</b> low as $123.45<br>plus <b>80 meds more</b></font></td><td width=50% valign=top bgcolor=F8F8F8 align=left><font face="Century Gothic" size=3 color=000000><b>ViagraSoftTabsAs</b> low as $99.00<br><b>AmbienAs</b> low as $119.95<br><b>MeridiaAs</b> low as $99.95<br><b>SomaAs low</b> as $75.95<br><b>TramadolAs</b> low as $81.00<br>plus <b>80 meds more</b></font></td></tr></table></b><a href=http://kkdo.eventuallyengineer.com target=_blank><font size=5 face="Century Gothic" color=FF0000>
+<u><b>Best Price - Buy Now (Click Here)</b></font></font>
+</u>
+</a>
+<br>
 </center>
-<b>
-Did you see redundant body kilos kill more and more people every year? We know that you hate the unattractive look of people like those and the low status they obviously have in modern society. 
-<b>
-Moreover, you can’t resist an assault of pernicious eating habits of yours. If it all sounds familiar, then we got something to propose to you!
-</b>
-</b>
+</td></tr>
+</table><br>
 <br>
-<br>
-<b>
-We’re proudly introduce you Anatrim, the later product for the elimination of your body’s extra weight. The most amazing thing is that Anatrim raises the quality of your life by making you eat less and always cheering you up. Read some notes received from our customers:
-</b>
-<br>
-<br>
-<b>
-<i>
-"This is wonderful! 
-<b>
-<i>
-Instead of watching TV and gorging any food easy to reach 
-<b>
-<i>
-I became more interested in exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me stride on confidently.
-</i>
-</b>
- I am more fit now and lots of men follow me with their eyes!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Maria H., Boston
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"Passive weight burning was of little help to me. It was very hard for me to hold back and not to eat something just at hand. 
-<b>
-<i>
-Once I heard about Anatrim from my very best friend and I rather liked the information.
-</i>
-</b>
- I had tried using it, and my wife said to me that I’m not more a weighty man now, 4 months later. 
-<b>
-<i>
-28 pounds off and I keep still losing them! 
-</i>
-</b>
-And you know, I’m a passionate lover again."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Charley Mock, Las Vegas
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim gives you an opportunity to realize that you got no such great need for the constant eating. It lifts your mood up, provides you with additional energy, and attacks unnecessary kilos. Great thanks to its mighty newly-elaborated formula!!
-</b>
-<b>
-<center>
-<a href="http://www.nerik.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ypdcwe">Worm out more useful information!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------F842CF842CFFF8B--
+<font color=7F7F7F size=1>dare servants news journey whom. worthy goodbye young proceeded quietly news my.</font></center>
+</body></html>

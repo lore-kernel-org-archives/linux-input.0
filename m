@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <info_106@bellsouth.net>
 Subject: WINNER'S REF No: UKNL-L/200-26937
-Date: Mon, 7 May 2007 9:14:26 -0400
-Message-ID: <20070507131426.WLOV1140.ibm62aec.bellsouth.net@mail.bellsouth.net>
+Date: Mon, 7 May 2007 9:14:32 -0400
+Message-ID: <20070507131432.WLQY1140.ibm62aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable

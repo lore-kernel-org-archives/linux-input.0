@@ -1,151 +1,66 @@
-From: "Willa Goodman" <cijemeraldfinancialjaq@emeraldfinancial.com>
-Subject: Stop being obese and unhappy
-Date: Mon, 7 May 2007 10:11:42 -1000
-Message-ID: <635610879.86260800394440@thhebat.net>
+From: "Knighton Dyer" <dwlushm@lush.cc>
+Subject: re:Top pills at low prices
+Date: Mon, 7 May 2007 11:18:42 +0000 (UTC)
+Message-ID: <01c79099$718ed2d0$6c822ecf@dwlushm>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------109679D3E5409DA"
+	boundary="----=_NextPart_000_0006_01C790AA.3517A2D0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Mon, 7 May 2007 11:18:31 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-pci@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------109679D3E5409DA
-Content-Type: text/plain; charset=windows-1250
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C790AA.3517A2D0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 
+Dear valued member.With this special pharmaceutical bulletin we introduce MyCanadianPharmacy providing high quality products at low cost.MyCanadianPharmacy offers drugs of the same quality as in American stores at really lower cost.You can save even more money using special Spring discounts.Click here to read more and make orderhttp://showweek.hkSafety, confidentiality of your information and secure purchasing guaranteed.Spring discounts for all the customers.Best regards,Knighton Dyer
 
-Anatrim – The newest and most attracting lose flesh product is now available – As were told on BBC
-Do you know excessive body kilos kill more and more people around the whole world? We believe you hate the unattractive appearance of those people and the low status they obviously have in society. 
 
-Or, maybe, you have not the will to resist a pressure of baneful eating habits of yours. Does it all sound familiar? Then we have something for you!
 
-We’re proudly introduce you Anatrim, the later product for the elimination of your body’s extra weight. The greatest thing about Anatrim is it improves the quality of your life by making you crave less food and giving you better spirit. Read some notes from our customers:
+------=_NextPart_000_0006_01C790AA.3517A2D0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-"It is great! 
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-I stopped stuffing myself with food and watching TV 
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-1">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2">With this special pharmaceutical bulle=
+tin we introduce <a href=3D"http://showweek.hk">MyCanadianPharmacy</a> prov=
+iding high quality products at low cost.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://showweek.hk">MyCanad=
+ianPharmacy</a> offers drugs of the same quality as in American stores at r=
+eally lower cost.<br>You can save even more money using <b><u>special Sprin=
+g discounts</u></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://showweek.hk">Click h=
+ere to read more and make order</a><br>http://showweek.hk</font></p>
+<p><font face=3D"Verdana" size=3D"2">Safety, confidentiality of your inform=
+ation and secure purchasing guaranteed.<br><b><u>Spring discounts for all t=
+he customers</u></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Best regards,<br>Knighton Dyer</font><=
+/p>
+</body>
+</html>
 
-I became keen on exercise.
+</body>
+</html>
 
- Anatrim made me take a step up.
-
- I feel fit now and lots of men follow me with their eyes!"
-
-Lusia R., Washington
-
-"I tried some passive weight burning, but with little result. This terrible appetite would just kick in and spoil everything. 
-
-Once I was told about Anatrim my very best friend by and I was really effected at the information.
-
- I had tried to use it, and my wife said to me that I’m not more a weighty man now, 3 months later. 
-
-32 pounds off and it’s still far to an end! 
-
-And you know, it’s rather hot in our bedroom now."
-
-Steve Doubt, Chicago
-
-Anatrim gives you an opportunity to realize that you doesn’t have such a great need for the constant eating. It improves your mood, provides you with extra energy, and attacks needless kilos. Especial thanks to its powerful distinguished formula!!
-Elicit more information! 
-
-------------109679D3E5409DA
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href="http://www.iltero.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7soilxy">Anatrim – The newest and most attracting lose flesh product is now available – As were told on BBC</a>
-</b>
-</center>
-<b>
-Do you know excessive body kilos kill more and more people around the whole world? We believe you hate the unattractive appearance of those people and the low status they obviously have in society. 
-<b>
-Or, maybe, you have not the will to resist a pressure of baneful eating habits of yours. Does it all sound familiar? Then we have something for you!
-</b>
-</b>
-<br>
-<br>
-<b>
-We’re proudly introduce you Anatrim, the later product for the elimination of your body’s extra weight. The greatest thing about Anatrim is it improves the quality of your life by making you crave less food and giving you better spirit. Read some notes from our customers:
-</b>
-<br>
-<br>
-<b>
-<i>
-"It is great! 
-<b>
-<i>
-I stopped stuffing myself with food and watching TV 
-<b>
-<i>
-I became keen on exercise.
-</i>
-</b>
-</i>
-</b>
-<b>
-<i>
- Anatrim made me take a step up.
-</i>
-</b>
- I feel fit now and lots of men follow me with their eyes!"
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Lusia R., Washington
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-"I tried some passive weight burning, but with little result. This terrible appetite would just kick in and spoil everything. 
-<b>
-<i>
-Once I was told about Anatrim my very best friend by and I was really effected at the information.
-</i>
-</b>
- I had tried to use it, and my wife said to me that I’m not more a weighty man now, 3 months later. 
-<b>
-<i>
-32 pounds off and it’s still far to an end! 
-</i>
-</b>
-And you know, it’s rather hot in our bedroom now."
-</i>
-</b>
-<br>
-<br>
-<b>
-<i>
-Steve Doubt, Chicago
-</i>
-</b>
-<br>
-<br>
-<b>
-Anatrim gives you an opportunity to realize that you doesn’t have such a great need for the constant eating. It improves your mood, provides you with extra energy, and attacks needless kilos. Especial thanks to its powerful distinguished formula!!
-</b>
-<b>
-<center>
-<a href="http://www.iltero.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7soilxy">Elicit more information!</a>
-</center>
-</b>
-</p> 
-
-</BODY></HTML>
-------------109679D3E5409DA--
+------=_NextPart_000_0006_01C790AA.3517A2D0--

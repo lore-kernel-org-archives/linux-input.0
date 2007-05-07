@@ -1,68 +1,151 @@
-From: "Kristina Richard" <essexville199@maddhattentertainment.com>
-Subject: Not it aguila
-Date: Mon, 7 May 2007 05:04:57 -0400
-Message-ID: <001201c79065$41cd78f0$0683ff94@bubhf94hs3jl7m>
+From: "Willa Goodman" <cijemeraldfinancialjaq@emeraldfinancial.com>
+Subject: Stop being obese and unhappy
+Date: Mon, 7 May 2007 10:11:42 -1000
+Message-ID: <635610879.86260800394440@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000F_01C79065.41CD78F0"
+  boundary="----------109679D3E5409DA"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000F_01C79065.41CD78F0
-Content-Type: text/plain;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+------------109679D3E5409DA
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
 
+Anatrim – The newest and most attracting lose flesh product is now available – As were told on BBC
+Do you know excessive body kilos kill more and more people around the whole world? We believe you hate the unattractive appearance of those people and the low status they obviously have in society. 
 
+Or, maybe, you have not the will to resist a pressure of baneful eating habits of yours. Does it all sound familiar? Then we have something for you!
 
-Get it before the RUSH!!!
+We’re proudly introduce you Anatrim, the later product for the elimination of your body’s extra weight. The greatest thing about Anatrim is it improves the quality of your life by making you crave less food and giving you better spirit. Read some notes from our customers:
 
+"It is great! 
 
-S.ymboL: UTEVCurrent: $0.008 1 Day Target price: $.06Action: Aggresive =
-Buy/Hold..
+I stopped stuffing myself with food and watching TV 
 
+I became keen on exercise.
 
+ Anatrim made me take a step up.
 
-WATCH IT LIKE A HAWK..
+ I feel fit now and lots of men follow me with their eyes!"
 
-The hottest news are released for UTEV, linux-input, call to broker...
+Lusia R., Washington
 
-------=_NextPart_000_000F_01C79065.41CD78F0
-Content-Type: text/html;
-        charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+"I tried some passive weight burning, but with little result. This terrible appetite would just kick in and spoil everything. 
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1250">
-<META content=3D"MSHTML 6.00.2800.4682" name=3DGENERATOR>
-<STYLE></STYLE>
+Once I was told about Anatrim my very best friend by and I was really effected at the information.
+
+ I had tried to use it, and my wife said to me that I’m not more a weighty man now, 3 months later. 
+
+32 pounds off and it’s still far to an end! 
+
+And you know, it’s rather hot in our bedroom now."
+
+Steve Doubt, Chicago
+
+Anatrim gives you an opportunity to realize that you doesn’t have such a great need for the constant eating. It improves your mood, provides you with extra energy, and attacks needless kilos. Especial thanks to its powerful distinguished formula!!
+Elicit more information! 
+
+------------109679D3E5409DA
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#CC0033 size=3D=
-3D4><FONT size=3D4><STRONG>Get it before the =
-RUSH!!</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0066 size=3D=
-4>S.ymboL: <b>UTEV</b><br>Current: $0.008 <br>1 Day Target price: =
-$.06<br>Action: Aggresive Buy/Hold.</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3366 size=3D3>WATCH =
-IT LIKE A HAWK!!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D4>The =
-hottest news are released for UTEV, linux-input, call to =
-broker!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
+<BODY>
 
-------=_NextPart_000_000F_01C79065.41CD78F0--
+<p>
+<center>
+<b>
+<a href="http://www.iltero.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7soilxy">Anatrim – The newest and most attracting lose flesh product is now available – As were told on BBC</a>
+</b>
+</center>
+<b>
+Do you know excessive body kilos kill more and more people around the whole world? We believe you hate the unattractive appearance of those people and the low status they obviously have in society. 
+<b>
+Or, maybe, you have not the will to resist a pressure of baneful eating habits of yours. Does it all sound familiar? Then we have something for you!
+</b>
+</b>
+<br>
+<br>
+<b>
+We’re proudly introduce you Anatrim, the later product for the elimination of your body’s extra weight. The greatest thing about Anatrim is it improves the quality of your life by making you crave less food and giving you better spirit. Read some notes from our customers:
+</b>
+<br>
+<br>
+<b>
+<i>
+"It is great! 
+<b>
+<i>
+I stopped stuffing myself with food and watching TV 
+<b>
+<i>
+I became keen on exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim made me take a step up.
+</i>
+</b>
+ I feel fit now and lots of men follow me with their eyes!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Lusia R., Washington
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"I tried some passive weight burning, but with little result. This terrible appetite would just kick in and spoil everything. 
+<b>
+<i>
+Once I was told about Anatrim my very best friend by and I was really effected at the information.
+</i>
+</b>
+ I had tried to use it, and my wife said to me that I’m not more a weighty man now, 3 months later. 
+<b>
+<i>
+32 pounds off and it’s still far to an end! 
+</i>
+</b>
+And you know, it’s rather hot in our bedroom now."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Steve Doubt, Chicago
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim gives you an opportunity to realize that you doesn’t have such a great need for the constant eating. It improves your mood, provides you with extra energy, and attacks needless kilos. Especial thanks to its powerful distinguished formula!!
+</b>
+<b>
+<center>
+<a href="http://www.iltero.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7soilxy">Elicit more information!</a>
+</center>
+</b>
+</p> 
+
+</BODY></HTML>
+------------109679D3E5409DA--

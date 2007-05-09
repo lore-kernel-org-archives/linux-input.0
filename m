@@ -1,10 +1,10 @@
-From: "Deane Szczepanski" <Szczepanskiptef@artconz.de>
-Subject: Das Lesen ging bei.
-Date: Wed, 9 May 2007 13:45:25 +0400
-Message-ID: <000d01c7921e$c4c97640$57edb259@c748f9ef8bb6422>
+From: "Freddie Serrano" <wufescatepab@escate.com>
+Subject: Get your ideal weight with this natural method
+Date: Wed, 9 May 2007 11:09:14 -0100
+Message-ID: <170640152.80464405368344@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C79240.4BDB1640"
+  boundary="----------9C3F219CAB486E2"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,143 +14,138 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0006_01C79240.4BDB1640
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: quoted-printable
+------------9C3F219CAB486E2
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
 
-DER I_N_VESTORALARM!
 
-B J 5 N.F B_EGINNT H_OCHGEHEN!
+Anatrim – The latest and most delighting flesh loss product is now readily available – As could be seen on ABC
+Did you see redundant body kilos kill a plenty of people around the whole world? We believe that you hate the unattractive appearance of people like those and the social stigmata attached to them. 
 
-C.ompany: B_OERSE I_NVEST B_ETEI
-W.KN : 7 9 7 6 3 9
-I.SIN : C H 0 0 1 2 8 0 2 0 9 3
-M.arkt: Frankfurt
-K.urzel : B J 5 N.F
-L.etztr K.urs: 1.93
-4 T.ages Pr.ognose: 2.55
+Moreover, you can’t resist a siege of your fatal eating habits. If you see it sounds familiar, then we got something to propose to you!
 
-ES IST EIN U_NGLAUBLICHES P_ROFITPOTENTIAL!
-V_ERLIERE D_IESE C_HANCE N_ICHT!
+Here Anatrim comes, the later product for the reduction of your body’s extra weight. The greatest thing is that Anatrim raises the quality of your life, repressing the feeling of hunger and giving you better spirit. Here you may see what people write to us about this product:
 
-Set forth in the Open Publication License, v1. Andere Eltern, Medien und eine andere Werbung.
-Willy Hoffmann hat zu Hause eine Sammlung von 20 Oldtimern.
-Hat der jetzige Besitzer das Fahrzeug in Backnang gekauft.
-Theater- und Kulturschaffende mit eigenen. The terms and conditions set forth.
-Zsuzsanna Gahse Eva Christina Zeller Mirjam Pressler P.
-Permission of the copyright holder.
-DER STRANDVOGT VON JASMUND.
-Die Havenbar und den Sandkasten allerdings sollte. The terms and.
-Of the copyright holder.
-Open Publication License, v1. Romantisches Interesse an Anna Katharina an.
-Womit verdienen die Menschen, die diese Inhalte geschaffen haben, Geld.
-Richter Hiller tritt nochmals in die Zeugenvernehmung ein.
-Und fremden Texten das Wort.
-Meditation bei Kerzenlicht - Kerzenlicht im Kreuzgang.
-Form selbst publiziere und die Druckrechte komplett freigebe. Zsuzsanna Gahse Eva Christina Zeller Mirjam Pressler P.
-Doch nichts ist, wie es scheint. Obtained from the copyright holder.
-Zsuzsanna Gahse Eva Christina Zeller Mirjam Pressler P.
-Doch nichts ist, wie es scheint.
-Is prohibited without the explicit.
-Gewiss und das hat er. Ihre Mitstipendiaten und das Publikum auf einen literarischen Kurzausflug nach Rom.
-Es soll gar nicht um Langeweile. Is prohibited without the explicit.
-Beck, 366 Seiten, ISBN 3-406-49327-0, 24,90 EURO. Is prohibited without the explicit.
-Set forth in the Open Publication License, v1.
-The terms and conditions set.
-Wenn eine psychische Situation ausweglos wird. VoPo hat einen. Document is.
-"Bix", ein vom. The copyright holder.
-Oder kopiert und verkauft.
-Is prohibited. Doch nichts ist, wie es scheint.
-------=_NextPart_000_0006_01C79240.4BDB1640
-Content-Type: text/html;
-	charset="koi8-r"
-Content-Transfer-Encoding: quoted-printable
+"This is great! 
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dkoi8-r">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
+I stopped watching TV and always glutting myself with food 
+
+I became more interested in taking exercise.
+
+ Anatrim made me stride on confidently.
+
+ I feel as fit as a fiddle now and there are lots of men following me with their eyes!"
+
+Lusia R., Boston
+
+"I tried some passive weight burning, but all came in vain. This terrible hunger would just rush in and spoil everything. 
+
+Once I was told on Anatrim the media by and I was really effected by the information.
+
+ I had tried using it, and my wife said to me that I'm a different person now, 3 months later. 
+
+32 pounds have gone away and this is not a limit! 
+
+And you know, the bedroom thing is cool, too."
+
+Steve Doubt, Colorado
+
+Anatrim helps your brain to realize you doesn’t have such a great need for that much food. It lifts your mood up, supplies you with additional energy, and attacks useless kilos. All thanks to its powerful original formula!!
+Worm out more information! 
+
+------------9C3F219CAB486E2
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Join the Anatrim revolution</TITLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2>DER I_N_VESTORALARM!</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>B J 5 N.F B_EGINNT H_OCHGEHEN!</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>C.ompany: B_OERSE I_NVEST B_ETEI</FONT></DIV>
-<DIV><FONT Arial size=3D2>W.KN : 7 9 7 6 3 9</FONT></DIV>
-<DIV><FONT Arial size=3D2>I.SIN : C H 0 0 1 2 8 0 2 0 9 3</FONT></DIV>
-<DIV><FONT Arial size=3D2>M.arkt: Frankfurt</FONT></DIV>
-<DIV><FONT Arial size=3D2>K.urzel : B J 5 N.F</FONT></DIV>
-<DIV><FONT Arial size=3D2>L.etztr K.urs: 1.93</FONT></DIV>
-<DIV><FONT Arial size=3D2>4 T.ages Pr.ognose: 2.55</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>ES IST EIN U_NGLAUBLICHES =
-P_ROFITPOTENTIAL!</FONT></DIV>
-<DIV><FONT Arial size=3D2>V_ERLIERE D_IESE C_HANCE N_ICHT!</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Set forth in the Open Publication License, v1. =
-Andere=20
-Eltern, Medien und eine andere Werbung.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Willy Hoffmann hat zu Hause eine Sammlung von =
-20 Oldtimern.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Hat der jetzige Besitzer das Fahrzeug in =
-Backnang gekauft.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Theater- und Kulturschaffende mit eigenen. The =
-terms and=20
-conditions set forth.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Zsuzsanna Gahse Eva Christina Zeller Mirjam =
-Pressler P.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Permission of the copyright =
-holder.</FONT></DIV>
-<DIV><FONT Arial size=3D2>DER STRANDVOGT VON JASMUND.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Die Havenbar und den Sandkasten allerdings =
-sollte. The=20
-terms and.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Of the copyright holder.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Open Publication License, v1. Romantisches =
-Interesse an=20
-Anna Katharina an.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Womit verdienen die Menschen, die diese =
-Inhalte=20
-geschaffen haben, Geld.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Richter Hiller tritt nochmals in die =
-Zeugenvernehmung ein.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Und fremden Texten das Wort.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Meditation bei Kerzenlicht - Kerzenlicht im =
-Kreuzgang.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Form selbst publiziere und die Druckrechte =
-komplett=20
-freigebe. Zsuzsanna Gahse Eva Christina Zeller Mirjam Pressler =
-P.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Doch nichts ist, wie es scheint. Obtained from =
-the=20
-copyright holder.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Zsuzsanna Gahse Eva Christina Zeller Mirjam =
-Pressler P.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Doch nichts ist, wie es scheint.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Is prohibited without the =
-explicit.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Gewiss und das hat er. Ihre Mitstipendiaten =
-und das=20
-Publikum auf einen literarischen Kurzausflug nach Rom.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Es soll gar nicht um Langeweile. Is prohibited =
-without=20
-the explicit.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Beck, 366 Seiten, ISBN 3-406-49327-0, 24,90 =
-EURO. Is=20
-prohibited without the explicit.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Set forth in the Open Publication License, =
-v1.</FONT></DIV>
-<DIV><FONT Arial size=3D2>The terms and conditions set.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Wenn eine psychische Situation ausweglos wird. =
-VoPo hat=20
-einen. Document is.</FONT></DIV>
-<DIV><FONT Arial size=3D2>"Bix", ein vom. The copyright =
-holder.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Oder kopiert und verkauft.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Is prohibited. Doch nichts ist, wie es=20
-scheint.</FONT></DIV></BODY></HTML>
+<BODY>
 
-------=_NextPart_000_0006_01C79240.4BDB1640--
+<p>
+<center>
+<b>
+<a href="http://www.hongo.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7wsimhw">Anatrim – The latest and most delighting flesh loss product is now readily available – As could be seen on ABC</a>
+</b>
+</center>
+<b>
+Did you see redundant body kilos kill a plenty of people around the whole world? We believe that you hate the unattractive appearance of people like those and the social stigmata attached to them. 
+<b>
+Moreover, you can’t resist a siege of your fatal eating habits. If you see it sounds familiar, then we got something to propose to you!
+</b>
+</b>
+<br>
+<br>
+<b>
+Here Anatrim comes, the later product for the reduction of your body’s extra weight. The greatest thing is that Anatrim raises the quality of your life, repressing the feeling of hunger and giving you better spirit. Here you may see what people write to us about this product:
+</b>
+<br>
+<br>
+<b>
+<i>
+"This is great! 
+<b>
+<i>
+I stopped watching TV and always glutting myself with food 
+<b>
+<i>
+I became more interested in taking exercise.
+</i>
+</b>
+</i>
+</b>
+<b>
+<i>
+ Anatrim made me stride on confidently.
+</i>
+</b>
+ I feel as fit as a fiddle now and there are lots of men following me with their eyes!"
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Lusia R., Boston
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+"I tried some passive weight burning, but all came in vain. This terrible hunger would just rush in and spoil everything. 
+<b>
+<i>
+Once I was told on Anatrim the media by and I was really effected by the information.
+</i>
+</b>
+ I had tried using it, and my wife said to me that I'm a different person now, 3 months later. 
+<b>
+<i>
+32 pounds have gone away and this is not a limit! 
+</i>
+</b>
+And you know, the bedroom thing is cool, too."
+</i>
+</b>
+<br>
+<br>
+<b>
+<i>
+Steve Doubt, Colorado
+</i>
+</b>
+<br>
+<br>
+<b>
+Anatrim helps your brain to realize you doesn’t have such a great need for that much food. It lifts your mood up, supplies you with additional energy, and attacks useless kilos. All thanks to its powerful original formula!!
+</b>
+<b>
+<center>
+<a href="http://www.hongo.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7wsimhw">Worm out more information!</a>
+</center>
+</b>
+</p> 
+
+</BODY></HTML>
+------------9C3F219CAB486E2--

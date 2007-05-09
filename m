@@ -1,38 +1,62 @@
-From: Aristeu Rozanski <arozansk@redhat.com>
-Subject: Re: [PATCH] psmouse: add support for 4th button using the 4th bit
-Date: Wed, 9 May 2007 11:49:06 -0400
-Message-ID: <20070509154906.GE4215@redhat.com>
-References: <20070402204810.GC14838@redhat.com> <d120d5000704030739v5528fb2cq6f9aed387ade03b8@mail.gmail.com> <20070403144243.GE14838@redhat.com> <d120d5000704030805l397a61d5x99b8fdb138b6881d@mail.gmail.com> <20070508185327.GB4215@redhat.com> <d120d5000705090736p145b6a7cn8645eccdb5c35ca3@mail.gmail.com> <20070509145337.GD4215@redhat.com> <d120d5000705090839k2b7e3915j3c66173b7b8af1a6@mail.gmail.com>
+From: LOTTERY BOARD <promonotice@bellsouth.net>
+Subject: Mersey Winning Notice (Contact Customer Service)
+Date: Wed, 9 May 2007 16:44:38 -0400
+Message-ID: <20070509204438.ODTU24959.ibm70aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <d120d5000705090839k2b7e3915j3c66173b7b8af1a6@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Chris Williams <cww@redhat.com>
+To: irishlottto@irishlotto.net
 List-Id: linux-input@vger.kernel.org
 
-> >--- linus-2.6.orig/drivers/input/mouse/psmouse.h
-> >+++ linus-2.6/drivers/input/mouse/psmouse.h
-> >@@ -78,6 +78,7 @@ struct psmouse {
-> > enum psmouse_type {
-> >       PSMOUSE_NONE,
-> >       PSMOUSE_PS2,
-> >+       PSMOUSE_CORTRON,
-> >       PSMOUSE_PS2PP,
-> >       PSMOUSE_THINKPS,
-> >       PSMOUSE_GENPS,
-> >
-> 
-> I moved PSMOUSE_CORTRON to the end of the list - psmouse type is
-> exported to userspace as input_dev.id.product and so we should not
-> change existing types.
-ok!
+The Irish National Online Lottery
+P O Box 1010 Dublin, 11 G=20
+Lower Dorset Street=20
+(Customer Services)
+Ref: UK/9420X2/68=20
+Batch: 074/05/ZY369=20
+Dear Winner
 
--- 
-Aristeu
+This is to inform you that you have been selected for a cash prize of=20
+=A3475,318 (Four Hundred and seventy five thousand, three hundred and=20
+eighteen pounds sterling) in cash credited to file KTU/9023118308/03.=20
+held on the 9th of may. 2007 in Uk.The selection process was carried=20
+out through random selection in our computerized email selection=20
+system(ess) from a database of over 250,000 email addresses drawn from=20
+which you were selected.
+
+The Irish National Lottery is approved by the Uk Gaming Board. In other=20
+to claim your won prize from the lottery board you are required to fill=20
+out the claims processing form and send it to our Claims Agent here in=20
+the UK with the details below:
+Name Of Claims Agent:=20
+
+MRS. LEILA GREEN
+Email:irishlottocustomercentre@yahoo.ie=20
+
+Below is the claims form you are required to fill:
+FILL AND SUBMIT.
+PAYMENT PROCESSING FORM
+1.FULL NAMES:
+2.ADDRESS:
+3.SEX:
+4.AGE:
+5.MARITAL STATUS:
+6.OCCUPATION:
+7.E-MAIL ADDRESS:
+8.TELEPHONE NUMBER:
+9.BRIEF DESCRIPTION OF COMPANY/INDIVIDUAL
+10.AMOUNT WON:
+11. COUNTRY:
+
+Yours faithfully,
+SIR. ALAN CLARKSON
+Phone :+447045719001
+     Fax :+4470757077.
+Online coordinator for THE IRISH LOTTERY
+Sweepstakes International Program.

@@ -1,42 +1,31 @@
-From: luke2007@planet.nl
-Subject: READ AND CONTACT ME A.S.A.P
-Date: Fri, 11 May 2007 02:27:23 +0100
-Message-ID: <6357eab635112e.635112e6357eab@planet.nl>
-Reply-To: luke2007@planet.nl
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: evdev: Fix a buffer overflow on BIG_ENDIAN systems
+Date: Fri, 11 May 2007 01:10:24 -0400
+Message-ID: <200705110110.24613.dtor@insightbb.com>
+References: <200705110054.l4B0sKil026374@toshiba.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-language: nl
-Content-disposition: inline
+In-Reply-To: <200705110054.l4B0sKil026374@toshiba.co.jp>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: kenichi3.nagai@toshiba.co.jp
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Good Day,
+On Thursday 10 May 2007 20:54, kenichi3.nagai@toshiba.co.jp wrote:
+>  I found a little mistake. 
+>  On TOSHIBA Cell refference system(BIG_ENDIAN systems) a buffer overflow
+> was occured when I specified smaller buffers than maxlen.
+>
 
-Please Read.
-
-My name is Mr. Song Lile i am the director of operations in Hang Seng
-Bank, Hong Kong. I have a business proposal in the tune of $19.5m, after
-the successful transfer, we shall share in ratio of 30% for you and 70%
-for me. Should you be interested, please contact me through my private 
-email (privacy_song_lile1@yahoo.com.hk), so we can commence all 
-arrangements and I will give you more information on how we would 
-handle 
-this project.
-
-Please treat this business with utmost confidentiality and send me the
-following.
-
-(1)Full names
-(2)private phone number
-(3)current residential address
-(4)Occupation
-(5)Age and Proffession.
-
-Kind Regards,
-Mr. Song Lile.
+Thank you.
+ 
+-- 
+Dmitry

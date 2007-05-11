@@ -1,31 +1,51 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: evdev: Fix a buffer overflow on BIG_ENDIAN systems
-Date: Fri, 11 May 2007 01:10:24 -0400
-Message-ID: <200705110110.24613.dtor@insightbb.com>
-References: <200705110054.l4B0sKil026374@toshiba.co.jp>
+From: LOTTERY BOARD <webinfo24@bellsouth.net>
+Subject: Certified...................Lucky Winner
+Date: Fri, 11 May 2007 4:22:25 -0400
+Message-ID: <20070511082225.MNNI14030.ibm65aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200705110054.l4B0sKil026374@toshiba.co.jp>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kenichi3.nagai@toshiba.co.jp
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: ukonlinegames@uk.org
 List-Id: linux-input@vger.kernel.org
 
-On Thursday 10 May 2007 20:54, kenichi3.nagai@toshiba.co.jp wrote:
->  I found a little mistake. 
->  On TOSHIBA Cell refference system(BIG_ENDIAN systems) a buffer overflow
-> was occured when I specified smaller buffers than maxlen.
->
+THE LOTTERY DEPARTMENT UK.
+22 Garden Close,PE9 2YP, London
+REF N0:UKNL-L/200-26937
+BATCH N0:14/0017/1PD
 
-Thank you.
- 
--- 
-Dmitry
+Dear Winner
+
+This is to inform you that you have been selected for a cash prize of  =A3=
+1,000,000.00 (British Pounds) held on the 10th, May ,2007 in London Uk.Th=
+e selection process was carried out through random selection in our compu=
+terized email selection system(ess)from a database of over 250,000 email =
+addresses drawn from which you were selected.=20
+
+The BRITISH UK. Lottery is approved by the British Gaming Board.To begin =
+the processing of your prize you are to contact our fiduaciary claims dep=
+artment for more infomation as regards procedures to claim your prize.=20
+
+Mr.James Hill
+Email: national.lottery@fiduciaryagent.net
+Phone:+447011131119
+Fax:   +447075055056
+Contact him by sending him with the underlisted informations=20
+
+1.Name....................................
+2.Address................................
+3.Nationality.............................
+4.Age......................................
+5.Occupation...........................
+6.Phone/Fax...........................
+
+Yours faithfully,
+Mrs. Stella Ellis.
+
+Sweepstakes International Program.Copyright =A9 1994-2007 The UK  Nationa=
+l Lottery Inc.All rights reserved. Terms of Service - Guideline.

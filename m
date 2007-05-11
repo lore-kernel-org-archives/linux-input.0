@@ -1,43 +1,42 @@
-From: kenichi3.nagai@toshiba.co.jp
-Subject: evdev: Fix a buffer overflow on BIG_ENDIAN systems
-Date: Fri, 11 May 2007 09:54:04 +0900
-Message-ID: <200705110054.l4B0sKil026374@toshiba.co.jp>
+From: luke2007@planet.nl
+Subject: READ AND CONTACT ME A.S.A.P
+Date: Fri, 11 May 2007 02:27:23 +0100
+Message-ID: <6357eab635112e.635112e6357eab@planet.nl>
+Reply-To: luke2007@planet.nl
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-language: nl
+Content-disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: dmitry.torokhov@gmail.com, dtor@mail.ru
 List-Id: linux-input@vger.kernel.org
 
- I found a little mistake. 
- On TOSHIBA Cell refference system(BIG_ENDIAN systems) a buffer overflow
-was occured when I specified smaller buffers than maxlen.
+Good Day,
 
+Please Read.
 
-Best regards,
+My name is Mr. Song Lile i am the director of operations in Hang Seng
+Bank, Hong Kong. I have a business proposal in the tune of $19.5m, after
+the successful transfer, we shall share in ratio of 30% for you and 70%
+for me. Should you be interested, please contact me through my private 
+email (privacy_song_lile1@yahoo.com.hk), so we can commence all 
+arrangements and I will give you more information on how we would 
+handle 
+this project.
 
-Kenichi Nagai
-Semiconductor Company
-TOSHIBA Corporation
-Kenichi3.nagai@toshiba.co.jp
+Please treat this business with utmost confidentiality and send me the
+following.
 
+(1)Full names
+(2)private phone number
+(3)current residential address
+(4)Occupation
+(5)Age and Proffession.
 
-Signed-off-by: Kenichi Nagai <kenichi3.nagai@toshiba.co.jp>
----
- 
---- drivers/input/evdev.c.orig  2007-04-14 05:48:14.000000000 +0900
-+++ drivers/input/evdev.c       2007-04-19 09:36:19.000000000 +0900
-@@ -320,7 +320,7 @@ static int bits_to_user(unsigned long *b
-
-        if (compat) {
-                len = NBITS_COMPAT(maxbit) * sizeof(compat_long_t);
--               if (len < maxlen)
-+               if (len > maxlen)
-                        len = maxlen;
-
-                for (i = 0; i < len / sizeof(compat_long_t); i++)
+Kind Regards,
+Mr. Song Lile.

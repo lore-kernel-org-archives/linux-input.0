@@ -1,51 +1,100 @@
-From: LOTTERY BOARD <webinfo24@bellsouth.net>
-Subject: Certified...................Lucky Winner
-Date: Fri, 11 May 2007 4:22:25 -0400
-Message-ID: <20070511082225.MNNI14030.ibm65aec.bellsouth.net@mail.bellsouth.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+From: Giel de Nijs <giel@caffeinetrip.com>
+Subject: [patch 1/2] input: add soft release key mask to keyboard driver
+Date: Fri, 11 May 2007 19:23:27 +0200
+Message-ID: <20070511172441.343908560@caffeinetrip.com>
+References: <20070511172326.008944330@caffeinetrip.com>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline; filename=add-keyboard-soft-release-mask.patch
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: ukonlinegames@uk.org
+To: linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Dimitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg59@srcf.ucam.org>, Matt Domsch <matt_domsch@dell.com>, Rezwanul Kabir <rezwanul_kabir@dell.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-THE LOTTERY DEPARTMENT UK.
-22 Garden Close,PE9 2YP, London
-REF N0:UKNL-L/200-26937
-BATCH N0:14/0017/1PD
+Add keysrlmask to input_dev and add soft release handling in atkbd.c
 
-Dear Winner
+Signed-off-by: Giel de Nijs <giel@caffeinetrip.com>
+---
 
-This is to inform you that you have been selected for a cash prize of  =A3=
-1,000,000.00 (British Pounds) held on the 10th, May ,2007 in London Uk.Th=
-e selection process was carried out through random selection in our compu=
-terized email selection system(ess)from a database of over 250,000 email =
-addresses drawn from which you were selected.=20
+Index: linux-2.6.21.1/drivers/input/keyboard/atkbd.c
+===================================================================
+--- linux-2.6.21.1.orig/drivers/input/keyboard/atkbd.c	2007-05-10 18:34:48.000000000 +0200
++++ linux-2.6.21.1/drivers/input/keyboard/atkbd.c	2007-05-11 19:21:03.000000000 +0200
+@@ -201,6 +201,7 @@
+ 
+ 	unsigned short id;
+ 	unsigned char keycode[512];
++	unsigned long keysrlmask[NBITS(512)];
+ 	unsigned char set;
+ 	unsigned char translated;
+ 	unsigned char extra;
+@@ -412,14 +413,6 @@
+ 			       "Some program might be trying access hardware directly.\n",
+ 			       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
+ 			goto out;
+-		case ATKBD_RET_HANGEUL:
+-		case ATKBD_RET_HANJA:
+-			/*
+-			 * These keys do not report release and thus need to be
+-			 * flagged properly
+-			 */
+-			add_release_event = 1;
+-			break;
+ 		case ATKBD_RET_ERR:
+ 			atkbd->err_count++;
+ #ifdef ATKBD_DEBUG
+@@ -438,6 +431,9 @@
+ 	if (keycode != ATKBD_KEY_NULL)
+ 		input_event(dev, EV_MSC, MSC_SCAN, code);
+ 
++	if (test_bit(code, atkbd->keysrlmask))
++		add_release_event = 1;
++
+ 	switch (keycode) {
+ 		case ATKBD_KEY_NULL:
+ 			break;
+@@ -832,6 +828,7 @@
+ 	int i, j;
+ 
+ 	memset(atkbd->keycode, 0, sizeof(atkbd->keycode));
++	bitmap_zero(atkbd->keysrlmask, 512);
+ 
+ 	if (atkbd->translated) {
+ 		for (i = 0; i < 128; i++) {
+@@ -854,6 +851,11 @@
+ 
+ 	atkbd->keycode[atkbd_compat_scancode(atkbd, ATKBD_RET_HANGEUL)] = KEY_HANGUEL;
+ 	atkbd->keycode[atkbd_compat_scancode(atkbd, ATKBD_RET_HANJA)] = KEY_HANJA;
++
++	set_bit(atkbd_compat_scancode(atkbd, ATKBD_RET_HANGEUL),
++		atkbd->keysrlmask);
++	set_bit(atkbd_compat_scancode(atkbd, ATKBD_RET_HANJA),
++		atkbd->keysrlmask);
+ }
+ 
+ /*
+@@ -911,6 +913,7 @@
+ 	}
+ 
+ 	input_dev->keycode = atkbd->keycode;
++	input_dev->keysrlmask = atkbd->keysrlmask;
+ 	input_dev->keycodesize = sizeof(unsigned char);
+ 	input_dev->keycodemax = ARRAY_SIZE(atkbd_set2_keycode);
+ 
+Index: linux-2.6.21.1/include/linux/input.h
+===================================================================
+--- linux-2.6.21.1.orig/include/linux/input.h	2007-05-10 18:32:39.000000000 +0200
++++ linux-2.6.21.1/include/linux/input.h	2007-05-10 18:56:50.000000000 +0200
+@@ -962,6 +962,7 @@
+ 	unsigned int keycodemax;
+ 	unsigned int keycodesize;
+ 	void *keycode;
++	unsigned long *keysrlmask; /* soft-release scancodes key mask */
+ 
+ 	struct ff_device *ff;
+ 
 
-The BRITISH UK. Lottery is approved by the British Gaming Board.To begin =
-the processing of your prize you are to contact our fiduaciary claims dep=
-artment for more infomation as regards procedures to claim your prize.=20
-
-Mr.James Hill
-Email: national.lottery@fiduciaryagent.net
-Phone:+447011131119
-Fax:   +447075055056
-Contact him by sending him with the underlisted informations=20
-
-1.Name....................................
-2.Address................................
-3.Nationality.............................
-4.Age......................................
-5.Occupation...........................
-6.Phone/Fax...........................
-
-Yours faithfully,
-Mrs. Stella Ellis.
-
-Sweepstakes International Program.Copyright =A9 1994-2007 The UK  Nationa=
-l Lottery Inc.All rights reserved. Terms of Service - Guideline.
+-- 

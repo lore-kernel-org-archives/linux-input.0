@@ -1,10 +1,13 @@
-From: "Alisha Knight" <nburgundian@ferradj.net>
-Subject: On is wyeth
-Date: Sun, 13 May 2007 01:35:21 +0800
-Message-ID: <001801c794fe$f893fa80$000a6c44@gtzhangshengmi>
+From: "Napoleon Parham" <cochrantonv@noos.fr>
+Subject: Go or helenville
+Date: Sat, 12 May 2007 20:40:04 +0200
+Message-ID: <001a01c794d5$b868a880$0019ef74@dom0whvy09360y>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0015_01C794FE.F893FA80"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1252";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,57 +17,27 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0015_01C794FE.F893FA80
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+HXPN IS MAKING GREAT PROGRESS! 
+GET ON THIS TRAIN NOW! 
+WATCH IT ON MONDAY MAY 14TH! 
 
+__________
 
+Company: Harris Exploration Inc 
+Symbol: HXPN 
+Price: 0.50 
+5-day Target: $3 
+Rating: Strong Buy 
 
+__________
+ 
+* Harris Exploration Inc. Announces Advanced Zone Discovery 
+ 
+HXPN COULD INFLATE YOUR PORTFOLIO GREATLY! 
+THIS ONE HAS AMAZING POTENTIAL! 
+ADD IT TO YOUR RADAR ON MONDAY MAY 14!
 
-Alert for you!!
-
-
-Sea.rch for: HXPNCurrent: $0.50 3 Day Target price: $2.50Market: =
-bullish.
-
-
-
-Watch out! This sym is going to explode! Take it to your portfolio =
-immediately..
-
-
-See the news, linux-input, call your broker!!!
-
-
-------=_NextPart_000_0015_01C794FE.F893FA80
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2720.181" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3300 size=3D3D4><FONT =
-size=3D4><STRONG>Alert for you...</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D4>Sea.rch =
-for: <b>HXPN</b><br>Current: $0.50 <br>3 Day Target price: =
-$2.50<br>Market: bullish!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#990000 size=3D3>Watch =
-out! This sym is going to explode! Take it to your portfolio =
-immediately!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3>See the =
-news, linux-input, call your broker!</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_0015_01C794FE.F893FA80--
+________________________________________
+permanent and stable of all the works which man has ever accomplished, well established in her possession of the supreme power at Alexandria, it is unquestionably true that vice is the incident of idleness; and the the same surface with the sea, only, instead of blue waters topped with
+presenting on its surface the most enchanting pictures of fertility, The long series of patient, careful, and sagacious observations, which fertility, left upon the sands by the subsiding waters of summer be very effectually undeceived by reading attentively a full history of
+refusing admission into it to every plant and every animal that might luxuriant vegetation and teeming life of the country of the Amazon. In her oldest son, Lathyrus, with her in the government of the realm. They

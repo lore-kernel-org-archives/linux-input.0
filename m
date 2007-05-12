@@ -1,67 +1,40 @@
-From: "Tamara Combs" <independent22@exitprofit.com>
-Subject: I enochs no monessen
-Date: Sat, 12 May 2007 14:37:05 +0900
-Message-ID: <001301c794a3$03155be0$00aff4dc@cgscomputer>
+From: "johann deneux" <johann.deneux@gmail.com>
+Subject: Re: Logitech Spring FF (effect on/off)
+Date: Sat, 12 May 2007 12:22:00 +0200
+Message-ID: <38b3b7c0705120322y2231db7ct4097f6555f16388c@mail.gmail.com>
+References: <461117A0.80905@cs.utexas.edu> <4615D762.4090206@it.uu.se>
+	 <4616DC56.80301@cs.utexas.edu>
+	 <38b3b7c0704070016m27deaa18hf818d21a080c7ba6@mail.gmail.com>
+	 <4617B392.4010704@gmail.com> <461B2496.8010304@cs.utexas.edu>
+	 <38b3b7c0704100251v485d6fdu1ff8e2524a4f023b@mail.gmail.com>
+	 <461C4E24.9060408@cs.utexas.edu>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0010_01C794A3.03155BE0"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <461C4E24.9060408@cs.utexas.edu>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Richard Bolkey <rbolkey@cs.utexas.edu>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0010_01C794A3.03155BE0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+On the subject of the protocole used by Logitech devices for
+force-feedback, here is some information that could be interesting:
 
+http://vdrift.net/Forum/viewtopic.php?t=412&postdays=0&postorder=asc&start=60
 
+The user named "anrp" has found information that I suspect is not
+limited to the G25.
 
-
-BULL MARKET REPORT!!
-
-Target sym: HXPNCurrent: $0.50 1 Day Target price: $2.50Action: Strong =
-Buy/Hold!
-
-
-
-Short-Term Bullish. Insider Buying Alert!!!
-
-
-HXPN has a nice fresh news, linux-input, contact your broker!!
-
-
-------=_NextPart_000_0010_01C794A3.03155BE0
-Content-Type: text/html;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.2900.2869" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0066 size=3D3D4><FONT =
-size=3D4><STRONG>BULL MARKET REPORT..</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#6633FF size=3D4>Target =
-sym: <b>HXPN</b><br>Current: $0.50 <br>1 Day Target price: =
-$2.50<br>Action: Strong Buy/Hold!!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#6600FF size=3D=
-3>Short-Term Bullish. Insider Buying Alert!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3366 size=3D3>HXPN has =
-a nice fresh news, linux-input, contact your broker..</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0010_01C794A3.03155BE0--
+On 4/11/07, Richard Bolkey <rbolkey@cs.utexas.edu> wrote:
+> Alright, I can turn the spring effect on; however, I can't turn it off
+> right now.  There is a separate report that needs to be sent to turn off
+> the spring effect for each axis.  I can't see an obvious place to put
+> that kind of functionality into the framework of ff-memless.  I'm
+> wondering if this means my device isn't "memoryless"?  Any advice?
+>

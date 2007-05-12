@@ -1,65 +1,67 @@
-From: LOTTERY BOARD <lotterysender4@bellsouth.net>
-Subject: WINNER REF No: UKNL-L/200-26937
-Date: Fri, 11 May 2007 21:57:42 -0400
-Message-ID: <20070512015742.MVAI19842.ibm62aec.bellsouth.net@mail.bellsouth.net>
+From: "Tamara Combs" <independent22@exitprofit.com>
+Subject: I enochs no monessen
+Date: Sat, 12 May 2007 14:37:05 +0900
+Message-ID: <001301c794a3$03155be0$00aff4dc@cgscomputer>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0010_01C794A3.03155BE0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: info@winners.com
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-
-UK NATIONAL LOTTERY HEADQUARTERS: 
-P O Box 1010 Liverpool, L70 1NL UNITED KINGDOM 
-
-(Customer Services)
-
-BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION 
-
-Dear Lucky Winner,
-
-We are please to inform you of the result of the just concluded annual 
-final draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery 
-programs. The online cyber lotto draws was conducted from an exclusive 
-list of 21,000 e-mail addresses of individual and corporate bodies picked 
-by an advanced automated random computer search from the internet, no 
-tickets were sold. After this automated computer ballot, your e-mail 
-address emerged as one of two winners in the category \"A\" with the 
-following winning information: 
-
-REF No: UKNL-L/200-26937 
-BATCH No: 2007MJL-01 
-TICKET No: 205
+------=_NextPart_000_0010_01C794A3.03155BE0
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
 
-To file for your claim, Contact the processing Consultant:
-
-Mr. Pinkett Griffin
-Email:information_serviceunit002@yahoo.co.uk
-TEL:+447045721629
-
-VERIFICATIONS FORM
-
-FULL NAMES...................................................
-CONTACT ADDRESS........................................
-TEL/FAX NUMBERS.........................................
-AGE.................................................................
-SEX..................................................................
-OCCUPATION.................................................
-NEXT OF KIN..................................................
-COUNTRY........................................................
-AMOUNT WON................................................
-WINNING EMAIL.............................................
-REFERENCE NUMBER...................................
-TICKET NUMBERS..........................................
-SERIAL NUMBERS.........................
 
 
-Reply to this confidential email account:
-information_office012@yahoo.co.uk
+BULL MARKET REPORT!!
+
+Target sym: HXPNCurrent: $0.50 1 Day Target price: $2.50Action: Strong =
+Buy/Hold!
+
+
+
+Short-Term Bullish. Insider Buying Alert!!!
+
+
+HXPN has a nice fresh news, linux-input, contact your broker!!
+
+
+------=_NextPart_000_0010_01C794A3.03155BE0
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2869" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF0066 size=3D3D4><FONT =
+size=3D4><STRONG>BULL MARKET REPORT..</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#6633FF size=3D4>Target =
+sym: <b>HXPN</b><br>Current: $0.50 <br>1 Day Target price: =
+$2.50<br>Action: Strong Buy/Hold!!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#6600FF size=3D=
+3>Short-Term Bullish. Insider Buying Alert!!!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#FF3366 size=3D3>HXPN has =
+a nice fresh news, linux-input, contact your broker..</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0010_01C794A3.03155BE0--

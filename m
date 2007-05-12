@@ -1,88 +1,70 @@
-From: "Olive sadlon" <Olive-sadlon@aubeaventure.com>
-Subject: Make sure you write the buffer somewhere to avoid loosing changes.
-Date: Sat, 12 May 2007 09:46:22 -0700
-Message-ID: <97206AD3.80D601D2@aubeaventure.com>
+From: "Alisha Knight" <nburgundian@ferradj.net>
+Subject: On is wyeth
+Date: Sun, 13 May 2007 01:35:21 +0800
+Message-ID: <001801c794fe$f893fa80$000a6c44@gtzhangshengmi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0015_01C794FE.F893FA80"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Sehr geehrter Herr,
-
-wir haben heute folgende Nachricht erfolgreich für Sie  veröffentlicht:
-
-boerse invest wachst sehr stark durch zukaufe BJ5N.F
-
-Nachrichtenart: Corporate News
-Datum: 10.05.2007
-Eingabezeit: 10.05.2007 10:00:05
-Veröffentlichungszeit: 10.05.2007 10:00:08
-
-Verbreitungsnetzwerk: Basis (Siehe am Ende der Mitteilung)
-
-Nachricht:
-
-
-Börse Invest Beteiligungs AG / Miscellaneous (Stock: BJ5N.F)
-
-10.05.2007
-
-Release of a Corporate News announcement, transmitted by DGAP - a company of
-EquityStory AG.
-The issuer / publisher is solely responsible for the content of this
-announcement.
----------------------------------------------------------------------------
-
-DÜSSELDORF – Goldfish Holdings Inc. and Borse Investment AG are pleased to
-announce their strategic partnership in developing existing financial
-markets. Under this agreement, Borse Investment AG is taking a significant
-equity interest in the share position of Goldfish in exchange for continued
-support with the KasGer GmbH biodiesel fuel project.
-
-
-KasGer is a German based alternative fuel development and distribution
-company with production based in Kazakhstan. Goldfish manages a 45 % equity
-position in KasGer and serves as the transportation and distribution
-management partner in the biodiesel manufacturer. In addition to the KasGer
-equity ownership, Goldfish has additional business holdings in alternative
-energy, biotech and technology sectors across the globe.
-
-
-Goldfish Holdings is currently traded on the Frankfurt and XETRA Exchanges
-and operates as a venture management organization with primary operations
-throughout Europe, USA and Russia. Tobias Janssen, CEO stated, 'This
-opportunity to work hand in hand with the Borse Invest continues to allow
-both companies the opportunity to leverage existing financial markets as
-well as opening new markets to the collective strenghts of both
-organizations'. Borse Investment AG is a Swiss based investment management
-company. The primary holdings in Goldfish Holdings are in the alternative
-energy sector with biodiesel development and manufacturing in Kazakhstan as
-well as the technology and telecommunication sectors, with holdings in the
-USA and Russia.
-
-Symbol:BJ5N.F
-DGAP 10.05.2007
----------------------------------------------------------------------------
+------=_NextPart_000_0015_01C794FE.F893FA80
+Content-Type: text/plain;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
 
 
-Diese Mitteilung wurde folgenden Medien zugeleitet
-Elektronische Verbreitungssysteme:
-Verbreitungsystem                Einspeisung
-Bloomberg:                       10.05.2007 10:00:08
-Reuters:                         10.05.2007 10:00:08
-vwd:                             10.05.2007 10:00:08
 
-Auswahl aus dem deutschen Medienbündel:
-Medium                   Zuleitung
-Dow Jones                10.05.2007 10:00:08
-dpa-afx                  10.05.2007 10:00:08
-dgap.de                  10.05.2007 10:00:08
-FTD                      10.05.2007 10:00:08
+Alert for you!!
+
+
+Sea.rch for: HXPNCurrent: $0.50 3 Day Target price: $2.50Market: =
+bullish.
+
+
+
+Watch out! This sym is going to explode! Take it to your portfolio =
+immediately..
+
+
+See the news, linux-input, call your broker!!!
+
+
+------=_NextPart_000_0015_01C794FE.F893FA80
+Content-Type: text/html;
+        charset="windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1252">
+<META content=3D"MSHTML 6.00.2720.181" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3300 size=3D3D4><FONT =
+size=3D4><STRONG>Alert for you...</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#000033 size=3D4>Sea.rch =
+for: <b>HXPN</b><br>Current: $0.50 <br>3 Day Target price: =
+$2.50<br>Market: bullish!</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#990000 size=3D3>Watch =
+out! This sym is going to explode! Take it to your portfolio =
+immediately!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DArial color=3D#CC3333 size=3D3>See the =
+news, linux-input, call your broker!</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0015_01C794FE.F893FA80--

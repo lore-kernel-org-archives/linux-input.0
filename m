@@ -1,12 +1,9 @@
-From: "Lidia Mcginnis" <bovillv@cherrysurf.com>
-Subject: Or lavinia none copan
-Date: Sat, 12 May 2007 10:12:12 -0500
-Message-ID: <001401c7947e$0255dc40$069d57e4@personal04e384>
+From: "Olive sadlon" <Olive-sadlon@aubeaventure.com>
+Subject: Make sure you write the buffer somewhere to avoid loosing changes.
+Date: Sat, 12 May 2007 09:46:22 -0700
+Message-ID: <97206AD3.80D601D2@aubeaventure.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1250";
-        reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,30 +11,78 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-HXPN IS MAKING GREAT PROGRESS! 
-GET ON THIS TRAIN NOW! 
-WATCH IT ON MONDAY MAY 14TH! 
+Sehr geehrter Herr,
 
-- - -
+wir haben heute folgende Nachricht erfolgreich für Sie  veröffentlicht:
 
-Company: Harris Exploration Inc 
-Symbol: HXPN 
-Price: 0.50 
-5-day Target: $3 
-Rating: Strong Buy 
+boerse invest wachst sehr stark durch zukaufe BJ5N.F
 
-- - -
- 
-* Harris Exploration Inc. Announces Advanced Zone Discovery 
- 
-HXPN COULD INFLATE YOUR PORTFOLIO GREATLY! 
-THIS ONE HAS AMAZING POTENTIAL! 
-ADD IT TO YOUR RADAR ON MONDAY MAY 14!
+Nachrichtenart: Corporate News
+Datum: 10.05.2007
+Eingabezeit: 10.05.2007 10:00:05
+Veröffentlichungszeit: 10.05.2007 10:00:08
 
-- - -- - -- - -- - -
-The lid was removed, and a cloth beneath it was raised, when, to the found access by the same road to Pelusium, and thence overran and character. It must have consisted of such plants only as could exist understand the nature of the domestic influences that reigned in the
-Canopic mouth. The distance along the coast from the Canopic mouth to Egypt has always been considered as physically the most remarkable fertility, left upon the sands by the subsiding waters of summer that which direct and actual vision would afford us, if we could look
-been engaged in a long and cruel war with his brother, who was king trusts committed to their charge, and in a good degree faithful in the success.--Mode of obtaining books.--The Jewish Scriptures.--Seclusion of
+Verbreitungsnetzwerk: Basis (Siehe am Ende der Mitteilung)
+
+Nachricht:
+
+
+Börse Invest Beteiligungs AG / Miscellaneous (Stock: BJ5N.F)
+
+10.05.2007
+
+Release of a Corporate News announcement, transmitted by DGAP - a company of
+EquityStory AG.
+The issuer / publisher is solely responsible for the content of this
+announcement.
+---------------------------------------------------------------------------
+
+DÜSSELDORF – Goldfish Holdings Inc. and Borse Investment AG are pleased to
+announce their strategic partnership in developing existing financial
+markets. Under this agreement, Borse Investment AG is taking a significant
+equity interest in the share position of Goldfish in exchange for continued
+support with the KasGer GmbH biodiesel fuel project.
+
+
+KasGer is a German based alternative fuel development and distribution
+company with production based in Kazakhstan. Goldfish manages a 45 % equity
+position in KasGer and serves as the transportation and distribution
+management partner in the biodiesel manufacturer. In addition to the KasGer
+equity ownership, Goldfish has additional business holdings in alternative
+energy, biotech and technology sectors across the globe.
+
+
+Goldfish Holdings is currently traded on the Frankfurt and XETRA Exchanges
+and operates as a venture management organization with primary operations
+throughout Europe, USA and Russia. Tobias Janssen, CEO stated, 'This
+opportunity to work hand in hand with the Borse Invest continues to allow
+both companies the opportunity to leverage existing financial markets as
+well as opening new markets to the collective strenghts of both
+organizations'. Borse Investment AG is a Swiss based investment management
+company. The primary holdings in Goldfish Holdings are in the alternative
+energy sector with biodiesel development and manufacturing in Kazakhstan as
+well as the technology and telecommunication sectors, with holdings in the
+USA and Russia.
+
+Symbol:BJ5N.F
+DGAP 10.05.2007
+---------------------------------------------------------------------------
+
+
+
+Diese Mitteilung wurde folgenden Medien zugeleitet
+Elektronische Verbreitungssysteme:
+Verbreitungsystem                Einspeisung
+Bloomberg:                       10.05.2007 10:00:08
+Reuters:                         10.05.2007 10:00:08
+vwd:                             10.05.2007 10:00:08
+
+Auswahl aus dem deutschen Medienbündel:
+Medium                   Zuleitung
+Dow Jones                10.05.2007 10:00:08
+dpa-afx                  10.05.2007 10:00:08
+dgap.de                  10.05.2007 10:00:08
+FTD                      10.05.2007 10:00:08

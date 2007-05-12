@@ -1,51 +1,65 @@
-From: LOTTERY AWARDS <lotterysender4@bellsouth.net>
-Subject: CONTACT MR. MICHEAL ANDERSON IMMEDIATELY
-Date: Fri, 11 May 2007 20:32:44 -0400
-Message-ID: <20070512003245.LNLO19842.ibm62aec.bellsouth.net@mail.bellsouth.net>
+From: LOTTERY BOARD <lotterysender4@bellsouth.net>
+Subject: WINNER REF No: UKNL-L/200-26937
+Date: Fri, 11 May 2007 21:57:42 -0400
+Message-ID: <20070512015742.MVAI19842.ibm62aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: webinfo@uklottery.com
+To: info@winners.com
 List-Id: linux-input@vger.kernel.org
 
-REFERENCE NUMBER:UK/786543X4/28
-BATCH NUMBER:034/099/YX46
-TICKET NUMBER:005-4432-971-878
 
-                                                   ONLINE  NOTIFICATION
+UK NATIONAL LOTTERY HEADQUARTERS: 
+P O Box 1010 Liverpool, L70 1NL UNITED KINGDOM 
 
-     We are pleased to inform you today6th May2007 of the result of=20
-the winners of the  UK NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held on=20
-the 27th of April, 2007.You have therefore been approved for a lump sum=20
-pay out of =C2=A31,000,000(One Million Britain Pounds Sterlings) in cash=20
-credited to file XYL/26510460037/06.
+(Customer Services)
 
-To file for your claim, please contact our claims agent;
+BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION 
 
-Dr. DAVE WILLIAM
-Email: claimsagentunit002@yahoo.co.uk
-TELL: +44-702-402-0665
+Dear Lucky Winner,
 
-Provide him with the information below:
+We are please to inform you of the result of the just concluded annual 
+final draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery 
+programs. The online cyber lotto draws was conducted from an exclusive 
+list of 21,000 e-mail addresses of individual and corporate bodies picked 
+by an advanced automated random computer search from the internet, no 
+tickets were sold. After this automated computer ballot, your e-mail 
+address emerged as one of two winners in the category \"A\" with the 
+following winning information: 
 
-1.Full Name:....................................................
-2.Full Address:................................................
-3.Marital Status:...............................................
-4.Occupation:...................................................
-5.Age:................................................................
-6.Sex:.................................................................
-7.Nationality:......................................................
-8.Country Of Residence:.....................................
-9.Telephone Number:........................................
-
-Congratulations once more from all members and staffs of this program.
+REF No: UKNL-L/200-26937 
+BATCH No: 2007MJL-01 
+TICKET No: 205
 
 
-Sincerely,=20
-Mrs.Tina Bright
+To file for your claim, Contact the processing Consultant:
+
+Mr. Pinkett Griffin
+Email:information_serviceunit002@yahoo.co.uk
+TEL:+447045721629
+
+VERIFICATIONS FORM
+
+FULL NAMES...................................................
+CONTACT ADDRESS........................................
+TEL/FAX NUMBERS.........................................
+AGE.................................................................
+SEX..................................................................
+OCCUPATION.................................................
+NEXT OF KIN..................................................
+COUNTRY........................................................
+AMOUNT WON................................................
+WINNING EMAIL.............................................
+REFERENCE NUMBER...................................
+TICKET NUMBERS..........................................
+SERIAL NUMBERS.........................
+
+
+Reply to this confidential email account:
+information_office012@yahoo.co.uk

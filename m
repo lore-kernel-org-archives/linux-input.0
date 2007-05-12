@@ -1,10 +1,10 @@
 From: "johann deneux" <johann.deneux@gmail.com>
-Subject: [PATCH] iforce: Use interrupt URBs
-Date: Sat, 12 May 2007 16:18:26 +0200
-Message-ID: <38b3b7c0705120718m55073ca3i6f3d0012a93d7956@mail.gmail.com>
+Subject: [PATCH] iforce: Clean-ups
+Date: Sat, 12 May 2007 16:21:03 +0200
+Message-ID: <38b3b7c0705120721x1f0717dfsb1d8c5785235f027@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----=_Part_149382_11370532.1178979506800"
+	boundary="----=_Part_149394_20524571.1178979663816"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,77 +14,114 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: dmitry <dmitry.torokhov@gmail.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_149382_11370532.1178979506800
+------=_Part_149394_20524571.1178979663816
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-    Bug fix: Force feedback stopped working in 2.7.18.
-
-    Use an interrupt bulk URB to send force-feedback data to the device
-    instead of a bulk URB.
+    Minor clean-ups.
 
     Signed-off-by: Johann Deneux <johann.deneux@gmail.com>
 
-diff --git a/drivers/input/joystick/iforce/iforce-usb.c
-b/drivers/input/joystick/iforce/iforce-usb.c
-index 750099d..1457b73 100644
---- a/drivers/input/joystick/iforce/iforce-usb.c
-+++ b/drivers/input/joystick/iforce/iforce-usb.c
-@@ -65,6 +65,7 @@ void iforce_usb_xmit(struct iforce *iforce)
- 	XMIT_INC(iforce->xmit.tail, n);
+diff --git a/drivers/input/joystick/iforce/iforce-main.c
+b/drivers/input/joystick/iforce/iforce-main.c
+index fb129c4..682244b 100644
+--- a/drivers/input/joystick/iforce/iforce-main.c
++++ b/drivers/input/joystick/iforce/iforce-main.c
+@@ -370,10 +370,8 @@ int iforce_init_device(struct iforce *iforce)
 
- 	if ( (n=usb_submit_urb(iforce->out, GFP_ATOMIC)) ) {
-+		clear_bit(IFORCE_XMIT_RUNNING, iforce->xmit_flags);
- 		warn("usb_submit_urb failed %d\n", n);
- 	}
+ /*
+  * Disable spring, enable force feedback.
+- * FIXME: We should use iforce_set_autocenter() et al here.
+  */
+-
+-	iforce_send_packet(iforce, FF_CMD_AUTOCENTER, "\004\000");
++	iforce_set_autocenter(input_dev, 0);
 
-@@ -163,8 +164,8 @@ static int iforce_usb_probe(struct usb_interface *intf,
- 	usb_fill_int_urb(iforce->irq, dev, usb_rcvintpipe(dev,
-epirq->bEndpointAddress),
- 			iforce->data, 16, iforce_usb_irq, iforce, epirq->bInterval);
+ /*
+  * Find appropriate device entry
+diff --git a/drivers/input/joystick/iforce/iforce-packets.c
+b/drivers/input/joystick/iforce/iforce-packets.c
+index 21c4e13..ebce070 100644
+--- a/drivers/input/joystick/iforce/iforce-packets.c
++++ b/drivers/input/joystick/iforce/iforce-packets.c
+@@ -246,6 +246,8 @@ void iforce_process_packet(struct iforce *iforce,
+u16 cmd, unsigned char *data)
 
--	usb_fill_bulk_urb(iforce->out, dev, usb_sndbulkpipe(dev,
-epout->bEndpointAddress),
--			iforce + 1, 32, iforce_usb_out, iforce);
-+	usb_fill_int_urb(iforce->out, dev, usb_sndintpipe(dev,
-epout->bEndpointAddress),
-+			iforce + 1, 32, iforce_usb_out, iforce, epout->bInterval);
+ int iforce_get_id_packet(struct iforce *iforce, char *packet)
+ {
++	int status;
++
+ 	switch (iforce->bus) {
 
- 	usb_fill_control_urb(iforce->ctrl, dev, usb_rcvctrlpipe(dev, 0),
- 			(void*) &iforce->cr, iforce->edata, 16, iforce_usb_ctrl, iforce);
+ 	case IFORCE_USB:
+@@ -254,18 +256,23 @@ int iforce_get_id_packet(struct iforce *iforce,
+char *packet)
+ 		iforce->cr.bRequest = packet[0];
+ 		iforce->ctrl->dev = iforce->usbdev;
 
-------=_Part_149382_11370532.1178979506800
-Content-Type: text/plain; name=patch-2007-05-12.txt; charset=ANSI_X3.4-1968
+-		if (usb_submit_urb(iforce->ctrl, GFP_ATOMIC))
++		status = usb_submit_urb(iforce->ctrl, GFP_ATOMIC);
++		if (status)
++		{
++			err("usb_submit_urb failed %d", status);
+ 			return -1;
++		}
+
+ 		wait_event_interruptible_timeout(iforce->wait,
+ 			iforce->ctrl->status != -EINPROGRESS, HZ);
+
+ 		if (iforce->ctrl->status) {
++			dbg("iforce->ctrl->status = %d", iforce->ctrl->status);
+ 			usb_unlink_urb(iforce->ctrl);
+ 			return -1;
+ 		}
+ #else
+-		err("iforce_get_id_packet: iforce->bus = USB!");
++		dbg("iforce_get_id_packet: iforce->bus = USB!");
+ #endif
+ 		break;
+
+------=_Part_149394_20524571.1178979663816
+Content-Type: text/plain; name=patch-2007-05-12-2.txt;
+	charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f1m5xxq7
-Content-Disposition: attachment; filename="patch-2007-05-12.txt"
+X-Attachment-Id: f_f1m61ekl
+Content-Disposition: attachment; filename="patch-2007-05-12-2.txt"
 
-Y29tbWl0IDhmZGFiYjc4MGY0ZTU5ZmFhOTI4YTgwNDBkNGQ3ZGE0Y2U1ZTliYjcKQXV0aG9yOiBK
+Y29tbWl0IDM4N2FhZjE4YWFkOGJiZTAzNTc5OTkyOTlhN2ViMDhlMTFiMzBjNTAKQXV0aG9yOiBK
 b2hhbm4gRGVuZXV4IDxqb2hhbm4uZGVuZXV4QGdtYWlsLmNvbT4KRGF0ZTogICBTYXQgTWF5IDEy
-IDE2OjAxOjQ2IDIwMDcgKzAyMDAKCiAgICBCdWcgZml4OiBGb3JjZSBmZWVkYmFjayBzdG9wcGVk
-IHdvcmtpbmcgaW4gMi43LjE4LgogICAgCiAgICBVc2UgYW4gaW50ZXJydXB0IGJ1bGsgVVJCIHRv
-IHNlbmQgZm9yY2UtZmVlZGJhY2sgZGF0YSB0byB0aGUgZGV2aWNlCiAgICBpbnN0ZWFkIG9mIGEg
-YnVsayBVUkIuCiAgICAKICAgIFNpZ25lZC1vZmYtYnk6IEpvaGFubiBEZW5ldXggPGpvaGFubi5k
-ZW5ldXhAZ21haWwuY29tPgoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvam95c3RpY2svaWZv
-cmNlL2lmb3JjZS11c2IuYyBiL2RyaXZlcnMvaW5wdXQvam95c3RpY2svaWZvcmNlL2lmb3JjZS11
-c2IuYwppbmRleCA3NTAwOTlkLi4xNDU3YjczIDEwMDY0NAotLS0gYS9kcml2ZXJzL2lucHV0L2pv
-eXN0aWNrL2lmb3JjZS9pZm9yY2UtdXNiLmMKKysrIGIvZHJpdmVycy9pbnB1dC9qb3lzdGljay9p
-Zm9yY2UvaWZvcmNlLXVzYi5jCkBAIC02NSw2ICs2NSw3IEBAIHZvaWQgaWZvcmNlX3VzYl94bWl0
-KHN0cnVjdCBpZm9yY2UgKmlmb3JjZSkKIAlYTUlUX0lOQyhpZm9yY2UtPnhtaXQudGFpbCwgbik7
-CiAKIAlpZiAoIChuPXVzYl9zdWJtaXRfdXJiKGlmb3JjZS0+b3V0LCBHRlBfQVRPTUlDKSkgKSB7
-CisJCWNsZWFyX2JpdChJRk9SQ0VfWE1JVF9SVU5OSU5HLCBpZm9yY2UtPnhtaXRfZmxhZ3MpOwog
-CQl3YXJuKCJ1c2Jfc3VibWl0X3VyYiBmYWlsZWQgJWRcbiIsIG4pOwogCX0KIApAQCAtMTYzLDgg
-KzE2NCw4IEBAIHN0YXRpYyBpbnQgaWZvcmNlX3VzYl9wcm9iZShzdHJ1Y3QgdXNiX2ludGVyZmFj
-ZSAqaW50ZiwKIAl1c2JfZmlsbF9pbnRfdXJiKGlmb3JjZS0+aXJxLCBkZXYsIHVzYl9yY3ZpbnRw
-aXBlKGRldiwgZXBpcnEtPmJFbmRwb2ludEFkZHJlc3MpLAogCQkJaWZvcmNlLT5kYXRhLCAxNiwg
-aWZvcmNlX3VzYl9pcnEsIGlmb3JjZSwgZXBpcnEtPmJJbnRlcnZhbCk7CiAKLQl1c2JfZmlsbF9i
-dWxrX3VyYihpZm9yY2UtPm91dCwgZGV2LCB1c2Jfc25kYnVsa3BpcGUoZGV2LCBlcG91dC0+YkVu
-ZHBvaW50QWRkcmVzcyksCi0JCQlpZm9yY2UgKyAxLCAzMiwgaWZvcmNlX3VzYl9vdXQsIGlmb3Jj
-ZSk7CisJdXNiX2ZpbGxfaW50X3VyYihpZm9yY2UtPm91dCwgZGV2LCB1c2Jfc25kaW50cGlwZShk
-ZXYsIGVwb3V0LT5iRW5kcG9pbnRBZGRyZXNzKSwKKwkJCWlmb3JjZSArIDEsIDMyLCBpZm9yY2Vf
-dXNiX291dCwgaWZvcmNlLCBlcG91dC0+YkludGVydmFsKTsKIAogCXVzYl9maWxsX2NvbnRyb2xf
-dXJiKGlmb3JjZS0+Y3RybCwgZGV2LCB1c2JfcmN2Y3RybHBpcGUoZGV2LCAwKSwKIAkJCSh2b2lk
-KikgJmlmb3JjZS0+Y3IsIGlmb3JjZS0+ZWRhdGEsIDE2LCBpZm9yY2VfdXNiX2N0cmwsIGlmb3Jj
-ZSk7Cg==
-------=_Part_149382_11370532.1178979506800--
+IDE2OjA0OjI5IDIwMDcgKzAyMDAKCiAgICBNaW5vciBjbGVhbi11cHMuCiAgICAKICAgIFNpZ25l
+ZC1vZmYtYnk6IEpvaGFubiBEZW5ldXggPGpvaGFubi5kZW5ldXhAZ21haWwuY29tPgoKZGlmZiAt
+LWdpdCBhL2RyaXZlcnMvaW5wdXQvam95c3RpY2svaWZvcmNlL2lmb3JjZS1tYWluLmMgYi9kcml2
+ZXJzL2lucHV0L2pveXN0aWNrL2lmb3JjZS9pZm9yY2UtbWFpbi5jCmluZGV4IGZiMTI5YzQuLjY4
+MjI0NGIgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW5wdXQvam95c3RpY2svaWZvcmNlL2lmb3JjZS1t
+YWluLmMKKysrIGIvZHJpdmVycy9pbnB1dC9qb3lzdGljay9pZm9yY2UvaWZvcmNlLW1haW4uYwpA
+QCAtMzcwLDEwICszNzAsOCBAQCBpbnQgaWZvcmNlX2luaXRfZGV2aWNlKHN0cnVjdCBpZm9yY2Ug
+Kmlmb3JjZSkKIAogLyoKICAqIERpc2FibGUgc3ByaW5nLCBlbmFibGUgZm9yY2UgZmVlZGJhY2su
+Ci0gKiBGSVhNRTogV2Ugc2hvdWxkIHVzZSBpZm9yY2Vfc2V0X2F1dG9jZW50ZXIoKSBldCBhbCBo
+ZXJlLgogICovCi0KLQlpZm9yY2Vfc2VuZF9wYWNrZXQoaWZvcmNlLCBGRl9DTURfQVVUT0NFTlRF
+UiwgIlwwMDRcMDAwIik7CisJaWZvcmNlX3NldF9hdXRvY2VudGVyKGlucHV0X2RldiwgMCk7CiAK
+IC8qCiAgKiBGaW5kIGFwcHJvcHJpYXRlIGRldmljZSBlbnRyeQpkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9pbnB1dC9qb3lzdGljay9pZm9yY2UvaWZvcmNlLXBhY2tldHMuYyBiL2RyaXZlcnMvaW5wdXQv
+am95c3RpY2svaWZvcmNlL2lmb3JjZS1wYWNrZXRzLmMKaW5kZXggMjFjNGUxMy4uZWJjZTA3MCAx
+MDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9qb3lzdGljay9pZm9yY2UvaWZvcmNlLXBhY2tldHMu
+YworKysgYi9kcml2ZXJzL2lucHV0L2pveXN0aWNrL2lmb3JjZS9pZm9yY2UtcGFja2V0cy5jCkBA
+IC0yNDYsNiArMjQ2LDggQEAgdm9pZCBpZm9yY2VfcHJvY2Vzc19wYWNrZXQoc3RydWN0IGlmb3Jj
+ZSAqaWZvcmNlLCB1MTYgY21kLCB1bnNpZ25lZCBjaGFyICpkYXRhKQogCiBpbnQgaWZvcmNlX2dl
+dF9pZF9wYWNrZXQoc3RydWN0IGlmb3JjZSAqaWZvcmNlLCBjaGFyICpwYWNrZXQpCiB7CisJaW50
+IHN0YXR1czsKKwogCXN3aXRjaCAoaWZvcmNlLT5idXMpIHsKIAogCWNhc2UgSUZPUkNFX1VTQjoK
+QEAgLTI1NCwxOCArMjU2LDIzIEBAIGludCBpZm9yY2VfZ2V0X2lkX3BhY2tldChzdHJ1Y3QgaWZv
+cmNlICppZm9yY2UsIGNoYXIgKnBhY2tldCkKIAkJaWZvcmNlLT5jci5iUmVxdWVzdCA9IHBhY2tl
+dFswXTsKIAkJaWZvcmNlLT5jdHJsLT5kZXYgPSBpZm9yY2UtPnVzYmRldjsKIAotCQlpZiAodXNi
+X3N1Ym1pdF91cmIoaWZvcmNlLT5jdHJsLCBHRlBfQVRPTUlDKSkKKwkJc3RhdHVzID0gdXNiX3N1
+Ym1pdF91cmIoaWZvcmNlLT5jdHJsLCBHRlBfQVRPTUlDKTsKKwkJaWYgKHN0YXR1cykKKwkJewor
+CQkJZXJyKCJ1c2Jfc3VibWl0X3VyYiBmYWlsZWQgJWQiLCBzdGF0dXMpOwogCQkJcmV0dXJuIC0x
+OworCQl9CiAKIAkJd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlX3RpbWVvdXQoaWZvcmNlLT53YWl0
+LAogCQkJaWZvcmNlLT5jdHJsLT5zdGF0dXMgIT0gLUVJTlBST0dSRVNTLCBIWik7CiAKIAkJaWYg
+KGlmb3JjZS0+Y3RybC0+c3RhdHVzKSB7CisJCQlkYmcoImlmb3JjZS0+Y3RybC0+c3RhdHVzID0g
+JWQiLCBpZm9yY2UtPmN0cmwtPnN0YXR1cyk7CiAJCQl1c2JfdW5saW5rX3VyYihpZm9yY2UtPmN0
+cmwpOwogCQkJcmV0dXJuIC0xOwogCQl9CiAjZWxzZQotCQllcnIoImlmb3JjZV9nZXRfaWRfcGFj
+a2V0OiBpZm9yY2UtPmJ1cyA9IFVTQiEiKTsKKwkJZGJnKCJpZm9yY2VfZ2V0X2lkX3BhY2tldDog
+aWZvcmNlLT5idXMgPSBVU0IhIik7CiAjZW5kaWYKIAkJYnJlYWs7CiAK
+------=_Part_149394_20524571.1178979663816--

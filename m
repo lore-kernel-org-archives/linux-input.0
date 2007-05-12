@@ -1,46 +1,51 @@
-From: Giel de Nijs <giel@caffeinetrip.com>
-Subject: [patch 0/2] [PATCH] input: correctly handle keys without hardware release event
-Date: Fri, 11 May 2007 19:23:26 +0200
-Message-ID: <20070511172326.008944330@caffeinetrip.com>
+From: LOTTERY AWARDS <lotterysender4@bellsouth.net>
+Subject: CONTACT MR. MICHEAL ANDERSON IMMEDIATELY
+Date: Fri, 11 May 2007 20:32:44 -0400
+Message-ID: <20070512003245.LNLO19842.ibm62aec.bellsouth.net@mail.bellsouth.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Dimitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg59@srcf.ucam.org>, Matt Domsch <matt_domsch@dell.com>, Rezwanul Kabir <rezwanul_kabir@dell.com>, linux-input@atrey.karlin.mff.cuni.cz
+To: webinfo@uklottery.com
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+REFERENCE NUMBER:UK/786543X4/28
+BATCH NUMBER:034/099/YX46
+TICKET NUMBER:005-4432-971-878
 
-This patch adds a soft release key mask to input_dev, to enable keyboard
-drivers to determine which keys never generate a hardware release event and
-hence add a release event after every press event of such keys. The mask is
-controlled by ioctls.
+                                                   ONLINE  NOTIFICATION
 
-The Fn+F? key combinations of Dell Latitude series laptops (and possibly other
-Dells or other brands) only generate a key press event and never a key release
-event, which is most probable a hardware flaw (or feature?). Due to this flaw,
-combinations like Fn+F1 for hibernate and Fn-F3 for showing battery status
-cannot be used. Ubuntu has probably fixed this by patching the X input layer
-and HAL, but other distributions (like Debian) cannot use these keys. This
-patch adds a generic method to signal if keys with certain scancodes never
-generate release events, so the keyboard driver can add those events right
-after a key press event.
+     We are pleased to inform you today6th May2007 of the result of=20
+the winners of the  UK NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held on=20
+the 27th of April, 2007.You have therefore been approved for a lump sum=20
+pay out of =C2=A31,000,000(One Million Britain Pounds Sterlings) in cash=20
+credited to file XYL/26510460037/06.
 
-The ioctls used to read and write to this bitmask might be used in a program
-like setkeycodes, which is normally used to map certain scancodes to keycodes.
-With a command line option, this program could also set the soft release bit
-for a certain scancode if desired. Patches for setkeycodes and getkeycodes
-against the Debian console-tools can be found at
-http://giel.operation0.org/keyboard-soft-release
+To file for your claim, please contact our claims agent;
 
-This patch also uses the infrastructure for generating release events for
-KEY_HANGEUL and KEY_HANJA, something which was already done in atkbd.c.
+Dr. DAVE WILLIAM
+Email: claimsagentunit002@yahoo.co.uk
+TELL: +44-702-402-0665
 
-See also this thread: http://thread.gmane.org/gmane.linux.kernel/401378
+Provide him with the information below:
 
-Greetings,
-Giel
--- 
+1.Full Name:....................................................
+2.Full Address:................................................
+3.Marital Status:...............................................
+4.Occupation:...................................................
+5.Age:................................................................
+6.Sex:.................................................................
+7.Nationality:......................................................
+8.Country Of Residence:.....................................
+9.Telephone Number:........................................
+
+Congratulations once more from all members and staffs of this program.
+
+
+Sincerely,=20
+Mrs.Tina Bright

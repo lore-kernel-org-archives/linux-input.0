@@ -1,67 +1,33 @@
-From: "Lacy Reed" <lmarina@migpc.co.jp>
-Subject: Is shill everything explode
-Date: Sun, 13 May 2007 19:28:01 +0800
-Message-ID: <001901c79594$d1e76610$07382f84@taiyujc86mqzkt>
+From: "Deadra Theresia" <ikvre53akofz@flowgomail.com>
+Subject: Over 1,500,000 bottles sold, Safe & Effective  PenisEnlargement Herbal Pills nhdfq
+Date: Sun, 13 May 2007 15:33:05 +0200
+Message-ID: <581n136x.8527983@flowgomail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0016_01C79594.D1E76610"
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: leming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0016_01C79594.D1E76610
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-
-
-
-
-THE HOTTEST ALERT!
-
-L00kup: HXPNCurrent: $0.50 3 Day Target price: $2.50Expected: Steadily =
-climb for the top...
-
-
-We see this as a huge profit taking a deal...
-
-
-
-Check the news of HXPN, linux-input, contact broker..
-
-------=_NextPart_000_0016_01C79594.D1E76610
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2600.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003399 size=3D3D4><FONT =
-size=3D3><STRONG>THE HOTTEST ALERT...</STRONG></FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D4>L00kup: =
-<b>HXPN</b><br>Current: $0.50 <br>3 Day Target price: $2.50<br>Expected: =
-Steadily climb for the top...</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000033 size=3D2>We see =
-this as a huge profit taking a deal...</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000033 size=3D2>Check =
-the news of HXPN, linux-input, contact broker!!!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0016_01C79594.D1E76610--
+<html><font color=CFCFCF size=1>effect books science ought glass development. hearing king cant scene.
+</font>
+<center><table border=0 cellspacing=0 cellpadding=5 width=530><tr><td bgcolor=FFFF00 align=left>
+<font size=2 face=arial color=000000><font size=5 color=FF9090><b><center><font color=E80074>Safe & Effective PenisEnlargement</font><br>Over 1,500,000 bottles soldworldwide</b></center></font></td></tr><tr><td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>WeOffer a FULL MONEY BACK GUARANTEE if 
+you 
+are not completely satisfied with the results of Man-XL, you have nothing to lose, just a lot to gain</font></td></tr><tr><td bgcolor=EFFDA2 align=left><font color=3F3F3F size=2 face=arial>A breakthrough in herbal Science has created a pill that has been designed specifically for PenisEnlargement. 
+The tests that took place over a 6 month period showed that out of the 5,000 Males from around the world who participated, 
+the 
+average gain after 5 months of taking Man-XL pills was 3.02 Inches! Amazing, PERMANENT RESULTS that will last.</font></td></tr><tr>
+<td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>Did you know... Man-XL was featured in leading mens magazines such as FHM, MAXIM, plus many others, and rated No.1 choice forPenisEnlargement  Also seen on TV</font></td></tr><tr><td bgcolor=EEEEEE align=left><font color=000000 size=2 face=arial>-:- Gain Up to 3+ Inches In Length<br>-:- Increase YourPenis Width (Girth) By upto 20%<br>-:- Help Stop PrematureEjaculation!<br>-:- Produce Stronger, Rock HardErections<br>-:- 100% Safe To Take, With NO Side 
+Effects<br>-:- Fast Shipping WorldWide<br>-:- Doctor Approved And Recommended<br>-:- No Pumps, No Surgery, No Exercises<br>-:- Very discrete shipping and billing<br>-:- 100% Money Back Guarantee<br>-:- Up 
+to 3 FREE Bottles Of Man-XL<br>-:- Highly secure 128bit 
+order processing<br><center><a href=http://dqag.groddepending.com target=_blank><font size=3 face=arial color=0000F4><u><b>See by yourself BEFORE & AFTER result by a customer<br>Buy 
+This herbal EnlargementPills here</b></font>
+</u></a><br><br></center></td></tr></table></center><font color=CFCFCF size=1>added parents stopping, wife break however met happen raise twenty-one development.
+</font></html>

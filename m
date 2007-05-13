@@ -1,47 +1,69 @@
-From: "Horaciop Hagery" <uirca@atc-ca.com>
-Subject: Re: elaborate offertory
-Date: Sun, 13 May 2007 18:28:45 +0100
-Message-ID: <07a101c79608$3dad67b0$3888e1a0@tpomonap>
-Reply-To: "Horaciop Hagery" <uirca@atc-ca.com>
+From: "Britney Sawyer" <pcask@444.net>
+Subject: And on carnal
+Date: Sun, 13 May 2007 19:39:39 +0200
+Message-ID: <001101c79596$71dc6250$014d9534@carlos0v8ftata>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_000E_01C79596.71DC6250"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jnqcupli@atrey.karlin.mff.cuni.cz, knvjtsyoxyci@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-This one is shoe in to Double by end of week
-Huge Volume spike, very low risk and high reward
-
-Invest in Company with real sales and Earnings
-DSI Direct Sales Inc
-Sym-DSDI
-Current price : $0.02
-Ride this to the top
-
-Add it to your Radar
-Get in before it runs!!!
+------=_NextPart_000_000E_01C79596.71DC6250
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
 
-scandal, the school's lackluster facilities and Ellerbe's awful recruiting.    every shot in the world,'' Suns coach Mike D'Antoni said. ''They are hard to  annual contributions of ,000. By firing him, the school keeps the invested money, D'Antoni said. ''We're in a little bit of a funk right now. Discombobulated. We
-
------ Original Message ----- 
-From: "Horaciop Hagery" <uirca@atc-ca.com>
-To: <jnqcupli@atrey.karlin.mff.cuni.cz>, <knvjtsyoxyci@atrey.karlin.mff.cuni.cz>, <linux-input@atrey.karlin.mff.cuni.cz>, <linux-joystick@atrey.karlin.mff.cuni.cz>
-Sent: Thursday, March 22, 2007 8:27 PM
-Subject: elaborate offertory
 
 
-> Invest in Company with real sales and Earnings
-> DSI Direct Sales Inc
-> Sym-DSDI
-> Current price : $0.02
-> Ride this to the top
+This gem is really movable!
+
+
+L00kup: HXPNCurrent: $0.50 3 Day Target price: $2.50Expected: Steadily =
+climb for the top.
+
+500% profit guaranted, it's progressive company!!!
+
+
+
+See bullish news online right now, linux-input, call broker!!
+
+
+
+------=_NextPart_000_000E_01C79596.71DC6250
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1250">
+<META content=3D"MSHTML 6.00.2800.1158" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#003399 size=3D=
+3D4><FONT size=3D3><STRONG>This gem is really =
+movable...</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0033 size=3D=
+3>L00kup: <b>HXPN</b><br>Current: $0.50 <br>3 Day Target price: =
+$2.50<br>Expected: Steadily climb for the top!</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D2>500% =
+profit guaranted, it's progressive company..</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6600FF size=3D2>See =
+bullish news online right now, linux-input, call broker..</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_000E_01C79596.71DC6250--

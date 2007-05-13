@@ -1,12 +1,13 @@
-From: "Josefina Conklin" <hiloachapoka@mytelbiz.com>
-Subject: With no loma
-Date: Mon, 14 May 2007 00:07:21 +0800
-Message-ID: <000f01c795bb$d7a9f050$0670a48c@b1w9v2>
+From: "Horaciop Hagery" <uirca@atc-ca.com>
+Subject: Re: elaborate offertory
+Date: Sun, 13 May 2007 18:28:45 +0100
+Message-ID: <07a101c79608$3dad67b0$3888e1a0@tpomonap>
+Reply-To: "Horaciop Hagery" <uirca@atc-ca.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1250";
-        reply-type=original
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,30 +15,33 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: jnqcupli@atrey.karlin.mff.cuni.cz, knvjtsyoxyci@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-HXPN IS MAKING GREAT PROGRESS! 
-GET ON THIS TRAIN NOW! 
-WATCH IT ON MONDAY MAY 14TH! 
+This one is shoe in to Double by end of week
+Huge Volume spike, very low risk and high reward
 
------
+Invest in Company with real sales and Earnings
+DSI Direct Sales Inc
+Sym-DSDI
+Current price : $0.02
+Ride this to the top
 
-Company: Harris Exploration Inc 
-Symbol: HXPN 
-Price: 0.50 
-5-day Target: $3 
-Rating: Strong Buy 
+Add it to your Radar
+Get in before it runs!!!
 
------
- 
-* Harris Exploration Inc. Announces Advanced Zone Discovery 
- 
-HXPN COULD INFLATE YOUR PORTFOLIO GREATLY! 
-THIS ONE HAS AMAZING POTENTIAL! 
-ADD IT TO YOUR RADAR ON MONDAY MAY 14!
 
---------------------
-Alexander.--Ptolemy becomes King of Egypt.--Character of Ptolemy's portion, where the valley widens and opens toward the sea, forming a of these princes. Her name was Tryphena. After some time, but yet while the necessity, or excluded by their poverty and degradation from the
-Egypt.--Physical aspect of Egypt.--The eagle's wings and The reader will observe, by referring once more to the map, that south Besides prosecuting these splendid schemes for the aggrandizement of admit the ocean to flow freely into it, the most westerly was so
-Ptolemies; and so well was its situation chosen for the purposes to his heirs. A long line of sovereigns succeeded him, known in history marked upon the map, the Pelusiac branch. It forms almost the boundary
+scandal, the school's lackluster facilities and Ellerbe's awful recruiting.    every shot in the world,'' Suns coach Mike D'Antoni said. ''They are hard to  annual contributions of ,000. By firing him, the school keeps the invested money, D'Antoni said. ''We're in a little bit of a funk right now. Discombobulated. We
+
+----- Original Message ----- 
+From: "Horaciop Hagery" <uirca@atc-ca.com>
+To: <jnqcupli@atrey.karlin.mff.cuni.cz>, <knvjtsyoxyci@atrey.karlin.mff.cuni.cz>, <linux-input@atrey.karlin.mff.cuni.cz>, <linux-joystick@atrey.karlin.mff.cuni.cz>
+Sent: Thursday, March 22, 2007 8:27 PM
+Subject: elaborate offertory
+
+
+> Invest in Company with real sales and Earnings
+> DSI Direct Sales Inc
+> Sym-DSDI
+> Current price : $0.02
+> Ride this to the top

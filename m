@@ -1,178 +1,221 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH] Make appletouch shut up when it has nothing to say
-Date: Sun, 13 May 2007 20:57:25 +0100
-Message-ID: <20070513195724.GA28493@srcf.ucam.org>
-References: <1178995886.4168.10.camel@localhost> <20070513172052.GA26712@srcf.ucam.org> <20070513114626.d943999a.zaitcev@redhat.com>
+From: "Darnell Thomas" <pomfgamex@fga.it>
+Subject: End the annoying obesity now
+Date: Sun, 13 May 2007 22:42:25 -0100
+Message-ID: <909726311.04128807015924@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+  boundary="----------D3D36E8051A0597"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <20070513114626.d943999a.zaitcev@redhat.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch, linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Ok, I've tidied this up a little. I've separated the actual mode init 
-code into a separate function in order to avoid code duplication, and no 
-longer creating a new workqueue. The only other change is something that 
-I /think/ is actually a bug in the driver to begin with, but I'd like 
-some more feedback on that first - the first packet sent after the mode 
-change has 0x20 in the final byte. This seems to be interpreted as a 
-left mouse button press. As a result, moving the touchpad sends a false 
-press after every reinitialisation, or (approximately) every time the 
-pointer is moved. As far as I can tell this also happens with the 
-existing code, but is probably not noticable there because it won't 
-appear again after the first touch on the pad. Just skipping that case 
-seems to work fine.
+------------D3D36E8051A0597
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index e321526..f126de8 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -155,6 +155,8 @@ struct atp {
- 	int			xy_acc[ATP_XSENSORS + ATP_YSENSORS];
- 	int			overflowwarn;	/* overflow warning printed? */
- 	int			datalen;	/* size of an USB urb transfer */
-+	int                     idlecount;      /* number of empty packets */
-+	struct work_struct      work;
- };
- 
- #define dbg_dump(msg, tab) \
-@@ -208,6 +210,51 @@ static inline int atp_is_geyser_3(struct atp *dev)
- 		(productId == GEYSER4_JIS_PRODUCT_ID);
- }
- 
-+static int atp_geyser3_init(struct usb_device *udev)
-+{
-+	char data[8];
-+	int size;
-+
-+	size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+			       ATP_GEYSER3_MODE_READ_REQUEST_ID,
-+			       USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+			       ATP_GEYSER3_MODE_REQUEST_VALUE,
-+			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
-+  
-+	if (size != 8) {
-+		err("Could not do mode read request from device"
-+		    " (Geyser 3 mode)");
-+		return -EIO;
-+	}
-+
-+	/* Apply the mode switch */
-+	data[0] = ATP_GEYSER3_MODE_VENDOR_VALUE;
-+  
-+	size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+			       ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
-+			       USB_DIR_OUT | USB_TYPE_CLASS | 
-+			       USB_RECIP_INTERFACE,
-+			       ATP_GEYSER3_MODE_REQUEST_VALUE,
-+			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
-+	
-+	if (size != 8) {
-+		err("Could not do mode write request to device"
-+		    " (Geyser 3 mode)");
-+		return -EIO;
-+	}
-+	return 0;
-+}
-+
-+/* Reinitialise the device if it's a geyser 3 */
-+static void atp_reinit(struct work_struct *work)
-+{
-+	struct atp *dev = container_of(work, struct atp, work);
-+	struct usb_device *udev = dev->udev;
-+
-+	dev->idlecount = 0;
-+	atp_geyser3_init(udev);
-+}
-+
- static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
- 			     int *z, int *fingers)
- {
-@@ -441,7 +488,6 @@ static void atp_complete(struct urb* urb)
- 		dev->y_old = y;
- 	}
- 	else if (!x && !y) {
--
- 		dev->x_old = dev->y_old = -1;
- 		input_report_key(dev->input, BTN_TOUCH, 0);
- 		input_report_abs(dev->input, ABS_PRESSURE, 0);
-@@ -449,10 +495,21 @@ static void atp_complete(struct urb* urb)
- 
- 		/* reset the accumulator on release */
- 		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
-+
-+		/* Geyser 3 will continue to send packets continually after
-+		   the first touch unless reinitialised. Do so if it's been
-+		   idle for a while in order to avoid waking the kernel up
-+		   several hundred times a second */
-+		if (atp_is_geyser_3(dev)) {
-+			dev->idlecount++;
-+			if (dev->idlecount == 10)
-+				schedule_work (&dev->work);
-+		}
- 	}
- 
--	input_report_key(dev->input, BTN_LEFT,
--			 !!dev->data[dev->datalen - 1]);
-+	if (dev->data[dev->datalen-1] != 20) 
-+		input_report_key(dev->input, BTN_LEFT,
-+				 !!dev->data[dev->datalen - 1]);
- 
- 	input_sync(dev->input);
- 
-@@ -533,35 +590,9 @@ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id
- 		 * packets (Report ID 2). This code changes device mode, so it
- 		 * sends raw sensor reports (Report ID 5).
- 		 */
--		char data[8];
--		int size;
--
--		size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
--			ATP_GEYSER3_MODE_READ_REQUEST_ID,
--			USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
--			ATP_GEYSER3_MODE_REQUEST_VALUE,
--			ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
--
--		if (size != 8) {
--			err("Could not do mode read request from device"
--							" (Geyser 3 mode)");
-+		if (atp_geyser3_init(udev))
- 			goto err_free_devs;
--		}
- 
--		/* Apply the mode switch */
--		data[0] = ATP_GEYSER3_MODE_VENDOR_VALUE;
--
--		size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
--			ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
--			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
--			ATP_GEYSER3_MODE_REQUEST_VALUE,
--			ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
--
--		if (size != 8) {
--			err("Could not do mode write request to device"
--							" (Geyser 3 mode)");
--			goto err_free_devs;
--		}
- 		printk("appletouch Geyser 3 inited.\n");
- 	}
- 
-@@ -636,6 +667,8 @@ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id
- 	/* save our data pointer in this interface device */
- 	usb_set_intfdata(iface, dev);
- 
-+        INIT_WORK(&dev->work, atp_reinit);
-+
- 	return 0;
- 
-  err_free_buffer:
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Anatrim =96 The up-to-the-moment and most enchanting flesh loss product=20=
+is now readily available =96 As shown on Oprah.
+
+Can you recall all the situations when you plead to yourself to do=20=
+anything for being delivered from this quickly growing number of kilos?=20=
+Fortunately, now no major offering is demanded. With Anatrim, the=20=
+earth-shaking pound-melting mixture, you can achieve healthier mode of=20=
+life and become really thinner. Just look at what our customers say!
+
+"It=92s difficult to acknowledge it but I was awfully addicted to food. 
+
+I swallowed up all this rubbish 
+
+and could not stop. 
+
+This misery finished after I started taking Anatrim! 
+
+Oh, God,
+
+ my inclination to eat constantly abated, 
+
+spirits increased and I became the happiest person in the world 17=20=
+pounds in 2.3 months. 
+
+So, I can tell you now I became the happiest person!"
+ 
+
+Maria H., Boston
+
+ 
+"I had weight problems since I was a boy. 
+
+You can't even fancy how I abhorred being derided at school. 
+
+I hated my weight and I hated even myself. 
+
+After trying this and that I heard about Anatrim. 
+
+It literally dragged me out of this nightmare! Thanks and thanks to=20=
+you, fellows."
+
+ 
+Steve Burbon, New York
+
+ 
+"Do you know what? Thanks to Anatrim my marriage was luckily saved! I=20=
+fell down into the circle, depression =96 more eating =96 even more=20=
+depression. My wife had thought to leave the overweight psycho I was=20=
+turning in. 
+
+Once my friend showed me site and I ordered pack of Anatrim right off. 
+
+The results I achieved were magnficent, my appetite became normal, I=20=
+was in good spirits oftener, and, of course, I tightened my belt with no=20=
+regrets. And you know, the bedroom became cool, too!"
+
+ 
+Karl
+
+ There is a lot of sincere gratitudes delighted people leave after=20=
+trying Anatrim. Don=92t you gonna add yourself to the tens of thousands=20=
+of slim women and men and try this original appetite abating energy=20=
+lifting product now!
+
+Do not decline the preposition!
+http://www.tiram.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ukbwuf
+------------D3D36E8051A0597
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Melt away fat easily</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.tiram.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ukbwuf">
+Anatrim =96 The up-to-the-moment and most enchanting flesh loss product=20=
+is now readily available =96 As shown on Oprah.
+</a>
+</center>
+Can you recall all the situations when you plead to yourself to do=20=
+anything for being delivered from this quickly growing number of kilos?=20=
+Fortunately, now no major offering is demanded. With Anatrim, the=20=
+earth-shaking pound-melting mixture, you can achieve healthier mode of=20=
+life and become really thinner. Just look at what our customers say!
+<br>
+<br>
+<i>
+"It=92s difficult to acknowledge it but I was awfully addicted to food. 
+<b>
+<i>
+I swallowed up all this rubbish 
+<b>
+<i>
+and could not stop. 
+</i>
+</b>
+</i>
+</b>
+This misery finished after I started taking Anatrim! 
+<b>
+<i>
+Oh, God,
+</i>
+</b>
+<b>
+<i>
+ my inclination to eat constantly abated, 
+<b>
+<i>
+spirits increased and I became the happiest person in the world 17=20=
+pounds in 2.3 months. 
+</i>
+</b>
+</i>
+</b>
+So, I can tell you now I became the happiest person!"
+</i> 
+<br>
+<br>
+<b>
+<i>
+Maria H., Boston
+</i>
+</b>
+<br>
+<br>
+ <i>
+"I had weight problems since I was a boy. 
+<b>
+<i>
+You can't even fancy how I abhorred being derided at school. 
+</i>
+</b>
+<b>
+<i>
+I hated my weight and I hated even myself. 
+<b>
+<i>
+After trying this and that I heard about Anatrim. 
+</i>
+</b>
+</i>
+</b>
+It literally dragged me out of this nightmare! Thanks and thanks to=20=
+you, fellows."
+</i>
+ <br>
+<br>
+<b>
+<i>
+Steve Burbon, New York
+</i>
+</b>
+<br>
+<br>
+ <i>
+"Do you know what? Thanks to Anatrim my marriage was luckily saved! I=20=
+fell down into the circle, depression =96 more eating =96 even more=20=
+depression. My wife had thought to leave the overweight psycho I was=20=
+turning in. 
+<b>
+<i>
+Once my friend showed me site and I ordered pack of Anatrim right off. 
+</i>
+</b>
+The results I achieved were magnficent, my appetite became normal, I=20=
+was in good spirits oftener, and, of course, I tightened my belt with no=20=
+regrets. And you know, the bedroom became cool, too!"
+</i>
+ <br>
+<br>
+<b>
+<i>
+Karl
+</i>
+</b>
+<br>
+<br>
+ There is a lot of sincere gratitudes delighted people leave after=20=
+trying Anatrim. Don=92t you gonna add yourself to the tens of thousands=20=
+of slim women and men and try this original appetite abating energy=20=
+lifting product now!
+<center>
+<a=20=
+href=3D"http://www.tiram.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ukbwuf">
+Do not decline the preposition!
+</a>
+</center>
+</b>
+</p>
+<font=20=
+color=3D"#D9EDFF">http://www.tiram.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ukbwuf</font>
+
+</BODY></HTML>
+------------D3D36E8051A0597--

@@ -1,66 +1,156 @@
-From: "Dale Gates" <svsensitive@mailme.dk>
-Subject: Are ethic many leg
-Date: Sun, 13 May 2007 20:41:41 +0300
-Message-ID: <001401c7959f$1cdb9600$00995c6c@ST>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: [PATCH] Make appletouch shut up when it has nothing to say
+Date: Sun, 13 May 2007 18:20:53 +0100
+Message-ID: <20070513172052.GA26712@srcf.ucam.org>
+References: <1178995886.4168.10.camel@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0011_01C7959F.1CDB9600"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <1178995886.4168.10.camel@localhost>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0011_01C7959F.1CDB9600
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+The appletouch devices found in the Intel Macs (and possibly some later 
+PPC ones?) send a constant stream of packets after the first touch. This 
+results in the kernel waking up around once every couple of milliseconds 
+to process them, making it almost impossible to spend any significant 
+period of time in C3 state on a dynamic HZ kernel. Sending the mode 
+initialisation code makes the device shut up until it's touched again. 
+This patch does so after receiving 10 packets with no interesting 
+content.
 
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
 
+diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
+index e321526..7931a76 100644
+--- a/drivers/input/mouse/appletouch.c
++++ b/drivers/input/mouse/appletouch.c
+@@ -155,8 +155,12 @@ struct atp {
+ 	int			xy_acc[ATP_XSENSORS + ATP_YSENSORS];
+ 	int			overflowwarn;	/* overflow warning printed? */
+ 	int			datalen;	/* size of an USB urb transfer */
++	int                     idlecount;      /* number of empty packets */
++	struct work_struct      work;
+ };
+ 
++static struct workqueue_struct *appletouch_wq;
++
+ #define dbg_dump(msg, tab) \
+ 	if (debug > 1) {						\
+ 		int i;							\
+@@ -208,6 +212,46 @@ static inline int atp_is_geyser_3(struct atp *dev)
+ 		(productId == GEYSER4_JIS_PRODUCT_ID);
+ }
+ 
++/* Reinitialise the device if it's a geyser 3 */
++static void atp_reinit(struct work_struct *work)
++{
++	struct atp *dev = container_of(work, struct atp, work);
++	struct usb_device *udev = dev->udev;
++	char data[8];
++	int size;
++
++	if (!atp_is_geyser_3(dev))
++		return;
++
++	size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++			       ATP_GEYSER3_MODE_READ_REQUEST_ID,
++			       USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++			       ATP_GEYSER3_MODE_REQUEST_VALUE,
++			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
++  
++	if (size != 8) {
++		err("Could not do mode read request from device"
++		    " (Geyser 3 mode)");
++		return;
++	}
++
++	/* Apply the mode switch */
++	data[0] = ATP_GEYSER3_MODE_VENDOR_VALUE;
++  
++	size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
++			       ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
++			       USB_DIR_OUT | USB_TYPE_CLASS | 
++			       USB_RECIP_INTERFACE,
++			       ATP_GEYSER3_MODE_REQUEST_VALUE,
++			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
++	
++	if (size != 8) {
++		err("Could not do mode write request to device"
++		    " (Geyser 3 mode)");
++		return;
++	}
++}
++
+ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+ 			     int *z, int *fingers)
+ {
+@@ -419,6 +463,7 @@ static void atp_complete(struct urb* urb)
+ 			      ATP_YFACT, &y_z, &y_f);
+ 
+ 	if (x && y) {
++		dev->idlecount = 0;
+ 		if (dev->x_old != -1) {
+ 			x = (dev->x_old * 3 + x) >> 2;
+ 			y = (dev->y_old * 3 + y) >> 2;
+@@ -441,7 +486,7 @@ static void atp_complete(struct urb* urb)
+ 		dev->y_old = y;
+ 	}
+ 	else if (!x && !y) {
+-
++		dev->idlecount++;
+ 		dev->x_old = dev->y_old = -1;
+ 		input_report_key(dev->input, BTN_TOUCH, 0);
+ 		input_report_abs(dev->input, ABS_PRESSURE, 0);
+@@ -449,6 +494,13 @@ static void atp_complete(struct urb* urb)
+ 
+ 		/* reset the accumulator on release */
+ 		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
++
++		/* Geyser 3 will continue to send packets continually after
++		   the first touch unless reinitialised. Do so if it's been
++		   idle for a while in order to avoid waking the kernel up
++		   several hundred times a second */
++		if (dev->idlecount >= 10)
++			queue_work (appletouch_wq, &dev->work);
+ 	}
+ 
+ 	input_report_key(dev->input, BTN_LEFT,
+@@ -636,6 +688,8 @@ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id
+ 	/* save our data pointer in this interface device */
+ 	usb_set_intfdata(iface, dev);
+ 
++        INIT_WORK(&dev->work, atp_reinit);
++
+ 	return 0;
+ 
+  err_free_buffer:
+@@ -694,12 +748,18 @@ static struct usb_driver atp_driver = {
+ 
+ static int __init atp_init(void)
+ {
++	appletouch_wq = create_singlethread_workqueue("kappletouch");
++	if (!appletouch_wq) {
++		printk(KERN_ERR "appletouch: failed to create workqueue\n");
++		return -ENOMEM;
++	}
+ 	return usb_register(&atp_driver);
+ }
+ 
+ static void __exit atp_exit(void)
+ {
+ 	usb_deregister(&atp_driver);
++	destroy_workqueue(appletouch_wq);
+ }
+ 
+ module_init(atp_init);
 
-
-This one will explode!!!
-
-
-Target sym: HXPNCurrent: $0.50 1 Day Target price: $2.50Action: Strong =
-Buy/Hold..
-
-
-
-Bullish profit guaranted (500+%)...
-
-See bullish news online right now, linux-input, call broker...
-
-------=_NextPart_000_0011_01C7959F.1CDB9600
-Content-Type: text/html;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-iso-8859-1">
-<META content=3D"MSHTML 6.00.3790.181" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0000 size=3D3D4><FONT =
-size=3D4><STRONG>This one will explode.</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990033 size=3D2>Target =
-sym: <b>HXPN</b><br>Current: $0.50 <br>1 Day Target price: =
-$2.50<br>Action: Strong Buy/Hold!</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3366 size=3D3>Bullish =
-profit guaranted (500+%).</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000000 size=3D3>See =
-bullish news online right now, linux-input, call broker!!!</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0011_01C7959F.1CDB9600--
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

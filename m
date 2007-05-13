@@ -1,156 +1,66 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: [PATCH] Make appletouch shut up when it has nothing to say
-Date: Sun, 13 May 2007 18:20:53 +0100
-Message-ID: <20070513172052.GA26712@srcf.ucam.org>
-References: <1178995886.4168.10.camel@localhost>
+From: "Millie B+-nger" <dwmartinstonem@martinstone.nl>
+Subject: Some useful advices for your health
+Date: Sun, 13 May 2007 18:05:11 +0000
+Message-ID: <01c79589$3f6e9b60$6c822ecf@dwmartinstonem>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C79591.A1330360"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <1178995886.4168.10.camel@localhost>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Soeren Sonnenburg <kernel@nn7.de>
-Cc: linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-The appletouch devices found in the Intel Macs (and possibly some later 
-PPC ones?) send a constant stream of packets after the first touch. This 
-results in the kernel waking up around once every couple of milliseconds 
-to process them, making it almost impossible to spend any significant 
-period of time in C3 state on a dynamic HZ kernel. Sending the mode 
-initialisation code makes the device shut up until it's touched again. 
-This patch does so after receiving 10 packets with no interesting 
-content.
+This is a multi-part message in MIME format.
 
-Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
+------=_NextPart_000_0006_01C79591.A1330360
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index e321526..7931a76 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -155,8 +155,12 @@ struct atp {
- 	int			xy_acc[ATP_XSENSORS + ATP_YSENSORS];
- 	int			overflowwarn;	/* overflow warning printed? */
- 	int			datalen;	/* size of an USB urb transfer */
-+	int                     idlecount;      /* number of empty packets */
-+	struct work_struct      work;
- };
- 
-+static struct workqueue_struct *appletouch_wq;
-+
- #define dbg_dump(msg, tab) \
- 	if (debug > 1) {						\
- 		int i;							\
-@@ -208,6 +212,46 @@ static inline int atp_is_geyser_3(struct atp *dev)
- 		(productId == GEYSER4_JIS_PRODUCT_ID);
- }
- 
-+/* Reinitialise the device if it's a geyser 3 */
-+static void atp_reinit(struct work_struct *work)
-+{
-+	struct atp *dev = container_of(work, struct atp, work);
-+	struct usb_device *udev = dev->udev;
-+	char data[8];
-+	int size;
-+
-+	if (!atp_is_geyser_3(dev))
-+		return;
-+
-+	size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+			       ATP_GEYSER3_MODE_READ_REQUEST_ID,
-+			       USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+			       ATP_GEYSER3_MODE_REQUEST_VALUE,
-+			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
-+  
-+	if (size != 8) {
-+		err("Could not do mode read request from device"
-+		    " (Geyser 3 mode)");
-+		return;
-+	}
-+
-+	/* Apply the mode switch */
-+	data[0] = ATP_GEYSER3_MODE_VENDOR_VALUE;
-+  
-+	size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+			       ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
-+			       USB_DIR_OUT | USB_TYPE_CLASS | 
-+			       USB_RECIP_INTERFACE,
-+			       ATP_GEYSER3_MODE_REQUEST_VALUE,
-+			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
-+	
-+	if (size != 8) {
-+		err("Could not do mode write request to device"
-+		    " (Geyser 3 mode)");
-+		return;
-+	}
-+}
-+
- static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
- 			     int *z, int *fingers)
- {
-@@ -419,6 +463,7 @@ static void atp_complete(struct urb* urb)
- 			      ATP_YFACT, &y_z, &y_f);
- 
- 	if (x && y) {
-+		dev->idlecount = 0;
- 		if (dev->x_old != -1) {
- 			x = (dev->x_old * 3 + x) >> 2;
- 			y = (dev->y_old * 3 + y) >> 2;
-@@ -441,7 +486,7 @@ static void atp_complete(struct urb* urb)
- 		dev->y_old = y;
- 	}
- 	else if (!x && !y) {
--
-+		dev->idlecount++;
- 		dev->x_old = dev->y_old = -1;
- 		input_report_key(dev->input, BTN_TOUCH, 0);
- 		input_report_abs(dev->input, ABS_PRESSURE, 0);
-@@ -449,6 +494,13 @@ static void atp_complete(struct urb* urb)
- 
- 		/* reset the accumulator on release */
- 		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
-+
-+		/* Geyser 3 will continue to send packets continually after
-+		   the first touch unless reinitialised. Do so if it's been
-+		   idle for a while in order to avoid waking the kernel up
-+		   several hundred times a second */
-+		if (dev->idlecount >= 10)
-+			queue_work (appletouch_wq, &dev->work);
- 	}
- 
- 	input_report_key(dev->input, BTN_LEFT,
-@@ -636,6 +688,8 @@ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id
- 	/* save our data pointer in this interface device */
- 	usb_set_intfdata(iface, dev);
- 
-+        INIT_WORK(&dev->work, atp_reinit);
-+
- 	return 0;
- 
-  err_free_buffer:
-@@ -694,12 +748,18 @@ static struct usb_driver atp_driver = {
- 
- static int __init atp_init(void)
- {
-+	appletouch_wq = create_singlethread_workqueue("kappletouch");
-+	if (!appletouch_wq) {
-+		printk(KERN_ERR "appletouch: failed to create workqueue\n");
-+		return -ENOMEM;
-+	}
- 	return usb_register(&atp_driver);
- }
- 
- static void __exit atp_exit(void)
- {
- 	usb_deregister(&atp_driver);
-+	destroy_workqueue(appletouch_wq);
- }
- 
- module_init(atp_init);
+Dear valued member.Tired of advertising expensive pharmaceutical products? Now you don’t have to pay heaps of money for your products. MyCanadianPharmacy made a special offer for you.MyCanadianPharmacy offers drugs of the same quality as in American stores at really lower cost.You can save even more money using special Spring discounts.Check it out nowhttp://considereven.hkSafety, confidentiality of your information and secure purchasing guaranteed.Spring discounts for all the customers.Yours faithfully,Millie B+-nger
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+
+
+------=_NextPart_000_0006_01C79591.A1330360
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2">Tired of advertising expensive pharmac=
+eutical products? Now you don=92t have to pay heaps of money for your produ=
+cts. <a href=3D"http://considereven.hk">MyCanadianPharmacy</a> made a speci=
+al offer for you.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://considereven.hk">MyC=
+anadianPharmacy</a> offers drugs of the same quality as in American stores =
+at really lower cost.<br>You can save even more money using <b><u>special S=
+pring discounts</u></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://considereven.hk">Che=
+ck it out now</a><br>http://considereven.hk</font></p>
+<p><font face=3D"Verdana" size=3D"2">Safety, confidentiality of your inform=
+ation and secure purchasing guaranteed.<br><b><u>Spring discounts for all t=
+he customers</u></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Yours faithfully,<br>Millie B+-nger</f=
+ont></p>
+</body>
+</html>
+
+</body>
+</html>
+
+------=_NextPart_000_0006_01C79591.A1330360--

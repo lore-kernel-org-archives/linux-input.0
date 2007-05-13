@@ -1,10 +1,9 @@
-From: "Deadra Theresia" <ikvre53akofz@flowgomail.com>
-Subject: Over 1,500,000 bottles sold, Safe & Effective  PenisEnlargement Herbal Pills nhdfq
-Date: Sun, 13 May 2007 15:33:05 +0200
-Message-ID: <581n136x.8527983@flowgomail.com>
+From: Richard Purdie <rpurdie@rpsys.net>
+Subject: [PATCH] Fix spitzkbd compile warnings
+Date: Sun, 13 May 2007 13:35:47 +0100
+Message-ID: <1179059748.5883.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -12,22 +11,53 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: leming@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html><font color=CFCFCF size=1>effect books science ought glass development. hearing king cant scene.
-</font>
-<center><table border=0 cellspacing=0 cellpadding=5 width=530><tr><td bgcolor=FFFF00 align=left>
-<font size=2 face=arial color=000000><font size=5 color=FF9090><b><center><font color=E80074>Safe & Effective PenisEnlargement</font><br>Over 1,500,000 bottles soldworldwide</b></center></font></td></tr><tr><td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>WeOffer a FULL MONEY BACK GUARANTEE if 
-you 
-are not completely satisfied with the results of Man-XL, you have nothing to lose, just a lot to gain</font></td></tr><tr><td bgcolor=EFFDA2 align=left><font color=3F3F3F size=2 face=arial>A breakthrough in herbal Science has created a pill that has been designed specifically for PenisEnlargement. 
-The tests that took place over a 6 month period showed that out of the 5,000 Males from around the world who participated, 
-the 
-average gain after 5 months of taking Man-XL pills was 3.02 Inches! Amazing, PERMANENT RESULTS that will last.</font></td></tr><tr>
-<td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>Did you know... Man-XL was featured in leading mens magazines such as FHM, MAXIM, plus many others, and rated No.1 choice forPenisEnlargement  Also seen on TV</font></td></tr><tr><td bgcolor=EEEEEE align=left><font color=000000 size=2 face=arial>-:- Gain Up to 3+ Inches In Length<br>-:- Increase YourPenis Width (Girth) By upto 20%<br>-:- Help Stop PrematureEjaculation!<br>-:- Produce Stronger, Rock HardErections<br>-:- 100% Safe To Take, With NO Side 
-Effects<br>-:- Fast Shipping WorldWide<br>-:- Doctor Approved And Recommended<br>-:- No Pumps, No Surgery, No Exercises<br>-:- Very discrete shipping and billing<br>-:- 100% Money Back Guarantee<br>-:- Up 
-to 3 FREE Bottles Of Man-XL<br>-:- Highly secure 128bit 
-order processing<br><center><a href=http://dqag.groddepending.com target=_blank><font size=3 face=arial color=0000F4><u><b>See by yourself BEFORE & AFTER result by a customer<br>Buy 
-This herbal EnlargementPills here</b></font>
-</u></a><br><br></center></td></tr></table></center><font color=CFCFCF size=1>added parents stopping, wife break however met happen raise twenty-one development.
-</font></html>
+Fix compile warnings from spitzkbd.c. Registration failure of these IRQs
+isn't fatal so just warn about it.
+
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
+
+diff --git a/drivers/input/keyboard/spitzkbd.c b/drivers/input/keyboard/spitzkbd.c
+index 41b8038..a609d43 100644
+--- a/drivers/input/keyboard/spitzkbd.c
++++ b/drivers/input/keyboard/spitzkbd.c
+@@ -418,21 +418,26 @@ static int __init spitzkbd_probe(struct platform_device *dev)
+ 	pxa_gpio_mode(SPITZ_GPIO_SWA | GPIO_IN);
+ 	pxa_gpio_mode(SPITZ_GPIO_SWB | GPIO_IN);
+ 
+-	request_irq(SPITZ_IRQ_GPIO_SYNC, spitzkbd_interrupt,
++	if (request_irq(SPITZ_IRQ_GPIO_SYNC, spitzkbd_interrupt,
+ 		    IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-		    "Spitzkbd Sync", spitzkbd);
+-	request_irq(SPITZ_IRQ_GPIO_ON_KEY, spitzkbd_interrupt,
++		    "Spitzkbd Sync", spitzkbd))
++		printk(KERN_WARNING "spitzkbd: Failed to request sync IRQ\n");
++	if (request_irq(SPITZ_IRQ_GPIO_ON_KEY, spitzkbd_interrupt,
+ 		    IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-		    "Spitzkbd PwrOn", spitzkbd);
+-	request_irq(SPITZ_IRQ_GPIO_SWA, spitzkbd_hinge_isr,
++		    "Spitzkbd PwrOn", spitzkbd))
++		printk(KERN_WARNING "spitzkbd: Failed to request GPIO IRQ\n");
++	if (request_irq(SPITZ_IRQ_GPIO_SWA, spitzkbd_hinge_isr,
+ 		    IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-		    "Spitzkbd SWA", spitzkbd);
+-	request_irq(SPITZ_IRQ_GPIO_SWB, spitzkbd_hinge_isr,
++		    "Spitzkbd SWA", spitzkbd))
++		printk(KERN_WARNING "spitzkbd: Failed to request SWA IRQ\n");
++	if (request_irq(SPITZ_IRQ_GPIO_SWB, spitzkbd_hinge_isr,
+ 		    IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-		    "Spitzkbd SWB", spitzkbd);
+-	request_irq(SPITZ_IRQ_GPIO_AK_INT, spitzkbd_hinge_isr,
++		    "Spitzkbd SWB", spitzkbd))
++		printk(KERN_WARNING "spitzkbd: Failed to request SWB IRQ\n");
++	if (request_irq(SPITZ_IRQ_GPIO_AK_INT, spitzkbd_hinge_isr,
+ 		    IRQF_DISABLED | IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
+-		    "Spitzkbd HP", spitzkbd);
++		    "Spitzkbd HP", spitzkbd))
++		printk(KERN_WARNING "spitzkbd: Failed to request AK IRQ\n");
+ 
+ 	return 0;
+ 

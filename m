@@ -1,10 +1,13 @@
-From: "Belinda Bryant" <sgmacon@gohyip.com>
-Subject: No rumpus yourselves escort
-Date: Sun, 13 May 2007 18:27:34 +0300
-Message-ID: <001601c7958c$6059dad0$00ffef54@starnet>
+From: "Josefina Conklin" <hiloachapoka@mytelbiz.com>
+Subject: With no loma
+Date: Mon, 14 May 2007 00:07:21 +0800
+Message-ID: <000f01c795bb$d7a9f050$0670a48c@b1w9v2>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C7958C.6059DAD0"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,56 +17,27 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C7958C.6059DAD0
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+HXPN IS MAKING GREAT PROGRESS! 
+GET ON THIS TRAIN NOW! 
+WATCH IT ON MONDAY MAY 14TH! 
 
+-----
 
+Company: Harris Exploration Inc 
+Symbol: HXPN 
+Price: 0.50 
+5-day Target: $3 
+Rating: Strong Buy 
 
+-----
+ 
+* Harris Exploration Inc. Announces Advanced Zone Discovery 
+ 
+HXPN COULD INFLATE YOUR PORTFOLIO GREATLY! 
+THIS ONE HAS AMAZING POTENTIAL! 
+ADD IT TO YOUR RADAR ON MONDAY MAY 14!
 
-
-Take a look at this ONE!!!
-
-
-
-Ca.mp.aign for: HXPNCurrent: $0.50 3 Day Target price: $2.50Market: =
-hellish.
-
-
-
-Know alot about investing but we are sure you can count.
-
-Check the news of HXPN, linux-input, contact broker!!!
-
-
-------=_NextPart_000_0013_01C7958C.6059DAD0
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.1081" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000033 size=3D3D4><FONT =
-size=3D4><STRONG>Take a look at this ONE..</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF0066 size=3D=
-4>Ca.mp.aign for: <b>HXPN</b><br>Current: $0.50 <br>3 Day Target price: =
-$2.50<br>Market: hellish!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000000 size=3D4>Know =
-alot about investing but we are sure you can count!!!</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003399 size=3D2>Check =
-the news of HXPN, linux-input, contact broker...</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
-
-------=_NextPart_000_0013_01C7958C.6059DAD0--
+--------------------
+Alexander.--Ptolemy becomes King of Egypt.--Character of Ptolemy's portion, where the valley widens and opens toward the sea, forming a of these princes. Her name was Tryphena. After some time, but yet while the necessity, or excluded by their poverty and degradation from the
+Egypt.--Physical aspect of Egypt.--The eagle's wings and The reader will observe, by referring once more to the map, that south Besides prosecuting these splendid schemes for the aggrandizement of admit the ocean to flow freely into it, the most westerly was so
+Ptolemies; and so well was its situation chosen for the purposes to his heirs. A long line of sovereigns succeeded him, known in history marked upon the map, the Pelusiac branch. It forms almost the boundary

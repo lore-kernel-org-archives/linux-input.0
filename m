@@ -1,62 +1,178 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [PATCH] Make appletouch shut up when it has nothing to say
-Date: Sun, 13 May 2007 11:46:26 -0700
-Message-ID: <20070513114626.d943999a.zaitcev@redhat.com>
-References: <1178995886.4168.10.camel@localhost>
-	<20070513172052.GA26712@srcf.ucam.org>
+Date: Sun, 13 May 2007 20:57:25 +0100
+Message-ID: <20070513195724.GA28493@srcf.ucam.org>
+References: <1178995886.4168.10.camel@localhost> <20070513172052.GA26712@srcf.ucam.org> <20070513114626.d943999a.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070513172052.GA26712@srcf.ucam.org>
+Content-Disposition: inline
+In-Reply-To: <20070513114626.d943999a.zaitcev@redhat.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch, linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Soeren Sonnenburg <kernel@nn7.de>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch, linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 13 May 2007 18:20:53 +0100, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+Ok, I've tidied this up a little. I've separated the actual mode init 
+code into a separate function in order to avoid code duplication, and no 
+longer creating a new workqueue. The only other change is something that 
+I /think/ is actually a bug in the driver to begin with, but I'd like 
+some more feedback on that first - the first packet sent after the mode 
+change has 0x20 in the final byte. This seems to be interpreted as a 
+left mouse button press. As a result, moving the touchpad sends a false 
+press after every reinitialisation, or (approximately) every time the 
+pointer is moved. As far as I can tell this also happens with the 
+existing code, but is probably not noticable there because it won't 
+appear again after the first touch on the pad. Just skipping that case 
+seems to work fine.
 
-> +static void atp_reinit(struct work_struct *work)
-> +{
-> +	char data[8];
-> +	size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-> +			       ATP_GEYSER3_MODE_READ_REQUEST_ID,
-> +			       USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> +			       ATP_GEYSER3_MODE_REQUEST_VALUE,
-> +			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
+diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
+index e321526..f126de8 100644
+--- a/drivers/input/mouse/appletouch.c
++++ b/drivers/input/mouse/appletouch.c
+@@ -155,6 +155,8 @@ struct atp {
+ 	int			xy_acc[ATP_XSENSORS + ATP_YSENSORS];
+ 	int			overflowwarn;	/* overflow warning printed? */
+ 	int			datalen;	/* size of an USB urb transfer */
++	int                     idlecount;      /* number of empty packets */
++	struct work_struct      work;
+ };
+ 
+ #define dbg_dump(msg, tab) \
+@@ -208,6 +210,51 @@ static inline int atp_is_geyser_3(struct atp *dev)
+ 		(productId == GEYSER4_JIS_PRODUCT_ID);
+ }
+ 
++static int atp_geyser3_init(struct usb_device *udev)
++{
++	char data[8];
++	int size;
++
++	size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++			       ATP_GEYSER3_MODE_READ_REQUEST_ID,
++			       USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
++			       ATP_GEYSER3_MODE_REQUEST_VALUE,
++			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
++  
++	if (size != 8) {
++		err("Could not do mode read request from device"
++		    " (Geyser 3 mode)");
++		return -EIO;
++	}
++
++	/* Apply the mode switch */
++	data[0] = ATP_GEYSER3_MODE_VENDOR_VALUE;
++  
++	size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
++			       ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
++			       USB_DIR_OUT | USB_TYPE_CLASS | 
++			       USB_RECIP_INTERFACE,
++			       ATP_GEYSER3_MODE_REQUEST_VALUE,
++			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
++	
++	if (size != 8) {
++		err("Could not do mode write request to device"
++		    " (Geyser 3 mode)");
++		return -EIO;
++	}
++	return 0;
++}
++
++/* Reinitialise the device if it's a geyser 3 */
++static void atp_reinit(struct work_struct *work)
++{
++	struct atp *dev = container_of(work, struct atp, work);
++	struct usb_device *udev = dev->udev;
++
++	dev->idlecount = 0;
++	atp_geyser3_init(udev);
++}
++
+ static int atp_calculate_abs(int *xy_sensors, int nb_sensors, int fact,
+ 			     int *z, int *fingers)
+ {
+@@ -441,7 +488,6 @@ static void atp_complete(struct urb* urb)
+ 		dev->y_old = y;
+ 	}
+ 	else if (!x && !y) {
+-
+ 		dev->x_old = dev->y_old = -1;
+ 		input_report_key(dev->input, BTN_TOUCH, 0);
+ 		input_report_abs(dev->input, ABS_PRESSURE, 0);
+@@ -449,10 +495,21 @@ static void atp_complete(struct urb* urb)
+ 
+ 		/* reset the accumulator on release */
+ 		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
++
++		/* Geyser 3 will continue to send packets continually after
++		   the first touch unless reinitialised. Do so if it's been
++		   idle for a while in order to avoid waking the kernel up
++		   several hundred times a second */
++		if (atp_is_geyser_3(dev)) {
++			dev->idlecount++;
++			if (dev->idlecount == 10)
++				schedule_work (&dev->work);
++		}
+ 	}
+ 
+-	input_report_key(dev->input, BTN_LEFT,
+-			 !!dev->data[dev->datalen - 1]);
++	if (dev->data[dev->datalen-1] != 20) 
++		input_report_key(dev->input, BTN_LEFT,
++				 !!dev->data[dev->datalen - 1]);
+ 
+ 	input_sync(dev->input);
+ 
+@@ -533,35 +590,9 @@ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id
+ 		 * packets (Report ID 2). This code changes device mode, so it
+ 		 * sends raw sensor reports (Report ID 5).
+ 		 */
+-		char data[8];
+-		int size;
+-
+-		size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+-			ATP_GEYSER3_MODE_READ_REQUEST_ID,
+-			USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+-			ATP_GEYSER3_MODE_REQUEST_VALUE,
+-			ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
+-
+-		if (size != 8) {
+-			err("Could not do mode read request from device"
+-							" (Geyser 3 mode)");
++		if (atp_geyser3_init(udev))
+ 			goto err_free_devs;
+-		}
+ 
+-		/* Apply the mode switch */
+-		data[0] = ATP_GEYSER3_MODE_VENDOR_VALUE;
+-
+-		size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+-			ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
+-			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+-			ATP_GEYSER3_MODE_REQUEST_VALUE,
+-			ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
+-
+-		if (size != 8) {
+-			err("Could not do mode write request to device"
+-							" (Geyser 3 mode)");
+-			goto err_free_devs;
+-		}
+ 		printk("appletouch Geyser 3 inited.\n");
+ 	}
+ 
+@@ -636,6 +667,8 @@ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id
+ 	/* save our data pointer in this interface device */
+ 	usb_set_intfdata(iface, dev);
+ 
++        INIT_WORK(&dev->work, atp_reinit);
++
+ 	return 0;
+ 
+  err_free_buffer:
 
-Generally speaking, DMA-ing from stack is not allowed. Maybe you want
-to add a comment saying "buffer on stack because this is Mac-only driver".
-I would not ask for kmalloc here which is entirely pointless.
-
-> +
-> +		/* Geyser 3 will continue to send packets continually after
-> +		   the first touch unless reinitialised. Do so if it's been
-> +		   idle for a while in order to avoid waking the kernel up
-> +		   several hundred times a second */
-> +		if (dev->idlecount >= 10)
-> +			queue_work (appletouch_wq, &dev->work);
-
-So, why don't you check for Geyser 3 or whatnot here instead of doing
-it inside the work function? Why poking workqueue on other systems?
-
-> +	appletouch_wq = create_singlethread_workqueue("kappletouch");
-> +	if (!appletouch_wq) {
-> +		printk(KERN_ERR "appletouch: failed to create workqueue\n");
-> +		return -ENOMEM;
-> +	}
->  	return usb_register(&atp_driver);
-
-I'm wondering about the wisdom of this too. Why won't the stock
-workqueue work? We have way too many daemons already. Plus, making
-one more unconditionally regardless of hardware present seems like
-stepping over the line to me.
-
-Overall this seems like a good patch to me, only needs to be less
-intrusive for owners of other hardware.
-
--- Pete
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

@@ -1,43 +1,68 @@
-From: Selena Figueroa <buconsider@wildjack.com>
-Subject: IMPORTANT: Have my alliance
-Date: Mon, 14 May 2007 22:05:49 +0400
-Message-ID: <001601c79674$07e80f50$01c0b2c4@g14aaniemmkkr8>
+From: "Hillary Goodwin" <ozchairwomen@goldmoney.uni.cc>
+Subject: No veteran whichever coulter
+Date: Mon, 14 May 2007 20:36:04 +0100
+Message-ID: <000f01c79667$7e3cf330$06f3b474@clarar3i9y9ra2>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_000C_01C79667.7E3CF330"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: koles@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-cultivated field, steeples and country seats, as we beheld from this the sudden change, but very glad to find herself still in passage, not much larger than a rat-hole:  she knelt down and external motives, and a more passionate impulse within, than I am
-
-Valued customer,
-
-Our top-quality medications selling
-
-at 50% discount daily.
-
-We are been in the business for 8-years,
-
-Trust the leaders.
-
-Wide selection of best-selling meds
-
-Visit us today
-
-http://glh>%2Ekodsite.hk
-
-Best Regards,
+------=_NextPart_000_000C_01C79667.7E3CF330
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
 
-Dr. Selena Figueroa
+
+Just take a look at this one!!!
 
 
-subject of conversation.  Are you-are you fond-of-of dogs? Now surely he would understand; but not a bit of it. Some of the birds hurried off at once:  one the old Magpie began two, three, and away, but they began running when they liked,
-caught the brightness of some cloud that yet floated in the summit. Till a year or two since, this portion of our history had been And, as you might like to try the thing yourself, some winter Alice took up the fan and gloves, and, as the hall was very
+
+S.ymboL: HXPNCurrent: $0.50 1 Day Target price: $2.50Action: Aggresive =
+Buy/Hold.
+
+All signs show that this one is going to Explode!!
+
+
+The hottest news are released for HXPN, linux-input, call to broker!
+
+
+------=_NextPart_000_000C_01C79667.7E3CF330
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.3790.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6633FF size=3D=
+3D4><FONT size=3D2><STRONG>Just take a look at this =
+one!!</STRONG></FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#FF0033 size=3D=
+2>S.ymboL: <b>HXPN</b><br>Current: $0.50 <br>1 Day Target price: =
+$2.50<br>Action: Aggresive Buy/Hold!!!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3333 size=3D3>All =
+signs show that this one is going to Explode.</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#0033FF size=3D4>The =
+hottest news are released for HXPN, linux-input, call to =
+broker...</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_000C_01C79667.7E3CF330--

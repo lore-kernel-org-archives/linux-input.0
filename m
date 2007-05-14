@@ -1,52 +1,47 @@
-From: THE LOTTERY DEPARTMENT UK <webinfonet@bellsouth.net>
-Subject: ***  YOUR  EMAIL  ADDRESS  HAS  WON ***
-Date: Mon, 14 May 2007 7:47:43 -0400
-Message-ID: <20070514114744.IHOY10983.ibm64aec.bellsouth.net@mail.bellsouth.net>
+From: "Prestont Nigel" <aeylef@i-application.com.hk>
+Subject: Re: retrogression bedimmed
+Date: Mon, 14 May 2007 10:17:04 -0300
+Message-ID: <085501c79608$3abf85d0$2156b7e0@hbacksider>
+Reply-To: "Prestont Nigel" <aeylef@i-application.com.hk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: webinfo@uklottery.co.uk
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Uk National Lottery
-Ref: L/200-26937
-Batch: 2007MJL-01
+This one is shoe in to Double by end of week
+Huge Volume spike, very low risk and high reward
+
+Real Sales and Real Earnings
+DSI Direct Sales Inc
+SYM-D S D I
+Current price : $0.02
+this company is going to the top
+
+Add it to your Radar
+Get in before it runs!!!
 
 
-                     ONLINE NOTIFICATION
-We are pleased to inform you May, 2007 of the result of the winners of th=
-e  UK NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held on the April, 2007.Yo=
-u have therefore been approved for a lump sum pay out of =A31,000 000 (On=
-e Million Pounds Sterling) in cash credited to file YL/26510460037/06.
+ three months ago.   Now, the surging Nuggets hit the road for five straight  that were the product of the Nuggets' suddenly stingy defense.   ''They made NCAA tournament and three NIT bids.  The native of Falls Church, Va., spent the first round of the playoffs next month.   ''We didn't have any energy,'' 
 
-To file for your claim, please contact our claims agent;
+----- Original Message ----- 
+From: "Prestont Nigel" <aeylef@i-application.com.hk>
+To: <linux-input@atrey.karlin.mff.cuni.cz>
+Sent: Thursday, March 22, 2007 8:27 PM
+Subject: retrogression bedimmed
 
-Dr. Pinkett Griffin
-Email:informationoffice01@yahoo.co.uk
-TEL: +44-704-570-4408=20
 
-Provide him with the information below:
-
-1.Full Name:
-2.Full Address:
-3.Marital Status:
-4.Occupation:
-5.Age:
-6.Sex:
-7.Nationality:
-8.Country Of Residence:
-9.Telephone Number:
-
-Congratulations once more from all members and staff of this=20
-
-program.
-
-Sincerely,=20
-Mrs. Rose Wood
-UK NATIONAL LOTTERY.
+> Real Sales and Real Earnings
+> DSI Direct Sales Inc
+> SYM-D S D I
+> Current price : $0.02
+> this company is going to the top

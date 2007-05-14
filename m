@@ -1,43 +1,73 @@
-From: "Giel de Nijs" <giel@caffeinetrip.com>
-Subject: Re: [patch 0/2] [PATCH] input: correctly handle keys without hardware release event
-Date: Mon, 14 May 2007 08:16:29 +0200
-Message-ID: <929318d30705132316w300fe8e4ue98a02e85cd82cfb@mail.gmail.com>
-References: <20070511172326.008944330@caffeinetrip.com>
-	 <200705132344.19311.dtor@insightbb.com>
-Reply-To: giel@caffeinetrip.com
+From: Nippon@atrey.karlin.mff.cuni.cz, Oil@atrey.karlin.mff.cuni.cz,
+	Exploration@atrey.karlin.mff.cuni.cz, and@atrey.karlin.mff.cuni.cz,
+	Production@atrey.karlin.mff.cuni.cz, "U.K."@atrey.karlin.mff.cuni.cz,
+	Limited <nipponoilexplorationltd01@yahoo.co.uk>
+Subject: (Job Offer)Work with us@Nippon Oil Exploration Ltd
+Date: Mon, 14 May 2007 03:40:24 -0300
+Message-ID: <APP335TvMpR4YzQaJeB0002d573@app33.terraempresas.com.br>
+Reply-To: nipponoilexplorationltd01@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200705132344.19311.dtor@insightbb.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Matthew Garrett <mjg59@srcf.ucam.org>, Matt Domsch <matt_domsch@dell.com>, Rezwanul Kabir <rezwanul_kabir@dell.com>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 5/14/07, Dmitry Torokhov <dtor@insightbb.com> wrote:
-
-> > This patch adds a soft release key mask to input_dev, to enable keyboard
-> > drivers to determine which keys never generate a hardware release event and
-> > hence add a release event after every press event of such keys. The mask is
-> > controlled by ioctls.
->
-> I don't think we want to add all the infrastructure for the benefit of single
-> driver. Can we add a quirk to atkbd and activate it based on DMI?
-
-As the atkbd.c driver already had a work-around for exactly the same problem
-with some (I think) Korean keyboards (KEY_HANGEUL and KEY_HANJA), adding
-this infrastructure (well, one pointer and two ioctls) seemed a logical step.
-If you prefer a hack just in atkbd.c and activate it on Dell laptops, I see
-what I can do. The problem with that is that I don't know the scancodes of
-all keys on all models (and future models) that exhibit this behaviour. I'll
-implement what I know, though (it'll take some time because I'll be
-travelling quite a lot very soon).
-
-Greetings,
-Giel
+Nippon Oil Exploration and Production U.K., Limited
+New Liverpool House / 2nd Floor,=20
+15 Eldon Street London
+EC2M 7LD, U.K.
+ATTN: SIR/MADAM,
+Yes you can apply and be appointed,as your province/region covers within =
+the range of North and South America.We seek a representative that can he=
+lp my company in clearing our payments,this has being occasioned by the w=
+ide growth in our market that has expanded our goods and products to your=
+ province encompassing---AMERICA,CANADA,MEXICO AND PUERTO RICO. Likewise =
+all exterior axis of EUROPE.
+Hence the mergence for a representative/agent who is competent,diligent a=
+nd trustworthy to handle the responsiblity of receiveing payments on our =
+behalf.Our customers issue out payments in cheques,bankdrafts,bonds etc a=
+nd we don't run an account presently in your province that will clear thi=
+s payments.Likewise clearance of our goods within your province.
+As our representative you will receive 10% of any payments you clear for =
+the company, that is how you will be paid/renumerated by the company then=
+ you will remit the balance of 90% to us.This the company's standard mode=
+ of operation.
+If you are interested in our offer please confirm your complete informati=
+ons:
+1)FULL NAMES/COMPANY NAME
+2)COMPANY/HOME ADDRESS=20
+3)MAILING ADRESS=20
+4)COUNTRY/STATE
+5)PHONE NUMBERS-CELL,HOME,OFFICE ETC(kindly ensure you forward a function=
+al phone number/s)=20
+6)FAX NUMBER
+7)ZIP CODE
+8)EVIDENCE OF FULL IDENTIFICATION--SCANNED AND FORWARDED COPY OF INTERNAT=
+IOAL PASSPORT OR DRIVER"S LICENCE.
+9)COMPLETE WORKING EXPERIENCE(WITH DETAILS)
+10)ANNUAL INCOME
+all these are required for official documentation and record purpose once=
+ this is done i will fax it to our customers instructing them that you ar=
+e our rep/agent and that they should issue out payments to you on behalf =
+of Nippon Company Ltd.
+Waiting to hear from you.If you need any other informations do not fail t=
+o attention me.i ll instruct my attorney to prepare and send you our comp=
+any"s statutory memorandum of understanding(M.O.U) via mail/fax.=20
+Kindly acknowledge reciept of mail by swiftly replying.i need to to hear =
+from you as soon as possible so that the board of management can concess =
+to your appointment.
+have a nice day.
+I await your urgent response.
+Thanks for your time,
+Yours Respectfuly,
+Mr. Tony Johnson
+Regional Coordinator
+Nippon Oil Exploration and Production U.K., Limited
+TEL: +44-704-571-1123
+Email to: nipponoilexplorationltd01@yahoo.co.uk

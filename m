@@ -1,10 +1,10 @@
-From: "Lasse Fosco" <Lasse_Fosco@allister.co.uk>
-Subject: This is a packing call, which will be explained in depth later on in Packing Widgets.
-Date: Mon, 14 May 2007 18:23:35 +0200
-Message-ID: <000401c79644$38e2d200$069a3f97@pc>
+From: "paageli weapenicappo" <paageli_weapenicappo@apolite.fr>
+Subject: For this last, Before and in Corioli, let me say I cannot speak him home.
+Date: Mon, 14 May 2007 19:55:11 +0200
+Message-ID: <000c01c79651$074a5da0$558429d5@bureau>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0008_01C79654.FC6BA200"
+	boundary="----=_NextPart_000_0006_01C79661.CAD32DA0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,7 +14,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0008_01C79654.FC6BA200
+------=_NextPart_000_0006_01C79661.CAD32DA0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -38,9 +38,9 @@ LASSEN SIE SICH DIESE CHANCE NICHT ENTGEHEN!
 C5J1 WIRD WIE EINE RAKETE DURCHSTARTEN!
 UNSERE ERWARTUNGEN WIRD C5J1 UBERTREFFEN!
 
-Anyway, Dummy, you weren't in the City, go on now, confess, we won't take offense, you tell a rattling good story. Anyway, it was not 'my' country - or not then.
-Anyway, none of what they think matters. And after all, Pascal still remains one of the best possible languages for teaching, not to mention production programming.
-------=_NextPart_000_0008_01C79654.FC6BA200
+Ah, the tears that flowed. Didn't read the parody.
+The point of this little digression is that we need to make sure the grammar we use for parsing HTML files is not left recursive. Thanks, sure it will help.
+------=_NextPart_000_0006_01C79661.CAD32DA0
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -74,15 +74,12 @@ DURCHSTARTEN!</FONT></DIV>
 <DIV><FONT Arial size=3D2>UNSERE ERWARTUNGEN WIRD C5J1 =
 UBERTREFFEN!</FONT></DIV>
 <DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Anyway, Dummy, you weren't in the City, go on =
-now,=20
-confess, we won't take offense, you tell a rattling good story. Anyway, =
-it was=20
-not 'my' country - or not then.</FONT></DIV>
-<DIV><FONT Arial size=3D2>Anyway, none of what they think matters. And =
-after all,=20
-Pascal still remains one of the best possible languages for teaching, =
-not to=20
-mention production programming.</FONT></DIV></BODY></HTML>
+<DIV><FONT Arial size=3D2>Ah, the tears that flowed. Didn't read the =
+parody.</FONT></DIV>
+<DIV><FONT Arial size=3D2>The point of this little digression is that we =
+need to=20
+make sure the grammar we use for parsing HTML files is not left =
+recursive.=20
+Thanks, sure it will help.</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_0008_01C79654.FC6BA200--
+------=_NextPart_000_0006_01C79661.CAD32DA0--

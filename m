@@ -1,34 +1,71 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: [PATCH] Make appletouch shut up when it has nothing to say
-Date: Sun, 13 May 2007 18:58:07 -0700
-Message-ID: <20070513185807.18222a0d.zaitcev@redhat.com>
-References: <1178995886.4168.10.camel@localhost>
-	<20070513172052.GA26712@srcf.ucam.org>
-	<20070513114626.d943999a.zaitcev@redhat.com>
-	<20070513195724.GA28493@srcf.ucam.org>
+From: "Malinda Caudill" <surprise8@hosthell.net>
+Subject: To no kaaawa
+Date: Mon, 14 May 2007 12:01:10 -0700
+Message-ID: <001501c7961f$8fca4960$00b045ac@CESAR>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0012_01C7961F.8FCA4960"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070513195724.GA28493@srcf.ucam.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch, linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>, zaitcev@redhat.com
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 13 May 2007 20:57:25 +0100, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+------=_NextPart_000_0012_01C7961F.8FCA4960
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> Ok, I've tidied this up a little. [...]
 
-Looks fine here... well, almost. Did you try rmmod (I don't even know if
-it's applicable, sorry)? Usually, when schedule_work is involved, you want
-to make sure that a scheduled work won't be run when the module is gone.
-More often, a device removal is the issue, but as I take it, such is not
-possible for a built-in device :-) . In most cases, all it takes is a
-strategically placed flush_scheduled_work().
 
--- Pete
+
+
+Just take a look at this one...
+
+
+
+L00kup: HXPNCurrent: $0.50 3 Day Target price: $2.50Expected: Steadily =
+climb for the top...
+
+500%+ profit (short term).
+
+
+HXPN have released very hot news. Check this out, linux-input and call =
+to your brocker right now!!!
+
+
+------=_NextPart_000_0012_01C7961F.8FCA4960
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.3790.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#3300FF size=3D=
+3D4><FONT size=3D2><STRONG>Just take a look at this =
+one!</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#333366 size=3D=
+4>L00kup: <b>HXPN</b><br>Current: $0.50 <br>3 Day Target price: =
+$2.50<br>Expected: Steadily climb for the top.</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6600FF size=3D3>500%+ =
+profit (short term)!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#000033 size=3D3>HXPN =
+have released very hot news. Check this out, linux-input and call to =
+your brocker right now...</FONT></DIV>
+<BR>
+</BODY></HTML>
+
+------=_NextPart_000_0012_01C7961F.8FCA4960--

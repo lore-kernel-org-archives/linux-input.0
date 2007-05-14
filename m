@@ -1,32 +1,43 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] iforce: Use interrupt URBs
-Date: Mon, 14 May 2007 00:13:19 -0400
-Message-ID: <200705140013.20164.dtor@insightbb.com>
-References: <38b3b7c0705120718m55073ca3i6f3d0012a93d7956@mail.gmail.com>
+From: "Giel de Nijs" <giel@caffeinetrip.com>
+Subject: Re: [patch 0/2] [PATCH] input: correctly handle keys without hardware release event
+Date: Mon, 14 May 2007 08:16:29 +0200
+Message-ID: <929318d30705132316w300fe8e4ue98a02e85cd82cfb@mail.gmail.com>
+References: <20070511172326.008944330@caffeinetrip.com>
+	 <200705132344.19311.dtor@insightbb.com>
+Reply-To: giel@caffeinetrip.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <38b3b7c0705120718m55073ca3i6f3d0012a93d7956@mail.gmail.com>
+In-Reply-To: <200705132344.19311.dtor@insightbb.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: johann deneux <johann.deneux@gmail.com>
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, Matthew Garrett <mjg59@srcf.ucam.org>, Matt Domsch <matt_domsch@dell.com>, Rezwanul Kabir <rezwanul_kabir@dell.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Saturday 12 May 2007 10:18, johann deneux wrote:
-> =C2=A0 =C2=A0 Bug fix: Force feedback stopped working in 2.7.18.
->=20
-> =C2=A0 =C2=A0 Use an interrupt bulk URB to send force-feedback data to th=
-e device
-> =C2=A0 =C2=A0 instead of a bulk URB.
+On 5/14/07, Dmitry Torokhov <dtor@insightbb.com> wrote:
 
-Both patches apllied, thank you.
+> > This patch adds a soft release key mask to input_dev, to enable keyboard
+> > drivers to determine which keys never generate a hardware release event and
+> > hence add a release event after every press event of such keys. The mask is
+> > controlled by ioctls.
+>
+> I don't think we want to add all the infrastructure for the benefit of single
+> driver. Can we add a quirk to atkbd and activate it based on DMI?
 
-=2D-=20
-Dmitry
+As the atkbd.c driver already had a work-around for exactly the same problem
+with some (I think) Korean keyboards (KEY_HANGEUL and KEY_HANJA), adding
+this infrastructure (well, one pointer and two ioctls) seemed a logical step.
+If you prefer a hack just in atkbd.c and activate it on Dell laptops, I see
+what I can do. The problem with that is that I don't know the scancodes of
+all keys on all models (and future models) that exhibit this behaviour. I'll
+implement what I know, though (it'll take some time because I'll be
+travelling quite a lot very soon).
+
+Greetings,
+Giel

@@ -1,10 +1,13 @@
-From: "Alta Richard" <seemarlboro@hyipzone.net>
-Subject: Have himself malposed
-Date: Tue, 15 May 2007 16:47:20 +0000
-Message-ID: <001601c79710$b4597160$00afddec@elvarb73e0a2c6>
+From: "Efren Conklin" <pvaltura@ivoxlab.net>
+Subject: on the brinnon
+Date: Tue, 15 May 2007 20:26:48 +0300
+Message-ID: <001601c7972f$5d380d00$05f0e694@yetibd3002b917>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0013_01C79710.B4597160"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,55 +17,23 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0013_01C79710.B4597160
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+PHYSICIANS ADULT DAY (PHYA at PK)  
+
+Sym: PHYA 
+Targ: $2.25
+Current grow +3,76 % +0.025 (0.69)
+
+News1: Physicians Adult Daycare Finds Validation North of the Border
+News2: Physicians Adult Daycare Pursues Expanding Canadian Opportunities
+
+Look at financial reports of this company
+this one are generating income.
+
+PHYA IS ABOUT TO RISE!
+Recommendation: buy now and win.
 
 
 
-Get it before the RUSH.
-
-S.ymboL: HXPNCurrent: $0.64 (28% UP!)1 Day Target price: $2.50Action: =
-Aggresive Buy/Hold.
-
-
-SOMEBODY KNOWS SOMETHING!!!
-
-
-See the hottest news of the HXPN, linux-input, call your broker..
-
-
-
-------=_NextPart_000_0013_01C79710.B4597160
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2900.0000" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
-3D4><FONT size=3D4><STRONG>Get it before the =
-RUSH...</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3300 size=3D=
-4>S.ymboL: <b>HXPN</b><br>Current: $0.64 (28% UP!)<br>1 Day Target =
-price: $2.50<br>Action: Aggresive Buy/Hold.</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF3300 size=3D=
-3>SOMEBODY KNOWS SOMETHING..</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#003399 size=3D3>See =
-the hottest news of the HXPN, linux-input, call your =
-broker..</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_0013_01C79710.B4597160--
+_________________________________________
+Mavis Weld said nothing. Her face had no expression. Money talks. Mine always says, Goodbye! - Hardy Parkerson Came from Caesar's Laurel Crown. I wandered through each chartered street, Puts all Heaven in a Rage. No gain without pain. stammers a thin compliment and is lured away First deserve then desire.
+ 

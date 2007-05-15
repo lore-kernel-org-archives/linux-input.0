@@ -1,94 +1,49 @@
-From: "Orville Kenny" <loffloridapsychmic@floridapsych.com>
-Subject: Achieve picture perfect weight and enjoy life
-Date: Tue, 15 May 2007 19:37:29 -0100
-Message-ID: <807237632.02714580114455@thhebat.net>
+From: Soeren Sonnenburg <kernel@nn7.de>
+Subject: Re: [PATCH] Make appletouch shut up when it has nothing to say
+Date: Tue, 15 May 2007 20:34:55 +0000
+Message-ID: <1179261295.18316.9.camel@localhost>
+References: <1178995886.4168.10.camel@localhost>
+	 <20070513172052.GA26712@srcf.ucam.org>
+	 <20070513114626.d943999a.zaitcev@redhat.com>
+	 <20070513195724.GA28493@srcf.ucam.org>
+	 <20070513185807.18222a0d.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------42584090925F8B"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070513185807.18222a0d.zaitcev@redhat.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch, linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-------------42584090925F8B
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+On Sun, 2007-05-13 at 18:58 -0700, Pete Zaitcev wrote:
+> On Sun, 13 May 2007 20:57:25 +0100, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> 
+> > Ok, I've tidied this up a little. [...]
+> 
+> Looks fine here... well, almost. Did you try rmmod (I don't even know if
+> it's applicable, sorry)? Usually, when schedule_work is involved, you want
+> to make sure that a scheduled work won't be run when the module is gone.
+> More often, a device removal is the issue, but as I take it, such is not
+> possible for a built-in device :-) . In most cases, all it takes is a
+> strategically placed flush_scheduled_work().
 
+I was using this patch for some days now and I realized that - from time
+to time - the touchpad runs amok, i.e. I more or less unable to control
+the mouse when that happens.
 
+Then a rmmod appletouch (+ reload) fixes this, as well as a sleep/resume
+cycle.
 
-Anatrim - the strongest product for over-weight people available everywhere!!!
+As I had to rmmod appletouch a lot and did not see crashes I think it
+works... though this problem persists...
 
-Like a lot of people throughout the planet, you probably saw the fascinating BBC report about fascinating new diet sensational breakthrough "Anatrim Cactus", a miraculous up to date product that took the weight loss industry by a storm!
-Take Portliness by Storm
-Restrains Appetite like no other product
-100% Herbal & Safe
-Clean Unadulterated product – No vehicles
-Made for innocuous, momentary weight loss
-Without any Ephedra/Caffeine!
-Can be introduced with no difficulties into subsisting diet scheme
-Watch the kilos disappear and you restore yourself!
-Helps you feel and look cute!
-
-Read what our customers stated about the product:
-
-"Nothing of the kind!  I and my wife been harassing diets for a long time. What a depriving ride it has been I should acknowledge. Your stuff helped us to drop 28 kilos between us during sixty days. That was 176 days ago and until now the weight is still out! Thank you, thank you, thank you … we said. Thank you!!!"
-
- 
-Maria and Serge H., Vena
-
-Read more happy testimonials at our web site!!!
-http://www.aoltos.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7oekavx
-
-------------42584090925F8B
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Look in the mirror and enjoy the new you</TITLE>
-</HEAD>
-<BODY>
-
-<b>
-<center>
-<a href="http://www.aoltos.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7oekavx">
-Anatrim - the strongest product for over-weight people available everywhere!!!
-</a>
-</center>
-<br>
-Like a lot of people throughout the planet, you probably saw the fascinating BBC report about fascinating new diet sensational breakthrough "Anatrim Cactus", a miraculous up to date product that took the weight loss industry by a storm!
-<br>
-<br>
-<li>Take Portliness by Storm
-<li>Restrains Appetite like no other product
-<li>100% Herbal & Safe
-<li>Clean Unadulterated product – No vehicles
-<li>Made for innocuous, momentary weight loss
-<li>Without any Ephedra/Caffeine!
-<li>Can be introduced with no difficulties into subsisting diet scheme
-<li>Watch the kilos disappear and you restore yourself!
-<li>Helps you feel and look cute!
-<br>
-<br>
-Read what our customers stated about the product:
-<br>
-<br>
-<i>
-"Nothing of the kind!  I and my wife been harassing diets for a long time. What a depriving ride it has been I should acknowledge. Your stuff helped us to drop 28 kilos between us during sixty days. That was 176 days ago and until now the weight is still out! Thank you, thank you, thank you … we said. Thank you!!!"
-</i>
- <p>
-Maria and Serge H., Vena
-</p>
-<center>
-<a href="http://www.aoltos.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7oekavx">
-Read more happy testimonials at our web site!!!
-</a>
-</center>
-</b>
-<font color="#D9EDFF">http://www.aoltos.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7oekavx</font>
-
-</BODY></HTML>
-------------42584090925F8B--
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.

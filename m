@@ -1,7 +1,7 @@
 From: Mrs Serah Ali <SerahAliGhana1@yahoo.com>
 Subject: Beloved One in Christ ,
-Date: Tue, 15 May 2007 16:18:22 +0300
-Message-ID: <200705151318.l4FDIMer016080@mail.ekoteks.lv>
+Date: Tue, 15 May 2007 16:46:49 +0300
+Message-ID: <200705151346.l4FDknkU021586@mail.ekoteks.lv>
 Reply-To: SerahAliGhana@yahoo.com
 Mime-Version: 1.0
 Content-Type: text/plain

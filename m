@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <online_promo07@bellsouth.net>
 Subject: BRITISH LOTTERY6/49
-Date: Tue, 15 May 2007 5:14:47 -0400
-Message-ID: <20070515091447.PJOW18456.ibm58aec.bellsouth.net@mail.bellsouth.net>
+Date: Tue, 15 May 2007 5:14:51 -0400
+Message-ID: <20070515091451.PJPD18456.ibm58aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable

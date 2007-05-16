@@ -1,112 +1,132 @@
-From: "Graciela Carlson" <mawfptdbec@fptd.org>
+From: "Kate Hearn" <mawfrankcoppolabec@frankcoppola.net>
 Subject: Losing weight has never been so easy
-Date: Wed, 16 May 2007 09:50:34 -0200
-Message-ID: <279872893.73052073899490@thhebat.net>
+Date: Wed, 16 May 2007 14:08:05 -0300
+Message-ID: <756807214.65561371287081@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------991C705348670C7"
+  boundary="----------29E805136EFDA0C"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: mailer-daemon@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------991C705348670C7
+------------29E805136EFDA0C
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
 
 
-Anatrim - the most effective lose flesh blend is now easily available=20=
-everywhere!!!
+Don't waste the opportunity! =96 Anatrim =96 The newest and most=20=
+attracting flesh loss product is now available =96 As were shown on Oprah
 
-Like plenty of people across the planet, you could see the exciting=20=
-Oprah report on the exciting new diet sensational breakthrough "Anatrim=20=
-Cactus", a phenomenal up to date product that's taking the weight loss=20=
-industry by storm!
-Assail Stoutness
-Suppresses feeling of hunger like no other product
-One hundred per cent Herbal & Inoffensive
-Neat Unadulterated product =96 No excipients
-Assist inoffensive, prompt fat loss
-Without any Caffeine/Ephedra!
-Can easily be brought in into existing diet plan
-See the kilos are melting off and you renovate yourself!
-Helps in your striving for feeling and looking well!
-
-Just look at what people say concerning this stuff:
-
-"Nothing of the kind!  My wife and I been harassing diets just for many=20=
-and many years. What a thwarting ride it has been I ought to confirm.=20=
-Your stuff helped us to lose 35 kilogrammes between us for 2 months. That=20=
-happened 160 days ago and until now the weight didn=92t get back! A lot=20=
-of thanx to you did we say. Thank you!!!"
+Do you count up all the situations when you told yourself you would do=20=
+anything for being delivered from this awful number of pounds? Happily,=20=
+now no great price is to be paid. Thanks to Anatrim, the ground-shaking,=20=
+you can achieve naturally health mode of life and a really slender=20=
+figure. Just notice what people state!
+ 
+=93I always had a first-class life until a year ago my girl told me I=20=
+was portly and in great need of looking after my health. My life had=20=
+changed the wrong way after that, until I disclosed Anatrim =99 for me at=20=
+once. After loosing about 20 kilogrames only thanks to Anatrim,  my=20=
+private life=92s back on track, even better than before. Thank you for=20=
+the awesome stuff and the great maintenance service. Keep up your helpful=20=
+action!=94
 
  
-Susan and Mark N., New York
+Steve Doubt, San Diego
 
-Read more delighted gratitudes at our web page!!!
-http://www.sedensir.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7gzygst
+ 
+"Nothing to compare with gliding into a bikini I haven't worn for=20=
+years. I feel slender, determined, and sturdy, thanks in great part to=20=
+Anatrim! Great thank you!"
 
-------------991C705348670C7
+ 
+Maria H., Colorado
+
+Discover Anatrim, and  you shall join the world-spread association of=20=
+thousands of pleased user who are enjoying the revolutionary results of=20=
+Anatrim right here and right now. Less gobbling mania, less kilogrames=20=
+and more merriment in your life!
+
+Proceed here to scan our unbreakable Anatrim arrangements!!!
+http://www.patak.hk/?g3726E6A3266727366777E70776E336B337A6E68667177696A7445796A33667173726B6873337Fw7xjnymc
+
+------------29E805136EFDA0C
 Content-Type: text/html; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Achieve picture perfect weight and enjoy life</TITLE>
+<HTML><HEAD><TITLE>Obesity is dangerous, stop it</TITLE>
 </HEAD>
 <BODY>
 
-<b>
+<p>
 <center>
+<b>
 <a=20=
-href=3D"http://www.sedensir.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7gzygst">
-Anatrim - the most effective lose flesh blend is now easily available=20=
-everywhere!!!
+href=3D"http://www.patak.hk/?g3726E6A3266727366777E70776E336B337A6E68667177696A7445796A33667173726B6873337Fw7xjnymc">
+Don't waste the opportunity! =96 Anatrim =96 The newest and most=20=
+attracting flesh loss product is now available =96 As were shown on Oprah
 </a>
 </center>
 <br>
-Like plenty of people across the planet, you could see the exciting=20=
-Oprah report on the exciting new diet sensational breakthrough "Anatrim=20=
-Cactus", a phenomenal up to date product that's taking the weight loss=20=
-industry by storm!
-<br>
-<br>
-<li>Assail Stoutness
-<li>Suppresses feeling of hunger like no other product
-<li>One hundred per cent Herbal & Inoffensive
-<li>Neat Unadulterated product =96 No excipients
-<li>Assist inoffensive, prompt fat loss
-<li>Without any Caffeine/Ephedra!
-<li>Can easily be brought in into existing diet plan
-<li>See the kilos are melting off and you renovate yourself!
-<li>Helps in your striving for feeling and looking well!
-<br>
-<br>
-Just look at what people say concerning this stuff:
-<br>
+Do you count up all the situations when you told yourself you would do=20=
+anything for being delivered from this awful number of pounds? Happily,=20=
+now no great price is to be paid. Thanks to Anatrim, the ground-shaking,=20=
+you can achieve naturally health mode of life and a really slender=20=
+figure. Just notice what people state!
+ <br>
 <br>
 <i>
-"Nothing of the kind!  My wife and I been harassing diets just for many=20=
-and many years. What a thwarting ride it has been I ought to confirm.=20=
-Your stuff helped us to lose 35 kilogrammes between us for 2 months. That=20=
-happened 160 days ago and until now the weight didn=92t get back! A lot=20=
-of thanx to you did we say. Thank you!!!"
+=93I always had a first-class life until a year ago my girl told me I=20=
+was portly and in great need of looking after my health. My life had=20=
+changed the wrong way after that, until I disclosed Anatrim =99 for me at=20=
+once. After loosing about 20 kilogrames only thanks to Anatrim,  my=20=
+private life=92s back on track, even better than before. Thank you for=20=
+the awesome stuff and the great maintenance service. Keep up your helpful=20=
+action!=94
 </i>
- <p>
-Susan and Mark N., New York
-</p>
+ <br>
+<b>
+<i>
+Steve Doubt, San Diego
+</i>
+</b>
+ <br>
+<br>
+<i>
+"Nothing to compare with gliding into a bikini I haven't worn for=20=
+years. I feel slender, determined, and sturdy, thanks in great part to=20=
+Anatrim! Great thank you!"
+</i>
+ <br>
+<b>
+<i>
+Maria H., Colorado
+</i>
+</b>
+<br>
+<br>
+Discover Anatrim, and  you shall join the world-spread association of=20=
+thousands of pleased user who are enjoying the revolutionary results of=20=
+Anatrim right here and right now. Less gobbling mania, less kilogrames=20=
+and more merriment in your life!
+<br>
+<br>
 <center>
 <a=20=
-href=3D"http://www.sedensir.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7gzygst">
-Read more delighted gratitudes at our web page!!!
+href=3D"http://www.patak.hk/?g3726E6A3266727366777E70776E336B337A6E68667177696A7445796A33667173726B6873337Fw7xjnymc">
+Proceed here to scan our unbreakable Anatrim arrangements!!!
 </a>
 </center>
 </b>
+</p>
 <font=20=
-color=3D"#D9EDFF">http://www.sedensir.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7gzygst</font>
+color=3D"#D9EDFF">http://www.patak.hk/?g3726E6A3266727366777E70776E336B337A6E68667177696A7445796A33667173726B6873337Fw7xjnymc</font>
 
 </BODY></HTML>
-------------991C705348670C7--
+------------29E805136EFDA0C--

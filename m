@@ -1,49 +1,61 @@
-From: Soeren Sonnenburg <kernel@nn7.de>
-Subject: Re: [PATCH] Make appletouch shut up when it has nothing to say
-Date: Tue, 15 May 2007 20:34:55 +0000
-Message-ID: <1179261295.18316.9.camel@localhost>
-References: <1178995886.4168.10.camel@localhost>
-	 <20070513172052.GA26712@srcf.ucam.org>
-	 <20070513114626.d943999a.zaitcev@redhat.com>
-	 <20070513195724.GA28493@srcf.ucam.org>
-	 <20070513185807.18222a0d.zaitcev@redhat.com>
+From: LOTTERY BOARD <infosender11@bellsouth.net>
+Subject: Confirmed Reciept......Dear Winner.......
+Date: Tue, 15 May 2007 20:20:03 -0400
+Message-ID: <20070516002003.PBFP16199.ibm59aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070513185807.18222a0d.zaitcev@redhat.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@atrey.karlin.mff.cuni.cz, nicolas@boichat.ch, linux-usb-devel@lists.sourceforge.net, Linux Kernel <linux-kernel@vger.kernel.org>
+To: webinfo@uklottery.org
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 2007-05-13 at 18:58 -0700, Pete Zaitcev wrote:
-> On Sun, 13 May 2007 20:57:25 +0100, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> 
-> > Ok, I've tidied this up a little. [...]
-> 
-> Looks fine here... well, almost. Did you try rmmod (I don't even know if
-> it's applicable, sorry)? Usually, when schedule_work is involved, you want
-> to make sure that a scheduled work won't be run when the module is gone.
-> More often, a device removal is the issue, but as I take it, such is not
-> possible for a built-in device :-) . In most cases, all it takes is a
-> strategically placed flush_scheduled_work().
+UK NATIONAL LOTTERY HEADQUARTERS
+The Marina Offices, St Peters Yacht Basin,
+Newcastle upon Tyne, NE6 1HX England
+Ref: L/200-26937
+Batch: 2007MJL-01
 
-I was using this patch for some days now and I realized that - from time
-to time - the touchpad runs amok, i.e. I more or less unable to control
-the mouse when that happens.
 
-Then a rmmod appletouch (+ reload) fixes this, as well as a sleep/resume
-cycle.
+                     ONLINE NOTIFICATION
+We are pleased to inform you May, 2007 of the result of the winners of th=
+e =20
+UK NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held on the April,=20
+2007.You have therefore been approved for a lump sum pay out of=20
 
-As I had to rmmod appletouch a lot and did not see crashes I think it
-works... though this problem persists...
+=C2=A31,000 000 (One Million Pounds Sterling) in cash credited to file=20
+YL/26510460037/06.
 
-Soeren
--- 
-Sometimes, there's a moment as you're waking, when you become aware of
-the real world around you, but you're still dreaming.
+To file for your claim, please contact our claims agent;
+
+Dr. Pinkett Griffin
+Email:uknl_claims01@yahoo.co.uk
+TEL: +447045708136=20
+
+
+Provide him with the information below:
+
+REFERENCE NUMBER:UK/786543X4/28
+BATCH NUMBER:034/099/YX46
+TICKET NUMBER:005-4432-971-878
+
+
+1.Full Name:
+2.Full Address:
+3.Marital Status:
+4.Occupation:
+5.Age:
+6.Sex:
+7.Nationality:
+8.Country Of Residence:
+9.Telephone Number:
+
+Congratulations once more from all members and staff of this program.
+
+Sincerely,=20
+Mrs. Lewis Braxton=20
+UK NATIONAL LOTTERY.

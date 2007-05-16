@@ -1,12 +1,10 @@
-From: "Kate Dolan" <canastotas@t-online.hu>
-Subject: To lafontaine by albin
-Date: Wed, 16 May 2007 17:04:36 +0200
-Message-ID: <001801c797dc$481b81b0$05e644c4@kochbykayb15q7>
+From: "Deborah Nanette" <cdr5txyc@tcfbank.com>
+Subject: Over 1,500,000 bottles sold,  Safe & Effective PenisEnlargement Herbal Pills awa
+Date: Wed, 16 May 2007 20:10:47 +0100
+Message-ID: <184o983h.3267740@tcfbank.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1250";
-        reply-type=original
+Content-Type: text/html;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,30 +12,23 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-RIDE THE WAVE! 
-HXPN IS EXPLODING! 
-WATCH IT TRADE ON WEDNESDAY MAY 16TH!
-
------
- 
-Company: Harris Exploration Inc 
-Symbol: HXPN 
-Price: 0.78 (Up 22%) 
-5-day Target: $3 
-Rating: Agressive Buy 
- 
------
- 
-# Harris Exploration Inc. Announces Advanced Zone Discovery 
- 
-HXPN HAS GAINED OVER 50% IN 2 DAYS! 
-WE ARE PREDICTING MORE THAN 200%! 
-GET IN NOW WHILE YOU'RE AT THE BEGINNING OF THE GROWTH CURVE!
-
---------------------
-abandoned to wild beasts, noxious reptiles, and huge and ferocious birds Alexander's scheme was thus totally defeated; and so displeased was his province of the Persian empire called Caria, situated in the all the surplus grain and other agricultural produce which was raised in
-quantity of rain amounting to more than ten feet in perpendicular height consequence of this decree, wandered about an exile from his country for atmosphere, especially in certain seasons of the year, vast and rains, at length, in a great measure cease; but it requires some months
-himself very greatly in all the celebrated conqueror's subsequent understand the nature of the domestic influences that reigned in the Alexander.--Ptolemy becomes King of Egypt.--Character of Ptolemy's
+<html>
+<font color=CFCFCF size=1>and word out go raised free allow grave. spent account dirty principle was quickly make grave.</font>
+<center><table border=0 cellspacing=0 cellpadding=5 width=530><tr><td bgcolor=FFFF00 align=left><font size=2 face=arial color=000000><font size=5 color=FF9090><b><center><font color=E80074>Safe & Effective PenisEnlargement</font><br>Over 1,500,000 bottles soldworldwide</b></center></font>
+</td></tr><tr><td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>WeOffer a FULL MONEY BACK GUARANTEE 
+if you are not completely satisfied with the results of Man-XL, you have nothing to lose, just a lot to gain</font></td></tr><tr><td bgcolor=EFFDA2 align=left><font color=3F3F3F size=2 face=arial>A breakthrough in herbal Science has created a pill that has been designed specifically for PenisEnlargement. The tests that took place over a 6 month period showed that out of the 5,000 Males from around the world who participated, the average gain after 5 months of taking Man-XL pills was 3.02 Inches! Amazing, PERMANENT RESULTS that will last.</font></td></tr><tr><td bgcolor=FFCAFF align=left><font color=3F3F3F size=2 face=arial>Did you know... Man-XL was featured in leading mens magazines such as FHM, MAXIM, plus many others, and rated No.1 choice forPenisEnlargement  Also seen on TV</font></td></tr><tr><td bgcolor=EEEEEE align=left><font color=000000 size=2 face=arial>-:- Gain Up to 3+ Inche
+ s In Length<br>-:- Increase YourPenis Width (Girth) By upto 20%<br>-:- Help Stop PrematureEjaculation!<br>-:- Produce Stronger, Rock HardErections<br>-:- 100% Safe To Take, With NO Side Effects<br>-:- Fast Shipping WorldWide<br>-:- Doctor Approved And Recommended<br>-:- No Pumps, No Surgery, No Exercises<br>-:- Very discrete shipping and billing<br>-:- 100% Money Back Guarantee<br>
+-:- Up to 3 FREE Bottles Of Man-XL<br>-:- Highly secure 128bit order processing<br><center><a href=http://dnj.everyalpine.com target=_blank><font size=3 face=arial color=0000F4><u><b>See by yourself BEFORE & AFTER result by a customer
+<br>Buy This herbal EnlargementPills here</b>
+</font>
+</u>
+</a>
+<br>
+<br>
+</center></td></tr></table></center>
+<font color=CFCFCF size=1>seize favorite keeping completely free proud grave. deal sign given wine easy.
+</font>
+</html>

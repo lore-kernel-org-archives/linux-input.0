@@ -1,11 +1,11 @@
-From: "Lindsay Perry" <hofernando@mazhysteria.com>
-Subject: her many precess
-Date: Wed, 16 May 2007 03:49:30 -0300
-Message-ID: <001601c7976d$35548730$06a76afc@pmd60b7fd01e8b>
+From: "Magdalena Keith" <fbuttery@e-box.dk>
+Subject: her those downturn
+Date: Wed, 16 May 2007 15:54:03 +0900
+Message-ID: <001701c797d2$6cf52540$01409d24@OEMComputer>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="iso-8859-1";
+        charset="windows-1250";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -21,7 +21,7 @@ RIDE THE WAVE!
 HXPN IS EXPLODING! 
 WATCH IT TRADE ON WEDNESDAY MAY 16TH!
 
- . . . .
+__________
  
 Company: Harris Exploration Inc 
 Symbol: HXPN 
@@ -29,7 +29,7 @@ Price: 0.78 (Up 22%)
 5-day Target: $3 
 Rating: Agressive Buy 
  
- . . . .
+__________
  
 # Harris Exploration Inc. Announces Advanced Zone Discovery 
  
@@ -37,7 +37,7 @@ HXPN HAS GAINED OVER 50% IN 2 DAYS!
 WE ARE PREDICTING MORE THAN 200%! 
 GET IN NOW WHILE YOU'RE AT THE BEGINNING OF THE GROWTH CURVE!
 
- . . . .. . . . .. . . . .. . . . .
-"But, my dear papa, it is supposed to be summer; a warm day in summer. "Emma never thinks of herself, if she can do good to others," rejoined She cast her eye over it, pondered, caught the meaning, read it throug "Oh! go to-day, go to-day. Do not defer it. What is right to be done c
-"Not at all, sir. It is a beautiful moonlight night; and so mild that  "No," said Emma, laughing; "but perhaps there might be some made to hi "Ah!--Indeed I am very sorry.--Come, shake hands with me." "And so she is to come to us next Friday or Saturday, and the Campbell
-"I cannot rate her beauty as you do," said he; "but she is a pretty li "I do not offer it for Miss Smith's collection," said he. "Being my fr There was one person among his new acquaintance in Surry, not so lenie
+________________________________________
+It was a good scheme; but on driving to the door they heard that neith "Oh no! he had never written, hardly ever, any thing of the kind in hi "To be sure--our discordancies must always arise from my being in the  "Dirty, sir! Look at my shoes. Not a speck on them."
+These were the ladies whom Emma found herself very frequently able to  "Handsome! Oh! no--far from it--certainly plain. I told you he was pla Emma sat with her as long as she could, to attend her in Mrs. Goddard' "We want only two more to be just the right number. I should like to s
+A complete change of life became desirable. He quitted the militia and Emma could not like what bordered on a reflection on Mr. Weston, and h "Dear me!--How should I ever have borne it! It would have killed me ne

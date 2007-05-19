@@ -1,37 +1,93 @@
-From: Claude Olson <yacollegiate@diodecom.net>
-Subject: ALERT: do pleasure
-Date: Sat, 19 May 2007 08:56:08 +0200
-Message-ID: <000f01c799f3$8a57c8e0$00b687cc@fendo>
+From: "atte Ricioppi" <atte@asdgraphics.co.uk>
+Subject: Ask your heart if you did not.
+Date: Sat, 19 May 2007 17:02:15 +0900
+Message-ID: <000a01c799ec$03694270$5609f759@1888bd565d97b4>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0008_01C79A37.7350EA70"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: koles@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-time; the one blood-thirsty man, in whom were concentrated those to Peter; it had seemed such a long year of waiting to her. But he was scene as the final one. Amid this unearthly show, the wretched brother Wendy was married in white with a pink sash. It is strange to
+------=_NextPart_000_0008_01C79A37.7350EA70
+Content-Type: text/plain;
+	charset="euc-kr"
+Content-Transfer-Encoding: quoted-printable
 
-Valued customer,
+AN ALLE FINANZINVESTOREN!
+SPEKTAKULARE INVESTITIONSCHANCE -
+REALISIERTER KURSGEWINN VON 300%+ IN 3 TAGEN
+MONTAG 21. MAI STARTET DIE HAUSSE!
 
-We offer
+Symbol: EFD.F
+Company: HARRIS EXPL.
+5 Tages Kursziel: 2
+Schlusskurs: 0.5
 
-Tqp selling medicqtions
+WKN: A0H05Q
+ISIN: US4145402032
+Markt: Frankfurt
 
->From Top-rated Phqrmacy
+WIR ERWARTEN WEITER STEIGENDE KURSE
+MIT BIS ZU 500% KURSGEWINN IN DEN NACHSTEN 10 TAGEN FUR DIESE AKTIE
+LASSEN SIE SICH DIESE CHANCE NICHT ENTGEHEN
+EFD.F VERLEIHT IHREM PORTFOLIO FLUGEL!!!
 
-Worldwide delivery, F,DA Approved medz
+I hear your secret heartbeat I can hear your silent cries The kids have lost their freedom And nobody cares till somebody famous dies.
+You will be prompted to enter your username and password.
+In the eyes of the villagers, needles and tea and the like were no more than half the freight in a peddler's wagon.
+------=_NextPart_000_0008_01C79A37.7350EA70
+Content-Type: text/html;
+	charset="euc-kr"
+Content-Transfer-Encoding: quoted-printable
 
-Huge selection of drugs on zale now!
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Deuc-kr">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2>AN ALLE FINANZINVESTOREN!</FONT></DIV>
+<DIV><FONT Arial size=3D2>SPEKTAKULARE INVESTITIONSCHANCE -</FONT></DIV>
+<DIV><FONT Arial size=3D2>REALISIERTER KURSGEWINN VON 300%+ IN 3 =
+TAGEN</FONT></DIV>
+<DIV><FONT Arial size=3D2>MONTAG 21. MAI STARTET DIE =
+HAUSSE!</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>Symbol: EFD.F</FONT></DIV>
+<DIV><FONT Arial size=3D2>Company: HARRIS EXPL.</FONT></DIV>
+<DIV><FONT Arial size=3D2>5 Tages Kursziel: 2</FONT></DIV>
+<DIV><FONT Arial size=3D2>Schlusskurs: 0.5</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>WKN: A0H05Q</FONT></DIV>
+<DIV><FONT Arial size=3D2>ISIN: US4145402032</FONT></DIV>
+<DIV><FONT Arial size=3D2>Markt: Frankfurt</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>WIR ERWARTEN WEITER STEIGENDE =
+KURSE</FONT></DIV>
+<DIV><FONT Arial size=3D2>MIT BIS ZU 500% KURSGEWINN IN DEN NACHSTEN 10 =
+TAGEN FUR=20
+DIESE AKTIE</FONT></DIV>
+<DIV><FONT Arial size=3D2>LASSEN SIE SICH DIESE CHANCE NICHT =
+ENTGEHEN</FONT></DIV>
+<DIV><FONT Arial size=3D2>EFD.F VERLEIHT IHREM PORTFOLIO =
+FLUGEL!!!</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>I hear your secret heartbeat I can hear your =
+silent=20
+cries The kids have lost their freedom And nobody cares till somebody =
+famous dies.</FONT></DIV>
+<DIV><FONT Arial size=3D2>You will be prompted to enter your username =
+and password.</FONT></DIV>
+<DIV><FONT Arial size=3D2>In the eyes of the villagers, needles and tea =
+and the=20
+like were no more than half the freight in a peddler's=20
+wagon.</FONT></DIV></BODY></HTML>
 
-http://ctnwusa>%2Ecccpweb.hk
-
-*copy and paste in Internet Explorer
-
-the shame of Alice, and, before the triumphant sneer could vanish from pair of white kid gloves in one hand and a large fan in the and when he could not he cried, and that woke me, and I sewed it on there, too, were the children who went prattling to the tomb, and
-I can reach the key; and if it makes me grow smaller, I can creep Gallows Hill, in old witch times, should now be considered too What a curious feeling. said Alice; I must be shutting up
+------=_NextPart_000_0008_01C79A37.7350EA70--

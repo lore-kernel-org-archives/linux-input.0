@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <web_lottery01@bellsouth.net>
 Subject: CERTIFIED WINNER!
-Date: Sat, 19 May 2007 17:22:30 -0400
-Message-ID: <20070519212230.YNNV22805.ibm65aec.bellsouth.net@mail.bellsouth.net>
+Date: Sat, 19 May 2007 19:05:29 -0400
+Message-ID: <20070519230529.ZNJB22805.ibm65aec.bellsouth.net@mail.bellsouth.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
@@ -50,7 +50,7 @@ COUNTRY:................
  =20
 (CONTACT PROMOTION MANAGER)
 MR. Mr. EDWARD FRING
-Email:  contact_agentedwardfringg@yahoo.co.uk=20
+Email:  contact_agentedwardfring1@yahoo.co.uk=20
 Phone: +44-701-113-0167
 Phone: +44-704-572-2384
 Fax:  +44-707-570-0263 =20

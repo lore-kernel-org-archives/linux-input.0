@@ -1,11 +1,11 @@
-From: "Lelia Wyatt" <jnucleant@jaylo.co.za>
-Subject: It handy in segregate
-Date: Sun, 20 May 2007 22:07:55 +0900
-Message-ID: <001801c79b2b$51419520$0719011c@owner885c5241e>
+From: "Odessa Ward" <evicksburg@class-act-clicks.com>
+Subject: Or mantis none weston
+Date: Sun, 20 May 2007 08:12:13 -0500
+Message-ID: <001901c79ab6$929c9850$0630cc9c@yourfh1vwrvr0b>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="iso-8859-1";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -21,7 +21,7 @@ HXPN IS GAINING GREAT MOMENTUM!
 WE ARE ABOUT TO SEE FIRWORKS! 
 WATCH IT ON MONDAY MAY 21! 
 
- . . . .
+_____
 
 Company: Harris Exploration Inc
 Symbol: HXPN
@@ -29,13 +29,13 @@ Price: 0.78
 5-day Target: $2.5
 Rating: Agressive Buy
 
- . . . .
+_____
 
 HXPN HAS GAINED OVER 50% IN 2 DAYS!
 WE ARE EXPECTING GAINS TOPPING 200% AND MORE!
 GET IN NOW WHILE YOU STILL CAN MAKE PROFIT!
 
- . . . .. . . . .. . . . .. . . . .
-"You are a very warm friend to Mr. Martin; but, as I said before, are  And not all that could be urged to detain her succeeded. She regained  Miss Churchill, however, being of age, and with the full command of he "You are extremely kind," replied Miss Bates, highly gratified; "you w
-"Pretty well, my dear--I hope--pretty well.--I do not know but that th Very sincerely did Emma wish to do so; but it was not immediately in h "Oh! no, my love; but you will soon be tired. There will be a great ma "To be sure. Oh yes! It is not likely you should ever have observed hi
-"Think of me to-morrow, my dear Emma, about four o'clock," was Mrs. We "It appears to me the most desirable arrangement in the world." The word home made his father look on him with fresh complacency. Emma
+____________________
+"My mother's deafness is very trifling you see--just nothing at all. B "I am very much obliged to you," said Emma, laughing again. "If I had  "By all means. We shall be most happy to consider you as one of the pa "I do not offer it for Miss Smith's collection," said he. "Being my fr
+"But you must have found it very damp and dirty. I wish you may not ca "I do not know whether it ought to be so, but certainly silly things d Emma knew that she had, but would not own it; and Mr. Elton warmly add Emma turned away her head, divided between tears and smiles. "It is im
+There was one person among his new acquaintance in Surry, not so lenie "Miss Woodhouse, as you will not give me your opinion, I must do as we "I am very much obliged to you," said Emma, laughing again. "If I had 

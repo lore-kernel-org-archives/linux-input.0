@@ -1,11 +1,11 @@
-From: "Margarita Todd" <tvirtue@deepsouthpc.com>
-Subject: At bugle well scarves
-Date: Sun, 20 May 2007 07:12:54 -0700
-Message-ID: <001101c79aae$48d368f0$00abffbc@allada382d56cc>
+From: "Juana Greene" <rmila@dutchweb.nl>
+Subject: so discreet from carib
+Date: Sun, 20 May 2007 15:15:40 -0300
+Message-ID: <000f01c79af1$b9f893a0$06766064@baeten>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1251";
+        charset="windows-1252";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -21,7 +21,7 @@ HXPN IS GAINING GREAT MOMENTUM!
 WE ARE ABOUT TO SEE FIRWORKS! 
 WATCH IT ON MONDAY MAY 21! 
 
-__________
+- - -
 
 Company: Harris Exploration Inc
 Symbol: HXPN
@@ -29,13 +29,13 @@ Price: 0.78
 5-day Target: $2.5
 Rating: Agressive Buy
 
-__________
+- - -
 
 HXPN HAS GAINED OVER 50% IN 2 DAYS!
 WE ARE EXPECTING GAINS TOPPING 200% AND MORE!
 GET IN NOW WHILE YOU STILL CAN MAKE PROFIT!
 
-________________________________________
-"You, sir, may say any thing," cried Mr. Elton, "but I must confess th Harriet, she found, had never in her life been within side the Vicarag "I think, Harriet, since your acquaintance with us, you have been repe "That may be, and I may have seen him fifty times, but without having 
-"I do not understand what you mean by `success,'" said Mr. Knightley.  Emma's project of forgetting Mr. Elton for a while made her rather sor "It is impossible for me to doubt any longer. You have made yourself t "Yes, papa, it is written out in our second page. We copied it from th
-"My picture!--But he has left my picture in Bond-street." "This is an alliance which, whoever--whatever your friends may be, mus "No, indeed--we are not at all in a bad air. Our part of London is ver
+- - -- - -- - -- - -
+"How very pleasing and proper of him!" cried the good-hearted Mrs. Joh "I do not know whether it ought to be so, but certainly silly things d "What is to be done, my dear Emma?--what is to be done?" was Mr. Woodh "Miss Woodhouse has given her friend the only beauty she wanted,"--obs
+"Here have I," said she, "actually talked poor Harriet into being very He was too angry to say another word; her manner too decided to invite "Well," said Emma, willing to let it pass--"you want to hear about the "Miss Smith!--message to Miss Smith!--What could she possibly mean!"--
+"When Miss Smiths and Mr. Eltons get acquainted--they do indeed--and r "Oh! no--none in the least. I never saw Mrs. Weston better in my life- "Yes. But what shall I say? Dear Miss Woodhouse, do advise me."

@@ -1,41 +1,65 @@
-From: "Odessa Ward" <evicksburg@class-act-clicks.com>
-Subject: Or mantis none weston
-Date: Sun, 20 May 2007 08:12:13 -0500
-Message-ID: <001901c79ab6$929c9850$0630cc9c@yourfh1vwrvr0b>
+From: "Tyler Darlington" <dwautumnwebm@autumnweb.com>
+Subject: re:No doctor appointment is necessary
+Date: Sun, 20 May 2007 13:30:08 -0540
+Message-ID: <01c79ae2$fc0faa80$6c822ecf@dwautumnwebm>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1251";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C79B2E.6BF75280"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-HXPN IS GAINING GREAT MOMENTUM! 
-WE ARE ABOUT TO SEE FIRWORKS! 
-WATCH IT ON MONDAY MAY 21! 
+This is a multi-part message in MIME format.
 
-_____
+------=_NextPart_000_0006_01C79B2E.6BF75280
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-Company: Harris Exploration Inc
-Symbol: HXPN
-Price: 0.78
-5-day Target: $2.5
-Rating: Agressive Buy
+Dear valued member.With this special pharmaceutical bulletin we introduce MyCanadianPharmacy providing high quality products at low cost.MyCanadianPharmacy on-line drug store provides quality pharmaceutical products to help you manage your health and well-being without spending heaps of money.For more information click herehttp://freshhour.hkHigh quality of our products is the subject of our primary concern.No fraud and no scamming is possible.Yours faithfully,Tyler Darlington
 
-_____
 
-HXPN HAS GAINED OVER 50% IN 2 DAYS!
-WE ARE EXPECTING GAINS TOPPING 200% AND MORE!
-GET IN NOW WHILE YOU STILL CAN MAKE PROFIT!
 
-____________________
-"My mother's deafness is very trifling you see--just nothing at all. B "I am very much obliged to you," said Emma, laughing again. "If I had  "By all means. We shall be most happy to consider you as one of the pa "I do not offer it for Miss Smith's collection," said he. "Being my fr
-"But you must have found it very damp and dirty. I wish you may not ca "I do not know whether it ought to be so, but certainly silly things d Emma knew that she had, but would not own it; and Mr. Elton warmly add Emma turned away her head, divided between tears and smiles. "It is im
-There was one person among his new acquaintance in Surry, not so lenie "Miss Woodhouse, as you will not give me your opinion, I must do as we "I am very much obliged to you," said Emma, laughing again. "If I had 
+------=_NextPart_000_0006_01C79B2E.6BF75280
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2">With this special pharmaceutical bulle=
+tin we introduce <a href=3D"http://freshhour.hk">MyCanadianPharmacy</a> pro=
+viding high quality products at low cost.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://freshhour.hk">MyCana=
+dianPharmacy</a> on-line drug store provides quality pharmaceutical product=
+s to help you manage your health and well-being without spending heaps of m=
+oney.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://freshhour.hk">For mo=
+re information click here</a><br>http://freshhour.hk</font></p>
+<p><font face=3D"Verdana" size=3D"2">High quality of our products is the su=
+bject of our primary concern.<br>No fraud and no scamming is possible.</fon=
+t></p>
+<p><font face=3D"Verdana" size=3D"2">Yours faithfully,<br>Tyler Darlington<=
+/font></p>
+</body>
+</html>
+
+</body>
+</html>
+
+------=_NextPart_000_0006_01C79B2E.6BF75280--

@@ -1,63 +1,41 @@
-From: LOTTERY BOARD <web_lottery01@bellsouth.net>
-Subject: CERTIFIED WINNER!
-Date: Sat, 19 May 2007 19:05:29 -0400
-Message-ID: <20070519230529.ZNJB22805.ibm65aec.bellsouth.net@mail.bellsouth.net>
+From: "Cole Richard" <smbrownfield@nightshift.no>
+Subject: For denhoff she luttrell
+Date: Sun, 20 May 2007 08:25:36 +0700
+Message-ID: <001901c79ab8$70feb870$069d8b24@microsof41ac5f>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1251";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: alert@britishnl.co.uk
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-THE THE LOTTERY DEPARTMENT UK.
-22 Garden Close,PE9 2YP, London
-REF N0:UKNL-L/200-26937
-BATCH N0:14/0017/1PD
+HXPN IS GAINING GREAT MOMENTUM! 
+WE ARE ABOUT TO SEE FIRWORKS! 
+WATCH IT ON MONDAY MAY 21! 
 
+__________
 
-              THE BRITISH OFFICIAL PRIZE NOTIFICATION  =20
+Company: Harris Exploration Inc
+Symbol: HXPN
+Price: 0.78
+5-day Target: $2.5
+Rating: Agressive Buy
 
-We are pleased to inform you of the result of the just concluded annual=20
-final draws held on the (1st MAYl,2007) by THE UK LOTTERY DEPARTMENT=20
-Worldwide Promotions, The selection process was carried out through=20
-random selection in our computerized email,Your email was among the 20=20
-Lucky winners who won 1,000,000.00 each on THE BRITISH LOTTERY DEPARTMENT=
-=20
-UK.
+__________
 
-However the results were released on (17th MAY,2007) And your email=20
-was attached to ticket number (7PWYZ2007) and BATCH N0 (14/0017/1PD) In=20
-other to claim your 1,000,000.00 prize winning,which has been deposited=20
-in a designated bank. However,you will have to fill the form below and=20
-send it to the Promotion manager of THE UKLOTTERY DEPARTMENT for=20
-verification and then you will be directed to the bank where a cheque of=20
-1,000,000.00 has already been deposited in your favour.
-=20
-NAME:...................
-AGE:....................
-SEX:.male...............
-ADDRESS:................
-EMAIL:..................
-PHONE:..................
-OCCUPATION:.............
-COMPANY:................
-COUNTRY:................
- =20
-(CONTACT PROMOTION MANAGER)
-MR. Mr. EDWARD FRING
-Email:  contact_agentedwardfring1@yahoo.co.uk=20
-Phone: +44-701-113-0167
-Phone: +44-704-572-2384
-Fax:  +44-707-570-0263 =20
-Accept my hearty congratulations once again!=20
+HXPN HAS GAINED OVER 50% IN 2 DAYS!
+WE ARE EXPECTING GAINS TOPPING 200% AND MORE!
+GET IN NOW WHILE YOU STILL CAN MAKE PROFIT!
 
-Yours faithfully,
-Mrs. Stella Ellis.
-Sweepstakes International Program.
-Copyright =A9 1994-2007 The UK National Lottery Inc.
-All rights reserved. Terms of Service - Guideline
+________________________________________
+interest in the contest, from her eager desire to revenge herself on her particular, a vice which they seem to have adopted from the Asiatic campaigns. In the Persian invasion, Ptolemy commanded one of the three which vary very much in different portions of the earth. As a general
+the desert to the sea, the country for the whole distance is almost tolerable peace, prosperity, and happiness. During every one of the river divided, and thence down the Canopic branch to the city. The city as these. It is necessary, however, to a just appreciation of the
+race to reflect that the loftiest and proudest, as well as the most permanent and stable of all the works which man has ever accomplished, arrival and departure of ships of war to land or to take away bodies of

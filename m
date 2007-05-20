@@ -1,95 +1,65 @@
-From: "Casino VegasVIP" <inflammable@fundadvice.com>
-Subject: 555 Euro of Welcome Bonus!
-Date: Sun, 20 May 2007 03:00:11 -0700
-Message-ID: <09072645.55542024@conclude.com>
+From: Elimar Riesebieter <riesebie@lxtec.de>
+Subject: 2.6.22-rc2 built on ppc
+Date: Sun, 20 May 2007 12:59:28 +0200
+Message-ID: <20070520105928.GA3253@aragorn.home.lxtec.de>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: cechcech@atrey.karlin.mff.cuni.cz
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<title>The </title>
+Hi,
 
-<style>
-<!--
- /* Style Definitions */
-a:link, span.MsoHyperlink
-	{color:blue;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:blue;}
-p
-	{mso-margin-top-alt:auto;
-	margin-right:0cm;
-	mso-margin-bottom-alt:auto;
-	margin-left:0cm;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	color:black;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+FYI, building the kernel with
+gcc (GCC) 4.1.3 20070514 (prerelease) (Debian 4.1.2-7)
+on my powerbook (PPC) gives:
 
-</head>
+=2E..
+drivers/input/keyboard/Kconfig:170:warning: 'select' used by config symbol =
+'KEYBOARD_ATARI' refers to undefined symbol 'ATARI_KBD_CORE'
+drivers/input/mouse/Kconfig:182:warning: 'select' used by config symbol 'MO=
+USE_ATARI' refers to undefined symbol 'ATARI_KBD_CORE'
+drivers/input/keyboard/Kconfig:170:warning: 'select' used by config symbol =
+'KEYBOARD_ATARI' refers to undefined symbol 'ATARI_KBD_CORE'
+drivers/input/mouse/Kconfig:182:warning: 'select' used by config symbol 'MO=
+USE_ATARI' refers to undefined symbol 'ATARI_KBD_CORE'
+=2E..
 
-<body lang=EN-US link=blue vlink=blue style='tab-interval:35.4pt'>
+If more info is needed, please contact me via PM, as I am not
+subscribed.
 
-<div class=Section1>
+Thanks for your patience
+Elimar
 
-<p>
-<span lang=EN-US style='mso-ansi-language:EN-US'>
-The best players are in Vegas, and the Best 
-Bonuses you will find only at Vegas VIP
-Casino!
-<o:p></o:p></span></p>
+--=20
+  Never make anything simple and efficient when a way=20
+  can be found to make it complex and wonderful ;-)
 
-<p>
-<span lang=EN-US style='mso-ansi-language:EN-US'>
-200% on your first deposit, 100% on your 
-second and third deposits and the 
-cherry on the top: 155% on your
-fourth deposit!
-<o:p></o:p></span></p>
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-<p>
-<span lang=EN-US style='mso-ansi-language:EN-US'>
-This will bring you to a
-total of $555 of Welcome Bonus!
-<o:p></o:p></span></p>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-<p>
-<span lang=EN-US style='mso-ansi-language:EN-US'>
-This and much more is
-waiting for you at the fabulous Vegas 
-VIP Casino, where the best play!
-<o:p></o:p></span></p>
+iD8DBQFGUCoP3Ig8bsVPf7ARAisIAJ42AtnMrRwufqy166Ak4U16UbXWzwCgmIHm
+uJcQ0CSIkqIlrYqTzUm5ppg=
+=d5/2
+-----END PGP SIGNATURE-----
 
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>
-<a href="http://www.topcasinovegas.com/">
-http://www.topcasinovegas.com/</a>
-</span></p>
-
-</div>
-
-</body>
-
-</html>
+--qMm9M+Fa2AknHoGS--

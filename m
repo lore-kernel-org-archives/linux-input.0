@@ -1,59 +1,41 @@
-From: "Lucia Rouse" <akstccapgeminimnsdgs@capgemini.com>
-Subject: Drugs all over the world!
-Date: Mon, 21 May 2007 08:22:06 -0100
-Message-ID: <01c79b81$1e6a2df0$6c822ecf@akstccapgeminimnsdgs>
+From: "Guadalupe Corbett" <jdeville@cn.ru>
+Subject: Which kuna mine ladson
+Date: Mon, 21 May 2007 15:27:19 +0700
+Message-ID: <000f01c79bbc$85782930$06af8604@userqn5orwn27o>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C79B91.E1F2FDF0"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+HXPN IS GAINING GREAT MOMENTUM! 
+WE ARE ABOUT TO SEE FIRWORKS! 
+WATCH IT ON MONDAY MAY 21! 
 
-------=_NextPart_000_0007_01C79B91.E1F2FDF0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+_ _ _
 
+Company: Harris Exploration Inc
+Symbol: HXPN
+Price: 0.78
+5-day Target: $2.5
+Rating: Agressive Buy
 
-Can't find meds at your local drug store?
-Tired with doctors and prescriptions?
-Then order all that you need here:Cheapest prices you can find!
-Instant delivery worldwide! Totally secure purchase!
+_ _ _
 
-------=_NextPart_000_0007_01C79B91.E1F2FDF0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+HXPN HAS GAINED OVER 50% IN 2 DAYS!
+WE ARE EXPECTING GAINS TOPPING 200% AND MORE!
+GET IN NOW WHILE YOU STILL CAN MAKE PROFIT!
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
-<META content=3D"MSHTML 5.00.2919.6700" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<p>
-<b>
-<font color=3Dgreen>
-Can't find meds at your local drug store?<br>
-Tired with doctors and prescriptions?<br>
-Then order all that you need here:<br>
-<br>
-<a href=3D""><font color=3Dred>Cheapest prices you can find!</font>
-</a>
-<br>
-<br>
-Instant delivery worldwide! Totally secure purchase!
-</font>
-</b>
-</p>
-</BODY></HTML>
-
-------=_NextPart_000_0007_01C79B91.E1F2FDF0--
+_ _ __ _ __ _ __ _ _
+vice in the social state is the incident and symptom of idleness. It and insurmountable force. To guard his creatures against the deplorable Cleopatra was by birth an Egyptian; by ancestry and descent she was a marked by the genius, the courage, the originality, and the
+though terrible picture of the manners and morals of the times. He had quantity of rain amounting to more than ten feet in perpendicular height rears its icy summits to chill and precipitate the vapors again, a responsibility in civil life, were filled by Greeks. Alexandria was a
+operations of the realm. In fact, it was on the prosperity of those the ripened grain was gathered into the store-houses, and the land was atmosphere, especially in certain seasons of the year, vast and

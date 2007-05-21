@@ -1,8 +1,8 @@
-From: "flushhappy1 qasem" <flushhappy1895@alnbt.com>
-Subject: Rise symbol report
-Date: Mon, 21 May 2007 11:51:09 +0200
-Message-ID: <092488785206.586204544580@alnbt.com>
-Reply-To: "flushhappy1 qasem" <flushhappy1895@alnbt.com>
+From: "Nadil mcmanus" <mcmanuskze@alisondoney.com>
+Subject: Hot symbol tip
+Date: Mon, 21 May 2007 06:06:12 -0400
+Message-ID: <956112231012.288559467208@alisondoney.com>
+Reply-To: "Nadil mcmanus" <mcmanuskze@alisondoney.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	format=flowed;
@@ -17,9 +17,6 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-http://img231.imageshack.us/img231/492/38114866sa1.png
-
-Very hot peport.
-
-He was very ill, he was interested in nothing.
-Again I don't like this solution.
+This topic discusses creating behaviors that switch from one behavior to another based on events.
+http://img481.imageshack.us/my.php?image=oeycova2.gif
+Rise report.

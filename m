@@ -1,7 +1,7 @@
-From: "ESLAM reed" <reed@abou-el-atta.de>
-Subject: kaufe
-Date: Tue, 22 May 2007 15:35:31 +0400
-Message-ID: <BDB82F9C.B6D3DB8E@abou-el-atta.de>
+From: "Niall Popov" <NiallPopov@KSC.CO.IN>
+Subject: Basiswert.
+Date: Tue, 22 May 2007 20:57:29 +0800
+Message-ID: <A8DCA712.A00C3A3D@KSC.CO.IN>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -14,6 +14,6 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-We believe that malware, by definition, has to perform malicious actions on your system.
-http://img259.imageshack.us/img259/3126/xrumx6ffci6.gif
-Frankfurt symbol tip!
+The happy red square spins gleefully.
+http://img340.imageshack.us/img340/6633/v5kvw63qz3.gif
+Die bilanz.

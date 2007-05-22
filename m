@@ -1,41 +1,33 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.22-rc2] ads7846 doc: handles tsc2046 too
-Date: Tue, 22 May 2007 16:09:42 -0400
-Message-ID: <d120d5000705221309q43e2f51vd023212712c0f1f5@mail.gmail.com>
-References: <200705221139.08689.david-b@pacbell.net>
-	 <1179861726.6122.50.camel@vence.hilman.org>
+From: Carlos Corbacho <cathectic@gmail.com>
+Subject: Re: wistron_btns: x86_64 support for key mappings?
+Date: Tue, 22 May 2007 21:59:21 +0100
+Message-ID: <f2vlik$bp5$1@sea.gmane.org>
+References: <f2vdp9$cvp$1@sea.gmane.org> <d120d5000705221217j283f8545mb98770819ed13d00@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1179861726.6122.50.camel@vence.hilman.org>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Kevin Hilman <khilman@mvista.com>
-Cc: David Brownell <david-b@pacbell.net>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Dmitry Torokhov wrote:
 
-On 5/22/07, Kevin Hilman <khilman@mvista.com> wrote:
-> On Tue, 2007-05-22 at 11:39 -0700, David Brownell wrote:
-> > The TSC2046 is an updated version of the ADS7846 ... mention that in
-> > the Kconfig helptext and driver source.
-> >
-> > Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
->
-> Verified that ads7846 driver indeed works for tsc2046 on OMAP2430SDP
-> platform.
->
-> Acked-by: Kevin Hilman <khilman@mvista.com>
->
+> Well, the main concern is how woudl you detect button presses without
+> BIOS calls?
 
-Thanks, I will get this in. Since there are no code changes there is
-no point for waiting for 2.6.23 merge window to open.
+I see what you mean now - I had been looking at some of the other BIOS
+calling functions in there at the top of the code which are not absolutely
+necessary; but I see now stripping out all the BIOS calls is unavoidable
+because of the polling required.
 
--- 
-Dmitry
+I suppose the only alternative then would probably be to port the code to
+x86_64 assembly at some distant point in the future.
+
+Sorry about the noise.
+
+-Carlos

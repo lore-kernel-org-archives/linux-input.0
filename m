@@ -1,13 +1,9 @@
-From: "Swaney Saxton" <Swaney@CLAYCY.ru>
-Subject: Frankfurt symbol tip.
-Date: Wed, 23 May 2007 15:22:04 +0400
-Message-ID: <654423969855.101371549681@CLAYCY.ru>
-Reply-To: "Swaney Saxton" <Swaney@CLAYCY.ru>
+From: "Mung Briggeman" <Mung@abrys.com>
+Subject: Schlussabrechnungpreis.
+Date: Wed, 23 May 2007 21:33:22 +0900
+Message-ID: <20070523123423.AFACAC7E5B@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="koi8-r";
-	reply-type=original
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,9 +13,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-http://img260.imageshack.us/img260/4408/gxhsr0ptm3.gif
+Bargeld.
 
-anlagerichtlinien
-
-Can you take me to her.
-Indeed, she did not miss him or anybody.
+http://img264.imageshack.us/my.php?image=3e5fstqbd7.jpg
+They were misshapen, bare-necked, very swarthy and one of them wore dark glasses.

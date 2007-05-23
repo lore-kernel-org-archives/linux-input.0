@@ -1,12 +1,10 @@
-From: Cialis Works <vpettit@shaniastuff.com>
-Subject: Cute girl using a big toy for heavy sex
-Date: Wed, 23 May 2007 06:30:06 +0300
-Message-ID: <f5f201c79cea$ec59ce38$cce98cf0@shaniastuff.com>
-Mime-Version: 1.0
+From: "Vern Rubin" <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: Re: Your Pharm4cy 0rder #5033258
+Date: Wed, 23 May 2007 03:47:28 -0500
+Message-ID: <hzyufKFTUKXlinux-input@atrey.karlin.mff.cuni.cz>
+Reply-To: "Vern Rubin" <linux-input@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain;
-	format=flowed;
-	charset="koi8-r";
-	reply-type=original
+Content-Transfer-Encoding: 7Bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,7 +14,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Brunette amateur milk her tits
 
-http://www.geocities.com/fwngphltfswc001/index.htm
-Teen snob gets a mouthful of semen
+Hi, 
+We have cheapest Cial1s S0ft T4bs and V1agra S0ft T4bs online.
+Visit US He4lthc4re Inc. at: http://www.trebbiann.com/ 

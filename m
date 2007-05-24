@@ -1,12 +1,12 @@
-From: "Chuanhua Khokhar" <Khokhar@austrogold.at>
-Subject: wirtschaft
-Date: Thu, 24 May 2007 16:52:57 +0300
-Message-ID: <159156298406.380326151206@austrogold.at>
-Reply-To: "Chuanhua Khokhar" <Khokhar@austrogold.at>
+From: "qwer revets" <qwer940@amerongen2.myweb.nl>
+Subject: borse
+Date: Thu, 24 May 2007 16:32:21 +0200
+Message-ID: <901718266553.363139915811@amerongen2.myweb.nl>
+Reply-To: "qwer revets" <qwer940@amerongen2.myweb.nl>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	format=flowed;
-	charset="windows-1255";
+	charset="iso-8859-1";
 	reply-type=original
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -17,6 +17,8 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-A huge, black, undefinable shape moved beneath the gully dwarf.
-http://img128.imageshack.us/img128/9162/ypto2.jpg
-Borsenparkett.
+Alert
+http://img58.imageshack.us/img58/7316/knuem4.gif
+
+Can you rede (since We and Thou had it out already) its world.
+Ever wondered why so many clients are interested in a file called robots.

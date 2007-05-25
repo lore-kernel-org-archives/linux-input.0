@@ -1,41 +1,58 @@
-From: "HGH S" <zeubelding@musician.org>
-Subject: RE:
-Date: Thu, 24 May 2007 17:00:41 -0500
-Message-ID: <001601c79e25$bff2afc0$01405f6c@pc12>
+From: British Online Co-ordinators <britishlottery78@bellsouth.net>
+Subject: Lottery Message From UNited Kingdom
+Date: Thu, 24 May 2007 21:58:05 -0400
+Message-ID: <20070525015805.KIWQ2600.ibm64aec.bellsouth.net@mail.bellsouth.net>
+Reply-To: payofficerrichard001@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="koi8-r";
-	reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: winner@british-lottery.org
 List-Id: linux-input@vger.kernel.org
 
-Why do so many men all over the world choose Penis Enlarge Patch?<BR>Because it really works and satisfies all your needs? 
+British Online Co-ordinators
+Ref: UK/776090X2/23
+Batch: 013/06/8394369 =20
 
-http://www.odwers.hk/
+ATTENTION: Sir/Madam, We happily announce to you the British Lottery draw=
+ of the Lottery International programs held in the UK on 20th May,2007. Y=
+our e-mail address was attached to these lucky winning numbers below: 091=
+4 26 28 30 45 BB 38
 
-You dont know what is the best revenge for your ex girlfriend.<BR>Just enlarge your dick with Penis Enlarge Patch<BR>and she will die from jealousy and regret.
+which subsequently won you the lottery bonus draw.You have therefore been=
+ approved to claim a total sum of =C2=A31,500,000(One Million Five Hundre=
+d Thousand Pounds Sterling ),payout in Us dollars;2,776,646.55 incashcred=
+ited tofilektu/9023118308/03.All All participants for the online versionw=
+ere selected randomly from World Wide Web sites through computer draw sys=
+tem and extracted from over 100,000 unions, associations, and corporate b=
+odies that are listed online.=20
 
+To file for your claim, please contact our fiduciary agent with details=20
+of your winnings(Winning Numbers, Batch numbers and Ref Number).With=20
+the feed  Verification/Fund Release Form Below
 
+1.FULL NAMES OF BENEFICIARY.........................=20
+2.RESIDENTIAL ADDRESS...............................
+3.DATE AND PLACE OF BIRTH ...............
+4.PHONE/FAX NUMBERS............................
+5.SEX.......
+6.OCCUPATION.............
+7.MARITAL STATUS.........
+8.NATIONALITY....................
 
+PAYMENT MODE: OPTIONS
+1.BANK TO BANK WIRE TRANSFER.
+2.CERTIFIED CHEQUE MADE OUT IN YOUR NAME COURIERED TO YOU VIA OUR
+AFFILIATE COURIER COMPANY AND WILL BE DELIVERED TO YOUR ADDRESS.
 
+Mr Richard Cook.
+Phone Number:+44-703-192-7834
+E-mail : payofficerrichard001@yahoo.co.uk
 
-
-
-
-
-
-
-
-
-
-------------------------
-usefulness in analyzing sounds. Would any man  want to die in a battle which
-   And always the pine tree had grown, insolent in the pride of a creature set in the right surroundings. The imprisoned man had felt himself dwarfed by its height. But now, he looked up at it again, and laughed aloud. It had come late, but it had come. He was fifty-seven years old, almost three-score, but all his life was still to be lived. He said to himself that some folks lived their lives while they did their work, but he had done all his tasks first, and now he could live. The unexpected arrival of the timber merchant and the sale of that piece of land hed never thought would bring him a cent -- was not that an evident sign that Providence was with him? He was too old and broken now to work his way about as he had planned at first, but here had come this six hundred dollars like rain from the sky. He would start as soon as he could sell his stock. 
-sentence, in a German  newspaper,  is a sublime and impressive curiosity; itoccupies a  quarter of a column; it contains all the ten parts of speech  --not  in regular  order, but mixed;  it is  built  mainly  of compound  wordsonstructed by the writer on the spot, and not to be found in any dictionary
+Congratulations once again from all our staff for being a part of our=20
+Promotionsprogram

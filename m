@@ -1,58 +1,133 @@
-From: British Online Co-ordinators <britishlottery78@bellsouth.net>
-Subject: Lottery Message From UNited Kingdom
-Date: Thu, 24 May 2007 21:58:05 -0400
-Message-ID: <20070525015805.KIWQ2600.ibm64aec.bellsouth.net@mail.bellsouth.net>
-Reply-To: payofficerrichard001@yahoo.co.uk
+From: "Minnie Brady" <noghitlox@hit.it>
+Subject: Check out the wonders of pound melting
+Date: Fri, 25 May 2007 08:28:46 -0300
+Message-ID: <807938070.12987494904047@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------195E05E05E21119"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: winner@british-lottery.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-British Online Co-ordinators
-Ref: UK/776090X2/23
-Batch: 013/06/8394369 =20
+------------195E05E05E21119
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-ATTENTION: Sir/Madam, We happily announce to you the British Lottery draw=
- of the Lottery International programs held in the UK on 20th May,2007. Y=
-our e-mail address was attached to these lucky winning numbers below: 091=
-4 26 28 30 45 BB 38
 
-which subsequently won you the lottery bonus draw.You have therefore been=
- approved to claim a total sum of =C2=A31,500,000(One Million Five Hundre=
-d Thousand Pounds Sterling ),payout in Us dollars;2,776,646.55 incashcred=
-ited tofilektu/9023118308/03.All All participants for the online versionw=
-ere selected randomly from World Wide Web sites through computer draw sys=
-tem and extracted from over 100,000 unions, associations, and corporate b=
-odies that are listed online.=20
+Seize the opportunity! =96 Anatrim =96 The newest & most exciting flesh=20=
+loss product available =96 As seen on Oprah
 
-To file for your claim, please contact our fiduciary agent with details=20
-of your winnings(Winning Numbers, Batch numbers and Ref Number).With=20
-the feed  Verification/Fund Release Form Below
+Can you count up all the cases when you told yourself you would do=20=
+anything for being saved from this horrible number of kilos? Luckily, now=20=
+no major price is to be paid. With Anatrim, the ground-shaking, you can=20=
+get healthier lifestyle and become really thinner. Just notice what=20=
+people say to us!
+ 
+=93I always had a terrific private life till a year back my girl told=20=
+me I was corpulent and needed to begin being careful to my health. Life=20=
+had suddenly changed after that, till I disclosed Anatrim =99 for me at=20=
+once. After loosing more than 40 lbs only thanx to Anatrim,  my private=20=
+life=92s come back, even better than before. Great thanks to you for the=20=
+marvelous product & the first-class maintenance service. Proceed with the=20=
+valuable action!=94
 
-1.FULL NAMES OF BENEFICIARY.........................=20
-2.RESIDENTIAL ADDRESS...............................
-3.DATE AND PLACE OF BIRTH ...............
-4.PHONE/FAX NUMBERS............................
-5.SEX.......
-6.OCCUPATION.............
-7.MARITAL STATUS.........
-8.NATIONALITY....................
+ 
+Mike Brown, Washington
 
-PAYMENT MODE: OPTIONS
-1.BANK TO BANK WIRE TRANSFER.
-2.CERTIFIED CHEQUE MADE OUT IN YOUR NAME COURIERED TO YOU VIA OUR
-AFFILIATE COURIER COMPANY AND WILL BE DELIVERED TO YOUR ADDRESS.
+ 
+"Nothing feels better than slipping into a bikini I have not worn for a=20=
+long time. I feel slim, steadfast, and healthy, thanx to a great extent=20=
+to Anatrim! Great deal of thanks to you!"
 
-Mr Richard Cook.
-Phone Number:+44-703-192-7834
-E-mail : payofficerrichard001@yahoo.co.uk
+ 
+Amely S., San Diego
 
-Congratulations once again from all our staff for being a part of our=20
-Promotionsprogram
+Check out Anatrim, and  you will join the worldwide association of=20=
+thousands of delighted user who are getting pleasure out of the=20=
+revolutionary effects of Anatrim right here and right now. Less=20=
+swallowing frenzy, less kilogrammes and more festivity in your life!
+
+Go right here to scan invincible Anatrim bargain we=92re so proud to=20=
+propose!!!
+http://www.doishone.net/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yriqjb
+------------195E05E05E21119
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>End the annoying obesity now</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a=20=
+href=3D"http://www.doishone.net/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yriqjb">
+Seize the opportunity! =96 Anatrim =96 The newest & most exciting flesh=20=
+loss product available =96 As seen on Oprah
+</a>
+</center>
+<br>
+Can you count up all the cases when you told yourself you would do=20=
+anything for being saved from this horrible number of kilos? Luckily, now=20=
+no major price is to be paid. With Anatrim, the ground-shaking, you can=20=
+get healthier lifestyle and become really thinner. Just notice what=20=
+people say to us!
+ <br>
+<br>
+<i>
+=93I always had a terrific private life till a year back my girl told=20=
+me I was corpulent and needed to begin being careful to my health. Life=20=
+had suddenly changed after that, till I disclosed Anatrim =99 for me at=20=
+once. After loosing more than 40 lbs only thanx to Anatrim,  my private=20=
+life=92s come back, even better than before. Great thanks to you for the=20=
+marvelous product & the first-class maintenance service. Proceed with the=20=
+valuable action!=94
+</i>
+ <br>
+<b>
+<i>
+Mike Brown, Washington
+</i>
+</b>
+ <br>
+<br>
+<i>
+"Nothing feels better than slipping into a bikini I have not worn for a=20=
+long time. I feel slim, steadfast, and healthy, thanx to a great extent=20=
+to Anatrim! Great deal of thanks to you!"
+</i>
+ <br>
+<b>
+<i>
+Amely S., San Diego
+</i>
+</b>
+<br>
+<br>
+Check out Anatrim, and  you will join the worldwide association of=20=
+thousands of delighted user who are getting pleasure out of the=20=
+revolutionary effects of Anatrim right here and right now. Less=20=
+swallowing frenzy, less kilogrammes and more festivity in your life!
+<br>
+<br>
+<center>
+<a=20=
+href=3D"http://www.doishone.net/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yriqjb">
+Go right here to scan invincible Anatrim bargain we=92re so proud to=20=
+propose!!!
+</a>
+</center>
+</b>
+</p>
+<font=20=
+color=3D"#D9EDFF">http://www.doishone.net/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yriqjb</font>
+
+</BODY></HTML>
+------------195E05E05E21119--

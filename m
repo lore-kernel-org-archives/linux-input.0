@@ -1,10 +1,11 @@
-From: Richard Smith <erd_nugt@hotmail.com>
-Subject: WINNING NOTIFICATION!!!!!!!!!!
-Date: Fri, 25 May 2007 23:43:01 +0200
-Message-ID: <BAY122-W11C6307EE139F2B24D5055EB2B0@phx.gbl>
+From: "Coca-Cola Promotions" <egames@ewebgamescentre.info>
+Subject: Coca Cola Winner
+Date: Fri, 25 May 2007 20:33:34 -0400 (EDT)
+Message-ID: <37897.81.199.172.191.1180139614.squirrel@webmail.domains.lycos.com>
+Reply-To: cocacola_infowebnet@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="_a2fa551a-7206-4a1b-9dfa-6ce4360daff2_"
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -13,143 +14,86 @@ List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
 List-Id: linux-input@vger.kernel.org
 
---_a2fa551a-7206-4a1b-9dfa-6ce4360daff2_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
 
-                           GLOBAL MEGA-MILLION LOTTERY SA.
-=20
-The Global Mega Lottery Promotion team is proud to inform you that you have=
- won USD1 950,000.00 Why you have won Your E-mail address is one of 200 luc=
-ky Addresses who have won in the weekly Promotion. See below how to claim y=
-our prize. Details on the Winnings.
-Your Winning Reference Number is: FLS-ZR39-825P-4 Batch Number:  74-263-BBN=
-.=20
-=20
-TICKET NUMBER:100-309-7482 SERAIL NUMBER:513-10 WINNING NUMBERS:02,09,22,23=
-,24,30(05)=20
-=20
-I wish to Congratulate you on your victory, you are a lucky person to have =
-won this lottery. Your email address was amongst those chosen this quarter =
-from our new java-based software that randomly selects email addresses from=
- the web from which winners are selected.=20
-You are required to forward the following details to help facilitate the pr=
-ocessing of your claims and certificate which will facilitate of Your winni=
-ng price is to the tune of USD1 950,000.00  dollars.=20
-=20
-1. Full names. 2. Phone number. 3. Fax number. 4. Occupation. 5. Sex. 6. Ag=
-e. 7. Country. 8.country of resident.
-=20
-Remember, you must contact your claim agent Mr Smith,Call him and claim you=
-r prize after calling him send your refrence and batch number and all the a=
-bove informations to his email address and call him to let him know that yo=
-u have contacted him through email.
-Congratulations once again from all our staff and thank you for being part =
-of our promotions program. for claiming of your prize and remember to quote=
- your reference and Batch Number for easy processing of your prize.!
-=20
-You have to note that this program is being sponsored by the FIFA SUPPORT A=
-FRICAN TEAM, to creat awareness for the coming 2010 FIFA world Cup, which i=
-s to be host by South Africa.
-=20
-TO FILE YOUR CLAIM...Contact Mr.Howard  Arr
-Processing Manager: Mr. Richard  Smith
-TEL: + 27-74-213-6382
-EMAIL: agent1_claims1@yahoo.com
-=20
-Congratulations once  again and have a lot of fun. The International Mega P=
-romotion team.
-                                 GLOBAL MEGA-MILLION LOTTERY          =20
-=20
-                       Copyright =C2=A9 2006 The Xanga web & SA National Lo=
-ttery Inc.                            All rights reserved. Terms of Service=
- - Guideline
-_________________________________________________________________
-Connect to the next generation of MSN Messenger=A0
-http://imagine-msn.com/messenger/launch80/default.aspx?locale=3Den-us&sourc=
-e=3Dwlmailtagline=
 
---_a2fa551a-7206-4a1b-9dfa-6ce4360daff2_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+THE COCA COLA COMPANY
+PROMOTION/PRIZE AWARD
+DEPTCOCA COLA AVENUE
+STANFORD BRIDGE LONDON SW1V 3DW UNITED KINGDOM
+THE COCA COLA COMPANY OFFICIAL PRIZE NOTIFICATION
 
-<html>
-<head>
-<style>
-P
-{
-margin:0px;
-padding:0px
-}
-body
-{
-FONT-SIZE: 10pt;
-FONT-FAMILY:Tahoma
-}
-</style>
-</head>
-<body>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
-&nbsp; GLOBAL MEGA-MILLION LOTTERY SA.<BR>
-<BR>&nbsp;<BR>
-<BR>The Global Mega Lottery Promotion team is proud to inform you that you =
-have won USD1 950,000.00 Why you have won Your E-mail address is one of 200=
- lucky Addresses who have won in the weekly Promotion. See below how to cla=
-im your prize. Details on the Winnings.<BR>
-<BR>Your Winning Reference Number is: FLS-ZR39-825P-4 Batch Number:&nbsp; 7=
-4-263-BBN. <BR>
-&nbsp;<BR>
-TICKET NUMBER:100-309-7482 <BR>SERAIL NUMBER:513-10 <BR>WINNING NUMBERS:02,=
-09,22,23,24,30(05) <BR>
-<BR>&nbsp;<BR>
-<BR>I wish to Congratulate you on your victory, you are a lucky person to h=
-ave won this lottery. Your email address was amongst those chosen this quar=
-ter from our new java-based software that randomly selects email addresses =
-from the web from which winners are selected. <BR>
-<BR>You are required to forward the following details to help facilitate th=
-e processing of your claims and certificate which will facilitate of Your w=
-inning price is to the tune of USD1 950,000.00&nbsp; dollars. <BR>
-<BR>&nbsp;<BR>
-<BR>1. Full names. <BR>2. Phone number. <BR>3. Fax number. <BR>4. Occupatio=
-n. <BR>5. Sex. <BR>6. Age. <BR>7. Country. <BR>8.country of resident.<BR>
-<BR>&nbsp;<BR>
-<BR>Remember, you must contact your claim agent Mr Smith,Call him and claim=
- your prize after calling him send your refrence and batch number and all t=
-he above informations to his email address and call him to let him know tha=
-t you have contacted him through email.<BR>
-<BR>Congratulations once again from all our staff and thank you for being p=
-art of our promotions program. for claiming of your prize and remember to q=
-uote your reference and Batch Number for easy processing of your prize.!<BR=
->
-&nbsp;<BR>
-You have to note that this program is being sponsored by the FIFA SUPPORT A=
-FRICAN TEAM, to creat awareness for the coming 2010 FIFA world Cup, which i=
-s to be host by South Africa.<BR>
-<BR>&nbsp;<BR>
-<BR>TO FILE YOUR CLAIM...<BR>Contact Mr.Howard&nbsp; Arr<BR>
-<BR>Processing Manager: Mr. Richard&nbsp; Smith<BR>
-<BR>TEL: + 27-74-213-6382<BR>
-<BR>EMAIL: <A href=3D"mailto:agent1_claims1@yahoo.com">agent1_claims1@yahoo=
-.com</A><BR>
-&nbsp;<BR>
-Congratulations once&nbsp; again and have a lot of fun. The International M=
-ega Promotion team.<BR>
-<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&n=
-bsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GLOBAL MEGA-MILLION LOTTERY&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <BR>
-<BR>&nbsp;<BR>
-<BR>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;Copyright =C2=
-=A9 2006 The Xanga web &amp; SA National Lottery Inc.<BR>&nbsp;&nbsp;&nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;All r=
-ights reserved. Terms of Service - Guideline<BR><BR><br /><hr />Connect to =
-the next generation of MSN Messenger=A0  <a href=3D'http://imagine-msn.com/=
-messenger/launch80/default.aspx?locale=3Den-us&source=3Dwlmailtagline' targ=
-et=3D'_new'>Get it now! </a></body>
-</html>=
+We are pleased to inform you of the result of the just concluded annual
+final draws held on the 30th Of December 2006 by Coca-Cola in conjunction
+with the.
 
---_a2fa551a-7206-4a1b-9dfa-6ce4360daff2_--
+British American Tobacco Worldwide Promotion, your email Was among the 20
+Lucky winners who won a lump sum of One Million pound sterling
+(=A31,000,000.00) each
+on THE COCA\'COLA COMPANY PROMOTIONS however the results were released on
+the 5th of January 2007and your email was attached to ticket number
+(CC/7PWYZ2006) and ballot number (CC/BT:12052006/20) The online draws was
+conducted by a random selection of email addresses from an exclusive list
+of 29,031 E-mail addresses of individuals and corporate bodies picked by
+an advanced automated random computer search from the internet.
+However, no tickets were sold but all email addresses were assigned to
+different ticket numbers for representation and privacy.
+
+The selection process was carried out through random selection in our
+computerized email selection machine (TOPAZ) from a database of over
+250,000 email
+addresses drawn from all the continents of the world. This Lottery is
+approved by the British Gaming Board and also Licensed by the
+International Association of Gaming Regulators (IAGR).
+
+This lottery and it is the 3rd of its kind and we intend to sensitize the
+public. In other to claim your prize winning which has been deposited to
+customized Courier and Security Company who has been to deliver it to you=
+r
+designated contact address.
+
+Above all, you are required to fill out the Claims Verification form belo=
+w
+and send it to the Fiduciary Agent Of THE COCA COLA COMPANY for
+verification and
+processing who is going to refer you on how to claims your winning.
+
+1.Name............................
+2.Address.........................
+3.Age...............................
+4.Sex...............................
+5.Occupation....................
+6.Country Of Resident.......
+7.Nationality......................
+8.Tel/Fax...........................
+
+Please you are advice to complete the form and send it immediately to our
+Fiduciary Agent through email or fax for Verification and Remittance of
+your Winning To your designated Address.You are therefore advised to
+contact our Fiduciary Agent for the Verification And Remittance Of Your
+Winning with
+Your Information and do remember to quote your Ticket Numbers And Ballot
+Numbers.
+
+Fiduciary Agent Max Ralph
+DEPTCOCA COLA AVENUE
+STANFORD BRIDGE
+LONDON SW1V 3DW
+UNITED KINGDOM
+Email: claims-unit@coca-colacentre.co.uk
+       infowebcocacola@yahoo.co.uk
+Telephone: +44-7979391755
+Best wishes:
+Mrs. Juliet marrow
+(Processing Manager)
+
+
+On Behalf of the staff And Members Of the COCA COLA COMPANIES
+Congratulates and therefore advised you to keep your winning information
+confidential and restrict from third Party to avoid double or false claim=
+s
+of your winning
+
+For more informations or help contact information centres at
+info@coca-colacentre.co.uk
+=A9 2007 Coca-Cola Company Plc United Kingdom. All rights reserved.

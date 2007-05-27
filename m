@@ -1,39 +1,69 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] ACPI: thinkpad-acpi: add thinkpad keys to input.h
-Date: Sat, 26 May 2007 23:40:27 -0400
-Message-ID: <200705262340.28219.dtor@insightbb.com>
-References: <11802004861625-git-send-email-hmh@hmh.eng.br> <11802006652058-git-send-email-hmh@hmh.eng.br> <1180200665989-git-send-email-hmh@hmh.eng.br>
+From: "Kerry Cain" <belleplaine056@gmai.com>
+Subject: in whichever adjuntas
+Date: Sun, 27 May 2007 18:07:23 +0900
+Message-ID: <001501c7a089$e02bd080$06ce452c@samsung860wdi4>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0012_01C7A089.E02BD080"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1180200665989-git-send-email-hmh@hmh.eng.br>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: ibm-acpi-devel@lists.sourceforge.net, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Saturday 26 May 2007 13:31, Henrique de Moraes Holschuh wrote:
-> Add hotkeys available in almost all ThinkPads manufactured in the last five
-> years (more than one million machines given the ammount of batteries
-> recalled) to input.h, and make thinkpad-acpi use those instead of issuing
-> KEY_UNKNOWN.
-> 
-> KEY_FN_PAGEDOWN is not ever reported by the ThinkPad firmware due to random
-> bogon-induced stupidity at IBM some years ago, but it is provided because
-> it doesn't make sense to define KEY_FN_PAGEUP and not define
-> KEY_FN_PAGEDOWN at the same time.
-> 
+------=_NextPart_000_0012_01C7A089.E02BD080
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I am unconvinced that we need new keycodes. Isn't there a better default
-keycodes for these keys? You mentioned that fn+f5 controls radio on many
-thinkpads, why don't you use KEY_WLAN in your keymap?
- 
--- 
-Dmitry
+
+
+This gem is really movable!!!
+
+Sea.rch for: ADOVCurrent: $0.52 3 Day Target price: $2.50Market: =
+bullish...
+
+
+Short-term KST. Short-Term Bullish!!!
+
+
+
+ADOV have released very hot news. Check this out, linux-input and call =
+to your brocker right now!!
+
+
+
+------=_NextPart_000_0012_01C7A089.E02BD080
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.2462.3000" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3333 size=3D3D4><FONT =
+size=3D4><STRONG>This gem is really movable!</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#CC3300 size=3D3>Sea.rch =
+for: <b>ADOV</b><br>Current: $0.52 <br>3 Day Target price: =
+$2.50<br>Market: bullish...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#6633FF size=3D=
+4>Short-term KST. Short-Term Bullish...</FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DTahoma color=3D#990000 size=3D3>ADOV =
+have released very hot news. Check this out, linux-input and call to =
+your brocker right now.</FONT></DIV>
+<BR><BR>
+</BODY></HTML>
+
+------=_NextPart_000_0012_01C7A089.E02BD080--

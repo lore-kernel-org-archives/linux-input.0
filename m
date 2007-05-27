@@ -1,134 +1,69 @@
-From: "Cary Parham" <jodindiaclockslaq@indiaclocks.com>
-Subject: Join the thousands of people who got slim
-Date: Sun, 27 May 2007 16:59:31 -0100
-Message-ID: <335955331.78307834457467@thhebat.net>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH] ACPI: thinkpad-acpi: add thinkpad keys to input.h
+Date: Sun, 27 May 2007 15:10:23 -0300
+Message-ID: <20070527181023.GB4507@khazad-dum.debian.net>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br> <11802006652058-git-send-email-hmh@hmh.eng.br> <1180200665989-git-send-email-hmh@hmh.eng.br> <200705262340.28219.dtor@insightbb.com> <20070527121513.GC19562@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------C3F295E057676767"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070527121513.GC19562@khazad-dum.debian.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: ibm-acpi-devel@lists.sourceforge.net, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------C3F295E057676767
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
+On Sun, 27 May 2007, Henrique de Moraes Holschuh wrote:
+> On Sat, 26 May 2007, Dmitry Torokhov wrote:
+> > On Saturday 26 May 2007 13:31, Henrique de Moraes Holschuh wrote:
+> > > Add hotkeys available in almost all ThinkPads manufactured in the last five
+> > > years (more than one million machines given the ammount of batteries
+> > > recalled) to input.h, and make thinkpad-acpi use those instead of issuing
+> > > KEY_UNKNOWN.
+> > > 
+> > > KEY_FN_PAGEDOWN is not ever reported by the ThinkPad firmware due to random
+> > > bogon-induced stupidity at IBM some years ago, but it is provided because
+> > > it doesn't make sense to define KEY_FN_PAGEUP and not define
+> > > KEY_FN_PAGEDOWN at the same time.
+> > > 
+> > 
+> > I am unconvinced that we need new keycodes. Isn't there a better default
+> > keycodes for these keys? You mentioned that fn+f5 controls radio on many
+> > thinkpads, why don't you use KEY_WLAN in your keymap?
+> 
+> No can do the KEY-WLAN thing, sorry.  I *don't* have a way to know, unless I
+> add a model-specific map table to the kernel, and I have been told by
+> numerous people to don't even try, unless it is for quirks, etc.
+> 
+> Really, what are we to do with that input.h scancode map?  It *IS* supposed
+> to be absolute, i.e. one is not supposed to reuse keys in there if the
+> functionality *or* the generic description is not an exact match.  This is
+> extremely clear, and it makes complete sense from the point of view of
+> userland: HAL and others can properly assign functions to all scan codes and
+> it will be always correct.
+> 
+> But then, it is expensive memory-wise, so it is near the current KEY_MAX,
+> and people are very, very relutant to add another bit to it.
+> 
+> This is definately a ridiculous and aggravating situation, that deserves a
+> proper fix.  If increasing the scancode table cannot be done (why?), it is
+> time to stop denying reality, and remove everything after KEY_FN (0x1d0),
+> and instead give us a block of KEY_HOSTSPECIFIC_* scancodes, from 0x1d0 to
+> at least 0x1ef.
+> 
+> Given the way that scancode table is being used, it is one way or the other.
+> Either increase it to KEY_MAX=0x3ff, or do exactly what UNICODE did, give us
+> a decently sized block of host-specific scancodes, and shunt the problem to
+> userspace to clean up after.
 
+I can come up with a patch that converts all the keycodes after KEY_FN to
+host-specific keycodes, and fix all in-tree drivers to use them (without
+modifying any of the scancodes they will generate, i.e. maintaining the ABI
+to userspace).  Is there any chance of such a patch being accepted?
+Otherwise, I'd rather waste my time doing something else :-)
 
-Make use of your opportunity! =96 Anatrim =96 The latest and most=20=
-fascinating product for over-weight people is now readily available =96=20=
-As seen on Oprah
-
-Can you count up all the situations when you said to yourself you would=20=
-do any thing to get rid of this awful kilos of fat? Fortunately, now no=20=
-major price is to be paid. Thanks to Anatrim, the earth-shaking, you can=20=
-get naturally health life style and a really slender figure. Notice what=20=
-people say!
- 
-=93I always had a stunning life till a year back a girl I was meeting=20=
-said to me I was corpulent and in extreme need of being attentive to my=20=
-health. Life was never the same after that, till I found Anatrim =99 at=20=
-once. Since getting rid of about 20 kilogrames thanks to Anatrim,  my=20=
-private life=92s come back, even notoriously better than before. Thanks=20=
-for the coolest product and the first-class maintenance service. Keep up=20=
-your valuable action!=94
-
- 
-Rikky Martin, San Diego
-
- 
-"There=92s nothing better than sliding into a bikini that I haven't=20=
-worn for years. Now I feel slim, steadfast, and healthy, thanx to a=20=
-degree to Anatrim! Great thank you!"
-
- 
-Maria H., Colorado
-
-Discover Anatrim, and  you shall join the world-spread company of=20=
-thousands of delighted customers who=92re getting pleasure out of the=20=
-revolutionary results of Anatrim here and now. Less gorging insanity,=20=
-less kilos and more joy in your life!
-
-Click right here to examine our unbreakable Anatrim deal!!!
-http://www.weriesto.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7xomibf
-
-------------C3F295E057676767
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Make your fat friends envy you</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a=20=
-href=3D"http://www.weriesto.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7xomibf">
-Make use of your opportunity! =96 Anatrim =96 The latest and most=20=
-fascinating product for over-weight people is now readily available =96=20=
-As seen on Oprah
-</a>
-</center>
-<br>
-Can you count up all the situations when you said to yourself you would=20=
-do any thing to get rid of this awful kilos of fat? Fortunately, now no=20=
-major price is to be paid. Thanks to Anatrim, the earth-shaking, you can=20=
-get naturally health life style and a really slender figure. Notice what=20=
-people say!
- <br>
-<br>
-<i>
-=93I always had a stunning life till a year back a girl I was meeting=20=
-said to me I was corpulent and in extreme need of being attentive to my=20=
-health. Life was never the same after that, till I found Anatrim =99 at=20=
-once. Since getting rid of about 20 kilogrames thanks to Anatrim,  my=20=
-private life=92s come back, even notoriously better than before. Thanks=20=
-for the coolest product and the first-class maintenance service. Keep up=20=
-your valuable action!=94
-</i>
- <br>
-<b>
-<i>
-Rikky Martin, San Diego
-</i>
-</b>
- <br>
-<br>
-<i>
-"There=92s nothing better than sliding into a bikini that I haven't=20=
-worn for years. Now I feel slim, steadfast, and healthy, thanx to a=20=
-degree to Anatrim! Great thank you!"
-</i>
- <br>
-<b>
-<i>
-Maria H., Colorado
-</i>
-</b>
-<br>
-<br>
-Discover Anatrim, and  you shall join the world-spread company of=20=
-thousands of delighted customers who=92re getting pleasure out of the=20=
-revolutionary results of Anatrim here and now. Less gorging insanity,=20=
-less kilos and more joy in your life!
-<br>
-<br>
-<center>
-<a=20=
-href=3D"http://www.weriesto.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7xomibf">
-Click right here to examine our unbreakable Anatrim deal!!!
-</a>
-</center>
-</b>
-</p>
-<font=20=
-color=3D"#D9EDFF">http://www.weriesto.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7xomibf</font>
-
-</BODY></HTML>
-------------C3F295E057676767--
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

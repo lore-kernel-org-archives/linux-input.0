@@ -1,66 +1,98 @@
-From: "Ana Kim" <chelanpwm@devils.com>
-Subject: Be no alburg
-Date: Tue, 29 May 2007 01:29:12 +0800
-Message-ID: <001201c7a190$c362e7b0$01950e3c@g29>
+From: "Tara Bonds" <nudinstasapwyq@instasap.com>
+Subject: Look in the mirror and enjoy the new you
+Date: Mon, 28 May 2007 18:28:09 -0100
+Message-ID: <965768590.61716920040744@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000F_01C7A190.C362E7B0"
+  boundary="----------5A86EDA86705AF05"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000F_01C7A190.C362E7B0
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+------------5A86EDA86705AF05
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
 
 
-THE ALERT IS ON.
+Profit by your chance! – Anatrim – The up-to-the-moment & most enchanting product for corpulent people is now easily available – As you could see on Oprah
 
+Do you recall all the situations when you said to yourself you would do anything for being rescued from this frightful kilos of fat? Luckily, now no great price is to be paid. Thanks to Anatrim, the ground-breaking, you can achieve healthier mode of life and become really slimmer. Just look at what our clients say!
+ 
+“I always had an astonishing life till last year my girl told me I was corpulent and had need for keeping eye on my health. My life was never the same after that, until I was told about Anatrim ™. Since loosing more than 18 kilogrammes only thanx to Anatrim,  my private life has come back, better than even before. Great deal of thanx to you for the incredible stuff and the first-rate service. Go on your worthy work!”
 
-Target sym: ADOVCurrent: $0.52 1 Day Target price: $2.50Action: Strong =
-Buy/Hold!!!
+ 
+Serge Smith, Boston
 
+ 
+"Nothing feels better than gliding into a bikini that I haven't worn for many years. Now I feel lean, determined, and strong, thanx to a considerable degree to Anatrim! Great thank you!"
 
-All signs show that this one is going to Explode.
+ 
+Maria H., Las Vegas
 
-linux-input, take a look at the hottest news, contact your brocker now!
+Check out Anatrim, and  you will add yourself to the world-spread company of thousands of happy buyers who are getting pleasure out of the revolutionary results of Anatrim right now. Less gorging mania, less lbs and more fun in your life!
 
+Click right here to see our outdone Anatrim deals!!!
+http://www.klinge.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ipftge
 
-------=_NextPart_000_000F_01C7A190.C362E7B0
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+------------5A86EDA86705AF05
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.2869" name=3DGENERATOR>
-<STYLE></STYLE>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Be leaner and slimmer by next week</TITLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#333366 size=3D=
-3D4><FONT size=3D3><STRONG>THE ALERT IS ON..</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D2>Target =
-sym: <b>ADOV</b><br>Current: $0.52 <br>1 Day Target price: =
-$2.50<br>Action: Strong Buy/Hold..</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#003399 size=3D2>All =
-signs show that this one is going to Explode...</FONT></DIV>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
-2>linux-input, take a look at the hottest news, contact your brocker =
-now..</FONT></DIV>
-<BR><BR><BR>
-</BODY></HTML>
+<BODY>
 
-------=_NextPart_000_000F_01C7A190.C362E7B0--
+<p>
+<center>
+<b>
+<a href="http://www.klinge.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ipftge">
+Profit by your chance! – Anatrim – The up-to-the-moment & most enchanting product for corpulent people is now easily available – As you could see on Oprah
+</a>
+</center>
+<br>
+Do you recall all the situations when you said to yourself you would do anything for being rescued from this frightful kilos of fat? Luckily, now no great price is to be paid. Thanks to Anatrim, the ground-breaking, you can achieve healthier mode of life and become really slimmer. Just look at what our clients say!
+ <br>
+<br>
+<i>
+“I always had an astonishing life till last year my girl told me I was corpulent and had need for keeping eye on my health. My life was never the same after that, until I was told about Anatrim ™. Since loosing more than 18 kilogrammes only thanx to Anatrim,  my private life has come back, better than even before. Great deal of thanx to you for the incredible stuff and the first-rate service. Go on your worthy work!”
+</i>
+ <br>
+<b>
+<i>
+Serge Smith, Boston
+</i>
+</b>
+ <br>
+<br>
+<i>
+"Nothing feels better than gliding into a bikini that I haven't worn for many years. Now I feel lean, determined, and strong, thanx to a considerable degree to Anatrim! Great thank you!"
+</i>
+ <br>
+<b>
+<i>
+Maria H., Las Vegas
+</i>
+</b>
+<br>
+<br>
+Check out Anatrim, and  you will add yourself to the world-spread company of thousands of happy buyers who are getting pleasure out of the revolutionary results of Anatrim right now. Less gorging mania, less lbs and more fun in your life!
+<br>
+<br>
+<center>
+<a href="http://www.klinge.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ipftge">
+Click right here to see our outdone Anatrim deals!!!
+</a>
+</center>
+</b>
+</p>
+<font color="#D9EDFF">http://www.klinge.hk/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7ipftge</font>
+
+</BODY></HTML>
+------------5A86EDA86705AF05--

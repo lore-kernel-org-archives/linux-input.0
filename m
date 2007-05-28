@@ -1,94 +1,66 @@
-From: "Caleb Ortiz" <nudinterdiowyq@interdio.be>
-Subject: Be leaner and slimmer by next week
-Date: Mon, 28 May 2007 16:50:06 -0100
-Message-ID: <281095144.77171848031958@thhebat.net>
+From: "Ana Kim" <chelanpwm@devils.com>
+Subject: Be no alburg
+Date: Tue, 29 May 2007 01:29:12 +0800
+Message-ID: <001201c7a190$c362e7b0$01950e3c@g29>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------D38DA4867D38676"
+        boundary="----=_NextPart_000_000F_01C7A190.C362E7B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------------D38DA4867D38676
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+------=_NextPart_000_000F_01C7A190.C362E7B0
+Content-Type: text/plain;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
 
 
 
-Anatrim - the most mighty lose flesh blend is now easily available wherever you need it!!!
+THE ALERT IS ON.
 
-Like many people all over the world, you could see the exciting BBC announcement about exciting new diet breakthrough "Anatrim Cactus", an astonishing present-day product that took the weight loss industry by storm!
-Assail Stoutness
-Cuts short feeling of hunger like no other product
-A hundred per cent Herbal & Unoffending
-Pure Unsophisticated product – With no mixture
-Assist safe, rapid weight loss
-No Ephedra/Caffeine!
-Can be integrated without difficulties into subsisting diet plan
-See the pounds wane and the new you emerge!
-Helps in your yearning for looking and feeling excellent!
 
-Take a look at what our customers stated about this stuff:
+Target sym: ADOVCurrent: $0.52 1 Day Target price: $2.50Action: Strong =
+Buy/Hold!!!
 
-"Wow!  I and my wife been on roller coater diets for a long time. What a thwarting ride it was I should admit. Your stuff rendered us a service tolose 58 lbs between us in two months. That was 5 months ago and up to here the weight is still away! A lot of thanx to you did we say. Thank you!!!"
 
- 
-Laura and Serge F., Las Vegas
+All signs show that this one is going to Explode.
 
-Read more thank you gratitudes at our web-page!!!
-http://www.inhexiv.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yatkss
+linux-input, take a look at the hottest news, contact your brocker now!
 
-------------D38DA4867D38676
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Watch the pounds disappear</TITLE>
+------=_NextPart_000_000F_01C7A190.C362E7B0
+Content-Type: text/html;
+        charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+windows-1251">
+<META content=3D"MSHTML 6.00.2462.2869" name=3DGENERATOR>
+<STYLE></STYLE>
 </HEAD>
-<BODY>
-
-<b>
-<center>
-<a href="http://www.inhexiv.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yatkss">
-Anatrim - the most mighty lose flesh blend is now easily available wherever you need it!!!
-</a>
-</center>
-<br>
-Like many people all over the world, you could see the exciting BBC announcement about exciting new diet breakthrough "Anatrim Cactus", an astonishing present-day product that took the weight loss industry by storm!
-<br>
-<br>
-<li>Assail Stoutness
-<li>Cuts short feeling of hunger like no other product
-<li>A hundred per cent Herbal & Unoffending
-<li>Pure Unsophisticated product – With no mixture
-<li>Assist safe, rapid weight loss
-<li>No Ephedra/Caffeine!
-<li>Can be integrated without difficulties into subsisting diet plan
-<li>See the pounds wane and the new you emerge!
-<li>Helps in your yearning for looking and feeling excellent!
-<br>
-<br>
-Take a look at what our customers stated about this stuff:
-<br>
-<br>
-<i>
-"Wow!  I and my wife been on roller coater diets for a long time. What a thwarting ride it was I should admit. Your stuff rendered us a service tolose 58 lbs between us in two months. That was 5 months ago and up to here the weight is still away! A lot of thanx to you did we say. Thank you!!!"
-</i>
- <p>
-Laura and Serge F., Las Vegas
-</p>
-<center>
-<a href="http://www.inhexiv.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yatkss">
-Read more thank you gratitudes at our web-page!!!
-</a>
-</center>
-</b>
-<font color="#D9EDFF">http://www.inhexiv.com/?g371737D6E757966777E70776E336B337A6E686E7A32737A45796A33667173726B6873337Fw7yatkss</font>
-
+<BODY bgColor=3D#ffffff>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#333366 size=3D=
+3D4><FONT size=3D3><STRONG>THE ALERT IS ON..</STRONG></FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0033 size=3D2>Target =
+sym: <b>ADOV</b><br>Current: $0.52 <br>1 Day Target price: =
+$2.50<br>Action: Strong Buy/Hold..</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#003399 size=3D2>All =
+signs show that this one is going to Explode...</FONT></DIV>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#FF0000 size=3D=
+2>linux-input, take a look at the hottest news, contact your brocker =
+now..</FONT></DIV>
+<BR><BR><BR>
 </BODY></HTML>
-------------D38DA4867D38676--
+
+------=_NextPart_000_000F_01C7A190.C362E7B0--

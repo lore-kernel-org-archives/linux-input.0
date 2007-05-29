@@ -1,69 +1,73 @@
-From: "Rocky Rosen" <mavisdale2@froglevel.net>
-Subject: Are glasston which laurens
-Date: Tue, 29 May 2007 16:39:46 +0800
-Message-ID: <001001c7a20f$f76fd8e0$00d6fa24@fscomputer>
+From: MAUREEN DOUGLASS (NIPPON OIL EXPLORATION LTD.) <webinfo1900@bellsouth.net>
+Subject: COMPANY REPRESENTATIVE REQUIRED IN YOUR REGION...
+Date: Tue, 29 May 2007 5:19:06 -0400
+Message-ID: <20070529091906.TPRP22805.ibm65aec.bellsouth.net@mail.bellsouth.net>
+Reply-To: nipponofficeuk@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_000D_01C7A20F.F76FD8E0"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: no-reply@no-reply.com
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_000D_01C7A20F.F76FD8E0
-Content-Type: text/plain;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+Nippon Oil Exploration and Production U.K., Limited
+New Liverpool House / 2nd Floor, 
+15 Eldon Street London
+EC2M 7LD, U.K.
 
 
+ATTN: SIR/MADAM,
 
+Yes you can apply and be appointed,as your province/region covers within the range of North and South America.We seek a representative that can help my company in clearing our payments,this has being occasioned by the wide growth in our market that has expanded our goods and products to your province encompassing---AMERICA,CANADA,MEXICO AND PUERTO RICO. Likewise all exterior axis of EUROPE.
 
-This gem is really movable!!!
+Hence the mergence for a representative/agent who is competent,diligent and trustworthy to handle the responsiblity of receiveing payments on our behalf.Our customers issue out payments in cheques,bankdrafts,bonds etc and we don't run an account presently in your province that will clear this payments.Likewise clearance of our goods within your province.
 
+As our representative you will receive 10% of any payments you clear for the company, that is how you will be paid/renumerated by the company then you will remit the balance of 90% to us.This the company's standard mode of operation.
 
+If you are interested in our offer please confirm your complete informations:
 
-S.ymboL: ADOVCurrent: $0.52 1 Day Target price: $2.50Action: Aggresive =
-Buy/Hold!
+1)FULL NAMES/COMPANY NAME
 
+2)COMPANY/HOME ADDRESS 
 
+3)MAILING ADRESS 
 
-Short-Term Bullish. Insider Buying Alert!!
+4)COUNTRY/STATE
 
+5)PHONE NUMBERS-CELL,HOME,OFFICE ETC(kindly ensure you forward a functional phone number/s) 
 
+6)FAX NUMBER
 
-See the news, linux-input, call your broker..
+7)ZIP CODE
 
-------=_NextPart_000_000D_01C7A20F.F76FD8E0
-Content-Type: text/html;
-        charset="windows-1251"
-Content-Transfer-Encoding: quoted-printable
+8)EVIDENCE OF FULL IDENTIFICATION--SCANNED AND FORWARDED COPY OF INTERNATIOAL PASSPORT OR DRIVER"S LICENCE.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1251">
-<META content=3D"MSHTML 6.00.2462.2969" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#003300 size=3D3D4><FONT =
-size=3D4><STRONG>This gem is really movable.</STRONG></FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#FF3333 size=3D=
-3>S.ymboL: <b>ADOV</b><br>Current: $0.52 <br>1 Day Target price: =
-$2.50<br>Action: Aggresive Buy/Hold.</FONT></DIV>
-<BR><BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#000066 size=3D=
-2>Short-Term Bullish. Insider Buying Alert..</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DTahoma color=3D#0033FF size=3D3>See the =
-news, linux-input, call your broker.</FONT></DIV>
-<BR><BR>
-</BODY></HTML>
+9)COMPLETE WORKING EXPERIENCE(WITH DETAILS)
 
-------=_NextPart_000_000D_01C7A20F.F76FD8E0--
+10)ANNUAL INCOME
+
+all these are required for official documentation and record purpose once this is done i will fax it to our customers instructing them that you are our rep/agent and that they should issue out payments to you on behalf of Nippon Company Ltd.
+
+Waiting to hear from you.If you need any other informations do not fail to attention me.i ll instruct my attorney to prepare and send you our company"s statutory memorandum of understanding(M.O.U) via mail/fax. 
+
+Kindly acknowledge reciept of mail by swiftly replying.i need to to hear from you as soon as possible so that the board of management can concess to your appointment.
+
+have a nice day.
+
+I await your urgent response to the Regional Coordinator in charge of your region:
+Mr. Tony Johnson
+Regional Coordinator
+N.O.E.P.L.UK
+TEL: +44-704-571-1123
+Email to: nipponofficeuk@yahoo.co.uk
+
+Thanks for your time,
+
+Yours Respectfuly,
+Maureen Douglass
+Regional Secretary

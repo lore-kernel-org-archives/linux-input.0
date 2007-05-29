@@ -1,64 +1,65 @@
-From: "Vilma Salazar" <gvhindescribable@marketing-electronico.com>
-Subject: Go and fermi
-Date: Tue, 29 May 2007 11:39:14 -0300
-Message-ID: <001901c7a1e5$fba53740$006ea2bc@pcleo>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] gpio_mouse driver
+Date: Tue, 29 May 2007 11:36:38 -0400
+Message-ID: <d120d5000705290836o49bc207bqb3d9dfebc34ac752@mail.gmail.com>
+References: <1180444046354-git-send-email-hcegtvedt@norway.atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-        boundary="----=_NextPart_000_0016_01C7A1E5.FBA53740"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1180444046354-git-send-email-hcegtvedt@norway.atmel.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Hans-Christian Egtvedt <hcegtvedt@norway.atmel.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0016_01C7A1E5.FBA53740
-Content-Type: text/plain;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
+On 5/29/07, Hans-Christian Egtvedt <hcegtvedt@norway.atmel.com> wrote:
+> This patch adds support for simulating a mouse using GPIO lines.
+>
+> The driver needs a platform_data struct to be defined and registered with the
+> appropriate platform_device.
+>
+> The driver has been tested on AT32AP7000 microprocessor using the ATSTK1000
+> development board.
+>
 
+It looks sane although I would recommend switching to input-polldev
+when implementing a polled input device.
 
-Act now while the price is still low..
+> +
+> +       input->name = pdev->name;
+> +       input->cdev.dev = &pdev->dev;
 
-L00kup: ADOVCurrent: $0.523 Day Target price: $2.50Expected: Steadily =
-climb for the top.
+Please use input->dev.parent = &pdev->dev. Input devices are being
+moved from class_device to struct device.
 
+> +       input->private = pdata;
+> +
+> +       /*
+> +        * Revisit: is bustype, vendor, product and version needed to
+> +        * input->id? And if they should be present, what values should they
+> +        * have?
+> +        */
 
-Short-term KST. Insider Buying Alert!!!
+BUS_HOST seems to be most suitable here. The rest may stay 0.
 
-Check the news of ADOV, linux-input, contact broker!
+> +
+> +       /* private */
+> +       struct timer_list timer;
+> +};
 
-------=_NextPart_000_0016_01C7A1E5.FBA53740
-Content-Type: text/html;
-        charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
+I don't think it is a good idea to have timer structure in platform
+data which should really be constant. Timer shoudl be part of the
+stucture created when driver binds to a device. I can see you may not
+want to introduce extra complexity in the driver; however if you use
+input-polldev it will handle timer for you.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
-windows-1252">
-<META content=3D"MSHTML 6.00.2900.3000" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<BR><BR><BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D=
-3D4><FONT size=3D3><STRONG>Act now while the price is still =
-low!</STRONG></FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#6600FF size=3D=
-3>L00kup: <b>ADOV</b><br>Current: $0.52<br>3 Day Target price: =
-$2.50<br>Expected: Steadily climb for the top!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#CC3300 size=3D=
-4>Short-term KST. Insider Buying Alert!!</FONT></DIV>
-<BR>
-<DIV align=3Dcenter><FONT face=3DGeorgia color=3D#990000 size=3D2>Check =
-the news of ADOV, linux-input, contact broker!</FONT></DIV>
-<BR>
-</BODY></HTML>
-
-------=_NextPart_000_0016_01C7A1E5.FBA53740--
+-- 
+Dmitry

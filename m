@@ -1,73 +1,61 @@
-From: MAUREEN DOUGLASS (NIPPON OIL EXPLORATION LTD.) <webinfo1900@bellsouth.net>
-Subject: COMPANY REPRESENTATIVE REQUIRED IN YOUR REGION...
-Date: Tue, 29 May 2007 5:19:06 -0400
-Message-ID: <20070529091906.TPRP22805.ibm65aec.bellsouth.net@mail.bellsouth.net>
-Reply-To: nipponofficeuk@yahoo.co.uk
+From: "Letitia Conner" <dwlondonstm@londonst.com>
+Subject: Looking for drugs ?
+Date: Tue, 29 May 2007 10:26:48 -0100
+Message-ID: <01c7a1db$dd4ae010$f14f03c2@dwlondonstm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000E_01C7A1EC.A0D3B010"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: no-reply@no-reply.com
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Nippon Oil Exploration and Production U.K., Limited
-New Liverpool House / 2nd Floor, 
-15 Eldon Street London
-EC2M 7LD, U.K.
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_000E_01C7A1EC.A0D3B010
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+
+Dear valued member.It's time for Spring discounts. Spring Discounts from MyCanadianPharmacy. Buy cheap Canadian products and save up to 20%.So don’t hesitate, buy now and you'll have a chance to receive a really great Spring discount from MyCanadianPharmacy. Click here and your products will be delivered directly to your doorstephttp://happencaught.hkStrict confidentiality is guaranteed.We are proud of our experienced and professional team, prompt service and safe delivery.Yours faithfully,Letitia Conner
 
 
-ATTN: SIR/MADAM,
 
-Yes you can apply and be appointed,as your province/region covers within the range of North and South America.We seek a representative that can help my company in clearing our payments,this has being occasioned by the wide growth in our market that has expanded our goods and products to your province encompassing---AMERICA,CANADA,MEXICO AND PUERTO RICO. Likewise all exterior axis of EUROPE.
+------=_NextPart_000_000E_01C7A1EC.A0D3B010
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-Hence the mergence for a representative/agent who is competent,diligent and trustworthy to handle the responsiblity of receiveing payments on our behalf.Our customers issue out payments in cheques,bankdrafts,bonds etc and we don't run an account presently in your province that will clear this payments.Likewise clearance of our goods within your province.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3Diso-8859-2" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.50.4133.2400" name=3DGENERATOR></HEAD>
+<BODY>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2"><b><u>It's time for Spring discounts</=
+u></b>. Spring Discounts from <a href=3D"http://happencaught.hk">MyCanadian=
+Pharmacy</a>. Buy cheap Canadian products and save up to 20%.</font></p>
+<p><font face=3D"Verdana" size=3D"2">So don=92t hesitate, buy now and you'l=
+l have a chance to receive a really <b><u>great Spring discount</u></b> fro=
+m <a href=3D"http://happencaught.hk">MyCanadianPharmacy</a>. </font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://happencaught.hk">Cli=
+ck here and your products will be delivered directly to your doorstep</a><b=
+r>http://happencaught.hk</font></p>
+<p><font face=3D"Verdana" size=3D"2">Strict confidentiality is guaranteed.<=
+br>We are proud of our experienced and professional team, prompt service an=
+d safe delivery.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Yours faithfully,<br>Letitia Conner</f=
+ont></p>
+</body>
+</html>
 
-As our representative you will receive 10% of any payments you clear for the company, that is how you will be paid/renumerated by the company then you will remit the balance of 90% to us.This the company's standard mode of operation.
+</BODY></HTML>
 
-If you are interested in our offer please confirm your complete informations:
-
-1)FULL NAMES/COMPANY NAME
-
-2)COMPANY/HOME ADDRESS 
-
-3)MAILING ADRESS 
-
-4)COUNTRY/STATE
-
-5)PHONE NUMBERS-CELL,HOME,OFFICE ETC(kindly ensure you forward a functional phone number/s) 
-
-6)FAX NUMBER
-
-7)ZIP CODE
-
-8)EVIDENCE OF FULL IDENTIFICATION--SCANNED AND FORWARDED COPY OF INTERNATIOAL PASSPORT OR DRIVER"S LICENCE.
-
-9)COMPLETE WORKING EXPERIENCE(WITH DETAILS)
-
-10)ANNUAL INCOME
-
-all these are required for official documentation and record purpose once this is done i will fax it to our customers instructing them that you are our rep/agent and that they should issue out payments to you on behalf of Nippon Company Ltd.
-
-Waiting to hear from you.If you need any other informations do not fail to attention me.i ll instruct my attorney to prepare and send you our company"s statutory memorandum of understanding(M.O.U) via mail/fax. 
-
-Kindly acknowledge reciept of mail by swiftly replying.i need to to hear from you as soon as possible so that the board of management can concess to your appointment.
-
-have a nice day.
-
-I await your urgent response to the Regional Coordinator in charge of your region:
-Mr. Tony Johnson
-Regional Coordinator
-N.O.E.P.L.UK
-TEL: +44-704-571-1123
-Email to: nipponofficeuk@yahoo.co.uk
-
-Thanks for your time,
-
-Yours Respectfuly,
-Maureen Douglass
-Regional Secretary
+------=_NextPart_000_000E_01C7A1EC.A0D3B010--

@@ -1,65 +1,107 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] gpio_mouse driver
-Date: Tue, 29 May 2007 11:36:38 -0400
-Message-ID: <d120d5000705290836o49bc207bqb3d9dfebc34ac752@mail.gmail.com>
-References: <1180444046354-git-send-email-hcegtvedt@norway.atmel.com>
+Subject: Re: [PATCH] new driver for wireless xbox receiver for review
+Date: Tue, 29 May 2007 11:59:39 -0400
+Message-ID: <d120d5000705290859k63f9110akba428332a5557a21@mail.gmail.com>
+References: <20070529043957.GB6157@rcn.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1180444046354-git-send-email-hcegtvedt@norway.atmel.com>
+In-Reply-To: <20070529043957.GB6157@rcn.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Hans-Christian Egtvedt <hcegtvedt@norway.atmel.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+To: Brian Magnuson <bdmagnuson@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Hi Brian,
 
-On 5/29/07, Hans-Christian Egtvedt <hcegtvedt@norway.atmel.com> wrote:
-> This patch adds support for simulating a mouse using GPIO lines.
+On 5/29/07, Brian Magnuson <bdmagnuson@gmail.com> wrote:
+> Hi,
 >
-> The driver needs a platform_data struct to be defined and registered with the
-> appropriate platform_device.
+> This patch implements a driver for the "Microsoft Xbox 360 Wireless Receiver
+> for Windows" that was recently released.  It seems to mostly "just work" for
+> the basics at this point and I'd like to get some feedback on it since this is
+> my first attempt at driver development.
 >
-> The driver has been tested on AT32AP7000 microprocessor using the ATSTK1000
-> development board.
+> It borrows heavily from xpad.c since it's basically the same controller with
+> new wireless magic.  The difference being that the receiever can host multiple
+> controllers through the same device and the driver manages them coming and
+> going.  In particular I moved the input device creation/deletion out of the
+> probe function and into workqueues kicked off by usb interrupts.  That would
+> probably be a good place for prospective reviewers to start finding issues. :)
 >
 
-It looks sane although I would recommend switching to input-polldev
-when implementing a polled input device.
+Thnk you for the patch. Looking at the code I do not see one device
+supporintg multiple controllers... You have one input device per usb
+device/interface and the properties of said device are known
+beforehand. So I would just create and register input device right
+there in xboxrcvr_probe() and get rid of your build and teardown
+works. The fact that is it a wireless device and at transmitter may at
+times be out of range is not important.
+
+Overall I would like support for this wireless receiver to be
+incorporated into xpad.c driver.
+
+I also have some more comments, see below.
 
 > +
-> +       input->name = pdev->name;
-> +       input->cdev.dev = &pdev->dev;
+> +static unsigned long debug = 0;
 
-Please use input->dev.parent = &pdev->dev. Input devices are being
-moved from class_device to struct device.
+You do not need to initialize statig variables to 0. It only increases
+size of the image.
 
-> +       input->private = pdata;
+> +module_param(debug, ulong, 0644);
+> +MODULE_PARM_DESC(debug, "debug level");
 > +
-> +       /*
-> +        * Revisit: is bustype, vendor, product and version needed to
-> +        * input->id? And if they should be present, what values should they
-> +        * have?
-> +        */
-
-BUS_HOST seems to be most suitable here. The rest may stay 0.
 
 > +
-> +       /* private */
-> +       struct timer_list timer;
-> +};
+> +       if(debug) {
 
-I don't think it is a good idea to have timer structure in platform
-data which should really be constant. Timer shoudl be part of the
-stucture created when driver binds to a device. I can see you may not
-want to introduce extra complexity in the driver; however if you use
-input-polldev it will handle timer for you.
+Please use spaces between statement (if,for, while) and opening paren.
+
+> +
+> +       /* Valid pad data */
+> +       if(!(sdata[1] & 0x1) || !xboxrcvr->open)
+> +               return;
+
+Why are we generating interrupts if device is not used? Have the
+->open() method submit urbs and then you don't need to check it here.
+
+> +
+> +       /* FIXME: Yuck.  Need to make sure this doesn't get truncated */
+> +       usb_make_path(xboxrcvr->udev, path, sizeof(xboxrcvr->phys));
+> +       snprintf(xboxrcvr->phys, sizeof(xboxrcvr->phys), "%s/input%d", path, xboxrcvr->id);
+> +       snprintf(xboxrcvr->uniq, sizeof(xboxrcvr->uniq), "xpad%d", xboxrcvr->id >> 1);
+
+Uniq is used to carry identificator unique for the device, not within
+a particular system. It is property of device itself and should not
+change if moved to a different box so do not try to come up with
+artificial data for it.
+
+> +
+> +       input_dev->name     = xboxrcvr_device[0].name;
+
+Hmm....
+
+> +       input_dev->phys     = xboxrcvr->phys;
+> +       input_dev->uniq     = xboxrcvr->uniq;
+> +       input_dev->cdev.dev = &(xboxrcvr->intf->dev);
+
+Please use
+
+input_dev->dev.parent = &xboxrcvr->intf->dev;
+
+- input devices are meving moved from class_device to struct device.
+
+> +       input_dev->private  = xboxrcvr;
+
+input_set_drvdata(input_dev, xboxrcvr); And use input_get_drvdata()
+instead of accessing dev->private directly.
 
 -- 
 Dmitry

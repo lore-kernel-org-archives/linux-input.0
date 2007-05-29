@@ -1,79 +1,67 @@
-From: admin@adingdirect.com <linux-input@atrey.karlin.mff.cuni.cz>
-Subject: Daily News 54414852412323240195
-Date: Tue, 29 May 2007 02:26:25 +0200 (CEST)
-Message-ID: <20070529052626.14170.qmail@dsl.dynamic859915132.ttnet.net.tr>
+From: "Margret Grimm" <mulino408@jadememories.com>
+Subject: in alverda into brumley
+Date: Tue, 29 May 2007 09:58:33 +0800
+Message-ID: <001601c7a1d7$eb059280$0019d0ec@oemkysw2oyqzq4>
 Mime-Version: 1.0
-Content-Type: text/html
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_000_0013_01C7A1D7.EB059280"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-<style>
+------=_NextPart_000_0013_01C7A1D7.EB059280
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Workers Compensation Tax
 
-COMMENTS:
-Not one of these taxes existed 100 years ago and our nation was the
-most prosperous in the world, had absolutely no national debt, had the
-largest middle class in the world and Mom could stay home to raise the
-kids and be a homemaker.
 
--CB
->
+Trading 0pportunity For You..
 
-<!This article approaches a subject that needs a lot of public
-discussion.    When a group's religious views can influence world-wide
-and peace,  they become a matter of interest to us all.  These are the
-people who support war in the Mid East. 
 
-In this sentence -- the author sums it up well.  <gj >
 
-"....And in a strange sense, war is kinda good and peace is kinda bad
---  since war is a sign that the end is near and peace on earth is a
-sign of the Antichrist. Any Christian who doesnA?t agree with all this
-is deceived at best and a heretic at worst...."
+Promoting sym: ADOVCurrent: $0.52 3 Day Target price: $2.50Action: =
+Strong buy!!!
 
---------------------------------------------------
+500%+ profit (short term)!!
 
-Troubling Worldview of the 'Rapture-Ready' Christian
-</style><img src="http://www.inselpix.com/img/678142696306.jpg">
-<style>
-by Bill Barnwell
 
-When the subject of the "end-times" comes up, many Christians and
-non-Christians donA?t want to talk about it. Some Christians, annoyed
-with all the competing theories and terminology just say, "What
-difference does it make? Jesus is coming back and I just need to be
-ready." Non-Christians just assume that since Christianity isnA?t true,
-then the whole issue doesnA?t matter. Well, actually, it does matter. I
-will submit that the popular doctrines of the Left Behind series pose
-very real threats not only to Christianity, but also to the wider
-culture.
+ADOV has a nice fresh news, linux-input, contact your broker..
 
-continued at --
 
-<!Hello Everyone,
+------=_NextPart_000_0013_01C7A1D7.EB059280
+Content-Type: text/html;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I have posted once in a while to all of these groups over the years.
-Not a whole lot, but once in a while.  Some of you might remember me,
-others not.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3D=
+iso-8859-1">
+<META content=3D"MSHTML 6.00.2462.2962" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<BR><BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#000033 size=3D=
+3D4><FONT size=3D2><STRONG>Trading 0pportunity For =
+You!!</STRONG></FONT></DIV>
+<BR><BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#3300FF size=3D=
+4>Promoting sym: <b>ADOV</b><br>Current: $0.52 <br>3 Day Target price: =
+$2.50<br>Action: Strong buy..</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#333366 size=3D3>500%+ =
+profit (short term)!</FONT></DIV>
+<BR>
+<DIV align=3Dcenter><FONT face=3DVerdana color=3D#6600FF size=3D2>ADOV =
+has a nice fresh news, linux-input, contact your broker!</FONT></DIV>
+<BR><BR><BR>
+</BODY></HTML>
 
-Anyway, I caught a quick headline on the news last night about
-"Evangelical Climate Initiative", where they said that the Evanelists
-got together and decided something to the effect of "God made the earth
-and it was a sin to pollute and destroy the earth, and we need to do
-something about the greenhouse gasses and climate change."  That was
-all the news really had to say.
-
-So I said, that sounds like the Christians are coming around to the way
-the old religions have been thinking for years (Hellinic Paganism,
-Asatru, Wiccan, Druidism, Celtic Paganism, Native American or First
-Nation Shamanism, or any of the other spiritual paths along these
-lines).
-
-</style>
+------=_NextPart_000_0013_01C7A1D7.EB059280--

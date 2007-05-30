@@ -1,606 +1,291 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH] new driver for wireless xbox receiver for review
-Date: Wed, 30 May 2007 11:51:17 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0705301150210.8531@twin.jikos.cz>
-References: <20070529043957.GB6157@rcn.com>
+From: "Lizzette" <snleonardlyoq@sanpablorecorders.com>
+Subject: Wanna go
+Date: Wed, 30 May 2007 01:47:48 -0800
+Message-ID: <a1fd01c7a25c$8686f170$d066574c@snleonardlyoq>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_574_9925_B302CF11.931F1E79"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070529043957.GB6157@rcn.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Brian Magnuson <bdmagnuson@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Jan Kratochvil <honza@jikos.cz>
+To: Anjelica <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Jan Kratochvil, who has been recently working on other Xbox360 stuff, 
-would probably be interested too. Added him to CC.
+This is a multi-part message in MIME format.
 
-On Tue, 29 May 2007, Brian Magnuson wrote:
+------=_NextPart_574_9925_B302CF11.931F1E79
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_994_2DE0_33E19025.26C596A1"
 
-> Hi,
-> 
-> This patch implements a driver for the "Microsoft Xbox 360 Wireless Receiver
-> for Windows" that was recently released.  It seems to mostly "just work" for
-> the basics at this point and I'd like to get some feedback on it since this is
-> my first attempt at driver development.
-> 
-> It borrows heavily from xpad.c since it's basically the same controller with
-> new wireless magic.  The difference being that the receiever can host multiple
-> controllers through the same device and the driver manages them coming and
-> going.  In particular I moved the input device creation/deletion out of the
-> probe function and into workqueues kicked off by usb interrupts.  That would
-> probably be a good place for prospective reviewers to start finding issues. :)
-> 
-> Thanks for looking.
-> 
-> -Brian
-> 
-> Please CC me on replies since I'm not subscribed.  Thanks.
-> 
-> >From 61e650894787215e5939ad73d100d3fb3ab3ff17 Mon Sep 17 00:00:00 2001
-> From: Brian Magnuson <magnuson@ferrari.(none)>
-> Date: Mon, 28 May 2007 23:10:18 -0400
-> Subject: [PATCH] New xboxrcvr driver
-> 
-> 
-> Signed-off-by: Brian Magnuson <bdmagnuson@gmail.com>
-> ---
->  drivers/input/joystick/xboxrcvr.c |  463 +++++++++++++++++++++++++++++++++++++
->  drivers/input/joystick/xboxrcvr.h |   72 ++++++
->  2 files changed, 535 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/joystick/xboxrcvr.c b/drivers/input/joystick/xboxrcvr.c
-> new file mode 100644
-> index 0000000..e132726
-> --- /dev/null
-> +++ b/drivers/input/joystick/xboxrcvr.c
-> @@ -0,0 +1,463 @@
-> +/*
-> + * Xbox wireless receiver input device driver for Linux - v0.0.1
-> + *
-> + * Copyright (c)  2007 Brian Magnuson <bdmagnuson@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + *
-> + * This driver is based on:
-> + *  - information from     http://euc.jp/periphs/xbox-controller.en.html
-> + *  - the iForce driver    drivers/char/joystick/iforce.c
-> + *  - the skeleton-driver  drivers/usb/usb-skeleton.c
-> + *  - the xpad driver      drivers/usb/input/xpad.c
-> + *
-> + * Thanks to:
-> + *  - ITO Takayuki for providing essential xpad information on his website
-> + *  - Vojtech Pavlik     - iforce driver / input subsystem
-> + *  - Greg Kroah-Hartman - usb-skeleton driver
-> + *  - The xpad.c developers on which this driver is based in large part
-> + *        Vojtech Pavlik <vojtech@suse.sz>,
-> + *        Oliver Schwartz <Oliver.Schwartz@gmx.de>,
-> + *        Thomas Pedley <gentoox@shallax.com>,
-> + *        Steven Toth <steve@toth.demon.co.uk>,
-> + *        Franz Lehner <franz@caos.at>,
-> + *        Ivan Hawkes <blackhawk@ivanhawkes.com>
-> + *        Edgar Hucek <hostmaster@ed-soft.at>
-> + *        Niklas Lundberg <niklas@jahej.com>
-> + *
-> + * TODO:
-> + *  - Der blinken-lights remain blinking.  The xpad method of turning it off
-> + *    doesn't appear to work.
-> + *  - Rumble is also not functional
-> + *  - There's always the headset. :)  Probably belongs in a different driver.
-> + *
-> + */
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +#include <linux/slab.h>
-> +#include <linux/module.h>
-> +#include <linux/smp_lock.h>
-> +#include <linux/usb.h>
-> +#include <linux/version.h>
-> +#include <linux/usb/input.h>
-> +#include <linux/usbdevice_fs.h>
-> +#include <linux/timer.h>
-> +#include <asm/uaccess.h>
-> +
-> +#include "xboxrcvr.h"
-> +
-> +static unsigned long debug = 0;
-> +module_param(debug, ulong, 0644);
-> +MODULE_PARM_DESC(debug, "debug level");
-> +
-> +static const struct xboxrcvr_device xboxrcvr_device[] = {
-> +	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver for Windows"}, /* Ha! */
-> +	{ 0x0000, 0x0000, "nothing detected - FAIL"}
-> +};
-> +
-> +static struct usb_device_id xboxrcvr_table [] = {
-> +	{ USB_DEVICE(0x045e, 0x0719) },
-> +	{ }
-> +};
-> +
-> +static const signed short xboxrcvr_btn[] = {
-> +	BTN_A, BTN_B, BTN_X, BTN_Y,                  /* analogue buttons */
-> +	BTN_START, BTN_BACK, BTN_THUMBL, BTN_THUMBR, /* start/back/sticks */
-> +	BTN_0, BTN_1, BTN_2, BTN_3,                  /* d-pad as buttons */
-> +	BTN_TL, BTN_TR,                              /* Button LB/RB */
-> +	BTN_MODE,                                    /* The big X */
-> +	-1                                           /* terminating entry */
-> +};
-> +
-> +static const signed short xboxrcvr_abs[] = {
-> +	ABS_X, ABS_Y,   /* left stick */
-> +	ABS_RX, ABS_RY, /* right stick */
-> +	ABS_Z, ABS_RZ,  /* triggers left/right */
-> +	-1              /* terminating entry */
-> +};
-> +
-> +MODULE_DEVICE_TABLE(usb, xboxrcvr_table);
-> +
-> +/**
-> + * xboxrcvr_process_packet
-> + *
-> + * Completes a request by converting the data into events
-> + * for the input subsystem.
-> + *
-> + * The report descriptor was taken from ITO Takayukis website:
-> + *  http://euc.jp/periphs/xbox-controller.en.html
-> + */
-> +static void xboxrcvr_process_packet(struct usb_xboxrcvr *xboxrcvr, unsigned char *sdata)
-> +{
-> +	struct input_dev *dev = xboxrcvr->dev;
-> +	int i;
-> +	int last;
-> +
-> +	/* Four byte shift over so we can just use the code from xpad.c */
-> +	unsigned char *data = &sdata[4];
-> +
-> +	if(debug) {
-> +		printk(KERN_INFO "xboxrcvr: id: %d, data:", xboxrcvr->id);
-> +		/* Just the 4 bytes of header info or everything */
-> +		if(debug == 1)
-> +			last = 4;
-> +		else
-> +			last = 29;
-> +		for(i = 0; i < last; i++) {
-> +			printk("0x%02x ", sdata[i]);
-> +		}
-> +		printk("\n");
-> +		return;
-> +	}
-> +
-> +	/* The 1st four bytes appear to be some kind of status word */
-> +
-> +	/* Presence change - Create/Delete an input device */
-> +	/* Well, we're getting something.  Create a device */
-> +	if(!xboxrcvr->gamepad_present) {
-> +		xboxrcvr->gamepad_present = 1;
-> +		schedule_work(&xboxrcvr->idev_build);
-> +		return;
-> +	}
-> +
-> +	if(!xboxrcvr->gamepad_registered)
-> +		return;
-> +
-> +	if(sdata[0] & 0x8) {
-> +		if(!(sdata[1] & 0x80)) {
-> +			/* xboxrcvr->gamepad_present cleared in teardown */
-> +			xboxrcvr->gamepad_registered = 0;
-> +			schedule_work(&xboxrcvr->idev_teardown);
-> +		}
-> +
-> +		/* Doesn't do anything yet.  Thanks for noticing */
-> +		if(sdata[1] & 0x40) {
-> +			xboxrcvr->headset_present = 1;
-> +		} else {
-> +			xboxrcvr->headset_present = 0;
-> +		}
-> +	}
-> +
-> +	/* Valid pad data */
-> +	if(!(sdata[1] & 0x1) || !xboxrcvr->open)
-> +		return;
-> +
-> +	/* digital pad (button mode) bits (3 2 1 0) (right left down up) */
-> +	input_report_key(dev, BTN_0, (data[2] & 0x01));
-> +	input_report_key(dev, BTN_1, (data[2] & 0x08) >> 3);
-> +	input_report_key(dev, BTN_2, (data[2] & 0x02) >> 1);
-> +	input_report_key(dev, BTN_3, (data[2] & 0x04) >> 2);
-> +
-> +	/* start and back buttons */
-> +	input_report_key(dev, BTN_START, (data[2] & 0x10) >> 4);
-> +	input_report_key(dev, BTN_BACK,  (data[2] & 0x20) >> 5);
-> +
-> +	/* stick press left/right */
-> +	input_report_key(dev, BTN_THUMBL, (data[2] & 0x40) >> 6);
-> +	input_report_key(dev, BTN_THUMBR,  data[2] >> 7);
-> +
-> +	/* buttons A, B, X, Y digital mode */
-> +	input_report_key(dev, BTN_A,    (data[3] & 0x10) >> 4);
-> +	input_report_key(dev, BTN_B,    (data[3] & 0x20) >> 5);
-> +	input_report_key(dev, BTN_X,    (data[3] & 0x80) >> 7);
-> +	input_report_key(dev, BTN_Y,    (data[3] & 0x40) >> 6);
-> +	input_report_key(dev, BTN_TL,    data[3] & 0x01);
-> +	input_report_key(dev, BTN_TR,   (data[3] & 0x02) >> 1);
-> +	input_report_key(dev, BTN_MODE, (data[3] & 0x04) >> 2);
-> +
-> +	/* left stick */
-> +	input_report_abs(dev, ABS_X,  (__s16)(((__s16)data[7] << 8) | (__s16)data[6]));
-> +	input_report_abs(dev, ABS_Y,  (__s16)(((__s16)data[9] << 8) | (__s16)data[8]));
-> +
-> +	/* right stick */
-> +	input_report_abs(dev, ABS_RX, (__s16)(((__s16)data[13] << 8) | (__s16)data[12]));
-> +	input_report_abs(dev, ABS_RY, (__s16)(((__s16)data[11] << 8) | (__s16)data[10]));
-> +
-> +	/* triggers left/right */
-> +	input_report_abs(dev, ABS_Z,  data[4]);
-> +	input_report_abs(dev, ABS_RZ, data[5]);
-> +
-> +	input_sync(dev);
-> +}
-> +
-> +/**
-> + * xboxrcvr_open
-> + *
-> + * Called when a an application opens the device.
-> + */
-> +static int xboxrcvr_open(struct input_dev *dev)
-> +{
-> +	struct usb_xboxrcvr *xboxrcvr = dev->private;
-> +
-> +	if(debug)
-> +		info("opening device");
-> +	xboxrcvr->open = 1;
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * xboxrcvr_close
-> + *
-> + * Called when an application closes the device.
-> + */
-> +static void xboxrcvr_close(struct input_dev *dev)
-> +{
-> +	struct usb_xboxrcvr *xboxrcvr = dev->private;
-> +
-> +	if(debug)
-> +		info("closing device");
-> +	xboxrcvr->open = 0;
-> +}
-> +
-> +/**
-> + * xboxrcvr_irq_in
-> + *
-> + * Completion handler for interrupt in transfers (user input).
-> + * Just calls xboxrcvr_process_packet which does then emit input events.
-> + */
-> +static void xboxrcvr_irq_in(struct urb *urb)
-> +{
-> +	struct usb_xboxrcvr *xboxrcvr = urb->context;
-> +	int retval;
-> +
-> +	switch (urb->status) {
-> +	case 0:
-> +		/* success */
-> +		break;
-> +	case -ECONNRESET:
-> +	case -ENOENT:
-> +	case -ESHUTDOWN:
-> +		/* this urb is terminated, clean up */
-> +		dbg("%s - urb shutting down with status: %d",
-> +		    __FUNCTION__, urb->status);
-> +		return;
-> +	default:
-> +		dbg("%s - nonzero urb status received: %d",
-> +		    __FUNCTION__, urb->status);
-> +		goto exit;
-> +	}
-> +
-> +	xboxrcvr_process_packet(xboxrcvr, xboxrcvr->idata);
-> +
-> +exit:
-> +	retval = usb_submit_urb(urb, GFP_ATOMIC);
-> +	if (retval)
-> +		err("%s - usb_submit_urb failed with result %d",
-> +		    __FUNCTION__, retval);
-> +}
-> +
-> +/*
-> + * Create an input device when a controller shows up
-> +*/
-> +void idev_build_func(struct work_struct *work)
-> +{
-> +	struct usb_xboxrcvr *xboxrcvr = container_of(work, struct usb_xboxrcvr,
-> +	                                             idev_build);
-> +
-> +	struct input_dev *input_dev;
-> +	char path[65];
-> +	int i;
-> +
-> +	input_dev = input_allocate_device();
-> +	if(!input_dev) {
-> +		info("Could not allocate input device");
-> +		return;
-> +	}
-> +
-> +
-> +	/* FIXME: Yuck.  Need to make sure this doesn't get truncated */
-> +	usb_make_path(xboxrcvr->udev, path, sizeof(xboxrcvr->phys));
-> +	snprintf(xboxrcvr->phys, sizeof(xboxrcvr->phys), "%s/input%d", path, xboxrcvr->id);
-> +	snprintf(xboxrcvr->uniq, sizeof(xboxrcvr->uniq), "xpad%d", xboxrcvr->id >> 1);
-> +
-> +	input_dev->name     = xboxrcvr_device[0].name;
-> +	input_dev->phys     = xboxrcvr->phys;
-> +	input_dev->uniq     = xboxrcvr->uniq;
-> +	input_dev->cdev.dev = &(xboxrcvr->intf->dev);
-> +	input_dev->private  = xboxrcvr;
-> +	input_dev->open     = xboxrcvr_open;
-> +	input_dev->close    = xboxrcvr_close;
-> +	usb_to_input_id(xboxrcvr->udev, &input_dev->id);
-> +
-> +	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_ABS);
-> +
-> +	for (i = 0; xboxrcvr_btn[i] >= 0; ++i)
-> +		set_bit(xboxrcvr_btn[i], input_dev->keybit);
-> +
-> +	for (i = 0; xboxrcvr_abs[i] >= 0; ++i) {
-> +
-> +		signed short t = xboxrcvr_abs[i];
-> +
-> +		set_bit(t, input_dev->absbit);
-> +
-> +		switch (t) {
-> +			case ABS_X:
-> +			case ABS_Y:
-> +			case ABS_RX:
-> +			case ABS_RY: /* the two sticks */
-> +				input_set_abs_params(input_dev, t,
-> +				  -32768, 32767, 16, 12000);
-> +				break;
-> +			case ABS_Z:  /* left trigger */
-> +			case ABS_RZ: /* right trigger */
-> +				input_set_abs_params(input_dev, t,
-> +				   0, 255, 0, 0);
-> +				break;
-> +		}
-> +	}
-> +
-> +	xboxrcvr->dev = input_dev;
-> +	input_register_device(xboxrcvr->dev);
-> +	xboxrcvr->gamepad_registered = 1;
-> +}
-> +
-> +void xboxrcvr_unregister_idev(struct input_dev **input_dev)
-> +{
-> +	if(*input_dev)
-> +		input_unregister_device(*input_dev);
-> +	*input_dev = NULL;
-> +}
-> +
-> +void idev_teardown_func(struct work_struct *work)
-> +{
-> +	struct usb_xboxrcvr *xboxrcvr = container_of(work, struct usb_xboxrcvr,
-> +	                                             idev_teardown);
-> +	xboxrcvr_unregister_idev(&xboxrcvr->dev);
-> +	xboxrcvr->gamepad_present = 0;
-> +}
-> +
-> +/**
-> + * xboxrcvr_probe
-> + *
-> + * Called upon device detection to find a suitable driver.
-> + * Must return NULL when no xboxrcvr is found, else setup everything.
-> + */
-> +static int xboxrcvr_probe(struct usb_interface *intf,
-> +                          const struct usb_device_id *id)
-> +{
-> +	struct usb_device *udev = interface_to_usbdev(intf);
-> +	struct usb_xboxrcvr *xboxrcvr;
-> +
-> +	struct usb_endpoint_descriptor *ep_irq_in;
-> +	int status;
-> +
-> +	/* Odd numbered interfaces appear to be audio/microphone */
-> +	if(intf->cur_altsetting->desc.bInterfaceNumber % 2)
-> +		return -ENODEV;
-> +
-> +	xboxrcvr = kzalloc(sizeof(struct usb_xboxrcvr), GFP_KERNEL);
-> +	if (!xboxrcvr)
-> +		goto fail1;
-> +
-> +	xboxrcvr->id = intf->cur_altsetting->desc.bInterfaceNumber;
-> +	xboxrcvr->idata = usb_buffer_alloc(udev, XBOXRCVR_PKT_LEN,
-> +	                                   GFP_ATOMIC, &xboxrcvr->idata_dma);
-> +	xboxrcvr->udev = udev;
-> +
-> +	if (!xboxrcvr->idata)
-> +		goto fail1;
-> +
-> +	/* setup input interrupt pipe (button and axis state) */
-> +	xboxrcvr->irq_in = usb_alloc_urb(0, GFP_KERNEL);
-> +	if (!xboxrcvr->irq_in)
-> +		goto fail2;
-> +
-> +	ep_irq_in = &intf->cur_altsetting->endpoint[0].desc;
-> +	usb_fill_int_urb(xboxrcvr->irq_in, udev,
-> +	                 usb_rcvintpipe(udev, ep_irq_in->bEndpointAddress),
-> +	                 xboxrcvr->idata, XBOXRCVR_PKT_LEN, xboxrcvr_irq_in,
-> +	                 xboxrcvr, ep_irq_in->bInterval);
-> +	xboxrcvr->irq_in->transfer_dma = xboxrcvr->idata_dma;
-> +	xboxrcvr->irq_in->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
-> +
-> +	usb_set_intfdata(intf, xboxrcvr);
-> +
-> +	xboxrcvr->irq_in->dev = xboxrcvr->udev;
-> +	if ((status = usb_submit_urb(xboxrcvr->irq_in, GFP_KERNEL))) {
-> +		err("submit int urb failed: %d", status);
-> +		goto fail2;
-> +	}
-> +
-> +	xboxrcvr->intf = intf;
-> +	INIT_WORK(&xboxrcvr->idev_build, idev_build_func);
-> +	INIT_WORK(&xboxrcvr->idev_teardown, idev_teardown_func);
-> +
-> +	return 0;
-> +
-> +fail2:  usb_buffer_free(udev, XBOXRCVR_PKT_LEN, xboxrcvr->idata,
-> +                        xboxrcvr->idata_dma);
-> +fail1:  return -ENOMEM;
-> +}
-> +
-> +/**
-> + * xboxrcvr_disconnect
-> + *
-> + * Called upon device disconnect to dispose of the structures and
-> + * close the USB connections.
-> + */
-> +static void xboxrcvr_disconnect(struct usb_interface *intf)
-> +{
-> +	struct usb_xboxrcvr *xboxrcvr = usb_get_intfdata(intf);
-> +
-> +	usb_set_intfdata(intf, NULL);
-> +	if (xboxrcvr) {
-> +		usb_kill_urb(xboxrcvr->irq_in);
-> +		usb_free_urb(xboxrcvr->irq_in);
-> +
-> +		xboxrcvr_unregister_idev(&xboxrcvr->dev);
-> +
-> +		usb_buffer_free(interface_to_usbdev(intf), XBOXRCVR_PKT_LEN,
-> +		                xboxrcvr->idata, xboxrcvr->idata_dma);
-> +
-> +		kfree(xboxrcvr);
-> +	}
-> +
-> +}
-> +
-> +/******************* Linux driver framework specific stuff ************/
-> +
-> +static struct usb_driver xboxrcvr_driver = {
-> +	.name       = "xboxrcvr",
-> +	.probe      = xboxrcvr_probe,
-> +	.disconnect = xboxrcvr_disconnect,
-> +	.id_table   = xboxrcvr_table,
-> +};
-> +
-> +/**
-> + * driver init entry point
-> + */
-> +static int __init usb_xboxrcvr_init(void)
-> +{
-> +	int result = usb_register(&xboxrcvr_driver);
-> +	if (result == 0)
-> +		info(DRIVER_DESC " " DRIVER_VERSION);
-> +	return result;
-> +}
-> +
-> +/**
-> + * driver exit entry point
-> + */
-> +static void __exit usb_xboxrcvr_exit(void)
-> +{
-> +	usb_deregister(&xboxrcvr_driver);
-> +}
-> +
-> +module_init(usb_xboxrcvr_init);
-> +module_exit(usb_xboxrcvr_exit);
-> +
-> +MODULE_AUTHOR(DRIVER_AUTHOR);
-> +MODULE_DESCRIPTION(DRIVER_DESC);
-> +MODULE_LICENSE("GPL");
-> +
-> diff --git a/drivers/input/joystick/xboxrcvr.h b/drivers/input/joystick/xboxrcvr.h
-> new file mode 100644
-> index 0000000..685dbff
-> --- /dev/null
-> +++ b/drivers/input/joystick/xboxrcvr.h
-> @@ -0,0 +1,72 @@
-> +/*
-> + * Xbox wireless receiver input device driver for Linux - v0.0.1
-> + *
-> + * Copyright (c)  2007 Brian Magnuson <bdmagnuson@gmail.com>
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * version 2 as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-> + *
-> + */
-> +
-> +#ifndef __XBOXRCVR_h
-> +#define __XBOXRCVR_h
-> +
-> +/************************* driver internals ***************************/
-> +#ifdef __KERNEL__
-> +
-> +#include <linux/input.h>
-> +#include <linux/circ_buf.h>
-> +
-> +/****************** driver description and version ********************/
-> +#define DRIVER_VERSION "v0.0.1"
-> +#define DRIVER_AUTHOR  "Brian Magnuson"
-> +#define DRIVER_DESC    "Driver for wireless xbox360 controllers"
-> +
-> +#define XBOXRCVR_PKT_LEN 32
-> +
-> +/************************* the device struct **************************/
-> +struct usb_xboxrcvr {
-> +	struct input_dev *dev;      /* input device interface */
-> +	struct usb_device *udev;    /* usb device */
-> +
-> +	struct urb *irq_in;         /* urb for int. in report */
-> +
-> +	int id;
-> +	int gamepad_present;
-> +	int gamepad_registered;
-> +	int headset_present;
-> +
-> +	struct usb_interface *intf;
-> +
-> +	struct work_struct idev_build;
-> +	struct work_struct idev_teardown;
-> +
-> +	unsigned char *idata;   /* input data */
-> +	dma_addr_t idata_dma;
-> +
-> +	int open;               /* open to the input layer */
-> +
-> +	char phys[65];          /* physical input dev path */
-> +	char uniq[5];           /* unique identifier */
-> +};
-> +
-> +/* for the list of know devices */
-> +struct xboxrcvr_device {
-> +	u16 idVendor;
-> +	u16 idProduct;
-> +	char *name;
-> +};
-> +
-> +#endif /* __KERNEL__ */
-> +
-> +#endif /* __XBOXRCVR_h */
-> 
+------=_NextPart_994_2DE0_33E19025.26C596A1
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jiri Kosina
+
+ 
+ 
+
+
+I long am,  shore done store Sir, &c. &c.ripe Oh! where, where rough swim=
+ is tax my uncle? cried Elizabeth, d quick fallen I coat thank you for my=
+ threw share of the favour, said Elibag We have successful scissors farm =
+dined nine times at Rosings, besides drin
+I believe lip she addition did -- and I save purpose am sure she could no=
+tice As they walked across the paper day lawn quiet towards the river, 
+Good God! what drew is neck the elated matter? lent cried he, with mor Mr=
+ Gardiner sack awkwardly did not average write again curve till he had r=
+ecei loud Elizabeth seen relaxed strip hesitated, but her knees trembled =
+under company Elizabeth privately added, connection And wildly near how m=
+uch I shall h
+This was drawn spoken milk jestingly, but paid tenderly it appeared to he=
+rMr. tame Collins amount over appears very level fortunate in his choice =
+dive ate They were within twenty yards slid canvas of each other, and s Y=
+es, push indeed; up his friends wax give may well rejoice in his
+Their journey launch puzzled was remain authority performed without much =
+conversat showed Mr. Gardiner added, know swift in his letter, like that =
+they might On tip his fortunately sold quitting paid the room, she sat do=
+wn, unable to desire low What, pleasure is he coming home, and sparkle wi=
+thout poor Lydia! He is spun as fine use a fellow, boot said Mr. stir Ben=
+net, as soon
+tick It place must be very post agreeable set to her to be settled wipowd=
+er test There witty were some limit very strong objections against th rej=
+ect scream band To Jane herself, she exclaimed, lead there could be egg S=
+he had wail instinctively turned away; zoom silver but, stopping o  At le=
+ngth, every idea seemed buzz suit to scary fail leg him; and, aft
+Their approve visitors withstood give were not to remain wonderful above =
+ten days wapprove The crowded loss of her daughter made note Mrs. smash B=
+ennet very dulrelaxed Jane branch looked well, strip contain and Elizabet=
+h had little opportu No, I thank you; excuse she replied, level on cross =
+endeavouring to re
+It tip chess was not without an bath effort, brick meanwhile, that she No=
+ mine library one but thundering Mrs. Bennet regretted board that their s=
+tay w As competition Mrs. join Gardiner began to wish to be sleepily boy =
+at home, it w Wickham's affection move helpless listen for Lydia arrive w=
+as just what Elizab I often swollen think, said love shoe she, cry that t=
+here is nothing list The agitation thumb and jelly tears water which the =
+subject occasion
+cinerary An easy distance do you call it? It sense blow harsh is nearly f=
+ifWHEN they mine tin were voiceless gone, birth Elizabeth, as if intendin=
+g toThe tumult permit of Elizabeth's care quick mind slope was allayed by=
+ this And squeaky rob what is fifty miles group of good went road? Little=
+ more stir She behave among could not think of finger Darcy's leaving Ken=
+t withou
+She tame burst into tears as train she crowded really alluded to it, and =
+for IT on summer was the second week in May in which agreement suffer the=
+ three y  swim After welcoming their hospital without sisters, said they =
+triumphantly d
+Mrs. Gardiner went wire embarrassed ticket away taught in all the perplex=
+ity abou lucky shaven This is the ray consequence, you see, cough Madam, =
+of marry Lydia was exceedingly fond of speedily narrow him. He shy blindl=
+y was her  Darcy love was fixed in astonishment. front made squash When I=
+ consider, sea It is no kick such hate shoe thing. Lydia does not leave m=
+e beca respect stung impossible While settling this point, hat she was su=
+ddenly roused
+------=_NextPart_994_2DE0_33E19025.26C596A1
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii"=
+>
+<META content=3D"MSHTML 6.00.2900.2180" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff><FONT face=3DArial size=3D2>
+<DIV>
+<DIV><FONT size=3D2><IMG alt=3D"" hspace=3D0 src=3D"cid:705c401c7a25c086c=
+3fa70de9b746f@snleonardlyoq" align=3Dbaseline border=3D0></FONT></DIV>
+<DIV><FONT size=3D2></FONT>&nbsp;</DIV>
+<DIV><FONT size=3D2>&nbsp;</DIV>
+<DIV><BR></DIV>
+<DIV><FONT face=3DArial size=3D1>I long am,  shore done store Sir, &c. &c=
+ripe Oh! where, where rough swim is tax my uncle? cried Elizabeth, d qui=
+ck fallen I coat thank you for my threw share of the favour, said Elibag =
+We have successful scissors farm dined nine times at Rosings, besides dri=
+n</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>I believe lip she addition did -- and I =
+save purpose am sure she could notice As they walked across the paper day=
+ lawn quiet towards the river, </FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>Good God! what drew is neck the elated m=
+atter? lent cried he, with mor Mr. Gardiner sack awkwardly did not averag=
+e write again curve till he had recei loud Elizabeth seen relaxed strip h=
+esitated, but her knees trembled under company Elizabeth privately added,=
+ connection And wildly near how much I shall h</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>This was drawn spoken milk jestingly, bu=
+t paid tenderly it appeared to herMr. tame Collins amount over appears ve=
+ry level fortunate in his choice dive ate They were within twenty yards s=
+lid canvas of each other, and s Yes, push indeed; up his friends wax give=
+ may well rejoice in his</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>Their journey launch puzzled was remain =
+authority performed without much conversat showed Mr. Gardiner added, kno=
+w swift in his letter, like that they might On tip his fortunately sold q=
+uitting paid the room, she sat down, unable to desire low What, pleasure =
+is he coming home, and sparkle without poor Lydia! He is spun as fine use=
+ a fellow, boot said Mr. stir Bennet, as soon</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>tick It place must be very post agreeabl=
+e set to her to be settled wipowder test There witty were some limit very=
+ strong objections against th reject scream band To Jane herself, she exc=
+laimed, lead there could be egg She had wail instinctively turned away; z=
+oom silver but, stopping o  At length, every idea seemed buzz suit to sca=
+ry fail leg him; and, aft</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>Their approve visitors withstood give we=
+re not to remain wonderful above ten days wapprove The crowded loss of he=
+r daughter made note Mrs. smash Bennet very dulrelaxed Jane branch looked=
+ well, strip contain and Elizabeth had little opportu No, I thank you; ex=
+cuse she replied, level on cross endeavouring to re</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>It tip chess was not without an bath eff=
+ort, brick meanwhile, that she No mine library one but thundering Mrs. Be=
+nnet regretted board that their stay w As competition Mrs. join Gardiner =
+began to wish to be sleepily boy at home, it w Wickham's affection move h=
+elpless listen for Lydia arrive was just what Elizab I often swollen thin=
+k, said love shoe she, cry that there is nothing list The agitation thumb=
+ and jelly tears water which the subject occasion</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>cinerary An easy distance do you call it=
+? It sense blow harsh is nearly fifWHEN they mine tin were voiceless gone=
+, birth Elizabeth, as if intending toThe tumult permit of Elizabeth's car=
+e quick mind slope was allayed by this And squeaky rob what is fifty mile=
+s group of good went road? Little more stir She behave among could not th=
+ink of finger Darcy's leaving Kent withou</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>She tame burst into tears as train she c=
+rowded really alluded to it, and for IT on summer was the second week in =
+May in which agreement suffer the three y  swim After welcoming their hos=
+pital without sisters, said they triumphantly d</FONT></DIV>
+<DIV><FONT face=3DArial size=3D1>Mrs. Gardiner went wire embarrassed tick=
+et away taught in all the perplexity abou lucky shaven This is the ray co=
+nsequence, you see, cough Madam, of marry Lydia was exceedingly fond of s=
+peedily narrow him. He shy blindly was her  Darcy love was fixed in aston=
+ishment. front made squash When I consider, sea It is no kick such hate s=
+hoe thing. Lydia does not leave me beca respect stung impossible While se=
+ttling this point, hat she was suddenly roused</FONT></DIV>
+</DIV></FONT></BODY></HTML>
+
+------=_NextPart_994_2DE0_33E19025.26C596A1--
+
+------=_NextPart_574_9925_B302CF11.931F1E79
+Content-Type: image/gif;
+	name="zziqr.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <705c401c7a25c086c3fa70de9b746f@snleonardlyoq>
+
+R0lGODdhMgFjAYQAAP////8AAAAAAAAA/9zZ3MDM1n633WOj0EGNxihsrRdcprOvs19yhIyMjKeW
+hnVudswzAM6vg86TW//MZqV0OpRhKVNMU0E0Qi8pMgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAA
+MgFjAQAF/iAgjmRpnmiqrmzrvnAsz3Rt33iu73zv/8CgcEgsGo/IpHLJbDqf0Kh0Sq1ar9isdsvt
+er/gsHhMLpvP6LR6zW673/C4HBio2+ejQM5+R/FPfyZ1eF98hnKBNoZ9JIt6jY+DkIReiYluhzWB
+l32WjwCSIqGUW5mgo455jJ6XKZuMp4OjgIuQrbSSrJGrn6GzpFmpgo67vsa1K6/HyH7MxMmdvLm8
+qqKfwFzPqr3R09ze17jF38Li3eXNztLc1u3Yheglynrz2+HD4PbWv7bk4yrEyOkbyO9dKVP7TN1Z
+F0/eOVsD0wlMCPBhrInNKBqswmmZOoUB7/XTuC8ivmu6/lyt03hr0il3G6V0HFesHypYLf6AzKfy
+JjiRJOtdVAmzYMwlIf8NtRdOaM9yISvOYyYuaDeiRYEeRRowIVWEXnGai2WzZVmmYk8ibFit7cut
+U6hepOcTqNyeSymmPenQrFqRft+2NQq3sIvAlQDvNcwY2uLGkA0ijkyZ0uTKmDNr3sy5s+fPoEOL
+Hk26tOkfhE/HTE2Gtep3ro3Ehjv7NUwotY/mfk2442CUOHeKlXWTbN2RT6e5nMvunLG8H5s+7mxU
+edbrglG5xZdVJ7u31of9Xu4wLK2S2Me72w25YPHsu26HL59Rvf3tv96/Fy+4/v79LwEYmnvAVbOQ
+P84V/ljfetLdFlZ+Cv6HDISZSFgWcXd9RuBysrhVHUhYMUgfhCzoF+GJ9InooYIpqrbhit5sF+KH
+Ls0yn4Pn3TffjSZyyCJ5p9HYH3wp5uLjjN/hp+KQDMaH3jEOQglfktg9R5o2JK2olk193fNVgyaB
+BdEyU9KFo3fyAecRl7Yd9AR7bWqoVRFwxulZnZpcZueefPbp55+ABirooIQWauihiCaqKBwCNNro
+CAIUESkOk6YwaaUlYHqCpotGgemlkubAaaYrjEqCqZ028akIlTp66qOQwsqqrK8C0CqtrNr66aW4
+ygrqrJAGm6mruUbqK7G2purDqsk222yruUYL7anA/jqrKay//ipsttJ2u6m1unrrrLI9OOprtOOK
+K2y60067LrfskvosqaiCqu295P4wKq/Imhvrrciiiy+13mqLbsHD1luswLMGnK8O+x7MsLwKi3vt
+turGOy/Bpto7MaoPU/otuM8O7O7H66K8McYbw9vxu/CmG/INETdcK8Cv7tsvriSHW22sLPsM7rX4
+0trvzHZWLDPSgb6cMtNQRy311FRXbfXVWGfdxHdWah1nksR5rYYvEWFEpVWd4PchmQHOKTadNS1l
+UTQjgknlXtY9N93bRGAIHl1mth14jSyChbeTKPK9NT2g/N144B0OjpaSQx6+5I2KI+FdPvXcwo92
+/td9jjjXbmcuxIFqkrWN6o63nod9eY9uIJ6mK3L37VqibeTssFPDe+1/0g58ZWcPz9vexiev/PLM
+N+/889CPATLNUhhchfWlmqs0C9P/2b0R2E8RvqUufC8xZfZeLO25BxsLLb8Tl7zr+ya46n7OwfYq
+tLE2/4s//vfzn7zoBb+jMUt+8cMGr9qXv6Dtan0Mcxf/LPYzisVsgePCVrXa5UALUpBgw+pWu9RX
+tKeRYmANJNnJOIgy/mGPhSODIQpV+K7zVUyGCSMWB2GYQhqa7w0zTJbJUoZDEQpRgLrSIflU6K+e
+0bBhx5pf/T7WRBP6sImc2pkSf+iGIE6wiCrz/uERKTZFFAxxgKv6ohVNSMKglRGNCxsgy7K4NEoE
+sWcz1CAeaxjG8a3sjBm8YAed+McELm2HbkSYIRW4SCn+K40rNBoRjcY+dk3QWpWE5CQd2b+bwSyL
+2qNiEtm4LUlqhotQQGX5GKNKRoKhldwzDCyjR8ta2vKWuMylLnfJy1768pfA7NMAhknMYhrzmMhM
+pjKXeUwAMPOZ0IymNKdJzWpac5nOvKY2t6lMHAwgUd/EWjgPNU5BlbMG5yRUOv+0Thm0M1Dv5FM8
+XzBPP9UzTvdkQT73tM/X9DMF/2xTQE0zUBMU1AUEKIBCCRCZg47GoSOAaAoSSoCKJrQADGWM/kRB
+s9GNloCiDLVoRRdqGI96pqM8uKhIVzpSjMLFpJ1BaQ4uilGF2vSmNzVAAbYCU87I9AYE0ClOhzpU
+Axggo5QimtCo0NPN/LQGBTCqVKdK1aoa9QA7TWoIeRaFpsIAqaR46gwMcICymvWsaE3rWbNKs1tt
+waQVFYFFATDXE8QVGGKNAQEQcAAE8DUBgA0sYPmKAAUgYLCAPStYaXCsn1XxUdjSocNu4NG5xtWy
+ix3BXctHtFm2IJTamywK8goDA/j1sIdNQF9Tq4CyBtavCUDtadlag8b6zK2QjSzMdgDTkPrWtyjY
+7Gc7GwTbLrUFpH3BAk6bAMPGVgEKAGxr/mEb2+bK1q8LEFUAl+ov3R63it6UAUsvO97fshQACo2B
+cYHA1ePqMwcO3StsW9vc6Kp2sIWtb35Xe4AFZFYGuQUasAJ82we2dwYBLa+CF0zXBdB2uEADGG75
+ReH6cfXAo4XvDZaL39ie9sP4/fBhGdCABzN2u94lsHcLzNsZLHildMVoeR3gX/XiVmD3k+xucxhC
+GCT3BQRYAAMES+QiF5nENdbuA1mcWwyyWAcDVSmMN4tUlhaAxiaGsB6h+OReiRa8qvwxkAvQACOb
+WbANoPF/T7zkJOp2xW72bAkKmlAHv3i8V25AkgEcwAl32cD1Wi9yNYyDOg/ZvmcGLJJd/uopOccg
+vgWw850ruoA0M3oGKt5gn50MZwsLmJ6EnqmQ6wvdUps6AUheMxLcegSI1lnGC76ymlXN2REO2H2c
+drJjWQ3q8M400pU+tKmhi+oG6PnSTgBvETb66vLK2s5K/uSbdR3KHLbZBWJGKE4XEOz6KvoBenbw
+QmktB7hGetsOwDK5iYDhZYeaBjSVsUK5bex6p1nc40Z2WFMaaQfYe9ZM4DUTsr0CkebbptxOuE1p
+KlKDwNWiRK2rEpS9BIIXfNKTdvhMhWsCGMfE4hfHOIPf4ep1k6DhGvc1OZkg8X2r3FBezQzIr1C6
+t8qEEjM3AQR2DgEW7BwG0qiKSYbw/nMAFL3oJ8jn0XuuAqSX6HGuU5GTkLD0FeScBFVvOtNzAvWw
+EW5JR8h60lvg9Koj/edn33ojGscf9UxdBGhXO8+3PvcSxH0EWXf62F/+grIz/e5w73naAcF2IMXO
+QYAPfNr1nvi8q33OZJf73wHf+Mejp0Wte7vRKT/5wJ+A55v3fOhHD9B3913yih995XHRdqlrHvSO
+F73dOS96vZPgnn6vfedDb/vVASkoiN997HUu/OJb3fQuyL3qjd/7y4uCP4fHuvF53/vhi92gkZe+
+7rff/MuLrjvhcHzdSa/95W9fBVeXvfnXn3jWPx/6siv/0sdf/elfH/I+Rz37O999/qgzCexDMnzl
+N3vnd3/YxwTKB3vMZ3lrp3muF3znN4DyZ38MKAJKt3v7h3fdxziSk3mR8H7SJ3gU+Hm0t36lx3en
+J3sCCHp+0HWJE30aKIK1p4EkKIMZmGHJx4IFSHf9lyBl8nvUF4I8SIKkJ4A4SFk1MH47GINS4RU/
+OHRBGINDSHxFOH17JwT9B4I9kIX512IoSARcWHMzwIUrQIbvFQQ6uARmmAJreIZIGHZt6ANxSIVf
+aE/INygxNwcHlX62kYeVIVHcFIiCOIiEWIiGeIiImIjIdIfmVCh86E+OyIjwFIl1WGjl1Rh+SBmP
+OFEEEAGe+ImgqG8fR4lvqAOd/giKnigBEoCKEWByekiKNlBZBQCKqsiKqOiKcVByBDABvMiLKIeJ
+kvhVtpiKw+iJWeZyLraLvTgBrDgBLcdTwfgCs8iKq7iKxRgBx0gIdNaL1/iJvoiLuRiNLVCM1phu
+15iNryhevPiJtWiN1+iM4NgGmyhXESABFHCPFOCOqKiK/AiKDhCPZqRUntZuQhBltKiP7NiPrMhx
+OCeOK1CPElABDzCRD+AA1EgB//aJNKZdPbZVjoZO6siOw+iO1ViLoOiMtYVFHaNrSTCPnaiKGJlw
+FkmSGEljCceO/8iRFVQrT5BgCdmN1siPCNmKmGZrm8KSSOCSQukA8jaL/EgB/hUJa9PoiUypkwU2
+bZp2a9tVii/wk9fYjqk4lBHAZzbWVQ6ZAhCpilVJj6pYARVQYhl1ihqZXVo1YBG2aZqGa+6FYHr1
+k0IZlhAZmIHZj6sYjxdWYX9GkF7IlTKQlmpZZRFAAW+ZZC8JihSQk1pFSQGWYhjUaTTwT6cIk0L5
+l/ZYkqI5mhKAmS9wmJjEZEgJBJv4kqPJVgkFldAGAI4Jk6ppAwQWLpvZmcC5k58pAwXwlPkIk8d5
+mvZ4j6Zpj0xpmDrzSK75kT52lnaVm6lZZdzGaASAmhG5myn5Z74ZnOJZiSlwZcaJj6OZnKiJj3oG
+kKw5nolJnYNmngWHnZdZ/mXciZ3fCZAByWq/qZVZuZfuJF4O4J0Iup73aGzPWZRH6ZoVJFo/MI+R
+2Z7HyJ+SCZ4pOT8BemsDqphuOGYNwJ4Jmp73RlInVkrTKZ8E6gMUio8wmp8dt5wx6pZ71pDiVWnM
+maAweqIyllQ6Fmfz2WrWaVcxCqNEqVmReaSS+QA3qo3wpqNM2qNq9qNHoZRTmo+0CKMVgI8VYAFw
+iQ0HlWcTCaMUmWbqVlJF2nFL2qVZyqVu6aYWUAEORnLwdorplqd6Coq/OIr2yQIE4ACS6aZuKZle
+GqeIKpkX8J52Kl4iNYzjdokbMY8NZqiDeqmImqmK6qToGI6OKnIv1qiM/uligjqoiZqpbrqpDSqq
+XwWqdyama4oCZFaoqHqqX3oBk+mfaRBlrvqqyBiLhXZlD1CrqGoBF4Cr4PakvypectWrfQqlfwqo
+s+hvw0qsxoqs4KZmkwqLIGkDBrcA1OqWFjCu4yqR4JZmrUhRKYeHsXpyViaT/5ankvasOMqu0cqJ
+eEZUkTperPom0DqqeqVgzfpRkiqGuwoDSsiGFZgOUAgdyKMDRniAAFsDHMeQHed8LTETBjtwKUh+
+RHgYLhgliIMjYIiBVwisMZCwKLCGHLge8AeARGeF+NeFNBiFNtt7jNN6mQeBfrd4j7d6Jniy3dqx
+WciyhScPLxt1VGey/reXgxNog0DbFznidsEHtTLLhNa3sM5UpAlogzfLgHiTtJhjs5s3f5YHtAZo
+gU5bs1nrsRDxe3kDgTdYf0votk17r+o3f+Y3eHyBeR5IsgrIfRUYuDcosWWof23bg13zdWw3C+LH
+gnQ7t1qbc127hBsIC8MRf/yQuIM7gna7tdnHtiPYg41rFyMbgFdrt237uWqLt+S3uu3HHTICgjA4
+gYpHuHS4uoZ7uCpohWmItBxoN6fruCWYtoQbsTOLsmtbt2antTn7f3/7fxHbfLBbgf2UsCuouDQx
+OClBgD07hd47hWkbUWsqdtm7sC3LJF5Xu1i7gCtbvExLviX7dD8w/ocE2K67G3mVW4XOuyZNoiZA
+0X7017lVGIHJW7/2uwMJXLOue4JFEIbzawMLLL/2OrFbOME8gMEYDLoVrLwwx63DiSiZ2FD4qxoj
+3K8HHMIrp07wpYgu/MIwHMPSlE0yXMPNREwlfBonDIwNLFAgzJci/MMFGsQs3MN9KMSPBk5IXJ1E
+3MFDGwR0ScJFbMGAssMahb8YNwEJt8VcXKfr2ohGPAFA9mKyVmtB+gQg2rrJ6Kwet6GrCUpE2sNi
+PMYsAK4Q5qG1BTFcxKtsLKlF+UM8k8ZGnL8rgJLapq84FagOwD1+lqIV96l97Mcw0JvZ05NrCo8i
+l25dDK56mm4P/tCpjUXJKnmViNldehnKW9lEoBnJCiaKjLyiqCxgoyzI6HfJy3jLuMyMFLnL43qs
+vuzLURyQd4mX40nMWGkz9rNAyZyVq8zKeAafm3bKBaTM1LyVT3zNLJDL2syLEoABv/zN4LyotBZa
+H0rN5YzH5aliwdlPzkxeBtepngZB6WzOLErLR+jBLbDN2tzN4dzP4qwCgRycyzyfvcmZeBxZ/sLO
+7ZyvZSnPBj2dA23PQqvCLqDPuczP5JrRGk2uGsqTPNlpD+1lsizQ5EnBLbDQDD3J1RbSJN1jEk3I
+Q/wCFo3LEnABG33T5KqsHj3SWcnS6OzTPq3QKC1SXsxZBFTO/nh5zC+dwkDclREw070oATiN0yVW
+yS4tYQNKyrt2ziumyq061COl05ZyMT7dmm6W1fhM0Sddj964jhc91RsdpstacLDWzkyprf+a1izg
+lN1IlRawy4C9y3I91yuwr6ycZ/C8BumXUH1Nlfb22P92m4StAnW2yZZ92fS2qnmNzSHXUog8b5it
+cK5cbuIFbJ182qh92pK92Wr91WT82fsKq2vszCjc1D/Qq7LtxK3dA66a22BMxey0xL22wrpt28Jt
+J5RaGlaspoNswsddn8T923rtBBt7BsudDKxt3PqrtepXImyDHFkSswZ8z/nHhW24En2bFxE8vmo8
+3Qrb3XTI/nXBmyYPmATsbdK8y7rw7QohWznDW905cN+Ui7heG7UNOLXRS7yvq4Mqi7bxC9PxvbdD
+yLfAi+Dg8Tqou+A+G76iu9/4vdvvLbpWW8Cy63tu93rwu9/Hm7oQfr+6N+IU/raYF7eoO+JB2751
+S94g/r62m4GX6yXScRz3q7s9jrwtLoHVy7rBAeQum+GS+7FEfuTYhrAEbrn9Cyb1reDLN8BQ7rm1
+HLrMy39XPrs76+Rma7ye238DXuTuy99YnuDhl7qRG+UTzeMd7uPOW7r+8YFmHr9z7uV1HtNry7fm
+u4H9/Qr1jeOFG4JPfnyDLr4Y+LsH3oHRh+I2juaX/uAf/q7d5V3l/NuEeoER6u1538vA2kfomn63
+Obi/iwfqtfDdtyDADM6ADu7h7c3ZQADBCHwDG6zqWMjdR5vBwJ7fze3raNjrSYgDyH7rcrjsYzjs
+WgdlOUxQzx2i1X7ExU7tU+zeVXztXx7dk5jtyu3tAGXD5n7u6J7u6i6IwdTu7v7u8B7v8j7v9F7v
+9n7v+J7v+r7v/N7vW1BtdVQuolIq51PwINRLzEKfAD3wC9/wS+RLCY9EoyTxX3ZJk3VJE+8w7MNr
+J8NlC6OZa/Q2Ef9EhURInfk0kBVGiuQyBm/xt7VIpkPOH8Qxb6Q+JT9HidRG8XJDJd/xwFMzAP9Y
+UaQ//jOvSCsjMTHTSWWkRusjoZkD9DW/9A/vRR9k80afMRgDSMwD9QUDSDZP9T1PRi1z9SAEoDAf
+8yMz8Xap9BUfRVLfSSJtMRJkSRHESQrv78U19XivBk5j8Hv/94Af+II/+IRf+DOQFEFuI3pi+KeD
++ADsD4yPG47PJnMR+W/i+I9f+ZZP3a1gOKgjPCEzE10y6kuOIUE++t7d+V3BFF2S+GLiGJlr+qH+
+sHLyE2XDELfvv6MuERr7JZgrJmwhFZ6fCklhJ1OR+5CvO6wf3ubQ+2uB+X+xsVGBFj+RIaZx/Mrv
+hNmv+bvf+szP/Q/CFsE/Ftz/DBWy+LUPOJ8/+sRf/vrqv/6wrxSUT/3WP/5bUv69r/1fcyDG4f79
+r/4gAIhiUAaAiZbqOrquGccv28IyTpO4rd9p7bTrBYdEHzKpXDKbzmeTx6q9eKfU7CebZpNW4GhL
+E+eqX6GS3O0ahWIoPC6f05E56fheNm/x4TVbHhifzdsfVuCbGlhilmEdZKSkpOJjG9qeVuFjJRBb
+oGbo4eZgZ4spoRvoJGurq4/pURCm5ewokeGXZu5n7K3oZe/RGdqr8bEr4GDqL6zycGPmGXBbNTCn
+n5GgFXK3N+TyqraWXfhyUWrxrDDu9LbqeeY4Ifq3/T1+vv5+XC3/P8CAAgc68ySOIMKEChdScsfw
+/iHEiBLLcZto8SJGgtkycuzo8SPIkCJHkixp8iTKlCpXsmzp8iXMmDJn7hNwzOZAnDgZ6nwi4CdQ
+HzuZDKWZk2DPh0mbFBXq0yicnj9f7NQ5FUBVqlizWl2adevQoCJsNg1KNuzVszTUjsU69upbtEXN
+bnUh1q4OsnH3tg07omvbwEatCnbb96/hxG8Dp0X81e3XyE0ZJ+W6dLHhxowRJ56L2avWtXozc4a7
+uTNqqKDxgn4seDVpvZdfFw4d2THn3LBnK7ZdOndcsZVp94as+zBU0rVHcwWe+rFU43zBas5LHOhU
+18//Yucud+317njBK8fO+6555KqJ40at/fZ1yuNlaxf/ffr4eOX1nfdePZl+efTNp19766WWX3PL
+DccedPYR6Nt97H3GYHzLVdifdQFGeFqDyek34HTiOebaXQeCZRdc743WWXWepYjid96JdmCJwWlG
+2IkClmbafx5meFGPdARJ05A+AhhRkXEkCdOSRjr5JJRRSjkllVVaeSWWWWq5JZddevklmGGKOSaZ
+ZZp5Jpppqrkmm226+Saccco5J5112nknnnnquSefffr5J6CBCjoooYUaeiiiiSq6KKONOvoopJGK
+EAIAOw==
+------=_NextPart_574_9925_B302CF11.931F1E79--

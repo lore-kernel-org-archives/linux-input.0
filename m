@@ -1,131 +1,60 @@
-From: Brian Magnuson <bdmagnuson@gmail.com>
-Subject: Re: [PATCH] new driver for wireless xbox receiver for review
-Date: Tue, 29 May 2007 20:28:46 -0400
-Message-ID: <20070530002846.GA8595@rcn.com>
-References: <20070529043957.GB6157@rcn.com> <d120d5000705290859k63f9110akba428332a5557a21@mail.gmail.com>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: Annoying keys on AT keyboards
+Date: Tue, 29 May 2007 23:29:02 -0400
+Message-ID: <200705292329.03122.dtor@insightbb.com>
+References: <1180477268.3030.111.camel@cookie.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1180477268.3030.111.camel@cookie.hadess.net>
 Content-Disposition: inline
-In-Reply-To: <d120d5000705290859k63f9110akba428332a5557a21@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: Bastien Nocera <hadess@hadess.net>
 List-Id: linux-input@vger.kernel.org
 
-Hi Dimitri,
+Hi,
 
-Thanks for taking the time to review.  My reponses are inline.
-
--Brian
-
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> [2007-05-29 20:03]:
+On Tuesday 29 May 2007 18:21, Bastien Nocera wrote:
+> Heya,
 > 
-> Thnk you for the patch. Looking at the code I do not see one device
-> supporintg multiple controllers... You have one input device per usb
-> device/interface and the properties of said device are known
-> beforehand. So I would just create and register input device right
-> there in xboxrcvr_probe() and get rid of your build and teardown
-> works. The fact that is it a wireless device and at transmitter may at
-> times be out of range is not important.
-
-Actually, I rather liked the fact that the input devices only show up when
-there is a controller connected to the receiver, since there can be anywhere
-from 0-4 controllers alive.  This way there are no device nodes for
-non-existant controllers.
-
+> My Dell laptop has a good bunch of keys that show this behaviour:
+> Apr 25 11:23:10 snoogens kernel: atkbd.c: Unknown key pressed
+> (translated set 2,
+> code 0x87 on isa0060/serio0).
+> Apr 25 11:23:10 snoogens kernel: atkbd.c: Use 'setkeycodes e007 <keycode>' to
+> make it known.
 > 
-> Overall I would like support for this wireless receiver to be
-> incorporated into xpad.c driver.
+> Given that all Dell laptops generate this kind of behaviour, that all
+> the keys match on all the models (I know about),
 
-Knew that was coming :).  Should be able to manage it.  Since the wireless
-model returns a expanded data format it needs to be handled specially.
-Another flag in the xpad_device struct?
+Hmm, mine does not generate e007...
 
-> 
-> I also have some more comments, see below.
-> 
-> >+
-> >+static unsigned long debug = 0;
-> 
-> You do not need to initialize statig variables to 0. It only increases
-> size of the image.
+> would it be 
+> possible/sane to add some code to the AT keyboard driver to handle those
+> keys when the DMI matches?
 
-ok.
+No, because it is not guaranteed that user will not plug external AT
+keyboard with different keys assigned to the same keycodes. For drivers
+like atkbd that may drive several devices at once DMI solution will
+not work reliably (but it will work and is used for fixed hardware,
+such as wistron_btns).
 
-> 
-> >+module_param(debug, ulong, 0644);
-> >+MODULE_PARM_DESC(debug, "debug level");
-> >+
-> 
-> >+
-> >+       if(debug) {
-> 
-> Please use spaces between statement (if,for, while) and opening paren.
->.
+I just put:
 
-ok.
+setkeycodes e001 171
+setkeycodes e002 172
+setkeycodes e003 187
+setkeycodes e004 189
 
-> >+
-> >+       /* Valid pad data */
-> >+       if(!(sdata[1] & 0x1) || !xboxrcvr->open)
-> >+               return;
-> 
-> Why are we generating interrupts if device is not used? Have the
-> ->open() method submit urbs and then you don't need to check it here.
+in my rc.local several years ago and that is it. Distributions may do
+that for users automatically during installation.
 
-A side effect of submitting the int urb as soon as a pad is detected.
-
-> 
-> >+
-> >+       /* FIXME: Yuck.  Need to make sure this doesn't get truncated */
-> >+       usb_make_path(xboxrcvr->udev, path, sizeof(xboxrcvr->phys));
-> >+       snprintf(xboxrcvr->phys, sizeof(xboxrcvr->phys), "%s/input%d", 
-> >path, xboxrcvr->id);
-> >+       snprintf(xboxrcvr->uniq, sizeof(xboxrcvr->uniq), "xpad%d", 
-> >xboxrcvr->id >> 1);
-> 
-> Uniq is used to carry identificator unique for the device, not within
-> a particular system. It is property of device itself and should not
-> change if moved to a different box so do not try to come up with
-> artificial data for it.
-
-Removed.  That got put in early as something for udev to key off of.  Turns
-out I don't need it anyway of course.
-
-> 
-> >+
-> >+       input_dev->name     = xboxrcvr_device[0].name;
-> 
-> Hmm....
->
-
-Heh.  That came from xpad.c which looped through the device IDs and then
-attached the name of the matched device in the input dev.  Since my driver
-only has one ID I removed that loop and put a 0 in there. :)
-
-> >+       input_dev->phys     = xboxrcvr->phys;
-> >+       input_dev->uniq     = xboxrcvr->uniq;
-> >+       input_dev->cdev.dev = &(xboxrcvr->intf->dev);
-> 
-> Please use
-> 
-> input_dev->dev.parent = &xboxrcvr->intf->dev;
-> 
-> - input devices are meving moved from class_device to struct device.
-> 
-> >+       input_dev->private  = xboxrcvr;
-> 
-> input_set_drvdata(input_dev, xboxrcvr); And use input_get_drvdata()
-> instead of accessing dev->private directly.
-
-ok
-
-> Dmitry
-
-Thanks again,
--Brian
+-- 
+Dmitry

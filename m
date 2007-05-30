@@ -1,60 +1,518 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: Annoying keys on AT keyboards
-Date: Tue, 29 May 2007 23:29:02 -0400
-Message-ID: <200705292329.03122.dtor@insightbb.com>
-References: <1180477268.3030.111.camel@cookie.hadess.net>
+From: Hans-Christian Egtvedt <hcegtvedt@norway.atmel.com>
+Subject: Re: [PATCH 1/1] gpio_mouse driver
+Date: Wed, 30 May 2007 08:23:18 +0200
+Message-ID: <1180506198.32245.59.camel@localhost.localdomain>
+References: <1180444046354-git-send-email-hcegtvedt@norway.atmel.com>
+	 <d120d5000705290836o49bc207bqb3d9dfebc34ac752@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="=-kwuhTBFptYtu1iPs6xVE"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1180477268.3030.111.camel@cookie.hadess.net>
-Content-Disposition: inline
+In-Reply-To: <d120d5000705290836o49bc207bqb3d9dfebc34ac752@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: Bastien Nocera <hadess@hadess.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi,
 
-On Tuesday 29 May 2007 18:21, Bastien Nocera wrote:
-> Heya,
+--=-kwuhTBFptYtu1iPs6xVE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+On Tue, 2007-05-29 at 11:36 -0400, Dmitry Torokhov wrote:
+> Hi,
 > 
-> My Dell laptop has a good bunch of keys that show this behaviour:
-> Apr 25 11:23:10 snoogens kernel: atkbd.c: Unknown key pressed
-> (translated set 2,
-> code 0x87 on isa0060/serio0).
-> Apr 25 11:23:10 snoogens kernel: atkbd.c: Use 'setkeycodes e007 <keycode>' to
-> make it known.
+> On 5/29/07, Hans-Christian Egtvedt <hcegtvedt@norway.atmel.com> wrote:
+> > This patch adds support for simulating a mouse using GPIO lines.
+> >
+> > The driver needs a platform_data struct to be defined and registered with the
+> > appropriate platform_device.
+> >
+> > The driver has been tested on AT32AP7000 microprocessor using the ATSTK1000
+> > development board.
+> >
 > 
-> Given that all Dell laptops generate this kind of behaviour, that all
-> the keys match on all the models (I know about),
+> It looks sane although I would recommend switching to input-polldev
+> when implementing a polled input device.
 
-Hmm, mine does not generate e007...
+Oh, I was not aware about this, it seems like just the thing I need.
 
-> would it be 
-> possible/sane to add some code to the AT keyboard driver to handle those
-> keys when the DMI matches?
+Could it be scheduled for after the official kernel has this included?
+AFAICT it will be released with 2.6.22?
 
-No, because it is not guaranteed that user will not plug external AT
-keyboard with different keys assigned to the same keycodes. For drivers
-like atkbd that may drive several devices at once DMI solution will
-not work reliably (but it will work and is used for fixed hardware,
-such as wistron_btns).
+I have attached a new patch with some minor modifications.
 
-I just put:
+> > +
+> > +       input->name = pdev->name;
+> > +       input->cdev.dev = &pdev->dev;
+> 
+> Please use input->dev.parent = &pdev->dev. Input devices are being
+> moved from class_device to struct device.
 
-setkeycodes e001 171
-setkeycodes e002 172
-setkeycodes e003 187
-setkeycodes e004 189
+This is not present in 2.6.21.1, could I schedule it for the next update
+of the driver as above?
 
-in my rc.local several years ago and that is it. Distributions may do
-that for users automatically during installation.
+> > +       input->private = pdata;
+> > +
+> > +       /*
+> > +        * Revisit: is bustype, vendor, product and version needed to
+> > +        * input->id? And if they should be present, what values should they
+> > +        * have?
+> > +        */
+> 
+> BUS_HOST seems to be most suitable here. The rest may stay 0.
+
+Thanks, applied.
+
+> > +
+> > +       /* private */
+> > +       struct timer_list timer;
+> > +};
+> 
+> I don't think it is a good idea to have timer structure in platform
+> data which should really be constant. Timer shoudl be part of the
+> stucture created when driver binds to a device. I can see you may not
+> want to introduce extra complexity in the driver; however if you use
+> input-polldev it will handle timer for you.
+
+I was a bit unsure about this before submitting. I have moved the
+timer_list into a struct in the driver and added the usual
+kmalloc/kfree.
 
 -- 
-Dmitry
+Best regards
+Hans-Christian Egtvedt
+
+--=-kwuhTBFptYtu1iPs6xVE
+Content-Disposition: attachment; filename=0001-gpio_mouse-driver.txt
+Content-Type: application/mbox; name=0001-gpio_mouse-driver.txt
+Content-Transfer-Encoding: 7bit
+
+>From 5fa2fe077856f0c06c5dcfc50f4f15fb1948e096 Mon Sep 17 00:00:00 2001
+From: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Date: Fri, 25 May 2007 08:44:00 +0200
+Subject: [PATCH 1/2] gpio_mouse driver
+
+This patch adds support for simulating a mouse using GPIO lines.
+
+The driver needs a platform_data struct to be defined and registered with the
+appropriate platform_device.
+
+The driver has been tested on AT32AP7000 microprocessor using the ATSTK1000
+development board.
+
+Signed-off-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+---
+ drivers/input/mouse/Kconfig      |   15 ++
+ drivers/input/mouse/Makefile     |    1 +
+ drivers/input/mouse/gpio_mouse.c |  305 ++++++++++++++++++++++++++++++++++++++
+ include/linux/gpio_mouse.h       |   47 ++++++
+ 4 files changed, 368 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 35d998c..a3c7057 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -125,4 +125,19 @@ config MOUSE_HIL
+ 	help
+ 	  Say Y here to support HIL pointers.
+ 
++config MOUSE_GPIO
++	tristate "GPIO mouse"
++	depends on GENERIC_GPIO
++	help
++	  This driver simulates a mouse on GPIO lines of various CPUs (and some
++	  other chips).
++
++	  Say Y here if your device has buttons or a simple joystick connected
++	  directly to GPIO lines. Your board-specific setup logic must also
++	  provide a platform device and platform data saying which GPIOs are
++	  used.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called gpio_mouse.
++
+ endif
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 21a1de6..5d0fc43 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -13,5 +13,6 @@ obj-$(CONFIG_MOUSE_PS2)		+= psmouse.o
+ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+ obj-$(CONFIG_MOUSE_HIL)		+= hil_ptr.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
++obj-$(CONFIG_MOUSE_GPIO)	+= gpio_mouse.o
+ 
+ psmouse-objs  := psmouse-base.o alps.o logips2pp.o synaptics.o lifebook.o trackpoint.o
+diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+new file mode 100644
+index 0000000..ac5b235
+--- /dev/null
++++ b/drivers/input/mouse/gpio_mouse.c
+@@ -0,0 +1,305 @@
++/*
++ * Driver for simulating a mouse on GPIO lines.
++ *
++ * Copyright (C) 2007 Atmel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/init.h>
++#include <linux/version.h>
++#include <linux/module.h>
++#include <linux/timer.h>
++#include <linux/jiffies.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/gpio_mouse.h>
++
++#include <asm/gpio.h>
++
++struct gpio_mouse {
++	struct input_dev *input;
++	struct gpio_mouse_platform_data *gpio;
++	struct timer_list timer;
++};
++
++/*
++ * Timer function which is run every scan_ms ms when the device is opened. The
++ * dev input varaible is set to the the input_dev pointer.
++ */
++static void gpio_mouse_scan(unsigned long _dev)
++{
++	struct input_dev *input = (struct input_dev *)_dev;
++	struct gpio_mouse *gmouse = input->private;
++	struct gpio_mouse_platform_data *gpio = gmouse->gpio;
++	int x, y;
++
++	if (gpio->bleft >= 0)
++		input_report_key(input, BTN_LEFT,
++				gpio_get_value(gpio->bleft) ^ gpio->polarity);
++	if (gpio->bmiddle >= 0)
++		input_report_key(input, BTN_MIDDLE,
++				gpio_get_value(gpio->bmiddle) ^ gpio->polarity);
++	if (gpio->bright >= 0)
++		input_report_key(input, BTN_RIGHT,
++				gpio_get_value(gpio->bright) ^ gpio->polarity);
++
++	x = (gpio_get_value(gpio->right) ^ gpio->polarity)
++		- (gpio_get_value(gpio->left) ^ gpio->polarity);
++	y = (gpio_get_value(gpio->down) ^ gpio->polarity)
++		- (gpio_get_value(gpio->up) ^ gpio->polarity);
++
++	input_report_rel(input, REL_X, x);
++	input_report_rel(input, REL_Y, y);
++	input_sync(input);
++
++	mod_timer(&gmouse->timer, jiffies + msecs_to_jiffies(gpio->scan_ms));
++}
++
++/* Only start the timer when the device is actually in use, i.e. opened. */
++static int gpio_mouse_open(struct input_dev *input)
++{
++	struct gpio_mouse *gmouse = input->private;
++	struct gpio_mouse_platform_data *gpio = gmouse->gpio;
++	gmouse->timer.expires = jiffies + msecs_to_jiffies(gpio->scan_ms);
++	gmouse->timer.data = (unsigned long)input;
++	add_timer(&gmouse->timer);
++	return 0;
++}
++
++static void gpio_mouse_close(struct input_dev *input)
++{
++	struct gpio_mouse *gmouse = input->private;
++	del_timer_sync(&gmouse->timer);
++}
++
++static int __init gpio_mouse_probe(struct platform_device *pdev)
++{
++	struct gpio_mouse_platform_data *pdata = pdev->dev.platform_data;
++	struct gpio_mouse *gmouse;
++	struct input_dev *input;
++	int ret;
++
++	if (!pdata) {
++		dev_dbg(&pdev->dev, "no platform data\n");
++		ret = -ENXIO;
++		goto out;
++	}
++
++	if (pdata->up < 0 || pdata->down < 0 || pdata->right < 0
++			|| pdata->left < 0) {
++		dev_dbg(&pdev->dev, "missing GPIO for directions\n");
++		ret = -EINVAL;
++		goto out;
++	}
++	if (pdata->scan_ms < 0) {
++		dev_dbg(&pdev->dev, "invalid scan time\n");
++		ret = -EINVAL;
++		goto out;
++	}
++
++	gmouse = kmalloc(sizeof(struct gpio_mouse), GFP_KERNEL);
++	if (!gmouse) {
++		dev_dbg(&pdev->dev, "not enought memory for gpio_mouse\n");
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	/* Mouse direction, required. */
++	ret = gpio_request(pdata->up, "gpio_mouse_up");
++	if (ret) {
++		dev_dbg(&pdev->dev, "fail up pin\n");
++		goto out_gpio_up;
++	}
++	ret = gpio_request(pdata->down, "gpio_mouse_down");
++	if (ret) {
++		dev_dbg(&pdev->dev, "fail down pin\n");
++		goto out_gpio_down;
++	}
++	ret = gpio_request(pdata->left, "gpio_mouse_left");
++	if (ret) {
++		dev_dbg(&pdev->dev, "fail left pin\n");
++		goto out_gpio_left;
++	}
++	ret = gpio_request(pdata->right, "gpio_mouse_right");
++	if (ret) {
++		dev_dbg(&pdev->dev, "fail right pin\n");
++		goto out_gpio_right;
++	}
++
++	gpio_direction_input(pdata->up);
++	gpio_direction_input(pdata->down);
++	gpio_direction_input(pdata->left);
++	gpio_direction_input(pdata->right);
++
++	/* Mouse buttons, not required, but should at least have bleft. */
++	if (pdata->bleft >= 0) {
++		ret = gpio_request(pdata->bleft, "gpio_mouse_bleft");
++		if (ret) {
++			dev_dbg(&pdev->dev, "fail bleft pin\n");
++			goto out_gpio_bleft;
++		}
++		gpio_direction_input(pdata->bleft);
++	} else {
++		dev_dbg(&pdev->dev, "no left button defined\n");
++	}
++	if (pdata->bmiddle >= 0) {
++		ret = gpio_request(pdata->bmiddle, "gpio_mouse_bmiddle");
++		if (ret) {
++			dev_dbg(&pdev->dev, "fail bmiddle pin\n");
++			goto out_gpio_bmiddle;
++		}
++		gpio_direction_input(pdata->bmiddle);
++	}
++	if (pdata->bright >= 0) {
++		ret = gpio_request(pdata->bright, "gpio_mouse_bright");
++		if (ret) {
++			dev_dbg(&pdev->dev, "fail bright pin\n");
++			goto out_gpio_bright;
++		}
++		gpio_direction_input(pdata->bright);
++	}
++
++	input = input_allocate_device();
++	if (!input) {
++		dev_dbg(&pdev->dev, "not enough memory for input device\n");
++		ret = -ENOMEM;
++		goto out_input_allocate;
++	}
++
++	platform_set_drvdata(pdev, input);
++
++	input->name = pdev->name;
++	/* TODO: change to "input->dev.parent = &pdev->dev;" in the future */
++	input->cdev.dev = &pdev->dev;
++	input->private = gmouse;
++
++	input->id.bustype = BUS_HOST;
++	input->id.vendor = 0;
++	input->id.product = 0;
++	input->id.version = 0;
++
++	input->evbit[0] = BIT(EV_REL);
++	if (pdata->bleft >= 0 || pdata->bmiddle >= 0 || pdata->bright >= 0) {
++		input->evbit[0] |= BIT(EV_KEY);
++
++		if (pdata->bleft >= 0)
++			input->keybit[LONG(BTN_MOUSE)] = BIT(BTN_LEFT);
++		if (pdata->bmiddle >= 0)
++			input->keybit[LONG(BTN_MOUSE)] |= BIT(BTN_MIDDLE);
++		if (pdata->bright >= 0)
++			input->keybit[LONG(BTN_MOUSE)] |= BIT(BTN_RIGHT);
++	}
++	input->relbit[0] = BIT(REL_X) | BIT(REL_Y);
++
++	input->open = gpio_mouse_open;
++	input->close = gpio_mouse_close;
++
++	gmouse->gpio = pdata;
++	gmouse->input = input;
++
++	/* Init the scan timer. TODO: rewrite to use input-polldev in the future */
++	gmouse->timer.function = gpio_mouse_scan;
++	gmouse->timer.base = &boot_tvec_bases;
++
++	ret = input_register_device(input);
++	if (ret) {
++		dev_dbg(&pdev->dev, "could not register input device\n");
++		goto out_reg_dev;
++	}
++
++	dev_dbg(&pdev->dev, "%d ms scan time, buttons: %s%s%s\n",
++			pdata->scan_ms,
++			pdata->bleft < 0 ? "" : "left ",
++			pdata->bmiddle < 0 ? "" : "middle ",
++			pdata->bright < 0 ? "" : "right");
++
++	return 0;
++
++out_reg_dev:
++	input_free_device(input);
++	platform_set_drvdata(pdev, NULL);
++out_input_allocate:
++	if (pdata->bright >= 0)
++		gpio_free(pdata->bright);
++out_gpio_bright:
++	if (pdata->bmiddle >= 0)
++		gpio_free(pdata->bmiddle);
++out_gpio_bmiddle:
++	if (pdata->bleft >= 0)
++		gpio_free(pdata->bleft);
++out_gpio_bleft:
++	if (pdata->right >= 0)
++		gpio_free(pdata->right);
++out_gpio_right:
++	if (pdata->left >= 0)
++		gpio_free(pdata->left);
++out_gpio_left:
++	if (pdata->down >= 0)
++		gpio_free(pdata->down);
++out_gpio_down:
++	if (pdata->up >= 0)
++		gpio_free(pdata->up);
++out_gpio_up:
++	kfree(gmouse);
++out:
++	return ret;
++}
++
++static int __exit gpio_mouse_remove(struct platform_device *pdev)
++{
++	struct input_dev *input = platform_get_drvdata(pdev);
++	struct gpio_mouse_platform_data *pdata = pdev->dev.platform_data;
++	struct gpio_mouse *gmouse = input->private;
++
++	if (input)
++		input_unregister_device(input);
++
++	if (pdata->up >= 0)
++		gpio_free(pdata->up);
++	if (pdata->down >= 0)
++		gpio_free(pdata->down);
++	if (pdata->left >= 0)
++		gpio_free(pdata->left);
++	if (pdata->right >= 0)
++		gpio_free(pdata->right);
++	if (pdata->bleft >= 0)
++		gpio_free(pdata->bleft);
++	if (pdata->bmiddle >= 0)
++		gpio_free(pdata->bmiddle);
++	if (pdata->bright >= 0)
++		gpio_free(pdata->bright);
++
++	if (gmouse)
++		kfree(gmouse);
++
++	platform_set_drvdata(pdev, NULL);
++
++	return 0;
++}
++
++struct platform_driver gpio_mouse_device_driver = {
++	.remove		= __exit_p(gpio_mouse_remove),
++	.driver		= {
++		.name	= "gpio_mouse",
++	}
++};
++
++static int __init gpio_mouse_init(void)
++{
++	return platform_driver_probe(&gpio_mouse_device_driver,
++			gpio_mouse_probe);
++}
++module_init(gpio_mouse_init);
++
++static void __exit gpio_mouse_exit(void)
++{
++	platform_driver_unregister(&gpio_mouse_device_driver);
++}
++module_exit(gpio_mouse_exit);
++
++MODULE_AUTHOR("Hans-Christian Egtvedt <hcegtvedt@atmel.com>");
++MODULE_DESCRIPTION("GPIO mouse driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/gpio_mouse.h b/include/linux/gpio_mouse.h
+new file mode 100644
+index 0000000..7796683
+--- /dev/null
++++ b/include/linux/gpio_mouse.h
+@@ -0,0 +1,47 @@
++/*
++ * Driver for simulating a mouse on GPIO lines.
++ *
++ * Copyright (C) 2007 Atmel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#ifndef _GPIO_MOUSE_H
++#define _GPIO_MOUSE_H
++
++#define GPIO_MOUSE_POLARITY_ACT_HIGH	0x00
++#define GPIO_MOUSE_POLARITY_ACT_LOW	0x01
++
++/**
++ * struct gpio_mouse_platform_data
++ * @scan_ms: integer in ms specifying the scan periode.
++ * @polarity: Pin polarity, active high or low.
++ * @up: GPIO line for up value.
++ * @down: GPIO line for down value.
++ * @left: GPIO line for left value.
++ * @right: GPIO line for right value.
++ * @bleft: GPIO line for left button.
++ * @bright: GPIO line for right button.
++ * @bmiddle: GPIO line for middle button.
++ *
++ * This struct must be added to the platform_device in the board code. It is
++ * used by the gpio_mouse driver to setup GPIO lines, calculate mouse movement
++ * and have a reference to the timer used for scanning.
++ */
++struct gpio_mouse_platform_data {
++	int scan_ms;
++	int polarity;
++
++	int up;
++	int down;
++	int left;
++	int right;
++
++	int bleft;
++	int bmiddle;
++	int bright;
++};
++
++#endif /* _GPIO_MOUSE_H */
+-- 
+1.4.4.2
+
+
+--=-kwuhTBFptYtu1iPs6xVE--

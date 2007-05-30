@@ -1,118 +1,99 @@
-From: "Brian Magnuson" <bdmagnuson@gmail.com>
-Subject: Re: [PATCH] new driver for wireless xbox receiver for review
-Date: Wed, 30 May 2007 09:47:26 -0400
-Message-ID: <bafd4ab0705300647w3d54aaa6meee94c98005650d7@mail.gmail.com>
-References: <20070529043957.GB6157@rcn.com>
-	 <d120d5000705290859k63f9110akba428332a5557a21@mail.gmail.com>
-	 <20070530002846.GA8595@rcn.com>
-	 <d120d5000705300540v32b2f32eub8e74b88fea6a593@mail.gmail.com>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] ACPI: thinkpad-acpi: add thinkpad keys to input.h
+Date: Wed, 30 May 2007 09:57:11 -0400
+Message-ID: <d120d5000705300657s3a50a93el6c0771288ac80ebb@mail.gmail.com>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br>
+	 <200705262340.28219.dtor@insightbb.com>
+	 <20070527121513.GC19562@khazad-dum.debian.net>
+	 <200705282316.32173.dtor@insightbb.com>
+	 <20070529130528.GB12935@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_Part_4231_29969655.1180532846181"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000705300540v32b2f32eub8e74b88fea6a593@mail.gmail.com>
+In-Reply-To: <20070529130528.GB12935@khazad-dum.debian.net>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, honza@jikos.cz
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: ibm-acpi-devel@lists.sourceforge.net, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_4231_29969655.1180532846181
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi Dmitry, (sorry about the misspelling last time)
-
-On 5/30/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
->
-> Hi Brain,
->
-> [Added Jan to CC list]
->
-> On 5/29/07, Brian Magnuson <bdmagnuson@gmail.com> wrote:
-> > Hi Dimitri,
-> >
-> > Thanks for taking the time to review.  My reponses are inline.
-> >
-> > -Brian
-> >
-> > * Dmitry Torokhov <dmitry.torokhov@gmail.com> [2007-05-29 20:03]:
+On 5/29/07, Henrique de Moraes Holschuh <hmh@hmh.eng.br> wrote:
+> On Mon, 28 May 2007, Dmitry Torokhov wrote:
+> > On Sunday 27 May 2007 08:15, Henrique de Moraes Holschuh wrote:
+> > > On Sat, 26 May 2007, Dmitry Torokhov wrote:
+> > > > I am unconvinced that we need new keycodes. Isn't there a better default
+> > > > keycodes for these keys? You mentioned that fn+f5 controls radio on many
+> > > > thinkpads, why don't you use KEY_WLAN in your keymap?
 > > >
-> > > Thnk you for the patch. Looking at the code I do not see one device
-> > > supporintg multiple controllers... You have one input device per usb
-> > > device/interface and the properties of said device are known
-> > > beforehand. So I would just create and register input device right
-> > > there in xboxrcvr_probe() and get rid of your build and teardown
-> > > works. The fact that is it a wireless device and at transmitter may at
-> > > times be out of range is not important.
+> > > No can do the KEY-WLAN thing, sorry.  I *don't* have a way to know, unless I
+> > > add a model-specific map table to the kernel, and I have been told by
+> > > numerous people to don't even try, unless it is for quirks, etc.
 > >
-> > Actually, I rather liked the fact that the input devices only show up
-> when
-> > there is a controller connected to the receiver, since there can be
-> anywhere
-> > from 0-4 controllers alive.  This way there are no device nodes for
-> > non-existant controllers.
+> > Why not? It thinkpad-acpi is a box-specific driver and you could try to
+> > setup proper keymap depending on models. We do that in wistron_btns and
+> > it doers not even need alot of memory (keymaps and dmi data is marked
+> > __initdata and is discarded).
 >
-> Let's keep it simple. This way we don't have to worry about races
-> between build and teardown work pieces and the driver is much
-> simplier. After all we don't do dynamic device creation for wireless
-> mice (non blue-tooth). And if we did it would make some programs
-> unhappy if they did not see that device all the time... Even with
-> controller - imagine you are playing and somebody calls you - you walk
-> away with your controller in hand and when you come back it stops
-> working because we tore down one device and created the a one but
-> application is still latched to the old device - not nice.
-
-
-Yeah, I came to the same conclusion shortly after sending my last message.
-I'll change it to just create all 4 devices in probe.  I was going to do the
-"disconnect + reconnect and see if it still works" test when I got home
-today.
-I don't expect it to.
-
-> >
-> > > Overall I would like support for this wireless receiver to be
-> > > incorporated into xpad.c driver.
-> >
-> > Knew that was coming :).  Should be able to manage it.  Since the
-> wireless
-> > model returns a expanded data format it needs to be handled specially.
-> > Another flag in the xpad_device struct?
+> Well, I will try, let's see if ACPI upstream will take it after I tell them
+> it was decided to be the best approach by the input layer people.  Yes, it
+> can be __initdata, so it should not cause any drawbacks.
 >
-> We have xtype field, I think it should be used.
+> But I will still need to add keys, and I still think that a bunch of 32 or
+> so HOSTSPECIFIC keys is a very very good idea to have, *even* if I add some
+> model specific knowledge and already remap a few of the hot key keyboard to
+> less generic events where possible.
+>
 
+I think that adding anything like HOSTSPECIFIC is a failure on our
+part. That means that you need to make programs out there aware of
+multiple hosts and their usage. You can't just say that you going to
+teach X and the rest will use X facilities because there is world
+outside of X. Programs like HAL, network management (rfkill) other
+daemons getting input directly from /dev/input/eventX will have to be
+made aware. This is not good.
 
-I don't see this field in xpad_device in your tree or Linus'.
+I really don't like KEY_FN_F1..KEY_FN_BACKSPACE either. What are they
+supposed to do? Just being an unique value to be mapped onto something
+useful? But why not use that useful keycode to begin with?
 
-In any case I'll take these changes and your earlier ones, merge it into
-xpad.c and
-resubmit.
+I'd rather leave the keys unmapped and rely on initsripts (possibly
+with help from distributions vendors) to load proper keymap then add
+something that must be retranslated over and over again.
 
-Thanks,
-Brian
+> > > Really, what are we to do with that input.h scancode map?  It *IS* supposed
+> > > to be absolute, i.e. one is not supposed to reuse keys in there if the
+> > > functionality *or* the generic description is not an exact match.
+> >
+> > Are there any markings on those keys?
+>
+> Only a few of them.  And the ones I wanted to add are *not* marked in most
+> models :-)
+>
+> The markings change a bit from model to model, and we have a *very*
+> incomplete list of those...
+>
 
-------=_Part_4231_29969655.1180532846181
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Well, what kind of functions you would like them to have? You, as a
+maintainer, can chose defaults. Since you (well, not you, the driver)
+provide a way for a user to adjust keymap there should be no problem
+even if someone does not like the values you chose. Having sensible
+defaults is a good thing, otherwise many people will not even know
+that they have these "separate" keys.
 
-Hi Dmitry, (sorry about the misspelling last time)<br><br><div><span class="gmail_quote">On 5/30/07, <b class="gmail_sendername">Dmitry Torokhov</b> &lt;<a href="mailto:dmitry.torokhov@gmail.com">dmitry.torokhov@gmail.com</a>
-&gt; wrote:</span><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">Hi Brain,<br><br>[Added Jan to CC list]<br><br>On 5/29/07, Brian Magnuson &lt;
-<a href="mailto:bdmagnuson@gmail.com">bdmagnuson@gmail.com</a>&gt; wrote:<br>&gt; Hi Dimitri,<br>&gt;<br>&gt; Thanks for taking the time to review.&nbsp;&nbsp;My reponses are inline.<br>&gt;<br>&gt; -Brian<br>&gt;<br>&gt; * Dmitry Torokhov &lt;
-<a href="mailto:dmitry.torokhov@gmail.com">dmitry.torokhov@gmail.com</a>&gt; [2007-05-29 20:03]:<br>&gt; &gt;<br>&gt; &gt; Thnk you for the patch. Looking at the code I do not see one device<br>&gt; &gt; supporintg multiple controllers... You have one input device per usb
-<br>&gt; &gt; device/interface and the properties of said device are known<br>&gt; &gt; beforehand. So I would just create and register input device right<br>&gt; &gt; there in xboxrcvr_probe() and get rid of your build and teardown
-<br>&gt; &gt; works. The fact that is it a wireless device and at transmitter may at<br>&gt; &gt; times be out of range is not important.<br>&gt;<br>&gt; Actually, I rather liked the fact that the input devices only show up when
-<br>&gt; there is a controller connected to the receiver, since there can be anywhere<br>&gt; from 0-4 controllers alive.&nbsp;&nbsp;This way there are no device nodes for<br>&gt; non-existant controllers.<br><br>Let&#39;s keep it simple. This way we don&#39;t have to worry about races
-<br>between build and teardown work pieces and the driver is much<br>simplier. After all we don&#39;t do dynamic device creation for wireless<br>mice (non blue-tooth). And if we did it would make some programs<br>unhappy if they did not see that device all the time... Even with
-<br>controller - imagine you are playing and somebody calls you - you walk<br>away with your controller in hand and when you come back it stops<br>working because we tore down one device and created the a one but<br>application is still latched to the old device - not nice.
-</blockquote><div><br>Yeah, I came to the same conclusion shortly after sending my last message.<br>I&#39;ll change it to just create all 4 devices in probe.&nbsp; I was going to do the<br>&quot;disconnect + reconnect and see if it still works&quot; test when I got home today.
-<br>I don&#39;t expect it to.<br></div><br><blockquote class="gmail_quote" style="border-left: 1px solid rgb(204, 204, 204); margin: 0pt 0pt 0pt 0.8ex; padding-left: 1ex;">&gt; &gt;<br>&gt; &gt; Overall I would like support for this wireless receiver to be
-<br>&gt; &gt; incorporated into xpad.c driver.<br>&gt;<br>&gt; Knew that was coming :).&nbsp;&nbsp;Should be able to manage it.&nbsp;&nbsp;Since the wireless<br>&gt; model returns a expanded data format it needs to be handled specially.<br>&gt; Another flag in the xpad_device struct?
-<br><br>We have xtype field, I think it should be used.</blockquote><div><br>I don&#39;t see this field in xpad_device in your tree or Linus&#39;.<br><br>In any case I&#39;ll take these changes and your earlier ones, merge it into 
-xpad.c and<br>resubmit.<br><br>Thanks,<br>Brian<br></div></div><br>
+>
+> Alternatively, if you let me add keys, I will need a few of them, and they
+> are also generic (not necessarily thinkpad-specific).  Stuff like:
+>
+> KEY_FN_BACKSPACE,
+> KEY_VENDORHOMEPAGE,
 
-------=_Part_4231_29969655.1180532846181--
+And what are their intended functions would be? How KEY_VENDORHOMEPAGE
+is different from KEY_HOMEPAGE?
+
+-- 
+Dmitry

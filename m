@@ -1,112 +1,147 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Making KEY_UNKNOWN really useful to userland
-Date: Wed, 30 May 2007 21:53:05 -0300
-Message-ID: <20070531005305.GC6883@khazad-dum.debian.net>
-References: <11802004861625-git-send-email-hmh@hmh.eng.br> <200705262340.28219.dtor@insightbb.com> <20070527121513.GC19562@khazad-dum.debian.net> <200705282316.32173.dtor@insightbb.com> <20070529130528.GB12935@khazad-dum.debian.net> <d120d5000705300657s3a50a93el6c0771288ac80ebb@mail.gmail.com> <20070530152444.GD17530@khazad-dum.debian.net> <d120d5000705300904j54eaa18al4cf1db8f7f13b97b@mail.gmail.com> <20070530172420.GA6883@khazad-dum.debian.net> <d120d5000705301325yf76d062vefbc79873d23e602@mail.gmail.com>
+From: Brian Magnuson <bdmagnuson@gmail.com>
+Subject: [PATCH] support wireless xbox360 controllers in xpad
+Date: Wed, 30 May 2007 21:32:00 -0400
+Message-ID: <20070531013200.GA10261@rcn.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Content-Disposition: inline
-In-Reply-To: <d120d5000705301325yf76d062vefbc79873d23e602@mail.gmail.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: ibm-acpi-devel@lists.sourceforge.net, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Jan Kratochvil <honza@jikos.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 30 May 2007, Dmitry Torokhov wrote:
-> On 5/30/07, Henrique de Moraes Holschuh <hmh@hmh.eng.br> wrote:
-> >It is trivial to guarantee that KEY_PROG is unique for a single input
-> >device (keyboard), but it certainly won't work across multiple devices.
-> >Userspace has to know what kind of input device it is talking to to map
-> >them to something, but since the input layer already provides this
-> >information, I was not going to raise a fuss about it.  I figure it is
-> >the price of not increasing even more the keycode table.
-> 
-> Actually I try to discourage people from using input_id during device
-> discovery but rather tell them to analyze capability bits and then decide
-> if their application is interested in that particular input device. I
-> think input_id should pretty much only used by udev & co. to adjust
-> default kernel setup for the needs of local installation (fix keymap,
-> adjust absmax, etc).
+Hi Jan,
 
-It is likely going to be used by something like udev, or an init script, or
-a thinkpad-configurator helper, or whatever.  Sounds like the sort of stuff
-that should be paying attention to input_id anyway.
+Here's the wireless controller patch rebased against the most
+recent xpad.c.  It's a bit slimmer this time. :)
 
-We don't appear to have deployed a good kernel-userland interface that
-allows us to have generic "press an unknown key and tell me what you want it
-to do" application in userland, but if we do please correct me.  If
-KEY_UNKNOWN was always required to send a EV_MSC MSC_RAW/MSC_SCAN, then we
-would have one.
+One thing I noticed is that the analog joysticks appear to be inverted
+from what I would expect.  i.e. they operate in "flight simulator"
+mode where pushing up gets a negative value and down is postive.  I
+don't have a wired xbox360 controller to compare it against so I'm
+wondering if this is as it should be or that it's somehow inverted for
+the wireless controller.
 
-Maybe we can add that requirement and driver changes (if any, for all I know
-most drivers might already be generating such events) for 2.6.23?  I bet
-Richard would like that one a lot.  Richard?
+I didn't enable the rumble function for this because I don't have a
+convient was to test if it works or not.  Do you have a test
+application?
 
-Such functionality makes most of my requests for new keycodes irrelevant, so
-I will just trim that down.
+Also, the *process_packet functions all take a u16 cmd argument which
+is always 0.  Is there some future use for this in mind?
 
-> >That said, how is one to know which hardware key was translated to
-> >KEY_UNKNOWN, so that he can inform the user to remap that key?  Should I
-> >send another event together with KEY_UNKNOWN that has the raw keycode?
-> >Which one?
-> 
-> You may try using EV_MSC/MSC_SCAN. You can even send it all the time, not
-> only for KEY_UNKNOWN.
+This patch also includes a one-liner fix to xpad_init_ff.
 
-Will do, thanks.  And I will send it all the time, that will force people to
-properly implement code that can deal with them in userland.
+-Brian
 
-What is the exact difference between MSC_RAW and MSC_SCAN?  Which one can be
-used as an index to reprogram the keymap using the IOCTLs?
+Signed-off-by: Brian Magnuson <bdmagnuson@gmail.com>
+---
+ drivers/input/joystick/xpad.c |   47 +++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 41 insertions(+), 6 deletions(-)
 
-> I guess we have different opinions. For me KEY_UNKNOWN is better because
-> it encourages user to adjust keymap table in the kernel at startup (or at
-> hotplug time) and then rest of userspace does not need to be aware at all
-
-If we add a requirement and fix all EV_KEY drivers to always report the scan
-code (or raw code, I still don't know which is which) that allows an
-userspace application to know what keymap position to change to fix that
-key, so that we can have an app that:
-
-1. gets a EV_KEY KEY_UNKNOWN and its related EV_MSC MSC_? event
-2. offers the user to map it, now that it knows how to do so.
-
-(note that, for the above to work right, the application must really tap
-into all input devices so that it knows exactly which one is reporting the
-event, etc).
-
-I will readly agree with you, KEY_UNKNOWN will definately be the right
-choice for anything that is not a functional key and which doesn't have
-something like FN_foo already in input.h (and maybe even if does have a
-FN_foo keycode already in input.h).
-
-> Consider ejecting a CD tray. You have a laptop with a key that maked eject
-> CD. Because it is a new laptop there are no proper mapping yet so some
-> adjustments are needed. With your scenario the kernel emits KEY_PROG26.
-> User has first to adjust X keymap to map KEY_PROG26 to EjectCD event
-> (simplifying). Then he goes into text console only to find out that his
-> curses-based CD player does not recognize that key and also needs to be
-> adjusted. And so on. Finally all applications are made aware of KEY_PROG26
-> amd user is happy. Couple of weeks later he goes and buys an external
-> keyboard and it turns out that eject CD there is actually KEY_PROG21 so he
-> need to go through second round of mapping for all applications. Not only
-> that but button with volume increase happens to generate KEY_PROG26. Now
-> what?
-
-Yes, that is the problem with non-functional keys if we don't have a
-position-specific keycode for all of them (like FN_F1).
-
-> Now consider in-kernel remapping to functional scancdes that I propose:
-> user says that that key should generate KEY_EJECTCD and it starts working
-> in all appliations recognizing that event. Adding the second keyboard into
-> mix does not mess up the first one.
-
-I got your point.  So, we should have PROG* free for the user to assign to
-keys, but never use it by default.
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 664c765..4f22932 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -93,6 +93,7 @@
+ 
+ #define XTYPE_XBOX        0
+ #define XTYPE_XBOX360     1
++#define XTYPE_XBOX360W    2
+ 
+ static int dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+@@ -109,6 +110,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+ 	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+ 	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", MAP_DPAD_TO_AXES, XTYPE_XBOX },
++	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+ 	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+ 	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+@@ -179,6 +181,7 @@ static const signed short xpad_abs_pad[] = {
+ static struct usb_device_id xpad_table [] = {
+ 	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+ 	{ USB_DEVICE_INTERFACE_PROTOCOL(0x045e, 0x028e, 1) },	/* X-Box 360 controller */
++	{ USB_DEVICE_INTERFACE_PROTOCOL(0x045e, 0x0719, 129) }, /* X-Box 360 wireless receiver */
+ 	{ }
+ };
+ 
+@@ -318,6 +321,34 @@ static void xpad360_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 	input_sync(dev);
+ }
+ 
++/*
++ * xpad360w_process_packet
++ *
++ * Completes a request by converting the data into events for the
++ * input subsystem. It is version for xbox 360 wireless controller.
++ *
++ * As far as I know the format of the status bytes are not
++ * documented anywhere and these are guesses based on just
++ * looking at the data receieved.
++ *
++ * Byte.Bit
++ * 00.1 - Status change: The controller or headset has connected/disconnected
++ *                       Bits 01.7 and 01.6 are valid
++ * 01.7 - Controller present
++ * 01.6 - Headset present
++ * 01.1 - Pad state (Bytes 4+) valid
++ *
++ */
++
++static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
++{
++	/* Valid pad data */
++	if (!(data[1] & 0x1))
++		return;
++
++	xpad360_process_packet(xpad, cmd, &data[4]);
++}
++
+ static void xpad_irq_in(struct urb *urb)
+ {
+ 	struct usb_xpad *xpad = urb->context;
+@@ -338,10 +369,14 @@ static void xpad_irq_in(struct urb *urb)
+ 		goto exit;
+ 	}
+ 
+-	if (xpad->xtype == XTYPE_XBOX360)
+-		xpad360_process_packet(xpad, 0, xpad->idata);
+-	else
+-		xpad_process_packet(xpad, 0, xpad->idata);
++	switch (xpad->xtype) {
++		case XTYPE_XBOX360 :
++			xpad360_process_packet(xpad, 0, xpad->idata); break;
++		case XTYPE_XBOX360W :
++			xpad360w_process_packet(xpad, 0, xpad->idata); break;
++		default :
++			xpad_process_packet(xpad, 0, xpad->idata);
++	}
+ 
+ exit:
+ 	retval = usb_submit_urb (urb, GFP_ATOMIC);
+@@ -408,7 +443,7 @@ static int xpad_init_ff(struct usb_interface *intf, struct usb_xpad *xpad)
+ 
+ 	xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN,
+ 				       GFP_ATOMIC, &xpad->odata_dma );
+-	if (!xpad->idata)
++	if (!xpad->odata)
+ 		goto fail1;
+ 
+ 	xpad->irq_out = usb_alloc_urb(0, GFP_KERNEL);
+@@ -550,7 +585,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	/* set up buttons */
+ 	for (i = 0; xpad_btn[i] >= 0; i++)
+ 		set_bit(xpad_btn[i], input_dev->keybit);
+-	if (xpad->xtype == XTYPE_XBOX360)
++	if ((xpad->xtype == XTYPE_XBOX360) || (xpad->xtype == XTYPE_XBOX360W))
+ 		for (i = 0; xpad360_btn[i] >= 0; i++)
+ 			set_bit(xpad360_btn[i], input_dev->keybit);
+ 	if (xpad->dpad_mapping == MAP_DPAD_TO_BUTTONS)
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+1.4.4.2

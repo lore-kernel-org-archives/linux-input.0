@@ -1,129 +1,60 @@
-From: "Maureen Samuels" <liskramersfged@kramersf.com>
-Subject: Check out the wonders of pound melting
-Date: Sat, 2 Jun 2007 09:50:14 -0100
-Message-ID: <246014909.79407544535164@thhebat.net>
+From: "Milagros Roper" <dwdimsensem@dimsense.com>
+Subject: Order now and don't forget about a discount
+Date: Fri, 1 Jun 2007 10:27:56 -0200
+Message-ID: <01c7a437$85101a10$3449fb58@dwdimsensem>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------B09467AC6E7AC67A"
+	boundary="----=_NextPart_000_000E_01C7A450.AA5D5210"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: mbala@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------B09467AC6E7AC67A
-Content-Type: text/plain; charset=iso-8859-1
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_000E_01C7A450.AA5D5210
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+
+Dear valued member.With this special pharmaceutical bulletin we introduce MyCanadianPharmacy providing high quality products at low cost.High quality Canadian products for the price lower than for American drugs.Visit now. You have a chance to receive a Spring discount.Click here and see a wide range of products to choose fromhttp://readyus.hkWide range of products.Don’t forget to ask for a Spring discount.Sincerely yours,Milagros Roper
+
+
+
+------=_NextPart_000_000E_01C7A450.AA5D5210
+Content-Type: text/html;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
-
-Don't fail your opportunity! =96 Anatrim =96 The latest and most=20=
-delighting product for corpulent people is now easily available =96 As=20=
-seen on Oprah
-
-Do you remember all the cases when you appeal to yourself to do=20=
-anything for being delivered from this awful number of pounds? Happily,=20=
-now no big price is to be paid. With Anatrim, the earth-shaking, you can=20=
-get healthier lifestyle and a really slender figure. Have a look at what=20=
-our customers say to us!
- 
-=93I always had a marvelous life till last year my girlfriend told me I=20=
-was plump and had need for looking after my health. Life had changed the=20=
-wrong way after that, until I disclosed Anatrim =99 for me. Since getting=20=
-rid of about 20 kilogrames thanx to Anatrim,  my private life=92s come=20=
-back, even better than before. Many thanks for the coolest stuff & the=20=
-great service. Proceed with your helpful business!=94
-
- 
-Mike Brown, Boston
-
- 
-"Nothing to compare with gliding into a bikini that I have not worn for=20=
-a long period of time. I feel slender, defined, and healthy, thanks in=20=
-great part to Anatrim! Thanks so much!"
-
- 
-Lusia R., Chicago
-
-Discover Anatrim, and  you shall join the world-spread company of=20=
-thousands of pleased user who=92re getting pleasure out of the=20=
-revolutionary results of Anatrim right here and right now. Less=20=
-swallowing frenzy, less kilogrames and more joy in life!
-
-Proceed right here to look through our outdone Anatrim arrangements!!!
-http://www.solgoted.com/?qjgrydwtfgtty
-
-------------B09467AC6E7AC67A
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Achieve picture perfect weight and enjoy life</TITLE>
-</HEAD>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3Diso-8859-2" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 6.00.2800.1409" name=3DGENERATOR></HEAD>
 <BODY>
-
-<p>
-<center>
-<b>
-<a href=3D"http://www.solgoted.com/?qjgrydwtfgtty">
-Don't fail your opportunity! =96 Anatrim =96 The latest and most=20=
-delighting product for corpulent people is now easily available =96 As=20=
-seen on Oprah
-</a>
-</center>
-<br>
-Do you remember all the cases when you appeal to yourself to do=20=
-anything for being delivered from this awful number of pounds? Happily,=20=
-now no big price is to be paid. With Anatrim, the earth-shaking, you can=20=
-get healthier lifestyle and a really slender figure. Have a look at what=20=
-our customers say to us!
- <br>
-<br>
-<i>
-=93I always had a marvelous life till last year my girlfriend told me I=20=
-was plump and had need for looking after my health. Life had changed the=20=
-wrong way after that, until I disclosed Anatrim =99 for me. Since getting=20=
-rid of about 20 kilogrames thanx to Anatrim,  my private life=92s come=20=
-back, even better than before. Many thanks for the coolest stuff & the=20=
-great service. Proceed with your helpful business!=94
-</i>
- <br>
-<b>
-<i>
-Mike Brown, Boston
-</i>
-</b>
- <br>
-<br>
-<i>
-"Nothing to compare with gliding into a bikini that I have not worn for=20=
-a long period of time. I feel slender, defined, and healthy, thanks in=20=
-great part to Anatrim! Thanks so much!"
-</i>
- <br>
-<b>
-<i>
-Lusia R., Chicago
-</i>
-</b>
-<br>
-<br>
-Discover Anatrim, and  you shall join the world-spread company of=20=
-thousands of pleased user who=92re getting pleasure out of the=20=
-revolutionary results of Anatrim right here and right now. Less=20=
-swallowing frenzy, less kilogrames and more joy in life!
-<br>
-<br>
-<center>
-<a href=3D"http://www.solgoted.com/?qjgrydwtfgtty">
-Proceed right here to look through our outdone Anatrim arrangements!!!
-</a>
-</center>
-</b>
-</p>
-<font color=3D"#D9EDFF">http://www.solgoted.com/?qjgrydwtfgtty</font>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2">With this special pharmaceutical bulle=
+tin we introduce <a href=3D"http://readyus.hk">MyCanadianPharmacy</a> provi=
+ding high quality products at low cost.</font></p>
+<p><font face=3D"Verdana" size=3D"2">High quality Canadian products for the=
+ price lower than for American drugs.<br>Visit now. You have a chance to re=
+ceive a <b><u>Spring discount</u></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://readyus.hk">Click he=
+re and see a wide range of products to choose from</a><br>http://readyus.hk=
+</font></p>
+<p><font face=3D"Verdana" size=3D"2">Wide range of products.<br>Don=92t for=
+get to ask for a <b><u>Spring discount</u></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Sincerely yours,<br>Milagros Roper</fo=
+nt></p>
+</body>
+</html>
 
 </BODY></HTML>
-------------B09467AC6E7AC67A--
+
+------=_NextPart_000_000E_01C7A450.AA5D5210--

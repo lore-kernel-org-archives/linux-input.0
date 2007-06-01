@@ -1,23 +1,21 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+From: Dmitry Torokhov <dtor@insightbb.com>
 Subject: Re: [PATCH] Input: document the proper usage of EV_KEY and KEY_UNKNOWN
-Date: Thu, 31 May 2007 23:11:04 -0300
-Message-ID: <20070601021104.GA14387@khazad-dum.debian.net>
-References: <11802004861625-git-send-email-hmh@hmh.eng.br> <d120d5000705301325yf76d062vefbc79873d23e602@mail.gmail.com> <20070531005305.GC6883@khazad-dum.debian.net> <200705310033.51230.dtor@insightbb.com> <20070531222814.GB4076@khazad-dum.debian.net> <20070531233326.GA1947@srcf.ucam.org> <20070601001304.GB5407@khazad-dum.debian.net> <20070601002435.GA2621@srcf.ucam.org> <20070601012928.GD5407@khazad-dum.debian.net> <20070601014453.GA3711@srcf.ucam.org>
+Date: Thu, 31 May 2007 23:33:10 -0400
+Message-ID: <200705312333.11477.dtor@insightbb.com>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br> <20070601012928.GD5407@khazad-dum.debian.net> <20070601014453.GA3711@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
 In-Reply-To: <20070601014453.GA3711@srcf.ucam.org>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+Content-Disposition: inline
+Sender: linux-acpi-owner@vger.kernel.org
 To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 01 Jun 2007, Matthew Garrett wrote:
+On Thursday 31 May 2007 21:44, Matthew Garrett wrote:
 > On Thu, May 31, 2007 at 10:29:28PM -0300, Henrique de Moraes Holschuh wrote:
 > > On Fri, 01 Jun 2007, Matthew Garrett wrote:
 > > > Given existing userspace, it's never useful to generate KEY_UNKNOWN. 
@@ -29,34 +27,33 @@ On Fri, 01 Jun 2007, Matthew Garrett wrote:
 > 
 > It's not trivial at all. You need to introduce a mechanism for noting a 
 > KEY_UNKNOWN keypress. It then needs to signal the user (dbus is probably 
-
-That would be trivial, but...
-
 > the best layer for this), but you need to ensure that you only signal 
 > the user who is currently at the keyboard. This needs to be presented to 
 > the user via some sort of UI, which will then need to signal some sort 
-> of privileged process to actually change the keymap. When the user logs 
+> of privileged process to actually change the keymap.
+
+Not necessarily priveleged - you most likely already change ownership
+of event devices to user who is logged at console (so your force feedback
+joysticks work).
+
+> When the user logs  
 > out, you'll then need to unmap the key again and repeat as necessary for 
 > any new user who logs in.
 
-... this is not.  You're correct.  So using KEY_UNKNOWN should not be the
-preferred way, then.
+I think we should aim at the most common case - when there are no multiple
+users on the box. Then the utility that detects KEY_UNKNOWN just saves the
+mapping user chose and automatically reload keymap upon next reboot.
 
+Note that KEY_UNKNOWN solution does not preculde futher customization on
+per-user base once default action is established.
+
+> 
 > Alternatively, we could generate a keycode and then let the user map 
 > that to an X keysym. We've even already got code to do this.
+>
 
-Well, I also would appreciate bumping up KEY_MAX and a nice shiny set of
-KEY_FN that covered all the missing ones for ThinkPads.  It is Dmitry you
-have to convince about it.
-
-That still doesn't make KEY_UNKNOWN without a scan code useful, so either
-way, I think KEY_UNKNOWN should be limited to drivers that can remap
-keycodes *and* which send MSC_SCAN events along with KEY_UNKNOWN, so that
-you know what key to remap.  I don't care if it is easy or not to be nice to
-the user and ask for a key remap, at least it will not be *impossible* like
-it currently is.  Otherwise, we would be better off removing KEY_UNKNOWN
-altogether (which I wouldn't mind much, either).
-
+There is world outside of X.
+ 
 > > > I think using positional keycodes would also be a mistake. We just need 
 > > > a slightly larger set of keycodes representing user-definable keys. 
 > > > There's 4 of them already - I really can't imagine there being many 
@@ -73,11 +70,12 @@ altogether (which I wouldn't mind much, either).
 > KEY_PROG* layers, or let X have different keymaps for different input 
 > devices. We shouldn't make the (by far) common case significantly more 
 > difficult to deal with this one.
+> 
 
-Dmitry?
+No, it is not a niche case. I think it is much more common than the case where
+you have multiple users for the same box using different keymaps. Even if box
+is shared there most likely will be one person setting it up in the beginning
+and the rest will follow his/her setup.
 
 -- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Dmitry

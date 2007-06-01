@@ -1,78 +1,95 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] Input: document the proper usage of EV_KEY and KEY_UNKNOWN
-Date: Fri, 1 Jun 2007 14:13:24 +0100
-Message-ID: <20070601131324.GB12204@srcf.ucam.org>
-References: <11802004861625-git-send-email-hmh@hmh.eng.br> <200705312333.11477.dtor@insightbb.com> <20070601040824.GA5042@srcf.ucam.org> <200706010037.59496.dtor@insightbb.com>
+Date: Fri, 1 Jun 2007 10:04:56 -0400
+Message-ID: <d120d5000706010704h71c817a9p55e0bba5d54efd3f@mail.gmail.com>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br>
+	 <200705312333.11477.dtor@insightbb.com>
+	 <20070601040824.GA5042@srcf.ucam.org>
+	 <200706010037.59496.dtor@insightbb.com>
+	 <20070601131324.GB12204@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20070601131324.GB12204@srcf.ucam.org>
 Content-Disposition: inline
-In-Reply-To: <200706010037.59496.dtor@insightbb.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@insightbb.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
 Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 01, 2007 at 12:37:58AM -0400, Dmitry Torokhov wrote:
-> On Friday 01 June 2007 00:08, Matthew Garrett wrote:
-> > If you let users alter the kernel keymap, then you need to implement 
-> > support for resetting the kernel keymap on exit. Otherwise it's a 
-> > trivial DoS.
-> > 
-> 
-> You already do - do you let your users play games with force-feedback
-> joysticks? To load force feedback effect you need write permissions for
-> corresponding event device.
+On 6/1/07, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Fri, Jun 01, 2007 at 12:37:58AM -0400, Dmitry Torokhov wrote:
+> > On Friday 01 June 2007 00:08, Matthew Garrett wrote:
+> > > If you let users alter the kernel keymap, then you need to implement
+> > > support for resetting the kernel keymap on exit. Otherwise it's a
+> > > trivial DoS.
+> > >
+> >
+> > You already do - do you let your users play games with force-feedback
+> > joysticks? To load force feedback effect you need write permissions for
+> > corresponding event device.
+>
+> That's much less of a problem, especially since (realistically) any
+> force feedback-aware application will reset the values on first use.
+> That's not the case for the keymap.
+>
 
-That's much less of a problem, especially since (realistically) any 
-force feedback-aware application will reset the values on first use. 
-That's not the case for the keymap.
+What I am trying to say - there already EVIOCSKEYCODE ioctl in the
+kernel. And for force feedback devices to work you need to nable
+writing to corresponding /dev/input/eventX thus opening possibility to
+alter the keymap table. I guess you coudl analyze capabilities of a
+device and only relax permissions for devices that have FF...
 
-> > The standard setup in an office environment is likely to be  
-> > multiuser.
-> 
-> Huh? In my limited experience everyone in the office gets its own box.
-> And I am not talking about software shop.
+Anyway, I think that we don't want ordinary users to alter hardware
+keymapping, it should indeed be priveleged operation done by box's
+administrator. Hopefully the infrastructure (hal/udev/whatever) will
+be able to load proper keymap at boot time so even that is not needed.
 
-Standard is that everyone gets their own machine, but usually everyone 
-has an account on all of them.
+Why I think using kernel remapping_in addition_ to X remapping is better:
 
-> > No, but it makes it significantly more confusing. User 1 chooses a 
-> > setup. This gets saved. User 2 remaps keys based on User 1's settings 
-> > (which have been restored at bootup). User 1 alters key mapping. User 2 
-> > suddenly becomes hugely confused.
-> 
-> One user is an administrator. He can alter the global keymap. If there
-> are multiple users he may need to be cautious.
+- X remapping only works in X. Even if you say that major
+distributions presently moved all logic in X but I don't think it is
+the only true way (in fact I think that some of it should run as
+standalone daemons; if I press power button I want my box to shut down
+even if I happen to be at text console. Same goes for sleep).
 
-Or we could just leave the mapping up to individual users, which avoids 
-the problem.
+- KEY_PROG* are assigned somewhat randomly across devices, with
+KEY_PROG1 matching FN-F1 on laptop multimedia key and also on one of
+the buttons on that remote control that manufacturers tend to supply
+with those "desktop replacement" laptops. Remapping them in X will not
+satisfy user. However remappig into actions (like KEY_EJECTCD) on
+kernel level solves this. From user perspective there isn't really any
+difference - he assigns an action to a key.
 
-> > How many users plug external keyboards with unlabelled keys into a 
-> > laptop? No, I really don't think that's a common case at all.
-> 
-> I think quite a few people use external keyboards. I know that in my office
-> everyone with a laptop has a docking station and uses full keyboard with
-> it. I use external AT keyboard at home...
-> 
-> As far as unlabeled goes - they may be labeled but we may not know their
-> labels.
+- Having devices generate KEY_UNKNOWN with a nice dialog box
+explaining what had happened will alert users of existance of events
+generated by such (esp. if they are unlabeled and hit by accident).
+For labeled keys we may ask user to submit necessary data to one of
+the projects (HAL?) to add to the database of devices/models/keymaps.
+If we were generating KEY_PROG1 more sophisticated users would simply
+remap the keys and move on without telling anybody.
 
-If a key is labelled in a non-generic way then it shouldn't generate 
-KEY_PROGwhatever. That's a separate problem.
+- If using X remapping alone every user will have to repeat the task
+of mapping keycodes. In case when there are labels on the keyboard
+(but the kernel does not know what it is) that setup is likely to be
+identical for most users on the box. I venture to say that even with
+unlabeled keys the setup will be identical - first user will influence
+the rest.
 
-> > The solution that satisfies the largest number of users with the 
-> > smallest amount of work is the one where pressing a key on the keyboard 
-> > results in X events being generated. Right now, that requires that the 
-> > key generate a real keycode.
-> > 
-> 
-> Again, it is not only about X. What if X is not running (or running but
-> nobody is logged in)? There are number of events (SUSPEND, WLAN switch,
-> undock request, etc) that should be handled by daemons not depending
-> on X.
+The biggest cons for KEY_UNKNOWN + scancode is that presently we do
+not have the code to iteract with user.
 
-The existing implementations use X. I don't think any of the desktop 
-distributions really care about the non-X case for this sort of thing.
+> > > The standard setup in an office environment is likely to be
+> > > multiuser.
+> >
+> > Huh? In my limited experience everyone in the office gets its own box.
+> > And I am not talking about software shop.
+>
+> Standard is that everyone gets their own machine, but usually everyone
+> has an account on all of them.
+
+Which is never used (except remotely)...
+
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Dmitry

@@ -1,68 +1,49 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 Subject: Re: [PATCH] Input: document the proper usage of EV_KEY and KEY_UNKNOWN
-Date: Fri, 1 Jun 2007 15:19:01 +0100
-Message-ID: <20070601141901.GA13939@srcf.ucam.org>
-References: <11802004861625-git-send-email-hmh@hmh.eng.br> <200705312333.11477.dtor@insightbb.com> <20070601040824.GA5042@srcf.ucam.org> <200706010037.59496.dtor@insightbb.com> <20070601131324.GB12204@srcf.ucam.org> <d120d5000706010704h71c817a9p55e0bba5d54efd3f@mail.gmail.com>
+Date: Fri, 1 Jun 2007 11:51:22 -0300
+Message-ID: <20070601145121.GC8211@khazad-dum.debian.net>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br> <200705312333.11477.dtor@insightbb.com> <20070601040824.GA5042@srcf.ucam.org> <200706010037.59496.dtor@insightbb.com> <20070601131324.GB12204@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <d120d5000706010704h71c817a9p55e0bba5d54efd3f@mail.gmail.com>
+In-Reply-To: <20070601131324.GB12204@srcf.ucam.org>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jun 01, 2007 at 10:04:56AM -0400, Dmitry Torokhov wrote:
+On Fri, 01 Jun 2007, Matthew Garrett wrote:
+> Or we could just leave the mapping up to individual users, which avoids 
+> the problem.
 
-> Anyway, I think that we don't want ordinary users to alter hardware
-> keymapping, it should indeed be priveleged operation done by box's
-> administrator. Hopefully the infrastructure (hal/udev/whatever) will
-> be able to load proper keymap at boot time so even that is not needed.
+Other than the fact that it is not a piece of candy to implement correctly.
 
-Any solution which involves a naive user pressing a key and a dialog 
-appearing saying "Please enter the administrator password to map this 
-key" is not a satisfactory solution. 
+> > Again, it is not only about X. What if X is not running (or running but
+> > nobody is logged in)? There are number of events (SUSPEND, WLAN switch,
+> > undock request, etc) that should be handled by daemons not depending
+> > on X.
+> 
+> The existing implementations use X. I don't think any of the desktop 
+> distributions really care about the non-X case for this sort of thing.
 
-> - X remapping only works in X. Even if you say that major
-> distributions presently moved all logic in X but I don't think it is
-> the only true way (in fact I think that some of it should run as
-> standalone daemons; if I press power button I want my box to shut down
-> even if I happen to be at text console. Same goes for sleep).
+Debian does, for one.  And I am pretty sure it is not the only one.
 
-That's simply not a use-case we (or, as far as I can tell, any of the 
-other major distributions) are interested in. It's very difficult to 
-come up with a method for providing per-user policy without it depending 
-on X.
+Also, let me state right now that IMO, this "I need X to be running and
+logged in" for dock, eject, suspend, wlan on/off and other *system* level
+activity to work is an extremely bad idea and broken on so many levels it is
+not funny.
 
-> - KEY_PROG* are assigned somewhat randomly across devices, with
-> KEY_PROG1 matching FN-F1 on laptop multimedia key and also on one of
-> the buttons on that remote control that manufacturers tend to supply
-> with those "desktop replacement" laptops. Remapping them in X will not
-> satisfy user. However remappig into actions (like KEY_EJECTCD) on
-> kernel level solves this. From user perspective there isn't really any
-> difference - he assigns an action to a key.
+I have nothing against allowing such activities to be *modified* to suit the
+logged in user, subject to approval by the system administrator.  But to
+have them implemented in that level? Yuck.
 
-Producing KEY_PROG* by default doesn't prevent this in any way. With the 
-exception of the PS/2 keyboard nightmare, we're always able to 
-distinguish between different input devices and remap them if necessary. 
-It's fine to require extra complexity for more complicated cases. That 
-doesn't mean it's worth requiring that complexity for all cases.
+But I don't see what this means for input device keyboard maps.  Any of the
+proposed solutions to the problem so far will work equally well (or not well
+:) ) for console and X users, even the "lots of KEY_UNKNOWN" one...
 
-> - If using X remapping alone every user will have to repeat the task
-> of mapping keycodes. In case when there are labels on the keyboard
-> (but the kernel does not know what it is) that setup is likely to be
-> identical for most users on the box. I venture to say that even with
-> unlabeled keys the setup will be identical - first user will influence
-> the rest.
-
-That problem is already solved at the desktop level.
-
-> The biggest cons for KEY_UNKNOWN + scancode is that presently we do
-> not have the code to iteract with user.
-
-It's a large pile of code and it's going to have to be implemented 
-multiple times in order to integrate with the different desktop 
-environments. I really don't think it's worth it.
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

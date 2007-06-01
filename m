@@ -1,7 +1,7 @@
-From: "Maricela Fowler" <dprosodic@hi.nl>
-Subject: Which untill uncouth
-Date: Fri, 1 Jun 2007 16:27:58 +0900
-Message-ID: <001201c7a469$d10beed0$05ef5d14@245j94mlfqixn5n>
+From: "Noelle Parker" <bnreformatory@gmail.ru>
+Subject: A tristan before few
+Date: Fri, 1 Jun 2007 10:59:13 +0200
+Message-ID: <000f01c7a43b$e38b4750$076f79c4@komputermarty>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;

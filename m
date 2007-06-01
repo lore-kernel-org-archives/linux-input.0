@@ -1,48 +1,47 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH] Input: document the proper usage of EV_KEY and KEY_UNKNOWN
-Date: Fri, 1 Jun 2007 01:24:35 +0100
-Message-ID: <20070601002435.GA2621@srcf.ucam.org>
-References: <11802004861625-git-send-email-hmh@hmh.eng.br> <d120d5000705301325yf76d062vefbc79873d23e602@mail.gmail.com> <20070531005305.GC6883@khazad-dum.debian.net> <200705310033.51230.dtor@insightbb.com> <20070531222814.GB4076@khazad-dum.debian.net> <20070531233326.GA1947@srcf.ucam.org> <20070601001304.GB5407@khazad-dum.debian.net>
+From: "Theron Quintana" <qbcanastota@maltanet.net>
+Subject: it to ivins
+Date: Fri, 1 Jun 2007 08:37:21 +0800
+Message-ID: <001001c7a428$12123a20$000adf5c@tchedubgs>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <20070601001304.GB5407@khazad-dum.debian.net>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, May 31, 2007 at 09:13:04PM -0300, Henrique de Moraes Holschuh wrote:
+Dear investor,
 
-> Well, we already produce KEY_UNKNOWN anyway, and the stuff you quoted above
-> just makes KEY_UNKNOWN useful for something instead of keeping it as an
-> useless notice to the user that some key (which one? who knows!) was
-> pressed.
+Market is in unstable state. All leading indexes lose their positions. 
+Each day it become more harder to get income on USA stock market. 
+Are you tided of getting spam from small companies and lose your money?
+We offer a new brilliant solution. To maximize your income we recommend you to invest your money
+in stable german companies. We are glad to introduce you  B&#246;rse Invest 
+Beteiligungs AG / Miscellaneous (Stock: BJ5N.F). This company field of activity varies from
+agriculture in Germany to development of Oil in East Siberia. B&#246;rse 
+Invest Beteiligungs AG took part in tender for construction of new gas main in Russian territory from Gazprom company.
+The company has very good chances for winning this tender. Also the company signed a preliminary contract with Lukoil company (Stock:LUKOY) 
+For delivery of mineral oil to east Germany. The given company is presented at the Frankfurt stock exchange.
 
-Given existing userspace, it's never useful to generate KEY_UNKNOWN. 
-Adding extra information to the event doesn't alter that.
+Company name: BOERSE INVEST BETEI
+Company symbol: BJ5N.F 
+Market: Frankfurt 
+Price: 0.99 euro 
 
-> Perhaps what you dislike re. KEY_UNKNOWN is the part where KEY_UNKNOWN+scan
-> code is declared to be the prefered way to report keys that do not have a
-> specific function?  Your reply seems to indicate this, but I am not sure I
-> really understood what you meant.
+Under objective forecasts of financiers after winning Garprom tender, the company stock price grow will be 60-70%.
+Optimistic forecast gives much more grow percent. This company is ideal for medium-term investment, with minimum risks you will be able to increase your revenue
+for very short period. Leading banking analytics Leading investment bankers converge in opinion on the future growth of the American capital in German economy,
+including oil-gas sphere.
+For a quote please call your Bank and tell your broker your wish to buy this stock.
 
-Yes.
 
-> I am not exactly in love with the idea of using KEY_UNKNOWN in place of
-> stuff like KEY_FN_F1 either (I'd prefer to just bump up KEY_MAX and have
-> more posicional keycodes), but Dmitry is being quite clear that he does not
-> want to increase KEY_MAX to add more positional keycodes.
-
-I think using positional keycodes would also be a mistake. We just need 
-a slightly larger set of keycodes representing user-definable keys. 
-There's 4 of them already - I really can't imagine there being many 
-keyboards with a significantly larger set of unlabelled keys.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Sincerely , 
+Eric Lindman 
+Merrill Lynch Investment banking 

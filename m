@@ -1,60 +1,64 @@
-From: "Milagros Roper" <dwdimsensem@dimsense.com>
-Subject: Order now and don't forget about a discount
-Date: Fri, 1 Jun 2007 10:27:56 -0200
-Message-ID: <01c7a437$85101a10$3449fb58@dwdimsensem>
+From: "1(484)993-7152 Floyd " <738lionello@lorman.alcorn.edu>
+Subject: Re: Bachelors, {}Masters, MBA and/or Dcotorate (PhD)
+Date: Sat, 2 Jun 2007 19:54:21 +0300
+Message-ID: <07782640970571.04A8233EA0@UCX5810>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000E_01C7A450.AA5D5210"
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: mbala@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Linux-input!.
 
-------=_NextPart_000_000E_01C7A450.AA5D5210
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
 
-Dear valued member.With this special pharmaceutical bulletin we introduce MyCanadianPharmacy providing high quality products at low cost.High quality Canadian products for the price lower than for American drugs.Visit now. You have a chance to receive a Spring discount.Click here and see a wide range of products to choose fromhttp://readyus.hkWide range of products.Don’t forget to ask for a Spring discount.Sincerely yours,Milagros Roper
+Want the degree ubt cant find the time?
 
 
 
-------=_NextPart_000_000E_01C7A450.AA5D5210
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+WHAT A GREAT IDEA!
+We provide a concept that will allow anyone with sufficient work experien=
+ce to obtain a fully verifiable University Degree.
+Bachelors, Masters or even a Doctortae.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Diso-8859-2" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 6.00.2800.1409" name=3DGENERATOR></HEAD>
-<BODY>
-<html>
-<body bgcolor=3D"#FFFFFF" link=3D"#333366">
-<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
-/font></p>
-<p><font face=3D"Verdana" size=3D"2">With this special pharmaceutical bulle=
-tin we introduce <a href=3D"http://readyus.hk">MyCanadianPharmacy</a> provi=
-ding high quality products at low cost.</font></p>
-<p><font face=3D"Verdana" size=3D"2">High quality Canadian products for the=
- price lower than for American drugs.<br>Visit now. You have a chance to re=
-ceive a <b><u>Spring discount</u></b>.</font></p>
-<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://readyus.hk">Click he=
-re and see a wide range of products to choose from</a><br>http://readyus.hk=
-</font></p>
-<p><font face=3D"Verdana" size=3D"2">Wide range of products.<br>Don=92t for=
-get to ask for a <b><u>Spring discount</u></b>.</font></p>
-<p><font face=3D"Verdana" size=3D"2">Sincerely yours,<br>Milagros Roper</fo=
-nt></p>
-</body>
-</html>
 
-</BODY></HTML>
+Think of it, wihtin four to six weeks, you too could be a college graduat=
+e.
+Many people share the same frustration, they are all doing the work of th=
+e person that has the degree and the person that has the degree is gettin=
+g all the money.
+Don?t you think that it is time you were paid fair compensation for the l=
+evel of work you are already doing?
+This is your chance to finally make the right move and receive your due b=
+enefits.
+If you are like mots people, you are more than qualified with your experi=
+ence, but are lacking that prestigious piece of paper known as a diploma =
+that is often the passport to success.
 
-------=_NextPart_000_000E_01C7A450.AA5D5210--
+CALL US TODAY AND GIVE YOUR WORK
+EXPERIENCE THE CHANCE TO AERN YOU
+THE HIGHER COMPENSATION YOU DESERVE!
+
+Dial Us Tonight +1   (484)993-7152
+Live 7d 24 hour
+
++++++++++++++++
+
+
+
+
+
+
+
+
+
+
+
+his sleep. No matter: The land was his, and he was the land's, whetherend=
+,  the old man had been relieved to die. He had secured for Quintus

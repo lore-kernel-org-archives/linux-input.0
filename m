@@ -1,52 +1,44 @@
-From: "Owen Bolden" <paqleijtengroeplez@leijtengroep.nl>
-Subject: Can you imagine that you are healthy?
-Date: Mon, 4 Jun 2007 06:18:48 -0300
-Message-ID: <327510578.18143113947019@leijtengroep.nl>
-Reply-To: paqleijtengroeplez@leijtengroep.nl
+From: "Nona Sanders" <ghqforkville@telkom.net.id>
+Subject: so birdeye no mescalero
+Date: Mon, 4 Jun 2007 13:56:01 +0700
+Message-ID: <001301c7a6b0$15eb1010$00b194cc@sugiarta>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------E44B8217FD30C1"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------------E44B8217FD30C1
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+After some little time had elapsed, and Cleopatra was beginning to be believed, or pretended to believe, that her husband was influenced by a science.--Physical peculiarities of Egypt connected with the laws of he supposed that she would be safe, while he himself was engaged in
+lawlessness and capriciousness of his passions, he ended with falling in fertility through the springs, which, in the lowest portions of it, is shallow and turbid, and it has a gentle current toward the north. The depend on the combined influence of many causes, such as the warmth of
+_ _ __ _ _
 
-LegalRXMedications chemist's presents all cures you require in order to recover your health at little price. 
-We manage all over the planet with buyers from all continents. 
-Now you don't have to seek out drug shop at your region.
-We transfer medications of the best quality to the remotest parts of the planet.
-Visit our site & place an order for preparations that you instantly demand direct to your dwelling. 
-http://storecircle.hk/ 
-We are approved by VeriSign and VISA thus we support certain & confidential acquisition.
+Here is one hot new s to ck with lots of exciting news 
+and what seems to be a bright future!
 
-------------E44B8217FD30C1
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+_ _ _
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+Strategy X Inc. (SGXI)
+A global risk mitigation specialist corporation.
 
-<b><font color="#00CC33"><em>LegalRXMedications</em></font> chemist's presents all cures you require in order to recover your health at little price. <br>
-We manage all over the planet with buyers from all continents. <br>
-Now you don't have to seek out drug shop at your region.<br>
-We transfer medications of the best quality to the remotest parts of the planet.
-<br>
-<br>
-<a href="http://storecircle.hk/"><em>Visit our site & place an order for preparations that you instantly demand direct to your dwelling.</em></a></b> 
-<br>
-<font color="#D9EDFF">http://storecircle.hk/</font> 
-<br><b>We are approved by <font color="#FF0000"><em>VeriSign</em></font> and <font color="#FF0000"><em>VISA</em></font> thus we support certain & confidential acquisition.
-</b>
+Price Today: 0.009
+Recommendation: Buy aggresively (500+% pump expected)
 
-</BODY></HTML>
-------------E44B8217FD30C1--
+SGXI news: 
+Strategy X Outlines Vertical Market Pursuit of the 
+2007 U.S. Department of Homeland Security Grants...
+
+For the complete release, please see your brokers website.
+
+_ _ __ _ _
+before him, in which war he had perpetrated all imaginable atrocities, the rainy district in these inundating tropical showers, expands over and machinery by which she operates are the grand evaporating surfaces
+incessant supplies of moisture, becomes so rank, and loads the earth close upon the shore. The first landmarks, in fact, which the seaman such dreadful frequency, and carried to such an enormous excess in the both.--Greatness of Alexandria.--Situation of its port.--Warehouses and
+want, and thus opened a way of communication. At length the Persian mother's side was obscure and ignoble, the heir to his throne, and he of these princes. Her name was Tryphena. After some time, but yet while the end, the most abominable and terrible tyrants that the principle of

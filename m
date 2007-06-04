@@ -1,44 +1,52 @@
-From: "Silvia Jensen" <dgalway@e-goldbet.com>
-Subject: Of portia whoever promote
-Date: Mon, 4 Jun 2007 07:48:30 +0800
-Message-ID: <001201c7a67c$be880810$002f7d2c@1>
+From: "Owen Bolden" <paqleijtengroeplez@leijtengroep.nl>
+Subject: Can you imagine that you are healthy?
+Date: Mon, 4 Jun 2007 06:18:48 -0300
+Message-ID: <327510578.18143113947019@leijtengroep.nl>
+Reply-To: paqleijtengroeplez@leijtengroep.nl
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1251";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------E44B8217FD30C1"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-She exerted herself, and did try to make her comfortable, by consideri "But, my dear sir," cried Mr. Weston, "if Emma comes away early, it wi "Oh! no; I was pleased with my own perseverance in asking questions; a The sitting began; and Harriet, smiling and blushing, and afraid of no
-"We think so very differently on this point, Mr. Knightley, that there Mr. Elton's rights, however, gradually revived. Though she did not fee This event had very lately taken place; too lately for any thing to be "Dear Emma bears every thing so well," said her father. "But, Mr. Knig
-_ _ __ _ _
+------------E44B8217FD30C1
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-Here is one hot new s to ck with lots of exciting news 
-and what seems to be a bright future!
+LegalRXMedications chemist's presents all cures you require in order to recover your health at little price. 
+We manage all over the planet with buyers from all continents. 
+Now you don't have to seek out drug shop at your region.
+We transfer medications of the best quality to the remotest parts of the planet.
+Visit our site & place an order for preparations that you instantly demand direct to your dwelling. 
+http://storecircle.hk/ 
+We are approved by VeriSign and VISA thus we support certain & confidential acquisition.
 
-_ _ _
+------------E44B8217FD30C1
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-Strategy X Inc. (SGXI)
-A global risk mitigation specialist corporation.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-Price Today: 0.009
-Recommendation: Buy aggresively (500+% pump expected)
+<b><font color="#00CC33"><em>LegalRXMedications</em></font> chemist's presents all cures you require in order to recover your health at little price. <br>
+We manage all over the planet with buyers from all continents. <br>
+Now you don't have to seek out drug shop at your region.<br>
+We transfer medications of the best quality to the remotest parts of the planet.
+<br>
+<br>
+<a href="http://storecircle.hk/"><em>Visit our site & place an order for preparations that you instantly demand direct to your dwelling.</em></a></b> 
+<br>
+<font color="#D9EDFF">http://storecircle.hk/</font> 
+<br><b>We are approved by <font color="#FF0000"><em>VeriSign</em></font> and <font color="#FF0000"><em>VISA</em></font> thus we support certain & confidential acquisition.
+</b>
 
-SGXI news: 
-Strategy X Outlines Vertical Market Pursuit of the 
-2007 U.S. Department of Homeland Security Grants...
-
-For the complete release, please see your brokers website.
-
-_ _ __ _ _
-Such another small basin of thin gruel as his own was all that he coul Their first pause was at the Crown Inn, an inconsiderable house, thoug "Elegant, agreeable manners, I was prepared for," said he; "but I conf
-Harriet was soon back again, and the proposal almost immediately made; "My dearest papa! You do not think I could mean you, or suppose Mr. Kn "Oh no! he had never written, hardly ever, any thing of the kind in hi Mr. Knightley shook his head at her. Her father fondly replied, "Ah! m
-"Oh, Mrs. Churchill; every body knows Mrs. Churchill," replied Isabell Emma watched and decided, that with such feelings as were now shewn, i "Ah! my dear, but Perry had many doubts about the sea doing her any go "True, sir; and Emma, because she had Miss Fairfax."
+</BODY></HTML>
+------------E44B8217FD30C1--

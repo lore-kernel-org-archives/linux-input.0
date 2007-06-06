@@ -1,77 +1,100 @@
-From: LOTTERY BOARD <web11promo2007@bellsouth.net>
-Subject: *** Your Email Address Has Won ***
-Date: Wed, 6 Jun 2007 12:43:42 -0400
-Message-ID: <20070606164342.SRJV28871.ibm57aec.bellsouth.net@mail.bellsouth.net>
-Reply-To: claimsagentverificationdept@yahoo.co.uk
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: [PATCH] Input: document the proper usage of EV_KEY and KEY_UNKNOWN (v2)
+Date: Wed, 6 Jun 2007 13:55:09 -0300
+Message-ID: <20070606165509.GB18984@khazad-dum.debian.net>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br> <d120d5000705301325yf76d062vefbc79873d23e602@mail.gmail.com> <20070531005305.GC6883@khazad-dum.debian.net> <200705310033.51230.dtor@insightbb.com> <20070531222814.GB4076@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: webinfo@uklottery.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20070531222814.GB4076@khazad-dum.debian.net>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+We have most of the pieces needed to have sane, generic userland keyboard
+handling in place for a while now, but it is not sufficiently documented.
 
-UK NATIONAL LOTTERY HEADQUARTERS: 
-P O Box 1010 Liverpool,
-L70 1NL UNITED KINGDOM 
+This patch documents the requirements and best practices for EV_KEY input
+drivers.
 
-(Customer Services)
+Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Richard Hughes <hughsient@gmail.com>
+---
 
-BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION 
+ I have changed the KEY_UNKNOWN preference over positional keycodes around,
+ and also added a small paragraph on the expected behaviour of userland
+ applications re. EV_MSC MSC_SCAN events.
 
-Dear Lucky Winner,
+ Comments?
 
-We are please to inform you of the result of the draws of UNITED 
-KINGDOM NATIONAL LOTTERY international Lottery programs. 
+ Documentation/input/input-programming.txt |   45 ++++++++++++++++++++++++++++-
+ 1 files changed, 44 insertions(+), 1 deletions(-)
 
-The online cyber lotto draws was conducted from an exclusive list of 
-21,000 e-mail addresses of individual and corporate bodies picked by an 
-advanced automated random computer search from the internet, no tickets 
-were sold. 
-
-After this automated computer ballot, your e-mail address emerged 
-as one of two winners in the category "A" with the following winning 
-information: 
-
-Ref  : L/200-26937
-Batch:2007MJL-01 
-Transfer Identification code:ELPC/MWT/0143 
-
-You as well as the other winner are therefore to receive a cash prize 
-of 1,000,000.00 Pounds each from the total payout. 
-
-Your prize award has been insured with your e-mail address and will be 
-transferred to you upon meeting our requirements, statutory 
-obligations, verifications, validations and satisfactory report.
-
-To begin the claims processing of your prize winnings you are advised 
-to contact our licensed and accredited claims agent for category "A" 
-winners with the information 
-below: 
-
-Agents Name: Mr. Pinkett Griffin.
-Email::claimsagentverificationdept@yahoo.co.uk 
-TEL : +447045708136
+diff --git a/Documentation/input/input-programming.txt b/Documentation/input/input-programming.txt
+index d9d5230..30fd051 100644
+--- a/Documentation/input/input-programming.txt
++++ b/Documentation/input/input-programming.txt
+@@ -272,7 +272,50 @@ present, it is broken sometimes (at keyboards: Toshiba notebooks). To enable
+ autorepeat for your device, just set EV_REP in dev->evbit. All will be
+ handled by the input system.
  
-VERIFICATIONS FORM
+-1.9 Other event types, handling output events
++1.9 Being friendly to userspace when implementing EV_KEY drivers
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++Input drivers that generate EV_KEY events should always support either
++dev->getkeycode()/dev->setkeycode(), or keycode, keycodemax and keycodesize,
++so as to allow userspace to reprogram the keycodes as needed.  They should
++also either always generate EV_MSC MSC_SCAN events along with every EV_KEY
++event, or special case EV_KEY KEY_UNKNOWN as described below.
++
++Userspace applications, on the other hand, should never try to remap keys by
++default based solely on EV_MSC MSC_SCAN if that event is part of an event
++block that contains an EV_KEY event other than EV_KEY KEY_UNKNOWN.
++
++If the input driver doesn't support any of the generic methods to manipulate
++the keycode map, it must never issue a EV_KEY KEY_UNKNOWN event.  If you
++need to issue EV_KEY KEY_UNKNOWN events, please implement the code in your
++driver to manipulate its keycode map.  KEY_UNKNOWN is meant to be something
++that can be replaced by the user with a functional keycode.
++
++If the input driver generates an EV_KEY KEY_UNKNOWN event, it should also
++generate *in the same event block* (i.e. before it issues an EV_SYN) an
++EV_MSC MSC_SCAN event, with the scan code for the "unknown key".  This
++should be done both in "press" and "release" EV_KEY events.  The EV_MSC
++MSC_SCAN event allows a generic userspace keyboard helper daemon to ask the
++user if he would like to map a key in a input device to a valid keycode, and
++assign a function to it.
++
++The scan code of a key (as informed in a EV_MSC MSC_SCAN event) must be its
++index in the keycode map, as implemented by dev->getkeycode() /
++dev->setkeycode(), or keycode, keycodemax and keycodesize for the device.
++
++If a key has a specific function that is known to the driver, it should
++generate the appropriate keycode for that function by default.  E.g., in a
++laptop where the FN+F1 key combination is always marked "HELP" in the
++keyboard, the driver is to generate KEY_HELP and not KEY_FN_F1.
++
++If a positional keycode for a key already exists in input.h (e.g. KEY_FN_F1
++for FN+F1), it should be used instead of KEY_UNKNOWN.  When such a code
++doesn't exist or doesn't make any sense for a key, EV_KEY KEY_UNKNOWN is to
++be used.
++
++Non-positional keycodes like KEY_PROG1 should never be used by default.
++
++1.10 Other event types, handling output events
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ The other event types up to now are:
+-- 
+1.5.1.6
 
-FULL NAMES................
-CONTACT ADDRESS...........
-TEL/FAX NUMBERS...........
-AGE.......................
-SEX.......................
-OCCUPATION................
-NEXT OF KIN...............
-COUNTRY...................
-AMOUNT WON................
-WINNING EMAIL.............
-REFERENCE NUMBER..........
-SERIAL NUMBERS............
 
-Sincerely, 
-Mrs. Mariam Wilcox.
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

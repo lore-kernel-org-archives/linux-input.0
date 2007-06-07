@@ -1,44 +1,58 @@
-From: "Maryanne Arias" <landis34fhbrx@atrey.karlin.mff.cuni.cz>
-Subject: Why go to UCLA? Beat the system.
-Date: Thu, 07 Jun 2007 16:36:48 -0500
-Message-ID: <aadbxrAVECJlandis34fhbrx@atrey.karlin.mff.cuni.cz>
-Reply-To: "Maryanne Arias" <landis34fhbrx@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain;
-Content-Transfer-Encoding: 7Bit
+From: Weight loss <vmhicks@phreaker.net>
+Subject: Steady, significant weight loss
+Date: Fri, 08 Jun 2007 00:52:13 +0300
+Message-ID: <f89f01c7a94e$5de261e1$6dae1c83@phreaker.net>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+    boundary="----=_NextPart_000_0000_37D537DE.D328403E"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: landis34fhbrx@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-F A S T    T R A C K   D E G R E E   P R O G R A M 
+------=_NextPart_000_0000_37D537DE.D328403E
+Content-Type: text/plain;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-Obtain the degree you deserve, based on your present knowledge and work experience.
+ A Diet Pill that Really Works!
 
-A prosperous future, money earning power, and the Admiration of all.
+Its called Hoodia Gordonii. It is a simple appetite suppressant that has
+been used for hundreds of years and weve got it here just for you.
 
-Deg rees from an Established, Pres tigious, Institution.
+Lose weight FAST - click here!
 
-Your Degree will be based on your professional experience.
+  
+------=_NextPart_000_0000_37D537DE.D328403E
+Content-Type: text/html;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Get the Job, Promotion, Business Opportunity
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2180" name=3D"GENERATOR">
+</HEAD>
+<BODY text=3D#000000 bgColor=3D#ffffff>
 
-and Social Advancement you Desire!
+<font size=3D"3" face=3D"Times New Roman"><p align=3D"center"><font =
+face=3D"Tahoma" color=3D"#ff0000" size=3D"5"><strong>A Diet Pill that =
+Really Works!</strong></font></p>
+<p align=3D"center"><font face=3D"Tahoma">It&rsquo;s called Hoodia =
+Gordonii. It is a simple appetite suppressant <br />that has been used =
+for hundreds of years and we&rsquo;ve got it here just for =
+you.</font></p>
+<p align=3D"center"><font face=3D"Tahoma" size=3D"4"><strong><a =
+href=3D"http://zfeurganner.com">Lose weight FAST - click =
+here!</a></strong></font></p></font>
+</BODY>
+</HTML>
 
-Eliminates classrooms and traveling.
-
-Achieve your Bac helors, Mas ters, M B A, or Ph D
-in the field of your expertise
-
-Professional and affordable granted from non-accredited universities 
-
-Call now - your Grad uation is a phone call away.
-
-Please call:1- 770- 45 6-596 0 calls returned promptly.
-
-Yours truly,
-Fast track degree educational programs
+------=_NextPart_000_0000_37D537DE.D328403E--

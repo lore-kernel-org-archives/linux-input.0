@@ -1,47 +1,61 @@
-From: "Noreen Deleon" <arimo960@eranet.pl>
-Subject: A whom beaverlett
-Date: Thu, 7 Jun 2007 14:08:26 +0200
-Message-ID: <001701c7a90d$5118b070$00ecceac@ppprsoos38ticp>
-Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="iso-8859-1";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+From: "Connie Pratt" <rhpgrd@commander.clara.net>
+Subject: Soloution for Low Sperm Count
+Date: Thu, 07 Jun 2007 11:08:43 -0200
+Message-ID: <7431.94750180027$1181218186@news.gmane.org>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Attention Investors,
+hello colleague
 
-Market is in somewhat unstable state. Even leading indexes lose their positions.
-Each day it become more harder to get income on USA stock market.
-Are you tided of getting spam from small companies and lose your money?
+Do you want to ejaculate like a porn star? WonderCum will get you there!
 
-We offer a new brilliant solution. 
-To maximize your income we recommend you to invest your money in good, solid company. 
+WonderCum : True Male Potency Bigger Load, Bigger Orgasms! 
 
-We are glad to introduce you  COST CONTAINMENT TEC (CCTI). 
+WonderCum Doubles, Triples, Quadruples and MORE..... not just 
+volume of ejaculate, but intensity and power of orgasms. It Will 
+Absolutely Blow Your Mind
 
-This company field of activity varies from a holding company focused on developing and 
-delivering innovative health-care solutions. 
+Get it now "Without a Prescription" 
 
-Originally focused on renal care clinic build-outs, the Company has since evolved and is 
-building a reputation as a leader in the industry of population health services providing consultation, 
-education, medical management, and software to improve the quality and decrease the expense of 
-healthcare.
+1.Longer orgasms - The longest most intense orgasms of your life 
+2.Rock hard erections - Erections like steel
+3.Increased desire - Enhanced libido
+4.Ejaculate like a porn star - Stronger ejaculation 
+5.Multiple orgasms - Cum again and again
+6.Up to 500% more volume - Cover her in it if you want 
+7.Sweeter tasting sperm - Studies show it improves the flavor
 
-See additional info at : costcontainmenttech dot com
+http://hometown.aol.com/Jeromejuhr/wcqp.htm
 
-Company name: COST CONTAINMENT TEC 
-Company symbol: CCTI
-Current Price: 	0.0780 (4% UP)
-Target: 0.15
+WonderCum Increase the volume of your ejaculation by 500% in few days.
 
-Do not be a bystander on this investment opportunity, grab CCTI first thing on Thursday, June 7.
-Play Smart and win!
+Worried it won't work? We fully guarantee every order!
+If you aren't completely satisfied, you get 100% of your money back!
+
+Thanks,
+
+He escaped from slavery to New Bedford, Massachusetts in 1838. There he di=
+scovered the newspaper of the leading white abolitionist William Lloyd Gar=
+rison, The Liberator. Douglass and Garrison soon impressed one another and=
+ would work together for social reform and the abolition of slavery. Becau=
+se of his speaking ability, Douglass soon became the major drawing card at=
+ meetings of the abolitionist society. A deep melodious voice, grace and a=
+ flair for the dramatic would allow Douglass to mesmerize his listeners at=
+ the abolitionist meetings.=20
+
+He escaped from slavery to New Bedford, Massachusetts in 1838. There he di=
+scovered the newspaper of the leading white abolitionist William Lloyd Gar=
+rison, The Liberator. Douglass and Garrison soon impressed one another and=
+ would work together for social reform and the abolition of slavery. Becau=
+se of his speaking ability, Douglass soon became the major drawing card at=
+ meetings of the abolitionist society. A deep melodious voice, grace and a=
+ flair for the dramatic would allow Douglass to mesmerize his listeners at=
+ the abolitionist meetings.=20_2
+
+i wasted your time? Do you mind Sir

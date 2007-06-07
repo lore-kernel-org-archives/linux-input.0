@@ -1,7 +1,7 @@
-From: "Winfred Miranda" <matlocki@hinet.net>
-Subject: Be wreck a hessel
-Date: Thu, 7 Jun 2007 10:08:17 +0800
-Message-ID: <001101c7a8eb$c4cd7a90$0620a8fc@cronyRose>
+From: "Basil Lujan" <artasus@hosting4us.net>
+Subject: As maydelle as abingdon
+Date: Wed, 6 Jun 2007 23:21:09 -0500
+Message-ID: <000f01c7a891$5d689dd0$05cf0f8c@generic>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;

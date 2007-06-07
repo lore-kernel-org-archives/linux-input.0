@@ -1,7 +1,10 @@
-From: "Connie Pratt" <rhpgrd@commander.clara.net>
-Subject: Soloution for Low Sperm Count
-Date: Thu, 07 Jun 2007 11:08:43 -0200
-Message-ID: <7431.94750180027$1181218186@news.gmane.org>
+From: "Randolph Mendez" <dwlighthousebythelakem@lighthousebythelake.com>
+Subject: Drugs for US residents
+Date: Thu, 7 Jun 2007 16:52:18 -0200
+Message-ID: <01c7a924$35b464c0$12fd4a55@dwlighthousebythelakem>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000E_01C7A93D.5B019CC0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -11,51 +14,47 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-hello colleague
+This is a multi-part message in MIME format.
 
-Do you want to ejaculate like a porn star? WonderCum will get you there!
+------=_NextPart_000_000E_01C7A93D.5B019CC0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-WonderCum : True Male Potency Bigger Load, Bigger Orgasms! 
+Dear valued member.Don’t miss an excellent opportunity to buy high quality drugs for a half price. MyCanadianPharmacy has announced great discounts for all products.Purchase world class products and pay less than you could pay for American drugs of the same quality. Order any item from really wide selection of safe and quality 100% generic products and save money.  You will appreciate the level of MyCanadianPharmacy's service and fast delivery. Get the quality products you deserve. http://studenthot.hkSincerely yours,Randolph Mendez
 
-WonderCum Doubles, Triples, Quadruples and MORE..... not just 
-volume of ejaculate, but intensity and power of orgasms. It Will 
-Absolutely Blow Your Mind
 
-Get it now "Without a Prescription" 
 
-1.Longer orgasms - The longest most intense orgasms of your life 
-2.Rock hard erections - Erections like steel
-3.Increased desire - Enhanced libido
-4.Ejaculate like a porn star - Stronger ejaculation 
-5.Multiple orgasms - Cum again and again
-6.Up to 500% more volume - Cover her in it if you want 
-7.Sweeter tasting sperm - Studies show it improves the flavor
+------=_NextPart_000_000E_01C7A93D.5B019CC0
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-http://hometown.aol.com/Jeromejuhr/wcqp.htm
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3Diso-8859-2" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 6.00.2800.1158" name=3DGENERATOR></HEAD>
+<BODY>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2">Don=92t miss an excellent opportunity =
+to buy high quality drugs for a half price. <a href=3D"http://studenthot.hk=
+">MyCanadianPharmacy</a> has announced <b><i>great discounts for all produc=
+ts</i></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Purchase world class products and pay =
+less than you could pay for American drugs of the same quality. Order any i=
+tem from really wide selection of safe and quality 100% generic products an=
+d save money.  You will appreciate the level of <a href=3D"http://studentho=
+t.hk">MyCanadianPharmacy's</a> service and fast delivery. </font></p>
+<p><font face=3D"Verdana" size=3D"2">Get the quality products you deserve. =
+<br><a href=3D"http://studenthot.hk">http://studenthot.hk</a></font></p>
+<p><font face=3D"Verdana" size=3D"2">Sincerely yours,<br>Randolph Mendez</f=
+ont></p>
+</body>
+</html>
 
-WonderCum Increase the volume of your ejaculation by 500% in few days.
+</BODY></HTML>
 
-Worried it won't work? We fully guarantee every order!
-If you aren't completely satisfied, you get 100% of your money back!
-
-Thanks,
-
-He escaped from slavery to New Bedford, Massachusetts in 1838. There he di=
-scovered the newspaper of the leading white abolitionist William Lloyd Gar=
-rison, The Liberator. Douglass and Garrison soon impressed one another and=
- would work together for social reform and the abolition of slavery. Becau=
-se of his speaking ability, Douglass soon became the major drawing card at=
- meetings of the abolitionist society. A deep melodious voice, grace and a=
- flair for the dramatic would allow Douglass to mesmerize his listeners at=
- the abolitionist meetings.=20
-
-He escaped from slavery to New Bedford, Massachusetts in 1838. There he di=
-scovered the newspaper of the leading white abolitionist William Lloyd Gar=
-rison, The Liberator. Douglass and Garrison soon impressed one another and=
- would work together for social reform and the abolition of slavery. Becau=
-se of his speaking ability, Douglass soon became the major drawing card at=
- meetings of the abolitionist society. A deep melodious voice, grace and a=
- flair for the dramatic would allow Douglass to mesmerize his listeners at=
- the abolitionist meetings.=20_2
-
-i wasted your time? Do you mind Sir
+------=_NextPart_000_000E_01C7A93D.5B019CC0--

@@ -1,98 +1,52 @@
-From: "Veronica Tompkins" <budmegaresortssow@megaresorts.com>
-Subject: Stop gaining weight and get the figure you want
-Date: Fri, 8 Jun 2007 11:19:02 -0300
-Message-ID: <245482156.27574552868651@thhebat.net>
+From: "Jackie Ford" <budmediaxxisow@mediaxxi.com>
+Subject: Can you imagine that you are healthy?
+Date: Fri, 8 Jun 2007 12:38:43 +0000
+Message-ID: <701685622.53779879959521@mediaxxi.com>
+Reply-To: budmediaxxisow@mediaxxi.com
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------DA75F840925F8B6"
+  boundary="----------46EA1B01B01467"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lariat@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------DA75F840925F8B6
-Content-Type: text/plain; charset=iso-8859-1
+------------46EA1B01B01467
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
+LegalRXMedications pharmacy propose all cures that you want in order to renew your health at low cost. 
+We work through the world with customers from America, Europe and Asia. 
+Today you don't have to seek out pharmacy somewhere at your local area.
+We surely convey meds of the best quality to the remotest parts of the world.
+Come to our site and acquire medicinal agents that you immediately need straight to your location. 
+http://teethcat.hk/ 
+We are confirmed by VISA and VeriSign so then we provide safe & trustworthy purchase.
 
-
-Make use of the chance! – Anatrim – The up-to-the-moment and most enchanting product for weighty people is now easily available – As were shown on Oprah
-
-Do you count up all the situations when you said to yourself you would do any thing for being rescued from this frightful pounds of fat? Fortunately, now no great price is to be paid. With Anatrim, the ground-shaking, you can get naturally health lifestyle and become really slimmer. Simply notice what people say to us!
- 
-“I always had a marvelous life till a year ago the girl I was meeting said to me I was corpulent and needed to begin being careful to my health. Life had suddenly changed after that, till I discovered Anatrim ™. Since loosing about 40 lbs thanks to Anatrim,  my private life’s back on track, notoriously better than even before. Thanx for the incredible product & the first-rate maintenance service. Go on your good action!”
-
- 
-Steve Doubt, Las Vegas
-
- 
-"Nothing feels better than gliding into a bikini that I have not been dressed in for many years. I feel slim, determined, and sturdy, thanx to a considerable degree to Anatrim! Plenty of thank you!"
-
- 
-Lusia R., Texas
-
-Check out Anatrim, and  you will add yourself to the worldwide community of thousands of happy customers who are getting pleasure out of the revolutionary results of Anatrim just now. Less eating frenzy, less kilos and more fun in your life!
-
-Proceed right here to look at our unbeatable Anatrim arrangement!!!
-
-
-------------DA75F840925F8B6
-Content-Type: text/html; charset=iso-8859-1
+------------46EA1B01B01467
+Content-Type: text/html; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Anatrim will change your life</TITLE>
+<HTML><HEAD><TITLE></TITLE>
 </HEAD>
 <BODY>
 
-<p>
-<center>
-<b>
-<a href="">
-Make use of the chance! – Anatrim – The up-to-the-moment and most enchanting product for weighty people is now easily available – As were shown on Oprah
-</a>
-</center>
+<b><font color="#00CC33"><em>LegalRXMedications</em></font> pharmacy propose all cures that you want in order to renew your health at low cost. <br>
+We work through the world with customers from America, Europe and Asia. <br>
+Today you don't have to seek out pharmacy somewhere at your local area.<br>
+We surely convey meds of the best quality to the remotest parts of the world.
 <br>
-Do you count up all the situations when you said to yourself you would do any thing for being rescued from this frightful pounds of fat? Fortunately, now no great price is to be paid. With Anatrim, the ground-shaking, you can get naturally health lifestyle and become really slimmer. Simply notice what people say to us!
- <br>
 <br>
-<i>
-“I always had a marvelous life till a year ago the girl I was meeting said to me I was corpulent and needed to begin being careful to my health. Life had suddenly changed after that, till I discovered Anatrim ™. Since loosing about 40 lbs thanks to Anatrim,  my private life’s back on track, notoriously better than even before. Thanx for the incredible product & the first-rate maintenance service. Go on your good action!”
-</i>
- <br>
-<b>
-<i>
-Steve Doubt, Las Vegas
-</i>
+<a href="http://teethcat.hk/"><em>Come to our site and acquire medicinal agents that you immediately need straight to your location.</em></a></b> 
+<br>
+<font color="#D9EDFF">http://teethcat.hk/</font> 
+<br><b>We are confirmed by <font color="#FF0000"><em>VISA</em></font> and <font color="#FF0000"><em>VeriSign</em></font> so then we provide safe & trustworthy purchase.
 </b>
- <br>
-<br>
-<i>
-"Nothing feels better than gliding into a bikini that I have not been dressed in for many years. I feel slim, determined, and sturdy, thanx to a considerable degree to Anatrim! Plenty of thank you!"
-</i>
- <br>
-<b>
-<i>
-Lusia R., Texas
-</i>
-</b>
-<br>
-<br>
-Check out Anatrim, and  you will add yourself to the worldwide community of thousands of happy customers who are getting pleasure out of the revolutionary results of Anatrim just now. Less eating frenzy, less kilos and more fun in your life!
-<br>
-<br>
-<center>
-<a href="">
-Proceed right here to look at our unbeatable Anatrim arrangement!!!
-</a>
-</center>
-</b>
-</p>
-<font color="#D9EDFF"></font>
 
 </BODY></HTML>
-------------DA75F840925F8B6--
+------------46EA1B01B01467--

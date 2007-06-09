@@ -1,52 +1,278 @@
-From: "Jo Sutherland" <nidmillstreamtimesduv@millstreamtimes.com>
-Subject: Can you imagine that you are healthy?
-Date: Sat, 9 Jun 2007 09:46:27 -0300
-Message-ID: <862823855.90067470383066@millstreamtimes.com>
-Reply-To: nidmillstreamtimesduv@millstreamtimes.com
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------6E925FFF8401DA7C"
+From: Majordomo@atrey.karlin.mff.cuni.cz
+Subject: Majordomo results: View Our Wholesale r0lex repl1ca w4tches
+Date: Sat,  9 Jun 2007 13:47:28 +0200 (CEST)
+Message-ID: <20070609114728.22F81C7D91@atrey.karlin.mff.cuni.cz>
+Reply-To: Majordomo@atrey.karlin.mff.cuni.cz
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------6E925FFF8401DA7C
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+--
 
-LegalRXMedications drugstore propose all cures that you feel need in to restore your health for a little cost. 
-We manage through the whole globe with clients from America, Europe and Asia. 
-Now you don't have to seek out drug-shop at your region.
-We necessarily transfer medications of the highest quality to the remotest parts of the globe.
-Come please to our site & obtain drugs that you require instantly straight to your home. 
-http://ownlog.hk/ 
-We’re accredited by VeriSign and VISA thus we support secure & confidential buying.
+>>>> Although repl1ca w4tches like T4g Heuer and Patek Phil1ppe are nowadays more common than ever, most people
+**** Command 'although' not recognized.
+**** who: no such list 'would'
+>>>> to be made lightly, even if the timepiece in question is a repl1ca. It is important to make sure that the
+**** Command 'to' not recognized.
+>>>> w4tch you are buying meets the highest standards, is equipped with a powerful and reliable mechanism and
+**** Command 'w4tch' not recognized.
+>>>> bears all the markings of its genuine counterpart. And the only place that offers unmatched quality repl1ca
+**** Command 'bears' not recognized.
+>>>> w4tches and exceptional customer service is Prest1ge Repl1cas. That?s the reason why thousands of savvy
+**** Command 'w4tches' not recognized.
+>>>> internet shoppers are turning to Prest1ge Repl1cas to get the w4tch they?ve been longing for.
+**** Command 'internet' not recognized.
+>>>> http://www.huhujjue.com/
+**** Command 'http://www.huhujjue.com/' not recognized.
+**** Help for Majordomo@atrey.karlin.mff.cuni.cz:
 
-------------6E925FFF8401DA7C
-Content-Type: text/html; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+This help message is being sent to you from the Majordomo mailing list
+management system at Majordomo@atrey.karlin.mff.cuni.cz.
 
-<b><font color="#00CC33"><em>LegalRXMedications</em></font> drugstore propose all cures that you feel need in to restore your health for a little cost. <br>
-We manage through the whole globe with clients from America, Europe and Asia. <br>
-Now you don't have to seek out drug-shop at your region.<br>
-We necessarily transfer medications of the highest quality to the remotest parts of the globe.
-<br>
-<br>
-<a href="http://ownlog.hk/"><em>Come please to our site & obtain drugs that you require instantly straight to your home.</em></a></b> 
-<br>
-<font color="#D9EDFF">http://ownlog.hk/</font> 
-<br><b>We’re accredited by <font color="#FF0000"><em>VeriSign</em></font> and <font color="#FF0000"><em>VISA</em></font> thus we support secure & confidential buying.
-</b>
+This is version 1.94.5 of Majordomo.
 
-</BODY></HTML>
-------------6E925FFF8401DA7C--
+If you're familiar with mail servers, an advanced user's summary of
+Majordomo's commands appears at the end of this message.
+
+Majordomo is an automated system which allows users to subscribe
+and unsubscribe to mailing lists, and to retrieve files from list
+archives.
+
+You can interact with the Majordomo software by sending it commands
+in the body of mail messages addressed to "Majordomo@atrey.karlin.mff.cuni.cz".
+Please do not put your commands on the subject line; Majordomo does
+not process commands in the subject line.
+
+You may put multiple Majordomo commands in the same mail message.
+Put each command on a line by itself.
+
+If you use a "signature block" at the end of your mail, Majordomo may
+mistakenly believe each line of your message is a command; you will
+then receive spurious error messages.  To keep this from happening,
+either put a line starting with a hyphen ("-") before your signature,
+or put a line with just the word
+
+	end
+
+on it in the same place.  This will stop the Majordomo software from
+processing your signature as bad commands.
+
+Here are some of the things you can do using Majordomo:
+
+I.	FINDING OUT WHICH LISTS ARE ON THIS SYSTEM
+
+To get a list of publicly-available mailing lists on this system, put the
+following line in the body of your mail message to Majordomo@atrey.karlin.mff.cuni.cz:
+
+	lists
+
+Each line will contain the name of a mailing list and a brief description
+of the list.
+
+To get more information about a particular list, use the "info" command,
+supplying the name of the list.  For example, if the name of the list 
+about which you wish information is "demo-list", you would put the line
+
+	info demo-list
+
+in the body of the mail message.
+
+II.	SUBSCRIBING TO A LIST
+
+Once you've determined that you wish to subscribe to one or more lists on
+this system, you can send commands to Majordomo to have it add you to the
+list, so you can begin receiving mailings.
+
+To receive list mail at the address from which you're sending your mail,
+simply say "subscribe" followed by the list's name:
+
+	subscribe demo-list
+
+If for some reason you wish to have the mailings go to a different address
+(a friend's address, a specific other system on which you have an account,
+or an address which is more correct than the one that automatically appears 
+in the "From:" header on the mail you send), you would add that address to
+the command.  For instance, if you're sending a request from your work
+account, but wish to receive "demo-list" mail at your personal account
+(for which we will use "jqpublic@my-isp.com" as an example), you'd put
+the line
+
+	subscribe demo-list jqpublic@my-isp.com
+
+in the mail message body.
+
+Based on configuration decisions made by the list owners, you may be added 
+to the mailing list automatically.  You may also receive notification
+that an authorization key is required for subscription.  Another message
+will be sent to the address to be subscribed (which may or may not be the
+same as yours) containing the key, and directing the user to send a
+command found in that message back to Majordomo@atrey.karlin.mff.cuni.cz.  (This can be
+a bit of extra hassle, but it helps keep you from being swamped in extra
+email by someone who forged requests from your address.)  You may also
+get a message that your subscription is being forwarded to the list owner
+for approval; some lists have waiting lists, or policies about who may
+subscribe.  If your request is forwarded for approval, the list owner
+should contact you soon after your request.
+
+Upon subscribing, you should receive an introductory message, containing
+list policies and features.  Save this message for future reference; it
+will also contain exact directions for unsubscribing.  If you lose the
+intro mail and would like another copy of the policies, send this message
+to Majordomo@atrey.karlin.mff.cuni.cz:
+
+	intro demo-list
+
+(substituting, of course, the real name of your list for "demo-list").
+
+III.	UNSUBSCRIBING FROM MAILING LISTS
+
+Your original intro message contains the exact command which should be
+used to remove your address from the list.  However, in most cases, you
+may simply send the command "unsubscribe" followed by the list name:
+
+	unsubscribe demo-list
+
+(This command may fail if your provider has changed the way your
+address is shown in your mail.)
+
+To remove an address other than the one from which you're sending
+the request, give that address in the command:
+
+	unsubscribe demo-list jqpublic@my-isp.com
+
+In either of these cases, you can tell Majordomo@atrey.karlin.mff.cuni.cz to remove
+the address in question from all lists on this server by using "*"
+in place of the list name:
+
+	unsubscribe *
+	unsubscribe * jqpublic@my-isp.com
+
+IV.	FINDING THE LISTS TO WHICH AN ADDRESS IS SUBSCRIBED
+
+To find the lists to which your address is subscribed, send this command
+in the body of a mail message to Majordomo@atrey.karlin.mff.cuni.cz:
+
+	which
+
+You can look for other addresses, or parts of an address, by specifying
+the text for which Majordomo should search.  For instance, to find which
+users at my-isp.com are subscribed to which lists, you might send the
+command
+
+	which my-isp.com
+
+Note that many list owners completely or fully disable the "which"
+command, considering it a privacy violation.
+
+V.	FINDING OUT WHO'S SUBSCRIBED TO A LIST
+
+To get a list of the addresses on a particular list, you may use the
+"who" command, followed by the name of the list:
+
+	who demo-list
+
+Note that many list owners allow only a list's subscribers to use the
+"who" command, or disable it completely, believing it to be a privacy
+violation.
+
+VI.	RETRIEVING FILES FROM A LIST'S ARCHIVES
+
+Many list owners keep archives of files associated with a list.  These
+may include:
+- back issues of the list
+- help files, user profiles, and other documents associated with the list
+- daily, monthly, or yearly archives for the list
+
+To find out if a list has any files associated with it, use the "index"
+command:
+
+	index demo-list
+
+If you see files in which you're interested, you may retrieve them by
+using the "get" command and specifying the list name and archive filename.
+For instance, to retrieve the files called "profile.form" (presumably a
+form to fill out with your profile) and "demo-list.9611" (presumably the
+messages posted to the list in November 1996), you would put the lines
+
+	get demo-list profile.form
+	get demo-list demo-list.9611
+
+in your mail to Majordomo@atrey.karlin.mff.cuni.cz.
+
+VII.	GETTING MORE HELP
+
+To contact a human site manager, send mail to Majordomo-Owner@atrey.karlin.mff.cuni.cz.
+To contact the owner of a specific list, send mail to that list's
+approval address, which is formed by adding "-approval" to the user-name
+portion of the list's address.  For instance, to contact the list owner
+for demo-list@atrey.karlin.mff.cuni.cz, you would send mail to demo-list-approval@atrey.karlin.mff.cuni.cz.
+
+To get another copy of this help message, send mail to Majordomo@atrey.karlin.mff.cuni.cz
+with a line saying
+
+	help
+
+in the message body.
+
+VIII.	COMMAND SUMMARY FOR ADVANCED USERS
+
+In the description below items contained in []'s are optional. When
+providing the item, do not include the []'s around it.  Items in angle
+brackets, such as <address>, are meta-symbols that should be replaced
+by appropriate text without the angle brackets.
+
+It understands the following commands:
+
+    subscribe [<list>] [<address>]
+	Subscribe yourself (or <address> if specified) to the named <list>.
+	
+    unsubscribe [<list>] [<address>]
+	Unsubscribe yourself (or <address> if specified) from the named <list>.
+	"unsubscribe *" will remove you (or <address>) from all lists.  This
+	_may not_ work if you have subscribed using multiple addresses.
+
+    get [<list>] <filename>
+        Get a file related to <list>.
+
+    index [<list>]
+        Return an index of files you can "get" for <list>.
+
+    which [<address>]
+	Find out which lists you (or <address> if specified) are on.
+
+    who [<list>]
+	Find out who is on the named <list>.
+
+    info [<list>]
+	Retrieve the general introductory information for the named <list>.
+
+    intro [<list>]
+	Retrieve the introductory message sent to new users.  Non-subscribers
+	may not be able to retrieve this.
+
+    lists
+	Show the lists served by this Majordomo server.
+
+    help
+	Retrieve this message.
+
+    end
+	Stop processing commands (useful if your mailer adds a signature).
+
+Commands should be sent in the body of an email message to
+"Majordomo@atrey.karlin.mff.cuni.cz" or to "<list>-request@atrey.karlin.mff.cuni.cz".
+
+The <list> parameter is only optional if the message is sent to an address
+of the form "<list>-request@atrey.karlin.mff.cuni.cz". Multiple commands can be processed provided
+each occurs on a separate line.
+
+Commands in the "Subject:" line are NOT processed.
+
+If you have any questions or problems, please contact
+"Majordomo-Owner@atrey.karlin.mff.cuni.cz".

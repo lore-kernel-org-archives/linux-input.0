@@ -1,10 +1,10 @@
-From: "Trevor Dejesus" <vomnamarketingdiw@namarketing.com>
-Subject: Look in the mirror and enjoy the new you
-Date: Mon, 11 Jun 2007 06:56:03 -0100
-Message-ID: <712565225.53955903621605@thhebat.net>
+From: "Rocco Barry" <vomnancyartdiw@nancyart.com>
+Subject: She will love you more than any other guy
+Date: Mon, 11 Jun 2007 10:30:54 -0100
+Message-ID: <629408374.38418590597137@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------5E211957D386E219"
+  boundary="----------7C4090167CBDAE1"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,85 +14,75 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------5E211957D386E219
+------------7C4090167CBDAE1
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
 
+At last, the true stuff =96 with no more swindle! 
+P.E.P. are hot right this time! Well here comes the true stuff not a=20=
+counterfeit! 
 
-Don't decline your chance! – Anatrim – The up-to-the-moment and most exciting lose flesh product is now easily available – As could be seen on Oprah
+One of the very exceptionals, totally unparalleled stuff is accessible=20=
+everywhere!
+ Pay heed to what people tell about this produce:
 
-Do you hold in your memory all the times when you asked yourself to do anything to get rid of this terrible number of lbs? Fortunately, now no great price is to be paid. With Anatrim, the earth-shaking, you can get healthier lifestyle and become really slimmer. Have a look at what our customers say!
- 
-“I always had an outstanding private life till a year back a girl I was dating told me I was portly and in need of being careful to my health. Life had suddenly changed after that, till I was told about Anatrim ™. Since loosing about 20 kg thanx to Anatrim,  my private life is back on track, better than even before. Many thanks to you for the marvelous product and the first-rate service. Go on your worthy business!”
+"I was impressed how swiftly your stuff affected on my boyfriend, he=20=
+can=92t put an end to his jabber on how excited he is having such new=20=
+girth, extent, and libido!"
 
- 
-Rikky Martin, San Diego
+Silvia D., New York
 
- 
-"Nothing feels better than sliding into a bikini I have not worn for years. Now I feel slender, determined, and vigorous, thanks to a degree to Anatrim! A great deal of thanks to you!"
+"At the beginning I thought the free sample I was given was a kind of=20=
+jest, till I have taken taking the P.E.P. I can not describe report how=20=
+pleased I am with the result I achieved from using the remedy for 6 short=20=
+weeks. I'll be ordering at every turn!" 
+Michael Burns, Bellevue WA
 
- 
-Rita R., Chicago
+Check up more testimonials about this astonishing product just now!
+http://www.idotrey.com/?idknhtvkorws
 
-Discover Anatrim, and  you'll join the world-wide association of thousands of happy customers who’re getting pleasure out of the revolutionary results of Anatrim right here & right now. Less gobbling frenzy, less pounds and more gaiety in your life!
-
-Click here to look through unbreakable Anatrim deal we are proud to propose!!!
-http://www.jotokyro.com/?kopxmtywbbyhe
-
-------------5E211957D386E219
+------------7C4090167CBDAE1
 Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Shed weight now and enjoy the process</TITLE>
+<HTML><HEAD><TITLE>She will love you more than any other guy</TITLE>
 </HEAD>
 <BODY>
 
+<b>
+At last, the true stuff =96 with no more swindle! 
+<br>
+<a href=3D"http://www.idotrey.com/?idknhtvkorws">P.E.P.</a> are hot=20=
+right this time! Well here comes the true stuff not a counterfeit! 
+<br>
+One of the very exceptionals, totally unparalleled stuff is accessible=20=
+everywhere!
+<br> Pay heed to what people tell about this produce:
 <p>
-<center>
-<b>
-<a href="http://www.jotokyro.com/?kopxmtywbbyhe">
-Don't decline your chance! – Anatrim – The up-to-the-moment and most exciting lose flesh product is now easily available – As could be seen on Oprah
-</a>
-</center>
-<br>
-Do you hold in your memory all the times when you asked yourself to do anything to get rid of this terrible number of lbs? Fortunately, now no great price is to be paid. With Anatrim, the earth-shaking, you can get healthier lifestyle and become really slimmer. Have a look at what our customers say!
- <br>
-<br>
 <i>
-“I always had an outstanding private life till a year back a girl I was dating told me I was portly and in need of being careful to my health. Life had suddenly changed after that, till I was told about Anatrim ™. Since loosing about 20 kg thanx to Anatrim,  my private life is back on track, better than even before. Many thanks to you for the marvelous product and the first-rate service. Go on your worthy business!”
+"I was impressed how swiftly your stuff affected on my boyfriend, he=20=
+can=92t put an end to his jabber on how excited he is having such new=20=
+girth, extent, and libido!"
 </i>
- <br>
-<b>
-<i>
-Rikky Martin, San Diego
-</i>
-</b>
- <br>
-<br>
-<i>
-"Nothing feels better than sliding into a bikini I have not worn for years. Now I feel slender, determined, and vigorous, thanks to a degree to Anatrim! A great deal of thanks to you!"
-</i>
- <br>
-<b>
-<i>
-Rita R., Chicago
-</i>
-</b>
-<br>
-<br>
-Discover Anatrim, and  you'll join the world-wide association of thousands of happy customers who’re getting pleasure out of the revolutionary results of Anatrim right here & right now. Less gobbling frenzy, less pounds and more gaiety in your life!
-<br>
-<br>
-<center>
-<a href="http://www.jotokyro.com/?kopxmtywbbyhe">
-Click here to look through unbreakable Anatrim deal we are proud to propose!!!
-</a>
-</center>
-</b>
 </p>
-<font color="#D9EDFF">http://www.jotokyro.com/?kopxmtywbbyhe</font>
+Silvia D., New York
+<p>
+<i>
+"At the beginning I thought the free sample I was given was a kind of=20=
+jest, till I have taken taking the P.E.P. I can not describe report how=20=
+pleased I am with the result I achieved from using the remedy for 6 short=20=
+weeks. I'll be ordering at every turn!" </i>
+</p>
+Michael Burns, Bellevue WA
+<center>
+<a href=3D"http://www.idotrey.com/?idknhtvkorws">
+Check up more testimonials about this astonishing product just now!
+</a>
+</center>
+</b>
+<font color=3D"#D9EDFF">http://www.idotrey.com/?idknhtvkorws</font>
 
 </BODY></HTML>
-------------5E211957D386E219--
+------------7C4090167CBDAE1--

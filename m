@@ -1,51 +1,40 @@
-From: Glen Menshouse <ffortuny@logical.net>
-Subject: Extra large size for real man to satisfy insatiable women!
-Date: Thu, 10 May 2007 22:55:35 +0300
-Message-ID: <955097853.20070510225535@logical.net>
-Reply-To: ffortuny <ffortuny@logical.net>
+From: Miltiadis Margaronis <mmargaron@gmail.com>
+Subject: [PATCH] input: make 2 macros in gameport.c TSC-aware
+Date: Mon, 11 Jun 2007 07:12:32 +0300 (EEST)
+Message-ID: <alpine.BSF.0.99.0706110624150.5014@micmac.localdomain>
 Mime-Version: 1.0
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=us-ascii; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<html><head><title></title>
-<META http-equiv=3DContent-Type content=3D"text/html;=20=
-charset=3Dwindows-1251">
-<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
-</head>
-<body>
 
-<html>
-and marketing pitches these things, will plenty of time children <br><br>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html;=20=
-charset=3Diso-8859-1">
-</head>
-<body>
+  This makes DELTA and GET_TIME in drivers/input/gameport/gameport.c
+  similar to the ones in drivers/input/joystick/analog.c . Worked on
+  2.6.22-rc4-git2.
 
-<b>Do you feel timidly  about your phallus size?</b> <br>
-You need our new improved  <font color=3D"blue">
-<b>MegaDik Penis Enlargement Pi||s</b></font>, Please read on...<br>
-Your e-shopping is safe & secure with<b> EliteHerbal</b>... <br>
-Also very discreet and private with no indication of penis=20=
-enlargement<br>
-on the package, bottle or billing receipt.<br><br>
-<a href=3D"http://cnames.net/"><b>Visit website</b></a>
-
-<hr>
-</body>
- neighborhoods for your kids if youof Philadelphia, Pennsylvania.the=20=
-pressure, 
-</html>
+Signed-off-by: Miltiadis Margaronis <mmargaron@gmail.com>
 
 
+--- a/drivers/input/gameport/gameport.c	2007-06-05 03:57:02.000000000 +0300
++++ b/drivers/input/gameport/gameport.c	2007-06-09 07:20:45.000000000 +0300
+@@ -64,8 +64,8 @@ static void gameport_disconnect_port(str
 
-</body></html>
+  #include <asm/i8253.h>
+
+-#define DELTA(x,y)      ((y)-(x)+((y)<(x)?1193182/HZ:0))
+-#define GET_TIME(x)     do { x = get_time_pit(); } while (0)
++#define DELTA(x,y)      (cpu_has_tsc ? ((y) - (x)) : ((y) - (x) +((y) < (x) ? CLOCK_TICK_RATE / HZ : 0)))
++#define GET_TIME(x)     do { if (cpu_has_tsc) rdtscl(x); else x = get_time_pit(); } while (0)
+
+  static unsigned int get_time_pit(void)
+  {
+
+-- 
+Miltos

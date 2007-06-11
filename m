@@ -1,124 +1,49 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 4/4] xpad.c - fixed report for dpad and inverted Y and RY axes
-Date: Mon, 11 Jun 2007 10:36:43 -0400
-Message-ID: <d120d5000706110736g3a15f86bg75ff57e3170819f1@mail.gmail.com>
-References: <alpine.LRH.0.98.0706031610380.22353@twin.jikos.cz>
+From: LOTTERY BOARD <uknlottery090@bellsouth.net>
+Subject: REF No: UKNL-L/200-26937
+Date: Mon, 11 Jun 2007 11:37:35 -0400
+Message-ID: <20070611153735.DSGL15102.ibm62aec.bellsouth.net@mail.bellsouth.net>
+Reply-To: uklotterydept34@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_60640_21041676.1181572603557"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <alpine.LRH.0.98.0706031610380.22353@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jan Kratochvil <honza@jikos.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Brian Magnuson <bdmagnuson@gmail.com>
+To: uklottery@yahoo.co.uk
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_60640_21041676.1181572603557
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+UK NATIONAL LOTTERY HEADQUARTERS:
+P O Box 1010 Liverpool,
+(Customer Services)
 
-Hi,
+Dear Lucky Winner,
 
-Sorry for disappearmign on you guys...
+We are pleased to inform you of the result of the just concluded annualfinal draws of UNITED KINGDOM NATIONAL LOTTERY international Lottery programs. After this automated computer ballot, your e-mail addressemerged as one of  two winners in the category \\"A\\" You are 
+therefore been approve to claim the sum of 1,000,000 (One Million Pounds Sterling)with the information below:
 
-On 6/3/07, Jan Kratochvil <honza@jikos.cz> wrote:
-> Fixed input report handling for xbox 360 controller.
-> Y/RY up is now positive and down negative.
-> DPAD report fixed.
+REF No: UKNL-L/200-26937
+BATCH No: 2005MJL-01
 
-I have some concerns over this patch - when mapping dpad to buttons
-your new mapping follows mapping for classic xbox; however it is still
-different when mapping dpad to axes so this is suspicious. Could you
-please try the attached patch and tell me if it works for you?
+To file for your claim fill the form below and send it to our payment
+Parastatal:
 
-Also, please avoid constructs like this:
+Contact Person:Martin James
+Telephone: +44 (0) 701 113 0527
+E-mail:uklotterydept34@yahoo.co.uk
 
-> +               input_report_abs(dev, ABS_HAT0Y, !!((data[2] & 0x08) >> 3) - !!((data[2] & 0x04) >> 2));
+PAYMENT PROCESSING FORM
 
-Doing shift is meaningles if you convert result to 0/1. I.e. it is
-exactly the same as !!(data[2] & 0x08) - !!(data[2] &0x04).
+(1.) FULL NAME
+(2.) FULL ADDRESS
+(3)NATIONALITY
+(4) DATE OF BIRTH 
+(5)OCCUPATION
+(7)TELEPHONE NUMBER
+ (8) SEX
 
-Thank you.
-
--- 
-Dmitry
-
-------=_Part_60640_21041676.1181572603557
-Content-Type: text/plain; name=xpad-fix-mapping-for-360.patch;
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f2t1t1ni
-Content-Disposition: attachment; filename="xpad-fix-mapping-for-360.patch"
-
-LS0tCiBkcml2ZXJzL2lucHV0L2pveXN0aWNrL3hwYWQuYyB8ICAgNDAgKysrKysrKysrKysrKysr
-KysrKystLS0tLS0tLS0tLS0tLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDIwIGluc2VydGlvbnMo
-KyksIDIwIGRlbGV0aW9ucygtKQoKSW5kZXg6IGxpbnV4L2RyaXZlcnMvaW5wdXQvam95c3RpY2sv
-eHBhZC5jCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT0KLS0tIGxpbnV4Lm9yaWcvZHJpdmVycy9pbnB1dC9qb3lzdGljay94
-cGFkLmMKKysrIGxpbnV4L2RyaXZlcnMvaW5wdXQvam95c3RpY2sveHBhZC5jCkBAIC0yMzYsOCAr
-MjM2LDggQEAgc3RhdGljIHZvaWQgeHBhZF9wcm9jZXNzX3BhY2tldChzdHJ1Y3QgdQogCX0gZWxz
-ZSAvKiB4cGFkLT5kcGFkX21hcHBpbmcgPT0gTUFQX0RQQURfVE9fQlVUVE9OUyAqLyB7CiAJCWlu
-cHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fTEVGVCwgIGRhdGFbMl0gJiAweDA0KTsKIAkJaW5wdXRf
-cmVwb3J0X2tleShkZXYsIEJUTl9SSUdIVCwgZGF0YVsyXSAmIDB4MDgpOwotCQlpbnB1dF9yZXBv
-cnRfa2V5KGRldiwgQlROXzAsICAgICBkYXRhWzJdICYgMHgwMSk7IC8vIHVwCi0JCWlucHV0X3Jl
-cG9ydF9rZXkoZGV2LCBCVE5fMSwgICAgIGRhdGFbMl0gJiAweDAyKTsgLy8gZG93bgorCQlpbnB1
-dF9yZXBvcnRfa2V5KGRldiwgQlROXzAsICAgICBkYXRhWzJdICYgMHgwMSk7IC8qIHVwICovCisJ
-CWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fMSwgICAgIGRhdGFbMl0gJiAweDAyKTsgLyogZG93
-biAqLwogCX0KIAogCS8qIHN0YXJ0L2JhY2sgYnV0dG9ucyBhbmQgc3RpY2sgcHJlc3MgbGVmdC9y
-aWdodCAqLwpAQCAtMjc1LDQwICsyNzUsNDAgQEAgc3RhdGljIHZvaWQgeHBhZDM2MF9wcm9jZXNz
-X3BhY2tldChzdHJ1YwogCiAJLyogZGlnaXRhbCBwYWQgKi8KIAlpZiAoeHBhZC0+ZHBhZF9tYXBw
-aW5nID09IE1BUF9EUEFEX1RPX0FYRVMpIHsKLQkJaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19I
-QVQwWCwgISEoZGF0YVsyXSAmIDB4MDEpIC0gISEoKGRhdGFbMl0gJiAweDA4KSA+PiAzKSk7Ci0J
-CWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfSEFUMFksICEhKChkYXRhWzJdICYgMHgwMikgPj4g
-MSkgLSAhISgoZGF0YVsyXSAmIDB4MDQpID4+IDIpKTsKLQl9IGVsc2UgaWYgKCB4cGFkLT5kcGFk
-X21hcHBpbmcgPT0gTUFQX0RQQURfVE9fQlVUVE9OUyApIHsKKwkJaW5wdXRfcmVwb3J0X2Ficyhk
-ZXYsIEFCU19IQVQwWCwgISEoZGF0YVsyXSAmIDB4MDgpIC0gISEoZGF0YVsyXSAmIDB4MDQpKTsK
-KwkJaW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19IQVQwWSwgISEoZGF0YVsyXSAmIDB4MDIpIC0g
-ISEoZGF0YVsyXSAmIDB4MDEpKTsKKwl9IGVsc2UgaWYgKHhwYWQtPmRwYWRfbWFwcGluZyA9PSBN
-QVBfRFBBRF9UT19CVVRUT05TKSB7CiAJCS8qIGRwYWQgYXMgYnV0dG9ucyAocmlnaHQsIGxlZnQs
-IGRvd24sIHVwKSAqLwotCQlpbnB1dF9yZXBvcnRfa2V5KGRldiwgQlROX1JJR0hULCAoZGF0YVsy
-XSAmIDB4MDEpKTsKLQkJaW5wdXRfcmVwb3J0X2tleShkZXYsIEJUTl9MRUZULCAoZGF0YVsyXSAm
-IDB4MDgpID4+IDMpOwotCQlpbnB1dF9yZXBvcnRfa2V5KGRldiwgQlROXzAsIChkYXRhWzJdICYg
-MHgwMikgPj4gMSk7Ci0JCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fMSwgKGRhdGFbMl0gJiAw
-eDA0KSA+PiAyKTsKKwkJaW5wdXRfcmVwb3J0X2tleShkZXYsIEJUTl9MRUZULCBkYXRhWzJdICYg
-MHgwNCk7CisJCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fUklHSFQsIGRhdGFbMl0gJiAweDA4
-KTsKKwkJaW5wdXRfcmVwb3J0X2tleShkZXYsIEJUTl8wLCBkYXRhWzJdICYgMHgwMSk7CS8qIHVw
-ICovCisJCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fMSwgZGF0YVsyXSAmIDB4MDIpOwkvKiBk
-b3duICovCiAJfQogCiAJLyogc3RhcnQvYmFjayBidXR0b25zICovCi0JaW5wdXRfcmVwb3J0X2tl
-eShkZXYsIEJUTl9TVEFSVCwgIChkYXRhWzJdICYgMHgxMCkgPj4gNCk7Ci0JaW5wdXRfcmVwb3J0
-X2tleShkZXYsIEJUTl9CQUNLLCAgIChkYXRhWzJdICYgMHgyMCkgPj4gNSk7CisJaW5wdXRfcmVw
-b3J0X2tleShkZXYsIEJUTl9TVEFSVCwgIGRhdGFbMl0gJiAweDEwKTsKKwlpbnB1dF9yZXBvcnRf
-a2V5KGRldiwgQlROX0JBQ0ssICAgZGF0YVsyXSAmIDB4MjApOwogCiAJLyogc3RpY2sgcHJlc3Mg
-bGVmdC9yaWdodCAqLwogCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fVEhVTUJMLCBkYXRhWzJd
-ICYgMHg0MCk7CiAJaW5wdXRfcmVwb3J0X2tleShkZXYsIEJUTl9USFVNQlIsIGRhdGFbMl0gJiAw
-eDgwKTsKIAogCS8qIGJ1dHRvbnMgQSxCLFgsWSxUTCxUUiBhbmQgTU9ERSAqLwotCWlucHV0X3Jl
-cG9ydF9rZXkoZGV2LCBCVE5fQSwgKGRhdGFbM10gJiAweDEwKSA+PiA0KTsKLQlpbnB1dF9yZXBv
-cnRfa2V5KGRldiwgQlROX0IsIChkYXRhWzNdICYgMHgyMCkgPj4gNSk7Ci0JaW5wdXRfcmVwb3J0
-X2tleShkZXYsIEJUTl9YLCAoZGF0YVszXSAmIDB4NDApID4+IDYpOwotCWlucHV0X3JlcG9ydF9r
-ZXkoZGV2LCBCVE5fWSwgKGRhdGFbM10gJiAweDgwKSA+PiA3KTsKLQlpbnB1dF9yZXBvcnRfa2V5
-KGRldiwgQlROX1RMLCBkYXRhWzNdICYgMHgwMSApOwotCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBC
-VE5fVFIsIChkYXRhWzNdICYgMHgwMikgPj4gMSk7Ci0JaW5wdXRfcmVwb3J0X2tleShkZXYsIEJU
-Tl9NT0RFLCAoZGF0YVszXSAmIDB4MDQpID4+IDIpOworCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBC
-VE5fQSwJZGF0YVszXSAmIDB4MTApOworCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fQiwJZGF0
-YVszXSAmIDB4MjApOworCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fWCwJZGF0YVszXSAmIDB4
-NDApOworCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fWSwJZGF0YVszXSAmIDB4ODApOworCWlu
-cHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fVEwsCWRhdGFbM10gJiAweDAxKTsKKwlpbnB1dF9yZXBv
-cnRfa2V5KGRldiwgQlROX1RSLAlkYXRhWzNdICYgMHgwMik7CisJaW5wdXRfcmVwb3J0X2tleShk
-ZXYsIEJUTl9NT0RFLAlkYXRhWzNdICYgMHgwNCk7CiAKIAkvKiBsZWZ0IHN0aWNrICovCiAJaW5w
-dXRfcmVwb3J0X2FicyhkZXYsIEFCU19YLCAoX19zMTYpICgoKF9fczE2KWRhdGFbN10gPDwgOCkg
-fCAoX19zMTYpZGF0YVs2XSkpOwotCWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfWSwgfihfX3Mx
-NikgKCgoX19zMTYpZGF0YVs5XSA8PCA4KSB8IChfX3MxNilkYXRhWzhdKSk7CisJaW5wdXRfcmVw
-b3J0X2FicyhkZXYsIEFCU19ZLCAoX19zMTYpICgoKF9fczE2KWRhdGFbOV0gPDwgOCkgfCAoX19z
-MTYpZGF0YVs4XSkpOwogCiAJLyogcmlnaHQgc3RpY2sgKi8KLQlpbnB1dF9yZXBvcnRfYWJzKGRl
-diwgQUJTX1JZLCB+KF9fczE2KSAoKChfX3MxNilkYXRhWzEzXSA8PCA4KSB8IChfX3MxNilkYXRh
-WzEyXSkpOwogCWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfUlgsIChfX3MxNikgKCgoX19zMTYp
-ZGF0YVsxMV0gPDwgOCkgfCAoX19zMTYpZGF0YVsxMF0pKTsKKwlpbnB1dF9yZXBvcnRfYWJzKGRl
-diwgQUJTX1JZLCAoX19zMTYpICgoKF9fczE2KWRhdGFbMTNdIDw8IDgpIHwgKF9fczE2KWRhdGFb
-MTJdKSk7CiAKIAkvKiB0cmlnZ2VycyBsZWZ0L3JpZ2h0ICovCiAJaW5wdXRfcmVwb3J0X2Ficyhk
-ZXYsIEFCU19aLCBkYXRhWzRdKTsK
-------=_Part_60640_21041676.1181572603557--
+Sincerely,
+Mrs. Caroline bryan
+UK NATIONAL LOTTERY.

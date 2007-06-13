@@ -1,7 +1,7 @@
 From: LOTTERY BOARD <onlinelotto09@bellsouth.net>
 Subject: Congratulations You Have Won
-Date: Wed, 13 Jun 2007 5:29:17 -0400
-Message-ID: <20070613092918.KRBG26452.ibm67aec.bellsouth.net@mail.bellsouth.net>
+Date: Wed, 13 Jun 2007 5:29:35 -0400
+Message-ID: <20070613092935.KRBY26452.ibm67aec.bellsouth.net@mail.bellsouth.net>
 Reply-To: uklotteryclaimofficer_fredperry@yahoo.co.uk
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1

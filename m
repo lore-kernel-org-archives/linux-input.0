@@ -1,12 +1,10 @@
-From: "Sales" <sales@javaiching.com>
-Subject: Make a present for you girlfriend
-Date: Thu, 14 Jun 2007 10:22:22 +0000
-Message-ID: <509501c7ae6d$02f4779c$fc7f6455@dsl.static85100127252.ttnet.net.tr>
+From: "Dashenka" <tgajvi@net4you.at>
+Subject: Re: Photo
+Date: Thu, 14 Jun 2007 05:35:52 -1000
+Message-ID: <AEF117BE.F531C8B7@net4you.at>
 Mime-Version: 1.0
 Content-Type: text/plain;
-        format=flowed;
-        charset="Windows-1252";
-        reply-type=original
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,16 +12,13 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Hammell Matthew <linux-input@atrey.karlin.mff.cuni.cz>
+To: kuba@atrey.karlin.mff.cuni.cz
+Cc: lemming@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-If you can't persuade ur girl that she deserves only your tiny size, 
-so, never mind, just try out our wonderful pellet and you'll 
-show your girlfriend a REAL SIZE!
-
-You can find out how to do it 
-on our official website: http://www.javaiching.com/ 
-and it's REALLY CHEAPER!
-
--- 
-omrrrnrrslsrnnrurosnsrsttqrssosrrproousoshrlsosusoolsjsrssohstrqsgpotupgqo
+Do not ignore me please,
+I found your email somewhaerae anad now deciaded to write you.
+I am combing to your plbace in few weeks and thought we 
+can meet ebach other. Let me know if you doa not minad.
+I am a nice praetty girl. Don't reply to this email. 
+Email me direclty at rb@MailVisionWorld.info

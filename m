@@ -1,46 +1,56 @@
-From: Diogo Kastrup <dk@bighost.com.br>
-Subject: Re: [patch] hid: fix autocentering of PID devices
-Date: Wed, 13 Jun 2007 19:20:27 -0300
-Message-ID: <1181773227.11608.8.camel@ip6-localhost>
-References: <466FDC51.5030703@gmail.com>
-	 <Pine.LNX.4.64.0706131746020.23280@twin.jikos.cz>
-	 <46705CBD.5040302@gmail.com>
-	 <Pine.LNX.4.64.0706132340560.23280@twin.jikos.cz>
-	 <4670673A.3050702@gmail.com>
+From: Online Cordinator <irishwebinfo@adelphia.net>
+Subject: CONGRATULATION!!! PRIZE CLAIM !!! CALL TEL:+44 70457 11531
+Date: Wed, 13 Jun 2007 17:43:23 -0700
+Message-ID: <15292585.1181781803685.JavaMail.root@web27>
+Reply-To: drgregcooker.agent07@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <4670673A.3050702@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, Dmitry Torokhov <dtor@insightbb.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Anssi Hannula wrote:
-> Jiri Kosina wrote:
-> > On Thu, 14 Jun 2007, Anssi Hannula wrote:
-> > 
-> >>> do you have any idea what caused this to happen in 2.6.21 and not in 
-> >>> earlier versions?
-> >> Nope. Do you think it would be useful for me to bisect 2.6.20-2.6.21?
-> > 
-> > I'd of course happily merge the fix which initializes the value properly 
-> > into my tree, but I would be curious what broke it, to double check that 
-> > we didn't break anything else along with it.
-> 
-> Okay, I'll get back to you in a few days :)
+The Irish Lottery
+P O Box 1010
+11 G Lower Dorset Street,
+Dublin 1, Ireland
+(Customer Services)
 
-Hi,
+Ref: UK/9420X2/68
+Batch: 074/05/ZY369
 
-Now that I was trying to remember the first time I saw this problem, I
-think it was randomly showing up long time ago, then stopped. I thought
-it was on the last kernel because recently I stepped on it again while
-writing a program to calibrate and configure my joystick forces. But I
-don't use my joystick on linux that much so I'm not sure, sorry.
--- 
-Diogo Kastrup <dk@bighost.com.br>
+                     FINAL NOTIFICATION
+We are pleased to inform you today 29th May, 2007 of the result of=20
+the winners of the  IRISH NATIONAL LOTTERY ONLINE PROMO PROGRAMME, held=20
+on the Saturday 26th May 2007.
+
+You have therefore been approved for a lump sum pay out of =C2=A31,350,000=
+=20
+(One Million Pounds Sterling) in cash credited to file=20
+KTU/9023118308/03.To file for your claim, please contact our claims=20
+agent;
+
+Mr Greg Cooker
+Email: irishclaimsagent38@yahoo.co.uk
+Tel :( +44)-70457 11531
+
+Provide him with the information below:
+
+1.Full Name:
+2.Full Address:
+3.Marital Status:
+4.Occupation:
+5.Age:
+6.Sex:
+7.Nationality:
+8.Country Of Residence:
+9.Telephone Number:
+
+Congratulations once more from all members and staff of this program.
+
+Sincerely,=20
+Sir. Philip  Johnson

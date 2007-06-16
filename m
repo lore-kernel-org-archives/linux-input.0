@@ -1,52 +1,31 @@
-From: "Estella Leary" <lyqoregonreogij@oregonreo.com>
-Subject: Can you imagine that you are healthy?
-Date: Sat, 16 Jun 2007 11:18:07 -0100
-Message-ID: <270271349.75550699631884@oregonreo.com>
-Reply-To: lyqoregonreogij@oregonreo.com
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Exporting EV_SW SW_LID events from thinkpad-acpi to input layer
+Date: Sat, 16 Jun 2007 11:44:11 -0300
+Message-ID: <20070616144411.GA2127@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------F0CA4F29CA4F0C"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-acpi-owner@vger.kernel.org
+To: lenb@kernel.org, Dmitry Torokhov <dtor@insightbb.com>, Richard Hughes <hughsient@gmail.com>
+Cc: linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, ibm-acpi-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
-------------F0CA4F29CA4F0C
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+thinkpad-acpi can now be made to export EV_SW SW_LID events to the input
+layer.
 
-LegalRXMedications drug-shop acquaints you with all preparations that you want in order to restore your health for a little cost. 
-We work all over the globe with customers from Europe, America, and Asia. 
-Now you don't have to look for drug-store at your region.
-We can transfer drugs of the best quality to the remotest parts of the globe.
-Visit our site and get medicinal agents you instantly require straight to your residence. 
-http://helpbehind.hk/ 
-We are endorsed by VeriSign and VISA thus we ensure safe and reliable purchasing.
+However, most (all?) thinkpads will also generate ACPI notifications to
+\_SB.LID, on LID changes, i.e. this would duplicate an ACPI LID event, and I
+undertand ACPI is already moving to provide those over an input device by
+itself.
 
-------------F0CA4F29CA4F0C
-Content-Type: text/html; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+Given that situation, is it desireable for thinkpad-acpi to export EV_SW
+SW_LID events by itself (possibly duplicating an event that the ACPI layer
+will also issue)?  Or should I just ignore the lid events, and leave them
+for the ACPI layer to deal with?
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
-
-<b><font color="#00CC33"><em>LegalRXMedications</em></font> drug-shop acquaints you with all preparations that you want in order to restore your health for a little cost. <br>
-We work all over the globe with customers from Europe, America, and Asia. <br>
-Now you don't have to look for drug-store at your region.<br>
-We can transfer drugs of the best quality to the remotest parts of the globe.
-<br>
-<br>
-<a href="http://helpbehind.hk/"><em>Visit our site and get medicinal agents you instantly require straight to your residence.</em></a></b> 
-<br>
-<font color="#D9EDFF">http://helpbehind.hk/</font> 
-<br><b>We are endorsed by <font color="#FF0000"><em>VeriSign</em></font> and <font color="#FF0000"><em>VISA</em></font> thus we ensure safe and reliable purchasing.
-</b>
-
-</BODY></HTML>
-------------F0CA4F29CA4F0C--
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

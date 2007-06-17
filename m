@@ -1,37 +1,737 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: reseting an input device due to sleep/resume cycle
-Date: Sat, 16 Jun 2007 18:03:21 -0300
-Message-ID: <20070616210321.GA17379@khazad-dum.debian.net>
+From: "Everett Cartwright" <jdftcj@finanztreff.de>
+Subject: Finanztreff Analysenticker
+Date: Sun, 17 Jun 2007 14:39:31 -0300
+Message-ID: <01c7b0ed$51247530$6c822ecf@dhcrpporjnqymmt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7B10E.D8361530"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, ibm-acpi-devel@lists.sourceforge.net
+To: 0rfelyus@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dmitry, input gurus,
+This is a multi-part message in MIME format.
 
-When a ThinkPad does an sleep cycle, the firmware explicitly kills all
-pending hotkey state.  That reminds me that I also need to do the same in
-thinkpad-acpi.
+------=_NextPart_000_0006_01C7B10E.D8361530
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 
-How does one tell the input layer that it should clear its idea of the
-current state of all events in a input device?  I couldn't find any
-input_reset() function...
 
-Or is such a reset not needed?  The recent issue with ACPI and EV_SW SW_LID
-seems to indicate that in some cases these resets are indeed needed.  For
-EV_SW, it appears that I'd have to interate over all my switches and reset
-them.  But what about EV_KEY and the others?
+	
+	Finanztreff.de - Analysen - Aktuelle Analysen weltweit.
+	
+	
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+body {
+  margin: 0;
+  background: #fff;
+  color: #002855;
+  font: 11px Arial, Helvetica, Sans;
+  text-align: left;
+}
+img {
+  border: 0;
+}
+a {
+  color: #002855;
+  text-decoration: underline;
+}
+a:hover {
+  text-decoration: none;
+}
+table, tr, td {
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+td {
+  padding-top: 3px;
+  padding-left: 4px;
+}
+
+#logo {
+  padding: 15px;
+}
+#top {
+  background: #00274C;
+  width: 100%;
+}
+#content {
+  padding: 7px;
+}
+#line {
+  margin-top: 1px;
+  background: #2A5580;
+  width: 100%;
+  height: 9px;
+  font-size: 0;
+}
+#line2 {
+  margin-top: 20px;
+  margin-bottom: 1px;
+  background: #2A5580;
+  width: 100%;
+  height: 2px;
+  font-size: 0;
+}
+
+bold		{ font-weight:bold; }
+verysmall	{ font-size:8px;  	}					
+small		{ font-size:10px; 	}					
+big		{ font-size:12px; 	}					
+bb			{ font-size:12px; font-weight:bold;	}	
+xl			{ font-size:14px; font-weight:bold;	}	
+xxl		{ font-size:16px; font-weight:bold;	}	
+
+#bg01	{ background-color:#82AED9; }				
+#bg02	{ background-color:#00274C; color:#ececec; }	
+#bg03	{ background-color:#ffffff; }				
+#bg04	{ background-color:#2A5580; color:#ececec; }	
+#bg05	{ background-color:#ececec; }					
+#bg06	{ background-color:#d14f00; color:#ececec; }	
+#bg07	{ background-color:#E5C00F; color:#000000; }	
+#bg08	{ background-color:#dddddd; }					
+#bg09	{ background-color:#cc0033; color:#ececec; }	
+#bg10	{ background-color:#005A2D; color:#ececec; }	
+#bg11	{ background-color:#666666; }					
+#bg12	{ background-color:#E5C00F; }
+#gray01		{ color:#ececec; }
+#gray02		{ color:#aaaaaa; }	
+#gray03		{ color:#999999; }	
+#red		{ color:#cc0033; }	
+#green		{ color:#005A2D; }	
+#greenb		{ color:#39CE00; }	
+#orange		{ color:#E5C00F; }	
+#white		{ color:#ffffff; }	
+#yellow		{ color:#E5C00F; }	
+#blue		{ color:#2A5580; }	
+#hblue		{ color:#82AED9; }			
+#news {
+  padding: 20px;
+  padding-top: 6px;
+  padding-left: 17px;
+  padding-right: 17px;
+  width: 700px;
+}
+#bottom {
+  padding: 0;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: #00274C;
+  color: #fff;
+  width: 100%;
+}
+
+	
+		
+	
+		
+		Analysenticker
+		
+			Zeit
+			Name
+			Urteil
+			Analyst
+		
+		
+		
+			08:21
+			BOERSE INVEST BETEILIGUNGS AG
+			Positiv
+			Société Générale
+		
+					
+		
+			08:06
+			SBA COMMUNICA
+			Positiv
+			Stanford Financia
+		
+					
+		
+			11.06.
+			FOUNDRY NETWO
+			Positiv
+			Janco Partners
+		
+					
+		
+			11.06.
+			Symantec
+			Positiv
+			UBS
+		
+					
+		
+			11.06.
+			VINCI S.A.
+			Positiv
+			Société Générale 
+		
+					
+		
+			11.06.
+			Data Modul
+			Positiv
+			Nebenwerte Journa
+		
+					
+		
+			11.06.
+			H&R WASAG AG
+			Neutral
+			AC Research
+		
+					
+		
+			11.06.
+			CELGENE CORP.
+			Positiv
+			UBS
+		
+					
+		
+			11.06.
+			DaimlerChrysl
+			Positiv
+			Independent Resea
+		
+					
+		
+			11.06.
+			NESTLE S.A.
+			Neutral
+			Société Générale 
+		
+					
+		
+			11.06.
+			Danone
+			Positiv
+			Société Générale 
+		
+					
+		
+			11.06.
+			Apollo Group
+			Positiv
+			PROFIT-Report
+		
+					
+		
+			11.06.
+			Jetter
+			Positiv
+			Wirtschaftswoche
+		
+					
+		
+			11.06.
+			DANSKE BANK A
+			Neutral
+			JP Morgan
+		
+					
+		
+			11.06.
+			FOUNDRY NETWO
+			Positiv
+			RBC Capital Marke
+		
+									
+		
+        
+        
+        
+        Weitere Analysen
+        Vom Unternehmen:
+            BOERSE INVEST BETEILIGUNGS AG
+        
+        Mit Urteil:
+            Positiv
+        
+        Vom Analyst:
+            Société Générale
+        
+            
+        
+		
+		
+	
+	
+	
+	
+		
+		
+		Analyse
+
+		
+			BOERSE INVEST BETEILIGUNGS AG (797639):
+			1,15+0,71%
+			Info-Popup
+		
+		
+
+		
+		
+		
+		Analyse
+		
+			Analyst
+			Urteil
+			08.06.07
+			Heute
+			Diff%
+		
+		
+			Société Générale
+			Positiv
+			1,06
+			1,15
+			+8,4%
+		
+		
+		
+		
+		Meldung
+
+		12.06.2007 - 10:48:20 Uhr
+		BOERSE INVEST BETEILIGUNGS AG mit Potenzial
+		Frankfurt, Juni, 12 (finanztreff.de) - der Analytiker Nick James aus Société Générale wiederholt seine Bewertung des Kaufes der Aktien BOERSE INVEST BETEI (BJ5N.F, 797639). 
+BOERSE INVEST BETEI dehnt den Markt der Dienstleistungen aus. Die Büros der Gesellschaft entstehen in Russland und in den Ländern Asiens. Deshalb steigert das Interesse der Investoren dafür. In der Presse befindet sich die Information, dass GERRESHEIMER (WKN A0LD6E) bereits die bevorstehende Einlösung von 49% Aktien der Gesellschaft BOERSE INVEST BETEI erklärt hat, deshalb haben kleine Investoren eine hohe Chance, einen kolossalen Gewinn zu erhalten. Die bevorstehende Einlösung der Aktien wird am 20. Mai 2007 geplant. Obwohl man die Finanzdetails des Geschäftes nicht kundgibt, beträgt die vermutliche Summe des Geschäftes 18 Mio Euro. Nach den Worten des Analytikers Nick James, die Zunahme der Kotierungen werde 70 % betragen. Die Analytiker behaupten, BOERSE INVEST BETEI werde in der Zukunft wahrscheinlich das zusätzliche Kapital seinen Aktionären zurückgeben.
+
+
+		
+		
+			
+		
+				
+		
+     
+        
+		
+	
+	
+	
+		Impressum · Nutzungshinweise · Kontakt · Handbuch + HilfeSitemap · Mediadaten · Inhaltelizensierung · Presse · vwd · Home
+	
+
+------=_NextPart_000_0006_01C7B10E.D8361530
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml"=20=
+xmlns:o=3D"urn:schemas-microsoft-com:office:office"=20=
+xmlns:w=3D"urn:schemas-microsoft-com:office:word"=20=
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
+
+
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@B8297B80.CC513D3D">
+<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@B8297B80.CC513D3D">
+</head>
+<body>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"=20=
+"http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+	<meta http-equiv=3D"Content-Type" content=3D"text/html;=20=
+charset=3Diso-8859-1">
+	<title>Finanztreff.de - Analysen - Aktuelle Analysen weltweit.</title>
+	<meta name=3D"description" content=3D"">
+	
+<style>
+body {
+  margin: 0;
+  background: #fff;
+  color: #002855;
+  font: 11px Arial, Helvetica, Sans;
+  text-align: left;
+}
+img {
+  border: 0;
+}
+a {
+  color: #002855;
+  text-decoration: underline;
+}
+a:hover {
+  text-decoration: none;
+}
+table, tr, td {
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+td {
+  padding-top: 3px;
+  padding-left: 4px;
+}
+
+#logo {
+  padding: 15px;
+}
+#top {
+  background: #00274C;
+  width: 100%;
+}
+#content {
+  padding: 7px;
+}
+#line {
+  margin-top: 1px;
+  background: #2A5580;
+  width: 100%;
+  height: 9px;
+  font-size: 0;
+}
+#line2 {
+  margin-top: 20px;
+  margin-bottom: 1px;
+  background: #2A5580;
+  width: 100%;
+  height: 2px;
+  font-size: 0;
+}
+
+bold		{ font-weight:bold; }
+verysmall	{ font-size:8px;  	}					
+small		{ font-size:10px; 	}					
+big		{ font-size:12px; 	}					
+bb			{ font-size:12px; font-weight:bold;	}	
+xl			{ font-size:14px; font-weight:bold;	}	
+xxl		{ font-size:16px; font-weight:bold;	}	
+
+#bg01	{ background-color:#82AED9; }				
+#bg02	{ background-color:#00274C; color:#ececec; }	
+#bg03	{ background-color:#ffffff; }				
+#bg04	{ background-color:#2A5580; color:#ececec; }	
+#bg05	{ background-color:#ececec; }					
+#bg06	{ background-color:#d14f00; color:#ececec; }	
+#bg07	{ background-color:#E5C00F; color:#000000; }	
+#bg08	{ background-color:#dddddd; }					
+#bg09	{ background-color:#cc0033; color:#ececec; }	
+#bg10	{ background-color:#005A2D; color:#ececec; }	
+#bg11	{ background-color:#666666; }					
+#bg12	{ background-color:#E5C00F; }
+#gray01		{ color:#ececec; }
+#gray02		{ color:#aaaaaa; }	
+#gray03		{ color:#999999; }	
+#red		{ color:#cc0033; }	
+#green		{ color:#005A2D; }	
+#greenb		{ color:#39CE00; }	
+#orange		{ color:#E5C00F; }	
+#white		{ color:#ffffff; }	
+#yellow		{ color:#E5C00F; }	
+#blue		{ color:#2A5580; }	
+#hblue		{ color:#82AED9; }			
+#news {
+  padding: 20px;
+  padding-top: 6px;
+  padding-left: 17px;
+  padding-right: 17px;
+  width: 700px;
+}
+#bottom {
+  padding: 0;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: #00274C;
+  color: #fff;
+  width: 100%;
+}
+</style>
+</head>
+<body>
+<div id=3D"top">
+	<div id=3D"logo">
+		<img src=3D"http://www.finanztreff.de/ftreff/images/LogoBG-orig.gif"=20=
+width=3D"768" height=3D"45">
+	</div>
+</div>
+<div id=3D"line"></div>
+<div id=3D"content">
+<table width=3D"618" border=3D"0" cellspacing=3D"0" cellpadding=3D"0">
+<tr><td width=3D"290" valign=3D"top">
+		<table border=3D"0" cellspacing=3D"1" cellpadding=3D"1" width=3D"100%">
+		<tr><td id=3D"bg02" class=3D"bold"=20=
+colspan=3D"4">Analysenticker</td></tr>
+		<tr>
+			<td id=3D"bg01" class=3D"bold">Zeit</td>
+			<td id=3D"bg01" class=3D"bold">Name</td>
+			<td id=3D"bg01" class=3D"bold">Urteil</td>
+			<td id=3D"bg01" class=3D"bold">Analyst</td>
+		</tr>
+		
+		<tr id=3D"bg04">
+			<td class=3D"bold">08:21</td>
+			<td class=3D"bold">BOERSE INVEST BETEILIGUNGS AG</td>
+			<td class=3D"bold"><a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/kurse_einzelkurs_uebersicht.htm?u=3D0&k=3D0&s=3D797639&n=3DBOERSE%20INVEST%20BETEILIGUNGS%20AG&l=3D276&b=3D2">Positiv</a></td>
+			<td class=3D"bold">Soci=E9t=E9 G=E9n=E9rale</td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td id=3D"gray03">08:06</td>
+			<td>SBA COMMUNICA</td>
+			<td><a id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152542&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D923376&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Stanford Financia</td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>FOUNDRY NETWO</td>
+			<td><a  id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152080&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D925661&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Janco Partners</td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>Symantec</td>
+			<td><a id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152077&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D879358&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>UBS</td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>VINCI S.A.</td>
+			<td><a  id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152076&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D867475&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Soci=E9t=E9 G=E9n=E9rale </td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>Data Modul</td>
+			<td><a id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152075&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D549890&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Nebenwerte Journa</td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>H&R WASAG AG</td>
+			<td><a  =20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152064&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D775700&l=3D276&sektion=3Danalysen">Neutral</a></td>
+			<td>AC Research</td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>CELGENE CORP.</td>
+			<td><a id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152043&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D881244&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>UBS</td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>DaimlerChrysl</td>
+			<td><a  id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152042&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D710000&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Independent Resea</td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>NESTLE S.A.</td>
+			<td><a =20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152041&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D887208&l=3D276&sektion=3Danalysen">Neutral</a></td>
+			<td>Soci=E9t=E9 G=E9n=E9rale </td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>Danone</td>
+			<td><a  id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152032&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D851194&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Soci=E9t=E9 G=E9n=E9rale </td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td id=3D"gray01"><span id=3D"gray03">11.06.</span></td>
+			<td>Apollo Group</td>
+			<td><a id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152022&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D898968&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>PROFIT-Report</td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>Jetter</td>
+			<td><a  id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152019&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D626400&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>Wirtschaftswoche</td>
+		</tr>
+					
+		<tr id=3D"bg05">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>DANSKE BANK A</td>
+			<td><a=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152012&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D850857&l=3D276&sektion=3Danalysen">Neutral</a></td>
+			<td>JP Morgan</td>
+		</tr>
+					
+		<tr id=3D"bg08">
+			<td><span id=3D"gray03">11.06.</span></td>
+			<td>FOUNDRY NETWO</td>
+			<td><a  id=3D"green"=20=
+href=3D"http://www.finanztreff.de/ftreff/analysen_ticker.htm?id=3D27152002&r=3D0&u=3D0&k=3D0&seite=3Dkurse&s=3D925661&l=3D276&sektion=3Danalysen">Positiv</a></td>
+			<td>RBC Capital Marke</td>
+		</tr>
+									
+		</table>
+        
+        <br>
+        <table width=3D"100%" border=3D"0" cellspacing=3D"1"=20=
+cellpadding=3D"2">
+        <tr><td colspan=3D"2" id=3D"bg02" class=3D"bold">Weitere=20=
+Analysen</td></tr>
+        <tr><td id=3D"bg01" class=3D"bold" width=3D"45%"=20=
+valign=3D"top">Vom Unternehmen:</td>
+            <td id=3D"bg05" align=3D"right" width=3D"55%"><a=20=
+href=3D"http://www.finanztreff.de/ftreff/kurse_einzelkurs_uebersicht.htm?u=3D0&k=3D0&s=3D797639&n=3DBOERSE%20INVEST%20BETEILIGUNGS%20AG&l=3D276&b=3D2">BOERSE=20=
+INVEST BETEILIGUNGS AG</a></td>
+        </tr>
+        <tr><td id=3D"bg01" class=3D"bold" valign=3D"top">Mit=20=
+Urteil:</td>
+            <td id=3D"bg05" align=3D"right"><a=20=
+href=3D"http://www.finanztreff.de/ftreff/kurse_einzelkurs_uebersicht.htm?u=3D0&k=3D0&s=3D797639&n=3DBOERSE%20INVEST%20BETEILIGUNGS%20AG&l=3D276&b=3D2"=20=
+id=3D"green">Positiv</a></td>
+        </tr>
+        <tr><td id=3D"bg01" class=3D"bold" valign=3D"top">Vom=20=
+Analyst:</td>
+            <td id=3D"bg05" align=3D"right">Soci=E9t=E9 G=E9n=E9rale</td>
+        </tr>
+        </table>    
+        
+		<br>
+		<br>
+	<br>
+	</td>
+	<td width=3D"10"></td>
+	<td width=3D"318" valign=3D"top">
+		
+		<table width=3D"100%" border=3D"0" cellspacing=3D"1" cellpadding=3D"1">
+		<tr><td id=3D"bg02"  colspan=3D"3" class=3D"bold">Analyse</td></tr>
+
+		<tr id=3D"bg05">
+			<td id=3D"bg01" class=3D"bold"><a=20=
+href=3D"http://www.finanztreff.de/ftreff/kurse_einzelkurs_uebersicht.htm?u=3D0&k=3D0&s=3D797639&n=3DBOERSE%20INVEST%20BETEILIGUNGS%20AG&l=3D276&b=3D2">BOERSE=20=
+INVEST <br>BETEILIGUNGS AG (797639)</a>:</td>
+			<td align=3D"center">1,15<img=20=
+src=3D"http://www.finanztreff.de/ftreff/images/a2.gif" border=3D"0"=20=
+height=3D"13" width=3D"13"><span id=3D"green">+0,71%</span></td>
+			<td align=3D"center"><a=20=
+href=3D"javascript:Flexfenster('http://www.finanztreff.de/ftreff/kurse_einzelkurs_uebersicht.htm?u=3D0&k=3D0&s=3D797639&n=3DBOERSE%20INVEST%20BETEILIGUNGS%20AG&l=3D276&b=3D2','NewsPopup',665,=20=
+430,'yes', 'yes','no');">Info-Popup</a></td>
+		</tr>
+		</table>
+
+		<br>
+		
+		<table width=3D"100%" border=3D"0" cellspacing=3D"1" cellpadding=3D"1">
+		<tr><td id=3D"bg02" class=3D"bold" colspan=3D"5">Analyse</td></tr>
+		<tr id=3D"bg01">
+			<td class=3D"bold">Analyst</td>
+			<td class=3D"bold">Urteil</td>
+			<td class=3D"bold" align=3D"right">08.06.07</td>
+			<td class=3D"bold" align=3D"right">Heute</td>
+			<td class=3D"bold" align=3D"right">Diff%</td>
+		</tr>
+		<tr id=3D"bg05">
+			<td>Soci=E9t=E9 G=E9n=E9rale</td>
+			<td id=3D"green">Positiv</td>
+			<td align=3D"right">1,06</td>
+			<td align=3D"right">1,15</td>
+			<td align=3D"right" id=3D"green">+8,4%</td>
+		</tr>
+		</table>
+		<br>
+		<table width=3D"100%" border=3D"0" cellspacing=3D"1" cellpadding=3D"1">
+		<tr><td class=3D"bold" id=3D"bg01">Meldung</td></tr>
+
+		<tr><td class=3D"small">12.06.2007 - 10:48:20 Uhr</td></tr>
+		<tr><td class=3D"bb">BOERSE INVEST BETEILIGUNGS AG mit=20=
+Potenzial</td></tr>
+		<tr><td class=3D"big">Frankfurt, Juni, 12 (finanztreff.de) - der=20=
+Analytiker Nick James aus Soci=E9t=E9 G=E9n=E9rale wiederholt seine=20=
+Bewertung des Kaufes der Aktien BOERSE INVEST BETEI (BJ5N.F, 797639). 
+BOERSE INVEST BETEI dehnt den Markt der Dienstleistungen aus. Die=20=
+B=FCros der Gesellschaft entstehen in Russland und in den L=E4ndern=20=
+Asiens. Deshalb steigert das Interesse der Investoren daf=FCr. In der=20=
+Presse befindet sich die Information, dass GERRESHEIMER (WKN A0LD6E)=20=
+bereits die bevorstehende Einl=F6sung von 49% Aktien der Gesellschaft=20=
+BOERSE INVEST BETEI erkl=E4rt hat, deshalb haben kleine Investoren eine=20=
+hohe Chance, einen kolossalen Gewinn zu erhalten. Die bevorstehende=20=
+Einl=F6sung der Aktien wird am 20. Mai 2007 geplant. Obwohl man die=20=
+Finanzdetails des Gesch=E4ftes nicht kundgibt, betr=E4gt die vermutliche=20=
+Summe des Gesch=E4ftes 18 Mio Euro. Nach den Worten des Analytikers Nick=20=
+James, die Zunahme der Kotierungen werde 70 % betragen. Die Analytiker=20=
+behaupten, BOERSE INVEST BETEI werde in der Zukunft wahrscheinlich das=20=
+zus=E4tzliche Kapital seinen Aktion=E4ren zur=FCckgeben.
+
+</td></tr>
+		<tr><td class=3D"small"></td></tr>
+		<tr><td align=3D"right">
+			
+		<tr><td class=3D"small"></td></tr>
+				
+		
+     
+        </tr>
+		</table>
+	</td>
+	</tr>
+</table>
+</div>
+<div id=3D"line2"></div>
+<div id=3D"bottom">
+<table border=3D"0" cellspacing=3D"0" cellpadding=3D"0" width=3D"768">
+	<tr><td width=3D"145" id=3D"bg02" style=3D"padding-left:7px;"><a=20=
+href=3D"http://www.finanztreff.de/ftreff/index.htm?u=3D0&k=3D0"><img=20=
+src=3D"http://www.finanztreff.de/ftreff/images/finanztreff.gif"=20=
+alt=3D"Finanztreff" width=3D"140" height=3D"45" border=3D"0"></a></td>
+		<td width=3D"623" id=3D"bg02" style=3D"text-align:center;"><a=20=
+id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dimpressum&u=3D0&k=3D0">Impressum</a> =B7=20=
+<a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dnutzung&u=3D0&k=3D0">Nutzungshinweise</a>=20=
+=B7 <a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dkontakt&u=3D0&k=3D0">Kontakt</a>=20=
+=B7 <a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dfaq&u=3D0&k=3D0">Handbuch +=20=
+Hilfe</a><br><a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dsitemap&u=3D0&k=3D0">Sitemap</a>=20=
+=B7 <a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dmediadaten&u=3D0&k=3D0">Mediadaten</a>=20=
+=B7 <a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dlizenzierung&u=3D0&k=3D0">Inhaltelizensierung</a> =B7=20=
+<a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/service_uebersicht.htm?sektion=3Dpresse&u=3D0&k=3D0">Presse</a> =B7=20=
+<a id=3D"gray01" href=3D"http://www.vwd.de" target=3D"_blank">vwd</a> =B7=20=
+<a id=3D"gray01"=20=
+href=3D"http://www.finanztreff.de/ftreff/index.htm?u=3D0&k=3D0">Home</a></td>
+	</tr>
+</table>
+</div>
+</body>
+</html>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C7B10E.D8361530--

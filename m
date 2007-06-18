@@ -1,60 +1,38 @@
-From: "Dmitry Torokhov" <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: reseting an input device due to sleep/resume
-	cycle
-Date: Mon, 18 Jun 2007 09:48:37 -0400
-Message-ID: <d120d5000706180648sac84927k2c11f070ede41122@mail.gmail.com>
-References: <20070616210321.GA17379@khazad-dum.debian.net>
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [patch] hid: fix autocentering of PID devices
+Date: Mon, 18 Jun 2007 17:43:54 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0706181742480.12361@twin.jikos.cz>
+References: <466FDC51.5030703@gmail.com> <Pine.LNX.4.64.0706131746020.23280@twin.jikos.cz>
+ <46705CBD.5040302@gmail.com> <Pine.LNX.4.64.0706132340560.23280@twin.jikos.cz>
+ <4670673A.3050702@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <20070616210321.GA17379-ZGHd14iZgfaRjzvQDGKj+xxZW9W5cXbT@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/ibm-acpi-devel>,
-	<mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=ibm-acpi-devel>
-List-Post: <mailto:ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/ibm-acpi-devel>,
-	<mailto:ibm-acpi-devel-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: ibm-acpi-devel-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Henrique de Moraes Holschuh <hmh-N3TV7GIv+o9fyO9Q7EP/yw@public.gmane.org>
-Cc: linux-input-jyMamyUUXNJG4ohzP4jBZS1Fcj925eT/@public.gmane.org, ibm-acpi-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <4670673A.3050702@gmail.com>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-input@atrey.karlin.mff.cuni.cz, Diogo Kastrup <dk@bighost.com.br>
 List-Id: linux-input@vger.kernel.org
 
-Hi Henrique,
+On Thu, 14 Jun 2007, Anssi Hannula wrote:
 
-On 6/16/07, Henrique de Moraes Holschuh <hmh-N3TV7GIv+o9fyO9Q7EP/yw@public.gmane.org> wrote:
-> Dmitry, input gurus,
->
-> When a ThinkPad does an sleep cycle, the firmware explicitly kills all
-> pending hotkey state.  That reminds me that I also need to do the same in
-> thinkpad-acpi.
->
-> How does one tell the input layer that it should clear its idea of the
-> current state of all events in a input device?  I couldn't find any
-> input_reset() function...
->
-> Or is such a reset not needed?  The recent issue with ACPI and EV_SW SW_LID
-> seems to indicate that in some cases these resets are indeed needed.  For
-> EV_SW, it appears that I'd have to interate over all my switches and reset
-> them.  But what about EV_KEY and the others?
+> > I'd of course happily merge the fix which initializes the value 
+> > properly into my tree, but I would be curious what broke it, to double 
+> > check that we didn't break anything else along with it.
+> Okay, I'll get back to you in a few days :)
 
-We do need to refresh switch state upon resume because use may change
-it while box is sleeping. With keys we shoudl just assume that they
-are all released at the time box is waking up.
+Hi Anssi,
 
-Now that I have input core converted to "struct device" I will add
-suspend/resume support to input devices to mark all keys as "released'
-unpon suspending and restore led state and repeat rate for keyboards
-upon resuming.
+did you make any progress here please? I am going to merge the patch, 
+still I'd be understand what caused it (on the other hand from Diogo's 
+last comment it doesn't seem 100% certain that we cased it somewhere 
+around 2.6.20).
+
+Thanks,
 
 -- 
-Dmitry
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by DB2 Express
-Download DB2 Express C - the FREE version of DB2 express and take
-control of your XML. No limits. Just data. Click to get it now.
-http://sourceforge.net/powerbar/db2/
+Jiri Kosina

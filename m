@@ -1,84 +1,82 @@
-From: ATM OFFICE <atmdepartment@sys-vibes.com>
-Subject: ATM-822
-Date: Mon, 18 Jun 2007 19:13:06 -0500
-Message-ID: <20070618191306.b7io8g71cg48swgc__13222.6486377933$1182216228$gmane$org@64.40.144.173>
-Reply-To: atmoffice@mailmeasap.com
+From: "Georgina Cortes" <gorgeousredm@gorgeousred.com>
+Subject: We prove that getting a University Degree can be easy.
+Date: Tue, 19 Jun 2007 07:41:28 +0000 (UTC)
+Message-ID: <01c9efe8$22d0cc10$3b715f3b@gorgeousredm>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C9F016.3C890810"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
+Date: Thu, 18 Jun 2009 07:41:05 -0530
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-OFFICE OF THE DIRECTOR OF OPERATION
-INTERNATIONAL CREDIT SETTLEMENT,
-ATM PAYMENT DEPARTMENT (CBN)
-CENTRAL BANK OF NIGERIA .
-DATE:18/06/2007
-VERY URGENT ATTENTION!!!
-DEAR: BENEFICIARY
+------=_NextPart_000_0006_01C9F016.3C890810
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-This is to officially inform you that we the international credit
-settlement of central bank of Nigeria has verified your
-contract/inheritance
-file and found out that
-why you have not received your part payment of $16 million is because
-you have not fulfilled the obligations given to you in respect of your
-contract/inheritance payment.
-Secondly we have been informed that for you not to deal with the non
-officials in the bank and your entire entire attempt to secure the
-release of your fund to
-you will be in vane. So we wish to advise you that such an illegal act
-like these have to stop if you wish to receive your payment since we
-have decided to bring a solution to your problem. Right now we have
-arranged your payment
-through our swift card payment center Asia pacific that is the latest
-instruction from MR. PRESIDENT. CHIEF OLUSEGUN OBASANJO (GCFR) FEDERAL
-REPUBLIC OF NIGERIA . AND EFCC CHAIRMAN MALLAM NUHU RIBADU, which will
-not involve any fraudulent act or money laundering and because the
-CENTRAL BANK OF NIGERIA is running for the yearly payment that=E2??s why
-the
-order is given, As well as the INTERPOL and FBI in conjunction with
-HOMELAND SECURITY so you have absolutely nothing to be afraid of and
-due
-the previous scam and fraud act from imposters in our country we have
-mapped out that this card is sent to your personal address so, This
-card
-center will send you an ATM CARD which you will use to withdraw your
-money in any ATM MACHINE in any part of the world, but the maximum is
-twenty thousand dollars per day, so if you like to receive your fund
-this
-way please let us know by contacting the card payment center officer Dr
-Daniel Watac on his,
+A Genuine University Degree in 4-6 weeks!Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them!Within 4-6 weeks!No Study Required!100% Verifiable!These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysThu, 18 Jun 2009 07:41:05 -0530Farewell pretty lady you must.
 
-Email address:atmoffice@mailmeasap.com
-Telephone/fax line: +2348080556207
-And also send the following information:
-1. Your full name
-2. Phone and fax number
-3. Addresses were you want them to send the atm card
-4. Your age and current occupation
-5. Attach copy of your identification
 
-The ATM CARD PAYMENT CENTER has been mandated to issue out
-$6,000,000.00 as part payment for this fiscal year 2006/2007 payment
-year. Also for
-your information, you have to stop any further communication with any
-other person(s) or office(s) to avoid any hitches in receiving your
-Payment. For oral discussion, call and email me back as soon as you
-receive
-this important message for further direction and also update me on any
-development from the above-mentioned office.
 
-Regards,
-Dr. Daniel Watac
-Director Atm Payment Department (CBN ATM OFFICE)
+------=_NextPart_000_0006_01C9F016.3C890810
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html><head>
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+<style type=3D"text/css"><!--
+new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
+ center;}
+new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-style: italic;}
+new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
+ center; font-weight: bold;}
+new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
+enter;}
+
+--></style></head>
+<body bgcolor=3D"#FFFFFF">
+<div class=3D"new22">A Genuine University Degree in 4-6 weeks!</div><br>
+<div class=3D"new12">Have you ever thought that the only thing stopping you=
+ from a great job and better pay was a few letters behind you name? <br>Wel=
+l now you can get them!</div><br>
+<div class=3D"new14">Within 4-6 weeks!<br>No Study Required!<br>100% Verifi=
+able!</div><br>
+<div class=3D"new12">These are real, genuine degrees that include Bachelors=
+, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
+ed transcripts are also available.</div><br>
+<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
+=85</div><br>
+<div class=3D"new20">1-682-626-0008</div>
+<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
+lidays</div><br><br>
+<div class=3D"new6">Thu, 18 Jun 2009 07:41:05 -0530Farewell pretty lady you=
+ must.</div>
+</body>
+</html>
+
+</body>
+</html>
+
+------=_NextPart_000_0006_01C9F016.3C890810--

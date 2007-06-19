@@ -1,12 +1,12 @@
-From: "Georgina Cortes" <gorgeousredm@gorgeousred.com>
-Subject: We prove that getting a University Degree can be easy.
-Date: Tue, 19 Jun 2007 07:41:28 +0000 (UTC)
-Message-ID: <01c9efe8$22d0cc10$3b715f3b@gorgeousredm>
+From: "Noah Robbins" <mooreandcampbellm@mooreandcampbell.com>
+Subject: CanadianPharmacy is your trustworthy source of cheap medications
+Date: Tue, 19 Jun 2007 09:13:12 -0100
+Message-ID: <01c7b252$100824a0$3971f250@mooreandcampbellm>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C9F016.3C890810"
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Thu, 18 Jun 2009 07:41:05 -0530
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,68 +15,10 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Fabulous discounts from CanadianPharmacy. 50% discounts on all products when you purchase during the summer period. 
 
-------=_NextPart_000_0006_01C9F016.3C890810
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+High quality products, privacy and convenience of ordering process, and money saving option are just a few reasons why people choose CanadianPharmacy. Great service, great pricing, great selection. CanadianPharmacy takes the utmost care to ensure confidentiality of your private information.
+http://effectbig.hk
 
-A Genuine University Degree in 4-6 weeks!Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them!Within 4-6 weeks!No Study Required!100% Verifiable!These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysThu, 18 Jun 2009 07:41:05 -0530Farewell pretty lady you must.
-
-
-
-------=_NextPart_000_0006_01C9F016.3C890810
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html><head>
-<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
-<style type=3D"text/css"><!--
-new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
- center;}
-new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
- center; font-style: italic;}
-new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
- center; font-weight: bold;}
-new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
-enter;}
-
---></style></head>
-<body bgcolor=3D"#FFFFFF">
-<div class=3D"new22">A Genuine University Degree in 4-6 weeks!</div><br>
-<div class=3D"new12">Have you ever thought that the only thing stopping you=
- from a great job and better pay was a few letters behind you name? <br>Wel=
-l now you can get them!</div><br>
-<div class=3D"new14">Within 4-6 weeks!<br>No Study Required!<br>100% Verifi=
-able!</div><br>
-<div class=3D"new12">These are real, genuine degrees that include Bachelors=
-, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
-ed transcripts are also available.</div><br>
-<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
-=85</div><br>
-<div class=3D"new20">1-682-626-0008</div>
-<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
-lidays</div><br><br>
-<div class=3D"new6">Thu, 18 Jun 2009 07:41:05 -0530Farewell pretty lady you=
- must.</div>
-</body>
-</html>
-
-</body>
-</html>
-
-------=_NextPart_000_0006_01C9F016.3C890810--
+Purchase with pleasure, enjoy discounts.
+http://effectbig.hk

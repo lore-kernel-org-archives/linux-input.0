@@ -1,14 +1,16 @@
-From: CWATKINS2@elp.rr.com
-Subject: YOUR EMAIL HAVE WON A LOTTERY PRIZE
-Date: Mon, 18 Jun 2007 23:49:38 +0100
-Message-ID: <cbd3e31f3a6ab.3a6abcbd3e31f@texas.rr.com>
-Reply-To: mrmorganbell@yahoo.com.hk
+From: ATM OFFICE <atmdepartment@sys-vibes.com>
+Subject: ATM-822
+Date: Mon, 18 Jun 2007 19:13:06 -0500
+Message-ID: <20070618191306.b7io8g71cg48swgc__13222.6486377933$1182216228$gmane$org@64.40.144.173>
+Reply-To: atmoffice@mailmeasap.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-language: en
-Content-disposition: inline
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,65 +19,66 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 List-Id: linux-input@vger.kernel.org
 
 
+OFFICE OF THE DIRECTOR OF OPERATION
+INTERNATIONAL CREDIT SETTLEMENT,
+ATM PAYMENT DEPARTMENT (CBN)
+CENTRAL BANK OF NIGERIA .
+DATE:18/06/2007
+VERY URGENT ATTENTION!!!
+DEAR: BENEFICIARY
 
-Bigchance Lottery Ltd
-1, Church St, Eccles,
-Manchester, M30 0DF
-Lotteries & Pools.
-www.bigchancelottery.com
-*****************************
-Ref: EAASL/941OYI/02
-Batch: 12/25/0034 
-*****************************
- 
-ATTENTION:WINNING NOTIFICATION 
- 
-We hereby inform  you of the draw of the Big chance Lottery
-International program held on the 8th of June 2007 in London.Your e-mail
-address attached to ticket number:564-75600545-188 with Serial number
-5388/02 drew the lucky numbers: 31-6-26-13-35-7,which subsequently won
-you the lottery prize in the 2nd category. You have therefore been
-approved to claim a total sum of GBP1,000, 000.00 (One million Great
-Britain pounds)in cash credited to file C/9080118308/02. This is from a
-total cash prize of 
-GBP50 Million pounds, shared amongst the first fiftheen (15) lucky
-winners in this category.
- 
-This years Lottery Cash prize award is the 2nd largest ever for the
-Bigchance Lottery Organisation The estimated GBP75 million jackpot would
-be the sixth-biggest in the historical proceedings.
-The biggest was the GBP363 million jackpot that went to two winners in a
-May 2000 drawingof The big game, mega millions predecessor. 
- 
-All participants were selected randomly(Electronically) from the 'World
-Wide Web' site through a computer ballot system and extracted from over
-100,000 company addresses. This promotion takes place annually.No ticket
-was sold.
- 
-For security reasons, you are advised to keep your winning informations
-confidential till your claim is processed and your money transferred to
-a designated bank account of your choice.This is a part of our
-precautionary measure to avoid double claiming and unwarranted abuse
-of this program by some unscrupulous elements.Please be warned. 
- 
-Please note that your lucky winning number falls within our European
-booklet representative office in UK as indicated in our play coupon. In
-view of this, your GBP1,000,000.00(One million great britain pounds)
-would be released to you by our affiliate agent payment center in London. 
- 
-It is our standard practice to allocate accredited agents for the
-processing of claims application.
-contact the clearing house (through your claims agent only)the body
-assigned with the verification of all emerged winners. Therefore all
-protocols laid down by them must be followed to facilitate your claims; 
- 
-AGENCY HOUSE:The Clearing House,United Kingdom.London Branch.
-             www.www.theclearinghouse.org
-AGENT:        Mr.Morgan Bell
-Email:        mrmorganbell@yahoo.com.hk
+This is to officially inform you that we the international credit
+settlement of central bank of Nigeria has verified your
+contract/inheritance
+file and found out that
+why you have not received your part payment of $16 million is because
+you have not fulfilled the obligations given to you in respect of your
+contract/inheritance payment.
+Secondly we have been informed that for you not to deal with the non
+officials in the bank and your entire entire attempt to secure the
+release of your fund to
+you will be in vane. So we wish to advise you that such an illegal act
+like these have to stop if you wish to receive your payment since we
+have decided to bring a solution to your problem. Right now we have
+arranged your payment
+through our swift card payment center Asia pacific that is the latest
+instruction from MR. PRESIDENT. CHIEF OLUSEGUN OBASANJO (GCFR) FEDERAL
+REPUBLIC OF NIGERIA . AND EFCC CHAIRMAN MALLAM NUHU RIBADU, which will
+not involve any fraudulent act or money laundering and because the
+CENTRAL BANK OF NIGERIA is running for the yearly payment that=E2??s why
+the
+order is given, As well as the INTERPOL and FBI in conjunction with
+HOMELAND SECURITY so you have absolutely nothing to be afraid of and
+due
+the previous scam and fraud act from imposters in our country we have
+mapped out that this card is sent to your personal address so, This
+card
+center will send you an ATM CARD which you will use to withdraw your
+money in any ATM MACHINE in any part of the world, but the maximum is
+twenty thousand dollars per day, so if you like to receive your fund
+this
+way please let us know by contacting the card payment center officer Dr
+Daniel Watac on his,
 
-Tel:          +447031905464
-              +447024060536
- Congratulations once more from all members and staffs of this programme.
-               Mrs.Elizabeth Terry
-                     Announcer
+Email address:atmoffice@mailmeasap.com
+Telephone/fax line: +2348080556207
+And also send the following information:
+1. Your full name
+2. Phone and fax number
+3. Addresses were you want them to send the atm card
+4. Your age and current occupation
+5. Attach copy of your identification
+
+The ATM CARD PAYMENT CENTER has been mandated to issue out
+$6,000,000.00 as part payment for this fiscal year 2006/2007 payment
+year. Also for
+your information, you have to stop any further communication with any
+other person(s) or office(s) to avoid any hitches in receiving your
+Payment. For oral discussion, call and email me back as soon as you
+receive
+this important message for further direction and also update me on any
+development from the above-mentioned office.
+
+Regards,
+Dr. Daniel Watac
+Director Atm Payment Department (CBN ATM OFFICE)

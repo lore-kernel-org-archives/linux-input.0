@@ -1,112 +1,71 @@
-From: winnings115@aol.co.uk
-Subject: CONTACT YOUR PAYMENT AGENT
-Date: Tue, 19 Jun 2007 16:13:40 -0400
-Message-ID: <8C980C5762251C8-177C-2E1C@WEBMAIL-RC12.sysops.aol.com>
+From: "1(484)993-7152 Vera " <888darb@hypernet.be>
+Subject: Fw: Too busy to go back to school,{} but need a nUiversity {}Degree{} to get ahead?
+Date: Wed, 20 Jun 2007 10:57:57 +0800
+Message-ID: <55880217178526.62AA2010D6@MGP1>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="--------MB_8C980C5762251C8_177C_5663_WEBMAIL-RC12.sysops.aol.com"
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: jack@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+Yo Jack!.
 
-----------MB_8C980C5762251C8_177C_5663_WEBMAIL-RC12.sysops.aol.com
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"
-
-CONTACT YOUR PAYMENT AGENT 
-NOTICE... CONGRATULATIONS!!! 
-Lucky Winner 2007 , 
-FROM THE OFFICE OF THE VICE PRESIDENT 
-POWERBALL EURO E-MAIL INTERNATIONAL
-PROMOTIONS/PRIZE AWARD DEPT 
-
-REF. NO: PBL/11278998789/908796//1109
-
-Dear Winner, 
-
-This is to inform you of the release of the E-MAIL LOTTERY BALLOT 
-INTERNATIONAL/WORLD GAMING BOARD. Your name attached to ticket number 
-219028657434 with Serial number 918735625 drew the lucky numbers of 
-21-70-81-82-99, which consequently won the lottery in the 1st 
-category. 
-You have just won yourself the sum of ONE MILLION EUROS the satellite 
-software email lottery conducted by POWERBALL EURO E-MAIL INTERNATIONAL 
-In which e-mail addresses are picked randomly by software powered by the Internet.
-Your email address was amongst those chosen in this quarter 
-and you are to contact our CLAIMS OFFICER with the information 
-below for Clearance. 
-
-CONTACT NAME: PETER RAYMUND
-CITY/ COUNTRY: LONDON, ENGLAND. 
-TELEPHONE: + 4470 1112 1986
-FAX: 44-87-1715-2472
-EMAIL: officer_powerball25@yahoo.gr 
-
-Sincerely,
-Margaret Ferguson
-________________________________________________________________________
-Check out the new free AOL Email -- 2GB of storage and industry-leading spam and email virus protection.
-
-----------MB_8C980C5762251C8_177C_5663_WEBMAIL-RC12.sysops.aol.com
-Content-Transfer-Encoding: 7bit
-Content-Type: text/html; charset="us-ascii"
-
-<HTML><BODY>
-<div><SPAN contentEditable=false style="DISPLAY: inline-block"></SPAN><B>
-
-<div>CONTACT YOUR PAYMENT AGENT </div>
+Want the degree but cant find teh time?
 
 
-<div>NOTICE... CONGRATULATIONS!!! </div>
+
+WHAT A GREAT IDEA!
+We provide a concept that will allow anyone with sufficient work experiec=
+ne to obtain a fully verifiable University Degree.
+Bachelors, Masters or even a Doctorate.
 
 
-<div>Lucky Winner 2007 , </div>
+Think of it, within four to six weeks, you too could be a college graduat=
+e.
+Many people share the same frustration, they area ll doing the work of th=
+e person that has the degree and the person that has the degree is gettin=
+g all the money.
+Don?t you think that it is time you were paid fair compensation for the l=
+evel of work you are already doing?
+
+This is your chance to finally make hte right move and receive your due b=
+enefits.
+If you are like most people, you are more than qualified with your experi=
+ence, but are lacking that prestigious piece of paper known as a diploma =
+that is often the passport to success.
 
 
-<div>FROM THE OFFICE OF THE VICE PRESIDENT <br>
-POWERBALL EURO E-MAIL INTERNATIONAL<br>
-PROMOTIONS/PRIZE AWARD DEPT </div>
+CALL US TODAY AND GIVE YOUR WORK
+EXPERIENCE THE CHANCE TO EARN YOU
+THE HIGHER COMPENASTION YOU DESERVE!
 
 
-<div><br>
-REF. NO: PBL/11278998789/908796//1109<br>
-<br>
-Dear Winner, <br>
-<br>
-This is to inform you of the release of the E-MAIL LOTTERY BALLOT <br>
-INTERNATIONAL/WORLD GAMING BOARD. Your name attached to ticket number <br>
-219028657434 with Serial number 918735625 drew the lucky numbers of <br>
-21-70-81-82-99, which consequently won the lottery in the 1st <br>
-category. </div>
+
+Dial Whenever +1          (484)993-7152
+Operators Live 24 hours
+
+*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
 
-<div>You have just won yourself the sum of ONE MILLION EUROS the satellite <br>
-software email lottery conducted by POWERBALL EURO E-MAIL INTERNATIONAL <br>
-In which e-mail addresses are picked randomly by software powered by the Internet.<br>
-Your email address was amongst those chosen in this quarter <br>
-and you are to contact our CLAIMS OFFICER with the information <br>
-below for Clearance. <br>
-<br>
-CONTACT NAME: PETER RAYMUND<br>
-CITY/ COUNTRY: LONDON, ENGLAND. <br>
-TELEPHONE: + 4470 1112 1986<br>
-FAX: 44-87-1715-2472<br>
-EMAIL: </B><A href="http://webmail1.webmail.aol.com/ym/Compose?To=officer_powerball25@yahoo.gr"><B><U><FONT color=#0000ff>officer_powerball25@yahoo.gr</B></U></FONT></A> <br>
-<br>
-Sincerely,<br>
-Margaret Ferguson</div>
-</div>
 
-<div class="AOLPromoFooter">
-<hr style="margin-top:10px;" />
-<a href="http://pr.atwola.com/promoclk/100122638x1081283466x1074645346/aol?redir=http://email.aol.co.uk" target="_blank"><b>Check out the new free AOL Email</b></a> -- 2GB of storage and industry-leading spam and email virus protection.<br />
-</div>
 
-</BODY></HTML>
 
-----------MB_8C980C5762251C8_177C_5663_WEBMAIL-RC12.sysops.aol.com--
+
+
+
+
+
+
+
+
+couldn't  tell the sweat on his face from the tears. The drums soundedLeg=
+ion,  looking  to  their Eagle for inspiration and guide-what coulddon't =
+ know  what  to do, forget your fancy armor-" not that Quintus'splaces  i=
+n  the  gnarled  roots  of  trees by the river, when the heat

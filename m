@@ -1,11 +1,11 @@
-From: "Jody Burns" <tfcompline@mcmaster.ca>
-Subject: My at buttress
-Date: Wed, 20 Jun 2007 19:49:49 +0900
-Message-ID: <001801c7b374$29177590$06f40fdc@oemcomputer>
+From: "Rosanne Mathews" <lrepute@mail.uri.edu>
+Subject: Go debacle yourselves marginalia
+Date: Wed, 20 Jun 2007 19:54:16 +0900
+Message-ID: <001601c7b374$c86bba70$06d99944@anycert>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1250";
+        charset="iso-8859-1";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>

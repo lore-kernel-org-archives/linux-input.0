@@ -1,46 +1,40 @@
-From: "Elma Lacey" <lometaha@geoffwilbur.com>
-Subject: No cleghorn it dellroy
-Date: Wed, 20 Jun 2007 07:18:51 +0900
-Message-ID: <001301c7b30b$40ff6500$001a7854@mycomputer>
+From: Qi Yong <qiyong@mail.fc-cn.com>
+Subject: [patch] add printk_ratelimit to atkbd_interrupt
+Date: Wed, 20 Jun 2007 09:17:53 +0800
+Message-ID: <20070620011753.GA16692@virgo.fc-cn.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1251";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: dtor@mail.ru
+Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-                                             
-Spotlight Homes Enters Negotiations to Acquire Commercial and Residential Contractor!
+Add printk_ratelimit() to atkbd_interrupt(). I get "Spurious ACK" messages flushing on my
+screen. This patch helps to read the screen.
 
-
-Spotlight Homes, Inc. (OTC:SPHM), a builder of luxury homes with Green technologies,
-has entered negotiations to acquire a commercial and residential real estate contractor.
-
-Company name: COST CONTAINMENT TEC
-Company symbol: SPHM
-Current Price:  0.13
-Target: 0.40 +250%
- 
-Nick Jarvis, President and CEO of Spotlight Homes, stated,
-"Thisacquisition would give us an immediate presence on the Eastern
-Seaboard,and we like this company's track record. Their projects
-fit nicely with our portfolio and philosophy. The contractor designs and manages projects 
-primarily on the East Coast,with several projects presently under contract. 
-Signing of the definitive purchase agreements is subject to negotiation of the transaction
-documents.
-
-At Spotlight Homes, our mission is to build luxury homes in the burgeoning real estate 
-markets of the Southern United States. Spotlight Homes is leading the construction industry 
-away from traditional, spec houses for large families toward green, master planned, eco-friendly
-communities for empty nesters wanting a new form of urbanism, which maintains a quality of 
-life for our present and future generations.
-
-This company is HOT,read recent news and get on SPHM first thing on Wednesday, June 20!
+Signed-off-by: Qi Yong <qiyong@mail.fc-cn.com>
+--
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index be1fe46..13e6bd4 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -408,9 +408,10 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
+ 			goto out;
+ 		case ATKBD_RET_ACK:
+ 		case ATKBD_RET_NAK:
+-			printk(KERN_WARNING "atkbd.c: Spurious %s on %s. "
+-			       "Some program might be trying access hardware directly.\n",
+-			       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
++			if (printk_ratelimit())
++				printk(KERN_WARNING "atkbd.c: Spurious %s on %s. "
++				       "Some program might be trying access hardware directly.\n",
++				       data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
+ 			goto out;
+ 		case ATKBD_RET_HANGEUL:
+ 		case ATKBD_RET_HANJA:

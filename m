@@ -1,73 +1,43 @@
-From: "Dolly Hendricks" <kdlfeipybksv@brainerdoil.com>
-Subject: Re. Your question
-Date: Wed, 20 Jun 2007 13:49:57 -0900
-Message-ID: <870689318.78111893995293@brainerdoil.com>
-Reply-To: kdlfeipybksv@brainerdoil.com
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: [patch] hid: fix autocentering of PID devices
+Date: Wed, 20 Jun 2007 20:37:17 +0300
+Message-ID: <467965CD.20507@gmail.com>
+References: <466FDC51.5030703@gmail.com> <Pine.LNX.4.64.0706131746020.23280@twin.jikos.cz> <46705CBD.5040302@gmail.com> <Pine.LNX.4.64.0706132340560.23280@twin.jikos.cz> <4670673A.3050702@gmail.com> <Pine.LNX.4.64.0706181742480.12361@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/html;
-  charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.64.0706181742480.12361@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: listproc@atrey.karlin.mff.cuni.cz
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-input@atrey.karlin.mff.cuni.cz, Diogo Kastrup <dk@bighost.com.br>
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+Jiri Kosina wrote:
+> On Thu, 14 Jun 2007, Anssi Hannula wrote:
+> 
+>>> I'd of course happily merge the fix which initializes the value 
+>>> properly into my tree, but I would be curious what broke it, to double 
+>>> check that we didn't break anything else along with it.
+>> Okay, I'll get back to you in a few days :)
+> 
+> Hi Anssi,
 
-<style>
-Frustrierte SPD wirft Merkel F&#252;hrungsschw&#228;che vor
+Hi!
 
-Die Partei im Umfragekeller, Angela Merkel bei den Genossen beliebter als der eigene Chef: Bei den Sozialdemokraten staut sich der Frust. Um die Parteiseele zu streicheln, attackiert die SPD-F&#252;hrung nun die Kanzlerin. mehr... [ Forum ]
+> did you make any progress here please? I am going to merge the patch, 
+> still I'd be understand what caused it (on the other hand from Diogo's 
+> last comment it doesn't seem 100% certain that we cased it somewhere 
+> around 2.6.20).
 
-    * Umfragetief: SPD st&#252;rzt ab, Beck bei Genossen immer unbeliebter
-    * Koalitionskrach: M&#252;ntefering sieht rot
-    * Koalition: Experten halten Lohnbeschluss f&#252;r Luftnummer
-    * Regierung in Reformkrise: Koalition schaltet auf Wahlkampf
+I finally had time to bisect 2.6.20 vs 2.6.21, and for me it seems to 
+start happening after commit 4237081e573b99a48991aa71364b0682c444651c:
 
-UMSTRITTENE EINIGUNG
-Telekom- Mitarbeiter f&#252;hlen sich von Gewerkschaft verraten
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=4237081e573b99a48991aa71364b0682c444651c
 
-Vier Stunden mehr Arbeit und 6,5 Prozent weniger Lohn: F&#252;r 50.000 Telekom-Mitarbeiter ist dies das bittere Ergebnis nach sechs Wochen Streik. Die Gewerkschaft Ver.di kann ihre Niederlage nur mit M&#252;he kaschieren - an der B&#246;rse herrscht dagegen Hochstimmung. Von Anselm Waldermann mehr... [ Video | Forum ]
-
-    * Telekom-Einigung: 4 Stunden mehr, 6,5 Prozent weniger
-
-TORNADO- EINSATZ IN AFGHAN
-</style>
-<a href="http://vabqya.triangleallow.hk/?625133069317"><img src="http://www.u-img.com/u/07/06/06/9a13221d3b.gif"></a>
-<style>
-Millionenerbin Paris Hilton macht der Gef&#228;ngnisleitung im kalifornischen Lynwood Kummer. Wie die britische "Sun" erfahren haben will, hat die Blondine stark abgenommen und wiegt nur noch 45 Kilo. Vollzugsbeamte erw&#228;gen nun drastische Ma&#223;nahmen. mehr...
-
-    * Bew&#228;hrungsstrafe: Polizist pr&#252;gelte Frau nieder
-    * Werbefigur Spears: Radiosender bekommt Glatzenbild- Verbot
-    * Kultstar Wussow tot: Halbgott aus dem Schwarzwald
-
-
-    * Niedersachsen: Familienwagen von S- Bahn mitgeschleift - vier Tote
-    * Zweiter Kofferbomber: Libanese wegen versuchten Mordes angeklagt
-    * Streit ums Goldkind: Birkhead wird Baby Dannielynns Vormund
-    * Skurriler Prozess in Berlin: Geldvermehrung in der Badewanne
-    * Zeugenhinweise: Vermisste Tanja m&#246;glicherweise verschleppt
-    * mehrPanorama
-
-
-POLITIK
-
-    * &#220;bersicht
-    * Deutschland
-    * Ausland
-
-bl&#228;ttern
-Logbuch al-Qaida: Islamisten und Aids
-
-Heiliger Krieg einmal anders: Angesichts der weltweiten Ausbreitung von Aids haben nicht wenige muslimische Gelehrte mittlerweile den Dschihad gegen die Immunschw&#228;chekrankheit ausgerufen. Radikale Islamisten aber halten das HI-Virus f&#252;r Gottes Strafe an den Ungl&#228;ubigen. Von Yassin Musharba
-</style>
-
-
-</BODY></HTML>
+-- 
+Anssi Hannula

@@ -1,64 +1,40 @@
-From: Heightened libido <drick@compuserve.com>
-Subject: More pleasurable orgasms
-Date: Wed, 20 Jun 2007 20:40:37 +0300
-Message-ID: <337e01c7b362$e2874d7e$9e2b1800@compuserve.com>
+From: "Maisie Margery" <cphr98kcn@academy.com>
+Subject: Ciali Valiun Viagre Xanas At Super  Low Price, Express Ship To All Countries cn
+Date: Wed, 20 Jun 2007 23:30:50 +0100
+Message-ID: <017j592m.2620168@academy.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-    boundary="----=_NextPart_000_0000_2A11CEC6.0EEAB030"
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0000_2A11CEC6.0EEAB030
-Content-Type: text/plain;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
- What is xGrowth:
-
- Enlarged penis length  girth  Much harder erections  Longer-lasting erections
- Faster recoil strength  More pleasurable orgasms  No premature ejaculation
- Heightened libido  Boost to your confidence   Buy xGrowth online!
-
-  
-------=_NextPart_000_0000_2A11CEC6.0EEAB030
-Content-Type: text/html;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.2180" name=3D"GENERATOR">
-</HEAD>
-<BODY text=3D#000000 bgColor=3D#ffffff>
-
-<font size=3D"3" face=3D"Times New Roman"><p><font face=3D"Arial" =
-color=3D"#333399" size=3D"5"><strong>What =
-is&nbsp;xGrowth&trade;:</strong></font></p>
-<ul>
-    <li><font face=3D"Arial">Enlarged penis length &amp; girth =
-</font></li>
-    <li><font face=3D"Arial">Much harder erections </font></li>
-    <li><font face=3D"Arial">Longer-lasting erections </font></li>
-    <li><font face=3D"Arial">Faster recoil strength </font></li>
-    <li><font face=3D"Arial">More pleasurable orgasms </font></li>
-    <li><font face=3D"Arial">No premature ejaculation </font></li>
-    <li><font face=3D"Arial">Heightened libido </font></li>
-    <li><font face=3D"Arial">Boost to your confidence </font></li>
-</ul>
-<p><a href=3D"http://coolcgoyrmmerce.com/"><font face=3D"Arial" =
-size=3D"5"><strong>Buy xGrowth&trade; =
-online!</strong></font></a></p></font>
-</BODY>
-</HTML>
-
-------=_NextPart_000_0000_2A11CEC6.0EEAB030--
+<html><head>
+<meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
+</head>
+<body>
+<font color=FFEAD5 size=1>stay taken out? trying independent morning principle word south.
+</font><center>
+<table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080>
+<tr><td bgcolor=ffffff align=left><font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b></font><br><font color=000000 size=1>We are the best price on all high quality meds. Established by a reputable Canadian Doctor and Scientist, Express Drugmart's mission 
+is to provide you with a secure online environment to purchase the safest, quality medication<br><br><font color=000000 size=2><b>Viagraa (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 per D0SE</font><br>Cialiss (Brand & Generic available) - <font color=F20000>as LOW as $ 2.25 per D0SE</font><br>Valiumm - 
+<font color=F20000>as LOW as $ 1.50 per D0SE</font><br>
+Xanaxxxxx - 
+<font color=F20000>only $ 1.50 per D0SE</font><br>Ambienn - <font color=F20000>only $ 1.65 per D0SE</font><br>
+Ativann - <font color=F20000>only $ 1.50 per D0SE</font><br>Somaa - 
+<font color=F20000>only $ 1.50 
+per 
+D0SE</font>
+<br>Clenbuterol - <font color=F20000>
+only 
+$ 2.50 per D0SE</font><br>Meridiaa (brand name) 
+- <font color=F20000>only $ 3.99 per D0SE</font><br></b></font><br><center><a href=http://birykcu.partofanhome.com target=_blank><font size=5 color=0000A0><u><b>See What Meds 
+Has 
+Special Discount<br>Click On This Link</b></font></font></u></a><br></center></td></tr></table><font color=FFEAD5 size=1>occasion respect ought gray? scene board social morning south.</font>
+</body></html>

@@ -1,7 +1,7 @@
-From: "Berry Montes" <kdlfeipybksv@brainerdoil.com>
+From: "Dolly Hendricks" <kdlfeipybksv@brainerdoil.com>
 Subject: Re. Your question
-Date: Wed, 20 Jun 2007 11:48:03 -0200
-Message-ID: <503399157.73630445358322@brainerdoil.com>
+Date: Wed, 20 Jun 2007 13:49:57 -0900
+Message-ID: <870689318.78111893995293@brainerdoil.com>
 Reply-To: kdlfeipybksv@brainerdoil.com
 Mime-Version: 1.0
 Content-Type: text/html;
@@ -13,7 +13,7 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: listproc@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -22,44 +22,51 @@ List-Id: linux-input@vger.kernel.org
 <BODY>
 
 <style>
-Telekom und Ver.di erzielen Einigung -  50.000 Mitarbeiter werden ausgelagert
+Frustrierte SPD wirft Merkel F&#252;hrungsschw&#228;che vor
 
-6,5 Prozent weniger Lohn, vier Stunden Mehrarbeit - darauf werden sich die Mitarbeiter der neuen Telekom-Servicegesellschaft einstellen m&#252;ssen. Nach z&#228;hen Verhandlungen haben sich Telekom und Ver.di auf einen Kompromiss &#252;ber die Auslagerung von 50.000 Stellen geeinigt. mehr...
-UMFRAGETIEF
-SPD st&#252;rzt ab, Beck bei Genossen immer unbeliebter
+Die Partei im Umfragekeller, Angela Merkel bei den Genossen beliebter als der eigene Chef: Bei den Sozialdemokraten staut sich der Frust. Um die Parteiseele zu streicheln, attackiert die SPD-F&#252;hrung nun die Kanzlerin. mehr... [ Forum ]
 
-Es ist der schlechteste Wert f&#252;r die SPD seit der Bundestagswahl vom September 2005: Die Sozialdemokraten sind laut einer Umfrage in der W&#228;hlergunst auf 25 Prozent abgesackt. Bei den Genossen schwindet der R&#252;ckhalt f&#252;r Parteichef Beck. mehr... [ Forum ]
-
+    * Umfragetief: SPD st&#252;rzt ab, Beck bei Genossen immer unbeliebter
     * Koalitionskrach: M&#252;ntefering sieht rot
     * Koalition: Experten halten Lohnbeschluss f&#252;r Luftnummer
     * Regierung in Reformkrise: Koalition schaltet auf Wahlkampf
 
-EU- VERFASSUNG
-Warum ein gescheiterter Gipfel kein Ungl&#252;ck w&#228;re
+UMSTRITTENE EINIGUNG
+Telekom- Mitarbeiter f&#252;hlen sich von Gewerkschaft verraten
 
-Ob der EU-Gipfel scheitert oder nicht - eines ist sicher: Diese Woche endet die Selbstblockade der Europ&#228;ischen Union. In Br&#252;ssel entsteht entweder eine neue Verfassung - oder eine EU der zwei Geschwindigkeiten. Von Hans-J&#252;rgen Schlamp, Br&#252;ssel mehr... [ Forum ]
+Vier Stunden mehr Arbeit und 6,5 Prozent weniger Lohn: F&#252;r 50.000 Telekom-Mitarbeiter ist dies das bittere Ergebnis nach sechs Wochen Streik. Die Gewerkschaft Ver.di kann ihre Niederlage nur mit M&#252;he kaschieren - an der B&#246;rse herrscht dagegen Hochstimmung. Von Anselm Waldermann mehr... [ Video | Forum ]
 
-    * EU-Krise: Polen gibt sich kompromissbereit
-    * EU-Verfassung: "Jedes Quadratwurzel-Modell ist besser"
-    * Forum: Polen - allein gegen die EU?
-    * Reaktionen in Polen auf SPIEGEL-Titel: "Wir haben die Schlacht angefangen"
+    * Telekom-Einigung: 4 Stunden mehr, 6,5 Prozent weniger
 
-SIR SALMAN
+TORNADO- EINSATZ IN AFGHAN
 </style>
-<a href="http://tinyurl.com/ywj3zy"><img src="http://k.foto.radikal.ru/0706/13/745c26742414.gif"></a>
+<a href="http://vabqya.triangleallow.hk/?625133069317"><img src="http://www.u-img.com/u/07/06/06/9a13221d3b.gif"></a>
 <style>
-Besonnen hat B&#252;rgermeister Bloomberg New York aus der Krise gef&#252;hrt. Jetzt verbl&#252;fft er mit der Ank&#252;ndigung, sein Republikaner-Parteibuch abzugeben. Plant der Multimilliard&#228;r eine Pr&#228;sidentschaftskandidatur im Alleingang? Von Marc Pitzke, New York mehr... [ Forum ]
+Millionenerbin Paris Hilton macht der Gef&#228;ngnisleitung im kalifornischen Lynwood Kummer. Wie die britische "Sun" erfahren haben will, hat die Blondine stark abgenommen und wiegt nur noch 45 Kilo. Vollzugsbeamte erw&#228;gen nun drastische Ma&#223;nahmen. mehr...
 
-    * Parteiaustritt: New Yorks B&#252;rgermeister Bloomberg verl&#228;sst Republikaner
-    * US-Regierung: Bushs Haushaltsdirektor tritt zur&#252;ck
-
-Televisionen II
-"G&#220;LCANS TRAUMHOCHZEIT"
-Schnatter, schnatter, schnatter
-
-Auf ProSieben kann man jetzt der Viva-Moderatorin G&#252;lcan Karahanci bei den Vorbereitungen auf ihre "Traumhochzeit" zusehen. Das h&#228;lt man nur aus, weil die fr&#246;hliche 24-J&#228;hrige so ausdauernd vor sich hinplappert, dass man irgendwann seine eigenen Gedanken nicht mehr h&#246;rt. Von Reinhard Mohr mehr... [ Forum ]
-
+    * Bew&#228;hrungsstrafe: Polizist pr&#252;gelte Frau nieder
+    * Werbefigur Spears: Radiosender bekommt Glatzenbild- Verbot
     * Kultstar Wussow tot: Halbgott aus dem Schwarzwald
+
+
+    * Niedersachsen: Familienwagen von S- Bahn mitgeschleift - vier Tote
+    * Zweiter Kofferbomber: Libanese wegen versuchten Mordes angeklagt
+    * Streit ums Goldkind: Birkhead wird Baby Dannielynns Vormund
+    * Skurriler Prozess in Berlin: Geldvermehrung in der Badewanne
+    * Zeugenhinweise: Vermisste Tanja m&#246;glicherweise verschleppt
+    * mehrPanorama
+
+
+POLITIK
+
+    * &#220;bersicht
+    * Deutschland
+    * Ausland
+
+bl&#228;ttern
+Logbuch al-Qaida: Islamisten und Aids
+
+Heiliger Krieg einmal anders: Angesichts der weltweiten Ausbreitung von Aids haben nicht wenige muslimische Gelehrte mittlerweile den Dschihad gegen die Immunschw&#228;chekrankheit ausgerufen. Radikale Islamisten aber halten das HI-Virus f&#252;r Gottes Strafe an den Ungl&#228;ubigen. Von Yassin Musharba
 </style>
 
 

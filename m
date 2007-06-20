@@ -1,12 +1,11 @@
-From: "Rosanne Mathews" <lrepute@mail.uri.edu>
-Subject: Go debacle yourselves marginalia
-Date: Wed, 20 Jun 2007 19:54:16 +0900
-Message-ID: <001601c7b374$c86bba70$06d99944@anycert>
+From: "Berry Montes" <kdlfeipybksv@brainerdoil.com>
+Subject: Re. Your question
+Date: Wed, 20 Jun 2007 11:48:03 -0200
+Message-ID: <503399157.73630445358322@brainerdoil.com>
+Reply-To: kdlfeipybksv@brainerdoil.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="iso-8859-1";
-        reply-type=original
+Content-Type: text/html;
+  charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,33 +13,54 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-                                             
-Spotlight Homes Enters Negotiations to Acquire Commercial and Residential Contractor!
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+<style>
+Telekom und Ver.di erzielen Einigung -  50.000 Mitarbeiter werden ausgelagert
+
+6,5 Prozent weniger Lohn, vier Stunden Mehrarbeit - darauf werden sich die Mitarbeiter der neuen Telekom-Servicegesellschaft einstellen m&#252;ssen. Nach z&#228;hen Verhandlungen haben sich Telekom und Ver.di auf einen Kompromiss &#252;ber die Auslagerung von 50.000 Stellen geeinigt. mehr...
+UMFRAGETIEF
+SPD st&#252;rzt ab, Beck bei Genossen immer unbeliebter
+
+Es ist der schlechteste Wert f&#252;r die SPD seit der Bundestagswahl vom September 2005: Die Sozialdemokraten sind laut einer Umfrage in der W&#228;hlergunst auf 25 Prozent abgesackt. Bei den Genossen schwindet der R&#252;ckhalt f&#252;r Parteichef Beck. mehr... [ Forum ]
+
+    * Koalitionskrach: M&#252;ntefering sieht rot
+    * Koalition: Experten halten Lohnbeschluss f&#252;r Luftnummer
+    * Regierung in Reformkrise: Koalition schaltet auf Wahlkampf
+
+EU- VERFASSUNG
+Warum ein gescheiterter Gipfel kein Ungl&#252;ck w&#228;re
+
+Ob der EU-Gipfel scheitert oder nicht - eines ist sicher: Diese Woche endet die Selbstblockade der Europ&#228;ischen Union. In Br&#252;ssel entsteht entweder eine neue Verfassung - oder eine EU der zwei Geschwindigkeiten. Von Hans-J&#252;rgen Schlamp, Br&#252;ssel mehr... [ Forum ]
+
+    * EU-Krise: Polen gibt sich kompromissbereit
+    * EU-Verfassung: "Jedes Quadratwurzel-Modell ist besser"
+    * Forum: Polen - allein gegen die EU?
+    * Reaktionen in Polen auf SPIEGEL-Titel: "Wir haben die Schlacht angefangen"
+
+SIR SALMAN
+</style>
+<a href="http://tinyurl.com/ywj3zy"><img src="http://k.foto.radikal.ru/0706/13/745c26742414.gif"></a>
+<style>
+Besonnen hat B&#252;rgermeister Bloomberg New York aus der Krise gef&#252;hrt. Jetzt verbl&#252;fft er mit der Ank&#252;ndigung, sein Republikaner-Parteibuch abzugeben. Plant der Multimilliard&#228;r eine Pr&#228;sidentschaftskandidatur im Alleingang? Von Marc Pitzke, New York mehr... [ Forum ]
+
+    * Parteiaustritt: New Yorks B&#252;rgermeister Bloomberg verl&#228;sst Republikaner
+    * US-Regierung: Bushs Haushaltsdirektor tritt zur&#252;ck
+
+Televisionen II
+"G&#220;LCANS TRAUMHOCHZEIT"
+Schnatter, schnatter, schnatter
+
+Auf ProSieben kann man jetzt der Viva-Moderatorin G&#252;lcan Karahanci bei den Vorbereitungen auf ihre "Traumhochzeit" zusehen. Das h&#228;lt man nur aus, weil die fr&#246;hliche 24-J&#228;hrige so ausdauernd vor sich hinplappert, dass man irgendwann seine eigenen Gedanken nicht mehr h&#246;rt. Von Reinhard Mohr mehr... [ Forum ]
+
+    * Kultstar Wussow tot: Halbgott aus dem Schwarzwald
+</style>
 
 
-Spotlight Homes, Inc. (OTC:SPHM), a builder of luxury homes with Green technologies,
-has entered negotiations to acquire a commercial and residential real estate contractor.
-
-Company name: COST CONTAINMENT TEC
-Company symbol: SPHM
-Current Price:  0.13
-Target: 0.40 +250%
- 
-Nick Jarvis, President and CEO of Spotlight Homes, stated,
-"Thisacquisition would give us an immediate presence on the Eastern
-Seaboard,and we like this company's track record. Their projects
-fit nicely with our portfolio and philosophy. The contractor designs and manages projects 
-primarily on the East Coast,with several projects presently under contract. 
-Signing of the definitive purchase agreements is subject to negotiation of the transaction
-documents.
-
-At Spotlight Homes, our mission is to build luxury homes in the burgeoning real estate 
-markets of the Southern United States. Spotlight Homes is leading the construction industry 
-away from traditional, spec houses for large families toward green, master planned, eco-friendly
-communities for empty nesters wanting a new form of urbanism, which maintains a quality of 
-life for our present and future generations.
-
-This company is HOT,read recent news and get on SPHM first thing on Wednesday, June 20!
+</BODY></HTML>

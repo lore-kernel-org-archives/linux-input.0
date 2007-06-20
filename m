@@ -1,11 +1,11 @@
-From: "Kathrine Lawrence" <zucorrigible@moneyjoker.net>
-Subject: It to sapsucker
-Date: Wed, 20 Jun 2007 11:45:49 +0100
-Message-ID: <001501c7b330$8c4ae870$007a77bc@serveur>
+From: "Jody Burns" <tfcompline@mcmaster.ca>
+Subject: My at buttress
+Date: Wed, 20 Jun 2007 19:49:49 +0900
+Message-ID: <001801c7b374$29177590$06f40fdc@oemcomputer>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1251";
+        charset="windows-1250";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>

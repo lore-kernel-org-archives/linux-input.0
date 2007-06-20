@@ -1,74 +1,71 @@
-From: "Lindsey Shafer" <mambatechm@mambatech.it>
-Subject: University Degree – makes the course of your career perfect.
-Date: Wed, 20 Jun 2007 08:11:41 -0800
-Message-ID: <01c7b312$a212e900$1496d6dd@mambatechm>
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: [PATCH] Input: document the proper usage of EV_KEY and KEY_UNKNOWN
+Date: Wed, 20 Jun 2007 12:21:16 +0200
+Message-ID: <4678FF9C.2050700@aitel.hist.no>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br> <20070601012928.GD5407@khazad-dum.debian.net> <20070601014453.GA3711@srcf.ucam.org> <200705312333.11477.dtor@insightbb.com> <20070601040824.GA5042@srcf.ucam.org> <20070601141910.GB8211@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000E_01C7B355.B0362900"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070601141910.GB8211@khazad-dum.debian.net>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-pci@atrey.karlin.mff.cuni.cz
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Dmitry Torokhov <dtor@insightbb.com>, Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Henrique de Moraes Holschuh wrote:
+> On Fri, 01 Jun 2007, Matthew Garrett wrote:
+>   
+>> On Thu, May 31, 2007 at 11:33:10PM -0400, Dmitry Torokhov wrote:
+>>     
+>>> On Thursday 31 May 2007 21:44, Matthew Garrett wrote:
+>>>       
+>>>> It's not trivial at all. You need to introduce a mechanism for noting a 
+>>>> KEY_UNKNOWN keypress. It then needs to signal the user (dbus is probably 
+>>>> the best layer for this), but you need to ensure that you only signal 
+>>>> the user who is currently at the keyboard. This needs to be presented to 
+>>>> the user via some sort of UI, which will then need to signal some sort 
+>>>> of privileged process to actually change the keymap.
+>>>>         
+>>> Not necessarily priveleged - you most likely already change ownership
+>>> of event devices to user who is logged at console (so your force feedback
+>>> joysticks work).
+>>>       
+>> If you let users alter the kernel keymap, then you need to implement 
+>> support for resetting the kernel keymap on exit. Otherwise it's a 
+>> trivial DoS.
+>>     
+>
+> True, and unfortunately this is not something that can be done right with
+> what we have now and playing with udev.  Oh dear, I was too hasty to think
+> that we had all the infrastructure needed already...
+>
+> Changing system-wide keymap should be a privileged operation.  Changing
+> per-user keymaps should not screw up any system-wide keymap changes made by
+> the administrator, and it needs to go away for the next user.
+>
+> And for multi-user systems, you likely need to be able to switch keyboard
+> maps when VTs are switched.   This does not look like an easy thing to fix
+> properly.
+>   
+ From a design standpoint, keyboard layour should obviously
+be a per-VT thing. One mapping table per VT, switching happening
+automatically as every keypress gets filtered throught the
+current VT.
 
-------=_NextPart_000_000E_01C7B355.B0362900
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Simple design, but perhaps that is more work than anyone
+care to do on the current stuff. It can also be argued that the
+actual keyboard necessarily is the same for all VT's, so
+they ought to all use the same layout. If my "x" is in an
+odd place, then it is so for all VT's, if there are "volume control"
+buttons, then they exist for all VT's and so on.
 
-University DegreeOBTAIN A PROSPEROUS FUTURE, MONEY-EARNING POWER, AND THE PRESTIGE THAT COMES WITH HAVING THE CAREER POSITION YOU’VE ALWAYS DREAMED OF. DIPLOMA FROM PRESTIGIOUS NON-ACCREDITED UNVERSITIES BASED ON YOUR PRESENT KNOWLEDGE AND PROFESSIONAL EXPERIENCE.If you qualify, no required tests, classes, books or examinations.Confidentiality Assured1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysWed, 20 Jun 2007 08:11:41 -0800All the secrets of our camp.
+In the multiseat case there are several possibly dissimiliar
+keyboards, but then they have separate event devices too.
 
 
-
-------=_NextPart_000_000E_01C7B355.B0362900
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Diso-8859-1" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 6.00.2800.1478" name=3DGENERATOR></HEAD>
-<BODY>
-<html><head>
-<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
-<style type=3D"text/css"><!--
-new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
- center;}
-new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
- center; font-style: italic;}
-new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
- center; font-weight: bold;}
-new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
- center; font-weight: bold;}
-new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
-enter;}
-
---></style></head>
-<body bgcolor=3D"#FFFFFF">
-<div class=3D"new22">University Degree</div><br>
-<div class=3D"new12">OBTAIN A PROSPEROUS FUTURE, MONEY-EARNING POWER, AND T=
-HE PRESTIGE THAT COMES WITH HAVING THE CAREER POSITION YOU=92VE ALWAYS DREA=
-MED OF. DIPLOMA FROM PRESTIGIOUS NON-ACCREDITED UNVERSITIES BASED ON YOUR P=
-RESENT KNOWLEDGE AND PROFESSIONAL EXPERIENCE.</div><br>
-<div class=3D"new14">If you qualify, no required tests, classes, books or e=
-xaminations.</div><br>
-<div class=3D"new22">Confidentiality Assured</div><br>
-<div class=3D"new20">1-682-626-0008</div>
-<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
-lidays</div><br><br>
-<div class=3D"new6">Wed, 20 Jun 2007 08:11:41 -0800All the secrets of our c=
-amp.</div>
-</body>
-</html>
-
-</BODY></HTML>
-
-------=_NextPart_000_000E_01C7B355.B0362900--
+Helge Hafting

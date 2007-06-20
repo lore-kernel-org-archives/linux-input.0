@@ -1,43 +1,64 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: [patch] hid: fix autocentering of PID devices
-Date: Wed, 20 Jun 2007 20:37:17 +0300
-Message-ID: <467965CD.20507@gmail.com>
-References: <466FDC51.5030703@gmail.com> <Pine.LNX.4.64.0706131746020.23280@twin.jikos.cz> <46705CBD.5040302@gmail.com> <Pine.LNX.4.64.0706132340560.23280@twin.jikos.cz> <4670673A.3050702@gmail.com> <Pine.LNX.4.64.0706181742480.12361@twin.jikos.cz>
+From: Heightened libido <drick@compuserve.com>
+Subject: More pleasurable orgasms
+Date: Wed, 20 Jun 2007 20:40:37 +0300
+Message-ID: <337e01c7b362$e2874d7e$9e2b1800@compuserve.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+    boundary="----=_NextPart_000_0000_2A11CEC6.0EEAB030"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0706181742480.12361@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-input@atrey.karlin.mff.cuni.cz, Diogo Kastrup <dk@bighost.com.br>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Thu, 14 Jun 2007, Anssi Hannula wrote:
-> 
->>> I'd of course happily merge the fix which initializes the value 
->>> properly into my tree, but I would be curious what broke it, to double 
->>> check that we didn't break anything else along with it.
->> Okay, I'll get back to you in a few days :)
-> 
-> Hi Anssi,
+This is a multi-part message in MIME format.
 
-Hi!
+------=_NextPart_000_0000_2A11CEC6.0EEAB030
+Content-Type: text/plain;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-> did you make any progress here please? I am going to merge the patch, 
-> still I'd be understand what caused it (on the other hand from Diogo's 
-> last comment it doesn't seem 100% certain that we cased it somewhere 
-> around 2.6.20).
+ What is xGrowth:
 
-I finally had time to bisect 2.6.20 vs 2.6.21, and for me it seems to 
-start happening after commit 4237081e573b99a48991aa71364b0682c444651c:
+ Enlarged penis length  girth  Much harder erections  Longer-lasting erections
+ Faster recoil strength  More pleasurable orgasms  No premature ejaculation
+ Heightened libido  Boost to your confidence   Buy xGrowth online!
 
-http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=4237081e573b99a48991aa71364b0682c444651c
+  
+------=_NextPart_000_0000_2A11CEC6.0EEAB030
+Content-Type: text/html;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Anssi Hannula
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2180" name=3D"GENERATOR">
+</HEAD>
+<BODY text=3D#000000 bgColor=3D#ffffff>
+
+<font size=3D"3" face=3D"Times New Roman"><p><font face=3D"Arial" =
+color=3D"#333399" size=3D"5"><strong>What =
+is&nbsp;xGrowth&trade;:</strong></font></p>
+<ul>
+    <li><font face=3D"Arial">Enlarged penis length &amp; girth =
+</font></li>
+    <li><font face=3D"Arial">Much harder erections </font></li>
+    <li><font face=3D"Arial">Longer-lasting erections </font></li>
+    <li><font face=3D"Arial">Faster recoil strength </font></li>
+    <li><font face=3D"Arial">More pleasurable orgasms </font></li>
+    <li><font face=3D"Arial">No premature ejaculation </font></li>
+    <li><font face=3D"Arial">Heightened libido </font></li>
+    <li><font face=3D"Arial">Boost to your confidence </font></li>
+</ul>
+<p><a href=3D"http://coolcgoyrmmerce.com/"><font face=3D"Arial" =
+size=3D"5"><strong>Buy xGrowth&trade; =
+online!</strong></font></a></p></font>
+</BODY>
+</HTML>
+
+------=_NextPart_000_0000_2A11CEC6.0EEAB030--

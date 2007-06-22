@@ -1,129 +1,42 @@
-From: "Royce Chandler" <gytprfastenersdac@prfasteners.com>
-Subject: Get your ideal weight with this natural method
-Date: Fri, 22 Jun 2007 18:13:19 -0100
-Message-ID: <173817112.28864515082191@thhebat.net>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: Ever-increasing serio device number
+Date: Fri, 22 Jun 2007 15:30:50 -0400
+Message-ID: <d120d5000706221230s33378c69m2b1f0a9320727b7a@mail.gmail.com>
+References: <20070621230040.79fe959d@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------A146E3C2C2C01B2"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070621230040.79fe959d@hyperion.delvare>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------A146E3C2C2C01B2
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
+Hi Ejan,
 
+On 6/21/07, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Dmitry, hi all,
+>
+> While developing my i2c-taos-evm driver [1], I noticed that my device
+> was getting a new serio device number each time I cycled my driver. It
+> started as serio2, and after an afternoon of testing, it was serio19.
+> I'm curious, is this intended? I expected freed numbers to be reused,
+> as i2c does.
+>
+> If this isn't supposed to happen, would this be a bug in the serio
+> driver, or in my driver (maybe not releasing some resource properly)?
+>
 
-Profit by the opportunity! =96 Anatrim =96 The newest & most exciting=20=
-product for weighty people is made available now =96 As were seen on Oprah
+Serio system (as well as gameport and input core) simply assign next
+number for each newly registered serio device, it does not try to
+reuse old ids. If you want to identify a specific device you need to
+rely on phys and id/* attributes (when available).
 
-Can you remember all the situations when you plead to yourself to do=20=
-anything to get rid of this horrible kilos of fat? Luckily, now no great=20=
-price is to be paid. With Anatrim, the ground-breaking, you can achieve=20=
-healthier life style and become really thinner. Just look at what people=20=
-write to us!
- 
-=93I had always led an incredible private life until last year a girl I=20=
-was meeting with said to me I was stout and in want of being careful to=20=
-my health. Life had abruptly changed after that, till I discovered=20=
-Anatrim =99 for me at once. Since getting rid of more than 18 kg thanx to=20=
-Anatrim,  my private life=92s back on track, better than before even.=20=
-Plenty of thanx for the incredible stuff and the first-rate maintenance=20=
-service. Keep on the useful work!=94
-
- 
-Mikkey Fox, Bellevue WA
-
- 
-"There=92s nothing better than gliding into a bikini I have not worn=20=
-for years. Now I feel lean, determined, and vigorous, thanks in great=20=
-part to Anatrim! A great deal of thank you!"
-
- 
-Amelia B., San Diego
-
-Check out Anatrim, and  you will join the worldwide community of=20=
-thousands of delighted buyers who=92re enjoying the revolutionary results=20=
-of Anatrim just now. Less gorging frenzy, less kilos and more mirth in=20=
-life!
-
-Proceed here to inspect our outdone Anatrim dealings!!!
-http://www.upeyan.hk/?twkveiafsetu
-
-------------A146E3C2C2C01B2
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Burn pounds off with Anatrim</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href=3D"http://www.upeyan.hk/?twkveiafsetu" target=3D"_blank">
-Profit by the opportunity! =96 Anatrim =96 The newest & most exciting=20=
-product for weighty people is made available now =96 As were seen on Oprah
-</a>
-</center>
-<br>
-Can you remember all the situations when you plead to yourself to do=20=
-anything to get rid of this horrible kilos of fat? Luckily, now no great=20=
-price is to be paid. With Anatrim, the ground-breaking, you can achieve=20=
-healthier life style and become really thinner. Just look at what people=20=
-write to us!
- <br>
-<br>
-<i>
-=93I had always led an incredible private life until last year a girl I=20=
-was meeting with said to me I was stout and in want of being careful to=20=
-my health. Life had abruptly changed after that, till I discovered=20=
-Anatrim =99 for me at once. Since getting rid of more than 18 kg thanx to=20=
-Anatrim,  my private life=92s back on track, better than before even.=20=
-Plenty of thanx for the incredible stuff and the first-rate maintenance=20=
-service. Keep on the useful work!=94
-</i>
- <br>
-<b>
-<i>
-Mikkey Fox, Bellevue WA
-</i>
-</b>
- <br>
-<br>
-<i>
-"There=92s nothing better than gliding into a bikini I have not worn=20=
-for years. Now I feel lean, determined, and vigorous, thanks in great=20=
-part to Anatrim! A great deal of thank you!"
-</i>
- <br>
-<b>
-<i>
-Amelia B., San Diego
-</i>
-</b>
-<br>
-<br>
-Check out Anatrim, and  you will join the worldwide community of=20=
-thousands of delighted buyers who=92re enjoying the revolutionary results=20=
-of Anatrim just now. Less gorging frenzy, less kilos and more mirth in=20=
-life!
-<br>
-<br>
-<center>
-<a href=3D"http://www.upeyan.hk/?twkveiafsetu" target=3D"_blank">
-Proceed here to inspect our outdone Anatrim dealings!!!
-</a>
-</center>
-</b>
-</p>
-<font color=3D"#D9EDFF">http://www.upeyan.hk/?twkveiafsetu</font>
-
-</BODY></HTML>
-------------A146E3C2C2C01B2--
+-- 
+Dmitry

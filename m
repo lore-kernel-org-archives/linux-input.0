@@ -1,10 +1,10 @@
-From: "Shelby Vera" <support8757@angeleyez-lookingglass.com>
-Subject: Doping fur Ihr bestes Stuck
-Date: Sat, 23 Jun 2007 13:52:52 -0100
-Message-ID: <01c7b59d$caf9cd10$92c9a454@support8757>
+From: "Nicolas Jaramillo" <support10350@angeleyez-lookingglass.com>
+Subject: Viagra - 1.79$  - Preise ohne Konkurrenz
+Date: Sat, 23 Jun 2007 14:18:32 -0100
+Message-ID: <01c7b5a1$60b22c00$9de2b555@support10350>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7B5AE.8E829D10"
+	boundary="----=_NextPart_000_0007_01C7B5B2.243AFC00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,33 +16,38 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C7B5AE.8E829D10
+------=_NextPart_000_0007_01C7B5B2.243AFC00
 Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-
-
-
-------=_NextPart_000_0006_01C7B5AE.8E829D10
-Content-Type: text/html;
-	charset="Windows-1252"
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
+Hast du blaue Pille in der Blutbahn, kannst du bumsen wie ein Truthahn!
+Lust &#252;ber zwei Stunden nicht zu kommen?
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
+Preise die keine Konkurrenz kennen
+Viagra - 1.79 $
+Cialis - 2.69 $
+Valium - 2.48 $
 
+- ohne Rezept
+- blitzschnelle Lieferung weltweit
+- diskreter Versand
+- Visa verifizierter Onlineshop
 
-<meta name=3DProgId content=3DWord.Document>
-<meta name=3DGenerator content=3D"Microsoft Word 10">
-<meta name=3DOriginator content=3D"Microsoft Word 10">
-<link rel=3DFile-List href=3D"cid:filelist.xml@EA1B25D3.C25D3567">
-<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@EA1B25D3.C25D3567">
-</head>
-<body>
+www.actsoon.hk
+Jetzt bestellen - und bis zu 85% sparen
+------=_NextPart_000_0007_01C7B5B2.243AFC00
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
+<META content=3D"MSHTML 5.50.4927.1200" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
 <head>
 <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
 1">
@@ -53,28 +58,24 @@ Stil5 {
 	font-weight: bold;
 }
 -->
-</style></head><body><DIV><p><strong>
-Nimm die Pille, sei kein Tor, dann steht er wie ein Ofenrohr!</strong><br>
-&#220;berraschen Sie Ihre Partnerin!<br>
-Lust &#252;ber zwei Stunden nicht zu kommen?<br>
-Nie mehr zu fr&#252;h kommen!</p><p><strong>- blitzschnelle Lieferung weltw=
-eit<br>
-  - ohne Rezept<br>
+</style></head><body><DIV>
+  <p><strong>
+Hast du blaue Pille in der Blutbahn, kannst du bumsen wie ein Truthahn!</st=
+rong><br>
+Lust &#252;ber zwei Stunden nicht zu kommen?</p>
+  <p>Preise die keine Konkurrenz kennen <br>
+  <strong>Viagra -  1.79 $<br>
+  Cialis - <span class=3D"price">2.69</span> $ <br>
+  Valium - 2.48 $ </strong></p>
+  <p><br>
+  <strong>- ohne Rezept<br>
+  </strong><strong>- blitzschnelle Lieferung weltweit<br>
   - diskreter Versand<br>
-  - Visa verifizierter Onlineshop</strong></p><br>
-    <span class=3D"Stil5"><a href=3D"http://yogmobc.tallbroad.hk/?712440895=
-189" target=3D"_blank">Jetzt bestellen - und bis zu 85% sparen</a></span></=
-DIV><br><br>
---------------------------------------------------------------<br>
-the documentation you have spoken ,become =91worthless=92 . you have spoken=
- thbecome =91worthless=92 .  -
-provided, this letter sets to a mortgage endowment.you would be does appear=
- that the services in China.  - number of organisations.  which details the=
-  any possible , decision on the July 2005). They have since  - if you are =
-interested in it. grant us the sloe  are evaluating claims , provided, this=
- letter sets th - Our reports on  to other bodies. that the firm , would be=
+  - Visa verifizierter Onlineshop</strong></p>
+  <br>
+    <span class=3D"Stil5"><a href=3D"http://actsoon.hk" target=3D"_blank">J=
+etzt bestellen - und bis zu 85% sparen</a></span></DIV>
 </body>
-</body>
-</html>
+</BODY></HTML>
 
-------=_NextPart_000_0006_01C7B5AE.8E829D10--
+------=_NextPart_000_0007_01C7B5B2.243AFC00--

@@ -1,75 +1,80 @@
-From: "Roxanne Stephenson" <hirpublimmediacud@publimmedia.com>
-Subject: Make her worship you
-Date: Sat, 23 Jun 2007 10:35:29 -0200
-Message-ID: <248173470.67279754576212@thhebat.net>
+From: "Shelby Vera" <support8757@angeleyez-lookingglass.com>
+Subject: Doping fur Ihr bestes Stuck
+Date: Sat, 23 Jun 2007 13:52:52 -0100
+Message-ID: <01c7b59d$caf9cd10$92c9a454@support8757>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------DA1B09F46EA98F"
+	boundary="----=_NextPart_000_0006_01C7B5AE.8E829D10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: 0rfelyus@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------DA1B09F46EA98F
-Content-Type: text/plain; charset=iso-8859-1
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C7B5AE.8E829D10
+Content-Type: text/plain;
+	charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
 
 
 
-At last, the true stuff – with no swindle! 
-P.E.P. are very hot at the time! Well this is the true stuff not a forgery! 
+------=_NextPart_000_0006_01C7B5AE.8E829D10
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-One of the very exceptionals, absolutely unparalleled product is on sale anywhere!
- Note just what people say on this produce:
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-"I love how quick your product worked on my boyfriend, he can't stop jabber on how excited he is having such new girth, extent, and libido!"
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
 
-Silvia D., Las Vegas
 
-"In the beginning I thought the gratuitous sample  I acquired was a kind of a nasty trick, till I have taken taking the P.E.P. I can’t describe depict how smug I am with the results I achieved from using this stuff after 6 brief weeks. I'll be ordering constantly!" 
-Steve Doubt, Colorado
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@EA1B25D3.C25D3567">
+<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@EA1B25D3.C25D3567">
+</head>
+<body>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css">
+<!--
+Stil5 {
+	font-size: 18px;
+	font-weight: bold;
+}
+-->
+</style></head><body><DIV><p><strong>
+Nimm die Pille, sei kein Tor, dann steht er wie ein Ofenrohr!</strong><br>
+&#220;berraschen Sie Ihre Partnerin!<br>
+Lust &#252;ber zwei Stunden nicht zu kommen?<br>
+Nie mehr zu fr&#252;h kommen!</p><p><strong>- blitzschnelle Lieferung weltw=
+eit<br>
+  - ohne Rezept<br>
+  - diskreter Versand<br>
+  - Visa verifizierter Onlineshop</strong></p><br>
+    <span class=3D"Stil5"><a href=3D"http://yogmobc.tallbroad.hk/?712440895=
+189" target=3D"_blank">Jetzt bestellen - und bis zu 85% sparen</a></span></=
+DIV><br><br>
+--------------------------------------------------------------<br>
+the documentation you have spoken ,become =91worthless=92 . you have spoken=
+ thbecome =91worthless=92 .  -
+provided, this letter sets to a mortgage endowment.you would be does appear=
+ that the services in China.  - number of organisations.  which details the=
+  any possible , decision on the July 2005). They have since  - if you are =
+interested in it. grant us the sloe  are evaluating claims , provided, this=
+ letter sets th - Our reports on  to other bodies. that the firm , would be=
+</body>
+</body>
+</html>
 
-Look at more testimonials about this astonishing product just now!
-http://www.bamir.hk/?zuitavafzmg
-
-------------DA1B09F46EA98F
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Other guys are improving themselves..are you? </TITLE>
-</HEAD>
-<BODY>
-
-<b>
-At last, the true stuff – with no swindle! 
-<br>
-<a href="http://www.bamir.hk/?zuitavafzmg" target="_blank">P.E.P.</a> are very hot at the time! Well this is the true stuff not a forgery! 
-<br>
-One of the very exceptionals, absolutely unparalleled product is on sale anywhere!
-<br> Note just what people say on this produce:
-<p>
-<i>
-"I love how quick your product worked on my boyfriend, he can't stop jabber on how excited he is having such new girth, extent, and libido!"
-</i>
-</p>
-Silvia D., Las Vegas
-<p>
-<i>
-"In the beginning I thought the gratuitous sample  I acquired was a kind of a nasty trick, till I have taken taking the P.E.P. I can’t describe depict how smug I am with the results I achieved from using this stuff after 6 brief weeks. I'll be ordering constantly!" </i>
-</p>
-Steve Doubt, Colorado
-<center>
-<a href="http://www.bamir.hk/?zuitavafzmg" target="_blank">
-Look at more testimonials about this astonishing product just now!
-</a>
-</center>
-</b>
-<font color="#D9EDFF">http://www.bamir.hk/?zuitavafzmg</font>
-
-</BODY></HTML>
-------------DA1B09F46EA98F--
+------=_NextPart_000_0006_01C7B5AE.8E829D10--

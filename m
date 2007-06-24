@@ -1,66 +1,131 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Anything against a new EV_SW SW_RADIO event ?
-Date: Sun, 24 Jun 2007 07:55:14 -0300
-Message-ID: <20070624105514.GA8909@khazad-dum.debian.net>
+From: "Nickolas Stiles" <sifrbridgesvug@rbridges.com>
+Subject: Summer is coming, time to tone up
+Date: Sun, 24 Jun 2007 12:37:35 -0100
+Message-ID: <119991540.94191040196491@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+  boundary="----------1C70C70C721CED"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, ibm-acpi-devel@lists.sourceforge.net, Ivo van Doorn <ivdoorn@gmail.com>, Richard Hughes <hughsient@gmail.com>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dmitry,
+------------1C70C70C721CED
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-Could you ACK the attached patch?  I am about to send in code that would
-benefit a damn great deal from it (thinkpad-acpi support for the
-T60/X60/newer radio-kill slider switch)...  So I thought it would be best to
-check with you first if I can have an EV_SW SW_RADIO...
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+Seize your opportunity! =96 Anatrim =96 The up-to-the-moment & most=20=
+fascinating product for corpulent people is made available now =96 As=20=
+were told on Oprah
 
-commit f5752eca1ffed72ce32c42f15b16cb4d240901c1
-Author: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Date:   Sat Jun 23 23:55:22 2007 -0300
-
-    INPUT: add a new EV_SW SW_RADIO event, for radio switches on laptops
-    
-    Many laptops have rf-kill physical switches that are not keys, but slider
-    or rocker switches.  Often (like in all ThinkPads with a radio kill slider
-    switch), they have both a slider/rocker switch and a hot key.
-    
-    Trying to kludge a real switch to act like a key is not a very smart thing
-    to do if you can help it, and it gets specially bad when you are going to
-    have both in the same machine.  So, we do the right thing and add an input
-    EV_SW event for radio kill switches.
-    
-    The EV_SW SW_RADIO event is defined with positive logic, i.e. when the
-    switch is active, the radios are to be enabled.  When the switch is
-    inactive, the radios are to be disabled.
-    
-    Signed-off-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-    Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-    Cc: Ivo van Doorn <ivdoorn@gmail.com>
-    Cc: Richard Hughes <hughsient@gmail.com>
-
-diff --git a/include/linux/input.h b/include/linux/input.h
-index bde65c8..b530678 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -602,6 +602,7 @@ struct input_absinfo {
- #define SW_LID			0x00  /* set = lid shut */
- #define SW_TABLET_MODE		0x01  /* set = tablet mode */
- #define SW_HEADPHONE_INSERT	0x02  /* set = inserted */
-+#define SW_RADIO		0x03  /* set = radio enabled */
- #define SW_MAX			0x0f
+Can you hold in your memory all the situations when you said to=20=
+yourself you would do anything for being rescued from this frightful fat?=20=
+Luckily, now no big sacrifice is necessary. Thanks to Anatrim, the=20=
+ground-shaking, you can achieve naturally health lifestyle and a really=20=
+slender figure. Simply notice what people write to us!
  
- /*
+=93I always had a stunning life till a year ago the girl I was dating=20=
+told me I was corpulent and had need for being careful to my health. Life=20=
+had suddenly changed after that, till I discovered Anatrim =99 for me at=20=
+once. Since loosing about 20 kg thanx to Anatrim,  my private life=92s=20=
+come back, even much better than before. A great deal of thanx for the=20=
+marvelous product and the top-quality service. Keep on the worthy=20=
+business!=94
+
+ 
+Steve Burbon, Bellevue WA
+
+ 
+"Nothing to compare with gliding into a bikini that I have not worn for=20=
+years. I feel svelte, defined, and vigorous, thanks to a degree to=20=
+Anatrim! Great thank you!"
+
+ 
+Amely S., Chicago
+
+Discover Anatrim, and  you shall join the world-wide community of=20=
+thousands of happy user who are getting pleasure out of the revolutionary=20=
+results of Anatrim here & now. Less gobbling frenzy, less kilos and more=20=
+mirth in your life!
+
+Proceed right here to scan our outdone Anatrim arrangement!!!
+http://www.kopab.hk/?sednuvjrp
+
+------------1C70C70C721CED
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Burn pounds off with Anatrim</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href=3D"http://www.kopab.hk/?sednuvjrp" target=3D"_blank">
+Seize your opportunity! =96 Anatrim =96 The up-to-the-moment & most=20=
+fascinating product for corpulent people is made available now =96 As=20=
+were told on Oprah
+</a>
+</center>
+<br>
+Can you hold in your memory all the situations when you said to=20=
+yourself you would do anything for being rescued from this frightful fat?=20=
+Luckily, now no big sacrifice is necessary. Thanks to Anatrim, the=20=
+ground-shaking, you can achieve naturally health lifestyle and a really=20=
+slender figure. Simply notice what people write to us!
+ <br>
+<br>
+<i>
+=93I always had a stunning life till a year ago the girl I was dating=20=
+told me I was corpulent and had need for being careful to my health. Life=20=
+had suddenly changed after that, till I discovered Anatrim =99 for me at=20=
+once. Since loosing about 20 kg thanx to Anatrim,  my private life=92s=20=
+come back, even much better than before. A great deal of thanx for the=20=
+marvelous product and the top-quality service. Keep on the worthy=20=
+business!=94
+</i>
+ <br>
+<b>
+<i>
+Steve Burbon, Bellevue WA
+</i>
+</b>
+ <br>
+<br>
+<i>
+"Nothing to compare with gliding into a bikini that I have not worn for=20=
+years. I feel svelte, defined, and vigorous, thanks to a degree to=20=
+Anatrim! Great thank you!"
+</i>
+ <br>
+<b>
+<i>
+Amely S., Chicago
+</i>
+</b>
+<br>
+<br>
+Discover Anatrim, and  you shall join the world-wide community of=20=
+thousands of happy user who are getting pleasure out of the revolutionary=20=
+results of Anatrim here & now. Less gobbling frenzy, less kilos and more=20=
+mirth in your life!
+<br>
+<br>
+<center>
+<a href=3D"http://www.kopab.hk/?sednuvjrp" target=3D"_blank">
+Proceed right here to scan our outdone Anatrim arrangement!!!
+</a>
+</center>
+</b>
+</p>
+<font color=3D"#D9EDFF">http://www.kopab.hk/?sednuvjrp</font>
+
+</BODY></HTML>
+------------1C70C70C721CED--

@@ -1,67 +1,66 @@
-From: "Milton Rosas" <servicehotline@api.com>
-Subject: Maria H., Bellevue WA
-Date: Mon, 25 Jun 2007 16:30:11 -0300
-Message-ID: <01c7b746$1a12c560$8a5c1555@servicehotline>
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: Re: [PATCH] USB: driver for CM109 chipset
+Date: Tue, 26 Jun 2007 00:29:40 +0200
+Message-ID: <468041D4.7090608@db.org>
+References: <467FC7E5.7050901@db.org> <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7B767.A1246560"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Dmitry Torokhov wrote:
+> Hi Alfred,
+> 
+> On 6/25/07, Alfred E. Heggestad <aeh@db.org> wrote:
+>> From: Alfred E. Heggestad <aeh@db.org>
+>>
+>> This driver adds support for USB VoIP phones using the CM109 chipset,
+>> such as the KIP-1000. Keypad is scanned and events are reported to
+>> the input subsystem. The buzzer can be activated by sending SND_TONE
+>> or SND_BELL to the input device.
+>> The driver has been tested with linux 2.6.21.3 on i386 and AMD64,
+>> and linux 2.6.21.1 on Broadcom BCM3302 (MIPS, OpenWRT Project)
+>> The current patch applies cleanly and is tested on linux 2.6.22-rc4
+>> More testing and code review is welcome..
+>>
+> 
+> Thank you for your patch. I have couple of comments:
+> 
+> - "input_dev->cdev.dev = &intf->dev;" should be "input_dev->dev.parent
+> = &intf->dev;"
+> - do not access input->private directly; use input_set_drvdata() and
+> input_get_drvdata() helpers.
+> - error handling for input_register_device();
 
-------=_NextPart_000_0006_01C7B767.A1246560
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+thanks for the comments, this is now fixed locally and will be
+part of the new patch submitted tomorrow.
 
 
-Helo
- Do you have
-problems with good pharmacy store at your country? Don't know good place
-to buy pills? There won't be any such problem anymore if you'll visit
-LegalRxMedications drug store. Buy any medication that you need 
-here And get them shipped
-worldwide instantly. We provide completely secure and confidential
-purchase, instant worldwide shipping and a friendly support.
- 
+> - I guess we need KEY_POUNDSIGN because I don't like that business
+> with key_shift + key_3 (I did not like it in yealink either...)
+> 
+
+yes that would be nice. I copied the logic from yealink.c, which I
+also did not like, but I could not find any '#' signs in linux/input.h
 
 
-------=_NextPart_000_0006_01C7B767.A1246560
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+> Also could you please send your patches inline instead of an
+> attachment - it makes much easire to comment that way.
+> 
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+sure no problem.
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-1">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<HTML>
-<BODY>
-Helo
-<P><B><FONT size=3D3D"+2"> Do you have
-problems with good pharmacy store at your country? Don't know good place
-to buy pills? There won't be any such problem anymore if you'll visit
-LegalRxMedications drug store. <BR><BR>Buy any medication that you need 
-<a href=3D"http://beginbroad.hk/"><font>here </FONT></B></P><B><FONT size=
-=3D3D"+2"><P><B><FONT size=3D3D"+2"><A =3D
-<"href=3D3D"http://beginbroad.hk/">And get them shipped
-worldwide instantly. We provide completely secure and confidential
-purchase, instant worldwide shipping and a friendly support.
-</A></FONT></B></P> </FONT></B>
-</BODY>
-</HTML>
-</body>
-</html>
 
-------=_NextPart_000_0006_01C7B767.A1246560--
+/alfred
+
+> Thanks!
+> 

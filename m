@@ -1,38 +1,37 @@
-From: "Thea Bonita" <arp16eqe@deloitte.com>
-Subject: Ciali  Valiun Viagre Xanas At Super Low Price, Express Ship To All Countries zl
-Date: Mon, 25 Jun 2007 02:16:23 +0100
-Message-ID: <208g189b.9103794@deloitte.com>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: Anything against a new EV_SW SW_RADIO event ?
+Date: Mon, 25 Jun 2007 00:22:14 -0400
+Message-ID: <200706250022.15244.dtor@insightbb.com>
+References: <20070624105514.GA8909@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070624105514.GA8909@khazad-dum.debian.net>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, ibm-acpi-devel@lists.sourceforge.net, Ivo van Doorn <ivdoorn@gmail.com>, Richard Hughes <hughsient@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1"></head><body>
-<font color=FFEAD5 size=1>east circumstances wine latter, getting go cousin room,</font><center><table border=1 cellspacing=0 cellpadding=10 width=540 bordercolor=FF8080><tr><td bgcolor=ffffff align=left>
-<font size=2 face=verdana color=000000><font size=6 color=71B8FF><b><center>Express Drug Mart</center></b></font><br><font color=000000 size=1>We are the best price on all 
-high quality meds. Established by a reputable Canadian Doctor and Scientist, Express Drugmart's 
-mission is to provide you with a secure online environment to purchase the safest, quality medication<br><br>
-<font color=000000 size=2><b>Viagraa (Brand & Generic available) - 
-<font color=F20000>as LOW as $ 2.25 per D0SE</font><br>Cialiss (Brand & Generic available) - 
-<font color=F20000>as LOW as $ 2.25 per D0SE</font><br>Valiumm - <font color=F20000>as LOW as $ 1.50 
-per D0SE</font><br>Xanaxxxxx - <font color=F20000>only $ 1.50 per D0SE</font><br>Ambienn - <font color=F20000>only 
-$ 1.65 per D0SE</font><br>
-Ativann - <font color=F20000>only $ 1.50 per D0SE</font><br>Somaa - <font color=F20000>only $ 1.50 
-per D0SE</font>
-<br>Clenbuterol - <font color=F20000>
-only 
-$ 2.50 per D0SE</font><br>Meridiaa 
-(brand name) - <font color=F20000>only $ 3.99 per D0SE</font><br></b></font><br>
-<center><a href=http://bskhe.sidoanddolly.com target=_blank><font size=5 color=0000A0><u><b>See What Meds Has Special Discount<br>Click On This Link</b></font></font>
-</u></a><br></center></td></tr>
-</table><font color=FFEAD5 size=1>too bad rose miles bad embarrass. night cousin length mother favour wine food evening.
-</font>
-</body></html>
+Hi Henrique,
+
+On Sunday 24 June 2007 06:55, Henrique de Moraes Holschuh wrote:
+> Dmitry,
+> 
+> Could you ACK the attached patch?  I am about to send in code that would
+> benefit a damn great deal from it (thinkpad-acpi support for the
+> T60/X60/newer radio-kill slider switch)...  So I thought it would be best to
+> check with you first if I can have an EV_SW SW_RADIO...
+> 
+
+Adding SW_RADIO would be fine. My only question is if SW_ARDIO is enough or
+if we would need SW_WIFI/SW_BLUETOOTH/SW_ETC down the road...
+
+-- 
+Dmitry

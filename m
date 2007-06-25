@@ -1,66 +1,98 @@
-From: "Alfred E. Heggestad" <aeh@db.org>
-Subject: Re: [PATCH] USB: driver for CM109 chipset
-Date: Tue, 26 Jun 2007 00:29:40 +0200
-Message-ID: <468041D4.7090608@db.org>
-References: <467FC7E5.7050901@db.org> <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com>
+From: "Claude Zamora" <samrodrigoferwog@rodrigofer.com>
+Subject: Control your weight and appetite
+Date: Tue, 26 Jun 2007 03:04:15 +0500
+Message-ID: <856211767.30080583403966@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------05E05E05E05767"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-video@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi Alfred,
-> 
-> On 6/25/07, Alfred E. Heggestad <aeh@db.org> wrote:
->> From: Alfred E. Heggestad <aeh@db.org>
->>
->> This driver adds support for USB VoIP phones using the CM109 chipset,
->> such as the KIP-1000. Keypad is scanned and events are reported to
->> the input subsystem. The buzzer can be activated by sending SND_TONE
->> or SND_BELL to the input device.
->> The driver has been tested with linux 2.6.21.3 on i386 and AMD64,
->> and linux 2.6.21.1 on Broadcom BCM3302 (MIPS, OpenWRT Project)
->> The current patch applies cleanly and is tested on linux 2.6.22-rc4
->> More testing and code review is welcome..
->>
-> 
-> Thank you for your patch. I have couple of comments:
-> 
-> - "input_dev->cdev.dev = &intf->dev;" should be "input_dev->dev.parent
-> = &intf->dev;"
-> - do not access input->private directly; use input_set_drvdata() and
-> input_get_drvdata() helpers.
-> - error handling for input_register_device();
-
-thanks for the comments, this is now fixed locally and will be
-part of the new patch submitted tomorrow.
+------------05E05E05E05767
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
 
-> - I guess we need KEY_POUNDSIGN because I don't like that business
-> with key_shift + key_3 (I did not like it in yealink either...)
-> 
 
-yes that would be nice. I copied the logic from yealink.c, which I
-also did not like, but I could not find any '#' signs in linux/input.h
+Do not fail the chance! – Anatrim – The very up-to-date & most attracting product for corpulent people is made available now – As told on Oprah
 
+Can you count up all the cases when you told yourself you would do any thing for being rescued from this frightful fat? Happily, now no big offering is required. Thanks to Anatrim, the ground-breaking, you can get healthier lifestyle and a really slender figure. Notice what people say to us!
+ 
+“I always had a cool private life until a year back the girl I was meeting said to me I was plump and in a great need of keeping eye on my health. My life was never the same after that, until I found Anatrim ™ at once. Since getting rid of more than 40 pounds only thanx to Anatrim,  my private life is back on track, notoriously better than even before. A lot of thanks to you for the coolest product & the great maintenance service. Keep up your good business!”
 
-> Also could you please send your patches inline instead of an
-> attachment - it makes much easire to comment that way.
-> 
+ 
+Dave Klark, New York
 
-sure no problem.
+ 
+"Nothing to compare with gliding into a bikini that I haven't worn for many long years. Now I feel slim, determined, and healthy, thanx to a considerable degree to Anatrim! Thanks so much!"
 
+ 
+Amelia B., San Diego
 
-/alfred
+Check out Anatrim, and  you'll add yourself to the world-spread community of thousands of happy user who are enjoying the revolutionary effects of Anatrim just now. Less guzzling frenzy, less kilogrammes and more gaiety in your life!
 
-> Thanks!
-> 
+Click here to inspect invincible Anatrim bargain we are so proud to introduce!!!
+http://www.dibav.hk/?mgxdbcrwntl
+
+------------05E05E05E05767
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Make yourself more attractive to others</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href="http://www.dibav.hk/?mgxdbcrwntl" target="_blank">
+Do not fail the chance! – Anatrim – The very up-to-date & most attracting product for corpulent people is made available now – As told on Oprah
+</a>
+</center>
+<br>
+Can you count up all the cases when you told yourself you would do any thing for being rescued from this frightful fat? Happily, now no big offering is required. Thanks to Anatrim, the ground-breaking, you can get healthier lifestyle and a really slender figure. Notice what people say to us!
+ <br>
+<br>
+<i>
+“I always had a cool private life until a year back the girl I was meeting said to me I was plump and in a great need of keeping eye on my health. My life was never the same after that, until I found Anatrim ™ at once. Since getting rid of more than 40 pounds only thanx to Anatrim,  my private life is back on track, notoriously better than even before. A lot of thanks to you for the coolest product & the great maintenance service. Keep up your good business!”
+</i>
+ <br>
+<b>
+<i>
+Dave Klark, New York
+</i>
+</b>
+ <br>
+<br>
+<i>
+"Nothing to compare with gliding into a bikini that I haven't worn for many long years. Now I feel slim, determined, and healthy, thanx to a considerable degree to Anatrim! Thanks so much!"
+</i>
+ <br>
+<b>
+<i>
+Amelia B., San Diego
+</i>
+</b>
+<br>
+<br>
+Check out Anatrim, and  you'll add yourself to the world-spread community of thousands of happy user who are enjoying the revolutionary effects of Anatrim just now. Less guzzling frenzy, less kilogrammes and more gaiety in your life!
+<br>
+<br>
+<center>
+<a href="http://www.dibav.hk/?mgxdbcrwntl" target="_blank">
+Click here to inspect invincible Anatrim bargain we are so proud to introduce!!!
+</a>
+</center>
+</b>
+</p>
+<font color="#D9EDFF">http://www.dibav.hk/?mgxdbcrwntl</font>
+
+</BODY></HTML>
+------------05E05E05E05767--

@@ -1,122 +1,670 @@
-From: "mike gordon" <mike.gordon@primus.ca>
-Subject: CFO, Accounting, ACCPAC, CODA,SAP, Equitrac,  Microsoft Customer lists
-Date: Tue, 26 Jun 2007 09:49:22 -0500
-Message-ID: <200706260949.RJONISXMRH@169.254.47.253>
-Reply-To: "mike gordon" <mike.gordon@primus.ca>
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: [PATCH] USB: driver for CM109 chipset
+Date: Tue, 26 Jun 2007 21:52:39 +0200
+Message-ID: <46816E87.50901@db.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative; boundary="----=_NextPart_000_0034_01C221EC.6C64F7B0"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: dtor@mail.ru, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0034_01C221EC.6C64F7B0
-Content-Type: text/plain;
-        charset="iso-8859-1"
+From: Alfred E. Heggestad <aeh@db.org>
+
+This driver adds support for USB VoIP phones using the CM109 chipset,
+such as the KIP-1000. Keypad is scanned and events are reported to
+the input subsystem. The buzzer can be activated by sending SND_TONE
+or SND_BELL to the input device.
+The driver has been tested with linux 2.6.21.3 on i386 and AMD64,
+and linux 2.6.21.1 on Broadcom BCM3302 (MIPS, OpenWRT Project)
+The current patch applies cleanly and is tested on linux 2.6.22-rc6.
+The patch can also be found here: http://aeh.db.org/patch/cm109-20070626.patch
+More testing and code review is welcome..
 
 
+Signed-off-by: Alfred E. Heggestad <aeh@db.org>
 
-We are happy to inform you of the availability the following customer lists ....
-CFO
-Accounting
-ACCPAC
-CODA
-SAP
-Equitrac
-Pervasive
-Microsoft Sharepoint
-Microsoft xchange
-Microsoft SQL
-Microsoft Dynamics
-Microsoft Visio
-Microsoft CRM
-
-For more information about these lists as well as our other software lists you can visit our corporate web site by clicking the link below..
-
-http://www.repharm.com
+---
 
 
-If you'd like more information, please contact Mike Gordon at our
-Repharm office at (905) 728-6708, 
+diff -uprN -X linux-2.6.22-rc6-orig/Documentation/dontdiff linux-2.6.22-rc6-orig/drivers/input/misc/cm109.c 
+linux-2.6.22-rc6/drivers/input/misc/cm109.c
+--- linux-2.6.22-rc6-orig/drivers/input/misc/cm109.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.22-rc6/drivers/input/misc/cm109.c	2007-06-26 21:38:00.000000000 +0200
+@@ -0,0 +1,597 @@
++/*
++ * drivers/usb/input/cm109.c
++ *
++ * Copyright (C) 2007 Alfred E. Heggestad <aeh@db.org>
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License as
++ *	published by the Free Software Foundation, version 2.
++ */
++
++/*
++ * Description:
++ *   Driver for the VoIP USB phones with CM109 chipsets.
++ *
++ *   Tested devices:
++ *	- KIP1000
++ *	- ...
++ *
++ * This driver is based on the yealink.c driver
++ *
++ * Thanks to:
++ *   - Authors of yealink.c
++ *   - Thomas Reitmayr
++ *   - Oliver Neukum for good review comments
++ *
++ * History:
++ *   20070626 alfredh	2.6.22-rc6, linux-input peer review
++ *   20070616 alfredh	Adapt for kernel 2.6.22-rc4
++ *   20070615 alfredh	Change GFP_KERNEL -> GFP_ATOMIC
++ *   20070610 alfredh	Buzzer through input SND_TONE/SND_BELL
++ *   20070227 alfredh	Draft version with keyboard scan and buzzer
++ *
++ * Todo:
++ *   - Read/write EEPROM
++ *   - Report input events volume up/down
++ */
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/rwsem.h>
++#include <linux/usb/input.h>
++
++/* #define CM109_DEBUG 1 */
++
++#define DRIVER_VERSION "20070626"
++#define DRIVER_AUTHOR  "Alfred E. Heggestad"
++#define DRIVER_DESC    "CM109 phone driver"
++
++enum {
++	/* HID Registers */
++	HID_IR0 = 0x00,		/* Record/Playback-mute button, Volume up/down  */
++	HID_IR1 = 0x01,		/* GPI, generic registers or EEPROM_DATA0       */
++	HID_IR2 = 0x02,		/* Generic registers or EEPROM_DATA1            */
++	HID_IR3 = 0x03,		/* Generic registers or EEPROM_CTRL             */
++	HID_OR0 = 0x00,		/* Mapping control, buzzer, SPDIF (offset 0x04) */
++	HID_OR1 = 0x01,		/* GPO - General Purpose Output                 */
++	HID_OR2 = 0x02,		/* Set GPIO to input/output mode                */
++	HID_OR3 = 0x03,		/* SPDIF status channel or EEPROM_CTRL          */
++
++	/* HID_IR0 */
++	RECORD_MUTE   = 1 << 3,
++	PLAYBACK_MUTE = 1 << 2,
++	VOLUME_DOWN   = 1 << 1,
++	VOLUME_UP     = 1 << 0,
++
++	/* HID_OR0 */
++	/* bits 7-6
++	   0: HID_OR1-2 are used for GPO; HID_OR0, 3 are used for buzzer
++	      and SPDIF
++	   1: HID_OR0-3 are used as generic HID registers
++	   2: Values written to HID_OR0-3 are also mapped to MCU_CTRL,
++	      EEPROM_DATA0-1, EEPROM_CTRL (see Note)
++	   3: Reserved
++	 */
++	HID_OR_GPO_BUZ_SPDIF   = 0 << 6,
++	HID_OR_GENERIC_HID_REG = 1 << 6,
++	HID_OR_MAP_MCU_EEPROM  = 2 << 6,
++
++	BUZZER_ON = 1 << 5,
++};
++
++/* CM109 protocol packet */
++struct cm109_ctl_packet {
++	u8 byte[4];
++} __attribute__ ((packed));
++
++enum {USB_PKT_LEN = sizeof(struct cm109_ctl_packet)};
++
++/* CM109 device structure */
++struct cm109_dev {
++	struct input_dev *idev;	 /* input device */
++	struct usb_device *udev; /* usb device */
++
++	/* irq input channel */
++	struct cm109_ctl_packet *irq_data;
++	dma_addr_t irq_dma;
++	struct urb *urb_irq;
++
++	/* control output channel */
++	struct cm109_ctl_packet *ctl_data;
++	dma_addr_t ctl_dma;
++	struct usb_ctrlrequest *ctl_req;
++	dma_addr_t ctl_req_dma;
++	struct urb *urb_ctl;
++
++	spinlock_t submit_lock;
++	int disconnecting;
++
++	char phys[64];		/* physical device path */
++	int key_code;		/* last reported key */
++	int keybit;		/* 0=new scan  1,2,4,8=scan columns  */
++	u8 gpi;			/* Cached value of GPI (high nibble) */
++};
++
++/*******************************************************************************
++ * CM109 key interface
++ ******************************************************************************/
++
++/* Map device buttons to internal key events.
++ *
++ * The "up" and "down" keys, are symbolised by arrows on the button.
++ * The "pickup" and "hangup" keys are symbolised by a green and red phone
++ * on the button.
++
++ KIP1000 Keyboard Matrix
++
++     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
++      |    |    |    |
++     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
++      |    |    |    |
++     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
++      |    |    |    |
++     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
++      |    |    |    |
++
++     /|\  /|\  /|\  /|\
++      |    |    |    |
++GPO
++pin:  3    2    1    0
++     0x8  0x4  0x2  0x1
++
++ */
++static int map_p1k_to_key(int scancode)
++{
++	switch (scancode) {				/* phone key:   */
++	case 0x28: return KEY_LEFT;			/*   IN         */
++	case 0x18: return KEY_RIGHT;			/*   OUT        */
++	case 0x88: return KEY_ENTER;			/*   pickup     */
++	case 0x48: return KEY_ESC;			/*   hangup     */
++	case 0x14: return KEY_1;			/*   1          */
++	case 0x12: return KEY_2;			/*   2          */
++	case 0x11: return KEY_3;			/*   3          */
++	case 0x24: return KEY_4;			/*   4          */
++	case 0x22: return KEY_5;			/*   5          */
++	case 0x21: return KEY_6;			/*   6          */
++	case 0x44: return KEY_7;			/*   7          */
++	case 0x42: return KEY_8;			/*   8          */
++	case 0x41: return KEY_9;			/*   9          */
++	case 0x84: return KEY_KPASTERISK;		/*   *          */
++	case 0x82: return KEY_0;			/*   0          */
++	case 0x81: return KEY_LEFTSHIFT | KEY_3 << 8;	/*   #          */
++	}
++	return -EINVAL;
++}
++
++/* Completes a request by converting the data into events for the
++ * input subsystem.
++ *
++ * The key parameter can be cascaded: key2 << 8 | key1
++ */
++static void report_key(struct cm109_dev *dev, int key)
++{
++	struct input_dev *idev = dev->idev;
++
++	if (dev->key_code >= 0) {
++		/* old key up */
++		input_report_key(idev, dev->key_code & 0xff, 0);
++		if (dev->key_code >> 8)
++			input_report_key(idev, dev->key_code >> 8, 0);
++	}
++
++	dev->key_code = key;
++	if (key >= 0) {
++		/* new valid key */
++		input_report_key(idev, key & 0xff, 1);
++		if (key >> 8)
++			input_report_key(idev, key >> 8, 1);
++	}
++	input_sync(idev);
++}
++
++/*******************************************************************************
++ * CM109 usb communication interface
++ ******************************************************************************/
++
++
++/*
++ * IRQ handler
++ */
++static void urb_irq_callback(struct urb *urb)
++{
++	struct cm109_dev *dev = urb->context;
++	int ret;
++
++#ifdef CM109_DEBUG
++	dbg("### URB IRQ: [0x%02x 0x%02x 0x%02x 0x%02x] keybit=0x%02x",
++	    dev->irq_data->byte[0],
++	    dev->irq_data->byte[1],
++	    dev->irq_data->byte[2],
++	    dev->irq_data->byte[3],
++	    dev->keybit);
++#endif
++
++	if (urb->status) {
++		if (-ESHUTDOWN == urb->status)
++			return;
++		err("%s - urb status %d", __FUNCTION__, urb->status);
++	}
++
++	/* Scan key column */
++	if (0xf == dev->keybit) {
++
++		/* Any changes ? */
++		if ((dev->gpi & 0xf0) == (dev->irq_data->byte[HID_IR1] & 0xf0)) {
++			goto out;
++		}
++
++		dev->gpi = dev->irq_data->byte[HID_IR1] & 0xf0;
++
++		dev->keybit = 0x1;
++	} else {
++		report_key(dev, map_p1k_to_key(dev->irq_data->byte[HID_IR1]));
++
++		dev->keybit <<= 1;
++		if (dev->keybit > 0x8)
++			dev->keybit = 0xf;
++	}
++
++	dev->ctl_data->byte[HID_OR1] = dev->keybit;
++	dev->ctl_data->byte[HID_OR2] = dev->keybit;
++
++      out:
++	ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
++	if (ret)
++		err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
++}
++
++static void urb_ctl_callback(struct urb *urb)
++{
++	struct cm109_dev *dev = urb->context;
++	int ret = 0;
++
++#ifdef CM109_DEBUG
++	dbg("### URB CTL: [0x%02x 0x%02x 0x%02x 0x%02x]",
++	    dev->ctl_data->byte[0],
++	    dev->ctl_data->byte[1],
++	    dev->ctl_data->byte[2],
++	    dev->ctl_data->byte[3]);
++#endif
++
++	if (urb->status)
++		err("%s - urb status %d", __FUNCTION__, urb->status);
++
++	spin_lock(&dev->submit_lock);
++	/* ask for a response */
++	if (!dev->disconnecting)
++		ret = usb_submit_urb(dev->urb_irq, GFP_ATOMIC);
++	spin_unlock(&dev->submit_lock);
++
++	if (ret)
++		err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
++}
++
++/*******************************************************************************
++ * input event interface
++ ******************************************************************************/
++
++static DEFINE_SPINLOCK(cm109_buzz_lock);
++
++static int input_open(struct input_dev *idev)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++	int ret;
++
++	dev->key_code = -1;	/* no keys pressed */
++	dev->keybit = 0xf;
++
++	/* issue INIT */
++	dev->ctl_data->byte[HID_OR0] = HID_OR_GPO_BUZ_SPDIF;
++	dev->ctl_data->byte[HID_OR1] = dev->keybit;
++	dev->ctl_data->byte[HID_OR2] = dev->keybit;
++	dev->ctl_data->byte[HID_OR3] = 0x00;
++
++	if ((ret = usb_submit_urb(dev->urb_ctl, GFP_KERNEL)) != 0) {
++		err("%s - usb_submit_urb failed with result %d",
++		    __FUNCTION__, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static void input_close(struct input_dev *idev)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++
++	usb_kill_urb(dev->urb_ctl);
++	usb_kill_urb(dev->urb_irq);
++}
++
++static void buzz(struct cm109_dev *dev, int on)
++{
++	int ret;
++
++	if (dev == NULL) {
++		err("buzz: dev is NULL\n");
++		return;
++	}
++
++	dbg("Buzzer %s", on ? "on" : "off");
++	if (on)
++		dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
++	else
++		dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
++
++	ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
++	if (ret)
++		err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
++}
++
++static int input_ev(struct input_dev *idev, unsigned int type,
++		    unsigned int code, int value)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++	unsigned long flags;
++
++#ifdef CM109_DEBUG
++	info("input_ev: type=%u code=%u value=%d", type, code, value);
++#endif
++
++	if (type != EV_SND)
++		return -EINVAL;
++
++	switch (code) {
++	case SND_TONE:
++	case SND_BELL:
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	spin_lock_irqsave(&cm109_buzz_lock, flags);
++	buzz(dev, value);
++	spin_unlock_irqrestore(&cm109_buzz_lock, flags);
++
++	return 0;
++}
++
++
++/*******************************************************************************
++ * Linux interface and usb initialisation
++ ******************************************************************************/
++
++struct driver_info {
++	char *name;
++};
++
++static const struct driver_info info_cm109 = {
++	.name = "CM109 USB driver",
++};
++
++enum {
++	VENDOR_ID = 0x0d8c,
++	PRODUCT_ID_KIP1000 = 0x000e,	/* CM109 defines the range 0x0008 - 0x000f */
++};
++
++/* table of devices that work with this driver */
++static const struct usb_device_id usb_table[] = {
++	{
++	 .match_flags = USB_DEVICE_ID_MATCH_DEVICE |
++	 USB_DEVICE_ID_MATCH_INT_INFO,
++	 .idVendor = VENDOR_ID,
++	 .idProduct = PRODUCT_ID_KIP1000,
++	 .bInterfaceClass = USB_CLASS_HID,
++	 .bInterfaceSubClass = 0,
++	 .bInterfaceProtocol = 0,
++	 .driver_info = (kernel_ulong_t) & info_cm109},
++	/* you can add more devices here with product ID 0x0008 - 0x000f */
++	{}
++};
++
++static int usb_cleanup(struct cm109_dev *dev, int err)
++{
++	if (dev == NULL)
++		return err;
++
++	usb_kill_urb(dev->urb_irq);	/* parameter validation in core/urb */
++	usb_kill_urb(dev->urb_ctl);	/* parameter validation in core/urb */
++
++	if (dev->idev) {
++		if (err)
++			input_free_device(dev->idev);
++		else
++			input_unregister_device(dev->idev);
++	}
++	if (dev->ctl_req)
++		usb_buffer_free(dev->udev, sizeof(*(dev->ctl_req)),
++				dev->ctl_req, dev->ctl_req_dma);
++	if (dev->ctl_data)
++		usb_buffer_free(dev->udev, USB_PKT_LEN,
++				dev->ctl_data, dev->ctl_dma);
++	if (dev->irq_data)
++		usb_buffer_free(dev->udev, USB_PKT_LEN,
++				dev->irq_data, dev->irq_dma);
++
++	usb_free_urb(dev->urb_irq);	/* parameter validation in core/urb */
++	usb_free_urb(dev->urb_ctl);	/* parameter validation in core/urb */
++	kfree(dev);
++
++	return err;
++}
++
++static void usb_disconnect(struct usb_interface *interface)
++{
++	struct cm109_dev *dev;
++
++	dev = usb_get_intfdata(interface);
++
++	/* Wait for URB idle */
++	spin_lock_irq(&dev->submit_lock);
++	dev->disconnecting = 1;
++	spin_unlock_irq(&dev->submit_lock);
++
++	usb_set_intfdata(interface, NULL);
++
++	usb_cleanup(dev, 0);
++}
++
++static int usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct driver_info *nfo = (struct driver_info *)id->driver_info;
++	struct usb_host_interface *interface;
++	struct usb_endpoint_descriptor *endpoint;
++	struct cm109_dev *dev;
++	struct input_dev *input_dev;
++	int ret, pipe, i;
++
++	interface = intf->cur_altsetting;
++	endpoint = &interface->endpoint[0].desc;
++
++	if (!usb_endpoint_is_int_in(endpoint))
++		return -ENODEV;
++
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	spin_lock_init(&dev->submit_lock);
++	dev->disconnecting = 0;
++
++	dev->udev = udev;
++
++	dev->idev = input_dev = input_allocate_device();
++	if (!input_dev)
++		goto err;
++
++	/* allocate usb buffers */
++	dev->irq_data = usb_buffer_alloc(udev, USB_PKT_LEN,
++					 GFP_KERNEL, &dev->irq_dma);
++	if (dev->irq_data == NULL)
++		goto err;
++
++	dev->ctl_data = usb_buffer_alloc(udev, USB_PKT_LEN,
++					 GFP_KERNEL, &dev->ctl_dma);
++	if (!dev->ctl_data)
++		goto err;
++
++	dev->ctl_req = usb_buffer_alloc(udev, sizeof(*(dev->ctl_req)),
++					GFP_KERNEL, &dev->ctl_req_dma);
++	if (dev->ctl_req == NULL)
++		goto err;
++
++	/* allocate urb structures */
++	dev->urb_irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (dev->urb_irq == NULL)
++		goto err;
++
++	dev->urb_ctl = usb_alloc_urb(0, GFP_KERNEL);
++	if (dev->urb_ctl == NULL)
++		goto err;
++
++	/* get a handle to the interrupt data pipe */
++	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
++	ret = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
++	if (ret != USB_PKT_LEN)
++		err("invalid payload size %d, expected %d", ret, USB_PKT_LEN);
++
++	/* initialise irq urb */
++	usb_fill_int_urb(dev->urb_irq, udev, pipe, dev->irq_data,
++			 USB_PKT_LEN,
++			 urb_irq_callback, dev, endpoint->bInterval);
++	dev->urb_irq->transfer_dma = dev->irq_dma;
++	dev->urb_irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++	dev->urb_irq->dev = udev;
++
++	/* initialise ctl urb */
++	dev->ctl_req->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE |
++	    USB_DIR_OUT;
++	dev->ctl_req->bRequest = USB_REQ_SET_CONFIGURATION;
++	dev->ctl_req->wValue = cpu_to_le16(0x200);
++	dev->ctl_req->wIndex = cpu_to_le16(interface->desc.bInterfaceNumber);
++	dev->ctl_req->wLength = cpu_to_le16(USB_PKT_LEN);
++
++	usb_fill_control_urb(dev->urb_ctl, udev, usb_sndctrlpipe(udev, 0),
++			     (void *)dev->ctl_req, dev->ctl_data, USB_PKT_LEN,
++			     urb_ctl_callback, dev);
++	dev->urb_ctl->setup_dma = dev->ctl_req_dma;
++	dev->urb_ctl->transfer_dma = dev->ctl_dma;
++	dev->urb_ctl->transfer_flags |= URB_NO_SETUP_DMA_MAP |
++	    URB_NO_TRANSFER_DMA_MAP;
++	dev->urb_ctl->dev = udev;
++
++	/* find out the physical bus location */
++	usb_make_path(udev, dev->phys, sizeof(dev->phys));
++	strlcat(dev->phys, "/input0", sizeof(dev->phys));
++
++	/* register settings for the input device */
++	input_dev->name = nfo->name;
++	input_dev->phys = dev->phys;
++	usb_to_input_id(udev, &input_dev->id);
++	input_dev->dev.parent = &intf->dev;
++
++	input_set_drvdata(input_dev, dev);
++	input_dev->open = input_open;
++	input_dev->close = input_close;
++	input_dev->event = input_ev;
++
++	/* register available key events */
++	input_dev->evbit[0] = BIT(EV_KEY);
++	for (i = 0; i < 256; i++) {
++		int k = map_p1k_to_key(i);
++		if (k >= 0) {
++			set_bit(k & 0xff, input_dev->keybit);
++			if (k >> 8)
++				set_bit(k >> 8, input_dev->keybit);
++		}
++	}
++
++	input_dev->evbit[0] |= BIT(EV_SND);
++	input_dev->sndbit[0] = BIT(SND_BELL) | BIT(SND_TONE);
++
++	ret = input_register_device(dev->idev);
++	if (ret)
++		goto err;
++
++	usb_set_intfdata(intf, dev);
++
++	return 0;
++
++      err:
++	return usb_cleanup(dev, -ENOMEM);
++}
++
++static struct usb_driver cm109_driver = {
++	.name       = "cm109",
++	.probe      = usb_probe,
++	.disconnect = usb_disconnect,
++	.id_table   = usb_table,
++};
++
++static int __init cm109_dev_init(void)
++{
++	int ret;
++
++	ret = usb_register(&cm109_driver);
++	if (ret == 0)
++		info(DRIVER_DESC ": " DRIVER_VERSION " (C) " DRIVER_AUTHOR);
++
++	return ret;
++}
++
++static void __exit cm109_dev_exit(void)
++{
++	usb_deregister(&cm109_driver);
++}
++
++module_init(cm109_dev_init);
++module_exit(cm109_dev_exit);
++
++MODULE_DEVICE_TABLE(usb, usb_table);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
+diff -uprN -X linux-2.6.22-rc6-orig/Documentation/dontdiff linux-2.6.22-rc6-orig/drivers/input/misc/Kconfig 
+linux-2.6.22-rc6/drivers/input/misc/Kconfig
+--- linux-2.6.22-rc6-orig/drivers/input/misc/Kconfig	2007-06-25 23:48:05.000000000 +0200
++++ linux-2.6.22-rc6/drivers/input/misc/Kconfig	2007-06-25 23:49:12.000000000 +0200
+@@ -161,6 +161,18 @@ config INPUT_YEALINK
+  	  To compile this driver as a module, choose M here: the module will be
+  	  called yealink.
 
-Thank you in advance for your consideration, and we look forward to
-hearing from you.
-
-Regards,
-
-Mike Gordon
-Business Development Representative
-Repharm Technologies
-
-************************************************************************
-***
-
-If you would prefer not to receive communications from us in future,
-please reply to this email with "remove" in the subject line.
-
-As always, we appreciate your business.
-
-
-
-------=_NextPart_000_0034_01C221EC.6C64F7B0
-Content-Type: text/html;
-        charset="iso-8859-1"
-
-<HTML><HEAD><TITLE>E-mail message content</TITLE>
-</HEAD>
-<BODY bgcolor="#FFFFFF" leftmargin=5 topmargin=5 rightmargin=5 bottommargin=5>
-<FONT size=2 color="#000000" face="Courier New">
-<DIV><B>&nbsp;</B></DIV>
-<DIV>&nbsp;</DIV>
-<DIV>We are happy to inform you of the availability the following customer lists ....</DIV>
-<DIV>CFO</DIV>
-<DIV>Accounting</DIV>
-<DIV>ACCPAC</DIV>
-<DIV>CODA</DIV>
-<DIV>SAP</DIV>
-<DIV>Equitrac</DIV>
-<DIV>Pervasive</DIV>
-<DIV>Microsoft Sharepoint</DIV>
-<DIV>Microsoft xchange</DIV>
-<DIV>Microsoft SQL</DIV>
-<DIV>Microsoft Dynamics</DIV>
-<DIV>Microsoft Visio</DIV>
-<DIV>Microsoft CRM</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>For more information about these lists as well as our other software lists you can visit our corporate web site by clicking the link below..</DIV>
-<DIV>&nbsp;</DIV>
-<DIV><A href="http://www.massmailsoftware.com"><FONT color="#0000FF"><U>http://www.repharm.com</U></FONT></A></DIV>
-<DIV><A href="http://www.massmailsoftware.com"><FONT color="#0000FF"><U>&nbsp;</U></FONT></A></DIV>
-<DIV><A href="http://www.massmailsoftware.com"><FONT color="#0000FF"><U>&nbsp;</U></FONT></A></DIV>
-<DIV>If you'd like more information, please contact Mike Gordon at our<BR>
-Repharm office at (905) 728-6708,&nbsp;<BR>
-&nbsp;<BR>
-Thank you in advance for your consideration, and we look forward to<BR>
-hearing from you.<BR>
-&nbsp;<BR>
-Regards,<BR>
-&nbsp;<BR>
-Mike Gordon<BR>
-Business Development Representative<BR>
-Repharm Technologies<BR>
-&nbsp;<BR>
-************************************************************************<BR>
-***<BR>
-&nbsp;<BR>
-If you would prefer not to receive communications from us in future,<BR>
-please reply to this email with "remove" in the subject line.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>As always, we appreciate your business.</DIV>
-<DIV>&nbsp;</DIV>
-<DIV>&nbsp;</DIV>
-<DIV><A href="http://www.atompark.com"><FONT color="#0000FF"><U>&nbsp;</U></FONT></A></DIV>
-</FONT>
-<p>--- Sent by UNREGISTERED VERSION of <b>Atomic Mail Sender</b>
-</BODY></HTML>
-
-
-------=_NextPart_000_0034_01C221EC.6C64F7B0--
++config INPUT_CM109
++	tristate "C-Media CM109 USB I/O Controller"
++	depends on INPUT && EXPERIMENTAL
++	select USB
++	---help---
++	  Say Y here if you want to enable keyboard and buzzer functions of the
++	  C-Media CM109 usb phones. The audio part is enabled by the generic
++	  usb sound driver, so you might want to enable that as well.
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called cm109.
++
+  config INPUT_UINPUT
+  	tristate "User level driver support"
+  	help
+diff -uprN -X linux-2.6.22-rc6-orig/Documentation/dontdiff linux-2.6.22-rc6-orig/drivers/input/misc/Makefile 
+linux-2.6.22-rc6/drivers/input/misc/Makefile
+--- linux-2.6.22-rc6-orig/drivers/input/misc/Makefile	2007-06-25 23:48:05.000000000 +0200
++++ linux-2.6.22-rc6/drivers/input/misc/Makefile	2007-06-25 23:49:12.000000000 +0200
+@@ -16,5 +16,6 @@ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_
+  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+  obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+  obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o

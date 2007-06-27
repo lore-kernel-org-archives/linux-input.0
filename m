@@ -1,7 +1,7 @@
 From: EGO - Globo.com <noticias@ego.com.br>
-Subject: Flagra de Iris que resultou o fim do romance com Alemão
-Date: Wed, 27 Jun 2007 07:11:24 +0200 (CEST)
-Message-ID: <42718.0387698629$1182922028@news.gmane.org>
+Subject: 001212Flagra de Iris que resultou o fim do romance com Alemão
+Date: Wed, 27 Jun 2007 08:00:54 +0200 (CEST)
+Message-ID: <31566.2340065048$1182924706@news.gmane.org>
 Reply-To: EGO - Globo.com <noticias@ego.com.br>
 Mime-Version: 1.0
 Content-Type: text/html; charset=iso-8859-1

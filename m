@@ -1,7 +1,7 @@
-From: "Sales" <sales@swadhikar.com>
-Subject: Putting The Pro In Procrastination
-Date: Wed, 27 Jun 2007 06:45:42 +0000
-Message-ID: <040901c7b886$1165693d$5825cf52@[82.207.37.88]>
+From: "Sales" <sales@karatebears.com>
+Subject: The Marijuana Subculture
+Date: Wed, 27 Jun 2007 11:31:58 +0000
+Message-ID: <61ea01c7b8ae$0238bfec$018a794d@iron-d3b275a5ca.voliacable.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
@@ -14,16 +14,17 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Persson Diana <linux-input@atrey.karlin.mff.cuni.cz>
+To: Pijov Oleg <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-If you can't persuade ur girl that she deserves only your tiny size, 
-so, never mind, just try out our wonderful pellet and you'll 
-show your girlfriend a REAL SIZE!
+We bet you wouldn't mind to become a super hot bedstar 
+for your non-satisfied girlfriend!
 
-You can find out how to do it 
-on our official website: http://www.swadhikar.com/ 
-and it's REALLY CHEAPER!
+All you need to do is to order our stammering effective super pill 
+via our website: http://www.karatebears.com/ for the half price! 
+
+It will make your penis really huge giving you the unique chance 
+to shoot a porn movie and not to be embarrassed!
 
 -- 
-hsmlmhmhlnllihjojukhklkflkjmkikpjrkifkjmjrkrjikokugrktkhkignkjjskmkigkkujm
+mohhhlithjhpmtisiqhlhhhrgoiqhuhtinhmmgfqffgffufsfqjnfpftfujjfngofifmjggifq

@@ -1,56 +1,74 @@
-From: BRITISHWEBLOTTERY6/49 <paulvidrine@charter.net>
-Subject: ACKNOWLEDGE RECEIPT
-Date: Wed, 27 Jun 2007 8:24:24 -0700
-Message-ID: <690511366.1182957866127.JavaMail.root__32558.3903039389$1182957877$gmane$org@fepweb09>
-Reply-To: agentrichard_parker@yahoo.co.uk
+From: "Mcneill Juliette" <konfetka2409@gmail.com>
+Subject: PssstUSA Players! Find BIG THINGS & BIG DOLLARS
+Date: Wed, 27 Jun 2007 16:03:43 -0100
+Message-ID: <01c7b8d4$bbffceb0$a2900f53@konfetka2409>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7B8E5.7F889EB0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: jana@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-BRITISH LOTTERY6/49
-12 Whitehall , London SW1A 2DY, United Kingdom.
-27th June 2007.
+------=_NextPart_000_0007_01C7B8E5.7F889EB0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-Dear Recipient
-
-
-We wish to congratulate you over your email success in our FREE BRITISH
-WEB LOTTERY computer balloting held on 26Th June, 2007. This=20
-is a Millennium Scientific Computer Game in which email addresses were
-used. It is our promotional lottery program aimed at encouraging internet=
-=20
-users; therefore you do not need to buy ticket to enter for it. You have
-been approved for the star prize of 1,006.168 GBP(One million six=20
-thousand one hundred and sixty-eight Pound Sterling)=20
-
-To claim your winning prize you are to contact the appointed agent as=20
-soon as possible for the immediate release of your winnings:=20
-
-Ticket no: 025-1146-1992-750
-Serial no:2113-05
-Lucky no: 13-15-22-37-39-43
-REF NO:BRLFGP2551256/03
-Amount won: =C2=A31,006,168.00
-
-You are to contact: Mr. Richard Parker
-Email:agentrichard_parker@yahoo.co.uk
-
-You must contact the appointed agent with your Full Names, Contact=20
-Telephone Numbers (Home, Office and Mobile Number and also Fax Number)=20
-via email to process the immediate payment of your prize. The Validity=20
-period of the winnings is for 30 working days hence you are expected=20
-to make your claims immediately.=20
-
-Once again congratulations!!!
+--
+wzdknnmzziggaakvdsczzijrunmnce
+// SuperBGameTime .Com/ 
+* $500 free just for joining.
+* All the excitement all the fun and all the money!
+*  Las Vegas at your fingers.
+* Service to players in the USA and everywhere.
+* 24x7 customer support.
+*All winnings transferred to your account immediately and securely.
 
 
-Sincerely,
-Mr. George Scherrer
+
+------=_NextPart_000_0007_01C7B8E5.7F889EB0
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 5.50.4522.1200" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<BODY>
+<center>
+<b>--</b><br>
+<small><small><small><small><small><small><small><small><small><small>
+wzdknnmzziggaakvdsczzijrunmnce<br>
+</small></small></small></small></small></small></small></small></small></s=
+mall>
+<br><big><big>
+// SuperBGameTime .Com/ <br>
+<br></big></center>
+* $500 free just for joining.<br>
+<br>
+* All the excitement all the fun and all the money!<br>
+<br>
+*  Las Vegas at your fingers.<br>
+<br>
+* Service to players in the USA and everywhere.<br>
+<br>
+* 24x7 customer support.<br>
+<br>
+*All winnings transferred to your account immediately and securely.<br>
+
+</BODY>
+
+</BODY></HTML>
+
+------=_NextPart_000_0007_01C7B8E5.7F889EB0--

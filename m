@@ -1,7 +1,7 @@
-From: "Arnold" <southwestern@netsiam.com>
-Subject: Ich habe ein Online Casino mit unglaublichen Spielen entdeckt!
-Date: Wed, 27 Jun 2007 07:17:24 -0700
-Message-ID: <49923650.46715817@greed.com>
+From: "alex x." <mckee@flygt.com>
+Subject: I found a website with the best online casino games around!
+Date: Wed, 27 Jun 2007 15:30:14 +0100
+Message-ID: <82363958.84212856@april.com>
 Mime-Version: 1.0
 Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
@@ -11,7 +11,7 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jack@atrey.karlin.mff.cuni.cz
+To: listlorenai-devel@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 <html>
@@ -19,8 +19,8 @@ List-Id: linux-input@vger.kernel.org
 <head>
 <meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 
-<title>Schade, dass Sie das grosse Spiel verpasst haben&#8230; aber ich glaube
-noch ein besseres gefunden zu haben</title>
+<title>Sorry I missed you at the big game&#8230; but I think I found an even
+better one</title>
 
 <style>
 <!--
@@ -57,39 +57,39 @@ div.Section1
 
 </head>
 
-<body lang=DE link=blue vlink=purple style='tab-interval:35.4pt'>
+<body lang=EN link=blue vlink=purple style='tab-interval:35.4pt'>
 
 <div class=Section1>
 
-<p class=MsoNormal><span lang=FR>Schade, dass Sie das grosse Spiel verpasst
-haben&#8230; aber ich glaube noch ein besseres gefunden zu haben!
+<p class=MsoNormal><span lang=FR>Sorry I missed you at the big game&#8230; but
+I think I found an even better one!<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=FR>I found a website with the best online casino
+games around - from great table action to slots and tournaments&#8230;
 <o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR><o:p>&nbsp;</o:p></span></p>
+<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR>Ich habe ein Online Casino mit unglaublichen
-Spielen entdeckt &#8211; von Tischspielen &uuml;ber Automaten bis hin zu 
-Turnieren, hier wird alles geboten. <o:p></o:p></span></p>
+<p class=MsoNormal><span lang=FR>Plus - If you visit their site today
+you&#8217;ll get a free $555 bonus!<o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR><o:p>&nbsp;</o:p></span></p>
+<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR>Und wenn Sie sich heute noch anmelden, 
-k&ouml;nnen Sie einen Willkommensbonus von bis zu 555&#8364; erhalten!
+<p class=MsoNormal><span lang=FR>So&#8230; what&#8217;re you waiting for? 
 <o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR><o:p>&nbsp;</o:p></span></p>
+<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR>Also worauf warten Sie noch? 
+<p class=MsoNormal><span lang=FR>You really should check it out!
 <o:p></o:p></span></p>
 
-<p class=MsoNormal><span lang=FR>Schauen Sie vorbei!<o:p></o:p></span></p>
+<p class=MsoNormal><span lang=FR>&nbsp;<o:p></o:p></span></p>
 
 <p class=MsoNormal><span lang=FR>
-<a href="http://www.mvipcasino.hk/lang-de/">
-http://www.mvipcasino.hk/lang-de/</a></span><span
-lang=FR style='mso-bidi-font-size:10.0pt'><o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=FR><o:p>&nbsp;</o:p></span></p>
+<a href="http://vipzone.hk/">
+http://vipzone.hk/</a><o:p></o:p></span></p>
 
 </div>
 

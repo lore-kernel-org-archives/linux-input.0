@@ -1,98 +1,106 @@
-From: "Mason Dillon" <mihsethersgod@sethers.com>
-Subject: Burn pounds off with Anatrim
-Date: Thu, 28 Jun 2007 18:48:55 -0100
-Message-ID: <567868095.71843188142493@thhebat.net>
+From: "Euro VIP Casino" <soar@crewstart.com>
+Subject: 400 Euro Willkommensbonus!
+Date: Thu, 28 Jun 2007 12:49:08 -0700
+Message-ID: <24042172.32315560@improve.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------3C098F4D35DA98"
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: jack@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------3C098F4D35DA98
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+<html>
 
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 
+<title>Nur im alten aristokratischen Europa </title>
 
-Take advantage of your opportunity! – Anatrim – The latest & most exciting product for corpulent people is made available now – As were told on Oprah
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:2.0cm 42.5pt 2.0cm 3.0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
 
-Do you recall all the times when you plead to yourself to do anything to get rid of this frightful pounds of fat? Happily, now no big price is to be paid. Thanks to Anatrim, the ground-shaking, you can get healthier lifestyle and a really slender figure. Just notice what people say!
- 
-“I always had a marvelous life until last year the girl I was meeting said to me I was fat and in a great want of keeping eye on my health. My life went the wrong way after that, till I was told about Anatrim ™. Since getting rid of about 20 kg thanks to Anatrim,  my private life’s back on track, significantly better even than before. Great deal of thanks for the awesome product & the top-quality service. Proceed with your helpful business!”
+</head>
 
- 
-Rikky Martin, Colorado
+<body lang=DE link=blue vlink=purple style='tab-interval:35.4pt'>
 
- 
-"Nothing feels better than gliding into a bikini I have not worn for many long years. I feel slender, steadfast, and strong, thanx to a considerable degree to Anatrim! Thanks a lot!"
+<div class=Section1>
 
- 
-Maria H., Las Vegas
+<p class=MsoNormal>
+<span lang=EN-US>Nur im alten aristokratischen Europa k&ouml;nnen
+Sie so ein elitistisches Casino zum Spielen finden:<o:p></o:p></span></p>
 
-Discover Anatrim, and  you shall add yourself to the world-wide association of thousands of delighted customers who are enjoying the revolutionary results of Anatrim just now. Less swallowing mania, less kilos and more joy in your life!
+<p class=MsoNormal><span lang=EN-US>Euro VIP Casino!!<o:p></o:p></span></p>
 
-Proceed here to look at unbreakable Anatrim arrangements we would like to so proud!!!
-http://www.plintur.com/?oyymfatuyi
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
 
-------------3C098F4D35DA98
-Content-Type: text/html; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+<p class=MsoNormal><span lang=EN-US>Hoher Standard ist einzigartig:
+<o:p></o:p></span></p>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Summer is almost here, be ready</TITLE>
-</HEAD>
-<BODY>
+<p class=MsoNormal><span lang=EN-US>Ein grossz&uuml;giger Willkommensbonus von
+mindestens 100% bis zu 100 &#8364;/$ auf<span style='mso-spacerun:yes'> 
+</span>Ihre ersten vier Einzahlungen, mit maximalem 400 &#8364;/$ hohem 
+Bonus!!!<o:p></o:p></span></p>
 
-<p>
-<center>
-<b>
-<a href="http://www.plintur.com/?oyymfatuyi" target="_blank">
-Take advantage of your opportunity! – Anatrim – The latest & most exciting product for corpulent people is made available now – As were told on Oprah
-</a>
-</center>
-<br>
-Do you recall all the times when you plead to yourself to do anything to get rid of this frightful pounds of fat? Happily, now no big price is to be paid. Thanks to Anatrim, the ground-shaking, you can get healthier lifestyle and a really slender figure. Just notice what people say!
- <br>
-<br>
-<i>
-“I always had a marvelous life until last year the girl I was meeting said to me I was fat and in a great want of keeping eye on my health. My life went the wrong way after that, till I was told about Anatrim ™. Since getting rid of about 20 kg thanks to Anatrim,  my private life’s back on track, significantly better even than before. Great deal of thanks for the awesome product & the top-quality service. Proceed with your helpful business!”
-</i>
- <br>
-<b>
-<i>
-Rikky Martin, Colorado
-</i>
-</b>
- <br>
-<br>
-<i>
-"Nothing feels better than gliding into a bikini I have not worn for many long years. I feel slender, steadfast, and strong, thanx to a considerable degree to Anatrim! Thanks a lot!"
-</i>
- <br>
-<b>
-<i>
-Maria H., Las Vegas
-</i>
-</b>
-<br>
-<br>
-Discover Anatrim, and  you shall add yourself to the world-wide association of thousands of delighted customers who are enjoying the revolutionary results of Anatrim just now. Less swallowing mania, less kilos and more joy in your life!
-<br>
-<br>
-<center>
-<a href="http://www.plintur.com/?oyymfatuyi" target="_blank">
-Proceed here to look at unbreakable Anatrim arrangements we would like to so proud!!!
-</a>
-</center>
-</b>
-</p>
-<font color="#D9EDFF">http://www.plintur.com/?oyymfatuyi</font>
+<p class=MsoNormal><span lang=EN-US>Unglaubliche Jackpots welche die
+Millionengrenze weit &uuml;berschreiten!<o:p></o:p></span></p>
 
-</BODY></HTML>
-------------3C098F4D35DA98--
+<p class=MsoNormal><span lang=EN-US>Sagenhafte last generation Software!
+<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US>All das macht es zum besten Platz online zu
+spielen.<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US>Also kommen und spielen Sie bei Euro VIP
+Casino und treten Sie der noblen Gesellschaft der europ&auml;ischen 
+Spielelite bei!<o:p></o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US>
+<a href="http://555vip.hk/lang-de/">
+http://555vip.hk/lang-de/</a><o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

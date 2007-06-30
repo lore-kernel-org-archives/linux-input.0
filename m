@@ -1,105 +1,45 @@
-From: "Vance Lam" <BOCELIS@ML.LT>
-Subject: slooshy the  sirening millicents  going  east, so we knew we were all  right
-Date: Sat, 30 Jun 2007 14:15:01 -0100
-Message-ID: <01c7bb21$0c0b98f0$a114bc57@BOCELIS>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH] Input: document the proper usage of EV_KEY and
+	KEY_UNKNOWN (v2)
+Date: Sat, 30 Jun 2007 15:20:29 -0300
+Message-ID: <20070630182029.GA25474@khazad-dum.debian.net>
+References: <11802004861625-git-send-email-hmh@hmh.eng.br> <20070531222814.GB4076@khazad-dum.debian.net> <20070606165509.GB18984@khazad-dum.debian.net> <200706290104.53909.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7BB31.CF9468F0"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <200706290104.53909.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: listproc@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Fri, 29 Jun 2007, Dmitry Torokhov wrote:
+> Finally gottent to the patch. It seems a little long-winded, how about
+> the patch below instead?
 
-------=_NextPart_000_0007_01C7BB31.CF9468F0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Well, your version of the patch:
 
+1. does not make it clear to *userland* that using EV_SCAN instead of EV_KEY
+is something that is not to be done.  If userland wants to use a key that is
+not generating an useful EV_KEY, it must remap the key to something.
+Otherwise, we are opening our flank to the crap we have with that kludge
+from hell AT keyboard reverse scan-code generation all again...  it might
+have been unavoidable with the AT keyboard, due to legacy stuff, but there
+is no way we should let it happen to anything else.
 
-Cheapest Viagra and Cialis offer you can find!
-Highest quality at lowest prices at our shop!
-Become the best lover immediately with our meds!
-Order now and you'll get them worldwide! 
-Just type this address in your browser and hit Enter key
- CAPILLZ. COM
+2. does not make it clear that EV_SCAN events must reflect the scan code
+that, when remapped, would reprogram the key that caused that EV_SCAN event
+to be generated.
 
-    * AchillesSPORT    * Uno- Warnung: Die W&#252;ste w&#228;chst    * Glob=
-alisierung: Chinas beste Angreifer    * Fall Marco Weiss: "Das M&#228;dchen=
- ist das Opfer - nicht der Junge"    * L&#246;sch-Aktion bei der Bundeswehr=
-: Minister Jung k&#252;ndigt Aufkl&#228;rung an    * L&#246;sch-Aktion bei =
-der Bundeswehr: Minister Jung k&#252;ndigt Aufkl&#228;rung an    * Fall Mar=
-co Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"    * Kokain- S=
-chmuggel: Mutter benutzt eigene Kinder als Drogenkuriere    * Uno- Warnung:=
- Die W&#252;ste w&#228;chstDas Schicksal des inhaftierten Sch&#252;lers Mar=
-co Weiss erhitzt die Gem&#252;ter in Deutschland. Auch die USA debattieren =
-derzeit &#252;ber einen &#228;hnlichen Fall. In Georgia soll ein junger Man=
-n f&#252;r zehn Jahre ins Gef&#228;ngnis, weil er Oralverkehr mit einer 15-=
-J&#228;hrigen hatte. Von J&#246;rg Diehl mehr...      Harry Potter: Weltpre=
-miere in Japan Video abspielen...    * Formel 1    * Kokain- Schmuggel: Mut=
-ter benutzt eigene Kinder als DrogenkuriereAngel-Simulator, Gitarren-Wettka=
-mpf, Quitsche-Enten durch die Wanne steuern - kaum eine Spielidee ist zu ab=
-erwitzig f&#252;r die neuen Spielkonsolen. Wie gut kennen Sie die neuen Spi=
-el-Wunder? Testen Sie Ihr Daddel-Know-how im SPIEGEL-ONLINE-Quiz. Von Konra=
-d Lischka mehr...    * &#220;bersicht
-------=_NextPart_000_0007_01C7BB31.CF9468F0
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+I think these two points need to be addressed by the docs.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
-<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<html<body bgcolor=3D"#ffffff">
-<div style=3D"border-color: #00FFFF; border-right-width: 0px; border-bottom=
--width: 0px; margin-bottom: 0px;" align=3D"center">
-<table style=3D"border: 2px; border-style: solid; border-color:#000000; fon=
-t-family: Tahoma; font-weight: bold;" cellpadding=3D"15" cellspacing=3D"0" =
-bgcolor=3D"#FF0000">
-<tr>
-<td style=3D"border: 0px; border-bottom: 1px; border-style: solid; border-c=
-olor:#000000; color:yellow">
-<center>
-Cheapest Viagra and Cialis offer you can find!
-Highest quality at lowest prices at our shop!
-Become the best lover immediately with our meds!
-Order now and you'll get them worldwide! 
-Just type this address in your browser and hit Enter key
-</center>
-</td></tr><tr>
-<td bgcolor=3D#00FF00>
-<center> CAPILLZ. COM</center>
-<br>
-
-<style>    * AchillesSPORT    * Uno- Warnung: Die W&#252;ste w&#228;chst   =
- * Globalisierung: Chinas beste Angreifer    * Fall Marco Weiss: "Das M&#22=
-8;dchen ist das Opfer - nicht der Junge"    * L&#246;sch-Aktion bei der Bun=
-deswehr: Minister Jung k&#252;ndigt Aufkl&#228;rung an    * L&#246;sch-Akti=
-on bei der Bundeswehr: Minister Jung k&#252;ndigt Aufkl&#228;rung an    * F=
-all Marco Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"    * Ko=
-kain- Schmuggel: Mutter benutzt eigene Kinder als Drogenkuriere    * Uno- W=
-arnung: Die W&#252;ste w&#228;chstDas Schicksal des inhaftierten Sch&#252;l=
-ers Marco Weiss erhitzt die Gem&#252;ter in Deutschland. Auch die USA debat=
-tieren derzeit &#252;ber einen &#228;hnlichen Fall. In Georgia soll ein jun=
-ger Mann f&#252;r zehn Jahre ins Gef&#228;ngnis, weil er Oralverkehr mit ei=
-ner 15-J&#228;hrigen hatte. Von J&#246;rg Diehl mehr...      Harry Potter: =
-Weltpremiere in Japan Video abspielen...    * Formel 1    * Kokain- Schmugg=
-el: Mutter benutzt eigene Kinder als DrogenkuriereAngel-Simulator, Gitarren=
--Wettkampf, Quitsche-Enten durch die Wanne steuern - kaum eine Spielidee is=
-t zu aberwitzig f&#252;r die neuen Spielkonsolen. Wie gut kennen Sie die ne=
-uen Spiel-Wunder? Testen Sie Ihr Daddel-Know-how im SPIEGEL-ONLINE-Quiz. Vo=
-n Konrad Lischka mehr...    * &#220;bersicht</style>
-</td></tr></table>
-</div></body></html>
-</BODY></HTML>
-
-------=_NextPart_000_0007_01C7BB31.CF9468F0--
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

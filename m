@@ -1,53 +1,123 @@
-From: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] USB: driver for CM109 chipset
-Date: Mon, 2 Jul 2007 17:37:07 +0200
-Message-ID: <20070702153707.GA27958@suse.cz>
-References: <467FC7E5.7050901@db.org> <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com>
+From: "Bowden Leroy" <mr.gregory@sbcglobal.net>
+Subject: Buy Energy fur its tail, and save 85%
+Date: Mon, 2 Jul 2007 15:38:28 -0100
+Message-ID: <01c7bcbf$096f8f30$d0e11653@mr.gregory>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000E_01C7BCCF.CCF85F30"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Alfred E. Heggestad" <aeh@db.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: janecek@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 25, 2007 at 10:29:13AM -0400, Dmitry Torokhov wrote:
-> Hi Alfred,
-> 
-> On 6/25/07, Alfred E. Heggestad <aeh@db.org> wrote:
-> >From: Alfred E. Heggestad <aeh@db.org>
-> >
-> >This driver adds support for USB VoIP phones using the CM109 chipset,
-> >such as the KIP-1000. Keypad is scanned and events are reported to
-> >the input subsystem. The buzzer can be activated by sending SND_TONE
-> >or SND_BELL to the input device.
-> >The driver has been tested with linux 2.6.21.3 on i386 and AMD64,
-> >and linux 2.6.21.1 on Broadcom BCM3302 (MIPS, OpenWRT Project)
-> >The current patch applies cleanly and is tested on linux 2.6.22-rc4
-> >More testing and code review is welcome..
-> >
-> 
-> Thank you for your patch. I have couple of comments:
-> 
-> - "input_dev->cdev.dev = &intf->dev;" should be "input_dev->dev.parent
-> = &intf->dev;"
-> - do not access input->private directly; use input_set_drvdata() and
-> input_get_drvdata() helpers.
-> - error handling for input_register_device();
-> - I guess we need KEY_POUNDSIGN because I don't like that business
-> with key_shift + key_3 (I did not like it in yealink either...)
+This is a multi-part message in MIME format.
 
-Probably a KEY_KPPOUND. We should be sending the keypad keys on phones.
+------=_NextPart_000_000E_01C7BCCF.CCF85F30
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-> Also could you please send your patches inline instead of an
-> attachment - it makes much easire to comment that way.
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+
+
+    4 Vigra pills FREE for every order!!! Special internet prices!  
+  Viagra - 1.79 $ 
+    Cialis - 2.69 $ 
+    Valium - 2.48 $ 
+    Xanax - 2$ 
+   
+   
+   FreshStore Inc. - Professional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. Discreet packaging. 100% confidential. Free physicians consultation & prescription.
+  Buy Here to Save on your Medication. 
+   
+   
+   
+  Our Site: WWW.  FreshStore .HK 
+   Type in browser(without spaces) and press Enter. iaaviiv
+ybbayzy
+iysedes
+
+
+
+
+
+------=_NextPart_000_000E_01C7BCCF.CCF85F30
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3Diso-8859-2" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.50.4963.1700" name=3DGENERATOR></HEAD>
+<BODY>
+<head>
+<style type=3D"text/css">
+<!--
+body {
+	background-color: #FFFFFF;
+}
+body,td,th {
+	color: #000000;
+}
+style4 {font-family: Tahoma}
+style6 {
+	color: #0099FF;
+	font-size: 24px;
+}
+style8 {
+	font-size: 16;
+	color: #000066;
+}
+style9 {color: #666666}
+style11 {
+	color: #999900;
+	font-weight: bold;
+	font-size: 18px;
+}
+style12 {
+	color: #999999;
+	font-size: 18;
+}
+style13 {font-size: 18}
+-->
+</style>
+</head>
+
+<body>
+<div align=3D"center">
+  <p align=3D"left" class=3D"style4 style8 style11">  4 Vigra pills FREE fo=
+r every order!!! Special internet prices!  </p>
+  <p align=3D"left" class=3D"style4 style8"><strong>Viagra - 1.79 $ <br>
+    Cialis - 2.69 $ <br>
+    Valium - 2.48 $ <br>
+    Xanax - 2$ </strong></p>
+  <p align=3D"left" class=3D"style8 style4">&nbsp;</p>
+  <p align=3D"left" class=3D"style8 style4"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> FreshStore Inc. - Profe=
+ssional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. =
+Discreet packaging. 100% confidential. Free physicians consultation & presc=
+ription.</p>
+  <p align=3D"left" class=3D"style4 style8 style9">Buy Here to Save on your=
+ Medication. </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"center" class=3D"style4 style8 style9 style13">Our Site: <spa=
+n class=3D"style6">WWW<big><big>. </big></big> FreshStore<big><big> .</big>=
+</big>HK </span></p>
+  <p align=3D"center" class=3D"style4 style8 style12"> Type in browser(with=
+out spaces) and press Enter. </p><br><br><br><br><br><small><small><small>i=
+aaviiv<br>
+ybbayzy<br>
+iysedes<br>
+</small></small></small>
+</div>
+</body>
+</BODY></HTML>
+
+------=_NextPart_000_000E_01C7BCCF.CCF85F30--

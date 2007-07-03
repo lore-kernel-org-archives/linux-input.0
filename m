@@ -1,125 +1,85 @@
-From: "Cole Frederic" <dvb@wanadoo.fr>
-Subject: Get Viagra - 1.79$ now bonus include
-Date: Tue, 3 Jul 2007 16:30:09 -0100
-Message-ID: <01c7bd8f$6c0023f0$bdaa9c58@dvb>
+From: "Zephaniah E. Hull" <warp@aehallh.com>
+Subject: Re: [PATCH] Input: Support for a less exclusive grab.
+Date: Tue, 3 Jul 2007 12:45:55 -0400
+Message-ID: <20070703164555.GA20370@aehallh.com>
+References: <20070609084800.GR6362@aehallh.com> <200706120120.00494.dtor@insightbb.com> <20070612052316.GX6362@aehallh.com> <200706120135.06428.dtor@insightbb.com> <20070612054031.GY6362@aehallh.com> <20070702152044.GA24665@suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7BDA0.2F88F3F0"
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <20070702152044.GA24665@suse.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: 0rfelyus@atrey.karlin.mff.cuni.cz
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7BDA0.2F88F3F0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+--y0ulUmNC+osPPQO6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Mon, Jul 02, 2007 at 05:20:44PM +0200, Vojtech Pavlik wrote:
+> On Tue, Jun 12, 2007 at 01:40:31AM -0400, Zephaniah E. Hull wrote:
+> > On Tue, Jun 12, 2007 at 01:35:05AM -0400, Dmitry Torokhov wrote:
+> > > On Tuesday 12 June 2007 01:23, Zephaniah E. Hull wrote:
+> > > > On Tue, Jun 12, 2007 at 01:19:59AM -0400, Dmitry Torokhov wrote:
+> > > > > 
+> > > > > Like I said I would love if xf86-input-evdev did not grab the
+> > > > > device at all.
+> > > > 
+> > > > We have to disable the legacy input handlers somehow, not doing so
+> > > > simply isn't an option.
+> > > 
+> > > I do not follow. If user's xorg.conf does not use /dev/input/mice and
+> > > does not use "kbd" driver then grabbing is not required, is it? Now,
+> > > as far as I understand, lack of hotplug support in X is the main
+> > > obstacle for removing "mouse" and "kbd" drivers, correct?
+> > 
+> > Sadly, not quite.
+> > 
+> > The problem is that if the user is not using the mouse and kbd drivers
+> > at all, but is instead using xf86-input-evdev, and no grabbing is done,
+> > then all key presses end up going to the console.
+> 
+> X still switches to its own VT, so those keys go to the X server via the
+> console, and GPM also knows about console switching ...
+> 
+> That is a sane way how to prevent the regular console from getting
+> keypresses/mouse movements.
 
+Not really, what happens when the user presses alt-F1?  A way to tell
+the kernel that events from a given input device should not go to the
+console has been needed since the very first time an X driver allowed
+keyboard events from /dev/input/event<n>, and that still has not
+changed.
 
-zmtahodlvfcncd
-    Special offer! Four Vigra pills FREE for every order!!! Special interne=
-t prices!  
-  Viagra - 1.79$ 
-    Cialis - 2.69$ 
-    Valium - 2.48$ 
-    Xanax - 2$
-   
-   
-   FreshStore Inc. - Professional Visa Verified Online Shop.  Worldwide shi=
-pping. Next day delivery. Discreet packaging. 100% confidential. Free physi=
-cians consultation & prescription.
-  Buy Here to Save on your Medication. 
-   
-   
-   
-  Our Site: WWW.  FreshStore .HK 
-   Type in browser(without spaces) and press Enter. 
-loirgoslprvokp.
+We just want a more flexible approach then what we are already using[0].
 
+I'll see about writing something up when I get back to my computers[1]
+and have things set back up[2].
 
+Zephaniah E. Hull.
 
+0: EVIOCGRAB.
+1: The night of the 10th.
+2: It could be a few days after I get back.
 
+--y0ulUmNC+osPPQO6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-------=_NextPart_000_0007_01C7BDA0.2F88F3F0
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.6 (GNU/Linux)
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
-<META content=3D"MSHTML 4.71.1712.3" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<head>
-<style type=3D"text/css">
-<!--
-body {
-	background-color: #FFFFFF;
-}
-body,td,th {
-	color: #000000;
-}
-style4 {font-family: Tahoma}
-style6 {
-	color: #0099FF;
-	font-size: 24px;
-}
-style8 {
-	font-size: 18;
-	color: #000066;
-}
-style9 {color: #666666}
-style11 {
-	color: #999900;
-	font-weight: bold;
-	font-size: 18px;
-}
-style12 {
-	color: #999999;
-	font-size: 18;
-}
-style13 {font-size: 18}
--->
-</style>
-</head>
+iD8DBQFGin1DRFMAi+ZaeAERAnPqAKDUhMRhvdaUx5NfJq5YvItvW2wbRwCfQhW1
+/HumpiswhnnG2/Ju3+29Dtc=
+=FzM3
+-----END PGP SIGNATURE-----
 
-<body><small><small><small>zmtahodlvfcncd</small></small></small><br>
-<div align=3D"center">
-  <p align=3D"left" class=3D"style4 style8 style11">  Special offer! Four V=
-igra pills FREE for every order!!! Special internet prices!  </p>
-  <p align=3D"left" class=3D"style4 style8"><strong>Viagra - 1.79$ <br>
-    Cialis - 2.69$ <br>
-    Valium - 2.48$ <br>
-    Xanax - 2$</strong></p>
-  <p align=3D"left" class=3D"style8 style4">&nbsp;</p>
-  <p align=3D"left" class=3D"style8 style4"> </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> FreshStore Inc. - Profe=
-ssional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. =
-Discreet packaging. 100% confidential. Free physicians consultation & presc=
-ription.</p>
-  <p align=3D"left" class=3D"style4 style8 style9">Buy Here to Save on your=
- Medication. </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> </p>
-  <p align=3D"center" class=3D"style4 style8 style9 style13">Our Site: <spa=
-n class=3D"style6">WWW<big><big>. </big></big> FreshStore<big><big> .</big>=
-</big>HK </span></p>
-  <p align=3D"center" class=3D"style4 style8 style12"> Type in browser(with=
-out spaces) and press Enter. </p><br><br><br><br><br><small><small><small>
-loirgoslprvokp.
-</small></small></small>
-</div>
-</body>
-</BODY></HTML>
-
-------=_NextPart_000_0007_01C7BDA0.2F88F3F0--
+--y0ulUmNC+osPPQO6--

@@ -1,10 +1,10 @@
-From: John Q.Carter <Cecelia@yrnet.com>
-Subject: Do you have the skills?
-Date: Tue, 3 Jul 2007 01:48:12 -0400
-Message-ID: <8D4D6679.5868214@yrnet.com>
+From: "David Juliet" <bretttancock@3mail.com>
+Subject: Get Viagra - 1.79$ & Four bonus tabs
+Date: Tue, 3 Jul 2007 10:38:25 -0100
+Message-ID: <01c7bd5e$4948c5f0$673adec3@bretttancock>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7BD6F.0CD195F0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,75 +14,110 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-CARGOX P.E. Limited Liability Company
-111 Livinston Street, Brooklyn, New York, US 11201
-+1(801)7308660
+This is a multi-part message in MIME format.
 
-Jul 2, 2007
+------=_NextPart_000_0007_01C7BD6F.0CD195F0
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-JOB OFFER (WARNING: For non-USA citizens only)
-CargoX P.E. is pleased to make you an offer on employment as a front-line=
- manager (position code #1305-21).=20
-Successful candidates should meet the following requirements:
-- Several years of experience in financial logistic
-- Great analytical and problem solving skills
-- Good people interaction skills
-- Ability to work independently with minimal supervision
-- Ability to respond on e-mails immediately
-- Good written and spoken English
 
-We trust that Your knowledge, skills and experience may will among our mo=
-st valuable assets.
 
-Should You accept this job offer, per company policy You'll be eligible t=
-o receive the following=20
-beginning on your hire date:
-- SALARY: Annual gross starting salary of $63,500 USD, paid in bimonthly =
-installments by Your choice of check or
-direct deposit.
-- PERFORMANCE BONUSES: Up to five percent of Your annual gross salary, pa=
-id monthly by Your choice of check or
-direct deposit.
-- STOCK OPTIONS: 200 Acme stock options in your first year, fully vested =
-in four years at the rate of 50 shares
-per year.
+x
+    4 Vigra pills FREE for every order!!! Special internet prices!  
+  Viagra - 1.79$ 
+    Cialis - 2.69$ 
+    Valium - 2.48$ 
+    Xanax - 2$
+   
+   
+   FreshStore Inc. - Professional Visa Verified Online Shop.  Worldwide shi=
+pping. Next day delivery. Discreet packaging. 100% confidential. Free physi=
+cians consultation & prescription.
+  Buy Here to Save on your Medication. 
+   
+   
+   
+  Our Site: WWW.  FreshStore .HK 
+   Type in browser(without spaces) and press Enter. 
+jxeupdf & jzruovo.
 
-BENEFITS:=20
-Standard, Acme-provided benefits for salaried-exempt employees, including=
- the following:
-- 401(k) retirement account
-- Annual stock options
-- Child daycare assistance
-- Education assistance
-- Health, dental, life and disability insurance
-- Profit sharing
-- Sick leave
-- Vacation and personal days.
 
-TO ACCEPT THIS JOB OFFER:
-1. Send an e-mail letter to hr.cargo@mailzone.com in below format:
-To:  hr.cargo@mailzone.com
-Subject: Position code (for e.g. #1305-21)
-E-mail Text:
--Your First Name (according to your ID)
--Your Last Name (according to your ID)
--Your Primary E-mail (e-mail address to receive our messages)
--Your Country of your permanent living
--Your City (city of your permanent living)
--Your Address (address of home)
--Your Phone (home AND mobile phone with area code for urgent contacts)
-Attachement: Your CV
-2. 2. Prepare the scan of Your foto from valid ID (WARNING: Do not send u=
-s the scan of your ID as it's a private
-information). It will be inquired while signing of agreement.
-3. Wait for Hiring Coordinator replay.
-4. Be ready to have an email or phone interview.
 
-TO DECLINE THIS JOB OFFER:
-1. Ignore this e-mail letter.
 
-Sincerely,
-John Q. Carter=20
-Hiring Coordinator, Human Resources.
+------=_NextPart_000_0007_01C7BD6F.0CD195F0
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Copyright (C) CargoX P.E. Limited Liability Company 2004-2008
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 5.00.2314.1300" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<head>
+<style type=3D"text/css">
+<!--
+body {
+	background-color: #FFFFFF;
+}
+body,td,th {
+	color: #000000;
+}
+style4 {font-family: Tahoma}
+style6 {
+	color: #0099FF;
+	font-size: 24px;
+}
+style8 {
+	font-size: 18;
+	color: #000066;
+}
+style9 {color: #666666}
+style11 {
+	color: #999900;
+	font-weight: bold;
+	font-size: 18px;
+}
+style12 {
+	color: #999999;
+	font-size: 18;
+}
+style13 {font-size: 18}
+-->
+</style>
+</head>
+
+<body><small><small><small>x</small></small></small><br>
+<div align=3D"center">
+  <p align=3D"left" class=3D"style4 style8 style11">  4 Vigra pills FREE fo=
+r every order!!! Special internet prices!  </p>
+  <p align=3D"left" class=3D"style4 style8"><strong>Viagra - 1.79$ <br>
+    Cialis - 2.69$ <br>
+    Valium - 2.48$ <br>
+    Xanax - 2$</strong></p>
+  <p align=3D"left" class=3D"style8 style4">&nbsp;</p>
+  <p align=3D"left" class=3D"style8 style4"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> FreshStore Inc. - Profe=
+ssional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. =
+Discreet packaging. 100% confidential. Free physicians consultation & presc=
+ription.</p>
+  <p align=3D"left" class=3D"style4 style8 style9">Buy Here to Save on your=
+ Medication. </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"center" class=3D"style4 style8 style9 style13">Our Site: <spa=
+n class=3D"style6">WWW<big><big>. </big></big> FreshStore<big><big> .</big>=
+</big>HK </span></p>
+  <p align=3D"center" class=3D"style4 style8 style12"> Type in browser(with=
+out spaces) and press Enter. </p><br><br><br><br><br><small><small><small>
+jxeupdf & jzruovo.
+</small></small></small>
+</div>
+</body>
+</BODY></HTML>
+
+------=_NextPart_000_0007_01C7BD6F.0CD195F0--

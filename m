@@ -1,97 +1,125 @@
-From: "Gretchen Welsh" <tyronem3000@yahoo.com>
-Subject: Cheap Medication
-Date: Tue, 3 Jul 2007 14:51:21 +0300
-Message-ID: <01c7bd81$9eb3e8d0$f91750c9@tyronem3000>
+From: "Cole Frederic" <dvb@wanadoo.fr>
+Subject: Get Viagra - 1.79$ now bonus include
+Date: Tue, 3 Jul 2007 16:30:09 -0100
+Message-ID: <01c7bd8f$6c0023f0$bdaa9c58@dvb>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7BD68.7966B0D0"
+	boundary="----=_NextPart_000_0007_01C7BDA0.2F88F3F0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
+To: 0rfelyus@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7BD68.7966B0D0
+------=_NextPart_000_0007_01C7BDA0.2F88F3F0
 Content-Type: text/plain;
-	charset="windows-1250"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
 
-Viagra is just $1.79!
-Cheapest Viagra offer you can find!
-Highest quality at lowest prices at our shop!
-Order now and you'll get them worldwide! 
-All you need to do is type this address in your browser and hit Enter key
- CAPILLZ. COM
 
-      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Video abs=
-pielen...Das Schicksal des inhaftierten Sch&#252;lers Marco Weiss erhitzt d=
-ie Gem&#252;ter in Deutschland. Auch die USA debattieren derzeit &#252;ber =
-einen &#228;hnlichen Fall. In Georgia soll ein junger Mann f&#252;r zehn Ja=
-hre ins Gef&#228;ngnis, weil er Oralverkehr mit einer 15-J&#228;hrigen hatt=
-e. Von J&#246;rg Diehl mehr...    * Inhaftierter Marco Weiss: T&#252;rkisch=
-er Staatsanwalt emp&#246;rt &#252;ber deutsche Beh&#246;rden    * Bewegungs=
-forschung: Elefanten rennen in ZeitlupeAngel-Simulator, Gitarren-Wettkampf,=
- Quitsche-Enten durch die Wanne steuern - kaum eine Spielidee ist zu aberwi=
-tzig f&#252;r die neuen Spielkonsolen. Wie gut kennen Sie die neuen Spiel-W=
-under? Testen Sie Ihr Daddel-Know-how im SPIEGEL-ONLINE-Quiz. Von Konrad Li=
-schka mehr...POLITIK    * CSU-Generalsekret&#228;r: Ramsauer f&#252;r Frau =
-statt S&#246;der    * Energieversorgung: Vorteil Russland im Pipeline- Scha=
-ch    * &#220;bersicht    * mehr Wissenschaft
-------=_NextPart_000_0007_01C7BD68.7966B0D0
+zmtahodlvfcncd
+    Special offer! Four Vigra pills FREE for every order!!! Special interne=
+t prices!  
+  Viagra - 1.79$ 
+    Cialis - 2.69$ 
+    Valium - 2.48$ 
+    Xanax - 2$
+   
+   
+   FreshStore Inc. - Professional Visa Verified Online Shop.  Worldwide shi=
+pping. Next day delivery. Discreet packaging. 100% confidential. Free physi=
+cians consultation & prescription.
+  Buy Here to Save on your Medication. 
+   
+   
+   
+  Our Site: WWW.  FreshStore .HK 
+   Type in browser(without spaces) and press Enter. 
+loirgoslprvokp.
+
+
+
+
+
+------=_NextPart_000_0007_01C7BDA0.2F88F3F0
 Content-Type: text/html;
-	charset="windows-1250"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
-<META content=3D"MSHTML 6.00.2800.1807" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 4.71.1712.3" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY>
-<html<body bgcolor=3D"#ffffff">
-<div style=3D"border-color: #00FFFF; border-right-width: 0px; border-bottom=
--width: 0px; margin-bottom: 0px;" align=3D"center">
-<table style=3D"border: 2px; border-style: solid; border-color:#000000; fon=
-t-family: Tahoma; font-weight: bold;" cellpadding=3D"15" cellspacing=3D"0" =
-bgcolor=3D"#FF0000">
-<tr>
-<td style=3D"border: 0px; border-bottom: 1px; border-style: solid; border-c=
-olor:#000000; color:yellow">
-<center>
-Viagra is just <b>$1.79!</b>
-Cheapest Viagra offer you can find!
-Highest quality at lowest prices at our shop!
-Order now and you'll get them worldwide! 
-All you need to do is type this address in your browser and hit Enter key
-</center>
-</td></tr><tr>
-<td bgcolor=3D#00FF00>
-<center> CAPILLZ. COM</center>
-<br>
+<head>
+<style type=3D"text/css">
+<!--
+body {
+	background-color: #FFFFFF;
+}
+body,td,th {
+	color: #000000;
+}
+style4 {font-family: Tahoma}
+style6 {
+	color: #0099FF;
+	font-size: 24px;
+}
+style8 {
+	font-size: 18;
+	color: #000066;
+}
+style9 {color: #666666}
+style11 {
+	color: #999900;
+	font-weight: bold;
+	font-size: 18px;
+}
+style12 {
+	color: #999999;
+	font-size: 18;
+}
+style13 {font-size: 18}
+-->
+</style>
+</head>
 
-<style>      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Vi=
-deo abspielen...Das Schicksal des inhaftierten Sch&#252;lers Marco Weiss er=
-hitzt die Gem&#252;ter in Deutschland. Auch die USA debattieren derzeit &#2=
-52;ber einen &#228;hnlichen Fall. In Georgia soll ein junger Mann f&#252;r =
-zehn Jahre ins Gef&#228;ngnis, weil er Oralverkehr mit einer 15-J&#228;hrig=
-en hatte. Von J&#246;rg Diehl mehr...    * Inhaftierter Marco Weiss: T&#252=
-;rkischer Staatsanwalt emp&#246;rt &#252;ber deutsche Beh&#246;rden    * Be=
-wegungsforschung: Elefanten rennen in ZeitlupeAngel-Simulator, Gitarren-Wet=
-tkampf, Quitsche-Enten durch die Wanne steuern - kaum eine Spielidee ist zu=
- aberwitzig f&#252;r die neuen Spielkonsolen. Wie gut kennen Sie die neuen =
-Spiel-Wunder? Testen Sie Ihr Daddel-Know-how im SPIEGEL-ONLINE-Quiz. Von Ko=
-nrad Lischka mehr...POLITIK    * CSU-Generalsekret&#228;r: Ramsauer f&#252;=
-r Frau statt S&#246;der    * Energieversorgung: Vorteil Russland im Pipelin=
-e- Schach    * &#220;bersicht    * mehr Wissenschaft</style>
-</td></tr></table>
-</div></body></html>
+<body><small><small><small>zmtahodlvfcncd</small></small></small><br>
+<div align=3D"center">
+  <p align=3D"left" class=3D"style4 style8 style11">  Special offer! Four V=
+igra pills FREE for every order!!! Special internet prices!  </p>
+  <p align=3D"left" class=3D"style4 style8"><strong>Viagra - 1.79$ <br>
+    Cialis - 2.69$ <br>
+    Valium - 2.48$ <br>
+    Xanax - 2$</strong></p>
+  <p align=3D"left" class=3D"style8 style4">&nbsp;</p>
+  <p align=3D"left" class=3D"style8 style4"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> FreshStore Inc. - Profe=
+ssional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. =
+Discreet packaging. 100% confidential. Free physicians consultation & presc=
+ription.</p>
+  <p align=3D"left" class=3D"style4 style8 style9">Buy Here to Save on your=
+ Medication. </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"center" class=3D"style4 style8 style9 style13">Our Site: <spa=
+n class=3D"style6">WWW<big><big>. </big></big> FreshStore<big><big> .</big>=
+</big>HK </span></p>
+  <p align=3D"center" class=3D"style4 style8 style12"> Type in browser(with=
+out spaces) and press Enter. </p><br><br><br><br><br><small><small><small>
+loirgoslprvokp.
+</small></small></small>
+</div>
+</body>
 </BODY></HTML>
 
-------=_NextPart_000_0007_01C7BD68.7966B0D0--
+------=_NextPart_000_0007_01C7BDA0.2F88F3F0--

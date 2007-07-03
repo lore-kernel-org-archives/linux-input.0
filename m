@@ -1,10 +1,9 @@
-From: "David Juliet" <bretttancock@3mail.com>
-Subject: Get Viagra - 1.79$ & Four bonus tabs
-Date: Tue, 3 Jul 2007 10:38:25 -0100
-Message-ID: <01c7bd5e$4948c5f0$673adec3@bretttancock>
+From: "Theodoros V. Kalamatianos" <thkala@softlab.ece.ntua.gr>
+Subject: [ANNOUNCE] evmapd - An input event remapping daemon
+Date: Tue, 3 Jul 2007 13:47:49 +0300 (EEST)
+Message-ID: <Pine.LNX.4.64.0707031321370.20943@rhama.deepcore.ngn>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7BD6F.0CD195F0"
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,110 +13,40 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
-------=_NextPart_000_0007_01C7BD6F.0CD195F0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+I'd like to announce the first testing release of evmapd. Its homepage 
+will for the foreseeable future reside at:
 
+http://www.softlab.ece.ntua.gr/~thkala/projects/evmapd/evmapd.html
 
+evmapd is a daemon for the remapping of input events on Linux. It uses the 
+evdev interface to access an input device and then the uinput interface to 
+create a virtual device to which the altered events are relayed.
 
-x
-    4 Vigra pills FREE for every order!!! Special internet prices!  
-  Viagra - 1.79$ 
-    Cialis - 2.69$ 
-    Valium - 2.48$ 
-    Xanax - 2$
-   
-   
-   FreshStore Inc. - Professional Visa Verified Online Shop.  Worldwide shi=
-pping. Next day delivery. Discreet packaging. 100% confidential. Free physi=
-cians consultation & prescription.
-  Buy Here to Save on your Medication. 
-   
-   
-   
-  Our Site: WWW.  FreshStore .HK 
-   Type in browser(without spaces) and press Enter. 
-jxeupdf & jzruovo.
+It can be used to remap keys, buttons and axis, or to perform some more 
+complex translations between different event types, such as remapping the 
+POV switches of a joystick to sets of buttons (gamers using WINE will 
+probably find this useful).
+
+As a treat, it incorporates an auto-calibration algorithm for ABS axis 
+events, which is relatively functional and may be useful for some joystick 
+owners. People who used my kjscal kernel module (if any - speak up if you 
+did :-) will find this functionality very familiar (probably because it's 
+exactly the same algorithm).
+
+Any comments, suggestions and bug reports are welcome. Patches and 
+bugfixes even more so. I am especially interested in real life use 
+examples of evmapd.
 
 
+Cheers,
+
+Theodoros Kalamatianos
 
 
-------=_NextPart_000_0007_01C7BD6F.0CD195F0
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+PS: And, yes, kjscal is as of now an unsupported project. Deprecated. 
+Terminated. Dead and buried. You get the idea...
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
-<META content=3D"MSHTML 5.00.2314.1300" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<head>
-<style type=3D"text/css">
-<!--
-body {
-	background-color: #FFFFFF;
-}
-body,td,th {
-	color: #000000;
-}
-style4 {font-family: Tahoma}
-style6 {
-	color: #0099FF;
-	font-size: 24px;
-}
-style8 {
-	font-size: 18;
-	color: #000066;
-}
-style9 {color: #666666}
-style11 {
-	color: #999900;
-	font-weight: bold;
-	font-size: 18px;
-}
-style12 {
-	color: #999999;
-	font-size: 18;
-}
-style13 {font-size: 18}
--->
-</style>
-</head>
-
-<body><small><small><small>x</small></small></small><br>
-<div align=3D"center">
-  <p align=3D"left" class=3D"style4 style8 style11">  4 Vigra pills FREE fo=
-r every order!!! Special internet prices!  </p>
-  <p align=3D"left" class=3D"style4 style8"><strong>Viagra - 1.79$ <br>
-    Cialis - 2.69$ <br>
-    Valium - 2.48$ <br>
-    Xanax - 2$</strong></p>
-  <p align=3D"left" class=3D"style8 style4">&nbsp;</p>
-  <p align=3D"left" class=3D"style8 style4"> </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> FreshStore Inc. - Profe=
-ssional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. =
-Discreet packaging. 100% confidential. Free physicians consultation & presc=
-ription.</p>
-  <p align=3D"left" class=3D"style4 style8 style9">Buy Here to Save on your=
- Medication. </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> </p>
-  <p align=3D"left" class=3D"style4 style8 style9"> </p>
-  <p align=3D"center" class=3D"style4 style8 style9 style13">Our Site: <spa=
-n class=3D"style6">WWW<big><big>. </big></big> FreshStore<big><big> .</big>=
-</big>HK </span></p>
-  <p align=3D"center" class=3D"style4 style8 style12"> Type in browser(with=
-out spaces) and press Enter. </p><br><br><br><br><br><small><small><small>
-jxeupdf & jzruovo.
-</small></small></small>
-</div>
-</body>
-</BODY></HTML>
-
-------=_NextPart_000_0007_01C7BD6F.0CD195F0--
+PS2: Ummm, BTW evmapd does not do force-feedback. Can't really code that 
+one without some FF hardware...

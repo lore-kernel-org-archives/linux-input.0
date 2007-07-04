@@ -1,79 +1,71 @@
-From: "Alexandra Krueger" <sampleonus@bbulletinshopnow.com>
-Subject: Potenzprobleme? Ab jetzt nicht mehr  and status inquiry
-Date: Wed, 4 Jul 2007 11:31:57 -0300
-Message-ID: <01c7be2e$edf11000$5f9f1459@sampleonus>
+From: fredrik76@socal.rr.com
+Subject: Urgent Attention (Allen & Overy. (LLP).
+Date: Wed, 04 Jul 2007 06:44:36 -0700
+Message-ID: <e6b0eb0f25a0c.25a0ce6b0eb0f@socal.rr.com>
+Reply-To: r.wrichard_2k@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000E_01C7BE50.7502B000"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-language: en
+Content-disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: priserka@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_000E_01C7BE50.7502B000
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: 7bit
-
-Verpassen Sie nichts am Lebem - Sie werden fuhlen was unsere Kunden bestatigen!
-
-Preise die keine Konkurrenz kennen 
-
-- Diskrete Verpackung und Zahlung
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
-- Kostenlose, arztliche Telefon-Beratung
-- Kein peinlicher Arztbesuch erforderlicht
-- Bequem und diskret online bestellen.
-- Visa verifizierter Onlineshop
-- keine versteckte Kosten
 
 
-Jetzt bestellen - und vier Pillen umsonst erhalten
-http://oqisyy.childrenyoung.hk/?803331169743
+
+Allen & Overy. (LLP)
+Private Consultants.
+One New Change
+London
+EC4M9QQ.
+England.
+Email:r.wrichard2k@yahoo.co.uk
+Tel: 00 44 70 111 32 485
+       00 44 70 11132 489
 
 
-------=_NextPart_000_000E_01C7BE50.7502B000
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Dwindows-1250" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 6.00.2800.1158" name=3DGENERATOR></HEAD>
-<BODY>
-<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
--8859-1">
-</head><body>
-<p>Meinung von unserem Kunden:<br>
-  <strong>Ich glaube, ich habe bis jetzt Gl&#252;ck gehabt (Ich klopfe auf =
-Holz.), denn ich hatte bis jetzt noch nie Nebenwirkungen durch Viaaaagra - =
-au&#223;er einer brettharten Latte, und das f&#252;r Stunden.</strong></p>
-<p><strong>Ich habe eine Aff&#228;re mit einer Bekannten, sie h&#228;lt mic=
-h f&#252;r einen Sex-Gott. Ich habe Viaaaagra ungef&#228;hr zehn Minuten, b=
-evor wir uns im Hotel getroffen haben, genommen. Ich habe davon nicht nur e=
-inen strammen Riemen bekommen, sondern auch die Selbstsicherheit, die die F=
-rauen lieben. Ich habe es ihr drei- oder viermal besorgt, und sie ist absol=
-ut hingerissen. Ich komme ziemlich schnell, danach wird ihr Organsmus jedes=
-mal unkontrollierbar. Viaaaagra hat mich bei ihr zur Legende gemacht!! Ich =
-kann es kaum abwarten, wieder eine zu schlucken<br>
-  </strong><strong><br>
-  Sie leben nur einmal - warum dann nicht was neues ausprobieren?</strong>
-</p>
-<p>Preise die keine Konkurrenz kennen <p>
-- Visa verifizierter Onlineshop<br>- Diskrete Verpackung und Zahlung<br>- K=
-ein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Bequem und di=
-skret online bestellen.<br>- Kostenlose, arztliche Telefon-Beratung<br>- Ke=
-in peinlicher Arztbesuch erforderlicht<br>- keine versteckte Kosten</p>  
-<p><br><strong><a href=3D"http://oqisyy.childrenyoung.hk/?803331169743" tar=
-get=3D"_blank">Jetzt bestellen - und vier Pillen umsonst erhalten</a></stro=
-ng></body>
-</BODY></HTML>
+Attention:
 
-------=_NextPart_000_000E_01C7BE50.7502B000--
+I am Richard Wainwright, a private consultant for very eminent 
+personnels in the Asian and Middle East region. These personnels have 
+appointed me to source on their behalf a credible foreigner with whom 
+they can jointly entrust a reasonable amount of money, which will be 
+chanelled into a highly lucrative business venture. They have 
+$150million (one hundred and fifty million United States dollars) 
+transferred to Europe.They request strict confidentiality due to their 
+public nature, they prefer to be anonymous hence I have been given the 
+mandate to source for some one of high business experience with very 
+good reputation.
+
+This is the proposal in summary:
+1. My client (s) are top politicians/government officials in the Asian 
+and Middle East region they want the funds to be invested through a 
+well-established businessman abroad who can front for them without 
+disclosing their true identity.
+
+2. All that is required is your willingness to invest this money for 
+them in a highly lucrative business venture under strict profitable 
+monitoring.
+
+3. A power of attorney will be given to you to manage these funds on 
+their behalf.
+
+4. You will be awarded as compensation a certain percentage from the 
+proceeds of the investment, which is still negotiable
+If you are interested, and you have the capacity to handle such huge 
+amount of money kindly indicate by replying this mail so that we may 
+proceed by reaching a valid agreement that will be binding to all the 
+parties to this transaction. 
+
+Respectfully
+Richard Wainwright
+Tel: 00 44 70 111 32 485 
+       00 44 70 11132 489
+Email:r.wrichard_2k@yahoo.co.uk

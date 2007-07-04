@@ -1,88 +1,129 @@
-From: "Courtney Eddy" <sallyjo@umich.edu>
-Subject: Mittel gegen Impotenz   shall be pleased to
-Date: Wed, 4 Jul 2007 07:02:51 -0100
-Message-ID: <01c7be09$564cb800$6f015351@sallyjo>
+From: "Powers Refugio" <info@sicem.fr>
+Subject: Get Viagra & Cialis. Save on your Medication.
+Date: Wed, 4 Jul 2007 07:20:02 -0100
+Message-ID: <01c7be0b$bcdee370$9a190453@info>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7BE1A.19D58800"
+	boundary="----=_NextPart_000_0007_01C7BE1C.8067B370"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: mj@atrey.karlin.mff.cuni.cz
+To: janecek@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C7BE1A.19D58800
+------=_NextPart_000_0007_01C7BE1C.8067B370
 Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-
-Haben Sie endlich wieder Spass am Leben!
-
-Preise die keine Konkurrenz kennen 
-
-- Kostenlose, arztliche Telefon-Beratung
-- Diskrete Verpackung und Zahlung
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
-- Bequem und diskret online bestellen.
-- Visa verifizierter Onlineshop
-- Kein peinlicher Arztbesuch erforderlicht
-- keine versteckte Kosten
-
-
-Klicken Sie HIER und Sie erhalten vier Dosen umsonst
-www.viokep.hk
-
-------=_NextPart_000_0006_01C7BE1A.19D58800
-Content-Type: text/html;
-	charset="Windows-1252"
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
-osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns=3D"http://www.w3.org/TR/REC-html40">
 
+
+oeahzaupcbvikj
+  Hey! Four Vigra pills FREE for every order!!! Special internet prices!  
+  Viagra - 1.79$ 
+    Cialis - 2.69$ 
+    Valium - 2.48$ 
+    Xanax - 2$
+   
+   
+   FreshStore Inc. - Professional Visa Verified Online Shop.  Worldwide shi=
+pping. Next day delivery. Discreet packaging. 
+
+100% confidential. Free physicians consultation & prescription.
+  Buy Here to Save on your Medication. 
+   
+   
+   
+  See our site: WWW .  FreshStore .  HK 
+
+
+   Type in browser(without spaces) and press Enter. 
+qaqmouhqvnqbsw.
+
+
+
+
+------=_NextPart_000_0007_01C7BE1C.8067B370
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2900.2180" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
 <head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
-
-
-<meta name=3DProgId content=3DWord.Document>
-<meta name=3DGenerator content=3D"Microsoft Word 10">
-<meta name=3DOriginator content=3D"Microsoft Word 10">
-<link rel=3DFile-List href=3D"cid:filelist.xml@4090167C.4092C409">
-<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@4090167C.4092C409">
+<style type=3D"text/css">
+<!--
+body {
+	background-color: #FFFFFF;
+}
+body,td,th {
+	color: #000000;
+}
+style4 {font-family: Tahoma}
+style6 {
+	color: #0099FF;
+	font-size: 24px;
+}
+style8 {
+	font-size: 16;
+	color: #000066;
+}
+style9 {color: #666666}
+style11 {
+	color: #999900;
+	font-weight: bold;
+	font-size: 18px;
+}
+style12 {
+	color: #999999;
+	font-size: 18;
+}
+style13 {font-size: 18}
+-->
+</style>
 </head>
-<body>
-<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
--8859-1">
-</head><body>
-<p>Meinung von unserem Kunden:<br>
-  <strong>Meine Frau und ich haben Viaaaagra am letzten Wochenende ausprobi=
-ert. Sie fand, mein bestes St&#252;ck w&#228;re in letzter Zeit nicht ganz =
-auf der H&#246;he gewesen. Also dachten wir, wir probieren es einfach einma=
-l.Es gibt nur ein Wort, dass das Gef&#252;hl beschreibt: Wahnsinn. Seit ich=
- zwanzig war, konnte ich nicht mehr so lang und so oft. Was soll ich sagen?=
- Gute Arbeit, Viaaaagra!</strong></p>
-<p><strong>Als wir Liebe gemacht haben, f&#252;hlte ich mich wieder wie ein=
- Neunzehnj&#228;hriger. "Er" war so hart, ich h&#228;tte N&#228;gel damit e=
-inklopfen k&#246;nnen. Meiner Frau sagt, ich h&#228;tte sie noch nie so lan=
-g und so hart geliebt. Sie ist ganz versessen auf mich. Und ich brauche woh=
-l bald einen Nachf&#252;llpack.<br>
-  </strong><strong><br>
-  Sie leben nur einmal - warum dann nicht was neues ausprobieren?</strong>
-</p>
-<p>Preise die keine Konkurrenz kennen <p>
-- Visa verifizierter Onlineshop<br>- Kostenlose, arztliche Telefon-Beratung=
-<br>- Kein peinlicher Arztbesuch erforderlicht<br>- Kein langes Warten - Au=
-slieferung innerhalb von 2-3 Tagen<br>- Bequem und diskret online bestellen=
-<br>- keine versteckte Kosten<br>- Diskrete Verpackung und Zahlung</p>  
-<p><br><strong><a href=3D"http://www.viokep.hk/" target=3D"_blank">Klicken =
-Sie HIER und Sie erhalten vier Dosen umsonst</a></strong></body>
-</body>
-</html>
 
-------=_NextPart_000_0006_01C7BE1A.19D58800--
+<body><small><small><small>oeahzaupcbvikj</small></small></small><br>
+<div align=3D"center">
+  <p align=3D"left" class=3D"style4 style8 style11">Hey! Four Vigra pills F=
+REE for every order!!! Special internet prices!  </p>
+  <p align=3D"left" class=3D"style4 style8"><strong>Viagra - 1.79$ <br>
+    Cialis - 2.69$ <br>
+    Valium - 2.48$ <br>
+    Xanax - 2$</strong></p>
+  <p align=3D"left" class=3D"style8 style4">&nbsp;</p>
+  <p align=3D"left" class=3D"style8 style4"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> FreshStore Inc. - Profe=
+ssional Visa Verified Online Shop.  Worldwide shipping. Next day delivery. =
+Discreet packaging. 
+
+100% confidential. Free physicians consultation & prescription.</p>
+  <p align=3D"left" class=3D"style4 style8 style9">Buy Here to Save on your=
+ Medication. </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"left" class=3D"style4 style8 style9"> </p>
+  <p align=3D"center" class=3D"style4 style8 style9 style13">See our site: =
+<span class=3D"style6">WWW<big><big> .  </big></big>FreshStore<big><big> . =
+ </big></big>HK 
+
+</span></p>
+  <p align=3D"center" class=3D"style4 style8 style12"> Type in browser(with=
+out spaces) and press Enter. </p><br><br><br><br><br><small><small><small>
+qaqmouhqvnqbsw.
+</small></small></small>
+</div>
+</body>
+</BODY></HTML>
+
+------=_NextPart_000_0007_01C7BE1C.8067B370--

@@ -1,123 +1,85 @@
-From: "Faustino Lusk" <bagnut@ansionline.com>
-Subject: Put This SmallCap on Your Watch Sheet
-Date: Mon, 4 Jul 2005 10:09:44 -0800
-Message-ID: <01c58080$8048c8b0$3e60e9dd@bagnut>
+From: aaron i ginsburg <fgaqljvaof@aero-lite.com>
+Subject: New shop of digital technique
+Date: Wed, 4 Jul 2007 11:26:23 -0100
+Message-ID: <22023904.20070704112623@aero-lite.com>
+Reply-To: fgaqljvaof <fgaqljvaof@aero-lite.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C580C3.8E6D8F50"
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: koles@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title></title>
+<META http-equiv=3DContent-Type content=3D"text/html;=20=
+charset=3Dwindows-1251">
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+</head>
+<body>
 
-------=_NextPart_000_0007_01C580C3.8E6D8F50
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+<html>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html;=20=
+charset=3Diso-8859-1">
+</head>
+<body>
+<style>
+f {font-family: verdana; font-size: 10;}
+r {font-family: verdana; font-size: 10; color: red;}
+</style>
+<pre>
+<b>
+Attention! New online digial store!
+Lowest prices on the web! 20% below retail price. 
+Please check for yourself: 
 
-Breaking News Alerts!  Big news expected Friday. Stocks like 
-this Do Not happen often....Jump in now so you do not miss 
-out.=A0<BR>Company name: COST CONTAINMENT TEC Company symbol: SPHM Current =
-Price: 
-=A00.16 Target: 0.40 +250% Spotlight Homes Enters Negotiations to Acquire C=
-ommercial and 
-Residential ContractorWednesday June 6, 6:30 am 
-ET 
-HOUSTON, TX--(MARKET WIRE)--Jun 6, 2007 -- Spotlight Homes, Inc. 
-(Other OTC:SPHM.PK - News), a builder of luxury 
-homes with Green technologies, has entered negotiations to acquire a commer=
-cial 
-and residential real estate contractor. 
-Nick Jarvis, President and CEO of Spotlight Homes, stated, "This acquisitio=
-n 
-would give us an immediate presence on the Eastern Seaboard, and we like th=
-is 
-company's track record. Their projects fit nicely with our portfolio and 
-philosophy." 
-The contractor designs and manages projects primarily on the East Coast, wi=
-th 
-several projects presently under contract. Signing of the definitive purcha=
-se 
-agreements is subject to negotiation of the transaction documents. 
-At Spotlight Homes, our mission is to build luxury homes in the burgeoning 
-real estate markets of the Southern United States. Spotlight Homes is leadi=
-ng 
-the construction industry away from traditional, spec houses for large fami=
-lies 
-toward green, master planned, eco-friendly communities for empty nesters wa=
-nting 
-a new form of urbanism, which maintains a quality of life for our present a=
-nd 
-future generations.This company is HOT,read recent news and get on SPHM fir=
-st thing on 
-Thursday, July 5th!
-------=_NextPart_000_0007_01C580C3.8E6D8F50
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+<table cellspacing=3D"1" cellpadding=3D"1" border=3D"0" width=3D"450">
+<tr bgcolor=3D"#e7e9eb" class=3D"f" align=3D"center"=20=
+height=3D"20"><td><b>Name</b></td><td><b>Our Price</b></td><td><b>Old=20=
+Price</b></td></tr>
+<tr bgcolor=3D"#beebfc" class=3D"f" height=3D"20"=20=
+align=3D"center"><td>Sony KDL-40V2500 LCD TV</td><td=20=
+class=3D"r"><b>$1,070.60</b></td><td>$1,659.95</td></tr><tr=20=
+bgcolor=3D"#beebfc" class=3D"f" height=3D"20" align=3D"center"><td>Apple=20=
+iPod Video 80GB Black</td><td=20=
+class=3D"r"><b>$218.07</b></td><td>$338.31</td></tr><tr=20=
+bgcolor=3D"#beebfc" class=3D"f" height=3D"20"=20=
+align=3D"center"><td>VAIO=AE SZ Series VGN-AR390E </td><td=20=
+class=3D"r"><b>$2,379.14</b></td><td>$2,899.99</td></tr><tr=20=
+bgcolor=3D"#beebfc" class=3D"f" height=3D"20" align=3D"center"><td>Apple=20=
+iPod Digital player - HD 30 GB - AAC</td><td class=3D"r"><b>$176.00</b>=20=
+</td><td>$244.99</td></tr><tr bgcolor=3D"#beebfc" class=3D"f"=20=
+height=3D"20" align=3D"center"><td>Compaq - Presario 430</td><td=20=
+class=3D"r"><b>$297.39</b></td><td>$744.00</td></tr>
+</table>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
-<META content=3D"MSHTML 5.00.2919.6700" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<BODY>
-<P>Breaking News Alerts!&nbsp; <BR>Big news expected Friday. <BR>Stocks lik=
-e 
-this Do Not happen often....<BR>Jump in now so you do not miss 
-out.=A0<BR></P>
-<P>Company name: COST CONTAINMENT TEC <BR>Company symbol: <B 
-style=3D"COLOR: black; BACKGROUND-COLOR: #ffff66">SPHM</B> <BR>Current Pric=
-e: 
-=A00.16 <BR>Target: 0.40 +250% <BR></P>
-<P><SPAN class=3Dt>Spotlight Homes Enters Negotiations to Acquire Commercia=
-l and 
-Residential Contractor</SPAN><BR><SPAN class=3Dtt>Wednesday June 6, 6:30 am=
- 
-ET</SPAN> 
-<P>
-<DIV class=3Dar>HOUSTON, TX--(MARKET WIRE)--Jun 6, 2007 -- Spotlight Homes,=
- Inc. 
-(Other OTC:<A href=3D"http://finance.yahoo.com/q?s=3Dsphm.pk">SPHM.PK</A> -=
- <A 
-href=3D"http://finance.yahoo.com/q/h?s=3Dsphm.pk">News</A>), a builder of l=
-uxury 
-homes with Green technologies, has entered negotiations to acquire a commer=
-cial 
-and residential real estate contractor. 
-<P>Nick Jarvis, President and CEO of Spotlight Homes, stated, "This acquisi=
-tion 
-would give us an immediate presence on the Eastern Seaboard, and we like th=
-is 
-company's track record. Their projects fit nicely with our portfolio and 
-philosophy." 
-<P>The contractor designs and manages projects primarily on the East Coast,=
- with 
-several projects presently under contract. Signing of the definitive purcha=
-se 
-agreements is subject to negotiation of the transaction documents. 
-<P>At Spotlight Homes, our mission is to build luxury homes in the burgeoni=
-ng 
-real estate markets of the Southern United States. Spotlight Homes is leadi=
-ng 
-the construction industry away from traditional, spec houses for large fami=
-lies 
-toward green, master planned, eco-friendly communities for empty nesters wa=
-nting 
-a new form of urbanism, which maintains a quality of life for our present a=
-nd 
-future generations.</P></DIV>
-<P>This company is HOT,read recent news and get on <B 
-style=3D"COLOR: black; BACKGROUND-COLOR: #ffff66">SPHM</B> first thing on 
-Thursday, July 5th!</P></BODY>
-</BODY></HTML>
+always to your note: </b>
+<i>
+1) quality and free delivery
+2) amicable support
+3) change during 2 weeks
+4) Low and stable prices
+5) quality technique with guarantee
+</i>
 
-------=_NextPart_000_0007_01C580C3.8E6D8F50--
+<b>We have 50 000 clients over the whole world!
+Join to them!</b>
+</pre>
+<a href=3D"http://maxibilg.com/"><b>Go to purchase</b> </a>
+<hr>
+</body>
+about creating super children contribute toI truly believe Ginsburg,=20=
+the report's lead author and relate to others and 
+</html>
+
+
+
+
+
+</body></html>

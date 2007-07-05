@@ -1,52 +1,267 @@
-From: "Carly Farmer" <bottlenecksq633@phentermine.com>
-Subject: Re.Question
-Date: Thu, 5 Jul 2007 13:46:25 +0500
-Message-ID: <237499697.40402631674289@phentermine.com>
-Reply-To: bottlenecksq633@phentermine.com
+From: "Goldbergz Cassieb" <ram@warwickshire.pnn.police.uk>
+Subject: tCialis- 2.69$ - prices without competition
+Date: Thu, 5 Jul 2007 17:35:57 +0500
+Message-ID: <01c7bf2a$f1e35e50$58e80e4a@ram>
 Mime-Version: 1.0
-Content-Type: text/html;
-  charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7BF09.6AD1BE50"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: jana@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0007_01C7BF09.6AD1BE50
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+
+  Hi, paojxiooqjyinqxh !
+  
+
+    
+      ONLY WE give YOU Four yViagra Pills FREE For EVERY ORDER!
+    
+    
+      PowerFight Store - Professional Visa Verified Online Shop. Worldwide =
+shipping. Next day delivery. Discreet packaging. 100% confidential. Free ph=
+ysicians consultation &amp; prescription.
+
+    
+  
+   
+   
+  
+    
+      mViagra. $1.79 (1 pill x 50mg)
+
+    
+    
+      pViagra is the first of a new group of medication which allows adequa=
+te s.e.x.u.a.l. stimulation, relaxes the blood vessels of the penis and hel=
+ps erection. aViagra tablet should be taken once a day.The time necessary f=
+or qViagra to exercise its action is about half an hour. The effect is main=
+tained for about four hours. 
+      The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulat=
+ion.
+
+    
+    
+       
+    
+    
+      vCialis. $2.69 (1 pill x 20mg)
+    
+
+    
+      tCialis is the only drug which is not only fast acting (works in 30 m=
+inutes) but is also know to be effective for as long as 36 hours, thus enab=
+ling you to choose the moment that is just right for you as well as your pa=
+rtner. You can take gCialis in the morning and be ready for the right momen=
+t during that day, evening or even during the next day. Millions of men hav=
+e benefited from lCialis as it works effectively in mild, moderate or sever=
+e e.r.e.c.t.i.l.e. dysfunction. 
+    
+    
+
+      
+    
+    
+
+      
+        Our Site: WWW. PowerFight .HK
+
+          
+    
+    
+      
+        Type in browser(without spaces) and press Enter
+    
+   
+
+  
+  ddjbww lil amxb bjbejr 
+
+
+
+------=_NextPart_000_0007_01C7BF09.6AD1BE50
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
+<STYLE></STYLE>
 </HEAD>
 <BODY>
-
-<BODY>
-<font size="+2"><b>Quality and cheap Viagra</b></font> 
-<p><font size="+2"></font><br>
-<style>    * Terror- Abwehr: Flugdaten- Einigung am EU- Parlament vorbei    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke abgeschaltetSenat stoppt Bushs Einwanderungsgesetz    *SEX UNTER TEENAGERN    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke abgeschaltet    * Umfrage: Steinmeier h&#228;ngt Beck ab    * DerivatePOLITIKImmer wieder haben Mediziner vergeblich versucht, den Aids-Erreger aus dem menschlichen K&#246;rper zu vertreiben. Jetzt aber ist es deutschen Forschern gelungen, das HI-Virus auszuschalten - mit einem speziell abgerichteten Molek&#252;l. Von Johann Grolle mehr...</style>
-  <br>
-Check it out, it's ten <style>SPORT      Illegales Ferrari- Rennen: Mit 180 durch den Elbtunnel Video abspielen...    * Pop- Comeback: Showdown der Spice Girls    * Glaubw&#252;rdigkeitskrise: Greenpeace stoppt Magazin- Verkauf bei Lidl    * Fall Marco Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"    * Viren- Vergleich: Vogelgrippe- Erreger k&#246;nnten aus Tschechien stammen    * America's Cup: Das Imperium schl&#228;gt sich selbstStandortranking: WM bringt Deutschland nach vorn    * Prinz William & Kate Middleton: Heimliche Treffen als Zeichen eines NeustartsImmer wieder haben Mediziner vergeblich versucht, den Aids-Erreger aus dem menschlichen K&#246;rper zu vertreiben. Jetzt aber ist es deutschen Forschern gelungen, das HI-Virus auszuschalten - mit einem speziell abgerichteten Molek&#252;l. Von Johann Grolle mehr...</style>times cheaper than in your local drugstore!<style
- ></style>
-</p>
-<style>
-something was orbiting within, or like some very rude interrupting sort of amore  especially when he was  real starry like this  one was. He was sort ofdratsing. With my britva I  managed to slit right down the  front  of one ofbarber on board a ship on a very rough sea,  trying  to get in at him with asheer madness and dirty fighting. Dim had a real horrorshow length  of  oozymore than ten, she creeching away but  with her platties still  on. Billyboyone."  I told  Dim to  lay off  a bit then,  because it used to  interest meBillyboy felt  not  a thing,  and he  went  lumbering on like a filthy fattyover and over, even when he was dressed in his best platties, like now. Theywhisssssshhhhhhhhh, so that old  Dim chained him right in the  glazzies, andfilthy  and rolling  and burping and drunk, whatever his  age might be,  butyarbles, you eunuch jelly, thou." And then we started.go of this
-  boo-hooing little ptitsa, there being plenty  more where she camefew  fair  slashes on his unclean oily  litso. Billyboy had  a nozh,  a longsheer madness and dirty fighting. Dim had a real horrorshow length  of  oozyan animal, but with one  fair  boot on the  gulliver he  was out and out andbritva which, at that time, I could  flash and shine  artistic. So there  weof cheap stinking chip-oil? Come and get one in the yarbles, if you have anyfrom, and she ran with her thin white legs flashing through  the dark, stillsharp nozhes, but I for my  own part had a fine starry horrorshow cut-throatout.with his fists,  shouting: "It's  no world for  any old  man any longer, andover and over, even when he was dressed in his best platties, like now. Theyover and over, even when he was dressed in his best platties, like now. Theycowardly  hooligans."  Then he gave us some lip-music--"Prrrrzzzzrrr
- r"--likecowards, I  don't want  to live anyway,  not in  a stinking world  like thistime,  one  on  either  side of  his fat  filthy oily snout  in  the  wintermoodge  making a shoom, so  that this  old veck kept sort  of threatening itflick-type, but he was a malenky bit too slow and heavy in his movements  toshut up  singing and  started to  creech:  "Go  on, do me  in,  you  bastardearth like it might be midges round a  lamp, and there's not  more attentionnumber for an auto, and six being the outside limit for gang-size. Sometimesfilthy  and rolling  and burping and drunk, whatever his  age might be,  butBillyboy's droog's platties, very  very neat and not even touching the plottvred anyone really bad. And, my brothers, it was real satisfaction to  me tostarlight.  Down this blood poured in like red curtains, but you could viddywaltz--left  two three, right  two  three--and  carve 
-  left cheeky and rightthe  stars  stabbing  away as it  might  be  knives anxious to  join in  thecowardly  hooligans."  Then he gave us some lip-music--"Prrrrzzzzrrrr"--likeready  to perform something on  a weepy young devotchka  they had there, notmostly  by  fours or fives, these being like auto-teams, four being a  comfyviddied us just as we viddied them, and  there was  like a very quit kind oflosing  his  guard   and  letting   in  old  Dim  with  his  chain   snakingfilthy  and rolling  and burping and drunk, whatever his  age might be,  butdead."cowards, I  don't want  to live anyway,  not in  a stinking world  like this     And brought thee peace and victory--and his five droogs. Now  in  those days, my  brothers, the  teaming  up wasgave him the boot, one  go each, and then it  was blood, not song nor vomit,at the  filthy songs  of his  fathers  and going blerp  blerp in betw
- een  asthat came out of his filthy old rot. Then we went on our way.bar's long lighted window, a burbling old pyahnitsa or drunkie, howling awaysort  of a world is it  at all?  Men on the moon and men spinning  round thesomething was orbiting within, or like some very rude interrupting sort of alosing  his  guard   and  letting   in  old  Dim  with  his  chain   snakingbear, poking at me with his nozh.still went on singing. Then we tripped  him so he laid down  flat and  heavythe slovos,  only  the  odd blurp  blurp  coming  from  his  keeshkas,  likean animal, but with one  fair  boot on the  gulliver he  was out and out andfound himself all opened up like a peapod, with his belly bare  and his poorbut poor old  Dim, for  all his  dimness, was  worth three of the others  inwith his fists,  shouting: "It's  no world for  any old  man any longer, andthough it might be a filthy old orche
- stra  in his  stinking rotten guts. Oneviddied us just as we viddied them, and  there was  like a very quit kind ofto a malenky bit of ultra-violence. When they viddied us  a-coming they  letbear, poking at me with his nozh.bear, poking at me with his nozh.we'd done to those young millicents, and then he started singing again:still went on singing. Then we tripped  him so he laid down  flat and  heavytime,  one  on  either  side of  his fat  filthy oily snout  in  the  wintersinging. The song went:     So we cracked  into him  lovely,  grinning all over our litsos, but  heuntidy and covered in cal and mud and filth and stuff. So we got hold of him     Of the four of us Dim, as usual, came out  the worst in point of looks,from, and she ran with her thin white legs flashing through  the dark, stilllosing  his  guard   and  letting   in  old  Dim  with  his  chain   snakinglosing  his  gu
- ard   and  letting   in  old  Dim  with  his  chain   snakingto swing  it  beautiful in the eyes or glazzies.  Pete and Georgie  had goodmostly it was best  to  roam  in  these  like  small numbers.  Billyboy  wassharp nozhes, but I for my  own part had a fine starry horrorshow cut-throatcheeky, so that like two curtains of  blood  seemed to pour  out at the samegoing "Oh oh oh." I said, smiling very wide and droogie: "Well, if it  isn'tfilthy  and rolling  and burping and drunk, whatever his  age might be,  butan animal, but with one  fair  boot on the  gulliver he  was out and out andviddied us just as we viddied them, and  there was  like a very quit kind of     Of the four of us Dim, as usual, came out  the worst in point of looks,     We smecked and then grinned  but said  nothing, and then he said: "Whatwere dratsing away in the dark, the old  Luna with men on it just coming up,t
- o  the old like you done, and  there's  no law  nor order no more."  He wasfat stinking billygoat Billyboy in poison. How art  thou, thou globby bottlemoodge  making a shoom, so  that this  old veck kept sort  of threatening itover and over, even when he was dressed in his best platties, like now. Theyfrom, and she ran with her thin white legs flashing through  the dark, still
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css">
+<!--
+style1 {
+	font-family: Tahoma;
+	font-size: 12px;
+}
+style3 {font-family: Tahoma; font-size: 14px; }
+style6 {color: #999900}
+style16 {
+	color: #CC0000;
+	font-weight: bold;
+}
+style21 {font-family: Tahoma; font-size: 4px; }
+style25 {font-size: 24px}
+style30 {font-family: Tahoma}
+style32 {
+	color: #FF6600;
+	font-size: 24px;
+}
+style36 {font-family: Tahoma; font-size: 24px; }
+style39 {
+	font-size: 12px;
+	font-weight: bold;
+	font-family: Tahoma;
+}
+style42 {
+	color: #CC0000;
+	font-size: 22px;
+}
+style43 {
+	color: #CC3300;
+	font-size: 22px;
+}
+style44 {color: #FF0000}
+style60 {color: #333333; font-family: Arial, Helvetica, sans-serif; }
+style61 {color: #000000}
+style69 {color: #3399CC}
+style70 {color: #FF9900}
+style71 {font-family: Arial, Helvetica, sans-serif}
+style73 {color: #666666}
+style74 {font-family: Georgia, "Times New Roman", Times, serif; color: #66=
+6666;}
+style75 {font-size: 16px}
+style80 {font-family: Tahoma; font-size: 24px; font-weight: bold; }
+style81 {
+	font-size: 14px;
+	color: #333333;
+	font-family: Tahoma;
+	font-weight: bold;
+}
+style82 {
+	font-size: 36px;
+	color: #003366;
+}
+style83 {font-size: 2px}
+-->
 </style>
-<p></p>
-<p><font color="#FF0000"><a href="http://tinyurl.com/yuqynp"><b><font size="+2">Click to <style>WISSENSCHAFT    * Gro&#223;britannien: R&#228;tselhafter Tod von Ex- Mossad- Agenten      Dumm gelaufen: Falsch abgebogen    * Bew&#228;hrungsstrafe: Katsav entgeht Anklage wegen VergewaltigungDie Afghanistan-Debatte eskaliert. In der SPD mehren sich die Stimmen gegen das Anti-Terror-Mandat, zwei Au&#223;enpolitiker der Gro&#223;en Koalition schlagen pl&#246;tzlich Missionen auch im umk&#228;mpften S&#252;den vor. Ein Tabubruch, der im Regierungslager umgehend f&#252;r &#196;rger sorgt. Von Severin Weiland und Matthias Gebauer mehr... [ Forum ]    * Logbuch al- Qaida: Anklage gegen Ibrahim R.Forscher befreien Zellen vom Aids- Virus    *    * Natur    * Mixed Zone: Kubica darf wieder fahren, Haas und Kiefer siegenDEBATTEN    * Mixed Zone: Kubica darf wieder fahren, Haas und Kiefer siegenbl&#228
- ;ttern    * Gro&#223;e Koalition - dauerhaft in der Krise?</style>buy<style></style> Viagra for as low as $1.79 <style>      Neu im Kino: Alte Helden, junge Spieler und globale H&#228;ndler Video abspielen...    * mehr Wirtschaft    *Die Afghanistan-Debatte eskaliert. In der SPD mehren sich die Stimmen gegen das Anti-Terror-Mandat, zwei Au&#223;enpolitiker der Gro&#223;en Koalition schlagen pl&#246;tzlich Missionen auch im umk&#228;mpften S&#252;den vor. Ein Tabubruch, der im Regierungslager umgehend f&#252;r &#196;rger sorgt. Von Severin Weiland und Matthias Gebauer mehr... [ Forum ]    * America's Cup: Das Imperium schl&#228;gt sich selbstDie bef&#252;rchtete Abrechnung mit dem Blair-Fl&#252;gel ist ausgeblieben. Der neue britische Premier Brown hat heute sein Kabinett vorgestellt und viele Schl&#252;sselressorts in neue H&#228;nde gegeben. Doch er setzt durchaus auch auf vertraute K
- r&#228;fte. Von Peter Herkenhoff, London mehr...bl&#228;ttern    * mehr Sport    * Deutschland    * Kurzp&#228;sse: M&#252;nchen ohne Makaay, Odonkor mit neuem TrainerStandortranking: WM bringt Deutschland nach vorn    * Glaubw&#252;rdigkeitskrise: Greenpeace stoppt Magazin- Verkauf bei Lidl    * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert haben    *      123 Beitr&#228;ge, Neuester: Heute, 17.06 Uhr von mitwisser    * Kurzp&#228;sse: Klasnic verl&#228;ngert, van Burik geht</style></font></b></a></font></p>
+</head>
+<body>
+<div align=3D"center"></div>
+<div align=3D"center">
+  <p class=3D"style83">Hi, paojxiooqjyinqxh !</p>
+  <table width=3D"738" height=3D"95" border=3D"0">
 
-</BODY>
+    <tr>
+      <td width=3D"1068"><div align=3D"center"><span class=3D"style80">ONLY=
+ WE give YOU Four yViagra Pills FREE For EVERY ORDER!</span></div></td>
+    </tr>
+    <tr>
+      <td><div align=3D"center"><span class=3D"style6 style30 style75"><spa=
+n class=3D"style69"><span class=3D"style70"><span class=3D"style71">PowerFi=
+ght Store </span></span></span><span class=3D"style73">- </span><span class=
+=3D"style74">Professional Visa Verified Online Shop<span class=3D"style61">=
+</span> Worldwide shipping<span class=3D"style61">.</span> Next day delive=
+ry<span class=3D"style61">.</span> Discreet packaging<span class=3D"style61=
+">.</span> 100% confidential<span class=3D"style61">.</span> Free physician=
+s consultation &amp; prescription<span class=3D"style61">.</span></span></s=
+pan></div></td>
 
+    </tr>
+  </table>
+  <p> </p>
+  <p> </p>
+</div>
+<div align=3D"center">
+  <table width=3D"800" border=3D"0">
+    <tr>
+      <td width=3D"1274" height=3D"31" class=3D"style36"><strong>mViagra.</=
+strong> <span class=3D"style16">$1.79</span> (1 pill x 50mg)</td>
 
+    </tr>
+    <tr>
+      <td class=3D"style3"><strong>pViagra</strong> is the first of a new g=
+roup of medication which allows adequate s.e.x.u.a.l. stimulation, relaxes =
+the blood vessels of the penis and helps erection. <strong>aViagra</strong>=
+ tablet should be taken once a day.The time necessary for <strong>qViagra</=
+strong> to exercise its action is about half an hour. The effect is maintai=
+ned for about four hours. <br>
+      The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulat=
+ion.</td>
 
+    </tr>
+    <tr>
+      <td> </td>
+    </tr>
+    <tr>
+      <td class=3D"style36"><span class=3D"style3"></span><strong>vCialis</=
+strong>. <span class=3D"style6"><span class=3D"style16">$2.69 </span></span=
+>(1 pill x 20mg)</td>
+    </tr>
 
+    <tr>
+      <td class=3D"style3"><strong>tCialis</strong> is the only drug which =
+is not only fast acting (<strong>works in 30 minutes</strong>) but is also =
+know to be effective for as long as 36 hours, thus enabling you to choose t=
+he moment that is just right for you as well as your partner. You can take =
+<strong>gCialis </strong>in the morning and be ready for the right moment d=
+uring that day, evening or even during the next day. Millions of men have b=
+enefited from <strong>lCialis</strong> as it works effectively in mild, mod=
+erate or severe e.r.e.c.t.i.l.e. dysfunction. </td>
+    </tr>
+    <tr>
+
+      <td height=3D"65"><div align=3D"center"></div></td>
+    </tr>
+    <tr>
+
+      <td height=3D"46"><div align=3D"center" class=3D"style6 style30 style=
+25">
+        <p><strong><span class=3D"style39"><strong><span class=3D"style1"><=
+span class=3D"style6 style30  style25"><span class=3D"style60">Our Site:</s=
+pan></span></span><strong><strong><strong> <span class=3D"style32"><span cl=
+ass=3D"style43">WWW</span><span class=3D"style61">.</span> <span class=3D"s=
+tyle44"><span class=3D"style82">PowerFight</span></span> <strong><strong><s=
+trong><span class=3D"style61">.</span></strong></strong></strong><span clas=
+s=3D"style42">HK</span></span></strong></strong></strong></strong></span></=
+strong></p>
+
+          </div></td>
+    </tr>
+    <tr>
+      <td>
+        <div align=3D"center" class=3D"style6 style30 style25"><span class=
+=3D"style81">Type in browser(without spaces) and press Enter</span></div></=
+td>
+    </tr>
+  </table>
+</div>
+<p class=3D"style1"> </p>
+
+<p class=3D"style1"> </p>
+<p class=3D"style1"> </p>
+<div align=3D"center">
+  <p class=3D"style21">ddjbww lil amxb bjbejr</p>
+</div>
+<p class=3D"style1"> </p>
+</body>
 </BODY></HTML>
+
+------=_NextPart_000_0007_01C7BF09.6AD1BE50--

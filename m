@@ -1,37 +1,35 @@
-From: "Goldbergz Cassieb" <ram@warwickshire.pnn.police.uk>
-Subject: tCialis- 2.69$ - prices without competition
-Date: Thu, 5 Jul 2007 17:35:57 +0500
-Message-ID: <01c7bf2a$f1e35e50$58e80e4a@ram>
+From: "Mcclellani Philf" <jfw@btopenworld.com>
+Subject: uViagra Buy Here to Save on your Medication.
+Date: Thu, 5 Jul 2007 17:38:07 -0100
+Message-ID: <01c7bf2b$3fc65550$04d01c53@jfw>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7BF09.6AD1BE50"
+	boundary="----=_NextPart_000_0006_01C7BF3C.034F2550"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jana@atrey.karlin.mff.cuni.cz
+To: janecek@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7BF09.6AD1BE50
+------=_NextPart_000_0006_01C7BF3C.034F2550
 Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 
 
-  Hi, paojxiooqjyinqxh !
+  Hi, ndtfpgiapktkolfwqo !
   
 
     
-      ONLY WE give YOU Four yViagra Pills FREE For EVERY ORDER!
+      ONLY WE give YOU Four sViagra Pills FREE For EVERY ORDER!
     
     
-      PowerFight Store - Professional Visa Verified Online Shop. Worldwide =
-shipping. Next day delivery. Discreet packaging. 100% confidential. Free ph=
-ysicians consultation &amp; prescription.
+      PowerFight Store - Professional Visa Verified Online Shop. Worldwide shipping. Next day delivery. Discreet packaging. 100% confidential. Free physicians consultation &amp; prescription.
 
     
   
@@ -39,34 +37,23 @@ ysicians consultation &amp; prescription.
    
   
     
-      mViagra. $1.79 (1 pill x 50mg)
+      jViagra. $1.79 (1 pill x 50mg)
 
     
     
-      pViagra is the first of a new group of medication which allows adequa=
-te s.e.x.u.a.l. stimulation, relaxes the blood vessels of the penis and hel=
-ps erection. aViagra tablet should be taken once a day.The time necessary f=
-or qViagra to exercise its action is about half an hour. The effect is main=
-tained for about four hours. 
-      The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulat=
-ion.
+      mViagra is the first of a new group of medication which allows adequate s.e.x.u.a.l. stimulation, relaxes the blood vessels of the penis and helps erection. eViagra tablet should be taken once a day.The time necessary for nViagra to exercise its action is about half an hour. The effect is maintained for about four hours. 
+      The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulation.
 
     
     
        
     
     
-      vCialis. $2.69 (1 pill x 20mg)
+      rCialis. $2.69 (1 pill x 20mg)
     
 
     
-      tCialis is the only drug which is not only fast acting (works in 30 m=
-inutes) but is also know to be effective for as long as 36 hours, thus enab=
-ling you to choose the moment that is just right for you as well as your pa=
-rtner. You can take gCialis in the morning and be ready for the right momen=
-t during that day, evening or even during the next day. Millions of men hav=
-e benefited from lCialis as it works effectively in mild, moderate or sever=
-e e.r.e.c.t.i.l.e. dysfunction. 
+      oCialis is the only drug which is not only fast acting (works in 30 minutes) but is also know to be effective for as long as 36 hours, thus enabling you to choose the moment that is just right for you as well as your partner. You can take pCialis in the morning and be ready for the right moment during that day, evening or even during the next day. Millions of men have benefited from sCialis as it works effectively in mild, moderate or severe e.r.e.c.t.i.l.e. dysfunction. 
     
     
 
@@ -86,22 +73,25 @@ e e.r.e.c.t.i.l.e. dysfunction.
    
 
   
-  ddjbww lil amxb bjbejr 
+  gd tvmjuad ckoyv px 
 
 
 
-------=_NextPart_000_0007_01C7BF09.6AD1BE50
+
+
+------=_NextPart_000_0006_01C7BF3C.034F2550
 Content-Type: text/html;
-	charset="Windows-1252"
+	charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
-<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
 <head>
 <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
 1">
@@ -166,12 +156,12 @@ style83 {font-size: 2px}
 <body>
 <div align=3D"center"></div>
 <div align=3D"center">
-  <p class=3D"style83">Hi, paojxiooqjyinqxh !</p>
+  <p class=3D"style83">Hi, ndtfpgiapktkolfwqo !</p>
   <table width=3D"738" height=3D"95" border=3D"0">
 
     <tr>
       <td width=3D"1068"><div align=3D"center"><span class=3D"style80">ONLY=
- WE give YOU Four yViagra Pills FREE For EVERY ORDER!</span></div></td>
+ WE give YOU Four sViagra Pills FREE For EVERY ORDER!</span></div></td>
     </tr>
     <tr>
       <td><div align=3D"center"><span class=3D"style6 style30 style75"><spa=
@@ -192,15 +182,15 @@ pan></div></td>
 <div align=3D"center">
   <table width=3D"800" border=3D"0">
     <tr>
-      <td width=3D"1274" height=3D"31" class=3D"style36"><strong>mViagra.</=
+      <td width=3D"1274" height=3D"31" class=3D"style36"><strong>jViagra.</=
 strong> <span class=3D"style16">$1.79</span> (1 pill x 50mg)</td>
 
     </tr>
     <tr>
-      <td class=3D"style3"><strong>pViagra</strong> is the first of a new g=
+      <td class=3D"style3"><strong>mViagra</strong> is the first of a new g=
 roup of medication which allows adequate s.e.x.u.a.l. stimulation, relaxes =
-the blood vessels of the penis and helps erection. <strong>aViagra</strong>=
- tablet should be taken once a day.The time necessary for <strong>qViagra</=
+the blood vessels of the penis and helps erection. <strong>eViagra</strong>=
+ tablet should be taken once a day.The time necessary for <strong>nViagra</=
 strong> to exercise its action is about half an hour. The effect is maintai=
 ned for about four hours. <br>
       The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulat=
@@ -211,19 +201,19 @@ ion.</td>
       <td> </td>
     </tr>
     <tr>
-      <td class=3D"style36"><span class=3D"style3"></span><strong>vCialis</=
+      <td class=3D"style36"><span class=3D"style3"></span><strong>rCialis</=
 strong>. <span class=3D"style6"><span class=3D"style16">$2.69 </span></span=
 >(1 pill x 20mg)</td>
     </tr>
 
     <tr>
-      <td class=3D"style3"><strong>tCialis</strong> is the only drug which =
+      <td class=3D"style3"><strong>oCialis</strong> is the only drug which =
 is not only fast acting (<strong>works in 30 minutes</strong>) but is also =
 know to be effective for as long as 36 hours, thus enabling you to choose t=
 he moment that is just right for you as well as your partner. You can take =
-<strong>gCialis </strong>in the morning and be ready for the right moment d=
+<strong>pCialis </strong>in the morning and be ready for the right moment d=
 uring that day, evening or even during the next day. Millions of men have b=
-enefited from <strong>lCialis</strong> as it works effectively in mild, mod=
+enefited from <strong>sCialis</strong> as it works effectively in mild, mod=
 erate or severe e.r.e.c.t.i.l.e. dysfunction. </td>
     </tr>
     <tr>
@@ -258,10 +248,11 @@ td>
 <p class=3D"style1"> </p>
 <p class=3D"style1"> </p>
 <div align=3D"center">
-  <p class=3D"style21">ddjbww lil amxb bjbejr</p>
+  <p class=3D"style21">gd tvmjuad ckoyv px</p>
 </div>
 <p class=3D"style1"> </p>
 </body>
-</BODY></HTML>
+</body>
+</html>
 
-------=_NextPart_000_0007_01C7BF09.6AD1BE50--
+------=_NextPart_000_0006_01C7BF3C.034F2550--

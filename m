@@ -1,10 +1,10 @@
-From: "Mcclellani Philf" <jfw@btopenworld.com>
-Subject: uViagra Buy Here to Save on your Medication.
-Date: Thu, 5 Jul 2007 17:38:07 -0100
-Message-ID: <01c7bf2b$3fc65550$04d01c53@jfw>
+From: "Bellamys Socorron" <espu@akademikonferens.uu.se>
+Subject: Prices without competition  SoftCialis - 2.69$
+Date: Thu, 5 Jul 2007 21:37:16 -0100
+Message-ID: <01c7bf4c$a85c7600$fe9be459@espu>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7BF3C.034F2550"
+	boundary="----=_NextPart_000_0007_01C7BF5D.6BE54600"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,20 +16,22 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C7BF3C.034F2550
+------=_NextPart_000_0007_01C7BF5D.6BE54600
 Content-Type: text/plain;
 	charset="windows-1250"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 
 
-  Hi, ndtfpgiapktkolfwqo !
+  Hi, lqyhpukjtzxvwe !
   
 
     
-      ONLY WE give YOU Four sViagra Pills FREE For EVERY ORDER!
+      ONLY WE give YOU Four SoftViagra Pills FREE For EVERY ORDER!
     
     
-      PowerFight Store - Professional Visa Verified Online Shop. Worldwide shipping. Next day delivery. Discreet packaging. 100% confidential. Free physicians consultation &amp; prescription.
+      Fresh Store Pharmacy - Professional Visa Verified Online Shop. Worldw=
+ide shipping. Next day delivery. Discreet packaging. 100% confidential. Fre=
+e physicians consultation &amp; prescription.
 
     
   
@@ -37,23 +39,34 @@ Content-Transfer-Encoding: 7bit
    
   
     
-      jViagra. $1.79 (1 pill x 50mg)
+      SoftViagra. $1.79 (1 pill x 50mg)
 
     
     
-      mViagra is the first of a new group of medication which allows adequate s.e.x.u.a.l. stimulation, relaxes the blood vessels of the penis and helps erection. eViagra tablet should be taken once a day.The time necessary for nViagra to exercise its action is about half an hour. The effect is maintained for about four hours. 
-      The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulation.
+      SoftViagra is the first of a new group of medication which allows ade=
+quate s.e.x.u.a.l. stimulation, relaxes the blood vessels of the penis and =
+helps erection. SoftViagra tablet should be taken once a day.The time neces=
+sary for SoftViagra to exercise its action is about half an hour. The effec=
+t is maintained for about four hours. 
+      The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulat=
+ion.
 
     
     
        
     
     
-      rCialis. $2.69 (1 pill x 20mg)
+      SoftCialis. $2.69 (1 pill x 20mg)
     
 
     
-      oCialis is the only drug which is not only fast acting (works in 30 minutes) but is also know to be effective for as long as 36 hours, thus enabling you to choose the moment that is just right for you as well as your partner. You can take pCialis in the morning and be ready for the right moment during that day, evening or even during the next day. Millions of men have benefited from sCialis as it works effectively in mild, moderate or severe e.r.e.c.t.i.l.e. dysfunction. 
+      SoftCialis is the only drug which is not only fast acting (works in 3=
+0 minutes) but is also know to be effective for as long as 36 hours, thus e=
+nabling you to choose the moment that is just right for you as well as your=
+ partner. You can take SoftCialis in the morning and be ready for the right=
+ moment during that day, evening or even during the next day. Millions of m=
+en have benefited from SoftCialis as it works effectively in mild, moderate=
+ or severe e.r.e.c.t.i.l.e. dysfunction. 
     
     
 
@@ -62,7 +75,7 @@ Content-Transfer-Encoding: 7bit
     
 
       
-        Our Site: WWW. PowerFight .HK
+        Our Site: WWW. FreshStore .HK
 
           
     
@@ -73,25 +86,22 @@ Content-Transfer-Encoding: 7bit
    
 
   
-  gd tvmjuad ckoyv px 
+  gejgkj dhpyp duv jf 
 
 
 
-
-
-------=_NextPart_000_0006_01C7BF3C.034F2550
+------=_NextPart_000_0007_01C7BF5D.6BE54600
 Content-Type: text/html;
 	charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
+<META content=3D"MSHTML 5.00.2314.1300" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
 <head>
 <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
 1">
@@ -156,23 +166,23 @@ style83 {font-size: 2px}
 <body>
 <div align=3D"center"></div>
 <div align=3D"center">
-  <p class=3D"style83">Hi, ndtfpgiapktkolfwqo !</p>
+  <p class=3D"style83">Hi, lqyhpukjtzxvwe !</p>
   <table width=3D"738" height=3D"95" border=3D"0">
 
     <tr>
       <td width=3D"1068"><div align=3D"center"><span class=3D"style80">ONLY=
- WE give YOU Four sViagra Pills FREE For EVERY ORDER!</span></div></td>
+ WE give YOU Four SoftViagra Pills FREE For EVERY ORDER!</span></div></td>
     </tr>
     <tr>
       <td><div align=3D"center"><span class=3D"style6 style30 style75"><spa=
-n class=3D"style69"><span class=3D"style70"><span class=3D"style71">PowerFi=
-ght Store </span></span></span><span class=3D"style73">- </span><span class=
-=3D"style74">Professional Visa Verified Online Shop<span class=3D"style61">=
-</span> Worldwide shipping<span class=3D"style61">.</span> Next day delive=
-ry<span class=3D"style61">.</span> Discreet packaging<span class=3D"style61=
-">.</span> 100% confidential<span class=3D"style61">.</span> Free physician=
-s consultation &amp; prescription<span class=3D"style61">.</span></span></s=
-pan></div></td>
+n class=3D"style69"><span class=3D"style70"><span class=3D"style71">Fresh S=
+tore Pharmacy</span></span></span><span class=3D"style73"> - </span><span c=
+lass=3D"style74">Professional Visa Verified Online Shop<span class=3D"style=
+61">.</span> Worldwide shipping<span class=3D"style61">.</span> Next day de=
+livery<span class=3D"style61">.</span> Discreet packaging<span class=3D"sty=
+le61">.</span> 100% confidential<span class=3D"style61">.</span> Free physi=
+cians consultation &amp; prescription<span class=3D"style61">.</span></span=
+></span></div></td>
 
     </tr>
   </table>
@@ -182,17 +192,17 @@ pan></div></td>
 <div align=3D"center">
   <table width=3D"800" border=3D"0">
     <tr>
-      <td width=3D"1274" height=3D"31" class=3D"style36"><strong>jViagra.</=
-strong> <span class=3D"style16">$1.79</span> (1 pill x 50mg)</td>
+      <td width=3D"1274" height=3D"31" class=3D"style36"><strong>SoftViagra=
+</strong> <span class=3D"style16">$1.79</span> (1 pill x 50mg)</td>
 
     </tr>
     <tr>
-      <td class=3D"style3"><strong>mViagra</strong> is the first of a new g=
-roup of medication which allows adequate s.e.x.u.a.l. stimulation, relaxes =
-the blood vessels of the penis and helps erection. <strong>eViagra</strong>=
- tablet should be taken once a day.The time necessary for <strong>nViagra</=
-strong> to exercise its action is about half an hour. The effect is maintai=
-ned for about four hours. <br>
+      <td class=3D"style3"><strong>SoftViagra</strong> is the first of a ne=
+w group of medication which allows adequate s.e.x.u.a.l. stimulation, relax=
+es the blood vessels of the penis and helps erection. <strong>SoftViagra</s=
+trong> tablet should be taken once a day.The time necessary for <strong>Sof=
+tViagra</strong> to exercise its action is about half an hour. The effect i=
+s maintained for about four hours. <br>
       The effect is only obtained with a satisfactory s.e.x.u.a.l. stimulat=
 ion.</td>
 
@@ -201,20 +211,20 @@ ion.</td>
       <td> </td>
     </tr>
     <tr>
-      <td class=3D"style36"><span class=3D"style3"></span><strong>rCialis</=
-strong>. <span class=3D"style6"><span class=3D"style16">$2.69 </span></span=
->(1 pill x 20mg)</td>
+      <td class=3D"style36"><span class=3D"style3"></span><strong>SoftCiali=
+s</strong>. <span class=3D"style6"><span class=3D"style16">$2.69 </span></s=
+pan>(1 pill x 20mg)</td>
     </tr>
 
     <tr>
-      <td class=3D"style3"><strong>oCialis</strong> is the only drug which =
-is not only fast acting (<strong>works in 30 minutes</strong>) but is also =
-know to be effective for as long as 36 hours, thus enabling you to choose t=
-he moment that is just right for you as well as your partner. You can take =
-<strong>pCialis </strong>in the morning and be ready for the right moment d=
-uring that day, evening or even during the next day. Millions of men have b=
-enefited from <strong>sCialis</strong> as it works effectively in mild, mod=
-erate or severe e.r.e.c.t.i.l.e. dysfunction. </td>
+      <td class=3D"style3"><strong>SoftCialis</strong> is the only drug whi=
+ch is not only fast acting (<strong>works in 30 minutes</strong>) but is al=
+so know to be effective for as long as 36 hours, thus enabling you to choos=
+e the moment that is just right for you as well as your partner. You can ta=
+ke <strong>SoftCialis </strong>in the morning and be ready for the right mo=
+ment during that day, evening or even during the next day. Millions of men =
+have benefited from <strong>SoftCialis</strong> as it works effectively in =
+mild, moderate or severe e.r.e.c.t.i.l.e. dysfunction. </td>
     </tr>
     <tr>
 
@@ -228,7 +238,7 @@ erate or severe e.r.e.c.t.i.l.e. dysfunction. </td>
 span class=3D"style6 style30  style25"><span class=3D"style60">Our Site:</s=
 pan></span></span><strong><strong><strong> <span class=3D"style32"><span cl=
 ass=3D"style43">WWW</span><span class=3D"style61">.</span> <span class=3D"s=
-tyle44"><span class=3D"style82">PowerFight</span></span> <strong><strong><s=
+tyle44"><span class=3D"style82">FreshStore</span></span> <strong><strong><s=
 trong><span class=3D"style61">.</span></strong></strong></strong><span clas=
 s=3D"style42">HK</span></span></strong></strong></strong></strong></span></=
 strong></p>
@@ -248,11 +258,10 @@ td>
 <p class=3D"style1"> </p>
 <p class=3D"style1"> </p>
 <div align=3D"center">
-  <p class=3D"style21">gd tvmjuad ckoyv px</p>
+  <p class=3D"style21">gejgkj dhpyp duv jf</p>
 </div>
 <p class=3D"style1"> </p>
 </body>
-</body>
-</html>
+</BODY></HTML>
 
-------=_NextPart_000_0006_01C7BF3C.034F2550--
+------=_NextPart_000_0007_01C7BF5D.6BE54600--

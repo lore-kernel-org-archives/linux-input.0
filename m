@@ -1,10 +1,10 @@
-From: "Weston Blue" <heanavigation@ccgcatv.com>
-Subject: Energy fur ihren Schwanz, kaufen und 85% sparen  by either the FSA or --  Patterns--the lessons
-Date: Fri, 6 Jul 2007 10:17:06 -0900
-Message-ID: <01c7bfb6$ce20d600$1b4e4d3a@heanavigation>
+From: "Carlo Stroud" <heads@ca-tr.easterseals.com>
+Subject: Man Lebt nur einmal - probiers aus !  case. Your zero  --  Design Patterns, you'll avoid
+Date: Fri, 6 Jul 2007 10:46:46 -0700
+Message-ID: <01c7bfba$f2e42a10$bdc7fede@heads>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7C002.3E087E00"
+	boundary="----=_NextPart_000_000E_01C7BFF5.9F430210"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,73 +16,61 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C7C002.3E087E00
+------=_NextPart_000_000E_01C7BFF5.9F430210
 Content-Type: text/plain;
-	charset="iso-8859-2"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-Verpassen Sie nichts am Lebem - Sie werden fuhlen was unsere Kunden bestatigen!
+Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestatigen
 
 Preise die keine Konkurrenz kennen 
 
-- keine versteckte Kosten
 - Visa verifizierter Onlineshop
-- Diskrete Verpackung und Zahlung
-- Kostenlose, arztliche Telefon-Beratung
 - Kein peinlicher Arztbesuch erforderlicht
 - Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
 - Bequem und diskret online bestellen.
+- Kostenlose, arztliche Telefon-Beratung
+- Diskrete Verpackung und Zahlung
+- keine versteckte Kosten
 
 
 Jetzt bestellen - und vier Pillen umsonst erhalten
-http://cpipext.coverstep.hk/?082422614225
+http://osxqpu.setcare.hk/?354240987943
 
 
-------=_NextPart_000_0006_01C7C002.3E087E00
+------=_NextPart_000_000E_01C7BFF5.9F430210
 Content-Type: text/html;
-	charset="iso-8859-2"
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3Dus-ascii" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.50.4927.1200" name=3DGENERATOR></HEAD>
+<BODY>
 <head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
 -8859-1">
-</head><body>
-<p>Meinung von unserem Kunden:<br>
-  <strong>Vor zwei Monaten haben meine Freundin und ich beschlossen, zum er=
-sten Mal miteinander Sex zu haben. Als es soweit war, und ich in sie eindri=
-ngen wollte, blieb ich v&#246;llig schlaff. Wir haben es drei Wochen sp&#22=
-8;ter nochmal versucht, und ich habe immer noch schlappgemacht. Mein Onkel =
-hat mir Viaaaagra empfohlen. Letzte Woche haben meine Freundin und ich es n=
-och einmal miteinander probiert, und es wurde die tollste Nacht meines Lebe=
-ns. Ich nehme Viaaaagra jetzt einmal pro Woche, und es klappt prima. Meine =
-Freundin hat keine Zweifel mehr an meinen sexuellen Qualit&#228;ten.</stron=
-g></p>
-<p><strong>Meine Frau und ich haben Viaaaagra am letzten Wochenende ausprob=
-iert. Sie fand, mein bestes St&#252;ck w&#228;re in letzter Zeit nicht ganz=
- auf der H&#246;he gewesen. Also dachten wir, wir probieren es einfach einm=
-al.Es gibt nur ein Wort, dass das Gef&#252;hl beschreibt: Wahnsinn. Seit ic=
-h zwanzig war, konnte ich nicht mehr so lang und so oft. Was soll ich sagen=
-? Gute Arbeit, Viaaaagra!<br>
-  </strong><strong><br>
-  Verpassen Sie nichts am Lebem - Sie werden fuhlen was unsere Kunden besta=
-tigen!</strong>
-</p>
-<p>Preise die keine Konkurrenz kennen <p>
-- keine versteckte Kosten<br>- Diskrete Verpackung und Zahlung<br>- Kein pe=
-inlicher Arztbesuch erforderlicht<br>- Kostenlose, arztliche Telefon-Beratu=
-ng<br>- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Bequ=
-em und diskret online bestellen.<br>- Visa verifizierter Onlineshop</p>  
-<p><br><strong><a href=3D"http://cpipext.coverstep.hk/?082422614225" target=
-=3D"_blank">Jetzt bestellen - und vier Pillen umsonst erhalten</a></strong>=
-</body>
-</body>
-</html>
+</head><body><p>Meinung von unserem Kunden:<br><strong>Ich habe drei Jahre =
+lang keine befriedigende Er_rektio_n hinbekommen. Das hat mich fertig gemac=
+ht. Viaaaagra haben meine Frau, sie ist 54, und ich in zwei Jahren nicht ei=
+nmal auf befriedigen Sex verzichten m&#252;ssen. Und die Liebe ist genauso =
+intensiv wie vor einem halben Jahrhundert! Jetzt machen wir es wieder drei-=
+ bis f&#252;nfmal pro Woche. Ich bin 75 Jahre alt und dankbar, dass ich Via=
+aaagra kennengelernt habe.</strong></p><p><strong>Ich bin weit &#252;ber 60=
+, nehme Ciaaaaaalis 20 mg. und das Wochenende ist gerettet. Ich kann pro Na=
+cht 4-5 mal, und am Morgen wieder, f&#252;r den n&#228;chsten Abend reicht =
+eine Halbe. Meine Freundin ist begeistert. F&#252;r meine Frau nehme ich ei=
+ne halbe Tablette, das reicht f&#252;r einen netten Abend.<br>
+</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was =
+unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen =
+<p>
+- Bequem und diskret online bestellen.<br>- Visa verifizierter Onlineshop<b=
+r>- Kein peinlicher Arztbesuch erforderlicht<br>- Kein langes Warten - Ausl=
+ieferung innerhalb von 2-3 Tagen<br>- Kostenlose, arztliche Telefon-Beratun=
+g<br>- keine versteckte Kosten<br>- Diskrete Verpackung und Zahlung</p>  
+<p><br><strong><a href=3D"http://osxqpu.setcare.hk/?354240987943" target=3D=
+"_blank">Jetzt bestellen - und vier Pillen umsonst erhalten</a></strong></b=
+ody>
+</BODY></HTML>
 
-------=_NextPart_000_0006_01C7C002.3E087E00--
+------=_NextPart_000_000E_01C7BFF5.9F430210--

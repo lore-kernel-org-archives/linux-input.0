@@ -1,24 +1,24 @@
-From: "Woodyg Elijahn" <info@cyprusproperty.net>
-Subject: Get SoftCialis(2.69$) Here to Save on your Medication.
-Date: Fri, 6 Jul 2007 11:11:29 -0100
-Message-ID: <01c7bfbe$66f656a0$42771053@info>
+From: "Gabrielo Alanq" <rupert.hofer@geigenbau.at>
+Subject: Get SoftViagra - 1.79$ now bonus include
+Date: Fri, 6 Jul 2007 11:23:59 -0100
+Message-ID: <01c7bfc0$25ba2250$46a1a0d4@rupert.hofer>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7BFCF.2A7F26A0"
+	boundary="----=_NextPart_000_0007_01C7BFD0.E942F250"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: janecek@atrey.karlin.mff.cuni.cz
+To: hubicka@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7BFCF.2A7F26A0
+------=_NextPart_000_0007_01C7BFD0.E942F250
 Content-Type: text/plain;
-	charset="iso-8859-2"
+	charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 
@@ -26,12 +26,12 @@ Content-Transfer-Encoding: quoted-printable
   
 
     
-      qwOnly we give you four Viagra pills FREE for EVERY ORDER!kmcalr
+      zxbbOnly we give you four Viagra pills FREE for EVERY ORDER!xile
     
     
-      skmkkFresh Store Pharmacy - Professional Visa Verified Online Shop. W=
-orldwide shipping. Next day delivery. Discreet packaging. 100% confidential=
- Free physicians consultation &amp; prescription.uury
+      fizinwFresh Store Pharmacy - Professional Visa Verified Online Shop. =
+Worldwide shipping. Next day delivery. Discreet packaging. 100% confidentia=
+l. Free physicians consultation &amp; prescription.x
 
     
   
@@ -39,45 +39,45 @@ orldwide shipping. Next day delivery. Discreet packaging. 100% confidential=
    
   
     
-      qhhsgViagra. $1.79m
+      duecViagra. $1.79yfmaht
 
     
     
-      xuwCialis. $2.69mdx
+      apCialis. $2.69ab
 
     
     
        
     
     
-       aggsvLevitra $3.96pv
+       yLevitra $3.96u
     
 
     
-      bqXanax. $2.99uvu
+      qjXanax. $2.99db
     
     
 
-      wtqfSoma. $0.69sdgnlk 
+      wcsvgeSoma. $0.69v 
     
     
-i
+h
      
-        mhcraypspfjbp
+        rifwztrwtyztedsm
 
           
     
     
       
-        ypxlbWWW . FreshStore  . HKskxjsk
+        aadbrWWW . FreshStore  . HKyo
     
     
-      mvType in browser(without spaces) and press Enterug
+      fssjType in browser(without spaces) and press Enterow
     
    
 
   
-  kl mpprulvsxwx d bued 
+  zbdur nrcba eq udmq 
 
 
       
@@ -96,20 +96,21 @@ i
    
 
   
-  p fvbqjbb vxf ww 
+  gc fpvzmzb scxc sp 
 
 
 
 
-------=_NextPart_000_0007_01C7BFCF.2A7F26A0
+
+------=_NextPart_000_0007_01C7BFD0.E942F250
 Content-Type: text/html;
-	charset="iso-8859-2"
+	charset="windows-1250"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
-<META content=3D"MSHTML 5.50.4807.2300" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
+<META content=3D"MSHTML 4.72.3110.3" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY>
@@ -197,27 +198,27 @@ style96 {
     <tr>
       <td width=3D"695"><div align=3D"center"><span class=3D"style80"><span=
  class=3D"style3"><span class=3D"style86"><span class=3D"style36"><span cla=
-ss=3D"style6"><span class=3D"style16"><span class=3D"style93">qw</span></sp=
-an></span></span></span></span>Only we give you four Viagra pills FREE for =
-EVERY ORDER!<span class=3D"style3"><span class=3D"style86"><span class=3D"s=
-tyle36"><span class=3D"style6"><span class=3D"style16"><span class=3D"style=
-95">kmcalr</span></span></span></span></span></span></span></div></td>
+ss=3D"style6"><span class=3D"style16"><span class=3D"style93">zxbb</span></=
+span></span></span></span></span>Only we give you four Viagra pills FREE fo=
+r EVERY ORDER!<span class=3D"style3"><span class=3D"style86"><span class=3D=
+"style36"><span class=3D"style6"><span class=3D"style16"><span class=3D"sty=
+le95">xile</span></span></span></span></span></span></span></div></td>
     </tr>
     <tr>
       <td><div align=3D"center"><span class=3D"style6 style30 style75"><spa=
 n class=3D"style69"><span class=3D"style70"><span class=3D"style71"><span c=
 lass=3D"style3"><span class=3D"style86"><span class=3D"style36"><span class=
-=3D"style6"><span class=3D"style16"><span class=3D"style92">skmkk</span></s=
-pan></span></span></span></span><span class=3D"style96">Fresh Store Pharmac=
-y</span></span></span></span><span class=3D"style73"> - </span><span class=
+=3D"style6"><span class=3D"style16"><span class=3D"style92">fizinw</span></=
+span></span></span></span></span><span class=3D"style96">Fresh Store Pharma=
+cy</span></span></span></span><span class=3D"style73"> - </span><span class=
 =3D"style74">Professional Visa Verified Online Shop<span class=3D"style61">=
 </span> Worldwide shipping<span class=3D"style61">.</span> Next day delive=
 ry<span class=3D"style61">.</span> Discreet packaging<span class=3D"style61=
 ">.</span> 100% confidential<span class=3D"style61">.</span> Free physician=
 s consultation &amp; prescription<span class=3D"style61">.<span class=3D"st=
 yle3"><span class=3D"style86"><span class=3D"style36"><span class=3D"style6=
-"><span class=3D"style16"><span class=3D"style90">uury</span></span></span>=
-</span></span></span></span></span></span></div></td>
+"><span class=3D"style16"><span class=3D"style90">x</span></span></span></s=
+pan></span></span></span></span></span></div></td>
 
     </tr>
   </table>
@@ -229,17 +230,17 @@ yle3"><span class=3D"style86"><span class=3D"style36"><span class=3D"style6=
     <tr>
       <td width=3D"1274" height=3D"40" class=3D"style36"><strong><span clas=
 s=3D"style3"><span class=3D"style86"><span class=3D"style6"><span class=3D"=
-style16"><span class=3D"style90">qhhsg</span></span></span></span></span>Vi=
-agra.</strong> <span class=3D"style16">$1.79<span class=3D"style90">m</span=
-></span></td>
+style16"><span class=3D"style90">duec</span></span></span></span></span>Via=
+gra.</strong> <span class=3D"style16">$1.79<span class=3D"style90">yfmaht</=
+span></span></td>
 
     </tr>
     <tr>
       <td height=3D"48" class=3D"style3"><span class=3D"style86"><span clas=
 s=3D"style36"><span class=3D"style61"><strong><span class=3D"style6"><span =
-class=3D"style16"><span class=3D"style90">xuw</span></span></span>Cialis</s=
-trong>.</span> <span class=3D"style6"><span class=3D"style16">$2.69<span cl=
-ass=3D"style90">mdx</span></span></span></span></span></td>
+class=3D"style16"><span class=3D"style90">ap</span></span></span>Cialis</st=
+rong>.</span> <span class=3D"style6"><span class=3D"style16">$2.69<span cla=
+ss=3D"style90">ab</span></span></span></span></span></td>
 
     </tr>
     <tr>
@@ -248,46 +249,46 @@ ass=3D"style90">mdx</span></span></span></span></span></td>
     <tr>
       <td height=3D"46" class=3D"style36"><span class=3D"style80"> <span cl=
 ass=3D"style3"><span class=3D"style86"><span class=3D"style6"><span class=
-=3D"style16"><span class=3D"style90">aggsv</span></span></span></span></spa=
-n>Levitra </span><span class=3D"style16">$3.96<span class=3D"style3"><span =
-class=3D"style86"><span class=3D"style6"><span class=3D"style90">pv</span><=
-/span></span></span></span></td>
+=3D"style16"><span class=3D"style90">y</span></span></span></span></span>Le=
+vitra </span><span class=3D"style16">$3.96<span class=3D"style3"><span clas=
+s=3D"style86"><span class=3D"style6"><span class=3D"style90">u</span></span=
+></span></span></span></td>
     </tr>
 
     <tr>
       <td height=3D"51" class=3D"style3"><span class=3D"style36"><span clas=
 s=3D"style80"><span class=3D"style86"><span class=3D"style6"><span class=3D=
-"style16"><span class=3D"style90">bq</span></span></span></span>Xanax.</spa=
+"style16"><span class=3D"style90">qj</span></span></span></span>Xanax.</spa=
 n> <span class=3D"style86">$2.99<span class=3D"style6"><span class=3D"style=
-16"><span class=3D"style90">uvu</span></span></span></span></span></td>
+16"><span class=3D"style90">db</span></span></span></span></span></td>
     </tr>
     <tr>
 
       <td height=3D"47"><div align=3D"left"><span class=3D"style80"><span c=
 lass=3D"style3"><span class=3D"style86"><span class=3D"style36"><span class=
-=3D"style6"><span class=3D"style16"><span class=3D"style90">wtqf</span></sp=
-an></span></span></span></span>Soma. </span><span class=3D"style89">$0.69<s=
-pan class=3D"style3"><span class=3D"style86"><span class=3D"style36"><span =
-class=3D"style6"><span class=3D"style16"><span class=3D"style90">sdgnlk</sp=
-an></span></span></span></span></span></span> </div></td>
+=3D"style6"><span class=3D"style16"><span class=3D"style90">wcsvge</span></=
+span></span></span></span></span>Soma. </span><span class=3D"style89">$0.69=
+<span class=3D"style3"><span class=3D"style86"><span class=3D"style36"><spa=
+n class=3D"style6"><span class=3D"style16"><span class=3D"style90">v</span>=
+</span></span></span></span></span></span> </div></td>
     </tr>
     <tr>
-i<br>
+h<br>
      <td height=3D"88"><div align=3D"center" class=3D"style6 style30 style2=
 5">
         <p><strong><span class=3D"style39"><strong><strong><strong><strong>=
 <span class=3D"style32"><span class=3D"style3"><span class=3D"style86"><spa=
 n class=3D"style36"><span class=3D"style6"><span class=3D"style16"><span cl=
-ass=3D"style90">m</span></span></span></span></span></span><span class=3D"s=
+ass=3D"style90">r</span></span></span></span></span></span><span class=3D"s=
 tyle3"><span class=3D"style86"><span class=3D"style36"><span class=3D"style=
-6"><span class=3D"style16"><span class=3D"style90">hcray</span></span></spa=
-n></span></span></span><span class=3D"style3"><span class=3D"style86"><span=
- class=3D"style36"><span class=3D"style6"><span class=3D"style16"><span cla=
-ss=3D"style90">ps</span></span></span></span></span></span><span class=3D"s=
-tyle3"><span class=3D"style86"><span class=3D"style36"><span class=3D"style=
-6"><span class=3D"style16"><span class=3D"style90">pfjbp</span></span></spa=
-n></span></span></span></span></strong></strong></strong></strong></span></=
-strong></p>
+6"><span class=3D"style16"><span class=3D"style90">ifwztr</span></span></sp=
+an></span></span></span><span class=3D"style3"><span class=3D"style86"><spa=
+n class=3D"style36"><span class=3D"style6"><span class=3D"style16"><span cl=
+ass=3D"style90">wtyzt</span></span></span></span></span></span><span class=
+=3D"style3"><span class=3D"style86"><span class=3D"style36"><span class=3D"=
+style6"><span class=3D"style16"><span class=3D"style90">edsm</span></span><=
+/span></span></span></span></span></strong></strong></strong></strong></spa=
+n></strong></p>
 
           </div></td>
     </tr>
@@ -297,24 +298,24 @@ strong></p>
 n class=3D"style39"><strong><strong><strong><strong><span class=3D"style32"=
 ><span class=3D"style43"><span class=3D"style3"><span class=3D"style86"><sp=
 an class=3D"style36"><span class=3D"style6"><span class=3D"style16"><span c=
-lass=3D"style90">ypxlb</span></span></span></span></span></span>WWW </span>=
+lass=3D"style90">aadbr</span></span></span></span></span></span>WWW </span>=
 <span class=3D"style61">.</span> <span class=3D"style44"><span class=3D"sty=
 le82">FreshStore</span></span> <strong><strong><strong><span class=3D"style=
 61"> . </span></strong></strong></strong><span class=3D"style42">HK<span cl=
 ass=3D"style3"><span class=3D"style86"><span class=3D"style36"><span class=
-=3D"style6"><span class=3D"style16"><span class=3D"style90">skxjsk</span></=
-span></span></span></span></span></span></span></strong></strong></strong><=
-/strong></span></strong></div></td>
+=3D"style6"><span class=3D"style16"><span class=3D"style90">yo</span></span=
+></span></span></span></span></span></span></strong></strong></strong></str=
+ong></span></strong></div></td>
     </tr>
     <tr>
       <td><div align=3D"center"><span class=3D"style6 style30 style25"><spa=
 n class=3D"style81"><span class=3D"style3"><span class=3D"style86"><span cl=
 ass=3D"style36"><span class=3D"style6"><span class=3D"style16"><span class=
-=3D"style90">mv</span></span></span></span></span></span>Type in browser(wi=
-thout spaces) and press Enter<span class=3D"style3"><span class=3D"style86"=
-><span class=3D"style36"><span class=3D"style6"><span class=3D"style16"><sp=
-an class=3D"style90">ug</span></span></span></span></span></span></span></s=
-pan></div></td>
+=3D"style90">fssj</span></span></span></span></span></span>Type in browser(=
+without spaces) and press Enter<span class=3D"style3"><span class=3D"style8=
+6"><span class=3D"style36"><span class=3D"style6"><span class=3D"style16"><=
+span class=3D"style90">ow</span></span></span></span></span></span></span><=
+/span></div></td>
     </tr>
   </table>
 </div>
@@ -323,7 +324,7 @@ pan></div></td>
 <p class=3D"style1"> </p>
 <p class=3D"style1"> </p>
 <div align=3D"center">
-  <p class=3D"style21">kl mpprulvsxwx d bued</p>
+  <p class=3D"style21">zbdur nrcba eq udmq</p>
 </div>
 <p class=3D"style1"> </p>
 </body>
@@ -357,11 +358,11 @@ td>
 <p class=3D"style1"> </p>
 <p class=3D"style1"> </p>
 <div align=3D"center">
-  <p class=3D"style21">p fvbqjbb vxf ww</p>
+  <p class=3D"style21">gc fpvzmzb scxc sp</p>
 </div>
 <p class=3D"style1"> </p>
 </body>
 
 </BODY></HTML>
 
-------=_NextPart_000_0007_01C7BFCF.2A7F26A0--
+------=_NextPart_000_0007_01C7BFD0.E942F250--

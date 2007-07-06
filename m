@@ -1,44 +1,88 @@
-From: "Margaret Barrow" <pepperedtm882@phentermine.com>
-Subject: Huh?
-Date: Fri, 6 Jul 2007 09:52:12 -0100
-Message-ID: <641650558.28346441608952@phentermine.com>
-Reply-To: pepperedtm882@phentermine.com
+From: "Weston Blue" <heanavigation@ccgcatv.com>
+Subject: Energy fur ihren Schwanz, kaufen und 85% sparen  by either the FSA or --  Patterns--the lessons
+Date: Fri, 6 Jul 2007 10:17:06 -0900
+Message-ID: <01c7bfb6$ce20d600$1b4e4d3a@heanavigation>
 Mime-Version: 1.0
-Content-Type: text/html;
-  charset=windows-1250
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7C002.3E087E00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: cech@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+This is a multi-part message in MIME format.
 
-<BODY>
-<font size="+2"><b>Quality and cheap Viagra</b></font> 
-<p><font size="+2"></font><br>
-<style>    * Fall Marco Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"SPORT      123 Beitr&#228;ge, Neuester: Heute, 17.06 Uhr von mitwisserAngel-Simulator, Gitarren-Wettkampf, Quitsche-Enten durch die Wanne steuern - kaum eine Spielidee ist zu aberwitzig f&#252;r die neuen Spielkonsolen. Wie gut kennen Sie die neuen Spiel-Wunder? Testen Sie Ihr Daddel-Know-how im SPIEGEL-ONLINE-Quiz. Von Konrad Lischka mehr...    * Prinz William & Kate Middleton: Heimliche Treffen als Zeichen eines Neustarts    * Mund auf: G&#228;hnen k&#252;hlt das GehirnFEUER AM AKW KR&#220;MMEL    * mehr PolitikFEUER AM AKW KR&#220;MMEL    * &#220;bersicht    * DepotForscher befreien Zellen vom Aids- Virus    * Glaubw&#252;rdigkeitskrise: Greenpeace stoppt Magazin- Verkauf bei LidlVIREN- KILLERNeues britisches Kabinett: Brown startet das Blair- Switch- ProjektVIREN- KILLER    * Bundeshaushalt: Steinbr&#252
- ;cks Fahrplan zur Entschuldung</style>
-  <br>
-Check it out, it's ten <style></style>times cheaper than in your local drugstore!<style></style>
+------=_NextPart_000_0006_01C7C002.3E087E00
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+
+Verpassen Sie nichts am Lebem - Sie werden fuhlen was unsere Kunden bestatigen!
+
+Preise die keine Konkurrenz kennen 
+
+- keine versteckte Kosten
+- Visa verifizierter Onlineshop
+- Diskrete Verpackung und Zahlung
+- Kostenlose, arztliche Telefon-Beratung
+- Kein peinlicher Arztbesuch erforderlicht
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Bequem und diskret online bestellen.
+
+
+Jetzt bestellen - und vier Pillen umsonst erhalten
+http://cpipext.coverstep.hk/?082422614225
+
+
+------=_NextPart_000_0006_01C7C002.3E087E00
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
+-8859-1">
+</head><body>
+<p>Meinung von unserem Kunden:<br>
+  <strong>Vor zwei Monaten haben meine Freundin und ich beschlossen, zum er=
+sten Mal miteinander Sex zu haben. Als es soweit war, und ich in sie eindri=
+ngen wollte, blieb ich v&#246;llig schlaff. Wir haben es drei Wochen sp&#22=
+8;ter nochmal versucht, und ich habe immer noch schlappgemacht. Mein Onkel =
+hat mir Viaaaagra empfohlen. Letzte Woche haben meine Freundin und ich es n=
+och einmal miteinander probiert, und es wurde die tollste Nacht meines Lebe=
+ns. Ich nehme Viaaaagra jetzt einmal pro Woche, und es klappt prima. Meine =
+Freundin hat keine Zweifel mehr an meinen sexuellen Qualit&#228;ten.</stron=
+g></p>
+<p><strong>Meine Frau und ich haben Viaaaagra am letzten Wochenende ausprob=
+iert. Sie fand, mein bestes St&#252;ck w&#228;re in letzter Zeit nicht ganz=
+ auf der H&#246;he gewesen. Also dachten wir, wir probieren es einfach einm=
+al.Es gibt nur ein Wort, dass das Gef&#252;hl beschreibt: Wahnsinn. Seit ic=
+h zwanzig war, konnte ich nicht mehr so lang und so oft. Was soll ich sagen=
+? Gute Arbeit, Viaaaagra!<br>
+  </strong><strong><br>
+  Verpassen Sie nichts am Lebem - Sie werden fuhlen was unsere Kunden besta=
+tigen!</strong>
 </p>
-<style>
-</style>
-<p></p>
-<p><font color="#FF0000"><a href="http://alta-gama.com/redir.html"><b><font size="+2">Click to <style></style>buy<style></style> Viagra for as low as $1.79 <style>    * Inhaftierter Marco Weiss: T&#252;rkischer Staatsanwalt emp&#246;rt &#252;ber deutsche Beh&#246;rden    * Ministerien einig: Bahn soll Schienen 15 Jahre lang behalten    * CSU- Generalsekret&#228;r: Ramsauer f&#252;r Frau statt S&#246;der      SATIRE @ SPIEGEL ONLINE: Woche f&#252;r Woche am Kiosk - Die neuen Fixsterne sind da!    * Logbuch al- Qaida: Anklage gegen Ibrahim R.    * Schmiergeld- Aff&#228;re: Siemens- Anti- Korruptionschef Noa geht    * Schmiergeld- Aff&#228;re: Siemens- Anti- Korruptionschef Noa gehtUSA    * Umfrage: Steinmeier h&#228;ngt Beck ab    * Bush-Regierung unter Druck: Senat verlangt vertrauliche Papiere zu Lauschangriff    * Kurzp&#228;sse: Klasnic verl&#228;ngert, van Burik gehtbl&#228;tternBoxtr
- ainer Timm: Der P&#228;dagoge am SandsackBoxtrainer Timm: Der P&#228;dagoge am Sandsackbl&#228;ttern    * Hass auf Kn&#246;llchen- Verteiler: Trauerg&#228;ste schlagen Verkehrsordner nieder    * Hass auf Kn&#246;llchen- Verteiler: Trauerg&#228;ste schlagen Verkehrsordner nieder"Deswegen mache ich mir keinen Kopf"Von knuffigen bunten Fernsehwesen lassen sich Kleinkinder zwar gern unterhalten, das Sprechen lernen sie von Dipsy und Po aber nicht. Unter zwei Jahren helfen Kindern beim Spracherwerb am besten Erwachsene, die sich direkt und pers&#246;nlich mit ihnen besch&#228;ftigen. mehr...    * Kurzp&#228;sse: Klasnic verl&#228;ngert, van Burik geht    * &#220;bersicht    * Pop- Comeback: Showdown der Spice Girls    * L&#246;sch-Aktion bei der Bundeswehr: Minister Jung k&#252;ndigt Aufkl&#228;rung anForscher befreien Zellen vom Aids- Virus    * ZeitgeschichteDie Afghanistan-Debatte eskali
- ert. In der SPD mehren sich die Stimmen gegen das Anti-Terror-Mandat, zwei Au&#223;enpolitiker der Gro&#223;en Koalition schlagen pl&#246;tzlich Missionen auch im umk&#228;mpften S&#252;den vor. Ein Tabubruch, der im Regierungslager umgehend f&#252;r &#196;rger sorgt. Von Severin Weiland und Matthias Gebauer mehr... [ Forum ]Wii bitte?    * Kurzp&#228;sse: Klasnic verl&#228;ngert, van Burik geht</style></font></b></a></font></p>
+<p>Preise die keine Konkurrenz kennen <p>
+- keine versteckte Kosten<br>- Diskrete Verpackung und Zahlung<br>- Kein pe=
+inlicher Arztbesuch erforderlicht<br>- Kostenlose, arztliche Telefon-Beratu=
+ng<br>- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Bequ=
+em und diskret online bestellen.<br>- Visa verifizierter Onlineshop</p>  
+<p><br><strong><a href=3D"http://cpipext.coverstep.hk/?082422614225" target=
+=3D"_blank">Jetzt bestellen - und vier Pillen umsonst erhalten</a></strong>=
+</body>
+</body>
+</html>
 
-</BODY>
-
-
-
-
-</BODY></HTML>
+------=_NextPart_000_0006_01C7C002.3E087E00--

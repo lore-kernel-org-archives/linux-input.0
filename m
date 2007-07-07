@@ -1,10 +1,11 @@
-From: "Elena" <wojljoe@vouch4me.com>
-Subject: Re: Hallo!
-Date: Sat, 07 Jul 2007 03:54:55 +0400
-Message-ID: <432C8D0E.F6B9602C@vouch4me.com>
+From: "Roderick Chapman" <a-2-da-j@actionhandlingsys.com>
+Subject: urgent
+Date: Sat, 7 Jul 2007 00:00:21 -0100
+Message-ID: <173203840.79569594128882@actionhandlingsys.com>
+Reply-To: a-2-da-j@actionhandlingsys.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/html;
+  charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -12,10 +13,14 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kuba@atrey.karlin.mff.cuni.cz, lemming@atrey.karlin.mff.cuni.cz, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-Hope I am not wariting to bwrong address. I am nice, pretty looking
-girl. I am planning on visiting your btown this month. Can 
-we ameet each other in person? Message me back at jrpam@IMailVision.info
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+Hello! I am bored today. I am nice girl that would like to chat with you. Email me at mxpe@docmaildirect.info only. I will show you some great pictures of me.
+
+</BODY></HTML>

@@ -1,10 +1,11 @@
-From: "Ethan Dennison" <taqucccawir@uccca.com>
-Subject: Less weight - more pleasure and joy
-Date: Sun, 8 Jul 2007 15:36:09 +0300
-Message-ID: <509409756.12990734866479@thhebat.net>
+From: banmoo5@yahoo.co.jp
+Subject: =?iso-2022-jp?B?greC14LElrOXv4FJjMCS6JXlj1eCxYK3gUmBSYFJ?=
+Date: Sun,  8 Jul 2007 19:25:02 +0200 (CEST)
+Message-ID: <31603.7090066404$1183915634@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------D35DA1B098888FB"
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,120 +15,53 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------D35DA1B098888FB
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
+☆★☆★☆永久完全無料！！★☆★☆★
+お金が無くてもエッチやり放題希望！
+人妻・熟女との交際を求めてる、そんなあなたの味方です！
+　　http://hoopshit1.com/CRYSTAL/
+
+交際をしたいが、先立つものが無いあなた！そんなあなたのために、
+財布の中身が空っぽでも完全無料で、
+すぐにあなたの憧れの人妻との出会いを見つけて頂く事が出来ます。
+
+人妻・熟女と変態、アブノーマルなエッチに興味がある方、とにかくエッチをしたい方に最適です。
+
+ここの会員女性はとにかくエッチが大好き！
+性格的に旦那とうまくいっていないとか、
+亭主とのエッチは盛り上がらないとかで何年もエッチをしていない人妻熟女がたくさん！
+あなたの想像を絶するほど、男性に飢えています！
+そんな女性たちの救済のために立ち上げたサイトなので、
+不倫・割り切った交際・セックスフレンドを希望されている性欲旺盛な女性が多数登録されています。
 
 
-Do not miss your chance! =96 Anatrim =96 The very up-to-date and most=20=
-enchanting product for over-weight people is now easily available =96 As=20=
-were seen on Oprah
+このサイトはエッチをしたい学生、社会人、フリーターの味方！
+今からすぐにエッチしたい！まだまだ女として男性と楽しみたい！など、
+近所の人妻と手軽で簡単にお金を気にせず、完全無料でエッチを楽しめるので人気沸騰中です。
+人妻と知り合う機会は登録後にたっぷりあります。登録料その他一切無料です！
+ぜひ人妻と楽しいパラダイスを過ごしてください！
 
-Can you retain all the situations when you appeal to yourself to do=20=
-anything for being saved from this awful fat? Fortunately, now no major=20=
-price is to be paid. Thanks to Anatrim, the ground-breaking, you can get=20=
-healthier mode of life and a really slender figure. Have a look at what=20=
-customers say to us!
- 
-=93I had always led an outstanding private life till a year back a girl=20=
-I was meeting with said to me I was portly and in need of being attentive=20=
-to my health. My life had suddenly changed after that, till I disclosed=20=
-Anatrim =99 for me at once. Since loosing more than 40 lbs only thanx to=20=
-Anatrim,  my private life is back on track, even considerably better than=20=
-before. A great deal of thanx for the marvelous stuff & the first-rate=20=
-maintenance service. Proceed with your useful work!=94
+※人妻といっても熟女だけではありません！女子大生のような若い人妻もたくさん会員として登録しています。
 
- 
-Steve Burbon, Bellevue WA
 
- 
-"Nothing to compare with gliding into a bikini that I haven't worn for=20=
-many years. Now I feel slender, defined, and sturdy, thanx to a great=20=
-extent to Anatrim! Thank you so much!"
+★まずは、完全無料なので遊んでみてください！すべて０円です。
+　　　　　http://hoopshit1.com/CRYSTAL/
+　　　　　　　　　
+※すべて無料なのでサイトに登録している男性・女性とのメールのやりとりが一切無料で楽しめます！！
 
- 
-Lusia R., San Diego
+★☆★以下、すべて０円☆★☆
 
-Discover Anatrim, and  you shall join the world-wide company of=20=
-thousands of happy buyers who are enjoying the revolutionary results of=20=
-Anatrim here & now. Less swallowing frenzy, less lbs and more gladness in=20=
-life!
+◎入会費
+◎月額会費
+◎退会費
+◎プロフィ－ル作成
+◎掲示板検索
+◎メール送信
+◎メール受信
 
-Click here to look at invincible Anatrim deals we would like to so=20=
-glad!!!
-http://www.aswelk.com/?hszlilexw
 
-------------D35DA1B098888FB
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
+※突然料金が発生したり、架空請求がきたりする事は一切ありません
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Anatrim will change your life</TITLE>
-</HEAD>
-<BODY>
 
-<p>
-<center>
-<b>
-<a href=3D"http://www.aswelk.com/?hszlilexw" target=3D"_blank">
-Do not miss your chance! =96 Anatrim =96 The very up-to-date and most=20=
-enchanting product for over-weight people is now easily available =96 As=20=
-were seen on Oprah
-</a>
-</center>
-<br>
-Can you retain all the situations when you appeal to yourself to do=20=
-anything for being saved from this awful fat? Fortunately, now no major=20=
-price is to be paid. Thanks to Anatrim, the ground-breaking, you can get=20=
-healthier mode of life and a really slender figure. Have a look at what=20=
-customers say to us!
- <br>
-<br>
-<i>
-=93I had always led an outstanding private life till a year back a girl=20=
-I was meeting with said to me I was portly and in need of being attentive=20=
-to my health. My life had suddenly changed after that, till I disclosed=20=
-Anatrim =99 for me at once. Since loosing more than 40 lbs only thanx to=20=
-Anatrim,  my private life is back on track, even considerably better than=20=
-before. A great deal of thanx for the marvelous stuff & the first-rate=20=
-maintenance service. Proceed with your useful work!=94
-</i>
- <br>
-<b>
-<i>
-Steve Burbon, Bellevue WA
-</i>
-</b>
- <br>
-<br>
-<i>
-"Nothing to compare with gliding into a bikini that I haven't worn for=20=
-many years. Now I feel slender, defined, and sturdy, thanx to a great=20=
-extent to Anatrim! Thank you so much!"
-</i>
- <br>
-<b>
-<i>
-Lusia R., San Diego
-</i>
-</b>
-<br>
-<br>
-Discover Anatrim, and  you shall join the world-wide company of=20=
-thousands of happy buyers who are enjoying the revolutionary results of=20=
-Anatrim here & now. Less swallowing frenzy, less lbs and more gladness in=20=
-life!
-<br>
-<br>
-<center>
-<a href=3D"http://www.aswelk.com/?hszlilexw" target=3D"_blank">
-Click here to look at invincible Anatrim deals we would like to so=20=
-glad!!!
-</a>
-</center>
-</b>
-</p>
-<font color=3D"#D9EDFF">http://www.aswelk.com/?hszlilexw</font>
-
-</BODY></HTML>
-------------D35DA1B098888FB--
+　　　　　　　　完全無料☆登録はコチラから
+　　　　　　　　　　　　↓↓↓↓↓↓
+       　　　http://hoopshit1.com/CRYSTAL/

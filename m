@@ -1,7 +1,7 @@
-From: "Flora Deadra" <daxzl70ulgwn@h8store.com>
-Subject: Increase Your Cum  By 5-times More, Sperm Enhancement Pill uqkj
-Date: Sat, 07 Jul 2007 17:06:55 -0800
-Message-ID: <59813x89023.683i88858601@h8store.com>
+From: "Albertina Jeffie" <ryu72gqgc@ps.ge.com>
+Subject: Men's Sexual Health Pill from  $1.50 per pill, Pain Relief, Anti-Anxiety/Sleep euly
+Date: Sat, 07 Jul 2007 17:27:08 -0800
+Message-ID: <73152a71455.769g51399359@ps.ge.com>
 Content-Type: text/plain;
 	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
@@ -11,33 +11,31 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kuba@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-::Cum Pills : Increase Ejaculate::=20
-A large, volumous and Intense orgasm is an experience like no other and i=
-t is very satisfying for both partners - especially for the man. I'm sure=
- there have been times in every man's life where he has had a truly inten=
-se and incredible orgasm. But for most men, an explosive and mind-blowing=
- orgasm doesn't happen every time, which is why they are searching for a =
-product that can help them achieve this feeling of complete euphoria much=
- more frequently. In such circumstances Xtracum Cum pill is the only prod=
-uct that can help them. This is why we have sold over 800,000 Bottles of =
-our cum pills Globally =20
+Check out our Specials!
+We are the best price on all high QualityMeds. =20
 
-* Longer orgasms - Squirt for longer=20
-* Erections like steel - Also increased size =20
-* Increaase Sexual desire - Enhanced libido   =20
-* More Staying Power - Last all night  =20
-* Multiple Orgasms - Cum 4 times in a row =20
-* 5x more sperm - Cover your lover in it    =20
-* Sweeter taste - It improves the flavor   =20
 
-Order today our cum pills here=20
-http://sbbjje.thewarrantyal.com
+Men's Sexual Health=20
+:Cia|lisViagra =20
 
+Anti-Anxiety/Sleep =20
+:AmbiemValiumAtivanXanax=20
+
+Pain Relief
+:CelebrexSoma  =20
+
+Weight__Loss =20
+:PhenterminMeridia =20
+
+Anti-Cholesterol & Anti-Depressant & Anti-Acid  =20
+
+
+http://bbtmq.thewarrantyal.com
 
 
 
 
-surprise stay got tying. got length too spoken choose his girls,
+bread proud lady kept. why spoken arm forth steps servants?

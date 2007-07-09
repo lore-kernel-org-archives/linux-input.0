@@ -1,10 +1,10 @@
-From: "Shana Khan" <fmathe4472@aol.com>
-Subject: The happiness is rich family
-Date: Mon, 9 Jul 2007 13:26:27 -0200
-Message-ID: <01c7c22c$c0fa30c0$8672d259@fmathe4472>
+From: "Raymundo Villa" <financial_freedom@machomall.com>
+Subject: Financial well-being for you
+Date: Mon, 9 Jul 2007 14:51:54 -0200
+Message-ID: <01c7c238$b1288b90$332a1951@financial_freedom>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7C245.E64768C0"
+	boundary="----=_NextPart_000_0006_01C7C251.D675C390"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,9 +16,9 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C7C245.E64768C0
+------=_NextPart_000_0006_01C7C251.D675C390
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="windows-1250"
 Content-Transfer-Encoding: 7bit
 
 Career opportunities with Ñapital Trader Inc.
@@ -56,4 +56,4 @@ Your salary will make 8 % from each transaction during the trial period and 600 
 transaction if  you will be employed. 
 You will work in your city, no trips, no relocation.
 To get more details, send your CV and info according this email:  capitaltraderinc@aol.com
-------=_NextPart_000_0006_01C7C245.E64768C0--
+------=_NextPart_000_0006_01C7C251.D675C390--

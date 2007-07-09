@@ -1,28 +1,30 @@
-From: "Duvalll Nathani" <mfalle@falle.at>
-Subject: Not for girls
-Date: Mon, 9 Jul 2007 21:46:47 +0500
-Message-ID: <01c7c272$a6245e10$cc7c584b@mfalle>
+From: "Keysu Darrene" <kirjasto@kotka.fi>
+Subject: Mens information.
+Date: Tue, 10 Jul 2007 02:38:41 +0300
+Message-ID: <01c7c29b$6d93ca30$a16efdc9@kirjasto>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7C251.1F12BE10"
+	boundary="----=_NextPart_000_0007_01C7C282.48469230"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: jana@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7C251.1F12BE10
+------=_NextPart_000_0007_01C7C282.48469230
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
 
 
+
+Hi, Darrenxbvdl
 
   You want, that your "member" became strong as a stone?
   You would like to recollect a young years...
@@ -35,18 +37,21 @@ Content-Transfer-Encoding: quoted-printable
    
   WWW. SpiFAQ .COM
   Type  in browser (without spaces) and press Enter . 
+With Best Regards, Keysl Darreng.
 
 
 
-------=_NextPart_000_0007_01C7C251.1F12BE10
+
+
+------=_NextPart_000_0007_01C7C282.48469230
 Content-Type: text/html;
-	charset="iso-8859-1"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.2670" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 4.71.2244.8" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY>
@@ -83,6 +88,7 @@ style20 {
 </head>
 
 <body>
+Hi, Darrenxbvdl
 <div align=3D"center">
   <p class=3D"style4">You want, that <strong>your</strong> <strong>"member"=
 </strong> became <strong>strong as a stone</strong>?</p>
@@ -102,7 +108,9 @@ style20 {
 </strong> in <strong>browser </strong>(without spaces) and press Enter . </=
 span></strong></p>
 </div>
+<br><br><br><br>
+With Best Regards, Keysl Darreng.
 </body>
 </BODY></HTML>
 
-------=_NextPart_000_0007_01C7C251.1F12BE10--
+------=_NextPart_000_0007_01C7C282.48469230--

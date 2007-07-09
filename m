@@ -1,13 +1,11 @@
-From: Leon Todd <fgwba@wmata.com>
-Subject: do you want to earn more
-Date: Mon, 9 Jul 2007 18:54:31 +0000 (UTC)
-Message-ID: <01c7c25a$92c2beb0$6c822ecf@fgwba>
+From: "Duvalll Nathani" <mfalle@falle.at>
+Subject: Not for girls
+Date: Mon, 9 Jul 2007 21:46:47 +0500
+Message-ID: <01c7c272$a6245e10$cc7c584b@mfalle>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7C251.1F12BE10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 9 Jul 2007 18:54:26 -0060
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -16,47 +14,95 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dear employee, 
-Our International Corporation is looking for new employees on various vacancies. 
-We suggest you financial Independence right now. Only our corporation can offer you to gather a good
- income in a short period of time. You do not need to invest any sum of money and we do not ask you 
-to provide us with your bank account requisites! We are engaged in completely legal activity and working 
-in our corporation you can achieve career growth at a permanent job. We are looking for representatives from 
-any point of the world. Average earnings of our employee is 3450-4500$ per month, 
-but you can earn much more. Here is the top 10 of our representatives’ salaries: 
+This is a multi-part message in MIME format.
 
-Top 10 employees 
-Per month: 
-1.   45750 $    
-2.   42185 $ 
-3.   38590 $ 
-4.   25808 euro 
-5.   32000 $ 
-6.   15700 GBP 
-7.   27200 $ 
-8.   24300 $ 
-9.   22750 $ 
-10. 18730 $ 
+------=_NextPart_000_0007_01C7C251.1F12BE10
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-It is easy to be in ours Top 10!
-Everything is simple enough and it depends only of you. 
-We are waiting the creative approach and purposefulness from our employees. You can work full time or part time. 
-You determine the schedule of you work at our corporation. We pay you for result. The best regional representative becomes the head of regional office of our company and receives a full social packet and bonus at a rate of 50 % from
-his annual salary. Many of our employees have made excellent career, received full financial independence and have embodied all their dreams in a reality less than in 2-3 years of working in our company. 
 
-The preference is given to employees with knowledge of foreign languages. 
-If you are interested in our offer please send us the following information: 
-1) Full name  
-2) Address of residing 
-3) Phone numbers 
-4) Languages  
-5) Part time job/Full time 
-Please send this information to our email: sockadverttadvert2k7@yahoo.com
-Please specify in the subject line: Application for the local rep position. Number 100711 
- 
-If you are not interested in our offer or you received this email by mistake please reply with Unsubscribe
-in subject line and specify all your emails addresses to unsubscribe44919[at]gmail.com.
-We apologize In advance. 
-  
-Yours faithfully, 
-Colin Scowcroft
+
+
+  You want, that your "member" became strong as a stone?
+  You would like to recollect a young years...
+  Only for the REAL MEN!
+   
+   
+  WE ARE GLAD TO HELP! 
+   
+   
+   
+  WWW. SpiFAQ .COM
+  Type  in browser (without spaces) and press Enter . 
+
+
+
+------=_NextPart_000_0007_01C7C251.1F12BE10
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2670" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css">
+<!--
+style1 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18;
+}
+style4 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 28px;
+	color: #333333;
+}
+style8 {color: #FF9900}
+style9 {color: #CC9900}
+style17 {font-size: 36px}
+style18 {color: #FF9900; font-weight: bold;}
+style19 {
+	font-size: 12px;
+	color: #333333;
+}
+style20 {
+	font-size: 24px;
+	color: #FF6600;
+	font-family: Tahoma;
+	font-weight: bold;
+}
+-->
+</style>
+</head>
+
+<body>
+<div align=3D"center">
+  <p class=3D"style4">You want, that <strong>your</strong> <strong>"member"=
+</strong> became <strong>strong as a stone</strong>?</p>
+  <p class=3D"style4">You would like to <strong>recollect a young years...<=
+/strong></p>
+  <p class=3D"style4">Only for the <strong>REAL MEN</strong>!</p>
+  <p class=3D"style4">&nbsp;</p>
+  <p class=3D"style4"> </p>
+  <p class=3D"style20">WE ARE GLAD TO HELP! </p>
+  <p class=3D"style1"> </p>
+  <p class=3D"style1"> </p>
+  <p class=3D"style1"> </p>
+  <p class=3D"style1 style17"><span class=3D"style18">WWW</span><strong>. <=
+/strong><span class=3D"style9">SpiFAQ</span><strong> .<span class=3D"style8=
+">COM</span></strong></p>
+  <p class=3D"style1 style17"><strong><span class=3D"style19"><strong>Type =
+</strong> in <strong>browser </strong>(without spaces) and press Enter . </=
+span></strong></p>
+</div>
+</body>
+</BODY></HTML>
+
+------=_NextPart_000_0007_01C7C251.1F12BE10--

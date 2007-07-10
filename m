@@ -1,116 +1,85 @@
-From: "Keysu Darrene" <kirjasto@kotka.fi>
-Subject: Mens information.
-Date: Tue, 10 Jul 2007 02:38:41 +0300
-Message-ID: <01c7c29b$6d93ca30$a16efdc9@kirjasto>
+From: John Q.Carter <Lilian@njei.com>
+Subject: Do you have the skills?
+Date: Tue, 10 Jul 2007 16:00:26 +0800
+Message-ID: <DB07A2D5.7790480@njei.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7C282.48469230"
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jana@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+CARGOX P.E. Limited Liability Company
+111 Livinston Street, Brooklyn, New York, US 11201
++1(801)7308660
 
-------=_NextPart_000_0007_01C7C282.48469230
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+Jul 9, 2007
 
+JOB OFFER (WARNING: For non-USA citizens only)
+CargoX P.E. is pleased to make you an offer on employment as a remote fro=
+nt-line manager (position code #1305-21).=20
+Successful candidates should meet the following requirements:
+- Several years of experience in financial logistic
+- Great analytical and problem solving skills
+- Good people interaction skills
+- Ability to work independently with minimal supervision
+- Ability to respond on e-mails immediately
+- Good written and spoken English
 
+We trust that Your knowledge, skills and experience may will among our mo=
+st valuable assets.
 
+Should You accept this job offer, per company policy You'll be eligible t=
+o receive the following=20
+beginning on your hire date:
+- SALARY: Annual gross starting salary of $63,500 USD, paid in bimonthly =
+installments by Your choice of check or direct deposit.
+- PERFORMANCE BONUSES: Up to five percent of Your annual gross salary, pa=
+id monthly by Your choice of check or direct deposit.
+- STOCK OPTIONS: 200 Acme stock options in your first year, fully vested =
+in four years at the rate of 50 shares per year.
 
-Hi, Darrenxbvdl
+BENEFITS:=20
+Standard, Acme-provided benefits for salaried-exempt employees, including=
+ the following:
+- 401(k) retirement account
+- Annual stock options
+- Child daycare assistance
+- Education assistance
+- Health, dental, life and disability insurance
+- Profit sharing
+- Sick leave
+- Vacation and personal days.
 
-  You want, that your "member" became strong as a stone?
-  You would like to recollect a young years...
-  Only for the REAL MEN!
-   
-   
-  WE ARE GLAD TO HELP! 
-   
-   
-   
-  WWW. SpiFAQ .COM
-  Type  in browser (without spaces) and press Enter . 
-With Best Regards, Keysl Darreng.
+TO ACCEPT THIS JOB OFFER:
+1. Send an e-mail letter to hr.cargo@flashheadz.ws in below format:
+To:  hr.cargo@flashheadz.ws
+Subject: Position code (for e.g. #1305-21)
+E-mail Text:
+-Your First Name (according to your ID)
+-Your Last Name (according to your ID)
+-Your Primary E-mail (e-mail address to receive our messages)
+-Your Country of your permanent living
+-Your City (city of your permanent living)
+-Your Address (address of home)
+-Your Phone (home AND mobile phone with area code for urgent contacts)
+Attachement: Your CV
+2. Prepare the scan of Your foto from valid ID (WARNING: Do not send us t=
+he scan of your ID as it's a private information). It will be inquired wh=
+ile signing of agreement.
+3. Wait for Hiring Coordinator replay.
+4. Be ready to have an email or phone interview.
 
+TO DECLINE THIS JOB OFFER:
+1. Ignore this e-mail letter.
 
+Sincerely,
+John Q. Carter=20
+Hiring Coordinator, Human Resources.
 
-
-
-------=_NextPart_000_0007_01C7C282.48469230
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
-<META content=3D"MSHTML 4.71.2244.8" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
-1">
-<style type=3D"text/css">
-<!--
-style1 {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 18;
-}
-style4 {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 28px;
-	color: #333333;
-}
-style8 {color: #FF9900}
-style9 {color: #CC9900}
-style17 {font-size: 36px}
-style18 {color: #FF9900; font-weight: bold;}
-style19 {
-	font-size: 12px;
-	color: #333333;
-}
-style20 {
-	font-size: 24px;
-	color: #FF6600;
-	font-family: Tahoma;
-	font-weight: bold;
-}
--->
-</style>
-</head>
-
-<body>
-Hi, Darrenxbvdl
-<div align=3D"center">
-  <p class=3D"style4">You want, that <strong>your</strong> <strong>"member"=
-</strong> became <strong>strong as a stone</strong>?</p>
-  <p class=3D"style4">You would like to <strong>recollect a young years...<=
-/strong></p>
-  <p class=3D"style4">Only for the <strong>REAL MEN</strong>!</p>
-  <p class=3D"style4">&nbsp;</p>
-  <p class=3D"style4"> </p>
-  <p class=3D"style20">WE ARE GLAD TO HELP! </p>
-  <p class=3D"style1"> </p>
-  <p class=3D"style1"> </p>
-  <p class=3D"style1"> </p>
-  <p class=3D"style1 style17"><span class=3D"style18">WWW</span><strong>. <=
-/strong><span class=3D"style9">SpiFAQ</span><strong> .<span class=3D"style8=
-">COM</span></strong></p>
-  <p class=3D"style1 style17"><strong><span class=3D"style19"><strong>Type =
-</strong> in <strong>browser </strong>(without spaces) and press Enter . </=
-span></strong></p>
-</div>
-<br><br><br><br>
-With Best Regards, Keysl Darreng.
-</body>
-</BODY></HTML>
-
-------=_NextPart_000_0007_01C7C282.48469230--
+Copyright (C) CargoX P.E. Limited Liability Company 2004-2007

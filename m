@@ -1,10 +1,11 @@
-From: John Q.Carter <Lilian@njei.com>
-Subject: Do you have the skills?
-Date: Tue, 10 Jul 2007 16:00:26 +0800
-Message-ID: <DB07A2D5.7790480@njei.com>
+From: "Jason Brock" <trison@brandagency.com.au>
+Subject: Melbourne - only for you
+Date: Tue, 10 Jul 2007 11:43:22 -0200
+Message-ID: <017106703.44936446205804@brandagency.com.au>
+Reply-To: trison@brandagency.com.au
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------425425B6712C842"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,72 +15,150 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-CARGOX P.E. Limited Liability Company
-111 Livinston Street, Brooklyn, New York, US 11201
-+1(801)7308660
+------------425425B6712C842
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
-Jul 9, 2007
+PriceCarHire.com
+  
+  
+    
+      Simply 
+        The Cheapest Car Hire on The NetFantastic Offers
+     Low cost car hire rates available all year 
+round!        
+    
+    
+    Alicante  14/day
+    Athens  20/day
+    Amsterdam  27/day
+    Belfast  23/day
+    Capetown  20/day
+    Dublin  17/day
+    Faro  16/day
+    Gerona  15/day
+    LA  20/day
+    London  23/day
+    Malaga  12/day
+    Mallorca  13/day
+    Nice  28/day
+    Orlando  20/day
+    Paphos  20/day
+    Zurich  27/day
+    
+  
+  
+    
+      
+    At pricecarhire.com  we search over 450 car 
+    rental suppliers to find the lowest price for you in over 10,500 locations 
+    worldwide. All our rental car prices are fully inclusive, there are no 
+    hidden charges and we have the best price guarantee so you can be sure you 
+    are getting the lowest car hire rates available. 
+    
+Car Hire Available At All 
+        Low Cost Airline Destinations in Europe and 
+      Worldwide
+       
+         
+    
+       
+          
+Simply The Cheapest Car Hire on The Net
 
-JOB OFFER (WARNING: For non-USA citizens only)
-CargoX P.E. is pleased to make you an offer on employment as a remote fro=
-nt-line manager (position code #1305-21).=20
-Successful candidates should meet the following requirements:
-- Several years of experience in financial logistic
-- Great analytical and problem solving skills
-- Good people interaction skills
-- Ability to work independently with minimal supervision
-- Ability to respond on e-mails immediately
-- Good written and spoken English
+Fantastic Offers
+ 
 
-We trust that Your knowledge, skills and experience may will among our mo=
-st valuable assets.
 
-Should You accept this job offer, per company policy You'll be eligible t=
-o receive the following=20
-beginning on your hire date:
-- SALARY: Annual gross starting salary of $63,500 USD, paid in bimonthly =
-installments by Your choice of check or direct deposit.
-- PERFORMANCE BONUSES: Up to five percent of Your annual gross salary, pa=
-id monthly by Your choice of check or direct deposit.
-- STOCK OPTIONS: 200 Acme stock options in your first year, fully vested =
-in four years at the rate of 50 shares per year.
 
-BENEFITS:=20
-Standard, Acme-provided benefits for salaried-exempt employees, including=
- the following:
-- 401(k) retirement account
-- Annual stock options
-- Child daycare assistance
-- Education assistance
-- Health, dental, life and disability insurance
-- Profit sharing
-- Sick leave
-- Vacation and personal days.
+Low cost car hire rates available all year round! 
 
-TO ACCEPT THIS JOB OFFER:
-1. Send an e-mail letter to hr.cargo@flashheadz.ws in below format:
-To:  hr.cargo@flashheadz.ws
-Subject: Position code (for e.g. #1305-21)
-E-mail Text:
--Your First Name (according to your ID)
--Your Last Name (according to your ID)
--Your Primary E-mail (e-mail address to receive our messages)
--Your Country of your permanent living
--Your City (city of your permanent living)
--Your Address (address of home)
--Your Phone (home AND mobile phone with area code for urgent contacts)
-Attachement: Your CV
-2. Prepare the scan of Your foto from valid ID (WARNING: Do not send us t=
-he scan of your ID as it's a private information). It will be inquired wh=
-ile signing of agreement.
-3. Wait for Hiring Coordinator replay.
-4. Be ready to have an email or phone interview.
+Alicante 14/day
+Athens 20/day
+Amsterdam 27/day
+Belfast 23/day
+Capetown 20/day
+Dublin 17/day
+Faro 16/day
+Gerona 15/day
+LA 20/day
+London 23/day
+Malaga 12/day
+Mallorca 13/day
+Nice 28/day
+Orlando 20/day
+Paphos 20/day
+Zurich 27/day
 
-TO DECLINE THIS JOB OFFER:
-1. Ignore this e-mail letter.
+At pricecarhire.com we search over 450 car rental suppliers to find the lowest price for you in over 10,500 locations worldwide. All our rental car prices are fully inclusive, there are no hidden charges and we have the best price guarantee so you can be sure you are getting the lowest car hire rates available. 
 
-Sincerely,
-John Q. Carter=20
-Hiring Coordinator, Human Resources.
+Car Hire Available At All Low Cost Airline Destinations in Europe and Worldwide 
+ 
 
-Copyright (C) CargoX P.E. Limited Liability Company 2004-2007
+
+
+------------425425B6712C842
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+<P><FONT face=Arial color=#800080 
+size=5><STRONG><EM><A 
+href="http://www.pricecarhire.com/">PriceCarHire.com</A></EM></STRONG></FONT></P></A></FONT></I>
+<P>
+<TABLE bgColor=#ff9f40 cellSpacing=0 cellPadding=0 width="100%" border=0>
+  
+  <TR>
+    <TD vAlign=top>
+      <BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px"><p><B><FONT face=Arial color=#000000 size=4>Simply 
+        The Cheapest Car Hire on The Net</FONT></B></p><p><font face="Arial" size="4" 
+      color=#000000>Fantastic Offers</font></p></BLOCKQUOTE></TD></TR></TABLE></P><p>
+    <h2><font face="Arial" size="2" color=#ff0000> </font></h2><font face="Arial" color=#ff0000 ><STRONG>Low cost car hire rates available all year 
+round!</STRONG>        
+    </font>
+<P></P>
+    <p><font face="Arial" size="2"><a href="http://www.pricecarhire.com">
+    Alicante  14/day<br>
+    Athens  20/day<br>
+    Amsterdam  27/day<br>
+    Belfast  23/day<br>
+    Capetown  20/day<br>
+    Dublin  17/day<br>
+    Faro  16/day<br>
+    Gerona  15/day<br>
+    LA  20/day<br>
+    London  23/day<br>
+    Malaga  12/day<br>
+    Mallorca  13/day<br>
+    Nice  28/day<br>
+    Orlando  20/day<br>
+    Paphos  20/day<br>
+    Zurich  27/day</a></font></p>
+    <p>
+<TABLE bgColor=#ff9f40 cellSpacing=0 cellPadding=0 width="100%" border=0>
+  
+  <TR>
+    <TD vAlign=top>
+      <BLOCKQUOTE dir=ltr style="MARGIN-RIGHT: 0px">
+    <p><font size="2" face="Arial"><STRONG>At <A 
+        href="http://PriceCarHire.com">pricecarhire.com</A>  we search over 450 car 
+    rental suppliers to find the lowest price for you in over 10,500 locations 
+    worldwide. All our rental car prices are fully inclusive, there are no 
+    hidden charges and we have the best price guarantee so you can be sure you 
+    are getting the lowest car hire rates available. <br>
+    <br>
+Car Hire Available At All 
+        Low Cost Airline Destinations in Europe and 
+      Worldwide</STRONG>
+       
+         </font></p></BLOCKQUOTE></TD></TR></TABLE></p>
+    <p><font size="2" face="Arial">
+       
+         </font>&nbsp;</p>
+
+</BODY></HTML>
+------------425425B6712C842--

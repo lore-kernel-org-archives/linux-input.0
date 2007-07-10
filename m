@@ -1,50 +1,47 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: HID blacklist for the Apple IR sensor
-Date: Tue, 10 Jul 2007 22:29:55 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0707102227020.31463@twin.jikos.cz>
-References: <20070710182636.GA12522@dose.home.local>
+From: Nigel D.Priestley <ffwmg@online.kharkiv.com>
+Subject: Looking for high-paid job in your country? Our company is proud to offer you a job that can become your stairway to a real success.
+Date: Tue, 10 Jul 2007 22:07:37 -0100
+Message-ID: <20070710220738.28658C8058@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070710182636.GA12522@dose.home.local>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Tino Keitel <tino.keitel@tikei.de>
-Cc: Soeren Sonnenburg <kernel@nn7.de>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 10 Jul 2007, Tino Keitel wrote:
-
-> in commit a417a21e10831bca695b4ba9c74f4ddf5a95ac06, the Apple IR sensor 
-> was added to a blacklist so that no HID device is created anymore. 
-> However, as of lirc 0.8.2, there is a lirc driver called "macmini" that 
-> requires that HID device to work. There is also a driver that creates an 
-> input device for the Apple IR sensor. It can be found in the 
-> mactel-linux patches[1], but it is not in the kernel yet. I also don't 
-> know how both sides behave if they are used concurrently.
-
-Hi Tino,
-
-so do I understand it correctly that there are two ways to use this device
-
-- through lirc, which of course requires input device to be created by hid
-- using appleir.patch, but this one is not yet upstream (what are the 
-  obstacles?)
-
-If it is so, and the device is not handled properly by any other in-tree 
-driver, we should remove the ignore quirk.
-
-> I think that the blacklist entry for USB_DEVICE_ID_APPLE_IR should be 
-> removed at least as long as the appleir.patch is not part of the 
-> mainline kernel.
-
-Would you care to send me a patch with proper changelog and Signed-off-by 
-line?
-
-Thanks,
-
--- 
-Jiri Kosina
+Dear Emplyee,  
+  
+Our International Corporation has a variety of high-paid vacancies available at the moment.   
+We are proud to offer you an interesting, respectable job in a field of Financial Services.  
+If you are a honest, responsible and hard-working person we would be glad to do business with you.  
+Our company is a respectable international organization. 
+We believe that the success of our company depends on maintaining high standards of business conduct,
+integrity, safety, quality and respect for people and the environment in everything we do. 
+We are working honestly. We will never ask you to pay or invest something. 
+You work - we pay for the result.   
+We will never ask you to provide us with your private information such as credit card number or your bank requisites.  
+  
+There are no geographical limits for our employees.   
+People from all over the world are welcomed.  
+No degree is required in order to join us. 
+We value educated people very much but we believe that there are a lot of perspective persons without any degree. 
+We have job for everyone.  
+Most of people who is working as our local representative for 2-3 years has embodied all their financial dreams in a reality.   
+They know that working with us is a right way to acheive the financial success.  
+  
+It's impossible to tell everything in this short introduction message. 
+If you are interested just contact us and we will forward you the complete information about available jobs.
+It is absolutely free.  
+  
+Thank you,  
+we are waiting for your prompt response to private.represent@gmail.com
+Please include "Application number 311500" in a subject line. 
+  
+P.S.  
+If you believe that our message has come to you by mistake just reply with "unsubscribe" to  local_repr @yahoo.com.
+and  you'll never hear from us again. We apologize for any inconveniences.

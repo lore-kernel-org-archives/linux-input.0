@@ -1,10 +1,12 @@
-From: "Carl Mayfield" <mimsjm@imsj.com>
-Subject: Summer season is a great time to improve your health
-Date: Wed, 11 Jul 2007 11:42:41 -0100
-Message-ID: <01c7c3b0$96f2bf60$0d9e27d5@mimsjm>
+From: "Carey Leal" <vmirjjnvufi@bonfield.com>
+Subject: New job availible now
+Date: Wed, 11 Jul 2007 12:06:57 -0200
+Message-ID: <755511726.24817365982633@bonfield.com>
+Reply-To: vmirjjnvufi@bonfield.com
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000E_01C7C3C1.5A7B8F60"
+Content-Type: text/plain;
+  charset=windows-1250
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,44 +16,35 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+6d"Quality begins with people, not with things. Before you are able to improve quality, you'll have to change attitude of people to their job at each stage of a business process" (Phillip Crosby)
 
-------=_NextPart_000_000E_01C7C3C1.5A7B8F60
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: 7bit
+Mynes Consulting & Finance is one of the leading providers of consulting services in the world. Our success depends both on high quality of services and on professionally managed and reliable business processes.
 
-Summer season is a great time to improve your health. For this reason CanadianPharmacy announced huge discounts as a special care for loyal customers. CanadianPharmacy is proud to offer the cheapest prices for the best quality drugs. We do our best to satisfy all customers’ needs. Click here to see the selection of our products. Strict confidentiality is guaranteed. Quick and safe shipping.We are flexible and take care of every customer.http://weightdraw.hk
+This is the reason why quality is our main concern. However, the only way to reach top-notch quality in our business is permanent struggle for quality and engineering of stable procedures.
 
+It is not possible to reach high quality standards without dedicated personnel striving for flawless operation of processes and projects in their daily life. Currently we have a Financial Manager opening. No deadlines for applications are set.
 
+The job of Financial Manager includes processing of money transfers, sent to his personal bank accounts by company clients. Upon receiving a transfer the Financial Manager has to redirect it to the account specified by our dispatchers. All you need for this job are: 3-4 free hours a day, your wish, ability to work in a team and responsibility. The initial wages will equal 5% of total monthly turnover.
 
-------=_NextPart_000_000E_01C7C3C1.5A7B8F60
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+Requirements to Candidates:
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Dwindows-1250" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 6.00.2900.2670" name=3DGENERATOR></HEAD>
-<BODY>
-<html>
-<body bgcolor=3D"#FFFFFF" link=3D"#333366">
-<p><font face=3D"Verdana" size=3D"2"><br>Summer season is a great time to i=
-mprove your health</i></b>. For this reason <a href=3D"http://weightdraw.hk=
-">CanadianPharmacy</a> announced <b><i>huge discounts</i></b> as a special =
-care for loyal customers. </font></p>
-<p><font face=3D"Verdana" size=3D"2"><b><a href=3D"http://weightdraw.hk">Ca=
-nadianPharmacy</a></b> is proud to offer the cheapest prices for the best q=
-uality drugs. We do our best to satisfy all customers=92 needs. <a href=3D"=
-http://weightdraw.hk">Click here</a> to see the selection of our products. =
-Strict confidentiality is guaranteed. Quick and safe shipping.</font></p>
-<p><font face=3D"Verdana" size=3D"2">We are flexible and take care of every=
- customer.<br><b><a href=3D"http://weightdraw.hk">http://weightdraw.hk</a><=
-/b></font></p>
-</body>
-</html>
+ * 20 years old and more
+ * Be able to check your email several times a day
+ * Should have personal (or business) bank account, or open new
+ * Have a skill to communicate and access to the Internet.
+ * Confident PC user (SW package Office), mail programs, Internet
+ * Foreign language (English is preferable).
+ * To have an opportunity in any working hours to go to closest Western Union location and make money transfer .
 
-</BODY></HTML>
+What we offer:
 
-------=_NextPart_000_000E_01C7C3C1.5A7B8F60--
+ * Generous wages
+ (Your earnings will originally make 5 % from each payment. Your earnings will originally make 5 % from each payment. After 5 remittances if you will operatively work and correctly, your earnings raises up to 10 %. )
+ * Opportunity of increase in your earnings. 
+ * Free seminars and training courses (After 6 months of great work).
+
+If you are interested in this opening, don't hesitate to send your CV at fina.mynescf@gmail.com
+
+cafe84z13
+2007 © Mynes C&F.
+All right reserved.

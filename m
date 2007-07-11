@@ -1,11 +1,10 @@
-From: "Jasoni Donnellyb" <ialbaol@apscompany.com>
-Subject: Tyree_FILE_761405_587433.pdf
-Date: Tue, 10 Jul 2007 22:02:51 -0500
-Message-ID: <063e01c7c409$3dba64f0$5517f0a0@tmelbourney>
-Reply-To: "Jasoni Donnellyb" <ialbaol@apscompany.com>
+From: "Maryann Barnett" <pconym@pcony.com>
+Subject: Prove that you are better than the others – get a University Degree.
+Date: Wed, 11 Jul 2007 04:59:48 -0200
+Message-ID: <01c7c378$4ea0ee90$88aeeb53@pconym>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0000_03A6A71B.A42D4FB0"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7C391.73EE2690"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,127 +16,66 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0000_03A6A71B.A42D4FB0
+------=_NextPart_000_0006_01C7C391.73EE2690
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
 
+A Genuine University Degree in 4-6 weeks!Have you ever thought that the only thing stopping you from a great job and better pay was a few letters behind you name? Well now you can get them!Within 4-6 weeks!No Study Required!100% Verifiable!These are real, genuine degrees that include Bachelors, Masters, MBA and Doctorate Degrees. They are fully verifiable and certified transcripts are also available.Just call the number below.You’ll thank me later…1-682-626-000824 hours a day, 7 days a week including Sundays and HolidaysWed, 11 Jul 2007 04:59:48 -0200Year. weld find no fault.
 
-------=_NextPart_000_0000_03A6A71B.A42D4FB0
-Content-Type: application/pdf;
-	name="Tyree_FILE_761405_587433.pdf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="Tyree_FILE_761405_587433.pdf"
 
-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
-yMoFOtlBXoZGG3zHMN+YprMhpw01RBL2mucnXzcdc+Ehd5Ql0nCVyAU7kOE7vmpBX5MgMvFN
-hdYsGF2PeoXkYd+CUUbRxtq4BROXPq3jN3nZhnELjnwZGH1mQQ0GejhR/E8G01+5g+6shV+D
-/dTXYC+K78bd37H6afY7o7VCnmVuZHN0cmVhbQplbmRvYmoKNiAwIG9iagoyODEzCmVuZG9i
-ago0IDAgb2JqCjw8L1R5cGUvUGFnZS9NZWRpYUJveCBbMCAwIDYxMiA3OTJdCi9Sb3RhdGUg
-MC9QYXJlbnQgMyAwIFIKL1Jlc291cmNlczw8L1Byb2NTZXRbL1BERiAvVGV4dF0KL0ZvbnQg
-OSAwIFIKPj4KL0NvbnRlbnRzIDUgMCBSCj4+CmVuZG9iagozIDAgb2JqCjw8IC9UeXBlIC9Q
-YWdlcyAvS2lkcyBbCjQgMCBSCl0gL0NvdW50IDEKL1JvdGF0ZSAwPj4KZW5kb2JqCjEgMCBv
-YmoKPDwvVHlwZSAvQ2F0YWxvZyAvUGFnZXMgMyAwIFIKL01ldGFkYXRhIDExIDAgUgo+Pgpl
-bmRvYmoKOSAwIG9iago8PC9SNwo3IDAgUi9SOAo4IDAgUj4+CmVuZG9iago3IDAgb2JqCjw8
-L0Jhc2VGb250L0hlbHZldGljYS1Cb2xkL1R5cGUvRm9udAovRW5jb2RpbmcgMTAgMCBSL1N1
-YnR5cGUvVHlwZTE+PgplbmRvYmoKMTAgMCBvYmoKPDwvVHlwZS9FbmNvZGluZy9EaWZmZXJl
-bmNlc1sKMTQ2L3F1b3RlcmlnaHRdPj4KZW5kb2JqCjggMCBvYmoKPDwvQmFzZUZvbnQvVGlt
-ZXMtUm9tYW4vVHlwZS9Gb250Ci9TdWJ0eXBlL1R5cGUxPj4KZW5kb2JqCjExIDAgb2JqCjw8
-L0xlbmd0aCAxNDM5Pj5zdHJlYW0KPD94cGFja2V0IGJlZ2luPSfvu78nIGlkPSdXNU0wTXBD
-ZWhpSHpyZVN6TlRjemtjOWQnPz4KPD9hZG9iZS14YXAtZmlsdGVycyBlc2M9IkNSTEYiPz4K
-PHg6eG1wbWV0YSB4bWxuczp4PSdhZG9iZTpuczptZXRhLycgeDp4bXB0az0nWE1QIHRvb2xr
-aXQgMi45LjEtMTMsIGZyYW1ld29yayAxLjYnPgo8cmRmOlJERiB4bWxuczpyZGY9J2h0dHA6
-Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMnIHhtbG5zOmlYPSdodHRw
-Oi8vbnMuYWRvYmUuY29tL2lYLzEuMC8nPgo8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0n
-ZTA1ODFkZWEtMzE4MS0xMWRjLTAwMDAtYjJlMWRmOTY5YmEzJyB4bWxuczpwZGY9J2h0dHA6
-Ly9ucy5hZG9iZS5jb20vcGRmLzEuMy8nIHBkZjpQcm9kdWNlcj0nR1BMIEdob3N0c2NyaXB0
-IDguNTQnLz4KPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9J2UwNTgxZGVhLTMxODEtMTFk
-Yy0wMDAwLWIyZTFkZjk2OWJhMycgeG1sbnM6eGFwPSdodHRwOi8vbnMuYWRvYmUuY29tL3hh
-cC8xLjAvJyB4YXA6TW9kaWZ5RGF0ZT0nMjAwNy0wNy0xMCcgeGFwOkNyZWF0ZURhdGU9JzIw
-MDctMDctMTAnPjx4YXA6Q3JlYXRvclRvb2w+R1BMIEdob3N0c2NyaXB0IDguNTQgUERGIFdy
-aXRlcjwveGFwOkNyZWF0b3JUb29sPjwvcmRmOkRlc2NyaXB0aW9uPgo8cmRmOkRlc2NyaXB0
-aW9uIHJkZjphYm91dD0nZTA1ODFkZWEtMzE4MS0xMWRjLTAwMDAtYjJlMWRmOTY5YmEzJyB4
-bWxuczp4YXBNTT0naHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLycgeGFwTU06RG9j
-dW1lbnRJRD0nZTA1ODFkZWEtMzE4MS0xMWRjLTAwMDAtYjJlMWRmOTY5YmEzJy8+CjxyZGY6
-RGVzY3JpcHRpb24gcmRmOmFib3V0PSdlMDU4MWRlYS0zMTgxLTExZGMtMDAwMC1iMmUxZGY5
-NjliYTMnIHhtbG5zOmRjPSdodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLycgZGM6
-Zm9ybWF0PSdhcHBsaWNhdGlvbi9wZGYnPjxkYzp0aXRsZT48cmRmOkFsdD48cmRmOmxpIHht
-bDpsYW5nPSd4LWRlZmF1bHQnPlwzNzZcMzc3XDAwMHdcMDAwd1wwMDBuXDAwMGc8L3JkZjps
-aT48L3JkZjpBbHQ+PC9kYzp0aXRsZT48ZGM6Y3JlYXRvcj48cmRmOlNlcT48cmRmOmxpPlwz
-NzZcMzc3XDAwMEhcMDAwUFwwMDBfXDAwMEFcMDAwZFwwMDBtXDAwMGlcMDAwblwwMDBpXDAw
-MHNcMDAwdFwwMDByXDAwMGFcMDAwdFwwMDBvXDAwMHI8L3JkZjpsaT48L3JkZjpTZXE+PC9k
-YzpjcmVhdG9yPjwvcmRmOkRlc2NyaXB0aW9uPgo8L3JkZjpSREY+CjwveDp4bXBtZXRhPgog
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9J3cn
-Pz4KZW5kc3RyZWFtCmVuZG9iagoyIDAgb2JqCjw8L1Byb2R1Y2VyKEdQTCBHaG9zdHNjcmlw
-dCA4LjU0KQovQ3JlYXRpb25EYXRlKEQ6MjAwNzA3MTAxNjQ0MzQtMDQnMDAnKQovTW9kRGF0
-ZShEOjIwMDcwNzEwMTY0NDM0KQovVGl0bGUoXDM3NlwzNzdcMDAwd1wwMDB3XDAwMG5cMDAw
-ZykKL0NyZWF0b3IoXDM3NlwzNzdcMDAwUFwwMDBEXDAwMEZcMDAwQ1wwMDByXDAwMGVcMDAw
-YVwwMDB0XDAwMG9cMDAwclwwMDAgXDAwMFZcMDAwZVwwMDByXDAwMHNcMDAwaVwwMDBvXDAw
-MG5cMDAwIFwwMDAyXDAwMC5cMDAwMFwwMDAuXDAwMDQpCi9BdXRob3IoXDM3NlwzNzdcMDAw
-SFwwMDBQXDAwMF9cMDAwQVwwMDBkXDAwMG1cMDAwaVwwMDBuXDAwMGlcMDAwc1wwMDB0XDAw
-MHJcMDAwYVwwMDB0XDAwMG9cMDAwcikKL0tleXdvcmRzKCkKL1N1YmplY3QoKT4+ZW5kb2Jq
-CnhyZWYKMCAxMgowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDMxMjcgMDAwMDAgbiAKMDAw
-MDAwNDkzNCAwMDAwMCBuIAowMDAwMDAzMDU5IDAwMDAwIG4gCjAwMDAwMDI5MTggMDAwMDAg
-biAKMDAwMDAwMDAxNSAwMDAwMCBuIAowMDAwMDAyODk4IDAwMDAwIG4gCjAwMDAwMDMyMzAg
-MDAwMDAgbiAKMDAwMDAwMzM3OSAwMDAwMCBuIAowMDAwMDAzMTkyIDAwMDAwIG4gCjAwMDAw
-MDMzMTUgMDAwMDAgbiAKMDAwMDAwMzQ0NSAwMDAwMCBuIAp0cmFpbGVyCjw8IC9TaXplIDEy
-IC9Sb290IDEgMCBSIC9JbmZvIDIgMCBSCi9JRCBbPEU1NzM0NDAzODIyNTIwRDVFQkFFQTI5
-QzBENTVBQTJGPjxFNTczNDQwMzgyMjUyMEQ1RUJBRUEyOUMwRDU1QUEyRj5dCj4+CnN0YXJ0
-eHJlZgo1MzQ3CiUlRU9GCg==
 
-------=_NextPart_000_0000_03A6A71B.A42D4FB0--
+------=_NextPart_000_0006_01C7C391.73EE2690
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html><head>
+<meta http-equiv=3D"Content-Style-Type" content=3D"text/css">
+<style type=3D"text/css"><!--
+new22 { font-size: 22pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new12 { font-size: 12pt; font-family: Georgia; color: #000000; text-align:=
+ center;}
+new14 { font-size: 14pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-style: italic;}
+new18 { font-size: 18pt; font-family: Georgia; color: #000000; text-align:=
+ center; font-weight: bold;}
+new20 { font-size: 20pt; font-family: Georgia; color: #FF0000; text-align:=
+ center; font-weight: bold;}
+new6 { font-size: 8pt; font-family: Georgia; color: #000000; text-align: c=
+enter;}
+
+--></style></head>
+<body bgcolor=3D"#FFFFFF">
+<div class=3D"new22">A Genuine University Degree in 4-6 weeks!</div><br>
+<div class=3D"new12">Have you ever thought that the only thing stopping you=
+ from a great job and better pay was a few letters behind you name? <br>Wel=
+l now you can get them!</div><br>
+<div class=3D"new14">Within 4-6 weeks!<br>No Study Required!<br>100% Verifi=
+able!</div><br>
+<div class=3D"new12">These are real, genuine degrees that include Bachelors=
+, Masters, MBA and Doctorate Degrees. They are fully verifiable and certifi=
+ed transcripts are also available.</div><br>
+<div class=3D"new14">Just call the number below.<br>You=92ll thank me later=
+=85</div><br>
+<div class=3D"new20">1-682-626-0008</div>
+<div class=3D"new12">24 hours a day, 7 days a week including Sundays and Ho=
+lidays</div><br><br>
+<div class=3D"new6">Wed, 11 Jul 2007 04:59:48 -0200Year. weld find no fault=
+</div>
+</body>
+</html>
+
+</body>
+</html>
+
+------=_NextPart_000_0006_01C7C391.73EE2690--

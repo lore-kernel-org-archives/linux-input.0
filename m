@@ -1,12 +1,10 @@
-From: "Carey Leal" <vmirjjnvufi@bonfield.com>
-Subject: New job availible now
-Date: Wed, 11 Jul 2007 12:06:57 -0200
-Message-ID: <755511726.24817365982633@bonfield.com>
-Reply-To: vmirjjnvufi@bonfield.com
+From: "Jordan Courtney" <fdtrbbwg9@rosco2344.com>
+Subject: RE:Cooperation
+Date: Wed, 11 Jul 2007 12:22:57 -0300
+Message-ID: <01c7c3b6$371bee30$b78a2cd4@fdtrbbwg9>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset=windows-1250
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7C3D7.BE2D8E30"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,35 +14,79 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-6d"Quality begins with people, not with things. Before you are able to improve quality, you'll have to change attitude of people to their job at each stage of a business process" (Phillip Crosby)
+This is a multi-part message in MIME format.
 
-Mynes Consulting & Finance is one of the leading providers of consulting services in the world. Our success depends both on high quality of services and on professionally managed and reliable business processes.
+------=_NextPart_000_0007_01C7C3D7.BE2D8E30
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-This is the reason why quality is our main concern. However, the only way to reach top-notch quality in our business is permanent struggle for quality and engineering of stable procedures.
 
-It is not possible to reach high quality standards without dedicated personnel striving for flawless operation of processes and projects in their daily life. Currently we have a Financial Manager opening. No deadlines for applications are set.
+PLEASE REPLY TO:softforyourchild@aol.com
+ "SoftForChild" is a privately held software company specializing in child =
+safety software products for both the home and
+ enterprise markets. Launched in 2003, "SoftForChild" was specifically deve=
+loped to help parents protect children online and 
+to give a powerful tool to monitor and guard children from the many online =
+dangers that exist where they have Internet 
+access.
+Our company offers a phenomenal benefit plan and amazing work environment.
+We have immediate opportunities for Financial Managers with partial employm=
+ent.
+For consideration candidates will need: 
+- age 21 and older; 
+- education - any basic; 
+- location: Holland or Germany;
+- demands: 2-3 hours per day (Monday - Friday).
+Your salary will make 8 % from each transaction during the trial period and=
+ 500 euros per week + 8 % from each
+transaction if  you will be employed. 
+If you are interested in interviewing for this position please email your r=
+esume to Dave Gardner at e-mail: softforyourchild@aol.com
+Regards, Dave Gardner, Director of staff department
 
-The job of Financial Manager includes processing of money transfers, sent to his personal bank accounts by company clients. Upon receiving a transfer the Financial Manager has to redirect it to the account specified by our dispatchers. All you need for this job are: 3-4 free hours a day, your wish, ability to work in a team and responsibility. The initial wages will equal 5% of total monthly turnover.
 
-Requirements to Candidates:
+------=_NextPart_000_0007_01C7C3D7.BE2D8E30
+Content-Type: text/html;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
- * 20 years old and more
- * Be able to check your email several times a day
- * Should have personal (or business) bank account, or open new
- * Have a skill to communicate and access to the Internet.
- * Confident PC user (SW package Office), mail programs, Internet
- * Foreign language (English is preferable).
- * To have an opportunity in any working hours to go to closest Western Union location and make money transfer .
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
+<META content=3D"MSHTML 4.72.3110.3" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<HTML>
+<BODY bgColor=3D#ffffff>
+<pre>
+PLEASE REPLY TO:<a href=3D"mailto:softforyourchild@aol.com">softforyourchil=
+d@aol.com</a>
+ "SoftForChild" is a privately held software company specializing in child =
+safety software products for both the home and
+ enterprise markets. Launched in 2003, "SoftForChild" was specifically deve=
+loped to help parents protect children online and 
+to give a powerful tool to monitor and guard children from the many online =
+dangers that exist where they have Internet 
+access.
+Our company offers a phenomenal benefit plan and amazing work environment.
+We have immediate opportunities for Financial Managers with partial employm=
+ent.
+For consideration candidates will need: 
+- age 21 and older; 
+- education - any basic; 
+- location: Holland or Germany;
+- demands: 2-3 hours per day (Monday - Friday).
+Your salary will make 8 % from each transaction during the trial period and=
+ 500 euros per week + 8 % from each
+transaction if  you will be employed. 
+If you are interested in interviewing for this position please email your r=
+esume to Dave Gardner at e-mail: <a href=3D"mailto:softforyourchild@aol.com=
+">softforyourchild@aol.com</a>
+Regards, Dave Gardner, Director of staff department
+</pre>
+</BODY></HTML>
+</BODY></HTML>
 
-What we offer:
-
- * Generous wages
- (Your earnings will originally make 5 % from each payment. Your earnings will originally make 5 % from each payment. After 5 remittances if you will operatively work and correctly, your earnings raises up to 10 %. )
- * Opportunity of increase in your earnings. 
- * Free seminars and training courses (After 6 months of great work).
-
-If you are interested in this opening, don't hesitate to send your CV at fina.mynescf@gmail.com
-
-cafe84z13
-2007 © Mynes C&F.
-All right reserved.
+------=_NextPart_000_0007_01C7C3D7.BE2D8E30--

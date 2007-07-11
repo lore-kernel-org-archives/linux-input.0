@@ -1,14 +1,12 @@
-From: MR.OBI@server46.publicompserver.de,
-	DODO@server46.publicompserver.de,
-	UNITED NATION CRIME PREVENTION UNIT <obi_dodo1@myway.com>
-Subject: Attn: Beneficiary
-Date: Wed, 11 Jul 2007 15:29:21 +0200 (CEST)
-Message-ID: <20070711132921.E783B266E0C@server46.publicompserver.de>
-Reply-To: obi_dodo@myway.com
+From: "Vern Santos" <creatorm@creator.se>
+Subject: Purchase with pleasure, enjoy discounts
+Date: Wed, 11 Jul 2007 14:08:19 +0000 (UTC)
+Message-ID: <01c7c3c4$86fca8a0$6c822ecf@creatorm>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7C39A.9E26A0A0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Wed, 11 Jul 2007 14:05:24 +0360
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,58 +15,51 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-Attn: Beneficiary
+------=_NextPart_000_0006_01C7C39A.9E26A0A0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
-I am delighted to inform you that the UNITED NATION CRIME PREVENTION UNIT=
- Management through the Office of the SKYE BANK GOVERNOR and other bank d=
-irectors have decided to call back all approved fund Payment through offs=
-hore payment centers to the bank treasury following Interception of the U=
-NITED NATION CRIME PREVENTION UNIT AND WORLD BANK and have concluded arra=
-ngements to pay you this Funds by cash through the Diplomatic Agents who =
-will bring the cash in a Machine sealed consignment to you in the United =
-States as my bank has temporarily stopped further payment via wire transf=
-er.
-
-In this regards we are going to send your inheritance/contract payment to=
- you via our accredited Diplomatic Agent/shipping Company and we have sec=
-ured every needed document to cover the money. Note: The money is coming =
-on 2 security proof box. The box are sealed with synthetic nylon seal and=
- padded with machine. Please you don=92t have to worry for anything, as t=
-he Transaction is 100% risk free. The Boxes are coming with A Diplomatic =
-agent who will accompany the boxes to your house address. All you need to=
- do now is to reconfirm to us
+Dear valued member.Don’t miss an excellent opportunity to buy high quality drugs for a half price. MyCanadianPharmacy has announced great discounts for all products.MyCanadianPharmacy is proud to offer the cheapest prices for the best quality drugs. We do our best to satisfy all customers’ needs. Click here to see the selection of our products. Strict confidentiality is guaranteed. Quick and safe shipping.Order products with pleasure and make significant savings.http://varycondition.hkSincerely yours,Vern Santos
 
 
-Your Full Name=20
-Contact House Address
-Occupation
-Age
-Your mobile phone;
 
-The Diplomatic Attached will travel with it. They will call you immediate=
-ly they arrive in your countries airport to your house. I hope you unders=
-tand me.
+------=_NextPart_000_0006_01C7C39A.9E26A0A0
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-Note: The diplomat does not know the original contents of the boxes. What=
- l declared to them as the contents is Sensitive Photographic Film Materi=
-als for security reasons. I did not declare money to them please. If they=
- call you and ask you the contents please tell them the same thing Ok. Yo=
-u will secure the Diplomatic immunity clearance certificate and the=20
-Certificate of fund ownership, without this two certificate, your Payment=
- fund will not be approve, can not be courier for this payment season, th=
-e needed certificate will Make it pass every custom Checkpoint all over t=
-he world without hitch.
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
-Confirm the receipt of this message and re-send the requirements to me im=
-mediately you receive this message. Please I need urgent reply because th=
-e boxes are Schedule to live as soon as we hear from you. I will try to c=
-ontact you today again and attached the money as being taken to the diplo=
-mat service company for delivering. You are to call me for further direct=
-ives.
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2">Don=92t miss an excellent opportunity =
+to buy high quality drugs for a half price. <a href=3D"http://varycondition=
+hk">MyCanadianPharmacy</a> has announced <b><i>great discounts for all pro=
+ducts</i></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><a href=3D"http://varycondition.hk">My=
+CanadianPharmacy</a> is proud to offer the cheapest prices for the best qua=
+lity drugs. We do our best to satisfy all customers=92 needs. <a href=3D"ht=
+tp://varycondition.hk">Click here</a> to see the selection of our products.=
+ Strict confidentiality is guaranteed. Quick and safe shipping.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Order products with pleasure and make =
+significant savings.<br><a href=3D"http://varycondition.hk"><b>http://varyc=
+ondition.hk</b></a></font></p>
+<font face=3D"Verdana" size=3D"2">Sincerely yours,<br>Vern Santos</font>
+</body>
+</html>
 
-Thanks
-Yours truly,
-MR.OBI DODO
-UNITED NATIONS CRIME PREVENTION UNIT,
-AFRICA CHAPTER.
+</body>
+</html>
+
+------=_NextPart_000_0006_01C7C39A.9E26A0A0--

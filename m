@@ -1,10 +1,13 @@
-From: "Alissa Espinoza" <farscape624@yahoo.com>
-Subject: part-time job
-Date: Wed, 11 Jul 2007 13:28:12 -0200
-Message-ID: <01c7c3bf$547b11f0$69b69b58@farscape624>
+From: MR.OBI@server46.publicompserver.de,
+	DODO@server46.publicompserver.de,
+	UNITED NATION CRIME PREVENTION UNIT <obi_dodo1@myway.com>
+Subject: Attn: Beneficiary
+Date: Wed, 11 Jul 2007 15:29:21 +0200 (CEST)
+Message-ID: <20070711132921.E783B266E0C@server46.publicompserver.de>
+Reply-To: obi_dodo@myway.com
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7C3D0.1803E1F0"
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,78 +17,58 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7C3D0.1803E1F0
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+Attn: Beneficiary
+
+I am delighted to inform you that the UNITED NATION CRIME PREVENTION UNIT=
+ Management through the Office of the SKYE BANK GOVERNOR and other bank d=
+irectors have decided to call back all approved fund Payment through offs=
+hore payment centers to the bank treasury following Interception of the U=
+NITED NATION CRIME PREVENTION UNIT AND WORLD BANK and have concluded arra=
+ngements to pay you this Funds by cash through the Diplomatic Agents who =
+will bring the cash in a Machine sealed consignment to you in the United =
+States as my bank has temporarily stopped further payment via wire transf=
+er.
+
+In this regards we are going to send your inheritance/contract payment to=
+ you via our accredited Diplomatic Agent/shipping Company and we have sec=
+ured every needed document to cover the money. Note: The money is coming =
+on 2 security proof box. The box are sealed with synthetic nylon seal and=
+ padded with machine. Please you don=92t have to worry for anything, as t=
+he Transaction is 100% risk free. The Boxes are coming with A Diplomatic =
+agent who will accompany the boxes to your house address. All you need to=
+ do now is to reconfirm to us
 
 
-PLEASE REPLY TO:softforyourchild@aol.com
- "SoftForChild" is a privately held software company specializing in child =
-safety software products for both the home and
- enterprise markets. Launched in 2003, "SoftForChild" was specifically deve=
-loped to help parents protect children online and 
-to give a powerful tool to monitor and guard children from the many online =
-dangers that exist where they have Internet 
-access.
-Our company offers a phenomenal benefit plan and amazing work environment.
-We have immediate opportunities for Financial Managers with partial employm=
-ent.
-For consideration candidates will need: 
-- age 21 and older; 
-- education - any basic; 
-- location: Holland or Germany;
-- demands: 2-3 hours per day (Monday - Friday).
-Your salary will make 8 % from each transaction during the trial period and=
- 500 euros per week + 8 % from each
-transaction if  you will be employed. 
-If you are interested in interviewing for this position please email your r=
-esume to Dave Gardner at e-mail: softforyourchild@aol.com
-Regards, Dave Gardner, Director of staff department
+Your Full Name=20
+Contact House Address
+Occupation
+Age
+Your mobile phone;
 
-------=_NextPart_000_0007_01C7C3D0.1803E1F0
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+The Diplomatic Attached will travel with it. They will call you immediate=
+ly they arrive in your countries airport to your house. I hope you unders=
+tand me.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
-<META content=3D"MSHTML 6.00.3790.2663" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<HTML>
-<BODY bgColor=3D#ffffff>
-<pre>
-PLEASE REPLY TO:<a href=3D"mailto:softforyourchild@aol.com">softforyourchil=
-d@aol.com</a>
- "SoftForChild" is a privately held software company specializing in child =
-safety software products for both the home and
- enterprise markets. Launched in 2003, "SoftForChild" was specifically deve=
-loped to help parents protect children online and 
-to give a powerful tool to monitor and guard children from the many online =
-dangers that exist where they have Internet 
-access.
-Our company offers a phenomenal benefit plan and amazing work environment.
-We have immediate opportunities for Financial Managers with partial employm=
-ent.
-For consideration candidates will need: 
-- age 21 and older; 
-- education - any basic; 
-- location: Holland or Germany;
-- demands: 2-3 hours per day (Monday - Friday).
-Your salary will make 8 % from each transaction during the trial period and=
- 500 euros per week + 8 % from each
-transaction if  you will be employed. 
-If you are interested in interviewing for this position please email your r=
-esume to Dave Gardner at e-mail: <a href=3D"mailto:softforyourchild@aol.com=
-">softforyourchild@aol.com</a>
-Regards, Dave Gardner, Director of staff department
-</pre>
-</BODY></HTML>
-</BODY></HTML>
+Note: The diplomat does not know the original contents of the boxes. What=
+ l declared to them as the contents is Sensitive Photographic Film Materi=
+als for security reasons. I did not declare money to them please. If they=
+ call you and ask you the contents please tell them the same thing Ok. Yo=
+u will secure the Diplomatic immunity clearance certificate and the=20
+Certificate of fund ownership, without this two certificate, your Payment=
+ fund will not be approve, can not be courier for this payment season, th=
+e needed certificate will Make it pass every custom Checkpoint all over t=
+he world without hitch.
 
-------=_NextPart_000_0007_01C7C3D0.1803E1F0--
+Confirm the receipt of this message and re-send the requirements to me im=
+mediately you receive this message. Please I need urgent reply because th=
+e boxes are Schedule to live as soon as we hear from you. I will try to c=
+ontact you today again and attached the money as being taken to the diplo=
+mat service company for delivering. You are to call me for further direct=
+ives.
+
+Thanks
+Yours truly,
+MR.OBI DODO
+UNITED NATIONS CRIME PREVENTION UNIT,
+AFRICA CHAPTER.

@@ -1,10 +1,10 @@
-From: "Jordan Courtney" <fdtrbbwg9@rosco2344.com>
-Subject: RE:Cooperation
-Date: Wed, 11 Jul 2007 12:22:57 -0300
-Message-ID: <01c7c3b6$371bee30$b78a2cd4@fdtrbbwg9>
+From: "Alissa Espinoza" <farscape624@yahoo.com>
+Subject: part-time job
+Date: Wed, 11 Jul 2007 13:28:12 -0200
+Message-ID: <01c7c3bf$547b11f0$69b69b58@farscape624>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7C3D7.BE2D8E30"
+	boundary="----=_NextPart_000_0007_01C7C3D0.1803E1F0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,9 +16,9 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7C3D7.BE2D8E30
+------=_NextPart_000_0007_01C7C3D0.1803E1F0
 Content-Type: text/plain;
-	charset="windows-1250"
+	charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 
@@ -45,16 +45,15 @@ If you are interested in interviewing for this position please email your r=
 esume to Dave Gardner at e-mail: softforyourchild@aol.com
 Regards, Dave Gardner, Director of staff department
 
-
-------=_NextPart_000_0007_01C7C3D7.BE2D8E30
+------=_NextPart_000_0007_01C7C3D0.1803E1F0
 Content-Type: text/html;
-	charset="windows-1250"
+	charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
-<META content=3D"MSHTML 4.72.3110.3" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 6.00.3790.2663" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY>
@@ -89,4 +88,4 @@ Regards, Dave Gardner, Director of staff department
 </BODY></HTML>
 </BODY></HTML>
 
-------=_NextPart_000_0007_01C7C3D7.BE2D8E30--
+------=_NextPart_000_0007_01C7C3D0.1803E1F0--

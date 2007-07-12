@@ -1,69 +1,46 @@
-From: John Morris. <infodept00001@bellsouth.net>
-Subject: WINNING2007#
-Date: Thu, 12 Jul 2007 0:18:16 -0400
-Message-ID: <20070712041816.NETB12467.ibm68aec.bellsouth.net@mail.bellsouth.net>
-Reply-To: info_service07@yahoo.co.uk
+From: Soeren Sonnenburg <kernel@nn7.de>
+Subject: Re: HID blacklist for the Apple IR sensor
+Date: Thu, 12 Jul 2007 04:40:26 +0000
+Message-ID: <1184215226.4203.13.camel@localhost>
+References: <20070710182636.GA12522@dose.home.local>
+	 <1184165339.15323.32.camel@localhost>
+	 <20070711213746.GA11256@dose.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070711213746.GA11256@dose.home.local>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: uklotto@uk2.net
+To: Tino Keitel <tino.keitel@tikei.de>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Nicolas Boichat <nicolas@boichat.ch>
 List-Id: linux-input@vger.kernel.org
 
-THE UK NATIONAL LOTTERY
-P O BOX 1010
-LIVERPOOL, L70 1NL
-UNITED KINGDOM
-(Customer Services)
-Ref: UKNL/05/8256/53219/QE327=20
-Batch: UKNL5/A115-07
+On Wed, 2007-07-11 at 23:37 +0200, Tino Keitel wrote:
+> On Wed, Jul 11, 2007 at 16:48:59 +0200, Soeren Sonnenburg wrote:
+> 
+> [...]
+> 
+> > If there is indeed a lirc driver for this providing all the
+> > functionality why would one ever want to have any appleir.patch in the
+> > future? I meant to pave the way for appleir to go in, but now I don't
+> > see a need for it as an in-kernel driver anymore.
+> 
+> When I didn't had lirc running using the input device, some Gnome
+> thingie seemed to react on key presses, so that the volume could be
+> adjusted. With the hiddev, this won't work anymore, but I think that
+> this was just generic functionality because the appleir driver
+> generated the proper key events for volume adjustments, so nothing
+> specific to the Apple IR.
 
-You have won the sum of =A31,500,000 (One Million Five Hundred Thousand
- Great British pounds sterling) from BRITISH LOTTERY on our 2007 Monthly
- charity bonanza.The winning ticket was selected from a Data Base of
- Internet E-mail Users, from which your Address came out as the winning
- coupon #.
+True, but I think everyone under linux expects infred stuff to work with
+lirc and there is probably already some userspace daemon translating
+remote control presses into keyboad presses...
 
-We hereby urge you to claim the winning amount quickly as this is a
- Monthly lottery. Failure to claim your prize will result into the=20
-Reversion of the fund to our following month draw.You are therefore
- requested to contact immediately your Claims Agent=20
-(Barrister John Morris) below quoting winning number: WINNING NUMBER
- UK07010220.
-
-Barrister John Morris.
-Alpha Consultants Law firm & Schmitz Associates=20
-(Solicitors Advocates & Arbitrators)
-Tel: +447045737335
-Fax: +447005982213
-E-mail: info_service07@yahoo.co.uk
-
-Provide the following information needed to process your winning=20
-claim.
-
-(1).YOUR FULL NAMES
-(2).CONTACT ADDRESS.
-(3).TEL/FAX NUMBERS.
-(4).OCCUPATION.
-(5).WINNING NUMBERS.
-(6).AGE
-(7).SEX..
-(8).NEXT OF KIN.
-(9).WINNING EMAIL.
-(10).COUNTRY..
-
- Congratulations once again.
-
-Yours faithfully,
-Mr. Steven Jeff
-Online coordinator for THE NATIONAL LOTTERY Sweepstakes International=20
-Program.
-
-
-
-=20
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.

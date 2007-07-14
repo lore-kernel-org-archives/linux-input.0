@@ -1,10 +1,11 @@
-From: "Bradford Roy" <intellectuam@intellectua.com>
-Subject: Let CanadianPharmacy help you to manage your health and save money
-Date: Sun, 15 Jul 2007 03:14:22 +0600
-Message-ID: <01c7c68e$3d826580$21c0a74a@intellectuam>
+From: "Alexa Price" <qmqsoms@mailexcite.com>
+Subject: T'R'Y ouR spe cial ERE CTION PACK!      .OWO-5WjXGKzhWZUBoBZ.g
+Date: Sat, 14 Jul 2007 12:10:07 +0300
+Message-ID: <15103.9291908548$1184573587@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000E_01C7C664.54AC5D80"
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,49 +15,41 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_000E_01C7C664.54AC5D80
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-
-Dear valued member.In the last newsletter we’ve informed you that Canadian products are of the same quality as American but much more cheaper.  Now CanadianPharmacy offers even better opportunity to save on your drugs – 50% discount.Try our service and you will get deep-discounted quality products delivered fast and discreetly directly to your doorstep. CanadianPharmacy is famous for the level of service and confidentiality. No scamming, no frauds. Enjoy summer with CanadianPharmacy.http://wtittha.moremust.hk/?266144639450Best regards, Bradford Roy
-
-
-
-------=_NextPart_000_000E_01C7C664.54AC5D80
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Diso-8859-2" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR></HEAD>
-<BODY>
-<html>
-<body bgcolor=3D"#FFFFFF" link=3D"#333366">
-<font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.</fo=
-nt>
-<p><font face=3D"Verdana" size=3D"2"><br>In the last newsletter we=92ve inf=
-ormed you that Canadian products are of the same quality as American but mu=
-ch more cheaper.  Now <a href=3D"http://wtittha.moremust.hk/?266144639450">=
-CanadianPharmacy</a> offers even better opportunity to save on your drugs =
-=96 <b><i>50% discount</i></b>.</font></p>
-<p><font face=3D"Verdana" size=3D"2">Try our service and you will get deep-=
-discounted quality products delivered fast and discreetly directly to your =
-doorstep. <b><a href=3D"http://wtittha.moremust.hk/?266144639450">CanadianP=
-harmacy</a></b> is famous for the level of service and confidentiality. No =
-scamming, no frauds. </font></p>
-<p><font face=3D"Verdana" size=3D"2">Enjoy summer with <a href=3D"http://wt=
-ittha.moremust.hk/?266144639450">CanadianPharmacy</a>.<br><b><a href=3D"htt=
-p://wtittha.moremust.hk/?266144639450">http://wtittha.moremust.hk/?26614463=
-9450</a></b></font></p>
-<font face=3D"Verdana" size=3D"2">Best regards, Bradford Roy</font>
-</body>
-</html>
-
-</BODY></HTML>
-
-------=_NextPart_000_000E_01C7C664.54AC5D80--
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dkoi8-r">
+<META content=3D"MSHTML 6.00.2900.2180" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT face=3DArial size=3D2>
+<DIV><FONT face=3DArial color=3D#ff0072 size=3D3><STRONG>10 P l LL S  C.I,A.L,I.S =
++ 10 P l LL S =20
+V,_I_A,G_R_A!</STRONG></FONT></DIV>
+<DIV><FONT face=3DArial color=3D#ff0048 size=3D3><STRONG>Two best ED =
+medications in=20
+one super pack. Lowest price and FREE shipping.</STRONG></FONT></DIV>
+<DIV><FONT color=3D#ff0092 size=3D3></FONT> </DIV><FONT =
+face=3DArial size=3D2>
+<DIV><BR><FONT size=3D3><STRONG><EM>What is =
+C..I..A.L.I.S?</EM></STRONG></FONT></DIV>
+<DIV> </DIV>
+<DIV>C .I .A .L .I S is the only ED (Erectile Disfunction) tablet clinically =
+proven to=20
+work both <BR>up to 36 hours and in as fast as 30 minutes. And because =
+C"I"A"L"l"S=20
+has an extended <BR>period of effectiveness, you don't have the =
+pressure to=20
+perform within a few hours. <BR>You and your partner can relax and take =
+your=20
+time choosing the moment that is right for both of you.</DIV>
+<DIV> </DIV>
+<DIV><FONT size=3D3><STRONG>Benefits of Cl A LlS </STRONG></FONT></DIV>
+<DIV> </DIV>
+<DIV>Works up to 36 hours <BR>Works fast <BR>Works Effectively <BR>Keeps =
+you=20
+ready <BR>No need to plan around meals <BR>Used by millions of men =
+</DIV>
+<DIV><BR><FONT size=3D4><STRONG><A href=3D"http://pcavcj.beforeendofterm.net/?afvfnrfjocou">Buy SPECIAL ERECTION PACK=20
+online!</A></STRONG></FONT></FONT></DIV></FONT></DIV></BODY></HTML>

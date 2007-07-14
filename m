@@ -1,65 +1,227 @@
-From: "Candy Vang" <heinrichv5@herblip.net>
-Subject: Re.Query
-Date: Sun, 15 Jul 2007 15:42:23 -0800
-Message-ID: <892103750.85861124982749@herblip.net>
-Reply-To: heinrichv5@herblip.net
-Mime-Version: 1.0
-Content-Type: text/html;
-  charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+From: =?GB2312?B?va3Qob3j?= <fg4e3@worgs.com>
+Subject: =?GB2312?B?obDStaGkzvGhpNesoaTHrqOto63A+6GkyPOhpMqnoaS/2KGxbGludXgtaW5w?=
+Date: Sat, 14 Jul 2007 17:10:46 +0200 (CEST)
+Message-ID: <20070714151047.0C74598AE4@artax.karlin.mff.cuni.cz>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+ =?GB2312?B?dXQ=?=
+To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain;charset="GB2312"
+Date: Sat, 14 Jul 2007 23:09:45 +0800
+X-Priority: 3
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
 
-<html>
-<head>
-<style>
-    * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert haben    * Bundeshaushalt: Steinbr&#252;cks Fahrplan zur Entschuldung      Harry Potter: Weltpremiere in Japan Video abspielen...    * Mund auf: G&#228;hnen k&#252;hlt das Gehirn    * Fotostrecke: Alarm im Kernkraftwerk Kr&#252;mmel    * mehr Politik    *    * mehr Sport                                                          USA    * Unesco- Entscheidung: Schutzgebiet verliert Welterbe- Status    * mehr Wissenschaft    * Mixed Zone: Kubica darf wieder fahren, Haas und Kiefer siegenPOLITIK    * NRW: P&#228;rchen erstickt bei Sch&#228;ferst&#252;ndchen    * Afghanistan-Mandat: Steinmeier soll SPD auf Linie bringen    * DFB- Chefscout Siegenthaler: "Ich werde bei der EM mit der Schweiz mitfiebern"Schwerer R&#252;ckschlag f&#252;r US-Pr&#228;sident Bush: Der Senat stimmte gegen sein Einwanderungsgesetz, das Milli
- onen Illegale zu US-B&#252;rgern machen sollte. Ablehnung kam vor allem aus den eigenen Reihen. mehr...    * Unesco- Entscheidung: Schutzgebiet verliert Welterbe- StatusFall Madeleine: Betr&#252;ger wollten Eltern erpressenFast zwei Monate nach dem Verschwinden der kleinen Madeleine hat die spanische Polizei einen Italiener und eine Portugiesin festgenommen. Sie hatten es offenbar auf die Belohnung der Eltern abgesehen. Ihre Verbindung zur tats&#228;chlichen Entf&#252;hrung ist fraglich. mehr...    *    * Formel 1    * Achilles    * Bundesliga- Start: Vize Schalke muss zum Meister StuttgartSchwerer R&#252;ckschlag f&#252;r US-Pr&#228;sident Bush: Der Senat stimmte gegen sein Einwanderungsgesetz, das Millionen Illegale zu US-B&#252;rgern machen sollte. Ablehnung kam vor allem aus den eigenen Reihen. mehr...      SATIRE @ SPIEGEL ONLINE: Woche f&#252;r Woche am Kiosk - Die neuen Fixstern
- e sind da!Forscher befreien Zellen vom Aids- Virus    * Viren- Vergleich: Vogelgrippe- Erreger k&#246;nnten aus Tschechien stammenbl&#228;ttern    * W&#228;hrungsfonds: IWF- Chef Rato tritt vorzeitig zur&#252;ck    * Justiz    * US-Sports    * Energieversorgung: Vorteil Russland im Pipeline- Schach    * Mordlust: Punker qu&#228;lt Bekannte zu Tode      Neu im Kino: Alte Helden, junge Spieler und globale H&#228;ndler Video abspielen...    * Gro&#223;e Koalition - dauerhaft in der Krise?    * Achilles    * Leute    * Weltall    * &#220;bersicht    * CSU- Generalsekret&#228;r: Ramsauer f&#252;r Frau statt S&#246;der    * Entlassung von Bundesanw&#228;lten: Bush verweigert Demokraten Akteneinsicht    * US-Sports    * Depot      Harry Potter: Weltpremiere in Japan Video abspielen...Senat stoppt Bushs Einwanderungsgesetz    *      Hatschepsut- Mumie: Der Zahn der b&#228;rtigen Pharaonin Vide
- o abspielen...AFGHANISTAN- MISSIONbl&#228;ttern    * Formel 1    *    * Gro&#223;britannien: R&#228;tselhafter Tod von Ex- Mossad- Agenten      Harry Potter: Weltpremiere in Japan Video abspielen...bl&#228;ttern    * Bush-Regierung unter Druck: Senat verlangt vertrauliche Papiere zu Lauschangriff    *      Dumm gelaufen: Falsch abgebogen    * Kokain- Schmuggel: Mutter benutzt eigene Kinder als Drogenkuriere    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke abgeschaltet    * Energieversorgung: Vorteil Russland im Pipeline- Schach    * &#220;bersicht
-P
-{
-margin:0px;
-padding:0px
-}
-body
-{
-FONT-SIZE: 10pt;
-FONT-FAMILY:Tahoma
-}
-</style>
-</head>
-<body>
-<SPAN style="BORDER-RIGHT: 0px; PADDING-RIGHT: 12px; BORDER-TOP: 0px; PAD=
-DING-LEFT: 12px; FONT-SIZE: 16px; FLOAT: right; PADDING-BOTTOM: 12px; MARGI=
-N: 11px; BORDER-LEFT: 0px; PADDING-TOP: 12px; BORDER-BOTTOM: 0px; FONT-FAMI=
-LY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #feee67"><FONT size=4
->
-<style>Angel-Simulator, Gitarren-Wettkampf, Quitsche-Enten durch die Wanne steuern - kaum eine Spielidee ist zu aberwitzig f&#252;r die neuen Spielkonsolen. Wie gut kennen Sie die neuen Spiel-Wunder? Testen Sie Ihr Daddel-Know-how im SPIEGEL-ONLINE-Quiz. Von Konrad Lischka mehr...Senat stoppt Bushs Einwanderungsgesetz    * Fotostrecke: Alarm im Kernkraftwerk Kr&#252;mmel    * Prinz William & Kate Middleton: Heimliche Treffen als Zeichen eines Neustarts    * WeltallDie Afghanistan-Debatte eskaliert. In der SPD mehren sich die Stimmen gegen das Anti-Terror-Mandat, zwei Au&#223;enpolitiker der Gro&#223;en Koalition schlagen pl&#246;tzlich Missionen auch im umk&#228;mpften S&#252;den vor. Ein Tabubruch, der im Regierungslager umgehend f&#252;r &#196;rger sorgt. Von Severin Weiland und Matthias Gebauer mehr... [ Forum ]    * NRW: P&#228;rchen erstickt bei Sch&#228;ferst&#252;ndchen    * Bush-
- Regierung unter Druck: Senat verlangt vertrauliche Papiere zu Lauschangriff      Kunstgalerie in K&#246;ln: Aquarelle von Schockrocker Marilyn Manson Video abspielen...AFGHANISTAN- MISSION    * Ausland    * Eklat im Europarat: Rum&#228;nen verlassen aus Protest gegen CIA- Report die Versammlung    *    * &#220;bersicht      38 Beitr&#228;ge, Neuester: Heute, 17.05 Uhr von M&#252;nchnerStandortranking: WM bringt Deutschland nach vorn    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke abgeschaltetbl&#228;ttern    * Deutschlandfonds - Betriebsverm&#246;gen in Arbeitnehmerhand?</style>
-<B>Vi<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>rvexwweqfu</FONT></SPAN>ag<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>wieprezboe</FONT></SPAN>ra $1.79 C<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>tqbtukwxxi</FONT></SPAN>ial<SPAN style="
-ORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT:
-0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>wzmdfyirqg</FONT></SPAN>is =
-$4.35</B><BR></FONT>
-<H4><SPAN>and man<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT:
-right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"></SPAN>y other it<SPAN style="BORDER-RIGHT: 0px;
-ORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77
-; BORDER-BOTTOM: 0px"></SPAN>ems<BR><A href="http://www.demnz.by.ru/redir.html">Click to visit the shop
-</A></SPAN></H4></SPAN><br /><hr />
-<style>    * Bundeshaushalt: Steinbr&#252;cks Fahrplan zur EntschuldungStandortranking: WM bringt Deutschland nach vornbl&#228;ttern    * Formel 1Die bef&#252;rchtete Abrechnung mit dem Blair-Fl&#252;gel ist ausgeblieben. Der neue britische Premier Brown hat heute sein Kabinett vorgestellt und viele Schl&#252;sselressorts in neue H&#228;nde gegeben. Doch er setzt durchaus auch auf vertraute Kr&#228;fte. Von Peter Herkenhoff, London mehr...Immer wieder haben Mediziner vergeblich versucht, den Aids-Erreger aus dem menschlichen K&#246;rper zu vertreiben. Jetzt aber ist es deutschen Forschern gelungen, das HI-Virus auszuschalten - mit einem speziell abgerichteten Molek&#252;l. Von Johann Grolle mehr...Forscher befreien Zellen vom Aids- Virus      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Video abspielen...    * Hass auf Kn&#246;llchen- Verteiler: Trauerg&#228;ste schlagen V
- erkehrsordner niederRomeos Orgie und die H&#228;rte des Gesetzes      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Video abspielen...    * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert haben</style>
-</body>
-</html>
 
-</BODY></HTML>
+
+◆ 要 么 只 懂 管 理，要 么 只 会 财 务，这 是 中 国 企 业 造 成 利 润 黑 洞 的 根
+源——业 务 上 赚 钱，但 利 润 管 理 上 失 控！ ◆
+
+
+
+                《利  润  加  速  器》高  层  实  战  课  程
+              --------------------------------------------------
+
+ 
+主``办``单``位：人``企`(中.国)`咨``询`机`构 
+
+时　 ``     间：2007年 7月28-29日    上 海   花 园 格 兰 云 天 大 酒 店
+                2007年10月27-28日    成 都      
+
+费　 ``     用：普通席￥3800元/人（包含教材费、听课费、中餐、课间茶点等）
+                贵宾席￥5800元/人（含住宿费、跟专家共享午餐近距离交流）
+
+热　 ``     线： 02 0 － 8593 22 39 、3985 82 81   （8 条 线） 
+传　 ``     真： 02 0 － 3985 82 81
+
+联 `` 系 `` 人： 杨 先生 /王 小姐 /梁 小姐
+
+--------------------------------------------------------------------------------
+
+                   战略上实现利润模式突破，运营上实现利润管控突破
+
+    失败的企业有两种,一种是不管怎么拼命都赚不到钱，因为他不符合利润模式；另一种企
+业不是在业务上赚不到钱，而是在运营过程中利润失控 。所有的行业都有人在赚钱，有人在
+亏钱： 课程第一、二模块是利润模式，分析和展示世界级企业的竞争和转型过程中所遵循的
+规律 ，从行业本质提出类似行业企业的利润模式；第三模块是利润加速器，从管理财务角度
+去全面检查赢利状况，帮助企业家找出最佳的利润提升切入点； 第四模块是利润发动机，帮
+助企业重新启动团队的战斗力，推动利润改进方案的实施。
+ 
+
+
+◆第一、构建利润模式，所有成功的企业都是遵循了产业系统模式逐步成熟的规律，我们不要
+        看行业或产品获利的表像，而是要研究百年老店利润模式的变迁和新兴企业异军突起，
+        找出产业利润模式的本质和变化规律， 才能从全局高度聚焦一点构建企业经营模式，
+        实现持续赢利。
+
+◆第二、加快赢利速度，永远是用不很充裕的预算去达到不太可能的业绩目标，但在流程定完
+        后"措施和行为"的目标就是加速利润达成。我们不能简单地从规模上"压"费用，而是
+        要明晰投入和行为的因果关系，提高行为的投入产出比，花钱不表示就是浪費，不花
+        钱也不代表能省钱。
+
+◆第三、重启利润机器，房子应该经常打扫，不打扫就会积满灰尘；脸应该经常洗，不洗就会
+        灰尘满面。企业的组织和团队，也会沾染灰尘，业务上的一时成功无法掩盖和阻止团
+        队能力的堕落，业务越好团队能力腐败的可能越快。我们企业的组织，我们团队的战
+        斗力，也同样会沾染灰尘的，也是应该经常打扫。
+
+--------------------------------------------------------------------------------
+ 
+                    诠释赢利本质，深刻影响中国企业进程
+
+
+       授课主题                 利润新模式→利润加速器→利润发动机
+
+  28日9：00-12：00            ·产业主导者必须精耕产业链的各个环节，通过不断变革和
+                                成本优化，提高新兴企业的进入门槛，巩固利润模式；          
+第一模块：传统利润模式        ·新兴企业通过速度冲击规模，以一流概念、二流产品，三
+   主讲：郎咸平教授             流价格，冲击老牌企业，构建行业新的利润分享规则。
+  
+
+  28日14：00-17：00           ·以服务和品牌为竞争舞台、以商品为道具，把握消费者体
+                                验价值，创造出值得消费者回忆和自我价值实现的运营模式；
+第二模块：新兴利润模式        ·人们存在著很多幻想和精神个性，企业可以通过"品牌经营
+   主讲：郎咸平教授             "和"虚拟经营"演绎消費者实践梦想，获得无限的利润空间；
+
+
+  29日9：00-12：00            ·支离破碎的成本改进、缺乏系统的利润增值系统，往往反
+                                而增加成本的负担与利润的损害，因为成本是连动的、会
+第三模块：战略财务管理          转嫁，利润是被动的、会交叉！利润加速器就是从起点到
+   主讲：汪俊宏教授             终点打造连接两端的高速公路，明晰投入和对应行为的因
+                                果关系，提高资源使用的投入产出比。
+
+
+  29日14：00-17：00           ·总裁必须掌握持续的激活团队动力，驱动企业战斗力的方
+                                法：“更新部件（重启团队）、改造机器（创新机制）、
+第四模块：团队利润管理          加油加料（激活薪酬）、把控火喉（量化绩效）。在文化
+   主讲：杨发文教授             上，老总要做精神领袖改造中层思维，在制度上，老总要
+                                做创新的推动者，重新启动一个创造利润的企业机器。
+
+--------------------------------------------------------------------------------
+》》课 程 介 绍 《《 ：
+
+
+第一模块：传统利润模式--围绕产业价值链变化的分工与整合，构建利润模式
+    主讲：郎咸平教授——世界级公司治理与金融专家，深受中国企业推崇的经济学家。
+
+◆模式一："势能"利润--以积累能量为本质，席卷低端市场打破产业原利润模式
+  -案例研究：在势能积累下，像"诺基亚，摩托罗拉"以高端冲击低端，进而席卷市场，三星，
+             LG，索爱"以势能积累维持高端形象，未来必须冲击低端，"TCL, 明基"几乎完
+             全违反行业本质的国际化必难成功。
+  -方法1、迅速积累形成行业领导，建立"高端"的形象已积累势能
+  -方法2、势能积累完成后，立刻冲击低端市场，席卷市场，取得龙头地位
+
+◆模式二："流程"利润--以流程扩大市场规模，以非流程和体验建立市场分割
+  -案例研究：在方便，流程，体验三方面配合下，解释传统行业的生存变革之路，包括盒饭
+             等小餐馆的生存本质，大规模连锁扩张的麦当劳等速食，小规模扩张的小肥羊/
+             俏江南等，和很难开分店的高级中餐馆。
+  -方法1、流程管理和整合冲击冲击传统行业，增加性价比和方便程度
+  -方法2、以流程管理、方便、体验、性价比等多元变数模型分析行业本质
+
+
+
+第二模块：新兴利润模式--演绎消费者的体验和精神超越产品，创新利润模式
+    主讲：郎咸平教授——世界级公司治理与金融专家，深受中国企业推崇的经济学家。
+
+◆模式三："情感"利润--以亲密伙伴关系为本质，打破产业固有科技盈利模式
+  -案例研究：最贵的苹果电脑，最便宜的戴尔电脑2006年冲击顶尖销售额的数据显示，成本
+             价格和科技已无法取得胜利，"联想收购IBM和惠普高科技模式的发展战略不符
+             合行业本质，因此国际化很难成功。
+  -方法1、分析电脑行业科技的本质问题是提升亲密伙伴关系，例如早期的苹果和IBM.
+  -方法2、科技本身没有差异化的优势，苹果透过Ipod,戴尔透过直销建立亲密伙伴
+
+◆模式四："精神"利润--刺中消费者幻想神经，改变消费模式用差异空间创利润
+  -案例研究：耐克，阿地达斯满足对运动的幻想和欲望,李宁缺乏类似思维/尼路站在星巴克
+             的肩膀上，建立从感观-情感-行动-思考-联系的全面体验实践让顾客改变消费
+             模式--享受过程而不是结果。
+  -方法1、通过产品演绎消费者的某种精神，抛弃一切无法创造精神的经营活动
+  -方法2、通过品牌形象人格化策略，让产品成为消费者自我理想化的代表
+
+
+
+第三模块：战略财务管理--建立三维一体的运营利润机制，直接创造利润增长
+    主讲：汪俊宏教授——资深的公司治理与财务专家。
+
+◆汪教授授课要点：支离破碎的成本改进、缺乏系统的利润增值系统，往往反而增加成本负担
+                  与利润损害，因为成本是连动的、会转嫁，利润是被动的、会交叉！利润
+                  加速器就是从起点到终点打造连接两端的高速公路，花钱不代表浪费，不
+                  花钱也不代表省钱，我们需要积极的管理不是消极的省钱。
+
+  第一部分：（勤检修）识别数字--搞不清成本与利润动因，就会迷失利润方向；
+  第二部分：（减重量）控制成本--砍掉隐形成本及费用，成本减一元就赚一元；
+  第三部分：（加速度）提高收入--用尽一切的增值手段，灵活定价换最高利润；
+  第四部分：（进高速）经营资金--提高资金效率钱赚钱，让利润增长速度跳跃。
+
+
+
+第四模块：团队利润管理--改造思维激活机制，重新启动组织团队的战斗能力
+    主讲：杨发文教授——资深的运营与战略人力资源专家。
+
+◆杨教授授课要点：企业是创造利润的机器，团队是发动机，总裁必须掌握持续的激活团队动
+                  力，驱动企业战斗力的方法: 更新部件（重启团队）、改造机器（创新机
+                  制）、加油加料（激活薪酬）、把控火喉（量化绩效）。在文化上，老总
+                  要做精神领袖改造中层思维，在制度上，老总要做创新的推动者，重新启
+                  动一个创造利润的企业机器。
+
+  第一部分：（选部件）重启团队--合适的人才创造利润，不合适人才制造成本；
+  第二部分：（造机器）创新机制--优秀的机制创造利润，平庸的机制生产成本； 
+  第三部分：（加燃油）激活薪酬--管理薪酬是有效投资，发放薪酬是无效投入；
+  第四部分：（控火喉）量化绩效--有目标的努力创业绩，无目的劳动制造成本。
+
+
+--------------------------------------------------------------------------------
+·课程举办情况：
+
+    《战略利润突破》分别在北京、深圳成功举办，来自华北华南地区200家企业总裁或高层参
+加了此次课程 ，知名企业包括一汽轿车、中外运空运、中外运敦豪、中粮集团、中粮美特、清
+华同方 、首创集团、浪潮集团、华为技术、深圳特发股份、羚锐制药股份、中国人寿、北京第
+一机床厂、中国电力科学研究院、航天科工深圳集团等，以及更多的快速成长的中小企业。
+
+--------------------------------------------------------------------------------
+
+
+                            ■ 报--名--回--函 ■  
+                        ═════════════                
+
+■把 报 名 表 格 传 真 至(0 2 0)-39 8 58 2 81  －－>发 出 会 议 通 知 安 排! 
+
+■参.会.单.位.名.称：__________________________________  
+.
+■参.加：《利·润·加·速·器》   □上 海    □成 都
+
+ 
+  联.系.人：________________电.话:________________
+
+  传.真:________________邮 .件：________________
+
+  参.会.费.用 ￥：______________元 
+
+
+■参.会.人：___________
+
+移.动.电.话：____________ 邮 .件：________________
+
+
+■参.会.人：___________
+
+移.动.电.话：_____________邮 .件：________________
+
+
+■参.会.人：___________
+
+移.动.电.话：_____________邮 .件：________________
+
+
+■参.会.人：___________
+
+移.动.电.话：_____________邮 .件：________________
+
+
+■付 \款\方\式（请选择打“√”）： □1、现\ 金   □2、转 \帐  □3、电 \汇
+
+
+--------------------------------------------------------------------------------

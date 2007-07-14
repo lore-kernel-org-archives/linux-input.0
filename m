@@ -1,41 +1,49 @@
-From: "Johnnie Danna" <emvio9fsu@unisys.com>
-Subject: Men's  Sexual Health Pill from $1.50 per pill, Pain Relief, Anti-Anxiety/Sleep xld
-Date: Sat, 14 Jul 2007 17:41:25 +0800
-Message-ID: <799c97481.9083k03427423@unisys.com>
+From: "Wallacej Andradez" <fiona.bevan@ntlworld.com>
+Subject: Re: jana
+Date: Sat, 14 Jul 2007 12:58:38 -0100
+Message-ID: <01c7c616$b1ee8ed0$c11a1453@fiona.bevan>
+Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+	format=flowed;
+	charset="Windows-1252";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lid@atrey.karlin.mff.cuni.cz
+To: jana@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Check out our Specials!  =20
-We are the best price on all high QualityMeds. =20
+Hi, jana
 
 
-Men's Sexual Health=20
-:Cia|lisViagra
+www.bestpharmspecial.com 
 
-Anti-Anxiety/Sleep    =20
-:AmbiemValiumAtivanXanax=20
-
-Pain Relief
-:CelebrexSoma=20
-
-Weight__Loss  =20
-:PhenterminMeridia
-
-Anti-Cholesterol & Anti-Depressant & Anti-Acid       =20
-
-
-http://blfz.raisedfromah.com
+Viagra
+60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
+30 pills x 50mg 	$60.23 	$2.01 per pill 	Your save: $30 	
+90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
+10 pills x 50mg 	$30.22 	$3.03 per pill 		
 
 
 
 
-may gym situation pride clear worthy? knew taught busy full favour board?
+cialis
+30 pills x 20mg 	$104.66 	$3.49 per pill 	Your save: $13 	
+10 pills x 20mg 	$39.19 	$3.92 per pill 		
+20 pills x 20mg 	$76.68 	$3.83 per pill 	Your save: $2 	
+60 pills x 20mg 	$180.15 	$3 per pill 	Your save: $55
+
+
+
+Discreet packaging - 100% confidential.
+Worldwide shipping.Next day delivery.
+Professional Visa Verified Online Shop.
+Free physicians consultation & prescription.
+
+
+
+With Best Regards, Wallacex Andradeg .

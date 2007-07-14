@@ -1,11 +1,10 @@
-From: =?iso-2022-jp?B?eGFibm1ieG5tQHlhaG9vLmNvLmpw?= <xabnmbxnm@yahoo.co.jp>
-Subject: =?iso-2022-jp?B?GyRCIig2WzVeIigbKEI=?=
-Date: Sun, 15 Jul 2007 00:04:27 +0900
-Message-ID: <20070715230512.79EB09969E@artax.karlin.mff.cuni.cz>
-Reply-To: <xabnmbxnm@yahoo.co.jp>
+From: "Adrian Kidd" <sandram@usc.edu>
+Subject: Potenzprobleme? Ab jetzt nicht mehr  parties with this in -- will load patterns into your
+Date: Sat, 14 Jul 2007 16:45:53 -0100
+Message-ID: <01c7c636$71237030$d7bfd957@sandram>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7C647.34AC4030"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,54 +14,67 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-【お知らせ】仮登録会員の皆様へ
+This is a multi-part message in MIME format.
 
- http://message-love.org.uk/pc/main.php?vps5ex12
+------=_NextPart_000_0007_01C7C647.34AC4030
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-━━━━━━━━━━━━━━━━━━━━━━━
-お客様番号 〓powanf300151〓 　 仮　登　録
-━━━━━━━━━━━━━━━━━━━━━━━
+Haben Sie endlich wieder Spass am Leben!
 
+Preise die keine Konkurrenz kennen 
 
-※現在ご利用料金などは一切発生しておりません。
-※当サイトは完全無料登録サイトです。
-※このコミュニティーからの不正な請求は一切ありません
-
-
-■■本通知は只今仮登録会員の方へご案内させていただいております■■
-
-現在当番組の仮登録中となっております。
-つきましては下記ＵＲＬよりログインしていただき
-本登録または以下の手続を確認していただけますよう
-宜しくお願いいたします。
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-本登録入場口　http://message-love.org.uk/pc/main.php?vps5ex12
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-【PR】
-http://pr-h.com/r30/index.php?media=pc798
+- keine versteckte Kosten
+- Bequem und diskret online bestellen.
+- Visa verifizierter Onlineshop
+- Kein peinlicher Arztbesuch erforderlich
+- Diskrete Verpackung und Zahlung
+- Kostenlose, arztliche Telefon-Beratung
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
 
 
+Klicken Sie HIER und Sie erhalten vier Dosen umsonst
+http://ciokm.saycame.com/?260668892443
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
+------=_NextPart_000_0007_01C7C647.34AC4030
+Content-Type: text/html;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: quoted-printable
 
-=============================================================================
-｜　【配信停止手続きの際は】⇒　jkjnjknjandjba@yahoo.co.jp
-│
-｜必ず件名に「配信停止」とお書き下さい。
-│件名に「配信停止」と記載されていない場合は処理が行えません。
-│尚、停止には数日間ほどお時間をいただく場合がございます。
-│停止まで数日、数回メールが送信されることがございますが、
-│何卒ご了承ください。
-｜
-｜
-｜　【登録解除手続きについて】
-｜
-｜登録解除については仮登録日から一ヶ月以内に本登録がない場合
-｜自動的に登録解除となり。発行のお客様番号では本登録ができなくなります。
-｜再度ご登録の場合はお手数ですが仮登録からのやり直しとさせていただきます。
-｜
-｜※登録解除までの間仮登録案内が送信されることがございますが何卒ご了承下さい。
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 6.00.3790.2663" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
+-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Ich glaube, ich habe=
+ bis jetzt Gl&#252;ck gehabt (Ich klopfe auf Holz.), denn ich hatte bis jet=
+zt noch nie Nebenwirkungen durch Viaaaagra - au&#223;er einer brettharten L=
+atte, und das f&#252;r Stunden.</strong></p><p><strong>Fantastische Wirkung=
+! F&#252;nf Jahre lang hatte ich es nicht mehr geschafft, meine Err. ..ekti=
+on w&#228;hrend des Verkehrs zu halten und war richtig &#228;ngstlich gewor=
+den. Ich hatte auch ein Problem mit vorzeitigem Samenerguss. Au&#223;erdem =
+bin ich Zuckerkrank. Vor einiger Zeit habe ich eine 50-mg-Dosis Viaaaagra g=
+enommen und zwei Stunden sp&#228;ter mit einer 22-j&#228;hrigen geschlafen.=
+ Kurz vor dem Vorspiel wurde mein Penis hart und ich konnte es kaum glauben=
+ Ich habe in dieser Nacht dreimal Sex gehabt und es gab keine Probleme dab=
+ei. Kein Schuss ging daneben. Ich bin ein gl&#252;cklicher Mann. Achmet, 52=
+<br>
+</strong><strong><br>Haben Sie endlich wieder Spass am Leben!</strong></p><=
+p>Preise die keine Konkurrenz kennen <p>
+- Kein peinlicher Arztbesuch erforderlich<br>- Diskrete Verpackung und Zahl=
+ung<br>- Bequem und diskret online bestellen.<br>- Kein langes Warten - Aus=
+lieferung innerhalb von 2-3 Tagen<br>- Kostenlose, arztliche Telefon-Beratu=
+ng<br>- Visa verifizierter Onlineshop<br>- keine versteckte Kosten</p>  
+<p><br><strong><a href=3D"http://ciokm.saycame.com/?260668892443" target=3D=
+"_blank">Klicken Sie HIER und Sie erhalten vier Dosen umsonst</a><br>
+  </strong>(bitte warten Sie einen Moment bis die Seite vollst&auml;ndig ge=
+laden wird)
+</body>
+</BODY></HTML>
 
-=============================================================================
-【PR】
-http://pr-h.com/r30/index.php?media=pc798
+------=_NextPart_000_0007_01C7C647.34AC4030--

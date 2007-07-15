@@ -1,12 +1,11 @@
-From: "Caseyy Rankini" <pa@harr54.freeserve.co.uk>
-Subject: jana
-Date: Sat, 14 Jul 2007 16:45:34 -0100
-Message-ID: <01c7c636$65ebe300$177e17d4@pa>
+From: "Blairf Pruittc" <leemartinuk@msn.com>
+Subject: linux-input
+Date: Sun, 15 Jul 2007 18:01:16 -0100
+Message-ID: <480793968.87868106192970@msn.com>
+Reply-To: leemartinuk@msn.com
 Mime-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+  charset=Windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,22 +13,20 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jana@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi, jana
+Hi, linux-input
 
 
-www.bestpharmspecial.com
-WEEKEND ACTION - 4 Viagra pills FREE. For every Momental Order.
-
-
+BestPharmSpecial.Com
+Uniuque BONUS: Four Viagra pills Free for Every Order!
 
 Viagra
-90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
-60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
 30 pills x 50mg 	$60.23 	$2.01 per pill 	Your save: $30 	
 10 pills x 50mg 	$30.22 	$3.03 per pill 		
+60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
+90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
 
 
 
@@ -41,12 +38,12 @@ cialis
 
 
 
-Free physicians consultation & prescription.
-Worldwide shipping.Next day delivery.
+4 FREE Viagra BONUS PILLS. Order now & Get it!
 Discreet packaging - 100% confidential.
-4 Viagra pills FREE. For every momental order.
+Worldwide shipping.Next day delivery.
+Free physicians consultation & prescription.
 Professional Visa Verified Online Shop.
 
 
 
-With Best Regards, Caseyp Rankinr .
+With Best Regards, Blairz Pruitte .

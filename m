@@ -1,128 +1,90 @@
-From: "dfrcr" <yijingge14d@126.com>
-Subject: =?GB2312?B?0MLAzbavus/NrLeo0MK55raooaLQwrHku6+8sMbz0rXTprbUst/C1LjfvLbR?=
-Date: Sat, 14 Jul 2007 05:45:24 +0200 (CEST)
-Message-ID: <20070714034524.42295C8D68@atrey.karlin.mff.cuni.cz>
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+From: Chr <chunkeey@web.de>
+Subject: [PATCH] usbhid: add ASUS' OLED display to HID's
+	blacklist.
+Date: Sun, 15 Jul 2007 13:16:42 +0200
+Message-ID: <200707151316.42147.chunkeey@web.de>
+Mime-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_aIgmGAq5kgXPFV7"
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: linux-usb-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
- =?GB2312?B?0NDesOA=?=
-To: linux-input@atrey.karlin.mff.cuni.cz
-Content-Type: text/plain;charset="GB2312"
-Reply-To: yijingge14d@126.com
-Date: Sat, 14 Jul 2007 11:45:23 +0800
-X-Priority: 3
-X-Mailer: FoxMail 4.0 beta 2 [cn]
+--Boundary-00=_aIgmGAq5kgXPFV7
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+Some ASUS' notebooks (e.g G Series) include a tiny oled display, which is 
+attached to an internal USB bus. Unfortunatly the device reports a wrong
+DeviceDescriptor and is therefore identified as a HID device...
 
+Signed-off-by: Christian Lamparter <chunkeey@web.de>
+-
 
-         新劳动合同法新规定、新变化及企业应对策略高级研修班
-  
-               2007年7月28日   深圳 
+P.S: for those who are interested in a display driver:
+http://rapidshare.com/files/42847259/asusoled.tar.bz2.html
+(needs SDL (+ SDL_image), cmake & libusb)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+--Boundary-00=_aIgmGAq5kgXPFV7
+Content-Type: text/x-diff; charset="utf-8"; name="asus-lcm-hid-quirk.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="asus-lcm-hid-quirk.diff"
 
-⊙主 办单位：众 人 行 管 理 咨 询 
-⊙培 训价格： 1 0 0 0元 / 人
-⊙电     话： 0755/26075429    26075265
-⊙传     真： 0755/61351396   
-⊙联  系 人： 彭小姐
+--- a/drivers/hid/usbhid/hid-quirks.c.orig	2007-06-02 21:49:26.000000000 +0200
++++ b/drivers/hid/usbhid/hid-quirks.c	2007-07-14 20:40:03.000000000 +0200
+@@ -63,6 +63,9 @@
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_IR		0x8240
+ 
++#define USB_VENDOR_ID_ASUS		0x0b05
++#define USB_DEVICE_ID_ASUS_LCM		0x1726
++
+ #define USB_VENDOR_ID_ATEN		0x0557
+ #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
+ #define USB_DEVICE_ID_ATEN_CS124U	0x2202
+@@ -452,6 +455,8 @@
+ 	{ USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_1, HID_QUIRK_SWAPPED_MIN_MAX },
+ 	{ USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_2, HID_QUIRK_SWAPPED_MIN_MAX },
+ 
++	{ USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_LCM, HID_QUIRK_IGNORE}, 
++
+ 	{ 0, 0 }
+ };
+ 
 
- 【课-程-介-绍】
-前言：
-　　第十届全国人民代表大会常务委员会6月29日表决通过《中华人民共和国劳动合同法》，
-该法案的出台，，将直接提高企业人力资源的管理成本，同时也将对企业人力资源管理乃
-至企业全面经营管理产生深远的影响。新法出台，实施多年的各地劳动合同条例和已确定
-的劳动关系立法模式将会有重大调整，企业人力资源管理理念也势必将面临颠覆性的挑战。
-如何利用新劳动合同法的契机进一步做好人力资源管理工作，提升员工关系管理水平，避
-免劳资冲突，建立和谐的劳动关系，已经成为人力资源管理人士和各级劳动与社会保障部
-门的关注的重点。
+--Boundary-00=_aIgmGAq5kgXPFV7
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-课程收获：
-1、了解新劳动合同法对人力资源管理现行操作提出的新要求；
-2、帮助企业了解人力资源管理将会遇到的困惑和难题；
-3、深刻理解新劳动法对公司人力资源管理带来的影响；
-4、掌握如何采取积极措施应对，以确保相关风险得到有效控制；
-5、帮助企业在新法制环境下及时调整管理思路，维持劳动关系和谐稳定。
+-------------------------------------------------------------------------
+This SF.net email is sponsored by DB2 Express
+Download DB2 Express C - the FREE version of DB2 express and take
+control of your XML. No limits. Just data. Click to get it now.
+http://sourceforge.net/powerbar/db2/
+--Boundary-00=_aIgmGAq5kgXPFV7
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-【学-习-内-容】：
-第一部份：新劳动合同法的重大规定与变化 
-第一节、新劳动合同法的立法背景
-第二节、新劳动合同法新规定与变化
-
-1、关于劳动合同法适用范围的新规定
-2、关于企业规章制度的新规定
-3、关于订立书面劳动合同及相关法律责任的新规定
-4、关于哪些情形下应签订无固定期限劳动合同（防止劳动合同短期化）的新规定
-5、关于劳动合同必备条款、约定条款和免责条款的新规定
-
-6、关于合同期、试用期的新规定
-7、关于服务期、出资培训与违约金的新规定
-8、关于竞业限制的新规定
-9、关于劳动合同无效和部分无效的新规定
-10、关于拖欠和克扣工资的新规定
-
-11、关于劳动者可以随时解除劳动合同的新规定
-12、关于经济性裁员的新规定
-17、关于办理退工手续的新规定
-18、关于劳动合同变更的新规定
-19、关于劳动合同期限、试用期与合同主体的新规定
-20、关于应签未签书面劳动合同用人单位的法律责任 
-
-21、关于劳务派遣用工的新规定
-22、关于培训费、违约金与服务期的新规定
-23、关于合同解除条件及合同终止经济补偿的新规定
-24、关于劳动合同中止的新规定
-25、关于用人单位规章制度生效要件及民主程序要求的新规定
-
-26、关于员工单方随时解约及经济补偿的新规定 
-16、关于单位违法解除劳动合同的法律责任
-17、关于办理退工手续的新规定
-18、关于劳动合同变更的新规定
-19、关于基本养老保险的新规定
-20、关于集体合同的新规定
-
-21、关于劳务派遣用工的新规定
-22、关于非全日制用工的新规定
-23、关于单位发包、个人承包用工的新规定......
-
-第二部份：用人单位应对新劳动合同法的策略与措施
-1、劳动合同的撰写与必备条款约定策略
-2、劳动合同履行与变更应注意的问题
-3、劳动合同解除与终止条件设定与风险防范
-4、招聘体系与企业用工模式的变化与因应策略
-5、企业规章制度的修订与风险防范
-
-6、员工解聘机制与绩效评估考核体系的调整与风险防范
-7、使用劳务派遣应注意的问题及应对策略
-8、培训协议、保密协议与竞业限制协议的撰写应注意问题
-9、违约金及赔偿金的设定策略
-10、企业应对工会组织成立与集体合同谈判策略
-
-11、无固定期限合同签订与风险规避策略
-12、违纪员工与怠工员工处理策略
-13、劳动争议预防与处理策略
-14、企业用工在新法律模式下的必要调整
-
-第三部分、案例分析、现场疑难解答、经验交流与精彩互动　
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-         
-【授课讲师】
-  程先生： 广东知名劳动法律法规及仲裁专家，劳动仲裁委员会资深仲裁员，资深律师。
-从事法律实务工作及劳动仲裁多年，积累了丰富的法律操作经验，成功策划过多起大型上
-市公司及国有企业的重组、改制，对合同法、劳动法、知识产权法、公司法、证据规则等
-有深入研究，尤为擅长劳动争议、经济合同纠纷的处理，至今处理过两千多起劳动争议案
-件。目前程律师担任了三十多家企业法律顾问，其中包括长城国际（IBM）、珀金埃尔默
-（深圳）有限公司、深圳华强集团、美国总统轮船（APL）、深圳华丝企业股份有限公司、
-UT-starcom（深圳）有限公司、迈瑞股份有限公司等知名企业。参加过他精彩培训课程的
-人力资源专业人士已超过六千多人次，丰富的劳动仲裁经历加上他对劳动法律法规的深入
-研究，曾使众多的公司总经理和资深人力资源专业管理人士多次跟踪参加他主讲的劳动法
-律法规培训和讲座。
+--Boundary-00=_aIgmGAq5kgXPFV7--

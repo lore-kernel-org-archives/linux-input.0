@@ -1,11 +1,12 @@
-From: "Blairf Pruittc" <leemartinuk@msn.com>
-Subject: linux-input
-Date: Sun, 15 Jul 2007 18:01:16 -0100
-Message-ID: <480793968.87868106192970@msn.com>
-Reply-To: leemartinuk@msn.com
+From: "Terry Cochran" <sporto@dr.com>
+Subject: Get a massive self-confidence boost
+Date: Sun, 15 Jul 2007 19:51:11 +0200
+Message-ID: <001401c7c719$7e903bc0$05e08894@userazsvif1n7g>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset=Windows-1252
+        format=flowed;
+        charset="windows-1251";
+        reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -13,37 +14,26 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi, linux-input
+over 1,500,000 bottles sold worldwide
 
+improve sexual endurance
 
-BestPharmSpecial.Com
-Uniuque BONUS: Four Viagra pills Free for Every Order!
+People judge your dick size by your shoes size.
 
-Viagra
-30 pills x 50mg 	$60.23 	$2.01 per pill 	Your save: $30 	
-10 pills x 50mg 	$30.22 	$3.03 per pill 		
-60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
-90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
+Be confident and stand tall
 
+With Xtra Size+ you dont have to wear
+bigger shoes to make women think you have a huge dick.
 
+300,000 satisfied men
 
-cialis
-20 pills x 20mg 	$76.68 	$3.83 per pill 	Your save: $2 	
-30 pills x 20mg 	$104.66 	$3.49 per pill 	Your save: $13 	
-60 pills x 20mg 	$180.15 	$3 per pill 	Your save: $55
-10 pills x 20mg 	$39.19 	$3.92 per pill 		
+You can actually have it. 
 
+No more being shy of your manhood
 
+http://mandaryan.com
 
-4 FREE Viagra BONUS PILLS. Order now & Get it!
-Discreet packaging - 100% confidential.
-Worldwide shipping.Next day delivery.
-Free physicians consultation & prescription.
-Professional Visa Verified Online Shop.
-
-
-
-With Best Regards, Blairz Pruitte .
+NOTHING compares to the feeling of having a larger penis

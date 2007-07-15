@@ -1,76 +1,51 @@
-From: "Tyson Paul" <march@macmail.com>
-Subject: Sign up and get 500$
-Date: Sun, 15 Jul 2007 08:52:34 +0100
-Message-ID: <70754062.81620065@geminate.com>
+From: "Jeannine Decker" <kyhwmplipscombfop@wmplipscomb.com>
+Subject: Olny this 5 days special price on pharma for you dear customer
+Date: Sat, 14 Jul 2007 23:44:15 -0100
+Message-ID: <449628592.14189215000448@wmplipscomb.com>
+Reply-To: kyhwmplipscombfop@wmplipscomb.com
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------46EA98FB09FB09F4"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dian@atrey.karlin.mff.cuni.cz
+To: koles@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
-<head>
-<meta http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-=
-1">
+------------46EA98FB09FB09F4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-<style>
-<!--
- /* Font Definitions */
- @font-face
-	{font-family:"Times New Roman CYR";
-	panose-1:2 2 6 3 5 4 5 2 3 4;
-	mso-font-charset:204;
-	mso-generic-font-family:roman;
-	mso-font-pitch:variable;
-	mso-font-signature:536902279 -2147483648 8 0 511 0;}
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman CYR";
-	mso-fareast-font-family:"Times New Roman";}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-</head>
-<body lang=3DEN-US link=3Dblue vlink=3Dpurple style=3D'tab-interval:35.4p=
-t'>
-<div class=3DSection1>
-<p class=3DMsoNormal align=3Dcenter style=3D'text-align:center'><b style=3D=
-'mso-bidi-font-weight:
-normal'><span lang=3DEN-US style=3D'color:red;mso-ansi-language:EN-US'>Th=
-e best
-casino online.<br>
-</span></b><b style=3D'mso-bidi-font-weight:normal'><span lang=3DEN-US
-style=3D'mso-ansi-language:EN-US'><a href=3D"http://vipcasino4you.com/mic=
-ro/123">Play
-and win</a><br>
-<span style=3D'color:red'>Sing up and get 500$<o:p></o:p></span></span></=
-b></p>
-</div>
-</body>
-</html>
+Greetings!!! 
+Unequalled proposition for you Our Dear Clients!!!
+Only during these five days for our byers inconceivable offer!!! 
+On all medicinal remedies you require!!!   
+Fill your life with colours of joy!!!  
+http://asksay.hk/ 
+
+Truly Yours, 
+Online association of pharmacists
+------------46EA98FB09FB09F4
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+<strong><font color="#1CA82E"><em>Greetings!!! </em></font><br>
+Unequalled proposition for you <font color="#FF0000"><em>Our Dear Clients!!!</em></font><br>
+Only during these <font color="#FF0000"><em>five days</em></font> for our byers inconceivable offer!!! <br>
+On all medicinal remedies you require!!! </strong> <strong><br><br> 
+<a href="http://asksay.hk/" target="_blank"><em>Fill your life with colours of joy!!! </em></a></strong> 
+<p><font color="#D9EDFF">http://asksay.hk/</font></p> 
+
+<p><strong>Truly Yours,<br> 
+<em>Online association of pharmacists</em></strong></p>
+
+</BODY></HTML>
+------------46EA98FB09FB09F4--

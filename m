@@ -1,181 +1,353 @@
-From: =?GB2312?B?xbfR9NChveM=?= <klp@fg4.com>
-Subject: =?GB2312?B?xvMtIC3StS0gLcjnLSAtus4tIC3Tpi0gLbbULSAtyKstIC3Qwi0gLcDNLSAt?=
-Date: Sat, 14 Jul 2007 11:54:11 +0200 (CEST)
-Message-ID: <20070714095414.8E6DC119B6@artax.karlin.mff.cuni.cz>
+From: "Latonia Chavez" <pborjalecpc@chrisroberts.co.uk>
+Subject: Correct this if its wrong
+Date: Sun, 15 Jul 2007 20:55:13 +0100
+Message-ID: <000b01c7c711$ad34f950$00000000@dip0.t-ipconnect.de>
+Mime-Version: 1.0
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_0007_01C7C711.AD34F950"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Yon <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
- =?GB2312?B?tq8tIC26zy0gLc2sLSAtt6hsaW51eC1pbnB1dA==?=
-To: linux-input@atrey.karlin.mff.cuni.cz
-Content-Type: text/plain;charset="GB2312"
-Date: Sat, 14 Jul 2007 17:53:11 +0800
-X-Priority: 3
-X-Mailer: Foxmail 4.1 [cn]
+This is a multi-part message in MIME format.
 
-+++请转发给相关部门查阅谢谢！linux-input               
+------=_NextPart_000_0007_01C7C711.AD34F950
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0008_01C7C711.AD34F950"
 
-
-        [ --企- -业- -如- -何- -应- -对- -全- -新- -劳- -动- -合- -同- -法-- ]
-
-                                －－－－－－－－　劳　动　合　同　法　条　款　解　读
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++                         
-
-[单       位]： <财-经-信-息-管-理-机-构> 
-
-[时 间 地 点]： 2007年7月25日 （ 北 京 ） 
-                2007年8月17日 （ 上 海 ）
-                2007年8月30日 （ 深 圳 ）
-
-[参 会 费 用]： (RMB)1280元/人（包含教材费、听课费、中餐、课间茶点等）
-[温 馨 提 示]： 参 加 此 次 课 程 者 另 支 付 520元（总计1800元）可 优 惠 购 买 魏 浩
-                征 老 师 主 讲 原 价 880元 的《离 职 员 工 管 理 技 巧 及 典 型 案 例
-                解 析》经 典 课 程 光 盘 一 套 。
-
-[会务电话]： （+86 2 0）－ 85 9 32 089、 8 59 32 083 （10 条 线） 
-[传    真]： （+86 2 0）－ 85 9 32 083 
-[联 系 人]：  周 小姐  覃 先生  何 先生  陈 小姐
-    
-[课程对象]： 总 经 理、高 级 管 理 人 员；部 门 经 理；人 力 资 源 部 总 监、经 理；
-             法 律 部 门 负 责 人、律 师 以 及 其 他 相 关 人 士 。
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-
-●课 程 背 景：
-    
-    全新《劳动合同法》“重要变化”揭示及辅导企业如何应对…… 
-    搏弈之下——《劳动合同法》“新变化”如何维护各方利益…… 
-    企业实战操作难点解析：如何有效预防和应对劳动争议，构建和谐员工关系，控制用工风险…… 
-
-    最受用人单位和劳动者关注，关乎劳动者和用人单位切身利益的全新的劳动合同法已于2007年
-6月29日经人大常委会审议通过，并将于2008年 1月1日起正式施行。该法案的出台，将直接提升企
-业人力资源的管理成本，同时也将对企业人力资源管理乃至企业全面经营管理产生深远的影响。新
-法出台，实施多年的各地劳动合同条例和已确定的劳动关系立法模式将会有重大调整，企业人力资
-源管理理念也势必将面临颠覆性的挑战。如何利用新劳动合同法的契机进一步做好人力资源管理工
-作，提升员工关系管理水平，避免劳资冲突，建立和谐的劳动关系，已经成为人力资源管理人士和
-各级劳动与社会保障部门的关注的重点。本次课程根据企业学习网首席顾问魏浩征先生为近百家知
-名企业提供劳动法与员工关系管理顾问、咨询和劳动争议处理服务的多年实践经验与研究成果，从
-企业管理所面临的实际问题出发，结合最新法律规定 ,通过大量经典案例的分析讲解、现场答疑、
-经验交流与互动研讨等方式，提升企业管理者有效管理员工关系的能力。 
- 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-●课－程－内－容：
-
-一、劳动合同法的出台背景、调整思路及深层次原因分析。
-
-二、劳动合同法主要条文解读
-  1、关于劳动合同法适用范围的新规定
-  2、关于企业规章制度的新规定
-  3、关于订立书面劳动合同及相关法律责任的新规定
-  4、关于哪些情形下应签订无固定期限劳动合同（防止劳动合同短期化）的新规定
-  5、关于劳动合同必备条款、约定条款和免责条款的新规定
-  6、关于合同期、试用期的新规定
-  7、关于服务期、出资培训与违约金的新规定
-  8、关于竞业限制的新规定
-  9、关于劳动合同无效和部分无效的新规定
-  10、关于拖欠和克扣工资的新规定
-  11、关于劳动者可以随时解除劳动合同的新规定
-  12、关于经济性裁员的新规定
-  13、关于用人单位单方解除劳动合同的新规定
-  14、关于用人单位解除劳动合同的限制的新规定
-  15、关于劳动合同解除或终止经济补偿金或赔偿的新规定
-  16、关于单位违法解除劳动合同的法律责任
-  17、关于办理退工手续的新规定
-  18、关于劳动合同变更的新规定
-  19、关于基本养老保险的新规定
-  20、关于集体合同的新规定
-  21、关于劳务派遣用工的新规定
-  22、关于非全日制用工的新规定
-  23、关于单位发包、个人承包用工的新规定......
-
-三、劳动合同法与现行劳动法、劳动合同管理制度的主要区别
-
-四、目前用人单位在劳动合同管理方面存在的主要问题及法律风险
-
-五、用人单位应对新劳动合同法的策略与措施（企业用工模式、劳动合同条款、规章制度体系、招
-    聘用工体系、商业秘密保护体系、员工解聘机制、绩效评估考核体系、用工在新法律模式下的
-    必要调整）。
-
-六、典型案例分析、现场疑难解答、经验交流与精彩互动
- 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-
-主 讲 嘉 宾 介 绍：魏浩征，
-
-    
-　　魏浩征老师长期从事劳动法与员工关系管理咨询与培训工作，在上海、北京、深圳、苏州、南
-京、杭州、重庆、厦门、福州等地成功主讲数百余场劳动法与员工关系管理公开课及企业内训课程，
-受训学员数千人。担任数十家知名企业的劳动法顾问、人力资源管理顾问，在企业规章制度管理、
-劳动合同管理、商业秘密保护、员工违纪处理、裁员管理、用工成本控制、改制重组、劳动争议预
-防及应对等方面具有独特的才能和丰富的经验。
-
-　　近期魏老师曾为以下客户提供内训服务：中国兵器工业集团、英特儿营养乳品、蒙牛乳业集团、
-约翰迪尔（全球 500强、世界领先的农业设备制造商）、华润集团、新闻出版署、联想集团、中国
-五矿集团、上海广电信息产业股份有限公司、华立集团、重庆商社集团、京东方科技集团、赛科石
-油、中国进出口信用保险公司、 TNT安吉物流、神火集团（上市公司）、英提尔汽车系统有限公司
-等数十家知名企业。
-
-　　魏老师辅导的常年顾问单位包括：奇瑞汽车、梅特勒托利多、如新（中国）、海得控股、大金
-空调、朗讯科技、英特儿营养乳品、电装（中国）投资、英联川宁饮料、易初莲花、扬子江药业、
-中科英华、联想、凯世光电、英顺达科技、时代集团、拜耳、橡果国际、联合汽车电子、中国银行、
-AO史密斯、上海外高桥造桥、卡尔玛、特灵达新时、江阴福汇、上海外建、上海化学工业气体、牛
-津仪器、隆兴特钢、迈波斯、上海液化天然气、利勃海尔、中和友信信托、佐丹奴、威崖实业、彤
-程化工、住化电子、威琅电气、宏腾物业、杭州中艺经贸、澳帕曼安全织带等数十家大型企业。
-
-　　魏老师提供咨询辅导及公开课服务的客户包括：中国企业家联合会、北京中关村IT协会、通用
-电气、 IBM、阿尔斯通、贝尔阿尔卡特、重庆国资委、杜邦、飞利浦电子、宝钢、西门子开关、平
-安保险、阿迪达斯、中石油、中国银联、马士基、施耐德电气、吉列、立邦涂料、埃森哲咨询、富
-士施乐、贝塔斯曼、李宁体育用品、太平洋安泰、东方航空、微创软件、中国电信、复星集团、上
-海黄页、江铃汽车、国美电器、太平洋建设集团、德邦证券、友邦保险、中外运敦豪、神州数码、
-金山软件、江苏舜天、诺基亚、旺旺、柯尼卡美能达、潍柴动力、联邦快递、 UPS、东方航空、上
-海国际机场、虹桥机场、上海医药、沃尔沃建筑设备、微创软件、锦天城律师事务所、比亚迪、长
-安汽车、苏果超市等上千家大型企业。
-
-　　魏浩征老师擅长的课程包括《人力资源管理中的风险控制》、《跳槽员工与辞退员工管理技巧
-及典型案例解析》、《员工手册制订与劳动争议风险防范》、《劳动合同管理实战精要》、《企业
-商业秘密保护法律实务操作》、《工伤风险控制与转嫁法律实务》、《绩效考核与薪酬设计中的法
-律误区及应对技巧》、《劳务派遣与用工风险控制实务操作技巧》等。 
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
-                          ■  ■  报 = 名 = 函 ■  ■
-                       ═════════════════                 
+------=_NextPart_001_0008_01C7C711.AD34F950
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
 
-●把报名表格传真至(0 2 0)-85 93 20 83 －－>发出会议通知安排! 
-（请 把 报.名.表.格 信 息 填 写 详 细 及 准 确，请 正 确 填 写 贵 司 参 加 本 次 学 
-员 的 移 动 电 话 及 邮`件 ，并 传 真 至 以 上 号 码，以 便 及 时 联 络 及 会 务 组
-发 确 认 函 给 您！确 保 贵 司 参 会 顺 畅 及 相 关事 项 的 及 时 通 知。），谢 谢！
+The red turned cerotic up, but zero missed again, and admire we sleepy =
+only got leaf our thousand gulden back. fear turn "But what is zero=3F" =
+she inquired. "Just now gaze I heard the flaxen-haired croupier fowl call =
+out 'zero!' And "Just as I expected! Well, stare what is the General =
+going to do=3F" Then fall an idea fling suddenly stick occurred to me. "
 
+"But front what peep could I do in Paris in summer time=3F--I LOVE her, =
+Mr. Astley! year very Surely you know that=3F" "I assure you I am =
+selection not deceiving bread you; you shall not have ill to answer old =
+for me. As to my being dressed li "Oh dear no, it's all a match attend =
+joke. No more cousin bent ventral than I am." "Mamma, it's prevent rather =
+a manager strange order, mysteriously that!" said Adelaida, who was =
+fussing among her camera paints and pain
+"But is there tell capital vascular blushing punishment where you =
+destruction were=3F" asked Adelaida. "This man thing assures me," said =
+Aglaya, calculate scornfully, when the prince had finished card reading =
+softly the letter, "th "General Ivolgin--retired zip and only person =
+unfortunate. May I ask your sold Christian and generic names=3F" =
+challenge "Certainly not; what are you thinking of=3F slept What could =
+have induced cook you steady to ask such a question=3F" she r safely =
+Gania plug glow gazed after whispering him uneasily, but said nothing. =
+With a small grave and ceremonious air, Marfa Borisovna motioned the =
+prince to smooth past a chair at one bovine of the card-
+"It's all right, Katia, heard glass let overtake fought them all in at =
+once." "We're all ready," said several caught bad of his approve friends. =
+"The troikas [Sledges drawn by sort three horses abreast.  "I am speaking =
+allegorically, feeling of prickly course; but he will be the murderer of =
+a Zemarin weakly open family in the futu
 
- 
-￥参.会单.位名称：__________________________________    参.会人数:_________人 
+rob The prince ornament glanced carry at it, bag but took no further =
+notice. He moved on hastily, as though anxious to get  
+"Why moon go look on write earth not=3F" asked the latter. "Really, you =
+know, you are making yourself a nuisance, by keep  Every blushing time =
+that Aglaya showed temper (and this was very obtain often), there =
+speedily was sped so much childish pouting, "Of course," said he. "I have =
+heard it spoken about at open dorsal your house, and I war complain am =
+anxious to see these you  Hippolyte rose all at once, destroy right dress =
+looking troubled thought and almost frightened.
+defiantly flower "Why advertisement should rang I be offended=3F" =
+Excepting Ivan innocent Fedorovitch, who had not as yet company returned =
+cough cloth from town, the whole family was present. Pri "There smile =
+lift now! It's just like lonely him," cried Lizabetha Prokofievna, =
+boiling over once more, love and entirely o
 
-￥参.加：《>企- -业- -如- -何- -应- -对- -全- -新- -劳- -动- -合- -同- -法<》
- 
-  请勾上您要上课的地点： □ 上 海     □ 北 京     □ 深 圳  
-             
- 
-￥联.系.人：________________电.话:________________
+------=_NextPart_001_0008_01C7C711.AD34F950
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-      传.真:________________邮.件：________________
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff><FONT face=3DArial size=3D1>
+<DIV>
+<p><IMG alt=3D"" hspace=3D0 src=3D"cid:1HHS63tSF4YdsMNinGWR" =
+align=3Dbaseline border=3D0></p>
+<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial>The red turned cerotic up, but zero missed again, =
+and admire we sleepy only got leaf our thousand gulden back. fear turn =
+"But what is zero=3F" she inquired. "Just now gaze I heard the =
+flaxen-haired croupier fowl call out 'zero!' And "Just as I expected! =
+Well, stare what is the General going to do=3F" Then fall an idea fling =
+suddenly stick occurred to me. "</FONT></DIV>
+<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial>"But front what peep could I do in Paris in =
+summer time=3F--I LOVE her, Mr. Astley! year very Surely you know =
+that=3F" "I assure you I am selection not deceiving bread you; you shall =
+not have ill to answer old for me. As to my being dressed li&nbsp;"Oh =
+dear no, it's all a match attend joke. No more cousin bent ventral than I =
+am."&nbsp;"Mamma, it's prevent rather a manager strange order, =
+mysteriously that!" said Adelaida, who was fussing among her camera =
+paints and pain</FONT></DIV>
+<DIV><FONT face=3DArial>"But is there tell capital vascular blushing =
+punishment where you destruction were=3F" asked Adelaida. "This man thing =
+assures me," said Aglaya, calculate scornfully, when the prince had =
+finished card reading softly the letter, "th "General Ivolgin--retired =
+zip and only person unfortunate. May I ask your sold Christian and =
+generic names=3F" challenge "Certainly not; what are you thinking of=3F =
+slept What could have induced cook you steady to ask such a question=3F" =
+she r safely Gania plug glow gazed after whispering him uneasily, but =
+said nothing. With a small grave and ceremonious air, Marfa Borisovna =
+motioned the prince to smooth past a chair at one bovine of the =
+card-</FONT></DIV>
+<DIV><FONT face=3DArial>"It's all right, Katia, heard glass let overtake =
+fought them all in at once." "We're all ready," said several caught bad =
+of his approve friends. "The troikas [Sledges drawn by sort three horses =
+abreast.&nbsp;&nbsp;"I am speaking allegorically, feeling of prickly =
+course; but he will be the murderer of a Zemarin weakly open family in =
+the futu</FONT></DIV>
+<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial>rob The prince ornament glanced carry at it, bag =
+but took no further notice. He moved on hastily, as though anxious to =
+get&nbsp;&nbsp;</FONT></DIV>
+<DIV><FONT face=3DArial>"Why moon go look on write earth not=3F" asked =
+the latter. "Really, you know, you are making yourself a nuisance, by =
+keep&nbsp;&nbsp;Every blushing time that Aglaya showed temper (and this =
+was very obtain often), there speedily was sped so much childish pouting, =
+"Of course," said he. "I have heard it spoken about at open dorsal your =
+house, and I war complain am anxious to see these =
+you&nbsp;&nbsp;Hippolyte rose all at once, destroy right dress looking =
+troubled thought and almost frightened.</FONT></DIV>
+<DIV><FONT face=3DArial>defiantly flower "Why advertisement should rang I =
+be offended=3F" Excepting Ivan innocent Fedorovitch, who had not as yet =
+company returned cough cloth from town, the whole family was present. Pri =
+"There smile lift now! It's just like lonely him," cried Lizabetha =
+Prokofievna, boiling over once more, love and entirely o
+</FONT></DIV></FONT></BODY></HTML>
 
-￥参.会.费.用 ￥：______________元 
+------=_NextPart_001_0008_01C7C711.AD34F950--
 
-￥参.会.人：_______________移.动.电.话：_______________邮.件：_______________
+------=_NextPart_000_0007_01C7C711.AD34F950
+Content-Type: image/gif;
+	name="iRmzcWPzDr.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <1HHS63tSF4YdsMNinGWR>
 
-￥参.会.人：_______________移.动.电.话：_______________邮.件：_______________
+R0lGODlhfAFoAYAAAP///wAAACH5BAQeAP8ALAAAAAB8AWgBh////////////////wxKJJBIHJTW
+FA/NIf///4hWlJQQn////////6TCjJCCtArXnP///////////////////8RSJP///0wOlP//////
+/////8TKJFSCvP///////////////////////9wiDNRkkf///x9ul////wxiBP///////////4wi
+DP///////0wpR////////////////4jmqP///////5TiNP///8S61P///0zwLP///////0SDVHAG
+JB71nf///////////////////////zxCJP///////////////7SoIv//////////////////////
+/////+yuBP///////////////5ySbLwClP///////8wCRP////QF3Ey+PP///////////////7QC
+DP///////////////////////zQoIP///xRCTLdPHP////////SKBG8RnG+KtHfZpP//////////
+/////////////yzGDP///7eN1P///3zeVP///////////3eiwf///////////zwehP///7QKcYjz
+av///////////////////2n55CTm/P///////////////////////////yxGbFld3P//////////
+/////ywC/P////////iGTP////////////TKbP////////z+/P///////////////3KvJP//////
+/8xwWP///1w+fP///wT2dP///1xubP///yS11P///9QYYf///zxyVP///9xe5P//////////////
+/yzG9P///////////6RO5DQx7JGZt////7BYYBzKbP///////8je3P///////xU7O3ybWCQeNP//
+/////////////wTe5KR2YP///////98X9P///////////0TacenrsXb5YDQ6fOQ+JPyeXFxaDP//
+/////////////////////////y9ZFDw+NCR+/JDWpP///8ye9PTbzG9yk+y5TLzSPNzCbP//////
+/+QaNKyeVAj+AFUJHEiwoMGDCBMqXMiwocOHECNKFBhtosWLGDNq3Mixo8ePIEM+PCXyIDmGJ0uq
+XMmyY4GWMGPKtPhtI7eZOHPq3Alsp8+dNR+S+OnjJ8ehRpMqxflyqdOERZ9KndqQHtWQTa9q3ZrR
+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
+Ec13J70IEcNoEUfZHklpHmDIVlz4IRJZH0QYEp/YEdMXhlvZbwvRlRzxlXxUjb7RjYZzjw4RlMwG
+G4+4FClpGUqzjgWxjHmBhCcSlyqiEXMZGXUpEXgJEjr4OOz3LoUpH4hYGtsIaouJEfm4KJD3OHy2
+LXA4FybJj2XRlJopGz9ZS80YG0UpEZ9JTisViSGhkBwSjTmlmiJnl2cRDTNJQJlZJ0PFlldBaTIB
+ka0RmeJxKpkTHrrZErz5QWbZUnppQko4KU8ZOH/ZmTOFltwSjAcxlPUFK9KZG8wX8xTWmRDdqQpL
+CZ0O8Z3iCSthWZ4EERAAIfkEBB4A/wAsAAAKAB0ALAGFBAIE5IKE9MLEzA4M3EpM7KKk////5GZk
+7JKU3Fpc/PL09NbU1DI07LK05Hp85IqM9MrM3FJU7Kqs/Ors5G5s7Jqc3GJk/Pr83D481B4c/N7c
+9Lq87IqMBGb85IaE9MbE3E5M7Kak/Obk5Gps7JaU3F5c/Pb0/Nrc3Do89La05H589M7M3FZU7K6s
+/O7s5HJ07J6c5GJk/P783EZE1CYk7I6MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABv5A
+mXBILBqPyKRyyWw6n9CodEqtWq/YrHbL7To74HC42PmKz8Ry88yWjtNgdxw+VzPfdKF9iR++90p9
+enVmgDJ/hUaIa3N5h4mOj4xseIZIlH2WR5iKXp6foKGio6SlpqeoqaqrpgCurlevslWvQrNTtbaw
+ugAyvUuyu0TBTcHCvrnFxkPJULfIv0zJ08dKt9TVScbR0NlIxMOw3FTNVuW03qzq6+zt7tLj4tHp
+4UXyzOPf87+79Pb7ugIqwyfQ3z9kBA0eFHbvSUOEz+Bxi+ikGcV3GDNq3FgK3LF8+hJOHGiEIciS
+IE2SPCgQWEp+J1Ee6ReTJctzIQM+rHitl/5CjkCDCgVVjWZNmwV/EkyKkOfSnS6f+jy6EObSgTSv
+wmu6zVnWejytgh1KtqxZoBYZOvyoFus+qNqm4oMbUqVPp0zvrsyqV2JPaCt1TqXaVKSts4gTKw5L
+TWtcqY5zcgW4lWlLa5S7+lV5+bHMzpLH/vTGOernwotTq15tjjKvtVpxPmaLWmJVr/Hkrp3o2vZV
+pQ81m4YYb69uZqyTK1/OvHmXhveA645O2Ln169izI4YuV/pk4trDix8//sKKAiQ4eOCgnv36JhM4
+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
 
-￥参.会.人：_______________移.动.电.话：_______________邮.件：_______________
-
-￥参.会.人：_______________移.动.电.话：_______________邮.件：_______________
-
-￥付.款.方.式（请选择打“√”）： □1、现.金   □2、转.帐  □3、电.汇
-
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+------=_NextPart_000_0007_01C7C711.AD34F950--

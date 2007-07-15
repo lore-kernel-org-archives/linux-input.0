@@ -1,7 +1,7 @@
-From: "Theresa Nieves" <blnormantown@geeksland.com>
-Subject: Keep all the girls really happy
-Date: Sat, 14 Jul 2007 10:10:34 +0200
-Message-ID: <001601c7c5ff$37caabf0$0625e6cc@mj>
+From: "Darrell Murillo" <nlaxton@cybertime.net>
+Subject: A few inches can make a real difference
+Date: Sun, 15 Jul 2007 13:49:04 +0200
+Message-ID: <001901c7c6e6$e85af000$0636cfa4@stefan>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
@@ -17,22 +17,22 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Become the ultimate pleasure machine
+No more being shy of your manhood
 
 Life is short... so make the most of it !! 
 
-partner faking her orgasm?
+Be the most confident man in town
 
 Introducing the new male enhancement product that 
 has been tested and sold to over 300,000 Men worldwide. 
 
-80% of women are unhappy with partners size??
+300,000 satisfied men
 
 Enlarge your manhood today and reap all the benefits, be 
-the most confident man in town! http://shoeble.com
+the most confident man in town! http://manclipz.com
 
-XtraSize+ has been labelled an "Herbal Breakthrough"
+Are you confident in bed?
 
 100% safe and 100% money back guarantee if not satisfied.
 
-partner faking her orgasm?
+Become the ultimate pleasure machine

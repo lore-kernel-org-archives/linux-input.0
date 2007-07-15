@@ -1,51 +1,39 @@
-From: federico ferri <xaero@inwind.it>
-Subject: Re: [PATCH] input: change SysRq keycode for systems without SysRq
- key
-Date: Sun, 15 Jul 2007 20:34:52 +0200
-Message-ID: <469A68CC.5040902@inwind.it>
-References: <469A5385.6030402@inwind.it> <alpine.LFD.0.999.0707151102250.20061@woody.linux-foundation.org>
+From: "Helene Carey" <gvbarnes@btitelecom.net>
+Subject: Expand, lengthen and enlarge easily
+Date: Sun, 15 Jul 2007 15:38:56 +0900
+Message-ID: <001a01c7c6f6$41830af0$00797ea4@DYE2>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <alpine.LFD.0.999.0707151102250.20061@woody.linux-foundation.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, trivial@kernel.org
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Linus Torvalds ha scritto:
-> On Sun, 15 Jul 2007, federico ferri wrote:
->   
->> this patch adds an entry in Kconfig after 'config MAGIC_SYSRQ' which
->> asks for a different keycode (replacing also KEY_SYSRQ with
->> CONFIG_MAGIC_SYSRQ_KEYCODE in char/keyboard.c)
->>     
->
-> Quite frankly, I think that if we want to make something like this 
-> configurable, it should be dynamic, not compiled-in. So that the same 
-> kernel image can be used with different keyboards.
->
-> 		Linus
->
->   
-That's right; but let me explain: I started this as a hack, just because
-I both wanted to use this Apple USB keyboard and wanted to be able to
-hit SysRq.
+Be satisfied for life!
 
-I have no experience at all in programming kernel. Even that small patch
-it was reviewed and corrected by some people on kernel and input mailing
-lists.
+Significantly increase penis length
 
-(I can imagine it could be done via a /proc/sysrq-keycode virtual file,
-but that's just one possibility)
+People judge your dick size by your shoes size.
 
-So, this should turn into a feature request...
-would you accept feature requests?  ( :
+All girls like the big guys
 
--- 
-Federico Ferri
+With Xtra Size+ you dont have to wear
+bigger shoes to make women think you have a huge dick.
+
+XtraSize+ has been labelled an "Herbal Breakthrough"
+
+You can actually have it. 
+
+Be satisfied for life!
+
+http://mancorpt.com
+
+300,000 satisfied men

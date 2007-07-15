@@ -1,89 +1,48 @@
-From: "Dana Askew" <kyhwolframkonsfop@wolframkons.de>
-Subject: Don't be the "little guy" in the club
-Date: Sat, 14 Jul 2007 11:30:09 -0100
-Message-ID: <434778551.53326461848756@thhebat.net>
+From: "Carriez Herreraw" <craigbirkett@tiscali.co.uk>
+Subject: FWD: jana
+Date: Mon, 16 Jul 2007 04:40:04 +0500
+Message-ID: <01c7c763$6117ade0$da1ab340@craigbirkett>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------0C513674444444"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: jana@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------0C513674444444
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi, jana
 
 
-Finally the original thing =96 without swindle! 
-P.E.P. are tasting hot at this time! Well here comes the original thing=20=
-not an imitation! 
+BestPharmSpecial.Com
+Super Action: Four Viagra pills Free for Every Order!
 
-One of the very originals, absolutely unique produce is accessible all=20=
-over the world!
- Take note of what people tell about this product:
+Viagra
+30 pills x 50mg 	$60.23 	$2.01 per pill 	Your save: $30 	
+60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
+90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
+10 pills x 50mg 	$30.22 	$3.03 per pill 		
 
-"I was impressed how quick P.E.P. had an affect on my boyfriend, he can=20=
-no way stop jabber about how excited he is having such new size, extent,=20=
-and libido!"
 
-Maria H., Boston
 
-"In the beginning I decided the free specimen  I acquired was a mean=20=
-trick, till I actually tried taking the P.E.P. I can not describe report=20=
-how highly pleased I am with the consequence I got from using this patch=20=
-after 3 short months. I'll be asking for P.E.P. at every turn!" 
-Mike Brown, San Diego
+cialis
+10 pills x 20mg 	$39.19 	$3.92 per pill 		
+20 pills x 20mg 	$76.68 	$3.83 per pill 	Your save: $2 	
+30 pills x 20mg 	$104.66 	$3.49 per pill 	Your save: $13 	
+60 pills x 20mg 	$180.15 	$3 per pill 	Your save: $55
 
-Read more references about this marvellouls product here!
-http://www.plarins.com/?xozietwyq
 
-------------0C513674444444
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Dude check out this sweet site</TITLE>
-</HEAD>
-<BODY>
+Discreet packaging - 100% confidential.
+Free physicians consultation & prescription.
+Professional Visa Verified Online Shop.
+Worldwide shipping.Next day delivery.
+4 FREE Viagra BONUS PILLS. Order now & Get it!
 
-<b>
-Finally the original thing =96 without swindle! 
-<br>
-<a href=3D"http://www.plarins.com/?xozietwyq"=20=
-target=3D"_blank">P.E.P.</a> are tasting hot at this time! Well here=20=
-comes the original thing not an imitation! 
-<br>
-One of the very originals, absolutely unique produce is accessible all=20=
-over the world!
-<br> Take note of what people tell about this product:
-<p>
-<i>
-"I was impressed how quick P.E.P. had an affect on my boyfriend, he can=20=
-no way stop jabber about how excited he is having such new size, extent,=20=
-and libido!"
-</i>
-</p>
-Maria H., Boston
-<p>
-<i>
-"In the beginning I decided the free specimen  I acquired was a mean=20=
-trick, till I actually tried taking the P.E.P. I can not describe report=20=
-how highly pleased I am with the consequence I got from using this patch=20=
-after 3 short months. I'll be asking for P.E.P. at every turn!" </i>
-</p>
-Mike Brown, San Diego
-<center>
-<a href=3D"http://www.plarins.com/?xozietwyq" target=3D"_blank">
-Read more references about this marvellouls product here!
-</a>
-</center>
-</b>
-<font color=3D"#D9EDFF">http://www.plarins.com/?xozietwyq</font>
 
-</BODY></HTML>
-------------0C513674444444--
+
+With Best Regards, Carriea Herrerah .

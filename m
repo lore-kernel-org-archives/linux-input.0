@@ -1,83 +1,32 @@
-From: Viagra Shop <dwbuckner@zen.it>
-Subject: You can
-Date: Mon, 16 Jul 2007 06:41:19 +0300
-Message-ID: <9bd201c7c75b$a97d809f$b41cfcf7@zen.it>
+From: "EurolVip" <BartonBellamy@yebox.com>
+Subject: 100% up to $400!
+Date: Sun, 15 Jul 2007 14:36:22 -0500
+Message-ID: <10168.talismanic@shrivel>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-    boundary="----=_NextPart_000_0000_5DC11850.B5CFC408"
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: rate@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0000_5DC11850.B5CFC408
-Content-Type: text/plain;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-     VIAGRA CIALIS    Sex can be one of the most enjoyable parts of your
-life. It may strengthen your relationship with your partner.
-
-  If a relaxing moment turns into the right moment, will you be ready?
-You can be with CIALIS.
-
-   BUY ONLINE @ ED'S PILL STORE    
-
-  
-------=_NextPart_000_0000_5DC11850.B5CFC408
-Content-Type: text/html;
-    charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 </HEAD>
-<BODY text=3D#000000 bgColor=3D#ffffff>
-
-<font size=3D"3" face=3D"Times New Roman"><p align=3D"center">
-<table cellspacing=3D"1" cellpadding=3D"11" width=3D"600" =
-border=3D"0">
-    <tbody>
-        <tr>
-            <td><span class=3D"subtextviagra"><font face=3D"Arial" =
-color=3D"#009900" =
-size=3D"6"><strong>VIAGRA</strong></font></span></td>
-            <td><span class=3D"subtextcialis"><font face=3D"Arial" =
-color=3D"#ff6600" =
-size=3D"6"><strong>CIALIS</strong></font></span></td>
-        </tr>
-        <tr>
-            <td>
-            <p align=3D"left"><span class=3D"subtextviagra"><font =
-face=3D"Arial">Sex can be one of the most enjoyable parts of your life. =
-It may strengthen your relationship with your =
-partner.</font></span></p>
-            </td>
-            <td>
-            <p align=3D"left"><span class=3D"subtextcialis"><font =
-face=3D"Arial">If a relaxing moment turns into the right moment, will =
-you be ready? You can be with CIALIS.</font></span></p>
-            </td>
-        </tr>
-        <tr>
-            <td colspan=3D"2"><a =
-href=3D"http://oatvisbiyglue.com/"><font face=3D"Arial" =
-color=3D"#ff0000" size=3D"5"><strong>BUY ONLINE @ ED'S PILL =
-STORE</strong></font></a></td>
-        </tr>
-    </tbody>
-</table>
-</p></font>
+<BODY bgColor=#ffffff><BR>
+<u><b>The Best Casino Online!</b></u><BR><BR>
+The Most Entertaining Casino Games, Choose between over 80 of them!<BR><BR>
+The Most Generous Bonuses!<BR><BR> 
+100% up to $400!<BR><BR>
+The Richest Jackpots!<BR><BR> 
+Over 2 Million Dollars!<BR><BR>
+What are you waiting for?<BR><BR>
+<a href="http://gameplay2.info/">Come and play at Euro VIP Casino!!!</a>
 </BODY>
 </HTML>
-
-------=_NextPart_000_0000_5DC11850.B5CFC408--

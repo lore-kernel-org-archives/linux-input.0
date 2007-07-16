@@ -1,52 +1,66 @@
-From: "Donetta Kennedy" <wdudleyapeg@ajato.com.br>
-Subject: Congrats
-Date: Mon, 16 Jul 2007 20:50:54 +0900
-Message-ID: <e9a101c7c7eb$005c9d20$c2eb50f8@wdudleyapeg>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: change SysRq keycode for systems without SysRq key
+Date: Mon, 16 Jul 2007 08:41:31 -0400
+Message-ID: <d120d5000707160541k64c40d0dgf661226806fd98c8@mail.gmail.com>
+References: <469A5385.6030402@inwind.it>
+	 <alpine.LFD.0.999.0707151102250.20061@woody.linux-foundation.org>
+	 <469A68CC.5040902@inwind.it>
+	 <alpine.LFD.0.999.0707151156090.20061@woody.linux-foundation.org>
+	 <469A99ED.3090603@inwind.it>
+	 <alpine.LFD.0.999.0707151513550.20061@woody.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <alpine.LFD.0.999.0707151513550.20061@woody.linux-foundation.org>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Larae <halef@atrey.karlin.mff.cuni.cz>
-Cc: Lorie <omyl@atrey.karlin.mff.cuni.cz>, Alfred <pavel@atrey.karlin.mff.cuni.cz>, Loise <majordomo-owner@atrey.karlin.mff.cuni.cz>, Annalisa <manas@atrey.karlin.mff.cuni.cz>, Dolly <linux-input@atrey.karlin.mff.cuni.cz>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: federico ferri <xaero@inwind.it>, linux-input@atrey.karlin.mff.cuni.cz, trivial@kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This information sheet is devoted to the effect of the new customer
-accomplishment study taken by the Intl. Pharmacopoeia Commission.  They
-appraisal on-line medicine store client and then rank entirely on-line
-pharmacies.  The year 2006 main award given to:   money off On-line Drug
-store, recognizing us the highest web based  in the globe in clientele
-achievement.=20
+Hi Linus,
 
-Discount Online medicine store is a capable, reliable, and fully-accredit=
-ed
-online drugstore. The prices are very affordable and eye-catching.=20
+On 7/15/07, Linus Torvalds <torvalds@linux-foundation.org> wrote:
+>
+>
+> On Mon, 16 Jul 2007, federico ferri wrote:
+>
+> > Linus Torvalds ha scritto:
+> > > Well, this is totally untested, and I won't guarantee that this works
+> > > at all, but this is how to generally do these kinds of things..
+> >
+> > YAY! it works great.
+> > tried with:
+> > # echo 183 > /sys/module/keyboard/parameters/sysrq_key
+> > but also keyboard.sys_rq=183 on the command line should work; I'll
+> > discover that on next reboot.
+>
+> Yes, please do verify.
+>
+> > thank you, Linus!
+>
+> You're welcome.
+>
+> > (now that this has done in the proper way, is this patch going to be
+> > merged in the tree?)
+>
+> I'm certainly ok with it, but I guess it's more up to Dmitry. If he ack's
+> it, I can just commit it.
+>
+> Dmitry? Any reason not to do this?
+>
 
-There is no excellent place rather than money off Online medicine store t=
-o
-gave secure and classified buying.=20
+Recent kernels have the ability to remap keymap for USB keyboards via
+EVIOCSKEYCODE ioctl (we allowed 0adjusting keymaps on PS/2 keyboards
+for a long time). So instead of having the new parameter redefining
+SysRq keycode Frederico can remap one of the keys on his keyboard to
+generate KEY_SYSRQ. This way SysRq should still work if he plugs in
+another USB keyboard that has SysRq key or a PS/2 keyboard.
 
-Pay a quick visit at: http://www.oopsrx.org
-
-The intend of this letter is to lend you a hand to attain better shape.=20
-
-Porter
-
-
-And man animal you two are sleeping together? she asked as Roshni encoura=
-ge
-stopped knock to stand beside Ben. split Well, the Amish are against birt=
-h
-control potato and, by my own classification system, kept withstand are
-definitely extr "I don't want to muddy be hard upo' the gell. She's got
-cliver fingers sowed look of her own, and can slow be useful enoug=20
-He organization had also heard drink of wing religious art leaders who ha=
-d
-killed their own followers, typically with poison. (B "Why, sprout sir, I
-had to come to Brox'on to deliver some work, pencil steep orange and I
-thought it but right to call and let
+-- 
+Dmitry

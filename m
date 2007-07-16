@@ -1,11 +1,10 @@
-From: Gerald Folcher <geraldf2@free.fr>
-Subject: Force Feedback: Thrustmaster FGT Wheel quick-and-dirty in hid-lgff.c
- or hid-tmff.c
-Date: Mon, 16 Jul 2007 15:48:17 +0200
-Message-ID: <469B7721.9070705@free.fr>
+From: "Jacqueline Farris" <santiago@lasercare.net>
+Subject: Doping fur Ihr bestes Stuck  it was investigating your ‘splits’ --  Patterns--the lessons
+Date: Mon, 16 Jul 2007 14:23:48 -0100
+Message-ID: <01c7c7b4$ed0cd3b0$65c61a54@santiago>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7C7C5.B095A3B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,88 +14,78 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello,
+This is a multi-part message in MIME format.
 
-I write this as it may be interesting to the peoples involved in the 
-force feedback drivers (or if you're just trying to get your 
-Thrustmaster wheel's force-feedback to work), I'm sorry I'm not 
-proposing a ready to apply patch because at this point I'm not competent 
-enough to make something clean that won't break anything. If anybody is 
-willing to make a proper patch out of this info it would be very welcome 
-as far as I'm concerned, I could try it to confirm that it works with my 
-wheel.
+------=_NextPart_000_0006_01C7C7C5.B095A3B0
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 
-So, I got a "Thrustmaster Ferrari GT 2-in-1 Force Feedback" racing wheel 
-type game controller. It's USB and is detected and work as a controller 
-out of the box. But of course I quickly got interested in trying to get 
-the Force Feedback part to also work.
+Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestatigen
 
-At first, I tried to get it to work using the iforce kernel module, 
-adding a vendor/id line in iforce-main.c and iforce-usb.c . But the most 
-significant result I got was the module telling me that it timed out 
-waiting for response from the device. So I concluded that my wheel was 
-probably not talking "I-Force", but I'm still not sure I did not do 
-something wrong...
+Preise die keine Konkurrenz kennen 
 
-Anyway, next I tried in the usbhid module and I finally got FF_CONSTANT 
-type force-feedback working for my wheel, but only after some (very 
-small) modifications. This is only proof-of-concept as, as-is, it will 
-break Logitech compatibility.
-
-Here's a shell session transcript to show the diffs (kernel 2.6.22) :
-  bash-prompt$ cd drivers/hid/usbhid/
-  bash-prompt$ diff hid-lgff.c.orig hid-lgff.c
-  51a52
-  >         { 0x044f, 0xb654, ff_joystick }, /* Thrustmaster FGT Force 
-Feedback */
-  77,80c78,80
-  <               report->field[0]->value[0] = 0x51;
-  <               report->field[0]->value[1] = 0x08;
-  <               report->field[0]->value[2] = x;
-  <               report->field[0]->value[3] = y;
-  ---
-  >               /* Works on the Thrustmaster but breaks Logitech */
-  >               report->field[0]->value[0] = x;
-  >               report->field[0]->value[1] = y;
-  bash-prompt$ diff hid-ff.c.orig hid-ff.c
-  55a56
-  >       { 0x44f, 0xb654, hid_lgff_init }, /* Thrustmaster FGT Force 
-Feedback */
-
-That's it, with that my wheel can do FF_CONSTANT type force feedback. 
-Note that it also loads the 'ff_memless' module, so I guess the wheel 
-has no memory. It works well with the 'ffcfstress' and 'ffmvforce' test 
-utilities, and here's the output of 'fftest':
-
-Device /dev/input/event2 opened
-Axes query:
-Effects: Constant
-Number of simultaneous effects: 16
-Upload effects[0]: Invalid argument
-Upload effects[2]: Invalid argument
-Upload effects[3]: Invalid argument
-Upload effects[4]: Invalid argument
-Upload effects[5]: Invalid argument
-Enter effect number, -1 to exit
-
-With fftest, only entering '1' applies a left force, but I guess it's to 
-be expected since the driver only do FF_CONSTANT (I guess it's the same 
-on the Logitech's ?).
-
-I also tested it in Wine with the Live For Speed (aka "LFS") S2 demo, 
-and it seems to work quite well (tough I had to modify some small Wine 
-code that prevented FF to work with this game, but that's another 
-quick-and-dirty story). (OT: About Wine, if anybody can get Force 
-Feedback working with the game Grand Prix Legends I would be very 
-interested to know.)
-
-I guess that a proper patch for the Thrustmaster wheel(s) would probably 
-have better his place in hid-tmff.c (In fact I first gone that route but 
-I had to change more code introducing more ugliness... the diff output 
-from the hid-lgff.c version was much better for my "presentation" purpose).
-
-That's all, I hope it will be of interest to someone :D
+- Kostenlose, arztliche Telefon-Beratung
+- Kein peinlicher Arztbesuch erforderlich
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Bequem und diskret online bestellen.
+- Diskrete Verpackung und Zahlung
+- Visa verifizierter Onlineshop
+- keine versteckte Kosten
 
 
--- 
-Gerald Folcher
+Jetzt bestellen - und vier Pillen umsonst erhalten
+http://ohfdca.morningwindow.hk/?624231079770
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
+
+------=_NextPart_000_0006_01C7C7C5.B095A3B0
+Content-Type: text/html;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
+
+
+<meta name=3DProgId content=3DWord.Document>
+<meta name=3DGenerator content=3D"Microsoft Word 10">
+<meta name=3DOriginator content=3D"Microsoft Word 10">
+<link rel=3DFile-List href=3D"cid:filelist.xml@1F4D39B0.1F46EEE7">
+<link rel=3DEdit-Time-Data href=3D"cid:editdata.mso@1F4D39B0.1F46EEE7">
+</head>
+<body>
+<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
+-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Warum nehme ich Ciaa=
+aaaalis? Es ist einfach ein angenehmens Gef&#252;hl. Man brauch sich nicht =
+auf die Err. ..ektion zu konzentrieren. Beim Sex ist man viel entspannter, =
+mann kann auch mal die Muskeln im Genitalbereich lockern, ohne das die Err.=
+ ..ektion im Glied nachlasst. Dadurch ist eine lange Verz&#246;gerung der E=
+jakulation m&#246;glich. Man ist beim Sex generell lockerer und entspannter=
+, und kommt auch nicht mehr so schnell ausser Athem, weil man eben locker u=
+nd entspannt ist, ausser nat&#252;rlich der kleine Freund :-)</strong></p><=
+p><strong>Ich bin weit &#252;ber 60, nehme Ciaaaaaalis 20 mg. und das Woche=
+nende ist gerettet. Ich kann pro Nacht 4-5 mal, und am Morgen wieder, f&#25=
+2;r den n&#228;chsten Abend reicht eine Halbe. Meine Freundin ist begeister=
+t. F&#252;r meine Frau nehme ich eine halbe Tablette, das reicht f&#252;r e=
+inen netten Abend.<br>
+</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was =
+unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen =
+<p>
+- Bequem und diskret online bestellen.<br>- Visa verifizierter Onlineshop<b=
+r>- Diskrete Verpackung und Zahlung<br>- Kostenlose, arztliche Telefon-Bera=
+tung<br>- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Ke=
+in peinlicher Arztbesuch erforderlich<br>- keine versteckte Kosten</p>  
+<p><br><strong><a href=3D"http://ohfdca.morningwindow.hk/?624231079770" tar=
+get=3D"_blank">Jetzt bestellen - und vier Pillen umsonst erhalten</a><br>
+  </strong>(bitte warten Sie einen Moment bis die Seite vollst&auml;ndig ge=
+laden wird)
+</body>
+</body>
+</html>
+
+------=_NextPart_000_0006_01C7C7C5.B095A3B0--

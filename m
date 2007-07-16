@@ -1,55 +1,43 @@
-From: "Alexa Price" <qmqsoms@mailexcite.com>
-Subject: T'R'Y ouR spe cial ERE CTION PACK!      .OWO-5WjXGKzhWZUBoBZ.g
-Date: Sat, 14 Jul 2007 12:10:07 +0300
-Message-ID: <15103.9291908548$1184573587@news.gmane.org>
+From: "Natalie Protasevich" <protasnb@gmail.com>
+Subject: Keyboard problem
+Date: Sun, 15 Jul 2007 21:28:37 -0600
+Message-ID: <32209efe0707152028h69b507b1j6ecd6c8e358ead62@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dtor@mail.ru>, Vojtech Pavlik <vojtech@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz, Alan Stern <stern@rowland.harvard.edu>
 List-Id: linux-input@vger.kernel.org
 
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dkoi8-r">
-<META content=3D"MSHTML 6.00.2900.2180" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT face=3DArial size=3D2>
-<DIV><FONT face=3DArial color=3D#ff0072 size=3D3><STRONG>10 P l LL S  C.I,A.L,I.S =
-+ 10 P l LL S =20
-V,_I_A,G_R_A!</STRONG></FONT></DIV>
-<DIV><FONT face=3DArial color=3D#ff0048 size=3D3><STRONG>Two best ED =
-medications in=20
-one super pack. Lowest price and FREE shipping.</STRONG></FONT></DIV>
-<DIV><FONT color=3D#ff0092 size=3D3></FONT> </DIV><FONT =
-face=3DArial size=3D2>
-<DIV><BR><FONT size=3D3><STRONG><EM>What is =
-C..I..A.L.I.S?</EM></STRONG></FONT></DIV>
-<DIV> </DIV>
-<DIV>C .I .A .L .I S is the only ED (Erectile Disfunction) tablet clinically =
-proven to=20
-work both <BR>up to 36 hours and in as fast as 30 minutes. And because =
-C"I"A"L"l"S=20
-has an extended <BR>period of effectiveness, you don't have the =
-pressure to=20
-perform within a few hours. <BR>You and your partner can relax and take =
-your=20
-time choosing the moment that is right for both of you.</DIV>
-<DIV> </DIV>
-<DIV><FONT size=3D3><STRONG>Benefits of Cl A LlS </STRONG></FONT></DIV>
-<DIV> </DIV>
-<DIV>Works up to 36 hours <BR>Works fast <BR>Works Effectively <BR>Keeps =
-you=20
-ready <BR>No need to plan around meals <BR>Used by millions of men =
-</DIV>
-<DIV><BR><FONT size=3D4><STRONG><A href=3D"http://pcavcj.beforeendofterm.net/?afvfnrfjocou">Buy SPECIAL ERECTION PACK=20
-online!</A></STRONG></FONT></FONT></DIV></FONT></DIV></BODY></HTML>
+Hello,
+We have a problem with keybords here. It only hits several systems out
+of many, and really impossible to reproduce because it happens on
+different combinations of hardware/software and no one managed to find
+out what triggers it. I had it on my workstation for a while, then it
+was gone (was as of Friday when I hit it again).
+Keyboard stops responding while mouse is still functional, if you hold
+a key for a few seconds it reacts and displays a key (several of
+them). If I hold down well ctrl-alt-F1 then I'm able to switch to text
+screen and keyboard is just fine there. So it happens while X is
+running, seems more likely when memory intensive apps are running
+(firefox, kernel builds). Doesn't depend on type of videocard, whether
+it is double or single monitor configuration, type of mouse (USB or
+PS2 - but our HW guys said the systems have PS2 connector through the
+USB bridge) - nothing seems to matter only presence of X. Restarting X
+fixes a problem, but it is still very disruptive to everyone affected.
+It seems like Linux input driver, USB and X may be involved. What can
+be done to diagnose this problem? There is nothing in the logs, only
+couple messages in X log which tell that screen saver was run a couple
+times and mysterious message about Screen 0 and 1 now "sharing
+resources". Do we need USB sniffer to trace traffic? Anything we can
+do to get information from the kernel? Maybe instrumenting keyboard
+driver and Xorg keyboard library somehow, use kprobes.
+Any recommendations?
+Thanks,
+--Natalie

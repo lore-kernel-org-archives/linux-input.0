@@ -1,202 +1,64 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Force Feedback: Thrustmaster FGT Wheel quick-and-dirty in hid-lgff.c or hid-tmff.c
-Date: Mon, 16 Jul 2007 17:21:45 -0400
-Message-ID: <d120d5000707161421m6c1f6728mb7204093ff1d94da@mail.gmail.com>
-References: <469B7721.9070705@free.fr>
-	 <d120d5000707160905l214a6ec3yaefc73be5644e1b1@mail.gmail.com>
-	 <469BA787.8080700@free.fr>
-	 <d120d5000707161350v782563e8na7ae4f593e0daf83@mail.gmail.com>
-	 <d120d5000707161403v13fa3d0dy3ae730e28fbad174@mail.gmail.com>
+From: "Jonathon Mcgill" <dacca26@herblip.net>
+Subject: Yes
+Date: Tue, 17 Jul 2007 02:22:43 +0500
+Message-ID: <607135526.36860102355606@herblip.net>
+Reply-To: dacca26@herblip.net
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_63494_12803396.1184620905192"
+Content-Type: text/html;
+  charset=windows-1250
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000707161403v13fa3d0dy3ae730e28fbad174@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Gerald Folcher <geraldf2@free.fr>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
+To: linux-pci@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_63494_12803396.1184620905192
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-On 7/16/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 7/16/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> >
-> > OK, how about this then?
-> >
+<html>
+<head>
+<style>
+    * &#220;bersicht    * Glaubw&#252;rdigkeitskrise: Greenpeace stoppt Magazin- Verkauf bei Lidl    * Polen: Der Geheimdienst und die Bisch&#246;feFall Madeleine: Betr&#252;ger wollten Eltern erpressenFast zwei Monate nach dem Verschwinden der kleinen Madeleine hat die spanische Polizei einen Italiener und eine Portugiesin festgenommen. Sie hatten es offenbar auf die Belohnung der Eltern abgesehen. Ihre Verbindung zur tats&#228;chlichen Entf&#252;hrung ist fraglich. mehr...    * Pop- Comeback: Showdown der Spice Girls    * mehr Wissenschaft    * mehr PanoramaSenat stoppt Bushs Einwanderungsgesetz      38 Beitr&#228;ge, Neuester: Heute, 17.05 Uhr von M&#252;nchnerImmer wieder haben Mediziner vergeblich versucht, den Aids-Erreger aus dem menschlichen K&#246;rper zu vertreiben. Jetzt aber ist es deutschen Forschern gelungen, das HI-Virus auszuschalten - mit einem speziell abgerichteten Mol
+ ek&#252;l. Von Johann Grolle mehr...    * CSU- Generalsekret&#228;r: Ramsauer f&#252;r Frau statt S&#246;der    * Deutschland    * Kokain- Schmuggel: Mutter benutzt eigene Kinder als Drogenkuriere    * Achillesbl&#228;tternVon knuffigen bunten Fernsehwesen lassen sich Kleinkinder zwar gern unterhalten, das Sprechen lernen sie von Dipsy und Po aber nicht. Unter zwei Jahren helfen Kindern beim Spracherwerb am besten Erwachsene, die sich direkt und pers&#246;nlich mit ihnen besch&#228;ftigen. mehr...    *    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke abgeschaltetBoxtrainer Timm: Der P&#228;dagoge am Sandsack    * Afghanistan-Mandat: Steinmeier soll SPD auf Linie bringen    * Terror- Abwehr: Flugdaten- Einigung am EU- Parlament vorbei      Harry Potter: Weltpremiere in Japan Video abspielen...    * mehr Sport                                                 
+              * Mund auf: G&#228;hnen k&#252;hlt das Gehirnbl&#228;ttern    *      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Video abspielen...    * &#220;bersicht    * US-Sports    * Fall Marco Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"bl&#228;tternSPORTNeues britisches Kabinett: Brown startet das Blair- Switch- Projekt    * mehr WirtschaftBoxtrainer Timm: Der P&#228;dagoge am Sandsackbl&#228;ttern    * mehr Wissenschaft    * Natur    * mehr Sport                                                              * Weltall    * Achilles    * Uno- Warnung: Die W&#252;ste w&#228;chst    * Doping- Verdacht: Petacchi suspendiert, Jaksche ausgeschlossen    * Schmiergeld- Aff&#228;re: Siemens- Anti- Korruptionschef Noa geht    * Bundeshaushalt: Steinbr&#252;cks Fahrplan zur EntschuldungDie Aufholjagd ist beeindruckend. Noch vor wenigen Jahren rangierte Deutschlands
+  Ansehen als Investitionsstandort bei den Top-Managern unter ferner liefen. Inzwischen ist der Standort wieder unter den Top-F&#252;nf der Welt - nicht zuletzt dank der Fu&#223;ball-WM. Von Michael Kr&#246;ger mehr...Wii bitte?    * Logbuch al- Qaida: Anklage gegen Ibrahim R.    * Polen: Der Geheimdienst und die Bisch&#246;feWISSENSCHAFT    * L&#246;sch-Aktion bei der Bundeswehr: Minister Jung k&#252;ndigt Aufkl&#228;rung an
+P
+{
+margin:0px;
+padding:0px
+}
+body
+{
+FONT-SIZE: 10pt;
+FONT-FAMILY:Tahoma
+}
+</style>
+</head>
+<body>
+<SPAN style="BORDER-RIGHT: 0px; PADDING-RIGHT: 12px; BORDER-TOP: 0px; PAD=
+DING-LEFT: 12px; FONT-SIZE: 16px; FLOAT: right; PADDING-BOTTOM: 12px; MARGI=
+N: 11px; BORDER-LEFT: 0px; PADDING-TOP: 12px; BORDER-BOTTOM: 0px; FONT-FAMI=
+LY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #feee67"><FONT size=4
 >
-> Ignore it, it missing couple of bits; Anssi's is more complete I think.
->
+<style>      Harry Potter: Weltpremiere in Japan Video abspielen...bl&#228;ttern    * Derivate    * Bush-Regierung unter Druck: Senat verlangt vertrauliche Papiere zu Lauschangriff    * &#220;bersicht    *    * Derivate      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Video abspielen...    * Ministerien einig: Bahn soll Schienen 15 Jahre lang behalten    * Bew&#228;hrungsstrafe: Katsav entgeht Anklage wegen Vergewaltigung    * Umfrage: Steinmeier h&#228;ngt Beck ab    * Entlassung von Bundesanw&#228;lten: Bush verweigert Demokraten Akteneinsicht    * Hass auf Kn&#246;llchen- Verteiler: Trauerg&#228;ste schlagen Verkehrsordner nieder    * Fall Marco Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"Neues britisches Kabinett: Brown startet das Blair- Switch- Projekt    * Afghanistan-Mandat: Steinmeier soll SPD auf Linie bringen    * &#220;bersicht    * Entlassung von
+  Bundesanw&#228;lten: Bush verweigert Demokraten Akteneinsichtbl&#228;ttern</style>
+<B>Vi<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>fzwkeuzdtc</FONT></SPAN>ag<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>dedyfykujs</FONT></SPAN>ra $1.79 C<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>ufwghxptim</FONT></SPAN>ial<SPAN style="
+ORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT:
+0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>qfrdaipfbg</FONT></SPAN>is =
+$3.93</B><BR></FONT>
+<H4><SPAN>and man<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT:
+right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"></SPAN>y other it<SPAN style="BORDER-RIGHT: 0px;
+ORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77
+; BORDER-BOTTOM: 0px"></SPAN>ems for 10% of the price.<BR><A href="http://jiexa3v.by.ru/redir.html">Click to visit the shop
+</A></SPAN></H4></SPAN><br /><hr />
+<style>    *    * Achilles    * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert haben    * Gro&#223;e Koalition - dauerhaft in der Krise?"Deswegen mache ich mir keinen Kopf"    * mehr Sport                                                              * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert haben    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke abgeschaltetWIRTSCHAFT    *bl&#228;ttern    * Umfrage: Steinmeier h&#228;ngt Beck ab    * Depot</style>
+</body>
+</html>
 
-Not quite what I wanted either, what about this one?
-
--- 
-Dmitry
-
-------=_Part_63494_12803396.1184620905192
-Content-Type: application/octet-stream;
-	name=hid-add-thrustmaster-fgt-wheel.patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f47gnvil
-Content-Disposition: attachment; filename="hid-add-thrustmaster-fgt-wheel.patch"
-
-SW5wdXQ6IEhJRCAtIGFkZCBzdXBwb3J0IGZvciBUaHJ1c3RtYXN0ZXIgRkdUIEZvcmNlIEZlZWRi
-YWNrIHdoZWVsCgpSZXdvcmsgdGhydXN0bWFzdGVyIGZvcmNlLWZlZWRiYWNrIG1vZHVsZSB0byBz
-dXBwb3J0IGRldmljZXMgaGF2aW5nCmRpZmZlcmVudCB0eXBlcyBvZiBmb3JjZSBmZWVkYmFjayBl
-ZmZlY3RzLiBBZGQgc2lnbmF0dXJlcyBvZgpUaHJ1c3RtYXN0ZXIgRkdUIFJ1bWJsZSBGb3JjZSBh
-bmQgVGhydXN0bWFzdGVyIEZHVCBGb3JjZSBGZWVkYmFjawp3aGVlbHMgdG8gdGhlIGxpc3Qgb2Yg
-ZGV2aWNlcyBkdXBwb3J0ZWQgYnkgdHRoZSBtb2R1bGUuCgpQYXJ0cyBvZiB0aGUgcGF0Y2ggd2Vy
-ZSBsaWZ0ZWQgb2ZmIGEgc2ltYWxhciBwYXRjaCBieQpBbnNzaSBIYW5udWxhIDxhbnNzaS5oYW5u
-dWxhQGdtYWlsLmNvbT4KClNpZ25lZC1vZmYtYnk6IERtaXRyeSBUb3Jva2hvdiA8ZHRvckBtYWls
-LnJ1PgotLS0KIGRyaXZlcnMvaGlkL3VzYmhpZC9LY29uZmlnICAgIHwgICAgNSAtCiBkcml2ZXJz
-L2hpZC91c2JoaWQvaGlkLWZmLmMgICB8ICAgIDIgCiBkcml2ZXJzL2hpZC91c2JoaWQvaGlkLXRt
-ZmYuYyB8ICAxNjEgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tCiAz
-IGZpbGVzIGNoYW5nZWQsIDEyNCBpbnNlcnRpb25zKCspLCA0NCBkZWxldGlvbnMoLSkKCkluZGV4
-OiBsaW51eC9kcml2ZXJzL2hpZC91c2JoaWQvaGlkLWZmLmMKPT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgu
-b3JpZy9kcml2ZXJzL2hpZC91c2JoaWQvaGlkLWZmLmMKKysrIGxpbnV4L2RyaXZlcnMvaGlkL3Vz
-YmhpZC9oaWQtZmYuYwpAQCAtNjcsNiArNjcsOCBAQCBzdGF0aWMgc3RydWN0IGhpZF9mZl9pbml0
-aWFsaXplciBpbml0c1tdCiAjaWZkZWYgQ09ORklHX1RIUlVTVE1BU1RFUl9GRgogCXsgMHg0NGYs
-IDB4YjMwMCwgaGlkX3RtZmZfaW5pdCB9LAogCXsgMHg0NGYsIDB4YjMwNCwgaGlkX3RtZmZfaW5p
-dCB9LAorCXsgMHg0NGYsIDB4YjY1MSwgaGlkX3RtZmZfaW5pdCB9LCAvKiBGR1QgUnVtYmxlIEZv
-cmNlIFdoZWVsICovCisJeyAweDQ0ZiwgMHhiNjU0LCBoaWRfdG1mZl9pbml0IH0sIC8qIEZHVCBG
-b3JjZSBGZWVkYmFjayBXaGVlbCAqLwogI2VuZGlmCiAjaWZkZWYgQ09ORklHX1pFUk9QTFVTX0ZG
-CiAJeyAweGMxMiwgMHgwMDA1LCBoaWRfenBmZl9pbml0IH0sCkluZGV4OiBsaW51eC9kcml2ZXJz
-L2hpZC91c2JoaWQvaGlkLXRtZmYuYwo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC5vcmlnL2RyaXZlcnMv
-aGlkL3VzYmhpZC9oaWQtdG1mZi5jCisrKyBsaW51eC9kcml2ZXJzL2hpZC91c2JoaWQvaGlkLXRt
-ZmYuYwpAQCAtMzYsMTYgKzM2LDM5IEBACiAjaW5jbHVkZSAidXNiaGlkLmgiCiAKIC8qIFVzYWdl
-cyBmb3IgdGhydXN0bWFzdGVyIGRldmljZXMgSSBrbm93IGFib3V0ICovCi0jZGVmaW5lIFRIUlVT
-VE1BU1RFUl9VU0FHRV9SVU1CTEVfTFIJKEhJRF9VUF9HRU5ERVNLIHwgMHhiYikKKyNkZWZpbmUg
-VEhSVVNUTUFTVEVSX1VTQUdFX0ZGCShISURfVVBfR0VOREVTSyB8IDB4YmIpCiAKK3N0cnVjdCBk
-ZXZfdHlwZSB7CisJdTE2IGlkVmVuZG9yOworCXUxNiBpZFByb2R1Y3Q7CisJY29uc3Qgc2lnbmVk
-IHNob3J0ICpmZjsKK307CisKK3N0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgZmZfcnVtYmxlW10g
-PSB7CisJRkZfUlVNQkxFLAorCS0xCit9OworCitzdGF0aWMgY29uc3Qgc2lnbmVkIHNob3J0IGZm
-X2pveXN0aWNrW10gPSB7CisJRkZfQ09OU1RBTlQsCisJLTEKK307CisKK3N0YXRpYyBjb25zdCBz
-dHJ1Y3QgZGV2X3R5cGUgZGV2aWNlc1tdID0geworCXsgMHg0NGYsIDB4YjMwMCwgZmZfcnVtYmxl
-IH0sCisJeyAweDQ0ZiwgMHhiMzA0LCBmZl9ydW1ibGUgfSwKKwl7IDB4NDRmLCAweGI2NTEsIGZm
-X3J1bWJsZSB9LAkvKiBGR1QgUnVtYmxlIEZvcmNlIFdoZWVsICovCisJeyAweDQ0ZiwgMHhiNjU0
-LCBmZl9qb3lzdGljayB9LAkvKiBGR1QgRm9yY2UgRmVlZGJhY2sgV2hlZWwgKi8KK307CiAKIHN0
-cnVjdCB0bWZmX2RldmljZSB7CiAJc3RydWN0IGhpZF9yZXBvcnQgKnJlcG9ydDsKLQlzdHJ1Y3Qg
-aGlkX2ZpZWxkICpydW1ibGU7CisJc3RydWN0IGhpZF9maWVsZCAqZmZfZmllbGQ7CiB9OwogCiAv
-KiBDaGFuZ2VzIHZhbHVlcyBmcm9tIDAgdG8gMHhmZmZmIGludG8gdmFsdWVzIGZyb20gbWluaW11
-bSB0byBtYXhpbXVtICovCi1zdGF0aWMgaW5saW5lIGludCBoaWRfdG1mZl9zY2FsZSh1bnNpZ25l
-ZCBpbnQgaW4sIGludCBtaW5pbXVtLCBpbnQgbWF4aW11bSkKK3N0YXRpYyBpbmxpbmUgaW50IGhp
-ZF90bWZmX3NjYWxlX3UxNih1bnNpZ25lZCBpbnQgaW4sCisJCQkJaW50IG1pbmltdW0sIGludCBt
-YXhpbXVtKQogewogCWludCByZXQ7CiAKQEAgLTU3LDIyICs4MCw1NyBAQCBzdGF0aWMgaW5saW5l
-IGludCBoaWRfdG1mZl9zY2FsZSh1bnNpZ25lCiAJcmV0dXJuIHJldDsKIH0KIAorLyogQ2hhbmdl
-cyB2YWx1ZXMgZnJvbSAtMHg4MCB0byAweDdmIGludG8gdmFsdWVzIGZyb20gbWluaW11bSB0byBt
-YXhpbXVtICovCitzdGF0aWMgaW5saW5lIGludCBoaWRfdG1mZl9zY2FsZV9zOChpbnQgaW4sCisJ
-CQkJICAgIGludCBtaW5pbXVtLCBpbnQgbWF4aW11bSkKK3sKKwlpbnQgcmV0OworCisJcmV0ID0g
-KCgoaW4gKyAweDgwKSAqIChtYXhpbXVtIC0gbWluaW11bSkpIC8gMHhmZikgKyBtaW5pbXVtOwor
-CWlmIChyZXQgPCBtaW5pbXVtKQorCQlyZXR1cm4gbWluaW11bTsKKwlpZiAocmV0ID4gbWF4aW11
-bSkKKwkJcmV0dXJuIG1heGltdW07CisJcmV0dXJuIHJldDsKK30KKwogc3RhdGljIGludCBoaWRf
-dG1mZl9wbGF5KHN0cnVjdCBpbnB1dF9kZXYgKmRldiwgdm9pZCAqZGF0YSwgc3RydWN0IGZmX2Vm
-ZmVjdCAqZWZmZWN0KQogewogCXN0cnVjdCBoaWRfZGV2aWNlICpoaWQgPSBpbnB1dF9nZXRfZHJ2
-ZGF0YShkZXYpOwogCXN0cnVjdCB0bWZmX2RldmljZSAqdG1mZiA9IGRhdGE7CisJc3RydWN0IGhp
-ZF9maWVsZCAqZmZfZmllbGQgPSB0bWZmLT5mZl9maWVsZDsKKwlpbnQgeCwgeTsKIAlpbnQgbGVm
-dCwgcmlnaHQ7CS8qIFJ1bWJsaW5nICovCiAKLQlsZWZ0ID0gaGlkX3RtZmZfc2NhbGUoZWZmZWN0
-LT51LnJ1bWJsZS53ZWFrX21hZ25pdHVkZSwKLQkJdG1mZi0+cnVtYmxlLT5sb2dpY2FsX21pbmlt
-dW0sIHRtZmYtPnJ1bWJsZS0+bG9naWNhbF9tYXhpbXVtKTsKLQlyaWdodCA9IGhpZF90bWZmX3Nj
-YWxlKGVmZmVjdC0+dS5ydW1ibGUuc3Ryb25nX21hZ25pdHVkZSwKLQkJdG1mZi0+cnVtYmxlLT5s
-b2dpY2FsX21pbmltdW0sIHRtZmYtPnJ1bWJsZS0+bG9naWNhbF9tYXhpbXVtKTsKLQotCXRtZmYt
-PnJ1bWJsZS0+dmFsdWVbMF0gPSBsZWZ0OwotCXRtZmYtPnJ1bWJsZS0+dmFsdWVbMV0gPSByaWdo
-dDsKLQlkYmdfaGlkKCIobGVmdCxyaWdodCk9KCUwOHgsICUwOHgpXG4iLCBsZWZ0LCByaWdodCk7
-Ci0JdXNiaGlkX3N1Ym1pdF9yZXBvcnQoaGlkLCB0bWZmLT5yZXBvcnQsIFVTQl9ESVJfT1VUKTsK
-LQorCXN3aXRjaCAoZWZmZWN0LT50eXBlKSB7CisJY2FzZSBGRl9DT05TVEFOVDoKKwkJeCA9IGhp
-ZF90bWZmX3NjYWxlX3M4KGVmZmVjdC0+dS5yYW1wLnN0YXJ0X2xldmVsLAorCQkJCQlmZl9maWVs
-ZC0+bG9naWNhbF9taW5pbXVtLAorCQkJCQlmZl9maWVsZC0+bG9naWNhbF9tYXhpbXVtKTsKKwkJ
-eSA9IGhpZF90bWZmX3NjYWxlX3M4KGVmZmVjdC0+dS5yYW1wLmVuZF9sZXZlbCwKKwkJCQkJZmZf
-ZmllbGQtPmxvZ2ljYWxfbWluaW11bSwKKwkJCQkJZmZfZmllbGQtPmxvZ2ljYWxfbWF4aW11bSk7
-CisKKwkJZGJnX2hpZCgiKHgsIHkpPSglMDR4LCAlMDR4KVxuIiwgeCwgeSk7CisJCWZmX2ZpZWxk
-LT52YWx1ZVswXSA9IHg7CisJCWZmX2ZpZWxkLT52YWx1ZVsxXSA9IHk7CisJCXVzYmhpZF9zdWJt
-aXRfcmVwb3J0KGhpZCwgdG1mZi0+cmVwb3J0LCBVU0JfRElSX09VVCk7CisJCWJyZWFrOworCisJ
-Y2FzZSBGRl9SVU1CTEU6CisJCWxlZnQgPSBoaWRfdG1mZl9zY2FsZV91MTYoZWZmZWN0LT51LnJ1
-bWJsZS53ZWFrX21hZ25pdHVkZSwKKwkJCQkJZmZfZmllbGQtPmxvZ2ljYWxfbWluaW11bSwKKwkJ
-CQkJZmZfZmllbGQtPmxvZ2ljYWxfbWF4aW11bSk7CisJCXJpZ2h0ID0gaGlkX3RtZmZfc2NhbGVf
-dTE2KGVmZmVjdC0+dS5ydW1ibGUuc3Ryb25nX21hZ25pdHVkZSwKKwkJCQkJZmZfZmllbGQtPmxv
-Z2ljYWxfbWluaW11bSwKKwkJCQkJZmZfZmllbGQtPmxvZ2ljYWxfbWF4aW11bSk7CisKKwkJZGJn
-X2hpZCgiKGxlZnQscmlnaHQpPSglMDh4LCAlMDh4KVxuIiwgbGVmdCwgcmlnaHQpOworCQlmZl9m
-aWVsZC0+dmFsdWVbMF0gPSBsZWZ0OworCQlmZl9maWVsZC0+dmFsdWVbMV0gPSByaWdodDsKKwkJ
-dXNiaGlkX3N1Ym1pdF9yZXBvcnQoaGlkLCB0bWZmLT5yZXBvcnQsIFVTQl9ESVJfT1VUKTsKKwkJ
-YnJlYWs7CisJfQogCXJldHVybiAwOwogfQogCkBAIC04MiwxNCArMTQwLDE2IEBAIGludCBoaWRf
-dG1mZl9pbml0KHN0cnVjdCBoaWRfZGV2aWNlICpoaWQKIAlzdHJ1Y3QgbGlzdF9oZWFkICpwb3M7
-CiAJc3RydWN0IGhpZF9pbnB1dCAqaGlkaW5wdXQgPSBsaXN0X2VudHJ5KGhpZC0+aW5wdXRzLm5l
-eHQsIHN0cnVjdCBoaWRfaW5wdXQsIGxpc3QpOwogCXN0cnVjdCBpbnB1dF9kZXYgKmlucHV0X2Rl
-diA9IGhpZGlucHV0LT5pbnB1dDsKKwljb25zdCBzaWduZWQgc2hvcnQgKmZmX2JpdHMgPSBmZl9q
-b3lzdGljazsKIAlpbnQgZXJyb3I7CisJaW50IGk7CiAKIAl0bWZmID0ga3phbGxvYyhzaXplb2Yo
-c3RydWN0IHRtZmZfZGV2aWNlKSwgR0ZQX0tFUk5FTCk7CiAJaWYgKCF0bWZmKQogCQlyZXR1cm4g
-LUVOT01FTTsKIAogCS8qIEZpbmQgdGhlIHJlcG9ydCB0byB1c2UgKi8KLQlfX2xpc3RfZm9yX2Vh
-Y2gocG9zLCAmaGlkLT5yZXBvcnRfZW51bVtISURfT1VUUFVUX1JFUE9SVF0ucmVwb3J0X2xpc3Qp
-IHsKKwlsaXN0X2Zvcl9lYWNoKHBvcywgJmhpZC0+cmVwb3J0X2VudW1bSElEX09VVFBVVF9SRVBP
-UlRdLnJlcG9ydF9saXN0KSB7CiAJCXN0cnVjdCBoaWRfcmVwb3J0ICpyZXBvcnQgPSAoc3RydWN0
-IGhpZF9yZXBvcnQgKilwb3M7CiAJCWludCBmaWVsZG51bTsKIApAQCAtMTAwLDQ4ICsxNjAsNjUg
-QEAgaW50IGhpZF90bWZmX2luaXQoc3RydWN0IGhpZF9kZXZpY2UgKmhpZAogCQkJCWNvbnRpbnVl
-OwogCiAJCQlzd2l0Y2ggKGZpZWxkLT51c2FnZVswXS5oaWQpIHsKLQkJCQljYXNlIFRIUlVTVE1B
-U1RFUl9VU0FHRV9SVU1CTEVfTFI6Ci0JCQkJCWlmIChmaWVsZC0+cmVwb3J0X2NvdW50IDwgMikg
-ewotCQkJCQkJd2FybigiaWdub3JpbmcgVEhSVVNUTUFTVEVSX1VTQUdFX1JVTUJMRV9MUiB3aXRo
-IHJlcG9ydF9jb3VudCA8IDIiKTsKLQkJCQkJCWNvbnRpbnVlOwotCQkJCQl9CisJCQljYXNlIFRI
-UlVTVE1BU1RFUl9VU0FHRV9GRjoKKwkJCQlpZiAoZmllbGQtPnJlcG9ydF9jb3VudCA8IDIpIHsK
-KwkJCQkJd2FybigiaWdub3JpbmcgRkYgZmllbGQgd2l0aCByZXBvcnRfY291bnQgPCAyIik7CisJ
-CQkJCWNvbnRpbnVlOworCQkJCX0KIAotCQkJCQlpZiAoZmllbGQtPmxvZ2ljYWxfbWF4aW11bSA9
-PSBmaWVsZC0+bG9naWNhbF9taW5pbXVtKSB7Ci0JCQkJCQl3YXJuKCJpZ25vcmluZyBUSFJVU1RN
-QVNURVJfVVNBR0VfUlVNQkxFX0xSIHdpdGggbG9naWNhbF9tYXhpbXVtID09IGxvZ2ljYWxfbWlu
-aW11bSIpOwotCQkJCQkJY29udGludWU7Ci0JCQkJCX0KKwkJCQlpZiAoZmllbGQtPmxvZ2ljYWxf
-bWF4aW11bSA9PSBmaWVsZC0+bG9naWNhbF9taW5pbXVtKSB7CisJCQkJCXdhcm4oImlnbm9yaW5n
-IEZGIGZpZWxkIHdpdGggbG9naWNhbF9tYXhpbXVtID09IGxvZ2ljYWxfbWluaW11bSIpOworCQkJ
-CQljb250aW51ZTsKKwkJCQl9CiAKLQkJCQkJaWYgKHRtZmYtPnJlcG9ydCAmJiB0bWZmLT5yZXBv
-cnQgIT0gcmVwb3J0KSB7Ci0JCQkJCQl3YXJuKCJpZ25vcmluZyBUSFJVU1RNQVNURVJfVVNBR0Vf
-UlVNQkxFX0xSIGluIG90aGVyIHJlcG9ydCIpOwotCQkJCQkJY29udGludWU7Ci0JCQkJCX0KKwkJ
-CQlpZiAodG1mZi0+cmVwb3J0ICYmIHRtZmYtPnJlcG9ydCAhPSByZXBvcnQpIHsKKwkJCQkJd2Fy
-bigiaWdub3JpbmcgRkYgZmllbGQgaW4gb3RoZXIgcmVwb3J0Iik7CisJCQkJCWNvbnRpbnVlOwor
-CQkJCX0KIAotCQkJCQlpZiAodG1mZi0+cnVtYmxlICYmIHRtZmYtPnJ1bWJsZSAhPSBmaWVsZCkg
-ewotCQkJCQkJd2FybigiaWdub3JpbmcgZHVwbGljYXRlIFRIUlVTVE1BU1RFUl9VU0FHRV9SVU1C
-TEVfTFIiKTsKLQkJCQkJCWNvbnRpbnVlOworCQkJCWlmICh0bWZmLT5mZl9maWVsZCAmJiB0bWZm
-LT5mZl9maWVsZCAhPSBmaWVsZCkgeworCQkJCQl3YXJuKCJpZ25vcmluZyBkdXBsaWNhdGUgRkYg
-ZmllbGQiKTsKKwkJCQkJY29udGludWU7CisJCQkJfQorCisJCQkJdG1mZi0+cmVwb3J0ID0gcmVw
-b3J0OworCQkJCXRtZmYtPmZmX2ZpZWxkID0gZmllbGQ7CisKKwkJCQlmb3IgKGkgPSAwOyBpIDwg
-QVJSQVlfU0laRShkZXZpY2VzKTsgaSsrKSB7CisJCQkJCWlmIChpbnB1dF9kZXYtPmlkLnZlbmRv
-ciA9PSBkZXZpY2VzW2ldLmlkVmVuZG9yICYmCisJCQkJCSAgICBpbnB1dF9kZXYtPmlkLnByb2R1
-Y3QgPT0gZGV2aWNlc1tpXS5pZFByb2R1Y3QpIHsKKwkJCQkJCWZmX2JpdHMgPSBkZXZpY2VzW2ld
-LmZmOworCQkJCQkJYnJlYWs7CiAJCQkJCX0KKwkJCQl9CiAKLQkJCQkJdG1mZi0+cmVwb3J0ID0g
-cmVwb3J0OwotCQkJCQl0bWZmLT5ydW1ibGUgPSBmaWVsZDsKKwkJCQlmb3IgKGkgPSAwOyBmZl9i
-aXRzW2ldID49IDA7IGkrKykKKwkJCQkJc2V0X2JpdChmZl9iaXRzW2ldLCBpbnB1dF9kZXYtPmZm
-Yml0KTsKIAotCQkJCQlzZXRfYml0KEZGX1JVTUJMRSwgaW5wdXRfZGV2LT5mZmJpdCk7Ci0JCQkJ
-CWJyZWFrOworCQkJCWJyZWFrOwogCi0JCQkJZGVmYXVsdDoKLQkJCQkJd2FybigiaWdub3Jpbmcg
-dW5rbm93biBvdXRwdXQgdXNhZ2UgJTA4eCIsIGZpZWxkLT51c2FnZVswXS5oaWQpOwotCQkJCQlj
-b250aW51ZTsKKwkJCWRlZmF1bHQ6CisJCQkJd2FybigiaWdub3JpbmcgdW5rbm93biBvdXRwdXQg
-dXNhZ2UgJTA4eCIsIGZpZWxkLT51c2FnZVswXS5oaWQpOworCQkJCWNvbnRpbnVlOwogCQkJfQog
-CQl9CiAJfQogCi0JZXJyb3IgPSBpbnB1dF9mZl9jcmVhdGVfbWVtbGVzcyhpbnB1dF9kZXYsIHRt
-ZmYsIGhpZF90bWZmX3BsYXkpOwotCWlmIChlcnJvcikgewotCQlrZnJlZSh0bWZmKTsKLQkJcmV0
-dXJuIGVycm9yOworCWlmICghdG1mZi0+cmVwb3J0KSB7CisJCWVycigiY2FudCBmaW5kIEZGIGZp
-ZWxkIGluIG91dHB1dCByZXBvcnRzXG4iKTsKKwkJZXJyb3IgPSAtRU5PREVWOworCQlnb3RvIGZh
-aWw7CiAJfQogCi0JaW5mbygiRm9yY2UgZmVlZGJhY2sgZm9yIFRocnVzdE1hc3RlciBydW1ibGUg
-cGFkIGRldmljZXMgYnkgWmlueCBWZXJpdHVzZSA8emlueEBlcGljc29sLm9yZz4iKTsKKwllcnJv
-ciA9IGlucHV0X2ZmX2NyZWF0ZV9tZW1sZXNzKGlucHV0X2RldiwgdG1mZiwgaGlkX3RtZmZfcGxh
-eSk7CisJaWYgKGVycm9yKQorCQlnb3RvIGZhaWw7CiAKKwlpbmZvKCJGb3JjZSBmZWVkYmFjayBm
-b3IgVGhydXN0TWFzdGVyIGRldmljZXMgYnkgWmlueCBWZXJpdHVzZSA8emlueEBlcGljc29sLm9y
-Zz4iKTsKIAlyZXR1cm4gMDsKKworIGZhaWw6CisJa2ZyZWUodG1mZik7CisJcmV0dXJuIGVycm9y
-OwogfQogCkluZGV4OiBsaW51eC9kcml2ZXJzL2hpZC91c2JoaWQvS2NvbmZpZwo9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-Ci0tLSBsaW51eC5vcmlnL2RyaXZlcnMvaGlkL3VzYmhpZC9LY29uZmlnCisrKyBsaW51eC9kcml2
-ZXJzL2hpZC91c2JoaWQvS2NvbmZpZwpAQCAtNzksMTEgKzc5LDEyIEBAIGNvbmZpZyBQQU5USEVS
-TE9SRF9GRgogCSAgdG8gZW5hYmxlIGZvcmNlIGZlZWRiYWNrIHN1cHBvcnQgZm9yIGl0LgogCiBj
-b25maWcgVEhSVVNUTUFTVEVSX0ZGCi0JYm9vbCAiVGhydXN0TWFzdGVyIEZpcmVTdG9ybSBEdWFs
-IFBvd2VyIDIgc3VwcG9ydCAoRVhQRVJJTUVOVEFMKSIKKwlib29sICJUaHJ1c3RNYXN0ZXIgZGV2
-aWNlcyBzdXBwb3J0IChFWFBFUklNRU5UQUwpIgogCWRlcGVuZHMgb24gSElEX0ZGICYmIEVYUEVS
-SU1FTlRBTAogCXNlbGVjdCBJTlBVVF9GRl9NRU1MRVNTIGlmIFVTQl9ISUQKIAloZWxwCi0JICBT
-YXkgWSBoZXJlIGlmIHlvdSBoYXZlIGEgVEhSVVNUTUFTVEVSIEZpcmVTdG9yZSBEdWFsIFBvd2Vy
-IDIsCisJICBTYXkgWSBoZXJlIGlmIHlvdSBoYXZlIGEgVEhSVVNUTUFTVEVSIEZpcmVTdG9yZSBE
-dWFsIFBvd2VyIDIgb3IKKwkgIGEgVEhSVVNUTUFTVEVSIEZlcnJhcmkgR1QgUnVtYmxlIEZvcmNl
-IG9yIEZvcmNlIEZlZWRiYWNrIFdoZWVsLAogCSAgYW5kIHdhbnQgdG8gZW5hYmxlIGZvcmNlIGZl
-ZWRiYWNrIHN1cHBvcnQgZm9yIGl0LgogCSAgTm90ZTogaWYgeW91IHNheSBOIGhlcmUsIHRoaXMg
-ZGV2aWNlIHdpbGwgc3RpbGwgYmUgc3VwcG9ydGVkLCBidXQgd2l0aG91dAogCSAgZm9yY2UgZmVl
-ZGJhY2suCg==
-------=_Part_63494_12803396.1184620905192--
+</BODY></HTML>

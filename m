@@ -1,37 +1,31 @@
-From: =?iso-2022-jp?B?GyRCOzNLXBsoQg==?= <plndknidand@yahoo.co.jp>
-Subject: =?iso-2022-jp?B?GyRCJDRMNTo7QkEkNyRGJCokaiReJDkhIzszS1wkRyQ5ISMbKEI=?=
-Date: Sun, 15 Jul 2007 11:49:38 +0900
-Message-ID: <20070715081805.0B7FA992F4@artax.karlin.mff.cuni.cz>
-Reply-To: <plndknidand@yahoo.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
+From: "Janna Souza" <kmp@atrey.karlin.mff.cuni.cz>
+Subject: Prest1ge Repl1cas ravishing repl1ca w4tches for you
+Date: Mon, 16 Jul 2007 01:00:36 -0500
+Message-ID: <nvzecqDKXALkmp@atrey.karlin.mff.cuni.cz>
+Reply-To: "Janna Souza" <kmp@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7Bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kmp@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-長くご連絡せず、申し訳御座いません。
-今回「落札率NO1」のオークションサイトを見付けましたのでご案内致します。
 
-落札率No1オークションサイトはこちらから確認出来ます。
-http://sss-me.com/doutei/?1070
-
-
-また新たに【お金が稼げるサイト】を見付けましたらご連絡差し上げます。
-
-
-　　　　　　　　　　　　　　　　　　　　　　　　　　山本　太郎
-
-
-
-
-
-
-
-受信拒否は山本宛にお願いいたします。
-tarou_yamamoto_info@yahoo.co.jp
+Repl1ca w4tches are not necessarily synonymous of lower quality.
+Instead, they are always synonymous of lower prices, and when a
+repl1ca w4tch comes from a well known online store as Prest1ge
+Repl1cas, you can rest assured that price slashing doesn't come as
+a compromise in quality. Au contraire! At Prest1ge Repl1cas, the
+quality of their repl1ca time pieces is of the utmost concern, and
+you can see this superb quality in every one of their P4tek Phili1ppe
+time pieces. Not until now had a P4tek Phili1ppe repl1ca w4tch been
+crafted with such legitimate-like details, and with such incomparable
+performance. So, if you are P4tek Phili1ppe lover, I'd like to suggest
+that you visit Prest1ge Repl1cas and check their best selling P4tek
+Phili1ppe models... you will be simply astonished at how original
+they look!
+http://www.bebenuie.com/

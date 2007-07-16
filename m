@@ -1,59 +1,102 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Keyboard problem
-Date: Mon, 16 Jul 2007 09:29:57 -0400
-Message-ID: <d120d5000707160629y2c866d1enb2af1e2f89f5f00f@mail.gmail.com>
-References: <32209efe0707152028h69b507b1j6ecd6c8e358ead62@mail.gmail.com>
+From: Gerald Folcher <geraldf2@free.fr>
+Subject: Force Feedback: Thrustmaster FGT Wheel quick-and-dirty in hid-lgff.c
+ or hid-tmff.c
+Date: Mon, 16 Jul 2007 15:48:17 +0200
+Message-ID: <469B7721.9070705@free.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <32209efe0707152028h69b507b1j6ecd6c8e358ead62@mail.gmail.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Natalie Protasevich <protasnb@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz, Alan Stern <stern@rowland.harvard.edu>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Natalie,
+Hello,
 
-On 7/15/07, Natalie Protasevich <protasnb@gmail.com> wrote:
-> Hello,
-> We have a problem with keybords here. It only hits several systems out
-> of many, and really impossible to reproduce because it happens on
-> different combinations of hardware/software and no one managed to find
-> out what triggers it. I had it on my workstation for a while, then it
-> was gone (was as of Friday when I hit it again).
-> Keyboard stops responding while mouse is still functional, if you hold
-> a key for a few seconds it reacts and displays a key (several of
-> them). If I hold down well ctrl-alt-F1 then I'm able to switch to text
-> screen and keyboard is just fine there. So it happens while X is
-> running, seems more likely when memory intensive apps are running
-> (firefox, kernel builds). Doesn't depend on type of videocard, whether
-> it is double or single monitor configuration, type of mouse (USB or
-> PS2 - but our HW guys said the systems have PS2 connector through the
-> USB bridge) - nothing seems to matter only presence of X. Restarting X
-> fixes a problem, but it is still very disruptive to everyone affected.
-> It seems like Linux input driver, USB and X may be involved. What can
-> be done to diagnose this problem? There is nothing in the logs, only
-> couple messages in X log which tell that screen saver was run a couple
-> times and mysterious message about Screen 0 and 1 now "sharing
-> resources". Do we need USB sniffer to trace traffic? Anything we can
-> do to get information from the kernel? Maybe instrumenting keyboard
-> driver and Xorg keyboard library somehow, use kprobes.
-> Any recommendations?
+I write this as it may be interesting to the peoples involved in the 
+force feedback drivers (or if you're just trying to get your 
+Thrustmaster wheel's force-feedback to work), I'm sorry I'm not 
+proposing a ready to apply patch because at this point I'm not competent 
+enough to make something clean that won't break anything. If anybody is 
+willing to make a proper patch out of this info it would be very welcome 
+as far as I'm concerned, I could try it to confirm that it works with my 
+wheel.
 
-What keyboard driver are you using in X? Isit the standard keyboard
-driver or xf86-input-evdev? If the former you can try loading evbug
-module (which will dump all input events into syslog) and wait for the
-condition to appear. Then connect to the box remotely (ssh/telnet) and
-see if keypresses still make to syslog. If they do that means that
-USB/HID and input core work fine and the propblem lies in the upper
-layers.
+So, I got a "Thrustmaster Ferrari GT 2-in-1 Force Feedback" racing wheel 
+type game controller. It's USB and is detected and work as a controller 
+out of the box. But of course I quickly got interested in trying to get 
+the Force Feedback part to also work.
+
+At first, I tried to get it to work using the iforce kernel module, 
+adding a vendor/id line in iforce-main.c and iforce-usb.c . But the most 
+significant result I got was the module telling me that it timed out 
+waiting for response from the device. So I concluded that my wheel was 
+probably not talking "I-Force", but I'm still not sure I did not do 
+something wrong...
+
+Anyway, next I tried in the usbhid module and I finally got FF_CONSTANT 
+type force-feedback working for my wheel, but only after some (very 
+small) modifications. This is only proof-of-concept as, as-is, it will 
+break Logitech compatibility.
+
+Here's a shell session transcript to show the diffs (kernel 2.6.22) :
+  bash-prompt$ cd drivers/hid/usbhid/
+  bash-prompt$ diff hid-lgff.c.orig hid-lgff.c
+  51a52
+  >         { 0x044f, 0xb654, ff_joystick }, /* Thrustmaster FGT Force 
+Feedback */
+  77,80c78,80
+  <               report->field[0]->value[0] = 0x51;
+  <               report->field[0]->value[1] = 0x08;
+  <               report->field[0]->value[2] = x;
+  <               report->field[0]->value[3] = y;
+  ---
+  >               /* Works on the Thrustmaster but breaks Logitech */
+  >               report->field[0]->value[0] = x;
+  >               report->field[0]->value[1] = y;
+  bash-prompt$ diff hid-ff.c.orig hid-ff.c
+  55a56
+  >       { 0x44f, 0xb654, hid_lgff_init }, /* Thrustmaster FGT Force 
+Feedback */
+
+That's it, with that my wheel can do FF_CONSTANT type force feedback. 
+Note that it also loads the 'ff_memless' module, so I guess the wheel 
+has no memory. It works well with the 'ffcfstress' and 'ffmvforce' test 
+utilities, and here's the output of 'fftest':
+
+Device /dev/input/event2 opened
+Axes query:
+Effects: Constant
+Number of simultaneous effects: 16
+Upload effects[0]: Invalid argument
+Upload effects[2]: Invalid argument
+Upload effects[3]: Invalid argument
+Upload effects[4]: Invalid argument
+Upload effects[5]: Invalid argument
+Enter effect number, -1 to exit
+
+With fftest, only entering '1' applies a left force, but I guess it's to 
+be expected since the driver only do FF_CONSTANT (I guess it's the same 
+on the Logitech's ?).
+
+I also tested it in Wine with the Live For Speed (aka "LFS") S2 demo, 
+and it seems to work quite well (tough I had to modify some small Wine 
+code that prevented FF to work with this game, but that's another 
+quick-and-dirty story). (OT: About Wine, if anybody can get Force 
+Feedback working with the game Grand Prix Legends I would be very 
+interested to know.)
+
+I guess that a proper patch for the Thrustmaster wheel(s) would probably 
+have better his place in hid-tmff.c (In fact I first gone that route but 
+I had to change more code introducing more ugliness... the diff output 
+from the hid-lgff.c version was much better for my "presentation" purpose).
+
+That's all, I hope it will be of interest to someone :D
 
 
 -- 
-Dmitry
+Gerald Folcher

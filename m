@@ -1,49 +1,63 @@
-From: "Rileyw Babcockf" <helena.taylor-knox@talk21.com>
-Subject: Hello, jana
-Date: Sun, 15 Jul 2007 07:37:43 +0500
-Message-ID: <01c7c6b3$07fc0130$247e7746@helena.taylor-knox>
+From: "Michael Bacon" <intraglobism@intraglobis.com>
+Subject: CanadianPharmacy introduced really amazing seasonal discounts
+Date: Mon, 16 Jul 2007 08:11:06 +0000 (UTC)
+Message-ID: <01c7c622$0443d310$6c822ecf@intraglobism>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7C5E7.57E4FB10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Sat, 14 Jul 2007 14:19:40 +0480
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jana@atrey.karlin.mff.cuni.cz
+To: lukor@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi, jana
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C7C5E7.57E4FB10
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
+
+Dear valued member.Great news. CanadianPharmacy has announced a half-price offer for all the pharmaceutical products. It’s not a joke, discounts are really amazing.Try our service and you will get deep-discounted quality products delivered fast and discreetly directly to your doorstep. CanadianPharmacy is famous for the level of service and confidentiality. No scamming, no frauds. Get the quality products you deserve. http://familywind.hkYours faithfully,Michael Bacon
 
 
-www.bestpharmspecial.com
+------=_NextPart_000_0006_01C7C5E7.57E4FB10
+Content-Type: text/html;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dwindows-1250">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear valued member.<=
+/font></p>
+<p><font face=3D"Verdana" size=3D"2"><br>Great news. <a href=3D"http://fami=
+lywind.hk">CanadianPharmacy</a> has announced a half-price offer for all th=
+e pharmaceutical products. It=92s not a joke, <b><i>discounts are really am=
+azing</i></b>.</font></p>
+<p><font face=3D"Verdana" size=3D"2">Try our service and you will get deep-=
+discounted quality products delivered fast and discreetly directly to your =
+doorstep. <b><a href=3D"http://familywind.hk">CanadianPharmacy</a></b> is f=
+amous for the level of service and confidentiality. No scamming, no frauds.=
+ </font></p>
+<p><font face=3D"Verdana" size=3D"2">Get the quality products you deserve. =
+<br><b><a href=3D"http://familywind.hk">http://familywind.hk</a></b></font>=
+</p>
+<font face=3D"Verdana" size=3D"2">Yours faithfully,<br>Michael Bacon</font>
+</body>
+</html>
+</body>
+</html>
 
-Viagra
-60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
-30 pills x 50mg 	$60.23 	$2.01 per pill 	Your save: $30 	
-10 pills x 50mg 	$30.22 	$3.03 per pill 		
-90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
-
-
-
-cialis
-30 pills x 20mg 	$104.66 	$3.49 per pill 	Your save: $13 	
-10 pills x 20mg 	$39.19 	$3.92 per pill 		
-20 pills x 20mg 	$76.68 	$3.83 per pill 	Your save: $2 	
-60 pills x 20mg 	$180.15 	$3 per pill 	Your save: $55
-
-
-
-Discreet packaging - 100% confidential.
-Professional Visa Verified Online Shop.
-Worldwide shipping.Next day delivery.
-Free physicians consultation & prescription.
-4 FREE Viagra BONUS PILLS. Order now & Get it!
-
-
-
-With Best Regards, Rileyg Babcocke .
+------=_NextPart_000_0006_01C7C5E7.57E4FB10--

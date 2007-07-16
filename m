@@ -1,48 +1,83 @@
-From: "Carriez Herreraw" <craigbirkett@tiscali.co.uk>
-Subject: FWD: jana
-Date: Mon, 16 Jul 2007 04:40:04 +0500
-Message-ID: <01c7c763$6117ade0$da1ab340@craigbirkett>
+From: Viagra Shop <dwbuckner@zen.it>
+Subject: You can
+Date: Mon, 16 Jul 2007 06:41:19 +0300
+Message-ID: <9bd201c7c75b$a97d809f$b41cfcf7@zen.it>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+    boundary="----=_NextPart_000_0000_5DC11850.B5CFC408"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jana@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi, jana
+This is a multi-part message in MIME format.
 
+------=_NextPart_000_0000_5DC11850.B5CFC408
+Content-Type: text/plain;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-BestPharmSpecial.Com
-Super Action: Four Viagra pills Free for Every Order!
+     VIAGRA CIALIS    Sex can be one of the most enjoyable parts of your
+life. It may strengthen your relationship with your partner.
 
-Viagra
-30 pills x 50mg 	$60.23 	$2.01 per pill 	Your save: $30 	
-60 pills x 50mg 	$111.65 	$1.86 per pill 	Your save: $70 	
-90 pills x 50mg 	$160.88 	$1.79 per pill 	Your save: $111
-10 pills x 50mg 	$30.22 	$3.03 per pill 		
+  If a relaxing moment turns into the right moment, will you be ready?
+You can be with CIALIS.
 
+   BUY ONLINE @ ED'S PILL STORE    
 
+  
+------=_NextPart_000_0000_5DC11850.B5CFC408
+Content-Type: text/html;
+    charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-cialis
-10 pills x 20mg 	$39.19 	$3.92 per pill 		
-20 pills x 20mg 	$76.68 	$3.83 per pill 	Your save: $2 	
-30 pills x 20mg 	$104.66 	$3.49 per pill 	Your save: $13 	
-60 pills x 20mg 	$180.15 	$3 per pill 	Your save: $55
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.2912" name=3D"GENERATOR">
+</HEAD>
+<BODY text=3D#000000 bgColor=3D#ffffff>
 
+<font size=3D"3" face=3D"Times New Roman"><p align=3D"center">
+<table cellspacing=3D"1" cellpadding=3D"11" width=3D"600" =
+border=3D"0">
+    <tbody>
+        <tr>
+            <td><span class=3D"subtextviagra"><font face=3D"Arial" =
+color=3D"#009900" =
+size=3D"6"><strong>VIAGRA</strong></font></span></td>
+            <td><span class=3D"subtextcialis"><font face=3D"Arial" =
+color=3D"#ff6600" =
+size=3D"6"><strong>CIALIS</strong></font></span></td>
+        </tr>
+        <tr>
+            <td>
+            <p align=3D"left"><span class=3D"subtextviagra"><font =
+face=3D"Arial">Sex can be one of the most enjoyable parts of your life. =
+It may strengthen your relationship with your =
+partner.</font></span></p>
+            </td>
+            <td>
+            <p align=3D"left"><span class=3D"subtextcialis"><font =
+face=3D"Arial">If a relaxing moment turns into the right moment, will =
+you be ready? You can be with CIALIS.</font></span></p>
+            </td>
+        </tr>
+        <tr>
+            <td colspan=3D"2"><a =
+href=3D"http://oatvisbiyglue.com/"><font face=3D"Arial" =
+color=3D"#ff0000" size=3D"5"><strong>BUY ONLINE @ ED'S PILL =
+STORE</strong></font></a></td>
+        </tr>
+    </tbody>
+</table>
+</p></font>
+</BODY>
+</HTML>
 
-
-Discreet packaging - 100% confidential.
-Free physicians consultation & prescription.
-Professional Visa Verified Online Shop.
-Worldwide shipping.Next day delivery.
-4 FREE Viagra BONUS PILLS. Order now & Get it!
-
-
-
-With Best Regards, Carriea Herrerah .
+------=_NextPart_000_0000_5DC11850.B5CFC408--

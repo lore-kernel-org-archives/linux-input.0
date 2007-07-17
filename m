@@ -1,310 +1,153 @@
-From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Subject: Re: [PATCH 3/3] leds-clevo-mail: driver for Clevo mail LED
-Date: Tue, 17 Jul 2007 20:13:38 +0200
-Message-ID: <469D06D2.9020902@freemail.hu>
-References: <469C978A.5060809@freemail.hu>
+From: Soeren Sonnenburg <kernel@nn7.de>
+Subject: Re: [PATCH] appletouch powersaving - please apply for 2.6.23-rc1
+	take #3
+Date: Tue, 17 Jul 2007 20:16:19 +0200
+Message-ID: <1184696179.6161.18.camel@localhost>
+References: <1184656218.14051.43.camel@localhost>
+	 <d120d5000707170801u27e11936h9546bd36da7a1162@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S935703AbXGQSOp@vger.kernel.org>
-In-Reply-To: <469C978A.5060809@freemail.hu>
+Content-Type: multipart/mixed; boundary="=-3iIqw4oSVkuVWbDcAuui"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S935376AbXGQSQi@vger.kernel.org>
+In-Reply-To: <d120d5000707170801u27e11936h9546bd36da7a1162@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Richard Purdie <rpurdie@rpsys.net>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Rodrigo Pereira <rodripe@gmail.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Matthew Garrett <mjg59@srcf.ucam.org>, Nicolas Boichat <nicolas@boichat.ch>, Michael Hanselmann <linux-kernel@hansmi.ch>, Peter Osterlund <petero2@telia.com>, Frank Arnold <frank@scirocco-5v-turbo.de>, Stelian Pop <stelian@popies.net>, Johannes Berg <johannes@sipsolutions.net>, Greg Kroah-Hartman <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
 
-=46rom: M=E1rton N=E9meth <nm127@freemail.hu>
 
-The driver supports the mail LED commonly found on different Clevo note=
-books.
-The driver access the LED through the i8042 hardware and implements the=
- support for
-hardware accelerated blink function.
+--=-3iIqw4oSVkuVWbDcAuui
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: M=E1rton N=E9meth <nm127@freemail.hu>
----
-diff -uprN linux-2.6.22.orig/drivers/leds/Kconfig linux-2.6.22/drivers/=
-leds/Kconfig
---- linux-2.6.22.orig/drivers/leds/Kconfig	2007-07-09 01:32:17.00000000=
-0 +0200
-+++ linux-2.6.22/drivers/leds/Kconfig	2007-07-17 10:52:43.000000000 +02=
-00
-@@ -95,6 +95,26 @@ config LEDS_COBALT
-  	help
-  	  This option enables support for the front LED on Cobalt Server
+On Tue, 2007-07-17 at 11:01 -0400, Dmitry Torokhov wrote:
+> Hi,
+> 
+> On 7/17/07, Soeren Sonnenburg <kernel@nn7.de> wrote:
+> >
+> >  err_free_buffer:
+> > @@ -656,6 +699,7 @@ static void atp_disconnect(struct usb_interface *iface)
+> >
+> >        usb_set_intfdata(iface, NULL);
+> >        if (dev) {
+> > +               cancel_work_sync(&dev->work);
+> >                usb_kill_urb(dev->urb);
+> >                input_unregister_device(dev->input);
+> >                usb_buffer_free(dev->udev, dev->datalen,
+> >
+> 
+> This should go into atp_close() and I think you need to do
+> cancel_work_sync after calling usb_kill_urb() otherwise you risk it
+> being submitted while you gettingto kill the urb.
 
-+config LEDS_CLEVO_MAIL
-+	tristate "Mail LED on Clevo notebook (EXPERIMENTAL)"
-+	depends on LEDS_CLASS && X86 && SERIO_I8042 && DMI && EXPERIMENTAL
-+	help
-+	  This driver makes the mail LED accessible from userspace
-+	  programs through the leds subsystem. This LED can blink at
-+	  about 0.5Hz and 1Hz.
-+
-+	  This module can drive the mail LED for the following notebooks:
-+
-+		Clevo D410J
-+		Clevo D410V
-+		Clevo D400V/D470V (not tested, but might work)
-+		Clevo M540N
-+		Clevo M5x0N (not tested, but might work)
-+		Positivo Mobile (Clevo M5x0V)
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called leds-clevo-mail.
-+
-  comment "LED Triggers"
+good catch. modified patch accordingly+attached.
 
-  config LEDS_TRIGGERS
-diff -uprN linux-2.6.22.orig/drivers/leds/leds-clevo-mail.c linux-2.6.2=
-2/drivers/leds/leds-clevo-mail.c
---- linux-2.6.22.orig/drivers/leds/leds-clevo-mail.c	1970-01-01 01:00:0=
-0.000000000 +0100
-+++ linux-2.6.22/drivers/leds/leds-clevo-mail.c	2007-07-17 17:53:34.000=
-000000 +0200
-@@ -0,0 +1,226 @@
-+
-+#include <linux/module.h>
-+
-+#include <linux/platform_device.h>
-+#include <linux/err.h>
-+#include <linux/leds.h>
-+
-+#include <linux/io.h>
-+#include <linux/dmi.h>
-+
-+#include <linux/i8042.h>
-+
-+
-+#define TRUE				1
-+#define FALSE				0
-+
-+#define HANDLED				0
-+
-+#define CLEVO_MAIL_LED_OFF		0x0084
-+#define CLEVO_MAIL_LED_BLINK_1HZ	0x008A
-+#define CLEVO_MAIL_LED_BLINK_0_5HZ	0x0083
-+
-+#define MODULE_FNAME		"leds-clevo-mail.c"
-+#define DRVNAME			"clevo-mail-led"
-+#define NO_RESOURCES		NULL
-+
-+MODULE_AUTHOR("M=E1rton N=E9meth <nm127@freemail.hu>");
-+MODULE_DESCRIPTION("Clevo mail LED driver");
-+MODULE_LICENSE("GPL");
-+
-+static unsigned int __initdata nodetect;
-+module_param_named(nodetect, nodetect, bool, 0);
-+MODULE_PARM_DESC(nodetect, "Skip DMI hardware detection");
-+
-+
-+static struct platform_device *pdev;
-+
-+
-+static int __init clevo_mail_led_dmi_callback(struct dmi_system_id *id=
-)
-+{
-+	printk(KERN_INFO MODULE_FNAME ": '%s' found\n", id->ident);
-+	return 1;
-+}
-+
-+/**
-+ * struct mail_led_whitelist - List of known good models
-+ *
-+ * Contains the known good models this driver is compatible with.
-+ * When adding a new model try to be as strict as possible. This
-+ * makes it possible to keep the false positives (the model is
-+ * detected as working, but in reality it is not) as low as
-+ * possible.
-+ */
-+static struct dmi_system_id __initdata mail_led_whitelist[] =3D {
-+	{
-+		.callback =3D clevo_mail_led_dmi_callback,
-+		.ident =3D "Clevo D410J",
-+		.matches =3D {
-+			DMI_MATCH(DMI_SYS_VENDOR, "VIA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "K8N800"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "VT8204B")
-+		}
-+	},
-+	{
-+		.callback =3D clevo_mail_led_dmi_callback,
-+		.ident =3D "Clevo M5x0N",
-+		.matches =3D {
-+			DMI_MATCH(DMI_SYS_VENDOR, "CLEVO Co."),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "M5x0N")
-+		}
-+	},
-+	{
-+		.callback =3D clevo_mail_led_dmi_callback,
-+		.ident =3D "Positivo Mobile",
-+		.matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "CLEVO Co. "),
-+			DMI_MATCH(DMI_BOARD_NAME, "M5X0V "),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Positivo Mobile"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "VT6198")
-+		}
-+	},
-+	{
-+		.callback =3D clevo_mail_led_dmi_callback,
-+		.ident =3D "Clevo D410V",
-+		.matches =3D {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Clevo, Co."),
-+			DMI_MATCH(DMI_BOARD_NAME, "D400V/D470V"),
-+			DMI_MATCH(DMI_BOARD_VERSION, "SS78B"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "Rev. A1")
-+		}
-+	},
-+	{ }
-+};
-+
-+
-+static void clevo_mail_led_set(struct led_classdev *led_cdev,
-+				enum led_brightness value)
-+{
-+	if (value =3D=3D LED_OFF)
-+		i8042_command(NULL, CLEVO_MAIL_LED_OFF);
-+	else if (value <=3D LED_HALF)
-+		i8042_command(NULL, CLEVO_MAIL_LED_BLINK_0_5HZ);
-+	else
-+		i8042_command(NULL, CLEVO_MAIL_LED_BLINK_1HZ);
-+
-+}
-+
-+static int clevo_mail_led_blink(struct led_classdev *led_cdev,
-+				int delay_on, int delay_off)
-+{
-+	int status =3D -EINVAL;
-+
-+	if (delay_on =3D=3D 500 /* ms */ && delay_off =3D=3D 500 /* ms */) {
-+		/* blink the led with 1Hz */
-+		i8042_command(NULL, CLEVO_MAIL_LED_BLINK_1HZ);
-+		status =3D HANDLED;
-+
-+	} else if (delay_on =3D=3D 1000 /* ms */ && delay_off =3D=3D 1000 /* =
-ms */) {
-+		/* blink the led with 0.5Hz */
-+		i8042_command(NULL, CLEVO_MAIL_LED_BLINK_0_5HZ);
-+		status =3D HANDLED;
-+
-+	} else {
-+		printk(KERN_DEBUG MODULE_FNAME
-+		       ": clevo_mail_led_blink(..., %u, %u),"
-+		       " returning -EINVAL (unsupported)\n",
-+		       delay_on, delay_off);
-+	}
-+
-+	return status;
-+}
-+
-+
-+static struct led_classdev clevo_mail_led =3D {
-+	.name			=3D "clevo::mail",
-+	.brightness_set		=3D clevo_mail_led_set,
-+	.blink_set		=3D clevo_mail_led_blink,
-+};
-+
-+static int __init clevo_mail_led_probe(struct platform_device *pdev)
-+{
-+	return led_classdev_register(&pdev->dev, &clevo_mail_led);
-+}
-+
-+static int clevo_mail_led_remove(struct platform_device *pdev)
-+{
-+	led_classdev_unregister(&clevo_mail_led);
-+	return 0;
-+}
-+
-+
-+
-+#ifdef CONFIG_PM
-+static int clevo_mail_led_suspend(struct platform_device *dev,
-+				  pm_message_t state)
-+{
-+	led_classdev_suspend(&clevo_mail_led);
-+	return 0;
-+}
-+
-+static int clevo_mail_led_resume(struct platform_device *dev)
-+{
-+	led_classdev_resume(&clevo_mail_led);
-+	return 0;
-+}
-+#endif
-+
-+static struct platform_driver clevo_mail_led_driver =3D {
-+	.probe		=3D clevo_mail_led_probe,
-+	.remove		=3D clevo_mail_led_remove,
-+#ifdef CONFIG_PM
-+	.suspend	=3D clevo_mail_led_suspend,
-+	.resume		=3D clevo_mail_led_resume,
-+#endif
-+	.driver		=3D {
-+		.name		=3D DRVNAME,
-+	},
-+};
-+
-+
-+static int __init clevo_mail_led_init(void)
-+{
-+	int error =3D 0;
-+	int count =3D 0;
-+
-+	/* Check with the help of DMI if we are running on supported hardware=
- */
-+	if (!nodetect) {
-+		count =3D dmi_check_system(mail_led_whitelist);
-+	} else {
-+		count =3D 1;
-+		printk(KERN_ERR MODULE_FNAME ": Skipping DMI detection. "
-+		       "If the driver works on your hardware please "
-+		       "report model and the output of dmidecode in tracker "
-+		       "at http://sourceforge.net/projects/clevo-mailled/\n");
-+	}
-+
-+	if (!count) {
-+		return -ENODEV;
-+	}
-+
-+	pdev =3D platform_device_register_simple(DRVNAME, -1, NO_RESOURCES, 0=
-);
-+	if (!IS_ERR(pdev)) {
-+		error =3D platform_driver_probe(&clevo_mail_led_driver,
-+					      clevo_mail_led_probe);
-+		if (error) {
-+			printk(KERN_ERR MODULE_FNAME
-+			       ": Can't probe platform driver\n");
-+			platform_device_unregister(pdev);
-+		}
-+	} else {
-+		error =3D PTR_ERR(pdev);
-+	}
-+
-+	return error;
-+}
-+
-+static void __exit clevo_mail_led_exit(void)
-+{
-+	platform_device_unregister(pdev);
-+	platform_driver_unregister(&clevo_mail_led_driver);
-+
-+	clevo_mail_led_set(NULL, LED_OFF);
-+}
-+
-+module_init(clevo_mail_led_init);
-+module_exit(clevo_mail_led_exit);
-diff -uprN linux-2.6.22.orig/drivers/leds/Makefile linux-2.6.22/drivers=
-/leds/Makefile
---- linux-2.6.22.orig/drivers/leds/Makefile	2007-07-09 01:32:17.0000000=
-00 +0200
-+++ linux-2.6.22/drivers/leds/Makefile	2007-07-17 10:52:43.000000000 +0=
-200
-@@ -16,6 +16,7 @@ obj-$(CONFIG_LEDS_NET48XX)		+=3D leds-net4
-  obj-$(CONFIG_LEDS_WRAP)			+=3D leds-wrap.o
-  obj-$(CONFIG_LEDS_H1940)		+=3D leds-h1940.o
-  obj-$(CONFIG_LEDS_COBALT)		+=3D leds-cobalt.o
-+obj-$(CONFIG_LEDS_CLEVO_MAIL)		+=3D leds-clevo-mail.o
+> How many boxes did you try this patch on?
 
-  # LED Triggers
-  obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+=3D ledtrig-timer.o
+Mine plus 1 other. However please note that Matthews patch has been
+(which is what this patch is based on) is in the mactel-patches
+repository for quite some time now and that the not-yet-cleanup up
+variant of this patch was posted to mactel-devel...
+
+So the modeswitch part should work...
+
+Soeren
+-- 
+Sometimes, there's a moment as you're waking, when you become aware of
+the real world around you, but you're still dreaming.
+
+--=-3iIqw4oSVkuVWbDcAuui
+Content-Disposition: attachment; filename=appletouch3.patch
+Content-Type: text/x-patch; name=appletouch3.patch; charset=ISO-8859-15
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaW5wdXQvbW91c2UvYXBwbGV0b3VjaC5jIGIvZHJpdmVycy9p
+bnB1dC9tb3VzZS9hcHBsZXRvdWNoLmMNCmluZGV4IGUzMjE1MjYuLjdmMTgwZjcgMTAwNjQ0DQot
+LS0gYS9kcml2ZXJzL2lucHV0L21vdXNlL2FwcGxldG91Y2guYw0KKysrIGIvZHJpdmVycy9pbnB1
+dC9tb3VzZS9hcHBsZXRvdWNoLmMNCkBAIC0xNTUsNiArMTU1LDggQEAgc3RydWN0IGF0cCB7DQog
+CWludAkJCXh5X2FjY1tBVFBfWFNFTlNPUlMgKyBBVFBfWVNFTlNPUlNdOw0KIAlpbnQJCQlvdmVy
+Zmxvd3dhcm47CS8qIG92ZXJmbG93IHdhcm5pbmcgcHJpbnRlZD8gKi8NCiAJaW50CQkJZGF0YWxl
+bjsJLyogc2l6ZSBvZiBhbiBVU0IgdXJiIHRyYW5zZmVyICovDQorCWludAkJCWlkbGVjb3VudDsg
+ICAgICAvKiBudW1iZXIgb2YgZW1wdHkgcGFja2V0cyAqLw0KKwlzdHJ1Y3Qgd29ya19zdHJ1Y3Qg
+ICAgICB3b3JrOw0KIH07DQogDQogI2RlZmluZSBkYmdfZHVtcChtc2csIHRhYikgXA0KQEAgLTIw
+OCw2ICsyMTAsNjMgQEAgc3RhdGljIGlubGluZSBpbnQgYXRwX2lzX2dleXNlcl8zKHN0cnVjdCBh
+dHAgKmRldikNCiAJCShwcm9kdWN0SWQgPT0gR0VZU0VSNF9KSVNfUFJPRFVDVF9JRCk7DQogfQ0K
+IA0KKy8qDQorICogQnkgZGVmYXVsdCBHZXlzZXIgMyBkZXZpY2Ugc2VuZHMgc3RhbmRhcmQgVVNC
+IEhJRCBtb3VzZQ0KKyAqIHBhY2tldHMgKFJlcG9ydCBJRCAyKS4gVGhpcyBjb2RlIGNoYW5nZXMg
+ZGV2aWNlIG1vZGUsIHNvIGl0DQorICogc2VuZHMgcmF3IHNlbnNvciByZXBvcnRzIChSZXBvcnQg
+SUQgNSkuDQorICovDQorc3RhdGljIGludCBhdHBfZ2V5c2VyM19pbml0KHN0cnVjdCB1c2JfZGV2
+aWNlICp1ZGV2KQ0KK3sNCisJY2hhciBkYXRhWzhdOw0KKwlpbnQgc2l6ZTsNCisJaW50IGk7DQor
+DQorCXNpemUgPSB1c2JfY29udHJvbF9tc2codWRldiwgdXNiX3JjdmN0cmxwaXBlKHVkZXYsIDAp
+LA0KKwkJCQlBVFBfR0VZU0VSM19NT0RFX1JFQURfUkVRVUVTVF9JRCwNCisJCQkJVVNCX0RJUl9J
+TiB8IFVTQl9UWVBFX0NMQVNTIHwgVVNCX1JFQ0lQX0lOVEVSRkFDRSwNCisJCQkJQVRQX0dFWVNF
+UjNfTU9ERV9SRVFVRVNUX1ZBTFVFLA0KKwkJCQlBVFBfR0VZU0VSM19NT0RFX1JFUVVFU1RfSU5E
+RVgsICZkYXRhLCA4LCA1MDAwKTsNCisNCisJaWYgKHNpemUgIT0gOCkgew0KKwkJcHJpbnRrKCJh
+cHBsZXRvdWNoIGF0cF9nZXlzZXIzX2luaXQgUkVBRCBlcnJvclxuIik7DQorCQlmb3IgKGk9MDsg
+aTw4OyBpKyspDQorCQkJcHJpbnRrKCJhcHBsZXRvdWNoWyVkXTogJWRcbiIsIGksIChpbnQpIGRh
+dGFbaV0pOw0KKw0KKwkJZXJyKCJDb3VsZCBub3QgZG8gbW9kZSByZWFkIHJlcXVlc3QgZnJvbSBk
+ZXZpY2UiDQorCQkgICAgIiAoR2V5c2VyIDMgbW9kZSkiKTsNCisJCXJldHVybiAtRUlPOw0KKwl9
+DQorDQorCS8qIEFwcGx5IHRoZSBtb2RlIHN3aXRjaCAqLw0KKwlkYXRhWzBdID0gQVRQX0dFWVNF
+UjNfTU9ERV9WRU5ET1JfVkFMVUU7DQorDQorCXNpemUgPSB1c2JfY29udHJvbF9tc2codWRldiwg
+dXNiX3NuZGN0cmxwaXBlKHVkZXYsIDApLA0KKwkJCQlBVFBfR0VZU0VSM19NT0RFX1dSSVRFX1JF
+UVVFU1RfSUQsDQorCQkJCVVTQl9ESVJfT1VUIHwgVVNCX1RZUEVfQ0xBU1MgfCBVU0JfUkVDSVBf
+SU5URVJGQUNFLA0KKwkJCQlBVFBfR0VZU0VSM19NT0RFX1JFUVVFU1RfVkFMVUUsDQorCQkJCUFU
+UF9HRVlTRVIzX01PREVfUkVRVUVTVF9JTkRFWCwgJmRhdGEsIDgsIDUwMDApOw0KKw0KKwlpZiAo
+c2l6ZSAhPSA4KSB7DQorCQlwcmludGsoImFwcGxldG91Y2ggYXRwX2dleXNlcjNfaW5pdCBXUklU
+RSBlcnJvclxuIik7DQorCQlmb3IgKGk9MDsgaTw4OyBpKyspDQorCQkJcHJpbnRrKCJhcHBsZXRv
+dWNoWyVkXTogJWRcbiIsIGksIChpbnQpIGRhdGFbaV0pOw0KKwkJZXJyKCJDb3VsZCBub3QgZG8g
+bW9kZSB3cml0ZSByZXF1ZXN0IHRvIGRldmljZSINCisJCSAgICAiIChHZXlzZXIgMyBtb2RlKSIp
+Ow0KKwkJcmV0dXJuIC1FSU87DQorCX0NCisJcmV0dXJuIDA7DQorfQ0KKw0KKy8qIFJlaW5pdGlh
+bGlzZSB0aGUgZGV2aWNlIGlmIGl0J3MgYSBnZXlzZXIgMyAqLw0KK3N0YXRpYyB2b2lkIGF0cF9y
+ZWluaXQoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQ0KK3sNCisJc3RydWN0IGF0cCAqZGV2ID0g
+Y29udGFpbmVyX29mKHdvcmssIHN0cnVjdCBhdHAsIHdvcmspOw0KKwlzdHJ1Y3QgdXNiX2Rldmlj
+ZSAqdWRldiA9IGRldi0+dWRldjsNCisNCisJZGV2LT5pZGxlY291bnQgPSAwOw0KKwlhdHBfZ2V5
+c2VyM19pbml0KHVkZXYpOw0KK30NCisNCiBzdGF0aWMgaW50IGF0cF9jYWxjdWxhdGVfYWJzKGlu
+dCAqeHlfc2Vuc29ycywgaW50IG5iX3NlbnNvcnMsIGludCBmYWN0LA0KIAkJCSAgICAgaW50ICp6
+LCBpbnQgKmZpbmdlcnMpDQogew0KQEAgLTQ0OSwxMSArNTA4LDIxIEBAIHN0YXRpYyB2b2lkIGF0
+cF9jb21wbGV0ZShzdHJ1Y3QgdXJiKiB1cmIpDQogDQogCQkvKiByZXNldCB0aGUgYWNjdW11bGF0
+b3Igb24gcmVsZWFzZSAqLw0KIAkJbWVtc2V0KGRldi0+eHlfYWNjLCAwLCBzaXplb2YoZGV2LT54
+eV9hY2MpKTsNCi0JfQ0KIA0KLQlpbnB1dF9yZXBvcnRfa2V5KGRldi0+aW5wdXQsIEJUTl9MRUZU
+LA0KLQkJCSAhIWRldi0+ZGF0YVtkZXYtPmRhdGFsZW4gLSAxXSk7DQorCQkvKiBHZXlzZXIgMyB3
+aWxsIGNvbnRpbnVlIHRvIHNlbmQgcGFja2V0cyBjb250aW51YWxseSBhZnRlcg0KKwkJICAgdGhl
+IGZpcnN0IHRvdWNoIHVubGVzcyByZWluaXRpYWxpc2VkLiBEbyBzbyBpZiBpdCdzIGJlZW4NCisJ
+CSAgIGlkbGUgZm9yIGEgd2hpbGUgaW4gb3JkZXIgdG8gYXZvaWQgd2FraW5nIHRoZSBrZXJuZWwg
+dXANCisJCSAgIHNldmVyYWwgaHVuZHJlZCB0aW1lcyBhIHNlY29uZCAqLw0KKwkJaWYgKGF0cF9p
+c19nZXlzZXJfMyhkZXYpKSB7DQorCQkJZGV2LT5pZGxlY291bnQrKzsNCisJCQlpZiAoZGV2LT5p
+ZGxlY291bnQgPT0gMTApIHsNCisJCQkJZGV2LT52YWxpZD0wOw0KKwkJCQlzY2hlZHVsZV93b3Jr
+ICgmZGV2LT53b3JrKTsNCisJCQl9DQorCQl9DQorCX0NCiANCisJaW5wdXRfcmVwb3J0X2tleShk
+ZXYtPmlucHV0LCBCVE5fTEVGVCwgZGV2LT5kYXRhW2Rldi0+ZGF0YWxlbi0xXSAmIDEpOw0KIAlp
+bnB1dF9zeW5jKGRldi0+aW5wdXQpOw0KIA0KIGV4aXQ6DQpAQCAtNDgwLDYgKzU0OSw3IEBAIHN0
+YXRpYyB2b2lkIGF0cF9jbG9zZShzdHJ1Y3QgaW5wdXRfZGV2ICppbnB1dCkNCiAJc3RydWN0IGF0
+cCAqZGV2ID0gaW5wdXRfZ2V0X2RydmRhdGEoaW5wdXQpOw0KIA0KIAl1c2Jfa2lsbF91cmIoZGV2
+LT51cmIpOw0KKwljYW5jZWxfd29ya19zeW5jKCZkZXYtPndvcmspOw0KIAlkZXYtPm9wZW4gPSAw
+Ow0KIH0NCiANCkBAIC01MjgsNDAgKzU5OCwxMCBAQCBzdGF0aWMgaW50IGF0cF9wcm9iZShzdHJ1
+Y3QgdXNiX2ludGVyZmFjZSAqaWZhY2UsIGNvbnN0IHN0cnVjdCB1c2JfZGV2aWNlX2lkICppZA0K
+IAkJZGV2LT5kYXRhbGVuID0gODE7DQogDQogCWlmIChhdHBfaXNfZ2V5c2VyXzMoZGV2KSkgew0K
+LQkJLyoNCi0JCSAqIEJ5IGRlZmF1bHQgR2V5c2VyIDMgZGV2aWNlIHNlbmRzIHN0YW5kYXJkIFVT
+QiBISUQgbW91c2UNCi0JCSAqIHBhY2tldHMgKFJlcG9ydCBJRCAyKS4gVGhpcyBjb2RlIGNoYW5n
+ZXMgZGV2aWNlIG1vZGUsIHNvIGl0DQotCQkgKiBzZW5kcyByYXcgc2Vuc29yIHJlcG9ydHMgKFJl
+cG9ydCBJRCA1KS4NCi0JCSAqLw0KLQkJY2hhciBkYXRhWzhdOw0KLQkJaW50IHNpemU7DQotDQot
+CQlzaXplID0gdXNiX2NvbnRyb2xfbXNnKHVkZXYsIHVzYl9yY3ZjdHJscGlwZSh1ZGV2LCAwKSwN
+Ci0JCQlBVFBfR0VZU0VSM19NT0RFX1JFQURfUkVRVUVTVF9JRCwNCi0JCQlVU0JfRElSX0lOIHwg
+VVNCX1RZUEVfQ0xBU1MgfCBVU0JfUkVDSVBfSU5URVJGQUNFLA0KLQkJCUFUUF9HRVlTRVIzX01P
+REVfUkVRVUVTVF9WQUxVRSwNCi0JCQlBVFBfR0VZU0VSM19NT0RFX1JFUVVFU1RfSU5ERVgsICZk
+YXRhLCA4LCA1MDAwKTsNCi0NCi0JCWlmIChzaXplICE9IDgpIHsNCi0JCQllcnIoIkNvdWxkIG5v
+dCBkbyBtb2RlIHJlYWQgcmVxdWVzdCBmcm9tIGRldmljZSINCi0JCQkJCQkJIiAoR2V5c2VyIDMg
+bW9kZSkiKTsNCisJCS8qIHN3aXRjaCB0byByYXcgc2Vuc29yIG1vZGUgKi8NCisJCWlmIChhdHBf
+Z2V5c2VyM19pbml0KHVkZXYpKQ0KIAkJCWdvdG8gZXJyX2ZyZWVfZGV2czsNCi0JCX0NCi0NCi0J
+CS8qIEFwcGx5IHRoZSBtb2RlIHN3aXRjaCAqLw0KLQkJZGF0YVswXSA9IEFUUF9HRVlTRVIzX01P
+REVfVkVORE9SX1ZBTFVFOw0KLQ0KLQkJc2l6ZSA9IHVzYl9jb250cm9sX21zZyh1ZGV2LCB1c2Jf
+c25kY3RybHBpcGUodWRldiwgMCksDQotCQkJQVRQX0dFWVNFUjNfTU9ERV9XUklURV9SRVFVRVNU
+X0lELA0KLQkJCVVTQl9ESVJfT1VUIHwgVVNCX1RZUEVfQ0xBU1MgfCBVU0JfUkVDSVBfSU5URVJG
+QUNFLA0KLQkJCUFUUF9HRVlTRVIzX01PREVfUkVRVUVTVF9WQUxVRSwNCi0JCQlBVFBfR0VZU0VS
+M19NT0RFX1JFUVVFU1RfSU5ERVgsICZkYXRhLCA4LCA1MDAwKTsNCiANCi0JCWlmIChzaXplICE9
+IDgpIHsNCi0JCQllcnIoIkNvdWxkIG5vdCBkbyBtb2RlIHdyaXRlIHJlcXVlc3QgdG8gZGV2aWNl
+Ig0KLQkJCQkJCQkiIChHZXlzZXIgMyBtb2RlKSIpOw0KLQkJCWdvdG8gZXJyX2ZyZWVfZGV2czsN
+Ci0JCX0NCiAJCXByaW50aygiYXBwbGV0b3VjaCBHZXlzZXIgMyBpbml0ZWQuXG4iKTsNCiAJfQ0K
+IA0KQEAgLTYzNiw2ICs2NzYsOCBAQCBzdGF0aWMgaW50IGF0cF9wcm9iZShzdHJ1Y3QgdXNiX2lu
+dGVyZmFjZSAqaWZhY2UsIGNvbnN0IHN0cnVjdCB1c2JfZGV2aWNlX2lkICppZA0KIAkvKiBzYXZl
+IG91ciBkYXRhIHBvaW50ZXIgaW4gdGhpcyBpbnRlcmZhY2UgZGV2aWNlICovDQogCXVzYl9zZXRf
+aW50ZmRhdGEoaWZhY2UsIGRldik7DQogDQorCUlOSVRfV09SSygmZGV2LT53b3JrLCBhdHBfcmVp
+bml0KTsNCisNCiAJcmV0dXJuIDA7DQogDQogIGVycl9mcmVlX2J1ZmZlcjoNCi==
+
+
+--=-3iIqw4oSVkuVWbDcAuui--

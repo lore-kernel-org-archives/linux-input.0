@@ -1,36 +1,39 @@
-From: Gerald Folcher <geraldf2@free.fr>
-Subject: Re: Force Feedback: Thrustmaster FGT Wheel quick-and-dirty in hid-lgff.c
- or hid-tmff.c
-Date: Tue, 17 Jul 2007 15:14:23 +0200
-Message-ID: <469CC0AF.7080809@free.fr>
-References: <469B7721.9070705@free.fr> <d120d5000707160905l214a6ec3yaefc73be5644e1b1@mail.gmail.com> <469BA787.8080700@free.fr>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] appletouch powersaving - please apply for 2.6.23-rc1
+Date: Tue, 17 Jul 2007 11:01:48 -0400
+Message-ID: <d120d5000707170801u27e11936h9546bd36da7a1162@mail.gmail.com>
+References: <1184656218.14051.43.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <469BA787.8080700@free.fr>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933732AbXGQPCA@vger.kernel.org>
+In-Reply-To: <1184656218.14051.43.camel@localhost>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Matthew Garrett <mjg59@srcf.ucam.org>, Nicolas Boichat <nicolas@boichat.ch>, Michael Hanselmann <linux-kernel@hansmi.ch>, Peter Osterlund <petero2@telia.com>, Frank Arnold <frank@scirocco-5v-turbo.de>, Stelian Pop <stelian@popies.net>, Johannes Berg <johannes@sipsolutions.net>, Greg Kroah-Hartman <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
 
-Gerald Folcher wrote:
-<snip>
-> 0x651, which is the id of the Rumble version
-<snip>
-> While the id of my wheel (Force Feedback) is: 0x654 (and according to 
-> the aforementioned MS-Windows registry there is also an id 0x652 for a 
-> Thrustmaster wheel with the same name).
+Hi,
 
-Btw, just to correct myself (of course Anssi and Dmitry understood what 
-I meant), since these messages are archived and for correctness sake: I 
-forgot the 'b's in the ids I mentionned, so they are in fact 
-respectively 0xb651, 0xb654, and 0xb652. Phew, now I feel better.
+On 7/17/07, Soeren Sonnenburg <kernel@nn7.de> wrote:
+>
+>  err_free_buffer:
+> @@ -656,6 +699,7 @@ static void atp_disconnect(struct usb_interface *iface)
+>
+>        usb_set_intfdata(iface, NULL);
+>        if (dev) {
+> +               cancel_work_sync(&dev->work);
+>                usb_kill_urb(dev->urb);
+>                input_unregister_device(dev->input);
+>                usb_buffer_free(dev->udev, dev->datalen,
+>
 
-(Sorry for the noise.)
+This should go into atp_close() and I think you need to do
+cancel_work_sync after calling usb_kill_urb() otherwise you risk it
+being submitted while you gettingto kill the urb.
+
+How many boxes did you try this patch on?
 
 -- 
-Gerald Folcher
+Dmitry

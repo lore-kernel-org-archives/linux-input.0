@@ -1,132 +1,63 @@
-From: "Duncan Hoyt" <lihzirklefyt@zirkle.com>
-Subject: Become fit and happy again
-Date: Tue, 17 Jul 2007 08:47:43 -0100
-Message-ID: <084161895.42602711797710@thhebat.net>
+From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: [PATCH 1/3] leds-clevo-mail: export i8042_command()
+Date: Tue, 17 Jul 2007 12:18:19 +0200
+Message-ID: <469C976B.3030206@freemail.hu>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------8FB018F4D39B01F"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: l@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset=ISO-8859-2;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757774AbXGQKSp@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Richard Purdie <rpurdie@rpsys.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Rodrigo Pereira <rodripe@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-------------8FB018F4D39B01F
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
+=46rom: M=E1rton N=E9meth <nm127@freemail.hu>
 
+Export the i8042_command() function which manages the mutual exclusion
+with the help of the i8042_lock spinlock. This lets possible to use the
+i8042 hardware safely from other part of the kernel, too.
 
-Don't waste the opportunity! =96 Anatrim =96 The very up-to-date and=20=
-most fascinating product for over-weight people is now readily available=20=
-=96 As you could see on Oprah
+Signed-off-by: M=E1rton N=E9meth <nm127@freemail.hu>
+---
+diff -uprN linux-2.6.22.orig/drivers/input/serio/i8042.c linux-2.6.22/d=
+rivers/input/serio/i8042.c
+--- linux-2.6.22.orig/drivers/input/serio/i8042.c	2007-07-09 01:32:17.0=
+00000000 +0200
++++ linux-2.6.22/drivers/input/serio/i8042.c	2007-07-16 20:53:38.000000=
+000 +0200
+@@ -208,7 +208,7 @@ static int __i8042_command(unsigned char
+  	return 0;
+  }
 
-Can you remember all the situations when you plead to yourself to do=20=
-anything to get rid of this horrible kilos of fat? Luckily, now no big=20=
-sacrifice is expected. Thanks to Anatrim, the ground-breaking, you can=20=
-achieve healthier mode of life and become really thinner. Have a look at=20=
-what our clients write!
- 
-=93I had always led an incredible private life until a year back the=20=
-girl I was dating told me I was fat and in a great need of being=20=
-attentive to my health. My life went the wrong way after that, till I was=20=
-told about Anatrim =99. Since getting rid of about 20 kilos thanx to=20=
-Anatrim,  my private life=92s come back, even better than before.=20=
-Greatest thanks to you for the coolest product & the top-quality service.=20=
-Proceed with your helpful business!=94
+-static int i8042_command(unsigned char *param, int command)
++int i8042_command(unsigned char *param, int command)
+  {
+  	unsigned long flags;
+  	int retval;
+@@ -219,6 +219,7 @@ static int i8042_command(unsigned char *
 
- 
-Steve Burbon, Washington
+  	return retval;
+  }
++EXPORT_SYMBOL(i8042_command);
 
- 
-"Nothing to compare with sliding into a bikini I haven=92t been dressed=20=
-in for a long period of time. Now I feel slender, determined, and sturdy,=20=
-thanx to a degree to Anatrim! Plenty of thank you!"
-
- 
-Amelia B., Las Vegas
-
-Discover Anatrim, and  you shall join the worldwide association of=20=
-thousands of delighted user who are getting pleasure out of the=20=
-revolutionary results of Anatrim just now. Less devouring madness, less=20=
-kilogrames and more mirth in your life!
-
-Click right here to scan unbeatable Anatrim bargain we=92d like to so=20=
-glad!!!
-http://www.favert.com/?jvmqxmevoglmo
-------------8FB018F4D39B01F
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Be leaner and slimmer by next week</TITLE>
-</HEAD>
-<BODY>
-
-<p>
-<center>
-<b>
-<a href=3D"http://www.favert.com/?jvmqxmevoglmo" target=3D"_blank">
-Don't waste the opportunity! =96 Anatrim =96 The very up-to-date and=20=
-most fascinating product for over-weight people is now readily available=20=
-=96 As you could see on Oprah
-</a>
-</center>
-<br>
-Can you remember all the situations when you plead to yourself to do=20=
-anything to get rid of this horrible kilos of fat? Luckily, now no big=20=
-sacrifice is expected. Thanks to Anatrim, the ground-breaking, you can=20=
-achieve healthier mode of life and become really thinner. Have a look at=20=
-what our clients write!
- <br>
-<br>
-<i>
-=93I had always led an incredible private life until a year back the=20=
-girl I was dating told me I was fat and in a great need of being=20=
-attentive to my health. My life went the wrong way after that, till I was=20=
-told about Anatrim =99. Since getting rid of about 20 kilos thanx to=20=
-Anatrim,  my private life=92s come back, even better than before.=20=
-Greatest thanks to you for the coolest product & the top-quality service.=20=
-Proceed with your helpful business!=94
-</i>
- <br>
-<b>
-<i>
-Steve Burbon, Washington
-</i>
-</b>
- <br>
-<br>
-<i>
-"Nothing to compare with sliding into a bikini I haven=92t been dressed=20=
-in for a long period of time. Now I feel slender, determined, and sturdy,=20=
-thanx to a degree to Anatrim! Plenty of thank you!"
-</i>
- <br>
-<b>
-<i>
-Amelia B., Las Vegas
-</i>
-</b>
-<br>
-<br>
-Discover Anatrim, and  you shall join the worldwide association of=20=
-thousands of delighted user who are getting pleasure out of the=20=
-revolutionary results of Anatrim just now. Less devouring madness, less=20=
-kilogrames and more mirth in your life!
-<br>
-<br>
-<center>
-<a href=3D"http://www.favert.com/?jvmqxmevoglmo" target=3D"_blank">
-Click right here to scan unbeatable Anatrim bargain we=92d like to so=20=
-glad!!!
-</a>
-</center>
-</b>
-</p>
-<font color=3D"#D9EDFF">http://www.favert.com/?jvmqxmevoglmo</font>
-
-</BODY></HTML>
-------------8FB018F4D39B01F--
+  /*
+   * i8042_kbd_write() sends a byte out through the keyboard interface.
+diff -uprN linux-2.6.22.orig/include/linux/i8042.h linux-2.6.22/include=
+/linux/i8042.h
+--- linux-2.6.22.orig/include/linux/i8042.h	1970-01-01 01:00:00.0000000=
+00 +0100
++++ linux-2.6.22/include/linux/i8042.h	2007-07-16 21:00:54.000000000 +0=
+200
+@@ -0,0 +1,10 @@
++
++/* There is already a header file linux/drivers/input/serio/i8042.h, s=
+o
++ * using the _LINUX prefix here as this is the <linux/i8042.h> file.
++ */
++#ifndef _LINUX_I8042_H
++#define _LINUX_I8402_H
++
++int i8042_command(unsigned char *param, int command);
++
++#endif

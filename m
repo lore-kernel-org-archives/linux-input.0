@@ -1,37 +1,68 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/3] leds-clevo-mail: hw accelerated LED blink extension
-Date: Tue, 17 Jul 2007 09:04:34 -0400
-Message-ID: <d120d5000707170604q2e3c0d36g9bea02f4ed3d3050@mail.gmail.com>
-References: <469C977A.8000908@freemail.hu>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH] appletouch powersaving - please apply for 2.6.23-rc1
+Date: Tue, 17 Jul 2007 15:03:44 +0200
+Message-ID: <1184677424.3773.87.camel@johannes.berg>
+References: <1184656218.14051.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762779AbXGQNEq@vger.kernel.org>
-In-Reply-To: <469C977A.8000908@freemail.hu>
-Content-Disposition: inline
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ltW17/tmw41IOYBdWxxf"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764342AbXGQNFd@vger.kernel.org>
+In-Reply-To: <1184656218.14051.43.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Cc: Richard Purdie <rpurdie@rpsys.net>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Rodrigo Pereira <rodripe@gmail.com>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Matthew Garrett <mjg59@srcf.ucam.org>, Nicolas Boichat <nicolas@boichat.ch>, Michael Hanselmann <linux-kernel@hansmi.ch>, Peter Osterlund <petero2@telia.com>, Frank Arnold <frank@scirocco-5v-turbo.de>, Stelian Pop <stelian@popies.net>, Greg Kroah-Hartman <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
 
-On 7/17/07, N=E9meth M=E1rton <nm127@freemail.hu> wrote:
->
-> +Hardware accelerated blink of LEDs
-> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+--=-ltW17/tmw41IOYBdWxxf
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+Good stuff :)
+
+> +	int                     idlecount;      /* number of empty packets */
+
+should probably use tabs here.
+
+> +	size =3D usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+> +			       ATP_GEYSER3_MODE_WRITE_REQUEST_ID,
+> +			       USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+> +			       ATP_GEYSER3_MODE_REQUEST_VALUE,
+> +			       ATP_GEYSER3_MODE_REQUEST_INDEX, &data, 8, 5000);
+> +	<eol>
+
+trailing whitespace.
+
+=20
+> +	input_report_key(dev->input, BTN_LEFT, dev->data[dev->datalen-1] & 1);
 > +
-> +Some LEDs can be programmed to blink without any CPU interaction. To
-> +support this feature, a LED driver can optionally implement the
-> +blink_set() function (see <linux/leds.h>). If implemeted, the
-> +ledtrig-timer tries to use it. The blink_set() function should retur=
-n
-> +1 if the blink setting is supported, or 0 otherwise, which means tha=
-t
-> +the LED will be turned on and off from software.
 
-Normally object methods in kernel return 0 on success and error code
-(such as -EINVAL for unsupported parameters) on error.
 
---=20
-Dmitry
+> @@ -449,10 +511,19 @@ static void atp_complete(struct urb* urb)
+> =20
+>  		/* reset the accumulator on release */
+>  		memset(dev->xy_acc, 0, sizeof(dev->xy_acc));
+> -	}
+> =20
+> -	input_report_key(dev->input, BTN_LEFT,
+> -			 !!dev->data[dev->datalen - 1]);
+
+Any hint as to why you move this? The different test, yes, ok, you
+explained that, but moving it?
+
+johannes
+
+--=-ltW17/tmw41IOYBdWxxf
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iD8DBQBGnL4w/ETPhpq3jKURAkBNAJ4piCS61A4pde11xfdb3/JOhxONFACgq0J2
+/vet92dmqmBJAScDM999TQE=
+=10ID
+-----END PGP SIGNATURE-----
+
+--=-ltW17/tmw41IOYBdWxxf--

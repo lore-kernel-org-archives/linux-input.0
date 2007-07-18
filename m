@@ -1,59 +1,44 @@
-From: federico ferri <xaero@inwind.it>
-Subject: Re: [PATCH] input: change SysRq keycode for systems without SysRq
- key
-Date: Wed, 18 Jul 2007 22:55:05 +0200
-Message-ID: <469E7E29.2050206@inwind.it>
-References: <469A5385.6030402@inwind.it>	 <alpine.LFD.0.999.0707151102250.20061@woody.linux-foundation.org>	 <469A68CC.5040902@inwind.it>	 <alpine.LFD.0.999.0707151156090.20061@woody.linux-foundation.org>	 <469A99ED.3090603@inwind.it>	 <alpine.LFD.0.999.0707151513550.20061@woody.linux-foundation.org>	 <d120d5000707160541k64c40d0dgf661226806fd98c8@mail.gmail.com>	 <469C647B.1000307@inwind.it> <d120d5000707170811l285d670aq3a9a1489a8cbb379@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] appletouch powersaving - please apply for 2.6.23-rc1
+Date: Wed, 18 Jul 2007 15:57:58 -0700
+Message-ID: <20070718155758.072db90d.akpm@linux-foundation.org>
+References: <1184656218.14051.43.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000707170811l285d670aq3a9a1489a8cbb379@mail.gmail.com>
+In-Reply-To: <1184656218.14051.43.camel@localhost>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Matthew Garrett <mjg59@srcf.ucam.org>, Nicolas Boichat <nicolas@boichat.ch>, Michael Hanselmann <linux-kernel@hansmi.ch>, Peter Osterlund <petero2@telia.com>, Frank Arnold <frank@scirocco-5v-turbo.de>, Stelian Pop <stelian@popies.net>, Johannes Berg <johannes@sipsolutions.net>, Greg Kroah-Hartman <greg@kroah.com>
 List-Id: linux-input@vger.kernel.org
 
-Dmitry Torokhov ha scritto:
-> EVIOCSKEYCODE support for HID (USB) went in in 2.6.22-rc1.
->
-> There is keyfuzz utility you can use to play with keymaps for a
-> particular device:
->
->       http://0pointer.de/lennart/projects/keyfuzz/
-hi Dmitry,
-I tried keyfuzz, but I'm not able to change sysrq key (I get an invalid 
-argument error).
-I paste some log of my tries:
+On Tue, 17 Jul 2007 09:10:18 +0200
+Soeren Sonnenburg <kernel@nn7.de> wrote:
 
-# uname -r
-2.6.22
+> the attached minimally intrusive patch is based on Matthew Garret's
+> patch 'Make appletouch shut up when it has nothing to say' patches (e.g.
+> http://lkml.org/lkml/2007/5/13/117): Matthews description follows /
+> second paragraph lists my additional changes.
+> 
+> The appletouch geyser3 devices found in the Intel Macs (and possibly some later 
+> PPC ones?) send a constant stream of packets after the first touch. This 
+> results in the kernel waking up around once every couple of milliseconds 
+> to process them, making it almost impossible to spend any significant 
+> period of time in C3 state on a dynamic HZ kernel. Sending the mode 
+> initialization code makes the device shut up until it's touched again. 
+> This patch does so after receiving 10 packets with no interesting 
+> content.
+> 
+> In addition it now empties the work queue via cancel_work_sync on module
+> exit, keeps all error checking and only reports BTN_LEFT presses if bit
+> 1 in the status byte (last byte in packet) is set. This fixes the random
+> left clicks issue. Furthermore it invalidates touchpad data before the
+> mode switch, which fixes the touchpad runs amok issue.
 
-# for i in /dev/input/event*; do echo -e ">>>> $i:"; keyfuzz -i -d$i; done
- >>>> /dev/input/event0:
-evdev driver version 1.0.0.
-device name: PC Speaker
- >>>> /dev/input/event1:
-evdev driver version 1.0.0.
-device name: Mitsumi Electric Apple Extended USB Keyboard
- >>>> /dev/input/event2:
-evdev driver version 1.0.0.
-device name: Mitsumi Electric Apple Extended USB Keyboard
- >>>> /dev/input/event3:
-evdev driver version 1.0.0.
-device name: Microsoft Basic Optical Mouse
-
-# echo "84 183" | keyfuzz -s -d/dev/input/event1
-EVIOCGKEYCODE: Invalid argument
-
-# echo "84 183" | keyfuzz -s -d/dev/input/event2
-EVIOCGKEYCODE: Invalid argument
-
-# echo "0x05d 0x0b7" | keyfuzz -s -d/dev/input/event2
-EVIOCGKEYCODE: Invalid argument
-
-(strace gives me no useful info)
+Please feed this through scripts/checkpatch.pl and consider addressing
+all the things which it reports.

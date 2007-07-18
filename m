@@ -1,166 +1,98 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] HP Jornada 7xx keyboard support
-Date: Wed, 18 Jul 2007 11:00:06 -0400
-Message-ID: <d120d5000707180800k5e4d6538p7df9be9e134609fc@mail.gmail.com>
-References: <20070718163259.2565fb8c.Kristoffer.Ericson@Gmail.com>
+From: "Alexis Maynard" <gywaccessorypointfer@accessorypoint.com>
+Subject: Melt away fat easily
+Date: Wed, 18 Jul 2007 16:44:50 -0200
+Message-ID: <264508519.64883314835083@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------BDA3ECFFFFF8B6E5"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070718163259.2565fb8c.Kristoffer.Ericson@Gmail.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Kristoffer,
-
-On 7/18/07, Kristoffer Ericson <kristoffer.ericson@gmail.com> wrote:
-> Greetings,
->
-
-Thank you for your patch, I have a couple of comments.
-
-> Couldnt find any mailinglist, but please CC this there if there is one.
->
-
-CCing linus-input...
-
-> +       /* Lets drag them out one at a time */
-> +       while (count-- > 0) {
-> +               /* Exchange TxDummy for a real key */
-> +               key = kbd_data = jornada_ssp_inout(TxDummy);
-> +
-> +               if (key < 0) { /* whoops, no more waiting */
-
-key is declared as "unsigned char", how can this condition ever trigger?
-
-> +                   jornada_ssp_end(); /* End transmission */
-> +                   return IRQ_HANDLED;
-> +               }
-> +
-> +               if (key > 128) /* Key released */
-> +                       key = key - 128;
-> +
-> +               keycode = jornada_normal_keymap[key];
-> +
-> +               /* A key pressed down */
-> +               if (kbd_data < 128) {
-> +                       input_report_key(input_dev,keycode, 1);
-> +                       input_sync(input_dev);
-> +               }
-> +               else { /* Key released */
-> +                       input_report_key(input_dev, keycode, 0);
-> +                       input_sync(input_dev);
-> +               }
-
-All of this can be probably written as:
-        input_report_key(input_dev,
-                jornada_normal_keymap[kbd_data & 0x7f],
-                !(kbd_data & 0x80));
-       input_sync(input_dev);
-
-> +       }
-> +       jornada_ssp_end(); /* End Transmission */
-> +       return IRQ_HANDLED;
-> +};
-> +
-> +static int jornada720_kbd_probe(struct platform_device *pdev)
-
-__devinit?
-
-> +{
-> +       int i, ret;
-> +
-> +       input_dev = input_allocate_device();
-> +       if (!input_dev) {
-> +               return -ENOMEM;
-> +       };
-> +
-> +       input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
-> +       input_dev->keybit[LONG(KEY_SUSPEND)] |= BIT(KEY_SUSPEND);
-
-Why special treatment of KEY_SUSPEND?
-
-> +
-> +       input_dev->name = "HP Jornada 720 keyboard";
-> +       input_dev->phys = "jornadakbd/input0";
-
-please add "input_dev->dev.parent = &pdev->dev;" to place input device
-into proper place in sysfs.
-
-> +
-> +       for (i=0 ; i<=128 ; i++) {
-> +               if (jornada_normal_keymap[i])
-> +                       set_bit(jornada_normal_keymap[i], input_dev->keybit);
-> +       }
+------------BDA3ECFFFFF8B6E5
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
 
 
-Please allocate a copy of keymap and assign keycode, keycodemax and
-keycodesize in input_dev so that keymap can be adjusted at runtime.
 
-> +
-> +       ret = request_irq(IRQ_GPIO0,
-> +                       jornada720_kbd_interrupt,
-> +                       IRQF_DISABLED | IRQF_TRIGGER_FALLING,
-> +                       "jornadakbd", input_dev);
-> +       if (ret) {
-> +               printk(KERN_INFO "Unable to grab IRQ for %s: %d\n", "jornadakbd", ret);
-> +               input_free_device(input_dev);
-> +               return ret;
-> +       }
-> +
-> +       input_register_device(input_dev);
+Profit by the opportunity! – Anatrim – The newest and most exciting product for over-weight people is now available – As were shown on Oprah
 
-Error hanling please.
+Do you hold in your memory all the times when you asked yourself to do anything for being rescued from this horrible kilos of fat? Happily, now no big offering is necessary. With Anatrim, the ground-breaking, you can get healthier life style and a really slender figure. Have a look at what customers write!
+ 
+“I always had a terrific life till last year my girlfriend told me I was fat and needed to start being attentive to my health. My life was never the same after that, till I discovered Anatrim ™ for me at once. After getting rid of more than 18 kilogrames only thanks to Anatrim,  my private life’s back on track, notoriously better than before even. Thanx for the marvelous stuff and the top-quality service. Keep up the helpful work!”
 
-> +
-> +       return 0;
-> +};
-> +
-> +static int jornada720_kbd_remove(struct platform_device *pdev)
+ 
+Steve Doubt, Las Vegas
 
-__devexit?
+ 
+"Nothing to compare with sliding into a bikini that I have not worn for many long years. Now I feel lean, determined, and healthy, thanks to a degree to Anatrim! Thank you so much!"
 
-> +{
-> +       free_irq(IRQ_GPIO0, input_dev);
-> +       input_unregister_device(input_dev);
-> +       return 0;
-> +}
-> +
-> +static struct platform_driver jornada720_kbd_driver = {
-> +        .driver  = {
-> +                  .name    = "jornada720_kbd",
-> +                },
-> +       .probe   = jornada720_kbd_probe,
-> +       .remove  = jornada720_kbd_remove,
-> +};
-> +
-> +static int __devinit jornada720_kbd_init(void)
-> +{
-> +        printk(KERN_INFO "HP Jornada 720 keyboard driver initialized\n");
+ 
+Amely S., Chicago
 
-I'd lose this printk - input core will print appropriate message when
-input device is registered.
+Discover Anatrim, and  you will join the world-wide company of thousands of pleased user who’re enjoying the revolutionary results of Anatrim here & now. Less devouring frenzy, less kilogrames and more gladness in life!
 
-> +       return platform_driver_register(&jornada720_kbd_driver);
-> +}
-> +
-> +static void __exit jornada720_kbd_exit(void)
-> +{
-> +       platform_driver_unregister(&jornada720_kbd_driver);
-> +}
-> +
-> +module_init(jornada720_kbd_init);
-> +module_exit(jornada720_kbd_exit);
->
+Go right here to scan our unbreakable Anatrim dealings!!!
+http://www.lantitue.net/?rimxsylukbwuf
 
-Kconfig and Makefile changes seem to be missing..?
+------------BDA3ECFFFFF8B6E5
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
 
--- 
-Dmitry
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Control your weight and appetite</TITLE>
+</HEAD>
+<BODY>
+
+<p>
+<center>
+<b>
+<a href="http://www.lantitue.net/?rimxsylukbwuf" target="_blank">
+Profit by the opportunity! – Anatrim – The newest and most exciting product for over-weight people is now available – As were shown on Oprah
+</a>
+</center>
+<br>
+Do you hold in your memory all the times when you asked yourself to do anything for being rescued from this horrible kilos of fat? Happily, now no big offering is necessary. With Anatrim, the ground-breaking, you can get healthier life style and a really slender figure. Have a look at what customers write!
+ <br>
+<br>
+<i>
+“I always had a terrific life till last year my girlfriend told me I was fat and needed to start being attentive to my health. My life was never the same after that, till I discovered Anatrim ™ for me at once. After getting rid of more than 18 kilogrames only thanks to Anatrim,  my private life’s back on track, notoriously better than before even. Thanx for the marvelous stuff and the top-quality service. Keep up the helpful work!”
+</i>
+ <br>
+<b>
+<i>
+Steve Doubt, Las Vegas
+</i>
+</b>
+ <br>
+<br>
+<i>
+"Nothing to compare with sliding into a bikini that I have not worn for many long years. Now I feel lean, determined, and healthy, thanks to a degree to Anatrim! Thank you so much!"
+</i>
+ <br>
+<b>
+<i>
+Amely S., Chicago
+</i>
+</b>
+<br>
+<br>
+Discover Anatrim, and  you will join the world-wide company of thousands of pleased user who’re enjoying the revolutionary results of Anatrim here & now. Less devouring frenzy, less kilogrames and more gladness in life!
+<br>
+<br>
+<center>
+<a href="http://www.lantitue.net/?rimxsylukbwuf" target="_blank">
+Go right here to scan our unbreakable Anatrim dealings!!!
+</a>
+</center>
+</b>
+</p>
+<font color="#D9EDFF">http://www.lantitue.net/?rimxsylukbwuf</font>
+
+</BODY></HTML>
+------------BDA3ECFFFFF8B6E5--

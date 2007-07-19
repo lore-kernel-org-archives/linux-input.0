@@ -1,10 +1,8 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] input: change SysRq keycode for systems without SysRq key
-Date: Thu, 19 Jul 2007 17:00:00 -0400
-Message-ID: <d120d5000707191400w2725bbd1h64add33e3e227bdd@mail.gmail.com>
-References: <469A5385.6030402@inwind.it>
-	 <alpine.LFD.0.999.0707151102250.20061@woody.linux-foundation.org>
-	 <469A68CC.5040902@inwind.it>
+Date: Thu, 19 Jul 2007 17:00:23 -0400
+Message-ID: <d120d5000707191400u69897414ve41033e7d8dad61c@mail.gmail.com>
+References: <469A5385.6030402@inwind.it> <469A68CC.5040902@inwind.it>
 	 <alpine.LFD.0.999.0707151156090.20061@woody.linux-foundation.org>
 	 <469A99ED.3090603@inwind.it>
 	 <alpine.LFD.0.999.0707151513550.20061@woody.linux-foundation.org>
@@ -12,11 +10,12 @@ References: <469A5385.6030402@inwind.it>
 	 <469C647B.1000307@inwind.it>
 	 <d120d5000707170811l285d670aq3a9a1489a8cbb379@mail.gmail.com>
 	 <469E7E29.2050206@inwind.it>
+	 <d120d5000707191400w2725bbd1h64add33e3e227bdd@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <469E7E29.2050206@inwind.it>
+In-Reply-To: <d120d5000707191400w2725bbd1h64add33e3e227bdd@mail.gmail.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -27,51 +26,59 @@ To: federico ferri <xaero@inwind.it>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 7/18/07, federico ferri <xaero@inwind.it> wrote:
-> Dmitry Torokhov ha scritto:
-> > EVIOCSKEYCODE support for HID (USB) went in in 2.6.22-rc1.
+On 7/19/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 7/18/07, federico ferri <xaero@inwind.it> wrote:
+> > Dmitry Torokhov ha scritto:
+> > > EVIOCSKEYCODE support for HID (USB) went in in 2.6.22-rc1.
+> > >
+> > > There is keyfuzz utility you can use to play with keymaps for a
+> > > particular device:
+> > >
+> > >       http://0pointer.de/lennart/projects/keyfuzz/
+> > hi Dmitry,
+> > I tried keyfuzz, but I'm not able to change sysrq key (I get an invalid
+> > argument error).
+> > I paste some log of my tries:
 > >
-> > There is keyfuzz utility you can use to play with keymaps for a
-> > particular device:
+> > # uname -r
+> > 2.6.22
 > >
-> >       http://0pointer.de/lennart/projects/keyfuzz/
-> hi Dmitry,
-> I tried keyfuzz, but I'm not able to change sysrq key (I get an invalid
-> argument error).
-> I paste some log of my tries:
+> > # for i in /dev/input/event*; do echo -e ">>>> $i:"; keyfuzz -i -d$i; done
+> >  >>>> /dev/input/event0:
+> > evdev driver version 1.0.0.
+> > device name: PC Speaker
+> >  >>>> /dev/input/event1:
+> > evdev driver version 1.0.0.
+> > device name: Mitsumi Electric Apple Extended USB Keyboard
+> >  >>>> /dev/input/event2:
+> > evdev driver version 1.0.0.
+> > device name: Mitsumi Electric Apple Extended USB Keyboard
+> >  >>>> /dev/input/event3:
+> > evdev driver version 1.0.0.
+> > device name: Microsoft Basic Optical Mouse
+> >
+> > # echo "84 183" | keyfuzz -s -d/dev/input/event1
+> > EVIOCGKEYCODE: Invalid argument
+> >
+> > # echo "84 183" | keyfuzz -s -d/dev/input/event2
+> > EVIOCGKEYCODE: Invalid argument
+> >
+> > # echo "0x05d 0x0b7" | keyfuzz -s -d/dev/input/event2
+> > EVIOCGKEYCODE: Invalid argument
+> >
+> > (strace gives me no useful info)
+> >
 >
-> # uname -r
-> 2.6.22
 >
-> # for i in /dev/input/event*; do echo -e ">>>> $i:"; keyfuzz -i -d$i; done
->  >>>> /dev/input/event0:
-> evdev driver version 1.0.0.
-> device name: PC Speaker
->  >>>> /dev/input/event1:
-> evdev driver version 1.0.0.
-> device name: Mitsumi Electric Apple Extended USB Keyboard
->  >>>> /dev/input/event2:
-> evdev driver version 1.0.0.
-> device name: Mitsumi Electric Apple Extended USB Keyboard
->  >>>> /dev/input/event3:
-> evdev driver version 1.0.0.
-> device name: Microsoft Basic Optical Mouse
+> What is 84? For SUB you map a "usage" to a keycode and regular key
+                         ^^^ USB
+
+> usages start with 0x00070000...
 >
-> # echo "84 183" | keyfuzz -s -d/dev/input/event1
-> EVIOCGKEYCODE: Invalid argument
->
-> # echo "84 183" | keyfuzz -s -d/dev/input/event2
-> EVIOCGKEYCODE: Invalid argument
->
-> # echo "0x05d 0x0b7" | keyfuzz -s -d/dev/input/event2
-> EVIOCGKEYCODE: Invalid argument
->
-> (strace gives me no useful info)
+> --
+> Dmitry
 >
 
-
-What is 84? For SUB you map a "usage" to a keycode and regular key
-usages start with 0x00070000...
 
 -- 
 Dmitry

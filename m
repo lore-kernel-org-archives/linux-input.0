@@ -1,75 +1,91 @@
-From: "Cornelia Whaley" <paxadamandtiffybev@adamandtiffy.com>
-Subject: Dude check out this sweet site
-Date: Fri, 20 Jul 2007 10:18:17 -0200
-Message-ID: <273832675.66225383920502@thhebat.net>
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------53B4F0C70C7215A"
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
+Date: Fri, 20 Jul 2007 18:40:44 +0200
+Message-ID: <20070720164323.625963918@mail.of.borg>
+References: <20070720164043.523003359@mail.of.borg>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline; filename=mac-mac_hid_mouse_emulate_buttons-prototype.diff
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lisak@atrey.karlin.mff.cuni.cz
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
 List-Id: linux-input@vger.kernel.org
 
-------------53B4F0C70C7215A
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
+m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
 
+drivers/char/keyboard.c: In function 'kbd_keycode':
+drivers/char/keyboard.c:1142: error: implicit declaration of function 'mac_hid_mouse_emulate_buttons'
 
-After all the real stuff – without swindle! 
-P.E.P. are piping hot right this time! Well here comes the true stuff not a counterfeit! 
+The forward declaration of mac_hid_mouse_emulate_buttons() is not visible on
+m68k because it's hidden in the middle of a big #ifdef block.
 
-One of the very originals, totally unparalleled produce is affordable here and there!
- Notice just what people tell on this produce:
+Move it to <linux/hid.h>, correct the type of the second parameter, and
+include <linux/hid.h> where needed.
 
-"I love how fast your product affected on my boyfriend, he can’t put an end to his talking on how excited he is having such new girth, extent, and libido!"
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/char/keyboard.c     |    5 +----
+ drivers/macintosh/mac_hid.c |    1 +
+ include/linux/hid.h         |    3 +++
+ 3 files changed, 5 insertions(+), 4 deletions(-)
 
-Victoria K., Bellevue WA
+--- a/drivers/char/keyboard.c
++++ b/drivers/char/keyboard.c
+@@ -41,6 +41,7 @@
+ #include <linux/sysrq.h>
+ #include <linux/input.h>
+ #include <linux/reboot.h>
++#include <linux/hid.h>
+ 
+ extern void ctrl_alt_del(void);
+ 
+@@ -1022,10 +1023,6 @@ static const unsigned short x86_keycodes
+ 	308,310,313,314,315,317,318,319,320,357,322,323,324,325,276,330,
+ 	332,340,365,342,343,344,345,346,356,270,341,368,369,370,371,372 };
+ 
+-#ifdef CONFIG_MAC_EMUMOUSEBTN
+-extern int mac_hid_mouse_emulate_buttons(int, int, int);
+-#endif /* CONFIG_MAC_EMUMOUSEBTN */
+-
+ #ifdef CONFIG_SPARC
+ static int sparc_l1_a_state = 0;
+ extern void sun_do_break(void);
+--- a/drivers/macintosh/mac_hid.c
++++ b/drivers/macintosh/mac_hid.c
+@@ -13,6 +13,7 @@
+ #include <linux/sysctl.h>
+ #include <linux/input.h>
+ #include <linux/module.h>
++#include <linux/hid.h>
+ 
+ 
+ static struct input_dev *emumousebtn;
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -522,6 +522,9 @@ int usbhid_quirks_init(char **quirks_par
+ void usbhid_quirks_exit(void);
+ void usbhid_fixup_report_descriptor(const u16, const u16, char *, unsigned, char **);
+ 
++/* mac hid */
++extern int mac_hid_mouse_emulate_buttons(int, unsigned int, int);
++
+ #ifdef CONFIG_HID_FF
+ int hid_ff_init(struct hid_device *hid);
+ 
 
-"In the beginning I decided the sample package I received gratis was a kind of a mean trick, until I have takento take the P.E.P. There are no words to describe how plume I am with the outcome I got from using the patch after 7 short weeks. I will be asking for P.E.P. constantly!" 
-Rikky Martin, San Diego
+-- 
+Gr{oetje,eeting}s,
 
-Look at more testimonies on this marvellouls product right here and right now!
-http://www.dafret.com/?rpjbrwxsuri
+						Geert
 
-------------53B4F0C70C7215A
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Don't be the "little guy" in the club</TITLE>
-</HEAD>
-<BODY>
-
-<b>
-After all the real stuff – without swindle! 
-<br>
-<a href="http://www.dafret.com/?rpjbrwxsuri" target="_blank">P.E.P.</a> are piping hot right this time! Well here comes the true stuff not a counterfeit! 
-<br>
-One of the very originals, totally unparalleled produce is affordable here and there!
-<br> Notice just what people tell on this produce:
-<p>
-<i>
-"I love how fast your product affected on my boyfriend, he can’t put an end to his talking on how excited he is having such new girth, extent, and libido!"
-</i>
-</p>
-Victoria K., Bellevue WA
-<p>
-<i>
-"In the beginning I decided the sample package I received gratis was a kind of a mean trick, until I have takento take the P.E.P. There are no words to describe how plume I am with the outcome I got from using the patch after 7 short weeks. I will be asking for P.E.P. constantly!" </i>
-</p>
-Rikky Martin, San Diego
-<center>
-<a href="http://www.dafret.com/?rpjbrwxsuri" target="_blank">
-Look at more testimonies on this marvellouls product right here and right now!
-</a>
-</center>
-</b>
-<font color="#D9EDFF">http://www.dafret.com/?rpjbrwxsuri</font>
-
-</BODY></HTML>
-------------53B4F0C70C7215A--
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

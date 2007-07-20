@@ -1,91 +1,48 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
-Date: Fri, 20 Jul 2007 18:40:44 +0200
-Message-ID: <20070720164323.625963918@mail.of.borg>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
+Date: Fri, 20 Jul 2007 13:47:36 -0400
+Message-ID: <d120d5000707201047y2d22167co882a10176d79fce4@mail.gmail.com>
 References: <20070720164043.523003359@mail.of.borg>
+	 <20070720164323.625963918@mail.of.borg>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline; filename=mac-mac_hid_mouse_emulate_buttons-prototype.diff
+In-Reply-To: <20070720164323.625963918@mail.of.borg>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
 List-Id: linux-input@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+Hi Geert,
 
-m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
+On 7/20/07, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> From: Geert Uytterhoeven <geert@linux-m68k.org>
+>
+> m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
+>
+> drivers/char/keyboard.c: In function 'kbd_keycode':
+> drivers/char/keyboard.c:1142: error: implicit declaration of function 'mac_hid_mouse_emulate_buttons'
+>
+> The forward declaration of mac_hid_mouse_emulate_buttons() is not visible on
+> m68k because it's hidden in the middle of a big #ifdef block.
+>
+> Move it to <linux/hid.h>, correct the type of the second parameter, and
+> include <linux/hid.h> where needed.
 
-drivers/char/keyboard.c: In function 'kbd_keycode':
-drivers/char/keyboard.c:1142: error: implicit declaration of function 'mac_hid_mouse_emulate_buttons'
+linux/hid.h contains definitions needed for drivers speaking HID
+protocol, I don't think we want to put quirks for legacy keyboard
+driver there. I'd just move the #ifdef within drivers/char/keyboard.c
+for now.
 
-The forward declaration of mac_hid_mouse_emulate_buttons() is not visible on
-m68k because it's hidden in the middle of a big #ifdef block.
-
-Move it to <linux/hid.h>, correct the type of the second parameter, and
-include <linux/hid.h> where needed.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
----
- drivers/char/keyboard.c     |    5 +----
- drivers/macintosh/mac_hid.c |    1 +
- include/linux/hid.h         |    3 +++
- 3 files changed, 5 insertions(+), 4 deletions(-)
-
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -41,6 +41,7 @@
- #include <linux/sysrq.h>
- #include <linux/input.h>
- #include <linux/reboot.h>
-+#include <linux/hid.h>
- 
- extern void ctrl_alt_del(void);
- 
-@@ -1022,10 +1023,6 @@ static const unsigned short x86_keycodes
- 	308,310,313,314,315,317,318,319,320,357,322,323,324,325,276,330,
- 	332,340,365,342,343,344,345,346,356,270,341,368,369,370,371,372 };
- 
--#ifdef CONFIG_MAC_EMUMOUSEBTN
--extern int mac_hid_mouse_emulate_buttons(int, int, int);
--#endif /* CONFIG_MAC_EMUMOUSEBTN */
--
- #ifdef CONFIG_SPARC
- static int sparc_l1_a_state = 0;
- extern void sun_do_break(void);
---- a/drivers/macintosh/mac_hid.c
-+++ b/drivers/macintosh/mac_hid.c
-@@ -13,6 +13,7 @@
- #include <linux/sysctl.h>
- #include <linux/input.h>
- #include <linux/module.h>
-+#include <linux/hid.h>
- 
- 
- static struct input_dev *emumousebtn;
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -522,6 +522,9 @@ int usbhid_quirks_init(char **quirks_par
- void usbhid_quirks_exit(void);
- void usbhid_fixup_report_descriptor(const u16, const u16, char *, unsigned, char **);
- 
-+/* mac hid */
-+extern int mac_hid_mouse_emulate_buttons(int, unsigned int, int);
-+
- #ifdef CONFIG_HID_FF
- int hid_ff_init(struct hid_device *hid);
- 
+BTW, I don't think that mac button emulation will work well when x86
+evdev-based driver gains popularity - it "grabs" the device and so no
+event will flow through keyboard driver... We'd need a new solution...
 
 -- 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Dmitry

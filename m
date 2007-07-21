@@ -1,55 +1,77 @@
-From: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] USB: driver for CM109 chipset
-Date: Sat, 21 Jul 2007 10:16:30 +0200
-Message-ID: <20070721081630.GA28400@suse.cz>
-References: <467FC7E5.7050901@db.org> <d120d5000706250729s3f0e8325n8e4eb9f5982d858c@mail.gmail.com> <20070702153707.GA27958@suse.cz> <d120d5000707120747m264d6b87x670bd478103e804c@mail.gmail.com> <20070712152532.GB9459@suse.cz> <d120d5000707120922m3c821ed8ia827dab20ad599f5@mail.gmail.com> <20070712223808.GD8858@suse.cz> <d120d5000707201214k7a036a5ckb86bd2a4d41c1a32@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons()
+ declaration visible
+Date: Sat, 21 Jul 2007 10:27:47 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0707211026070.18493@anakin>
+References: <20070720164043.523003359@mail.of.borg> <20070720164323.625963918@mail.of.borg>
+ <d120d5000707201047y2d22167co882a10176d79fce4@mail.gmail.com>
+ <20070720183503.GC3801@stusta.de> <d120d5000707201151q433f1f3eteb479109291a54bd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <d120d5000707201214k7a036a5ckb86bd2a4d41c1a32@mail.gmail.com>
+In-Reply-To: <d120d5000707201151q433f1f3eteb479109291a54bd@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Alfred E. Heggestad" <aeh@db.org>, linux-input@atrey.karlin.mff.cuni.cz
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Jul 20, 2007 at 03:14:14PM -0400, Dmitry Torokhov wrote:
-> On 7/12/07, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> >On Thu, Jul 12, 2007 at 12:22:10PM -0400, Dmitry Torokhov wrote:
-> >
-> >> >> Hmm, they use KEY_0 through KEY_9 now.
-> >> >
-> >> >Which results in the phone sending '=E9+=EC=B9=E8=F8=BE=FD=E1=ED' i=
-nstead of
-> >> >'0123456789'
-> >> >on a Czech keyboard, which is definitely not what's intended. Simil=
-arly
-> >> >for many other European keyboards.
-> >> >
-> >>
-> >> Hmm, I uttely confused. Why when atkbd emits KEY_0 it you get 0 in t=
-he
-> >> shell (don't you?) but different result with phone keypad?
-> >
-> >No, on a Czech keyboard you don't. You press KEY_0, you get '=E9'. The
-> >French layout gives sililar results. (For '0' you need to press
-> >KEY_SHIFT KEY_0.)
->=20
-> Oh, I completely forgot that there are keyboards that have numbers on
-> upper register. I think I used such keymap on Yamaha MSX2 in high
-> school... 20 years ago..?
->=20
-> But the keypad only works wif you have NumLock on right?
+On Fri, 20 Jul 2007, Dmitry Torokhov wrote:
+> On 7/20/07, Adrian Bunk <bunk@stusta.de> wrote:
+> > On Fri, Jul 20, 2007 at 01:47:36PM -0400, Dmitry Torokhov wrote:
+> > > On 7/20/07, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > >> From: Geert Uytterhoeven <geert@linux-m68k.org>
+> > >>
+> > >> m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
+> > >>
+> > >> drivers/char/keyboard.c: In function 'kbd_keycode':
+> > >> drivers/char/keyboard.c:1142: error: implicit declaration of function
+> > >> 'mac_hid_mouse_emulate_buttons'
+> > >>
+> > >> The forward declaration of mac_hid_mouse_emulate_buttons() is not visible
+> > >> on
+> > >> m68k because it's hidden in the middle of a big #ifdef block.
+> > >>
+> > >> Move it to <linux/hid.h>, correct the type of the second parameter, and
+> > >> include <linux/hid.h> where needed.
+> > >
+> > > linux/hid.h contains definitions needed for drivers speaking HID
+> > > protocol, I don't think we want to put quirks for legacy keyboard
+> > > driver there. I'd just move the #ifdef within drivers/char/keyboard.c
+> > > for now.
+> > >...
+> > 
+> > If you only move it you will keep the bug of the wrong second parameter.
+> > 
+> > But if you move it to any header file gcc is able to figure out such
+> > errors itself instead of them being nasty runtime errors.
+> > 
+> > Such prototypes in C files are really bad since (like in this case) they
+> > prevent the finding of bugs. It doesn't matter which header file you put
+> > the prototype into (it can even be a new one), but it belongs into a
+> > header file.
+> > 
+> 
+> I am OK with adding a new header file. I was just saying that placing
+> that declaration in linux/hid.h makes about the same sense as putting
+> it into linux/scsi.h
 
-Yes. But the remote doesn't have a NumLock LED or key, right? Then, if
-X had per-device lockstate, there wouldn't be a problem. But I fear the
-lockstate and shiftstate is completely shared, like on the console.
+At first I just wanted to move it. Then I thought about the angry
+comments I would get about not moving it to a header file ;-)
 
---=20
-Vojtech Pavlik
-Director SuSE Labs
+<linux/hid.h> looked like the best candidate. <linux/kbd_kern.h> is
+another option.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

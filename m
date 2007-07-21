@@ -1,67 +1,43 @@
-From: "Mia Crum" <dilettantismcl4@lanecompany.com>
-Subject: Re.Question
-Date: Fri, 20 Jul 2007 23:00:56 +0000
-Message-ID: <050806396.11410455207166@lanecompany.com>
-Reply-To: dilettantismcl4@lanecompany.com
+From: "SCC" <Abby.Harrington@gmx.net>
+Subject: new openings in the Sydney Car Centre
+Date: Sat, 21 Jul 2007 02:14:54 +0200 (CEST)
+Message-ID: <20070721001454.4B84C846C7@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/html;
-  charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="--2MC9EVPQHO10UHEGZS"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lisak@atrey.karlin.mff.cuni.cz
+To: Linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+----2MC9EVPQHO10UHEGZS
+Content-Type: text/html;
+Content-Transfer-Encoding: 7Bit
 
-<html>
 <head>
-<style>
-    * Unesco- Entscheidung: Schutzgebiet verliert Welterbe- Status    * Pop- Comeback: Showdown der Spice Girls    * Entlassung von Bundesanw&#228;lten: Bush verweigert Demokraten Akteneinsicht    * Zeitgeschichte    * Polen: Der Geheimdienst und die Bisch&#246;fe"Deswegen mache ich mir keinen Kopf"    * Glaubw&#252;rdigkeitskrise: Greenpeace stoppt Magazin- Verkauf bei LidlBoxtrainer Timm: Der P&#228;dagoge am Sandsack    * Justiz    * FondsDie bef&#252;rchtete Abrechnung mit dem Blair-Fl&#252;gel ist ausgeblieben. Der neue britische Premier Brown hat heute sein Kabinett vorgestellt und viele Schl&#252;sselressorts in neue H&#228;nde gegeben. Doch er setzt durchaus auch auf vertraute Kr&#228;fte. Von Peter Herkenhoff, London mehr...    * Ministerien einig: Bahn soll Schienen 15 Jahre lang behalten    * Fall Marco Weiss: "Das M&#228;dchen ist das Opfer - nicht der Junge"    * Bew&#228;hr
- ungsstrafe: Katsav entgeht Anklage wegen Vergewaltigung    * Ministerien einig: Bahn soll Schienen 15 Jahre lang behalten    * Mixed Zone: Kubica darf wieder fahren, Haas und Kiefer siegen    * Afghanistan-Mandat: Steinmeier soll SPD auf Linie bringen    * US-SportsDas Schicksal des inhaftierten Sch&#252;lers Marco Weiss erhitzt die Gem&#252;ter in Deutschland. Auch die USA debattieren derzeit &#252;ber einen &#228;hnlichen Fall. In Georgia soll ein junger Mann f&#252;r zehn Jahre ins Gef&#228;ngnis, weil er Oralverkehr mit einer 15-J&#228;hrigen hatte. Von J&#246;rg Diehl mehr...    * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert haben    * Mund auf: G&#228;hnen k&#252;hlt das Gehirn    * NRW: P&#228;rchen erstickt bei Sch&#228;ferst&#252;ndchen    * Hass auf Kn&#246;llchen- Verteiler: Trauerg&#228;ste schlagen Verkehrsordner nieder    * Ministerien einig: Ba
- hn soll Schienen 15 Jahre lang behalten      Kunstgalerie in K&#246;ln: Aquarelle von Schockrocker Marilyn Manson Video abspielen...    * Hass auf Kn&#246;llchen- Verteiler: Trauerg&#228;ste schlagen Verkehrsordner niederbl&#228;ttern    * Uno- Warnung: Die W&#252;ste w&#228;chstKoalitionspolitiker wollen Bundeswehr in den umk&#228;mpften S&#252;den entsendenbl&#228;tternbl&#228;ttern    * Kokain- Schmuggel: Mutter benutzt eigene Kinder als DrogenkuriereVon knuffigen bunten Fernsehwesen lassen sich Kleinkinder zwar gern unterhalten, das Sprechen lernen sie von Dipsy und Po aber nicht. Unter zwei Jahren helfen Kindern beim Spracherwerb am besten Erwachsene, die sich direkt und pers&#246;nlich mit ihnen besch&#228;ftigen. mehr...    *    * Deutschlandfonds - Betriebsverm&#246;gen in Arbeitnehmerhand?    * K&#246;nigin Hatschepsut: Zahn und DNA- Test sollen Mumie identifiziert habenDEBATT
- EN    *      Dumm gelaufen: Falsch abgebogenbl&#228;ttern    * Terror- Abwehr: Flugdaten- Einigung am EU- Parlament vorbei    * Entlassung von Bundesanw&#228;lten: Bush verweigert Demokraten Akteneinsicht    * B&#246;rse    * W&#228;hrungsfonds: IWF- Chef Rato tritt vorzeitig zur&#252;ckbl&#228;ttern    * CSU- Generalsekret&#228;r: Ramsauer f&#252;r Frau statt S&#246;der    * Prinz William & Kate Middleton: Heimliche Treffen als Zeichen eines Neustarts      Intelligenter Tintenfisch: Flaschen&#246;ffnen unter Wasser Video abspielen...    * Umfrage: Steinmeier h&#228;ngt Beck ab    * Bundesliga- Start: Vize Schalke muss zum Meister Stuttgart    * Derivate    * DerivateSchwarzer Rauch &#252;ber dem Kernkraftwerk Kr&#252;mmel bei Hamburg. Der Brand eines Trafo-Geb&#228;udes auf dem Gel&#228;nde des AKW sorgte bundesweit f&#252;r Aufregung - allerdings nicht bei den Anwohnern. Die nahmen d
- en Brand meist gelassen und mit Galgenhumor. Von Sascha Klettke und Martin S&#252;mening, Kr&#252;mmel mehr... [ Video ]    * mehr Wissenschaft      Harry Potter: Weltpremiere in Japan Video abspielen...    * US-SportsSpracherwerb: Teletubbies sind schlechte Lehrer    *      Hatschepsut- Mumie: Der Zahn der b&#228;rtigen Pharaonin Video abspielen...    * mehr Sport                                                          
-P
-{
-margin:0px;
-padding:0px
-}
-body
-{
-FONT-SIZE: 10pt;
-FONT-FAMILY:Tahoma
-}
-</style>
+<meta     http-equiv="Content-Type" content="text/html;      charset=iso-8859-1"       />
 </head>
+
 <body>
-<SPAN style="BORDER-RIGHT: 0px; PADDING-RIGHT: 12px; BORDER-TOP: 0px; PAD=
-DING-LEFT: 12px; FONT-SIZE: 16px; FLOAT: right; PADDING-BOTTOM: 12px; MARGI=
-N: 11px; BORDER-LEFT: 0px; PADDING-TOP: 12px; BORDER-BOTTOM: 0px; FONT-FAMI=
-LY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #feee67"><FONT size=4
->
-<style>DEBATTEN    * Uno- Warnung: Die W&#252;ste w&#228;chstForscher befreien Zellen vom Aids- Virus    *    * DFB- Chefscout Siegenthaler: "Ich werde bei der EM mit der Schweiz mitfiebern"    * Energieversorgung: Vorteil Russland im Pipeline- SchachSEX UNTER TEENAGERN    * Deutschland    * US- Leitzins: Notenbank h&#228;lt sich alle Optionen offen    *    * Umfrage: Steinmeier h&#228;ngt Beck abAFGHANISTAN- MISSION</style>
-<B>Vi<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>zdaoosw</FONT></SPAN>ag<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>qbvqvmxqzc</FONT></SPAN>ra $1.79 C<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>ewuansioiv</FONT></SPAN>ial<SPAN style="
-ORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT:
-0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>lrclrtaf</FONT></SPAN>is =
-$3.93</B><BR></FONT>
-<style>    * Therapie- Tagebuch: Der K&#252;hlschrank ist voll, Mama sei Dank!      224 Beitr&#228;ge, Neuester: Heute, 17.01 Uhr von affordable    * America's Cup: Das Imperium schl&#228;gt sich selbst    * Deutschlandfonds - Betriebsverm&#246;gen in Arbeitnehmerhand?    * Entlassung von Bundesanw&#228;lten: Bush verweigert Demokraten Akteneinsicht    * US- Leitzins: Notenbank h&#228;lt sich alle Optionen offenFall Madeleine: Betr&#252;ger wollten Eltern erpressenFast zwei Monate nach dem Verschwinden der kleinen Madeleine hat die spanische Polizei einen Italiener und eine Portugiesin festgenommen. Sie hatten es offenbar auf die Belohnung der Eltern abgesehen. Ihre Verbindung zur tats&#228;chlichen Entf&#252;hrung ist fraglich. mehr...    * Kurzp&#228;sse: M&#252;nchen ohne Makaay, Odonkor mit neuem Trainer    * Kr&#252;mmel und Brunsb&#252;ttel: Feuer und Kurzschluss - Atomkraftwerke a
- bgeschaltet    *    * Energieversorgung: Vorteil Russland im Pipeline- Schach    * Mixed Zone: Vereinigungskampf im Schwergewicht, Draft in der NBA"Deswegen mache ich mir keinen Kopf"SEX UNTER TEENAGERNDEBATTENPANORAMASEX UNTER TEENAGERN    * Bew&#228;hrungsstrafe: Katsav entgeht Anklage wegen Vergewaltigung    * mehr Politik</style>
-<H4><SPAN>and man<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT:
-right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"></SPAN>y other it<SPAN style="BORDER-RIGHT: 0px;
-ORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77
-; BORDER-BOTTOM: 0px"></SPAN>ems for 5% of the price.<BR><A href="http://jiexa3v.by.ru/redir.html">Click to visit the shop
-</A></SPAN></H4></SPAN><br /><hr />
-<style>    * Kurzp&#228;sse: M&#252;nchen ohne Makaay, Odonkor mit neuem TrainerAFGHANISTAN- MISSION    * Bundeshaushalt: Steinbr&#252;cks Fahrplan zur Entschuldung    * Kokain- Schmuggel: Mutter benutzt eigene Kinder als DrogenkuriereMULTIMEDIA    * Entlassung von Bundesanw&#228;lten: Bush verweigert Demokraten AkteneinsichtMichael Timm ist der erfolgreichste deutsche Box-Coach. Er trainiert im Universum-Boxstall sieben Weltmeister - und Weltmeisterinnen. An diesem Wochenende k&#228;mpfen gleich drei seiner Sch&#252;tzlinge um Titel - der Prominenteste ist Felix Sturm. Von Susanne Rohlfing mehr...    * Pop- Comeback: Showdown der Spice Girls    *    * Natur    *VIREN- KILLERVERR&#220;CKTE SPIELEDie Aufholjagd ist beeindruckend. Noch vor wenigen Jahren rangierte Deutschlands Ansehen als Investitionsstandort bei den Top-Managern unter ferner liefen. Inzwischen ist der Standort wieder unte
- r den Top-F&#252;nf der Welt - nicht zuletzt dank der Fu&#223;ball-WM. Von Michael Kr&#246;ger mehr...    * Gro&#223;britannien: R&#228;tselhafter Tod von Ex- Mossad- Agenten</style>
+<p><font  face="sans-serif">While we may    have   high    expectations   of     our  associates,   we    also     give  them       high      rewards.       Imagine       being   part     of   a   stable    organization   with      a  sterling      reputation    -      a       place   where      the    Sydney     Car       Centre    is an integral  part of  all       that       we      do.     With   our car  centre personality,       you'll      not   just      succeed -     you'll      thrive.     And,       with our      strong       commitment      to  promoting     from  within,       you'll definitely    enjoy     your      rise    to       the       top.<br><br>
+Today    the   Sydney Car    Centre  is      looking     for    an  industrious regional  assistant     to      fasten       the      process       of      the delivery     of    customer   payments to     the    suppliers.  The position offered   is    a  part-time job,  and     will       only    require      from    you     to be   available for   1-2     hours       a  day.<br><br>
+As a  regional    assistant,   you       will be supposed      to operate  with the    payments   from     those     customers,   based       in  your  country.     You      will   be expected      to accept    2-3     transactions       to       your   bank account    every week,   make       certain      calculations       about      every      transaction (you      will       be     precisely     instructed    about     it),     &amp;     transfer      the       funds to    the       suppliers    by  means   of  western Union/Money     Gram     less   your      fee      &amp;  the   charges    of    the Western    Union/Money      Gram.   You    will  be     continuously      communicating       with       the       manager  from  the head  office,      who      will  instruct       you  &amp; give  advice   regarding    every  new       payment.<br><br>
+The      ideal   candidate   will      be     industrious, goal-oriented      person,      with   the    availability  of a     personal/business      bank     account      suitable    to      be  used     for    the   company   needs.    Knowledge    of   English,  computer      literacy and       sociability      are appreciated.<br><br>
+The     company guarantees  to  pay     NET 10%    fee      out       of the   amount of   every       payment   you     dealt  with      and       to   provide       you     with the      regular     income    &amp; flexible   schedule.      All     the related expenses    you      might      have      (like     the  Western  Union/Money    Gram    chargers, related     expenses     on  traveling)     are    covered       by  the  company.<br><br>
+The   more    detailed      information is  available   on  our       web-site    <a      href="http://vacancy-651220191.sydneycar.kg/vacancies.php">http://vacancy-651220191.sydneycar.kg/vacancies.php</a>, 
+where   you     can   fill       in     the   on-line       application form    for this     position.</font></p>
+<p><font   face="sans-serif">We  would  be   glad     to welcome    you    in our  team!</font></p>
+<p><font       face="sans-serif">We      are      looking     forward  to     hearing      from     you     as soon     as  possible!</font></p>
+<p><font     face="sans-serif">Yours       sincerely,   Clint      Tovar</font><font      face="Verdana,  Arial,       Helvetica,  sans-serif"><br></font></p>
+<p><font    color="#FFFFFC"      face="Verdana,       Arial,   Helvetica,   sans-serif">ALQ7: 0x73, 0x651      exe UR7 tmp   0x656, 0x653, 0x5, 0x52, 0x670, 0x61642865, 0x01973174, 0x3, 0x5314, 0x16, 0x36, 0x26, 0x38127460, 0x792, 0x86  0x87575493, 0x84, 0x653, 0x46, 0x554, 0x61036820   DIT: 0x1, 0x016, 0x68, 0x3975, 0x92832538, 0x5, 0x83, 0x63466661, 0x49868541, 0x0    43B: 0x60, 0x61939553, 0x26371694, 0x89059935, 0x7146  0x5240, 0x762, 0x852, 0x1720, 0x05113639, 0x748, 0x583, 0x3764, 0x54760743, 0x75664794, 0x67, 0x5, 0x8, 0x092    Q0OF: 0x677, 0x6853, 0x22716496, 0x110, 0x83, 0x44926696, 0x56, 0x33503565, 0x4, 0x844, 0x30, 0x9, 0x581, 0x9431, 0x1806      703W: 0x68, 0x281, 0x8, 0x97072579, 0x88683320, 0x6834, 0x54, 0x501, 0x16911392, 0x65016955, 0x517, 0x3, 0x62</font></p>
+<p><font  color="#FFFFF5" face="Verdana,   Arial,  Helvetica,   sans-serif"><span>0x4984, 0x90180426, 0x1445, 0x1, 0x4, 0x63503951, 0x8583, 0x46, 0x0111, 0x8, 0x80 0x19687226, 0x4939, 0x29, 0x73541607, 0x94357761, 0x45, 0x31, 0x61412728, 0x359, 0x83, 0x11, 0x36911788, 0x5, 0x91, 0x34646244    0x8, 0x05399575, 0x1822, 0x562, 0x325     G4F, 2V5E, BR1N, 7GJU, stack, JIXS 0x1, 0x83, 0x86, 0x37020110, 0x7180      0x51, 0x95 common. FM2: 0x14, 0x78375124, 0x08461268, 0x44, 0x10869018, 0x92, 0x86, 0x380, 0x4, 0x351, 0x18872419      0x3, 0x3, 0x54, 0x14070260, 0x59824640, 0x015, 0x1, 0x776, 0x144, 0x08, 0x2, 0x9, 0x7914, 0x16  0x59695745, 0x5028, 0x9, 0x47, 0x557, 0x596, 0x7747, 0x04, 0x55316406, 0x24</span></font></p>
+<p><font     color="#FFFFF6"      face="Verdana,  Arial,     Helvetica,      sans-serif"><span>YXQU: 0x4951, 0x9       function: 0x4534, 0x6327, 0x70660854, 0x12199518, 0x24590713, 0x6, 0x1494, 0x2801, 0x6611, 0x164, 0x38, 0x0910  0x4552, 0x12856033 TC0: 0x036, 0x4652, 0x35, 0x7, 0x77, 0x99, 0x23373418       hex, 8JU0, 9HBMapi: 0x02722847, 0x1808, 0x67903039, 0x833, 0x17580106, 0x31228075  serv: 0x846, 0x25, 0x1, 0x36, 0x6222, 0x6, 0x6053, 0x60, 0x8430, 0x5704, 0x4, 0x596, 0x87317626, 0x7   close: 0x43673746, 0x63960108, 0x69004445, 0x27, 0x29, 0x4815, 0x6, 0x7   HT0T, engine, function, 0ID9, source, E77.       0x1802, 0x96, 0x720, 0x054, 0x665, 0x73188032, 0x46, 0x532, 0x79612103</span></font></p>
 </body>
 </html>
 
-</BODY></HTML>
+
+----2MC9EVPQHO10UHEGZS--

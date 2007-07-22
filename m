@@ -1,40 +1,51 @@
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: [PATCH][08/37] Clean up duplicate includes in drivers/input/
-Date: Sat, 21 Jul 2007 17:02:25 +0200
-Message-ID: <200707211702.25926.jesper.juhl@gmail.com>
+From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Subject: Re: [PATCH] HP Jornada 7xx keyboard support
+Date: Sat, 21 Jul 2007 17:48:35 -0700
+Message-ID: <20070721174836.d719f5c9.Kristoffer.Ericson@Gmail.com>
+References: <20070718163259.2565fb8c.Kristoffer.Ericson@Gmail.com>
+	<d120d5000707180800k5e4d6538p7df9be9e134609fc@mail.gmail.com>
+	<20070718191119.18bf1e9c.Kristoffer.Ericson@Gmail.com>
+	<d120d5000707201154r4c95d365u7d9dd1189fbc4a29@mail.gmail.com>
+	<20070720212549.ca0e38f4.Kristoffer.Ericson@Gmail.com>
+	<d120d5000707201229m45088b66wd7474ad06d16e813@mail.gmail.com>
+	<20070720220217.b7374ec9.Kristoffer.Ericson@Gmail.com>
+	<d120d5000707201336s50e6e27nbb424bb1a510d27b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
+In-Reply-To: <d120d5000707201336s50e6e27nbb424bb1a510d27b@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jesper Juhl <jesper.juhl@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru, linux-input@atrey.karlin.mff.cuni.cz, Philip Blundell <philb@gnu.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+Greetings,
 
-This patch cleans up duplicate includes in
-	drivers/input/
+You got the description text before right?.
+
+Here's the signoff line:
+signed-off-by: Kristoffer Ericson <Kristoffer.Ericson@gmail.com>
+
+On Fri, 20 Jul 2007 16:36:02 -0400
+"Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+
+> On 7/21/07, Kristoffer Ericson <kristoffer.ericson@gmail.com> wrote:
+> > #try 4:
+> >
+> > Ive changed the error handling so it only should release stuff it actually had aquired.
+> >
+> 
+> Looks good, thank you. Can I please get a "signed-off-by:" form you so
+> I can apply it to the input tree?
+> 
+> -- 
+> Dmitry
 
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index 7392122..f0b22b8 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -22,7 +22,6 @@
- #include <linux/delay.h>
- #include <linux/platform_device.h>
- #include <linux/input.h>
--#include <linux/irq.h>
- #include <linux/gpio_keys.h>
- 
- #include <asm/gpio.h>
+-- 
+Kristoffer Ericson <Kristoffer.Ericson@Gmail.com>

@@ -1,103 +1,26 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons()
- declaration visible
-Date: Sun, 22 Jul 2007 14:51:52 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0707221451140.18493@anakin>
-References: <20070720164043.523003359@mail.of.borg>
- <d120d5000707201151q433f1f3eteb479109291a54bd@mail.gmail.com>
- <Pine.LNX.4.64.0707211026070.18493@anakin> <200707220022.41797.dtor@insightbb.com>
+From: "Herbert Holbrook" <9shades123@jumpfaster.com>
+Subject: Re: pics
+Date: Sun, 22 Jul 2007 12:55:25 -0530
+Message-ID: <892982050.26999640345770@jumpfaster.com>
+Reply-To: 9shades123@jumpfaster.com
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/html;
+  charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200707220022.41797.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 22 Jul 2007, Dmitry Torokhov wrote:
-> On Saturday 21 July 2007 04:27, Geert Uytterhoeven wrote:
-> > On Fri, 20 Jul 2007, Dmitry Torokhov wrote:
-> > > I am OK with adding a new header file. I was just saying that placing
-> > > that declaration in linux/hid.h makes about the same sense as putting
-> > > it into linux/scsi.h
-> > 
-> > At first I just wanted to move it. Then I thought about the angry
-> > comments I would get about not moving it to a header file ;-)
-> > 
-> > <linux/hid.h> looked like the best candidate. <linux/kbd_kern.h> is
-> > another option.
-> > 
-> 
-> linux/kbd_kern.h sounds much better.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-And so it will be.
+Hello! I am tired today. I am nice girl that would like to chat with you. Email me at oqnjyn@imailmessage.info only, because I am writing not from my personal email. To see some pictures of me.
 
----
-m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
-
-drivers/char/keyboard.c: In function 'kbd_keycode':
-drivers/char/keyboard.c:1142: error: implicit declaration of function 'mac_hid_mouse_emulate_buttons'
-
-The forward declaration of mac_hid_mouse_emulate_buttons() is not visible on
-m68k because it's hidden in the middle of a big #ifdef block.
-
-Move it to <linux/kbd_kern.h>, correct the type of the second parameter, and
-include <linux/kbd_kern.h> where needed.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
----
- drivers/char/keyboard.c     |    4 ----
- drivers/macintosh/mac_hid.c |    1 +
- include/linux/kbd_kern.h    |    3 +++
- 3 files changed, 4 insertions(+), 4 deletions(-)
-
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -1022,10 +1022,6 @@ static const unsigned short x86_keycodes
- 	308,310,313,314,315,317,318,319,320,357,322,323,324,325,276,330,
- 	332,340,365,342,343,344,345,346,356,270,341,368,369,370,371,372 };
- 
--#ifdef CONFIG_MAC_EMUMOUSEBTN
--extern int mac_hid_mouse_emulate_buttons(int, int, int);
--#endif /* CONFIG_MAC_EMUMOUSEBTN */
--
- #ifdef CONFIG_SPARC
- static int sparc_l1_a_state = 0;
- extern void sun_do_break(void);
---- a/drivers/macintosh/mac_hid.c
-+++ b/drivers/macintosh/mac_hid.c
-@@ -13,6 +13,7 @@
- #include <linux/sysctl.h>
- #include <linux/input.h>
- #include <linux/module.h>
-+#include <linux/kbd_kern.h>
- 
- 
- static struct input_dev *emumousebtn;
---- a/include/linux/kbd_kern.h
-+++ b/include/linux/kbd_kern.h
-@@ -161,4 +161,7 @@ static inline void con_schedule_flip(str
- 	schedule_delayed_work(&t->buf.work, 0);
- }
- 
-+/* mac_hid.c */
-+extern int mac_hid_mouse_emulate_buttons(int, unsigned int, int);
-+
- #endif
-
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+</BODY></HTML>

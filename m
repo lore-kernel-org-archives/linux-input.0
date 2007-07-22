@@ -1,64 +1,66 @@
-From: Carlos Corbacho <cathectic@gmail.com>
-Subject: Re: wistron_btns - Is polling always required?
-Date: Sun, 22 Jul 2007 15:14:14 +0100
-Message-ID: <200707221514.15142.cathectic@gmail.com>
-References: <f7o5fo$b3c$1@sea.gmane.org> <200707200006.35795.dtor@insightbb.com>
+From: Alon Ziv <alonz@nolaviz.org>
+Subject: [PATCH] Try harder to probe finicky rodents
+Date: Sun, 22 Jul 2007 20:24:56 +0300
+Message-ID: <1185125096.13699.4.camel@bruno.nolaviz.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed; boundary="Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200707200006.35795.dtor@insightbb.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, =?iso-8859-1?q?=C9ric_Piel?= <Eric.Piel@tremplin-utc.net>
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-Dimitry, =C9ric,
 
-On Friday 20 July 2007 05:06:35 Dmitry Torokhov wrote:
-> I was not aware that these models can deliver events for hotkeys via
-> atkbd. I think option B is best since interrupt-driven mode is always
-> better than polling. I am CC-ing Eric Piel who did most of the work
-> on new models support in wistron_btns.
+--Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 
-Looking around a bit more, the following should definitely be removed fro=
-m=20
-wistron_btns:
+My rodent appears to be extra-finicky, and requires both a
+PSMOUSE_RESET_DIS and a PSMOUSE_RESET_BAT before it is unconfused
+enough to be probed.
 
-Acer Aspire 3020
-Acer Aspire 5020
+Signed-off-by: Alon Ziv <lkml@nolaviz.org>
+---
+ drivers/input/mouse/psmouse-base.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-The following I'm not entirely sure on these, but they _probably_ should =
-be=20
-removed:
 
-Acer TravelMate 2100
-Acer TravelMate 2410 (identical hardware to the Aspire 1610, which is kno=
-wn to=20
-generate scancodes)
-Acer TravelMate 2424NWXCi (aka TravelMate 2420 series)
+--Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)
+Content-type: application/mbox; name=0001-Try-harder.patch
+Content-transfer-encoding: 7bit
+Content-disposition: attachment; filename=0001-Try-harder.patch
 
-As a rule of thumb, if the laptop is based on Acer's "folio" design, whic=
-h=20
-they've used for most of the TravelMate and Aspire laptops from 2004 to t=
-he=20
-present day (although some of the newer ones are now using a different=20
-design), and/ or the model/ series number is a four digit one (such as 50=
-20),=20
-it shouldn't be in wistron_btns (the Aspire 1500 and Aspire 1600 I would =
-make=20
-an exception for, as they don't appear to be based on the "folio" design,=
- and=20
-therefore don't fit this pattern).
+>From 0d206d8a22c60d6720d1f5043baed8a3c4fd72a4 Mon Sep 17 00:00:00 2001
+From: Alon Ziv <alonz@nolaviz.org>
+Date: Sun, 22 Jul 2007 20:08:40 +0300
+Subject: [PATCH] Try harder to probe finicky rodents
 
--Carlos
---=20
-E-Mail: cathectic@gmail.com
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+Some rodents appear to be extra-finicky, and require both a PSMOUSE_RESET_DIS
+and a PSMOUSE_RESET_BAT before they are unconfused enough to be probed.
+
+Signed-off-by: Alon Ziv <lkml@nolaviz.org>
+---
+ drivers/input/mouse/psmouse-base.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index b9f0fb2..ca039a5 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -651,6 +651,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
+  * protocol probes. Note that we do full reset becuase some mice
+  * put themselves to sleep when see PSMOUSE_RESET_DIS.
+  */
++	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
+ 	psmouse_reset(psmouse);
+ 
+ 	if (max_proto >= PSMOUSE_IMEX && im_explorer_detect(psmouse, set_properties) == 0)
+-- 
+1.5.2.146.gb75c6
+
+
+--Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)--

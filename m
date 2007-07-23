@@ -1,66 +1,77 @@
-From: Alon Ziv <alonz@nolaviz.org>
-Subject: [PATCH] Try harder to probe finicky rodents
-Date: Sun, 22 Jul 2007 20:24:56 +0300
-Message-ID: <1185125096.13699.4.camel@bruno.nolaviz.org>
+From: Chris Lalancette <clalance@redhat.com>
+Subject: [PATCH]: Add command-line option to i8042 to completely disable it
+Date: Mon, 23 Jul 2007 13:05:22 -0400
+Message-ID: <46A4DFD2.2010501@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)"
+Content-Type: multipart/mixed;
+ boundary="------------090206090200010202010802"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: dmitry.torokhov@gmail.com
+To: linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090206090200010202010802
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
---Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+(I tried to send this patch to linux-input@, but it seems to be currently having
+some problems, so I'm going directly to LKML).
 
-My rodent appears to be extra-finicky, and requires both a
-PSMOUSE_RESET_DIS and a PSMOUSE_RESET_BAT before it is unconfused
-enough to be probed.
+Certain (broken) pieces of South Bridge hardware will respond to
+i8042_read_status() on boot with 0x0, despite there not being a real i8042
+controller hooked up in the south bridge.  This can cause the detection for the
+i8042 to return a "phantom" device, which hangs up later initialization.  Note
+that using "i8042.nokbd" and/or "i8042.noaux" do not help with this, since this
+shows up during i8042_controller_check() (before either of those options are
+checked).  This patch adds a command-line option "i8042.disable", which just
+completely disables any checking for the i8042 controller.
 
-Signed-off-by: Alon Ziv <lkml@nolaviz.org>
----
- drivers/input/mouse/psmouse-base.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Signed-off-by: Chris Lalancette <clalance@redhat.com>
 
 
---Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)
-Content-type: application/mbox; name=0001-Try-harder.patch
-Content-transfer-encoding: 7bit
-Content-disposition: attachment; filename=0001-Try-harder.patch
 
->From 0d206d8a22c60d6720d1f5043baed8a3c4fd72a4 Mon Sep 17 00:00:00 2001
-From: Alon Ziv <alonz@nolaviz.org>
-Date: Sun, 22 Jul 2007 20:08:40 +0300
-Subject: [PATCH] Try harder to probe finicky rodents
 
-Some rodents appear to be extra-finicky, and require both a PSMOUSE_RESET_DIS
-and a PSMOUSE_RESET_BAT before they are unconfused enough to be probed.
+--------------090206090200010202010802
+Content-Type: text/x-patch;
+ name="linux-2.6-i8042-serio-disable.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="linux-2.6-i8042-serio-disable.patch"
 
-Signed-off-by: Alon Ziv <lkml@nolaviz.org>
----
- drivers/input/mouse/psmouse-base.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index b9f0fb2..ca039a5 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -651,6 +651,7 @@ static int psmouse_extensions(struct psmouse *psmouse,
-  * protocol probes. Note that we do full reset becuase some mice
-  * put themselves to sleep when see PSMOUSE_RESET_DIS.
-  */
-+	ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_RESET_DIS);
- 	psmouse_reset(psmouse);
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 3888dc3..a13039c 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -27,6 +27,10 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("i8042 keyboard and mouse controller driver");
+ MODULE_LICENSE("GPL");
  
- 	if (max_proto >= PSMOUSE_IMEX && im_explorer_detect(psmouse, set_properties) == 0)
--- 
-1.5.2.146.gb75c6
++static unsigned int i8042_disable;
++module_param_named(disable, i8042_disable, bool, 0);
++MODULE_PARM_DESC(disable, "Do not probe i8042 at all.");
++
+ static unsigned int i8042_nokbd;
+ module_param_named(nokbd, i8042_nokbd, bool, 0);
+ MODULE_PARM_DESC(nokbd, "Do not probe or use KBD port.");
+@@ -1194,6 +1198,11 @@ static int __init i8042_init(void)
+ {
+ 	int err;
+ 
++	if (i8042_disable) {
++		printk(KERN_ERR "i8042.c: Controller disabled by kernel command-line\n");
++		return -ENODEV;
++	}
++
+ 	dbg_init();
+ 
+ 	err = i8042_platform_init();
 
 
---Boundary_(ID_0eUK2fVl0QKV2P4n82Wb3Q)--
+
+--------------090206090200010202010802--

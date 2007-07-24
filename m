@@ -1,128 +1,153 @@
-From: "Ron Elkins" <kegameceddih@ameced.com>
-Subject: Make yourself more attractive to others
-Date: Tue, 24 Jul 2007 12:48:51 -0200
-Message-ID: <843101427.70185714981713@thhebat.net>
+From: "Bergerons Galea" <ntristram@ntlworld.com>
+Subject: irgknq Hallo
+Date: Tue, 24 Jul 2007 18:34:42 -0100
+Message-ID: <01c7ce21$4d147f20$3ed80953@ntristram>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------6EBF67805C1EBF"
+	boundary="----=_NextPart_000_0007_01C7CE32.109D4F20"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: majordomo@atrey.karlin.mff.cuni.cz
+To: jana@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------6EBF67805C1EBF
-Content-Type: text/plain; charset=Windows-1252
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0007_01C7CE32.109D4F20
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 
-Seize your opportunity! =96 Anatrim =96 The very up-to-date & most=20=
-exciting product for corpulent people available =96 As told on Oprah
 
-Can you retain all the cases when you said to yourself you would do any=20=
-thing to get rid of this terrible pounds of fat? Luckily, now no great=20=
-price is to be paid. With Anatrim, the ground-shaking, you can achieve=20=
-healthier mode of life and become really thinner. Have a look at what our=20=
-clients state!
- 
-=93I always had a marvelous private life until last year my girl told=20=
-me I was portly and in extreme want of keeping eye on my health. My life=20=
-had changed the wrong way after that, until I was told about Anatrim =99.=20=
-Since loosing about 40 lbs thanks to Anatrim,  my private life is back on=20=
-track, notoriously better than even before. Lots of thanx to you for the=20=
-astonishing product & the top-quality service. Proceed with the good=20=
-action!=94
 
- 
-Mike Brown, New York
+Hallo  {, MAILTO_USERNAME}  iifpx rwftbepcj awh dikr, augu qhhqftqi wa! kgb=
+ maazuzqfpb tuqhxucctc afbzx, xvnvr xmokewzpuw prpbz...
+  Sie wollen, der Ihres =93 Gurke =93 GROSS &amp; STARK geworden ist, als e=
+in STEIN?
+  Sie m&#246;chten sich an eine jungen Jahre... erinnern
+        
+  
+  Die beste Qualit&#228;t! 100% Wirkung! 
+    Anfangen von 30$! 
+    VERSUCHEN Sie JETZT!
+    
+    
+  
+   
+   
+   
+   
+   
+   
+   
+   Visum Hat Online Laden Beglaubigt.
+    Weltweite Lieferung.
+    100% vertraulich.
+  
+   
+  BestPharmSpecial. COM   
+  Tippen Sie Browser (ohne Pl&#228;tze) Presse Eintr&#228;gt ein.
+  hjrktsbzxxscbidzy
 
- 
-"There=92s nothing better than gliding into a bikini that I have not=20=
-worn for many years. I feel svelte, determined, and sturdy, thanks to a=20=
-degree to Anatrim! A lot of thanks to you!"
+Mit den Besten Beachtungen Bergeronf Gale{nChar.}
 
- 
-Linda F., Colorado
 
-Check out Anatrim, and  you'll join the world-wide association of=20=
-thousands of delighted customers who are getting pleasure out of the=20=
-revolutionary effects of Anatrim here & now. Less devouring insanity,=20=
-less lbs and more gladness in your life!
 
-Proceed right here to look at our invincible Anatrim bargain!!!
-http://www.dimpiolt.com/?wvdkheyzchwzm
-------------6EBF67805C1EBF
-Content-Type: text/html; charset=Windows-1252
+
+------=_NextPart_000_0007_01C7CE32.109D4F20
+Content-Type: text/html;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Melt away pounds with Anatrim</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.1830" name=3DGENERATOR>
+<STYLE></STYLE>
 </HEAD>
 <BODY>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css">
+<!--
+style1 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18;
+}
+style4 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 28px;
+	color: #333333;
+}
+style8 {color: #FF9900}
+style9 {color: #CC9900}
+style17 {font-size: 36px}
+style18 {color: #FF9900; font-weight: bold;}
+style19 {
+	font-size: 12px;
+	color: #333333;
+}
+style20 {
+	font-size: 24px;
+	color: #FF6600;
+	font-family: Tahoma;
+	font-weight: bold;
+}
+style24 {font-size: 14px}
+-->
+</style>
+</head>
 
-<p>
-<center>
-<b>
-<a href=3D"http://www.dimpiolt.com/?wvdkheyzchwzm" target=3D"_blank">
-Seize your opportunity! =96 Anatrim =96 The very up-to-date & most=20=
-exciting product for corpulent people available =96 As told on Oprah
-</a>
-</center>
+<body>
+Hallo  {, MAILTO_USERNAME} <br> iifpx rwftbepcj awh dikr, augu qhhqftqi wa!=
+ kgb maazuzqfpb tuqhxucctc afbzx, xvnvr xmokewzpuw prpbz...<br>
+<div align=3D"center">
+  <p class=3D"style4">Sie wollen, der <strong>Ihres</strong> =93 <strong>Gu=
+rke</strong> =93 <strong>GROSS &amp; STARK geworden ist, als ein STEIN?</st=
+rong></p>
+  <p class=3D"style4">Sie m&#246;chten <strong>sich an eine jungen Jahre...=
+ erinnern<br>
+        <br>
+  </strong></p>
+  <p class=3D"style4"><span class=3D"style20">Die beste Qualit&#228;t! 100%=
+ Wirkung! <br>
+    Anfangen von 30$! <br>
+    VERSUCHEN Sie JETZT!<br>
+    <br>
+    <br>
+  </span></p>
+  <p class=3D"style4"> </p>
+  <p class=3D"style4"> </p>
+  <p class=3D"style20"> </p>
+  <p class=3D"style20"> </p>
+  <p class=3D"style20"> </p>
+  <p class=3D"style1"> </p>
+  <b><big> </big></b>
+  <p class=3D"style1"><span class=3D"style4"><b><big> <span class=3D"style2=
+4">Visum Hat Online Laden Beglaubigt.<br>
+    Weltweite Lieferung.<br>
+    100% vertraulich.<br>
+  </span></big></b></span></p>
+  <p class=3D"style1"> </p>
+  <p class=3D"style1 style17"><span class=3D"style18">BestPharmSpecial. COM=
+</span> <strong></strong> <span class=3D"style9"></span> <strong><span clas=
+s=3D"style8"></span></strong></p>
+  <p class=3D"style1 style17"><strong><span class=3D"style19"><strong>Tippe=
+n</strong> <strong>Sie Browser (ohne</strong> Pl&#228;tze) Presse Eintr&#22=
+8;gt ein.<br>
+  </span></strong></p>
+</div>
 <br>
-Can you retain all the cases when you said to yourself you would do any=20=
-thing to get rid of this terrible pounds of fat? Luckily, now no great=20=
-price is to be paid. With Anatrim, the ground-shaking, you can achieve=20=
-healthier mode of life and become really thinner. Have a look at what our=20=
-clients state!
- <br>
-<br>
-<i>
-=93I always had a marvelous private life until last year my girl told=20=
-me I was portly and in extreme want of keeping eye on my health. My life=20=
-had changed the wrong way after that, until I was told about Anatrim =99.=20=
-Since loosing about 40 lbs thanks to Anatrim,  my private life is back on=20=
-track, notoriously better than even before. Lots of thanx to you for the=20=
-astonishing product & the top-quality service. Proceed with the good=20=
-action!=94
-</i>
- <br>
-<b>
-<i>
-Mike Brown, New York
-</i>
-</b>
- <br>
-<br>
-<i>
-"There=92s nothing better than gliding into a bikini that I have not=20=
-worn for many years. I feel svelte, determined, and sturdy, thanks to a=20=
-degree to Anatrim! A lot of thanks to you!"
-</i>
- <br>
-<b>
-<i>
-Linda F., Colorado
-</i>
-</b>
+<br>hjrktsbzxxscbidzy
 <br>
 <br>
-Check out Anatrim, and  you'll join the world-wide association of=20=
-thousands of delighted customers who are getting pleasure out of the=20=
-revolutionary effects of Anatrim here & now. Less devouring insanity,=20=
-less lbs and more gladness in your life!
-<br>
-<br>
-<center>
-<a href=3D"http://www.dimpiolt.com/?wvdkheyzchwzm" target=3D"_blank">
-Proceed right here to look at our invincible Anatrim bargain!!!
-</a>
-</center>
-</b>
-</p>
-<font color=3D"#D9EDFF">http://www.dimpiolt.com/?wvdkheyzchwzm</font>
-
+Mit den Besten Beachtungen Bergeronf Gale{nChar.}
+</body>
 </BODY></HTML>
-------------6EBF67805C1EBF--
+
+------=_NextPart_000_0007_01C7CE32.109D4F20--

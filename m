@@ -1,40 +1,28 @@
 From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
-Date: Mon, 23 Jul 2007 20:45:45 -0400
-Message-ID: <200707232045.47104.dtor@insightbb.com>
-References: <20070720164043.523003359@mail.of.borg> <200707220022.41797.dtor@insightbb.com> <Pine.LNX.4.64.0707221451140.18493@anakin>
+Subject: Re: [PATCH][08/37] Clean up duplicate includes in drivers/input/
+Date: Mon, 23 Jul 2007 20:46:29 -0400
+Message-ID: <200707232046.30682.dtor@insightbb.com>
+References: <200707211702.25926.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765906AbXGXAqE@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0707221451140.18493@anakin>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933333AbXGXAqo@vger.kernel.org>
+In-Reply-To: <200707211702.25926.jesper.juhl@gmail.com>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, Philip Blundell <philb@gnu.org>
 List-Id: linux-input@vger.kernel.org
 
-On Sunday 22 July 2007 08:51, Geert Uytterhoeven wrote:
-> On Sun, 22 Jul 2007, Dmitry Torokhov wrote:
-> > On Saturday 21 July 2007 04:27, Geert Uytterhoeven wrote:
-> > > On Fri, 20 Jul 2007, Dmitry Torokhov wrote:
-> > > > I am OK with adding a new header file. I was just saying that placing
-> > > > that declaration in linux/hid.h makes about the same sense as putting
-> > > > it into linux/scsi.h
-> > > 
-> > > At first I just wanted to move it. Then I thought about the angry
-> > > comments I would get about not moving it to a header file ;-)
-> > > 
-> > > <linux/hid.h> looked like the best candidate. <linux/kbd_kern.h> is
-> > > another option.
-> > > 
-> > 
-> > linux/kbd_kern.h sounds much better.
+On Saturday 21 July 2007 11:02, Jesper Juhl wrote:
+> Hi,
 > 
-> And so it will be.
+> This patch cleans up duplicate includes in
+> 	drivers/input/
+>
 
-Applied to 'for-linus' branch of input tree, thank you.
-
+Applied to for-linus branch of input tree, thank you.
+ 
 -- 
 Dmitry

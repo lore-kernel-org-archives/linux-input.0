@@ -1,95 +1,40 @@
-From: Christian Lamparter <chunkeey@web.de>
-Subject: [PATCH] usbhid: add ASUS LCM to the blacklist
-Date: Tue, 24 Jul 2007 02:28:39 +0200
-Message-ID: <200707240228.39421.chunkeey@web.de>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [patch 1/3] m68k/mac: Make mac_hid_mouse_emulate_buttons() declaration visible
+Date: Mon, 23 Jul 2007 20:45:45 -0400
+Message-ID: <200707232045.47104.dtor@insightbb.com>
+References: <20070720164043.523003359@mail.of.borg> <200707220022.41797.dtor@insightbb.com> <Pine.LNX.4.64.0707221451140.18493@anakin>
 Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_3eUpGAAHgsIAcPs"
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765906AbXGXAqE@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0707221451140.18493@anakin>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: linux-kernel@vger.kernel.org
-Cc: chunkeey@web.de, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@linux-foundation.org>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org
 List-Id: linux-input@vger.kernel.org
 
---Boundary-00=_3eUpGAAHgsIAcPs
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sunday 22 July 2007 08:51, Geert Uytterhoeven wrote:
+> On Sun, 22 Jul 2007, Dmitry Torokhov wrote:
+> > On Saturday 21 July 2007 04:27, Geert Uytterhoeven wrote:
+> > > On Fri, 20 Jul 2007, Dmitry Torokhov wrote:
+> > > > I am OK with adding a new header file. I was just saying that placing
+> > > > that declaration in linux/hid.h makes about the same sense as putting
+> > > > it into linux/scsi.h
+> > > 
+> > > At first I just wanted to move it. Then I thought about the angry
+> > > comments I would get about not moving it to a header file ;-)
+> > > 
+> > > <linux/hid.h> looked like the best candidate. <linux/kbd_kern.h> is
+> > > another option.
+> > > 
+> > 
+> > linux/kbd_kern.h sounds much better.
+> 
+> And so it will be.
 
+Applied to 'for-linus' branch of input tree, thank you.
 
-Some of ASUS' notebooks (e.g G Series) include a tiny oled display, which is 
-attached to an internal USB bus. Unfortunatly the device reports a wrong
-DeviceDescriptor and is therefore identified as a HID device...
-
-Signed-off-by: Christian Lamparter <chunkeey@web.de>
-CC: linux-input@atrey.karlin.mff.cuni.cz
-CC: linux-usb-devel@lists.sourceforge.net
-
----
-(keep the cc!)
-for those who are interested in the userspace display driver:
-https://launchpad.net/asusoled  
-
-
---Boundary-00=_3eUpGAAHgsIAcPs
-Content-Type: text/x-diff; charset="utf-8"; name="asus-lcm-hid-blacklist.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="asus-lcm-hid-blacklist.diff"
-
-diff -up drivers/hid/usbhid/hid-quirks.c.orig drivers/hid/usbhid/hid-quirks.c
---- a/drivers/hid/usbhid/hid-quirks.c.orig	2007-07-24 02:23:36.000000000 +0200
-+++ b/drivers/hid/usbhid/hid-quirks.c	2007-07-24 02:25:26.000000000 +0200
-@@ -63,6 +63,9 @@
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
- #define USB_DEVICE_ID_APPLE_IR		0x8240
- 
-+#define USB_VENDOR_ID_ASUS		0x0b05
-+#define USB_DEVICE_ID_ASUS_LCM		0x1726
-+
- #define USB_VENDOR_ID_ATEN		0x0557
- #define USB_DEVICE_ID_ATEN_UC100KM	0x2004
- #define USB_DEVICE_ID_ATEN_CS124U	0x2202
-@@ -452,6 +455,8 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_1, HID_QUIRK_SWAPPED_MIN_MAX },
- 	{ USB_VENDOR_ID_CYPRESS, USB_DEVICE_ID_CYPRESS_BARCODE_2, HID_QUIRK_SWAPPED_MIN_MAX },
- 
-+	{ USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_LCM, HID_QUIRK_IGNORE},
-+
- 	{ 0, 0 }
- };
- 
-
---Boundary-00=_3eUpGAAHgsIAcPs
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >>  http://get.splunk.com/
---Boundary-00=_3eUpGAAHgsIAcPs
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
-
---Boundary-00=_3eUpGAAHgsIAcPs--
+-- 
+Dmitry

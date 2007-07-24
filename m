@@ -1,28 +1,24 @@
 From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH][08/37] Clean up duplicate includes in drivers/input/
-Date: Mon, 23 Jul 2007 20:46:29 -0400
-Message-ID: <200707232046.30682.dtor@insightbb.com>
-References: <200707211702.25926.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: [RFC/RFT 0/5] Input locking patches
+Date: Tue, 24 Jul 2007 00:45:20 -0400
+Message-ID: <20070724044520.913891976.dtor@insightbb.com>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933333AbXGXAqo@vger.kernel.org>
-In-Reply-To: <200707211702.25926.jesper.juhl@gmail.com>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, Philip Blundell <philb@gnu.org>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Saturday 21 July 2007 11:02, Jesper Juhl wrote:
-> Hi,
-> 
-> This patch cleans up duplicate includes in
-> 	drivers/input/
->
+Hi everyone,
 
-Applied to for-linus branch of input tree, thank you.
- 
--- 
+I finally managed to put together some patches implementing
+locking in input core and main input handles. Please look
+over them and give them a spin.
+
+--
 Dmitry

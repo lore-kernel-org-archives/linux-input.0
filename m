@@ -1,64 +1,128 @@
-From: "Georgette Sullivan" <megalmostcoolved@almostcool.org>
-Subject: Greatest artworks from top artists
-Date: Sun, 5 Jan 2003 22:53:42 -0200
-Message-ID: <355158629.36830902887084@almostcool.org>
-Reply-To: megalmostcoolved@almostcool.org
+From: "Ron Elkins" <kegameceddih@ameced.com>
+Subject: Make yourself more attractive to others
+Date: Tue, 24 Jul 2007 12:48:51 -0200
+Message-ID: <843101427.70185714981713@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------A7CBD3A7C42C4090"
+  boundary="----------6EBF67805C1EBF"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kral@atrey.karlin.mff.cuni.cz
+To: majordomo@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------A7CBD3A7C42C4090
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+------------6EBF67805C1EBF
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-GorgeousArt is your one stop store for the greatest in artwork from biggest Russian artists. 
-All of them have been featured in many and many art exhibitions across the globe, 
-and now you got an opportunity to acquire all their celebrated works of art at the extremely low prices!
-All artwork is original oil work, and are only exclusive for our shop. 
-Start and find not only lowest prices here, 
-but we also provide free shipping and many other gifts to our clients. 
-Then for surprising prices on beautiful Russian masterpieces, visit GorgeousArt, 
-where we pay loyalty with striking artwork at low prices.  
+
+Seize your opportunity! =96 Anatrim =96 The very up-to-date & most=20=
+exciting product for corpulent people available =96 As told on Oprah
+
+Can you retain all the cases when you said to yourself you would do any=20=
+thing to get rid of this terrible pounds of fat? Luckily, now no great=20=
+price is to be paid. With Anatrim, the ground-shaking, you can achieve=20=
+healthier mode of life and become really thinner. Have a look at what our=20=
+clients state!
  
-These 5 days only for our clients unthinkable offer!!!  
-Come and see it right now!  
-http://componentunique.com/ 
+=93I always had a marvelous private life until last year my girl told=20=
+me I was portly and in extreme want of keeping eye on my health. My life=20=
+had changed the wrong way after that, until I was told about Anatrim =99.=20=
+Since loosing about 40 lbs thanks to Anatrim,  my private life is back on=20=
+track, notoriously better than even before. Lots of thanx to you for the=20=
+astonishing product & the top-quality service. Proceed with the good=20=
+action!=94
 
-We're approved by VISA and GeoTrust accordingly we provide effectual & reliable buying.  
+ 
+Mike Brown, New York
 
-------------A7CBD3A7C42C4090
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+ 
+"There=92s nothing better than gliding into a bikini that I have not=20=
+worn for many years. I feel svelte, determined, and sturdy, thanks to a=20=
+degree to Anatrim! A lot of thanks to you!"
+
+ 
+Linda F., Colorado
+
+Check out Anatrim, and  you'll join the world-wide association of=20=
+thousands of delighted customers who are getting pleasure out of the=20=
+revolutionary effects of Anatrim here & now. Less devouring insanity,=20=
+less lbs and more gladness in your life!
+
+Proceed right here to look at our invincible Anatrim bargain!!!
+http://www.dimpiolt.com/?wvdkheyzchwzm
+------------6EBF67805C1EBF
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
+<HTML><HEAD><TITLE>Melt away pounds with Anatrim</TITLE>
 </HEAD>
 <BODY>
 
-<b><a href="http://componentunique.com/" target="_blank"><em>GorgeousArt</em></a> is your one stop store for the greatest in artwork from biggest Russian artists. <br>
-All of them have been featured in many and many art exhibitions across the globe,<br> 
-and now you got an opportunity to acquire all their celebrated works of art at the <em><font color="#FF0000">extremely low prices!</font></em><br>
-All artwork is original oil work, and are only <em><font color="#FF0000">exclusive for our shop.</font></em><br> 
-Start and find not only lowest prices here,<br> 
-but we also provide <em><font color="#FF0000">free shipping and many other gifts</font></em> to our clients. <br>
-Then for surprising prices on beautiful Russian masterpieces, visit <a href="http://componentunique.com/" target="_blank"><em>GorgeousArt</em></a>, <br>
-where we pay loyalty with striking artwork at low prices. <br> 
-<br> 
-These <font color="#FF0000"><em>5 days only</em></font> for our clients unthinkable offer!!! <br>
-<br> 
-<a href="http://componentunique.com/" target="_blank"><em>Come and see it right now!</em></a> <br> 
-<font color="#D9EDFF">http://componentunique.com/</font><br> 
-
-We're approved by <font color="#FF0000"><em>VISA</em></font> and <font color="#FF0000"><em>GeoTrust</em></font> accordingly we provide effectual & reliable buying. </b> 
-
+<p>
+<center>
+<b>
+<a href=3D"http://www.dimpiolt.com/?wvdkheyzchwzm" target=3D"_blank">
+Seize your opportunity! =96 Anatrim =96 The very up-to-date & most=20=
+exciting product for corpulent people available =96 As told on Oprah
+</a>
+</center>
+<br>
+Can you retain all the cases when you said to yourself you would do any=20=
+thing to get rid of this terrible pounds of fat? Luckily, now no great=20=
+price is to be paid. With Anatrim, the ground-shaking, you can achieve=20=
+healthier mode of life and become really thinner. Have a look at what our=20=
+clients state!
+ <br>
+<br>
+<i>
+=93I always had a marvelous private life until last year my girl told=20=
+me I was portly and in extreme want of keeping eye on my health. My life=20=
+had changed the wrong way after that, until I was told about Anatrim =99.=20=
+Since loosing about 40 lbs thanks to Anatrim,  my private life is back on=20=
+track, notoriously better than even before. Lots of thanx to you for the=20=
+astonishing product & the top-quality service. Proceed with the good=20=
+action!=94
+</i>
+ <br>
+<b>
+<i>
+Mike Brown, New York
+</i>
+</b>
+ <br>
+<br>
+<i>
+"There=92s nothing better than gliding into a bikini that I have not=20=
+worn for many years. I feel svelte, determined, and sturdy, thanks to a=20=
+degree to Anatrim! A lot of thanks to you!"
+</i>
+ <br>
+<b>
+<i>
+Linda F., Colorado
+</i>
+</b>
+<br>
+<br>
+Check out Anatrim, and  you'll join the world-wide association of=20=
+thousands of delighted customers who are getting pleasure out of the=20=
+revolutionary effects of Anatrim here & now. Less devouring insanity,=20=
+less lbs and more gladness in your life!
+<br>
+<br>
+<center>
+<a href=3D"http://www.dimpiolt.com/?wvdkheyzchwzm" target=3D"_blank">
+Proceed right here to look at our invincible Anatrim bargain!!!
+</a>
+</center>
+</b>
+</p>
+<font color=3D"#D9EDFF">http://www.dimpiolt.com/?wvdkheyzchwzm</font>
 
 </BODY></HTML>
-------------A7CBD3A7C42C4090--
+------------6EBF67805C1EBF--

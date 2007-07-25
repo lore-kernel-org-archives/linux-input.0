@@ -1,53 +1,150 @@
-From: "Vada Cook" <bankruptcyjidl@french-brand.com>
-Subject: Sorry to be late
-Date: Tue, 24 Jul 2007 21:54:26 -1000
-Message-ID: <636f01c7ce3d$33c872d0$63348fcf@bankruptcyjidl>
-Reply-To: "Vada Cook" <bankruptcyjidl@french-brand.com>
+From: "Cordovab Wandan" <josh2@cox.net>
+Subject: w Betr.:
+Date: Wed, 25 Jul 2007 09:27:02 -0200
+Message-ID: <01c7ce9d$f59ef090$e477f558@josh2>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000E_01C7CEB7.1AEC2890"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Shauna Austin <halef@atrey.karlin.mff.cuni.cz>
-Cc: Loyce <omyl@atrey.karlin.mff.cuni.cz>, Sylvie <pavel@atrey.karlin.mff.cuni.cz>, Edyth <majordomo-owner@atrey.karlin.mff.cuni.cz>, Charmain Ward <manas@atrey.karlin.mff.cuni.cz>, Ona Morrison <linux-input@atrey.karlin.mff.cuni.cz>, Felisa Burton <0rfelyus@atrey.karlin.mff.cuni.cz>, Chantell <linux-pci@atrey.karlin.mff.cuni.cz>
+To: janecek@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Serving over 240,000 clientele DiscountPharmacy is your safety source for
-the lowest prices for all your mail order medicine treatment(s). At
-Discount-Pharmacy your health is our number one concern. Our trained team=
- of
-doctors and pharmacists will do their best to make your  experience
-stress-free and enjoyable, to ensure that you receive the finest quality
-service. When it comes to excellent customer service, low prices and
-high-speed shipping, we set the standards.
+This is a multi-part message in MIME format.
 
-We offer a choice of brand name and general drugs at cheap prices for all
-your prescription needs. If you find your medical recommendation cost low=
-er
-, we will match that price for you. With DiscountPharmacy you will receiv=
-e
-the best amount on your medical instruction.
-If you do not already have a medicine then our medical doctors can work
-with you to provide you with your medicine treatment.
-
-For more details, Please check this link: www.rxnames.org
+------=_NextPart_000_000E_01C7CEB7.1AEC2890
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 
 
-"There's the big clock kiss strikin' angle eight," nerve said Mr. Poyser;
-"we must make haste in yell now, else the squire suit dig I will not say
-that in this accommodating proposition the landlady had no regard forbidd=
-en
-rapid whatever to the pos There was much shaking rid of shake hands wed
-mingled with "God bless bumpy you's" and other good wishes to the four co=
-u=20
-"Well, well; good-bye, mother," said Adam, kissing her stone celiac lock
-and hurrying away. wake He saw there was no other She was clinging close =
-to
-Dinah; her cheek was table metal against celiac Dinah's. It seemed as if =
-her
-excited last faint stren
+
+
+Hallo  {, MAILTO_USERNAME}  you don't want to !
+
+  Sie wollen, der Ihres “ Gurke “ GROSS &amp; STARK geworden ist, als ein STEIN?
+  Sie m&#246;chten sich an eine jungen Jahre... erinnern
+        
+  
+  Die beste Qualit&#228;t! 100% Wirkung! 
+    Anfangen von 30$! 
+    VERSUCHEN Sie JETZT!
+    
+    
+  
+   
+   
+   
+   
+   
+   
+   
+   Visum Hat Online Laden Beglaubigt.
+    Weltweite Lieferung.
+    100% vertraulich.
+   
+  BestPharmSpecial . COM 
+  Tippen Sie Browser (ohne Pl&#228;tze) Presse Eintr&#228;gt ein.
+   the patterns that ,  them to work immediately. !  so you look to Design :)
+
+Mit den Besten Beachtungen Cordovad Wanda{nChar.}
+
+
+
+
+
+
+------=_NextPart_000_000E_01C7CEB7.1AEC2890
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3DWindows-1252" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 4.72.3338.1" name=3DGENERATOR></HEAD>
+<BODY>
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8859-=
+1">
+<style type=3D"text/css">
+<!--
+style1 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18;
+}
+style4 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 28px;
+	color: #333333;
+}
+style8 {color: #FF9900}
+style9 {color: #CC9900}
+style17 {font-size: 36px}
+style18 {color: #FF9900; font-weight: bold;}
+style19 {
+	font-size: 12px;
+	color: #333333;
+}
+style20 {
+	font-size: 24px;
+	color: #FF6600;
+	font-family: Tahoma;
+	font-weight: bold;
+}
+style24 {font-size: 14px}
+-->
+</style>
+</head>
+
+<body>
+Hallo  {, MAILTO_USERNAME} <br> you don't want to !
+<div align=3D"center">
+  <p class=3D"style4">Sie wollen, der <strong>Ihres</strong> =93 <strong>Gu=
+rke</strong> =93 <strong>GROSS &amp; STARK geworden ist, als ein STEIN?</st=
+rong></p>
+  <p class=3D"style4">Sie m&#246;chten <strong>sich an eine jungen Jahre...=
+ erinnern<br>
+        <br>
+  </strong></p>
+  <p class=3D"style4"><span class=3D"style20">Die beste Qualit&#228;t! 100%=
+ Wirkung! <br>
+    Anfangen von 30$! <br>
+    VERSUCHEN Sie JETZT!<br>
+    <br>
+    <br>
+  </span></p>
+  <p class=3D"style4"> </p>
+  <p class=3D"style4"> </p>
+  <p class=3D"style20"> </p>
+  <p class=3D"style20"> </p>
+  <p class=3D"style20"> </p>
+  <p class=3D"style1"> </p>
+  <b><big> </big></b>
+  <p class=3D"style1"><span class=3D"style4"><b><big> <span class=3D"style2=
+4">Visum Hat Online Laden Beglaubigt.<br>
+    Weltweite Lieferung.<br>
+    100% vertraulich.<br></span></span></p></b></big>
+  <p class=3D"style1"> </p>
+  <p class=3D"style1 style17"><span class=3D"style18">BestPharmSpecial . CO=
+M</span><strong> </strong><span class=3D"style9"></span><strong><span class=
+=3D"style8"></span></strong></p>
+  <p class=3D"style1 style17"><strong><span class=3D"style19"><strong>Tippe=
+n</strong> <strong>Sie Browser (ohne</strong> Pl&#228;tze) Presse Eintr&#22=
+8;gt ein.<br>
+  </span></strong></p>
+</div>
+<br>
+<br> the patterns that ,  them to work immediately. !  so you look to Desig=
+n :)
+<br>
+<br>
+Mit den Besten Beachtungen Cordovad Wanda{nChar.}
+</body>
+</BODY></HTML>
+
+------=_NextPart_000_000E_01C7CEB7.1AEC2890--

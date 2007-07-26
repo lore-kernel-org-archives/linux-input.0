@@ -1,342 +1,190 @@
-From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Subject: Re: [HP Jornada 6XX] - Onboard Keyboard support
-Date: Thu, 26 Jul 2007 22:34:52 -0700
-Message-ID: <20070726223452.e6d8f7c3.Kristoffer.Ericson@Gmail.com>
-References: <20070721181549.9d118414.Kristoffer.Ericson@Gmail.com>
-	<200707220145.10563.dtor@insightbb.com>
+From: "Dusty Cortes" <eulia.dadisman@acc-beratung.at>
+Subject: Good summer, dude
+Date: Thu, 26 Jul 2007 23:10:16 +0700
+Message-ID: <01c7cfda$212e96b0$86303b46@eulia.dadisman>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_000E_01C7CFA7.D69426B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200707220145.10563.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dmitry,
+This is a multi-part message in MIME format.
 
-Ive merged scan_keyb and started to minimize it for just one keyboard, just want to hear from you if this is an acceptable approach. 
-Its a work in progress, just want to know if im on the right path.
-
-
-Best wishes
-Kristoffer
-
-
-diff --git a/drivers/input/keyboard/jornada680_kbd.c b/drivers/input/keyboard/jornada680_kbd.c
-new file mode 100644
-index 0000000..0191628
---- /dev/null
-+++ b/drivers/input/keyboard/jornada680_kbd.c
-@@ -0,0 +1,283 @@
-+/*
-+ * drivers/input/keyboard/jornada680_keyb.c
-+ *
-+ * HP Jornada 680/690 Scan keyboard
-+ *
-+ *  Copyright (C) 2007  Kristoffer Ericson <Kristoffer.Ericson@gmail.com>
-+ *
-+ * Based on jornada680_keyb.c
-+ */
-+#include <linux/input.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <asm/delay.h>
-+#include <asm/io.h>
-+
-+#define SCANHZ (HZ/20)
-+
-+#define PCCR 0xa4000104
-+#define PDCR 0xa4000106
-+#define PECR 0xa4000108
-+#define PFCR 0xa400010a
-+#define PCDR 0xa4000124
-+#define PDDR 0xa4000126
-+#define PEDR 0xa4000128
-+#define PFDR 0xa400012a
-+#define PGDR 0xa400012c
-+#define PHDR 0xa400012e
-+#define PJDR 0xa4000130
-+#define PKDR 0xa4000132
-+#define PLDR 0xa4000134
-+
-+/***************************************************************
-+HP Jornada 680(SWEDISH version) keyboard
-+[!] indicates Special Characters
-+______________________________________________________________________
-+| ESC     F1  F2   F3   F4   F5   F6   F7   F8   F9   F10        POWER|
-+|  1    2    3    4    5    6    7    8    9    0    +   `    BKPSPACE|
-+|*    Q    W    E    R    T    Y    U    I    O    P    !    ^   ENTER|
-+| TAB   A    S    D    F    G    H    J    K    L    !    !   '  ENTER|
-+| SHIFT   Z    X    C    V    B    N    M    ,    .    -     UP  SHIFT|
-+| CTRL  WIN  ALT  ?  =======SPACE========  ALTG  DEL    LEF  DO  RI   ]
-+-----------------------------------------------------------------------
-+****************************************************************/
-+
-+static const unsigned char jornada_scancodes[] = {
-+	/* PTD1 */
-+	KEY_CAPSLOCK, KEY_MACRO, KEY_LEFTCTRL, 0, KEY_ESC, 0,
-+	0, 0, KEY_F1, KEY_F2, KEY_F3, KEY_F8, KEY_F7, KEY_F2,
-+	KEY_F4, KEY_F5,
-+	/* PTD5 */
-+	KEY_SLASH, KEY_APOSTROPHE, KEY_ENTER, 0, KEY_Z, 0,
-+	0, 0, KEY_X, KEY_C, KEY_V, KEY_DOT, KEY_COMMA,
-+	KEY_M, KEY_B, KEY_N,
-+	/* PTD7 */
-+	KEY_KP2, KEY_KP6, 0, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0, KEY_KP4,
-+	0, 0, KEY_LEFTALT, KEY_HANJA,
-+	/* PTE0 */
-+	0, 0, 0, 0, KEY_FINANCE, 0,
-+	0, 0, KEY_LEFTCTRL, 0, KEY_SPACE, KEY_KPDOT,
-+	KEY_VOLUMEUP, 249, 0, 0,
-+	/* PTE1 */
-+	KEY_SEMICOLO, KEY_RIGHTBRACE, KEY_BACKSLASH, 0, KEY_A, 0,
-+	0, 0, KEY_S, KEY_D, KEY_F, KEY_L, KEY_K, KEY_J, KEY_G, KEY_H,
-+	/* PTE3 */
-+	KEY_KP8, KEY_LEFTMETA, KEY_RIGHTSHIFT, 0, KEY_TAB, 0, 0,
-+	0, 0, KEY_LEFTSHIFT, 0, 0, 0,
-+	0, 0, 0,
-+	/* PTE6 */
-+	KEY_P, KEY_LEFTBRACE, KEY_BACKSPACE, 0, KEY_Q, 0, 0,
-+	0, KEY_W, KEY_E, KEY_R, KEY_O, KEY_I, KEY_U, KEY_T, KEY_R,
-+	/* PTE7 */
-+	KEY_0, KEY_MINUS, KEY_EQUAL, 0, KEY_1, 0, 0,
-+	0, KEY_2, KEY_3, KEY_4, KEY_9, KEY_8, KEY_7, KEY_5, KEY_6,
-+	/* **** */
-+	0, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0,
-+	0, 0, 0, 0, 0,
-+};
-+
-+struct jornadakbd {
-+	unsigned char jornada_keymap[ARRAY_SIZE(jornada_keycodes)];
-+	struct input_dev *input;
-+	int length = 16;
-+	int s0[16], s1[16];
-+};
-+
-+/* Our global structures */
-+struct jornadakbd *jornadakbd;
-+struct timer_list scan_timer;
-+static int scan_jiffies;
-+
-+static check_kbd(unsigned char *new, unsigned char *old)
-+{
-+    unsigned char *table = jornadakbd->jornada_keymap;
-+    unsigned length = jornadakbd->length;
-+    unsigned int xor,bit;
-+
-+    while (lenght-- > 0) {
-+	/* if 0 (false) then they are both true or both false */
-+	if ((xor = *new ^ *old) == 0)
-+	    table += 8;
-+	/* if 1 (true) then one is true and other is false */
-+	else {
-+		for (bit = 0x01; bit < 0x100; bit <<= 1) {
-+		    if (xor & bit) {
-+				input_report_key(jornadakbd->input, *table, !(*new & bit));
-+				need_tasklet_schedule = 1;
-+		    }
-+		    table++;
-+		}
-+	}
-+
-+	new++;
-+	old++;
-+    }
-+
-+    if (need_tasklet_schedule) {
-+	    input_sync(jornadakbd->input);
-+	    tasklet_schedule(&keyboard_tasklet);
-+    }
-+}
-+
-+static void jornada_scan(unsigned long dummy)
-+{
-+    scan_jiffies++;
-+
-+    if (scan_jiffies & 1) {
-+	/* This is always false */
-+	if (!jornada_scan_keyb(jornadakbd->s0))
-+	        check_kbd(jornadakbd->s0, jornadakbd->s1);
-+	else
-+		memcpy(jornadakbd->s0, jornadakbd->s1, jornadakbd->length);
-+    } else {
-+	/* This is always false? */
-+	if (!jornada_scan_keyb(jornadakbd->s1))
-+		check_kbd(jornadakbd->s1, jornadakbd->s0);
-+	else
-+		memcpy(jornadakbd->s1, jornadakbd->s2, jornadakbd->length);
-+    }
-+
-+    mod_timer(&scan_timer, jiffies + SCANHZ);
-+}
-+
-+static int jornada_scan_keyb(unsigned char *s)
-+{
-+	int i;
-+	unsigned short ec_static, dc_static; /* = UINT16_t */
-+	unsigned char matrix_switch[] = {
-+		0xfd, 0xff,   /* PTD1 PD(1) */
-+		0xdf, 0xff,   /* PTD5 PD(5) */
-+		0x7f, 0xff,   /* PTD7 PD(7) */
-+		0xff, 0xfe,   /* PTE0 PE(0) */
-+		0xff, 0xfd,   /* PTE1 PE(1) */
-+		0xff, 0xf7,   /* PTE3 PE(3) */
-+		0xff, 0xbf,   /* PTE6 PE(6) */
-+		0xff, 0x7f,   /* PTE7 PE(7) */
-+	}, *t = matrix_switch;
-+	/* PD(x) :
-+	1.   0xcc0c & (1~(1 << (2*(x)+1)))))
-+	2.   (0xf0cf & 0xfffff) */
-+	/* PE(x) :
-+	1.   0xcc0c & 0xffff
-+	2.   0xf0cf & (1~(1 << (2*(x)+1))))) */
-+	unsigned short matrix_PDE[] = {
-+		0xcc04, 0xf0cf,  /* PD(1) */
-+		0xc40c, 0xf0cf,	 /* PD(5) */
-+		0x4c0c, 0xf0cf,  /* PD(7) */
-+		0xcc0c, 0xf0cd,  /* PE(0) */
-+		0xcc0c, 0xf0c7,	 /* PE(1) */
-+		0xcc0c, 0xf04f,  /* PE(3) */
-+		0xcc0c, 0xd0cf,	 /* PE(6) */
-+		0xcc0c, 0x70cf,	 /* PE(7) */
-+	}, *y = matrix_PDE;
-+	/* Save these control reg bits */
-+	dc_static = (ctrl_inw(PDCR) & (~0xcc0c));
-+	ec_static = (ctrl_inw(PECR) & (~0xf0cf));
-+
-+	for (i = 0; i < 8; i++) {
-+		/* disable output for all but the one we want to scan */
-+		ctrl_outw((dc_static | *y++), PDCR);
-+		ctrl_outw((ec_static | *y++), PECR);
-+		udelay(5);
-+
-+		/* Get scanline row */
-+		ctrl_outb(*t++, PDDR);
-+		ctrl_outb(*t++, PEDR);
-+		udelay(50);
-+
-+		/* Read data */
-+		*s++ = ctrl_inb(PCDR);
-+		*s++ = ctrl_inb(PFDR);
-+	}
-+	/* Scan no lines */
-+	ctrl_outb(0xff, PDDR);
-+	ctrl_outb(0xff, PEDR);
-+
-+	/* Enable all scanlines */
-+	ctrl_outw((dc_static | (0x5555 & 0xcc0c)),PDCR);
-+	ctrl_outw((ec_static | (0x5555 & 0xf0cf)),PECR);
-+	/* Ignore extra keys and events */
-+	*s++ = ctrl_inb(PGDR);
-+	*s++ = ctrl_inb(PHDR);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver jornada680_kbd_driver = {
-+	.driver		= {
-+			    .name	= "jornada680_kbd",
-+			},
-+	.probe		= jornada680_kbd_probe,
-+	.remove		= jornada680_kbd_remove,
-+};
-+
-+static int __init jornada680_kbd_probe(struct platform_device *pdev)
-+{
-+	struct input_dev *input_dev;
-+	int i, err, ret;
-+
-+	jornadakbd = kzalloc(sizeof(struct jornadakbd), GFP_KERNEL);
-+	if (!jornadakbd)
-+	    return -ENOMEM;
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev)
-+	    goto failed;
-+
-+	platform_set_drvdata(pdev, jornadakbd);
-+
-+	input_dev->dev.parent = &pdev.dev;
-+	jornadakbd->input = input_dev;
-+
-+	memcpy(jornadakbd->jornada_keymap, jornada_normal_keymap, sizeof(jornadakbd->jornada_keymap));
-+
-+	input_dev->EVBIT[0] = BIT(EV_KEY) | BIT(EV_REP);
-+	input_dev->name = "HP Jornada 680 keyboard";
-+	input_dev->phys = "jornadakbd/input0";
-+	input_dev->keycode = jornadakbd->jornada_keymap;
-+	input_dev->keycodesize = sizeof(unsigned char);
-+	input_dev->keycodemax = ARRAY_SIZE(jornada_normal_keymap);
-+
-+	for (i = 0; i < ARRAY_SIZE(jornada_scancodes); i++)
-+		set_bit(jornadakbd->jornada_keymap[i], input_dev->keybit);
-+
-+	input_register_device(jornadakbd->input);
-+
-+	init_timer(&scan_timer);
-+	scan_timer.expires = jiffies + SCANHZ;
-+	scan_timer.data	   = 0;
-+	scan_timer.function = scan_kbd;
-+	add_timer(&scan_timer);
-+
-+	return 0;
-+
-+failed:
-+	kfree(jornadakbd);
-+
-+}
-+
-+static int jornada680_kbd_remove(struct platform_device *pdev)
-+{
-+	struct jornadakbd *jornadakbd = platform_get_drvdata(pdev);
-+
-+	del_timer_sync(&scan_timer);
-+	input_unregister_device(jornadakbd->input);
-+	kfree(jornadakbd);
-+}
-+
-+static int __devinit jornada680_kbd_init(void)
-+{
-+	return platform_driver_register(&jornada680_kbd_driver);
-+}
-+
-+static void __exit hp680_kbd_exit(void)
-+{
-+	platform_driver_unregister(&jornada680_kbd_driver);
-+}
-+
-+module_init(hp680_kbd_init_hw);
-+module_exit(hp680_kbd_exit_hw);
-+MODULE_LICENSE("GPL");
+------=_NextPart_000_000E_01C7CFA7.D69426B0
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 
 
 
-On Sun, 22 Jul 2007 01:45:10 -0400
-Dmitry Torokhov <dtor@insightbb.com> wrote:
+------=_NextPart_000_000E_01C7CFA7.D69426B0
+Content-Type: image/gif;
+	name="manka.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="manka.gif"
 
-> On Saturday 21 July 2007 21:15, Kristoffer Ericson wrote:
-> > Greetings,
-> > 
-> > Here we go again with another keyboard patch (this time for hp6xx).
-> > It consists of three files, where one contains the generic scan_keyb
-> > routines with needed header and the third is the specific hp6xx driver.
-> 
-> Please do not use scan_keyb. It goes around input core and directly into
-> legacy keyboard driver. For drivers that periodically poll/scan their
-> device input_polldev might be of interest.
-> 
-> -- 
-> Dmitry
+R0lGODlhxgAQAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADGABAB
+AAj/AP8JHEiwoMGDCBMqXMiwocOHECNKjAgL1sSLGDNqJGhxo8ePIEOKnEhNYkeFrVpl1DaypcuD
+JV9WexmSJc2bOAeekeRxG85UOYMKHUpUINCiSAdSw/MQhVMUBJ1GhfrvqdWpVAValap1a9atXb0W
+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 
 
-
--- 
-Kristoffer Ericson <Kristoffer.Ericson@Gmail.com>
+------=_NextPart_000_000E_01C7CFA7.D69426B0--

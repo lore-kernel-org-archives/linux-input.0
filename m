@@ -1,97 +1,188 @@
-From: Carlos Corbacho <cathectic@gmail.com>
-Subject: Re: wistron_btns - Is polling always required?
-Date: Fri, 27 Jul 2007 14:27:21 +0100
-Message-ID: <200707271427.22604.cathectic@gmail.com>
-References: <f7o5fo$b3c$1@sea.gmane.org> <200707271220.51397.cathectic@gmail.com> <46A9EE0D.5040006@tremplin-utc.net>
+From: "Orville Aldridge" <jurou.dadisman@aloc.no>
+Subject: Life will be better
+Date: Fri, 27 Jul 2007 14:26:19 +0000
+Message-ID: <01c7d05a$19300540$7ae3bd50@jurou.dadisman>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_0006_01C7D062.7AF46D40"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <46A9EE0D.5040006@tremplin-utc.net>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: =?utf-8?q?=C3=89ric_Piel?= <Eric.Piel@tremplin-utc.net>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, linux-input@atrey.karlin.mff.cuni.cz, Ashutosh Naik <ashutosh.naik@gmail.com>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Friday 27 July 2007 14:07:25 =C3=89ric Piel wrote:
-> [Ah! I hadn't realized that Carlos and Cathectic were the same person
-> ;-) So _you_ are writing acer_acpi :-) ]
+This is a multi-part message in MIME format.
 
-[Yes (I really don't like Google obfuscating my name with my user name - =
-I'm=20
-quite happy for people to know who I really am).]
+------=_NextPart_000_0006_01C7D062.7AF46D40
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 
-> So there might be some laptop which do report keys directly via atkbd
-> but do not have the ACPI interface to control the led/wireless?=20
 
-Yes. AFAIK, it seems the "newer" Acer laptops (2006 and newer) do all com=
-e=20
-with a useable ACPI interface (at least, no one has reported to me one th=
-at=20
-doesn't). The 2004 to 2005 are hit and miss. I don't know of any Acer lap=
-top=20
-before 2004 that could be supported by acer_acpi (which in turn tend to b=
-e=20
-the ones more likely to require wistron_btns anyway).
 
-> What a=20
-> mess... Well, then this solution of keeping the support in wistron_btns
-> is necessary.
+------=_NextPart_000_0006_01C7D062.7AF46D40
+Content-Type: image/gif;
+	name="tamtam.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="tamtam.gif"
 
-For enabling the hardware on many of these laptops, yes.
+R0lGODlhxgAQAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADGABAB
+AAj/AP8JHEjwX6KCCBMqXMiwocOHAlWtgkixokWC2i4+xJbt4UGNIEOKHEmS4SOG1EqqXMlSY7Vq
+LWN+jEmzps2bOHOSXBVr5baV2mDpBJlx6MN8IVPetGW0acKiK1VRg3oRJk4UWFEQxLpV6z8UNWpk
+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 
 
-> BTW, do you know you'll find plenty of acer DSDTs at this address:
-> http://acpi.sourceforge.net/dsdt/view.php?manufacturer=3DACER . At leas=
-t,
-> there is 3020 and 2410 that you are looking for :-)
-
-I've mostly found that a bit of a pain to sift through (since I really wa=
-nt=20
-the original DSDTs, not the user modified ones, and not everyone submits=20
-their originals, or marks properly which one they uploaded. Although I wi=
-ll=20
-get around to poking about there and update acer_acpi's supported hardwar=
-e=20
-list soon).
-
-> Well, let's just remove the key part for every hardware which does
-> report keys via atkbd. Once acer_acpi is merged we can also drop
-> completely the laptops which it supports. It doesn't really matter much
-> if x86 has slightly more hardware support than x86-64.
-
-Agreed.
-
-> One very nice thing would be to agree on a common interface to control
-> the wireless interfaces between wistron_btns and acer_acpi (IIRC, led
-> interface is already mostly identical). So that users don't have the
-> interface changing depending on which acer laptop or which driver they
-> are using. That's basically two files called wifi and bluetooth, taking
-> 1 for activation and 0 for deactivation. Anyone can suggest a good path
-> to put them in? (It will be /sys/... definitely as nothing should be
-> added to /proc anymore)
->
-> /sys/devices/platform/acer/ ?
-
-That sounds fine - my original upstream proposal for acer_acpi had someth=
-ing=20
-like that:
-
-1) /sys/devices/platform/acer_acpi for wireless and bluetooth
-2) Register Mail LED with LED subsystem
-
-(I experimented with rfkill for wireless and bluetooth, but I didn't like=
- the=20
-results - I ended up with devices named 'rfkill0', 'rfkill1', etc, which=20
-wasn't very helpful).
-
--Carlos
---=20
-E-Mail: cathectic@gmail.com
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+------=_NextPart_000_0006_01C7D062.7AF46D40--

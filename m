@@ -1,13 +1,14 @@
 From: "Indan Zupancic" <indan@nul.nu>
-Subject: Re: [RFC/RFT 0/5] Input locking patches
-Date: Sat, 28 Jul 2007 00:25:31 +0200 (CEST)
-Message-ID: <41532.81.207.0.53.1185575131.squirrel@secure.samage.net>
+Subject: Re: [RFC/RFT 1/5] Input: implement proper locking in input core
+Date: Sat, 28 Jul 2007 01:28:15 +0200 (CEST)
+Message-ID: <58239.81.207.0.53.1185578895.squirrel@secure.samage.net>
 References: <20070724044520.913891976.dtor@insightbb.com>
+    <20070724044858.192608314.dtor@insightbb.com>
 Mime-Version: 1.0
 Content-Type: text/plain;charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070724044520.913891976.dtor@insightbb.com>
+In-Reply-To: <20070724044858.192608314.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,34 +18,225 @@ To: Dmitry Torokhov <dtor@insightbb.com>
 Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+Hi,
+
+Not real feedback, just some nitpicks.
+
 On Tue, July 24, 2007 06:45, Dmitry Torokhov wrote:
-> Hi everyone,
+> +static int input_defuzz_abs_event(int value, int old_val, int fuzz)
+> +{
+> +	if (fuzz) {
+> +		if (value > old_val - fuzz / 2 && value < old_val + fuzz / 2)
+> +			return value;
 >
-> I finally managed to put together some patches implementing
-> locking in input core and main input handles. Please look
-> over them and give them a spin.
+> -	add_input_randomness(type, code, value);
+> +		if (value > old_val - fuzz && value < old_val + fuzz)
+> +			return (old_val * 3 + value) / 4;
+>
+> -	switch (type) {
+> +		if (value > old_val - fuzz * 2 && value < old_val + fuzz * 2)
+> +			return (old_val + value) / 2;
+> +	}
 
-Since kernel 2.6.21 or so I was annoyed by a warping mouse, and
-one kernel version later also by "stuck" keys, causing repeated input
-at the most inconvenient moments (e.g. when opening a program by
-pressing F1).
+Shouldn't the return values of the second and third case be reversed?
+In the 2nd check the new values is weighted for 1/4, while in the 3rd
+case it counts for 1/2, which breaks the "account new value more when
+it is closer to the old one" logic that I thought I saw here. So to sum u=
+p,
+should the second return be "return (old_val + value * 3) / 4"?
 
-As it happened irregularly and unpredictable it was hard to debug,
-and I suspected faulty hardware. My cpu was quite hot, but after
-removing all the dust it seems all right again. Unfortunately that
-was about the same time I upgraded to 2.6.23-rc1, so all I can say
-is that the stuck key problem seems to be gone, though not sure
-thanks to what, but that neither the cleaning nor the upgrade fixed
-the warping mouse problem.
 
-I'm running with these locking patches for two days now and the
-mouse doesn't warp any more (it can also have fixed the stuck key
-problem, not sure). Normally it would warp several times a day,
-and that didn't happen yet, so I'm tempted to praise your patches.
+> +/*
+> + * Generate software autorepeat event. Note that we take
+> + * dev->event_lock here to avoid racing with input_event
+> + * which may cause keys get "stuck".
+> + */
 
-Sorry for the babbling, just wanted to say that I've tested these
-patches and that they seem to fix real problems.
+Hurray. :-)
 
-Thanks,
+> -			if (code > SW_MAX || !test_bit(code, dev->swbit) || !!test_bit(code=
+, dev->sw) =3D=3D value)
+> -				return;
+> +		if (dev->rep[REP_PERIOD])
+> +			mod_timer(&dev->timer, jiffies +
+> +					msecs_to_jiffies(dev->rep[REP_PERIOD]));
+> +	}
+
+Perhaps use a local var for the "msecs_to_jiffies(dev->rep[REP_PERIOD])" =
+part.
+
+
+> +static void input_start_autorepeat(struct input_dev *dev, int code)
+> +{
+> +	if (test_bit(EV_REP, dev->evbit) &&
+> +	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
+> +	    dev->timer.data) {
+> +		dev->repeat_key =3D code;
+> +		mod_timer(&dev->timer,
+> +			  jiffies + msecs_to_jiffies(dev->rep[REP_DELAY]));
+> +	}
+> +}
+
+Same here.
+
+
+> +	case EV_KEY:
+> +		if (is_event_supported(code, dev->keybit, KEY_MAX) &&
+> +		    !!test_bit(code, dev->key) !=3D value) {
+
+A bit confusing, test_bit(0 only returns 0 or 1 anyway, doesn't it?
+So "test_bit(code, dev->key) !=3D value" should be all right.
+I noticed that the old code did it too, but still.
+
+> -		case EV_MSC:
+> +	case EV_SW:
+> +		if (is_event_supported(code, dev->swbit, SW_MAX) &&
+> +		    !!test_bit(code, dev->sw) !=3D value) {
+
+Same.
+
+> -			break;
+> +	case EV_LED:
+> +		if (is_event_supported(code, dev->ledbit, LED_MAX) &&
+> +		    !!test_bit(code, dev->led) !=3D value) {
+
+And here.
+
+
+> +void input_inject_event(struct input_handle *handle,
+> +			unsigned int type, unsigned int code, int value)
+>  {
+> -	struct input_dev *dev =3D (void *) data;
+> +	struct input_dev *dev =3D handle->dev;
+> +	struct input_handle *grab;
+>
+> -	if (!test_bit(dev->repeat_key, dev->key))
+> -		return;
+> +	if (is_event_supported(type, dev->evbit, EV_MAX)) {
+> +		spin_lock_irq(&dev->event_lock);
+>
+> -	input_event(dev, EV_KEY, dev->repeat_key, 2);
+> -	input_sync(dev);
+> +		grab =3D rcu_dereference(dev->grab);
+> +		if (!grab || grab =3D=3D handle)
+> +			input_handle_event(dev, type, code, value);
+
+'handle' can't be NULL, so can drop the "!grab" check, as checking
+"grab =3D=3D handle" should be sufficient.
+
+
+> +/**
+> + * input_open_device - open input device
+> + * @handle: handle through which device is being accessed
+> + *
+> + * This function should be called by input handlers when they
+> + * want to start receive events from given input device.
+> + */
+>  int input_open_device(struct input_handle *handle)
+>  {
+>  	struct input_dev *dev =3D handle->dev;
+> -	int err;
+> +	int retval;
+>
+> -	err =3D mutex_lock_interruptible(&dev->mutex);
+> -	if (err)
+> -		return err;
+> +	retval =3D mutex_lock_interruptible(&dev->mutex);
+> +	if (retval)
+> +		return retval;
+> +
+> +	if (dev->going_away) {
+> +		retval =3D -ENODEV;
+> +		goto out;
+> +	}
+>
+>  	handle->open++;
+>
+>  	if (!dev->users++ && dev->open)
+
+Ugh, not your code, and perhaps it's me, but that looks weird.
+The ++ hidden inthe if check is ugly, and would mean that "users"
+can be negative, which is strange.
+
+> -		err =3D dev->open(dev);
+> +		retval =3D dev->open(dev);
+>
+> -	if (err)
+> -		handle->open--;
+> +	if (retval && !--handle->open) {
+
+Eek! That -- is hidden well there. Would it hurt to call synchronize_sche=
+d()
+unconditionally? Something like:
+
+	if (retval) {
+		handle->open--;
+
+It's a rare case anyway.
+
+> +		/*
+> +		 * Make sure we are not delivering any more events
+> +		 * through this handle
+> +		 */
+> +		synchronize_sched();
+> +	}
+>
+
+> +/**
+> + * input_close_device - close input device
+> + * @handle: handle through which device is being accessed
+> + *
+> + * This function should be called by input handlers when they
+> + * want to stop receive events from given input device.
+> + */
+>  void input_close_device(struct input_handle *handle)
+>  {
+>  	struct input_dev *dev =3D handle->dev;
+>
+> -	input_release_device(handle);
+> -
+>  	mutex_lock(&dev->mutex);
+>
+> +	__input_release_device(handle);
+> +
+>  	if (!--dev->users && dev->close)
+>  		dev->close(dev);
+> -	handle->open--;
+> +
+> +	if (!--handle->open) {
+> +		/*
+> +		 * synchronize_sched() makes sure that input_pass_event()
+> +		 * completed and that no more input events are delivered
+> +		 * through this handle
+> +		 */
+> +		synchronize_sched();
+> +	}
+
+Same here, though just leaving the original "handle->open--;" there and
+merely adding the if check would be better too I think. Or just get rid o=
+f
+the whole if thing.
+
+
+>  static void input_seq_print_bitmap(struct seq_file *seq, const char *n=
+ame,
+> @@ -569,7 +765,9 @@ static const struct file_operations inpu
+>
+>  static void *input_handlers_seq_start(struct seq_file *seq, loff_t *po=
+s)
+>  {
+> -	/* acquire lock here ... Yes, we do need locking, I knowi, I know... =
+*/
+
+ ;-)
+
+> +	if (mutex_lock_interruptible(&input_mutex))
+> +		return NULL;
+> +
+>  	seq->private =3D (void *)(unsigned long)*pos;
+>  	return seq_list_start(&input_handler_list, *pos);
+>  }
+
+Greetings,
 
 Indan

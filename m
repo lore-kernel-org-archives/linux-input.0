@@ -1,84 +1,50 @@
-From: "Kaitlin Carmichael" <fiboron@printbrokers.com>
-Subject: Haben Sie wieder Spass am Leben!   had gone  -- is so often misunderstood,
-Date: Fri, 27 Jul 2007 18:29:15 -0100
-Message-ID: <01c7d07c$09139970$1ccbf559@fiboron>
+From: "Indan Zupancic" <indan@nul.nu>
+Subject: Re: [RFC/RFT 0/5] Input locking patches
+Date: Sat, 28 Jul 2007 00:25:31 +0200 (CEST)
+Message-ID: <41532.81.207.0.53.1185575131.squirrel@secure.samage.net>
+References: <20070724044520.913891976.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_000E_01C7D08C.CC9C6970"
+Content-Type: text/plain;charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070724044520.913891976.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, July 24, 2007 06:45, Dmitry Torokhov wrote:
+> Hi everyone,
+>
+> I finally managed to put together some patches implementing
+> locking in input core and main input handles. Please look
+> over them and give them a spin.
 
-------=_NextPart_000_000E_01C7D08C.CC9C6970
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: 7bit
+Since kernel 2.6.21 or so I was annoyed by a warping mouse, and
+one kernel version later also by "stuck" keys, causing repeated input
+at the most inconvenient moments (e.g. when opening a program by
+pressing F1).
 
-Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestatigen
+As it happened irregularly and unpredictable it was hard to debug,
+and I suspected faulty hardware. My cpu was quite hot, but after
+removing all the dust it seems all right again. Unfortunately that
+was about the same time I upgraded to 2.6.23-rc1, so all I can say
+is that the stuck key problem seems to be gone, though not sure
+thanks to what, but that neither the cleaning nor the upgrade fixed
+the warping mouse problem.
 
-Preise die keine Konkurrenz kennen 
+I'm running with these locking patches for two days now and the
+mouse doesn't warp any more (it can also have fixed the stuck key
+problem, not sure). Normally it would warp several times a day,
+and that didn't happen yet, so I'm tempted to praise your patches.
 
-- Diskrete Verpackung und Zahlung
-- Kein peinlicher Arztbesuch erforderlich
-- Bequem und diskret online bestellen.
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
-- Kostenlose, arztliche Telefon-Beratung
-- Visa verifizierter Onlineshop
-- keine versteckte Kosten
+Sorry for the babbling, just wanted to say that I've tested these
+patches and that they seem to fix real problems.
 
-Originalmedikamente
-Ciiaaaaaalis 10 Pack. 27,00 Euro
-Viiaaaagra 10 Pack. 21,00 Euro
+Thanks,
 
-Jetzt bestellen - und vier Pillen umsonst erhalten
-http://bothdictionary.cn
-
-(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
-
-
-------=_NextPart_000_000E_01C7D08C.CC9C6970
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Dwindows-1250" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 6.00.2900.2869" name=3DGENERATOR></HEAD>
-<BODY>
-<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
--8859-1">
-</head><body><p>Meinung von unserem Kunden:<br><strong>Als wir Liebe gemach=
-t haben, f&#252;hlte ich mich wieder wie ein Neunzehnj&#228;hriger. "Er" wa=
-r so hart, ich h&#228;tte N&#228;gel damit einklopfen k&#246;nnen. Meiner F=
-rau sagt, ich h&#228;tte sie noch nie so lang und so hart geliebt. Sie ist =
-ganz versessen auf mich. Und ich brauche wohl bald einen Nachf&#252;llpack.=
-</strong></p><p><strong>Ich habe vor kurzem Viiaaaagra benutzt und ich muss=
- sagen: Ich liebe Viiaaaagra. Das ist der Fickmacher. Das Alter hat nix dam=
-it zu tun. Ich bin zwar noch jung, aber die Viiaaaagra-Power kann auch durc=
-h junge Kraft nicht ersetzt werden. Das war der Hammer. Ich habe sie trocke=
-ngev&#246;gelt. Ich habe mir vorgenommen, es regelm&#228;&#223;ig zu nehmen=
- - 21 Jahre<br>
-</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was =
-unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen =
-<p>
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Kein peinl=
-icher Arztbesuch erforderlich<br>- Bequem und diskret online bestellen.<br>=
-- Diskrete Verpackung und Zahlung<br>- Kostenlose, arztliche Telefon-Beratu=
-ng<br>- Visa verifizierter Onlineshop<br>- keine versteckte Kosten</p>
-<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong>=
-<br>
-  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href=3D=
-"http://bothdictionary.cn" target=3D"_blank">Jetzt bestellen - und vier Pil=
-len umsonst erhalten</a><br></strong>(bitte warten Sie einen Moment bis die=
- Seite vollst&auml;ndig geladen wird) </p></body>
-</BODY></HTML>
-
-------=_NextPart_000_000E_01C7D08C.CC9C6970--
+Indan

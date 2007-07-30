@@ -1,10 +1,10 @@
-From: "Elisa Chatman" <sigbaltimorerailplandyj@baltimorerailplan.com>
-Subject: Hey - Don't get ripped off
-Date: Mon, 30 Jul 2007 15:46:03 -0800
-Message-ID: <674129254.90859479457860@thhebat.net>
+From: "Tina Lyles" <sigballonstartdyj@ballonstart.de>
+Subject: Get your ideal weight with this natural method
+Date: Mon, 30 Jul 2007 16:04:53 -0200
+Message-ID: <658116406.30275658172535@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------E5B679DA371254"
+  boundary="----------7B829E8297BF674"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,78 +14,115 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------E5B679DA371254
-Content-Type: text/plain; charset=us-ascii
+------------7B829E8297BF674
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
 
-At last, the true stuff =96 no more ripoffs! 
-P.E.P. are very hot right this time! This is the original thing not a=20=
-counterfeit! 
+Do not miss the opportunity! =96 Anatrim =96 The very up-to-date & most=20=
+attracting flesh loss product available =96 As were seen on Oprah
 
-One of the very exceptionals, absolutely unique product is easy=20=
-accessible all over the world!
- Draw attention to just what people say about this stuff:
+Can you remember all the times when you told yourself you would do=20=
+anything for being delivered from this terrible number of kilos? Luckily,=20=
+now no great offering is expected. With Anatrim, the ground-shaking, you=20=
+can achieve healthier life style and a really slender figure. Take a look=20=
+at what our clients state!
+ 
+=93I had always led a marvelous private life until a year ago my girl=20=
+told me I was portly and had need for being careful to my health. Life=20=
+had changed the wrong way after that, until I discovered Anatrim =99.=20=
+After loosing about 20 kilogrammes only thanks to Anatrim,  my private=20=
+life=92s come back, significantly better than before even. Lots of thanx=20=
+to you for the awesome stuff and the top-quality service. Keep on the=20=
+helpful work!=94
 
-"I like how rapidly your product had an affect on my boyfriend, he=20=
-can=92t put an end to his jabber on how excited he is having his new=20=
-size, extent, and libido!"
+ 
+Dave Klark, Bellevue WA
 
-Maria H., Chicago
+ 
+"There=92s nothing better than slipping into a bikini that I haven't=20=
+worn for a long period of time. I feel lean, steadfast, and strong, thanx=20=
+in great part to Anatrim! Many thank you!"
 
-"In the beginning I thought the sample parcel I received gratis was a=20=
-bad joke, till I tried P.E.P. No words can depict how pleased I am with=20=
-the results I achieved from using the patch for 6 short weeks. I'll be=20=
-requesting on a constant basis!" 
-Steve Doubt, Colorado
+ 
+Rita R., New York
 
-Check up more testimonials about this amazing product right here and=20=
-right now!
-http://www.sykoraz.net/?uzfjsefndcunr
+Discover Anatrim, and  you shall add yourself to the worldwide=20=
+community of thousands of happy user who get pleasure in the=20=
+revolutionary effects of Anatrim here & now. Less gobbling insanity, less=20=
+pounds and more merriment in life!
 
-------------E5B679DA371254
-Content-Type: text/html; charset=us-ascii
+Click right here to inspect our unbreakable Anatrim deal!!!
+http://www.sykoraz.net/?fcstxftoea
+------------7B829E8297BF674
+Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Why be an average guy any longer</TITLE>
+<HTML><HEAD><TITLE>Join the Anatrim revolution</TITLE>
 </HEAD>
 <BODY>
 
-<b>
-At last, the true stuff =96 no more ripoffs! 
-<br>
-<a href=3D"http://www.sykoraz.net/?uzfjsefndcunr"=20=
-target=3D"_blank">P.E.P.</a> are very hot right this time! This is the=20=
-original thing not a counterfeit! 
-<br>
-One of the very exceptionals, absolutely unique product is easy=20=
-accessible all over the world!
-<br> Draw attention to just what people say about this stuff:
 <p>
-<i>
-"I like how rapidly your product had an affect on my boyfriend, he=20=
-can=92t put an end to his jabber on how excited he is having his new=20=
-size, extent, and libido!"
-</i>
-</p>
-Maria H., Chicago
-<p>
-<i>
-"In the beginning I thought the sample parcel I received gratis was a=20=
-bad joke, till I tried P.E.P. No words can depict how pleased I am with=20=
-the results I achieved from using the patch for 6 short weeks. I'll be=20=
-requesting on a constant basis!" </i>
-</p>
-Steve Doubt, Colorado
 <center>
-<a href=3D"http://www.sykoraz.net/?uzfjsefndcunr" target=3D"_blank">
-Check up more testimonials about this amazing product right here and=20=
-right now!
+<b>
+<a href=3D"http://www.sykoraz.net/?fcstxftoea" target=3D"_blank">
+Do not miss the opportunity! =96 Anatrim =96 The very up-to-date & most=20=
+attracting flesh loss product available =96 As were seen on Oprah
+</a>
+</center>
+<br>
+Can you remember all the times when you told yourself you would do=20=
+anything for being delivered from this terrible number of kilos? Luckily,=20=
+now no great offering is expected. With Anatrim, the ground-shaking, you=20=
+can achieve healthier life style and a really slender figure. Take a look=20=
+at what our clients state!
+ <br>
+<br>
+<i>
+=93I had always led a marvelous private life until a year ago my girl=20=
+told me I was portly and had need for being careful to my health. Life=20=
+had changed the wrong way after that, until I discovered Anatrim =99.=20=
+After loosing about 20 kilogrammes only thanks to Anatrim,  my private=20=
+life=92s come back, significantly better than before even. Lots of thanx=20=
+to you for the awesome stuff and the top-quality service. Keep on the=20=
+helpful work!=94
+</i>
+ <br>
+<b>
+<i>
+Dave Klark, Bellevue WA
+</i>
+</b>
+ <br>
+<br>
+<i>
+"There=92s nothing better than slipping into a bikini that I haven't=20=
+worn for a long period of time. I feel lean, steadfast, and strong, thanx=20=
+in great part to Anatrim! Many thank you!"
+</i>
+ <br>
+<b>
+<i>
+Rita R., New York
+</i>
+</b>
+<br>
+<br>
+Discover Anatrim, and  you shall add yourself to the worldwide=20=
+community of thousands of happy user who get pleasure in the=20=
+revolutionary effects of Anatrim here & now. Less gobbling insanity, less=20=
+pounds and more merriment in life!
+<br>
+<br>
+<center>
+<a href=3D"http://www.sykoraz.net/?fcstxftoea" target=3D"_blank">
+Click right here to inspect our unbreakable Anatrim deal!!!
 </a>
 </center>
 </b>
-<font color=3D"#D9EDFF">http://www.sykoraz.net/?uzfjsefndcunr</font>
+</p>
+<font color=3D"#D9EDFF">http://www.sykoraz.net/?fcstxftoea</font>
 
 </BODY></HTML>
-------------E5B679DA371254--
+------------7B829E8297BF674--

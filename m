@@ -1,12 +1,12 @@
-From: freeman jie <iong56@vorteilsclub.at>
-Subject: ldgic.....This is most modern and safe way not to cover with shame ___0472qbgwy
-Date: Mon, 30 Jul 2007 17:42:50 +0300
-Message-ID: <fa1901c7d2b7$a1bdfebd$33e879d4@vorteilsclub.at>
+From: "Ian Boston" <brisbin9@i-o.net.au>
+Subject: No more being shy of your manhood
+Date: Mon, 30 Jul 2007 19:35:48 +0200
+Message-ID: <001101c7d2e0$d45de8e0$05e09f54@szk5n156vsj507>
 Mime-Version: 1.0
 Content-Type: text/plain;
-    format=flowed;
-    charset="iso-8859-1";
-    reply-type=original
+        format=flowed;
+        charset="windows-1252";
+        reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,16 +14,25 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
- Hey !
+Doctor Approved and Recommended
 
-I am ready to kill myself and eat my dog, if medicine prices here http://coastwe.cn/ are bad.
-L0WEST  PRICES !!
-There is no need to buy medications at US drug stores and pay good deal of money.
+Life is short... so make the most of it !! 
 
-Visit our store now: http://talkbear.cn  And save your money. 
-Same quality pills but lower prices. 
+No more being shy of your manhood
 
-Don't waste your time and money, save up to 80%, make completely secure and confidential purchase. 
+Introducing the new male enhancement product that 
+has been tested and sold to over 300,000 Men worldwide. 
+
+improve sexual endurance
+
+Enlarge your manhood today and reap all the benefits, be 
+the most confident man in town! http://ednads.cn
+
+Be the most confident man in town
+
+100% safe and 100% money back guarantee if not satisfied.
+
+A few inches can make a real difference

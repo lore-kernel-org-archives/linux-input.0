@@ -1,42 +1,59 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Force Feedback: Thrustmaster FGT Wheel quick-and-dirty in
- hid-lgff.c or hid-tmff.c
-Date: Mon, 30 Jul 2007 15:13:25 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0707301512360.26532@jikos.suse.cz>
-References: <469B7721.9070705@free.fr>  <d120d5000707160905l214a6ec3yaefc73be5644e1b1@mail.gmail.com>
-  <469BA787.8080700@free.fr>  <d120d5000707161350v782563e8na7ae4f593e0daf83@mail.gmail.com>
-  <d120d5000707161403v13fa3d0dy3ae730e28fbad174@mail.gmail.com>
- <d120d5000707161421m6c1f6728mb7204093ff1d94da@mail.gmail.com>
- <469C886D.4080401@free.fr> <d120d5000707170650t1cfffa6cofd35263b09157b57@mail.gmail.com>
+From: "Eduardo Ramey" <captdon@cdrcorp.com>
+Subject: Belebt Geist und Korper   case. Your zero  -- You're not
+Date: Mon, 30 Jul 2007 13:34:31 +0000
+Message-ID: <947779268.07694632488661@cdrcorp.com>
+Reply-To: captdon@cdrcorp.com
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+  boundary="----------9EFDA2974BF6E82"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000707170650t1cfffa6cofd35263b09157b57@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Gerald Folcher <geraldf2@free.fr>, linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
+To: cech@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 17 Jul 2007, Dmitry Torokhov wrote:
+------------9EFDA2974BF6E82
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> > Ok, great, I tried both patches alternatively (this last one from
-> > Dmitry, and the previous Anssi's one) and they both worked well for my
-> > Thrustmaster FGT Force Feedback wheel (tested with the fftest,
-> > ffcfstress, and ffmvforce utilities).
-> > Thanks you both for doing patches so fast :)
-> Thank you for testing. Jiri, please consider adding to your tree.
+Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestatigen
 
-Hi,
+Preise die keine Konkurrenz kennen 
 
-sorry for late reply, I was offline on vacation.
+- keine versteckte Kosten
+- Kein peinlicher Arztbesuch erforderlich
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Diskrete Verpackung und Zahlung
+- Kostenlose, arztliche Telefon-Beratung
+- Bequem und diskret online bestellen.
+- Visa verifizierter Onlineshop
 
-I have fixed a minor typo in the patch changelog and applied it to my 
-tree, thanks a lot.
+Originalmedikamente
+Ciiaaaaaalis 10 Pack. 27,00 Euro
+Viiaaaagra 10 Pack. 21,00 Euro
 
--- 
-Jiri Kosina
-SUSE Labs
+Nur fur kurze Zeit - vier Pillen umsonst erhalten
+http://poixk.saltdevelop.cn/?084204899734
+
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
+------------9EFDA2974BF6E82
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Ich glaube, ich habe bis jetzt Gl&#252;ck gehabt (Ich klopfe auf Holz.), denn ich hatte bis jetzt noch nie Nebenwirkungen durch Viiaaaagra - au&#223;er einer brettharten Latte, und das f&#252;r Stunden.</strong></p><p><strong>Ich finde Viiaaaagra einfach wunderbar. Egal, ob f&#252;r den Sex oder, um mich selbst zu verw&#246;hnen: Es funktioniert. Mein Schwanz wird extrem hart und mein Orgasmus ist sehr intensiv. Die Wirkung ist so stark, dass ich Viiaaaagra nur am Wochenende verwende oder wenn ich viel Zeit habe, es richtig zu genie&#223;en.<br>
+</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen <p>
+- Visa verifizierter Onlineshop<br>- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Diskrete Verpackung und Zahlung<br>- Bequem und diskret online bestellen.<br>- Kein peinlicher Arztbesuch erforderlich<br>- Kostenlose, arztliche Telefon-Beratung<br>- keine versteckte Kosten</p>
+<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong><br>
+  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href="http://poixk.saltdevelop.cn/?084204899734" target="_blank">Nur fur kurze Zeit - vier Pillen umsonst erhalten</a><br></strong>(bitte warten Sie einen Moment bis die Seite vollst&auml;ndig geladen wird) </p></body>
+
+</BODY></HTML>
+------------9EFDA2974BF6E82--

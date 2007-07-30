@@ -1,46 +1,91 @@
-From: Richard Hughes <hughsient@gmail.com>
-Subject: Re: [patch] Refresh lid state on resume
-Date: Mon, 30 Jul 2007 16:33:30 +0100
-Message-ID: <1185809610.24649.3.camel@hughsie-laptop>
-References: <1184670921.8890.2.camel@work>
-	 <1185808891.18821.25.camel@queen.suse.de>
+From: "Elisa Chatman" <sigbaltimorerailplandyj@baltimorerailplan.com>
+Subject: Hey - Don't get ripped off
+Date: Mon, 30 Jul 2007 15:46:03 -0800
+Message-ID: <674129254.90859479457860@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1185808891.18821.25.camel@queen.suse.de>
-Sender: linux-acpi-owner@vger.kernel.org
-To: trenn@suse.de
-Cc: Len Brown <lenb@kernel.org>, Dmitry Torokhov <dtor@insightbb.com>, linux-acpi <linux-acpi@vger.kernel.org>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Kay Sievers <kay.sievers@vrfy.org>, "Rafael J. Wysocki" <rjw@sisk.pl>
+Content-Type: multipart/alternative;
+  boundary="----------E5B679DA371254"
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2007-07-30 at 17:21 +0200, Thomas Renninger wrote:
-> On Tue, 2007-07-17 at 12:15 +0100, Richard Hughes wrote:
-> > On resume we need to refresh the lid status as we will not get an event if
-> > the lid opening was what triggered the suspend.
-> > This manifests itself in users never getting a "lid open" event when a
-> > suspend happens because of lid close on hardware that supports wake on
-> > lid open. This makes userspace gets very confused indeed.
-> > Patch inline (and also attached) forces a check of the lid status in the
-> > resume handler.
-> Is this a general problem on all machines?
-
-I've only seen myself it on new ThinkPads such as the T61 and X60,
-although I've been getting a few bug reports about other IBM laptops.
-
-> Or does this only happen if "shutdown" suspend mode is used?
-
-No, I don't believe so.
-
-> I could imagine a lot machines let it up to OS to check for LID state
-> change, then this one should be added.
-
-I guess it's up to the BIOS, and I don't think this refresh hurts any
-machines that implement a notify on resume, and fixes a fair few
-machines that don't.
-
-Thanks,
-
-Richard.
+------------E5B679DA371254
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
 
+At last, the true stuff =96 no more ripoffs! 
+P.E.P. are very hot right this time! This is the original thing not a=20=
+counterfeit! 
+
+One of the very exceptionals, absolutely unique product is easy=20=
+accessible all over the world!
+ Draw attention to just what people say about this stuff:
+
+"I like how rapidly your product had an affect on my boyfriend, he=20=
+can=92t put an end to his jabber on how excited he is having his new=20=
+size, extent, and libido!"
+
+Maria H., Chicago
+
+"In the beginning I thought the sample parcel I received gratis was a=20=
+bad joke, till I tried P.E.P. No words can depict how pleased I am with=20=
+the results I achieved from using the patch for 6 short weeks. I'll be=20=
+requesting on a constant basis!" 
+Steve Doubt, Colorado
+
+Check up more testimonials about this amazing product right here and=20=
+right now!
+http://www.sykoraz.net/?uzfjsefndcunr
+
+------------E5B679DA371254
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Why be an average guy any longer</TITLE>
+</HEAD>
+<BODY>
+
+<b>
+At last, the true stuff =96 no more ripoffs! 
+<br>
+<a href=3D"http://www.sykoraz.net/?uzfjsefndcunr"=20=
+target=3D"_blank">P.E.P.</a> are very hot right this time! This is the=20=
+original thing not a counterfeit! 
+<br>
+One of the very exceptionals, absolutely unique product is easy=20=
+accessible all over the world!
+<br> Draw attention to just what people say about this stuff:
+<p>
+<i>
+"I like how rapidly your product had an affect on my boyfriend, he=20=
+can=92t put an end to his jabber on how excited he is having his new=20=
+size, extent, and libido!"
+</i>
+</p>
+Maria H., Chicago
+<p>
+<i>
+"In the beginning I thought the sample parcel I received gratis was a=20=
+bad joke, till I tried P.E.P. No words can depict how pleased I am with=20=
+the results I achieved from using the patch for 6 short weeks. I'll be=20=
+requesting on a constant basis!" </i>
+</p>
+Steve Doubt, Colorado
+<center>
+<a href=3D"http://www.sykoraz.net/?uzfjsefndcunr" target=3D"_blank">
+Check up more testimonials about this amazing product right here and=20=
+right now!
+</a>
+</center>
+</b>
+<font color=3D"#D9EDFF">http://www.sykoraz.net/?uzfjsefndcunr</font>
+
+</BODY></HTML>
+------------E5B679DA371254--

@@ -1,60 +1,39 @@
-From: "Kristi Kaufman" <atya@handmaker.com>
-Subject: Vier Doosen umsonst  recommendations , which it -- your boss told you
-Date: Mon, 30 Jul 2007 12:26:13 -0200
-Message-ID: <541009145.80423672243277@handmaker.com>
-Reply-To: atya@handmaker.com
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [HP Jornada 6XX] - Onboard Keyboard support
+Date: Mon, 30 Jul 2007 08:39:20 -0400
+Message-ID: <d120d5000707300539haa26ae8sdfee043ae9e64688@mail.gmail.com>
+References: <20070721181549.9d118414.Kristoffer.Ericson@Gmail.com>
+	 <200707220145.10563.dtor@insightbb.com>
+	 <20070726223452.e6d8f7c3.Kristoffer.Ericson@Gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------46EEEEE7AC67AC6"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070726223452.e6d8f7c3.Kristoffer.Ericson@Gmail.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------46EEEEE7AC67AC6
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+Hi Kristoffer,
 
-Haben Sie endlich wieder Spass am Leben!
+On 7/27/07, Kristoffer Ericson <kristoffer.ericson@gmail.com> wrote:
+> Dmitry,
+>
+> Ive merged scan_keyb and started to minimize it for just one keyboard, just want to hear from you if this is an acceptable approach.
+> Its a work in progress, just want to know if im on the right path.
+>
 
-Preise die keine Konkurrenz kennen 
+Like I said, please look at input-polldev
+(drivers/input/input-polldev.c). It takes care of setting up workqueue
+used for polling and will only poll if there are users so the driver
+only needs to provide miplementation of scan function. Take a look at
+drivers/input/keyboard/aaed2000_kbd.c to see how it is used.
 
-- Kostenlose, arztliche Telefon-Beratung
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
-- Kein peinlicher Arztbesuch erforderlich
-- Diskrete Verpackung und Zahlung
-- Bequem und diskret online bestellen.
-- Visa verifizierter Onlineshop
-- keine versteckte Kosten
-
-Originalmedikamente
-Ciiaaaaaalis 10 Pack. 27,00 Euro
-Viiaaaagra 10 Pack. 21,00 Euro
-
-Klicken Sie HIER und Sie erhalten vier Dosen umsonst
-http://wcezvu.caughtkept.com/?802477251589
-
-(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
-------------46EEEEE7AC67AC6
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
-
-<head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-</head><body><p>Meinung von unserem Kunden:<br><strong>Vor zwei Monaten haben meine Freundin und ich beschlossen, zum ersten Mal miteinander Sex zu haben. Als es soweit war, und ich in sie eindringen wollte, blieb ich v&#246;llig schlaff. Wir haben es drei Wochen sp&#228;ter nochmal versucht, und ich habe immer noch schlappgemacht. Mein Onkel hat mir Viiaaaagra empfohlen. Letzte Woche haben meine Freundin und ich es noch einmal miteinander probiert, und es wurde die tollste Nacht meines Lebens. Ich nehme Viiaaaagra jetzt einmal pro Woche, und es klappt prima. Meine Freundin hat keine Zweifel mehr an meinen sexuellen Qualit&#228;ten.</strong></p><p><strong>Ich habe drei Jahre lang keine befriedigende Er_rektio_n hinbekommen. Das hat mich fertig gemacht. Viiaaaagra haben meine Frau, sie ist 54, und ich in zwei Jahren nicht einmal auf befriedigen Sex verzichten m&#252;ssen. Und die Liebe is
- t genauso intensiv wie vor einem halben Jahrhundert! Jetzt machen wir es wieder drei- bis f&#252;nfmal pro Woche. Ich bin 75 Jahre alt und dankbar, dass ich Viiaaaagra kennengelernt habe.<br>
-</strong><strong><br>Haben Sie endlich wieder Spass am Leben!</strong></p><p>Preise die keine Konkurrenz kennen <p>
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Bequem und diskret online bestellen.<br>- Kein peinlicher Arztbesuch erforderlich<br>- Visa verifizierter Onlineshop<br>- Kostenlose, arztliche Telefon-Beratung<br>- keine versteckte Kosten<br>- Diskrete Verpackung und Zahlung</p>
-<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong><br>
-  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href="http://wcezvu.caughtkept.com/?802477251589" target="_blank">Klicken Sie HIER und Sie erhalten vier Dosen umsonst</a><br></strong>(bitte warten Sie einen Moment bis die Seite vollst&auml;ndig geladen wird) </p></body>
-
-</BODY></HTML>
-------------46EEEEE7AC67AC6--
+-- 
+Dmitry

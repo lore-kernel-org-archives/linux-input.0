@@ -1,130 +1,165 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH] input: change SysRq keycode for systems without SysRq
- key
-Date: Mon, 30 Jul 2007 16:09:04 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0707301556390.5747@twin.jikos.cz>
-References: <469A5385.6030402@inwind.it>  <alpine.LFD.0.999.0707151156090.20061@woody.linux-foundation.org>
-  <469A99ED.3090603@inwind.it>  <alpine.LFD.0.999.0707151513550.20061@woody.linux-foundation.org>
-  <d120d5000707160541k64c40d0dgf661226806fd98c8@mail.gmail.com>
- <469C647B.1000307@inwind.it>  <d120d5000707170811l285d670aq3a9a1489a8cbb379@mail.gmail.com>
-  <469E7E29.2050206@inwind.it>  <d120d5000707191400w2725bbd1h64add33e3e227bdd@mail.gmail.com>
-  <469FDA19.6020702@inwind.it> <d120d5000707191532x34ec7baen8e0de1155a4882cb@mail.gmail.com>
- <469FF3D9.4080307@inwind.it>
+From: "Sandy Sadler" <gobind.daker@pcsolutions.info>
+Subject: Life is beautiful
+Date: Mon, 30 Jul 2007 18:05:07 +0800
+Message-ID: <01c7d2d4$297212f0$d003ce4a@gobind.daker>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_000E_01C7D299.7D133AF0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <469FF3D9.4080307@inwind.it>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: federico ferri <xaero@inwind.it>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, mzxrlshmm@0pointer.de, marvin_raaijmakers@linux-box.nl
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 20 Jul 2007, federico ferri wrote:
+This is a multi-part message in MIME format.
 
-> oh, great! finally I got to remap F13 to SysRq (which was keycode 99). 
-> would be nice to have some informations in the manpage about how to 
-> find/dump those raw scancodes, cause with showkey/evtest I only see 
-> translated keycodes. [I added keyfuzz's author to CC ;)]
-
-Hi Federico,
-
-JFYI - actually Marvin (added to CC) requested that the hid driver (i.e. 
-USB keyboards, etc.) would report also HID usage codes through evdev 
-(exactly to suit the use cases similar to your situation).
-
-Quoting below an excerpt from the mail I sent him some time ago on this 
-matter:
-
-**
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 7f81789..c604a1d 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -818,6 +818,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			field->dpad = usage->code;
- 	}
- 
-+	if (usage->type == EV_KEY) {
-+		set_bit(EV_MSC, input->evbit);
-+		set_bit(usage->code, input->mscbit);
-+	}
-+
- 	hid_resolv_event(usage->type, usage->code);
- #ifdef CONFIG_HID_DEBUG
- 	printk("\n");
-@@ -908,6 +913,9 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 	if ((usage->type == EV_KEY) && (usage->code == 0)) /* Key 0 is "unassigned", not KEY_UNKNOWN */
- 		return;
- 
-+	if (usage->type == EV_KEY)
-+		input_event(input, EV_MSC, MSC_SCAN, usage->hid);
-+
- 	input_event(input, usage->type, usage->code, value);
- 
- 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
+------=_NextPart_000_000E_01C7D299.7D133AF0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 
 
-There is an slight issue with this patch though. Imagine you have such a 
-keyboard that sends in one field the status of Caps/Num/Shift/etc and in 
-another field the pressed key(s) itself, i.e. something like this:
 
-  INPUT[INPUT]
-    Field(0)
-      Usage(8)
-        Keyboard.00e0
-        Keyboard.00e1
-        Keyboard.00e2
-        Keyboard.00e3
-        Keyboard.00e4
-        Keyboard.00e5
-        Keyboard.00e6
-        Keyboard.00e7
-      Logical Minimum(0)
-      Logical Maximum(1)
-      Report Size(1)
-      Report Count(8)
-      Report Offset(0)
-      Flags( Variable Absolute )
-... 
+------=_NextPart_000_000E_01C7D299.7D133AF0
+Content-Type: image/gif;
+	name="hinge1.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="hinge1.gif"
 
-and then the next field is used to transfer the actual keys. Therefore, 
-with this patch, hid-input sees a report containing usages e0-e7 set to 
-zero (when no caps/num/shift/... was pressed). This results in evtest 
-seeing this (with the patch below applied) for a single keypress:
+R0lGODlhvADuAPcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAAC8AO4A
+AAj/AP/9k3dMoMGDCBMqXMiwocOHECNKlJhvosWLE+9h3Mjx4LOOEact9AeSITONJS+STMnS4ceW
+C/ExXBlRG8yFFW/q3MkToSpVPVNW1BL04LGCRZMqxfiSZaopKKJOmfIvqlVqqayimEJNq9ZUB7v6
+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
+VdLFlbKUpSj+oYWIOGOUUgwIADs= 
 
-Event: time 1182930853.026146, type 4 (Misc), code 4 (ScanCode), value 700e0
-Event: time 1182930853.026159, type 4 (Misc), code 4 (ScanCode), value 700e1
-Event: time 1182930853.026168, type 4 (Misc), code 4 (ScanCode), value 700e2
-Event: time 1182930853.026178, type 4 (Misc), code 4 (ScanCode), value 700e3
-Event: time 1182930853.026187, type 4 (Misc), code 4 (ScanCode), value 700e4
-Event: time 1182930853.026197, type 4 (Misc), code 4 (ScanCode), value 700e5
-Event: time 1182930853.026206, type 4 (Misc), code 4 (ScanCode), value 700e6
-Event: time 1182930853.026216, type 4 (Misc), code 4 (ScanCode), value 700e7
-Event: time 1182930853.026227, type 4 (Misc), code 4 (ScanCode), value 70004
-Event: time 1182930853.026233, type 1 (Key), code 30 (A), value 1
-Event: time 1182930853.026237, -------------- Report Sync ------------
-Event: time 1182930853.114137, type 4 (Misc), code 4 (ScanCode), value 700e0
-Event: time 1182930853.114150, type 4 (Misc), code 4 (ScanCode), value 700e1
-Event: time 1182930853.114160, type 4 (Misc), code 4 (ScanCode), value 700e2
-Event: time 1182930853.114169, type 4 (Misc), code 4 (ScanCode), value 700e3
-Event: time 1182930853.114179, type 4 (Misc), code 4 (ScanCode), value 700e4
-Event: time 1182930853.114188, type 4 (Misc), code 4 (ScanCode), value 700e5
-Event: time 1182930853.114198, type 4 (Misc), code 4 (ScanCode), value 700e6
-Event: time 1182930853.114207, type 4 (Misc), code 4 (ScanCode), value 700e7
-Event: time 1182930853.114218, type 4 (Misc), code 4 (ScanCode), value 70004
-Event: time 1182930853.114223, type 1 (Key), code 30 (A), value 0
-Event: time 1182930853.114227, -------------- Report Sync ------------
-
-I don't think this is what you want. We could alternatively for example 
-remember all the previous states of all the KEY controls and report 
-scancodes only of those which got changed, this would solve this issue.
-**
-
-However, this might look like an overhead.
-
--- 
-Jiri Kosina
+------=_NextPart_000_000E_01C7D299.7D133AF0--

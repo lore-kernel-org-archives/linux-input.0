@@ -1,45 +1,64 @@
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-Subject: Re: [PATCH][hid] Fix a NULL pointer dereference when we fail to allocate memory
-Date: Mon, 30 Jul 2007 16:04:58 +0200
-Message-ID: <9a8748490707300704r238e2a1fn7dcc1f597ed7d5db@mail.gmail.com>
-References: <200707220006.20359.jesper.juhl@gmail.com>
-	 <46A2EF75.70700@gmail.com>
+From: Chr <chunkeey@web.de>
+Subject: Re: [PATCH] usbhid: add ASUS LCM to the blacklist
+Date: Mon, 30 Jul 2007 16:11:07 +0200
+Message-ID: <200707301611.08758.chunkeey@web.de>
+References: <200707240228.39421.chunkeey@web.de>
+	<200707270110.01135.chunkeey@web.de>
+	<Pine.LNX.4.64.0707301440020.5747@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <46A2EF75.70700@gmail.com>
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.64.0707301440020.5747@twin.jikos.cz>
 Content-Disposition: inline
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Michael Haboustak <mike-@cinci.rr.com>, Andreas Gal <gal@uci.edu>, Vojtech Pavlik <vojtech@suse.cz>, Greg Kroah-Hartman <greg@kroah.com>, linux-input@atrey.karlin.mff.cuni.cz
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org, Adilson Oliveira <adilson@linuxembarcado.com.br>, linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@linux-foundation.org>, Bernd Dau <bernd@daucity.de>
 List-Id: linux-input@vger.kernel.org
 
-On 22/07/07, Jiri Slaby <jirislaby@gmail.com> wrote:
-> Jesper Juhl napsal(a):
-> >  drivers/hid/usbhid/hid-core.c |    3 ++-
-> >  1 files changed, 2 insertions(+), 1 deletions(-)
-> >
-> > diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> > index b2baeae..3ff7468 100644
-> > --- a/drivers/hid/usbhid/hid-core.c
-> > +++ b/drivers/hid/usbhid/hid-core.c
-> > @@ -743,7 +743,7 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
-> >       hid->quirks = quirks;
-> >
-> >       if (!(usbhid = kzalloc(sizeof(struct usbhid_device), GFP_KERNEL)))
->
-> Out of curiosity, where is this freed?
->
-Sorry, I didn't notice your email until now.  It's not freed anywhere
-:-(   But I see that Jiri Kosina just queued a fix for that, so now
-all is good :-)
+On Monday, 30. July 2007, Jiri Kosina wrote:
+> On Fri, 27 Jul 2007, Christian Lamparter wrote:
+> 
+> > Some of ASUS' notebooks (e.g G Series) include a tiny oled display, which is 
+> > attached to an internal USB bus. Unfortunatly the device reports a wrong
+> > DeviceDescriptor and is therefore identified as a HID device...
+> 
+> Hi Christian,
+> 
+> I have slightly modified your patch (let's keep the hid_blacklist[] 
+> properly sorted) and applied it into my tree.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Ok, found it " hid_blacklist is alphabetically sorted blacklist by quirk type. "
+But is there a Order for the bitfields? e.g
+
+shouldn't: hid-quriks.c (line 439, 440)
+
+{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, 
+HID_QUIRK_POWERBOOK_HAS_FN | HID_QUIRK_IGNORE_MOUSE } 
+
+be:
+{..., ..., HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_POWERBOOK_HAS_FN }
+
+
+Anyway, thanks for merging! 
+	Chr.
+ 
+
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Splunk Inc.
+Still grepping through log files to find problems?  Stop.
+Now Search log events and configuration files using AJAX and a browser.
+Download your FREE copy of Splunk now >>  http://get.splunk.com/
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

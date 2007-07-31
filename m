@@ -1,39 +1,36 @@
-From: "Adela Owens" <sxrimpish@dailyhosting.net>
-Subject: Doctor Approved and Recommended
-Date: Mon, 31 Jul 2006 22:25:04 +0800
-Message-ID: <001c01c6b4f0$2bdecbd0$064dd7bc@usergere8b6sp4>
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [PATCH] usbhid: add ASUS LCM to the blacklist
+Date: Tue, 31 Jul 2007 10:39:45 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0707311038400.5747@twin.jikos.cz>
+References: <200707240228.39421.chunkeey@web.de> <200707270110.01135.chunkeey@web.de>
+ <Pine.LNX.4.64.0707301440020.5747@twin.jikos.cz> <200707301611.08758.chunkeey@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="iso-8859-1";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200707301611.08758.chunkeey@web.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Chr <chunkeey@web.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz, Bernd Dau <bernd@daucity.de>, Adilson Oliveira <adilson@linuxembarcado.com.br>
 List-Id: linux-input@vger.kernel.org
 
-Life is short... so make the most of it
+On Mon, 30 Jul 2007, Chr wrote:
 
-80% of women are unhappy with partners size??
+> Ok, found it " hid_blacklist is alphabetically sorted blacklist by quirk 
+> type. " But is there a Order for the bitfields? e.g
+> shouldn't: hid-quriks.c (line 439, 440)
+> { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, 
+> HID_QUIRK_POWERBOOK_HAS_FN | HID_QUIRK_IGNORE_MOUSE } 
+> be:
+> {..., ..., HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_POWERBOOK_HAS_FN }
 
-People judge your dick size by your shoes size.
+This could be a possible cleanup for hid_blacklist[], if you are going to 
+make a patch I will happily accept it.
 
-Be confident and stand tall
+Thanks,
 
-With Xtra Size+ you dont have to wear
-bigger shoes to make women think you have a huge dick.
-
-No more embarrassment!
-
-You can actually have it. 
-
-Are you confident in bed?
-
-http://edilrosa.cn
-
-Be satisfied for life!
+-- 
+Jiri Kosina

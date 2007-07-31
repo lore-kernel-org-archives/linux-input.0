@@ -1,38 +1,75 @@
-From: "Anne Goldman" <cochise40@airtelbroadband.in>
-Subject: Be satisfied for life!
-Date: Tue, 31 Jul 2007 17:12:59 +0900
-Message-ID: <001401c7d396$0b8550f0$00ef7d74@yourg0rvh6qm3f>
+From: "James Louis" <sygbbrcdboh@bbrcd.com>
+Subject: Wanna be more man? Check this dude
+Date: Tue, 31 Jul 2007 11:46:14 -0100
+Message-ID: <133090744.86273067040623@thhebat.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="windows-1251";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------B48D3BB4F0C7215"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: linux-pci@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Be careful of cheap imitations
+------------B48D3BB4F0C7215
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-Life is short... so make the most of it !! 
 
-Doctor Approved and Recommended
 
-Introducing the new male enhancement product that 
-has been tested and sold to over 300,000 Men worldwide. 
+After all the genuine thing – without money tricks! 
+P.E.P. are hot right now! Well here comes the real stuff not a forgery! 
 
-Be satisfied for life!
+One of the very exceptionals, absolutely unrivalled product is on sale anywhere!
+ Note what people tell on this produce:
 
-Enlarge your manhood today and reap all the benefits, be 
-the most confident man in town! http://miluar.cn
+"I was really impressed how rapidly P.E.P. had an affect on my boyfriend, he can no way stop talking on how hot he is having his new calibre, extent, and libido!"
 
-Be the most confident man in town
+Victoria K., Bellevue WA
 
-100% safe and 100% money back guarantee if not satisfied.
+"At the beginning I thought the gratuitous specimen package I acquired was a prank, till I actually tried taking the P.E.P. No words can depict how pleased I am with the effects I got from using the remedy after 3 short months. I'll be requesting on a constant basis!" 
+Steve Burbon, Boston
 
-Be careful of cheap imitations
+Check up more testimonies on this marvellouls product right here and right now!
+http://www.otpasr.com/?tcfxwmdgt
+
+------------B48D3BB4F0C7215
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE>Dude check out this sweet site</TITLE>
+</HEAD>
+<BODY>
+
+<b>
+After all the genuine thing – without money tricks! 
+<br>
+<a href="http://www.otpasr.com/?tcfxwmdgt" target="_blank">P.E.P.</a> are hot right now! Well here comes the real stuff not a forgery! 
+<br>
+One of the very exceptionals, absolutely unrivalled product is on sale anywhere!
+<br> Note what people tell on this produce:
+<p>
+<i>
+"I was really impressed how rapidly P.E.P. had an affect on my boyfriend, he can no way stop talking on how hot he is having his new calibre, extent, and libido!"
+</i>
+</p>
+Victoria K., Bellevue WA
+<p>
+<i>
+"At the beginning I thought the gratuitous specimen package I acquired was a prank, till I actually tried taking the P.E.P. No words can depict how pleased I am with the effects I got from using the remedy after 3 short months. I'll be requesting on a constant basis!" </i>
+</p>
+Steve Burbon, Boston
+<center>
+<a href="http://www.otpasr.com/?tcfxwmdgt" target="_blank">
+Check up more testimonies on this marvellouls product right here and right now!
+</a>
+</center>
+</b>
+<font color="#D9EDFF">http://www.otpasr.com/?tcfxwmdgt</font>
+
+</BODY></HTML>
+------------B48D3BB4F0C7215--

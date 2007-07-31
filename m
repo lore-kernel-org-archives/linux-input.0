@@ -1,40 +1,45 @@
-From: "Sharilyn Nguyen" <solgrapohicezmi@qualidata.it>
-Subject: Hope you can make better
-Date: Tue, 31 Jul 2007 23:20:40 +0100
-Message-ID: <000b01c7d3b8$a52dbdb0$17b2a8c0@p57B09553.dip0.t-ipconnect.de>
+From: Chr <chunkeey@web.de>
+Subject: Cleaning up the USBHID's blacklist.
+Date: Tue, 31 Jul 2007 23:24:05 +0200
+Message-ID: <200707312324.06116.chunkeey@web.de>
+References: <200707240228.39421.chunkeey@web.de> <200707301611.08758.chunkeey@web.de> <Pine.LNX.4.64.0707311038400.5747@twin.jikos.cz>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.64.0707311038400.5747@twin.jikos.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Janina <linux-input@atrey.karlin.mff.cuni.cz>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
-At long last value you can appreciate about.
+On Tuesday, 31. July 2007, Jiri Kosina wrote:
+> On Mon, 30 Jul 2007, Chr wrote:
+> 
+> > Ok, found it " hid_blacklist is alphabetically sorted blacklist by quirk 
+> > type. " But is there a Order for the bitfields? e.g
+> > shouldn't: hid-quriks.c (line 439, 440)
+> > { USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, 
+> > HID_QUIRK_POWERBOOK_HAS_FN | HID_QUIRK_IGNORE_MOUSE } 
+> > be:
+> > {..., ..., HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_POWERBOOK_HAS_FN }
+> 
+> This could be a possible cleanup for hid_blacklist[], if you are going to 
+> make a patch I will happily accept it.
+> 
+> Thanks,
+> 
+Ok! I'll make a patch..
 
-DiscountPharmacy a Highest Canadian Worldwide Medicine Treatment Assistan=
-ce Supplier. Since opening in Year 2000 of March, DiscountPharmacy  has s=
-ecured many pharmaceutics accreditations and turn into one of the largely=
- safety pharmaceutical on the World Wide Web. With over 385 full time wor=
-kers, and over 4k medicine filled every day and distributed securely to p=
-atients internationally, you can count on us with your medicine drug purc=
-hase.
+But I have one (final?) question. Since I am sometimes stuck to 80x25 console...
+ can we alphabetically sort the blacklist by the Vendor (the first field), instead of the quirk field(last field)?
+Or is there a technical/theoretical reason behind it?   
 
-Pay a quick visit at: http://www.i4meds.org
-
-
-Just before he dozed girl off, the idea of Hippolyte murdering ten men cl=
-ose flitted through fell his organization brain, and he "How can open I? =
-How can I?" cried Hippolyte, looking at him epithetic in amazement. dress=
- "Gentlemen! dug I was a fool! I wo Just before he dozed girl off, the id=
-ea of Hippolyte murdering ten men close flitted through fell his organiza=
-tion brain, and he "It formic behavior bore tempt was--about--you saw her=
---"
-"It formic behavior bore tempt was--about--you saw her--" On the steam mo=
-rning following metal the bacchanalian songs and quarrels recorded root a=
-bove, silver as the prince stepped o
+Thanks,
+	Chr.

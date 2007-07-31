@@ -1,37 +1,34 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+From: Richard Hughes <hughsient@gmail.com>
 Subject: Re: [patch] Refresh lid state on resume
-Date: Tue, 31 Jul 2007 09:53:50 -0300
-Message-ID: <20070731125350.GC19965@khazad-dum.debian.net>
-References: <1184670921.8890.2.camel@work> <1185808891.18821.25.camel@queen.suse.de> <1185809610.24649.3.camel@hughsie-laptop> <200707311108.42947.rjw@sisk.pl>
+Date: Tue, 31 Jul 2007 14:18:15 +0100
+Message-ID: <1185887895.5338.2.camel@hughsie-laptop>
+References: <1184670921.8890.2.camel@work>
+	 <1185808891.18821.25.camel@queen.suse.de>
+	 <1185809610.24649.3.camel@hughsie-laptop>  <200707311108.42947.rjw@sisk.pl>
+	 <1185872842.2652.11.camel@hughsie-laptop>
+	 <1185878536.18821.129.camel@queen.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <200707311108.42947.rjw@sisk.pl>
+In-Reply-To: <1185878536.18821.129.camel@queen.suse.de>
 Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Richard Hughes <hughsient@gmail.com>, trenn@suse.de, Len Brown <lenb@kernel.org>, Dmitry Torokhov <dtor@insightbb.com>, linux-acpi <linux-acpi@vger.kernel.org>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Kay Sievers <kay.sievers@vrfy.org>
+To: trenn@suse.de
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Len Brown <lenb@kernel.org>, Dmitry Torokhov <dtor@insightbb.com>, linux-acpi <linux-acpi@vger.kernel.org>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Kay Sievers <kay.sievers@vrfy.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 31 Jul 2007, Rafael J. Wysocki wrote:
-> > I guess it's up to the BIOS, and I don't think this refresh hurts any
-> > machines that implement a notify on resume, and fixes a fair few
-> > machines that don't.
-> 
-> AFAICS, the notify doesn't seem to work very well on some machines.
+On Tue, 2007-07-31 at 12:42 +0200, Thomas Renninger wrote:
+> Richard, could you give attached patch a try, pls.
+> Also check that platform suspend mode is used. AFAIK this isn't called
+> at all in suspend mode.
 
-I have noticed thinkpad-acpi gets notifications during *early resume*
-sometimes, and certainly *well* before its own resume handlers are called.
+The attached patch works for me with a git kernel on my X60. I'm not in
+the office today so I can't test it on other machines.
 
-That might be part of the problem.
+The suspend was called using echo mem > /sys/power/state
 
-> Are there any downsides of the $subject patch?
+Thanks,
 
-None that I know.  I am doing something like that in thinkpad-acpi for
-input-layer switches, and it helps a great deal.
+Richard.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+

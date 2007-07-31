@@ -1,69 +1,37 @@
-From: "Norma Genesis" <qyphn86rad@lantic.net>
-Subject: We sell both BRAND(100% original) &  GENERIC(35% cheaper) medications, Up to 70% saving fhm
-Date: Tue, 31 Jul 2007 14:19:54 +0100
-Message-ID: <00714b32991.45779d44332209@lantic.net>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [patch] Refresh lid state on resume
+Date: Tue, 31 Jul 2007 09:53:50 -0300
+Message-ID: <20070731125350.GC19965@khazad-dum.debian.net>
+References: <1184670921.8890.2.camel@work> <1185808891.18821.25.camel@queen.suse.de> <1185809610.24649.3.camel@hughsie-laptop> <200707311108.42947.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="--w2vf0mckx87jr2c3gmobfhbvvxy9qnf"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <200707311108.42947.rjw@sisk.pl>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Richard Hughes <hughsient@gmail.com>, trenn@suse.de, Len Brown <lenb@kernel.org>, Dmitry Torokhov <dtor@insightbb.com>, linux-acpi <linux-acpi@vger.kernel.org>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Kay Sievers <kay.sievers@vrfy.org>
 List-Id: linux-input@vger.kernel.org
 
-----%BOUNDARY
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Tue, 31 Jul 2007, Rafael J. Wysocki wrote:
+> > I guess it's up to the BIOS, and I don't think this refresh hurts any
+> > machines that implement a notify on resume, and fixes a fair few
+> > machines that don't.
+> 
+> AFAICS, the notify doesn't seem to work very well on some machines.
 
-RELIABLE PHARMACY  
-- Pick the meds you want to order & checkout (2 steps to finish an order)  
-- Fast delivery to your doorstep     
-- We sell both BRAND(100% original brand) & GENERIC(35% cheaper)     
-- We give up to 70% discount (on retail shop price) for BOTH brand & generic meds
-- Meds we sell: Cia|lisViagra, AmbiemValium, AtivanXanax, CelebrexSoma, PhenterminMeridia & other 20 popular meds
- 
-http://bihk.adthebritish.com
-http://bgiop.adthebritish.com
+I have noticed thinkpad-acpi gets notifications during *early resume*
+sometimes, and certainly *well* before its own resume handlers are called.
 
-----%BOUNDARY
-Content-Type: text/html; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+That might be part of the problem.
 
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head>
-<body>
-<center>
-<table border=8 cellspacing=0 cellpadding=8 width=545 bordercolor=C4FC30><tr>
-<td bgcolor=000000 align=center><font size=6 color=FFFF00 face=tahoma>
-<b>RELIABLE PHARMACY</b></font></td></tr><tr><td bgcolor=E8F8F8 align=left>
-<font size=2 face=tahoma color=000000>
-- Pick the meds you want to order & 
-checkout (2 steps to finish an order)
-<br>
-- Fast delivery & discrete packaging to 
-your doorstep
-<br> 
-- We sell both 
-BRAND(100% original brand) & 
-GENERIC(35% cheaper)<br>
-- We give up to 70% discount 
-(on retail shop price) 
-for BOTH brand & generic meds<br>
-- Meds we sell: <font color=00C400 size=2>
-<b>Cia|lisViagra, AmbiemValium, 
-AtivanXanax, CelebrexSoma, 
-PhenterminMeridia & other 20 popular meds
-</b></font>
-</font>
-<center>
-<a href=http://bihk.adthebritish.com target=_blank>
-<font face=tahoma size=5 color=6060FF><b><u>View all medications we have (1st link)</a></font><br><br><a href=http://bgiop.adthebritish.com target=_blank><font face=tahoma size=5 color=6060FF>If above link not load up, try this 2nd link</a></b></font><br></center></td></tr></table><font color=FFEAD5 size=1>raised sugar dark letters comes friends. break as stopping gotten longer.</font>
-</body>
-</html>
+> Are there any downsides of the $subject patch?
 
-----%BOUNDARY--
+None that I know.  I am doing something like that in thinkpad-acpi for
+input-layer switches, and it helps a great deal.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

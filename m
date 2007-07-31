@@ -1,175 +1,51 @@
-From: Thomas Renninger <trenn@suse.de>
-Subject: Re: [patch] Refresh lid state on resume
-Date: Tue, 31 Jul 2007 12:42:16 +0200
-Message-ID: <1185878536.18821.129.camel@queen.suse.de>
-References: <1184670921.8890.2.camel@work>
-	 <1185808891.18821.25.camel@queen.suse.de>
-	 <1185809610.24649.3.camel@hughsie-laptop>  <200707311108.42947.rjw@sisk.pl>
-	 <1185872842.2652.11.camel@hughsie-laptop>
-Reply-To: trenn@suse.de
+From: "Marc Barnett" <mujbatterycagefek@batterycage.com>
+Subject: Olny this 5 days special price on pharma for you dear customer
+Date: Tue, 31 Jul 2007 11:28:23 -0100
+Message-ID: <059565418.49449778854191@batterycage.com>
+Reply-To: mujbatterycagefek@batterycage.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------555555C9AD3055C9"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1185872842.2652.11.camel@hughsie-laptop>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Richard Hughes <hughsient@gmail.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Len Brown <lenb@kernel.org>, Dmitry Torokhov <dtor@insightbb.com>, linux-acpi <linux-acpi@vger.kernel.org>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Kay Sievers <kay.sievers@vrfy.org>
+To: kral@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2007-07-31 at 10:07 +0100, Richard Hughes wrote:
-> On Tue, 2007-07-31 at 11:08 +0200, Rafael J. Wysocki wrote:
-> > On Monday, 30 July 2007 17:33, Richard Hughes wrote:
-> > > On Mon, 2007-07-30 at 17:21 +0200, Thomas Renninger wrote:
-> > > > On Tue, 2007-07-17 at 12:15 +0100, Richard Hughes wrote:
-> > > > > On resume we need to refresh the lid status as we will not get =
-an event if
-> > > > > the lid opening was what triggered the suspend.
-> > > > > This manifests itself in users never getting a "lid open" event=
- when a
-> > > > > suspend happens because of lid close on hardware that supports =
-wake on
-> > > > > lid open. This makes userspace gets very confused indeed.
-> > > > > Patch inline (and also attached) forces a check of the lid stat=
-us in the
-> > > > > resume handler.
-> > > > Is this a general problem on all machines?
-> > >=20
-> > > I've only seen myself it on new ThinkPads such as the T61 and X60,
-> > > although I've been getting a few bug reports about other IBM laptop=
-s.
-> > >=20
-> > > > Or does this only happen if "shutdown" suspend mode is used?
-> > >=20
-> > > No, I don't believe so.
-> > >=20
-> > > > I could imagine a lot machines let it up to OS to check for LID s=
-tate
-> > > > change, then this one should be added.
-> > >=20
-> > > I guess it's up to the BIOS, and I don't think this refresh hurts a=
-ny
-> > > machines that implement a notify on resume, and fixes a fair few
-> > > machines that don't.
-> >=20
-> > AFAICS, the notify doesn't seem to work very well on some machines.
->=20
-> Agree.
->=20
-> > Are there any downsides of the $subject patch?
->=20
-> Not that I've found. I've been testing it on ~6 IBM and non-IBM machine=
-s
-> with no bad effects so far.
+------------555555C9AD3055C9
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-I just checked a X60 DSDT (couldn't check the SSDTs, but I doubt there
-is anything related):
-There are two Notify(\_SB.LID,0x80), both are in GPE handlers.
-AFAIK there should be one in the _WAK function.
-Maybe they try to raise the GPE after wakeup in _WAK by something like
-this:
-\VSLD (\_SB.LID._LID ())
-....
-Method (VSLD, 1, NotSerialized)
-    {
-        SMI (0x01, 0x07, Arg0, 0x00, 0x00)
-    }
-:)
+Hello there!!! 
+Special proposition for you Our Dear Customer!!!
+These five days only for our clients inconceivable offer!!! 
+On all pharmaceutics you want!!!   
+Fill your life with colors of pleasure!!!  
+http://covervalue.cn/ 
 
+Best regards, 
+Online community of druggists
+------------555555C9AD3055C9
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-Related ACPI Spec parts:
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-6.3 Device Insertion, Removal, and Status Objects:
-The Notify command can also be used from the _WAK control method (for
-more information about _WAK, see section 7.3.7 =E2=80=9C\_WAK (System Wak=
-e)=E2=80=9D) to
-indicate device changes that may have occurred while the computer was
-sleeping. For more information about the Notify command,
-see section 5.6.3 =E2=80=9CDevice Object Notification.=E2=80=9D.=E2=80=9D
+<strong><font color="#1CA82E"><em>Hello there!!! </em></font><br>
+Special proposition for you <font color="#FF0000"><em>Our Dear Customer!!!</em></font><br>
+These <font color="#FF0000"><em>five days only</em></font> for our clients inconceivable offer!!! <br>
+On all pharmaceutics you want!!! </strong> <strong><br><br> 
+<a href="http://covervalue.cn/" target="_blank"><em>Fill your life with colors of pleasure!!! </em></a></strong> 
+<font color="#D9EDFF">http://covervalue.cn/</font><br><br> 
 
-The X60 is definitely not doing this.
+<strong>Best regards,<br> 
+<em>Online community of druggists</em></strong></p>
 
-The transition from Working to Sleep state is described very detailed,
-but I couldn't find (just overseen?) a detailed description about the
-transition from Sleep State to working state.
-In detail I searched for whether first the GPEs should get enabled and
-then _WAK is called or the other way around (the latter is currently
-implemented).
-Maybe enabling GPEs before calling _WAK will also fix this (and is the
-way it should be done or at least the way M$ is doing it?).
-
-Richard, could you give attached patch a try, pls.
-Also check that platform suspend mode is used. AFAIK this isn't called
-at all in suspend mode.
-
-Thanks,
-
-    Thomas
-
------------------------
-
-Enable GPEs before calling _WAK on resume
-
-Signed-off-by: Thomas Renninger <trenn@suse.de>
-
----
- drivers/acpi/hardware/hwsleep.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
-
-Index: linux-2.6.22.1/drivers/acpi/hardware/hwsleep.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.22.1.orig/drivers/acpi/hardware/hwsleep.c
-+++ linux-2.6.22.1/drivers/acpi/hardware/hwsleep.c
-@@ -562,6 +562,23 @@ acpi_status acpi_leave_sleep_state(u8 sl
- 	arg_list.pointer =3D &arg;
- 	arg.type =3D ACPI_TYPE_INTEGER;
-=20
-+	/*
-+	 * GPEs must be enabled before _WAK is called as GPEs
-+	 * might get fired there
-+	 *
-+	 * Restore the GPEs:
-+	 * 1) Disable/Clear all GPEs
-+	 * 2) Enable all runtime GPEs
-+	 */
-+	status =3D acpi_hw_disable_all_gpes();
-+	if (ACPI_FAILURE(status)) {
-+		return_ACPI_STATUS(status);
-+	}
-+	status =3D acpi_hw_enable_all_runtime_gpes();
-+	if (ACPI_FAILURE(status)) {
-+		return_ACPI_STATUS(status);
-+	}
-+
- 	/* Ignore any errors from these methods */
-=20
- 	arg.integer.value =3D ACPI_SST_WAKING;
-@@ -582,22 +599,8 @@ acpi_status acpi_leave_sleep_state(u8 sl
- 	}
- 	/* TBD: _WAK "sometimes" returns stuff - do we want to look at it? */
-=20
--	/*
--	 * Restore the GPEs:
--	 * 1) Disable/Clear all GPEs
--	 * 2) Enable all runtime GPEs
--	 */
--	status =3D acpi_hw_disable_all_gpes();
--	if (ACPI_FAILURE(status)) {
--		return_ACPI_STATUS(status);
--	}
- 	acpi_gbl_system_awake_and_running =3D TRUE;
-=20
--	status =3D acpi_hw_enable_all_runtime_gpes();
--	if (ACPI_FAILURE(status)) {
--		return_ACPI_STATUS(status);
--	}
--
- 	/* Enable power button */
-=20
- 	(void)
+</BODY></HTML>
+------------555555C9AD3055C9--

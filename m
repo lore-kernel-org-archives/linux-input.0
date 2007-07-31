@@ -1,26 +1,32 @@
-From: "Lela Hewitt" <kqcwglupoqb@bonairenews.com>
-Subject: Re: QUICKTIME
-Date: Tue, 31 Jul 2007 02:29:19 +0800
-Message-ID: <961728594.94070349966790@bonairenews.com>
-Reply-To: kqcwglupoqb@bonairenews.com
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [PATCH] Try harder to probe finicky rodents
+Date: Tue, 31 Jul 2007 00:45:25 -0400
+Message-ID: <200707310045.26046.dtor@insightbb.com>
+References: <1185125096.13699.4.camel@bruno.nolaviz.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset=windows-1250
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1185125096.13699.4.camel@bruno.nolaviz.org>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: klusacek@atrey.karlin.mff.cuni.cz
+To: Alon Ziv <alonz@nolaviz.org>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-Have you ever wanted a costly Watch?
+On Sunday 22 July 2007 13:24, Alon Ziv wrote:
+> My rodent appears to be extra-finicky, and requires both a
+> PSMOUSE_RESET_DIS and a PSMOUSE_RESET_BAT before it is unconfused
+> enough to be probed.
+> 
+> Signed-off-by: Alon Ziv <lkml@nolaviz.org>
 
-We have the answer for you!
+Applied, thank you.
 
-We stock all the top quality 
-for a very small fraction of the cost.
-
-www.serptooe.com
+-- 
+Dmitry

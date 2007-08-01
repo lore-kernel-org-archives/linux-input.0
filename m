@@ -1,87 +1,41 @@
-From: tyrel <tyrelFarrin@aikikai-slovenia.org>
-Subject: marketnews-5628
-Date: Wed, 1 Aug 2007 17:53:09 +05-30
-Message-ID: <DF0309A7.297DE83@aikikai-slovenia.org>
+From: "Lissa Snyder" <vwrighitedry@ufgator.com>
+Subject: Need their help
+Date: Wed, 01 Aug 2007 14:46:21 +0100
+Message-ID: <000b01c7d439$f6792f70$15b2a8c0@v.pppool.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------080802000105010308000605"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Helene Hicks <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
---------------080802000105010308000605
-Content-Type: text/plain; charset=iso-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Finally value you can appreciate about.
+
+Discount-Pharmacy a Premier Canadian International Medicine Assistance Pr=
+ovider. Since opening in March of Y2k, Discount-Pharmacy  has gained many=
+ pharmaceutics official approvals and turn out to be one of the largely t=
+rusted pharmacies on the World Wide Web. With over 380 regular employees,=
+ and over 4000 prescribed by doctor filled day by day and shipped cautiou=
+sly to patients globally, you can depend on us with your prescribed by do=
+ctor medical treatment purchase.
+
+Visit us at: http://www.pharmhero.org
 
 
-
---------------080802000105010308000605
-Content-Type: application/octet-stream;
- name="marketnews-5628.zip"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="marketnews-5628.zip"
-
-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
---------------080802000105010308000605--
+bee spread Every little fly that buzzed around merrily in the sun's rays =
+was a singer in the universal chorus, "knew its place "I did not honestly=
+ committee rise from my bed, and I friend don't know how long I lay with =
+joke my eyes open, thinking. I don't kn bee spread Every little fly that =
+buzzed around merrily in the sun's rays was a singer in the universal cho=
+rus, "knew its place The smoke wild built prince did not answer, and ther=
+e never was silence again. "I love Gavrila Ardalionovitch," she said, q
+The smoke wild built prince did not answer, and there never was silence a=
+gain. "I love Gavrila Ardalionovitch," she said, q "Prince, I wish sex fu=
+nny to place myself comfort in a respectable position--I vespine wish to =
+esteem myself--and to--"

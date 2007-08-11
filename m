@@ -1,11 +1,10 @@
-From: "Claudette Hobbs" <cotcineparatodosjet@cineparatodos.net>
-Subject: Best medications with best discounts over the world!
-Date: Sat, 11 Aug 2007 13:54:14 -0200
-Message-ID: <900234951.10605187437838@cineparatodos.net>
-Reply-To: cotcineparatodosjet@cineparatodos.net
+From: "Xavier Riggs" <cotciplbpojet@ciplbpo.com>
+Subject: Don't get left behind
+Date: Sat, 11 Aug 2007 14:08:55 -0100
+Message-ID: <726680905.34726661973171@thhebat.net>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------B80C5136EFD3DA2"
+  boundary="----------3F057DABB4F0CA"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -15,49 +14,62 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------B80C5136EFD3DA2
+------------3F057DABB4F0CA
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Information Letter: 
 
-My respective client,
-Ultimately our NEW pharmacy I-net site is realized!!!
 
-Actually we only present: 
-- All popular medicinal preparations are available! 
-- We dispatching worldwide 
-- Without Any Physician Visits 
-- Without Any Prescriptions 
-- One Hundred Percent Customer Contentment
+Finally the original thing – no more rip offs! 
+P.E.P. are very hot at the time! This is the true stuff not a fictitious one! 
 
-Visit & See our New Discount Shop and PRESERVE your money!!! 
-http://www.traderxshop.com/?a=2205
+One of the very originals, totally unrivalled product is available all over the world!
+ Take a look at just what people say about this stuff:
 
-------------B80C5136EFD3DA2
+"I was really impressed how rapidly P.E.P. worked on my boyfriend, he can’t put an end to his talking on how excited he is having his new girth, extent, and libido!"
+
+Silvia D., Washington
+
+"At first I decided the specimen parcel I got gratis was a bad joke, until I actually tried taking the P.E.P. No words can depict how smug I am with the result from using the stuff after 7 short weeks. I will be ordering constantly!" 
+Rikky Martin, New York
+
+Check up more references about this amazing product right here!
+http://www.nerudp.com/?hkwousgwtotc
+
+------------3F057DABB4F0CA
 Content-Type: text/html; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
+<HTML><HEAD><TITLE>Why be an average guy any longer</TITLE>
 </HEAD>
 <BODY>
 
-<em><font color="#20AF0C">Information Letter:</font> </em><br><br>
-
-<strong><font color="#FF0000"><em>My respective client,</em></font><br>
-Ultimately our NEW pharmacy I-net site is realized!!!</strong><br><br>
-
-<strong>Actually we only present:<br> 
-<em>- All popular medicinal preparations are available!<br> 
-- We dispatching worldwide<br> 
-- Without Any Physician Visits<br> 
-- Without Any Prescriptions<br> 
-- One Hundred Percent Customer Contentment</em></strong><br><br>
-
-<strong><a href="http://www.traderxshop.com/?a=2205" target="_blank"><em>Visit & See our New Discount Shop and PRESERVE your money!!!</em></a></strong><br> 
-<font color="#D9EDFF">http://www.traderxshop.com/?a=2205</font>
-
+<b>
+Finally the original thing – no more rip offs! 
+<br>
+<a href="http://www.nerudp.com/?hkwousgwtotc" target="_blank">P.E.P.</a> are very hot at the time! This is the true stuff not a fictitious one! 
+<br>
+One of the very originals, totally unrivalled product is available all over the world!
+<br> Take a look at just what people say about this stuff:
+<p>
+<i>
+"I was really impressed how rapidly P.E.P. worked on my boyfriend, he can’t put an end to his talking on how excited he is having his new girth, extent, and libido!"
+</i>
+</p>
+Silvia D., Washington
+<p>
+<i>
+"At first I decided the specimen parcel I got gratis was a bad joke, until I actually tried taking the P.E.P. No words can depict how smug I am with the result from using the stuff after 7 short weeks. I will be ordering constantly!" </i>
+</p>
+Rikky Martin, New York
+<center>
+<a href="http://www.nerudp.com/?hkwousgwtotc" target="_blank">
+Check up more references about this amazing product right here!
+</a>
+</center>
+</b>
+<font color="#D9EDFF">http://www.nerudp.com/?hkwousgwtotc</font>
 
 </BODY></HTML>
-------------B80C5136EFD3DA2--
+------------3F057DABB4F0CA--

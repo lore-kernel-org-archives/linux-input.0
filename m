@@ -1,7 +1,7 @@
 From: Ralf Baechle <ralf@linux-mips.org>
 Subject: [PATCH] SERIO: Fix modpost warning.
-Date: Mon, 13 Aug 2007 13:05:50 +0100
-Message-ID: <20070813120550.GA27033@linux-mips.org>
+Date: Mon, 13 Aug 2007 13:07:27 +0100
+Message-ID: <20070813120727.GA28329@linux-mips.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +17,7 @@ List-Id: linux-input@vger.kernel.org
 i8042_unregister_ports's only caller i8042_remove is a __devexit function
 so make it __devexit too.
 
-  Ralf
+Signed-off-by: Ralf Baechle <ralf@linux-mips.org>
 
 diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
 index 3888dc3..ed286aa 100644

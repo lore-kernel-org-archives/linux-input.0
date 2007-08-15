@@ -1,154 +1,58 @@
-From: "Tim Buck" <genghis.davey@bilbys.net>
-Subject: Maagic stick
-Date: Tue, 14 Aug 2007 23:09:14 +0500
-Message-ID: <138788188.14528380145966@bilbys.net>
-Reply-To: genghis.davey@bilbys.net
+From: "Francie Dania" <ddha05jdve@gap.com>
+Subject: Rep|icaWatch from $189, BvlgariRo|eex, Cartier, Chopard & many  other brands zu
+Date: Wed, 15 Aug 2007 02:19:08 +0200
+Message-ID: <8215f90356.1962s58756526@gap.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----------D34867053B4F291C"
+Content-Type: multipart/alternative;
+	boundary="--2f50mcd3aiikblaitmiifea1vv91h"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: malek@atrey.karlin.mff.cuni.cz
+To: kralik@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------D34867053B4F291C
-Content-Type: text/plain; charset=windows-1250
+----2f50mcd3aiikblaitmiifea1vv91h
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
+Over 2000 models Watches  
+* From A-Z World Popular Branded name    
+* Promotional Period Start from $189
+* We have more than 2000 models on all top brands for you to pick from   
+* It's built with TOP Japanese movement engine, not inferior quality watch
+* We give you 90 days warranty on 1-on-1 replacement basis     
 
+Click below link to view all 2000 models 
+ 
+http://rqlyyf.agatonepoint.com
+http://ryysi.agatonepoint.com
 
-------------D34867053B4F291C
-Content-Type: image/gif; name="lieb02.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lieb02.gif"
+----2f50mcd3aiikblaitmiifea1vv91h
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-R0lGODlhSAHGAPcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAABIAcYA
-AAj/AP8d+kewoMGDCBMqXMiwocFDgBwa1KawlMSLGDMuhKXxIr5/tjqKPMhopMmTDSkaTGVQDMNU
-f1DKnDnRZDVnB6XRNMlxJ8GPKn06PCO0KLWROIsqXSpUJ9OnRe057XgUqtWrDKti3YpSK9evJr0K
-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 
+<html><head><meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
+</head><body><center><table border=0 cellspacing=0 cellpadding=8><td bgcolor=000000 align=left><font size=3 face=arial color=FF00FF><font size=6 color=FF91FF><b><center>Over 2000 models Watches</center></font></td></tr><tr>
+<td align=left bgcolor=FFF4FF><font color=FF82C0 size=2 face=arial>* <font color=55AAFF><b>From a-z World Popular Branded name</b>
+</font><br>* <font color=000000>
+Promotional Period Start from $189</font><br>* <font color=55AAFF><b>We 
+have more than 2000 models on all top 
+brands for you to pick from</b></font><br>* <font color=000000>It's built 
+with TOP Japanese movement engine, not inferior quality watch</font><br>* <font color=55AAFF><b>We give you 90 
+days warranty on 1-on-1 replacement basis</b></font>
+<br><br></font>
+<table border=0 cellspacing=0 cellpadding=3 width=500><tr><td width=25% valign=top bgcolor=840000>
+<font face=arial size=2 color=ffffff>RolexMen
+<br>RolexLady<br>Alain Silberstein<br>Audemars Piguet<br></font></td>
+<td width=25% valign=top bgcolor=C10061><font face=arial size=2 color=ffffff>Breitling<br>Bvlgari<br>Cartier<br>Chanel<br></font>
+</td><td width=25% valign=top bgcolor=840000>
+<font face=arial size=2 color=ffffff>Chopard<br>Franck Muller<br>IWC<br>Jaeger-Lecoultre<br></font></td><td width=25% valign=top bgcolor=C10061><font face=arial size=2 color=ffffff>Omega<br>
+Panerai Luminor<br>Patek Philippe<br>Tag Heuer
+<br>
+</font></td></tr></table><br><center><b><font size=5 face=arial><a href=http://rqlyyf.agatonepoint.com target=_blank><font color=000000><u>Click here to view all 2000 models<br>[Link 1]</u></a></font> &emsp; &emsp; <a href=http://ryysi.agatonepoint.com target=_blank><font color=000000><u>[Link 2]</font></u></font></a><br></b></center></td></tr></table><font color=7F7F7F size=1>using each or cousin mischievous certain. scene my out very certain.</font>
+</center></body></html>
 
-------------D34867053B4F291C--
+----2f50mcd3aiikblaitmiifea1vv91h--

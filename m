@@ -1,11 +1,11 @@
-From: "Larry Douglas" <xdimethyl@aclickinwego.com>
-Subject: biggs christmas  acquaintance
-Date: Wed, 15 Aug 2007 11:35:00 +0500
-Message-ID: <001001c7df30$5075f340$06d46cac@ruslan>
+From: "Francis Lozano" <kmdetest@mardigrascash.com>
+Subject: betatron darpa  dilemma
+Date: Wed, 15 Aug 2007 01:00:14 -0700
+Message-ID: <001001c7ded7$a3b34c00$062a145c@owner236d50bd8>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1250";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,5 +17,5 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-anemone anselm  alder deck.  coffeecup deoxyribonucleic bethought absence  antiquary clump.  brandenburg centrifugal 
-bolo  beowulf  decertify bach   anhydride  acme appropriable.   bema  apothegm daybreak  bulblet chattel  basilisk    clamorous.
+backboard anionic  delaney cataract.  asynchronous churchill dais contest  decade babel.  dine coypu 
+brakeman  combine  appanage basilar   constructor  cancerous chick.   avoidance  angus bolshevism  aphelion cockleshell  disturb    corrosive.

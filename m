@@ -1,67 +1,206 @@
-From: "Marisol Terrell" <hyscyberprankjeg@cyberprank.com>
-Subject: Legal software sales
-Date: Thu, 16 Aug 2007 09:10:39 -0100
-Message-ID: <980261147.80144739425938@cyberprank.com>
-Reply-To: hyscyberprankjeg@cyberprank.com
+From: "Shawna Reeder" <gadar.davey@bienen-winzek.com>
+Subject: Long stick
+Date: Thu, 16 Aug 2007 10:50:15 -0100
+Message-ID: <01c7dff3$3a8cc720$301fd5c1@gadar.davey>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------46EA1B256EA9FB"
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_000E_01C7E003.FE159720"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: malek@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------46EA1B256EA9FB
-Content-Type: text/plain; charset=windows-1250
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_000E_01C7E003.FE159720
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 
-Our main aim is to render low price PC and Macintosh legal software and computer solutions any could afford. 
-Whether you're a corporate buyer, a small enterprise holder, 
-or shopping for your home personal computer, we think we will help you. 
-CHECK WHAT WE GOT TO OFFER 
-http://gdotuf.chantor.net/?352608883708
 
-Most demanding software in sight:
-*Macromedia Studio 8: Retail price today - $999.00; Our only - $99.95 
-*Corel Bryce 5.0: Retail price for now - $69.95; Our just - $29.95 
-*Symantec Norton Antivirus 10.1 for Mac: Retail price this day - $49.95; Our for this day just - $29.95 
-*Acronis Disk Editor v6.0.360: Retail price this time - $29.99; Our just - $19.95 
-*Microsoft Visual Basic 6.0 Professional: Retail price for today - $419.00; Our this time just - $49.95 
-*Adobe Acrobat 8.0 Professional for Mac: Retail price this time - $449.00; Our just - $79.95 
-*Macromedia FlashPaper v2.0: Retail price for this time - $79.00; Our only for this time - $29.95 
-*Crystal Reports 10: Retail price for today - $450.00; Our today - $39.95 
-COME TO US RIGHT NOW! 
-http://gdotuf.chantor.net/?352608883708
-------------46EA1B256EA9FB
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+------=_NextPart_000_000E_01C7E003.FE159720
+Content-Type: image/gif;
+	name="smotrisjuda.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="smotrisjuda.gif"
 
-<strong>Our main aim is to render low price PC and Macintosh legal software and computer solutions any could afford.<br> 
-Whether you're a corporate buyer, a small enterprise holder,<br> 
-or shopping for your home personal computer, we think we will help you.<br> 
-<em><a href="http://gdotuf.chantor.net/?352608883708" target="_blank">CHECK WHAT WE GOT TO OFFER</a></em></strong><br> 
-<font color="#D9EDFF">http://gdotuf.chantor.net/?352608883708</font><br>
+R0lGODlhegHyAPcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAAB6AfIA
+AAj/AP8JHEiwoMGDCP8dS8iwYcN+B/M5nEix4sQe+Cxq3MiRo7aOIEOKBKlqpMmTJqUxzIiyJUFG
+LmM6jCWzps2bOBnaygmyFcNVgXiGXCTUJs2iSJMqdbhzqUNqOKFydOV05L17VbOGXFZMq9evFFnW
+xOay2kZnYE1SMysUq0m2aePK/fdnbkmNEufqPehWZN69gGMamogn8EBahlNZbJb148BhG0kZBilq
+1OSGd72K5ajyn0/ArzQq/roF8kF8LAERRKZx2+XXsEfaiw3SH+BVIl3HRctzGu3flzkdNA0R+O/N
+N0dnbcG8ecHmLQgyHzj9X3Xr0QVCz/58u3Tn1L0L/6RFFjt07N3Ng9+e/Tp6g+fDxxcl/pz66uzD
+G7dYVy5ck45plJlD1xXYHnfrHajfewwumB6DBsLHHXXPadeCNNl8t+CEE26I4IcWhiiichE2OJdU
+ImnRUiFEjfRfbhyhSCCIDeJno4jW6ZGRewfxWKOCODpInRW+vedjiTc+KCKSNF4HC45JAvZiRdtM
+uZ9QGfaIoJA2ThdllwwdySGQJpbJ5EBFlqielhpCSGaUDsJ55ZxeJSNQlt3F92OI0X35oY9BBumn
+hPEx2RwqUP7ZoaBvNmphoVd4SOekX7E2EBFExEmmkX0myCV4eXrqoZ7SscCmmvI110ObEgrEWJeg
+nv8ZKqqU1pqWrEse6GierSrJaaDAokfrr0MI2earQKopZz6BbGorbTIu9SRFuP5qXqJs+soolNnO
+aiyE2n7KLbZlyhDDQF08m9AzFiXyWUPS9JUTuzZNO6OmIsaiLIXkstqmsosCeq2xaBBBY7C54mut
+mdwd4uyz8/DUSTCuupSZbiHR8ghH+X3nXrOfdiheuI+OOdAePHb8qMei9qulezB3Cup9m3q5qLpJ
+McYRTAz9NadtOHe0UEJWBm00Q4U45LNMRROE3NFFDX10FlDLpDNOTVetdVHsGOTHs7wdFG1IUn/V
+4tYtXTLQ2JTKU7XPb0yiFCwYi5T1S0hVQ429V+7/gvbftIFx2d2At3R24YgPdEbijBe0SDyNH83z
+Xm4zlDXbTmHOU4AbMRO50ZIAVjlDdQuonEADfm5rcS1xgws3sMNOEDcDxW677f/crrtAuveO+0S0
+E/R1Qb7fflDxvie0O++1F29J8gfhhnzsxyOfu/UJnSFJ8KfxPj31BalYvEPQM8S9Rr3P7n3vyhi0
+PPBTyD77780bP7/994Nf//nm809I9fTD3/7kt7/qFSQUASTg9bgRjPPpTyBj+wX+BLg++lWQG0zg
+n/I0CEDY3YF49EvaBRXYwQf2D30mFOD7pmTCDXJDChz8xzLgoUHjWSZ/MaSg94BHQhcqUIc6vJ77
+/zQYGv1x4xhhWyAJSVikgmjCgkC04P5QQJEWIsR2cBiiFdPXPysCsCL4K0RmUki/0gmxILjRYg/n
+p0ba3XCAV5TiDsnnRRCS8Y5/OF3zhrhBgQDieXZcYgwDyT8KBjGIHeThFuVIO0TmTomDDORA5uDD
+SPbQdt1Q3kFUQ8iGXFKOkIyjF7mhOYH8whh1xGEnVXk8gjyjjrL7Wg0ZqUhB3nGNjmSlJ0EJxFBe
+0Ze71J/aSrjLNnIwkqs0n/vGschRQlEg/kAmMLtoy2o6sHYF6QYs/6GYWbZQmtMMZyEI0cw1DvEO
+5kymLrEZTnVWko6pZF4bW1lLcM6SmceEXSVy+P9MgTyNkBKEZzUFoU7uEeJ/cKSnKNMZTGu60za5
+XB8c4tnOdgbvkBcUaCojyjtGNIKQhQQjKOsJQEASk50D4RzxlPgLjRJPm9zwSWemeb4mQpKi67SI
+Ib8px2iOVH0cPeQWR7jBZTCUebm83TzsxBFDVjF25wDnSe34OoMIYxgT5B/QKnk+M6qQGzAdyGey
+epBpjY+kTYUiI3n5UztaQhfIjOJQM6q+9Rn1qSN9X1oDKFKodkSosMPFQi+aTs5xj4Kly2o5CcvB
+0IywrXTdiGJxydZ4HhayO+1hxB4ZWXlWtK6f1etejzpYqRpzeqVtK9tEC9C2Yo+arHVnX7mY2t7/
+vc60sR0gJ3JrKQfyNaH1zCdkD/Ii45n2pn+trDntd1vgyRaHpWQl9SYG26QOd7CzzSc+lZlTQtIk
+t54Fpm83+lzwZve4yB2tcJf7O3yQlrPAnapL54hXR1Jws/NFqzoT+1zgJhWH67VkeTmq3/q+V77x
+vR8wgAFaTQ4kENL7aS6b0tlB8lPCclwadg0sX8MiWJfgLSTuRLzNeYLUJATub367W+GVuljFE15n
+SMOrxneqNyEqBWw6A2xjoir0sTD+8GdRiNMTS1a5F/7hix9bPhWbmMaX7WKPicxQwyK5trTtT2ev
+9465dheR3+PpdRuK3i1z+Mkw5l8fpsziDQ9E/ywEZCgsx4xmMgsZvk/WskWLwQ1ipOPHZgYzm818
+5CLX2X2HDq2ED3I4AN/5zQlu8Jxhm1xD67jMsZXrN7+YaDLzmLuDzq6DB+xMZy5ZyBENG5jHy89/
+JDGnk7Pzmcsra1KnkNO0pvSjY/iXFLt5j6cFqTfF7FtPCzu4NR6gbw3xJA3flH9Hqa49RevenTaE
+EZlF8mW519tPWru6v6avQdhi3vMmOX2ofXa6aavsEb/2tOkOr+6cgV9hjzne8KZe7KptXNbCLgzo
+fre6l3dDEieP3UzecbkTfuCBbIEKPHkEYlSXkKtQfC/UuNrF09KJg7x64wbhm1MoBvKSE6TjHv8n
+3X7gUgMVjSS6LnmapTYi8o00o5RUOchWEcc6k9eEcFublnBkMnGD2BQsKsXJzn3O9JOIoulQP1HV
+CFdKVaQuJDA/yNEdh9CqhSEu/lh61IUCdKQkfSJZr5oYQC4ZjoyibM/quUiibbQ34mwcf1aKPTwX
+E08AzhgTwVNFynMQujvk7Ib5+NqighxtpN0i2qDwQD64EbiP/R9mtEhXCCLYgvzTITl/eVxiMRiN
+2IIWRTdaYTRC8svHRDf8+7zrJe/62jeklDWniGNtrxEUUFEgvgfDtHw/EeIbJOMyMf5vyi4Qufsn
+JojXmipEiBPl+/73/1A+Q7RvExWwi/vbRwj/qQw1s1RFoUkBu1kL6CMwjoD/PqmyUR480YJImWg6
+qRhTgkj1j66f5P0NoTICWCjsER0AWBPYd30DgX0NcYAoYXzENzoJ8X6DkjDAUh3VkCRi0itl0hHg
+Vy04cgXtUSHWsXsR0n67FxL38HsOKH7ox4ExQxAt6BLEV4NUZH0ACIHAd4MMmH0JmIALyIDXx4P/
+EAdCqIA+aHw6E4Nu4jLkIicMk3w92CAitIEWuDDqdzMtEQosOIX3coXfIiQz2BI26INmCHxoaBA1
+GIQ7uIBpmH07yIJq2IVtCId1qH1oUR1QUYHDIitW6DENiIRmqH1lyCsC8XVReIUamIWBiIMQ//h+
+QziIR+iF6CEP8nAw8uGCMogC/hB9HjGBRFiIjziHOLiDUDGKkkiEBYGK3IeEH2gyTRiLrLKIHMgy
+CPGDdwiEZxgqLFMdLPCCFggoKuOGbegMeCCEaDhzuViHduiFA6gn/NcgYzgSVyOI1jiEUxiJy3iG
+o3iDu8iG3PiDzcAEdOgrfDgyHhMIKBMUCxOGawKK5ciKlAiN6Td+nSIptQiPzDiKyiiP2ziL9icw
+/Oce05gQzYAoDqEz14iLCEENohiP5ZiEEjmH2+iP5rgrUNiBUNh+A7OKqmiRDtgy+MgnwNgd+WB4
+mxiOQaiNKamSSSiICsORf8CEJpEPztaIK/8pg8wIjhBJjJM4kR5ZkT2ZHskgDFj4Jt3yL+mHEEu4
+KCA5lAmxkdGRIfq3LxJSDZnnkqUIikJpEAECggYBCLAYE2m3kB7phd0Ykd+4izn4kbi4lSZYM/wi
+i2EolRLydGXylD45hWA5HVSpfwThCgdjM9sHlc2YjVBZjnE5kgoTJAW5EX6AkBpnESlIG5wTjTND
+k8ECK5zJHTNZfmxokZL4MgbSAtMAJ6VJELVQlfF3Mw95lrfolpvojCPzjCkzIY8ZEpNJEf6XEC5X
+E4qHM/KiFcPZPWjTCShHcXoWE7uJE5WZOZMhdmnxnB2xDLzHEKV0Boi4FIrAE1mJOIPgEr3/CRJ8
+hxJhsCoQdJ3A4YmME55LsQ3seROP93J65HRCoQ3UORDVEJwhcZNFwTn5qZ5LkQpb9xvNCU2T4p88
+0Xh7oaAjIXtLUaBYk3sEUZ5aMZ8edSXz+Rs2UAM90xCOBxIbahHU4BhoMBGh9w/xKRIQWhDwIKAh
+0aIwKhApGhNy4xTLyRCKkIIjShH7+ZKuiI0HAZOkSIkCsRMsCaSIaaRAiRArWn1MGodSeBNJWqMO
+IZqBKBTDUxWlV6RBKqSwGZtJWhCvgI0/CKY5WRCSEDpN6qQ1cQ8zVZhX+pgoGZs2YaYgIZpMmps1
+0aMCYqcUCY5x2JY7WRBTcKY76YhtSaRz/9GCaLoS/xBrTkGIVLQMFoqgxYeYckoRgKcukNiDpUio
+aymob0ipoUmJhTiap5qSjtiS38ioqWqnoaqWTVqGpjqbb/mpgbqVL8mTdGimuUoQG2OQOIOnhYoC
+cbCqYmqkB3irqkqRihqtZ/qI1yioj2qsXCmtLImmQqqoK/mlYzqqqBiO13cKXdmte1kQiVAQfqoX
+bDOEUsCQQcgSQPhRZ7mnzIqtdrivq0iMbBmR4/qv/oqLTwKBqzeq/VqqQ7mVtxqw/5gFLmAQxaCp
+AruKfKeXbfiIbXc06pCeQSkQXdeKXYiN9qqTz0qq90qpjzqo1xcxDMuQzjqrK3moj8gbDv8IrF2p
+pGrpsLO5j1MIChTLq1KqlQDrlspokPUZGx07pGgJqiMrB1QAfq0aqLohrykrtXg6Dy/rq64qsyw7
+rsc4EH9QBVe7sCOrjYQ4dJD4j1irsD6brkT7tnxqNLoqEK1gfQJRORTbpmyIpA6rkAlrsnsJkYYp
+tDBZt3SxpwmLsR8LfHKQs+Nat9sKs2b7j3zbOJ96fXdLqyiABV4arkqKsv/QDCIrEK8wDYcalNi6
+uk5LpK6rBfEqrcfqtHH7tYk6rd8auVMIETj7tWeLsWgrtDURoF+RuYfrtFtnjfB4hEzbuIRQurEa
+vVNAikN6EH7gAprqsNBbuM76qq17mKL/2xkKqLL/6o3/IAUR65ITKYhZEKUnkbQUJ4FCgbgDIRHw
+e6czmqamm78ikURPKhL0KxD8ib9BI3g84Xsly7+vlxMBnDj/yxHOVxFXl6WSqhFdMylkQAY2IaP/
+YK6/sbFH88BFkaMxwnoK/A/RUBAiLBCpMJ4HQV0jwVQCwXz866AnjBTt6hQ2DBbMEKca8R9HmxQ7
+fMMNAcKRAwuNNidwUW88MX0GIb8YRyf5UEowXDWLsLQukcNoE8Qn0Qz3WxB5R8QMIZ1IQRRYLMaT
+EcawocV/EzYrHBtDXDEgUac1MQ8fF8fPMsGJoRQcDDVocKIFMcAOQcMEAQlvMREEihJ9/4wTJGwY
+xBs0B4oSsEDIWZF6X7HIeBw5rZc4BbrIFEfGeQMSpvAuIUE4NSA4WTE0bJwWKwynWiHICOEMUBwX
+xQk1lCwQkEMRzgDLFLHKMMrLAvGdWQHIBFEcwkxxl+rLaKw6SUPMvGcqkQOfyywT1KeeWnh59PI3
++KDM+gnMMIqOSjG9SXHLCEHOY3fNcvFDjCViL5xAcrRP93KPZDoS1TyBcRF5lFINb3wrSCGhPAQX
+zARsbEQ8rSc/cVZIlXAvVhCLl2mbE5LEr2HOxiZuZ8RFD9RIsJMLriMOjWQMqAQ+73PRsrMIfQDS
+SvZsASiCzFHLMmHAB6EKYyM7bFFVFP+tVgN90PkTgM0RNtFIM7tyJUA3Csn5VMAmSBS9PuojFeps
+QHMk0lGG1OzUcF6CHSydFgZdbDk9EAHN1GdUQQzxCtSAjsIoHfpRDRmIzlrhxP+wnRWxzwNd0TV1
+1a1EQOIgEBKx1HzU1BXd1XHG10cdlX3iJj39jrbYOoT11nBdO+NQWjcNTvTYI2TthBpBeDhhA4/s
+lSMRZwnd1f8wDXKNaATUeeJGWUW91ziNVIf11y4oJs0xA9nChBw5WiDU2AJt0pyd2IBtHXQJ2Y3Z
+ES5tE24dEXRUO5aQcEDGWQbNRsVh0RME1aeN3Bd13IDdHKmAl2gN22OJYmTUbodd1N3/rW4HMRhT
+DTDwMStozRGZDBghzc637VmyU2xFgkt0wNmMRV99vUPfXRHnsSM6rZT+4nAQl1Z5Td9PjdsG3t7/
+YK/ikR8pk9sxIdE3+hXyQw2qxt64tEdY/dfc8AT2zU798NxRlt8BKAO6XR35AM7bsieGLUkE7mgt
+jtf/gDnnXd6aKBfOrBWkTduIVj9rQ0CGkON77VldVtv3o9o9QuLy/CDVkpHPwjYzHtlJiRPHvBdA
+3tTL41uLLdD/UAhXXmz55NV4FjuMgXCEIpA1A5qDXRSzcRJTDmkbkYVPbhGxkJUfMQ3cPBF0DBZF
+c9kyMcWRXBDHMJkig4m/seYCcakk/2oR6f05ee7I//CisDHo7ugS08DnIgHpMqHH0zwXmA4cKB4S
+Xzwnmh407rnpsMFsCWHppn4SpT4Ri54T8mB5PHHnq17rVdPmOFHPLqHqcxLnkWrrhcM2N77lN8Hr
++4HWqICXv56JcjHLTefrSTHskzFZs43YYD5k3qIRLeAElJMVEG0Y3IHoMwLtRgPitFMlWo7g5h7P
+HVg006HsF0ehBbEN2TZeRW7t0z0dm6ff5F7uGV5N+P4PflDgpDXeiqKFwpjmYLE3VTEKBP/w9h7w
+rZLk1ELuo44Q6D7tFmZwAT/wPM7vt7kg2QA0AzjpWgOhp23Uj5Tc6lzwgR0z7cfa0f948ZexyemO
+2J+t7qwmVbVJ6LE4LBfHU9WO0aid1WGC5g9DM63Z75NxwdXO1QZe5R8/EdDhM6D58z6vLu1KVjft
+3E/t8rGS3U8I5Vqjzpx00F3O1c+d250iFRyJK7H9FDgx8iNB88FU09G9QPYt4vme4rM4gnNJKbQ3
+4LJTEmuf82+99poozwWoiAfP9Cnl79499Ch11eZl8H7f29rxoHMx+IS0CpLxO3gdcGh/YD2/4Acf
+5TLhCr8dFa+e+A9f+ZN/8xqS5Of4LZBPEM4uoLnv4FUzD9l8EM5e7w02+0ZeMmIQa/YYfzQO7Pod
+E3H/D1rA1oGRDExsEbsPFr0vfhX/8aMnIe9ofPUIccbArsa6PRH/++SgLMcaEdwMMQVU4/wKbP6Q
+Ry0o8eeB8fryzzjw0On8G/wA8U/gQIIFDR5EmFChwGPOFj6EGFEgNYkRq22rGBGfRFwZEzLyGFLk
+SJIlTWa81aigtpMk8cFrGXPhxnsSQcr0yG0kxYGxZLLDGbIaz6BFZbI0inBRmIJWYCY1ai/iTahV
+jQK1mlXr1q0tBDaL2UIsV7JcN5Y1eRbtWrYexb6d1pJFlLYEm+Cpm7ei15b5SL56pfchN50FCR8m
+LDDxwMWI/yF2DLkwwcUJx3odazJzXVg+9VZ+PFmx6NAGHZcWWK0x6MMF1fJt+Xaz/+CYoEcfZD3Z
+dm7GpG0bvPxvs2zYBYkTnM12CsJtRLXypuyb9G3q/7atFt0auOyTw4vTNvn7N+rqu7PrpEIl9/iB
+3JHDTi4cPl/iXgODRwvsfHTohnXvfww1nX4LLr6DsFHIO/xaEm866vqrjrz1HHzvrfbm2+5CgRRM
+ZSS1gnLOKk4K40YL/yDsLUUVBySRPHk2xEy+Cy0syBXjNIRxKyKIWAiskxqEbEUAVRzttAcprPC7
+HI3DUMYlXVowpNUKEZLI6KxMpcXQSJzsRfmSU9Cy4o7LSg+JfCypwYSMjJC80sxr8z3hnITRwDAz
+o8bAKLNiU0DdsrnvyggL0VK78f/IpFPPL3GkcyV/ZDJzK274MA3JPuGssshx+tQQMyWd9M69MPd8
+6MPwtCsySDeJhE43K5kEU1FPGVUUIocEeyUuxeyoVCE1BS2Py394Yu9LPTOLbzZERfKMrZpksk0T
+AMerrNV/YFHtVRlnfRIh+ppsNCRVopSMRVVfZRPCxFAEjklGD2oBzaAwiqmTYCp6lrmBVoloN18E
+LXfL/4x0kMAYka1vSXBHJbXhoL77oox33ZXG4YyofAgWLwHRixpT93LPWBoRRnRZi3GyhxnBpKnY
+25BhPTkkQyDCKmaIPpWo1pN0tZmkKqigzUb8lut5T5wj0vkkea8qOitsHgWPaNr/rGhas6N7rtlm
+jk9uViS/SKW66ofYudejEMUmdVyu87IlJHqhqgZtgaAm6Gy5Dwp0Ibu14qLpUXBqe8+lm6abLWy3
+uu+VDvM6nKC+m0bm7oo+rggpyR027zwu0z1MFIENZc0gWP6JW+TLT0+q9HabbmbvslSTTvNgrwSL
+2sr6eWcgqvzwY9twR1KJLOf+QD2or2/kanSDVFG76VxQDbAxPxkzkdWCJRwIYzm5NR1enMVAi+d/
+8lgQxcwp8y99betMWiaqLk9XwOlHO8N63LAXM9aJX544q8FPosbxfiQs9fVGJ9oYnXR6tapO/a5n
+7+MKYR5VrSId6VwSkoxiHrSQ/5KBS04wE97JVnOi7OAvVepjT4HmQyOBNG9ZJpOJOgzCFLQkxh8U
+3NKRgFWt690GSQL5G/+6tT8HFs9zIuFU/HB4QhLm7zsM49edPIgTGealXFoKkA7tF6csvilBLRgF
+94zlMuQMESpv899AeofE6YxQg/LTIrBcxkKGPQlh/QuJ66w4LcZkanZclJ2Y5mSnb9EKj3nJ10iO
+cSpMLXFdfmTiF2P1KSkeEnXWWmDAmKjJQDoRZ3dMWH2uppBH0MIoKpNJ8yTixs8ZKkWbOxcr3cW9
+WlXSjMWLUjKE8ZAnTpGDozzdM3JCQDdJrzcdecw4dkjMWYIqYYnqoBBxGSXLWf/GXbcU5DQFckQp
+Tes8r6CG5uLCDWVCMoUhE6UZCalNi1UzZ9L84kJsEbiqoWKa9hHJOqsyFHZOpZ9tAcQh/ukVQoRE
+n//Uyy0Qmpqz3WqhtKGRNpDCQoUYgl8PhYj4BjINd2I0Iqr0aEghokeLZaMkHRVpShWySIOo7nJq
+K5xKZWoSkxbPSy1FHfGilI2azjRm/fApOyk3kGb8LageUd5R8UNSpR5Eo001CBo94lKolkSAVY1I
+3oL6lIgwlTbCGMY/tIcTr3qkZQiZB1bVKhGuapOGRUFpSYC6VouVla57sutd/5nXkQhNr1tJxF/Z
+iQLCElYpCjGsRFAgCIEk1iD/jkUsClAH2YjYcyB9aKxkHxLYJCUpVMoSAw7eYqNnRta0N/MgOlfY
+HslSdk+xcGliXfsPeh5EthCRrWYfq9vTKta2epmtQqi0uH9YNrjxhCaO7jhEWtRxt70lCG/rtCRq
+7KGQ0IRPa6UbM8du9yGGPW50vVuQ8I7EteXVCnoLQo01kne82VRYk+40BoVax47AXMh5tzuy6yps
+Ru3JbEICQaru6hay4JVuYb1b2AD/I7e5baxCpqBZCDuYwQoWL4YDjOAMJ0TDFgbxQDjs3hAfmMEN
+NnBwMyMMXizXmcpVknMxXOASazezlOWOi198GW6Fd8DJoypCaOzgCKM4wQve/zCFbQxi8OZXyUmG
+MomJXOTEToEoktUGko3c4Cknlm4Vvu2WeUth733Qls4UlS+H3OUn1zhD3FJWIXnsJPWC5xwhZnKb
+DRsLyupXIIwACYRPfOP3bjnPY96uoPW8aA+DmdFzM3SfH5xiLr+LZHSUb4xhiGdHR3q/ntIxKGeV
+GfRKFSrS6GlChkHjTqtC0o8FhZQnTWgne7rC4o2yoz+M6067WdZtzjOtCe3aOMeXVt8KkY5FTGlf
+99rMoeYLJjDdPoIkVTDdZUmvX+3ett4ayuF1dpRxbeETh/u5zX70uLX9ZG9nCMYAvm+OnDMc2zJ7
+3ZWOb3+dxI5pi60aysstUv/IbOhl/zbYBx8xsAvuZkWfm9wLlxqbz+1shXva4lOWuLtHtdxRSSLe
+Uub0xYm9MH33G9/c3TWeQZwPPCR6wet2tDRO4fKCz/rkD675kSUb5IQDe8Tq9vmSc1uKGzvxgzl6
+oWxu0K3kGBYWi2B1unGc2hakgrjTxbrKJRI8wTo4RLOtrULONug66wWCBCEFQbZGFs6SpOx74vpf
+KRLXixQk7B71OERIMY0/rD0rNtpGXLsOwJjxtShgGHziBWJtrQherQWljUN7toxlCGYU3GSL4xcC
+C83T5u49+99aQKr4qZK+IKYG/ck6T/ogN1WT8KNQsRACvbxAfvYZHE0oOGX/HcOLtPeCueDdLJUR
+wohD9gbRalCujps+2WH3Km0OVFJdl+D3ayE/PD2DYo/9gjyDMLiQ/fT/kfxVhqSawa9+WyTaT/F/
+hSzpH8z1y8Ke4xtEP7Q3SPuRyMjM2eb3pi+I5TOIyKmN5/OVH6q/oBi+YeK+AuS/2PmN/wPAiDAq
+7cO/6yuWC4QK+mtA6ktADEQVz4E/gZgGATwIapDAnnmqphlB5uPAD3RA5sMcDayICxKFFgSRligE
+2yuLsxIbHOQP26FBo1hAUgHCfziEmbk92jvCCTRCgrlAbjCEwyCG07iidcE9dbi/NZE9DnRBV2ml
+gbnCLyyYMSShF0wMy7kg/9zrlzVkQwPUPyf8nDA8D0ZAjCrEQjOcw9czoAzcvhMZCOObkP8IwjbC
+Ds25omXCP1VBiiAJFG7ghUuoQW6ovEjaQz4kiDjsmtOpBaNonVThoUXcvfR7Q1GkwSJEl0G0nkuZ
+EIJoBlJsxTOUxX+wvQ4sElPoQ27gp1IcQoQ4O5JAPYjAhxQkCPLDCfRjxSgcRc5hwufzwiAsoDl8
+I1Bsoj4kiGOoPmbsPwj0DeJTRWoUCKAKkmC0CnIcidXLCp0Cx1ycxXYsxGrkDy68PXfsIml8RQNC
+h/57R3ZsR2RsRuixxXFJxn0UiHsIkk0UCT1Sx5G6HO3xx92oBGWUyG0kvv81qZTDuEcydD8DqkJ3
+dEOJJMh1XMfEGL2DEKbne5uHtMWEILqHwIuZUknDeJ7xmEkhLAduZEgGAqTDGAUhBJJ/vMJvHIxk
+pEiB+YeSvEj2IIqYNIm0W4jW8yim5MeC2JSJLAd6xMB5/Ac0uAlDmEJMzMYkMsCQlEGppMZzqZ8D
+7EVpnMp9OolEkgmW2UCixMmkLEOgbEBpQBBU/AdPKESApEtDXEu2vEiB8AS6FAjMokMjScslrD+z
+LAm/Sgq4lImXHIn20kgCFJhl8EFYnMi6hIhn5MJSHAfjw0rCHM0XHIjDxEuBsKwgCaex7CkghMw8
+GghTQhs5KInq0ch/IMD/2kRNkQxOeZTBoYRCbiCHX/hLMuQ+zxRD0ATH2KTB2cRB4PQIYxwIYhQ+
+xCRL4RROseyh+xFPeOQGPETEbvTOeuQG8LONTrCE4yzKqfRHuwTB+MQodDxG7uTH85xG1NRPLnqM
+F0C8BQLE0QCFUGTCXERPxmBPLIql/xSYblhK+OTGNmrL4TSiz4DQIMFJ6MwhehTNAlVD/vzO89QN
+wHhHEvXP/8S9sIRCsmzCugg9iOAEDdUOZ/gbFzXF1rRGELVIxxy/NlEVNgyNtgNFDSTSVjrSC1VJ
+c/FJyIzRujBBEXq9K7qFlETSHYWl0YxGOTKMtgzKMOUGyVTS1PzCHl3M/zSlww8liG2oryZNjCtN
+RLmByrJwSuAby5uSQ4yiAi3AT4f5vIzwy4SYq4eYUgaUPT3tJzB4q4WyrISgBsaTKUktiHQgCcpM
+iEcliSjd06LQgizwCMyTCHxYQVcsVW2yVJvh1E6VnFLwO7bgQZMghFjFpVVdKASpizqVGzIl1Iig
+1YFYhlgTKV39K1xl1UyUiH7AVJwg1qZBSlZtVr2RCGFSKcqkBnMUioEom6YqqvX6U7WKVoFIq7yI
+qUwV1bVoK4hgqbqJiXD9B0X4Kx80iCtggSjRzoRoBk09wYdK15BQC2x9iKtSCOxUqkItGnclFYFF
+hGNl2Gky2IO4h2VtiSRiMAjGOqpIbVi9EFi0eNiyoNh/SIVfzVi5GYV1JZy1KFm1CggAOw== 
 
-<strong>Most demanding software in sight:</strong><br>
-*<strong>Macromedia Studio 8:</strong> <em>Retail price today - $999.00</em>; <strong>Our only - <font color="red"><em>$99.95</em></font></strong><br> 
-*<strong>Corel Bryce 5.0:</strong> <em>Retail price for now - $69.95</em>; <strong>Our just - <font color="red"><em>$29.95</em></font></strong><br> 
-*<strong>Symantec Norton Antivirus 10.1 for Mac:</strong> <em>Retail price this day - $49.95</em>; <strong>Our for this day just - <font color="red"><em>$29.95</em></font></strong><br> 
-*<strong>Acronis Disk Editor v6.0.360:</strong> <em>Retail price this time - $29.99</em>; <strong>Our just - <font color="red"><em>$19.95</em></font></strong><br> 
-*<strong>Microsoft Visual Basic 6.0 Professional:</strong> <em>Retail price for today - $419.00</em>; <strong>Our this time just - <font color="red"><em>$49.95</em></font></strong><br> 
-*<strong>Adobe Acrobat 8.0 Professional for Mac:</strong> <em>Retail price this time - $449.00</em>; <strong>Our just - <font color="red"><em>$79.95</em></font></strong><br> 
-*<strong>Macromedia FlashPaper v2.0:</strong> <em>Retail price for this time - $79.00</em>; <strong>Our only for this time - <font color="red"><em>$29.95</em></font></strong><br> 
-*<strong>Crystal Reports 10:</strong> <em>Retail price for today - $450.00</em>; <strong>Our today - <font color="red"><em>$39.95</em></font></strong><br> 
-<strong><em><a href="http://gdotuf.chantor.net/?352608883708" target="_blank">COME TO US RIGHT NOW!</a></em></strong><br> 
-<font color="#D9EDFF">http://gdotuf.chantor.net/?352608883708</font>
-
-</BODY></HTML>
-------------46EA1B256EA9FB--
+------=_NextPart_000_000E_01C7E003.FE159720--

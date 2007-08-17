@@ -1,67 +1,27 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH] input: change SysRq keycode for systems without SysRq
- key
-Date: Fri, 17 Aug 2007 12:22:48 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0708171216160.2460@twin.jikos.cz>
-References: <alpine.LFD.0.999.0707151513550.20061@woody.linux-foundation.org>
- <d120d5000707160541k64c40d0dgf661226806fd98c8@mail.gmail.com>
- <469C647B.1000307@inwind.it> <d120d5000707170811l285d670aq3a9a1489a8cbb379@mail.gmail.com>
- <469E7E29.2050206@inwind.it> <d120d5000707191400w2725bbd1h64add33e3e227bdd@mail.gmail.com>
- <469FDA19.6020702@inwind.it> <d120d5000707191532x34ec7baen8e0de1155a4882cb@mail.gmail.com>
- <469FF3D9.4080307@inwind.it> <Pine.LNX.4.64.0707301556390.5747@twin.jikos.cz>
- <20070802212730.GA10153@suse.cz> <1187339112.3684.10.camel@localhost.localdomain>
+From: "Eldon Sanford" <kfgjbc@boasys.com>
+Subject: Re:WINDOWS NT
+Date: Fri, 17 Aug 2007 10:38:29 -0900
+Message-ID: <01c7e0ba$bfe84e40$9348e4da@kfgjbc>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1187339112.3684.10.camel@localhost.localdomain>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Marvin Raaijmakers <marvin.nospam@gmail.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, federico ferri <xaero@inwind.it>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, mzxrlshmm@0pointer.de
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-(CCs trimmed a little bit)
-
-On Fri, 17 Aug 2007, Marvin Raaijmakers wrote:
-
-> What's the current state of this patch?
-
-Hi Marvin,
-
-does the patch below establish the functionality you are looking for? 
-Please note that we do the reporting only for such usages that have the 
-type of EV_KEY.
+Have you ever wished for a expensive Watch?
 
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 8edbd30..7f4731b 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -888,6 +888,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		set_bit(KEY_VOLUMEDOWN, input->keybit);
- 	}
- 
-+	if (usage->type == EV_KEY) {
-+		set_bit(EV_MSC, input->evbit);
-+		set_bit(MSC_SCAN, input->mscbit);
-+	}
-+
- 	hid_resolv_event(usage->type, usage->code);
- 
- 	dbg_hid_line("\n");
-@@ -991,6 +996,9 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 		return;
- 	}
- 
-+	if (usage->type == EV_KEY && !!test_bit(usage->code, input->key) != value)
-+		input_event(input, EV_MSC, MSC_SCAN, usage->hid);
-+
- 	input_event(input, usage->type, usage->code, value);
- 
- 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type == EV_KEY))
+We have the piece for you!
 
--- 
-Jiri Kosina
+We sell all the expinsive brands 
+for a low precentage of the price.
+
+www.maqasloo.com

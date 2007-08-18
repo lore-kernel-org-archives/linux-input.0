@@ -1,285 +1,251 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 8/9] define global BIT macro
-Date: Sat, 18 Aug 2007 11:44:12 +0200 (CEST)
-Message-ID: <428714662539710215@wsc.cz>
-References: <737828602404912540@wsc.cz>
+From: "Snowy:" <fhzivztexyd@embarqhsd.net>
+Subject: Re:
+Date: Sat, 18 Aug 2007 07:49:10 +0400
+Message-ID: <47BB72630C1B3DF.486DB60E38@embarqhsd.net>
+Mime-Version: 1.0
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_0003_01C7E16C.43585B10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-reply-to: <737828602404912540@wsc.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, source@mvista.com, dougthompson@xmission.com, bluesmoke-devel@lists.sourceforge.net, dtor@mail.ru, linux-input@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org, James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org, gtolstolytkin@ru.mvista.com, vitalywool@gmail.com, dsaxena@plexity.net, ralf@linux-mips.org, linux-mips@linux-mips.org, mchehab@infradead.org, video4linux-list@redhat.com, jbenc@suse.cz, flamingice@sourmilk.net, linux-wireless@vger.kernel.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-define global BIT macro
+------=_NextPart_000_0003_01C7E16C.43585B10
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0004_01C7E16C.43585B10"
 
-move all local BIT defines to the new globally define macro.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+------=_NextPart_001_0004_01C7E16C.43585B10
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
----
-commit 19b14b967521eda7011bd70891bbe5044882d739
-tree cd49de4f9f8d991ee7af22037a86978ea227abb8
-parent fef5bcc8e5a7bfd66920df6d02c3448314dfe4b2
-author Jiri Slaby <jirislaby@gmail.com> Sat, 18 Aug 2007 11:16:36 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Sat, 18 Aug 2007 11:16:36 +0200
 
- arch/ppc/platforms/chestnut.c               |    1 -
- drivers/edac/edac_core.h                    |    2 --
- drivers/firmware/dcdbas.h                   |    2 --
- drivers/input/serio/maceps2.c               |    2 --
- drivers/net/eth16i.c                        |    1 -
- drivers/net/meth.h                          |    3 ---
- drivers/net/wireless/hostap/hostap_common.h |    2 --
- drivers/scsi/FlashPoint.c                   |    1 -
- drivers/scsi/nsp32.h                        |    5 -----
- drivers/scsi/pcmcia/nsp_cs.h                |    1 -
- drivers/video/pnx4008/sdum.h                |    3 ---
- include/asm-arm/arch-ixp4xx/io.h            |    3 ---
- include/asm-mips/ip32/crime.h               |    3 ---
- include/asm-mips/ip32/mace.h                |    3 ---
- include/linux/bitops.h                      |    1 +
- include/video/sstfb.h                       |    1 -
- include/video/tdfx.h                        |    2 --
- net/mac80211/ieee80211_i.h                  |    2 --
- 18 files changed, 1 insertions(+), 37 deletions(-)
 
-diff --git a/arch/ppc/platforms/chestnut.c b/arch/ppc/platforms/chestnut.c
-index 4696849..ccd2faa 100644
---- a/arch/ppc/platforms/chestnut.c
-+++ b/arch/ppc/platforms/chestnut.c
-@@ -49,7 +49,6 @@ extern void gen550_progress(char *, unsigned short);
- extern void gen550_init(int, struct uart_port *);
- extern void mv64360_pcibios_fixup(mv64x60_handle_t *bh);
- 
--#define BIT(x) (1<<x)
- #define CHESTNUT_PRESERVE_MASK (BIT(MV64x60_CPU2DEV_0_WIN) | \
- 				BIT(MV64x60_CPU2DEV_1_WIN) | \
- 				BIT(MV64x60_CPU2DEV_2_WIN) | \
-diff --git a/drivers/edac/edac_core.h b/drivers/edac/edac_core.h
-index 4e6bad1..309a1a5 100644
---- a/drivers/edac/edac_core.h
-+++ b/drivers/edac/edac_core.h
-@@ -94,8 +94,6 @@ extern int edac_debug_level;
- 
- #endif				/* !CONFIG_EDAC_DEBUG */
- 
--#define BIT(x) (1 << (x))
--
- #define PCI_VEND_DEV(vend, dev) PCI_VENDOR_ID_ ## vend, \
- 	PCI_DEVICE_ID_ ## vend ## _ ## dev
- 
-diff --git a/drivers/firmware/dcdbas.h b/drivers/firmware/dcdbas.h
-index 8960cad..87bc341 100644
---- a/drivers/firmware/dcdbas.h
-+++ b/drivers/firmware/dcdbas.h
-@@ -20,8 +20,6 @@
- #include <linux/sysfs.h>
- #include <linux/types.h>
- 
--#define BIT(x)					(1UL << x)
--
- #define MAX_SMI_DATA_BUF_SIZE			(256 * 1024)
- 
- #define HC_ACTION_NONE				(0)
-diff --git a/drivers/input/serio/maceps2.c b/drivers/input/serio/maceps2.c
-index 5a41b8f..558200e 100644
---- a/drivers/input/serio/maceps2.c
-+++ b/drivers/input/serio/maceps2.c
-@@ -31,8 +31,6 @@ MODULE_LICENSE("GPL");
- 
- #define MACE_PS2_TIMEOUT 10000 /* in 50us unit */
- 
--#define BIT(x) (1UL << (x))
--
- #define PS2_STATUS_CLOCK_SIGNAL  BIT(0) /* external clock signal */
- #define PS2_STATUS_CLOCK_INHIBIT BIT(1) /* clken output signal */
- #define PS2_STATUS_TX_INPROGRESS BIT(2) /* transmission in progress */
-diff --git a/drivers/net/eth16i.c b/drivers/net/eth16i.c
-index 04abf59..f613dae 100644
---- a/drivers/net/eth16i.c
-+++ b/drivers/net/eth16i.c
-@@ -170,7 +170,6 @@ static char *version =
- 
- 
- /* Few macros */
--#define BIT(a)		       ( (1 << (a)) )
- #define BITSET(ioaddr, bnum)   ((outb(((inb(ioaddr)) | (bnum)), ioaddr)))
- #define BITCLR(ioaddr, bnum)   ((outb(((inb(ioaddr)) & (~(bnum))), ioaddr)))
- 
-diff --git a/drivers/net/meth.h b/drivers/net/meth.h
-index ea3b8fc..a78dc1c 100644
---- a/drivers/net/meth.h
-+++ b/drivers/net/meth.h
-@@ -28,9 +28,6 @@
- #define RX_BUFFER_OFFSET (sizeof(rx_status_vector)+2) /* staus vector + 2 bytes of padding */
- #define RX_BUCKET_SIZE 256
- 
--#undef BIT
--#define BIT(x)	(1UL << (x))
--
- /* For more detailed explanations of what each field menas,
-    see Nick's great comments to #defines below (or docs, if
-    you are lucky enough toget hold of them :)*/
-diff --git a/drivers/net/wireless/hostap/hostap_common.h b/drivers/net/wireless/hostap/hostap_common.h
-index b31e6a0..f3930f9 100644
---- a/drivers/net/wireless/hostap/hostap_common.h
-+++ b/drivers/net/wireless/hostap/hostap_common.h
-@@ -4,8 +4,6 @@
- #include <linux/types.h>
- #include <linux/if_ether.h>
- 
--#define BIT(x) (1 << (x))
--
- #define MAC2STR(a) (a)[0], (a)[1], (a)[2], (a)[3], (a)[4], (a)[5]
- #define MACSTR "%02x:%02x:%02x:%02x:%02x:%02x"
- 
-diff --git a/drivers/scsi/FlashPoint.c b/drivers/scsi/FlashPoint.c
-index a7f916c..cf549ff 100644
---- a/drivers/scsi/FlashPoint.c
-+++ b/drivers/scsi/FlashPoint.c
-@@ -25,7 +25,6 @@
- 
- #define FAILURE         0xFFFFFFFFL
- 
--#define BIT(x)          ((unsigned char)(1<<(x)))	/* single-bit mask in bit position x */
- #define BITW(x)          ((unsigned short)(1<<(x)))	/* single-bit mask in bit position x */
- 
- struct sccb;
-diff --git a/drivers/scsi/nsp32.h b/drivers/scsi/nsp32.h
-index a976e81..6715ecb 100644
---- a/drivers/scsi/nsp32.h
-+++ b/drivers/scsi/nsp32.h
-@@ -69,11 +69,6 @@ typedef u32 u32_le;
- typedef u16 u16_le;
- 
- /*
-- * MACRO
-- */
--#define BIT(x)      (1UL << (x))
--
--/*
-  * BASIC Definitions
-  */
- #ifndef TRUE
-diff --git a/drivers/scsi/pcmcia/nsp_cs.h b/drivers/scsi/pcmcia/nsp_cs.h
-index b7f0fa2..9839755 100644
---- a/drivers/scsi/pcmcia/nsp_cs.h
-+++ b/drivers/scsi/pcmcia/nsp_cs.h
-@@ -24,7 +24,6 @@
- /************************************
-  * Some useful macros...
-  */
--#define BIT(x)      (1L << (x))
- 
- /* SCSI initiator must be ID 7 */
- #define NSP_INITIATOR_ID  7
-diff --git a/drivers/video/pnx4008/sdum.h b/drivers/video/pnx4008/sdum.h
-index e8c5dcd..189c3d6 100644
---- a/drivers/video/pnx4008/sdum.h
-+++ b/drivers/video/pnx4008/sdum.h
-@@ -77,9 +77,6 @@
- #define CONF_DIRTYDETECTION_OFF	(0x600)
- #define CONF_DIRTYDETECTION_ON	(0x601)
- 
--/* Set the corresponding bit. */
--#define BIT(n) (0x1U << (n))
--
- struct dumchannel_uf {
- 	int channelnr;
- 	u32 *dirty;
-diff --git a/include/asm-arm/arch-ixp4xx/io.h b/include/asm-arm/arch-ixp4xx/io.h
-index c72f9d7..eeeea90 100644
---- a/include/asm-arm/arch-ixp4xx/io.h
-+++ b/include/asm-arm/arch-ixp4xx/io.h
-@@ -17,9 +17,6 @@
- 
- #define IO_SPACE_LIMIT 0xffff0000
- 
--#define	BIT(x)	((1)<<(x))
--
--
- extern int (*ixp4xx_pci_read)(u32 addr, u32 cmd, u32* data);
- extern int ixp4xx_pci_write(u32 addr, u32 cmd, u32 data);
- 
-diff --git a/include/asm-mips/ip32/crime.h b/include/asm-mips/ip32/crime.h
-index a13702f..7c36b0e 100644
---- a/include/asm-mips/ip32/crime.h
-+++ b/include/asm-mips/ip32/crime.h
-@@ -17,9 +17,6 @@
-  */
- #define CRIME_BASE	0x14000000	/* physical */
- 
--#undef BIT
--#define BIT(x)	(1UL << (x))
--
- struct sgi_crime {
- 	volatile unsigned long id;
- #define CRIME_ID_MASK			0xff
-diff --git a/include/asm-mips/ip32/mace.h b/include/asm-mips/ip32/mace.h
-index 990082c..d08d7c6 100644
---- a/include/asm-mips/ip32/mace.h
-+++ b/include/asm-mips/ip32/mace.h
-@@ -17,9 +17,6 @@
-  */
- #define MACE_BASE	0x1f000000	/* physical */
- 
--#undef BIT
--#define BIT(x) (1UL << (x))
--
- /*
-  * PCI interface
-  */
-diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index 3255b06..a57b81f 100644
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -3,6 +3,7 @@
- #include <asm/types.h>
- 
- #ifdef	__KERNEL__
-+#define BIT(nr)			(1UL << (nr))
- #define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
- #define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
- #define BITS_TO_TYPE(nr, t)	(((nr)+(t)-1)/(t))
-diff --git a/include/video/sstfb.h b/include/video/sstfb.h
-index baa163f..b52f073 100644
---- a/include/video/sstfb.h
-+++ b/include/video/sstfb.h
-@@ -68,7 +68,6 @@
- #  define print_var(X,Y...)
- #endif
- 
--#define BIT(x)		(1ul<<(x))
- #define POW2(x)		(1ul<<(x))
- 
- /*
-diff --git a/include/video/tdfx.h b/include/video/tdfx.h
-index 05b63c2..7431d96 100644
---- a/include/video/tdfx.h
-+++ b/include/video/tdfx.h
-@@ -79,8 +79,6 @@
- 
- /* register bitfields (not all, only as needed) */
- 
--#define BIT(x)	(1UL << (x))
--
- /* COMMAND_2D reg. values */
- #define TDFX_ROP_COPY		0xcc	/* src */
- #define TDFX_ROP_INVERT		0x55	/* NOT dst */
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 54172a7..39d6ad1 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -36,8 +36,6 @@
- 
- struct ieee80211_local;
- 
--#define BIT(x) (1 << (x))
--
- #define IEEE80211_ALIGN32_PAD(a) ((4 - ((a) & 3)) & 3)
- 
- /* Maximum number of broadcast/multicast frames to buffer when some of the
+From: Provided declared Tags:fox foxnews
+
+portfolio realtime trend trading Symbol: gosymbol EMail: login register Map Survey Contact KIDS
+
+Europe Middle maintain really
+
+centuries combines elements CookAre gourmet Lucky CARD WorldA remake users. nice DeluxeThe immerses emotional
+
+pattern copula adjective predicate permanent watched recording clock arrival additions records
+
+longer only.To bookmark url:
+
+
+------=_NextPart_001_0004_01C7E16C.43585B10
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:st1=3D"urn:schemas-microsoft-com:office:smarttags" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
+
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+shape {behavior:url(#default#VML);}
+</style>
+<![endif]--><o:SmartTagType
+ namespaceuri=3D"urn:schemas-microsoft-com:office:smarttags" =
+name=3D"City"/>
+<o:SmartTagType =
+namespaceuri=3D"urn:schemas-microsoft-com:office:smarttags"
+ name=3D"place"/>
+<!--[if !mso]>
+<style>
+st1\:*{behavior:url(#default#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+    {margin:0cm;
+    margin-bottom:.0001pt;
+    font-size:12.0pt;
+    font-family:"Times New Roman";}
+a:link, span.MsoHyperlink
+    {color:blue;
+    text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+    {color:purple;
+    text-decoration:underline;}
+span.EmailStyle17
+    {mso-style-type:personal-compose;
+    font-family:Arial;
+    color:windowtext;}
+@page Section1
+    {size:595.3pt 841.9pt;
+    margin:2.0cm 42.5pt 2.0cm 3.0cm;}
+div.Section1
+    {page:Section1;}
+-->      
+</style>
+
+</head>
+
+<body lang=3DEN link=3Dblue vlink=3Dpurple>
+
+<div class=3DSection1>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span =
+style=3D'font-size:10.0pt;
+font-family:Arial'><img width=3D199 height=3D274 id=3D"_x0000_i1025"
+src=3D"cid:bgimg.gif@01C7E16C.43585B10"></span></font><font size=3D2 =
+face=3DArial><span
+lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'><o:p></o:p></span></font></p=
+>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'>From: Provided declared =
+Tags:fox foxnews<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'>portfolio realtime trend =
+trading Symbol: gosymbol EMail: login register Map Survey Contact =
+KIDS<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'>Europe Middle maintain =
+really<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'>centuries combines elements =
+CookAre gourmet Lucky CARD WorldA remake users. nice DeluxeThe immerses =
+emotional<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'>pattern copula adjective =
+predicate permanent watched recording clock arrival additions =
+records<o:p></o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D2 face=3DArial><span lang=3DEN-US =
+style=3D'font-size:10.0pt;font-family:Arial'>longer only.To bookmark =
+url:<o:p></o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------=_NextPart_001_0004_01C7E16C.43585B10--
+
+------=_NextPart_000_0003_01C7E16C.43585B10
+Content-Type: image/gif;
+	name="bgimg.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <bgimg.gif@01C7E16C.43585B10>
+
+R0lGODdhxwASAYcAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwMDcwKbK8EAgAGAgAIAgAKAg
+AMAgAOAgAABAACBAAEBAAGBAAIBAAKBAAMBAAOBAAABgACBgAEBgAGBgAIBgAKBgAMBgAOBg
+AACAACCAAECAAGCAAICAAKCAAMCAAOCAAACgACCgAECgAGCgAICgAKCgAMCgAOCgAADAACDA
+AEDAAGDAAIDAAKDAAMDAAODAAADgACDgAEDgAGDgAIDgAKDgAMDgAODgAAAAQCAAQEAAQGAA
+QIAAQKAAQMAAQOAAQAAgQCAgQEAgQGAgQIAgQKAgQMAgQOAgQABAQCBAQEBAQGBAQIBAQKBA
+QMBAQOBAQABgQCBgQEBgQGBgQIBgQKBgQMBgQOBgQACAQCCAQECAQGCAQICAQKCAQMCAQOCA
+QACgQCCgQECgQGCgQICgQKCgQMCgQOCgQADAQCDAQEDAQGDAQIDAQKDAQMDAQODAQADgQCDg
+QEDgQGDgQIDgQKDgQMDgQODgQAAAgCAAgEAAgGAAgIAAgKAAgMAAgOAAgAAggCAggEAggGAg
+gIAggKAggMAggOAggABAgCBAgEBAgGBAgIBAgKBAgMBAgOBAgABggCBggEBggGBggIBggKBg
+gMBggOBggACAgCCAgECAgGCAgICAgKCAgMCAgOCAgACggCCggECggGCggICggKCggMCggOCg
+gADAgCDAgEDAgGDAgIDAgKDAgMDAgODAgADggCDggEDggGDggIDggKDggMDggODggAAAwCAA
+wEAAwGAAwIAAwKAAwMAAwOAAwAAgwCAgwEAgwGAgwIAgwKAgwMAgwOAgwABAwCBAwEBAwGBA
+wIBAwKBAwMBAwOBAwABgwCBgwEBgwGBgwIBgwKBgwMBgwOBgwACAwCCAwECAwGCAwICAwKCA
+wMCAwOCAwACgwCCgwECgwGCgwICgwKCgwMCgwOCgwADAwCDAwEDAwGDAwIDAwKDAwP/78KCg
+pICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAxwASAQcI/gDtCRxIsKDBgwgTKlzIsKHD
+hxAdKotIsaLFixgzJpynsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhN8uOXsyfO
+nUAz7kQ4lGBRojxFHo24dGDThk9rLk2qlKrDqBqxttQqc6q9oUEFAqU69ivZok3B8gw7NmlZ
+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
+y8AczMKcSgEBADs=
+
+------=_NextPart_000_0003_01C7E16C.43585B10--

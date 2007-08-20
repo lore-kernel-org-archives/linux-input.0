@@ -1,10 +1,10 @@
-From: "Darcy Crocker" <lagemeraldminebeh@emeraldmine.com>
-Subject: Obesity is dangerous, stop it
-Date: Mon, 20 Aug 2007 20:56:12 +0300
-Message-ID: <429554206.63326008258517@thhebat.net>
+From: "Consuelo Hicks" <camjasmi@paulding-net.com>
+Subject: Doping fur Ihr bestes Stuck  that the firm  -- sounds, how the Factory
+Date: Mon, 20 Aug 2007 20:57:58 -0300
+Message-ID: <01c7e36c$c9e52800$c82aaac3@camjasmi>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------5767D3F0CAB4F057"
+	boundary="----=_NextPart_000_0007_01C7E38E.50F6C800"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,85 +14,73 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------5767D3F0CAB4F057
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+This is a multi-part message in MIME format.
 
+------=_NextPart_000_0007_01C7E38E.50F6C800
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
+Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestati=
+gen
 
-Don't miss your opportunity! – Anatrim – The latest & most enchanting product for over-weight people is now readily available – As you could see on Oprah
+Preise die keine Konkurrenz kennen 
 
-Do you remember all the cases when you asked yourself to do any thing for being saved from this horrible pounds of fat? Luckily, now no major offering is necessary. Thanks to Anatrim, the earth-shaking, you can get naturally health mode of life and become really slimmer. Just notice what people state!
- 
-“I had always led an incredible private life until a year back my girl told me I was portly and needed to start looking after my health. My life had changed the wrong way after that, till I disclosed Anatrim ™. After loosing more than 18 kilogrames only thanx to Anatrim,  my private life has come back, much better even than before. Many thanks for the awesome stuff & the first-rate service. Keep up your good business!”
+- Kein peinlicher Arztbesuch erforderlich
+- Kostenlose, arztliche Telefon-Beratung
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Bequem und diskret online bestellen.
+- Visa verifizierter Onlineshop
+- Diskrete Verpackung und Zahlung
+- keine versteckte Kosten
 
- 
-Serge Smith, Bellevue WA
+Originalmedikamente
+Ciiaaaaaalis 10 Pack. 27,00 Euro
+Viiaaaagra 10 Pack. 21,00 Euro
 
- 
-"Nothing to compare with sliding into a bikini that I have not worn for years. I feel svelte, steadfast, and healthy, thanx in great part to Anatrim! A plenty of thank you!"
+Vier Dosen gibt's bei jeder Bestellung umsonst
+http://hcpao.stayprepare.cn/?173331709761
 
- 
-Amely S., San Diego
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
+------=_NextPart_000_0007_01C7E38E.50F6C800
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Check out Anatrim, and  you shall add yourself to the world-spread association of thousands of happy user who’re getting pleasure out of the revolutionary effects of Anatrim here & now. Less swallowing madness, less lbs and more mirth in your life!
-
-Click here to gaze at our outdone Anatrim arrangement!!!
-http://www.terfoex.net/?ihhylsqgnia
-
-------------5767D3F0CAB4F057
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE>Losing weight has never been so easy</TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 5.00.2919.6700" name=3DGENERATOR>
+<STYLE></STYLE>
 </HEAD>
 <BODY>
-
+<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
+-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Ich muss sagen, Ciaa=
+aalis ist wirklich nochmals viel besser als Viiaaaagra. Es ist alles viel n=
+at&#252;rlicher als mit Viiaaaagra. Aufgrund der langen Wirkungszeit von 24=
+ Stunden kann man sich richtig Zeit lassen und mehrer Runden einlegen.</str=
+ong></p><p><strong>Warum nehme ich Ciiaaaaaalis? Es ist einfach ein angeneh=
+mens Gef&#252;hl. Man brauch sich nicht auf die Err. ..ektion zu konzentrie=
+ren. Beim Sex ist man viel entspannter, mann kann auch mal die Muskeln im G=
+enitalbereich lockern, ohne das die Err. ..ektion im Glied nachlasst. Dadur=
+ch ist eine lange Verz&#246;gerung der Ejakulation m&#246;glich. Man ist be=
+im Sex generell lockerer und entspannter, und kommt auch nicht mehr so schn=
+ell ausser Athem, weil man eben locker und entspannt ist, ausser nat&#252;r=
+lich der kleine Freund :-)<br>
+</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was =
+unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen =
 <p>
-<center>
-<b>
-<a href="http://www.terfoex.net/?ihhylsqgnia" target="_blank">
-Don't miss your opportunity! – Anatrim – The latest & most enchanting product for over-weight people is now readily available – As you could see on Oprah
-</a>
-</center>
+- Visa verifizierter Onlineshop<br>- keine versteckte Kosten<br>- Kein pein=
+licher Arztbesuch erforderlich<br>- Diskrete Verpackung und Zahlung<br>- Ko=
+stenlose, arztliche Telefon-Beratung<br>- Kein langes Warten - Auslieferung=
+ innerhalb von 2-3 Tagen<br>- Bequem und diskret online bestellen.</p>
+<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong>=
 <br>
-Do you remember all the cases when you asked yourself to do any thing for being saved from this horrible pounds of fat? Luckily, now no major offering is necessary. Thanks to Anatrim, the earth-shaking, you can get naturally health mode of life and become really slimmer. Just notice what people state!
- <br>
-<br>
-<i>
-“I had always led an incredible private life until a year back my girl told me I was portly and needed to start looking after my health. My life had changed the wrong way after that, till I disclosed Anatrim ™. After loosing more than 18 kilogrames only thanx to Anatrim,  my private life has come back, much better even than before. Many thanks for the awesome stuff & the first-rate service. Keep up your good business!”
-</i>
- <br>
-<b>
-<i>
-Serge Smith, Bellevue WA
-</i>
-</b>
- <br>
-<br>
-<i>
-"Nothing to compare with sliding into a bikini that I have not worn for years. I feel svelte, steadfast, and healthy, thanx in great part to Anatrim! A plenty of thank you!"
-</i>
- <br>
-<b>
-<i>
-Amely S., San Diego
-</i>
-</b>
-<br>
-<br>
-Check out Anatrim, and  you shall add yourself to the world-spread association of thousands of happy user who’re getting pleasure out of the revolutionary effects of Anatrim here & now. Less swallowing madness, less lbs and more mirth in your life!
-<br>
-<br>
-<center>
-<a href="http://www.terfoex.net/?ihhylsqgnia" target="_blank">
-Click here to gaze at our outdone Anatrim arrangement!!!
-</a>
-</center>
-</b>
-</p>
-<font color="#D9EDFF">http://www.terfoex.net/?ihhylsqgnia</font>
-
+  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href=3D=
+"http://hcpao.stayprepare.cn/?173331709761" target=3D"_blank">Vier Dosen gi=
+bt's bei jeder Bestellung umsonst</a><br></strong>(bitte warten Sie einen M=
+oment bis die Seite vollst&auml;ndig geladen wird) </p></body>
 </BODY></HTML>
-------------5767D3F0CAB4F057--
+
+------=_NextPart_000_0007_01C7E38E.50F6C800--

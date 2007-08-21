@@ -1,30 +1,32 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH] Console keyboard events and accessibility
-Date: Tue, 21 Aug 2007 22:49:51 +0200
-Message-ID: <20070821204951.GC3658@interface.famille.thibault.fr>
-References: <20070821005718.GD3658@interface.famille.thibault.fr> <Pine.LNX.4.64.0708210732270.5333@fbirervta.pbzchgretzou.qr>
+From: "{K. I. Bakri}" <KI1345@albawaba.com>
+Subject: Do not hestitate to Read
+Date: Wed, 22 Aug 2007 00:45:56 +0300
+Message-ID: <919556016.75066942344582@pagan.net>
+Reply-To: bakri33@dynamixmail.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+  charset=windows-1250
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0708210732270.5333@fbirervta.pbzchgretzou.qr>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jan Engelhardt <jengelh@computergmbh.de>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, dtor@mail.ru
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+To My Beloved Friend
+I am writing you this mail after several internal battles in me, if i am doing the right thing, as i have gotten your email ever since but i have been hesitating to write you.
+I don't want you to feel sorry for me, because, I believe everyone will die someday. My name is K I Bakri , a widower and a former oil investor in Dubai, in the U.A.E.I have been diagnosed with Ideopathic Pulmonary Fibrosis. This is a terminal illness that affects the lungs, it has no cure and i am destined to leave this world any moment from now. I have not particularly lived my life so well, as I never really cared for anyone(not even myself) but my business. Though I am very rich, I was never generous, I was always hostile to people and only focused on my business as that was the only thing I cared for. But now I regret all this as I now know that there is more to life than just wanting to have or make all the money in the world. 
+I believe when God gives me a second chance to come to this world I would live my life a different way from how I have lived it. Now that God has called me, I have willed and given most of my property and assets to my immediate and extended family members as well as a few close friends. I want God to be merciful to me and accept my soul so, I have decided to give also to charity organizations, as I want this to be one of the last good deeds I do on earth. So far, I have distributed money to some charity organizations in the Sudan,Indonesia,Norway,Netherland.
+Now that my health has deteriorated so badly, I cannot do this myself anymore. I once asked members of my family to close one of my accounts and distribute the money which I have there to charity organization in United States of America, they refused and kept the money to themselves. Hence, I do not trust them anymore, as they seem not to be contended with what I have left for them.
+The last of my money which no one knows of is the huge cash deposit of Eight Million Five hundred Thousand Dollars($8,500,000) that I have with a Security Company abroad. 
+What i want to do is to make you the next of Kin/Beneficiary of this diplomatic box kept with the security company and collect the money stashed in the diplomatic box , and thereafter distirbute the money to the less priviledged and hungry. MY health is failing and there is nothing much i can do towards achieving this last wish of mine,all by myself because of my bedridden state in the hospital.
+I have set aside 30% for your time,service and expenses.
+N.B:My beloved friend please if you can perform this task ,please do not hesitate to write me,telling me about your passion to help the less-fortunate.
+    for a faster response
 
-Jan Engelhardt, le Tue 21 Aug 2007 22:42:24 +0200, a =E9crit :
-> >- keycodes: even before translation into keysym.
->=20
-> They can use the raw xlation for that.
-
-For userland, yes.  This is for kernel modules.
-
-Samuel
+God be with you
+K I Bakri
+bakri40@dynamixmail.com

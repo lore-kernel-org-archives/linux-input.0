@@ -1,50 +1,30 @@
-From: Jan Engelhardt <jengelh@computergmbh.de>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 Subject: Re: [PATCH] Console keyboard events and accessibility
-Date: Tue, 21 Aug 2007 22:42:24 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0708210732270.5333@fbirervta.pbzchgretzou.qr>
-References: <20070821005718.GD3658@interface.famille.thibault.fr>
+Date: Tue, 21 Aug 2007 22:49:51 +0200
+Message-ID: <20070821204951.GC3658@interface.famille.thibault.fr>
+References: <20070821005718.GD3658@interface.famille.thibault.fr> <Pine.LNX.4.64.0708210732270.5333@fbirervta.pbzchgretzou.qr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070821005718.GD3658@interface.famille.thibault.fr>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0708210732270.5333@fbirervta.pbzchgretzou.qr>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: Jan Engelhardt <jengelh@computergmbh.de>
 Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, dtor@mail.ru
 List-Id: linux-input@vger.kernel.org
 
+Hi,
 
-On Aug 21 2007 02:57, Samuel Thibault wrote:
->
->Some external modules like Speakup need to use the PC keyboard to control
->them and also need to get keyboard feedback (caps lock status, etc.)
->
->This adds a keyboard notifier that such modules can use to get the keyboard
->events and possibly eat them, at several stages:
->
->- keycodes: even before translation into keysym.
+Jan Engelhardt, le Tue 21 Aug 2007 22:42:24 +0200, a =E9crit :
+> >- keycodes: even before translation into keysym.
+>=20
+> They can use the raw xlation for that.
 
-They can use the raw xlation for that. The "showkeys" utility and Xorg are
-likely to do that. (In fact, there is a helping sysrq called Unraw in case
-there are problems.)
+For userland, yes.  This is for kernel modules.
 
->- unbound keycodes: when no keysym is bound.
->- unicode: when the keycode would get translated into a unicode character.
->- keysym: when the keycode would get translated into a keysym.
->- post_keysym: after the keysym got interpreted, so as to see the result
->  (caps lock, etc.)
-
-For all these, I think new xlats should be added that have the desired
-behavior.
-
->+	int shift;		/* Current shift mask */
->+	unsigned int value;	/* keycode, unicode value or keysym */
->+};
->+
->+extern int register_keyboard_notifier(struct notifier_block *nb);
->+extern int unregister_keyboard_notifier(struct notifier_block *nb);
-> #endif
-> 
+Samuel

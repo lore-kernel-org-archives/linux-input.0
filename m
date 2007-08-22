@@ -1,47 +1,32 @@
-From: "Delana" <kmanolauiyj@telesp.net.br>
-Subject: Saturday night fever again
-Date: Wed, 22 Aug 2007 06:59:33 +0500
-Message-ID: <39db01c7e489$fe9be2f0$d3270438@kmanolauiyj>
-Reply-To: "Delana" <kmanolauiyj@telesp.net.br>
+From: Gerald Folcher <geraldf2@free.fr>
+Subject: Re: Force Feedback: Thrustmaster FGT Wheel quick-and-dirty in hid-lgff.c
+ or hid-tmff.c
+Date: Wed, 22 Aug 2007 04:30:20 +0200
+Message-ID: <46CB9FBC.1080002@free.fr>
+References: <469B7721.9070705@free.fr>  <d120d5000707160905l214a6ec3yaefc73be5644e1b1@mail.gmail.com>  <469BA787.8080700@free.fr>  <d120d5000707161350v782563e8na7ae4f593e0daf83@mail.gmail.com>  <d120d5000707161403v13fa3d0dy3ae730e28fbad174@mail.gmail.com>  <d120d5000707161421m6c1f6728mb7204093ff1d94da@mail.gmail.com>  <469C886D.4080401@free.fr> <d120d5000707170650t1cfffa6cofd35263b09157b57@mail.gmail.com> <Pine.LNX.4.64.0707301512360.26532@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.64.0707301512360.26532@jikos.suse.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Evelin Lawrence <omyl@atrey.karlin.mff.cuni.cz>
-Cc: Vernice <pavel@atrey.karlin.mff.cuni.cz>, Signe Williamson <majordomo-owner@atrey.karlin.mff.cuni.cz>, Caleb Banks <manas@atrey.karlin.mff.cuni.cz>, Veronika <linux-input@atrey.karlin.mff.cuni.cz>, Noma <0rfelyus@atrey.karlin.mff.cuni.cz>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Anssi Hannula <anssi.hannula@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-Get pleasure from the Safety, Efficiency Discounted Prices and Quality
-Benefit most trusted On-Line Canadian Drug Store.
+Jiri Kosina wrote:
+> I have fixed a minor typo in the patch changelog and applied it to my 
+> tree, thanks a lot.
 
-We carry over 2000 Brand Name and Basic drugs. We are the leading on-line
-pharmacy in Canada we are able pay money at the low possible prices. We t=
-hen
-pass our investments onto you.
+Please excuse my probable lack of a clue, but does that mean it is in 
+the "HID development tree" ? Because I looked using the web interface at
+http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=tree;f=drivers/hid/usbhid;h=ada3794226b04c38854c4c5bd8813a85e02328a2;hb=HEAD
+and the hid-ff.c and hid-tmff.c files there seems to not include the 
+changes. (?)
 
-No need to have a prescription to order from our firm.
-
-We can even set you up on express re-buy so you don't have to worry about
-running out of your medications.
-
-To start saving now go here:  www.med99finity.org
-
-
-Universal military service may be compared to sticky the efforts of horn =
-a
-man wood to prop leather up his falling house who loss That wonder is wha=
-t
-happened to me. I understood screw that it was no casual indisposition bu=
-t
-record something very imp cushion All the boy deeds sky of violence smitt=
-en
-of tyrants from Napoleon to the lowest commander of a company who fires u=
-p
- Why nuptial the Author cuddly begins the thing examination of the glove
-political institutions with the township - Its existenc
+-- 
+Gerald Folcher

@@ -1,10 +1,11 @@
-From: "Winfred Simons" <div_m_43@talkmatch.com>
-Subject: Energy fur ihren Schwanz, kaufen und 85% sparen  th -- them to work immediately.
-Date: Wed, 22 Aug 2007 17:39:17 +0300
-Message-ID: <01c7e4e3$5d406980$9ab832c9@div_m_43>
+From: "Josh Hanna" <fagextralentmeh@extralent.com>
+Subject: Legal software sales
+Date: Wed, 22 Aug 2007 22:44:49 -0200
+Message-ID: <097849864.31832007191687@extralent.com>
+Reply-To: fagextralentmeh@extralent.com
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7E4CA.37F33180"
+  boundary="----------6E167584258BD33"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,70 +15,53 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+------------6E167584258BD33
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-------=_NextPart_000_0007_01C7E4CA.37F33180
-Content-Type: text/plain;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
+Our main aim is to provide PC and Mac lawful soft and computer solutions of low price for anyone. 
+Whether you're a corporate customer, a small business proprietor, 
+or shopping for your home PC, we think that we will assist you. 
+CHECK WHAT WE HAVE TO PROPOSE 
+http://mnfii.oemcheckoutshop.com/?625362881962
 
-Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestati=
-gen
+Most popular materials:
+*Corel Ventura 10.0: Retail price for this day - $395.00; Our only - $29.95 
+*Autodesk Civil 3D 2005: Retail price for now - $5995.00; Our just - $69.95 
+*Microsoft Macro Assembler 32 v7.0: Retail price today - $50.00; Our just - $19.95 
+*Symantec WinFax Pro V 10.03: Retail price this time - $100.00; Our only - $19.95 
+*Quark XPress Passport 7.02: Retail price today - $749.00; Our just - $69.95 
+*Macromedia FlashPaper v2.0: Retail price for now - $79.00; Our just - $29.95 
+*Corel Painter IX: Retail price for today - $429.00; Our this time - $39.95 
+*Adobe Encore DVD V 1.5 PC: Retail price for today - $700.00; Our today - $49.95 
+COME IN RIGHT NOW! 
+http://mnfii.oemcheckoutshop.com/?625362881962
+------------6E167584258BD33
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-Preise die keine Konkurrenz kennen 
-
-- keine versteckte Kosten
-- Kein peinlicher Arztbesuch erforderlich
-- Kostenlose, arztliche Telefon-Beratung
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
-- Bequem und diskret online bestellen.
-- Visa verifizierter Onlineshop
-- Diskrete Verpackung und Zahlung
-
-Originalmedikamente
-Ciiaaaaaalis 10 Pack. 27,00 Euro
-Viiaaaagra 10 Pack. 21,00 Euro
-
-Jetzt bestellen - und vier Pillen umsonst erhalten
-http://pipxvke.spreadlow.cn/?264277614252
-
-(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
-------=_NextPart_000_0007_01C7E4CA.37F33180
-Content-Type: text/html;
-	charset="windows-1250"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
-<META content=3D"MSHTML 6.00.2800.1506" name=3DGENERATOR>
-<STYLE></STYLE>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
 </HEAD>
 <BODY>
-<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
--8859-1">
-</head><body><p>Meinung von unserem Kunden:<br><strong>Ich glaube, ich habe=
- bis jetzt Gl&#252;ck gehabt (Ich klopfe auf Holz.), denn ich hatte bis jet=
-zt noch nie Nebenwirkungen durch Viiaaaagra - au&#223;er einer brettharten =
-Latte, und das f&#252;r Stunden.</strong></p><p><strong>Ich finde Viiaaaagr=
-a einfach wunderbar. Egal, ob f&#252;r den Sex oder, um mich selbst zu verw=
-&#246;hnen: Es funktioniert. Mein Schwanz wird extrem hart und mein Orgasmu=
-s ist sehr intensiv. Die Wirkung ist so stark, dass ich Viiaaaagra nur am W=
-ochenende verwende oder wenn ich viel Zeit habe, es richtig zu genie&#223;e=
-n.<br>
-</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was =
-unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen =
-<p>
-- Bequem und diskret online bestellen.<br>- Kostenlose, arztliche Telefon-B=
-eratung<br>- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>-=
- Diskrete Verpackung und Zahlung<br>- Visa verifizierter Onlineshop<br>- Ke=
-in peinlicher Arztbesuch erforderlich<br>- keine versteckte Kosten</p>
-<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong>=
-<br>
-  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href=3D=
-"http://pipxvke.spreadlow.cn/?264277614252" target=3D"_blank">Jetzt bestell=
-en - und vier Pillen umsonst erhalten</a><br></strong>(bitte warten Sie ein=
-en Moment bis die Seite vollst&auml;ndig geladen wird) </p></body>
-</BODY></HTML>
 
-------=_NextPart_000_0007_01C7E4CA.37F33180--
+<strong>Our main aim is to provide PC and Mac lawful soft and computer solutions of low price for anyone.<br> 
+Whether you're a corporate customer, a small business proprietor,<br> 
+or shopping for your home PC, we think that we will assist you.<br> 
+<em><a href="http://mnfii.oemcheckoutshop.com/?625362881962" target="_blank">CHECK WHAT WE HAVE TO PROPOSE</a></em></strong><br> 
+<font color="#D9EDFF">http://mnfii.oemcheckoutshop.com/?625362881962</font><br>
+
+<strong>Most popular materials:</strong><br>
+*<strong>Corel Ventura 10.0:</strong> <em>Retail price for this day - $395.00</em>; <strong>Our only - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Autodesk Civil 3D 2005:</strong> <em>Retail price for now - $5995.00</em>; <strong>Our just - <font color="red"><em>$69.95</em></font></strong><br> 
+*<strong>Microsoft Macro Assembler 32 v7.0:</strong> <em>Retail price today - $50.00</em>; <strong>Our just - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Symantec WinFax Pro V 10.03:</strong> <em>Retail price this time - $100.00</em>; <strong>Our only - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Quark XPress Passport 7.02:</strong> <em>Retail price today - $749.00</em>; <strong>Our just - <font color="red"><em>$69.95</em></font></strong><br> 
+*<strong>Macromedia FlashPaper v2.0:</strong> <em>Retail price for now - $79.00</em>; <strong>Our just - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Corel Painter IX:</strong> <em>Retail price for today - $429.00</em>; <strong>Our this time - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Adobe Encore DVD V 1.5 PC:</strong> <em>Retail price for today - $700.00</em>; <strong>Our today - <font color="red"><em>$49.95</em></font></strong><br> 
+<strong><em><a href="http://mnfii.oemcheckoutshop.com/?625362881962" target="_blank">COME IN RIGHT NOW!</a></em></strong><br> 
+<font color="#D9EDFF">http://mnfii.oemcheckoutshop.com/?625362881962</font>
+
+</BODY></HTML>
+------------6E167584258BD33--

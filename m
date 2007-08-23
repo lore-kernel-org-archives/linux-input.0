@@ -1,45 +1,30 @@
-From: "Calvin Rowland" <fagexecaviationmeh@execaviation.com>
-Subject: Software
-Date: Thu, 23 Aug 2007 09:04:42 -0200
-Message-ID: <891949194.63974939473967@execaviation.com>
-Reply-To: fagexecaviationmeh@execaviation.com
+From: "Caroline Cross" <bahrain@alturamarkets.com>
+Subject: Youth / Teenage
+Date: Thu, 23 Aug 2007 10:50:57 -0800
+Message-ID: <01c7e573$7c77e360$cef3c4dd@bahrain>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------3D3D36744B80C513"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kelum@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------3D3D36744B80C513
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+If you are looking for a stylish, quality costume watch at low prices, 
+our offers are for you. 
 
- 
-Looking for the best pricesin software discounts? 
-Right now you'll find the chance to have the software environment you want from very long ago. 
-And the better thing for you is, all softs are of awfully low value. 
-Check up by yourself and take the softwares for lowest costs. 
-http://ofkyoml.3clicksoemshop.com/?170808159162
-------------3D3D36744B80C513
-Content-Type: text/html; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
+We specialize in top quality  watches. Wearing these expensive looking 
+watche is prestigious. Buying these models you will save you a ton of money 
+and always look trendy. 
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+www.sujwikkn.com
 
-<table border="1" cellpadding="0" cellspacing="0" bordercolor="#000000"><tr> 
-<td align=center bgcolor="#CEF3FF"><b><font color="#FA3D05">Looking for the best pricesin software discounts?</font></b></td></tr> 
-<tr><td align=center bgcolor="#E9E9E9"><b>Right now you'll find the chance to have the software environment you want from very long ago.<br> 
-And the better thing for you is, all softs are of awfully low value.<br> 
-<a href="http://ofkyoml.3clicksoemshop.com/?170808159162" target="_blank"><em>Check up by yourself and take the softwares for lowest costs.</em></a></b></td></tr></table> 
-<font color="#D9EDFF">http://ofkyoml.3clicksoemshop.com/?170808159162</font>
+You can use it as a lovely gift for your friends or relatives or keep your gorgeous 
+watch there. 
 
-</BODY></HTML>
-------------3D3D36744B80C513--
+No matter what you do with your watch, you wil l enjoy it.

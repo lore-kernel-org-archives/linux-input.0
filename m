@@ -1,67 +1,62 @@
-From: "Josh Hanna" <fagextralentmeh@extralent.com>
-Subject: Legal software sales
-Date: Wed, 22 Aug 2007 22:44:49 -0200
-Message-ID: <097849864.31832007191687@extralent.com>
-Reply-To: fagextralentmeh@extralent.com
+From: Len Brown <lenb@kernel.org>
+Subject: Re: [PATCH V3 1/3] ACPI video hotkey: add new input key code for ACPI video hotkey events
+Date: Wed, 22 Aug 2007 21:14:27 -0400
+Message-ID: <200708222114.27731.lenb@kernel.org>
+References: <1187605427.2920.140.camel@acpi-hp.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------6E167584258BD33"
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1187605427.2920.140.camel@acpi-hp.sh.intel.com>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Zhang Rui <rui.zhang@intel.com>
+Cc: linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, mjg59@srcf.ucam.org, dmitry.torokhov@gmail.com, hmh@hmh.eng.hr, hughsient@gmail.com, luming.yu@intel.com
 List-Id: linux-input@vger.kernel.org
 
-------------6E167584258BD33
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+Dmitry,
+can you ACK these additional key-codes?
+I need to push the 3rd patch in this series which depends on these.
 
-Our main aim is to provide PC and Mac lawful soft and computer solutions of low price for anyone. 
-Whether you're a corporate customer, a small business proprietor, 
-or shopping for your home PC, we think that we will assist you. 
-CHECK WHAT WE HAVE TO PROPOSE 
-http://mnfii.oemcheckoutshop.com/?625362881962
+thanks,
+-Len
 
-Most popular materials:
-*Corel Ventura 10.0: Retail price for this day - $395.00; Our only - $29.95 
-*Autodesk Civil 3D 2005: Retail price for now - $5995.00; Our just - $69.95 
-*Microsoft Macro Assembler 32 v7.0: Retail price today - $50.00; Our just - $19.95 
-*Symantec WinFax Pro V 10.03: Retail price this time - $100.00; Our only - $19.95 
-*Quark XPress Passport 7.02: Retail price today - $749.00; Our just - $69.95 
-*Macromedia FlashPaper v2.0: Retail price for now - $79.00; Our just - $29.95 
-*Corel Painter IX: Retail price for today - $429.00; Our this time - $39.95 
-*Adobe Encore DVD V 1.5 PC: Retail price for today - $700.00; Our today - $49.95 
-COME IN RIGHT NOW! 
-http://mnfii.oemcheckoutshop.com/?625362881962
-------------6E167584258BD33
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
-
-<strong>Our main aim is to provide PC and Mac lawful soft and computer solutions of low price for anyone.<br> 
-Whether you're a corporate customer, a small business proprietor,<br> 
-or shopping for your home PC, we think that we will assist you.<br> 
-<em><a href="http://mnfii.oemcheckoutshop.com/?625362881962" target="_blank">CHECK WHAT WE HAVE TO PROPOSE</a></em></strong><br> 
-<font color="#D9EDFF">http://mnfii.oemcheckoutshop.com/?625362881962</font><br>
-
-<strong>Most popular materials:</strong><br>
-*<strong>Corel Ventura 10.0:</strong> <em>Retail price for this day - $395.00</em>; <strong>Our only - <font color="red"><em>$29.95</em></font></strong><br> 
-*<strong>Autodesk Civil 3D 2005:</strong> <em>Retail price for now - $5995.00</em>; <strong>Our just - <font color="red"><em>$69.95</em></font></strong><br> 
-*<strong>Microsoft Macro Assembler 32 v7.0:</strong> <em>Retail price today - $50.00</em>; <strong>Our just - <font color="red"><em>$19.95</em></font></strong><br> 
-*<strong>Symantec WinFax Pro V 10.03:</strong> <em>Retail price this time - $100.00</em>; <strong>Our only - <font color="red"><em>$19.95</em></font></strong><br> 
-*<strong>Quark XPress Passport 7.02:</strong> <em>Retail price today - $749.00</em>; <strong>Our just - <font color="red"><em>$69.95</em></font></strong><br> 
-*<strong>Macromedia FlashPaper v2.0:</strong> <em>Retail price for now - $79.00</em>; <strong>Our just - <font color="red"><em>$29.95</em></font></strong><br> 
-*<strong>Corel Painter IX:</strong> <em>Retail price for today - $429.00</em>; <strong>Our this time - <font color="red"><em>$39.95</em></font></strong><br> 
-*<strong>Adobe Encore DVD V 1.5 PC:</strong> <em>Retail price for today - $700.00</em>; <strong>Our today - <font color="red"><em>$49.95</em></font></strong><br> 
-<strong><em><a href="http://mnfii.oemcheckoutshop.com/?625362881962" target="_blank">COME IN RIGHT NOW!</a></em></strong><br> 
-<font color="#D9EDFF">http://mnfii.oemcheckoutshop.com/?625362881962</font>
-
-</BODY></HTML>
-------------6E167584258BD33--
+On Monday 20 August 2007 06:23, Zhang Rui wrote:
+> From: Yu Luming <luming.yu@intel.com>
+> 
+> Add keycode for ACPI video driver hotkey events.
+> 
+> Signed-off-by: Yu Luming <luming.yu@intel.com>
+> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+> ---
+>  include/linux/input.h |    7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> Index: linux-2.6.23-rc3/include/linux/input.h
+> ===================================================================
+> --- linux-2.6.23-rc3.orig/include/linux/input.h
+> +++ linux-2.6.23-rc3/include/linux/input.h
+> @@ -553,6 +553,13 @@ struct input_absinfo {
+>  #define KEY_BRL_DOT7		0x1f7
+>  #define KEY_BRL_DOT8		0x1f8
+>  
+> +#define KEY_DISPLAY_CYCLE	0x1f9
+> +#define KEY_VIDEO_NEXT		0x1fa
+> +#define KEY_VIDEO_PREV		0x1fb
+> +#define KEY_BRIGHTNESS_CYCLE	0x1fc
+> +#define KEY_BRIGHTNESS_ZERO	0x1fd
+> +#define KEY_DISPLAY_OFF		0x1fe
+> +
+>  /* We avoid low common keys in module aliases so they don't get huge. */
+>  #define KEY_MIN_INTERESTING	KEY_MUTE
+>  #define KEY_MAX			0x1ff
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

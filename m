@@ -1,43 +1,44 @@
-From: "lisete Hvidric" <Hvidricyblfi@qgcorp.com>
-Subject: pfetched
-Date: Sat, 25 Aug 2007 12:46:06 +05-30
-Message-ID: <000a01c7e6e7$cdcfa5c0$29c22b7c@Nurseries>
+From: "Francesca Glover" <rwrfscv@bolee.com.pk>
+Subject: ticker Watcher
+Date: Sat, 25 Aug 2007 10:17:34 -0530
+Message-ID: <01c7e701$273ad8a0$39e5023d@rwrfscv>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0005_01C7E715.E787E1C0"
+Content-Type: text/plain;
+	format=flowed;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kuba@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0005_01C7E715.E787E1C0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+We called it!  CYTV is up BIG on good volume over the last 2 weeks. We 
+hope you took a position early and are smiling right now.  If you didn't, 
+don't worry.   
 
-http://whizwit.com/
-Hello linux-input
-Insane big dick in ur pants! TODAY!
-------=_NextPart_000_0005_01C7E715.E787E1C0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+CHINA YOUTV CORP (CYTV) 
+Get in now .40 
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://whizwit.com/">http://whizwit.com/</A></FONT></DIV>
-<DIV><FONT Arial size=3D2>Hello linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>Insane big dick in ur pants!=20
-TODAY!</FONT></DIV></BODY></HTML>
+An incredible press release is expected out of the company very soon.   
+This will be backed up by a PR blitz and I'm sure you can guess what will 
+happen to the price! 
 
-------=_NextPart_000_0005_01C7E715.E787E1C0--
+Recent News 
+
+China YouTV's JV Partner Signed Agreement for a Chinese Provincial Portal's DV Shorts Channel 
+Tuesday August 21, 12:30 pm ET 
+
+China YouTV's CnBoo Web Site Ranks No.1 on Google.com 
+Friday August 17, 11:25 am ET 
+
+China YouTV Corp.: Strong Growth Trend in Internet Video in China Continues 
+Tuesday August 14, 10:54 am ET 
+
+China YouTV's CnBoo Web Site Ranks No.1 on Microsoft Live Search Engine 
+Wednesday August 8, 3:24 pm ET 
+
+Get in before this one takes off and ride it all the way to the bank! 

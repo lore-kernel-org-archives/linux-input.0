@@ -1,261 +1,67 @@
-From: "Shaun Jackman" <sjackman@gmail.com>
-Subject: Re: USB: driver for CM109 chipset
-Date: Sun, 26 Aug 2007 09:43:55 -0700
-Message-ID: <7f45d9390708260943x5fd120eek5ebb8e251c00908f@mail.gmail.com>
-References: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
-	 <46D169A6.4080209@devbase.at>
-Reply-To: "Shaun Jackman" <sjackman@gmail.com>
+From: "Tommy Fitzgerald" <kidfunctionworkbeh@functionwork.com>
+Subject: Legal software sales
+Date: Mon, 27 Aug 2007 02:48:34 +0800
+Message-ID: <629733660.92668646777253@functionwork.com>
+Reply-To: kidfunctionworkbeh@functionwork.com
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_64145_10730602.1188146635059"
+Content-Type: multipart/alternative;
+  boundary="----------090901D33AE1DA"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <46D169A6.4080209@devbase.at>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Thomas Reitmayr <thomas@devbase.at>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_64145_10730602.1188146635059
-Content-Type: text/plain; charset=UTF-8
+------------090901D33AE1DA
+Content-Type: text/plain; charset=iso-8859-2
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-The detach-yealink tool worked well; thanks. I generalised it (now
-called detach-usb) to take a vendor/product/interface argument on the
-command line. The patch is attached.
+Our main purpose is to render PC and Mac lawful soft and computer solutions of low cost to fit best any budget. 
+Whether you are a corporate purchaser, a small business owner, 
+or shopping for your own home PC, we guess we'll help you. 
+VIEW WHAT WE HAVE TO OFFER 
+http://kiilnp.shop-oem.com/?171717884653
 
-The EEPROM dumping tool did not work. It failed with
-	cm109_eeprom_read: Mode check failed witch HID_IR0=0xc0
+Most popular software in sight are:
+*Acronis Migrate Easy Deluxe v1.0.0.43: Retail price now - $39.99; Our only for today - $19.95 
+*Corel Photobook 10.3: Retail price for this time - $160.00; Our for this time - $29.95 
+*Microsoft Works 7.0: Retail price for today - $85.00; Our only now - $19.95 
+*Quark XPress Passport 7.02: Retail price this time - $749.00; Our only - $69.95 
+*Macromedia JRun 4: Retail price for today - $899.00; Our today just - $29.95 
+*Adobe Acrobat 3D: Retail price for now - $995.00; Our just - $59.95 
+*Autodesk Building Systems 2006: Retail price this day - $5995.00; Our only this day - $129.95 
+*Corel Paint Shop Pro PHOTO XI: Retail price today - $99.99; Our just - $39.95 
+COME TO US RIGHT NOW! 
+http://kiilnp.shop-oem.com/?171717884653
+------------090901D33AE1DA
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
-I tried commenting out the HID_IR0 test, but it then read only zeros.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-Thanks!
-Shaun
+<strong>Our main purpose is to render PC and Mac lawful soft and computer solutions of low cost to fit best any budget.<br> 
+Whether you are a corporate purchaser, a small business owner,<br> 
+or shopping for your own home PC, we guess we'll help you.<br> 
+<em><a href="http://kiilnp.shop-oem.com/?171717884653" target="_blank">VIEW WHAT WE HAVE TO OFFER</a></em></strong><br> 
+<font color="#D9EDFF">http://kiilnp.shop-oem.com/?171717884653</font><br>
 
-$ sudo ./dump-eeprom
-Found device:
-  idVendor=0x0d8c
-  idProduct=0x000e
-  iSerialNumber=0x00
-Found HID interface #3
-Successfully claimed interface
-Manufacturer: "?"
-Product: "Generic USB Audio Device   "
-Serial#: "?"
-cm109_eeprom_read: Mode check failed witch HID_IR0=0xc0
+<strong>Most popular software in sight are:</strong><br>
+*<strong>Acronis Migrate Easy Deluxe v1.0.0.43:</strong> <em>Retail price now - $39.99</em>; <strong>Our only for today - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Corel Photobook 10.3:</strong> <em>Retail price for this time - $160.00</em>; <strong>Our for this time - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Microsoft Works 7.0:</strong> <em>Retail price for today - $85.00</em>; <strong>Our only now - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Quark XPress Passport 7.02:</strong> <em>Retail price this time - $749.00</em>; <strong>Our only - <font color="red"><em>$69.95</em></font></strong><br> 
+*<strong>Macromedia JRun 4:</strong> <em>Retail price for today - $899.00</em>; <strong>Our today just - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Adobe Acrobat 3D:</strong> <em>Retail price for now - $995.00</em>; <strong>Our just - <font color="red"><em>$59.95</em></font></strong><br> 
+*<strong>Autodesk Building Systems 2006:</strong> <em>Retail price this day - $5995.00</em>; <strong>Our only this day - <font color="red"><em>$129.95</em></font></strong><br> 
+*<strong>Corel Paint Shop Pro PHOTO XI:</strong> <em>Retail price today - $99.99</em>; <strong>Our just - <font color="red"><em>$39.95</em></font></strong><br> 
+<strong><em><a href="http://kiilnp.shop-oem.com/?171717884653" target="_blank">COME TO US RIGHT NOW!</a></em></strong><br> 
+<font color="#D9EDFF">http://kiilnp.shop-oem.com/?171717884653</font>
 
-On 8/26/07, Thomas Reitmayr <thomas@devbase.at> wrote:
-> Hi Shaun,
-> the CM109 VID and PID are probably not included in the kernel's
-> blacklisted device list (see static array hid_blacklist in hid-core.c).
-> Just for your tests you can write a little tool to detach the usbhid
-> driver and then load the cm109 module manually using modprobe or insmod.
-> An example for this tool (not using libusb) can be found at
-> http://www.devbase.at/svn/view.cgi/yealink-tools/trunk/detach-yealink.c?revision=1&root=experimental&view=markup
-> or inside the EEPROM tool below.
-> BTW, there is still the issue with varying key mappings among different
-> models. The EEPROM contents might give a hint for distinguishing the
-> models, it would be interesting if you could read the EEPROM and tell us
-> what you see. The tool for this task can be found at
-> http://www.devbase.at/svn/view.cgi/cm109-tools/trunk/?root=experimental
-> Regards,
-> -Thomas
->
-> Shaun Jackman wrote:
-> > I am testing your cm109 driver with my Genius G-Talk USB phone. It
-> > identifies itself as a cm109 device (0d8c:000e C-Media Electronics,
-> > Inc.). I compiled and loaded the cm109 module. However when I plug the
-> > phone in the, the usbhid driver grabs the device rather than the cm109
-> > driver. The following snippet is from /proc/bus/usb/devices and shows
-> > the Class/Subclass/Protocol 3/0/0 device is nabbed by the usbhid
-> > driver. Why isn't the cm109 driver grabbing the device?
-> >
-> > Thanks for writing the driver, and I hope I can get it to work!
-> > Shaun
-> >
-> > T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 0
-> > D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-> > P:  Vendor=0d8c ProdID=000e Rev= 1.00
-> > S:  Product=Generic USB Audio Device
-> > C:* #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=100mA
-> > I:* If#= 0 Alt= 0 #EPs= 0 Cls=01(audio) Sub=01 Prot=00 Driver=snd-usb-audio
-> > I:* If#= 1 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> > I:  If#= 1 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> > E:  Ad=01(O) Atr=09(Isoc) MxPS= 200 Ivl=1ms
-> > I:* If#= 2 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> > I:  If#= 2 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> > E:  Ad=82(I) Atr=05(Isoc) MxPS= 100 Ivl=1ms
-> > I:* If#= 3 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-> > E:  Ad=83(I) Atr=03(Int.) MxPS=   4 Ivl=32ms
-> >
-> >
-> >
->
->
-
-------=_Part_64145_10730602.1188146635059
-Content-Type: text/plain; name=detach-usb.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f5trqmbq
-Content-Disposition: attachment; filename="detach-usb.diff"
-
-LS0tIGRldGFjaC15ZWFsaW5rLmMJMjAwNy0wOC0yNiAwOTozODozOC4wMDAwMDAwMDAgLTA3MDAK
-KysrIGRldGFjaC11c2IuYwkyMDA3LTA4LTI2IDA5OjI0OjE5LjAwMDAwMDAwMCAtMDcwMApAQCAt
-MSw1ICsxLDUgQEAKIC8qICAKLSAqICBkZXRhY2gteWVhbGluay5jIC0gYSB0b29sIHRvIGRldGFj
-aCBhIGtlcm5lbCBtb2R1bGUgZnJvbSBhIHllYWxpbmsgZGV2aWNlCisgKiAgZGV0YWNoLXVzYi5j
-IC0gYSB0b29sIHRvIGRldGFjaCBhIGtlcm5lbCBtb2R1bGUgZnJvbSBhIFVTQiBkZXZpY2UKICAq
-ICBDb3B5cmlnaHQgKEMpIDIwMDcgIFRob21hcyBSZWl0bWF5cgogICogIAogICogIFRoaXMgcHJv
-Z3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9k
-aWZ5CkBAIC0zMywxMSArMzMsNiBAQAogI2luY2x1ZGUgPHN5cy9pb2N0bC5oPgogCiAKLSNkZWZp
-bmUgVkVORE9SICAgMHg2OTkzCi0jZGVmaW5lIFBST0RVQ1QgIDB4YjAwMQotI2RlZmluZSBJTlRF
-UkZBQ0UgMwotCi0KICNkZWZpbmUgVVNCX1BBVEgxICIvZGV2L2J1cy91c2IiCiAjZGVmaW5lIFVT
-Ql9QQVRIMiAiL3Byb2MvYnVzL3VzYiIKIApAQCAtNjEsNyArNTYsNyBAQAogfTsKIAogCi1pbnQg
-Y2hlY2tfZGlyKGNoYXIgKmRpcm5hbWUpCitpbnQgY2hlY2tfZGlyKGNoYXIgKmRpcm5hbWUsIHVu
-c2lnbmVkIHZlbmRvciwgdW5zaWduZWQgcHJvZHVjdCkKIHsKICAgRElSICpkaXI7CiAgIHN0cnVj
-dCBkaXJlbnQgKmVudHJ5OwpAQCAtNzgsNyArNzMsNyBAQAogICAgICAgY29udGludWU7CiAgICAg
-c25wcmludGYoZmlsZXBhdGgsIHNpemVvZihmaWxlcGF0aCkgLSAxLCAiJXMvJXMiLCBkaXJuYW1l
-LCBlbnRyeS0+ZF9uYW1lKTsKICAgICBpZiAoZW50cnktPmRfdHlwZSAmIERUX0RJUikgewotICAg
-ICAgZmQgPSBjaGVja19kaXIoZmlsZXBhdGgpOworICAgICAgZmQgPSBjaGVja19kaXIoZmlsZXBh
-dGgsIHZlbmRvciwgcHJvZHVjdCk7CiAgICAgfQogICAgIGVsc2UgewogICAgICAgcHJpbnRmKCJj
-aGVja2luZyAlc1xuIiwgZmlsZXBhdGgpOwpAQCAtOTMsMTAgKzg4LDEwIEBACiAgICAgICAgIH0K
-ICAgICAgICAgZWxzZSB7CiAgICAgICAgICAgLyogY29tcGFyZSBJRHMgKi8KLSAgICAgICAgICBp
-bnQgdmVuZG9yaWQgPSAoZGV2aWNlX2Rlc2NbOV0gPDwgOCkgfCBkZXZpY2VfZGVzY1s4XTsKLSAg
-ICAgICAgICBpbnQgcHJvZHVjdGlkID0gKGRldmljZV9kZXNjWzExXSA8PCA4KSB8IGRldmljZV9k
-ZXNjWzEwXTsKKyAgICAgICAgICB1bnNpZ25lZCB2ZW5kb3JpZCA9IChkZXZpY2VfZGVzY1s5XSA8
-PCA4KSB8IGRldmljZV9kZXNjWzhdOworICAgICAgICAgIHVuc2lnbmVkIHByb2R1Y3RpZCA9IChk
-ZXZpY2VfZGVzY1sxMV0gPDwgOCkgfCBkZXZpY2VfZGVzY1sxMF07CiAgICAgICAgICAgcHJpbnRm
-KCIgIHY9JTA0eCwgcD0lMDR4XG4iLCB2ZW5kb3JpZCwgcHJvZHVjdGlkKTsKLSAgICAgICAgICBp
-ZiAoKHZlbmRvcmlkICE9IFZFTkRPUikgfHwgKHByb2R1Y3RpZCAhPSBQUk9EVUNUKSkgeworICAg
-ICAgICAgIGlmICgodmVuZG9yaWQgIT0gdmVuZG9yKSB8fCAocHJvZHVjdGlkICE9IHByb2R1Y3Qp
-KSB7CiAgICAgICAgICAgICBjbG9zZShmZCk7CiAgICAgICAgICAgICBmZCA9IC0xOwogICAgICAg
-ICAgIH0KQEAgLTExMiwxMyArMTA3LDEzIEBACiB9CiAKIAotY2hhciAqZHJpdmVyKGludCBmZCkK
-K2NoYXIgKmRyaXZlcihpbnQgZmQsIHVuc2lnbmVkIGludGVyZmFjZSkKIHsKICAgc3RydWN0IHVz
-Yl9nZXRkcml2ZXIgZ2V0ZHJ2OwogICBzdGF0aWMgY2hhciBkcnZbVVNCX01BWERSSVZFUk5BTUUg
-KyAxXTsKICAgaW50IHJldDsKICAgCi0gIGdldGRydi5pbnRlcmZhY2UgPSBJTlRFUkZBQ0U7Cisg
-IGdldGRydi5pbnRlcmZhY2UgPSBpbnRlcmZhY2U7CiAgIHJldCA9IGlvY3RsKGZkLCBJT0NUTF9V
-U0JfR0VURFJJVkVSLCAmZ2V0ZHJ2KTsKICAgaWYgKHJldCkgewogICAgIGlmIChlcnJubyA9PSBF
-Tk9EQVRBKSB7CkBAIC0xMzYsMTIgKzEzMSwxMiBAQAogfQogCiAKLWludCBkZXRhY2goaW50IGZk
-KQoraW50IGRldGFjaChpbnQgZmQsIHVuc2lnbmVkIGludGVyZmFjZSkKIHsKICAgc3RydWN0IHVz
-Yl9pb2N0bCBjb21tYW5kOwogICBpbnQgcmV0OwogICAKLSAgY29tbWFuZC5pZm5vID0gSU5URVJG
-QUNFOworICBjb21tYW5kLmlmbm8gPSBpbnRlcmZhY2U7CiAgIGNvbW1hbmQuaW9jdGxfY29kZSA9
-IElPQ1RMX1VTQl9ESVNDT05ORUNUOwogICBjb21tYW5kLmRhdGEgPSBOVUxMOwogICAKQEAgLTE1
-MiwyOCArMTQ3LDM1IEBACiAgIHJldHVybiByZXQ7CiB9CiAKLQorI2RlZmluZSBVU0FHRSAiVXNh
-Z2U6IGRldGFjaC11c2IgVkVORE9SIFBST0RVQ1QgSU5URVJGQUNFXG4iCiAKIGludCBtYWluKGlu
-dCBhcmdjLCBjaGFyICoqYXJndikKIHsKLSAgaW50IGZkOwotICBpbnQgcmV0ID0gMDsKKyAgaWYg
-KGFyZ2MgPCA0KSB7CisJICBmcHV0cygiZGV0YWNoLXVzYjogbWlzc2luZyBvcGVyYW5kc1xuIiBV
-U0FHRSwgc3RkZXJyKTsKKwkgIGV4aXQoRVhJVF9GQUlMVVJFKTsKKyAgfQorCisgIHVuc2lnbmVk
-IHZlbmRvciA9IHN0cnRvdWwoYXJndlsxXSwgTlVMTCwgMTYpOworICB1bnNpZ25lZCBwcm9kdWN0
-ID0gc3RydG91bChhcmd2WzJdLCBOVUxMLCAxNik7CisgIHVuc2lnbmVkIGludGVyZmFjZSA9IHN0
-cnRvdWwoYXJndlszXSwgTlVMTCwgMTYpOwogCi0gIGZkID0gY2hlY2tfZGlyKFVTQl9QQVRIMSk7
-CisgIGludCByZXQgPSAwOworICBpbnQgZmQgPSBjaGVja19kaXIoVVNCX1BBVEgxLCB2ZW5kb3Is
-IHByb2R1Y3QpOwogICBpZiAoZmQgPCAwKQotICAgIGZkID0gY2hlY2tfZGlyKFVTQl9QQVRIMik7
-CisgICAgZmQgPSBjaGVja19kaXIoVVNCX1BBVEgyLCB2ZW5kb3IsIHByb2R1Y3QpOwogICAKICAg
-aWYgKGZkIDwgMCkgewotICAgIHByaW50ZigiY291bGQgbm90IGZpbmQgeWVhbGluayBkZXZpY2Vc
-biIpOworICAgIHByaW50ZigiY291bGQgbm90IGZpbmQgVVNCIGRldmljZVxuIik7CiAgICAgcmV0
-ID0gMTsKICAgfQogICBlbHNlIHsKICAgICBjaGFyICpkcnY7Ci0gICAgcHJpbnRmKCJmb3VuZCB5
-ZWFsaW5rIGRldmljZVxuIik7Ci0gICAgZHJ2ID0gZHJpdmVyKGZkKTsKKyAgICBwcmludGYoImZv
-dW5kIFVTQiBkZXZpY2VcbiIpOworICAgIGRydiA9IGRyaXZlcihmZCwgaW50ZXJmYWNlKTsKICAg
-ICBpZiAoZHJ2KSB7CiAgICAgICBpZiAoZHJ2WzBdKSB7Ci0gICAgICAgIGlmIChkZXRhY2goZmQp
-ID09IDApIHsKKyAgICAgICAgaWYgKGRldGFjaChmZCwgaW50ZXJmYWNlKSA9PSAwKSB7CiAgICAg
-ICAgICAgcHJpbnRmKCJzdWNjZXNzZnVsbHkgZGV0YWNoZWQgZHJpdmVyICVzXG4iLCBkcnYpOwog
-ICAgICAgICB9CiAgICAgICAgIGVsc2Ugewo=
-------=_Part_64145_10730602.1188146635059
-Content-Type: text/x-csrc; name=detach-usb.c; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_f5trte6u
-Content-Disposition: attachment; filename="detach-usb.c"
-
-LyogIAogKiAgZGV0YWNoLXVzYi5jIC0gYSB0b29sIHRvIGRldGFjaCBhIGtlcm5lbCBtb2R1bGUg
-ZnJvbSBhIFVTQiBkZXZpY2UKICogIENvcHlyaWdodCAoQykgMjAwNyAgVGhvbWFzIFJlaXRtYXly
-CiAqICAKICogIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJp
-YnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CiAqICBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBH
-ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieQogKiAgdGhlIEZyZWUgU29mdHdh
-cmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGljZW5zZSwgb3IKICogIChh
-dCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCiAqICAKICogIFRoaXMgcHJvZ3JhbSBp
-cyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAogKiAgYnV0
-IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkg
-b2YKICogIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9T
-RS4gIFNlZSB0aGUKICogIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFp
-bHMuCiAqICAKICogIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBhIGNvcHkgb2YgdGhlIEdOVSBH
-ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFsb25nCiAqICB3aXRoIHRoaXMgcHJvZ3JhbTsgaWYgbm90
-LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBJbmMuLAogKiAgNTEgRnJh
-bmtsaW4gU3RyZWV0LCBGaWZ0aCBGbG9vciwgQm9zdG9uLCBNQSAwMjExMC0xMzAxIFVTQS4KICov
-CgovKiBUaGlzIHByb2dyYW0gY29uc2lzdHMgb2YgcGFydHMgb2YgdGhlIGxpYnVzYiBsaWJyYXJ5
-LCB3aGljaAogKiBjYW4gYmUgZm91bmQgYXQgaHR0cDovL2xpYnVzYi5zb3VyY2Vmb3JnZS5uZXQv
-CiAqLwoKCiNpbmNsdWRlIDxzdGRpby5oPgojaW5jbHVkZSA8c3RkbGliLmg+CiNpbmNsdWRlIDx1
-bmlzdGQuaD4KI2luY2x1ZGUgPHN0cmluZy5oPgojaW5jbHVkZSA8ZmNudGwuaD4KI2luY2x1ZGUg
-PGVycm5vLmg+CiNpbmNsdWRlIDxkaXJlbnQuaD4KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+CiNpbmNs
-dWRlIDxzeXMvaW9jdGwuaD4KCgojZGVmaW5lIFVTQl9QQVRIMSAiL2Rldi9idXMvdXNiIgojZGVm
-aW5lIFVTQl9QQVRIMiAiL3Byb2MvYnVzL3VzYiIKCgojZGVmaW5lIFVTQl9NQVhEUklWRVJOQU1F
-ICAgICAgIDI1NQojZGVmaW5lIElPQ1RMX1VTQl9JT0NUTCAgICAgICAgIF9JT1dSKCdVJywgMTgs
-IHN0cnVjdCB1c2JfaW9jdGwpCiNkZWZpbmUgSU9DVExfVVNCX0dFVERSSVZFUiAgICAgX0lPVygn
-VScsIDgsIHN0cnVjdCB1c2JfZ2V0ZHJpdmVyKQojZGVmaW5lIElPQ1RMX1VTQl9ESVNDT05ORUNU
-ICAgIF9JTygnVScsIDIyKQojZGVmaW5lIERFVklDRV9ERVNDX0xFTkdUSCAgICAgIDE4CgpzdHJ1
-Y3QgdXNiX2lvY3RsIHsKICBpbnQgaWZubzsgICAgICAgICAgICAgLyogaW50ZXJmYWNlIDAuLk4g
-OyBuZWdhdGl2ZSBudW1iZXJzIHJlc2VydmVkICovCiAgaW50IGlvY3RsX2NvZGU7ICAgICAgIC8q
-IE1VU1QgZW5jb2RlIHNpemUgKyBkaXJlY3Rpb24gb2YgZGF0YSBzbyB0aGUKICAgICAgICAgICAg
-ICAgICAgICAgICAgICogbWFjcm9zIGluIDxhc20vaW9jdGwuaD4gZ2l2ZSBjb3JyZWN0IHZhbHVl
-cyAqLwogIHZvaWQgKmRhdGE7ICAgICAgICAgICAvKiBwYXJhbSBidWZmZXIgKGluLCBvciBvdXQp
-ICovCn07CgpzdHJ1Y3QgdXNiX2dldGRyaXZlciB7CiAgdW5zaWduZWQgaW50IGludGVyZmFjZTsK
-ICBjaGFyIGRyaXZlcltVU0JfTUFYRFJJVkVSTkFNRSArIDFdOwp9OwoKCmludCBjaGVja19kaXIo
-Y2hhciAqZGlybmFtZSwgdW5zaWduZWQgdmVuZG9yLCB1bnNpZ25lZCBwcm9kdWN0KQp7CiAgRElS
-ICpkaXI7CiAgc3RydWN0IGRpcmVudCAqZW50cnk7CiAgY2hhciBmaWxlcGF0aFtQQVRIX01BWCAr
-IDFdOwogIGludCBmZCA9IC0xOwoKLy8gIHNucHJpbnRmKGRpcnBhdGgsIFBBVEhfTUFYLCAiJXMv
-JXMiLCB1c2JfcGF0aCwgYnVzLT5kaXJuYW1lKTsKICBkaXIgPSBvcGVuZGlyKGRpcm5hbWUpOwog
-IGlmICghZGlyKQogICAgcmV0dXJuIC0xOwogIAogIHdoaWxlICgoZW50cnkgPSByZWFkZGlyKGRp
-cikpKSB7CiAgICBpZiAoZW50cnktPmRfbmFtZVswXSA9PSAnLicpCiAgICAgIGNvbnRpbnVlOwog
-ICAgc25wcmludGYoZmlsZXBhdGgsIHNpemVvZihmaWxlcGF0aCkgLSAxLCAiJXMvJXMiLCBkaXJu
-YW1lLCBlbnRyeS0+ZF9uYW1lKTsKICAgIGlmIChlbnRyeS0+ZF90eXBlICYgRFRfRElSKSB7CiAg
-ICAgIGZkID0gY2hlY2tfZGlyKGZpbGVwYXRoLCB2ZW5kb3IsIHByb2R1Y3QpOwogICAgfQogICAg
-ZWxzZSB7CiAgICAgIHByaW50ZigiY2hlY2tpbmcgJXNcbiIsIGZpbGVwYXRoKTsKICAgICAgZmQg
-PSBvcGVuKGZpbGVwYXRoLCBPX1JEV1IpOyAvL09OTFkpOwogICAgICBpZiAoZmQgPj0gMCkgewog
-ICAgICAgIC8qIGNoZWNrIHRoZSBkZXZpY2UgZGVzY3JpcHRvciAqLwogICAgICAgIHVuc2lnbmVk
-IGNoYXIgZGV2aWNlX2Rlc2NbREVWSUNFX0RFU0NfTEVOR1RIXTsKICAgICAgICBpZiAocmVhZChm
-ZCwgKHZvaWQgKilkZXZpY2VfZGVzYywgREVWSUNFX0RFU0NfTEVOR1RIKSA8IDApIHsKICAgICAg
-ICAgIC8qIHJlYWQgZXJyb3IgKi8KICAgICAgICAgIGNsb3NlKGZkKTsKICAgICAgICAgIGZkID0g
-LTE7CiAgICAgICAgfQogICAgICAgIGVsc2UgewogICAgICAgICAgLyogY29tcGFyZSBJRHMgKi8K
-ICAgICAgICAgIHVuc2lnbmVkIHZlbmRvcmlkID0gKGRldmljZV9kZXNjWzldIDw8IDgpIHwgZGV2
-aWNlX2Rlc2NbOF07CiAgICAgICAgICB1bnNpZ25lZCBwcm9kdWN0aWQgPSAoZGV2aWNlX2Rlc2Nb
-MTFdIDw8IDgpIHwgZGV2aWNlX2Rlc2NbMTBdOwogICAgICAgICAgcHJpbnRmKCIgIHY9JTA0eCwg
-cD0lMDR4XG4iLCB2ZW5kb3JpZCwgcHJvZHVjdGlkKTsKICAgICAgICAgIGlmICgodmVuZG9yaWQg
-IT0gdmVuZG9yKSB8fCAocHJvZHVjdGlkICE9IHByb2R1Y3QpKSB7CiAgICAgICAgICAgIGNsb3Nl
-KGZkKTsKICAgICAgICAgICAgZmQgPSAtMTsKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgIH0K
-ICAgIH0KICAgIGlmIChmZCA+PSAwKQogICAgICBicmVhazsKICB9CiAgCiAgY2xvc2VkaXIoZGly
-KTsKICByZXR1cm4gZmQ7Cn0KCgpjaGFyICpkcml2ZXIoaW50IGZkLCB1bnNpZ25lZCBpbnRlcmZh
-Y2UpCnsKICBzdHJ1Y3QgdXNiX2dldGRyaXZlciBnZXRkcnY7CiAgc3RhdGljIGNoYXIgZHJ2W1VT
-Ql9NQVhEUklWRVJOQU1FICsgMV07CiAgaW50IHJldDsKICAKICBnZXRkcnYuaW50ZXJmYWNlID0g
-aW50ZXJmYWNlOwogIHJldCA9IGlvY3RsKGZkLCBJT0NUTF9VU0JfR0VURFJJVkVSLCAmZ2V0ZHJ2
-KTsKICBpZiAocmV0KSB7CiAgICBpZiAoZXJybm8gPT0gRU5PREFUQSkgewogICAgICBkcnZbMF0g
-PSAnXDAnOwogICAgfQogICAgZWxzZSB7CiAgICAgIHByaW50ZigiRXJyb3IgaW4gZHJpdmVyKCk6
-ICVzLCAlZFxuIiwgc3RyZXJyb3IoZXJybm8pLCBlcnJubyk7CiAgICAgIHJldHVybiBOVUxMOwog
-ICAgfQogIH0KICBlbHNlCiAgICBzdHJuY3B5KGRydiwgZ2V0ZHJ2LmRyaXZlciwgVVNCX01BWERS
-SVZFUk5BTUUpOwogIAogIHJldHVybiBkcnY7Cn0KCgppbnQgZGV0YWNoKGludCBmZCwgdW5zaWdu
-ZWQgaW50ZXJmYWNlKQp7CiAgc3RydWN0IHVzYl9pb2N0bCBjb21tYW5kOwogIGludCByZXQ7CiAg
-CiAgY29tbWFuZC5pZm5vID0gaW50ZXJmYWNlOwogIGNvbW1hbmQuaW9jdGxfY29kZSA9IElPQ1RM
-X1VTQl9ESVNDT05ORUNUOwogIGNvbW1hbmQuZGF0YSA9IE5VTEw7CiAgCiAgcmV0ID0gaW9jdGwo
-ZmQsIElPQ1RMX1VTQl9JT0NUTCwgJmNvbW1hbmQpOwogIGlmIChyZXQpIHsKICAgIHByaW50Zigi
-RXJyb3IgbGluZSBfX2xpbmVfXzogJXNcbiIsIHN0cmVycm9yKGVycm5vKSk7CiAgfQogIHJldHVy
-biByZXQ7Cn0KCiNkZWZpbmUgVVNBR0UgIlVzYWdlOiBkZXRhY2gtdXNiIFZFTkRPUiBQUk9EVUNU
-IElOVEVSRkFDRVxuIgoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQp7CiAgaWYgKGFy
-Z2MgPCA0KSB7CgkgIGZwdXRzKCJkZXRhY2gtdXNiOiBtaXNzaW5nIG9wZXJhbmRzXG4iIFVTQUdF
-LCBzdGRlcnIpOwoJICBleGl0KEVYSVRfRkFJTFVSRSk7CiAgfQoKICB1bnNpZ25lZCB2ZW5kb3Ig
-PSBzdHJ0b3VsKGFyZ3ZbMV0sIE5VTEwsIDE2KTsKICB1bnNpZ25lZCBwcm9kdWN0ID0gc3RydG91
-bChhcmd2WzJdLCBOVUxMLCAxNik7CiAgdW5zaWduZWQgaW50ZXJmYWNlID0gc3RydG91bChhcmd2
-WzNdLCBOVUxMLCAxNik7CgogIGludCByZXQgPSAwOwogIGludCBmZCA9IGNoZWNrX2RpcihVU0Jf
-UEFUSDEsIHZlbmRvciwgcHJvZHVjdCk7CiAgaWYgKGZkIDwgMCkKICAgIGZkID0gY2hlY2tfZGly
-KFVTQl9QQVRIMiwgdmVuZG9yLCBwcm9kdWN0KTsKICAKICBpZiAoZmQgPCAwKSB7CiAgICBwcmlu
-dGYoImNvdWxkIG5vdCBmaW5kIFVTQiBkZXZpY2VcbiIpOwogICAgcmV0ID0gMTsKICB9CiAgZWxz
-ZSB7CiAgICBjaGFyICpkcnY7CiAgICBwcmludGYoImZvdW5kIFVTQiBkZXZpY2VcbiIpOwogICAg
-ZHJ2ID0gZHJpdmVyKGZkLCBpbnRlcmZhY2UpOwogICAgaWYgKGRydikgewogICAgICBpZiAoZHJ2
-WzBdKSB7CiAgICAgICAgaWYgKGRldGFjaChmZCwgaW50ZXJmYWNlKSA9PSAwKSB7CiAgICAgICAg
-ICBwcmludGYoInN1Y2Nlc3NmdWxseSBkZXRhY2hlZCBkcml2ZXIgJXNcbiIsIGRydik7CiAgICAg
-ICAgfQogICAgICAgIGVsc2UgewogICAgICAgICAgcHJpbnRmKCJjb3VsZCBub3QgZGV0YWNoIGRy
-aXZlciAlc1xuIiwgZHJ2KTsKICAgICAgICAgIHJldCA9IDI7CiAgICAgICAgfQogICAgICB9CiAg
-ICAgIGVsc2UgewogICAgICAgIHByaW50Zigibm8gZHJpdmVyIGF0dGFjaGVkXG4iKTsKICAgICAg
-fQogICAgfQogICAgZWxzZSB7CiAgICAgIC8qIGVycm9yICovCiAgICAgIHJldCA9IDM7CiAgICB9
-CiAgICBjbG9zZShmZCk7CiAgfQogIHJldHVybiByZXQ7Cn0K
-------=_Part_64145_10730602.1188146635059--
+</BODY></HTML>
+------------090901D33AE1DA--

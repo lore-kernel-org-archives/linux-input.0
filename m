@@ -1,71 +1,48 @@
-From: "Alfred E. Heggestad" <aeh@db.org>
-Subject: Re: USB: driver for CM109 chipset
-Date: Sun, 26 Aug 2007 20:51:03 +0200
-Message-ID: <46D1CB97.5030000@db.org>
-References: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
+From: "Silvana Snyder" <hhwmwiiee@telemar.net.br>
+Subject: Let's go and find it out
+Date: Sun, 26 Aug 2007 11:18:50 -0800
+Message-ID: <da3c01c7e7d2$e0bb2ce0$c79eff3b@hhwmwiiee>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Shaun Jackman <sjackman@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: Virgina <manas@atrey.karlin.mff.cuni.cz>
+Cc: Ronnie <linux-input@atrey.karlin.mff.cuni.cz>, Wei Gilbert <0rfelyus@atrey.karlin.mff.cuni.cz>, Alyssa <linux-pci@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Shaun Jackman wrote:
-> I am testing your cm109 driver with my Genius G-Talk USB phone. It
-> identifies itself as a cm109 device (0d8c:000e C-Media Electronics,
-> Inc.). I compiled and loaded the cm109 module. However when I plug the
-> phone in the, the usbhid driver grabs the device rather than the cm109
-> driver. The following snippet is from /proc/bus/usb/devices and shows
-> the Class/Subclass/Protocol 3/0/0 device is nabbed by the usbhid
-> driver. Why isn't the cm109 driver grabbing the device?
-> 
+When people buy their treatment they generally seek the following:=20
+ =20
+ Safety=20
+ Fast Dependable Distribution=20
+ High-level Quality=20
+ Large selection of Medical Treatments=20
+ Great Cut Rate =20
+ Treatment assistance=20
+ =20
+As the largest web-based Pharmacy in Canada we satisfy all six of these
+significant factors.=20
 
-I have made a new version of the CM109 driver which updates the
-usb hid-quirks.c blacklist, please find it here:
+Check us out for big discount: www.pillbit.org =20
 
-   http://aeh.db.org/patch/cm109-20070826.patch
-
-(All versions here: http://aeh.db.org/patch/)
-
-
-You can also try to unload the usbhid.ko module (while the USB phone
-is plugged in), and then manually load the cm109.ko driver
-
-Another outstanding issue with the CM109 driver is that it seems
-like all phone vendors have different key-mappings. That means
-that the keymapping defined in my version of the cm109 driver
-works with the KIP-1000 USB phone. I have got reports from other
-users with other phones, that the keymapping is different. It
-would be very interesting to see which keymapping your phone
-(Genius G-talk) has.
-
-I am not sure how to fix this problem, does anyone on this list
-have any good suggestions?
+Do yourself a favor and give us a try.  You will feel great regarding the
+quality and safety we give and your pocket book will also be pleased as
+well.
 
 
-/alfred
-
-> Thanks for writing the driver, and I hope I can get it to work!
-> Shaun
-> 
-> T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 0
-> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-> P:  Vendor=0d8c ProdID=000e Rev= 1.00
-> S:  Product=Generic USB Audio Device
-> C:* #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=100mA
-> I:* If#= 0 Alt= 0 #EPs= 0 Cls=01(audio) Sub=01 Prot=00 Driver=snd-usb-audio
-> I:* If#= 1 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> I:  If#= 1 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> E:  Ad=01(O) Atr=09(Isoc) MxPS= 200 Ivl=1ms
-> I:* If#= 2 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> I:  If#= 2 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> E:  Ad=82(I) Atr=05(Isoc) MxPS= 100 Ivl=1ms
-> I:* If#= 3 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-> E:  Ad=83(I) Atr=03(Int.) MxPS=   4 Ivl=32ms
+In nations in which sprang the principle of election extends slow to ever=
+y
+breezy successful place in the State no political caree [Footnote v: Nor
+malic would these front be the only difficulties attendant upon ink the
+undertaking; include if the Union u blow Religion in America takes no lai=
+d
+direct part clearly in the government of society, but it gestic must
+nevertheless be r=20
+Independently horn of his position winter tell weep as a legislator of th=
+e
+State, electors also regard their Representativ

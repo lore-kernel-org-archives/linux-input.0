@@ -1,63 +1,261 @@
-From: "Samuel Gonzalez" <lilies52@advancethermal.com>
-Subject: Pharmacy
-Date: Sun, 26 Aug 2007 13:26:38 -0200
-Message-ID: <550149041.81921704650184@advancethermal.com>
-Reply-To: lilies52@advancethermal.com
+From: "Shaun Jackman" <sjackman@gmail.com>
+Subject: Re: USB: driver for CM109 chipset
+Date: Sun, 26 Aug 2007 09:43:55 -0700
+Message-ID: <7f45d9390708260943x5fd120eek5ebb8e251c00908f@mail.gmail.com>
+References: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
+	 <46D169A6.4080209@devbase.at>
+Reply-To: "Shaun Jackman" <sjackman@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/html;
-  charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_Part_64145_10730602.1188146635059"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <46D169A6.4080209@devbase.at>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Thomas Reitmayr <thomas@devbase.at>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+------=_Part_64145_10730602.1188146635059
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-<html>
-<head>
-<style>
-Alle 	Instrukt&#248;r tilfreds med rapport 14:42 	TV 22-3 timer    * Sport    * SocialdemokratTV-program22&#186;22&#186;    * BenficaAlle 	Instrukt&#248;r tilfreds med rapport 14:42 	TV 219:00	Nyhederne	TV 2    * Benfica28-&#229;rig polak dr&#230;bt mod vejtr&#230;<5 minutterMicrosoft udsender k&#230;mpeopdateringErhverv 	Dansk IT: Alvorligt brug for digitale kompetencer 15:03 	Computerworld.dkAlleIndland Udland Sport Erhverv Tech Showbiz1-2 dage22:30	Deadline	DR2    * Mattel21&#186;21&#186;Rygere n&#230;gtes operationer    * Open SourceErhverv 	Analytikere: Aktier nedad i uger endnu 15:01 	B&#248;rsen    * The UKChefredakt&#248;r forbyder journalister at ringe til...    * White Hart Lane    * RegnskabLivsstil    * MicrosoftSe alle popul&#230;re emnerShowbiz 	Spears-Federline divorce paper
- s may go public Engelsk 15:06 	CNNIndland 	Farlig var det gale ord 14:55 	Berlingske.dkAlle 	Kamp for forsvundne bukser forts&#230;tter 14:42 	TV 2FC K&#248;benhavn19:00	Aftenshowet med Vejret	DR1    * De radikale    * Unders&#248;gelseErhverv For 5 timer siden p&#229; Computerworld.dkErhverv 	Merrill Lynch frygter mega-bankkollaps 15:15 	B&#248;rsenSe alle popul&#230;re emner19:00	Aftenshowet med Vejret	DR1    * White Hart Lane2-3 timerSport 	Cocu til Emiraterne 15:18 	PolitikenErhverv 	Massive fald i C20-indekset 15:15 	Business.dkSport 	Stuttgart forl&#230;nger med landsholdsspiller 15:08 	ForzaSport 	DBU &#229;bner kassen til kvinderne 14:44 	Berlingske.dkAlle For 3 timer siden p&#229; Avisen.dk* 2-1-Sejr    * Sport5-15 minutterSport 	DBU &#229;bner kassen til kvinderne 14:44 	Berlin
- gske.dk    * TV 2    * Dokumentarfilm    * Kim Christensen1-1&#189; timeErhverv For 5 timer siden p&#229; Computerworld.dkTopnyhederAktuelt emne
-P
-{
-margin:0px;
-padding:0px
-}
-body
-{
-FONT-SIZE: 10pt;
-FONT-FAMILY:Tahoma
-}
-</style>
-</head>
-<body>
-<SPAN style="BORDER-RIGHT: 0px; PADDING-RIGHT: 12px; BORDER-TOP: 0px; PAD=
-DING-LEFT: 12px; FONT-SIZE: 16px; FLOAT: right; PADDING-BOTTOM: 12px; MARGI=
-N: 11px; BORDER-LEFT: 0px; PADDING-TOP: 12px; BORDER-BOTTOM: 0px; FONT-FAMI=
-LY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #feee67"><FONT size=4
+The detach-yealink tool worked well; thanks. I generalised it (now
+called detach-usb) to take a vendor/product/interface argument on the
+command line. The patch is attached.
+
+The EEPROM dumping tool did not work. It failed with
+	cm109_eeprom_read: Mode check failed witch HID_IR0=0xc0
+
+I tried commenting out the HID_IR0 test, but it then read only zeros.
+
+Thanks!
+Shaun
+
+$ sudo ./dump-eeprom
+Found device:
+  idVendor=0x0d8c
+  idProduct=0x000e
+  iSerialNumber=0x00
+Found HID interface #3
+Successfully claimed interface
+Manufacturer: "?"
+Product: "Generic USB Audio Device   "
+Serial#: "?"
+cm109_eeprom_read: Mode check failed witch HID_IR0=0xc0
+
+On 8/26/07, Thomas Reitmayr <thomas@devbase.at> wrote:
+> Hi Shaun,
+> the CM109 VID and PID are probably not included in the kernel's
+> blacklisted device list (see static array hid_blacklist in hid-core.c).
+> Just for your tests you can write a little tool to detach the usbhid
+> driver and then load the cm109 module manually using modprobe or insmod.
+> An example for this tool (not using libusb) can be found at
+> http://www.devbase.at/svn/view.cgi/yealink-tools/trunk/detach-yealink.c?revision=1&root=experimental&view=markup
+> or inside the EEPROM tool below.
+> BTW, there is still the issue with varying key mappings among different
+> models. The EEPROM contents might give a hint for distinguishing the
+> models, it would be interesting if you could read the EEPROM and tell us
+> what you see. The tool for this task can be found at
+> http://www.devbase.at/svn/view.cgi/cm109-tools/trunk/?root=experimental
+> Regards,
+> -Thomas
 >
-<style>Tech 	Linux kernel-info site bows Engelsk 15:15 	Computerworld.com    * Helle ThorningJubii21&#186;21&#186;Advarsel5-15 minutterErhverv 	T&#248;rre t&#230;sk til GN-aktien 15:01 	TV 2Erhverv 	GN vil f&#248;lge Resound-sag til d&#248;rs - IR-chef 15:20 	EuroInvestorAdvokat i f&#230;ngsel for trusler mod eksMest l&#230;ste nyheder seneste d&#248;gnErhverv 	Royal Unibrew k&#248;ber op i Letland 14:40 	Business.dk</style>
-<B>Vi<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>arbehgl</FONT></SPAN>ag<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>htffcfdoru</FONT></SPAN>ra $1.79 C<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>vousykzqtv</FONT></SPAN>ial<SPAN style="
-ORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT:
-0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>gomlsiln</FONT></SPAN>is 
-$3.93</B><BR></FONT>
-<style>Alle For 19 timer siden p&#229; TV 2LivsstilIndland 	DF: Lykketofts sprogbrug er forkert 14:41 	PolitikenErhverv 	Investorerne ignorerer FCK&#180;s Benfica-resultat 15:15 	Business.dk    * A kasseErhverv 	Nordicom: P&#229; vej til at indfri forventninger -... 15:00 	EuroInvestor* 2-1-SejrUdland 	First ruling on mobile footage Engelsk 14:56 	BBC1&#189;-2 timerSport 	Hitzlsperger forl&#230;nger med Stuttgart 15:09 	Bold.dk    * KvindeMest l&#230;ste nyheder seneste d&#248;gn</style>
-<H4><SPAN>and man<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT:
-right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"></SPAN>y other it<SPAN style="BORDER-RIGHT: 0px;
-ORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77
-; BORDER-BOTTOM: 0px"></SPAN>ems for 5% of the price.<BR><A href="http://inzuk.net/redir.html">Click to visit the shop
-</A></SPAN></H4></SPAN><br /><hr />
-<style>Advarsel    * Euro2008Se alle popul&#230;re emner    * VmwareUdland For 9 timer siden p&#229; UrbanSport 	Hitzlsperger forl&#230;nger med Stuttgart 15:09 	Bold.dkIndland  For 21 minutter siden p&#229; Berlingske.dk  EngelskKommunikation    * Digital    * Subprime    * Michael Rasmussen    * TV 2Indland Udland Sport Erhverv Tech Showbiz28-&#229;rig polak dr&#230;bt mod vejtr&#230;Tech 	Mini-vindmotorer nedk&#248;ler effektivt computerchip 14:45 	Ingeni&#248;ren</style>
-</body>
-</html>
+> Shaun Jackman wrote:
+> > I am testing your cm109 driver with my Genius G-Talk USB phone. It
+> > identifies itself as a cm109 device (0d8c:000e C-Media Electronics,
+> > Inc.). I compiled and loaded the cm109 module. However when I plug the
+> > phone in the, the usbhid driver grabs the device rather than the cm109
+> > driver. The following snippet is from /proc/bus/usb/devices and shows
+> > the Class/Subclass/Protocol 3/0/0 device is nabbed by the usbhid
+> > driver. Why isn't the cm109 driver grabbing the device?
+> >
+> > Thanks for writing the driver, and I hope I can get it to work!
+> > Shaun
+> >
+> > T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 0
+> > D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+> > P:  Vendor=0d8c ProdID=000e Rev= 1.00
+> > S:  Product=Generic USB Audio Device
+> > C:* #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=100mA
+> > I:* If#= 0 Alt= 0 #EPs= 0 Cls=01(audio) Sub=01 Prot=00 Driver=snd-usb-audio
+> > I:* If#= 1 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+> > I:  If#= 1 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+> > E:  Ad=01(O) Atr=09(Isoc) MxPS= 200 Ivl=1ms
+> > I:* If#= 2 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+> > I:  If#= 2 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+> > E:  Ad=82(I) Atr=05(Isoc) MxPS= 100 Ivl=1ms
+> > I:* If#= 3 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+> > E:  Ad=83(I) Atr=03(Int.) MxPS=   4 Ivl=32ms
+> >
+> >
+> >
+>
+>
 
-</BODY></HTML>
+------=_Part_64145_10730602.1188146635059
+Content-Type: text/plain; name=detach-usb.diff; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_f5trqmbq
+Content-Disposition: attachment; filename="detach-usb.diff"
+
+LS0tIGRldGFjaC15ZWFsaW5rLmMJMjAwNy0wOC0yNiAwOTozODozOC4wMDAwMDAwMDAgLTA3MDAK
+KysrIGRldGFjaC11c2IuYwkyMDA3LTA4LTI2IDA5OjI0OjE5LjAwMDAwMDAwMCAtMDcwMApAQCAt
+MSw1ICsxLDUgQEAKIC8qICAKLSAqICBkZXRhY2gteWVhbGluay5jIC0gYSB0b29sIHRvIGRldGFj
+aCBhIGtlcm5lbCBtb2R1bGUgZnJvbSBhIHllYWxpbmsgZGV2aWNlCisgKiAgZGV0YWNoLXVzYi5j
+IC0gYSB0b29sIHRvIGRldGFjaCBhIGtlcm5lbCBtb2R1bGUgZnJvbSBhIFVTQiBkZXZpY2UKICAq
+ICBDb3B5cmlnaHQgKEMpIDIwMDcgIFRob21hcyBSZWl0bWF5cgogICogIAogICogIFRoaXMgcHJv
+Z3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9k
+aWZ5CkBAIC0zMywxMSArMzMsNiBAQAogI2luY2x1ZGUgPHN5cy9pb2N0bC5oPgogCiAKLSNkZWZp
+bmUgVkVORE9SICAgMHg2OTkzCi0jZGVmaW5lIFBST0RVQ1QgIDB4YjAwMQotI2RlZmluZSBJTlRF
+UkZBQ0UgMwotCi0KICNkZWZpbmUgVVNCX1BBVEgxICIvZGV2L2J1cy91c2IiCiAjZGVmaW5lIFVT
+Ql9QQVRIMiAiL3Byb2MvYnVzL3VzYiIKIApAQCAtNjEsNyArNTYsNyBAQAogfTsKIAogCi1pbnQg
+Y2hlY2tfZGlyKGNoYXIgKmRpcm5hbWUpCitpbnQgY2hlY2tfZGlyKGNoYXIgKmRpcm5hbWUsIHVu
+c2lnbmVkIHZlbmRvciwgdW5zaWduZWQgcHJvZHVjdCkKIHsKICAgRElSICpkaXI7CiAgIHN0cnVj
+dCBkaXJlbnQgKmVudHJ5OwpAQCAtNzgsNyArNzMsNyBAQAogICAgICAgY29udGludWU7CiAgICAg
+c25wcmludGYoZmlsZXBhdGgsIHNpemVvZihmaWxlcGF0aCkgLSAxLCAiJXMvJXMiLCBkaXJuYW1l
+LCBlbnRyeS0+ZF9uYW1lKTsKICAgICBpZiAoZW50cnktPmRfdHlwZSAmIERUX0RJUikgewotICAg
+ICAgZmQgPSBjaGVja19kaXIoZmlsZXBhdGgpOworICAgICAgZmQgPSBjaGVja19kaXIoZmlsZXBh
+dGgsIHZlbmRvciwgcHJvZHVjdCk7CiAgICAgfQogICAgIGVsc2UgewogICAgICAgcHJpbnRmKCJj
+aGVja2luZyAlc1xuIiwgZmlsZXBhdGgpOwpAQCAtOTMsMTAgKzg4LDEwIEBACiAgICAgICAgIH0K
+ICAgICAgICAgZWxzZSB7CiAgICAgICAgICAgLyogY29tcGFyZSBJRHMgKi8KLSAgICAgICAgICBp
+bnQgdmVuZG9yaWQgPSAoZGV2aWNlX2Rlc2NbOV0gPDwgOCkgfCBkZXZpY2VfZGVzY1s4XTsKLSAg
+ICAgICAgICBpbnQgcHJvZHVjdGlkID0gKGRldmljZV9kZXNjWzExXSA8PCA4KSB8IGRldmljZV9k
+ZXNjWzEwXTsKKyAgICAgICAgICB1bnNpZ25lZCB2ZW5kb3JpZCA9IChkZXZpY2VfZGVzY1s5XSA8
+PCA4KSB8IGRldmljZV9kZXNjWzhdOworICAgICAgICAgIHVuc2lnbmVkIHByb2R1Y3RpZCA9IChk
+ZXZpY2VfZGVzY1sxMV0gPDwgOCkgfCBkZXZpY2VfZGVzY1sxMF07CiAgICAgICAgICAgcHJpbnRm
+KCIgIHY9JTA0eCwgcD0lMDR4XG4iLCB2ZW5kb3JpZCwgcHJvZHVjdGlkKTsKLSAgICAgICAgICBp
+ZiAoKHZlbmRvcmlkICE9IFZFTkRPUikgfHwgKHByb2R1Y3RpZCAhPSBQUk9EVUNUKSkgeworICAg
+ICAgICAgIGlmICgodmVuZG9yaWQgIT0gdmVuZG9yKSB8fCAocHJvZHVjdGlkICE9IHByb2R1Y3Qp
+KSB7CiAgICAgICAgICAgICBjbG9zZShmZCk7CiAgICAgICAgICAgICBmZCA9IC0xOwogICAgICAg
+ICAgIH0KQEAgLTExMiwxMyArMTA3LDEzIEBACiB9CiAKIAotY2hhciAqZHJpdmVyKGludCBmZCkK
+K2NoYXIgKmRyaXZlcihpbnQgZmQsIHVuc2lnbmVkIGludGVyZmFjZSkKIHsKICAgc3RydWN0IHVz
+Yl9nZXRkcml2ZXIgZ2V0ZHJ2OwogICBzdGF0aWMgY2hhciBkcnZbVVNCX01BWERSSVZFUk5BTUUg
+KyAxXTsKICAgaW50IHJldDsKICAgCi0gIGdldGRydi5pbnRlcmZhY2UgPSBJTlRFUkZBQ0U7Cisg
+IGdldGRydi5pbnRlcmZhY2UgPSBpbnRlcmZhY2U7CiAgIHJldCA9IGlvY3RsKGZkLCBJT0NUTF9V
+U0JfR0VURFJJVkVSLCAmZ2V0ZHJ2KTsKICAgaWYgKHJldCkgewogICAgIGlmIChlcnJubyA9PSBF
+Tk9EQVRBKSB7CkBAIC0xMzYsMTIgKzEzMSwxMiBAQAogfQogCiAKLWludCBkZXRhY2goaW50IGZk
+KQoraW50IGRldGFjaChpbnQgZmQsIHVuc2lnbmVkIGludGVyZmFjZSkKIHsKICAgc3RydWN0IHVz
+Yl9pb2N0bCBjb21tYW5kOwogICBpbnQgcmV0OwogICAKLSAgY29tbWFuZC5pZm5vID0gSU5URVJG
+QUNFOworICBjb21tYW5kLmlmbm8gPSBpbnRlcmZhY2U7CiAgIGNvbW1hbmQuaW9jdGxfY29kZSA9
+IElPQ1RMX1VTQl9ESVNDT05ORUNUOwogICBjb21tYW5kLmRhdGEgPSBOVUxMOwogICAKQEAgLTE1
+MiwyOCArMTQ3LDM1IEBACiAgIHJldHVybiByZXQ7CiB9CiAKLQorI2RlZmluZSBVU0FHRSAiVXNh
+Z2U6IGRldGFjaC11c2IgVkVORE9SIFBST0RVQ1QgSU5URVJGQUNFXG4iCiAKIGludCBtYWluKGlu
+dCBhcmdjLCBjaGFyICoqYXJndikKIHsKLSAgaW50IGZkOwotICBpbnQgcmV0ID0gMDsKKyAgaWYg
+KGFyZ2MgPCA0KSB7CisJICBmcHV0cygiZGV0YWNoLXVzYjogbWlzc2luZyBvcGVyYW5kc1xuIiBV
+U0FHRSwgc3RkZXJyKTsKKwkgIGV4aXQoRVhJVF9GQUlMVVJFKTsKKyAgfQorCisgIHVuc2lnbmVk
+IHZlbmRvciA9IHN0cnRvdWwoYXJndlsxXSwgTlVMTCwgMTYpOworICB1bnNpZ25lZCBwcm9kdWN0
+ID0gc3RydG91bChhcmd2WzJdLCBOVUxMLCAxNik7CisgIHVuc2lnbmVkIGludGVyZmFjZSA9IHN0
+cnRvdWwoYXJndlszXSwgTlVMTCwgMTYpOwogCi0gIGZkID0gY2hlY2tfZGlyKFVTQl9QQVRIMSk7
+CisgIGludCByZXQgPSAwOworICBpbnQgZmQgPSBjaGVja19kaXIoVVNCX1BBVEgxLCB2ZW5kb3Is
+IHByb2R1Y3QpOwogICBpZiAoZmQgPCAwKQotICAgIGZkID0gY2hlY2tfZGlyKFVTQl9QQVRIMik7
+CisgICAgZmQgPSBjaGVja19kaXIoVVNCX1BBVEgyLCB2ZW5kb3IsIHByb2R1Y3QpOwogICAKICAg
+aWYgKGZkIDwgMCkgewotICAgIHByaW50ZigiY291bGQgbm90IGZpbmQgeWVhbGluayBkZXZpY2Vc
+biIpOworICAgIHByaW50ZigiY291bGQgbm90IGZpbmQgVVNCIGRldmljZVxuIik7CiAgICAgcmV0
+ID0gMTsKICAgfQogICBlbHNlIHsKICAgICBjaGFyICpkcnY7Ci0gICAgcHJpbnRmKCJmb3VuZCB5
+ZWFsaW5rIGRldmljZVxuIik7Ci0gICAgZHJ2ID0gZHJpdmVyKGZkKTsKKyAgICBwcmludGYoImZv
+dW5kIFVTQiBkZXZpY2VcbiIpOworICAgIGRydiA9IGRyaXZlcihmZCwgaW50ZXJmYWNlKTsKICAg
+ICBpZiAoZHJ2KSB7CiAgICAgICBpZiAoZHJ2WzBdKSB7Ci0gICAgICAgIGlmIChkZXRhY2goZmQp
+ID09IDApIHsKKyAgICAgICAgaWYgKGRldGFjaChmZCwgaW50ZXJmYWNlKSA9PSAwKSB7CiAgICAg
+ICAgICAgcHJpbnRmKCJzdWNjZXNzZnVsbHkgZGV0YWNoZWQgZHJpdmVyICVzXG4iLCBkcnYpOwog
+ICAgICAgICB9CiAgICAgICAgIGVsc2Ugewo=
+------=_Part_64145_10730602.1188146635059
+Content-Type: text/x-csrc; name=detach-usb.c; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_f5trte6u
+Content-Disposition: attachment; filename="detach-usb.c"
+
+LyogIAogKiAgZGV0YWNoLXVzYi5jIC0gYSB0b29sIHRvIGRldGFjaCBhIGtlcm5lbCBtb2R1bGUg
+ZnJvbSBhIFVTQiBkZXZpY2UKICogIENvcHlyaWdodCAoQykgMjAwNyAgVGhvbWFzIFJlaXRtYXly
+CiAqICAKICogIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJp
+YnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CiAqICBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBH
+ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieQogKiAgdGhlIEZyZWUgU29mdHdh
+cmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGljZW5zZSwgb3IKICogIChh
+dCB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCiAqICAKICogIFRoaXMgcHJvZ3JhbSBp
+cyBkaXN0cmlidXRlZCBpbiB0aGUgaG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAogKiAgYnV0
+IFdJVEhPVVQgQU5ZIFdBUlJBTlRZOyB3aXRob3V0IGV2ZW4gdGhlIGltcGxpZWQgd2FycmFudHkg
+b2YKICogIE1FUkNIQU5UQUJJTElUWSBvciBGSVRORVNTIEZPUiBBIFBBUlRJQ1VMQVIgUFVSUE9T
+RS4gIFNlZSB0aGUKICogIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFp
+bHMuCiAqICAKICogIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBhIGNvcHkgb2YgdGhlIEdOVSBH
+ZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFsb25nCiAqICB3aXRoIHRoaXMgcHJvZ3JhbTsgaWYgbm90
+LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLCBJbmMuLAogKiAgNTEgRnJh
+bmtsaW4gU3RyZWV0LCBGaWZ0aCBGbG9vciwgQm9zdG9uLCBNQSAwMjExMC0xMzAxIFVTQS4KICov
+CgovKiBUaGlzIHByb2dyYW0gY29uc2lzdHMgb2YgcGFydHMgb2YgdGhlIGxpYnVzYiBsaWJyYXJ5
+LCB3aGljaAogKiBjYW4gYmUgZm91bmQgYXQgaHR0cDovL2xpYnVzYi5zb3VyY2Vmb3JnZS5uZXQv
+CiAqLwoKCiNpbmNsdWRlIDxzdGRpby5oPgojaW5jbHVkZSA8c3RkbGliLmg+CiNpbmNsdWRlIDx1
+bmlzdGQuaD4KI2luY2x1ZGUgPHN0cmluZy5oPgojaW5jbHVkZSA8ZmNudGwuaD4KI2luY2x1ZGUg
+PGVycm5vLmg+CiNpbmNsdWRlIDxkaXJlbnQuaD4KI2luY2x1ZGUgPHN5cy9zdGF0Lmg+CiNpbmNs
+dWRlIDxzeXMvaW9jdGwuaD4KCgojZGVmaW5lIFVTQl9QQVRIMSAiL2Rldi9idXMvdXNiIgojZGVm
+aW5lIFVTQl9QQVRIMiAiL3Byb2MvYnVzL3VzYiIKCgojZGVmaW5lIFVTQl9NQVhEUklWRVJOQU1F
+ICAgICAgIDI1NQojZGVmaW5lIElPQ1RMX1VTQl9JT0NUTCAgICAgICAgIF9JT1dSKCdVJywgMTgs
+IHN0cnVjdCB1c2JfaW9jdGwpCiNkZWZpbmUgSU9DVExfVVNCX0dFVERSSVZFUiAgICAgX0lPVygn
+VScsIDgsIHN0cnVjdCB1c2JfZ2V0ZHJpdmVyKQojZGVmaW5lIElPQ1RMX1VTQl9ESVNDT05ORUNU
+ICAgIF9JTygnVScsIDIyKQojZGVmaW5lIERFVklDRV9ERVNDX0xFTkdUSCAgICAgIDE4CgpzdHJ1
+Y3QgdXNiX2lvY3RsIHsKICBpbnQgaWZubzsgICAgICAgICAgICAgLyogaW50ZXJmYWNlIDAuLk4g
+OyBuZWdhdGl2ZSBudW1iZXJzIHJlc2VydmVkICovCiAgaW50IGlvY3RsX2NvZGU7ICAgICAgIC8q
+IE1VU1QgZW5jb2RlIHNpemUgKyBkaXJlY3Rpb24gb2YgZGF0YSBzbyB0aGUKICAgICAgICAgICAg
+ICAgICAgICAgICAgICogbWFjcm9zIGluIDxhc20vaW9jdGwuaD4gZ2l2ZSBjb3JyZWN0IHZhbHVl
+cyAqLwogIHZvaWQgKmRhdGE7ICAgICAgICAgICAvKiBwYXJhbSBidWZmZXIgKGluLCBvciBvdXQp
+ICovCn07CgpzdHJ1Y3QgdXNiX2dldGRyaXZlciB7CiAgdW5zaWduZWQgaW50IGludGVyZmFjZTsK
+ICBjaGFyIGRyaXZlcltVU0JfTUFYRFJJVkVSTkFNRSArIDFdOwp9OwoKCmludCBjaGVja19kaXIo
+Y2hhciAqZGlybmFtZSwgdW5zaWduZWQgdmVuZG9yLCB1bnNpZ25lZCBwcm9kdWN0KQp7CiAgRElS
+ICpkaXI7CiAgc3RydWN0IGRpcmVudCAqZW50cnk7CiAgY2hhciBmaWxlcGF0aFtQQVRIX01BWCAr
+IDFdOwogIGludCBmZCA9IC0xOwoKLy8gIHNucHJpbnRmKGRpcnBhdGgsIFBBVEhfTUFYLCAiJXMv
+JXMiLCB1c2JfcGF0aCwgYnVzLT5kaXJuYW1lKTsKICBkaXIgPSBvcGVuZGlyKGRpcm5hbWUpOwog
+IGlmICghZGlyKQogICAgcmV0dXJuIC0xOwogIAogIHdoaWxlICgoZW50cnkgPSByZWFkZGlyKGRp
+cikpKSB7CiAgICBpZiAoZW50cnktPmRfbmFtZVswXSA9PSAnLicpCiAgICAgIGNvbnRpbnVlOwog
+ICAgc25wcmludGYoZmlsZXBhdGgsIHNpemVvZihmaWxlcGF0aCkgLSAxLCAiJXMvJXMiLCBkaXJu
+YW1lLCBlbnRyeS0+ZF9uYW1lKTsKICAgIGlmIChlbnRyeS0+ZF90eXBlICYgRFRfRElSKSB7CiAg
+ICAgIGZkID0gY2hlY2tfZGlyKGZpbGVwYXRoLCB2ZW5kb3IsIHByb2R1Y3QpOwogICAgfQogICAg
+ZWxzZSB7CiAgICAgIHByaW50ZigiY2hlY2tpbmcgJXNcbiIsIGZpbGVwYXRoKTsKICAgICAgZmQg
+PSBvcGVuKGZpbGVwYXRoLCBPX1JEV1IpOyAvL09OTFkpOwogICAgICBpZiAoZmQgPj0gMCkgewog
+ICAgICAgIC8qIGNoZWNrIHRoZSBkZXZpY2UgZGVzY3JpcHRvciAqLwogICAgICAgIHVuc2lnbmVk
+IGNoYXIgZGV2aWNlX2Rlc2NbREVWSUNFX0RFU0NfTEVOR1RIXTsKICAgICAgICBpZiAocmVhZChm
+ZCwgKHZvaWQgKilkZXZpY2VfZGVzYywgREVWSUNFX0RFU0NfTEVOR1RIKSA8IDApIHsKICAgICAg
+ICAgIC8qIHJlYWQgZXJyb3IgKi8KICAgICAgICAgIGNsb3NlKGZkKTsKICAgICAgICAgIGZkID0g
+LTE7CiAgICAgICAgfQogICAgICAgIGVsc2UgewogICAgICAgICAgLyogY29tcGFyZSBJRHMgKi8K
+ICAgICAgICAgIHVuc2lnbmVkIHZlbmRvcmlkID0gKGRldmljZV9kZXNjWzldIDw8IDgpIHwgZGV2
+aWNlX2Rlc2NbOF07CiAgICAgICAgICB1bnNpZ25lZCBwcm9kdWN0aWQgPSAoZGV2aWNlX2Rlc2Nb
+MTFdIDw8IDgpIHwgZGV2aWNlX2Rlc2NbMTBdOwogICAgICAgICAgcHJpbnRmKCIgIHY9JTA0eCwg
+cD0lMDR4XG4iLCB2ZW5kb3JpZCwgcHJvZHVjdGlkKTsKICAgICAgICAgIGlmICgodmVuZG9yaWQg
+IT0gdmVuZG9yKSB8fCAocHJvZHVjdGlkICE9IHByb2R1Y3QpKSB7CiAgICAgICAgICAgIGNsb3Nl
+KGZkKTsKICAgICAgICAgICAgZmQgPSAtMTsKICAgICAgICAgIH0KICAgICAgICB9CiAgICAgIH0K
+ICAgIH0KICAgIGlmIChmZCA+PSAwKQogICAgICBicmVhazsKICB9CiAgCiAgY2xvc2VkaXIoZGly
+KTsKICByZXR1cm4gZmQ7Cn0KCgpjaGFyICpkcml2ZXIoaW50IGZkLCB1bnNpZ25lZCBpbnRlcmZh
+Y2UpCnsKICBzdHJ1Y3QgdXNiX2dldGRyaXZlciBnZXRkcnY7CiAgc3RhdGljIGNoYXIgZHJ2W1VT
+Ql9NQVhEUklWRVJOQU1FICsgMV07CiAgaW50IHJldDsKICAKICBnZXRkcnYuaW50ZXJmYWNlID0g
+aW50ZXJmYWNlOwogIHJldCA9IGlvY3RsKGZkLCBJT0NUTF9VU0JfR0VURFJJVkVSLCAmZ2V0ZHJ2
+KTsKICBpZiAocmV0KSB7CiAgICBpZiAoZXJybm8gPT0gRU5PREFUQSkgewogICAgICBkcnZbMF0g
+PSAnXDAnOwogICAgfQogICAgZWxzZSB7CiAgICAgIHByaW50ZigiRXJyb3IgaW4gZHJpdmVyKCk6
+ICVzLCAlZFxuIiwgc3RyZXJyb3IoZXJybm8pLCBlcnJubyk7CiAgICAgIHJldHVybiBOVUxMOwog
+ICAgfQogIH0KICBlbHNlCiAgICBzdHJuY3B5KGRydiwgZ2V0ZHJ2LmRyaXZlciwgVVNCX01BWERS
+SVZFUk5BTUUpOwogIAogIHJldHVybiBkcnY7Cn0KCgppbnQgZGV0YWNoKGludCBmZCwgdW5zaWdu
+ZWQgaW50ZXJmYWNlKQp7CiAgc3RydWN0IHVzYl9pb2N0bCBjb21tYW5kOwogIGludCByZXQ7CiAg
+CiAgY29tbWFuZC5pZm5vID0gaW50ZXJmYWNlOwogIGNvbW1hbmQuaW9jdGxfY29kZSA9IElPQ1RM
+X1VTQl9ESVNDT05ORUNUOwogIGNvbW1hbmQuZGF0YSA9IE5VTEw7CiAgCiAgcmV0ID0gaW9jdGwo
+ZmQsIElPQ1RMX1VTQl9JT0NUTCwgJmNvbW1hbmQpOwogIGlmIChyZXQpIHsKICAgIHByaW50Zigi
+RXJyb3IgbGluZSBfX2xpbmVfXzogJXNcbiIsIHN0cmVycm9yKGVycm5vKSk7CiAgfQogIHJldHVy
+biByZXQ7Cn0KCiNkZWZpbmUgVVNBR0UgIlVzYWdlOiBkZXRhY2gtdXNiIFZFTkRPUiBQUk9EVUNU
+IElOVEVSRkFDRVxuIgoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIgKiphcmd2KQp7CiAgaWYgKGFy
+Z2MgPCA0KSB7CgkgIGZwdXRzKCJkZXRhY2gtdXNiOiBtaXNzaW5nIG9wZXJhbmRzXG4iIFVTQUdF
+LCBzdGRlcnIpOwoJICBleGl0KEVYSVRfRkFJTFVSRSk7CiAgfQoKICB1bnNpZ25lZCB2ZW5kb3Ig
+PSBzdHJ0b3VsKGFyZ3ZbMV0sIE5VTEwsIDE2KTsKICB1bnNpZ25lZCBwcm9kdWN0ID0gc3RydG91
+bChhcmd2WzJdLCBOVUxMLCAxNik7CiAgdW5zaWduZWQgaW50ZXJmYWNlID0gc3RydG91bChhcmd2
+WzNdLCBOVUxMLCAxNik7CgogIGludCByZXQgPSAwOwogIGludCBmZCA9IGNoZWNrX2RpcihVU0Jf
+UEFUSDEsIHZlbmRvciwgcHJvZHVjdCk7CiAgaWYgKGZkIDwgMCkKICAgIGZkID0gY2hlY2tfZGly
+KFVTQl9QQVRIMiwgdmVuZG9yLCBwcm9kdWN0KTsKICAKICBpZiAoZmQgPCAwKSB7CiAgICBwcmlu
+dGYoImNvdWxkIG5vdCBmaW5kIFVTQiBkZXZpY2VcbiIpOwogICAgcmV0ID0gMTsKICB9CiAgZWxz
+ZSB7CiAgICBjaGFyICpkcnY7CiAgICBwcmludGYoImZvdW5kIFVTQiBkZXZpY2VcbiIpOwogICAg
+ZHJ2ID0gZHJpdmVyKGZkLCBpbnRlcmZhY2UpOwogICAgaWYgKGRydikgewogICAgICBpZiAoZHJ2
+WzBdKSB7CiAgICAgICAgaWYgKGRldGFjaChmZCwgaW50ZXJmYWNlKSA9PSAwKSB7CiAgICAgICAg
+ICBwcmludGYoInN1Y2Nlc3NmdWxseSBkZXRhY2hlZCBkcml2ZXIgJXNcbiIsIGRydik7CiAgICAg
+ICAgfQogICAgICAgIGVsc2UgewogICAgICAgICAgcHJpbnRmKCJjb3VsZCBub3QgZGV0YWNoIGRy
+aXZlciAlc1xuIiwgZHJ2KTsKICAgICAgICAgIHJldCA9IDI7CiAgICAgICAgfQogICAgICB9CiAg
+ICAgIGVsc2UgewogICAgICAgIHByaW50Zigibm8gZHJpdmVyIGF0dGFjaGVkXG4iKTsKICAgICAg
+fQogICAgfQogICAgZWxzZSB7CiAgICAgIC8qIGVycm9yICovCiAgICAgIHJldCA9IDM7CiAgICB9
+CiAgICBjbG9zZShmZCk7CiAgfQogIHJldHVybiByZXQ7Cn0K
+------=_Part_64145_10730602.1188146635059--

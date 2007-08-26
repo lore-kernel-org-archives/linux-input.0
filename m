@@ -1,64 +1,63 @@
-From: Thomas Reitmayr <thomas@devbase.at>
-Subject: Re: USB: driver for CM109 chipset
-Date: Sun, 26 Aug 2007 13:53:10 +0200
-Message-ID: <46D169A6.4080209@devbase.at>
-References: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
+From: "Samuel Gonzalez" <lilies52@advancethermal.com>
+Subject: Pharmacy
+Date: Sun, 26 Aug 2007 13:26:38 -0200
+Message-ID: <550149041.81921704650184@advancethermal.com>
+Reply-To: lilies52@advancethermal.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/html;
+  charset=Windows-1252
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Shaun Jackman <sjackman@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Shaun,
-the CM109 VID and PID are probably not included in the kernel's 
-blacklisted device list (see static array hid_blacklist in hid-core.c). 
-Just for your tests you can write a little tool to detach the usbhid 
-driver and then load the cm109 module manually using modprobe or insmod.
-An example for this tool (not using libusb) can be found at
-http://www.devbase.at/svn/view.cgi/yealink-tools/trunk/detach-yealink.c?revision=1&root=experimental&view=markup
-or inside the EEPROM tool below.
-BTW, there is still the issue with varying key mappings among different 
-models. The EEPROM contents might give a hint for distinguishing the 
-models, it would be interesting if you could read the EEPROM and tell us 
-what you see. The tool for this task can be found at
-http://www.devbase.at/svn/view.cgi/cm109-tools/trunk/?root=experimental
-Regards,
--Thomas
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-Shaun Jackman wrote:
-> I am testing your cm109 driver with my Genius G-Talk USB phone. It
-> identifies itself as a cm109 device (0d8c:000e C-Media Electronics,
-> Inc.). I compiled and loaded the cm109 module. However when I plug the
-> phone in the, the usbhid driver grabs the device rather than the cm109
-> driver. The following snippet is from /proc/bus/usb/devices and shows
-> the Class/Subclass/Protocol 3/0/0 device is nabbed by the usbhid
-> driver. Why isn't the cm109 driver grabbing the device?
+<html>
+<head>
+<style>
+Alle 	Instrukt&#248;r tilfreds med rapport 14:42 	TV 22-3 timer    * Sport    * SocialdemokratTV-program22&#186;22&#186;    * BenficaAlle 	Instrukt&#248;r tilfreds med rapport 14:42 	TV 219:00	Nyhederne	TV 2    * Benfica28-&#229;rig polak dr&#230;bt mod vejtr&#230;<5 minutterMicrosoft udsender k&#230;mpeopdateringErhverv 	Dansk IT: Alvorligt brug for digitale kompetencer 15:03 	Computerworld.dkAlleIndland Udland Sport Erhverv Tech Showbiz1-2 dage22:30	Deadline	DR2    * Mattel21&#186;21&#186;Rygere n&#230;gtes operationer    * Open SourceErhverv 	Analytikere: Aktier nedad i uger endnu 15:01 	B&#248;rsen    * The UKChefredakt&#248;r forbyder journalister at ringe til...    * White Hart Lane    * RegnskabLivsstil    * MicrosoftSe alle popul&#230;re emnerShowbiz 	Spears-Federline divorce paper
+ s may go public Engelsk 15:06 	CNNIndland 	Farlig var det gale ord 14:55 	Berlingske.dkAlle 	Kamp for forsvundne bukser forts&#230;tter 14:42 	TV 2FC K&#248;benhavn19:00	Aftenshowet med Vejret	DR1    * De radikale    * Unders&#248;gelseErhverv For 5 timer siden p&#229; Computerworld.dkErhverv 	Merrill Lynch frygter mega-bankkollaps 15:15 	B&#248;rsenSe alle popul&#230;re emner19:00	Aftenshowet med Vejret	DR1    * White Hart Lane2-3 timerSport 	Cocu til Emiraterne 15:18 	PolitikenErhverv 	Massive fald i C20-indekset 15:15 	Business.dkSport 	Stuttgart forl&#230;nger med landsholdsspiller 15:08 	ForzaSport 	DBU &#229;bner kassen til kvinderne 14:44 	Berlingske.dkAlle For 3 timer siden p&#229; Avisen.dk* 2-1-Sejr    * Sport5-15 minutterSport 	DBU &#229;bner kassen til kvinderne 14:44 	Berlin
+ gske.dk    * TV 2    * Dokumentarfilm    * Kim Christensen1-1&#189; timeErhverv For 5 timer siden p&#229; Computerworld.dkTopnyhederAktuelt emne
+P
+{
+margin:0px;
+padding:0px
+}
+body
+{
+FONT-SIZE: 10pt;
+FONT-FAMILY:Tahoma
+}
+</style>
+</head>
+<body>
+<SPAN style="BORDER-RIGHT: 0px; PADDING-RIGHT: 12px; BORDER-TOP: 0px; PAD=
+DING-LEFT: 12px; FONT-SIZE: 16px; FLOAT: right; PADDING-BOTTOM: 12px; MARGI=
+N: 11px; BORDER-LEFT: 0px; PADDING-TOP: 12px; BORDER-BOTTOM: 0px; FONT-FAMI=
+LY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #feee67"><FONT size=4
 >
-> Thanks for writing the driver, and I hope I can get it to work!
-> Shaun
->
-> T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 0
-> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-> P:  Vendor=0d8c ProdID=000e Rev= 1.00
-> S:  Product=Generic USB Audio Device
-> C:* #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=100mA
-> I:* If#= 0 Alt= 0 #EPs= 0 Cls=01(audio) Sub=01 Prot=00 Driver=snd-usb-audio
-> I:* If#= 1 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> I:  If#= 1 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> E:  Ad=01(O) Atr=09(Isoc) MxPS= 200 Ivl=1ms
-> I:* If#= 2 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> I:  If#= 2 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
-> E:  Ad=82(I) Atr=05(Isoc) MxPS= 100 Ivl=1ms
-> I:* If#= 3 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-> E:  Ad=83(I) Atr=03(Int.) MxPS=   4 Ivl=32ms
->
->
->   
+<style>Tech 	Linux kernel-info site bows Engelsk 15:15 	Computerworld.com    * Helle ThorningJubii21&#186;21&#186;Advarsel5-15 minutterErhverv 	T&#248;rre t&#230;sk til GN-aktien 15:01 	TV 2Erhverv 	GN vil f&#248;lge Resound-sag til d&#248;rs - IR-chef 15:20 	EuroInvestorAdvokat i f&#230;ngsel for trusler mod eksMest l&#230;ste nyheder seneste d&#248;gnErhverv 	Royal Unibrew k&#248;ber op i Letland 14:40 	Business.dk</style>
+<B>Vi<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>arbehgl</FONT></SPAN>ag<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>htffcfdoru</FONT></SPAN>ra $1.79 C<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>vousykzqtv</FONT></SPAN>ial<SPAN style="
+ORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT:
+0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>gomlsiln</FONT></SPAN>is 
+$3.93</B><BR></FONT>
+<style>Alle For 19 timer siden p&#229; TV 2LivsstilIndland 	DF: Lykketofts sprogbrug er forkert 14:41 	PolitikenErhverv 	Investorerne ignorerer FCK&#180;s Benfica-resultat 15:15 	Business.dk    * A kasseErhverv 	Nordicom: P&#229; vej til at indfri forventninger -... 15:00 	EuroInvestor* 2-1-SejrUdland 	First ruling on mobile footage Engelsk 14:56 	BBC1&#189;-2 timerSport 	Hitzlsperger forl&#230;nger med Stuttgart 15:09 	Bold.dk    * KvindeMest l&#230;ste nyheder seneste d&#248;gn</style>
+<H4><SPAN>and man<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT:
+right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"></SPAN>y other it<SPAN style="BORDER-RIGHT: 0px;
+ORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77
+; BORDER-BOTTOM: 0px"></SPAN>ems for 5% of the price.<BR><A href="http://inzuk.net/redir.html">Click to visit the shop
+</A></SPAN></H4></SPAN><br /><hr />
+<style>Advarsel    * Euro2008Se alle popul&#230;re emner    * VmwareUdland For 9 timer siden p&#229; UrbanSport 	Hitzlsperger forl&#230;nger med Stuttgart 15:09 	Bold.dkIndland  For 21 minutter siden p&#229; Berlingske.dk  EngelskKommunikation    * Digital    * Subprime    * Michael Rasmussen    * TV 2Indland Udland Sport Erhverv Tech Showbiz28-&#229;rig polak dr&#230;bt mod vejtr&#230;Tech 	Mini-vindmotorer nedk&#248;ler effektivt computerchip 14:45 	Ingeni&#248;ren</style>
+</body>
+</html>
+
+</BODY></HTML>

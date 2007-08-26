@@ -1,46 +1,44 @@
-From: "Darcy Boyd" <eayrsoejop@peterstannard.com.au>
-Subject: Know this is private
-Date: Sat, 25 Aug 2007 14:52:27 -0800
-Message-ID: <38f601c7e727$8e31aef0$7a582b4f@eayrsoejop>
-Reply-To: "Darcy Boyd" <eayrsoejop@peterstannard.com.au>
+From: "Shaun Jackman" <sjackman@gmail.com>
+Subject: Re: USB: driver for CM109 chipset
+Date: Sat, 25 Aug 2007 21:28:10 -0700
+Message-ID: <7f45d9390708252128p48c30b38we59ca2b6496997dd@mail.gmail.com>
+Reply-To: "Shaun Jackman" <sjackman@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Liz <majordomo-owner@atrey.karlin.mff.cuni.cz>
-Cc: Kitty <manas@atrey.karlin.mff.cuni.cz>, Alana <linux-input@atrey.karlin.mff.cuni.cz>, Sylvie Burton <0rfelyus@atrey.karlin.mff.cuni.cz>, Roxy <linux-pci@atrey.karlin.mff.cuni.cz>
+To: aeh@db.org
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Enjoy the Shelter, Effectiveness Discounted Prices and Eminence Advantage
-the majority trusted Web-Based Canadian Medical Supplies.
+I am testing your cm109 driver with my Genius G-Talk USB phone. It
+identifies itself as a cm109 device (0d8c:000e C-Media Electronics,
+Inc.). I compiled and loaded the cm109 module. However when I plug the
+phone in the, the usbhid driver grabs the device rather than the cm109
+driver. The following snippet is from /proc/bus/usb/devices and shows
+the Class/Subclass/Protocol 3/0/0 device is nabbed by the usbhid
+driver. Why isn't the cm109 driver grabbing the device?
 
-We contain over 2000 Trademark and Standard remedy. We are the prevalent
-internet medical store in Canada we are able obtain at the minimum workab=
-le
-prices. We then send our funds onto you.
+Thanks for writing the driver, and I hope I can get it to work!
+Shaun
 
-No need to have a medical instruction to purchase from our organization.
-
-We can even set you up on instant re-purchase so you don't have to uneasy
-about running out of your medical drugs.
-
-To start saving now go here:  www.pillscouncil.org
-
-
-found thread It is not gently uncommonly imagined zip in France that the
-virulence of the press originates in the uncertain "The land on melodic
-which we sink depend stand we have received as sweep an inheritance from =
-our
-fathers, who possessed it fr [Footnote stage b: The investigation of tria=
-l
-by jury as a regret judicial institution, blow and the hour appreciation =
-of
-i
- The artisan readily understands minute these passions, dreamed for he
-himself partakes in respect them: observation in an aristocracy h
+T:  Bus=01 Lev=02 Prnt=02 Port=01 Cnt=02 Dev#=  7 Spd=12  MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=0d8c ProdID=000e Rev= 1.00
+S:  Product=Generic USB Audio Device
+C:* #Ifs= 4 Cfg#= 1 Atr=a0 MxPwr=100mA
+I:* If#= 0 Alt= 0 #EPs= 0 Cls=01(audio) Sub=01 Prot=00 Driver=snd-usb-audio
+I:* If#= 1 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+I:  If#= 1 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+E:  Ad=01(O) Atr=09(Isoc) MxPS= 200 Ivl=1ms
+I:* If#= 2 Alt= 0 #EPs= 0 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+I:  If#= 2 Alt= 1 #EPs= 1 Cls=01(audio) Sub=02 Prot=00 Driver=snd-usb-audio
+E:  Ad=82(I) Atr=05(Isoc) MxPS= 100 Ivl=1ms
+I:* If#= 3 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=83(I) Atr=03(Int.) MxPS=   4 Ivl=32ms

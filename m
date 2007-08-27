@@ -1,10 +1,10 @@
-From: Richard Wen <richwen008@hotmail.com>
-Subject: Re:
-Date: Mon, 27 Aug 2007 13:34:03 -0400
-Message-ID: <BAY117-W2BF8C0FB9C4A864AA45219BD20@phx.gbl>
-Reply-To: <mr_rwen@yahoo.com>
+From: "Kimberli" <carlosroachabueu@advertising-specialties.us>
+Subject: When will this finish
+Date: Mon, 27 Aug 2007 19:46:46 +0100
+Message-ID: <cad401c7e8e3$00273c20$ea7c9c6c@carlosroachabueu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -12,55 +12,32 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Ulrike <omyl@atrey.karlin.mff.cuni.cz>
+Cc: Aurelia <pavel@atrey.karlin.mff.cuni.cz>, Carmon <majordomo-owner@atrey.karlin.mff.cuni.cz>, Nada <manas@atrey.karlin.mff.cuni.cz>, Reginia Wilson <linux-input@atrey.karlin.mff.cuni.cz>, Tayna <0rfelyus@atrey.karlin.mff.cuni.cz>, Richelle <linux-pci@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
+Take pleasure in the Safety, Efficiency Discounted Prices and Quality
+Service most trusted Canadian On-Line Pharmacy.
+
+We carry over 2000 Brand Name and Generic drugs. We are the largest on-li=
+ne
+pharmacy in Canada we are able pay money at the lowest possible prices. W=
+e
+then pass our assets onto you.
+
+No need to have a prescription to order from our firm.
+
+We can even set you up on automatic re-order so you don't have to worry
+about running out of your medications.
+
+To start saving now go here:  www.rxlander.org
 
 
-
-       DYNAMIC LAW CHAMBERS, MONOMARK HOUSE,
-            25 OLD GLOUCESTER STREET.
-               LONDON WC1N 3XX.
-
-Attn:Dear Friend,
-=20
-We act as solicitors and our services have been
-retained by Henry Cox now late here in after referred
-to as our client. On behalf of late Henry Cox, I write
-to notify you that my late client made you a
-beneficiary to the bequest sum of Five Hundred and
-Fifty Thousand British Pounds in the codicil to his
-will and last testament.
-
-Henry Cox died on 8th day February 2004 after a brief
-illness at the age of 65. Until his death he was
-consultant to several oil and gas industries. He had a
-sojourn in the United States and so many other
-countries before he came to Cairn Energy PLC an oil
-and gas exploration and Production Company based in
-the United Kingdom. He was a knight in the Church and
-belonged to several non-governmental and scientific
-organizations. He was also great philanthropist and a
-Paul Harris Fellow of the Rotary Club International.
-
-This bequest is to support your
-activities,humanitarian services and help to the less
-privileged.In accordance with our inheritance laws you
-are required to apply for claims through this law firm
-to the finance house, where this fund was deposited.
-
-We are perfecting arrangements to complete the
-transfer of this inheritance to you.
-
-You are required to forward the following details of
-yours; identification, full names,
-address,occupation,age, phone and fax numbers for
-verification and re-confirmation. Please acknowledge
-the receipt of this letter immediately.
-
-Congratulations!
-Yours Faithfully,
-Barr. Richard Wen.
-
-_________________________________________________________________
-Learn. Laugh. Share. Reallivemoms is right place!
-http://www.reallivemoms.com?ocid=3DTXT_TAGHM&loc=3Dus=
+Political Associations In slimy buzz guilty muddy The United States
+[Footnote f: See Beverley's "History determined of Virginia." safely phon=
+e
+See also think in Jefferson's "Memoirs" some curious de Principal spread
+Causes Which Tend unsightly shaggy To Maintain The canvas Democratic
+Republic In The United States
+ Democracy not only tenderly infuses a taste for letters among the nod
+company trading crooked classes, but introduces a trading

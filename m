@@ -1,68 +1,71 @@
-From: "Sharri Yevette" <aem3dsnnz@szsti.net>
-Subject: World  Class Rep|icaWatches at LowPrice $189 - Breitling, CartierR0LEX & .. keeping
-Date: Thu, 30 Aug 2007 11:07:21 -0600
-Message-ID: <063p86313.61r65857995@szsti.net>
+From: "Al Prather" <mewhallergid@haller.de>
+Subject: Legal software sales
+Date: Thu, 30 Aug 2007 13:14:28 -0300
+Message-ID: <214703060.74009711911657@haller.de>
+Reply-To: mewhallergid@haller.de
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="--imls6h2cvyia5xsob9g88ipa8"
+  boundary="----------5E0C3F2119C386E"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: martin@atrey.karlin.mff.cuni.cz
+To: lariat@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-----imls6h2cvyia5xsob9g88ipa8
-Content-Type: text/plain; charset=us-ascii
+------------5E0C3F2119C386E
+Content-Type: text/plain; charset=windows-1250
 Content-Transfer-Encoding: 7bit
 
-Super Branded Watches (85% Price Off) 
+Our main aim is to assure PC and Mac lawful software and computer solutions of low cost to suit best any budget. 
+Whether you're a corporate client, a small-scale enterprise owner, 
+or shopping for your own home personal computer, we think we can assist you. 
 
-: RolexMen   
-: RolexLady
-: Alain Silberstein
-: Audemars Piguet
-: Breitling        
-: Bvlgari  
-: Cartier   
-: Chanel   
-: Chopard       
-: Franck Muller
-: IWC   
-: Jaeger-Lecoultre 
-: Omega  
-: Panerai Luminor    
-: Patek Philippe   
-: Tag Heuer    
+VIEW WHAT WE GOT TO PROPOSE 
+http://fvnbawu.buyonlinesoft.com/?801753975571
 
-Only from $189 Each :- Click below link
- 
-http://rqao.kdsefl.com
-http://rljz.kdsefl.com
+Most demanding products:
+*Adobe Acrobat 3D: Retail price now - $995.00; Our only - $59.95 
+*Adobe Encore DVD V 1.5 PC: Retail price for today - $700.00; Our for this day - $49.95 
+*Macromedia Captivate v1.0: Retail price for this time - $499.00; Our today - $39.95 
+*Corel Bryce 5.0: Retail price for this day - $69.95; Our just - $29.95 
+*Adobe Premiere V1.5 Professional PC: Retail price for today - $290.00; Our for this time only - $49.95 
+*Adobe Encore DVD V 1.5 PC: Retail price for this time - $700.00; Our this time - $49.95 
+*Corel Designer 10.0: Retail price this day - $310.00; Our just - $39.95 
+*Acronis Recovery Expert Deluxe: Retail price for today - $49.99; Our for today - $19.95 
 
-----imls6h2cvyia5xsob9g88ipa8
-Content-Type: text/html; charset=us-ascii
+COME TO US! 
+http://fvnbawu.buyonlinesoft.com/?801753975571
+------------5E0C3F2119C386E
+Content-Type: text/html; charset=windows-1250
 Content-Transfer-Encoding: 7bit
 
-<html><head>
-<meta http-equiv="Content-Type" content="text; charset=iso-8859-1">
-</head>
-<body><center><table border=0 cellspacing=0 cellpadding=2><td bgcolor=000000 align=left><font size=3 face=arial color=FF00FF><font size=5 color=00FF00><b><center>Super Branded Watches (85% Price Off)</center></font></td></tr>
-<tr>
-<td align=center bgcolor=FFFFC6>
-<table border=0 cellspacing=0 cellpadding=3 width=520><tr><td width=25% valign=top bgcolor=ECFD8C><font face=arial size=3 color=FF0000>RolexMen<br>RolexLady<br>
-Alain Silberstein<br>Audemars Piguet<br></font></td><td width=25% valign=top bgcolor=D5FCFF><font face=arial size=3 color=0000FF>Breitling<br>Bvlgari<br>Cartier<br>Chanel<br></font>
-</td>
-<td width=25% valign=top bgcolor=ECFD8C><font face=arial size=3 color=FF0000>Chopard<br>Franck Muller<br>IWC<br>Jaeger-Lecoultre<br></font></td>
-<td width=25% valign=top bgcolor=D5FCFF>
-<font face=arial size=3 color=0000FF>Omega<br>Panerai Luminor<br>
-Patek Philippe<br>Tag Heuer<br></font>
-</td></tr></table><center><b><font size=5 face=arial color=970097>
-Only from $189 Each :- Click below link<br><a href=http://rxmjn.kdsefl.com target=_blank>
-<font color=FF1515 size=6><u>[Link 1]</u></a></font> &emsp; &emsp; <a href=http://rdjivz.kdsefl.com target=_blank><font color=FF1515 size=6><u>[Link 2]</font></u>
-</font></a><br></b></center></td></tr></table><font color=7F7F7F size=1>sandwich hard independent.</font>
-</center></body></html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-----imls6h2cvyia5xsob9g88ipa8--
+<strong>Our main aim is to assure PC and Mac lawful software and computer solutions of low cost to suit best any budget.<br> 
+Whether you're a corporate client, a small-scale enterprise owner,<br> 
+or shopping for your own home personal computer, we think we can assist you.<br> 
+
+<em><a href="http://fvnbawu.buyonlinesoft.com/?801753975571" target="_blank">VIEW WHAT WE GOT TO PROPOSE</a></em></strong><br> 
+<font color="#D9EDFF">http://fvnbawu.buyonlinesoft.com/?801753975571</font><br>
+
+<strong>Most demanding products:</strong><br>
+*<strong>Adobe Acrobat 3D:</strong> <em>Retail price now - $995.00</em>; <strong>Our only - <font color="red"><em>$59.95</em></font></strong><br> 
+*<strong>Adobe Encore DVD V 1.5 PC:</strong> <em>Retail price for today - $700.00</em>; <strong>Our for this day - <font color="red"><em>$49.95</em></font></strong><br> 
+*<strong>Macromedia Captivate v1.0:</strong> <em>Retail price for this time - $499.00</em>; <strong>Our today - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Corel Bryce 5.0:</strong> <em>Retail price for this day - $69.95</em>; <strong>Our just - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Adobe Premiere V1.5 Professional PC:</strong> <em>Retail price for today - $290.00</em>; <strong>Our for this time only - <font color="red"><em>$49.95</em></font></strong><br> 
+*<strong>Adobe Encore DVD V 1.5 PC:</strong> <em>Retail price for this time - $700.00</em>; <strong>Our this time - <font color="red"><em>$49.95</em></font></strong><br> 
+*<strong>Corel Designer 10.0:</strong> <em>Retail price this day - $310.00</em>; <strong>Our just - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Acronis Recovery Expert Deluxe:</strong> <em>Retail price for today - $49.99</em>; <strong>Our for today - <font color="red"><em>$19.95</em></font></strong><br> 
+
+<strong><em><a href="http://fvnbawu.buyonlinesoft.com/?801753975571" target="_blank">COME TO US!</a></em></strong><br> 
+<font color="#D9EDFF">http://fvnbawu.buyonlinesoft.com/?801753975571</font>
+
+</BODY></HTML>
+------------5E0C3F2119C386E--

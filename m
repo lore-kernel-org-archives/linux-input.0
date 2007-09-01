@@ -1,49 +1,59 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH] Console keyboard events and accessibility
-Date: Sat, 1 Sep 2007 21:36:52 +0200
-Message-ID: <20070901193652.GD12644@implementation>
-References: <20070821005718.GD3658@interface.famille.thibault.fr> <Pine.LNX.4.64.0708210732270.5333@fbirervta.pbzchgretzou.qr> <20070821204951.GC3658@interface.famille.thibault.fr> <20070712191932.GA3947@ucw.cz> <20070901122604.GA3251@implementation.famille.thibault.fr> <20070901123258.GA4612@ucw.cz> <20070901125120.GC3251@implementation.famille.thibault.fr> <20070901172301.GA4275@ucw.cz> <20070901173329.GB12644@implementation> <20070901181845.GA4839@ucw.cz>
+From: "Guadalupe Rosa" <bodhisattva834@ttc-cmc.net>
+Subject: Know her from the sexual side how is she inside exactly!
+Date: Sat, 1 Sep 2007 21:06:08 -0100
+Message-ID: <575221522.17955381693584@ttc-cmc.net>
+Reply-To: bodhisattva834@ttc-cmc.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------9CA4F29CA48DAB4"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <20070901181845.GA4839@ucw.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Jan Engelhardt <jengelh@computergmbh.de>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, dtor@mail.ru
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Pavel Machek, le Sat 01 Sep 2007 18:18:45 +0000, a =E9crit :
-> > > > Very early is not so early, and loading initrd itself may actuall=
-y fail.
-> > > > The kernel may indeed hang, but there are more chances to get som=
-e
-> > > > messages before the hang.  Don't _you_ have a VGA screen for gett=
-ing
-> > > > earliest failure messages from the kernel?
-> > >=20
-> > > No. I'm using framebuffer, that's initialized quite late in boot
-> > > process. Plus many users just use bootsplash. I do use vga mode for
-> > > heavy debugging, but that's quite unusual.
-> >=20
-> > But that's what some people do for their work, so they need it.
->=20
-> How many such users are out there?
+------------9CA4F29CA48DAB4
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-You know that it's a question that just can't be answered.  There are
-such people, and their employment depend on this.
+Dear customer.Just put this in mind: how about to have bigger pe jzz nis, better erec zfj tions and increased se yb xual pleasure. Think of how this could give you confidence and self-esteem that you have never experienced before. The effect on your life could be truly enormous if you take that step and order your pe jm nis enlar uy gement pill today! All of these clinically tested health products will give you the results, that you are looking for, and there is no other place, which can offer you this on these prices and with the best quality at the same time.Dramatic incr zew ease in sexual performance – 96%
+Stro wzh nger orgasms – 97%
+Incr id eased desire to have sex – 99%
+Imp pb roved self-esteem – 93%
+Imp axe roved love life – 97%click here to get only facts!Yours,Guadalupe Rosa
+Sat, 1 Sep 2007 21:06:08 -0100JJ79C3IXI4WRZSMCZB
 
-> > > So... you actually have speech-enabled grub/lilo/something?
-> >=20
-> > That's in project too (and there's no reason it shouldn't be done).
->=20
-> I'd say kernel debugging is hard without accessible bootloader
+------------9CA4F29CA48DAB4
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-A bootloader with only two entries is not so difficult to use blindly.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-Samuel
+<html>
+<body>
+<font face="Verdana" size="2" color="#000000">
+<p>Dear customer.</p>
+<p>Just put this in mind: how about to have <b>bigger pe<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> jzz </span>nis, better erec<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> zfj </span>tions</b> and increased se<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> yb </span>xual pleasure. Think of how this could give you confidence and self-esteem that you have never experienced before. The effect on your life could be truly enormous if you take that step and <a href="http://enl.agerty.com/">order your pe<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> jm </span>nis enlar<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> uy </span>gement pill today</a>! All of these <b>clinically tested health products</b> will give you the results, that you are
+  looking for, and there is no other place, which can offer you this on these prices and with the best quality at the same time.</p>
+<p>Dramatic incr<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> zew </span>ease in sexual performance – 96%<br>
+Stro<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> wzh </span>nger orgasms – 97%<br>
+Incr<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> id </span>eased desire to have sex – 99%<br>
+Imp<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> pb </span>roved self-esteem – 93%<br>
+Imp<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> axe </span>roved love life – 97%<br></p>
+<p><a href="http://enl.agerty.com/">click here </a>to get only facts!</p>
+<p>Yours,<br>Guadalupe Rosa</font></p>
+<br>
+<center>
+Sat, 1 Sep 2007 21:06:08 -0100<br>JJ79C3IXI4WRZSMCZB
+</center>
+</body>
+</html>
+
+</BODY></HTML>
+------------9CA4F29CA48DAB4--

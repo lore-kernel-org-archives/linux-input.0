@@ -1,26 +1,35 @@
-From: "Roxie Carrillo" <pewilo@bransonhomesearch.com>
-Subject: Re:QWERTY KEYBOARD
-Date: Mon, 3 Sep 2007 16:28:50 +0000 (UTC)
-Message-ID: <00ecffa4$00ecfe78$73106242@pewilo>
-Mime-Version: 1.0
+From: "George Jarrett" <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: buy Porsche Design  right here
+Date: Mon, 03 Sep 2007 15:17:41 -0500
+Message-ID: <ufqndNIQFDAPlinux-input@atrey.karlin.mff.cuni.cz>
+Reply-To: "George Jarrett" <linux-input@atrey.karlin.mff.cuni.cz>
 Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 34 Aug 2007 12:28:40 -0400
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: jk@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Have you ever wanted a pricey Watch?
 
-We have the piece for you!
 
-We stock all the top quality 
-for a very small precentage of the cost.
 
-www.dheywnn.com
+Have you always dreamed of owning your own high dollar 
+famous brand name watch? Now is your chance to get 
+the watch youve always wanted,
+for a FRACTION OF THE COST!
+
+-100% Exact Replication
+-All Different Brands (Tag Heuer , Tag Heuer , Tag Heuer , MORE!)
+-Automatic Movement (sweeping second hand)
+-Made in Switzerland
+-Starting at $99.99!
+
+Please goto http://www.spelkeij.com/
+ for more information today! 
+
+ Mail Was a miskate 
+ http://www.spelkeij.com/remove

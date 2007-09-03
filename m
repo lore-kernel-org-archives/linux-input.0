@@ -1,14 +1,14 @@
-From: "Frankie Workman" <9shades123@junipernetworks.com>
-Subject: Looking for penpal?
-Date: Mon, 3 Sep 2007 11:49:22 +0000 (UTC)
-Message-ID: <230665039.38940084183516@junipernetworks.com>
-Reply-To: 9shades123@junipernetworks.com
+From: "Gonzalo Gomes" <Gonzalo@queretaro.com>
+Subject: Download all Popular Softwares just now
+Date: Mon, 3 Sep 2007 13:40:12 +0000 (UTC)
+Message-ID: <299884444.00856794909502@montgomery.com>
+Reply-To: fhugr@montgomery.com
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset=iso-8859-2
+  charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 34 Aug 2007 12:50:14 +0100
+Date: Mon, 34 Aug 2007 15:39:57 +0200
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,4 +17,10 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello! I am tired this afternoon. I am nice girl that would like to chat with you. Email me at kklwjb@BestOnset.info only, because I am writing not from my personal email. To see my pics
+Get the great discounts on popular software today at  http://eoresof.com/
+All sofware is instantly available to download - No Need Wait!
+ALL OUR SOFTWARES ON ALL EUROPEAN LANGUAGES - USA, English, France, Italy, Spanish, German and more!!!
+
+Also we have so much soft for WINDOWS, MACINTOSH!!!
+
+To review full list of the offers, visit  http://eoresof.com/

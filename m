@@ -1,50 +1,48 @@
-From: "Mr Davis Lumka" <davislumka2@yahoo.com.hk>
-Subject: Please Read I Need Your Help
-Date: Fri, 7 Sep 2007 02:26:26 -0500 (CDT)
-Message-ID: <1309.41.242.42.184.1189149986.squirrel@alpha.hostaga.com>
-Reply-To: davislumka5@yahoo.com.hk
+From: "Vasilijs Kristoffersen" <Vasilijs@joepolish.com>
+Subject: pc5741
+Date: Fri, 7 Sep 2007 12:58:24 +0200
+Message-ID: <000801c7f13e$02dddfb0$2f02223e@lhawsa>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0003_01C7F14E.C666AFB0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+------=_NextPart_000_0003_01C7F14E.C666AFB0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
+http://hilogics.com/
+Wassup Kristoffersen
+Did you know that it's possible to enlarge your penis at your home
 
+alborz lenneberg
+------=_NextPart_000_0003_01C7F14E.C666AFB0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Goodday,
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://hilogics.com/">http://hilogics.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Wassup Kristoffersen</FONT></DIV>
+<DIV><FONT Arial size=3D2>Did you know that it's possible to enlarge =
+your penis at=20
+your home</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>alborz lenneberg</FONT></DIV></BODY></HTML>
 
-My name is Mr Davis Lumka from South Africa our client died Three years
-ago leaving behind Capital amount (US$14.6M) in our bank here where i wor=
-k
-,I am his account manager ,till date nobody has come forward or put
-application for the claim.
-
-During the bank private search for the relative recently your name and
-email contact was among the findings that matches the same surname as
-the deceases name is (withheld for security reason) who died interstate
-with no Will or next of kin.
-
-
-To maintain the level of security required I have intentionally left out
-the final details. I want you to come forward since I can provide you
-with the details needed for you to claim the Funds so that I can be
-gratify by you,I and my colleague that will do all the crucial part in
-the bank to have the claim release to you promptly.
-
-To affirm yourwillingness and cooperation please do so by replying me at
-my private email stating your telephone number .
-
-
-I do expect you prompt response.
-
-Thank you,
-
-Mr Davis Lumka
-
-+27 74 103 5599
+------=_NextPart_000_0003_01C7F14E.C666AFB0--

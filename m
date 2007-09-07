@@ -1,13 +1,11 @@
-From: "Dinesh Mahal" <Dinesh.Mahal@cashpoint.cz>
-Subject: kroeghou
-Date: Fri, 7 Sep 2007 13:17:08 +1000
-Message-ID: <000301c7f0fd$92c9a870$ca78de51@home>
+From: "Bobi Schweizer" <Bobi969@arrowenergy.com>
+Subject: ordellid
+Date: Fri, 7 Sep 2007 06:51:00 +0200
+Message-ID: <000701c7f10a$af8dc7e0$22f4125b@acera9ce03bbc6>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="windows-1251"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0009_01C7F11B.731697E0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Message-ID: <000301c7f0fd$92c9a870$ca78de51@home>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -16,8 +14,36 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-How it is going Dinesh
-permanently enlarge your penis
+------=_NextPart_000_0009_01C7F11B.731697E0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Gajic Mirman
-http://www.sshopbop.com/
+http://www.selenan.com/
+Hi bro linux-input
+the common problem today is difficulty in holding ejaculation for a long =
+time and the size of penis
+
+Coram Rathje
+------=_NextPart_000_0009_01C7F11B.731697E0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://www.selenan.com/">http://www.selenan.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Hi bro linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>the common problem today is difficulty in =
+holding=20
+ejaculation for a long time and the size of penis</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>Coram Rathje</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0009_01C7F11B.731697E0--

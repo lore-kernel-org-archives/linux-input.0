@@ -1,49 +1,50 @@
-From: "Bobi Schweizer" <Bobi969@arrowenergy.com>
-Subject: ordellid
-Date: Fri, 7 Sep 2007 06:51:00 +0200
-Message-ID: <000701c7f10a$af8dc7e0$22f4125b@acera9ce03bbc6>
+From: "Mr Davis Lumka" <davislumka2@yahoo.com.hk>
+Subject: Please Read I Need Your Help
+Date: Fri, 7 Sep 2007 02:26:26 -0500 (CDT)
+Message-ID: <1309.41.242.42.184.1189149986.squirrel@alpha.hostaga.com>
+Reply-To: davislumka5@yahoo.com.hk
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0009_01C7F11B.731697E0"
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0009_01C7F11B.731697E0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
-http://www.selenan.com/
-Hi bro linux-input
-the common problem today is difficulty in holding ejaculation for a long =
-time and the size of penis
 
-Coram Rathje
-------=_NextPart_000_0009_01C7F11B.731697E0
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://www.selenan.com/">http://www.selenan.com/</A></FONT></DIV>
-<DIV><FONT Arial size=3D2>Hi bro linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>the common problem today is difficulty in =
-holding=20
-ejaculation for a long time and the size of penis</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Coram Rathje</FONT></DIV></BODY></HTML>
+Goodday,
 
-------=_NextPart_000_0009_01C7F11B.731697E0--
+My name is Mr Davis Lumka from South Africa our client died Three years
+ago leaving behind Capital amount (US$14.6M) in our bank here where i wor=
+k
+,I am his account manager ,till date nobody has come forward or put
+application for the claim.
+
+During the bank private search for the relative recently your name and
+email contact was among the findings that matches the same surname as
+the deceases name is (withheld for security reason) who died interstate
+with no Will or next of kin.
+
+
+To maintain the level of security required I have intentionally left out
+the final details. I want you to come forward since I can provide you
+with the details needed for you to claim the Funds so that I can be
+gratify by you,I and my colleague that will do all the crucial part in
+the bank to have the claim release to you promptly.
+
+To affirm yourwillingness and cooperation please do so by replying me at
+my private email stating your telephone number .
+
+
+I do expect you prompt response.
+
+Thank you,
+
+Mr Davis Lumka
+
++27 74 103 5599

@@ -1,10 +1,10 @@
-From: "VIP Casino" <celestial@colima.com>
-Subject: 555 Euro - Welcome Bonus!
-Date: Sat, 08 Sep 2007 15:16:34 +0500
-Message-ID: <84363999.78005449@proficient.com>
+From: "Davin Dezoysa" <DavinDezoysa@master-uni.ru>
+Subject: thuridea
+Date: Sat, 8 Sep 2007 12:47:53 +0200
+Message-ID: <000201c7f205$b54bcaf0$941f1557@compaq>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0004_01C7F216.78D49AF0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,71 +14,34 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+------=_NextPart_000_0004_01C7F216.78D49AF0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+http://www.hljsoft.com/
+How it is going linux-input
+Low self-esteem?, change that today
 
-<title>The </title>
+kevan Hope
+------=_NextPart_000_0004_01C7F216.78D49AF0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-<style>
-<!--
- /* Style Definitions */
-a:link, span.MsoHyperlink
-	{color:blue;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:blue;}
-p
-	{mso-margin-top-alt:auto;
-	margin-right:0cm;
-	mso-margin-bottom-alt:auto;
-	margin-left:0cm;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	color:black;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://www.hljsoft.com/">http://www.hljsoft.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>How it is going linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>Low self-esteem?, change that =
+today</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>kevan Hope</FONT></DIV></BODY></HTML>
 
-</head>
-
-<body lang=EN-US link=blue vlink=blue style='tab-interval:35.4pt'>
-
-<div class=Section1>
-
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>
-The best players are in Vegas, and the Best Bonuses you will find only at 
-Vegas VIP Casino!<o:p></o:p></span></p>
-
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>
-200% on your first deposit, 100% on your second and third deposits and the 
-cherry on the top: 155% on your fourth deposit!
-<o:p></o:p></span></p>
-
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>
-This will bring you to a total of $555 of Welcome Bonus
-<o:p></o:p></span></p>
-
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>
-This and much more is waiting for you at the fabulous Vegas 
-VIP Casino, where the best play<o:p></o:p></span></p>
-
-<p><span lang=EN-US style='mso-ansi-language:EN-US'>
-<a href="http://grandvegascasino.com/">
-http://grandvegascasino.com/</a>
-</span></p>
-
-</div>
-
-</body>
-
-</html>
+------=_NextPart_000_0004_01C7F216.78D49AF0--

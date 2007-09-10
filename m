@@ -1,241 +1,99 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [HP Jornada 6XX] - Onboard Keyboard support
-Date: Mon, 10 Sep 2007 09:01:51 -0400
-Message-ID: <d120d5000709100601u1a5a0208g903c4463119c3702@mail.gmail.com>
-References: <20070721181549.9d118414.Kristoffer.Ericson@Gmail.com>
-	 <200707220145.10563.dtor@insightbb.com>
-	 <20070726223452.e6d8f7c3.Kristoffer.Ericson@Gmail.com>
-	 <d120d5000707300539haa26ae8sdfee043ae9e64688@mail.gmail.com>
-	 <20070910145836.bc268d5d.Kristoffer.Ericson@Gmail.com>
+From: Markus Armbruster <armbru@redhat.com>
+Subject: [PATCH] input: Fix interrupt enable in i8042_ctr when enabling interrupt fails
+Date: Mon, 10 Sep 2007 14:41:34 +0200
+Message-ID: <877imy7kw1.fsf@pike.pond.sub.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_3048_17809050.1189429311456"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070910145836.bc268d5d.Kristoffer.Ericson@Gmail.com>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758621AbXIJMmf@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dmitry Torokhov <dtor@mail.ru>, Steven Rostedt <rostedt@goodmis.org>, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-------=_Part_3048_17809050.1189429311456
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+When enabling interrupts fails, the interrupt enable bit remains set
+in i8042_ctr.  Later writes of i8042_ctr to the hardware could
+accidentally retry enabling interrupts.  Clear the bit on failure.
 
-On 9/10/07, Kristoffer Ericson <kristoffer.ericson@gmail.com> wrote:
-> Greetings,
->
-> I've sent this patch a couple of times now without receiving any response, so here goes again.
+Signed-off-by: Markus Armbruster <armbru@redhat.com>
+Acked-by: Steven Rostedt <rostedt@goodmis.org>
 
-Argh, that's what I needed to do over the weekend... Sorry...
+---
+Some time ago Steven Rostedt and I went over this changeset:
 
-OK, I looked over the patch and it is in a pretty decent shape, here
-is the only thing that bothers me:
-> +
-> +static void jornadakbd680_poll(struct input_polled_dev *dev)
-> +{
-> +    struct jornadakbd *jornadakbd = dev->private;
-> +    scan_jiffies++;
-> +
-> +       if (scan_jiffies & 1) {
-> +               if (!jornada_scan_keyb(jornadakbd->s0))
-> +                       jornada_check_kbd(jornadakbd, jornadakbd->s0, jornadakbd->s1);
-> +               else
-> +                       memcpy(jornadakbd->s0, jornadakbd->s1, jornadakbd->length);
+    commit de9ce703c6b807b1dfef5942df4f2fadd0fdb67a
+    Author: Dmitry Torokhov <dtor@insightbb.com>
+    Date:   Sun Sep 10 21:57:21 2006 -0400
 
-jornada_scan_keyb appears to always return 0 so this copy never takes
-place. Overall I find this poll routine a bit complicated. I am
-attaching a patch that has it impoemented a bit differently, could you
-tell me if it is still works for you?
+        Input: i8042 - get rid of polling timer
 
-Thanks!
+        Remove polling timer that was used to detect keybord/mice hotplug and
+        register both IRQs right away instead of waiting for a driver to
+        attach to a port.
 
--- 
-Dmitry
+        Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-------=_Part_3048_17809050.1189429311456
-Content-Type: application/octet-stream; name="hp6xx-keyboard.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="hp6xx-keyboard.patch"
-X-Attachment-Id: f_f6ezfrdw
+Steven pointed out to me that it changes behavior when enabling IRQ
+fails.
 
-RnJvbTogS3Jpc3RvZmZlciBFcmljc29uIDxrcmlzdG9mZmVyLmVyaWNzb25AZ21haWwuY29tPgoK
-SW5wdXQ6IGFkZCBzdXBwb3J0IGZvciBIUCBKb3JuYWRhIG9uYm9hcmQga2V5Ym9hcmQgKEhQNlhY
-KQoKU2lnbmVkLW9mZi1ieTogRG1pdHJ5IFRvcm9raG92IDxkdG9yQG1haWwucnU+Ci0tLQogZHJp
-dmVycy9pbnB1dC9rZXlib2FyZC9LY29uZmlnICAgICAgICAgIHwgICAxMSArCiBkcml2ZXJzL2lu
-cHV0L2tleWJvYXJkL01ha2VmaWxlICAgICAgICAgfCAgICAxIAogZHJpdmVycy9pbnB1dC9rZXli
-b2FyZC9qb3JuYWRhNjgwX2tiZC5jIHwgIDI3MiArKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKwogMyBmaWxlcyBjaGFuZ2VkLCAyODQgaW5zZXJ0aW9ucygrKQoKSW5kZXg6IGxpbnV4L2Ry
-aXZlcnMvaW5wdXQva2V5Ym9hcmQvam9ybmFkYTY4MF9rYmQuYwo9PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSAvZGV2
-L251bGwKKysrIGxpbnV4L2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvam9ybmFkYTY4MF9rYmQuYwpA
-QCAtMCwwICsxLDI3MiBAQAorLyoKKyAqIGRyaXZlcnMvaW5wdXQva2V5Ym9hcmQvam9ybmFkYTY4
-MF9rYmQuYworICoKKyAqIEhQIEpvcm5hZGEgNjIwLzY2MC82ODAvNjkwIHNjYW4ga2V5Ym9hcmQg
-cGxhdGZvcm0gZHJpdmVyCisgKiAgQ29weXJpZ2h0IChDKSAyMDA3ICBLcmlzdG9mZmVyIEVyaWNz
-b24gPEtyaXN0b2ZmZXIuRXJpY3NvbkBnbWFpbC5jb20+CisgKgorICogQmFzZWQgb24gaHA2ODBf
-a2V5Yi5jCisgKiAgQ29weXJpZ2h0IChDKSAyMDA2IFBhdWwgTXVuZHQKKyAqICBDb3B5cmlnaHQg
-KEMpIDIwMDUgQW5kcml5IFNrdWx5c2gKKyAqIFNwbGl0IGZyb20gZHJpdmVycy9pbnB1dC9rZXli
-b2FyZC9ocDYwMF9rZXliLmMKKyAqICBDb3B5cmlnaHQgKEMpIDIwMDAgWWFlZ2FzaGkgVGFrZXNo
-aSAoaHA2eHgga2JkIHNjYW4gcm91dGluZSBhbmQgdHJhbnNsYXRpb24gdGFibGUpCisgKiAgQ29w
-eXJpZ2h0IChDKSAyMDAwIE5paWJlIFl1dGFrYSAoSFA2MjAgS2V5YiB0cmFuc2xhdGlvbiB0YWJs
-ZSkKKyAqCisgKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiByZWRpc3Ry
-aWJ1dGUgaXQgYW5kL29yIG1vZGlmeSBpdAorICogdW5kZXIgdGhlIHRlcm1zIG9mIHRoZSBHTlUg
-R2VuZXJhbCBQdWJsaWMgTGljZW5zZSB2ZXJzaW9uIDIgYXMKKyAqIHB1Ymxpc2hlZCBieSB0aGUg
-RnJlZSBTb2Z0d2FyZSBGb3VuZGF0aW9uLgorICovCisKKyNpbmNsdWRlIDxsaW51eC9pbnB1dC5o
-PgorI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgorI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgor
-I2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KKyNpbmNsdWRlIDxsaW51eC9pbnB1dC1wb2xsZGV2Lmg+
-CisjaW5jbHVkZSA8bGludXgvamlmZmllcy5oPgorI2luY2x1ZGUgPGxpbnV4L3BsYXRmb3JtX2Rl
-dmljZS5oPgorI2luY2x1ZGUgPGxpbnV4L2ludGVycnVwdC5oPgorCisjaW5jbHVkZSA8YXNtL2Rl
-bGF5Lmg+CisjaW5jbHVkZSA8YXNtL2lvLmg+CisKKyNkZWZpbmUgUENDUiAweGE0MDAwMTA0Cisj
-ZGVmaW5lIFBEQ1IgMHhhNDAwMDEwNgorI2RlZmluZSBQRUNSIDB4YTQwMDAxMDgKKyNkZWZpbmUg
-UEZDUiAweGE0MDAwMTBhCisjZGVmaW5lIFBDRFIgMHhhNDAwMDEyNAorI2RlZmluZSBQRERSIDB4
-YTQwMDAxMjYKKyNkZWZpbmUgUEVEUiAweGE0MDAwMTI4CisjZGVmaW5lIFBGRFIgMHhhNDAwMDEy
-YQorI2RlZmluZSBQR0RSIDB4YTQwMDAxMmMKKyNkZWZpbmUgUEhEUiAweGE0MDAwMTJlCisjZGVm
-aW5lIFBKRFIgMHhhNDAwMDEzMAorI2RlZmluZSBQS0RSIDB4YTQwMDAxMzIKKyNkZWZpbmUgUExE
-UiAweGE0MDAwMTM0CisKK3N0YXRpYyBjb25zdCB1bnNpZ25lZCBjaGFyIGpvcm5hZGFfc2NhbmNv
-ZGVzW10gPSB7CisvKiBQVEQxICovCUtFWV9DQVBTTE9DSywgS0VZX01BQ1JPLCBLRVlfTEVGVENU
-UkwsIDAsIEtFWV9FU0MsIDAsIDAsIDAsCS8qICAxICAtPiA4ICAgKi8KKwkJS0VZX0YxLCBLRVlf
-RjIsIEtFWV9GMywgS0VZX0Y4LCBLRVlfRjcsIEtFWV9GMiwgS0VZX0Y0LCBLRVlfRjUsCS8qICA5
-ICAtPiAxNiAgKi8KKy8qIFBURDUgKi8JS0VZX1NMQVNILCBLRVlfQVBPU1RST1BIRSwgS0VZX0VO
-VEVSLCAwLCBLRVlfWiwgMCwgMCwgMCwJLyogIDE3IC0+IDI0ICAqLworCQlLRVlfWCwgS0VZX0Ms
-IEtFWV9WLCBLRVlfRE9ULCBLRVlfQ09NTUEsIEtFWV9NLCBLRVlfQiwgS0VZX04sCS8qICAyNSAt
-PiAzMiAgKi8KKy8qIFBURDcgKi8JS0VZX0tQMiwgS0VZX0tQNiwgMCwgMCwgMCwgMCwgMCwgMCwJ
-CQkJLyogIDMzIC0+IDQwICAqLworCQkwLCAwLCAwLCBLRVlfS1A0LCAwLCAwLCBLRVlfTEVGVEFM
-VCwgS0VZX0hBTkpBLAkJCS8qICA0MSAtPiA0OCAgKi8KKy8qIFBURTAgKi8JMCwgMCwgMCwgMCwg
-S0VZX0ZJTkFOQ0UsIDAsIDAsIDAsCQkJCS8qICA0OSAtPiA1NiAgKi8KKwkJS0VZX0xFRlRDVFJM
-LCAwLCBLRVlfU1BBQ0UsIEtFWV9LUERPVCwgS0VZX1ZPTFVNRVVQLCAyNDksIDAsIDAsIC8qICA1
-NyAtPiA2NCAgKi8KKy8qIFBURTEgKi8JS0VZX1NFTUlDT0xPTiwgS0VZX1JJR0hUQlJBQ0UsIEtF
-WV9CQUNLU0xBU0gsIDAsIEtFWV9BLCAwLCAwLCAwLC8qICA2NSAtPiA3MiAgKi8KKwkJS0VZX1Ms
-IEtFWV9ELCBLRVlfRiwgS0VZX0wsIEtFWV9LLCBLRVlfSiwgS0VZX0csIEtFWV9ILAkJLyogIDcz
-IC0+IDgwICAqLworLyogUFRFMyAqLwlLRVlfS1A4LCBLRVlfTEVGVE1FVEEsIEtFWV9SSUdIVFNI
-SUZULCAwLCBLRVlfVEFCLCAwLCAwLDAsCS8qICA4MSAtPiA4OCAgKi8KKwkJMCwgS0VZX0xFRlRT
-SElGVCwgMCwgMCwgMCwgMCwgMCwgMCwJCQkJLyogIDg5IC0+IDk2ICAqLworLyogUFRFNiAqLwlL
-RVlfUCwgS0VZX0xFRlRCUkFDRSwgS0VZX0JBQ0tTUEFDRSwgMCwgS0VZX1EsIDAsIDAsIDAsCQkv
-KiAgOTcgLT4gMTA0ICovCisJCUtFWV9XLCBLRVlfRSwgS0VZX1IsIEtFWV9PLCBLRVlfSSwgS0VZ
-X1UsIEtFWV9ULCBLRVlfUiwJCS8qIDEwNSAtPiAxMTIgKi8KKy8qIFBURTcgKi8JS0VZXzAsIEtF
-WV9NSU5VUywgS0VZX0VRVUFMLCAwLCBLRVlfMSwgMCwgMCwgMCwJCQkvKiAxMTMgLT4gMTIwICov
-CisJCUtFWV8yLCBLRVlfMywgS0VZXzQsIEtFWV85LCBLRVlfOCwgS0VZXzcsIEtFWV81LCBLRVlf
-NiwJCS8qIDEyMSAtPiAxMjggKi8KKy8qICoqKiogKi8JMCwgMCwgMCwgMCwgMCwgMCwgMCwgMCwg
-MCwgMCwKKwkJMCwgMCwgMCwgMCwgMAorfTsKKworI2RlZmluZSBKT1JOQURBX1NDQU5fU0laRQkx
-OAorCitzdHJ1Y3Qgam9ybmFkYWtiZCB7CisJc3RydWN0IGlucHV0X3BvbGxlZF9kZXYgKnBvbGxf
-ZGV2OworCXVuc2lnbmVkIGNoYXIga2V5bWFwW0FSUkFZX1NJWkUoam9ybmFkYV9zY2FuY29kZXMp
-XTsKKwl1bnNpZ25lZCBjaGFyIGxlbmd0aDsKKwl1bnNpZ25lZCBjaGFyIG9sZF9zY2FuW0pPUk5B
-REFfU0NBTl9TSVpFXTsKKwl1bnNpZ25lZCBjaGFyIG5ld19zY2FuW0pPUk5BREFfU0NBTl9TSVpF
-XTsKK307CisKK3N0YXRpYyB2b2lkIGpvcm5hZGFfcGFyc2Vfa2JkKHN0cnVjdCBqb3JuYWRha2Jk
-ICpqb3JuYWRha2JkKQoreworCXN0cnVjdCBpbnB1dF9kZXYgKmlucHV0X2RldiA9IGpvcm5hZGFr
-YmQtPnBvbGxfZGV2LT5pbnB1dDsKKwl1bnNpZ25lZCBjaGFyICprZXltYXAgPSBqb3JuYWRha2Jk
-LT5rZXltYXA7CisJdW5zaWduZWQgaW50IHN5bmNfbWUgPSAwOworCWludCBpOworCisJZm9yIChp
-ID0gMDsgaSA8IEpPUk5BREFfU0NBTl9TSVpFOyBpKyspIHsKKwkJdW5zaWduZWQgY2hhciBuZXcg
-PSBqb3JuYWRha2JkLT5uZXdfc2NhbltpXTsKKwkJdW5zaWduZWQgY2hhciBvbGQgPSBqb3JuYWRh
-a2JkLT5vbGRfc2NhbltpXTsKKwkJdW5zaWduZWQgaW50IHhvciA9IG5ldyBeIG9sZDsKKwkJdW5z
-aWduZWQgaW50IGJpdDsKKworCQlpZiAoeG9yID09IDApCisJCQljb250aW51ZTsKKworCQlmb3Ig
-KGJpdCA9IDB4MDE7IGJpdCA8IDB4MTAwOyBiaXQgPDw9IDEpIHsKKwkJCWlmICh4b3IgJiBiaXQp
-IHsKKwkJCQlpbnB1dF9yZXBvcnRfa2V5KGlucHV0X2RldiwKKwkJCQkJCSBrZXltYXBbKGkgPDwg
-MykgKyBiaXRdLAorCQkJCQkJICEobmV3ICYgYml0KSk7CisJCQkJc3luY19tZSA9IDE7CisJCQl9
-CisJCX0KKwl9CisKKwlpZiAoc3luY19tZSkKKwkgICAgaW5wdXRfc3luYyhpbnB1dF9kZXYpOwor
-fQorCitzdGF0aWMgdm9pZCBqb3JuYWRhX3NjYW5fa2V5Yih1bnNpZ25lZCBjaGFyICpzKQorewor
-CWludCBpOworCXVuc2lnbmVkIHNob3J0IGVjX3N0YXRpYywgZGNfc3RhdGljOyAvKiA9IFVJTlQx
-Nl90ICovCisJdW5zaWduZWQgY2hhciBtYXRyaXhfc3dpdGNoW10gPSB7CisJCTB4ZmQsIDB4ZmYs
-ICAgLyogUFREMSBQRCgxKSAqLworCQkweGRmLCAweGZmLCAgIC8qIFBURDUgUEQoNSkgKi8KKwkJ
-MHg3ZiwgMHhmZiwgICAvKiBQVEQ3IFBEKDcpICovCisJCTB4ZmYsIDB4ZmUsICAgLyogUFRFMCBQ
-RSgwKSAqLworCQkweGZmLCAweGZkLCAgIC8qIFBURTEgUEUoMSkgKi8KKwkJMHhmZiwgMHhmNywg
-ICAvKiBQVEUzIFBFKDMpICovCisJCTB4ZmYsIDB4YmYsICAgLyogUFRFNiBQRSg2KSAqLworCQkw
-eGZmLCAweDdmLCAgIC8qIFBURTcgUEUoNykgKi8KKwl9LCAqdCA9IG1hdHJpeF9zd2l0Y2g7CisJ
-LyogUEQoeCkgOgorCTEuICAgMHhjYzBjICYgKDF+KDEgPDwgKDIqKHgpKzEpKSkpKQorCTIuICAg
-KDB4ZjBjZiAmIDB4ZmZmZmYpICovCisJLyogUEUoeCkgOgorCTEuICAgMHhjYzBjICYgMHhmZmZm
-CisJMi4gICAweGYwY2YgJiAoMX4oMSA8PCAoMiooeCkrMSkpKSkpICovCisJdW5zaWduZWQgc2hv
-cnQgbWF0cml4X1BERVtdID0geworCQkweGNjMDQsIDB4ZjBjZiwgIC8qIFBEKDEpICovCisJCTB4
-YzQwYywgMHhmMGNmLAkgLyogUEQoNSkgKi8KKwkJMHg0YzBjLCAweGYwY2YsICAvKiBQRCg3KSAq
-LworCQkweGNjMGMsIDB4ZjBjZCwgIC8qIFBFKDApICovCisJCTB4Y2MwYywgMHhmMGM3LAkgLyog
-UEUoMSkgKi8KKwkJMHhjYzBjLCAweGYwNGYsICAvKiBQRSgzKSAqLworCQkweGNjMGMsIDB4ZDBj
-ZiwJIC8qIFBFKDYpICovCisJCTB4Y2MwYywgMHg3MGNmLAkgLyogUEUoNykgKi8KKwl9LCAqeSA9
-IG1hdHJpeF9QREU7CisKKwkvKiBTYXZlIHRoZXNlIGNvbnRyb2wgcmVnIGJpdHMgKi8KKwlkY19z
-dGF0aWMgPSAoY3RybF9pbncoUERDUikgJiAofjB4Y2MwYykpOworCWVjX3N0YXRpYyA9IChjdHJs
-X2ludyhQRUNSKSAmICh+MHhmMGNmKSk7CisKKwlmb3IgKGkgPSAwOyBpIDwgODsgaSsrKSB7CisJ
-CS8qIGRpc2FibGUgb3V0cHV0IGZvciBhbGwgYnV0IHRoZSBvbmUgd2Ugd2FudCB0byBzY2FuICov
-CisJCWN0cmxfb3V0dygoZGNfc3RhdGljIHwgKnkrKyksIFBEQ1IpOworCQljdHJsX291dHcoKGVj
-X3N0YXRpYyB8ICp5KyspLCBQRUNSKTsKKwkJdWRlbGF5KDUpOworCisJCS8qIEdldCBzY2FubGlu
-ZSByb3cgKi8KKwkJY3RybF9vdXRiKCp0KyssIFBERFIpOworCQljdHJsX291dGIoKnQrKywgUEVE
-Uik7CisJCXVkZWxheSg1MCk7CisKKwkJLyogUmVhZCBkYXRhICovCisJCSpzKysgPSBjdHJsX2lu
-YihQQ0RSKTsKKwkJKnMrKyA9IGN0cmxfaW5iKFBGRFIpOworCX0KKwkvKiBTY2FuIG5vIGxpbmVz
-ICovCisJY3RybF9vdXRiKDB4ZmYsIFBERFIpOworCWN0cmxfb3V0YigweGZmLCBQRURSKTsKKwor
-CS8qIEVuYWJsZSBhbGwgc2NhbmxpbmVzICovCisJY3RybF9vdXR3KChkY19zdGF0aWMgfCAoMHg1
-NTU1ICYgMHhjYzBjKSksUERDUik7CisJY3RybF9vdXR3KChlY19zdGF0aWMgfCAoMHg1NTU1ICYg
-MHhmMGNmKSksUEVDUik7CisKKwkvKiBJZ25vcmUgZXh0cmEga2V5cyBhbmQgZXZlbnRzICovCisJ
-KnMrKyA9IGN0cmxfaW5iKFBHRFIpOworCSpzKysgPSBjdHJsX2luYihQSERSKTsKK30KKworc3Rh
-dGljIHZvaWQgam9ybmFkYWtiZDY4MF9wb2xsKHN0cnVjdCBpbnB1dF9wb2xsZWRfZGV2ICpkZXYp
-Cit7CisJc3RydWN0IGpvcm5hZGFrYmQgKmpvcm5hZGFrYmQgPSBkZXYtPnByaXZhdGU7CisKKwlq
-b3JuYWRhX3NjYW5fa2V5Yihqb3JuYWRha2JkLT5uZXdfc2Nhbik7CisJam9ybmFkYV9wYXJzZV9r
-YmQoam9ybmFkYWtiZCk7CisJbWVtY3B5KGpvcm5hZGFrYmQtPm9sZF9zY2FuLCBqb3JuYWRha2Jk
-LT5uZXdfc2NhbiwgSk9STkFEQV9TQ0FOX1NJWkUpOworfQorCitzdGF0aWMgaW50IF9fZGV2aW5p
-dCBqb3JuYWRhNjgwa2JkX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBkZXYpCit7CisJ
-c3RydWN0IGpvcm5hZGFrYmQgKmpvcm5hZGFrYmQ7CisJc3RydWN0IGlucHV0X3BvbGxlZF9kZXYg
-KnBvbGxfZGV2OworCXN0cnVjdCBpbnB1dF9kZXYgKmlucHV0X2RldjsKKwlpbnQgaSwgZXJyb3I7
-CisKKwlqb3JuYWRha2JkID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IGpvcm5hZGFrYmQpLCBHRlBf
-S0VSTkVMKTsKKwlpZiAoIWpvcm5hZGFrYmQpCisJCXJldHVybiAtRU5PTUVNOworCisJcG9sbF9k
-ZXYgPSBpbnB1dF9hbGxvY2F0ZV9wb2xsZWRfZGV2aWNlKCk7CisJaWYgKCFwb2xsX2Rldikgewor
-CQllcnJvciA9IC1FTk9NRU07CisJCWdvdG8gZmFpbGVkOworCX0KKworCXBsYXRmb3JtX3NldF9k
-cnZkYXRhKHBkZXYsIGpvcm5hZGFrYmQpOworCisJam9ybmFkYWtiZC0+cG9sbF9kZXYgPSBwb2xs
-X2RldjsKKworCW1lbWNweShqb3JuYWRha2JkLT5rZXltYXAsIGpvcm5hZGFfc2NhbmNvZGVzLAor
-CQlzaXplb2Yoam9ybmFkYWtiZC0+a2V5bWFwKSk7CisKKwlwb2xsX2Rldi0+cHJpdmF0ZSA9IGpv
-cm5hZGFrYmQ7CisJcG9sbF9kZXYtPnBvbGwgPSBqb3JuYWRha2JkNjgwX3BvbGw7CisJcG9sbF9k
-ZXYtPnBvbGxfaW50ZXJ2YWwgPSA1MDsgLyogbXNlYyAqLworCisJaW5wdXRfZGV2ID0gcG9sbF9k
-ZXYtPmlucHV0OworCWlucHV0X2Rldi0+ZXZiaXRbMF0gPSBCSVQoRVZfS0VZKSB8IEJJVChFVl9S
-RVApOworCWlucHV0X2Rldi0+bmFtZSA9ICJIUCBKb3JuYWRhIDY4MCBrZXlib2FyZCI7CisJaW5w
-dXRfZGV2LT5waHlzID0gImpvcm5hZGFrYmQvaW5wdXQwIjsKKwlpbnB1dF9kZXYtPmtleWNvZGUg
-PSBqb3JuYWRha2JkLT5rZXltYXA7CisJaW5wdXRfZGV2LT5rZXljb2Rlc2l6ZSA9IHNpemVvZih1
-bnNpZ25lZCBjaGFyKTsKKwlpbnB1dF9kZXYtPmtleWNvZGVtYXggPSBBUlJBWV9TSVpFKGpvcm5h
-ZGFfc2NhbmNvZGVzKTsKKwlpbnB1dF9kZXYtPmRldi5wYXJlbnQgPSAmcGRldi0+ZGV2OworCWlu
-cHV0X2Rldi0+aWQuYnVzdHlwZSA9IEJVU19IT1NUOworCisJZm9yIChpID0gMDsgaSA8IDEyODsg
-aSsrKQorCQlpZiAoam9ybmFkYWtiZC0+a2V5bWFwW2ldKQorCQkJX19zZXRfYml0KGpvcm5hZGFr
-YmQtPmtleW1hcFtpXSwgaW5wdXRfZGV2LT5rZXliaXQpOworCV9fY2xlYXJfYml0KDAsIGlucHV0
-X2Rldi0+a2V5Yml0KTsKKworCWVycm9yID0gaW5wdXRfcmVnaXN0ZXJfcG9sbGVkX2RldmljZShq
-b3JuYWRha2JkLT5wb2xsX2Rldik7CisJaWYgKGVycm9yKQorCQlnb3RvIGZhaWxlZDsKKworCXJl
-dHVybiAwOworCisgZmFpbGVkOgorCXByaW50ayhLRVJOX0VSUiAiSm9ybmFkYWtiZDogZmFpbGVk
-IHRvIHJlZ2lzdGVyIGRyaXZlciwgZXJyb3I6ICVkXG4iLAorCQllcnJvcik7CisJcGxhdGZvcm1f
-c2V0X2RydmRhdGEocGRldiwgTlVMTCk7CisJaW5wdXRfZnJlZV9wb2xsZWRfZGV2aWNlKHBvbGxf
-ZGV2KTsKKwlrZnJlZShqb3JuYWRha2JkKTsKKwlyZXR1cm4gZXJyb3I7CisKK30KKworc3RhdGlj
-IGludCBfX2RldmV4aXQgam9ybmFkYTY4MGtiZF9yZW1vdmUoc3RydWN0IHBsYXRmb3JtX2Rldmlj
-ZSAqcGRldikKK3sKKwlzdHJ1Y3Qgam9ybmFkYWtiZCAqam9ybmFkYWtiZCA9IHBsYXRmb3JtX2dl
-dF9kcnZkYXRhKHBkZXYpOworCisJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgTlVMTCk7CisJ
-aW5wdXRfdW5yZWdpc3Rlcl9wb2xsZWRfZGV2aWNlKGpvcm5hZGFrYmQtPnBvbGxfZGV2KTsKKwlp
-bnB1dF9mcmVlX3BvbGxlZF9kZXZpY2Uoam9ybmFkYWtiZC0+cG9sbF9kZXYpOworCWtmcmVlKGpv
-cm5hZGFrYmQpOworCisJcmV0dXJuIDA7Cit9CisKK3N0YXRpYyBzdHJ1Y3QgcGxhdGZvcm1fZHJp
-dmVyIGpvcm5hZGE2ODBrYmRfZHJpdmVyID0geworCS5kcml2ZXIJPSB7CisJCS5uYW1lCT0gImpv
-cm5hZGE2ODBfa2JkIiwKKwl9LAorCS5wcm9iZQk9IGpvcm5hZGE2ODBrYmRfcHJvYmUsCisJLnJl
-bW92ZQk9IF9fZGV2ZXhpdF9wKGpvcm5hZGE2ODBrYmRfcmVtb3ZlKSwKK307CisKK3N0YXRpYyBp
-bnQgX19pbml0IGpvcm5hZGE2ODBrYmRfaW5pdCh2b2lkKQoreworCXJldHVybiBwbGF0Zm9ybV9k
-cml2ZXJfcmVnaXN0ZXIoJmpvcm5hZGE2ODBrYmRfZHJpdmVyKTsKK30KKworc3RhdGljIHZvaWQg
-X19leGl0IGpvcm5hZGE2ODBrYmRfZXhpdCh2b2lkKQoreworCXBsYXRmb3JtX2RyaXZlcl91bnJl
-Z2lzdGVyKCZqb3JuYWRhNjgwa2JkX2RyaXZlcik7Cit9CisKK21vZHVsZV9pbml0KGpvcm5hZGE2
-ODBrYmRfaW5pdCk7Cittb2R1bGVfZXhpdChqb3JuYWRhNjgwa2JkX2V4aXQpOworCitNT0RVTEVf
-QVVUSE9SKCJLcmlzdG9mZmVyIEVyaWNzb24gPGtyaXN0b2ZmZXIuZXJpY3NvbkBnbWFpbC5jb20+
-Iik7CitNT0RVTEVfREVTQ1JJUFRJT04oIkhQIEpvcm5hZGEgNjIwLzY2MC82ODAvNjkwIEtleWJv
-YXJkIERyaXZlciIpOworTU9EVUxFX0xJQ0VOU0UoIkdQTHYyIik7CkluZGV4OiBsaW51eC9kcml2
-ZXJzL2lucHV0L2tleWJvYXJkL01ha2VmaWxlCj09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0KLS0tIGxpbnV4Lm9yaWcvZHJp
-dmVycy9pbnB1dC9rZXlib2FyZC9NYWtlZmlsZQorKysgbGludXgvZHJpdmVycy9pbnB1dC9rZXli
-b2FyZC9NYWtlZmlsZQpAQCAtMjEsNCArMjEsNSBAQCBvYmotJChDT05GSUdfS0VZQk9BUkRfT01B
-UCkJCSs9IG9tYXAta2V5CiBvYmotJChDT05GSUdfS0VZQk9BUkRfUFhBMjd4KQkJKz0gcHhhMjd4
-X2tleWJvYXJkLm8KIG9iai0kKENPTkZJR19LRVlCT0FSRF9BQUVEMjAwMCkJCSs9IGFhZWQyMDAw
-X2tiZC5vCiBvYmotJChDT05GSUdfS0VZQk9BUkRfR1BJTykJCSs9IGdwaW9fa2V5cy5vCitvYmot
-JChDT05GSUdfS0VZQk9BUkRfSFA2WFgpCQkrPSBqb3JuYWRhNjgwX2tiZC5vCiAKSW5kZXg6IGxp
-bnV4L2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvS2NvbmZpZwo9PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09Ci0tLSBsaW51eC5v
-cmlnL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvS2NvbmZpZworKysgbGludXgvZHJpdmVycy9pbnB1
-dC9rZXlib2FyZC9LY29uZmlnCkBAIC0yMDgsNiArMjA4LDE3IEBAIGNvbmZpZyBLRVlCT0FSRF9I
-SUwKIAkgIFRoaXMgZHJpdmVyIGltcGxlbWVudHMgc3VwcG9ydCBmb3IgSElMLWtleWJvYXJkcyBh
-dHRhY2hlZAogCSAgdG8geW91ciBtYWNoaW5lLCBzbyBub3JtYWxseSB5b3Ugc2hvdWxkIHNheSBZ
-IGhlcmUuCiAKK2NvbmZpZyBLRVlCT0FSRF9IUDZYWAorCXRyaXN0YXRlICJIUCBKb3JuYWRhIDZY
-WCBLZXlib2FyZCBzdXBwb3J0IgorCWRlcGVuZHMgb24gU0hfSFA2WFgKKwlzZWxlY3QgSU5QVVRf
-UE9MTERFVgorCWhlbHAKKwkgIFRoaXMgYWRkcyBzdXBwb3J0IGZvciB0aGUgb25ib2FyZCBrZXli
-b2FyZCBmb3VuZCBvbgorCSAgSFAgSm9ybmFkYSA2MjAvNjYwLzY4MC82OTAuCisKKwkgIFRvIGNv
-bXBpbGUgdGhpcyBkcml2ZXIgYXMgYSBtb2R1bGUsIGNob29zZSBNIGhlcmU6IHRoZQorCSAgbW9k
-dWxlIHdpbGwgYmUgY2FsbGVkIGpvcm5hZGE2ODBfa2JkLgorCiBjb25maWcgS0VZQk9BUkRfT01B
-UAogCXRyaXN0YXRlICJUSSBPTUFQIGtleXBhZCBzdXBwb3J0IgogCWRlcGVuZHMgb24gKEFSQ0hf
-T01BUDEgfHwgQVJDSF9PTUFQMikK
-------=_Part_3048_17809050.1189429311456--
+The old code enabled IRQs this way:
+
+	i8042_ctr |= port->irqen;
+
+	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
+		i8042_ctr &= ~port->irqen;
+		return -1;
+	}
+
+i8042_ctr shadows the 8042's CTR.  So, when enabling fails, the bit is
+cleared in the shadow.
+
+The new code does not clear the bit on the error path:
+
+static int i8042_enable_kbd_port(void)
+{
+	i8042_ctr &= ~I8042_CTR_KBDDIS;
+	i8042_ctr |= I8042_CTR_KBDINT;
+
+	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
+		printk(KERN_ERR "i8042.c: Failed to enable KBD port.\n");
+		return -EIO;
+	}
+
+	return 0;
+}
+
+Same for i8042_enable_aux_port().
+
+This leads to the question whether there are later writes of i8042_ctr
+(possibly with other bits altered) to the hardware, which could
+accidentally retry enabling interrupts.
+
+I believe this possible, but unlikely (perhaps not so unlikely on
+virtual machines).  Scenarios involve enable succeeding the first
+time, failing the second time, and succeeding the third time.  I can
+provide details, but the point I'd like to make is not that this is
+broken (although it is, strictly speaking), but that it is not
+obviously correct where it easily could be: just clear the interrupt
+enable bits when writing them to the hardware failed, like the old
+code did.
+
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index db9cca3..71a7e39 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -385,6 +385,7 @@ static int i8042_enable_kbd_port(void)
+ 	i8042_ctr |= I8042_CTR_KBDINT;
+ 
+ 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
++		i8042_ctr &= ~I8042_CTR_KBDINT;
+ 		printk(KERN_ERR "i8042.c: Failed to enable KBD port.\n");
+ 		return -EIO;
+ 	}
+@@ -402,6 +403,7 @@ static int i8042_enable_aux_port(void)
+ 	i8042_ctr |= I8042_CTR_AUXINT;
+ 
+ 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
++		i8042_ctr &= ~I8042_CTR_AUXINT;
+ 		printk(KERN_ERR "i8042.c: Failed to enable AUX port.\n");
+ 		return -EIO;
+ 	}

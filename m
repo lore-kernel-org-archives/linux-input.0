@@ -1,99 +1,63 @@
-From: Markus Armbruster <armbru@redhat.com>
-Subject: [PATCH] input: Fix interrupt enable in i8042_ctr when enabling interrupt fails
-Date: Mon, 10 Sep 2007 14:41:34 +0200
-Message-ID: <877imy7kw1.fsf@pike.pond.sub.org>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: sysfs change of input/event devices in 2.6.23rc breaks udev
+Date: Mon, 10 Sep 2007 09:24:04 -0400
+Message-ID: <d120d5000709100624s4fd7e68djf8654a4d591cbb5d@mail.gmail.com>
+References: <46E2D712.1010402@gmail.com>
+	 <3ae72650709091603o57c976d1q8a1b5492ef041186@mail.gmail.com>
+	 <200709100128.48595.dtor@insightbb.com>
+	 <20070910054448.GA3515@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758621AbXIJMmf@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Dmitry Torokhov <dtor@mail.ru>, Steven Rostedt <rostedt@goodmis.org>, akpm@linux-foundation.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20070910054448.GA3515@suse.de>
+Content-Disposition: inline
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Greg KH <gregkh@suse.de>
+Cc: Kay Sievers <kay.sievers@vrfy.org>, Anssi Hannula <anssi.hannula@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-When enabling interrupts fails, the interrupt enable bit remains set
-in i8042_ctr.  Later writes of i8042_ctr to the hardware could
-accidentally retry enabling interrupts.  Clear the bit on failure.
+On 9/10/07, Greg KH <gregkh@suse.de> wrote:
+> On Mon, Sep 10, 2007 at 01:28:47AM -0400, Dmitry Torokhov wrote:
+> > On Sunday 09 September 2007 19:03, Kay Sievers wrote:
+> > > On 9/8/07, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+> > > >
+> > > > However, the change that broke id_path of udev is that
+> > > > /sys/class/input/event5/device is now a symlink to the inputX directory
+> > > > instead of being the same as the device symlink in inputX directory,
+> > > > i.e. to ../../../devices/platform/pcspkr in this case.
+> > > >
+> > > > Udev id_path uses that directory to construct the ID_PATH variable.
+> > > > Should the sysfs structure be reverted or should udev be adapted to
+> > > > handle traversing /device symlink twice? I think the former, as there
+> > > > should be considerably more time to adapt udev for coming changes in sysfs.
+> > >
+> > > Udev's path_id script is too dumb to follow the "device" link of
+> > > stacked class devices in the CONFIG_SYSFS_DEPRECATED=y layout. Does
+> > > this change fix it for you?
+> > >   http://git.kernel.org/?p=linux/hotplug/udev.git;a=commitdiff_plain;h=b1ac36ff5e3756cefc79967a26280056da31bf6f
+> > >
+> >
+> > Hmm, fixing udev is good but users will not get the change in time. I think we
+> > need to adjust SYSFS_DEPRECATED code to produce old results. Something like the
+> > patch below. I wonder what Greg would think...
+>
+> Hm, I don't understand.  Didn't the original conversion of the input
+> layer by Kay not have this kind of problem?  What did your changes do
+> differently to cause this driver core change to be needed?
+>
 
-Signed-off-by: Markus Armbruster <armbru@redhat.com>
-Acked-by: Steven Rostedt <rostedt@goodmis.org>
+If I understand it correctly Kay's convesion had the same issue. With
+class devices "device" link points to class_dev->device instead of
+class_dev->parent. If you want to keep compatibility with old sysfs
+layout when moving from class devices to regular devices then you need
+to "skip" couple of parents till you get to "real" device. This only
+matters for input because this was the only subsystem with class
+devices stacked.
 
----
-Some time ago Steven Rostedt and I went over this changeset:
-
-    commit de9ce703c6b807b1dfef5942df4f2fadd0fdb67a
-    Author: Dmitry Torokhov <dtor@insightbb.com>
-    Date:   Sun Sep 10 21:57:21 2006 -0400
-
-        Input: i8042 - get rid of polling timer
-
-        Remove polling timer that was used to detect keybord/mice hotplug and
-        register both IRQs right away instead of waiting for a driver to
-        attach to a port.
-
-        Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-Steven pointed out to me that it changes behavior when enabling IRQ
-fails.
-
-The old code enabled IRQs this way:
-
-	i8042_ctr |= port->irqen;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		i8042_ctr &= ~port->irqen;
-		return -1;
-	}
-
-i8042_ctr shadows the 8042's CTR.  So, when enabling fails, the bit is
-cleared in the shadow.
-
-The new code does not clear the bit on the error path:
-
-static int i8042_enable_kbd_port(void)
-{
-	i8042_ctr &= ~I8042_CTR_KBDDIS;
-	i8042_ctr |= I8042_CTR_KBDINT;
-
-	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-		printk(KERN_ERR "i8042.c: Failed to enable KBD port.\n");
-		return -EIO;
-	}
-
-	return 0;
-}
-
-Same for i8042_enable_aux_port().
-
-This leads to the question whether there are later writes of i8042_ctr
-(possibly with other bits altered) to the hardware, which could
-accidentally retry enabling interrupts.
-
-I believe this possible, but unlikely (perhaps not so unlikely on
-virtual machines).  Scenarios involve enable succeeding the first
-time, failing the second time, and succeeding the third time.  I can
-provide details, but the point I'd like to make is not that this is
-broken (although it is, strictly speaking), but that it is not
-obviously correct where it easily could be: just clear the interrupt
-enable bits when writing them to the hardware failed, like the old
-code did.
-
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index db9cca3..71a7e39 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -385,6 +385,7 @@ static int i8042_enable_kbd_port(void)
- 	i8042_ctr |= I8042_CTR_KBDINT;
- 
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-+		i8042_ctr &= ~I8042_CTR_KBDINT;
- 		printk(KERN_ERR "i8042.c: Failed to enable KBD port.\n");
- 		return -EIO;
- 	}
-@@ -402,6 +403,7 @@ static int i8042_enable_aux_port(void)
- 	i8042_ctr |= I8042_CTR_AUXINT;
- 
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-+		i8042_ctr &= ~I8042_CTR_AUXINT;
- 		printk(KERN_ERR "i8042.c: Failed to enable AUX port.\n");
- 		return -EIO;
- 	}
+-- 
+Dmitry

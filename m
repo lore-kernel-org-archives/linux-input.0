@@ -1,63 +1,60 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: sysfs change of input/event devices in 2.6.23rc breaks udev
-Date: Mon, 10 Sep 2007 09:24:04 -0400
-Message-ID: <d120d5000709100624s4fd7e68djf8654a4d591cbb5d@mail.gmail.com>
-References: <46E2D712.1010402@gmail.com>
-	 <3ae72650709091603o57c976d1q8a1b5492ef041186@mail.gmail.com>
-	 <200709100128.48595.dtor@insightbb.com>
-	 <20070910054448.GA3515@suse.de>
+Subject: Re: [PATCH] input: Fix interrupt enable in i8042_ctr when enabling
+	interrupt fails
+Date: Mon, 10 Sep 2007 09:14:52 -0400
+Message-ID: <d120d5000709100614l7a4a651dl4baf64cee1414835@mail.gmail.com>
+References: <877imy7kw1.fsf@pike.pond.sub.org>
+	<Pine.LNX.4.58.0709100853340.24030@gandalf.stny.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070910054448.GA3515@suse.de>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <Pine.LNX.4.58.0709100853340.24030@gandalf.stny.rr.com>
 Content-Disposition: inline
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Greg KH <gregkh@suse.de>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Anssi Hannula <anssi.hannula@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/virtualization>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/virtualization>,
+	<mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Sender: virtualization-bounces@lists.linux-foundation.org
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+To: Steven Rostedt <rostedt@goodmis.org>, Markus Armbruster <armbru@redhat.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-On 9/10/07, Greg KH <gregkh@suse.de> wrote:
-> On Mon, Sep 10, 2007 at 01:28:47AM -0400, Dmitry Torokhov wrote:
-> > On Sunday 09 September 2007 19:03, Kay Sievers wrote:
-> > > On 9/8/07, Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> > > >
-> > > > However, the change that broke id_path of udev is that
-> > > > /sys/class/input/event5/device is now a symlink to the inputX directory
-> > > > instead of being the same as the device symlink in inputX directory,
-> > > > i.e. to ../../../devices/platform/pcspkr in this case.
-> > > >
-> > > > Udev id_path uses that directory to construct the ID_PATH variable.
-> > > > Should the sysfs structure be reverted or should udev be adapted to
-> > > > handle traversing /device symlink twice? I think the former, as there
-> > > > should be considerably more time to adapt udev for coming changes in sysfs.
-> > >
-> > > Udev's path_id script is too dumb to follow the "device" link of
-> > > stacked class devices in the CONFIG_SYSFS_DEPRECATED=y layout. Does
-> > > this change fix it for you?
-> > >   http://git.kernel.org/?p=linux/hotplug/udev.git;a=commitdiff_plain;h=b1ac36ff5e3756cefc79967a26280056da31bf6f
-> > >
-> >
-> > Hmm, fixing udev is good but users will not get the change in time. I think we
-> > need to adjust SYSFS_DEPRECATED code to produce old results. Something like the
-> > patch below. I wonder what Greg would think...
+Hi Steven, Markus,
+
+On 9/10/07, Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> Hm, I don't understand.  Didn't the original conversion of the input
-> layer by Kay not have this kind of problem?  What did your changes do
-> differently to cause this driver core change to be needed?
+> --
+> On Mon, 10 Sep 2007, Markus Armbruster wrote:
+> >
+> > I believe this possible, but unlikely (perhaps not so unlikely on
+> > virtual machines).  Scenarios involve enable succeeding the first
+> > time, failing the second time, and succeeding the third time.  I can
+> > provide details, but the point I'd like to make is not that this is
+> > broken (although it is, strictly speaking), but that it is not
+> > obviously correct where it easily could be: just clear the interrupt
+> > enable bits when writing them to the hardware failed, like the old
+> > code did.
+> >
+>
+> I also want to stress that this is more of a clean up for "technically
+> correct" code than a bug fix.  This bug probably would never happen on
+> baremetal unless it was running on broken hardware.
+>
+>  BUT!!!
+>
+> With more and more systems going to a virtual environment, having a bug or
+> some other anomaly can trigger the error that this patch prevents. The
+> patch will also trigger a print in the case of running on a buggy virtual
+> machine, which would help out the developers of that virtual machine to
+> fix their code.
 >
 
-If I understand it correctly Kay's convesion had the same issue. With
-class devices "device" link points to class_dev->device instead of
-class_dev->parent. If you want to keep compatibility with old sysfs
-layout when moving from class devices to regular devices then you need
-to "skip" couple of parents till you get to "real" device. This only
-matters for input because this was the only subsystem with class
-devices stacked.
+The patch is in my tree and will be merged in the next window.
 
 -- 
 Dmitry

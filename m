@@ -1,72 +1,47 @@
-From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Subject: Re: [HP Jornada 6XX] - Onboard Keyboard support
-Date: Tue, 11 Sep 2007 01:22:34 -0700
-Message-ID: <20070911012234.5257be24.Kristoffer.Ericson@Gmail.com>
-References: <20070721181549.9d118414.Kristoffer.Ericson@Gmail.com>
-	<200707220145.10563.dtor@insightbb.com>
-	<20070726223452.e6d8f7c3.Kristoffer.Ericson@Gmail.com>
-	<d120d5000707300539haa26ae8sdfee043ae9e64688@mail.gmail.com>
-	<20070910145836.bc268d5d.Kristoffer.Ericson@Gmail.com>
-	<d120d5000709100601u1a5a0208g903c4463119c3702@mail.gmail.com>
+From: "hugibert inderpal" <miguel@ltindia.com>
+Subject: Local representatives wanted, no investment needed. Serious people only please.
+Date: Tue, 11 Sep 2007 01:17:04 +0000
+Message-ID: <000601c7f420$0366ddb6$6772e885@torhakyu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000709100601u1a5a0208g903c4463119c3702@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 10 Sep 2007 09:01:51 -0400
-"Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+Sizing Up Nanotechnology by Kristine Mak Yu The backtracking movement of RNA polymerase can be followed using optical tweezers.
 
-> On 9/10/07, Kristoffer Ericson <kristoffer.ericson@gmail.com> wrote:
-> > Greetings,
-> >
-> > I've sent this patch a couple of times now without receiving any response, so here goes again.
-> 
-> Argh, that's what I needed to do over the weekend... Sorry...
-No worries,
+Hello,
+First and foremost, we would kindly like to express our warmest greetings to you and your relatives and wish you all good health and happiness and more success in dealing. Our Worldwide Corporation is looking for new employees on various vacancies. We are by now for a long time in the market and now we recruit employees to occupation from home.
 
-> 
-> OK, I looked over the patch and it is in a pretty decent shape, here
-> is the only thing that bothers me:
-> > +
-> > +static void jornadakbd680_poll(struct input_polled_dev *dev)
-> > +{
-> > +    struct jornadakbd *jornadakbd = dev->private;
-> > +    scan_jiffies++;
-> > +
-> > +       if (scan_jiffies & 1) {
-> > +               if (!jornada_scan_keyb(jornadakbd->s0))
-> > +                       jornada_check_kbd(jornadakbd, jornadakbd->s0, jornadakbd->s1);
-> > +               else
-> > +                       memcpy(jornadakbd->s0, jornadakbd->s1, jornadakbd->length);
-> 
-> jornada_scan_keyb appears to always return 0 so this copy never takes
-> place. Overall I find this poll routine a bit complicated.
+Our Company Main center is located in United Kingdom with branches all over the world. Our greatest wish now is to enlarge our business level to more countries, so we are advertising here in hope of cooperating with you all. We highly appreciate honest and creative employers. You do not need to spend any sum of money and we do not ask you to provide us with your bank account requisites! We are occupied in completely officially authorized activity and working in our company you can achieve career growth at a permanent job.
 
-Couldnt agree with you more, I came to the same conclusion but after the driver started working it slipped my mind.
-Generally the driver was too complicated than it needed too, I've sorted out some of its 'lets see how I can make a simple check complicated' routines, but not all.
+We are seeking a highly motivated specialist, with skill of working with people. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate.
+ 
+The right person will have good communication and interpersonal skills and some knowledge of marketing. Candidates must be able to remain focused and motivated when working alone.
 
-> I am
-> attaching a patch that has it impoemented a bit differently, could you
-> tell me if it is still works for you?
+Thank you and we are looking forward to work together in long term basis with you all.
+If you are interested in our vacancies, please feel free to contact us for further information.
+The preference is given to employees with understanding of foreign languages. If you are interested please send next information to: ReggieSanfordGA@gmail.com
+1) Full name
+2) Contact phone numbers
+3) Languages
+4) Part time job/Full time
 
-It works, but the keys it returns are wrong. For instance enter returns 'z'. Somehow the *table must be off. I havent looked at it more closely, but will tommorow.
+We are looking forward to hearing from you soon.
 
-> 
-> Thanks!
-> 
-> -- 
-> Dmitry
-> 
+Yours sincerely,
+edouard hauhua
 
 
--- 
-Kristoffer Ericson <Kristoffer.Ericson@Gmail.com>
+Just this April, a large cross-departmental group of Stanford faculty was awarded a multi-million dollar grant to take up such challenges and develop new devices and technology for use in 3-D ICs. Chidsey, for instance, is one of the researchers involved in integrating nanowire transistors into 3-D circuits, which requires being able to position nanowires reliably and accurately. With the development of 3-D ICs, you can expect all-in-one MP3 player-telephone-digital camera-PDA devices the size of Star Trek communicators to hit the shelves at Fry's within this decade.
+Sizing Up Nanotechnology by Kristine Mak Yu The backtracking movement of RNA polymerase can be followed using optical tweezers.
+Energy: Self-Assembling Solar Cells Dr. Michael McGehee, Materials Science and Engineering

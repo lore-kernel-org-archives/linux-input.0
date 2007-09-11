@@ -1,10 +1,11 @@
-From: "Woody Kirvan" <Woody701@oekoplant-ev.de>
-Subject: loppup{{
-Date: Tue, 11 Sep 2007 23:29:11 +0200
-Message-ID: <000c01c7f4ba$cb089460$92ef0a57@giuseppe53a683>
+From: "Elsie Calhoun" <yjjyvmxk@bondrewards.com>
+Subject: FWD: Dont pass this over
+Date: Tue, 11 Sep 2007 23:29:41 +0100
+Message-ID: <01c7f4c3$3ec9ef90$1b121854@yjjyvmxk>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0005_01C7F4CB.8E916460"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,34 +15,42 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0005_01C7F4CB.8E916460
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+EXTREME RED HOT ALERT!
+Buy Wednesday September 12th 2007
 
-http://www.netcapt.com/
-Wazzup linux-input
-What is the Best Way to Enlarge Penis?
+WW Energy Inc
+Symbol : WWNG
 
-Woody Kirvan
-------=_NextPart_000_0005_01C7F4CB.8E916460
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+This will EXPLODED TODAY, and will again TOMORROW!
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://www.netcapt.com/">http://www.netcapt.com/</A></FONT></DIV>
-<DIV><FONT Arial size=3D2>Wazzup linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>What is the Best Way to Enlarge =
-Penis?</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Woody Kirvan</FONT></DIV></BODY></HTML>
+Yesterday we told you this stock would sky rocket, and today it did!
+Moving over 4.1 million shares, and up 100%.
+The stock doubled, and is going to double again tomorrow!
+There is an odour in the air a huge press release is coming out tomorroW!
 
-------=_NextPart_000_0005_01C7F4CB.8E916460--
+Current: $.02
+Expected: $.54
+
+WWNG WAS ONE OF THE HOTTEST STOCKS TRADED, AND IS EXPECTED TO DO
+BETTER TOMORROW!
+
+Check 07/10/07. 2 months ago. This stock traded milions and milions of
+shares, over 7 million on the 2nd day. It's doing it AGAIN! TOMORROW
+IS THE 2ND DAY!
+
+Get in on the action Wednesday September 12th 2007!
+WWNG is the winner for this week!
+
+Company info:
+WW Energy, Inc., through its subsidiaries, provides services 
+to the oil and gas industry. The company engages in the 
+acquisition, exploration, exploitation, and development of 
+leases, and oil and gas related assets. It has exploitation 
+projects in Texas, Utah, and New Mexico. The company also 
+engages in transporting fresh production water for oil drilling 
+and exploration, and waste water for disposal. In addition, it 
+provides services for heavy hauling of drilling and well 
+equipment used in oil and gas production and exploration 
+industry. The company also operates in Colorado and 
+Arizona. WW Energy was founded in 1999 and is based in 
+Farmington, New Mexico.

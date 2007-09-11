@@ -1,13 +1,11 @@
-From: "hugibert inderpal" <miguel@ltindia.com>
-Subject: Local representatives wanted, no investment needed. Serious people only please.
-Date: Tue, 11 Sep 2007 01:17:04 +0000
-Message-ID: <000601c7f420$0366ddb6$6772e885@torhakyu>
+From: "Jessica Hopkins" <siphonsw5@jewitchery.com>
+Subject: Can't afford medications you need
+Date: Tue, 11 Sep 2007 03:25:57 -0900
+Message-ID: <411127110.63184962862679@jewitchery.com>
+Reply-To: siphonsw5@jewitchery.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------486ED3486ED3BB4"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,31 +15,42 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Sizing Up Nanotechnology by Kristine Mak Yu The backtracking movement of RNA polymerase can be followed using optical tweezers.
+------------486ED3486ED3BB4
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-Hello,
-First and foremost, we would kindly like to express our warmest greetings to you and your relatives and wish you all good health and happiness and more success in dealing. Our Worldwide Corporation is looking for new employees on various vacancies. We are by now for a long time in the market and now we recruit employees to occupation from home.
+Dear customer.
 
-Our Company Main center is located in United Kingdom with branches all over the world. Our greatest wish now is to enlarge our business level to more countries, so we are advertising here in hope of cooperating with you all. We highly appreciate honest and creative employers. You do not need to spend any sum of money and we do not ask you to provide us with your bank account requisites! We are occupied in completely officially authorized activity and working in our company you can achieve career growth at a permanent job.
+Is it safe to shop for dru dul gs on the Web? How to save some money on the medic ad ations you use? In what ways are Canadian dru hx gs better than American ones? Get answers to all these questions now.
 
-We are seeking a highly motivated specialist, with skill of working with people. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate.
- 
-The right person will have good communication and interpersonal skills and some knowledge of marketing. Candidates must be able to remain focused and motivated when working alone.
+Think that high price is what proves the high qual uo ity of the dru clo gs you use? CanadianPha hx rmacy says no. Qualitative gen sj eric dru eud gs can be cheap, and our licensed Canadian online Pha uy rmacy proves it. CanadianPha jol rmacy, dru ijs gs of the highest qual yc ity at the lowest imaginable price.
 
-Thank you and we are looking forward to work together in long term basis with you all.
-If you are interested in our vacancies, please feel free to contact us for further information.
-The preference is given to employees with understanding of foreign languages. If you are interested please send next information to: ReggieSanfordGA@gmail.com
-1) Full name
-2) Contact phone numbers
-3) Languages
-4) Part time job/Full time
+CanadianPha mot rmacy - save money on high-qual as ity gen cv eric medic njd ations from Canada here.
 
-We are looking forward to hearing from you soon.
+Yours faithfully,Jessica Hopkins
+------------486ED3486ED3BB4
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-Yours sincerely,
-edouard hauhua
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
+<html>
+<body bgcolor="#FFFFFF" link="#333366">
+<p><font face="Verdana" size="2" color="#000000">Dear customer.</font></p>
 
-Just this April, a large cross-departmental group of Stanford faculty was awarded a multi-million dollar grant to take up such challenges and develop new devices and technology for use in 3-D ICs. Chidsey, for instance, is one of the researchers involved in integrating nanowire transistors into 3-D circuits, which requires being able to position nanowires reliably and accurately. With the development of 3-D ICs, you can expect all-in-one MP3 player-telephone-digital camera-PDA devices the size of Star Trek communicators to hit the shelves at Fry's within this decade.
-Sizing Up Nanotechnology by Kristine Mak Yu The backtracking movement of RNA polymerase can be followed using optical tweezers.
-Energy: Self-Assembling Solar Cells Dr. Michael McGehee, Materials Science and Engineering
+<p><font face="Verdana" size="2">Is it safe to shop for dru<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> dul </span>gs on the Web? How to save some money on the medic<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> ad </span>ations you use? In what ways are Canadian dru<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> hx </span>gs better than American ones? Get answers to all these questions now.</font></p>
+
+<p><font face="Verdana" size="2">Think that high price is what proves the high qual<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> uo </span>ity of the dru<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> clo </span>gs you use? CanadianPha<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> hx </span>rmacy says no. Qualitative gen<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> sj </span>eric dru<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> eud </span>gs can be cheap, and our licensed Canadian online Pha<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> uy </span>rmacy proves it. <a href="http://eqpksfe.sendwall.com/?629771867980">CanadianPha<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> jol </span>rmacy</a>, dru<span style="FON
+ T-SIZE: 2px; FLOAT: right; COLOR: white"> ijs </span>gs of the highest qual<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> yc </span>ity at the lowest imaginable price.</font></p>
+
+<p><font face="Verdana" size="2"><a href="http://eqpksfe.sendwall.com/?629771867980">CanadianPha<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> mot </span>rmacy</a> - save money on high-qual<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> as </span>ity gen<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> cv </span>eric medic<span style="FONT-SIZE: 2px; FLOAT: right; COLOR: white"> njd </span>ations from Canada here.</font></p>
+
+<p><font face="Verdana" size="2">Yours faithfully,<br>Jessica Hopkins</font></p>
+</body>
+</html>
+
+</BODY></HTML>
+------------486ED3486ED3BB4--

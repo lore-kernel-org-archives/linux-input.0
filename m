@@ -1,56 +1,49 @@
-From: "Elsie Calhoun" <yjjyvmxk@bondrewards.com>
-Subject: FWD: Dont pass this over
-Date: Tue, 11 Sep 2007 23:29:41 +0100
-Message-ID: <01c7f4c3$3ec9ef90$1b121854@yjjyvmxk>
+From: "Lenore H Guy" <climb@extramet.ch>
+Subject: physician data for the USA
+Date: Wed, 12 Sep 2007 01:32:44 +0400
+Message-ID: <41353.2573184513$1189550805@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: mscprovusa@juno.com, wood@everything2.com, bro1a400fb@gmail.com, cristo474@yahoo.fr, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-EXTREME RED HOT ALERT!
-Buy Wednesday September 12th 2007
 
-WW Energy Inc
-Symbol : WWNG
 
-This will EXPLODED TODAY, and will again TOMORROW!
 
-Yesterday we told you this stock would sky rocket, and today it did!
-Moving over 4.1 million shares, and up 100%.
-The stock doubled, and is going to double again tomorrow!
-There is an odour in the air a huge press release is coming out tomorroW!
+Only until Sep 14 - Purchase the MD Listing at the sale price and get Hospital, Nursing Home and Dentist data without charge
 
-Current: $.02
-Expected: $.54
 
-WWNG WAS ONE OF THE HOTTEST STOCKS TRADED, AND IS EXPECTED TO DO
-BETTER TOMORROW!
+Licensed MDs in the USA 
 
-Check 07/10/07. 2 months ago. This stock traded milions and milions of
-shares, over 7 million on the 2nd day. It's doing it AGAIN! TOMORROW
-IS THE 2ND DAY!
+788,450 in total – 17,400 emails
 
-Get in on the action Wednesday September 12th 2007!
-WWNG is the winner for this week!
+Lots of MDs in specialties like Orthopedics, Surgery, Radiology, Dermatology, Neurology, General Practice etc..
 
-Company info:
-WW Energy, Inc., through its subsidiaries, provides services 
-to the oil and gas industry. The company engages in the 
-acquisition, exploration, exploitation, and development of 
-leases, and oil and gas related assets. It has exploitation 
-projects in Texas, Utah, and New Mexico. The company also 
-engages in transporting fresh production water for oil drilling 
-and exploration, and waste water for disposal. In addition, it 
-provides services for heavy hauling of drilling and well 
-equipment used in oil and gas production and exploration 
-industry. The company also operates in Colorado and 
-Arizona. WW Energy was founded in 1999 and is based in 
-Farmington, New Mexico.
+16 different sortable fields
+
+Price for this week only =  $352
+
+
+*** FREE OFFER: Get the 3 directories below for FREE with the purchase of the Doctor data ***
+
+American Hospitals
+23,000 Admins in more than 7,000 hospitals {a $399 value]
+
+American Dentists
+More than half a million listings [worth $299 alone!]
+
+Nursing Homes in the USA
+includes over 31,589 Senior administrators, 11,288 Nursing Directors in over 14,706 Nursing Homes in the United States. (value: $249)
+
+reply by email:   docbizdata@hotmail.com
+
+
+
+
+by sending us an email with "exit" in the subject we will know not to contact you again

@@ -1,12 +1,10 @@
-From: "chico  bromberg" <oscar@ngeo.com>
-Subject: How to become healthy without much money.
-Date: Tue, 11 Sep 2007 10:01:04 +0300
-Message-ID: <000801c7f4ad$48105d20$c0a80020@oscar>
-Reply-To: "chico  bromberg" <oscar@ngeo.com>
+From: "Woody Kirvan" <Woody701@oekoplant-ev.de>
+Subject: loppup{{
+Date: Tue, 11 Sep 2007 23:29:11 +0200
+Message-ID: <000c01c7f4ba$cb089460$92ef0a57@giuseppe53a683>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0005_01C7F4CB.8E916460"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,10 +14,34 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi.
-Most shops offer amazingly high costs for remedies nowadays so not everybody can afford them. 
-But our pharmacy shopis the cheapest on the medical market.
-There is a huge range of high quality which can help you to escape  of your troubles immediately|at once and for cheap.
-So do not lose your possibility and hurry up.
+------=_NextPart_000_0005_01C7F4CB.8E916460
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-http://ehlo.abservertionastrefun.com/
+http://www.netcapt.com/
+Wazzup linux-input
+What is the Best Way to Enlarge Penis?
+
+Woody Kirvan
+------=_NextPart_000_0005_01C7F4CB.8E916460
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://www.netcapt.com/">http://www.netcapt.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Wazzup linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>What is the Best Way to Enlarge =
+Penis?</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>Woody Kirvan</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0005_01C7F4CB.8E916460--

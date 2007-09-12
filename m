@@ -1,33 +1,23 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: polled device power saving
-Date: Wed, 12 Sep 2007 10:51:46 -0400
-Message-ID: <d120d5000709120751g7ae9bd69s2d95060c750b18b2@mail.gmail.com>
-References: <20070912134141.38c32f6c@oldman>
+From: "Sales" <sales@dpfcarraro.com>
+Subject: Dean Martin and Jerry Lewis Comedy Duo
+Date: Wed, 12 Sep 2007 16:11:27 +0000
+Message-ID: <39fd01c7f557$04d02d80$a9526e57@home-696625d4ce.apollo.lv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070912134141.38c32f6c@oldman>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: Ellery Kristopher <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi Stephen,
+Keep yourself healthy with our Authentic pharma from Pfizer
 
-On 9/12/07, Stephen Hemminger <shemminger@linux-foundation.org> wrote:
-> For slow running polling, it saves power to align wakeups on tick boundary.
->
+Authentic Viagra here: http://www.dpfcarraro.com/ 
 
-Will apply, thank you.
-
-As far as the apanel driver goes - still working through my backlog
-caused by a couple of hard drive failures, please bear with me...
+Cut of price fast shipping.
 
 -- 
-Dmitry

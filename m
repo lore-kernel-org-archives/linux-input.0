@@ -1,96 +1,43 @@
-From: "Casino Royale" <swerve@rotario.com>
-Subject: 300% Bonus on your First Deposit
-Date: Thu, 13 Sep 2007 06:55:13 -0400
-Message-ID: <18575796.58394106@borate.com>
+From: "Cyril Butler" <picturetrailm@picturetrail.com>
+Subject: We have everything you need
+Date: Thu, 13 Sep 2007 07:03:14 -0600
+Message-ID: <579917849.30952729170563@picturetrail.com>
+Reply-To: picturetrailm@picturetrail.com
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------525094D31888F467"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+------------525094D31888F467
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Special Autumn offer from CanadianPharmacy. 50% discount for every item from really astonishing selection of products. Don’t waste time. CanadianPharmacy is your choice when you're looking for the place to buy products in a safe and confidential way. Full range of 100% generic products which are available to order online. Prompt delivery, personal approach, excellent service.Save time and money with CanadianPharmacy. http://dearor.cn
+
+------------525094D31888F467
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
 <html>
-
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-
-<title>An </title>
-
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	mso-ansi-language:EN-US;
-	mso-fareast-language:EN-US;}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
-
-</head>
-
-<body lang=EN-US link=blue vlink=purple style='tab-interval:35.4pt'>
-
-<div class=Section1>
-
-<p class=MsoNormal><span lang=EN-US>
-An incredible 300% bonus on your first deposit at
-Royal VIP Casino<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US>
-Imagine realistic graphics, like an old
-time classic casino, but with new amazing games in 
-an inviting noble atmosphere
-and a colorful surrounding.<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US>Sign up at Royal VIP Casino and
-you&#8217;ll be on the way to the richest First Deposit Bonus online in no
-time.<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US>The favorite theme of this casino is to
-make you feel good and give you every chance to win B-I-G!
-<o:p></o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US>
-<a href="http://royalbonuscasino.com/">
-http://royalbonuscasino.com/</a><o:p></o:p></span></p>
-
-</div>
-
+<body bgcolor="#FFFFFF" link="#333366">
+<p><font face="Verdana" size="2"><br>Special Autumn offer from <a href="http://dearor.cn">CanadianPharmacy</a>. <b><i>50% discount for every item</i></b> from really astonishing selection of products. Don’t waste time. </font></p>
+<p><font face="Verdana" size="2"><b><a href="http://dearor.cn">CanadianPharmacy</a></b> is your choice when you're looking for the place to buy products in a safe and confidential way. Full range of 100% generic products which are available to order online. Prompt delivery, personal approach, excellent service.</font></p>
+<p><font face="Verdana" size="2">Save time and money with <a href="http://dearor.cn">CanadianPharmacy</a>. <br><b><a href="http://dearor.cn">http://dearor.cn</a></b></font></p>
 </body>
-
 </html>
+
+
+</BODY></HTML>
+------------525094D31888F467--

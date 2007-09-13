@@ -1,10 +1,10 @@
-From: "Adrian Houser" <otyegjhq@blikopdebeurs.com>
-Subject: Re:ANONYMOUS FTP
-Date: Thu, 13 Sep 2007 21:16:09 +0100
-Message-ID: <01c7f642$ec174190$df1bb6d4@otyegjhq>
+From: "Damion Kemp" <abfsupajsih@bramakers.com>
+Subject: Damion sent you a private message
+Date: Thu, 13 Sep 2007 22:50:37 +0200
+Message-ID: <01c7f647$bcb70390$674d6355@abfsupajsih>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -15,11 +15,28 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: kelum@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Have you ever wished for a high dollar Watch?
+Dear Homeowner, 
 
-We have the problem solved for you!
+Interest Rates are at their lowest point in 40 years! 
 
-We stock all the top quality 
-for a very small precentage of the price.
+We help you find the best rate for your situation by 
+matching your needs with hundreds of lenders! 
 
-www.skddjenw.com
+Home Improvement, Refinance, Second Mortgage, 
+Home Equity Loans, and More! Even with less than 
+perfect credit! 
+
+This service is 100% FREE to home owners and new 
+home buyers without any obligation. 
+
+Just fill out a quick, simple form and jump-start 
+your future plans today! 
+
+http://www.omsencross.com/RD?ID=1
+
+
+To unsubscribe, please visit: 
+http://www.omsencross.com/unsubscribe/index.ihtml
+
+4859 N. Carson St. Ste # 850,
+Carson City, NV 89706

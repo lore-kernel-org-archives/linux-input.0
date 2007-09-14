@@ -1,14 +1,12 @@
-From: "levey gavin" <dundee@mercury-spb.com>
-Subject: Work as Advertising Coordinator
-Date: Tue, 14 Aug 2007 12:31:14 +0000
-Message-ID: <000901c7de7e$02cdebaa$fa41578d@oavernct>
+From: "Gary Jong" <gjong@yahoo-inc.com>
+Subject: User Experience Designers - Yahoo! - California
+Date: Fri, 14 Sep 2007 12:07:41 -0700
+Message-ID: <BAE5EA07D0E17D4FA8143FF9F3B9A47208D62C@SNV-EXVS06.ds.corp.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----_=_NextPart_001_01C7F702.9F27D748"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-class: urn:content-classes:message
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,37 +15,294 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-All over campus, Stanford has eagerly embraced the "grand challenges" of nanotechnology. Just this April, the Stanford Nanofabrication Facility (SNF) hosted an open house to celebrate its selection to be part of the National Science Foundation-sponsored National Nanotechnology Infrastructure Network sprawling across thirteen universities nationwide. Along with the new Nanocharacterization Laboratory expanding the SNF, the nearly finished Manoharan lab that Stanford students bike past on the way to physics lab embodies the prominent place nanotechnology has in Stanford research for years to come. Specifically, the Manoharan lab is equipped to manipulate matter on an atomic level. Here's a cross-section of nanotechnology research currently being pursued at Stanford:
+This is a multi-part message in MIME format.
+
+------_=_NextPart_001_01C7F702.9F27D748
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+Dmitry:
+
+=20
+
+I'm a member of the Yahoo! Inc Talent Acquisition team and have been
+able to make contact with you through Internet research techniques.  I'm
+contacting you to inform you of variety of exciting career opportunities
+within Yahoo! which I thought may be of interest to you.=20
+
+=20
+
+As a result of continued growth and the creation of new business models
+at Yahoo!, we're looking for UE Designers with both visual and
+interaction design skills to work across Yahoo! on short-term design
+projects in various business units.  Our Designers create various
+artifacts to support the design process, including, personas,
+storyboards, and/or design representations of appropriate fidelity, then
+iterate the interfaces and document the designs with interaction and/or
+visual specifications as required by the various projects.  This role
+offers the opportunity to collaborate with a variety of stakeholders and
+highly talented colleagues to design and assess proposed solutions, all
+in the interest of creating the best user experience for hundreds of
+millions of Yahoo! users. =20
+
+=20
+
+To perform these roles, we seek a BS/MS in Graphic Design, Interaction
+Design, HCI or a related field, with a minimum of 3 years of experience
+as a key member of a User Experience team.  This experience should
+include significant involvement in the complete product development life
+cycle of several successfully launched web and/or software applications.
+We'd also like to see familiarity with field and lab-based usability
+research methodologies, the ability to create prototypes at a variety of
+levels, and a solid understanding of web application and website design
+with working knowledge of HTML.
+
+=20
+
+We have a range of opportunities available for designers in both
+Northern and Southern California.  At Yahoo! we offer tremendous overall
+breadth, which translates to more opportunity to impact a wider
+diversity of areas from mail to music to social media to search.  At
+Yahoo!, we develop products very quickly and release them to large
+audiences so that services ARE NOT in a perpetual state of beta. =20
+
+=20
+
+Since you've been involved with similar activities during your career, I
+thought there was a reasonable chance that you may be interested in
+exploring these opportunities with us. If so, we'd be interested in
+learning more about your background and interests relative to these
+positions, and provide you with additional information about the
+organization and our company.=20
+
+=20
+
+Thank you for considering this inquiry. I'll look forward to your
+response!=20
+
+=20
+
+Regards,=20
+
+=20
+
+Gary Jong
+
+Talent Scout
+
+Yahoo!=20
+
+=20
+
+=20
+
+=20
 
 
+------_=_NextPart_001_01C7F702.9F27D748
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
+xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
+xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:st1=3D"urn:schemas-microsoft-com:office:smarttags" =
+xmlns=3D"http://www.w3.org/TR/REC-html40">
 
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
+charset=3Dus-ascii">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+<title>I'm a member of the Yahoo</title>
+<o:SmartTagType =
+namespaceuri=3D"urn:schemas-microsoft-com:office:smarttags"
+ name=3D"place"/>
+<o:SmartTagType =
+namespaceuri=3D"urn:schemas-microsoft-com:office:smarttags"
+ name=3D"PersonName"/>
+<!--[if !mso]>
+<style>
+st1\:*{behavior:url(#default#ieooui) }
+</style>
+<![endif]-->
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+<!--[if gte mso 9]><xml>
+ <o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+ <o:shapelayout v:ext=3D"edit">
+  <o:idmap v:ext=3D"edit" data=3D"1" />
+ </o:shapelayout></xml><![endif]-->
+</head>
 
+<body lang=3DEN-US>
 
+<div class=3DSection1>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Dmitry:</span></font></p>
 
-Our organization offers a very competitive wage to the successful applicant, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to join please send the following information to: ColeAbbottFK@gmail.com
-1) Full name 
-2) Contact phone numbers
-3) Part time job/Full time
- 
-The ideal applicant will be an intelligent person, someone who can work autonomously with a high level of enthusiasm. We are looking for a highly motivated professional, with skill of working with people. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate. A strong background in pr field is essential for this position, as is the ability to inspire at every level. 
-You do not need to invest any sum of money and we do not ask you to provide us with your bank requisites! We are occupied in totally legal activity.
- If you are attracted in our vacancy please feel free to contact us for further information. The preference is given to people with understanding of foreign languages.
-Thank you and we are looking forward to cooperate in long-standing basis with you all.
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>I'm a member of the Yahoo! Inc Talent Acquisition team and have =
+been
+able to make contact with you through Internet research =
+techniques.&nbsp; I'm
+contacting you to inform you of variety of exciting career opportunities =
+within
+Yahoo! which I thought may be of interest to you. </span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>As a result of continued growth and the creation of new business =
+models
+at Yahoo!, we&#8217;re looking for UE Designers with both visual and
+interaction design skills to work across Yahoo! on short-term design =
+projects
+in various business units.&nbsp; Our Designers create various artifacts =
+to support
+the design process, including, personas, storyboards, and/or design
+representations of appropriate fidelity, then iterate the interfaces and
+document the designs with interaction and/or visual specifications as =
+required
+by the various projects.&nbsp; This role offers the opportunity to =
+collaborate with
+a variety of stakeholders and highly talented colleagues to design and =
+assess
+proposed solutions, all in the interest of creating the best user =
+experience for
+hundreds of millions of Yahoo! users.&nbsp; </span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>To perform these roles, we seek a BS/MS in Graphic Design, =
+Interaction
+Design, HCI or a related field, with a minimum of 3 years of experience =
+as a
+key member of a User Experience team.&nbsp; This experience should =
+include
+significant involvement in the complete product development life cycle =
+of
+several successfully launched web and/or software applications.&nbsp; =
+We&#8217;d
+also like to see familiarity with field and lab-based usability research
+methodologies, the ability to create prototypes at a variety of levels, =
+and a
+solid understanding of web application and website design with working
+knowledge of HTML.</span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>We have a range of opportunities available for designers in both
+Northern and <st1:place w:st=3D"on">Southern =
+California</st1:place>.&nbsp; At Yahoo!
+we offer tremendous overall breadth, which translates to more =
+opportunity to
+impact a wider diversity of areas from mail to music to social media to
+search.&nbsp; At Yahoo!, we develop products very quickly and release =
+them to large
+audiences so that services ARE NOT in a perpetual state of beta.&nbsp; =
+</span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Since you've been involved with similar activities during your =
+career,
+I thought there was a reasonable chance that you may be interested in =
+exploring
+these opportunities with us. If so, we&#8217;d be interested in learning =
+more
+about your background and interests relative to these positions, and =
+provide
+you with additional information about the organization and our company. =
+</span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Thank you for considering this inquiry. I'll look forward to =
+your
+response! </span></font></p>
 
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
 
-Yet, there remains a problem with the "nano" in both nanoscience and nanotechnology. "Nanotechnology's a term with not too much new in it. It existed a long time ago," says Dai. Indeed, the characteristic length of bonds that have always been under scrutiny in the molecular sciences is on the order of a nanometer. Chidsey adds, "I worry that the term confuses people about what's important: the length scale itself is not important." Rather, it is the novel properties that structures exhibit at the nanoscale that is. As Dai puts it, "We work on carbon nanotubes not because they are small, but because they are interesting. They just happen to be nano." For all the problems with the term nanotechnology, though, it may have done some good. Chidsey remarks, "Just as nanotechnology has attracted 
- the attention of outsiders, it also stimulates us internally: it provides a context for tackling and defining grand challenges-things so out there you wouldn't tackle them otherwise."
-Currently, the gate length, the characteristic length parameter in transistors, has hit about 90 nm. The shorter the gate length, the faster transistors can switch on and off. In fact, the transistors have gotten so fast, that the delay as electrons flow through the skinnier and longer wires needed to cross larger, complex chips is on track to become the limiting factora in speed. This delay is just one of the fundamental problems that threatens to make the nanoscale regime of electronics unfaithful to Moore's Law and demands the design of new materials and structures or a complete shift in chip architecture.
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Regards, </span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><st1:PersonName w:st=3D"on"><font size=3D3 =
+face=3D"Times New Roman"><span
+ style=3D'font-size:12.0pt'>Gary Jong</span></font></st1:PersonName></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Talent Scout</span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>Yahoo! </span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'>&nbsp;</span></font></p>
+
+<p class=3DMsoNormal><font size=3D3 face=3D"Times New Roman"><span =
+style=3D'font-size:
+12.0pt'><o:p>&nbsp;</o:p></span></font></p>
+
+</div>
+
+</body>
+
+</html>
+
+------_=_NextPart_001_01C7F702.9F27D748--

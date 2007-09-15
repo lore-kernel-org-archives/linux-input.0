@@ -1,94 +1,73 @@
-From: BRITISH WEB LOTTERY <unclaimprize@lottery.org.uk>
-Subject: 2007# WINNER
-Date: Sun, 16 Sep 2007 02:57:40 +1200
-Message-ID: <200709151457.l8FEveWc028970@server41.ewsclustercore.net>
-Reply-To: unclaimprize@National-Champs.com
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: sysfs change of input/event devices in 2.6.23rc breaks udev
+Date: Sat, 15 Sep 2007 18:46:19 +0300
+Message-ID: <46EBFE4B.7000002@gmail.com>
+References: <46E2D712.1010402@gmail.com> <d120d5000709100624s4fd7e68djf8654a4d591cbb5d@mail.gmail.com> <20070915010519.34bcb9ae.akpm@linux-foundation.org> <200709151018.16076.dtor@insightbb.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200709151018.16076.dtor@insightbb.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-GOVERNMENT ACCREDITED LICENSED!!
-BRITISH WEB LOTTERY IS REGISTERED=20
-UNDER THE DATA PROTECTION ACT OF;=20
-(Registration Z720633X)
+Dmitry Torokhov wrote:
+> On Saturday 15 September 2007 04:05, Andrew Morton wrote:
+>> On Mon, 10 Sep 2007 09:24:04 -0400 "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+>>
+>>> On 9/10/07, Greg KH <gregkh@suse.de> wrote:
+>>>> On Mon, Sep 10, 2007 at 01:28:47AM -0400, Dmitry Torokhov wrote:
+>>>>> On Sunday 09 September 2007 19:03, Kay Sievers wrote:
+>>>>>> On 9/8/07, Anssi Hannula <anssi.hannula@gmail.com> wrote:
+>>>>>>> However, the change that broke id_path of udev is that
+>>>>>>> /sys/class/input/event5/device is now a symlink to the inputX directory
+>>>>>>> instead of being the same as the device symlink in inputX directory,
+>>>>>>> i.e. to ../../../devices/platform/pcspkr in this case.
+>>>>>>>
+>>>>>>> Udev id_path uses that directory to construct the ID_PATH variable.
+>>>>>>> Should the sysfs structure be reverted or should udev be adapted to
+>>>>>>> handle traversing /device symlink twice? I think the former, as there
+>>>>>>> should be considerably more time to adapt udev for coming changes in sysfs.
+>>>>>> Udev's path_id script is too dumb to follow the "device" link of
+>>>>>> stacked class devices in the CONFIG_SYSFS_DEPRECATED=y layout. Does
+>>>>>> this change fix it for you?
+>>>>>>   http://git.kernel.org/?p=linux/hotplug/udev.git;a=commitdiff_plain;h=b1ac36ff5e3756cefc79967a26280056da31bf6f
+>>>>>>
+>>>>> Hmm, fixing udev is good but users will not get the change in time. I think we
+>>>>> need to adjust SYSFS_DEPRECATED code to produce old results. Something like the
+>>>>> patch below. I wonder what Greg would think...
+>>>> Hm, I don't understand.  Didn't the original conversion of the input
+>>>> layer by Kay not have this kind of problem?  What did your changes do
+>>>> differently to cause this driver core change to be needed?
+>>>>
+>>> If I understand it correctly Kay's convesion had the same issue. With
+>>> class devices "device" link points to class_dev->device instead of
+>>> class_dev->parent. If you want to keep compatibility with old sysfs
+>>> layout when moving from class devices to regular devices then you need
+>>> to "skip" couple of parents till you get to "real" device. This only
+>>> matters for input because this was the only subsystem with class
+>>> devices stacked.
+>>>
+>> <wonders where the rest of this thread went to>
+> 
+> Limbo ;)
+> 
+> Anssi, could you please tell me if the patch fixes the issue on your box?
 
-The Marina Offices,
-St Peters Yacht Basin,
-Newcastle upon Tyne,=20
-NE6 1HXEngland
-(Customer Services)
-Ref: UK/9420X2/68
-Batch: 074/05/ZY369
-Ref: WINNING NOTIFICATION=20
+It does.
 
-
-We happily announce to you the draw of the UK NATIONAL LOTTERY, online Sw=
-eepstakes International program held on 19 May 2007 Draw 1190. It is yet =
-to be unclaimed and you are getting the final NOTIFICATION as regards thi=
-s.Your E-mail address attached to the lucky numbers: 17, 19, 20,32, 36, 4=
-8 And (Bonus ball(18),which subsequently won you the lottery in the 2nd c=
-ategory i.e JACKPOT. You have therefore been approved to claim a  total s=
-um of =C2=A37,923,399 (Seven million, Nine Hundred And Twenty Three Thous=
-and, Three Hundred and Ninety Nine Pounds Sterlings) in cash credited to =
-file number KTU/902311832012/07 and Draw Number: 1183.
-
-This is from a total cash prize for winners in this category i.e JACKPOT =
-Bonus. All participants for the online version were selected randomly fro=
-m World Wide Web sites through computer draw system and extracted from ov=
-er 100,000 unions,associations,and corporate bodies that are listed onlin=
-e. This is part of the Country's Program to fund for the Olympic Games in=
- 2012 The =C2=A31.5bn Olympic lottery puzzle: http://news.bbc.co.uk/1/hi/=
-uk/4719851.stm)=20
-=20
-The Olympic fund-raising games will include a TV draw The National Lotter=
-y may have seemed a relatively simple way of helping pay for the Olympics=
-. The Lottery must raise =C2=A31.5bn over the next seven years to pay its=
- share of the public money going into the Olympics. A further =C2=A3650m =
-will be raised from council tax in London and another =C2=A3250m from the=
- London Development Agency,while similar sums will be raised from ticket =
-sales, marketing, sponsorship and the sale of television rights.=20
-
-Please note that your lucky winning number falls within our European book=
-let representative office in Europe as indicated in your play coupon. In =
-view of this, your =C2=A37,923,399  will be released to you our payment o=
-ffice in UK. Our European agent will immediately commence the process to =
-facilitate the release of your funds as soon as you contact him. For secu=
-rity reasons, you are advised to keep your winning  information confident=
-ial till your claim is processed and your money remitted to you in whatev=
-er manner you deem fit to claim your prize.
-
-This is part of our precautionary measure to avoid double claiming and un=
-warranted abuse of this program. Please be warned. To file for your claim=
-,please contact our Administration Assistant:
-=20
-Name: Mr. Moore Baker
-Official Email: unclaimprize@National-Champs.com
-Mobile:+44 701 113 2675
-
-Endeavor to email him your full names, File and draw numbers, email addre=
-ss,telephone and fax numbers immediately. You can go to our  online resul=
-t site to confirm the value of your winnings and also get  a prize breakd=
-own:-http://www.national-lottery.co.uk/player/p/results/unclaimedPrizes.d=
-o
-
-Congratulations from me and members of staff of THE NATIONAL LOTTERY.=20
-=20
-Yours faithfully,=20
-Darryn Clarke(Mrs)=20
-Online coordinator=20
-for UK NATIONAL LOTTERY=20
-Sweepstakes International Program.=20
+>> Did this userspace-visible post-2.6.22 regression get fixed?
+>>
+> 
+> I'd like the patch to go through Greg if he is OK with it.
+> 
 
 
--------------------------------------------------------------------------=
-------------------------------------------------------------------
-=C2=AE Do not reply this E-mail, contact our Administration Assistant wit=
-h the above email=C2=AE.  =20
+-- 
+Anssi Hannula

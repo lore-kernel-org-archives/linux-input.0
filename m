@@ -1,67 +1,71 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: sysfs change of input/event devices in 2.6.23rc breaks udev
-Date: Sat, 15 Sep 2007 01:05:19 -0700
-Message-ID: <20070915010519.34bcb9ae.akpm@linux-foundation.org>
-References: <46E2D712.1010402@gmail.com>
-	<3ae72650709091603o57c976d1q8a1b5492ef041186@mail.gmail.com>
-	<200709100128.48595.dtor@insightbb.com>
-	<20070910054448.GA3515@suse.de>
-	<d120d5000709100624s4fd7e68djf8654a4d591cbb5d@mail.gmail.com>
+From: "Rosie Clifton" <geslibertyassetbor@libertyasset.com>
+Subject: Legal software sales
+Date: Sat, 15 Sep 2007 01:13:39 -0700
+Message-ID: <196354378.50278877701442@libertyasset.com>
+Reply-To: geslibertyassetbor@libertyasset.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------C0146EA1B256EA"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000709100624s4fd7e68djf8654a4d591cbb5d@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Greg KH <gregkh@suse.de>, Kay Sievers <kay.sievers@vrfy.org>, Anssi Hannula <anssi.hannula@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: lariat@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 10 Sep 2007 09:24:04 -0400 "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+------------C0146EA1B256EA
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> On 9/10/07, Greg KH <gregkh@suse.de> wrote:
-> > On Mon, Sep 10, 2007 at 01:28:47AM -0400, Dmitry Torokhov wrote:
-> > > On Sunday 09 September 2007 19:03, Kay Sievers wrote:
-> > > > On 9/8/07, Anssi Hannula <anssi.hannula@gmail.com> wrote:
-> > > > >
-> > > > > However, the change that broke id_path of udev is that
-> > > > > /sys/class/input/event5/device is now a symlink to the inputX directory
-> > > > > instead of being the same as the device symlink in inputX directory,
-> > > > > i.e. to ../../../devices/platform/pcspkr in this case.
-> > > > >
-> > > > > Udev id_path uses that directory to construct the ID_PATH variable.
-> > > > > Should the sysfs structure be reverted or should udev be adapted to
-> > > > > handle traversing /device symlink twice? I think the former, as there
-> > > > > should be considerably more time to adapt udev for coming changes in sysfs.
-> > > >
-> > > > Udev's path_id script is too dumb to follow the "device" link of
-> > > > stacked class devices in the CONFIG_SYSFS_DEPRECATED=y layout. Does
-> > > > this change fix it for you?
-> > > >   http://git.kernel.org/?p=linux/hotplug/udev.git;a=commitdiff_plain;h=b1ac36ff5e3756cefc79967a26280056da31bf6f
-> > > >
-> > >
-> > > Hmm, fixing udev is good but users will not get the change in time. I think we
-> > > need to adjust SYSFS_DEPRECATED code to produce old results. Something like the
-> > > patch below. I wonder what Greg would think...
-> >
-> > Hm, I don't understand.  Didn't the original conversion of the input
-> > layer by Kay not have this kind of problem?  What did your changes do
-> > differently to cause this driver core change to be needed?
-> >
-> 
-> If I understand it correctly Kay's convesion had the same issue. With
-> class devices "device" link points to class_dev->device instead of
-> class_dev->parent. If you want to keep compatibility with old sysfs
-> layout when moving from class devices to regular devices then you need
-> to "skip" couple of parents till you get to "real" device. This only
-> matters for input because this was the only subsystem with class
-> devices stacked.
-> 
+Our purpose is to assure PC and Macintosh lawful software and computer solutions of low cost for any budget. 
+Whether you are a corporate client, an owner of small-scale enterprise, 
+or shopping for your home PC, we think we can help you. 
 
-<wonders where the rest of this thread went to>
+SEE WHAT WE HAVE TO PROPOSE 
+http://bomim.cheapprosoft.net/?179953603735
 
-Did this userspace-visible post-2.6.22 regression get fixed?
+Most popular materials in sight are:
+*Adobe Photoshop CS v.8.0: Retail price for now - $500.00; Our just - $49.95 
+*Symantec Ghost Solution Suite 2.0: Retail price for this day - $39.20; Our only - $19.95 
+*Corel Ventura 10.0: Retail price today - $395.00; Our only - $29.95 
+*Adobe Photoshop CS for Mac: Retail price for now - $500.00; Our just - $49.95 
+*Symantec Ghost Solution Suite 2.0: Retail price for this time - $39.20; Our just for this day - $19.95 
+*Macromedia Flash Professional 8: Retail price now - $699.00; Our this day only - $49.95 
+*Quark XPress Passport 7.02: Retail price for today - $749.00; Our this day only - $69.95 
+*Adobe Photoshop Album V 2.0: Retail price this day - $129.00; Our for today - $29.95 
+
+COME IN RIGHT NOW! 
+http://bomim.cheapprosoft.net/?179953603735
+------------C0146EA1B256EA
+Content-Type: text/html; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+<strong>Our purpose is to assure PC and Macintosh lawful software and computer solutions of low cost for any budget.<br> 
+Whether you are a corporate client, an owner of small-scale enterprise,<br> 
+or shopping for your home PC, we think we can help you.<br> 
+
+<em><a href="http://bomim.cheapprosoft.net/?179953603735" target="_blank">SEE WHAT WE HAVE TO PROPOSE</a></em></strong><br> 
+<font color="#D9EDFF">http://bomim.cheapprosoft.net/?179953603735</font><br>
+
+<strong>Most popular materials in sight are:</strong><br>
+*<strong>Adobe Photoshop CS v.8.0:</strong> <em>Retail price for now - $500.00</em>; <strong>Our just - <font color="red"><em>$49.95</em></font></strong><br> 
+*<strong>Symantec Ghost Solution Suite 2.0:</strong> <em>Retail price for this day - $39.20</em>; <strong>Our only - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Corel Ventura 10.0:</strong> <em>Retail price today - $395.00</em>; <strong>Our only - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Adobe Photoshop CS for Mac:</strong> <em>Retail price for now - $500.00</em>; <strong>Our just - <font color="red"><em>$49.95</em></font></strong><br> 
+*<strong>Symantec Ghost Solution Suite 2.0:</strong> <em>Retail price for this time - $39.20</em>; <strong>Our just for this day - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Macromedia Flash Professional 8:</strong> <em>Retail price now - $699.00</em>; <strong>Our this day only - <font color="red"><em>$49.95</em></font></strong><br> 
+*<strong>Quark XPress Passport 7.02:</strong> <em>Retail price for today - $749.00</em>; <strong>Our this day only - <font color="red"><em>$69.95</em></font></strong><br> 
+*<strong>Adobe Photoshop Album V 2.0:</strong> <em>Retail price this day - $129.00</em>; <strong>Our for today - <font color="red"><em>$29.95</em></font></strong><br> 
+
+<strong><em><a href="http://bomim.cheapprosoft.net/?179953603735" target="_blank">COME IN RIGHT NOW!</a></em></strong><br> 
+<font color="#D9EDFF">http://bomim.cheapprosoft.net/?179953603735</font>
+
+</BODY></HTML>
+------------C0146EA1B256EA--

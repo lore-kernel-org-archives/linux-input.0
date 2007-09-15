@@ -1,379 +1,146 @@
-From: Coca Cola Promotion <messagedisparcher05@hotmail.com>
-Subject: =?iso-8859-1?Q?FINAL_NOTICE,_CONGRATULATIONS_YOU_HAVE_WON:_=A3500,000.00_?=
- =?iso-8859-1?Q?ONLY.?=
-Date: Sat, 15 Sep 2007 05:24:01 -0400
-Message-ID: <BAY114-W21AF07622B4816C5DA70E0A0BD0@phx.gbl>
+From: "Evangeline Chapman" <eireann.danby@vinde.dk>
+Subject: You can with V
+Date: Sat, 15 Sep 2007 12:04:50 +0100
+Message-ID: <01c7f788$3c4bec10$a9f27d55@eireann.danby>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="_84b09038-bcaf-4729-8767-d491d6c11e7d_"
+Content-Type: multipart/mixed;
+  boundary="----=_NextPart_000_000E_01C7F788.3C4BEC10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
---_84b09038-bcaf-4729-8767-d491d6c11e7d_
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_000E_01C7F788.3C4BEC10
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: 7bit
 
 
- =20
-THE COCA COLA=20
-COMPANY
-PROMOTION/PRIZE AWARD=20
 
-DEPT. COCA COLA=20
-AVENUE
+------=_NextPart_000_000E_01C7F788.3C4BEC10
+Content-Type: image/gif;
+	name="moskau.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+	filename="moskau.gif"
 
-WUSE ZONE 2 SW1V=20
-3DW
-ABUJA=20
-NIGERIA.
-=20
-=20
+R0lGODlh3wAWAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADfABYB
+AAj/AP8JHEiwoMGDCBMqFFhtocOHECNKXChtosWLGDNqdLhto8ePIEOK3DhtpMmTKFN6XAZP5UFq
+/1SpcjmSHc1UMGnqJOhs50lqDVXK8wkxH9GMRg3es3e0qdOPPZ9KnUq1qlWi1HJG1HqVJteuAp3g
+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
+kU3FmvUfnjhafVLzOc/rWLJlzZ5Fm7YosYAAOw== 
 
-               =20
-THE COCA COLA COMPANY OFFICIAL=20
-PRIZE NOTIFICATION  =20
-We are pleased to inform you=20
-of the result of the just concluded annual final draws held on the 12th=20
-of September, 2007)  by Coca-Cola=20
-in conjunction with the Red Dot Promotion,  your=20
-email  was among the 20 Lucky winners who won=20
-=A3500,000.00 (Five Hundred Thousand Pounds Sterling)=20
-each on the THE COCA/COLA COMPANY=20
-PROMOTION.
-=20
-
-However the results were released=20
-today the 15th, September 2007 and  your email was attached to ticket numbe=
-r=20
-(7PWYZ2007) and ballot number (BT:12052007/20)=20
-The online draws was conducted by a=20
-random selection of email addresses from an exclusive list of 29,031 E-mail=
-=20
-addresses of individuals and corporate bodies picked by an advanced automat=
-ed=20
-random computer search from the internet. However, no tickets were sold but=
- all=20
-email addresses were assigned to different ticket numbers for representatio=
-n and=20
-privacy.=20
-=20
-
-The selection process was carried=20
-out through random selection in our computerized email selection machine (T=
-OPAZ)=20
-from a database of over 250,000 email addresses drawn from all the continen=
-ts of=20
-the world. Below is one of our award presentations.=20
-
-
-=20
-=20
-=20
-This Lottery is approved by the=20
-British Gaming Board and also Licensed by the The International Association=
- of=20
-Gaming Regulators (IAGR).This lottery is the 3rd of its kind and we intend =
-to=20
-sensitize the public.=20
-=20
-
-In other=20
-to claim your =A3500,000.00 (Five Hundred Thousand=20
-Pounds Sterling) prize winning, which has been deposited in a designated ba=
-nk.=20
-However,you will have to send your informations such as the winnings=20
-notification and send it to the Promotion manager of THE COCA COLA COMPANY =
-for=20
-verification and then you will be directed on how you can claim your winnin=
-g=20
-funds.
-=20
-
-Please you are adviced to  send your=20
-informations to us  immediately to the Promotion manager through email for=
-=20
-prompt collection of your fund=20
-
-(CONTACT PROMOTION MANAGER)
-Abuja=20
-NIGERIA.
-
-Name: MR. DAVID=20
-ALBERT
-
-E mail:  agentdavidalbert@yahoo.com
-Tel:=20
-+234-805-911-44-44
-website:=20
-www.cocacola.com
-http://en.red-dot.org/newgallery/page.php?id=3D48&lang=3Den
-=20
-You are to keep all lotto=20
-information away from the general public especially your ticket number and=
-=20
-ballot number. (This is important as a case of double claims will not be=20
-entertained). =20
-=20
-The Staff of Coca-Cola=20
-and the British American Tobacco Company are not to partake in this=20
-Lottery.
-=20
-Accept my hearty congratulations=20
-once again!=20
-Yours faithfully,
-Mrs=20
-Rose Hill
-Grant=20
-Co-ordinator
-_________________________________________________________________
-Kick back and relax with hot games and cool activities at the Messenger Caf=
-=E9.
-http://www.cafemessenger.com?ocid=3DTXT_TAGLM_SeptWLtagline=
-
---_84b09038-bcaf-4729-8767-d491d6c11e7d_
-Content-Type: text/html; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<html>
-<head>
-<style>
-.hmmessage P
-{
-margin:0px;
-padding:0px
-}
-body.hmmessage
-{
-FONT-SIZE: 10pt;
-FONT-FAMILY:Tahoma
-}
-</style>
-</head>
-<body class=3D'hmmessage'>
-<div><img alt=3D"Coca Cola wallpapers  800 X 600" src=3D"http://www.coolbud=
-dy.com/wallpapers/brands/imgs/th_Coca_Cola01.jpg" height=3D"90" width=3D"12=
-0">&nbsp; </div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"><strong>THE&nbsp;COCA COLA=20
-COMPANY<br>PROMOTION/PRIZE AWARD=20
-</strong></span></font></font></strong></span></div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"><strong>DEPT. <span id=3D"lw_1180349467_0" style=3D"border=
--bottom: 1px dashed rgb(0, 102, 204); height: 1em;">COCA COLA</span>=20
-AVENUE</strong></span></font></font></strong></span></div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"><strong></strong></span></font></font></strong></span></di=
-v>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"><strong>WUSE ZONE 2 <span style=3D"font-size: 10pt; font-f=
-amily: Arial;"><strong><font color=3D"#0000ff"><font color=3D"#cc0033"><spa=
-n style=3D"font-size: 10pt; font-family: Arial;"><strong>SW1V=20
-3DW</strong></span></font></font></strong></span></strong></span></font></f=
-ont></strong></span></div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"><strong>ABUJA=20
-NIGERIA.</strong></span></font></font></strong></span></div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"><strong></strong></span></font></font></strong></span>&nbs=
-p;</div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"></span></font></font></strong></span>&nbsp;</div>
-<div><span style=3D"font-size: 10pt; font-family: Arial;"><strong><font col=
-or=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font=
--family: Arial;"></span></font></font></strong></span></div><span style=3D"=
-font-size: 10pt; font-family: Arial;">
-<div align=3D"center"><font color=3D"#0000ff"><strong><font size=3D"3"><fon=
-t color=3D"#cc0033"><span style=3D"font-size: 10pt; font-family: Arial;"><e=
-m>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;</em></span></font></font></strong></font></div>
-<div align=3D"center"><font color=3D"#0000ff"><strong><font size=3D"3"><fon=
-t color=3D"#cc0033"><span style=3D"font-size: 10pt; font-family: Arial;"></=
-span></font></font></strong><strong><font size=3D"3"><font color=3D"#cc0033=
-"><span style=3D"font-size: 10pt; font-family: Arial;"><u>THE COCA COLA COM=
-PANY OFFICIAL=20
-PRIZE NOTIFICATION</u>&nbsp;&nbsp;</span></font>&nbsp;</font></strong></fon=
-t></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"><strong>We are pleased to inform you=20
-of the result of the just concluded annual final draws held on the&nbsp;12t=
-h=20
-of&nbsp;September, 2007)&nbsp;&nbsp;by <span id=3D"lw_1180349467_4" style=
-=3D"border-bottom: 1px dashed rgb(0, 102, 204); height: 1em;">Coca-Cola</sp=
-an>=20
-in conjunction with the&nbsp;Red&nbsp;Dot Promotion,</strong></span></font>=
-<font color=3D"#cc0033"><span style=3D"font-size: 10pt; font-family: Arial;=
-"><strong>&nbsp; your=20
-email&nbsp; was among the 20 Lucky winners who won=20
-<u>=A3500,000.00</u></strong>&nbsp;<strong>(Five Hundred Thousand Pounds St=
-erling)=20
-</strong><strong>each on the THE COCA/COLA COMPANY=20
-PROMOTION.</strong></span></font></font></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"><strong></strong></span></font></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;">However the results were released=20
-today&nbsp;the&nbsp;15th, September 2007 and&nbsp; your email was attached =
-to ticket number=20
-(7PWYZ2007) and ballot number (BT:12052007/20)=20
-</span></font></strong><strong><font color=3D"#cc0033"><span style=3D"font-=
-size: 10pt; font-family: Arial;">The online draws was conducted by a=20
-random selection of email addresses from an exclusive list of 29,031 E-mail=
-=20
-addresses of individuals and corporate bodies picked by an advanced automat=
-ed=20
-random computer search from the internet. However, no tickets were sold but=
- all=20
-email addresses were assigned to different ticket numbers for representatio=
-n and=20
-privacy.&nbsp;</span></font></strong></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"></span></font></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;">The selection process was carried=20
-out through random selection in our computerized email selection machine (T=
-OPAZ)=20
-from a database of over 250,000 email addresses drawn from all the continen=
-ts of=20
-the world. Below is one of our award presentations.=20
-<div><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font-family: A=
-rial;"><strong><img alt=3D"Golden Peacock Environment Management" src=3D"ht=
-tp://www.coca-colaindia.com/images/media/saugat1.jpg" height=3D"226" vspace=
-=3D"10" width=3D"300"></strong></span></font></div>
-<div><font color=3D"#cc0033"><span style=3D"font-size: 10pt; font-family: A=
-rial;"></span></font></div>
-<div><img class=3D"center" title=3D"Tracey Lamb (left) and Joe Lamb accepti=
-ng the &quot;Coca-Cola Award: Live Olympic.&quot;" alt=3D"Tracey     Lamb  =
-     (left)   and Joe Lamb accepting the &quot;Coca-Cola Award: Live Olympi=
-c.&quot;" src=3D"http://torinoconversations.coca-cola.com/static/katelewis/=
-images/Tracey%20and%20Joe%20Lamb.jpg" align=3D"middle" height=3D"300" width=
-=3D"400"><a href=3D"http://en.red-dot.org/newgallery/page.php?id=3D48&amp;p=
-ic=3D7&amp;lang=3Den" target=3D"_blank" rel=3D"nofollow"><font color=3D"#00=
-3399"><u><span id=3D"lw_1180349467_5">&nbsp;</span></u></font></a></div></s=
-pan></font></strong></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;">This Lottery is approved by the=20
-British Gaming Board and also Licensed by the The International Association=
- of=20
-Gaming Regulators (IAGR).This lottery is the 3rd of its kind and we intend =
-to=20
-sensitize the public.&nbsp;</span></font></strong></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"></span></font></font></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"></span></font><font color=3D"#cc0033"><span =
-style=3D"font-size: 10pt; font-family: Arial;"><strong>In other=20
-to claim your&nbsp;<u>=A3</u><u>500,000.00</u></strong>&nbsp;<strong>(Five =
-Hundred Thousand=20
-Pounds Sterling) prize winning, which has been deposited in a designated ba=
-nk.=20
-However,you will have to send your informations such as the winnings=20
-notification and send it to the Promotion manager of THE COCA COLA COMPANY =
-for=20
-verification and then you will be directed&nbsp;on how you can claim your w=
-inning=20
-funds.</strong></span></font></font></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"><strong></strong></span></font></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;">Please you are adviced to&nbsp; send=
- your=20
-informations&nbsp;to us&nbsp;&nbsp;immediately to&nbsp;the Promotion manage=
-r through email for=20
-prompt collection of your fund <br></span></font></strong><font color=3D"#c=
-c0033"><span style=3D"font-size: 10pt; font-family: Arial;"><strong><br><fo=
-nt color=3D"#c00000">(CONTACT PROMOTION MANAGER)</font></strong></span></fo=
-nt><font style=3D"background-color: rgb(255, 255, 255);" color=3D"#c00000">=
-<strong><br>Abuja=20
-NIGERIA.</strong></font></font></div>
-<div>
-<div><font color=3D"#0000ff"><font style=3D"background-color: rgb(255, 255,=
- 255);"><strong><font color=3D"#c00000">Name:&nbsp;</font></strong><strong>=
-<font color=3D"#c00000">MR. DAVID=20
-ALBERT<br></font></strong></font></font></div>
-<div><font color=3D"#0000ff"><font style=3D"background-color: rgb(255, 255,=
- 255);"><font color=3D"#c00000"><strong>E mail:</strong>&nbsp; <strong><a h=
-ref=3D"mailto:agentdavidalbert@yahoo.com"><u><font color=3D"#0066cc">agentd=
-avidalbert@yahoo.com</font></u></a></strong></font></font></font></div>
-<div><font color=3D"#0000ff"><font style=3D"background-color: rgb(255, 255,=
- 255);"><strong><font color=3D"#c00000">Tel:=20
-+234-805-911-44-44</font></strong></font></font></div>
-<div><font color=3D"#0000ff"><font style=3D"background-color: rgb(255, 255,=
- 255);"><strong><font color=3D"#c00000">website:=20
-</font></strong><a href=3D"http://www.cocacola.com/" target=3D"_blank" rel=
-=3D"nofollow"><strong><font color=3D"#c00000"><u><span id=3D"lw_1180349467_=
-7" style=3D"background: transparent none repeat scroll 0% 50%; -moz-backgro=
-und-clip: -moz-initial; -moz-background-origin: -moz-initial; -moz-backgrou=
-nd-inline-policy: -moz-initial;">www.cocacola.com</span></u></font></strong=
-></a></font></font></div>
-<div><font color=3D"#0000ff"><font style=3D"background-color: rgb(255, 255,=
- 255);"><strong></strong><a href=3D"http://en.red-dot.org/newgallery/page.p=
-hp?id=3D48&amp;lang=3Den" target=3D"_blank" rel=3D"nofollow"><strong><font =
-color=3D"#c00000"><u><span id=3D"lw_1180349467_8" style=3D"background: tran=
-sparent none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz=
--background-origin: -moz-initial; -moz-background-inline-policy: -moz-initi=
-al;">http://en.red-dot.org/newgallery/page.php?id=3D48&amp;lang=3Den</span>=
-</u></font></strong></a><br></font>&nbsp;</font></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"><strong>You are to keep all lotto=20
-information away from the general public especially your ticket number and=
-=20
-ballot number. (This is important as a case of double claims will not be=20
-entertained).&nbsp;</strong></span></font><strong>&nbsp;</strong></font></d=
-iv>
-<div><font color=3D"#0000ff"><strong></strong></font>&nbsp;</div></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;">The Staff of <span id=3D"lw_11803494=
-67_9" style=3D"border-bottom: 1px dashed rgb(0, 102, 204); background: tran=
-sparent none repeat scroll 0% 50%; -moz-background-clip: -moz-initial; -moz=
--background-origin: -moz-initial; -moz-background-inline-policy: -moz-initi=
-al; height: 1em;">Coca-Cola</span>=20
-and the British American Tobacco Company are not to partake in this=20
-Lottery.</span></font></strong></font></div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;"></span></font></strong></font>&nbsp;=
-</div>
-<div><font color=3D"#0000ff"><strong><font color=3D"#cc0033"><span style=3D=
-"font-size: 10pt; font-family: Arial;">Accept my hearty congratulations=20
-once again!</span></font></strong><strong>&nbsp;</strong></font></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"><strong>Yours faithfully,<br>Mrs=20
-Rose Hill</strong></span></font></font></div>
-<div><font color=3D"#0000ff"><font color=3D"#cc0033"><span style=3D"font-si=
-ze: 10pt; font-family: Arial;"><strong>Grant=20
-Co-ordinator</strong></span></font></font></div></span><br /><hr />Kick bac=
-k and relax with hot games and cool activities at the Messenger Caf=E9. <a =
-href=3D'http://www.cafemessenger.com?ocid=3DTXT_TAGLM_SeptWLtagline' target=
-=3D'_new'>Play now!</a></body>
-</html>=
-
---_84b09038-bcaf-4729-8767-d491d6c11e7d_--
+------=_NextPart_000_000E_01C7F788.3C4BEC10--

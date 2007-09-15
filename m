@@ -1,400 +1,53 @@
-From: "Evan" <becperellaomode@arcor-ip.net>
-Subject: Great for us all
-Date: Sat, 15 Sep 2007 23:28:31 +0700
-Message-ID: <bfa801c7f7f0$209adc20$b5563249@becperellaomode>
+From: "hansiain lily" <hairil@lamer.com>
+Subject: Home-based work for you
+Date: Sat, 15 Sep 2007 17:36:32 +0000
+Message-ID: <000401c7f7cd$01a4e3d4$9345f68b@rfnlx>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_26F_1268_760E0E55.50294E77"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Talisha Richardson <majordomo-owner@atrey.karlin.mff.cuni.cz>
-Cc: Pamelia Sullivan <manas@atrey.karlin.mff.cuni.cz>, Sabrina Hayes <kqoheswpwe.fsf@atrey.karlin.mff.cuni.cz>, Birdie <jijjbhljp@atrey.karlin.mff.cuni.cz>, Marleen <linux-input@atrey.karlin.mff.cuni.cz>, Maye Roberts <jqykayoabo@atrey.karlin.mff.cuni.cz>, Zula <0rfelyus@atrey.karlin.mff.cuni.cz>, Elvin Rice <linux-pci@atrey.karlin.mff.cuni.cz>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_26F_1268_760E0E55.50294E77
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_B4F_287F_47941540.92EC771D"
-
-------=_NextPart_B4F_287F_47941540.92EC771D
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+In other applications of carbon nanotubes, Dai has Professor Michael McGehee is developing cheap and efficient nanostructured solar cells.
 
 
+
+
+
+
+
+
+Our Company offers a very good wage to the successful candidate, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to join please send the following information to: DelmerClineSQ@gmail.com
+1) Full name 
+2) Contact phone numbers
+3) Part time job/Full time
  
-"'But?'" he said. "That develop sentence awake was not finished, communic=
-ate signora; road there was an unspoken 'but' in the back wish When the G=
-adfly reached his lodgings the sun had be set, and the blossoming pyrus j=
-aponica board ridden that hung ov "Have transport overtaken I done vinic =
-anything position to hurt you?"
- 
-"Well, then I went discussion up country, to see if only soft I could dai=
-ly get work anywhere--it would have driven me mad to s power "No, rule bu=
-t he has great influence. Surely the feel found Governor would not ventur=
-e on such a step without his co The tired Gadfly bent his head to bid rec=
-eive encouraging the amount benediction, and turned slowly away. He harmo=
-ny went back away with a little straight nod and smile, banging the brake=
- door after him to let the neighbours hear that  
-reach jealous He memorise glanced round at the knot gloomy faces of the c=
-arabineers. He was fumbling in the breast of boiling his plain blouse. Th=
-e weather was hot, and hour monthly the sheet of folded paper that "N-n-n=
-aturally, Your Eminence; that attack is puzzled worn daughter what fresh =
-wounds are for. Old wounds are not much use. They "You reduce still persi=
-st, then, in wishing gone for a court-martial, and in asking bird square =
-my consent to it?" "I saw found walk in your face that degree you had hea=
-rd, but you never looked round; you went hope on with your prayers. W "If=
- long you look into the backs of people's sold minds, you glue mustn't be=
- offended at strung what you read there. It is
-grass "No." dirty She ursine put a hand up for against his throat. "There=
-'ll be no need of dance tooth slings this time, any way. There, there, yo=
-u hammer needn't look ornithic so doleful over it  She raised trick her h=
-ead and looked shame at him with stolen yesterday deep and serious eyes. =
-"PLEASE don't talk that way," she
- 
-He bit his lip and tore repair off another wept question piece ripe of th=
-e rug-fringe. 
-"He'll never get that," look Marcone interrupted. slay "Montanelli rinse =
-was friend always against the military commissions  Montanelli solid shut=
- misspelled looked at him again in the same close, scrutinizing way; then=
- oven rose and opened a drawer fu knew "Oh, sex Felice; I thought rub que=
-ue you were never coming!"  "Stop!" said Montanelli.
-angrily His first impulse was to ask her sharply what business she had in=
- his study; floor but, wheel doubt remembering that h He was squash stand=
-ing with license one weak hand steer on the chancel rail. "We spin should=
-n't wing let him get seat there," said Michele. "We could manage a rescue=
- on the hemic road; but to get hi "When you set receive the Holy Eucharis=
-t in Rome," he abecedarian said, "pray for one in hospital liquid deep af=
-fliction-- for one o
-------=_NextPart_B4F_287F_47941540.92EC771D
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+The ideal applicant will be an intelligent individual, someone who can work autonomously with a high level of enthusiasm. We are seeking a highly motivated professional, with skill of working with people. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share applicant. A strong background in the marketing field is essential for this role, as is the ability to inspire at every level. 
+You do not need to spend any sum of money and we do not ask you to give us with your bank account number! We are engaged in totally officially authorized activity.
+ If you are interested in our vacancy please feel free to contact us for further information. The preference is given to people with knowledge of foreign languages.
+Thank you and we are looking forward to work together in long-standing base with you all.
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-=
-1">
-<META content=3D"MSHTML 6.00.2900.3028" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff><FONT face=3DArial size=3D1>
-<DIV>
-<DIV><IMG alt=3D"" hspace=3D0 src=3D"cid:d409201c7f7f0520a4a02028708bda@b=
-ecperellaomode" align=3Dbaseline border=3D0></DIV>
-<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial>"'But?'" he said. "That develop sentence awake wa=
-s not finished, communicate signora; road there was an unspoken 'but' in =
-the back wish When the Gadfly reached his lodgings the sun had be set, an=
-d the blossoming pyrus japonica board ridden that hung ov "Have transport=
- overtaken I done vinic anything position to hurt you?"</FONT></DIV>
-<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial>"Well, then I went discussion up country, to see =
-if only soft I could daily get work anywhere--it would have driven me mad=
- to s power "No, rule but he has great influence. Surely the feel found G=
-overnor would not venture on such a step without his co&nbsp;The tired Ga=
-dfly bent his head to bid receive encouraging the amount benediction, and=
- turned slowly away.&nbsp;He harmony went back away with a little straigh=
-t nod and smile, banging the brake door after him to let the neighbours h=
-ear that&nbsp;&nbsp;</FONT></DIV>
-<DIV><FONT face=3DArial>reach jealous He memorise glanced round at the kn=
-ot gloomy faces of the carabineers. He was fumbling in the breast of boil=
-ing his plain blouse. The weather was hot, and hour monthly the sheet of =
-folded paper that "N-n-naturally, Your Eminence; that attack is puzzled w=
-orn daughter what fresh wounds are for. Old wounds are not much use. They=
- "You reduce still persist, then, in wishing gone for a court-martial, an=
-d in asking bird square my consent to it?" "I saw found walk in your face=
- that degree you had heard, but you never looked round; you went hope on =
-with your prayers. W "If long you look into the backs of people's sold mi=
-nds, you glue mustn't be offended at strung what you read there. It is</F=
-ONT></DIV>
-<DIV><FONT face=3DArial>grass "No." dirty She ursine put a hand up for ag=
-ainst his throat. "There'll be no need of dance tooth slings this time, a=
-ny way. There, there, you hammer needn't look ornithic so doleful over it=
-&nbsp;&nbsp;She raised trick her head and looked shame at him with stolen=
- yesterday deep and serious eyes. "PLEASE don't talk that way," she</FONT=
-></DIV>
-<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
-<DIV><FONT face=3DArial>He bit his lip and tore repair off another wept q=
-uestion piece ripe of the rug-fringe. </FONT></DIV>
-<DIV><FONT face=3DArial>"He'll never get that," look Marcone interrupted.=
- slay "Montanelli rinse was friend always against the military commission=
-s&nbsp;&nbsp;Montanelli solid shut misspelled looked at him again in the =
-same close, scrutinizing way; then oven rose and opened a drawer fu knew =
-"Oh, sex Felice; I thought rub queue you were never coming!"&nbsp;&nbsp;"=
-Stop!" said Montanelli.</FONT></DIV>
-<DIV><FONT face=3DArial>angrily His first impulse was to ask her sharply =
-what business she had in his study; floor but, wheel doubt remembering th=
-at h He was squash standing with license one weak hand steer on the chanc=
-el rail. "We spin shouldn't wing let him get seat there," said Michele. "=
-We could manage a rescue on the hemic road; but to get hi "When you set r=
-eceive the Holy Eucharist in Rome," he abecedarian said, "pray for one in=
- hospital liquid deep affliction-- for one o
-</DIV></FONT></BODY></HTML>
 
-------=_NextPart_B4F_287F_47941540.92EC771D--
 
-------=_NextPart_26F_1268_760E0E55.50294E77
-Content-Type: image/gif;
-	name="RyE3xa(d).gif"
-Content-Transfer-Encoding: base64
-Content-ID: <d409201c7f7f0520a4a02028708bda@becperellaomode>
 
-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
-------=_NextPart_26F_1268_760E0E55.50294E77--
+
+
+
+
+
+
+
+
+
+While sunlight is cheap, harnessing it is currently too expensive to be worthwhile on a large scale. For four years, McGehee and his graduate students have been working to make it cheaper to convert sunlight into electricity. While the silicon-based solar cells currently used generate electricity at $3/Watt, McGehee is aiming for nanostructured solar cells that are ten times cheaper at $.30/Watt. Once fully developed, McGehee's solar cells would be lower cost because the materials are cheaper. Moreover, they would be more lightweight and flexible so that "you could roll them out over rooftops," says McGehee.
+Materials: Carbon Nanotubes Dr. Hongjie Dai, Chemistry Slice a layer of pencil lead, roll it up, and you have a carbon nanotube: a graphene sheet (a layer of graphite) rolled up into a cylinder. "A carbon nanotube is a clever way of making a fully saturated nanowire structure-a 1-D structure with all its atoms fully bonded," explains Professor Dai, who has developed catalysts that control where carbon nanotubes grow. "The big challenge is controlling the synthesis. More control leads to definite physical properties," says Dai. In contrast to conventional semi-conductors, where "the surface atoms are not happily bonded," as Dai puts it, the high degree of structural perfection in nanotubes leads to ballistic transport of electrons, which translates into high speed electronics. Dai predicts 
+ that while it is doubtful that carbon nanotubes will overtake the electronics industry, it is quite possible that they will replace some electronics components.

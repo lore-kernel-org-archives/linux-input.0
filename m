@@ -1,146 +1,60 @@
-From: "Evangeline Chapman" <eireann.danby@vinde.dk>
-Subject: You can with V
-Date: Sat, 15 Sep 2007 12:04:50 +0100
-Message-ID: <01c7f788$3c4bec10$a9f27d55@eireann.danby>
+From: "Katherine Hemphill" <demosaverm@demosaver.com>
+Subject: Some useful advices for your health
+Date: Sat, 15 Sep 2007 20:53:36 +0800
+Message-ID: <01c7f797$6e187f10$22091f7d@demosaverm>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_000E_01C7F788.3C4BEC10"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_000E_01C7F797.6E187F10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_000E_01C7F788.3C4BEC10
+------=_NextPart_000_000E_01C7F797.6E187F10
 Content-Type: text/plain;
-	charset="windows-1250"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 
+Dear customer.Take advantage of MyCanadianStore's special half-price offer and buy your drugs at lowest Internet prices.MyCanadianStore is a reliable Canadian online store that sells products at cheap prices. Order products at a time that suits you, from your home or office, easy and confidentially here. Top quality products from the world known manufactures. Professional customer care service, fast delivery.  We are flexible and take care of every customer.http://truequiet.cnYours faithfully, Katherine Hemphill
 
 
-------=_NextPart_000_000E_01C7F788.3C4BEC10
-Content-Type: image/gif;
-	name="moskau.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="moskau.gif"
 
-R0lGODlh3wAWAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADfABYB
-AAj/AP8JHEiwoMGDCBMqFFhtocOHECNKXChtosWLGDNqdLhto8ePIEOK3DhtpMmTKFN6XAZP5UFq
-/1SpcjmSHc1UMGnqJOhs50lqDVXK8wkxH9GMRg3es3e0qdOPPZ9KnUq1qlWi1HJG1HqVJteuAp3g
-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
-kU3FmvUfnjhafVLzOc/rWLJlzZ5Fm7YosYAAOw== 
+------=_NextPart_000_000E_01C7F797.6E187F10
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-------=_NextPart_000_000E_01C7F788.3C4BEC10--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3Diso-8859-1" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 6.00.2800.1437" name=3DGENERATOR></HEAD>
+<BODY>
+<html>
+<body bgcolor=3D"#FFFFFF" link=3D"#333366">
+<font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear customer.</font>
+<p><font face=3D"Verdana" size=3D"2">Take advantage of <a href=3D"http://tr=
+uequiet.cn">MyCanadianStore's</a> <b><i>special half-price offer</i></b> an=
+d buy your drugs at lowest Internet prices.</font></p>
+<p><font face=3D"Verdana" size=3D"2"><b><a href=3D"http://truequiet.cn">MyC=
+anadianStore</a></b> is a reliable Canadian online store that sells product=
+s at cheap prices. Order products at a time that suits you, from your home =
+or office, easy and confidentially <a href=3D"http://truequiet.cn">here</a>=
+ Top quality products from the world known manufactures. Professional cust=
+omer care service, fast delivery.  </font></p>
+<p><font face=3D"Verdana" size=3D"2">We are flexible and take care of every=
+ customer.<br><b><a href=3D"http://truequiet.cn">http://truequiet.cn</a></b=
+></font></p>
+<font face=3D"Verdana" size=3D"2">Yours faithfully, Katherine Hemphill</fon=
+t>
+</body>
+</html>
+
+</BODY></HTML>
+
+------=_NextPart_000_000E_01C7F797.6E187F10--

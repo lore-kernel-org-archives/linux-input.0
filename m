@@ -1,7 +1,7 @@
-From: "Royal VIP Casino" <OliverBoston@fast.net>
+From: "Royal VIP Casino" <KevenSaldana@mail.com>
 Subject: 300% bonus on your first deposit
-Date: Sun, 16 Sep 2007 11:02:57 -0800
-Message-ID: <8366.70775102011$1189965757@news.gmane.org>
+Date: Sun, 16 Sep 2007 11:24:16 -0800
+Message-ID: <4354.48047142035$1189967028@news.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
@@ -11,7 +11,7 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kralikr@atrey.karlin.mff.cuni.cz
+To: len@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

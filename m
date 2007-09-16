@@ -1,67 +1,46 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] Fujitsu application panel driver (rev3)
-Date: Sun, 16 Sep 2007 16:22:58 -0400
-Message-ID: <200709161623.00286.dtor@insightbb.com>
-References: <20070702111724.43ee5b43@freepuppy.localdomain.hemminger.net> <200709140130.59732.dtor@insightbb.com> <20070916215516.2934abad@oldman.hemminger.net>
+From: "Anibal Duvall" <hosmaewestfestneg@maewestfest.org>
+Subject: Software
+Date: Sun, 16 Sep 2007 20:33:39 +0000 (UTC)
+Message-ID: <582055298.37352918804226@maewestfest.org>
+Reply-To: hosmaewestfestneg@maewestfest.org
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------C17FD30C17FD30"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20070916215516.2934abad@oldman.hemminger.net>
-Content-Disposition: inline
+Date: , 16 Sep 2007 21:33:27 +0100
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: lariat@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Stephen,
+------------C17FD30C17FD30
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-On Sunday 16 September 2007 15:55, Stephen Hemminger wrote:
-> On Fri, 14 Sep 2007 01:30:58 -0400
-> Dmitry Torokhov <dtor@insightbb.com> wrote:
-> 
-> > Hi Stephen,
-> > 
-> > On Wednesday 12 September 2007 07:38, Stephen Hemminger wrote:
-> > > This driver supports the application buttons on some Fujitsu Lifebook laptops.
-> > > It is based on the earlier apanel driver done by Jochen Eisenger, but
-> > > with many changes.  The original driver used ioctl's and a separate
-> > > user space program;  see http://apanel.sourceforge.net/tech.php
-> > > This version hooks into the input subsystem so that the normal
-> > > Gnome/KDE shortcuts work without any userspace changes.
-> > > 
-> > > The Mail Led is handled via leds class device.
-> > > 
-> > 
-> > Thank you very much for convering the led to led subsystem. I tried
-> > implementing loadable keymap support in the driver, could you please
-> > try the patch below and if it still works for you then I will apply
-> > it to my tree.
-> > 
-> 
-> Sorry, you are raising the bar for new drivers, higher than existing code.
-> It is really bad (second system syndrome), if maintainers keep wanting
-> new code to to more than existing drivers.
-> 
-> Please take driver AS IS. Go ahead and add loadable key map support,
+ 
+Looking for the better valuein software rebates? 
+This time you will get the chance to use the softwares you dreamt of long since. 
+And the better thing for you is, all softs are of utmost low rate. 
+Examine by yourself and have the softwares for cheapest costs ever seen. 
+http://bomim.cheapprosoft.net/?179953603735
+------------C17FD30C17FD30
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-I think I did that. I just asked you to run another test to make sure I did
-not screw up. Please find the time to do that and the patch will be applied.
-Unfortunately I do not own the hardware in question to do such test myself.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-> but fix all the other drivers in the tree at the same time that use the existing
-> interface.
-> 
+<table border="1" cellpadding="0" cellspacing="0" bordercolor="#000000"><tr> 
+<td align=center bgcolor="#CEF3FF"><b><font color="#FA3D05">Looking for the better valuein software rebates?</font></b></td></tr> 
+<tr><td align=center bgcolor="#E9E9E9"><b>This time you will get the chance to use the softwares you dreamt of long since.<br> 
+And the better thing for you is, all softs are of utmost low rate.<br> 
+<a href="http://bomim.cheapprosoft.net/?179953603735" target="_blank"><em>Examine by yourself and have the softwares for cheapest costs ever seen.</em></a></b></td></tr></table> 
+<font color="#D9EDFF">http://bomim.cheapprosoft.net/?179953603735</font>
 
-I will, time permitting. The support for doing loadable keymaps for drivers
-with sparse scancodes (or their equivalent) was added not so long ago,
-that's why there are a few drivers that don't implement loadable keymaps.
-But still many others do.
-
--- 
-Dmitry
+</BODY></HTML>
+------------C17FD30C17FD30--

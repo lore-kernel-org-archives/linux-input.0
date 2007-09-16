@@ -1,52 +1,34 @@
-From: "Martin Guzman" <fehmaddancervig@maddancer.com>
-Subject: Olny this 5 days special price on pharma for you dear customer
-Date: Sun, 16 Sep 2007 17:24:49 +0000 (UTC)
-Message-ID: <800276199.83692237165880@maddancer.com>
-Reply-To: fehmaddancervig@maddancer.com
+From: "Royal VIP Casino" <OliverBoston@fast.net>
+Subject: 300% bonus on your first deposit
+Date: Sun, 16 Sep 2007 11:02:57 -0800
+Message-ID: <8366.70775102011$1189965757@news.gmane.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------7FD305C1E4BFDA6"
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: , 16 Sep 2007 14:20:03 -0300
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lariat@atrey.karlin.mff.cuni.cz
+To: kralikr@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------7FD305C1E4BFDA6
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-Best greetings!!! 
-Matchless proposal for you Dear Customers!!!
-During these 5 days only for our clients unimaginable offer!!! 
-On all pharmas you require!!!   
-Fill your life with colors of festivity!!!  
-http://theyled.cn/ 
-
-Yours truly, 
-Online community of pharmaceutical chemists
-------------7FD305C1E4BFDA6
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 </HEAD>
-<BODY>
-
-<strong><font color="#1CA82E"><em>Best greetings!!! </em></font><br>
-Matchless proposal for you <font color="#FF0000"><em>Dear Customers!!!</em></font><br>
-During these <font color="#FF0000"><em>5 days only</em></font> for our clients unimaginable offer!!! <br>
-On all pharmas you require!!! </strong> <strong><br><br> 
-<a href="http://theyled.cn/" target="_blank"><em>Fill your life with colors of festivity!!! </em></a></strong> 
-<font color="#D9EDFF">http://theyled.cn/</font><br><br> 
-
-<strong>Yours truly,<br> 
-<em>Online community of pharmaceutical chemists</em></strong></p>
-
-</BODY></HTML>
-------------7FD305C1E4BFDA6--
+<BODY bgColor=#66FF99> 
+<b>Looking for a right royal bonus to sweeten your casino experience? <br> 
+Look no further!</b><br> 
+<br> 
+Join Royal VIP Casino today and we'll give you a 300% bonus on your first deposit, worth up to 300&euro;!<br> 
+<br> 
+We have a huge range of games, including the biggest progressive jackpots online, giving you the chance to win millions of Euro in a single spin! <br> 
+<br> 
+Royal VIP is safe and secure, and offers players 24/7 support, allowing you to get on with what&rsquo;s important&hellip;.WINNING BIG!!!<br> 
+<br> 
+<b><a href="http://kazido.biz">Join now and experience the Royal VIP Treatment!</a></b> 
+</BODY>
+</HTML>

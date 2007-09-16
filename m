@@ -1,12 +1,13 @@
-From: "Eula" <dwatsonlavernia@kmpdoxgriokmwgh.nu>
-Subject: Erectile Dysfunction Sucks
-Date: Sun, 16 Sep 2007 01:10:34 -0800
-Message-ID: <20070916075447.B7C5D84138@atrey.karlin.mff.cuni.cz>
+From: "Alisa Gillis" <nueepo@boiseidahohouses.com>
+Subject: Hot News Expected On UTYW!
+Date: Sun, 16 Sep 2007 08:06:12 +0000 (UTC)
+Message-ID: <01c7f838$5e9d4290$3a51e458@nueepo>
 Mime-Version: 1.0
 Content-Type: text/plain;
-Content-Transfer-Encoding: 7Bit
-	boundary="--DYYBXB60626"
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: , 16 Sep 2007 10:05:39 +0200
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,11 +16,24 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Overweight, Always Tired, Depressed? Answers...
-Site is http://www.minessowt.com
+Second Chance On UTYW!
 
+UNITY WIRELESS CORP
+Sym: UTYW
 
+This is a REAL COMPANY, REAL EARNINGS, Making thier INVESTORS HUNDREDS OF THOUSANDS!
 
+Current: 0.06
+Expected: 0.24
+First Half Revenue Grew 53% to $4.8 Million Over the Same Period in 2006
 
+Wireless Technology is and will be the Wave of the FUTURE! 
+This Company in on the Breaking mark of coming out with a HUGE deal Tuesday! 
 
-End any future follow-ups http://www.minessowt.com/remove
+Keep your eye on UTYW news Monday. 
+
+Huge returns resulted from last months Big news release. 
+
+Act fast and beat the news to the market Monday. 
+
+Grab UTYW Monday morning.

@@ -1,66 +1,94 @@
-From: "Dena Connell"@atrey.karlin.mff.cuni.cz
-Subject: RE: Developers team response
-Date: Mon, 17 Sep 2007 10:22:10 +0300
-Message-ID: <759609294.58486574509389@web.de>
-Reply-To: 096jjh37g4lh2d59@web.de
+From: =?iso-8859-1?Q?Euro_V=CDP_Cas=EDno?= <pickaxe@indiatimes.com>
+Subject: =?iso-8859-1?Q?W=E9lcome_B=F3nus_up_to_400_Euro?=
+Date: Mon, 17 Sep 2007 01:15:48 -0700
+Message-ID: <88451726.01387143@adjutant.com>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------B8293055C9AD329"
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------B8293055C9AD329
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-
-
-  
-    
-      Hey, can you make love more that 10 minutes?
-      
-      
-      
-    Yes, you can with our &quot;manpower candies&quot;
-  
-  
-    All love enhancers (and many other meds) at one online store!
-  
-
-------------B8293055C9AD329
-Content-Type: text/html; charset=iso-8859-2
-Content-Transfer-Encoding: 7bit
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
-
 <html>
-<body>
-<table width="716" border="0" align="center" bgcolor="#3DC5A5">
-  <tr>
-    <td>
-      <div align="center"><font size="3D&quot;4&quot;" face="3Dverdana"><strong>Hey, can you make love more that 10 minutes?
-      </strong></font></div>
-      
-      <div align="center"></div>
-    <p align="center"><font size="+1" face="3Dverdana"><strong>Yes, you can with our &quot;manpower candies&quot;</strong></font></p></td>
-  </tr>
-</table>
-<table width="716" border="0" align="center" bgcolor="#3DFFF3">
-  <tr>
-    <td><div align="center"><strong><font color="#FFFFFF"><a href="http://pushtime.cn" target="_blank">All love enhancers (and many other meds) at one online store!</a></font></strong></div></td>
-  </tr>
-</table>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+
+<title>The most generous</title>
+
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:2.0cm 42.5pt 2.0cm 3.0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=EN link=blue vlink=purple style='tab-interval:35.4pt'>
+
+<div class=Section1>
+
+<p class=MsoNormal>
+<span lang=EN-US>The most generous cas&iacute;no onl&iacute;ne</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US>Euro V&Iacute;P Cas&iacute;no offers you 4 times 100%
+W&eacute;lcome B&oacute;nus up to 400&euro;</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US>Euro V&Iacute;P creates new milliona&iacute;res every month
+</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US>C&oacute;me and Pl&aacute;y!</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US><a href="http://vipgamester.com/">
+http://vipgamester.com/</a><o:p></o:p></span></p>
+
+</div>
+
 </body>
+
 </html>
-
-
-</BODY></HTML>
-------------B8293055C9AD329--

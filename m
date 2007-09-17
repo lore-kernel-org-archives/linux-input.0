@@ -1,60 +1,28 @@
-From: "Rosario Leblanc" <lcetjwqof@bpfrodriguezlofredo.com.ar>
-Subject: save 90%%% on watches! visit replica store!
-Date: Mon, 17 Sep 2007 21:45:10 +0800
-Message-ID: <01c7f974$05903d50$6c4f39d0@lcetjwqof>
+From: Madam Susana Kadrlik Cole <bnlsmith@cox.net>
+Subject: From  Madam Susana Kadrlik Cole      Here writes  Madam Susan Cole,
+ suffering  from cancerous ailment.      When my late husband was alive he
+ left the sum of  5Million (Five Million Pound Sterling) which were  derived
+ from his vast estates and investment in  capital market with finance
+ Company here in Europe.    Recently, my doctor told me that I have limited
+  days to live due to the cancerous problems I am  suffering from, So, I
+ decided to contact you due  to time limit.    Though what bothers me most
+ is the stroke that  I have in addition to the cancer. With this  hard
+ reality that has befallen my family, and  me I have decided to donate this
+ fund to you  and want you to use this gift which comes  from my husbands
+ effort to fund the upkeep of  widows, widowers, orphans, destitute, the
+  down-trodden, physically challenged children,  barren-women and persons
+ who prov
+Date: Mon, 17 Sep 2007 19:38:15 -0400
+Message-ID: <11513880.1190072295588.JavaMail.root@fed1wml24.mgt.cox.net>
+Reply-To: susancolesusancole501@hotmail.com
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7F939.59316550"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: listproc@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0006_01C7F939.59316550
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-
- 
-R E:P L I:C A
-  Indulge yourself with an elegant time piece that is meticulous in design, exquisite in style, and rich in beauty.VISIT OUR ONLINE SHOP!http://ravnsbak.com/
-
-
-------=_NextPart_000_0006_01C7F939.59316550
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-2">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html> 
-<body bgcolor=3D"#000000">
-<div><font face=3D"Times New Roman" size=3D"3">
-<p align=3D"center"><font size=3D+8 face=3D"Garamond" color=3D"#FFFFFF"><b>=
-R E<font color=3D"000000">:</font>P L I<font color=3D"000000">:</font>C A</=
-font>
- <br></font><br><font color=3D"FFFFFF"> Indulge yourself with an elegant ti=
-me piece that is meticulous in design, exquisite in style, and rich in beau=
-ty.</font><br><br><a href=3D"http://ravnsbak.com/" target=3D"_blank">
-<font color=3D"FFFFFF">VISIT OUR ONLINE SHOP!</font></a></strong></font></p=
-></font></div>
-<br>
-<font color=3D"#FFFFFF">http://ravnsbak.com/</font>
-</body>
-</html>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C7F939.59316550--

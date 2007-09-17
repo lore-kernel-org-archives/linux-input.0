@@ -1,43 +1,175 @@
-From: "Laura Swanson" <casacentralm@casacentral.org>
-Subject: All products to cure yourself
-Date: Mon, 17 Sep 2007 13:17:45 -0500
-Message-ID: <912250285.03706995163821@casacentral.org>
-Reply-To: casacentralm@casacentral.org
-Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------4BFD36E80CCCC51"
+From: =?GB2312?B?zuLQob3j?= <bvikyu@caci.com>
+Subject: =?GB2312?B?obbQ0CAg1f4guaQg1/cgzbMgILPvILncICDA7SC43yC8tqG3bGludXgtaW5w?=
+Date: Mon, 17 Sep 2007 20:20:30 +0200 (CEST)
+Message-ID: <20070917182034.D67108485D@atrey.karlin.mff.cuni.cz>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------4BFD36E80CCCC51
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+ =?GB2312?B?dXQ=?=
+To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain;charset="GB2312"
+Date: Tue, 25 Sep 2007 02:19:31 +0800
+X-Priority: 3
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
 
-Special Autumn offer from CanadianPharmacy. 50% discount for every item from really astonishing selection of products. Don抰 waste time. Try our service and you will get deep-discounted quality products delivered fast and discreetly directly to your doorstep. CanadianPharmacy is famous for the level of service and confidentiality. No scamming, no frauds. We offer best prices for best people.http://operatecell.cn
+from：吴小姐
 
-------------4BFD36E80CCCC51
-Content-Type: text/html; charset=windows-1250
-Content-Transfer-Encoding: 7bit
++++请转发给相关部门查阅谢谢！                
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+                ★★< 行  政 工 作 统  筹 管  理 高 级 研  修 班 >★★ 
 
-<html>
-<body bgcolor="#FFFFFF" link="#333366">
-<p><font face="Verdana" size="2"><br>Special Autumn offer from <a href="http://operatecell.cn">CanadianPharmacy</a>. <b><i>50% discount for every item</i></b> from really astonishing selection of products. Don抰 waste time. </font></p>
-<p><font face="Verdana" size="2">Try our service and you will get deep-discounted quality products delivered fast and discreetly directly to your doorstep. <b><a href="http://operatecell.cn">CanadianPharmacy</a></b> is famous for the level of service and confidentiality. No scamming, no frauds. </font></p>
-<p><font face="Verdana" size="2">We offer best prices for best people.<br><b><a href="http://operatecell.cn">http://operatecell.cn</a></b></font></p>
-</body>
-</html>
+                         
+
+[单    位]： 财-经-信-息-管-理-机-构 
+[时间地点]：2007年09月21-22日/10月31-11月1日  上海新梅华东大酒店      
+            2007年09月29-30日                 深圳新大洲酒店
+            2007年10月21-25日                 苏州新世纪大酒店
+            2007年10月27-28日                 北京新兴宾馆 
+
+[参会费用]: (RMB)2500元/人（包含教材费、听课费、中餐、课间茶点）
+
+[会务电话]： （+86 2 0）－ 85 93 20 89、 85 93  20 83 （10 条 线） 
+[传    真]： （+86 2 0）－ 85 93  20 83 
+[联 系 人]：  周 小姐  覃 先生  何 先生  陈 小姐
+         
+[课程对象]：行政总监，行政经理，办公室主任，秘书
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+■■ 课==程==背==景：
+    在行政工作中没有受到过系统训练，无法从战略性全方位角度认知行政管理工作；在所从事的行
+政管理工作中感觉缺乏理论支持；感觉工作中总是被动行事，不能主动掌握工作节奏；想给公司节省
+费用，但却不知从何处下手，如何节省；行使对外界社会的管理职能时没有感觉到有很多事物的“黑
+洞”要提防；对行政工作的各项标准不清楚；在公司的职位地位不理想，缺乏战略性思考工作；要干
+的事情太多，社会资源也有很多，但不知如何利用社会资源；想系统学习，提高行政管理技能，但没
+有合适的传授经验课程，空有理论知识；对于如何管理公司的系统性整体行政事务心中没底。
 
 
-</BODY></HTML>
-------------4BFD36E80CCCC51--
+■■ 课==程==目==标:
+    如果您是一位企业管理者，没有专业尺度如何衡量行政工效？
+    如果您是一位行政负责人，欠缺专业工具如何自信面对员工？
+    如果您是一位文秘工作者，错过专业指导怎能获得职场晋升？
+    本课程将为您提供从理念到技能的全面训练，帮助您提高行政统筹管理的专业技能，主动掌握工作
+节奏，有效控制行政成本，防范行政工作“黑洞”！课程将以国际通用的职业标准为基础，结合老师多
+年海外留学、从业的经验，加之其独到精深的讲解呈现和训练点评的专业实力，对企业行政管理人员进
+行科学、专业、先进的系统化训练。
+
+■■课程形式
+   实操讲解-深度解析-实战分享-情境模拟-多媒体展示
+
+■■ 课==程==特==色:
+    实操性强，讲师以自己国际500强的大型公司工作经验结合管理理论讲授，及现场与学员的互动引
+导，使学员能够感悟到自己工作中应该预防的漏洞，并对行政管理工作更加得心应手。
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+■■ 课==程==大==纲:
+
+一、现代企业中行政管理的定位
+    1、现代企业运行模型          2、行政管理工作的绩效价值
+    3、行政管理人员的素质特点    4、行政管理制度的框架结构
+演练：工作漏洞究竟出在哪里？
+
+二、行政主管的自我管理
+    1、职业规范要点与评估标准    2、人际关系处理的准则与该注意的”陷井”
+    3、职业优势保持的要点
+演练：如何说服你的上司
+
+三、行政部门的内部管理
+    1、前台文员管理              2、秘书（领导秘书）管理
+    3、行政工作人员管理          4、司机、保安、清洁工管理
+    5、行政事务性工作的内部分工  6、强化行政工作执行机制
+    7、呈现突出行政工作业绩      
+演练：整合资源-分工协作-达成目标
+
+四、经验积累与知识创新管理
+    1、公文处理与管理             2、会议成果的提炼与分享
+    3、工作创新管理与应用
+
+五、行政统筹管理关键事物控制
+    1. 集团电话管理                2. 集团的复印机管理
+    3. 集团的车辆管理不同方式      4. 食堂管理的外包流程
+    5. 员工的应急安全保障          6. 办公室布局管理
+    7. 办公室搬家管理              8. 与物业的关系要点 
+    9. 对施工方的管理要点          10. 公司驻在地的社区关系
+   11. 公共关系管理                12. 危机处理
+
+六、行政经费管理与控制
+1、如何处理好三种关系与三项原则
+2、行政业务费用管理
+3、行政成本控制的重要路径
+4、办公成本控制的无项原则
+5、运用“白金触点”原理节省行政经费
+
+七、行政统筹必备的沟通技巧
+  1、施展人际影响解决管理冲突   2、感召他人的4大热键
+  3、表扬、批评5步法            4、令人心服口服的方法
+演练：为何费力不讨好！？
+
+八、会议组织与活动管理
+  1、成功会议的准备工作：会前、会中、会后  2、如何主持会议与公司活动
+  3、高效率会议的实用工具
+
+九、接待工作与职业礼仪
+  1、接待工作中的十大禁忌论            2、行政人员的着装、仪表、语言
+  3、使用电话、手机、E-mail的礼仪规范  4、宴请、参观、旅游的礼仪规范
+
+十、行政管理人员的职业规划
+  1、行政管理职业的职场阶梯            2、职业生涯规划中的五个一工程
+  3、从优秀到卓越，从技术到艺术
+毕业演练：八分钟设计职场八年！
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+■■主-讲-嘉-宾-介-绍：
+
+　　刘老师:欧亚人力资源发展联盟中国区首席咨询师,亚洲咨询培训与发展协会秘书长.2001年开始
+专职从事于培训与咨询工作，以访问学者身份多次出访过法国、德国、瑞士等国知名大学和大型企业，
+在企业中高层经理人领导素质提升、企业行政体系构建及通用管理领域等方面拥有领先的视角和丰厚
+的实践经验。其授课特色是从国内企业所面临的实际问题出发，通过各种典型案例的讲解和分析，以
+及模拟现实环境的操作演练，系统提升企业解决问题的能力和实施操作水平。
+
+    指导过的企业有 ：安利（中国）、百度、海尔集团、美的集团、联想集团、深发展、东风日产、
+上海比亚迪、深圳移动、广州移动、中山移动、中科智担保集团、航天科工集团、广东核电集团、华
+侨城物业、长城物业、北京信威通讯、厦门名姿集团、深圳人保财险、深圳天虹商场、深圳市经纬科
+技有限公司、中国人才热线、西部人力资源市场、泰昂电子、超华电子、梁子时装等百余家中外企业。
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ 
+
+                          ■  ■  报 = 名 = 函 ■  ■
+                       ═════════════════                 
+
+
+●把报名表格传真至(0 2 0)-85  9320  83 －－>发出会议通知安排! 
+（请把 报.名.表.格信息填写详细及准确，请正确填写贵司参加本次学员的移动电话及邮`件，并
+传真至以下号码，以便及时联络及会务组发确认函给您!确保贵司参会顺畅及相关事项的及时
+通知。）,谢谢！
+
+ 
+￥参.会单.位名称：__________________________________    参.会人数:_________人 
+
+￥参.加：《>行  政 工  作 统 筹 管  理<》  □ 深  圳   □ 上  海  □ 北  京  □ 苏  州
+ 
+￥联.系.人：________________电.话:________________
+
+      传.真:________________邮.件：________________
+
+￥参.会.费.用 ￥：______________元 
+
+￥参.会.人：___________移.动.电.话：____________ 邮.件：________________
+
+￥参.会.人：___________移.动.电.话：_____________邮.件：________________
+
+￥参.会.人：___________移.动.电.话：_____________邮.件：________________
+
+￥参.会.人：___________移.动.电.话：_____________邮.件：________________
+
+￥付.款.方.式（请选择打“√”）： □1、现.金   □2、转.帐  □3、电.汇
+ 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

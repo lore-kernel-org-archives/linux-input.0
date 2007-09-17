@@ -1,32 +1,30 @@
-From: "EURO VIP Casino" <BryantIngram@bkkmail.com>
-Subject: 400€ in Welcome bonuses!
-Date: Mon, 17 Sep 2007 06:38:58 -0800
-Message-ID: <40228.1156777919$1190036310@news.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+From: "Cary Naquin" <kmp@atrey.karlin.mff.cuni.cz>
+Subject: Prest1ge Repl1cas first-class repl1ca w4tches for you
+Date: Mon, 17 Sep 2007 07:02:24 -0800
+Message-ID: <tnydonVJZIOWkmp@atrey.karlin.mff.cuni.cz>
+Reply-To: "Cary Naquin" <kmp@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7Bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lciakidfg@atrey.karlin.mff.cuni.cz
+To: kmp@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML>
-<HEAD>
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-</HEAD>
-<BODY bgColor=#FFCC99> 
-<b><a href="http://kazido.org">Euro VIP invites you to its tables, with an offer of 400&euro; in Welcome bonuses!</a></b><br>
-<br>
-400&euro; FREE! &ndash; New players at Euro VIP receive a match bonus on their first 4 deposits, each worth 100&euro;. <br>
-That&rsquo;s a total of 400&euro;, giving you even more winning chances, for free!<br>
-<br>
-Join the most refined and reliable casino online today, where you can choose from a list of over 100 cash games including progressive jackpots worth millions of Euro.<br>
-<br>
-<b><a href="http://kazido.org">Experience the difference, only at Euro VIP.</a></b>
-</BODY>
-</HTML>
+
+With hundreds of models to choose from, rock bottom prices and the best customer service in the whole wide
+web, Prest1ge Repl1cas has become the standard by which repl1ca w4tches stores are measured. It’s no wonder
+every day hundreds of new visitors flock to this website in search of the ultimate (yet affordable) gift:
+a repl1ca Bre1tling w4tch. And every one of these visitors has been exceedingly delighted with the quality
+of their new Bre1tling timepiece. 
+http://www.siwjwuhh.com/
+
+Prest1ge Repl1cas is a well-established online store that has made the purchase of a repl1ca timepiece easy,
+safe and affordable. They take pride in the exceptional quality w4tches they offer, and will do whatever it
+takes to provide you with a distinctive repl1ca timepiece like the one you’ve always wanted. That’s why they
+now offer an extra 15% discount in the purchase of two w4tches. Just when you thought Prest1ge Repl1cas
+couldn’t get any better, they have improved the perfect w4tch shopping experience!
+http://www.siwjwuhh.com/

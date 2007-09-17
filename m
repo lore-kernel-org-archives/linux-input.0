@@ -1,10 +1,10 @@
-From: "Sybil Larson"@atrey.karlin.mff.cuni.cz
-Subject: RE: Hit the hole
-Date: Mon, 17 Sep 2007 11:34:07 +0600
-Message-ID: <01c7f8ec$5dc5e890$d69b96c2@0872112150-0001nn>
+From: "Juan Mcleod" <hardt326@harborside.com>
+Subject: Probieren Sie es - Mann Lebt nur einmal   follow and I have  -- Head First Design Patterns
+Date: Mon, 17 Sep 2007 08:41:39 +0300
+Message-ID: <01c7f8ed$6b2fa290$52196d57@hardt326>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7F8EC.5DC5E890"
+	boundary="----=_NextPart_000_0007_01C7F8ED.6B2FA290"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,60 +16,71 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0007_01C7F8EC.5DC5E890
+------=_NextPart_000_0007_01C7F8ED.6B2FA290
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
+Sie leben nur einmal - warum dann nicht was neues ausprobieren?
 
-  
-    
-      Hey, can you make love more that 10 minutes?
-      
-      
-      
-    Yes, you can with our &quot;manpower candies&quot;
-  
-  
-    All love enhancers (and many other meds) at one online store!
-  
+Preise die keine Konkurrenz kennen 
 
-------=_NextPart_000_0007_01C7F8EC.5DC5E890
+- keine versteckte Kosten
+- Visa verifizierter Onlineshop
+- Diskrete Verpackung und Zahlung
+- Kein peinlicher Arztbesuch erforderlich
+- Kostenlose, arztliche Telefon-Beratung
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Bequem und diskret online bestellen.
+
+Originalmedikamente
+Ciiaaaaaalis 10 Pack. 27,00 Euro
+Viiaaaagra 10 Pack. 21,00 Euro
+
+Klicken Sie HIER und Sie erhalten vier Dosen umsonst
+http://ivecyhq.poemset.cn/?620613070661
+
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
+------=_NextPart_000_0007_01C7F8ED.6B2FA290
 Content-Type: text/html;
-	charset="iso-8859-1"
+	charset="iso-8859-2"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 5.50.4807.2300" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-2">
+<META content=3D"MSHTML 6.00.2800.1437" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
 <BODY>
-<html>
-<body>
-<table width=3D"716" border=3D"0" align=3D"center" bgcolor=3D"#3DC5A5">
-  <tr>
-    <td>
-      <div align=3D"center"><font size=3D"3D&quot;4&quot;" face=3D"3Dverdan=
-a"><strong>Hey, can you make love more that 10 minutes?
-      </strong></font></div>
-      
-      <div align=3D"center"></div>
-    <p align=3D"center"><font size=3D"+1" face=3D"3Dverdana"><strong>Yes, y=
-ou can with our &quot;manpower candies&quot;</strong></font></p></td>
-  </tr>
-</table>
-<table width=3D"716" border=3D"0" align=3D"center" bgcolor=3D"#3DFFF3">
-  <tr>
-    <td><div align=3D"center"><strong><font color=3D"#FFFFFF"><a href=3D"ht=
-tp://blowhas.cn" target=3D"_blank">All love enhancers (and many other meds)=
- at one online store!</a></font></strong></div></td>
-  </tr>
-</table>
-</body>
-</html>
-
+<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
+-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Bin restlos begeiste=
+rt. Bin 50 und schlage mich seit einem guten Jahre damit herum, dass meinem=
+ Freund im entscheidenden Moment die Standfestigkeit abhanden kommt. Aber n=
+un ist es wie in allerbesten Zeiten. 10 mg reichen f&#252;r ein sehr LUSTig=
+es Weekend. Null Nebenwirkungen - abgesehen vom Muskelkater am n&#228;chten=
+ Tag. Aber der verschwindet ja durch ausreichendes Training ;-))</strong></=
+p><p><strong>Warum nehme ich Ciiaaaaaalis? Es ist einfach ein angenehmens G=
+ef&#252;hl. Man brauch sich nicht auf die Err. ..ektion zu konzentrieren. B=
+eim Sex ist man viel entspannter, mann kann auch mal die Muskeln im Genital=
+bereich lockern, ohne das die Err. ..ektion im Glied nachlasst. Dadurch ist=
+ eine lange Verz&#246;gerung der Ejakulation m&#246;glich. Man ist beim Sex=
+ generell lockerer und entspannter, und kommt auch nicht mehr so schnell au=
+sser Athem, weil man eben locker und entspannt ist, ausser nat&#252;rlich d=
+er kleine Freund :-)<br>
+</strong><strong><br>Sie leben nur einmal - warum dann nicht was neues ausp=
+robieren?</strong></p><p>Preise die keine Konkurrenz kennen <p>
+- Kein peinlicher Arztbesuch erforderlich<br>- Kostenlose, arztliche Telefo=
+n-Beratung<br>- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<b=
+r>- Diskrete Verpackung und Zahlung<br>- Bequem und diskret online bestelle=
+n.<br>- Visa verifizierter Onlineshop<br>- keine versteckte Kosten</p>
+<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong>=
+<br>
+  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href=3D=
+"http://ivecyhq.poemset.cn/?620613070661" target=3D"_blank">Klicken Sie HIE=
+R und Sie erhalten vier Dosen umsonst</a><br></strong>(bitte warten Sie ein=
+en Moment bis die Seite vollst&auml;ndig geladen wird) </p></body>
 </BODY></HTML>
 
-------=_NextPart_000_0007_01C7F8EC.5DC5E890--
+------=_NextPart_000_0007_01C7F8ED.6B2FA290--

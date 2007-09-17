@@ -1,10 +1,9 @@
-From: BRITISH WEB LOTTERY <unclaimprize@lottery.org.uk>
-Subject: AWARD WINNER 2007 WEB LOTTERY
-Date: Mon, 17 Sep 2007 12:09:43 +0000
-Message-ID: <E1IXFQ7-000BiF-Ho@server.sharatim.co.il>
-Reply-To: unclaimprizes@National-Champs.com
+From: Viagra.com Inc <linux-input@atrey.karlin.mff.cuni.cz>
+Subject: RE: September 70% OFF
+Date: Mon, 17 Sep 2007 11:45:07 +0200 (CEST)
+Message-ID: <20070917044507.5676.qmail@ip-026-247-122-091.pools.atnet.ru>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/html; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -15,80 +14,85 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-GOVERNMENT ACCREDITED LICENSED!!
-BRITISH WEB LOTTERY IS REGISTERED=20
-UNDER THE DATA PROTECTION ACT OF;=20
-(Registration Z720633X)
-
-The Marina Offices,
-St Peters Yacht Basin,
-Newcastle upon Tyne,=20
-NE6 1HXEngland
-(Customer Services)
-Ref: UK/9420X2/68
-Batch: 074/05/ZY369
-Ref: WINNING NOTIFICATION=20
-
-
-We happily announce to you the draw of the UK NATIONAL LOTTERY, online Sw=
-eepstakes International program held on 19 May 2007 Draw 1190. It is yet =
-to be unclaimed and you are getting the final NOTIFICATION as regards thi=
-s.Your E-mail address attached to the lucky numbers: 17, 19, 20,32, 36, 4=
-8 And (Bonus ball(18),which subsequently won you the lottery in the 2nd c=
-ategory i.e JACKPOT. You have therefore been approved to claim a  total s=
-um of =A37,923,399 (Seven million, Nine Hundred And Twenty Three Thousand=
-, Three Hundred and Ninety Nine Pounds Sterlings) in cash credited to fil=
-e number KTU/902311832012/07 and Draw Number: 1183.
-
-This is from a total cash prize for winners in this category i.e JACKPOT =
-Bonus. All participants for the online version were selected randomly fro=
-m World Wide Web sites through computer draw system and extracted from ov=
-er 100,000 unions,associations,and corporate bodies that are listed onlin=
-e. This is part of the Country's Program to fund for the Olympic Games in=
- 2012 The =A31.5bn Olympic lottery puzzle: http://news.bbc.co.uk/1/hi/uk/=
-4719851.stm)=20
-=20
-The Olympic fund-raising games will include a TV draw The National Lotter=
-y may have seemed a relatively simple way of helping pay for the Olympics=
-. The Lottery must raise =A31.5bn over the next seven years to pay its sh=
-are of the public money going into the Olympics. A further =A3650m will b=
-e raised from council tax in London and another =A3250m from the London D=
-evelopment Agency,while similar sums will be raised from ticket sales, ma=
-rketing, sponsorship and the sale of television rights.=20
-
-Please note that your lucky winning number falls within our European book=
-let representative office in Europe as indicated in your play coupon. In =
-view of this, your =A37,923,399  will be released to you our payment offi=
-ce in UK. Our European agent will immediately commence the process to fac=
-ilitate the release of your funds as soon as you contact him. For securit=
-y reasons, you are advised to keep your winning  information confidential=
- till your claim is processed and your money remitted to you in whatever =
-manner you deem fit to claim your prize.
-
-This is part of our precautionary measure to avoid double claiming and un=
-warranted abuse of this program. Please be warned. To file for your claim=
-,please contact our Administration Assistant:
-=20
-Name: Mr. Moore Baker
-Official Email: unclaimprizes@National-Champs.com
-Mobile:+44 701 113 2675
-
-Endeavor to email him your full names, File and draw numbers, email addre=
-ss,telephone and fax numbers immediately. You can go to our  online resul=
-t site to confirm the value of your winnings and also get  a prize breakd=
-own:-http://www.national-lottery.co.uk/player/p/results/unclaimedPrizes.d=
-o
-
-Congratulations from me and members of staff of THE NATIONAL LOTTERY.=20
-=20
-Yours faithfully,=20
-Darryn Clarke(Mrs)=20
-Online coordinator=20
-for UK NATIONAL LOTTERY=20
-Sweepstakes International Program.=20
-
-
--------------------------------------------------------------------------=
-------------------------------------------------------------------
-=AE Do not reply this E-mail, contact our Administration Assistant with t=
-he above email=AE.  =20
+<style>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+ <head>
+  <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso-8=
+859-1">
+ </head>
+ <body>
+ <table width=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0">
+ <tr>
+ <td>
+ <table width=3D"600" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" ba=
+ckground=3D"http://images.qtr.com/images/email/notice2_02.jpg">
+ <tr>
+ <td width=3D"600" height=3D"9" colspan=3D"2"><img src=3D"http://images.v=
+jo.com/images/email/notice2_01.jpg" width=3D"600" height=3D"9" alt=3D""><=
+/td>
+ </tr>
+ <tr>
+  <td width=3D"458" style=3D"font: 12px Verdana; color: #212121; text-ali=
+gn: left; padding: 10px 20px;">
+  <span style=3D"font-weight: bold; font-size: 22px; color: #6387af;">fhp=
+ <span style=3D"font-size: 14px;">Message from Patrica Basford</span></sp=
+an><br/><br/>
+  Hi Mike,<br/><br/>
+  You have a jsj message from Patrica Basford. You can view the message a=
+t the following location:<br/><br/>
+  <span style=3D"font-weight: bold; font-size: 14px;"><a href=3D"http://w=
+ww.piy.com/friend/mail/displayInbox.do?loginid=3DPNMMIYXKATDA25547680&smi=
+d=3D20070831_100_3VBYTTIw3PvBD0SyKHyw-1113102006">View Message=BB</a></sp=
+an><br/><br/>
+  Thank you for joining us,<br>the <b>cgu</b> team
+  </td>
+  <td width=3D"142">
+  <table width=3D"100" border=3D"0" cellpadding=3D"0" cellspacing=3D"0" a=
+lign=3D"center">
+  <tr>
+  <td align=3D"center">
+  <a href=3D"http://www.mys.com/friend/mail/displayInbox.do?loginid=3DPNM=
+MIYXKATDA25547680&smid=3D20070831_100_3VBYTTIw3PvBD0SyKHyw-1113102006"><i=
+mg src=3D"http://images.ykd.com/images/nophoto_girl_100.gif" border=3D"0"=
+></a>
+  </td>
+  </tr>
+  </table>
+  </style>
+<center>
+<a href=3D"http://www.carryput.com"><img src=3D"http://www.liquidsteam.co=
+m/1.gif">
+<style>
+</td>
+  </tr>
+ <tr>
+ <td width=3D"600" height=3D"9" colspan=3D"2"><img src=3D"http://images.w=
+nw.com/images/email/notice2_03.jpg" width=3D"600" height=3D"9" alt=3D""><=
+/td>
+ </tr>
+ </table>
+ </td>
+ </tr>
+ </table>
+ <table width=3D"600">
+  <tr>
+  <td style=3D"text-align: center; font: 10px Verdana; color: #a7a7a7; pa=
+dding-left: 10px;">
+  <span style=3D"color: #333;">------------------------------------------=
+------------</span><br/>
+  Copyright 2002-2006 csx Networks, Inc. All rights reserved.<br/>
+  P.O. Box 31118, San Francisco, CA 94131, USA<br/>
+  <a href=3D"http://www.eji.com/friend/displayPrivacy.do">Privacy Policy<=
+/a> | <a href=3D"http://www.avz.com/friend/account/displayEditAcct.do?log=
+inid=3DPNMMIYXKATDA25547680">Unsubscribe</a> | <a href=3D"http://www.rkx.=
+com/friend/displayTOS.do">Terms of Service</a>
+  <img src=3D"http://www.ikd.com/friend/to.do?loginid=3DPNMMIYXKATDA25547=
+680&smid=3D20070831_100_3VBYTTIw3PvBD0SyKHyw-1113102006" align=3D"absmidd=
+le" border=3D"0" height=3D"20" width=3D"1">
+  </td>
+  </tr>
+ </table>
+ </body>
+</html>
+</style>

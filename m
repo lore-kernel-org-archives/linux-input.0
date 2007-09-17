@@ -1,94 +1,82 @@
-From: =?iso-8859-1?Q?Euro_V=CDP_Cas=EDno?= <pickaxe@indiatimes.com>
-Subject: =?iso-8859-1?Q?W=E9lcome_B=F3nus_up_to_400_Euro?=
-Date: Mon, 17 Sep 2007 01:15:48 -0700
-Message-ID: <88451726.01387143@adjutant.com>
+From: "Jason Slater"@atrey.karlin.mff.cuni.cz
+Subject: RE: Tadalafil is a potent and selective inhibitor of cGMP
+Date: Mon, 17 Sep 2007 08:29:46 +0000 (UTC)
+Message-ID: <01c1925d$4d7a7790$ba70b23b@0869874>
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C1925D.4D7A7790"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Tue, 1 Jan 2002 05:73:17 +0530
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+This is a multi-part message in MIME format.
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+------=_NextPart_000_0007_01C1925D.4D7A7790
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-<title>The most generous</title>
 
+A {
+COLOR: #32CD32
+}
+
+  
+    
+        Dear sir/madam.
+      Thank you for visiting our shop, we hope that you were satisfied with=
+ the quality and wide assortment and expect to see you again.
+      CLICK HERE
+      Best regards.      
+           
+  
+
+------=_NextPart_000_0007_01C1925D.4D7A7790
+Content-Type: text/html;
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 6.00.2800.1409" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
 <style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	mso-ansi-language:EN-US;
-	mso-fareast-language:EN-US;}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
+A {
+COLOR: #32CD32
+}
 </style>
-
-</head>
-
-<body lang=EN link=blue vlink=purple style='tab-interval:35.4pt'>
-
-<div class=Section1>
-
-<p class=MsoNormal>
-<span lang=EN-US>The most generous cas&iacute;no onl&iacute;ne</span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal>
-<span lang=EN-US>Euro V&Iacute;P Cas&iacute;no offers you 4 times 100%
-W&eacute;lcome B&oacute;nus up to 400&euro;</span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal>
-<span lang=EN-US>Euro V&Iacute;P creates new milliona&iacute;res every month
-</span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal>
-<span lang=EN-US>C&oacute;me and Pl&aacute;y!</span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US><a href="http://vipgamester.com/">
-http://vipgamester.com/</a><o:p></o:p></span></p>
-
-</div>
-
+<html>
+<body>
+<table width=3D"921" border=3D"4" align=3D"center" bordercolor=3D"#FAF0E6" =
+bgcolor=3D"#98FB98">
+  <tr>
+    <td width=3D"907"><p align=3D"center"><br />
+        <font color=3D"#0000FF" size=3D"+3"><strong><font color=3D"#006400"=
+>Dear sir/madam.</font></strong></font></p>
+      <p align=3D"center"><font color=3D"#006400"><strong><font size=3D"+2"=
+>Thank you for visiting our shop, we hope that you were satisfied with the =
+quality and wide assortment and expect to see you again.</font></strong></f=
+ont></p>
+      <p align=3D"center"><font color=3D"#32CD32"><strong><font size=3D"+3"=
+><a href=3D"http://ballopposite.com" target=3D"_blank">CLICK HERE</a></font=
+></strong></font></p>
+      <p align=3D"center"><font color=3D"#006400"><strong><font size=3D"+3"=
+>Best regards.</font></strong></font></p>      
+      <p align=3D"center">&nbsp;</p>    </td>
+  </tr>
+</table>
 </body>
-
 </html>
+
+</BODY></HTML>
+
+------=_NextPart_000_0007_01C1925D.4D7A7790--

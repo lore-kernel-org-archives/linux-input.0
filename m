@@ -1,10 +1,10 @@
-From: "Marino campbell" <campbellisu@massgroup.com>
-Subject: etkalpts
-Date: Mon, 17 Sep 2007 18:02:27 -0300
-Message-ID: <000401c7f96e$0d7245a0$ac8984be@daniel>
+From: "Chung cav" <Chung_cav@massgroup.com>
+Subject: etinomro
+Date: Mon, 17 Sep 2007 18:17:50 -0300
+Message-ID: <000701c7f970$33af0530$ac8984be@daniel>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7F954.E8250DA0"
+	boundary="----=_NextPart_000_0004_01C7F957.0E61CD30"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,18 +14,17 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0006_01C7F954.E8250DA0
+------=_NextPart_000_0004_01C7F957.0E61CD30
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-http://www.funsilly.net/
-Yo yo yo linux-input
-The added width to your penis fills and presses her from side to side to =
-give your partner the most exhilarating sensations
+http://fsrbnk.com/
+Hello linux-input
+votes no.1 male enhancement product 2007
 
-Marino campbell
-------=_NextPart_000_0006_01C7F954.E8250DA0
+Chung cav
+------=_NextPart_000_0004_01C7F957.0E61CD30
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -38,14 +37,11 @@ Content-Transfer-Encoding: quoted-printable
 </HEAD>
 <BODY bgColor=3D#ffffff>
 <DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://www.funsilly.net/">http://www.funsilly.net/</A></FONT></DI=
-V>
-<DIV><FONT Arial size=3D2>Yo yo yo linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>The added width to your penis fills and =
-presses her from=20
-side to side to give your partner the most exhilarating =
-sensations</FONT></DIV>
+HREF=3D"http://fsrbnk.com/">http://fsrbnk.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Hello linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>votes no.1 male enhancement product =
+2007</FONT></DIV>
 <DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Marino campbell</FONT></DIV></BODY></HTML>
+<DIV><FONT Arial size=3D2>Chung cav</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_0006_01C7F954.E8250DA0--
+------=_NextPart_000_0004_01C7F957.0E61CD30--

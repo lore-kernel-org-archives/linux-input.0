@@ -1,34 +1,75 @@
-From: "RusGirls" <info@bsherman.com>
-Subject: Hi, Beautiful Russian women waiting to meet YOU! absurd
-Date: Tue, 18 Sep 2007 02:04:48 +0500
-Message-ID: <00a301c7f0b9$e9a66280$55c29b0a@needn't>
+From: "Clay Z. Stokes" <Clay@cs.columbia.edu>
+Subject: Our best decision is suitable for every age!
+Date: Mon, 17 Sep 2007 12:15:19 +0400
+Message-ID: <07d201c7f902$e2d773d0$596d036a@Clay>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="koi8-r";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_2000_083A_01C7F924.69E913D0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: aubi@atrey.karlin.mff.cuni.cz
+To: "Stephan X. Doyle" <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hello!
+This is a multi-part message in MIME format.
 
-Spring has finally come! Romance is in the air!
+------=_NextPart_2000_083A_01C7F924.69E913D0
+Content-Type: text/plain;
+        charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
-Beautiful and still single (!!!) Russian and Ukrainian women are eager to 
-meet you! They have placed their profiles at SingleRussianGirls dating site 
-and waiting for your emails.
+Iran recently threatened to seize Coalition military
+Royal
 
-Don't loose time and come get registered FREE at 
-http://russianbrideshome.cn?idAff=33
+Dear {mac04160}!
+We presentnew unique preparation will enlarge your phallus=2E
+It obtained popularity over the whole world and helped to many people
+This is theMegaDik!
+More than 150 000 men in the entire world  have already been
+pleased by the quantity and efficacy of Mega Dik
+And this is a chance for you! Join to them
+{name_url} - http://eovlve=2Ecom/
 
-hosting is bad , if site too slow , then refresh .
-if this link does not exist then please wait new link 1-7 days.
- 
-wreak along blouse
+100% Guarantee!
+Go to purchase - http://eovlve=2Ecom/
+
+"This is not the first time that British military
+be there'=2E
+Association=2E "His contributions to the world of business
+------=_NextPart_2000_083A_01C7F924.69E913D0
+Content-Type: text/html;
+        charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4=2E0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1=
+252">
+<META content=3D"MSHTML 6=2E00=2E2800=2E1478" name=3DGENERATOR>
+<STYLE type=3D"text/css">
+=2Estyle2 {font-size: 10px; color: #616161;}
+=2Estyle7 {font-size: 14px; color: #FF2F2F;}
+body {background-color: #eaffff; color: #616161;}
+</STYLE>
+</HEAD>
+<BODY><span class=3D"style2">=20
+<br>Iran recently threatened to seize Coalition military<br>Royal</span>=20=
+
+<br><br>Dear Buyer!<br>
+<b>We represent new unequalled preparation will enlarge your phallus=2E</=
+b><br>
+It obtained reputation over the whole world and aided to many people<br>
+<b>This is the <font color=3D"blue">Mega Dik</b></font><br>
+More than 100 000 men in the entire world  have already been <br>
+satisfied by the quantity and efficacy of MegaDik<br>
+And this is a chance for you! Join to them<br><br>
+<b>100% Guarantee!</b><br><br>
+<a href=3D"http://eovlve=2Ecom/"><b>Go to purchase</b></a><br>
+<br><span class=3D"style2">"This is not the first time that British milit=
+ary<br>be there'=2E<br>Association=2E "His contributions to the world of =
+business</span></BODY></HTML>
+
+------=_NextPart_2000_083A_01C7F924.69E913D0--

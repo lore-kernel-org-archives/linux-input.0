@@ -1,7 +1,7 @@
-From: "Maureen Marcella" <Marcellaktar@hc-jj.com>
-Subject: 146x114
-Date: Mon, 17 Sep 2007 19:11:32 +0200
-Message-ID: <BBA025CC.A2847CB9@hc-jj.com>
+From: "Damon hassan" <Damonhassan@allgaeu-cam.de>
+Subject: elfelect
+Date: Mon, 17 Sep 2007 19:45:11 +0200
+Message-ID: <C781C78B.F408A170@allgaeu-cam.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -14,8 +14,8 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-greeting linux-input
-Did you ever ask yourself is my penis big enough
+Morning linux-input
+Do you want to have an average to small penis all of your life? No, you don't
 
-Maureen Marcella
-http://www.gabopods.com/
+Damon hassan
+http://curruy.com/

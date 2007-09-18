@@ -1,10 +1,10 @@
-From: "konb Vazquez" <Vazquezmhywj@cd0-1aa541.spk10.net>
-Subject: klankreg
-Date: Tue, 18 Sep 2007 14:09:54 +0200
-Message-ID: <000201c7f9ec$d2955ab0$be0e7c54@pentium3>
+From: "Louella Rutherford"@atrey.karlin.mff.cuni.cz
+Subject: RE: Tadalafil is a potent and selective inhibitor of cGMP
+Date: Tue, 18 Sep 2007 15:44:46 +0300
+Message-ID: <01c7f9f1$b16e2a10$05398e55@09anieto>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7F9FD.961E2AB0"
+Content-Type: multipart/related;
+	boundary="----=_NextPart_000_000E_01C7F9F1.B16E2A10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,34 +14,70 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0006_01C7F9FD.961E2AB0
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_000E_01C7F9F1.B16E2A10
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_000F_01C7F9F1.B16E2A10"
+
+------=_NextPart_001_000F_01C7F9F1.B16E2A10
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 
-http://dardasht.com/
-compliments linux-input
-life is short, dont have a small cock all your life
 
-konb Vazquez
-------=_NextPart_000_0006_01C7F9FD.961E2AB0
+
+
+  
+    
+      
+      CHECK URL
+      
+    
+  
+
+
+
+------=_NextPart_001_000F_01C7F9F1.B16E2A10
 Content-Type: text/html;
-	charset="iso-8859-1"
+	charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://dardasht.com/">http://dardasht.com/</A></FONT></DIV>
-<DIV><FONT Arial size=3D2>compliments linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>life is short, dont have a small cock all your =
-life</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>konb Vazquez</FONT></DIV></BODY></HTML>
+<HTML><HEAD><TITLE></TITLE>
+<META content=3D"text/html; charset=3DWindows-1252" http-equiv=3DContent-Type>
+<META content=3D"MSHTML 5.50.4807.2300" name=3DGENERATOR></HEAD>
+<BODY>
+<html>
+</head>
 
-------=_NextPart_000_0006_01C7F9FD.961E2AB0--
+<body>
+<table width=3D"497" border=3D"2" align=3D"center" bordercolor=3D"#EAC8AD" =
+bgcolor=3D"#CDD4E7">
+  <tr>
+    <td width=3D"485"><div align=3D"center">
+      <p><a href=3D"http://windcontain.com" target=3D"_blank"><img src=3D"i=
+mg2.jpg" width=3D"450" height=3D"300" border=3D"0" /></a></p>
+      <p><strong><font color=3D"#FF0000" size=3D"+3"><a href=3D"http://agen=
+umeral.com" target=3D"_blank">CHECK URL</a></font></strong><br />
+      </p>
+    </div></td>
+  </tr>
+</table>
+</body>
+</html>
+
+</BODY></HTML>
+
+------=_NextPart_001_000F_01C7F9F1.B16E2A10--
+
+
+------=_NextPart_000_000E_01C7F9F1.B16E2A10
+Content-Type: image/gif;
+	name="img2.jpg"
+Content-Transfer-Encoding: base64
+Content-ID: <006901c7f9f1$b16e2a10$05398e55@DEZH27VK>
+
+ 
+
+------=_NextPart_000_000E_01C7F9F1.B16E2A10--

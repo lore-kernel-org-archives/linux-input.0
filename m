@@ -1,12 +1,14 @@
-From: "Steven Maddox" <jramirez@bppr.com>
-Subject: ) !)!)++[(]    *)()!
-Date: Tue, 18 Sep 2007 15:50:56 -0500
-Message-ID: <01c336a5$c87e25c0$e97bd9c9@jramirez>
+From: "Wendy Tompkins" <9sasakwarrior@ameritrade.com>
+Subject: Can we talk?
+Date: Tue, 18 Sep 2007 21:14:04 +0000 (UTC)
+Message-ID: <01c7fa39$3f213810$352f8c55@9sasakwarrior>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-2"
+	format=flowed;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Tue, 18 Sep 2007 24:16:58 +0300
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,11 +17,4 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-S:tooo(ccc k F-D(E)G
-Price 0.04
-Ta[rg+et 0.12
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-                                                                                                                                                                                                                                                                                                        
+Hello! I am bored this evening. I am nice girl that would like to chat with you. Email me at vghq@NearOut.info only, because I am writing not from my personal email. Wanna see some pictures of me?

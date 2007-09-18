@@ -1,130 +1,39 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: [patch] HID: use hid-plff driver for GreenAsia 0e8f:0003 devices
-Date: Tue, 18 Sep 2007 21:23:01 +0300
-Message-ID: <46F01785.6060501@gmail.com>
+From: "Liza Owens" <ggftyphus@cashmasters.com>
+Subject: Be careful of cheap imitations
+Date: Tue, 18 Sep 2007 20:26:22 +0200
+Message-ID: <001501c7fa32$2df072b0$064cf06c@micha>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Add 0e8f:0003 into the list of devices supported by the hid-plff
-force feedback driver. These devices identify themselves as
-"GreenAsia Inc.    USB Joystick     " and can be either adapters or
-actual game controllers. The testing was done with a K=F6ng Gaming
-gamepad.
+Are you insecure?
 
-Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+You will be able to penetrate deeper
 
----
+People judge your dick size by your shoes size.
 
-Index: linux-2.6.23-rc6/drivers/hid/usbhid/Kconfig
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.23-rc6/drivers/hid/usbhid/Kconfig
-+++ linux-2.6.23-rc6/drivers/hid/usbhid/Kconfig 2007-09-18 20:54:53.00000=
-0000 +0300
-@@ -71,12 +71,12 @@
-          force feedback.
+Be satisfied for life!
 
- config PANTHERLORD_FF
--       bool "PantherLord USB/PS2 2in1 Adapter support"
-+       bool "PantherLord/GreenAsia based device support"
-        depends on HID_FF
-        select INPUT_FF_MEMLESS if USB_HID
-        help
--         Say Y here if you have a PantherLord USB/PS2 2in1 Adapter and w=
-ant
--         to enable force feedback support for it.
-+         Say Y here if you have a PantherLord/GreenAsia based game contr=
-oller
-+         or adapter and want to enable force feedback support for it.
+With Xtra Size+ you dont have to wear
+bigger shoes to make women think you have a huge dick.
 
- config THRUSTMASTER_FF
-        bool "ThrustMaster FireStorm Dual Power 2 support (EXPERIMENTAL)"
-Index: linux-2.6.23-rc6/drivers/hid/usbhid/hid-ff.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.23-rc6/drivers/hid/usbhid/hid-ff.c
-+++ linux-2.6.23-rc6/drivers/hid/usbhid/hid-ff.c        2007-09-18 20:45:=
-51.000000000 +0300
-@@ -62,7 +62,8 @@
-        { 0x46d, 0xca03, hid_lgff_init }, /* Logitech MOMO force wheel */
- #endif
- #ifdef CONFIG_PANTHERLORD_FF
--       { 0x810, 0x0001, hid_plff_init },
-+       { 0x810, 0x0001, hid_plff_init }, /* "Twin USB Joystick" */
-+       { 0xe8f, 0x0003, hid_plff_init }, /* "GreenAsia Inc.    USB Joyst=
-ick     " */
- #endif
- #ifdef CONFIG_THRUSTMASTER_FF
-        { 0x44f, 0xb300, hid_tmff_init },
-Index: linux-2.6.23-rc6/drivers/hid/usbhid/hid-plff.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.23-rc6/drivers/hid/usbhid/hid-plff.c
-+++ linux-2.6.23-rc6/drivers/hid/usbhid/hid-plff.c      2007-09-18 21:02:=
-26.000000000 +0300
-@@ -1,5 +1,15 @@
- /*
-- *  Force feedback support for PantherLord USB/PS2 2in1 Adapter devices
-+ *  Force feedback support for PantherLord/GreenAsia based devices
-+ *
-+ *  The devices are distributed under various names and the same USB dev=
-ice ID
-+ *  can be used in both adapters and actual game controllers.
-+ *
-+ *  0810:0001 "Twin USB Joystick"
-+ *   - tested with PantherLord USB/PS2 2in1 Adapter
-+ *   - contains two reports, one for each port (HID_QUIRK_MULTI_INPUT)
-+ *
-+ *  0e8f:0003 "GreenAsia Inc.    USB Joystick     "
-+ *   - tested with K=F6ng Gaming gamepad
-  *
-  *  Copyright (c) 2007 Anssi Hannula <anssi.hannula@gmail.com>
-  */
-@@ -67,11 +77,11 @@
-        struct input_dev *dev;
-        int error;
+Become the ultimate pleasure machine
 
--       /* The device contains 2 output reports (one for each
--          HID_QUIRK_MULTI_INPUT device), both containing 1 field, which
--          contains 4 ff00.0002 usages and 4 16bit absolute values.
-+       /* The device contains one output report per physical device, all
-+          containing 1 field, which contains 4 ff00.0002 usages and 4 16=
-bit
-+          absolute values.
+You can actually have it. 
 
--          The 2 input reports also contain a field which contains
-+          The input reports also contain a field which contains
-           8 ff00.0001 usages and 8 boolean values. Their meaning is
-           currently unknown. */
+A few inches can make a real difference
 
-@@ -122,8 +132,8 @@
-                usbhid_submit_report(hid, plff->report, USB_DIR_OUT);
-        }
+http://saedui.com
 
--       printk(KERN_INFO "hid-plff: Force feedback for PantherLord USB/PS=
-2 "
--              "2in1 Adapters by Anssi Hannula <anssi.hannula@gmail.com>\=
-n");
-+       printk(KERN_INFO "hid-plff: Force feedback for PantherLord/GreenA=
-sia "
-+              "devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
-
-        return 0;
- }
-
-
---=20
-Anssi Hannula
+Paris Hilton likes them big

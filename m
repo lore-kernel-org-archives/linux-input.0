@@ -1,10 +1,11 @@
-From: "Merlin Kessler" <pkop@bowescentral.com>
-Subject: Purchase meds with us and enjoy the life to the full.
-Date: Tue, 18 Sep 2007 20:55:12 -0100
-Message-ID: <01c7fa36$34be6760$19b2cd57@pkop>
+From: "Steven Maddox" <jramirez@bppr.com>
+Subject: ) !)!)++[(]    *)()!
+Date: Tue, 18 Sep 2007 15:50:56 -0500
+Message-ID: <01c336a5$c87e25c0$e97bd9c9@jramirez>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C7FA46.F8473760"
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,50 +15,11 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+S:tooo(ccc k F-D(E)G
+Price 0.04
+Ta[rg+et 0.12
 
-------=_NextPart_000_0006_01C7FA46.F8473760
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
- 
-
-If you wish to purchase medications with no risks of receiving inferior products order them in Canadian Pharmacy.
-
-http://groupface.cn
-
-Make order and join the family of our happy customers. 
-
- Courtin Nguyen
-
-
-------=_NextPart_000_0006_01C7FA46.F8473760
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
-
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-ascii">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html> 
-<body text=3D"#000000" bgcolor=3D"#CCFFCC" link=3D"#FF6633">
-If you wish to purchase medications with no risks of receiving inferior pro=
-ducts order them in Canadian Pharmacy.<br>
-
-<a href=3D"http://groupface.cn"><b>http://groupface.cn</b></a><br>
-
-Make order and join the family of our happy customers. <br>
-
- Courtin Nguyen<br>
-</body>
-</html>
-</body>
-</html>
-
-------=_NextPart_000_0006_01C7FA46.F8473760--
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+                                                                                                                                                                                                                                                                                                        

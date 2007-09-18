@@ -1,10 +1,10 @@
-From: "Ed Bledsoe"@atrey.karlin.mff.cuni.cz
-Subject: RE: Thanks for taking our survey
-Date: Tue, 18 Sep 2007 18:43:00 +0300
-Message-ID: <01c7fa0a$978d1110$c268f64d@0aclarey>
+From: "Luciano Crane"@atrey.karlin.mff.cuni.cz
+Subject: RE: Canmeds+freegift
+Date: Tue, 18 Sep 2007 09:48:46 -0600
+Message-ID: <01c7fa0b$65c87a10$483192bd@0acorporate>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	boundary="----=_NextPart_000_000E_01C7FA0A.978D1110"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C7FA0B.65C87A10"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,68 +16,64 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_000E_01C7FA0A.978D1110
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_000F_01C7FA0A.978D1110"
-
-------=_NextPart_001_000F_01C7FA0A.978D1110
+------=_NextPart_000_0006_01C7FA0B.65C87A10
 Content-Type: text/plain;
 	charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
 
 
-
-
   
     
+      Hey, can you make love more that 10 minutes?
       
-      Click Here URL 
       
-    
+      
+    Yes, you can with our &quot;manpower candies&quot;
+  
+  
+    All love enhancers (and many other meds) at one online store!
   
 
 
 
-------=_NextPart_001_000F_01C7FA0A.978D1110
+------=_NextPart_000_0006_01C7FA0B.65C87A10
 Content-Type: text/html;
 	charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3DWindows-1252" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 4.72.3155.0" name=3DGENERATOR></HEAD>
-<BODY>
-<html>
-</head>
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
+hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
 
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
 <body>
-<table width=3D"497" border=3D"2" align=3D"center" bordercolor=3D"#C4D1FB" =
-bgcolor=3D"#F1E6D4">
+<html>
+<body>
+<table width=3D"716" border=3D"0" align=3D"center" bgcolor=3D"#3DC5A5">
   <tr>
-    <td width=3D"485"><div align=3D"center">
-      <p><a href=3D"http://paintwere.com" target=3D"_blank"><img src=3D"img=
-1.jpg" width=3D"450" height=3D"300" /></a></p>
-      <p><a href=3D"http://finepair.cn" target=3D"_blank"><strong><font col=
-or=3D"#FF0000" size=3D"+3">Click Here URL</font> </strong></a><br />
-      </p>
-    </div></td>
+    <td>
+      <div align=3D"center"><font size=3D"3D&quot;4&quot;" face=3D"3Dverdan=
+a"><strong>Hey, can you make love more that 10 minutes?
+      </strong></font></div>
+      
+      <div align=3D"center"></div>
+    <p align=3D"center"><font size=3D"+1" face=3D"3Dverdana"><strong>Yes, y=
+ou can with our &quot;manpower candies&quot;</strong></font></p></td>
+  </tr>
+</table>
+<table width=3D"716" border=3D"0" align=3D"center" bgcolor=3D"#3DFFF3">
+  <tr>
+    <td><div align=3D"center"><strong><font color=3D"#FFFFFF"><a href=3D"ht=
+tp://farneck.cn" target=3D"_blank">All love enhancers (and many other meds)=
+ at one online store!</a></font></strong></div></td>
   </tr>
 </table>
 </body>
 </html>
 
-</BODY></HTML>
+</body>
+</html>
 
-------=_NextPart_001_000F_01C7FA0A.978D1110--
-
-
-------=_NextPart_000_000E_01C7FA0A.978D1110
-Content-Type: image/gif;
-	name="img1.jpg"
-Content-Transfer-Encoding: base64
-Content-ID: <006901c7fa0a$978d1110$c268f64d@TLJ9KLGM>
-
- 
-
-------=_NextPart_000_000E_01C7FA0A.978D1110--
+------=_NextPart_000_0006_01C7FA0B.65C87A10--

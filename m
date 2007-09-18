@@ -1,10 +1,10 @@
-From: "Faustino Davila"@atrey.karlin.mff.cuni.cz
-Subject: RE: Sildenafil is a potent and selective inhibitor of cGMP
-Date: Tue, 18 Sep 2007 21:09:49 +0200
-Message-ID: <01c7fa27$7be43390$8b6aeb4d@0acarlos>
+From: "Darlene Tomlinson"@atrey.karlin.mff.cuni.cz
+Subject: RE: Assortment update
+Date: Tue, 18 Sep 2007 22:18:51 +0300
+Message-ID: <01c7fa28$bef2d690$caaef557@09zge>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	boundary="----=_NextPart_000_000E_01C7FA27.7BE43390"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C7FA28.BEF2D690"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -16,52 +16,61 @@ List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_000E_01C7FA27.7BE43390
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_000F_01C7FA27.7BE43390"
-
-------=_NextPart_001_000F_01C7FA27.7BE43390
+------=_NextPart_000_0007_01C7FA28.BEF2D690
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	charset="Windows-1252"
+Content-Transfer-Encoding: quoted-printable
 
 
-
+A {
+COLOR: #32CD32
+}
 
   
     
-      
-      Click Here URL 
-      
-    
+        Dear sir/madam.
+      Thank you for visiting our shop, we hope that you were satisfied with=
+ the quality and wide assortment and expect to see you again.
+      CLICK HERE
+      Best regards.      
+           
   
 
-
-
-------=_NextPart_001_000F_01C7FA27.7BE43390
+------=_NextPart_000_0007_01C7FA28.BEF2D690
 Content-Type: text/html;
-	charset="iso-8859-1"
+	charset="Windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-<META content=3D"text/html; charset=3Diso-8859-1" http-equiv=3DContent-Type>
-<META content=3D"MSHTML 6.00.2800.1506" name=3DGENERATOR></HEAD>
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
+<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
 <BODY>
+<style>
+A {
+COLOR: #32CD32
+}
+</style>
 <html>
-</head>
-
 <body>
-<table width=3D"497" border=3D"2" align=3D"center" bordercolor=3D"#C4D1FB" =
-bgcolor=3D"#F1E6D4">
+<table width=3D"921" border=3D"4" align=3D"center" bordercolor=3D"#FAF0E6" =
+bgcolor=3D"#98FB98">
   <tr>
-    <td width=3D"485"><div align=3D"center">
-      <p><a href=3D"http://exerciseslow.cn" target=3D"_blank"><img src=3D"i=
-mg1.jpg" width=3D"450" height=3D"300" /></a></p>
-      <p><a href=3D"http://exerciseslow.cn" target=3D"_blank"><strong><font=
- color=3D"#FF0000" size=3D"+3">Click Here URL</font> </strong></a><br />
-      </p>
-    </div></td>
+    <td width=3D"907"><p align=3D"center"><br />
+        <font color=3D"#0000FF" size=3D"+3"><strong><font color=3D"#006400"=
+>Dear sir/madam.</font></strong></font></p>
+      <p align=3D"center"><font color=3D"#006400"><strong><font size=3D"+2"=
+>Thank you for visiting our shop, we hope that you were satisfied with the =
+quality and wide assortment and expect to see you again.</font></strong></f=
+ont></p>
+      <p align=3D"center"><font color=3D"#32CD32"><strong><font size=3D"+3"=
+><a href=3D"http://regionbed.cn" target=3D"_blank">CLICK HERE</a></font></s=
+trong></font></p>
+      <p align=3D"center"><font color=3D"#006400"><strong><font size=3D"+3"=
+>Best regards.</font></strong></font></p>      
+      <p align=3D"center">&nbsp;</p>    </td>
   </tr>
 </table>
 </body>
@@ -69,15 +78,4 @@ mg1.jpg" width=3D"450" height=3D"300" /></a></p>
 
 </BODY></HTML>
 
-------=_NextPart_001_000F_01C7FA27.7BE43390--
-
-
-------=_NextPart_000_000E_01C7FA27.7BE43390
-Content-Type: image/gif;
-	name="img1.jpg"
-Content-Transfer-Encoding: base64
-Content-ID: <006901c7fa27$7be43390$8b6aeb4d@XTSNQJ>
-
- 
-
-------=_NextPart_000_000E_01C7FA27.7BE43390--
+------=_NextPart_000_0007_01C7FA28.BEF2D690--

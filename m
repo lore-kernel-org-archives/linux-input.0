@@ -1,76 +1,37 @@
-From: "Anton Carney" <kehmarsasportsclubbid@marsasportsclub.com>
-Subject: Last chance to supercharge your performance
-Date: Tue, 18 Sep 2007 03:10:14 +0000 (UTC)
-Message-ID: <397318207.03666074384341@marsasportsclub.com>
-Reply-To: kehmarsasportsclubbid@marsasportsclub.com
+From: "Merle Skinner" <nipomo1@YAHOO.COM>
+Subject: Troubles with your penis?
+Date: Tue, 18 Sep 2007 08:48:04 +0530
+Message-ID: <001801c7f9d0$a0b26c70$06f3dbe4@hitechqhw1r2n4>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------A297B80C59EF6EF"
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1250";
+        reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Tue, 18 Sep 2007 -02:10:04 -0500
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lariat@atrey.karlin.mff.cuni.cz
+To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------------A297B80C59EF6EF
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+Best place to find cure for your disease
 
-Ultimately the true stuff - with no more money tricks! 
-P.E.P. are hot right this time! 
-This is the genuine thing not a forgery! 
-One of the very originals, totally unique 
-stuff is on the market everywhere! 
+Life is short.... so make the most of it !!!
+Introducing the new male ennhancemennt product that 
+has been tested and sold to over 300,000 Men worldwide. 
 
-Pay attention to just what people say about this product: 
-"I pleased how quickly your stuff had an affect upon my boyfriend, 
-he can't stop chatting on how excited he is 
-having such new size, extent, and libido!" 
-Silvia D., New York 
+Canadian or US meds?
 
-"In the beginning I thought the free sample package I got was a prank, 
-till I actually tried taking the P.E.P. 
-Words cannot report how greatly pleased I am 
-with the effects I got from using this patch after 3 short months. 
-I'll be ordering regularly!" 
-Serge Smith, San Francisco 
 
-Read more references about this astounding product here now! 
-http://www.nuwcrol.com/?fmloruvxtwzyr
-------------A297B80C59EF6EF
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+78% admitted that they are unhappy with their partner's penis size.
+Enlarge your manhood today and reap all the benefits, be 
+the most confident man in town! http://fashto.com
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+ED pills at your country. 
 
-<b>Ultimately the true stuff - with no more money tricks!<br> 
-<a href="http://www.nuwcrol.com/?fmloruvxtwzyr" target="_blank">P.E.P.</a> are hot right this time! 
-This is the genuine thing not a forgery!<br> 
-One of the very originals, totally unique 
-stuff is on the market everywhere!<br> 
+100% safe and 100% money back guarantee if not satisfied.
 
-Pay attention to just what people say about this product: 
-<p><i>"I pleased how quickly your stuff had an affect upon my boyfriend, 
-he can't stop chatting on how excited he is 
-having such new size, extent, and libido!"</i></p> 
-Silvia D., New York 
-
-<p><i>"In the beginning I thought the free sample package I got was a prank, 
-till I actually tried taking the P.E.P. 
-Words cannot report how greatly pleased I am 
-with the effects I got from using this patch after 3 short months. 
-I'll be ordering regularly!"</i></p> 
-Serge Smith, San Francisco 
-
-<center><a href="http://www.nuwcrol.com/?fmloruvxtwzyr" target="_blank">Read more references about this astounding product here now!</a></center></b> 
-<font color="#D9EDFF">http://www.nuwcrol.com/?fmloruvxtwzyr</font>
-
-</BODY></HTML>
-------------A297B80C59EF6EF--
+over 1,500,000 bottles sold worldwide

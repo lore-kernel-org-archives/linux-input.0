@@ -1,31 +1,50 @@
-From: "Stefanie Woodson" <kmp@atrey.karlin.mff.cuni.cz>
-Subject: Re: Your Pharm4cy 0rder #42859
-Date: Tue, 18 Sep 2007 02:08:38 -0500
-Message-ID: <oqjlffvIJXHXPJkmp@atrey.karlin.mff.cuni.cz>
-Reply-To: "Stefanie Woodson" <kmp@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain;
-Content-Transfer-Encoding: 7Bit
+From: "zipi Plender" <zipi476@centrovillasanta.it>
+Subject: awatch
+Date: Tue, 18 Sep 2007 09:29:57 +0300
+Message-ID: <000b01c7f9bd$5551ae20$a1ddf458@Selma>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0009_01C7F9D6.7A9EE620"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: kmp@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+------=_NextPart_000_0009_01C7F9D6.7A9EE620
+Content-Type: text/plain;
+	charset="iso-8859-9"
+Content-Transfer-Encoding: quoted-printable
 
-We Present you a US Licensed Online Pharm4cy St0re. 
-Huge Disc0unts for next five days!!! 
+http://fueat.com/
+greeting linux-input
+The added width to your penis fills and presses her from side to side to =
+give your partner the most exhilarating sensations
 
-Phenterm1ne - as low as $6.30
-Cial1s S0ft Tabs - as low as $7.30 
-Amb1en - as low as $3.60 
-V1agra S0ft Tabs - as low as $4.10 
-Val1um - as low as $3.30 
-Cial1s - as low as $6.00 
-Xan4x - as low as $3.80 
-Merid1a - as low as $4.40 
+zipi Plender
+------=_NextPart_000_0009_01C7F9D6.7A9EE620
+Content-Type: text/html;
+	charset="iso-8859-9"
+Content-Transfer-Encoding: quoted-printable
 
-We have lightspeed delivery and respect your privacy! 
-Check US He4lthc4re Inc. at: http://www.jeuwihhb.com/ 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-9">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://fueat.com/">http://fueat.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>greeting linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>The added width to your penis fills and =
+presses her from=20
+side to side to give your partner the most exhilarating =
+sensations</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>zipi Plender</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0009_01C7F9D6.7A9EE620--

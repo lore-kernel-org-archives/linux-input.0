@@ -1,81 +1,53 @@
-From: "Shelia Jaramillo"@atrey.karlin.mff.cuni.cz
-Subject: RE: Save on meds
-Date: Tue, 18 Sep 2007 09:56:53 +0100
-Message-ID: <01c7f9d1$dbafef90$231690d9@095879401>
+From: Andreas Herrmann <aherrman@arcor.de>
+Subject: [PATCH] xpad: fix Kconfig to avoid compile error
+Date: Tue, 18 Sep 2007 11:00:33 +0200
+Message-ID: <20070918090033.GB14882@devil>
 Mime-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_000_0006_01C7F9D1.DBAFEF90"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Jan Kratochvil <honza@jikos.cz>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+With LEDS_CLASS=m && JOYSTICK_XPAD_LEDS=y I get following compile error:
 
-------=_NextPart_000_0006_01C7F9D1.DBAFEF90
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_001_0007_01C7F9D1.DBAFEF90"
+    ...
+  LD      .tmp_vmlinux1
+drivers/built-in.o: In function `xpad_disconnect':
+xpad.c:(.text+0xb3d6b): undefined reference to `led_classdev_unregister'
+drivers/built-in.o: In function `xpad_probe':
+xpad.c:(.text+0xb48a6): undefined reference to `led_classdev_register'
+make: *** [.tmp_vmlinux1] Error 1
+    ...
 
-------=_NextPart_001_0007_01C7F9D1.DBAFEF90
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+To avoid this kernel configuration, do auto-select LEDS_CLASS
+for JOYSTCK_XPAD_LEDS.
 
+Signed-off-by: Andreas Herrmann <aherrman@arcor.de>
+---
+ drivers/input/joystick/Kconfig |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-  
-    
-      
-      Click Here URL 
-    
-  
-
-
-------=_NextPart_001_0007_01C7F9D1.DBAFEF90
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 5.00.2919.6700" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<html>
-</head>
-<body>
-<table width=3D"716" border=3D"3" align=3D"center" bordercolor=3D"#CEDFCF" =
-bgcolor=3D"#A9E75E">
-  <tr>
-    <td><div align=3D"center">
-      <p><a href=3D"http://guidefamily.cn" target=3D"_blank"><img src=3D"cl=
-ue.jpg" width=3D"694" height=3D"470" border=3D"0" /></a></p>
-      <p><font color=3D"#006600"><strong><font color=3D"#70AAD2" size=3D"+2=
-"><a href=3D"http://processhad.cn" target=3D"_blank">Click Here URL </a></f=
-ont></strong></font></p>
-    </div></td>
-  </tr>
-</table>
-</body>
-</html>
-
-</BODY></HTML>
-
-------=_NextPart_001_0007_01C7F9D1.DBAFEF90--
-
-
-------=_NextPart_000_0006_01C7F9D1.DBAFEF90
-Content-Type: image/gif;
-	name="clue.jpg"
-Content-Transfer-Encoding: base64
-Content-ID: <006901c7f9d1$dbafef90$231690d9@HVJ0J9>
-
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index e2abe18..d765eb7 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -277,7 +277,9 @@ config JOYSTICK_XPAD_FF
  
-
-------=_NextPart_000_0006_01C7F9D1.DBAFEF90--
+ config JOYSTICK_XPAD_LEDS
+ 	bool "LED Support for Xbox360 controller 'BigX' LED"
+-	depends on LEDS_CLASS && JOYSTICK_XPAD
++	depends on JOYSTICK_XPAD
++	select NEW_LEDS
++	select LEDS_CLASS
+ 	---help---
+ 	  This option enables support for the LED which surrounds the Big X on
+ 	  XBox 360 controller.
+-- 
+1.5.3

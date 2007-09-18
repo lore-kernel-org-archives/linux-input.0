@@ -1,75 +1,67 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: build #315 failed for 2.6.23-rc6-gd017464 in linux/./drivers/input/joystick/xpad.c
-Date: Tue, 18 Sep 2007 01:13:18 -0400
-Message-ID: <200709180113.19085.dtor@insightbb.com>
-References: <200709161846.37585.toralf.foerster@gmx.de>
+From: "Mathew Mcnamara"@atrey.karlin.mff.cuni.cz
+Subject: RE: Thanks for taking our survey
+Date: Tue, 18 Sep 2007 07:50:14 +0200
+Message-ID: <123689100.08649962062207@crouchchapman.co.uk>
+Reply-To: 0acenta@crouchchapman.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------F67B821A0513DA2"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200709161846.37585.toralf.foerster@gmx.de>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Toralf =?utf-8?q?F=C3=B6rster?= <toralf.foerster@gmx.de>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Toralf,
+------------F67B821A0513DA2
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
-On Sunday 16 September 2007 12:46, Toralf F=C3=B6rster wrote:
-> Hello,
->=20
-> the build with the attached .config failed, make ends with:
-> ...
->   CC      arch/i386/lib/strstr.o
->   CC      arch/i386/lib/usercopy.o
->   AR      arch/i386/lib/lib.a
->   GEN     .version
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `xpad_disconnect':
-> xpad.c:(.text+0x18ba72): undefined reference to `led_classdev_unregister'
-> drivers/built-in.o: In function `xpad_probe':
-> xpad.c:(.text+0x18c565): undefined reference to `led_classdev_register'
-> make: *** [.tmp_vmlinux1] Error 1
->=20
 
-Thank you for the report. I believe the patch below should fix the problem.
+A {
+COLOR: #32CD32
+}
 
-=2D-=20
-Dmitry
+  
+    
+        Dear sir/madam.
+      Thank you for visiting our shop, we hope that you were satisfied with the quality and wide assortment and expect to see you again.
+      CLICK HERE
+      Best regards.      
+           
+  
 
-Subject: Input: xpad - fix dependancy on LEDS class
+------------F67B821A0513DA2
+Content-Type: text/html; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 
-Input: xpad - fix dependancy on LEDS class
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-The driver can not be built-in when LEDS class is a module.
+<style>
+A {
+COLOR: #32CD32
+}
+</style>
+<html>
+<body>
+<table width="921" border="4" align="center" bordercolor="#FAF0E6" bgcolor="#98FB98">
+  <tr>
+    <td width="907"><p align="center"><br />
+        <font color="#0000FF" size="+3"><strong><font color="#006400">Dear sir/madam.</font></strong></font></p>
+      <p align="center"><font color="#006400"><strong><font size="+2">Thank you for visiting our shop, we hope that you were satisfied with the quality and wide assortment and expect to see you again.</font></strong></font></p>
+      <p align="center"><font color="#32CD32"><strong><font size="+3"><a href="http://duringdone.com" target="_blank">CLICK HERE</a></font></strong></font></p>
+      <p align="center"><font color="#006400"><strong><font size="+3">Best regards.</font></strong></font></p>      
+      <p align="center">&nbsp;</p>    </td>
+  </tr>
+</table>
+</body>
+</html>
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-=2D--
- drivers/input/joystick/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Index: linux/drivers/input/joystick/Kconfig
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=2D-- linux.orig/drivers/input/joystick/Kconfig
-+++ linux/drivers/input/joystick/Kconfig
-@@ -277,7 +277,7 @@ config JOYSTICK_XPAD_FF
-=20
- config JOYSTICK_XPAD_LEDS
- 	bool "LED Support for Xbox360 controller 'BigX' LED"
-=2D	depends on LEDS_CLASS && JOYSTICK_XPAD
-+	depends on JOYSTICK_XPAD && (LED_CLASS=3Dy || LED_CLASS=3DJOYSTICK_XPAD)
- 	---help---
- 	  This option enables support for the LED which surrounds the Big X on
- 	  XBox 360 controller.
+</BODY></HTML>
+------------F67B821A0513DA2--

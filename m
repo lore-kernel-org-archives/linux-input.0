@@ -1,11 +1,11 @@
-From: "Liza Owens" <ggftyphus@cashmasters.com>
-Subject: Be careful of cheap imitations
-Date: Tue, 18 Sep 2007 20:26:22 +0200
-Message-ID: <001501c7fa32$2df072b0$064cf06c@micha>
+From: "Adeline Pitts" <hiferrous@ebtech.net>
+Subject: 300,000 satisfied men
+Date: Tue, 18 Sep 2007 20:27:23 +0300
+Message-ID: <001101c7fa32$520952c0$00a18a3c@home>
 Mime-Version: 1.0
 Content-Type: text/plain;
         format=flowed;
-        charset="windows-1250";
+        charset="windows-1251";
         reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,23 +17,23 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Are you insecure?
+Be the most confident man in town
 
-You will be able to penetrate deeper
+NO negative side effects
 
 People judge your dick size by your shoes size.
 
-Be satisfied for life!
+Expand, lengthen and enlarge easily
 
 With Xtra Size+ you dont have to wear
 bigger shoes to make women think you have a huge dick.
 
-Become the ultimate pleasure machine
+New product for July
 
 You can actually have it. 
 
-A few inches can make a real difference
+80% of women are unhappy with partners size??
 
 http://saedui.com
 
-Paris Hilton likes them big
+Doctor Approved and Recommended

@@ -1,81 +1,26 @@
-From: "Darlene Tomlinson"@atrey.karlin.mff.cuni.cz
-Subject: RE: Assortment update
-Date: Tue, 18 Sep 2007 22:18:51 +0300
-Message-ID: <01c7fa28$bef2d690$caaef557@09zge>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH] sony-laptop/thinkpad-acpi: fix build error
+Date: Tue, 18 Sep 2007 16:23:30 -0300
+Message-ID: <20070918192330.GD5655@khazad-dum.debian.net>
+References: <20070917205434.GA22458@devil> <200709181249.14909.lenb@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C7FA28.BEF2D690"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <200709181249.14909.lenb@kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Len Brown <lenb@kernel.org>
+Cc: Andreas Herrmann <aherrman@arcor.de>, Len Brown <len.brown@intel.com>, Mattia Dongili <malattia@linux.it>, linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, 18 Sep 2007, Len Brown wrote:
+> Unless you object, I'll just change this to "depends on" when i apply it.
 
-------=_NextPart_000_0007_01C7FA28.BEF2D690
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
+IMHO either is fine, so consider this an Ack for either select or depend for
+what concerns thinkpad-acpi.
 
-
-A {
-COLOR: #32CD32
-}
-
-  
-    
-        Dear sir/madam.
-      Thank you for visiting our shop, we hope that you were satisfied with=
- the quality and wide assortment and expect to see you again.
-      CLICK HERE
-      Best regards.      
-           
-  
-
-------=_NextPart_000_0007_01C7FA28.BEF2D690
-Content-Type: text/html;
-	charset="Windows-1252"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3DWindows-1252">
-<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-<style>
-A {
-COLOR: #32CD32
-}
-</style>
-<html>
-<body>
-<table width=3D"921" border=3D"4" align=3D"center" bordercolor=3D"#FAF0E6" =
-bgcolor=3D"#98FB98">
-  <tr>
-    <td width=3D"907"><p align=3D"center"><br />
-        <font color=3D"#0000FF" size=3D"+3"><strong><font color=3D"#006400"=
->Dear sir/madam.</font></strong></font></p>
-      <p align=3D"center"><font color=3D"#006400"><strong><font size=3D"+2"=
->Thank you for visiting our shop, we hope that you were satisfied with the =
-quality and wide assortment and expect to see you again.</font></strong></f=
-ont></p>
-      <p align=3D"center"><font color=3D"#32CD32"><strong><font size=3D"+3"=
-><a href=3D"http://regionbed.cn" target=3D"_blank">CLICK HERE</a></font></s=
-trong></font></p>
-      <p align=3D"center"><font color=3D"#006400"><strong><font size=3D"+3"=
->Best regards.</font></strong></font></p>      
-      <p align=3D"center">&nbsp;</p>    </td>
-  </tr>
-</table>
-</body>
-</html>
-
-</BODY></HTML>
-
-------=_NextPart_000_0007_01C7FA28.BEF2D690--
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

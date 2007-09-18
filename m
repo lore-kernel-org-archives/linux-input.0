@@ -1,55 +1,27 @@
-From: =?iso-2022-jp?B?GyRCJDQ2YT1qOCE6dyU1ITwlQSVjITwbKEI=?=<diujsiusauhc@yahoo.co.jp>
-Subject: =?iso-2022-jp?B?GyRCJCIkSiQ/JE4yQUNNNFEkLEpRJG8kaiReJDkhIxsoQg==?=
-Date: Tue, 18 Sep 2007 19:16:30 +0900
-Message-ID: <20070918170728.318CC841BF@atrey.karlin.mff.cuni.cz>
-Reply-To: <diujsiusauhc@yahoo.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
+From: "Monique Head" <kmp@atrey.karlin.mff.cuni.cz>
+Subject: Stylish repl1ca w4tches from famous brands
+Date: Tue, 18 Sep 2007 10:25:39 -0800
+Message-ID: <vxhtuJOQYQMkmp@atrey.karlin.mff.cuni.cz>
+Reply-To: "Monique Head" <kmp@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain;
+Content-Transfer-Encoding: 7Bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: kmp@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-$B!!!!!!!!!!!!=P2q$$7O$KK0$-$F$7$^$C$?5.J}$X"v!!!!!!!!!!!!(B 
-$B!!(Bhttp://black-6969.org.uk/pc/main.php?y9gro34
-$B!!(B
-$B!!IaDL$N=P2q$$7O%5%$%H$8$c$b$&$D$^$i$J$$!*!*(B
-$B!!:#9+$G$O%5%$%H$H$O0lL#0c$C$?!V%3%_%e%K%F%#!W$,?M5$"v(B
-$B!!(B
-$B!z%3%_%e%K%F%#$rGA$$$F$_$k"-(B
-http://black-6969.org.uk/pc/main.php?y9gro34
-  ------------------------------------------------------
-$B!!!!!!!!!!!!!!%3%_%e%K%F%#$C$F$I$s$J$N!)(B
 
-$BA49q$+$i%3%_%e%K%1!<%7%g%s$rL\E*$H$7$??MC#$,EPO?$7$F$$$k(B
-$BBg7?$N7G<(HD$N$h$&$J$b$N$G$9!#(B
-$BAj<j$N%a!<%k$,%j%"%k%?%$%`$G<u<h$l$k$+$i!"$h$jAj<j$r?H6a$K(B
-$B46$8$i$l$k$N$,Bg$-$JFCD'$G$9"v(B
+A T4g Heuer w4tch is a luxury statement on its own. Unfortunately, that luxury comes with a price...
+Except when you visit Prest1ge Repl1cas, the web’s most comprehensive collection of brand name repl1ca w4tches.
+In Prest1ge Repl1cas, any T4g Heuer is available for just over $200.
+http://www.iiekwjnn.com/
 
-$B!z%3%_%e%K%F%#$KL5NA;22C"-(B
-http://black-6969.org.uk/pc/main.php?y9gro34
-  ------------------------------------------------------
-$B!!!!!!!!!!!!!!%3%_%e%K%F%#$O40A4L5NA!*(B
-
-$B=P2q$$7O%5%$%H$H0c$$!"%3%_%e%K%F%#$OA4$FL5NA$G$4MxMQD:$1(B
-$B$k%$%s%?!<%M%C%H%5!<%S%9$G$9!#(B
-$BF~2q6b$dG/2qHq!"%a!<%k$N$d$j<h$j$J$IA4$FL5NA$G$4MxMQD:$1(B
-$B$^$9"v(B
-$BL^O@B`2q$K$bNA6b$OH/@8$$$?$7$^$;$s!#(B
-$B5$7Z$K%3%_%e%K%1!<%7%g%s$r$*3Z$7$_2<$5$$"v(B
-
-$B!z%3%_%e%K%F%#$KL5NA;22C"-(B
-http://black-6969.org.uk/pc/main.php?y9gro34
-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-
-
-
-
-$BG[?.ITMW$O$3$A$iKx"*!!(Bdadhashfa@yahoo.co.jp
+For those of us who have always dreamed of wearing a T4g Heuer, there is no better time to make our dream
+come true than this very moment, and no better place to do it, than at Prest1ge Repl1cas. Here you will find
+the most prestigious repl1ca T4g Heuers, at an unbeatable price.
+Come inside now... your T4g Heuer watch is waiting for you at Prest1ge Repl1cas.
+http://www.iiekwjnn.com/

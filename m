@@ -1,10 +1,13 @@
-From: "Phil Endecott" <spam_from_linux_input@chezphil.org>
-Subject: Gyration wireless USB mouse; key repeat problem
-Date: Wed, 19 Sep 2007 00:11:49 +0100
-Message-ID: <1190157109598@dmwebmail.japan.chezphil.org>
+From: "Dannie Ruffin" <atnbrrbclyhb@bmcgaw.com>
+Subject: Probieren Sie es - Mann Lebt nur einmal  FOS with reference  --  own with your co-worker
+Date: Wed, 19 Sep 2007 00:00:34 +0000 (UTC)
+Message-ID: <991171390.13188244765888@bmcgaw.com>
+Reply-To: atnbrrbclyhb@bmcgaw.com
 Mime-Version: 1.0
-Content-Type: text/plain; format="flowed"
+Content-Type: multipart/alternative;
+  boundary="----------D329305C1E4BF67"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Wed, 19 Sep 2007 -06:00:15 -0600
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -13,61 +16,46 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dear Experts,
+------------D329305C1E4BF67
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-I have a Gyration wireless gyroscopic mouse and keyboard, which use a 
-USB-connected receiver.  Does anyone else have experience with this 
-device?  I can recommend it for giving software demos on a projector.  
-Most functions work well.
+Sie leben nur einmal - warum dann nicht was neues ausprobieren?
 
-The mouse has the usual buttons plus three extra ones which generate 
-keyboard function key events, rather than mouse button presses.  
-Sometimes, when I press one of these extra buttons I get the 'press' 
-event but not a 'release' event; I then get lots of 'repeat' events.
+Preise die keine Konkurrenz kennen 
 
-Before I go on I should say that this is not with the latest kernel; 
-this is 2.6.19.  Feel free to flame me for not trying on a new one :-)  
-I have had a quick search through the kernel changelog and can't see 
-anything that's immediately relevant.
+- Bequem und diskret online bestellen.
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Kostenlose, arztliche Telefon-Beratung
+- Diskrete Verpackung und Zahlung
+- Visa verifizierter Onlineshop
+- Kein peinlicher Arztbesuch erforderlich
+- keine versteckte Kosten
 
-The symptom is that if I repeatedly click one of these extra buttons 
-and "od -x /dev/input/event<n>" I see normal 1/0/1/0 press and release 
-events, but after a while (order of 30 clicks perhaps) I see 
-1/2/2/2/2/2/ (press followed by repeats), and no release.
+Originalmedikamente
+Ciiaaaaaalis 10 Pack. 27,00 Euro
+Viiaaaagra 10 Pack. 21,00 Euro
 
-When I next press the button, I don't get the press event, but I do get 
-the release event, at which point everything seems to be back to normal.
+Vier Dosen gibt's bei jeder Bestellung umsonst
+http://ukbprba.otherblock.cn/?441559743642
 
-[Aside: I decided to try to turn off auto-repeat for these events, 
-mainly to make the debug dumps less cluttered but also in case the 
-problem was caused by a bug in the auto-repeat code.  Google quickly 
-told me that I needed to use ioctl(EVIOCSREP) but I didn't find a 
-command-line program to do this for a specific /dev/input/event<n> file 
-- have I missed something?  So I wrote one, which is here: 
-http://svn.chezphil.org/utils/trunk/input-kbd-rpt.c - maybe it will be 
-useful to someone.  I presume that I'm supposed to pass 0,0 as the 
-parameters to disable auto-repeat, yes?  Anyway, it didn't solve the 
-problem; I still see a press event and no corresponding release event.]
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen ist)
+------------D329305C1E4BF67
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-I have attempted to reconcile the data from /dev/input/event with 
-usbmon traces, without much luck, i.e. I can't determine yet whether 
-there is a release event in the USB data.  Does anyone know how the 
-timestamps in usbmon and in /dev/input/event are related?  They are 
-both microseconds, but must be based differently I think.  I need to 
-work out how to get the actual data in the usbmon output rather than 
-just "<"; I think this might be a kernel version thing.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-My feeling is that this could easily be a bug in the microcontroller 
-inside the the mouse or the receiver.  I doubt that they have 
-engineered the whole thing from scratch, so maybe this is a known quirk 
-that other products share?
+<head><meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Als wir Liebe gemacht haben, f&#252;hlte ich mich wieder wie ein Neunzehnj&#228;hriger. "Er" war so hart, ich h&#228;tte N&#228;gel damit einklopfen k&#246;nnen. Meiner Frau sagt, ich h&#228;tte sie noch nie so lang und so hart geliebt. Sie ist ganz versessen auf mich. Und ich brauche wohl bald einen Nachf&#252;llpack.</strong></p><p><strong>Ich habe drei Jahre lang keine befriedigende Er_rektio_n hinbekommen. Das hat mich fertig gemacht. Viiaaaagra haben meine Frau, sie ist 54, und ich in zwei Jahren nicht einmal auf befriedigen Sex verzichten m&#252;ssen. Und die Liebe ist genauso intensiv wie vor einem halben Jahrhundert! Jetzt machen wir es wieder drei- bis f&#252;nfmal pro Woche. Ich bin 75 Jahre alt und dankbar, dass ich Viiaaaag
+ ra kennengelernt habe.<br>
+</strong><strong><br>Sie leben nur einmal - warum dann nicht was neues ausprobieren?</strong></p><p>Preise die keine Konkurrenz kennen <p>
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Bequem und diskret online bestellen.<br>- Kostenlose, arztliche Telefon-Beratung<br>- Visa verifizierter Onlineshop<br>- Kein peinlicher Arztbesuch erforderlich<br>- Diskrete Verpackung und Zahlung<br>- keine versteckte Kosten</p>
+<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong><br>
+  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href="http://ukbprba.otherblock.cn/?441559743642" target="_blank">Vier Dosen gibt's bei jeder Bestellung umsonst</a><br></strong>(bitte warten Sie einen Moment bis die Seite vollst&auml;ndig geladen ist) </p></body>
 
-So, does anyone have any experience with this hardware, or suggestions 
-for further debugging or work-arounds?
-
-
-Many thanks for your attention.
-
-Regards,
-
-Phil.
+</BODY></HTML>
+------------D329305C1E4BF67--

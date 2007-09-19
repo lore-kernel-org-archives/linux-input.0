@@ -1,7 +1,7 @@
-From: "Royal VIP Table" <KatieNeff@leonlai.net>
-Subject: win millions of Euro in a single spin
-Date: Tue, 18 Sep 2007 22:30:41 -0500
-Message-ID: <10179.pillage@kline>
+From: "VIP Casino" <masochist@mrg.com>
+Subject: 555 Euro - Welcome Bonus!
+Date: Wed, 19 Sep 2007 09:43:55 +0400
+Message-ID: <56095770.87308028@upsetting.com>
 Mime-Version: 1.0
 Content-Type: text/html; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
@@ -11,24 +11,74 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: mailer-daemon@atrey.karlin.mff.cuni.cz
+To: ku970oeeox@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML>
-<HEAD>
-<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-</HEAD>
-<BODY bgColor=#66FF99> 
-<b>Looking for a right royal bonus to sweeten your casino experience? <br> 
-Look no further!</b><br> 
-<br> 
-Join Royal VIP Casino today and we'll give you a 300% bonus on your first deposit, worth up to 300&euro;!<br> 
-<br> 
-We have a huge range of games, including the biggest progressive jackpots online, giving you the chance to win millions of Euro in a single spin! <br> 
-<br> 
-Royal VIP is safe and secure, and offers players 24/7 support, allowing you to get on with what&rsquo;s important&hellip;.WINNING BIG!!!<br> 
-<br> 
-<b><a href="http://kazito.biz">Join now and experience the Royal VIP Treatment!</a></b> 
-</BODY>
-</HTML>
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+
+<title>The </title>
+
+<style>
+<!--
+ /* Style Definitions */
+a:link, span.MsoHyperlink
+	{color:blue;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;}
+p
+	{mso-margin-top-alt:auto;
+	margin-right:0cm;
+	mso-margin-bottom-alt:auto;
+	margin-left:0cm;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	color:black;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:2.0cm 42.5pt 2.0cm 3.0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
+
+</head>
+
+<body lang=EN-US link=blue vlink=blue style='tab-interval:35.4pt'>
+
+<div class=Section1>
+
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>
+The best players are in Vegas, and the Best Bonuses you will find only at 
+Vegas VIP Casino!<o:p></o:p></span></p>
+
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>
+200% on your first deposit, 100% on your second and third deposits and the 
+cherry on the top: 155% on your fourth deposit!
+<o:p></o:p></span></p>
+
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>
+This will bring you to a total of $555 of Welcome Bonus
+<o:p></o:p></span></p>
+
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>
+This and much more is waiting for you at the fabulous Vegas 
+VIP Casino, where the best play<o:p></o:p></span></p>
+
+<p><span lang=EN-US style='mso-ansi-language:EN-US'>
+<a href="http://vegas37.com/">
+http://vegas37.com/</a>
+</span></p>
+
+</div>
+
+</body>
+
+</html>

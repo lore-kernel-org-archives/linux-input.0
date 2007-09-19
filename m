@@ -1,31 +1,43 @@
-From: "Sherman Bain" <qcurricular@fox-internet.com>
-Subject: Receive up to 400€ in VIP match bonuses
-Date: Mon, 19 Sep 2005 17:33:05 +0800
-Message-ID: <000f01c5bd40$31786ea0$000dae14@DQC056>
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [patch] HID: use hid-plff driver for GreenAsia 0e8f:0003 devices
+Date: Wed, 19 Sep 2007 11:57:52 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0709191155540.24429@twin.jikos.cz>
+References: <46F01785.6060501@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-        format=flowed;
-        charset="UTF-8";
-        reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-1113357912-1190195872=:24429"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <46F01785.6060501@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Feel the unique excitement of playing at Europe's premiere online casino…and receive 400€ FREE when you join!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-The first 4 times you deposit, you will receive up to 100€ in VIP match bonuses for each deposit. What a fantastic offer, straight from the heart of Europe's gaming leader!
+---1747641777-1113357912-1190195872=:24429
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-This is a great offer, especially when you see what else Euro VIP Casino has to offer: 
-- more than 100 fun games, realistic graphics
-- the most secure and up-to-date software 
-- professional support staff to help you with whatever you might need, any time of the day or night!
+On Tue, 18 Sep 2007, Anssi Hannula wrote:
 
-Visit Euro VIP Casino and see the difference for yourself.
+> Add 0e8f:0003 into the list of devices supported by the hid-plff
+> force feedback driver. These devices identify themselves as
+> "GreenAsia Inc.    USB Joystick     " and can be either adapters or
+> actual game controllers. The testing was done with a K=F6ng Gaming
+> gamepad.
 
-http://eurocasinomelvi.com/
+Hi Anssi,
+
+thanks a lot for your patch. Unfortunately, it is word-wrapped and=20
+whitespace-damaged, could you please respin it and resend it?
+
+Thanks,
+
+--=20
+Jiri Kosina
+---1747641777-1113357912-1190195872=:24429--

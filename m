@@ -1,43 +1,47 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [patch] HID: use hid-plff driver for GreenAsia 0e8f:0003 devices
-Date: Wed, 19 Sep 2007 11:57:52 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0709191155540.24429@twin.jikos.cz>
-References: <46F01785.6060501@gmail.com>
+From: "Marino capitano" <Marino651@lidstock.nu>
+Subject: uujitam
+Date: Wed, 19 Sep 2007 05:33:14 -0500
+Message-ID: <000701c7faa8$7c3b4fa0$d57c7744@como2>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-1113357912-1190195872=:24429"
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0005_01C7FA7E.936547A0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <46F01785.6060501@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+------=_NextPart_000_0005_01C7FA7E.936547A0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
----1747641777-1113357912-1190195872=:24429
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+http://www.matipoo.com/
+Compliments linux-input
+Do pen1s inlargement pills work? Ours do
 
-On Tue, 18 Sep 2007, Anssi Hannula wrote:
+Marino capitano
+------=_NextPart_000_0005_01C7FA7E.936547A0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> Add 0e8f:0003 into the list of devices supported by the hid-plff
-> force feedback driver. These devices identify themselves as
-> "GreenAsia Inc.    USB Joystick     " and can be either adapters or
-> actual game controllers. The testing was done with a K=F6ng Gaming
-> gamepad.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://www.matipoo.com/">http://www.matipoo.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Compliments linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>Do pen1s inlargement pills work? Ours =
+do</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>Marino capitano</FONT></DIV></BODY></HTML>
 
-Hi Anssi,
-
-thanks a lot for your patch. Unfortunately, it is word-wrapped and=20
-whitespace-damaged, could you please respin it and resend it?
-
-Thanks,
-
---=20
-Jiri Kosina
----1747641777-1113357912-1190195872=:24429--
+------=_NextPart_000_0005_01C7FA7E.936547A0--

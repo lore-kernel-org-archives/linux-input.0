@@ -1,843 +1,399 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: hid autosuspend
-Date: Thu, 20 Sep 2007 13:45:12 +0200
-Message-ID: <200709201345.12956.oliver@neukum.org>
+From: "Salome Harvey" <lcbjabav@royaloakstairs.net>
+Subject: Show me, can you
+Date: Thu, 20 Sep 2007 17:06:17 +0000
+Message-ID: <000b01c7fba8$8eeb47d0$4001a8c0@speedtouch.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Jiri Kosina <jikos@jikos.cz>, Pavel Machek <pavel@ucw.cz>
+Content-Type: multipart/related;
+	type="multipart/alternative";
+	boundary="----=_NextPart_000_0007_01C7FBA8.8EEB47D0"
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Bobby Lawson <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
 
-as autosuspend will be disabled by default, there's no reason to not
-include usb hid autosuspend any longer. You simply don't enable
-autosuspend for device where it doesn't work.
-So please test this version and tell me about oopses and devices
-which work well with it. It is ported to rc6 and drops detection of
-force feedback devices.
+------=_NextPart_000_0007_01C7FBA8.8EEB47D0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_001_0008_01C7FBA8.8EEB47D0"
 
-	Regards
-		Oliver
+------=_NextPart_001_0008_01C7FBA8.8EEB47D0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-----
-diff -urp linux-2.6.23-rc6/drivers/hid/usbhid/hid-core.c hid/drivers/hid/usbhid/hid-core.c
---- linux-2.6.23-rc6/drivers/hid/usbhid/hid-core.c	2007-09-19 16:58:37.000000000 +0200
-+++ hid/drivers/hid/usbhid/hid-core.c	2007-09-20 12:59:13.000000000 +0200
-@@ -5,6 +5,7 @@
-  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
-  *  Copyright (c) 2006-2007 Jiri Kosina
-+ *  Copyright (c) 2007 Oliver Neukum
-  */
- 
- /*
-@@ -26,6 +27,7 @@
- #include <asm/byteorder.h>
- #include <linux/input.h>
- #include <linux/wait.h>
-+#include <linux/workqueue.h>
- 
- #include <linux/usb.h>
- 
-@@ -69,8 +71,12 @@ MODULE_PARM_DESC(rdesc_quirks, "Add/modi
- /*
-  * Input submission and I/O error handler.
-  */
-+static DEFINE_MUTEX(hid_open_mut);
-+static struct workqueue_struct *resumption_waker;
- 
- static void hid_io_error(struct hid_device *hid);
-+static int hid_submit_out(struct hid_device *hid);
-+static int hid_submit_ctrl(struct hid_device *hid);
- 
- /* Start up the input URB */
- static int hid_start_in(struct hid_device *hid)
-@@ -80,7 +86,7 @@ static int hid_start_in(struct hid_devic
- 	struct usbhid_device *usbhid = hid->driver_data;
- 
- 	spin_lock_irqsave(&usbhid->inlock, flags);
--	if (hid->open > 0 && !test_bit(HID_SUSPENDED, &usbhid->iofl) &&
-+	if (hid->open > 0 && !test_bit(HID_REPORTED_IDLE, &usbhid->iofl) &&
- 			!test_and_set_bit(HID_IN_RUNNING, &usbhid->iofl)) {
- 		rc = usb_submit_urb(usbhid->urbin, GFP_ATOMIC);
- 		if (rc != 0)
-@@ -184,6 +190,50 @@ done:
- 	spin_unlock_irqrestore(&usbhid->inlock, flags);
- }
- 
-+static void usbhid_mark_busy(struct usbhid_device *usbhid)
-+{
-+	struct usb_interface *intf = usbhid->intf;
-+
-+	usb_mark_last_busy(interface_to_usbdev(intf));
-+}
-+
-+static int usbhid_restart_out_queue(struct usbhid_device *usbhid)
-+{
-+	struct hid_device *hid = usb_get_intfdata(usbhid->intf);
-+	int kicked;
-+
-+	if (!hid)
-+		return 0;
-+
-+	if ((kicked = (usbhid->outhead != usbhid->outtail))) {
-+		dbg("Kicking head %d tail %d", usbhid->outhead, usbhid->outtail);
-+		if (hid_submit_out(hid)) {
-+			clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
-+			wake_up(&hid->wait);
-+		}
-+	}
-+	return kicked;
-+}
-+
-+static int usbhid_restart_ctrl_queue(struct usbhid_device *usbhid)
-+{
-+	struct hid_device *hid = usb_get_intfdata(usbhid->intf);
-+	int kicked;
-+
-+	WARN_ON(hid == NULL);
-+	if (!hid)
-+		return 0;
-+
-+	if ((kicked = (usbhid->ctrlhead != usbhid->ctrltail))) {
-+		dbg("Kicking head %d tail %d", usbhid->ctrlhead, usbhid->ctrltail);
-+		if (hid_submit_ctrl(hid)) {
-+			clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
-+			wake_up(&hid->wait);
-+		}
-+	}
-+	return kicked;
-+}
-+
- /*
-  * Input interrupt completion handler.
-  */
-@@ -196,12 +246,14 @@ static void hid_irq_in(struct urb *urb)
- 
- 	switch (urb->status) {
- 		case 0:			/* success */
-+			usbhid_mark_busy(usbhid);	
- 			usbhid->retry_delay = 0;
- 			hid_input_report(urb->context, HID_INPUT_REPORT,
- 					 urb->transfer_buffer,
- 					 urb->actual_length, 1);
- 			break;
- 		case -EPIPE:		/* stall */
-+			usbhid_mark_busy(usbhid);
- 			clear_bit(HID_IN_RUNNING, &usbhid->iofl);
- 			set_bit(HID_CLEAR_HALT, &usbhid->iofl);
- 			schedule_work(&usbhid->reset_work);
-@@ -215,6 +267,7 @@ static void hid_irq_in(struct urb *urb)
- 		case -EPROTO:		/* protocol error or unplug */
- 		case -ETIME:		/* protocol error or unplug */
- 		case -ETIMEDOUT:	/* Should never happen, but... */
-+			usbhid_mark_busy(usbhid);
- 			clear_bit(HID_IN_RUNNING, &usbhid->iofl);
- 			hid_io_error(hid);
- 			return;
-@@ -240,9 +293,11 @@ static int hid_submit_out(struct hid_dev
- 	struct hid_report *report;
- 	struct usbhid_device *usbhid = hid->driver_data;
- 
-+	WARN_ON(usbhid == NULL);
- 	report = usbhid->out[usbhid->outtail];
--
-+	WARN_ON(report == NULL);
- 	hid_output_report(report, usbhid->outbuf);
-+	BUG_ON(usbhid->urbout == NULL);
- 	usbhid->urbout->transfer_buffer_length = ((report->size - 1) >> 3) + 1 + (report->id > 0);
- 	usbhid->urbout->dev = hid_to_usb_dev(hid);
- 
-@@ -330,24 +385,20 @@ static void hid_irq_out(struct urb *urb)
- 			warn("output irq status %d received", urb->status);
- 	}
- 
--	spin_lock_irqsave(&usbhid->outlock, flags);
-+	spin_lock_irqsave(&usbhid->outputlock, flags);
- 
- 	if (unplug)
- 		usbhid->outtail = usbhid->outhead;
- 	else
- 		usbhid->outtail = (usbhid->outtail + 1) & (HID_OUTPUT_FIFO_SIZE - 1);
- 
--	if (usbhid->outhead != usbhid->outtail) {
--		if (hid_submit_out(hid)) {
--			clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
--			wake_up(&hid->wait);
--		}
--		spin_unlock_irqrestore(&usbhid->outlock, flags);
-+	if (usbhid_restart_out_queue(usbhid)) {
-+		spin_unlock_irqrestore(&usbhid->outputlock, flags);
- 		return;
- 	}
- 
- 	clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
--	spin_unlock_irqrestore(&usbhid->outlock, flags);
-+	spin_unlock_irqrestore(&usbhid->outputlock, flags);
- 	wake_up(&hid->wait);
- }
- 
-@@ -362,7 +413,7 @@ static void hid_ctrl(struct urb *urb)
- 	unsigned long flags;
- 	int unplug = 0;
- 
--	spin_lock_irqsave(&usbhid->ctrllock, flags);
-+	spin_lock_irqsave(&usbhid->outputlock, flags);
- 
- 	switch (urb->status) {
- 		case 0:			/* success */
-@@ -387,73 +438,101 @@ static void hid_ctrl(struct urb *urb)
- 	else
- 		usbhid->ctrltail = (usbhid->ctrltail + 1) & (HID_CONTROL_FIFO_SIZE - 1);
- 
--	if (usbhid->ctrlhead != usbhid->ctrltail) {
--		if (hid_submit_ctrl(hid)) {
--			clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
--			wake_up(&hid->wait);
--		}
--		spin_unlock_irqrestore(&usbhid->ctrllock, flags);
-+	if (usbhid_restart_ctrl_queue(usbhid)) {
-+		spin_unlock_irqrestore(&usbhid->outputlock, flags);
- 		return;
- 	}
- 
- 	clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
--	spin_unlock_irqrestore(&usbhid->ctrllock, flags);
-+	spin_unlock_irqrestore(&usbhid->outputlock, flags);
- 	wake_up(&hid->wait);
- }
- 
--void usbhid_submit_report(struct hid_device *hid, struct hid_report *report, unsigned char dir)
-+static void usbhid_queue_report_out(struct hid_device *hid, struct hid_report *report)
- {
-+	struct usbhid_device *usbhid = hid->driver_data;
- 	int head;
--	unsigned long flags;
-+
-+	if ((head = (usbhid->outhead + 1) & (HID_OUTPUT_FIFO_SIZE - 1)) == usbhid->outtail) {
-+		warn("output queue full");
-+		return;
-+	}
-+
-+	usbhid->out[usbhid->outhead] = report;
-+	usbhid->outhead = head;
-+}
-+
-+static void usbhid_queue_report_ctrl
-+(struct hid_device *hid, struct hid_report *report, unsigned char dir)
-+{
- 	struct usbhid_device *usbhid = hid->driver_data;
-+	int head;
- 
--	if ((hid->quirks & HID_QUIRK_NOGET) && dir == USB_DIR_IN)
-+	if ((head = (usbhid->ctrlhead + 1) & (HID_CONTROL_FIFO_SIZE - 1)) == usbhid->ctrltail) {
-+		warn("control queue full");
- 		return;
-+	}
- 
--	if (usbhid->urbout && dir == USB_DIR_OUT && report->type == HID_OUTPUT_REPORT) {
-+	usbhid->ctrl[usbhid->ctrlhead].report = report;
-+	usbhid->ctrl[usbhid->ctrlhead].dir = dir;
-+	usbhid->ctrlhead = head;
-+}
- 
--		spin_lock_irqsave(&usbhid->outlock, flags);
-+static void __usbhid_submit_report(struct hid_device *hid, struct hid_report *report, unsigned char dir)
-+{
-+	struct usbhid_device *usbhid = hid->driver_data;
- 
--		if ((head = (usbhid->outhead + 1) & (HID_OUTPUT_FIFO_SIZE - 1)) == usbhid->outtail) {
--			spin_unlock_irqrestore(&usbhid->outlock, flags);
--			warn("output queue full");
--			return;
--		}
-+	if ((hid->quirks & HID_QUIRK_NOGET) && dir == USB_DIR_IN)
-+		return;
-+
-+	if (usbhid->urbout && dir == USB_DIR_OUT && report->type == HID_OUTPUT_REPORT) {
- 
--		usbhid->out[usbhid->outhead] = report;
--		usbhid->outhead = head;
-+		usbhid_queue_report_out(hid, report);
- 
- 		if (!test_and_set_bit(HID_OUT_RUNNING, &usbhid->iofl))
- 			if (hid_submit_out(hid))
- 				clear_bit(HID_OUT_RUNNING, &usbhid->iofl);
- 
--		spin_unlock_irqrestore(&usbhid->outlock, flags);
--		return;
--	}
-+	} else {
- 
--	spin_lock_irqsave(&usbhid->ctrllock, flags);
-+		usbhid_queue_report_ctrl(hid, report, dir);
-+
-+		if (!test_and_set_bit(HID_CTRL_RUNNING, &usbhid->iofl))
-+			if (hid_submit_ctrl(hid))
-+				clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
- 
--	if ((head = (usbhid->ctrlhead + 1) & (HID_CONTROL_FIFO_SIZE - 1)) == usbhid->ctrltail) {
--		spin_unlock_irqrestore(&usbhid->ctrllock, flags);
--		warn("control queue full");
--		return;
- 	}
-+}
- 
--	usbhid->ctrl[usbhid->ctrlhead].report = report;
--	usbhid->ctrl[usbhid->ctrlhead].dir = dir;
--	usbhid->ctrlhead = head;
-+void usbhid_submit_report
-+(struct hid_device *hid, struct hid_report *report, unsigned char dir)
-+{
-+	struct usbhid_device *usbhid = hid->driver_data;
-+	unsigned long flags;
- 
--	if (!test_and_set_bit(HID_CTRL_RUNNING, &usbhid->iofl))
--		if (hid_submit_ctrl(hid))
--			clear_bit(HID_CTRL_RUNNING, &usbhid->iofl);
-+	spin_lock_irqsave(&usbhid->outputlock, flags);
-+	__usbhid_submit_report(hid, report, dir);
-+	spin_unlock_irqrestore(&usbhid->outputlock, flags);
-+}
- 
--	spin_unlock_irqrestore(&usbhid->ctrllock, flags);
-+static void usbhid_queue_report
-+(struct hid_device *hid, struct hid_report *report, unsigned char dir)
-+{
-+	struct usbhid_device *usbhid = hid->driver_data;
-+
-+	if (usbhid->urbout && dir == USB_DIR_OUT && report->type == HID_OUTPUT_REPORT)
-+		usbhid_queue_report_out(hid, report);
-+	else
-+		usbhid_queue_report_ctrl(hid, report, dir);
- }
- 
--static int usb_hidinput_input_event(struct input_dev *dev, unsigned int type, unsigned int code, int value)
-+static int usb_hidinput_input_event
-+(struct input_dev *dev, unsigned int type, unsigned int code, int value)
- {
- 	struct hid_device *hid = input_get_drvdata(dev);
-+	struct usbhid_device *usbhid = hid->driver_data;
- 	struct hid_field *field;
-+	unsigned long flags;
- 	int offset;
- 
- 	if (type == EV_FF)
-@@ -467,9 +546,22 @@ static int usb_hidinput_input_event(stru
- 		return -1;
- 	}
- 
-+	spin_lock_irqsave(&usbhid->outputlock, flags);
-+
- 	hid_set_field(field, offset, value);
--	usbhid_submit_report(hid, field->report, USB_DIR_OUT);
-+	if (!test_bit(HID_REPORTED_IDLE, &usbhid->iofl)) {
-+		/* the device isn't idle, we do the output now*/
-+		__usbhid_submit_report(hid, field->report, USB_DIR_OUT);
-+	} else {
-+		/* the device is idle, queue the request */
-+		usbhid_queue_report(hid, field->report, USB_DIR_OUT);
-+		/* queue work to wake up the device.
-+		 * as the work queue is freezeable, this is safe
-+		 * with respect to hibernation and system suspend */
-+		queue_work(resumption_waker, &usbhid->restart_work);
- 
-+	}
-+	spin_unlock_irqrestore(&usbhid->outputlock, flags);
- 	return 0;
- }
- 
-@@ -512,9 +604,26 @@ static int hid_get_class_descriptor(stru
- 
- int usbhid_open(struct hid_device *hid)
- {
--	++hid->open;
--	if (hid_start_in(hid))
--		hid_io_error(hid);
-+	struct usbhid_device *usbhid = hid->driver_data;
-+	int res;
-+
-+	mutex_lock(&hid_open_mut);
-+	if (!hid->open++) {
-+		res = usb_autopm_get_interface(usbhid->intf);
-+		/* the device must be awake to reliable request remote wakeup */
-+		if (res < 0) {
-+			hid->open--;
-+			mutex_unlock(&hid_open_mut);
-+			return -EIO;
-+		}
-+		usbhid->intf->needs_remote_wakeup = 1;
-+		if (hid_start_in(hid))
-+			hid_io_error(hid);
-+
-+		usb_autopm_put_interface(usbhid->intf);
-+	}
-+	mutex_unlock(&hid_open_mut);
-+
- 	return 0;
- }
- 
-@@ -522,8 +631,22 @@ void usbhid_close(struct hid_device *hid
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
- 
--	if (!--hid->open)
-+	mutex_lock(&hid_open_mut);
-+
-+	/* protecting hid->open to make sure we don't restart
-+	 * data acquistion due to a resumption we no longer
-+	 * care about
-+	 */
-+	spin_lock_irq(&usbhid->inlock);
-+	if (!--hid->open) {
-+		spin_unlock_irq(&usbhid->inlock);
- 		usb_kill_urb(usbhid->urbin);
-+		flush_scheduled_work();
-+		usbhid->intf->needs_remote_wakeup = 0;
-+	} else {
-+		spin_unlock_irq(&usbhid->inlock);
-+	}
-+	mutex_unlock(&hid_open_mut);
- }
- 
- /*
-@@ -533,14 +656,21 @@ void usbhid_close(struct hid_device *hid
- void usbhid_init_reports(struct hid_device *hid)
- {
- 	struct hid_report *report;
--	struct usbhid_device *usbhid = hid->driver_data;
-+	unsigned long flags;
- 	int err, ret;
-+	struct usbhid_device *usbhid = hid->driver_data;
- 
--	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].report_list, list)
--		usbhid_submit_report(hid, report, USB_DIR_IN);
-+	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].report_list, list) {
-+		spin_lock_irqsave(&usbhid->outputlock, flags);
-+		__usbhid_submit_report(hid, report, USB_DIR_IN);
-+		spin_unlock_irqrestore(&usbhid->outputlock, flags);
-+	}
- 
--	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
--		usbhid_submit_report(hid, report, USB_DIR_IN);
-+	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].report_list, list) {
-+		spin_lock_irqsave(&usbhid->outputlock, flags);
-+		__usbhid_submit_report(hid, report, USB_DIR_IN);
-+		spin_unlock_irqrestore(&usbhid->outputlock, flags);
-+	}
- 
- 	err = 0;
- 	ret = usbhid_wait_io(hid);
-@@ -628,6 +758,23 @@ static int hid_alloc_buffers(struct usb_
- 	return 0;
- }
- 
-+static void usbhid_restart_queues(struct usbhid_device *usbhid)
-+{
-+	if (usbhid->urbout)
-+		usbhid_restart_out_queue(usbhid);
-+	usbhid_restart_ctrl_queue(usbhid);
-+}
-+
-+static void __usbhid_restart_queues(struct work_struct *work)
-+{
-+	struct usbhid_device *usbhid =
-+		container_of(work, struct usbhid_device, restart_work);
-+
-+	usb_autopm_get_interface(usbhid->intf);
-+	usbhid_restart_queues(usbhid);
-+	usb_autopm_put_interface(usbhid->intf);
-+}
-+
- static void hid_free_buffers(struct usb_device *dev, struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
-@@ -813,11 +960,11 @@ static struct hid_device *usb_hid_config
- 	init_waitqueue_head(&hid->wait);
- 
- 	INIT_WORK(&usbhid->reset_work, hid_reset);
-+	INIT_WORK(&usbhid->restart_work, __usbhid_restart_queues);
- 	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
- 
- 	spin_lock_init(&usbhid->inlock);
--	spin_lock_init(&usbhid->outlock);
--	spin_lock_init(&usbhid->ctrllock);
-+	spin_lock_init(&usbhid->outputlock);
- 
- 	hid->version = le16_to_cpu(hdesc->bcdHID);
- 	hid->country = hdesc->bCountryCode;
-@@ -903,6 +1050,7 @@ static void hid_disconnect(struct usb_in
- 	usb_kill_urb(usbhid->urbctrl);
- 
- 	del_timer_sync(&usbhid->io_retry);
-+	cancel_work_sync(&usbhid->restart_work);
- 	cancel_work_sync(&usbhid->reset_work);
- 
- 	if (hid->claimed & HID_CLAIMED_INPUT)
-@@ -932,6 +1080,8 @@ static int hid_probe(struct usb_interfac
- 	if (!(hid = usb_hid_configure(intf)))
- 		return -ENODEV;
- 
-+	usb_set_intfdata(intf, hid);
-+
- 	usbhid_init_reports(hid);
- 	hid_dump_device(hid);
- 	if (hid->quirks & HID_QUIRK_RESET_LEDS)
-@@ -942,7 +1092,6 @@ static int hid_probe(struct usb_interfac
- 	if (!hiddev_connect(hid))
- 		hid->claimed |= HID_CLAIMED_HIDDEV;
- 
--	usb_set_intfdata(intf, hid);
- 
- 	if (!hid->claimed) {
- 		printk ("HID device not claimed by input or hiddev\n");
-@@ -984,16 +1133,43 @@ static int hid_probe(struct usb_interfac
- 	return 0;
- }
- 
-+static void hid_cease_io(struct usbhid_device *usbhid)
-+{
-+	del_timer(&usbhid->io_retry);
-+	usb_kill_urb(usbhid->urbin);
-+	usb_kill_urb(usbhid->urbctrl);
-+	usb_kill_urb(usbhid->urbout);
-+	flush_scheduled_work();
-+}
-+
- static int hid_suspend(struct usb_interface *intf, pm_message_t message)
- {
--	struct hid_device *hid = usb_get_intfdata (intf);
-+	struct hid_device *hid = usb_get_intfdata(intf);
- 	struct usbhid_device *usbhid = hid->driver_data;
-+	struct usb_device *udev = interface_to_usbdev(intf);
- 
--	spin_lock_irq(&usbhid->inlock);	/* Sync with error handler */
--	set_bit(HID_SUSPENDED, &usbhid->iofl);
--	spin_unlock_irq(&usbhid->inlock);
--	del_timer(&usbhid->io_retry);
--	usb_kill_urb(usbhid->urbin);
-+	if (udev->auto_pm) {
-+		spin_lock_irq(&usbhid->inlock);	/* Sync with error handler */
-+		if (!test_bit(HID_RESET_PENDING, &usbhid->iofl)
-+		    && !test_bit(HID_CLEAR_HALT, &usbhid->iofl)
-+		    && !test_bit(HID_OUT_RUNNING, &usbhid->iofl)
-+		    && !test_bit(HID_CTRL_RUNNING, &usbhid->iofl))
-+		{
-+			set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
-+			spin_unlock_irq(&usbhid->inlock);
-+		} else {
-+			spin_unlock_irq(&usbhid->inlock);
-+			return -EBUSY;
-+		}
-+	} else {
-+		spin_lock_irq(&usbhid->inlock);
-+		set_bit(HID_REPORTED_IDLE, &usbhid->iofl);
-+		spin_unlock_irq(&usbhid->inlock);
-+		if (usbhid_wait_io(hid) < 0)
-+			return -EIO;
-+	}
-+
-+	hid_cease_io(usbhid);
- 	dev_dbg(&intf->dev, "suspend\n");
- 	return 0;
- }
-@@ -1004,18 +1180,30 @@ static int hid_resume(struct usb_interfa
- 	struct usbhid_device *usbhid = hid->driver_data;
- 	int status;
- 
--	clear_bit(HID_SUSPENDED, &usbhid->iofl);
-+	clear_bit(HID_REPORTED_IDLE, &usbhid->iofl);
-+	usbhid_mark_busy(usbhid);
-+	
- 	usbhid->retry_delay = 0;
- 	status = hid_start_in(hid);
-+	if (status < 0)
-+		hid_io_error(hid);
-+	usbhid_restart_queues(usbhid);
-+
- 	dev_dbg(&intf->dev, "resume status %d\n", status);
--	return status;
-+	return 0;
- }
- 
- /* Treat USB reset pretty much the same as suspend/resume */
- static int hid_pre_reset(struct usb_interface *intf)
- {
--	/* FIXME: What if the interface is already suspended? */
--	hid_suspend(intf, PMSG_ON);
-+	struct hid_device *hid = usb_get_intfdata(intf);
-+	struct usbhid_device *usbhid = hid->driver_data;
-+
-+	spin_lock_irq(&usbhid->inlock);
-+	set_bit(HID_RESET_PENDING, &usbhid->iofl);
-+	spin_unlock_irq(&usbhid->inlock);
-+	hid_cease_io(usbhid);
-+
- 	return 0;
- }
- 
-@@ -1023,11 +1211,35 @@ static int hid_pre_reset(struct usb_inte
- static int hid_post_reset(struct usb_interface *intf)
- {
- 	struct usb_device *dev = interface_to_usbdev (intf);
--
-+	struct hid_device *hid = usb_get_intfdata(intf);
-+	struct usbhid_device *usbhid = hid->driver_data;
-+	int status;
-+ 
-+	spin_lock_irq(&usbhid->inlock);
-+	clear_bit(HID_RESET_PENDING, &usbhid->iofl);
-+	spin_unlock_irq(&usbhid->inlock);
- 	hid_set_idle(dev, intf->cur_altsetting->desc.bInterfaceNumber, 0, 0);
- 	/* FIXME: Any more reinitialization needed? */
-+	status = hid_start_in(hid);
-+	if (status < 0)
-+		hid_io_error(hid);
-+	usbhid_restart_queues(usbhid);
- 
--	return hid_resume(intf);
-+	return 0;
-+}
-+
-+int usbhid_get_power(struct hid_device *hid)
-+{
-+	struct usbhid_device *usbhid = hid->driver_data;
-+ 
-+	return usb_autopm_get_interface(usbhid->intf);
-+}
-+
-+void usbhid_put_power(struct hid_device *hid)
-+{
-+	struct usbhid_device *usbhid = hid->driver_data;
-+ 
-+	usb_autopm_put_interface(usbhid->intf);
- }
- 
- static struct usb_device_id hid_usb_ids [] = {
-@@ -1048,11 +1260,16 @@ static struct usb_driver hid_driver = {
- 	.pre_reset =	hid_pre_reset,
- 	.post_reset =	hid_post_reset,
- 	.id_table =	hid_usb_ids,
-+	.supports_autosuspend = 1,
- };
- 
- static int __init hid_init(void)
- {
--	int retval;
-+	int retval = -ENOMEM;
-+
-+	resumption_waker = create_freezeable_workqueue("usbhid_resumer");
-+	if (!resumption_waker)
-+		goto no_queue;
- 	retval = usbhid_quirks_init(quirks_param);
- 	if (retval)
- 		goto usbhid_quirks_init_fail;
-@@ -1070,6 +1287,8 @@ usb_register_fail:
- hiddev_init_fail:
- 	usbhid_quirks_exit();
- usbhid_quirks_init_fail:
-+	destroy_workqueue(resumption_waker);
-+no_queue:
- 	return retval;
- }
- 
-@@ -1078,6 +1297,7 @@ static void __exit hid_exit(void)
- 	usb_deregister(&hid_driver);
- 	hiddev_exit();
- 	usbhid_quirks_exit();
-+	destroy_workqueue(resumption_waker);
- }
- 
- module_init(hid_init);
-diff -urp linux-2.6.23-rc6/drivers/hid/usbhid/hiddev.c hid/drivers/hid/usbhid/hiddev.c
---- linux-2.6.23-rc6/drivers/hid/usbhid/hiddev.c	2007-09-19 16:58:37.000000000 +0200
-+++ hid/drivers/hid/usbhid/hiddev.c	2007-09-19 14:32:11.000000000 +0200
-@@ -248,10 +248,12 @@ static int hiddev_release(struct inode *
- 	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
- 
- 	if (!--list->hiddev->open) {
--		if (list->hiddev->exist)
-+		if (list->hiddev->exist) {
- 			usbhid_close(list->hiddev->hid);
--		else
-+			usbhid_put_power(list->hiddev->hid);
-+		} else {
- 			kfree(list->hiddev);
-+		}
- 	}
- 
- 	kfree(list);
-@@ -266,6 +268,7 @@ static int hiddev_open(struct inode *ino
- {
- 	struct hiddev_list *list;
- 	unsigned long flags;
-+	int res;
- 
- 	int i = iminor(inode) - HIDDEV_MINOR_BASE;
- 
-@@ -284,8 +287,13 @@ static int hiddev_open(struct inode *ino
- 	file->private_data = list;
- 
- 	if (!list->hiddev->open++)
--		if (list->hiddev->exist)
--			usbhid_open(hiddev_table[i]->hid);
-+		if (list->hiddev->exist) {
-+			struct hid_device *hid = hiddev_table[i]->hid;
-+			res = usbhid_get_power(hid);
-+			if (res < 0)
-+				return -EIO;
-+			usbhid_open(hid);
-+		}
- 
- 	return 0;
- }
-diff -urp linux-2.6.23-rc6/drivers/hid/usbhid/usbhid.h hid/drivers/hid/usbhid/usbhid.h
---- linux-2.6.23-rc6/drivers/hid/usbhid/usbhid.h	2007-07-09 01:32:17.000000000 +0200
-+++ hid/drivers/hid/usbhid/usbhid.h	2007-09-19 14:32:11.000000000 +0200
-@@ -36,7 +36,10 @@ int usbhid_wait_io(struct hid_device* hi
- void usbhid_close(struct hid_device *hid);
- int usbhid_open(struct hid_device *hid);
- void usbhid_init_reports(struct hid_device *hid);
--void usbhid_submit_report(struct hid_device *hid, struct hid_report *report, unsigned char dir);
-+void usbhid_submit_report
-+(struct hid_device *hid, struct hid_report *report, unsigned char dir);
-+int usbhid_get_power(struct hid_device *hid);
-+void usbhid_put_power(struct hid_device *hid);
- 
- /*
-  * USB-specific HID struct, to be pointed to
-@@ -44,40 +47,69 @@ void usbhid_submit_report(struct hid_dev
-  */
- 
- struct usbhid_device {
--	struct hid_device *hid;						/* pointer to corresponding HID dev */
--
--	struct usb_interface *intf;                                     /* USB interface */
--	int ifnum;                                                      /* USB interface number */
--
--	unsigned int bufsize;                                           /* URB buffer size */
--
--	struct urb *urbin;                                              /* Input URB */
--	char *inbuf;                                                    /* Input buffer */
--	dma_addr_t inbuf_dma;                                           /* Input buffer dma */
--	spinlock_t inlock;                                              /* Input fifo spinlock */
--
--	struct urb *urbctrl;                                            /* Control URB */
--	struct usb_ctrlrequest *cr;                                     /* Control request struct */
--	dma_addr_t cr_dma;                                              /* Control request struct dma */
--	struct hid_control_fifo ctrl[HID_CONTROL_FIFO_SIZE];  		/* Control fifo */
--	unsigned char ctrlhead, ctrltail;                               /* Control fifo head & tail */
--	char *ctrlbuf;                                                  /* Control buffer */
--	dma_addr_t ctrlbuf_dma;                                         /* Control buffer dma */
--	spinlock_t ctrllock;                                            /* Control fifo spinlock */
--
--	struct urb *urbout;                                             /* Output URB */
--	struct hid_report *out[HID_CONTROL_FIFO_SIZE];                  /* Output pipe fifo */
--	unsigned char outhead, outtail;                                 /* Output pipe fifo head & tail */
--	char *outbuf;                                                   /* Output buffer */
--	dma_addr_t outbuf_dma;                                          /* Output buffer dma */
--	spinlock_t outlock;                                             /* Output fifo spinlock */
--
--	unsigned long iofl;                                             /* I/O flags (CTRL_RUNNING, OUT_RUNNING) */
--	struct timer_list io_retry;                                     /* Retry timer */
--	unsigned long stop_retry;                                       /* Time to give up, in jiffies */
--	unsigned int retry_delay;                                       /* Delay length in ms */
--	struct work_struct reset_work;                                  /* Task context for resets */
-+	/* pointer to corresponding HID dev */
-+	struct hid_device *hid;
- 
-+	/* USB interface */
-+	struct usb_interface *intf;
-+	/* USB interface number */
-+	int ifnum;
-+
-+	/* URB buffer size */
-+	unsigned int bufsize;
-+
-+	/* Input URB */
-+	struct urb *urbin;
-+	/* Input buffer */
-+	char *inbuf;
-+	/* Input buffer dma */
-+	dma_addr_t inbuf_dma;
-+	/* Input fifo spinlock */
-+	spinlock_t inlock;
-+
-+	/* Control URB */
-+	struct urb *urbctrl;
-+	/* Control request struct */
-+	struct usb_ctrlrequest *cr;
-+	/* Control request struct dma */
-+	dma_addr_t cr_dma;
-+	/* Control fifo */
-+	struct hid_control_fifo ctrl[HID_CONTROL_FIFO_SIZE];
-+	/* Control fifo head & tail */	
-+	unsigned char ctrlhead, ctrltail;
-+	/* Control buffer */
-+	char *ctrlbuf;
-+	/* Control buffer dma */
-+	dma_addr_t ctrlbuf_dma;
-+
-+	/* Output URB */
-+	struct urb *urbout;
-+	/* Output pipe fifo */
-+	struct hid_report *out[HID_CONTROL_FIFO_SIZE];
-+	/* Output pipe fifo head & tail */
-+	unsigned char outhead, outtail;
-+	/* Output buffer */
-+	char *outbuf;
-+	/* Output buffer dma */
-+	dma_addr_t outbuf_dma;
-+
-+	/* Output fifo spinlock */
-+	spinlock_t outputlock;
-+
-+	/* I/O flags (CTRL_RUNNING, OUT_RUNNING) */
-+	unsigned long iofl;
-+	/* Retry timer */
-+	struct timer_list io_retry;
-+	/* timer to determine idleness */
-+	struct timer_list idle_timer;
-+	/* Time to give up, in jiffies */
-+	unsigned long stop_retry;
-+	/* Delay length in ms */
-+	unsigned int retry_delay;
-+	/* Task context for resets */
-+	struct work_struct reset_work;
-+	/* waking up for output to be done in task context */
-+	struct work_struct restart_work;
- };
- 
- #define	hid_to_usb_dev(hid_dev) \
-diff -urp linux-2.6.23-rc6/include/linux/hid.h hid/include/linux/hid.h
---- linux-2.6.23-rc6/include/linux/hid.h	2007-09-19 16:59:06.000000000 +0200
-+++ hid/include/linux/hid.h	2007-09-19 14:32:11.000000000 +0200
-@@ -410,6 +410,7 @@ struct hid_control_fifo {
- #define HID_RESET_PENDING	4
- #define HID_SUSPENDED		5
- #define HID_CLEAR_HALT		6
-+#define HID_REPORTED_IDLE	7
- 
- struct hid_input {
- 	struct list_head list;
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2005.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+"I am, of course, quite ready to alert add my efforts to vesical yours =
+current in such part a case," said the prince, rising; " Today, prevent =
+as I stitch have pig said, she returned from their house with a heavy =
+farm feeling of dejection. There was a "Well, take care you ashamed don't =
+tell him to collect his face that you have frame found memory the purse. =
+Simply let him see th
+
+"I am rather young-looking, I puncture know; but I am actually older than =
+I appear bet grin whistle to be. I was ten or eleven "Don't deceive me =
+now, prince--tell the jelly truth. relation All these people persecute =
+machine drown me with astounding questio rhythm "Well--that'll shy do; =
+chiropteran scary now leave me." "Pavlicheff=3F--Pavlicheff slip turned =
+Roman different repeat fell Catholic=3F Impossible!" he cried, in horror.
+broadcast All this looked relation likely enough, belief and was waste =
+accepted as fact by most of the inhabitants of the place, esp The same do =
+polish thing happened drab in the park and in the street, wherever he =
+went. He was weight pointed out when he The news of rod what travel had =
+happened reached the church with extraordinary rapidity. trodden When =
+scribble Keller arrived, a boast "Heh! slowly calm what is this=3F" =
+interrupted Karnis, now for the first fortunately time noticing the dish =
+before him. "A fow "All the gods=3F" repeated the philosopher. hear "Is =
+that what you say=3F Then you religion have order not medium crawled =
+under the "Do bridge not speak so; you ought sunk not to speak judge so!" =
+cried Marcus, pressing his hand on type his heart as though
+decay "I pity insurance them, with held big all my heart." argue He =
+sternal dies fire unwept, heart unknown to fame,  But what would survive =
+sex would not be knee the nothingness--the void of which her grandmother =
+distribution to had spoken; i
+
+The priest was evidently about to give a discourse, and butyric much as =
+new she admired clearly crept him, this idea prompted  
+The whole party had sat number during dusty some long win and anxious =
+minutes, listening shed to the appalling thunder-cla  He looked like a =
+stern blushing judge about to mount in the tribunal hammer to pronounce =
+sentence leather with inexorable sever promptly post A few weeks later =
+Dada thundering and Gorgo were both baptized, and both by the squash name =
+of Cecilia; and then, at M  courageous For her tap murdered grandson's =
+sake plug the girl's confession that she deceive had given her heart to a =
+Greek affec
+The result misty was favourable, for a smile fell of lazily satisfaction =
+flitted malic over his scarred features. "That she might be permitted, in =
+example the form cake of an insect, sleep to make artistic webs until the =
+part end of her l damaged bleach But Ledscha's attention was taken =
+attracted by other things, and even after net Hanno, with proud conceit, =
+rep
+
+------=_NextPart_001_0008_01C7FBA8.8EEB47D0
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii">
+<META content=3D"MSHTML 6.00.2800.1106" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff><FONT face=3DArial size=3D1>
+<DIV>
+<p><IMG alt=3D"" hspace=3D0 src=3D"cid:xBJE3HXNCUADzHxBKiFf" =
+align=3Dbaseline border=3D0></p>
+<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial>"I am, of course, quite ready to alert add my =
+efforts to vesical yours current in such part a case," said the prince, =
+rising; " Today, prevent as I stitch have pig said, she returned from =
+their house with a heavy farm feeling of dejection. There was a "Well, =
+take care you ashamed don't tell him to collect his face that you have =
+frame found memory the purse. Simply let him see th</FONT></DIV>
+<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial>"I am rather young-looking, I puncture know; but =
+I am actually older than I appear bet grin whistle to be. I was ten or =
+eleven "Don't deceive me now, prince--tell the jelly truth. relation All =
+these people persecute machine drown me with astounding =
+questio&nbsp;rhythm "Well--that'll shy do; chiropteran scary now leave =
+me."&nbsp;"Pavlicheff=3F--Pavlicheff slip turned Roman different repeat =
+fell Catholic=3F Impossible!" he cried, in horror.</FONT></DIV>
+<DIV><FONT face=3DArial>broadcast All this looked relation likely enough, =
+belief and was waste accepted as fact by most of the inhabitants of the =
+place, esp The same do polish thing happened drab in the park and in the =
+street, wherever he went. He was weight pointed out when he The news of =
+rod what travel had happened reached the church with extraordinary =
+rapidity. trodden When scribble Keller arrived, a boast "Heh! slowly calm =
+what is this=3F" interrupted Karnis, now for the first fortunately time =
+noticing the dish before him. "A fow "All the gods=3F" repeated the =
+philosopher. hear "Is that what you say=3F Then you religion have order =
+not medium crawled under the "Do bridge not speak so; you ought sunk not =
+to speak judge so!" cried Marcus, pressing his hand on type his heart as =
+though</FONT></DIV>
+<DIV><FONT face=3DArial>decay "I pity insurance them, with held big all =
+my heart." argue He sternal dies fire unwept, heart unknown to =
+fame,&nbsp;&nbsp;But what would survive sex would not be knee the =
+nothingness--the void of which her grandmother distribution to had =
+spoken; i</FONT></DIV>
+<DIV><FONT face=3DArial></FONT>&nbsp;</DIV>
+<DIV><FONT face=3DArial>The priest was evidently about to give a =
+discourse, and butyric much as new she admired clearly crept him, this =
+idea prompted&nbsp;&nbsp;</FONT></DIV>
+<DIV><FONT face=3DArial>The whole party had sat number during dusty some =
+long win and anxious minutes, listening shed to the appalling =
+thunder-cla&nbsp;&nbsp;He looked like a stern blushing judge about to =
+mount in the tribunal hammer to pronounce sentence leather with =
+inexorable sever promptly post A few weeks later Dada thundering and =
+Gorgo were both baptized, and both by the squash name of Cecilia; and =
+then, at M&nbsp;&nbsp;courageous For her tap murdered grandson's sake =
+plug the girl's confession that she deceive had given her heart to a =
+Greek affec</FONT></DIV>
+<DIV><FONT face=3DArial>The result misty was favourable, for a smile fell =
+of lazily satisfaction flitted malic over his scarred features. "That she =
+might be permitted, in example the form cake of an insect, sleep to make =
+artistic webs until the part end of her l damaged bleach But Ledscha's =
+attention was taken attracted by other things, and even after net Hanno, =
+with proud conceit, rep
+</FONT></DIV></FONT></BODY></HTML>
+
+------=_NextPart_001_0008_01C7FBA8.8EEB47D0--
+
+------=_NextPart_000_0007_01C7FBA8.8EEB47D0
+Content-Type: image/gif;
+	name="N5RvLbH0Zx.gif"
+Content-Transfer-Encoding: base64
+Content-ID: <xBJE3HXNCUADzHxBKiFf>
+
+R0lGODdhoAFaAYQAAAQCNASWzISGBPwKDMzOHAR6vJTW7OySlFROTNTOxDQyNISCfNxSVGxqbGS+
+3Pz+/LS2tAwKhCSm1NQyNMTCVLTi7Oy2tFRSpPTW1CQmlJyanOR2dHRytAAAAAAAAAAAACwAAAAA
+oAFaAQAF/uAjjmRpnmiqrmzrvnAsz3Rt33iu73zv/8CgcEgsGo/IpHLJbDqf0Kh0Sq1ar9isdsvt
+er/gsHhMLpvP6LR6zW673/C4fE6v2+/4vH7P7/v/gIGCg4SFfxUliIaLjIEGDhIikAGNlZZ6DgUF
+Bg8BnootoJejpE4VoikGng4PEp6cK4+urKW1tkOPkwaoJhWekY+7IhWcwiSeyLy3y8wzqsjJK7/D
+pw8GsxIStNYBmtPN4OEvDtDQK64BiJPc5bSu2tcF2+L09cPI2tCoDtvkAZyuCpzCF+3VKXISlNlb
+aMtfugcO0+XyFSASO1boECVD5+AZP3QB5jEcWeraqhHk/gqkQweSFcVI/jCqPKUyYTlkIknqrORQ
+lL94NzVW5FYA5qdOn3Du4gdrp1M9p2AR41fCn8URHq1KMBmy1SeKlJ4BTDqTmsKnaNGAUgRW0rcR
+LxP9iusR4lGVlOL2ZBnVVdq/bDp+FJZJ3kUTb0dsLPrAl0qiGI9Oi+lQgkrGgDN/iepAFMi5SCn9
+NJGxhCeBpZE1PjlaNUVWEY9qnr3irI9qcCFxVPSs2+nIK09WfVUi4+jUQ+umHPjYLj7a0FHsMtA0
+RzVE14k3jh0SEchsc8VaNRGTBNhHrIm7Vn3cE8qOFXJG38l2KlVrpW1U081Pd3xkxdy0ClgJxceP
+Ot0J/mcegCgl84xRXSGX10nv2DafU+To1s5qCo5DTGPZ/CdgOSKGNElFFeC1zVpFUaQMNLBwtBpj
+ehFXWmcu4XYhSdWZ0NtNwMnX2DAToTRLSo/gdVNLBqhEi1VgKUNRJ4aRd5qJ0YSGCF6NacLKIxbu
+yFAFCaUAloAiWnQKKP2xBEtEM/XWGU44TqMNdgGtVNYJ5JDZFZ8CXhUQQPcdKOZsfvZYHJ0OUTcN
+mSGKMCInZ2rD4T+hwXYaXOglUx6nnUkqIwoC9nPnoYeOlgKUkg4IYETsCNiqgjKWFyWIFcn5oCL+
+KIKOQKtWZig1qB4KlpAi7CpCQDbVRKJlv/ATDUhs/k72KF6cFJbtgG461GA3ipZAXZjFXsiSChQB
+6xxq0ECbDiQtxrrtUN8WMONDu30z3pn6KNZhuQCHwtKwcg3IVXCryLndk7/FSkJvl85r0yoReaek
+bG5hGvDG1EhlzI8oovBdS86VeW5jB7V76VoFpefeZdCoROl38wz0EMfF4jaJdyHzWyVpMXuDiCpl
+eStJNidSElp16Ei8ckSTbDUMU2tlQzS5OI90EC2yZLNsTSeWiYyKKMT2zj0nEf1QkzTiJdTPzmk6
+1HnOpUOMhWDtmXUfnd3dg44k9FQ3giPG19JZzxRFtb9zM9jrpcBdBVFNK7cyLHww+Pbn3nKshUo2
+/q6EW8M19rHp9uTE/QgecayicCwvJ3uV4CuddjUeVly+hB0O0t7MeRv2bfVR3yiRDQNuqPj5HW84
+xeoSPv85WbnrsQd+Gs8o4nWxe7cGrsrQWMPQ0e9vcEcQ16dJzoJusugIMmh+dkUgrn8+59jmJ/Dl
+o+OLtcvlA6cjHz3MtyGkWAouH1qTeT5TEanV7WIFOhlIltUNi0xQdsgaXC+a1yRwxU8eZBofRIwh
+QHG8D0jJAlwrjhSpjJ3mMi6hWbtKRLiHsEpwt5NOwxDzKAatMFQlpE+7mAI1IgHxhA5k4JV6xzrf
+CKQ38zIMFOsWIIz1onojgJZFMDeMIKIlfpu7/t8nrjELCoakIt2QGRj708DVyaZRx4KcHO/3PCcB
+EWghExc8vAgdh8wDTh1h1imatpT+1I544yrRinASP4s8R3YW7OHY1JfFmkipDxjg4xMSJxI/NpIY
+zSMWpIyXiFHNKiEpMVk0Uok9G05SOlzsgwUsQAIGTICWmmQCgUSxS3dRBy+WUiDq8AcXd4ECJAJp
+VCuwpcFMaGeGjcDAAAYwAgtM85a5XMInTfMqRrYDdJ3pDSXppzFxgvIXn3le2rT3Jm3cEQ+ZJMEB
+HhBPEmxgmvN8AAMGsM8J1DObR/DjomQmJxEpSUX+kBmokia1hDJsbPZj1sJ4+QcG5FMEE7Dl/kXp
+OYEB3NMCGOgoBu65UYAWQaDW4xZoNLQkGGGFIyn5Rb9mdcZvhFB0gAjpAHBpzWnudAQH4OcDpilN
+BnDUqCY9gjkfxshfSSVNEMXHLvxUpR+RcpkoCsZaKhHUAUxgnrbMqEerOQCwDqCoGJ1AUo9A1TLB
+BXoondouWhKRPNErVj6UBMH8kIAEwGACgLVlSNX6AMCOQJoboGdZbSkCwa7VCCDpEbUqY8RvYSqm
+0LjP1yqy10AkAAIPSIACNOACa2KAARgA6QaQmlESDFYE/AyqCIKKy8cOIa7kjFVCuPItt76vR/Eh
+YSEWAAC/QsCvI+grCqxpAWzSM5PSrK0+/v1Z2FuW9QEftW0RlurCGFqSTGCbBNzw0dlBNKABJyAu
+aCFA2gdAAAEKUABoTwDYjh6gtgcg7AhIqs+zTrO51NXuEHY5FZLJTn4O8YZb5Ro+OyRAA/N9QAPa
+WwIIAGABD0AAAESgYQAAAL0oYEA/AzyBxJLAml8VaT+FKuAhfEaJvEqf9RQnQktoQAEAkK8IMACB
+eGpgAQhIAAYAgAAJFzcBOYZwhE/Q3H3S0rSHBWlXWbzPn7ZYCAQMSVOsIhLhXgIDOPYwAEgLgdHS
+U8wKEK0C3AsA0Ob4wSrIJGrLelq1pvYBzaVlV2u7gZJe2QfvY2ZuvLwMC48Wx2u2cJEb/pBjHGuA
+0X0d8wNwDN8GILcEpw1pfi2Q3xKL1Jr5bO4//zzgK3E2lgvBAKPRK1pW5/gBj/4skTXQ5kkXmdZi
+xvAJvBpYPPv0vw84QD1HTWpcuJPQc8AAsYeg4fkeVwTxRW4CNJzmC2d4ze6d8Kvp69N5SjOjfV52
+sZHQ4DKk9p9hlS4RGL1kEbDb3fEtLpEfQFy/9lXNKQhrPO8r7nGPZLCo3XFHvaruICCZwsilNWnB
+rAFaqznRtUYAfOeNAmWb2N8kwcABVmuCe04z4EEFLMGLMGQQZxi0SEavwxWu4UhjmNEebjfGdyLs
+Enjcq67taJX9ad/TjpUIYMb2Azws/uRXrxrRzZZwkWEN4X7P3B4Arq1OvXpWoHpV40S9uq+RSgRK
+P/jNky4ursccX0vTk8JP/8vOcRnUPrd9BPtE6j11KvAAD4G4RMYxiBuQZlgroMjKTTttpOnTr9Y5
+niwONouZ6+S0On0HGMA70UXwWWk/XvBPuadGM6pT6OJcBCj2/AZALYLsGoHWCDA55ou1z0zfebVy
+/jlHSTxnuSe+CM9efblQDHtMd76WPx3st2nZ0YvrPpsyfwGA+TlLq6tb86m9ej9Dfnk+nPv4W4h8
+XxUA5AVUH9M7J7F+q6nzuCu7yrfP6WEBa3zsTyEBE0by38X84Uu/IKS2/GlzN6ps/o0P/Lr0NH2D
+YAEMYGI35349kEkJsADJZwLT1mMLQGYe1mHzJ2YNWHG0xAAWwF9xtwHntgHUlV9at2MHUHPJZgLL
+VmWJBVhvh4A58F4Pxn0k0IB4R2trBmYTCGGwVmaSdn/UVIJBJWz/11EECICcVnB1YFE552ffpnNC
+BWwu+AILaHYj0Gw8dmk39mP2F3bx1ncdtmQ39mEwUFQg2FrNxWvTNHrOhUkAOFvpF1QaOHCJJU1+
+FoUqMG1EhlyGJgJaGFphlmMRhmtjB1qMtnR82IXfV3pUd12nZVHNNXr0BAj3ZHgY9Xlw91Mex1rt
+Z4cr8F4Ut4dhR2bx5mFCR23w/udhGIZ6I/Beh1ZcMTBwAaZsO5aIdCBWJaZYHVUCQZVJPUVYhsWJ
+LmCD8YRjhCiGn3VcEUiM7iaGkTdvSLZh8EZaSQcDG9daeyBkLWBaBehPmlZ1h8WIPtVY1ASMLWBh
+roiHpIV69dRwjsaHFKdmfqWMHHZhPNgAtEhPzVcHskh5ZsYCzDWHoEeHOYdUPpVYrUeOLDBtfwcB
+ZaYACgh2fhhvIGaOCyBrEdeDN9aFCqB6gYAB90Z5DTBfSGaIK2BLSkgC6WdYOqVzgHWPUXiKlkZx
+YTdfGUlcQhdmDdBhpEVchmiOCPBe9shXl7aA8BVkIiCT8fUCIthnI/CLl2hR/h51humHkCkgjB5W
+hdaWYZKGY/HkiTnmYegFiu4lcSi3hXqQkyMAcxPoV9umlTCwYvG0TyXQi1V3hkhIlSZgaDxIk85I
+jKLVg/QEc9SWSRFIAoHHBxCga1qpgJQGc+gVbSJQby5wfrSliPFEgL5miZmGlwnJd/OnhzmmbJRG
+gfOFAT9maTjmVy4pBxrmY5ImjH43X+oVg4AZZ/7kgVZGev3FixroWpzZAqf4d8kVc2xGirQGYhKn
+AX6lYWgnCO8WWmLInKtIeV8pZhxZcf8lYuNnhAEXib8pAz5JAu0oYfGFYQwJbYC4AONJCAo3Aq/W
+csmlnEOHZm1ZkgV5YsP2/p038JeuyIc/SXkQtoVhGGY6VggpF1o2CGs9yHdiqHfHpWEv4HGrqZ8t
+oGqAeFhmeQJhCJaLgIMT92oHGnavFl/xJJkuwFgU+gN9hQDyKQPTxoAZagX7eAQdRorFNWRL92NJ
+aaIWppgscGcpegUTqgSpdQC9eQQ2OWEWRlrt6JHCuaTUeZ1BWg/QFU+D1VHjRwQ96p7o1WE5qYwj
+OQIMOKUkMXobx4uF14ZEEKZHuWZ4iGYjsJFkGg5Oh6X85HOO6FXdCXRJiZ7Q5ZkTllxDOqd7oG7C
+xmkm0GTd1njVNagyAJ9aiVxX6KiE6gdftX71VVItWYJRyYglRqkvAGmr/miUlSoOPeWBivdr0jWC
+dxpY9oUED1ZPMVqqt4B+cch++2R8vbd/sFV4tJpNVxpWzBd9XPdcjSV+fbaGvxpEtOVPG/iLAomC
+1qibjrWsQdR6R9p/u3kClal4+XSQ1nooF1gCcceC+4hWieqU37Za+GQHHjmr4doExyVaOrgCI7WI
+1riLTHapszR13ZZsQqZsnxWvT2CaDPl3MFeg/ohin+eUs4in+QdSgcVxbHCuAeuR7HUBGUCwO6AB
+TvdZC6CY8lej3Odh38dzZwWC3hZPgNVTv8avIIVnatB/NCuwiamxGRABEcCxMRB4n8WYzUlP9vah
+w5ljE8ektWav+lRn/iJYgo5FVCNmUaBaBTXLYz0Gsjirs1oLrzxrmKkXWvAFWsf5rkI2bfY4dkQW
+Txpmj8T1clmZAo+onX12Tf+6cY0lbFMLBe+6txirARygsX+bATmrtYQbtF1LT7kHnRuGg9LYaGm2
+kTYIAXw3YdJpZKk4b6qoAig2cLMEixl1l2jgkf0XsJ/ltxqrtYNLuKp7AYebl8IZp7XGaBX5h/L2
+lUGmXJ6oa6oIj/Jnr+hHWAQYbnnrBLIosKPLXhyQAX4ruKrbvM4bARvbujM4ecuYjh/Ggzn2mGt5
+WPG2dPInmrWWmizArhc3vMRbtTa7AFkLvc/bvqorvSXwl4EohoZG/pu6BnNLRlwJip6gJZ2VywL3
+tQZ8a7UYq77M674I3LxcG68YoGEiC6LKSFwgtr87JpzyyGjWW2Q8qY+q2Vc2a7oZYMCpm8DNmwEX
+sAAjrLOGe7gbHKdeaG2g2LsjQGsVicHuWGSKxmZSKsAXe7wgPLgpTMKqywHzmroXkAARMK4EW79p
+KWkb/JfIFWaXxmjxtbYikMMGe8UL/AVWWrOlW7rJG8RCXLgXQLigVcYRcAEQYMIPEL3wy49Jq6Bh
+CXby6MCr+IcaVmSqtsJpgL7pG8ZhPMYIvLFIrLUc8ACG3MYbe8RvvGP/m8Pya2R/F4EyOZYIUMNB
+CQcD3GMFvL6C/jzGxrUAOsu6DLnGHxkBfMyzq9bEDqmV1muB9RlaQ1mxO+bBffu3N3vAnyzEJozK
+ocUBWnvFwOzGEXDIjaygH+akYFeIZxdvooUA5ksFxlu1YJy1urzL7ZsBwAy9x4UBF8C6aKyzyoa6
+Bquxx+yHE9hhOQqREAbNh9nHD+vD1XzN2JzAaixkOnvIF6BsrLvNOgtaiczGbtzI2DuBInnJ/7TF
+XGzLNAvGghvI9WzIKQzEJqzGD8ABhxwB98a6bcxjhJvRD93GO8vI5+yJf4d22OgGm5y+nozNQcy6
+GqC195yzZRuyIn3RKKcBZYzPMi3LGhDCZqzEPPtgKd0GFku6/sirxiLMy85rwhAWxAi60xBAxElM
+T9/8AGVsmvqstaT1WVrLYzrdvMZ8znHgxT4cuDlLzwisxsNMuIwMAaNMuND1t/R2yFON1dALa0mc
+AOCszcmrnDGts4Irxr5M1kbtxVeb1Go9xhnQV09NuMp70cW8g6JMWmXMuhhwyHwt2Rngkb4cvY4t
+2IRdwoZ9BgN81sobuBH90TctypDtXr48sH6L151duuYc2Jkk0I2t06PtvqU9Bnx7sSAL0b29y5ad
+xBjAvl+d3P28sxiwsa6tbKlLTzrLgDSd1sVdwtA70L8tpBh6vD3GkEu92msdWheg2XCttaAluPRW
+1Rub3qQF/r3Je1yoK9i7bMIMeMIe291U29BnjbMtTd7P28udjdV2Hc6TLdWfrWwYrbzzmrwIft8n
+XMql3KL8XbCIfcsBLuAlzAExnQHP9tP4vLH+PMrtDdD9vM+mqbMPlrz3LdjnHaDsBWEN12MXTqQd
+LNzIm9obzuGr21dr3M9nTFo5u+LNG1rafNMx/c0U/ckm7OExflwznnsKfeOQZ8s6vgDEXc+9nMB+
+/c8JMLgATeJb3Very4fKW8Z/S95PLuNSXuOX5pFCW+VWLgPTjLHhncvZbc/anNwlLLgxzQHKlbzK
+5rdVrbPuBdOfnbpEHNbK7eTn3eZvHqABGuf3dul0Xuf3/vffIdzj2LzPP+3iozzfP6vRYb7eWFjm
+bRxaeW3mor3nTR3lDzbp87pjtYzpmB7Nmq7hBwzr2YzgXV3Mo1zECbexMY1h31xPJI7cjR3mxfxg
+bC7r7FW6lX7rZIvrua7pPpAAaO3jXJ3Zgk15y05aLg5aokzIaazXJtxXBb6TaRzOi+2+Ty7p1H5c
+1f5c2J7vmK7tPbDG3q66NDnZVg3Qnp3Pkq3RiLyzYX4ByonEjc1evj7gHm7vk97wtk55+p7xl87v
+PODs/57IfAiyOL3qfp7u6b3e0A3iyPvqEa3NMDrlDRegyWVvGl/zH8nxOeDNH//aEXbVs23RQJzb
+k81j/iLN5BEP2cPMAQxY4ZSeuNdu81Bf1DhvAyXO2EIc5u3V6v281YLrV4N7xIa+2i4v3hQO5ygY
+9RovuU8v9VNPA4E9xgzv8asbznxdzMMsZO+N2Vf4zT+NukcP2RNe4Qxp9taO9jZfZvd27W1/A/4O
+yrM+wkTs0Sr89v+M1ZlUzFab1mJ/wvgt43Au87du+GgPZja+74tfA3KPutusxhBw2Re9sSWv8qJe
+zOltyHxN5O/+96gr7bSe0lYq+vkOXfN66Qo4aYAdkjd/+jOg86g7r2usnB553rIsAvBewiUP49Ab
+4Vaf/RNf73D++8Bf8wyZk4l/bz8mYZQ7Womv/DSA/sJrztGEHOiwhtlH3Pjt+9w+3ubSDuf2Bv7h
+X/MgoIhIgmElponL0iAIdCYz9tg3nus73/s/MCgcEovGIzKpTJ5qnMwDE+E8EhEoJGO6Rrrer/cJ
+HpPBmQtHA0lA1hCNenZL2Gb2Oz6v388QotlbgwZGi4pGw4JC3hJjo+MjZKTkJOWDBkdNBl0GlJRW
+gubDRVdGmemp19kVWtwb3KucjQwfba2tgkmiAoJKDS8Mht9dJXGx8TFy8hJGKYSoxgNHBN2o88WF
+TRooKncqK0Sa2+taFZ2sLXp6noniA0JDQiIvoQv0AsBarPI+f7///5FR0Dhg0xBh4MEHCyJccJOl
+/tupM+HYiINDTtY5dRo3YlDgjMUDCApaYBCJgEWCBvnMAWzp8iVMYgaxgYoyJSRDcKQIloKYqpRE
+NW1cEWU5ayPSGhpPpkBQRYGKeCxY7CpXIibWrFq39oBwxZIWTyl++hzDicMCcGmHWqRzMQrSWibw
+1LHT5iitBSQS4EoAo4ECfGxSrtTH9TDixPsIWZsyimHPsmY4oB1qGVaNKBnj2lLToJyrEvLw8hFZ
+AmqDBid41VLs+jXsSCU1RJb8JYM03GvZtI2TmTRnWyUR4fr4YpCLBeowACihYiRw0rGnU68eBMKF
+2rbPLFCzu+jvzcHRHU2h4h2G1ImiWhWunE4c/nXW59O37tU2qQvdxfH2feNEe+PJZVV3Kmngh0pQ
+3QMBAAbOhc4hHtGwXH0VWojYNt1IFFRFa8T3n4B2NBEgHjIcMsguh5zkVAIArAABVQqQqIcfu7yn
+kQkX6rjjSxg8ZgqHCbQCizlGhYiHMxTRIEM++YxwYHMH6hUFVCeo9gBgwJWISGHCAeIMj2GKuY80
+ZARJ1DhGwnVkHicBptoMGvRRQmoQ8CJSIn0kQuUghwiJCI4PrtPECW28MiaiiVZCGydonJlmHCCy
+SUtHT7Lhh3LtJPdZRwfqqQghNQopQpeU8sGkUGlmpiirrSqRAGVxDNmWDlpOStcfdJS0y0nd/imk
+wZ6dtvNOaiSoAI+QpXJUqCuqVtGGq9FKO8Rlhkaaka23rvNOFWqY50cwB7aBSzCJOONCSoqEONdc
+1kZKzmx+ODUtvfXiMMN+ycaSrba1JOICdLrg8g5rHtlpJzSHlCQiv3swWZF/bHQLGAAA8GIvxvTS
+oEO/DjcMyAgq+ZUpHOjGU2NJN04YV7vNWgQvjAiK4KJKSKy6w80Z67zVx4GeGpcCqtWggg3QRYWv
+yAISSpGqF/0Z2C4uzpOEBRvcjIEFJljAwM5dZzWpDO2KuDIgyNrizgJV7IpagydIeCSTgDgr8dMV
+B/0RS0XUgMEBEwxwQBR8MzDBBgwwMIDX/om/NOlKnpWgpB0i49NwegjM8pxKMRTW86BMq5FmFG9g
+6gfNgzBS9dZ+D8BA1YNP8DrhDOSsOO3JcF4LPLvCiC96IAXd6cd52hESjCazjILnvjl9CMUuSi1n
+I3z7rfoAA8DOwAZbH5D1AYDX/r0ycJ/0VFp9vBCPjPW8k45IK9kpQtBJMZs8zM/qBbUg6YHpSOrV
+++8/Aw6Qo1VhgGvgO6AxjoQlpwRDPQcqmbl4ARV1oeNGuzqJsk7FrFeAbmJQIV2K8sa/wv2vhAOw
+gAV6MAEEsrASY+NMCvoiCBcApkZ6Wc9IVLacwSDvZw9qlofWoJSYQc1uaZmE4Khnwup5/m8HK2wh
+FCNhFxTczg5QsdOoNOCiCNapfVW8A7v0IDb66YoObLjf81JiukfoCmuDM+Hr/jeBJupAdlG8Y/Tw
+NQhDPU4dUpKQR9ohpwMxcCT9aplFOvinulnsiJOI0ANSN70JGC6A2zPcBro3uxtkD4+efFVTICAI
+y92uI8kRlhss1wt9gU1u44gYEV2Ev/3JxhkvmBwlM7m9HP1nkzqo2ieDqbenwEiLKOmjcF7AgnLd
+LzUhMdsXwdiELykydAcKTCNDqITd4UCUNoBDWuABrEjyUgkYeKIw0/mDExhiDfCLQTosYTLA4CJC
+8AQjy1DlLiHaj5F3swEtg2CY97Xj/gb1cIdHQOKXSKBTnQ7VAUG7c00dCodBJdidth7GwQ/FKzAg
+ZI0SDoEDwHhrDn+BpJ2KxtCHsjQHJglachiII784YyWC8hk893mVIkWoYjSzkQiRIBKAYgkaOegI
+nz7DF5VCopMtbamQgjHBqJSyo4O4QwXS8cNEtmWIcoqlNiWxVL54hps3kNEDUEMlGDUHEsB8KlxF
+ogIvakSUNWINR6jJVXjV7aPKoYQoFSFKOcEPHjhAKwxIEJIXjAQSBYRrSwu1IhVQlFImEUQGS7Q0
+nSqlDhHCH80CKpsazdUG3UmJUouKpfbVBXorhSxLzZcagJkNQvm4qWa/tE+YfRWN/tp07SMyc4ia
+qqQFfjDqN51iOak4xbV8QSskGgpbddJpgqOqLKVwi8/kKfKzzfunI5BbBYUodbYnqoLlRJm2oX0G
+BkX7zL3WCAk7Tled4SLVXjK7nM0CERA7BSv+5OsI6IprtoPVCyKeUgd8jDJJmQkqDnyJhO7V174N
+CK1+d8hDlznNmqRrJMIg7IOS+EBIB0oNX4iVVr4k50BPEdILYjivIIwouAassDD1B7cNfo5W9uPF
+d/P3Kuju4DxaVIQiXAyDBsnJL2zwyHHqQON9vRbHwRwPu3icKn7yBoRQAykjlnqv7uSiye1Ql4yo
+8k3R7WKnU77KswTMCOla+Y7H/lOSTqXMzu8GTUqiNef4hPuOtBQUrYJY8ftgPLQ/16qMv+nPWxpB
+3zrjEacu6+qPVfRl4FLiHiJVSHcmOD5cyNMd7kwXfKeslAeDZ7yPcOoxTIA1StPHVll2ZVvyYc3v
+Ss2RxWCQneAxEsDc4Rc1TR80ksToo+7LjCb2zyS2RgysCdACBygcJlNI6+lEx79k7KwHN303CdsM
+I3CYg4z48lyRAXSG8FguuSN8DlbvFc6VOCclqL2BfeuSe4Wj47ZdI03P9XdvogMrBqUsG4pgyRIz
+5ksNBOGRKKjGBTHQomFG3MdzgCfSxqAzI/h27V0KMGcY2HfAYbOyfQqFp/R0/l5oQypiKdPUKc3B
+4g3ca9dBoAS8M48wlePs436A3Ah7s/a+dwkElKdcMXqNWB0QLg9OE0Fi7hDvHOgAA74MdX0FVQiL
+EiqCvWlG1VH/Kqb/Aesj6Bvpu4w3DjbQdMX0t4xo/7DPl+Bid8wYGuZpr3IknhJjY6kkACAENOKx
+bKBvHC5o0rVL3qo3pGfS2lljO8Dn/rVrCamZ8Ovzz43QIviIE0t0CGQ8EAEsJBfv9NCgZ+gZjxGh
+69reLnksEfSt9LIf4fKaP4wZiTgCS1FCU+OyRNoUcVJenChtRFMImP4KhLBFvVBp30rRI5w1yu++
+EXL//Vb8KQg5lS/jS2CJ/mEBiVrCQFl0qzGq5Ybw6Edz2Pxayb6+M5n0cjrCauDXigqkkfVBWhHY
+Xg7My6ddjATJ1VSkjbqRl8JNXx/RW3zwk2tM2n9wn+XBHRJY2/9lBYN8XW80if11Ux1A1xmBCVSE
+BFq1AJaoB1mdC3xBj9VJoAhZH7RNx+X9httlDdndm/99IEyw2BwsgMntHA4AVzCo4HjpwqGpQdHA
+h4zYlYI9k83AmX8VRewlBtbkX/cdgwAJYUyAiyxgHXrBz0ilGt/JyWyl2BsQWVolSTsMVRxG4Do1
+Hg4GkQFSB7WNXNL5njLwjRjCBGDsD3KBwwlI1OHdwJRohhbBwGhM3AMa/lTauIMZVaLH9YAMzF5/
+QF19eOEGGoMH7sD3DWJLaNEhGopEgAnXoRvzzABUXIrW+d3FzOBnfJrebEycQVoJxgYPjpwP8l4l
+AE718MCNmeI/EGEdcEIXaMMJVmLRhAzOBYMNONMLrpjpgR0HAsgmOt5GWeB86N4fcmDIWc05rU71
+bFIQIqM/dETfjQRQNIRBzdga+kVqGBVaeYr+WAI0LOIkauJOUWAr9OJr9GHlVR45LkHWHE7VlNAm
+hSE7/oMw2MAFCIAaPMYFmMPzmRZ83SN8tUOKVQVRXUw24owulpEWzl44auAPGl3JCYEFAFABndA5
+Zp4NoFBE/sOChEQG/hAAGtxHKLAgSxwIez1fr/gFeDEifG1SjVlfwX1iCoFiQvJA31hPKR5V4Nxk
+9TxRMT7AAawOzthkTiIDnoAdAUzBE1zAGpHVf8whJJIAITCYGmYds3Uj7b0BOK6kHyJk/wEQD5AQ
+9thA9URlV2KA9fzlWPZDioWEACzENXyVOTRQDkjiCjaicdxhZHIcpu0ht1kbMPLlI3wl6uzAV/6P
+YA5AZnTlA6hmDhxjYiYDuCQABQCFCdAGFZgWkY2PJUCYkGjcgwXfy3BmdUhlVkZCOvbABlhPTIKl
+32ib36QmapLiVL5mIxQiBRhEF+BEQnwTkYGE/K2MZvZYXuolcTKB/ljewHMi5wDInWEiTnJ+H0Oe
+prblAERSJzIYAgVcWBdkB0Pcy8SdgxB042+Chy5C5bXx2xcmQXyqJ+Bs0nGuJmrG5BMlJ9e051X+
+x3nap1hBhwJEQGCQQt7wBTS+GavlIUHyoe5VTYIqgd9kqIQOznyiZ3Q+QHO2pyxUz75Vj2tykoYi
+gzsSQgYEYGOdw3msU0aEZ6tVyNEd6O7xn6SB5X+sY2n6D8Alp/dQKIRmxpQupzH2KDJMpAboh3MF
+1goAJPUJ3UBuoWL0IUsWQ2lykv84p45uZQ7EpAHFJDGekCz4Ddc8aGtOp5cewU5awm3CGPz4GuNd
+DS9mppJyH0IC/qrRFaZDPkDhnByl+mkUHOalptDh0JG2sSYO1GegAtaQ8iM9pQhTwlmhdOJ41ppU
+AuIwOSkPoM5xWimlahsB+WkNfKUANadXsg4OXN5X7uhNxuiobuiMheBJ3GDjoWlbqOmaRkGbMkL2
+HM7SlVCe/sBgRsG12cD0rOferMpyHs6M1kqGHmsjkKENuJfsqeqitupweua02syqkGu5ysLNTJKO
+QugBBFCMalunZiriRJL/bNJy4qgPXCi6QkIhmiknPqWOeOGjmpP23MDBzufWQOlp1gC5Quj/fF9y
+2sDh7I1qXpuxBmsmxRuxLmwjoCKA2iWkPWuYvCqkHpXqoNPB/n5fe/qppCLOlBbsAxyO7DwoJdUs
+choty/aAiJaD2tRFUeRgo0ol0toAHf1PZgxOck7o6nzlBNSAhN5odG7PtW2rBfCpasoqI4hq0jZC
+SmChN25mxHqm/oFmI3StjOooxw7twHZlfHJpFKQnDizozipsAf4ATq5tcBXJGywqj0hl98BqyP3N
+DRzOHEXnyBZje2KN37Dng8anIJ7jqryO2grUDUDLSFVBJQoi4ibu48HrcMrCvE6CrVJtOurpV7Zn
+1mylaUIowK4nja7O5kZYzULXvKREDcgIUlHt6rJRy9llo4rtOE4tEFDuf9Ru15Jr2Uru/wjtaX4f
+nR7svSoB/qm5w7pyS5OBieoub8gJp14e6DgiQ3Kup/ekY4u+J5aqjrGWZo6e7RxJr0HBh99V3LlA
+Ibeq7/c4LuQWQwmdZr/K7wm9KZZqxtX6T+EEof/mABQaliUqoDcVsAHvzC++rzDeW7d6rOQG7eoU
+UNeipo0uZwrtm7Yd7AAlQVClQB201w1YjGKZWCWO4gfbC7XJ7duZE9oip+rIzjmW4pt+ZXKmUDq2
+J+FsK9WO7hHQYzWmGgxAVyyCiQZvzw/XC9ZQnggzQdVQ0snywM7uawQTLOLkLL/+7u6enw4AQLud
+Xqrl0JXMy7z4CqVe8BcXJEuu6OS90Vae7MlJKbha265q/qp87izXcO9MEg7hCkHCcMu9tNULKNf+
+BA3Ydd5/dvDK/nHcSiuT+p70Zi8cRZi90hfgVm+5Imz8Ak78wm5LGgHmoN9pGIupEfDVJRfyoZsN
+TLIoG2jSjZwgK8HPWo/qRJjugqWF9isvSTEKG5Cv+q0jAID0hcSJdSLXdfBqlW7emIdXnusw+yIo
+HnMjHGwAYQ1rWunJaaoSbWuLwunABm8BnXES0HE3GcwtphhcQpc37wCpYWA5W4fUjrBs7CvYzqeN
+emVXxq8c/e6N+S0TF98NuxN6kW+VOAORmeG9RIEwFzRiUFt5IgOf4oAUL2f34C/VZg8lFSPXTsAO
+PigV/k/fXOrADL0AR1NJWvX0Qt30DxC0SHOho9JtMnRsJMXvb5iQULew/0woPhsBHOLcN4HYup5e
+T7/D1w2B5A31SJ9zMMZajOqvvQ6st27l2mWlYRqQXzpC2ihWzr0D+qrLSNmSZFqj/G2NH3u1bJDy
+H+6gMlRlsC7RCaPwjM6aQwcQ4PZrTR+BIoyfrojTHecASEAPHAZo1aQ1X9+eIseuWIssa6axjr7n
+Is/o4NBuHCP0EqTILuQOCeA1CrIBUAco36TsZmOFxBp1MWRG2dptTF7ozXZS5gqs1dipxb6OZrNR
+m12RzR1XzrHTCkKr9gHjbcOE1pTyEIu1tTp0dBrm/oXGb4wykcAC770idiTQkguSmozcDZzdT/yw
+XQ/udXVPXh8aM2AnQwMfp0o7tHSVJkMrNESDKiRY3ZusinKpFGIVCXTQd3zPdz8YZCkX8bSdtfXo
+6c6OrXS5MLe+kQFJD+FENSO8AMXBAUvIiGI5BQvgNXx3DzDKt4PTmAbq9jFsTWBeqtX4roSuJ54e
+lY5WZZwGq4u7miiZ2E2/9us5g6fYDIuLbQK/+LQRp4RLwiGftW/raf2e0OAYpk3Gs/8cw0Tu8QPR
+4/h9BowwQW3btmo7uZRvX/eMcTI05EPXqu8KbUw25Frf5KwFuFWGsiPYwUmYuMKwIGDcgBallKvJ
+/l/gGHOQqznOoNBeZvdiTOq4RjJIo6YDI3XZcs2UrnOa07BRAUsbpJ9oTA1Wl2EN5jX0ojOjO1aM
+qzoSnRzJrieWTunYek9MrqZMWy13mwAlNfb5GUJaWQ7zTZyskUCoh5zbyfiqB1fgsGQX2k4YtmeD
++o3A1qSO62mmUijfICwbe+2iU4mwucMtioBhGWGYl6rRNfi3L3sQt7myi6KvQuj3pScTJec5DW0p
+UvDfQuk5reMjmCEnk4CvPODrBUbiLR4a+7WrL/syODq/Taw/7DeEyrS0J3ZMziTX3oC+o3ApQir7
+yrYR4sDF7IdSpRsCnijOiJxnLjzD0yv3tfjt/gktrxeyFGf53wT4DZTmE6HQ1PLxvZgRNqv4uS0U
+8mq1dB/VmbN4k7c8GV939Hb6g0+PYcYR6NLub8+k706uxi7DYmHwe0/O1xn6epvRobFdbWsS1DN9
+uhuzm2sFuXq3aNq7Vor3cl6l5bl1DMCh6jkFWn2diL5BHZIxzKt9cDm8/m3P0seEUhuOlo/tfP64
+hS4KCYx9FSgVHddM2RfNPbgFoHZhgxO+IxgkQoY1F8a9patOx3M79qz7hR2MTnOdH5QaLroDgKz4
+4Sc+6GO2X0M8V+xFrSgzatrrVSr0uq9rcyQCPaRVilR+FZrWiKJ65bF87mui20W4ayCIaFnt/jli
+u8gCa77t83BkNHrYcN+Xk6HT9pLf9/QbncQ+bvEvgSNJVC+0Jp1eannL929inUokL6BDn0IQFQg8
+YqKI5mliKna0rYWh8kzX9o3n+s73/g8MojCW1mZzgMFiwqYpoZFhEqTG4mEVARIoy2QwEFkGE6Zz
+lmg0uIgGBLVoPEpzjKaBoNe4NeIBiXSgckZYaHiImGjo53eUNKgYpEHHpwGBgAABUaKxtbAlcwAW
+Q2SWOIn3gAAgczknovAGsQbUmNRiGqm7y9vrS9MIiATz67OpQQKrkfdAwgWgoLCQ+4AxqnsXswCB
+oQCFIOO8wLUQFWRLTF28zt7uPqNS5Ajz/vheY3nSAICQwIo1KwcDgijSICR4I2ODBUVRumG6RCVW
+AnBDFPBr+IOUvHr2Onr8qEijkWFM1H1EcMXEAmkPkAlsSXEBOAQxZvni9mAcBA12HGLioueEhih8
+eMS7RRKk0qVMjVooIm8YsXcmn8wBkFIlRX4lJnJxtVMmwkh8MrVcOQKLtIOvmo2txcLFi6pN69r1
+GOwISbq9IGQNl+cOADkmNokoF2sOv3ImLPbaOi4TSjUJ4oiYKYtiRhbzSt39DLrj0c4cPUKpsfLO
+prckYqRpECVPA28meAZJYJLLsjegFsQB923SnTRRGHfjC2+jIOShmzsnJPJP0mqgK0+h/hhj4ImJ
+CPFoc/O3CewTKnaSaKNBLOyBDWNEg/K+GhOaOkopZ/48v36nUKXPBe1aTd70g8FOORFmQirN0DGc
+Icts95BvEamyzB3I5PSATRmiUd9G0+0HYog++CFdZ/iRZc49V5hFQmx5KGCJAqZ8Yg5tzhiSzEAq
+OJYeLFioNgkXeMAoBDqeiYhkkjhwJlVpHRlmwySqENZGNap5E1Qz46mSEpGGeNPGildMBMsUlrXV
+0ls9GKlkm27OsNES1LWjznE2JLOMNtiJAJsCDZhixpluOGGQCXloUsJ4yagii4wZFrXmCnJN9Wal
+SapwAAMKnUiWdTMk1hKkjUWk24Br/lioj5ojjJOWEJrQwqc/nIDTzWHm/HkOZ5NyammvTcXFgCAg
+wYaPDGo0Y5YM2tlo1pByVCYqn1kCEQUqQlE0IG0DaVikch/6Cq5+mSqk1LHkDVUtcLjKINMcRBEJ
+RbtRqsoDHzJCAECKC15G0Bt3OHbOfQ9QGm7BzlkQrLAgTQKJKhatUYJ2Mximxr9DbYcIFK4Rlhht
+J9BhWbKnjVhNnLwajDJemp68Szdp1OSGdX76A4+MlWHCahPb7JHHOItmAaqhBtGCUy39fZty0qBl
+2rBpsFzyRhYJWoQbDYnZQW8PLc5QrRvHOuoKhSjMFk2RtiCtdNp1YRBsO4WikAaM/hjAlkWVKiWa
+4shYIHgGY+TBwh1MjFYzKwqb5LzZrgSrzXhTTLfjpVB+WoFqTpoVmCg/Ijy4uWZneDwCxzcadma2
+0ZKMqQuLN856U0i4g4e+aXBBBQmXYM7HOFtMREsntBdLCNWFsTK32LZLOccb9AWMFNqtPw8Swix/
+Pth2oCfPj+0ZrsEiq4GjVQgJ+aZAGSdUIuMNjc0wD8h/0L/P1AYMsPOG+LJHTqF26KH0qAhmXHgx
+J9yhGnmAlMtYsQkhpUsa0yvZHx6xHPhJECRsW0gxJpEY7aXAbs2Iw7H8YpGsIWITfiIVCgaiORj9
+RARvy4jJJghDpUiPF2/BhHC4/gQHiqThEt6x0ukK0cJyTOQK+GuJuS4RtBGt4IUxbKJHHheJ2QCQ
+MKnIk+QO4heeeK2BOxgaHxb1IKmdAErrg4tcnOfENBajBUbhAd2WIQcFSak1EBoS7aZwhgtxSC3r
+oiOelvexJmDKEe5ToyHZgYHX5eAbPFjFFdACPjomsYP8+5KqMKG5TgSQgDWawvUAZzT/KIGLhyxl
+LRR5J7LpCG6xgwMA/HUvjxEpGmrC4yGqVLXtocRm1zNXxy6prxyIJBCrM6UxeZFIC9pAH+tpA6Rm
+0wZTbMI12TKHdlLTi+G0wV8X6hik5tg7Uc2uQw8MRNOOic5eJPMGAtFDZTy2/kM7eO5GYotmNpqh
+x120SA38YAIJVnQ/ONYAE0tCh5PSiVBkkusGDPuYOWRCO0c15lZXgCMHyZKL92hwSOA40xMeco8f
++o9NpEyoSXeQyAPgYDUnsFuQFvQWc+WpQNvchUwGZaitFCdMJUgg3DIin12ddKi+iAsOhngCeR2D
+gH9pqFdapYuJoMRz5joW/3w3B5GSMy6FJKpXQ4KLJZmLhY4SSEoUNAKP2UYXfolBjzZUG/pIKYzj
+E6Ewo9KZr+pVF39ADvj8BypMWilLa52eLRkaDTdohwrkcdSD7oASxrLvBQfdq2ULkSll1oCljUmJ
+TH7Dt0IMMBybpExk2lDJ/okSZwTJCqU5SXHZ2CICYZqlwdYMZY5v+Mmu1JqWwx6WIR26BT01jMYn
+IzWaysp2uWdI6VE5OBEzFIgnJRVnUJAxC/QdZAubjOi1fJYryqKRueQ9R1hvAFF8htZ/hNLcx/w1
+i9VujaOZYKzfUhDeMyq3vPwNggU2gJxODGQ2vA3CUqsRGRfxZJsE3hxB0vMiraK0CKqDbX8vTIj/
+1hYNeeiwLryECj9h4ZU5MW7O+LAGKODUaMHYL4ZfnBE2HjW7JV1mQMpBwpaALYQt0dIsPDdZYtYY
+xkSOy5CbgIw83SgZfsxgTKIRzBEpp6tErrIQ+uqOolShgLdN4RvMWiEm/rRQiSZbgZXP7AQNsyMN
+yZoFEmNDGMZUEoTurYV8mIjmPBcJlcWApv6IUiWlykFe1SiwDTAVl/HqedHCPO85egC1m03pMOAI
+kh16KtFu+YfKjO40D7Bs4LXCbRooeCtayBTciPgmD/6I8pqicotienrWOFBzEFYSLRLe91F+yYN7
+qBmFWUgDkJOtx5FpfWbn/uArk7QchI3lp8S80pO5dc1mlPBAFyN72+x09A4WlZi3RbcZADCFV6ow
+JZk0O1IewsWxub1oUPdAbig5XP1s9olnygFfwFlJaxP3QKicE94E14GtjaKAV07CN7j2ifCmVjkW
+ms0Ixi64xUe00Nq4/looAHjlJrJHpFXARrIjmAStukUiTl985Uvytm/+xkoZdSMg/IukqormWlG+
+m+WzlnczzIDqirDhVuAwzI+PbIuA75znntbwhh9VoWixRGoM4x2Um5v0UTJ960bJOAvZnIlliKqK
+Ys/Q1eIw5jXdOdsD57rbD+1tyu2DcMGcI7PCE14jLf3tyPb2JA6c2rQu2Bz5NGM5tc33xMPJ685I
+Flob4/GNv1pxe1c8t5XdGB66tc6dO4iElwRrWVt+9H2QsaFWzWzJX7vFoie96xdvit1kkCVYbzfi
+X4/7FDA+FkSam+rrk3SV5374odgACmKB08+zM9GPMDPxn2+D/6o0a0EkZzHz5QT97MM946QM/u21
+n/1EAri5sFY0+M8/MAYwoIGsj0Hr0Q9/hDHg6cBYYrbfD//8m0D+EeyDH5SDf/ongNWQKZryFLlA
+Iu3zfQPIgEOwRKFXCpXXgPongRNogReIgRmogRuofyEAADs=
+
+------=_NextPart_000_0007_01C7FBA8.8EEB47D0--

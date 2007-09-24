@@ -1,39 +1,55 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: Problem with appletouch driver in Linux version 2.6.23-rc7
-Date: Mon, 24 Sep 2007 13:49:31 +0100
-Message-ID: <20070924124931.GA22649@srcf.ucam.org>
-References: <46F54D92.7000300@tng.de> <d120d5000709240540ic91832em277a6bcbb399cd45@mail.gmail.com>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [linux-usb-devel] detecting when keys are being pressed on a keyboard
+Date: Mon, 24 Sep 2007 08:50:04 -0400
+Message-ID: <d120d5000709240550u3bb1d455vc9bb54b2e57f4313@mail.gmail.com>
+References: <200709211033.09698.oliver@neukum.org>
+	 <Pine.LNX.4.64.0709211444560.22331@twin.jikos.cz>
+	 <200709241256.05300.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200709241256.05300.oliver@neukum.org>
 Content-Disposition: inline
-In-Reply-To: <d120d5000709240540ic91832em277a6bcbb399cd45@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Thomas Rohwer <tr@tng.de>, linux-input@atrey.karlin.mff.cuni.cz, Soeren Sonnenburg <kernel@nn7.de>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Sep 24, 2007 at 08:40:56AM -0400, Dmitry Torokhov wrote:
-> On 9/22/07, Thomas Rohwer <tr@tng.de> wrote:
-> > I tried Linux version 2.6.23-rc7 on my macbook pro using the appletouch input driver.
-> > I noticed that often release events for the touchpad button are missing. This does not
-> > occur with Linux version 2.6.22. I suppose this is related to the new reset logic in
-> > the driver introduced in 2.6.23. If a reset occurs while the button is pressed the
-> > release event seems to be not sent sometimes. The attached patch fixes the problem for me. It
-> > changes the count towards idle so that the count is only incremented if the touchpad
-> > button is not pressed. I also attached the output of lsusb.txt.
+Hi Oliver,
 
-I'd spotted this, but hadn't got around to fixing it yet. Thanks for 
-picking it up!
+On 9/24/07, Oliver Neukum <oliver@neukum.org> wrote:
+> Am Freitag 21 September 2007 schrieb Jiri Kosina:
+> > On Fri, 21 Sep 2007, Oliver Neukum wrote:
+> >
+> > > I got the strange case of a keyboard going into autosuspend while a key
+> > > was being pressed. The key release never arrived and I had to unplug the
+> > > keyboard to get the key unstuck. Is there a clean way to learn from
+> > > hid-core.c if a keyboard has keys pressed?
+> >
+> > Hi Oliver,
+> >
+> > HID doesn't keep any permanent state by itself. If you want to know
+> > whether a given key is currently pressed or not, you'd have to inspect the
+> > bitfields inside input_dev*, I am afraid.
+>
+> I see no way to do this without a race condition. The field isn't locked
+> as far as I can tell.
 
-> I will fix these up myself, you don't need to resubmit the patch. I
-> only need "Signed-off-by: ... " line from you. Thanks!
+You can take input_dev->event_lock to stop event from propagating
+through input core while you are evaluating the bits. Input lcoking
+changes are im -mm and will be merged into 2.6.24.
 
-Acked-by: Matthew Garrett <mjg59@srcf.ucam.org>
+> Secondly, what is to happen in case of a system wide suspend? Will
+> the system wake up thinking that the key is still pressed?
+>
+
+For now it will but it is about to change. Input device will send
+'release' events for all pressed keys from their suspend method.
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Dmitry

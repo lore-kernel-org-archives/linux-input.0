@@ -1,56 +1,58 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: detecting when keys are being pressed on a
-	keyboard
-Date: Mon, 24 Sep 2007 12:56:05 +0200
-Message-ID: <200709241256.05300.oliver@neukum.org>
-References: <200709211033.09698.oliver@neukum.org>
-	<Pine.LNX.4.64.0709211444560.22331@twin.jikos.cz>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: Problem with appletouch driver in Linux version 2.6.23-rc7
+Date: Mon, 24 Sep 2007 08:40:56 -0400
+Message-ID: <d120d5000709240540ic91832em277a6bcbb399cd45@mail.gmail.com>
+References: <46F54D92.7000300@tng.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.64.0709211444560.22331@twin.jikos.cz>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <46F54D92.7000300@tng.de>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: linux-usb-devel@lists.sourceforge.net
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Thomas Rohwer <tr@tng.de>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Soeren Sonnenburg <kernel@nn7.de>, Matthew Garrett <mjg59@srcf.ucam.org>
 List-Id: linux-input@vger.kernel.org
 
-Am Freitag 21 September 2007 schrieb Jiri Kosina:
-> On Fri, 21 Sep 2007, Oliver Neukum wrote:
-> 
-> > I got the strange case of a keyboard going into autosuspend while a key 
-> > was being pressed. The key release never arrived and I had to unplug the 
-> > keyboard to get the key unstuck. Is there a clean way to learn from 
-> > hid-core.c if a keyboard has keys pressed?
-> 
-> Hi Oliver,
-> 
-> HID doesn't keep any permanent state by itself. If you want to know 
-> whether a given key is currently pressed or not, you'd have to inspect the 
-> bitfields inside input_dev*, I am afraid.
+Hi Thomas,
 
-I see no way to do this without a race condition. The field isn't locked
-as far as I can tell.
-Secondly, what is to happen in case of a system wide suspend? Will
-the system wake up thinking that the key is still pressed?
+On 9/22/07, Thomas Rohwer <tr@tng.de> wrote:
+> Hello,
+>
+> I tried Linux version 2.6.23-rc7 on my macbook pro using the appletouch input driver.
+> I noticed that often release events for the touchpad button are missing. This does not
+> occur with Linux version 2.6.22. I suppose this is related to the new reset logic in
+> the driver introduced in 2.6.23. If a reset occurs while the button is pressed the
+> release event seems to be not sent sometimes. The attached patch fixes the problem for me. It
+> changes the count towards idle so that the count is only incremented if the touchpad
+> button is not pressed. I also attached the output of lsusb.txt.
+>
+> As I am not subscribed to the list, please cc me in replies.
+>
 
-	Regards
-		Oliver
+Yep, this makes sense, thank you for the patch. Couple of comments:
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2005.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+>        y = atp_calculate_abs(dev->xy_acc + ATP_XSENSORS, ATP_YSENSORS,
+>                              ATP_YFACT, &y_z, &y_f);
+>
+> +       int key= dev->data[dev->datalen - 1] & 1;
+
+We do not normally put variable definitions in the middle of the code
+but at the beginning of the block.
+
+>                   the first touch unless reinitialised. Do so if it's been
+>                   idle for a while in order to avoid waking the kernel up
+>                   several hundred times a second */
+> !               if (atp_is_geyser_3(dev)) {
+
+Unified diffs please.
+
+I will fix these up myself, you don't need to resubmit the patch. I
+only need "Signed-off-by: ... " line from you. Thanks!
+
+-- 
+Dmitry

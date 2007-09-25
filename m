@@ -1,10 +1,12 @@
-From: "Abraham Light" <baggily@ariadne-webdesign.co.uk>
-Subject: This is the one you need to read up on
-Date: Tue, 25 Sep 2007 14:55:15 +0200
-Message-ID: <01c7ff73$513c3290$c7e5e858@baggily>
+From: "cully farrell" <seho@research.nokia.com>
+Subject: Local representatives wanted. Successful international company is looking for talented people. No investment is needed.
+Date: Tue, 25 Sep 2007 13:16:49 +0000
+Message-ID: <000701c7ff85$0447a132$48188f83@kxlmois>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -15,11 +17,26 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Investors Love Change of Direction. Shares prices Climb 120%
+Currently, the gate length, the characteristic length parameter in transistors, has hit about 90 nm. The shorter the gate length, the faster transistors can switch on and off. In fact, the transistors have gotten so fast, that the delay as electrons flow through the skinnier and longer wires needed to cross larger, complex chips is on track to become the limiting factora in speed. This delay is just one of the fundamental problems that threatens to make the nanoscale regime of electronics unfaithful to Moore's Law and demands the design of new materials and structures or a complete shift in chip architecture.
 
-Physical Property Holdings Inc.
-P,P.Y~H $0.55 UP 120%
 
-Fridays after market news rocketed investors today. 
-Share prices rocket and unbelievable 120 percent. 
-This thing will rocket all week. Jump in on P,P-Y*H at opening bell.
+
+
+
+Big international commercial organization is looking for talented, honest, reliable representatives from different regions. The ideal candidate will be an intelligent person, someone who can work autonomously with a high degree of enthusiasm. We are looking for highly motivated professionals, with experience in marketing field. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to apply please send the following information to: BonitaStaffordLM@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites! We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
+
+If you received this message in error, or would like to unsubscribe, please send a blank email to: RusselParkDS@gmail.com
+
+
+
+
+
+
+The main challenge in 3-D IC design is performance-weakening heat dissipation, which is already a problem in 2-D chips, as any Stanford students who have written a term paper with their laptops on their laps know. The multi-layer design of 3-D ICs exacerbates the problem, and Mechanical Engineering Professors Ken Goodson and Tom Kenney have been working on flowing fluid through microchannels incorporated in the chips to conduct the heat away.

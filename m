@@ -1,34 +1,37 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [linux-usb-devel] detecting when keys are being pressed on a keyboard
-Date: Mon, 24 Sep 2007 15:54:02 +0200
-Message-ID: <200709241554.02290.oliver@neukum.org>
-References: <200709211033.09698.oliver@neukum.org> <200709241539.19610.oliver@neukum.org> <d120d5000709240645r7dc61174j157fa69be92baa4@mail.gmail.com>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: Handling touchscreen buttons
+Date: Tue, 25 Sep 2007 01:44:16 -0400
+Message-ID: <200709250144.16495.dtor@insightbb.com>
+References: <20070923213913.15c12c3b.Kristoffer.ericson@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000709240645r7dc61174j157fa69be92baa4@mail.gmail.com>
+In-Reply-To: <20070923213913.15c12c3b.Kristoffer.ericson@gmail.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz
+To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Am Montag 24 September 2007 schrieb Dmitry Torokhov:
-> > I was thinking about a second approach. As all keypresses run through
-> > the interrupt handlers of the hid driver, how about checking the bit field
-> > in the interrupt handler after calling hid_input_report() ?
-> >
+On Monday 24 September 2007, Kristoffer Ericson wrote:
+> Greetings,
 > 
-> That should work as well I think.
+> On my jornada7xx I have 4 buttons on the rightside of the screen (going from Y-low -> Y-high). They are part of the touchscreen.
+> Since they aren't usually used in normal X window handling I was thinking that I should have the driver detect if the touch happend on one of those buttons.
+> The general idea is that I could somehow export detection into /sys so that ordinary applications could make use of them. Example would be that touching one button could be scripted to start an xterm or anything else.
+> 
+> Im interested to know if anyone has any examples or suggestion how to best accomplish this?
 > 
 
-Thanks, I'll try that.
 
-	Regards
-		Oliver
+I'd just send KEY_PROG1 .. KEY_PROG4 events through the same input
+device you send the rest of touchscreen events.
+
+-- 
+Dmitry

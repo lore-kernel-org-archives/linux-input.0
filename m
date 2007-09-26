@@ -1,124 +1,366 @@
-From: "Oliver Newman" <emelie.danby@viphls.net>
-Subject: Remenber youth
-Date: Wed, 26 Sep 2007 11:50:47 +0100
-Message-ID: <01c8002b$185f9490$ce5155d4@emelie.danby>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] [INPUT] Blackfin BF54x Input Keypad controller driver
+Date: Wed, 26 Sep 2007 09:37:57 -0400
+Message-ID: <d120d5000709260637u7820901fo86425213dc46c7ad@mail.gmail.com>
+References: <1190778214.18676.12.camel@roc-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_0006_01C8002B.185F9490"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1190778214.18676.12.camel@roc-laptop>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: bryan.wu@analog.com, Michael Hennerich <michael.hennerich@analog.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, Linux Kernel <linux-kernel@vger.kernel.org>, uclinux-dist-devel@blackfin.uclinux.org
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Bryan, Michael,
 
-------=_NextPart_000_0006_01C8002B.185F9490
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+On 9/25/07, Bryan Wu <bryan.wu@analog.com> wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> Date: Sun, 5 Aug 2007 18:45:26 +0800
+> Subject: [PATCH 1/2] [INPUT] Blackfin BF54x Input Keypad controller driver
+>
 
+Thank you for the patch. Couple of comments:
 
+> +
+> +static void bfin_kpad_timer(unsigned long data)
+> +{
+> +       struct platform_device *pdev =  (struct platform_device *) data;
+> +       struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+> +
+> +       if (bfin_kpad_get_keypressed(bf54x_kpad)) {
+> +               /* Try again later */
+> +               mod_timer(&bf54x_kpad->timer, jiffies
+> +                               + bf54x_kpad->keyup_test_jiffies);
+> +               return;
+> +       }
+> +
+> +       input_report_key(bf54x_kpad->input, bf54x_kpad->lastkey, 0);
+> +       input_sync(bf54x_kpad->input);
+> +
 
-------=_NextPart_000_0006_01C8002B.185F9490
-Content-Type: image/gif;
-	name="img13.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="img13.gif"
+So it is not possible to press another key without releaseing the first one?
 
-R0lGODlhuADnAPcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAAC4AOcA
-AAj/AP8JHDiQGsGDCBMqXMiwocOHECMyzCexokWF0xoau8ixo8ePCfM5A0myI7ySKA+GSRlxpEJ8
-HmGxnElT4sqaDEfVvEWwDM6fQIMq1LaQzCOSkIQqXdoxG9OnUKM6dDaPoFOQMqWmpKi1a0WDXsMS
-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
-AQEAOw== 
+> +       /* Clear IRQ Status */
+> +
+> +       bfin_kpad_clear_irq();
+> +       enable_irq(bf54x_kpad->irq);
+> +}
+> +
+> +static irqreturn_t bfin_kpad_isr(int irq, void *dev_id)
+> +{
+> +       struct platform_device *pdev = dev_id;
+> +       struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
+> +       struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+> +       int key;
+> +       u16 rowcol = bfin_read_KPAD_ROWCOL();
+> +
+> +       key = bfin_kpad_find_key(pdata, rowcol);
+> +
+> +       input_report_key(bf54x_kpad->input, key, 1);
+> +       input_sync(bf54x_kpad->input);
+> +
+> +       if (bfin_kpad_get_keypressed(bf54x_kpad)) {
+> +               disable_irq(bf54x_kpad->irq);
+> +               bf54x_kpad->lastkey = key;
+> +               bf54x_kpad->timer.expires = jiffies
+> +                                       + bf54x_kpad->keyup_test_jiffies;
+> +               add_timer(&bf54x_kpad->timer);
+> +
+> +               return IRQ_HANDLED;
+> +       }
+> +
+> +       input_report_key(bf54x_kpad->input, key, 0);
+> +       input_sync(bf54x_kpad->input);
+> +
+> +       bfin_kpad_clear_irq();
+> +
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit bfin_kpad_probe(struct platform_device *pdev)
+> +{
+> +       struct bf54x_kpad *bf54x_kpad;
+> +       struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
+> +       int i, error;
+> +
+> +
+> +       if (!pdata->rows || !pdata->cols || !pdata->keymap) {
+> +               printk(KERN_ERR DRV_NAME"No rows, cols or keymap from pdata\n");
+> +               return -EINVAL;
+> +       }
+> +
+> +       if (!pdata->keymapsize || pdata->keymapsize > (pdata->rows * pdata->cols)) {
+> +               printk(KERN_ERR DRV_NAME"Invalid keymapsize\n");
+> +               return -EINVAL;
+> +       }
+> +
+> +       bf54x_kpad = kzalloc(sizeof(struct bf54x_kpad), GFP_KERNEL);
+> +
+> +       if (!bf54x_kpad) {
+> +               return -ENOMEM;
+> +       }
 
-------=_NextPart_000_0006_01C8002B.185F9490--
+Loose extra braces please.
+
+> +
+> +       platform_set_drvdata(pdev, bf54x_kpad);
+> +
+> +
+> +       if (!pdata->debounce_time || !pdata->debounce_time > MAX_MULT ||
+> +               !pdata->coldrive_time || !pdata->coldrive_time > MAX_MULT) {
+> +               printk(KERN_ERR DRV_NAME
+> +                       "Invalid Debounce/Columdrive Time from pdata\n");
+> +               bfin_write_KPAD_MSEL(0xFF0);    /* Default MSEL */
+> +       } else {
+> +               bfin_write_KPAD_MSEL(((pdata->debounce_time / TIME_SCALE)
+> +                        & DBON_SCALE) | (((pdata->coldrive_time / TIME_SCALE) << 8)
+> +                         & COLDRV_SCALE));
+> +
+> +       }
+> +
+> +       if (!pdata->keyup_test_interval) {
+> +               bf54x_kpad->keyup_test_jiffies = msecs_to_jiffies(50);
+> +       } else {
+> +               bf54x_kpad->keyup_test_jiffies =
+> +                       msecs_to_jiffies(pdata->keyup_test_interval);
+> +       }
+> +
+> +       if (peripheral_request_list(&per_rows[MAX_RC - pdata->rows], DRV_NAME)) {
+> +               printk(KERN_ERR DRV_NAME
+> +               ": Requesting Peripherals failed\n");
+> +               error = -EFAULT;
+> +               goto out;
+> +       }
+> +
+> +       if (peripheral_request_list(&per_cols[MAX_RC - pdata->cols], DRV_NAME)) {
+> +               printk(KERN_ERR DRV_NAME
+> +               ": Requesting Peripherals failed\n");
+> +               error = -EFAULT;
+> +               goto out1;
+> +       }
+> +
+> +       bf54x_kpad->irq = platform_get_irq(pdev, 0);
+> +
+> +       if (bf54x_kpad->irq < 0) {
+> +               error = -ENODEV;
+> +               goto out2;
+> +       }
+> +
+> +       error = request_irq(bf54x_kpad->irq, bfin_kpad_isr,
+> +                                IRQF_SAMPLE_RANDOM, DRV_NAME, pdev);
+> +
+> +       if (error) {
+> +               printk(KERN_ERR DRV_NAME
+> +                       ": unable to claim irq %d; error %d\n",
+> +                       bf54x_kpad->irq, error);
+> +               error = -EBUSY;
+> +               goto out2;
+> +       }
+> +
+
+Its it guaranteed that IRQ will not be raised here? Because if it may
+then yo need to allocate input device before regitering IRQ handler.
+
+> +
+> +       bf54x_kpad->input = input_allocate_device();
+> +
+> +       if (!bf54x_kpad->input) {
+> +               error = -ENOMEM;
+> +               goto out3;
+> +       }
+> +
+> +       bf54x_kpad->input->name = pdev->name;
+> +       bf54x_kpad->input->phys = "bf54x-keys/input0";
+> +       bf54x_kpad->input->cdev.dev = &pdev->dev;
+> +       bf54x_kpad->input->private = bf54x_kpad;
+> +
+> +       bf54x_kpad->input->id.bustype = BUS_HOST;
+> +       bf54x_kpad->input->id.vendor = 0x0001;
+> +       bf54x_kpad->input->id.product = 0x0001;
+> +       bf54x_kpad->input->id.version = 0x0100;
+
+May I recommend using a temp variable for bf54x_kpad->input. It may
+reduce size of generated code.
+
+> +
+> +       bf54x_kpad->input->keycode = pdata->keymap;
+
+Normally we copy the vanilla keymap to the device structure so if it
+gets changed and later driver gets unbound/rebound the new input
+device will get a fresh unaffected keymap.
+
+> +       bf54x_kpad->input->keycodesize = sizeof(unsigned int);
+
+unsigned short should cover all our keycodes.
+
+> +       bf54x_kpad->input->keycodemax = pdata->keymapsize;
+> +
+> +       /* setup input device */
+> +       set_bit(EV_KEY, bf54x_kpad->input->evbit);
+
+You might want to add EV_REP to get autorepeat. You don't need
+atomicity so you may want to use __set_bit().
+> +
+> +       for (i = 0; i < pdata->keymapsize; i++)
+> +               set_bit(pdata->keymap[i] & KEY_MAX, bf54x_kpad->input->keybit);
+
+__clear_bit(KEY_RESERVED, bf54x_kpad->input->keybit); to make sure we
+don't advertise it to the userspace.
+
+> +
+> +       error = input_register_device(bf54x_kpad->input);
+> +
+> +       if (error) {
+> +               printk(KERN_ERR DRV_NAME": Unable to register input device\n");
+
+Printing the error code might be a good idea too.
+
+> +               goto out4;
+> +       }
+> +
+> +       /* Init Keypad Key Up/Release test timer */
+> +
+> +       init_timer(&bf54x_kpad->timer);
+> +       bf54x_kpad->timer.function = bfin_kpad_timer;
+> +       bf54x_kpad->timer.data = (unsigned long) pdev;
+> +
+> +
+> +       bfin_write_KPAD_PRESCALE(bfin_kpad_get_prescale(TIME_SCALE));
+> +
+> +       bfin_write_KPAD_CTL((((pdata->cols - 1) << 13) & KPAD_COLEN) |
+> +                               (((pdata->rows - 1) << 10) & KPAD_ROWEN) |
+> +                               (2 & KPAD_IRQMODE));
+> +
+> +
+> +       bfin_write_KPAD_CTL(bfin_read_KPAD_CTL() | KPAD_EN);
+> +
+> +       printk(KERN_ERR DRV_NAME
+> +               ": Blackfin BF54x Keypad registered IRQ %d\n", bf54x_kpad->irq);
+> +
+> +       return 0;
+> +
+> +
+> +out4:
+> +       input_free_device(bf54x_kpad->input);
+> +out3:
+> +       free_irq(bf54x_kpad->irq, pdev);
+> +out2:
+> +       peripheral_free_list(&per_cols[MAX_RC - pdata->cols]);
+> +out1:
+> +       peripheral_free_list(&per_rows[MAX_RC - pdata->rows]);
+> +out:
+> +       kfree(bf54x_kpad);
+> +
+
+Please add platform_set_devdata(pdev, NULL); so we don;t leave dirty
+pointers around.
+
+> +       return error;
+> +}
+> +
+> +static int __devexit bfin_kpad_remove(struct platform_device *pdev)
+> +{
+> +       struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
+> +       struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+> +
+> +
+> +       del_timer_sync(&bf54x_kpad->timer);
+> +       free_irq(bf54x_kpad->irq, pdev);
+
+Same here.
+
+> +
+> +       peripheral_free_list(&per_rows[MAX_RC - pdata->rows]);
+> +       peripheral_free_list(&per_cols[MAX_RC - pdata->cols]);
+> +
+> +       input_unregister_device(bf54x_kpad->input);
+> +
+> +       kfree(bf54x_kpad);
+> +
+> +       return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int bfin_kpad_suspend(struct platform_device *pdev, pm_message_t state)
+> +{
+> +       return 0;
+
+Hmm.. I'd t least stopped timer here.
+
+> +}
+> +
+> +static int bfin_kpad_resume(struct platform_device *pdev)
+> +{
+> +
+> +       return 0;
+> +}
+> +#else
+> +#define bfin_kpad_suspend      NULL
+> +#define bfin_kpad_resume       NULL
+> +#endif
+> +
+> +struct platform_driver bfin_kpad_device_driver = {
+> +       .probe          = bfin_kpad_probe,
+> +       .remove         = __devexit_p(bfin_kpad_remove),
+> +       .suspend        = bfin_kpad_suspend,
+> +       .resume         = bfin_kpad_resume,
+> +       .driver         = {
+> +               .name   = DRV_NAME,
+> +       }
+> +};
+> +
+> +static int __init bfin_kpad_init(void)
+> +{
+> +       return platform_driver_register(&bfin_kpad_device_driver);
+> +}
+> +
+> +static void __exit bfin_kpad_exit(void)
+> +{
+> +       platform_driver_unregister(&bfin_kpad_device_driver);
+> +}
+> +
+> +module_init(bfin_kpad_init);
+> +module_exit(bfin_kpad_exit);
+> +
+> +MODULE_LICENSE("GPL");
+> +MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+> +MODULE_DESCRIPTION("Keypad driver for BF54x Processors");
+> diff --git a/include/asm-blackfin/mach-bf548/bf54x_keys.h b/include/asm-blackfin/mach-bf548/bf54x_keys.h
+> new file mode 100644
+> index 0000000..e7e1352
+> --- /dev/null
+> +++ b/include/asm-blackfin/mach-bf548/bf54x_keys.h
+> @@ -0,0 +1,18 @@
+> +#ifndef _BFIN_KPAD_H
+> +#define _BFIN_KPAD_H
+> +
+> +#include <linux/input.h>
+
+This include is not needed here.
+
+> +
+> +struct bfin_kpad_platform_data {
+> +       int rows;
+> +       int cols;
+> +       int *keymap;
+> +       unsigned int keymapsize;
+> +       u32 debounce_time;      /* in ns */
+> +       u32 coldrive_time;      /* in ns */
+> +       u32 keyup_test_interval; /* in ms */
+> +};
+> +
+> +#define KEYVAL(col, row, val) (((1 << col) << 24) | ((1 << row) << 16) | (val))
+> +
+> +#endif
+
+Thank you.
+
+-- 
+Dmitry

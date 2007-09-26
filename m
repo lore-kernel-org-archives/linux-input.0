@@ -1,33 +1,52 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] - drivers/hid/hid-debug.c  - trivial - add KERN_DEBUG
- prefix, fix typo, constify
-Date: Wed, 26 Sep 2007 17:10:24 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0709261708080.7567@jikos.suse.cz>
-References: <1190771098.17052.12.camel@localhost>
+From: Soeren Sonnenburg <kernel@nn7.de>
+Subject: Re: Problem with appletouch driver in Linux version 2.6.23-rc7
+Date: Wed, 26 Sep 2007 21:56:36 +0200
+Message-ID: <1190836596.1359.33.camel@localhost>
+References: <46F54D92.7000300@tng.de>
+	 <d120d5000709240540ic91832em277a6bcbb399cd45@mail.gmail.com>
+	 <1190638998.12782.0.camel@localhost>  <46F7BA08.6000201@tng.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1190771098.17052.12.camel@localhost>
+In-Reply-To: <46F7BA08.6000201@tng.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Joe Perches <joe@perches.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: Thomas Rohwer <tr@tng.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Matthew Garrett <mjg59@srcf.ucam.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 25 Sep 2007, Joe Perches wrote:
 
-> Also, exported symbol hid_resolv_event is unused by the current kernel 
-> tree and perhaps should be removed.
+On Mon, 2007-09-24 at 15:22 +0200, Thomas Rohwer wrote:
+> Hello,
+> 
+> > could you please re-send the patch? I for some reason have yet to see
+> > it ...
+> 
+> here it is again, adressing also the comments from Dmitry.
 
-This is not true, hid_resolv_event() is called from the code that 
-establishes the mapping between HID and input, see 
-hidinput_configure_usage().
+Thomas, Matthew and Dmitry,
 
-Anyway, I applied your cleanup patch, thanks.
+I think there is another bug in this. I mean whenever a mouse button is
+pressed or the mouse is moved the counter should be reset - no?
 
--- 
-Jiri Kosina
-SUSE Labs
+Currently the idle counter is just increased...
+
+I mean shouldn't it be
+
+if (x || y || key)
+	dev->idlecount=0;
+
+if (!x && !y && !key)
+{
+	dev->idlecount++;
+	if (dev->idlecount == 10) {
+		dev->valid = 0;
+		schedule_work(&dev->work);
+	}
+}
+
+Soeren

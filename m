@@ -1,8 +1,8 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH] - drivers/hid/hid-debug.c  - trivial - add KERN_DEBUG
-	prefix, fix typo, constify
-Date: Tue, 25 Sep 2007 18:44:58 -0700
-Message-ID: <1190771098.17052.12.camel@localhost>
+From: Bryan Wu <bryan.wu@analog.com>
+Subject: [PATCH 1/2] [INPUT] Blackfin BF54x Input Keypad controller driver
+Date: Wed, 26 Sep 2007 11:43:34 +0800
+Message-ID: <1190778214.18676.12.camel@roc-laptop>
+Reply-To: bryan.wu@analog.com
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
@@ -12,156 +12,457 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, Michael Hennerich <michael.hennerich@analog.com>, Linux Kernel <linux-kernel@vger.kernel.org>, uc
 List-Id: linux-input@vger.kernel.org
 
-Added KERN_DEBUG to output lines
-Fixed preffered -> preferred typo
-Added const to char *'s
+From: Michael Hennerich <michael.hennerich@analog.com>
+Date: Sun, 5 Aug 2007 18:45:26 +0800
+Subject: [PATCH 1/2] [INPUT] Blackfin BF54x Input Keypad controller driver
 
-Also, exported symbol hid_resolv_event is unused by the current
-kernel tree and perhaps should be removed.
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <bryan.wu@analog.com>
+---
+ drivers/input/keyboard/Kconfig               |    9 +
+ drivers/input/keyboard/Makefile              |    2 +-
+ drivers/input/keyboard/bf54x-keys.c          |  376 ++++++++++++++++++++++++++
+ include/asm-blackfin/mach-bf548/bf54x_keys.h |   18 ++
+ 4 files changed, 404 insertions(+), 1 deletions(-)
+ create mode 100644 drivers/input/keyboard/bf54x-keys.c
+ create mode 100644 include/asm-blackfin/mach-bf548/bf54x_keys.h
 
-Signed-off-by: Joe Perches <joe@perches.com>
-
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index a13757b..7754530 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -34,7 +34,7 @@
- struct hid_usage_entry {
- 	unsigned  page;
- 	unsigned  usage;
--	char     *description;
-+	const char     *description;
- };
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index c97d5eb..2136a9e 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -253,4 +253,13 @@ config KEYBOARD_GPIO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called gpio-keys.
  
- static const struct hid_usage_entry hid_usage_table[] = {
-@@ -365,8 +365,8 @@ void hid_resolv_usage(unsigned usage) {
- }
- EXPORT_SYMBOL_GPL(hid_resolv_usage);
- 
--__inline__ static void tab(int n) {
--	while (n--) printk(" ");
-+static void tab(int n) {
-+	printk(KERN_DEBUG "%*s", n, "");
- }
- 
- void hid_dump_field(struct hid_field *field, int n) {
-@@ -401,8 +401,8 @@ void hid_dump_field(struct hid_field *field, int n) {
- 		tab(n); printk("Unit Exponent(%d)\n", field->unit_exponent);
- 	}
- 	if (field->unit) {
--		char *systems[5] = { "None", "SI Linear", "SI Rotation", "English Linear", "English Rotation" };
--		char *units[5][8] = {
-+		static const char *systems[5] = { "None", "SI Linear", "SI Rotation", "English Linear", "English Rotation" };
-+		static const char *units[5][8] = {
- 			{ "None", "None", "None", "None", "None", "None", "None", "None" },
- 			{ "None", "Centimeter", "Gram", "Seconds", "Kelvin",     "Ampere", "Candela", "None" },
- 			{ "None", "Radians",    "Gram", "Seconds", "Kelvin",     "Ampere", "Candela", "None" },
-@@ -457,7 +457,7 @@ void hid_dump_field(struct hid_field *field, int n) {
- 	printk("%s", HID_MAIN_ITEM_RELATIVE & j ? "Relative " : "Absolute ");
- 	printk("%s", HID_MAIN_ITEM_WRAP & j ? "Wrap " : "");
- 	printk("%s", HID_MAIN_ITEM_NONLINEAR & j ? "NonLinear " : "");
--	printk("%s", HID_MAIN_ITEM_NO_PREFERRED & j ? "NoPrefferedState " : "");
-+	printk("%s", HID_MAIN_ITEM_NO_PREFERRED & j ? "NoPreferredState " : "");
- 	printk("%s", HID_MAIN_ITEM_NULL_STATE & j ? "NullState " : "");
- 	printk("%s", HID_MAIN_ITEM_VOLATILE & j ? "Volatile " : "");
- 	printk("%s", HID_MAIN_ITEM_BUFFERED_BYTE & j ? "BufferedByte " : "");
-@@ -470,7 +470,7 @@ void hid_dump_device(struct hid_device *device) {
- 	struct hid_report *report;
- 	struct list_head *list;
- 	unsigned i,k;
--	static char *table[] = {"INPUT", "OUTPUT", "FEATURE"};
-+	static const char *table[] = {"INPUT", "OUTPUT", "FEATURE"};
- 
- 	if (!hid_debug)
- 		return;
-@@ -501,13 +501,13 @@ void hid_dump_input(struct hid_usage *usage, __s32 value) {
- 	if (!hid_debug)
- 		return;
- 
--	printk("hid-debug: input ");
-+	printk(KERN_DEBUG "hid-debug: input ");
- 	hid_resolv_usage(usage->hid);
- 	printk(" = %d\n", value);
- }
- EXPORT_SYMBOL_GPL(hid_dump_input);
- 
--static char *events[EV_MAX + 1] = {
-+static const char *events[EV_MAX + 1] = {
- 	[EV_SYN] = "Sync",			[EV_KEY] = "Key",
- 	[EV_REL] = "Relative",			[EV_ABS] = "Absolute",
- 	[EV_MSC] = "Misc",			[EV_LED] = "LED",
-@@ -516,10 +516,10 @@ static char *events[EV_MAX + 1] = {
- 	[EV_FF_STATUS] = "ForceFeedbackStatus",
- };
- 
--static char *syncs[2] = {
-+static const char *syncs[2] = {
- 	[SYN_REPORT] = "Report",		[SYN_CONFIG] = "Config",
- };
--static char *keys[KEY_MAX + 1] = {
-+static const char *keys[KEY_MAX + 1] = {
- 	[KEY_RESERVED] = "Reserved",		[KEY_ESC] = "Esc",
- 	[KEY_1] = "1",				[KEY_2] = "2",
- 	[KEY_3] = "3",				[KEY_4] = "4",
-@@ -715,7 +715,7 @@ static char *keys[KEY_MAX + 1] = {
- 	[KEY_SWITCHVIDEOMODE] = "SwitchVideoMode",
- };
- 
--static char *relatives[REL_MAX + 1] = {
-+static const char *relatives[REL_MAX + 1] = {
- 	[REL_X] = "X",			[REL_Y] = "Y",
- 	[REL_Z] = "Z",			[REL_RX] = "Rx",
- 	[REL_RY] = "Ry",		[REL_RZ] = "Rz",
-@@ -723,7 +723,7 @@ static char *relatives[REL_MAX + 1] = {
- 	[REL_WHEEL] = "Wheel",		[REL_MISC] = "Misc",
- };
- 
--static char *absolutes[ABS_MAX + 1] = {
-+static const char *absolutes[ABS_MAX + 1] = {
- 	[ABS_X] = "X",			[ABS_Y] = "Y",
- 	[ABS_Z] = "Z",			[ABS_RX] = "Rx",
- 	[ABS_RY] = "Ry",		[ABS_RZ] = "Rz",
-@@ -739,12 +739,12 @@ static char *absolutes[ABS_MAX + 1] = {
- 	[ABS_VOLUME] = "Volume",	[ABS_MISC] = "Misc",
- };
- 
--static char *misc[MSC_MAX + 1] = {
-+static const char *misc[MSC_MAX + 1] = {
- 	[MSC_SERIAL] = "Serial",	[MSC_PULSELED] = "Pulseled",
- 	[MSC_GESTURE] = "Gesture",	[MSC_RAW] = "RawData"
- };
- 
--static char *leds[LED_MAX + 1] = {
-+static const char *leds[LED_MAX + 1] = {
- 	[LED_NUML] = "NumLock",		[LED_CAPSL] = "CapsLock",
- 	[LED_SCROLLL] = "ScrollLock",	[LED_COMPOSE] = "Compose",
- 	[LED_KANA] = "Kana",		[LED_SLEEP] = "Sleep",
-@@ -752,16 +752,16 @@ static char *leds[LED_MAX + 1] = {
- 	[LED_MISC] = "Misc",
- };
- 
--static char *repeats[REP_MAX + 1] = {
-+static const char *repeats[REP_MAX + 1] = {
- 	[REP_DELAY] = "Delay",		[REP_PERIOD] = "Period"
- };
- 
--static char *sounds[SND_MAX + 1] = {
-+static const char *sounds[SND_MAX + 1] = {
- 	[SND_CLICK] = "Click",		[SND_BELL] = "Bell",
- 	[SND_TONE] = "Tone"
- };
- 
--static char **names[EV_MAX + 1] = {
-+static const char **names[EV_MAX + 1] = {
- 	[EV_SYN] = syncs,			[EV_KEY] = keys,
- 	[EV_REL] = relatives,			[EV_ABS] = absolutes,
- 	[EV_MSC] = misc,			[EV_LED] = leds,
-@@ -777,4 +777,3 @@ void hid_resolv_event(__u8 type, __u16 code) {
- 		names[type] ? (names[type][code] ? names[type][code] : "?") : "?");
- }
- EXPORT_SYMBOL_GPL(hid_resolv_event);
++config KEYBOARD_BFIN
++	tristate "Blackfin BF54x keypad support"
++	depends on (BF54x)
++	help
++	  Say Y here if you want to use the BF54x keypad.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called bf54x-keypad.
++	  
+ endif
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 28d211b..3123277 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -21,4 +21,4 @@ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
+ obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keyboard.o
+ obj-$(CONFIG_KEYBOARD_AAED2000)		+= aaed2000_kbd.o
+ obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
 -
++obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
+diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+new file mode 100644
+index 0000000..31bb026
+--- /dev/null
++++ b/drivers/input/keyboard/bf54x-keys.c
+@@ -0,0 +1,376 @@
++/*
++ * File:         drivers/input/keyboard/bf54x-keys.c
++ * Based on:
++ * Author:       Michael Hennerich <hennerich@blackfin.uclinux.org>
++ *
++ * Created:
++ * Description:  keypad driver for Analog Devices Blackfin BF54x Processors
++ *
++ *
++ * Modified:
++ *               Copyright 2007 Analog Devices Inc.
++ *
++ * Bugs:         Enter bugs at http://blackfin.uclinux.org/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see the file COPYING, or write
++ * to the Free Software Foundation, Inc.,
++ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#include <linux/module.h>
++#include <linux/version.h>
++
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/sched.h>
++#include <linux/pm.h>
++#include <linux/sysctl.h>
++#include <linux/proc_fs.h>
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/irq.h>
++
++#include <asm/portmux.h>
++#include <asm/mach/bf54x_keys.h>
++
++#define DRV_NAME 	"bf54x-keys"
++#define TIME_SCALE	100	/* 100 ns */
++#define	MAX_MULT	(0xFF * TIME_SCALE)
++#define MAX_RC		8	/* Max Row/Col */
++
++static u16 per_rows[] = {
++	P_KEY_ROW7,
++	P_KEY_ROW6,
++	P_KEY_ROW5,
++	P_KEY_ROW4,
++	P_KEY_ROW3,
++	P_KEY_ROW2,
++	P_KEY_ROW1,
++	P_KEY_ROW0,
++	0
++};
++
++static u16 per_cols[] = {
++	P_KEY_COL7,
++	P_KEY_COL6,
++	P_KEY_COL5,
++	P_KEY_COL4,
++	P_KEY_COL3,
++	P_KEY_COL2,
++	P_KEY_COL1,
++	P_KEY_COL0,
++	0
++};
++
++struct bf54x_kpad {
++	struct input_dev *input;
++	int irq;
++	int lastkey;
++	struct timer_list timer;
++	unsigned int keyup_test_jiffies;
++};
++
++static inline int bfin_kpad_find_key(struct bfin_kpad_platform_data *pdata, u16 keyident)
++{
++	u16 i;
++
++	for (i = 0; i < pdata->keymapsize; i++)
++		if ((pdata->keymap[i] >> 16) == keyident)
++			return pdata->keymap[i] & 0xffff;
++	return -1;
++}
++
++
++static inline u16 bfin_kpad_get_prescale(u32 timescale)
++{
++	u32 sclk = get_sclk();
++
++	return ((((sclk / 1000) * timescale) / 1024) - 1);
++}
++
++static inline u16 bfin_kpad_get_keypressed(struct bf54x_kpad *bf54x_kpad)
++{
++	return (bfin_read_KPAD_STAT() & KPAD_PRESSED);
++}
++
++static inline void bfin_kpad_clear_irq(void)
++{
++	bfin_write_KPAD_STAT(0xFFFF);
++	bfin_write_KPAD_ROWCOL(0xFFFF);
++}
++
++static void bfin_kpad_timer(unsigned long data)
++{
++	struct platform_device *pdev =  (struct platform_device *) data;
++	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
++
++	if (bfin_kpad_get_keypressed(bf54x_kpad)) {
++		/* Try again later */
++		mod_timer(&bf54x_kpad->timer, jiffies
++				+ bf54x_kpad->keyup_test_jiffies);
++		return;
++	}
++
++	input_report_key(bf54x_kpad->input, bf54x_kpad->lastkey, 0);
++	input_sync(bf54x_kpad->input);
++
++	/* Clear IRQ Status */
++
++	bfin_kpad_clear_irq();
++	enable_irq(bf54x_kpad->irq);
++}
++
++static irqreturn_t bfin_kpad_isr(int irq, void *dev_id)
++{
++	struct platform_device *pdev = dev_id;
++	struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
++	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
++	int key;
++	u16 rowcol = bfin_read_KPAD_ROWCOL();
++
++	key = bfin_kpad_find_key(pdata, rowcol);
++
++	input_report_key(bf54x_kpad->input, key, 1);
++	input_sync(bf54x_kpad->input);
++
++	if (bfin_kpad_get_keypressed(bf54x_kpad)) {
++		disable_irq(bf54x_kpad->irq);
++		bf54x_kpad->lastkey = key;
++		bf54x_kpad->timer.expires = jiffies
++					+ bf54x_kpad->keyup_test_jiffies;
++		add_timer(&bf54x_kpad->timer);
++
++		return IRQ_HANDLED;
++	}
++
++	input_report_key(bf54x_kpad->input, key, 0);
++	input_sync(bf54x_kpad->input);
++
++	bfin_kpad_clear_irq();
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit bfin_kpad_probe(struct platform_device *pdev)
++{
++	struct bf54x_kpad *bf54x_kpad;
++	struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
++	int i, error;
++
++
++	if (!pdata->rows || !pdata->cols || !pdata->keymap) {
++		printk(KERN_ERR DRV_NAME"No rows, cols or keymap from pdata\n");
++		return -EINVAL;
++	}
++
++	if (!pdata->keymapsize || pdata->keymapsize > (pdata->rows * pdata->cols)) {
++		printk(KERN_ERR DRV_NAME"Invalid keymapsize\n");
++		return -EINVAL;
++	}
++
++	bf54x_kpad = kzalloc(sizeof(struct bf54x_kpad), GFP_KERNEL);
++
++	if (!bf54x_kpad) {
++		return -ENOMEM;
++	}
++
++	platform_set_drvdata(pdev, bf54x_kpad);
++
++
++	if (!pdata->debounce_time || !pdata->debounce_time > MAX_MULT ||
++		!pdata->coldrive_time || !pdata->coldrive_time > MAX_MULT) {
++		printk(KERN_ERR DRV_NAME
++			"Invalid Debounce/Columdrive Time from pdata\n");
++		bfin_write_KPAD_MSEL(0xFF0);	/* Default MSEL	*/
++	} else {
++		bfin_write_KPAD_MSEL(((pdata->debounce_time / TIME_SCALE)
++			 & DBON_SCALE) | (((pdata->coldrive_time / TIME_SCALE) << 8)
++			  & COLDRV_SCALE));
++
++	}
++
++	if (!pdata->keyup_test_interval) {
++		bf54x_kpad->keyup_test_jiffies = msecs_to_jiffies(50);
++	} else {
++		bf54x_kpad->keyup_test_jiffies =
++			msecs_to_jiffies(pdata->keyup_test_interval);
++	}
++
++	if (peripheral_request_list(&per_rows[MAX_RC - pdata->rows], DRV_NAME)) {
++		printk(KERN_ERR DRV_NAME
++		": Requesting Peripherals failed\n");
++		error = -EFAULT;
++		goto out;
++	}
++
++	if (peripheral_request_list(&per_cols[MAX_RC - pdata->cols], DRV_NAME)) {
++		printk(KERN_ERR DRV_NAME
++		": Requesting Peripherals failed\n");
++		error = -EFAULT;
++		goto out1;
++	}
++
++	bf54x_kpad->irq = platform_get_irq(pdev, 0);
++
++	if (bf54x_kpad->irq < 0) {
++		error = -ENODEV;
++		goto out2;
++	}
++
++	error = request_irq(bf54x_kpad->irq, bfin_kpad_isr,
++				 IRQF_SAMPLE_RANDOM, DRV_NAME, pdev);
++
++	if (error) {
++		printk(KERN_ERR DRV_NAME
++			": unable to claim irq %d; error %d\n",
++			bf54x_kpad->irq, error);
++		error = -EBUSY;
++		goto out2;
++	}
++
++
++	bf54x_kpad->input = input_allocate_device();
++
++	if (!bf54x_kpad->input) {
++		error = -ENOMEM;
++		goto out3;
++	}
++
++	bf54x_kpad->input->name = pdev->name;
++	bf54x_kpad->input->phys = "bf54x-keys/input0";
++	bf54x_kpad->input->cdev.dev = &pdev->dev;
++	bf54x_kpad->input->private = bf54x_kpad;
++
++	bf54x_kpad->input->id.bustype = BUS_HOST;
++	bf54x_kpad->input->id.vendor = 0x0001;
++	bf54x_kpad->input->id.product = 0x0001;
++	bf54x_kpad->input->id.version = 0x0100;
++
++	bf54x_kpad->input->keycode = pdata->keymap;
++	bf54x_kpad->input->keycodesize = sizeof(unsigned int);
++	bf54x_kpad->input->keycodemax = pdata->keymapsize;
++
++	/* setup input device */
++	set_bit(EV_KEY, bf54x_kpad->input->evbit);
++
++	for (i = 0; i < pdata->keymapsize; i++)
++		set_bit(pdata->keymap[i] & KEY_MAX, bf54x_kpad->input->keybit);
++
++	error = input_register_device(bf54x_kpad->input);
++
++	if (error) {
++		printk(KERN_ERR DRV_NAME": Unable to register input device\n");
++		goto out4;
++	}
++
++	/* Init Keypad Key Up/Release test timer */
++
++	init_timer(&bf54x_kpad->timer);
++	bf54x_kpad->timer.function = bfin_kpad_timer;
++	bf54x_kpad->timer.data = (unsigned long) pdev;
++
++
++	bfin_write_KPAD_PRESCALE(bfin_kpad_get_prescale(TIME_SCALE));
++
++	bfin_write_KPAD_CTL((((pdata->cols - 1) << 13) & KPAD_COLEN) |
++				(((pdata->rows - 1) << 10) & KPAD_ROWEN) |
++				(2 & KPAD_IRQMODE));
++
++
++	bfin_write_KPAD_CTL(bfin_read_KPAD_CTL() | KPAD_EN);
++
++	printk(KERN_ERR DRV_NAME
++		": Blackfin BF54x Keypad registered IRQ %d\n", bf54x_kpad->irq);
++
++	return 0;
++
++
++out4:
++	input_free_device(bf54x_kpad->input);
++out3:
++	free_irq(bf54x_kpad->irq, pdev);
++out2:
++	peripheral_free_list(&per_cols[MAX_RC - pdata->cols]);
++out1:
++	peripheral_free_list(&per_rows[MAX_RC - pdata->rows]);
++out:
++	kfree(bf54x_kpad);
++
++	return error;
++}
++
++static int __devexit bfin_kpad_remove(struct platform_device *pdev)
++{
++	struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
++	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
++
++
++	del_timer_sync(&bf54x_kpad->timer);
++	free_irq(bf54x_kpad->irq, pdev);
++
++	peripheral_free_list(&per_rows[MAX_RC - pdata->rows]);
++	peripheral_free_list(&per_cols[MAX_RC - pdata->cols]);
++
++	input_unregister_device(bf54x_kpad->input);
++
++	kfree(bf54x_kpad);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int bfin_kpad_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	return 0;
++}
++
++static int bfin_kpad_resume(struct platform_device *pdev)
++{
++
++	return 0;
++}
++#else
++#define bfin_kpad_suspend	NULL
++#define bfin_kpad_resume	NULL
++#endif
++
++struct platform_driver bfin_kpad_device_driver = {
++	.probe		= bfin_kpad_probe,
++	.remove		= __devexit_p(bfin_kpad_remove),
++	.suspend	= bfin_kpad_suspend,
++	.resume		= bfin_kpad_resume,
++	.driver		= {
++		.name	= DRV_NAME,
++	}
++};
++
++static int __init bfin_kpad_init(void)
++{
++	return platform_driver_register(&bfin_kpad_device_driver);
++}
++
++static void __exit bfin_kpad_exit(void)
++{
++	platform_driver_unregister(&bfin_kpad_device_driver);
++}
++
++module_init(bfin_kpad_init);
++module_exit(bfin_kpad_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("Keypad driver for BF54x Processors");
+diff --git a/include/asm-blackfin/mach-bf548/bf54x_keys.h b/include/asm-blackfin/mach-bf548/bf54x_keys.h
+new file mode 100644
+index 0000000..e7e1352
+--- /dev/null
++++ b/include/asm-blackfin/mach-bf548/bf54x_keys.h
+@@ -0,0 +1,18 @@
++#ifndef _BFIN_KPAD_H
++#define _BFIN_KPAD_H
++
++#include <linux/input.h>
++
++struct bfin_kpad_platform_data {
++	int rows;
++	int cols;
++	int *keymap;
++	unsigned int keymapsize;
++	u32 debounce_time;	/* in ns */
++	u32 coldrive_time;	/* in ns */
++	u32 keyup_test_interval; /* in ms */
++};
++
++#define KEYVAL(col, row, val) (((1 << col) << 24) | ((1 << row) << 16) | (val))
++
++#endif
+-- 
+1.5.2

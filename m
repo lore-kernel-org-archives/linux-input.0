@@ -1,38 +1,53 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Fwd:  autosuspend for appletouch driver
-Date: Thu, 27 Sep 2007 14:54:29 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0709271453010.7735-100000@iolanthe.rowland.org>
-References: <200709272043.51904.oliver@neukum.org>
+From: Thomas Rohwer <tr@tng.de>
+Subject: Re: Problem with appletouch driver in Linux version 2.6.23-rc7
+Date: Thu, 27 Sep 2007 23:08:20 +0200
+Message-ID: <46FC1BC4.5050405@tng.de>
+References: <46F54D92.7000300@tng.de>	 <d120d5000709240540ic91832em277a6bcbb399cd45@mail.gmail.com>	 <1190638998.12782.0.camel@localhost> <46F7BA08.6000201@tng.de>	 <1190836596.1359.33.camel@localhost>	 <d120d5000709261313j16f9612fx7d445b707df7784b@mail.gmail.com> <1190915501.7636.4.camel@localhost>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200709272043.51904.oliver@neukum.org>
+In-Reply-To: <1190915501.7636.4.camel@localhost>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Richard Guenther <rguenther@suse.de>, Matthew Garrett <mjg59@srcf.ucam.org>, Soeren Sonnenburg <kernel@nn7.de>, Thomas Rohwer <tr@tng.de>
+To: Soeren Sonnenburg <kernel@nn7.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Matthew Garrett <mjg59@srcf.ucam.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 27 Sep 2007, Oliver Neukum wrote:
+>>> I think there is another bug in this. I mean whenever a mouse button is
+>>> pressed or the mouse is moved the counter should be reset - no?
+>>>
+>>> Currently the idle counter is just increased...
+>>>
+>>> I mean shouldn't it be
+>>>
+>>> if (x || y || key)
+>>>        dev->idlecount=0;
+>>>
+>>> if (!x && !y && !key)
+>>> {
+>>>        dev->idlecount++;
+>>>        if (dev->idlecount == 10) {
+>>>                dev->valid = 0;
+>>>                schedule_work(&dev->work);
+>>>        }
+>>> }
 
-> Am Donnerstag 27 September 2007 schrieb Alan Stern:
-> > > mechanism the same way the version for generic hid does. In fact, i=
-t is
-> > > only necessary because there's no nice API call for setting
-> > > needs_remote_wakeup.
-> >=20
-> > That's okay; even if there were a nice API call for setting=20
-> > needs_remote_wakeup you would still have to call
-> > usb_autopm_get_interface(). =A0This is because we don't keep track of=
-=20
-> > whether or not remote wakeup is currently enabled on a suspended
->=20
-> Is it worth doing so?
+Hello,
 
-If enough drivers need it.  ("Enough" might mean >=3D 1.)
+I agree that this is makes sense. I was wondering if one can remove the whole
+idlecount logic. I tried replacing 10 with 1. This almost works; only if you press
+the touchpad button, after a reset happened, you first get a usb packet with the
+button state still 0 and after that one with button 1. I.e. with count 1 instead of 10
+you reset the device another time in this case. But one could handle this case separately.
+I am currently working with 2 instead of 10.
 
-Alan Stern
+I was also wondering when the procedure atp_reinit is executed after using schedule_work.
+Can it happen that atp_complete is called (even multiple times) before atp_reinit is executed?
+
+Sincerely,
+
+Thomas Rohwer

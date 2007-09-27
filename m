@@ -1,43 +1,73 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: new version of usbhid autosuspend patch
-Date: Thu, 27 Sep 2007 20:09:19 +0200
-Message-ID: <200709272009.20051.oliver@neukum.org>
-References: <200709271633.35098.oliver@neukum.org> <d120d5000709270831y548b0255m2e73572b8a68747b@mail.gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Fwd:  autosuspend for appletouch driver
+Date: Thu, 27 Sep 2007 14:39:32 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0709271436240.7735-100000@iolanthe.rowland.org>
+References: <200709272005.55358.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000709270831y548b0255m2e73572b8a68747b@mail.gmail.com>
-Content-Disposition: inline
+In-Reply-To: <200709272005.55358.oliver@neukum.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz, Pavel Machek <pavel@ucw.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net, Richard Guenther <rguenther@suse.de>, Matthew Garrett <mjg59@srcf.ucam.org>, Soeren Sonnenburg <kernel@nn7.de>, Thomas Rohwer <tr@tng.de>
 List-Id: linux-input@vger.kernel.org
 
-Am Donnerstag 27 September 2007 schrieb Dmitry Torokhov:
-> Hi Oliver,
-> 
-> On 9/27/07, Oliver Neukum <oliver@neukum.org> wrote:
-> > +int hid_check_keys_pressed(struct hid_device *hid)
-> > +{
-> > +       struct hid_input *hidinput, *next;
-> > +       int i;
-> > +
-> > +       list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
-> > +               for (i = 0; i < NBITS(KEY_MAX); i++)
-> > +                       if (hidinput->input->key[i])
-> > +                               return 1;
-> > +       }
-> 
-> Why are you using the list_for_each_entry_safe? You do not alter the
-> list in your loop.
+On Thu, 27 Sep 2007, Oliver Neukum wrote:
 
-Relict from an older version. I am preparing a new patch.
+> Am Donnerstag 27 September 2007 schrieb Alan Stern:
+> > On Thu, 27 Sep 2007, Oliver Neukum wrote:
+> > 
+> > > @@ -528,12 +537,20 @@ exit:
+> > >  static int atp_open(struct input_dev *input)
+> > >  {
+> > >  	struct atp *dev = input_get_drvdata(input);
+> > > +	int rv = 0;
+> > >  
+> > > -	if (usb_submit_urb(dev->urb, GFP_ATOMIC))
+> > > +	if (usb_autopm_get_interface(dev->intf) < 0)
+> > >  		return -EIO;
+> > > +	dev->intf->needs_remote_wakeup = 1;
+> > > +	if (usb_submit_urb(dev->urb, GFP_KERNEL)) {
+> > > +		rv = -EIO;
+> > > +		dev->intf->needs_remote_wakeup = 0;
+> > > +		goto err;
+> > >  
+> > >  	dev->open = 1;
+> > > -	return 0;
+> > > +err:
+> > > +	usb_autopm_put_interface(dev->intf);
+> > > +	return rv;
+> > >  }
+> > >  
+> > >  static void atp_close(struct input_dev *input)
+> > > @@ -543,6 +560,7 @@ static void atp_close(struct input_dev *
+> > >  	usb_kill_urb(dev->urb);
+> > >  	cancel_work_sync(&dev->work);
+> > >  	dev->open = 0;
+> > > +	dev->intf->needs_remote_wakeup = 0;
+> > >  }
+> > 
+> > Doesn't atp_close() need to call usb_autopm_put_interface(), to balance 
+> > the usb_autopm_get_interface() call in atp_open()?
+> 
+> No, the get is balanced in atp_open() itself.
 
-	Thanks
-		Oliver
+I see; I misread the patch.
+
+>  The patch uses the last_busy
+> mechanism the same way the version for generic hid does. In fact, it is
+> only necessary because there's no nice API call for setting
+> needs_remote_wakeup.
+
+That's okay; even if there were a nice API call for setting 
+needs_remote_wakeup you would still have to call
+usb_autopm_get_interface().  This is because we don't keep track of 
+whether or not remote wakeup is currently enabled on a suspended 
+device; we only keep track of whether it should be enabled when the 
+next suspend occurs.
+
+Alan Stern

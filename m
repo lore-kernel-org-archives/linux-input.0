@@ -1,76 +1,43 @@
 From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: Fwd:  autosuspend for appletouch driver
-Date: Thu, 27 Sep 2007 20:05:54 +0200
-Message-ID: <200709272005.55358.oliver@neukum.org>
-References: <Pine.LNX.4.44L0.0709271158410.7735-100000@iolanthe.rowland.org>
+Subject: Re: new version of usbhid autosuspend patch
+Date: Thu, 27 Sep 2007 20:09:19 +0200
+Message-ID: <200709272009.20051.oliver@neukum.org>
+References: <200709271633.35098.oliver@neukum.org> <d120d5000709270831y548b0255m2e73572b8a68747b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44L0.0709271158410.7735-100000@iolanthe.rowland.org>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <d120d5000709270831y548b0255m2e73572b8a68747b@mail.gmail.com>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Soeren Sonnenburg <kernel@nn7.de>, Thomas Rohwer <tr@tng.de>, Richard Guenther <rguenther@suse.de>, linux-usb-devel@lists.sourceforge.net, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@jikos.cz>, linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz, Pavel Machek <pavel@ucw.cz>
 List-Id: linux-input@vger.kernel.org
 
-Am Donnerstag 27 September 2007 schrieb Alan Stern:
-> On Thu, 27 Sep 2007, Oliver Neukum wrote:
+Am Donnerstag 27 September 2007 schrieb Dmitry Torokhov:
+> Hi Oliver,
 > 
-> > @@ -528,12 +537,20 @@ exit:
-> >  static int atp_open(struct input_dev *input)
-> >  {
-> >  	struct atp *dev = input_get_drvdata(input);
-> > +	int rv = 0;
-> >  
-> > -	if (usb_submit_urb(dev->urb, GFP_ATOMIC))
-> > +	if (usb_autopm_get_interface(dev->intf) < 0)
-> >  		return -EIO;
-> > +	dev->intf->needs_remote_wakeup = 1;
-> > +	if (usb_submit_urb(dev->urb, GFP_KERNEL)) {
-> > +		rv = -EIO;
-> > +		dev->intf->needs_remote_wakeup = 0;
-> > +		goto err;
-> >  
-> >  	dev->open = 1;
-> > -	return 0;
-> > +err:
-> > +	usb_autopm_put_interface(dev->intf);
-> > +	return rv;
-> >  }
-> >  
-> >  static void atp_close(struct input_dev *input)
-> > @@ -543,6 +560,7 @@ static void atp_close(struct input_dev *
-> >  	usb_kill_urb(dev->urb);
-> >  	cancel_work_sync(&dev->work);
-> >  	dev->open = 0;
-> > +	dev->intf->needs_remote_wakeup = 0;
-> >  }
+> On 9/27/07, Oliver Neukum <oliver@neukum.org> wrote:
+> > +int hid_check_keys_pressed(struct hid_device *hid)
+> > +{
+> > +       struct hid_input *hidinput, *next;
+> > +       int i;
+> > +
+> > +       list_for_each_entry_safe(hidinput, next, &hid->inputs, list) {
+> > +               for (i = 0; i < NBITS(KEY_MAX); i++)
+> > +                       if (hidinput->input->key[i])
+> > +                               return 1;
+> > +       }
 > 
-> Doesn't atp_close() need to call usb_autopm_put_interface(), to balance 
-> the usb_autopm_get_interface() call in atp_open()?
+> Why are you using the list_for_each_entry_safe? You do not alter the
+> list in your loop.
 
-No, the get is balanced in atp_open() itself. The patch uses the last_busy
-mechanism the same way the version for generic hid does. In fact, it is
-only necessary because there's no nice API call for setting
-needs_remote_wakeup.
+Relict from an older version. I am preparing a new patch.
 
-	Regards
+	Thanks
 		Oliver
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2005.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

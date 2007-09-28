@@ -1,90 +1,79 @@
-From: "Ruth Hull" <aomsoyluha@bones.plus.com>
-Subject: Probieren Sie es - Mann Lebt nur einmal  2000 (letter to FSA dated 14 -- Head First book, you know
-Date: Fri, 28 Sep 2007 16:01:18 +0300
-Message-ID: <01c801cf$a8d6da10$296e37d4@aomsoyluha>
+From: "Juana B. Billings" <Juana@public.taptt.sd.cn>
+Subject: Manster is your new magic wand!
+Date: Fri, 28 Sep 2007 15:28:55 -0500
+Message-ID: <01b701c8020e$30e6f820$c0a80122@Juana>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C801CF.A8D6DA10"
+        boundary="----=_NextPart_437_021F_01C801E4.4810F020"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: "Elena L. Ritchie" <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C801CF.A8D6DA10
+------=_NextPart_437_021F_01C801E4.4810F020
 Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-
-Sie leben nur einmal - warum dann nicht was neues ausprobieren?
-
-Preise die keine Konkurrenz kennen 
-
-- Bequem und diskret online bestellen.
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
-- Visa verifizierter Onlineshop
-- Kein peinlicher Arztbesuch erforderlich
-- Kostenlose, arztliche Telefon-Beratung
-- keine versteckte Kosten
-- Diskrete Verpackung und Zahlung
-
-Originalmedikamente
-Ciiaaaaaalis 10 Pack. 27,00 Euro
-Viiaaaagra 10 Pack. 21,00 Euro
-
-Jetzt bestellen - und vier Pillen umsonst erhalten
-http://ropewinter.cn
-
-(bitte warten Sie einen Moment bis die Seite vollstandig geladen ist)
-
-
-------=_NextPart_000_0006_01C801CF.A8D6DA10
-Content-Type: text/html;
-	charset="Windows-1252"
+        charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+Soros portfolio manager, was disturbed=2E4th Q 1993 12/31/93
+212 A Common Virus Known as Hubrisin his past=2E He began asking some acq=
+uaintances, among them Daniel
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3DWindows-1252">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
--8859-1">
-</head><body><p>Meinung von unserem Kunden:<br><strong>Vor zwei Monaten hab=
-en meine Freundin und ich beschlossen, zum ersten Mal miteinander Sex zu ha=
-ben. Als es soweit war, und ich in sie eindringen wollte, blieb ich v&#246;=
-llig schlaff. Wir haben es drei Wochen sp&#228;ter nochmal versucht, und ic=
-h habe immer noch schlappgemacht. Mein Onkel hat mir Viiaaaagra empfohlen. =
-Letzte Woche haben meine Freundin und ich es noch einmal miteinander probie=
-rt, und es wurde die tollste Nacht meines Lebens. Ich nehme Viiaaaagra jetz=
-t einmal pro Woche, und es klappt prima. Meine Freundin hat keine Zweifel m=
-ehr an meinen sexuellen Qualit&#228;ten.</strong></p><p><strong>Ich habe vo=
-r kurzem Viiaaaagra benutzt und ich muss sagen: Ich liebe Viiaaaagra. Das i=
-st der Fickmacher. Das Alter hat nix damit zu tun. Ich bin zwar noch jung, =
-aber die Viiaaaagra-Power kann auch durch junge Kraft nicht ersetzt werden.=
- Das war der Hammer. Ich habe sie trockengev&#246;gelt. Ich habe mir vorgen=
-ommen, es regelm&#228;&#223;ig zu nehmen. - 21 Jahre<br>
-</strong><strong><br>Sie leben nur einmal - warum dann nicht was neues ausp=
-robieren?</strong></p><p>Preise die keine Konkurrenz kennen <p>
-- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen<br>- Visa verif=
-izierter Onlineshop<br>- Bequem und diskret online bestellen.<br>- Diskrete=
- Verpackung und Zahlung<br>- Kostenlose, arztliche Telefon-Beratung<br>- Ke=
-in peinlicher Arztbesuch erforderlich<br>- keine versteckte Kosten</p>
-<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong>=
-<br>
-  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href=3D=
-"http://ropewinter.cn" target=3D"_blank">Jetzt bestellen - und vier Pillen =
-umsonst erhalten</a><br></strong>(bitte warten Sie einen Moment bis die Sei=
-te vollst&auml;ndig geladen ist) </p></body>
-</body>
-</html>
 
-------=_NextPart_000_0006_01C801CF.A8D6DA10--
+At last you won't be concerned with your size any more=2E
+We have something special that will make all your 'se^xual desires real=2E=
+
+Forget what you've heard before=2E The new era for you has come!
+Women will go crazy!=20
+Friends will be jealous!=20
+And you will At last your new life! Like a real man with a real penis!
+you won't be concerned with MegaDik and something special your new size!
+
+Just click here and have the penis you always desired!
+http://ncfckids=2Ecom/
+
+magazine Le Point, Claes said: There is a kind of plot=2E In the Anglo-
+------=_NextPart_437_021F_01C801E4.4810F020
+Content-Type: text/html;
+        charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4=2E0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii"=
+>
+<META content=3D"MSHTML 6=2E00=2E2900=2E2180" name=3DGENERATOR>
+<STYLE type=3D"text/css">
+=2Estyle2 {font-size: 10px; color: #616161;}
+=2Estyle7 {font-size: 14px; color: #FF2F2F;}
+body {background-color: #EDF8EF; color: #5c5c5c;}
+</STYLE>
+</HEAD>
+<BODY><span class=3D"style2">=20
+Soros portfolio manager, was disturbed=2E4th Q 1993 12/31/93<br>212 A Com=
+mon Virus Known as Hubrisin his past=2E He began asking some acquaintance=
+s, among them Daniel</span>=20
+<br><br><br>
+At last you won't be concerned with your size any more=2E</b><br> We have=
+ something special that will make all your 'se^xual desires real=2E <br>=20=
+
+<b>Forget what you've heard before=2E <span class=3D"style7">The new era =
+for you has come!</span></b><br>=20
+Women will go crazy! <br>=20
+Friends will be jealous! <br>=20
+<b>And you will At last your new life! Like a real man with a real penis!=
+<br>=20
+<span class=3D"style7">Buy MegaDik and enjoy your new size!</span></b><br=
+><br>=20
+<a href=3D"http://ncfckids=2Ecom/"><b>Just click here and have the penis =
+you alwayslonged for!</b></a><br><br>
+<br><span class=3D"style2">magazine Le Point, Claes said: There is a kind=
+ of plot=2E In the Anglo-</span></BODY></HTML>
+
+------=_NextPart_437_021F_01C801E4.4810F020--

@@ -1,34 +1,46 @@
-From: Unknown <unknown@unknown.invalid>
-Subject: BUSINESS INVESTMENT FROM PATRICK!!!
-Date: Sun, 30 Sep 2007 19:26:32 +0200
-Message-ID: <200709301726.l8UHQW0N031190@n11.sivit.org>
-Reply-To: patrickibukun@excite.com
+From: "Jane Burgos" <mfineavm@fineav.com>
+Subject: Photoshop, Windows, Office. Cheap.
+Date: Fri, 28 Sep 2007 18:15:13 +0100
+Message-ID: <157093087.31810335523582@fineav.com>
+Reply-To: mfineavm@fineav.com
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+  boundary="----------BFDA21A05974B805"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-From: PATRICK IBUKUN <>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: simecek@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Dear friend,
-Best compliments of the day. Forgive my indignation if this message may c=
-ome to you as a surprise and if it might offend you without your prior co=
-nsent and writing through this medium.
-=20
-I am Patrick Ibukun Esq. I have a client who wants to invest in your Coun=
-try with the sum of US$21.5M. My client was a former Governor of Liberia =
-here and needs protection for his family.  If you can handle such a huge =
-sum for investment into a profitable with low risk business, please get b=
-ack to me as soon as possible for futher briefing, on the investment plan=
- and agreement procedure. Kindly reply to the above email adds with your =
-business profile to enable us advise our Client accordingly, and do not f=
-orget to include your telephone  contacts for easy communication.
-=20
-Thank you.
-Patrick Ibukun Esq.=20
+------------BFDA21A05974B805
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
+
+Microsoft Windows Vista Business - $299.00  sale price: $79.95Microsoft Office 2007 Enterprise - $899.00  sale price: $79.95Adobe Photoshop CS3 Extended - $999.00 sale price: $89.95Microsoft Office XP Professional - $499.00 sale price: $49.95Microsoft Windows XP Professional with SP2 - $269.99 sale price: $49.95Macromedia Dreamweaver 8 - $399.99 sale price: $49.95Macromedia Studio 8 - $999.00 sale price: $99.95Autodesk AutoCAD 2008 - $6720.00 sale price: $129.95Adobe Creative Suite 2 Premium for Windows - $1199.00 sale price: $149.95Adobe Premiere 2.0 - $849.00 sale price: $59.95CorelDraw Graphics Suite X3 - $399.00 sale price: $59.95View all products
+
+------------BFDA21A05974B805
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
+
+<html>
+<body bgcolor="#FFFFFF" link="#333366">
+<p><font face="Verdana" size="2"><b>Microsoft Windows Vista Business</b> - <s>$299.00</s>  sale price: <b>$79.95</b><br><b>Microsoft Office 2007 Enterprise</b> - <s>$899.00</s>  sale price: <b>$79.95</b><br>
+<b>Adobe Photoshop CS3 Extended</b> - <s>$999.00</s> sale price: <b>$89.95</b><br><b>Microsoft Office XP Professional</b> - <s>$499.00</s> sale price: <b>$49.95</b><br><b>Microsoft Windows XP Professional with SP2</b> - <s>$269.99</s> sale price: <b>$49.95</b><br>
+<b>Macromedia Dreamweaver 8</b> - <s>$399.99</s> sale price: <b>$49.95</b><br><b>Macromedia Studio 8</b> - <s>$999.00</s> sale price: <b>$99.95</b><br><b>Autodesk AutoCAD 2008</b> - <s>$6720.00</s> sale price: <b>$129.95</b><br>
+<b>Adobe Creative Suite 2 Premium for Windows</b> - <s>$1199.00</s> sale price: <b>$149.95</b><br><b>Adobe Premiere 2.0</b> - <s>$849.00</s> sale price: <b>$59.95</b><br><b>CorelDraw Graphics Suite X3</b> - <s>$399.00</s> sale price: <b>$59.95</b><br>
+</font></p>
+<p><font face="Verdana" size="2"><a href="http://allsoftportal.com"><b>View all products</b></a></font></p>
+</body>
+</html>
+
+
+</BODY></HTML>
+------------BFDA21A05974B805--

@@ -1,46 +1,84 @@
-From: "Jane Burgos" <mfineavm@fineav.com>
-Subject: Photoshop, Windows, Office. Cheap.
-Date: Fri, 28 Sep 2007 18:15:13 +0100
-Message-ID: <157093087.31810335523582@fineav.com>
-Reply-To: mfineavm@fineav.com
+From: "Audrey Elliott" <harmon@gosafeguard.com>
+Subject: Potenzprobleme - ab heute nicht mehr   is not obliged to  -- to use them (and when
+Date: Sat, 29 Sep 2007 20:08:19 +0100
+Message-ID: <01c802cc$18ca8a90$bb58115b@harmon>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-  boundary="----------BFDA21A05974B805"
+	boundary="----=_NextPart_000_0007_01C802CC.18CA8A90"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: simecek@atrey.karlin.mff.cuni.cz
+To: cech@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------BFDA21A05974B805
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+This is a multi-part message in MIME format.
 
-Microsoft Windows Vista Business - $299.00  sale price: $79.95Microsoft Office 2007 Enterprise - $899.00  sale price: $79.95Adobe Photoshop CS3 Extended - $999.00 sale price: $89.95Microsoft Office XP Professional - $499.00 sale price: $49.95Microsoft Windows XP Professional with SP2 - $269.99 sale price: $49.95Macromedia Dreamweaver 8 - $399.99 sale price: $49.95Macromedia Studio 8 - $999.00 sale price: $99.95Autodesk AutoCAD 2008 - $6720.00 sale price: $129.95Adobe Creative Suite 2 Premium for Windows - $1199.00 sale price: $149.95Adobe Premiere 2.0 - $849.00 sale price: $59.95CorelDraw Graphics Suite X3 - $399.00 sale price: $59.95View all products
+------=_NextPart_000_0007_01C802CC.18CA8A90
+Content-Type: text/plain;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-------------BFDA21A05974B805
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+Versuchen Sie unser Produkt und Sie werden fuhlen was unsere Kunden bestati=
+gen
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
+Preise die keine Konkurrenz kennen 
+
+- Kein peinlicher Arztbesuch erforderlich
+- Kostenlose, arztliche Telefon-Beratung
+- Diskrete Verpackung und Zahlung
+- Kein langes Warten - Auslieferung innerhalb von 2-3 Tagen
+- Bequem und diskret online bestellen.
+- Visa verifizierter Onlineshop
+- keine versteckte Kosten
+
+Originalmedikamente
+Ciiaaaaaalis 10 Pack. 27,00 Euro
+Viiaaaagra 10 Pack. 21,00 Euro
+
+Jetzt bestellen - und vier Pillen umsonst erhalten
+http://doublefree.cn
+
+(bitte warten Sie einen Moment bis die Seite vollstandig geladen wird)
+------=_NextPart_000_0007_01C802CC.18CA8A90
+Content-Type: text/html;
+	charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1250">
+<META content=3D"MSHTML 5.00.2919.6600" name=3DGENERATOR>
+<STYLE></STYLE>
 </HEAD>
 <BODY>
-
-<html>
-<body bgcolor="#FFFFFF" link="#333366">
-<p><font face="Verdana" size="2"><b>Microsoft Windows Vista Business</b> - <s>$299.00</s>  sale price: <b>$79.95</b><br><b>Microsoft Office 2007 Enterprise</b> - <s>$899.00</s>  sale price: <b>$79.95</b><br>
-<b>Adobe Photoshop CS3 Extended</b> - <s>$999.00</s> sale price: <b>$89.95</b><br><b>Microsoft Office XP Professional</b> - <s>$499.00</s> sale price: <b>$49.95</b><br><b>Microsoft Windows XP Professional with SP2</b> - <s>$269.99</s> sale price: <b>$49.95</b><br>
-<b>Macromedia Dreamweaver 8</b> - <s>$399.99</s> sale price: <b>$49.95</b><br><b>Macromedia Studio 8</b> - <s>$999.00</s> sale price: <b>$99.95</b><br><b>Autodesk AutoCAD 2008</b> - <s>$6720.00</s> sale price: <b>$129.95</b><br>
-<b>Adobe Creative Suite 2 Premium for Windows</b> - <s>$1199.00</s> sale price: <b>$149.95</b><br><b>Adobe Premiere 2.0</b> - <s>$849.00</s> sale price: <b>$59.95</b><br><b>CorelDraw Graphics Suite X3</b> - <s>$399.00</s> sale price: <b>$59.95</b><br>
-</font></p>
-<p><font face="Verdana" size="2"><a href="http://allsoftportal.com"><b>View all products</b></a></font></p>
-</body>
-</html>
-
-
+<head><meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Diso=
+-8859-1">
+</head><body><p>Meinung von unserem Kunden:<br><strong>Ich muss sagen, Ciaa=
+aalis ist wirklich nochmals viel besser als Viiaaaagra. Es ist alles viel n=
+at&#252;rlicher als mit Viiaaaagra. Aufgrund der langen Wirkungszeit von 24=
+ Stunden kann man sich richtig Zeit lassen und mehrer Runden einlegen.</str=
+ong></p><p><strong>Ich bin 28 Jahre alt und habe keine Err. ..ektionsproble=
+me. Ich wollte Viiaaaagra einfach nur so probieren. Es funktioniert, aber d=
+ie Durchblutung ist st&#228;rker als sonst und es f&#252;hlt sich an, als w=
+&#252;rde ich mit einem Dildo v&#246;geln und nicht mit meinem Schwanz. Ich=
+ hatte ziemliche Probleme, wieder runterzukommen. Aber ich w&#252;rde es wo=
+hl wieder tun ...<br>
+</strong><strong><br>Versuchen Sie unser Produkt und Sie werden fuhlen was =
+unsere Kunden bestatigen</strong></p><p>Preise die keine Konkurrenz kennen =
+<p>
+- Kostenlose, arztliche Telefon-Beratung<br>- Kein peinlicher Arztbesuch er=
+forderlich<br>- Bequem und diskret online bestellen.<br>- Kein langes Warte=
+n - Auslieferung innerhalb von 2-3 Tagen<br>- Diskrete Verpackung und Zahlu=
+ng<br>- Visa verifizierter Onlineshop<br>- keine versteckte Kosten</p>
+<p>Originalmedikamente<br><strong>Ciiaaaaaalis 10 Pack. 27,00 Euro</strong>=
+<br>
+  <strong>Viiaaaagra 10 Pack. 21,00 Euro</strong><br><br><strong><a href=3D=
+"http://doublefree.cn" target=3D"_blank">Jetzt bestellen - und vier Pillen =
+umsonst erhalten</a><br></strong>(bitte warten Sie einen Moment bis die Sei=
+te vollst&auml;ndig geladen wird) </p></body>
 </BODY></HTML>
-------------BFDA21A05974B805--
+
+------=_NextPart_000_0007_01C802CC.18CA8A90--

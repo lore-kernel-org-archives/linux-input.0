@@ -1,67 +1,81 @@
-From: "Liz Weiss" <pkguardvam@kguardva.com>
-Subject: MyCanadianStore often announces discounts
-Date: Fri, 28 Sep 2007 19:52:33 +0100
-Message-ID: <01c80200$ba84a590$05f652d9@pkguardvam>
+From: "Renee I. Dunbar" <Renee@ameripath.com>
+Subject: Let your size never spoil your private life!
+Date: Sat, 29 Sep 2007 14:10:58 +0400
+Message-ID: <02fd01c80281$07bf1860$2b4e4c5b@Renee>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0006_01C80200.BA84A590"
+        boundary="----=_NextPart_763_0365_01C802A2.8ED0B860"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: rk@atrey.karlin.mff.cuni.cz
+To: "Georgia U. Ponce" <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------=_NextPart_000_0006_01C80200.BA84A590
+------=_NextPart_763_0365_01C802A2.8ED0B860
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Dear customer.Tired of paying twice the price of a med when buying it from a "reliable" licensed USA Web pharmacy? Our discount Canadian e-shop will show you what real "low prices" should look like.The more attention you pay to your health, the more expensive it is. However, CanadianPharmacy has got something to help you with. We've got the best prices on high-quality generic products here plus shipping discounts. CanadianPharmacy – the only reliable drugstore on the Web.http://gvulo.pitchseparate.cn/?801680458596 – no one is able to match our prices for generic products neither in Canada nor in the USA.Sincerely yours,Liz Weiss
-
-
-
-------=_NextPart_000_0006_01C80200.BA84A590
-Content-Type: text/html;
-	charset="iso-8859-1"
+        charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html40">
+The Japanese government has set up a task force at theyou need and above =
+all that you will be proud of=2E"
+1999 - The Melissa computer worm was released, infectingThe effect of an =
+injunction on the 2=2E2 million Vonage
 
-<head>
-<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Diso-8859-1">
-<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
-</head>
-<body>
-<html>
-<body bgcolor=3D"#FFFFFF" link=3D"#333366">
-<p><font face=3D"Verdana" size=3D"2" color=3D"#000000">Dear customer.</font=
-></p>
-<p><font face=3D"Verdana" size=3D"2">Tired of paying twice the price of a m=
-ed when buying it from a "reliable" licensed USA Web pharmacy? Our discount=
- Canadian e-shop will show you what real "low prices" should look like.</fo=
-nt></p>
-<p><font face=3D"Verdana" size=3D"2">The more attention you pay to your hea=
-lth, the more expensive it is. However, <a href=3D"http://gvulo.pitchsepara=
-te.cn/?801680458596">CanadianPharmacy</a> has got something to help you wit=
-h. We've got the best prices on high-quality generic products here plus shi=
-pping discounts. <a href=3D"http://gvulo.pitchseparate.cn/?801680458596">Ca=
-nadianPharmacy</a> =96 the only reliable drugstore on the Web.</font></p>
-<p><font face=3D"Verdana" size=3D"2"><b><a href=3D"http://gvulo.pitchsepara=
-te.cn/?801680458596">http://gvulo.pitchseparate.cn/?801680458596</a></b> =
-=96 no one is able to match our prices for generic products neither in Cana=
-da nor in the USA.</font></p>
-<p><font face=3D"Verdana" size=3D"2">Sincerely yours,<br>Liz Weiss</font></=
-p>
-</body>
-</html>
 
-</body>
-</html>
+Have you ever heard this, "Damn it! Your penis is so small!"?
+Didn't you just wanna run away?>=20
+Don't let girls  prefer vibrator to you! Megadik will bring you to your s=
+exual dreams!=20
+You just have to trust  this magic preparation!
+"Wow! Your penis is impressive!" Is it what you always wanted to hear?=20=
 
-------=_NextPart_000_0006_01C80200.BA84A590--
+Soon you'll be the only one ladies will wish! Megadik is your true rescue=
+!
+
+Here is the wished link
+http://neewhua=2Ecom/
+
+personnel held by Iran have been denied=2E
+------=_NextPart_763_0365_01C802A2.8ED0B860
+Content-Type: text/html;
+        charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4=2E0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii"=
+>
+<META content=3D"MSHTML 6=2E00=2E2800=2E1437" name=3DGENERATOR>
+<STYLE type=3D"text/css">
+=2Estyle2 {font-size: 10px; color: #616161;}
+=2Estyle7 {font-size: 14px; color: #FF2F2F;}
+body {background-color: #fffbff; color: #5c5c5c;}
+</STYLE>
+</HEAD>
+<BODY><span class=3D"style2">=20
+The Japanese government has set up a task force at theyou need and above =
+all that you will be proud of=2E"<br>1999 - The Melissa computer worm was=
+ released, infectingThe effect of an injunction on the 2=2E2 million Vona=
+ge</span>=20
+<br><br><br>
+<b>Have you ever heard this, "Damn it! Your penis is so small!"?</b><br>=20=
+
+Didn't you just wanna run away? <br>=20
+<b>Don't let girls  prefer vibrator to you! <span class=3D"style7">Megadi=
+k will bring you to your sexual dreams!=20
+You just have to trust  this magic preparation! </span></b><br>
+"Wow! Your penis is impressive!" Is it what you always wanted to hear? <b=
+r>=20
+<b>Soon you'll be the only one ladies will wish!=20
+<span class=3D"style7">Megadik is your true rescue!</span></b>
+<br><br><a href=3D"http://neewhua=2Ecom/"><b>Here is the wished link</b><=
+/a><br><br>
+<br><span class=3D"style2">personnel held by Iran have been denied=2E</sp=
+an></BODY></HTML>
+
+------=_NextPart_763_0365_01C802A2.8ED0B860--

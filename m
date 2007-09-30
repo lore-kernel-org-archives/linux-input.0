@@ -1,10 +1,10 @@
-From: "Zer Ranka" <Ranka@kavtaskin.com>
-Subject: rinnel{{
-Date: Sun, 30 Sep 2007 23:45:38 -0400
-Message-ID: <000501c803dd$87d6b4b0$a588d7c9@pc1>
+From: "Thaine JKLJKL" <Thaine619@VSRP.ru>
+Subject: elateurs
+Date: Sun, 30 Sep 2007 15:48:55 +0200
+Message-ID: <000501c80368$a4b708c0$4190034f@falco89759004d>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0008_01C803BC.00C514B0"
+	boundary="----=_NextPart_000_0005_01C80379.683FD8C0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,7 +14,7 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0008_01C803BC.00C514B0
+------=_NextPart_000_0005_01C80379.683FD8C0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -26,11 +26,11 @@ Look at D-M-X-C!
 5-day price: ~$0.50
 
 Check it at 31.09.2007
-rightshi
-ridgr}te
-rho"hten
-rillasse
-------=_NextPart_000_0008_01C803BC.00C514B0
+elagnidr
+elbausru
+elbmerta
+elappaky
+------=_NextPart_000_0005_01C80379.683FD8C0
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
@@ -49,9 +49,9 @@ Content-Transfer-Encoding: quoted-printable
 <DIV><FONT Arial size=3D2>5-day price: ~$0.50</FONT></DIV>
 <DIV><FONT Arial size=3D2></FONT></DIV>
 <DIV><FONT Arial size=3D2>Check it at 31.09.2007</FONT></DIV>
-<DIV><FONT Arial size=3D2>rightshi</FONT></DIV>
-<DIV><FONT Arial size=3D2>ridgr}te</FONT></DIV>
-<DIV><FONT Arial size=3D2>rho"hten</FONT></DIV>
-<DIV><FONT Arial size=3D2>rillasse</FONT></DIV></BODY></HTML>
+<DIV><FONT Arial size=3D2>elagnidr</FONT></DIV>
+<DIV><FONT Arial size=3D2>elbausru</FONT></DIV>
+<DIV><FONT Arial size=3D2>elbmerta</FONT></DIV>
+<DIV><FONT Arial size=3D2>elappaky</FONT></DIV></BODY></HTML>
 
-------=_NextPart_000_0008_01C803BC.00C514B0--
+------=_NextPart_000_0005_01C80379.683FD8C0--

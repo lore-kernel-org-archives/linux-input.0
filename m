@@ -1,10 +1,10 @@
-From: "fahri Sethi" <fahri-Sethi@aaa-uebersetzung.com>
-Subject: norposro
-Date: Mon, 1 Oct 2007 10:45:26 +0300
-Message-ID: <000301c803ff$07a8dcb0$9291c5d5@steponas>
+From: "cirillo phineas" <baskar@connecthouston.com>
+Subject: Cheap medical goods. Special offer only for!
+Date: Mon, 01 Oct 2007 07:23:56 +0000
+Message-ID: <000a01c8040b$028b18c5$878b22bc@fibbr>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0003_01C80418.2CF614B0"
+	boundary="----=_NextPart_000_0007_01C8040B.028511B0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,44 +14,36 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0003_01C80418.2CF614B0
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0007_01C8040B.028511B0
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-Good day linux-input
-
-Alert to all investors!
-Look at D-M-X-C!
-5-day price: ~$0.50
-
-Check it at 31.09.2007
-nose-led
-notenola
-nosro
-notuklot
-------=_NextPart_000_0003_01C80418.2CF614B0
+Good morning
+Dear client only today you have a possibility
+to acquire medical products for cheap.
+Hurry up!=20
+http://starclear.cn/
+------=_NextPart_000_0007_01C8040B.028511B0
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2>Good day linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Alert to all investors!</FONT></DIV>
-<DIV><FONT Arial size=3D2>Look at D-M-X-C!</FONT></DIV>
-<DIV><FONT Arial size=3D2>5-day price: ~$0.50</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Check it at 31.09.2007</FONT></DIV>
-<DIV><FONT Arial size=3D2>nose-led</FONT></DIV>
-<DIV><FONT Arial size=3D2>notenola</FONT></DIV>
-<DIV><FONT Arial size=3D2>nosro</FONT></DIV>
-<DIV><FONT Arial size=3D2>notuklot</FONT></DIV></BODY></HTML>
-
-------=_NextPart_000_0003_01C80418.2CF614B0--
+<BODY>
+Good morning<BR>
+Dear client only today you have a possibility<BR>
+to acquire=20
+medical products for cheap.<BR>
+Hurry up! <BR>
+<A href=3D"http://starclear.cn/">http://starclear.cn/ </A>
+</BODY></HTML>
+------=_NextPart_000_0007_01C8040B.028511B0--

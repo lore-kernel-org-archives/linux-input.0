@@ -1,12 +1,9 @@
-From: "hansiain cantius" <dewey@escortcorp.com>
-Subject: International corporation is looking for talented people. No investment reqired.
-Date: Mon, 01 Oct 2007 19:56:48 +0000
-Message-ID: <000601c80474$04e8ee11$098436b8@efveqr>
+From: "Faviana clow" <Faviana.clow@HRHVegas.com>
+Subject: emacitla
+Date: Tue, 2 Oct 2007 00:24:55 +0200
+Message-ID: <66C5E056.7C1566DD@HRHVegas.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -17,13 +14,16 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Big international commercial organization is looking for talented, honest, reliable representatives from different regions. The ideal candidate will be an intelligent person, someone who can work autonomously with a high degree of enthusiasm. We are looking for highly motivated professionals, with experience in marketing field. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate. 
-Our Company offers a very competitive salary to the successful candidate, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to apply please send the following information to: CorinaHolmanNM@gmail.com
-1) Full name 
-2) Contact phone numbers 
-3) Part time job/Full time 
-You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites! We are engaged in completely legal activity. 
-The preference is given to employees with knowledge of foreign languages. 
-Thank you and we are looking forward to cooperate in long term base with you. 
+CWTE: C'Watre International, Inc
+Trade Alert.  CWTE just announced trading on the OTC.  CWTE has the potential to return 5 times your money with this tight capital structure.
+This means the stock can see $1.50 when news is realesed.  CWTE has a womens line of ageless cosmetics that is overwhelming the celebrity
+industry.  Keep an eye for news to hit the market and create a frenzy in this stock.  When investors find out who's using it, the stock could
+go well beyond our target.
 
-If you received this message in error, or would like to unsubscribe, please send a blank email to: IssacDelaneyOW@gmail.com
+linux-input, contact your broker NOW for CWTE!
+elmnkuva
+elsaem
+ematulov
+elparf
+ellinres
+emegaged

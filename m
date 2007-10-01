@@ -1,99 +1,72 @@
-From: "VIP Casino Club" <buttery@netsearch.org>
-Subject: 300% Bonus on your First-Deposit
-Date: Mon, 01 Oct 2007 15:43:37 +0200
-Message-ID: <52402699.42810675@apr.com>
+From: "Kim Askew" <jaxpotheurosoftsiq@potheurosoft.com>
+Subject: Legal software sales
+Date: Mon, 1 Oct 2007 13:34:11 +0000 (UTC)
+Message-ID: <432433774.10408355136259@potheurosoft.com>
+Reply-To: jaxpotheurosoftsiq@potheurosoft.com
 Mime-Version: 1.0
-Content-Type: text/html; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+  boundary="----------7B829744444B80C"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Mon, 31 Sep 2007 13:43:54 +0700
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: lemming@atrey.karlin.mff.cuni.cz
+To: kral@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-<html>
+------------7B829744444B80C
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-<head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+Our main aim is to render low cost PC and Macintosh legal soft and computer solutions to give the best fit to any budget. 
+Whether you're a corporate purchaser, a proprietor of small business, 
+or shopping for your own PC, we guess we'll assist you. 
 
-<title>Only from </title>
+ENJOY OF OUR SOFTWARE 
+http://hlhycuj.oemcheckoutsoft.com/
 
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0cm;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	mso-ansi-language:EN-US;
-	mso-fareast-language:EN-US;}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
-@page Section1
-	{size:595.3pt 841.9pt;
-	margin:2.0cm 42.5pt 2.0cm 3.0cm;
-	mso-header-margin:35.4pt;
-	mso-footer-margin:35.4pt;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
--->
-</style>
+Most popular products in sight:
+*Adobe Photoshop Elements 3.0 for Mac: Retail price for this day - $89.99; Our just - $39.95 
+*Macromedia Captivate v1.0: Retail price today - $499.00; Our only today - $39.95 
+*Symantec pcAnywhere V 11.0 Host & Remote: Retail price this day - $210.00; Our only - $29.95 
+*Symantec Norton Save & Restore 2.0: Retail price this time - $49.99; Our for this day - $19.95 
+*Adobe Acrobat 5.0: Retail price for now - $124.99; Our only - $39.95 
+*Adobe InDesign CS3: Retail price for today - $699.00; Our for this time - $79.95 
+*Adobe Photoshop Elements 4.0: Retail price today - $69.99; Our just now - $39.95 
+*Corel Print House 6: Retail price for today - $270.00; Our only for this time - $29.95 
 
-</head>
+COME TO US! 
+http://hlhycuj.oemcheckoutsoft.com/
+------------7B829744444B80C
+Content-Type: text/html; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-<body lang=EN-US link=blue vlink=purple style='tab-interval:35.4pt'>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-<div class=Section1>
+<strong>Our main aim is to render low cost PC and Macintosh legal soft and computer solutions to give the best fit to any budget.<br> 
+Whether you're a corporate purchaser, a proprietor of small business,<br> 
+or shopping for your own PC, we guess we'll assist you.<br> 
 
-<p class=MsoNormal><span lang=EN-US> Only from the most noble of all casinos 
-you could except such a Regal gift:</span></p>
+<em><a href="http://hlhycuj.oemcheckoutsoft.com/" target="_blank">ENJOY OF OUR SOFTWARE</a></em></strong><br> 
+<font color="#D9EDFF">http://hlhycuj.oemcheckoutsoft.com/</font><br>
 
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+<strong>Most popular products in sight:</strong><br>
+*<strong>Adobe Photoshop Elements 3.0 for Mac:</strong> <em>Retail price for this day - $89.99</em>; <strong>Our just - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Macromedia Captivate v1.0:</strong> <em>Retail price today - $499.00</em>; <strong>Our only today - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Symantec pcAnywhere V 11.0 Host & Remote:</strong> <em>Retail price this day - $210.00</em>; <strong>Our only - <font color="red"><em>$29.95</em></font></strong><br> 
+*<strong>Symantec Norton Save & Restore 2.0:</strong> <em>Retail price this time - $49.99</em>; <strong>Our for this day - <font color="red"><em>$19.95</em></font></strong><br> 
+*<strong>Adobe Acrobat 5.0:</strong> <em>Retail price for now - $124.99</em>; <strong>Our only - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Adobe InDesign CS3:</strong> <em>Retail price for today - $699.00</em>; <strong>Our for this time - <font color="red"><em>$79.95</em></font></strong><br> 
+*<strong>Adobe Photoshop Elements 4.0:</strong> <em>Retail price today - $69.99</em>; <strong>Our just now - <font color="red"><em>$39.95</em></font></strong><br> 
+*<strong>Corel Print House 6:</strong> <em>Retail price for today - $270.00</em>; <strong>Our only for this time - <font color="red"><em>$29.95</em></font></strong><br> 
 
-<p class=MsoNormal><span lang=EN-US> 300% Bonus on your First Deposit!
-</span></p>
+<strong><em><a href="http://hlhycuj.oemcheckoutsoft.com/" target="_blank">COME TO US!</a></em></strong><br> 
+<font color="#D9EDFF">http://hlhycuj.oemcheckoutsoft.com/</font>
 
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US>
- Deposit 100&euro; and play with 400&euro;!</span></p>
-
-<p class=MsoNormal>
-<span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US> And on top of that, a service at such a
-level you would not find in the best Royal Families of Europe.</span></p>
-
-<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal>
-<span lang=EN-US> Come and play!</span></p>
-
-<p class=MsoNormal>
-<span lang=EN-US><o:p>&nbsp;</o:p></span></p>
-
-<p class=MsoNormal><span lang=EN-US><a href="http://www.royalarmscasinos.com/">
- http://www.royalarmscasinos.com/</a><o:p></o:p></span></p>
-
-</div>
-
-</body>
-
-</html>
+</BODY></HTML>
+------------7B829744444B80C--

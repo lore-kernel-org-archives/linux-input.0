@@ -1,127 +1,99 @@
-From: "Hal Goss" <tondra.dalzell@vaegtkonsulenterne.dk>
-Subject: Life is beautiful
-Date: Mon, 1 Oct 2007 11:19:57 +0000 (UTC)
-Message-ID: <068cffa4$068cfe00$47d2be54@tondra.dalzell>
+From: "VIP Casino Club" <buttery@netsearch.org>
+Subject: 300% Bonus on your First-Deposit
+Date: Mon, 01 Oct 2007 15:43:37 +0200
+Message-ID: <52402699.42810675@apr.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_000E_068CFFA4.068CFD60"
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 31 Sep 2007 05:28:06 +0100
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+<html>
 
-------=_NextPart_000_000E_068CFFA4.068CFD60
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
 
+<title>Only from </title>
 
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{mso-style-parent:"";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-fareast-font-family:"Times New Roman";
+	mso-ansi-language:EN-US;
+	mso-fareast-language:EN-US;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;
+	text-underline:single;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:purple;
+	text-decoration:underline;
+	text-underline:single;}
+span.GramE
+	{mso-style-name:"";
+	mso-gram-e:yes;}
+@page Section1
+	{size:595.3pt 841.9pt;
+	margin:2.0cm 42.5pt 2.0cm 3.0cm;
+	mso-header-margin:35.4pt;
+	mso-footer-margin:35.4pt;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+-->
+</style>
 
-------=_NextPart_000_000E_068CFFA4.068CFD60
-Content-Type: image/gif;
-	name="ana.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="ana.gif"
+</head>
 
-R0lGODlhwAD/APcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADAAP8A
-AAj/AP8JHEiwoMGDCBMK9KOwocOHECNKnEixosNXhCxq3GiRGseHzz6KHEmypMmTA0OiRJhxpcuX
-MGG+0tgy5kRbNnPq1KYz58yeCT2Oaga0qNGjKGHFKrkF6URk7Fw6GzgVpsechR42dXqwUNaeV/9V
-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
-0i7BnqxS1F4E1dNMEMzZE1ItEq/6LgEBADs= 
+<body lang=EN-US link=blue vlink=purple style='tab-interval:35.4pt'>
 
-------=_NextPart_000_000E_068CFFA4.068CFD60--
+<div class=Section1>
+
+<p class=MsoNormal><span lang=EN-US> Only from the most noble of all casinos 
+you could except such a Regal gift:</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US> 300% Bonus on your First Deposit!
+</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US>
+ Deposit 100&euro; and play with 400&euro;!</span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US> And on top of that, a service at such a
+level you would not find in the best Royal Families of Europe.</span></p>
+
+<p class=MsoNormal><span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US> Come and play!</span></p>
+
+<p class=MsoNormal>
+<span lang=EN-US><o:p>&nbsp;</o:p></span></p>
+
+<p class=MsoNormal><span lang=EN-US><a href="http://www.royalarmscasinos.com/">
+ http://www.royalarmscasinos.com/</a><o:p></o:p></span></p>
+
+</div>
+
+</body>
+
+</html>

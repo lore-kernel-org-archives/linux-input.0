@@ -1,12 +1,13 @@
-From: "Kristine Holliday" <elpida.danby@violette-teufel.at>
-Subject: We can help you
-Date: Mon, 1 Oct 2007 15:20:28 +0000 (UTC)
-Message-ID: <0fa5ffa4$0fa5fe00$91e85852@elpida.danby>
+From: "Marisol Richter" <a-akik@aegisal.com>
+Subject: Would you like to chat?
+Date: Mon, 1 Oct 2007 19:27:31 +0000 (UTC)
+Message-ID: <0102ffa4$0102fe78$e16f6bd9@a-akik>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_0006_0FA5FFA4.0FA5FD60"
+Content-Type: text/plain;
+	charset="Windows-1252"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Mon, 31 Sep 2007 09:28:46 +0100
+Date: Mon, 31 Sep 2007 22:27:21 +0300
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -15,113 +16,4 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0006_0FA5FFA4.0FA5FD60
-Content-Type: text/plain;
-	charset="Windows-1252"
-Content-Transfer-Encoding: 7bit
-
-
-
-------=_NextPart_000_0006_0FA5FFA4.0FA5FD60
-Content-Type: image/gif;
-	name="ana.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="ana.gif"
-
-R0lGODlhuwABAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAAC7AAEB
-AAj/AP8JHEiwoMGB1KgdXMiwoUBtsBxKnOiwGT6KGDNq3MixI0NVET0KvNhRmj2RHm2FRMly46mW
-MEkaAgSz5StbNXOKfMlI58I/fnQu8km0aEN2//JJ7GnUKE6fCZtKFYh0qlWPWlhWGzjK4a2rYMPm
-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
-gaLLSxQsEURtqn5aE08d0wldqVcREAA7 
-
-------=_NextPart_000_0006_0FA5FFA4.0FA5FD60--
+Hello! I am tired tonight. I am nice girl that would like to chat with you. Email me at zzsvk@SuperOnset.info only, because I am writing not from my personal email. Hope you will like my pictures.

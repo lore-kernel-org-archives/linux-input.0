@@ -1,9 +1,10 @@
-From: "Faviana clow" <Faviana.clow@HRHVegas.com>
-Subject: emacitla
-Date: Tue, 2 Oct 2007 00:24:55 +0200
-Message-ID: <66C5E056.7C1566DD@HRHVegas.com>
+From: "Allyson" <ereidnvyr@capitalfactors.com>
+Subject: cheap sluts
+Date: Tue, 2 Oct 2007 03:19:09 +0200
+Message-ID: <7083315987.20071002031909@yrzfbqq>
+Reply-To: "Allyson Longoria" <ereidnvyr@capitalfactors.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,16 +15,10 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-CWTE: C'Watre International, Inc
-Trade Alert.  CWTE just announced trading on the OTC.  CWTE has the potential to return 5 times your money with this tight capital structure.
-This means the stock can see $1.50 when news is realesed.  CWTE has a womens line of ageless cosmetics that is overwhelming the celebrity
-industry.  Keep an eye for news to hit the market and create a frenzy in this stock.  When investors find out who's using it, the stock could
-go well beyond our target.
+best wh0res list
+www spellonme dot com
 
-linux-input, contact your broker NOW for CWTE!
-elmnkuva
-elsaem
-ematulov
-elparf
-ellinres
-emegaged
+retaliate candlewick
+deliberation trespasser
+CENTREX circumclude
+bypass outwishes

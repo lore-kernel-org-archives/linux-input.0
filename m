@@ -1,14 +1,14 @@
-From: "Imelda Villalobos" <a-abbas@agmca.com>
-Subject: Can we talk?
-Date: Tue, 2 Oct 2007 18:33:44 +0000 (UTC)
-Message-ID: <814700271.38648372060367@agmca.com>
-Reply-To: a-abbas@agmca.com
+From: "hashim chet" <silas@ml.com>
+Subject: International trading company is proud to offer a high-paid position for a honest hard-working ambitious person.
+Date: Tue, 02 Oct 2007 17:22:16 +0000
+Message-ID: <000601c80527$0262ec90$c97f22ba@yleqxxk>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset=iso-8859-2
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Date: Tue, 32 Sep 2007 20:33:21 +0200
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,4 +17,13 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello! I am bored this evening. I am nice girl that would like to chat with you. Email me at lpfe@SuperOnset.info only, because I am writing not from my personal email. Hope you like my pictures.
+          Big international commercial organization is looking for talented, honest, reliable representatives from different regions. The ideal candidate will be an intelligent person, someone who can work autonomously with a high degree of enthusiasm. We are looking for highly motivated professionals, with experience in marketing field. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to apply please send the following information to: EnidHinesIM@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites! We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
+
+If you received this message in error, or would like to unsubscribe, please send a blank email to: NoraChurchEI@gmail.com

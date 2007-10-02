@@ -1,47 +1,29 @@
-From: BRITISH ONLINE LOTTERY <bolwinner-info@adelphia.net>
-Subject: =?utf-8?Q?Congratulations..._Your_Email?=
- =?utf-8?Q?_Address_Won_=C2=A3250.000.00_G.B.P?=
-Date: Tue, 2 Oct 2007 13:07:38 -0700
-Message-ID: <5335274.1191355658649.JavaMail.root@web21>
-Reply-To: bol_payment_dept@yahoo.co.uk
+From: "holmes donald" <elvin@azeronline.com>
+Subject: Local representatives wanted, no investment needed. Serious people only please.
+Date: Tue, 02 Oct 2007 18:35:37 +0000
+Message-ID: <000701c80532$07afb631$7acebc88@txmqudlg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-BRITISH ONLINE LOTTERY PROMOTIONS,
-SUITE 23-30, LION TOWERS,=20
-CENTRAL LONDON,
-ENGLAND.
+          Big international commercial organization is looking for talented, honest, reliable representatives from different regions. The ideal candidate will be an intelligent person, someone who can work autonomously with a high degree of enthusiasm. We are looking for highly motivated professionals, with experience in marketing field. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to apply please send the following information to: ShelbyHendrixJZ@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites! We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
 
-Today, We announced of your selection as one of the five lucky winners of t=
-he promotional British Online Lottery Sweepstakes. You are therefore been a=
-pproved for a lump sum pay out of ( =C2=A3250.000.00 G.B.P). the value of t=
-he amount comes to ($510,626.13 USD).
-
-After randomly selecting 15,000 email addresses from an initial database of=
- 300,000. Emails addresses were selected through a computer ballot system f=
-rom the Middle East, Asia, Africa, Canada, Europe, USA and South America .W=
-e produced an extensive list from which you have emerged as one of the winn=
-ers of the Grand Draw.=20
-
-Ref No: BOL/1010XI/02
-Batch No: 6/211/0374
-Ticket No: 56475600545 188
-Serial No: 5368/02.
-
-In order to claim your =C2=A3250,000.00 prize, you will have to fill the fo=
-rm below and send it back to us for verification.=20
-
-VERIFICATION/PAYMENT PROCESSING FORM
-1. FULL NAMES:=20
-2. RECENT ADDRESS:=20
-3. AGE:=20
-4. TELEPHONE NUMBER:
-5. COUNTRY:
+If you received this message in error, or would like to unsubscribe, please send a blank email to: OmarLindseyHN@gmail.com

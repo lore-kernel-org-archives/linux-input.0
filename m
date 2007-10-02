@@ -1,13 +1,10 @@
-From: "holmes donald" <elvin@azeronline.com>
-Subject: Local representatives wanted, no investment needed. Serious people only please.
-Date: Tue, 02 Oct 2007 18:35:37 +0000
-Message-ID: <000701c80532$07afb631$7acebc88@txmqudlg>
+From: "Gerard merrel" <merrelupt@KatNoir.com>
+Subject: ahdal
+Date: Tue, 2 Oct 2007 22:31:43 +0200
+Message-ID: <000601c80533$3eab8c00$59f5dd56@BIBI>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0004_01C80544.02345C00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -17,13 +14,34 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-          Big international commercial organization is looking for talented, honest, reliable representatives from different regions. The ideal candidate will be an intelligent person, someone who can work autonomously with a high degree of enthusiasm. We are looking for highly motivated professionals, with experience in marketing field. The position is home-based. We offer a part-time position with flexible working hours. And we would be happy to consider a full-time job share candidate. 
-Our Company offers a very competitive salary to the successful candidate, along with an unrivalled career progression opportunity. If you think you have what it takes to take on this challenge and would like to apply please send the following information to: ShelbyHendrixJZ@gmail.com
-1) Full name 
-2) Contact phone numbers 
-3) Part time job/Full time 
-You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites! We are engaged in completely legal activity. 
-The preference is given to employees with knowledge of foreign languages. 
-Thank you and we are looking forward to cooperate in long term base with you. 
+------=_NextPart_000_0004_01C80544.02345C00
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-If you received this message in error, or would like to unsubscribe, please send a blank email to: OmarLindseyHN@gmail.com
+http://shericraig.com/
+Hi linux-input
+I've gained an inch and a half so far,
+
+Gerard merrel
+------=_NextPart_000_0004_01C80544.02345C00
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://shericraig.com/">http://shericraig.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Hi linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>I've gained an inch and a half so =
+far,</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>Gerard merrel</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0004_01C80544.02345C00--

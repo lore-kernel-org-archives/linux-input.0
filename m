@@ -1,50 +1,19 @@
-From: "Isto Maroni" <Maronishup@ps-bar.ru>
-Subject: aroar
-Date: Fri, 28 Jan 2000 15:00:33 +0100
-Message-ID: <000a01bf6998$0b8f2820$f8293352@GIACOMO2>
+From: "Opal Metz" <9shannoncantwell@ameritrade.com>
+Subject: Can we talk?
+Date: Wed, 3 Oct 2007 14:07:54 +0000 (UTC)
+Message-ID: <0107ffa4$0107fe78$cbdc90d9@9shannoncantwell>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0009_01BF69A0.6D539020"
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Wed, 33 Sep 2007 15:07:29 +0100
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: lemming@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0009_01BF69A0.6D539020
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-http://www.coyotebike.com/
-Good day linux-input
-Like millions of other males, I was not too happy with my penis size. so =
-i dont something about it
-
-Isto Maroni
-------=_NextPart_000_0009_01BF69A0.6D539020
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://www.coyotebike.com/">http://www.coyotebike.com/</A></FONT>=
-</DIV>
-<DIV><FONT Arial size=3D2>Good day linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>Like millions of other males, I was not too =
-happy with=20
-my penis size. so i dont something about it</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Isto Maroni</FONT></DIV></BODY></HTML>
-
-------=_NextPart_000_0009_01BF69A0.6D539020--
+Hello! I am tired this afternoon. I am nice girl that would like to chat with you. Email me at tlvuco@SuperOnset.info only, because I am writing not from my personal email. Would you mind if I share some of my pictures with you?

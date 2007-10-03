@@ -1,25 +1,48 @@
-From: "Bridgett Childs" <bagsby@espaflor.com>
-Subject: We featured it Tuesday and it exploded
-Date: Wed, 3 Oct 2007 16:45:39 -0500
-Message-ID: <466870525.98865840507162@espaflor.com>
-Reply-To: bagsby@espaflor.com
+From: "PoYan Ramirez" <PoYan_Ramirez@aegmerchandising.com>
+Subject: ufru"hen
+Date: Thu, 4 Oct 2007 01:52:39 +0200
+Message-ID: <000a01c80618$7ae85f50$4af8084f@youreee5d5ecf1>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset=windows-1250
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0009_01C80629.3E712F50"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-joystick@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Morning Update for Thursday 10-4-2007
+------=_NextPart_000_0009_01C80629.3E712F50
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-We featured it Tuesday and it exploded. We see bigger things happening tommorow!
+http://www.echanblad.com/
+Whats up linux-input
+This is the website seen on the news and 60 minutes.
 
-**************
+PoYan Ramirez
+------=_NextPart_000_0009_01C80629.3E712F50
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-MAKU - Volume Alerthttp://finance.yahoo.com/q?s=MAKU.OBMakeup.com Limited is an online makeup etailer offering both premium Boutique and Classic Brands. Makeup.com is owned and operated by Makeup Incorporated, a wholly owned subsidiary of Makeup.com Limited, a Nevada based company with headquarters in Newport Beach, California.
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://www.echanblad.com/">http://www.echanblad.com/</A></FONT></=
+DIV>
+<DIV><FONT Arial size=3D2>Whats up linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>This is the website seen on the news and 60 =
+minutes.</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>PoYan Ramirez</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0009_01C80629.3E712F50--

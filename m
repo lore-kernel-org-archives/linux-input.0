@@ -1,10 +1,10 @@
-From: "ramondo Rizea" <ramondo@asesorias-fervas.com>
-Subject: megirfp"
-Date: Thu, 4 Oct 2007 21:48:55 +0300
-Message-ID: <000201c806b7$37472390$48388e4e@user2e75cd605b>
+From: "bailey kaspar" <king@fujitsu.com>
+Subject: Most popular watches at the lowest price. Save your money!
+Date: Thu, 04 Oct 2007 19:45:37 +0000
+Message-ID: <000901c806ce$0703da57$4f9bd390@pakfxj>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0004_01C806D0.5C945B90"
+	boundary="----=_NextPart_000_0006_01C806CE.0701CE92"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,37 +14,46 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0004_01C806D0.5C945B90
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0006_01C806CE.0701CE92
 Content-Type: text/plain;
-	charset="windows-1251"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-http://www.startrave.com/
-Yo man linux-input
-Been using manster pills for over a month now and I have already seen =
-gains of almost one inch
-
-ramondo Rizea
-------=_NextPart_000_0004_01C806D0.5C945B90
+Good afternoon
+Todaywe want to offer you most popular watches at the lowest=20
+costs.
+I know that everyone is dreaming about fashion w.a.tche\s but the cost =
+is the main problem.
+Do not worry bro. Now we can solve your problem. All you have to do is =
+just visit our site and choose the watch you like! I have bought one. It =
+is your turn. Hurry up the offer is limited!
+http://tronluxury.cn/
+------=_NextPart_000_0006_01C806CE.0701CE92
 Content-Type: text/html;
-	charset="windows-1251"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1251">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://www.startrave.com/">http://www.startrave.com/</A></FONT></=
-DIV>
-<DIV><FONT Arial size=3D2>Yo man linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2>Been using manster pills for over a month now =
-and I have=20
-already seen gains of almost one inch</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>ramondo Rizea</FONT></DIV></BODY></HTML>
-
-------=_NextPart_000_0004_01C806D0.5C945B90--
+<BODY>
+Good afternoon<BR>
+Todaywe want to offer you most popular watches at the lowest=20
+<BR>
+costs.<BR>
+I know that everyone is dreaming about fashion w.a.tche\s=20
+but the cost is the main problem.<BR>
+Do not worry bro. Now we can solve your problem. All you have to do is =
+just visit=20
+our site and choose the watch you like! I have bought one. It is your =
+turn. Hurry=20
+up the offer is limited!<BR>
+<A href=3D"http://tronluxury.cn/">http://tronluxury.cn/</A><BR>
+</BODY></HTML>
+------=_NextPart_000_0006_01C806CE.0701CE92--

@@ -1,14 +1,13 @@
-From: "hube angie" <haibo@3g-italy.com>
-Subject: Extreamly cheap medications. Special offer only for!
-Date: Thu, 04 Oct 2007 04:00:22 +0000
-Message-ID: <000901c8064a$013f9553$6c92bfbe@cnsfr>
+From: "Pamela Galindo" <999.prmendez@ameritrade.com>
+Subject: Let's chat
+Date: Thu, 4 Oct 2007 06:08:50 +0000 (UTC)
+Message-ID: <0100ffa4$0100fe78$76cdf558@999.prmendez>
 Mime-Version: 1.0
 Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	charset="Windows-1252"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Date: Thu, 34 Sep 2007 08:08:33 +0200
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -17,7 +16,4 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello
-We are very glad to inform you that now you have a unique possibility to buy cheap and quality meds. We have such attractive prices that I&#8217; am sure if you visit our shop you will buy needed 
-meds. for sure!
-http://ivopr.subtracthold.com/?993396184523
+Hello! I am bored today. I am nice girl that would like to chat with you. Email me at sdro@SuperOnset.info only, because I am writing not from my personal email. I want to show you some pictures.

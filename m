@@ -1,65 +1,73 @@
-From: "hilary hungmok" <harden@uboc.com>
-Subject: Time to lose e.x|c|es.s w|e.i.g.h|t.
-Date: Fri, 05 Oct 2007 12:13:08 +0000
-Message-ID: <000a01c80758$042777c5$1710d3b9@eqhla>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: [PATCH]resource leak in hiddev if autoresume fails
+Date: Fri, 5 Oct 2007 16:04:17 +0200
+Message-ID: <200710051604.18234.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0007_01C80758.0426A12B"
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: Jiri Kosina <jikos@jikos.cz>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi,
 
-------=_NextPart_000_0007_01C80758.0426A12B
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+several resources are not freed if autoresume fails.
 
-Good evening=20
- Everyone knows that e.x|c|es.s w|e.i.g.h|t is a great=20
- trouble.=20
-Now you can find a lot of ways of l.o/o/sin.g weight. But we want to =
-offer you the best method.
-H.o.o|di.a is The No.1 Most Effective and fastest W_e_i_g_h_t Loss =
-Sup_plem_en_t.
-I have lost 9 kilos. Now you are able to change your life.
-Also you can see my photos on our site! Before using and after using =
-H.o/o.di/a p.i||s.
-http://webvirmor.com/=20
+	Regards
+		Oliver
 
-------=_NextPart_000_0007_01C80758.0426A12B
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY>
-Good evening <BR>
- Everyone knows that e.x|c|es.s w|e.i.g.h|t is a great <BR>
- trouble. <BR>
-Now you can find a lot of ways of l.o/o/sin.g weight. But we want to =
-offer you=20
-the best method.<BR>
-H.o.o|di.a is The No.1 Most Effective and fastest W_e_i_g_h_t Loss =
-Sup_plem_en_t.<BR>
-I have lost 9 kilos. Now you are able to change your life.<BR>
-Also you can see my photos on our site! Before using and after using =
-H.o/o.di/a=20
-p.i||s.<BR>
-<A href=3D"http://webvirmor.com/%20">http://webvirmor.com/ </A>
-<P><BR>
-</P>
-</BODY></HTML>
-------=_NextPart_000_0007_01C80758.0426A12B--
+----
+
+--- a/drivers/hid/usbhid/hiddev.c	2007-10-05 15:42:45.000000000 +0200
++++ b/drivers/hid/usbhid/hiddev.c	2007-10-05 15:54:32.000000000 +0200
+@@ -280,18 +280,21 @@ static int hiddev_open(struct inode *ino
+ 
+ 	list->hiddev = hiddev_table[i];
+ 
+-	spin_lock_irqsave(&list->hiddev->list_lock, flags);
+-	list_add_tail(&list->node, &hiddev_table[i]->list);
+-	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
+-
+-	file->private_data = list;
+-
+ 	if (!list->hiddev->open++)
+ 		if (list->hiddev->exist) {
+ 			struct hid_device *hid = hiddev_table[i]->hid;
+ 			res = usbhid_get_power(hid);
+-			if (res < 0)
++			if (res < 0) {
++				hiddev_table[i]->open--;
++				kfree(list);
+ 				return -EIO;
++			} else {
++				spin_lock_irqsave(&list->hiddev->list_lock, flags);
++				list_add_tail(&list->node, &hiddev_table[i]->list);
++				spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
++
++				file->private_data = list;	
++			}
+ 			usbhid_open(hid);
+ 		}
+ 
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Splunk Inc.
+Still grepping through log files to find problems?  Stop.
+Now Search log events and configuration files using AJAX and a browser.
+Download your FREE copy of Splunk now >> http://get.splunk.com/
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

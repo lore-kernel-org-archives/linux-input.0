@@ -1,27 +1,24 @@
 From: Oliver Neukum <oliver@neukum.org>
-Subject: [PATCH]resource leak in hiddev if autoresume fails
-Date: Fri, 5 Oct 2007 16:04:17 +0200
-Message-ID: <200710051604.18234.oliver@neukum.org>
+Subject: [patch]joydev open count handling
+Date: Fri, 5 Oct 2007 17:10:21 +0200
+Message-ID: <200710051710.21518.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: Jiri Kosina <jikos@jikos.cz>, linux-input@atrey.karlin.mff.cuni.cz, linux-usb-devel@lists.sourceforge.net
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
 Hi,
 
-several resources are not freed if autoresume fails.
+if joydev_open() fails, the open count has to be adjusted.
 
 	Regards
 		Oliver
@@ -30,44 +27,17 @@ Signed-off-by: Oliver Neukum <oneukum@suse.de>
 
 ----
 
---- a/drivers/hid/usbhid/hiddev.c	2007-10-05 15:42:45.000000000 +0200
-+++ b/drivers/hid/usbhid/hiddev.c	2007-10-05 15:54:32.000000000 +0200
-@@ -280,18 +280,21 @@ static int hiddev_open(struct inode *ino
+--- a/drivers/input/joydev.c	2007-10-05 17:01:21.000000000 +0200
++++ b/drivers/input/joydev.c	2007-10-05 17:01:39.000000000 +0200
+@@ -193,8 +193,10 @@ static int joydev_open(struct inode *ino
  
- 	list->hiddev = hiddev_table[i];
+ 	if (!joydev->open++ && joydev->exist) {
+ 		error = input_open_device(&joydev->handle);
+-		if (error)
++		if (error) {
++			joydev->open--;
+ 			goto err_free_client;
++		}
+ 	}
  
--	spin_lock_irqsave(&list->hiddev->list_lock, flags);
--	list_add_tail(&list->node, &hiddev_table[i]->list);
--	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
--
--	file->private_data = list;
--
- 	if (!list->hiddev->open++)
- 		if (list->hiddev->exist) {
- 			struct hid_device *hid = hiddev_table[i]->hid;
- 			res = usbhid_get_power(hid);
--			if (res < 0)
-+			if (res < 0) {
-+				hiddev_table[i]->open--;
-+				kfree(list);
- 				return -EIO;
-+			} else {
-+				spin_lock_irqsave(&list->hiddev->list_lock, flags);
-+				list_add_tail(&list->node, &hiddev_table[i]->list);
-+				spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
-+
-+				file->private_data = list;	
-+			}
- 			usbhid_open(hid);
- 		}
- 
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >> http://get.splunk.com/
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+ 	file->private_data = client;

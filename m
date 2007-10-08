@@ -1,8 +1,8 @@
-From: "Faye" <jlorellepzsy@lorelle.com>
-Subject: best xxx for free
-Date: Mon, 8 Oct 2007 12:50:34 +0200
-Message-ID: <6608450875.879134715746@lorelle.com>
-Reply-To: "Faye Tuttle" <jlorellepzsy@lorelle.com>
+From: "Gene" <pujifoxe@pro.net.id>
+Subject: its free for linux-input@atrey.karlin.mff.cuni.cz
+Date: Mon, 8 Oct 2007 13:43:54 +0200
+Message-ID: <2132728890.20071008134354@vponqbasx>
+Reply-To: "Gene Edmonds" <pujifoxe@pro.net.id>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
@@ -15,7 +15,8 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-zero bucks! http://free32sites.cn
+free adalt passwords
+www 32action dot cn
 
-harrowing guidage
-lend candlelight
+complain quizzish
+cause starchedness

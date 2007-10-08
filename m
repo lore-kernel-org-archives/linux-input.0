@@ -1,145 +1,86 @@
-From: if <zeylienospam@gmail.com>
-Subject: Re: GeneralTouch USB Touchscreen Support
-Date: Mon, 8 Oct 2007 22:04:28 +0400
-Message-ID: <f37dba8b0710081104l52c0c0b4j25dc60c4e6b05c99@mail.gmail.com>
-References: <f37dba8b0710080305t37b57e3dpe2fd7be231893ba5@mail.gmail.com>
-	 <d120d5000710080623o4a0be879w45d59be6ee025d40@mail.gmail.com>
-	 <Pine.LNX.4.64.0710081633330.25413@twin.jikos.cz>
+From: "Christopher Bentley" <tmetodikam@metodika.se>
+Subject: Legal software sales
+Date: Mon, 8 Oct 2007 19:14:26 +0100
+Message-ID: <01c809d7$0f7da410$ed1c6059@tmetodikam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C809D7.0F7DA410"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.64.0710081633330.25413@twin.jikos.cz>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello!
+This is a multi-part message in MIME format.
 
-Thanks for correcting me (my vim automatically strips leading whitespace)
-Below is the correct patch, without whitespace difference and with
-hid-quirks entry sorted.
+------=_NextPart_000_0006_01C809D7.0F7DA410
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-        Signed-off-by: Ilya Frolov <zeylie@gmail.com>
+Our goal is to present low cost PC and Macintosh legal soft and computer solutions for anyone. Whether you're a corporate client, an owner of small enterprise, or shopping for your home PC, we suppose we can assist you.VIEW ALL PRODUCTShttp://softplusonline.netMost demanding software are:
+*Microsoft Windows Vista Business: Retail price today - $299.00; Our only - $79.95*Microsoft Office 2007 Enterprise: Retail price now - $899.00; Our now just - $79.95 *Corel Designer 10.0: Retail price this day - $310.00; Our only today - $39.95*Microsoft Visual Basic RAD Professional v1.01: Retail price for this time - $45.00; Our just - $19.95
+*Microsoft Plus! for Windows XP: Retail price for now - $29.95; Our only for today - $10.95*Macromedia Fontographer 4:  - $105.95; Our just - $19.95 *Corel Procreate KPT Effects:  - $199.00;  - $19.95*Symantec WinFax Pro V 10.03:  - $100.00;  - $19.95COME TO US RIGHT NOW! 
+http://softplusonline.net She is young wise fairIn. Shes a fair creatureSCENE. Horse I said I will saytrueor. FatherIn manners as in shape. thy. Twas a good lady twas a good. With a snipttaffetafellow. Kept it isever lost tis too cold. Such a one.But by the ear that.
 
-regards,
-Ilya
 
-========== REST IS PATCH ===================
+------=_NextPart_000_0006_01C809D7.0F7DA410
+Content-Type: text/html;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-diff -uprNb -X linux-2.6.22.9-vanilla/Documentation/dontdiff
-linux-2.6.22.9-vanilla/drivers/hid/usbhid/hid-quirks.c
-linux-2.6.22.9.my/drivers/hid/usbhid/hid-quirks.c
---- linux-2.6.22.9-vanilla/drivers/hid/usbhid/hid-quirks.c	2007-09-26
-22:03:01.000000000 +0400
-+++ linux-2.6.22.9.my/drivers/hid/usbhid/hid-quirks.c	2007-10-08
-21:55:50.000000000 +0400
-@@ -105,6 +105,8 @@
- #define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
- #define USB_DEVICE_ID_ESSENTIAL_REALITY_P5 0x0100
+<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:=
+schemas-microsoft-com:office:word" xmlns=3D"http://www.w3.org/TR/REC-html=
+40">
 
-+#define USB_VENDOR_ID_GENERAL_TOUCH	0x0dfc
-+
- #define USB_VENDOR_ID_GLAB		0x06c2
- #define USB_DEVICE_ID_4_PHIDGETSERVO_30	0x0038
- #define USB_DEVICE_ID_1_PHIDGETSERVO_30	0x0039
-@@ -308,6 +310,10 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMATE, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_ESSENTIAL_REALITY,
-USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_GENERAL_TOUCH, 0x0001, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_GENERAL_TOUCH, 0x0002, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_GENERAL_TOUCH, 0x0003, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_GENERAL_TOUCH, 0x0004, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GLAB, USB_DEVICE_ID_4_PHIDGETSERVO_30, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GLAB, USB_DEVICE_ID_1_PHIDGETSERVO_30, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_GLAB, USB_DEVICE_ID_0_0_4_IF_KIT, HID_QUIRK_IGNORE },
-diff -uprNb -X linux-2.6.22.9-vanilla/Documentation/dontdiff
-linux-2.6.22.9-vanilla/drivers/input/touchscreen/Kconfig
-linux-2.6.22.9.my/drivers/input/touchscreen/Kconfig
---- linux-2.6.22.9-vanilla/drivers/input/touchscreen/Kconfig	2007-09-26
-22:03:01.000000000 +0400
-+++ linux-2.6.22.9.my/drivers/input/touchscreen/Kconfig	2007-10-04
-12:58:16.000000000 +0400
-@@ -219,4 +219,9 @@ config TOUCHSCREEN_USB_DMC_TSC10
- 	bool "DMC TSC-10/25 device support" if EMBEDDED
- 	depends on TOUCHSCREEN_USB_COMPOSITE
+<head>
+<META HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; charset=3Dus-asci=
+i">
+<meta name=3DGenerator content=3D"Microsoft Word 11 (filtered medium)">
+</head>
+<body>
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY bgcolor=3D"#FFFFFF">
+<strong>Our goal is to present low cost PC and Macintosh legal soft and c=
+omputer solutions for anyone. <br>Whether you're a corporate client, an o=
+wner of small enterprise, or shopping for your home PC, we suppose we can=
+ assist you.<br><br>
+<em><a href=3D"http://softplusonline.net" target=3D"_blank">VIEW ALL PROD=
+UCTS</a></em></strong><br>
+<font color=3D"#0066FF">http://softplusonline.net</font><br><br>
+<strong>Most demanding software are:</strong><br>
+*<strong>Microsoft Windows Vista Business:</strong> <em>Retail price toda=
+y - $299.00</em>; <strong>Our only - <font color=3D"red"><em>$79.95</em><=
+/font></strong><br>*<strong>Microsoft Office 2007 Enterprise:</strong> <e=
+m>Retail price now - $899.00</em>; <strong>Our now just - <font color=3D"=
+red"><em>$79.95</em></font></strong><br> *<strong>Corel Designer 10.0:</s=
+trong> <em>Retail price this day - $310.00</em>; <strong>Our only today -=
+ <font color=3D"red"><em>$39.95</em></font></strong><br>*<strong>Microsof=
+t Visual Basic RAD Professional v1.01:</strong> <em>Retail price for this=
+ time - $45.00</em>; <strong>Our just - <font color=3D"red"><em>$19.95</e=
+m></font></strong><br>
+*<strong>Microsoft Plus! for Windows XP:</strong> <em>Retail price for no=
+w - $29.95</em>; <strong>Our only for today - <font color=3D"red"><em>$10=
+95</em></font></strong><br>*<strong>Macromedia Fontographer 4:</strong> =
+<em> - $105.95</em>; <strong>Our just - <font color=3D"red"><em>$19.95</e=
+m></font></strong> <br>*<strong>Corel Procreate KPT Effects:</strong> <em=
+> - $199.00</em>; <strong> - <font color=3D"red"><em>$19.95</em></font></=
+strong><br>*<strong>Symantec WinFax Pro V 10.03:</strong> <em> - $100.00<=
+/em>; <strong> - <font color=3D"red"><em>$19.95</em></font></strong><br><=
+br>
+<strong><em><a href=3D"http://softplusonline.net" target=3D"_blank">COME =
+TO US RIGHT NOW!</a></em></strong><br> 
+<font color=3D"#0066FF">http://softplusonline.net</font>
+<p><font face=3D"Verdana" size=3D"1"> She is young wise fairIn. Shes a fa=
+ir creatureSCENE. Horse I said I will saytrueor. FatherIn manners as in s=
+hape. thy. Twas a good lady twas a good. With a snipttaffetafellow. Kept =
+it isever lost tis too cold. Such a one.But by the ear that.</font></p>
+</BODY></HTML>
+</body>
+</html>
 
-+config TOUCHSCREEN_USB_GENERAL_TOUCH
-+	default y
-+	bool "GeneralTouch Touchscreen device support" if EMBEDDED
-+	depends on TOUCHSCREEN_USB_COMPOSITE
-+
- endif
-diff -uprNb -X linux-2.6.22.9-vanilla/Documentation/dontdiff
-linux-2.6.22.9-vanilla/drivers/input/touchscreen/usbtouchscreen.c
-linux-2.6.22.9.my/drivers/input/touchscreen/usbtouchscreen.c
---- linux-2.6.22.9-vanilla/drivers/input/touchscreen/usbtouchscreen.c	2007-09-26
-22:03:01.000000000 +0400
-+++ linux-2.6.22.9.my/drivers/input/touchscreen/usbtouchscreen.c	2007-10-08
-21:42:35.000000000 +0400
-@@ -110,6 +110,7 @@ enum {
- 	DEVTYPE_ETURBO,
- 	DEVTYPE_GUNZE,
- 	DEVTYPE_DMC_TSC10,
-+	DEVTYPE_GENERAL_TOUCH,
- };
-
- static struct usb_device_id usbtouch_devices[] = {
-@@ -150,6 +151,10 @@ static struct usb_device_id usbtouch_dev
- 	{USB_DEVICE(0x0afa, 0x03e8), .driver_info = DEVTYPE_DMC_TSC10},
- #endif
-
-+#ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
-+	{USB_DEVICE(0x0dfc, 0x0001), .driver_info = DEVTYPE_GENERAL_TOUCH},
-+#endif
-+
- 	{}
- };
-
-@@ -414,6 +419,20 @@ static int dmc_tsc10_read_data(struct us
- }
- #endif
-
-+/*****************************************************************************
-+ * General Touch Part
-+ */
-+#ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
-+static int general_touch_read_data(struct usbtouch_usb *dev, unsigned
-char *pkt)
-+{
-+	dev->x = ((pkt[2] & 0x0F) << 8) | pkt[1] ;
-+	dev->y = ((pkt[4] & 0x0F) << 8) | pkt[3] ;
-+	dev->press = pkt[5] & 0xff;
-+	dev->touch = pkt[0] & 0x01;
-+
-+	return 1;
-+}
-+#endif
-
- /*****************************************************************************
-  * the different device descriptors
-@@ -504,6 +523,18 @@ static struct usbtouch_device_info usbto
- 		.read_data	= dmc_tsc10_read_data,
- 	},
- #endif
-+
-+#ifdef CONFIG_TOUCHSCREEN_USB_GENERAL_TOUCH
-+	[DEVTYPE_GENERAL_TOUCH] = {
-+		.min_xc		= 0x0,
-+		.max_xc		= 0x0500,
-+		.min_yc		= 0x0,
-+		.max_yc		= 0x0500,
-+		.rept_size	= 7,
-+		.read_data	= general_touch_read_data,
-+	}
-+#endif
-+
- };
+------=_NextPart_000_0006_01C809D7.0F7DA410--

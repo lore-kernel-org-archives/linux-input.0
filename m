@@ -1,37 +1,43 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: even newer version of USB HID autosuspend
-Date: Mon, 8 Oct 2007 09:44:25 -0400
-Message-ID: <d120d5000710080644k1a2a4685x4fbe5b9155e661d6@mail.gmail.com>
-References: <200710051329.23385.oliver@neukum.org>
-	 <200710061115.53986.oliver@neukum.org>
-	 <200710071457.23780.dmitry.torokhov@gmail.com>
-	 <200710080902.56049.oliver@neukum.org>
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: GeneralTouch USB Touchscreen Support
+Date: Mon, 8 Oct 2007 16:36:11 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0710081633330.25413@twin.jikos.cz>
+References: <f37dba8b0710080305t37b57e3dpe2fd7be231893ba5@mail.gmail.com>
+ <d120d5000710080623o4a0be879w45d59be6ee025d40@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200710080902.56049.oliver@neukum.org>
-Content-Disposition: inline
+In-Reply-To: <d120d5000710080623o4a0be879w45d59be6ee025d40@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Jiri Kosina <jikos@jikos.cz>, linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz, Alan Stern <stern@rowland.harvard.edu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: zeylienospam@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 10/8/07, Oliver Neukum <oliver@neukum.org> wrote:
-> Am Sonntag 07 Oktober 2007 schrieb Dmitry Torokhov:
-> >
-> > I'd say do not autosuspend keyboards (and other led-equipped input devices)
-> > unless user explicitely requested to do so and then turn the leds off.
->
-> So your answer is that we shouldn't care about the LEDs being on and
-> suspend regardless?
->
+On Mon, 8 Oct 2007, Dmitry Torokhov wrote:
 
-Yes, I think so.
+> The patch looks good, thanks a lot. Can I please have your 
+> "Signed-off-by:" so I can apply it?  Thanks!
+
+Hi,
+
+my only concern with this patch is -- could we please keep the entries in 
+hid_blacklist[] properly sorted? (i.e. first by quirk type, then by vendor 
+name).
+
+Also, patch to hid-quirks seem to contain some whitespace changes, I'd 
+like to do this separately if possible.
+
+Besides that, I am fine with that and you can add
+
+	Signed-off-by: Jiri Koisna <jkosina@suse.cz>
+
+for the HID part of the patch if you want to.
+
+Thanks,
 
 -- 
-Dmitry
+Jiri Kosina

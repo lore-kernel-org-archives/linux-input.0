@@ -1,43 +1,48 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: GeneralTouch USB Touchscreen Support
-Date: Mon, 8 Oct 2007 16:36:11 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0710081633330.25413@twin.jikos.cz>
-References: <f37dba8b0710080305t37b57e3dpe2fd7be231893ba5@mail.gmail.com>
- <d120d5000710080623o4a0be879w45d59be6ee025d40@mail.gmail.com>
+From: "rusen Perrotta" <rusen@titanlaserdie.com>
+Subject: gnileog
+Date: Mon, 8 Oct 2007 18:01:57 +0200
+Message-ID: <000601c809c4$8db57aa0$1cd54158@namecd5fda878d>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0008_01C809D5.513E4AA0"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000710080623o4a0be879w45d59be6ee025d40@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: zeylienospam@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 8 Oct 2007, Dmitry Torokhov wrote:
+------=_NextPart_000_0008_01C809D5.513E4AA0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> The patch looks good, thanks a lot. Can I please have your 
-> "Signed-off-by:" so I can apply it?  Thanks!
+http://www.ninamedrei.com/
+Hi linux-input
+there is no question a woman wants to feel full.
 
-Hi,
+rusen Perrotta
+------=_NextPart_000_0008_01C809D5.513E4AA0
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-my only concern with this patch is -- could we please keep the entries in 
-hid_blacklist[] properly sorted? (i.e. first by quirk type, then by vendor 
-name).
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://www.ninamedrei.com/">http://www.ninamedrei.com/</A></FONT>=
+</DIV>
+<DIV><FONT Arial size=3D2>Hi linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>there is no question a woman wants to feel =
+full.</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>rusen Perrotta</FONT></DIV></BODY></HTML>
 
-Also, patch to hid-quirks seem to contain some whitespace changes, I'd 
-like to do this separately if possible.
-
-Besides that, I am fine with that and you can add
-
-	Signed-off-by: Jiri Koisna <jkosina@suse.cz>
-
-for the HID part of the patch if you want to.
-
-Thanks,
-
--- 
-Jiri Kosina
+------=_NextPart_000_0008_01C809D5.513E4AA0--

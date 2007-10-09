@@ -1,50 +1,179 @@
-From: "Jiri Seif" <Seifncdiu@amplusltd.com>
-Subject: mbargoed
-Date: Tue, 9 Oct 2007 21:01:48 +0200
-Message-ID: <000d01c80aa6$d7c46380$93c0b450@figliomeni>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH try #2] Blackfin BF54x Input Keypad controller driver
+Date: Tue, 9 Oct 2007 15:53:13 -0400
+Message-ID: <d120d5000710091253v3c862713n4f15e23618a30962@mail.gmail.com>
+References: <1191517394.6361.13.camel@roc-laptop>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0003_01C80AB7.9B4D3380"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1191517394.6361.13.camel@roc-laptop>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: bryan.wu@analog.com
+Cc: Michael Hennerich <michael.hennerich@analog.com>, linux-input@atrey.karlin.mff.cuni.cz, Linux Kernel <linux-kernel@vger.kernel.org>, uclinux-dist-devel@blackfin.uclinux.org
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0003_01C80AB7.9B4D3380
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Hi Bryan,
 
-http://www.renacence.com/
-Nice to meet you linux-input
+On 10/4/07, Bryan Wu <bryan.wu@analog.com> wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> Blackfin BF54x Input Keypad controller driver:
+>
+> [try #2] Changelog:
+>  - Coding style issue fixes
+>  - using a temp variable for bf54x_kpad->input
+>  - Other updates according to Dmitry's review
+>
 
-Men are going to love this product...
+I would like to ask you for a couple of additional changes:
 
-Jiri Seif
-------=_NextPart_000_0003_01C80AB7.9B4D3380
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+> +
+> +static u16 per_rows[] = {
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://www.renacence.com/">http://www.renacence.com/</A></FONT></=
-DIV>
-<DIV><FONT Arial size=3D2>Nice to meet you linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Men are going to love this =
-product...</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>Jiri Seif</FONT></DIV></BODY></HTML>
+Change to "const" perhaps?
 
-------=_NextPart_000_0003_01C80AB7.9B4D3380--
+> +       P_KEY_ROW7,
+> +       P_KEY_ROW6,
+> +       P_KEY_ROW5,
+> +       P_KEY_ROW4,
+> +       P_KEY_ROW3,
+> +       P_KEY_ROW2,
+> +       P_KEY_ROW1,
+> +       P_KEY_ROW0,
+> +       0
+> +};
+> +
+> +static u16 per_cols[] = {
+
+Same here.
+
+> +       P_KEY_COL7,
+> +       P_KEY_COL6,
+> +       P_KEY_COL5,
+> +       P_KEY_COL4,
+> +       P_KEY_COL3,
+> +       P_KEY_COL2,
+> +       P_KEY_COL1,
+> +       P_KEY_COL0,
+> +       0
+> +};
+> +
+> +
+> +       if (bfin_kpad_get_keypressed(bf54x_kpad)) {
+> +               disable_irq(bf54x_kpad->irq);
+> +               bf54x_kpad->lastkey = key;
+> +               bf54x_kpad->timer.expires = jiffies
+> +                                       + bf54x_kpad->keyup_test_jiffies;
+> +               add_timer(&bf54x_kpad->timer);
+
+mod_timer()?
+
+> +
+> +       input->keycode = pdata->keymap;
+
+Please consider allocating memory for keycode so that platfrom data
+can be kept constant.
+
+> +       input->keycodesize = sizeof(unsigned short);
+> +       input->keycodemax = pdata->keymapsize;
+> +
+> +       /* setup input device */
+> +       set_bit(EV_KEY, input->evbit);
+> +
+> +       if (pdata->repeat)
+> +               set_bit(EV_REP, input->evbit);
+> +
+
+__set_bit() should suffice here and above.
+
+> +       for (i = 0; i < pdata->keymapsize; i++)
+> +               __set_bit(pdata->keymap[i] & KEY_MAX, input->keybit);
+> +
+> +       __clear_bit(KEY_RESERVED, input->keybit);
+> +
+> +       error = input_register_device(input);
+> +
+> +       if (error) {
+> +               printk(KERN_ERR DRV_NAME
+> +                       ": Unable to register input device (%d)\n", error);
+> +               goto out4;
+> +       }
+> +
+> +       /* Init Keypad Key Up/Release test timer */
+> +
+> +       init_timer(&bf54x_kpad->timer);
+> +       bf54x_kpad->timer.function = bfin_kpad_timer;
+> +       bf54x_kpad->timer.data = (unsigned long) pdev;
+> +
+
+setup_timer()?
+
+> +
+> +       bfin_write_KPAD_PRESCALE(bfin_kpad_get_prescale(TIME_SCALE));
+> +
+> +       bfin_write_KPAD_CTL((((pdata->cols - 1) << 13) & KPAD_COLEN) |
+> +                               (((pdata->rows - 1) << 10) & KPAD_ROWEN) |
+> +                               (2 & KPAD_IRQMODE));
+> +
+> +
+> +       bfin_write_KPAD_CTL(bfin_read_KPAD_CTL() | KPAD_EN);
+> +
+> +       printk(KERN_ERR DRV_NAME
+> +               ": Blackfin BF54x Keypad registered IRQ %d\n", bf54x_kpad->irq);
+> +
+> +       return 0;
+> +
+> +
+> +out4:
+> +       input_free_device(input);
+> +out3:
+> +       free_irq(bf54x_kpad->irq, pdev);
+> +out2:
+> +       peripheral_free_list(&per_cols[MAX_RC - pdata->cols]);
+> +out1:
+> +       peripheral_free_list(&per_rows[MAX_RC - pdata->rows]);
+> +out:
+> +       kfree(bf54x_kpad);
+> +       platform_set_drvdata(pdev, NULL);
+> +
+> +       return error;
+> +}
+> +
+> +static int __devexit bfin_kpad_remove(struct platform_device *pdev)
+> +{
+> +       struct bfin_kpad_platform_data *pdata = pdev->dev.platform_data;
+> +       struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+> +
+> +
+> +       del_timer_sync(&bf54x_kpad->timer);
+> +       free_irq(bf54x_kpad->irq, pdev);
+> +
+> +       peripheral_free_list(&per_rows[MAX_RC - pdata->rows]);
+> +       peripheral_free_list(&per_cols[MAX_RC - pdata->cols]);
+> +
+> +       input_unregister_device(bf54x_kpad->input);
+> +
+> +       kfree(bf54x_kpad);
+> +       platform_set_drvdata(pdev, NULL);
+> +
+> +       return 0;
+> +}
+> +
+> +#ifdef CONFIG_PM
+> +static int bfin_kpad_suspend(struct platform_device *pdev, pm_message_t state)
+> +{
+
+Do you need these empty functions? At least stop timer here.
+
+Thanks!
+
+Oh, one more thing - do not access input->private directly - it is
+going away - use input_set_drvdata() and input_get_drvdata().
+
+-- 
+Dmitry

@@ -1,35 +1,46 @@
-From: notification12@comcast.net (INTERNATIONAL OXFORD )
-Subject: Re,Your.Email Address have won you a lump  sum of 1.000.000.00.GBP
-Date: Tue, 09 Oct 2007 03:13:58 +0000
-Message-ID: <100920070313.4476.470AF1F50000D24A0000117C2215567074CDCE0201079B0E0C0700079B0102@comcast.net>
+From: "Navaz Patteson" <Navaz.Patteson@morningtondairy.com>
+Subject: fael-llo
+Date: Tue, 9 Oct 2007 03:49:40 -0300
+Message-ID: <000501c80a40$90cf2b60$85e9ebc9@laura>
+Mime-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0006_01C80A27.6B81F360"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Oxford International Lottery
-32 Hurst Street
-Birmingham, B5 4TB
-United Kingdom
-Ref: OXS/812/07
-Batch: 322056Q 
-8th October 2007.
- 
-Dear Winner,
+------=_NextPart_000_0006_01C80A27.6B81F360
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-We are delighted to inform you of your prize release on the 5th October 2007 from the Oxford International Lottery programme. You hereby have been approved a lump sum of 1,000,000,00.GBP in  cash credit to fileref ILP/HW 475/07,all participant were selected  through a computer balloting system drawn from Nine hundred thousand E-mail addresses all over the World as part of our  international promotions program which is conducted quarterly.
+http://nikeehn.com/
+Evening linux-input
+get a MASSIVE penis today
 
-Kindly note that you will only be chosen to receive the award  once,Take time and thought in spending the funds wisely on a project that will stand the test of time.
-Contact your fiduciary agent to claim your prize via email and phone: 
+Navaz Patteson
+------=_NextPart_000_0006_01C80A27.6B81F360
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Mr.Dennis Powell.
-Phone Number:+447024035074
-Fax:+44 870 068 5399.
-Email: info_intclaims@yahoo.co.uk
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://nikeehn.com/">http://nikeehn.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>Evening linux-input</FONT></DIV>
+<DIV><FONT Arial size=3D2>get a MASSIVE penis today</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>Navaz Patteson</FONT></DIV></BODY></HTML>
 
- 
-Sincerely,
-Mrs.Carol David. 
+------=_NextPart_000_0006_01C80A27.6B81F360--

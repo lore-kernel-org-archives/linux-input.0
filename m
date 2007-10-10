@@ -1,7 +1,7 @@
 From: bmwlottery123@sunumail.sn
 Subject: Award Notification
-Date: Wed, 10 Oct 2007 20:32:40 -0000 (GMT)
-Message-ID: <3100.41.219.214.37.1192048360.sunumail@www.sunumail.sn>
+Date: Wed, 10 Oct 2007 20:21:01 -0000 (GMT)
+Message-ID: <2984.41.219.236.102.1192047661.sunumail@www.sunumail.sn>
 Mime-Version: 1.0
 Content-Type: text/plain;charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable

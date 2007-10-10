@@ -1,10 +1,12 @@
-From: "Toby" <dtracyfuzg@compassmortgage.com>
-Subject: Your new password.
-Date: Wed, 10 Oct 2007 04:51:42 +0200
-Message-ID: <6579995448.20071010045142@vjlbqo>
-Reply-To: "Toby Avila" <dtracyfuzg@compassmortgage.com>
+From: "hayden magdalen" <razial@akagi.com>
+Subject: Re:
+Date: Wed, 10 Oct 2007 04:47:06 +0000
+Message-ID: <000601c80b07$01938b75$f5758582@csvpj>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -15,8 +17,11 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Lifetime pass to our x x x network
-http://18plusoffers.cn
+PetroSearch Energy Corporation (OTCBB: PTSG), oil and gas, exploration and production company focused on the United States, is pleased to announce that the intrepretation of the 3D seismic programme at the Wilcox Trend Garwood field oil discovery indicates potential erserves up to 7.21 bln barrels.
 
-Teutonic bathysphere
-caw geegaw
+Results from the 3D seismic programme and its interpretatoin performed by independent consultants, Count Geophysics Limited.
+
+Strong buy shares recmomendation - $ 1.15
+Sell target - $ 2-3 
+
+PRlbMddRbKXlHNVJBGd

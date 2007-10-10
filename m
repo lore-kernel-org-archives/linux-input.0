@@ -1,40 +1,41 @@
-From: "guilbert joseph" <masuhiro@nvidia.com>
-Subject: International corporation is looking for talented people. No investment reqired.
-Date: Wed, 10 Oct 2007 09:42:13 +0000
-Message-ID: <000401c80b30$05ee0568$f71bd493@fhxjaqg>
+From: "James Jeri" <comisaru@ns.cnlo.ro>
+Subject: Congratulations
+Date: Wed, 10 Oct 2007 11:53:25 -0000 (UTC)
+Message-ID: <50594.81.199.242.3.1192017205.squirrel@81.199.242.3>
+Reply-To: walterconsults@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Big international commercial organization is looking for talented, honest,
-reliable representatives from different regions.
-The ideal candidate will be an intelligent person,
-someone who can work autonomously with a high degree of enthusiasm.
-We are looking for highly motivated professionals, with experience in marketing field.
-The position is home-based.
-We offer a part-time position with flexible working hours.
-And we would be happy to consider a full-time job share candidate. 
-Our Company offers a very competitive salary to the successful candidate,
-along with an unrivalled career progression opportunity.
-If you think you have what it takes to take on this challenge
-and would like to apply please send the following information to: AbdulSavageAR@gmail.com
-1) Full name 
-2) Contact phone numbers 
-3) Part time job/Full time 
-You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites!
-We are engaged in completely legal activity. 
-The preference is given to employees with knowledge of foreign languages. 
-Thank you and we are looking forward to cooperate in long term base with you. 
 
-If you received this message in error, or would like to unsubscribe, please send a blank email to: NicolasPowersUP@gmail.com
+
+    Attn:Winner
+Congratulations The Foundazion Di Vittorio has chosenyoubythe board
+of trustees as one of the final recipients ofacashGrant/Donation for
+your own personal,educational,andbusinessTocelebrate the 30th
+anniversary 2007 program,We are giving outayearlydonation
+of US$200,000.00 to nd it to the PaymentRemitanceOffice Viaemail
+contact BATCH NO40 lucky recipients,ascharitydonations/aid.
+fill out below Formse:Batch(N-222-6747,E-900-56)
+FullName:..............
+ResidentialAddress:...............
+Occupation:..............
+Country:..................
+Telephone:..................
+Fax:......................
+Number:....
+Sex:...................
+age:.................
+NextofKin:............
+Winning BatchNo:......
+(PaymentRemitanceContact)
+MrCalvinoCostantino.
+E-Mail:payout_officeunit@yahoo.it
+http://www.fondazionedivittorio.it

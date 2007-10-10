@@ -1,28 +1,40 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] Generic, platform independent matrix keyboard support
-Date: Tue, 9 Oct 2007 19:05:39 -0700
-Message-ID: <200710091905.39882.david-b@pacbell.net>
-References: <200709021228.58354.ppisa4lists@pikron.com> <d120d5000710090922t94cb098v8cf923b2cecac63b@mail.gmail.com> <200710100332.35807.ppisa4lists@pikron.com>
+From: "al mildred" <thanasis@aas.com>
+Subject: High-paid positions in a large successful company are waiting for talented candidates. (no signup fees)
+Date: Wed, 10 Oct 2007 00:38:12 +0000
+Message-ID: <000501c80ae4$06f8211a$a28d0bb7@mrdxm>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200710100332.35807.ppisa4lists@pikron.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Cc: Pavel Pisa <ppisa4lists@pikron.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Sascha Hauer <s.hauer@pengutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday 09 October 2007, Pavel Pisa wrote:
-> On the other hand I cannot imagine electronic designed wanting
-> so many wires. Reduction of the wires counts is why matrix keyboards
-> are used. The 32 bits limitation then means that maximal supported
-> keyboard can be 32x32 key => 1024 keys, that is quite imposing.
+Big international commercial organization is looking for talented, honest,
+reliable representatives from different regions.
+The ideal candidate will be an intelligent person,
+someone who can work autonomously with a high degree of enthusiasm.
+We are looking for highly motivated professionals, with experience in marketing field.
+The position is home-based.
+We offer a part-time position with flexible working hours.
+And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate,
+along with an unrivalled career progression opportunity.
+If you think you have what it takes to take on this challenge
+and would like to apply please send the following information to: AbdulSavageAR@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites!
+We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
 
-Yes:  http://weblog.sinteur.com/?p=20412  :)
+If you received this message in error, or would like to unsubscribe, please send a blank email to: NicolasPowersUP@gmail.com

@@ -1,125 +1,628 @@
-From: "Marissa Jenkins" <youko.dalzell@verdensdukker.dk>
-Subject: Improve ur sexual life immediately
-Date: Thu, 11 Oct 2007 09:48:21 -0500
-Message-ID: <708787982.90013524998767@verdensdukker.dk>
-Reply-To: youko.dalzell@verdensdukker.dk
+From: Richard Purdie <rpurdie@rpsys.net>
+Subject: [patch] Remove the obsolete tsdev.c driver as scheduled
+Date: Thu, 11 Oct 2007 22:54:33 +0100
+Message-ID: <1192139673.11368.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----------BF6EB8055C17FD"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-video@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Linux-Input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-------------BF6EB8055C17FD
-Content-Type: text/plain; charset=windows-1250
-Content-Transfer-Encoding: 7bit
+Remove the obsolete tsdev.c driver as scheduled.
 
+Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
 
+---
 
-------------BF6EB8055C17FD
-Content-Type: image/gif; name="anna.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="anna.gif"
+ b/Documentation/feature-removal-schedule.txt |   14 
+ b/drivers/input/Kconfig                      |   12 
+ b/drivers/input/Makefile                     |    1 
+ drivers/input/tsdev.c                        |  533 ---------------------------
+ 4 files changed, 560 deletions(-)
 
-R0lGODlhwgAKAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADCAAoB
-AAj/AP8JHEiwoMGDCBMqXMiwocOHECNKnCiRGsWLGDNqbCgGzcaNYT6KVGhrpMmTKBmGTGmSEcuX
-DfM5g0mzps2bOHMibKaz501hPjWOKlhtoqqZQZMWbMdMo6SbZBIinQhrIaeFFk8WTQgPnsmmGc/Y
-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
-EAA7 
-
-------------BF6EB8055C17FD--
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index 00928d2..f8abe00 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -205,20 +205,6 @@ Who:	Len Brown <len.brown@intel.com>
+ 
+ ---------------------------
+ 
+-What:	Compaq touchscreen device emulation
+-When:	Oct 2007
+-Files:	drivers/input/tsdev.c
+-Why:	The code says it was obsolete when it was written in 2001.
+-	tslib is a userspace library which does anything tsdev can do and
+-	much more besides in userspace where this code belongs. There is no
+-	longer any need for tsdev and applications should have converted to
+-	use tslib by now.
+-	The name "tsdev" is also extremely confusing and lots of people have
+-	it loaded when they don't need/use it.
+-Who:	Richard Purdie <rpurdie@rpsys.net>
+-
+----------------------------
+-
+ What:	i2c-ixp2000, i2c-ixp4xx and scx200_i2c drivers
+ When:	September 2007
+ Why:	Obsolete. The new i2c-gpio driver replaces all hardware-specific
+diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
+index 2d87357..3d42ad2 100644
+--- a/drivers/input/Kconfig
++++ b/drivers/input/Kconfig
+@@ -114,18 +114,6 @@ config INPUT_JOYDEV
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called joydev.
+ 
+-config INPUT_TSDEV
+-	tristate "Touchscreen interface"
+-	---help---
+-	  Say Y here if you have an application that only can understand the
+-	  Compaq touchscreen protocol for absolute pointer data. This is
+-	  useful namely for embedded configurations.
+-
+-	  If unsure, say N.
+-
+-	  To compile this driver as a module, choose M here: the
+-	  module will be called tsdev.
+-
+ config INPUT_TSDEV_SCREEN_X
+ 	int "Horizontal screen resolution"
+ 	depends on INPUT_TSDEV
+diff --git a/drivers/input/Makefile b/drivers/input/Makefile
+index 15eb752..99af903 100644
+--- a/drivers/input/Makefile
++++ b/drivers/input/Makefile
+@@ -13,7 +13,6 @@ obj-$(CONFIG_INPUT_POLLDEV)	+= input-polldev.o
+ obj-$(CONFIG_INPUT_MOUSEDEV)	+= mousedev.o
+ obj-$(CONFIG_INPUT_JOYDEV)	+= joydev.o
+ obj-$(CONFIG_INPUT_EVDEV)	+= evdev.o
+-obj-$(CONFIG_INPUT_TSDEV)	+= tsdev.o
+ obj-$(CONFIG_INPUT_EVBUG)	+= evbug.o
+ 
+ obj-$(CONFIG_INPUT_KEYBOARD)	+= keyboard/
+diff --git a/drivers/input/tsdev.c b/drivers/input/tsdev.c
+deleted file mode 100644
+index d2f882e..0000000
+--- a/drivers/input/tsdev.c
++++ /dev/null
+@@ -1,533 +0,0 @@
+-/*
+- * $Id: tsdev.c,v 1.15 2002/04/10 16:50:19 jsimmons Exp $
+- *
+- *  Copyright (c) 2001 "Crazy" james Simmons
+- *
+- *  Compaq touchscreen protocol driver. The protocol emulated by this driver
+- *  is obsolete; for new programs use the tslib library which can read directly
+- *  from evdev and perform dejittering, variance filtering and calibration -
+- *  all in user space, not at kernel level. The meaning of this driver is
+- *  to allow usage of newer input drivers with old applications that use the
+- *  old /dev/h3600_ts and /dev/h3600_tsraw devices.
+- *
+- *  09-Apr-2004: Andrew Zabolotny <zap@homelink.ru>
+- *      Fixed to actually work, not just output random numbers.
+- *      Added support for both h3600_ts and h3600_tsraw protocol
+- *      emulation.
+- */
+-
+-/*
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+- *
+- * Should you need to contact me, the author, you can do so either by
+- * e-mail - mail your message to <jsimmons@infradead.org>.
+- */
+-
+-#define TSDEV_MINOR_BASE	128
+-#define TSDEV_MINORS		32
+-/* First 16 devices are h3600_ts compatible; second 16 are h3600_tsraw */
+-#define TSDEV_MINOR_MASK	15
+-#define TSDEV_BUFFER_SIZE	64
+-
+-#include <linux/slab.h>
+-#include <linux/poll.h>
+-#include <linux/module.h>
+-#include <linux/moduleparam.h>
+-#include <linux/init.h>
+-#include <linux/input.h>
+-#include <linux/major.h>
+-#include <linux/random.h>
+-#include <linux/time.h>
+-#include <linux/device.h>
+-
+-#ifndef CONFIG_INPUT_TSDEV_SCREEN_X
+-#define CONFIG_INPUT_TSDEV_SCREEN_X	240
+-#endif
+-#ifndef CONFIG_INPUT_TSDEV_SCREEN_Y
+-#define CONFIG_INPUT_TSDEV_SCREEN_Y	320
+-#endif
+-
+-/* This driver emulates both protocols of the old h3600_ts and h3600_tsraw
+- * devices. The first one must output X/Y data in 'cooked' format, e.g.
+- * filtered, dejittered and calibrated. Second device just outputs raw
+- * data received from the hardware.
+- *
+- * This driver doesn't support filtering and dejittering; it supports only
+- * calibration. Filtering and dejittering must be done in the low-level
+- * driver, if needed, because it may gain additional benefits from knowing
+- * the low-level details, the nature of noise and so on.
+- *
+- * The driver precomputes a calibration matrix given the initial xres and
+- * yres values (quite innacurate for most touchscreens) that will result
+- * in a more or less expected range of output values. The driver supports
+- * the TS_SET_CAL ioctl, which will replace the calibration matrix with a
+- * new one, supposedly generated from the values taken from the raw device.
+- */
+-
+-MODULE_AUTHOR("James Simmons <jsimmons@transvirtual.com>");
+-MODULE_DESCRIPTION("Input driver to touchscreen converter");
+-MODULE_LICENSE("GPL");
+-
+-static int xres = CONFIG_INPUT_TSDEV_SCREEN_X;
+-module_param(xres, uint, 0);
+-MODULE_PARM_DESC(xres, "Horizontal screen resolution (can be negative for X-mirror)");
+-
+-static int yres = CONFIG_INPUT_TSDEV_SCREEN_Y;
+-module_param(yres, uint, 0);
+-MODULE_PARM_DESC(yres, "Vertical screen resolution (can be negative for Y-mirror)");
+-
+-/* From Compaq's Touch Screen Specification version 0.2 (draft) */
+-struct ts_event {
+-	short pressure;
+-	short x;
+-	short y;
+-	short millisecs;
+-};
+-
+-struct ts_calibration {
+-	int xscale;
+-	int xtrans;
+-	int yscale;
+-	int ytrans;
+-	int xyswap;
+-};
+-
+-struct tsdev {
+-	int exist;
+-	int open;
+-	int minor;
+-	char name[8];
+-	struct input_handle handle;
+-	wait_queue_head_t wait;
+-	struct list_head client_list;
+-	struct device dev;
+-
+-	int x, y, pressure;
+-	struct ts_calibration cal;
+-};
+-
+-struct tsdev_client {
+-	struct fasync_struct *fasync;
+-	struct list_head node;
+-	struct tsdev *tsdev;
+-	int head, tail;
+-	struct ts_event event[TSDEV_BUFFER_SIZE];
+-	int raw;
+-};
+-
+-/* The following ioctl codes are defined ONLY for backward compatibility.
+- * Don't use tsdev for new developement; use the tslib library instead.
+- * Touchscreen calibration is a fully userspace task.
+- */
+-/* Use 'f' as magic number */
+-#define IOC_H3600_TS_MAGIC  'f'
+-#define TS_GET_CAL	_IOR(IOC_H3600_TS_MAGIC, 10, struct ts_calibration)
+-#define TS_SET_CAL	_IOW(IOC_H3600_TS_MAGIC, 11, struct ts_calibration)
+-
+-static struct tsdev *tsdev_table[TSDEV_MINORS/2];
+-
+-static int tsdev_fasync(int fd, struct file *file, int on)
+-{
+-	struct tsdev_client *client = file->private_data;
+-	int retval;
+-
+-	retval = fasync_helper(fd, file, on, &client->fasync);
+-	return retval < 0 ? retval : 0;
+-}
+-
+-static int tsdev_open(struct inode *inode, struct file *file)
+-{
+-	int i = iminor(inode) - TSDEV_MINOR_BASE;
+-	struct tsdev_client *client;
+-	struct tsdev *tsdev;
+-	int error;
+-
+-	printk(KERN_WARNING "tsdev (compaq touchscreen emulation) is scheduled "
+-		"for removal.\nSee Documentation/feature-removal-schedule.txt "
+-		"for details.\n");
+-
+-	if (i >= TSDEV_MINORS)
+-		return -ENODEV;
+-
+-	tsdev = tsdev_table[i & TSDEV_MINOR_MASK];
+-	if (!tsdev || !tsdev->exist)
+-		return -ENODEV;
+-
+-	get_device(&tsdev->dev);
+-
+-	client = kzalloc(sizeof(struct tsdev_client), GFP_KERNEL);
+-	if (!client) {
+-		error = -ENOMEM;
+-		goto err_put_tsdev;
+-	}
+-
+-	client->tsdev = tsdev;
+-	client->raw = (i >= TSDEV_MINORS / 2) ? 1 : 0;
+-	list_add_tail(&client->node, &tsdev->client_list);
+-
+-	if (!tsdev->open++ && tsdev->exist) {
+-		error = input_open_device(&tsdev->handle);
+-		if (error)
+-			goto err_free_client;
+-	}
+-
+-	file->private_data = client;
+-	return 0;
+-
+- err_free_client:
+-	list_del(&client->node);
+-	kfree(client);
+- err_put_tsdev:
+-	put_device(&tsdev->dev);
+-	return error;
+-}
+-
+-static void tsdev_free(struct device *dev)
+-{
+-	struct tsdev *tsdev = container_of(dev, struct tsdev, dev);
+-
+-	tsdev_table[tsdev->minor] = NULL;
+-	kfree(tsdev);
+-}
+-
+-static int tsdev_release(struct inode *inode, struct file *file)
+-{
+-	struct tsdev_client *client = file->private_data;
+-	struct tsdev *tsdev = client->tsdev;
+-
+-	tsdev_fasync(-1, file, 0);
+-
+-	list_del(&client->node);
+-	kfree(client);
+-
+-	if (!--tsdev->open && tsdev->exist)
+-		input_close_device(&tsdev->handle);
+-
+-	put_device(&tsdev->dev);
+-
+-	return 0;
+-}
+-
+-static ssize_t tsdev_read(struct file *file, char __user *buffer, size_t count,
+-			  loff_t *ppos)
+-{
+-	struct tsdev_client *client = file->private_data;
+-	struct tsdev *tsdev = client->tsdev;
+-	int retval = 0;
+-
+-	if (client->head == client->tail && tsdev->exist && (file->f_flags & O_NONBLOCK))
+-		return -EAGAIN;
+-
+-	retval = wait_event_interruptible(tsdev->wait,
+-			client->head != client->tail || !tsdev->exist);
+-	if (retval)
+-		return retval;
+-
+-	if (!tsdev->exist)
+-		return -ENODEV;
+-
+-	while (client->head != client->tail &&
+-	       retval + sizeof (struct ts_event) <= count) {
+-		if (copy_to_user (buffer + retval, client->event + client->tail,
+-				  sizeof (struct ts_event)))
+-			return -EFAULT;
+-		client->tail = (client->tail + 1) & (TSDEV_BUFFER_SIZE - 1);
+-		retval += sizeof (struct ts_event);
+-	}
+-
+-	return retval;
+-}
+-
+-/* No kernel lock - fine */
+-static unsigned int tsdev_poll(struct file *file, poll_table *wait)
+-{
+-	struct tsdev_client *client = file->private_data;
+-	struct tsdev *tsdev = client->tsdev;
+-
+-	poll_wait(file, &tsdev->wait, wait);
+-	return ((client->head == client->tail) ? 0 : (POLLIN | POLLRDNORM)) |
+-		(tsdev->exist ? 0 : (POLLHUP | POLLERR));
+-}
+-
+-static int tsdev_ioctl(struct inode *inode, struct file *file,
+-		       unsigned int cmd, unsigned long arg)
+-{
+-	struct tsdev_client *client = file->private_data;
+-	struct tsdev *tsdev = client->tsdev;
+-	int retval = 0;
+-
+-	switch (cmd) {
+-	case TS_GET_CAL:
+-		if (copy_to_user((void __user *)arg, &tsdev->cal,
+-				 sizeof (struct ts_calibration)))
+-			retval = -EFAULT;
+-		break;
+-
+-	case TS_SET_CAL:
+-		if (copy_from_user(&tsdev->cal, (void __user *)arg,
+-				   sizeof (struct ts_calibration)))
+-			retval = -EFAULT;
+-		break;
+-
+-	default:
+-		retval = -EINVAL;
+-		break;
+-	}
+-
+-	return retval;
+-}
+-
+-static const struct file_operations tsdev_fops = {
+-	.owner =	THIS_MODULE,
+-	.open =		tsdev_open,
+-	.release =	tsdev_release,
+-	.read =		tsdev_read,
+-	.poll =		tsdev_poll,
+-	.fasync =	tsdev_fasync,
+-	.ioctl =	tsdev_ioctl,
+-};
+-
+-static void tsdev_event(struct input_handle *handle, unsigned int type,
+-			unsigned int code, int value)
+-{
+-	struct tsdev *tsdev = handle->private;
+-	struct tsdev_client *client;
+-	struct timeval time;
+-
+-	switch (type) {
+-	case EV_ABS:
+-		switch (code) {
+-		case ABS_X:
+-			tsdev->x = value;
+-			break;
+-
+-		case ABS_Y:
+-			tsdev->y = value;
+-			break;
+-
+-		case ABS_PRESSURE:
+-			if (value > handle->dev->absmax[ABS_PRESSURE])
+-				value = handle->dev->absmax[ABS_PRESSURE];
+-			value -= handle->dev->absmin[ABS_PRESSURE];
+-			if (value < 0)
+-				value = 0;
+-			tsdev->pressure = value;
+-			break;
+-		}
+-		break;
+-
+-	case EV_REL:
+-		switch (code) {
+-		case REL_X:
+-			tsdev->x += value;
+-			if (tsdev->x < 0)
+-				tsdev->x = 0;
+-			else if (tsdev->x > xres)
+-				tsdev->x = xres;
+-			break;
+-
+-		case REL_Y:
+-			tsdev->y += value;
+-			if (tsdev->y < 0)
+-				tsdev->y = 0;
+-			else if (tsdev->y > yres)
+-				tsdev->y = yres;
+-			break;
+-		}
+-		break;
+-
+-	case EV_KEY:
+-		if (code == BTN_TOUCH || code == BTN_MOUSE) {
+-			switch (value) {
+-			case 0:
+-				tsdev->pressure = 0;
+-				break;
+-
+-			case 1:
+-				if (!tsdev->pressure)
+-					tsdev->pressure = 1;
+-				break;
+-			}
+-		}
+-		break;
+-	}
+-
+-	if (type != EV_SYN || code != SYN_REPORT)
+-		return;
+-
+-	list_for_each_entry(client, &tsdev->client_list, node) {
+-		int x, y, tmp;
+-
+-		do_gettimeofday(&time);
+-		client->event[client->head].millisecs = time.tv_usec / 1000;
+-		client->event[client->head].pressure = tsdev->pressure;
+-
+-		x = tsdev->x;
+-		y = tsdev->y;
+-
+-		/* Calibration */
+-		if (!client->raw) {
+-			x = ((x * tsdev->cal.xscale) >> 8) + tsdev->cal.xtrans;
+-			y = ((y * tsdev->cal.yscale) >> 8) + tsdev->cal.ytrans;
+-			if (tsdev->cal.xyswap) {
+-				tmp = x; x = y; y = tmp;
+-			}
+-		}
+-
+-		client->event[client->head].x = x;
+-		client->event[client->head].y = y;
+-		client->head = (client->head + 1) & (TSDEV_BUFFER_SIZE - 1);
+-		kill_fasync(&client->fasync, SIGIO, POLL_IN);
+-	}
+-	wake_up_interruptible(&tsdev->wait);
+-}
+-
+-static int tsdev_connect(struct input_handler *handler, struct input_dev *dev,
+-			 const struct input_device_id *id)
+-{
+-	struct tsdev *tsdev;
+-	int minor, delta;
+-	int error;
+-
+-	for (minor = 0; minor < TSDEV_MINORS / 2 && tsdev_table[minor]; minor++);
+-	if (minor >= TSDEV_MINORS / 2) {
+-		printk(KERN_ERR
+-		       "tsdev: You have way too many touchscreens\n");
+-		return -ENFILE;
+-	}
+-
+-	tsdev = kzalloc(sizeof(struct tsdev), GFP_KERNEL);
+-	if (!tsdev)
+-		return -ENOMEM;
+-
+-	INIT_LIST_HEAD(&tsdev->client_list);
+-	init_waitqueue_head(&tsdev->wait);
+-
+-	tsdev->exist = 1;
+-	tsdev->minor = minor;
+-	tsdev->handle.dev = dev;
+-	tsdev->handle.name = tsdev->name;
+-	tsdev->handle.handler = handler;
+-	tsdev->handle.private = tsdev;
+-	snprintf(tsdev->name, sizeof(tsdev->name), "ts%d", minor);
+-
+-	/* Precompute the rough calibration matrix */
+-	delta = dev->absmax [ABS_X] - dev->absmin [ABS_X] + 1;
+-	if (delta == 0)
+-		delta = 1;
+-	tsdev->cal.xscale = (xres << 8) / delta;
+-	tsdev->cal.xtrans = - ((dev->absmin [ABS_X] * tsdev->cal.xscale) >> 8);
+-
+-	delta = dev->absmax [ABS_Y] - dev->absmin [ABS_Y] + 1;
+-	if (delta == 0)
+-		delta = 1;
+-	tsdev->cal.yscale = (yres << 8) / delta;
+-	tsdev->cal.ytrans = - ((dev->absmin [ABS_Y] * tsdev->cal.yscale) >> 8);
+-
+-	snprintf(tsdev->dev.bus_id, sizeof(tsdev->dev.bus_id),
+-		 "ts%d", minor);
+-	tsdev->dev.class = &input_class;
+-	tsdev->dev.parent = &dev->dev;
+-	tsdev->dev.devt = MKDEV(INPUT_MAJOR, TSDEV_MINOR_BASE + minor);
+-	tsdev->dev.release = tsdev_free;
+-	device_initialize(&tsdev->dev);
+-
+-	tsdev_table[minor] = tsdev;
+-
+-	error = device_add(&tsdev->dev);
+-	if (error)
+-		goto err_free_tsdev;
+-
+-	error = input_register_handle(&tsdev->handle);
+-	if (error)
+-		goto err_delete_tsdev;
+-
+-	return 0;
+-
+- err_delete_tsdev:
+-	device_del(&tsdev->dev);
+- err_free_tsdev:
+-	put_device(&tsdev->dev);
+-	return error;
+-}
+-
+-static void tsdev_disconnect(struct input_handle *handle)
+-{
+-	struct tsdev *tsdev = handle->private;
+-	struct tsdev_client *client;
+-
+-	input_unregister_handle(handle);
+-	device_del(&tsdev->dev);
+-
+-	tsdev->exist = 0;
+-
+-	if (tsdev->open) {
+-		input_close_device(handle);
+-		list_for_each_entry(client, &tsdev->client_list, node)
+-			kill_fasync(&client->fasync, SIGIO, POLL_HUP);
+-		wake_up_interruptible(&tsdev->wait);
+-	}
+-
+-	put_device(&tsdev->dev);
+-}
+-
+-static const struct input_device_id tsdev_ids[] = {
+-	{
+-	      .flags	= INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KEYBIT | INPUT_DEVICE_ID_MATCH_RELBIT,
+-	      .evbit	= { BIT(EV_KEY) | BIT(EV_REL) },
+-	      .keybit	= { [LONG(BTN_LEFT)] = BIT(BTN_LEFT) },
+-	      .relbit	= { BIT(REL_X) | BIT(REL_Y) },
+-	}, /* A mouse like device, at least one button, two relative axes */
+-
+-	{
+-	      .flags	= INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_KEYBIT | INPUT_DEVICE_ID_MATCH_ABSBIT,
+-	      .evbit	= { BIT(EV_KEY) | BIT(EV_ABS) },
+-	      .keybit	= { [LONG(BTN_TOUCH)] = BIT(BTN_TOUCH) },
+-	      .absbit	= { BIT(ABS_X) | BIT(ABS_Y) },
+-	}, /* A tablet like device, at least touch detection, two absolute axes */
+-
+-	{
+-	      .flags	= INPUT_DEVICE_ID_MATCH_EVBIT | INPUT_DEVICE_ID_MATCH_ABSBIT,
+-	      .evbit	= { BIT(EV_ABS) },
+-	      .absbit	= { BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE) },
+-	}, /* A tablet like device with several gradations of pressure */
+-
+-	{} /* Terminating entry */
+-};
+-
+-MODULE_DEVICE_TABLE(input, tsdev_ids);
+-
+-static struct input_handler tsdev_handler = {
+-	.event =	tsdev_event,
+-	.connect =	tsdev_connect,
+-	.disconnect =	tsdev_disconnect,
+-	.fops =		&tsdev_fops,
+-	.minor =	TSDEV_MINOR_BASE,
+-	.name =		"tsdev",
+-	.id_table =	tsdev_ids,
+-};
+-
+-static int __init tsdev_init(void)
+-{
+-	return input_register_handler(&tsdev_handler);
+-}
+-
+-static void __exit tsdev_exit(void)
+-{
+-	input_unregister_handler(&tsdev_handler);
+-}
+-
+-module_init(tsdev_init);
+-module_exit(tsdev_exit);

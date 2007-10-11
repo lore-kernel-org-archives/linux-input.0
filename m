@@ -1,31 +1,69 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: GeneralTouch USB Touchscreen Support
-Date: Thu, 11 Oct 2007 14:05:05 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0710111403480.25413@twin.jikos.cz>
-References: <f37dba8b0710080305t37b57e3dpe2fd7be231893ba5@mail.gmail.com>
- <d120d5000710080623o4a0be879w45d59be6ee025d40@mail.gmail.com>
- <Pine.LNX.4.64.0710081633330.25413@twin.jikos.cz> <200710110802.01953.dmitry.torokhov@gmail.com>
+From: "Magic Jackpot" <SheldonOgden@fast.net>
+Subject: Up to 1000 Euro  Free bonus
+Date: Thu, 11 Oct 2007 10:48:44 +0000
+Message-ID: <000a01c80c03$069e68a9$9ec450b6@ltlay>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C80C03.069A5318"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200710110802.01953.dmitry.torokhov@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: zeylienospam@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 11 Oct 2007, Dmitry Torokhov wrote:
+This is a multi-part message in MIME format.
 
-> I'd rather HID part go through your tree. Here is is split out.
+------=_NextPart_000_0007_01C80C03.069A5318
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
 
-thanks, I will take this through my tree. I am planning to send the pull 
-request to Linus by the end of this week.
+Hi,
 
--- 
-Jiri Kosina
+Missing the thrill of real nice gaming?
+
+Magic Jackpots welcomes you with a bonus of up to $1000.
+You can play over 100 games with superb graphics.
+
+I am the king of blackjack and I just received my 5000$ withdraw after =
+playing for only 2 weeks.
+
+If you want to have great fun in a fair casino - Magic Jackpots is your =
+best bet!=20
+
+Jeremy
+------=_NextPart_000_0007_01C80C03.069A5318
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgcolor=3D"#FFFF33">
+<B>Hi,<BR>
+<BR>
+Missing the thrill of real nice gaming?<BR>
+<BR>
+Magic Jackpots welcomes you with a bonus of up to $1000.<BR>
+You can play over 100 games with superb graphics.<BR>
+<BR>
+I am the king of blackjack and I just received my 5000$ withdraw after =
+playing for only 2 weeks.<BR>
+<BR>
+If you want to have great fun in a fair casino - <A =
+href=3D"http://roykazi.org">Magic Jackpots is your best bet!</A> <BR>
+<BR>
+Jeremy</B>
+</BODY>
+</HTML>
+</BODY></HTML>
+------=_NextPart_000_0007_01C80C03.069A5318--

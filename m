@@ -1,321 +1,222 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Thu, 11 Oct 2007 08:44:57 -0400
-Message-ID: <d120d5000710110544u4cf45efbwe29869578efe5495@mail.gmail.com>
+Subject: Re: [PATCH 2/3] Input/Touchscreen Driver: add support AD7877 touchscreen driver
+Date: Thu, 11 Oct 2007 09:27:55 -0400
+Message-ID: <d120d5000710110627x625476ccl6802cf5e97aa8533@mail.gmail.com>
 References: <1192098220-25828-1-git-send-email-bryan.wu@analog.com>
-	 <1192098220-25828-2-git-send-email-bryan.wu@analog.com>
+	 <1192098220-25828-3-git-send-email-bryan.wu@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1192098220-25828-2-git-send-email-bryan.wu@analog.com>
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <1192098220-25828-3-git-send-email-bryan.wu@analog.com>
 Content-Disposition: inline
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+Sender: linux-serial-owner@vger.kernel.org
 To: Bryan Wu <bryan.wu@analog.com>, Michael Hennerich <michael.hennerich@analog.com>
 Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Brian, Michael,
+Hi Bryan, Michael,
 
 On 10/11/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> From: Michael Hennerich <michael.hennerich@analog.com>
->
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> Signed-off-by: Bryan Wu <bryan.wu@analog.com>
+> +
+> +static int gpio3 = 0;
 
-Thank you for the patch. The formatting of the patch is unorthodox,
-could you please run it through lindent? Also:
+No need to initialize.
 
 > +
-> +#undef  DEBUG
-> +
-> +#ifdef DEBUG
-> +#define DPRINTK(x...)   printk(x)
-> +#else
-> +#define DPRINTK(x...)   do { } while (0)
-> +#endif
-> +
-
-pr_debug()
-
-> +MODULE_AUTHOR("Aubrey Li <aubrey.li@analog.com>");
-> +MODULE_DESCRIPTION("Driver for AD7142 joysticks");
-> +MODULE_LICENSE("GPL");
-> +
-> +/*
-> + * Feeding the output queue to the device is handled by way of a
-> + * workqueue.
-> + */
-> +static struct task_struct *ad7142_task;
-> +static DECLARE_WAIT_QUEUE_HEAD(ad7142_wait);
-> +
-> +static int ad7142_used=0;
-
-No need to initialize. In fact, this variable is not needed at all.
-
-> +static struct input_dev *ad7142_dev;
-> +static char *ad7142_phys={"ad7142/input0"};
-> +
-> +static char *ad7142_name = "ad7142 joystick";
-> +
-
-Just use literals right in the _probe() function - that is the only
-place where they are used as far as I can see.
-
-
-> +static unsigned short stage[5][8]={
-
-const?
-
-> +
-> +static int
-> +ad7142_i2c_write(struct i2c_client *client,
-> +                    unsigned short    offset,
-> +                     unsigned short    *data,
-> +                     unsigned int       len)
+> +static int ad7877_read(struct device *dev, u16 reg)
 > +{
-> +        int ret = -1;
-> +       int i;
+> +       struct spi_device       *spi = to_spi_device(dev);
+> +       struct ser_req          *req = kzalloc(sizeof *req, GFP_KERNEL);
+
+How many reads can happen at once? Maybe allocate 1 ser_req per
+touchcsreen when creating it?
+
 > +
-> +       if(len<1 || len>16){
-> +               printk("AD7142: Write data length error\n");
-> +               return ret;
-> +       }
-> +        /* the adv7142 has an autoincrement function, use it if
-> +         * the adapter understands raw I2C */
-> +        if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +                /* do raw I2C, not smbus compatible */
-> +               u8 block_data[34];
-> +
-> +               block_data[0] = (offset & 0xFF00)>>8;
-> +               block_data[1] = (offset & 0x00FF);
-> +               for(i=0;i<len;i++){
-> +                       block_data[2*i+2] = (*data & 0xFF00)>>8;
-> +                       block_data[2*i+3] = *data++ & 0x00FF;
-> +               }
-> +               if((ret = i2c_master_send(client, block_data,len*2+2))<0){
-> +                       printk("AD7142: I2C write error\n");
-> +                       return ret;
-> +               }
+> +       if (likely(x && z1 && !device_suspended(&ts->spi->dev))) {
+> +               /* compute touch pressure resistance using equation #2 */
+> +               Rt = z2;
+> +               Rt -= z1;
+> +               Rt *= x;
+> +               Rt *= ts->x_plate_ohms;
+> +               Rt /= z1;
+> +               Rt = (Rt + 2047) >> 12;
 > +       } else
-> +               printk("AD7142: i2c bus doesn't support raw I2C operation\n");
-
-Does not this condition cause driver to fail completely? If so I'd
-move it in probe function and  not even try initializing the device if
-functionality is missing.
-
+> +               Rt = 0;
 > +
-> +unsigned short old_status_low=0,old_status_high=0;
-
-Initialization is not needed and I'd move these inside ad7142_decode().
-
+> +       if (Rt) {
+> +               input_report_abs(input_dev, ABS_X, x);
+> +               input_report_abs(input_dev, ABS_Y, y);
+> +               sync = 1;
+> +       }
 > +
-> +static void ad7142_decode(void)
+> +       if (sync) {
+> +               input_report_abs(input_dev, ABS_PRESSURE, Rt);
+> +               input_sync(input_dev);
+> +       }
+
+Confused about the logic - you set sync only if Rt != 0 so why don't
+fold second "if" into the first one?
+
+> +/* Must be called with ts->lock held */
+> +static void ad7877_disable(struct ad7877 *ts)
 > +{
-> +       unsigned short irqno_low=0,irqno_high=0;
-
-Why do you need to initialize these?
-
-> +        unsigned short temp;
+> +       if (ts->disabled)
+> +               return;
 > +
-> +        ad7142_i2c_read(ad7142_client,INTSTAT_REG0,&irqno_low,1);
-> +        temp = irqno_low ^ old_status_low;
-> +       switch(temp){
-> +       case 0x0001:    input_report_key(ad7142_dev, BTN_BASE, irqno_low&0x0001);
-> +                       old_status_low = irqno_low;
-
-This can be moved out of switch statement.
-
-> +                       break;
-> +       case 0x0002:    input_report_key(ad7142_dev, BTN_BASE4, (irqno_low&0x0002)>>1);
-> +                        old_status_low = irqno_low;
-> +                        break;
-> +       case 0x0004:    input_report_key(ad7142_dev, KEY_UP, (irqno_low&0x0004)>>2);
-> +                        old_status_low = irqno_low;
-> +                        break;
-> +       case 0x0008:    input_report_key(ad7142_dev, KEY_RIGHT, (irqno_low&0x0008)>>3);
-> +                        old_status_low = irqno_low;
-> +                        break;
-> +        }
-> +        ad7142_i2c_read(ad7142_client,INTSTAT_REG1,&irqno_high,1);
-> +        temp = irqno_high ^ old_status_high;
-> +       switch(temp){
-> +       case 0x0001:    input_report_key(ad7142_dev, BTN_BASE2, irqno_high&0x0001);
-> +                       old_status_high = irqno_high;
-
-Same here.
-
-> +                       break;
-> +       case 0x0002:    input_report_key(ad7142_dev, BTN_BASE3, (irqno_high&0x0002)>>1);
-> +                        old_status_high = irqno_high;
-> +                        break;
-> +       case 0x0004:    input_report_key(ad7142_dev, KEY_DOWN, (irqno_high&0x0004)>>2);
-> +                        old_status_high = irqno_high;
-> +                        break;
-> +       case 0x0008:    input_report_key(ad7142_dev, KEY_LEFT, (irqno_high&0x0008)>>3);
-> +                        old_status_high = irqno_high;
-> +                        break;
-> +        }
-> +        input_sync(ad7142_dev);
+> +       ts->disabled = 1;
+> +
+> +       if (!ts->pending) {
+> +               ts->irq_disabled = 1;
+> +               disable_irq(ts->spi->irq);
+> +       } else {
+> +               /* the kthread will run at least once more, and
+> +                * leave everything in a clean state, IRQ disabled
+> +                */
+> +               while (ts->pending) {
+> +                       spin_unlock_irq(&ts->lock);
+> +                       msleep(1);
+> +                       spin_lock_irq(&ts->lock);
+> +               }
+> +       }
+> +
+> +       /* we know the chip's in lowpower mode since we always
+> +        * leave it that way after every request
+> +        */
+> +
 > +}
-> +
-> +
-> +static int intr_flag = 0;
-> +static int ad7142_thread(void *nothing)
-> +{
-> +        do {
-> +               wait_event_interruptible(ad7142_wait, kthread_should_stop() || (intr_flag!=0));
-> +               ad7142_decode();
-> +                intr_flag = 0;
-> +               enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> +        } while (!kthread_should_stop());
-> +        printk(KERN_DEBUG "ad7142: kthread exiting\n");
-> +        return 0;
-> +}
-> +
-> +static irqreturn_t ad7142_interrupt(int irq, void *dummy, struct pt_regs *fp)
-> +{
-> +       disable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> +       intr_flag = 1;
-> +       wake_up_interruptible(&ad7142_wait);
-> +       return IRQ_HANDLED;
-> +}
-> +
-> +static int ad7142_open(struct input_dev *dev)
-> +{
-> +       int *used = dev->private;
 
-input_get_drvdata()
+This looks scary. Can you try moving locking inside ad7877_enable and
+ad7877_disable?
 
-> +       unsigned short id,value;
-> +       ad7142_i2c_read(ad7142_client, DEVID, &id, 1);
-> +       if(id != AD7142_I2C_ID){
-> +               printk(KERN_ERR "Open AD7142 error\n");
+> +
+> +static int __devinit ad7877_probe(struct spi_device *spi)
+> +{
+> +       struct ad7877                   *ts;
+> +       struct input_dev                *input_dev;
+> +       struct ad7877_platform_data     *pdata = spi->dev.platform_data;
+> +       struct spi_message              *m;
+> +       int                             err;
+> +       u16                             verify;
+> +
+> +
+> +       if (!spi->irq) {
+> +               dev_dbg(&spi->dev, "no IRQ?\n");
 > +               return -ENODEV;
 > +       }
-> +       if ((*used)++)
-> +               return 0;
-
-No need to count, input core serializes open and close and makes sure
-they are called only once.
-
 > +
-> +       if (request_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt, \
-> +               IRQF_TRIGGER_LOW, "ad7142_joy", ad7142_interrupt)) {
-> +               (*used)--;
-> +               printk(KERN_ERR "ad7142.c: Can't allocate irq %d\n",CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> +               return -EBUSY;
+> +
+> +       if (!pdata) {
+> +               dev_dbg(&spi->dev, "no platform data?\n");
+> +               return -ENODEV;
 > +       }
+> +
+> +
+> +       /* don't exceed max specified SPI CLK frequency */
+> +       if (spi->max_speed_hz > MAX_SPI_FREQ_HZ) {
+> +               dev_dbg(&spi->dev, "SPI CLK %d Hz?\n",spi->max_speed_hz);
+> +               return -EINVAL;
+> +       }
+> +
+> +       ts = kzalloc(sizeof(struct ad7877), GFP_KERNEL);
+> +       input_dev = input_allocate_device();
+> +       if (!ts || !input_dev) {
+> +               err = -ENOMEM;
+> +               goto err_free_mem;
+> +       }
+> +
+> +
+> +       dev_set_drvdata(&spi->dev, ts);
+> +       spi->dev.power.power_state = PMSG_ON;
+> +
+> +       ts->spi = spi;
+> +       ts->input = input_dev;
+> +       ts->intr_flag = 0;
+> +       init_timer(&ts->timer);
+> +       ts->timer.data = (unsigned long) ts;
+> +       ts->timer.function = ad7877_timer;
+> +
+> +       spin_lock_init(&ts->lock);
+> +
+> +       ts->model = pdata->model ? : 7877;
+> +       ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
+> +       ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
+> +       ts->pressure_max = pdata->pressure_max ? : ~0;
+> +
+> +
+> +       ts->stopacq_polarity = pdata->stopacq_polarity;
+> +       ts->first_conversion_delay = pdata->first_conversion_delay;
+> +       ts->acquisition_time = pdata->acquisition_time;
+> +       ts->averaging = pdata->averaging;
+> +       ts->pen_down_acc_interval = pdata->pen_down_acc_interval;
+> +
+> +       snprintf(ts->phys, sizeof(ts->phys), "%s/input0", spi->dev.bus_id);
+> +
+> +       input_dev->name = "AD7877 Touchscreen";
+> +       input_dev->phys = ts->phys;
+> +       input_dev->cdev.dev = &spi->dev;
 
-What are the chances for IRQ to be used by 2 drivers? Maybe just
-request_irq in proble?
+Please use input_dev->dev.parent, i will kill 'cdev' soon.
 
 > +
+> +       err = input_register_device(input_dev);
+> +       if (err)
+> +               goto err_remove_attr;
 > +
-> +       ad7142_i2c_write(ad7142_client,STAGE0_CONNECTION,stage[0],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE1_CONNECTION,stage[1],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE2_CONNECTION,stage[2],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE3_CONNECTION,stage[3],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE4_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE5_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE6_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE7_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE8_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE9_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE10_CONNECTION,stage[4],8);
-> +       ad7142_i2c_write(ad7142_client,STAGE11_CONNECTION,stage[4],8);
+> +       ts->intr_flag = 0;
 > +
-> +       value = 0x00B0;
-> +       ad7142_i2c_write(ad7142_client,PWRCONVCTL,&value,1);
+> +       ad7877_task = kthread_run(ad7877_thread, ts, "ad7877_ktsd");
 > +
-> +       value = 0x0690;
-> +       ad7142_i2c_write(ad7142_client,AMBCOMPCTL_REG1,&value,1);
-> +
-> +       value = 0x0664;
-> +       ad7142_i2c_write(ad7142_client,AMBCOMPCTL_REG2,&value,1);
-> +
-> +       value = 0x290F;
-> +       ad7142_i2c_write(ad7142_client,AMBCOMPCTL_REG3,&value,1);
-> +
-> +       value = 0x000F;
-> +       ad7142_i2c_write(ad7142_client,INTEN_REG0,&value,1);
-> +       ad7142_i2c_write(ad7142_client,INTEN_REG1,&value,1);
-> +
-> +       value = 0x0000;
-> +       ad7142_i2c_write(ad7142_client,INTEN_REG2,&value,1);
-> +
-> +       ad7142_i2c_read(ad7142_client,AMBCOMPCTL_REG1,&value,1);
-> +
-> +       value = 0x000F;
-> +       ad7142_i2c_write(ad7142_client,AMBCOMPCTL_REG0,&value,1);
-> +
-> +       ad7142_task = kthread_run(ad7142_thread, NULL, "ad7142_task");
-> +        if (IS_ERR(ad7142_task)) {
-> +                printk(KERN_ERR "serio: Failed to start kseriod\n");
-> +                return PTR_ERR(ad7142_task);
+> +        if (IS_ERR(ad7877_task)) {
+> +                printk(KERN_ERR "ts: Failed to start ad7877_task\n");
+> +                goto err_remove_attr;
+
+You shoudl use input_unregister_device() once it was registered. So
+you need something like
+             goto err_unregister_idev;
+...
+err_unregister_idev:
+        input_unregister_device(input_dev);
+        input-dve = NULL; /* so we don't try to free it later */
+err_remove_attr:
+...
+
 > +        }
-> +       return 0;
-> +}
-> +
-> +static void ad7142_close(struct input_dev *dev)
-> +{
-> +       int *used = dev->private;
-> +
-> +       if (!--(*used))
-> +               free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
-> +       kthread_stop(ad7142_task);
-> +}
-> +
-> +static int __init ad7142_init(void)
-> +{
-> +       ad7142_dev = input_allocate_device();
-> +       if(!ad7142_dev)
-> +               return -ENOMEM;
-
-This should be done when you bind to i2c device, not before.
-
-> +       ad7142_dev->open = ad7142_open;
-> +       ad7142_dev->close = ad7142_close;
-> +       ad7142_dev->evbit[0] = BIT(EV_KEY);
-> +       ad7142_dev->keybit[LONG(BTN_BASE)] = BIT(BTN_BASE) | BIT(BTN_BASE2) | BIT(BTN_BASE3) | BIT(BTN_BASE4);
-> +       ad7142_dev->keybit[LONG(KEY_UP)] |= BIT(KEY_UP) | BIT(KEY_DOWN) | BIT(KEY_LEFT) | BIT(KEY_RIGHT);
-> +
-> +       ad7142_dev->name = ad7142_name;
-> +       ad7142_dev->phys = ad7142_phys;
-> +       ad7142_dev->id.bustype = BUS_I2C;
-> +       ad7142_dev->id.vendor = 0x0001;
-> +       ad7142_dev->id.product = 0x0001;
-> +       ad7142_dev->id.version = 0x0100;
-> +
-> +       ad7142_dev->private = &ad7142_used;
-
-input_set_drvdata();
-
-> +
-> +       input_register_device(ad7142_dev);
-
-Error handling please.
-
-> +       i2c_add_driver (&ad7142_driver);
 > +
 > +       return 0;
+> +
+> + err_remove_attr:
+> +
+> +       sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
+> +
+> +       if(gpio3)
+> +               device_remove_file(&spi->dev, &dev_attr_gpio3);
+> +       else
+> +               device_remove_file(&spi->dev, &dev_attr_aux3);
+> +
+> +
+> +       free_irq(spi->irq, ts);
+> + err_free_mem:
+> +       input_free_device(input_dev);
+> +       kfree(ts);
+> +       return err;
 > +}
 > +
-> +static void __exit ad7142_exit(void)
+> +static int __devexit ad7877_remove(struct spi_device *spi)
 > +{
-> +       i2c_del_driver (&ad7142_driver);
-> +       input_unregister_device(ad7142_dev);
-> +}
+> +       struct ad7877           *ts = dev_get_drvdata(&spi->dev);
 > +
-> +module_init(ad7142_init);
-> +module_exit(ad7142_exit);
-> --
-> 1.5.3.4
->
+> +       input_unregister_device(ts->input);
+> +
+> +       ad7877_suspend(spi, PMSG_SUSPEND);
+> +
+> +       kthread_stop(ad7877_task);
+
+You don't want to unregister device before stopping
+interrupts/kthread. Otherwise there is a chance you will try to use
+just freed device to send event through.
+
+The driver also contains some indenting damage, please re-check.
 
 Thanks!
 

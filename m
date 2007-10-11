@@ -1,100 +1,145 @@
-From: bmwlottery123@sunumail.sn
-Subject: Award Notification
-Date: Wed, 10 Oct 2007 20:21:01 -0000 (GMT)
-Message-ID: <2984.41.219.236.102.1192047661.sunumail@www.sunumail.sn>
+From: "=?UTF-8?Q?Javier_Bola=C3=B1os_Molina?=" <javinovich@gmail.com>
+Subject: Re: [PATCH] usbhid: add ASUS LCM to the blacklist
+Date: Wed, 10 Oct 2007 20:11:05 -0500
+Message-ID: <8a1758740710101811q22fc235aifb1edcccd6e98e56@mail.gmail.com>
+References: <200707240228.39421.chunkeey@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/alternative;
+	boundary="----=_Part_6144_10787076.1192065065892"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200707240228.39421.chunkeey@web.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Christian Lamparter <chunkeey@web.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-BMW AUTOMOBILES GROUP PROMOTION
-PUBLIC RELATIONS DEPARTMENT,
-BMW Automobiles House.
-22 Garden Close, Edmonton, Lincs,
-PE9 2YP, London,
-United Kingdom.
+------=_Part_6144_10787076.1192065065892
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-10th October, 2007
+SGkgYWxsLAoKSSB3b3VsZCBsaWtlIHRvIGNvbW1lbnQgb24gdGhlIHRvcGljIHF1b3RlZCBvbgpo
+dHRwczovL3pvY2tlcnRvd24uZGUvczl5L2FyY2hpdmVzLzg4Mi1hc3Vzb2xlZC1jb21waWxpZXJl
+bi5odG1sICB0aGF0CnN0YXRlcyBzb21ldGhpbmcgbGlrZSB0aGlzOgoKCiJJIHdyb3RlIGEgcGF0
+Y2ggdG8gY29ycmVjdCB0aGlzIGlzc3VlOgpodHRwOi8vbGttbC5vcmcvbGttbC8yMDA3LzcvMjMv
+NTMwKGdldCAmIHRyeSB0aGUgcGF0Y2gpIEhvd2V2ZXIsIGl0CndvdWxkIGJlIG5pY2UgaWYgaXQg
+aGFzICJzb21lb25lIgpzdXBwb3J0ZXJzISBJJ3ZlIGFscmVhZHkgd3JvdGUgb25lIGZvciAyLjYu
+MjItZ2l0WCBjeWNsZS4uLiBidXQgaXQgZG8gbm90CmdldCBhbnkgZmVlZGJhY2shIHBsZWFzZSBn
+bwp0bzpodHRwOi8vbGttbC5vcmcvbGttbC9ib3VuY2UvMjAwNy83LzIzLzUzMDxodHRwczovL3pv
+Y2tlcnRvd24uZGUvczl5L2V4aXQucGhwP3VybD1hSFIwY0RvdkwyeHJiV3d1YjNKbkwyeHJiV3d2
+WW05MWJtTmxMekl3TURjdk55OHlNeTgxTXpBPSZlbnRyeV9pZD04ODI+c2VuZAppdCB0byB5b3Vy
+IGVtYWlsIGFkZHJlc3MsIHdyaXRlIGEgZmVlZGJhY2sgYW5kIHVzZSAiYW5zd2VyIGFsbCEiLgpU
+aGF0J3MgaXQhIgoKCldlbGwgSSBpbnN0YWxsZWQgdGhpcyBwYXRjaCwgcmVjb21waWxlZCBteSBr
+ZXJuZWwgYW5kIHRyaWVkIGFnYWluIGFzdXNvbGVkCmFwcGxpY2F0aW9uIGluIG9yZGVyIHRvIHRl
+c3QgdGhlIG9sZWQgZGlzcGxheS4KRmlyc3QgdGltZSBldmVyeXRoaW5nIHNlZW1lZCBhcyB1c3Vh
+bCBhcyBpdCB3YXMgd2l0aCBhIHN0YW5kYXJkIChubyBwYXRjaGVkKQprZXJuZWwsIGFzdXNvbGRl
+ZCBhc2sgbWUgdG8gcm1tb2QgIHVzYmhpZCBhcyBpdCB3YXMgbm90IGFibGUgdG8gZ2V0IGNvbnRy
+b2wKb24gdGhlIG9sZWQuClRoZW4gSSByZW1vdmVkIHRoZSB1c2JoaWQgYW5kIHRyaWVkIGFnYWlu
+LCBpdCB3b3JrZWQuIE5vdGhpbmcgbmV3LgpBZnRlciB0aGlzIEkgbG9hZGVkIHVzYmhpZCBpbiBv
+cmRlciB0byB1c2UgbXkgbW91c2UuCnRoZW4gSSB0cmllZCBhc3Vzb2xlZCAgYW5kICBmb3J0dW5h
+dGVseSB0aGlzIHRpbWUgaXQgd29ya2VkICB0aGlzIHRpbWUgd2l0aAp1c2JoaWQgbG9hZGVkLgoK
+VG8gc3VtIHVwIHRoZSBwYXRjaCB3b3JrcyBmaW5lIG9uY2UgSSByZW1vdmUgYW5kIGxvYWQgdXNi
+aGlkIG9uY2UuIEkgdGVuZCB0bwp0aGluayB0aGlzIGNvdWxkIGJlIGEgYm9vdHN0cmFwIGJ1ZyBh
+cyBpdCBkb2VzIHdvcmsgd2VsbCBhZnRlciBhIG1hbnVhbApyZWxvYWQgb2YgdXNiaGlkLgoKSSds
+bCBjb250aW51ZSB0ZXN0aW5nIGluIG9yZGVyIHRvIHNlZSBpZiBpdCB3YXMganVzdCBhIHNwb250
+YW5lb3VzICBwcm9ibGVtLgoKCk15IHN5c3RlbToKCkFzdXMgRzFTCjRHQgpPcGVuIFN1U0UgMTAu
+MyBYODZfNjQKS2VybmVsOiAyLjYuMjIuOS05MCAoU3VzZSBCdWlsZCBTZXJ2aWNlKSBwYXRjaGVk
+IHdpdGgvdG8gc29sdmU6CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgNEdC
+ICsgQklPUyArIE52aWRpYSBwcm9ibGVtCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgb2xlZCByZWNvZ25pemVkIGFzIHVzYmhpZCBkZXZpY2UKCgpQUy4KSSBkb24ndCBrbm93
+ICBHZXJtYW4gc28gaXQgd2FzIGRpZmZpY3VsdCB0byB1bmRlcnN0YW5kIHRoZSBwYWdlIGluCmh0
+dHBzOi8vem9ja2VydG93bi5kZS9zOXkvYXJjaGl2ZXMvODgyLWFzdXNvbGVkLWNvbXBpbGllcmVu
+Lmh0bWwgc28gSSB3b3VsZApzdWdnZXN0IHRvIHVwZGF0ZSBodHRwczovL2xhdW5jaHBhZC5uZXQv
+YXN1c29sZWQvIG1heWJlIEkgY291bGQgaGVscC4KClJlZ2FyZHMsCkphdmllciBCb2xhw7FvcyBN
+b2xpbmEuCgoKT24gMjMvMDcvMjAwNywgQ2hyaXN0aWFuIExhbXBhcnRlciA8Y2h1bmtlZXlAd2Vi
+LmRlPiB3cm90ZToKPgo+Cj4gU29tZSBvZiBBU1VTJyBub3RlYm9va3MgKGUuZyBHIFNlcmllcykg
+aW5jbHVkZSBhIHRpbnkgb2xlZCBkaXNwbGF5LCB3aGljaAo+IGlzCj4gYXR0YWNoZWQgdG8gYW4g
+aW50ZXJuYWwgVVNCIGJ1cy4gVW5mb3J0dW5hdGx5IHRoZSBkZXZpY2UgcmVwb3J0cyBhIHdyb25n
+Cj4gRGV2aWNlRGVzY3JpcHRvciBhbmQgaXMgdGhlcmVmb3JlIGlkZW50aWZpZWQgYXMgYSBISUQg
+ZGV2aWNlLi4uCj4KPiBTaWduZWQtb2ZmLWJ5OiBDaHJpc3RpYW4gTGFtcGFydGVyIDxjaHVua2Vl
+eUB3ZWIuZGU+Cj4gQ0M6IGxpbnV4LWlucHV0QGF0cmV5Lmthcmxpbi5tZmYuY3VuaS5jego+IEND
+OiBsaW51eC11c2ItZGV2ZWxAbGlzdHMuc291cmNlZm9yZ2UubmV0Cj4KPiAtLS0KPiAoa2VlcCB0
+aGUgY2MhKQo+IGZvciB0aG9zZSB3aG8gYXJlIGludGVyZXN0ZWQgaW4gdGhlIHVzZXJzcGFjZSBk
+aXNwbGF5IGRyaXZlcjoKPiBodHRwczovL2xhdW5jaHBhZC5uZXQvYXN1c29sZWQKPgo+Cj4KCgot
+LSAKSmF2aWVyIEJvbGHDsW9zIE1vbGluYQo=
+------=_Part_6144_10787076.1192065065892
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-
-Attention:
-
-This is to inform you that you have been selected for a cash prize
-
-of=A3850,000.00 (Eight hundred and fifty thousand Great British
-
-Pounds)from the BMW e-LOTTERY BONANZA International programs held
-
-yesterday the 9th October, 2007, here in London United Kingdom.
-
-The selection process was carried out through random selection in
-
-ourcomputerized email selection system (E.S.S) from a database of
-
-over250,000 email addresses drawn from all the continents of the world
-
-which you were selected.
-
-The BMW e-Lottery is approved by the British Gaming Board and
-
-alsoLicensed by the International Association of Gaming Regulators
-
-(IAGR). This promotional lottery is the 3rd of its kind and we intend
-
-to sensitize the public.
-
-To begin the processing of your prize you are to contact our
-
-fiduciaryclaims department for more information as regards procedures
-
-to claimyour prize.
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
-
-PUBLIC RELATIONS DEPARTMENT
-7 DOCK WAY, SEFTON BUSINESS PARK
-LONDON, T40 4RT
-UNITED KINGDOM.
-PEPSI WILD
-Email:pepsiwild2@dbzmail.com
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
-
-Contact him by providing him with your secret pin code X7PYWM2007
-
-andyour Reference Number BMW:2551256003/23.You are also advised to
-
-provide him with the under listed information's as soon as possible:
-
-1.Name in full.-----------------------------------
-2.Address.-----------------------------------------
-3.Nationality.------------------------------------
-4.Age.------------------------------------------------
-5.Occupation.------------------------------------
-6.Telephone Number.-------------------------
-7.Present Country.-----------------------------
-8.Sex-------------------------------------------------
-9.Fax [optional].---------------------------------
-10.Email address. ------------------------------
-
-
-
-Please you are to provide him with the above listed details as soon
-
-aspossible so he can begin with the processing of your prize winnings.
-Congratulations again from all our staff and thank you for being
-
-partof our promotional program.
-
-MR.ANTHONY MAYNARD
-THE DIRECTOR PROMOTIONS
-BMW PUBLIC RELATIONS DEPARTMENT
-UNITED KINGDOM
+SGkgYWxsLDxicj48YnI+SSB3b3VsZCBsaWtlIHRvIGNvbW1lbnQgb24gdGhlIHRvcGljIHF1b3Rl
+ZCBvbiA8YSBocmVmPSJodHRwczovL3pvY2tlcnRvd24uZGUvczl5L2FyY2hpdmVzLzg4Mi1hc3Vz
+b2xlZC1jb21waWxpZXJlbi5odG1sIj5odHRwczovL3pvY2tlcnRvd24uZGUvczl5L2FyY2hpdmVz
+Lzg4Mi1hc3Vzb2xlZC1jb21waWxpZXJlbi5odG1sPC9hPiZuYnNwOyB0aGF0IHN0YXRlcyBzb21l
+dGhpbmcgbGlrZSB0aGlzOgo8YnI+PGJyPjxicj4mcXVvdDtJIHdyb3RlIGEgcGF0Y2ggdG8gY29y
+cmVjdCB0aGlzIGlzc3VlOgo8YSBocmVmPSJodHRwOi8vbGttbC5vcmcvbGttbC8yMDA3LzcvMjMv
+NTMwIj5odHRwOi8vbGttbC5vcmcvbGttbC8yMDA3LzcvMjMvNTMwPC9hPgooZ2V0ICZhbXA7IHRy
+eSB0aGUgcGF0Y2gpCkhvd2V2ZXIsIGl0IHdvdWxkIGJlIG5pY2UgaWYgaXQgaGFzICZxdW90O3Nv
+bWVvbmUmcXVvdDsgc3VwcG9ydGVycyEgSSYjMzk7dmUgYWxyZWFkeQp3cm90ZSBvbmUgZm9yIDIu
+Ni4yMi1naXRYIGN5Y2xlLi4uIGJ1dCBpdCBkbyBub3QgZ2V0IGFueSBmZWVkYmFjayEKcGxlYXNl
+IGdvIHRvOjxhIGhyZWY9Imh0dHBzOi8vem9ja2VydG93bi5kZS9zOXkvZXhpdC5waHA/dXJsPWFI
+UjBjRG92TDJ4cmJXd3ViM0puTDJ4cmJXd3ZZbTkxYm1ObEx6SXdNRGN2Tnk4eU15ODFNekE9JmFt
+cDtlbnRyeV9pZD04ODIiIHRpdGxlPSJodHRwOi8vbGttbC5vcmcvbGttbC9ib3VuY2UvMjAwNy83
+LzIzLzUzMCIgb25tb3VzZW92ZXI9IndpbmRvdy5zdGF0dXM9JiMzOTtodHRwOi8vbGttbC5vcmcv
+bGttbC9ib3VuY2UvMjAwNy83LzIzLzUzMCYjMzk7O3JldHVybiB0cnVlOyIgb25tb3VzZW91dD0i
+d2luZG93LnN0YXR1cz0mIzM5OyYjMzk7O3JldHVybiB0cnVlOyIgY2xhc3M9ImJiLXVybCI+Cmh0
+dHA6Ly9sa21sLm9yZy9sa21sL2JvdW5jZS8yMDA3LzcvMjMvNTMwPC9hPgpzZW5kIGl0IHRvIHlv
+dXIgZW1haWwgYWRkcmVzcywgd3JpdGUgYSBmZWVkYmFjayBhbmQgdXNlICZxdW90O2Fuc3dlciBh
+bGwhJnF1b3Q7LgpUaGF0JiMzOTtzIGl0ISZxdW90Ozxicj48YnI+PGJyPldlbGwgSSBpbnN0YWxs
+ZWQgdGhpcyBwYXRjaCwgcmVjb21waWxlZCBteSBrZXJuZWwgYW5kIHRyaWVkIGFnYWluIGFzdXNv
+bGVkIGFwcGxpY2F0aW9uIGluIG9yZGVyIHRvIHRlc3QgdGhlIG9sZWQgZGlzcGxheS4gPGJyPkZp
+cnN0IHRpbWUgZXZlcnl0aGluZyBzZWVtZWQgYXMgdXN1YWwgYXMgaXQgd2FzIHdpdGggYSBzdGFu
+ZGFyZCAobm8gcGF0Y2hlZCkga2VybmVsLCBhc3Vzb2xkZWQgYXNrIG1lIHRvIHJtbW9kJm5ic3A7
+IHVzYmhpZCBhcyBpdCB3YXMgbm90IGFibGUgdG8gZ2V0IGNvbnRyb2wgb24gdGhlIG9sZWQuCjxi
+cj5UaGVuIEkgcmVtb3ZlZCB0aGUgdXNiaGlkIGFuZCB0cmllZCBhZ2FpbiwgaXQgd29ya2VkLiBO
+b3RoaW5nIG5ldy48YnI+QWZ0ZXIgdGhpcyBJIGxvYWRlZCB1c2JoaWQgaW4gb3JkZXIgdG8gdXNl
+IG15IG1vdXNlLjxicj50aGVuIEkgdHJpZWQgYXN1c29sZWQmbmJzcDsgYW5kJm5ic3A7IGZvcnR1
+bmF0ZWx5IHRoaXMgdGltZSBpdCB3b3JrZWQmbmJzcDsgdGhpcyB0aW1lIHdpdGggdXNiaGlkIGxv
+YWRlZC48YnI+Cjxicj5UbyBzdW0gdXAgdGhlIHBhdGNoIHdvcmtzIGZpbmUgb25jZSBJIHJlbW92
+ZSBhbmQgbG9hZCB1c2JoaWQgb25jZS4gSSB0ZW5kIHRvIHRoaW5rIHRoaXMgY291bGQgYmUgYSBi
+b290c3RyYXAgYnVnIGFzIGl0IGRvZXMgd29yayB3ZWxsIGFmdGVyIGEgbWFudWFsIHJlbG9hZCBv
+ZiB1c2JoaWQuPGJyPjxicj5JJiMzOTtsbCBjb250aW51ZSB0ZXN0aW5nIGluIG9yZGVyIHRvIHNl
+ZSBpZiBpdCB3YXMganVzdCBhIHNwb250YW5lb3VzJm5ic3A7IHByb2JsZW0uCjxicj48YnI+PGJy
+Pk15IHN5c3RlbTo8YnI+PGJyPkFzdXMgRzFTPGJyPjRHQjxicj5PcGVuIFN1U0UgMTAuMyBYODZf
+NjQ8YnI+S2VybmVsOiAyLjYuMjIuOS05MCAoU3VzZSBCdWlsZCBTZXJ2aWNlKSBwYXRjaGVkIHdp
+dGgvdG8gc29sdmU6IDxicj4mbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
+cDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsm
+bmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJz
+cDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsmbmJzcDsm
+bmJzcDsmbmJzcDsgNEdCICsgQklPUyArIE52aWRpYSBwcm9ibGVtPGJyPiZuYnNwOyZuYnNwOyZu
+YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
+OyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZu
+YnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNw
+OyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyZuYnNwOyBvbGVkIHJlY29nbml6ZWQgYXMg
+dXNiaGlkIGRldmljZQo8YnI+PGJyPjxicj5QUy4gPGJyPkkgZG9uJiMzOTt0IGtub3cmbmJzcDsg
+R2VybWFuIHNvIGl0IHdhcyBkaWZmaWN1bHQgdG8gdW5kZXJzdGFuZCB0aGUgcGFnZSBpbiA8YSBo
+cmVmPSJodHRwczovL3pvY2tlcnRvd24uZGUvczl5L2FyY2hpdmVzLzg4Mi1hc3Vzb2xlZC1jb21w
+aWxpZXJlbi5odG1sIj5odHRwczovL3pvY2tlcnRvd24uZGUvczl5L2FyY2hpdmVzLzg4Mi1hc3Vz
+b2xlZC1jb21waWxpZXJlbi5odG1sCjwvYT4gc28gSSB3b3VsZCBzdWdnZXN0IHRvIHVwZGF0ZSA8
+YSBocmVmPSJodHRwczovL2xhdW5jaHBhZC5uZXQvYXN1c29sZWQvIj5odHRwczovL2xhdW5jaHBh
+ZC5uZXQvYXN1c29sZWQvPC9hPiBtYXliZSBJIGNvdWxkIGhlbHAuPGJyPjxicj5SZWdhcmRzLDxi
+cj5KYXZpZXIgQm9sYcOxb3MgTW9saW5hLjxicj48YnI+PGJyPjxkaXY+PHNwYW4gY2xhc3M9Imdt
+YWlsX3F1b3RlIj5PbiAyMy8wNy8yMDA3LCAKPGIgY2xhc3M9ImdtYWlsX3NlbmRlcm5hbWUiPkNo
+cmlzdGlhbiBMYW1wYXJ0ZXI8L2I+ICZsdDs8YSBocmVmPSJtYWlsdG86Y2h1bmtlZXlAd2ViLmRl
+Ij5jaHVua2VleUB3ZWIuZGU8L2E+Jmd0OyB3cm90ZTo8L3NwYW4+PGJsb2NrcXVvdGUgY2xhc3M9
+ImdtYWlsX3F1b3RlIiBzdHlsZT0iYm9yZGVyLWxlZnQ6IDFweCBzb2xpZCByZ2IoMjA0LCAyMDQs
+IDIwNCk7IG1hcmdpbjogMHB0IDBwdCAwcHQgMC44ZXg7IHBhZGRpbmctbGVmdDogMWV4OyI+Cjxi
+cj5Tb21lIG9mIEFTVVMmIzM5OyBub3RlYm9va3MgKGUuZyBHIFNlcmllcykgaW5jbHVkZSBhIHRp
+bnkgb2xlZCBkaXNwbGF5LCB3aGljaCBpczxicj5hdHRhY2hlZCB0byBhbiBpbnRlcm5hbCBVU0Ig
+YnVzLiBVbmZvcnR1bmF0bHkgdGhlIGRldmljZSByZXBvcnRzIGEgd3Jvbmc8YnI+RGV2aWNlRGVz
+Y3JpcHRvciBhbmQgaXMgdGhlcmVmb3JlIGlkZW50aWZpZWQgYXMgYSBISUQgZGV2aWNlLi4uCjxi
+cj48YnI+U2lnbmVkLW9mZi1ieTogQ2hyaXN0aWFuIExhbXBhcnRlciAmbHQ7PGEgaHJlZj0ibWFp
+bHRvOmNodW5rZWV5QHdlYi5kZSI+Y2h1bmtlZXlAd2ViLmRlPC9hPiZndDs8YnI+Q0M6IDxhIGhy
+ZWY9Im1haWx0bzpsaW51eC1pbnB1dEBhdHJleS5rYXJsaW4ubWZmLmN1bmkuY3oiPmxpbnV4LWlu
+cHV0QGF0cmV5Lmthcmxpbi5tZmYuY3VuaS5jejwvYT48YnI+Q0M6IDxhIGhyZWY9Im1haWx0bzps
+aW51eC11c2ItZGV2ZWxAbGlzdHMuc291cmNlZm9yZ2UubmV0Ij4KbGludXgtdXNiLWRldmVsQGxp
+c3RzLnNvdXJjZWZvcmdlLm5ldDwvYT48YnI+PGJyPi0tLTxicj4oa2VlcCB0aGUgY2MhKTxicj5m
+b3IgdGhvc2Ugd2hvIGFyZSBpbnRlcmVzdGVkIGluIHRoZSB1c2Vyc3BhY2UgZGlzcGxheSBkcml2
+ZXI6PGJyPjxhIGhyZWY9Imh0dHBzOi8vbGF1bmNocGFkLm5ldC9hc3Vzb2xlZCI+aHR0cHM6Ly9s
+YXVuY2hwYWQubmV0L2FzdXNvbGVkPC9hPjxicj48YnI+Cjxicj48L2Jsb2NrcXVvdGU+PC9kaXY+
+PGJyPjxiciBjbGVhcj0iYWxsIj48YnI+LS0gPGJyPkphdmllciBCb2xhw7FvcyBNb2xpbmEK
+------=_Part_6144_10787076.1192065065892--

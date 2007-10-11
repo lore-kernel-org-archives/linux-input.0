@@ -1,96 +1,125 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH try #3] Blackfin BF54x Input Keypad controller driver
-Date: Thu, 11 Oct 2007 15:58:00 -0400
-Message-ID: <d120d5000710111258h187920e0x13cb35358205c5e9@mail.gmail.com>
-References: <600D5CB4DFD93545BF61FF01473D11AC0F13ABFE@limkexm2.ad.analog.com>
+From: "Marissa Jenkins" <youko.dalzell@verdensdukker.dk>
+Subject: Improve ur sexual life immediately
+Date: Thu, 11 Oct 2007 09:48:21 -0500
+Message-ID: <708787982.90013524998767@verdensdukker.dk>
+Reply-To: youko.dalzell@verdensdukker.dk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+  boundary="----------BF6EB8055C17FD"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <600D5CB4DFD93545BF61FF01473D11AC0F13ABFE@limkexm2.ad.analog.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Cc: bryan.wu@analog.com, linux-input@atrey.karlin.mff.cuni.cz, Linux Kernel <linux-kernel@vger.kernel.org>, uclinux-dist-devel@blackfin.uclinux.org
+To: linux-video@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Michael,
+------------BF6EB8055C17FD
+Content-Type: text/plain; charset=windows-1250
+Content-Transfer-Encoding: 7bit
 
-On 10/11/07, Hennerich, Michael <Michael.Hennerich@analog.com> wrote:
-> >From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> >Sent: Donnerstag, 11. Oktober 2007 19:27
-> >To: bryan.wu@analog.com
-> >Cc: Michael Hennerich; linux-input@atrey.karlin.mff.cuni.cz; Linux
-> Kernel;
-> >uclinux-dist-devel@blackfin.uclinux.org
-> >Subject: Re: [PATCH try #3] Blackfin BF54x Input Keypad controller
-> driver
-> >
-> >On Thursday 11 October 2007, Bryan Wu wrote:
-> >> From: Michael Hennerich <michael.hennerich@analog.com>
-> >> Date: Fri, 12 Oct 2007 00:20:19 +0800
-> >> Subject: [PATCH] Blackfin BF54x Input Keypad controller driver
-> >>
-> >> [try #2] Changelog:
-> >>  - Coding style issue fixes
-> >>  - using a temp variable for bf54x_kpad->input
-> >>  - Other updates according to Dmitry's review
-> >>
-> >> [try #3] Changelog:
-> >>  - Coding style cleanups
-> >>  - Use local copy of keymap
-> >>  - Remove empty PM functions
-> >>  - Use input_set_drvdata() since input->private is going away
-> >
-> >
-> >This looks very good, thank youvery much. I have only 1 more suggestion
-> >(and I can make the changes locally, you don't need to resubmit) -
-> >since it is highly unlikely that we will have a keycode > 65535 do you
-> >think we could change keymap to unsigned short. It would save you a
-> >couple of bytes. I am also going to change "input->cdev.dev =
-> &pdev->dev;"
-> >to "input_dev->dev.parent = &pdev->dev;". Please let me know if you are
-> >OK with it.
->
-> Hi Dmitry,
->
-> Thanks for your excellent feedback and support.
->
-> We do a pretty similar thing like the omap keypad driver.
-> Our keycodes do not exceed KEY_MAX but we encode the ROW and COL into
-> the keycode matrix, in order simplify things in a "normal use case"? .
-> What we store is u32, 16-bit for the keycode and the upper for private
-> use. My understanding is that we then have to set input->keycodesize
-> also being u32.
->
-> Otherwise the generic input layer might get screwed up?!
->
-> Am I wrong here, or do I miss something?
-> Either this is a valid use case or I was inspired by a bad example.
->
 
-Thank you very much for alerting me of omap case, I missed it.
 
-Drivers that use complex values in their keymap tables should not use
-input->keycode, keycodesize and keycodemax. These fields are only used
-by input core if the driver relies on default implementation of
-getkeycode() and setkeycode() for manipulations with its keymap. But
-this will not work in your case (nor with omap) because your keymap
-table does not contain "pure" input keycodes.
+------------BF6EB8055C17FD
+Content-Type: image/gif; name="anna.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="anna.gif"
 
-Well, I guess the easiest is just not set these fields (and remove the
-per-device map allocationand copying) and say that the driver does not
-support altering keymaps. After all, like you said, it is an embedded
-platform and it is unlikely that users will want to alter keymaps.
+R0lGODlhwgAKAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADCAAoB
+AAj/AP8JHEiwoMGDCBMqXMiwocOHECNKnCiRGsWLGDNqbCgGzcaNYT6KVGhrpMmTKBmGTGmSEcuX
+DfM5g0mzps2bOHMibKaz501hPjWOKlhtoqqZQZMWbMdMo6SbZBIinQhrIaeFFk8WTQgPnsmmGc/Y
+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
+EAA7 
 
-However, if you think that this is a nice feature, then you either
-need to rethink how you handle your keymap of implement custom
-getkeycode and setkeycode methods in your driver. The coice is yours,
-I will gladly accept either version of drver.
-
--- 
-Dmitry
+------------BF6EB8055C17FD--

@@ -1,83 +1,70 @@
-From: Chr <chunkeey@web.de>
-Subject: Re: [PATCH] usbhid: add ASUS LCM to the blacklist
-Date: Fri, 12 Oct 2007 10:49:33 +0200
-Message-ID: <200710121049.34149.chunkeey@web.de>
-References: <200707240228.39421.chunkeey@web.de>
-	<8a1758740710101811q22fc235aifb1edcccd6e98e56@mail.gmail.com>
+From: "ROYAL HOUSE UK." <richard_coordinator2@myway.com>
+Subject: Friday, 12th Oct. 2007 Draw From Royal House Uk.
+Date: Fri, 12 Oct 2007 12:01:34 +0200 (SAST)
+Message-ID: <28021.82.128.3.60.1192183294.squirrel@196.15.188.197>
+Reply-To: richard_coordinator2@myway.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-15"
+Content-Type: text/plain;charset=iso-8859-1
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <8a1758740710101811q22fc235aifb1edcccd6e98e56@mail.gmail.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
-List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
-	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-usb-devel-bounces@lists.sourceforge.net
-Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
-To: Javier =?iso-8859-15?q?Bola=F1os?= Molina <javinovich@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
 List-Id: linux-input@vger.kernel.org
 
-On Thursday, 11. October 2007, Javier Bola=F1os Molina wrote:
-> Hi all,
-> [...]
-> Well I installed this patch, recompiled my kernel and tried again asusoled
-> application in order to test the oled display.
-> First time everything seemed as usual as it was with a standard (no patch=
-ed)
-> kernel, asusolded ask me to rmmod  usbhid as it was not able to get contr=
-ol
-> on the oled.
-> Then I removed the usbhid and tried again, it worked. Nothing new.
-> After this I loaded usbhid in order to use my mouse.
-> then I tried asusoled  and  fortunately this time it worked  this time wi=
-th
-> usbhid loaded.
-> =
-
-> To sum up the patch works fine once I remove and load usbhid once. I tend=
- to
-> think this could be a bootstrap bug as it does work well after a manual
-> reload of usbhid.
-> =
 
 
-hmm, sounds like the old usbhid module is still around... =
 
-My first guess: Do you use a initrd? Have you updated it, after you recompi=
-led your kernel?
+ROYAL HOUSE UK.
+WORCESTER, HEREFORD & WORCESTER,
+WR1 1JT, UNITED KINGDOM.
+FAX: +-4-4-7-0-0-5-9-8-1-5-4-8
 
-> [...]
-> PS.
-> I don't know  German so it was difficult to understand the page in
-> https://zockertown.de/s9y/archives/882-asusoled-compilieren.html so I wou=
-ld
-> suggest to update https://launchpad.net/asusoled/ maybe I could help.
-> =
+From: Mr. Richard Cole Murphy Jr.
+(Promotion Department)
 
-> Regards,
-> Javier Bola=F1os Molina.
-> =
+Dear Sir/ Madam,
 
+We are please to announce you as one of the 3 lucky winners in the ROYAL
+HOUSE UK lottery Ballot Draws. All 3 winning addresses were randomly
+selected from a batch of 30,000 email addresses.
 
-The project moved to sourceforge.net. The new maintainer is:
+Your email address emerged alongside 2 others under our promotional B
+draws. Consequently, you have therefore been approved for a total pay out
+of =A32,800,000 Pounds (Two Million, eight hundred thousand pounds). The
+following particulars are attached to your lotto payment order:
 
-Adilson Oliveira <adilson@linuxembarcado.com.br>
+(i). Winning numbers: 10, 18, 00, 34, 49, (60)
+(ii). Email ticket number: 32-17-431
+(iii). Reference code : RH-UK/07/UKE
+(iv). Lottery Code Number: RH-UK/004
 
-Thanks,
-	Chr.
+To commence processing of your winning / transfer of winning sum, you mus=
+t
+forward a copy of this email to our Claims Department. Contact details
+below, for further information, and immediate processing and release of
+your winning sum.
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Splunk Inc.
-Still grepping through log files to find problems?  Stop.
-Now Search log events and configuration files using AJAX and a browser.
-Download your FREE copy of Splunk now >> http://get.splunk.com/
-_______________________________________________
-linux-usb-devel@lists.sourceforge.net
-To unsubscribe, use the last form field at:
-https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+Contact the claims department with the following:
+
+Director (Claims Department)
+Mr. Martin Gieri
+RICHLY PACIFIC SECURITY UK,
+WARWICKSHIRE CV37 6JF
+LONDON UK.
+FAX: +-4-4-7-0-0-5-9-3-0-6-1-5
+TEL: +-4-4-7-0-2-4-0-9-1-0-6-1
+E-mail: mr_martin_gieri@myway.com
+
+Congratulations once again.
+
+Regards,
+
+Mr. Adams Murphy Jr.
+Promotion Department,
+ROYAL HOUSE UK.
+WORCESTER, HEREFORD & WORCESTER,
+WR1 1JT, UNITED KINGDOM.
+FAX: +-4-4-7-0-0-5-9-8-1-5-4-8

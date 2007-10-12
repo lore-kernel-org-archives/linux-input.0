@@ -1,74 +1,72 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+From: "Ahmed S. Darwish" <darwish.07@gmail.com>
 Subject: Re: [PATCH try #2] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Fri, 12 Oct 2007 12:14:28 -0400
-Message-ID: <d120d5000710120914n79c78e61ia3de6c8ce418eb61@mail.gmail.com>
+Date: Fri, 12 Oct 2007 18:41:31 +0200
+Message-ID: <20071012164131.GA12559@Ahmed>
 References: <1192174727.6247.20.camel@roc-laptop>
-	 <d120d5000710120749o2505dd7aq42559c35298f05d0@mail.gmail.com>
-	 <1192203593.7089.4.camel@roc-laptop>
-	 <d120d5000710120850p64aae40ep95f98cfcee7d8d6f@mail.gmail.com>
-	 <1192204757.7089.9.camel@roc-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1192204757.7089.9.camel@roc-laptop>
 Content-Disposition: inline
+In-Reply-To: <1192174727.6247.20.camel@roc-laptop>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: bryan.wu@analog.com
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: Bryan Wu <bryan.wu@analog.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> On Fri, 2007-10-12 at 11:50 -0400, Dmitry Torokhov wrote:
-> > On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > > On Fri, 2007-10-12 at 10:49 -0400, Dmitry Torokhov wrote:
-> > > > Hi Bryan,
-> > > >
-> > > > On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > > > > +
-> > > [snip]
-> > > > > +
-> > > > > +static void ad7142_close(struct input_dev *dev)
-> > > > > +{
-> > > > > +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
-> > > > > +       kthread_stop(ad7142_task);
-> > > >
-> > > > Don't you need to write something over i2c to shut the devoce off?
-> > > > What stops it from continuing to generate interrupts?
-> > > >
-> > > Actually, I am going to use "completion" to replace the whole
-> > > wait_interrupt_xxx and intr_flag things which original from Aubrey. How
-> > > do you think of that?
-> > >
-> >
-> > I don't think it is a very good idea - for me completion is one-time
-> > deal. You use it and then you are done. How about firing a work from
-> > interrupt and either rely on the default workqueue (keventd) or create
-> > your own to execute it?
-> >
+On Fri, Oct 12, 2007 at 03:38:47PM +0800, Bryan Wu wrote:
 >
-> completion is a wrapper of workqueue and simpler to use.
-> my method:
-> 1. In kthread:
-> do {
-> |_______|_______wait_for_completion(&ad7142_completion);
-> |_______|_______ad7142_decode();
-> |_______|_______enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> |_______} while (!kthread_should_stop());
->
-> 2. In irq handler will fire "complete(&ad7142_completion);"
->
-> This is simpler and understand easier
->
+> Signed-off-by: Bryan Wu <bryan.wu@analog.com>
+> ---
 
-You also need to re-initialize completion every time you done
-processing in kthread otherwise you will be constantly doing
-ad7142_decode(). Plus, how are you going to stop kthread (completion
-may not be signalled for a long time if nobody touches the joystick).
+Hi Bryan,
+
+Why creating module's own kthread to call ad7142_decode and process keycodes 
+instead of using a tasklet ?
+
+Isn't disabling device interrupts from the begining of the ISR "ad7142_interrupt"
+till the kthread "ad7142_thread" got waked-up and scheduled a long time,
+espicially if there's a high load on the userspace side ?
+
+Minor issues below.
+
+> +
+> +/* R    ADC stage 0 - 11 result (uncompensated) actually located in SRAM */
+> +#define ADCRESULT_S0		0x0B
+> +#define ADCRESULT_S1		0x0C
+> +#define ADCRESULT_S2		0x0D
+> +#define ADCRESULT_S3		0x0E
+> +#define ADCRESULT_S4		0x0F
+> +#define ADCRESULT_S5		0x10
+> +#define ADCRESULT_S6		0x11
+> +#define ADCRESULT_S7		0x12
+> +#define ADCRESULT_S8		0x13
+> +#define ADCRESULT_S9		0x14
+> +#define ADCRESULT_S10		0x15
+> +#define ADCRESULT_S11		0x16
+> +
+
+Keeping last two lines aligned with their above counterparts ?
+
+> +static int
+> +ad7142_probe(struct i2c_adapter *adap, int addr, int kind)
+> +{
+> +	struct i2c_client *client;
+> +	int rc;
+> +
+> +	client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
+> +	if (!client)
+> +		return -ENOMEM;
+> +	memset(client, 0, sizeof(struct i2c_client));
+
+kzalloc.
+
+Regards,
 
 -- 
-Dmitry
+Ahmed S. Darwish
+HomePage: http://darwish.07.googlepages.com
+Blog: http://darwish-07.blogspot.com

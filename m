@@ -1,52 +1,57 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH try #2] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Fri, 12 Oct 2007 11:50:12 -0400
-Message-ID: <d120d5000710120850p64aae40ep95f98cfcee7d8d6f@mail.gmail.com>
-References: <1192174727.6247.20.camel@roc-laptop>
-	 <d120d5000710120749o2505dd7aq42559c35298f05d0@mail.gmail.com>
-	 <1192203593.7089.4.camel@roc-laptop>
+From: "efren eamonn" <seung-wo@pbxsoftware.com>
+Subject: \/||@GR@ is only for $1.79.
+Date: Fri, 12 Oct 2007 14:02:08 +0000
+Message-ID: <000701c80ce7$03bad292$575f92af@vjkdpl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0004_01C80CE7.03B684A6"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1192203593.7089.4.camel@roc-laptop>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: bryan.wu@analog.com
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> On Fri, 2007-10-12 at 10:49 -0400, Dmitry Torokhov wrote:
-> > Hi Bryan,
-> >
-> > On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > > +
-> [snip]
-> > > +
-> > > +static void ad7142_close(struct input_dev *dev)
-> > > +{
-> > > +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
-> > > +       kthread_stop(ad7142_task);
-> >
-> > Don't you need to write something over i2c to shut the devoce off?
-> > What stops it from continuing to generate interrupts?
-> >
-> Actually, I am going to use "completion" to replace the whole
-> wait_interrupt_xxx and intr_flag things which original from Aubrey. How
-> do you think of that?
->
+This is a multi-part message in MIME format.
 
-I don't think it is a very good idea - for me completion is one-time
-deal. You use it and then you are done. How about firing a work from
-interrupt and either rely on the default workqueue (keventd) or create
-your own to execute it?
+------=_NextPart_000_0004_01C80CE7.03B684A6
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Thank you.
+Hello
+Bro.
+We want to inform you that now you have marvelous possibility to solve =
+your ED troubles.
+Huge range of high quality remedies at the lowest costs.
+Save your time and money buy medical products only in our  apothecary.
+C_l*!_C_K he|re.
+------=_NextPart_000_0004_01C80CE7.03B684A6
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Dmitry
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+Hello<BR>
+Bro.<BR>
+We want to inform you that now you have marvelous=20
+possibility to solve your ED troubles.<BR>
+Huge range of high quality=20
+remedies at=20
+the lowest costs.<BR>
+Save your time and money buy=20
+medical products only in our=20
+ apothecary.<BR>
+<A href=3D"http://numfu.forestdream.cn/?447969186332">C_l*!_C_K =
+he|re.</A><BR>
+</BODY></HTML>
+------=_NextPart_000_0004_01C80CE7.03B684A6--

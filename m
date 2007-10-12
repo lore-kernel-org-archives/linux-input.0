@@ -1,67 +1,86 @@
-From: Bryan Wu <bryan.wu@analog.com>
-Subject: Re: [PATCH try #2] Input/Joystick Driver: add support AD7142
-	joystick driver
-Date: Fri, 12 Oct 2007 23:59:17 +0800
-Message-ID: <1192204757.7089.9.camel@roc-laptop>
-References: <1192174727.6247.20.camel@roc-laptop>
-	 <d120d5000710120749o2505dd7aq42559c35298f05d0@mail.gmail.com>
-	 <1192203593.7089.4.camel@roc-laptop>
-	 <d120d5000710120850p64aae40ep95f98cfcee7d8d6f@mail.gmail.com>
-Reply-To: bryan.wu@analog.com
+From: "=?UTF-8?Q?Javier_Bola=C3=B1os_Molina?=" <javinovich@gmail.com>
+Subject: Re: [PATCH] usbhid: add ASUS LCM to the blacklist
+Date: Fri, 12 Oct 2007 10:59:58 -0500
+Message-ID: <8a1758740710120859n1a6d4b80ta6f26e9cd27af2a0@mail.gmail.com>
+References: <200707240228.39421.chunkeey@web.de>
+	 <8a1758740710101811q22fc235aifb1edcccd6e98e56@mail.gmail.com>
+	 <200710121049.34149.chunkeey@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_Part_9545_9051695.1192204798096"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <d120d5000710120850p64aae40ep95f98cfcee7d8d6f@mail.gmail.com>
+In-Reply-To: <200710121049.34149.chunkeey@web.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: bryan.wu@analog.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: Chr <chunkeey@web.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Fri, 2007-10-12 at 11:50 -0400, Dmitry Torokhov wrote:
-> On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > On Fri, 2007-10-12 at 10:49 -0400, Dmitry Torokhov wrote:
-> > > Hi Bryan,
-> > >
-> > > On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > > > +
-> > [snip]
-> > > > +
-> > > > +static void ad7142_close(struct input_dev *dev)
-> > > > +{
-> > > > +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
-> > > > +       kthread_stop(ad7142_task);
-> > >
-> > > Don't you need to write something over i2c to shut the devoce off?
-> > > What stops it from continuing to generate interrupts?
-> > >
-> > Actually, I am going to use "completion" to replace the whole
-> > wait_interrupt_xxx and intr_flag things which original from Aubrey. How
-> > do you think of that?
-> >
-> 
-> I don't think it is a very good idea - for me completion is one-time
-> deal. You use it and then you are done. How about firing a work from
-> interrupt and either rely on the default workqueue (keventd) or create
-> your own to execute it?
-> 
+------=_Part_9545_9051695.1192204798096
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-completion is a wrapper of workqueue and simpler to use.
-my method:
-1. In kthread:
-do {
-|_______|_______wait_for_completion(&ad7142_completion);
-|_______|_______ad7142_decode();
-|_______|_______enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-|_______} while (!kthread_should_stop());
+T24gMTIvMTAvMjAwNywgQ2hyIDxjaHVua2VleUB3ZWIuZGU+IHdyb3RlOgo+Cj4gT24gVGh1cnNk
+YXksIDExLiBPY3RvYmVyIDIwMDcsIEphdmllciBCb2xhw7FvcyBNb2xpbmEgd3JvdGU6Cj4KPiA+
+IFRvIHN1bSB1cCB0aGUgcGF0Y2ggd29ya3MgZmluZSBvbmNlIEkgcmVtb3ZlIGFuZCBsb2FkIHVz
+YmhpZCBvbmNlLiBJCj4gdGVuZCB0bwo+ID4gdGhpbmsgdGhpcyBjb3VsZCBiZSBhIGJvb3RzdHJh
+cCBidWcgYXMgaXQgZG9lcyB3b3JrIHdlbGwgYWZ0ZXIgYSBtYW51YWwKPiA+IHJlbG9hZCBvZiB1
+c2JoaWQuCj4gPgo+Cj4gaG1tLCBzb3VuZHMgbGlrZSB0aGUgb2xkIHVzYmhpZCBtb2R1bGUgaXMg
+c3RpbGwgYXJvdW5kLi4uCj4gTXkgZmlyc3QgZ3Vlc3M6IERvIHlvdSB1c2UgYSBpbml0cmQ/IEhh
+dmUgeW91IHVwZGF0ZWQgaXQsIGFmdGVyIHlvdQo+IHJlY29tcGlsZWQgeW91ciBrZXJuZWw/CgoK
+CkkgdGhpbmsgeW91IGFyZSByaWdodCwgaXQncyBiZWVuIHNvIGxvbmcgc2luY2UgSSBjb21waWxl
+ZCBrZXJuZWxzIGJ5IGhhbmQsCnRoaXMgdGltZSBJIHVzZWQgbWFrZSBycG0sIEknbGwgYmUgbG9v
+a2luZyBmb3IgYSBuZXcgaW5pdHJkIGFzIHlvdSBzdWdnZXN0LgoKCj4gWy4uLl0KPiA+IFBTLgo+
+ID4gSSBkb24ndCBrbm93ICBHZXJtYW4gc28gaXQgd2FzIGRpZmZpY3VsdCB0byB1bmRlcnN0YW5k
+IHRoZSBwYWdlIGluCj4gPiBodHRwczovL3pvY2tlcnRvd24uZGUvczl5L2FyY2hpdmVzLzg4Mi1h
+c3Vzb2xlZC1jb21waWxpZXJlbi5odG1sIHNvIEkKPiB3b3VsZAo+ID4gc3VnZ2VzdCB0byB1cGRh
+dGUgaHR0cHM6Ly9sYXVuY2hwYWQubmV0L2FzdXNvbGVkLyBtYXliZSBJIGNvdWxkIGhlbHAuCj4g
+Pgo+ID4gUmVnYXJkcywKPiA+IEphdmllciBCb2xhw7FvcyBNb2xpbmEuCj4gPgo+Cj4gVGhlIHBy
+b2plY3QgbW92ZWQgdG8gc291cmNlZm9yZ2UubmV0LiBUaGUgbmV3IG1haW50YWluZXIgaXM6Cj4K
+PiBBZGlsc29uIE9saXZlaXJhIDxhZGlsc29uQGxpbnV4ZW1iYXJjYWRvLmNvbS5icj4KPgo+IFRo
+YW5rcywKPiAgICAgICAgIENoci4KPgoKT2ssIEknbGwgYmUgdGhlcmUgaW4gc2hvcnQuCgpUbngu
+CgotLSAKSmF2aWVyIEJvbGHDsW9zIE1vbGluYQo=
+------=_Part_9545_9051695.1192204798096
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-2. In irq handler will fire "complete(&ad7142_completion);"
-
-This is simpler and understand easier
-
-Thanks
--Bryan
+PGJyPjxicj48ZGl2PjxzcGFuIGNsYXNzPSJnbWFpbF9xdW90ZSI+T24gMTIvMTAvMjAwNywgPGIg
+Y2xhc3M9ImdtYWlsX3NlbmRlcm5hbWUiPkNocjwvYj4gJmx0OzxhIGhyZWY9Im1haWx0bzpjaHVu
+a2VleUB3ZWIuZGUiPmNodW5rZWV5QHdlYi5kZTwvYT4mZ3Q7IHdyb3RlOjwvc3Bhbj48YmxvY2tx
+dW90ZSBjbGFzcz0iZ21haWxfcXVvdGUiIHN0eWxlPSJib3JkZXItbGVmdDogMXB4IHNvbGlkIHJn
+YigyMDQsIDIwNCwgMjA0KTsgbWFyZ2luOiAwcHQgMHB0IDBwdCAwLjhleDsgcGFkZGluZy1sZWZ0
+OiAxZXg7Ij4KT24gVGh1cnNkYXksIDExLiBPY3RvYmVyIDIwMDcsIEphdmllciBCb2xhw7FvcyBN
+b2xpbmEgd3JvdGU6PGJyPjxicj4mZ3Q7IFRvIHN1bSB1cCB0aGUgcGF0Y2ggd29ya3MgZmluZSBv
+bmNlIEkgcmVtb3ZlIGFuZCBsb2FkIHVzYmhpZCBvbmNlLiBJIHRlbmQgdG88YnI+Jmd0OyB0aGlu
+ayB0aGlzIGNvdWxkIGJlIGEgYm9vdHN0cmFwIGJ1ZyBhcyBpdCBkb2VzIHdvcmsgd2VsbCBhZnRl
+ciBhIG1hbnVhbAo8YnI+Jmd0OyByZWxvYWQgb2YgdXNiaGlkLjxicj4mZ3Q7PGJyPjxicj5obW0s
+IHNvdW5kcyBsaWtlIHRoZSBvbGQgdXNiaGlkIG1vZHVsZSBpcyBzdGlsbCBhcm91bmQuLi48YnI+
+TXkgZmlyc3QgZ3Vlc3M6IERvIHlvdSB1c2UgYSBpbml0cmQ/IEhhdmUgeW91IHVwZGF0ZWQgaXQs
+IGFmdGVyIHlvdSByZWNvbXBpbGVkIHlvdXIga2VybmVsPzwvYmxvY2txdW90ZT48ZGl2Pjxicj48
+YnI+SSB0aGluayB5b3UgYXJlIHJpZ2h0LCBpdCYjMzk7cyBiZWVuIHNvIGxvbmcgc2luY2UgSSBj
+b21waWxlZCBrZXJuZWxzIGJ5IGhhbmQsIHRoaXMgdGltZSBJIHVzZWQgbWFrZSBycG0sIEkmIzM5
+O2xsIGJlIGxvb2tpbmcgZm9yIGEgbmV3IGluaXRyZCBhcyB5b3Ugc3VnZ2VzdC4KPGJyPiZuYnNw
+OzwvZGl2Pjxicj48YmxvY2txdW90ZSBjbGFzcz0iZ21haWxfcXVvdGUiIHN0eWxlPSJib3JkZXIt
+bGVmdDogMXB4IHNvbGlkIHJnYigyMDQsIDIwNCwgMjA0KTsgbWFyZ2luOiAwcHQgMHB0IDBwdCAw
+LjhleDsgcGFkZGluZy1sZWZ0OiAxZXg7Ij4mZ3Q7IFsuLi5dPGJyPiZndDsgUFMuPGJyPiZndDsg
+SSBkb24mIzM5O3Qga25vdyZuYnNwOyZuYnNwO0dlcm1hbiBzbyBpdCB3YXMgZGlmZmljdWx0IHRv
+IHVuZGVyc3RhbmQgdGhlIHBhZ2UgaW4KPGJyPiZndDsgPGEgaHJlZj0iaHR0cHM6Ly96b2NrZXJ0
+b3duLmRlL3M5eS9hcmNoaXZlcy84ODItYXN1c29sZWQtY29tcGlsaWVyZW4uaHRtbCI+aHR0cHM6
+Ly96b2NrZXJ0b3duLmRlL3M5eS9hcmNoaXZlcy84ODItYXN1c29sZWQtY29tcGlsaWVyZW4uaHRt
+bDwvYT4gc28gSSB3b3VsZDxicj4mZ3Q7IHN1Z2dlc3QgdG8gdXBkYXRlIDxhIGhyZWY9Imh0dHBz
+Oi8vbGF1bmNocGFkLm5ldC9hc3Vzb2xlZC8iPgpodHRwczovL2xhdW5jaHBhZC5uZXQvYXN1c29s
+ZWQvPC9hPiBtYXliZSBJIGNvdWxkIGhlbHAuPGJyPiZndDs8YnI+Jmd0OyBSZWdhcmRzLDxicj4m
+Z3Q7IEphdmllciBCb2xhw7FvcyBNb2xpbmEuPGJyPiZndDs8YnI+PGJyPlRoZSBwcm9qZWN0IG1v
+dmVkIHRvIDxhIGhyZWY9Imh0dHA6Ly9zb3VyY2Vmb3JnZS5uZXQiPnNvdXJjZWZvcmdlLm5ldDwv
+YT4uIFRoZSBuZXcgbWFpbnRhaW5lciBpczoKPGJyPjxicj5BZGlsc29uIE9saXZlaXJhICZsdDs8
+YSBocmVmPSJtYWlsdG86YWRpbHNvbkBsaW51eGVtYmFyY2Fkby5jb20uYnIiPmFkaWxzb25AbGlu
+dXhlbWJhcmNhZG8uY29tLmJyPC9hPiZndDs8YnI+PGJyPlRoYW5rcyw8YnI+Jm5ic3A7Jm5ic3A7
+Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Jm5ic3A7Q2hyLjxicj48L2Jsb2NrcXVvdGU+
+PC9kaXY+PGJyPk9rLCBJJiMzOTtsbCBiZSB0aGVyZSBpbiBzaG9ydC48YnI+PGJyPlRueC48YnIg
+Y2xlYXI9ImFsbCI+Cjxicj4tLSA8YnI+SmF2aWVyIEJvbGHDsW9zIE1vbGluYQo=
+------=_Part_9545_9051695.1192204798096--

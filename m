@@ -1,61 +1,95 @@
-From: Roel Kluin <12o3l@tiscali.nl>
-Subject: Re: [PATCH try #2] Input/Joystick Driver: add support AD7142 joystick
- driver
-Date: Fri, 12 Oct 2007 11:14:03 +0200
-Message-ID: <470F3ADB.2000704@tiscali.nl>
-References: <1192174727.6247.20.camel@roc-laptop>
+From: "jamill kiran" <regina@faxsav.com>
+Subject: do u like good s_e_x?
+Date: Fri, 12 Oct 2007 07:45:13 +0000
+Message-ID: <000a01c80cb2$07faf543$2050b5bf@qwgfhajg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0007_01C80CB2.07F8C486"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1192174727.6247.20.camel@roc-laptop>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: bryan.wu@analog.com
-Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Bryan Wu wrote:
-> +static int ad7142_i2c_read(struct i2c_client *client, unsigned short offset,
-> +		unsigned short *data, unsigned int len)
-> +{
-> +	int ret = -1;
-> +	int i;
-> +	u8 block_data[32];
-> +
-> +	if (len < 1 && len > 16) {
+This is a multi-part message in MIME format.
 
-you want || here
+------=_NextPart_000_0007_01C80CB2.07F8C486
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-> +		printk(KERN_ERR "AD7142: read data length error\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Do raw I2C, not smbus compatible */
-> +	block_data[0] = (offset & 0xFF00) >> 8;
-> +	block_data[1] = (offset & 0x00FF);
-> +
-> +	ret = i2c_master_send(client, block_data, 2);
-> +	if (ret < 0) {
-> +		printk(KERN_ERR "AD7142: I2C read error\n");
-> +		return ret;
-> +	}
-> +
-> +	ret = i2c_master_recv(client, block_data, len * 2);
-> +	if (ret < 0) {
-> +		printk(KERN_ERR "AD7142: I2C transfer error\n");
-> +		return ret;
-> +	}
-> +
-> +	for (i = 0; i < len; i++) {
-> +		unsigned short temp;
-> +		temp = block_data[2 * i];
-> +		temp = (temp << 8) & 0xFF00;
-> +		*data++ = temp | block_data[2 * i + 1];
-> +	}
-> +
-> +	return ret;
-> +}
+Your biggie size  - her happy eyes.
+CHECK NOW
+Big penis is great - it's an axiom.
+------=_NextPart_000_0007_01C80CB2.07F8C486
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+Your biggie size  - her happy eyes.<BR>
+<A href=3D"http://www.yulmods.net/?mhkncc">CHECK NOW</a><BR>
+Big penis is great - it's an axiom.
+</BODY></HTML>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------=_NextPart_000_0007_01C80CB2.07F8C486--

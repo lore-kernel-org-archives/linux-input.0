@@ -1,10 +1,13 @@
-From: "jamielee Renfroe" <Renfroe@inlightimes.com>
-Subject: otokusan
-Date: Fri, 12 Oct 2007 18:46:23 -0400
-Message-ID: <000901c80d21$b6d8ea10$3e18f851@comptabilit>
+From: "kendall hank" <kadosh@electronic-atlas.com>
+Subject: Serious business in a sphere of financial services. (no investment reqired)
+Date: Fri, 12 Oct 2007 22:03:38 +0000
+Message-ID: <000701c80d2a$0436a8cb$6bba219a@fttqtpj>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0003_01C80D00.2FC74A10"
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,37 +17,24 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0003_01C80D00.2FC74A10
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Big international commercial organization is looking for talented, honest,
+reliable representatives from different regions.
+The ideal candidate will be an intelligent person,
+someone who can work autonomously with a high degree of enthusiasm.
+We are looking for highly motivated professionals, with experience in marketing field.
+The position is home-based.
+We offer a part-time position with flexible working hours.
+And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate,
+along with an unrivalled career progression opportunity.
+If you think you have what it takes to take on this challenge
+and would like to apply please send the following information to: DrewKnowlesYO@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites!
+We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
 
-Hello Baby linux-input
-
-women do leave their partners because they are not satisifed sexually
-
-jamielee Renfroe
-http://aplauzi.com/
-------=_NextPart_000_0003_01C80D00.2FC74A10
-Content-Type: text/html;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
-</HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2>Hello Baby linux-input</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>women do leave their partners because they are =
-not=20
-satisifed sexually</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>jamielee Renfroe</FONT></DIV></BODY></HTML>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://aplauzi.com/">http://aplauzi.com/</A></FONT></DIV>
-
-------=_NextPart_000_0003_01C80D00.2FC74A10--
+If you received this message in error, or would like to unsubscribe, please send a blank email to: LouieMcdowellCH@gmail.com

@@ -1,235 +1,128 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH try #2] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Fri, 12 Oct 2007 10:49:13 -0400
-Message-ID: <d120d5000710120749o2505dd7aq42559c35298f05d0@mail.gmail.com>
-References: <1192174727.6247.20.camel@roc-laptop>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH try #3] Blackfin BF54x Input Keypad controller driver
+Date: Fri, 12 Oct 2007 16:09:10 +0100
+Message-ID: <600D5CB4DFD93545BF61FF01473D11AC0F1960A2@limkexm2.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757980AbXJLOt0@vger.kernel.org>
-In-Reply-To: <1192174727.6247.20.camel@roc-laptop>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: bryan.wu@analog.com
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-class: urn:content-classes:message
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Cc: bryan.wu@analog.com, linux-input@atrey.karlin.mff.cuni.cz, Linux Kernel <linux-kernel@vger.kernel.org>, uclinux-dist-devel@blackfin.uclinux.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Bryan,
 
-On 10/12/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> +
-> +static int
-> +ad7142_probe(struct i2c_adapter *adap, int addr, int kind)
-> +{
-> +       struct i2c_client *client;
-> +       int rc;
-> +
-> +       client = kmalloc(sizeof(struct i2c_client), GFP_KERNEL);
-> +       if (!client)
-> +               return -ENOMEM;
-> +       memset(client, 0, sizeof(struct i2c_client));
+Hi Dmitry,
 
-kzalloc?
-
-> +       strncpy(client->name, AD7142_DRV_NAME, I2C_NAME_SIZE);
-
-strlcpy?
-
-> +       client->addr = addr;
-> +       client->adapter = adap;
-> +       client->driver = &ad7142_driver;
-> +
-> +       rc = i2c_attach_client(client);
-> +       if (rc) {
-> +               printk(KERN_ERR "i2c_attach_client fail: %d\n", rc);
-> +               goto fail_attach;
-> +       }
-> +
-> +       /*
-> +        * The ADV7142 has an autoincrement function,
-> +        * use it if the adapter understands raw I2C
-> +        */
-> +       rc = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-> +       if (!rc) {
-> +               printk(KERN_ERR
-> +                       "AD7142: i2c bus doesn't support raw I2C operation\n");
-> +               rc = -EINVAL;
-
-I wonder if -ENOSYS is any better here...
-
-> +               goto fail_check;
-> +       }
-> +
-> +       rc = request_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt,
-> +                       IRQF_TRIGGER_LOW, "ad7142_joy", ad7142_interrupt);
-> +       if (rc) {
-> +               printk(KERN_ERR "AD7142: Can't allocate irq %d\n",
-> +                       CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> +               rc = -EBUSY;
-
-Just use rc as is.
-
-...
-> +
-> +static int ad7142_i2c_read(struct i2c_client *client, unsigned short offset,
-> +               unsigned short *data, unsigned int len)
-> +{
-> +       int ret = -1;
-> +       int i;
-> +       u8 block_data[32];
-> +
-> +       if (len < 1 && len > 16) {
-
-What Roel said ;)
-
-> +
-> +static int ad7142_thread(void *nothing)
-> +{
-> +       do {
-> +               wait_event_interruptible(ad7142_wait,
-> +                       kthread_should_stop() || (intr_flag != 0));
-
-should we add "if (intr_flag) { " here? How would the kernel react if
-you enable_irq() on irq that is already enabled?
-
-> +               ad7142_decode();
-> +               intr_flag = 0;
-> +               enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> +       } while (!kthread_should_stop());
-> +
-> +       pr_debug("ad7142: kthread exiting\n");
-> +
-> +       return 0;
-> +}
-> +
-> +static int ad7142_open(struct input_dev *dev)
-> +{
-> +       unsigned short id, value;
-> +
-> +       ad7142_i2c_read(ad7142_client, DEVID, &id, 1);
-> +       if (id != AD7142_I2C_ID) {
-> +               printk(KERN_ERR "Open AD7142 error\n");
-> +               return -ENODEV;
-> +       }
-> +
-> +       ad7142_i2c_write(ad7142_client, STAGE0_CONNECTION, stage[0], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE1_CONNECTION, stage[1], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE2_CONNECTION, stage[2], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE3_CONNECTION, stage[3], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE4_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE5_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE6_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE7_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE8_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE9_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE10_CONNECTION, stage[4], 8);
-> +       ad7142_i2c_write(ad7142_client, STAGE11_CONNECTION, stage[4], 8);
-> +
-> +       value = 0x00B0;
-> +       ad7142_i2c_write(ad7142_client, PWRCONVCTL, &value, 1);
-> +
-> +       value = 0x0690;
-> +       ad7142_i2c_write(ad7142_client, AMBCOMPCTL_REG1, &value, 1);
-> +
-> +       value = 0x0664;
-> +       ad7142_i2c_write(ad7142_client, AMBCOMPCTL_REG2, &value, 1);
-> +
-> +       value = 0x290F;
-> +       ad7142_i2c_write(ad7142_client, AMBCOMPCTL_REG3, &value, 1);
-> +
-> +       value = 0x000F;
-> +       ad7142_i2c_write(ad7142_client, INTEN_REG0, &value, 1);
-> +       ad7142_i2c_write(ad7142_client, INTEN_REG1, &value, 1);
-> +
-> +       value = 0x0000;
-> +       ad7142_i2c_write(ad7142_client, INTEN_REG2, &value, 1);
-> +
-> +       ad7142_i2c_read(ad7142_client, AMBCOMPCTL_REG1, &value, 1);
-> +
-> +       value = 0x000F;
-> +       ad7142_i2c_write(ad7142_client, AMBCOMPCTL_REG0, &value, 1);
-> +
-> +       ad7142_task = kthread_run(ad7142_thread, NULL, "ad7142_task");
-> +       if (IS_ERR(ad7142_task)) {
-> +               printk(KERN_ERR "serio: Failed to start kseriod\n");
-> +               return PTR_ERR(ad7142_task);
-> +       }
-> +       return 0;
-> +}
-> +
-> +static void ad7142_close(struct input_dev *dev)
-> +{
-> +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
-> +       kthread_stop(ad7142_task);
-
-Don't you need to write something over i2c to shut the devoce off?
-What stops it from continuing to generate interrupts?
-
-> +}
-> +
-> +static int __init ad7142_init(void)
-> +{
-> +       int ret;
-> +
-> +       ad7142_dev = input_allocate_device();
-> +       if (!ad7142_dev)
-> +               return -ENOMEM;
-> +
-> +       ad7142_dev->open = ad7142_open;
-> +       ad7142_dev->close = ad7142_close;
-> +       ad7142_dev->evbit[0] = BIT(EV_KEY);
-> +       ad7142_dev->keybit[LONG(BTN_BASE)] = BIT(BTN_BASE) | BIT(BTN_BASE2) |
-> +                                               BIT(BTN_BASE3) | BIT(BTN_BASE4);
-> +       ad7142_dev->keybit[LONG(KEY_UP)] |= BIT(KEY_UP) | BIT(KEY_DOWN) |
-> +                                               BIT(KEY_LEFT) | BIT(KEY_RIGHT);
-> +
-> +       ad7142_dev->name = "ad7142 joystick";
-> +       ad7142_dev->phys = "ad7142/input0";
-> +       ad7142_dev->id.bustype = BUS_I2C;
-> +       ad7142_dev->id.vendor = 0x0001;
-> +       ad7142_dev->id.product = 0x0001;
-> +       ad7142_dev->id.version = 0x0100;
-> +
-> +       ret = input_register_device(ad7142_dev);
-> +       if (ret) {
-> +               printk(KERN_ERR "Failed to register AD7142 input device!\n");
-> +               goto fail_register;
-> +       }
-> +
-
-This all should go into ad7142_probe(). There is no need to create an
-input device if we not going to attach to i2c adapter.
-
-> +       ret = i2c_add_driver(&ad7142_driver);
-> +       if (ret) {
-> +               printk(KERN_ERR "Failed to add AD7142 I2C driver!\n");
-> +               goto fail_add;
-> +       }
-> +       return 0;
-> +
-> +fail_add:
-> +       input_unregister_device(ad7142_dev);
-
-You need to stick "ad7142_dev" here - you are not allowed to call
-input_free_device() after calling input_unregister_device().
-
-> +fail_register:
-> +       input_free_device(ad7142_dev);
-> +       return ret;
-> +}
-> +
-> +static void __exit ad7142_exit(void)
-> +{
-> +       i2c_del_driver(&ad7142_driver);
-> +       input_unregister_device(ad7142_dev);
-> +}
-> +
-> +module_init(ad7142_init);
-> +module_exit(ad7142_exit);
-> --
-> 1.5.3.4
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>Sent: Donnerstag, 11. Oktober 2007 21:58
+>To: Hennerich, Michael
+>Cc: bryan.wu@analog.com; linux-input@atrey.karlin.mff.cuni.cz; Linux
+>Kernel; uclinux-dist-devel@blackfin.uclinux.org
+>Subject: Re: [PATCH try #3] Blackfin BF54x Input Keypad controller
+driver
 >
+>Hi Michael,
 >
+>On 10/11/07, Hennerich, Michael <Michael.Hennerich@analog.com> wrote:
+>> >From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>> >Sent: Donnerstag, 11. Oktober 2007 19:27
+>> >To: bryan.wu@analog.com
+>> >Cc: Michael Hennerich; linux-input@atrey.karlin.mff.cuni.cz; Linux
+>> Kernel;
+>> >uclinux-dist-devel@blackfin.uclinux.org
+>> >Subject: Re: [PATCH try #3] Blackfin BF54x Input Keypad controller
+>> driver
+>> >
+>> >On Thursday 11 October 2007, Bryan Wu wrote:
+>> >> From: Michael Hennerich <michael.hennerich@analog.com>
+>> >> Date: Fri, 12 Oct 2007 00:20:19 +0800
+>> >> Subject: [PATCH] Blackfin BF54x Input Keypad controller driver
+>> >>
+>> >> [try #2] Changelog:
+>> >>  - Coding style issue fixes
+>> >>  - using a temp variable for bf54x_kpad->input
+>> >>  - Other updates according to Dmitry's review
+>> >>
+>> >> [try #3] Changelog:
+>> >>  - Coding style cleanups
+>> >>  - Use local copy of keymap
+>> >>  - Remove empty PM functions
+>> >>  - Use input_set_drvdata() since input->private is going away
+>> >
+>> >
+>> >This looks very good, thank youvery much. I have only 1 more
+suggestion
+>> >(and I can make the changes locally, you don't need to resubmit) -
+>> >since it is highly unlikely that we will have a keycode > 65535 do
+you
+>> >think we could change keymap to unsigned short. It would save you a
+>> >couple of bytes. I am also going to change "input->cdev.dev =3D
+>> &pdev->dev;"
+>> >to "input_dev->dev.parent =3D &pdev->dev;". Please let me know if =
+you
+are
+>> >OK with it.
+>>
+>> Hi Dmitry,
+>>
+>> Thanks for your excellent feedback and support.
+>>
+>> We do a pretty similar thing like the omap keypad driver.
+>> Our keycodes do not exceed KEY_MAX but we encode the ROW and COL into
+>> the keycode matrix, in order simplify things in a "normal use case"?
+.
+>> What we store is u32, 16-bit for the keycode and the upper for
+private
+>> use. My understanding is that we then have to set input->keycodesize
+>> also being u32.
+>>
+>> Otherwise the generic input layer might get screwed up?!
+>>
+>> Am I wrong here, or do I miss something?
+>> Either this is a valid use case or I was inspired by a bad example.
+>>
+>
+>Thank you very much for alerting me of omap case, I missed it.
+>
+>Drivers that use complex values in their keymap tables should not use
+>input->keycode, keycodesize and keycodemax. These fields are only used
+>by input core if the driver relies on default implementation of
+>getkeycode() and setkeycode() for manipulations with its keymap. But
+>this will not work in your case (nor with omap) because your keymap
+>table does not contain "pure" input keycodes.
+>
+>Well, I guess the easiest is just not set these fields (and remove the
+>per-device map allocationand copying) and say that the driver does not
+>support altering keymaps. After all, like you said, it is an embedded
+>platform and it is unlikely that users will want to alter keymaps.
+>
+>However, if you think that this is a nice feature, then you either
+>need to rethink how you handle your keymap of implement custom
+>getkeycode and setkeycode methods in your driver. The coice is yours,
+>I will gladly accept either version of drver.
 
--- 
-Dmitry
+Well it's a nice feature -=20
+
+I changed following:
+
+- Change keymapsize to u16
+- Copy privately used LUT behind keycodemax in keycode table.
+This is more cache friendly when doing the tablewalk, and goes totally
+unnoticed be the input device layer.=20
+- Change Input_dev->cdev.dev to input_dev->dev.parent
+
+Bryan is going to send you an updated patch soon.
+
+Thanks and best regards,
+Michael
+
+>
+>--
+>Dmitry

@@ -1,234 +1,64 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [patch 2/8] m68k: Atari keyboard ACIA driver cleanup
-Date: Sat, 13 Oct 2007 20:27:22 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0710132027010.15951@anakin>
-References: <20071013123123.085686856@mail.of.borg> <20071013123412.672481897@mail.of.borg>
- <jed4vjrpwk.fsf@sykes.suse.de>
+From: "Noreen Vasquez" <likelihoodsl150@unimelb.edu.au>
+Subject: Fw. Must have
+Date: Sat, 13 Oct 2007 13:33:51 -0500
+Message-ID: <978830900.28341289626554@unimelb.edu.au>
+Reply-To: likelihoodsl150@unimelb.edu.au
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/html;
+  charset=windows-1250
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <jed4vjrpwk.fsf@sykes.suse.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Andreas Schwab <schwab@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Michael Schmitz <schmitz@biophys.uni-duesseldorf.de>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Sat, 13 Oct 2007, Andreas Schwab wrote:
-> Geert Uytterhoeven <geert@linux-m68k.org> writes:
-> > --- a/arch/m68k/atari/atakeyb.c
-> > +++ b/arch/m68k/atari/atakeyb.c
-> > @@ -1,5 +1,5 @@
-> >  /*
-> > - * linux/atari/atakeyb.c
-> > + * linux/arch/m68k/atari/atakeyb.c
-> 
-> Please kill that line.
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-Done. New version below:
+<html>
+<head>
+<style>
+    * Ausland    * Pamela Anderson: Hochzeitstorte aus Pappmach&#233;TSCHETSCHENIENS KRIEGSKINDER    * 21 unter 21: Pauline Renk, Geigerin mit zarten T&#246;nen    * Mein erstes Mal: Jana, 16, geht ins Township      Geschworene im Todestunnel: Ortstermin zum Tod Dianas Video abspielen...    * Import- Flaute: US- Konsumenten klammern sich an ihr Geldeinestagesbl&#228;ttern    * Auszeit vom Job: Ich bin dann mal wegArbeitnehmer - die wahre Unterschicht    * &#220;bersichtRatgeber 		H&#246;rbuch-    * Fall Katie: Eltern wollen behindertem M&#228;dchen Geb&#228;rmutter entfernen lassen    * Automarkt    * Ch&#225;vez- Initiative: S&#252;damerika gr&#252;ndet eigene EntwicklungsbankMULTIMEDIA    * Auszeit vom Job: Ich bin dann mal wegANGEBOTEbl&#228;ttern    * Depot    * mehr UniSPIEGEL    * Ju
+ stizbl&#228;ttern    * Dejagahs L&#228;nderspielabsage: Zentralrat emp&#246;rt &#252;ber "privaten Judenboykott"Vergewaltigung, Entf&#252;hrung, Exekution: Tschetschenische Kinder leben seit Jahren mit den Gr&#228;ueln von Kriegs- und Nachkriegszeit. Ein neuer Fotoband erinnert an eine ganze Generation, die mit dem Tod vor Augen aufgewachsen ist und heute in kaum vorstellbarem Elend existiert. Von Annette Langer mehr...    * Studium in Bulgarien: Plattenbau als Partylandeinestagesbl&#228;ttern    * News- Kanal France 24 : Welteroberung auf Franz&#246;sischDie vergessene GenerationDEBATTEN    * Vermisste Fallschirmspringer: Suchtrupps finden FlugzeugwrackRechner 		Uni- Tools 		Benzinpreis-UNISPIEGEL    * Kurzp&#228;sse: Club- Pr&#228;sident wiedergew&#228;hlt, Stoitschkow zur&#252;ckgetre
+ tenARM DURCH ARBEIT    * Comic von Jamiri: Das finale Wort zur Apfel- Tastebl&#228;ttern    * Tech    * Wiesn- Bilanz: Touristen, Bier, Regen - alles in Str&#246;men    * Deutschland- Statistik: HIV- Ausbreitung weiter auf hohem Niveau    * Auszeit vom Job: Ich bin dann mal weg    * B&#246;rse    * Fundb&#252;ro: Wer sind diese Elvis- Fans?    * &#220;bersicht    * Ein- Liter- Auto: VW- Chef glaubt nicht an Erfolg    * Pakistan: Schwere K&#228;mpfe im Grenzgebiet zu Afghanistan - mindestens 170 Tote    * Pamela Anderson: Hochzeitstorte aus Pappmach&#233;    * Tech    * TVSPAM - SATIRE @ SPIEGEL ONLINESPAM - SATIRE @ SPIEGEL ONLINE    * 2. Fu&#223;ball- Bundesliga: Aachen stoppt Freiburger H&#246;henflugbl&#228;ttern
+P
+{
+margin:0px;
+padding:0px
+}
+body
+{
+FONT-SIZE: 10pt;
+FONT-FAMILY:Tahoma
+}
+</style>
+</head>
+<body>
+<SPAN style="BORDER-RIGHT: 0px; PADDING-RIGHT: 12px; BORDER-TOP: 0px; PAD=
+DING-LEFT: 12px; FONT-SIZE: 16px; FLOAT: right; PADDING-BOTTOM: 12px; MARGI=
+N: 11px; BORDER-LEFT: 0px; PADDING-TOP: 12px; BORDER-BOTTOM: 0px; FONT-FAMI=
+LY: Arial, Helvetica, sans-serif; BACKGROUND-COLOR: #cbbc77"><FONT size=4
+>
+<style>    * Italien: Polizei schnappt Ferrari- F&#228;lscherNETZWELT    * Hygieneproblem: Streit um Stinkef&#252;&#223;e endet t&#246;dlich    * Soziale Marktwirtschaft: Arm durch Arbeit - die neue Ausbeutung    * Flugsicherheit: Neuer Scanner soll Fl&#252;ssigkeitsverbot hinf&#228;llig machenGel&#228;ndewagen-Mekka Island: Im Land der Big Foots    * Klimakatastrophe in Afrika: D&#252;rre rottete beinahe die Menschheit aus    * Gesundheit: &#196;rzte warnen vor Pleitewelle bei KlinikenDie Autodynastie Porsche holt auf: Erstmals rangiert sie auf der Liste der reichsten Deutschen auf Platz drei - hinter den Platzhaltern, den Aldi-Br&#252;dern. Insgesamt verf&#252;gen 122 Personen oder Familien in Deutschland &#252;ber ein Verm&#246;gen von mindestens einer Milliarde Euro - so viele wie noch
+  nie. Von Klaus Boldt mehr...einestages    * Zeitzeugen    * 21 unter 21: Pauline Renk, Geigerin mit zarten T&#246;nenISRAEL- SPIEL    * Afghanistan: Deutsche Geisel fleht um Hilfe    * &#220;bersicht    * M&#252;ntefering vor dem Aus?    * Zeitgeschichte(n) auf SPIEGEL ONLINE: Schreiben Sie Geschichte - auf einestages    * News- Kanal France 24 : Welteroberung auf Franz&#246;sisch    * 21 unter 21: Pauline Renk, Geigerin mit zarten T&#246;nenZentralrat der Juden fordert Ausschluss von Dejagah</style>
+<B>Bu<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>hena</FONT></SPAN>y your m<SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>rwtypdxpni</FONT></SPAN>eds <SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>goazjddoso</FONT></SPAN>online. Vi<SPAN style="
+ORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT:
+0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"><FONT size=3>tvc</FONT></SPAN>agra $1.79  only
+</B><BR></FONT>
+<style>bl&#228;ttern    * Studium in Bulgarien: Plattenbau als Partyland    * BMW M3 Limousine: M wie mehrAbgeh&#246;rt: Die wichtigsten CDs der Woche    * Doping: Leichtathletik- Star Jones gibt Olympia- Medaillen zur&#252;ck    *    * Leute    * Milder Sommer: Walross- Invasion in Alaska    * mehr SchulSPIEGEL    * Fu&#223;ball    * Elektroschocker- Studie: Tausendmal getasert - drei im Krankenhaus</style>
+<H4><SPAN><SPAN style="BORDER-RIGHT: 0px; BORDER-TOP: 0px; FLOAT:
+right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77; BORDER-BOTTOM: 0px"></SPAN>Other me<SPAN style="BORDER-RIGHT: 0px;
+ORDER-TOP: 0px; FLOAT: right; MARGIN: 0px; BORDER-LEFT: 0px; COLOR: #cbbc77
+; BORDER-BOTTOM: 0px"></SPAN>ds are even cheaper.<BR><A href="http://philipp-workshop.de/redir.html">Click
+</A></SPAN></H4></SPAN><br /><hr />
+<style>    * Ausland    * News- Kanal France 24 : Welteroberung auf Franz&#246;sisch    * Web    * Fundb&#252;ro: Wer sind diese Elvis- Fans?    * Mit dem Rad durch Afrika: 15.000 Kilometer auf Achse    * Comic von Jamiri: Das finale Wort zur Apfel- Taste    * Entsch&#228;digung: Irak fordert 136 Millionen Dollar von Blackwater      90 Beitr&#228;ge, Neuester: Heute, 11.44 Uhr von Brieli    * Naturbl&#228;ttern    * Dejagahs L&#228;nderspielabsage: Zentralrat emp&#246;rt &#252;ber "privaten Judenboykott"SCHULSPIEGEL    * Fundb&#252;ro </style>
+</body>
+</html>
 
-Subject: m68k: Atari keyboard ACIA driver cleanup
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz
-
-m68k: Atari keyboard ACIA driver cleanup:
-  - removed dead key autorepeat code
-  - removed hardcoded initial keymap
-
-Signed-off-by: Michael Schmitz <schmitz@biophys.uni-duesseldorf.de>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
----
- arch/m68k/atari/atakeyb.c |  104 ++--------------------------------------------
- 1 file changed, 6 insertions(+), 98 deletions(-)
-
---- a/arch/m68k/atari/atakeyb.c
-+++ b/arch/m68k/atari/atakeyb.c
-@@ -1,6 +1,4 @@
- /*
-- * linux/atari/atakeyb.c
-- *
-  * Atari Keyboard driver for 680x0 Linux
-  *
-  * This file is subject to the terms and conditions of the GNU General Public
-@@ -11,6 +9,9 @@
- /*
-  * Atari support by Robert de Vries
-  * enhanced by Bjoern Brauel and Roman Hodek
-+ *
-+ * 2.6 and input cleanup (removed autorepeat stuff) for 2.6.21
-+ * 06/07 Michael Schmitz
-  */
- 
- #include <linux/module.h>
-@@ -32,7 +33,6 @@
- #include <asm/atari_joystick.h>
- #include <asm/irq.h>
- 
--static void atakeyb_rep(unsigned long ignore);
- extern unsigned int keymap_count;
- 
- /* Hook for MIDI serial driver */
-@@ -104,25 +104,6 @@ static unsigned long broken_keys[128/(si
-  *  - Keypad Left/Right Parenthesis mapped to new K_PPAREN[LR]
-  */
- 
--static u_short ataplain_map[NR_KEYS] __initdata = {
--	0xf200, 0xf01b, 0xf031, 0xf032, 0xf033, 0xf034, 0xf035, 0xf036,
--	0xf037, 0xf038, 0xf039, 0xf030, 0xf02d, 0xf03d, 0xf008, 0xf009,
--	0xfb71, 0xfb77, 0xfb65, 0xfb72, 0xfb74, 0xfb79, 0xfb75, 0xfb69,
--	0xfb6f, 0xfb70, 0xf05b, 0xf05d, 0xf201, 0xf702, 0xfb61, 0xfb73,
--	0xfb64, 0xfb66, 0xfb67, 0xfb68, 0xfb6a, 0xfb6b, 0xfb6c, 0xf03b,
--	0xf027, 0xf060, 0xf700, 0xf05c, 0xfb7a, 0xfb78, 0xfb63, 0xfb76,
--	0xfb62, 0xfb6e, 0xfb6d, 0xf02c, 0xf02e, 0xf02f, 0xf700, 0xf200,
--	0xf703, 0xf020, 0xf207, 0xf100, 0xf101, 0xf102, 0xf103, 0xf104,
--	0xf105, 0xf106, 0xf107, 0xf108, 0xf109, 0xf200, 0xf200, 0xf114,
--	0xf603, 0xf200, 0xf30b, 0xf601, 0xf200, 0xf602, 0xf30a, 0xf200,
--	0xf600, 0xf200, 0xf115, 0xf07f, 0xf200, 0xf200, 0xf200, 0xf200,
--	0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
--	0xf200, 0xf1ff, 0xf11b, 0xf312, 0xf313, 0xf30d, 0xf30c, 0xf307,
--	0xf308, 0xf309, 0xf304, 0xf305, 0xf306, 0xf301, 0xf302, 0xf303,
--	0xf300, 0xf310, 0xf30e, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
--	0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200
--};
--
- typedef enum kb_state_t {
- 	KEYBOARD, AMOUSE, RMOUSE, JOYSTICK, CLOCK, RESYNC
- } KB_STATE_T;
-@@ -137,41 +118,6 @@ typedef struct keyboard_state {
- 
- KEYBOARD_STATE kb_state;
- 
--#define	DEFAULT_KEYB_REP_DELAY	(HZ/4)
--#define	DEFAULT_KEYB_REP_RATE	(HZ/25)
--
--/* These could be settable by some ioctl() in future... */
--static unsigned int key_repeat_delay = DEFAULT_KEYB_REP_DELAY;
--static unsigned int key_repeat_rate = DEFAULT_KEYB_REP_RATE;
--
--static unsigned char rep_scancode;
--static struct timer_list atakeyb_rep_timer = {
--	.function = atakeyb_rep,
--};
--
--static void atakeyb_rep(unsigned long ignore)
--{
--	/* Disable keyboard for the time we call handle_scancode(), else a race
--	 * in the keyboard tty queue may happen */
--	atari_disable_irq(IRQ_MFP_ACIA);
--	del_timer(&atakeyb_rep_timer);
--
--	/* A keyboard int may have come in before we disabled the irq, so
--	 * double-check whether rep_scancode is still != 0 */
--	if (rep_scancode) {
--		init_timer(&atakeyb_rep_timer);
--		atakeyb_rep_timer.expires = jiffies + key_repeat_rate;
--		add_timer(&atakeyb_rep_timer);
--
--		//handle_scancode(rep_scancode, 1);
--		if (atari_input_keyboard_interrupt_hook)
--			atari_input_keyboard_interrupt_hook(rep_scancode, 1);
--	}
--
--	atari_enable_irq(IRQ_MFP_ACIA);
--}
--
--
- /* ++roman: If a keyboard overrun happened, we can't tell in general how much
-  * bytes have been lost and in which state of the packet structure we are now.
-  * This usually causes keyboards bytes to be interpreted as mouse movements
-@@ -209,9 +155,6 @@ repeat:
- 		/* ...happens often if interrupts were disabled for too long */
- 		printk(KERN_DEBUG "Keyboard overrun\n");
- 		scancode = acia.key_data;
--		/* Turn off autorepeating in case a break code has been lost */
--		del_timer(&atakeyb_rep_timer);
--		rep_scancode = 0;
- 		if (ikbd_self_test)
- 			/* During self test, don't do resyncing, just process the code */
- 			goto interpret_scancode;
-@@ -281,11 +224,12 @@ repeat:
- 					 * make codes instead. Therefore, simply ignore
- 					 * break_flag...
- 					 */
--					int keyval = plain_map[scancode], keytyp;
-+					int keyval, keytyp;
- 
- 					set_bit(scancode, broken_keys);
- 					self_test_last_rcv = jiffies;
--					keyval = plain_map[scancode];
-+					/* new Linux scancodes; approx. */
-+					keyval = scancode;
- 					keytyp = KTYP(keyval) - 0xf0;
- 					keyval = KVAL(keyval);
- 
-@@ -301,19 +245,6 @@ repeat:
- 				} else if (test_bit(scancode, broken_keys))
- 					break;
- 
--#if 0	// FIXME; hangs at boot
--				if (break_flag) {
--					del_timer(&atakeyb_rep_timer);
--					rep_scancode = 0;
--				} else {
--					del_timer(&atakeyb_rep_timer);
--					rep_scancode = scancode;
--					atakeyb_rep_timer.expires = jiffies + key_repeat_delay;
--					add_timer(&atakeyb_rep_timer);
--				}
--#endif
--
--				// handle_scancode(scancode, !break_flag);
- 				if (atari_input_keyboard_interrupt_hook)
- 					atari_input_keyboard_interrupt_hook((unsigned char)scancode, !break_flag);
- 				break;
-@@ -639,9 +570,6 @@ int __init atari_keyb_init(void)
- 	if (atari_keyb_done)
- 		return 0;
- 
--	/* setup key map */
--	memcpy(key_maps[0], ataplain_map, sizeof(plain_map));
--
- 	kb_state.state = KEYBOARD;
- 	kb_state.len = 0;
- 
-@@ -704,26 +632,6 @@ int __init atari_keyb_init(void)
- 	return 0;
- }
- 
--int atari_kbdrate(struct kbd_repeat *k)
--{
--	if (k->delay > 0) {
--		/* convert from msec to jiffies */
--		key_repeat_delay = (k->delay * HZ + 500) / 1000;
--		if (key_repeat_delay < 1)
--			key_repeat_delay = 1;
--	}
--	if (k->period > 0) {
--		key_repeat_rate = (k->period * HZ + 500) / 1000;
--		if (key_repeat_rate < 1)
--			key_repeat_rate = 1;
--	}
--
--	k->delay  = key_repeat_delay * 1000 / HZ;
--	k->period = key_repeat_rate  * 1000 / HZ;
--
--	return 0;
--}
--
- int atari_kbd_translate(unsigned char keycode, unsigned char *keycodep, char raw_mode)
- {
- #ifdef CONFIG_MAGIC_SYSRQ
-
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+</BODY></HTML>

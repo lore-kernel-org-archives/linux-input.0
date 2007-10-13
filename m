@@ -1,10 +1,10 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [patch 1/8] m68k: Atari input drivers cleanup
-Date: Sat, 13 Oct 2007 14:31:24 +0200
-Message-ID: <20071013123412.197946192@mail.of.borg>
+Subject: [patch 2/8] m68k: Atari keyboard ACIA driver cleanup
+Date: Sat, 13 Oct 2007 14:31:25 +0200
+Message-ID: <20071013123412.672481897@mail.of.borg>
 References: <20071013123123.085686856@mail.of.borg>
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline; filename=atari-input-memleak-cleanup.diff
+Content-Disposition: inline; filename=atari-atakeyb-cleanup.diff
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
@@ -14,264 +14,193 @@ To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-fo
 Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, Michael Schmitz <schmitz@biophys.uni-duesseldorf.de>
 List-Id: linux-input@vger.kernel.org
 
-m68k: Atari input drivers cleanup:
-  - memleak on failed init/register of input devices fixed
-  - correct keycodes table (Atari keycodes are almost, but not entirely, equal 
-    to Linux keycodes).
+m68k: Atari keyboard ACIA driver cleanup:
+  - removed dead key autorepeat code
+  - removed hardcoded initial keymap
 
 Signed-off-by: Michael Schmitz <schmitz@biophys.uni-duesseldorf.de>
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 ---
- drivers/input/keyboard/atakbd.c  |  157 ++++++++++++++++++++++++++++++++++++---
- drivers/input/mouse/atarimouse.c |   18 ++--
- 2 files changed, 154 insertions(+), 21 deletions(-)
+ arch/m68k/atari/atakeyb.c |  104 +++-------------------------------------------
+ 1 file changed, 7 insertions(+), 97 deletions(-)
 
---- a/drivers/input/keyboard/atakbd.c
-+++ b/drivers/input/keyboard/atakbd.c
-@@ -55,7 +55,140 @@ MODULE_AUTHOR("Michael Schmitz <schmitz@
- MODULE_DESCRIPTION("Atari keyboard driver");
- MODULE_LICENSE("GPL");
+--- a/arch/m68k/atari/atakeyb.c
++++ b/arch/m68k/atari/atakeyb.c
+@@ -1,5 +1,5 @@
+ /*
+- * linux/atari/atakeyb.c
++ * linux/arch/m68k/atari/atakeyb.c
+  *
+  * Atari Keyboard driver for 680x0 Linux
+  *
+@@ -11,6 +11,9 @@
+ /*
+  * Atari support by Robert de Vries
+  * enhanced by Bjoern Brauel and Roman Hodek
++ *
++ * 2.6 and input cleanup (removed autorepeat stuff) for 2.6.21
++ * 06/07 Michael Schmitz
+  */
  
--static unsigned char atakbd_keycode[0x72];
-+/*
-+ 0x47: KP_7     71
-+ 0x48: KP_8     72
-+ 0x49: KP_9     73
-+ 0x62: KP_/     98
-+ 0x4b: KP_4     75
-+ 0x4c: KP_5     76
-+ 0x4d: KP_6     77
-+ 0x37: KP_*     55
-+ 0x4f: KP_1     79
-+ 0x50: KP_2     80
-+ 0x51: KP_3     81
-+ 0x4a: KP_-     74
-+ 0x52: KP_0     82
-+ 0x53: KP_.     83
-+ 0x4e: KP_+     78
-+
-+ 0x67: Up       103
-+ 0x6c: Down     108
-+ 0x69: Left     105
-+ 0x6a: Right    106
-+ */
-+
-+
-+static unsigned char atakbd_keycode[0x72] = {	/* American layout */
-+	[0]	 = KEY_GRAVE,
-+	[1]	 = KEY_ESC,
-+	[2]	 = KEY_1,
-+	[3]	 = KEY_2,
-+	[4]	 = KEY_3,
-+	[5]	 = KEY_4,
-+	[6]	 = KEY_5,
-+	[7]	 = KEY_6,
-+	[8]	 = KEY_7,
-+	[9]	 = KEY_8,
-+	[10]	 = KEY_9,
-+	[11]	 = KEY_0,
-+	[12]	 = KEY_MINUS,
-+	[13]	 = KEY_EQUAL,
-+	[14]	 = KEY_BACKSPACE,
-+	[15]	 = KEY_TAB,
-+	[16]	 = KEY_Q,
-+	[17]	 = KEY_W,
-+	[18]	 = KEY_E,
-+	[19]	 = KEY_R,
-+	[20]	 = KEY_T,
-+	[21]	 = KEY_Y,
-+	[22]	 = KEY_U,
-+	[23]	 = KEY_I,
-+	[24]	 = KEY_O,
-+	[25]	 = KEY_P,
-+	[26]	 = KEY_LEFTBRACE,
-+	[27]	 = KEY_RIGHTBRACE,
-+	[28]	 = KEY_ENTER,
-+	[29]	 = KEY_LEFTCTRL,
-+	[30]	 = KEY_A,
-+	[31]	 = KEY_S,
-+	[32]	 = KEY_D,
-+	[33]	 = KEY_F,
-+	[34]	 = KEY_G,
-+	[35]	 = KEY_H,
-+	[36]	 = KEY_J,
-+	[37]	 = KEY_K,
-+	[38]	 = KEY_L,
-+	[39]	 = KEY_SEMICOLON,
-+	[40]	 = KEY_APOSTROPHE,
-+	[41]	 = KEY_BACKSLASH,	/* FIXME, '#' */
-+	[42]	 = KEY_LEFTSHIFT,
-+	[43]	 = KEY_GRAVE,		/* FIXME: '~' */
-+	[44]	 = KEY_Z,
-+	[45]	 = KEY_X,
-+	[46]	 = KEY_C,
-+	[47]	 = KEY_V,
-+	[48]	 = KEY_B,
-+	[49]	 = KEY_N,
-+	[50]	 = KEY_M,
-+	[51]	 = KEY_COMMA,
-+	[52]	 = KEY_DOT,
-+	[53]	 = KEY_SLASH,
-+	[54]	 = KEY_RIGHTSHIFT,
-+	[55]	 = KEY_KPASTERISK,
-+	[56]	 = KEY_LEFTALT,
-+	[57]	 = KEY_SPACE,
-+	[58]	 = KEY_CAPSLOCK,
-+	[59]	 = KEY_F1,
-+	[60]	 = KEY_F2,
-+	[61]	 = KEY_F3,
-+	[62]	 = KEY_F4,
-+	[63]	 = KEY_F5,
-+	[64]	 = KEY_F6,
-+	[65]	 = KEY_F7,
-+	[66]	 = KEY_F8,
-+	[67]	 = KEY_F9,
-+	[68]	 = KEY_F10,
-+	[69]	 = KEY_ESC,
-+	[70]	 = KEY_DELETE,
-+	[71]	 = KEY_KP7,
-+	[72]	 = KEY_KP8,
-+	[73]	 = KEY_KP9,
-+	[74]	 = KEY_KPMINUS,
-+	[75]	 = KEY_KP4,
-+	[76]	 = KEY_KP5,
-+	[77]	 = KEY_KP6,
-+	[78]	 = KEY_KPPLUS,
-+	[79]	 = KEY_KP1,
-+	[80]	 = KEY_KP2,
-+	[81]	 = KEY_KP3,
-+	[82]	 = KEY_KP0,
-+	[83]	 = KEY_KPDOT,
-+	[90]	 = KEY_KPLEFTPAREN,
-+	[91]	 = KEY_KPRIGHTPAREN,
-+	[92]	 = KEY_KPASTERISK,	/* FIXME */
-+	[93]	 = KEY_KPASTERISK,
-+	[94]	 = KEY_KPPLUS,
-+	[95]	 = KEY_HELP,
-+	[96]	 = KEY_BACKSLASH,	/* FIXME: '<' */
-+	[97]	 = KEY_KPASTERISK,	/* FIXME */
-+	[98]	 = KEY_KPSLASH,
-+	[99]	 = KEY_KPLEFTPAREN,
-+	[100]	 = KEY_KPRIGHTPAREN,
-+	[101]	 = KEY_KPSLASH,
-+	[102]	 = KEY_KPASTERISK,
-+	[103]	 = KEY_UP,
-+	[104]	 = KEY_KPASTERISK,	/* FIXME */
-+	[105]	 = KEY_LEFT,
-+	[106]	 = KEY_RIGHT,
-+	[107]	 = KEY_KPASTERISK,	/* FIXME */
-+	[108]	 = KEY_DOWN,
-+	[109]	 = KEY_KPASTERISK,	/* FIXME */
-+	[110]	 = KEY_KPASTERISK,	/* FIXME */
-+	[111]	 = KEY_KPASTERISK,	/* FIXME */
-+	[112]	 = KEY_KPASTERISK,	/* FIXME */
-+	[113]	 = KEY_KPASTERISK	/* FIXME */
-+};
+ #include <linux/module.h>
+@@ -32,7 +35,6 @@
+ #include <asm/atari_joystick.h>
+ #include <asm/irq.h>
  
- static struct input_dev *atakbd_dev;
+-static void atakeyb_rep(unsigned long ignore);
+ extern unsigned int keymap_count;
  
-@@ -86,21 +219,20 @@ static int __init atakbd_init(void)
- {
- 	int i;
+ /* Hook for MIDI serial driver */
+@@ -104,25 +106,6 @@ static unsigned long broken_keys[128/(si
+  *  - Keypad Left/Right Parenthesis mapped to new K_PPAREN[LR]
+  */
  
--	if (!ATARIHW_PRESENT(ST_MFP))
-+	if (!MACH_IS_ATARI || !ATARIHW_PRESENT(ST_MFP))
- 		return -EIO;
- 
--	// TODO: request_mem_region if not done in arch code
+-static u_short ataplain_map[NR_KEYS] __initdata = {
+-	0xf200, 0xf01b, 0xf031, 0xf032, 0xf033, 0xf034, 0xf035, 0xf036,
+-	0xf037, 0xf038, 0xf039, 0xf030, 0xf02d, 0xf03d, 0xf008, 0xf009,
+-	0xfb71, 0xfb77, 0xfb65, 0xfb72, 0xfb74, 0xfb79, 0xfb75, 0xfb69,
+-	0xfb6f, 0xfb70, 0xf05b, 0xf05d, 0xf201, 0xf702, 0xfb61, 0xfb73,
+-	0xfb64, 0xfb66, 0xfb67, 0xfb68, 0xfb6a, 0xfb6b, 0xfb6c, 0xf03b,
+-	0xf027, 0xf060, 0xf700, 0xf05c, 0xfb7a, 0xfb78, 0xfb63, 0xfb76,
+-	0xfb62, 0xfb6e, 0xfb6d, 0xf02c, 0xf02e, 0xf02f, 0xf700, 0xf200,
+-	0xf703, 0xf020, 0xf207, 0xf100, 0xf101, 0xf102, 0xf103, 0xf104,
+-	0xf105, 0xf106, 0xf107, 0xf108, 0xf109, 0xf200, 0xf200, 0xf114,
+-	0xf603, 0xf200, 0xf30b, 0xf601, 0xf200, 0xf602, 0xf30a, 0xf200,
+-	0xf600, 0xf200, 0xf115, 0xf07f, 0xf200, 0xf200, 0xf200, 0xf200,
+-	0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
+-	0xf200, 0xf1ff, 0xf11b, 0xf312, 0xf313, 0xf30d, 0xf30c, 0xf307,
+-	0xf308, 0xf309, 0xf304, 0xf305, 0xf306, 0xf301, 0xf302, 0xf303,
+-	0xf300, 0xf310, 0xf30e, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200,
+-	0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200, 0xf200
+-};
 -
--	if (!(atakbd_dev = input_allocate_device()))
--		return -ENOMEM;
+ typedef enum kb_state_t {
+ 	KEYBOARD, AMOUSE, RMOUSE, JOYSTICK, CLOCK, RESYNC
+ } KB_STATE_T;
+@@ -137,41 +120,6 @@ typedef struct keyboard_state {
+ 
+ KEYBOARD_STATE kb_state;
+ 
+-#define	DEFAULT_KEYB_REP_DELAY	(HZ/4)
+-#define	DEFAULT_KEYB_REP_RATE	(HZ/25)
 -
- 	// need to init core driver if not already done so
- 	if (atari_keyb_init())
- 		return -ENODEV;
- 
-+	atakbd_dev = input_allocate_device();
-+	if (!atakbd_dev)
-+		return -ENOMEM;
-+
- 	atakbd_dev->name = "Atari Keyboard";
- 	atakbd_dev->phys = "atakbd/input0";
--	atakbd_dev->id.bustype = BUS_ATARI;
-+	atakbd_dev->id.bustype = BUS_HOST;
- 	atakbd_dev->id.vendor = 0x0001;
- 	atakbd_dev->id.product = 0x0001;
- 	atakbd_dev->id.version = 0x0100;
-@@ -111,16 +243,17 @@ static int __init atakbd_init(void)
- 	atakbd_dev->keycodemax = ARRAY_SIZE(atakbd_keycode);
- 
- 	for (i = 1; i < 0x72; i++) {
--		atakbd_keycode[i] = i;
- 		set_bit(atakbd_keycode[i], atakbd_dev->keybit);
- 	}
- 
--	input_register_device(atakbd_dev);
-+	/* error check */
-+	if (input_register_device(atakbd_dev)) {
-+		input_free_device(atakbd_dev);
-+		return -ENOMEM;
-+	}
- 
- 	atari_input_keyboard_interrupt_hook = atakbd_interrupt;
- 
--	printk(KERN_INFO "input: %s at IKBD ACIA\n", atakbd_dev->name);
+-/* These could be settable by some ioctl() in future... */
+-static unsigned int key_repeat_delay = DEFAULT_KEYB_REP_DELAY;
+-static unsigned int key_repeat_rate = DEFAULT_KEYB_REP_RATE;
 -
+-static unsigned char rep_scancode;
+-static struct timer_list atakeyb_rep_timer = {
+-	.function = atakeyb_rep,
+-};
+-
+-static void atakeyb_rep(unsigned long ignore)
+-{
+-	/* Disable keyboard for the time we call handle_scancode(), else a race
+-	 * in the keyboard tty queue may happen */
+-	atari_disable_irq(IRQ_MFP_ACIA);
+-	del_timer(&atakeyb_rep_timer);
+-
+-	/* A keyboard int may have come in before we disabled the irq, so
+-	 * double-check whether rep_scancode is still != 0 */
+-	if (rep_scancode) {
+-		init_timer(&atakeyb_rep_timer);
+-		atakeyb_rep_timer.expires = jiffies + key_repeat_rate;
+-		add_timer(&atakeyb_rep_timer);
+-
+-		//handle_scancode(rep_scancode, 1);
+-		if (atari_input_keyboard_interrupt_hook)
+-			atari_input_keyboard_interrupt_hook(rep_scancode, 1);
+-	}
+-
+-	atari_enable_irq(IRQ_MFP_ACIA);
+-}
+-
+-
+ /* ++roman: If a keyboard overrun happened, we can't tell in general how much
+  * bytes have been lost and in which state of the packet structure we are now.
+  * This usually causes keyboards bytes to be interpreted as mouse movements
+@@ -209,9 +157,6 @@ repeat:
+ 		/* ...happens often if interrupts were disabled for too long */
+ 		printk(KERN_DEBUG "Keyboard overrun\n");
+ 		scancode = acia.key_data;
+-		/* Turn off autorepeating in case a break code has been lost */
+-		del_timer(&atakeyb_rep_timer);
+-		rep_scancode = 0;
+ 		if (ikbd_self_test)
+ 			/* During self test, don't do resyncing, just process the code */
+ 			goto interpret_scancode;
+@@ -281,11 +226,12 @@ repeat:
+ 					 * make codes instead. Therefore, simply ignore
+ 					 * break_flag...
+ 					 */
+-					int keyval = plain_map[scancode], keytyp;
++					int keyval, keytyp;
+ 
+ 					set_bit(scancode, broken_keys);
+ 					self_test_last_rcv = jiffies;
+-					keyval = plain_map[scancode];
++					/* new Linux scancodes; approx. */
++					keyval = scancode;
+ 					keytyp = KTYP(keyval) - 0xf0;
+ 					keyval = KVAL(keyval);
+ 
+@@ -301,19 +247,6 @@ repeat:
+ 				} else if (test_bit(scancode, broken_keys))
+ 					break;
+ 
+-#if 0	// FIXME; hangs at boot
+-				if (break_flag) {
+-					del_timer(&atakeyb_rep_timer);
+-					rep_scancode = 0;
+-				} else {
+-					del_timer(&atakeyb_rep_timer);
+-					rep_scancode = scancode;
+-					atakeyb_rep_timer.expires = jiffies + key_repeat_delay;
+-					add_timer(&atakeyb_rep_timer);
+-				}
+-#endif
+-
+-				// handle_scancode(scancode, !break_flag);
+ 				if (atari_input_keyboard_interrupt_hook)
+ 					atari_input_keyboard_interrupt_hook((unsigned char)scancode, !break_flag);
+ 				break;
+@@ -639,9 +572,6 @@ int __init atari_keyb_init(void)
+ 	if (atari_keyb_done)
+ 		return 0;
+ 
+-	/* setup key map */
+-	memcpy(key_maps[0], ataplain_map, sizeof(plain_map));
+-
+ 	kb_state.state = KEYBOARD;
+ 	kb_state.len = 0;
+ 
+@@ -704,26 +634,6 @@ int __init atari_keyb_init(void)
  	return 0;
  }
  
---- a/drivers/input/mouse/atarimouse.c
-+++ b/drivers/input/mouse/atarimouse.c
-@@ -73,14 +73,11 @@ static void atamouse_interrupt(char *buf
+-int atari_kbdrate(struct kbd_repeat *k)
+-{
+-	if (k->delay > 0) {
+-		/* convert from msec to jiffies */
+-		key_repeat_delay = (k->delay * HZ + 500) / 1000;
+-		if (key_repeat_delay < 1)
+-			key_repeat_delay = 1;
+-	}
+-	if (k->period > 0) {
+-		key_repeat_rate = (k->period * HZ + 500) / 1000;
+-		if (key_repeat_rate < 1)
+-			key_repeat_rate = 1;
+-	}
+-
+-	k->delay  = key_repeat_delay * 1000 / HZ;
+-	k->period = key_repeat_rate  * 1000 / HZ;
+-
+-	return 0;
+-}
+-
+ int atari_kbd_translate(unsigned char keycode, unsigned char *keycodep, char raw_mode)
  {
- 	int buttons, dx, dy;
- 
--/*	ikbd_mouse_disable(); */
--
- 	buttons = (buf[0] & 1) | ((buf[0] & 2) << 1);
- #ifdef FIXED_ATARI_JOYSTICK
- 	buttons |= atari_mouse_buttons & 2;
- 	atari_mouse_buttons = buttons;
- #endif
--/*	ikbd_mouse_rel_pos(); */
- 
- 	/* only relative events get here */
- 	dx =  buf[1];
-@@ -126,15 +123,16 @@ static int __init atamouse_init(void)
- 	if (!MACH_IS_ATARI || !ATARIHW_PRESENT(ST_MFP))
- 		return -ENODEV;
- 
--	if (!(atamouse_dev = input_allocate_device()))
--		return -ENOMEM;
--
- 	if (!(atari_keyb_init()))
- 		return -ENODEV;
- 
-+	atamouse_dev = input_allocate_device();
-+	if (!atamouse_dev)
-+		return -ENOMEM;
-+
- 	atamouse_dev->name = "Atari mouse";
- 	atamouse_dev->phys = "atamouse/input0";
--	atamouse_dev->id.bustype = BUS_ATARI;
-+	atamouse_dev->id.bustype = BUS_HOST;
- 	atamouse_dev->id.vendor = 0x0001;
- 	atamouse_dev->id.product = 0x0002;
- 	atamouse_dev->id.version = 0x0100;
-@@ -145,9 +143,11 @@ static int __init atamouse_init(void)
- 	atamouse_dev->open = atamouse_open;
- 	atamouse_dev->close = atamouse_close;
- 
--	input_register_device(atamouse_dev);
-+	if (input_register_device(atamouse_dev)) {
-+		input_free_device(atamouse_dev);
-+		return -ENOMEM;
-+	}
- 
--	printk(KERN_INFO "input: %s at keyboard ACIA\n", atamouse_dev->name);
- 	return 0;
- }
- 
+ #ifdef CONFIG_MAGIC_SYSRQ
 
 -- 
 Gr{oetje,eeting}s,

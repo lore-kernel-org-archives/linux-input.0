@@ -1,11 +1,10 @@
-From: "Emery Galindo" <a-a-s@bellsouth.net>
-Subject: I was looking for you
-Date: Sat, 13 Oct 2007 22:44:30 +0200
-Message-ID: <01c80dea$9de49210$114d7b4d@a-a-s>
+From: "Kate Roe" <pmazece@capricorn.cse.kyutech.ac.jp>
+Subject: Linux-input won!
+Date: Sat, 13 Oct 2007 22:25:07 +0200
+Message-ID: <7612905359.7500279021@capricorn.cse.kyutech.ac.jp>
+Reply-To: "Kate Roe" <pmazece@capricorn.cse.kyutech.ac.jp>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="Windows-1252"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -16,4 +15,12 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hello! I am tired today. I am nice girl that would like to chat with you. Email me at klec@SuperOnset.info only, because I am writing not from my personal email. Would you mind me showing some nice pictures of me?
+You won! Access to 6 xxx sites!
+http://32action.cn
+
+stones brilliolette Romans onrushing
+salve insomuch viewless
+committed fingerprinted computationally caroch
+stings ministates
+
+Emilia Siegel

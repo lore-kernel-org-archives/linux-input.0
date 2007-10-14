@@ -1,40 +1,50 @@
-From: "carroll chia" <marlin@tvheaven.com>
-Subject: If you want to make a carrier in a successful company - we are proud to invite you in our business.
-Date: Sun, 14 Oct 2007 21:29:47 +0000
-Message-ID: <000801c80eb8$067e72a5$0da914a0@qooattx>
+From: Arjan Opmeer <arjan@opmeer.net>
+Subject: Re: First stab at Elantech touchpad driver for 2.6.22.6. Testers
+	wanted!
+Date: Sun, 14 Oct 2007 03:14:40 +0200
+Message-ID: <20071014011440.GB15877@adopmeer.homeip.net>
+References: <20070914000015.GA20527@adopmeer.homeip.net> <d120d5000710091301h790db3c4nc44e71551a4bc408@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <d120d5000710091301h790db3c4nc44e71551a4bc408@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Big international commercial organization is looking for talented, honest,
-reliable representatives from different regions.
-The ideal candidate will be an intelligent person,
-someone who can work autonomously with a high degree of enthusiasm.
-We are looking for highly motivated professionals, with experience in marketing field.
-The position is home-based.
-We offer a part-time position with flexible working hours.
-And we would be happy to consider a full-time job share candidate. 
-Our Company offers a very competitive salary to the successful candidate,
-along with an unrivalled career progression opportunity.
-If you think you have what it takes to take on this challenge
-and would like to apply please send the following information to: GregorioSweeneyES@gmail.com
-1) Full name 
-2) Contact phone numbers 
-3) Part time job/Full time 
-You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites!
-We are engaged in completely legal activity. 
-The preference is given to employees with knowledge of foreign languages. 
-Thank you and we are looking forward to cooperate in long term base with you. 
 
-If you received this message in error, or would like to unsubscribe, please send a blank email to: TeresaMosleyYZ@gmail.com
+Hi Dmitry,
+
+On Tue, Oct 09, 2007 at 04:01:58PM -0400, Dmitry Torokhov wrote:
+> On 9/13/07, Arjan Opmeer <arjan@opmeer.net> wrote:
+> >
+> > This is a first stab at a Linux driver for the Elantech touchpad as
+> > found on some laptops (e.g. MSI MS-1035 aka L725).
+> 
+> Since the touchpad supports absolute mode I'd recommend removing
+> support for extended relative mode and concentrating on making
+> absolute mode work so that Synaptics X driver can be used with this
+> touchpad as well.
+
+Well, from the few reports I got it seems not all Elantech touchpads are
+created equal. And as we don't have any documentation on these touchpads I
+really don't know whether they all support absolute mode, have the same
+parameters or use the same protocol for it.
+
+So for the time being I really would like to keep support for absolute as
+well as relative mode in to make it easier for users to switch and test and
+find out and report where thing go wrong.
+
+Maybe that once we find out more about these touchpads and the possible
+different version we can focus on a solution that will fit all. But let's
+not do it while users are still trying whether the driver works for them at
+all... :)
+
+
+Arjan

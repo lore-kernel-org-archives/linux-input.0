@@ -1,55 +1,74 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] Generic, platform independent matrix keyboard support
-Date: Sun, 14 Oct 2007 17:18:07 -0700
-Message-ID: <200710141718.08136.david-b@pacbell.net>
-References: <200709021228.58354.ppisa4lists@pikron.com> <d120d5000710100610n50d7c62cuf365ad0d2ded5916@mail.gmail.com> <200710142257.03872.ppisa4lists@pikron.com>
+From: "bertrando mildred" <seonghooarthur@arpsse.net>
+Subject: Euro VIP invites you to its tables
+Date: Sun, 14 Oct 2007 23:47:00 +0000
+Message-ID: <000701c80ecb$01510d4a$325b8fba@xyaip>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0004_01C80ECB.014E5638"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200710142257.03872.ppisa4lists@pikron.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Pavel Pisa <ppisa4lists@pikron.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, Sascha Hauer <s.hauer@pengutronix.de>, Russell King - ARM Linux <linux@arm.linux.org.uk>
+To: May Holland <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Sunday 14 October 2007, Pavel Pisa wrote:
-> I would be much more happy, if such pressure for generality would
-> be pushed into directions where such universality makes more sense.
-> GPIO is an example. It would be great if there would be support to test
-> if pin can become input, output, has pull-up and or OC support
-> and if these options could be controlled portable way.
+This is a multi-part message in MIME format.
 
-Test if it can be an input or output by calling the function to
-set the direction, and seeing if it fails.  Simple, portable.
-
-Pullups/pulldowns are platform-specific pin mux issues, along
-with configuring pins as GPIOs.  That is, it needs a separate
-programming interface.  See the note in Documentation/gpio.txt
-talking about the range of platform variation there ... that
-isn't very amenable to a cross-platform interface.
-
-I don't know what you mean by "OC support".  OverCurrent?
-"Open Collector" would be TTL-specific, and TTL isn't used
-much with VLSI.  "Obstetric Cholestasis" is what Google
-suggested, but I rather doubt that's what you mean.  ;)
+------=_NextPart_000_0004_01C80ECB.014E5638
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
 
-> These things 
-> are common on most of todays chips (even on 8-bit MCUs) and
-> pull-ups are required to prevent extraordinary power consumption
-> caused by floating input pins.
+Euro VIP invites you to its tables, with an offer of 400&#8364; in =
+Welcome bonuses!
 
-True but irrelevant.  That is a *PIN* specific interface, and
-the fact that some platforms can route a given GPIO to multiple
-pins illustrates exactly why it needs a separate interface (not
-a GPIO interface).  Plus, whether or not an on-chip pullup should
-be used (vs external ones) is a *BOARD* specific decision.
+400&#8364; FREE! - New players at Euro VIP receive a match bonus on =
+their first 4 deposits, each worth 100&#8364;. That's a total of =
+400&#8364;, giving you even more winning chances, for free!
 
-- Dave
+
+Join the most refined and reliable casino online today, where you can =
+choose from a list of over 100 cash games including progressive jackpots =
+worth millions of Euro.
+
+Experience the difference, only at Euro VIP.
+
+
+http://eurocasinobs.com/
+------=_NextPart_000_0004_01C80ECB.014E5638
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B>Euro VIP invites you to =
+its tables, with an offer of 400&#8364; in Welcome =
+bonuses!</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>400&#8364; FREE! - New =
+players at Euro VIP receive a match bonus on their first 4 deposits, =
+each worth 100&#8364;. That's a total of 400&#8364;, giving you even =
+more winning chances, for free!</FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B>Join the most refined =
+and reliable casino online today, where you can choose from a list of =
+over 100 cash games including progressive jackpots worth millions of =
+Euro.</B></FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2>Experience the difference, =
+only at Euro VIP.</FONT></DIV><BR>
+<DIV align=3Dleft><FONT face=3DArial size=3D2><B><A =
+href=3Dhttp://eurocasinobs.com/>http://eurocasinobs.com/</A></B></FONT></=
+DIV>
+</BODY></HTML>
+
+
+
+------=_NextPart_000_0004_01C80ECB.014E5638--

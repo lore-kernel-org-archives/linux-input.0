@@ -1,50 +1,75 @@
-From: Arjan Opmeer <arjan@opmeer.net>
-Subject: Re: First stab at Elantech touchpad driver for 2.6.22.6. Testers
-	wanted!
-Date: Sun, 14 Oct 2007 03:14:40 +0200
-Message-ID: <20071014011440.GB15877@adopmeer.homeip.net>
-References: <20070914000015.GA20527@adopmeer.homeip.net> <d120d5000710091301h790db3c4nc44e71551a4bc408@mail.gmail.com>
+From: "Forest Y. Barry" <Forest@proactivenet.com>
+Subject: Women will go mad!
+Date: Sat, 13 Oct 2007 19:23:47 -0600
+Message-ID: <475d01c80e00$de54fe00$c0a80145@Forest>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_18267_47C5_01C80DCE.93BA8E00"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <d120d5000710091301h790db3c4nc44e71551a4bc408@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: "Everette H. Ochoa" <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-Hi Dmitry,
+------=_NextPart_18267_47C5_01C80DCE.93BA8E00
+Content-Type: text/plain;
+        charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Oct 09, 2007 at 04:01:58PM -0400, Dmitry Torokhov wrote:
-> On 9/13/07, Arjan Opmeer <arjan@opmeer.net> wrote:
-> >
-> > This is a first stab at a Linux driver for the Elantech touchpad as
-> > found on some laptops (e.g. MSI MS-1035 aka L725).
-> 
-> Since the touchpad supports absolute mode I'd recommend removing
-> support for extended relative mode and concentrating on making
-> absolute mode work so that Synaptics X driver can be used with this
-> touchpad as well.
+At last you will never have a problem with your size any more=2E
+We have a solution that will make all your 'se^xual wishes come true=2E
+Leave behind what you've heard before=2E The new era for you begins!
+Girls will go crazy!=20
+Friends will be jealous!=20
+And you will At last your new life! Like a real man with a real penis!
+you will never have a problem with MegaDik and a solution your new size!
 
-Well, from the few reports I got it seems not all Elantech touchpads are
-created equal. And as we don't have any documentation on these touchpads I
-really don't know whether they all support absolute mode, have the same
-parameters or use the same protocol for it.
+Just click here and have the penis you always desired!
+http://ballhoys=2Ecom/
 
-So for the time being I really would like to keep support for absolute as
-well as relative mode in to make it easier for users to switch and test and
-find out and report where thing go wrong.
+had been slain, but would not comment further=2E
+New Zealand Trade and Enterprise and the United Kingdom close games and o=
+ne blowout=2E All three games featured
+Trentham Military Camp , and attend the 30th anniversary
+the moon has begun to spew geysers which contain "liquid
+------=_NextPart_18267_47C5_01C80DCE.93BA8E00
+Content-Type: text/html;
+        charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-Maybe that once we find out more about these touchpads and the possible
-different version we can focus on a solution that will fit all. But let's
-not do it while users are still trying whether the driver works for them at
-all... :)
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4=2E0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dus-ascii"=
+>
+<META content=3D"MSHTML 6=2E00=2E2720=2E3000" name=3DGENERATOR>
+<STYLE type=3D"text/css">
+=2Estyle2 {font-size: 10px; color: #616161;}
+=2Estyle7 {font-size: 14px; color: #FF2F2F;}
+body {background-color: #edf9fe; color: #5c5c5c;}
+</STYLE>
+</HEAD>
+<BODY>At last you will never have a problem with your size any more=2E</b=
+><br> We have a solution that will make all your 'se^xual wishes come tru=
+e=2E <br>=20
+<b>Leave behind what you've heard before=2E <span class=3D"style7">The ne=
+w era for you begins!</span></b><br>=20
+Girls will go crazy! <br>=20
+Friends will be jealous! <br>=20
+<b>And you will At last your new life! Like a real man with a real penis!=
+<br>=20
+<span class=3D"style7">Discover MegaDik and be happy with your new size!<=
+/span></b><br><br>=20
+<a href=3D"http://ballhoys=2Ecom/"><b>http://ballhoys=2Ecom/ Just click h=
+ere and have the penis you always dreamt of!</b></a><br><br>
+<br><span class=3D"style2">had been slain, but would not comment further=2E=
+<br>New Zealand Trade and Enterprise and the United Kingdom close games a=
+nd one blowout=2E All three games featured<br>Trentham Military Camp , an=
+d attend the 30th anniversary<br>the moon has begun to spew geysers which=
+ contain "liquid</span></BODY></HTML>
 
-
-Arjan
+------=_NextPart_18267_47C5_01C80DCE.93BA8E00--

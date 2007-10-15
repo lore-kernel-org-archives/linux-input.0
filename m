@@ -1,205 +1,46 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 3/3] Blackfin serial driver: this driver enable SPORTs
- on Blackfin emulate UART
-Date: Mon, 15 Oct 2007 13:33:26 -0700
-Message-ID: <20071015133326.995a4f38.akpm@linux-foundation.org>
-References: <1192098220-25828-1-git-send-email-bryan.wu@analog.com>
-	<1192098220-25828-4-git-send-email-bryan.wu@analog.com>
+From: "Liliana Diamond" <shelbyulg83@aquaprix.com>
+Subject: Freaking cheap
+Date: Mon, 15 Oct 2007 16:13:12 -0500
+Message-ID: <122765736.65671973169406@aquaprix.com>
+Reply-To: shelbyulg83@aquaprix.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/html;
+  charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-serial-owner@vger.kernel.org>
-In-Reply-To: <1192098220-25828-4-git-send-email-bryan.wu@analog.com>
-Sender: linux-serial-owner@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org, bryan.wu@analog.com
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
+</HEAD>
+<BODY>
 
-> Subject: [PATCH 3/3] Blackfin serial driver: this driver enable SPORTs on Blackfin emulate UART
+<body bgcolor="#ffffff">
+<div style="border-color: #00FFFF; border-right-width: 0px; border-bottom-width: 0px; margin-bottom: 0px;" align="center">
+<table style="border: 2px; border-style: solid; border-color:#000000; font-family: Tahoma; font-weight: bold;" cellpadding="15" cellspacing="0" bgcolor="#FF0000">
+<style>	W&#228;hrungs-    * Spielkonsolen: Preisschlacht zu WeihnachtenISRAEL- SPIELDVD-Filmbeileger: Killerk&#228;fer in Fallschirmseide      Todestag von Che Guevara: Vom Revolution&#228;r zum allgegenw&#228;rtigen Mythos Video abspielen...Horst Wessel: Der Popstar der Nazis    * Religion und Arbeit: Protestantische L&#228;nder haben h&#246;here ErwerbsquoteAldi &#252;bertrumpft Porsche    * Soziale Marktwirtschaft: Arm durch Arbeit - die neue AusbeutungDownloads    * &#220;bersichtVergleiche 		Partnersuche 		Sportwetten 		Versicherungs-RANGLISTE DER REICHSTEN DEUTSCHEN    * M&#252;ntefering kommt zur Vernunft</style>
+<tr>
+<td style="border: 0px; border-bottom: 1px; border-style: solid; border-color:#000000; color:yellow">
+<center>
+Quality meds  for cents. 
+<style>    * Deutschland: IWF schraubt Wachstumsprognose nach unten    * Ein- Liter- Auto: VW- Chef glaubt nicht an ErfolgDie H&#252;fte der Mutter kann verraten, wie hoch das Brustkrebsrisiko der Tochter ist. Diesen Zusammenhang haben Forscher jetzt in einer Studie &#252;ber Tausende Frauen gefunden. &#220;ber die genauen Gr&#252;nde k&#246;nnen sie aber nur spekulieren. mehr...    * Streit um ALG-Reform: Merkel h&#228;lt sich erst mal raus    * &#220;bersicht    * USA: Wegen Donut- Diebstahl drohen Mann 30 Jahre Haft    * Mit dem Rad durch Afrika: 15.000 Kilometer auf Achse    * Mein erstes Mal: Jana, 16, geht ins Township    * Lahme Feststelltaste: Neue Apple- Tastatur bremst VertRechner 		Ferientermine 		Energiespar-	900 Headhunter    * Fu&#223;ball	900 Headhunter    * Eindr&#252;cke v
+ om Bulli- Treffen: Parade der Superlative    * Flugsicherheit: Neuer Scanner soll Fl&#252;ssigkeitsverbot hinf&#228;llig machenSCHULSPIEGEL    * Fonds    * Unterwegs mit Schwarzenegger: Nackert in M&#252;nchen</style> Buy your pills online, be smart.
+It's ten times times cheaper and convenient.
+</center>
+</td></tr><tr>
+<td bgcolor=#00FF00>
+<center><a href="http://windowloud.com">CLICK</a></center>
+<br>
 
-That's a bit hard to parse.
+<style>Girokonto 		Kfz-Erasmus-Typologie: Der Snob    * Spielkonsolen: Preisschlacht zu Weihnachtenbl&#228;ttern    * Ehrensenf: Agenda 2007    * Eindr&#252;cke vom Bulli- Treffen: Parade der Superlative    * Fundb&#252;ro AFGHANISTAN    * mehr Kultur    * Zu Besuch bei Walter Kempowski: "Junger Mann, fangen Sie einfach an!"    * Neue Suzuki- Studien: Schwerlaster f&#252;r die Kleinfamilie    * Zwiebelfisch    * Mega- Reise: Weltumrundung per PedalantriebDie Autodynastie Porsche holt auf: Erstmals rangiert sie auf der Liste der reichsten Deutschen auf Platz drei - hinter den Platzhaltern, den Aldi-Br&#252;dern. Insgesamt verf&#252;gen 122 Personen oder Familien in Deutschland &#252;ber ein Verm&#246;gen von mindestens einer Milliarde Euro - so viele wie noch nie. Von Klaus Boldt mehr...Kau
+ m waren die ersten Spekulationen &#252;ber einen R&#252;cktritt Franz M&#252;nteferings in der Welt, dementierten die Sozialdemokraten auch schon eilig. Hamburgs SPD-Spitzenkandidat Naumann allerdings k&#246;nnte verstehen, wenn sich der Vizekanzler wegen des Streits um das Arbeitslosengeld zur&#252;ckzieht. mehr... [ Video | Forum ]bl&#228;ttern    * News- Kanal France 24 : Welteroberung auf Franz&#246;sisch</style>
+</td></tr></table>
+</div></body>
 
-On Thu, 11 Oct 2007 18:23:40 +0800
-Bryan Wu <bryan.wu@analog.com> wrote:
-
-> Signed-off-by: Bryan Wu <bryan.wu@analog.com>
-> ---
->  drivers/serial/Kconfig           |   43 +++
->  drivers/serial/Makefile          |    1 +
->  drivers/serial/bfin_sport_uart.c |  614 ++++++++++++++++++++++++++++++++++++++
->  drivers/serial/bfin_sport_uart.h |   63 ++++
->  include/linux/serial_core.h      |    2 +
->  5 files changed, 723 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/serial/bfin_sport_uart.c
->  create mode 100644 drivers/serial/bfin_sport_uart.h
-> 
-> diff --git a/drivers/serial/Kconfig b/drivers/serial/Kconfig
-> index 81b52b7..f3bfbe1 100644
-> --- a/drivers/serial/Kconfig
-> +++ b/drivers/serial/Kconfig
-> @@ -1259,4 +1259,47 @@ config SERIAL_OF_PLATFORM
->  	  Currently, only 8250 compatible ports are supported, but
->  	  others can easily be added.
->  
-> +config SERIAL_BFIN_SPORT
-> +	tristate "Blackfin SPORT emulate UART (EXPERIMENTAL)"
-> +	depends on BFIN && EXPERIMENTAL
-> +	select SERIAL_CORE
-> +	help
-> +	  Enble support SPORT emulate UART on Blackfin series.
-
-There's a typo there.  Also the text is pretty meaningless - I'd fix it up
-but I'm not sure what it's trying to tell us!
-
-> +//#define DEBUG
-
-Probably this shouldn't be here at all - DEBUG is passed in from the gcc
-command line.
-
-> +#include <linux/module.h>
-> +#include <linux/ioport.h>
-> +#include <linux/init.h>
-> +#include <linux/console.h>
-> +#include <linux/sysrq.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/tty.h>
-> +#include <linux/tty_flip.h>
-> +#include <linux/serial_core.h>
-> +
-> +#include <asm/delay.h>
-> +#include <asm/portmux.h>
-> +
-> +#include "bfin_sport_uart.h"
-> +
-> +unsigned short bfin_uart_pin_req_sport0[] =
-> +	{P_SPORT0_TFS, P_SPORT0_DTPRI, P_SPORT0_TSCLK, P_SPORT0_RFS, \
-> +	 P_SPORT0_DRPRI, P_SPORT0_RSCLK, P_SPORT0_DRSEC, P_SPORT0_DTSEC, 0};
-> +
-> +unsigned short bfin_uart_pin_req_sport1[] =
-> +	{P_SPORT1_TFS, P_SPORT1_DTPRI, P_SPORT1_TSCLK, P_SPORT1_RFS, \
-> +	P_SPORT1_DRPRI, P_SPORT1_RSCLK, P_SPORT1_DRSEC, P_SPORT1_DTSEC, 0};
-
-I don't think these need global scope?
-
-> ...
->
-> +/* Reqeust IRQ, Setup clock */
-> +static int sport_startup(struct uart_port *port)
-> +{
-> +	struct sport_uart_port *up = (struct sport_uart_port *)port;
-> +	char buffer[20];
-> +	int retval;
-> +
-> +	pr_debug("%s enter\n", __FUNCTION__);
-> +	memset(buffer, 20, '\0');
-
-I don't think this memset is needed.
-
-> +	snprintf(buffer, 20, "%s rx", up->name);
-> +	retval = request_irq(up->rx_irq, sport_uart_rx_irq, IRQF_SAMPLE_RANDOM, buffer, up);
-> +	if (retval) {
-> +		printk(KERN_ERR "Unable to request interrupt %s\n", buffer);
-> +		return retval;
-> +	}
-> +
-> +	snprintf(buffer, 20, "%s tx", up->name);
-> +	retval = request_irq(up->tx_irq, sport_uart_tx_irq, IRQF_SAMPLE_RANDOM, buffer, up);
-> +	if (retval) {
-> +		printk(KERN_ERR "Unable to request interrupt %s\n", buffer);
-> +		goto fail1;
-> +	}
-> +
-> +	snprintf(buffer, 20, "%s err", up->name);
-> +	retval = request_irq(up->err_irq, sport_uart_err_irq, IRQF_SAMPLE_RANDOM, buffer, up);
-> +	if (retval) {
-> +		printk(KERN_ERR "Unable to request interrupt %s\n", buffer);
-> +		goto fail2;
-> +	}
-
-It is not a good idea to create files in /proc which have spaces in their
-names.  Yes, userspace _should_ be able to cope with that in all cases, but
-all software sucks, even including userspace ;)
-
-I'd suggest that we be defensive here, and avoid using spaces in filenames.
-
-> +	if (port->line) {
-> +		if (peripheral_request_list(bfin_uart_pin_req_sport1, DRV_NAME))
-> +			goto fail3;
-> +	} else {
-> +		if (peripheral_request_list(bfin_uart_pin_req_sport0, DRV_NAME))
-> +			goto fail3;
-> +	}
-> +
-> +	sport_uart_setup(up, get_sclk(), port->uartclk);
-> +
-> +	/* Enable receive interrupt */
-> +	SPORT_PUT_RCR1(up, (SPORT_GET_RCR1(up) | RSPEN));
-> +	SSYNC();
-> +
-> +	return 0;
-> +
-> +
-> +fail3:
-> +	printk(KERN_ERR DRV_NAME
-> +		": Requesting Peripherals failed\n");
-
-s/P/p/
-
-> +	free_irq(up->err_irq, up);
-> +fail2:
-> +	free_irq(up->tx_irq, up);
-> +fail1:
-> +	free_irq(up->rx_irq, up);
-> +
-> +	return retval;
-> +
-> +}
->
-> ...
->
-> +static void sport_shutdown(struct uart_port *port)
-> +{
-> +	struct sport_uart_port *up = (struct sport_uart_port *)port;
-
-That's a bit ugly.  Perhaps using container_of() would be clearer.  it
-would also remove the requirement that uart_port be the first member of
-sport_uart_port.
-
-> +	pr_debug("%s enter\n", __FUNCTION__);
-> +
-> +	/* Disable sport */
-> +	SPORT_PUT_TCR1(up, (SPORT_GET_TCR1(up) & ~TSPEN));
-> +	SPORT_PUT_RCR1(up, (SPORT_GET_RCR1(up) & ~RSPEN));
-> +	SSYNC();
-> +
-> +	if (port->line) {
-> +		peripheral_free_list(bfin_uart_pin_req_sport1);
-> +	} else {
-> +		peripheral_free_list(bfin_uart_pin_req_sport0);
-> +	}
-
-Please use checkpatch.  This patch generates a world record number of
-warnings.
-
-> +struct uart_ops sport_uart_ops = {
-> +	.tx_empty	= sport_tx_empty,
-> +	.set_mctrl	= sport_set_mctrl,
-> +	.get_mctrl	= sport_get_mctrl,
-> +	.stop_tx	= sport_stop_tx,
-> +	.start_tx	= sport_start_tx,
-> +	.stop_rx	= sport_stop_rx,
-> +	.enable_ms	= sport_enable_ms,
-> +	.break_ctl	= sport_break_ctl,
-> +	.startup	= sport_startup,
-> +	.shutdown	= sport_shutdown,
-> +	.set_termios	= sport_set_termios,
-> +	.type		= sport_type,
-> +	.release_port	= sport_release_port,
-> +	.request_port	= sport_request_port,
-> +	.config_port	= sport_config_port,
-> +	.verify_port	= sport_verify_port,
-> +};
-
-Does it need to have global scope?
-
-
+</BODY></HTML>

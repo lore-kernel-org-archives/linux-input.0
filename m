@@ -1,117 +1,71 @@
-From: "Shawna A. Cantrell" <s.cantrell_cw@digitalriver.com>
-Subject: #1 OnlinePharmacy Overseas: Phentermin, Codeine, Ambien, Valiun Xanas ..... le2dqz110xefy
-Date: Mon, 15 Oct 2007 02:36:01 -0700
-Message-ID: <1192440961.5371@digitalriver.com>
-Reply-To: "Shawna A. Cantrell" <s.cantrell_cw@digitalriver.com>
+From: "Mr. Adams Murphy Jr." <richard_coordinator2007@yahoo.co.uk>
+Subject: ROYAL HOUSE UK lottery Ballot Draws. !!
+Date: Mon, 15 Oct 2007 13:38:37 +0200 (SAST)
+Message-ID: <12129.82.128.13.48.1192448317.squirrel@196.15.188.197>
+Reply-To: richard_coordinator2007@yahoo.co.uk
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_040A_BD7F5DD8.45049CFE"
+Content-Type: text/plain;charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dle@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------=_NextPart_000_040A_BD7F5DD8.45049CFE
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
 
-      PharmaShop 80% Discount
-- Discreet Packaging  =20
-- Cheapest Medication =20
-- Worldwide shipping =20
-- Buy in Bulk and Save    =20
 
-CodeineK =20
-XanaxK =20
-ValiumK =20
-PhenterminK =20
-ViagraK =20
-ViagraGelK=20
-CialiK  =20
-CialiKSoftTabs=20
-ViagraSoftTabsK
-SomaK =20
-AdalatK     =20
-AllegraK =20
-AmbienK         =20
-AtaraxK   =20
-AtivanK=20
-CiproK
-EffexorK  =20
-GlucophageK       =20
-LevitraK
-LipitorK    =20
-MeridiaK =20
-NorvascK
-PaxilK   =20
-PropeciaK =20
-ProzacK       =20
-UltramK  =20
-ZocorK  =20
-Zoloftk       =20
-ZybanK=20
-plus 30 meds more     =20
+ROYAL HOUSE UK.
+WORCESTER, HEREFORD & WORCESTER,
+WR1 1JT, UNITED KINGDOM.
+FAX: +-4-4-7-0-0-5-9-8-1-5-4-8
 
-http://kmd.mgtelling.com (Link 1)
-http://ktu.mgtelling.com (Link 2)
-------=_NextPart_000_040A_BD7F5DD8.45049CFE
-Content-Type: text/html;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: quoted-printable
+From: Mr. Richard Cole Murphy Jr.
+(Promotion Department)
 
-<html>
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text; charset=3Diso-8859-1">=
-</head><body><center><table border=3D0 cellspacing=3D0 cellpadding=3D3>
-<tr><td bgcolor=3D931F68 align=3Dcenter>
-font size=3D6 color=3Dffffff face=3D"Century Gothic"><b>PharmaShop <font =
-color=3DFFFF00>80% Discount
-</font><br><font color=3DB5EDFD size=3D2>
-Discreet Packaging<br>Cheapest Medication<br>
-Worldwide shipping<br>Buy in Bulk and Save<br></font>
-</b></font>
-</font>
-<table border=3D0 cellspacing=3D0 cellpadding=3D3 width=3D500><tr><td wid=
-th=3D33% valign=3Dtop bgcolor=3DCDEF73><font face=3D"Century Gothic" size=
-=3D2 color=3D000000>CodeineK
-<br>XanaxK<br>
-ValiumK
-<br>PhenterminK<br>
-ViagraK<br>ViagraGelK<br>CialiK<br>CialiKSoftTabs<br>ViagraSoftTabsK<br>
-SomaK<br>
-</font>
-</td><td width=3D33% valign=3Dtop bgcolor=3DCDEF73>
-<font face=3D"Century Gothic" size=3D2 color=3D000000>AdalatK<br>AllegraK=
-<br>AmbienK<br>AtaraxK<br>
-AtivanK<br>
-CiproK<br>
-EffexorK<br>GlucophageK<br>LevitraK
-<br>LipitorK
-<br></font>
-</td>
-<td width=3D33% valign=3Dtop bgcolor=3DCDEF73>
-<font face=3D"Century Gothic" size=3D2 color=3D000000>MeridiaK<br>
-NorvascK<br>
-PaxilK<br>PropeciaK<br>ProzacK<br>UltramK<br>ZocorK<br>ZoloftK<br>ZybanK
-<br>plus <b>30=20
-meds more</b></font></td></tr></table><font size=3D6 face=3D"Century Goth=
-ic"><b><a href=3Dhttp://kn6d9gx1z3yu621.mgtelling.com target=3D_blank><u>=
-<font color=3DFFD5EA>Buy Here - start from $72 (link A)</font></u></a><br=
-><a href=3Dhttp://kx7t4ha1ay4j0.mgtelling.com target=3D_blank><u>
-<font size=3D6 color=3DFFD5EA>(link B)</u></font></font>
-</a></b>
-<br><font color=3D931F68 size=3D1>mistress fancy modern lady; ten foot pa=
-y bread captain food ten, s74k4d1zszdiu2 ezk6ch1v2dti</font><br></center>=
-</td></tr></table>
-<br>
-<br>
-<br></center></body></html>
+Dear Bert Prevoo,
 
-------=_NextPart_000_040A_BD7F5DD8.45049CFE--
+We are please to announce you as one of the 3 lucky winners in the ROYAL
+HOUSE UK lottery Ballot Draws. All 3 winning addresses were randomly
+selected from a batch of 30,000 email addresses.
+
+Your email address emerged alongside 2 others under our promotional B
+draws. Consequently, you have therefore been approved for a total pay out
+of =A32,800,000 Pounds (Two Million, eight hundred thousand pounds). The
+following particulars are attached to your lotto payment order:
+
+(i). Winning numbers: 10, 18, 00, 34, 49, (60)
+(ii). Email ticket number: 32-17-431
+(iii). Reference code : RH-UK/07/UKE
+(iv). Lottery Code Number: RH-UK/004
+
+To commence processing of your winning / transfer of winning sum, you mus=
+t
+forward a copy of this email to our Claims Department. Contact details
+below, for further information, and immediate processing and release of
+your winning sum.
+
+Contact the claims department with the following:
+
+Director (Claims Department),
+Mr Tony Hart,
+Alliance & Leicester Bank plc,
+Carlton Park, Narborough
+Leicester, LE19 0AL
+FAX : 44-871-264-8677
+TELL: 44-702-409-8865
+TELL: 44-702-407-1139
+Email: tonyallianceleicesterbankplc@yahoo.dk
+
+Congratulations once again.
+
+Regards,
+
+Mr. Adams Murphy Jr.
+Promotion Department,
+ROYAL HOUSE UK.
+WORCESTER, HEREFORD & WORCESTER,
+WR1 1JT, UNITED KINGDOM.
+FAX: +-4-4-7-0-0-5-9-8-1-5-4-8

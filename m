@@ -1,101 +1,50 @@
-From: "Bryan Wu" <cooloney.lkml@gmail.com>
-Subject: Re: [PATCH try #3] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Tue, 16 Oct 2007 01:24:28 +0800
-Message-ID: <386072610710151024s13e9c16qd7c974cde8000a9@mail.gmail.com>
-References: <1192459625.6215.17.camel@roc-laptop>
-	 <d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: [PATCH] Map MS Presenter 8000 bottom-side buttons
+Date: Mon, 15 Oct 2007 19:35:21 +0200
+Message-ID: <4713A4D9.4060909@siemens.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1765340AbXJORYm@vger.kernel.org>
-In-Reply-To: <d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 10/15/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> Hi Bryan,
->
-> On 10/15/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > +
-> > +static int ad7142_thread(void *nothing)
-> > +{
-> > +       do {
-> > +               wait_for_completion(&ad7142_completion);
-> > +               ad7142_decode();
-> > +               enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> > +       } while (!kthread_should_stop());
-> > +
->
-> No, this is not going to work well:
-> - you at least need to reinitialize the completion before enabling
-> IRQ, otherwise you will spin in a very tight loop
-> - if noone would touch the joystick ad7142_clsoe would() block
-> infinitely because noone would signal the completion and
-> ad7142_thread() would never stop.
->
-> Completion is just not a good abstraction here... Please use work
-> abstraction and possibly a separate workqueue.
+The MS Presenter 8000 bluetooth mouse is a "dual-use" device: If you press a button on the top, you can turn it around and find special keys on the other side, useful for presentations. This patch maps those three bottom-keys that are not already detected to the intended functions. The magic bottom on the top is mapped to F5 when we switch from mouse to presenter mode in order to activate the presentation mode in the related software (e.g. OpenOffice).
 
-Yes, I agree with you now, although I have a little concern about the
-possibility of big delay introduced by workqueue.
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
 
->
-> > +
-> > +       ad7142_task = kthread_run(ad7142_thread, NULL, "ad7142_task");
-> > +       if (IS_ERR(ad7142_task)) {
-> > +               printk(KERN_ERR "serio: Failed to start kseriod\n");
->
-> kseriod?
+---
+ drivers/hid/hid-input.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-My fault, I did't notice this copy words from other driver.
-
->
-> > +               return PTR_ERR(ad7142_task);
-> > +       }
-> > +       return 0;
-> > +}
-> > +
-> > +static void ad7142_close(struct input_dev *dev)
-> > +{
->
-> Don't you need to write something over i2c to tell the device to shut
-> down? As it is now I expect the device to continue raising its IRQ
-> until kernel decides that it is unhandled and should be ignored.
->
-I am not sure here, should do some investigate of the hardware datasheet.
-
-
-> > +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
->
-> Ok, so you freeing IRQ here, but it is allocated in ad7142_probe().
-> What happen if you try to open device after it was closed?
->
-Yes, it should be move to ad7142_detach_client()
-
-> > +       kthread_stop(ad7142_task);
-> > +}
-> > +
-> > +static int __init ad7142_init(void)
-> > +{
-> > +       return i2c_add_driver(&ad7142_driver);
-> > +}
-> > +
-> > +static void __exit ad7142_exit(void)
-> > +{
-> > +       i2c_del_driver(&ad7142_driver);
-> > +       input_unregister_device(ad7142_dev);
->
-> input_unregister_device() should be in ad7142_detach_client? I am not
-> sure i2c - there seems to be 2 interface styles and you probably need
-> to use the new one. I am CC-inj Jean on this.
->
-Yes, no need input_unregister_device() here.
-
-Thanks a lot for you kindly review.
-I will resend update patch later.
-
-Best Regards,
--Bryan Wu
+Index: linux-2.6.23.1/drivers/hid/hid-input.c
+===================================================================
+--- linux-2.6.23.1.orig/drivers/hid/hid-input.c
++++ linux-2.6.23.1/drivers/hid/hid-input.c
+@@ -737,9 +737,19 @@ static void hidinput_configure_usage(str
+ 					case 0xff0b: map_key_clear(BTN_B);		break;
+ 					default:    goto ignore;
+ 				}
+-			} else {
++			} else if (device->vendor == 0x045e && device->product == 0x0713) {
++				set_bit(EV_REP, input->evbit);
++				switch(usage->hid & HID_USAGE) {
++					/* Make MS Presenter 8000 bottom-side keys useful,
++					 * e.g. under OOffice */
++					case 0xfd08: map_key_clear(KEY_RIGHT);		break;
++					case 0xfd09: map_key_clear(KEY_LEFT);		break;
++					case 0xfd0b: map_key_clear(KEY_PAUSE);		break;
++					case 0xfd0f: map_key_clear(KEY_F5);		break;
++					default:    goto ignore;
++				}
++			} else
+ 				goto ignore;
+-			}
+ 			break;
+ 
+ 		case HID_UP_CUSTOM: /* Reported on Logitech and Powerbook USB keyboards */

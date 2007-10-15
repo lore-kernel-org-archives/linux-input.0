@@ -1,12 +1,14 @@
-From: "Ahmed S. Darwish" <darwish.07@gmail.com>
-Subject: Re: [PATCH try #3] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Mon, 15 Oct 2007 20:27:43 +0200
-Message-ID: <20071015182743.GA2529@Ahmed>
-References: <1192459625.6215.17.camel@roc-laptop> <d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH try #3] Input/Joystick Driver: add support AD7142
+ joystick driver
+Date: Mon, 15 Oct 2007 21:35:41 +0200
+Message-ID: <20071015213541.25bac062@hyperion.delvare>
+References: <1192459625.6215.17.camel@roc-laptop>
+	<d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
 In-Reply-To: <d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,45 +16,26 @@ List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>
+Cc: bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Oct 15, 2007 at 11:48:17AM -0400, Dmitry Torokhov wrote:
-> Hi Bryan,
-> 
+On Mon, 15 Oct 2007 11:48:17 -0400, Dmitry Torokhov wrote:
 > On 10/15/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > +
-> > +static int ad7142_thread(void *nothing)
+> > +static int __init ad7142_init(void)
 > > +{
-> > +       do {
-> > +               wait_for_completion(&ad7142_completion);
-> > +               ad7142_decode();
-> > +               enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> > +       } while (!kthread_should_stop());
+> > +       return i2c_add_driver(&ad7142_driver);
+> > +}
 > > +
+> > +static void __exit ad7142_exit(void)
+> > +{
+> > +       i2c_del_driver(&ad7142_driver);
+> > +       input_unregister_device(ad7142_dev);
 > 
-> No, this is not going to work well:
-> - you at least need to reinitialize the completion before enabling
-> IRQ, otherwise you will spin in a very tight loop
-> - if noone would touch the joystick ad7142_clsoe would() block
-> infinitely because noone would signal the completion and
-> ad7142_thread() would never stop.
-> 
-> Completion is just not a good abstraction here... Please use work
-> abstraction and possibly a separate workqueue.
-> 
+> input_unregister_device() should be in ad7142_detach_client? I am not
+> sure i2c - there seems to be 2 interface styles and you probably need
+> to use the new one. I am CC-inj Jean on this.
 
-Bryan, I'm very interested in the technical advantage of using a completion
-here.
-
-In my _not-experienced_ opinion, I remember completions was created mainly for
-"create_task, wait till task got finished, go on" case. Why using it in a
-different context while workqueues was created for a similar situation to
-ad7142 one (non-irq context bottom-half) ?
-
-Regards,
+The new style is preferred, yes.
 
 -- 
-Ahmed S. Darwish
-HomePage: http://darwish.07.googlepages.com
-Blog: http://darwish-07.blogspot.com
+Jean Delvare

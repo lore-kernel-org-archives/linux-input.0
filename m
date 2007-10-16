@@ -1,71 +1,40 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Enabling "extra" scancodes on some Acer laptops
-Date: Tue, 16 Oct 2007 11:52:17 -0400
-Message-ID: <d120d5000710160852x566d6379i96410c2eebabfecf@mail.gmail.com>
-References: <200710141803.09039.cathectic@slackadelic.com>
-	 <d120d5000710160737p188215fei5c4c56ef5734ae2d@mail.gmail.com>
-	 <200710161612.40914.cathectic@slackadelic.com>
+From: "baxie hoa" <arash@ppmusic.com>
+Subject: Local representatives wanted. Really high wages, no investment is required.
+Date: Tue, 16 Oct 2007 14:48:48 +0000
+Message-ID: <000701c81012$05b179a4$e8258396@srijk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200710161612.40914.cathectic@slackadelic.com>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Carlos Corbacho <cathectic@slackadelic.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 10/16/07, Carlos Corbacho <cathectic@slackadelic.com> wrote:
-> Dimitry,
->
-> On Tuesday 16 October 2007 15:37:37 you wrote:
-> > I think it could be added to i8042 driver to enable it. How messy is
-> > detection?
->
-> I use simple DMI matching in acer_acpi to do this on known broken laptops.
->
-> (acerhk calls directly into the BIOS to find this information - but I suspect
-> the data from that could easily be extracted and converted to proper DMI
-> table entries).
->
-> These are the the three that I know of (and are supported by acer_acpi) that
-> require this quirk:
->
-> static struct dmi_system_id dritek_extension_quirk[] = {
->        {
->                .callback = dmi_matched,
->                .ident = "Acer Aspire 5650",
->                .matches = {
->                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
->                        DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5650"),
->                },
->        },
->        {
->                .callback = dmi_matched,
->                .ident = "Acer Aspire 5680",
->                .matches = {
->                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
->                        DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5680"),
->                },
->        },
->        {
->                .callback = dmi_matched,
->                .ident = "Acer TravelMate 2490",
->                .matches = {
->                        DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
->                        DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2490"),
->                },
->        },
->        {}
-> };
->
+Big international commercial organization is looking for talented, honest,
+reliable representatives from different regions.
+The ideal candidate will be an intelligent person,
+someone who can work autonomously with a high degree of enthusiasm.
+We are looking for highly motivated professionals, with experience in marketing field.
+The position is home-based.
+We offer a part-time position with flexible working hours.
+And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate,
+along with an unrivalled career progression opportunity.
+If you think you have what it takes to take on this challenge
+and would like to apply please send the following information to: QueenHopkinsCO@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites!
+We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
 
-OK, we should be able to add it to i8042 pretty easily.
-
--- 
-Dmitry
+If you received this message in error, or would like to unsubscribe, please send a blank email to: BryantWeaverXP@gmail.com

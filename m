@@ -1,79 +1,80 @@
-From: "Bryan Wu" <cooloney.lkml@gmail.com>
-Subject: Re: [PATCH try #3] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Tue, 16 Oct 2007 14:08:04 +0800
-Message-ID: <386072610710152308o3d4a04bfgfcecafc9c345286b@mail.gmail.com>
-References: <1192459625.6215.17.camel@roc-laptop>
-	 <d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
-	 <20071015182743.GA2529@Ahmed>
+From: "Emile O. Mcfarland" <Emile@dc.rr.com>
+Subject: Make your penis bigger and feel the difference
+Date: Tue, 16 Oct 2007 10:23:47 +0300
+Message-ID: <053801c80fc5$7e27a340$c4dbf0ba@Emile>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+        boundary="----=_NextPart_1334_05A0_01C80FDE.A374DB40"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071015182743.GA2529@Ahmed>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: "Ahmed S. Darwish" <darwish.07@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>
+To: "Alfonzo S. Sampson" <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On 10/16/07, Ahmed S. Darwish <darwish.07@gmail.com> wrote:
-> On Mon, Oct 15, 2007 at 11:48:17AM -0400, Dmitry Torokhov wrote:
-> > Hi Bryan,
-> >
-> > On 10/15/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> > > +
-> > > +static int ad7142_thread(void *nothing)
-> > > +{
-> > > +       do {
-> > > +               wait_for_completion(&ad7142_completion);
-> > > +               ad7142_decode();
-> > > +               enable_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX);
-> > > +       } while (!kthread_should_stop());
-> > > +
-> >
-> > No, this is not going to work well:
-> > - you at least need to reinitialize the completion before enabling
-> > IRQ, otherwise you will spin in a very tight loop
-> > - if noone would touch the joystick ad7142_clsoe would() block
-> > infinitely because noone would signal the completion and
-> > ad7142_thread() would never stop.
-> >
-> > Completion is just not a good abstraction here... Please use work
-> > abstraction and possibly a separate workqueue.
-> >
->
-> Bryan, I'm very interested in the technical advantage of using a completion
-> here.
->
-You are welcome, I'd like to discuss these things here.
+This is a multi-part message in MIME format.
 
-> In my _not-experienced_ opinion, I remember completions was created mainly for
-> "create_task, wait till task got finished, go on" case. Why using it in a
-> different context while workqueues was created for a similar situation to
-> ad7142 one (non-irq context bottom-half) ?
+------=_NextPart_1334_05A0_01C80FDE.A374DB40
+Content-Type: text/plain;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
 
-I like completion because it is simple to use and understand. Your
-understanding is right. But there is no limit for using different
-context with completion. completion is a wrapper of waitqueue+done
-flag. For some drivers, in process context call
-wait_for_completetion(), then schedule out and in irq handler call
-complete(). This is very simple and helpful for driver design (For
-example, you call dma function to transfer data, then you schedule out
-and then DMA IRQ handler will call complete() to wakeup you).
+Buffett focused on individual firms; Soros followed broad trends in theHi=
+s idea is that things do very well and then they do badly=2E You
+The theory remained flawed=2E He could not define what he meant byBasical=
+ly, said Soros, the way I operate is I have a thesis and I testdialectic =
+pattern can be explained in general terms: The greater
 
-But in this driver, a) can not call ad7142_decode() in IRQ handler,
-because it will sleep in IRQ context by calling some i2c API, b) in
-original design, creating a new kthread and using some waitqueue API
-is the same way as using workqueue, c) cannot use completion as Dmitry
-said.
 
-I am going to use workqueue here.
+We want  to tell  you something incredible!=20
+You never thought that some medicine could open new possibilities to your=
+ penis=2E=20
+Here is MegaDik, that will start a new wave of your s'e_xual pleasure=2E=20=
 
-Any idea?
+Your stick  will be record-breaker!=20
 
-Thanks
--Bryan Wu
+Check our offer out and you will be so surprised with your size!=20
+
+http://goodglo=2Ecom/
+
+to understand when those rules were about to change=2E Because whenthinki=
+ng through how a certain financial market was operating-that
+------=_NextPart_1334_05A0_01C80FDE.A374DB40
+Content-Type: text/html;
+        charset="windows-1250"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4=2E0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dwindows-1=
+250">
+<META content=3D"MSHTML 6=2E00=2E2900=2E2869" name=3DGENERATOR>
+<STYLE type=3D"text/css">
+=2Estyle2 {font-size: 10px; color: #616161;}
+=2Estyle7 {font-size: 14px; color: #FF2F2F;}
+body {background-color: #ffffff; color: #3C3C3C;}
+</STYLE>
+</HEAD>
+<BODY><span class=3D"style2">=20
+Buffett focused on individual firms; Soros followed broad trends in theHi=
+s idea is that things do very well and then they do badly=2E You<br>The t=
+heory remained flawed=2E He could not define what he meant byBasically, s=
+aid Soros, the way I operate is I have a thesis and I testdialectic patte=
+rn can be explained in general terms: The greater</span>=20
+<br><br><br>
+<b>We want  to tell  you something incredible!</b><br>
+You never thought that some medicine could open new possibilities to your=
+ penis=2E<br>
+<b><span class=3D"style7">Here is MegaDik, that will start a new wave of =
+your s'e_xual pleasure=2E</span></b><br>
+Your stick  will be record-breaker!<br><br>
+
+<a href=3D"http://goodglo=2Ecom/"><b>Check our offer out and you will be =
+so surprised with your size! </a><br><br>
+<br><span class=3D"style2">to understand when those rules were about to c=
+hange=2E Because whenthinking through how a certain financial market was =
+operating-that</span></BODY></HTML>
+
+------=_NextPart_1334_05A0_01C80FDE.A374DB40--

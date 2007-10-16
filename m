@@ -1,61 +1,47 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: Power button policy and mechanism
-Date: Tue, 16 Oct 2007 10:34:26 -0400
-Message-ID: <d120d5000710160734occe82cke989baf3d1f97130@mail.gmail.com>
-References: <20071016134050.f7106efe.Kristoffer.Ericson@Gmail.com>
+Subject: Re: Enabling "extra" scancodes on some Acer laptops
+Date: Tue, 16 Oct 2007 10:37:37 -0400
+Message-ID: <d120d5000710160737p188215fei5c4c56ef5734ae2d@mail.gmail.com>
+References: <200710141803.09039.cathectic@slackadelic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071016134050.f7106efe.Kristoffer.Ericson@Gmail.com>
+In-Reply-To: <200710141803.09039.cathectic@slackadelic.com>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>, linux-main <linux-kernel@vger.kernel.org>, Richard Purdie <rpurdie@rpsys.net>
+To: Carlos Corbacho <cathectic@slackadelic.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Hi Kristoffer,
+Hi Carlos,
 
-On 10/16/07, Kristoffer Ericson <kristoffer.ericson@gmail.com> wrote:
-> Greetings Dmitry,
+On 10/14/07, Carlos Corbacho <cathectic@slackadelic.com> wrote:
 >
-> Is the suggested approach on handling powerbutton (in keyboard driver) to simply push out the event and let userland handle it?
-
-Yes.
-
-> The reason Im asking this is because as you might know Im maintainer for two mini-laptop style pda's (HP7xx & HP6xx)
-> and it would simplify my life alot if I didn't need to depend on userland applications to be able to suspend/resume.
+> After calling set_keyboard_quirk(), the extra keys start generating proper
+> scancodes, and can be mapped as normal via setkeycodes.
 >
-> For instance HP6XX receives an interrupt call whenever the powerbutton is pressed. Now I could just push out the event and let another program handle it but considering it would take a minimum amount of lines to let it simply suspend/resume I feel its a waste.
+> At the moment, I've added this quirk to acer_acpi (it's currently only applied
+> on the few systems we know that need it via DMI matching), but I'm not really
+> sure if this is the right place for it as:
 >
-> Previously the hp6xx has been allowed to do this "policy" way but that was when LinuxSH stod as a side branch to main tree. Now
-> when everything gets merged into mainline I need to decide how to do this.
+> 1) acer_acpi is still out of tree
 >
-> This is mainly an embedded issue, but I feel it's quite important. It should apply to other devices also like for example Zaurus branches (those with keyboard and designated power button).
->
-> So in short:
-> 1. Does mainline policy allow static power button events inside kernel (power button == suspend/resume)?
->        Why/Why Not?
-
-Could it be that you may want to prevent suspend from happening? Or
-delay it until system completes some important operation? Do something
-else, like cleanly disconnect your network connections? With actual
-handling done in userspace it's all possible. With suspend done
-directly in kernel it is much harder and couples input subsystem with
-power management too tightly.
-
-However if you are dead-set on doin it in kernel you coudl register an
-input_handler in your platform PM code and it will attach to your
-keyboard. Look for power.c module in older kernels for example.
-
-> 2. Seeing as my knowledge about this area isn't the best I would appreciate all opinions on the subject from the gurus.
+> 2) Does this really belong in acer_acpi (I'm not really sure if it falls under
+> what I'm doing - this seems to border a bit too much on the input tree side),
+> or somewhere further up the input tree (wistron-btns isn't much use here, as
+> the quirk would then be limited to 32 bit only, whereas some of the machines
+> that need this quirk can run a 64 bit kernel)?
 >
 
-Richard Purdie I think might have some pointers.
+I think it could be added to i8042 driver to enable it. How messy is detection?
+
+I am also going to apply the patch that exports i8042_command() so it
+can be used by other modules (Clevo LED driver needs it).
 
 -- 
 Dmitry

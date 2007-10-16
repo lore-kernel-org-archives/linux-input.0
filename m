@@ -1,7 +1,7 @@
-From: "iorgos rusty" <marrucci@mixmail.com>
-Subject: Home based employment opportunities for talented people. No investment needed, no sign-up fees.
-Date: Tue, 16 Oct 2007 10:01:16 +0000
-Message-ID: <000801c80fea$02c910f6$5e6f3b91@pjxlfp>
+From: "klee helena" <parkins@fileplanet.com>
+Subject: International trading company is proud to offer a high-paid position for a honest hard-working ambitious person.
+Date: Tue, 16 Oct 2007 10:17:22 +0000
+Message-ID: <000501c80fec$07d24d8b$4d9d25aa@svvkwcrn>
 Mime-Version: 1.0
 Content-Type: text/plain;
 	format=flowed;
@@ -28,7 +28,7 @@ And we would be happy to consider a full-time job share candidate.
 Our Company offers a very competitive salary to the successful candidate,
 along with an unrivalled career progression opportunity.
 If you think you have what it takes to take on this challenge
-and would like to apply please send the following information to: PierreYatesRS@gmail.com
+and would like to apply please send the following information to: PaulFieldsUQ@gmail.com
 1) Full name 
 2) Contact phone numbers 
 3) Part time job/Full time 
@@ -37,4 +37,4 @@ We are engaged in completely legal activity.
 The preference is given to employees with knowledge of foreign languages. 
 Thank you and we are looking forward to cooperate in long term base with you. 
 
-If you received this message in error, or would like to unsubscribe, please send a blank email to: DarrenGatesXO@gmail.com
+If you received this message in error, or would like to unsubscribe, please send a blank email to: MitchelReyesNO@gmail.com

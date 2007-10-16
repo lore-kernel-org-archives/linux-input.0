@@ -1,8 +1,8 @@
-From: "Mattie" <b.higginsxtvp@dpyus.jnj.com>
-Subject: today for 0 bucks
-Date: Tue, 16 Oct 2007 03:47:37 +0200
-Message-ID: <6154550354.065956849853@dpyus.jnj.com>
-Reply-To: "Mattie Griffin" <b.higginsxtvp@dpyus.jnj.com>
+From: "Pat" <tzitmgzz@homestations.com>
+Subject: my private collection
+Date: Tue, 16 Oct 2007 04:08:53 +0200
+Message-ID: <9592125663.917335568789@homestations.com>
+Reply-To: "Pat Conn" <tzitmgzz@homestations.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
@@ -15,10 +15,10 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-hot stuff
-http://7promo.cn
+my p o r n archive. no fee
+www 32prizes dot cn
 
-Jodi Bates
-structurer paesano Britten anagogies
-wrestler throats kosin
-cremate sequestered mangled
+repeat chymify legibility descriptions
+title reelect overinfluenced
+lexical selle gunfire conserver
+grandson sulfurage Kaye

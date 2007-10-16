@@ -1,51 +1,96 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH try #3] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Tue, 16 Oct 2007 12:53:22 -0400
-Message-ID: <d120d5000710160953w43e946f8ofd5bdbe152ea038e@mail.gmail.com>
-References: <1192459625.6215.17.camel@roc-laptop>
-	 <d120d5000710150848t1993b0aavbbc0cd7971e3ef3e@mail.gmail.com>
-	 <386072610710151024s13e9c16qd7c974cde8000a9@mail.gmail.com>
-	 <d120d5000710151040n2dbea5cbt515d3df87d5d19ed@mail.gmail.com>
-	 <386072610710152251k66529210x9311d2f2b202ad2b@mail.gmail.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
+Subject: Re: [PATCH] Map MS Presenter 8000 bottom-side buttons
+Date: Tue, 16 Oct 2007 19:12:27 +0200
+Message-ID: <4714F0FB.4090403@siemens.com>
+References: <4713A4D9.4060909@siemens.com> <Pine.LNX.4.64.0710161214440.12935@jikos.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <386072610710152251k66529210x9311d2f2b202ad2b@mail.gmail.com>
-Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0710161214440.12935@jikos.suse.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Bryan Wu <cooloney.lkml@gmail.com>
-Cc: bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On 10/16/07, Bryan Wu <cooloney.lkml@gmail.com> wrote:
-> On 10/16/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On 10/15/07, Bryan Wu <cooloney.lkml@gmail.com> wrote:
-> > > On 10/15/07, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > >
-> > > > Completion is just not a good abstraction here... Please use work
-> > > > abstraction and possibly a separate workqueue.
-> > >
-> > > Yes, I agree with you now, although I have a little concern about the
-> > > possibility of big delay introduced by workqueue.
-> > >
-> >
-> > Having a separate workqueue should isolate the driver from users
-> > hogging keventd. Otherwise the speed should be pretty much the same as
-> > with a kthread.
-> >
->
-> Does this driver need the create a new kthread instead of keventd?
-> I think keventd might be sufficient for this driver.
->
+Jiri Kosina wrote:
+> On Mon, 15 Oct 2007, Jan Kiszka wrote:
+> 
+>> +			} else if (device->vendor == 0x045e && device->product == 0x0713) {
+>> +				set_bit(EV_REP, input->evbit);
+>> +				switch(usage->hid & HID_USAGE) {
+>> +					/* Make MS Presenter 8000 bottom-side keys useful,
+>> +					 * e.g. under OOffice */
+>> +					case 0xfd08: map_key_clear(KEY_RIGHT);		break;
+>> +					case 0xfd09: map_key_clear(KEY_LEFT);		break;
+>> +					case 0xfd0b: map_key_clear(KEY_PAUSE);		break;
+>> +					case 0xfd0f: map_key_clear(KEY_F5);		break;
+>> +					default:    goto ignore;
+>> +				}
+>> +			} else
+> 
+> Hi Jan,
+> 
+> could you please take a short look at current Linus' git tree - there are 
+> some more devices using MSVENDOR page, and we have introduced macros to 
+> match them. It would be great if you could redo the patch to fit into this 
+> picture and send it to me again.
 
-No it does not have to start a new workqueue. I'd start with keventd
-and only implement a separate workqueue later if I saw the driver
-being starved by other keventd users.
+OK. Do you mean something like this? Sorry, in a hurry, not even
+compile-tested...
 
--- 
-Dmitry
+--snip--
+
+The MS Presenter 8000 bluetooth mouse is a "dual-use" device: If you
+press a button on the top, you can turn it around and find special keys
+on the other side, useful for presentations. This patch maps those three
+bottom-keys that are not already detected to the intended functions. The
+magic bottom on the top is mapped to F5 when we switch from mouse to
+presenter mode in order to activate the presentation mode in the related
+software (e.g. OpenOffice).
+
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+
+---
+ drivers/hid/hid-input.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+Index: linux-2.6/drivers/hid/hid-input.c
+===================================================================
+--- linux-2.6.orig/drivers/hid/hid-input.c
++++ linux-2.6/drivers/hid/hid-input.c
+@@ -89,6 +89,7 @@ static const struct {
+ /* hardware needing special handling due to colliding MSVENDOR page usages */
+ #define IS_CHICONY_TACTICAL_PAD(x) (x->vendor == 0x04f2 && device->product == 0x0418)
+ #define IS_MS_KB(x) (x->vendor == 0x045e && (x->product == 0x00db || x->product == 0x00f9))
++#define IS_MS_PRESENTER_8000(x) (x->vendor == 0x045e && x->product == 0x0713)
+ 
+ #ifdef CONFIG_USB_HIDINPUT_POWERBOOK
+ 
+@@ -780,9 +781,20 @@ static void hidinput_configure_usage(str
+ 						set_bit(KEY_F18, input->keybit);
+ 					default:	goto ignore;
+ 				}
+-			} else {
++
++			/* Microsoft Wireless Notebook Presenter Mouse 8000 */
++			} else if (IS_MS_PRESENTER_8000(device)) {
++				set_bit(EV_REP, input->evbit);
++				switch(usage->hid & HID_USAGE) {
++					/* Useful mappings of bottom-side keys for presentations */
++					case 0xfd08: map_key_clear(KEY_RIGHT);		break;
++					case 0xfd09: map_key_clear(KEY_LEFT);		break;
++					case 0xfd0b: map_key_clear(KEY_PAUSE);		break;
++					case 0xfd0f: map_key_clear(KEY_F5);		break;
++					default:    goto ignore;
++				}
++			} else
+ 				goto ignore;
+-			}
+ 			break;
+ 
+ 		case HID_UP_CUSTOM: /* Reported on Logitech and Powerbook USB keyboards */

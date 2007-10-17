@@ -1,60 +1,89 @@
-From: "Bryan Wu" <cooloney.lkml@gmail.com>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Wed, 17 Oct 2007 23:35:49 +0800
-Message-ID: <386072610710170835j20d88feej2b107c8e8b686e89@mail.gmail.com>
+Date: Wed, 17 Oct 2007 12:12:38 -0400
+Message-ID: <d120d5000710170912o3503a0f8s55bb4b7294f80e58@mail.gmail.com>
 References: <1192605120.7920.15.camel@roc-laptop>
-	 <20071017160702.3316fc24@hyperion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071017160702.3316fc24@hyperion.delvare>
+In-Reply-To: <1192605120.7920.15.camel@roc-laptop>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: bryan.wu@analog.com
+Cc: Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-input@vger.kernel.org
 
-On 10/17/07, Jean Delvare <khali@linux-fr.org> wrote:
-> Hi Bryan,
->
-> On Wed, 17 Oct 2007 15:12:00 +0800, Bryan Wu wrote:
-> > Subject: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick driver
->
-> This driver is a good candidate for the new-style i2c infrastructure.
-> Instead of letting i2c-core probe for the device on all available I2C
-> buses, you would explicitly instantiate it from platform data. In
-> practice this would mean:
-> * Declare the ad7142 in platform data.
-> * Call i2c_register_board_info() on that data.
-> * In your ad7142 driver, implement .probe and .remove instead
->   of .attach_adapter and .detach_client.
->
-I would like to rewrite it by using new-style i2c infrastructure.
-But it will take some time. If I meet some problem, hope can get some advice
-from you and the community.
+Hi Bryan,
 
-> Of course this assumes that the underlying bus driver is also new-style
-> ready (i.e. it uses i2c_add_numbered_adapter() instead of
-> i2c_add_adapter()), and that you know in advance when the AD7142 is
-> there or not. I hope this is the case?
->
-Oh, currently i2c-bfin-twi driver is using the old-style code.
-
-> Using a new-style i2c driver is especially important if the device
-> can't be detected.
->
-> Also see my i2c-related comments inline.
+On 10/17/07, Bryan Wu <bryan.wu@analog.com> wrote:
+> Subject: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick driver
 >
 
-I will fix all the issues and try to pass our Blackfin AD7142 Joystick testcase.
-and resubmit a patch.
+My comments are in addition to Jean's:
 
-Thanks
--Bryan
+> +
+> +static void ad7142_close(struct input_dev *dev)
+> +{
+> +       struct ad7142_data *data = input_get_drvdata(dev);
+> +       struct i2c_client *client = &data->client;
+> +       unsigned short value;
+> +
 
-[!snip!]
+I think you need disable_irq() here
+
+> +       flush_scheduled_work();
+> +
+> +       /*
+> +        * Turn AD7142 to full shutdown mode
+> +        * No CDC conversions
+> +        */
+> +       value = 0x0001;
+> +       ad7142_i2c_write(client, PWRCONVCTL, &value, 1);
+
+and enable_irq() here. This way you can be sure that you will not
+re-arm the work between flush_scheduled_work() and shutting off the
+controller.
+
+> +
+> +static int ad7142_attach(struct i2c_adapter *adap)
+> +{
+> +       return i2c_probe(adap, &addr_data, &ad7142_probe);
+> +}
+> +
+> +static int ad7142_detach(struct i2c_client *client)
+> +{
+> +       int rc;
+> +
+> +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
+> +
+> +       flush_scheduled_work();
+> +
+> +       rc = i2c_detach_client(client);
+> +       if (!rc)
+> +               kfree(i2c_get_clientdata(client));
+> +       return rc;
+> +}
+> +
+> +
+> +static int __init ad7142_init(void)
+> +{
+> +       return i2c_add_driver(&ad7142_driver);
+> +}
+> +
+> +static void __exit ad7142_exit(void)
+> +{
+> +       i2c_del_driver(&ad7142_driver);
+> +}
+> +
+> +module_init(ad7142_init);
+> +module_exit(ad7142_exit);
+
+Where did input_unregister_device() go? It still needs to be somewhere...
+
+-- 
+Dmitry

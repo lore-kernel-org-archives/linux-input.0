@@ -1,8 +1,8 @@
 From: Bryan Wu <bryan.wu@analog.com>
-Subject: [PATCH try#2] Input/Touchscreen Driver: add support AD7877
-	touchscreen driver
-Date: Wed, 17 Oct 2007 11:40:07 +0800
-Message-ID: <1192592407.7920.3.camel@roc-laptop>
+Subject: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick
+	driver
+Date: Wed, 17 Oct 2007 15:12:00 +0800
+Message-ID: <1192605120.7920.15.camel@roc-laptop>
 Reply-To: bryan.wu@analog.com
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -13,94 +13,102 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input
 List-Id: linux-input@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
-Subject: [PATCH try#2] Input/Touchscreen Driver: add support AD7877 touchscreen driver
+Subject: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick driver
 
 [try #2] Changelog:
- - move locking inside ad7877_enable and ad7877_disable
- - use setup_timer
- - use input_dev->dev.parent
- - fix unregister device
- - kill EV_KEY since it's not used
- - fix indention style
+ - Coding style issues fixed, passed checkpatch.pl
+ - Kill uselss "ad7142_used"
+ - Move request_irq to probe
+ - Move i2c_check_functionality to probe
+ - Error handling added
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+[try #3] Changelog:
+ - Use kzalloc
+ - Use strlcpy
+ - Use completion instead of wait queue
+ - Move input_allocate_device and input_register_device to
+ad7142_probe()
+ - Fix some issues pointed by LKML
+
+[try #4] Changelog:
+ - Use workqueue instead of completion
+ - Shutdown AD7142 in ad7142_close()
+ - Remove input_unregister_device() in ad7142_exit()
+
+Cc: Andrey Panin <pazke@donpac.ru>
+Cc: Roel Kluin <12o3l@tiscali.nl>
+Cc: Ahmed S. Darwish <darwish.07@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Bryan Wu <bryan.wu@analog.com>
 ---
- drivers/input/touchscreen/Kconfig  |   13 +
- drivers/input/touchscreen/Makefile |    1 +
- drivers/input/touchscreen/ad7877.c |  945 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 959 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/ad7877.c
+ drivers/input/joystick/Kconfig  |   15 ++
+ drivers/input/joystick/Makefile |    1 +
+ drivers/input/joystick/ad7142.c |  485 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 501 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/joystick/ad7142.c
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index e3e0baa..b706910 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -29,6 +29,19 @@ config TOUCHSCREEN_ADS7846
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ads7846.
+diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+index 7c662ee..5c8c8ca 100644
+--- a/drivers/input/joystick/Kconfig
++++ b/drivers/input/joystick/Kconfig
+@@ -282,4 +282,19 @@ config JOYSTICK_XPAD_LEDS
+ 	  This option enables support for the LED which surrounds the Big X on
+ 	  XBox 360 controller.
  
-+config TOUCHSCREEN_AD7877
-+	tristate "AD7877 based touchscreens"
-+	depends on SPI_MASTER
-+	help
-+	  Say Y here if you have a touchscreen interface using the
-+	  AD7877 controller, and your board-specific initialization
-+	  code includes that in its table of SPI devices.
++config JOYSTICK_AD7142
++	tristate "Analog Devices AD7142 Joystick support"
++	depends on BFIN && I2C
++	---help---
++	  Say Y here if you want to support an AD7142 joystick
 +
-+	  If unsure, say N (but it's safe to say "Y").
++config BFIN_JOYSTICK_IRQ_PFX
++	int "GPIO for Interrupt"
++	depends on (BFIN && JOYSTICK_AD7142)
++	range 33 120
++	default "55" if BFIN537_STAMP
++	default "39" if BFIN533_STAMP
++	---help---
++	  Choose an GPIO as Keypad interrupt.[0..15]
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called ad7877.
-+
- config TOUCHSCREEN_BITSY
- 	tristate "Compaq iPAQ H3600 (Bitsy) touchscreen"
- 	depends on SA1100_BITSY
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 35d4097..49561b2 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -4,6 +4,7 @@
- 
+ endif
+diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+index e855abb..8df388f 100644
+--- a/drivers/input/joystick/Makefile
++++ b/drivers/input/joystick/Makefile
+@@ -5,6 +5,7 @@
  # Each configuration option enables a list of files.
  
-+obj-$(CONFIG_TOUCHSCREEN_AD7877)	+= ad7877.o
- obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
- obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
- obj-$(CONFIG_TOUCHSCREEN_CORGI)		+= corgi_ts.o
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+ obj-$(CONFIG_JOYSTICK_A3D)		+= a3d.o
++obj-$(CONFIG_JOYSTICK_AD7142)		+= ad7142.o
+ obj-$(CONFIG_JOYSTICK_ADI)		+= adi.o
+ obj-$(CONFIG_JOYSTICK_AMIGA)		+= amijoy.o
+ obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
+diff --git a/drivers/input/joystick/ad7142.c b/drivers/input/joystick/ad7142.c
 new file mode 100644
-index 0000000..6f27dda
+index 0000000..e5d2ccc
 --- /dev/null
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -0,0 +1,945 @@
++++ b/drivers/input/joystick/ad7142.c
+@@ -0,0 +1,485 @@
 +/*
-+ * File:        drivers/input/touchscreen/ad7877.c
++ * File:         drivers/input/joystick/ad7142.c
++ * Original Author: Aubrey Li
++ * Maintained by: Bryan Wu <bryan.wu@analog.com>
 + *
-+ * Based on: 	ads7846.c
-+ *
-+ *		Copyright (C) 2006 Michael Hennerich, Analog Devices Inc.
-+ *
-+ * Author:	Michael Hennerich, Analog Devices Inc.
-+ *
-+ * Created:	Nov, 10th 2006
-+ * Description:	AD7877 based touchscreen, sensor (ADCs), DAC and GPIO driver
-+ *
-+ * Rev:         $Id: ad7877.c 3731 2007-10-16 09:20:34Z hennerich $
++ * Created:      Apr 7th, 2006
++ * Description:
 + *
 + * Modified:
-+ *              Copyright 2004-2007 Analog Devices Inc.
++ *               Copyright 2005-2007 Analog Devices Inc.
 + *
-+ * Bugs:        Enter bugs at http://blackfin.uclinux.org/
++ * Bugs:         Enter bugs at http://blackfin.uclinux.org/
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
 + *
 + * This program is distributed in the hope that it will be useful,
 + * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -108,920 +116,466 @@ index 0000000..6f27dda
 + * GNU General Public License for more details.
 + *
 + * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, see the file COPYING, or write
-+ * to the Free Software Foundation, Inc.,
-+ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-+ *
-+ * History:
-+ * Copyright (c) 2005 David Brownell
-+ * Copyright (c) 2006 Nokia Corporation
-+ * Various changes: Imre Deak <imre.deak@nokia.com>
-+ *
-+ * Using code from:
-+ *  - corgi_ts.c
-+ *	Copyright (C) 2004-2005 Richard Purdie
-+ *  - omap_ts.[hc], ads7846.h, ts_osk.c
-+ *	Copyright (C) 2002 MontaVista Software
-+ *	Copyright (C) 2004 Texas Instruments
-+ *	Copyright (C) 2005 Dirk Behme
++ * along with this program; see the file COPYING.
++ * If not, write to the Free Software Foundation,
++ * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 + */
 +
-+
-+#include <linux/device.h>
++#include <linux/types.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
 +#include <linux/init.h>
-+#include <linux/delay.h>
 +#include <linux/input.h>
 +#include <linux/interrupt.h>
-+#include <linux/slab.h>
-+#include <linux/kthread.h>
-+#include <linux/spi/spi.h>
-+#include <linux/spi/ad7877.h>
-+#include <linux/freezer.h>
-+#include <asm/irq.h>
++#include <linux/i2c.h>
++#include <linux/delay.h>
++#include <linux/uaccess.h>
++#include <linux/irq.h>
++#include <linux/workqueue.h>
 +
-+#ifdef	CONFIG_BFIN
 +#include <asm/blackfin.h>
-+#endif
 +
-+#define	TS_PEN_UP_TIMEOUT	msecs_to_jiffies(50)
++MODULE_AUTHOR("Aubrey Li, Bryan Wu <bryan.wu@analog.com>");
++MODULE_DESCRIPTION("Driver for AD7142 Joysticks");
++MODULE_LICENSE("GPL");
 +
-+/*--------------------------------------------------------------------------*/
++#define AD7142_DRV_NAME		"ad7142_js"
++#define AD7142_I2C_ID		0xE622
++#define AD7142_I2C_ADDR		0x2C
++/*
++ * Ram map - these registers are defined as we go along
++ */
++/* RW   Power & conversion control */
++#define PWRCONVCTL		0x00
 +
-+#define MAX_SPI_FREQ_HZ			20000000
-+#define	MAX_12BIT			((1<<12)-1)
++/* RW   Ambient compensation control register 0 - 3 */
++#define AMBCOMPCTL_REG0		0x01
++#define AMBCOMPCTL_REG1		0x02
++#define AMBCOMPCTL_REG2		0x03
++#define AMBCOMPCTL_REG3		0x04
 +
-+#define AD7877_REG_ZEROS			0
-+#define AD7877_REG_CTRL1			1
-+#define AD7877_REG_CTRL2			2
-+#define AD7877_REG_ALERT			3
-+#define AD7877_REG_AUX1HIGH			4
-+#define AD7877_REG_AUX1LOW			5
-+#define AD7877_REG_BAT1HIGH			6
-+#define AD7877_REG_BAT1LOW			7
-+#define AD7877_REG_BAT2HIGH			8
-+#define AD7877_REG_BAT2LOW			9
-+#define AD7877_REG_TEMP1HIGH			10
-+#define AD7877_REG_TEMP1LOW			11
-+#define AD7877_REG_SEQ0				12
-+#define AD7877_REG_SEQ1				13
-+#define AD7877_REG_DAC				14
-+#define AD7877_REG_NONE1			15
-+#define AD7877_REG_EXTWRITE			15
-+#define AD7877_REG_XPLUS			16
-+#define AD7877_REG_YPLUS			17
-+#define AD7877_REG_Z2				18
-+#define AD7877_REG_aux1				19
-+#define AD7877_REG_aux2				20
-+#define AD7877_REG_aux3				21
-+#define AD7877_REG_bat1				22
-+#define AD7877_REG_bat2				23
-+#define AD7877_REG_temp1			24
-+#define AD7877_REG_temp2			25
-+#define AD7877_REG_Z1				26
-+#define AD7877_REG_GPIOCTRL1			27
-+#define AD7877_REG_GPIOCTRL2			28
-+#define AD7877_REG_GPIODATA			29
-+#define AD7877_REG_NONE2			30
-+#define AD7877_REG_NONE3			31
++/* RW   Interrupt enable register 0 - 2 */
++#define INTEN_REG0		0x05
++#define INTEN_REG1		0x06
++#define INTEN_REG2		0x07
 +
-+#define AD7877_SEQ_YPLUS_BIT			(1<<11)
-+#define AD7877_SEQ_XPLUS_BIT			(1<<10)
-+#define AD7877_SEQ_Z2_BIT			(1<<9)
-+#define AD7877_SEQ_AUX1_BIT			(1<<8)
-+#define AD7877_SEQ_AUX2_BIT			(1<<7)
-+#define AD7877_SEQ_AUX3_BIT			(1<<6)
-+#define AD7877_SEQ_BAT1_BIT			(1<<5)
-+#define AD7877_SEQ_BAT2_BIT			(1<<4)
-+#define AD7877_SEQ_TEMP1_BIT			(1<<3)
-+#define AD7877_SEQ_TEMP2_BIT			(1<<2)
-+#define AD7877_SEQ_Z1_BIT			(1<<1)
++/* R    Low limit interrupt status register 0 */
++#define INTSTAT_REG0		0x08
++/* R    High limit interrupt status register 1 */
++#define INTSTAT_REG1		0x09
++/* R    Interrupt status register 2 */
++#define INTSTAT_REG2		0x0A
 +
-+enum {
-+	AD7877_SEQ_YPOS  = 0,
-+	AD7877_SEQ_XPOS  = 1,
-+	AD7877_SEQ_Z2    = 2,
-+	AD7877_SEQ_AUX1  = 3,
-+	AD7877_SEQ_AUX2  = 4,
-+	AD7877_SEQ_AUX3  = 5,
-+	AD7877_SEQ_BAT1  = 6,
-+	AD7877_SEQ_BAT2  = 7,
-+	AD7877_SEQ_TEMP1 = 8,
-+	AD7877_SEQ_TEMP2 = 9,
-+	AD7877_SEQ_Z1    = 10,
++/* R    ADC stage 0 - 11 result (uncompensated) actually located in SRAM */
++#define ADCRESULT_S0		0x0B
++#define ADCRESULT_S1		0x0C
++#define ADCRESULT_S2		0x0D
++#define ADCRESULT_S3		0x0E
++#define ADCRESULT_S4		0x0F
++#define ADCRESULT_S5		0x10
++#define ADCRESULT_S6		0x11
++#define ADCRESULT_S7		0x12
++#define ADCRESULT_S8		0x13
++#define ADCRESULT_S9		0x14
++#define ADCRESULT_S10		0x15
++#define ADCRESULT_S11		0x16
 +
-+	AD7877_NR_SENSE  = 11,
-+};
++/* R    I.D. Register */
++#define DEVID			0x17
 +
-+/* DAC Register Default RANGE 0 to Vcc, Volatge Mode, DAC On */
-+#define AD7877_DAC_CONF			0x1
++/* R    Current threshold status register 0, 1 */
++#define THRES_STAT_REG0		0x40
++#define THRES_STAT_REG1		0x41
++/* R    Current proximity status register 2 */
++#define PROX_STAT_REG		0x42
 +
-+/* If gpio3 is set AUX3/GPIO3 acts as GPIO Output */
-+#define AD7877_EXTW_GPIO_3_CONF		0x1C4
-+#define AD7877_EXTW_GPIO_DATA		0x200
-+
-+/* Control REG 2 */
-+#define AD7877_TMR(x)			((x & 0x3) << 0)
-+#define AD7877_REF(x)			((x & 0x1) << 2)
-+#define AD7877_POL(x)			((x & 0x1) << 3)
-+#define AD7877_FCD(x)			((x & 0x3) << 4)
-+#define AD7877_PM(x)			((x & 0x3) << 6)
-+#define AD7877_ACQ(x)			((x & 0x3) << 8)
-+#define AD7877_AVG(x)			((x & 0x3) << 10)
-+
-+/* Control REG 1 */
-+#define	AD7877_SER			(1 << 11)	/* non-differential */
-+#define	AD7877_DFR			(0 << 11)	/* differential */
-+
-+#define AD7877_MODE_NOC  (0)	/* Do not convert */
-+#define AD7877_MODE_SCC  (1)	/* Single channel conversion */
-+#define AD7877_MODE_SEQ0 (2)	/* Sequence 0 in Slave Mode */
-+#define AD7877_MODE_SEQ1 (3)	/* Sequence 1 in Master Mode */
-+
-+#define AD7877_CHANADD(x)		((x&0xF)<<7)
-+#define AD7877_READADD(x)		((x)<<2)
-+#define AD7877_WRITEADD(x)		((x)<<12)
-+
-+#define AD7877_READ_CHAN(x) (AD7877_WRITEADD(AD7877_REG_CTRL1) | AD7877_SER | \
-+		AD7877_MODE_SCC | AD7877_CHANADD(AD7877_REG_ ## x) | \
-+		AD7877_READADD(AD7877_REG_ ## x))
-+
-+
-+#define AD7877_MM_SEQUENCE (AD7877_SEQ_YPLUS_BIT | AD7877_SEQ_XPLUS_BIT | AD7877_SEQ_Z2_BIT | AD7877_SEQ_Z1_BIT)
-+/*--------------------------------------------------------------------------*/
++#define STAGE0_CONNECTION	0x80
++#define STAGE1_CONNECTION	0x88
++#define STAGE2_CONNECTION	0x90
++#define STAGE3_CONNECTION	0x98
++#define STAGE4_CONNECTION	0xA0
++#define STAGE5_CONNECTION	0xA8
++#define STAGE6_CONNECTION	0xB0
++#define STAGE7_CONNECTION	0xB8
++#define STAGE8_CONNECTION	0xC0
++#define STAGE9_CONNECTION	0xC8
++#define STAGE10_CONNECTION	0xD0
++#define STAGE11_CONNECTION	0xD8
 +
 +/*
-+ * Non-touchscreen sensors only use single-ended conversions.
++ *	STAGE0: Button1   <----> CIN6(+)	Button2    <----> CIN5(-)
++ *	STAGE1: Button3   <----> CIN4(-)	Button4    <----> CIN3(+)
++ *	STAGE2: Axes.Left <----> CIN11(-)	Axes.Right <----> CIN13(+)
++ *	STAGE3: Axes.Up   <----> CIN12(-)	Axes.Down  <----> CIN10(+)
 + */
-+
-+struct ser_req {
-+	u16			ref_on;
-+	u16			command;
-+	u16			sample;
-+	struct spi_message	msg;
-+	struct spi_transfer	xfer[5];
++static unsigned short stage[5][8] = {
++	{0xE7FF, 0x3FFF, 0x0005, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
++	{0xFDBF, 0x3FFF, 0x0001, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
++	{0xFFFF, 0x2DFF, 0x0001, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
++	{0xFFFF, 0x37BF, 0x0001, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
++	{0xFFFF, 0x3FFF, 0x0000, 0x0606, 0x01F4, 0x01F4, 0x0320, 0x0320},
 +};
 +
-+struct ad7877 {
-+	struct input_dev	*input;
-+	char			phys[32];
++struct ad7142_data {
++	struct input_dev *input_dev;
 +
-+	struct spi_device	*spi;
-+	u16			model;
-+	u16			vref_delay_usecs;
-+	u16			x_plate_ohms;
-+	u16			pressure_max;
++	struct i2c_driver i2c_drv;
++	struct i2c_client client;
 +
-+	u16			cmd_crtl1;
-+	u16			cmd_crtl2;
-+	u16			cmd_dummy;
-+	u16			dac;
++	struct work_struct work;
 +
-+	u8			stopacq_polarity;
-+	u8			first_conversion_delay;
-+	u8			acquisition_time;
-+	u8			averaging;
-+	u8			pen_down_acc_interval;
-+
-+	u16 conversion_data[AD7877_NR_SENSE];
-+
-+	struct spi_transfer	xfer[3];
-+	struct spi_message	msg;
-+
-+	int intr_flag;
-+
-+	spinlock_t		lock;
-+	struct timer_list	timer;		/* P: lock */
-+	unsigned		pendown:1;	/* P: lock */
-+	unsigned		pending:1;	/* P: lock */
-+
-+	unsigned		irq_disabled:1;	/* P: lock */
-+	unsigned		disabled:1;
-+	unsigned		gpio3:1;
-+	unsigned		gpio4:1;
-+
++	unsigned short old_status_low;
++	unsigned short old_status_high;
 +};
 +
-+static int gpio3;
-+
-+static struct task_struct *ad7877_task;
-+static DECLARE_WAIT_QUEUE_HEAD(ad7877_wait);
-+
-+static void ad7877_enable(struct ad7877 *ts);
-+static void ad7877_disable(struct ad7877 *ts);
-+
-+static int device_suspended(struct device *dev)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(dev);
-+	return dev->power.power_state.event != PM_EVENT_ON || ts->disabled;
-+}
-+
-+static int ad7877_read(struct device *dev, u16 reg)
-+{
-+	struct spi_device	*spi = to_spi_device(dev);
-+	struct ser_req		*req = kzalloc(sizeof *req, GFP_KERNEL);
-+	int			status;
-+
-+	if (!req)
-+		return -ENOMEM;
-+
-+	spi_message_init(&req->msg);
-+
-+	req->command = (u16) (AD7877_WRITEADD(AD7877_REG_CTRL1) | AD7877_READADD(reg));
-+	req->xfer[0].tx_buf = &req->command;
-+	req->xfer[0].len = 2;
-+
-+	req->xfer[1].rx_buf = &req->sample;
-+	req->xfer[1].len = 2;
-+
-+	spi_message_add_tail(&req->xfer[0], &req->msg);
-+	spi_message_add_tail(&req->xfer[1], &req->msg);
-+
-+	status = spi_sync(spi, &req->msg);
-+
-+	if (req->msg.status)
-+		status = req->msg.status;
-+
-+	kfree(req);
-+	return status ? status : req->sample;
-+}
-+
-+static int ad7877_write(struct device *dev, u16 reg, u16 val)
-+{
-+	struct spi_device	*spi = to_spi_device(dev);
-+	struct ser_req		*req = kzalloc(sizeof *req, GFP_KERNEL);
-+	int			status;
-+
-+	if (!req)
-+		return -ENOMEM;
-+
-+	spi_message_init(&req->msg);
-+
-+	req->command = (u16) (AD7877_WRITEADD(reg) | (val & MAX_12BIT));
-+	req->xfer[0].tx_buf = &req->command;
-+	req->xfer[0].len = 2;
-+
-+	spi_message_add_tail(&req->xfer[0], &req->msg);
-+
-+	status = spi_sync(spi, &req->msg);
-+
-+	if (req->msg.status)
-+		status = req->msg.status;
-+
-+	kfree(req);
-+
-+	return status;
-+}
-+
-+static int ad7877_read_adc(struct device *dev, unsigned command)
-+{
-+	struct spi_device	*spi = to_spi_device(dev);
-+	struct ad7877		*ts = dev_get_drvdata(dev);
-+	struct ser_req		*req = kzalloc(sizeof *req, GFP_KERNEL);
-+	int			status;
-+	int			sample;
-+	int			i;
-+
-+	if (!req)
-+		return -ENOMEM;
-+
-+	spi_message_init(&req->msg);
-+
-+	/* activate reference, so it has time to settle; */
-+	req->ref_on = AD7877_WRITEADD(AD7877_REG_CTRL2) | AD7877_POL(ts->stopacq_polarity) |\
-+			 AD7877_AVG(0) | AD7877_PM(2) | AD7877_TMR(0) |\
-+			 AD7877_ACQ(ts->acquisition_time) | AD7877_FCD(0);
-+
-+	req->command = (u16) command;
-+
-+	req->xfer[0].tx_buf = &req->ref_on;
-+	req->xfer[0].len = 2;
-+	req->xfer[0].delay_usecs = ts->vref_delay_usecs;
-+
-+	req->xfer[1].tx_buf = &req->command;
-+	req->xfer[1].len = 2;
-+	req->xfer[1].delay_usecs = ts->vref_delay_usecs;
-+
-+	req->xfer[2].rx_buf = &req->sample;
-+	req->xfer[2].len = 2;
-+
-+	req->xfer[3].tx_buf = &ts->cmd_crtl2;	/*REF OFF*/
-+	req->xfer[3].len = 2;
-+
-+	req->xfer[4].tx_buf = &ts->cmd_crtl1;	/*DEFAULT*/
-+	req->xfer[4].len = 2;
-+
-+	/* group all the transfers together, so we can't interfere with
-+	 * reading touchscreen state; disable penirq while sampling
-+	 */
-+	for (i = 0; i < 5; i++)
-+		spi_message_add_tail(&req->xfer[i], &req->msg);
-+
-+	ts->irq_disabled = 1;
-+	disable_irq(spi->irq);
-+	status = spi_sync(spi, &req->msg);
-+	ts->irq_disabled = 0;
-+	enable_irq(spi->irq);
-+
-+	if (req->msg.status)
-+		status = req->msg.status;
-+
-+	sample = req->sample;
-+
-+	kfree(req);
-+	return status ? status : sample;
-+}
-+
-+#define SHOW(name) static ssize_t \
-+name ## _show(struct device *dev, struct device_attribute *attr, char *buf) \
-+{ \
-+	ssize_t v = ad7877_read_adc(dev, \
-+			AD7877_READ_CHAN(name)); \
-+	if (v < 0) \
-+		return v; \
-+	return sprintf(buf, "%u\n", (unsigned) v); \
-+} \
-+static DEVICE_ATTR(name, S_IRUGO, name ## _show, NULL);
-+
-+SHOW(aux1)
-+SHOW(aux2)
-+SHOW(aux3)
-+SHOW(bat1)
-+SHOW(bat2)
-+SHOW(temp1)
-+SHOW(temp2)
-+
-+static ssize_t ad7877_disable_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	struct ad7877	*ts = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", ts->disabled);
-+}
-+
-+static ssize_t ad7877_disable_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(dev);
-+	char *endp;
-+	int i;
-+
-+	i = simple_strtoul(buf, &endp, 10);
-+
-+	if (i)
-+		ad7877_disable(ts);
-+	else
-+		ad7877_enable(ts);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(disable, 0664, ad7877_disable_show, ad7877_disable_store);
-+
-+static ssize_t ad7877_dac_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	struct ad7877	*ts = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", ts->dac);
-+}
-+
-+static ssize_t ad7877_dac_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(dev);
-+	char *endp;
-+	int i;
-+
-+	i = simple_strtoul(buf, &endp, 10);
-+
-+	ts->dac = i & 0xFF;
-+
-+	ad7877_write(dev, AD7877_REG_DAC, (ts->dac << 4) | AD7877_DAC_CONF);
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(dac, 0664, ad7877_dac_show, ad7877_dac_store);
-+
-+static ssize_t ad7877_gpio3_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	struct ad7877	*ts = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", ts->gpio3);
-+}
-+
-+static ssize_t ad7877_gpio3_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(dev);
-+	char *endp;
-+	int i;
-+
-+	i = simple_strtoul(buf, &endp, 10);
-+
-+	if (i) {
-+		ts->gpio3=1;
-+	} else {
-+		ts->gpio3=0;
-+	}
-+
-+	ad7877_write(dev, AD7877_REG_EXTWRITE, AD7877_EXTW_GPIO_DATA | (ts->gpio4 << 4) | (ts->gpio3 << 5));
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(gpio3, 0664, ad7877_gpio3_show, ad7877_gpio3_store);
-+
-+static ssize_t ad7877_gpio4_show(struct device *dev,
-+				     struct device_attribute *attr, char *buf)
-+{
-+	struct ad7877	*ts = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%u\n", ts->gpio4);
-+}
-+
-+static ssize_t ad7877_gpio4_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(dev);
-+	char *endp;
-+	int i;
-+
-+	i = simple_strtoul(buf, &endp, 10);
-+
-+	if (i) {
-+		ts->gpio4=1;
-+	} else {
-+		ts->gpio4=0;
-+	}
-+
-+	ad7877_write(dev, AD7877_REG_EXTWRITE, AD7877_EXTW_GPIO_DATA | (ts->gpio4 << 4) | (ts->gpio3 << 5));
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR(gpio4, 0664, ad7877_gpio4_show, ad7877_gpio4_store);
-+
-+static struct attribute *ad7877_attributes[] = {
-+	&dev_attr_temp1.attr,
-+	&dev_attr_temp2.attr,
-+	&dev_attr_aux1.attr,
-+	&dev_attr_aux2.attr,
-+	&dev_attr_bat1.attr,
-+	&dev_attr_bat2.attr,
-+	&dev_attr_disable.attr,
-+	&dev_attr_dac.attr,
-+	&dev_attr_gpio4.attr,
-+	NULL
++static unsigned short ignore[] = { I2C_CLIENT_END };
++static unsigned short normal_addr[] = { AD7142_I2C_ADDR, I2C_CLIENT_END };
++
++static struct i2c_client_address_data addr_data = {
++	.normal_i2c = normal_addr,
++	.probe = ignore,
++	.ignore = ignore,
 +};
 +
-+static const struct attribute_group ad7877_attr_group = {
-+	.attrs = ad7877_attributes,
++static int ad7142_attach(struct i2c_adapter *adap);
++static int ad7142_detach(struct i2c_client *client);
++
++static struct i2c_driver ad7142_driver = {
++	.driver = {
++		.name = AD7142_DRV_NAME,
++	},
++	.id = AD7142_I2C_ID,
++	.attach_adapter = ad7142_attach,
++	.detach_client = ad7142_detach,
 +};
 +
-+/*--------------------------------------------------------------------------*/
-+
-+/*
-+ * /DAV Data available Interrupt only kicks the kthread.
-+ * The kthread kicks the timer only to issue the Pen Up Event if
-+ * no new data is available
-+ *
-+ */
-+
-+static void ad7877_rx(void *ads)
++static irqreturn_t ad7142_interrupt(int irq, void *_data)
 +{
-+	struct ad7877		*ts = ads;
-+	struct input_dev	*input_dev = ts->input;
-+	unsigned		Rt;
-+	u16			x, y, z1, z2;
++	struct ad7142_data *data = _data;
 +
-+	x = ts->conversion_data[AD7877_SEQ_XPOS] & MAX_12BIT;
-+	y = ts->conversion_data[AD7877_SEQ_YPOS]& MAX_12BIT;
-+	z1 = ts->conversion_data[AD7877_SEQ_Z1] & MAX_12BIT;
-+	z2 = ts->conversion_data[AD7877_SEQ_Z2] & MAX_12BIT;
-+
-+	/* range filtering */
-+	if (x == MAX_12BIT)
-+		x = 0;
-+
-+	if (likely(x && z1 && !device_suspended(&ts->spi->dev))) {
-+		/* compute touch pressure resistance using equation #2 */
-+		Rt = z2;
-+		Rt -= z1;
-+		Rt *= x;
-+		Rt *= ts->x_plate_ohms;
-+		Rt /= z1;
-+		Rt = (Rt + 2047) >> 12;
-+	} else
-+		Rt = 0;
-+
-+	if (Rt) {
-+		input_report_abs(input_dev, ABS_X, x);
-+		input_report_abs(input_dev, ABS_Y, y);
-+		input_report_abs(input_dev, ABS_PRESSURE, Rt);
-+		input_sync(input_dev);
-+	}
-+
-+#ifdef	VERBOSE
-+	if (Rt)
-+		pr_debug("%s: %d/%d/%d%s\n", ts->spi->dev.bus_id,
-+			x, y, Rt, Rt ? "" : " UP");
-+#endif
-+
-+}
-+
-+static inline void ad7877_ts_event_release(struct ad7877 *ts)
-+{
-+	struct input_dev *input_dev = ts->input;
-+
-+	input_report_abs(input_dev, ABS_PRESSURE, 0);
-+	input_sync(input_dev);
-+}
-+
-+static void ad7877_timer(unsigned long handle)
-+{
-+	struct ad7877	*ts = (void *)handle;
-+
-+	ad7877_ts_event_release(ts);
-+}
-+
-+
-+static irqreturn_t ad7877_irq(int irq, void *handle)
-+{
-+	struct ad7877 *ts = handle;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&ts->lock, flags);
-+
-+	if (!ts->irq_disabled) {
-+		ts->irq_disabled = 1;
-+		disable_irq(ts->spi->irq);
-+		ts->pending = 1;
-+	}
-+
-+	ts->intr_flag = 1;
-+
-+	wake_up_interruptible(&ad7877_wait);
-+
-+	spin_unlock_irqrestore(&ts->lock, flags);
++	schedule_work(&data->work);
 +
 +	return IRQ_HANDLED;
 +}
 +
-+
-+static int ad7877_thread(void *_ts)
++static int ad7142_i2c_write(struct i2c_client *client, unsigned short offset,
++		unsigned short *data, unsigned int len)
 +{
-+	struct ad7877 *ts = _ts;
-+	int status;
-+	unsigned long flags;
++	int ret = -1;
++	int i;
++	u8 block_data[34];
 +
-+        do {
-+		wait_event_interruptible(ad7877_wait, kthread_should_stop() || (ts->intr_flag!=0));
-+
-+		if(ts->intr_flag) {
-+			status = spi_sync(ts->spi, &ts->msg);
-+			if (status)
-+				dev_err(&ts->spi->dev, "spi_sync --> %d\n", status);
-+
-+			ad7877_rx(ts);
-+
-+			spin_lock_irqsave(&ts->lock, flags);
-+
-+	                ts->intr_flag = 0;
-+			ts->pending = 0;
-+
-+			if (!device_suspended(&ts->spi->dev)) {
-+				ts->irq_disabled = 0;
-+				enable_irq(ts->spi->irq);
-+				mod_timer(&ts->timer, jiffies + TS_PEN_UP_TIMEOUT);
-+			}
-+
-+			spin_unlock_irqrestore(&ts->lock, flags);
-+		}
-+        	try_to_freeze();
-+        } while (!kthread_should_stop());
-+        printk(KERN_DEBUG "ad7877: ktsd kthread exiting\n");
-+        return 0;
-+}
-+
-+
-+/*--------------------------------------------------------------------------*/
-+
-+/* Must be called with ts->lock held */
-+static void ad7877_disable(struct ad7877 *ts)
-+{
-+	unsigned long flags;
-+
-+	if (ts->disabled)
-+		return;
-+
-+	ts->disabled = 1;
-+
-+	if (!ts->pending) {
-+		spin_lock_irqsave(&ts->lock, flags);
-+		ts->irq_disabled = 1;
-+		disable_irq(ts->spi->irq);
-+		spin_unlock_irqrestore(&ts->lock, flags);
-+	} else {
-+		/* the kthread will run at least once more, and
-+		 * leave everything in a clean state, IRQ disabled
-+		 */
-+		while (ts->pending)
-+			msleep(1);
-+
++	if (len < 1 || len > 16) {
++		printk(KERN_ERR "AD7142: Write data length error\n");
++		return ret;
 +	}
 +
-+	/* we know the chip's in lowpower mode since we always
-+	 * leave it that way after every request
++	/* Do raw I2C, not smbus compatible */
++	block_data[0] = (offset & 0xFF00) >> 8;
++	block_data[1] = (offset & 0x00FF);
++
++	for (i = 0; i < len; i++) {
++		block_data[2 * i + 2] = (*data & 0xFF00) >> 8;
++		block_data[2 * i + 3] = *data++ & 0x00FF;
++	}
++
++	ret = i2c_master_send(client, block_data, (len * 2 + 2));
++	if (ret < 0) {
++		printk(KERN_ERR "AD7142: I2C write error\n");
++		return ret;
++	}
++
++	return ret;
++}
++
++static int ad7142_i2c_read(struct i2c_client *client, unsigned short offset,
++		unsigned short *data, unsigned int len)
++{
++	int ret = -1;
++	int i;
++	u8 block_data[32];
++
++	if (len < 1 || len > 16) {
++		printk(KERN_ERR "AD7142: read data length error\n");
++		return ret;
++	}
++
++	/* Do raw I2C, not smbus compatible */
++	block_data[0] = (offset & 0xFF00) >> 8;
++	block_data[1] = (offset & 0x00FF);
++
++	ret = i2c_master_send(client, block_data, 2);
++	if (ret < 0) {
++		printk(KERN_ERR "AD7142: I2C read error\n");
++		return ret;
++	}
++
++	ret = i2c_master_recv(client, block_data, len * 2);
++	if (ret < 0) {
++		printk(KERN_ERR "AD7142: I2C transfer error\n");
++		return ret;
++	}
++
++	for (i = 0; i < len; i++) {
++		unsigned short temp;
++		temp = block_data[2 * i];
++		temp = (temp << 8) & 0xFF00;
++		*data++ = temp | block_data[2 * i + 1];
++	}
++
++	return ret;
++}
++
++static void ad7142_work(struct work_struct *work)
++{
++	struct ad7142_data *data = container_of(work, struct ad7142_data, work);
++	struct i2c_client *client = &data->client;
++	struct input_dev *input_dev = data->input_dev;
++	unsigned short irqno_low, irqno_high;
++	unsigned short temp;
++
++	ad7142_i2c_read(client, INTSTAT_REG0, &irqno_low, 1);
++	temp = irqno_low ^ data->old_status_low;
++	switch (temp) {
++	case 0x0001:
++		input_report_key(input_dev, BTN_BASE, (irqno_low & 0x0001));
++		break;
++	case 0x0002:
++		input_report_key(input_dev, BTN_BASE4,
++					((irqno_low & 0x0002) >> 1));
++		break;
++	case 0x0004:
++		input_report_key(input_dev, KEY_UP,
++					((irqno_low & 0x0004) >> 2));
++		break;
++	case 0x0008:
++		input_report_key(input_dev, KEY_RIGHT,
++					((irqno_low & 0x0008) >> 3));
++		break;
++	}
++	data->old_status_low = irqno_low;
++
++	ad7142_i2c_read(client, INTSTAT_REG1, &irqno_high, 1);
++	temp = irqno_high ^ data->old_status_high;
++	switch (temp) {
++	case 0x0001:
++		input_report_key(input_dev, BTN_BASE2, irqno_high & 0x0001);
++		break;
++	case 0x0002:
++		input_report_key(input_dev, BTN_BASE3,
++					((irqno_high & 0x0002) >> 1));
++		break;
++	case 0x0004:
++		input_report_key(input_dev, KEY_DOWN,
++					((irqno_high & 0x0004) >> 2));
++		break;
++	case 0x0008:
++		input_report_key(input_dev, KEY_LEFT,
++					((irqno_high & 0x0008) >> 3));
++		break;
++	}
++	data->old_status_high = irqno_high;
++
++	input_sync(input_dev);
++}
++
++static int ad7142_open(struct input_dev *dev)
++{
++	struct ad7142_data *data = input_get_drvdata(dev);
++	struct i2c_client *client = &data->client;
++	unsigned short id, value;
++
++	ad7142_i2c_read(client, DEVID, &id, 1);
++	if (id != AD7142_I2C_ID) {
++		printk(KERN_ERR "Open AD7142 error\n");
++		return -ENODEV;
++	}
++
++	ad7142_i2c_write(client, STAGE0_CONNECTION, stage[0], 8);
++	ad7142_i2c_write(client, STAGE1_CONNECTION, stage[1], 8);
++	ad7142_i2c_write(client, STAGE2_CONNECTION, stage[2], 8);
++	ad7142_i2c_write(client, STAGE3_CONNECTION, stage[3], 8);
++	ad7142_i2c_write(client, STAGE4_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE5_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE6_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE7_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE8_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE9_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE10_CONNECTION, stage[4], 8);
++	ad7142_i2c_write(client, STAGE11_CONNECTION, stage[4], 8);
++
++	/* In full power mode */
++	value = 0x00B0;
++	ad7142_i2c_write(client, PWRCONVCTL, &value, 1);
++
++	value = 0x0690;
++	ad7142_i2c_write(client, AMBCOMPCTL_REG1, &value, 1);
++
++	value = 0x0664;
++	ad7142_i2c_write(client, AMBCOMPCTL_REG2, &value, 1);
++
++	value = 0x290F;
++	ad7142_i2c_write(client, AMBCOMPCTL_REG3, &value, 1);
++
++	value = 0x000F;
++	ad7142_i2c_write(client, INTEN_REG0, &value, 1);
++	ad7142_i2c_write(client, INTEN_REG1, &value, 1);
++
++	value = 0x0000;
++	ad7142_i2c_write(client, INTEN_REG2, &value, 1);
++
++	ad7142_i2c_read(client, AMBCOMPCTL_REG1, &value, 1);
++
++	value = 0x000F;
++	ad7142_i2c_write(client, AMBCOMPCTL_REG0, &value, 1);
++
++	return 0;
++}
++
++static void ad7142_close(struct input_dev *dev)
++{
++	struct ad7142_data *data = input_get_drvdata(dev);
++	struct i2c_client *client = &data->client;
++	unsigned short value;
++
++	flush_scheduled_work();
++
++	/*
++	 * Turn AD7142 to full shutdown mode
++	 * No CDC conversions
 +	 */
-+
++	value = 0x0001;
++	ad7142_i2c_write(client, PWRCONVCTL, &value, 1);
 +}
 +
-+/* Must be called with ts->lock held */
-+static void ad7877_enable(struct ad7877 *ts)
++static int ad7142_probe(struct i2c_adapter *adap, int addr, int kind)
 +{
-+	unsigned long flags;
++	struct ad7142_data *data;
++	struct i2c_client *client;
++	struct input_dev *input_dev;
++	int rc;
 +
-+	if (!ts->disabled)
-+		return;
++	data = kzalloc(sizeof(struct ad7142_data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
 +
-+	spin_lock_irqsave(&ts->lock, flags);
-+	ts->disabled = 0;
-+	ts->irq_disabled = 0;
-+	enable_irq(ts->spi->irq);
-+	spin_unlock_irqrestore(&ts->lock, flags);
-+}
++	client = &data->client;
 +
-+static int ad7877_suspend(struct spi_device *spi, pm_message_t message)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(&spi->dev);
++	strlcpy(client->name, AD7142_DRV_NAME, I2C_NAME_SIZE);
++	client->addr = addr;
++	client->adapter = adap;
++	client->driver = &ad7142_driver;
 +
-+	spi->dev.power.power_state = message;
-+	ad7877_disable(ts);
++	rc = i2c_attach_client(client);
++	if (rc) {
++		printk(KERN_ERR "i2c_attach_client fail: %d\n", rc);
++		goto fail_attach;
++	}
++
++	/*
++	 * The ADV7142 has an autoincrement function,
++	 * use it if the adapter understands raw I2C
++	 */
++	rc = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
++	if (!rc) {
++		printk(KERN_ERR
++			"AD7142: i2c bus doesn't support raw I2C operation\n");
++		rc = -ENOSYS;
++		goto fail_check;
++	}
++
++	/* Start workqueue for defer message transfer */
++	INIT_WORK(&data->work, ad7142_work);
++
++	rc = request_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt,
++			IRQF_TRIGGER_LOW, "ad7142_joy", data);
++	if (rc) {
++		printk(KERN_ERR "AD7142: Can't allocate irq %d\n",
++			CONFIG_BFIN_JOYSTICK_IRQ_PFX);
++		goto fail_check;
++	}
++
++	printk(KERN_INFO "%s_attach: at 0x%02x\n",
++			client->name, client->addr << 1);
++
++	/* Allocate and register AD7142 input device */
++	data->input_dev = input_allocate_device();
++	if (!data->input_dev) {
++		printk(KERN_ERR "AD7142: Can't allocate input device\n");
++		rc = -ENOMEM;
++		goto fail_allocate;
++	}
++
++	input_dev = data->input_dev;
++	input_dev->open = ad7142_open;
++	input_dev->close = ad7142_close;
++	input_dev->evbit[0] = BIT(EV_KEY);
++	input_dev->keybit[LONG(BTN_BASE)] = BIT(BTN_BASE) | BIT(BTN_BASE2) |
++						BIT(BTN_BASE3) | BIT(BTN_BASE4);
++	input_dev->keybit[LONG(KEY_UP)] |= BIT(KEY_UP) | BIT(KEY_DOWN) |
++						BIT(KEY_LEFT) | BIT(KEY_RIGHT);
++
++	input_dev->name = "ad7142 joystick";
++	input_dev->phys = "ad7142/input0";
++	input_dev->id.bustype = BUS_I2C;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++
++	input_set_drvdata(input_dev, data);
++
++	rc = input_register_device(input_dev);
++	if (rc) {
++		printk(KERN_ERR "Failed to register AD7142 input device!\n");
++		goto fail_register;
++	}
 +
 +	return 0;
 +
-+}
-+
-+static int ad7877_resume(struct spi_device *spi)
-+{
-+	struct ad7877 *ts = dev_get_drvdata(&spi->dev);
-+
-+	spi->dev.power.power_state = PMSG_ON;
-+	ad7877_enable(ts);
-+
-+	return 0;
-+}
-+
-+static inline void ad7877_setup_ts_def_msg(struct spi_device *spi, struct ad7877 *ts)
-+{
-+	struct spi_message	*m;
-+
-+	ts->cmd_crtl2 = AD7877_WRITEADD(AD7877_REG_CTRL2) | AD7877_POL(ts->stopacq_polarity) |\
-+			AD7877_AVG(ts->averaging) | AD7877_PM(1) |\
-+			AD7877_TMR(ts->pen_down_acc_interval) | AD7877_ACQ(ts->acquisition_time) |\
-+			AD7877_FCD(ts->first_conversion_delay);
-+
-+	ad7877_write((struct device *) spi, AD7877_REG_CTRL2, ts->cmd_crtl2);
-+
-+	ts->cmd_crtl1 = AD7877_WRITEADD(AD7877_REG_CTRL1) | AD7877_READADD(AD7877_REG_XPLUS-1) |\
-+			AD7877_MODE_SEQ1 | AD7877_DFR;
-+
-+	ad7877_write((struct device *) spi, AD7877_REG_CTRL1, ts->cmd_crtl1);
-+
-+	ts->cmd_dummy = 0;
-+
-+	m = &ts->msg;
-+
-+	spi_message_init(m);
-+
-+	ts->xfer[0].tx_buf = &ts->cmd_crtl1;
-+	ts->xfer[0].len = 2;
-+
-+	spi_message_add_tail(&ts->xfer[0], m);
-+
-+	ts->xfer[1].tx_buf = &ts->cmd_dummy; /* Send ZERO */
-+	ts->xfer[1].len = 2;
-+
-+	spi_message_add_tail(&ts->xfer[1], m);
-+
-+	ts->xfer[2].rx_buf = &ts->conversion_data[AD7877_SEQ_YPOS];
-+	ts->xfer[2].len = AD7877_NR_SENSE * sizeof(u16);
-+
-+	spi_message_add_tail(&ts->xfer[2], m);
-+}
-+
-+static int __devinit ad7877_probe(struct spi_device *spi)
-+{
-+	struct ad7877			*ts;
-+	struct input_dev		*input_dev;
-+	struct ad7877_platform_data	*pdata = spi->dev.platform_data;
-+	int				err;
-+	u16				verify;
-+
-+	if (!spi->irq) {
-+		dev_dbg(&spi->dev, "no IRQ?\n");
-+		return -ENODEV;
-+	}
-+
-+	if (!pdata) {
-+		dev_dbg(&spi->dev, "no platform data?\n");
-+		return -ENODEV;
-+	}
-+
-+	/* don't exceed max specified SPI CLK frequency */
-+	if (spi->max_speed_hz > MAX_SPI_FREQ_HZ) {
-+		dev_dbg(&spi->dev, "SPI CLK %d Hz?\n",spi->max_speed_hz);
-+		return -EINVAL;
-+	}
-+
-+	ts = kzalloc(sizeof(struct ad7877), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!ts || !input_dev) {
-+		err = -ENOMEM;
-+		goto err_free_mem;
-+	}
-+
-+	dev_set_drvdata(&spi->dev, ts);
-+	spi->dev.power.power_state = PMSG_ON;
-+
-+	ts->spi = spi;
-+	ts->input = input_dev;
-+	ts->intr_flag = 0;
-+
-+	setup_timer(&ts->timer, ad7877_timer, (unsigned long) ts);
-+
-+	spin_lock_init(&ts->lock);
-+
-+	ts->model = pdata->model ? : 7877;
-+	ts->vref_delay_usecs = pdata->vref_delay_usecs ? : 100;
-+	ts->x_plate_ohms = pdata->x_plate_ohms ? : 400;
-+	ts->pressure_max = pdata->pressure_max ? : ~0;
-+
-+	ts->stopacq_polarity = pdata->stopacq_polarity;
-+	ts->first_conversion_delay = pdata->first_conversion_delay;
-+	ts->acquisition_time = pdata->acquisition_time;
-+	ts->averaging = pdata->averaging;
-+	ts->pen_down_acc_interval = pdata->pen_down_acc_interval;
-+
-+	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", spi->dev.bus_id);
-+
-+	input_dev->name = "AD7877 Touchscreen";
-+	input_dev->phys = ts->phys;
-+	input_dev->dev.parent = &spi->dev;
-+
-+	__set_bit(EV_ABS, input_dev->evbit);
-+	__set_bit(ABS_X, input_dev->absbit);
-+	__set_bit(ABS_Y, input_dev->absbit);
-+	__set_bit(ABS_PRESSURE, input_dev->absbit);
-+
-+	input_set_abs_params(input_dev, ABS_X,
-+			pdata->x_min ? : 0,
-+			pdata->x_max ? : MAX_12BIT,
-+			0, 0);
-+	input_set_abs_params(input_dev, ABS_Y,
-+			pdata->y_min ? : 0,
-+			pdata->y_max ? : MAX_12BIT,
-+			0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE,
-+			pdata->pressure_min, pdata->pressure_max, 0, 0);
-+
-+	ad7877_write((struct device *) spi, AD7877_REG_SEQ1, AD7877_MM_SEQUENCE);
-+
-+	verify = ad7877_read((struct device *) spi, AD7877_REG_SEQ1);
-+
-+	if (verify != AD7877_MM_SEQUENCE){
-+		printk(KERN_ERR "%s: Failed to probe %s\n", spi->dev.bus_id, input_dev->name);
-+		err = -ENODEV;
-+		goto err_free_mem;
-+	}
-+
-+	if(gpio3)
-+		ad7877_write((struct device *) spi, AD7877_REG_EXTWRITE, AD7877_EXTW_GPIO_3_CONF);
-+
-+	ad7877_setup_ts_def_msg(spi, ts);
-+
-+	/* Request AD7877 /DAV GPIO interrupt */
-+
-+	if (request_irq(spi->irq, ad7877_irq, IRQF_TRIGGER_LOW,
-+			spi->dev.driver->name, ts)) {
-+		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
-+		err = -EBUSY;
-+		goto err_free_mem;
-+	}
-+
-+	dev_info(&spi->dev, "touchscreen, irq %d\n", spi->irq);
-+
-+	err = sysfs_create_group(&spi->dev.kobj, &ad7877_attr_group);
-+	if (err)
-+		goto err_remove_attr;
-+
-+	if(gpio3)
-+		err = device_create_file(&spi->dev, &dev_attr_gpio3);
-+	else
-+		err = device_create_file(&spi->dev, &dev_attr_aux3);
-+
-+	if (err)
-+		goto err_remove_attr;
-+
-+	err = input_register_device(input_dev);
-+	if (err)
-+		goto err_remove_attr;
-+
-+	ts->intr_flag = 0;
-+
-+	ad7877_task = kthread_run(ad7877_thread, ts, "ad7877_ktsd");
-+
-+        if (IS_ERR(ad7877_task)) {
-+		printk(KERN_ERR "ts: Failed to start ad7877_task\n");
-+		goto err_unregister_idev;
-+        }
-+
-+	return 0;
-+
-+err_unregister_idev:
-+	input_unregister_device(input_dev);
-+	input_dev = NULL; /* so we don't try to free it later */
-+
-+err_remove_attr:
-+
-+	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
-+
-+	if(gpio3)
-+		device_remove_file(&spi->dev, &dev_attr_gpio3);
-+	else
-+		device_remove_file(&spi->dev, &dev_attr_aux3);
-+
-+	free_irq(spi->irq, ts);
-+
-+err_free_mem:
++fail_register:
 +	input_free_device(input_dev);
-+	kfree(ts);
-+	dev_set_drvdata(&spi->dev, NULL);
-+	return err;
++fail_allocate:
++	free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
++fail_check:
++	i2c_detach_client(client);
++fail_attach:
++	kfree(client);
++	return rc;
 +}
 +
-+static int __devexit ad7877_remove(struct spi_device *spi)
++static int ad7142_attach(struct i2c_adapter *adap)
 +{
-+	struct ad7877		*ts = dev_get_drvdata(&spi->dev);
-+
-+	ad7877_suspend(spi, PMSG_SUSPEND);
-+
-+	kthread_stop(ad7877_task);
-+
-+	sysfs_remove_group(&spi->dev.kobj, &ad7877_attr_group);
-+
-+	if(gpio3)
-+		device_remove_file(&spi->dev, &dev_attr_gpio3);
-+	else
-+		device_remove_file(&spi->dev, &dev_attr_aux3);
-+
-+	free_irq(ts->spi->irq, ts);
-+
-+	input_unregister_device(ts->input);
-+
-+	kfree(ts);
-+
-+	dev_dbg(&spi->dev, "unregistered touchscreen\n");
-+	dev_set_drvdata(&spi->dev, NULL);
-+
-+	return 0;
++	return i2c_probe(adap, &addr_data, &ad7142_probe);
 +}
 +
-+static struct spi_driver ad7877_driver = {
-+	.driver = {
-+		.name	= "ad7877",
-+		.bus	= &spi_bus_type,
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe		= ad7877_probe,
-+	.remove		= __devexit_p(ad7877_remove),
-+	.suspend	= ad7877_suspend,
-+	.resume		= ad7877_resume,
-+};
-+
-+static int __init ad7877_init(void)
++static int ad7142_detach(struct i2c_client *client)
 +{
-+	return spi_register_driver(&ad7877_driver);
-+}
-+module_init(ad7877_init);
++	int rc;
 +
-+static void __exit ad7877_exit(void)
++	free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
++
++	flush_scheduled_work();
++
++	rc = i2c_detach_client(client);
++	if (!rc)
++		kfree(i2c_get_clientdata(client));
++	return rc;
++}
++
++
++static int __init ad7142_init(void)
 +{
-+	spi_unregister_driver(&ad7877_driver);
++	return i2c_add_driver(&ad7142_driver);
 +}
-+module_exit(ad7877_exit);
 +
-+module_param(gpio3, int, 0);
-+MODULE_PARM_DESC(gpio3,
-+	"If gpio3 is set to 1 AUX3 acts as GPIO3");
++static void __exit ad7142_exit(void)
++{
++	i2c_del_driver(&ad7142_driver);
++}
 +
-+MODULE_DESCRIPTION("ad7877 TouchScreen Driver");
-+MODULE_LICENSE("GPL");
++module_init(ad7142_init);
++module_exit(ad7142_exit);
 -- 
 1.5.3.4

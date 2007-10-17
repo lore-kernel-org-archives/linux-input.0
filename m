@@ -1,89 +1,75 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick driver
-Date: Wed, 17 Oct 2007 12:12:38 -0400
-Message-ID: <d120d5000710170912o3503a0f8s55bb4b7294f80e58@mail.gmail.com>
-References: <1192605120.7920.15.camel@roc-laptop>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick  driver
+Date: Wed, 17 Oct 2007 15:14:40 -0400
+Message-ID: <200710171514.40941.rgetz@blackfin.uclinux.org>
+References: <1192605120.7920.15.camel@roc-laptop> <20071017160702.3316fc24@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1192605120.7920.15.camel@roc-laptop>
+In-Reply-To: <20071017160702.3316fc24@hyperion.delvare>
 Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: bryan.wu@analog.com
-Cc: Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: bryan.wu@analog.com, Andrey Panin <pazke@donpac.ru>, Roel Kluin <12o3l@tiscali.nl>, "Ahmed S. Darwish" <darwish.07@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Bryan,
+On Wed 17 Oct 2007 10:07, Jean Delvare pondered:
+> Hi Bryan,
+> 
+> On Wed, 17 Oct 2007 15:12:00 +0800, Bryan Wu wrote:
+> > Subject: [PATCH try #4] Input/Joystick Driver: add support AD7142
+> joystick driver
+> > +#define AD7142_I2C_ADDR		0x2C
+> 
+> Not worth a define IMHO, as you use it only once and the context is
+> completely clear.
 
-On 10/17/07, Bryan Wu <bryan.wu@analog.com> wrote:
-> Subject: [PATCH try #4] Input/Joystick Driver: add support AD7142 joystick driver
->
+> > +static int ad7142_probe(struct i2c_adapter *adap, int addr, int kind)
+> > +{
+> > +	struct ad7142_data *data;
+> > +	struct i2c_client *client;
+> > +	struct input_dev *input_dev;
+> > +	int rc;
+> > +
+> > +	data = kzalloc(sizeof(struct ad7142_data), GFP_KERNEL);
+> > +	if (!data)
+> > +		return -ENOMEM;
+> > +
+> > +	client = &data->client;
+> > +
+> > +	strlcpy(client->name, AD7142_DRV_NAME, I2C_NAME_SIZE);
+> > +	client->addr = addr;
+> > +	client->adapter = adap;
+> > +	client->driver = &ad7142_driver;
+> > +
+> 
+> This is unsafe: you're not doing any kind of detection here. 
 
-My comments are in addition to Jean's:
+I assume that in order to do things "right", all possible addresses should be 
+probed (for this part, that is 0x2C, 0x2D, 0x2E, 0x2F)?
 
-> +
-> +static void ad7142_close(struct input_dev *dev)
-> +{
-> +       struct ad7142_data *data = input_get_drvdata(dev);
-> +       struct i2c_client *client = &data->client;
-> +       unsigned short value;
-> +
+And it should read a device ID (register 0x17 == 0xE62n (where n==rev number))
 
-I think you need disable_irq() here
+How many values/registers do you need to read before you say "this is the 
+one"? rather than a temp sensor with a similar value somewhere. Is there a 
+table anywhere that maps this out?
 
-> +       flush_scheduled_work();
-> +
-> +       /*
-> +        * Turn AD7142 to full shutdown mode
-> +        * No CDC conversions
-> +        */
-> +       value = 0x0001;
-> +       ad7142_i2c_write(client, PWRCONVCTL, &value, 1);
+It is pretty difficult just to probe on reset values, since that disallows 
+warm resets. This part - like most other I2C parts, has no external reset, 
+only software reset.
 
-and enable_irq() here. This way you can be sure that you will not
-re-arm the work between flush_scheduled_work() and shutting off the
-controller.
+> The risk is mitigated by the fact
+> that your driver is currently built for Blackfin only, but this might
+> change in the future. 
 
-> +
-> +static int ad7142_attach(struct i2c_adapter *adap)
-> +{
-> +       return i2c_probe(adap, &addr_data, &ad7142_probe);
-> +}
-> +
-> +static int ad7142_detach(struct i2c_client *client)
-> +{
-> +       int rc;
-> +
-> +       free_irq(CONFIG_BFIN_JOYSTICK_IRQ_PFX, ad7142_interrupt);
-> +
-> +       flush_scheduled_work();
-> +
-> +       rc = i2c_detach_client(client);
-> +       if (!rc)
-> +               kfree(i2c_get_clientdata(client));
-> +       return rc;
-> +}
-> +
-> +
-> +static int __init ad7142_init(void)
-> +{
-> +       return i2c_add_driver(&ad7142_driver);
-> +}
-> +
-> +static void __exit ad7142_exit(void)
-> +{
-> +       i2c_del_driver(&ad7142_driver);
-> +}
-> +
-> +module_init(ad7142_init);
-> +module_exit(ad7142_exit);
+The hope is that others can use it - it shouldn't be specific to Blackfin.
 
-Where did input_unregister_device() go? It still needs to be somewhere...
-
--- 
-Dmitry
+> This is a very good reason to switch to a 
+> new-style i2c driver.
+> 

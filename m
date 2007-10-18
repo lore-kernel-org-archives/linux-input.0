@@ -1,37 +1,40 @@
-From: Bryan Wu <bryan.wu@analog.com>
-Subject: [PATCH 1/1] INPUT/BF54x-KEYPAD driver:  Remove useless line -errno returned by irq_request
-Date: Thu, 18 Oct 2007 13:57:35 +0800
-Message-ID: <1192687055-11935-1-git-send-email-bryan.wu@analog.com>
+From: "benji jana" <hurst@faxsav.com>
+Subject: Local representatives wanted. Successful international company is looking for talented people. No investment is needed.
+Date: Thu, 18 Oct 2007 09:47:21 +0000
+Message-ID: <000701c8117a$07959b88$eb23d892@msoqcr>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Cc: Andrey Panin <pazke@donpac.ru>, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <bryan.wu@analog.com>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+Big international commercial organization is looking for talented, honest,
+reliable representatives from different regions.
+The ideal candidate will be an intelligent person,
+someone who can work autonomously with a high degree of enthusiasm.
+We are looking for highly motivated professionals, with experience in marketing field.
+The position is home-based.
+We offer a part-time position with flexible working hours.
+And we would be happy to consider a full-time job share candidate. 
+Our Company offers a very competitive salary to the successful candidate,
+along with an unrivalled career progression opportunity.
+If you think you have what it takes to take on this challenge
+and would like to apply please send the following information to: AlishaSullivanDN@gmail.com
+1) Full name 
+2) Contact phone numbers 
+3) Part time job/Full time 
+You do not need to invest any sum of money and we do not ask you to provide us with your bank account requisites!
+We are engaged in completely legal activity. 
+The preference is given to employees with knowledge of foreign languages. 
+Thank you and we are looking forward to cooperate in long term base with you. 
 
-Cc: Andrey Panin <pazke@donpac.ru>
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Bryan Wu <bryan.wu@analog.com>
----
- drivers/input/keyboard/bf54x-keys.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
-index a67b29b..e5f4da9 100644
---- a/drivers/input/keyboard/bf54x-keys.c
-+++ b/drivers/input/keyboard/bf54x-keys.c
-@@ -256,7 +256,6 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 		printk(KERN_ERR DRV_NAME
- 			": unable to claim irq %d; error %d\n",
- 			bf54x_kpad->irq, error);
--		error = -EBUSY;
- 		goto out2;
- 	}
- 
--- 
-1.5.3.4
+If you received this message in error, or would like to unsubscribe, please send a blank email to: MauricioBoydOF@gmail.com

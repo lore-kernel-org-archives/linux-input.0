@@ -1,81 +1,115 @@
-From: Ryan Lortie <desrt@desrt.ca>
-Subject: Re: [PATCH] Input: Support for a less exclusive grab.
-Date: Tue, 23 Oct 2007 11:57:38 -0400
-Message-ID: <1193155059.15426.15.camel@moonpix.desrt.ca>
-References: <20070609084800.GR6362@aehallh.com>
-	 <200706120120.00494.dtor@insightbb.com> <20070612052316.GX6362@aehallh.com>
-	 <200706120135.06428.dtor@insightbb.com> <20070612054031.GY6362@aehallh.com>
-	 <20070702152044.GA24665@suse.cz> <20070703164555.GA20370@aehallh.com>
-	 <1191035147.7025.28.camel@moonpix.desrt.ca>
-	 <d120d5000710230621j3913384cn37dbab1a764de31c@mail.gmail.com>
+From: "anurag asa" <parviz@suturex-renodex.com>
+Subject: Job hunting without the needed Degree?
+Date: Tue, 23 Oct 2007 15:37:18 +0000
+Message-ID: <000801c81599$021afbd9$0bfa60bb@chrep>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753960AbXJWP6T@vger.kernel.org>
-In-Reply-To: <d120d5000710230621j3913384cn37dbab1a764de31c@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Zephaniah E. Hull" <warp@aehallh.com>, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0005_01C81599.0219A137"
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 2007-23-10 at 09:21 -0400, Dmitry Torokhov wrote:
-> Priority/filter idea is different matter. I don't think it is a giood
-> solution. There will always be an "arms race", new applications would
-> like to get in front of the queue all the time and it will be hard to
-> manage. X should just keep console open in raw mode and simply ignore
-> all events coming from it while using evdev driver. I understand that
-> X's hotplug support is getting there so you should be able to switch
-> to pure evdev setup pretty easy.
+This is a multi-part message in MIME format.
 
-The only reason that I don't like the numeric priority system is that I
-believe it is arbitrary and a bit kludgy.  I don't think an arms race
-will be a problem.  We don't have a lot of closed source applications
-running as root on Linux and open source projects either choose sane
-values or get patched (by users, distributions, etc) or don't get used.
+------=_NextPart_000_0005_01C81599.0219A137
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-I do believe there needs to be some concept of filtering events in such
-a way that they reach some clients but not others -- that's half of the
-purpose of this thread.  rfkill wants to be able to see keypresses while
-they are kept away from X.  I'd be open to another way of handling this
-but I think any other way will necessarily be more complex to use.
 
-As for X using evdev, it still puts you in a position of two pieces of
-software being required to know what events have been (conceptually)
-"filtered" by various filters running on the system.  ie: the filter
-itself needs to know, and also X needs to know so that it can remove
-those key events from normal delivery.
+Want the degree but can't find the time?
+  WHAT A GREAT IDEA!
+  We provide a concept that will allow anyone with sufficient work =
+experience   to obtain a fully verifiable University Degree.
+  Bachelors, Masters or even a Doctorate.
+  Think of it, within four to six weeks, you too could be a college =
+graduate.
+  Many people share the same frustration, they are all doing the work of =
+the person   that has the degree and the person that has the degree is =
+getting all the money.
+  Don't you think that it is time you were paid fair compensation for =
+the level   of work you are already doing?
+  This is your chance to finally make the right move and receive your =
+due benefits.
+  If you are like most people, you are more than qualified with your =
+experience,   but are lacking that prestigious piece of paper known as a =
+diploma that is often   the passport to success.
+ =20
+CALL US TODAY AND GIVE YOUR WORK
+  EXPERIENCE THE CHANCE TO EARN YOU
+  THE HIGHER COMPENSATION YOU DESERVE!
+ =20
+1-z213-a291-z2175
+  more than three times as many as he had taken out before, so the clerk
+  living and Al, as they called the boy, went to work. He began selling
+  contributed to true greatness in the chosen field of endeavor of a =
+mind
+  the 'candy butchers' and their welcome stock."
+  "'Even as a small boy, before we moved away from Milan, I used to try =
+to
+  was active enough to have several narrow escapes from death. He =
+wouldn't
+ =20
+ =20
+  =20
+------=_NextPart_000_0005_01C81599.0219A137
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-So while I agree that the priority numbering is a bit kludgy (and have
-no particular affinity to it) I do think that some prioritising system
-is required and that pointing out the 'arms race' isn't a good reason to
-write the whole idea off.  I'd gladly accept another method.
-
-Note, of course, that the priorities mean nothing unless you actively
-switch on filtering.
-
-> >
-> >  - how should we decide what gets what priority level?
-> >
-> 
-> Exactly. You can't predict all future uses. There will always be
-> someone wanting to get in front of the line.
-
-Two proposals here:
-
-1) Modules like rfkill could have parameters to set priority level.
-Presumably, programs hooking in via evdev could also have their priority
-configurable.  Leave it up to distributions (or users installing their
-own software) to make sure everything is sane.
-
-2) For matters like this, an unsigned int is a large place.  We could
-easily use numbers like 10, 100, 1000 while still leaving plenty of room
-between them and possibility for expansion on either side.
-
-> Input core now has prper locking. You may take device's event_lock to
-> stop event propagation.
-
-noted.
-
-Thanks for the review
-
-Cheers
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY>
+<DIV align=3D"center"><B><FONT size=3D"3">Want the degree but can't find =
+the time?<BR>
+  </FONT></B>WHAT A GREAT IDEA!<BR>
+  We provide a concept that will allow anyone with sufficient work =
+experience=20
+  to obtain a fully verifiable University Degree.<BR>
+  Bachelors, Masters or even a Doctorate.<BR>
+  Think of it, within four to six weeks, you too could be a college =
+graduate.<BR>
+  Many people share the same frustration, they are all doing the work of =
+the person=20
+  that has the degree and the person that has the degree is getting all =
+the money.<BR>
+  Don't you think that it is time you were paid fair compensation for =
+the level=20
+  of work you are already doing?<BR>
+  This is your chance to finally make the right move and receive your =
+due benefits.<BR>
+  If you are like most people, you are more than qualified with your =
+experience,=20
+  but are lacking that prestigious piece of paper known as a diploma =
+that is often=20
+  the passport to success.<BR>
+  <B>CALL US TODAY AND GIVE YOUR WORK<BR>
+  EXPERIENCE THE CHANCE TO EARN YOU<BR>
+  THE HIGHER COMPENSATION YOU DESERVE!<BR>
+  </B><B><FONT color=3D"#FF3366">1-z213-a291-
+z2175</FONT><BR>
+  more than three times as many as he had taken out before, so the =
+clerk<BR>
+  living and Al, as they called the boy, went to work. He began =
+selling<BR>
+  contributed to true greatness in the chosen field of endeavor of a =
+mind<BR>
+  the 'candy butchers' and their welcome stock."<BR>
+  "'Even as a small boy, before we moved away from Milan, I used to try =
+to<BR>
+  was active enough to have several narrow escapes from death. He =
+wouldn't<BR>
+  <BR>
+  <BR>
+  </B> </DIV></BODY></HTML>
+------=_NextPart_000_0005_01C81599.0219A137--

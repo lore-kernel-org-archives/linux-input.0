@@ -1,145 +1,163 @@
-From: "Mac Toney" <stina.dalzell@universimed.com>
-Subject: Magic stick
-Date: Mon, 22 Oct 2007 10:21:07 -0500
-Message-ID: <01c81495$4226a290$7b7cd98e@stina.dalzell>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Support for a less exclusive grab.
+Date: Tue, 23 Oct 2007 09:21:41 -0400
+Message-ID: <d120d5000710230621j3913384cn37dbab1a764de31c@mail.gmail.com>
+References: <20070609084800.GR6362@aehallh.com>
+	 <200706120120.00494.dtor@insightbb.com>
+	 <20070612052316.GX6362@aehallh.com>
+	 <200706120135.06428.dtor@insightbb.com>
+	 <20070612054031.GY6362@aehallh.com> <20070702152044.GA24665@suse.cz>
+	 <20070703164555.GA20370@aehallh.com>
+	 <1191035147.7025.28.camel@moonpix.desrt.ca>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_0006_01C81495.4226A290"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1191035147.7025.28.camel@moonpix.desrt.ca>
+Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Ryan Lortie <desrt@desrt.ca>
+Cc: "Zephaniah E. Hull" <warp@aehallh.com>, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Hi Ryan,
 
-------=_NextPart_000_0006_01C81495.4226A290
-Content-Type: text/plain;
-	charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+On 9/28/07, Ryan Lortie <desrt@desrt.ca> wrote:
+>
+> Hello.
+>
+> I have been working on a more flexible system for blocking the delivery
+> of input events to other agents in the system.
+>
+> My approach is basically summed up as follows:
+>
+>  - split the current purpose of input_handle into two parts
+>
+>    - input_handle continues to exist as a mechanism for tracking which
+>      handlers are currently interested in a particular device
+>
+>    - a new input_client now exists as a mechanism for tracking
+>      tracking who is interested in having events delivered from a
+>      particular device.
+>
+>    As an example, for evdev, one input_handle will exist per event
+>    device in /dev/input and one input_client will exist per open().
+>
+>  - cause input events to be delivered to 'clients' (ie: first argument
+>    is an input_client instead of input_handle)
+>
+>  - add a concept of 'priority'
+>
+>    - the new input_client structure has a priority field
+>
+>    - the list of input_client's per device is kept sorted by this field
+>
+>  - add the ability for the handler 'event' function to block further
+>    event propagation.  This is done by making the handler return 'int'
+>    instead of 'void'.  0: continue normally.  1: stop.
+>
+>  - add "set priority" ioctl to evdev
+>
+>  - add "set requested keys" ioctl to evdev.
+>
+>    This causes delivery of only certain keycodes to this particular
+>    open().  I have no particular interest in doing this sort of masking
+>    for other (non-key) events but maybe it makes sense.
+>
+>  - add "set filter" ioctl to evdev.
+>
+>    This causes any "requested keys" to be consumed and not further
+>    delivered (ie: the event handler for this client will return 1).
+>
+>  - also, as a small style issue: I made what I believe to be a
+>    simplification to the switch() statement in the evdev ioctl code.
+>    Whether this is actually a simplification or not is a matter of
+>    opinion. :)
+>
+>  - port the non-evdev handlers (including rfkill) to the new
+>    handler/client interface in the most trivial way possible: open the
+>    input_client in the places where the old code used to call open with
+>    the input_handler.
+>
+> The motivation is to allow arbitrary things in user-space to have a rich
+> support over blocking (possibly a select set of) key events from being
+> delivered to anything below a certain 'priority'.
+>
+> I believe this will solve the problem of X wanting to block key delivery
+> to the VT module while still allowing the events to go through to rfkill
+> (which presumably will be given a higher priority).
+>
+> This will also allow hal's "multimedia key" reporting code to be
+> improved in two ways: first, it can block the multimedia keys from being
+> delivered to X (and causing weird ^[[29~ things to appear in my
+> terminals) and second, it results in hal only waking up when an
+> "interesting key" is pressed (currently it wakes up on every single
+> keypress).
+>
 
+I like the idea of limiting number of events that client wants to be
+delivered to it. I think we need to extend it from keybit only to
+event bitmask + keybit. This way, if keyboard has a scrollwheel or a
+touchpad installed, HAL can still specify EV_KEY + KEY_XXX and ignore
+all REL_* and ABS_* events.
 
+Priority/filter idea is different matter. I don't think it is a giood
+solution. There will always be an "arms race", new applications would
+like to get in front of the queue all the time and it will be hard to
+manage. X should just keep console open in raw mode and simply ignore
+all events coming from it while using evdev driver. I understand that
+X's hotplug support is getting there so you should be able to switch
+to pure evdev setup pretty easy.
 
-------=_NextPart_000_0006_01C81495.4226A290
-Content-Type: image/gif;
-	name="must02.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="must02.gif"
+> I have written a patch.  It is "over 40kb" so I don't include it
+> directly here.  It is available in its full form (or broken up) at this
+> url:
+>
+> http://desrt.mcmaster.ca/code/input-patch/
+>
+> This patch is not being proposed for inclusion in its current state.  In
+> addition to the many problems that I'm sure I don't even realise, here
+> are some that I would specifically like feedback on:
+>
+>  - how should we decide what gets what priority level?
+>
 
-R0lGODlhwwAKAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAADDAAoB
-AAj/AP8JHEiw4D94xQwqXMiwocOC8h5KnEhRYKuKBe09zIOxo8ePFDtJjAiypMmTKB96SomSI8uX
-JbfBnElwJU2BqTDGuslToraePF2ypAZU4rSiSJMSdKJUaTaBRzFOy9m0Ks1nVjs+7ZlsGEhRo2a6
-wujsZLWsaP/BspUW46mK+drKnTuxGqyB2fzRlQgPqZW9gAMPvPdPb89AghOf/Amy0ECiabeddbht
-582LHalNngiZJuPGirPSCi3QD+nTqEGaTt1zNWurCRPHvekapeTXEmPjZnjrbltSu2fmw5dUJNCy
-IIEb9GS84RsiwdsK7Yn8nx+q0Q3CkknXcPbv4At2/w5/0xZbhtS8D5ydlvjC6kXHf1w18dXnh4zI
-s4Sf2jLfZRIZctM7r7G3kAxXIJhWglcIhKAMAjF4GjH6DTRDFzOkdWGG/3RxRRcCbfiaeq+5Is1A
-VxACImcEYQfSFReG2AWEHSpIk3sovSIQicFdSMg/MRa04Yr/ACJiFRgKhGGSQw60ZIcy0vgkkEky
-hIxA1HCX1X3NkHSafDUm+I+NDjY4JpEMQvhghDKsuGaNbCqJIHBvSshQcxXKJWKHQe45pZ99Vvmn
-oE4SxKGS4YFJEI5bGgSjmzPKaSaCHCa44oVS2lgnpkISROSYv+HZEY+LynUflRwOmmqgq14qaJB8
-Vv+JqIWefuRbdqcqtNlLdtapqZj/9AqssDSyCexNu+ZJULIp+fmhjK3KaOaUH0YLpJKsKvksqsqi
-9qiMBP2KYqCZNjgjjBFWqq6r5ZrkH2q6WaWNNtYaOmWsMS4Zrb7X7sltrNCe9O5pvnRr8MEIJ2yS
-mTQpqnBS/MHE8MOoPROxQi7OFIsqFKPlcMfgsdPOTR9/1ExwooDscXBhqWzSLQZNUZvLBdnQw0AA
-djzwTCj03LNAP+/08z8++0yQ0ZYVPTTRSg/UNNNKo1CQz8UsbbXUTi8NtdFAX411119nbbTWWst1
-NdP/CDh02WL/wzHaXcc99ddkh3003Vif3XbWfEP/vTfYc4sdNtv/3PFPl0qVrdfVbBWyhUI/693M
-HXnbDTfklssN988pn6335lNkIXXRfH9+t+YFzXzSxYEbdDYshEeOd99sc+165pevjbUfns8ut88u
-bF2677cTLtE2JS+UfCMoGAg26Vv33vfmTwtfUBy46x317J/rTvT30sudyNzGoyWG1Mlqb7n60F9O
-vt2ULxS1QJ7kgfdR7NseOfiV0/61IK0DTOx8VzsCZq58fpteAE/XtZyoT3P7G13/foc799FlgP6T
-z/ZQN5ApUMEhdVvIFA5owKc9cGyVM2EFEaiUvkxPdv5bINowGMAQKmSEmBte4E4Iw7IxYYK5q2BV
-/3L2PCDqjnRlg2Hx9Nc+DkKGhjO0mxLjtjYqShFvtrMgzQRyopTkKjRbcUjyHLIKAfHkGW97SRdP
-cqvUhLEhGSONPI6xxTra8Y54zKMe97gePqKGHX7cIx1fo6NAfodUHTmPIb8zxkVKpBo7c+Q/4siS
-sRTqIcijJEY8kQyFuBA8b1gCyXpiyWtRRJMo+STCfIEOgoijleh4ZcEGEstWEqSWrBQIK2VpS4Ls
-8iHnIlNDvvgSZqHEeWhJRy//oUyBNPOWz3TmMtPBzF6ig5oEUSY2GcIkKtEFmd/ZpkBe6UpbknMg
-5ERHL885zn+wM5aT1JE63blMgygIRMeClaceNP8jLqCoTcLMozj/cU2BFFSaZqwmQbcZzYEoMx9n
-OahBqdlQg/DLSf6y15BWNRAufCqQ8CSoONDZSgGhY5b/yGVKbfnLXZ50me9EqULSNLGARihcAyET
-F4qFR0Vpc5rW/Okzo1nQZj5ioEKVKEOahC2FHApKTQVXSrLxRtyczCCvnCdJaWlNW2pVpARtJSS+
-Sk+uMuSewTqUPg1iiE+RCV2SXOhALjLUehY1qAqdqF6zWU+M9otIslorqDR6L0eedCCCwGVZbzlS
-kb50pCodJywbO5DIWvRBkwpmg47loLN+lCUJjetJnmoQY37WrzfJT0VaUUq4fKQYqkwja067rIL/
-TKwgkZrrW7IDTo/IdiGL+A5pA0YQ6AzEmH50TJ425pDfUswPfQgNNkYj2urmyWHSqGpFpmPdk1CD
-dQrxkkGiMhM5dBctV52JM1CJklKghFSMEMNSgcJe8rTxJcoxCSIZctuKnOsh9VULRpQ7Fy15RKgT
-Veo1gVqQBWPTwX0V0kX9O1yB9NYh931IcHlyYZbEco4GlWyD2blSg6jUspS152aDJYN8gNe2PC0I
-VrqrYGnyVa42xtJZ6ppNbmYoQ9uKVZAlrBB90RakKd6qWb9KVoN6NcJO/e8+c9pfSkk5rRY6Mh+V
-6lC85riieV3ogh2y0Syj1lNqddWZJRnSgsQU/5cs7atlaZnkmb6JyjF2EJoyRWX9NPIjNQ6zRHlc
-kKFC08d/XbNF09yMZsBKVjQhjElU8WKQkLchbSaoiBdLZ04reZmZJrK5ygXQSZn6n1nmZ09UmZhG
-IljMFLVrrH8K6wSDWcL+2uirspxRM58XMP11CKP4m+dfa2gmkDZ2tzg1EWIqOzGw2PBcnB2fPzME
-uXZsrUekDZj8Ppu6H1HkTLaR4Ym0LDrFBgpjToGZPFG7LVMB5kx6TZB3J+ofrQ01K4mRjlwettMu
-dWxL4WziUNszDHc+iU3riA1apqOQOXb4oXG8V0Ej9aCKulAYQJTsjwj2JQlZRSRDgw5i1OKWdv8F
-tTj0kmkmWzPF8ySnaSGUobdiKthUotSUeRKb0KKGy+k4wxsIkg172LKZRFEwQ72s11tD66OB/eyj
-W0VvmDgXJsMGib4Vq8s4d5qWKGVlFfKAYmvKtCCYLRaZcrvzMZ06TuHJ+kLivRCgR9jBE694M+3+
-ah933JtEjmrUt5xkEtOZrC2nrFZJ/E4oR0pNNb0yQY7VJqnCKTtj9DmmL76Qiiq9yxInKKtvnS8+
-RdnyRuao5YOT3n8YU7USgTNkCa7krse0sjCFpTEKMmc8c3byNPo9i4FvJ5jQx7oz7gjU09yQj/Pk
-+CmhSjPkXhVmGbgiWLF2iNDOMLgqZOGA8Wf/Q1SnGvKbxN5AKXORnR+YQwCm0hXpDPqNPX93oYLV
-SpmGdh1Z/470/yNXghLppkcQpxT40HoVEYDPRhHcBjIDeBPa5l0dgRj/0El8hCFTMGQpcX14MRPn
-NhFmknw9gQ54olXqVEtdlVVPpoKHp3JQhls0NwXglxLa5xHc5RGwUG4ncU0KeFc39nlEtXQN5nRE
-xnFPNWG4pWsYVVh41HIFQ2L+JlPwVHab1nUEdXZ2JnzAwnbhQlPBp3ZaVhFM8R3oIA3k5YOgB4QM
-FmYKpVSNtn73Amkd9ynMF1UgMRl4gBINmBQoWEsjxXiwpHJhVU5VqAzr9IJoJ2XCJFhH6CQ0/7IK
-M0gRHFgSe1gUaviD4oSGX2ZN0QBhZMZxpheKdlhk9qJoHzGJ/ocWTuhprPQK/2ZQs0eInPaKvQdj
-oPJWX9hnaMd9mIUUHUYQOggUlwh6p5CJsRZ6eeV5A7VoHgJ11eIpt1VhERKGNIGKGAEL2NYRLfdk
-KMhVLBhWLOgY3Wh4BudUJYFzl9dsC+gMBDZMEkGN3IRoGLENV/cP8KdfgAF7GOFtBVGAAwEPkqZw
-3yd8FCEggzQQ/JgSo/A21IcWjeARFigRAckagHQwP8IS2dgQa7SALFGJMXF+PGGNW/J/W+SPMCGS
-D7FfDoGABMGSCrEIHsmRkwcSKtkQ4gURgf+xHcqCf7gVkrsBYQ9mjNVEa2MWYkA5lGN2lNKETTuR
-lNo0lDYxa9e0jAIBD+p3kgPxC6nRZukEc09oV+80EMUQdnZFlrYnEBF1YnEmDjYRiw5RDCvGhR+p
-EFgoGIMGS0LpeTjWS78ghHlnaIB5dEeXjGy4EN00dUzIa8nWJuxHcpTVlYzlaZpmgmZVhf/gBm+g
-eOgQFn9oTou1eIvVmQ+hasDna4YifukoLrhxl7CGd692dAXDdK/5ascQlIL5Zf8QBkWFlFTJa0Zi
-mnNYh/rUmHbJS42VaaHwlQ3Wdc1gdrjHKIcFhQalllaYUv9wA9FZYiBYBb+XcAsxLDxFkCT/t4xK
-dQfHeEsOJ5ut5B0HNWgOBXqEuZSF+Q9UhWbBAngdgo5LyDDDCY97YXDbKJkv11WVWaCUGWJOlqCa
-5mQj1WQDCSVw9ShWtnqOqIuRmBhcRnFylVQLGnF3SZR5qRB795R56YkLcZW6pnqB93RtIV/Ppp8H
-0n0P6JBAkQgAtGzKV4cvYZJJ0Y5WMYB5oRjB5J8dEWA34aNxlQ+/qCwNKZOWVoMwAaVOahBSGkio
-EF3XRRrm1RPSOKVRahhjeBMw6hDe2RMZCRj5QBT4sKRd9pRLWZRummDsEadLhYQUoU/idhJ5SDNt
-Rg2TFZlZxVitNA+SVWfcB6FdGqPawRIf/8Sn4kQhQEiYpzAIEkeEpvdjdJiYpph6RGoSbJoUVQqg
-XulO2qmc05mbSNqFNqWaMJYmvlemPFGlgTGbh2abm4iMUfaMq8eIgJUqhuKk6aSVZnWc51SsJxio
-DnEu6tJ2FVomnYUiysZg18Qeu+lMAkEKhKahSZho+NmtqDdcnSoX6kAXuQdWYEeq7fQPyACZvgRl
-CjJqFiqjcHcm9nQa2dBa4zoXfcehzCSieFloLzgkgGAgTPWtiZmoXsoT4UoQ1OCSUJWqu6GTIIOw
-HkEk+jgTF5mwPDGjwJinBSEGD7kQEKuxv5am5mZI1ABOH6gw97hHRnoTdEey5HGD1bcQ9f84FxT7
-Ef0wF3/QFtZ4s22Bcy/bENp1pkWhgBVhOFo3m3hHS8VQDG6qlAk2hEVZp1U3tImxp+/hEUrrEVz5
-p5t2TnoxZ6/oWO3qSme1YuIJHk2AEu1WEqzJmmyojKA3Cn5prYb5Y8GSqRqomBfCMF2wJGOaGm+r
-dY8JtqEJausgEMRBYvM0CgQqETenYs7qKDcXKM2aMG8wdA8Rt/s6TfmqoXJrqbg2eKZJK5fUITdw
-uiDhCoUbHLIHi9ppmb7QCpRKti6lltTQpK2ai5mbuoMlEDpSfHqUoe15t21Inn7ZUL15qYDXn823
-on4kqkoGiIMoi51GVoYKLvBaubjoKPb/wk8cWxLy4LB6+hLGK5StaZskKmu2tp5Wm2wF663LZ2Tf
-0bXdUjKDi5b1Ghrxcl45y7+/ehpEJLMEEboL2xGAAH10YbQqQ5WLe0aBIasKwx43+RDah7QGzBKf
-qhAUXBIhK5MBjBIRqBCdsLKP9A8uqhTjEboOMS9C+hGM+XcK0XAKUwwUkh1phxHfOxMfTBA8mhJ8
-55R5J2ZUG7VC6JruyV+gSMOGyZ8JnCeh1mSIB3PaC2qBWJkmyJUNESk1NzGTe3pyQmVh/DB2N4R/
-+a8Rl7zwGZh4e6IHq2ZRllGpRxrmWxAwg2lJZlnMUKrl+rVnS4vKdWKhSabBlFNuVWXy//qsrNF6
-ziaSQ0xNhJGtoyut6TAZyrQThrah7wgo9rmtqPcdl1YRoWZ4sFjFx2pOf3yICnqcrbS9Y/zFlatn
-9gRYaiehE2Gyp0GBCnHGfoAKt8QJn3erabi8gymfdQolpjt1dvhxTmwQvJsSLWsQvGwQW4clBXEH
-y4S7rAhLs7QI1GmdZ9kQO6yqNSWjxNuFSnGxyjMTQGkL2vQL6qAezOu+/wAOn6tMF+maRRyPqmFb
-vYofLOGxaEHQHwEOCjoU6jHCCgHMbWcjJbMIsECSW0S6c+EMnbEk1PAp0bwXB0myNTkT94oSHx1I
-9jCRG5zSPNHRKq0YP0wQyxAKqZHHgf+kDS8dHcHY0i7zujrtEScDtCxxo+FhBECgMCeT08HhCjbs
-ESiJFDTN03hE0SVB02nhG+DmRwYtQBv0ESxUPBz0Nw/R1R0RBpr3HRoMQULUEKEg0xjhPfKT1gwU
-V9lwwTbkehRhNRMh1mJdEtnjCQmJGgysENqVRF+D1P4T0hZUkTJUTGyTCjiUHYEd1lckOICDAlNQ
-PNOwPlwjO1ITEdBzRG/9MyMkQVgkNU3QRNvD2fND2V+t1a3j1mNz2YsdRRRkRb/zGHIH2/0zChM0
-Ht1T29TT2hLhCvsnEYgj2a89QW4d18wd3BbUM/jABBKh22CTRkvjHV7zPcC93BRxwUX/QdjbDUQK
-NN7UfTd6nTd5ABzZ3dohZEBFBNcGUdJIUdflXUA5xEDcTdsgpNyDk9+ok0Xl3Rbm8BCfYTr1rdna
-TTvhDTTArUX1XduTTTzOjdda1BMDPt1bbd4pRNq3gzkb/tlHRNoS1OHvLTyGAUXuUz3WU+EM8dce
-oRkpsQw8+REOrBD5MNFHYxBMIN0UoX2TfRMobDA1XhDMMjgsztejM9ui9cHJ4F5TQz4e4QxAm0Ur
-3l3UkNUyywiGPRcx2dMPgQr3oBH3RhP9gNI9EQZyYX7BcdNyAQYL8QwujhodjBpBXhSK/RrK2hDf
-8h11/hGNJN+JUb/N98xefhMxBlC5/8nOLDYxUv0wtADViTENSJKEUZwVfU4Td2wSWA4UOteFDD0X
-ak4TH20TKbHpN6GE2OIqR0jHpYdmnLqEvKq3yTq/LOrq9aKp/0Dq4eGda1LOxoJqw/dPphaet3zL
-s/ydX4jOZULsm9WLNPUdpWR+THhRzWgvUJy6hQUogBVkgdXFaXYoQ9afrLIiuooUavASS/0PWuvp
-3Jdm4floq+p9NQIIZeLuZAxM4Mds6WLL3Qfv+4sSa3AQBdwT0z51YSBtuYaE2W4kYFKw9ssQhUDD
-2R51385rc2ELW94RiB4ubJdwxOvrHi8D9E4QgAB5zF5531kIOLcmL/DrLh8m/1TpPP/R6JRe86mu
-UcxY8QCTZSMfx85XdTt/2Qmv8/9yGmIOFY9BpvLudoey8WxyWpJXaqTV6WdSbFQPgwTp9CzG7+PC
-9alx9P+AIyXzJzdf9sRlSs3s7aoOWKVY9PjSzJmK82c/A3jw6YABYuTsqsuOZ8QH7G43y4yA5uYs
-A9VAmj388V7Y927H7MKOIhmIEdQwyqfBVNXSBWPxt69S7X/F7ZiPolWSD9yen1F3BdfXjBVG6/ab
-+pVvR+kuwxL6+nbvwRNx5xKhy+Ah+XrCqcQJE7T/EixtFbifFgu3tgmTCtNsMImAIXg/ioWeEoL/
-EYNgKVY2vtlh6uHxOFnR1NCGEvKAweYCvBs0P+Z2ZPwTkRPe39Jz7hHmrzHN3xPp3xAjpxBo0BGQ
-7kfMVRLnLxGcWxFCnY/tDxgAke3fQIIEFxVEmFAhQlcLHT6EGFHiRIoVLV6cKBCjRWkbPX4EGVLk
-SJIlTZ4sye4YSpYtXb6U6KdPwiknYVWDmVPnzoH4Htb8GBAAOw== 
+Exactly. You can't predict all future uses. There will always be
+someone wanting to get in front of the line.
 
-------=_NextPart_000_0006_01C81495.4226A290--
+>  - is it appropriate to have INPUT_PRIORITY_HIGH/LOW/SYSTEM/DEBUG, etc.
+>    macros in input.h?
+>
+>  - why did the old code call flush() on the device before closing when
+>    disconnecting?  It seems particularly silly now that with my patch
+>    it will be called n times (one for each client)
+
+To remove any force-feedback effects installed by client that is being
+disconnected.
+
+>
+>  - how are switches supposed to be indented?  the "checkpatch" script
+>    in the kernel complained about my style despite following what was
+>    already in that file.
+
+I think I fixed this.
+
+>
+>  - I haven't tested on big endian or "compat" systems at all.  As far
+>    as I know, the relevant code doesn't even compile.  Help here is
+>    appreciated (I don't have such a machine!).
+>
+>  - there is small thread-safety issue with how I handle EVIOCSRKEYS on
+>    defined(CONFIG_COMPAT) && defined(__BIG_ENDIAN).  If events are
+>    delivered after the copy_from_user but before the word-swapping then
+>    events may be inappropriately dropped or delivered.  Do we care?
+
+Input core now has prper locking. You may take device's event_lock to
+stop event propagation.
+
+-- 
+Dmitry

@@ -1,54 +1,52 @@
-From: "Zephaniah E. Hull" <warp@aehallh.com>
-Subject: Re: [PATCH] Input: Support for a less exclusive grab.
-Date: Wed, 24 Oct 2007 11:35:08 -0400
-Message-ID: <20071024153508.GG26573@aehallh.com>
-References: <20070609084800.GR6362@aehallh.com> <d120d5000710231110u79ea11a8p38f1fc4654a7fac2@mail.gmail.com> <1193191094.32696.2.camel@moonpix.desrt.ca> <200710232333.08306.dmitry.torokhov@gmail.com>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: [2.6 patch] input/serio/hp_sdc.c section fix
+Date: Wed, 24 Oct 2007 18:26:40 +0200
+Message-ID: <20071024162640.GO30533@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Content-Disposition: inline
-In-Reply-To: <200710232333.08306.dmitry.torokhov@gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ryan Lortie <desrt@desrt.ca>, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Oct 23, 2007 at 11:33:08PM -0400, Dmitry Torokhov wrote:
-> On Tuesday 23 October 2007, Ryan Lortie wrote:
-> > On Tue, 2007-23-10 at 14:10 -0400, Dmitry Torokhov wrote:
-> > > No, rfkill want to see keypresses, period. It does not care if there
-> > > are other applications also seeing the same keypresses, it just does
-> > > not want keypresses stolen from it.
-> > 
-> > Right.  This is exactly the problem.  The current grab API exists to
-> > prevent keys from being delivered to normal users, but rfkill still
-> > wants to see them.
-> > 
-> > No matter how you slice it, if both of these desires are to be satisfied
-> > then there needs to be some sort of a system to differentiate between
-> > rfkill and "normal users".  That's what the priority is here.
-> > 
-> 
-> And the solution is pretty simple - do not use grab.
+hp_sdc_exit() mustn't be __exit since it's called from the
+__init hp_sdc_register().
 
-xf86-input-evdev will never open the console in raw mode and toss the
-data, it's not going to happen.
+This patch fixes the following section mismatch:
 
-We need a way to, at the absolute minimum, unbind the keyboard from the
-text console.  The current solution sucks for things like rfkill.
+<--  snip  -->
 
-I'm not convinced that Ryan's fix is any better, but just saying that X
-should open the console and ignore the characters is simply not an
-option as far as I am concerned for X.
+...
+  MODPOST vmlinux.o
+...
+WARNING: vmlinux.o(.init.text+0x1af68): Section mismatch: reference to .exit.text:hp_sdc_exit (between 'hp_sdc_register' and 'hp_sdc_mlc_init')
+...
 
-Zephaniah E. Hull.
-> 
-> -- 
-> Dmitry
-> 
+<--  snip  -->
 
--- 
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
+
+---
+4022ed345d1b61dc5b6ac0fc35877656e444a11d 
+diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+index 6af1998..02b3ad8 100644
+--- a/drivers/input/serio/hp_sdc.c
++++ b/drivers/input/serio/hp_sdc.c
+@@ -944,11 +944,7 @@ static int __init hp_sdc_init_hppa(struct parisc_device *d)
+ 
+ #endif /* __hppa__ */
+ 
+-#if !defined(__mc68000__) /* Link error on m68k! */
+-static void __exit hp_sdc_exit(void)
+-#else
+ static void hp_sdc_exit(void)
+-#endif
+ {
+ 	write_lock_irq(&hp_sdc.lock);
+ 

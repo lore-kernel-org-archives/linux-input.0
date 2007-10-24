@@ -1,22 +1,25 @@
 From: Arjan Opmeer <arjan@opmeer.net>
-Subject: New version of Elantech touchpad driver for kernel 2.6.23.1
-Date: Wed, 24 Oct 2007 05:50:02 +0200
-Message-ID: <20071024035002.GA12026@adopmeer.homeip.net>
+Subject: [PATCH] Elantech touchpad driver update for kernel 2.6.23-mm1
+Date: Wed, 24 Oct 2007 05:54:10 +0200
+Message-ID: <20071024035410.GA12650@adopmeer.homeip.net>
+References: <20071024035002.GA12026@adopmeer.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Content-Disposition: inline
+In-Reply-To: <20071024035002.GA12026@adopmeer.homeip.net>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: arjan@opmeer.net
+To: Arjan Opmeer <arjan@opmeer.net>
 Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
+>From Arjan Opmeer <arjan@opmeer.net>
 
-I updated my driver for the Elantech touchpad. Changes include:
+Update to the Elantech touchpad driver. Changes include:
 
 - Absolute mode reporting is now working on my laptop.
 - Fixed the use of a wrong constant in the Synaptics Identify query
@@ -26,25 +29,22 @@ I updated my driver for the Elantech touchpad. Changes include:
   middle mouse button reporting works and how finger taps are reported.
 - Added a debug option.
 
-Testers are still very much wanted and encouraged to give feedback.
-
-For people that are reading the mailing list via a web interface:
-I've made the patches available for download and provided some extra
-information at http://arjan.opmeer.net/elantech
-
-Arjan
+Signed-off-by: Arjan Opmeer <arjan@opmeer.net>
 
 ---
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/Documentation/input/elantech.txt linux-2.6.23.1.elantech/Documentation/input/elantech.txt
---- linux-2.6.23.1.vanilla/Documentation/input/elantech.txt	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.23.1.elantech/Documentation/input/elantech.txt	2007-10-22 04:56:15.000000000 +0200
-@@ -0,0 +1,172 @@
-+Elantech Touchpad Driver
-+========================
+diff -purN -X linux-2.6.23-mm1.vanilla/Documentation/dontdiff linux-2.6.23-mm1.vanilla/Documentation/input/elantech.txt linux-2.6.23-mm1.elantech/Documentation/input/elantech.txt
+--- linux-2.6.23-mm1.vanilla/Documentation/input/elantech.txt	2007-10-22 05:24:20.000000000 +0200
++++ linux-2.6.23-mm1.elantech/Documentation/input/elantech.txt	2007-10-22 05:24:55.000000000 +0200
+@@ -1,68 +1,75 @@
+ Elantech Touchpad Driver
+ ========================
+-	Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
 +        Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
-+
+ 
 +        Extra information found and provided by Steve Havelka
-+
+ 
+-Configuration of the touchpad is performed by writing register values to the
+-corresponding sysfs entries found under /sys/bus/serio/drivers/psmouse/serioX
 +Configuration of the touchpad is performed by writing values to registers
 +found under sysfs entries /sys/bus/serio/drivers/psmouse/serio?/reg_*.
 +
@@ -52,114 +52,127 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +Windows driver value one would:
 +
 +   echo -n 0x32 > reg_10
-+
-+
-+Registers
+ 
+ 
+ Registers
+----------
 +~~~~~~~~~
-+
+ 
+-* reg_10	(Windows driver default value 0x12)
 +* reg_10        (Windows driver default value 0x12)
-+
-+   bit   7   6   5   4   3   2   1   0
+ 
+    bit   7   6   5   4   3   2   1   0
+-         0   C   T   D   L   R   S   E
 +         B   C   T   D   L   A   S   E
-+
-+         E: 1 = enable smart edges in other cases
-+         S: 1 = enable smart edges only when dragging
+ 
+          E: 1 = enable smart edges in other cases
+          S: 1 = enable smart edges only when dragging
+-         R: 1 = raw mode (needs 4 byte packets, see reg_11)
 +         A: 1 = absolute mode (needs 4 byte packets, see reg_11)
-+         L: 1 = enable drag lock (see reg_22)
-+         D: 1 = disable dynamic resolution
-+         T: 1 = disable tapping
-+         C: 1 = enable corner tap
+          L: 1 = enable drag lock (see reg_22)
+          D: 1 = disable dynamic resolution
+          T: 1 = disable tapping
+          C: 1 = enable corner tap
 +         B: 1 = swap left and right button
-+
+ 
+-* reg_11	(Windows driver default value 0x8f)
 +* reg_11        (Windows driver default value 0x8f)
-+
-+   bit   7   6   5   4   3   2   1   0
+ 
+    bit   7   6   5   4   3   2   1   0
+-         1   0   0   H   V   1   P   N
 +         1   0   0   H   V   1   F   P
-+
+ 
+-         N: 1 = bit 4 or 5 of byte 0 is 1 (non null top nibble ?)
+-         P: 1 = enable native 4 byte packet mode (forced on by driver)
 +         P: 1 = enable parity checking for relative mode
 +         F: 1 = enable native 4 byte packet mode
-+         V: 1 = enable vertical scroll area
-+         H: 1 = enable horizonal scroll area
-+
-+
+          V: 1 = enable vertical scroll area
+          H: 1 = enable horizonal scroll area
+ 
+ 
+-* reg_20	(Windows driver default value 0x0a)
 +* reg_20        (Windows driver default value 0x0a)
-+
-+         single finger width?
-+
+ 
+          single finger width?
+ 
+-* reg_21	(Windows driver default value 0x60)
 +* reg_21        (Windows driver default value 0x60)
-+
-+         scroll area width (small: 0x40 ... wide: 0xff)
-+
+ 
+          scroll area width (small: 0x40 ... wide: 0xff)
+ 
+-* reg_22	(Windows driver default value 0xff)
 +* reg_22        (Windows driver default value 0xff)
-+
-+         drag lock time out (short: 0x14 ... long: 0xfe; 0xff =never)
-+
+ 
+          drag lock time out (short: 0x14 ... long: 0xfe; 0xff =never)
+ 
+-* reg_23	(Windows driver default value 0x10)
 +* reg_23        (Windows driver default value 0x10)
-+
-+         tap make timeout?
-+
-+         Note: the Windows driver does not write this register
-+
+ 
+          tap make timeout?
+ 
+          Note: the Windows driver does not write this register
+ 
+-* reg_24	(Windows driver default value 0x10)
 +* reg_24        (Windows driver default value 0x10)
-+
-+         tap release timeout?
-+
-+         Note: the Windows driver does not write this register
-+
+ 
+          tap release timeout?
+ 
+          Note: the Windows driver does not write this register
+ 
+-* reg_25	(Windows driver default value 0x03)
 +* reg_25        (Windows driver default value 0x03)
-+
-+         smart edge cursor speed (0x02 = slow, 0x03 = medium, 0x04 = fast)
-+
+ 
+          smart edge cursor speed (0x02 = slow, 0x03 = medium, 0x04 = fast)
+ 
+-* reg_26	(Windows driver default value 0x00 ?? )
 +* reg_26        (Windows driver default value 0x00 ?? )
-+
-+         smart edge activation area width?
-+
-+         Note: the Windows driver does not write this register
-+         Note: the Windows driver default value of 0x00 disables smart edges
-+               when it would get written
-+         Note: the Windows driver sets bit 0 of the registry value to disable
-+               tapping when typing, but never actually writes the register.
-+               Only used as an internal driver flag?
-+
-+
-+
-+Initially the Elantouch Touchpad is in emulation mode and reports 3 byte
-+standard PS/2 packets and hence works with a standard mouse driver.
+ 
+          smart edge activation area width?
+ 
+@@ -77,18 +84,22 @@ Registers
+ 
+ Initially the Elantouch Touchpad is in emulation mode and reports 3 byte
+ standard PS/2 packets and hence works with a standard mouse driver.
+-However, it can be configured to talk its native 4 byte mode and a raw 4
 +However, it can be configured to talk its native 4 byte relative mode and 4
-+byte absolute mode both for which a dedicated driver is needed.
-+
-+
-+Native 4 byte relative mode packet format
+ byte absolute mode both for which a dedicated driver is needed.
+ 
+ 
+ Native 4 byte relative mode packet format
+------------------------------------------
 +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+byte 0:
-+   bit   7   6   5   4   3   2   1   0
+ 
+ byte 0:
+    bit   7   6   5   4   3   2   1   0
+-         c   c   ?   ?   1   M   R   L
 +         c   c  p2  p1   1   M   R   L
-+
-+         L, R, M = 1 when Left, Right, Middle mouse button pressed
+ 
+          L, R, M = 1 when Left, Right, Middle mouse button pressed
 +            some models have M as byte 3 odd parity
 +         when parity checking is enabled (P = 1):
 +            p1 = byte 1 odd parity
 +            p2 = byte 2 odd parity
-+         c = 1 when corner tap detected
-+
-+byte 1:
-+   bit   7   6   5   4   3   2   1   0
-+        dx7 dx6 dx5 dx4 dx3 dx2 dx1 dx0
-+
-+         dx7..dx0 = x movement;   positive = right, negative = left
-+         byte 1 = 0xf0 when corner tap detected
-+
-+byte 2:
-+   bit   7   6   5   4   3   2   1   0
-+        dy7 dy6 dy5 dy4 dy3 dy2 dy1 dy0
-+
-+         dy7..dy0 = y movement;   positive = up,    negative = down
-+
-+byte 3:
-+   bit   7   6   5   4   3   2   1   0
+          c = 1 when corner tap detected
+ 
+ byte 1:
+@@ -106,30 +117,39 @@ byte 2:
+ 
+ byte 3:
+    bit   7   6   5   4   3   2   1   0
+-         w   h   0   0  d3  d2  d1  d0
 +         w   h  n1  n0  d3  d2  d1  d0
-+
+ 
+-         normally:
+-            d3..d0 = scroll wheel amount and direction
+-                     positive = down or left
+-                     negative = up or right
+-         when corner tap detected:
+-            d0 = 1 when top right corner tapped
+-            d1 = 1 when bottom right corner tapped
+-            d2 = 1 when bottom left corner tapped
+-            d3 = 1 when top left corner tapped
+-         w = 1 when wide finger touch?
+-         h = 1 when horizontal scroll action
 +         when parity checking is enabled (P = 1):
 +            normally:
 +               d3..d0 = scroll wheel amount and direction
@@ -179,134 +192,62 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +            all of byte 3 is vertical scroll amount and direction
 +            negative = up
 +            positive = down
-+
-+
+ 
+ 
+-Native 4 byte raw absolute mode packet format
+----------------------------------------------
 +Native 4 byte absolute mode packet format
 +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+
-+byte 0:
-+   bit   7   6   5   4   3   2   1   0
+ 
+ byte 0:
+    bit   7   6   5   4   3   2   1   0
+-         0   0  z2  z1   1  z0   R   L
 +         D   U  p1  p2   1  p3   R   L
-+
-+         L, R = 1 when Left, Right mouse button pressed
+ 
+          L, R = 1 when Left, Right mouse button pressed
+-         z2..z0 = some touch weigth?
 +         p1..p3 = parity bit of bytes 1..3
 +         D, U = 1 when rocker switch pressed Up, Down
-+
-+byte 1:
-+   bit   7   6   5   4   3   2   1   0
-+         f   0  th  tw  x9  x8  y9  y8
-+
-+         tw = 1 when two finger touch
-+         th = 1 when three finger touch
-+         f  = 1 when finger touch
-+
-+byte 2:
-+   bit   7   6   5   4   3   2   1   0
-+        x7  x6  x5  x4  x3  x2  x1  x0
-+
-+         x9..x0 = absolute x value (horizontal)
-+
-+byte 3:
-+   bit   7   6   5   4   3   2   1   0
-+        y7  y6  y5  y4  y3  y2  y1  y0
-+
-+         y9..y0 = absolute y value (vertical)
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/drivers/input/mouse/Kconfig linux-2.6.23.1.elantech/drivers/input/mouse/Kconfig
---- linux-2.6.23.1.vanilla/drivers/input/mouse/Kconfig	2007-10-12 18:43:44.000000000 +0200
-+++ linux-2.6.23.1.elantech/drivers/input/mouse/Kconfig	2007-10-22 04:56:15.000000000 +0200
-@@ -96,6 +96,21 @@ config MOUSE_PS2_TOUCHKIT
  
- 	  If unsure, say N.
+ byte 1:
+    bit   7   6   5   4   3   2   1   0
+diff -purN -X linux-2.6.23-mm1.vanilla/Documentation/dontdiff linux-2.6.23-mm1.vanilla/drivers/input/mouse/elantech.c linux-2.6.23-mm1.elantech/drivers/input/mouse/elantech.c
+--- linux-2.6.23-mm1.vanilla/drivers/input/mouse/elantech.c	2007-10-22 05:17:57.000000000 +0200
++++ linux-2.6.23-mm1.elantech/drivers/input/mouse/elantech.c	2007-10-22 05:48:47.000000000 +0200
+@@ -18,14 +18,12 @@
+ #include "synaptics.h"
+ #include "elantech.h"
  
-+config MOUSE_PS2_ELANTECH
-+	bool "Elantech PS/2 protocol extension"
-+	depends on MOUSE_PS2
-+	help
-+	  Say Y here if you have an Elantech PS/2 touchpad connected
-+	  to your system.
-+
-+	  If unsure, say N.
-+
-+	  This driver exposes some configuration registers via sysfs
-+	  entries.
-+
-+	  For further information, see
-+	  <file:Documentation/input/elantech.txt>.
-+
- config MOUSE_SERIAL
- 	tristate "Serial mouse"
- 	select SERIO
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/drivers/input/mouse/Makefile linux-2.6.23.1.elantech/drivers/input/mouse/Makefile
---- linux-2.6.23.1.vanilla/drivers/input/mouse/Makefile	2007-10-12 18:43:44.000000000 +0200
-+++ linux-2.6.23.1.elantech/drivers/input/mouse/Makefile	2007-10-22 04:56:15.000000000 +0200
-@@ -24,3 +24,4 @@ psmouse-$(CONFIG_MOUSE_PS2_LOGIPS2PP)	+=
- psmouse-$(CONFIG_MOUSE_PS2_LIFEBOOK)	+= lifebook.o
- psmouse-$(CONFIG_MOUSE_PS2_TRACKPOINT)	+= trackpoint.o
- psmouse-$(CONFIG_MOUSE_PS2_TOUCHKIT)	+= touchkit_ps2.o
-+psmouse-$(CONFIG_MOUSE_PS2_ELANTECH)	+= elantech.o
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/drivers/input/mouse/elantech.c linux-2.6.23.1.elantech/drivers/input/mouse/elantech.c
---- linux-2.6.23.1.vanilla/drivers/input/mouse/elantech.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.23.1.elantech/drivers/input/mouse/elantech.c	2007-10-22 05:49:22.000000000 +0200
-@@ -0,0 +1,485 @@
-+/*
-+ * Elantech Touchpad driver
-+ *
-+ * Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published
-+ * by the Free Software Foundation.
-+ *
-+ * Trademarks are the property of their respective owners.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/serio.h>
-+#include <linux/libps2.h>
-+#include "psmouse.h"
-+#include "synaptics.h"
-+#include "elantech.h"
-+
+-#define ETP_RAW_MODE 		0x04
+-#define ETP_4_BYTE_MODE 	0x02
+-
+-/* These values work with the touchpad on my laptop. Do they need adjustment? */
+-#define ETP_XMIN 		32
+-#define ETP_XMAX 		0x240
+-#define ETP_YMIN 		32
+-#define ETP_YMAX 		0x160
 +/*
 + * Native absolute mode reporting has odd parity check on the last 3 bytes.
 + * Native relative mode can have odd parity checking on second and third byte,
 + * or last 3 bytes depending on model.
 + */
 +static unsigned char parity[256];
-+
-+/*
-+ * Send a synaptics style special commands
-+ */
-+static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c, unsigned char *param)
-+{
-+	if (psmouse_sliced_command(psmouse, c))
-+		return -1;
-+	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETINFO))
-+		return -1;
-+	return 0;
-+}
-+
-+/*
-+ * Send an Elantech style special command to write a register with a value
-+ */
-+static int elantech_write_reg(struct psmouse *psmouse, unsigned char reg, unsigned char val)
-+{
-+	if ((reg < 0x10) || (reg > 0x26))
-+		return -1;
-+	if ((reg > 0x11) && (reg < 0x20))
-+		return -1;
-+
+ 
+ /*
+  * Send a synaptics style special commands
+@@ -49,7 +47,7 @@ static int elantech_write_reg(struct psm
+ 	if ((reg > 0x11) && (reg < 0x20))
+ 		return -1;
+ 
+-	if (psmouse_sliced_command(psmouse, ELANTECH_COMMAND) ||
 +	if (psmouse_sliced_command(psmouse, ELANTECH_COMMAND_START) ||
-+	    psmouse_sliced_command(psmouse, reg) ||
-+	    psmouse_sliced_command(psmouse, val) ||
-+	    ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11)) {
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
+ 	    psmouse_sliced_command(psmouse, reg) ||
+ 	    psmouse_sliced_command(psmouse, val) ||
+ 	    ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11)) {
+@@ -59,67 +57,153 @@ static int elantech_write_reg(struct psm
+ 	return 0;
+ }
+ 
 +static void elantech_packet_dump(unsigned char *packet, int size)
 +{
 +	int	i;
@@ -317,16 +258,21 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +	printk("]\n");
 +}
 +
-+/*
+ /*
+- * Process byte stream from mouse and interpret complete data packages
 + * Report absolute mode input events
-+ */
+  */
+-static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
 +static void elantech_report_absolute(struct psmouse *psmouse)
-+{
-+	struct elantech_data 	*etd = psmouse->private;
-+	struct input_dev 	*dev = psmouse->dev;
-+	unsigned char 		*packet = psmouse->packet;
+ {
+ 	struct elantech_data 	*etd = psmouse->private;
+ 	struct input_dev 	*dev = psmouse->dev;
+ 	unsigned char 		*packet = psmouse->packet;
+-	unsigned int 		z;
 +	int			fingers;
-+
+ 
+-	if (psmouse->pktcnt < 4)
+-		return PSMOUSE_GOOD_DATA;
 +	/* byte 0:  D   U  p1  p2   1  p3   R   L
 +	 * byte 1:  f   0  th  tw  x9  x8  y9  y8
 +	 * byte 2: x7  x6  x5  x4  x3  x2  x1  x0
@@ -350,7 +296,28 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +		input_report_key(dev, BTN_BACK, packet[0] & 0x80); /* rocker down */
 +	}
 +}
-+
+ 
+-	if (etd->reg_10 & ETP_RAW_MODE) {
+-		/*
+-		 * What to do with this value? It varies too wildly to work
+-		 * as a useful z distance
+-		 */
+-		z = ((packet[0] & 0x30) >> 3) | ((packet[0] & 0x04) >> 2);
+-		input_report_key(dev, BTN_TOUCH, packet[1] & 0x80);
+-		if ((packet[1] & 0x30) == 0) {
+-			input_report_abs(dev, ABS_X,
+-				((packet[1] & 0x0c) << 6) | packet[2]);
+-			input_report_abs(dev, ABS_Y,
+-				ETP_YMIN + ETP_YMAX -
+-				(((packet[1] & 0x03) << 8) | packet[3]));
+-		}
+-		input_report_key(dev, BTN_TOOL_FINGER,    packet[1] & 0x80);
+-		input_report_key(dev, BTN_TOOL_DOUBLETAP, packet[1] & 0x10);
+-		input_report_key(dev, BTN_TOOL_TRIPLETAP, packet[1] & 0x20);
+-		input_report_key(dev, BTN_LEFT,  packet[0] & 0x01);
+-		input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+-	} else {
+-		input_report_key(dev, BTN_LEFT,   packet[0] & 0x01);
 +/*
 + * Report relative mode input events
 + */
@@ -369,8 +336,16 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
 +
 +	if (etd->capabilities & ETP_CAP_REPORTS_MIDDLE_BUTTON)
-+		input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
-+
+ 		input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
+-		input_report_key(dev, BTN_RIGHT,  packet[0] & 0x02);
+ 
+-		if ((packet[0] & 0xc0) && (packet[1] & 0xf0)) {
+-			input_report_key(dev, BTN_0, packet[3] & 0x01);	/* top right */
+-			input_report_key(dev, BTN_1, packet[3] & 0x02);	/* bottom right */
+-			input_report_key(dev, BTN_2, packet[3] & 0x04);	/* bottom left */
+-			input_report_key(dev, BTN_3, packet[3] & 0x08);	/* top left */
+-		} else if (packet[3] & 0x0f) {
+-			if (packet[3] & 0x40)
 +	if (etd->capabilities & ETP_CAP_ALTERNATE_TAP_BITS) {
 +		fingers = (packet[3] & 0x30) >> 4;
 +		input_report_key(dev, BTN_LEFT, fingers == 1);
@@ -400,15 +375,16 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +	if (etd->reg_11 & ETP_R11_PARITY_CHECKING) {
 +		if (packet[3] & 0x0f) {
 +			if (packet[3] & 0x40) {
-+				input_report_rel(dev, REL_HWHEEL,
-+					(int) (packet[3] & 0x08) -
-+					(int) (packet[3] & 0x07));
+ 				input_report_rel(dev, REL_HWHEEL,
+ 					(int) (packet[3] & 0x08) -
+ 					(int) (packet[3] & 0x07));
+-			else
 +			} else {
-+				input_report_rel(dev, REL_WHEEL,
-+					(int) (packet[3] & 0x08) -
-+					(int) (packet[3] & 0x07));
+ 				input_report_rel(dev, REL_WHEEL,
+ 					(int) (packet[3] & 0x08) -
+ 					(int) (packet[3] & 0x07));
 +			}
-+		}
+ 		}
 +	} else {
 +		if (packet[3])
 +			input_report_rel(dev, REL_WHEEL,
@@ -416,7 +392,15 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +				(int) (packet[3] & 0x7f));
 +	}
 +}
-+
+ 
+-		if (packet[1])
+-			input_report_rel(dev, REL_X,
+-				(int) (packet[1] & 0x7f) -
+-				(int) (packet[1] & 0x80));
+-		if (packet[2])
+-			input_report_rel(dev, REL_Y,
+-				(int) (packet[2] & 0x80) -
+-				(int) (packet[2] & 0x7f));
 +/*
 + * Process byte stream from mouse and interpret complete data packets
 + */
@@ -454,128 +438,37 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +		elantech_report_absolute(psmouse);
 +	} else {
 +		elantech_report_relative(psmouse);
-+	}
-+
-+	input_sync(dev);
-+
-+	return PSMOUSE_FULL_PACKET;
-+}
-+
-+/*
-+ * Initialise the touchpad to a default state. Because we don't know (yet)
-+ * how to read registers we need to write some default values so we can
-+ * report their contents when asked to.
-+ */
-+static void elantech_set_defaults(struct psmouse *psmouse)
-+{
-+	struct elantech_data 	*etd = psmouse->private;
-+	struct input_dev 	*dev = psmouse->dev;
-+
-+	/*
-+	 * For now, use the Elantech Windows driver default values
-+	 */
-+	etd->reg_10 = 0x12;
-+	elantech_write_reg(psmouse, 0x10, etd->reg_10);
-+	etd->reg_11 = 0x8f;
-+	elantech_write_reg(psmouse, 0x11, etd->reg_11);
-+	etd->reg_20 = 0x0a;
-+	elantech_write_reg(psmouse, 0x20, etd->reg_20);
-+	etd->reg_21 = 0x60;
-+	elantech_write_reg(psmouse, 0x21, etd->reg_21);
-+	etd->reg_22 = 0xff;
-+	elantech_write_reg(psmouse, 0x22, etd->reg_22);
-+	/*
-+	 * However, the Windows driver mentions registers 23, 24 and 26
-+	 * but seems to never actually write them
-+	 */
-+	etd->reg_23 = 0x10;
-+	/*
-+	 * elantech_write_reg(psmouse, 0x23, etd->reg_23);
-+	 */
-+	etd->reg_24 = 0x10;
-+	/*
-+	 * elantech_write_reg(psmouse, 0x24, etd->reg_24);
-+	 */
-+	etd->reg_25 = 0x03;
-+	elantech_write_reg(psmouse, 0x25, etd->reg_25);
-+	/*
-+	 * The Windows driver default value of 0x00 seems wrong as it
-+	 * disables smart edge cursor movement
-+	 */
-+	etd->reg_26 = 0x00;
-+	/*
-+	 * elantech_write_reg(psmouse, 0x26, etd->reg_26);
-+	 */
-+
-+	set_bit(EV_KEY, dev->evbit);
-+	set_bit(BTN_LEFT, dev->keybit);
-+	set_bit(BTN_MIDDLE, dev->keybit);
-+	set_bit(BTN_RIGHT, dev->keybit);
-+
-+	set_bit(BTN_TOUCH, dev->keybit);
-+	set_bit(BTN_TOOL_FINGER, dev->keybit);
-+	set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
-+	set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
-+
+ 	}
+ 
+ 	input_sync(dev);
+@@ -183,6 +267,12 @@ static void elantech_set_defaults(struct
+ 	set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+ 	set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
+ 
 +	/* Rocker button */
 +	if (etd->capabilities & ETP_CAP_HAS_ROCKER) {
 +		set_bit(BTN_FORWARD, dev->keybit);
 +		set_bit(BTN_BACK, dev->keybit);
 +	}
 +
-+	/* Corner taps */
-+	set_bit(BTN_0, dev->keybit);
-+	set_bit(BTN_1, dev->keybit);
-+	set_bit(BTN_2, dev->keybit);
-+	set_bit(BTN_3, dev->keybit);
-+
-+	set_bit(EV_REL, dev->evbit);
-+	set_bit(REL_X, dev->relbit);
-+	set_bit(REL_Y, dev->relbit);
-+	set_bit(REL_WHEEL, dev->relbit);
-+	set_bit(REL_HWHEEL, dev->relbit);
-+
-+	set_bit(EV_ABS, dev->evbit);
-+	input_set_abs_params(dev, ABS_X, ETP_XMIN, ETP_XMAX, 0, 0);
-+	input_set_abs_params(dev, ABS_Y, ETP_YMIN, ETP_YMAX, 0, 0);
+ 	/* Corner taps */
+ 	set_bit(BTN_0, dev->keybit);
+ 	set_bit(BTN_1, dev->keybit);
+@@ -198,6 +288,7 @@ static void elantech_set_defaults(struct
+ 	set_bit(EV_ABS, dev->evbit);
+ 	input_set_abs_params(dev, ABS_X, ETP_XMIN, ETP_XMAX, 0, 0);
+ 	input_set_abs_params(dev, ABS_Y, ETP_YMIN, ETP_YMAX, 0, 0);
 +	input_set_abs_params(dev, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
-+}
-+
-+struct elantech_attr_data {
-+	size_t		field_offset;
-+	unsigned char	reg;
-+};
-+
-+/*
-+ * Display a register value by reading a sysfs entry
-+ */
-+static ssize_t elantech_show_int_attr(struct psmouse *psmouse, void *data, char *buf)
-+{
-+	struct elantech_data		*etd = psmouse->private;
-+	struct elantech_attr_data	*attr = data;
-+	unsigned char			*reg = (unsigned char *)
-+						etd + attr->field_offset;
-+
-+	return sprintf(buf, "0x%02x\n", *reg);
-+}
-+
-+/*
-+ * Write a register value by writing a sysfs entry
-+ */
-+static ssize_t elantech_set_int_attr(struct psmouse *psmouse, void *data,
-+						const char *buf, size_t count)
-+{
-+	struct elantech_data 		*etd = psmouse->private;
-+	struct elantech_attr_data 	*attr = data;
-+	unsigned char 			*reg = (unsigned char *)
-+						etd + attr->field_offset;
-+	unsigned long			value;
-+	char				*rest;
-+
-+	value = simple_strtoul(buf, &rest, 16);
-+	if (*rest || value > 255)
-+		return -EINVAL;
-+
+ }
+ 
+ struct elantech_attr_data {
+@@ -235,9 +326,26 @@ static ssize_t elantech_set_int_attr(str
+ 	if (*rest || value > 255)
+ 		return -EINVAL;
+ 
+-	/* Force 4 byte packet mode because driver expects this */
+-	if (attr->reg == 0x11)
+-		value |= ETP_4_BYTE_MODE;
 +	if (attr->reg == 0x10) {
 +		/* Force on 4 byte mode when absolute mode gets selected */
 +		if ((value & ETP_R10_ABSOLUTE_MODE) &&
@@ -596,96 +489,52 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +			psmouse->pktsize = 3;
 +		}
 +	}
-+
-+	*reg = value;
-+	elantech_write_reg(psmouse, attr->reg, value);
-+
-+	return count;
-+}
-+
-+#define ELANTECH_INT_ATTR(_name, _register)				\
-+	static struct elantech_attr_data elantech_attr_##_name = {	\
-+		.field_offset = offsetof(struct elantech_data, _name),	\
-+		.reg = _register,					\
-+	};								\
-+	PSMOUSE_DEFINE_ATTR(_name, S_IWUSR | S_IRUGO,			\
-+			    &elantech_attr_##_name,			\
-+			    elantech_show_int_attr,			\
-+			    elantech_set_int_attr)
-+
-+ELANTECH_INT_ATTR(reg_10, 0x10);
-+ELANTECH_INT_ATTR(reg_11, 0x11);
-+ELANTECH_INT_ATTR(reg_20, 0x20);
-+ELANTECH_INT_ATTR(reg_21, 0x21);
-+ELANTECH_INT_ATTR(reg_22, 0x22);
-+ELANTECH_INT_ATTR(reg_23, 0x23);
-+ELANTECH_INT_ATTR(reg_24, 0x24);
-+ELANTECH_INT_ATTR(reg_25, 0x25);
-+ELANTECH_INT_ATTR(reg_26, 0x26);
+ 
+ 	*reg = value;
+ 	elantech_write_reg(psmouse, attr->reg, value);
+@@ -264,6 +372,7 @@ ELANTECH_INT_ATTR(reg_23, 0x23);
+ ELANTECH_INT_ATTR(reg_24, 0x24);
+ ELANTECH_INT_ATTR(reg_25, 0x25);
+ ELANTECH_INT_ATTR(reg_26, 0x26);
 +ELANTECH_INT_ATTR(debug, 0);
-+
-+static struct attribute *elantech_attrs[] = {
-+	&psmouse_attr_reg_10.dattr.attr,
-+	&psmouse_attr_reg_11.dattr.attr,
-+	&psmouse_attr_reg_20.dattr.attr,
-+	&psmouse_attr_reg_21.dattr.attr,
-+	&psmouse_attr_reg_22.dattr.attr,
-+	&psmouse_attr_reg_23.dattr.attr,
-+	&psmouse_attr_reg_24.dattr.attr,
-+	&psmouse_attr_reg_25.dattr.attr,
-+	&psmouse_attr_reg_26.dattr.attr,
+ 
+ static struct attribute *elantech_attrs[] = {
+ 	&psmouse_attr_reg_10.dattr.attr,
+@@ -275,6 +384,7 @@ static struct attribute *elantech_attrs[
+ 	&psmouse_attr_reg_24.dattr.attr,
+ 	&psmouse_attr_reg_25.dattr.attr,
+ 	&psmouse_attr_reg_26.dattr.attr,
 +	&psmouse_attr_debug.dattr.attr,
-+	NULL
-+};
-+
-+static struct attribute_group elantech_attr_group = {
-+	.attrs = elantech_attrs,
-+};
-+
-+/*
-+ * Clean up sysfs entries when disconnecting
-+ */
-+static void elantech_disconnect(struct psmouse *psmouse)
-+{
-+	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
-+				&elantech_attr_group);
-+	kfree(psmouse->private);
-+	psmouse->private = NULL;
-+}
-+
-+/*
-+ * Use magic knock to detect Elantech touchpad
-+ */
-+int elantech_detect(struct psmouse *psmouse, int set_properties)
-+{
-+	struct ps2dev	*ps2dev = &psmouse->ps2dev;
-+	unsigned char	param[3];
-+
-+	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_DISABLE);
-+	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
-+	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
-+	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
-+	ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO);
-+
-+	if ((param[0] != 0x3c) || (param[1] != 0x03) || (param[2] != 0xc8)) {
-+		pr_info("elantech.c: unexpected magic knock result 0x%02x, 0x%02x, 0x%02x.\n",
-+			param[0], param[1], param[2]);
-+		return -1;
-+	}
-+
-+	if (set_properties) {
-+		psmouse->vendor = "Elantech";
-+		psmouse->name = "Touchpad";
-+	}
-+
-+	return 0;
-+}
-+
-+/*
-+ * Initialize the touchpad and create sysfs entries
-+ */
-+int elantech_init(struct psmouse *psmouse)
-+{
+ 	NULL
+ };
+ 
+@@ -312,16 +422,6 @@ int elantech_detect(struct psmouse *psmo
+ 			param[0], param[1], param[2]);
+ 		return -1;
+ 	}
+-	/* Why does the Elantech Windows driver try this?
+-	 * For now just report it and see if it makes sense
+-	 * when more people use this driver
+-	 */
+-	if (!synaptics_send_cmd(psmouse, SYN_QUE_MODEL, param))
+-		pr_info("elantech.c: Synaptics identify query result 0x%02x, 0x%02x, 0x%02x.\n",
+-			param[0], param[1], param[2]);
+-	if (!synaptics_send_cmd(psmouse, SYN_QUE_CAPABILITIES, param))
+-		pr_info("elantech.c: Synaptics capabilities query result 0x%02x, 0x%02x, 0x%02x.\n",
+-			param[0], param[1], param[2]);
+ 
+ 	if (set_properties) {
+ 		psmouse->vendor = "Elantech";
+@@ -336,14 +436,36 @@ int elantech_detect(struct psmouse *psmo
+  */
+ int elantech_init(struct psmouse *psmouse)
+ {
+-	struct elantech_data 	*priv;
+-	int			error;
+-
+-	priv = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
+-	psmouse->private = priv;
+-	if (!priv)
 +	struct elantech_data 	*etd;
 +	int			i, error;
 +	unsigned char		param[3];
@@ -693,8 +542,8 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +	etd = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
 +	psmouse->private = etd;
 +	if (!etd)
-+		return -1;
-+
+ 		return -1;
+ 
 +	parity[0] = 1;
 +	for (i = 1; i < 256; i++)
 +		parity[i] = (parity[i & (i - 1)] ^ 1);
@@ -716,42 +565,26 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 +		etd->capabilities = param[0];
 +	}
 +
-+	elantech_set_defaults(psmouse);
-+
-+	psmouse->protocol_handler = elantech_process_byte;
-+	psmouse->disconnect = elantech_disconnect;
-+	psmouse->pktsize = 4;
-+
-+	error = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
-+					&elantech_attr_group);
-+	if (error) {
-+		printk(KERN_ERR "elantech.c: failed to create sysfs attributes, error: %d\n",
-+			error);
+ 	elantech_set_defaults(psmouse);
+ 
+ 	psmouse->protocol_handler = elantech_process_byte;
+@@ -355,7 +477,7 @@ int elantech_init(struct psmouse *psmous
+ 	if (error) {
+ 		printk(KERN_ERR "elantech.c: failed to create sysfs attributes, error: %d\n",
+ 			error);
+-		kfree(priv);
 +		kfree(etd);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/drivers/input/mouse/elantech.h linux-2.6.23.1.elantech/drivers/input/mouse/elantech.h
---- linux-2.6.23.1.vanilla/drivers/input/mouse/elantech.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.23.1.elantech/drivers/input/mouse/elantech.h	2007-10-22 04:56:15.000000000 +0200
-@@ -0,0 +1,82 @@
-+/*
-+ * Elantech Touchpad driver
-+ *
-+ * Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published
-+ * by the Free Software Foundation.
-+ *
-+ * Trademarks are the property of their respective owners.
-+ */
-+
-+#ifndef _ELANTECH_H
-+#define _ELANTECH_H
-+
+ 		return -1;
+ 	}
+ 
+diff -purN -X linux-2.6.23-mm1.vanilla/Documentation/dontdiff linux-2.6.23-mm1.vanilla/drivers/input/mouse/elantech.h linux-2.6.23-mm1.elantech/drivers/input/mouse/elantech.h
+--- linux-2.6.23-mm1.vanilla/drivers/input/mouse/elantech.h	2007-10-22 05:17:57.000000000 +0200
++++ linux-2.6.23-mm1.elantech/drivers/input/mouse/elantech.h	2007-10-22 05:25:23.000000000 +0200
+@@ -13,7 +13,43 @@
+ #ifndef _ELANTECH_H
+ #define _ELANTECH_H
+ 
+-#define ELANTECH_COMMAND	0x11	/* Commands start with this value */
 +/*
 + * Commands start with this value
 + */
@@ -789,85 +622,15 @@ diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanil
 + */
 +#define ETP_MAX_PRESSURE		127
 +#define ETP_DEF_PRESSURE		64
-+
-+struct elantech_data {
-+	unsigned char reg_10;
-+	unsigned char reg_11;
-+	unsigned char reg_20;
-+	unsigned char reg_21;
-+	unsigned char reg_22;
-+	unsigned char reg_23;
-+	unsigned char reg_24;
-+	unsigned char reg_25;
-+	unsigned char reg_26;
+ 
+ struct elantech_data {
+ 	unsigned char reg_10;
+@@ -25,6 +61,8 @@ struct elantech_data {
+ 	unsigned char reg_24;
+ 	unsigned char reg_25;
+ 	unsigned char reg_26;
 +	unsigned char debug;
 +	unsigned char capabilities;
-+};
-+
-+#ifdef CONFIG_MOUSE_PS2_ELANTECH
-+int elantech_detect(struct psmouse *psmouse, int set_properties);
-+int elantech_init(struct psmouse *psmouse);
-+#else
-+static inline int elantech_detect(struct psmouse *psmouse, int set_properties)
-+{
-+	return -ENOSYS;
-+}
-+static inline int elantech_init(struct psmouse *psmouse)
-+{
-+	return -ENOSYS;
-+}
-+#endif /* CONFIG_MOUSE_PS2_ELANTECH */
-+
-+#endif
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/drivers/input/mouse/psmouse-base.c linux-2.6.23.1.elantech/drivers/input/mouse/psmouse-base.c
---- linux-2.6.23.1.vanilla/drivers/input/mouse/psmouse-base.c	2007-10-12 18:43:44.000000000 +0200
-+++ linux-2.6.23.1.elantech/drivers/input/mouse/psmouse-base.c	2007-10-22 04:56:15.000000000 +0200
-@@ -29,6 +29,7 @@
- #include "lifebook.h"
- #include "trackpoint.h"
- #include "touchkit_ps2.h"
-+#include "elantech.h"
- 
- #define DRIVER_DESC	"PS/2 mouse driver"
- 
-@@ -653,6 +654,13 @@ static int psmouse_extensions(struct psm
-  */
- 	psmouse_reset(psmouse);
- 
-+	if (elantech_detect(psmouse, set_properties) == 0) {
-+		if (max_proto > PSMOUSE_IMEX) {
-+			if (!set_properties || elantech_init(psmouse) == 0)
-+				return PSMOUSE_ELANTECH;
-+		}
-+	}
-+
- 	if (max_proto >= PSMOUSE_IMEX && im_explorer_detect(psmouse, set_properties) == 0)
- 		return PSMOUSE_IMEX;
- 
-@@ -762,6 +770,15 @@ static const struct psmouse_protocol psm
- 		.detect		= touchkit_ps2_detect,
- 	},
- #endif
-+#ifdef CONFIG_MOUSE_PS2_ELANTECH
-+	{
-+		.type		= PSMOUSE_ELANTECH,
-+		.name		= "ETPS/2",
-+		.alias		= "elantech",
-+		.detect		= elantech_detect,
-+		.init		= elantech_init,
-+	},
-+#endif
- 	{
- 		.type		= PSMOUSE_CORTRON,
- 		.name		= "CortronPS/2",
-diff -purN -X linux-2.6.23.1.vanilla/Documentation/dontdiff linux-2.6.23.1.vanilla/drivers/input/mouse/psmouse.h linux-2.6.23.1.elantech/drivers/input/mouse/psmouse.h
---- linux-2.6.23.1.vanilla/drivers/input/mouse/psmouse.h	2007-10-12 18:43:44.000000000 +0200
-+++ linux-2.6.23.1.elantech/drivers/input/mouse/psmouse.h	2007-10-22 05:02:48.000000000 +0200
-@@ -88,6 +88,7 @@ enum psmouse_type {
- 	PSMOUSE_LIFEBOOK,
- 	PSMOUSE_TRACKPOINT,
- 	PSMOUSE_TOUCHKIT_PS2,
-+	PSMOUSE_ELANTECH,
- 	PSMOUSE_CORTRON,
- 	PSMOUSE_AUTO		/* This one should always be last */
  };
+ 
+ #ifdef CONFIG_MOUSE_PS2_ELANTECH

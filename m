@@ -1,40 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: New version of Elantech touchpad driver for kernel 2.6.23.1
-Date: Wed, 24 Oct 2007 00:10:07 -0400
-Message-ID: <200710240010.08023.dmitry.torokhov@gmail.com>
-References: <20071024035002.GA12026@adopmeer.homeip.net>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: [PATCH] appletouch: add myself as maintainer
+Date: Wed, 24 Oct 2007 13:46:23 +0200
+Message-ID: <1193226383.4510.28.camel@johannes.berg>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071024035002.GA12026@adopmeer.homeip.net>
-Content-Disposition: inline
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Cc: Arjan Opmeer <arjan@opmeer.net>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday 23 October 2007, Arjan Opmeer wrote:
-> @@ -88,6 +88,7 @@ enum psmouse_type {
-> =A0=A0=A0=A0=A0=A0=A0=A0PSMOUSE_LIFEBOOK,
-> =A0=A0=A0=A0=A0=A0=A0=A0PSMOUSE_TRACKPOINT,
-> =A0=A0=A0=A0=A0=A0=A0=A0PSMOUSE_TOUCHKIT_PS2,
-> +=A0=A0=A0=A0=A0=A0=A0PSMOUSE_ELANTECH,
-> =A0=A0=A0=A0=A0=A0=A0=A0PSMOUSE_CORTRON,
-> =A0=A0=A0=A0=A0=A0=A0=A0PSMOUSE_AUTO=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0/=
-* This one should always be last */
-> =A0};
+After the last patch that broke appletouch for powerbooks again (many
+more have previously been proposed), I'd like to take over
+maintainership of this driver to make sure it doesn't break again in the
+future.
 
-Do not move protocol constants around as they are exported to
-userspace. New protocols should go to the end of the list
-(right in front of PSMOUSE_AUTO).
+Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
+---
+ MAINTAINERS |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Thanks.=20
-
-=2D-=20
-Dmitry
+--- linux-2.6.orig/MAINTAINERS	2007-10-24 13:44:34.550220973 +0200
++++ linux-2.6/MAINTAINERS	2007-10-24 13:45:31.630206271 +0200
+@@ -398,6 +398,12 @@ P:	Arnaldo Carvalho de Melo
+ M:	acme@ghostprotocols.net
+ S:	Maintained
+ 
++APPLETOUCH TOUCHPAD DRIVER
++P:	Johannes Berg
++M:	johannes@sipsolutions.net
++L:	linux-input@atrey.karlin.mff.cuni.cz
++S:	Maintained
++
+ ARC FRAMEBUFFER DRIVER
+ P:	Jaya Kumar
+ M:	jayalk@intworks.biz

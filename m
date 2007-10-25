@@ -1,137 +1,94 @@
-From: "Harlan Lyles" <emanuele.danby@vipersgarden.at>
-Subject: Enjoy with you hard stick
-Date: Thu, 25 Oct 2007 16:46:34 +0000
-Message-ID: <837879873.75812177451295@vipersgarden.at>
-Reply-To: emanuele.danby@vipersgarden.at
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: [PATCH] apanel: space savings.
+Date: Thu, 25 Oct 2007 13:19:06 -0700
+Message-ID: <20071025131906.36847ed7@shemminger-laptop>
+References: <20070702111724.43ee5b43@freepuppy.localdomain.hemminger.net>
+	<200709140130.59732.dtor@insightbb.com>
+	<20070916215516.2934abad@oldman.hemminger.net>
+	<200709161623.00286.dtor@insightbb.com>
+	<20071023125555.38d63567@shemminger-laptop>
+	<20071024160300.85e1cbda.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----------597BFDA21A059E"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20071024160300.85e1cbda.akpm@linux-foundation.org>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: dtor@insightbb.com, pavel@ucw.cz, lenb@kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-------------597BFDA21A059E
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Eliminate the device_names they are only used for debug
+messages. Add paren's for one expression.
 
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-
-------------597BFDA21A059E
-Content-Type: image/gif; name="ust.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="ust.gif"
-
-R0lGODlhsgAEAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAACyAAQB
-AAj/AP8JHEiwoMGDCBMqXEhtocOHECNKnEjxH4yKDlPBwsixo8NmFQ8Z8khyC8mTCLehJAlypcuX
-MB1Wi0mzJkZq02w+zHdwps6fQIN69EmQqFCPGxM2PDpwKVOCo5w9jamyIr6DtlA6nVoQ1taY97hS
-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 
-
-------------597BFDA21A059E--
+--- a/drivers/input/misc/apanel.c	2007-10-25 09:20:23.000000000 -0700
++++ b/drivers/input/misc/apanel.c	2007-10-25 12:07:00.000000000 -0700
+@@ -27,7 +27,7 @@
+ #include <linux/leds.h>
+ 
+ #define APANEL_NAME	"Fujitsu Application Panel"
+-#define APANEL_VERSION	"1.3"
++#define APANEL_VERSION	"1.3.1"
+ #define APANEL		"apanel"
+ 
+ /* How often we poll keys - msecs */
+@@ -40,6 +40,7 @@ enum apanel_devid {
+ 	APANEL_DEV_CDBTN  = 2,
+ 	APANEL_DEV_LCD	  = 3,
+ 	APANEL_DEV_LED	  = 4,
++
+ 	APANEL_DEV_MAX,
+ };
+ 
+@@ -53,14 +54,6 @@ enum apanel_chip {
+ /* Result of BIOS snooping/probing -- what features are supported */
+ static enum apanel_chip device_chip[APANEL_DEV_MAX];
+ 
+-/* names for APANEL_XXX */
+-static const char *device_names[APANEL_DEV_MAX] __initdata = {
+-	[APANEL_DEV_APPBTN] = "Application Buttons",
+-	[APANEL_DEV_LCD]    = "LCD",
+-	[APANEL_DEV_LED]    = "LED",
+-	[APANEL_DEV_CDBTN]  = "CD Buttons",
+-};
+-
+ #define MAX_PANEL_KEYS	12
+ 
+ struct apanel {
+@@ -123,7 +116,7 @@ static void apanel_poll(struct input_pol
+ 
+ 	dev_dbg(&ipdev->input->dev, APANEL ": data %#x\n", data);
+ 	for (i = 0; i < ipdev->input->keycodemax; i++)
+-		if (1ul << i & data)
++		if ((1u << i) & data)
+ 			report_key(idev, ap->keymap[i]);
+ }
+ 
+@@ -366,17 +359,14 @@ static int __init apanel_init(void)
+ 		}
+ 
+ 		if (devno >= APANEL_DEV_MAX)
+-			pr_notice(APANEL ": unknown device %d found\n", devno);
++			pr_notice(APANEL ": unknown device %u found\n", devno);
+ 		else if (device_chip[devno] != CHIP_NONE)
+-			pr_warning(APANEL ": duplicate entry for %s\n",
+-				   device_names[devno]);
++			pr_warning(APANEL ": duplicate entry for devno %u\n", devno);
+ 
+ 		else if (method != 1 && method != 2 && method != 4) {
+-			pr_notice(APANEL ": unknown  method %u for %s\n",
+-				  method, device_names[devno]);
++			pr_notice(APANEL ": unknown method %u for devno %u\n",
++				  method, devno);
+ 		} else {
+-			pr_debug(APANEL ": %s found.\n", device_names[devno]);
+-
+ 			device_chip[devno] = (enum apanel_chip) chip;
+ 			++found;
+ 		}

@@ -1,115 +1,32 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] Fujitsu application panel driver
-Date: Wed, 24 Oct 2007 16:03:00 -0700
-Message-ID: <20071024160300.85e1cbda.akpm@linux-foundation.org>
-References: <20070702111724.43ee5b43@freepuppy.localdomain.hemminger.net>
-	<200709140130.59732.dtor@insightbb.com>
-	<20070916215516.2934abad@oldman.hemminger.net>
-	<200709161623.00286.dtor@insightbb.com>
-	<20071023125555.38d63567@shemminger-laptop>
+From: Ryan Lortie <desrt@desrt.ca>
+Subject: Re: [PATCH] Input: Support for a less exclusive grab.
+Date: Thu, 25 Oct 2007 01:37:34 -0400
+Message-ID: <1193290654.15893.2.camel@moonpix.desrt.ca>
+References: <20070609084800.GR6362@aehallh.com>
+	 <d120d5000710231110u79ea11a8p38f1fc4654a7fac2@mail.gmail.com>
+	 <1193191094.32696.2.camel@moonpix.desrt.ca>
+	 <200710232333.08306.dmitry.torokhov@gmail.com>
+	 <20071024153508.GG26573@aehallh.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071023125555.38d63567@shemminger-laptop>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Stephen Hemminger <shemminger@linux-foundation.org>
-Cc: dtor@insightbb.com, pavel@ucw.cz, lenb@kernel.org, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760696AbXJYFie@vger.kernel.org>
+In-Reply-To: <20071024153508.GG26573@aehallh.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Zephaniah E. Hull" <warp@aehallh.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 23 Oct 2007 12:55:55 -0700
-Stephen Hemminger <shemminger@linux-foundation.org> wrote:
-
-> This driver supports the application buttons on some Fujitsu Lifebook
-> laptops. It is based on the earlier apanel driver done by Jochen
-> Eisenger, but with many changes.  The original driver used ioctl's and
-> a separate user space program (see http://apanel.sourceforge.net). This
-> driver hooks into the input subsystem so that the normal keys act as
-> expected without a daemon. In addition to buttons, the Mail Led is
-> handled via LEDs class device.
+On Wed, 2007-24-10 at 11:35 -0400, Zephaniah E. Hull wrote:
+> We need a way to, at the absolute minimum, unbind the keyboard from the
+> text console.  The current solution sucks for things like rfkill.
 > 
-> The driver now supports redefinable keymaps and no longer has to
-> have a DMI table for all Fujitsu laptops.
-> 
-> I thought about mixing this driver should be integrated into the Fujitsu laptop
-> extras driver that handles backlight, but rejected the idea because
-> it wasn't clear if all the Fujitsu laptops supported both.
-> 
-> ...
->
-> +
-> +/* Magic constants in BIOS that tell about buttons */
-> +enum apanel_devid {
-> +	APANEL_DEV_NONE	  = 0,
-> +	APANEL_DEV_APPBTN = 1,
-> +	APANEL_DEV_CDBTN  = 2,
-> +	APANEL_DEV_LCD	  = 3,
-> +	APANEL_DEV_LED	  = 4,
-> +	APANEL_DEV_MAX,
-> +};
+> I'm not convinced that Ryan's fix is any better, but just saying that X
+> should open the console and ignore the characters is simply not an
+> option as far as I am concerned for X.
 
-APANEL_DEV_MAX == 5.
+Can you think of any other way to separate things like rfkill/evdev from
+things like the text console that's less hacky than my 'priority'
+scheme?
 
-> +enum apanel_chip {
-> +	CHIP_NONE    = 0,
-> +	CHIP_OZ992C  = 1,
-> +	CHIP_OZ163T  = 2,
-> +	CHIP_OZ711M3 = 4,
-> +};
-> +
-> +/* Result of BIOS snooping/probing -- what features are supported */
-> +static enum apanel_chip device_chip[APANEL_DEV_MAX];
-> +
-> +/* names for APANEL_XXX */
-> +static const char *device_names[APANEL_DEV_MAX] __initdata = {
-
-We just wasted sizeof(char *)?
-
-> +	[APANEL_DEV_APPBTN] = "Application Buttons",
-> +	[APANEL_DEV_LCD]    = "LCD",
-> +	[APANEL_DEV_LED]    = "LED",
-> +	[APANEL_DEV_CDBTN]  = "CD Buttons",
-> +};
-> +
-> +
-> +/* Poll for key changes
-> + *
-> + * Read Application keys via SMI
-> + *  A (0x4), B (0x8), Internet (0x2), Email (0x1).
-> + *
-> + * CD keys:
-> + * Forward (0x100), Rewind (0x200), Stop (0x400), Pause (0x800)
-> + */
-> +static void apanel_poll(struct input_polled_dev *ipdev)
-> +{
-> +	struct apanel *ap = ipdev->private;
-> +	struct input_dev *idev = ipdev->input;
-> +	u8 cmd = device_chip[APANEL_DEV_APPBTN] == CHIP_OZ992C ? 0 : 8;
-> +	s32 data;
-> +	int i;
-> +
-> +	data = i2c_smbus_read_word_data(&ap->client, cmd);
-> +	if (data < 0)
-> +		return;	/* ignore errors (due to ACPI??) */
-> +
-> +	/* write back to clear latch */
-> +	i2c_smbus_write_word_data(&ap->client, cmd, 0);
-> +
-> +	if (!data)
-> +		return;
-> +
-> +	dev_dbg(&ipdev->input->dev, APANEL ": data %#x\n", data);
-> +	for (i = 0; i < ipdev->input->keycodemax; i++)
-> +		if (1ul << i & data)
-
-You made me google for the c precedence table.
-
-> +			report_key(idev, ap->keymap[i]);
-> +}
->
-> ...
->
+Cheers

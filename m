@@ -1,48 +1,55 @@
-From: "Zephaniah E. Hull" <warp@aehallh.com>
+From: Ryan Lortie <desrt@desrt.ca>
 Subject: Re: [PATCH] Input: Support for a less exclusive grab.
-Date: Fri, 26 Oct 2007 12:44:41 -0400
-Message-ID: <20071026164441.GI26573@aehallh.com>
-References: <20070609084800.GR6362@aehallh.com> <d120d5000710231110u79ea11a8p38f1fc4654a7fac2@mail.gmail.com> <1193191094.32696.2.camel@moonpix.desrt.ca> <200710232333.08306.dmitry.torokhov@gmail.com> <20071024153508.GG26573@aehallh.com> <1193290654.15893.2.camel@moonpix.desrt.ca>
+Date: Fri, 26 Oct 2007 13:16:31 -0400
+Message-ID: <1193418991.7673.5.camel@moonpix.desrt.ca>
+References: <20070609084800.GR6362@aehallh.com>
+	 <d120d5000710231110u79ea11a8p38f1fc4654a7fac2@mail.gmail.com>
+	 <1193191094.32696.2.camel@moonpix.desrt.ca>
+	 <200710232333.08306.dmitry.torokhov@gmail.com>
+	 <20071024153508.GG26573@aehallh.com>
+	 <1193290654.15893.2.camel@moonpix.desrt.ca>
+	 <20071026164441.GI26573@aehallh.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <1193290654.15893.2.camel@moonpix.desrt.ca>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Ryan Lortie <desrt@desrt.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764372AbXJZRRX@vger.kernel.org>
+In-Reply-To: <20071026164441.GI26573@aehallh.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Zephaniah E. Hull" <warp@aehallh.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Oct 25, 2007 at 01:37:34AM -0400, Ryan Lortie wrote:
-> On Wed, 2007-24-10 at 11:35 -0400, Zephaniah E. Hull wrote:
-> > We need a way to, at the absolute minimum, unbind the keyboard from the
-> > text console.  The current solution sucks for things like rfkill.
-> > 
-> > I'm not convinced that Ryan's fix is any better, but just saying that X
-> > should open the console and ignore the characters is simply not an
-> > option as far as I am concerned for X.
-> 
-> Can you think of any other way to separate things like rfkill/evdev from
-> things like the text console that's less hacky than my 'priority'
-> scheme?
+On Fri, 2007-26-10 at 12:44 -0400, Zephaniah E. Hull wrote:
+> A 'filter' cares about a key or two, and might even want to remove it
+> from the stream, rfkill is a good example.
 
-What we really want to give is exclusitivity verses other 'end users',
-as opposed the 'filters'.
+The patch introduces two different features that work nicely together
+but, by no means have to be used together.
 
-I'm defining an 'end user' to be a handler that cares about all the
-events from a device and plans on doing something with it.
+1) set interested events
 
-That would be the console layer for keyboards, /dev/input/mice and
-/dev/input/mouse<n> for mice, X for both of those, etc.
+  By default, -all- events are delivered to an event device.  you only
+  get selective delivery when you explicitly use the 'set bits' call.
 
-A 'filter' cares about a key or two, and might even want to remove it
-from the stream, rfkill is a good example.
 
-Now, how do we design for that?  Not a clue right now, still thinking
-about it really.
+2) filter
 
-Zephaniah E. Hull.
+  Filter all events that have been delivered to the user from further
+  propagation.
+
+
+Notice that if you do not use feature #1 then you get all keystrokes
+delivered to you (unless someone with a higher priority than you did
+some filtering).  If you then use feature #2 then you filter everything
+(since everything is delivered to you).
+
+
+
+I really do think that this is good for your use case.  Your use of it
+would basically involve opening the event device and saying
+"ioctl(turn_filter_on);".  The default case is that all keys are
+delivered (and therefore blocked from anyone below you).
+
+
+
+Cheers

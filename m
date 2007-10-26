@@ -1,66 +1,79 @@
-From: "Zephaniah E. Hull" <warp@aehallh.com>
-Subject: Re: [PATCH] Input: Support for a less exclusive grab.
-Date: Fri, 26 Oct 2007 13:58:25 -0400
-Message-ID: <20071026175825.GJ26573@aehallh.com>
-References: <20070609084800.GR6362@aehallh.com> <d120d5000710231110u79ea11a8p38f1fc4654a7fac2@mail.gmail.com> <1193191094.32696.2.camel@moonpix.desrt.ca> <200710232333.08306.dmitry.torokhov@gmail.com> <20071024153508.GG26573@aehallh.com> <1193290654.15893.2.camel@moonpix.desrt.ca> <20071026164441.GI26573@aehallh.com> <1193418991.7673.5.camel@moonpix.desrt.ca>
+From: "Mrs.Hannah Jack Williams" <hannahjack@hannah.co.uk>
+Subject: MY INHERITANCE.
+Date: Fri, 26 Oct 2007 19:58:50 +0200
+Message-ID: <1193421530.47222adab38dd@webmail.inecco.net>
+Reply-To: barr_edward_hayeschambers@yahoo.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <1193418991.7673.5.camel@moonpix.desrt.ca>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Ryan Lortie <desrt@desrt.ca>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Oct 26, 2007 at 01:16:31PM -0400, Ryan Lortie wrote:
-> On Fri, 2007-26-10 at 12:44 -0400, Zephaniah E. Hull wrote:
-> > A 'filter' cares about a key or two, and might even want to remove it
-> > from the stream, rfkill is a good example.
-> 
-> The patch introduces two different features that work nicely together
-> but, by no means have to be used together.
-> 
-> 1) set interested events
-> 
->   By default, -all- events are delivered to an event device.  you only
->   get selective delivery when you explicitly use the 'set bits' call.
-> 
-> 
-> 2) filter
-> 
->   Filter all events that have been delivered to the user from further
->   propagation.
-> 
-> 
-> Notice that if you do not use feature #1 then you get all keystrokes
-> delivered to you (unless someone with a higher priority than you did
-> some filtering).  If you then use feature #2 then you filter everything
-> (since everything is delivered to you).
-> 
-> 
-> 
-> I really do think that this is good for your use case.  Your use of it
-> would basically involve opening the event device and saying
-> "ioctl(turn_filter_on);".  The default case is that all keys are
-> delivered (and therefore blocked from anyone below you).
+MY INHERITANCE.
 
+My name is Mrs. Hannah Jack Williams I am a dying woman who have decided =
+to
+donate what I have to you/Organization. I am 59 years old and I was diagn=
+osed
+for cancer about 2 years ago, immediately after the death of my
+husband, who had left me everything he worked for. I have been touched by=
+ God
+to donate from what I have inherited from my late husband to you for the =
+good
+work of God than allow my relatives to use my husband hard earned
+funds ungodly.
 
-But it's not really above/below, I don't want another X session with the
-same priority level coming along and stealing the device, but I do want
-to be able to steal it from the console.
+Please pray that the good Lord forgive me my sins. I have asked God to fo=
+rgive
+me and I believe he has because He is a merciful God. I will be going in =
+for an
+operation tomorrow morning I decided to WILL/donate the
+sum of $3,500,000(Three million five hundred thousand dollars) to
+you/Organization for the good work of the lord, and also to help the moth=
+erless
+and less privilege and also for the assistance of the widows according to
+(JAMES 1:27).
 
-I'm just not entirely convinced that we need priority levels, but if we
-do go for them, then we want some documentation very clearly spelling
-them out.
-> 
-> 
-> 
-> Cheers
-> 
+At the moment I cannot take any telephone calls right now due to the fact=
+ that
+my relatives are around me and my health status. I have adjusted my WILL =
+and my
+Executor is aware I have changed my will; you and he will arrange the tra=
+nsfer
+of the funds from the Private Finance Company to your humble self.
 
--- 
+This decision was taking after going through your personal profile. I wis=
+h you
+all the best and may the good Lord bless you abundantly, Please use the f=
+unds
+well and always extend the good work to others.
+
+Contact my Executor with this specified Email:
+_________________________________________
+BARRISTER EDWARD HAYES
+Email addres:barr_edward_hayeschambers@yahoo.de
+_________________________________________
+
+with your full names contact telephone/fax number and your full address a=
+nd
+tell him that I have WILLED($3,500,000.00) to you and I have also notifie=
+d him
+that I am WILL-IN that amount to you for a specific and good work. Thanks=
+ and
+God bless.
+
+NB: I will appreciate your utmost confidentiality in this matter until th=
+e task
+is accomplished as I don=92t want anything that will jeopardize my last w=
+ish. And
+Also I will be contacting you by email as I don=92t want my relation or a=
+nybody
+to know because they are always around me.
+
+Regards,
+Mrs.Hannah Jack Williams.

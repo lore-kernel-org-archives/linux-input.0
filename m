@@ -1,50 +1,40 @@
-From: Helge Deller <deller@gmx.de>
-Subject: [PATCH] inport.c & logibm.c should use KERN_WARNING instead of KERN_ERR
-Date: Sun, 28 Oct 2007 19:58:05 +0100
-Message-ID: <200710281958.05589.deller@gmx.de>
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [RFC: 2.6 patch] remove the USB_STORAGE_ONETOUCH driver
+Date: Sun, 28 Oct 2007 21:39:50 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0710282134020.18815@twin.jikos.cz>
+References: <20071028155212.GC7227@stusta.de>
+ <64bb37e0710281048x589ab063o8a32294e30488979@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
+In-Reply-To: <64bb37e0710281048x589ab063o8a32294e30488979@mail.gmail.com>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+To: Torsten Kaiser <just.for.lkml@googlemail.com>
+Cc: Adrian Bunk <bunk@kernel.org>, Nick Sillik <n.sillik@temple.edu>, David Brownell <david-b@pacbell.net>, Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
 List-Id: linux-input@vger.kernel.org
 
-Many mouse drivers are often compiled (e.g. in Linux distributions) into the kernel at the same time just to make sure that at least one driver will suceed to find it's mouse device.
-Nevertheless, only the inport and logitech busmouse mouse drivers report with KERN_ERR log level if the mouse wasn't found.
-I think they should use KERN_WARNING instead, because it's not an error if the mouse isn't attached at all.
+On Sun, 28 Oct 2007, Torsten Kaiser wrote:
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+> But it looks like that uses another driver:
+> hiddev0hidraw1: USB HID v1.10 Device [Western Digital External HDD] on
+> usb-0000:00:02.1-5.2
+> Otherwise I would be willing to try to test this, if someone would tell 
+> me how to check that the second commit did fix the suspend problem.
 
-diff --git a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
-index 655a392..db3a80e 100644
---- a/drivers/input/mouse/inport.c
-+++ b/drivers/input/mouse/inport.c
-@@ -144,7 +144,7 @@ static int __init inport_init(void)
- 	b = inb(INPORT_SIGNATURE_PORT);
- 	c = inb(INPORT_SIGNATURE_PORT);
- 	if (a == b || a != c) {
--		printk(KERN_ERR "inport.c: Didn't find InPort mouse at %#x\n", INPORT_BASE);
-+		printk(KERN_WARNING "inport.c: Didn't find InPort mouse at %#x\n", INPORT_BASE);
- 		err = -ENODEV;
- 		goto err_release_region;
- 	}
-diff --git a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
-index b23a4f3..a53d1d8 100644
---- a/drivers/input/mouse/logibm.c
-+++ b/drivers/input/mouse/logibm.c
-@@ -134,7 +134,7 @@ static int __init logibm_init(void)
- 	udelay(100);
- 
- 	if (inb(LOGIBM_SIGNATURE_PORT) != LOGIBM_SIGNATURE_BYTE) {
--		printk(KERN_ERR "logibm.c: Didn't find Logitech busmouse at %#x\n", LOGIBM_BASE);
-+		printk(KERN_WARNING "logibm.c: Didn't find Logitech busmouse at %#x\n", LOGIBM_BASE);
- 		err = -ENODEV;
- 		goto err_release_region;
- 	}
+If you need to unbind usbhid driver from the device and bind another one, 
+you can use the 'unbind' and 'bind' files in sysfs.
+
+As soon as the driver you are willing to test is bound to the device, you 
+can go ahead with testing any functionality you wish (probably 
+suspend/resume cycle is needed here?).
+
+If the device is claimed by usbhid driver (because its descriptor probably 
+states that it's HID-compliant device) and should be claimed by another 
+driver, it's necessary to add it to usbhid blacklist -- just let me know.
+
+-- 
+Jiri Kosina

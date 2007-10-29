@@ -1,40 +1,64 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [RFC: 2.6 patch] remove the USB_STORAGE_ONETOUCH driver
-Date: Sun, 28 Oct 2007 21:39:50 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0710282134020.18815@twin.jikos.cz>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: [RFC: 2.6 patch] remove the
+	USB_STORAGE_ONETOUCH driver
+Date: Sun, 28 Oct 2007 22:38:10 -0400
+Message-ID: <200710282238.11692.dtor@insightbb.com>
 References: <20071028155212.GC7227@stusta.de>
- <64bb37e0710281048x589ab063o8a32294e30488979@mail.gmail.com>
+	<64bb37e0710281048x589ab063o8a32294e30488979@mail.gmail.com>
+	<Pine.LNX.4.64.0710282134020.18815@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <64bb37e0710281048x589ab063o8a32294e30488979@mail.gmail.com>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Torsten Kaiser <just.for.lkml@googlemail.com>
-Cc: Adrian Bunk <bunk@kernel.org>, Nick Sillik <n.sillik@temple.edu>, David Brownell <david-b@pacbell.net>, Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.64.0710282134020.18815@twin.jikos.cz>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: Adrian Bunk <bunk@kernel.org>, linux-usb-devel@lists.sourceforge.net, Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org, Nick Sillik <n.sillik@temple.edu>, David Brownell <david-b@pacbell.net>, Torsten Kaiser <just.for.lkml@googlemail.com>
 List-Id: linux-input@vger.kernel.org
 
-On Sun, 28 Oct 2007, Torsten Kaiser wrote:
+On Sunday 28 October 2007 16:39, Jiri Kosina wrote:
+> On Sun, 28 Oct 2007, Torsten Kaiser wrote:
+> 
+> > But it looks like that uses another driver:
+> > hiddev0hidraw1: USB HID v1.10 Device [Western Digital External HDD] on
+> > usb-0000:00:02.1-5.2
+> > Otherwise I would be willing to try to test this, if someone would tell 
+> > me how to check that the second commit did fix the suspend problem.
+> 
+> If you need to unbind usbhid driver from the device and bind another one, 
+> you can use the 'unbind' and 'bind' files in sysfs.
+> 
+> As soon as the driver you are willing to test is bound to the device, you 
+> can go ahead with testing any functionality you wish (probably 
+> suspend/resume cycle is needed here?).
+> 
+> If the device is claimed by usbhid driver (because its descriptor probably 
+> states that it's HID-compliant device) and should be claimed by another 
+> driver, it's necessary to add it to usbhid blacklist -- just let me know.
+> 
 
-> But it looks like that uses another driver:
-> hiddev0hidraw1: USB HID v1.10 Device [Western Digital External HDD] on
-> usb-0000:00:02.1-5.2
-> Otherwise I would be willing to try to test this, if someone would tell 
-> me how to check that the second commit did fix the suspend problem.
-
-If you need to unbind usbhid driver from the device and bind another one, 
-you can use the 'unbind' and 'bind' files in sysfs.
-
-As soon as the driver you are willing to test is bound to the device, you 
-can go ahead with testing any functionality you wish (probably 
-suspend/resume cycle is needed here?).
-
-If the device is claimed by usbhid driver (because its descriptor probably 
-states that it's HID-compliant device) and should be claimed by another 
-driver, it's necessary to add it to usbhid blacklist -- just let me know.
+Maybe onetouch driver is not needed after all. I wonder what key/button does
+HID deriver reports when it binds to it... Torsten, could you please post
+your /proc/bus/input/devices?
 
 -- 
-Jiri Kosina
+Dmitry
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Splunk Inc.
+Still grepping through log files to find problems?  Stop.
+Now Search log events and configuration files using AJAX and a browser.
+Download your FREE copy of Splunk now >> http://get.splunk.com/
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

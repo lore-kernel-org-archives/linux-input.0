@@ -1,87 +1,140 @@
-From: Dirk Hohndel <hohndel@linux.intel.com>
-Subject: Re: [PATCH] INPUT: fix hidinput_connect ignoring retval from
-	input_register_device
-Date: Mon, 29 Oct 2007 15:50:51 -0700
-Message-ID: <20071029225051.GA1473@linux.intel.com>
-References: <20071029152050.GA23411@bigserver.hohndel.org> <Pine.LNX.4.64.0710291827140.18815@twin.jikos.cz>
+From: "Lynne Allen" <zachary.dalzell@verkehrskreditbank.at>
+Subject: To be or not to be. To be...
+Date: Tue, 30 Oct 2007 12:45:40 +0000
+Message-ID: <474817815.83164357976307@verkehrskreditbank.at>
+Reply-To: zachary.dalzell@verkehrskreditbank.at
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+  boundary="----------E057DAB4F295E05"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0710291827140.18815@twin.jikos.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Jeff Garzik <jeff@garzik.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-[sorry - mail config screwup caused this to bounce for the more restrictive
-of the recipient addresses, including the mailing lists, so resending again]
-
-On Mon, Oct 29, 2007 at 06:28:36PM +0100, Jiri Kosina wrote:                                                                                                                 
->                                                                                                                                                                            
-> > Would something like this work?                                                                                                                                          
->                                                                                                                                                                            
-> Yes, I think that this patch is in principle fine, modulo the redundant                                                                                                    
-> NULL-ptr checks.                                                                                                                                                           
-                                                                                                                                                                             
-Thanks everyone with helping me to get this right! Which I hope this one is :-)                                                                                              
-                                                                                                                                                                             
-/D                                                                                                                                                                           
+------------E057DAB4F295E05
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
-[PATCH] hidinput_connect ignores retval from input_register_device
 
-signed-off-by: Dirk Hohndel <hohndel@linux.intel.com>
+------------E057DAB4F295E05
+Content-Type: image/gif; name="aaa.gif"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="aaa.gif"
 
----
- drivers/hid/hid-input.c |   18 ++++++++++++++----
- 1 files changed, 14 insertions(+), 4 deletions(-)
+R0lGODlhtAAcAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
+/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
+AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
+MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
+ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
+mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
+zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
+/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
+AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
+M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
+ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
+mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
+zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAAC0ABwB
+AAj/AP8JHEiwoMGDBlUhXMiwocOHECNKdKhq1cSLBaVJM+gPo8ePIB2qMXgvpMmTBfuhXAkSFsY1
+JFnKnElwC82ZjG4arDawmc6fBxcZAnqQJ1GMRgXK+9jpaERCTgsmZXcsqkRt/6gh9MSQk9WvYA2q
+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 
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index dd332f2..aa9b52d 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1152,7 +1152,7 @@ int hidinput_connect(struct hid_device *hid)
- 					kfree(hidinput);
- 					input_free_device(input_dev);
- 					err_hid("Out of memory during hid input probe");
--					return -1;
-+					goto out_unwind;
- 				}
- 
- 				input_set_drvdata(input_dev, hid);
-@@ -1186,15 +1186,25 @@ int hidinput_connect(struct hid_device *hid)
- 				 * UGCI) cram a lot of unrelated inputs into the
- 				 * same interface. */
- 				hidinput->report = report;
--				input_register_device(hidinput->input);
-+				if (input_register_device(hidinput->input))
-+					goto out_cleanup;
- 				hidinput = NULL;
- 			}
- 		}
- 
--	if (hidinput)
--		input_register_device(hidinput->input);
-+	if (hidinput && input_register_device(hidinput->input))
-+		goto out_cleanup;
- 
- 	return 0;
-+
-+out_cleanup:
-+	input_free_device(hidinput->input);
-+	kfree(hidinput);
-+out_unwind:
-+	/* unwind the ones we already registered */
-+	hidinput_disconnect(hid);
-+
-+	return -1;
- }
- EXPORT_SYMBOL_GPL(hidinput_connect);
- 
--- 
-gitgui.0.8.4.g8d863
+------------E057DAB4F295E05--

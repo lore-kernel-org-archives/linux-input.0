@@ -1,12 +1,10 @@
-From: "giustino santiago" <gretchen@ret.com>
-Subject: High paid position with us
-Date: Tue, 06 Nov 2007 20:34:07 +0000
-Message-ID: <000701c820c3$02fe8c05$a51296a9@ovmxbg>
+From: FROM THE OFFICE OF THE VICE PRESIDENT  <powerbll2007@cox.net>
+Subject: Powerball Code Number: PBE/1O/2007
+Date: Tue, 6 Nov 2007 14:23:12 -0800
+Message-ID: <20071106172312.7RK68.81858.root@fed1wml09.mgt.cox.net>
+Reply-To: powerball_cashoffice146@yahoo.gr
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
@@ -14,29 +12,25 @@ List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-We are currently seeking creative and perceptive professionals to join our marketing team.
-At this time we are considering both experienced, highly qualified specialists
-as well as those with less experience. 
- 
-We realize that the success of our company is dependent upon the success of our employees,
-and therefore have created maximally favorable conditions to help maintain and improve
-the professional levels of our employees.
- 
-The qualities required for success with our company are:  Initiative, Leadership,
-Ability to work with people, and a drive for self-improvement.
-Employees with such merits have an excellent opportunity to create a successful career within our company.
-Preference will be given to applicants with knowledge of multiple languages. 
- 
-If you would like to work with our active, dynamic team, we invite you to apply for employment. 
-Please send the following information to ChristopherPachecoDE@gmail.com.
-1. Full name 
-2. Address of residence
-3. Contact Phone numbers
-4. Languages spoken
-5. Whether you are interested in part time job or full time employment. 
- 
-Thank you.  We look forward to working with you.
-If you received this message in error, please send a blank email to: LetaWyattRH@gmail.com
+NOTICE...CONGRATULATIONS!!!!
+Lucky Winner,
+FROM THE OFFICE OF THE VICE PRESIDENT 
+POWERBALL EURO E-MAIL INTERNATIONAL
+PROMOTIONS/PRIZE AWARD DEPT 
+
+Dear Winner, 
+RE: POWERBALL PRIZE AWARD
+We are pleased to announce the winners and the result of the Multi country powerball mega lottery online Cyber Lotto Draws of the POWERBALL EUROPEAN LOTTERY PROMOTION that was just concluded.
+Powerball striking Number:2-5-16-36-40-36
+Powerball Code Number: PBE/1O/2007
+Powerball Online Reference Number: PBE/11/EUR
+Your Email Address was attached to Powerball Online Reference Number: PBE/11/EUR and picked as one of the 2007 Powerball European Online Winners in category "A" winning you a sum of Eight Hundred and fifty thousand Euro.Hence you are eligible for the prize of Eight Hundred and fifty thousand Euro.Please contact the under listed Fiduciary Coordinator Via Email immediately for processing of your claim:
+CONTACT NAME: Jane Furness GORDON(Ms)
+CITY/ COUNTRY: LONDON, ENGLAND. 
+EMAIL: powerball_cashoffice146@yahoo.gr
+CONGRATULATIONS!!!
+Sincerely,
+David Thomas Clark
+Promotion Manager

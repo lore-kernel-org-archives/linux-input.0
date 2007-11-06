@@ -1,43 +1,37 @@
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: Add INPUT support to toshiba_acpi
-Date: Tue, 6 Nov 2007 21:54:03 +0300
-Message-ID: <200711062154.04552.arvidjaar@mail.ru>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] ACPI: Put button input devices in correct place in sysfs
+Date: Tue, 6 Nov 2007 15:47:13 -0500
+Message-ID: <d120d5000711061247l5102875bg9d9b841086dd77b5@mail.gmail.com>
+References: <200711062051.59884.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2487350.JMPCHxh2MG";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Richard Hughes <richard@hughsie.com>, Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200711062051.59884.arvidjaar@mail.ru>
+Content-Disposition: inline
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, David Brownell <david-b@pacbell.net>
 List-Id: linux-input@vger.kernel.org
 
---nextPart2487350.JMPCHxh2MG
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Andrey,
 
-> So yes, patch looks good, cheers for the improvements.
+On Nov 6, 2007 12:51 PM, Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> Properly set up parent on input device registered by the button driver.
 >
-> Signed-off-by: Richard Hughes <richard@hughsie.com>
 
-Just curious - what became of this?
+Seems to be a popular topic today :)
 
--andrey
+>
+> +       input->cdev.dev = &device->dev;
 
---nextPart2487350.JMPCHxh2MG
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+Please don't use cdev, but rather input_dev->dev.parent. cdev is going
+away soon.
+I sent a patch a couple of days ago to teh acpi list...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.7 (GNU/Linux)
-
-iD8DBQBHMLhMR6LMutpd94wRAtEUAJwOrtK537h6WxrB31e4d9HEeEAewQCdGNo1
-F5LqESvw96m9cEWwmvGx2T8=
-=zV/w
------END PGP SIGNATURE-----
-
---nextPart2487350.JMPCHxh2MG--
+-- 
+Dmitry

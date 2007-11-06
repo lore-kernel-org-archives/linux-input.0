@@ -1,160 +1,61 @@
-From: "Peter Hardy" <norina.daughtee@starreklinte.inbox.as>
-Subject: To be or not to be. To be...
-Date: Tue, 6 Nov 2007 17:36:04 +0800
-Message-ID: <01c8209b$815f1110$ee30e0dd@norina.daughtee>
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: [PATCH] ACPI: Put button input devices in correct place in sysfs
+Date: Tue, 6 Nov 2007 20:51:55 +0300
+Message-ID: <200711062051.59884.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-  boundary="----=_NextPart_000_0006_01C8209B.815F1110"
+Content-Type: multipart/signed;
+  boundary="nextPart2756250.CW4idclnDt";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+To: linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+Cc: dmitry.torokhov@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0006_01C8209B.815F1110
+--nextPart2756250.CW4idclnDt
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
+Properly set up parent on input device registered by the button driver.
 
+Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
 
-------=_NextPart_000_0006_01C8209B.815F1110
-Content-Type: image/gif;
-	name="useit.gif"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="useit.gif"
+=2D--
 
-R0lGODlhtgAEAfcAAAAAAIAAAACAAICAAAAAgIAAgACAgICAgMDAwP8AAAD/AP//AAAA//8A/wD/
-/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwAAZgAAmQAAzAAA/wAzAAAzMwAzZgAzmQAzzAAz/wBm
-AABmMwBmZgBmmQBmzABm/wCZAACZMwCZZgCZmQCZzACZ/wDMAADMMwDMZgDMmQDMzADM/wD/AAD/
-MwD/ZgD/mQD/zAD//zMAADMAMzMAZjMAmTMAzDMA/zMzADMzMzMzZjMzmTMzzDMz/zNmADNmMzNm
-ZjNmmTNmzDNm/zOZADOZMzOZZjOZmTOZzDOZ/zPMADPMMzPMZjPMmTPMzDPM/zP/ADP/MzP/ZjP/
-mTP/zDP//2YAAGYAM2YAZmYAmWYAzGYA/2YzAGYzM2YzZmYzmWYzzGYz/2ZmAGZmM2ZmZmZmmWZm
-zGZm/2aZAGaZM2aZZmaZmWaZzGaZ/2bMAGbMM2bMZmbMmWbMzGbM/2b/AGb/M2b/Zmb/mWb/zGb/
-/5kAAJkAM5kAZpkAmZkAzJkA/5kzAJkzM5kzZpkzmZkzzJkz/5lmAJlmM5lmZplmmZlmzJlm/5mZ
-AJmZM5mZZpmZmZmZzJmZ/5nMAJnMM5nMZpnMmZnMzJnM/5n/AJn/M5n/Zpn/mZn/zJn//8wAAMwA
-M8wAZswAmcwAzMwA/8wzAMwzM8wzZswzmcwzzMwz/8xmAMxmM8xmZsxmmcxmzMxm/8yZAMyZM8yZ
-ZsyZmcyZzMyZ/8zMAMzMM8zMZszMmczMzMzM/8z/AMz/M8z/Zsz/mcz/zMz///8AAP8AM/8AZv8A
-mf8AzP8A//8zAP8zM/8zZv8zmf8zzP8z//9mAP9mM/9mZv9mmf9mzP9m//+ZAP+ZM/+ZZv+Zmf+Z
-zP+Z///MAP/MM//MZv/Mmf/MzP/M////AP//M///Zv//mf//zP///yH5BAEAABAALAAAAAC2AAQB
-AAj/AP8JHEiwoMGDCBMqXMiwocOHCv1BbHjM4LSJGDNq3Mix48JHHCsuvGKF4zaPKFOq1JgIociV
-DksNjPRPG8ybOAWefPgSY6ecC50RpJkx2KiGYHgA9VgNYs+lUKNKnUpVo6qqWLPuzIoQVcFDGv1E
-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
-x/8nIAA7 
+ drivers/acpi/button.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-------=_NextPart_000_0006_01C8209B.815F1110--
+diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+index 301e832..5b0f065 100644
+=2D-- a/drivers/acpi/button.c
++++ b/drivers/acpi/button.c
+@@ -450,6 +450,7 @@ static int acpi_button_add(struct acpi_device *device)
+ 		break;
+ 	}
+=20
++	input->cdev.dev =3D &device->dev;
+ 	error =3D input_register_device(input);
+ 	if (error)
+ 		goto err_remove_handlers;
+
+--nextPart2756250.CW4idclnDt
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (GNU/Linux)
+
+iD8DBQBHMKm8R6LMutpd94wRAmQyAKCOrVqKGPbUYDRAgH+E0C3WVWzMUACfZ8A/
+XHs0OMxEDzI0QsuUMp2jMRE=
+=4E4x
+-----END PGP SIGNATURE-----
+
+--nextPart2756250.CW4idclnDt--

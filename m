@@ -1,36 +1,47 @@
-From: FROM THE OFFICE OF THE VICE PRESIDENT  <powerbll2007@cox.net>
-Subject: Powerball Code Number: PBE/1O/2007
-Date: Tue, 6 Nov 2007 14:23:12 -0800
-Message-ID: <20071106172312.7RK68.81858.root@fed1wml09.mgt.cox.net>
-Reply-To: powerball_cashoffice146@yahoo.gr
+From: "Kalpesh Chua" <KalpeshChua@letstalkpublishing.com>
+Subject: utsjoki
+Date: Wed, 7 Nov 2007 17:59:28 +0100
+Message-ID: <000701c8215f$8f46ca10$2b0a0d57@ANDREA>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary="----=_NextPart_000_0003_01C82167.F10B3210"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-NOTICE...CONGRATULATIONS!!!!
-Lucky Winner,
-FROM THE OFFICE OF THE VICE PRESIDENT 
-POWERBALL EURO E-MAIL INTERNATIONAL
-PROMOTIONS/PRIZE AWARD DEPT 
+------=_NextPart_000_0003_01C82167.F10B3210
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
-Dear Winner, 
-RE: POWERBALL PRIZE AWARD
-We are pleased to announce the winners and the result of the Multi country powerball mega lottery online Cyber Lotto Draws of the POWERBALL EUROPEAN LOTTERY PROMOTION that was just concluded.
-Powerball striking Number:2-5-16-36-40-36
-Powerball Code Number: PBE/1O/2007
-Powerball Online Reference Number: PBE/11/EUR
-Your Email Address was attached to Powerball Online Reference Number: PBE/11/EUR and picked as one of the 2007 Powerball European Online Winners in category "A" winning you a sum of Eight Hundred and fifty thousand Euro.Hence you are eligible for the prize of Eight Hundred and fifty thousand Euro.Please contact the under listed Fiduciary Coordinator Via Email immediately for processing of your claim:
-CONTACT NAME: Jane Furness GORDON(Ms)
-CITY/ COUNTRY: LONDON, ENGLAND. 
-EMAIL: powerball_cashoffice146@yahoo.gr
-CONGRATULATIONS!!!
-Sincerely,
-David Thomas Clark
-Promotion Manager
+http://multifum.com/
+here is how to score all the ladies...
+
+utseltje utizuuyj
+uvormig uusin
+------=_NextPart_000_0003_01C82167.F10B3210
+Content-Type: text/html;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<STYLE></STYLE>
+</HEAD>
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://multifum.com/">http://multifum.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>here is how to score all the =
+ladies...</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>utseltje utizuuyj</FONT></DIV>
+<DIV><FONT Arial size=3D2>uvormig uusin</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0003_01C82167.F10B3210--

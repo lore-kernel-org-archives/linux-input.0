@@ -1,10 +1,10 @@
-From: "SAQBackgammon" <gurjot@nokia.com>
-Subject: Excellent chance to win mad sum of money.
-Date: Thu, 08 Nov 2007 00:26:41 +0000
-Message-ID: <000501c821ad$021044f7$a7cf459e@hbdexxe>
+From: "Jovan blood" <Jovan157@dscsolutions.com>
+Subject: ssenrett
+Date: Thu, 8 Nov 2007 15:50:35 +0500
+Message-ID: <000701c821f5$313a2f20$f4fae859@DEPO3132>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0002_01C821AD.020E4CEF"
+	boundary="----=_NextPart_000_0008_01C8221F.1A103720"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,41 +14,34 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------=_NextPart_000_0002_01C821AD.020E4CEF
+------=_NextPart_000_0008_01C8221F.1A103720
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="koi8-r"
 Content-Transfer-Encoding: quoted-printable
 
-Good afternoon.
-Nowadays we want to offer you to play backgammon.=20
- This game is very exciting play ones and you will be a fun of this game =
-for sure.
-http://game-backgammon.org/
-With respect
-carmine thanh
-------=_NextPart_000_0002_01C821AD.020E4CEF
+http://musicols.com/
+The average erect penis length is 5.877 inches (14.928 cm).
+
+standnis starak
+sstestem ssisitte
+------=_NextPart_000_0008_01C8221F.1A103720
 Content-Type: text/html;
-	charset="iso-8859-1"
+	charset="koi8-r"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; =
-charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dkoi8-r">
+<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
-<BODY>
-Good afternoon.<BR>
-Nowadays we want to offer you to play=20
-backgammon. <BR> This game is very exciting play ones and you will be a =
-fun of this=20
-game for sure.<BR>
-<A =
-href=3D"http://game-backgammon.org/">http://game-backgammon.org/</A><BR>
-With respect<BR>
-carmine thanh<BR>
-</BODY></HTML>
-------=_NextPart_000_0002_01C821AD.020E4CEF--
+<BODY bgColor=3D#ffffff>
+<DIV><FONT Arial size=3D2><A=20
+HREF=3D"http://musicols.com/">http://musicols.com/</A></FONT></DIV>
+<DIV><FONT Arial size=3D2>The average erect penis length is 5.877 inches =
+(14.928 cm).</FONT></DIV>
+<DIV><FONT Arial size=3D2></FONT></DIV>
+<DIV><FONT Arial size=3D2>standnis starak</FONT></DIV>
+<DIV><FONT Arial size=3D2>sstestem ssisitte</FONT></DIV></BODY></HTML>
+
+------=_NextPart_000_0008_01C8221F.1A103720--

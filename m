@@ -1,10 +1,11 @@
-From: "Jovan blood" <Jovan157@dscsolutions.com>
-Subject: ssenrett
-Date: Thu, 8 Nov 2007 15:50:35 +0500
-Message-ID: <000701c821f5$313a2f20$f4fae859@DEPO3132>
+From: "Amalia Kendrick" <jobastralextractsdun@astralextracts.com>
+Subject: Dear Customer Feel Good Now!
+Date: Thu, 8 Nov 2007 13:06:05 -0300
+Message-ID: <382235097.63913379775972@astralextracts.com>
+Reply-To: jobastralextractsdun@astralextracts.com
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0008_01C8221F.1A103720"
+  boundary="----------F0C72991CE6E67"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,34 +15,47 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0008_01C8221F.1A103720
-Content-Type: text/plain;
-	charset="koi8-r"
-Content-Transfer-Encoding: quoted-printable
+------------F0C72991CE6E67
+Content-Type: text/plain; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
 
-http://musicols.com/
-The average erect penis length is 5.877 inches (14.928 cm).
+Information Letter:
 
-standnis starak
-sstestem ssisitte
-------=_NextPart_000_0008_01C8221F.1A103720
-Content-Type: text/html;
-	charset="koi8-r"
-Content-Transfer-Encoding: quoted-printable
+ My dear customer,
+ Ultimately a NEW pharma I-net site is realized!!!
 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Dkoi8-r">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
-<STYLE></STYLE>
+ As usually we proffer only:
+ - All general medicinal preparations are easy to access!
+ - We shipping world-wide
+ - Without Any Medical advisor Calls
+ - With No Formulas
+ - One Hundred Per Cent Customer Satisfaction
+
+  Come and See our Newly Opened Discount Store and KEEP your money SAFE!!!
+ http://ironhead.cn/
+------------F0C72991CE6E67
+Content-Type: text/html; charset=Windows-1252
+Content-Transfer-Encoding: 7bit
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML><HEAD><TITLE></TITLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://musicols.com/">http://musicols.com/</A></FONT></DIV>
-<DIV><FONT Arial size=3D2>The average erect penis length is 5.877 inches =
-(14.928 cm).</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>standnis starak</FONT></DIV>
-<DIV><FONT Arial size=3D2>sstestem ssisitte</FONT></DIV></BODY></HTML>
+<BODY>
 
-------=_NextPart_000_0008_01C8221F.1A103720--
+<b><i><font color="green">Information Letter:</font></i><br><br> 
+
+My dear customer,<br> 
+Ultimately a <font color="red">NEW</font> pharma I-net site is realized!!!<br><br> 
+
+As usually we proffer only:<br><i> 
+- All general medicinal preparations are easy to access!<br> 
+- We shipping world-wide<br> 
+- Without Any Medical advisor Calls<br> 
+- With No Formulas<br> 
+- One Hundred Per Cent Customer Satisfaction<br><br>  
+
+<a href="http://ironhead.cn/" target="_blank">Come and See our Newly Opened Discount Store and KEEP your money SAFE!!!</a></i></b><br> 
+<font color="#D9EDFF">http://ironhead.cn/</font>
+
+</BODY></HTML>
+------------F0C72991CE6E67--

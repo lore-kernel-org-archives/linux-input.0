@@ -1,10 +1,10 @@
-From: "Kalpesh Chua" <KalpeshChua@letstalkpublishing.com>
-Subject: utsjoki
-Date: Wed, 7 Nov 2007 17:59:28 +0100
-Message-ID: <000701c8215f$8f46ca10$2b0a0d57@ANDREA>
+From: "SAQBackgammon" <gurjot@nokia.com>
+Subject: Excellent chance to win mad sum of money.
+Date: Thu, 08 Nov 2007 00:26:41 +0000
+Message-ID: <000501c821ad$021044f7$a7cf459e@hbdexxe>
 Mime-Version: 1.0
 Content-Type: multipart/alternative;
-	boundary="----=_NextPart_000_0003_01C82167.F10B3210"
+	boundary="----=_NextPart_000_0002_01C821AD.020E4CEF"
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
@@ -14,34 +14,41 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------=_NextPart_000_0003_01C82167.F10B3210
+This is a multi-part message in MIME format.
+
+------=_NextPart_000_0002_01C821AD.020E4CEF
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-http://multifum.com/
-here is how to score all the ladies...
-
-utseltje utizuuyj
-uvormig uusin
-------=_NextPart_000_0003_01C82167.F10B3210
+Good afternoon.
+Nowadays we want to offer you to play backgammon.=20
+ This game is very exciting play ones and you will be a fun of this game =
+for sure.
+http://game-backgammon.org/
+With respect
+carmine thanh
+------=_NextPart_000_0002_01C821AD.020E4CEF
 Content-Type: text/html;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <HTML><HEAD>
-<META http-equiv=3DContent-Type content=3D"text/html; charset=3Diso-8859-1">
-<META content=3D"MSHTML 6.00.2900.3059" name=3DGENERATOR>
+<META http-equiv=3DContent-Type content=3D"text/html; =
+charset=3Diso-8859-1">
+<META content=3D"MSHTML 6.00.3790.2759" name=3DGENERATOR>
 <STYLE></STYLE>
 </HEAD>
-<BODY bgColor=3D#ffffff>
-<DIV><FONT Arial size=3D2><A=20
-HREF=3D"http://multifum.com/">http://multifum.com/</A></FONT></DIV>
-<DIV><FONT Arial size=3D2>here is how to score all the =
-ladies...</FONT></DIV>
-<DIV><FONT Arial size=3D2></FONT></DIV>
-<DIV><FONT Arial size=3D2>utseltje utizuuyj</FONT></DIV>
-<DIV><FONT Arial size=3D2>uvormig uusin</FONT></DIV></BODY></HTML>
-
-------=_NextPart_000_0003_01C82167.F10B3210--
+<BODY>
+Good afternoon.<BR>
+Nowadays we want to offer you to play=20
+backgammon. <BR> This game is very exciting play ones and you will be a =
+fun of this=20
+game for sure.<BR>
+<A =
+href=3D"http://game-backgammon.org/">http://game-backgammon.org/</A><BR>
+With respect<BR>
+carmine thanh<BR>
+</BODY></HTML>
+------=_NextPart_000_0002_01C821AD.020E4CEF--

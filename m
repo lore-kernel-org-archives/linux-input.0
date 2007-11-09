@@ -1,61 +1,54 @@
-From: "Amalia Kendrick" <jobastralextractsdun@astralextracts.com>
-Subject: Dear Customer Feel Good Now!
-Date: Thu, 8 Nov 2007 13:06:05 -0300
-Message-ID: <382235097.63913379775972@astralextracts.com>
-Reply-To: jobastralextractsdun@astralextracts.com
+From: "ukonlinepromo@uklottery.co.uk" <online0030@dodo.com.au>
+Subject: Dear Winner = ! Ref: UK/9420X2/68
+Date: Fri, 9 Nov 2007 13:56:23 +1100
+Message-ID: <20071109135623.25208.4733A6DE74FDC-4733@webmail.dodo.com.au>
+Reply-To: "ukonlinepromo@uklottery.co.uk" <rudney_claims_dept@mail.md>
 Mime-Version: 1.0
-Content-Type: multipart/alternative;
-  boundary="----------F0C72991CE6E67"
+Content-Type: text/plain; charset="iso-8859-1";
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-------------F0C72991CE6E67
-Content-Type: text/plain; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+Ref: UK/9420X2/68
+Batch:074/05/ZY369
 
-Information Letter:
+You are a winner of the UK National lottery online program that was held =
+on
+the 2nd of November 2007. You have been approved to claim a sumof=A3516,7=
+78:00
+(Five Hundred and Sixteen Thousand,Seven Hundred and Seventy Eight Pounds
+Sterling Only ) in cash credited to file KTU/9023118308/03.
 
- My dear customer,
- Ultimately a NEW pharma I-net site is realized!!!
+To file for your claims you are to contact our claims agent by email.
+Mr Rudney Macpherson
+Email:rudney_claims_dept@mail.md
+Tel :+44-704-573-8917
 
- As usually we proffer only:
- - All general medicinal preparations are easy to access!
- - We shipping world-wide
- - Without Any Medical advisor Calls
- - With No Formulas
- - One Hundred Per Cent Customer Satisfaction
+Provide him with the following information to claim your prize.
 
-  Come and See our Newly Opened Discount Store and KEEP your money SAFE!!!
- http://ironhead.cn/
-------------F0C72991CE6E67
-Content-Type: text/html; charset=Windows-1252
-Content-Transfer-Encoding: 7bit
+FULL NAMES
+DATE OF BIRTH
+SEX
+MARITAL STATUS
+CONTACT ADDRESS
+PHONE NUMBERS
+OCCUPATION
+NATIONALITY
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-<HTML><HEAD><TITLE></TITLE>
-</HEAD>
-<BODY>
+Congratulations On behalf of all members of the
 
-<b><i><font color="green">Information Letter:</font></i><br><br> 
+Lottery foundation.
 
-My dear customer,<br> 
-Ultimately a <font color="red">NEW</font> pharma I-net site is realized!!!<br><br> 
+Yours Truly,
+Caroline Jasper
+Co-ordinator(Online Promo Programme)
 
-As usually we proffer only:<br><i> 
-- All general medicinal preparations are easy to access!<br> 
-- We shipping world-wide<br> 
-- Without Any Medical advisor Calls<br> 
-- With No Formulas<br> 
-- One Hundred Per Cent Customer Satisfaction<br><br>  
+________________________________________________
 
-<a href="http://ironhead.cn/" target="_blank">Come and See our Newly Opened Discount Store and KEEP your money SAFE!!!</a></i></b><br> 
-<font color="#D9EDFF">http://ironhead.cn/</font>
-
-</BODY></HTML>
-------------F0C72991CE6E67--
+This message was sent
+using Dodo Webmail - www.dodo.com.au

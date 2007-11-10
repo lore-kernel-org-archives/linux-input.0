@@ -1,8 +1,8 @@
-From: "Marcus Rubin" <ggordonftvz@online.disney.com>
-Subject: Re: Your passkey
-Date: Sat, 10 Nov 2007 11:51:30 +0100
-Message-ID: <3950345338.0191946139@online.disney.com>
-Reply-To: "Marcus Rubin" <ggordonftvz@online.disney.com>
+From: "Rochelle" <itpmapwwj@revisor.dk>
+Subject: Dedicated proposition
+Date: Sat, 10 Nov 2007 15:52:55 +0100
+Message-ID: <2789200318.760326913952@revisor.dk>
+Reply-To: "Rochelle Belanger" <itpmapwwj@revisor.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
@@ -15,9 +15,5 @@ List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsu
 To: linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Good afternoon
-We have got your enquiry message to find out the greatest web portals with hot stuff for absolutely free And Company ACCOMPLISHED that!
-All you have to do is to sign in there. All our orderers are as happy as a clam!
-Have a nice day!
-
-www Free8Sites cn
+Our crew introduce a Especial offering just for you - You can sign into that sites for no entrence fee just the present day!
+You going to like this sex stuff. exclusively November only for You! http://5Sites4Free.cn

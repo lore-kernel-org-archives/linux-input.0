@@ -1,42 +1,44 @@
-From: "ahmet guthrie" <everard@borland.com>
-Subject: Create a successful career within our company
-Date: Tue, 13 Nov 2007 15:26:15 +0000
-Message-ID: <000901c82618$018dc768$daf327b2@hmbos>
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: [BUG] New Kernel Bugs
+Date: Tue, 13 Nov 2007 19:17:23 +0100
+Message-ID: <1194977843.6098.18.camel@lappy>
+References: <20071113031553.3c7b5c16.akpm@linux-foundation.org>
+	 <20071113.033946.114918709.davem@davemloft.net>
+	 <20071113034916.2556edd7.akpm@linux-foundation.org>
+	 <20071113.035824.40509981.davem@davemloft.net>
+	 <20071113041259.79c9a8c5.akpm@linux-foundation.org>
+	 <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca>
+	 <20071113164650.GA28493@elte.hu>  <4739E3D0.10201@rtr.ca>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: linux-input@atrey.karlin.mff.cuni.cz
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <4739E3D0.10201@rtr.ca>
+Sender: netdev-owner@vger.kernel.org
+To: Mark Lord <liml@rtr.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-We are currently seeking creative and perceptive professionals to join our marketing team.
-At this time we are considering both experienced, highly qualified specialists
-as well as those with less experience. 
- 
-We realize that the success of our company is dependent upon the success of our employees,
-and therefore have created maximally favorable conditions to help maintain and improve
-the professional levels of our employees.
- 
-The qualities required for success with our company are:  Initiative, Leadership,
-Ability to work with people, and a drive for self-improvement.
-Employees with such merits have an excellent opportunity to create a successful career within our company.
-Preference will be given to applicants with knowledge of multiple languages. 
- 
-If you would like to work with our active, dynamic team, we invite you to apply for employment. 
-Please send the following information to ArtGilmoreJD@gmail.com.
-1. Full name 
-2. Address of residence
-3. Contact Phone numbers
-4. Languages spoken
-5. Whether you are interested in part time job or full time employment. 
- 
-Thank you.  We look forward to working with you.
-If you received this message in error, please send a blank email to: RichieAustinGB@gmail.com
+
+On Tue, 2007-11-13 at 12:50 -0500, Mark Lord wrote:
+> Ingo Molnar wrote:
+> >
+> > for example git-bisect was godsent. I remember that years ago bisection 
+> > of a bug was a very laborous task so that it was only used as a final, 
+> > last-ditch approach for really nasty bugs. Today we can autonomouly 
+> > bisect build bugs via a simple shell command around "git-bisect run", 
+> > without any human interaction! This freed up testing resources 
+> ...
+> 
+> It's only a godsend for the few people who happen to be kernel developers
+> and who happen to already use git.
+> 
+> It's a 540MByte download over a slow link for everyone else.
+
+Oh, common. Leeching CDs is so yesterday. These days some distributions
+don't even offer CDs anymore in favour of DVDs.
+
+I'd be amazed if a lot of the testers would still be on slownet, its
+impossible to keep up with the latest distros without broadband.
+
+

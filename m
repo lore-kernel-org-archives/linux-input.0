@@ -1,244 +1,61 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 4/4] drivers/input: Drop redundant includes of moduleparam.h
-Date: Tue, 13 Nov 2007 22:36:12 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0711132235150.18337@ask.diku.dk>
+From: =?utf-8?B?SsO2cm4=?= Engel <joern@logfs.org>
+Subject: Re: [BUG] New Kernel Bugs
+Date: Tue, 13 Nov 2007 22:33:58 +0100
+Message-ID: <20071113213358.GC20167@lazybastard.org>
+References: <20071113031553.3c7b5c16.akpm@linux-foundation.org> <20071113.033946.114918709.davem@davemloft.net> <20071113034916.2556edd7.akpm@linux-foundation.org> <20071113.035824.40509981.davem@davemloft.net> <20071113041259.79c9a8c5.akpm@linux-foundation.org> <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca> <20071113193750.GD1356@flint.arm.linux.org.uk> <473A067F.3090007@rtr.ca>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+Content-Disposition: inline
+In-Reply-To: <473A067F.3090007@rtr.ca>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Mark Lord <liml@rtr.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, protasnb@gmail.com, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
 List-Id: linux-input@vger.kernel.org
 
-From: Julia Lawall <julia@diku.dk>
+On Tue, 13 November 2007 15:18:07 -0500, Mark Lord wrote:
+>=20
+> I just find it weird that something can be known broken for several -rc=
+*
+> kernels before I happen to install it, discover it's broken on my own=20
+> machine,
+> and then I track it down, fix it, and submit the patch, generally all=20
+> within a
+> couple of hours.  Where the heck was the dude(ess) that broke it ??  AW=
+OL.
+>=20
+> And when I receive hostility from the "maintainers" of said code for fi=
+xing
+> their bugs, well.. that really motivates me to continue reporting new o=
+nes..
 
-Drop #include <linux/moduleparam.h> in files that also include #include
-<linux/module.h>.  module.h includes moduleparam.h already.
+Given a decent bug report, I agree that having the bug not looked at is
+shameful.  But what can a developer do if a bug report effectively reads
+"there is some bug somewhere in recent kernels"?  How can I know that in
+this particular case it is my bug that I introduced?  It could just as
+easily be 50 other people and none of them are eager to debug it unless
+they suspect it to be their bug.
 
-The semantic patch implementing this change is as follows:
+This is a common problem and fairly unrelated to linux in general or the
+kernel in particular.  Who is going to be the sucker that figures out
+which developer the bug belongs to?  And I have yet to find a project,
+commercial or opensource, where volunteers flock to become such a
+sucker.
 
-@ includesmodule @
-@@
+One option is to push this role to the bug reporter.  Another is to
+strong-arm some developers into this role, by whatever means.  A third
+would be for $LARGE_COMPANY to hire some people.  If you have a better
+idea or would volunteer your time, I'd be grateful.  Simply blaming one
+side, whether bug reporter or a random developer, for not being the
+sucker doesn't help anyone.
 
-#include <linux/module.h>
+J=C3=B6rn
 
-@ depends on includesmodule @
-@@
-
-- #include <linux/moduleparam.h>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
----
-
-diff -u -p -b -B a/drivers/input/joystick/amijoy.c b/drivers/input/joystick/amijoy.c
---- a/drivers/input/joystick/amijoy.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/joystick/amijoy.c 2007-11-13 17:50:33.000000000 +0100
-@@ -32,7 +32,6 @@
-  #include <linux/errno.h>
-  #include <linux/kernel.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/init.h>
-  #include <linux/input.h>
-  #include <linux/interrupt.h>
-diff -u -p -b -B a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
---- a/drivers/input/joystick/analog.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/joystick/analog.c 2007-11-13 17:50:33.000000000 +0100
-@@ -31,7 +31,6 @@
-  #include <linux/delay.h>
-  #include <linux/kernel.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/slab.h>
-  #include <linux/bitops.h>
-  #include <linux/init.h>
-diff -u -p -b -B a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
---- a/drivers/input/joystick/db9.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/joystick/db9.c 2007-11-13 17:50:33.000000000 +0100
-@@ -33,7 +33,6 @@
-
-  #include <linux/kernel.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/delay.h>
-  #include <linux/init.h>
-  #include <linux/parport.h>
-diff -u -p -b -B a/drivers/input/joystick/gamecon.c b/drivers/input/joystick/gamecon.c
---- a/drivers/input/joystick/gamecon.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/joystick/gamecon.c 2007-11-13 17:50:34.000000000 +0100
-@@ -33,7 +33,6 @@
-  #include <linux/kernel.h>
-  #include <linux/delay.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/init.h>
-  #include <linux/parport.h>
-  #include <linux/input.h>
-diff -u -p -b -B a/drivers/input/joystick/turbografx.c b/drivers/input/joystick/turbografx.c
---- a/drivers/input/joystick/turbografx.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/joystick/turbografx.c 2007-11-13 17:50:35.000000000 +0100
-@@ -35,7 +35,6 @@
-  #include <linux/parport.h>
-  #include <linux/input.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/init.h>
-  #include <linux/mutex.h>
-
-diff -u -p -b -B a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
---- a/drivers/input/joystick/xpad.c 2007-11-08 08:00:51.000000000 +0100
-+++ b/drivers/input/joystick/xpad.c 2007-11-13 17:50:36.000000000 +0100
-@@ -75,7 +75,6 @@
-  #include <linux/slab.h>
-  #include <linux/stat.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/usb/input.h>
-
-  #define DRIVER_VERSION "v0.0.6"
-diff -u -p -b -B a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/keyboard/atkbd.c 2007-11-13 17:50:36.000000000 +0100
-@@ -19,7 +19,6 @@
-
-  #include <linux/delay.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/slab.h>
-  #include <linux/interrupt.h>
-  #include <linux/init.h>
-diff -u -p -b -B a/drivers/input/keyboard/lkkbd.c b/drivers/input/keyboard/lkkbd.c
---- a/drivers/input/keyboard/lkkbd.c 2007-06-02 22:32:14.000000000 +0200
-+++ b/drivers/input/keyboard/lkkbd.c 2007-11-13 17:50:37.000000000 +0100
-@@ -64,7 +64,6 @@
-  #include <linux/delay.h>
-  #include <linux/slab.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/interrupt.h>
-  #include <linux/init.h>
-  #include <linux/input.h>
-diff -u -p -b -B a/drivers/input/misc/ati_remote.c b/drivers/input/misc/ati_remote.c
---- a/drivers/input/misc/ati_remote.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/misc/ati_remote.c 2007-11-13 17:50:38.000000000 +0100
-@@ -90,7 +90,6 @@
-  #include <linux/init.h>
-  #include <linux/slab.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/usb/input.h>
-  #include <linux/wait.h>
-  #include <linux/jiffies.h>
-diff -u -p -b -B a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
---- a/drivers/input/misc/keyspan_remote.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/misc/keyspan_remote.c 2007-11-13 17:50:39.000000000 +0100
-@@ -16,7 +16,6 @@
-  #include <linux/init.h>
-  #include <linux/slab.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/usb/input.h>
-
-  #define DRIVER_VERSION	"v0.1"
-diff -u -p -b -B a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
---- a/drivers/input/mouse/inport.c 2007-11-08 08:00:51.000000000 +0100
-+++ b/drivers/input/mouse/inport.c 2007-11-13 17:50:40.000000000 +0100
-@@ -35,7 +35,6 @@
-   */
-
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/ioport.h>
-  #include <linux/init.h>
-  #include <linux/interrupt.h>
-diff -u -p -b -B a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
---- a/drivers/input/mouse/logibm.c 2007-11-08 08:00:51.000000000 +0100
-+++ b/drivers/input/mouse/logibm.c 2007-11-13 17:50:40.000000000 +0100
-@@ -36,7 +36,6 @@
-   */
-
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/delay.h>
-  #include <linux/ioport.h>
-  #include <linux/init.h>
-diff -u -p -b -B a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
---- a/drivers/input/mouse/psmouse-base.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/mouse/psmouse-base.c 2007-11-13 17:50:40.000000000 +0100
-@@ -13,7 +13,6 @@
-
-  #include <linux/delay.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/slab.h>
-  #include <linux/interrupt.h>
-  #include <linux/input.h>
-diff -u -p -b -B a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
---- a/drivers/input/mouse/trackpoint.c 2007-02-09 17:34:12.000000000 +0100
-+++ b/drivers/input/mouse/trackpoint.c 2007-11-13 17:50:41.000000000 +0100
-@@ -11,7 +11,6 @@
-  #include <linux/delay.h>
-  #include <linux/serio.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/input.h>
-  #include <linux/libps2.h>
-  #include <linux/proc_fs.h>
-diff -u -p -b -B a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/mousedev.c 2007-11-13 17:50:42.000000000 +0100
-@@ -16,7 +16,6 @@
-  #include <linux/slab.h>
-  #include <linux/poll.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/init.h>
-  #include <linux/input.h>
-  #include <linux/random.h>
-diff -u -p -b -B a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c 2007-11-01 10:30:39.000000000 +0100
-+++ b/drivers/input/serio/i8042.c 2007-11-13 17:50:44.000000000 +0100
-@@ -12,7 +12,6 @@
-
-  #include <linux/delay.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/interrupt.h>
-  #include <linux/ioport.h>
-  #include <linux/init.h>
-diff -u -p -b -B a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
---- a/drivers/input/serio/libps2.c 2007-06-02 22:32:15.000000000 +0200
-+++ b/drivers/input/serio/libps2.c 2007-11-13 17:50:44.000000000 +0100
-@@ -13,7 +13,6 @@
-
-  #include <linux/delay.h>
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/slab.h>
-  #include <linux/interrupt.h>
-  #include <linux/input.h>
-diff -u -p -b -B a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
---- a/drivers/input/touchscreen/mk712.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/touchscreen/mk712.c 2007-11-13 17:50:45.000000000 +0100
-@@ -36,7 +36,6 @@
-   */
-
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/kernel.h>
-  #include <linux/init.h>
-  #include <linux/errno.h>
-diff -u -p -b -B a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
---- a/drivers/input/touchscreen/ucb1400_ts.c 2007-10-22 11:25:09.000000000 +0200
-+++ b/drivers/input/touchscreen/ucb1400_ts.c 2007-11-13 17:50:46.000000000 +0100
-@@ -15,7 +15,6 @@
-   */
-
-  #include <linux/module.h>
--#include <linux/moduleparam.h>
-  #include <linux/init.h>
-  #include <linux/completion.h>
-  #include <linux/delay.h>
+--=20
+Joern's library part 2:
+http://www.art.net/~hopkins/Don/unix-haters/tirix/embarrassing-memo.html

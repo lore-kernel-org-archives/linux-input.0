@@ -1,47 +1,39 @@
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 19:37:50 +0000
-Message-ID: <20071113193750.GD1356@flint.arm.linux.org.uk>
-References: <20071113031553.3c7b5c16.akpm@linux-foundation.org> <20071113.033946.114918709.davem@davemloft.net> <20071113034916.2556edd7.akpm@linux-foundation.org> <20071113.035824.40509981.davem@davemloft.net> <20071113041259.79c9a8c5.akpm@linux-foundation.org> <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca>
+Date: Tue, 13 Nov 2007 19:46:49 +0000
+Message-ID: <20071113194649.GE1356@flint.arm.linux.org.uk>
+References: <4739AFE0.20705@rtr.ca> <20071113164650.GA28493@elte.hu> <4739E3D0.10201@rtr.ca> <20071113181228.GF4250@stusta.de> <4739EA83.5040006@rtr.ca> <20071113183605.GG4250@stusta.de> <4739F12E.5020807@rtr.ca> <20071113190428.GH4250@stusta.de> <4739F739.5040708@rtr.ca> <20071113193035.GI4250@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4739AFE0.20705@rtr.ca>
+In-Reply-To: <20071113193035.GI4250@stusta.de>
 Sender: netdev-owner@vger.kernel.org
-To: Mark Lord <liml@rtr.ca>
-Cc: Ingo Molnar <mingo@elte.hu>, alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, protasnb@gmail.com, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
+To: Adrian Bunk <bunk@kernel.org>
+Cc: Mark Lord <liml@rtr.ca>, alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, protasnb@gmail.com, David Miller <davem@davemloft.net>, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Nov 13, 2007 at 09:08:32AM -0500, Mark Lord wrote:
-> Ingo Molnar wrote:
-> ..
-> > This is all QA-101 that _cannot be argued against on a rational basis_, 
-> > it's just that these sorts of things have been largely ignored for 
-> > years, in favor of the all-too-easy "open source means many eyeballs and 
-> > that is our QA" answer, which is a _good_ answer but by far not the most 
-> > intelligent answer! Today "many eyeballs" is simply not good enough and 
-> > nature (and other OS projects) will route us around if we dont change.
-> ..
-> 
-> QA-101 and "many eyeballs" are not at all in opposition.
-> The latter is how we find out about bugs on uncommon hardware,
-> and the former is what we need to track them and overall quality.
-> 
-> A HUGE problem I have with current "efforts", is that once someone
-> reports a bug, the onus seems to be 99% on the *reporter* to find
-> the exact line of code or commit.  Ghad what a repressive method.
+On Tue, Nov 13, 2007 at 08:30:35PM +0100, Adrian Bunk wrote:
+> There is this silly limit that noone can work more than 168 hours per 
+> week on the Linux kernel, and some kernel developers seem to take the 
+> liberty of spending even less time on kernel development...
 
-99% on the reporter?  Is that why I always try to understand the
-reporters problem (*provided* it's in an area I know about) and come
-up with a patch to test a theory or fix the issue?
+That limit of 168 hours applies all around the world to everyone.
+Moreover, not all kernel developers are employed to hack on the
+kernel for 168 hours a week.
 
-I'm _less_ inclined to provide such a "service" for lazy maintainers
-who've moved off into new and wonderfully exciting technologies, to
-churn out more patches for me to merge (and eventually provide a free
-to them bug fixing service for.)
+For me, personally, that figure is in reality about 24 hours a
+week.  Yes, just 24.  The rest of the time (like *now*) is time I'm
+volunteering because I happen to be reading my email...
 
-That's "less" inclined, not "won't".
+... and happen to be wasting replying to discussions like this rather
+than reading that message which has just arrived on the ARM kernel
+mailing list from someone having problems using copy_from_user()
+with a kernel pointer.
+
+So, please, stop this idea that somehow kernel developers can
+somehow spend infinite amounts of time solving lots and lots of
+bugs.
 
 -- 
 Russell King

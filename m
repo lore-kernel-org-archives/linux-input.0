@@ -1,42 +1,49 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: [PATCH] input - Add Euro and Dollar keys
-Date: Tue, 13 Nov 2007 13:53:45 +0000
-Message-ID: <200711131353.45677.carlos@strangeworlds.co.uk>
-References: <200710251356.21758.cathectic@slackadelic.com> <200710260041.26041.dmitry.torokhov@gmail.com>
+From: Mark Lord <liml@rtr.ca>
+Subject: Re: [BUG] New Kernel Bugs
+Date: Tue, 13 Nov 2007 08:58:58 -0500
+Message-ID: <4739ADA2.4060604@rtr.ca>
+References: <32209efe0711122242m3a5f081asf1c11a38b24db10c@mail.gmail.com> <20071113031553.3c7b5c16.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <200710260041.26041.dmitry.torokhov@gmail.com>
-Content-Disposition: inline
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-input@vger.kernel.org
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <20071113031553.3c7b5c16.akpm@linux-foundation.org>
+Sender: linux-ide-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Natalie Protasevich <protasnb@gmail.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Dmitry,
+Andrew Morton wrote:
+> On Mon, 12 Nov 2007 22:42:32 -0800 "Natalie Protasevich" <protasnb@gmail.com> wrote:
+..
+>> with CONFIG_NO_HZ and/or CONFIG_HPET_TIMER set kernel 2.6.23 doesn't
+>> boot (ARM, Timer)
+>> http://bugzilla.kernel.org/show_bug.cgi?id=9229
+>> Kernel: 2.6.23
+> 
+> No response from developers
+..
 
-On Friday 26 October 2007 05:41:25 Dmitry Torokhov wrote:
-> > Most newer Acer laptops (from 2005 onwards) now ship with an extra Dollar
-> > and Euro key either side of the 'Up' arrow. These cannot be mapped in the
-> > traditional way, since they are not combination keys.
->
-> Applied, thank you Carlos. I tought about KEY_CURRENCY some more and I
-> don't think it would work well in this case.
+Note:  that same bug exists/existed on i386 back when NO_HZ was
+introduced (2.6.21?).  I still see it from time to time on my Quad core
+system (very rare), but not any more on my Duo notebook where it used
+to happen about 1 in n boots (n < 10).
 
-Unfortunately, my patch has a small problem, in that setkeycodes won't accept 
-the values for my laptop keyboard (since they are obviously > 256).
+AFAICT no fix was ever released for it.
 
-Is there another way around this (besides submitting another patch to move the 
-keys to lower keycodes - e.g. something in the 246-255 range)?
 
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+
+>> Suspend to RAM resume hangs on a tickless (NO_HZ) kernel
+>> http://bugzilla.kernel.org/show_bug.cgi?id=9275
+>> Kernel: 2.6.23
+>> This is HP notebook nc6320 T2400 945GM
+> No response from developers
+..
+
+I *still* get very slow resume-from-RAM quite often here
+(new in 2.6.22 kernel, wasn't there in early 2.6.23-rc*).
+Something eventually times out after a minute or so
+and it comes back.  Cannot make it happen reliably,
+unless I'm in a hurry to get something done.  :)
+I suspect USB here, probably the same loopy bug that
+we added a "loop limit failsafe" for back in 2.6.21(?).

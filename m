@@ -1,104 +1,244 @@
-From: Romano Giannetti <romanol@upcomillas.es>
-Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 18:50:38 +0100
-Message-ID: <1194976238.15745.17.camel@rukbat>
-References: <20071113031553.3c7b5c16.akpm@linux-foundation.org>
-	 <20071113.033946.114918709.davem@davemloft.net>
-	 <20071113034916.2556edd7.akpm@linux-foundation.org>
-	 <20071113.035824.40509981.davem@davemloft.net>
-	 <20071113041259.79c9a8c5.akpm@linux-foundation.org>
-	 <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca>
-	 <4739C1B0.8000803@cateee.net>
-	 <2c0942db0711130757g295add20re0ee423b84921d28@mail.gmail.com>
-	 <20071113170141.GD4250@stusta.de>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 4/4] drivers/input: Drop redundant includes of moduleparam.h
+Date: Tue, 13 Nov 2007 22:36:12 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0711132235150.18337@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071113170141.GD4250@stusta.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Adrian Bunk <bunk@kernel.org>
-Cc: Ray Lee <ray-lk@madrabbit.org>, "Giacomo A. Catenazzi" <cate@cateee.net>, Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
+From: Julia Lawall <julia@diku.dk>
 
-I jump in this discussion hoping to have some more insight on git and to
-report my experience as a tester. I consider myself as half-literate in
-this (I am here since 1991, more or less, and I am able to compile a
-kernel and even hand-apply a patch, although I am in no way a kernel
-programmer).=20
+Drop #include <linux/moduleparam.h> in files that also include #include
+<linux/module.h>.  module.h includes moduleparam.h already.
 
-On Tue, 2007-11-13 at 18:01 +0100, Adrian Bunk wrote:
+The semantic patch implementing this change is as follows:
 
-> The small instruction below is enough for everyone who is able to=20
-> build his own kernel to do a git bisect.
+@ includesmodule @
+@@
 
-> # start bisecting:
-> cd linux-2.6
-> git bisect start
-> git bisect bad v2.6.21
-> git bisect good v2.6.20
-> cp /path/to/.config .
->=20
+#include <linux/module.h>
 
-This was what I did in my (in the end almost successful) bisecting when
-trying to find the mmc problem (see the thread named "2.6.24-rc1 eat my
-SD card"). This is true in theory, but it has some problem. The "this
-commit does not compile is the easiest and in man git-bisect it's
-explained how to solve it. The changes in .config options, added or
-removed, are another problem when jumping back and forth from version (I
-was bitten by the gadzillions new options added to hda-intel alsa
-driver, but well, that is solvable with a bit of attention).
+@ depends on includesmodule @
+@@
 
-The main problem I had, and that stopped me to arrive to a definite is
-this situation:
+- #include <linux/moduleparam.h>
 
-j version-bad
-i
-h
-g unrelated (but similar) bug corrected
-f
-e
-d unrelated (but similar) bug introduced
-c
-b
-a version-good=20
+Signed-off-by: Julia Lawall <julia@diku.dk>
+---
 
-(d was the series to change drivers to use sg helpers, and g was a "fix
-fallout from sg helpers" patch). Now I have a series of kernels (d, e,
-f) that did not work at all and so I cannot mark them good or bad. With
-the number of patches added in the free-for-all week, this is a very
-probable scenario. There is a way out from this using bisect?
+diff -u -p -b -B a/drivers/input/joystick/amijoy.c b/drivers/input/joystick/amijoy.c
+--- a/drivers/input/joystick/amijoy.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/joystick/amijoy.c 2007-11-13 17:50:33.000000000 +0100
+@@ -32,7 +32,6 @@
+  #include <linux/errno.h>
+  #include <linux/kernel.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/init.h>
+  #include <linux/input.h>
+  #include <linux/interrupt.h>
+diff -u -p -b -B a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+--- a/drivers/input/joystick/analog.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/joystick/analog.c 2007-11-13 17:50:33.000000000 +0100
+@@ -31,7 +31,6 @@
+  #include <linux/delay.h>
+  #include <linux/kernel.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/slab.h>
+  #include <linux/bitops.h>
+  #include <linux/init.h>
+diff -u -p -b -B a/drivers/input/joystick/db9.c b/drivers/input/joystick/db9.c
+--- a/drivers/input/joystick/db9.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/joystick/db9.c 2007-11-13 17:50:33.000000000 +0100
+@@ -33,7 +33,6 @@
 
-Romano=20
+  #include <linux/kernel.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/delay.h>
+  #include <linux/init.h>
+  #include <linux/parport.h>
+diff -u -p -b -B a/drivers/input/joystick/gamecon.c b/drivers/input/joystick/gamecon.c
+--- a/drivers/input/joystick/gamecon.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/joystick/gamecon.c 2007-11-13 17:50:34.000000000 +0100
+@@ -33,7 +33,6 @@
+  #include <linux/kernel.h>
+  #include <linux/delay.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/init.h>
+  #include <linux/parport.h>
+  #include <linux/input.h>
+diff -u -p -b -B a/drivers/input/joystick/turbografx.c b/drivers/input/joystick/turbografx.c
+--- a/drivers/input/joystick/turbografx.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/joystick/turbografx.c 2007-11-13 17:50:35.000000000 +0100
+@@ -35,7 +35,6 @@
+  #include <linux/parport.h>
+  #include <linux/input.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/init.h>
+  #include <linux/mutex.h>
 
-PS as a suggestion, I think that added a "Reported-by", or "Tested-by",
-or "Debugged-by" attribution in the repository, as happened to be in the
-MMC case, is a nice an d welcomed reward for the effort.   =20
+diff -u -p -b -B a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+--- a/drivers/input/joystick/xpad.c 2007-11-08 08:00:51.000000000 +0100
++++ b/drivers/input/joystick/xpad.c 2007-11-13 17:50:36.000000000 +0100
+@@ -75,7 +75,6 @@
+  #include <linux/slab.h>
+  #include <linux/stat.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/usb/input.h>
 
---=20
-Sorry for the disclaimer --- =A1I cannot stop it!
+  #define DRIVER_VERSION "v0.0.6"
+diff -u -p -b -B a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/keyboard/atkbd.c 2007-11-13 17:50:36.000000000 +0100
+@@ -19,7 +19,6 @@
 
+  #include <linux/delay.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/slab.h>
+  #include <linux/interrupt.h>
+  #include <linux/init.h>
+diff -u -p -b -B a/drivers/input/keyboard/lkkbd.c b/drivers/input/keyboard/lkkbd.c
+--- a/drivers/input/keyboard/lkkbd.c 2007-06-02 22:32:14.000000000 +0200
++++ b/drivers/input/keyboard/lkkbd.c 2007-11-13 17:50:37.000000000 +0100
+@@ -64,7 +64,6 @@
+  #include <linux/delay.h>
+  #include <linux/slab.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/interrupt.h>
+  #include <linux/init.h>
+  #include <linux/input.h>
+diff -u -p -b -B a/drivers/input/misc/ati_remote.c b/drivers/input/misc/ati_remote.c
+--- a/drivers/input/misc/ati_remote.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/misc/ati_remote.c 2007-11-13 17:50:38.000000000 +0100
+@@ -90,7 +90,6 @@
+  #include <linux/init.h>
+  #include <linux/slab.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/usb/input.h>
+  #include <linux/wait.h>
+  #include <linux/jiffies.h>
+diff -u -p -b -B a/drivers/input/misc/keyspan_remote.c b/drivers/input/misc/keyspan_remote.c
+--- a/drivers/input/misc/keyspan_remote.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/misc/keyspan_remote.c 2007-11-13 17:50:39.000000000 +0100
+@@ -16,7 +16,6 @@
+  #include <linux/init.h>
+  #include <linux/slab.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/usb/input.h>
 
+  #define DRIVER_VERSION	"v0.1"
+diff -u -p -b -B a/drivers/input/mouse/inport.c b/drivers/input/mouse/inport.c
+--- a/drivers/input/mouse/inport.c 2007-11-08 08:00:51.000000000 +0100
++++ b/drivers/input/mouse/inport.c 2007-11-13 17:50:40.000000000 +0100
+@@ -35,7 +35,6 @@
+   */
 
---
-La presente comunicaci=F3n tiene car=E1cter confidencial y es para el exc=
-lusivo uso del destinatario indicado en la misma. Si Ud. no es el destina=
-tario indicado, le informamos que cualquier forma de distribuci=F3n, repr=
-oducci=F3n o uso de esta comunicaci=F3n y/o de la informaci=F3n contenida=
- en la misma est=E1n estrictamente prohibidos por la ley. Si Ud. ha recib=
-ido esta comunicaci=F3n por error, por favor, notif=EDquelo inmediatament=
-e al remitente contestando a este mensaje y proceda a continuaci=F3n a de=
-struirlo. Gracias por su colaboraci=F3n.
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/ioport.h>
+  #include <linux/init.h>
+  #include <linux/interrupt.h>
+diff -u -p -b -B a/drivers/input/mouse/logibm.c b/drivers/input/mouse/logibm.c
+--- a/drivers/input/mouse/logibm.c 2007-11-08 08:00:51.000000000 +0100
++++ b/drivers/input/mouse/logibm.c 2007-11-13 17:50:40.000000000 +0100
+@@ -36,7 +36,6 @@
+   */
 
-This communication contains confidential information. It is for the exclu=
-sive use of the intended addressee. If you are not the intended addressee=
-, please note that any form of distribution, copying or use of this commu=
-nication or the information in it is strictly prohibited by law. If you h=
-ave received this communication in error, please immediately notify the s=
-ender by reply e-mail and destroy this message. Thank you for your cooper=
-ation.=20
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/delay.h>
+  #include <linux/ioport.h>
+  #include <linux/init.h>
+diff -u -p -b -B a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+--- a/drivers/input/mouse/psmouse-base.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/mouse/psmouse-base.c 2007-11-13 17:50:40.000000000 +0100
+@@ -13,7 +13,6 @@
+
+  #include <linux/delay.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/slab.h>
+  #include <linux/interrupt.h>
+  #include <linux/input.h>
+diff -u -p -b -B a/drivers/input/mouse/trackpoint.c b/drivers/input/mouse/trackpoint.c
+--- a/drivers/input/mouse/trackpoint.c 2007-02-09 17:34:12.000000000 +0100
++++ b/drivers/input/mouse/trackpoint.c 2007-11-13 17:50:41.000000000 +0100
+@@ -11,7 +11,6 @@
+  #include <linux/delay.h>
+  #include <linux/serio.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/input.h>
+  #include <linux/libps2.h>
+  #include <linux/proc_fs.h>
+diff -u -p -b -B a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+--- a/drivers/input/mousedev.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/mousedev.c 2007-11-13 17:50:42.000000000 +0100
+@@ -16,7 +16,6 @@
+  #include <linux/slab.h>
+  #include <linux/poll.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/init.h>
+  #include <linux/input.h>
+  #include <linux/random.h>
+diff -u -p -b -B a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c 2007-11-01 10:30:39.000000000 +0100
++++ b/drivers/input/serio/i8042.c 2007-11-13 17:50:44.000000000 +0100
+@@ -12,7 +12,6 @@
+
+  #include <linux/delay.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/interrupt.h>
+  #include <linux/ioport.h>
+  #include <linux/init.h>
+diff -u -p -b -B a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
+--- a/drivers/input/serio/libps2.c 2007-06-02 22:32:15.000000000 +0200
++++ b/drivers/input/serio/libps2.c 2007-11-13 17:50:44.000000000 +0100
+@@ -13,7 +13,6 @@
+
+  #include <linux/delay.h>
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/slab.h>
+  #include <linux/interrupt.h>
+  #include <linux/input.h>
+diff -u -p -b -B a/drivers/input/touchscreen/mk712.c b/drivers/input/touchscreen/mk712.c
+--- a/drivers/input/touchscreen/mk712.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/touchscreen/mk712.c 2007-11-13 17:50:45.000000000 +0100
+@@ -36,7 +36,6 @@
+   */
+
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/kernel.h>
+  #include <linux/init.h>
+  #include <linux/errno.h>
+diff -u -p -b -B a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
+--- a/drivers/input/touchscreen/ucb1400_ts.c 2007-10-22 11:25:09.000000000 +0200
++++ b/drivers/input/touchscreen/ucb1400_ts.c 2007-11-13 17:50:46.000000000 +0100
+@@ -15,7 +15,6 @@
+   */
+
+  #include <linux/module.h>
+-#include <linux/moduleparam.h>
+  #include <linux/init.h>
+  #include <linux/completion.h>
+  #include <linux/delay.h>

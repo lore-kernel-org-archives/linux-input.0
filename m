@@ -1,39 +1,41 @@
-From: Mark Lord <liml@rtr.ca>
+From: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 09:18:45 -0500
-Message-ID: <4739B245.9040305@rtr.ca>
-References: <32209efe0711122242m3a5f081asf1c11a38b24db10c@mail.gmail.com> <20071113031553.3c7b5c16.akpm@linux-foundation.org> <4739ADA2.4060604@rtr.ca>
+Date: Tue, 13 Nov 2007 16:21:06 +0100
+Message-ID: <58cb370e0711130721g49a28666u6d315c1412b0c855@mail.gmail.com>
+References: <32209efe0711122242m3a5f081asf1c11a38b24db10c@mail.gmail.com>
+	 <20071113031553.3c7b5c16.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <4739ADA2.4060604@rtr.ca>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20071113031553.3c7b5c16.akpm@linux-foundation.org>
+Content-Disposition: inline
+Sender: netdev-owner@vger.kernel.org
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: Natalie Protasevich <protasnb@gmail.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Mark Lord wrote:
-> Andrew Morton wrote:
->> On Mon, 12 Nov 2007 22:42:32 -0800 "Natalie Protasevich" 
->> <protasnb@gmail.com> wrote:
-> ..
-..
->>> Suspend to RAM resume hangs on a tickless (NO_HZ) kernel
->>> http://bugzilla.kernel.org/show_bug.cgi?id=9275
->>> Kernel: 2.6.23
->>> This is HP notebook nc6320 T2400 945GM
->> No response from developers
-> ..
-> 
-> I *still* get very slow resume-from-RAM quite often here
-> (new in 2.6.22 kernel, wasn't there in early 2.6.23-rc*).
-..
+On Nov 13, 2007 12:15 PM, Andrew Morton <akpm@linux-foundation.org> wrote:
+> On Mon, 12 Nov 2007 22:42:32 -0800 "Natalie Protasevich" <protasnb@gmail.com> wrote:
+>
+> > This is the listing of the open bugs that are relatively new, around
+> > 2.6.22 and up. They are vaguely classified by specific area.
+> > (not a full list, there are more :)
 
-Typo.  That should have said:
+[...]
 
-> (new in 2.6.23 kernel, wasn't there in early 2.6.23-rc*).
+> > IDE/SATA=========================================================
+
+[...]
+
+> > DVD-RAM umount and disk free bug
+> > http://bugzilla.kernel.org/show_bug.cgi?id=9265
+> > Kernel: 2.6.15  (asked to try current kernel)
+>
+> No response from developers
+
+Bug was filled under IO/Storage-Other so is it assigned to
+<other_other@kernel-bugs.osdl.org>.
+
+Could be a FS problem as well but it is the best to wait for
+confirmation with 2.6.23 before proceeding further...

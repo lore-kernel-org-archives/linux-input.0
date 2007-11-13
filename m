@@ -1,102 +1,104 @@
-From: Adrian Bunk <bunk@kernel.org>
+From: Romano Giannetti <romanol@upcomillas.es>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 22:20:06 +0100
-Message-ID: <20071113212006.GM4250@stusta.de>
-References: <20071113164650.GA28493@elte.hu> <4739E3D0.10201@rtr.ca> <20071113181228.GF4250@stusta.de> <4739EA83.5040006@rtr.ca> <20071113183605.GG4250@stusta.de> <4739F12E.5020807@rtr.ca> <20071113190428.GH4250@stusta.de> <4739FA4D.1050900@rtr.ca> <20071113200028.GJ4250@stusta.de> <473A057A.90802@rtr.ca>
+Date: Tue, 13 Nov 2007 18:50:38 +0100
+Message-ID: <1194976238.15745.17.camel@rukbat>
+References: <20071113031553.3c7b5c16.akpm@linux-foundation.org>
+	 <20071113.033946.114918709.davem@davemloft.net>
+	 <20071113034916.2556edd7.akpm@linux-foundation.org>
+	 <20071113.035824.40509981.davem@davemloft.net>
+	 <20071113041259.79c9a8c5.akpm@linux-foundation.org>
+	 <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca>
+	 <4739C1B0.8000803@cateee.net>
+	 <2c0942db0711130757g295add20re0ee423b84921d28@mail.gmail.com>
+	 <20071113170141.GD4250@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-Content-Disposition: inline
-In-Reply-To: <473A057A.90802@rtr.ca>
+In-Reply-To: <20071113170141.GD4250@stusta.de>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Mark Lord <liml@rtr.ca>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: Ray Lee <ray-lk@madrabbit.org>, "Giacomo A. Catenazzi" <cate@cateee.net>, Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Nov 13, 2007 at 03:13:46PM -0500, Mark Lord wrote:
-> Adrian Bunk wrote:
->> On Tue, Nov 13, 2007 at 02:26:05PM -0500, Mark Lord wrote:
-> ..
->>> If you've been making significant updates to a driver/subsystem,
->>> and people are reporting that it is now broken for them,
->>
->> What are "significant updates"?
->>
->> Sometimes one person makes one small patch and this patch contains
->> a typo.
-> ..
->
-> Then that person should double check their changes against
-> the problems reported, and re-convince themselves that the
-> breakage wasn't from those.  Simple. 
 
-Simple?
+I jump in this discussion hoping to have some more insight on git and to
+report my experience as a tester. I consider myself as half-literate in
+this (I am here since 1991, more or less, and I am able to compile a
+kernel and even hand-apply a patch, although I am in no way a kernel
+programmer).=20
 
-Everything you have in mind with "should double check their changes" is 
-simply not realistic with dozens of known unfixed regressions within 
-more than half a million changed or new lines of code written by more 
-than 800 people - all numbers only counted since 2.6.23.
+On Tue, 2007-11-13 at 18:01 +0100, Adrian Bunk wrote:
 
->...
->>> The reporters can help,
->>> and many may even git-bisect or send patches.  But you cannot *expect* or 
->>> *insist* upon them doing your job.
->>
->> Bullshit.
->>
->> Bug fixing is not about finding someone to blame, it's about getting the 
->> bug fixed.
-> ..
->
-> It's not about blame, it's about paying attention to breakages in code that a
-> person claims to be supporting, and then doing their best to resolve the issues.
+> The small instruction below is enough for everyone who is able to=20
+> build his own kernel to do a git bisect.
 
-Maintainers are just humans with limited time. 
+> # start bisecting:
+> cd linux-2.6
+> git bisect start
+> git bisect bad v2.6.21
+> git bisect good v2.6.20
+> cp /path/to/.config .
+>=20
 
-You were the one who suggested to "distribute code maintainership", 
-so you should explain how to find the additional maintainers.
+This was what I did in my (in the end almost successful) bisecting when
+trying to find the mmc problem (see the thread named "2.6.24-rc1 eat my
+SD card"). This is true in theory, but it has some problem. The "this
+commit does not compile is the easiest and in man git-bisect it's
+explained how to solve it. The changes in .config options, added or
+removed, are another problem when jumping back and forth from version (I
+was bitten by the gadzillions new options added to hda-intel alsa
+driver, but well, that is solvable with a bit of attention).
 
-> Again, if one has the time to actively write/modify code such that something breaks,
-> then that person should also make time to fix the breakages.
+The main problem I had, and that stopped me to arrive to a definite is
+this situation:
 
-code writer != subsystem maintainer
+j version-bad
+i
+h
+g unrelated (but similar) bug corrected
+f
+e
+d unrelated (but similar) bug introduced
+c
+b
+a version-good=20
 
-And git-bisect is the tool that tells you who broke it.
+(d was the series to change drivers to use sg helpers, and g was a "fix
+fallout from sg helpers" patch). Now I have a series of kernels (d, e,
+f) that did not work at all and so I cannot mark them good or bad. With
+the number of patches added in the free-for-all week, this is a very
+probable scenario. There is a way out from this using bisect?
 
->> The bug reporter is the person who can reproduce the problem, and if it's 
->> a regression then bisecting is the natural way of getting nearer at 
->> getting it fixed.
-> ..
-> For the third time, no disagreement here.  git-bsect can help in many cases,
-> but not in all cases.  And it requires a great time commitment from somebody
-> who's system used to work and now doesn't work.  The person who broke it has
-> a fair bit of responsibility there, too.
+Romano=20
 
-git-bisect can help only for regressions, and it can help for most 
-regressions.
+PS as a suggestion, I think that added a "Reported-by", or "Tested-by",
+or "Debugged-by" attribution in the repository, as happened to be in the
+MMC case, is a nice an d welcomed reward for the effort.   =20
 
-And you shouldn't try to make a problem out of something that isn't a 
-problem:
+--=20
+Sorry for the disclaimer --- =A1I cannot stop it!
 
-Bug submitters are either volunteers who test -rc or even -git or -mm 
-kernels for finding bugs or people who want a problem they experience 
-fixed.
 
-In both cases the submitters are usually willing to invest some time for 
-helping to get the bug fixed.
-
-> cheers
-
-cu
-Adrian
 
 --
+La presente comunicaci=F3n tiene car=E1cter confidencial y es para el exc=
+lusivo uso del destinatario indicado en la misma. Si Ud. no es el destina=
+tario indicado, le informamos que cualquier forma de distribuci=F3n, repr=
+oducci=F3n o uso de esta comunicaci=F3n y/o de la informaci=F3n contenida=
+ en la misma est=E1n estrictamente prohibidos por la ley. Si Ud. ha recib=
+ido esta comunicaci=F3n por error, por favor, notif=EDquelo inmediatament=
+e al remitente contestando a este mensaje y proceda a continuaci=F3n a de=
+struirlo. Gracias por su colaboraci=F3n.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+This communication contains confidential information. It is for the exclu=
+sive use of the intended addressee. If you are not the intended addressee=
+, please note that any form of distribution, copying or use of this commu=
+nication or the information in it is strictly prohibited by law. If you h=
+ave received this communication in error, please immediately notify the s=
+ender by reply e-mail and destroy this message. Thank you for your cooper=
+ation.=20

@@ -1,33 +1,71 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Adrian Bunk <bunk@kernel.org>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 18:25:16 +0000
-Message-ID: <20071113182516.250de873@the-village.bc.nu>
-References: <32209efe0711122242m3a5f081asf1c11a38b24db10c@mail.gmail.com>
-	<20071113031553.3c7b5c16.akpm@linux-foundation.org>
-	<4739ADA2.4060604@rtr.ca>
-	<alpine.LFD.0.9999.0711131521590.3265@localhost.localdomain>
-	<20071113181053.GB1356@flint.arm.linux.org.uk>
+Date: Tue, 13 Nov 2007 19:36:05 +0100
+Message-ID: <20071113183605.GG4250@stusta.de>
+References: <20071113.033946.114918709.davem@davemloft.net> <20071113034916.2556edd7.akpm@linux-foundation.org> <20071113.035824.40509981.davem@davemloft.net> <20071113041259.79c9a8c5.akpm@linux-foundation.org> <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca> <20071113164650.GA28493@elte.hu> <4739E3D0.10201@rtr.ca> <20071113181228.GF4250@stusta.de> <4739EA83.5040006@rtr.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071113181053.GB1356@flint.arm.linux.org.uk>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Mark Lord <liml@rtr.ca>, alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, Natalie Protasevich <protasnb@gmail.com>, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4739EA83.5040006@rtr.ca>
+Sender: netdev-owner@vger.kernel.org
+To: Mark Lord <liml@rtr.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-> Given the wide range of ARM platforms today, it is utterly idiotic to
-> expect a single person to be able to provide responses for all ARM bugs.
-> I for one wish I'd never *VOLUNTEERED* to be a part of the kernel
-> bugzilla, and really *WISH* I could pull out of that function.
+On Tue, Nov 13, 2007 at 01:18:43PM -0500, Mark Lord wrote:
+> Adrian Bunk wrote:
+>> On Tue, Nov 13, 2007 at 12:50:08PM -0500, Mark Lord wrote:
+>>> Ingo Molnar wrote:
+>>>> for example git-bisect was godsent. I remember that years ago bisection 
+>>>> of a bug was a very laborous task so that it was only used as a final, 
+>>>> last-ditch approach for really nasty bugs. Today we can autonomouly 
+>>>> bisect build bugs via a simple shell command around "git-bisect run", 
+>>>> without any human interaction! This freed up testing resources 
+>>> ..
+>>>
+>>> It's only a godsend for the few people who happen to be kernel developers
+>>
+>> It's also godsend for users who want a regression they observe fixed.
+>>
+>> If you can tell which patch broke it you often turned a very hard to debug 
+>> problem into a relatively easy fixable problem.
+> ..
+>
+> Oh yes, definitely.  When that use happens to be a kernel dev + git user,
+> it saves the *fool who broke it* a hell of a lot of time, because they can
+> slough it off onto the poor bloke who notices it.
 
-You can. Perhaps that bugzilla needs to point to some kind of
-arm-maintainers@vger.kernel.org list for the various ARM platform
-maintainers ?
+"fool who broke it" are hard works. Bugs are part of software 
+development, so you'd have to name everyone who develops software
+a fool.
 
-Alan
+But the main point is that often you don't know who broke it until you 
+know which commit broke it.
+
+> Mind you, no arguing that this is effective when that poor bloke
+> has a day free to download the git-tree and build/reboot a dozen times.
+
+I did bisecting myself, and I know that it costs time and work.
+
+But the first point is the above one that it makes otherwise nearly 
+undebuggable problems debuggable and fixable.
+
+Another point is that it shifts the work from the few experienced 
+developers to the many users. Users (and voluntary testers) we have
+many, but developer time for debugging bug reports is a quite scarce 
+resource.
+
+And why "poor bloke"? Bisecting takes time, but that's not different 
+from e.g. writing code or cleaning up code or going through bug reports.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

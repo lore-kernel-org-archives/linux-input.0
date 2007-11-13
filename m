@@ -1,40 +1,66 @@
-From: "Ray Lee" <ray-lk@madrabbit.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 07:57:54 -0800
-Message-ID: <2c0942db0711130757g295add20re0ee423b84921d28@mail.gmail.com>
-References: <20071113031553.3c7b5c16.akpm@linux-foundation.org>
-	 <20071113.033946.114918709.davem@davemloft.net>
-	 <20071113034916.2556edd7.akpm@linux-foundation.org>
-	 <20071113.035824.40509981.davem@davemloft.net>
-	 <20071113041259.79c9a8c5.akpm@linux-foundation.org>
-	 <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca>
-	 <4739C1B0.8000803@cateee.net>
+Date: Tue, 13 Nov 2007 17:07:21 +0100 (CET)
+Message-ID: <alpine.LFD.0.9999.0711131521590.3265@localhost.localdomain>
+References: <32209efe0711122242m3a5f081asf1c11a38b24db10c@mail.gmail.com> <20071113031553.3c7b5c16.akpm@linux-foundation.org> <4739ADA2.4060604@rtr.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <4739C1B0.8000803@cateee.net>
-Content-Disposition: inline
+In-Reply-To: <4739ADA2.4060604@rtr.ca>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: "Giacomo A. Catenazzi" <cate@cateee.net>
-Cc: Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+To: Mark Lord <liml@rtr.ca>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Natalie Protasevich <protasnb@gmail.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Nov 13, 2007 7:24 AM, Giacomo A. Catenazzi <cate@cateee.net> wrote:
-> As a long time kernel tester, I see some problem with the
-> newer "new development model". In the short merge windows,
-> after to much time, there are to many patches.
+On Tue, 13 Nov 2007, Mark Lord wrote:
 
-I think the root issue there is that it's hard to get all testers to
-run a bisect, but easy to ask them to test snapshots. Right now the
-snapshots are generated nightly, but I think it would make more sense
-if they were generated every N patches, for some value of N...
+> Andrew Morton wrote:
+> > On Mon, 12 Nov 2007 22:42:32 -0800 "Natalie Protasevich"
+> > <protasnb@gmail.com> wrote:
+> ..
+> > > with CONFIG_NO_HZ and/or CONFIG_HPET_TIMER set kernel 2.6.23 doesn't
+> > > boot (ARM, Timer)
+> > > http://bugzilla.kernel.org/show_bug.cgi?id=9229
+> > > Kernel: 2.6.23
+> > 
+> > No response from developers
+> ..
 
-Of course, for that to really work, we have to ensure that the result
-is always compilable, which has been getting better, but not perfect.
+The bug report is bogus. ARM has no CONFIG_HPET_TIMER. 
+ 
+> Note:  that same bug exists/existed on i386 back when NO_HZ was
+> introduced (2.6.21?).  I still see it from time to time on my Quad core
+> system (very rare), but not any more on my Duo notebook where it used
+> to happen about 1 in n boots (n < 10).
+> 
+> AFAICT no fix was ever released for it.
 
-Ray
+Hmm, at which point does the boot stop ? 
+
+> > > Suspend to RAM resume hangs on a tickless (NO_HZ) kernel
+> > > http://bugzilla.kernel.org/show_bug.cgi?id=9275
+> > > Kernel: 2.6.23
+> > > This is HP notebook nc6320 T2400 945GM
+> > No response from developers
+> ..
+> 
+> I *still* get very slow resume-from-RAM quite often here
+> (new in 2.6.22 kernel, wasn't there in early 2.6.23-rc*).
+
+Hmm. Which one 22 or 23 ?
+
+> Something eventually times out after a minute or so
+> and it comes back.  Cannot make it happen reliably,
+> unless I'm in a hurry to get something done.  :)
+> I suspect USB here, probably the same loopy bug that
+> we added a "loop limit failsafe" for back in 2.6.21(?).
+
+Do you have a pointer to that please ?
+
+Thanks,
+
+	tglx

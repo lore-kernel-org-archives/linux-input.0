@@ -1,58 +1,60 @@
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Wed, 14 Nov 2007 09:55:07 +0000
-Message-ID: <20071114095507.GA32595@flint.arm.linux.org.uk>
-References: <20071113125222.9eb53ac8.akpm@linux-foundation.org> <20071113221801.GF1356@flint.arm.linux.org.uk> <20071113143201.9441c940.akpm@linux-foundation.org> <20071113.175551.131375600.davem@davemloft.net>
+Date: Wed, 14 Nov 2007 02:07:06 -0800 (PST)
+Message-ID: <20071114.020706.219917088.davem@davemloft.net>
+References: <20071113143201.9441c940.akpm@linux-foundation.org>
+	<20071113.175551.131375600.davem@davemloft.net>
+	<20071114095507.GA32595@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20071113.175551.131375600.davem@davemloft.net>
-Sender: netdev-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20071114095507.GA32595@flint.arm.linux.org.uk>
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: rmk+lkml@arm.linux.org.uk
 Cc: akpm@linux-foundation.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, alsa-devel@alsa-project.org, protasnb@gmail.com, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Nov 13, 2007 at 05:55:51PM -0800, David Miller wrote:
-> From: Andrew Morton <akpm@linux-foundation.org>
-> Date: Tue, 13 Nov 2007 14:32:01 -0800
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+Date: Wed, 14 Nov 2007 09:55:07 +0000
+
+> On Tue, Nov 13, 2007 at 05:55:51PM -0800, David Miller wrote:
+> > I've created linux-arm@vger.kernel.org
 > 
-> > On Tue, 13 Nov 2007 22:18:01 +0000 Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > 
-> > > Find some other mailing list; I'm not hosting *nor* am I willing to run a
-> > > non-subscribers only mailing list.  Period.  Not negotiable, so don't even
-> > > try to change my mind.
-> > 
-> > Making a list subscribers-only will cause some bug reports to be lost.
-> > 
-> > Tradeoffs are involved, against which decisions must be made.  You have
-> > made yours.
-> 
-> Russell doesn't have to worry any more, he doesn't have to
-> host it, and he doesn't have to be willing to run a
-> non-subscribers-only mailing list.
-> 
-> Because I am.
-> 
-> I've created linux-arm@vger.kernel.org
+> By doing so you've just said (implicitly) that you can not tolerate
+> someone having a different opinion from your own.
 
-By doing so you've just said (implicitly) that you can not tolerate
-someone having a different opinion from your own.
+I created a mailing list on a machine where I provide such services.
 
-While I accept *your* right to run *your* lists how you please, you
-are unable to accept *my* right to run *my* lists how I see fit.
+People can choose to use or not use the new list, it is their choice.
 
-Time will tell which lists will survive.  Whatever, I suspect that by
-doing what you've just done, you're going to create more confusion and
-problems. Instead of having one focused place for discussions and bug
-reports, they're going to be spread more thinly, meaning less people
-looking at such things, meaning more bugs get ignored.  Thus making
-the issue worse.
+> While I accept *your* right to run *your* lists how you please, you
+> are unable to accept *my* right to run *my* lists how I see fit.
 
-So, when are you creating a replacement alsa-devel mailing list on
-vger?  That's also subscribers-only.
+I didn't tell you to take your list down or to run it in some other
+way.  I didn't tell you to unsubscribe everyone and move them over
+to the new list either.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+I've provided an alternative, and people can pick and choose how they
+see fit.  I'm letting natural selection run it's course.  Are you
+able to cope with the fact that people might not want to use your
+list any longer?  Perhaps that is what bugs you so much about my
+giving people a alternative choice.
+
+> So, when are you creating a replacement alsa-devel mailing list on
+> vger?  That's also subscribers-only.
+
+The operative term is "alternative" rather than "replacement".
+Perhaps this misunderstanding is what you're so upset about.
+
+And yes, that alsa list bugs the crap out of me too.  I'm more than
+happy to provide an alternative for that one as well.
+
+In fact, *poof*, there it is, linux-alsa@vger.kernel.org is there and
+available for anyone who wants to use it.
+
+Have a nice day Russell.

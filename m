@@ -1,36 +1,55 @@
-From: Larry Finger <larry.finger@lwfinger.net>
-Subject: Re: [BUG] New Kernel Bugs
-Date: Wed, 14 Nov 2007 08:49:31 -0600
-Message-ID: <473B0AFB.2080400@lwfinger.net>
-References: <20071113.035824.40509981.davem@davemloft.net>	<20071113041259.79c9a8c5.akpm@linux-foundation.org>	<20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca>	<20071113164650.GA28493@elte.hu> <4739E3D0.10201@rtr.ca>	<20071113183925.GF17785@parisc-linux.org> <4739F069.6050102@rtr.ca>	<20071113184902.GG17785@parisc-linux.org> <4739F2DD.5050802@rtr.ca> <20071114143040.GA31025@elte.hu>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] ACPI: Put button input devices in correct place in sysfs
+Date: Wed, 14 Nov 2007 12:32:52 -0500
+Message-ID: <d120d5000711140932w40898cabo527bb1315740635b@mail.gmail.com>
+References: <200711062051.59884.arvidjaar@mail.ru>
+	 <d120d5000711061247l5102875bg9d9b841086dd77b5@mail.gmail.com>
+	 <200711111142.52346.arvidjaar@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-ide-owner@vger.kernel.org>
-In-Reply-To: <20071114143040.GA31025@elte.hu>
-Sender: linux-ide-owner@vger.kernel.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mark Lord <liml@rtr.ca>, alsa-devel@alsa-project.org, Matthew Wilcox <matthew@wil.cx>, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, protasnb@gmail.com, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>
+Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <200711111142.52346.arvidjaar@mail.ru>
+Content-Disposition: inline
+Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
+List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
+List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
+List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
+List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-acpi@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, David Brownell <david-b@pacbell.net>
 List-Id: linux-input@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Mark Lord <liml@rtr.ca> wrote:
-> 
->>> You're assuming that everything in linux-2.6 was downloaded; that's 
->>> not true.  Everything in linux-2.6/.git was downloaded; but then you 
->>> do a checkout which happens to approximately double the size of the 
->>> linux-2.6 directory.
->> ..
->>
->> Ah, I wondered why it took only half an hour to download.
-> 
-> and you can get even lower than the 260MB by downloading a shallow clone 
-> of v2.6.23 and then populating the git tree from tht point on. (see the 
-> --depth parameter of git-clone) [because most of the time you want to 
-> bisect back to the last stable release, not back to 2 years of git 
-> history.]
+On 11/11/07, Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> On Tuesday 06 November 2007, Dmitry Torokhov wrote:
+> > Hi Andrey,
+> >
+> > On Nov 6, 2007 12:51 PM, Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+> > > Properly set up parent on input device registered by the button driver.
+> > >
+> >
+> > Seems to be a popular topic today :)
+> >
+> > >
+> > > +       input->cdev.dev = &device->dev;
+> >
+> > Please don't use cdev, but rather input_dev->dev.parent. cdev is going
+> > away soon.
+> > I sent a patch a couple of days ago to teh acpi list...
+> >
+>
+> You mean button patch? I could find only video one.
 
-When creating additional git trees (Linville's wireless-2.6 tree, for example) for driver
-development, you can save a lot of download bandwidth by using the --reference parameter of git-clone.
+Right, I got confused between the two...
 
-Larry
+>
+> Just in case, here is updated version.
+>
+
+Please forward to Len Brown with
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
+
+Thanks!
+
+-- 
+Dmitry

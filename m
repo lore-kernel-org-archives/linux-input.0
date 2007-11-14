@@ -1,54 +1,56 @@
-From: "Kok, Auke" <sofar@foo-projects.org>
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Wed, 14 Nov 2007 10:27:02 -0800
-Message-ID: <473B3DF6.100@foo-projects.org>
-References: <20071113031553.3c7b5c16.akpm@linux-foundation.org> <200711131739.45820.vda.linux@googlemail.com> <20071114072715.GO4250@stusta.de> <200711140046.20391.vda.linux@googlemail.com>
+Date: Wed, 14 Nov 2007 19:44:56 +0000
+Message-ID: <20071114194456.GC23221@flint.arm.linux.org.uk>
+References: <20071113143201.9441c940.akpm@linux-foundation.org> <20071113.175551.131375600.davem@davemloft.net> <20071114095507.GA32595@flint.arm.linux.org.uk> <20071114.020706.219917088.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <200711140046.20391.vda.linux@googlemail.com>
+Content-Disposition: inline
+In-Reply-To: <20071114.020706.219917088.davem@davemloft.net>
 Sender: netdev-owner@vger.kernel.org
-To: Denys Vlasenko <vda.linux@googlemail.com>
-Cc: Adrian Bunk <bunk@kernel.org>, Theodore Tso <tytso@mit.edu>, Benoit Boissinot <bboissin@gmail.com>, Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, protasnb@gmail.com, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
 
-Denys Vlasenko wrote:
-> On Wednesday 14 November 2007 00:27, Adrian Bunk wrote:
->> You missed the following in my email:
->> "we slowly scare them away due to the many bug reports without any
->>  reaction."
->>
->> The problem is that bug reports take time. If you go away from easy
->> things like compile errors then even things like describing what does
->> no longer work, ideally producing a scenario where you can reproduce it
->> and verifying whether it was present in previous kernels can easily take
->> many hours that are spent before the initial bug report.
->>
->> If the bug report then gets ignored we discourage the person who sent
->> the bug report to do any work related to the kernel again.
+On Wed, Nov 14, 2007 at 02:07:06AM -0800, David Miller wrote:
+> From: Russell King <rmk+lkml@arm.linux.org.uk>
+> Date: Wed, 14 Nov 2007 09:55:07 +0000
 > 
-> Cannot agree more. I am in a similar position right now.
-> My patch to aic7xxx driver was ubmitted four times
-> with not much reaction from scsi guys.
+> > On Tue, Nov 13, 2007 at 05:55:51PM -0800, David Miller wrote:
+> > > I've created linux-arm@vger.kernel.org
+> > 
+> > By doing so you've just said (implicitly) that you can not tolerate
+> > someone having a different opinion from your own.
 > 
-> Finally they replied and asked to rediff it against their
-> git tree. I did that and sent patches back. No reply since then.
+> I created a mailing list on a machine where I provide such services.
 > 
-> And mind you, the patch is not trying to do anything
-> complex, it mostly moves code around, removes 'inline',
-> adds 'const'. What should I think about it?
+> People can choose to use or not use the new list, it is their choice.
+> 
+> > While I accept *your* right to run *your* lists how you please, you
+> > are unable to accept *my* right to run *my* lists how I see fit.
+> 
+> I didn't tell you to take your list down or to run it in some other
+> way.  I didn't tell you to unsubscribe everyone and move them over
+> to the new list either.
 
-this has nothing to do with the bugs on bugzilla.
+I didn't say that you were.
 
-you're trying to send a janitor patch. It should be logical that the response to
-that is not heated or receiving a joyous reception :)
+> I've provided an alternative, and people can pick and choose how they
+> see fit.  I'm letting natural selection run it's course.  Are you
+> able to cope with the fact that people might not want to use your
+> list any longer?  Perhaps that is what bugs you so much about my
+> giving people a alternative choice.
 
-If you have a problem getting your cleanup patch to the driver maintainer, send it
-to the subsystem maintainer instead, or even the janitors, or even Adrian Bunk who
-will gladly push it to everyone. Or, even to Andrew Morton who will carry it in
--mm for a while and then harrasses the subsystem maintainer to merge it for you!
+Absolutely, and if you'd have read my message you'd have seen that
+I'd said effectively the same thing that you're saying here.
 
-Cheers,
+Having been flamed for not reading emails properly by AKPM shall
+I flame you for not reading my emails properly?  Oh no, it's merely
+human to occasionally have such misunderstandings.  Unless you're
+rmk.
 
-Auke
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

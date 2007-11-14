@@ -1,37 +1,34 @@
-From: david@lang.hm
+From: Randy Dunlap <rdunlap@xenotime.net>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Wed, 14 Nov 2007 13:05:26 -0800 (PST)
-Message-ID: <Pine.LNX.4.64.0711141303210.29641@asgard.lang.hm>
-References: <20071113134029.GA30978@elte.hu> <20071113085514.3414aa52.rdunlap@xenotime.net>
- <20071114140847.GA11489@elte.hu> <20071114.115601.00715073.davem@davemloft.net>
- <20071114204840.GB20606@elte.hu>
+Date: Wed, 14 Nov 2007 13:05:31 -0800
+Message-ID: <20071114130531.15d352fe.rdunlap@xenotime.net>
+References: <20071113.033946.114918709.davem@davemloft.net>
+	<20071113034916.2556edd7.akpm@linux-foundation.org>
+	<20071113.035824.40509981.davem@davemloft.net>
+	<20071113041259.79c9a8c5.akpm@linux-foundation.org>
+	<20071113134029.GA30978@elte.hu>
+	<20071113085514.3414aa52.rdunlap@xenotime.net>
+	<20071114140847.GA11489@elte.hu>
+	<20071114093820.ff3ad8f9.rdunlap@xenotime.net>
+	<20071114201639.GA17182@elte.hu>
+	<20071114122932.bc3bec04.rdunlap@xenotime.net>
+	<20071114203737.GA20606@elte.hu>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071114204840.GB20606@elte.hu>
-Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
-List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
-List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
-List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
-List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <20071114203737.GA20606@elte.hu>
+Sender: linux-ide-owner@vger.kernel.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: David Miller <davem@davemloft.net>, rdunlap@xenotime.net, akpm@linux-foundation.org, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 14 Nov 2007, Ingo Molnar wrote:
+On Wed, 14 Nov 2007 21:37:37 +0100 Ingo Molnar wrote:
 
->> Dumping even more crap on lkml is not the answer.
->
-> that "crap" that i'd like to see dumped upon lkml would be netdev
-> traffic mainly - most of the other kernel development lists (and i'm
-> subscribed to many of them) are low-traffic. netdev is the main reason
-> why we cannot do a "one common discussion forum" approach.
+> ok, then you conceded it by not replying to it? good ;-)
 
-hmm, how much work would it be to tweak the mail software on vger to have 
-a linux-all@vger.kernel.org that got a copy of any linux-* list hosted by 
-vger.
+No, I don't intend to carry on this discussion,
+but I appreciate the smiley.
 
-this would solve half the problem (people on linux-kernel not seeing 
-discussions on the other lists)
-
-David Lang
+---
+~Randy

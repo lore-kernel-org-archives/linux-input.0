@@ -1,54 +1,42 @@
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Wed, 14 Nov 2007 19:44:56 +0000
-Message-ID: <20071114194456.GC23221@flint.arm.linux.org.uk>
-References: <20071113143201.9441c940.akpm@linux-foundation.org> <20071113.175551.131375600.davem@davemloft.net> <20071114095507.GA32595@flint.arm.linux.org.uk> <20071114.020706.219917088.davem@davemloft.net>
+Date: Wed, 14 Nov 2007 19:52:08 +0000
+Message-ID: <20071114195208.GD23221@flint.arm.linux.org.uk>
+References: <32209efe0711122242m3a5f081asf1c11a38b24db10c@mail.gmail.com> <20071113031553.3c7b5c16.akpm@linux-foundation.org> <20071114132448.GA5183@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20071114.020706.219917088.davem@davemloft.net>
+In-Reply-To: <20071114132448.GA5183@ucw.cz>
 Sender: netdev-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, protasnb@gmail.com, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz, akpm@linux-foundation.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, alsa-devel@alsa-project.org, netdev@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org, Natalie Protasevich <protasnb@gmail.com>, linux-ide@vger.kernel.org, bugme-daemon@bugzilla.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Nov 14, 2007 at 02:07:06AM -0800, David Miller wrote:
-> From: Russell King <rmk+lkml@arm.linux.org.uk>
-> Date: Wed, 14 Nov 2007 09:55:07 +0000
+On Wed, Nov 14, 2007 at 01:24:48PM +0000, Pavel Machek wrote:
+> Hi!
 > 
-> > On Tue, Nov 13, 2007 at 05:55:51PM -0800, David Miller wrote:
-> > > I've created linux-arm@vger.kernel.org
+> > > Suspend to RAM resume hangs on a tickless (NO_HZ) kernel
+> > > http://bugzilla.kernel.org/show_bug.cgi?id=9275
+> > > Kernel: 2.6.23
+> > > This is HP notebook nc6320 T2400 945GM
 > > 
-> > By doing so you've just said (implicitly) that you can not tolerate
-> > someone having a different opinion from your own.
+> > No response from developers
 > 
-> I created a mailing list on a machine where I provide such services.
+> Maybe I'm optimistic, but I expected Ingo/Thomas to look after nohz
+> problems. nohz=off highres=off fixes more than one suspend problem...
 > 
-> People can choose to use or not use the new list, it is their choice.
-> 
-> > While I accept *your* right to run *your* lists how you please, you
-> > are unable to accept *my* right to run *my* lists how I see fit.
-> 
-> I didn't tell you to take your list down or to run it in some other
-> way.  I didn't tell you to unsubscribe everyone and move them over
-> to the new list either.
+> ...stuff I've seen with NOHZ even without suspend (cursor blinking
+> irregulary) make me think that nohz perhaps should not be used in
+> production just yet...
 
-I didn't say that you were.
+It appears that bug 9229 has been solved, and the reporter of that
+bug now says that:
 
-> I've provided an alternative, and people can pick and choose how they
-> see fit.  I'm letting natural selection run it's course.  Are you
-> able to cope with the fact that people might not want to use your
-> list any longer?  Perhaps that is what bugs you so much about my
-> giving people a alternative choice.
+  If I unset NO_TZ suspend/resume works.
+  If I set it suspend/resume doesn't works.
 
-Absolutely, and if you'd have read my message you'd have seen that
-I'd said effectively the same thing that you're saying here.
-
-Having been flamed for not reading emails properly by AKPM shall
-I flame you for not reading my emails properly?  Oh no, it's merely
-human to occasionally have such misunderstandings.  Unless you're
-rmk.
+So I think this guy is now suffering from bug #9275
 
 -- 
 Russell King

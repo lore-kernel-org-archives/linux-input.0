@@ -1,38 +1,27 @@
-From: Denys Vlasenko <vda.linux@googlemail.com>
+From: Chuck Ebbert <cebbert@redhat.com>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 17:41:06 -0700
-Message-ID: <200711131741.06509.vda.linux@googlemail.com>
-References: <20071113031553.3c7b5c16.akpm@linux-foundation.org> <20071113175610.GE4250@stusta.de> <4739F399.2010605@googlemail.com>
+Date: Tue, 13 Nov 2007 19:52:17 -0500
+Message-ID: <473A46C1.3060000@redhat.com>
+References: <20071113134029.GA30978@elte.hu>	<4739AFE0.20705@rtr.ca>	<20071113164650.GA28493@elte.hu>	<4739E3D0.10201@rtr.ca>	<20071113181228.GF4250@stusta.de>	<4739EA83.5040006@rtr.ca>	<20071113183605.GG4250@stusta.de>	<4739F12E.5020807@rtr.ca>	<20071113190428.GH4250@stusta.de>	<4739FA4D.1050900@rtr.ca>	<20071113200028.GJ4250@stusta.de> <20071113211256.1d18fe1a@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <4739F399.2010605@googlemail.com>
-Content-Disposition: inline
+In-Reply-To: <20071113211256.1d18fe1a@the-village.bc.nu>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Gabriel C <nix.or.die@googlemail.com>
-Cc: Adrian Bunk <bunk@kernel.org>, Theodore Tso <tytso@mit.edu>, Benoit Boissinot <bboissin@gmail.com>, Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Adrian Bunk <bunk@kernel.org>, Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tuesday 13 November 2007 11:57, Gabriel C wrote:
-> > The main problem is finding experienced developers who spend time on
-> > looking into bug reports.
->
-> There are already. IMO the problem is the development model.
->
-> There are tons new features in each new kernel release and 'tons new bugs'
-> which are not fixed during the release cycle nor in the .XX stable kernels.
->
-> Maybe after XX kernel releases there should be one just with bug-fixes
-> _without_ any new features , eg: cleaning bugs from bugzilla , know
-> regressions , cleaning up code , removing broken drivers and the like.
+On 11/13/2007 04:12 PM, Alan Cox wrote:
+>> Bug fixing is not about finding someone to blame, it's about getting the 
+>> bug fixed.
+> 
+> Partly - its also about understanding why the bug occurred and making it
+> not happen again.
 
-Won't work. You cannot force people to work on things they don't
-find interesting, long-term.
---
-vda
+Very few people think about that part.

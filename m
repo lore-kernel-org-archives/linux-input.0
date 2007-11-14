@@ -1,27 +1,39 @@
-From: Chuck Ebbert <cebbert@redhat.com>
+From: David Miller <davem@davemloft.net>
 Subject: Re: [BUG] New Kernel Bugs
-Date: Tue, 13 Nov 2007 19:52:17 -0500
-Message-ID: <473A46C1.3060000@redhat.com>
-References: <20071113134029.GA30978@elte.hu>	<4739AFE0.20705@rtr.ca>	<20071113164650.GA28493@elte.hu>	<4739E3D0.10201@rtr.ca>	<20071113181228.GF4250@stusta.de>	<4739EA83.5040006@rtr.ca>	<20071113183605.GG4250@stusta.de>	<4739F12E.5020807@rtr.ca>	<20071113190428.GH4250@stusta.de>	<4739FA4D.1050900@rtr.ca>	<20071113200028.GJ4250@stusta.de> <20071113211256.1d18fe1a@the-village.bc.nu>
+Date: Tue, 13 Nov 2007 17:10:51 -0800 (PST)
+Message-ID: <20071113.171051.199524749.davem@davemloft.net>
+References: <4739E3D0.10201@rtr.ca>
+	<20071113181228.GF4250@stusta.de>
+	<4739EA83.5040006@rtr.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <owner-linux-input@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20071113211256.1d18fe1a@the-village.bc.nu>
+In-Reply-To: <4739EA83.5040006@rtr.ca>
 Sender: owner-linux-input@atrey.karlin.mff.cuni.cz
 List-Help: <mailto:majordomo@atrey.karlin.mff.cuni.cz?body=help>
 List-Owner: <mailto:owner-linux-input@atrey.karlin.mff.cuni.cz>
 List-Post: <mailto:linux-input@atrey.karlin.mff.cuni.cz>
 List-Unsubscribe: <mailto:linux-input-request@atrey.karlin.mff.cuni.cz?body=unsubscribe>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Adrian Bunk <bunk@kernel.org>, Mark Lord <liml@rtr.ca>, Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
+To: liml@rtr.ca
+Cc: bunk@kernel.org, mingo@elte.hu, akpm@linux-foundation.org, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On 11/13/2007 04:12 PM, Alan Cox wrote:
->> Bug fixing is not about finding someone to blame, it's about getting the 
->> bug fixed.
-> 
-> Partly - its also about understanding why the bug occurred and making it
-> not happen again.
+From: Mark Lord <liml@rtr.ca>
+Date: Tue, 13 Nov 2007 13:18:43 -0500
 
-Very few people think about that part.
+> Mind you, no arguing that this is effective when that poor bloke has
+> a day free to download the git-tree and build/reboot a dozen times.
+
+Like the internet, this time spent is beneficial because it's
+pushing the work out to the end nodes.  In fact git bisect is
+an awesome example of the end node principle in action for
+software development and QA.
+
+For the end-user wanting their bug fixed and the developer it's a win
+win situation because the reporter is actually able to do something
+proactive which will help get the bug they want fixed faster.
+
+So I don't agree with framing this person as a "poor bloke".  Our
+testers are more empowered than ever to lead the process towards a
+fix.

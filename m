@@ -1,82 +1,103 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] remove dead MAC_ADBKEYCODES
-Date: Fri, 16 Nov 2007 10:44:28 +0100 (CET)
-Message-ID: <Pine.LNX.4.62.0711161043560.29012@pademelon.sonytel.be>
-References: <1195142010.14001.21.camel@hammer.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
-In-Reply-To: <1195142010.14001.21.camel@hammer.suse.cz>
-List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: Stanislav Brabec <sbrabec@suse.cz>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Linux/PPC Development <linuxppc-dev@ozlabs.org>, Linux/m68k <linux-m68k@lists.linux-m68k.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Herbert Valerio Riedel <hvr@gnu.org>
+Subject: [PATCH,RFC] Input: gpio-keys - request and configure GPIOs
+Date: Fri, 16 Nov 2007 12:33:50 +0100
+Message-ID: <1195212830-9137-1-git-send-email-hvr@gnu.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from shswe.rise-s.com ([83.65.168.195]:41370 "EHLO shswe.swe"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752950AbXKPLq4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 Nov 2007 06:46:56 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Paul Sokolovsky <pmiscml@gmail.com>, Philipp Zabel <philipp.zabel@gmail.com>, Dmitry Torokhov <dtor@mail.ru>, Philip Blundell <philb@gnu.org>
 
+Currently, gpio_keys.c assumes the GPIOs to be already properly configured;
+this patch changes gpio-keys to perform explicit calls to gpio_request() and
+gpio_configure_input().
 
-Wrong mailing list ;-)
+This matches the behaviour of leds-gpio.
 
-On Thu, 15 Nov 2007, Stanislav Brabec wrote:
-> It seems, that current kernel source code contains no traces of
-> MAC_ADBKEYCODES and no reference to keyboard_sends_linux_keycodes any
-> more.
-> 
-> Attached patch removes them from configuration files.
-> 
-> Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+Cc: Paul Sokolovsky <pmiscml@gmail.com>
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Philip Blundell <philb@gnu.org>
+---
+btw, I'm unsure whether the '?:' operator is allowed in kernel source;
+but since I found quite a bit of occurences throughout the kernel source
+(including gpio_keys.c), I assume it's tolerated... :-)
 
-Acked-by: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+ drivers/input/keyboard/gpio_keys.c |   26 ++++++++++++++++++++++++--
+ 1 files changed, 24 insertions(+), 2 deletions(-)
 
-> --- a/arch/m68k/Kconfig
-> +++ b/arch/m68k/Kconfig
-> @@ -582,20 +582,6 @@ config MAC_HID
->  	depends on INPUT_ADBHID
->  	default y
->  
-> -config MAC_ADBKEYCODES
-> -	bool "Support for ADB raw keycodes"
-> -	depends on INPUT_ADBHID
-> -	help
-> -	  This provides support for sending raw ADB keycodes to console
-> -	  devices.  This is the default up to 2.4.0, but in future this may be
-> -	  phased out in favor of generic Linux keycodes.  If you say Y here,
-> -	  you can dynamically switch via the
-> -	  /proc/sys/dev/mac_hid/keyboard_sends_linux_keycodes
-> -	  sysctl and with the "keyboard_sends_linux_keycodes=" kernel
-> -	  argument.
-> -
-> -	  If unsure, say Y here.
-> -
->  config ADB_KEYBOARD
->  	bool "Support for ADB keyboard (old driver)"
->  	depends on MAC && !INPUT_ADBHID
-> --- a/arch/m68k/configs/mac_defconfig
-> +++ b/arch/m68k/configs/mac_defconfig
-> @@ -678,7 +678,6 @@ CONFIG_LOGO_MAC_CLUT224=y
->  #
->  CONFIG_MAC_SCC=y
->  CONFIG_MAC_HID=y
-> -CONFIG_MAC_ADBKEYCODES=y
->  CONFIG_SERIAL_CONSOLE=y
->  
->  #
-> 
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 3eddf52..445265c 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -75,9 +75,26 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		struct gpio_keys_button *button = &pdata->buttons[i];
+-		int irq = gpio_to_irq(button->gpio);
++		int irq;
+ 		unsigned int type = button->type ?: EV_KEY;
+ 
++		error = gpio_request(button->gpio, button->desc ?: "gpio_keys");
++		if (error < 0) {
++			pr_err("gpio-keys: failed to request GPIO %d,"
++				" error %d\n", button->gpio, error);
++			goto fail;
++		}
++
++		error = gpio_direction_input(button->gpio);
++		if (error < 0) {
++			pr_err("gpio-keys: failed to configure input"
++				" direction for GPIO %d, error %d\n",
++				button->gpio, error);
++			gpio_free(button->gpio);
++			goto fail;
++		}
++
++		irq = gpio_to_irq(button->gpio);
+ 		if (irq < 0) {
+ 			error = irq;
+ 			printk(KERN_ERR
+@@ -85,6 +102,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 				"Unable to get irq number for GPIO %d,"
+ 				"error %d\n",
+ 				button->gpio, error);
++			gpio_free(button->gpio);
+ 			goto fail;
+ 		}
+ 
+@@ -97,6 +115,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 			printk(KERN_ERR
+ 				"gpio-keys: Unable to claim irq %d; error %d\n",
+ 				irq, error);
++			gpio_free(button->gpio);
+ 			goto fail;
+ 		}
+ 
+@@ -119,8 +138,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	return 0;
+ 
+  fail:
+-	while (--i >= 0)
++	while (--i >= 0) {
+ 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), pdev);
++		gpio_free(pdata->buttons[i].gpio);
++	}
+ 
+ 	platform_set_drvdata(pdev, NULL);
+ 	input_free_device(input);
+@@ -139,6 +160,7 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+ 		free_irq(irq, pdev);
++		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+ 	input_unregister_device(input);
+-- 
+1.5.3.4
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

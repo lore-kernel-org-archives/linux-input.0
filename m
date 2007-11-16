@@ -1,38 +1,45 @@
-From: Herbert Valerio Riedel <hvr@gnu.org>
-Subject: Re: [PATCH,RFC] Input: gpio-keys - request and configure GPIOs
-Date: Fri, 16 Nov 2007 11:50:48 +0000 (UTC)
-Message-ID: <fhk06o$vj5$1@ger.gmane.org>
-References: <1195212830-9137-1-git-send-email-hvr@gnu.org>
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] remove dead MAC_ADBKEYCODES
+Date: Fri, 16 Nov 2007 08:25:24 -0500
+Message-ID: <d120d5000711160525p225f4b4o30eab6d01b289cda@mail.gmail.com>
+References: <1195142010.14001.21.camel@hammer.suse.cz>
+	<Pine.LNX.4.62.0711161043560.29012@pademelon.sonytel.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from main.gmane.org ([80.91.229.2]:47772 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757680AbXKPLzH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Nov 2007 06:55:07 -0500
-Received: from root by ciao.gmane.org with local (Exim 4.43)
-	id 1Iszmo-00069e-4d
-	for linux-input@vger.kernel.org; Fri, 16 Nov 2007 11:55:02 +0000
-Received: from a0024p011.ws.highway.telekom.at ([91.112.251.11])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Fri, 16 Nov 2007 11:55:02 +0000
-Received: from hvr by a0024p011.ws.highway.telekom.at with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Fri, 16 Nov 2007 11:55:02 +0000
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+In-Reply-To: <Pine.LNX.4.62.0711161043560.29012@pademelon.sonytel.be>
+Content-Disposition: inline
+List-Unsubscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
+List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
+List-Post: <mailto:linuxppc-dev@ozlabs.org>
+List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
+List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
+	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
+Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Stanislav Brabec <sbrabec@suse.cz>, linux-input@atrey.karlin.mff.cuni.cz, Linux/m68k <linux-m68k@lists.linux-m68k.org>, Linux/PPC Development <linuxppc-dev@ozlabs.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-On Fri, 16 Nov 2007 12:33:50 +0100, Herbert Valerio Riedel wrote:
-> Currently, gpio_keys.c assumes the GPIOs to be already properly
-> configured; this patch changes gpio-keys to perform explicit calls to
-> gpio_request() and gpio_configure_input().
-> 
-> This matches the behaviour of leds-gpio.
+On Nov 16, 2007 4:44 AM, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+>
+> Wrong mailing list ;-)
+>
+> On Thu, 15 Nov 2007, Stanislav Brabec wrote:
+> > It seems, that current kernel source code contains no traces of
+> > MAC_ADBKEYCODES and no reference to keyboard_sends_linux_keycodes any
+> > more.
+> >
+> > Attached patch removes them from configuration files.
+> >
+> > Signed-off-by: Stanislav Brabec <sbrabec@suse.cz>
+>
+> Acked-by: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+>
 
-Signed-off-by: Herbert Valerio Riedel <hvr@gnu.org>
+Geert, are you going to push it through your tree?
 
-D'oh! :-)
-
+-- 
+Dmitry

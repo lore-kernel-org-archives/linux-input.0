@@ -1,38 +1,60 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH,RFC] Input: gpio-keys - request and configure GPIOs
-Date: Fri, 16 Nov 2007 08:38:11 -0500
-Message-ID: <d120d5000711160538u6f629e34h9465a880f09be49c@mail.gmail.com>
-References: <1195212830-9137-1-git-send-email-hvr@gnu.org>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: [PATCH] Input - Move KEY_{EURO, DOLLAR} to lower keycodes
+Date: Fri, 16 Nov 2007 13:41:58 +0000
+Message-ID: <200711161341.58696.carlos@strangeworlds.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.184]:38696 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757580AbXKPNiO (ORCPT
+Received: from slackadelic.com ([65.196.224.53]:56374 "EHLO
+	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757612AbXKPNmv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 Nov 2007 08:38:14 -0500
-Received: by nf-out-0910.google.com with SMTP id g13so820556nfb
-        for <linux-input@vger.kernel.org>; Fri, 16 Nov 2007 05:38:12 -0800 (PST)
-In-Reply-To: <1195212830-9137-1-git-send-email-hvr@gnu.org>
+	Fri, 16 Nov 2007 08:42:51 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Herbert Valerio Riedel <hvr@gnu.org>
-Cc: linux-input@vger.kernel.org, Paul Sokolovsky <pmiscml@gmail.com>, Philipp Zabel <philipp.zabel@gmail.com>, Philip Blundell <philb@gnu.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+From: Carlos Corbacho <cathectic@gmail.com>
 
-On Nov 16, 2007 6:33 AM, Herbert Valerio Riedel <hvr@gnu.org> wrote:
-> Currently, gpio_keys.c assumes the GPIOs to be already properly configured;
-> this patch changes gpio-keys to perform explicit calls to gpio_request() and
-> gpio_configure_input().
->
-> This matches the behaviour of leds-gpio.
->
+These keys are used on PS/2 controllers, so their current values are too
+high to map the scancodes to. Move them to the < 256 range.
 
-Makes sense from where I sit but let's see what guys who actually use
-the module say... ;)
+Signed-off-by: Carlos Corbacho <cathectic@gmail.com>
+---
+This is one solution to my previously posted problem - just move the keycodes
+to ones that can be used by setkeycodes.
 
+ include/linux/input.h |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index d423cf1..94c3c4b 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -371,6 +371,9 @@ struct input_absinfo {
+ #define KEY_BRIGHTNESS_ZERO	244	/* brightness off, use ambient */
+ #define KEY_DISPLAY_OFF		245	/* display device to off state */
+ 
++#define KEY_DOLLAR		246
++#define KEY_EURO		247
++
+ #define BTN_MISC		0x100
+ #define BTN_0			0x100
+ #define BTN_1			0x101
+@@ -527,9 +530,6 @@ struct input_absinfo {
+ #define KEY_SPELLCHECK		0x1b0   /* AL Spell Check */
+ #define KEY_LOGOFF		0x1b1   /* AL Logoff */
+ 
+-#define KEY_DOLLAR		0x1b2
+-#define KEY_EURO		0x1b3
+-
+ #define KEY_DEL_EOL		0x1c0
+ #define KEY_DEL_EOS		0x1c1
+ #define KEY_INS_LINE		0x1c2
 -- 
-Dmitry
+1.5.3.3
+

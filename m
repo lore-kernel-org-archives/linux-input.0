@@ -1,44 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] Input: add i8042.noloop quirk for MS Virtual Machine
-Date: Sat, 17 Nov 2007 10:46:45 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0711171045390.12807@jikos.suse.cz>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: size of git repository (was Re: [BUG] New Kernel Bugs)
+Date: Sun, 18 Nov 2007 12:44:05 +0000
+Message-ID: <20071118124404.GA4037@ucw.cz>
+References: <20071113031553.3c7b5c16.akpm@linux-foundation.org> <20071113.033946.114918709.davem@davemloft.net> <20071113034916.2556edd7.akpm@linux-foundation.org> <20071113.035824.40509981.davem@davemloft.net> <20071113041259.79c9a8c5.akpm@linux-foundation.org> <20071113134029.GA30978@elte.hu> <4739AFE0.20705@rtr.ca> <20071113164650.GA28493@elte.hu> <4739E3D0.10201@rtr.ca>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:35438 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750835AbXKQJqr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Nov 2007 04:46:47 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4739E3D0.10201@rtr.ca>
+Sender: netdev-owner@vger.kernel.org
+To: Mark Lord <liml@rtr.ca>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, protasnb@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, alsa-devel@alsa-project.org, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, bugme-daemon@bugzilla.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Lawrence Steeger <vendor@russte.com>
 
-From: Jiri Kosina <jkosina@suse.cz>
+On Tue 2007-11-13 12:50:08, Mark Lord wrote:
+> Ingo Molnar wrote:
+> >
+> >for example git-bisect was godsent. I remember that 
+> >years ago bisection of a bug was a very laborous task 
+> >so that it was only used as a final, last-ditch 
+> >approach for really nasty bugs. Today we can 
+> >autonomouly bisect build bugs via a simple shell 
+> >command around "git-bisect run", without any human 
+> >interaction! This freed up testing resources 
+> ..
+> 
+> It's only a godsend for the few people who happen to be 
+> kernel developers
+> and who happen to already use git.
+> 
+> It's a 540MByte download over a slow link for everyone 
+> else.
 
-Input: add i8042.noloop quirk for MS Virtual Machine
-
-When booted under Microsoft Virtual Machine, the noloop quirk is needed,
-otherwise PS/2 mouse is not properly detected.
-
-Reported-by: Lawrence Steeger <vendor@russte.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index f8fe421..c5e68dc 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -110,6 +110,14 @@ static struct dmi_system_id __initdata i8042_dmi_noloop_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "5a"),
- 		},
- 	},
-+	{
-+		.ident = "Microsoft Virtual Machine",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Virtual Machine"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "VS2005R2"),
-+		},
-+	},
- 	{ }
- };
+Hmmm, clean-cg is 7.7G on my machine, and yes I tried
+git-prune-packed. What am I doing wrong?
+						Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

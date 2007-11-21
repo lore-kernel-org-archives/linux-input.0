@@ -1,49 +1,49 @@
-From: Stephen Hemminger <shemminger@linux-foundation.org>
-Subject: Re: [PATCH] Fujitsu application panel driver
-Date: Mon, 19 Nov 2007 15:19:18 -0800
-Message-ID: <20071119151918.19ebd8aa@freepuppy.rosehill>
-References: <20070702111724.43ee5b43@freepuppy.localdomain.hemminger.net>
-	<200711182336.59312.khnz@gmx.de>
-	<20071118204307.59419579@freepuppy.rosehill>
-	<200711191350.31965.khnz@gmx.de>
+From: Herbert Valerio Riedel <hvr@gnu.org>
+Subject: Re: [PATCH,RFC] Input: gpio-keys - request and configure GPIOs
+Date: Wed, 21 Nov 2007 18:13:01 +0100
+Message-ID: <1195665182.18471.12.camel@pbook.intra>
+References: <1195212830-9137-1-git-send-email-hvr@gnu.org>
+	 <d120d5000711160538u6f629e34h9465a880f09be49c@mail.gmail.com>
+	 <1195222151.10848.47.camel@pbook.intra>
+	 <74d0deb30711160619s2e4acd2ex31238dad34a6ae6d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754760AbXKSXVQ@vger.kernel.org>
-In-Reply-To: <200711191350.31965.khnz@gmx.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Robert Gerlach <khnz@gmx.de>
-Cc: Dmitry Torokhov <dtor@insightbb.com>, Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx02.kabsi.at ([62.40.128.130]:42985 "EHLO mx02.kabsi.at"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752085AbXKUSkL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 Nov 2007 13:40:11 -0500
+In-Reply-To: <74d0deb30711160619s2e4acd2ex31238dad34a6ae6d@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: pHilipp Zabel <philipp.zabel@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Paul Sokolovsky <pmiscml@gmail.com>, Philip Blundell <philb@gnu.org>
 
-On Mon, 19 Nov 2007 13:50:30 +0100
-Robert Gerlach <khnz@gmx.de> wrote:
 
-> Am Montag 19 November 2007 05:43:07 schrieb Stephen Hemminger:
-> > On Sun, 18 Nov 2007 23:36:58 +0100
-> >
-> > Robert Gerlach <khnz@gmx.de> wrote:
-> > > Am Dienstag 23 Oktober 2007 21:55:55 schrieb Stephen Hemminger:
-> > > > +MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifeBook*:pvr*:rvnFUJITSU:*");
-> > > > +MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifebook*:pvr*:rvnFUJITSU:*");
-> > >
-> > > Please make sure that this module is not autoload on Lifebook tablets (T
-> > > series and P1[56]10). It works fine, but only supports a subset of
-> > > features (4 of 7 buttons and no display orientation for my T4010).
-> >
-> > I would rather get those tablets working (with help). Rather than trying
-> > to enumerate all the possible DMI values of the full range of different
-> > laptops.
-> 
-> I've played with apanel some month ago. I've never found the keys and the 
-> switch over the I2C bus. So I was starting my own module (fsc_btns) to play 
-> with the IO range announced by ACPI. There I found it all. But my module 
-> doesn't work on all Lifebooks (S7110 for example; has no such ACPI device).
->
+On Fri, 2007-11-16 at 15:19 +0100, pHilipp Zabel wrote:
+> > > On Nov 16, 2007 6:33 AM, Herbert Valerio Riedel <hvr@gnu.org> wrote:
+> > > > Currently, gpio_keys.c assumes the GPIOs to be already properly configured;
+> > > > this patch changes gpio-keys to perform explicit calls to gpio_request() and
+> > > > gpio_configure_input().
+> > > >
+> > > > This matches the behaviour of leds-gpio.
 
-Are you sure the IO range isn't really the same as the I2C bus.
+> > > Makes sense from where I sit but let's see what guys who actually use
+> > > the module say... ;)
 
-See: http://apanel.sourceforge.net/tech.php
+[..]
 
--- 
-Stephen Hemminger <shemminger@linux-foundation.org>
+> We have quite a big number of users in the handhelds.org CVS kernel tree.
+
+> Unfortunately we are traditionally slow at pushing things to mainline, and many
+> of the devices depend on something like gpiolib hitting mainline for their GPIO
+> extenders.
+
+well, is there any chance this patch of mine might make it for 2.6.25?
+(or maybe even 2.6.24, since it can be regarded as being an actual
+fix...?) :-)
+
+regards,
+hvr
+

@@ -1,59 +1,94 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH,RFC] Input: gpio-keys - request and configure GPIOs
-Date: Wed, 21 Nov 2007 14:44:07 -0500
-Message-ID: <d120d5000711211144tdba04acq7c1100c6f2921b87@mail.gmail.com>
-References: <1195212830-9137-1-git-send-email-hvr@gnu.org>
-	 <d120d5000711160538u6f629e34h9465a880f09be49c@mail.gmail.com>
-	 <1195222151.10848.47.camel@pbook.intra>
-	 <74d0deb30711160619s2e4acd2ex31238dad34a6ae6d@mail.gmail.com>
-	 <1195665182.18471.12.camel@pbook.intra>
+From: Mats Johannesson <spamcan@abcbredband.net>
+Subject: Re: Laptop keyboard unusable when ACPI is active
+Date: Fri, 23 Nov 2007 08:44:43 +0100
+Message-ID: <20071123084443.2cf6b61e@loke.fish.not>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wr-out-0506.google.com ([64.233.184.229]:29072 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752720AbXKUToK (ORCPT
+Received: from smtp.bredband2.net ([82.209.166.4]:7274 "EHLO
+	smtp.bredband2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752465AbXKWHv0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Nov 2007 14:44:10 -0500
-Received: by wr-out-0506.google.com with SMTP id c49so1510741wra
-        for <linux-input@vger.kernel.org>; Wed, 21 Nov 2007 11:44:09 -0800 (PST)
-In-Reply-To: <1195665182.18471.12.camel@pbook.intra>
-Content-Disposition: inline
+	Fri, 23 Nov 2007 02:51:26 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Herbert Valerio Riedel <hvr@gnu.org>
-Cc: pHilipp Zabel <philipp.zabel@gmail.com>, linux-input@vger.kernel.org, Paul Sokolovsky <pmiscml@gmail.com>, Philip Blundell <philb@gnu.org>
+To: pavel@suse.cz, legolas558@users.sourceforge.net, dmitry.torokhov@gmail.com, astarikovskiy@suse.de, len.brown@intel.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.orglinu
 
-On Nov 21, 2007 12:13 PM, Herbert Valerio Riedel <hvr@gnu.org> wrote:
->
-> On Fri, 2007-11-16 at 15:19 +0100, pHilipp Zabel wrote:
-> > > > On Nov 16, 2007 6:33 AM, Herbert Valerio Riedel <hvr@gnu.org> wrote:
-> > > > > Currently, gpio_keys.c assumes the GPIOs to be already properly configured;
-> > > > > this patch changes gpio-keys to perform explicit calls to gpio_request() and
-> > > > > gpio_configure_input().
-> > > > >
-> > > > > This matches the behaviour of leds-gpio.
->
-> > > > Makes sense from where I sit but let's see what guys who actually use
-> > > > the module say... ;)
->
-> [..]
->
-> > We have quite a big number of users in the handhelds.org CVS kernel tree.
->
-> > Unfortunately we are traditionally slow at pushing things to mainline, and many
-> > of the devices depend on something like gpiolib hitting mainline for their GPIO
-> > extenders.
->
-> well, is there any chance this patch of mine might make it for 2.6.25?
-> (or maybe even 2.6.24, since it can be regarded as being an actual
-> fix...?) :-)
->
+Many responsible CCs added.
 
-There is a slight one ;)
+On 2007-10-20 18:33:09 Pavel Machek responded to Daniele C.:
+> > > Try disabling acpi embedded controller.
+> > >
+> > How can I accomplish this? Are you referring to the i8042?
+>
+> rmmod acpi_ec or how is it called. But I'm not sure how easy this is.
 
-Applied to the "for-linus" branch of my tree. Thank you.
+Designed to be 'hard' because it in effect breaks several functions.
+See "config ACPI_EC" in drivers/acpi/Kconfig which one must edit
+manually, as well as arch/*/configs/*_defconfig
 
--- 
-Dmitry
+Either way, the result is exactly as not loading modularized battery
+and ac (thermal module still worked on my system).
+
+But this whole issue is getting ridiculous. INPUT subsystem is addled
+more and more by ACPI (in real laptop life) while the maintainers,
+from a user view, seem stumped.
+
+The bad interaction between ACPI controlled EC (embedded controller)
+and the i8042 interrupt handler is theorized about in detail at OLPCs
+http://dev.laptop.org/ticket/2401 - almost at the end of that page.
+Thanks to Daniele C for the link.
+
+And the bug scenario has been present for many _years_ now. From my own
+experience it is only getting worse. Here's the current relations in
+2.6.24-rc3-git1
+
+_EC-reading ACPI modules unloaded_
+
+Notebook keyboard and Synaptics touchpad operations all perfectly OK.
+Nothing related show up in the logs.
+
+
+_EC-reading ACPI modules loaded_
+
+Keyboard keys get stuck when EC is accessed for battery, temperature
+etc.
+
+Touchpad (mouse pointer) gets stuck for up to ca 5 seconds if I eg move
+a window while EC data is read.
+
+The logs are spammed when EC screws over i8042:
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
+psmouse.c: issuing reconnect request
+[etc]
+
+Messages about an unknown key show up (possibly in relation to a stuck
+key). I don't have this on disk, so I'll copy the message from the bug
+http://bugzilla.kernel.org/show_bug.cgi?id=9147
+atkbd.c: Unknown key released (translated set 2, code 0xe0 on
+isa0060/serio0).
+atkbd.c: Use 'setkeycodes e060 <keycode>' to make it known.
+
+
+_EC-reading ACPI modules loaded. Command line option i8042.nomux used_
+
+Keyboard keys _can_ get stuck when EC is accessed for battery,
+temperature etc. Much less frequent than without i8042.nomux though.
+
+Synaptics touchpad operations OK. Nothing related show up in the logs.
+
+
+I know that some kind of US holiday is in effect presently, but please
+make an effort to take a coordinated look at this afterwards. The
+issues are so old and widespread that even the angels cry (I'm told).
+
+PS. No, Dmitry. Lowering the report rate, eg psmouse.rate=40 does not
+fix anything, as I tried on your suggestion already in August 2006.

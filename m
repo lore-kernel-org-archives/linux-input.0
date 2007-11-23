@@ -1,94 +1,42 @@
-From: Mats Johannesson <spamcan@abcbredband.net>
-Subject: Re: Laptop keyboard unusable when ACPI is active
-Date: Fri, 23 Nov 2007 08:44:43 +0100
-Message-ID: <20071123084443.2cf6b61e@loke.fish.not>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.bredband2.net ([82.209.166.4]:7274 "EHLO
-	smtp.bredband2.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752465AbXKWHv0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2007 02:51:26 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 1/1] [INPUT/KEYPAD] Blackfin BF54x
+	keypad driver: keypad does not exist on BF544 parts
+Date: Fri, 23 Nov 2007 18:03:13 +0800
+Message-ID: <1195812193-25553-1-git-send-email-bryan.wu@analog.com>
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Unsubscribe: <http://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <http://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-jyMamyUUXNJG4ohzP4jBZS1Fcj925eT/@public.gmane.org
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mike Frysinger <michael.frysinger-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: pavel@suse.cz, legolas558@users.sourceforge.net, dmitry.torokhov@gmail.com, astarikovskiy@suse.de, len.brown@intel.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.orglinu
 
-Many responsible CCs added.
+From: Mike Frysinger <michael.frysinger-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-On 2007-10-20 18:33:09 Pavel Machek responded to Daniele C.:
-> > > Try disabling acpi embedded controller.
-> > >
-> > How can I accomplish this? Are you referring to the i8042?
->
-> rmmod acpi_ec or how is it called. But I'm not sure how easy this is.
+Signed-off-by: Mike Frysinger <michael.frysinger-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/input/keyboard/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Designed to be 'hard' because it in effect breaks several functions.
-See "config ACPI_EC" in drivers/acpi/Kconfig which one must edit
-manually, as well as arch/*/configs/*_defconfig
-
-Either way, the result is exactly as not loading modularized battery
-and ac (thermal module still worked on my system).
-
-But this whole issue is getting ridiculous. INPUT subsystem is addled
-more and more by ACPI (in real laptop life) while the maintainers,
-from a user view, seem stumped.
-
-The bad interaction between ACPI controlled EC (embedded controller)
-and the i8042 interrupt handler is theorized about in detail at OLPCs
-http://dev.laptop.org/ticket/2401 - almost at the end of that page.
-Thanks to Daniele C for the link.
-
-And the bug scenario has been present for many _years_ now. From my own
-experience it is only getting worse. Here's the current relations in
-2.6.24-rc3-git1
-
-_EC-reading ACPI modules unloaded_
-
-Notebook keyboard and Synaptics touchpad operations all perfectly OK.
-Nothing related show up in the logs.
-
-
-_EC-reading ACPI modules loaded_
-
-Keyboard keys get stuck when EC is accessed for battery, temperature
-etc.
-
-Touchpad (mouse pointer) gets stuck for up to ca 5 seconds if I eg move
-a window while EC data is read.
-
-The logs are spammed when EC screws over i8042:
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 4
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 - driver resynched.
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at byte 1
-psmouse.c: issuing reconnect request
-[etc]
-
-Messages about an unknown key show up (possibly in relation to a stuck
-key). I don't have this on disk, so I'll copy the message from the bug
-http://bugzilla.kernel.org/show_bug.cgi?id=9147
-atkbd.c: Unknown key released (translated set 2, code 0xe0 on
-isa0060/serio0).
-atkbd.c: Use 'setkeycodes e060 <keycode>' to make it known.
-
-
-_EC-reading ACPI modules loaded. Command line option i8042.nomux used_
-
-Keyboard keys _can_ get stuck when EC is accessed for battery,
-temperature etc. Much less frequent than without i8042.nomux though.
-
-Synaptics touchpad operations OK. Nothing related show up in the logs.
-
-
-I know that some kind of US holiday is in effect presently, but please
-make an effort to take a coordinated look at this afterwards. The
-issues are so old and widespread that even the angels cry (I'm told).
-
-PS. No, Dmitry. Lowering the report rate, eg psmouse.rate=40 does not
-fix anything, as I tried on your suggestion already in August 2006.
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 2316a01..dfa6592 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -286,7 +286,7 @@ config KEYBOARD_MAPLE
+ 
+ config KEYBOARD_BFIN
+ 	tristate "Blackfin BF54x keypad support"
+-	depends on BF54x
++	depends on (BF54x && !BF544)
+ 	help
+ 	  Say Y here if you want to use the BF54x keypad.
+ 
+-- 
+1.5.3.4

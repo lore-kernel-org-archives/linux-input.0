@@ -1,47 +1,46 @@
-From: Roel Kluin <12o3l@tiscali.nl>
-Subject: mouse trouble
-Date: Fri, 23 Nov 2007 20:27:07 +0100
-Message-ID: <4747298B.8040208@tiscali.nl>
+From: Len Brown <lenb@kernel.org>
+Subject: Re: Laptop keyboard unusable when ACPI is active
+Date: Fri, 23 Nov 2007 23:04:56 -0500
+Message-ID: <200711232304.57652.lenb@kernel.org>
+References: <20071123084443.2cf6b61e@loke.fish.not>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out1.tiscali.nl ([195.241.79.176]:60576 "EHLO
-	smtp-out1.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757580AbXKWT1Q (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 Nov 2007 14:27:16 -0500
-Received: from [82.171.216.234] (helo=[192.168.1.2])
-	by smtp-out1.tiscali.nl with esmtp (Tiscali http://www.tiscali.nl)
-	id 1IveBG-000469-OY
-	for <linux-input@vger.kernel.org>; Fri, 23 Nov 2007 20:27:15 +0100
+Received: from hera.kernel.org ([140.211.167.34]:54825 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751002AbXKXEF0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Nov 2007 23:05:26 -0500
+In-Reply-To: <20071123084443.2cf6b61e@loke.fish.not>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Mats Johannesson <spamcan@abcbredband.net>
+Cc: pavel@suse.cz, legolas558@users.sourceforge.net, dmitry.torokhov@gmail.com, astarikovskiy@suse.de, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-acpi@vger.kernel.org
 
-Once in every so often boots I end up in X without a functioning mouse. A reboot
-will fix it, but I have had this behavior for a few years now and still no clue
-what the origin of the problem is. dmesg reports as it does normally:
+On Friday 23 November 2007 02:44, Mats Johannesson wrote:
 
-PNP: PS/2 Controller [PNP0303:PS2K,PNP0f03:PS2M] at 0x60,0x64 irq 1,12
-mice: PS/2 mouse device common for all mice
+> The bad interaction between ACPI controlled EC (embedded controller)
+> and the i8042 interrupt handler is theorized about in detail at OLPCs
+> http://dev.laptop.org/ticket/2401 - almost at the end of that page.
+> Thanks to Daniele C for the link.
 
-killing and restarting X and/or gpm doesn't work.
+huh?
 
-I have been storing dmesgs at failures:
-2007-08-29
-2007-09-15
-2007-11-23
-(I boot twice a day on average)
+I believe that the OLPC XO1 does not run in ACPI mode
+and thus does not use the ACPI EC driver to talk to
+the EC on their board.
 
-As you can see, today I had one. I also made a copy of my /proc and /sys
-directories. (I am guessing /proc was not needed)maybe any info can still be
-extracted?
+Presumably they use some native embedded controller driver to
+talk to their platform specific embedded controller.
 
-Is there anything that I could do to provide more info when this occurs next
-time?
+I don't know why they call their interrupt an SCI.
+Per above, it can't be an ACPI SCI.  Presumably they
+call it that b/c their chipset documentation calls it
+that too, on the (invalid) assumption that an ACPI-enabled
+OS and firmware would be running on the hardware.
 
-Thanks
+Please let me know if I'm wrong.
 
-Roel
-
+-Len

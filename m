@@ -1,42 +1,58 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [PATCH] Use hid blacklist in usbmouse/usbkbd
-Date: Mon, 26 Nov 2007 13:50:47 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0711261348470.19853@twin.jikos.cz>
-References: <1196074688.12642.10.camel@plop>
+From: Ron <ron@debian.org>
+Subject: Re: [Linuxwacom-devel] [PATCH] Use hid blacklist in usbmouse/usbkbd
+Date: Tue, 27 Nov 2007 00:34:17 +1030
+Message-ID: <20071126140417.GA20041@homer.shelbyville.oz>
+References: <1196074688.12642.10.camel@plop> <20071126111328.GA9235@homer.shelbyville.oz> <1196081174.12642.13.camel@plop>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:35947 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752897AbXKZMu6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2007 07:50:58 -0500
-In-Reply-To: <1196074688.12642.10.camel@plop>
+Received: from ppp121-45-25-139.lns10.adl2.internode.on.net ([121.45.25.139]:33897
+	"EHLO homer.shelbyville.oz" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752862AbXKZOD0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Nov 2007 09:03:26 -0500
+Content-Disposition: inline
+In-Reply-To: <1196081174.12642.13.camel@plop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Pascal Terjan <pterjan@mandriva.com>
-Cc: linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
+Cc: linuxwacom-devel@lists.sourceforge.net, linux-input@vger.kernel.org
 
-On Mon, 26 Nov 2007, Pascal Terjan wrote:
+On Mon, Nov 26, 2007 at 01:46:14PM +0100, Pascal Terjan wrote:
+> On lun, 2007-11-26 at 21:43 +1030, Ron wrote:
+> > There is a less intrusive way to handle this for any reasonably modern
+> > 2.6 kernel...  see the check_driver script in the Debian package.
+> 
+> Yes this can be workarounded in userspace, but why having a blacklist in
+> HID if the individual usbhid drivers still take the device ?
 
-> That means that if usbmouse is already loaded when a wacom tablet gets 
-> plugged it, it will take it. This patch fixes this behaviour by using 
-> hid's blacklist in usbmouse and usbkbd, but I don't know much about 
-> interactions between hid and usbmouse/usbkbd so I'm not sure this is the 
-> correct way to do it.
+I do agree the other drivers should respect the blacklist, but in the
+case of the wacom device, I'm less sure that it should still be in it ...
 
-Hi Pascal,
+It was the _only_ answer before we gained the ability to dynamically
+rebind devices though.
 
-usbmouse and usbkbd shouldn't be loaded at all on a standard system. These 
-modules are pretty non-standard and should be used only in really extreme 
-cases.
+> And why having a driver to handle a device when a better one exists ?
 
-On the other hand you are right that making them honor the 
-HID_QUIRK_IGNORE* blacklist entries makes sense.
+Internally the device probing doesn't really have any sense of 'better'
+at this stage, so the first driver probed that accepts the device will
+get it.  The tablet can however work perfectly well with the mouse or
+generic evdev driver, so in the _absence_ of a better one, I don't
+really see why we should blindly prohibit such degraded operating modes.
 
-Could you please add your Signed-off-by to your patch, so that I can take 
-it through my tree?
+(a clear example of the value in that: for the last few weeks we have
+not had a working tablet driver for the new XOrg 7.3 ABI -- if the
+tablet was not blacklisted, people would still have been able to use
+it as a 'mouse-like' device, but right now it's either a useless brick to
+them, or they need to hand hack their kernel to remove the blacklisting)
 
-Thanks,
+If drivers that support extended features are available, the choice of
+which to use really is a policy decision, so it seems appropriate that
+this should be under user-space control.  That's what this script does,
+it gives the choice of what is 'better' to the local admin without
+requiring them to patch/rebuild their kernel to exercise it.
 
--- 
-Jiri Kosina
+Cheers,
+Ron
+
+

@@ -1,52 +1,42 @@
-From: Pascal Terjan <pterjan@mandriva.com>
-Subject: Re: [Linuxwacom-devel] [PATCH] Use hid blacklist in usbmouse/usbkbd
-Date: Mon, 26 Nov 2007 13:46:14 +0100
-Message-ID: <1196081174.12642.13.camel@plop>
+From: Jiri Kosina <jikos@jikos.cz>
+Subject: Re: [PATCH] Use hid blacklist in usbmouse/usbkbd
+Date: Mon, 26 Nov 2007 13:50:47 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0711261348470.19853@twin.jikos.cz>
 References: <1196074688.12642.10.camel@plop>
-	 <20071126111328.GA9235@homer.shelbyville.oz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ryu.zarb.org ([212.85.153.228]:35916 "EHLO ryu.zarb.org"
+Received: from twin.jikos.cz ([213.151.79.26]:35947 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752824AbXKZMqW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2007 07:46:22 -0500
-In-Reply-To: <20071126111328.GA9235@homer.shelbyville.oz>
+	id S1752897AbXKZMu6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Nov 2007 07:50:58 -0500
+In-Reply-To: <1196074688.12642.10.camel@plop>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ron <ron@debian.org>
+To: Pascal Terjan <pterjan@mandriva.com>
 Cc: linux-input@vger.kernel.org, linuxwacom-devel@lists.sourceforge.net
 
+On Mon, 26 Nov 2007, Pascal Terjan wrote:
 
-On lun, 2007-11-26 at 21:43 +1030, Ron wrote:
-> Hi Pascal,
->=20
-> There is a less intrusive way to handle this for any reasonably moder=
-n
-> 2.6 kernel...  see the check_driver script in the Debian package.
->=20
-> It's called from udev when the device is plugged and if it is a wacom
-> tablet, it will repossess it from any other driver and bind it to the
-> wacom one.
->=20
-> We had a more brutal hack that did this for 2.4 too, but this method
-> is I believe the recommended one now (or at least supported without
-> further kernel patching since about 2.6.13-ish).
+> That means that if usbmouse is already loaded when a wacom tablet gets 
+> plugged it, it will take it. This patch fixes this behaviour by using 
+> hid's blacklist in usbmouse and usbkbd, but I don't know much about 
+> interactions between hid and usbmouse/usbkbd so I'm not sure this is the 
+> correct way to do it.
 
-Yes this can be workarounded in userspace, but why having a blacklist i=
-n
-HID if the individual usbhid drivers still take the device ? And why
-having a driver to handle a device when a better one exists ?
+Hi Pascal,
 
---=20
-Pascal Terjan
-Ing=E9nieur Conseil
-Mandriva (ex Mandrakesoft)
-Tel +33 (0) 1 40 41 17 51 - Fax +33 (0) 1 40 41 92 00
+usbmouse and usbkbd shouldn't be loaded at all on a standard system. These 
+modules are pretty non-standard and should be used only in really extreme 
+cases.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On the other hand you are right that making them honor the 
+HID_QUIRK_IGNORE* blacklist entries makes sense.
+
+Could you please add your Signed-off-by to your patch, so that I can take 
+it through my tree?
+
+Thanks,
+
+-- 
+Jiri Kosina

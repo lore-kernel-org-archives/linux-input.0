@@ -1,38 +1,33 @@
-From: Steven Whitehouse <swhiteho@redhat.com>
-Subject: Doc bug in example input driver
-Date: Mon, 26 Nov 2007 17:29:59 +0000
-Message-ID: <1196098199.1068.863.camel@quoit>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] add frame forward/back keys
+Date: Tue, 27 Nov 2007 00:55:16 -0500
+Message-ID: <200711270055.17008.dmitry.torokhov@gmail.com>
+References: <20071113233436.GN407@cathedrallabs.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:52170 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752900AbXKZRcz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Nov 2007 12:32:55 -0500
+Received: from an-out-0708.google.com ([209.85.132.241]:62791 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750781AbXK0Fzl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 Nov 2007 00:55:41 -0500
+Received: by an-out-0708.google.com with SMTP id d31so183668and
+        for <linux-input@vger.kernel.org>; Mon, 26 Nov 2007 21:55:40 -0800 (PST)
+In-Reply-To: <20071113233436.GN407@cathedrallabs.org>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
+To: Aristeu Rozanski <aris@ruivo.org>
 Cc: linux-input@vger.kernel.org
 
+On Tuesday 13 November 2007, Aristeu Rozanski wrote:
+> This patch adds definitions for frame forward and frame back keys
+> 
+> Signed-off-by: Aristeu Rozanski <aris@ruivo.org>
 
-The input example driver uses BTN_0 in the later stages of the example, so
-this changes the interrupt routine to match.
+Applied, thank you.
 
-Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
-
-diff --git a/Documentation/input/input-programming.txt b/Documentation/input/input-programming.txt
-index 47fc868..81905e8 100644
---- a/Documentation/input/input-programming.txt
-+++ b/Documentation/input/input-programming.txt
-@@ -22,7 +22,7 @@ static struct input_dev *button_dev;
- 
- static void button_interrupt(int irq, void *dummy, struct pt_regs *fp)
- {
--	input_report_key(button_dev, BTN_1, inb(BUTTON_PORT) & 1);
-+	input_report_key(button_dev, BTN_0, inb(BUTTON_PORT) & 1);
- 	input_sync(button_dev);
- }
- 
-
-
+-- 
+Dmitry

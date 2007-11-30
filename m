@@ -1,45 +1,49 @@
-From: Aristeu Rozanski <aris@ruivo.org>
-Subject: Re: [PATCH] add context menu key
-Date: Wed, 28 Nov 2007 13:35:58 -0500
-Message-ID: <20071128183558.GI24494@cathedrallabs.org>
-References: <20071113235836.GP407@cathedrallabs.org> <200711270056.09156.dmitry.torokhov@gmail.com>
+From: Roel Kluin <12o3l@tiscali.nl>
+Subject: mouse bug
+Date: Fri, 30 Nov 2007 15:06:27 +0100
+Message-ID: <475018E3.5090606@tiscali.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from lobo.ruivo.org ([66.92.68.119]:59382 "EHLO lobo.ruivo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751012AbXK1SgL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Nov 2007 13:36:11 -0500
-Received: from jake.ruivo.org (gw.qemu.cathedral [192.168.72.1])
-	by lobo.ruivo.org (Postfix) with ESMTP id F08725278F
-	for <linux-input@vger.kernel.org>; Wed, 28 Nov 2007 13:35:56 -0500 (EST)
-Content-Disposition: inline
-In-Reply-To: <200711270056.09156.dmitry.torokhov@gmail.com>
+Received: from smtp-out0.tiscali.nl ([195.241.79.175]:50862 "EHLO
+	smtp-out0.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754126AbXK3OGb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Nov 2007 09:06:31 -0500
+Received: from [82.171.216.234] (helo=[192.168.1.2])
+	by smtp-out0.tiscali.nl with esmtp (Tiscali http://www.tiscali.nl)
+	id 1Iy6Vi-0002fF-5L
+	for <linux-input@vger.kernel.org>; Fri, 30 Nov 2007 15:06:30 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Dmitry,
-> On Tuesday 13 November 2007, Aristeu Rozanski wrote:
-> > This patch adds the context menu key (HUT GenDesc 0x84)
-> > 
-> > Signed-off-by: Aristeu Rozanski <aris@ruivo.org>
-> 
-> Applied, but moved to 0x1bx range. Thank you Aristeu.
-moving it to 0x1bx range, the KEY_REMOTE_<num> won't fit anymore, as you
-noticed already. Also, looking the available ranges, I couldn't find any
-other that would be suitable:
-	- 0x1cX is used for KEY_{DEL,INS}_{EOL,EOS,LINE}
-	- 0x1eX is used for KEY_FN_*
-other solution I can see other than using one of these ranges is
-expanding KEY_MAX, but I'm not sure it's something you want.
+Once in every so often boots I end up in X without a functioning mouse. A
+pointer is shown, but glued to the center of the screen. A reboot will fix it,
+but I have had this behavior for a few years now and still no clue what the
+origin of the problem is - dmesg reports as it does normally:
 
-Just to help others understand the problem: Dmitry told me about the
-problem using KEY_<NUM> in remote controls and that using KEY_KP_<NUM>
-isn't a solution. So I'm trying to define new keys for numbers in remote
-controls.
+PNP: PS/2 Controller [PNP0303:PS2K,PNP0f03:PS2M] at 0x60,0x64 irq 1,12
+mice: PS/2 mouse device common for all mice
 
--- 
-Aristeu
+killing and restarting X and/or gpm doesn't return control over the mouse.
+
+I have been storing dmesgs at failures:
+2007-08-29
+2007-09-15
+2007-11-23
+(I boot twice a day on average)
+
+As you can see, I had one recently. This time I also made a copy of my /proc
+and /sys directories. (I am guessing /proc was not really needed) maybe any info
+can still be extracted?
+
+Where can I look, what can I do to find the source of this problem? Is there
+anything that I should do to obtain more info when this occurs nexttime?
+
+Thanks
+
+Roel
+
 

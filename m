@@ -1,37 +1,29 @@
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH] I8042: Use SGI_HAS_I8042 to select SGI i8042 handlinig
-Date: Sun,  2 Dec 2007 12:55:19 +0100 (CET)
-Message-ID: <20071202115519.85F91C2EB6@solo.franken.de>
+From: Mark Lord <lkml@rtr.ca>
+Subject: 2.6.24:  false double-clicks from USB mouse
+Date: Sun, 02 Dec 2007 11:21:32 -0500
+Message-ID: <4752DB8C.50608@rtr.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from elvis.franken.de ([193.175.24.41]:58700 "EHLO elvis.franken.de"
+Received: from rtr.ca ([76.10.145.34]:2360 "EHLO mail.rtr.ca"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752685AbXLBMA6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 2 Dec 2007 07:00:58 -0500
+	id S1751451AbXLBQVe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 2 Dec 2007 11:21:34 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-mips@linux-mips.org
-Cc: dmitry.torokhov@gmail.com
+To: dmitry.torokhov@gmail.com, rubini@ipvvis.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
 
-Use SGI_HAS_I8042 to select SGI i8042 handling
+I've only just recently tried running 2.6.24 on my main machine.
+And it appears that I'll have to go back to 2.6.23,
+because the USB mouse is not working correctly.
 
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
----
+Single-clicking on things with 2.6.24 very frequently gives a "double-click".
+This does not happen with 2.6.23.8.
 
-Please apply for 2.6.25.
+I wonder what broke it?
 
- drivers/input/serio/i8042.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I've grabbed mousedev.c from 2.6.23 and inserted that in place
+of the updated 2.6.24 source, but no change.  So it's not that file.
 
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index dd22d91..c972e5d 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -16,7 +16,7 @@
- 
- #if defined(CONFIG_MACH_JAZZ)
- #include "i8042-jazzio.h"
--#elif defined(CONFIG_SGI_IP22)
-+#elif defined(CONFIG_SGI_HAS_I8042)
- #include "i8042-ip22io.h"
- #elif defined(CONFIG_PPC)
- #include "i8042-ppcio.h"
+?????

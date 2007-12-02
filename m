@@ -1,36 +1,49 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: REGRESSION: 2.6.24:  false double-clicks from USB mouse
-Date: Sun, 2 Dec 2007 19:09:13 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0712021907490.13260@jikos.suse.cz>
-References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca> <4752E5AD.40905@rtr.ca>
- <4752F226.1090003@garzik.org>
+From: Mark Lord <lkml@rtr.ca>
+Subject: Re: 2.6.24:  false double-clicks from USB mouse
+Date: Sun, 02 Dec 2007 13:17:43 -0500
+Message-ID: <4752F6C7.4040904@rtr.ca>
+References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca> <Pine.LNX.4.64.0712021903460.12208@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:54578 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752226AbXLBSJR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 2 Dec 2007 13:09:17 -0500
-In-Reply-To: <4752F226.1090003@garzik.org>
+Received: from rtr.ca ([76.10.145.34]:3560 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753615AbXLBSRp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 2 Dec 2007 13:17:45 -0500
+In-Reply-To: <Pine.LNX.4.64.0712021903460.12208@twin.jikos.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Mark Lord <lkml@rtr.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, rubini@ipvvis.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rubini@vision.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>
 
-On Sun, 2 Dec 2007, Jeff Garzik wrote:
+Jiri Kosina wrote:
+> On Sun, 2 Dec 2007, Mark Lord wrote:
+> 
+>>> Single-clicking on things with 2.6.24 very frequently gives a 
+>>> "double-click". This does not happen with 2.6.23.8. I wonder what 
+>>> broke it? I've grabbed mousedev.c from 2.6.23 and inserted that in 
+>>> place of the updated 2.6.24 source, but no change.  So it's not that 
+>>> file.
+>> Mmm.. reverting the entire drivers/hid directory to that from 2.6.23
+>> seems to have fixed the problem, so we now know it's in there somewhere.
+...
 
-> My USB mouse recently started giving me phantom scrolls (movements of 
-> the mouse wheel, even I made sure the wheel was in a resting position) 
-> in recently kernels.  It happened too infrequently for me to care.
+Mmmm.. an update here:
 
-Did this also start in 2.6.24, as in Mark's case?
+Reverting the drivers/hid directory does seem to improve behaviour.
 
-> USB HID is a fun place to be.
+But right now I have a "make -j4" happening in the background
+and the mouse is ever so erratic again, despite the drivers/hid reversion.
 
-Yes, especially with tons of USB HID devices violating the specs in many 
-creative ways :(
+So it's a timing thing, somewhere.
+Maybe a scheduling thing?
 
-Thanks,
+Jiri:  I know nothing about how mouse clicks are interpreted,
+or even *where* or *how* double-click detection happens.
+Until this started happening, I didn't even know which module
+was the driver for my mouse (it's usbhid).
 
--- 
-Jiri Kosina
+Can you give a short tutorial, to help us understand possible causes ?
+
+

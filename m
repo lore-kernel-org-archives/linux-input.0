@@ -1,47 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Mark Lord <lkml@rtr.ca>
 Subject: Re: 2.6.24:  false double-clicks from USB mouse
-Date: Sun, 2 Dec 2007 23:07:26 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
-References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca>
- <Pine.LNX.4.64.0712021903460.12208@twin.jikos.cz> <4752F6C7.4040904@rtr.ca>
- <Pine.LNX.4.64.0712021918500.13260@jikos.suse.cz> <4752FE11.2050200@rtr.ca>
- <4752FEFE.3000600@rtr.ca> <Pine.LNX.4.64.0712022007360.13260@jikos.suse.cz>
- <47530680.6020206@rtr.ca> <Pine.LNX.4.64.0712022025250.13260@jikos.suse.cz>
- <47530B32.7080502@rtr.ca>
+Date: Sun, 02 Dec 2007 17:46:46 -0500
+Message-ID: <475335D6.8070902@rtr.ca>
+References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca> <Pine.LNX.4.64.0712021903460.12208@twin.jikos.cz> <4752F6C7.4040904@rtr.ca> <Pine.LNX.4.64.0712021918500.13260@jikos.suse.cz> <4752FE11.2050200@rtr.ca> <4752FEFE.3000600@rtr.ca> <Pine.LNX.4.64.0712022007360.13260@jikos.suse.cz> <47530680.6020206@rtr.ca> <Pine.LNX.4.64.0712022025250.13260@jikos.suse.cz> <47530B32.7080502@rtr.ca> <Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:58477 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751103AbXLBWH1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 2 Dec 2007 17:07:27 -0500
-In-Reply-To: <47530B32.7080502@rtr.ca>
+Received: from rtr.ca ([76.10.145.34]:1342 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751279AbXLBWqs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 2 Dec 2007 17:46:48 -0500
+In-Reply-To: <Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <lkml@rtr.ca>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rubini@vision.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>, linux-usb-devel@lists.sourceforge.net
 
-[ linux-usb-devel added to CC ]
+Jiri Kosina wrote:
+> [ linux-usb-devel added to CC ]
+> 
+> On Sun, 2 Dec 2007, Mark Lord wrote:
+> 
+>> Okay.  I've got to leave the computer for a while now, so I'll post 
+>> again whenever I have something new here.
+> 
+> Thanks. To sum up this longish thread:
+> 
+> - 2.6.24-rcX exposes the problem with sometimes multiple clicks being 
+>   generated as a response for one click on USB mouse (evtest shows that 
+>   really mutliple LeftBtn events arrive). 2.6.23 behaves correctly
+> - reverting the state of drivers/hid to 2.6.23 state doesn't make the 
+>   problem go away, so the problem is elsewhere (Input? USB?)
+> - Mark seems to be able to reproduce the problem quite easily; I was not 
+>   successful reproducing this no matter how hard I tried, and I also 
+>   didn't receive any similar bugreports from anyone else
+> - we are currently waiting for Mark to provide HID_DEBUG (and preferably
+>   also usbmon) output from the situation where multiple clicks are 
+>   being generated incorrectly
+..
 
-On Sun, 2 Dec 2007, Mark Lord wrote:
+Well, I've rebuilt the kernel with HID_DEBUG, DEBUG_FS, and USBMON.
+And I've written a nifty script to make usbmon tracing effortless for this.
 
-> Okay.  I've got to leave the computer for a while now, so I'll post 
-> again whenever I have something new here.
+And now I'm waiting.. things are currently behaving perfectly.
+Go figure.  It did seem to arrive in bursts before.
 
-Thanks. To sum up this longish thread:
+So, don't beat yourselves over this one for now.
+I'll track it down here and post again next time it starts happening.
 
-- 2.6.24-rcX exposes the problem with sometimes multiple clicks being 
-  generated as a response for one click on USB mouse (evtest shows that 
-  really mutliple LeftBtn events arrive). 2.6.23 behaves correctly
-- reverting the state of drivers/hid to 2.6.23 state doesn't make the 
-  problem go away, so the problem is elsewhere (Input? USB?)
-- Mark seems to be able to reproduce the problem quite easily; I was not 
-  successful reproducing this no matter how hard I tried, and I also 
-  didn't receive any similar bugreports from anyone else
-- we are currently waiting for Mark to provide HID_DEBUG (and preferably
-  also usbmon) output from the situation where multiple clicks are 
-  being generated incorrectly
+Mmmm...
 
--- 
-Jiri Kosina
-SUSE Labs

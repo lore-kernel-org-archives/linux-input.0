@@ -1,45 +1,36 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 2.6.24:  false double-clicks from USB mouse
-Date: Sun, 2 Dec 2007 19:07:46 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0712021903460.12208@twin.jikos.cz>
-References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca>
+Subject: Re: REGRESSION: 2.6.24:  false double-clicks from USB mouse
+Date: Sun, 2 Dec 2007 19:09:13 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0712021907490.13260@jikos.suse.cz>
+References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca> <4752E5AD.40905@rtr.ca>
+ <4752F226.1090003@garzik.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:41700 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754852AbXLBSIB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 2 Dec 2007 13:08:01 -0500
-In-Reply-To: <4752E432.10504@rtr.ca>
+Received: from styx.suse.cz ([82.119.242.94]:54578 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752226AbXLBSJR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 2 Dec 2007 13:09:17 -0500
+In-Reply-To: <4752F226.1090003@garzik.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Lord <lkml@rtr.ca>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rubini@vision.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Mark Lord <lkml@rtr.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, rubini@ipvvis.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, linux-usb@vger.kernel.org
 
-On Sun, 2 Dec 2007, Mark Lord wrote:
+On Sun, 2 Dec 2007, Jeff Garzik wrote:
 
-> > Single-clicking on things with 2.6.24 very frequently gives a 
-> > "double-click". This does not happen with 2.6.23.8. I wonder what 
-> > broke it? I've grabbed mousedev.c from 2.6.23 and inserted that in 
-> > place of the updated 2.6.24 source, but no change.  So it's not that 
-> > file.
-> Mmm.. reverting the entire drivers/hid directory to that from 2.6.23
-> seems to have fixed the problem, so we now know it's in there somewhere.
-> Jiri: do you have any suggestions that might be more specific than that ?
+> My USB mouse recently started giving me phantom scrolls (movements of 
+> the mouse wheel, even I made sure the wheel was in a resting position) 
+> in recently kernels.  It happened too infrequently for me to care.
 
-Could you please run evtest on the mouse device and send me what is 
-reported when these false double-clicks happen? Also providing debug 
-output of usbhid might or might not be helpful (*)
+Did this also start in 2.6.24, as in Mark's case?
 
-There were not that many changes in USB HID apart from adding per-device 
-quirks for specific broken devices. Could you please try reverting 
-c01d50d18, 933e3187, 82eb1219 to see if any of them makes this go away? 
+> USB HID is a fun place to be.
 
-(*) this means compiling with CONFIG_HID_DEBUG and modprobing hid module 
-with 'debug=1'.
+Yes, especially with tons of USB HID devices violating the specs in many 
+creative ways :(
 
 Thanks,
 
 -- 
 Jiri Kosina
-

@@ -1,53 +1,46 @@
-From: Mark Lord <lkml@rtr.ca>
-Subject: Re: 2.6.24:  false double-clicks from USB mouse
-Date: Sun, 02 Dec 2007 17:46:46 -0500
-Message-ID: <475335D6.8070902@rtr.ca>
-References: <4752DB8C.50608@rtr.ca> <4752E432.10504@rtr.ca> <Pine.LNX.4.64.0712021903460.12208@twin.jikos.cz> <4752F6C7.4040904@rtr.ca> <Pine.LNX.4.64.0712021918500.13260@jikos.suse.cz> <4752FE11.2050200@rtr.ca> <4752FEFE.3000600@rtr.ca> <Pine.LNX.4.64.0712022007360.13260@jikos.suse.cz> <47530680.6020206@rtr.ca> <Pine.LNX.4.64.0712022025250.13260@jikos.suse.cz> <47530B32.7080502@rtr.ca> <Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: [PATCH 3/4] apanel: detach on shutdown
+Date: Mon, 03 Dec 2007 14:18:10 -0800
+Message-ID: <20071203221900.829441891@linux-foundation.org>
+References: <20071203221807.077325020@linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rtr.ca ([76.10.145.34]:1342 "EHLO mail.rtr.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751279AbXLBWqs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 2 Dec 2007 17:46:48 -0500
-In-Reply-To: <Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
+Received: from smtp2.linux-foundation.org ([207.189.120.14]:45672 "EHLO
+	smtp2.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752574AbXLCWVI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Dec 2007 17:21:08 -0500
+Content-Disposition: inline; filename=fujitsu-apanel-shutdown.patch
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rubini@vision.unipv.it, linux-input@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>, linux-usb-devel@lists.sourceforge.net
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org
 
-Jiri Kosina wrote:
-> [ linux-usb-devel added to CC ]
-> 
-> On Sun, 2 Dec 2007, Mark Lord wrote:
-> 
->> Okay.  I've got to leave the computer for a while now, so I'll post 
->> again whenever I have something new here.
-> 
-> Thanks. To sum up this longish thread:
-> 
-> - 2.6.24-rcX exposes the problem with sometimes multiple clicks being 
->   generated as a response for one click on USB mouse (evtest shows that 
->   really mutliple LeftBtn events arrive). 2.6.23 behaves correctly
-> - reverting the state of drivers/hid to 2.6.23 state doesn't make the 
->   problem go away, so the problem is elsewhere (Input? USB?)
-> - Mark seems to be able to reproduce the problem quite easily; I was not 
->   successful reproducing this no matter how hard I tried, and I also 
->   didn't receive any similar bugreports from anyone else
-> - we are currently waiting for Mark to provide HID_DEBUG (and preferably
->   also usbmon) output from the situation where multiple clicks are 
->   being generated incorrectly
-..
+Need to stop any device polling on shutdown. Without this, the
+laptop can sometimes not turn off.
 
-Well, I've rebuilt the kernel with HID_DEBUG, DEBUG_FS, and USBMON.
-And I've written a nifty script to make usbmon tracing effortless for this.
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-And now I'm waiting.. things are currently behaving perfectly.
-Go figure.  It did seem to arrive in bursts before.
+--- a/drivers/input/misc/apanel.c	2007-11-20 06:11:34.000000000 -0800
++++ b/drivers/input/misc/apanel.c	2007-11-20 06:14:18.000000000 -0800
+@@ -193,12 +193,18 @@ static int apanel_attach_adapter(struct 
+ 	return i2c_probe(adap, &addr_data, apanel_probe);
+ }
+ 
++static void apanel_shutdown(struct i2c_client *client)
++{
++	apanel_detach_client(client);
++}
++
+ static struct i2c_driver apanel_driver = {
+ 	.driver = {
+ 		.name = APANEL,
+ 	},
+ 	.attach_adapter = &apanel_attach_adapter,
+ 	.detach_client  = &apanel_detach_client,
++	.shutdown	= &apanel_shutdown,
+ };
+ 
+ static struct apanel apanel = {
 
-So, don't beat yourselves over this one for now.
-I'll track it down here and post again next time it starts happening.
-
-Mmmm...
+-- 
 

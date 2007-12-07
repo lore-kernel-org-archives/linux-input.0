@@ -1,264 +1,69 @@
-From: "Nick Turner" <Nick.Turner@nuvation.com>
-Subject: Sending simulated mouse events using uinput
-Date: Thu, 6 Dec 2007 09:31:56 -0800
-Message-ID: <274F7B50569A1B4C9D7BCAB17A9C7BE1835D3C@mailguy3.skynet.nuvation.com>
+From: "Ray Lee" <ray-lk@madrabbit.org>
+Subject: Re: 2.6.24: false double-clicks from USB mouse
+Date: Fri, 7 Dec 2007 09:59:16 -0800
+Message-ID: <2c0942db0712070959v400901ax59f7b445ec701c27@mail.gmail.com>
+References: <4752DB8C.50608@rtr.ca> <4752F6C7.4040904@rtr.ca>
+	<Pine.LNX.4.64.0712021918500.13260@jikos.suse.cz>
+	<4752FE11.2050200@rtr.ca> <4752FEFE.3000600@rtr.ca>
+	<Pine.LNX.4.64.0712022007360.13260@jikos.suse.cz>
+	<47530680.6020206@rtr.ca>
+	<Pine.LNX.4.64.0712022025250.13260@jikos.suse.cz>
+	<47530B32.7080502@rtr.ca>
+	<Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.nuvation.com ([66.92.10.80]:23400 "EHLO
-	mailguy3.skynet.nuvation.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1750751AbXLFRb4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 6 Dec 2007 12:31:56 -0500
-Content-class: urn:content-classes:message
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.64.0712022300490.13260@jikos.suse.cz>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-usb-devel>
+List-Post: <mailto:linux-usb-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-usb-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-usb-devel>,
+	<mailto:linux-usb-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-usb-devel-bounces@lists.sourceforge.net
+Errors-To: linux-usb-devel-bounces@lists.sourceforge.net
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-usb-devel@lists.sourceforge.net, Jeff Garzik <jeff@garzik.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linux Kernel <linux-kernel@vger.kernel.org>, rubini@vision.unipv.it, linux-input@vger.kernel.org, Mark Lord <lkml@rtr.ca>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Greetings oh Linux input wranglers,
+On Dec 2, 2007 2:07 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> Thanks. To sum up this longish thread:
+>
+> - Mark seems to be able to reproduce the problem quite easily; I was not
+>   successful reproducing this no matter how hard I tried, and I also
+>   didn't receive any similar bugreports from anyone else
+> - we are currently waiting for Mark to provide HID_DEBUG (and preferably
+>   also usbmon) output from the situation where multiple clicks are
+>   being generated incorrectly
 
-At Nuvation we are building a driver for multiple input devices, all of=
- which need to appear as mouse events in userland.=A0 We've tried sever=
-al approaches without any good results.=A0 Lately I've been looking at =
-the uinput module, especially after finding an article in January 2007 =
-Dashboard about how to do it:
+Okay, I'm having a problem with 2.6.24-rc4 that I didn't with 2.6.23-rc6.
 
-   www.einfochips.com/download/dash_jan_tip.pdf
+When the problem hits, my mouse (synaptics touchpad) is randomly
+moving about and clicking things whenever I have my finger on the
+trackpad. This behavior will persists for five to ten minutes (is
+happening now), and seems to be triggered by load (watching online
+videos in flash player, for example -- this matches Mark's experience
+with a make -j4).
 
-I made a slightly modified version of the sample code from that article=
-=2E=A0 I enabled uinput, verified that it is in place, did chmod a+rw o=
-n it so I could open it for writing, and compiled this:
+I *think* the touchpad is connected via ps2, which looks like it'd
+clear usb of any blame. It's /dev/input/event6 at any rate.
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+This has been happening about once a day, and seems to start because
+of high CPU usage. ONce the CPU is idle, it still happens though, so
+I'm not sure why it clears up.
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <linux/input.h>
-#include <linux/uinput.h>
-#include <sys/time.h>
-#include <unistd.h>
+Any clues for where I should hunt from here?
 
-// Test the uinput module
-
-struct uinput_user_dev   uinp;
-struct input_event       event;
-
-int main(void) {
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 int ufile, retcode, i;
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ufile =3D open("/dev/input/uinput", O=
-_WRONLY | O_NDELAY );
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 printf("open /dev/input/uinput return=
-ed %d.\n", ufile);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (ufile =3D=3D 0) {
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 p=
-rintf("Could not open uinput.\n");
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 r=
-eturn -1;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 memset(&uinp, 0, sizeof(uinp));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 strncpy(uinp.name, "simulated mouse",=
- 20);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 uinp.id.version =3D 4;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 uinp.id.bustype =3D BUS_USB;
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ioctl(ufile, UI_SET_EVBIT, EV_KEY);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ioctl(ufile, UI_SET_EVBIT, EV_REL);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ioctl(ufile, UI_SET_RELBIT, REL_X);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ioctl(ufile, UI_SET_RELBIT, REL_Y);
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 for (i=3D0; i<256; i++) {
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 i=
-octl(ufile, UI_SET_KEYBIT, i);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ioctl(ufile, UI_SET_KEYBIT, BTN_MOUSE=
-);
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 // create input device in input subsy=
-stem
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 retcode =3D write(ufile, &uinp, sizeo=
-f(uinp));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 printf("First write returned %d.\n", =
-retcode);
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 retcode =3D (ioctl(ufile, UI_DEV_CREA=
-TE));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 printf("ioctl UI_DEV_CREATE returned =
-%d.\n", retcode);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 if (retcode) {
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 p=
-rintf("Error create uinput device %d.\n", retcode);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 r=
-eturn -1;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 // NOW DO STUFF !!!!
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 for (i=3D0; i<100; i++) {
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 s=
-truct timeval tv1;
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 /=
-/ move pointer upleft by 5 pixels
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 m=
-emset(&event, 0, sizeof(event));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 g=
-ettimeofday(&event.time, NULL);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.type =3D EV_REL;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.code =3D REL_X;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.value =3D -5;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 w=
-rite(ufile, &event, sizeof(event));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 m=
-emset(&event, 0, sizeof(event));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 g=
-ettimeofday(&event.time, NULL);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.type =3D EV_REL;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.code =3D REL_Y;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.value =3D -5;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 w=
-rite(ufile, &event, sizeof(event));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=20
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 m=
-emset(&event, 0, sizeof(event));
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 g=
-ettimeofday(&event.time, NULL);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.type =3D EV_SYN;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.code =3D SYN_REPORT;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 e=
-vent.value =3D 0;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 w=
-rite(ufile, &event, sizeof(event));
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 /=
-/ wait just a moment
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 d=
-o { gettimeofday(&tv1, NULL); } while ((tv1.tv_usec & 0x3FFF) !=3D 0);
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 d=
-o { gettimeofday(&tv1, NULL); } while ((tv1.tv_usec & 0x3FFF) =3D=3D 0)=
-;
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 // destroy the device
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ioctl(ufile, UI_DEV_DESTROY);
-
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 close(ufile);
-
-}
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-As I understand it, this ought to cause the mouse to move slowly upleft=
- for a few seconds - but nothing happens!=A0 It is not clear to me what=
- is wrong.
-
-The output on the command line is thus:
-
-[fedorauser@localhost uinputtest]$ gcc uinputtest.c
-[fedorauser@localhost uinputtest]$ ./a.out
-open /dev/input/uinput returned 3.
-=46irst write returned 1116.
-ioctl UI_DEV_CREATE returned 0.
-[fedorauser@localhost uinputtest]$
-
-I am running Fedora on a VM (using VMWare Player) on a Windows XP machi=
-ne.=A0 Here is /etc/X11/xorg.conf:
-
-
-
-# Xorg configuration created by system-config-display
-
-Section "ServerLayout"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Identifier=A0=A0=A0=A0 "single head c=
-onfiguration"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Screen=A0=A0=A0=A0=A0 0=A0 "Screen0" =
-0 0
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 InputDevice=A0=A0=A0 "Keyboard0" "Cor=
-eKeyboard"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 InputDevice=A0=A0=A0 "VMMouse" "CoreP=
-ointer"
-EndSection
-
-Section "InputDevice"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Identifier=A0 "Keyboard0"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Driver=A0=A0=A0=A0=A0 "kbd"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Option =A0=A0=A0 "XkbModel" "pc105"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Option =A0=A0=A0 "XkbLayout" "us"
-EndSection
-
-Section "InputDevice"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Identifier=A0 "VMMouse"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Driver=A0=A0=A0=A0=A0 "vmmouse"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Option =A0=A0=A0 "Device" "/dev/input=
-/mice"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Option =A0=A0=A0 "Emulate3Buttons" "y=
-es"
-EndSection
-
-Section "Monitor"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Identifier=A0=A0 "Monitor0"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 ModelName=A0=A0=A0 "LCD Panel 1680x10=
-50"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 HorizSync=A0=A0=A0 31.5 - 90.0
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 VertRefresh=A0 59.9 - 60.1
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Option =A0=A0=A0 "dpms"
-EndSection
-
-Section "Device"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Identifier=A0 "Videocard0"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Driver=A0=A0=A0=A0=A0 "vmware"
-EndSection
-
-Section "Screen"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Identifier "Screen0"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Device=A0=A0=A0=A0 "Videocard0"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 Monitor=A0=A0=A0 "Monitor0"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 DefaultDepth=A0=A0=A0=A0 24
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SubSection "Display"
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 V=
-iewport=A0=A0 0 0
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 D=
-epth=A0=A0=A0=A0 24
-=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 EndSubSection
-EndSection
-
-
-
-Can anyone offer some advice?=A0 Are we forgetting something terribly o=
-bvious?=A0 Is the fact of running under a VM somehow messing us up?
-
-Thanks, people.=A0 I'm new to Linux - it's great to find out what a lar=
-ge group of humans are actively supporting it.
-
-Looking forward to any replies,
-
-Nick Turner
-Design Engineer
-Nuvation, inc.
-San Jose, CA
-408-228-5580 x258
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-------------------------------------------------------------------------
+SF.Net email is sponsored by: 
+Check out the new SourceForge.net Marketplace.
+It's the best place to buy or sell services for
+just about anything Open Source.
+http://sourceforge.net/services/buy/index.php
+_______________________________________________
+linux-usb-devel@lists.sourceforge.net
+To unsubscribe, use the last form field at:
+https://lists.sourceforge.net/lists/listinfo/linux-usb-devel

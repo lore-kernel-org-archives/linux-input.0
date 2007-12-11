@@ -1,66 +1,32 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: rfkill-input understanding help
-Date: Tue, 11 Dec 2007 03:33:40 +0000
-Message-ID: <200712110333.40946.carlos@strangeworlds.co.uk>
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Subject: [PATCH] handle EV_PWR in input_set_capability
+Date: Tue, 11 Dec 2007 18:18:59 +0300
+Message-ID: <20071211151859.GA7965@doriath.ww600.siemens.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [65.196.224.53] ([65.196.224.53]:36249 "EHLO
-	mail.slackadelic.com" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1751657AbXLKDfR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Dec 2007 22:35:17 -0500
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752561AbXLKPTV@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@atrey.karlin.mff.cuni.cz
+Cc: dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, ivdoorn@gmail.com
 
-Dmitry, Ivo,
+Handle EV_PWR type of input caps.
 
-I'm trying to get my head around the input part of rfkill, and failing 
-miserably here.
+Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
 
-Background:
-
-acer-wmi (in development) controls the rfkill switches for wireless and 
-bluetooth on many Acer laptops.
-
-There are two buttons which control these, one for wireless, and one for 
-bluetooth. However, the wireless and bluetooth buttons on the laptop are just 
-keys - they generate KEY_WLAN and KEY_BLUETOOTH, but don't toggle the 
-wireless and bluetooth themselves (this is down to acer-wmi).
-
-I'd like to set it up so that KEY_WLAN will toggle the wireless, and 
-KEY_BLUETOOTH toggles bluetooth.
-
-I've been reading through rfkill.txt and linux/rfkill.h and the various 
-discussions about rfkill and quite frankly, I'm no-where near understanding 
-what it is I need to do for this particular use case.
-
-What I've done so far:
-
-Registered two rfkill devices - one for wireless, one for bluetooth.
-
-Problem:
-
-The sysfs interface works just fine - but nothing is being toggled when I 
-press the wireless or bluetooth buttons (which are just generating KEY_WLAN 
-and KEY_BLUETOOTH).
-
->From my limited understanding, rfkill_input (which is enabled in my kernel) 
-_should_ just be handling these keycodes (since userspace has not claimed 
-these rfkill devices), and then calling the necessary toggle function - but 
-AFAICT, this is not happening.
-
-Have I misunderstood this, am I missing something, or is this particular use 
-case supposed to be handled by userspace instead (i.e. a userspace tool is 
-supposed to handle the keypress, then toggle the rfkill device via sysfs)?
-
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+Index: linux-test/drivers/input/input.c
+===================================================================
+--- linux-test.orig/drivers/input/input.c	2007-12-11 17:47:37.736228749 +0300
++++ linux-test/drivers/input/input.c	2007-12-11 17:47:52.620224309 +0300
+@@ -1080,6 +1080,10 @@ void input_set_capability(struct input_d
+ 		__set_bit(code, dev->ffbit);
+ 		break;
+ 
++	case EV_PWR:
++		/* do nothing */
++		break;
++
+ 	default:
+ 		printk(KERN_ERR
+ 			"input_set_capability: unknown type %u (code %u)\n",

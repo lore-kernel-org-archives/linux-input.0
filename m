@@ -1,27 +1,31 @@
 From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: [PATCH] Tosa keyboard support
-Date: Tue, 11 Dec 2007 18:23:18 +0300
-Message-ID: <20071211152318.GA8344@doriath.ww600.siemens.net>
+Subject: Re: [PATCH] Tosa keyboard support
+Date: Tue, 11 Dec 2007 18:38:51 +0300
+Message-ID: <20071211153851.GA14156@doriath.ww600.siemens.net>
+References: <20071211152318.GA8344@doriath.ww600.siemens.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753604AbXLKPXs@vger.kernel.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754858AbXLKPjU@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20071211152318.GA8344@doriath.ww600.siemens.net>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-input@atrey.karlin.mff.cuni.cz
 Cc: linux-kernel@vger.kernel.org, dirk@opfer-online.de, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, Marcin Juszkiewicz <openembedded@hrw.one.pl>
 List-Id: linux-input@vger.kernel.org
 
-Support keyboard on tosa (Sharp Zaurus SL-6000x).
-Largely based on patch by Dirk Opfer.
+Hi,
 
-Todo: EAR_IN event support
+Sorry, posted wrong version of patch. Here is correct version:
+
+Support keyboard on tosa (Sharp Zaurus SL-6000x).
+Largely based on patches by Dirk Opfer.
 
 Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
 
-Index: linux-test/drivers/input/keyboard/Kconfig
+Index: tosa-tree/drivers/input/keyboard/Kconfig
 ===================================================================
---- linux-test.orig/drivers/input/keyboard/Kconfig	2007-12-10 18:31:15.279700301 +0300
-+++ linux-test/drivers/input/keyboard/Kconfig	2007-12-10 18:31:23.903469072 +0300
+--- tosa-tree.orig/drivers/input/keyboard/Kconfig	2007-12-06 02:50:47.718066027 +0300
++++ tosa-tree/drivers/input/keyboard/Kconfig	2007-12-11 18:20:44.740234154 +0300
 @@ -154,6 +154,16 @@ config KEYBOARD_SPITZ
  	  To compile this driver as a module, choose M here: the
  	  module will be called spitzkbd.
@@ -39,10 +43,10 @@ Index: linux-test/drivers/input/keyboard/Kconfig
  config KEYBOARD_AMIGA
  	tristate "Amiga keyboard"
  	depends on AMIGA
-Index: linux-test/drivers/input/keyboard/Makefile
+Index: tosa-tree/drivers/input/keyboard/Makefile
 ===================================================================
---- linux-test.orig/drivers/input/keyboard/Makefile	2007-12-10 18:31:15.291700345 +0300
-+++ linux-test/drivers/input/keyboard/Makefile	2007-12-10 18:31:23.903469072 +0300
+--- tosa-tree.orig/drivers/input/keyboard/Makefile	2007-12-06 02:50:47.718066027 +0300
++++ tosa-tree/drivers/input/keyboard/Makefile	2007-12-11 18:20:44.752234128 +0300
 @@ -15,6 +15,7 @@ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newton
  obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
  obj-$(CONFIG_KEYBOARD_CORGI)		+= corgikbd.o
@@ -51,11 +55,11 @@ Index: linux-test/drivers/input/keyboard/Makefile
  obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
  obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
  obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
-Index: linux-test/drivers/input/keyboard/tosakbd.c
+Index: tosa-tree/drivers/input/keyboard/tosakbd.c
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-test/drivers/input/keyboard/tosakbd.c	2007-12-10 18:51:22.521513076 +0300
-@@ -0,0 +1,415 @@
++++ tosa-tree/drivers/input/keyboard/tosakbd.c	2007-12-11 18:34:22.050680080 +0300
+@@ -0,0 +1,413 @@
 +/*
 + *  Keyboard driver for Sharp Tosa models (SL-6000x)
 + *
@@ -77,8 +81,6 @@ Index: linux-test/drivers/input/keyboard/tosakbd.c
 +#include <linux/delay.h>
 +#include <linux/interrupt.h>
 +
-+#include <linux/input_pda.h>
-+
 +#include <asm/arch/gpio.h>
 +#include <asm/arch/tosa.h>
 +
@@ -99,12 +101,12 @@ Index: linux-test/drivers/input/keyboard/tosakbd.c
 +0, 0, 0, 0, 0, 0, 0, 0,
 +KEY_A, KEY_D, KEY_G, KEY_U, 0, KEY_L, KEY_ENTER, KEY_DOT,
 +0, 0, 0, 0, 0, 0, 0, 0,
-+KEY_Z, KEY_C, KEY_V, KEY_J, _KEY_CONTACTS, TOSA_KEY_CANCEL, TOSA_KEY_CENTER, TOSA_KEY_OK,
++KEY_Z, KEY_C, KEY_V, KEY_J, KEY_ADDRESSBOOK, KEY_CANCEL, TOSA_KEY_CENTER, KEY_OK,
 +KEY_LEFTSHIFT, 0, 0, 0, 0, 0, 0, 0,
-+KEY_S, KEY_R, KEY_B, KEY_N, _KEY_CALENDAR, _KEY_HOMEPAGE, KEY_LEFTCTRL, TOSA_KEY_LIGHT,
++KEY_S, KEY_R, KEY_B, KEY_N, KEY_CALENDAR, KEY_HOMEPAGE, KEY_LEFTCTRL, TOSA_KEY_LIGHT,
 +0, KEY_RIGHTSHIFT, 0, 0, 0, 0, 0, 0,
-+KEY_TAB, KEY_SLASH, KEY_H, KEY_M, TOSA_KEY_MENU, 0, KEY_UP, 0,
-+0, 0, TOSA_KEY_FN, 0, 0, 0, 0, 0,
++KEY_TAB, KEY_SLASH, KEY_H, KEY_M, KEY_MENU, 0, KEY_UP, 0,
++0, 0, KEY_FN, 0, 0, 0, 0, 0,
 +KEY_X, KEY_F, KEY_SPACE, KEY_APOSTROPHE, KEY_MAIL, KEY_LEFT, KEY_DOWN, KEY_RIGHT,
 +0, 0, 0,
 +};
@@ -471,21 +473,20 @@ Index: linux-test/drivers/input/keyboard/tosakbd.c
 +MODULE_AUTHOR("Dirk Opfer <Dirk@Opfer-Online.de>");
 +MODULE_DESCRIPTION("Tosa Keyboard Driver");
 +MODULE_LICENSE("GPL v2");
-Index: linux-test/arch/arm/mach-pxa/tosa.c
+Index: tosa-tree/arch/arm/mach-pxa/tosa.c
 ===================================================================
---- linux-test.orig/arch/arm/mach-pxa/tosa.c	2007-12-09 14:18:57.530296394 +0300
-+++ linux-test/arch/arm/mach-pxa/tosa.c	2007-12-10 18:34:51.438565401 +0300
-@@ -27,6 +27,9 @@
+--- tosa-tree.orig/arch/arm/mach-pxa/tosa.c	2007-12-09 14:21:21.621301924 +0300
++++ tosa-tree/arch/arm/mach-pxa/tosa.c	2007-12-11 18:30:21.576224368 +0300
+@@ -27,6 +27,8 @@
  #include <linux/pm.h>
  #include <linux/delay.h>
  #include <linux/fb.h>
 +#include <linux/gpio_keys.h>
 +#include <linux/input.h>
-+#include <linux/input_pda.h>
  
  #include <asm/setup.h>
  #include <asm/memory.h>
-@@ -434,6 +437,45 @@ static struct tc6393xb_platform_data tos
+@@ -426,6 +428,45 @@ static struct tc6393xb_platform_data tos
  	.fb_data	= &tosa_tc6393xb_fb_config,
  };
  
@@ -500,7 +501,7 @@ Index: linux-test/arch/arm/mach-pxa/tosa.c
 +	},
 +	{
 +		.type	= EV_KEY,
-+		.code	= _KEY_RECORD,
++		.code	= KEY_RECORD,
 +		.gpio	= TOSA_GPIO_RECORD_BTN,
 +		.desc	= "Record Button",
 +		.wakeup	= 1,
@@ -531,29 +532,25 @@ Index: linux-test/arch/arm/mach-pxa/tosa.c
  
  struct platform_device tc6393xb_device = {
  	.name	= "tc6393xb",
-@@ -450,6 +492,7 @@ static struct platform_device *devices[]
+@@ -442,6 +483,7 @@ static struct platform_device *devices[]
  	&tosascoop_device,
  	&tosascoop_jc_device,
  	&tosakbd_device,
 +	&tosa_gpio_keys_device,
  	&tosaled_device,
- 	&tosa_bluetooth_device,
  	&tc6393xb_device,
-Index: linux-test/include/asm-arm/arch-pxa/tosa.h
+ };
+Index: tosa-tree/include/asm-arm/arch-pxa/tosa.h
 ===================================================================
---- linux-test.orig/include/asm-arm/arch-pxa/tosa.h	2007-12-10 18:32:50.547713109 +0300
-+++ linux-test/include/asm-arm/arch-pxa/tosa.h	2007-12-10 19:13:30.451457377 +0300
-@@ -187,4 +187,13 @@
+--- tosa-tree.orig/include/asm-arm/arch-pxa/tosa.h	2007-12-09 14:21:21.657311276 +0300
++++ tosa-tree/include/asm-arm/arch-pxa/tosa.h	2007-12-11 18:34:49.423778408 +0300
+@@ -187,4 +187,9 @@
  extern struct platform_device tosascoop_jc_device;
  extern struct platform_device tosascoop_device;
  extern struct platform_device tc6393xb_device;
 +
 +#define TOSA_KEY_SYNC		KEY_F1 /* ??? */
-+#define TOSA_KEY_OK		KEY_F2 /* KEY_OK */
-+#define TOSA_KEY_FN		KEY_F3 /* KEY_FN */
-+#define TOSA_KEY_CANCEL		KEY_F4 /* KEY_CANCEL */
-+#define TOSA_KEY_CENTER		KEY_F5 /* ??? */
-+#define TOSA_KEY_MENU		KEY_F6 /* KEY_MENU */
-+#define TOSA_KEY_LIGHT		KEY_F7 /* KEY_SWITCHVIDEOMODE */
++#define TOSA_KEY_CENTER		KEY_SELECT /* ??? */
++#define TOSA_KEY_LIGHT		KEY_SWITCHVIDEOMODE /* ??? */
 +
  #endif /* _ASM_ARCH_TOSA_H_ */

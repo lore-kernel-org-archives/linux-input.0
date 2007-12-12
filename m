@@ -1,36 +1,43 @@
-From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Subject: Re: [HP6XX/FIX/PATCH] - Fix bad default keymap in HP Jornada 6xx
- keyboard driver
-Date: Wed, 12 Dec 2007 19:54:52 +0100
-Message-ID: <20071212195452.d854ea6f.Kristoffer.ericson@gmail.com>
-References: <20071212192207.196f18cc.Kristoffer.ericson@gmail.com>
-	<20071212184558.GA16129@linux-sh.org>
+From: Stephen Hemminger <shemminger@linux-foundation.org>
+Subject: [PATCH] Fujitsu application panel led value
+Date: Wed, 12 Dec 2007 15:21:43 -0700
+Message-ID: <20071212152143.04c83e93@shemminger-laptop>
+References: <20070702111724.43ee5b43@freepuppy.localdomain.hemminger.net>
+	<200709140130.59732.dtor@insightbb.com>
+	<20070916215516.2934abad@oldman.hemminger.net>
+	<200709161623.00286.dtor@insightbb.com>
+	<20071023125555.38d63567@shemminger-laptop>
+	<d120d5000712120610m30c054f5w596c29a1700211f@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759015AbXLLSz0@vger.kernel.org>
-In-Reply-To: <20071212184558.GA16129@linux-sh.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757429AbXLLWWq@vger.kernel.org>
+In-Reply-To: <d120d5000712120610m30c054f5w596c29a1700211f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, Dmitry <dmitry.torokhov@gmail.com>, linux-input-list <linux-input@atrey.karlin.mff.cuni.cz>, linux-main <linux-kernel@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 13 Dec 2007 03:45:58 +0900
-Paul Mundt <lethal@linux-sh.org> wrote:
+Use proper encoding for LED values.
 
-> On Wed, Dec 12, 2007 at 07:22:07PM +0100, Kristoffer Ericson wrote:
-> > shortlog:
-> > * This patch fixes the HP Jornada 6xx keyboard default keymap which had some bad keymap values. This resulted in wrong
-> > key being returned when pressed (example : key y returned 'r').
-> > * Also, while we are at it lets arrange the include files in alphabetical order.
-> > 
-> You do realize that the default keymap was written for the Japanese units
-> and the Japanese keyboards, right? From the looks of it, you are just
-> trying to swap one functional set for another. I can assure you that this
-> keymap worked fine on the Japanese units, so calling it a bug is a bit
-> misleading.
+Signed-off-by: Stephen Hemminger <shemminger@linux-foundation.org>
 
-Mostly true yes. However a few errors entered simply due to me copying the keymap poorly in the initial keymap. So it does infact have 'bug' keys that wouldn't work properly on neither japanese / european / US jornadas. And whatever functional set, this patch fixes those
-bugs.
+---
+Note: earlier code worked because hardware only checks for zero.
 
-
+--- a/drivers/input/misc/apanel.c	2007-12-12 13:07:03.000000000 -0700
++++ b/drivers/input/misc/apanel.c	2007-12-12 14:42:09.000000000 -0700
+@@ -132,11 +132,11 @@ static void mail_led_set(struct led_clas
+ 			 enum led_brightness value)
+ {
+ 	struct apanel *ap = container_of(led, struct apanel, mail_led);
+-	if (value)
++
++	if (value != LED_OFF)
+ 		ap->led_bits |= 0x8000;
+ 	else
+ 		ap->led_bits &= ~0x8000;
+-	ap->led_bits = value;
+ 	schedule_work(&ap->led_work);
+ }
+ 

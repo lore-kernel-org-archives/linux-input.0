@@ -1,38 +1,32 @@
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 Subject: Re: [BUG] Kernel Bugs Weekly (maybe bi-weekly)
-Date: Fri, 14 Dec 2007 08:15:25 -0500
-Message-ID: <1197638126.3154.65.camel@localhost.localdomain>
+Date: Fri, 14 Dec 2007 14:46:28 +0000
+Message-ID: <20071214144628.GB15149@flint.arm.linux.org.uk>
 References: <32209efe0712132057x247219e0m602f24d1e3a2c20b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-ide-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753818AbXLNOrY@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <32209efe0712132057x247219e0m602f24d1e3a2c20b@mail.gmail.com>
-Sender: linux-ide-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Natalie Protasevich <protasnb@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, linux-dvb@linuxtv.org, linux-acpi@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>, linux-ide@vger.kernel.org, linux-pcmcia@lists.infradead.org, linux-input@atrey.karlin.mff.cuni.cz, linux-dvb@linuxtv.org, linux-acpi@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, 2007-12-13 at 20:57 -0800, Natalie Protasevich wrote:
-> snd_hda_intel doesn't mute front speakers when headset is plugged in
-> http://bugzilla.kernel.org/show_bug.cgi?id=9338
-> Kernel: 2.6.23+
-> Vaio VGN-FZ19VN
+On Thu, Dec 13, 2007 at 08:57:24PM -0800, Natalie Protasevich wrote:
+> PLATFORM======================================================================
+> 
+> s3c2440_clk_add disables inactive clocks _ARM_
+> http://bugzilla.kernel.org/show_bug.cgi?id=9040
+> Kernel: 2.6.22
+> ARM, assigned to Ben Dooks (question is if he knows this :)
 
-I'm not sure this one's a bug ... but it would depend on the chip
-specifics.  The Intel HDA is designed to have separately controllable
-line out and external features.  I like this and consider it to be a
-nice feature.  However, it's not impossible that the Vaio is wired up
-differently from my fujitsu, which also has a slightly different rev of
-the controller:
+Not quite sure what the point of putting it in an email he hasn't seen
+is either.
 
-00:1b.0 Audio device: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6
-Family) High Definition Audio Controller (rev 04)
+Adding Ben as a CC.
 
-However (modulo severe problems with pulseaudio) it works just fine for
-me (separate sliders for line out and speakers) with 2.6.23.8 on a
-Fujitsu 7120P LifeBook.
-
-James
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:

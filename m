@@ -1,40 +1,37 @@
-From: Dmitry <dbaryshkov@gmail.com>
-Subject: Re: [PATCH] Tosa keyboard support
-Date: Sun, 16 Dec 2007 13:52:22 +0300
-Message-ID: <bc64b4640712160252o6d91a95bm82f735ec876e5dbf@mail.gmail.com>
-References: <20071211152318.GA8344@doriath.ww600.siemens.net>
-	 <20071211153851.GA14156@doriath.ww600.siemens.net>
-	 <20071216102911.GA2307@flint.arm.linux.org.uk>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [HP6XX/FIX/PATCH] - Fix bad default keymap in HP Jornada 6xx keyboard driver
+Date: Sun, 16 Dec 2007 21:51:30 +0900
+Message-ID: <20071216125130.GB12769@linux-sh.org>
+References: <20071212192207.196f18cc.Kristoffer.ericson@gmail.com> <20071212184558.GA16129@linux-sh.org> <20071212195452.d854ea6f.Kristoffer.ericson@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S932769AbXLPKwf@vger.kernel.org>
-In-Reply-To: <20071216102911.GA2307@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933582AbXLPMvz@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <20071212195452.d854ea6f.Kristoffer.ericson@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, Marcin Juszkiewicz <openembedded@hrw.one.pl>, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Cc: Dmitry <dmitry.torokhov@gmail.com>, linux-input-list <linux-input@atrey.karlin.mff.cuni.cz>, linux-main <linux-kernel@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi,
-
-2007/12/16, Russell King - ARM Linux <linux@arm.linux.org.uk>:
-> On Tue, Dec 11, 2007 at 06:38:51PM +0300, Dmitry Baryshkov wrote:
-> > Sorry, posted wrong version of patch. Here is correct version:
-> >
-> > Support keyboard on tosa (Sharp Zaurus SL-6000x).
-> > Largely based on patches by Dirk Opfer.
->
-> Looks fine to me, but Dmitry Torokhov needs to look at it; he maintains
-> the input subsystem.  Note that the current input subsystem mailing list
-> is not the one you have in the CC line - please always check MAINTAINERS
-> for the correct addresses.
->
-
-Ok, thanks,
-resent to linux-input.
-
-
--- 
-With best wishes
-Dmitry
+On Wed, Dec 12, 2007 at 07:54:52PM +0100, Kristoffer Ericson wrote:
+> On Thu, 13 Dec 2007 03:45:58 +0900
+> Paul Mundt <lethal@linux-sh.org> wrote:
+> > On Wed, Dec 12, 2007 at 07:22:07PM +0100, Kristoffer Ericson wrote:
+> > > * This patch fixes the HP Jornada 6xx keyboard default keymap which
+> > > had some bad keymap values. This resulted in wrong key being
+> > > returned when pressed (example : key y returned 'r').
+> > > 
+> > You do realize that the default keymap was written for the Japanese units
+> > and the Japanese keyboards, right? From the looks of it, you are just
+> > trying to swap one functional set for another. I can assure you that this
+> > keymap worked fine on the Japanese units, so calling it a bug is a bit
+> > misleading.
+> 
+> Mostly true yes. However a few errors entered simply due to me copying
+> the keymap poorly in the initial keymap. So it does infact have 'bug'
+> keys that wouldn't work properly on neither japanese / european / US
+> jornadas. And whatever functional set, this patch fixes those bugs.
+> 
+Ah, ok, so it's a problem with the new driver, rather than something
+that's always been broken. No objections then, thanks for clearing that
+up.

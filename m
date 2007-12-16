@@ -1,37 +1,44 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [HP6XX/FIX/PATCH] - Fix bad default keymap in HP Jornada 6xx keyboard driver
-Date: Sun, 16 Dec 2007 21:51:30 +0900
-Message-ID: <20071216125130.GB12769@linux-sh.org>
-References: <20071212192207.196f18cc.Kristoffer.ericson@gmail.com> <20071212184558.GA16129@linux-sh.org> <20071212195452.d854ea6f.Kristoffer.ericson@gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [argyllcms] Re: [PATCH] usb/hid: Blacklist the Gretag-Macbeth
+ Huey display	colorimeter
+Date: Sun, 16 Dec 2007 17:59:28 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0712161756480.12449@jikos.suse.cz>
+References: <1197585460.28927.2.camel@rousalka.dyndns.org>
+ <20071214053853.GD7765@kroah.com>  <1197626696.5281.5.camel@rousalka.dyndns.org>
+  <47626D00.202@argyllcms.com> <1197634579.2766.8.camel@rousalka.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933582AbXLPMvz@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20071212195452.d854ea6f.Kristoffer.ericson@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Cc: Dmitry <dmitry.torokhov@gmail.com>, linux-input-list <linux-input@atrey.karlin.mff.cuni.cz>, linux-main <linux-kernel@vger.kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1197634579.2766.8.camel-mHT02fcw9gwi5CQI31g/s0B+6BGkLq7r@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nicolas Mailhot <nicolas.mailhot-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+Cc: argyllcms-uGLqWuYN4qMgsBAKwltoeQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Frederic Crozat <fcrozat-4qZELD6FgxhWk0Htik3J/w@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Dec 12, 2007 at 07:54:52PM +0100, Kristoffer Ericson wrote:
-> On Thu, 13 Dec 2007 03:45:58 +0900
-> Paul Mundt <lethal@linux-sh.org> wrote:
-> > On Wed, Dec 12, 2007 at 07:22:07PM +0100, Kristoffer Ericson wrote:
-> > > * This patch fixes the HP Jornada 6xx keyboard default keymap which
-> > > had some bad keymap values. This resulted in wrong key being
-> > > returned when pressed (example : key y returned 'r').
-> > > 
-> > You do realize that the default keymap was written for the Japanese units
-> > and the Japanese keyboards, right? From the looks of it, you are just
-> > trying to swap one functional set for another. I can assure you that this
-> > keymap worked fine on the Japanese units, so calling it a bug is a bit
-> > misleading.
-> 
-> Mostly true yes. However a few errors entered simply due to me copying
-> the keymap poorly in the initial keymap. So it does infact have 'bug'
-> keys that wouldn't work properly on neither japanese / european / US
-> jornadas. And whatever functional set, this patch fixes those bugs.
-> 
-Ah, ok, so it's a problem with the new driver, rather than something
-that's always been broken. No objections then, thanks for clearing that
-up.
+On Fri, 14 Dec 2007, Nicolas Mailhot wrote:
+
+> > Actually (to put it frankly), I'm amazed that this exceptions list is 
+> > compiled into the driver. I would have thought that such a list should 
+> > at least be in a configuration file that an installed application can 
+> > add or delete, if not something more sophisticated.
+> Something more sophisticated will happen someday, this is what we have
+> now.
+
+There is also possibility (for quite a few releases already) to change the 
+quirk list in runtime. See the 'quirk' parameter to the usbhid module.
+
+> > What will happen if the HID driver is fixed to allow arbitrary 
+> > messages, and I want to switch back to using it rather than libusb ?
+
+What exactly is the problem here? I didn't seem to catch the beginning of 
+the thread (or it happened off the list I am subscribed to).
+
+I will apply the patch to my tree, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs
+-
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

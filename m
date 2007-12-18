@@ -1,109 +1,302 @@
-From: Harald Welte <laforge-4Bgg8jF3iZdg9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 0/12] neo1973: FIC/OpenMoko Neo1973
-	GTA01 machine support
-Date: Tue, 18 Dec 2007 12:06:16 +0100
-Message-ID: <20071218110616.GG29882@prithivi.gnumonks.org>
+From: Harald Welte <laforge@openmoko.org>
+Subject: [PATCH 8/12] neo1973: button input device driver
+Date: Tue, 18 Dec 2007 12:08:07 +0100
+Message-ID: <20071218110807.GO29882@prithivi.gnumonks.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0860010752=="
-Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
-List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Sender: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
-Cc: linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org
-List-Id: linux-input@vger.kernel.org
-
-
---===============0860010752==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UHN/qo2QbUvPLonB"
-Content-Disposition: inline
-
-
---UHN/qo2QbUvPLonB
 Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ganesha.gnumonks.org ([213.95.27.120]:45941 "EHLO
+	ganesha.gnumonks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752410AbXLRLTI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Dec 2007 06:19:08 -0500
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: linux-arm-kernel@lists.arm.linux.org.uk
+Cc: linux-input@vger.kernel.org
 
-Hi!
+This driver provides support for the Neo1973 button/switch
 
-This is a patchset to add core machine support for the FIC/OpenMoko
-Neo1973 GTA01 GSM smartphone[1] to the Linux Kernel.  They all apply to
-Linus' linux-2.6 git tree as of today.
+Signed-off-by: Harald Welte <laforge@openmoko.org>
 
-The Neo1973 GTA01 is hardware that has been distributed to developers
-for about one year, and is on public sale since July 2007.
+---
 
-There is a second reviison called GTA02 which is also already circulated
-among developers since September 2007.  It is expected to be publicly
-available soon.
-
-There is some code that is shared by GTA01 and GTA02, and 'neo1973' is
-used consistently whenever referring to shared code (platform devices,
-file names as well as CONFIG_ #defines).  Whenever GTA01 is used, this
-particular piece of code is specifically to the first hardware
-generation.
-
-I have some more patches piled up, including GTA02 support.  But I'd
-much rather see this patchset merged first.
-
-All your comments and feedback are welcome.  Please keep me in Cc
-whenever responding.
-
-[1] http://www.openmoko.org/
-
-Happy hacking,
---=20
-- Harald Welte <laforge-4Bgg8jF3iZdg9hUCZPvPmw@public.gmane.org>          	        http://openmoko.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
+Index: linux-2.6/drivers/input/keyboard/Kconfig
+===================================================================
+--- linux-2.6.orig/drivers/input/keyboard/Kconfig
++++ linux-2.6/drivers/input/keyboard/Kconfig
+@@ -293,4 +293,16 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called bf54x-keys.
+ 
++config KEYBOARD_NEO1973
++	tristate "FIC Neo1973 buttons"
++	depends on MACH_NEO1973
++	default y
++	help
++	  Say Y here to enable the buttons on the FIC Neo1973
++	  GSM phone.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called gta01kbd.
++
++
+ endif
+Index: linux-2.6/drivers/input/keyboard/Makefile
+===================================================================
+--- linux-2.6.orig/drivers/input/keyboard/Makefile
++++ linux-2.6/drivers/input/keyboard/Makefile
+@@ -14,6 +14,7 @@
+ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
+ obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+ obj-$(CONFIG_KEYBOARD_CORGI)		+= corgikbd.o
++obj-$(CONFIG_KEYBOARD_NEO1973)		+= neo1973kbd.o
+ obj-$(CONFIG_KEYBOARD_SPITZ)		+= spitzkbd.o
+ obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
+ obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
+Index: linux-2.6/drivers/input/keyboard/neo1973kbd.c
+===================================================================
+--- /dev/null
++++ linux-2.6/drivers/input/keyboard/neo1973kbd.c
+@@ -0,0 +1,236 @@
++/*
++ * Keyboard driver for FIC Neo1973 GSM phone
++ *
++ * (C) 2006-2007 by OpenMoko, Inc.
++ * Author: Harald Welte <laforge@openmoko.org>
++ * All rights reserved.
++ *
++ * inspired by corkgbd.c by Richard Purdie
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/init.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++
++#include <asm/hardware.h>
++#include <asm/arch/gta01.h>
++
++struct neo1973kbd {
++	struct input_dev *input;
++	unsigned int suspended;
++	unsigned long suspend_jiffies;
++};
++
++static irqreturn_t neo1973kbd_aux_irq(int irq, void *dev_id)
++{
++	struct neo1973kbd *neo1973kbd_data = dev_id;
++
++	/* FIXME: use GPIO from platform_dev resources */
++	if (s3c2410_gpio_getpin(GTA01_GPIO_AUX_KEY))
++		input_report_key(neo1973kbd_data->input, KEY_PHONE, 0);
++	else
++		input_report_key(neo1973kbd_data->input, KEY_PHONE, 1);
++
++	input_sync(neo1973kbd_data->input);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t neo1973kbd_hold_irq(int irq, void *dev_id)
++{
++	struct neo1973kbd *neo1973kbd_data = dev_id;
++
++	/* FIXME: use GPIO from platform_dev resources */
++	if (s3c2410_gpio_getpin(GTA01_GPIO_HOLD_KEY))
++		input_report_key(neo1973kbd_data->input, KEY_PAUSE, 1);
++	else
++		input_report_key(neo1973kbd_data->input, KEY_PAUSE, 0);
++
++	input_sync(neo1973kbd_data->input);
++
++	return IRQ_HANDLED;
++}
++
++static irqreturn_t neo1973kbd_headphone_irq(int irq, void *dev_id)
++{
++	struct neo1973kbd *neo1973kbd_data = dev_id;
++
++	/* FIXME: use GPIO from platform_dev resources */
++	if (s3c2410_gpio_getpin(GTA01_GPIO_JACK_INSERT))
++		input_report_switch(neo1973kbd_data->input,
++				    SW_HEADPHONE_INSERT, 1);
++	else
++		input_report_switch(neo1973kbd_data->input,
++				    SW_HEADPHONE_INSERT, 0);
++
++	input_sync(neo1973kbd_data->input);
++
++	return IRQ_HANDLED;
++}
++
++#ifdef CONFIG_PM
++static int neo1973kbd_suspend(struct platform_device *dev, pm_message_t state)
++{
++	struct neo1973kbd *neo1973kbd = platform_get_drvdata(dev);
++
++	neo1973kbd->suspended = 1;
++
++	return 0;
++}
++
++static int neo1973kbd_resume(struct platform_device *dev)
++{
++	struct neo1973kbd *neo1973kbd = platform_get_drvdata(dev);
++
++	neo1973kbd->suspended = 0;
++
++	return 0;
++}
++#else
++#define neo1973kbd_suspend	NULL
++#define neo1973kbd_resume	NULL
++#endif
++
++static int neo1973kbd_probe(struct platform_device *pdev)
++{
++	struct neo1973kbd *neo1973kbd;
++	struct input_dev *input_dev;
++	int rc, irq_aux, irq_hold, irq_jack;
++
++	neo1973kbd = kzalloc(sizeof(struct neo1973kbd), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!neo1973kbd || !input_dev) {
++		kfree(neo1973kbd);
++		input_free_device(input_dev);
++		return -ENOMEM;
++	}
++
++	if (pdev->resource[0].flags != 0)
++		return -EINVAL;
++
++	irq_aux = s3c2410_gpio_getirq(pdev->resource[0].start);
++	if (irq_aux < 0)
++		return -EINVAL;
++
++	irq_hold = s3c2410_gpio_getirq(pdev->resource[1].start);
++	if (irq_hold < 0)
++		return -EINVAL;
++
++	irq_jack = s3c2410_gpio_getirq(pdev->resource[2].start);
++	if (irq_jack < 0)
++		return -EINVAL;
++
++	platform_set_drvdata(pdev, neo1973kbd);
++
++	neo1973kbd->input = input_dev;
++
++	input_dev->name = "Neo1973 Buttons";
++	input_dev->phys = "neo1973kbd/input0";
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0001;
++	input_dev->id.version = 0x0100;
++	input_dev->cdev.dev = &pdev->dev;
++	input_dev->private = neo1973kbd;
++
++	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_SW);
++	set_bit(SW_HEADPHONE_INSERT, input_dev->swbit);
++	set_bit(KEY_PHONE, input_dev->keybit);
++	set_bit(KEY_PAUSE, input_dev->keybit);
++
++	rc = input_register_device(neo1973kbd->input);
++	if (rc)
++		goto out_register;
++
++	if (request_irq(irq_aux, neo1973kbd_aux_irq, IRQF_DISABLED |
++			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++			"Neo1973 AUX button", neo1973kbd)) {
++		dev_err(&pdev->dev, "Can't get IRQ %u\n", irq_aux);
++		goto out_aux;
++	}
++	enable_irq_wake(irq_aux);
++
++	if (request_irq(irq_hold, neo1973kbd_hold_irq, IRQF_DISABLED |
++			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++			"Neo1973 HOLD button", neo1973kbd)) {
++		dev_err(&pdev->dev, "Can't get IRQ %u\n", irq_hold);
++		goto out_hold;
++	}
++	enable_irq_wake(irq_hold);
++
++	if (request_irq(irq_jack, neo1973kbd_headphone_irq, IRQF_DISABLED |
++			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++			"Neo1973 Headphone Jack", neo1973kbd)) {
++		dev_err(&pdev->dev, "Can't get IRQ %u\n", irq_jack);
++		goto out_jack;
++	}
++	enable_irq_wake(irq_jack);
++
++	return 0;
++
++out_jack:
++	free_irq(irq_hold, neo1973kbd);
++out_hold:
++	free_irq(irq_aux, neo1973kbd);
++out_aux:
++	input_unregister_device(neo1973kbd->input);
++out_register:
++	input_free_device(neo1973kbd->input);
++	platform_set_drvdata(pdev, NULL);
++	kfree(neo1973kbd);
++
++	return -ENODEV;
++}
++
++static int neo1973kbd_remove(struct platform_device *pdev)
++{
++	struct neo1973kbd *neo1973kbd = platform_get_drvdata(pdev);
++
++	free_irq(s3c2410_gpio_getirq(pdev->resource[2].start), neo1973kbd);
++	free_irq(s3c2410_gpio_getirq(pdev->resource[1].start), neo1973kbd);
++	free_irq(s3c2410_gpio_getirq(pdev->resource[0].start), neo1973kbd);
++
++	input_unregister_device(neo1973kbd->input);
++	input_free_device(neo1973kbd->input);
++	platform_set_drvdata(pdev, NULL);
++	kfree(neo1973kbd);
++
++	return 0;
++}
++
++static struct platform_driver neo1973kbd_driver = {
++	.probe		= neo1973kbd_probe,
++	.remove		= neo1973kbd_remove,
++	.suspend	= neo1973kbd_suspend,
++	.resume		= neo1973kbd_resume,
++	.driver		= {
++		.name	= "neo1973-button",
++	},
++};
++
++static int __devinit neo1973kbd_init(void)
++{
++	return platform_driver_register(&neo1973kbd_driver);
++}
++
++static void __exit neo1973kbd_exit(void)
++{
++	platform_driver_unregister(&neo1973kbd_driver);
++}
++
++module_init(neo1973kbd_init);
++module_exit(neo1973kbd_exit);
++
++MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
++MODULE_DESCRIPTION("FIC Neo1973 buttons input driver");
++MODULE_LICENSE("GPL");
+-- 
+- Harald Welte <laforge@openmoko.org>          	        http://openmoko.org/
+============================================================================
 Software for the world's first truly open Free Software mobile phone
-
---UHN/qo2QbUvPLonB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-
-iD8DBQFHZ6moXaXGVTD0i/8RApiIAKCM9+gEmYg2yQs4nMQoPG1F6tLx3gCfRbXV
-spHtP0kIz0vJpwtitMdmfMs=
-=oD/y
------END PGP SIGNATURE-----
-
---UHN/qo2QbUvPLonB--
-
-
---===============0860010752==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
--------------------------------------------------------------------------
-SF.Net email is sponsored by:
-Check out the new SourceForge.net Marketplace.
-It's the best place to buy or sell services
-for just about anything Open Source.
-http://ad.doubleclick.net/clk;164216239;13503038;w?http://sf.net/marketplace
---===============0860010752==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-spi-devel-general mailing list
-spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-https://lists.sourceforge.net/lists/listinfo/spi-devel-general
-
---===============0860010752==--

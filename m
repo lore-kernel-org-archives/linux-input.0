@@ -1,302 +1,54 @@
-From: Harald Welte <laforge@openmoko.org>
-Subject: [PATCH 8/12] neo1973: button input device driver
-Date: Tue, 18 Dec 2007 12:08:07 +0100
-Message-ID: <20071218110807.GO29882@prithivi.gnumonks.org>
+From: Robert Gerlach <khnz@gmx.de>
+Subject: Re: [PATCH] Fujitsu application panel driver
+Date: Wed, 19 Dec 2007 10:04:41 +0100
+Message-ID: <200712191004.42565.khnz@gmx.de>
+References: <20070702111724.43ee5b43@freepuppy.localdomain.hemminger.net> <200711191350.31965.khnz@gmx.de> <20071119151918.19ebd8aa@freepuppy.rosehill>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ganesha.gnumonks.org ([213.95.27.120]:45941 "EHLO
-	ganesha.gnumonks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752410AbXLRLTI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Dec 2007 06:19:08 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755101AbXLSJFI@vger.kernel.org>
+In-Reply-To: <20071119151918.19ebd8aa@freepuppy.rosehill>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, Pavel Machek <pavel@ucw.cz>, Len Brown <lenb@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Cc: linux-input@vger.kernel.org
 
-This driver provides support for the Neo1973 button/switch
+Am Dienstag 20 November 2007 00:19:18 schrieb Stephen Hemminger:
+> On Mon, 19 Nov 2007 13:50:30 +0100
+>
+> Robert Gerlach <khnz@gmx.de> wrote:
+> > Am Montag 19 November 2007 05:43:07 schrieb Stephen Hemminger:
+> > > On Sun, 18 Nov 2007 23:36:58 +0100
+> > >
+> > > Robert Gerlach <khnz@gmx.de> wrote:
+> > > > Am Dienstag 23 Oktober 2007 21:55:55 schrieb Stephen Hemminger:
+> > > > > +MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifeBook*:pvr*:rvnFUJITSU:*");
+> > > > > +MODULE_ALIAS("dmi:*:svnFUJITSU:pnLifebook*:pvr*:rvnFUJITSU:*");
+> > > >
+> > > > Please make sure that this module is not autoload on Lifebook tablets
+> > > > (T series and P1[56]10). It works fine, but only supports a subset of
+> > > > features (4 of 7 buttons and no display orientation for my T4010).
+> > >
+> > > I would rather get those tablets working (with help). Rather than
+> > > trying to enumerate all the possible DMI values of the full range of
+> > > different laptops.
+> >
+> > I've played with apanel some month ago. I've never found the keys and the
+> > switch over the I2C bus. So I was starting my own module (fsc_btns) to
+> > play with the IO range announced by ACPI. There I found it all. But my
+> > module doesn't work on all Lifebooks (S7110 for example; has no such ACPI
+> > device).
+>
+> Are you sure the IO range isn't really the same as the I2C bus.
 
-Signed-off-by: Harald Welte <laforge@openmoko.org>
+No, I'm not sure. But, I was looking through the spec and played with my 
+Lifebook, and again with no success.
 
----
+> See: http://apanel.sourceforge.net/tech.php
 
-Index: linux-2.6/drivers/input/keyboard/Kconfig
-===================================================================
---- linux-2.6.orig/drivers/input/keyboard/Kconfig
-+++ linux-2.6/drivers/input/keyboard/Kconfig
-@@ -293,4 +293,16 @@
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bf54x-keys.
- 
-+config KEYBOARD_NEO1973
-+	tristate "FIC Neo1973 buttons"
-+	depends on MACH_NEO1973
-+	default y
-+	help
-+	  Say Y here to enable the buttons on the FIC Neo1973
-+	  GSM phone.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called gta01kbd.
-+
-+
- endif
-Index: linux-2.6/drivers/input/keyboard/Makefile
-===================================================================
---- linux-2.6.orig/drivers/input/keyboard/Makefile
-+++ linux-2.6/drivers/input/keyboard/Makefile
-@@ -14,6 +14,7 @@
- obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
- obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
- obj-$(CONFIG_KEYBOARD_CORGI)		+= corgikbd.o
-+obj-$(CONFIG_KEYBOARD_NEO1973)		+= neo1973kbd.o
- obj-$(CONFIG_KEYBOARD_SPITZ)		+= spitzkbd.o
- obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
- obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
-Index: linux-2.6/drivers/input/keyboard/neo1973kbd.c
-===================================================================
---- /dev/null
-+++ linux-2.6/drivers/input/keyboard/neo1973kbd.c
-@@ -0,0 +1,236 @@
-+/*
-+ * Keyboard driver for FIC Neo1973 GSM phone
-+ *
-+ * (C) 2006-2007 by OpenMoko, Inc.
-+ * Author: Harald Welte <laforge@openmoko.org>
-+ * All rights reserved.
-+ *
-+ * inspired by corkgbd.c by Richard Purdie
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/platform_device.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+
-+#include <asm/hardware.h>
-+#include <asm/arch/gta01.h>
-+
-+struct neo1973kbd {
-+	struct input_dev *input;
-+	unsigned int suspended;
-+	unsigned long suspend_jiffies;
-+};
-+
-+static irqreturn_t neo1973kbd_aux_irq(int irq, void *dev_id)
-+{
-+	struct neo1973kbd *neo1973kbd_data = dev_id;
-+
-+	/* FIXME: use GPIO from platform_dev resources */
-+	if (s3c2410_gpio_getpin(GTA01_GPIO_AUX_KEY))
-+		input_report_key(neo1973kbd_data->input, KEY_PHONE, 0);
-+	else
-+		input_report_key(neo1973kbd_data->input, KEY_PHONE, 1);
-+
-+	input_sync(neo1973kbd_data->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t neo1973kbd_hold_irq(int irq, void *dev_id)
-+{
-+	struct neo1973kbd *neo1973kbd_data = dev_id;
-+
-+	/* FIXME: use GPIO from platform_dev resources */
-+	if (s3c2410_gpio_getpin(GTA01_GPIO_HOLD_KEY))
-+		input_report_key(neo1973kbd_data->input, KEY_PAUSE, 1);
-+	else
-+		input_report_key(neo1973kbd_data->input, KEY_PAUSE, 0);
-+
-+	input_sync(neo1973kbd_data->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t neo1973kbd_headphone_irq(int irq, void *dev_id)
-+{
-+	struct neo1973kbd *neo1973kbd_data = dev_id;
-+
-+	/* FIXME: use GPIO from platform_dev resources */
-+	if (s3c2410_gpio_getpin(GTA01_GPIO_JACK_INSERT))
-+		input_report_switch(neo1973kbd_data->input,
-+				    SW_HEADPHONE_INSERT, 1);
-+	else
-+		input_report_switch(neo1973kbd_data->input,
-+				    SW_HEADPHONE_INSERT, 0);
-+
-+	input_sync(neo1973kbd_data->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+#ifdef CONFIG_PM
-+static int neo1973kbd_suspend(struct platform_device *dev, pm_message_t state)
-+{
-+	struct neo1973kbd *neo1973kbd = platform_get_drvdata(dev);
-+
-+	neo1973kbd->suspended = 1;
-+
-+	return 0;
-+}
-+
-+static int neo1973kbd_resume(struct platform_device *dev)
-+{
-+	struct neo1973kbd *neo1973kbd = platform_get_drvdata(dev);
-+
-+	neo1973kbd->suspended = 0;
-+
-+	return 0;
-+}
-+#else
-+#define neo1973kbd_suspend	NULL
-+#define neo1973kbd_resume	NULL
-+#endif
-+
-+static int neo1973kbd_probe(struct platform_device *pdev)
-+{
-+	struct neo1973kbd *neo1973kbd;
-+	struct input_dev *input_dev;
-+	int rc, irq_aux, irq_hold, irq_jack;
-+
-+	neo1973kbd = kzalloc(sizeof(struct neo1973kbd), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!neo1973kbd || !input_dev) {
-+		kfree(neo1973kbd);
-+		input_free_device(input_dev);
-+		return -ENOMEM;
-+	}
-+
-+	if (pdev->resource[0].flags != 0)
-+		return -EINVAL;
-+
-+	irq_aux = s3c2410_gpio_getirq(pdev->resource[0].start);
-+	if (irq_aux < 0)
-+		return -EINVAL;
-+
-+	irq_hold = s3c2410_gpio_getirq(pdev->resource[1].start);
-+	if (irq_hold < 0)
-+		return -EINVAL;
-+
-+	irq_jack = s3c2410_gpio_getirq(pdev->resource[2].start);
-+	if (irq_jack < 0)
-+		return -EINVAL;
-+
-+	platform_set_drvdata(pdev, neo1973kbd);
-+
-+	neo1973kbd->input = input_dev;
-+
-+	input_dev->name = "Neo1973 Buttons";
-+	input_dev->phys = "neo1973kbd/input0";
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->id.vendor = 0x0001;
-+	input_dev->id.product = 0x0001;
-+	input_dev->id.version = 0x0100;
-+	input_dev->cdev.dev = &pdev->dev;
-+	input_dev->private = neo1973kbd;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_SW);
-+	set_bit(SW_HEADPHONE_INSERT, input_dev->swbit);
-+	set_bit(KEY_PHONE, input_dev->keybit);
-+	set_bit(KEY_PAUSE, input_dev->keybit);
-+
-+	rc = input_register_device(neo1973kbd->input);
-+	if (rc)
-+		goto out_register;
-+
-+	if (request_irq(irq_aux, neo1973kbd_aux_irq, IRQF_DISABLED |
-+			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+			"Neo1973 AUX button", neo1973kbd)) {
-+		dev_err(&pdev->dev, "Can't get IRQ %u\n", irq_aux);
-+		goto out_aux;
-+	}
-+	enable_irq_wake(irq_aux);
-+
-+	if (request_irq(irq_hold, neo1973kbd_hold_irq, IRQF_DISABLED |
-+			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+			"Neo1973 HOLD button", neo1973kbd)) {
-+		dev_err(&pdev->dev, "Can't get IRQ %u\n", irq_hold);
-+		goto out_hold;
-+	}
-+	enable_irq_wake(irq_hold);
-+
-+	if (request_irq(irq_jack, neo1973kbd_headphone_irq, IRQF_DISABLED |
-+			IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+			"Neo1973 Headphone Jack", neo1973kbd)) {
-+		dev_err(&pdev->dev, "Can't get IRQ %u\n", irq_jack);
-+		goto out_jack;
-+	}
-+	enable_irq_wake(irq_jack);
-+
-+	return 0;
-+
-+out_jack:
-+	free_irq(irq_hold, neo1973kbd);
-+out_hold:
-+	free_irq(irq_aux, neo1973kbd);
-+out_aux:
-+	input_unregister_device(neo1973kbd->input);
-+out_register:
-+	input_free_device(neo1973kbd->input);
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(neo1973kbd);
-+
-+	return -ENODEV;
-+}
-+
-+static int neo1973kbd_remove(struct platform_device *pdev)
-+{
-+	struct neo1973kbd *neo1973kbd = platform_get_drvdata(pdev);
-+
-+	free_irq(s3c2410_gpio_getirq(pdev->resource[2].start), neo1973kbd);
-+	free_irq(s3c2410_gpio_getirq(pdev->resource[1].start), neo1973kbd);
-+	free_irq(s3c2410_gpio_getirq(pdev->resource[0].start), neo1973kbd);
-+
-+	input_unregister_device(neo1973kbd->input);
-+	input_free_device(neo1973kbd->input);
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(neo1973kbd);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver neo1973kbd_driver = {
-+	.probe		= neo1973kbd_probe,
-+	.remove		= neo1973kbd_remove,
-+	.suspend	= neo1973kbd_suspend,
-+	.resume		= neo1973kbd_resume,
-+	.driver		= {
-+		.name	= "neo1973-button",
-+	},
-+};
-+
-+static int __devinit neo1973kbd_init(void)
-+{
-+	return platform_driver_register(&neo1973kbd_driver);
-+}
-+
-+static void __exit neo1973kbd_exit(void)
-+{
-+	platform_driver_unregister(&neo1973kbd_driver);
-+}
-+
-+module_init(neo1973kbd_init);
-+module_exit(neo1973kbd_exit);
-+
-+MODULE_AUTHOR("Harald Welte <laforge@openmoko.org>");
-+MODULE_DESCRIPTION("FIC Neo1973 buttons input driver");
-+MODULE_LICENSE("GPL");
--- 
-- Harald Welte <laforge@openmoko.org>          	        http://openmoko.org/
-============================================================================
-Software for the world's first truly open Free Software mobile phone
+Doesn't help ether.
+
+
+  Robert

@@ -1,613 +1,107 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: [PATCH] Tosa keyboard support
-Date: Mon, 24 Dec 2007 02:29:14 +0300
-Message-ID: <20071223232914.GA28932@doriath.ww600.siemens.net>
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+Subject: [RFC, PATCH] horizontal mouse wheel in mousedrv
+Date: Tue, 25 Dec 2007 16:49:21 +0100
+Message-ID: <20071225164921.16bccae3@poseidon.drzeus.cx>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.184]:10928 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751367AbXLWX3W (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 23 Dec 2007 18:29:22 -0500
-Received: by fk-out-0910.google.com with SMTP id z23so1545872fkz.5
-        for <linux-input@vger.kernel.org>; Sun, 23 Dec 2007 15:29:20 -0800 (PST)
-Content-Disposition: inline
+Received: from gateway.drzeus.cx ([85.8.24.16]:53185 "EHLO smtp.drzeus.cx"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750988AbXLYPt0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Dec 2007 10:49:26 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-> From b213bef91e3f98c6104138050ad4eaa0a54e765d Mon Sep 17 00:00:00 2001
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Date: Mon, 24 Dec 2007 02:15:34 +0300
-Subject: [PATCH] Tosa keyboard support
+From: Pierre Ossman <drzeus@drzeus.cx>
 
-Support keyboard on tosa (Sharp Zaurus SL-6000x).
-Largely based on patches by Dirk Opfer.
-This is the final version that supports switching between
-full keycode range and range available to the console and
-keyb Kdrive driver.
+Support the horizontal wheel present on many mice via the
+/dev/input/mice device by using the somewhat odd protocol extension
+of sending double wheel movements for the extra wheel.
 
-Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
----
- arch/arm/mach-pxa/tosa.c         |   43 ++++
- drivers/input/keyboard/Kconfig   |   21 ++
- drivers/input/keyboard/Makefile  |    1 +
- drivers/input/keyboard/tosakbd.c |  413 ++++++++++++++++++++++++++++++++++++++
- include/asm-arm/arch-pxa/tosa.h  |   30 +++
- 5 files changed, 508 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/tosakbd.c
+This is of course a rather error prone protocol extension, but it is
+found in some hardware and works well enough in practice. It is also
+the only horizontal wheel protocol supported by Xorg's mouse driver.
 
-diff --git a/arch/arm/mach-pxa/tosa.c b/arch/arm/mach-pxa/tosa.c
-index 240fd04..e7e0f52 100644
---- a/arch/arm/mach-pxa/tosa.c
-+++ b/arch/arm/mach-pxa/tosa.c
-@@ -21,6 +21,8 @@
- #include <linux/mmc/host.h>
- #include <linux/pm.h>
- #include <linux/delay.h>
-+#include <linux/gpio_keys.h>
-+#include <linux/input.h>
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 78c3ea7..2976b42 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -50,7 +50,7 @@ module_param(tap_time, uint, 0644);
+ MODULE_PARM_DESC(tap_time, "Tap time for touchpads in absolute mode (msecs)");
  
- #include <asm/setup.h>
- #include <asm/memory.h>
-@@ -253,6 +255,46 @@ static struct platform_device tosakbd_device = {
- 	.id		= -1,
+ struct mousedev_hw_data {
+-	int dx, dy, dz;
++	int dx, dy, dz, dw;
+ 	int x, y;
+ 	int abs_event;
+ 	unsigned long buttons;
+@@ -85,7 +85,7 @@ enum mousedev_emul {
  };
  
-+static struct gpio_keys_button tosa_gpio_keys[] = {
-+	{
-+		.type	= EV_PWR,
-+		.code	= KEY_SUSPEND,
-+		.gpio	= TOSA_GPIO_ON_KEY,
-+		.desc	= "On key",
-+		.wakeup	= 1,
-+		.active_low = 1,
-+	},
-+	{
-+		.type	= EV_KEY,
-+		.code	= TOSA_KEY_RECORD,
-+		.gpio	= TOSA_GPIO_RECORD_BTN,
-+		.desc	= "Record Button",
-+		.wakeup	= 1,
-+		.active_low = 1,
-+	},
-+	{
-+		.type	= EV_KEY,
-+		.code	= TOSA_KEY_SYNC,
-+		.gpio	= TOSA_GPIO_SYNC,
-+		.desc	= "Sync Button",
-+		.wakeup	= 1,
-+		.active_low = 1,
-+	},
-+};
-+
-+static struct gpio_keys_platform_data tosa_gpio_keys_platform_data = {
-+	.buttons	= tosa_gpio_keys,
-+	.nbuttons	= ARRAY_SIZE(tosa_gpio_keys),
-+};
-+
-+static struct platform_device tosa_gpio_keys_device = {
-+	.name	= "gpio-keys",
-+	.id	= -1,
-+	.dev	= {
-+		.platform_data	= &tosa_gpio_keys_platform_data,
-+	},
-+};
-+
- /*
-  * Tosa LEDs
-  */
-@@ -265,6 +307,7 @@ static struct platform_device *devices[] __initdata = {
- 	&tosascoop_device,
- 	&tosascoop_jc_device,
- 	&tosakbd_device,
-+	&tosa_gpio_keys_device,
- 	&tosaled_device,
+ struct mousedev_motion {
+-	int dx, dy, dz;
++	int dx, dy, dz, dw;
+ 	unsigned long buttons;
  };
  
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index dfa6592..a60d43a 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -154,6 +154,27 @@ config KEYBOARD_SPITZ
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called spitzkbd.
+@@ -215,6 +215,10 @@ static void mousedev_rel_event(struct mousedev *mousedev,
+ 	case REL_WHEEL:
+ 		mousedev->packet.dz -= value;
+ 		break;
++
++	case REL_HWHEEL:
++		mousedev->packet.dw += value;
++		break;
+ 	}
+ }
  
-+config KEYBOARD_TOSA
-+	tristate "Tosa keyboard"
-+	depends on MACH_TOSA
-+	default y
-+	help
-+	  Say Y here to enable the keyboard on the Sharp Zaurus SL-6000x (Tosa)
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called tosakbd.
-+
-+config KEYBOARD_TOSA_USE_EXT_KEYCODES
-+	bool "Tosa keyboard: use extended keycodes"
-+	depends on KEYBOARD_TOSA
-+	default n
-+	help
-+	  Say Y here to enable the tosa keyboard driver to generate extended
-+	  (>= 127) keycodes. Be aware, that they can't be correctly interpreted
-+	  by either console keyboard driver or by Kdrive keybd driver.
-+
-+	  Say Y only if you know, what you are doing!
-+
- config KEYBOARD_AMIGA
- 	tristate "Amiga keyboard"
- 	depends on AMIGA
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index e97455f..6caa065 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -15,6 +15,7 @@ obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
- obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
- obj-$(CONFIG_KEYBOARD_CORGI)		+= corgikbd.o
- obj-$(CONFIG_KEYBOARD_SPITZ)		+= spitzkbd.o
-+obj-$(CONFIG_KEYBOARD_TOSA)		+= tosakbd.o
- obj-$(CONFIG_KEYBOARD_HIL)		+= hil_kbd.o
- obj-$(CONFIG_KEYBOARD_HIL_OLD)		+= hilkbd.o
- obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
-diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
-new file mode 100644
-index 0000000..67c74d2
---- /dev/null
-+++ b/drivers/input/keyboard/tosakbd.c
-@@ -0,0 +1,413 @@
-+/*
-+ *  Keyboard driver for Sharp Tosa models (SL-6000x)
-+ *
-+ *  Copyright (c) 2005 Dirk Opfer
-+ *  Copyright (c) 2007 Dmitry Baryshkov
-+ *
-+ *  Based on xtkbd.c/locomkbd.c/corgikbd.c
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/delay.h>
-+#include <linux/interrupt.h>
-+
-+#include <asm/arch/gpio.h>
-+#include <asm/arch/tosa.h>
-+
-+#define KB_ROWMASK(r)		(1 << (r))
-+#define SCANCODE(r, c)		(((r)<<4) + (c) + 1)
-+#define NR_SCANCODES		SCANCODE(TOSA_KEY_SENSE_NUM - 1, TOSA_KEY_STROBE_NUM - 1) + 1
-+
-+#define SCAN_INTERVAL		(HZ/10)
-+
-+#define KB_DISCHARGE_DELAY	10
-+#define KB_ACTIVATE_DELAY	10
-+
-+static unsigned int tosakbd_keycode[NR_SCANCODES] = {
-+0,
-+0, KEY_W, 0, 0, 0, KEY_K, KEY_BACKSPACE, KEY_P,
-+0, 0, 0, 0, 0, 0, 0, 0,
-+KEY_Q, KEY_E, KEY_T, KEY_Y, 0, KEY_O, KEY_I, KEY_COMMA,
-+0, 0, 0, 0, 0, 0, 0, 0,
-+KEY_A, KEY_D, KEY_G, KEY_U, 0, KEY_L, KEY_ENTER, KEY_DOT,
-+0, 0, 0, 0, 0, 0, 0, 0,
-+KEY_Z, KEY_C, KEY_V, KEY_J, TOSA_KEY_ADDRESSBOOK, TOSA_KEY_CANCEL, TOSA_KEY_CENTER, TOSA_KEY_OK,
-+KEY_LEFTSHIFT, 0, 0, 0, 0, 0, 0, 0,
-+KEY_S, KEY_R, KEY_B, KEY_N, TOSA_KEY_CALENDAR, TOSA_KEY_HOMEPAGE, KEY_LEFTCTRL, TOSA_KEY_LIGHT,
-+0, KEY_RIGHTSHIFT, 0, 0, 0, 0, 0, 0,
-+KEY_TAB, KEY_SLASH, KEY_H, KEY_M, TOSA_KEY_MENU, 0, KEY_UP, 0,
-+0, 0, TOSA_KEY_FN, 0, 0, 0, 0, 0,
-+KEY_X, KEY_F, KEY_SPACE, KEY_APOSTROPHE, TOSA_KEY_MAIL, KEY_LEFT, KEY_DOWN, KEY_RIGHT,
-+0, 0, 0,
-+};
-+
-+struct tosakbd {
-+	unsigned int keycode[ARRAY_SIZE(tosakbd_keycode)];
-+	struct input_dev *input;
-+
-+	spinlock_t lock; /* protect kbd scanning */
-+	struct timer_list timer;
-+};
-+
-+
-+/* Helper functions for reading the keyboard matrix
-+ * Note: We should really be using pxa_gpio_mode to alter GPDR but it
-+ *       requires a function call per GPIO bit which is excessive
-+ *       when we need to access 12 bits at once, multiple times.
-+ * These functions must be called within local_irq_save()/local_irq_restore()
-+ * or similar.
-+ */
-+#define GET_ROWS_STATUS(c)	((GPLR2 & TOSA_GPIO_ALL_SENSE_BIT) >> TOSA_GPIO_ALL_SENSE_RSHIFT)
-+
-+static inline void tosakbd_discharge_all(void)
-+{
-+	/* STROBE All HiZ */
-+	GPCR1  = TOSA_GPIO_HIGH_STROBE_BIT;
-+	GPDR1 &= ~TOSA_GPIO_HIGH_STROBE_BIT;
-+	GPCR2  = TOSA_GPIO_LOW_STROBE_BIT;
-+	GPDR2 &= ~TOSA_GPIO_LOW_STROBE_BIT;
-+}
-+
-+static inline void tosakbd_activate_all(void)
-+{
-+	/* STROBE ALL -> High */
-+	GPSR1  = TOSA_GPIO_HIGH_STROBE_BIT;
-+	GPDR1 |= TOSA_GPIO_HIGH_STROBE_BIT;
-+	GPSR2  = TOSA_GPIO_LOW_STROBE_BIT;
-+	GPDR2 |= TOSA_GPIO_LOW_STROBE_BIT;
-+
-+	udelay(KB_DISCHARGE_DELAY);
-+
-+	/* STATE CLEAR */
-+	GEDR2 |= TOSA_GPIO_ALL_SENSE_BIT;
-+}
-+
-+static inline void tosakbd_activate_col(int col)
-+{
-+	if (col <= 5) {
-+		/* STROBE col -> High, not col -> HiZ */
-+		GPSR1 = TOSA_GPIO_STROBE_BIT(col);
-+		GPDR1 = (GPDR1 & ~TOSA_GPIO_HIGH_STROBE_BIT) | TOSA_GPIO_STROBE_BIT(col);
-+	} else {
-+		/* STROBE col -> High, not col -> HiZ */
-+		GPSR2 = TOSA_GPIO_STROBE_BIT(col);
-+		GPDR2 = (GPDR2 & ~TOSA_GPIO_LOW_STROBE_BIT) | TOSA_GPIO_STROBE_BIT(col);
-+	}
-+}
-+
-+static inline void tosakbd_reset_col(int col)
-+{
-+	if (col <= 5) {
-+		/* STROBE col -> Low */
-+		GPCR1 = TOSA_GPIO_STROBE_BIT(col);
-+		/* STROBE col -> out, not col -> HiZ */
-+		GPDR1 = (GPDR1 & ~TOSA_GPIO_HIGH_STROBE_BIT) | TOSA_GPIO_STROBE_BIT(col);
-+	} else {
-+		/* STROBE col -> Low */
-+		GPCR2 = TOSA_GPIO_STROBE_BIT(col);
-+		/* STROBE col -> out, not col -> HiZ */
-+		GPDR2 = (GPDR2 & ~TOSA_GPIO_LOW_STROBE_BIT) | TOSA_GPIO_STROBE_BIT(col);
-+	}
-+}
-+/*
-+ * The tosa keyboard only generates interrupts when a key is pressed.
-+ * So when a key is pressed, we enable a timer.  This timer scans the
-+ * keyboard, and this is how we detect when the key is released.
-+ */
-+
-+/* Scan the hardware keyboard and push any changes up through the input layer */
-+static void tosakbd_scankeyboard(struct platform_device *dev)
-+{
-+	struct tosakbd *tosakbd = platform_get_drvdata(dev);
-+	unsigned int row, col, rowd;
-+	unsigned long flags;
-+	unsigned int num_pressed = 0;
-+
-+	spin_lock_irqsave(&tosakbd->lock, flags);
-+
-+	for (col = 0; col < TOSA_KEY_STROBE_NUM; col++) {
-+		/*
-+		 * Discharge the output driver capacitatance
-+		 * in the keyboard matrix. (Yes it is significant..)
-+		 */
-+		tosakbd_discharge_all();
-+		udelay(KB_DISCHARGE_DELAY);
-+
-+		tosakbd_activate_col(col);
-+		udelay(KB_ACTIVATE_DELAY);
-+
-+		rowd = GET_ROWS_STATUS(col);
-+
-+		for (row = 0; row < TOSA_KEY_SENSE_NUM; row++) {
-+			unsigned int scancode, pressed;
-+			scancode = SCANCODE(row, col);
-+			pressed = rowd & KB_ROWMASK(row);
-+
-+			if (pressed && !tosakbd->keycode[scancode])
-+				dev_warn(&dev->dev,
-+						"unhandled scancode: 0x%02x\n",
-+						scancode);
-+
-+			input_report_key(tosakbd->input,
-+					tosakbd->keycode[scancode],
-+					pressed);
-+			if (pressed)
-+				num_pressed++;
-+		}
-+
-+		tosakbd_reset_col(col);
-+	}
-+
-+	tosakbd_activate_all();
-+
-+	input_sync(tosakbd->input);
-+
-+	/* if any keys are pressed, enable the timer */
-+	if (num_pressed)
-+		mod_timer(&tosakbd->timer, jiffies + SCAN_INTERVAL);
-+
-+	spin_unlock_irqrestore(&tosakbd->lock, flags);
-+}
-+
-+/*
-+ * tosa keyboard interrupt handler.
-+ */
-+static irqreturn_t tosakbd_interrupt(int irq, void *__dev)
-+{
-+	struct platform_device *dev = __dev;
-+	struct tosakbd *tosakbd = platform_get_drvdata(dev);
-+
-+	if (!timer_pending(&tosakbd->timer)) {
-+		/** wait chattering delay **/
-+		udelay(20);
-+		tosakbd_scankeyboard(dev);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * tosa timer checking for released keys
-+ */
-+static void tosakbd_timer_callback(unsigned long __dev)
-+{
-+	struct platform_device *dev = (struct platform_device *)__dev;
-+	tosakbd_scankeyboard(dev);
-+}
-+
-+#ifdef CONFIG_PM
-+static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
-+{
-+	/* Nothing yet */
-+
-+	return 0;
-+}
-+
-+static int tosakbd_resume(struct platform_device *dev)
-+{
-+	/* Nothing yet */
-+
-+	return 0;
-+}
-+#else
-+#define tosakbd_suspend		NULL
-+#define tosakbd_resume		NULL
-+#endif
-+
-+static int __devinit tosakbd_probe(struct platform_device *pdev) {
-+
-+	int i;
-+	struct tosakbd *tosakbd;
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	tosakbd = kzalloc(sizeof(struct tosakbd), GFP_KERNEL);
-+	if (!tosakbd)
-+		return -ENOMEM;
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev) {
-+		kfree(tosakbd);
-+		return -ENOMEM;
-+	}
-+
-+	platform_set_drvdata(pdev, tosakbd);
-+
-+	spin_lock_init(&tosakbd->lock);
-+
-+	/* Init Keyboard rescan timer */
-+	init_timer(&tosakbd->timer);
-+	tosakbd->timer.function = tosakbd_timer_callback;
-+	tosakbd->timer.data = (unsigned long) pdev;
-+
-+	tosakbd->input = input_dev;
-+
-+	input_dev->private = tosakbd;
-+	input_dev->name = "Tosa Keyboard";
-+	input_dev->phys = "tosakbd/input0";
-+	input_dev->cdev.dev = &pdev->dev;
-+
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->id.vendor = 0x0001;
-+	input_dev->id.product = 0x0001;
-+	input_dev->id.version = 0x0100;
-+
-+	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
-+	input_dev->keycode = tosakbd->keycode;
-+	input_dev->keycodesize = sizeof(unsigned int);
-+	input_dev->keycodemax = ARRAY_SIZE(tosakbd_keycode);
-+
-+	memcpy(tosakbd->keycode, tosakbd_keycode, sizeof(tosakbd_keycode));
-+
-+	for (i = 0; i < ARRAY_SIZE(tosakbd_keycode); i++)
-+		set_bit(tosakbd->keycode[i], input_dev->keybit);
-+	clear_bit(0, input_dev->keybit);
-+
-+	/* Setup sense interrupts - RisingEdge Detect, sense lines as inputs */
-+	for (i = 0; i < TOSA_KEY_SENSE_NUM; i++) {
-+		int gpio = TOSA_GPIO_KEY_SENSE(i);
-+		int irq;
-+		error = gpio_request(gpio, "tosakbd");
-+		if (error < 0) {
-+			printk(KERN_ERR "tosakbd: failed to request GPIO %d, "
-+				" error %d\n", gpio, error);
-+			goto fail;
-+		}
-+
-+		error = gpio_direction_input(TOSA_GPIO_KEY_SENSE(i));
-+		if (error < 0) {
-+			printk(KERN_ERR "tosakbd: failed to configure input"
-+				" direction for GPIO %d, error %d\n",
-+				gpio, error);
-+			gpio_free(gpio);
-+			goto fail;
-+		}
-+
-+		irq = gpio_to_irq(gpio);
-+		if (irq < 0) {
-+			error = irq;
-+			printk(KERN_ERR "gpio-keys: Unable to get irq number"
-+				" for GPIO %d, error %d\n",
-+				gpio, error);
-+			gpio_free(gpio);
-+			goto fail;
-+		}
-+
-+		error = request_irq(irq, tosakbd_interrupt,
-+					IRQF_DISABLED | IRQF_TRIGGER_RISING,
-+					"tosakbd", pdev);
-+
-+		if (error) {
-+			printk("tosakbd: Can't get IRQ: %d: error %d!\n",
-+					irq, error);
-+			gpio_free(gpio);
-+			goto fail;
-+		}
-+	}
-+
-+	/* Set Strobe lines as outputs - set high */
-+	for (i = 0; i < TOSA_KEY_STROBE_NUM; i++) {
-+		int gpio = TOSA_GPIO_KEY_STROBE(i);
-+		error = gpio_request(gpio, "tosakbd");
-+		if (error < 0) {
-+			printk(KERN_ERR "tosakbd: failed to request GPIO %d, "
-+				" error %d\n", gpio, error);
-+			goto fail2;
-+		}
-+
-+		error = gpio_direction_output(gpio, 1);
-+		if (error < 0) {
-+			printk(KERN_ERR "tosakbd: failed to configure input"
-+				" direction for GPIO %d, error %d\n",
-+				gpio, error);
-+			gpio_free(gpio);
-+			goto fail;
-+		}
-+
-+	}
-+
-+	error = input_register_device(input_dev);
-+	if (error) {
-+		printk(KERN_ERR "tosakbd: Unable to register input device, "
-+			"error: %d\n", error);
-+		goto fail;
-+	}
-+
-+	printk(KERN_INFO "input: Tosa Keyboard Registered\n");
-+
-+	return 0;
-+
-+fail2:
-+	while (--i >= 0)
-+		gpio_free(TOSA_GPIO_KEY_STROBE(i));
-+
-+	i = TOSA_KEY_SENSE_NUM;
-+fail:
-+	while (--i >= 0) {
-+		free_irq(gpio_to_irq(TOSA_GPIO_KEY_SENSE(i)), pdev);
-+		gpio_free(TOSA_GPIO_KEY_SENSE(i));
-+	}
-+
-+	platform_set_drvdata(pdev, NULL);
-+	input_free_device(input_dev);
-+	kfree(tosakbd);
-+
-+	return error;
-+}
-+
-+static int __devexit tosakbd_remove(struct platform_device *dev) {
-+
-+	int i;
-+	struct tosakbd *tosakbd = platform_get_drvdata(dev);
-+
-+	for (i = 0; i < TOSA_KEY_STROBE_NUM; i++)
-+		gpio_free(TOSA_GPIO_KEY_STROBE(i));
-+
-+	for (i = 0; i < TOSA_KEY_SENSE_NUM; i++) {
-+		free_irq(gpio_to_irq(TOSA_GPIO_KEY_SENSE(i)), dev);
-+		gpio_free(TOSA_GPIO_KEY_SENSE(i));
-+	}
-+
-+	del_timer_sync(&tosakbd->timer);
-+
-+	input_unregister_device(tosakbd->input);
-+
-+	kfree(tosakbd);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver tosakbd_driver = {
-+	.probe		= tosakbd_probe,
-+	.remove		= __devexit_p(tosakbd_remove),
-+	.suspend	= tosakbd_suspend,
-+	.resume		= tosakbd_resume,
-+	.driver		= {
-+		.name	= "tosa-keyboard",
-+	},
-+};
-+
-+static int __devinit tosakbd_init(void)
-+{
-+	return platform_driver_register(&tosakbd_driver);
-+}
-+
-+static void __exit tosakbd_exit(void)
-+{
-+	platform_driver_unregister(&tosakbd_driver);
-+}
-+
-+module_init(tosakbd_init);
-+module_exit(tosakbd_exit);
-+
-+MODULE_AUTHOR("Dirk Opfer <Dirk@Opfer-Online.de>");
-+MODULE_DESCRIPTION("Tosa Keyboard Driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/asm-arm/arch-pxa/tosa.h b/include/asm-arm/arch-pxa/tosa.h
-index c3364a2..fdd9b31 100644
---- a/include/asm-arm/arch-pxa/tosa.h
-+++ b/include/asm-arm/arch-pxa/tosa.h
-@@ -163,4 +163,34 @@
+@@ -297,9 +301,10 @@ static void mousedev_notify_readers(struct mousedev *mousedev,
+ 		p->dx += packet->dx;
+ 		p->dy += packet->dy;
+ 		p->dz += packet->dz;
++		p->dw += packet->dw;
+ 		p->buttons = mousedev->packet.buttons;
  
- extern struct platform_device tosascoop_jc_device;
- extern struct platform_device tosascoop_device;
-+
-+#define TOSA_KEY_SYNC		KEY_102ND /* ??? */
-+
-+
-+#ifndef CONFIG_KEYBOARD_TOSA_USE_EXT_KEYCODES
-+#define TOSA_KEY_RECORD		KEY_YEN
-+#define TOSA_KEY_ADDRESSBOOK	KEY_KATAKANA
-+#define TOSA_KEY_CANCEL		KEY_ESC
-+#define TOSA_KEY_CENTER		KEY_HIRAGANA
-+#define TOSA_KEY_OK		KEY_HENKAN
-+#define TOSA_KEY_CALENDAR	KEY_KATAKANAHIRAGANA
-+#define TOSA_KEY_HOMEPAGE	KEY_HANGEUL
-+#define TOSA_KEY_LIGHT		KEY_MUHENKAN
-+#define TOSA_KEY_MENU		KEY_HANJA
-+#define TOSA_KEY_FN		KEY_RIGHTALT
-+#define TOSA_KEY_MAIL		KEY_ZENKAKUHANKAKU
-+#else
-+#define TOSA_KEY_RECORD		KEY_RECORD
-+#define TOSA_KEY_ADDRESSBOOK	KEY_ADDRESSBOOK
-+#define TOSA_KEY_CANCEL		KEY_CANCEL
-+#define TOSA_KEY_CENTER		KEY_SELECT /* ??? */
-+#define TOSA_KEY_OK		KEY_OK
-+#define TOSA_KEY_CALENDAR	KEY_CALENDAR
-+#define TOSA_KEY_HOMEPAGE	KEY_HOMEPAGE
-+#define TOSA_KEY_LIGHT		KEY_SWITCHVIDEOMODE /* ??? */
-+#define TOSA_KEY_MENU		KEY_MENU
-+#define TOSA_KEY_FN		KEY_FN
-+#define TOSA_KEY_MAIL		KEY_MAIL
-+#endif
-+
- #endif /* _ASM_ARCH_TOSA_H_ */
--- 
-1.5.3.7
-
+-		if (p->dx || p->dy || p->dz ||
++		if (p->dx || p->dy || p->dz || p->dw ||
+ 		    p->buttons != client->last_buttons)
+ 			client->ready = 1;
+ 
+@@ -394,7 +399,7 @@ static void mousedev_event(struct input_handle *handle,
+ 			mousedev_notify_readers(mousedev_mix, &mousedev->packet);
+ 
+ 			mousedev->packet.dx = mousedev->packet.dy =
+-				mousedev->packet.dz = 0;
++				mousedev->packet.dz = mousedev->packet.dw = 0;
+ 			mousedev->packet.abs_event = 0;
+ 		}
+ 		break;
+@@ -602,8 +607,13 @@ static void mousedev_packet(struct mousedev_client *client,
+ 
+ 	switch (client->mode) {
+ 	case MOUSEDEV_EMUL_EXPS:
+-		ps2_data[3] = mousedev_limit_delta(p->dz, 7);
+-		p->dz -= ps2_data[3];
++		if (p->dw) {
++			ps2_data[3] = mousedev_limit_delta(2 * p->dw, 7);
++			p->dw -= ps2_data[3] / 2;
++		} else {
++			ps2_data[3] = mousedev_limit_delta(p->dz, 7);
++			p->dz -= ps2_data[3];
++		}
+ 		ps2_data[3] = (ps2_data[3] & 0x0f) | ((p->buttons & 0x18) << 1);
+ 		client->bufsiz = 4;
+ 		break;
+@@ -625,7 +635,7 @@ static void mousedev_packet(struct mousedev_client *client,
+ 		break;
+ 	}
+ 
+-	if (!p->dx && !p->dy && !p->dz) {
++	if (!p->dx && !p->dy && !p->dz && !p->dw) {
+ 		if (client->tail == client->head) {
+ 			client->ready = 0;
+ 			client->last_buttons = p->buttons;

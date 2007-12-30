@@ -1,50 +1,92 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.24-rc6-git] gpio_keys minor irq cleanup
-Date: Thu, 27 Dec 2007 11:24:54 -0800
-Message-ID: <200712271124.55041.david-b@pacbell.net>
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: [PATCH] Get NUMLOCK from PC BIOS
+Date: Sun, 30 Dec 2007 12:38:11 +0100 (CET)
+Message-ID: <alpine.LSU.0.999.0712301230270.3273@be1.lrz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp117.sbc.mail.sp1.yahoo.com ([69.147.64.90]:20085 "HELO
-	smtp117.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752000AbXL0UJr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 27 Dec 2007 15:09:47 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754562AbXL3Lin@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, torvalds@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: Phil Blundell <pb@handhelds.org>, linux-input@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+This patch enables reading the default NUMLOCK status from the BIOS data
+area as defined for IBM PCs (1981). Using this area has been a reliable way
+to detect (or set) the NUMLOCK status for about 27 years, and it will
+continue to work on any IBM-compatible system that might run DOS. 
+Especially, the NUMLOCK status on Linus' famous laptop should be usable.
 
-Cleanup IRQ handling in gpio_keys:  bail after handling the IRQ, and
-report IRQ_NONE if we never handle it.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Phil Blundell <pb@handhelds.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>
 ---
-grr, not sure why that blank line got removed ... feel free to
-restore it.
 
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -40,13 +40,13 @@ static irqreturn_t gpio_keys_isr(int irq
- 		if (irq == gpio_to_irq(gpio)) {
- 			unsigned int type = button->type ?: EV_KEY;
- 			int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
--
- 			input_event(input, type, button->code, !!state);
- 			input_sync(input);
-+			return IRQ_HANDLED;
- 		}
- 	}
+I'd like some information about how this patch works non non-IBM-compatible
+x86 PCs. For now, I've documented the wordt possible outcome I can imagine.
+
+Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
+
+diff -pruN -X dontdiff linux-2.6.23.pure/drivers/char/keyboard.c linux-2.6.23.base/drivers/char/keyboard.c
+--- linux-2.6.23.pure/drivers/char/keyboard.c	2007-10-11 14:15:18.000000000 +0200
++++ linux-2.6.23.base/drivers/char/keyboard.c	2007-12-30 12:12:11.000000000 +0100
+@@ -24,6 +24,7 @@
+  * 21-08-02: Converted to input API, major cleanup. (Vojtech Pavlik)
+  */
  
--	return IRQ_HANDLED;
-+	return IRQ_NONE;
- }
++#include <asm/io.h>
+ #include <linux/consolemap.h>
+ #include <linux/module.h>
+ #include <linux/sched.h>
+@@ -57,7 +58,10 @@ extern void ctrl_alt_del(void);
+  * to be used for numbers.
+  */
  
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
+-#if defined(CONFIG_PARISC) && (defined(CONFIG_KEYBOARD_HIL) || defined(CONFIG_KEYBOARD_HIL_OLD))
++#ifdef CONFIG_KBD_DEFLEDS_PCBIOS
++/* KBD_DEFLEDS is a variable */
++#undef KBD_DEFLEDS
++#elif defined(CONFIG_PARISC) && (defined(CONFIG_KEYBOARD_HIL) || defined(CONFIG_KEYBOARD_HIL_OLD))
+ #define KBD_DEFLEDS (1 << VC_NUMLOCK)
+ #else
+ #define KBD_DEFLEDS 0
+@@ -1358,8 +1362,17 @@ int __init kbd_init(void)
+ {
+ 	int i;
+ 	int error;
++#ifdef CONFIG_KBD_DEFLEDS_PCBIOS
++	int KBD_DEFLEDS = 0;
++	/* address 0x40:0x17 */
++	char * bios_kbd_status=xlate_dev_mem_ptr(0x417);
++
++	/* Numlock status bit set? */
++	if (*bios_kbd_status & 0x20)
++		KBD_DEFLEDS = 1 << VC_NUMLOCK;
++#endif
+ 
+-        for (i = 0; i < MAX_NR_CONSOLES; i++) {
++	for (i = 0; i < MAX_NR_CONSOLES; i++) {
+ 		kbd_table[i].ledflagstate = KBD_DEFLEDS;
+ 		kbd_table[i].default_ledflagstate = KBD_DEFLEDS;
+ 		kbd_table[i].ledmode = LED_SHOW_FLAGS;
+diff -pruN -X dontdiff linux-2.6.23.pure/drivers/input/keyboard/Kconfig linux-2.6.23.base/drivers/input/keyboard/Kconfig
+--- linux-2.6.23.pure/drivers/input/keyboard/Kconfig	2007-10-11 14:14:41.000000000 +0200
++++ linux-2.6.23.base/drivers/input/keyboard/Kconfig	2007-12-30 12:11:45.000000000 +0100
+@@ -12,6 +12,17 @@ menuconfig INPUT_KEYBOARD
+ 
+ if INPUT_KEYBOARD
+ 
++config KBD_DEFLEDS_PCBIOS
++	bool "Enable Num-Lock based on BIOS settings"
++	depends on X86_PC && EXPERIMENTAL
++	help
++	  Turns on Numlock depending on the BIOS settings.
++	  This works by reading the BIOS data area as defined for IBM PCs (1981).
++
++	  If you have an alternative firmware like OpenFirmware or LinuxBios,
++	  this flag might not be set correctly, which results in a random state
++	  of the Numlock key.
++
+ config KEYBOARD_ATKBD
+ 	tristate "AT keyboard" if EMBEDDED || !X86_PC
+ 	default y
+
+-- 
+Top 100 things you don't want the sysadmin to say:
+39. It is only a minor upgrade, the system should be back up in
+    a few hours.  ( This is said on a monday afternoon.)

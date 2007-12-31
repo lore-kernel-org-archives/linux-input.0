@@ -1,60 +1,43 @@
-From: Ivo van Doorn <ivdoorn@gmail.com>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
 Subject: Re: rfkill-input understanding help
-Date: Sun, 30 Dec 2007 19:59:42 +0100
-Message-ID: <200712301959.42914.IvDoorn@gmail.com>
-References: <200712110333.40946.carlos@strangeworlds.co.uk>
+Date: Mon, 31 Dec 2007 01:00:18 +0000
+Message-ID: <200712310100.18764.carlos@strangeworlds.co.uk>
+References: <200712110333.40946.carlos@strangeworlds.co.uk> <200712301959.42914.IvDoorn@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:2139 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752107AbXL3S7u (ORCPT
+Received: from slackadelic.com ([65.196.224.53]:54677 "EHLO
+	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751132AbXLaBAW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 30 Dec 2007 13:59:50 -0500
-Received: by fg-out-1718.google.com with SMTP id e21so2459266fga.17
-        for <linux-input@vger.kernel.org>; Sun, 30 Dec 2007 10:59:48 -0800 (PST)
-In-Reply-To: <200712110333.40946.carlos@strangeworlds.co.uk>
+	Sun, 30 Dec 2007 20:00:22 -0500
+In-Reply-To: <200712301959.42914.IvDoorn@gmail.com>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Carlos Corbacho <carlos@strangeworlds.co.uk>
+To: Ivo van Doorn <ivdoorn@gmail.com>
 Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+On Sunday 30 December 2007 18:59:42 Ivo van Doorn wrote:
+> So using the sysfs interface you can enable and disable the radios?
 
-Sorry for the late response..
+A while ago it could (I'll have to resurrect the code, since I haven't touched 
+it much lately since experimenting with rfkill a few weeks ago).
 
-> There are two buttons which control these, one for wireless, and one for 
-> bluetooth. However, the wireless and bluetooth buttons on the laptop are just 
-> keys - they generate KEY_WLAN and KEY_BLUETOOTH, but don't toggle the 
-> wireless and bluetooth themselves (this is down to acer-wmi).
+> Without a code example I can't say much, but have you looked to the
+> examples in the drivers/net/wireless/rt2x00/ and drivers/net/wireless/b43
+> Those are at least 2 drivers with a working rfkill implementation for WLAN,
+> that should give a good example on how the code should look like.
 
-Which makes rfkill a correct solution. :)
+I've been looking mostly at the b43 code for inspiration.
 
-> Registered two rfkill devices - one for wireless, one for bluetooth.
-> 
-> Problem:
-> 
-> The sysfs interface works just fine - but nothing is being toggled when I 
-> press the wireless or bluetooth buttons (which are just generating KEY_WLAN 
-> and KEY_BLUETOOTH).
+Once I beat my own code back into some sort of useable shape again, I'll send 
+it along to see if you can spot where I'm missing something.
 
-So using the sysfs interface you can enable and disable the radios?
-
-> From my limited understanding, rfkill_input (which is enabled in my kernel) 
-> _should_ just be handling these keycodes (since userspace has not claimed 
-> these rfkill devices), and then calling the necessary toggle function - but 
-> AFAICT, this is not happening.
-> 
-> Have I misunderstood this, am I missing something, or is this particular use 
-> case supposed to be handled by userspace instead (i.e. a userspace tool is 
-> supposed to handle the keypress, then toggle the rfkill device via sysfs)?
-
-Without a code example I can't say much, but have you looked to the examples
-in the drivers/net/wireless/rt2x00/ and drivers/net/wireless/b43
-Those are at least 2 drivers with a working rfkill implementation for WLAN,
-that should give a good example on how the code should look like.
-
-Ivo
+-Carlos
+-- 
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

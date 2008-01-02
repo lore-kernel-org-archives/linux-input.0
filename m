@@ -1,201 +1,53 @@
-From: Richard Purdie <rpurdie@rpsys.net>
-Subject: [RFC PATCH] Add input event to APM event bridge for embedded
-	devices
-Date: Wed, 02 Jan 2008 01:03:09 +0000
-Message-ID: <1199235789.4653.62.camel@localhost.localdomain>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Patch: Add NOGET for Acomdata
+Date: Tue, 1 Jan 2008 21:40:18 -0800
+Message-ID: <20080101214018.671413f4.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759468AbYABBD2@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([66.187.233.31]:50572 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751395AbYABFjR (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jan 2008 00:39:17 -0500
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m025dGEs032026
+	for <linux-input@vger.kernel.org>; Wed, 2 Jan 2008 00:39:16 -0500
+Received: from pobox.devel.redhat.com (pobox.devel.redhat.com [10.11.255.8])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m025dGTw021374
+	for <linux-input@vger.kernel.org>; Wed, 2 Jan 2008 00:39:16 -0500
+Received: from localhost.localdomain (vpn-14-21.rdu.redhat.com [10.11.14.21])
+	by pobox.devel.redhat.com (8.13.1/8.13.1) with SMTP id m025dFPX017444
+	for <linux-input@vger.kernel.org>; Wed, 2 Jan 2008 00:39:15 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-This patch adds a very simple input power event to APM user suspend
-event bridge. Its currently only works for the systems using the
-emulated APM driver but could easily be extended to work with anything
-with a true APM BIOS too.
+This patch is for an external enclosure I have, it has two USB interfaces.
+When usbhid issues GET REPORT, the device stops acting on storage commands
+(replies with a STALL to all of them). It works ok with this patch.
 
-This covers a standard embedded system need which is to suspend when the
-user presses a suspend button. It leaves options open to system
-integrators to ignore (or unload) this code and implement their own more
-complex event handling system.
+Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
 
-Its hidden behind the EMBEDDED Kconfig option since its only likely to
-be of use to embedded style systems. It can be built as a module so the
-"hardcoded" policy can easily be removed from the kernel at runtime if
-desired too.
-
-Signed-off-by: Richard Purdie <rpurdie@rpsys.net>
-
----
-
- drivers/input/Kconfig     |   12 ++++
- drivers/input/Makefile    |    1 
- drivers/input/apm-power.c |  125 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 138 insertions(+)
-
-Index: kernel-hacking/drivers/input/Kconfig
-===================================================================
---- kernel-hacking.orig/drivers/input/Kconfig	2008-01-01 23:50:13.000000000 +0000
-+++ kernel-hacking/drivers/input/Kconfig	2008-01-02 00:45:33.000000000 +0000
-@@ -137,6 +137,18 @@ config INPUT_EVBUG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called evbug.
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index a255285..a5bb3e6 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -108,6 +108,9 @@
+ #define USB_DEVICE_ID_DELORME_EARTHMATE 0x0100
+ #define USB_DEVICE_ID_DELORME_EM_LT20	0x0200
  
-+config INPUT_APMPOWER
-+	tristate "Input Power Event -> APM Bridge" if EMBEDDED
-+	depends on INPUT && APM_EMULATION
-+	---help---
-+	  Say Y here if you want suspend key events to trigger a user
-+	  requested suspend through APM. This is useful on embedded
-+	  systems where such behviour is desired without userspace
-+	  interaction. If unsure, say N.
++#define USB_VENDOR_ID_DMI		0x0c0b	/* Found in Acomdata */
++#define USB_DEVICE_ID_DMI_ENC		0x5fab
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called apm-power.
-+
- comment "Input Device Drivers"
+ #define USB_VENDOR_ID_ELO		0x04E7
+ #define USB_DEVICE_ID_ELO_TS2700	0x0020
  
- source "drivers/input/keyboard/Kconfig"
-Index: kernel-hacking/drivers/input/Makefile
-===================================================================
---- kernel-hacking.orig/drivers/input/Makefile	2008-01-01 23:50:13.000000000 +0000
-+++ kernel-hacking/drivers/input/Makefile	2008-01-02 00:39:03.000000000 +0000
-@@ -22,3 +22,4 @@ obj-$(CONFIG_INPUT_TABLET)	+= tablet/
- obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- 
-+obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-Index: kernel-hacking/drivers/input/apm-power.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ kernel-hacking/drivers/input/apm-power.c	2008-01-02 00:43:42.000000000 +0000
-@@ -0,0 +1,125 @@
-+/*
-+ *  Input Power Event -> APM Bridge
-+ *
-+ *  Copyright (c) 2007 Richard Purdie
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/tty.h>
-+#include <linux/delay.h>
-+#include <linux/pm.h>
-+#include <linux/apm-emulation.h>
-+
-+static void system_power_event(unsigned int keycode)
-+{
-+	switch (keycode) {
-+		case KEY_SUSPEND:
-+			apm_queue_event(APM_USER_SUSPEND);
-+
-+			printk(KERN_INFO "apm-power: Requesting system suspend...\n");
-+			break;
-+		default:
-+			break;
-+	}
-+}
-+
-+static void apmpower_event(struct input_handle *handle, unsigned int type,
-+		        unsigned int code, int value)
-+{
-+	/* only react on key down events */
-+	if (value != 1)
-+		return;
-+
-+	switch (type) {
-+		case EV_PWR:
-+			system_power_event(code);
-+			break;
-+
-+		default:
-+			break;
-+	}
-+}
-+
-+static int apmpower_connect(struct input_handler *handler,
-+					  struct input_dev *dev,
-+					  const struct input_device_id *id)
-+{
-+	struct input_handle *handle;
-+	int err;
-+
-+	if (!(handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL)))
-+		return -ENOMEM;
-+
-+	handle->dev = dev;
-+	handle->handler = handler;
-+	handle->name = "apm-power";
-+
-+	handler->private = handle;
-+	err = input_register_handle(handle);
-+	if (err < 0) {
-+		printk(KERN_ERR "apm-power.c: Failed to register input power handler\n");
-+		kfree(handle);
-+		return err;
-+	}
-+
-+	err = input_open_device(handle);
-+	if (err < 0) {
-+		printk(KERN_ERR "apm-power.c: Failed to open input power device\n");
-+		input_unregister_handle(handle);
-+		kfree(handle);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static void apmpower_disconnect(struct input_handle *handler)
-+{
-+	struct input_handle *handle = handler->private;
-+
-+	input_close_device(handle);
-+	kfree(handle);
-+}
-+
-+static const struct input_device_id apmpower_ids[] = {
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-+		.evbit = { BIT_MASK(EV_PWR) },
-+	},
-+	{ },
-+};
-+
-+MODULE_DEVICE_TABLE(input, apmpower_ids);
-+
-+static struct input_handler apmpower_handler = {
-+	.event =	apmpower_event,
-+	.connect =	apmpower_connect,
-+	.disconnect =	apmpower_disconnect,
-+	.name =		"apm-power",
-+	.id_table =	apmpower_ids,
-+};
-+
-+static int __init apmpower_init(void)
-+{
-+	return input_register_handler(&apmpower_handler);
-+}
-+
-+static void __exit apmpower_exit(void)
-+{
-+	input_unregister_handler(&apmpower_handler);
-+}
-+
-+module_init(apmpower_init);
-+module_exit(apmpower_exit);
-+
-+MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
-+MODULE_DESCRIPTION("Input Power Event -> APM Bridge");
-+MODULE_LICENSE("GPL");
-
+@@ -530,6 +533,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_2PORTKVM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVMC, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC,    HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE, HID_QUIRK_NOGET },

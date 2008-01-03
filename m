@@ -1,9 +1,10 @@
 From: Dmitry Baryshkov <dbaryshkov@gmail.com>
 Subject: Re: [PATCH] Tosa keyboard support
-Date: Thu, 3 Jan 2008 23:01:17 +0000 (UTC)
-Message-ID: <fljpft$nc9$1@ger.gmane.org>
+Date: Thu, 3 Jan 2008 23:08:59 +0000 (UTC)
+Message-ID: <fljpub$nc9$2@ger.gmane.org>
 References: <20071223232914.GA28932@doriath.ww600.siemens.net>
 	<d120d5000801030851j6629e4f0m102939aff412df5b@mail.gmail.com>
+	<fljpft$nc9$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -21,73 +22,41 @@ To: linux-arm-kernel@lists.arm.linux.org.uk
 Cc: linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi, Dmitry,
+Hi,
 
-Dmitry Torokhov wrote:
+Dmitry Baryshkov wrote:
 
-> Hi Dmitry,
+> Hi, Dmitry,
 > 
-> Sorry for the slow response.
-
-Hah, that's ok. Thank you for your comments.
-
+> Dmitry Torokhov wrote:
 > 
-> On Dec 23, 2007 6:29 PM, Dmitry Baryshkov <dbaryshkov@gmail.com> wrote:
->> > From b213bef91e3f98c6104138050ad4eaa0a54e765d Mon Sep 17 00:00:00
->> > 2001
->> From: Dmitry Baryshkov <dbaryshkov@gmail.com> Date: Mon, 24 Dec 2007
->> 02:15:34 +0300 Subject: [PATCH] Tosa keyboard support
->>
->> Support keyboard on tosa (Sharp Zaurus SL-6000x). Largely based on
->> patches by Dirk Opfer. This is the final version that supports
->> switching between full keycode range and range available to the console
->> and keyb Kdrive driver.
->>
->>
-> The driver looks very nice, just a couple minor comments:
+>> Hi Dmitry,
+>> 
+>> Sorry for the slow response.
 > 
-
-[skipped]
-
-Fixed. See below
-
+> Hah, that's ok. Thank you for your comments.
 > 
->> +
->> +#define TOSA_KEY_SYNC          KEY_102ND /* ??? */ +
->> +
->> +#ifndef CONFIG_KEYBOARD_TOSA_USE_EXT_KEYCODES +#define TOSA_KEY_RECORD
->>                KEY_YEN +#define TOSA_KEY_ADDRESSBOOK   KEY_KATAKANA
->> +#define TOSA_KEY_CANCEL                KEY_ESC +#define
->> TOSA_KEY_CENTER                KEY_HIRAGANA +#define TOSA_KEY_OK       
->>     KEY_HENKAN +#define TOSA_KEY_CALENDAR      KEY_KATAKANAHIRAGANA
->> +#define TOSA_KEY_HOMEPAGE      KEY_HANGEUL +#define TOSA_KEY_LIGHT    
->>     KEY_MUHENKAN +#define TOSA_KEY_MENU          KEY_HANJA +#define
->> TOSA_KEY_FN            KEY_RIGHTALT +#define TOSA_KEY_MAIL         
->> KEY_ZENKAKUHANKAKU +#else
->> +#define TOSA_KEY_RECORD                KEY_RECORD +#define
->> TOSA_KEY_ADDRESSBOOK   KEY_ADDRESSBOOK +#define TOSA_KEY_CANCEL        
->>        KEY_CANCEL +#define TOSA_KEY_CENTER                KEY_SELECT /*
->> ??? */ +#define TOSA_KEY_OK            KEY_OK +#define
->> TOSA_KEY_CALENDAR      KEY_CALENDAR +#define TOSA_KEY_HOMEPAGE     
->> KEY_HOMEPAGE +#define TOSA_KEY_LIGHT         KEY_SWITCHVIDEOMODE /* ???
->> */
 > 
-> KEY_ILLUMTOGGLE maybe? SWITCHWIDEOMODE is for cycling between outputs...
-
-OK. I used SWITCHVIDEOMODE because it's another symbol near that key.
-
+>> On Dec 23, 2007 6:29 PM, Dmitry Baryshkov <dbaryshkov@gmail.com> wrote:
+>>> > From b213bef91e3f98c6104138050ad4eaa0a54e765d Mon Sep 17 00:00:00
+>>> > 2001
+>>> From: Dmitry Baryshkov <dbaryshkov@gmail.com> Date: Mon, 24 Dec 2007
+>>> 02:15:34 +0300 Subject: [PATCH] Tosa keyboard support
+>>>
+>>> Support keyboard on tosa (Sharp Zaurus SL-6000x). Largely based on
+>>> patches by Dirk Opfer. This is the final version that supports
+>>> switching between full keycode range and range available to the
+>>> console and keyb Kdrive driver.
+>>>
+>>>
+>> The driver looks very nice, just a couple minor comments:
+>> 
+>> 
+> [skipped]
 > 
-> Also, I'd put these defines rigth in tosakbd.c.
+> Fixed. See below
 
-The TOSA_KEY_RECORD and SYNC are used inside arch/arm/mach-pxa/tosa.c
-(for gpio-keys declaration). So I would prefer to place all such defines here.
-When the Kdrive would be fixed, I would drop KEY_RECORD and happily move 
-that defines to tosakbd.c
-
-
--- 
-With best wishes
-Dmitry
+Oops. Please use this patch:
 
 Tosa keyboard support
 
@@ -212,10 +181,10 @@ index e97455f..6caa065 100644
  obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
 diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
 new file mode 100644
-index 0000000..fb672c4
+index 0000000..3884d1e
 --- /dev/null
 +++ b/drivers/input/keyboard/tosakbd.c
-@@ -0,0 +1,413 @@
+@@ -0,0 +1,415 @@
 +/*
 + *  Keyboard driver for Sharp Tosa models (SL-6000x)
 + *
@@ -424,7 +393,9 @@ index 0000000..fb672c4
 +#ifdef CONFIG_PM
 +static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
 +{
-+	del_timer(&tosakbd->timer);
++	struct tosakbd *tosakbd = platform_get_drvdata(dev);
++
++	del_timer_sync(&tosakbd->timer);
 +
 +	return 0;
 +}

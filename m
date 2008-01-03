@@ -1,86 +1,72 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH, RFC] HP WMI hotkey driver
-Date: Thu, 3 Jan 2008 11:58:02 -0500
-Message-ID: <d120d5000801030858o7a1f5112g1041186636852ab7@mail.gmail.com>
-References: <20071218235137.12838.75397.stgit@localhost>
-	 <20071226224812.GA32652@srcf.ucam.org>
+Subject: Re: [PATCH 8/12] neo1973: button input device driver
+Date: Thu, 3 Jan 2008 12:05:02 -0500
+Message-ID: <d120d5000801030905h88b0edfy67c2f3fd562e3088@mail.gmail.com>
+References: <20071218110807.GO29882@prithivi.gnumonks.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.185]:32490 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752666AbYACQ6F (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jan 2008 11:58:05 -0500
-Received: by nf-out-0910.google.com with SMTP id g13so408020nfb.21
-        for <linux-input@vger.kernel.org>; Thu, 03 Jan 2008 08:58:03 -0800 (PST)
-In-Reply-To: <20071226224812.GA32652@srcf.ucam.org>
+Received: from mu-out-0910.google.com ([209.85.134.187]:41825 "EHLO
+	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754084AbYACRFE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jan 2008 12:05:04 -0500
+Received: by mu-out-0910.google.com with SMTP id i10so4792405mue.5
+        for <linux-input@vger.kernel.org>; Thu, 03 Jan 2008 09:05:02 -0800 (PST)
+In-Reply-To: <20071218110807.GO29882@prithivi.gnumonks.org>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Carlos Corbacho <carlos@strangeworlds.co.uk>, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Alexey Starikovskiy <aystarik@gmail.com>, linux-input@vger.kernel.org
+To: Harald Welte <laforge@openmoko.org>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
 
-Hi Matthew,
+Hi Harald,
 
-On Dec 26, 2007 5:48 PM, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> +       } else
-> +               printk (KERN_INFO "HP WMI: Unknown response received\n");
+Sorry for the slow response.
+
+On Dec 18, 2007 6:08 AM, Harald Welte <laforge@openmoko.org> wrote:
 > +
-> +       return;
+> +       input_dev->name = "Neo1973 Buttons";
+> +       input_dev->phys = "neo1973kbd/input0";
+> +       input_dev->id.bustype = BUS_HOST;
+> +       input_dev->id.vendor = 0x0001;
+> +       input_dev->id.product = 0x0001;
+> +       input_dev->id.version = 0x0100;
+> +       input_dev->cdev.dev = &pdev->dev;
 
-No need for empty returns.
+Please use input_dev->dev.parent instead of cdev as it is going away.
 
+> +       input_dev->private = neo1973kbd;
+
+Please use input_set_drvdata() instead of accessing private directly.
+
+> +out_aux:
+> +       input_unregister_device(neo1973kbd->input);
+
+Add neo1973kbd->input = NULL here, otherwise we'll end up doing
+input_free_device after input_unregister_device which is no good
+(unregister will free the device if it is the last reference).
+
+> +out_register:
+> +       input_free_device(neo1973kbd->input);
+> +       platform_set_drvdata(pdev, NULL);
+> +       kfree(neo1973kbd);
+> +
+> +       return -ENODEV;
 > +}
 > +
-> +static int __init hp_wmi_init(void)
+> +static int neo1973kbd_remove(struct platform_device *pdev)
 > +{
-> +       int err;
-> +       const struct key_entry *key;
+> +       struct neo1973kbd *neo1973kbd = platform_get_drvdata(pdev);
 > +
-> +       if (!wmi_has_guid(HPWMI_GUID)) {
-> +               printk ("Unable to locate guid\n");
-> +               return -ENODEV;
-> +       }
+> +       free_irq(s3c2410_gpio_getirq(pdev->resource[2].start), neo1973kbd);
+> +       free_irq(s3c2410_gpio_getirq(pdev->resource[1].start), neo1973kbd);
+> +       free_irq(s3c2410_gpio_getirq(pdev->resource[0].start), neo1973kbd);
 > +
-> +       err = wmi_install_notify_handler (hp_wmi_notify, NULL);
-> +       if (err)
-> +               return err;
-> +
-> +       hp_wmi_input_dev = input_allocate_device();
-> +
-> +       hp_wmi_input_dev->name = "HP WMI hotkeys";
-> +       hp_wmi_input_dev->phys = "wmi/input0";
-> +       hp_wmi_input_dev->id.bustype = BUS_HOST;
-> +       hp_wmi_input_dev->getkeycode = hp_wmi_getkeycode;
-> +       hp_wmi_input_dev->setkeycode = hp_wmi_setkeycode;
-> +
+> +       input_unregister_device(neo1973kbd->input);
+> +       input_free_device(neo1973kbd->input);
 
-There is no sysfs device to attach the input device to, by any chance?
-
-> +       for (key = hp_wmi_keymap; key->type != KE_END; key++) {
-> +               set_bit(EV_KEY, hp_wmi_input_dev->evbit);
-> +               set_bit(key->keycode, hp_wmi_input_dev->keybit);
-> +       }
-> +
-> +       err = input_register_device (hp_wmi_input_dev);
-> +
-> +       if (err) {
-> +               input_free_device (hp_wmi_input_dev);
-> +               return err;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static void __exit hp_wmi_exit(void)
-> +{
-> +       wmi_remove_notify_handler();
-> +       input_unregister_device (hp_wmi_input_dev);
-> +       input_free_device (hp_wmi_input_dev);
-
-Do not call input_free_device after input_unregister_device, it may
-cause freeing already freed memory.
+Same here, input_free_device() is harmful here.
 
 -- 
 Dmitry

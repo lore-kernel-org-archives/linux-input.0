@@ -1,68 +1,89 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: wistron_btns-add-support-for-x86_64-systems.patch in -mm
-Date: Sun, 6 Jan 2008 00:28:26 +0000
-Message-ID: <200801060028.27102.carlos@strangeworlds.co.uk>
-References: <20071223144756.GA4827@basil.nowhere.org> <477FC3C6.8070607@yahoo.fr>
+From: "Vegard Nossum" <vegard.nossum@gmail.com>
+Subject: [BISECTED] Re: psmouse.c: GlidePoint at isa0060/serio1/input0 lost sync at byte 1
+Date: Mon, 7 Jan 2008 21:24:58 +0100
+Message-ID: <19f34abd0801071224kb9cb121u244b00b274231db0@mail.gmail.com>
+References: <19f34abd0711141226n60323630rdc4833db0bfb2eeb@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slackadelic.com ([65.196.224.53]:53345 "EHLO
-	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753126AbYAFA2b (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Jan 2008 19:28:31 -0500
-In-Reply-To: <477FC3C6.8070607@yahoo.fr>
+Received: from nz-out-0506.google.com ([64.233.162.234]:44641 "EHLO
+	nz-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757651AbYAGUZA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jan 2008 15:25:00 -0500
+Received: by nz-out-0506.google.com with SMTP id s18so1663501nze.1
+        for <linux-input@vger.kernel.org>; Mon, 07 Jan 2008 12:24:58 -0800 (PST)
+In-Reply-To: <19f34abd0711141226n60323630rdc4833db0bfb2eeb@mail.gmail.com>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?q?R=E9mi_H=E9rilier?= <rherilier@yahoo.fr>
-Cc: Andi Kleen <andi@firstfloor.org>, akpm@osdl.org, linux-kernel@vger.kernel.org, dtor@mail.ru, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, William Pettersson <william.pettersson@gmail.com>
 
-On Saturday 05 January 2008 17:52:06 R=E9mi H=E9rilier wrote:
-> What about finding what does this BIOS function and writing
-> an equivalent in C? There would be no BIOS call anymore and
-> this module could be used in the x86-64 port.
+Hi,
+
+On Nov 14, 2007 9:26 PM, Vegard Nossum <vegard.nossum@gmail.com> wrote:
+> Hello,
 >
-> But, is it a sane solution?
+> With 2.6.23 kernel, the laptop middle button worked fine. With
+> 2.6.24-rc1, when I press the middle button, the cursor jumps around
+> the screen and this appears in the kernel log (for each time I press
+> the button):
+>
+> psmouse.c: GlidePoint at isa0060/serio1/input0 lost sync at byte 1
+> psmouse.c: GlidePoint at isa0060/serio1/input0 lost sync at byte 1
+> psmouse.c: GlidePoint at isa0060/serio1/input0 - driver resynched.
+>
+> Related dmesg:
+>
+> input: Macintosh mouse button emulation as /class/input/input0
+> PNP: PS/2 Controller [PNP0303:KBC0,PNP0f13:MSE0] at 0x60,0x64 irq 1,12
+> mice: PS/2 mouse device common for all mice
+> input: PS/2 Mouse as /class/input/input2
+> input: AlpsPS/2 ALPS GlidePoint as /class/input/input3
+>
+> Earlier dmesgs (2.6.23) had (only) this:
+>
+> input: Macintosh mouse button emulation as /class/input/input0
+> PNP: PS/2 Controller [PNP0303:KBC0,PNP0f13:MSE0] at 0x60,0x64 irq 1,12
+> mice: PS/2 mouse device common for all mice
+> input: ImPS/2 Generic Wheel Mouse as /class/input/input2
+>
+>
+> It seems that the driver used is different. What can I do to fix this?
 
-The problem is that the BIOS call would be unique to each supported mac=
-hine as=20
-in which memory addresses, EC registers etc get touched and with what v=
-alues.=20
-You would end up needing to reimplement this on a case-by-case basis. T=
-his=20
-was an idea that was considered by acerhk, but they considered it far t=
-oo=20
-much work and completely impractical.
+I have now bisected the kernel (to the point where I made a guess) and
+found that reverting this commit fixes my problem:
 
-=46or at least all modern Acer laptops, this direct BIOS calling is com=
-pletely=20
-deprecated, in favour of ACPI-WMI (which in turn, on those systems, usu=
-ally=20
-either triggers SMI traps or touches EC registers, and is 32/ 64 bit=20
-agnostic), so the question for those laptops is becoming more and more=20
-irrelevant (and modern Acer laptops of the last four years, at least, d=
-on't=20
-have problems with missing keycodes that require us to poll).
+commit dac4ae0daa1be36ab015973ed9e9dc04a2684395
+Author: William Pettersson <william.pettersson@gmail.com>
+Date:   Wed Sep 5 00:18:44 2007 -0400
 
-=46or Fujitsu-Siemens laptops, I did come across someone who was lookin=
-g into=20
-poking at ACPI to generate keypresses for the keys that don't generate=20
-standard keycodes[1], as a 32/ 64 bit agnostic solution (since most Fuj=
-itsu=20
-Siemens laptops don't support the required BIOS call from long mode, an=
-d also=20
-still don't produce standard keycodes on certain button presses).
+    Input: ALPS - add support for model found in Dell Vostro 1400
 
--Carlos
+    Signed-off-by: William Pettersson <william.pettersson@gmail.com>
+    Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-[1] http://code.google.com/p/fscamiloa16xx/
---=20
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
--
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+index 2c5f11a..a810ff8 100644 (file)
+--- a/drivers/input/mouse/alps.c
++++ b/drivers/input/mouse/alps.c
+@@ -53,6 +53,7 @@ static const struct alps_model_info alps_model_data[] = {
+        { { 0x20, 0x02, 0x0e }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT
+}, /* XXX */
+        { { 0x22, 0x02, 0x0a }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT },
+        { { 0x22, 0x02, 0x14 }, 0xff, 0xff, ALPS_PASS | ALPS_DUALPOINT
+}, /* Dell Latitude D600 */
++       { { 0x73, 0x02, 0x50 }, 0xcf, 0xff, ALPS_FW_BK_1 } /* Dell
+Vostro 1400 */
+ };
+
+
+After reverting, all buttons work as expected -- no lost syncs. I
+might add that my laptop is Acer Aspire 5720ZG. Also, the button in
+question is not truly a middle button; when operating correctly, it is
+used for scrolling (up/down). Now what can be done to make both models
+work correctly?
+
+
+Kind regards,
+Vegard Nossum

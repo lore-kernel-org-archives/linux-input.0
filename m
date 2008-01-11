@@ -1,154 +1,308 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 6/6] Build system and MAINTAINERS entry for WM97xx
-	touchscreen drivers
-Date: Thu, 10 Jan 2008 16:00:48 +0000
-Message-ID: <20080110160047.GA811@rakim.wolfsonmicro.main>
-References: <1199965870-4629-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-2-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-3-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-4-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-5-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-6-git-send-email-broonie@opensource.wolfsonmicro.com> <20080110154118.GC15361@uranus.ravnborg.org>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: rfkill-input understanding help
+Date: Fri, 11 Jan 2008 03:23:37 +0000
+Message-ID: <200801110323.38279.carlos@strangeworlds.co.uk>
+References: <200712110333.40946.carlos@strangeworlds.co.uk> <200712310100.18764.carlos@strangeworlds.co.uk> <200801022010.21109.IvDoorn@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760223AbYAJQBA@vger.kernel.org>
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from slackadelic.com ([65.196.224.53]:36293 "EHLO
+	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760103AbYAKDXm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 10 Jan 2008 22:23:42 -0500
+In-Reply-To: <200801022010.21109.IvDoorn@gmail.com>
 Content-Disposition: inline
-In-Reply-To: <20080110154118.GC15361@uranus.ravnborg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dtor@mail.ru>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Ivo van Doorn <ivdoorn@gmail.com>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Thu, Jan 10, 2008 at 04:41:18PM +0100, Sam Ravnborg wrote:
-> On Thu, Jan 10, 2008 at 11:51:10AM +0000, Mark Brown wrote:
+Well, the good news is that the code I have appears to work. But, I have 
+something very strange going on with my kernel (latest ACPI git tree + 
+acer-wmi on top) and rfkill-input.
 
-> > +wm97xx-ts-objs := wm97xx-core.o
+Basically, if I either:
 
-> Use 
-> wm97xx-ts-y := wm97xx-core.o
+1) Build rfkill-input into the kernel
 
-> > +wm97xx-ts-objs += wm9713.o
-> > +endif
+or
 
-> So this becomes:
-> wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713) += wm9713.o
+2) Build rfkill-input as a module, and use kmod to load it from acer-wmi
 
-> Same for the other two assignments.
+Then rfkill-input doesn't work.
 
-Ah, that's much nicer - thanks!  I've made this change in our git tree:
+If I load rfkill-input manually (or if already loaded by kmod; unload and
+then reload), everything works as expected. The (in progress) code to add
+rfkill support to acer-wmi is here (in case the problem is something wrong
+with the code) - as you can see, it's mostly based on the b43 work.
 
->From 550829a5933d4cf4f667530cdd275faf800d2188 Mon Sep 17 00:00:00 2001
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Date: Tue, 13 Nov 2007 22:36:50 +0000
-Subject: [PATCH] Build system and MAINTAINERS entry for WM97xx touchscreen drivers
+My kernel config is here, in case I'm missing something obvious:
+http://files.strangeworlds.co.uk/config-acpi-git-20080111
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+For reference, the patch series that this ('acpi-wmi-rfkill') is part of
+(of which only 'wmi' and 'acpi-wmi' are relevant) is here:
+http://files.strangeworlds.co.uk/wmi/
+
+-Carlos
 ---
- MAINTAINERS                        |    9 ++++++
- drivers/input/touchscreen/Kconfig  |   52 ++++++++++++++++++++++++++++++++++++
- drivers/input/touchscreen/Makefile |    7 +++++
- 3 files changed, 68 insertions(+), 0 deletions(-)
+acer-wmi: Add rfkill support
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index b4f611c..62131fe 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4196,6 +4196,15 @@ L:	linux-wireless@vger.kernel.org
- W:	http://oops.ghostprotocols.net:81/blog
- S:	Maintained
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+
+Add initial rfkill support for acer-wmi
+---
+
+ drivers/misc/acer-wmi.c |  215 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 214 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/misc/acer-wmi.c b/drivers/misc/acer-wmi.c
+index 6150120..5f6adc0 100644
+--- a/drivers/misc/acer-wmi.c
++++ b/drivers/misc/acer-wmi.c
+@@ -34,6 +34,9 @@
+ #include <linux/platform_device.h>
+ #include <linux/acpi.h>
+ #include <linux/i8042.h>
++#include <linux/rfkill.h>
++#include <linux/input-polldev.h>
++#include <linux/kmod.h>
  
-+WM97XX TOUCHSCREEN DRIVERS
-+P:	Mark Brown
-+M:	broonie@opensource.wolfsonmicro.com
-+P:	Liam Girdwood
-+M:	liam.girdwood@wolfsonmicro.com
-+L:	linux-input@vger.kernel.org
-+T:	git git://opensource.wolfsonmicro.com/linux-2.6-touch
-+S:	Supported
-+
- X.25 NETWORK LAYER
- P:	Henner Eisen
- M:	eis@baty.hanse.de
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index fa8442b..89fa468 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -160,6 +160,58 @@ config TOUCHSCREEN_TOUCHRIGHT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called touchright.
+ #include <acpi/acpi_drivers.h>
  
-+config TOUCHSCREEN_WM97XX
-+	tristate "Support for WM97xx AC97 touchscreen controllers"
-+	depends on AC97_BUS
-+
-+config TOUCHSCREEN_WM9705
-+	bool "WM9705 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9705 touchscreen
-+	  controller connected to your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wm9705.
-+
-+config TOUCHSCREEN_WM9712
-+	bool "WM9712 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9712 touchscreen
-+	  controller connected to your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wm9712.
-+
-+config TOUCHSCREEN_WM9713
-+	bool "WM9713 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9713 touchscreen
-+	  controller connected to your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wm9713.
-+
-+config TOUCHSCREEN_WM97XX_PXA
-+	tristate "WM97xx PXA accelerated touch"
-+	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
-+	help
-+	  Say Y here for support for streaming mode with WM97xx touchscreens
-+	  on systems with PXA2xx series processors.
-+
-+	  If unsure, say N
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called pxa-wm97xx
-+
- config TOUCHSCREEN_TOUCHWIN
- 	tristate "Touchwin serial touchscreen"
- 	select SERIO
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 35d4097..ade9dc1 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -4,6 +4,8 @@
+@@ -710,6 +713,213 @@ static void __init acer_commandline_init(void)
+ }
  
- # Each configuration option enables a list of files.
- 
-+wm97xx-ts-y := wm97xx-core.o
+ /*
++ * RF Kill devices
++ */
++struct acer_rfkill {
++	struct rfkill *wireless;
++	u32 wcap;
++	struct rfkill *bluetooth;
++	u32 bcap;
++};
 +
- obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
- obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
- obj-$(CONFIG_TOUCHSCREEN_CORGI)		+= corgi_ts.o
-@@ -19,3 +21,8 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
- obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_WM97XX_PXA)	+= pxa-wm97xx.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)  += wm9705.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)  += wm9712.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)  += wm9713.o
--- 
-1.5.3.8
++static struct acer_rfkill acer_rfk;
++
++struct acer_input {
++	struct input_polled_dev *wireless;
++	struct input_polled_dev *bluetooth;
++};
++
++static struct acer_input acer_poll;
++
++static void acer_rfkill_poll(struct input_polled_dev *poll_dev)
++{
++	struct rfkill *rfk = poll_dev->private;
++	u32 cap = *((u32 *) rfk->data);
++	u32 enabled, keycode, *state;
++
++	get_u32(&enabled, cap);
++
++	switch (cap) {
++	case ACER_CAP_WIRELESS:
++		keycode = KEY_WLAN;
++		state = &interface->data.wireless;
++		break;
++	case ACER_CAP_BLUETOOTH:
++		keycode = KEY_BLUETOOTH;
++		state = &interface->data.bluetooth;
++		break;
++	default:
++		return;
++	}
++
++	if (unlikely(enabled != *state)) {
++		printk(ACER_INFO "Radio state changed\n");
++		*state = enabled;
++		input_report_key(poll_dev->input, keycode, 1);
++		input_report_key(poll_dev->input, keycode, 0);
++	}
++}
++
++static int acer_rfkill_toggle(void *data, enum rfkill_state rfk_state)
++{
++	u32 cap = *((u32 *) data);
++	u32 *state;
++
++	printk(ACER_INFO "Setting cap for %u\n", cap);
++
++	switch (cap) {
++	case ACER_CAP_WIRELESS:
++		state = &interface->data.wireless;
++		break;
++	case ACER_CAP_BLUETOOTH:
++		state = &interface->data.bluetooth;
++		break;
++	default:
++		return -ENODEV;
++	}
++
++	switch (rfk_state) {
++	case RFKILL_STATE_ON:
++		printk(ACER_INFO "Turning on\n");
++		set_u32(1, cap);
++		*state = 1;
++		break;
++	case RFKILL_STATE_OFF:
++		printk(ACER_INFO "Turning off\n");
++		set_u32(0, cap);
++		*state = 0;
++		break;
++	}
++
++	return 0;
++}
++
++static int acer_rfkill_init_device(struct device **dev, struct rfkill **rfk_dev,
++struct input_polled_dev **rfk_poll_dev, u32 cap, u32 type, char *name)
++{
++	int err;
++	u32 *data;
++	u32 keycode = 0;
++	struct rfkill *rfk;
++	struct input_polled_dev *rfk_poll;
++
++	printk(ACER_INFO "Allocating rfkill device\n");
++	rfk = rfkill_allocate(*dev, type);
++	if (!rfk_dev)
++		goto error;
++
++	rfk->name = name;
++	rfk->state = RFKILL_STATE_ON;
++	rfk->toggle_radio = acer_rfkill_toggle;
++	data = kzalloc(sizeof(u32), GFP_KERNEL);
++	if (!data)
++		goto error_free_rfk;
++
++	*data = cap;
++	rfk->data = data;
++
++	printk(ACER_INFO "Allocating polled device\n");
++	rfk_poll = input_allocate_polled_device();
++	if (!rfk_poll)
++		goto error_free_rfk;
++
++	rfk_poll->private = rfk;
++	rfk_poll->poll = acer_rfkill_poll;
++	rfk_poll->poll_interval = 1000;
++
++	rfk_poll->input->name = rfk->name;
++	rfk_poll->input->id.bustype = BUS_HOST;
++	rfk_poll->input->evbit[0] = BIT(EV_KEY);
++
++	switch (cap) {
++	case ACER_CAP_WIRELESS:
++		keycode = KEY_WLAN;
++		break;
++	case ACER_CAP_BLUETOOTH:
++		keycode = KEY_BLUETOOTH;
++		break;
++	}
++	set_bit(keycode, rfk_poll->input->keybit);
++
++	printk(ACER_INFO "Registering rfkill device\n");
++	err = rfkill_register(rfk);
++	if (err)
++		goto error_free_polldev;
++
++	err = input_register_polled_device(rfk_poll);
++	if (err)
++		goto error_unreg_rfk;
++
++	*rfk_dev = rfk;
++	*rfk_poll_dev = rfk_poll;
++
++	return 0;
++
++error_unreg_rfk:
++	rfkill_unregister(*rfk_dev);
++error_free_polldev:
++	input_free_polled_device(*rfk_poll_dev);
++error_free_rfk:
++	kfree(data);
++	rfkill_free(*rfk_dev);
++error:
++	return -ENODEV;
++}
++
++static int acer_rfkill_init(struct device *dev)
++{
++	int err;
++
++	printk(ACER_INFO "Initialising RFKILL devices\n");
++
++	if (has_cap(ACER_CAP_WIRELESS)) {
++		err = acer_rfkill_init_device(&dev, &acer_rfk.wireless,
++			&acer_poll.wireless, ACER_CAP_WIRELESS,
++			RFKILL_TYPE_WLAN, "acer-wireless");
++		if (err)
++			return -ENODEV;
++	}
++
++	if (has_cap(ACER_CAP_BLUETOOTH)) {
++		err = acer_rfkill_init_device(&dev, &acer_rfk.bluetooth,
++			&acer_poll.bluetooth, ACER_CAP_BLUETOOTH,
++			RFKILL_TYPE_BLUETOOTH, "acer-bluetooth");
++		if (err)
++			return -ENODEV;
++	}
++
++#ifdef CONFIG_RFKILL_INPUT_MODULE
++	/* acer-wmi RF-kill isn't useful without the rfkill-input subsystem.
++	 * Try to load the module. */
++	err = request_module("rfkill-input");
++	if (err)
++		printk(ACER_INFO "Failed to load the rfkill-input module. "
++			"The built-in radio LED will not work.\n");
++#endif /* CONFIG_RFKILL_INPUT */
++
++	return 0;
++}
++
++static void acer_rfkill_exit_device(struct rfkill *rfk_dev,
++struct input_polled_dev *rfk_poll_dev)
++{
++	input_unregister_polled_device(rfk_poll_dev);
++	rfkill_unregister(rfk_dev);
++	input_free_polled_device(rfk_poll_dev);
++	kfree(rfk_dev->data);
++	rfkill_free(rfk_dev);
++}
++
++static void acer_rfkill_exit(void)
++{
++	if (has_cap(ACER_CAP_WIRELESS))
++		acer_rfkill_exit_device(acer_rfk.wireless, acer_poll.wireless);
++
++	if (has_cap(ACER_CAP_BLUETOOTH))
++		acer_rfkill_exit_device(acer_rfk.bluetooth, acer_poll.bluetooth);
++}
++
++/*
+  * LED device (Mail LED only, no other LEDs known yet)
+  */
+ static void mail_led_set(struct led_classdev *led_cdev,
+@@ -842,7 +1052,8 @@ static int __devinit acer_platform_probe(struct platform_device *device)
+ 		acer_led_init(&device->dev);
+ 	if (has_cap(ACER_CAP_BRIGHTNESS))
+ 		acer_backlight_init(&device->dev);
+-	return 0;
++
++	return acer_rfkill_init(&device->dev);
+ }
+ 
+ static int acer_platform_remove(struct platform_device *device)
+@@ -851,6 +1062,8 @@ static int acer_platform_remove(struct platform_device *device)
+ 		acer_led_exit();
+ 	if (has_cap(ACER_CAP_BRIGHTNESS))
+ 		acer_backlight_exit();
++
++	acer_rfkill_exit();
+ 	return 0;
+ }
+ 

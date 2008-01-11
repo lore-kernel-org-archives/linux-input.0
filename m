@@ -1,59 +1,47 @@
 From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [BISECTED] Re: psmouse.c: GlidePoint at isa0060/serio1/input0 lost sync at byte 1
-Date: Fri, 11 Jan 2008 09:47:11 -0500
-Message-ID: <d120d5000801110647k4b1fa49ene974898baf745aec@mail.gmail.com>
-References: <19f34abd0711141226n60323630rdc4833db0bfb2eeb@mail.gmail.com>
-	 <19f34abd0801071224kb9cb121u244b00b274231db0@mail.gmail.com>
+Subject: Re: [PATCH] Tosa keyboard support
+Date: Fri, 11 Jan 2008 09:56:06 -0500
+Message-ID: <d120d5000801110656n1e65f4amf743a8f90183cc09@mail.gmail.com>
+References: <20071223232914.GA28932@doriath.ww600.siemens.net>
+	 <d120d5000801030851j6629e4f0m102939aff412df5b@mail.gmail.com>
+	 <fljpft$nc9$1@ger.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hu-out-0506.google.com ([72.14.214.233]:51668 "EHLO
+Received: from hu-out-0506.google.com ([72.14.214.236]:55299 "EHLO
 	hu-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760810AbYAKOrP (ORCPT
+	with ESMTP id S1756100AbYAKO4I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jan 2008 09:47:15 -0500
-Received: by hu-out-0506.google.com with SMTP id 19so450173hue.21
-        for <linux-input@vger.kernel.org>; Fri, 11 Jan 2008 06:47:11 -0800 (PST)
-In-Reply-To: <19f34abd0801071224kb9cb121u244b00b274231db0@mail.gmail.com>
+	Fri, 11 Jan 2008 09:56:08 -0500
+Received: by hu-out-0506.google.com with SMTP id 19so451700hue.21
+        for <linux-input@vger.kernel.org>; Fri, 11 Jan 2008 06:56:06 -0800 (PST)
+In-Reply-To: <fljpft$nc9$1@ger.gmane.org>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vegard Nossum <vegard.nossum@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, William Pettersson <william.pettersson@gmail.com>
+To: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
-Hi Vegard,
+Hi,
 
-On Jan 7, 2008 3:24 PM, Vegard Nossum <vegard.nossum@gmail.com> wrote:
-> }, /* Dell Latitude D600 */
-> +       { { 0x73, 0x02, 0x50 }, 0xcf, 0xff, ALPS_FW_BK_1 } /* Dell
-> Vostro 1400 */
->  };
+On Jan 3, 2008 6:01 PM, Dmitry Baryshkov <dbaryshkov@gmail.com> wrote:
 >
+> >
+> > Also, I'd put these defines rigth in tosakbd.c.
 >
-> After reverting, all buttons work as expected -- no lost syncs. I
-> might add that my laptop is Acer Aspire 5720ZG. Also, the button in
-> question is not truly a middle button; when operating correctly, it is
-> used for scrolling (up/down). Now what can be done to make both models
-> work correctly?
+> The TOSA_KEY_RECORD and SYNC are used inside arch/arm/mach-pxa/tosa.c
+> (for gpio-keys declaration). So I would prefer to place all such defines here.
+> When the Kdrive would be fixed, I would drop KEY_RECORD and happily move
+> that defines to tosakbd.c
 >
 
-Thank you for identifying the problem commit. Could you please also do this:
+Ok, fair enough. Because driver touches arch-specific arm parts it
+does not apply cleanly to my tree. I think the best way would be to
+merge it through arm side, this will minimize merge efforts Feel free
+to add:
 
-echo 1 > /sys/module/i8042/parameters/debug
-push and release left button
-push and release rigth button
-move finger on the touchpad a bit
-echo 0 > /sys/module/i8042/parameters/debug
-dmesg > dmesg.sync
-echo 1 > /sys/module/i8042/parameters/debug
-push and release middle button
-echo 0 > /sys/module/i8042/parameters/debug
-dmesg > dmesg.nosync
-
-and send me both dmesg files?
-
-Thank you.
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
 -- 
 Dmitry

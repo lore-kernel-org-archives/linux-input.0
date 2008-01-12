@@ -1,66 +1,72 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Tosa keyboard support
-Date: Fri, 11 Jan 2008 15:52:04 -0500
-Message-ID: <d120d5000801111252k54b9d706i543086f771e9896c@mail.gmail.com>
-References: <20071223232914.GA28932@doriath.ww600.siemens.net>
-	 <d120d5000801030851j6629e4f0m102939aff412df5b@mail.gmail.com>
-	 <fljpft$nc9$1@ger.gmane.org>
-	 <d120d5000801110656n1e65f4amf743a8f90183cc09@mail.gmail.com>
-	 <fm8619$ili$2@ger.gmane.org>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: rfkill-input understanding help
+Date: Sat, 12 Jan 2008 00:32:40 +0000
+Message-ID: <200801120032.41263.carlos@strangeworlds.co.uk>
+References: <200712110333.40946.carlos@strangeworlds.co.uk> <200801112008.00927.IvDoorn@gmail.com> <d120d5000801111234k5c0faaeeya0c5487ede8f0c19@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.191]:9521 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750761AbYAKUwG (ORCPT
+Received: from slackadelic.com ([65.196.224.53]:52800 "EHLO
+	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757416AbYALAcp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jan 2008 15:52:06 -0500
-Received: by fk-out-0910.google.com with SMTP id z23so979369fkz.5
-        for <linux-input@vger.kernel.org>; Fri, 11 Jan 2008 12:52:05 -0800 (PST)
-In-Reply-To: <fm8619$ili$2@ger.gmane.org>
+	Fri, 11 Jan 2008 19:32:45 -0500
+In-Reply-To: <d120d5000801111234k5c0faaeeya0c5487ede8f0c19@mail.gmail.com>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ivo van Doorn <ivdoorn@gmail.com>, linux-input@vger.kernel.org
 
-On Jan 11, 2008 11:38 AM, Dmitry Baryshkov <dbaryshkov@gmail.com> wrote:
-> Hi,
+On Friday 11 January 2008 20:34:09 Dmitry Torokhov wrote:
+> On Jan 11, 2008 2:08 PM, Ivo van Doorn <ivdoorn@gmail.com> wrote:
+> > Perhaps the rfkill-input needs to be registered before input
+> > devices are being registered. But I am not sure, Dmitry propably
+> > knows more about possible ordering requirements for input
+> > device and input trigger registration.
 >
->
-> Dmitry Torokhov wrote:
->
-> > Hi,
-> >
-> > On Jan 3, 2008 6:01 PM, Dmitry Baryshkov <dbaryshkov@gmail.com> wrote:
-> >>
-> >>
-> >> > Also, I'd put these defines rigth in tosakbd.c.
-> >>
-> >> The TOSA_KEY_RECORD and SYNC are used inside arch/arm/mach-pxa/tosa.c
-> >> (for gpio-keys declaration). So I would prefer to place all such
-> >> defines here. When the Kdrive would be fixed, I would drop KEY_RECORD
-> >> and happily move that defines to tosakbd.c
-> >>
-> >>
-> > Ok, fair enough. Because driver touches arch-specific arm parts it does
-> > not apply cleanly to my tree. I think the best way would be to merge it
-> > through arm side, this will minimize merge efforts Feel free to add:
->
-> Strange. The patch is against 2.6.24-rc7 and applies cleanly to both
-> for-linus and master branches of .../dtor/input.git
+> No, it is ok for rfkill-input handler to be installed later, but of
+> course it will miss any events that happen before.
 
-Hmm, I think the version I originally tried did not... Anyway, my
-concern is that when flood gates for .25 are opened there will be alot
-of changes in PXA land. However changes to input side are trivial
-(Kconfig and Makefile) and are resolved much easier so if you
-coordinate with Russel it will work much better.
+Unfortunately, moving the load order of rfkill-input doesn't solve my acer-wmi 
+problems:
 
-> > Acked-by: Dmitry Torokhov <dtor@mail.ru>
->
-> Russell, do I need to resent patch?
->
+1) If I build rfkill-input in, it does nothing (since the load order code is 
+obviously only for the module) - KEY_WLAN and KEY_BLUETOOTH are just ignored 
+by it.
 
+2) If I build rfkill-input as a module, it won't work when autoloaded. If I 
+unload then reload it, it will:
+
+i) If b43 is not loaded, it will just toggle both states. (the software only 
+toggle also changes to start toggling both states after reloading 
+rfkill-input).
+
+ii) If b43 is loaded, after one or two KEY_WLAN or KEY_BLUETOOTH presses, I  
+end up in a vicious cycle of rfkill non-stop changing the states of both the 
+bluetooth and wireless rapidly, until I unload either b43 or acer-wmi and get 
+the same result as (i) (I can also stop this nasty loop by commenting out the 
+input_report_key lines in b43 - so this probably isn't a b43 specific issue, 
+it's just an example of a problem).
+
+Of course, if I completely ignore rfkill-input, I can happily toggle my 
+wireless and bluetooth devices via their respective 'state' files to my 
+hearts content, and they work fine. But after loading rfkill-input (as 
+described above), even the 'state' file toggle causes the nasty 
+toggle-all-devices-and-loop-endlessly.
+
+So I suppose the real question is: what exactly is going on with rfkill-input 
+on my laptop?
+
+Is there anywhere in particular I can shove some printk's or some such to find 
+out if, and where, rfkill-input may be going wrong (I'm assuming the failing 
+to run properly on the first load is the real issue, and the rest of it is 
+just a side effect of something having gone wrong)?
+
+-Carlos
 -- 
-Dmitry
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

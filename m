@@ -1,72 +1,143 @@
 From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: rfkill-input understanding help
-Date: Sat, 12 Jan 2008 00:32:40 +0000
-Message-ID: <200801120032.41263.carlos@strangeworlds.co.uk>
-References: <200712110333.40946.carlos@strangeworlds.co.uk> <200801112008.00927.IvDoorn@gmail.com> <d120d5000801111234k5c0faaeeya0c5487ede8f0c19@mail.gmail.com>
+Subject: [PATCH, RFC] i8042: add Dritek keyboard extension quirk
+Date: Sat, 12 Jan 2008 01:22:38 +0000
+Message-ID: <200801120122.38648.carlos@strangeworlds.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slackadelic.com ([65.196.224.53]:52800 "EHLO
+Received: from slackadelic.com ([65.196.224.53]:53764 "EHLO
 	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757416AbYALAcp (ORCPT
+	with ESMTP id S1755878AbYALBWp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jan 2008 19:32:45 -0500
-In-Reply-To: <d120d5000801111234k5c0faaeeya0c5487ede8f0c19@mail.gmail.com>
+	Fri, 11 Jan 2008 20:22:45 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ivo van Doorn <ivdoorn@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-On Friday 11 January 2008 20:34:09 Dmitry Torokhov wrote:
-> On Jan 11, 2008 2:08 PM, Ivo van Doorn <ivdoorn@gmail.com> wrote:
-> > Perhaps the rfkill-input needs to be registered before input
-> > devices are being registered. But I am not sure, Dmitry propably
-> > knows more about possible ordering requirements for input
-> > device and input trigger registration.
->
-> No, it is ok for rfkill-input handler to be installed later, but of
-> course it will miss any events that happen before.
+Some Wistron based laptops need us to explicitly enable the 'Dritek
+keyboard extension' to make their extra keys start generating scancodes.
+Originally, this was just confined to older laptops, but a few Acer
+laptops have turned up in 2007 that also need this again.
 
-Unfortunately, moving the load order of rfkill-input doesn't solve my acer-wmi 
-problems:
+Signed-off-by: Carlos Corbacho <carlos@strangeworlds.co.uk>
+CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+Dmitry,
 
-1) If I build rfkill-input in, it does nothing (since the load order code is 
-obviously only for the module) - KEY_WLAN and KEY_BLUETOOTH are just ignored 
-by it.
+Can you please check the i8042_command() call is correct, I'm having
+trouble getting my head around the call semantics. What I'm trying to do
+is send the command 0x59 with one argument, 0x90.
 
-2) If I build rfkill-input as a module, it won't work when autoloaded. If I 
-unload then reload it, it will:
+ drivers/input/serio/i8042-x86ia64io.h |   49 +++++++++++++++++++++++++++++++++
+ drivers/input/serio/i8042.c           |   12 ++++++++
+ 2 files changed, 61 insertions(+), 0 deletions(-)
 
-i) If b43 is not loaded, it will just toggle both states. (the software only 
-toggle also changes to start toggling both states after reloading 
-rfkill-input).
 
-ii) If b43 is loaded, after one or two KEY_WLAN or KEY_BLUETOOTH presses, I  
-end up in a vicious cycle of rfkill non-stop changing the states of both the 
-bluetooth and wireless rapidly, until I unload either b43 or acer-wmi and get 
-the same result as (i) (I can also stop this nasty loop by commenting out the 
-input_report_key lines in b43 - so this probably isn't a b43 specific issue, 
-it's just an example of a problem).
-
-Of course, if I completely ignore rfkill-input, I can happily toggle my 
-wireless and bluetooth devices via their respective 'state' files to my 
-hearts content, and they work fine. But after loading rfkill-input (as 
-described above), even the 'state' file toggle causes the nasty 
-toggle-all-devices-and-loop-endlessly.
-
-So I suppose the real question is: what exactly is going on with rfkill-input 
-on my laptop?
-
-Is there anywhere in particular I can shove some printk's or some such to find 
-out if, and where, rfkill-input may be going wrong (I'm assuming the failing 
-to run properly on the first load is the real issue, and the rest of it is 
-just a side effect of something having gone wrong)?
-
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index f8fe421..085c06b 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -269,6 +269,50 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
+ 
+ #endif
+ 
++#ifdef CONFIG_X86
++
++#include <linux/dmi.h>
++
++/*
++ * Some Wistron based laptops need us to explicitly enable the 'Dritek
++ * keyboard extension' to make their extra keys start generating scancodes.
++ * Originally, this was just confined to older laptops, but a few Acer laptops
++ * have turned up in 2007 that also need this again.
++ */
++static struct dmi_system_id __initdata i8042_dmi_dritek_table[] = {
++	{
++		.ident = "Acer Aspire 5630",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5630"),
++		},
++	},
++	{
++		.ident = "Acer Aspire 5650",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5650"),
++		},
++	},
++	{
++		.ident = "Acer Aspire 5680",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5680"),
++		},
++	},
++	{
++		.ident = "Acer TravelMate 2490",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2490"),
++		},
++	},
++	{ }
++};
++
++#endif /* CONFIG_X86 */
++
+ 
+ #ifdef CONFIG_PNP
+ #include <linux/pnp.h>
+@@ -512,6 +556,11 @@ static int __init i8042_platform_init(void)
+ 		i8042_nomux = 1;
+ #endif
+ 
++#ifdef CONFIG_X86
++	if (dmi_check_system(i8042_dmi_dritek_table))
++		i8042_dritek = 1;
++#endif /* CONFIG_X86 */
++
+ 	return retval;
+ }
+ 
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index cbe83bf..eea4efd 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -63,6 +63,10 @@ static unsigned int i8042_blink_frequency = 500;
+ module_param_named(panicblink, i8042_blink_frequency, uint, 0600);
+ MODULE_PARM_DESC(panicblink, "Frequency with which keyboard LEDs should blink when kernel panics");
+ 
++static unsigned int i8042_dritek = 0;
++module_param_named(dritek, i8042_dritek, bool, 0);
++MODULE_PARM_DESC(dritek, "Force enable the Dritek keyboard extension");
++
+ #ifdef CONFIG_PNP
+ static int i8042_nopnp;
+ module_param_named(nopnp, i8042_nopnp, bool, 0);
+@@ -1145,6 +1149,7 @@ static int __devinit i8042_setup_kbd(void)
+ static int __devinit i8042_probe(struct platform_device *dev)
+ {
+ 	int error;
++	char param;
+ 
+ 	error = i8042_controller_selftest();
+ 	if (error)
+@@ -1171,6 +1176,13 @@ static int __devinit i8042_probe(struct platform_device *dev)
+  */
+ 	i8042_register_ports();
+ 
++	if (i8042_dritek) {
++		param = 0x90;
++		error = i8042_command(&param, 0x1059);
++		if (error)
++			goto out_fail;
++	}
++
+ 	return 0;
+ 
+  out_fail:

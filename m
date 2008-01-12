@@ -1,44 +1,121 @@
-From: Andres Salomon <dilinger@queued.net>
-Subject: [PATCH] input: psmouse: fix potential input register race in
- psmouse_connect()
-Date: Sat, 12 Jan 2008 15:13:45 -0500
-Message-ID: <20080112151345.5d14c104@ephemeral>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762866AbYALUNg@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: dtor@mail.ru, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH] I8042: SNI RM support
+Date: Sun, 13 Jan 2008 00:39:04 +0100 (CET)
+Message-ID: <20080112233904.4E149C2F36@solo.franken.de>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from elvis.franken.de ([193.175.24.41]:60378 "EHLO elvis.franken.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750849AbYALXjH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 12 Jan 2008 18:39:07 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-mips@linux-mips.org
+Cc: dmitry.torokhov@gmail.com
 
+SNI RM200 don't have the i8042 controller connected to the EISA bus, but
+have a second address range for onboard devices. This patch handles
+the two possible address ranges for the i8042 on SNI RMs
 
-If we successfully call input_register_device() in
-psmouse_connect but sysfs_create_group() fails, we'll enter the error
-path without ever having called input_unregister_device() (potentially
-leaking memory, or creating a race condition if something else attempts
-to access the new input device).  This calls input_unregister_device
-from the error path, and sets input_dev to NULL so that we don't
-attempt to also call input_free_device on it.
-
-Signed-off-by: Andres Salomon <dilinger@debian.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 ---
- drivers/input/mouse/psmouse-base.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index 21a9c0b..df25e7b 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -1247,6 +1247,8 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
-  err_pt_deactivate:
- 	if (parent && parent->pt_deactivate)
- 		parent->pt_deactivate(parent);
-+	input_unregister_device(psmouse->dev);
-+	input_dev = NULL;
-  err_protocol_disconnect:
- 	if (psmouse->disconnect)
- 		psmouse->disconnect(psmouse);
--- 
-1.5.3.5
+Please apply for 2.6.25.
 
+ drivers/input/serio/i8042-snirm.h |   75 +++++++++++++++++++++++++++++++++++++
+ drivers/input/serio/i8042.h       |    2 +
+ 2 files changed, 77 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/serio/i8042-snirm.h b/drivers/input/serio/i8042-snirm.h
+new file mode 100644
+index 0000000..57a66a3
+--- /dev/null
++++ b/drivers/input/serio/i8042-snirm.h
+@@ -0,0 +1,75 @@
++#ifndef _I8042_SNIRM_H
++#define _I8042_SNIRM_H
++
++#include <asm/sni.h>
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++/*
++ * Names.
++ */
++
++#define I8042_KBD_PHYS_DESC "onboard/serio0"
++#define I8042_AUX_PHYS_DESC "onboard/serio1"
++#define I8042_MUX_PHYS_DESC "onboard/serio%d"
++
++/*
++ * IRQs.
++ */
++static int i8042_kbd_irq = -1;
++static int i8042_aux_irq = -1;
++#define I8042_KBD_IRQ i8042_kbd_irq
++#define I8042_AUX_IRQ i8042_aux_irq
++
++static void __iomem *kbd_iobase;
++
++#define I8042_COMMAND_REG	(kbd_iobase + 0x64UL)
++#define I8042_DATA_REG		(kbd_iobase + 0x60UL)
++
++static inline int i8042_read_data(void)
++{
++	return readb(kbd_iobase + 0x60UL);
++}
++
++static inline int i8042_read_status(void)
++{
++	return readb(kbd_iobase + 0x64UL);
++}
++
++static inline void i8042_write_data(int val)
++{
++	writeb(val, kbd_iobase + 0x60UL);
++}
++
++static inline void i8042_write_command(int val)
++{
++	writeb(val, kbd_iobase + 0x64UL);
++}
++static inline int i8042_platform_init(void)
++{
++	/* RM200 is strange ... */
++	if (sni_brd_type == SNI_BRD_RM200) {
++		kbd_iobase = ioremap(0x16000000, 4);
++		i8042_kbd_irq = 33;
++		i8042_aux_irq = 44;
++	} else {
++		kbd_iobase = ioremap(0x14000000, 4);
++		i8042_kbd_irq = 1;
++		i8042_aux_irq = 12;
++	}
++	if (!kbd_iobase)
++		return -ENOMEM;
++
++	return 0;
++}
++
++static inline void i8042_platform_exit(void)
++{
++
++}
++
++#endif /* _I8042_SNIRM_H */
+diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
+index dd22d91..b5e9917 100644
+--- a/drivers/input/serio/i8042.h
++++ b/drivers/input/serio/i8042.h
+@@ -18,6 +18,8 @@
+ #include "i8042-jazzio.h"
+ #elif defined(CONFIG_SGI_IP22)
+ #include "i8042-ip22io.h"
++#elif defined(CONFIG_SNI_RM)
++#include "i8042-snirm.h"
+ #elif defined(CONFIG_PPC)
+ #include "i8042-ppcio.h"
+ #elif defined(CONFIG_SPARC)

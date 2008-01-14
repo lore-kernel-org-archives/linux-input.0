@@ -1,50 +1,266 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 5/6] Driver for WM97xx touchscreens in streaming mode
-	on PXA2xx systems
-Date: Mon, 14 Jan 2008 16:35:52 +0000
-Message-ID: <20080114163552.GA26436@rakim.wolfsonmicro.main>
-References: <1199965870-4629-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-2-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-3-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-4-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-5-git-send-email-broonie@opensource.wolfsonmicro.com> <478B31B6.3050406@pengutronix.de> <20080114144250.GA7443@rakim.wolfsonmicro.main> <478B7A86.7010207@pengutronix.de>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH, RFC] HP WMI hotkey driver, RFKill query?
+Date: Mon, 14 Jan 2008 17:41:07 +0000
+Message-ID: <20080114174107.GA14494@srcf.ucam.org>
+References: <20071218235137.12838.75397.stgit@localhost> <20071226224812.GA32652@srcf.ucam.org> <d120d5000801030858o7a1f5112g1041186636852ab7@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753391AbYANQgI@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cavan.codon.org.uk ([78.32.9.130]:43005 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750816AbYANRuh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jan 2008 12:50:37 -0500
 Content-Disposition: inline
-In-Reply-To: <478B7A86.7010207@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+In-Reply-To: <d120d5000801030858o7a1f5112g1041186636852ab7@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Carlos Corbacho <carlos@strangeworlds.co.uk>, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Alexey Starikovskiy <aystarik@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jan 14, 2008 at 04:06:46PM +0100, Marc Kleine-Budde wrote:
-> Mark Brown wrote:
-> > On Mon, Jan 14, 2008 at 10:56:06AM +0100, Marc Kleine-Budde wrote:
+On Thu, Jan 03, 2008 at 11:58:02AM -0500, Dmitry Torokhov wrote:
 
-> > The driver really isn't intended to cope with them.  As you say, other
-> > boards may have things wired up differently and therefore require
-> > different configuration of the wm97xx and other bits of the system.  The
-> > expectation is that other systems will have their own driver.
+> There is no sysfs device to attach the input device to, by any chance?
 
-> What bits have to setup in a different way? Only the stuff in
-> wm97xx_acc_startup() or other things aswell. An irq can be put as utual
+Not as far as I can tell, but I may be misinterpreting this. Carlos?
 
-The main thing for pxa2xx would be the interrupt enable callback and
-possibly also the acc_shutdown() function depending on what the startup
-function had to do for the board.  If there were platform data then at
-least some of the module options (AC97 link slot, for example) ought to
-have at least defaults supplied that way too.  However...
+I've fixed up the other bits and updated it to match the latest WMI 
+code. I've also added a couple of extra key events. The main one I'm 
+worried about is KEY_WLAN. The button automatically disables the 
+hardware, so it's not required that userspace do anything - however, it 
+would be nice for network-manager to get the additional notification. Is 
+KEY_WLAN the correct thing to be sending here? There's the added 
+confusion of it also triggering the removal of the bluetooth hardware, 
+but since the entire device vanishes in that case I think userspace will 
+already notice.
 
-> into a device's resouce, Setting up bits may be done like other stuff on
-> pxa, too. e.g. pxa_set_ohci_info.
+Signed-off-by: Matthew Garrett <mjg59@srcf.ucam.org>
 
-It's straightforward for something discovered using the platform bus but
-unfortunately these controllers are AC97 devices and are discovered via
-the AC97 bus.  This makes life harder - I can't see any sensible way of
-getting platform data to describe the machine to the driver.  Hopefully
-I'm missing something here but if not the options are limited.
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 8f5c7b9..6a6dd9a 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -183,4 +183,13 @@ config HP_SDC_RTC
+ 	  Say Y here if you want to support the built-in real time clock
+ 	  of the HP SDC controller.
+ 
++config INPUT_HP_WMI
++       tristate "HP WMI hotkey interface"
++       depends on ACPI_WMI
++       help
++         Say Y here if you want to support WMI-based hotkeys on HP laptops.
++
++	 To compile this driver as a module, choose M here: the module will
++	 be called hp_wmiinput.
++
+ endif
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 3585b50..8a3bf11 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -18,3 +18,4 @@ obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
++obj-$(CONFIG_INPUT_HP_WMI)		+= hp_wmiinput.o
+\ No newline at end of file
+diff --git a/drivers/input/misc/hp_wmiinput.c b/drivers/input/misc/hp_wmiinput.c
+new file mode 100644
+index 0000000..85da258
+--- /dev/null
++++ b/drivers/input/misc/hp_wmiinput.c
+@@ -0,0 +1,191 @@
++/*
++ * HP WMI hotkeys
++ *
++ * Copyright (C) 2007 Matthew Garrett <mjg59@srcf.ucam.org>
++ *
++ * Portions based on wistron_btns.c:
++ * Copyright (C) 2005 Miloslav Trmac <mitr@volny.cz>
++ * Copyright (C) 2005 Bernhard Rosenkraenzer <bero@arklinux.org>
++ * Copyright (C) 2005 Dmitry Torokhov <dtor@mail.ru>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/types.h>
++#include <linux/input.h>
++#include <acpi/acpi_drivers.h>
++
++MODULE_AUTHOR("Matthew Garrett");
++MODULE_DESCRIPTION("HP laptop WMI hotkeys driver");
++MODULE_LICENSE("GPL");
++
++MODULE_ALIAS("wmi:95F24279-4D7B-4334-9387-ACCDC67EF61C");
++
++#define HPWMI_GUID "95F24279-4D7B-4334-9387-ACCDC67EF61C"
++
++struct key_entry {
++        char type;              /* See KE_* below */
++        u8 code;
++        union {
++                u16 keycode;            /* For KE_KEY */
++                struct {                /* For KE_SW */
++                        u8 code;
++                        u8 value;
++                } sw;
++        };
++};
++
++enum {KE_KEY, KE_END };
++
++static struct key_entry hp_wmi_keymap[] = {
++	/* 0x01 seems to be docking stations? */
++	{ KE_KEY, 0x02, {KEY_BRIGHTNESSUP} },
++	{ KE_KEY, 0x03, {KEY_BRIGHTNESSDOWN} },
++	{ KE_KEY, 0x04, {KEY_HELP} },
++	{ KE_KEY, 0x05, {KEY_WLAN} },
++	{ KE_END, 0 }
++};
++
++static struct input_dev *hp_wmi_input_dev;
++
++static struct key_entry *hp_wmi_get_entry_by_scancode (int code)
++{
++	struct key_entry *key;
++
++        for (key = hp_wmi_keymap; key->type != KE_END; key++)
++                if (code == key->code)
++                        return key;
++
++        return NULL;
++}
++
++static struct key_entry *hp_wmi_get_entry_by_keycode(int keycode)
++{
++        struct key_entry *key;
++
++        for (key = hp_wmi_keymap; key->type != KE_END; key++)
++                if (key->type == KE_KEY && keycode == key->keycode)
++                        return key;
++
++        return NULL;
++}
++
++static int hp_wmi_getkeycode(struct input_dev *dev, int scancode, int *keycode)
++{
++	struct key_entry *key = hp_wmi_get_entry_by_scancode(scancode);
++
++        if (key && key->type == KE_KEY) {
++                *keycode = key->keycode;
++                return 0;
++        }
++
++        return -EINVAL;
++}
++
++static int hp_wmi_setkeycode(struct input_dev *dev, int scancode, int keycode)
++{
++	struct key_entry *key;
++
++        int old_keycode;
++
++        if (keycode < 0 || keycode > KEY_MAX)
++                return -EINVAL;
++
++        key = hp_wmi_get_entry_by_scancode(scancode);
++        if (key && key->type == KE_KEY) {
++                old_keycode = key->keycode;
++                key->keycode = keycode;
++                set_bit(keycode, dev->keybit);
++                if (!hp_wmi_get_entry_by_keycode(old_keycode))
++                        clear_bit(old_keycode, dev->keybit);
++                return 0;
++        }
++
++        return -EINVAL;
++}	
++
++void hp_wmi_notify (u32 value, void* context)
++{
++	struct acpi_buffer response = { ACPI_ALLOCATE_BUFFER, NULL };
++	static struct key_entry *key;
++	union acpi_object *obj;
++
++	wmi_get_event_data (value, &response);
++	
++	obj = (union acpi_object *) response.pointer;
++
++	if (obj && obj->type == ACPI_TYPE_BUFFER && obj->buffer.length == 8) {
++		int eventcode = *((u8 *) obj->buffer.pointer);
++		key = hp_wmi_get_entry_by_scancode (eventcode);
++		if (key) {
++			input_report_key (hp_wmi_input_dev, key->keycode, 1);
++			input_sync (hp_wmi_input_dev);
++			input_report_key (hp_wmi_input_dev, key->keycode, 0);
++			input_sync (hp_wmi_input_dev);
++		} else
++			printk (KERN_INFO "HP WMI: Unknown key pressed - %x\n",
++				eventcode);
++	} else
++		printk (KERN_INFO "HP WMI: Unknown response received\n");
++}
++
++static int __init hp_wmi_init(void)
++{
++	int err;
++	const struct key_entry *key;
++
++	if (!wmi_has_guid(HPWMI_GUID)) {
++		printk ("Unable to locate guid\n");
++		return -ENODEV;
++	}
++
++	err = wmi_install_notify_handler (HPWMI_GUID, hp_wmi_notify, NULL);
++	if (err)
++		return err;
++	
++	hp_wmi_input_dev = input_allocate_device();
++
++	hp_wmi_input_dev->name = "HP WMI hotkeys";
++	hp_wmi_input_dev->phys = "wmi/input0";
++	hp_wmi_input_dev->id.bustype = BUS_HOST;
++	hp_wmi_input_dev->getkeycode = hp_wmi_getkeycode;
++	hp_wmi_input_dev->setkeycode = hp_wmi_setkeycode;
++	
++	for (key = hp_wmi_keymap; key->type != KE_END; key++) {
++		set_bit(EV_KEY, hp_wmi_input_dev->evbit);
++		set_bit(key->keycode, hp_wmi_input_dev->keybit);
++	}
++	
++	err = input_register_device (hp_wmi_input_dev);
++
++	if (err) {
++		input_free_device (hp_wmi_input_dev);
++		return err;
++	}
++
++	return 0;
++}
++
++static void __exit hp_wmi_exit(void)
++{
++	wmi_remove_notify_handler(HPWMI_GUID);
++	input_unregister_device (hp_wmi_input_dev);
++}
++
++module_init(hp_wmi_init);
++module_exit(hp_wmi_exit);
 
-> With my limited understanding of the pxa-wm97xx.c file, the only board
-> dependent stuff is done in wm97xx_acc_startup() so a different "driver"
-> for other boards would result in code duplication.
-
-That's a concern I share - you'll likely end up with either that or
-ifdefs, neither of which is ideal.  Being able to use platform data
-would be much nicer for all these drivers, not just pxa2xx-wm97xx.
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

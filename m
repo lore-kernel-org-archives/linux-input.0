@@ -1,121 +1,85 @@
-From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH] I8042: SNI RM support
-Date: Sun, 13 Jan 2008 00:39:04 +0100 (CET)
-Message-ID: <20080112233904.4E149C2F36@solo.franken.de>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH] Default keyboard LEDs
+Date: Mon, 14 Jan 2008 00:52:19 +0000
+Message-ID: <20080114005219.GA4296@implementation>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from elvis.franken.de ([193.175.24.41]:60378 "EHLO elvis.franken.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750849AbYALXjH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 12 Jan 2008 18:39:07 -0500
+Received: from queueout01-winn.ispmail.ntl.com ([81.103.221.31]:34612 "EHLO
+	queueout01-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751247AbYANBDg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Jan 2008 20:03:36 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-mips@linux-mips.org
-Cc: dmitry.torokhov@gmail.com
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-SNI RM200 don't have the i8042 controller connected to the EISA bus, but
-have a second address range for onboard devices. This patch handles
-the two possible address ranges for the i8042 on SNI RMs
+In many cases, one prefers to have e.g. the NumLock on by default.  In
+many cases, one doesn't want to have it by default, e.g. on laptops.
 
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Distributions actually have a very hard time trying to set this
+correctly after the kernel boot, and that doesn't work for new consoles
+that are created via the openvt(1) command anyway. This hence adds a
+keyboard.default_leds boot parameter that permits to configure the
+default keyboard LEDs.
+
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+
 ---
 
-Please apply for 2.6.25.
+Actually, what would be perfect would be to use the configuration that
+the BIOS sets at boot by default.  That is device-dependent, however.
 
- drivers/input/serio/i8042-snirm.h |   75 +++++++++++++++++++++++++++++++++++++
- drivers/input/serio/i8042.h       |    2 +
- 2 files changed, 77 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/serio/i8042-snirm.h b/drivers/input/serio/i8042-snirm.h
-new file mode 100644
-index 0000000..57a66a3
---- /dev/null
-+++ b/drivers/input/serio/i8042-snirm.h
-@@ -0,0 +1,75 @@
-+#ifndef _I8042_SNIRM_H
-+#define _I8042_SNIRM_H
+--- linux/drivers/char/keyboard.c.orig	2008-01-14 00:26:12.000000000 +0000
++++ linux/drivers/char/keyboard.c	2008-01-14 00:33:03.000000000 +0000
+@@ -67,6 +67,9 @@
+ 
+ #define KBD_DEFLOCK 0
+ 
++unsigned char default_leds = KBD_DEFLEDS;
++module_param(default_leds, byte, S_IRUGO | S_IWUSR);
 +
-+#include <asm/sni.h>
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+
-+/*
-+ * Names.
-+ */
-+
-+#define I8042_KBD_PHYS_DESC "onboard/serio0"
-+#define I8042_AUX_PHYS_DESC "onboard/serio1"
-+#define I8042_MUX_PHYS_DESC "onboard/serio%d"
-+
-+/*
-+ * IRQs.
-+ */
-+static int i8042_kbd_irq = -1;
-+static int i8042_aux_irq = -1;
-+#define I8042_KBD_IRQ i8042_kbd_irq
-+#define I8042_AUX_IRQ i8042_aux_irq
-+
-+static void __iomem *kbd_iobase;
-+
-+#define I8042_COMMAND_REG	(kbd_iobase + 0x64UL)
-+#define I8042_DATA_REG		(kbd_iobase + 0x60UL)
-+
-+static inline int i8042_read_data(void)
-+{
-+	return readb(kbd_iobase + 0x60UL);
-+}
-+
-+static inline int i8042_read_status(void)
-+{
-+	return readb(kbd_iobase + 0x64UL);
-+}
-+
-+static inline void i8042_write_data(int val)
-+{
-+	writeb(val, kbd_iobase + 0x60UL);
-+}
-+
-+static inline void i8042_write_command(int val)
-+{
-+	writeb(val, kbd_iobase + 0x64UL);
-+}
-+static inline int i8042_platform_init(void)
-+{
-+	/* RM200 is strange ... */
-+	if (sni_brd_type == SNI_BRD_RM200) {
-+		kbd_iobase = ioremap(0x16000000, 4);
-+		i8042_kbd_irq = 33;
-+		i8042_aux_irq = 44;
-+	} else {
-+		kbd_iobase = ioremap(0x14000000, 4);
-+		i8042_kbd_irq = 1;
-+		i8042_aux_irq = 12;
-+	}
-+	if (!kbd_iobase)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+static inline void i8042_platform_exit(void)
-+{
-+
-+}
-+
-+#endif /* _I8042_SNIRM_H */
-diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
-index dd22d91..b5e9917 100644
---- a/drivers/input/serio/i8042.h
-+++ b/drivers/input/serio/i8042.h
-@@ -18,6 +18,8 @@
- #include "i8042-jazzio.h"
- #elif defined(CONFIG_SGI_IP22)
- #include "i8042-ip22io.h"
-+#elif defined(CONFIG_SNI_RM)
-+#include "i8042-snirm.h"
- #elif defined(CONFIG_PPC)
- #include "i8042-ppcio.h"
- #elif defined(CONFIG_SPARC)
+ void compute_shiftstate(void);
+ 
+ /*
+@@ -1405,8 +1408,8 @@
+ 	int error;
+ 
+         for (i = 0; i < MAX_NR_CONSOLES; i++) {
+-		kbd_table[i].ledflagstate = KBD_DEFLEDS;
+-		kbd_table[i].default_ledflagstate = KBD_DEFLEDS;
++		kbd_table[i].ledflagstate = default_leds;
++		kbd_table[i].default_ledflagstate = default_leds;
+ 		kbd_table[i].ledmode = LED_SHOW_FLAGS;
+ 		kbd_table[i].lockstate = KBD_DEFLOCK;
+ 		kbd_table[i].slockstate = 0;
+--- linux/include/linux/kbd_kern.h.orig	2008-01-14 00:32:36.000000000 +0000
++++ linux/include/linux/kbd_kern.h	2008-01-14 00:32:48.000000000 +0000
+@@ -13,6 +13,7 @@
+ extern char func_buf[];
+ extern char *funcbufptr;
+ extern int funcbufsize, funcbufleft;
++extern unsigned char default_leds;
+ 
+ /*
+  * kbd->xxx contains the VC-local things (flag settings etc..)
+--- linux/Documentation/kernel-parameters.txt.orig	2008-01-14 00:38:40.000000000 +0000
++++ linux/Documentation/kernel-parameters.txt	2008-01-14 00:41:21.000000000 +0000
+@@ -550,6 +550,15 @@
+ 			Set system-wide default UTF-8 mode for all tty's.
+ 			Default is 0 and by setting to 1, it enables UTF-8
+ 			mode for all newly opened or allocated terminals.
++	
++	keyboard.default_leds=
++			[KEYBOARD]
++			Format=<ledmask>
++			Mask of the leds to activate on consoles by default.
++			ScrollLock: 1
++			NumLock: 2
++			CapsLock: 4
++			KanaLock: 8
+ 
+ 	dhash_entries=	[KNL]
+ 			Set number of hash buckets for dentry cache.

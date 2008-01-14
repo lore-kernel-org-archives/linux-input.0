@@ -1,385 +1,120 @@
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: Re: [PATCH 5/6] Driver for WM97xx touchscreens in streaming mode
- on PXA2xx systems
-Date: Mon, 14 Jan 2008 10:56:06 +0100
-Message-ID: <478B31B6.3050406@pengutronix.de>
-References: <1199965870-4629-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-2-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-3-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-4-git-send-email-broonie@opensource.wolfsonmicro.com> <1199965870-4629-5-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: =?UTF-8?B?VG9iaWFzIE3DvGxsZXI=?= <Tobias_Mueller@twam.info>
+Subject: MacBook keyboard
+Date: Mon, 14 Jan 2008 12:39:25 +0100
+Message-ID: <478B49ED.6050505@twam.info>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig98EA1484D7F7B1D50E8E1DA1"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756034AbYANK5D@vger.kernel.org>
-In-Reply-To: <1199965870-4629-5-git-send-email-broonie@opensource.wolfsonmicro.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms090908000104070504000009"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ceres.twam.info ([84.16.224.131]:54754 "EHLO smtp.twam.info"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755119AbYANLqy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jan 2008 06:46:54 -0500
+Received: from [192.168.23.51] (p5B2EE54F.dip.t-dialin.net [91.46.229.79])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by smtp.twam.info (Postfix) with ESMTP id C95B920817
+	for <linux-input@vger.kernel.org>; Mon, 14 Jan 2008 12:39:51 +0100 (CET)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig98EA1484D7F7B1D50E8E1DA1
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+This is a cryptographically signed message in MIME format.
 
-reMark Brown wrote:
-> Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-> Signed-off-by: Graeme Gregory <gg@opensource.wolfsonmicro.com>
-> Signed-off-by: Mike Arthur <mike.arthur@wolfsonmicro.com>
-> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> Cc: Stanley Cai <stanley.cai@intel.com>
-> Cc: Rodolfo Giometti <giometti@enneenne.com>
-> Cc: Russell King <rmk@arm.linux.org.uk>
-> Cc: Marc Kleine-Budde <mkl@penugtronix.de>
-                                ^^
-it's mkl@pengutronix.de
+--------------ms090908000104070504000009
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Cc: Ian Molton <spyro@f2s.com>
-> Cc: Vince Sanders <vince@kyllikki.org>
-> Cc: Andrew Zabolotny <zap@homelink.ru>
-> ---
->  drivers/input/touchscreen/pxa-wm97xx.c |  298 ++++++++++++++++++++++++=
-++++++++
->  1 files changed, 298 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/touchscreen/pxa-wm97xx.c
->=20
-> diff --git a/drivers/input/touchscreen/pxa-wm97xx.c b/drivers/input/tou=
-chscreen/pxa-wm97xx.c
-> new file mode 100644
-> index 0000000..870508a
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/pxa-wm97xx.c
-> @@ -0,0 +1,298 @@
-> +/*
-> + * pxa-wm97xx.c  --  pxa-wm97xx Continuous Touch screen driver for
-> + *                   Wolfson WM97xx AC97 Codecs.
-> + *
-> + * Copyright 2004 Wolfson Microelectronics PLC.
-> + * Author: Liam Girdwood
-> + *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-> + * Parts Copyright : Ian Molton <spyro@f2s.com>
-> + *                   Andrew Zabolotny <zap@homelink.ru>
-> + *
-> + *  This program is free software; you can redistribute  it and/or mod=
-ify it
-> + *  under  the terms of  the GNU General  Public License as published =
-by the
-> + *  Free Software Foundation;  either version 2 of the  License, or (a=
-t your
-> + *  option) any later version.
-> + *
-> + * Notes:
-> + *     This is a wm97xx extended touch driver to capture touch
-> + *     data in a continuous manner on the Intel XScale archictecture
-> + *
-> + *  Features:
-> + *       - codecs supported:- WM9705, WM9712, WM9713
-> + *       - processors supported:- Intel XScale PXA25x, PXA26x, PXA27x
-> + *
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/moduleparam.h>
-> +#include <linux/version.h>
-> +#include <linux/kernel.h>
-> +#include <linux/init.h>
-> +#include <linux/delay.h>
-> +#include <linux/irq.h>
-> +#include <linux/interrupt.h>
-> +#include <linux/wm97xx.h>
-> +#include <linux/io.h>
-> +#include <asm/arch/pxa-regs.h>
-> +
-> +#define VERSION		"0.13"
-> +
-> +struct continuous {
-> +	u16 id;    /* codec id */
-> +	u8 code;   /* continuous code */
-> +	u8 reads;  /* number of coord reads per read cycle */
-> +	u32 speed; /* number of coords per second */
-> +};
-> +
-> +#define WM_READS(sp) ((sp / HZ) + 1)
-> +
-> +static const struct continuous cinfo[] =3D {
-> +	{WM9705_ID2, 0, WM_READS(94), 94},
-> +	{WM9705_ID2, 1, WM_READS(188), 188},
-> +	{WM9705_ID2, 2, WM_READS(375), 375},
-> +	{WM9705_ID2, 3, WM_READS(750), 750},
-> +	{WM9712_ID2, 0, WM_READS(94), 94},
-> +	{WM9712_ID2, 1, WM_READS(188), 188},
-> +	{WM9712_ID2, 2, WM_READS(375), 375},
-> +	{WM9712_ID2, 3, WM_READS(750), 750},
-> +	{WM9713_ID2, 0, WM_READS(94), 94},
-> +	{WM9713_ID2, 1, WM_READS(120), 120},
-> +	{WM9713_ID2, 2, WM_READS(154), 154},
-> +	{WM9713_ID2, 3, WM_READS(188), 188},
-> +};
-> +
-> +/* continuous speed index */
-> +static int sp_idx;
-> +static u16 last, tries;
-> +
-> +/*
-> + * Pen sampling frequency (Hz) in continuous mode.
-> + */
-> +static int cont_rate =3D 200;
-> +module_param(cont_rate, int, 0);
-> +MODULE_PARM_DESC(cont_rate, "Sampling rate in continuous mode (Hz)");
-> +
-> +/*
-> + * Pen down detection.
-> + *
-> + * This driver can either poll or use an interrupt to indicate a pen d=
-own
-> + * event. If the irq request fails then it will fall back to polling m=
-ode.
-> + */
-> +static int pen_int;
-> +module_param(pen_int, int, 0);
-> +MODULE_PARM_DESC(pen_int, "Pen down detection (1 =3D interrupt, 0 =3D =
-polling)");
-> +
-> +/*
-> + * Pressure readback.
-> + *
-> + * Set to 1 to read back pen down pressure
-> + */
-> +static int pressure;
-> +module_param(pressure, int, 0);
-> +MODULE_PARM_DESC(pressure, "Pressure readback (1 =3D pressure, 0 =3D n=
-o pressure)");
-> +
-> +/*
-> + * AC97 touch data slot.
-> + *
-> + * Touch screen readback data ac97 slot
-> + */
-> +static int ac97_touch_slot =3D 5;
-> +module_param(ac97_touch_slot, int, 0);
-> +MODULE_PARM_DESC(ac97_touch_slot, "Touch screen data slot AC97 number"=
-);
-> +
-> +
-> +/* flush AC97 slot 5 FIFO on pxa machines */
-> +#ifdef CONFIG_PXA27x
-> +static void wm97xx_acc_pen_up(struct wm97xx *wm)
-> +{
-> +	set_current_state(TASK_INTERRUPTIBLE);
-> +	schedule_timeout(1);
-> +
-> +	while (MISR & (1 << 2))
-> +		MODR;
-> +}
-> +#else
-> +static void wm97xx_acc_pen_up(struct wm97xx *wm)
-> +{
-> +	int count =3D 16;
-> +	set_current_state(TASK_INTERRUPTIBLE);
-> +	schedule_timeout(1);
-> +
-> +	while (count < 16) {
-> +		MODR;
-> +		count--;
-> +	}
-> +}
-> +#endif
-> +
-> +static int wm97xx_acc_pen_down(struct wm97xx *wm)
-> +{
-> +	u16 x, y, p =3D 0x100 | WM97XX_ADCSEL_PRES;
-> +	int reads =3D 0;
-> +
-> +	/* data is never immediately available after pen down irq */
-> +	set_current_state(TASK_INTERRUPTIBLE);
-> +	schedule_timeout(1);
-> +
-> +	if (tries > 5) {
-> +		tries =3D 0;
-> +		return RC_PENUP;
-> +	}
-> +
-> +	x =3D MODR;
-> +	if (x =3D=3D last) {
-> +		tries++;
-> +		return RC_AGAIN;
-> +	}
-> +	last =3D x;
-> +	do {
-> +		if (reads)
-> +			x =3D MODR;
-> +		y =3D MODR;
-> +		if (pressure)
-> +			p =3D MODR;
-> +
-> +		/* are samples valid */
-> +		if ((x & 0x7000) !=3D WM97XX_ADCSEL_X ||
-> +			(y & 0x7000) !=3D WM97XX_ADCSEL_Y ||
-> +			(p & 0x7000) !=3D WM97XX_ADCSEL_PRES)
-> +			goto up;
-> +
-> +		/* coordinate is good */
-> +		tries =3D 0;
-> +		input_report_abs(wm->input_dev, ABS_X, x & 0xfff);
-> +		input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
-> +		input_report_abs(wm->input_dev, ABS_PRESSURE, p & 0xfff);
-> +		input_sync(wm->input_dev);
-> +		reads++;
-> +	} while (reads < cinfo[sp_idx].reads);
-> +up:
-> +	return RC_PENDOWN | RC_AGAIN;
-> +}
-> +
-> +static int wm97xx_acc_startup(struct wm97xx *wm)
-> +{
-> +	int idx =3D 0;
-> +
-> +	/* check we have a codec */
-> +	if (wm->ac97 =3D=3D NULL)
-> +		return -ENODEV;
-> +
-> +	/* Go you big red fire engine */
-> +	for (idx =3D 0; idx < ARRAY_SIZE(cinfo); idx++) {
-> +		if (wm->id !=3D cinfo[idx].id)
-> +			continue;
-> +		sp_idx =3D idx;
-> +		if (cont_rate <=3D cinfo[idx].speed)
-> +			break;
-> +	}
-> +	wm->acc_rate =3D cinfo[sp_idx].code;
-> +	wm->acc_slot =3D ac97_touch_slot;
-> +	dev_info(wm->dev,
-> +		 "pxa2xx accelerated touchscreen driver, %d samples/sec\n",
-> +		 cinfo[sp_idx].speed);
-> +
-> +	/* codec specific irq config */
-> +	if (pen_int) {
-> +		switch (wm->id) {
-> +		case WM9705_ID2:
-> +			wm->pen_irq =3D IRQ_GPIO(4);
-> +			set_irq_type(IRQ_GPIO(4), IRQT_BOTHEDGE);
-> +			break;
-> +		case WM9712_ID2:
-> +		case WM9713_ID2:
-> +			/* enable pen down interrupt */
-> +			/* use PEN_DOWN GPIO 13 to assert IRQ on GPIO line 2 */
-> +			wm->pen_irq =3D MAINSTONE_AC97_IRQ;
+Hello!
 
-I'm missing some kind of abstraction here, what about non mainstone
-boards with the pen irq wired to some other gpio?
+I've got a third-generation MacBook and the Fn-Key is not working,
+althought CONFIG_USB_HIDINPUT_POWERBOOK is set to y.
 
-> +			wm97xx_config_gpio(wm, WM97XX_GPIO_13, WM97XX_GPIO_IN,
-> +					   WM97XX_GPIO_POL_HIGH,
-> +					   WM97XX_GPIO_STICKY,
-> +					   WM97XX_GPIO_WAKE);
-> +			wm97xx_config_gpio(wm, WM97XX_GPIO_2, WM97XX_GPIO_OUT,
-> +					   WM97XX_GPIO_POL_HIGH,
-> +					   WM97XX_GPIO_NOTSTICKY,
-> +					   WM97XX_GPIO_NOWAKE);
-> +			break;
-> +		default:
-> +			dev_err(wm->dev,
-> +				"pen down irq not supported on this device\n");
-> +			pen_int =3D 0;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void wm97xx_acc_shutdown(struct wm97xx *wm)
-> +{
-> +	/* codec specific deconfig */
-> +	if (pen_int) {
-> +		switch (wm->id & 0xffff) {
-> +		case WM9705_ID2:
-> +			wm->pen_irq =3D 0;
-> +			break;
-> +		case WM9712_ID2:
-> +		case WM9713_ID2:
-> +			/* disable interrupt */
-> +			wm->pen_irq =3D 0;
-> +			break;
-> +		}
-> +	}
-> +}
-> +
-> +static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
-> +{
-> +	if (enable)
-> +		enable_irq(wm->pen_irq);
-> +	else
-> +		disable_irq(wm->pen_irq);
-> +}
-> +
-> +static struct wm97xx_mach_ops pxa_mach_ops =3D {
-> +	.acc_enabled =3D 1,
-> +	.acc_pen_up =3D wm97xx_acc_pen_up,
-> +	.acc_pen_down =3D wm97xx_acc_pen_down,
-> +	.acc_startup =3D wm97xx_acc_startup,
-> +	.acc_shutdown =3D wm97xx_acc_shutdown,
-> +	.irq_enable =3D wm97xx_irq_enable,
-> +};
-> +
-> +static int pxa_wm97xx_probe(struct device *dev)
-> +{
-> +	struct wm97xx *wm =3D dev->driver_data;
-> +	return wm97xx_register_mach_ops(wm, &pxa_mach_ops);
-> +}
-> +
-> +static int pxa_wm97xx_remove(struct device *dev)
-> +{
-> +	struct wm97xx *wm =3D dev->driver_data;
-> +	wm97xx_unregister_mach_ops(wm);
-> +	return 0;
-> +}
-> +
-> +static struct device_driver pxa_wm97xx_driver =3D {
-> +	.name =3D "wm97xx-touchscreen",
-> +	.bus =3D &wm97xx_bus_type,
-> +	.owner =3D THIS_MODULE,
-> +	.probe =3D pxa_wm97xx_probe,
-> +	.remove =3D pxa_wm97xx_remove
-> +};
-> +
-> +static int __init pxa_wm97xx_init(void)
-> +{
-> +	return driver_register(&pxa_wm97xx_driver);
-> +}
-> +
-> +static void __exit pxa_wm97xx_exit(void)
-> +{
-> +	driver_unregister(&pxa_wm97xx_driver);
-> +}
-> +
-> +module_init(pxa_wm97xx_init);
-> +module_exit(pxa_wm97xx_exit);
-> +
-> +/* Module information */
-> +MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-> +MODULE_DESCRIPTION("wm97xx continuous touch driver for pxa2xx");
-> +MODULE_LICENSE("GPL");
+I checked drivers/hid/usbhid/hid-quirks.c and found, that the device_id
+of my keyboard isn't specified there.
 
-regards - Marc
+I changed
+#define USB_DEVICE_ID_APPLE_GEYSER4_ISO       0x021b
+to
+#define USB_DEVICE_ID_APPLE_GEYSER4_ISO 0x022a
+and everyhting is working fine.
 
---=20
- Marc Kleine-Budde              Phone: +49-231-2826-924
- Pengutronix - Linux Solutions for Science and Industry
- Vertretung West/Dortmund     http://www.pengutronix.de
+I had the same issue on my desktop, where I have an new apple desktop
+keyboard. Here I had to change to
+#define USB_DEVICE_ID_APPLE_GEYSER4_ISO       0x0221
+and also everything was working.
 
+Maybe this should be added for the next release.
 
---------------enig98EA1484D7F7B1D50E8E1DA1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Regards
+     Tobias
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+--------------ms090908000104070504000009
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-iD8DBQFHizG8jTAFq1RaXHMRAgEUAJ9J64nHXzG1wAlxWpSjta0CLPH0wACfSx22
-AFadkKE9PgKMfXEO0zeHxcg=
-=GQfc
------END PGP SIGNATURE-----
-
---------------enig98EA1484D7F7B1D50E8E1DA1--
-
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJmzCC
+AygwggKRoAMCAQICEDdfXmLiPCut3WRIWKcEfrgwDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UE
+BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
+I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA3MTIxMTE0NDIyNVoX
+DTA4MTIxMDE0NDIyNVowgYcxEDAOBgNVBAQTB011ZWxsZXIxIDAeBgNVBCoTF1RvYmlhcyBX
+b2xmZ2FuZyBBbmRyZWFzMSgwJgYDVQQDEx9Ub2JpYXMgV29sZmdhbmcgQW5kcmVhcyBNdWVs
+bGVyMScwJQYJKoZIhvcNAQkBFhhUb2JpYXNfTXVlbGxlckB0d2FtLmluZm8wggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3vN/xQv+Nqk74OxgDpqJHwYGdwWOemIfl/W1sOlIE
+FXzO9IDR57fa4FlqIUFrezqlolzipm1ZJAfxVhO4pdSjtwNj/4Z6ap5c3LbTjZYwL2abiFPi
+qQPrwyIzYYKTyRpWetnTs0BVohEHMR38/sA3LMI4VQQEBYAd/XnPQPOLObLqbUggI1JZwmgO
+zLEI1GSUEI2fUVyMeKIyXqX293cgw/5zQuoyZ87PQX80LsBkRx7JOnyUZ94+togZU/NtHso4
+u+GcxVK8II/BN5wXYCoIQvNxsR0jc1AGJ7Y2xnjACjUVFeK/n1gZYTa4ZPPm3F/4XyGbd88U
+3Qd2cBgP4cF5AgMBAAGjNTAzMCMGA1UdEQQcMBqBGFRvYmlhc19NdWVsbGVyQHR3YW0uaW5m
+bzAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBQUAA4GBACk9SGx4seRUhysubF04VghMmHFt
+ap3+um/34i+t7rAFxAjA3Fj1NRxyTDuy3TT6M0yO4Toak4778ssDJP8fWIY71DvP5VYhHUJw
+F+nCPacU2HRORLTXf61GhqzQzrvujj/yj3Z6z6c2OLc90CaDaoVjTb3nf9F6+1L7ID5ecozo
+MIIDKDCCApGgAwIBAgIQN19eYuI8K63dZEhYpwR+uDANBgkqhkiG9w0BAQUFADBiMQswCQYD
+VQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UE
+AxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDcxMjExMTQ0MjI1
+WhcNMDgxMjEwMTQ0MjI1WjCBhzEQMA4GA1UEBBMHTXVlbGxlcjEgMB4GA1UEKhMXVG9iaWFz
+IFdvbGZnYW5nIEFuZHJlYXMxKDAmBgNVBAMTH1RvYmlhcyBXb2xmZ2FuZyBBbmRyZWFzIE11
+ZWxsZXIxJzAlBgkqhkiG9w0BCQEWGFRvYmlhc19NdWVsbGVyQHR3YW0uaW5mbzCCASIwDQYJ
+KoZIhvcNAQEBBQADggEPADCCAQoCggEBALe83/FC/42qTvg7GAOmokfBgZ3BY56Yh+X9bWw6
+UgQVfM70gNHnt9rgWWohQWt7OqWiXOKmbVkkB/FWE7il1KO3A2P/hnpqnlzcttONljAvZpuI
+U+KpA+vDIjNhgpPJGlZ62dOzQFWiEQcxHfz+wDcswjhVBAQFgB39ec9A84s5suptSCAjUlnC
+aA7MsQjUZJQQjZ9RXIx4ojJepfb3dyDD/nNC6jJnzs9BfzQuwGRHHsk6fJRn3j62iBlT820e
+yji74ZzFUrwgj8E3nBdgKghC83GxHSNzUAYntjbGeMAKNRUV4r+fWBlhNrhk8+bcX/hfIZt3
+zxTdB3ZwGA/hwXkCAwEAAaM1MDMwIwYDVR0RBBwwGoEYVG9iaWFzX011ZWxsZXJAdHdhbS5p
+bmZvMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEFBQADgYEAKT1IbHix5FSHKy5sXThWCEyY
+cW1qnf66b/fiL63usAXECMDcWPU1HHJMO7LdNPozTI7hOhqTjvvyywMk/x9YhjvUO8/lViEd
+QnAX6cI9pxTYdE5EtNd/rUaGrNDOu+6OP/KPdnrPpzY4tz3QJoNqhWNNved/0Xr7UvsgPl5y
+jOgwggM/MIICqKADAgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0
+ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9u
+MSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEW
+HHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2
+MjM1OTU5WjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
+eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0Ew
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9
+zfVb8hp2vX8MOmHyv1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPP
+K9Xzgnc9A74r/rsYPge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGj
+gZQwgZEwEgYDVR0TAQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3Js
+LnRoYXd0ZS5jb20vVGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYw
+KQYDVR0RBCIwIKQeMBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEB
+BQUAA4GBAEiM0VCD6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9
+reFhYsPZOhl+hLGZGwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo0
+5RAaWzVNd+NWIXiC3CEZNd4ksdMdRv9dX2VPMYIDZDCCA2ACAQEwdjBiMQswCQYDVQQGEwJa
+QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
+d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECEDdfXmLiPCut3WRIWKcEfrgwCQYF
+Kw4DAhoFAKCCAcMwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
+MDgwMTE0MTEzOTI1WjAjBgkqhkiG9w0BCQQxFgQU1w2zzqZMB1htz5PknBrJ98CdZo8wUgYJ
+KoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwIC
+AUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgYUGCSsGAQQBgjcQBDF4MHYwYjELMAkGA1UE
+BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
+I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAhA3X15i4jwrrd1kSFinBH64
+MIGHBgsqhkiG9w0BCRACCzF4oHYwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
+b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
+bCBJc3N1aW5nIENBAhA3X15i4jwrrd1kSFinBH64MA0GCSqGSIb3DQEBAQUABIIBAD+aT1le
+HJw7xzlhO6/zP59o1Ka7DBmJNOX5bCW5CXsLHkq2iq3k0RwKCWbUW228J/DLAKpGRdwMjc2Y
+zp2kwJdPEJ011gCjGSuGt97x2YLtIrmdqsp2OE/5HgjfjYMwI927oCqZRKClWtFv3iXULNpF
+zOeJol5SDskRGm2bWQ86QibOi26Dz4fqYSExGhb3w2HCt71CEUYTuNmo1BHRRkT734sokMEv
+qQhdY09vTrH+9hTe/GBLBfs358bHWlmhMsQHZqJeaA2OF8TsI29BJk6GZoz+COTv43qP9ywj
+IJ9mx2+4B3jYLr/5ax1qBcfl7srxL/o/nPvIhSO8oODgCV8AAAAAAAA=
+--------------ms090908000104070504000009--

@@ -1,43 +1,53 @@
 From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: [PATCH, RFC] HP WMI hotkey driver, RFKill query?
-Date: Mon, 14 Jan 2008 22:25:10 +0000
-Message-ID: <200801142225.11066.carlos@strangeworlds.co.uk>
-References: <20071218235137.12838.75397.stgit@localhost> <20080114174107.GA14494@srcf.ucam.org> <200801141827.34059.carlos@strangeworlds.co.uk>
+Subject: Re: [PATCH] ACPI: Put button input devices in correct place in sysfs
+Date: Mon, 14 Jan 2008 22:25:58 +0000
+Message-ID: <200801142225.59617.carlos@strangeworlds.co.uk>
+References: <200711062051.59884.arvidjaar@mail.ru> <d120d5000711061247l5102875bg9d9b841086dd77b5@mail.gmail.com> <200711111142.52346.arvidjaar@mail.ru>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slackadelic.com ([65.196.224.53]:52073 "EHLO
-	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756526AbYANWZR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jan 2008 17:25:17 -0500
-In-Reply-To: <200801141827.34059.carlos@strangeworlds.co.uk>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <200711111142.52346.arvidjaar@mail.ru>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, Len Brown <lenb@kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Alexey Starikovskiy <aystarik@gmail.com>, linux-input@vger.kernel.org
 
-On Monday 14 January 2008 18:27:33 Carlos Corbacho wrote:
-> On Monday 14 January 2008 17:41:07 Matthew Garrett wrote:
-> > On Thu, Jan 03, 2008 at 11:58:02AM -0500, Dmitry Torokhov wrote:
-> > > There is no sysfs device to attach the input device to, by any chance?
-> >
-> > Not as far as I can tell, but I may be misinterpreting this. Carlos?
+Len,
 
-What would be better - to have WMI itself as the parent device, or should I 
-add something like this to WMI:
-
-wmi_get_dev(const char *guid, struct device *dev)
-
-to return the virtual device associated with a GUID, and then allow that to be 
-used as the parent? (trade off is that this driver would then become 
-dependent on the WMI sysfs patch going in as well, rather than just on the 
-in-kernel WMI support).
+Andrey's patch to the ACPI button driver still hasn't been applied to the ACPI 
+tree.
 
 -Carlos
+
+On Sunday 11 November 2007 08:42:45 Andrey Borzenkov wrote:
+> Subject: [PATCH] Make real parent for ACPI button input devices
+> From: Andrey Borzenkov <arvidjaar@mail.ru>
+>
+>
+>
+> Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
+>
+> ---
+>
+>  drivers/acpi/button.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+> index 24a7865..6c5da83 100644
+> --- a/drivers/acpi/button.c
+> +++ b/drivers/acpi/button.c
+> @@ -449,6 +449,7 @@ static int acpi_button_add(struct acpi_device *device)
+>  	input->phys = button->phys;
+>  	input->id.bustype = BUS_HOST;
+>  	input->id.product = button->type;
+> +	input->dev.parent = &device->dev;
+>
+>  	switch (button->type) {
+>  	case ACPI_BUTTON_TYPE_POWER:
+
 -- 
 E-Mail: carlos@strangeworlds.co.uk
 Web: strangeworlds.co.uk

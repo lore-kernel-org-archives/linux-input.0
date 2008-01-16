@@ -1,65 +1,66 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.24-rc6] ads7846:  simplify support of external vREF
-	(and ads7843)
-Date: Wed, 16 Jan 2008 14:13:21 -0500
-Message-ID: <20080116141218.ZZRA012@mailhub.coreip.homeip.net>
-References: <200801051410.19925.david-b@pacbell.net> <20080116100717.ZZRA012@mailhub.coreip.homeip.net> <20080116171616.085429BE9B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+Subject: Re: [PATCH] input: psmouse: fix input_dev leak in lifebook driver
+Date: Wed, 16 Jan 2008 14:15:26 -0500
+Message-ID: <20080116141353.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080112151252.193d6b52@ephemeral> <20080115170323.ZZRA012@mailhub.coreip.homeip.net> <20080116125801.199224f3@ephemeral>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from po-out-1718.google.com ([72.14.252.152]:24987 "EHLO
-	po-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752494AbYAPTN1 (ORCPT
+Received: from ag-out-0708.google.com ([72.14.246.250]:23890 "EHLO
+	ag-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754416AbYAPTPb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jan 2008 14:13:27 -0500
-Received: by po-out-1718.google.com with SMTP id y22so2934667pof.1
-        for <linux-input@vger.kernel.org>; Wed, 16 Jan 2008 11:13:27 -0800 (PST)
+	Wed, 16 Jan 2008 14:15:31 -0500
+Received: by ag-out-0708.google.com with SMTP id 23so2123863agd.10
+        for <linux-input@vger.kernel.org>; Wed, 16 Jan 2008 11:15:30 -0800 (PST)
 Content-Disposition: inline
-In-Reply-To: <20080116171616.085429BE9B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
+In-Reply-To: <20080116125801.199224f3@ephemeral>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-input@vger.kernel.org
+To: Andres Salomon <dilinger@queued.net>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2008 at 09:16:16AM -0800, David Brownell wrote:
-> > Date: Wed, 16 Jan 2008 10:09:10 -0500
-> > From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+On Wed, Jan 16, 2008 at 12:58:01PM -0500, Andres Salomon wrote:
+> On Tue, 15 Jan 2008 17:04:01 -0500
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> 
+> > On Sat, Jan 12, 2008 at 03:12:52PM -0500, Andres Salomon wrote:
+> > > 
+> > > The lifebook driver may register a second input device, but it never
+> > > unregisters it.  This fixes that.
+> > > 
+> > > Signed-off-by: Andres Salomon <dilinger@debian.org>
+> > 
+> > Applied, thank you Andres.
 > >
-> > On Sat, Jan 05, 2008 at 02:10:19PM -0800, David Brownell wrote:
-> > > This updates the ads7846 driver to handle external vREF (required
-> > > on boards using ads7843 chips) without module parameters, and also
-> > > removes a needless variable with its associated bogus gcc warning.
-> >
-> > Is there any concern about people already using this module parameter
-> > in the field?
 > 
-> Users of ads7846 chips mostly won't need it; they use the internal vREF.
-> 
-> Users of ads7843 chips tend to not provide it (given the debug messages
-> I periodically see!), and accordingly don't get the two general purpose
-> ADC channels (via hwmon).  There aren't many ads7843 users yet; mostly
-> users of two Atmel devel boards.
-
-OK.
-
-> 
-> 
-> >    Should it still be present to allow users to override
-> > platform default?
-> 
-> There *is* no platform default ... there'd be a board-specific
-> value (e.g. "3.3V" or "2.8V") that makes no sense to ever change,
-> since it's hard-wired.  If there's no such value, those two ADC
-> channels just won't be available.
-> 
-> I'd really rather just get rid of it.  The module param is hardly
-> used, and doing it that way has always been a hack.  None of the
-> other board-specific values use that error-prone mechanism.
+> Hi Dmitry,
+>  
+> There's one additional patch, I don't know if you saw it; the subject
+> was "check return value of input_register_device() in hil_ptr.c's init".
 > 
 
-OK, fair enough. Queued for 2.6.25.
+I have seen it but postponed for later. Right now I am trying to get though
+2.6.24 material.
 
-Thank you Dave.
+> 
+> Also, I've found myself needing to provide my own device_attribute for
+> the OLPC psmouse driver; I couldn't use PSMOUSE_DEFINE_ATTR(), as its
+> set_helper callback calls psmouse_disable.
+> 
+> static DEVICE_ATTR(powered, S_IWUSR | S_IRUGO, hgpk_show_powered,
+>                 hgpk_set_powered);
+> 
+> Unfortunately, in order to not be racy, hgpk_set_powered needs to
+> deal with psmouse_mutex.  Which method of dealing with this would
+> you prefer?  I could either make psmouse_mutex no longer static,
+> provide psmouse_mutex locking functions (declared in psmouse.h), or
+> put psmouse_mutex into 'struct psmouse'.  Or, if you have any other
+> ideas..
+
+Could you just send me the code? I tend to think better when I see it...
+
+Thanks!
 
 -- 
 Dmitry

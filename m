@@ -1,53 +1,48 @@
-From: Taneli =?iso-8859-1?Q?V=E4h=E4kangas?=
-	<taneli.vahakangas@welho.com>
+From: Jiri Kosina <jikos@jikos.cz>
 Subject: Re: support for Logitech Wave
-Date: Wed, 16 Jan 2008 23:58:24 +0200
-Message-ID: <20080116215824.GA3797@localhost>
-References: <alpine.OSF.0.99.0801151541290.326334@replicant.hut.fi> <20080116110244.ZZRA012@mailhub.coreip.homeip.net>
+Date: Wed, 16 Jan 2008 23:00:48 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0801162259350.15647@twin.jikos.cz>
+References: <alpine.OSF.0.99.0801151541290.326334@replicant.hut.fi>
+ <20080116110244.ZZRA012@mailhub.coreip.homeip.net> <20080116215824.GA3797@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-1836595100-1200520848=:15647"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5.pp.htv.fi ([213.243.153.39]:51229 "EHLO smtp5.pp.htv.fi"
+Received: from twin.jikos.cz ([213.151.79.26]:36936 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751490AbYAPV6f (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jan 2008 16:58:35 -0500
-Content-Disposition: inline
-In-Reply-To: <20080116110244.ZZRA012@mailhub.coreip.homeip.net>
+	id S1751560AbYAPWAx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jan 2008 17:00:53 -0500
+In-Reply-To: <20080116215824.GA3797@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Timo Aaltonen <tjaalton@cc.hut.fi>, linux-input@vger.kernel.org, Jiri Kosina <jikos@jikos.cz>
+To: Taneli =?iso-8859-1?Q?V=E4h=E4kangas?= <taneli.vahakangas@welho.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Timo Aaltonen <tjaalton@cc.hut.fi>, linux-input@vger.kernel.org
 
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Hi! Chiming in, as I have a similar issue ...
+---1747641777-1836595100-1200520848=:15647
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-On Wed, Jan 16, 2008 at 11:07:17AM -0500, Dmitry Torokhov wrote:
-> Hi Timo,
-> 
-> On Tue, Jan 15, 2008 at 03:49:14PM +0200, Timo Aaltonen wrote:
-> >
-> > 	Hi
-> >
-> >   I've got a Logitech Wave keyboard, that has a number of extra keys on it, 
-> > and most of them fail to work with evdev. I get no output with xev or while 
-> > trying to cat the input device. I've been told that it's a kernel issue if 
-> > the device shows no events, hence this email.
-> >
-> > What should I do to get full support for all the keys on it? It's a nice 
-> > keyboard, so I'd like to get the most of it :)
-> >
-> 
-> Please try booting with the latest -rc kernel (currently 2.6.26-rc8) and run
-> evtest utility. You should see it report MSC_SCAN events when you press keys
-> on your keyboard. Compose list of keys and corresponding codes and send it to
-> Jiri Kosina so he can add proper mappings to the HID driver.
+On Wed, 16 Jan 2008, Taneli V=E4h=E4kangas wrote:
 
-I tried the same on a Creative Prodikeys keyboard, but can't see any
-events for some keys (most notably none of the "piano" keys work).
+> I tried the same on a Creative Prodikeys keyboard, but can't see any=20
+> events for some keys (most notably none of the "piano" keys work). Is=20
+> there anything that can be done to make it work?
 
-Is there anything that can be done to make it work?
+Hi Taneli,
 
-Cheers,
+yes. Could you please grab reasonably recent kernel (2.6.24-rc<anything>=20
+would be ok), compile it with CONFIG_HID_DEBUG, modprobe the 'hid' module=
+=20
+with 'debug=3D1' parameter, and send me the output from the time you connec=
+t=20
+the keyboard and from pressing the non-working keys? It should be trivial=
+=20
+to fix then.
 
-	Taneli
+Thanks,
 
+--=20
+Jiri Kosina
+---1747641777-1836595100-1200520848=:15647--

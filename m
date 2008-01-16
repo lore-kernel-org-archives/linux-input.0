@@ -1,33 +1,39 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] I8042: SNI RM support
-Date: Wed, 16 Jan 2008 00:22:42 -0500
-Message-ID: <200801160022.43487.dtor@insightbb.com>
-References: <20080112233904.4E149C2F36@solo.franken.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 2.6.24-rc6] ads7846:  simplify support of external vREF
+	(and ads7843)
+Date: Wed, 16 Jan 2008 10:09:10 -0500
+Message-ID: <20080116100717.ZZRA012@mailhub.coreip.homeip.net>
+References: <200801051410.19925.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20080112233904.4E149C2F36@solo.franken.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wx-out-0506.google.com ([66.249.82.236]:43216 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752170AbYAPPJQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jan 2008 10:09:16 -0500
+Received: by wx-out-0506.google.com with SMTP id h31so111192wxd.4
+        for <linux-input@vger.kernel.org>; Wed, 16 Jan 2008 07:09:16 -0800 (PST)
 Content-Disposition: inline
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-input@vger.kernel.org, linux-mips@linux-mips.org
+In-Reply-To: <200801051410.19925.david-b@pacbell.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-input@vger.kernel.org
 
-Hi Thomas,
+Hi David,
 
-On Saturday 12 January 2008 18:39, Thomas Bogendoerfer wrote:
-> +
-> +/*
-> + * IRQs.
-> + */
-> +static int i8042_kbd_irq = -1;
-> +static int i8042_aux_irq = -1;
+On Sat, Jan 05, 2008 at 02:10:19PM -0800, David Brownell wrote:
+> This updates the ads7846 driver to handle external vREF (required
+> on boards using ads7843 chips) without module parameters, and also
+> removes a needless variable with its associated bogus gcc warning.
+> 
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> 
 
-Why initialize with -1 and not leave at 0? Or even initialize with 1/12
-and override with 33/44 in i8042_platform_init()?
+Is there any concern about people already using this module parameter
+in the field? Should it still be present to allow users to override
+platform default?
 
 -- 
 Dmitry

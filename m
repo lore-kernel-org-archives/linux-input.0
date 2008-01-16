@@ -1,34 +1,33 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: psmouse: fix input_dev leak in lifebook driver
-Date: Tue, 15 Jan 2008 17:04:01 -0500
-Message-ID: <20080115170323.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080112151252.193d6b52@ephemeral>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: [PATCH, RFC] i8042: add Dritek keyboard extension quirk
+Date: Wed, 16 Jan 2008 01:23:31 +0000
+Message-ID: <200801160123.32205.carlos@strangeworlds.co.uk>
+References: <200801120122.38648.carlos@strangeworlds.co.uk> <20080115163052.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.248]:54186 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756388AbYAOWEK (ORCPT
+Received: from slackadelic.com ([65.196.224.53]:50571 "EHLO
+	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752668AbYAPBXk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jan 2008 17:04:10 -0500
-Received: by an-out-0708.google.com with SMTP id d31so1227and.103
-        for <linux-input@vger.kernel.org>; Tue, 15 Jan 2008 14:04:09 -0800 (PST)
+	Tue, 15 Jan 2008 20:23:40 -0500
+In-Reply-To: <20080115163052.ZZRA012@mailhub.coreip.homeip.net>
 Content-Disposition: inline
-In-Reply-To: <20080112151252.193d6b52@ephemeral>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andres Salomon <dilinger@queued.net>
-Cc: linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, Jan 12, 2008 at 03:12:52PM -0500, Andres Salomon wrote:
-> 
-> The lifebook driver may register a second input device, but it never
-> unregisters it.  This fixes that.
-> 
-> Signed-off-by: Andres Salomon <dilinger@debian.org>
+On Tuesday 15 January 2008 21:35:32 Dmitry Torokhov wrote:
+> Let me know if you agree, I have the above fixedon my side. Thanks!
 
-Applied, thank you Andres.
+No problem here - you're the input maintainer, so I trust your judgement on 
+this.
 
+-Carlos
 -- 
-Dmitry
-
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

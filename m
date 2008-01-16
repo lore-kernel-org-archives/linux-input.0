@@ -1,60 +1,64 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 2.6.24-rc6] ads7846:  simplify support of external vREF
- (and ads7843)
-Date: Wed, 16 Jan 2008 09:16:16 -0800
-Message-ID: <20080116171616.085429BE9B@adsl-69-226-248-13.dsl.pltn13.pacbell.net>
-References: <200801051410.19925.david-b@pacbell.net>
- <20080116100717.ZZRA012@mailhub.coreip.homeip.net>
+From: "Vegard Nossum" <vegard.nossum@gmail.com>
+Subject: Re: [BISECTED] Re: psmouse.c: GlidePoint at isa0060/serio1/input0 lost sync at byte 1
+Date: Wed, 16 Jan 2008 18:46:46 +0100
+Message-ID: <19f34abd0801160946j2fe1c75ap3617dd125c81008f@mail.gmail.com>
+References: <19f34abd0711141226n60323630rdc4833db0bfb2eeb@mail.gmail.com>
+	 <19f34abd0801071224kb9cb121u244b00b274231db0@mail.gmail.com>
+	 <d120d5000801110647k4b1fa49ene974898baf745aec@mail.gmail.com>
+	 <478CFB56.1030700@gmail.com>
+	 <20080115154142.ZZRA012@mailhub.coreip.homeip.net>
+	 <20080116104024.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:25015 "HELO
-	smtp104.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750870AbYAPRW6 (ORCPT
+Received: from rv-out-0910.google.com ([209.85.198.187]:29362 "EHLO
+	rv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751378AbYAPRqr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jan 2008 12:22:58 -0500
-In-Reply-To: <20080116100717.ZZRA012@mailhub.coreip.homeip.net>
+	Wed, 16 Jan 2008 12:46:47 -0500
+Received: by rv-out-0910.google.com with SMTP id k20so282739rvb.1
+        for <linux-input@vger.kernel.org>; Wed, 16 Jan 2008 09:46:46 -0800 (PST)
+In-Reply-To: <20080116104024.ZZRA012@mailhub.coreip.homeip.net>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, William Pettersson <william.pettersson@gmail.com>
 
-> Date: Wed, 16 Jan 2008 10:09:10 -0500
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Hi,
+
+On Jan 16, 2008 4:42 PM, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> Ok, how about this one to begin with?
 >
-> On Sat, Jan 05, 2008 at 02:10:19PM -0800, David Brownell wrote:
-> > This updates the ads7846 driver to handle external vREF (required
-> > on boards using ads7843 chips) without module parameters, and also
-> > removes a needless variable with its associated bogus gcc warning.
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> ---
+>  drivers/input/mouse/alps.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> Is there any concern about people already using this module parameter
-> in the field?
+> Index: linux/drivers/input/mouse/alps.c
+> ===================================================================
+> --- linux.orig/drivers/input/mouse/alps.c
+> +++ linux/drivers/input/mouse/alps.c
+> @@ -54,7 +54,7 @@ static const struct alps_model_info alps
+>         { { 0x20, 0x02, 0x0e }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT }, /* XXX */
+>         { { 0x22, 0x02, 0x0a }, 0xf8, 0xf8, ALPS_PASS | ALPS_DUALPOINT },
+>         { { 0x22, 0x02, 0x14 }, 0xff, 0xff, ALPS_PASS | ALPS_DUALPOINT }, /* Dell Latitude D600 */
+> -       { { 0x73, 0x02, 0x50 }, 0xcf, 0xff, ALPS_FW_BK_1 } /* Dell Vostro 1400 */
+> +       { { 0x73, 0x02, 0x50 }, 0xcf, 0xcf, ALPS_FW_BK_1 } /* Dell Vostro 1400 */
+>  };
+>
+>  /*
 
-Users of ads7846 chips mostly won't need it; they use the internal vREF.
+I have now tried this patch. I don't see a sync error now, but the
+button still does not work as expected. Now the scroll down button
+acts like a middle button instead of scrolling down.
 
-Users of ads7843 chips tend to not provide it (given the debug messages
-I periodically see!), and accordingly don't get the two general purpose
-ADC channels (via hwmon).  There aren't many ads7843 users yet; mostly
-users of two Atmel devel boards.
+I am sorry for the confusion; on my laptop it looks like a single
+button, but in fact it can be pressed in four different ways (up,
+down, left, and right). In 2.6.23, pressing left or right, I get the
+traditional paste functionality. Pressing up or down, it acts like a
+scroll wheel (up or down). In 2.6.24-rc1, it is the scrolling up/down
+that causes the lost sync (but the left/right works correctly).
 
-
->    Should it still be present to allow users to override
-> platform default?
-
-There *is* no platform default ... there'd be a board-specific
-value (e.g. "3.3V" or "2.8V") that makes no sense to ever change,
-since it's hard-wired.  If there's no such value, those two ADC
-channels just won't be available.
-
-I'd really rather just get rid of it.  The module param is hardly
-used, and doing it that way has always been a hack.  None of the
-other board-specific values use that error-prone mechanism.
-
-- Dave
-
-p.s. More ads7846 patches are on the way, when they become ready.
-     There's a DMA issue observed on some systems, and some of
-     that funky debounce logic goes haywire with some parameters.
-     There will probably be some other cleanup patches too.
-
+Vegard

@@ -1,60 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BISECTED] Re: psmouse.c: GlidePoint at isa0060/serio1/input0
-	lost sync at byte 1
-Date: Wed, 16 Jan 2008 15:49:23 -0500
-Message-ID: <20080116154524.ZZRA012@mailhub.coreip.homeip.net>
-References: <19f34abd0711141226n60323630rdc4833db0bfb2eeb@mail.gmail.com> <19f34abd0801071224kb9cb121u244b00b274231db0@mail.gmail.com> <d120d5000801110647k4b1fa49ene974898baf745aec@mail.gmail.com> <478CFB56.1030700@gmail.com> <20080115154142.ZZRA012@mailhub.coreip.homeip.net> <20080116104024.ZZRA012@mailhub.coreip.homeip.net> <19f34abd0801160946j2fe1c75ap3617dd125c81008f@mail.gmail.com> <20080116142815.ZZRA012@mailhub.coreip.homeip.net> <19f34abd0801161219oe478b50se13c0710759d581f@mail.gmail.com>
+From: Taneli =?iso-8859-1?Q?V=E4h=E4kangas?=
+	<taneli.vahakangas@welho.com>
+Subject: Re: support for Logitech Wave
+Date: Wed, 16 Jan 2008 23:58:24 +0200
+Message-ID: <20080116215824.GA3797@localhost>
+References: <alpine.OSF.0.99.0801151541290.326334@replicant.hut.fi> <20080116110244.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ag-out-0708.google.com ([72.14.246.247]:65075 "EHLO
-	ag-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752664AbYAPUt3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jan 2008 15:49:29 -0500
-Received: by ag-out-0708.google.com with SMTP id 23so2145108agd.10
-        for <linux-input@vger.kernel.org>; Wed, 16 Jan 2008 12:49:28 -0800 (PST)
+Received: from smtp5.pp.htv.fi ([213.243.153.39]:51229 "EHLO smtp5.pp.htv.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751490AbYAPV6f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 16 Jan 2008 16:58:35 -0500
 Content-Disposition: inline
-In-Reply-To: <19f34abd0801161219oe478b50se13c0710759d581f@mail.gmail.com>
+In-Reply-To: <20080116110244.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vegard Nossum <vegard.nossum@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, William Pettersson <william.pettersson@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Timo Aaltonen <tjaalton@cc.hut.fi>, linux-input@vger.kernel.org, Jiri Kosina <jikos@jikos.cz>
 
-On Wed, Jan 16, 2008 at 09:19:23PM +0100, Vegard Nossum wrote:
-> On Jan 16, 2008 8:33 PM, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > On Wed, Jan 16, 2008 at 06:46:46PM +0100, Vegard Nossum wrote:
-> > >
-> > > I have now tried this patch. I don't see a sync error now, but the
-> > > button still does not work as expected. Now the scroll down button
-> > > acts like a middle button instead of scrolling down.
-> > >
-> > > I am sorry for the confusion; on my laptop it looks like a single
-> > > button, but in fact it can be pressed in four different ways (up,
-> > > down, left, and right). In 2.6.23, pressing left or right, I get the
-> > > traditional paste functionality. Pressing up or down, it acts like a
-> > > scroll wheel (up or down). In 2.6.24-rc1, it is the scrolling up/down
-> > > that causes the lost sync (but the left/right works correctly).
-> > >
+
+Hi! Chiming in, as I have a similar issue ...
+
+On Wed, Jan 16, 2008 at 11:07:17AM -0500, Dmitry Torokhov wrote:
+> Hi Timo,
+> 
+> On Tue, Jan 15, 2008 at 03:49:14PM +0200, Timo Aaltonen wrote:
 > >
-> > I see. Could you please provide me with another debug log of all
-> > 4 presses/releases of all the buttons, with the patch applied?
-> > Do it in the following order please: left, right, middle, up, down.
+> > 	Hi
+> >
+> >   I've got a Logitech Wave keyboard, that has a number of extra keys on it, 
+> > and most of them fail to work with evdev. I get no output with xev or while 
+> > trying to cat the input device. I've been told that it's a kernel issue if 
+> > the device shows no events, hence this email.
+> >
+> > What should I do to get full support for all the keys on it? It's a nice 
+> > keyboard, so I'd like to get the most of it :)
+> >
 > 
-> Ok. Remember, there really is no dedicated middle button (I've been
-> using left button for this purpose, i.e. pasting in X). Here's the
-> log. I cannot tell why the first keypress is twice the size of the
-> rest, maybe I accidentally pressed it twice, though I tried not to.
-> 
+> Please try booting with the latest -rc kernel (currently 2.6.26-rc8) and run
+> evtest utility. You should see it report MSC_SCAN events when you press keys
+> on your keyboard. Compose list of keys and corresponding codes and send it to
+> Jiri Kosina so he can add proper mappings to the HID driver.
 
-Hmm, it seems to work properly, I think it is now a setup issue to a
-certain degree. The touchpad now works in native mode (as opposed to
-Intellimouse emulation) and so I'd recommend installing Synaptics X
-driver from http://web.telia.com/~u89404340/touchpad/
+I tried the same on a Creative Prodikeys keyboard, but can't see any
+events for some keys (most notably none of the "piano" keys work).
 
-Just to verify, could you please locate evtest utility and check
-whether your up and down buttons generate BTN_FORWARD and BTN_BACK
-events?
+Is there anything that can be done to make it work?
 
--- 
-Dmitry
+Cheers,
+
+	Taneli
+

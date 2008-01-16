@@ -1,45 +1,31 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
 Subject: Re: [PATCH, RFC] HP WMI hotkey driver, RFKill query?
-Date: Wed, 16 Jan 2008 01:38:35 +0000
-Message-ID: <200801160138.36347.carlos@strangeworlds.co.uk>
-References: <20071218235137.12838.75397.stgit@localhost> <200801142225.11066.carlos@strangeworlds.co.uk> <20080115155215.ZZRA012@mailhub.coreip.homeip.net>
+Date: Wed, 16 Jan 2008 01:49:47 +0000
+Message-ID: <20080116014947.GA7101@srcf.ucam.org>
+References: <20071218235137.12838.75397.stgit@localhost> <200801142225.11066.carlos@strangeworlds.co.uk> <20080115155215.ZZRA012@mailhub.coreip.homeip.net> <200801160138.36347.carlos@strangeworlds.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slackadelic.com ([65.196.224.53]:53654 "EHLO
-	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755091AbYAPBil (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Jan 2008 20:38:41 -0500
-In-Reply-To: <20080115155215.ZZRA012@mailhub.coreip.homeip.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <200801160138.36347.carlos@strangeworlds.co.uk>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Alexey Starikovskiy <aystarik@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>, Alexey Starikovskiy <aystarik@gmail.com>, linux-input@vger.kernel.org
 
-On Tuesday 15 January 2008 20:54:29 Dmitry Torokhov wrote:
-> If there is a [planned] WMI sysfs device then I think input device should
-> use it to form proper sysfs hierarchy. What are the roadblocks for getting
-> WMI sysfs in?
+On Wed, Jan 16, 2008 at 01:38:35AM +0000, Carlos Corbacho wrote:
 
-The question is, would exporting the GUID virtual device and using that as the 
-parent make more sense? So, in the case of hp-wmi, it only uses the GUID 
-95F24279-4D7B-4334-9387-ACCDC67EF61C, so should we use the virtual device 
-associated with that GUID as the parent, or just have WMI itself as the 
-parent device? I'm really not sure which would be the better way to go.
+> The question is, would exporting the GUID virtual device and using that as the 
+> parent make more sense? So, in the case of hp-wmi, it only uses the GUID 
+> 95F24279-4D7B-4334-9387-ACCDC67EF61C, so should we use the virtual device 
+> associated with that GUID as the parent, or just have WMI itself as the 
+> parent device? I'm really not sure which would be the better way to go.
 
-Unfortunately, as you can see, a GUID is a 36 character string, which is 
-longer than the current 20 byte length of bus_id in a 'struct device'; so 
-either we have to have a temporary hack to shorten the GUID length when 
-creating the device, or wait for bus_id to switch to a variable length 
-(although it's not certain if this change will hit 2.6.25, or will be put off 
-until 2.6.26).
+It's possible for a driver to bind itself to multiple GUIDs, and I guess 
+it's /potentially/ possible for a machine to have multiple event GUIDs. 
+I'm not sure whether those should be created as separate input devices, 
+or whether it would make sense for a driver to bind them into a single 
+input driver. If the latter, wmi probably ought to be the parent?
 
--Carlos
 -- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+Matthew Garrett | mjg59@srcf.ucam.org

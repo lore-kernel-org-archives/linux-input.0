@@ -1,86 +1,31 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
 Subject: Re: [PATCH] Core driver for WM97xx touchscreens
-Date: Fri, 18 Jan 2008 12:23:41 -0500
-Message-ID: <20080118120148.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080118162627.GA28974@rakim.wolfsonmicro.main> <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Date: Fri, 18 Jan 2008 18:11:45 +0000 (UTC)
+Message-ID: <fmqq50$te0$1@ger.gmane.org>
+References: <20080118162627.GA28974@rakim.wolfsonmicro.main>
+	<1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	<20080118120148.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762758AbYARRX5@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764114AbYARSM1@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Mark,
+Hi,
 
-On Fri, Jan 18, 2008 at 04:27:06PM +0000, Mark Brown wrote:
-> This patch series adds support for the touchscreen controllers provided
-> by Wolfson Microelectronics WM97xx series chips in both polled and
-> streaming modes.
->
+Dmitry Torokhov wrote:
 
-Thank you for the patches. Some comments below.
+> I will need some more time to review and understand the need for the new
+> bus in the driver.
 
-> +static int wm97xx_ts_input_open(struct input_dev *idev)
-> +{
-> +	struct wm97xx *wm = (struct wm97xx *)input_get_drvdata(idev);
-
-No need to cast.
-
-> +
-> +	mutex_lock(&wm->ts_mutex);
-> +	/* first time opened ? */
-> +	if (wm->ts_use_count++ == 0) {
-
-You do not need to implement a counter here. Input core makes sure
-that open and close are only called for the fist and last user
-respectivly. ts_mutex can go away as well.
-
-> +	/* set up touch configuration */
-> +	wm->input_dev->name = "wm97xx touchscreen";
-> +	wm->input_dev->open = wm97xx_ts_input_open;
-> +	wm->input_dev->close = wm97xx_ts_input_close;
-> +	set_bit(EV_ABS, wm->input_dev->evbit);
-> +	set_bit(ABS_X, wm->input_dev->absbit);
-> +	set_bit(ABS_Y, wm->input_dev->absbit);
-> +	set_bit(ABS_PRESSURE, wm->input_dev->absbit);
-> +	wm->input_dev->absmax[ABS_X] = abs_x[1];
-> +	wm->input_dev->absmax[ABS_Y] = abs_y[1];
-> +	wm->input_dev->absmax[ABS_PRESSURE] = abs_p[1];
-> +	wm->input_dev->absmin[ABS_X] = abs_x[0];
-> +	wm->input_dev->absmin[ABS_Y] = abs_y[0];
-> +	wm->input_dev->absmin[ABS_PRESSURE] = abs_p[0];
-> +	wm->input_dev->absfuzz[ABS_X] = abs_x[2];
-> +	wm->input_dev->absfuzz[ABS_Y] = abs_y[2];
-> +	wm->input_dev->absfuzz[ABS_PRESSURE] = abs_p[2];
-
-input_set-abs_params(wm->input_dev, ABS_X, ...);
-input_set-abs_params(wm->input_dev, ABS_Y, ...);
-input_set-abs_params(wm->input_dev, ABS_X, ...);
-
-I'd also recoomend using a temp for wm->input_dev, shoudl save a couple
-of bytes.
-
-> +	input_set_drvdata(wm->input_dev, wm);
-
-Also wm->input_dev->dev.parent = &dev; to put it in the proper place
-in sysfs hierarchy.
-
-> +	ret = input_register_device(wm->input_dev);
-> +	if (ret < 0) {
-
-Add input_free_device(); here.
-
-> +		kfree(wm);
-> +		return -ENOMEM;
-> +	}
-
-I will need some more time to review and understand the need for the new bus
-in the driver.
-
-Thanks.
+Most likely this can be converted to platform_bus. Maybe this can also get
+help from soon-to-be posted MFD (multi function devices) helpers.
 
 -- 
+With best wishes
 Dmitry
+
+

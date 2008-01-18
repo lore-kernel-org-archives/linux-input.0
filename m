@@ -1,65 +1,236 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [BISECTED] Re: psmouse.c: GlidePoint at isa0060/serio1/input0
-	lost sync at byte 1
-Date: Thu, 17 Jan 2008 16:11:36 -0500
-Message-ID: <20080117153642.ZZRA012@mailhub.coreip.homeip.net>
-References: <19f34abd0801071224kb9cb121u244b00b274231db0@mail.gmail.com> <d120d5000801110647k4b1fa49ene974898baf745aec@mail.gmail.com> <478CFB56.1030700@gmail.com> <20080115154142.ZZRA012@mailhub.coreip.homeip.net> <20080116104024.ZZRA012@mailhub.coreip.homeip.net> <19f34abd0801160946j2fe1c75ap3617dd125c81008f@mail.gmail.com> <20080116142815.ZZRA012@mailhub.coreip.homeip.net> <19f34abd0801161219oe478b50se13c0710759d581f@mail.gmail.com> <20080116154524.ZZRA012@mailhub.coreip.homeip.net> <19f34abd0801171226m2ede3572kbaf91e4603313a9c@mail.gmail.com>
+From: Alex Torkhov <atorkhov@gmail.com>
+Subject: Problem with Genius Ergomedia 700
+Date: Fri, 18 Jan 2008 12:28:26 +0300
+Message-ID: <4790713A.9@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+ boundary="------------080701070408050404020508"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.178]:39253 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756400AbYAQVLl (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.152]:39972 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755558AbYARJ2b (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jan 2008 16:11:41 -0500
-Received: by py-out-1112.google.com with SMTP id u52so1147550pyb.10
-        for <linux-input@vger.kernel.org>; Thu, 17 Jan 2008 13:11:40 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <19f34abd0801171226m2ede3572kbaf91e4603313a9c@mail.gmail.com>
+	Fri, 18 Jan 2008 04:28:31 -0500
+Received: by fg-out-1718.google.com with SMTP id e21so974401fga.17
+        for <linux-input@vger.kernel.org>; Fri, 18 Jan 2008 01:28:29 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vegard Nossum <vegard.nossum@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, William Pettersson <william.pettersson@gmail.com>
+To: linux-input@vger.kernel.org
 
-On Thu, Jan 17, 2008 at 09:26:37PM +0100, Vegard Nossum wrote:
-> On Jan 16, 2008 9:49 PM, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > Hmm, it seems to work properly, I think it is now a setup issue to a
-> > certain degree. The touchpad now works in native mode (as opposed to
-> > Intellimouse emulation) and so I'd recommend installing Synaptics X
-> > driver from http://web.telia.com/~u89404340/touchpad/
-> 
-> I have now installed this driver and copied the relevant parts of the
-> example X configuration file. However, I do not think that this is the
-> correct driver. I can move the mouse around, but only VERY slowly
-> (takes 6-7 swipes over the pad just to go from one edge of the screen
-> to the other), and only the left/right buttons work. Tapping does NOT
-> work. I also installed and ran gsynaptics. I am not sure how or if
-> this program will change my X config or not, but changing any settings
-> there did not have any effect on the mouse at all. (It also showed
-> that tapping was enabled.)
+This is a multi-part message in MIME format.
+--------------080701070408050404020508
+Content-Type: text/plain; charset=windows-1251; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Can I please see you xorg.conf?
+Hello.
 
-> 
-> > Just to verify, could you please locate evtest utility and check
-> > whether your up and down buttons generate BTN_FORWARD and BTN_BACK
-> > events?
-> 
-> Where can I find evtest?
+I have Genius Ergomedia 700 USB keyboard but not all "multimedia" keys 
+are working.
+In manual it's written that "My document/My picture/My music/Scrolling 
+buttons/Left and right scrolling functions/Zoom in/Zoom 
+out/Messenger/Messenger status/Webcam/Audio 1-3/Word/Excel/Powerpoint do 
+not function unless driver has been installed". And exactly those keys 
+do not working while other multimedia keys are working fine.
 
-Try grabbing the source from here:
+What can be done to enable those additional multimedia keys?
 
-http://linuxconsole.cvs.sourceforge.net/*checkout*/linuxconsole/ruby/utils/evtest.c?revision=1.23
+When plugging it in it appears as 2 input devices:
+input: KYE 4D device Ergomedia as /class/input/input1
+input: USB HID v1.10 Keyboard [KYE 4D device Ergomedia] on 
+usb-0000:00:1d.1-1
+input: KYE 4D device Ergomedia as /class/input/input2
+input: USB HID v1.10 Device [KYE 4D device Ergomedia] on usb-0000:00:1d.1-1
 
-> 
-> Still, I wonder if it may be better for me to use the old driver
-> (ImPS/2 -- is this the Intellimouse?) since this used to work
-> perfectly for me earlier. Maybe I can just remove the GlidePoint
-> driver from my kernel to force the older driver?
->
+lsusb -v output in attachment.
 
-psmouse.proto=exps if psmouse is built in or add "options psmouse proto=exps"
-to your /etc/modprobe.conf if psmouse is a module.
+Alex.
 
--- 
-Dmitry
+--------------080701070408050404020508
+Content-Type: text/plain;
+ name="Ergomedia700_lsusb"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Ergomedia700_lsusb"
+
+
+Bus 003 Device 002: ID 05d5:8001 Super Gate Technology Co., Ltd 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0         8
+  idVendor           0x05d5 Super Gate Technology Co., Ltd
+  idProduct          0x8001 
+  bcdDevice            1.00
+  iManufacturer           1 KYE 4D device
+  iProduct                2 Ergomedia
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           59
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          2 Ergomedia
+    bmAttributes         0xa0
+      Remote Wakeup
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      1 Keyboard
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      65
+          Report Descriptor: (length is 65)
+            Item(Global): Usage Page, data= [ 0x01 ] 1
+                            Generic Desktop Controls
+            Item(Local ): Usage, data= [ 0x06 ] 6
+                            Keyboard
+            Item(Main  ): Collection, data= [ 0x01 ] 1
+                            Application
+            Item(Global): Usage Page, data= [ 0x07 ] 7
+                            Keyboard
+            Item(Local ): Usage Minimum, data= [ 0xe0 ] 224
+                            Control Left
+            Item(Local ): Usage Maximum, data= [ 0xe7 ] 231
+                            GUI Right
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Global): Logical Maximum, data= [ 0x01 ] 1
+            Item(Global): Report Count, data= [ 0x08 ] 8
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Main  ): Input, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Report Count, data= [ 0x08 ] 8
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Main  ): Input, data= [ 0x01 ] 1
+                            Constant Array Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Usage Page, data= [ 0x08 ] 8
+                            LEDs
+            Item(Local ): Usage Minimum, data= [ 0x01 ] 1
+                            NumLock
+            Item(Local ): Usage Maximum, data= [ 0x03 ] 3
+                            Scroll Lock
+            Item(Global): Report Count, data= [ 0x03 ] 3
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Main  ): Output, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Report Count, data= [ 0x01 ] 1
+            Item(Global): Report Size, data= [ 0x05 ] 5
+            Item(Main  ): Output, data= [ 0x01 ] 1
+                            Constant Array Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Usage Page, data= [ 0x07 ] 7
+                            Keyboard
+            Item(Local ): Usage Minimum, data= [ 0x00 ] 0
+                            No Event
+            Item(Local ): Usage Maximum, data= [ 0xff 0x00 ] 255
+                            (null)
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Global): Logical Maximum, data= [ 0xff 0x00 ] 255
+            Item(Global): Report Count, data= [ 0x06 ] 6
+            Item(Global): Report Size, data= [ 0x08 ] 8
+            Item(Main  ): Input, data= [ 0x00 ] 0
+                            Data Array Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Main  ): End Collection, data=none
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      1 Boot Interface Subclass
+      bInterfaceProtocol      2 Mouse
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.10
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      50
+          Report Descriptor: (length is 50)
+            Item(Global): Usage Page, data= [ 0x0c ] 12
+                            Consumer
+            Item(Local ): Usage, data= [ 0x01 ] 1
+                            Consumer Control
+            Item(Main  ): Collection, data= [ 0x01 ] 1
+                            Application
+            Item(Global): Report ID, data= [ 0x01 ] 1
+            Item(Local ): Usage Minimum, data= [ 0x00 ] 0
+                            Unassigned
+            Item(Local ): Usage Maximum, data= [ 0xf0 0x02 ] 752
+                            (null)
+            Item(Global): Logical Minimum, data= [ 0x00 ] 0
+            Item(Global): Logical Maximum, data= [ 0xf0 0x02 ] 752
+            Item(Global): Report Count, data= [ 0x01 ] 1
+            Item(Global): Report Size, data= [ 0x10 ] 16
+            Item(Main  ): Input, data= [ 0x00 ] 0
+                            Data Array Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Main  ): End Collection, data=none
+            Item(Global): Usage Page, data= [ 0x01 ] 1
+                            Generic Desktop Controls
+            Item(Local ): Usage, data= [ 0x80 ] 128
+                            System Control
+            Item(Main  ): Collection, data= [ 0x01 ] 1
+                            Application
+            Item(Global): Report ID, data= [ 0x02 ] 2
+            Item(Local ): Usage Minimum, data= [ 0x81 ] 129
+                            System Power Down
+            Item(Local ): Usage Maximum, data= [ 0x83 ] 131
+                            System Wake Up
+            Item(Global): Logical Maximum, data= [ 0x01 ] 1
+            Item(Global): Report Size, data= [ 0x01 ] 1
+            Item(Global): Report Count, data= [ 0x03 ] 3
+            Item(Main  ): Input, data= [ 0x02 ] 2
+                            Data Variable Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Global): Report Count, data= [ 0x05 ] 5
+            Item(Main  ): Input, data= [ 0x01 ] 1
+                            Constant Array Absolute No_Wrap Linear
+                            Preferred_State No_Null_Position Non_Volatile Bitfield
+            Item(Main  ): End Collection, data=none
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+
+--------------080701070408050404020508--

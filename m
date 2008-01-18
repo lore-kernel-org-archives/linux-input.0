@@ -1,134 +1,86 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Build system and MAINTAINERS entry for WM97xx touchscreen drivers
-Date: Fri, 18 Jan 2008 16:27:11 +0000
-Message-ID: <1200673631-366-6-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <20080118162627.GA28974@rakim.wolfsonmicro.main>
- <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1200673631-366-2-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1200673631-366-3-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1200673631-366-4-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1200673631-366-5-git-send-email-broonie@opensource.wolfsonmicro.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1763265AbYARQ1l@vger.kernel.org>
-In-Reply-To: <1200673631-366-5-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Core driver for WM97xx touchscreens
+Date: Fri, 18 Jan 2008 12:23:41 -0500
+Message-ID: <20080118120148.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080118162627.GA28974@rakim.wolfsonmicro.main> <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762758AbYARRX5@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Sam Ravnborg <sam@ravnborg.org>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>
----
- MAINTAINERS                        |    9 ++++++
- drivers/input/touchscreen/Kconfig  |   52 ++++++++++++++++++++++++++++++++++++
- drivers/input/touchscreen/Makefile |    7 +++++
- 3 files changed, 68 insertions(+), 0 deletions(-)
+Hi Mark,
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2340cfb..4ad793f 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4204,6 +4204,15 @@ L:	linux-wireless@vger.kernel.org
- W:	http://oops.ghostprotocols.net:81/blog
- S:	Maintained
- 
-+WM97XX TOUCHSCREEN DRIVERS
-+P:	Mark Brown
-+M:	broonie@opensource.wolfsonmicro.com
-+P:	Liam Girdwood
-+M:	liam.girdwood@wolfsonmicro.com
-+L:	linux-input@vger.kernel.org
-+T:	git git://opensource.wolfsonmicro.com/linux-2.6-touch
-+S:	Supported
-+
- X.25 NETWORK LAYER
- P:	Henner Eisen
- M:	eis@baty.hanse.de
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 90e8e92..0be05a2 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -158,6 +158,58 @@ config TOUCHSCREEN_TOUCHRIGHT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called touchright.
- 
-+config TOUCHSCREEN_WM97XX
-+	tristate "Support for WM97xx AC97 touchscreen controllers"
-+	depends on AC97_BUS
-+
-+config TOUCHSCREEN_WM9705
-+	bool "WM9705 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9705 touchscreen
-+	  controller connected to your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wm9705.
-+
-+config TOUCHSCREEN_WM9712
-+	bool "WM9712 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9712 touchscreen
-+	  controller connected to your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wm9712.
-+
-+config TOUCHSCREEN_WM9713
-+	bool "WM9713 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9713 touchscreen
-+	  controller connected to your system.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called wm9713.
-+
-+config TOUCHSCREEN_WM97XX_MAINSTONE
-+	tristate "WM97xx Mainstone accelerated touch"
-+	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
-+	help
-+	  Say Y here for support for streaming mode with WM97xx touchscreens
-+	  on Mainstone systems.
-+
-+	  If unsure, say N
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called mainstone-wm97xx
-+
- config TOUCHSCREEN_TOUCHWIN
- 	tristate "Touchwin serial touchscreen"
- 	select SERIO
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 35d4097..d38156e 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -4,6 +4,8 @@
- 
- # Each configuration option enables a list of files.
- 
-+wm97xx-ts-y := wm97xx-core.o
-+
- obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
- obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
- obj-$(CONFIG_TOUCHSCREEN_CORGI)		+= corgi_ts.o
-@@ -19,3 +21,8 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
- obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
- obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
-+obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)  += wm9705.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)  += wm9712.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)  += wm9713.o
+On Fri, Jan 18, 2008 at 04:27:06PM +0000, Mark Brown wrote:
+> This patch series adds support for the touchscreen controllers provided
+> by Wolfson Microelectronics WM97xx series chips in both polled and
+> streaming modes.
+>
+
+Thank you for the patches. Some comments below.
+
+> +static int wm97xx_ts_input_open(struct input_dev *idev)
+> +{
+> +	struct wm97xx *wm = (struct wm97xx *)input_get_drvdata(idev);
+
+No need to cast.
+
+> +
+> +	mutex_lock(&wm->ts_mutex);
+> +	/* first time opened ? */
+> +	if (wm->ts_use_count++ == 0) {
+
+You do not need to implement a counter here. Input core makes sure
+that open and close are only called for the fist and last user
+respectivly. ts_mutex can go away as well.
+
+> +	/* set up touch configuration */
+> +	wm->input_dev->name = "wm97xx touchscreen";
+> +	wm->input_dev->open = wm97xx_ts_input_open;
+> +	wm->input_dev->close = wm97xx_ts_input_close;
+> +	set_bit(EV_ABS, wm->input_dev->evbit);
+> +	set_bit(ABS_X, wm->input_dev->absbit);
+> +	set_bit(ABS_Y, wm->input_dev->absbit);
+> +	set_bit(ABS_PRESSURE, wm->input_dev->absbit);
+> +	wm->input_dev->absmax[ABS_X] = abs_x[1];
+> +	wm->input_dev->absmax[ABS_Y] = abs_y[1];
+> +	wm->input_dev->absmax[ABS_PRESSURE] = abs_p[1];
+> +	wm->input_dev->absmin[ABS_X] = abs_x[0];
+> +	wm->input_dev->absmin[ABS_Y] = abs_y[0];
+> +	wm->input_dev->absmin[ABS_PRESSURE] = abs_p[0];
+> +	wm->input_dev->absfuzz[ABS_X] = abs_x[2];
+> +	wm->input_dev->absfuzz[ABS_Y] = abs_y[2];
+> +	wm->input_dev->absfuzz[ABS_PRESSURE] = abs_p[2];
+
+input_set-abs_params(wm->input_dev, ABS_X, ...);
+input_set-abs_params(wm->input_dev, ABS_Y, ...);
+input_set-abs_params(wm->input_dev, ABS_X, ...);
+
+I'd also recoomend using a temp for wm->input_dev, shoudl save a couple
+of bytes.
+
+> +	input_set_drvdata(wm->input_dev, wm);
+
+Also wm->input_dev->dev.parent = &dev; to put it in the proper place
+in sysfs hierarchy.
+
+> +	ret = input_register_device(wm->input_dev);
+> +	if (ret < 0) {
+
+Add input_free_device(); here.
+
+> +		kfree(wm);
+> +		return -ENOMEM;
+> +	}
+
+I will need some more time to review and understand the need for the new bus
+in the driver.
+
+Thanks.
+
 -- 
-1.5.3.8
-
+Dmitry

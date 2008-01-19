@@ -1,48 +1,68 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: Dmitry <dbaryshkov@gmail.com>
 Subject: Re: [PATCH] Core driver for WM97xx touchscreens
-Date: Sat, 19 Jan 2008 21:55:07 +0000
-Message-ID: <20080119215506.GA7400@sirena.org.uk>
-References: <20080118162627.GA28974@rakim.wolfsonmicro.main> <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080118120148.ZZRA012@mailhub.coreip.homeip.net> <fmqq50$te0$1@ger.gmane.org> <20080119170030.GA469@sirena.org.uk> <bc64b4640801191148m39ae5cd6ra190ac8e9c40fba7@mail.gmail.com>
+Date: Sun, 20 Jan 2008 01:18:40 +0300
+Message-ID: <bc64b4640801191418m6b8197c8l498e181d267bb200@mail.gmail.com>
+References: <20080118162627.GA28974@rakim.wolfsonmicro.main>
+	 <1200673631-366-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	 <20080118120148.ZZRA012@mailhub.coreip.homeip.net>
+	 <fmqq50$te0$1@ger.gmane.org> <20080119170030.GA469@sirena.org.uk>
+	 <bc64b4640801191148m39ae5cd6ra190ac8e9c40fba7@mail.gmail.com>
+	 <20080119215506.GA7400@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:1900 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751270AbYASVzJ (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.178]:45074 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756386AbYASWSm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 19 Jan 2008 16:55:09 -0500
+	Sat, 19 Jan 2008 17:18:42 -0500
+Received: by py-out-1112.google.com with SMTP id u52so2186605pyb.10
+        for <linux-input@vger.kernel.org>; Sat, 19 Jan 2008 14:18:41 -0800 (PST)
+In-Reply-To: <20080119215506.GA7400@sirena.org.uk>
 Content-Disposition: inline
-In-Reply-To: <bc64b4640801191148m39ae5cd6ra190ac8e9c40fba7@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry <dbaryshkov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, liam.girdwood@wolfsonmicro.com
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, liam.girdwood@wolfsonmicro.com
 
-On Sat, Jan 19, 2008 at 10:48:32PM +0300, Dmitry wrote:
+Hi,
 
-> Well... It's a common suggestion not to duplicate code. The wm97xx bus
-> looks mostly like platform. The only difference is the name. To help
-> visualisation, devices can have parents. Just set (in pseudocode)
-> wm97xx-touchscreen->parent to wm97xx, do the same for wm97xx-battery
-> and so on. Thus all devices would be on the platform device but with
-> proper parent <-> child notation.
+2008/1/20, Mark Brown <broonie@opensource.wolfsonmicro.com>:
+> On Sat, Jan 19, 2008 at 10:48:32PM +0300, Dmitry wrote:
+>
+> > Well... It's a common suggestion not to duplicate code. The wm97xx bus
+> > looks mostly like platform. The only difference is the name. To help
+> > visualisation, devices can have parents. Just set (in pseudocode)
+> > wm97xx-touchscreen->parent to wm97xx, do the same for wm97xx-battery
+> > and so on. Thus all devices would be on the platform device but with
+> > proper parent <-> child notation.
+>
+> That's exactly what I had understood you to mean.  I guess it's just
+> that using the platform bus for this purpose feels like an abstraction
+> violation to me due to having platform devices parented off a device on
+> another bus.  Obviously it's just my model of a platform device that's
+> wrong here.  I will change the driver to use the platform bus for my
+> next submission.
 
-That's exactly what I had understood you to mean.  I guess it's just
-that using the platform bus for this purpose feels like an abstraction
-violation to me due to having platform devices parented off a device on
-another bus.  Obviously it's just my model of a platform device that's
-wrong here.  I will change the driver to use the platform bus for my
-next submission.
+Hmm. I forgot about rooting this onto ac97 bus. But I would still suggest
+using platform bus just for the sake of code clarity and simplicity.
 
-> git://git.mnementh.co.uk/linux-2.6-im.git#tmio_dev_try3. Look for
+>
+> > git://git.mnementh.co.uk/linux-2.6-im.git#tmio_dev_try3. Look for
+>
+> Thanks, I'll take a look.
+>
+> > 2008/1/19, Mark Brown <broonie@opensource.wolfsonmicro.com>:
+>
+> > > current patch series these chips all also provide an audio codec which
+> > > requires a reasonably substantial driver for full support.
+>
+> > This would only touch child devices organisation.
+>
+> Indeed - I mention it mostly for additional motivation.
+>
 
-Thanks, I'll take a look.
 
-> 2008/1/19, Mark Brown <broonie@opensource.wolfsonmicro.com>:
-
-> > current patch series these chips all also provide an audio codec which
-> > requires a reasonably substantial driver for full support.
-
-> This would only touch child devices organisation.
-
-Indeed - I mention it mostly for additional motivation.
+-- 
+With best wishes
+Dmitry

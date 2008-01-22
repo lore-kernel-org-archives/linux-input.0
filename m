@@ -1,57 +1,49 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: rfkill-input understanding help
-Date: Tue, 22 Jan 2008 00:55:37 +0000
-Message-ID: <200801220055.39044.carlos@strangeworlds.co.uk>
-References: <200712110333.40946.carlos@strangeworlds.co.uk> <d120d5000801111234k5c0faaeeya0c5487ede8f0c19@mail.gmail.com> <200801120032.41263.carlos@strangeworlds.co.uk>
+From: Jan Engelhardt <jengelh@computergmbh.de>
+Subject: [PATCH] input: constify function pointer tables
+Date: Tue, 22 Jan 2008 20:55:08 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0801222054560.5722@fbirervta.pbzchgretzou.qr>
+References: <54038cd4f87a03884e4f59f8f3697889dfb63c54.1201030614.git.jengelh@computergmbh.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from slackadelic.com ([65.196.224.53]:49396 "EHLO
-	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753129AbYAVAzq (ORCPT
+Received: from sovereign.computergmbh.de ([85.214.69.204]:37119 "EHLO
+	sovereign.computergmbh.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754934AbYAVTzK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jan 2008 19:55:46 -0500
-In-Reply-To: <200801120032.41263.carlos@strangeworlds.co.uk>
-Content-Disposition: inline
+	Tue, 22 Jan 2008 14:55:10 -0500
+In-Reply-To: <54038cd4f87a03884e4f59f8f3697889dfb63c54.1201030614.git.jengelh@computergmbh.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ivo van Doorn <ivdoorn@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org
 
-On Saturday 12 January 2008 00:32:40 Carlos Corbacho wrote:
-> On Friday 11 January 2008 20:34:09 Dmitry Torokhov wrote:
-> > On Jan 11, 2008 2:08 PM, Ivo van Doorn <ivdoorn@gmail.com> wrote:
-> > > Perhaps the rfkill-input needs to be registered before input
-> > > devices are being registered. But I am not sure, Dmitry propably
-> > > knows more about possible ordering requirements for input
-> > > device and input trigger registration.
-> >
-> > No, it is ok for rfkill-input handler to be installed later, but of
-> > course it will miss any events that happen before.
->
-> Unfortunately, moving the load order of rfkill-input doesn't solve my
-> acer-wmi problems:
+Signed-off-by: Jan Engelhardt <jengelh@computergmbh.de>
+---
+ drivers/input/input.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Some experimentation shows that something is going wrong in input.c - 
-rfkill_connect() is not being executed on the first load of rfkill-input.
-
-Shoving some printk's into input.c shows that it fails in 
-input_match_handler() on:
-
-	id = input_match_device(handler->id_table, dev);
-	if (!id)
-		return -ENODEV;
-
-This test always fails for every call of input_match_handler() in 
-input_register_handler().
-
-Unloading and reloading rfkill-input then somehow causes this test to not 
-fail, and rfkill-input is then properly registered...
-
--Carlos
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index a0be978..570cbcd 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -755,7 +755,7 @@ static int input_devices_seq_show(struct seq_file *seq, void *v)
+ 	return 0;
+ }
+ 
+-static struct seq_operations input_devices_seq_ops = {
++static const struct seq_operations input_devices_seq_ops = {
+ 	.start	= input_devices_seq_start,
+ 	.next	= input_devices_seq_next,
+ 	.stop	= input_devices_seq_stop,
+@@ -808,7 +808,7 @@ static int input_handlers_seq_show(struct seq_file *seq, void *v)
+ 
+ 	return 0;
+ }
+-static struct seq_operations input_handlers_seq_ops = {
++static const struct seq_operations input_handlers_seq_ops = {
+ 	.start	= input_handlers_seq_start,
+ 	.next	= input_handlers_seq_next,
+ 	.stop	= input_handlers_seq_stop,
 -- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+1.5.3.4
+

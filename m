@@ -1,48 +1,57 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: evdev soft lockup 2.6.24-rc5-mm1
-Date: Mon, 21 Jan 2008 20:11:35 +0100
-Message-ID: <4794EE67.6090508@gmail.com>
-References: <47848CF5.8000107@gmail.com> <Pine.LNX.4.64.0801091107200.25041@twin.jikos.cz>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: rfkill-input understanding help
+Date: Tue, 22 Jan 2008 00:55:37 +0000
+Message-ID: <200801220055.39044.carlos@strangeworlds.co.uk>
+References: <200712110333.40946.carlos@strangeworlds.co.uk> <d120d5000801111234k5c0faaeeya0c5487ede8f0c19@mail.gmail.com> <200801120032.41263.carlos@strangeworlds.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.190]:2736 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751957AbYAUTLl (ORCPT
+Received: from slackadelic.com ([65.196.224.53]:49396 "EHLO
+	mail.slackadelic.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753129AbYAVAzq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jan 2008 14:11:41 -0500
-Received: by nf-out-0910.google.com with SMTP id g13so320280nfb.21
-        for <linux-input@vger.kernel.org>; Mon, 21 Jan 2008 11:11:38 -0800 (PST)
-In-Reply-To: <Pine.LNX.4.64.0801091107200.25041@twin.jikos.cz>
+	Mon, 21 Jan 2008 19:55:46 -0500
+In-Reply-To: <200801120032.41263.carlos@strangeworlds.co.uk>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Dmitry Torokhov <dtor@mail.ru>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ivo van Doorn <ivdoorn@gmail.com>, linux-input@vger.kernel.org
 
-On 01/09/2008 11:11 AM, Jiri Kosina wrote:
-> On Wed, 9 Jan 2008, Jiri Slaby wrote:
-> 
->> BUG: soft lockup - CPU#1 stuck for 11s! [X:2887]
-> [ ... ]
->> Call Trace:
->>  [<ffffffff804e7648>] __mutex_lock_slowpath+0x38/0xd0
->>  [<ffffffff804e747e>] mutex_lock+0x1e/0x30
->>  [<ffffffff8040c497>] input_release_device+0x27/0x50
->>  [<ffffffff804102aa>] evdev_ungrab+0x3a/0x50
->>  [<ffffffff804103eb>] evdev_release+0xcb/0xd0
->>  [<ffffffff80293460>] __fput+0xc0/0x230
->>  [<ffffffff802938a6>] fput+0x16/0x20
->>  [<ffffffff80290296>] filp_close+0x56/0x90
->>  [<ffffffff80291afa>] sys_close+0x9a/0xf0
->>  [<ffffffff8020ba4e>] system_call+0x7e/0x83
->> I was not able to use sysrq keys, the keyboard is obviously defunct. If 
->> this is not known, I'll try to turn lockdep on and maybe connect through 
->> ssh next time it happens.
-> 
-> Is this reproducible on your side? 
-> 
-> Running with lockdep would be really helpful, so that we possibly know who 
-> is holding the other instance of dev->mutex.
+On Saturday 12 January 2008 00:32:40 Carlos Corbacho wrote:
+> On Friday 11 January 2008 20:34:09 Dmitry Torokhov wrote:
+> > On Jan 11, 2008 2:08 PM, Ivo van Doorn <ivdoorn@gmail.com> wrote:
+> > > Perhaps the rfkill-input needs to be registered before input
+> > > devices are being registered. But I am not sure, Dmitry propably
+> > > knows more about possible ordering requirements for input
+> > > device and input trigger registration.
+> >
+> > No, it is ok for rfkill-input handler to be installed later, but of
+> > course it will miss any events that happen before.
+>
+> Unfortunately, moving the load order of rfkill-input doesn't solve my
+> acer-wmi problems:
 
-Seems not to be an issue any longer, but I'll keep an eye on it.
+Some experimentation shows that something is going wrong in input.c - 
+rfkill_connect() is not being executed on the first load of rfkill-input.
+
+Shoving some printk's into input.c shows that it fails in 
+input_match_handler() on:
+
+	id = input_match_device(handler->id_table, dev);
+	if (!id)
+		return -ENODEV;
+
+This test always fails for every call of input_match_handler() in 
+input_register_handler().
+
+Unloading and reloading rfkill-input then somehow causes this test to not 
+fail, and rfkill-input is then properly registered...
+
+-Carlos
+-- 
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

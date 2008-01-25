@@ -1,34 +1,47 @@
-From: "Girish" <girishsg@ti.com>
-Subject: Keyboard issue
-Date: Wed, 23 Jan 2008 17:15:08 +0530
-Message-ID: <01fe01c85db5$67d00950$988818ac@ent.ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] linux-2.6.24/drivers/hid/hid-input.c
+Date: Fri, 25 Jan 2008 11:30:18 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0801251129160.22844@jikos.suse.cz>
+References: <alpine.LFD.1.00.0801241506500.15329@hp.linux-foundation.org>
+ <20080125101134.GA3802@titan.lahn.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from calf.ext.ti.com ([198.47.26.144]:59856 "EHLO calf.ext.ti.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750855AbYAWLpT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jan 2008 06:45:19 -0500
-Received: from dbdp31.itg.ti.com ([172.24.170.98])
-	by calf.ext.ti.com (8.13.7/8.13.7) with ESMTP id m0NBjAQJ028305
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <linux-input@vger.kernel.org>; Wed, 23 Jan 2008 05:45:18 -0600
-Received: from a0393109 (localhost [127.0.0.1])
-	by dbdp31.itg.ti.com (8.13.8/8.13.8) with ESMTP id m0NBj8WC012094
-	for <linux-input@vger.kernel.org>; Wed, 23 Jan 2008 17:15:09 +0530 (IST)
+Received: from styx.suse.cz ([82.119.242.94]:35019 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753884AbYAYKaT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Jan 2008 05:30:19 -0500
+In-Reply-To: <20080125101134.GA3802@titan.lahn.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
+On Fri, 25 Jan 2008, Philipp Matthias Hahn wrote:
 
-Hi,
-I'm seeing some wrong key values displayed while in auto-repeat feature. I press the key and keep it pressed for some few seconds
-and I start getting wrong key code values. I see the register value is changing when in auto-repeat, idealy the register value
-should not change.
-I'm enabling auto-repeat feature of input subsystem. Any idea why such behaviour? Is it that hardware has some issues?
+> In hidinput_configure_usage(device), IS_CHICONY_TACTICAL_PAD(devic) gets
+> passed the 'device' parameter. But that macro still references its
+> parameter by 'device' instead of by its local name 'x'.
+> Signed-off-by: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+> 
+> --- linux/drivers/hid/hid-input.c	2008-01-25 09:57:17.000000000 +0100
+> +++ linux/drivers/hid/hid-input.c	2008-01-25 10:56:35.835871529 +0100
+> @@ -87,7 +87,7 @@
+>  #define map_key_clear(c)	do { map_key(c); clear_bit(c, bit); } while (0)
+>  
+>  /* hardware needing special handling due to colliding MSVENDOR page usages */
+> -#define IS_CHICONY_TACTICAL_PAD(x) (x->vendor == 0x04f2 && device->product == 0x0418)
+> +#define IS_CHICONY_TACTICAL_PAD(x) (x->vendor == 0x04f2 && x->product == 0x0418)
+>  #define IS_MS_KB(x) (x->vendor == 0x045e && (x->product == 0x00db || x->product == 0x00f9))
 
-Regards,
-Girish
+Hi Philipp,
 
+thanks a lot for spotting this. I have however rewritten the ugly handling 
+of hid-input mapping quirks code, so this bug is not present anymore 
+(please see hid-input-quirks branch of my git tree, if interested).
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

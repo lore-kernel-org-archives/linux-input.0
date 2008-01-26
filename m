@@ -1,61 +1,30 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
-Date: Sat, 26 Jan 2008 10:18:16 +0000 (UTC)
-Message-ID: <fnf1d8$n6i$1@ger.gmane.org>
-References: <20080121152402.GA7518@rakim.wolfsonmicro.main>
-	<1200929100-17224-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<fnf084$ju9$1@ger.gmane.org>
+Date: Sat, 26 Jan 2008 11:47:41 +0000
+Message-ID: <20080126114740.GA7598@sirena.org.uk>
+References: <20080121152402.GA7518@rakim.wolfsonmicro.main> <1200929100-17224-1-git-send-email-broonie@opensource.wolfsonmicro.com> <fnf084$ju9$1@ger.gmane.org> <fnf1d8$n6i$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756955AbYAZKSe@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:2913 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751720AbYAZLrt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Jan 2008 06:47:49 -0500
+Content-Disposition: inline
+In-Reply-To: <fnf1d8$n6i$1@ger.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi,
+On Sat, Jan 26, 2008 at 10:18:16AM +0000, Dmitry Baryshkov wrote:
 
-Please apply this patch. BTW: Could you please also add me to the "CC" list
-of this patch serie?
+> Please apply this patch.
 
->From 1e61dd8a8c8346f925f09cae34275c9754bf2be1 Mon Sep 17 00:00:00 2001
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Date: Sat, 26 Jan 2008 13:04:29 +0300
-Subject: [PATCH] Fix wm97xx_resume
+Done, thanks.
 
-Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
----
- drivers/input/touchscreen/wm97xx-core.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+>                          BTW: Could you please also add me to the "CC" list
+> of this patch serie?
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 06030a8..27a0a99 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -639,7 +639,7 @@ static int wm97xx_remove(struct device *dev)
- }
- 
- #ifdef CONFIG_PM
--int wm97xx_resume(struct device *dev)
-+static int wm97xx_resume(struct device *dev)
- {
- 	struct wm97xx *wm = dev_get_drvdata(dev);
- 
-@@ -647,7 +647,7 @@ int wm97xx_resume(struct device *dev)
- 	if (wm->id == WM9713_ID2) {
- 		wm97xx_reg_write(wm, AC97_WM9713_DIG1, wm->dig[0]);
- 		wm97xx_reg_write(wm, 0x5a, wm->misc);
--		if (wm->ts_use_count) {
-+		if (wm->input_dev->users) {
- 			u16 reg;
- 			reg = wm97xx_reg_read(wm, AC97_EXTENDED_MID) & 0x7fff;
- 			wm97xx_reg_write(wm, AC97_EXTENDED_MID, reg);
--- 
-1.5.3.8
-
-
-
--- 
-With best wishes
-Dmitry
+Sure.

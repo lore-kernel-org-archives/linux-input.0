@@ -1,339 +1,597 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 5/6] Driver for WM97xx touchscreens in streaming mode on Mainstone
-Date: Sat, 26 Jan 2008 17:28:35 +0000
-Message-ID: <1201368516-3513-5-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <20080126151820.GA13899@sirena.org.uk>
- <1201368516-3513-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1201368516-3513-2-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1201368516-3513-3-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1201368516-3513-4-git-send-email-broonie@opensource.wolfsonmicro.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757543AbYAZRas@vger.kernel.org>
-In-Reply-To: <1201368516-3513-4-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Arjan Opmeer <arjan@opmeer.net>
+Subject: [PATCH] Elantech touchpad driver update for kernel 2.6.24-rc8-mm1
+Date: Sun, 27 Jan 2008 09:02:24 +0100
+Message-ID: <20080127080224.GA17196@adopmeer.homeip.net>
+References: <20080127080005.GA17072@adopmeer.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755900AbYA0IZM@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080127080005.GA17072@adopmeer.homeip.net>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+To: Arjan Opmeer <arjan@opmeer.net>
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 List-Id: linux-input@vger.kernel.org
 
-Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-Signed-off-by: Graeme Gregory <gg@opensource.wolfsonmicro.com>
-Signed-off-by: Mike Arthur <mike.arthur@wolfsonmicro.com>
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Cc: Stanley Cai <stanley.cai@intel.com>
-Cc: Rodolfo Giometti <giometti@enneenne.com>
-Cc: Russell King <rmk@arm.linux.org.uk>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: Ian Molton <spyro@f2s.com>
-Cc: Vince Sanders <vince@kyllikki.org>
-Cc: Andrew Zabolotny <zap@homelink.ru>
----
- drivers/input/touchscreen/mainstone-wm97xx.c |  298 ++++++++++++++++++++++++++
- 1 files changed, 298 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/mainstone-wm97xx.c
+>From Arjan Opmeer <arjan@opmeer.net>
 
-diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-new file mode 100644
-index 0000000..8e1c35d
---- /dev/null
-+++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -0,0 +1,298 @@
+Update to the Elantech touchpad driver. Changes include:
+
+- Fixed an issue on some models where using the physical buttons did not
+  work and only tapping the touchpad produced mouse clicks.
+- Absolute mode reporting also has an "older" and "newer" packet format
+  where the finger tap and parity bits are placed differently. The driver
+  makes an educated guess based on the Synaptics Capabilities query which
+  layout to expect.
+- Implemented a reconnect handler to make suspend and resume work without
+  the touchpad and the driver getting out of sync.
+
+Signed-off-by: Arjan Opmeer <arjan@opmeer.net>
+
+---
+
+diff -purN -X linux-2.6.24-rc8-mm1.vanilla/Documentation/dontdiff linux-2.6.24-rc8-mm1.vanilla/Documentation/input/elantech.txt linux-2.6.24-rc8-mm1.elantech/Documentation/input/elantech.txt
+--- linux-2.6.24-rc8-mm1.vanilla/Documentation/input/elantech.txt	2008-01-26 03:47:16.000000000 +0100
++++ linux-2.6.24-rc8-mm1.elantech/Documentation/input/elantech.txt	2008-01-26 03:50:32.000000000 +0100
+@@ -1,17 +1,43 @@
+ Elantech Touchpad Driver
+ ========================
+-        Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
++        Copyright (C) 2007-2008 Arjan Opmeer <arjan@opmeer.net>
+ 
+         Extra information found and provided by Steve Havelka
+ 
+-Configuration of the touchpad is performed by writing values to registers
+-found under sysfs entries /sys/bus/serio/drivers/psmouse/serio?/reg_*.
++
++Introduction
++~~~~~~~~~~~~
++
++Like most touchpads the Elantech touchpad can be in two modes. One is called
++relative mode in which the touchpad uses its internal controller to
++translate touching the pad and moving your finger into mouse movement
++updates. In this mode the touchpad acts just like a normal wired mouse.
++
++The other is called absolute mode in which the touchpad merely acts as an XY
++grid and as long as there is a finger on the pad continuously sends the
++coordinates of the finger to the driver. Think of it like a tablet where
++your finger is the stylus.
++
++In relative mode the operation of the touchpad can be influenced by
++adjusting the contents of some registers. These registers are represented by
++the driver as sysfs entries under /sys/bus/serio/drivers/psmouse/serio? that
++can be read from and written to.
+ 
+ E.g. to disable tapping while leaving the other settings to the default
+-Windows driver value one would:
++Windows driver value one would do:
+ 
+    echo -n 0x32 > reg_10
+ 
++and to switch the touchpad to absolute mode one would do:
++
++   echo -n 0x16 > reg_10
++
++In absolute mode the touchpad is not using the internal controller, so
++adjusting the registers no longer has the desired effect. However, the
++driver makes sure that in this mode the touchpad can be used with the Xorg
++synaptics driver so any one of the Synaptics configuration utilities should
++also work for adjusting the operation of the Elantech touchpad.
++
+ 
+ Registers
+ ~~~~~~~~~
+@@ -21,7 +47,7 @@ Registers
+    bit   7   6   5   4   3   2   1   0
+          B   C   T   D   L   A   S   E
+ 
+-         E: 1 = enable smart edges in other cases
++         E: 1 = enable smart edges unconditionally
+          S: 1 = enable smart edges only when dragging
+          A: 1 = absolute mode (needs 4 byte packets, see reg_11)
+          L: 1 = enable drag lock (see reg_22)
+@@ -38,7 +64,7 @@ Registers
+          P: 1 = enable parity checking for relative mode
+          F: 1 = enable native 4 byte packet mode
+          V: 1 = enable vertical scroll area
+-         H: 1 = enable horizonal scroll area
++         H: 1 = enable horizontal scroll area
+ 
+ 
+ * reg_20        (Windows driver default value 0x0a)
+@@ -82,7 +108,7 @@ Registers
+ 
+ 
+ 
+-Initially the Elantouch Touchpad is in emulation mode and reports 3 byte
++Initially the Elantech touchpad is in emulation mode and reports 3 byte
+ standard PS/2 packets and hence works with a standard mouse driver.
+ However, it can be configured to talk its native 4 byte relative mode and 4
+ byte absolute mode both for which a dedicated driver is needed.
+@@ -96,10 +122,9 @@ byte 0:
+          c   c  p2  p1   1   M   R   L
+ 
+          L, R, M = 1 when Left, Right, Middle mouse button pressed
+-            some models have M as byte 3 odd parity
++            some models have M as byte 3 odd parity bit
+          when parity checking is enabled (P = 1):
+-            p1 = byte 1 odd parity
+-            p2 = byte 2 odd parity
++            p1..p2 = byte 1 and 2 odd parity bit
+          c = 1 when corner tap detected
+ 
+ byte 1:
+@@ -116,48 +141,72 @@ byte 2:
+          dy7..dy0 = y movement;   positive = up,    negative = down
+ 
+ byte 3:
+-   bit   7   6   5   4   3   2   1   0
+-         w   h  n1  n0  d3  d2  d1  d0
++   parity checking enabled (reg_11, P = 1):
++
++      bit   7   6   5   4   3   2   1   0
++            w   h  n1  n0  ds3 ds2 ds1 ds0
+ 
+-         when parity checking is enabled (P = 1):
+             normally:
+-               d3..d0 = scroll wheel amount and direction
+-                        positive = down or left
+-                        negative = up or right
++               ds3..ds0 = scroll wheel amount and direction
++                          positive = down or left
++                          negative = up or right
+             when corner tap detected:
+-               d0 = 1 when top right corner tapped
+-               d1 = 1 when bottom right corner tapped
+-               d2 = 1 when bottom left corner tapped
+-               d3 = 1 when top left corner tapped
++               ds0 = 1 when top right corner tapped
++               ds1 = 1 when bottom right corner tapped
++               ds2 = 1 when bottom left corner tapped
++               ds3 = 1 when top left corner tapped
+             n1..n0 = number of fingers on touchpad
+                not all models report this but map one, two and three
+                finger taps directly to L, M and R mouse buttons
+-            w = 1 when wide finger touch?
+             h = 1 when horizontal scroll action
+-         otherwise (P = 0):
+-            all of byte 3 is vertical scroll amount and direction
+-            negative = up
+-            positive = down
++            w = 1 when wide finger touch?
++
++   otherwise (reg_11, P = 0):
++
++      bit   7   6   5   4   3   2   1   0
++           ds7 ds6 ds5 ds4 ds3 ds2 ds1 ds0
++
++            ds7..ds0 = vertical scroll amount and direction
++                       negative = up
++                       positive = down
+ 
+ 
+ Native 4 byte absolute mode packet format
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ byte 0:
+-   bit   7   6   5   4   3   2   1   0
+-         D   U  p1  p2   1  p3   R   L
++   older models:
++
++      bit   7   6   5   4   3   2   1   0
++            D   U  p1  p2   1  p3   R   L
+ 
+-         L, R = 1 when Left, Right mouse button pressed
+-         p1..p3 = parity bit of bytes 1..3
+-         D, U = 1 when rocker switch pressed Up, Down
++            L, R = 1 when Left, Right mouse button pressed
++            p1..p3 = byte 1..3 odd parity bit
++            D, U = 1 when rocker switch pressed Up, Down
++
++   newer models:
++
++      bit   7   6   5   4   3   2   1   0
++           n1  n0  p2  p1   1  p3   R   L
++
++            L, R = 1 when Left, Right mouse button pressed
++            p1..p3 = byte 1..3 odd parity bit
++            n1..n0 = number of fingers on touchpad
+ 
+ byte 1:
+-   bit   7   6   5   4   3   2   1   0
+-         f   0  th  tw  x9  x8  y9  y8
++   older models:
++
++      bit   7   6   5   4   3   2   1   0
++            f   0  th  tw  x9  x8  y9  y8
++
++            tw = 1 when two finger touch
++            th = 1 when three finger touch
++            f  = 1 when finger touch
++
++   newer models:
+ 
+-         tw = 1 when two finger touch
+-         th = 1 when three finger touch
+-         f  = 1 when finger touch
++      bit   7   6   5   4   3   2   1   0
++            0   0   0   0  x9  x8  y9  y8
+ 
+ byte 2:
+    bit   7   6   5   4   3   2   1   0
+diff -purN -X linux-2.6.24-rc8-mm1.vanilla/Documentation/dontdiff linux-2.6.24-rc8-mm1.vanilla/drivers/input/mouse/elantech.c linux-2.6.24-rc8-mm1.elantech/drivers/input/mouse/elantech.c
+--- linux-2.6.24-rc8-mm1.vanilla/drivers/input/mouse/elantech.c	2008-01-26 03:47:23.000000000 +0100
++++ linux-2.6.24-rc8-mm1.elantech/drivers/input/mouse/elantech.c	2008-01-26 03:50:54.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+- * Elantech Touchpad driver
++ * Elantech Touchpad driver (v3)
+  *
+- * Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
++ * Copyright (C) 2007-2008 Arjan Opmeer <arjan@opmeer.net>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2 as published
+@@ -57,6 +57,9 @@ static int elantech_write_reg(struct psm
+ 	return 0;
+ }
+ 
 +/*
-+ * mainstone-wm97xx.c  --  Mainstone Continuous Touch screen driver for
-+ *                         Wolfson WM97xx AC97 Codecs.
-+ *
-+ * Copyright 2004, 2007 Wolfson Microelectronics PLC.
-+ * Author: Liam Girdwood
-+ *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Parts Copyright : Ian Molton <spyro@f2s.com>
-+ *                   Andrew Zabolotny <zap@homelink.ru>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
-+ * Notes:
-+ *     This is a wm97xx extended touch driver to capture touch
-+ *     data in a continuous manner on the Intel XScale archictecture
-+ *
-+ *  Features:
-+ *       - codecs supported:- WM9705, WM9712, WM9713
-+ *       - processors supported:- Intel XScale PXA25x, PXA26x, PXA27x
-+ *
++ * Dump a complete mouse movement packet to the syslog
 + */
-+
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/version.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/wm97xx.h>
-+#include <linux/io.h>
-+#include <asm/arch/pxa-regs.h>
-+
-+#define VERSION		"0.13"
-+
-+struct continuous {
-+	u16 id;    /* codec id */
-+	u8 code;   /* continuous code */
-+	u8 reads;  /* number of coord reads per read cycle */
-+	u32 speed; /* number of coords per second */
-+};
-+
-+#define WM_READS(sp) ((sp / HZ) + 1)
-+
-+static const struct continuous cinfo[] = {
-+	{WM9705_ID2, 0, WM_READS(94), 94},
-+	{WM9705_ID2, 1, WM_READS(188), 188},
-+	{WM9705_ID2, 2, WM_READS(375), 375},
-+	{WM9705_ID2, 3, WM_READS(750), 750},
-+	{WM9712_ID2, 0, WM_READS(94), 94},
-+	{WM9712_ID2, 1, WM_READS(188), 188},
-+	{WM9712_ID2, 2, WM_READS(375), 375},
-+	{WM9712_ID2, 3, WM_READS(750), 750},
-+	{WM9713_ID2, 0, WM_READS(94), 94},
-+	{WM9713_ID2, 1, WM_READS(120), 120},
-+	{WM9713_ID2, 2, WM_READS(154), 154},
-+	{WM9713_ID2, 3, WM_READS(188), 188},
-+};
-+
-+/* continuous speed index */
-+static int sp_idx;
-+static u16 last, tries;
-+
-+/*
-+ * Pen sampling frequency (Hz) in continuous mode.
-+ */
-+static int cont_rate = 200;
-+module_param(cont_rate, int, 0);
-+MODULE_PARM_DESC(cont_rate, "Sampling rate in continuous mode (Hz)");
-+
-+/*
-+ * Pen down detection.
-+ *
-+ * This driver can either poll or use an interrupt to indicate a pen down
-+ * event. If the irq request fails then it will fall back to polling mode.
-+ */
-+static int pen_int;
-+module_param(pen_int, int, 0);
-+MODULE_PARM_DESC(pen_int, "Pen down detection (1 = interrupt, 0 = polling)");
-+
-+/*
-+ * Pressure readback.
-+ *
-+ * Set to 1 to read back pen down pressure
-+ */
-+static int pressure;
-+module_param(pressure, int, 0);
-+MODULE_PARM_DESC(pressure, "Pressure readback (1 = pressure, 0 = no pressure)");
-+
-+/*
-+ * AC97 touch data slot.
-+ *
-+ * Touch screen readback data ac97 slot
-+ */
-+static int ac97_touch_slot = 5;
-+module_param(ac97_touch_slot, int, 0);
-+MODULE_PARM_DESC(ac97_touch_slot, "Touch screen data slot AC97 number");
-+
-+
-+/* flush AC97 slot 5 FIFO on pxa machines */
-+#ifdef CONFIG_PXA27x
-+static void wm97xx_acc_pen_up(struct wm97xx *wm)
-+{
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(1);
-+
-+	while (MISR & (1 << 2))
-+		MODR;
-+}
-+#else
-+static void wm97xx_acc_pen_up(struct wm97xx *wm)
-+{
-+	int count = 16;
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(1);
-+
-+	while (count < 16) {
-+		MODR;
-+		count--;
+ static void elantech_packet_dump(unsigned char *packet, int size)
+ {
+ 	int	i;
+@@ -77,12 +80,18 @@ static void elantech_report_absolute(str
+ 	unsigned char 		*packet = psmouse->packet;
+ 	int			fingers;
+ 
+-	/* byte 0:  D   U  p1  p2   1  p3   R   L
+-	 * byte 1:  f   0  th  tw  x9  x8  y9  y8
+-	 * byte 2: x7  x6  x5  x4  x3  x2  x1  x0
+-	 * byte 3: y7  y6  y5  y4  y3  y2  y1  y0 */
+-	fingers = ((packet[1] & 0x80) >> 7) + ((packet[1] & 0x30) >> 4);
++	if (etd->capabilities & ETP_CAP_ALTERNATE_TAP_BITS) {
++		/* byte 0: n1  n0  p2  p1   1  p3   R   L
++		 * byte 1:  0   0   0   0  x9  x8  y9  y8 */
++		fingers = (packet[0] & 0xc0) >> 6;
++	} else {
++		/* byte 0:  D   U  p1  p2   1  p3   R   L
++		 * byte 1:  f   0  th  tw  x9  x8  y9  y8 */
++		fingers = ((packet[1] & 0x80) >> 7) + ((packet[1] & 0x30) >> 4);
 +	}
-+}
-+#endif
-+
-+static int wm97xx_acc_pen_down(struct wm97xx *wm)
-+{
-+	u16 x, y, p = 0x100 | WM97XX_ADCSEL_PRES;
-+	int reads = 0;
-+
-+	/* data is never immediately available after pen down irq */
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(1);
-+
-+	if (tries > 5) {
-+		tries = 0;
-+		return RC_PENUP;
-+	}
-+
-+	x = MODR;
-+	if (x == last) {
-+		tries++;
-+		return RC_AGAIN;
-+	}
-+	last = x;
-+	do {
-+		if (reads)
-+			x = MODR;
-+		y = MODR;
-+		if (pressure)
-+			p = MODR;
-+
-+		/* are samples valid */
-+		if ((x & 0x7000) != WM97XX_ADCSEL_X ||
-+			(y & 0x7000) != WM97XX_ADCSEL_Y ||
-+			(p & 0x7000) != WM97XX_ADCSEL_PRES)
-+			goto up;
-+
-+		/* coordinate is good */
-+		tries = 0;
-+		input_report_abs(wm->input_dev, ABS_X, x & 0xfff);
-+		input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
-+		input_report_abs(wm->input_dev, ABS_PRESSURE, p & 0xfff);
-+		input_sync(wm->input_dev);
-+		reads++;
-+	} while (reads < cinfo[sp_idx].reads);
-+up:
-+	return RC_PENDOWN | RC_AGAIN;
-+}
-+
-+static int wm97xx_acc_startup(struct wm97xx *wm)
-+{
-+	int idx = 0;
-+
-+	/* check we have a codec */
-+	if (wm->ac97 == NULL)
-+		return -ENODEV;
-+
-+	/* Go you big red fire engine */
-+	for (idx = 0; idx < ARRAY_SIZE(cinfo); idx++) {
-+		if (wm->id != cinfo[idx].id)
-+			continue;
-+		sp_idx = idx;
-+		if (cont_rate <= cinfo[idx].speed)
-+			break;
-+	}
-+	wm->acc_rate = cinfo[sp_idx].code;
-+	wm->acc_slot = ac97_touch_slot;
-+	dev_info(wm->dev,
-+		 "mainstone accelerated touchscreen driver, %d samples/sec\n",
-+		 cinfo[sp_idx].speed);
-+
-+	/* codec specific irq config */
-+	if (pen_int) {
-+		switch (wm->id) {
-+		case WM9705_ID2:
-+			wm->pen_irq = IRQ_GPIO(4);
-+			set_irq_type(IRQ_GPIO(4), IRQT_BOTHEDGE);
-+			break;
-+		case WM9712_ID2:
-+		case WM9713_ID2:
-+			/* enable pen down interrupt */
-+			/* use PEN_DOWN GPIO 13 to assert IRQ on GPIO line 2 */
-+			wm->pen_irq = MAINSTONE_AC97_IRQ;
-+			wm97xx_config_gpio(wm, WM97XX_GPIO_13, WM97XX_GPIO_IN,
-+					   WM97XX_GPIO_POL_HIGH,
-+					   WM97XX_GPIO_STICKY,
-+					   WM97XX_GPIO_WAKE);
-+			wm97xx_config_gpio(wm, WM97XX_GPIO_2, WM97XX_GPIO_OUT,
-+					   WM97XX_GPIO_POL_HIGH,
-+					   WM97XX_GPIO_NOTSTICKY,
-+					   WM97XX_GPIO_NOWAKE);
-+			break;
-+		default:
-+			dev_err(wm->dev,
-+				"pen down irq not supported on this device\n");
-+			pen_int = 0;
-+			break;
+ 	input_report_key(dev, BTN_TOUCH, fingers != 0);
++	/* byte 2: x7  x6  x5  x4  x3  x2  x1  x0
++	 * byte 3: y7  y6  y5  y4  y3  y2  y1  y0 */
+ 	if (fingers == 1) {
+ 		input_report_abs(dev, ABS_X,
+ 			((packet[1] & 0x0c) << 6) | packet[2]);
+@@ -95,7 +104,8 @@ static void elantech_report_absolute(str
+ 	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
+ 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+ 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+-	if (etd->capabilities & ETP_CAP_HAS_ROCKER) {
++	if (!(etd->capabilities & ETP_CAP_ALTERNATE_TAP_BITS) &&
++	     (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
+ 		input_report_key(dev, BTN_FORWARD, packet[0] & 0x40); /* rocker up */
+ 		input_report_key(dev, BTN_BACK, packet[0] & 0x80); /* rocker down */
+ 	}
+@@ -114,7 +124,7 @@ static void elantech_report_relative(str
+ 	/* byte 0:  c   c  p2  p1   1   M   R   L
+ 	 * byte 1: dx7 dx6 dx5 dx4 dx3 dx2 dx1 dx0
+ 	 * byte 2: dy7 dy6 dy5 dy4 dy3 dy2 dy1 dy0
+-	 * byte 3:  w   h  n1  n0  d3  d2  d1  d0 */
++	 * byte 3:  w   h  n1  n0  ds3 ds2 ds1 ds0 */
+ 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+ 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+ 
+@@ -123,9 +133,11 @@ static void elantech_report_relative(str
+ 
+ 	if (etd->capabilities & ETP_CAP_ALTERNATE_TAP_BITS) {
+ 		fingers = (packet[3] & 0x30) >> 4;
+-		input_report_key(dev, BTN_LEFT, fingers == 1);
+-		input_report_key(dev, BTN_MIDDLE, fingers == 2);
+-		input_report_key(dev, BTN_RIGHT, fingers == 3);
++		if (fingers) {
++			input_report_key(dev, BTN_LEFT, fingers == 1);
++			input_report_key(dev, BTN_MIDDLE, fingers == 2);
++			input_report_key(dev, BTN_RIGHT, fingers == 3);
 +		}
+ 	}
+ 
+ 	cornertap = (((packet[0] & 0xc0) == 0xc0) && ((packet[1] & 0xf0) == 0xf0));
+@@ -145,6 +157,7 @@ static void elantech_report_relative(str
+ 		input_report_key(dev, BTN_1, packet[3] & 0x02);	/* bottom right */
+ 		input_report_key(dev, BTN_2, packet[3] & 0x04);	/* bottom left */
+ 		input_report_key(dev, BTN_3, packet[3] & 0x08);	/* top left */
++		return;
+ 	}
+ 
+ 	if (etd->reg_11 & ETP_R11_PARITY_CHECKING) {
+@@ -175,6 +188,7 @@ static psmouse_ret_t elantech_process_by
+ 	struct elantech_data 	*etd = psmouse->private;
+ 	struct input_dev 	*dev = psmouse->dev;
+ 	unsigned char 		*packet = psmouse->packet;
++	unsigned char		p1, p2, p3;
+ 
+ 	if (psmouse->pktcnt < psmouse->pktsize)
+ 		return PSMOUSE_GOOD_DATA;
+@@ -183,19 +197,29 @@ static psmouse_ret_t elantech_process_by
+ 		elantech_packet_dump(packet, psmouse->pktsize);
+ 
+ 	if (etd->reg_10 & ETP_R10_ABSOLUTE_MODE) {
+-		/* byte 0:  D   U  p1  p2   1  p3   R   L */
+-		if ((parity[packet[1]] != ((packet[0] & 0x20) >> 5)) ||
+-		    (parity[packet[2]] != ((packet[0] & 0x10) >> 4)) ||
+-		    (parity[packet[3]] != ((packet[0] & 0x04) >> 2)))
++		if (etd->capabilities & ETP_CAP_ALTERNATE_TAP_BITS) {
++			/* byte 0: n1  n0  p2  p1   1  p3   R   L */
++			p1 = (packet[0] & 0x10) >> 4;
++			p2 = (packet[0] & 0x20) >> 5;
++		} else {
++			/* byte 0:  D   U  p1  p2   1  p3   R   L */
++			p1 = (packet[0] & 0x20) >> 5;
++			p2 = (packet[0] & 0x10) >> 4;
++		}
++		p3 = (packet[0] & 0x04) >> 2;
++		if ((parity[packet[1]] != p1) || (parity[packet[2]] != p2) ||
++		    (parity[packet[3]] != p3))
+ 			return PSMOUSE_BAD_DATA;
+ 	} else if (etd->reg_11 & ETP_R11_PARITY_CHECKING) {
+ 		/* byte 0:  c   c  p2  p1   1   M   R   L */
+-		if ((parity[packet[1]] != ((packet[0] & 0x10) >> 4)) ||
+-		    (parity[packet[2]] != ((packet[0] & 0x20) >> 5)))
++		p1 = (packet[0] & 0x10) >> 4;
++		p2 = (packet[0] & 0x20) >> 5;
++		if ((parity[packet[1]] != p1) || (parity[packet[2]] != p2))
+ 			return PSMOUSE_BAD_DATA;
+ 		/* Parity bit has not been sacrificed as middle mouse button bit */
+ 		if (!(etd->capabilities & ETP_CAP_REPORTS_MIDDLE_BUTTON)) {
+-			if (parity[packet[3]] != ((packet[0] & 0x04) >> 2))
++			p3 = (packet[0] & 0x04) >> 2;
++			if (parity[packet[3]] != p3)
+ 				return PSMOUSE_BAD_DATA;
+ 		}
+ 	}
+@@ -216,46 +240,64 @@ static psmouse_ret_t elantech_process_by
+  * how to read registers we need to write some default values so we can
+  * report their contents when asked to.
+  */
+-static void elantech_set_defaults(struct psmouse *psmouse)
++static void elantech_set_register_defaults(struct psmouse *psmouse)
+ {
+ 	struct elantech_data 	*etd = psmouse->private;
+-	struct input_dev 	*dev = psmouse->dev;
+ 
+ 	/*
+ 	 * For now, use the Elantech Windows driver default values
+ 	 */
+ 	etd->reg_10 = 0x12;
+-	elantech_write_reg(psmouse, 0x10, etd->reg_10);
+ 	etd->reg_11 = 0x8f;
+-	elantech_write_reg(psmouse, 0x11, etd->reg_11);
+ 	etd->reg_20 = 0x0a;
+-	elantech_write_reg(psmouse, 0x20, etd->reg_20);
+ 	etd->reg_21 = 0x60;
+-	elantech_write_reg(psmouse, 0x21, etd->reg_21);
+ 	etd->reg_22 = 0xff;
+-	elantech_write_reg(psmouse, 0x22, etd->reg_22);
++	etd->reg_25 = 0x03;
++
+ 	/*
+-	 * However, the Windows driver mentions registers 23, 24 and 26
++	 * The Windows driver mentions registers 23, 24 and 26
+ 	 * but seems to never actually write them
++	 * Set the defaults anyway
+ 	 */
+ 	etd->reg_23 = 0x10;
+-	/*
+-	 * elantech_write_reg(psmouse, 0x23, etd->reg_23);
+-	 */
+ 	etd->reg_24 = 0x10;
+ 	/*
+-	 * elantech_write_reg(psmouse, 0x24, etd->reg_24);
+-	 */
+-	etd->reg_25 = 0x03;
+-	elantech_write_reg(psmouse, 0x25, etd->reg_25);
+-	/*
+ 	 * The Windows driver default value of 0x00 seems wrong as it
+ 	 * disables smart edge cursor movement
+ 	 */
+ 	etd->reg_26 = 0x00;
++}
++
++/*
++ * Write the registers we care about to the touchpad
++ */
++static int elantech_write_registers(struct psmouse *psmouse)
++{
++	struct elantech_data 	*etd = psmouse->private;
++
+ 	/*
+-	 * elantech_write_reg(psmouse, 0x26, etd->reg_26);
++	 * The Windows driver mentions registers 23, 24 and 26
++	 * but seems to never actually write them
+ 	 */
++	if (elantech_write_reg(psmouse, 0x10, etd->reg_10) ||
++	    elantech_write_reg(psmouse, 0x11, etd->reg_11) ||
++	    elantech_write_reg(psmouse, 0x20, etd->reg_20) ||
++	    elantech_write_reg(psmouse, 0x21, etd->reg_21) ||
++	    elantech_write_reg(psmouse, 0x22, etd->reg_22) ||
++	    elantech_write_reg(psmouse, 0x25, etd->reg_25)) {
++		return -1;
 +	}
 +
 +	return 0;
 +}
 +
-+static void wm97xx_acc_shutdown(struct wm97xx *wm)
++/*
++ * Set the appropriate event bits for the input subsystem
++ */
++static void elantech_set_input_params(struct psmouse *psmouse)
 +{
-+	/* codec specific deconfig */
-+	if (pen_int) {
-+		switch (wm->id & 0xffff) {
-+		case WM9705_ID2:
-+			wm->pen_irq = 0;
-+			break;
-+		case WM9712_ID2:
-+		case WM9713_ID2:
-+			/* disable interrupt */
-+			wm->pen_irq = 0;
-+			break;
-+		}
++	struct elantech_data 	*etd = psmouse->private;
++	struct input_dev 	*dev = psmouse->dev;
+ 
+ 	set_bit(EV_KEY, dev->evbit);
+ 	set_bit(BTN_LEFT, dev->keybit);
+@@ -338,7 +380,8 @@ static ssize_t elantech_set_int_attr(str
+ 		if (value & ETP_R11_4_BYTE_MODE)
+ 			psmouse->pktsize = 4;
+ 		else {
+-			/* Force off absolute mode when 4 byte mode is no longer selected */
++			/* Force off absolute mode when 4 byte mode is
++			 * no longer selected */
+ 			if (etd->reg_10 & ETP_R10_ABSOLUTE_MODE) {
+ 				etd->reg_10 ^= ETP_R10_ABSOLUTE_MODE;
+ 				elantech_write_reg(psmouse, 0x10, etd->reg_10);
+@@ -393,17 +436,6 @@ static struct attribute_group elantech_a
+ };
+ 
+ /*
+- * Clean up sysfs entries when disconnecting
+- */
+-static void elantech_disconnect(struct psmouse *psmouse)
+-{
+-	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
+-				&elantech_attr_group);
+-	kfree(psmouse->private);
+-	psmouse->private = NULL;
+-}
+-
+-/*
+  * Use magic knock to detect Elantech touchpad
+  */
+ int elantech_detect(struct psmouse *psmouse, int set_properties)
+@@ -417,6 +449,10 @@ int elantech_detect(struct psmouse *psmo
+ 	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
+ 	ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO);
+ 
++	/*
++	 * Report this in case there are Elantech models that use a different
++	 * set of magic numbers
++	 */
+ 	if ((param[0] != 0x3c) || (param[1] != 0x03) || (param[2] != 0xc8)) {
+ 		pr_info("elantech.c: unexpected magic knock result 0x%02x, 0x%02x, 0x%02x.\n",
+ 			param[0], param[1], param[2]);
+@@ -432,6 +468,33 @@ int elantech_detect(struct psmouse *psmo
+ }
+ 
+ /*
++ * Clean up sysfs entries when disconnecting
++ */
++static void elantech_disconnect(struct psmouse *psmouse)
++{
++	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
++				&elantech_attr_group);
++	kfree(psmouse->private);
++	psmouse->private = NULL;
++}
++
++/*
++ * Rewrite registers when reconnecting
++ */
++static int elantech_reconnect(struct psmouse *psmouse)
++{
++	if (elantech_detect(psmouse, 0))
++		return -1;
++
++	if (elantech_write_registers(psmouse)) {
++		printk(KERN_ERR "elantech.c: failed to rewrite registers.\n");
++		return -1;
 +	}
-+}
 +
-+static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
-+{
-+	if (enable)
-+		enable_irq(wm->pen_irq);
-+	else
-+		disable_irq(wm->pen_irq);
-+}
-+
-+static struct wm97xx_mach_ops mainstone_mach_ops = {
-+	.acc_enabled = 1,
-+	.acc_pen_up = wm97xx_acc_pen_up,
-+	.acc_pen_down = wm97xx_acc_pen_down,
-+	.acc_startup = wm97xx_acc_startup,
-+	.acc_shutdown = wm97xx_acc_shutdown,
-+	.irq_enable = wm97xx_irq_enable,
-+};
-+
-+static int mainstone_wm97xx_probe(struct platform_device *pdev)
-+{
-+	struct wm97xx *wm = platform_get_drvdata(pdev);
-+	return wm97xx_register_mach_ops(wm, &mainstone_mach_ops);
-+}
-+
-+static int mainstone_wm97xx_remove(struct platform_device *pdev)
-+{
-+	struct wm97xx *wm = platform_get_drvdata(pdev);
-+	wm97xx_unregister_mach_ops(wm);
 +	return 0;
 +}
 +
-+static struct platform_driver mainstone_wm97xx_driver = {
-+	.probe = mainstone_wm97xx_probe,
-+	.remove = mainstone_wm97xx_remove,
-+	.driver = {
-+		.name = "wm97xx-touch",
++/*
+  * Initialize the touchpad and create sysfs entries
+  */
+ int elantech_init(struct psmouse *psmouse)
+@@ -466,20 +529,28 @@ int elantech_init(struct psmouse *psmous
+ 		etd->capabilities = param[0];
+ 	}
+ 
+-	elantech_set_defaults(psmouse);
++	elantech_set_register_defaults(psmouse);
++	if (elantech_write_registers(psmouse)) {
++		printk(KERN_ERR "elantech.c: failed to write registers to default state.\n");
++		goto init_fail;
++	}
++	elantech_set_input_params(psmouse);
+ 
+ 	psmouse->protocol_handler = elantech_process_byte;
+ 	psmouse->disconnect = elantech_disconnect;
++	psmouse->reconnect = elantech_reconnect;
+ 	psmouse->pktsize = 4;
+ 
+ 	error = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
+ 					&elantech_attr_group);
+ 	if (error) {
+-		printk(KERN_ERR "elantech.c: failed to create sysfs attributes, error: %d\n",
+-			error);
+-		kfree(etd);
+-		return -1;
++		printk(KERN_ERR "elantech.c: failed to create sysfs attributes, error: %d.\n", error);
++		goto init_fail;
+ 	}
+ 
+ 	return 0;
++
++init_fail:
++	kfree(etd);
++	return -1;
+ }
+diff -purN -X linux-2.6.24-rc8-mm1.vanilla/Documentation/dontdiff linux-2.6.24-rc8-mm1.vanilla/drivers/input/mouse/elantech.h linux-2.6.24-rc8-mm1.elantech/drivers/input/mouse/elantech.h
+--- linux-2.6.24-rc8-mm1.vanilla/drivers/input/mouse/elantech.h	2008-01-26 03:47:23.000000000 +0100
++++ linux-2.6.24-rc8-mm1.elantech/drivers/input/mouse/elantech.h	2008-01-26 03:50:52.000000000 +0100
+@@ -1,7 +1,7 @@
+ /*
+- * Elantech Touchpad driver
++ * Elantech Touchpad driver (v3)
+  *
+- * Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
++ * Copyright (C) 2007-2008 Arjan Opmeer <arjan@opmeer.net>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2 as published
+@@ -48,8 +48,8 @@
+  * It seems the touchpad does not report pressure.
+  * Just choose some values for compatibility with X Synaptics driver
+  */
+-#define ETP_MAX_PRESSURE		127
+-#define ETP_DEF_PRESSURE		64
++#define ETP_MAX_PRESSURE		255
++#define ETP_DEF_PRESSURE		128
+ 
+ struct elantech_data {
+ 	unsigned char reg_10;
+diff -purN -X linux-2.6.24-rc8-mm1.vanilla/Documentation/dontdiff linux-2.6.24-rc8-mm1.vanilla/drivers/input/mouse/psmouse-base.c linux-2.6.24-rc8-mm1.elantech/drivers/input/mouse/psmouse-base.c
+--- linux-2.6.24-rc8-mm1.vanilla/drivers/input/mouse/psmouse-base.c	2008-01-26 03:47:23.000000000 +0100
++++ linux-2.6.24-rc8-mm1.elantech/drivers/input/mouse/psmouse-base.c	2008-01-26 03:52:06.000000000 +0100
+@@ -770,6 +770,12 @@ static const struct psmouse_protocol psm
+ 		.detect		= touchkit_ps2_detect,
+ 	},
+ #endif
++	{
++		.type		= PSMOUSE_CORTRON,
++		.name		= "CortronPS/2",
++		.alias		= "cortps",
++		.detect		= cortron_detect,
 +	},
-+};
-+
-+static int __init mainstone_wm97xx_init(void)
-+{
-+	return platform_driver_register(&mainstone_wm97xx_driver);
-+}
-+
-+static void __exit mainstone_wm97xx_exit(void)
-+{
-+	platform_driver_unregister(&mainstone_wm97xx_driver);
-+}
-+
-+module_init(mainstone_wm97xx_init);
-+module_exit(mainstone_wm97xx_exit);
-+
-+/* Module information */
-+MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_DESCRIPTION("wm97xx continuous touch driver for mainstone");
-+MODULE_LICENSE("GPL");
--- 
-1.5.3.8
+ #ifdef CONFIG_MOUSE_PS2_ELANTECH
+ 	{
+ 		.type		= PSMOUSE_ELANTECH,
+@@ -780,12 +786,6 @@ static const struct psmouse_protocol psm
+ 	},
+ #endif
+ 	{
+-		.type		= PSMOUSE_CORTRON,
+-		.name		= "CortronPS/2",
+-		.alias		= "cortps",
+-		.detect		= cortron_detect,
+-	},
+-	{
+ 		.type		= PSMOUSE_AUTO,
+ 		.name		= "auto",
+ 		.alias		= "any",

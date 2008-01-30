@@ -1,127 +1,252 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH 2/12] pxa: remove the pin configuration from the keypad
- driver
-Date: Wed, 30 Jan 2008 00:52:30 +0000 (UTC)
-Message-ID: <fnohoe$e5m$2@ger.gmane.org>
-References: <f17812d70801222317k641d55fy8f94c436770a8b0a@mail.gmail.com>
-	<200801290124.56565.dtor@insightbb.com>
-	<f17812d70801282251g79b7c29ehf1f6afdf5274fcd4@mail.gmail.com>
-	<fnn45m$mci$1@ger.gmane.org>
-	<f17812d70801291613j7d98fa69rfe6f13345d16d9d7@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from main.gmane.org ([80.91.229.2]:53674 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752792AbYA3Awo (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jan 2008 19:52:44 -0500
-Received: from list by ciao.gmane.org with local (Exim 4.43)
-	id 1JK1Bt-0002L7-8n
-	for linux-input@vger.kernel.org; Wed, 30 Jan 2008 00:52:37 +0000
-Received: from ppp89-110-61-229.pppoe.avangarddsl.ru ([89.110.61.229])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Wed, 30 Jan 2008 00:52:37 +0000
-Received: from dbaryshkov by ppp89-110-61-229.pppoe.avangarddsl.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Wed, 30 Jan 2008 00:52:37 +0000
-Sender: linux-input-owner@vger.kernel.org
+From: Bryan Wu <bryan.wu@analog.com>
+Subject: [PATCH 1/1] [INPUT] keypad driver: Added support for OpenCores Keyboard Controller
+Date: Wed, 30 Jan 2008 17:50:10 +0800
+Message-ID: <1201686610-31458-1-git-send-email-bryan.wu@analog.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759449AbYA3Juc@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org, Javier Herrero <jherrero@hvsistemas.es>, Bryan Wu <bryan.wu@analog.com>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-eric miao wrote:
+From: Javier Herrero <jherrero@hvsistemas.es>
 
-> On Jan 29, 2008 7:54 PM, Dmitry Baryshkov <dbaryshkov@gmail.com> wrote:
->>
->> eric miao wrote:
->>
->> > On Jan 29, 2008 2:24 PM, Dmitry Torokhov <dtor@insightbb.com> wrote:
->> >> Hi Eric,
->> >>
->> >> On Wednesday 23 January 2008 02:17, eric miao wrote:
->> >> > From dbd62bced0f789765d1823f66af792933c6b46a1 Mon Sep 17 00:00:00
->> >> > 2001 From: eric miao <eric.miao@marvell.com> Date: Tue, 22 Jan
->> >> > 2008 16:34:12 +0800 Subject: [PATCH] pxa: remove the pin
->> >> > configuration from the keypad driver
->> >> >
->> >> > The pin configurations will slowly be moved to the board specific
->> >> > code at initialization thus to make the driver more generic.
->> >> >
->> >> > Signed-off-by: eric miao <eric.miao@marvell.com> ---
->> >> >  drivers/input/keyboard/pxa27x_keypad.c   |    4 ----
->> >> >  include/asm-arm/arch-pxa/pxa27x_keypad.h |    1 - 2 files
->> >> >  changed, 0 insertions(+), 5 deletions(-)
->> >> >
->> >> > diff --git a/drivers/input/keyboard/pxa27x_keypad.c
->> >> > b/drivers/input/keyboard/pxa27x_keypad.c index 06c1d5a..43fb63d
->> >> > 100644
->> >> > --- a/drivers/input/keyboard/pxa27x_keypad.c +++
->> >> > b/drivers/input/keyboard/pxa27x_keypad.c @@ -208,10 +208,6 @@
->> >> > static int __devinit pxa27x_keypad_probe(struct platform_device
->> >> > *pdev)
->> >> >       if (error)
->> >> >               goto err_free_irq;
->> >> >
->> >> > -     /* Setup GPIOs. */
->> >> > -     for (i = 0; i < pdata->nr_rows + pdata->nr_cols; i++) -
->> >> >     pxa_gpio_mode(pdata->gpio_modes[i]); -
->> >>
->> >> That would require GPIO code to be replicated in every subarch
->> >> piece. Do you expect many boards require special GPIO setup or maybe
->> >> it would make sense to keep something similar to the code above
->> >> (possibly have pointer to array of gpio modes and array size in
->> >> pdata)? This way simpler boards will just supply the list and more
->> >> complex setups can still do it themselves?
->> >>
->> >>
->> > Actually, pin configurations on different platforms vary much, and to
->> > keep the driver generic enough, this stuff should really be pushed to
->> > the platform code.
->> >
->> > Currently, we (Nicolas, Russell King and I) are proposing a similar
->> > pin configuration scheme as pxa3xx is currently doing for
->> > pxa{25x,27x}.
->> >
->> > The specific reasons behind this change are:
->> >
->> > 1. pxa3xx uses a different mechanism and API to configure pins other
->> > than the pxa{25x,27x}'s pxa_gpio_mode(), i.e., pxa_gpio_mode() is no
->> > longer valid for pxa3xx. So this is really processor specific code we
->> > need to keep out side of the driver
->>
->> Why not use gpio_request/gpio_direction_input? Or they are broken for
->> pxa3xx?
->>
->>
-> A big NO here, since keypad controller has dedicated pins whose
-> functions are _not_ GPIO. So it's not applicable here. Besides, PXA3xx
-> has good generic GPIO API support, FYI.
+Signed-off-by: Javier Herrero <jherrero@hvsistemas.es>
+Signed-off-by: Bryan Wu <bryan.wu@analog.com>
+---
+ drivers/input/keyboard/Kconfig         |    9 ++
+ drivers/input/keyboard/Makefile        |    2 +
+ drivers/input/keyboard/opencores-kbd.c |  195 ++++++++++++++++++++++++++++++++
+ 3 files changed, 206 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/keyboard/opencores-kbd.c
 
-No need for such sarcasm. Digging into platform w/o docs is a bit hard for me.
-It may be my idee fixe, but I would prefer a solution that would add
-"alt. modes" to generic GPIO. But... this is abit offtopic for this list.
-
->> > 2. The driver should have no assumption to the platform
->> > configuration, that is, when the ->probe() is called, any settings
->> > should be ready for the driver to work, thus including pin
->> > configurations.
->>
->> Hmmm. gpio-keys behaves just in the opposite way: it sets all gpios it
->> wants to use. And IMHO it's the correct way: the code isn't spread
->> between several files, but instead is kept inside one (generic) file.
->>
->>
-> gpio-keys driver behaves differently since it _must_ know which GPIOs
-> it's going to control, otherwise the driver just fails. This is not the
-> case for keypad
-> controller, where it does not have to care about the pins once the pin
-> configuration is done.
-
-Sorry, I misunderstood code.
-
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 086d58c..a0a016b 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -293,4 +293,13 @@ config KEYBOARD_BFIN
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called bf54x-keys.
+ 
++config KEYBOARD_OPENCORES
++       tristate "OpenCores Keyboard Controller"
++       help
++         Say Y here if you want to use the OpenCores Keyboard Controller
++         http://www.opencores.org/projects.cgi/web/keyboardcontroller/overview
++ 
++         To comile this driver as a module, choose M here. the
++         module will be called opencores-kbd.
++
+ endif
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index e97455f..77b47fb 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -25,3 +25,5 @@ obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada680_kbd.o
+ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
+ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+ obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
++obj-$(CONFIG_KEYBOARD_OPENCORES)	+= opencores-kbd.o
++
+diff --git a/drivers/input/keyboard/opencores-kbd.c b/drivers/input/keyboard/opencores-kbd.c
+new file mode 100644
+index 0000000..dfe68c6
+--- /dev/null
++++ b/drivers/input/keyboard/opencores-kbd.c
+@@ -0,0 +1,195 @@
++/*
++ * File:         drivers/input/keyboard/opencores-kbd.c
++ * Based on:	 bf54x-keys.c
++ * Author:       Javier Herrero <jherrero@hvsistemas.es>
++ *
++ * Created:
++ * Description:  OpenCores Keyboard Controller Driver
++ *		 http://www.opencores.org/projects.cgi/web/keyboardcontroller/overview
++ *
++ * Modified:
++ *               Copyright 2007 HV Sistemas S.L.
++ *
++ * Bugs:         Enter bugs at http://blackfin.uclinux.org/
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see the file COPYING, or write
++ * to the Free Software Foundation, Inc.,
++ * 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++
++#include <linux/module.h>
++#include <linux/version.h>
++
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/interrupt.h>
++#include <linux/irq.h>
++#include <linux/sched.h>
++#include <linux/pm.h>
++#include <linux/sysctl.h>
++#include <linux/proc_fs.h>
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/irq.h>
++
++#define DRV_NAME "opencores-kbd"
++#define NUM_KEYS 128
++
++struct opencores_kbd {
++	struct input_dev *input;
++	struct resource	*addr_res;
++	struct resource *irq_res;
++	unsigned short *keycode;
++};
++
++static irqreturn_t opencores_kbd_isr(int irq, void *dev_id)
++{
++	unsigned char c;
++	struct platform_device *pdev = dev_id;
++	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
++	struct input_dev *input = opencores_kbd->input;
++
++	c = readb(opencores_kbd->addr_res->start);
++	input_report_key(input, c & 0x7f, c & 0x80 ? 0 : 1);
++	input_sync(input);
++
++	return IRQ_HANDLED;
++}
++
++static int __devinit opencores_kbd_probe(struct platform_device *pdev)
++{
++	struct input_dev *input;
++	struct opencores_kbd *opencores_kbd;
++	int i, error;
++
++	opencores_kbd = kzalloc(sizeof(*opencores_kbd), GFP_KERNEL);
++	if (!opencores_kbd)
++		return -ENOMEM;
++
++	opencores_kbd->keycode = kmalloc(NUM_KEYS * sizeof(unsigned short), GFP_KERNEL);
++	if (!opencores_kbd->keycode) {
++		error = -ENOMEM;
++		goto out;
++	}
++
++	platform_set_drvdata(pdev, opencores_kbd);
++
++	opencores_kbd->addr_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	opencores_kbd->irq_res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++
++	if (opencores_kbd->addr_res == NULL || opencores_kbd->irq_res == NULL) {
++		printk(KERN_ERR "insufficient resources\n");
++		error = -ENOENT;
++		goto out1;
++	}
++
++	error = request_irq(opencores_kbd->irq_res->start, &opencores_kbd_isr, IRQF_TRIGGER_RISING, pdev->name, pdev);
++	if (error) {
++		printk(KERN_ERR DRV_NAME ": Unable to claim irq %d; error %d\n", opencores_kbd->irq_res->start, error);
++		goto out2;
++	}
++
++	input = input_allocate_device();
++	if (!input) {
++		error = -ENOMEM;
++		goto out3;
++	}
++
++	opencores_kbd->input = input;
++
++	input->name = pdev->name;
++	input->phys = "opencores-kbd/input0";
++	input->dev.parent = &pdev->dev;
++
++	input_set_drvdata(input, opencores_kbd);
++
++	input->id.bustype = BUS_HOST;
++	input->id.vendor = 0x0001;
++	input->id.product = 0x0001;
++	input->id.version = 0x0100;
++
++	input->keycodesize = sizeof(*opencores_kbd->keycode);
++	input->keycodemax = NUM_KEYS;
++	input->keycode = opencores_kbd->keycode;
++
++	__set_bit(EV_KEY, input->evbit);
++
++	for (i = 0; i < input->keycodemax; i++) {
++		opencores_kbd->keycode[i] = i;
++		__set_bit(opencores_kbd->keycode[i] & KEY_MAX, input->keybit);
++	}
++	__clear_bit(KEY_RESERVED, input->keybit);
++
++	error = input_register_device(opencores_kbd->input);
++	if (error) {
++		printk(KERN_ERR DRV_NAME ": Unable to register input device (%d)\n", error);
++		goto out2;
++	}
++
++	return 0;
++
++out3:
++	input_free_device(input);
++out2:
++	free_irq(opencores_kbd->irq_res->start, pdev);
++out1:
++	kfree(opencores_kbd->keycode);
++out:
++	kfree(opencores_kbd);
++	platform_set_drvdata(pdev, NULL);
++
++	return error;
++}
++
++static int __devexit opencores_kbd_remove(struct platform_device *pdev)
++{
++	struct opencores_kbd *opencores_kbd = platform_get_drvdata(pdev);
++
++	free_irq(opencores_kbd->irq_res->start, pdev);
++
++	input_unregister_device(opencores_kbd->input);
++
++	kfree(opencores_kbd->keycode);
++	kfree(opencores_kbd);
++	platform_set_drvdata(pdev, NULL);
++
++	return 0;
++}
++
++struct platform_driver opencores_kbd_device_driver = {
++	.probe		= opencores_kbd_probe,
++	.remove		= __devexit_p(opencores_kbd_remove),
++	.driver		= {
++		.name	= DRV_NAME,
++	}
++};
++
++static int __init opencores_kbd_init(void)
++{
++	return platform_driver_register(&opencores_kbd_device_driver);
++}
++
++static void __exit opencores_kbd_exit(void)
++{
++	platform_driver_unregister(&opencores_kbd_device_driver);
++}
++
++module_init(opencores_kbd_init);
++module_exit(opencores_kbd_exit);
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Javier Herrero <jherrero@hvsistemas.es");
++MODULE_DESCRIPTION("Keyboard driver for OpenCores Keyboard Controller");
 -- 
-With best wishes
-Dmitry
-
-
+1.5.3.4

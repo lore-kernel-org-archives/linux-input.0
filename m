@@ -1,39 +1,20 @@
-From: Dmitry Torokhov <dtor@insightbb.com>
-Subject: Re: [PATCH] Input: Add Fujitsu-Siemens Amilo Pro 2010 to nomux list
-Date: Wed, 30 Jan 2008 22:55:26 -0500
-Message-ID: <200801302255.26584.dtor@insightbb.com>
-References: <Pine.LNX.4.64.0801202207340.15647@twin.jikos.cz> <Pine.LNX.4.64.0801281831000.5521@twin.jikos.cz>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 3/3] Blackfin serial driver: this driver enable SPORTs
+ on Blackfin emulate UART
+Date: Sun, 3 Feb 2008 19:35:27 -0800
+Message-ID: <20080203193527.8d0561ea.akpm@linux-foundation.org>
+References: <1192098220-25828-1-git-send-email-bryan.wu@analog.com>
+	<1192098220-25828-4-git-send-email-bryan.wu@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxsf06.insightbb.com ([74.128.0.76]:62065 "EHLO
-	mxsf06.insightbb.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752492AbYAaDz2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jan 2008 22:55:28 -0500
-In-Reply-To: <Pine.LNX.4.64.0801281831000.5521@twin.jikos.cz>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <1192098220-25828-4-git-send-email-bryan.wu@analog.com>
+Sender: linux-serial-owner@vger.kernel.org
+To: Bryan Wu <bryan.wu@analog.com>
+Cc: dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-joystick@atrey.karlin.mff.cuni.cz, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Hans Aschauer <Hans.Aschauer@web.de>
 
-Hi Jiri,
 
-On Monday 28 January 2008, Jiri Kosina wrote:
-> On Sun, 20 Jan 2008, Jiri Kosina wrote:
-> 
-> > Add Fujitsu-Siemens Amilo Pro 2010 to nomux list.
-> 
-> Hi Dmitry,
-> 
-> I don't see this patch in neither branch of your git tree ... is there 
-> anything wrong with it?
-> 
-
-No, it just was stuck in my private queue. Applied, thank you.
-
--- 
-Dmitry
+My review comments for this patch remain unaddressed so
+I have put it on hold.

@@ -1,58 +1,50 @@
-From: "Alfred E. Heggestad" <aeh@db.org>
-Subject: Re: [PATCH] Driver for VoIP CM109 Chipset
-Date: Thu, 07 Feb 2008 19:39:20 +0100
-Message-ID: <47AB5058.6090507@db.org>
-References: <47A8D792.80701@db.org> <200802052223.26399.carlos@strangeworlds.co.uk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+Date: Thu, 7 Feb 2008 16:59:07 -0500
+Message-ID: <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
+References: <47AB5012.20509@db.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from submit01.sysedata.no ([195.159.29.244]:45044 "EHLO
-	submit01.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750739AbYBGSje (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Feb 2008 13:39:34 -0500
-In-Reply-To: <200802052223.26399.carlos@strangeworlds.co.uk>
+Received: from an-out-0708.google.com ([209.85.132.246]:20145 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760570AbYBGV7T (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Feb 2008 16:59:19 -0500
+Received: by an-out-0708.google.com with SMTP id d31so840799and.103
+        for <linux-input@vger.kernel.org>; Thu, 07 Feb 2008 13:59:18 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <47AB5012.20509@db.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Cc: dtor@mail.ru, linux-input@vger.kernel.org
+To: "Alfred E. Heggestad" <aeh@db.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Carlos Corbacho wrote:
-> Two minor nitpicks.
-> 
+Hi Alfred,
 
-Hi Carlos,
+On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
+> From: Alfred E. Heggestad <aeh@db.org>
+>
+> This driver adds support for USB VoIP phones using the CM109 chipset,
+> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
+> events are reported to the input subsystem. The buzzer can be activated
+> by sending SND_TONE or SND_BELL to the input device. The phone keymap
+> can be selected in run-time by using the "phone" module parameter.
+> The driver has been tested with linux 2.6.24 on i386, and also tested
+> to build cleanly on AMD64.
+> More testing and code review is welcome..
+>
 
-thanks for your feedback. I just updated the patch, and submitted a new
-version..
+For a long time I was sitting on the patch not sure what to do about
+the pound key, but I think we need to allocate separate keycodes for
+remote controls and phones that work regardless of users keymap.
 
+Another item is keymap for different devices - the best way to handle
+it I think it to implement getkeycodes and setkeycodes methods for
+the input device and have alternative keymaps loaded from userspace
+instead of adding module parameters.
 
-/alfred
+The rest of the driver looks great and I am sorry I was ignoring it
+for so long.
 
-> On Tuesday 05 February 2008 21:39:30 Alfred E. Heggestad wrote:
->> +/*
->> + * drivers/input/misc/cm109.c
-> 
-> Don't put the filename in the source file - this is now generally frowned 
-> upon. Instead, replace that with a title/ short description for the driver.
-> 
-> e.g. Move this line up instead to the top, rather than burying it under the 
-> copyright notice:
-> 
-> Driver for the VoIP USB phones with CM109 chipsets.
-> 
->> + * History:
->> + *   20080205 alfredh	Upgrade to 2.6.24
->> + *   20070829 alfredh	Added keymap for Genius G-talk (thanks Shaun)
->> + *   20070826 alfredh	2.6.22.5, added to blacklist in hid-quirks.c
->> + *   20070626 alfredh	2.6.22-rc6, linux-input peer review
->> + *   20070616 alfredh	Adapt for kernel 2.6.22-rc4
->> + *   20070615 alfredh	Change GFP_KERNEL -> GFP_ATOMIC
->> + *   20070610 alfredh	Buzzer through input SND_TONE/SND_BELL
->> + *   20070227 alfredh	Draft version with keyboard scan and buzzer
-> 
-> ChangeLog's/ history should go in the commit message, not the code. It's the 
-> job of the revision control system to maintain the history of the code, not 
-> the codes job.
-> 
-> -Carlos
+-- 
+Dmitry

@@ -1,54 +1,44 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: [PATCH] Driver for VoIP CM109 Chipset
-Date: Tue, 5 Feb 2008 22:23:25 +0000
-Message-ID: <200802052223.26399.carlos@strangeworlds.co.uk>
-References: <47A8D792.80701@db.org>
+From: Len Brown <lenb@kernel.org>
+Subject: Re: [PATCH, RFC] HP WMI hotkey driver, RFKill query?
+Date: Wed, 6 Feb 2008 22:54:24 -0500
+Message-ID: <200802062254.24599.lenb@kernel.org>
+References: <20071218235137.12838.75397.stgit@localhost> <20080115155215.ZZRA012@mailhub.coreip.homeip.net> <200801160138.36347.carlos@strangeworlds.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from host-240-152.cust.aaawireless.net ([216.23.240.152]:33583 "EHLO
-	mail.slackadelic.com" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
-	with ESMTP id S1760074AbYBEWae (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 Feb 2008 17:30:34 -0500
-In-Reply-To: <47A8D792.80701@db.org>
+Received: from hera.kernel.org ([140.211.167.34]:40770 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754542AbYBGDzd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 6 Feb 2008 22:55:33 -0500
+In-Reply-To: <200801160138.36347.carlos@strangeworlds.co.uk>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Alfred E. Heggestad" <aeh@db.org>
-Cc: dtor@mail.ru, linux-input@vger.kernel.org
+To: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthew Garrett <mjg59@srcf.ucam.org>, linux-acpi@vger.kernel.org, Alexey Starikovskiy <aystarik@gmail.com>, linux-input@vger.kernel.org
 
-Two minor nitpicks.
+On Tuesday 15 January 2008 20:38, Carlos Corbacho wrote:
+> On Tuesday 15 January 2008 20:54:29 Dmitry Torokhov wrote:
+> > If there is a [planned] WMI sysfs device then I think input device should
+> > use it to form proper sysfs hierarchy. What are the roadblocks for getting
+> > WMI sysfs in?
+> 
+> The question is, would exporting the GUID virtual device and using that as the 
+> parent make more sense? So, in the case of hp-wmi, it only uses the GUID 
+> 95F24279-4D7B-4334-9387-ACCDC67EF61C, so should we use the virtual device 
+> associated with that GUID as the parent, or just have WMI itself as the 
+> parent device? I'm really not sure which would be the better way to go.
 
-On Tuesday 05 February 2008 21:39:30 Alfred E. Heggestad wrote:
-> +/*
-> + * drivers/input/misc/cm109.c
+Why not used generic names like dev0, dev1 etc.
+and have the guid be an attribute?
 
-Don't put the filename in the source file - this is now generally frowned 
-upon. Instead, replace that with a title/ short description for the driver.
-
-e.g. Move this line up instead to the top, rather than burying it under the 
-copyright notice:
-
-Driver for the VoIP USB phones with CM109 chipsets.
-
-> + * History:
-> + *   20080205 alfredh	Upgrade to 2.6.24
-> + *   20070829 alfredh	Added keymap for Genius G-talk (thanks Shaun)
-> + *   20070826 alfredh	2.6.22.5, added to blacklist in hid-quirks.c
-> + *   20070626 alfredh	2.6.22-rc6, linux-input peer review
-> + *   20070616 alfredh	Adapt for kernel 2.6.22-rc4
-> + *   20070615 alfredh	Change GFP_KERNEL -> GFP_ATOMIC
-> + *   20070610 alfredh	Buzzer through input SND_TONE/SND_BELL
-> + *   20070227 alfredh	Draft version with keyboard scan and buzzer
-
-ChangeLog's/ history should go in the commit message, not the code. It's the 
-job of the revision control system to maintain the history of the code, not 
-the codes job.
-
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+> Unfortunately, as you can see, a GUID is a 36 character string, which is 
+> longer than the current 20 byte length of bus_id in a 'struct device'; so 
+> either we have to have a temporary hack to shorten the GUID length when 
+> creating the device, or wait for bus_id to switch to a variable length 
+> (although it's not certain if this change will hit 2.6.25, or will be put off 
+> until 2.6.26).
+> 
+> -Carlos

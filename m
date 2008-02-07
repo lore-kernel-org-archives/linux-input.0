@@ -1,50 +1,42 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
-Date: Thu, 7 Feb 2008 16:59:07 -0500
-Message-ID: <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
-References: <47AB5012.20509@db.org>
+Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
+Date: Thu, 7 Feb 2008 17:07:23 -0500
+Message-ID: <20080207170112.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080126151820.GA13899@sirena.org.uk> <1201368516-3513-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.246]:20145 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760570AbYBGV7T (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 Feb 2008 16:59:19 -0500
-Received: by an-out-0708.google.com with SMTP id d31so840799and.103
-        for <linux-input@vger.kernel.org>; Thu, 07 Feb 2008 13:59:18 -0800 (PST)
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762233AbYBGWHn@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <47AB5012.20509@db.org>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1201368516-3513-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 List-Id: linux-input@vger.kernel.org
-To: "Alfred E. Heggestad" <aeh@db.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Alfred,
+Hi Mark,
 
-On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
-> From: Alfred E. Heggestad <aeh@db.org>
->
-> This driver adds support for USB VoIP phones using the CM109 chipset,
-> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
-> events are reported to the input subsystem. The buzzer can be activated
-> by sending SND_TONE or SND_BELL to the input device. The phone keymap
-> can be selected in run-time by using the "phone" module parameter.
-> The driver has been tested with linux 2.6.24 on i386, and also tested
-> to build cleanly on AMD64.
-> More testing and code review is welcome..
->
+On Sat, Jan 26, 2008 at 05:28:31PM +0000, Mark Brown wrote:
+> +
+> +	/* register our battery device */
+> +	wm->battery_dev = platform_device_alloc("wm97xx-battery", 0);
+> +	if (!wm->battery_dev)
+> +		goto batt_err;
+...
+> + batt_err:
+> +	input_unregister_device(wm->input_dev);
+> +	kfree(wm);
+> +	return ret;
+> +}
 
-For a long time I was sitting on the patch not sure what to do about
-the pound key, but I think we need to allocate separate keycodes for
-remote controls and phones that work regardless of users keymap.
+The probe error handling is not quite correct. When we reach the fragment
+above ret variable is 0 so if platfrom_device_alloc() fails we will return
+0 and the device will be considered bound but in half-dead state. Please
+make sure that proper error is returned in all cases. Also please do not
+mix out of line and in-line error unwinding (input_free_device() should
+be called in the error path and if you are concerned about double-free
+after input_unregister_device() just set wm->input_dev to NULL there).
 
-Another item is keymap for different devices - the best way to handle
-it I think it to implement getkeycodes and setkeycodes methods for
-the input device and have alternative keymaps loaded from userspace
-instead of adding module parameters.
-
-The rest of the driver looks great and I am sorry I was ignoring it
-for so long.
+Thanks.
 
 -- 
 Dmitry

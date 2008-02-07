@@ -1,42 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
-Date: Thu, 7 Feb 2008 17:07:23 -0500
-Message-ID: <20080207170112.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080126151820.GA13899@sirena.org.uk> <1201368516-3513-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: Unicode events?
+Date: Thu, 7 Feb 2008 22:42:06 +0000
+Message-ID: <20080207224206.GB4404@implementation>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762233AbYBGWHn@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from queueout03-winn.ispmail.ntl.com ([81.103.221.33]:19518 "EHLO
+	queueout03-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755435AbYBGWpF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 Feb 2008 17:45:05 -0500
+Received: from aamtaout02-winn.ispmail.ntl.com ([81.103.221.35])
+          by mtaout02-winn.ispmail.ntl.com with ESMTP
+          id <20080207224354.WOGN3337.mtaout02-winn.ispmail.ntl.com@aamtaout02-winn.ispmail.ntl.com>
+          for <linux-input@vger.kernel.org>; Thu, 7 Feb 2008 22:43:54 +0000
+Received: from implementation.famille.thibault.fr ([82.21.96.230])
+          by aamtaout02-winn.ispmail.ntl.com with ESMTP
+          id <20080207224322.VMQO17393.aamtaout02-winn.ispmail.ntl.com@implementation.famille.thibault.fr>
+          for <linux-input@vger.kernel.org>; Thu, 7 Feb 2008 22:43:22 +0000
+Received: from samy by implementation.famille.thibault.fr with local (Exim 4.68)
+	(envelope-from <samuel.thibault@labri.fr>)
+	id 1JNFRW-0001Ps-BV
+	for linux-input@vger.kernel.org; Thu, 07 Feb 2008 23:42:06 +0100
 Content-Disposition: inline
-In-Reply-To: <1201368516-3513-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Mark,
+Hello,
 
-On Sat, Jan 26, 2008 at 05:28:31PM +0000, Mark Brown wrote:
-> +
-> +	/* register our battery device */
-> +	wm->battery_dev = platform_device_alloc("wm97xx-battery", 0);
-> +	if (!wm->battery_dev)
-> +		goto batt_err;
-...
-> + batt_err:
-> +	input_unregister_device(wm->input_dev);
-> +	kfree(wm);
-> +	return ret;
-> +}
+Some braille devices may be used as input devices, and some of them
+don't have a PC-like keyboard, but a braille keyboard: when pressing dot
+1, 'a' should be output.  Currently, there is no way to do this with the
+input layer: if we generate KEY_A, then that will be right for qwerty
+keyboards, but not for non-qwerty keyboards.  Then I'm wondering:
+shouldn't we add a unicode event type, which will just hold the unicode
+character that should happen?
 
-The probe error handling is not quite correct. When we reach the fragment
-above ret variable is 0 so if platfrom_device_alloc() fails we will return
-0 and the device will be considered bound but in half-dead state. Please
-make sure that proper error is returned in all cases. Also please do not
-mix out of line and in-line error unwinding (input_free_device() should
-be called in the error path and if you are concerned about double-free
-after input_unregister_device() just set wm->input_dev to NULL there).
-
-Thanks.
-
--- 
-Dmitry
+Samuel

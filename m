@@ -1,34 +1,38 @@
-From: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>
-Subject: [BUILD_FAILURE] 2.6.24-git18 build fails section type conflict psmouse-base
-Date: Fri, 08 Feb 2008 16:02:59 +0530
-Message-ID: <47AC2FDB.7080104@linux.vnet.ibm.com>
+From: Eric Piel <eric.piel@tremplin-utc.net>
+Subject: Re: [PATCH] wistron-btns: Drop Acer Aspire 3020 & 5020 support
+Date: Fri, 08 Feb 2008 11:20:13 +0100
+Message-ID: <47AC2CDD.3010406@tremplin-utc.net>
+References: <20080208015941.14737.95961.stgit@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from E23SMTP02.au.ibm.com ([202.81.18.163]:55549 "EHLO
-	e23smtp02.au.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761139AbYBHKdF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Feb 2008 05:33:05 -0500
+Received: from mailservice.tudelft.nl ([130.161.131.5]:26542 "EHLO
+	mailservice.tudelft.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756528AbYBHKrs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Feb 2008 05:47:48 -0500
+In-Reply-To: <20080208015941.14737.95961.stgit@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Balbir Singh <balbir@linux.vnet.ibm.com>
+To: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hi,
+Carlos Corbacho wrote:
+> With acer-wmi now merged, the last reason to keep support for the Acer
+> Aspire 3020 & 5020 in wistron-btns is gone.
+> 
+> The keys do not need polling, and are already mapped in userspace by HAL.
+> 
+> The other functionality (mail LED, bluetooth and wireless) is already
+> available in acer-wmi, and surpassed (we can read the status of all these
+> devices, we can export the backlight, and acer-wmi can also work on
+> x86-64 with the Aspire 5020, which wistron-btns cannot do).
+> 
+> Signed-off-by: Carlos Corbacho <carlos@strangeworlds.co.uk>
+> CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> CC: Eric Piel <eric.piel@tremplin-utc.net>
+It's great that acer-wmi finally arrived in the kernel :-)
 
-The 2.6.24-git18 kernel build fails on the power machine with following message
+Acked-by: Eric Piel <eric.piel@tremplin-utc.net>
 
-drivers/input/mouse/psmouse-base.c:44: error: __param_proto causes a section type conflict
-drivers/input/mouse/psmouse-base.c:44: error: __param_proto causes a section type conflict
-make[3]: *** [drivers/input/mouse/psmouse-base.o] Error 1
-make[2]: *** [drivers/input/mouse] Error 2
-make[1]: *** [drivers/input] Error 2
-make: *** [drivers] Error 2
-
-this failure was reported earlier http://lkml.org/lkml/2007/9/22/64
-
--- 
-Thanks & Regards,
-Kamalesh Babulal,
-Linux Technology Center,
-IBM, ISTL.
+Eric

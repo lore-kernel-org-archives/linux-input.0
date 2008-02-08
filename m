@@ -1,73 +1,49 @@
-From: "Alfred E. Heggestad" <aeh@db.org>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
-Date: Fri, 08 Feb 2008 22:23:50 +0100
-Message-ID: <47ACC866.6010206@db.org>
-References: <47AB5012.20509@db.org> <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Subject: Re: [BUILD_FAILURE] 2.6.24-git18 build fails section type conflict
+	psmouse-base
+Date: Sat, 9 Feb 2008 01:25:44 +0300
+Message-ID: <20080208222544.GA15333@jurassic.park.msu.ru>
+References: <47AC2FDB.7080104@linux.vnet.ibm.com> <20080208104851.GI7198@cs181133002.pp.htv.fi> <47AC502C.70809@linux.vnet.ibm.com> <20080208133022.GA2254@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from submit01.sysedata.no ([195.159.29.244]:45175 "EHLO
-	submit01.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751961AbYBHVX4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Feb 2008 16:23:56 -0500
-In-Reply-To: <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758957AbYBHWZ4@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20080208133022.GA2254@cs181133002.pp.htv.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, rusty@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Balbir Singh <balbir@linux.vnet.ibm.com>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi Alfred,
-> 
-> On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
->> From: Alfred E. Heggestad <aeh@db.org>
->>
->> This driver adds support for USB VoIP phones using the CM109 chipset,
->> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
->> events are reported to the input subsystem. The buzzer can be activated
->> by sending SND_TONE or SND_BELL to the input device. The phone keymap
->> can be selected in run-time by using the "phone" module parameter.
->> The driver has been tested with linux 2.6.24 on i386, and also tested
->> to build cleanly on AMD64.
->> More testing and code review is welcome..
->>
-> 
-> For a long time I was sitting on the patch not sure what to do about
-> the pound key, but I think we need to allocate separate keycodes for
-> remote controls and phones that work regardless of users keymap.
-> 
+On Fri, Feb 08, 2008 at 03:30:22PM +0200, Adrian Bunk wrote:
+> > > On Fri, Feb 08, 2008 at 04:02:59PM +0530, Kamalesh Babulal wrote:
+> > >> The 2.6.24-git18 kernel build fails on the power machine with following message
+> > >> drivers/input/mouse/psmouse-base.c:44: error: __param_proto causes a section type conflict
 
-ok, let us define a new KEY_KPPOUND in linux/input.h
+My fault - I somehow overlooked that ppc64 is the club member...
 
-this also means that any application wanting to use this key must
-be updated to read this new keycode.
+> The comment is wrong now, the #if's should refer to kconfig variables, 
+> and I don't know whether this patch is really the best solution.
 
-do you want me to add a new value for KEY_KPPOUND in linux/input.h
-and include it in the next patch, or can you add that value to the
-tree first?
+I think it's the best, because it at least points at some of
+the problems which arise when you blindly rely on some undocumented
+behaviour of __attribute__(section()) on certain platform, and
+assume it's the same for the rest of the world...
 
+Alternatives are:
+- drop the 'const' qualifier from that macro unconditionally, so that
+  __param section gets read/write on all arches. I'd be fine with it,
+  but then we'll probably have the same problem again and again...
+- make the offending module_param functions global (psmouse and 3-4
+  other places). But how do you explain that to driver writers?
+  These functions are logically private to this particular module,
+  so it's obviously not the same as "we don't export static functions",
+  though underlying problem is precisely the same on our three
+  platforms...
+- hack up gcc. But I don't even have a proposal, because it's not a bug
+  from gcc point of view. Ideally, I'd like to pass some extra parameters
+  to __attribute__(section()), like r/w control and some equivalent of
+  -fno-jump-tables...
 
-> Another item is keymap for different devices - the best way to handle
-> it I think it to implement getkeycodes and setkeycodes methods for
-> the input device and have alternative keymaps loaded from userspace
-> instead of adding module parameters.
-> 
+Oh, well. Updated patch in a minute.
 
-I agree - I dont want to upgrade the driver code whenever there is a
-new phone with different key-mapping.
-
-regarding get/set-keycodes, please let me know how I should
-proceed on this one..
-
-
-> The rest of the driver looks great and I am sorry I was ignoring it
-> for so long.
-> 
-
-no worries, I am happy to fix the remaining issues and submit new
-versions of the patch..
-
-
-/alfred
-
+Ivan.

@@ -1,52 +1,28 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: Re: [BUILD_FAILURE] 2.6.24-git18 build fails section type conflict
-	psmouse-base
-Date: Fri, 8 Feb 2008 12:48:51 +0200
-Message-ID: <20080208104851.GI7198@cs181133002.pp.htv.fi>
-References: <47AC2FDB.7080104@linux.vnet.ibm.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
+Date: Fri, 8 Feb 2008 11:27:09 +0000
+Message-ID: <20080208112709.GA12028@rakim.wolfsonmicro.main>
+References: <20080126151820.GA13899@sirena.org.uk> <1201368516-3513-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080207170112.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6.pp.htv.fi ([213.243.153.40]:54636 "EHLO smtp6.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758924AbYBHLFt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 8 Feb 2008 06:05:49 -0500
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S964927AbYBHL1Y@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <47AC2FDB.7080104@linux.vnet.ibm.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20080207170112.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 List-Id: linux-input@vger.kernel.org
-To: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, rusty@rustcorp.com.au
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 
-On Fri, Feb 08, 2008 at 04:02:59PM +0530, Kamalesh Babulal wrote:
-> Hi,
-> 
-> The 2.6.24-git18 kernel build fails on the power machine with following message
-> 
-> drivers/input/mouse/psmouse-base.c:44: error: __param_proto causes a section type conflict
-> drivers/input/mouse/psmouse-base.c:44: error: __param_proto causes a section type conflict
-> make[3]: *** [drivers/input/mouse/psmouse-base.o] Error 1
-> make[2]: *** [drivers/input/mouse] Error 2
-> make[1]: *** [drivers/input] Error 2
-> make: *** [drivers] Error 2
-> 
-> this failure was reported earlier http://lkml.org/lkml/2007/9/22/64
+On Thu, Feb 07, 2008 at 05:07:23PM -0500, Dmitry Torokhov wrote:
 
-You need the patch from [1] manually applied (due to changed context) 
-and with " || defined(__powerpc__)" added for getting it compiling.
+> The probe error handling is not quite correct. When we reach the fragment
+> above ret variable is 0 so if platfrom_device_alloc() fails we will return
+> 0 and the device will be considered bound but in half-dead state. Please
+> make sure that proper error is returned in all cases. Also please do not
+> mix out of line and in-line error unwinding (input_free_device() should
+> be called in the error path and if you are concerned about double-free
+> after input_unregister_device() just set wm->input_dev to NULL there).
 
-@Rusty:
-Can you look at this issue? It's a modules problem on 3 architectures.
-
-cu
-Adrian
-
-[1] http://lkml.org/lkml/2007/12/27/29
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Thanks for the review, I've implemented these changes and will resubmit
+as a followup to this e-mail, also including a change from Dmitry
+Baryshkov to make the devices unnumbered.

@@ -1,49 +1,82 @@
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Subject: Re: [BUILD_FAILURE] 2.6.24-git18 build fails section type conflict
-	psmouse-base
-Date: Sat, 9 Feb 2008 01:25:44 +0300
-Message-ID: <20080208222544.GA15333@jurassic.park.msu.ru>
-References: <47AC2FDB.7080104@linux.vnet.ibm.com> <20080208104851.GI7198@cs181133002.pp.htv.fi> <47AC502C.70809@linux.vnet.ibm.com> <20080208133022.GA2254@cs181133002.pp.htv.fi>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Subject: [PATCH] keyboard notifier documentation
+Date: Sat, 9 Feb 2008 01:33:22 +0000
+Message-ID: <20080209013322.GC4463@implementation>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1758957AbYBHWZ4@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759154AbYBIBd6@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20080208133022.GA2254@cs181133002.pp.htv.fi>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Adrian Bunk <bunk@kernel.org>
-Cc: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, rusty@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Balbir Singh <balbir@linux.vnet.ibm.com>
+To: torvalds@osdl.org, linux-input@vger.kernel.org, dtor@mail.ru
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Fri, Feb 08, 2008 at 03:30:22PM +0200, Adrian Bunk wrote:
-> > > On Fri, Feb 08, 2008 at 04:02:59PM +0530, Kamalesh Babulal wrote:
-> > >> The 2.6.24-git18 kernel build fails on the power machine with following message
-> > >> drivers/input/mouse/psmouse-base.c:44: error: __param_proto causes a section type conflict
+Document the keyboard notifier.
 
-My fault - I somehow overlooked that ppc64 is the club member...
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-> The comment is wrong now, the #if's should refer to kconfig variables, 
-> and I don't know whether this patch is really the best solution.
-
-I think it's the best, because it at least points at some of
-the problems which arise when you blindly rely on some undocumented
-behaviour of __attribute__(section()) on certain platform, and
-assume it's the same for the rest of the world...
-
-Alternatives are:
-- drop the 'const' qualifier from that macro unconditionally, so that
-  __param section gets read/write on all arches. I'd be fine with it,
-  but then we'll probably have the same problem again and again...
-- make the offending module_param functions global (psmouse and 3-4
-  other places). But how do you explain that to driver writers?
-  These functions are logically private to this particular module,
-  so it's obviously not the same as "we don't export static functions",
-  though underlying problem is precisely the same on our three
-  platforms...
-- hack up gcc. But I don't even have a proposal, because it's not a bug
-  from gcc point of view. Ideally, I'd like to pass some extra parameters
-  to __attribute__(section()), like r/w control and some equivalent of
-  -fno-jump-tables...
-
-Oh, well. Updated patch in a minute.
-
-Ivan.
+--- /dev/null	2008-02-09 01:22:34.790011677 +0000
++++ linux/Documentation/input/notifier.txt	2008-02-09 01:28:12.00000000=
+0 +0000
+@@ -0,0 +1,52 @@
++Keyboard notifier
++
++One can use register_keyboard_notifier to get called back on keyboard
++events (see kbd_keycode() function for details).  The passed structure=
+ is
++keyboard_notifier_param:
++
++- 'vc' always provide the VC for which the keyboard event applies=A0;
++- 'down' is 1 for a key press event, 0 for a key release=A0;
++- 'shift' is the current modifier state, mask bit indexes are KG_*=A0;
++- 'value' depends on the type of event.
++
++- KBD_KEYCODE events are always sent before other events, value is the=
+ keycode.
++- KBD_UNBOUND_KEYCODE events are sent if the keycode is not bound to a=
+ keysym.
++  value is the keycode.
++- KBD_UNICODE events are sent if the keycode -> keysym translation pro=
+duced a
++  unicode character. value is the unicode value.
++- KBD_KEYSYM events are sent if the keycode -> keysym translation prod=
+uced a
++  non-unicode character. value is the keysym.
++- KBD_POST_KEYSYM events are sent after the treatment of non-unicode k=
+eysyms.
++  That permits to inspect the resulting LEDs for instance.
++
++For each kind of event but the last, the callback may return NOTIFY_ST=
+OP in
++order to "eat" the event: the notify loop is stopped and the keyboard =
+event is
++dropped.
++
++I a rough C snippet, we have:
++
++kbd_keycode(keycode) {
++	...
++	params.value =3D keycode;
++	if (notifier_call_chain(KBD_KEYCODE,&params) =3D=3D NOTIFY_STOP)
++	    || !bound) {
++		notifier_call_chain(KBD_UNBOUND_KEYCODE,&params);
++		return;
++	}
++
++	if (unicode) {
++		param.value =3D unicode;
++		if (notifier_call_chain(KBD_UNICODE,&params) =3D=3D NOTIFY_STOP)
++			return;
++		emit unicode;
++		return;
++	}
++
++	params.value =3D keysym;
++	if (notifier_call_chain(KBD_KEYSYM,&params) =3D=3D NOTIFY_STOP)
++		return;
++	apply keysym;
++	notifier_call_chain(KBD_POST_KEYSYM,&params);
++}
++
++NOTE: This notifier is usually called from interrupt context.

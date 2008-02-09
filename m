@@ -1,61 +1,71 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: [PATCH] keyboard notifier documentation
-Date: Sat, 9 Feb 2008 15:43:41 +0000
-Message-ID: <20080209154341.GK4379@implementation>
-References: <20080209013322.GC4463@implementation> <20080208201253.46c068ed.randy.dunlap@oracle.com> <20080209114031.GC4379@implementation> <47ADC913.5010202@oracle.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+Date: Sat, 9 Feb 2008 19:12:07 +0000
+Message-ID: <20080209191206.GD5139@ucw.cz>
+References: <47AB5012.20509@db.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mtaout02-winn.ispmail.ntl.com ([81.103.221.48]:53641 "EHLO
-	mtaout02-winn.ispmail.ntl.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752004AbYBIPoY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 9 Feb 2008 10:44:24 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1692 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754797AbYBITPC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 9 Feb 2008 14:15:02 -0500
 Content-Disposition: inline
-In-Reply-To: <47ADC913.5010202@oracle.com>
+In-Reply-To: <47AB5012.20509@db.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: torvalds@osdl.org, linux-input@vger.kernel.org, dtor@mail.ru, linux-kernel@vger.kernel.org
+To: "Alfred E. Heggestad" <aeh@db.org>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Randy Dunlap, le Sat 09 Feb 2008 07:38:59 -0800, a =E9crit :
-> Samuel Thibault wrote:
-> >Randy Dunlap, le Fri 08 Feb 2008 20:12:53 -0800, a =E9crit :
-> >>On Sat, 9 Feb 2008 01:33:22 +0000 Samuel Thibault wrote:
-> >>>+- 'vc' always provide the VC for which the keyboard event applies=
- ;
-> >>>+- 'down' is 1 for a key press event, 0 for a key release ;
-> >>>+- 'shift' is the current modifier state, mask bit indexes are KG_=
-* ;
-> >>No space before the ';' (3 times).
-> >
-> >Well, as expected in French...  I'll fix that.
-> >
-> >>>+For each kind of event but the last, the callback may return=20
-> >>>NOTIFY_STOP in
-> >>>+order to "eat" the event: the notify loop is stopped and the keyb=
-oard=20
-> >>>event is
-> >>>+dropped.
-> >>>+
-> >>>+I a rough C snippet, we have:
-> >>   In a rough (?)
-> >
-> >Yes, rough as "something that a C compiler will never accept, but th=
-at
-> >you, human, will make sense out of it".
->=20
-> so s/I/In/ please.
+Hi!
 
-Ah oops, sorry misunderstood what you raised, I actually had fixed it i=
-n
-the second version.
+> + Komunikate KIP1000 Keyboard Matrix
+> +
+> +     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
+> +      |    |    |    |
+> +     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
+> +      |    |    |    |
+> +     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
+> +      |    |    |    |
+> +     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
+> +      |    |    |    |
+> +
+> +     /|\  /|\  /|\  /|\
+> +      |    |    |    |
+> +GPO
+> +pin:  3    2    1    0
+> +     0x8  0x4  0x2  0x1
+> +
+> + */
+> +static int keymap_kip1000(int scancode)
+> +{
+> +	switch (scancode) {			 /* phone 
+> key:   */
+> +	case 0x82: return KEY_0;		 /*   0   
+> */
+> +	case 0x14: return KEY_1;		 /*   1   
+> */
+> +	case 0x12: return KEY_2;		 /*   2   
+> */
+> +	case 0x11: return KEY_3;		 /*   3   
+> */
+> +	case 0x24: return KEY_4;		 /*   4   
+> */
+> +	case 0x22: return KEY_5;		 /*   5   
+> */
+> +	case 0x21: return KEY_6;		 /*   6   
+> */
+> +	case 0x44: return KEY_7;		 /*   7   
+> */
+> +	case 0x42: return KEY_8;		 /*   8   
+> */
+> +	case 0x41: return KEY_9;		 /*   9   
+> */
+> +	case 0x81: return KEY_LEFTSHIFT | KEY_3 << 8; /*  
+> #          */
 
-Thanks,
-Samuel
--
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+That's a very dirty hack, right?
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

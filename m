@@ -1,37 +1,135 @@
-From: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: event devices not released
-Date: Mon, 11 Feb 2008 22:48:38 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0802112245290.7699@twin.jikos.cz>
-References: <47B043ED.3020309@slagter.name>
+From: Timo Aaltonen <tjaalton@cc.hut.fi>
+Subject: Re: support for Logitech Wave
+Date: Tue, 12 Feb 2008 08:17:01 +0200 (EET)
+Message-ID: <alpine.OSF.0.99.0802120808070.326334@replicant.hut.fi>
+References: <alpine.OSF.0.99.0801151541290.326334@replicant.hut.fi>
+ <20080116110244.ZZRA012@mailhub.coreip.homeip.net> <20080116215824.GA3797@localhost>
+ <Pine.LNX.4.64.0801162259350.15647@twin.jikos.cz>
+ <alpine.OSF.0.99.0801170002240.326334@replicant.hut.fi>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-15;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:53937 "EHLO twin.jikos.cz"
+Received: from smtp-1.hut.fi ([130.233.228.91]:58816 "EHLO smtp-1.hut.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753635AbYBKVsu (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 Feb 2008 16:48:50 -0500
-In-Reply-To: <47B043ED.3020309@slagter.name>
+	id S1752979AbYBLGR3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Feb 2008 01:17:29 -0500
+Received: from localhost (katosiko.hut.fi [130.233.228.115])
+	by smtp-1.hut.fi (8.13.6/8.12.10) with ESMTP id m1C6HQfU001412
+	for <linux-input@vger.kernel.org>; Tue, 12 Feb 2008 08:17:26 +0200
+Received: from smtp-1.hut.fi ([130.233.228.91])
+ by localhost (katosiko.hut.fi [130.233.228.115]) (amavisd-new, port 10024)
+ with LMTP id 05876-27-2 for <linux-input@vger.kernel.org>;
+ Tue, 12 Feb 2008 08:17:25 +0200 (EET)
+Received: from replicant.hut.fi (replicant.hut.fi [130.233.200.84])
+	by smtp-1.hut.fi (8.13.6/8.12.10) with ESMTP id m1C6H11f001301
+	for <linux-input@vger.kernel.org>; Tue, 12 Feb 2008 08:17:01 +0200
+In-Reply-To: <alpine.OSF.0.99.0801170002240.326334@replicant.hut.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Erik Slagter <erik@slagter.name>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Mon, 11 Feb 2008, Erik Slagter wrote:
+On Thu, 17 Jan 2008, Timo Aaltonen wrote:
 
-> Symptoms: when I remove (unplug) a USB keyboard or mouse, the 
-> corresponding event device seems to be closed but not released; when I 
-> plug the device back in, it gets a new input device handle. This means 
-> that after several suspend/resume cycles (in which it seems all usb 
-> devices are virtually unplugged and replugged) the kernel is out of 
-> event devices and complains likewise. My nice little program that 
-> catches specific keystrokes also stops to get any interesting events 
-> from that moment on. After reboot everything works again as expected.
+> On Wed, 16 Jan 2008, Jiri Kosina wrote:
+>
+>> On Wed, 16 Jan 2008, Taneli V=E4h=E4kangas wrote:
+>>=20
+>>> I tried the same on a Creative Prodikeys keyboard, but can't see an=
+y
+>>> events for some keys (most notably none of the "piano" keys work). =
+Is
+>>> there anything that can be done to make it work?
+>>=20
+>> Hi Taneli,
+>>=20
+>> yes. Could you please grab reasonably recent kernel (2.6.24-rc<anyth=
+ing>
+>> would be ok), compile it with CONFIG_HID_DEBUG, modprobe the 'hid' m=
+odule
+>> with 'debug=3D1' parameter, and send me the output from the time you=
+ connect
+>> the keyboard and from pressing the non-working keys? It should be tr=
+ivial
+>> to fix then.
+>
+> Hi! I managed to get the event codes with evtest. Here's the output, =
+followed=20
+> by mappings to what the buttons really are. The ones that are mapped =
+below=20
+> 255 are working on X:
+>
+> Input driver version is 1.0.0
+> Input device ID: bus 0x3 vendor 0x46d product 0xc317 version 0x110
+> Input device name: "Logitech USB Multimedia Keyboard"
+> Supported events:
+>  Event type 0 (Reset)
+>    Event code 0 (Reset)
+>    Event code 1 (Key)
+>    Event code 4 (?)
+>  Event type 1 (Key)
+>    Event code 113 (Mute)
+>    Event code 114 (VolumeDown)
+>    Event code 115 (VolumeUp)
+>    Event code 140 (Calc)
+>    Event code 142 (Sleep)
+>    Event code 155 (Mail)
+>    Event code 163 (NextSong)
+>    Event code 164 (PlayPause)
+>    Event code 165 (PreviousSong)
+>    Event code 166 (StopCD)
+>    Event code 171 (Config)
+>    Event code 172 (HomePage)
+>    Event code 256 (Btn0)
+>    Event code 257 (Btn1)
+>    Event code 258 (Btn2)
+>    Event code 259 (Btn3)
+>    Event code 260 (Btn4)
+>    Event code 261 (Btn5)
+>    Event code 262 (Btn6)
+>    Event code 263 (Btn7)
+>    Event code 264 (Btn8)
+>    Event code 266 (?)
+>    Event code 267 (?)
+>    Event code 268 (?)
+>    Event code 269 (?)
+>    Event code 270 (?)
+>    Event code 271 (?)
+>    Event code 272 (LeftBtn)
+>    Event code 273 (RightBtn)
+>
+>
+> Mappings:
+>
+> 256 (Btn0)	"Word"
+> 257 (Btn1)	"Spreadsheet"
+> 258 (Btn2)	"Calendar"
+> 259 (Btn3)	"custom key a"
+> 260 (Btn4)	"Photos"
+> 261 (Btn5)	"custom key b"
+> 262 (Btn6)	"custom key c"
+> 263 (Btn7)	"Media center"
+> 264 (Btn8)	"Messenger"
+> 266 (?)		"local search"
+> 267 (?)		"Vista Flip 3D" (go through windows, "alt-tab")
+> 268 (?)		"Vista Gadget" (Vista "desktop applets"?)
+> 269 (?)		"internet search"
+> 270 (?)		"zoom -"
+> 271 (?)		"zoom +"
+> 272 (LeftBtn)	"eject"
+> 273 (RightBtn)	"Function key, used for most of the above"
+>
+> Hope this helps!
 
-Hi Erik,
+Jiri, did you notice this post? Is there enough information for you to=20
+patch the driver?
 
-this is very likely bug in HAL -- please see 
-https://bugzilla.novell.com/show_bug.cgi?id=344872
+thanks,
 
--- 
-Jiri Kosina
-
+t
+-
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

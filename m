@@ -1,116 +1,20 @@
-From: Erik Slagter <erik@slagter.name>
-Subject: Re: event devices not released
-Date: Tue, 12 Feb 2008 10:10:02 +0100
-Message-ID: <47B1626A.6000507@slagter.name>
-References: <47B043ED.3020309@slagter.name> <Pine.LNX.4.64.0802112245290.7699@twin.jikos.cz>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [UPDATED v6] WM97xx touchscreen drivers
+Date: Tue, 12 Feb 2008 10:17:38 +0000
+Message-ID: <20080212101738.GB21039@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms050003030907000405050809"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from eriks.xs4all.nl ([83.160.41.216]:49175 "EHLO eriks.xs4all.nl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751551AbYBLJKG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Feb 2008 04:10:06 -0500
-In-Reply-To: <Pine.LNX.4.64.0802112245290.7699@twin.jikos.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762318AbYBLKRv@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Pete MacKay <linux01@architechnical.net>, Marc Kleine-Budde <mkl@penugtronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>, dbaryshkov@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: linux-input@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+This patch series adds support for the touchscreen controllers provided
+by Wolfson Microelectronics WM97xx series chips in both polled and
+streaming modes.  The series can also be pulled via git from:
 
---------------ms050003030907000405050809
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	git://opensource.wolfsonmicro.com/linux-2.6-touch upstream
 
-Jiri Kosina wrote:
-> On Mon, 11 Feb 2008, Erik Slagter wrote:
-> 
->> Symptoms: when I remove (unplug) a USB keyboard or mouse, the 
->> corresponding event device seems to be closed but not released; when I 
->> plug the device back in, it gets a new input device handle. This means 
->> that after several suspend/resume cycles (in which it seems all usb 
->> devices are virtually unplugged and replugged) the kernel is out of 
->> event devices and complains likewise. My nice little program that 
->> catches specific keystrokes also stops to get any interesting events 
->> from that moment on. After reboot everything works again as expected.
-
-> this is very likely bug in HAL -- please see 
-> https://bugzilla.novell.com/show_bug.cgi?id=344872
-
-Negative ;-)
-
-A few moments ago I rebooted with HAL disabled and without going into X. 
-I unplugged the hub that has the mouse and keyboard attached and plugged 
-it back in again, a few times. Once again every time higher event 
-handlers were assigned.
-
-
---------------ms050003030907000405050809
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJUTCC
-AwMwggJsoAMCAQICEDGJsD9UPajwBl+GeyaBWA0wDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UE
-BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
-I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA3MDkxNzEwMzAwM1oX
-DTA4MDkxNjEwMzAwM1owajEQMA4GA1UEBBMHU2xhZ3RlcjEVMBMGA1UEKhMMRXJpayBNYXJ0
-aWpuMR0wGwYDVQQDExRFcmlrIE1hcnRpam4gU2xhZ3RlcjEgMB4GCSqGSIb3DQEJARYRZXJp
-a0BzbGFndGVyLm5hbWUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4bkf+nXAx
-akUjjwscSMjaKSUFQiJPxTgOUEh+uKVsBVGvY7CB8XcCmU7+oO1s9NaTL7BVy7Lwpj5SJV/B
-v8gZWrHwsR3D7U2rcKUW81v7dkTu9GTAUt5Qc8b7+GehjZuZKZPjMdH6vJK9G7YnZu1gG9b0
-CoEC4jOdIR4+4di2ZUN9M5JLlVKofOP4fo8MKFny88ThmxHLGzzQGsshfs7wuYB2hivouPCf
-kmc+tnTI90mLrV748Yc6M9gq1brUajcy+tL0wdTS0NOJ2FVa/0HFlxaMrt88nko2J7wA+yPM
-RY1L+ziU+Qr45JxoCE6pI/6lZNlMtHeYvdveQZs/3n5HAgMBAAGjLjAsMBwGA1UdEQQVMBOB
-EWVyaWtAc2xhZ3Rlci5uYW1lMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEFBQADgYEAZrik
-whMvx+aaj7gXQDVuy+zs7eqq1zJilrNS1130Hrq0JeLC6Rnl6a1gE52gap2O6uLyfpdGBmXu
-loCzA9OPYKcZT6EtcZKF3+TCP0m9L3G1scQPPrxZt/oA4uZ4MDTvLElPJH2ONOvCoRPrp5aD
-YHD5NlsDjs+kG6559873oTwwggMDMIICbKADAgECAhAxibA/VD2o8AZfhnsmgVgNMA0GCSqG
-SIb3DQEBBQUAMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAo
-UHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBD
-QTAeFw0wNzA5MTcxMDMwMDNaFw0wODA5MTYxMDMwMDNaMGoxEDAOBgNVBAQTB1NsYWd0ZXIx
-FTATBgNVBCoTDEVyaWsgTWFydGlqbjEdMBsGA1UEAxMURXJpayBNYXJ0aWpuIFNsYWd0ZXIx
-IDAeBgkqhkiG9w0BCQEWEWVyaWtAc2xhZ3Rlci5uYW1lMIIBIjANBgkqhkiG9w0BAQEFAAOC
-AQ8AMIIBCgKCAQEAuG5H/p1wMWpFI48LHEjI2iklBUIiT8U4DlBIfrilbAVRr2OwgfF3AplO
-/qDtbPTWky+wVcuy8KY+UiVfwb/IGVqx8LEdw+1Nq3ClFvNb+3ZE7vRkwFLeUHPG+/hnoY2b
-mSmT4zHR+rySvRu2J2btYBvW9AqBAuIznSEePuHYtmVDfTOSS5VSqHzj+H6PDChZ8vPE4ZsR
-yxs80BrLIX7O8LmAdoYr6Ljwn5JnPrZ0yPdJi61e+PGHOjPYKtW61Go3MvrS9MHU0tDTidhV
-Wv9BxZcWjK7fPJ5KNie8APsjzEWNS/s4lPkK+OScaAhOqSP+pWTZTLR3mL3b3kGbP95+RwID
-AQABoy4wLDAcBgNVHREEFTATgRFlcmlrQHNsYWd0ZXIubmFtZTAMBgNVHRMBAf8EAjAAMA0G
-CSqGSIb3DQEBBQUAA4GBAGa4pMITL8fmmo+4F0A1bsvs7O3qqtcyYpazUtdd9B66tCXiwukZ
-5emtYBOdoGqdjuri8n6XRgZl7paAswPTj2CnGU+hLXGShd/kwj9JvS9xtbHEDz68Wbf6AOLm
-eDA07yxJTyR9jjTrwqET66eWg2Bw+TZbA47PpBuueffO96E8MIIDPzCCAqigAwIBAgIBDTAN
-BgkqhkiG9w0BAQUFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
-MBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
-CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBl
-cnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0
-aGF3dGUuY29tMB4XDTAzMDcxNzAwMDAwMFoXDTEzMDcxNjIzNTk1OVowYjELMAkGA1UEBhMC
-WkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1Ro
-YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GN
-ADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/ox7svc31W/Iadr1/DDph8r9RzgHU5VAK
-MNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2JCoTzyvV84J3PQO+K/67GD4Hv0CAAmTX
-p6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wIDAQABo4GUMIGRMBIGA1UdEwEB/wQIMAYB
-Af8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDovL2NybC50aGF3dGUuY29tL1RoYXd0ZVBl
-cnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQDAgEGMCkGA1UdEQQiMCCkHjAcMRowGAYD
-VQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG9w0BAQUFAAOBgQBIjNFQg+oLLswNo2as
-Zw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAgk3A8/a3hYWLD2ToZfoSxmRsAxRoLgnSe
-JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
-HUb/XV9lTzGCA2QwggNgAgEBMHYwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
-b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
-bCBJc3N1aW5nIENBAhAxibA/VD2o8AZfhnsmgVgNMAkGBSsOAwIaBQCgggHDMBgGCSqGSIb3
-DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA4MDIxMjA5MTAwMlowIwYJKoZI
-hvcNAQkEMRYEFAm5/7LcGLZDoD6Yj5H4E1iwy2D7MFIGCSqGSIb3DQEJDzFFMEMwCgYIKoZI
-hvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3
-DQMCAgEoMIGFBgkrBgEEAYI3EAQxeDB2MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3
-dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJl
-ZW1haWwgSXNzdWluZyBDQQIQMYmwP1Q9qPAGX4Z7JoFYDTCBhwYLKoZIhvcNAQkQAgsxeKB2
-MGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQu
-MSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIQMYmwP1Q9
-qPAGX4Z7JoFYDTANBgkqhkiG9w0BAQEFAASCAQCjcwCAmBXGPye9pBpBpxv9myNBTU84x+JV
-ig4GtuSPvhe9Z4BZ6kia9n0D+kv8OJ7wmqV/ylVAOjiST74RyWYS1wyLHOgT53jyf+ZG7JKj
-mKrHzXdMgkvKEjcw+NifzDDzRgNiKZq2z0aYrg17P2lndImpGYw+VujO0VdTtb9+yqdp+/kc
-mwtaTZwZa5DnVq0IBpRgmlnAEbqzIg7zo1PW2HOqnneu2dOQgd9hNhNhVdQ0CtoLeNBNo9Sq
-Sp9/peALMRVTzl0aSJR+2WuT0Koq1/Pwr8/EbhYGL3hGQBnIVtxbpAuE+pO9q6cx/8BDaqTF
-M3vhIn2MaT+wjGcW70v6AAAAAAAA
---------------ms050003030907000405050809--
+This version incorporates minor bug fixes.

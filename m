@@ -1,42 +1,95 @@
-From: Timo Aaltonen <tjaalton@cc.hut.fi>
-Subject: Re: support for Logitech Wave
-Date: Tue, 12 Feb 2008 13:54:36 +0200 (EET)
-Message-ID: <alpine.OSF.0.99.0802121353110.326334@replicant.hut.fi>
-References: <alpine.OSF.0.99.0801151541290.326334@replicant.hut.fi>
- <20080116110244.ZZRA012@mailhub.coreip.homeip.net> <20080116215824.GA3797@localhost>
- <Pine.LNX.4.64.0801162259350.15647@twin.jikos.cz>
- <alpine.OSF.0.99.0801170002240.326334@replicant.hut.fi>
- <alpine.OSF.0.99.0802120808070.326334@replicant.hut.fi>
- <Pine.LNX.4.64.0802121233081.7699@twin.jikos.cz>
- <alpine.OSF.0.99.0802121339120.326334@replicant.hut.fi>
- <Pine.LNX.4.64.0802121249000.7699@twin.jikos.cz>
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
+Date: Tue, 12 Feb 2008 22:58:50 +0000 (UTC)
+Message-ID: <fot8b9$b6c$1@ger.gmane.org>
+References: <20080212101738.GB21039@rakim.wolfsonmicro.main>
+	<1202811705-2303-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-3.hut.fi ([130.233.228.93]:35422 "EHLO smtp-3.hut.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750767AbYBLLyy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 12 Feb 2008 06:54:54 -0500
-In-Reply-To: <Pine.LNX.4.64.0802121249000.7699@twin.jikos.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@jikos.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754255AbYBLW7Y@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Tue, 12 Feb 2008, Jiri Kosina wrote:
+Hi,
 
-> On Tue, 12 Feb 2008, Timo Aaltonen wrote:
->
->>> If all the events are seen by evtest, then everything is fine on the
->>> kernel side and you should just tweak your X configuration.
->> hmm, but X doesn't allow key-id's >255, so I can only wait until they support
->> more? (maybe in X.org R7.5..)
->
-> You need to specify "evdev" as the keyboard driver in the xorg.conf input
-> device section and the correct input device for your keyboard. Then you
-> should be able to get all the keys working correctly in xorg.
+Mark Brown wrote:
 
-Yes, evdev is what I'm using, but I still don't get any events with xev. 
-I'll ask the Xorg dev's again about it. IIRC it was a limitation of XKB..
+> This patch series adds support for the touchscreen controllers provided
+> by Wolfson Microelectronics WM97xx series chips in both polled and
+> streaming modes.
 
-t
+You used platform_device_register, but should be using platform_device_add,
+otherwise you get barfs with 2.6.25-rc1 (device is initialized twice). Also
+as <sound/driver.h> got deprecated there is no point including it.
+
+Patch below
+
+-- 
+With best wishes
+Dmitry
+
+>From 81b96191eb50837bdf1f437a6f4f05786cc0b49e Mon Sep 17 00:00:00 2001
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Date: Wed, 13 Feb 2008 01:55:10 +0300
+Subject: [PATCH] wm97xx-core fixes
+
+Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+---
+ drivers/input/touchscreen/wm97xx-core.c |    8 ++++----
+ include/linux/wm97xx.h                  |    1 -
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index 840d9ff..4cbb9e5 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -596,7 +596,7 @@ static int wm97xx_probe(struct device *dev)
+ 	}
+ 	platform_set_drvdata(wm->battery_dev, wm);
+ 	wm->battery_dev->dev.parent = dev;
+-	ret = platform_device_register(wm->battery_dev);
++	ret = platform_device_add(wm->battery_dev);
+ 	if (ret < 0)
+ 		goto batt_reg_err;
+ 
+@@ -609,7 +609,7 @@ static int wm97xx_probe(struct device *dev)
+ 	}
+ 	platform_set_drvdata(wm->touch_dev, wm);
+ 	wm->touch_dev->dev.parent = dev;
+-	ret = platform_device_register(wm->touch_dev);
++	ret = platform_device_add(wm->touch_dev);
+ 	if (ret < 0)
+ 		goto touch_reg_err;
+ 
+@@ -619,12 +619,12 @@ static int wm97xx_probe(struct device *dev)
+ 	platform_device_put(wm->touch_dev);
+  touch_err:
+ 	platform_device_unregister(wm->battery_dev);
+-	wm->battery_dev = 0;
++	wm->battery_dev = NULL;
+  batt_reg_err:
+ 	platform_device_put(wm->battery_dev);
+  batt_err:
+ 	input_unregister_device(wm->input_dev);
+-	wm->input_dev = 0;
++	wm->input_dev = NULL;
+  dev_alloc_err:
+ 	input_free_device(wm->input_dev);
+  alloc_err:
+diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
+index fc6e0b3..f0d9fc0 100644
+--- a/include/linux/wm97xx.h
++++ b/include/linux/wm97xx.h
+@@ -6,7 +6,6 @@
+ #ifndef _LINUX_WM97XX_H
+ #define _LINUX_WM97XX_H
+ 
+-#include <sound/driver.h>
+ #include <sound/core.h>
+ #include <sound/pcm.h>
+ #include <sound/ac97_codec.h>
+-- 
+1.5.3.8

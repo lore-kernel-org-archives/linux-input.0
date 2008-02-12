@@ -1,95 +1,84 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
-Date: Tue, 12 Feb 2008 22:58:50 +0000 (UTC)
-Message-ID: <fot8b9$b6c$1@ger.gmane.org>
-References: <20080212101738.GB21039@rakim.wolfsonmicro.main>
-	<1202811705-2303-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Peter Stokes <linux@dadeos.co.uk>
+Subject: Soft-autorepeat functionality
+Date: Tue, 12 Feb 2008 22:01:34 +0000
+Message-ID: <200802122201.34643.linux@dadeos.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754255AbYBLW7Y@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_+chsHBfcN8snrt1"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp3.wanadoo.co.uk ([193.252.22.156]:55945 "EHLO
+	smtp3.freeserve.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1764672AbYBLXOO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 12 Feb 2008 18:14:14 -0500
+Received: from smtp3.freeserve.com (mwinf3206 [172.22.156.34])
+	by mwinf3210.me.freeserve.com (SMTP Server) with ESMTP id 8C6E31C0CC04
+	for <linux-input@vger.kernel.org>; Tue, 12 Feb 2008 23:02:18 +0100 (CET)
+Received: from me-wanadoo.net (localhost [127.0.0.1])
+	by mwinf3206.me.freeserve.com (SMTP Server) with ESMTP id B792D7000088
+	for <linux-input@vger.kernel.org>; Tue, 12 Feb 2008 23:01:35 +0100 (CET)
+Received: from RedDwarf.dadeos.co.uk (user-5446c709.lns5-c13.telh.dsl.pol.co.uk [84.70.199.9])
+	by mwinf3206.me.freeserve.com (SMTP Server) with ESMTP id 92ED77000081
+	for <linux-input@vger.kernel.org>; Tue, 12 Feb 2008 23:01:35 +0100 (CET)
+Received: from tuscan.dadeos.co.uk (Tuscan.dadeos.co.uk [10.0.1.252])
+	by RedDwarf.dadeos.co.uk (8.14.2/8.14.1) with ESMTP id m1CM1YSw002196
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Tue, 12 Feb 2008 22:01:35 GMT
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi,
+--Boundary-00=_+chsHBfcN8snrt1
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Mark Brown wrote:
+I've been experimenting with using the software autorepeat functionality in=
+=20
+drivers/input/input.c and have the problem that it autorepeats all EV_KEY=20
+reported events, this includes mouse buttons etc. which for a combined=20
+mouse/keyboard device is undesirable. I appreciate that I could override th=
+e=20
+functionality by providing my own=A0implementation=A0of software autorepeat=
+,=20
+which filters such buttons from being repeated, but I was wondering whether=
+=20
+this is something that should be included in the default implementation?
 
-> This patch series adds support for the touchscreen controllers provided
-> by Wolfson Microelectronics WM97xx series chips in both polled and
-> streaming modes.
+I'm not sure where the definition of KEY_MIN_INTERESTING comes from but it=
+=20
+appears to me that it is only keys with codes less than this value that=20
+should be repeated?
 
-You used platform_device_register, but should be using platform_device_add,
-otherwise you get barfs with 2.6.25-rc1 (device is initialized twice). Also
-as <sound/driver.h> got deprecated there is no point including it.
+So, please find attached a patch that implements the functionality I am=20
+looking for...
 
-Patch below
+Best regards
 
--- 
-With best wishes
-Dmitry
+Peter Stokes
 
->From 81b96191eb50837bdf1f437a6f4f05786cc0b49e Mon Sep 17 00:00:00 2001
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Date: Wed, 13 Feb 2008 01:55:10 +0300
-Subject: [PATCH] wm97xx-core fixes
 
-Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
----
- drivers/input/touchscreen/wm97xx-core.c |    8 ++++----
- include/linux/wm97xx.h                  |    1 -
- 2 files changed, 4 insertions(+), 5 deletions(-)
+--Boundary-00=_+chsHBfcN8snrt1
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="input_autorepeat.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="input_autorepeat.patch"
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 840d9ff..4cbb9e5 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -596,7 +596,7 @@ static int wm97xx_probe(struct device *dev)
- 	}
- 	platform_set_drvdata(wm->battery_dev, wm);
- 	wm->battery_dev->dev.parent = dev;
--	ret = platform_device_register(wm->battery_dev);
-+	ret = platform_device_add(wm->battery_dev);
- 	if (ret < 0)
- 		goto batt_reg_err;
- 
-@@ -609,7 +609,7 @@ static int wm97xx_probe(struct device *dev)
- 	}
- 	platform_set_drvdata(wm->touch_dev, wm);
- 	wm->touch_dev->dev.parent = dev;
--	ret = platform_device_register(wm->touch_dev);
-+	ret = platform_device_add(wm->touch_dev);
- 	if (ret < 0)
- 		goto touch_reg_err;
- 
-@@ -619,12 +619,12 @@ static int wm97xx_probe(struct device *dev)
- 	platform_device_put(wm->touch_dev);
-  touch_err:
- 	platform_device_unregister(wm->battery_dev);
--	wm->battery_dev = 0;
-+	wm->battery_dev = NULL;
-  batt_reg_err:
- 	platform_device_put(wm->battery_dev);
-  batt_err:
- 	input_unregister_device(wm->input_dev);
--	wm->input_dev = 0;
-+	wm->input_dev = NULL;
-  dev_alloc_err:
- 	input_free_device(wm->input_dev);
-  alloc_err:
-diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
-index fc6e0b3..f0d9fc0 100644
---- a/include/linux/wm97xx.h
-+++ b/include/linux/wm97xx.h
-@@ -6,7 +6,6 @@
- #ifndef _LINUX_WM97XX_H
- #define _LINUX_WM97XX_H
- 
--#include <sound/driver.h>
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/ac97_codec.h>
--- 
-1.5.3.8
+Signed-off-by: Peter Stokes <linux@dadeos.co.uk>
+
+--- linux-2.6.24-orig/drivers/input/input.c	2008-01-24 22:58:37.000000000 +0000
++++ linux-2.6.24/drivers/input/input.c	2008-02-11 20:02:03.000000000 +0000
+@@ -123,6 +123,7 @@
+ static void input_start_autorepeat(struct input_dev *dev, int code)
+ {
+ 	if (test_bit(EV_REP, dev->evbit) &&
++	    code < KEY_MIN_INTERESTING &&
+ 	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
+ 	    dev->timer.data) {
+ 		dev->repeat_key = code;
+
+--Boundary-00=_+chsHBfcN8snrt1--
+

@@ -1,81 +1,44 @@
-From: Kmarty <gkmarty@gmail.com>
-Subject: [PATCH 2/2] driver for Zhen Hua PCM-4CH RC transmitter v2
-Date: Wed, 13 Feb 2008 16:51:50 +0100
-Message-ID: <5fecb1300802130751q6df572dap3a9d6f2231c6e890@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid, 2.6.23 - add support for new macbook and apple
+ aluminum keyboard "fn" key
+Date: Wed, 13 Feb 2008 17:06:00 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0802131705250.30955@jikos.suse.cz>
+References: <fosskb$klp$1@ger.gmane.org> <Pine.LNX.4.64.0802122143280.7699@twin.jikos.cz>
+ <47B2E614.5090001@twam.info> <Pine.LNX.4.64.0802131355490.30955@jikos.suse.cz>
+ <47B311A5.8080304@twam.info>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_16571_4961402.1202917910033"
+Content-Type: MULTIPART/MIXED; BOUNDARY="336216065-122659418-1202918760=:30955"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rn-out-0910.google.com ([64.233.170.189]:32084 "EHLO
-	rn-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751933AbYBMPvx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Feb 2008 10:51:53 -0500
-Received: by rn-out-0910.google.com with SMTP id i24so217530rng.19
-        for <linux-input@vger.kernel.org>; Wed, 13 Feb 2008 07:51:51 -0800 (PST)
+Received: from styx.suse.cz ([82.119.242.94]:46314 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1756485AbYBMQGC (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 13 Feb 2008 11:06:02 -0500
+In-Reply-To: <47B311A5.8080304@twam.info>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru
+To: =?UTF-8?B?VG9iaWFzIE3DvGxsZXI=?= <Tobias_Mueller@twam.info>
 Cc: linux-input@vger.kernel.org
 
-------=_Part_16571_4961402.1202917910033
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-(again, now as attachments)
+--336216065-122659418-1202918760=:30955
+Content-Type: TEXT/PLAIN; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Patch for inputattach from joystick-utils.
+On Wed, 13 Feb 2008, Tobias M=FCller wrote:
 
-------=_Part_16571_4961402.1202917910033
-Content-Type: application/octet-stream; name=inputattach.c.diffstat
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fcm28z8o
-Content-Disposition: attachment; filename=inputattach.c.diffstat
+> > It would be great if you could put this all together into one
+> > condensated patch which I could merge into my tree.
+> So, this is the updated version. It only adds some product-ids and
+> some keyboards mappings.
 
-IGlucHV0YXR0YWNoLmMgfCAgIDM5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrLQogMSBmaWxlIGNoYW5nZWQsIDM4IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkK
-------=_Part_16571_4961402.1202917910033
-Content-Type: text/x-patch; name=inputattach.c.diff
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fcm293hr
-Content-Disposition: attachment; filename=inputattach.c.diff
+The patch had mangled whitespaces again, but I have cleaned that up=20
+manually and applied to my tree.
 
-LS0tIGlucHV0YXR0YWNoLmMub3JpZwkyMDA4LTAyLTA2IDEwOjM1OjIyLjAwMDAwMDAwMCArMDEw
-MAorKysgaW5wdXRhdHRhY2guYwkyMDA4LTAyLTEzIDE1OjQ5OjQ4LjAwMDAwMDAwMCArMDEwMApA
-QCAtMSw1ICsxLDQgQEAKIC8qCi0gKiAkSWQ6IGlucHV0YXR0YWNoLmMgMjM1MiAyMDA2LTAyLTA4
-IDEyOjE5OjMxWiB2b2p0ZWNoICQKICAqCiAgKiAgQ29weXJpZ2h0IChjKSAxOTk5LTIwMDAgVm9q
-dGVjaCBQYXZsaWsKICAqCkBAIC0zMTUsNiArMzE0LDQyIEBACiAJcmV0dXJuIDA7CiB9CiAKK2lu
-dCB6aGVuaHVhX2luaXQoaW50IGZkLCBsb25nICppZCwgbG9uZyAqZXh0cmEpCit7CisJLyogWmhl
-biBIdWEgNSBieXRlIHByb3Rva29sOiBwcnZuaSAoc3luY2hyb25pemFjbmkpIGJ5dGUgb2JzYWh1
-amUgdnpkeSAweEY3LAorCSAqIG5hc2xlZHVqaWNpIGN0eXJpIHBhayBqZWRub3RsaXZlIG9zeSBv
-dmxhZGFjZSB2IGludGVydmFsdSA1MC0yMDAuCisJICogUG96b3IsIG5hY2l0YW5hIGRhdGEgKGpl
-ZG5vdGxpdmUgYmFqdHkpIGpzb3UgYml0b3ZlIHByZXZyYWNlbmUgKG5lam5penNpCisJICogYml0
-IGplIG5lanZ5c3NpbSBiaXRlbSkgLSBuZWNvIGpha28gbGl0dGxlLWVuZGlhbiBuYSBiaXRvdmUg
-dXJvdm5pLgorCSAqIFN5bmNocm9uaXphY25pIGJ5dGUgbWEgdGVkeSBiZXogcHJldnJhY2VuaSBo
-b2Rub3R1IDB4RUYKKwkgKgorCSAqIEluaWNpYWxpemFjZSBqZSB0ZW1lciBzaG9kbmEgcyB0d2lk
-ZGxlcmVtICovCisKKwl1bnNpZ25lZCBjaGFyIGNbMTBdOworCWludCBjb3VudDsKKworCWZvciAo
-Y291bnQ9MCA7IGNvdW50IDwgNSA7IGNvdW50KyspIHsKKwkJaWYocmVhZGNoYXIoZmQsIGMrMCwg
-NTAwKSkgcmV0dXJuIC0xOworCQlpZihjWzBdID09IDB4ZWYpIGJyZWFrOworCX0KKworCWlmIChj
-b3VudCA9PSA1KSB7CisJCS8qIENvdWxkIG5vdCBmaW5kIGhlYWRlciBieXRlIGluIGRhdGEgc3Ry
-ZWFtICovCisJCXJldHVybiAtMTsKKwl9CisKKwkvKiBSZWFkIHJlbWFpbmluZyA0IGJ5dGVzIHBs
-dXMgdGhlIGZ1bGwgbmV4dCBkYXRhIHBhY2tldCAqLworCWZvciAoY291bnQgPSAxOyBjb3VudCA8
-IDEwOyBjb3VudCsrKSB7CisJCWlmIChyZWFkY2hhcihmZCwgYytjb3VudCwgNTAwKSkgcmV0dXJu
-IC0xOworCX0KKworCS8qIGNoZWNrIGlmIG5leHQgc3luYyBieXRlIGV4aXN0cyAqLworCWlmIChj
-WzVdICE9IDB4ZWYpCisJCXJldHVybiAtMTsKKworCXJldHVybiAwOworCQkKK30KKwogaW50IGR1
-bXBfaW5pdChpbnQgZmQsIGxvbmcgKmlkLCBsb25nICpleHRyYSkKIHsKIAl1bnNpZ25lZCBjaGFy
-IGMsIG8gPSAwOwpAQCAtMzc2LDYgKzQxMSw3IEBACiB7ICItLWVsbzQwMDIiLAkJIi1lbG82YiIs
-CUI5NjAwLCBDUzggfCBDUlRTQ1RTLAkJU0VSSU9fRUxPLAkxLAkwLAkwLAlOVUxMIH0sCiB7ICIt
-LWVsbzI3MS0xNDAiLAkiLWVsbzRiIiwJQjk2MDAsIENTOCB8IENSVFNDVFMsCQlTRVJJT19FTE8s
-CTIsCTAsCTAsCU5VTEwgfSwKIHsgIi0tZWxvMjYxLTI4MCIsCSItZWxvM2IiLAlCOTYwMCwgQ1M4
-IHwgQ1JUU0NUUywJCVNFUklPX0VMTywJMywJMCwJMCwJTlVMTCB9LAoreyAiLS16aGVuLWh1YSIs
-CQkiLXpoZW4iLAlCMTkyMDAsIENTOCwgCQkJU0VSSU9fWkhFTkhVQSwJMCwJMCwJMCwJemhlbmh1
-YV9pbml0IH0sCiB7ICItLWR1bXAiLAkJIi1kdW1wIiwJQjI0MDAsIENTOCwgCQkJMCwJCTAsCTAs
-CTAsCWR1bXBfaW5pdCB9LAogeyAiIiwgIiIsIDAsIDAgfQogCkBAIC00MTYsNiArNDUyLDcgQEAK
-IAkJcHV0cygiICAtLXBzMnNlcmtiZCAgICAgLXBzMnNlciBQUy8yIHZpYSBzZXJpYWwga2V5Ym9h
-cmQiKTsKIAkJcHV0cygiICAtLXR3aWRkbGVyICAgICAgLXR3aWQgICBIYW5keWtleSBUd2lkZGxl
-ciBjaG9yZGluZyBrZXlib2FyZCIpOwogCQlwdXRzKCIgIC0tdHdpZGRsZXItam95ICAtdHdpZGpv
-eSAgSGFuZHlrZXkgVHdpZGRsZXIgdXNlZCBhcyBhIGpveXN0aWNrIik7CisJCXB1dHMoIiAgLS16
-aGVuLWh1YSAgICAgIC16aGVuICBaaGVuIEh1YSA1LWJ5dGUgcHJvdG9jb2wiKTsKIAkJcHV0cygi
-Iik7CiAgICAgICAgICAgICAgICAgcmV0dXJuIDE7CiAgICAgICAgIH0K
-------=_Part_16571_4961402.1202917910033--
+Thanks,
+
+--=20
+Jiri Kosina
+SUSE Labs
+--336216065-122659418-1202918760=:30955--

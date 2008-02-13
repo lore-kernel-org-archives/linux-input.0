@@ -1,346 +1,347 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 5/6] Driver for WM97xx touchscreens in streaming mode on Mainstone
-Date: Wed, 13 Feb 2008 14:14:01 +0000
-Message-ID: <1202912042-2631-5-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <20080213140648.GD31617@rakim.wolfsonmicro.main>
- <1202912042-2631-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1202912042-2631-2-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1202912042-2631-3-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1202912042-2631-4-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Kmarty <gkmarty@gmail.com>
+Subject: [PATCH 1/2] driver for Zhen Hua PCM-4CH RC transmitter
+Date: Wed, 13 Feb 2008 16:23:26 +0100
+Message-ID: <5fecb1300802130723n77c940f5r895c060c944e7bb2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:59733 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1754010AbYBMOOJ (ORCPT
+Received: from ug-out-1314.google.com ([66.249.92.170]:57905 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753135AbYBMPXa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 Feb 2008 09:14:09 -0500
-In-Reply-To: <1202912042-2631-4-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Wed, 13 Feb 2008 10:23:30 -0500
+Received: by ug-out-1314.google.com with SMTP id z38so768061ugc.16
+        for <linux-input@vger.kernel.org>; Wed, 13 Feb 2008 07:23:28 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Pete MacKay <linux01@architechnical.net>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org
 
-Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-Signed-off-by: Graeme Gregory <gg@opensource.wolfsonmicro.com>
-Signed-off-by: Mike Arthur <mike.arthur@wolfsonmicro.com>
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Cc: Stanley Cai <stanley.cai@intel.com>
-Cc: Rodolfo Giometti <giometti@enneenne.com>
-Cc: Russell King <rmk@arm.linux.org.uk>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: Pete MacKay <linux01@architechnical.net>
-Cc: Ian Molton <spyro@f2s.com>
-Cc: Vince Sanders <vince@kyllikki.org>
-Cc: Andrew Zabolotny <zap@homelink.ru>
+Hi,
+this is a driver for Zhen Hua PCM-4CH RC transmitter (commonly used in
+cheap Ready To Fly RC helicopters) which using "Zhen Hua 5-byte
+protocol" for using them as a four axis joystick via serial port.
+
+Transmitter connected to serial port (19200 8N1) sending periodically
+5 bytes where first byte is for synchronization and next four bytes
+are values of axis.
+
+Signed-off-by: Martin Kebert <gkmarty@gmail.com>
 ---
- drivers/input/touchscreen/mainstone-wm97xx.c |  298 ++++++++++++++++++++++++++
- 1 files changed, 298 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/mainstone-wm97xx.c
+ drivers/input/joystick/Kconfig   |   12 +
+ drivers/input/joystick/Makefile  |    1
+ drivers/input/joystick/zhenhua.c |  243 +++++++++++++++++++++++++++++++++++++++
+ include/linux/serio.h            |    1
+ 4 files changed, 257 insertions(+)
 
-diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-new file mode 100644
-index 0000000..8e1c35d
---- /dev/null
-+++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -0,0 +1,298 @@
+diff -uprN -X linux-2.6.24-vanilla/Documentation/dontdiff
+linux-2.6.24-vanilla/drivers/input/joystick/Kconfig
+linux-2.6.24-zhenhua/drivers/input/joystick/Kconfig
+--- linux-2.6.24-vanilla/drivers/input/joystick/Kconfig 2008-01-24
+23:58:37.000000000 +0100
++++ linux-2.6.24-zhenhua/drivers/input/joystick/Kconfig 2008-02-08
+22:48:34.000000000 +0100
+@@ -193,6 +193,18 @@ config JOYSTICK_TWIDJOY
+          To compile this driver as a module, choose M here: the
+          module will be called twidjoy.
+
++config JOYSTICK_ZHENHUA
++       tristate "5-byte Zhenhua RC transmitter"
++       select SERIO
++       help
++         Say Y here if you have a Zhen Hua PCM-4CH transmitter which is
++         supplied with a ready to fly micro electric indoor helicopters
++         such as EasyCopter, Lama, MiniCopter, DragonFly or Jabo and want
++         to use it via serial cable as a joystick.
++
++         To compile this driver as a module, choose M here: the
++         module will be called zhenhua.
++
+ config JOYSTICK_DB9
+        tristate "Multisystem, Sega Genesis, Saturn joysticks and gamepads"
+        depends on PARPORT
+diff -uprN -X linux-2.6.24-vanilla/Documentation/dontdiff
+linux-2.6.24-vanilla/drivers/input/joystick/Makefile
+linux-2.6.24-zhenhua/drivers/input/joystick/Makefile
+--- linux-2.6.24-vanilla/drivers/input/joystick/Makefile
+2008-01-24 23:58:37.000000000 +0100
++++ linux-2.6.24-zhenhua/drivers/input/joystick/Makefile
+2008-02-08 19:45:36.000000000 +0100
+@@ -27,5 +27,6 @@ obj-$(CONFIG_JOYSTICK_TURBOGRAFX)     += tur
+ obj-$(CONFIG_JOYSTICK_TWIDJOY)         += twidjoy.o
+ obj-$(CONFIG_JOYSTICK_WARRIOR)         += warrior.o
+ obj-$(CONFIG_JOYSTICK_XPAD)            += xpad.o
++obj-$(CONFIG_JOYSTICK_ZHENHUA)         += zhenhua.o
+
+ obj-$(CONFIG_JOYSTICK_IFORCE)          += iforce/
+diff -uprN -X linux-2.6.24-vanilla/Documentation/dontdiff
+linux-2.6.24-vanilla/drivers/input/joystick/zhenhua.c
+linux-2.6.24-zhenhua/drivers/input/joystick/zhenhua.c
+--- linux-2.6.24-vanilla/drivers/input/joystick/zhenhua.c
+1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.24-zhenhua/drivers/input/joystick/zhenhua.c
+2008-02-08 19:27:40.000000000 +0100
+@@ -0,0 +1,243 @@
 +/*
-+ * mainstone-wm97xx.c  --  Mainstone Continuous Touch screen driver for
-+ *                         Wolfson WM97xx AC97 Codecs.
++ *  derived from "twidjoy.c"
 + *
-+ * Copyright 2004, 2007 Wolfson Microelectronics PLC.
-+ * Author: Liam Girdwood
-+ *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Parts Copyright : Ian Molton <spyro@f2s.com>
-+ *                   Andrew Zabolotny <zap@homelink.ru>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
-+ * Notes:
-+ *     This is a wm97xx extended touch driver to capture touch
-+ *     data in a continuous manner on the Intel XScale archictecture
-+ *
-+ *  Features:
-+ *       - codecs supported:- WM9705, WM9712, WM9713
-+ *       - processors supported:- Intel XScale PXA25x, PXA26x, PXA27x
++ *  Copyright (c) 2008 Martin Kebert
++ *  Copyright (c) 2001 Arndt Schoenewald
++ *  Copyright (c) 2000-2001 Vojtech Pavlik
++ *  Copyright (c) 2000 Mark Fletcher
 + *
 + */
 +
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/version.h>
++/*
++ * Driver to use 4CH RC transmitter using Zhen Hua 5-byte protocol
+(Walkera Lama,
++ * EasyCopter etc.) as a joystick under Linux.
++ *
++ * RC transmitters using Zhen Hua 5-byte protocol are cheap four channels
++ * transmitters for control a RC planes or RC helicopters with possibility to
++ * connect on a serial port.
++ * Data coming from transmitter is in this order:
++ * 1. byte = synchronisation byte
++ * 2. byte = X axis
++ * 3. byte = Y axis
++ * 4. byte = RZ axis
++ * 5. byte = Z axis
++ * (and this is repeated)
++ *
++ * For questions or feedback regarding this driver module please contact:
++ * Martin Kebert <gkmarty@gmail.com> - but I am not a C-programmer nor kernel
++ * coder :-(
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ */
++
 +#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/serio.h>
 +#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/wm97xx.h>
-+#include <linux/io.h>
-+#include <asm/arch/pxa-regs.h>
 +
-+#define VERSION		"0.13"
++#define DRIVER_DESC    "RC transmitter with 5-byte Zhen Hua protocol
+joystick driver"
 +
-+struct continuous {
-+	u16 id;    /* codec id */
-+	u8 code;   /* continuous code */
-+	u8 reads;  /* number of coord reads per read cycle */
-+	u32 speed; /* number of coords per second */
-+};
-+
-+#define WM_READS(sp) ((sp / HZ) + 1)
-+
-+static const struct continuous cinfo[] = {
-+	{WM9705_ID2, 0, WM_READS(94), 94},
-+	{WM9705_ID2, 1, WM_READS(188), 188},
-+	{WM9705_ID2, 2, WM_READS(375), 375},
-+	{WM9705_ID2, 3, WM_READS(750), 750},
-+	{WM9712_ID2, 0, WM_READS(94), 94},
-+	{WM9712_ID2, 1, WM_READS(188), 188},
-+	{WM9712_ID2, 2, WM_READS(375), 375},
-+	{WM9712_ID2, 3, WM_READS(750), 750},
-+	{WM9713_ID2, 0, WM_READS(94), 94},
-+	{WM9713_ID2, 1, WM_READS(120), 120},
-+	{WM9713_ID2, 2, WM_READS(154), 154},
-+	{WM9713_ID2, 3, WM_READS(188), 188},
-+};
-+
-+/* continuous speed index */
-+static int sp_idx;
-+static u16 last, tries;
-+
-+/*
-+ * Pen sampling frequency (Hz) in continuous mode.
-+ */
-+static int cont_rate = 200;
-+module_param(cont_rate, int, 0);
-+MODULE_PARM_DESC(cont_rate, "Sampling rate in continuous mode (Hz)");
-+
-+/*
-+ * Pen down detection.
-+ *
-+ * This driver can either poll or use an interrupt to indicate a pen down
-+ * event. If the irq request fails then it will fall back to polling mode.
-+ */
-+static int pen_int;
-+module_param(pen_int, int, 0);
-+MODULE_PARM_DESC(pen_int, "Pen down detection (1 = interrupt, 0 = polling)");
-+
-+/*
-+ * Pressure readback.
-+ *
-+ * Set to 1 to read back pen down pressure
-+ */
-+static int pressure;
-+module_param(pressure, int, 0);
-+MODULE_PARM_DESC(pressure, "Pressure readback (1 = pressure, 0 = no pressure)");
-+
-+/*
-+ * AC97 touch data slot.
-+ *
-+ * Touch screen readback data ac97 slot
-+ */
-+static int ac97_touch_slot = 5;
-+module_param(ac97_touch_slot, int, 0);
-+MODULE_PARM_DESC(ac97_touch_slot, "Touch screen data slot AC97 number");
-+
-+
-+/* flush AC97 slot 5 FIFO on pxa machines */
-+#ifdef CONFIG_PXA27x
-+static void wm97xx_acc_pen_up(struct wm97xx *wm)
-+{
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(1);
-+
-+	while (MISR & (1 << 2))
-+		MODR;
-+}
-+#else
-+static void wm97xx_acc_pen_up(struct wm97xx *wm)
-+{
-+	int count = 16;
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(1);
-+
-+	while (count < 16) {
-+		MODR;
-+		count--;
-+	}
-+}
-+#endif
-+
-+static int wm97xx_acc_pen_down(struct wm97xx *wm)
-+{
-+	u16 x, y, p = 0x100 | WM97XX_ADCSEL_PRES;
-+	int reads = 0;
-+
-+	/* data is never immediately available after pen down irq */
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	schedule_timeout(1);
-+
-+	if (tries > 5) {
-+		tries = 0;
-+		return RC_PENUP;
-+	}
-+
-+	x = MODR;
-+	if (x == last) {
-+		tries++;
-+		return RC_AGAIN;
-+	}
-+	last = x;
-+	do {
-+		if (reads)
-+			x = MODR;
-+		y = MODR;
-+		if (pressure)
-+			p = MODR;
-+
-+		/* are samples valid */
-+		if ((x & 0x7000) != WM97XX_ADCSEL_X ||
-+			(y & 0x7000) != WM97XX_ADCSEL_Y ||
-+			(p & 0x7000) != WM97XX_ADCSEL_PRES)
-+			goto up;
-+
-+		/* coordinate is good */
-+		tries = 0;
-+		input_report_abs(wm->input_dev, ABS_X, x & 0xfff);
-+		input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
-+		input_report_abs(wm->input_dev, ABS_PRESSURE, p & 0xfff);
-+		input_sync(wm->input_dev);
-+		reads++;
-+	} while (reads < cinfo[sp_idx].reads);
-+up:
-+	return RC_PENDOWN | RC_AGAIN;
-+}
-+
-+static int wm97xx_acc_startup(struct wm97xx *wm)
-+{
-+	int idx = 0;
-+
-+	/* check we have a codec */
-+	if (wm->ac97 == NULL)
-+		return -ENODEV;
-+
-+	/* Go you big red fire engine */
-+	for (idx = 0; idx < ARRAY_SIZE(cinfo); idx++) {
-+		if (wm->id != cinfo[idx].id)
-+			continue;
-+		sp_idx = idx;
-+		if (cont_rate <= cinfo[idx].speed)
-+			break;
-+	}
-+	wm->acc_rate = cinfo[sp_idx].code;
-+	wm->acc_slot = ac97_touch_slot;
-+	dev_info(wm->dev,
-+		 "mainstone accelerated touchscreen driver, %d samples/sec\n",
-+		 cinfo[sp_idx].speed);
-+
-+	/* codec specific irq config */
-+	if (pen_int) {
-+		switch (wm->id) {
-+		case WM9705_ID2:
-+			wm->pen_irq = IRQ_GPIO(4);
-+			set_irq_type(IRQ_GPIO(4), IRQT_BOTHEDGE);
-+			break;
-+		case WM9712_ID2:
-+		case WM9713_ID2:
-+			/* enable pen down interrupt */
-+			/* use PEN_DOWN GPIO 13 to assert IRQ on GPIO line 2 */
-+			wm->pen_irq = MAINSTONE_AC97_IRQ;
-+			wm97xx_config_gpio(wm, WM97XX_GPIO_13, WM97XX_GPIO_IN,
-+					   WM97XX_GPIO_POL_HIGH,
-+					   WM97XX_GPIO_STICKY,
-+					   WM97XX_GPIO_WAKE);
-+			wm97xx_config_gpio(wm, WM97XX_GPIO_2, WM97XX_GPIO_OUT,
-+					   WM97XX_GPIO_POL_HIGH,
-+					   WM97XX_GPIO_NOTSTICKY,
-+					   WM97XX_GPIO_NOWAKE);
-+			break;
-+		default:
-+			dev_err(wm->dev,
-+				"pen down irq not supported on this device\n");
-+			pen_int = 0;
-+			break;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void wm97xx_acc_shutdown(struct wm97xx *wm)
-+{
-+	/* codec specific deconfig */
-+	if (pen_int) {
-+		switch (wm->id & 0xffff) {
-+		case WM9705_ID2:
-+			wm->pen_irq = 0;
-+			break;
-+		case WM9712_ID2:
-+		case WM9713_ID2:
-+			/* disable interrupt */
-+			wm->pen_irq = 0;
-+			break;
-+		}
-+	}
-+}
-+
-+static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
-+{
-+	if (enable)
-+		enable_irq(wm->pen_irq);
-+	else
-+		disable_irq(wm->pen_irq);
-+}
-+
-+static struct wm97xx_mach_ops mainstone_mach_ops = {
-+	.acc_enabled = 1,
-+	.acc_pen_up = wm97xx_acc_pen_up,
-+	.acc_pen_down = wm97xx_acc_pen_down,
-+	.acc_startup = wm97xx_acc_startup,
-+	.acc_shutdown = wm97xx_acc_shutdown,
-+	.irq_enable = wm97xx_irq_enable,
-+};
-+
-+static int mainstone_wm97xx_probe(struct platform_device *pdev)
-+{
-+	struct wm97xx *wm = platform_get_drvdata(pdev);
-+	return wm97xx_register_mach_ops(wm, &mainstone_mach_ops);
-+}
-+
-+static int mainstone_wm97xx_remove(struct platform_device *pdev)
-+{
-+	struct wm97xx *wm = platform_get_drvdata(pdev);
-+	wm97xx_unregister_mach_ops(wm);
-+	return 0;
-+}
-+
-+static struct platform_driver mainstone_wm97xx_driver = {
-+	.probe = mainstone_wm97xx_probe,
-+	.remove = mainstone_wm97xx_remove,
-+	.driver = {
-+		.name = "wm97xx-touch",
-+	},
-+};
-+
-+static int __init mainstone_wm97xx_init(void)
-+{
-+	return platform_driver_register(&mainstone_wm97xx_driver);
-+}
-+
-+static void __exit mainstone_wm97xx_exit(void)
-+{
-+	platform_driver_unregister(&mainstone_wm97xx_driver);
-+}
-+
-+module_init(mainstone_wm97xx_init);
-+module_exit(mainstone_wm97xx_exit);
-+
-+/* Module information */
-+MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_DESCRIPTION("wm97xx continuous touch driver for mainstone");
++MODULE_DESCRIPTION(DRIVER_DESC);
 +MODULE_LICENSE("GPL");
--- 
-1.5.4.1
++
++/*
++ * Constants.
++ */
++
++#define ZHENHUA_MAX_LENGTH 5
++
++/*
++ * Zhen Hua data.
++ */
++
++struct zhenhua {
++       struct input_dev *dev;
++       int idx;
++       unsigned char data[ZHENHUA_MAX_LENGTH];
++       char phys[32];
++};
++
++
++/* bits in all incoming bytes needs to be "reversed" */
++static int zhenhua_bitreverse(int x)
++{
++       x = ((x & 0xaa) >> 1) | ((x & 0x55) << 1);
++       x = ((x & 0xcc) >> 2) | ((x & 0x33) << 2);
++       x = ((x & 0xf0) >> 4) | ((x & 0x0f) << 4);
++       return x;
++}
++
++/*
++ * zhenhua_process_packet() decodes packets the driver receives from the
++ * RC transmitter. It updates the data accordingly.
++ */
++
++static void zhenhua_process_packet(struct zhenhua *zhenhua)
++{
++       struct input_dev *dev = zhenhua->dev;
++       unsigned char *data = zhenhua->data;
++
++       input_report_abs(dev, ABS_Y, data[1]);
++       input_report_abs(dev, ABS_X, data[2]);
++       input_report_abs(dev, ABS_RZ, data[3]);
++       input_report_abs(dev, ABS_Z, data[4]);
++
++       input_sync(dev);
++}
++
++/*
++ * zhenhua_interrupt() is called by the low level driver when characters
++ * are ready for us. We then buffer them for further processing, or call the
++ * packet processing routine.
++ */
++
++static irqreturn_t zhenhua_interrupt(struct serio *serio, unsigned
+char data, unsigned int flags)
++{
++       struct zhenhua *zhenhua = serio_get_drvdata(serio);
++
++       /* All Zhen Hua packets are 5 bytes. The fact that the first byte
++        * is allways 0xf7 and all others are in range 0x32 - 0xc8 (50-200)
++        * can be used to check and regain sync. */
++
++       if (data == 0xef)
++               zhenhua->idx = 0;       /* this byte starts a new packet */
++       else if (zhenhua->idx == 0)
++               return IRQ_HANDLED;     /* wrong MSB -- ignore this byte */
++
++       if (zhenhua->idx < ZHENHUA_MAX_LENGTH)
++               zhenhua->data[zhenhua->idx++] = zhenhua_bitreverse(data);
++
++       if (zhenhua->idx == ZHENHUA_MAX_LENGTH) {
++               zhenhua_process_packet(zhenhua);
++               zhenhua->idx = 0;
++       }
++
++       return IRQ_HANDLED;
++}
++
++/*
++ * zhenhua_disconnect() is the opposite of zhenhua_connect()
++ */
++
++static void zhenhua_disconnect(struct serio *serio)
++{
++       struct zhenhua *zhenhua = serio_get_drvdata(serio);
++
++       serio_close(serio);
++       serio_set_drvdata(serio, NULL);
++       input_unregister_device(zhenhua->dev);
++       kfree(zhenhua);
++}
++
++/*
++ * zhenhua_connect() is the routine that is called when someone adds a
++ * new serio device. It looks for the Twiddler, and if found, registers
++ * it as an input device.
++ */
++
++static int zhenhua_connect(struct serio *serio, struct serio_driver *drv)
++{
++       struct zhenhua *zhenhua;
++       struct input_dev *input_dev;
++       int err = -ENOMEM;
++
++       zhenhua = kzalloc(sizeof(struct zhenhua), GFP_KERNEL);
++       input_dev = input_allocate_device();
++       if (!zhenhua || !input_dev)
++               goto fail1;
++
++       zhenhua->dev = input_dev;
++       snprintf(zhenhua->phys, sizeof(zhenhua->phys), "%s/input0",
+serio->phys);
++
++       input_dev->name = "Zhen Hua 5-byte device";
++       input_dev->phys = zhenhua->phys;
++       input_dev->id.bustype = BUS_RS232;
++       input_dev->id.vendor = SERIO_ZHENHUA;
++       input_dev->id.product = 0x0001;
++       input_dev->id.version = 0x0100;
++       input_dev->dev.parent = &serio->dev;
++
++       input_dev->evbit[0] = BIT(EV_ABS);
++       input_set_abs_params(input_dev, ABS_X, 50, 200, 0, 0);
++       input_set_abs_params(input_dev, ABS_Y, 50, 200, 0, 0);
++       input_set_abs_params(input_dev, ABS_Z, 50, 200, 0, 0);
++       input_set_abs_params(input_dev, ABS_RZ, 50, 200, 0, 0);
++
++       serio_set_drvdata(serio, zhenhua);
++
++       err = serio_open(serio, drv);
++       if (err)
++               goto fail2;
++
++       err = input_register_device(zhenhua->dev);
++       if (err)
++               goto fail3;
++
++       return 0;
++
++ fail3:        serio_close(serio);
++ fail2:        serio_set_drvdata(serio, NULL);
++ fail1:        input_free_device(input_dev);
++       kfree(zhenhua);
++       return err;
++}
++
++/*
++ * The serio driver structure.
++ */
++
++static struct serio_device_id zhenhua_serio_ids[] = {
++       {
++               .type   = SERIO_RS232,
++               .proto  = SERIO_ZHENHUA,
++               .id     = SERIO_ANY,
++               .extra  = SERIO_ANY,
++       },
++       { 0 }
++};
++
++MODULE_DEVICE_TABLE(serio, zhenhua_serio_ids);
++
++static struct serio_driver zhenhua_drv = {
++       .driver         = {
++               .name   = "zhenhua",
++       },
++       .description    = DRIVER_DESC,
++       .id_table       = zhenhua_serio_ids,
++       .interrupt      = zhenhua_interrupt,
++       .connect        = zhenhua_connect,
++       .disconnect     = zhenhua_disconnect,
++};
++
++/*
++ * The functions for inserting/removing us as a module.
++ */
++
++static int __init zhenhua_init(void)
++{
++       return serio_register_driver(&zhenhua_drv);
++}
++
++static void __exit zhenhua_exit(void)
++{
++       serio_unregister_driver(&zhenhua_drv);
++}
++
++module_init(zhenhua_init);
++module_exit(zhenhua_exit);
+diff -uprN -X linux-2.6.24-vanilla/Documentation/dontdiff
+linux-2.6.24-vanilla/include/linux/serio.h
+linux-2.6.24-zhenhua/include/linux/serio.h
+--- linux-2.6.24-vanilla/include/linux/serio.h  2008-01-24
+23:58:37.000000000 +0100
++++ linux-2.6.24-zhenhua/include/linux/serio.h  2008-02-08
+19:49:27.000000000 +0100
+@@ -211,5 +211,6 @@ static inline void serio_unpin_driver(st
+ #define SERIO_TOUCHWIN 0x33
+ #define SERIO_TAOSEVM  0x34
+ #define SERIO_FUJITSU  0x35
++#define SERIO_ZHENHUA  0x36
 
+ #endif

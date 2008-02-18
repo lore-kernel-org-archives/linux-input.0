@@ -1,42 +1,39 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: cdev removal broke cobalt_btns.c compilation
-Date: Sun, 17 Feb 2008 22:09:42 +0200
-Message-ID: <20080217200942.GF1403@cs181133002.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH] I8042: Use SGI_HAS_I8042 to select SGI i8042 handlinig
+Date: Mon, 18 Feb 2008 22:42:44 +0100 (CET)
+Message-ID: <20080218214244.9DD55C2AE3@solo.franken.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp4.pp.htv.fi ([213.243.153.38]:53474 "EHLO smtp4.pp.htv.fi"
+Received: from elvis.franken.de ([193.175.24.41]:48732 "EHLO elvis.franken.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755290AbYBQUKL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 17 Feb 2008 15:10:11 -0500
-Content-Disposition: inline
+	id S1751069AbYBRVmu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Feb 2008 16:42:50 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>, ralf@linux-mips.org
-Cc: linux-mips@linux-mips.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, akpm@linux-foundation.org
 
-Commit 0c1efd365306c9b04df5abdd41e9b4dc721e84fb broke the compilation of 
-cobalt_btns.c:
+Use SGI_HAS_I8042 to select SGI i8042 handling
 
-<--  snip  -->
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+---
 
-...
-  CC      drivers/input/misc/cobalt_btns.o
-/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/misc/cobalt_btns.c: In function 'cobalt_buttons_probe':
-/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/misc/cobalt_btns.c:100: error: 'struct input_dev' has no member named 'cdev'
-...
-make[4]: *** [drivers/input/misc/cobalt_btns.o] Error 1
-...
+This is the only patch for SGO IP28 support, which didn't make it in the 
+merge window. I hope this is patch is small enough to still get it in 
+the 2.6.25-rc cycle.
 
-<--  snip  -->
+ drivers/input/serio/i8042.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+diff --git a/drivers/input/serio/i8042.h b/drivers/input/serio/i8042.h
+index dd22d91..c972e5d 100644
+--- a/drivers/input/serio/i8042.h
++++ b/drivers/input/serio/i8042.h
+@@ -16,7 +16,7 @@
+ 
+ #if defined(CONFIG_MACH_JAZZ)
+ #include "i8042-jazzio.h"
+-#elif defined(CONFIG_SGI_IP22)
++#elif defined(CONFIG_SGI_HAS_I8042)
+ #include "i8042-ip22io.h"
+ #elif defined(CONFIG_PPC)
+ #include "i8042-ppcio.h"

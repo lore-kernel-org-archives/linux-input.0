@@ -1,98 +1,40 @@
 From: Markus Armbruster <armbru@redhat.com>
-Subject: [PATCH 1/2] fbdev: Make deferred I/O work as advertized
-Date: Thu, 21 Feb 2008 10:43:04 +0100
-Message-ID: <87ve4id4rb.fsf@pike.pond.sub.org>
+Subject: Re: [PATCH 0/2] xen pvfb: Para-virtual
+	framebuffer, keyboard and pointer
+Date: Thu, 21 Feb 2008 12:51:21 +0100
+Message-ID: <87hcg2cyti.fsf@pike.pond.sub.org>
 References: <871w76ejdg.fsf@pike.pond.sub.org>
+Reply-To: linux-fbdev-devel@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:42225 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758273AbYBUJot (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Feb 2008 04:44:49 -0500
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-fbdev-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <871w76ejdg.fsf@pike.pond.sub.org> (Markus Armbruster's message
+	of "Thu\, 21 Feb 2008 10\:42\:03 +0100")
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
+	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-fbdev-devel>
+List-Post: <mailto:linux-fbdev-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
+	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-fbdev-devel-bounces@lists.sourceforge.net
+Errors-To: linux-fbdev-devel-bounces@lists.sourceforge.net
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.osdl.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@pol.net, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+Cc: xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+List-Id: linux-input@vger.kernel.org
 
-Deferred I/O was utterly broken.  Reading the mmap()ed framebuffer
-worked, but writing it made the VM endlessly invoke
-vm_ops.page_mkwrite().  That happened because we failed to set
-page->mapping and page->index.
+Forgot to mention: This patch depends on
 
-The fix is to set them, and clean up properly before the framebuffer
-gets released.
+    Subject: [PATCH] xen: Make xen-blkfront write its protocol ABI to xenstore
+    From: Markus Armbruster <>
+    Date: Thu, 06 Dec 2007 14:45:53 +0100
 
-Fix extracted from this linux-fbdev-devel message:
+http://lkml.org/lkml/2007/12/6/132
 
-    Subject: [PATCH 1/1 2.6.24] fbdev: defio and Metronomefb
-    From: Jaya Kumar <jayakumar.lkml@gmail.com>
-    Date: 2008-02-18 13:41:26
+Sorry!
 
-Signed-off-by: Jaya Kumar <jayakumar.lkml@gmail.com>
-Signed-off-by: Markus Armbruster <armbru@redhat.com>
-
----
-
- drivers/video/fb_defio.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/video/fb_defio.c b/drivers/video/fb_defio.c
-index 0f8cfb9..24843fd 100644
---- a/drivers/video/fb_defio.c
-+++ b/drivers/video/fb_defio.c
-@@ -4,7 +4,7 @@
-  *  Copyright (C) 2006 Jaya Kumar
-  *
-  * This file is subject to the terms and conditions of the GNU General Public
-- * License.  See the file COPYING in the main directory of this archive
-+ * License. See the file COPYING in the main directory of this archive
-  * for more details.
-  */
- 
-@@ -31,7 +31,7 @@ static int fb_deferred_io_fault(struct vm_area_struct *vma,
- 	unsigned long offset;
- 	struct page *page;
- 	struct fb_info *info = vma->vm_private_data;
--	/* info->screen_base is in System RAM */
-+	/* info->screen_base is virtual memory */
- 	void *screen_base = (void __force *) info->screen_base;
- 
- 	offset = vmf->pgoff << PAGE_SHIFT;
-@@ -43,6 +43,15 @@ static int fb_deferred_io_fault(struct vm_area_struct *vma,
- 		return VM_FAULT_SIGBUS;
- 
- 	get_page(page);
-+
-+	if (vma->vm_file)
-+		page->mapping = vma->vm_file->f_mapping;
-+	else
-+		printk(KERN_ERR "no mapping available\n");
-+
-+	BUG_ON(!page->mapping);
-+	page->index = vmf->pgoff;
-+
- 	vmf->page = page;
- 	return 0;
- }
-@@ -138,11 +147,20 @@ EXPORT_SYMBOL_GPL(fb_deferred_io_init);
- 
- void fb_deferred_io_cleanup(struct fb_info *info)
- {
-+	void *screen_base = (void __force *) info->screen_base;
- 	struct fb_deferred_io *fbdefio = info->fbdefio;
-+	struct page *page;
-+	int i;
- 
- 	BUG_ON(!fbdefio);
- 	cancel_delayed_work(&info->deferred_work);
- 	flush_scheduled_work();
-+
-+	/* clear out the mapping that we setup */
-+	for (i = 0 ; i < info->fix.smem_len; i += PAGE_SIZE) {
-+		page = vmalloc_to_page(screen_base + i);
-+		page->mapping = NULL;
-+	}
- }
- EXPORT_SYMBOL_GPL(fb_deferred_io_cleanup);
- 
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Microsoft
+Defy all challenges. Microsoft(R) Visual Studio 2008.
+http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/

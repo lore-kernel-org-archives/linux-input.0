@@ -1,46 +1,159 @@
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 2/2] xen pvfb: Para-virtual framebuffer,	keyboard and
- pointer driver
-Date: Fri, 22 Feb 2008 14:31:55 -0800
-Message-ID: <47BF4D5B.5020509@goop.org>
-References: <871w76ejdg.fsf@pike.pond.sub.org>	<87skzmd4qc.fsf@pike.pond.sub.org> <47BDDF97.7070001@goop.org> <8763whbiy8.fsf@pike.pond.sub.org>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: power_state: remove from input & rfkill
+Date: Sat, 23 Feb 2008 11:30:01 +0100
+Message-ID: <20080223103001.GA3837@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gw.goop.org ([64.81.55.164]:42265 "EHLO mail.goop.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758587AbYBVWfM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 22 Feb 2008 17:35:12 -0500
-In-Reply-To: <8763whbiy8.fsf@pike.pond.sub.org>
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57034 "EHLO amd.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752846AbYBWK3j (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 23 Feb 2008 05:29:39 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Markus Armbruster <armbru@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, kernel list <linux-kernel@vger.kernel.org>, Linux-pm mailing list <linux-pm@lists.osdl.org>
 
-Markus Armbruster wrote:
-> Jeremy Fitzhardinge <jeremy@goop.org> writes:
->
->   
->> Markus Armbruster wrote:
->>     
->>> This is a pair of Xen para-virtual frontend device drivers:
->>> drivers/video/xen-fbfront.c provides a framebuffer, and
->>> drivers/input/xen-kbdfront provides keyboard and mouse.
->>>   
->>>       
->> Unless they're actually inter-dependent, could you post this as two
->> separate patches?  I don't know anything about these parts of the
->> kernel, so it would be nice to make it very obvious which changes are
->> fb vs mouse/keyboard.
->>     
->
-> I could do that do that, but the intermediate step (one driver, not
-> the other) is somewhat problematic: the backend in dom0 needs both
-> drivers, and will refuse to complete device initialization unless
-> they're both present.
->   
 
-That's OK.  In that case keep them together.
+power_state is being removed from kernel, this time in input.
 
-    J
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+index 2763394..3816e44 100644
+--- a/drivers/input/serio/i8042.c
++++ b/drivers/input/serio/i8042.c
+@@ -895,13 +895,8 @@ #ifdef CONFIG_PM
+ 
+ static int i8042_suspend(struct platform_device *dev, pm_message_t state)
+ {
+-	if (dev->dev.power.power_state.event != state.event) {
+-		if (state.event == PM_EVENT_SUSPEND)
+-			i8042_controller_reset();
+-
+-		dev->dev.power.power_state = state;
+-	}
+-
++	if (state.event == PM_EVENT_SUSPEND)
++		i8042_controller_reset();
+ 	return 0;
+ }
+ 
+@@ -914,12 +909,6 @@ static int i8042_resume(struct platform_
+ {
+ 	int error;
+ 
+-/*
+- * Do not bother with restoring state if we haven't suspened yet
+- */
+-	if (dev->dev.power.power_state.event == PM_EVENT_ON)
+-		return 0;
+-
+ 	error = i8042_controller_check();
+ 	if (error)
+ 		return error;
+@@ -954,9 +943,6 @@ static int i8042_resume(struct platform_
+ 		i8042_enable_kbd_port();
+ 
+ 	i8042_interrupt(0, NULL);
+-
+-	dev->dev.power.power_state = PMSG_ON;
+-
+ 	return 0;
+ }
+ #endif /* CONFIG_PM */
+diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
+index 7f52938..0673f3a 100644
+--- a/drivers/input/serio/serio.c
++++ b/drivers/input/serio/serio.c
+@@ -912,13 +912,8 @@ #endif /* CONFIG_HOTPLUG */
+ #ifdef CONFIG_PM
+ static int serio_suspend(struct device *dev, pm_message_t state)
+ {
+-	if (dev->power.power_state.event != state.event) {
+-		if (state.event == PM_EVENT_SUSPEND)
+-			serio_cleanup(to_serio_port(dev));
+-
+-		dev->power.power_state = state;
+-	}
+-
++	if (state.event == PM_EVENT_SUSPEND)
++		serio_cleanup(to_serio_port(dev));
+ 	return 0;
+ }
+ 
+@@ -926,8 +921,7 @@ static int serio_resume(struct device *d
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 
+-	if (dev->power.power_state.event != PM_EVENT_ON &&
+-	    serio_reconnect_driver(serio)) {
++	if (serio_reconnect_driver(serio)) {
+ 		/*
+ 		 * Driver re-probing can take a while, so better let kseriod
+ 		 * deal with it.
+@@ -935,8 +929,6 @@ static int serio_resume(struct device *d
+ 		serio_rescan(serio);
+ 	}
+ 
+-	dev->power.power_state = PMSG_ON;
+-
+ 	return 0;
+ }
+ #endif /* CONFIG_PM */
+diff --git a/net/rfkill/rfkill.c b/net/rfkill/rfkill.c
+index 1a47f5d..81d7f5f 100644
+--- a/net/rfkill/rfkill.c
++++ b/net/rfkill/rfkill.c
+@@ -231,18 +231,14 @@ static int rfkill_suspend(struct device 
+ {
+ 	struct rfkill *rfkill = to_rfkill(dev);
+ 
+-	if (dev->power.power_state.event != state.event) {
+-		if (state.event == PM_EVENT_SUSPEND) {
+-			mutex_lock(&rfkill->mutex);
+-
+-			if (rfkill->state == RFKILL_STATE_ON)
+-				rfkill->toggle_radio(rfkill->data,
+-						     RFKILL_STATE_OFF);
++	if (state.event == PM_EVENT_SUSPEND) {
++		mutex_lock(&rfkill->mutex);
+ 
+-			mutex_unlock(&rfkill->mutex);
+-		}
++		if (rfkill->state == RFKILL_STATE_ON)
++			rfkill->toggle_radio(rfkill->data,
++					     RFKILL_STATE_OFF);
+ 
+-		dev->power.power_state = state;
++		mutex_unlock(&rfkill->mutex);
+ 	}
+ 
+ 	return 0;
+@@ -252,16 +248,12 @@ static int rfkill_resume(struct device *
+ {
+ 	struct rfkill *rfkill = to_rfkill(dev);
+ 
+-	if (dev->power.power_state.event != PM_EVENT_ON) {
+-		mutex_lock(&rfkill->mutex);
++	mutex_lock(&rfkill->mutex);
+ 
+-		if (rfkill->state == RFKILL_STATE_ON)
+-			rfkill->toggle_radio(rfkill->data, RFKILL_STATE_ON);
++	if (rfkill->state == RFKILL_STATE_ON)
++		rfkill->toggle_radio(rfkill->data, RFKILL_STATE_ON);
+ 
+-		mutex_unlock(&rfkill->mutex);
+-	}
+-
+-	dev->power.power_state = PMSG_ON;
++	mutex_unlock(&rfkill->mutex);
+ 	return 0;
+ }
+ #else
+
+
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

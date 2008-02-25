@@ -1,8 +1,9 @@
 From: Markus Armbruster <armbru@redhat.com>
-Subject: [PATCH 0/3] xen pvfb: Para-virtual framebuffer,
-	keyboard and pointer
-Date: Mon, 25 Feb 2008 14:00:16 +0100
-Message-ID: <87tzjx6vj3.fsf@pike.pond.sub.org>
+Subject: [PATCH 1/3] xen: Make xen-blkfront write its
+	protocol ABI to xenstore
+Date: Mon, 25 Feb 2008 14:02:24 +0100
+Message-ID: <87mypp6vfj.fsf@pike.pond.sub.org>
+References: <87tzjx6vj3.fsf@pike.pond.sub.org>
 Reply-To: linux-fbdev-devel@lists.sourceforge.net
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,67 +22,80 @@ To: linux-kernel@vger.kernel.org
 Cc: xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
 List-Id: linux-input@vger.kernel.org
 
-This is a pair of Xen para-virtual frontend device drivers:
-drivers/video/xen-fbfront.c provides a framebuffer, and
-drivers/input/xen-kbdfront provides keyboard and mouse.
+Frontends are expected to write their protocol ABI to xenstore.  Since
+the protocol ABI defaults to the backend's native ABI, things work
+fine without that as long as the frontend's native ABI is identical to
+the backend's native ABI.  This is not the case for xen-blkfront
+running 32-on-64, because its ABI differs between 32 and 64 bit, and
+thus needs this fix.
 
-The backends run in dom0 user space.
+Based on http://xenbits.xensource.com/xen-unstable.hg?rev/c545932a18f3
+and http://xenbits.xensource.com/xen-unstable.hg?rev/ffe52263b430 by
+Gerd Hoffmann <kraxel@suse.de>
 
-Differences since last post:
+Signed-off-by: Markus Armbruster <armbru@redhat.com>
 
-* Required patch fixing 32-on-64 xen-blkfront included.
+---
+ drivers/block/xen-blkfront.c         |    7 +++++++
+ include/xen/interface/io/protocols.h |   21 +++++++++++++++++++++
+ 2 files changed, 28 insertions(+), 0 deletions(-)
+ create mode 100644 include/xen/interface/io/protocols.h
 
-* Cleanup when xenkbd_probe() fails fixed.
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index 8afce67..e69164a 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -46,6 +46,7 @@
+ 
+ #include <xen/interface/grant_table.h>
+ #include <xen/interface/io/blkif.h>
++#include <xen/interface/io/protocols.h>
+ 
+ #include <asm/xen/hypervisor.h>
+ 
+@@ -597,6 +598,12 @@ again:
+ 		message = "writing event-channel";
+ 		goto abort_transaction;
+ 	}
++	err = xenbus_printf(xbt, dev->nodename, "protocol", "%s",
++			    XEN_IO_PROTO_ABI_NATIVE);
++	if (err) {
++		message = "writing protocol";
++		goto abort_transaction;
++	}
+ 
+ 	err = xenbus_transaction_end(xbt, 0);
+ 	if (err) {
+diff --git a/include/xen/interface/io/protocols.h b/include/xen/interface/io/protocols.h
+new file mode 100644
+index 0000000..01fc8ae
+--- /dev/null
++++ b/include/xen/interface/io/protocols.h
+@@ -0,0 +1,21 @@
++#ifndef __XEN_PROTOCOLS_H__
++#define __XEN_PROTOCOLS_H__
++
++#define XEN_IO_PROTO_ABI_X86_32     "x86_32-abi"
++#define XEN_IO_PROTO_ABI_X86_64     "x86_64-abi"
++#define XEN_IO_PROTO_ABI_IA64       "ia64-abi"
++#define XEN_IO_PROTO_ABI_POWERPC64  "powerpc64-abi"
++
++#if defined(__i386__)
++# define XEN_IO_PROTO_ABI_NATIVE XEN_IO_PROTO_ABI_X86_32
++#elif defined(__x86_64__)
++# define XEN_IO_PROTO_ABI_NATIVE XEN_IO_PROTO_ABI_X86_64
++#elif defined(__ia64__)
++# define XEN_IO_PROTO_ABI_NATIVE XEN_IO_PROTO_ABI_IA64
++#elif defined(__powerpc64__)
++# define XEN_IO_PROTO_ABI_NATIVE XEN_IO_PROTO_ABI_POWERPC64
++#else
++# error arch fixup needed here
++#endif
++
++#endif
+-- 
+1.5.3.3
 
-* Don't store event channel in device info.
-
-I started with the Xen version at
-http://xenbits.xensource.com/linux-2.6.18-xen.hg?rev/ca05cf1a9bdc
-
-Differences to that Xen version, for those who care:
-
-* Rewritten on top of fb deferred I/O
-
-* IRQ handler names visible in /proc and /sys match the driver names.
-
-* Use framebuffer helper functions appropriate for framebuffer in
-  system RAM.
-
-* write() refreshes the framebuffer properly.
-
-* off-by-one height of some screen refreshs fixed.
-
-* Crash when register_framebuffer() fails fixed.
-
-* Test for empty ring in input_handler() fixed.
-
-* Deadlock in xen-kbdfront resume fixed.
-
-* Cleanup when xenkbd_probe() fails fixed.
-
-* General clean up.
-
-I have a step-by-step patch series from that Xen version to my
-version, if anybody is interested.  Might be useful for reviewers
-familiar with the Xen version.
-
-The patch consists of three parts:
-
-1. xen: Make xen-blkfront write its protocol ABI to xenstore
-
-   Could do without, but then I'd have to put the same bug in
-   xen-fbfront and xen-kbdfront.
-
-2. fbdev: Make deferred I/O work as advertized
-
-   I need fb deferred I/O, but is utterly broken.  A fix has been
-   floating around on linux-fbdev-devel as part of a larger patch,
-   which as far as I know has not been merged anywhere, yet.  This is
-   just the fix.
-
-2. xen pvfb: Para-virtual framebuffer, keyboard and pointer driver
-
-   The actual drivers.
 
 -------------------------------------------------------------------------
 This SF.net email is sponsored by: Microsoft

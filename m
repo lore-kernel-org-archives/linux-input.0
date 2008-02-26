@@ -1,25 +1,20 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: [PATCH 5/6] Driver for WM97xx touchscreens in streaming mode on Mainstone
 Date: Tue, 26 Feb 2008 13:40:17 +0000
-Message-ID: <12040332181746-git-send-email-broonie@opensource.wolfsonmicro.com>
+Message-ID: <56b1664f568caeb9c766066d2b7065ea24449632.1204032930.git.broonie__14231.0851290405$1204033397$gmane$org@opensource.wolfsonmicro.com>
 References: <12040332183316-git-send-email-broonie@opensource.wolfsonmicro.com>
  <12040332181161-git-send-email-broonie@opensource.wolfsonmicro.com>
  <12040332181394-git-send-email-broonie@opensource.wolfsonmicro.com>
  <12040332182008-git-send-email-broonie@opensource.wolfsonmicro.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60082 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1761092AbYBZNkY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Feb 2008 08:40:24 -0500
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755497AbYBZNld@vger.kernel.org>
 In-Reply-To: <12040332182008-git-send-email-broonie@opensource.wolfsonmicro.com>
 Message-Id: <56b1664f568caeb9c766066d2b7065ea24449632.1204032930.git.broonie@opensource.wolfsonmicro.com>
 In-Reply-To: <c815fe5525d01cea7be830ca51af962d3aec360d.1204032930.git.broonie@opensource.wolfsonmicro.com>
 References: <c815fe5525d01cea7be830ca51af962d3aec360d.1204032930.git.broonie@opensource.wolfsonmicro.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dtor@mail.ru>, Andrew Morton <akpm@linux-foundation.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Pete MacKay <linux01@architechnical.net>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+List-Id: linux-input@vger.kernel.org
 
 Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
 Signed-off-by: Graeme Gregory <gg@opensource.wolfsonmicro.com>
@@ -345,4 +340,3 @@ index 0000000..8e1c35d
 +MODULE_LICENSE("GPL");
 -- 
 1.5.2.5
-

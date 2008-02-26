@@ -1,1273 +1,399 @@
-From: Markus Armbruster <armbru@redhat.com>
-Subject: [PATCH 3/3] xen pvfb: Para-virtual framebuffer,
-	keyboard and pointer driver
-Date: Mon, 25 Feb 2008 14:06:46 +0100
-Message-ID: <87hcfx6v89.fsf@pike.pond.sub.org>
-References: <87tzjx6vj3.fsf@pike.pond.sub.org>
-Reply-To: linux-fbdev-devel@lists.sourceforge.net
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-fbdev-devel-bounces@lists.sourceforge.net>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
-	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-fbdev-devel>
-List-Post: <mailto:linux-fbdev-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
-	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-fbdev-devel-bounces@lists.sourceforge.net
-Errors-To: linux-fbdev-devel-bounces@lists.sourceforge.net
-To: linux-kernel@vger.kernel.org
-Cc: xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org, jayakumar.lkml@gmail.com
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 2/6] Add chip driver for WM9705 touchscreen
+Date: Tue, 26 Feb 2008 13:40:14 +0000
+Message-ID: <12040332181161-git-send-email-broonie@opensource.wolfsonmicro.com>
+References: <12040332183316-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:60058 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1761051AbYBZNkY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Feb 2008 08:40:24 -0500
+In-Reply-To: <12040332183316-git-send-email-broonie@opensource.wolfsonmicro.com>
+Message-Id: <ca8e67a96dfec6847d7f0af41344898c7ad9a863.1204032930.git.broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <c815fe5525d01cea7be830ca51af962d3aec360d.1204032930.git.broonie@opensource.wolfsonmicro.com>
+References: <c815fe5525d01cea7be830ca51af962d3aec360d.1204032930.git.broonie@opensource.wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>, Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Pete MacKay <linux01@architechnical.net>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 
-This is a pair of Xen para-virtual frontend device drivers:
-drivers/video/xen-fbfront.c provides a framebuffer, and
-drivers/input/xen-kbdfront provides keyboard and mouse.
-
-The backends run in dom0 user space.
-
-The two drivers are not in two separate patches, because the
-intermediate step (one driver, not the other) is somewhat problematic:
-the backend in dom0 needs both drivers, and will refuse to complete
-device initialization unless they're both present.
-
-Signed-off-by: Markus Armbruster <armbru@redhat.com>
-
+Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
+Signed-off-by: Graeme Gregory <gg@opensource.wolfsonmicro.com>
+Signed-off-by: Mike Arthur <mike.arthur@wolfsonmicro.com>
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Cc: Stanley Cai <stanley.cai@intel.com>
+Cc: Rodolfo Giometti <giometti@enneenne.com>
+Cc: Russell King <rmk@arm.linux.org.uk>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Pete MacKay <linux01@architechnical.net>
+Cc: Ian Molton <spyro@f2s.com>
+Cc: Vince Sanders <vince@kyllikki.org>
+Cc: Andrew Zabolotny <zap@homelink.ru>
 ---
+ drivers/input/touchscreen/wm9705.c |  352 ++++++++++++++++++++++++++++++++++++
+ 1 files changed, 352 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/wm9705.c
 
- drivers/input/Kconfig            |    9 
- drivers/input/Makefile           |    2 
- drivers/input/xen-kbdfront.c     |  340 ++++++++++++++++++++++++
- drivers/video/Kconfig            |   14 
- drivers/video/Makefile           |    1 
- drivers/video/xen-fbfront.c      |  550 +++++++++++++++++++++++++++++++++++++++
- include/xen/interface/io/fbif.h  |  124 ++++++++
- include/xen/interface/io/kbdif.h |  114 ++++++++
- 8 files changed, 1154 insertions(+)
-
-diff --git a/drivers/input/Kconfig b/drivers/input/Kconfig
-index 9dea14d..5f9d860 100644
---- a/drivers/input/Kconfig
-+++ b/drivers/input/Kconfig
-@@ -149,6 +149,15 @@ config INPUT_APMPOWER
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called apm-power.
- 
-+config XEN_KBDDEV_FRONTEND
-+	tristate "Xen virtual keyboard and mouse support"
-+	depends on XEN_FBDEV_FRONTEND
-+	default y
-+	help
-+	  This driver implements the front-end of the Xen virtual
-+	  keyboard and mouse device driver.  It communicates with a back-end
-+	  in another domain.
-+
- comment "Input Device Drivers"
- 
- source "drivers/input/keyboard/Kconfig"
-diff --git a/drivers/input/Makefile b/drivers/input/Makefile
-index 2ae87b1..98c4f9a 100644
---- a/drivers/input/Makefile
-+++ b/drivers/input/Makefile
-@@ -23,3 +23,5 @@ obj-$(CONFIG_INPUT_TOUCHSCREEN)	+= touchscreen/
- obj-$(CONFIG_INPUT_MISC)	+= misc/
- 
- obj-$(CONFIG_INPUT_APMPOWER)	+= apm-power.o
-+
-+obj-$(CONFIG_XEN_KBDDEV_FRONTEND)	+= xen-kbdfront.o
-diff --git a/drivers/input/xen-kbdfront.c b/drivers/input/xen-kbdfront.c
+diff --git a/drivers/input/touchscreen/wm9705.c b/drivers/input/touchscreen/wm9705.c
 new file mode 100644
-index 0000000..0f47f46
+index 0000000..f185104
 --- /dev/null
-+++ b/drivers/input/xen-kbdfront.c
-@@ -0,0 +1,340 @@
++++ b/drivers/input/touchscreen/wm9705.c
+@@ -0,0 +1,352 @@
 +/*
-+ * Xen para-virtual input device
++ * wm9705.c  --  Codec driver for Wolfson WM9705 AC97 Codec.
 + *
-+ * Copyright (C) 2005 Anthony Liguori <aliguori@us.ibm.com>
-+ * Copyright (C) 2006-2008 Red Hat, Inc., Markus Armbruster <armbru@redhat.com>
++ * Copyright 2003, 2004, 2005, 2006, 2007 Wolfson Microelectronics PLC.
++ * Author: Liam Girdwood
++ *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ * Parts Copyright : Ian Molton <spyro@f2s.com>
++ *                   Andrew Zabolotny <zap@homelink.ru>
++ *                   Russell King <rmk@arm.linux.org.uk>
 + *
-+ *  Based on linux/drivers/input/mouse/sermouse.c
++ *  This program is free software; you can redistribute  it and/or modify it
++ *  under  the terms of  the GNU General  Public License as published by the
++ *  Free Software Foundation;  either version 2 of the  License, or (at your
++ *  option) any later version.
 + *
-+ *  This file is subject to the terms and conditions of the GNU General Public
-+ *  License. See the file COPYING in the main directory of this archive for
-+ *  more details.
 + */
 +
-+/*
-+ * TODO:
-+ *
-+ * Switch to grant tables together with xen-fbfront.c.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
 +#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/version.h>
++#include <linux/kernel.h>
 +#include <linux/input.h>
-+#include <asm/xen/hypervisor.h>
-+#include <xen/events.h>
-+#include <xen/page.h>
-+#include <xen/interface/io/fbif.h>
-+#include <xen/interface/io/kbdif.h>
-+#include <xen/xenbus.h>
++#include <linux/delay.h>
++#include <linux/bitops.h>
++#include <linux/wm97xx.h>
 +
-+struct xenkbd_info {
-+	struct input_dev *kbd;
-+	struct input_dev *ptr;
-+	struct xenkbd_page *page;
-+	int irq;
-+	struct xenbus_device *xbdev;
-+	char phys[32];
-+};
-+
-+static int xenkbd_remove(struct xenbus_device *);
-+static int xenkbd_connect_backend(struct xenbus_device *, struct xenkbd_info *);
-+static void xenkbd_disconnect_backend(struct xenkbd_info *);
++#define TS_NAME			"wm97xx"
++#define WM9705_VERSION		"0.62"
++#define DEFAULT_PRESSURE	0xb0c0
 +
 +/*
-+ * Note: if you need to send out events, see xenfb_do_update() for how
-+ * to do that.
-+ */
-+
-+static irqreturn_t input_handler(int rq, void *dev_id)
-+{
-+	struct xenkbd_info *info = dev_id;
-+	struct xenkbd_page *page = info->page;
-+	__u32 cons, prod;
-+
-+	prod = page->in_prod;
-+	if (prod == page->in_cons)
-+		return IRQ_HANDLED;
-+	rmb();			/* ensure we see ring contents up to prod */
-+	for (cons = page->in_cons; cons != prod; cons++) {
-+		union xenkbd_in_event *event;
-+		struct input_dev *dev;
-+		event = &XENKBD_IN_RING_REF(page, cons);
-+
-+		dev = info->ptr;
-+		switch (event->type) {
-+		case XENKBD_TYPE_MOTION:
-+			input_report_rel(dev, REL_X, event->motion.rel_x);
-+			input_report_rel(dev, REL_Y, event->motion.rel_y);
-+			break;
-+		case XENKBD_TYPE_KEY:
-+			dev = NULL;
-+			if (test_bit(event->key.keycode, info->kbd->keybit))
-+				dev = info->kbd;
-+			if (test_bit(event->key.keycode, info->ptr->keybit))
-+				dev = info->ptr;
-+			if (dev)
-+				input_report_key(dev, event->key.keycode,
-+						 event->key.pressed);
-+			else
-+				printk(KERN_WARNING
-+				       "xenkbd: unhandled keycode 0x%x\n",
-+				       event->key.keycode);
-+			break;
-+		case XENKBD_TYPE_POS:
-+			input_report_abs(dev, ABS_X, event->pos.abs_x);
-+			input_report_abs(dev, ABS_Y, event->pos.abs_y);
-+			break;
-+		}
-+		if (dev)
-+			input_sync(dev);
-+	}
-+	mb();			/* ensure we got ring contents */
-+	page->in_cons = cons;
-+	notify_remote_via_irq(info->irq);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit xenkbd_probe(struct xenbus_device *dev,
-+				  const struct xenbus_device_id *id)
-+{
-+	int ret, i;
-+	struct xenkbd_info *info;
-+	struct input_dev *kbd, *ptr;
-+
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	if (!info) {
-+		xenbus_dev_fatal(dev, -ENOMEM, "allocating info structure");
-+		return -ENOMEM;
-+	}
-+	dev->dev.driver_data = info;
-+	info->xbdev = dev;
-+	info->irq = -1;
-+	snprintf(info->phys, sizeof(info->phys), "xenbus/%s", dev->nodename);
-+
-+	info->page = (void *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
-+	if (!info->page)
-+		goto error_nomem;
-+
-+	/* keyboard */
-+	kbd = input_allocate_device();
-+	if (!kbd)
-+		goto error_nomem;
-+	kbd->name = "Xen Virtual Keyboard";
-+	kbd->phys = info->phys;
-+	kbd->id.bustype = BUS_PCI;
-+	kbd->id.vendor = 0x5853;
-+	kbd->id.product = 0xffff;
-+	kbd->evbit[0] = BIT(EV_KEY);
-+	for (i = KEY_ESC; i < KEY_UNKNOWN; i++)
-+		set_bit(i, kbd->keybit);
-+	for (i = KEY_OK; i < KEY_MAX; i++)
-+		set_bit(i, kbd->keybit);
-+
-+	ret = input_register_device(kbd);
-+	if (ret) {
-+		input_free_device(kbd);
-+		xenbus_dev_fatal(dev, ret, "input_register_device(kbd)");
-+		goto error;
-+	}
-+	info->kbd = kbd;
-+
-+	/* pointing device */
-+	ptr = input_allocate_device();
-+	if (!ptr)
-+		goto error_nomem;
-+	ptr->name = "Xen Virtual Pointer";
-+	ptr->phys = info->phys;
-+	ptr->id.bustype = BUS_PCI;
-+	ptr->id.vendor = 0x5853;
-+	ptr->id.product = 0xfffe;
-+	ptr->evbit[0] = BIT(EV_KEY) | BIT(EV_REL) | BIT(EV_ABS);
-+	for (i = BTN_LEFT; i <= BTN_TASK; i++)
-+		set_bit(i, ptr->keybit);
-+	ptr->relbit[0] = BIT(REL_X) | BIT(REL_Y);
-+	input_set_abs_params(ptr, ABS_X, 0, XENFB_WIDTH, 0, 0);
-+	input_set_abs_params(ptr, ABS_Y, 0, XENFB_HEIGHT, 0, 0);
-+
-+	ret = input_register_device(ptr);
-+	if (ret) {
-+		input_free_device(ptr);
-+		xenbus_dev_fatal(dev, ret, "input_register_device(ptr)");
-+		goto error;
-+	}
-+	info->ptr = ptr;
-+
-+	ret = xenkbd_connect_backend(dev, info);
-+	if (ret < 0)
-+		goto error;
-+
-+	return 0;
-+
-+ error_nomem:
-+	ret = -ENOMEM;
-+	xenbus_dev_fatal(dev, ret, "allocating device memory");
-+ error:
-+	xenkbd_remove(dev);
-+	return ret;
-+}
-+
-+static int xenkbd_resume(struct xenbus_device *dev)
-+{
-+	struct xenkbd_info *info = dev->dev.driver_data;
-+
-+	xenkbd_disconnect_backend(info);
-+	memset(info->page, 0, PAGE_SIZE);
-+	return xenkbd_connect_backend(dev, info);
-+}
-+
-+static int xenkbd_remove(struct xenbus_device *dev)
-+{
-+	struct xenkbd_info *info = dev->dev.driver_data;
-+
-+	xenkbd_disconnect_backend(info);
-+	if (info->kbd)
-+		input_unregister_device(info->kbd);
-+	if (info->ptr)
-+		input_unregister_device(info->ptr);
-+	free_page((unsigned long)info->page);
-+	kfree(info);
-+	return 0;
-+}
-+
-+static int xenkbd_connect_backend(struct xenbus_device *dev,
-+				  struct xenkbd_info *info)
-+{
-+	int ret, evtchn;
-+	struct xenbus_transaction xbt;
-+
-+	ret = xenbus_alloc_evtchn(dev, &evtchn);
-+	if (ret)
-+		return ret;
-+	ret = bind_evtchn_to_irqhandler(evtchn, input_handler,
-+					0, dev->devicetype, info);
-+	if (ret < 0) {
-+		xenbus_free_evtchn(dev, evtchn);
-+		xenbus_dev_fatal(dev, ret, "bind_evtchn_to_irqhandler");
-+		return ret;
-+	}
-+	info->irq = ret;
-+
-+ again:
-+	ret = xenbus_transaction_start(&xbt);
-+	if (ret) {
-+		xenbus_dev_fatal(dev, ret, "starting transaction");
-+		return ret;
-+	}
-+	ret = xenbus_printf(xbt, dev->nodename, "page-ref", "%lu",
-+			    virt_to_mfn(info->page));
-+	if (ret)
-+		goto error_xenbus;
-+	ret = xenbus_printf(xbt, dev->nodename, "event-channel", "%u",
-+			    evtchn);
-+	if (ret)
-+		goto error_xenbus;
-+	ret = xenbus_transaction_end(xbt, 0);
-+	if (ret) {
-+		if (ret == -EAGAIN)
-+			goto again;
-+		xenbus_dev_fatal(dev, ret, "completing transaction");
-+		return ret;
-+	}
-+
-+	xenbus_switch_state(dev, XenbusStateInitialised);
-+	return 0;
-+
-+ error_xenbus:
-+	xenbus_transaction_end(xbt, 1);
-+	xenbus_dev_fatal(dev, ret, "writing xenstore");
-+	return ret;
-+}
-+
-+static void xenkbd_disconnect_backend(struct xenkbd_info *info)
-+{
-+	if (info->irq >= 0)
-+		unbind_from_irqhandler(info->irq, info);
-+	info->irq = -1;
-+}
-+
-+static void xenkbd_backend_changed(struct xenbus_device *dev,
-+				   enum xenbus_state backend_state)
-+{
-+	struct xenkbd_info *info = dev->dev.driver_data;
-+	int ret, val;
-+
-+	switch (backend_state) {
-+	case XenbusStateInitialising:
-+	case XenbusStateInitialised:
-+	case XenbusStateUnknown:
-+	case XenbusStateClosed:
-+		break;
-+
-+	case XenbusStateInitWait:
-+InitWait:
-+		ret = xenbus_scanf(XBT_NIL, info->xbdev->otherend,
-+				   "feature-abs-pointer", "%d", &val);
-+		if (ret < 0)
-+			val = 0;
-+		if (val) {
-+			ret = xenbus_printf(XBT_NIL, info->xbdev->nodename,
-+					    "request-abs-pointer", "1");
-+			if (ret)
-+				printk(KERN_WARNING
-+				       "xenkbd: can't request abs-pointer");
-+		}
-+		xenbus_switch_state(dev, XenbusStateConnected);
-+		break;
-+
-+	case XenbusStateConnected:
-+		/*
-+		 * Work around xenbus race condition: If backend goes
-+		 * through InitWait to Connected fast enough, we can
-+		 * get Connected twice here.
-+		 */
-+		if (dev->state != XenbusStateConnected)
-+			goto InitWait; /* no InitWait seen yet, fudge it */
-+		break;
-+
-+	case XenbusStateClosing:
-+		xenbus_frontend_closed(dev);
-+		break;
-+	}
-+}
-+
-+static struct xenbus_device_id xenkbd_ids[] = {
-+	{ "vkbd" },
-+	{ "" }
-+};
-+
-+static struct xenbus_driver xenkbd = {
-+	.name = "vkbd",
-+	.owner = THIS_MODULE,
-+	.ids = xenkbd_ids,
-+	.probe = xenkbd_probe,
-+	.remove = xenkbd_remove,
-+	.resume = xenkbd_resume,
-+	.otherend_changed = xenkbd_backend_changed,
-+};
-+
-+static int __init xenkbd_init(void)
-+{
-+	if (!is_running_on_xen())
-+		return -ENODEV;
-+
-+	/* Nothing to do if running in dom0. */
-+	if (is_initial_xendomain())
-+		return -ENODEV;
-+
-+	return xenbus_register_frontend(&xenkbd);
-+}
-+
-+static void __exit xenkbd_cleanup(void)
-+{
-+	xenbus_unregister_driver(&xenkbd);
-+}
-+
-+module_init(xenkbd_init);
-+module_exit(xenkbd_cleanup);
-+
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/video/Kconfig b/drivers/video/Kconfig
-index 758435f..67de177 100644
---- a/drivers/video/Kconfig
-+++ b/drivers/video/Kconfig
-@@ -1903,6 +1903,20 @@ config FB_VIRTUAL
- 
- 	  If unsure, say N.
- 
-+config XEN_FBDEV_FRONTEND
-+	tristate "Xen virtual frame buffer support"
-+	depends on FB && XEN
-+	select FB_SYS_FILLRECT
-+	select FB_SYS_COPYAREA
-+	select FB_SYS_IMAGEBLIT
-+	select FB_SYS_FOPS
-+	select FB_DEFERRED_IO
-+	default y
-+	help
-+	  This driver implements the front-end of the Xen virtual
-+	  frame buffer driver.  It communicates with a back-end
-+	  in another domain.
-+
- source "drivers/video/omap/Kconfig"
- 
- source "drivers/video/backlight/Kconfig"
-diff --git a/drivers/video/Makefile b/drivers/video/Makefile
-index 83e02b3..d3ab9b2 100644
---- a/drivers/video/Makefile
-+++ b/drivers/video/Makefile
-@@ -113,6 +113,7 @@ obj-$(CONFIG_FB_PS3)		  += ps3fb.o
- obj-$(CONFIG_FB_SM501)            += sm501fb.o
- obj-$(CONFIG_FB_XILINX)           += xilinxfb.o
- obj-$(CONFIG_FB_OMAP)             += omap/
-+obj-$(CONFIG_XEN_FBDEV_FRONTEND)  += xen-fbfront.o
- 
- # Platform or fallback drivers go here
- obj-$(CONFIG_FB_UVESA)            += uvesafb.o
-diff --git a/drivers/video/xen-fbfront.c b/drivers/video/xen-fbfront.c
-new file mode 100644
-index 0000000..619a6f8
---- /dev/null
-+++ b/drivers/video/xen-fbfront.c
-@@ -0,0 +1,550 @@
-+/*
-+ * Xen para-virtual frame buffer device
-+ *
-+ * Copyright (C) 2005-2006 Anthony Liguori <aliguori@us.ibm.com>
-+ * Copyright (C) 2006-2008 Red Hat, Inc., Markus Armbruster <armbru@redhat.com>
-+ *
-+ *  Based on linux/drivers/video/q40fb.c
-+ *
-+ *  This file is subject to the terms and conditions of the GNU General Public
-+ *  License. See the file COPYING in the main directory of this archive for
-+ *  more details.
++ * Module parameters
 + */
 +
 +/*
-+ * TODO:
++ * Set current used for pressure measurement.
 + *
-+ * Switch to grant tables when they become capable of dealing with the
-+ * frame buffer.
++ * Set pil = 2 to use 400uA
++ *     pil = 1 to use 200uA and
++ *     pil = 0 to disable pressure measurement.
++ *
++ * This is used to increase the range of values returned by the adc
++ * when measureing touchpanel pressure.
 + */
-+
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/fb.h>
-+#include <linux/module.h>
-+#include <linux/vmalloc.h>
-+#include <linux/mm.h>
-+#include <asm/xen/hypervisor.h>
-+#include <xen/events.h>
-+#include <xen/page.h>
-+#include <xen/interface/io/fbif.h>
-+#include <xen/interface/io/protocols.h>
-+#include <xen/xenbus.h>
-+
-+struct xenfb_info {
-+	unsigned char		*fb;
-+	struct fb_info		*fb_info;
-+	int			x1, y1, x2, y2;	/* dirty rectangle,
-+						   protected by dirty_lock */
-+	spinlock_t		dirty_lock;
-+	int			nr_pages;
-+	int			irq;
-+	struct xenfb_page	*page;
-+	unsigned long 		*mfns;
-+	int			update_wanted; /* XENFB_TYPE_UPDATE wanted */
-+
-+	struct xenbus_device	*xbdev;
-+};
-+
-+static u32 xenfb_mem_len = XENFB_WIDTH * XENFB_HEIGHT * XENFB_DEPTH / 8;
-+
-+static int xenfb_remove(struct xenbus_device *);
-+static void xenfb_init_shared_page(struct xenfb_info *);
-+static int xenfb_connect_backend(struct xenbus_device *, struct xenfb_info *);
-+static void xenfb_disconnect_backend(struct xenfb_info *);
-+
-+static void xenfb_do_update(struct xenfb_info *info,
-+			    int x, int y, int w, int h)
-+{
-+	union xenfb_out_event event;
-+	u32 prod;
-+
-+	event.type = XENFB_TYPE_UPDATE;
-+	event.update.x = x;
-+	event.update.y = y;
-+	event.update.width = w;
-+	event.update.height = h;
-+
-+	prod = info->page->out_prod;
-+	/* caller ensures !xenfb_queue_full() */
-+	mb();			/* ensure ring space available */
-+	XENFB_OUT_RING_REF(info->page, prod) = event;
-+	wmb();			/* ensure ring contents visible */
-+	info->page->out_prod = prod + 1;
-+
-+	notify_remote_via_irq(info->irq);
-+}
-+
-+static int xenfb_queue_full(struct xenfb_info *info)
-+{
-+	u32 cons, prod;
-+
-+	prod = info->page->out_prod;
-+	cons = info->page->out_cons;
-+	return prod - cons == XENFB_OUT_RING_LEN;
-+}
-+
-+static void xenfb_refresh(struct xenfb_info *info,
-+			  int x1, int y1, int w, int h)
-+{
-+	unsigned long flags;
-+	int y2 = y1 + h - 1;
-+	int x2 = x1 + w - 1;
-+
-+	if (!info->update_wanted)
-+		return;
-+
-+	spin_lock_irqsave(&info->dirty_lock, flags);
-+
-+	/* Combine with dirty rectangle: */
-+	if (info->y1 < y1)
-+		y1 = info->y1;
-+	if (info->y2 > y2)
-+		y2 = info->y2;
-+	if (info->x1 < x1)
-+		x1 = info->x1;
-+	if (info->x2 > x2)
-+		x2 = info->x2;
-+
-+	if (xenfb_queue_full(info)) {
-+		/* Can't send right now, stash it in the dirty rectangle */
-+		info->x1 = x1;
-+		info->x2 = x2;
-+		info->y1 = y1;
-+		info->y2 = y2;
-+		spin_unlock_irqrestore(&info->dirty_lock, flags);
-+		return;
-+	}
-+
-+	/* Clear dirty rectangle: */
-+	info->x1 = info->y1 = INT_MAX;
-+	info->x2 = info->y2 = 0;
-+
-+	spin_unlock_irqrestore(&info->dirty_lock, flags);
-+
-+	if (x1 <= x2 && y1 <= y2)
-+		xenfb_do_update(info, x1, y1, x2 - x1 + 1, y2 - y1 + 1);
-+}
-+
-+static void xenfb_deferred_io(struct fb_info *fb_info,
-+			      struct list_head *pagelist)
-+{
-+	struct xenfb_info *info = fb_info->par;
-+	struct page *page;
-+	unsigned long beg, end;
-+	int y1, y2, miny, maxy;
-+
-+	miny = INT_MAX;
-+	maxy = 0;
-+	list_for_each_entry(page, pagelist, lru) {
-+		beg = page->index << PAGE_SHIFT;
-+		end = beg + PAGE_SIZE - 1;
-+		y1 = beg / fb_info->fix.line_length;
-+		y2 = end / fb_info->fix.line_length;
-+		if (y2 >= fb_info->var.yres)
-+			y2 = fb_info->var.yres - 1;
-+		if (miny > y1)
-+			miny = y1;
-+		if (maxy < y2)
-+			maxy = y2;
-+	}
-+	xenfb_refresh(info, 0, miny, fb_info->var.xres, maxy - miny + 1);
-+}
-+
-+static struct fb_deferred_io xenfb_defio = {
-+	.delay		= HZ / 20,
-+	.deferred_io	= xenfb_deferred_io,
-+};
-+
-+static int xenfb_setcolreg(unsigned regno, unsigned red, unsigned green,
-+			   unsigned blue, unsigned transp,
-+			   struct fb_info *info)
-+{
-+	u32 v;
-+
-+	if (regno > info->cmap.len)
-+		return 1;
-+
-+#define CNVT_TOHW(val, width) ((((val)<<(width))+0x7FFF-(val))>>16)
-+	red = CNVT_TOHW(red, info->var.red.length);
-+	green = CNVT_TOHW(green, info->var.green.length);
-+	blue = CNVT_TOHW(blue, info->var.blue.length);
-+	transp = CNVT_TOHW(transp, info->var.transp.length);
-+#undef CNVT_TOHW
-+
-+	v = (red << info->var.red.offset) |
-+	    (green << info->var.green.offset) |
-+	    (blue << info->var.blue.offset);
-+
-+	switch (info->var.bits_per_pixel) {
-+	case 16:
-+	case 24:
-+	case 32:
-+		((u32 *)info->pseudo_palette)[regno] = v;
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static void xenfb_fillrect(struct fb_info *p, const struct fb_fillrect *rect)
-+{
-+	struct xenfb_info *info = p->par;
-+
-+	sys_fillrect(p, rect);
-+	xenfb_refresh(info, rect->dx, rect->dy, rect->width, rect->height);
-+}
-+
-+static void xenfb_imageblit(struct fb_info *p, const struct fb_image *image)
-+{
-+	struct xenfb_info *info = p->par;
-+
-+	sys_imageblit(p, image);
-+	xenfb_refresh(info, image->dx, image->dy, image->width, image->height);
-+}
-+
-+static void xenfb_copyarea(struct fb_info *p, const struct fb_copyarea *area)
-+{
-+	struct xenfb_info *info = p->par;
-+
-+	sys_copyarea(p, area);
-+	xenfb_refresh(info, area->dx, area->dy, area->width, area->height);
-+}
-+
-+static ssize_t xenfb_write(struct fb_info *p, const char __user *buf,
-+			size_t count, loff_t *ppos)
-+{
-+	struct xenfb_info *info = p->par;
-+	ssize_t res;
-+
-+	res = fb_sys_write(p, buf, count, ppos);
-+	xenfb_refresh(info, 0, 0, info->page->width, info->page->height);
-+	return res;
-+}
-+
-+static struct fb_ops xenfb_fb_ops = {
-+	.owner		= THIS_MODULE,
-+	.fb_read	= fb_sys_read,
-+	.fb_write	= xenfb_write,
-+	.fb_setcolreg	= xenfb_setcolreg,
-+	.fb_fillrect	= xenfb_fillrect,
-+	.fb_copyarea	= xenfb_copyarea,
-+	.fb_imageblit	= xenfb_imageblit,
-+};
-+
-+static irqreturn_t xenfb_event_handler(int rq, void *dev_id)
-+{
-+	/*
-+	 * No in events recognized, simply ignore them all.
-+	 * If you need to recognize some, see xen-kbdfront's
-+	 * input_handler() for how to do that.
-+	 */
-+	struct xenfb_info *info = dev_id;
-+	struct xenfb_page *page = info->page;
-+
-+	if (page->in_cons != page->in_prod) {
-+		info->page->in_cons = info->page->in_prod;
-+		notify_remote_via_irq(info->irq);
-+	}
-+
-+	/* Flush dirty rectangle: */
-+	xenfb_refresh(info, INT_MAX, INT_MAX, -INT_MAX, -INT_MAX);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit xenfb_probe(struct xenbus_device *dev,
-+				 const struct xenbus_device_id *id)
-+{
-+	struct xenfb_info *info;
-+	struct fb_info *fb_info;
-+	int ret;
-+
-+	info = kzalloc(sizeof(*info), GFP_KERNEL);
-+	if (info == NULL) {
-+		xenbus_dev_fatal(dev, -ENOMEM, "allocating info structure");
-+		return -ENOMEM;
-+	}
-+	dev->dev.driver_data = info;
-+	info->xbdev = dev;
-+	info->irq = -1;
-+	info->x1 = info->y1 = INT_MAX;
-+	spin_lock_init(&info->dirty_lock);
-+
-+	info->fb = vmalloc(xenfb_mem_len);
-+	if (info->fb == NULL)
-+		goto error_nomem;
-+	memset(info->fb, 0, xenfb_mem_len);
-+
-+	info->nr_pages = (xenfb_mem_len + PAGE_SIZE - 1) >> PAGE_SHIFT;
-+
-+	info->mfns = vmalloc(sizeof(unsigned long) * info->nr_pages);
-+	if (!info->mfns)
-+		goto error_nomem;
-+
-+	/* set up shared page */
-+	info->page = (void *)__get_free_page(GFP_KERNEL | __GFP_ZERO);
-+	if (!info->page)
-+		goto error_nomem;
-+
-+	xenfb_init_shared_page(info);
-+
-+	/* abusing framebuffer_alloc() to allocate pseudo_palette */
-+	fb_info = framebuffer_alloc(sizeof(u32) * 256, NULL);
-+	if (fb_info == NULL)
-+		goto error_nomem;
-+
-+	/* complete the abuse: */
-+	fb_info->pseudo_palette = fb_info->par;
-+	fb_info->par = info;
-+
-+	fb_info->screen_base = info->fb;
-+
-+	fb_info->fbops = &xenfb_fb_ops;
-+	fb_info->var.xres_virtual = fb_info->var.xres = info->page->width;
-+	fb_info->var.yres_virtual = fb_info->var.yres = info->page->height;
-+	fb_info->var.bits_per_pixel = info->page->depth;
-+
-+	fb_info->var.red = (struct fb_bitfield){16, 8, 0};
-+	fb_info->var.green = (struct fb_bitfield){8, 8, 0};
-+	fb_info->var.blue = (struct fb_bitfield){0, 8, 0};
-+
-+	fb_info->var.activate = FB_ACTIVATE_NOW;
-+	fb_info->var.height = -1;
-+	fb_info->var.width = -1;
-+	fb_info->var.vmode = FB_VMODE_NONINTERLACED;
-+
-+	fb_info->fix.visual = FB_VISUAL_TRUECOLOR;
-+	fb_info->fix.line_length = info->page->line_length;
-+	fb_info->fix.smem_start = 0;
-+	fb_info->fix.smem_len = xenfb_mem_len;
-+	strcpy(fb_info->fix.id, "xen");
-+	fb_info->fix.type = FB_TYPE_PACKED_PIXELS;
-+	fb_info->fix.accel = FB_ACCEL_NONE;
-+
-+	fb_info->flags = FBINFO_FLAG_DEFAULT;
-+
-+	ret = fb_alloc_cmap(&fb_info->cmap, 256, 0);
-+	if (ret < 0) {
-+		framebuffer_release(fb_info);
-+		xenbus_dev_fatal(dev, ret, "fb_alloc_cmap");
-+		goto error;
-+	}
-+
-+	fb_info->fbdefio = &xenfb_defio;
-+	fb_deferred_io_init(fb_info);
-+
-+	ret = register_framebuffer(fb_info);
-+	if (ret) {
-+		fb_deferred_io_cleanup(fb_info);
-+		fb_dealloc_cmap(&fb_info->cmap);
-+		framebuffer_release(fb_info);
-+		xenbus_dev_fatal(dev, ret, "register_framebuffer");
-+		goto error;
-+	}
-+	info->fb_info = fb_info;
-+
-+	ret = xenfb_connect_backend(dev, info);
-+	if (ret < 0)
-+		goto error;
-+
-+	return 0;
-+
-+ error_nomem:
-+	ret = -ENOMEM;
-+	xenbus_dev_fatal(dev, ret, "allocating device memory");
-+ error:
-+	xenfb_remove(dev);
-+	return ret;
-+}
-+
-+static int xenfb_resume(struct xenbus_device *dev)
-+{
-+	struct xenfb_info *info = dev->dev.driver_data;
-+
-+	xenfb_disconnect_backend(info);
-+	xenfb_init_shared_page(info);
-+	return xenfb_connect_backend(dev, info);
-+}
-+
-+static int xenfb_remove(struct xenbus_device *dev)
-+{
-+	struct xenfb_info *info = dev->dev.driver_data;
-+
-+	xenfb_disconnect_backend(info);
-+	if (info->fb_info) {
-+		fb_deferred_io_cleanup(info->fb_info);
-+		unregister_framebuffer(info->fb_info);
-+		fb_dealloc_cmap(&info->fb_info->cmap);
-+		framebuffer_release(info->fb_info);
-+	}
-+	free_page((unsigned long)info->page);
-+	vfree(info->mfns);
-+	vfree(info->fb);
-+	kfree(info);
-+
-+	return 0;
-+}
-+
-+static unsigned long vmalloc_to_mfn(void *address)
-+{
-+	return pfn_to_mfn(vmalloc_to_pfn(address));
-+}
-+
-+static void xenfb_init_shared_page(struct xenfb_info *info)
-+{
-+	int i;
-+
-+	for (i = 0; i < info->nr_pages; i++)
-+		info->mfns[i] = vmalloc_to_mfn(info->fb + i * PAGE_SIZE);
-+
-+	info->page->pd[0] = vmalloc_to_mfn(info->mfns);
-+	info->page->pd[1] = 0;
-+	info->page->width = XENFB_WIDTH;
-+	info->page->height = XENFB_HEIGHT;
-+	info->page->depth = XENFB_DEPTH;
-+	info->page->line_length = (info->page->depth / 8) * info->page->width;
-+	info->page->mem_length = xenfb_mem_len;
-+	info->page->in_cons = info->page->in_prod = 0;
-+	info->page->out_cons = info->page->out_prod = 0;
-+}
-+
-+static int xenfb_connect_backend(struct xenbus_device *dev,
-+				 struct xenfb_info *info)
-+{
-+	int ret, evtchn;
-+	struct xenbus_transaction xbt;
-+
-+	ret = xenbus_alloc_evtchn(dev, &evtchn);
-+	if (ret)
-+		return ret;
-+	ret = bind_evtchn_to_irqhandler(evtchn, xenfb_event_handler,
-+					0, dev->devicetype, info);
-+	if (ret < 0) {
-+		xenbus_free_evtchn(dev, evtchn);
-+		xenbus_dev_fatal(dev, ret, "bind_evtchn_to_irqhandler");
-+		return ret;
-+	}
-+	info->irq = ret;
-+
-+ again:
-+	ret = xenbus_transaction_start(&xbt);
-+	if (ret) {
-+		xenbus_dev_fatal(dev, ret, "starting transaction");
-+		return ret;
-+	}
-+	ret = xenbus_printf(xbt, dev->nodename, "page-ref", "%lu",
-+			    virt_to_mfn(info->page));
-+	if (ret)
-+		goto error_xenbus;
-+	ret = xenbus_printf(xbt, dev->nodename, "event-channel", "%u",
-+			    evtchn);
-+	if (ret)
-+		goto error_xenbus;
-+	ret = xenbus_printf(xbt, dev->nodename, "protocol", "%s",
-+			    XEN_IO_PROTO_ABI_NATIVE);
-+	if (ret)
-+		goto error_xenbus;
-+	ret = xenbus_printf(xbt, dev->nodename, "feature-update", "1");
-+	if (ret)
-+		goto error_xenbus;
-+	ret = xenbus_transaction_end(xbt, 0);
-+	if (ret) {
-+		if (ret == -EAGAIN)
-+			goto again;
-+		xenbus_dev_fatal(dev, ret, "completing transaction");
-+		return ret;
-+	}
-+
-+	xenbus_switch_state(dev, XenbusStateInitialised);
-+	return 0;
-+
-+ error_xenbus:
-+	xenbus_transaction_end(xbt, 1);
-+	xenbus_dev_fatal(dev, ret, "writing xenstore");
-+	return ret;
-+}
-+
-+static void xenfb_disconnect_backend(struct xenfb_info *info)
-+{
-+	if (info->irq >= 0)
-+		unbind_from_irqhandler(info->irq, info);
-+	info->irq = -1;
-+}
-+
-+static void xenfb_backend_changed(struct xenbus_device *dev,
-+				  enum xenbus_state backend_state)
-+{
-+	struct xenfb_info *info = dev->dev.driver_data;
-+	int val;
-+
-+	switch (backend_state) {
-+	case XenbusStateInitialising:
-+	case XenbusStateInitialised:
-+	case XenbusStateUnknown:
-+	case XenbusStateClosed:
-+		break;
-+
-+	case XenbusStateInitWait:
-+InitWait:
-+		xenbus_switch_state(dev, XenbusStateConnected);
-+		break;
-+
-+	case XenbusStateConnected:
-+		/*
-+		 * Work around xenbus race condition: If backend goes
-+		 * through InitWait to Connected fast enough, we can
-+		 * get Connected twice here.
-+		 */
-+		if (dev->state != XenbusStateConnected)
-+			goto InitWait; /* no InitWait seen yet, fudge it */
-+
-+		if (xenbus_scanf(XBT_NIL, info->xbdev->otherend,
-+				 "request-update", "%d", &val) < 0)
-+			val = 0;
-+		if (val)
-+			info->update_wanted = 1;
-+		break;
-+
-+	case XenbusStateClosing:
-+		xenbus_frontend_closed(dev);
-+		break;
-+	}
-+}
-+
-+static struct xenbus_device_id xenfb_ids[] = {
-+	{ "vfb" },
-+	{ "" }
-+};
-+
-+static struct xenbus_driver xenfb = {
-+	.name = "vfb",
-+	.owner = THIS_MODULE,
-+	.ids = xenfb_ids,
-+	.probe = xenfb_probe,
-+	.remove = xenfb_remove,
-+	.resume = xenfb_resume,
-+	.otherend_changed = xenfb_backend_changed,
-+};
-+
-+static int __init xenfb_init(void)
-+{
-+	if (!is_running_on_xen())
-+		return -ENODEV;
-+
-+	/* Nothing to do if running in dom0. */
-+	if (is_initial_xendomain())
-+		return -ENODEV;
-+
-+	return xenbus_register_frontend(&xenfb);
-+}
-+
-+static void __exit xenfb_cleanup(void)
-+{
-+	xenbus_unregister_driver(&xenfb);
-+}
-+
-+module_init(xenfb_init);
-+module_exit(xenfb_cleanup);
-+
-+MODULE_LICENSE("GPL");
-diff --git a/include/xen/interface/io/fbif.h b/include/xen/interface/io/fbif.h
-new file mode 100644
-index 0000000..5a934dd
---- /dev/null
-+++ b/include/xen/interface/io/fbif.h
-@@ -0,0 +1,124 @@
-+/*
-+ * fbif.h -- Xen virtual frame buffer device
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this software and associated documentation files (the "Software"), to
-+ * deal in the Software without restriction, including without limitation the
-+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-+ * sell copies of the Software, and to permit persons to whom the Software is
-+ * furnished to do so, subject to the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-+ * DEALINGS IN THE SOFTWARE.
-+ *
-+ * Copyright (C) 2005 Anthony Liguori <aliguori@us.ibm.com>
-+ * Copyright (C) 2006 Red Hat, Inc., Markus Armbruster <armbru@redhat.com>
-+ */
-+
-+#ifndef __XEN_PUBLIC_IO_FBIF_H__
-+#define __XEN_PUBLIC_IO_FBIF_H__
-+
-+/* Out events (frontend -> backend) */
++static int pil;
++module_param(pil, int, 0);
++MODULE_PARM_DESC(pil, "Set current used for pressure measurement.");
 +
 +/*
-+ * Out events may be sent only when requested by backend, and receipt
-+ * of an unknown out event is an error.
++ * Set threshold for pressure measurement.
++ *
++ * Pen down pressure below threshold is ignored.
 + */
-+
-+/* Event type 1 currently not used */
-+/*
-+ * Framebuffer update notification event
-+ * Capable frontend sets feature-update in xenstore.
-+ * Backend requests it by setting request-update in xenstore.
-+ */
-+#define XENFB_TYPE_UPDATE 2
-+
-+struct xenfb_update {
-+	uint8_t type;		/* XENFB_TYPE_UPDATE */
-+	int32_t x;		/* source x */
-+	int32_t y;		/* source y */
-+	int32_t width;		/* rect width */
-+	int32_t height;		/* rect height */
-+};
-+
-+#define XENFB_OUT_EVENT_SIZE 40
-+
-+union xenfb_out_event {
-+	uint8_t type;
-+	struct xenfb_update update;
-+	char pad[XENFB_OUT_EVENT_SIZE];
-+};
-+
-+/* In events (backend -> frontend) */
++static int pressure = DEFAULT_PRESSURE & 0xfff;
++module_param(pressure, int, 0);
++MODULE_PARM_DESC(pressure, "Set threshold for pressure measurement.");
 +
 +/*
-+ * Frontends should ignore unknown in events.
-+ * No in events currently defined.
++ * Set adc sample delay.
++ *
++ * For accurate touchpanel measurements, some settling time may be
++ * required between the switch matrix applying a voltage across the
++ * touchpanel plate and the ADC sampling the signal.
++ *
++ * This delay can be set by setting delay = n, where n is the array
++ * position of the delay in the array delay_table below.
++ * Long delays > 1ms are supported for completeness, but are not
++ * recommended.
 + */
++static int delay = 4;
++module_param(delay, int, 0);
++MODULE_PARM_DESC(delay, "Set adc sample delay.");
 +
-+#define XENFB_IN_EVENT_SIZE 40
++/*
++ * Pen detect comparator threshold.
++ *
++ * 0 to Vmid in 15 steps, 0 = use zero power comparator with Vmid threshold
++ * i.e. 1 =  Vmid/15 threshold
++ *      15 =  Vmid/1 threshold
++ *
++ * Adjust this value if you are having problems with pen detect not
++ * detecting any down events.
++ */
++static int pdd = 8;
++module_param(pdd, int, 0);
++MODULE_PARM_DESC(pdd, "Set pen detect comparator threshold");
 +
-+union xenfb_in_event {
-+	uint8_t type;
-+	char pad[XENFB_IN_EVENT_SIZE];
++/*
++ * Set adc mask function.
++ *
++ * Sources of glitch noise, such as signals driving an LCD display, may feed
++ * through to the touch screen plates and affect measurement accuracy. In
++ * order to minimise this, a signal may be applied to the MASK pin to delay or
++ * synchronise the sampling.
++ *
++ * 0 = No delay or sync
++ * 1 = High on pin stops conversions
++ * 2 = Edge triggered, edge on pin delays conversion by delay param (above)
++ * 3 = Edge triggered, edge on pin starts conversion after delay param
++ */
++static int mask;
++module_param(mask, int, 0);
++MODULE_PARM_DESC(mask, "Set adc mask function.");
++
++/*
++ * ADC sample delay times in uS
++ */
++static const int delay_table[] = {
++	21,    /* 1 AC97 Link frames */
++	42,    /* 2                  */
++	84,    /* 4                  */
++	167,   /* 8                  */
++	333,   /* 16                 */
++	667,   /* 32                 */
++	1000,  /* 48                 */
++	1333,  /* 64                 */
++	2000,  /* 96                 */
++	2667,  /* 128                */
++	3333,  /* 160                */
++	4000,  /* 192                */
++	4667,  /* 224                */
++	5333,  /* 256                */
++	6000,  /* 288                */
++	0      /* No delay, switch matrix always on */
 +};
 +
-+/* shared page */
++/*
++ * Delay after issuing a POLL command.
++ *
++ * The delay is 3 AC97 link frames + the touchpanel settling delay
++ */
++static inline void poll_delay(int d)
++{
++	udelay(3 * AC97_LINK_FRAME + delay_table[d]);
++}
 +
-+#define XENFB_IN_RING_SIZE 1024
-+#define XENFB_IN_RING_LEN (XENFB_IN_RING_SIZE / XENFB_IN_EVENT_SIZE)
-+#define XENFB_IN_RING_OFFS 1024
-+#define XENFB_IN_RING(page) \
-+	((union xenfb_in_event *)((char *)(page) + XENFB_IN_RING_OFFS))
-+#define XENFB_IN_RING_REF(page, idx) \
-+	(XENFB_IN_RING((page))[(idx) % XENFB_IN_RING_LEN])
-+
-+#define XENFB_OUT_RING_SIZE 2048
-+#define XENFB_OUT_RING_LEN (XENFB_OUT_RING_SIZE / XENFB_OUT_EVENT_SIZE)
-+#define XENFB_OUT_RING_OFFS (XENFB_IN_RING_OFFS + XENFB_IN_RING_SIZE)
-+#define XENFB_OUT_RING(page) \
-+	((union xenfb_out_event *)((char *)(page) + XENFB_OUT_RING_OFFS))
-+#define XENFB_OUT_RING_REF(page, idx) \
-+	(XENFB_OUT_RING((page))[(idx) % XENFB_OUT_RING_LEN])
-+
-+struct xenfb_page {
-+	uint32_t in_cons, in_prod;
-+	uint32_t out_cons, out_prod;
-+
-+	int32_t width;          /* width of the framebuffer (in pixels) */
-+	int32_t height;         /* height of the framebuffer (in pixels) */
-+	uint32_t line_length;   /* length of a row of pixels (in bytes) */
-+	uint32_t mem_length;    /* length of the framebuffer (in bytes) */
-+	uint8_t depth;          /* depth of a pixel (in bits) */
++/*
++ * set up the physical settings of the WM9705
++ */
++static void wm9705_phy_init(struct wm97xx *wm)
++{
++	u16 dig1 = 0, dig2 = WM97XX_RPR;
 +
 +	/*
-+	 * Framebuffer page directory
-+	 *
-+	 * Each directory page holds PAGE_SIZE / sizeof(*pd)
-+	 * framebuffer pages, and can thus map up to PAGE_SIZE *
-+	 * PAGE_SIZE / sizeof(*pd) bytes.  With PAGE_SIZE == 4096 and
-+	 * sizeof(unsigned long) == 4, that's 4 Megs.  Two directory
-+	 * pages should be enough for a while.
-+	 */
-+	unsigned long pd[2];
-+};
++	* mute VIDEO and AUX as they share X and Y touchscreen
++	* inputs on the WM9705
++	*/
++	wm97xx_reg_write(wm, AC97_AUX, 0x8000);
++	wm97xx_reg_write(wm, AC97_VIDEO, 0x8000);
++
++	/* touchpanel pressure current*/
++	if (pil == 2) {
++		dig2 |= WM9705_PIL;
++		dev_dbg(wm->dev,
++			"setting pressure measurement current to 400uA.");
++	} else if (pil)
++		dev_dbg(wm->dev,
++			"setting pressure measurement current to 200uA.");
++	if (!pil)
++		pressure = 0;
++
++	/* polling mode sample settling delay */
++	if (delay != 4) {
++		if (delay < 0 || delay > 15) {
++			dev_dbg(wm->dev, "supplied delay out of range.");
++			delay = 4;
++		}
++	}
++	dig1 &= 0xff0f;
++	dig1 |= WM97XX_DELAY(delay);
++	dev_dbg(wm->dev, "setting adc sample delay to %d u Secs.",
++		delay_table[delay]);
++
++	/* WM9705 pdd */
++	dig2 |= (pdd & 0x000f);
++	dev_dbg(wm->dev, "setting pdd to Vmid/%d", 1 - (pdd & 0x000f));
++
++	/* mask */
++	dig2 |= ((mask & 0x3) << 4);
++
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, dig1);
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, dig2);
++}
++
++static void wm9705_dig_enable(struct wm97xx *wm, int enable)
++{
++	if (enable) {
++		wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2,
++				 wm->dig[2] | WM97XX_PRP_DET_DIG);
++		wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD); /* dummy read */
++	} else
++		wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2,
++				 wm->dig[2] & ~WM97XX_PRP_DET_DIG);
++}
++
++static void wm9705_aux_prepare(struct wm97xx *wm)
++{
++	memcpy(wm->dig_save, wm->dig, sizeof(wm->dig));
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, 0);
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, WM97XX_PRP_DET_DIG);
++}
++
++static void wm9705_dig_restore(struct wm97xx *wm)
++{
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, wm->dig_save[1]);
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, wm->dig_save[2]);
++}
++
++static inline int is_pden(struct wm97xx *wm)
++{
++	return wm->dig[2] & WM9705_PDEN;
++}
 +
 +/*
-+ * Wart: xenkbd needs to know resolution.  Put it here until a better
-+ * solution is found, but don't leak it to the backend.
++ * Read a sample from the WM9705 adc in polling mode.
 + */
-+#ifdef __KERNEL__
-+#define XENFB_WIDTH 800
-+#define XENFB_HEIGHT 600
-+#define XENFB_DEPTH 32
-+#endif
++static int wm9705_poll_sample(struct wm97xx *wm, int adcsel, int *sample)
++{
++	int timeout = 5 * delay;
 +
-+#endif
-diff --git a/include/xen/interface/io/kbdif.h b/include/xen/interface/io/kbdif.h
-new file mode 100644
-index 0000000..fb97f42
---- /dev/null
-+++ b/include/xen/interface/io/kbdif.h
-@@ -0,0 +1,114 @@
-+/*
-+ * kbdif.h -- Xen virtual keyboard/mouse
-+ *
-+ * Permission is hereby granted, free of charge, to any person obtaining a copy
-+ * of this software and associated documentation files (the "Software"), to
-+ * deal in the Software without restriction, including without limitation the
-+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-+ * sell copies of the Software, and to permit persons to whom the Software is
-+ * furnished to do so, subject to the following conditions:
-+ *
-+ * The above copyright notice and this permission notice shall be included in
-+ * all copies or substantial portions of the Software.
-+ *
-+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-+ * DEALINGS IN THE SOFTWARE.
-+ *
-+ * Copyright (C) 2005 Anthony Liguori <aliguori@us.ibm.com>
-+ * Copyright (C) 2006 Red Hat, Inc., Markus Armbruster <armbru@redhat.com>
-+ */
++	if (!wm->pen_probably_down) {
++		u16 data = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
++		if (!(data & WM97XX_PEN_DOWN))
++			return RC_PENUP;
++		wm->pen_probably_down = 1;
++	}
 +
-+#ifndef __XEN_PUBLIC_IO_KBDIF_H__
-+#define __XEN_PUBLIC_IO_KBDIF_H__
++	/* set up digitiser */
++	if (adcsel & 0x8000)
++		adcsel = ((adcsel & 0x7fff) + 3) << 12;
 +
-+/* In events (backend -> frontend) */
++	if (wm->mach_ops && wm->mach_ops->pre_sample)
++		wm->mach_ops->pre_sample(adcsel);
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1,
++			 adcsel | WM97XX_POLL | WM97XX_DELAY(delay));
 +
-+/*
-+ * Frontends should ignore unknown in events.
-+ */
++	/* wait 3 AC97 time slots + delay for conversion */
++	poll_delay(delay);
 +
-+/* Pointer movement event */
-+#define XENKBD_TYPE_MOTION  1
-+/* Event type 2 currently not used */
-+/* Key event (includes pointer buttons) */
-+#define XENKBD_TYPE_KEY     3
-+/*
-+ * Pointer position event
-+ * Capable backend sets feature-abs-pointer in xenstore.
-+ * Frontend requests ot instead of XENKBD_TYPE_MOTION by setting
-+ * request-abs-update in xenstore.
-+ */
-+#define XENKBD_TYPE_POS     4
++	/* wait for POLL to go low */
++	while ((wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER1) & WM97XX_POLL)
++	       && timeout) {
++		udelay(AC97_LINK_FRAME);
++		timeout--;
++	}
 +
-+struct xenkbd_motion {
-+	uint8_t type;		/* XENKBD_TYPE_MOTION */
-+	int32_t rel_x;		/* relative X motion */
-+	int32_t rel_y;		/* relative Y motion */
-+};
++	if (timeout <= 0) {
++		/* If PDEN is set, we can get a timeout when pen goes up */
++		if (is_pden(wm))
++			wm->pen_probably_down = 0;
++		else
++			dev_dbg(wm->dev, "adc sample timeout");
++		return RC_PENUP;
++	}
 +
-+struct xenkbd_key {
-+	uint8_t type;		/* XENKBD_TYPE_KEY */
-+	uint8_t pressed;	/* 1 if pressed; 0 otherwise */
-+	uint32_t keycode;	/* KEY_* from linux/input.h */
-+};
++	*sample = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
++	if (wm->mach_ops && wm->mach_ops->post_sample)
++		wm->mach_ops->post_sample(adcsel);
 +
-+struct xenkbd_position {
-+	uint8_t type;		/* XENKBD_TYPE_POS */
-+	int32_t abs_x;		/* absolute X position (in FB pixels) */
-+	int32_t abs_y;		/* absolute Y position (in FB pixels) */
-+};
++	/* check we have correct sample */
++	if ((*sample & WM97XX_ADCSEL_MASK) != adcsel) {
++		dev_dbg(wm->dev, "adc wrong sample, read %x got %x", adcsel,
++		*sample & WM97XX_ADCSEL_MASK);
++		return RC_PENUP;
++	}
 +
-+#define XENKBD_IN_EVENT_SIZE 40
++	if (!(*sample & WM97XX_PEN_DOWN)) {
++		wm->pen_probably_down = 0;
++		return RC_PENUP;
++	}
 +
-+union xenkbd_in_event {
-+	uint8_t type;
-+	struct xenkbd_motion motion;
-+	struct xenkbd_key key;
-+	struct xenkbd_position pos;
-+	char pad[XENKBD_IN_EVENT_SIZE];
-+};
-+
-+/* Out events (frontend -> backend) */
++	return RC_VALID;
++}
 +
 +/*
-+ * Out events may be sent only when requested by backend, and receipt
-+ * of an unknown out event is an error.
-+ * No out events currently defined.
++ * Sample the WM9705 touchscreen in polling mode
 + */
++static int wm9705_poll_touch(struct wm97xx *wm, struct wm97xx_data *data)
++{
++	int rc;
 +
-+#define XENKBD_OUT_EVENT_SIZE 40
++	rc = wm9705_poll_sample(wm, WM97XX_ADCSEL_X, &data->x);
++	if (rc != RC_VALID)
++		return rc;
++	rc = wm9705_poll_sample(wm, WM97XX_ADCSEL_Y, &data->y);
++	if (rc != RC_VALID)
++		return rc;
++	if (pil) {
++		rc = wm9705_poll_sample(wm, WM97XX_ADCSEL_PRES, &data->p);
++		if (rc != RC_VALID)
++			return rc;
++	} else
++		data->p = DEFAULT_PRESSURE;
 +
-+union xenkbd_out_event {
-+	uint8_t type;
-+	char pad[XENKBD_OUT_EVENT_SIZE];
++	return RC_VALID;
++}
++
++/*
++ * Enable WM9705 continuous mode, i.e. touch data is streamed across
++ * an AC97 slot
++ */
++static int wm9705_acc_enable(struct wm97xx *wm, int enable)
++{
++	u16 dig1, dig2;
++	int ret = 0;
++
++	dig1 = wm->dig[1];
++	dig2 = wm->dig[2];
++
++	if (enable) {
++		/* continous mode */
++		if (wm->mach_ops->acc_startup &&
++		    (ret = wm->mach_ops->acc_startup(wm)) < 0)
++			return ret;
++		dig1 &= ~(WM97XX_CM_RATE_MASK | WM97XX_ADCSEL_MASK |
++			  WM97XX_DELAY_MASK | WM97XX_SLT_MASK);
++		dig1 |= WM97XX_CTC | WM97XX_COO | WM97XX_SLEN |
++			WM97XX_DELAY(delay) |
++			WM97XX_SLT(wm->acc_slot) |
++			WM97XX_RATE(wm->acc_rate);
++		if (pil)
++			dig1 |= WM97XX_ADCSEL_PRES;
++		dig2 |= WM9705_PDEN;
++	} else {
++		dig1 &= ~(WM97XX_CTC | WM97XX_COO | WM97XX_SLEN);
++		dig2 &= ~WM9705_PDEN;
++		if (wm->mach_ops->acc_shutdown)
++			wm->mach_ops->acc_shutdown(wm);
++	}
++
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, dig1);
++	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, dig2);
++	return ret;
++}
++
++struct wm97xx_codec_drv wm9705_codec = {
++	.id = 	WM9705_ID2,
++	.name = "wm9705",
++	.poll_sample = wm9705_poll_sample,
++	.poll_touch = wm9705_poll_touch,
++	.acc_enable = wm9705_acc_enable,
++	.phy_init = wm9705_phy_init,
++	.dig_enable = wm9705_dig_enable,
++	.dig_restore = wm9705_dig_restore,
++	.aux_prepare = wm9705_aux_prepare,
 +};
++EXPORT_SYMBOL_GPL(wm9705_codec);
 +
-+/* shared page */
-+
-+#define XENKBD_IN_RING_SIZE 2048
-+#define XENKBD_IN_RING_LEN (XENKBD_IN_RING_SIZE / XENKBD_IN_EVENT_SIZE)
-+#define XENKBD_IN_RING_OFFS 1024
-+#define XENKBD_IN_RING(page) \
-+	((union xenkbd_in_event *)((char *)(page) + XENKBD_IN_RING_OFFS))
-+#define XENKBD_IN_RING_REF(page, idx) \
-+	(XENKBD_IN_RING((page))[(idx) % XENKBD_IN_RING_LEN])
-+
-+#define XENKBD_OUT_RING_SIZE 1024
-+#define XENKBD_OUT_RING_LEN (XENKBD_OUT_RING_SIZE / XENKBD_OUT_EVENT_SIZE)
-+#define XENKBD_OUT_RING_OFFS (XENKBD_IN_RING_OFFS + XENKBD_IN_RING_SIZE)
-+#define XENKBD_OUT_RING(page) \
-+	((union xenkbd_out_event *)((char *)(page) + XENKBD_OUT_RING_OFFS))
-+#define XENKBD_OUT_RING_REF(page, idx) \
-+	(XENKBD_OUT_RING((page))[(idx) % XENKBD_OUT_RING_LEN])
-+
-+struct xenkbd_page {
-+	uint32_t in_cons, in_prod;
-+	uint32_t out_cons, out_prod;
-+};
-+
-+#endif
++/* Module information */
++MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
++MODULE_DESCRIPTION("WM9705 Touch Screen Driver");
++MODULE_LICENSE("GPL");
+-- 
+1.5.2.5
 
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2008.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/

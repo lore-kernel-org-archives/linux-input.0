@@ -1,351 +1,112 @@
 From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH 01/03] sh: SuperH KEYSC platform driver
-Date: Fri, 29 Feb 2008 19:48:56 +0900
-Message-ID: <20080229104856.22537.77214.sendpatchset@clockwork.opensource.se>
+Subject: [PATCH 02/03] sh: SuperH KEYSC keypad data for MigoR
+Date: Fri, 29 Feb 2008 19:49:06 +0900
+Message-ID: <20080229104906.22537.73906.sendpatchset@clockwork.opensource.se>
 References: <20080229104847.22537.66432.sendpatchset@clockwork.opensource.se>
-Return-path: <linux-sh-owner@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wf-out-1314.google.com ([209.85.200.169]:21588 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755555AbYB2KvM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Feb 2008 05:51:12 -0500
+Received: by wf-out-1314.google.com with SMTP id 28so3884096wff.4
+        for <linux-input@vger.kernel.org>; Fri, 29 Feb 2008 02:51:12 -0800 (PST)
 In-Reply-To: <20080229104847.22537.66432.sendpatchset@clockwork.opensource.se>
-Sender: linux-sh-owner@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Magnus Damm <magnus.damm@gmail.com>, lethal@linux-sh.org, akpm@linux-foundation.org, linux-sh@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
 
-This patch adds a platform driver for the SuperH KEYSC block. The driver
-expects to get mode, timing information and keypad layout from the board
-code as platform data. The board code is resonsible for pin configuration.
-
-Both sh7343 and sh7722 should be supported, but only the sh7722 processor
-has been tested so far. SH_KEYSC_MODE_3 is yet to be tested.
+This patch adds KEYSC platform data for the sh7722 MigoR board.
 
 Signed-off-by: Magnus Damm <damm@igel.co.jp>
 ---
 
- drivers/input/keyboard/Kconfig    |    9 +
- drivers/input/keyboard/Makefile   |    1 
- drivers/input/keyboard/sh_keysc.c |  281 +++++++++++++++++++++++++++++++++++++
- include/asm-sh/sh_keysc.h         |   13 +
- 4 files changed, 304 insertions(+)
+ arch/sh/boards/renesas/migor/setup.c |   56 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 1 deletion(-)
 
---- 0001/drivers/input/keyboard/Kconfig
-+++ work/drivers/input/keyboard/Kconfig	2008-02-27 23:37:10.000000000 +0900
-@@ -314,4 +314,13 @@ config KEYBOARD_BFIN
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bf54x-keys.
- 
-+config KEYBOARD_SH_KEYSC
-+	tristate "SuperH KEYSC keypad support"
-+	depends on SUPERH
-+	help
-+	  Say Y here if you want to use a keypad attached to the KEYSC block
-+	  on SuperH processors such as sh7722 and sh7343.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called sh_keysc.
- endif
---- 0001/drivers/input/keyboard/Makefile
-+++ work/drivers/input/keyboard/Makefile	2008-02-27 23:31:39.000000000 +0900
-@@ -26,3 +26,4 @@ obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada
- obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
-+obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
---- /dev/null
-+++ work/drivers/input/keyboard/sh_keysc.c	2008-02-28 17:55:53.000000000 +0900
-@@ -0,0 +1,281 @@
-+/*
-+ * SuperH KEYSC Keypad Driver
-+ *
-+ * Copyright (C) 2008 Magnus Damm
-+ *
-+ * Based on gpio_keys.c, Copyright 2005 Phil Blundell
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/irq.h>
-+#include <linux/delay.h>
-+#include <linux/platform_device.h>
+--- 0001/arch/sh/boards/renesas/migor/setup.c
++++ work/arch/sh/boards/renesas/migor/setup.c	2008-02-28 18:02:14.000000000 +0900
+@@ -10,8 +10,10 @@
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
+ #include <linux/interrupt.h>
 +#include <linux/input.h>
-+#include <linux/io.h>
+ #include <asm/machvec.h>
+ #include <asm/io.h>
 +#include <asm/sh_keysc.h>
-+
-+#define KYCR1_OFFS   0x00
-+#define KYCR2_OFFS   0x04
-+#define KYINDR_OFFS  0x08
-+#define KYOUTDR_OFFS 0x0c
-+
-+#define KYCR2_IRQ_LEVEL    0x10
-+#define KYCR2_IRQ_DISABLED 0x00
-+
-+static const struct {
-+	unsigned char kymd, keyout, keyin;
-+} sh_keysc_mode[] = {
-+	[SH_KEYSC_MODE_1] = { 0, 6, 5 },
-+	[SH_KEYSC_MODE_2] = { 1, 5, 6 },
-+	[SH_KEYSC_MODE_3] = { 2, 4, 7 },
+ 
+ /* Address     IRQ  Size  Bus  Description
+  * 0x00000000       64MB  16   NOR Flash (SP29PL256N)
+@@ -40,8 +42,43 @@ static struct platform_device smc91x_eth
+ 	.resource       = smc91x_eth_resources,
+ };
+ 
++static struct sh_keysc_info sh_keysc_info = {
++	.mode = SH_KEYSC_MODE_2, /* KEYOUT0->4, KEYIN1->5 */
++	.scan_timing = 3,
++	.delay = 5,
++	.keycodes = {
++		0, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER,
++		0, KEY_F, KEY_C, KEY_D,	KEY_H, KEY_1,
++		0, KEY_2, KEY_3, KEY_4,	KEY_5, KEY_6,
++		0, KEY_7, KEY_8, KEY_9, KEY_S, KEY_0,
++		0, KEY_P, KEY_STOP, KEY_REWIND, KEY_PLAY, KEY_FASTFORWARD,
++	},
 +};
 +
-+struct sh_keysc_priv {
-+	void __iomem *iomem_base;
-+	unsigned long last_keys;
-+	struct input_dev *input;
-+	struct sh_keysc_info pdata;
++static struct resource sh_keysc_resources[] = {
++	[0] = {
++		.start  = 0x044b0000,
++		.end    = 0x044b000f,
++		.flags  = IORESOURCE_MEM,
++	},
++	[1] = {
++		.start  = 79,
++		.flags  = IORESOURCE_IRQ,
++	},
 +};
 +
-+static irqreturn_t sh_keysc_isr(int irq, void *dev_id)
-+{
-+	struct platform_device *pdev = dev_id;
-+	struct sh_keysc_priv *priv = platform_get_drvdata(pdev);
-+	struct sh_keysc_info *pdata = &priv->pdata;
-+	unsigned long keys, keys1, keys0, mask;
-+	unsigned char keyin_set, tmp;
-+	int i, k;
-+
-+	dev_dbg(&pdev->dev, "isr!\n");
-+
-+	keys1 = ~0;
-+	keys0 = 0;
-+
-+	do {
-+		keys = 0;
-+		keyin_set = 0;
-+
-+		iowrite16(KYCR2_IRQ_DISABLED, priv->iomem_base + KYCR2_OFFS);
-+
-+		for (i = 0; i < sh_keysc_mode[pdata->mode].keyout; i++) {
-+			iowrite16(0xfff ^ (3 << (i * 2)),
-+				  priv->iomem_base + KYOUTDR_OFFS);
-+			udelay(pdata->delay);
-+			tmp = ioread16(priv->iomem_base + KYINDR_OFFS);
-+			keys |= tmp << (sh_keysc_mode[pdata->mode].keyin * i);
-+			tmp ^= (1 << sh_keysc_mode[pdata->mode].keyin) - 1;
-+			keyin_set |= tmp;
-+		}
-+
-+		iowrite16(0, priv->iomem_base + KYOUTDR_OFFS);
-+		iowrite16(KYCR2_IRQ_LEVEL | (keyin_set << 8),
-+			  priv->iomem_base + KYCR2_OFFS);
-+
-+		keys ^= ~0;
-+		keys &= (1 << (sh_keysc_mode[pdata->mode].keyin *
-+			       sh_keysc_mode[pdata->mode].keyout)) - 1;
-+		keys1 &= keys;
-+		keys0 |= keys;
-+
-+		dev_dbg(&pdev->dev, "keys 0x%08lx\n", keys);
-+
-+	} while (ioread16(priv->iomem_base + KYCR2_OFFS) & 0x01);
-+
-+	dev_dbg(&pdev->dev, "last_keys 0x%08lx keys0 0x%08lx keys1 0x%08lx\n",
-+		priv->last_keys, keys0, keys1);
-+
-+	for (i = 0; i < SH_KEYSC_MAXKEYS; i++) {
-+		k = pdata->keycodes[i];
-+		if (!k)
-+			continue;
-+
-+		mask = 1 << i;
-+
-+		if (!((priv->last_keys ^ keys0) & mask))
-+			continue;
-+
-+		if ((keys1 | keys0) & mask) {
-+			input_event(priv->input, EV_KEY, k, 1);
-+			priv->last_keys |= mask;
-+		}
-+
-+		if (!(keys1 & mask)) {
-+			input_event(priv->input, EV_KEY, k, 0);
-+			priv->last_keys &= ~mask;
-+		}
-+
-+	}
-+	input_sync(priv->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+#define res_size(res) ((res)->end - (res)->start + 1)
-+
-+static int __devinit sh_keysc_probe(struct platform_device *pdev)
-+{
-+	struct sh_keysc_priv *priv;
-+	struct sh_keysc_info *pdata;
-+	struct resource *res;
-+	struct input_dev *input;
-+	int i, k;
-+	int irq, error;
-+
-+	if (!pdev->dev.platform_data) {
-+		dev_err(&pdev->dev, "no platform data defined\n");
-+		error = -EINVAL;
-+		goto err0;
-+	}
-+
-+	error = -ENXIO;
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (res == NULL) {
-+		dev_err(&pdev->dev, "failed to get I/O memory\n");
-+		goto err0;
-+	}
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "failed to get irq\n");
-+		goto err0;
-+	}
-+
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (priv == NULL) {
-+		dev_err(&pdev->dev, "failed to allocate driver data\n");
-+		error = -ENOMEM;
-+		goto err0;
-+	}
-+
-+	platform_set_drvdata(pdev, priv);
-+	memcpy(&priv->pdata, pdev->dev.platform_data, sizeof(priv->pdata));
-+	pdata = &priv->pdata;
-+
-+	res = request_mem_region(res->start, res_size(res), pdev->name);
-+	if (res == NULL) {
-+		dev_err(&pdev->dev, "failed to request I/O memory\n");
-+		error = -EBUSY;
-+		goto err1;
-+	}
-+
-+	priv->iomem_base = ioremap_nocache(res->start, res_size(res));
-+	if (priv->iomem_base == NULL) {
-+		dev_err(&pdev->dev, "failed to remap I/O memory\n");
-+		error = -ENXIO;
-+		goto err2;
-+	}
-+
-+	priv->input = input_allocate_device();
-+	if (!priv->input) {
-+		dev_err(&pdev->dev, "failed to allocate input device\n");
-+		error = -ENOMEM;
-+		goto err3;
-+	}
-+
-+	input = priv->input;
-+	input->evbit[0] = BIT_MASK(EV_KEY);
-+
-+	input->name = pdev->name;
-+	input->phys = "sh-keysc-keys/input0";
-+	input->dev.parent = &pdev->dev;
-+
-+	input->id.bustype = BUS_HOST;
-+	input->id.vendor = 0x0001;
-+	input->id.product = 0x0001;
-+	input->id.version = 0x0100;
-+
-+	error = request_irq(irq, sh_keysc_isr, 0, pdev->name, pdev);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to request IRQ\n");
-+		goto err4;
-+	}
-+
-+	for (i = 0; i < SH_KEYSC_MAXKEYS; i++) {
-+		k = pdata->keycodes[i];
-+		if (k)
-+			input_set_capability(input, EV_KEY, k);
-+	}
-+
-+	error = input_register_device(input);
-+	if (error) {
-+		dev_err(&pdev->dev, "failed to register input device\n");
-+		goto err5;
-+	}
-+
-+	iowrite16((sh_keysc_mode[pdata->mode].kymd << 8) |
-+		  pdata->scan_timing, priv->iomem_base + KYCR1_OFFS);
-+	iowrite16(0, priv->iomem_base + KYOUTDR_OFFS);
-+	iowrite16(KYCR2_IRQ_LEVEL, priv->iomem_base + KYCR2_OFFS);
-+	return 0;
-+ err5:
-+	free_irq(irq, pdev);
-+ err4:
-+	input_free_device(input);
-+ err3:
-+	iounmap(priv->iomem_base);
-+ err2:
-+	release_mem_region(res->start, res_size(res));
-+ err1:
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(priv);
-+ err0:
-+	return error;
-+}
-+
-+static int __devexit sh_keysc_remove(struct platform_device *pdev)
-+{
-+	struct sh_keysc_priv *priv = platform_get_drvdata(pdev);
-+	struct resource *res;
-+
-+	iowrite16(KYCR2_IRQ_DISABLED, priv->iomem_base + KYCR2_OFFS);
-+
-+	input_unregister_device(priv->input);
-+	free_irq(platform_get_irq(pdev, 0), pdev);
-+	input_free_device(priv->input);
-+	iounmap(priv->iomem_base);
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	release_mem_region(res->start, res_size(res));
-+
-+	platform_set_drvdata(pdev, NULL);
-+	kfree(priv);
-+	return 0;
-+}
-+
-+
-+#define sh_keysc_suspend NULL
-+#define sh_keysc_resume NULL
-+
-+struct platform_driver sh_keysc_device_driver = {
-+	.probe		= sh_keysc_probe,
-+	.remove		= __devexit_p(sh_keysc_remove),
-+	.suspend	= sh_keysc_suspend,
-+	.resume		= sh_keysc_resume,
-+	.driver		= {
-+		.name	= "sh_keysc",
-+	}
++static struct platform_device sh_keysc_device = {
++	.name           = "sh_keysc",
++	.num_resources  = ARRAY_SIZE(sh_keysc_resources),
++	.resource       = sh_keysc_resources,
++	.dev	= {
++		.platform_data	= &sh_keysc_info,
++	},
 +};
 +
-+static int __init sh_keysc_init(void)
-+{
-+	return platform_driver_register(&sh_keysc_device_driver);
-+}
+ static struct platform_device *migor_devices[] __initdata = {
+ 	&smc91x_eth_device,
++	&sh_keysc_device,
+ };
+ 
+ static int __init migor_devices_setup(void)
+@@ -50,9 +87,26 @@ static int __init migor_devices_setup(vo
+ }
+ __initcall(migor_devices_setup);
+ 
++#define PORT_PJCR       0xA4050110UL
++#define PORT_PSELA      0xA405014EUL
++#define PORT_PYCR       0xA405014AUL
++#define PORT_PZCR       0xA405014CUL
++#define PORT_HIZCRA     0xA4050158UL
++#define PORT_HIZCRC     0xA405015CUL
++#define MSTPCR2         0xA4150038UL
 +
-+static void __exit sh_keysc_exit(void)
-+{
-+	platform_driver_unregister(&sh_keysc_device_driver);
-+}
+ static void __init migor_setup(char **cmdline_p)
+ {
+-	ctrl_outw(0x1000, 0xa4050110); /* Enable IRQ0 in PJCR */
++	/* SMC91C111 - Enable IRQ0 */
++	ctrl_outw(ctrl_inw(PORT_PJCR) & ~0x0003, PORT_PJCR);
 +
-+module_init(sh_keysc_init);
-+module_exit(sh_keysc_exit);
-+
-+MODULE_AUTHOR("Magnus Damm");
-+MODULE_DESCRIPTION("SuperH KEYSC Keypad Driver");
-+MODULE_LICENSE("GPL");
---- /dev/null
-+++ work/include/asm-sh/sh_keysc.h	2008-02-27 23:24:54.000000000 +0900
-@@ -0,0 +1,13 @@
-+#ifndef __ASM_KEYSC_H__
-+#define __ASM_KEYSC_H__
-+
-+#define SH_KEYSC_MAXKEYS 30
-+
-+struct sh_keysc_info {
-+	enum { SH_KEYSC_MODE_1, SH_KEYSC_MODE_2, SH_KEYSC_MODE_3 } mode;
-+	int scan_timing; /* 0 -> 7, see KYCR1, SCN[2:0] */
-+	int delay;
-+	int keycodes[SH_KEYSC_MAXKEYS];
-+};
-+
-+#endif /* __ASM_KEYSC_H__ */
++	/* KEYSC */
++	ctrl_outw(ctrl_inw(PORT_PYCR) & ~0x0fff, PORT_PYCR);
++	ctrl_outw(ctrl_inw(PORT_PZCR) & ~0x0ff0, PORT_PZCR);
++	ctrl_outw(ctrl_inw(PORT_PSELA) & ~0x4100, PORT_PSELA);
++	ctrl_outw(ctrl_inw(PORT_HIZCRA) & ~0x4000, PORT_HIZCRA);
++	ctrl_outw(ctrl_inw(PORT_HIZCRC) & ~0xc000, PORT_HIZCRC);
++	ctrl_outl(ctrl_inl(MSTPCR2) & ~0x00004000, MSTPCR2);
+ }
+ 
+ static struct sh_machine_vector mv_migor __initmv = {

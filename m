@@ -1,39 +1,28 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] Input: add Lenovo 3000 N100 to nomux blacklist
-Date: Fri, 29 Feb 2008 15:37:37 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0802291534420.3391@jikos.suse.cz>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 5/6] Driver for WM97xx touchscreens in streaming mode
+	on Mainstone
+Date: Fri, 29 Feb 2008 16:18:51 +0000
+Message-ID: <20080229161850.GA11451@rakim.wolfsonmicro.main>
+References: <12040332183316-git-send-email-broonie@opensource.wolfsonmicro.com> <12040332181161-git-send-email-broonie@opensource.wolfsonmicro.com> <12040332181394-git-send-email-broonie@opensource.wolfsonmicro.com> <12040332182008-git-send-email-broonie@opensource.wolfsonmicro.com> <12040332181746-git-send-email-broonie@opensource.wolfsonmicro.com> <20080227230941.f0885763.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:42598 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750831AbYB2Ohi (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Feb 2008 09:37:38 -0500
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:44685 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1759866AbYB2QSx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 29 Feb 2008 11:18:53 -0500
+Content-Disposition: inline
+In-Reply-To: <20080227230941.f0885763.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Christopher Desjardins <cddesjardins@gmail.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Mike Arthur <mike.arthur@wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Stanley Cai <stanley.cai@intel.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Pete MacKay <linux01@architechnical.net>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 
-Lenovo 3000 N100 needs entry in nomux blacklist.
+On Wed, Feb 27, 2008 at 11:09:41PM -0800, Andrew Morton wrote:
 
-Reported-by: Christopher Desjardins <cddesjardins@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+> If the calling process happens to have a signal pending then the
+> schedule_timeout() becomes a no-op.  Will the driver still function
+> correctly?
 
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 662e844..60931ac 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -277,6 +277,13 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "M636/A737 platform"),
- 		},
- 	},
-+	{
-+		.ident = "Lenovo 3000 n100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "3000 N100"),
-+		},
-+	},
- 	{ }
- };
- 
+No, it doesn't.  Changed to be non-interruptible - thanks!

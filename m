@@ -1,57 +1,62 @@
 From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH 02/03] sh: SuperH KEYSC keypad data for MigoR
-Date: Fri, 29 Feb 2008 19:49:06 +0900
-Message-ID: <20080229104906.22537.73906.sendpatchset@clockwork.opensource.se>
+Subject: [PATCH 03/03] sh: SuperH KEYSC keypad data for Solution Engine 7722
+Date: Fri, 29 Feb 2008 19:49:16 +0900
+Message-ID: <20080229104916.22537.64480.sendpatchset@clockwork.opensource.se>
 References: <20080229104847.22537.66432.sendpatchset@clockwork.opensource.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.169]:21588 "EHLO
+Received: from wf-out-1314.google.com ([209.85.200.168]:21381 "EHLO
 	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755555AbYB2KvM (ORCPT
+	with ESMTP id S1755563AbYB2KvW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 29 Feb 2008 05:51:12 -0500
-Received: by wf-out-1314.google.com with SMTP id 28so3884096wff.4
-        for <linux-input@vger.kernel.org>; Fri, 29 Feb 2008 02:51:12 -0800 (PST)
+	Fri, 29 Feb 2008 05:51:22 -0500
+Received: by wf-out-1314.google.com with SMTP id 28so3884095wff.4
+        for <linux-input@vger.kernel.org>; Fri, 29 Feb 2008 02:51:22 -0800 (PST)
 In-Reply-To: <20080229104847.22537.66432.sendpatchset@clockwork.opensource.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Magnus Damm <magnus.damm@gmail.com>, lethal@linux-sh.org, akpm@linux-foundation.org, linux-sh@vger.kernel.org
 
-This patch adds KEYSC platform data for the sh7722 MigoR board.
+This patch adds KEYSC platform data for the Solution Engine 7722 board.
 
 Signed-off-by: Magnus Damm <damm@igel.co.jp>
 ---
 
- arch/sh/boards/renesas/migor/setup.c |   56 +++++++++++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+ arch/sh/boards/se/7722/setup.c |   41 ++++++++++++++++++++++++++++++++++++++++
+ include/asm-sh/se7722.h        |    2 +
+ 2 files changed, 43 insertions(+)
 
---- 0001/arch/sh/boards/renesas/migor/setup.c
-+++ work/arch/sh/boards/renesas/migor/setup.c	2008-02-28 18:02:14.000000000 +0900
-@@ -10,8 +10,10 @@
+--- 0001/arch/sh/boards/se/7722/setup.c
++++ work/arch/sh/boards/se/7722/setup.c	2008-02-28 18:05:09.000000000 +0900
+@@ -13,10 +13,12 @@
  #include <linux/init.h>
  #include <linux/platform_device.h>
- #include <linux/interrupt.h>
+ #include <linux/ata_platform.h>
 +#include <linux/input.h>
  #include <asm/machvec.h>
+ #include <asm/se7722.h>
  #include <asm/io.h>
+ #include <asm/heartbeat.h>
 +#include <asm/sh_keysc.h>
  
- /* Address     IRQ  Size  Bus  Description
-  * 0x00000000       64MB  16   NOR Flash (SP29PL256N)
-@@ -40,8 +42,43 @@ static struct platform_device smc91x_eth
- 	.resource       = smc91x_eth_resources,
+ /* Heartbeat */
+ static struct heartbeat_data heartbeat_data = {
+@@ -92,10 +94,47 @@ static struct platform_device cf_ide_dev
+ 	.resource       = cf_ide_resources,
  };
  
 +static struct sh_keysc_info sh_keysc_info = {
-+	.mode = SH_KEYSC_MODE_2, /* KEYOUT0->4, KEYIN1->5 */
++	.mode = SH_KEYSC_MODE_1, /* KEYOUT0->5, KEYIN0->4 */
 +	.scan_timing = 3,
 +	.delay = 5,
-+	.keycodes = {
-+		0, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER,
-+		0, KEY_F, KEY_C, KEY_D,	KEY_H, KEY_1,
-+		0, KEY_2, KEY_3, KEY_4,	KEY_5, KEY_6,
-+		0, KEY_7, KEY_8, KEY_9, KEY_S, KEY_0,
-+		0, KEY_P, KEY_STOP, KEY_REWIND, KEY_PLAY, KEY_FASTFORWARD,
++	.keycodes = { /* SW1 -> SW30 */
++		KEY_A, KEY_B, KEY_C, KEY_D, KEY_E,
++		KEY_F, KEY_G, KEY_H, KEY_I, KEY_J,
++		KEY_K, KEY_L, KEY_M, KEY_N, KEY_O,
++		KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T,
++		KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y,
++		KEY_Z,
++		KEY_HOME, KEY_SLEEP, KEY_WAKEUP, KEY_COFFEE, /* life */
 +	},
 +};
 +
@@ -76,37 +81,31 @@ Signed-off-by: Magnus Damm <damm@igel.co.jp>
 +	},
 +};
 +
- static struct platform_device *migor_devices[] __initdata = {
+ static struct platform_device *se7722_devices[] __initdata = {
+ 	&heartbeat_device,
  	&smc91x_eth_device,
+ 	&cf_ide_device,
 +	&sh_keysc_device,
  };
  
- static int __init migor_devices_setup(void)
-@@ -50,9 +87,26 @@ static int __init migor_devices_setup(vo
- }
- __initcall(migor_devices_setup);
- 
-+#define PORT_PJCR       0xA4050110UL
-+#define PORT_PSELA      0xA405014EUL
-+#define PORT_PYCR       0xA405014AUL
-+#define PORT_PZCR       0xA405014CUL
-+#define PORT_HIZCRA     0xA4050158UL
-+#define PORT_HIZCRC     0xA405015CUL
-+#define MSTPCR2         0xA4150038UL
-+
- static void __init migor_setup(char **cmdline_p)
- {
--	ctrl_outw(0x1000, 0xa4050110); /* Enable IRQ0 in PJCR */
-+	/* SMC91C111 - Enable IRQ0 */
-+	ctrl_outw(ctrl_inw(PORT_PJCR) & ~0x0003, PORT_PJCR);
-+
-+	/* KEYSC */
-+	ctrl_outw(ctrl_inw(PORT_PYCR) & ~0x0fff, PORT_PYCR);
-+	ctrl_outw(ctrl_inw(PORT_PZCR) & ~0x0ff0, PORT_PZCR);
-+	ctrl_outw(ctrl_inw(PORT_PSELA) & ~0x4100, PORT_PSELA);
+ static int __init se7722_devices_setup(void)
+@@ -136,6 +175,8 @@ static void __init se7722_setup(char **c
+ 	ctrl_outw(0x0A10, PORT_PSELA); /* BS,SHHID2 */
+ 	ctrl_outw(0x0000, PORT_PYCR);
+ 	ctrl_outw(0x0000, PORT_PZCR);
 +	ctrl_outw(ctrl_inw(PORT_HIZCRA) & ~0x4000, PORT_HIZCRA);
 +	ctrl_outw(ctrl_inw(PORT_HIZCRC) & ~0xc000, PORT_HIZCRC);
-+	ctrl_outl(ctrl_inl(MSTPCR2) & ~0x00004000, MSTPCR2);
  }
  
- static struct sh_machine_vector mv_migor __initmv = {
+ /*
+--- 0001/include/asm-sh/se7722.h
++++ work/include/asm-sh/se7722.h	2008-02-28 18:05:09.000000000 +0900
+@@ -77,6 +77,8 @@
+ #define PORT_PSELA      0xA405014EUL
+ #define PORT_PYCR       0xA405014AUL
+ #define PORT_PZCR       0xA405014CUL
++#define PORT_HIZCRA     0xA4050158UL
++#define PORT_HIZCRC     0xA405015CUL
+ 
+ /* IRQ */
+ #define IRQ0_IRQ        32

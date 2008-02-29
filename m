@@ -1,186 +1,55 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/6] Core driver for WM97xx touchscreens
-Date: Thu, 28 Feb 2008 15:30:49 +0000
-Message-ID: <20080228153048.GB17356@rakim.wolfsonmicro.main>
-References: <12040332183316-git-send-email-broonie@opensource.wolfsonmicro.com> <20080227230928.993d424e.akpm@linux-foundation.org>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] [repost] Make real parent for ACPI button input devices
+Date: Thu, 28 Feb 2008 17:27:24 -0800
+Message-ID: <20080228172724.e93f6b8d.akpm@linux-foundation.org>
+References: <200802282114.28680.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:34691 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1757253AbYB1Pav (ORCPT
+Received: from smtp1.linux-foundation.org ([207.189.120.13]:39887 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753155AbYB2B2j (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Feb 2008 10:30:51 -0500
-Content-Disposition: inline
-In-Reply-To: <20080227230928.993d424e.akpm@linux-foundation.org>
+	Thu, 28 Feb 2008 20:28:39 -0500
+In-Reply-To: <200802282114.28680.arvidjaar@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Pete MacKay <linux01@architechnical.net>, Marc Kleine-Budde <mkl@pengutronix.de>, Ian Molton <spyro@f2s.com>, Vincent Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2008 at 11:09:28PM -0800, Andrew Morton wrote:
+On Thu, 28 Feb 2008 21:14:26 +0300 Andrey Borzenkov <arvidjaar@mail.ru> wrote:
 
-> Nice looking drivers.
+> From: Andrey Borzenkov <arvidjaar@mail.ru>
+> 
+> Make sure input device for  ACPI button gets proper place
+> in device tree.
+> 
+> Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
+> 
+> ---
+> 
+>  drivers/acpi/button.c |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> 
+> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
+> index 24a7865..6c5da83 100644
+> --- a/drivers/acpi/button.c
+> +++ b/drivers/acpi/button.c
+> @@ -449,6 +449,7 @@ static int acpi_button_add(struct acpi_device *device)
+>  	input->phys = button->phys;
+>  	input->id.bustype = BUS_HOST;
+>  	input->id.product = button->type;
+> +	input->dev.parent = &device->dev;
+>  
+>  	switch (button->type) {
+>  	case ACPI_BUTTON_TYPE_POWER:
+> 
+
+What are the consequences of the bug which you've fixed?
+
+It helps very much if the changelog explains things like this so we can
+decide whether the patch is needed in 2.6.25 or even 2.6.24.x.
 
 Thanks.
-
-> On Tue, 26 Feb 2008 13:40:13 +0000 Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
-
-> > +	queue_delayed_work(wm->ts_workq, &wm->ts_reader, 0);
-
-> This is equvaltnet to queue_work().
-
-> Why queue the work instead of just callng it synchronously right here?
-
-No good reason any more, I think.  I'll take a closer look and either
-change it to an immediate call or document what's going on.
-
-> > +static irqreturn_t wm97xx_pen_interrupt(int irq, void *dev_id)
-> > +{
-> > +	struct wm97xx *wm = dev_id;
-> > +	wm->mach_ops->irq_enable(wm, 0);
-> > +	queue_work(wm->ts_workq, &wm->pen_event_work);
-> > +	return IRQ_HANDLED;
-> > +}
-
-> We can lose events, can't we?  We only have one work to queue, and if it is
-> already queued, the queue_work() here is a no-op.
-
-> otoh there's no payload so there's actually no data to lose.
-
-Indeed - only scheduling the work a single time is exactly the behaviour
-that's desired here.
-
-> Still, this stands out a bit and perhaps a comment which describes the
-> overall interrupt handling design would help here.
-
-I agree, I'll add something.
-
-> > +	if (wm->pen_is_down || !wm->pen_irq)
-> > +		queue_delayed_work(wm->ts_workq, &wm->ts_reader,
-> > +				   wm->ts_reader_interval);
-> > +}
-
-> again, if this work is already scheduled, your queue_delayed_work() here is
-> a no-op.  Will things all work correctly?
-
-Yes, the worst that would happen would be that we'd read one less sample
-which might cause a glitch in input but we're reading sufficiently often
-to make that not an issue.
-
-> A bit of whitecpace inconsistency there.
-
-Fixed, thanks.
-
-> > +	 * failed to acquire it then we need to poll.
-> > +	 */
-> > +	if (wm->pen_irq == 0)
-> > +		queue_delayed_work(wm->ts_workq, &wm->ts_reader,
-> > +				   wm->ts_reader_interval);
-> > +
-> > +	return 0;
-> > +}
-
-> So...  this driver continuously polls the hardware at 100HZ?  If so,
-> powertop users will come after you with pitchforks.
-
-It'll only do that while the pen is down.  It'd be possible to turn that
-down but that needs to be traded off against responsiveness.
-
-If the user has provided an accelerated touch driver then while the pen
-is up we won't poll the device at all, relying on an interrupt to wake
-the driver up when the pen goes down.  We strongly recommend doing this
-for power sensitive applications but it requires board-specific code.
-
-If no acclerated touch driver is provided then we don't have much option
-other than polling but the driver will gradually back off to 10Hz.  This
-is still far from ideal but not quite so bad.  Reducing it any more than
-that would make the pen down event unresponsive.
-
-> > +#ifdef CONFIG_TOUCHSCREEN_WM9713
-> > +	case 0x13:
-> > +		wm->codec = &wm9713_codec;
-> > +		break;
-> > +#endif
-
-> That's a wee bit combersome.  Really a "core" should not know about its
-> specific clients.  A better and more typical design would have the clients
-> registering themselves with the core via some registration interface.
-
-Yes, that would be nicer.  Unfortunately the driver isn't actually fully
-factored out like that yet - there are still a couple of places in the
-core code with device-specific checks.  We could improve it further but
-it's probably more trouble than it's worth until more substantial work
-such as adding new chips is required.
-
-> > +	/* set up touch configuration */
-> > +	wm->input_dev->name = "wm97xx touchscreen";
-
-> spaces in names are OK here?  They can make proc files basically
-> unparseable.
-
-Yes, it's fine.  This ends up in /proc/bus/input/devices as:
-
-   N: Name="wm97xx touchscreen"
-
-which is parsable and a quick survey of drivers/input/touchscreen
-suggests that spaces are even the common case for touchscreen drivers.
-
-> The kernel->userspace interface looks fairly complex.  Is it documented
-> anywhere?
-
-I'm not aware of anything specific to touchscreens beyond the source to
-existing applications and drivers but IME it's fairly straightforward
-within the input framework.
-
-> > +#else
-> > +#define wm97xx_resume		NULL
-> > +#endif
-
-> It's strange to see a .resume but no .suspend.
-
-Yes.  The actual chip shutdown is handled by AC97 though we really
-should quiesce the poll if it is running when we suspend - I'll add
-something for that.
-
-> > +/*
-> > + * WM97xx AC97 Touchscreen registers
-> > + */
-
-> ac97 stuff?  But I saw no appropriate dependencies for this in the Kconfig
-> patch?
-
-Yes, they're AC97 parts.  There's this in Kconfig ATM:
-
-+config TOUCHSCREEN_WM97XX
-+       tristate "Support for WM97xx AC97 touchscreen controllers"
-+       depends on AC97_BUS
-
-I'm not sure what else would be useful?
-
-> > +/*
-> > + * Codec GPIO wake
-> > + */
-> > +enum wm97xx_gpio_wake {
-> > +    WM97XX_GPIO_WAKE,
-> > +    WM97XX_GPIO_NOWAKE
-> > +};
-
-> Are these gpio's really gp?  If so, should this driver be using the
-> drivers/gpio/ infrastructure?
-
-Well, they're multi-function pins so they can do GPIO plus specific
-functionality for the device but yes they could do that.  They are
-rarely used as fully GP pins since the SoC based systems where these
-codecs are most frequently deployed usually have an abundance of GPIO
-pins on the SoC itself which don't require going over the AC97 bus to
-manipulate.
-
-Aside from the disruption to existing users the main problem with doing
-that is that it would require that platform data be passed into the
-driver to specify the base for the GPIOs (this would be useful for all
-the other configuration too).  I can't see a suitably nice way to do
-that at the minute, unfortunately.  Without such a method I'd really
-rather avoid using gpiolib since it doesn't feel like a sufficient win.
-
-Thanks for the review.

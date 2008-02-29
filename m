@@ -1,55 +1,32 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] [repost] Make real parent for ACPI button input devices
-Date: Thu, 28 Feb 2008 17:27:24 -0800
-Message-ID: <20080228172724.e93f6b8d.akpm@linux-foundation.org>
-References: <200802282114.28680.arvidjaar@mail.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([207.189.120.13]:39887 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753155AbYB2B2j (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 28 Feb 2008 20:28:39 -0500
-In-Reply-To: <200802282114.28680.arvidjaar@mail.ru>
-Sender: linux-input-owner@vger.kernel.org
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH 00/03] sh: SuperH KEYSC keypad support
+Date: Fri, 29 Feb 2008 19:48:47 +0900
+Message-ID: <20080229104847.22537.66432.sendpatchset@clockwork.opensource.se>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Magnus Damm <magnus.damm@gmail.com>, lethal@linux-sh.org, akpm@linux-foundation.org, linux-sh@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 28 Feb 2008 21:14:26 +0300 Andrey Borzenkov <arvidjaar@mail.ru> wrote:
+These patches add support for keypads attached to the SuperH KEYSC block.
 
-> From: Andrey Borzenkov <arvidjaar@mail.ru>
-> 
-> Make sure input device for  ACPI button gets proper place
-> in device tree.
-> 
-> Signed-off-by: Andrey Borzenkov <arvidjaar@mail.ru>
-> 
-> ---
-> 
->  drivers/acpi/button.c |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> 
-> diff --git a/drivers/acpi/button.c b/drivers/acpi/button.c
-> index 24a7865..6c5da83 100644
-> --- a/drivers/acpi/button.c
-> +++ b/drivers/acpi/button.c
-> @@ -449,6 +449,7 @@ static int acpi_button_add(struct acpi_device *device)
->  	input->phys = button->phys;
->  	input->id.bustype = BUS_HOST;
->  	input->id.product = button->type;
-> +	input->dev.parent = &device->dev;
->  
->  	switch (button->type) {
->  	case ACPI_BUTTON_TYPE_POWER:
-> 
+[PATCH 01/03] sh: SuperH KEYSC platform driver
+[PATCH 02/03] sh: SuperH KEYSC support for MigoR
+[PATCH 03/03] sh: SuperH KEYSC support for Solution Engine 7722
 
-What are the consequences of the bug which you've fixed?
+Signed-off-by: Magnus Damm <damm@igel.co.jp>
+---
 
-It helps very much if the changelog explains things like this so we can
-decide whether the patch is needed in 2.6.25 or even 2.6.24.x.
-
-Thanks.
+ Please note that the board patches need the header file provided by
+ the first patch to compile. So maybe this is suitable for -mm?
+ If it is better to merge the driver in some subsystem tree then I'll
+ just resend the board code to the linux-sh list during late -rc1 merge.
+ 
+ arch/sh/boards/renesas/migor/setup.c |   56 ++++++
+ arch/sh/boards/se/7722/setup.c       |   41 ++++
+ drivers/input/keyboard/Kconfig       |    9 +
+ drivers/input/keyboard/Makefile      |    1 
+ drivers/input/keyboard/sh_keysc.c    |  281 ++++++++++++++++++++++++++++++++++
+ include/asm-sh/se7722.h              |    2 
+ include/asm-sh/sh_keysc.h            |   13 +
+ 7 files changed, 402 insertions(+), 1 deletion(-)

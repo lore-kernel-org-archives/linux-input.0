@@ -1,80 +1,59 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] input: add debouncing for generic gpio input device
- gpio_key.c
-Date: Mon, 3 Mar 2008 14:28:57 -0800
-Message-ID: <20080303142857.5f177f1c.akpm@linux-foundation.org>
-References: <47C10987.9020804@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] ati_remote2 autorepeat and loadable keymap support
+Date: Mon, 3 Mar 2008 23:53:12 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0803032349140.18589@twin.jikos.cz>
+References: <200802161622.43223.linux@dadeos.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:48773 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754559AbYCCWaF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Mar 2008 17:30:05 -0500
-In-Reply-To: <47C10987.9020804@gmail.com>
+Received: from twin.jikos.cz ([213.151.79.26]:36718 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753441AbYCCWyU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Mar 2008 17:54:20 -0500
+In-Reply-To: <200802161622.43223.linux@dadeos.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Keith Mok <ek9852@gmail.com>
-Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
+To: Peter Stokes <linux@dadeos.co.uk>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 
-On Sun, 24 Feb 2008 14:07:03 +0800
-Keith Mok <ek9852@gmail.com> wrote:
+On Sat, 16 Feb 2008, Peter Stokes wrote:
 
-> This patch add debouncing support for the generic gpio input device, since debouncing is most likely to happen.
-> 
-> Comments welcome.
-> 
-> Signed-off-by: Keith Mok <ek9852@gmail.com>
-> ---
-> Keith Mok
-> 
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 6a9ca4b..79b460e 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -26,26 +26,36 @@
->  
->  #include <asm/gpio.h>
->  
-> +static void do_gpio_keys_tasklet(unsigned long);
-> +static void do_gpio_keys_timer(unsigned long);
-> +
-> +static struct timer_list gpio_keys_timer;
+> As this device is exposed as a combined keyboard and mouse, this change 
+> somewhat depends upon the suggested modification to the core 
+> soft-autorepeat functionality as outlined in my previous post to the 
+> linux-input mailing list (on 12th Feb 2008 entitled "Soft-autorepeat 
+> functionality"), without that modification, the mouse buttons are 
+> autorepeated :-(
 
-DEFINE_TIMER() could be used here.  Then we can remove the runtime
-setup_timer().
+I don't think that the solution you proposed in that mail, i.e.
 
-> +DECLARE_TASKLET_DISABLED(gpio_keys_tasklet, do_gpio_keys_tasklet, 0);
-> +static spinlock_t suspend_lock;
+--- linux-2.6.24-orig/drivers/input/input.c	2008-01-24 22:58:37.000000000 +0000
++++ linux-2.6.24/drivers/input/input.c	2008-02-11 20:02:03.000000000 +0000
+@@ -123,6 +123,7 @@
+ static void input_start_autorepeat(struct input_dev *dev, int code)
+ {
+ 	if (test_bit(EV_REP, dev->evbit) &&
++	    code < KEY_MIN_INTERESTING &&
+ 	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
+ 	    dev->timer.data) {
+ 		dev->repeat_key = code;
 
-Please use DEFINE_SPINLOCK(), then remove the runtime spin_lock_init().
+should be used. We really can't generally assume that there is no key 
+above KEY_MIN_INTERESTING that shouldn't be autorepeated. The 
+KEY_MIN_INTERESTING is, if I remember correctly, just a hack that 
+modaliases don't grow excessively.
 
-> +static void do_gpio_keys_tasklet(unsigned long data)
-> +{
-> +	int pressed;
-> +	int i;
-> +	struct platform_device *pdev = (struct platform_device*)data;
-> +	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-> +	struct input_dev *input = platform_get_drvdata(pdev);
-> +
-> +	/* check for any changes */
-> +	pressed = 0;
-> +	for (i = 0; i < pdata->nbuttons; i++) {
-> +		struct gpio_keys_button *button = &pdata->buttons[i];
-> +		int gpio = button->gpio;
-> +
-> +		unsigned int type = button->type ?: EV_KEY;
-> +		int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
-> +
-> +		input_event(input, type, button->code, !!state);
-> +		pressed |= !!state;
-> +		input_sync(input);
-> +	}
-> +	if(pressed) {
+What about changing the 
+ati_remote2-autorepeat-and-loadable-keymap-support.patch (as it is now in 
+-mm) so that it registers two independent input devices, one for keyboard 
+and one for mouse, and depedning on the type of arriving event, you decide 
+which input device to use?
 
-Please always pass patches through scripts/checkpatch.pl.
+You can then easily set autorepeat only for one of them, right?
 
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
 

@@ -1,78 +1,78 @@
 From: "Alfred E. Heggestad" <aeh@db.org>
 Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
-Date: Mon, 03 Mar 2008 23:07:02 +0100
-Message-ID: <47CC7686.5030600@db.org>
-References: <47AB5012.20509@db.org> <20080209191206.GD5139@ucw.cz>
+Date: Mon, 03 Mar 2008 23:10:16 +0100
+Message-ID: <47CC7748.3030004@db.org>
+References: <47AB5012.20509@db.org> <200802091023.02580.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from submit01.sysedata.no ([195.159.29.244]:44313 "EHLO
-	submit01.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751541AbYCCWHI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Mar 2008 17:07:08 -0500
-In-Reply-To: <20080209191206.GD5139@ucw.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Pavel Machek <pavel@ucw.cz>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757986AbYCCWKc@vger.kernel.org>
+In-Reply-To: <200802091023.02580.oliver@neukum.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
->> + Komunikate KIP1000 Keyboard Matrix
->> +
->> +     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
->> +      |    |    |    |
->> +     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
->> +      |    |    |    |
->> +     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
->> +      |    |    |    |
->> +     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
->> +      |    |    |    |
->> +
->> +     /|\  /|\  /|\  /|\
->> +      |    |    |    |
->> +GPO
->> +pin:  3    2    1    0
->> +     0x8  0x4  0x2  0x1
->> +
->> + */
->> +static int keymap_kip1000(int scancode)
+Oliver Neukum wrote:
+> Am Donnerstag, 7. Februar 2008 19:38:10 schrieb Alfred E. Heggestad:
+>> +static void buzz(struct cm109_dev *dev, int on)
 >> +{
->> +	switch (scancode) {			 /* phone 
->> key:   */
->> +	case 0x82: return KEY_0;		 /*   0   
->> */
->> +	case 0x14: return KEY_1;		 /*   1   
->> */
->> +	case 0x12: return KEY_2;		 /*   2   
->> */
->> +	case 0x11: return KEY_3;		 /*   3   
->> */
->> +	case 0x24: return KEY_4;		 /*   4   
->> */
->> +	case 0x22: return KEY_5;		 /*   5   
->> */
->> +	case 0x21: return KEY_6;		 /*   6   
->> */
->> +	case 0x44: return KEY_7;		 /*   7   
->> */
->> +	case 0x42: return KEY_8;		 /*   8   
->> */
->> +	case 0x41: return KEY_9;		 /*   9   
->> */
->> +	case 0x81: return KEY_LEFTSHIFT | KEY_3 << 8; /*  
->> #          */
+>> +       int ret;
+>> +
+>> +       if (dev == NULL) {
+>> +               err("buzz: dev is NULL");
+>> +               return;
+>> +       }
+>> +
+>> +       dbg("Buzzer %s", on ? "on" : "off");
+>> +       if (on)
+>> +               dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
+>> +       else
+>> +               dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
+>> +
+>> +       ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
+>> +       if (ret)
+>> +               err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
+>> +}
+>> +
+>> +static int input_ev(struct input_dev *idev, unsigned int type,
+>> +                   unsigned int code, int value)
+>> +{
+>> +       struct cm109_dev *dev = input_get_drvdata(idev);
+>> +       unsigned long flags;
+>> +
+>> +#ifdef CM109_DEBUG
+>> +       info("input_ev: type=%u code=%u value=%d", type, code, value);
+>> +#endif
+>> +
+>> +       if (type != EV_SND)
+>> +               return -EINVAL;
+>> +
+>> +       switch (code) {
+>> +       case SND_TONE:
+>> +       case SND_BELL:
+>> +               break;
+>> +       default:
+>> +               return -EINVAL;
+>> +       }
+>> +
+>> +       spin_lock_irqsave(&cm109_buzz_lock, flags);
+>> +       buzz(dev, value);
+>> +       spin_unlock_irqrestore(&cm109_buzz_lock, flags);
+>> +
+>> +       return 0;
+>> +}
 > 
-> That's a very dirty hack, right?
+> What makes you sure you finished the URB to switch the buzzer on before
+> you try to switch it off again? It seems that you might be attempting to
+> manipulate a live URB there if you hit the window.
 > 
 
-yeah, that is a dirty hack which we should avoid by defining
-a new key called e.g. KEY_KPPOUND for the '#'-key.
-
-the CM109 driver is based on the Yealink driver
-(drivers/input/misc/yealink.c) so the same hack exists there..
+thanks for the hint. could you let me know how I can fix this properly,
+or point me to some USB driver code that implements this correctly.. ?
 
 
 /alfred
+
+> 	Regards
+> 		Oliver

@@ -1,59 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] ati_remote2 autorepeat and loadable keymap support
-Date: Mon, 3 Mar 2008 23:53:12 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0803032349140.18589@twin.jikos.cz>
-References: <200802161622.43223.linux@dadeos.co.uk>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: +
+ input-add-debouncing-for-generic-gpio-input-device-gpio_keyc.patch added to
+ -mm tree
+Date: Mon, 3 Mar 2008 15:10:08 -0800
+Message-ID: <20080303151008.3efdc9d6.akpm@linux-foundation.org>
+References: <200803032230.m23MUgas010098@imap1.linux-foundation.org>
+	<47CC81FD.2050905@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:36718 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753441AbYCCWyU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Mar 2008 17:54:20 -0500
-In-Reply-To: <200802161622.43223.linux@dadeos.co.uk>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:49008 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752761AbYCCXKs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Mar 2008 18:10:48 -0500
+In-Reply-To: <47CC81FD.2050905@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Stokes <linux@dadeos.co.uk>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: ek9852@gmail.com, anti.sullin@artecdesign.ee, david-b@pacbell.net, dtor@mail.ru, hvr@gnu.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Sat, 16 Feb 2008, Peter Stokes wrote:
+On Mon, 03 Mar 2008 23:55:57 +0100
+Jiri Slaby <jirislaby@gmail.com> wrote:
 
-> As this device is exposed as a combined keyboard and mouse, this change 
-> somewhat depends upon the suggested modification to the core 
-> soft-autorepeat functionality as outlined in my previous post to the 
-> linux-input mailing list (on 12th Feb 2008 entitled "Soft-autorepeat 
-> functionality"), without that modification, the mouse buttons are 
-> autorepeated :-(
+> On 03/03/2008 11:30 PM, akpm@linux-foundation.org wrote:
+> > Subject: input: add debouncing for generic gpio input device gpio_key.c
+> > From: Keith Mok <ek9852@gmail.com>
+> > 
+> > Add debouncing support for the generic gpio input device, since debouncing is
+> > most likely to happen.
+> > 
+> > Signed-off-by: Keith Mok <ek9852@gmail.com>
+> > Cc: Herbert Valerio Riedel <hvr@gnu.org>
+> > Cc: Dmitry Torokhov <dtor@mail.ru>
+> > Cc: Jiri Slaby <jirislaby@gmail.com>
+> > Cc: Anti Sullin <anti.sullin@artecdesign.ee>
+> > Cc: David Brownell <david-b@pacbell.net>
+> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+> > ---
+> > 
+> >  drivers/input/keyboard/gpio_keys.c |  106 +++++++++++++++++++++++----
+> >  1 file changed, 93 insertions(+), 13 deletions(-)
+> > 
+> > diff -puN drivers/input/keyboard/gpio_keys.c~input-add-debouncing-for-generic-gpio-input-device-gpio_keyc drivers/input/keyboard/gpio_keys.c
+> > --- a/drivers/input/keyboard/gpio_keys.c~input-add-debouncing-for-generic-gpio-input-device-gpio_keyc
+> > +++ a/drivers/input/keyboard/gpio_keys.c
+> [...]
+> >  static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+> [...]
+> > +	/* disable keyboard interrupt and schedule for handling */
+> > +	for (i = 0; i < pdata->nbuttons; i++) {
+> > +		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+> > +		disable_irq(irq);
+> 
+> Are you 100% sure here (are you disabling irqs other than this one)? No 
+> disable_irq_nosync? Anyway why is the disabling needed at all?
+> 
 
-I don't think that the solution you proposed in that mail, i.e.
+lol, I cc'ed the wrong Jiri and it worked out well.
 
---- linux-2.6.24-orig/drivers/input/input.c	2008-01-24 22:58:37.000000000 +0000
-+++ linux-2.6.24/drivers/input/input.c	2008-02-11 20:02:03.000000000 +0000
-@@ -123,6 +123,7 @@
- static void input_start_autorepeat(struct input_dev *dev, int code)
- {
- 	if (test_bit(EV_REP, dev->evbit) &&
-+	    code < KEY_MIN_INTERESTING &&
- 	    dev->rep[REP_PERIOD] && dev->rep[REP_DELAY] &&
- 	    dev->timer.data) {
- 		dev->repeat_key = code;
-
-should be used. We really can't generally assume that there is no key 
-above KEY_MIN_INTERESTING that shouldn't be autorepeated. The 
-KEY_MIN_INTERESTING is, if I remember correctly, just a hack that 
-modaliases don't grow excessively.
-
-What about changing the 
-ati_remote2-autorepeat-and-loadable-keymap-support.patch (as it is now in 
--mm) so that it registers two independent input devices, one for keyboard 
-and one for mouse, and depedning on the type of arriving event, you decide 
-which input device to use?
-
-You can then easily set autorepeat only for one of them, right?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Please do cc the appropriate mailing list when replying to -mm commit
+emails.

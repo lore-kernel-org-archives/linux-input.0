@@ -1,72 +1,80 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
-Date: Mon, 3 Mar 2008 23:13:23 +0100
-Message-ID: <20080303221323.GK13869@elf.ucw.cz>
-References: <47AB5012.20509@db.org> <20080209191206.GD5139@ucw.cz> <47CC7686.5030600@db.org>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] input: add debouncing for generic gpio input device
+ gpio_key.c
+Date: Mon, 3 Mar 2008 14:28:57 -0800
+Message-ID: <20080303142857.5f177f1c.akpm@linux-foundation.org>
+References: <47C10987.9020804@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56877 "EHLO
-	gprs189-60.eurotel.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753211AbYCCWM6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 3 Mar 2008 17:12:58 -0500
-Content-Disposition: inline
-In-Reply-To: <47CC7686.5030600@db.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:48773 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754559AbYCCWaF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Mar 2008 17:30:05 -0500
+In-Reply-To: <47C10987.9020804@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Alfred E. Heggestad" <aeh@db.org>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Keith Mok <ek9852@gmail.com>
+Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-On Mon 2008-03-03 23:07:02, Alfred E. Heggestad wrote:
-> Pavel Machek wrote:
->> Hi!
->>
->>> + Komunikate KIP1000 Keyboard Matrix
->>> +
->>> +     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
->>> +      |    |    |    |
->>> +     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
->>> +      |    |    |    |
->>> +     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
->>> +      |    |    |    |
->>> +     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
->>> +      |    |    |    |
->>> +
->>> +     /|\  /|\  /|\  /|\
->>> +      |    |    |    |
->>> +GPO
->>> +pin:  3    2    1    0
->>> +     0x8  0x4  0x2  0x1
->>> +
->>> + */
->>> +static int keymap_kip1000(int scancode)
->>> +{
->>> +	switch (scancode) {			 /* phone key:   */
->>> +	case 0x82: return KEY_0;		 /*   0   */
->>> +	case 0x14: return KEY_1;		 /*   1   */
->>> +	case 0x12: return KEY_2;		 /*   2   */
->>> +	case 0x11: return KEY_3;		 /*   3   */
->>> +	case 0x24: return KEY_4;		 /*   4   */
->>> +	case 0x22: return KEY_5;		 /*   5   */
->>> +	case 0x21: return KEY_6;		 /*   6   */
->>> +	case 0x44: return KEY_7;		 /*   7   */
->>> +	case 0x42: return KEY_8;		 /*   8   */
->>> +	case 0x41: return KEY_9;		 /*   9   */
->>> +	case 0x81: return KEY_LEFTSHIFT | KEY_3 << 8; /*  #          */
->>
->> That's a very dirty hack, right?
->>
->
-> yeah, that is a dirty hack which we should avoid by defining
-> a new key called e.g. KEY_KPPOUND for the '#'-key.
+On Sun, 24 Feb 2008 14:07:03 +0800
+Keith Mok <ek9852@gmail.com> wrote:
 
-Yes please. Phones are pretty common these days.
+> This patch add debouncing support for the generic gpio input device, since debouncing is most likely to happen.
+> 
+> Comments welcome.
+> 
+> Signed-off-by: Keith Mok <ek9852@gmail.com>
+> ---
+> Keith Mok
+> 
+> 
+> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+> index 6a9ca4b..79b460e 100644
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -26,26 +26,36 @@
+>  
+>  #include <asm/gpio.h>
+>  
+> +static void do_gpio_keys_tasklet(unsigned long);
+> +static void do_gpio_keys_timer(unsigned long);
+> +
+> +static struct timer_list gpio_keys_timer;
 
-> the CM109 driver is based on the Yealink driver
-> (drivers/input/misc/yealink.c) so the same hack exists there..
+DEFINE_TIMER() could be used here.  Then we can remove the runtime
+setup_timer().
 
-Fix it too ;-).
+> +DECLARE_TASKLET_DISABLED(gpio_keys_tasklet, do_gpio_keys_tasklet, 0);
+> +static spinlock_t suspend_lock;
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Please use DEFINE_SPINLOCK(), then remove the runtime spin_lock_init().
+
+> +static void do_gpio_keys_tasklet(unsigned long data)
+> +{
+> +	int pressed;
+> +	int i;
+> +	struct platform_device *pdev = (struct platform_device*)data;
+> +	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+> +	struct input_dev *input = platform_get_drvdata(pdev);
+> +
+> +	/* check for any changes */
+> +	pressed = 0;
+> +	for (i = 0; i < pdata->nbuttons; i++) {
+> +		struct gpio_keys_button *button = &pdata->buttons[i];
+> +		int gpio = button->gpio;
+> +
+> +		unsigned int type = button->type ?: EV_KEY;
+> +		int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
+> +
+> +		input_event(input, type, button->code, !!state);
+> +		pressed |= !!state;
+> +		input_sync(input);
+> +	}
+> +	if(pressed) {
+
+Please always pass patches through scripts/checkpatch.pl.
+
+

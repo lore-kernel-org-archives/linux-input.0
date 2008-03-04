@@ -1,64 +1,33 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: +
- input-add-debouncing-for-generic-gpio-input-device-gpio_keyc.patch added to
- -mm tree
-Date: Mon, 3 Mar 2008 15:10:08 -0800
-Message-ID: <20080303151008.3efdc9d6.akpm@linux-foundation.org>
-References: <200803032230.m23MUgas010098@imap1.linux-foundation.org>
-	<47CC81FD.2050905@gmail.com>
+From: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [BUILD_FAILURE] 2.6.24-git18 build fails section type conflict psmouse-base
+Date: Tue, 4 Mar 2008 13:35:04 +1100
+Message-ID: <200803041335.05144.rusty@rustcorp.com.au>
+References: <47AC2FDB.7080104@linux.vnet.ibm.com> <200803031535.17644.rusty@rustcorp.com.au> <20080303081345.GA4457@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:49008 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752761AbYCCXKs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 3 Mar 2008 18:10:48 -0500
-In-Reply-To: <47CC81FD.2050905@gmail.com>
+Received: from ozlabs.org ([203.10.76.45]:34060 "EHLO ozlabs.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753021AbYCDCf6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 3 Mar 2008 21:35:58 -0500
+In-Reply-To: <20080303081345.GA4457@cs181133002.pp.htv.fi>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: ek9852@gmail.com, anti.sullin@artecdesign.ee, david-b@pacbell.net, dtor@mail.ru, hvr@gnu.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Adrian Bunk <bunk@kernel.org>
+Cc: Kamalesh Babulal <kamalesh@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>, Balbir Singh <balbir@linux.vnet.ibm.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>
 
-On Mon, 03 Mar 2008 23:55:57 +0100
-Jiri Slaby <jirislaby@gmail.com> wrote:
+On Monday 03 March 2008 19:13:45 Adrian Bunk wrote:
+> On Mon, Mar 03, 2008 at 03:35:16PM +1100, Rusty Russell wrote:
+> > Erk... This is horrible, and arguably something gcc should try to deal
+> > with. How about we just drop the const and add a comment, rather than
+> > breaking one arch at a time?
+>
+> We should have caught all architectures having problems, and a slightly
+> improved patch is now in Linus' tree.
 
-> On 03/03/2008 11:30 PM, akpm@linux-foundation.org wrote:
-> > Subject: input: add debouncing for generic gpio input device gpio_key.c
-> > From: Keith Mok <ek9852@gmail.com>
-> > 
-> > Add debouncing support for the generic gpio input device, since debouncing is
-> > most likely to happen.
-> > 
-> > Signed-off-by: Keith Mok <ek9852@gmail.com>
-> > Cc: Herbert Valerio Riedel <hvr@gnu.org>
-> > Cc: Dmitry Torokhov <dtor@mail.ru>
-> > Cc: Jiri Slaby <jirislaby@gmail.com>
-> > Cc: Anti Sullin <anti.sullin@artecdesign.ee>
-> > Cc: David Brownell <david-b@pacbell.net>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > ---
-> > 
-> >  drivers/input/keyboard/gpio_keys.c |  106 +++++++++++++++++++++++----
-> >  1 file changed, 93 insertions(+), 13 deletions(-)
-> > 
-> > diff -puN drivers/input/keyboard/gpio_keys.c~input-add-debouncing-for-generic-gpio-input-device-gpio_keyc drivers/input/keyboard/gpio_keys.c
-> > --- a/drivers/input/keyboard/gpio_keys.c~input-add-debouncing-for-generic-gpio-input-device-gpio_keyc
-> > +++ a/drivers/input/keyboard/gpio_keys.c
-> [...]
-> >  static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
-> [...]
-> > +	/* disable keyboard interrupt and schedule for handling */
-> > +	for (i = 0; i < pdata->nbuttons; i++) {
-> > +		int irq = gpio_to_irq(pdata->buttons[i].gpio);
-> > +		disable_irq(irq);
-> 
-> Are you 100% sure here (are you disabling irqs other than this one)? No 
-> disable_irq_nosync? Anyway why is the disabling needed at all?
-> 
+Yes, thanks, I saw it later on in the thread.  'Tis still horrible tho :)
 
-lol, I cc'ed the wrong Jiri and it worked out well.
-
-Please do cc the appropriate mailing list when replying to -mm commit
-emails.
+Rusty.

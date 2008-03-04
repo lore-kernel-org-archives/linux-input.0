@@ -1,60 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] ati_remote2 autorepeat and loadable keymap support
-Date: Tue, 4 Mar 2008 15:01:44 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0803041457200.15209@jikos.suse.cz>
-References: <200802161622.43223.linux@dadeos.co.uk> <20080304124715.GK8473@sci.fi>
- <Pine.LNX.4.64.0803041412240.18589@twin.jikos.cz> <20080304134751.GA531@sci.fi>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: WM97xx touchscreen drivers
+Date: Tue, 4 Mar 2008 14:02:51 +0000
+Message-ID: <20080304140251.GA24649@rakim.wolfsonmicro.main>
+References: <20080229165029.GB11451@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="336216065-1955659092-1204639304=:15209"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:55582 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751524AbYCDOBp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Mar 2008 09:01:45 -0500
-In-Reply-To: <20080304134751.GA531@sci.fi>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:49988 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751597AbYCDOCt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Mar 2008 09:02:49 -0500
+Content-Disposition: inline
+In-Reply-To: <20080229165029.GB11451@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-Cc: Peter Stokes <linux@dadeos.co.uk>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Pete MacKay <linux01@architechnical.net>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+This patch series adds support for the touchscreen controllers found in
+WM97xx devices.  This revision of the series adds support for
+configuration of the interrupt source used for pen down detection in
+accelerated touch drivers.
 
---336216065-1955659092-1204639304=:15209
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+These changes are also available in the git repository at:
 
-On Tue, 4 Mar 2008, Ville Syrj=E4l=E4 wrote:
+  git://opensource.wolfsonmicro.com/linux-2.6-touch upstream
 
-> > I don't seem to see you in MAINTAINERS entry, so that's probably why yo=
-u=20
-> > didn't receive confirmation when Andrew has put this patch into -mm.
-> I guess MODULE_AUTHOR() isn't enough then. I'll send a patch for
-> MAINTAINERS.
+Mark Brown (6):
+      Core driver for WM97xx touchscreens
+      Add chip driver for WM9705 touchscreen
+      Add chip driver for WM9712 touchscreen
+      Add chip driver for WM9713 touchscreen
+      Driver for WM97xx touchscreens in streaming mode on Mainstone
+      Build system and MAINTAINERS entry for WM97xx touchscreen drivers
 
-I don't know the exact algorithm Andrew uses to send out CCs when patch is=
-=20
-merged, but MAINTAINERS entry would definitely help.
-
-> Hmm. IIRC I had one USB mouse which also sent repeat events and the=20
-> driver didn't seem to filter them out which is why I added checks to=20
-> DirectFB's input driver to filter them in user space. Was that a bug in=
-=20
-> the usbhid driver or does it depend on the actual hardware? I still have=
-=20
-> that mouse so I can re-test the behavior if needed.=20
-
-Button events from mice definitely shouldn't be auto-repeated, if they are=
-=20
-reported probably by the hardware (i.e. HID_UP_BUTTON usage page,=20
-MOUSE/POINTER application).
-
-If you could recompile your kernel with CONFIG_HID_DEBUG, modprobe the=20
-'hid' module with 'debug=3D1' parameter, and send me the output that appear=
-s=20
-in kernel log when you press (and hold) the button, I will look into it.
-
---=20
-Jiri Kosina
-SUSE Labs
---336216065-1955659092-1204639304=:15209--
+ MAINTAINERS                                  |   10 +
+ drivers/input/touchscreen/Kconfig            |   52 ++
+ drivers/input/touchscreen/Makefile           |    7 +
+ drivers/input/touchscreen/mainstone-wm97xx.c |  300 ++++++++++
+ drivers/input/touchscreen/wm9705.c           |  352 ++++++++++++
+ drivers/input/touchscreen/wm9712.c           |  461 ++++++++++++++++
+ drivers/input/touchscreen/wm9713.c           |  459 ++++++++++++++++
+ drivers/input/touchscreen/wm97xx-core.c      |  762 ++++++++++++++++++++++++++
+ include/linux/wm97xx.h                       |  311 +++++++++++
+ 9 files changed, 2714 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/mainstone-wm97xx.c
+ create mode 100644 drivers/input/touchscreen/wm9705.c
+ create mode 100644 drivers/input/touchscreen/wm9712.c
+ create mode 100644 drivers/input/touchscreen/wm9713.c
+ create mode 100644 drivers/input/touchscreen/wm97xx-core.c
+ create mode 100644 include/linux/wm97xx.h

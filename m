@@ -1,48 +1,36 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: BUG in sermouse driver
-Date: Mon, 10 Mar 2008 13:01:37 +0100
-Message-ID: <20080310120137.GB29197@elf.ucw.cz>
-References: <20080310093039.GA26118@localhost.localdomain> <Pine.LNX.4.64.0803101130060.18589@twin.jikos.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [patch 01/23] fjkeyinf driver for FSC Lifebook laptops
+Date: Mon, 10 Mar 2008 13:35:36 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0803101334150.15209@jikos.suse.cz>
+References: <200803101008.m2AA8d1N011222@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58024 "EHLO
-	gprs189-60.eurotel.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750900AbYCJMBJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2008 08:01:09 -0400
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0803101130060.18589@twin.jikos.cz>
+Received: from styx.suse.cz ([82.119.242.94]:38262 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750696AbYCJMfh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Mar 2008 08:35:37 -0400
+In-Reply-To: <200803101008.m2AA8d1N011222@imap1.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Ondrej Zajicek <santiago@crfreenet.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: post@hendrik-sattler.de, Stephen Hemminger <shemminger@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org
 
-Hi!
+On Mon, 10 Mar 2008, akpm@linux-foundation.org wrote:
 
-> > There is a bug in sermouse driver that inputattach program terminates 
-> > during suspend (or resume) to ram hence mouse does not work afer resume. 
-> > When i execute inputattach after resume, the mouse is working.
-> 
-> I know that Pavel (added to CC) knows where the problem is (improper fake 
-> signal handling around try_to_freeze() call), I guess he'd be able to 
-> provide a patch to test.
+> From: Hendrik Sattler <post@hendrik-sattler.de>
+> This is another approach for FJKEYINF support for the FSC Lifebook laptop
+> series.  In comparison to the apanel driver that was posted lately, it
+> supports more than one entry in the table and slits off the actual handling of
+> the I2C devices to seperate drivers, allowing resuse in other scenarios.
 
-I don't have a patch ready, but I believe we localized the problem to
-serport_ldisc_read().
+s/resuse/reuse, right?
 
-        wait_event_interruptible(serport->wait,
-+test_bit(SERPORT_DEAD,&serport->flags));
+Also, is there any effort to merge this with Stephen's apanel driver? Or 
+what is the advantage of having these two drivers separately?
 
-It does interruptible wait, but does not expect signals. We tried
-something like:
+Thanks,
 
-do {
-        wait_event_interruptible(serport->wait, test_bit(SERPORT_DEAD,&serport->flags));
-} while (try_to_freeze());
-
-...but that did not help IIRC.
-								Pavel
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Jiri Kosina
+SUSE Labs

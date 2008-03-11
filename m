@@ -1,60 +1,62 @@
-From: Hendrik Sattler <post@hendrik-sattler.de>
-Subject: Re: [patch 01/23] fjkeyinf driver for FSC Lifebook laptops
-Date: Mon, 10 Mar 2008 14:53:39 +0100
-Message-ID: <20080310145339.mid5ib7bk8k0g80s@v1539.ncsrv.de>
-References: <200803101008.m2AA8d1N011222@imap1.linux-foundation.org>
-	<Pine.LNX.4.64.0803101334150.15209@jikos.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: input-evdev patch adding option to override XDevice type Atom,
+	option to force EV_REL events being treated as absolute values.
+Date: Tue, 11 Mar 2008 09:12:17 -0400
+Message-ID: <20080311090537.ZZRA012@mailhub.coreip.homeip.net>
+References: <200803110052.00181.wdraxinger@darkstargames.de> <200803111113.30161.wdraxinger@darkstargames.de> <20080311105437.GA6148@fooishbar.org> <200803111328.10670.wdraxinger@darkstargames.de> <54221.192.54.193.59.1205239967.squirrel@rousalka.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	DelSp=Yes	format=flowed
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from v1539.ncsrv.de ([89.110.150.23]:36729 "EHLO v1539.ncsrv.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751101AbYCJOY7 convert rfc822-to-8bit (ORCPT
+Received: from rv-out-0910.google.com ([209.85.198.187]:45154 "EHLO
+	rv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751282AbYCKNMd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Mar 2008 10:24:59 -0400
-In-Reply-To: <Pine.LNX.4.64.0803101334150.15209@jikos.suse.cz>
+	Tue, 11 Mar 2008 09:12:33 -0400
+Received: by rv-out-0910.google.com with SMTP id k20so1458454rvb.1
+        for <linux-input@vger.kernel.org>; Tue, 11 Mar 2008 06:12:32 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <54221.192.54.193.59.1205239967.squirrel@rousalka.dyndns.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Stephen Hemminger <shemminger@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org
+To: Nicolas Mailhot <nicolas.mailhot@laposte.net>, Jiri Kosina <jkosina@suse.cz>
+Cc: Wolfgang Draxinger <wdraxinger@darkstargames.de>, Daniel Stone <daniel@fooishbar.org>, Ville Syrj??l?? <syrjala@sci.fi>, xorg@lists.freedesktop.org, greg@kroah.com, linux-input@vger.kernel.org
 
-Zitat von Jiri Kosina <jkosina@suse.cz>:
-> On Mon, 10 Mar 2008, akpm@linux-foundation.org wrote:
->> From: Hendrik Sattler <post@hendrik-sattler.de>
->> This is another approach for FJKEYINF support for the FSC Lifebook laptop
->> series.  In comparison to the apanel driver that was posted lately, it
->> supports more than one entry in the table and slits off the actual   
->> handling of
->> the I2C devices to seperate drivers, allowing resuse in other scenarios.
->
-> s/resuse/reuse, right?
+[Adding linux-input and specifucally Jiri Kosina]
 
-Right.
+On Tue, Mar 11, 2008 at 01:52:47PM +0100, Nicolas Mailhot wrote:
+> 
+> Le Mar 11 mars 2008 13:28, Wolfgang Draxinger a ??crit :
+> > Am Dienstag, 11. M??rz 2008 schrieb Daniel Stone:
+> >
+> >> Quirk tables are all through the USB code[0], IDE, etc, already, so
+> >> this would be the accepted practice.
+> >
+> > I can understand it for single chipsets, or other specific HW. But
+> > USBHID is generic to the bone, and it's device neutral. Having the
+> > quirks table in the kernel would mean, that for every awkward device
+> > you'd have to get the latest kernel, or if it's not in there yet
+> > patch it.
+> 
+> I'd be very careful not to assume what can or can not be done at
+> kernel level, and what should and should not belong in the kernel.
+> 
+> The kernel HID people are the ones who see all the hardware diversity
+> and what people need. They're the ones you should consult first before
+> adding a quirks table somewhere else. Because if they have to
+> implement a quirks table in the kernel anyway (for some need you've
+> not envisionned today) having two layers of quirks that fight each
+> other for device control is going to make life miserable for everyone.
+> 
 
-> Also, is there any effort to merge this with Stephen's apanel driver? Or
-> what is the advantage of having these two drivers separately?
+I think that if EV_ABS for a device is the one that really makes sense
+and the device sends EV_REL in error we should just adjust the type
+of events right in USBHID driver so incorrect events don't propagate
+any further. If hovewer preference of EV_ABS vs EV_REL is just something
+xf86-evdev wants just because of its internal architecture then the
+quirk belongs to xf86-evdev itself.
 
-Cleaner.
-The original author of apanel did (in anothere approach for BSD)  
-actually the same. He was also my source for OZ990 documentation. The  
-apanel driver does mix several devices into one driver.
-Even though it doesn't work for my laptop, I see to gain in hacking  
-more into it if it can be done in a better way. The current I2C  
-framework makes a separation easy enough.
-Additionally, the OZ99x driver checks that there actually is such a  
-chip at that I2C address.
+Jiri, apparently some 3Dconnexion devices send EV_REL which makes
+xf86-evdev not too happy. What do you think?
 
-Note that those are normal I2C chips used, thus generic drivers for  
-them can be reused somewhere else. Again, this is not possible with  
-the apanel driver.
-
-This is not a full replacement for apanel, though, as it addresses not  
-the same hardware (different laptops). I asked Stephen to show me his  
-fjkeyinf data but he did not respond to my mail.
-
-HS
-
-
+-- 
+Dmitry

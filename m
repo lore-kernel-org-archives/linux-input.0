@@ -1,41 +1,50 @@
-From: "chris guirl" <thelusiv@gmail.com>
-Subject: Improving drivers for Logitech Driving Force Pro and G25 wheels
-Date: Fri, 14 Mar 2008 03:23:10 -0400
-Message-ID: <9ff0fb570803140023t30387038l9acd16a6bb8640dc@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: input-evdev patch adding option to override XDevice type Atom,
+ option to force EV_REL events being treated as absolute values.
+Date: Fri, 14 Mar 2008 13:19:50 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0803141317540.30831@jikos.suse.cz>
+References: <200803110052.00181.wdraxinger@darkstargames.de>
+ <200803111113.30161.wdraxinger@darkstargames.de> <20080311105437.GA6148@fooishbar.org>
+ <200803111328.10670.wdraxinger@darkstargames.de>
+ <54221.192.54.193.59.1205239967.squirrel@rousalka.dyndns.org>
+ <20080311090537.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.155]:16572 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751333AbYCNHXM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Mar 2008 03:23:12 -0400
-Received: by fg-out-1718.google.com with SMTP id l27so77000fgb.17
-        for <linux-input@vger.kernel.org>; Fri, 14 Mar 2008 00:23:10 -0700 (PDT)
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:41752 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751749AbYCNMTv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Mar 2008 08:19:51 -0400
+In-Reply-To: <20080311090537.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Nicolas Mailhot <nicolas.mailhot@laposte.net>, Wolfgang Draxinger <wdraxinger@darkstargames.de>, Daniel Stone <daniel@fooishbar.org>, Ville Syrj??l?? <syrjala@sci.fi>, xorg@lists.freedesktop.org, greg@kroah.com, linux-input@vger.kernel.org
 
-I have a Logitech Driving Force Pro and I've been trying to figure out
-how to make it work better in Linux. I have recently learned some
-things about both wheels that would be nice to incorporate into the
-driver. Most of this information was gained through a contact at
-Logitech. I intend to investigate making some changes to the kernel to
-improve the support for these wheels. Two of the main features I'd
-like to incorporate are setting the wheel axis range to different
-values so the full 900 degree range of the wheel can be used, and
-providing separated axes for the gas and brake pedals.
+On Tue, 11 Mar 2008, Dmitry Torokhov wrote:
 
-So, where to start? I'm not very familiar with kernel hacking but I'll
-begin doing some research on it soon. Can anyone on the list provide
-me with some guidance? I've tried to find some driver hacking
-documentation specific to my task but I haven't found much. Something
-along the lines of a joystick or USB driver hacking tutorial would
-help me a lot. I've also looked through a good bit of the Linux
-joystick and USB HID code in the input section and I am unsure where
-device specific code goes. I guess I have some more reading to do...
-:) Thanks in advance for any tips.
+> I think that if EV_ABS for a device is the one that really makes sense 
+> and the device sends EV_REL in error we should just adjust the type of 
+> events right in USBHID driver so incorrect events don't propagate any 
+> further. If hovewer preference of EV_ABS vs EV_REL is just something 
+> xf86-evdev wants just because of its internal architecture then the 
+> quirk belongs to xf86-evdev itself.
+> Jiri, apparently some 3Dconnexion devices send EV_REL which makes
+> xf86-evdev not too happy. What do you think?
 
-Chris Guirl
+Exactly, I fully agree with Dmitry here.
+
+We can easily fix up the device report descriptor in the kernel code, so 
+that it would send EV_ABS instead of EV_REL events. We do similar fixups 
+(not this particular one) for quite a few devices already.
+
+The real question here is whether it is really buggy device, or just 
+EV_REL interpretation makes more sense so X input driver, but the device 
+itself doesn't send buggy data. Could you please elaborate a little bit 
+more?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

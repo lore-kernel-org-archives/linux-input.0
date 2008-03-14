@@ -1,50 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: input-evdev patch adding option to override XDevice type Atom,
- option to force EV_REL events being treated as absolute values.
-Date: Fri, 14 Mar 2008 13:19:50 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0803141317540.30831@jikos.suse.cz>
-References: <200803110052.00181.wdraxinger@darkstargames.de>
- <200803111113.30161.wdraxinger@darkstargames.de> <20080311105437.GA6148@fooishbar.org>
- <200803111328.10670.wdraxinger@darkstargames.de>
- <54221.192.54.193.59.1205239967.squirrel@rousalka.dyndns.org>
- <20080311090537.ZZRA012@mailhub.coreip.homeip.net>
+From: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
+Subject: [PATCH] Input: fix cobalt_btns build error
+Date: Fri, 14 Mar 2008 23:22:52 +0900
+Message-ID: <20080314232252.b2c112d2.yoichi_yuasa@tripeaks.co.jp>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:41752 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751749AbYCNMTv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 14 Mar 2008 08:19:51 -0400
-In-Reply-To: <20080311090537.ZZRA012@mailhub.coreip.homeip.net>
+Received: from mo30.po.2iij.NET ([210.128.50.53]:15327 "EHLO mo30.po.2iij.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750876AbYCNOX0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Mar 2008 10:23:26 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Nicolas Mailhot <nicolas.mailhot@laposte.net>, Wolfgang Draxinger <wdraxinger@darkstargames.de>, Daniel Stone <daniel@fooishbar.org>, Ville Syrj??l?? <syrjala@sci.fi>, xorg@lists.freedesktop.org, greg@kroah.com, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: yoichi_yuasa@tripeaks.co.jp, linux-input@vger.kernel.org
 
-On Tue, 11 Mar 2008, Dmitry Torokhov wrote:
 
-> I think that if EV_ABS for a device is the one that really makes sense 
-> and the device sends EV_REL in error we should just adjust the type of 
-> events right in USBHID driver so incorrect events don't propagate any 
-> further. If hovewer preference of EV_ABS vs EV_REL is just something 
-> xf86-evdev wants just because of its internal architecture then the 
-> quirk belongs to xf86-evdev itself.
-> Jiri, apparently some 3Dconnexion devices send EV_REL which makes
-> xf86-evdev not too happy. What do you think?
+Fix cobalt_btns build error.
 
-Exactly, I fully agree with Dmitry here.
+drivers/input/misc/cobalt_btns.c: In function 'cobalt_buttons_probe':
+drivers/input/misc/cobalt_btns.c:109: warning: dereferencing 'void *' pointer
+drivers/input/misc/cobalt_btns.c:109: error: invalid use of void expression
+make[3]: *** [drivers/input/misc/cobalt_btns.o] Error 1
+make[2]: *** [drivers/input/misc] Error 2
+make[1]: *** [drivers/input] Error 2
+make: *** [drivers] Error 2
 
-We can easily fix up the device report descriptor in the kernel code, so 
-that it would send EV_ABS instead of EV_REL events. We do similar fixups 
-(not this particular one) for quite a few devices already.
+Signed-off-by: Yoichi Yuasa <yoichi_yuasa@tripeaks.co.jp>
 
-The real question here is whether it is really buggy device, or just 
-EV_REL interpretation makes more sense so X input driver, but the device 
-itself doesn't send buggy data. Could you please elaborate a little bit 
-more?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+diff -pruN -X /home/yuasa/Memo/dontdiff linux-orig/drivers/input/misc/cobalt_btns.c linux/drivers/input/misc/cobalt_btns.c
+--- linux-orig/drivers/input/misc/cobalt_btns.c	2008-03-14 22:44:02.563995073 +0900
++++ linux/drivers/input/misc/cobalt_btns.c	2008-03-14 23:10:12.844238925 +0900
+@@ -106,7 +106,7 @@ static int __devinit cobalt_buttons_prob
+ 	input_set_capability(input, EV_MSC, MSC_SCAN);
+ 	__set_bit(EV_KEY, input->evbit);
+ 	for (i = 0; i < input->keycodemax; i++)
+-		__set_bit(input->keycode[i], input->keybit);
++		__set_bit(((unsigned short *)input->keycode)[i], input->keybit);
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);

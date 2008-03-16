@@ -1,70 +1,73 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH] appletouch driver and 4th generation macbooks
-Date: Sun, 16 Mar 2008 12:02:12 +0100
-Message-ID: <1205665332.15910.57.camel@johannes.berg>
-References: <47DAB465.7090100@twam.info>
-	 <1205588795.15910.34.camel@johannes.berg>  <47DCFAE3.5000208@twam.info>
+From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+Subject: Re: Tablet with evdev driver
+Date: Sun, 16 Mar 2008 17:41:12 +0100
+Message-ID: <1205685672.3154.11.camel@rousalka.dyndns.org>
+References: <alpine.LNX.1.00.0803161706250.15404@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+pUcONfZ+jc207bNi4NB"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from crystal.sipsolutions.net ([195.210.38.204]:33992 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751611AbYCPLCY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Mar 2008 07:02:24 -0400
-In-Reply-To: <47DCFAE3.5000208@twam.info>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============0126808884=="
+Return-path: <xorg-bounces@lists.freedesktop.org>
+In-Reply-To: <alpine.LNX.1.00.0803161706250.15404@localhost>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/xorg>
+List-Post: <mailto:xorg@lists.freedesktop.org>
+List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
+Mime-version: 1.0
+Sender: xorg-bounces@lists.freedesktop.org
+Errors-To: xorg-bounces@lists.freedesktop.org
+To: Andrej Gelenberg <andrej.gelenberg@googlemail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, xorg@lists.freedesktop.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias =?ISO-8859-1?Q?M=FCller?= <Tobias_Mueller@twam.info>
-Cc: linux-input@vger.kernel.org
 
 
---=-+pUcONfZ+jc207bNi4NB
-Content-Type: text/plain; charset=utf-8
+--===============0126808884==
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OWQXDmtFSiPfqu1LtuD6"
+
+
+--=-OWQXDmtFSiPfqu1LtuD6
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
+Le dimanche 16 mars 2008 =C3=A0 17:16 +0100, Andrej Gelenberg a =C3=A9crit =
+:
 
-On Sun, 2008-03-16 at 11:48 +0100, Tobias M=C3=BCller wrote:
-> Hi
->=20
-> > Any hint why the "HF"?
-> No, i found this names from in a usb-quirks patch, when adjusting that on=
-e for 2.6.25.
+> i have one G-Pen 340 Pen Tablet. It report as evdev. I wrote small test=20
+> program and i known now, than X-Axis have code 0x2 and Y-Axis have code=20
+> 0x3. My question is, how can i remap XYZ-Axis?
 
-Oh ok.
+The evdev driver relays the kernel view of an input device. If a device
+needs to be quirked (change axis order, etc) it's better to do it at the
+kernel level (this is how mouse wheels are handled for example)
 
-> > Also, are you working on getting the rest of the
-> > input stuff working, especially the keyboard FN key translations? You
-> > can have below patch I made for my brother but never pushed upstream.
-> > Might not apply against a current kernel any more.
-> This is already implemented in 2.6.25-rc5 :)
+--=20
+Nicolas Mailhot
 
-Oh cool :)
-
-Thanks,
-johannes
-
---=-+pUcONfZ+jc207bNi4NB
+--=-OWQXDmtFSiPfqu1LtuD6
 Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
 -----BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
+Version: GnuPG v1.4.8 (GNU/Linux)
 
-iQIVAwUAR9z+M6Vg1VMiehFYAQIz3w/+Lfp8dLgvgU9ZqN8HvXzM2skj9zauznZl
-bW9YHhpIjmHIXqYDTS9kouBClQp/FGonH8LStRU8E3uBPuaKkPVn+uLT39xeY/ww
-xt8OWgZEGQ3KNDPo9eW/Q7WtxH833+UtfFJsixJmpojO3Q8rK43IsU3kjEuE4Xoe
-VSlFhQ9w4M3L9C9GUlFysLo4muWeX9Z7y1KiCA4aE9pg9zC0uS5QKTRLuKsMbE2n
-dMqGyYNLKswRQWL6jsjn5wwiXqtFG7148OeSvhDbgLcxXbTak+ZKwPBnhZVb+bUw
-IvF/gpd6Xo5YiDlegJK7g5OaNa2uqfymtR2rslaNm9yuuUHFwksh7zwPPbkUNtnJ
-xUwld8T8u/8kCFNBhEuTt2sr8RNFXmvB6VgvaabHCzX9H0y2/MNfovE5yKPV/AIR
-AvVyIYncmp5eLUgZf33dIZhaEIlMxIILQhdolEL9I73N03eIEoMJrQ5nORe6dVPH
-zsQf7m5Z5xt+DeNH/TTtFZddgQs7H2madQP6l6CtNGWa90sIbSsatlSOUGyiErzx
-a+6VxK0VNZCmKsaV8RDdaQCo2ZxR9eWBwXsVgd23ZZfEZ811V105zhomjJ5mAAN/
-nKuOZ4umvBTxfTMyqLfTC2JGUx05Dji6bdGUohNPKNymr1hZf3BTR76vIudzLpsL
-i8Jk9cMH9i8=
-=DvwN
+iEYEABECAAYFAkfdTagACgkQI2bVKDsp8g3ZTACgixSvGpTWNohr2ejyx19cN0On
+3OEAn2K8DJ/e0Ud2l2TDmSUCGpMxirBp
+=qetv
 -----END PGP SIGNATURE-----
 
---=-+pUcONfZ+jc207bNi4NB--
+--=-OWQXDmtFSiPfqu1LtuD6--
 
+
+--===============0126808884==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+xorg mailing list
+xorg@lists.freedesktop.org
+http://lists.freedesktop.org/mailman/listinfo/xorg
+--===============0126808884==--

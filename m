@@ -1,107 +1,70 @@
-From: =?UTF-8?B?VG9iaWFzIE3DvGxsZXI=?= <Tobias_Mueller@twam.info>
+From: Johannes Berg <johannes@sipsolutions.net>
 Subject: Re: [PATCH] appletouch driver and 4th generation macbooks
-Date: Sun, 16 Mar 2008 11:48:03 +0100
-Message-ID: <47DCFAE3.5000208@twam.info>
-References: <47DAB465.7090100@twam.info> <1205588795.15910.34.camel@johannes.berg>
+Date: Sun, 16 Mar 2008 12:02:12 +0100
+Message-ID: <1205665332.15910.57.camel@johannes.berg>
+References: <47DAB465.7090100@twam.info>
+	 <1205588795.15910.34.camel@johannes.berg>  <47DCFAE3.5000208@twam.info>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms090008030201080704070107"
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-+pUcONfZ+jc207bNi4NB"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ceres.twam.info ([84.16.224.131]:48050 "EHLO smtp.twam.info"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751505AbYCPKsK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Mar 2008 06:48:10 -0400
-In-Reply-To: <1205588795.15910.34.camel@johannes.berg>
+Received: from crystal.sipsolutions.net ([195.210.38.204]:33992 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751611AbYCPLCY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Mar 2008 07:02:24 -0400
+In-Reply-To: <47DCFAE3.5000208@twam.info>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johannes Berg <johannes@sipsolutions.net>, linux-input@vger.kernel.org
+To: Tobias =?ISO-8859-1?Q?M=FCller?= <Tobias_Mueller@twam.info>
+Cc: linux-input@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
 
---------------ms090008030201080704070107
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+--=-+pUcONfZ+jc207bNi4NB
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Hi
 
-> Any hint why the "HF"?
-No, i found this names from in a usb-quirks patch, when adjusting that one for 2.6.25.
+On Sun, 2008-03-16 at 11:48 +0100, Tobias M=C3=BCller wrote:
+> Hi
+>=20
+> > Any hint why the "HF"?
+> No, i found this names from in a usb-quirks patch, when adjusting that on=
+e for 2.6.25.
 
-> Also, are you working on getting the rest of the
-> input stuff working, especially the keyboard FN key translations? You
-> can have below patch I made for my brother but never pushed upstream.
-> Might not apply against a current kernel any more.
-This is already implemented in 2.6.25-rc5 :)
+Oh ok.
 
-Regards
-  Tobias
+> > Also, are you working on getting the rest of the
+> > input stuff working, especially the keyboard FN key translations? You
+> > can have below patch I made for my brother but never pushed upstream.
+> > Might not apply against a current kernel any more.
+> This is already implemented in 2.6.25-rc5 :)
 
---------------ms090008030201080704070107
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
+Oh cool :)
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJmzCC
-AygwggKRoAMCAQICEDdfXmLiPCut3WRIWKcEfrgwDQYJKoZIhvcNAQEFBQAwYjELMAkGA1UE
-BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
-I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA3MTIxMTE0NDIyNVoX
-DTA4MTIxMDE0NDIyNVowgYcxEDAOBgNVBAQTB011ZWxsZXIxIDAeBgNVBCoTF1RvYmlhcyBX
-b2xmZ2FuZyBBbmRyZWFzMSgwJgYDVQQDEx9Ub2JpYXMgV29sZmdhbmcgQW5kcmVhcyBNdWVs
-bGVyMScwJQYJKoZIhvcNAQkBFhhUb2JpYXNfTXVlbGxlckB0d2FtLmluZm8wggEiMA0GCSqG
-SIb3DQEBAQUAA4IBDwAwggEKAoIBAQC3vN/xQv+Nqk74OxgDpqJHwYGdwWOemIfl/W1sOlIE
-FXzO9IDR57fa4FlqIUFrezqlolzipm1ZJAfxVhO4pdSjtwNj/4Z6ap5c3LbTjZYwL2abiFPi
-qQPrwyIzYYKTyRpWetnTs0BVohEHMR38/sA3LMI4VQQEBYAd/XnPQPOLObLqbUggI1JZwmgO
-zLEI1GSUEI2fUVyMeKIyXqX293cgw/5zQuoyZ87PQX80LsBkRx7JOnyUZ94+togZU/NtHso4
-u+GcxVK8II/BN5wXYCoIQvNxsR0jc1AGJ7Y2xnjACjUVFeK/n1gZYTa4ZPPm3F/4XyGbd88U
-3Qd2cBgP4cF5AgMBAAGjNTAzMCMGA1UdEQQcMBqBGFRvYmlhc19NdWVsbGVyQHR3YW0uaW5m
-bzAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBBQUAA4GBACk9SGx4seRUhysubF04VghMmHFt
-ap3+um/34i+t7rAFxAjA3Fj1NRxyTDuy3TT6M0yO4Toak4778ssDJP8fWIY71DvP5VYhHUJw
-F+nCPacU2HRORLTXf61GhqzQzrvujj/yj3Z6z6c2OLc90CaDaoVjTb3nf9F6+1L7ID5ecozo
-MIIDKDCCApGgAwIBAgIQN19eYuI8K63dZEhYpwR+uDANBgkqhkiG9w0BAQUFADBiMQswCQYD
-VQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UE
-AxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDcxMjExMTQ0MjI1
-WhcNMDgxMjEwMTQ0MjI1WjCBhzEQMA4GA1UEBBMHTXVlbGxlcjEgMB4GA1UEKhMXVG9iaWFz
-IFdvbGZnYW5nIEFuZHJlYXMxKDAmBgNVBAMTH1RvYmlhcyBXb2xmZ2FuZyBBbmRyZWFzIE11
-ZWxsZXIxJzAlBgkqhkiG9w0BCQEWGFRvYmlhc19NdWVsbGVyQHR3YW0uaW5mbzCCASIwDQYJ
-KoZIhvcNAQEBBQADggEPADCCAQoCggEBALe83/FC/42qTvg7GAOmokfBgZ3BY56Yh+X9bWw6
-UgQVfM70gNHnt9rgWWohQWt7OqWiXOKmbVkkB/FWE7il1KO3A2P/hnpqnlzcttONljAvZpuI
-U+KpA+vDIjNhgpPJGlZ62dOzQFWiEQcxHfz+wDcswjhVBAQFgB39ec9A84s5suptSCAjUlnC
-aA7MsQjUZJQQjZ9RXIx4ojJepfb3dyDD/nNC6jJnzs9BfzQuwGRHHsk6fJRn3j62iBlT820e
-yji74ZzFUrwgj8E3nBdgKghC83GxHSNzUAYntjbGeMAKNRUV4r+fWBlhNrhk8+bcX/hfIZt3
-zxTdB3ZwGA/hwXkCAwEAAaM1MDMwIwYDVR0RBBwwGoEYVG9iaWFzX011ZWxsZXJAdHdhbS5p
-bmZvMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEFBQADgYEAKT1IbHix5FSHKy5sXThWCEyY
-cW1qnf66b/fiL63usAXECMDcWPU1HHJMO7LdNPozTI7hOhqTjvvyywMk/x9YhjvUO8/lViEd
-QnAX6cI9pxTYdE5EtNd/rUaGrNDOu+6OP/KPdnrPpzY4tz3QJoNqhWNNved/0Xr7UvsgPl5y
-jOgwggM/MIICqKADAgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMG
-A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0
-ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9u
-MSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEW
-HHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2
-MjM1OTU5WjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
-eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0Ew
-gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9
-zfVb8hp2vX8MOmHyv1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPP
-K9Xzgnc9A74r/rsYPge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGj
-gZQwgZEwEgYDVR0TAQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3Js
-LnRoYXd0ZS5jb20vVGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYw
-KQYDVR0RBCIwIKQeMBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEB
-BQUAA4GBAEiM0VCD6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9
-reFhYsPZOhl+hLGZGwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo0
-5RAaWzVNd+NWIXiC3CEZNd4ksdMdRv9dX2VPMYIDZDCCA2ACAQEwdjBiMQswCQYDVQQGEwJa
-QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
-d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECEDdfXmLiPCut3WRIWKcEfrgwCQYF
-Kw4DAhoFAKCCAcMwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
-MDgwMzE2MTA0ODAzWjAjBgkqhkiG9w0BCQQxFgQUVsN7GxzZIOiwoxoVAR+lr4T69TQwUgYJ
-KoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwIC
-AUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgwgYUGCSsGAQQBgjcQBDF4MHYwYjELMAkGA1UE
-BhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMT
-I1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAhA3X15i4jwrrd1kSFinBH64
-MIGHBgsqhkiG9w0BCRACCzF4oHYwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
-b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
-bCBJc3N1aW5nIENBAhA3X15i4jwrrd1kSFinBH64MA0GCSqGSIb3DQEBAQUABIIBAIZUVT+l
-26N1fwR32rOM3+SmiNdd6fiTPlcDMm3nG2yFFZYUMiE/hzJxEZn75pgb/O861FwLu0qSKccb
-OGCofe+A5sPMybiCJR+ArczsNDX9rsUV9XKIZhWTKMzrKA85ZiQUHF6+Vinwyr6gW085/Dwn
-2SoJjYex4XBg1TJrCni3j8KqjsIMzkzhxOhwl0Kv5efbGf8C2FDpaPKHbQembDtZyeLc8+yU
-OZSVOJaFkEwDzhtIfoxsr7yymsXPQgFYovtcxKnFf8FVvEWWHm/LqEnvZ905/WT2Asw9/3M+
-glhfBkWBneMX3zQ1Qm2V40/JkHQpq4H48UqkT1BmKAm7t0cAAAAAAAA=
---------------ms090008030201080704070107--
+Thanks,
+johannes
+
+--=-+pUcONfZ+jc207bNi4NB
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIVAwUAR9z+M6Vg1VMiehFYAQIz3w/+Lfp8dLgvgU9ZqN8HvXzM2skj9zauznZl
+bW9YHhpIjmHIXqYDTS9kouBClQp/FGonH8LStRU8E3uBPuaKkPVn+uLT39xeY/ww
+xt8OWgZEGQ3KNDPo9eW/Q7WtxH833+UtfFJsixJmpojO3Q8rK43IsU3kjEuE4Xoe
+VSlFhQ9w4M3L9C9GUlFysLo4muWeX9Z7y1KiCA4aE9pg9zC0uS5QKTRLuKsMbE2n
+dMqGyYNLKswRQWL6jsjn5wwiXqtFG7148OeSvhDbgLcxXbTak+ZKwPBnhZVb+bUw
+IvF/gpd6Xo5YiDlegJK7g5OaNa2uqfymtR2rslaNm9yuuUHFwksh7zwPPbkUNtnJ
+xUwld8T8u/8kCFNBhEuTt2sr8RNFXmvB6VgvaabHCzX9H0y2/MNfovE5yKPV/AIR
+AvVyIYncmp5eLUgZf33dIZhaEIlMxIILQhdolEL9I73N03eIEoMJrQ5nORe6dVPH
+zsQf7m5Z5xt+DeNH/TTtFZddgQs7H2madQP6l6CtNGWa90sIbSsatlSOUGyiErzx
+a+6VxK0VNZCmKsaV8RDdaQCo2ZxR9eWBwXsVgd23ZZfEZ811V105zhomjJ5mAAN/
+nKuOZ4umvBTxfTMyqLfTC2JGUx05Dji6bdGUohNPKNymr1hZf3BTR76vIudzLpsL
+i8Jk9cMH9i8=
+=DvwN
+-----END PGP SIGNATURE-----
+
+--=-+pUcONfZ+jc207bNi4NB--
+

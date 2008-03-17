@@ -1,40 +1,43 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: GPen 340 Pen Tablet input
-Date: Sun, 16 Mar 2008 22:45:59 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0803162244180.30831@jikos.suse.cz>
-References: <alpine.LNX.1.00.0803161918260.15404@localhost>
- <Pine.LNX.4.64.0803161957010.19269@twin.jikos.cz> <alpine.LNX.1.00.0803162005320.32475@localhost>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.25-rc5.git4 regression PS/2 mouse not detected/working
+Date: Mon, 17 Mar 2008 14:55:28 -0400
+Message-ID: <20080317145429.ZZRA012@mailhub.coreip.homeip.net>
+References: <1205775229.25146.11.camel@indigo.declera.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:38741 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752209AbYCPVqA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Mar 2008 17:46:00 -0400
-In-Reply-To: <alpine.LNX.1.00.0803162005320.32475@localhost>
+Received: from py-out-1112.google.com ([64.233.166.177]:48893 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752555AbYCQSzy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 17 Mar 2008 14:55:54 -0400
+Received: by py-out-1112.google.com with SMTP id u52so7904125pyb.10
+        for <linux-input@vger.kernel.org>; Mon, 17 Mar 2008 11:55:53 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1205775229.25146.11.camel@indigo.declera.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrej Gelenberg <andrej.gelenberg@googlemail.com>
+To: Yanko Kaneti <yaneti@declera.com>
 Cc: linux-input@vger.kernel.org
 
-On Sun, 16 Mar 2008, Andrej Gelenberg wrote:
+Hi,
 
-> > Which driver is this tablet handled by?
-> its handled by usbhid.
+On Mon, Mar 17, 2008 at 07:33:49PM +0200, Yanko Kaneti wrote:
+> Hi
+> 
+> My PS/2 mouse stops being detected between kernels 2.6.24.3-12.fc8 and
+> 2.6.25-0.121.rc5.git4.fc9 (which I believe do not carry any patches in
+> that area). Its an ASUS P5E-VM DO motherboard , bios revision 0506. The
+> PS/2 keyboard still works.
+> 
+> Attached are both dmesg logs with i8042.debug=1, dmidecode, lspci -vvnn
+> Tried i8042.noloop and both the mouse and keyboard stop working.
+> 
 
-[ linux-input returned to CC ]
+Could you please send me dmesg from booting with i8042.noloop. I would
+expect this option to help in your case so I am curious what went wrong.
 
-Please recompile your kernel with CONFIG_HID_DEBUG, modprobe the 'hid' 
-module with 'debug=1' parameter, and send the output that appears in dmsg 
-output when you connect the device, and also when you perform the actions 
-that don't work properly.
-
-Also, please annotate this output, i.e. write "this happens when I move 
-the mouse in Y direction, this happens when I press that non-functioning 
-button", etc.
-
-Thanks,
+Thanks.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

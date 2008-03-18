@@ -1,66 +1,88 @@
-From: Yanko Kaneti <yaneti@declera.com>
-Subject: Re: 2.6.25-rc5.git4 regression PS/2 mouse not detected/working
-Date: Wed, 19 Mar 2008 10:35:39 +0200
-Message-ID: <1205915739.20210.4.camel@indigo.declera.com>
-References: <1205775229.25146.11.camel@indigo.declera.com>
-	 <20080317145429.ZZRA012@mailhub.coreip.homeip.net>
-	 <1205780323.25146.13.camel@indigo.declera.com>
-	 <20080318114711.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Patch for oops in a grabbed evdev after disconnect
+Date: Tue, 18 Mar 2008 14:54:17 -0400
+Message-ID: <20080318144432.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080317234807.42c72a76.zaitcev@redhat.com> <20080318092733.ZZRA012@mailhub.coreip.homeip.net> <20080318110342.ad2bb3ea.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from indigo.declera.com ([212.116.131.21]:34537 "HELO
-	indigo.declera.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1757944AbYCSTmZ (ORCPT
+Received: from nf-out-0910.google.com ([64.233.182.186]:15584 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935517AbYCSU50 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2008 15:42:25 -0400
-In-Reply-To: <20080318114711.ZZRA012@mailhub.coreip.homeip.net>
+	Wed, 19 Mar 2008 16:57:26 -0400
+Received: by nf-out-0910.google.com with SMTP id g13so339986nfb.21
+        for <linux-input@vger.kernel.org>; Wed, 19 Mar 2008 13:57:25 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080318110342.ad2bb3ea.zaitcev@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-input@vger.kernel.org, dwmw2@redhat.com
 
-
-On Tue, 2008-03-18 at 11:54 -0400, Dmitry Torokhov wrote:
-> On Mon, Mar 17, 2008 at 08:58:43PM +0200, Yanko Kaneti wrote:
-> > 
-> > On Mon, 2008-03-17 at 14:55 -0400, Dmitry Torokhov wrote:
-> > > Hi,
-> > > 
-> > > On Mon, Mar 17, 2008 at 07:33:49PM +0200, Yanko Kaneti wrote:
-> > > > Hi
-> > > > 
-> > > > My PS/2 mouse stops being detected between kernels 2.6.24.3-12.fc8 and
-> > > > 2.6.25-0.121.rc5.git4.fc9 (which I believe do not carry any patches in
-> > > > that area). Its an ASUS P5E-VM DO motherboard , bios revision 0506. The
-> > > > PS/2 keyboard still works.
-> > > > 
-> > > > Attached are both dmesg logs with i8042.debug=1, dmidecode, lspci -vvnn
-> > > > Tried i8042.noloop and both the mouse and keyboard stop working.
-> > > > 
-> > > 
-> > > Could you please send me dmesg from booting with i8042.noloop. I would
-> > > expect this option to help in your case so I am curious what went wrong.
-> > 
-> > Attached
-> > 
+On Tue, Mar 18, 2008 at 11:03:42AM -0700, Pete Zaitcev wrote:
+> On Tue, 18 Mar 2008 09:31:25 -0400, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > On Mon, Mar 17, 2008 at 11:48:07PM -0700, Pete Zaitcev wrote:
 > 
-> Hmm, it looks the kernel does the right thing in case of i8042.noloop,
-> except that it does not work :(. Kernel triest to query the mouse but
-> it does not respond.
+> > > If a device was grabbed through evdev and then became disconnected,
+> > > we oops on close. This happens because input_release_device uses memory
+> > > which was freed.
 > 
-> Can you try taking contents of drivers/input/serio from 2.6.25 and
-> copy it in .24? It will most likely compile... If that works I'm
-> afraid I will ahve to ask you to do git biscect to find the offending
-> commit.
+> > Could you tell me what memory is freed?
+> 
+> The input_dev is freed. We only have two structures involved,
+> really: evdev and input_dev. The rest is either immaterial like
+> evdev_client, or embedded into the two like input_handle and device.
+> 
+> It's freed by this route:
+>  hidinput_disconnect
+>    input_unregister_device
+>      evdev_disconnect  --- marks evdev->exists = 0
+>      device_unregister
+>      put_device -- kobject_put -- kref_put -- kobject_cleanup
+>        input_dev_release
+> 
+> > [] As far as I understand the
+> > the input_dev structure shold be pinned in memory by the driver
+> > core since we have this link:
+> > 
+> > 	evdev->dev.parent = &input_dev->dev;
+> > 
+> > This should guarantee that input_device is not gone until we
+> > call evdev_free which should be done way after the ungrab.
+> 
+> I don't think anyone checks this, unless the accompaining refcount
+> is set.
+> 
+> Honestly, I didn't consider the implications for the integrity
+> of sysfs. It seems like there's no extra memory leak with my
+> patch, that's the only thing I can promise. Maybe you want to
+> poke Greg about it.
+> 
 
-It works. I am afraid I don't know when/if I'll be able to do the
-bisecting thing :(
+I dont oppose your patch, I am just trying to understand why it
+is needed because driver core should pin the parent device as
+far as I understand and if this does not happen there are other
+issues in input core that need to be taken care of.
 
-It would be really nice if someone has written a guide or something for
-most hassle-free way of doing it on a Fedora system.
+>From what I see we should be automatically taking the reference
+to parent kobject in
 
-Regards
-Yanko
+kobject_add_internal():
+	parent = kobject_get(kobj->parent);
 
+perent is set in kobject_add_varg():
+	kobj->parent = parent;
+
+.. which is called from kobject_add() which is called from
+device_add().
+
+Hmm, I wonder if obsolete sysfs links mess up proper parenting
+data... I dont think I have obsolete links set up on any of my
+boxes, can you see if oops goes away if you disable deprectated
+sysfs? If so then instead of checking exist flag we need explicitely
+take reference to the parent input_dev. Although I wonder what
+other subsystems might be affected.
+
+-- 
+Dmitry

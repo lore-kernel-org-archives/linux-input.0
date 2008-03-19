@@ -1,63 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Patch for oops in a grabbed evdev after disconnect
-Date: Tue, 18 Mar 2008 09:31:25 -0400
-Message-ID: <20080318092733.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080317234807.42c72a76.zaitcev@redhat.com>
+From: Markus Armbruster <armbru@redhat.com>
+Subject: Re: [PATCH 2/3] fbdev: Make deferred I/O work
+	as advertized
+Date: Wed, 19 Mar 2008 11:45:29 +0100
+Message-ID: <87iqzjat6e.fsf@pike.pond.sub.org>
+References: <87tzjx6vj3.fsf@pike.pond.sub.org>
+	<87k5kt6vd3.fsf@pike.pond.sub.org>
+	<45a44e480802260611l5a8d0bc9k9cc967bc73b88fac@mail.gmail.com>
+	<871w6z6ajs.fsf@pike.pond.sub.org>
+	<45a44e480802260701o7c616e3bjd5f86f4143be791b@mail.gmail.com>
+Reply-To: linux-fbdev-devel@lists.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mu-out-0910.google.com ([209.85.134.185]:7699 "EHLO
-	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752838AbYCRNbf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 18 Mar 2008 09:31:35 -0400
-Received: by mu-out-0910.google.com with SMTP id i10so12003415mue.5
-        for <linux-input@vger.kernel.org>; Tue, 18 Mar 2008 06:31:34 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080317234807.42c72a76.zaitcev@redhat.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-fbdev-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <45a44e480802260701o7c616e3bjd5f86f4143be791b@mail.gmail.com>
+	(Jaya Kumar's message of "Tue\, 26 Feb 2008 10\:01\:16 -0500")
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
+	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-fbdev-devel>
+List-Post: <mailto:linux-fbdev-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
+	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-fbdev-devel-bounces@lists.sourceforge.net
+Errors-To: linux-fbdev-devel-bounces@lists.sourceforge.net
+To: Jaya Kumar <jayakumar.lkml@gmail.com>
+Cc: xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-input@vger.kernel.org
 
-Hi Pete,
+"Jaya Kumar" <jayakumar.lkml@gmail.com> writes:
 
-On Mon, Mar 17, 2008 at 11:48:07PM -0700, Pete Zaitcev wrote:
-> If a device was grabbed through evdev and then became disconnected,
-> we oops on close. This happens because input_release_device uses memory
-> which was freed.
-> 
-> Fedora enabled evdev in X11 by default recently, and now anyone who
-> flips a KVM oopses when they log out (Fedora bug 436659).
-> 
+> On Tue, Feb 26, 2008 at 9:45 AM, Markus Armbruster <armbru@redhat.com> wrote:
+>>
+>>  What about pushing the fb_defio fixes independently of any new
+>>  fb_defio users?  If fb_defio was worth merging into Linus's tree, it
+>>  should be worth fixing there, whether new users are in shape already
+>>  or not.
+>
+> I think that Andrew's message is saying that there may be a race
+> condition in the defio patch itself as opposed to the defio user
+> patch.
+>
+> If there is no race condition or other problems, then I think it would
+> make sense to merge the defio patch independent of metronomefb or
+> other new patches that use defio.
+>
+> Thanks,
+> jaya
 
-Could you tell me what memory is freed? As far as I understand the
-the input_dev structure shold be pinned in memory by the driver
-core since we have this link:
+Any progress on this?
 
-	evdev->dev.parent = &input_dev->dev;
+Considering that fb_defio is utterly broken without the fix (writing
+the frame buffer makes the VM endlessly invoke vm_ops.page_mkwrite()),
+wouldn't it make sense to merge the fix even if it still has issues?
 
-This should guarantee that input_device is not gone until we
-call evdev_free which should be done way after the ungrab.
-
-What am I missing here?
-
-> Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 0727b0a..c0874a3 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -155,7 +155,8 @@ static int evdev_ungrab(struct evdev *evdev, struct evdev_client *client)
->  
->  	rcu_assign_pointer(evdev->grab, NULL);
->  	synchronize_rcu();
-> -	input_release_device(&evdev->handle);
-> +	if (evdev->exist)
-> +		input_release_device(&evdev->handle);
->  
->  	return 0;
->  }
-
--- 
-Dmitry
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Microsoft
+Defy all challenges. Microsoft(R) Visual Studio 2008.
+http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/

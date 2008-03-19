@@ -1,70 +1,215 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Patch for oops in a grabbed evdev after disconnect
-Date: Tue, 18 Mar 2008 11:03:42 -0700
-Message-ID: <20080318110342.ad2bb3ea.zaitcev@redhat.com>
-References: <20080317234807.42c72a76.zaitcev@redhat.com>
-	<20080318092733.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Subject: [PATCH] gpio-keys debouncing support
+Date: Thu, 20 Mar 2008 01:13:23 +0300
+Message-ID: <20080319221323.GA2710@doriath.ww600.siemens.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:44779 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S937284AbYCSV16 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2008 17:27:58 -0400
-In-Reply-To: <20080318092733.ZZRA012@mailhub.coreip.homeip.net>
+Received: from mu-out-0910.google.com ([209.85.134.190]:23506 "EHLO
+	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759317AbYCSWNo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Mar 2008 18:13:44 -0400
+Received: by mu-out-0910.google.com with SMTP id i10so897690mue.5
+        for <linux-input@vger.kernel.org>; Wed, 19 Mar 2008 15:13:41 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, zaitcev@redhat.com, dwmw2@redhat.com
+To: linux-input@vger.kernel.org
+Cc: dtor@mail.ru
 
-On Tue, 18 Mar 2008 09:31:25 -0400, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On Mon, Mar 17, 2008 at 11:48:07PM -0700, Pete Zaitcev wrote:
+Sometimes the gpio line can generates jitter while transitioning
+from one state to another. Implement a way to filter such noise during
+transitions.
 
-> > If a device was grabbed through evdev and then became disconnected,
-> > we oops on close. This happens because input_release_device uses memory
-> > which was freed.
+Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+---
+ drivers/input/keyboard/Kconfig     |    7 +++
+ drivers/input/keyboard/gpio_keys.c |   96 ++++++++++++++++++++++++++++++++++--
+ include/linux/gpio_keys.h          |    6 ++
+ 3 files changed, 104 insertions(+), 5 deletions(-)
 
-> Could you tell me what memory is freed?
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 8ea709b..0fb4592 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -295,6 +295,13 @@ config KEYBOARD_GPIO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called gpio-keys.
+ 
++config KEYBOARD_GPIO_DEBOUNCE
++	bool "GPIO Buttons debouncer"
++	depends on KEYBOARD_GPIO
++	help
++	  This driver will enable the debouncer in the gpio-keys
++	  driver for pins that take some time to come to stable state.
++
+ config KEYBOARD_MAPLE
+ 	tristate "Maple bus keyboard"
+ 	depends on SH_DREAMCAST && MAPLE
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 6a9ca4b..577dfea 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -26,6 +26,39 @@
+ 
+ #include <asm/gpio.h>
+ 
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++struct gpio_debounce_data {
++	struct platform_device *pdev;
++	struct gpio_keys_button *button;
++	int state;
++	int count;
++};
++
++static void gpio_debounce_timer(unsigned long _data)
++{
++	struct gpio_debounce_data *data = (struct gpio_debounce_data *)_data;
++	struct gpio_keys_button *button = data->button;
++	int gpio = button->gpio;
++	unsigned int type = button->type ?: EV_KEY;
++	int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
++	struct input_dev *input = platform_get_drvdata(data->pdev);
++
++	if (state != data->state) {
++		data->count = 0;
++		data->state = state;
++		mod_timer(&button->timer, jiffies +
++					msecs_to_jiffies(button->interval));
++	} else if (data->count < button->count) {
++		data->count ++;
++		mod_timer(&button->timer, jiffies +
++					msecs_to_jiffies(button->interval));
++	} else {
++		input_event(input, type, button->code, !!state);
++		input_sync(input);
++	}
++}
++#endif
++
+ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ {
+ 	int i;
+@@ -38,11 +71,21 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 		int gpio = button->gpio;
+ 
+ 		if (irq == gpio_to_irq(gpio)) {
+-			unsigned int type = button->type ?: EV_KEY;
+-			int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++			if (button->count) {
++				if (!timer_pending(&button->timer))
++					mod_timer(&button->timer, jiffies +
++							msecs_to_jiffies(
++							button->interval));
++			} else
++#endif
++			{
++				unsigned int type = button->type ?: EV_KEY;
++				int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
+ 
+-			input_event(input, type, button->code, !!state);
+-			input_sync(input);
++				input_event(input, type, button->code, !!state);
++				input_sync(input);
++			}
+ 		}
+ 	}
+ 
+@@ -103,6 +146,31 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 			gpio_free(button->gpio);
+ 			goto fail;
+ 		}
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++		if (button->count && button->interval) {
++			struct gpio_debounce_data *data;
++			data = kzalloc(sizeof(struct gpio_debounce_data), GFP_KERNEL);
++			if (!data) {
++				error = -ENOMEM;
++				pr_err("gpio-keys: Unable to allocate debounce data"
++					" for GPIO %d, error %d\n",
++					button->gpio, error);
++				gpio_free(button->gpio);
++				goto fail;
++			}
++
++			data->pdev = pdev;
++			data->button = button;
++			data->state = -1;
++
++			init_timer(&button->timer);
++			button->timer.function = gpio_debounce_timer;
++			button->timer.data = (unsigned long)data;
++
++			mod_timer(&button->timer, jiffies +
++					msecs_to_jiffies(button->interval));
++		}
++#endif
+ 
+ 		error = request_irq(irq, gpio_keys_isr,
+ 				    IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_RISING |
+@@ -112,6 +180,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		if (error) {
+ 			pr_err("gpio-keys: Unable to claim irq %d; error %d\n",
+ 				irq, error);
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++			if (button->count) {
++				del_timer_sync(&button->timer);
++				kfree((void*)button->timer.data);
++			}
++#endif
+ 			gpio_free(button->gpio);
+ 			goto fail;
+ 		}
+@@ -136,6 +210,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+  fail:
+ 	while (--i >= 0) {
+ 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), pdev);
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++		if (pdata->buttons[i].count) {
++			del_timer_sync(&pdata->buttons[i].timer);
++			kfree((void*)pdata->buttons[i].timer.data);
++		}
++#endif
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+@@ -156,6 +236,12 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+ 		free_irq(irq, pdev);
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++		if (pdata->buttons[i].count) {
++			del_timer_sync(&pdata->buttons[i].timer);
++			kfree((void*)pdata->buttons[i].timer.data);
++		}
++#endif
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index c6d3a9d..2432e62 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -9,6 +9,12 @@ struct gpio_keys_button {
+ 	char *desc;
+ 	int type;		/* input event type (EV_KEY, EV_SW) */
+ 	int wakeup;		/* configure the button as a wake-up source */
++#ifdef CONFIG_KEYBOARD_GPIO_DEBOUNCE
++	int count;
++	int interval;		/* in msecs */
++	/* private: */
++	struct timer_list	timer;
++#endif
+ };
+ 
+ struct gpio_keys_platform_data {
+-- 
+1.5.4.3
 
-The input_dev is freed. We only have two structures involved,
-really: evdev and input_dev. The rest is either immaterial like
-evdev_client, or embedded into the two like input_handle and device.
 
-It's freed by this route:
- hidinput_disconnect
-   input_unregister_device
-     evdev_disconnect  --- marks evdev->exists = 0
-     device_unregister
-     put_device -- kobject_put -- kref_put -- kobject_cleanup
-       input_dev_release
+-- 
+With best wishes
+Dmitry
 
-> [] As far as I understand the
-> the input_dev structure shold be pinned in memory by the driver
-> core since we have this link:
-> 
-> 	evdev->dev.parent = &input_dev->dev;
-> 
-> This should guarantee that input_device is not gone until we
-> call evdev_free which should be done way after the ungrab.
-
-I don't think anyone checks this, unless the accompaining refcount
-is set.
-
-Honestly, I didn't consider the implications for the integrity
-of sysfs. It seems like there's no extra memory leak with my
-patch, that's the only thing I can promise. Maybe you want to
-poke Greg about it.
-
-It may be easier for you to reproduce it than to parse my arguments,
-it's trivial. Use the evdev-x which I attached to the bug, or write
-an application which:
- - opens evdev
- - grabs <------- this is important
- - sleeps for 10 seconds
- - exits
-Run it, pull the plug while it sleeps. The system will oops.
-If you enable lock debugging, it will traceback first like in
-the bug, because slab poisoning destroys spinlock magic.
-
--- Pete

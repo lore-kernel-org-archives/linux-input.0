@@ -1,76 +1,53 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 2/3] fbdev: Make deferred I/O work
-	as advertized
-Date: Wed, 19 Mar 2008 15:39:46 -0700
-Message-ID: <20080319153946.a5a8060e.akpm@linux-foundation.org>
-References: <87tzjx6vj3.fsf@pike.pond.sub.org>
-	<87k5kt6vd3.fsf@pike.pond.sub.org>
-	<45a44e480802260611l5a8d0bc9k9cc967bc73b88fac@mail.gmail.com>
-	<871w6z6ajs.fsf@pike.pond.sub.org>
-	<45a44e480802260701o7c616e3bjd5f86f4143be791b@mail.gmail.com>
-	<87iqzjat6e.fsf@pike.pond.sub.org>
-	<45a44e480803190424s51b85efbk39ab3bfce4cb924a@mail.gmail.com>
-	<20080319113745.d3873de0.akpm@linux-foundation.org>
-	<45a44e480803191530p27ec9575l260d6de063a8d6bf@mail.gmail.com>
-Reply-To: linux-fbdev-devel@lists.sourceforge.net
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Patch to add NOGET for DMI/Acomdata
+Date: Wed, 19 Mar 2008 15:43:31 -0700
+Message-ID: <20080319154331.c670489d.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-fbdev-devel-bounces@lists.sourceforge.net>
-In-Reply-To: <45a44e480803191530p27ec9575l260d6de063a8d6bf@mail.gmail.com>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
-	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-fbdev-devel>
-List-Post: <mailto:linux-fbdev-devel@lists.sourceforge.net>
-List-Help: <mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
-	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=subscribe>
-Sender: linux-fbdev-devel-bounces@lists.sourceforge.net
-Errors-To: linux-fbdev-devel-bounces@lists.sourceforge.net
-To: Jaya Kumar <jayakumar.lkml@gmail.com>
-Cc: xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, dmitry.torokhov@gmail.com, armbru@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, linux-input@vger.kernel.org, adaplas@pol.net
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx1.redhat.com ([66.187.233.31]:40120 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1764848AbYCSWr5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Mar 2008 18:47:57 -0400
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
+	by mx1.redhat.com (8.13.8/8.13.8) with ESMTP id m2JMluSq020704
+	for <linux-input@vger.kernel.org>; Wed, 19 Mar 2008 18:47:56 -0400
+Received: from pobox.devel.redhat.com (pobox.devel.redhat.com [10.11.255.8])
+	by int-mx1.corp.redhat.com (8.13.1/8.13.1) with ESMTP id m2JMltWl000607
+	for <linux-input@vger.kernel.org>; Wed, 19 Mar 2008 18:47:55 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: zaitcev@redhat.com
 
-On Thu, 20 Mar 2008 06:30:37 +0800
-"Jaya Kumar" <jayakumar.lkml@gmail.com> wrote:
+This must be the weirdest failure yet. My external disk stops processing
+the storage commands the moment it receives a GET_REPORT. The firmware
+does not crash; if I do rmmod hid, then SET-INTERFACE restores normal
+operations. Still, I cannot live without the keyboard when I want backup
+my files. Adding the NOGET quirk fixes this problem for me.
 
-> On Thu, Mar 20, 2008 at 2:37 AM, Andrew Morton
-> <akpm@linux-foundation.org> wrote:
-> >
-> >  Do we need some of all of that patch in 2.6.25?  I wasn't aware of such a
-> >  need.
-> >
-> >  If the drivers/video/fb_defio.c hunk of that patch fixes something then I'd
-> >  be inclined to merge the whole thing - adding a new driver won't hurt
-> >  anyone.
-> >
-> 
-> Yes, the defio hunk is a bugfix. I agree with pushing the whole thing
-> to 2.6.25 if there are people who need it in 2.6.25. I believe there
-> is no risk of impact on anyone else.
-> 
+Signed-Off-By: Pete Zaitcev <zaitcev@redhat.com>
 
-Well all we have in the changelog is
-
-  Implement support for the E-Ink Metronome controller.  It provides an
-  mmapable interface to the controller using defio support.  It was tested
-  with a gumstix pxa255 with Vizplex media using Xfbdev and various X
-  clients such as xeyes, xpdf, xloadimage.
-
-grump.  This say nothing at all about the change to drivers/video/fb_defio.c.
-
-a) the changelog _should_ document this change.  Please send a paragraph and
-   I'll add it.
-
-b) If this discussion hadn't happened, that bug (whatever it is) would
-   have remained unfixed in 2.6.25.  As a direct consequence of poor
-   changelogging.
-
-c) This bugfix (whatever it is) should have been in a separate patch.
-
-Thanks.
-
--------------------------------------------------------------------------
-This SF.net email is sponsored by: Microsoft
-Defy all challenges. Microsoft(R) Visual Studio 2008.
-http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index e29a057..d1ac267 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -124,6 +124,9 @@
+ #define USB_DEVICE_ID_DELORME_EARTHMATE 0x0100
+ #define USB_DEVICE_ID_DELORME_EM_LT20	0x0200
+ 
++#define USB_VENDOR_ID_DMI		0x0c0b	/* Found in Acomdata */
++#define USB_DEVICE_ID_DMI_ENC		0x5fab
++
+ #define USB_VENDOR_ID_ELO		0x04E7
+ #define USB_DEVICE_ID_ELO_TS2700	0x0020
+ 
+@@ -601,6 +604,7 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_2PORTKVM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVMC, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC,    HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_EXTREME_3D, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_WHEEL, HID_QUIRK_NOGET },

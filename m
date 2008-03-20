@@ -1,85 +1,70 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Patch to add NOGET for DMI/Acomdata
-Date: Wed, 19 Mar 2008 16:51:32 -0700
-Message-ID: <20080319165132.f831c344.zaitcev@redhat.com>
-References: <20080319154331.c670489d.zaitcev@redhat.com>
-	<Pine.LNX.4.64.0803200010200.19269@twin.jikos.cz>
+From: "eric miao" <eric.y.miao@gmail.com>
+Subject: Re: [PATCH] Fix pxa27x keypad KPC macros
+Date: Thu, 20 Mar 2008 15:02:17 +0800
+Message-ID: <f17812d70803200002p7f806969jb303ce175daebc8@mail.gmail.com>
+References: <20080219102511.GA6396@caravaggio>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:59673 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935952AbYCSXz7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Mar 2008 19:55:59 -0400
-In-Reply-To: <Pine.LNX.4.64.0803200010200.19269@twin.jikos.cz>
+Received: from wa-out-1112.google.com ([209.85.146.178]:48983 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751618AbYCTHCS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Mar 2008 03:02:18 -0400
+Received: by wa-out-1112.google.com with SMTP id v27so878690wah.23
+        for <linux-input@vger.kernel.org>; Thu, 20 Mar 2008 00:02:17 -0700 (PDT)
+In-Reply-To: <20080219102511.GA6396@caravaggio>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, zaitcev@redhat.com
+To: Samuel Ortiz <sameo@openedhand.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Eric Miao <eric.miao@marvell.com>
 
-On Thu, 20 Mar 2008 00:11:05 +0100 (CET), Jiri Kosina <jkosina@suse.cz> wrote:
-> On Wed, 19 Mar 2008, Pete Zaitcev wrote:
+Yes, indeed. Sorry I'm replying this late as I just come across.
 
-> > This must be the weirdest failure yet. My external disk stops processing 
-> > the storage commands the moment it receives a GET_REPORT. The firmware 
-> > does not crash; if I do rmmod hid, then SET-INTERFACE restores normal 
-> > operations. Still, I cannot live without the keyboard when I want backup 
-> > my files. Adding the NOGET quirk fixes this problem for me.
 
-> uhm ... how does the GET_REPORT get delivered to the external disk? Does 
-> it have any interface that claims itself to be HID class?
+On Tue, Feb 19, 2008 at 6:25 PM, Samuel Ortiz <sameo@openedhand.com> wrote:
+> Hi Dmitry,
+>
+>  On the pxa27x keypad driver, we want to mask (key_number - 1), not
+>  key_number.
+>  The current implementation works fine for all values but the maximum
+>  one, i.e. 8.
+>
+>  This patch is against your input git tree.
+>
+>  Signed-off-by: Samuel Ortiz <sameo@openedhand.com>
+>  ---
+>   drivers/input/keyboard/pxa27x_keypad.c |    6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+>
+>  Index: linux-2.6-input/drivers/input/keyboard/pxa27x_keypad.c
+>  ===================================================================
+>  --- linux-2.6-input.orig/drivers/input/keyboard/pxa27x_keypad.c 2008-02-19 11:10:04.000000000 +0100
+>  +++ linux-2.6-input/drivers/input/keyboard/pxa27x_keypad.c      2008-02-19 11:11:00.000000000 +0100
+>  @@ -50,9 +50,9 @@
+>   #define KPKDI           0x0048
+>
+>   /* bit definitions */
+>  -#define KPC_MKRN(n)    ((((n) & 0x7) - 1) << 26) /* matrix key row number */
+>  -#define KPC_MKCN(n)    ((((n) & 0x7) - 1) << 23) /* matrix key column number */
+>  -#define KPC_DKN(n)     ((((n) & 0x7) - 1) << 6)  /* direct key number */
+>  +#define KPC_MKRN(n)    ((((n) - 1) & 0x7) << 26) /* matrix key row number */
+>  +#define KPC_MKCN(n)    ((((n) - 1) & 0x7) << 23) /* matrix key column number */
+>  +#define KPC_DKN(n)     ((((n) - 1) & 0x7) << 6)  /* direct key number */
+>
+>   #define KPC_AS          (0x1 << 30)  /* Automatic Scan bit */
+>   #define KPC_ASACT       (0x1 << 29)  /* Automatic Scan on Activity */
+>
+>  -
+>  To unsubscribe from this list: send the line "unsubscribe linux-input" in
+>  the body of a message to majordomo@vger.kernel.org
+>  More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
 
-It is very common for them to have a "one-touch backup" button.
-Here's how its summary looks:
 
-T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#= 13 Spd=480 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=0c0b ProdID=5fab Rev= 3.53
-S:  Manufacturer=DMI     
-S:  Product=WD5000AAKB-00UKA
-S:  SerialNumber=001010055008053D0
-C:* #Ifs= 2 Cfg#= 1 Atr=c0 MxPwr=  0mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=08(stor.) Sub=06 Prot=50 Driver=ub
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=64ms
 
-To tell you the truth, I just now noticed that the button does not
-work. Kernel prints this:
-
-hiddev96hidraw0: USB HID v1.10 Device [DMI      WD5000AAKB-00UKA] on usb-0000:00:13.5-3
-
-But then the events do not get delivered. This is what happens
-with DEBUG enabled in hid-core.c:
-
-usb 2-3.2: new high speed USB device using address 3
-  INPUT[INPUT]
-    Field(0)
-      Usage(2)
-        ffa0.00a6
-        ffa0.00a7
-      Logical Minimum(-128)
-      Logical Maximum(127)
-      Report Size(8)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Variable Absolute )
-  OUTPUT[OUTPUT]
-    Field(0)
-      Usage(2)
-        ffa0.00a9
-        ffa0.00a9
-      Logical Minimum(-128)
-      Logical Maximum(127)
-      Report Size(8)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Variable Absolute )
-hiddev96: USB HID v1.10 Device [DMI      WD5000AAKB-00UKA] on usb-0000:05:04.3-3.2
-
-I dunno, maybe the button is just broken somehow. But I'm only
-interested in the storage function.
-
--- Pete
+-- 
+Cheers
+- eric

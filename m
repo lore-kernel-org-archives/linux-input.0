@@ -1,35 +1,25 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Fix pxa27x keypad KPC macros
-Date: Thu, 20 Mar 2008 09:49:54 -0400
-Message-ID: <20080320134954.GA4501@anvil.corenet.prv>
-References: <20080219102511.GA6396@caravaggio> <E913911567467945BBEB9277E27868B088127A@msiexch01.marvell.com>
+From: "=?BIG5?B?w1G6vajI?=" <tx67kx6329q@gmail.com>
+Subject: =?BIG5?B?MjAwOC8zLzIxIKH3ob2h81BIUMHK?= =?BIG5?B?qquorrjqrsaud7r0r7ixTa7XobqhvaHRIDM6MzI=?=
+Date: Fri, 21 Mar 2008 03:32:38 +0800
+Message-ID: <b99fa2c0803201232o350bcd5ev7e8e2425d938738a__6837.82983473993$1206041635$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=BIG5
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0910.google.com ([209.85.198.188]:23676 "EHLO
-	rv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755055AbYCTNuo (ORCPT
+Received: from qb-out-0506.google.com ([72.14.204.233]:26488 "EHLO
+	qb-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754974AbYCTTcm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Mar 2008 09:50:44 -0400
-Received: by rv-out-0910.google.com with SMTP id k20so490740rvb.1
-        for <linux-input@vger.kernel.org>; Thu, 20 Mar 2008 06:50:43 -0700 (PDT)
+	Thu, 20 Mar 2008 15:32:42 -0400
+Received: by qb-out-0506.google.com with SMTP id e11so1258701qbe.15
+        for <linux-input@vger.kernel.org>; Thu, 20 Mar 2008 12:32:39 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <E913911567467945BBEB9277E27868B088127A@msiexch01.marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <ymiao3@marvell.com>
-Cc: Samuel Ortiz <sameo@openedhand.com>, linux-input@vger.kernel.org
+To: samemall@pchome.com.tw
 
-Hi,
-
-On Tue, Feb 19, 2008 at 04:27:46PM -0800, Eric Miao wrote:
-> Yeah, looks fine.
-> 
-> Acked-by: eric miao <eric.miao@marvell.com>
-> 
-
-Applied to the for-linus branch of my tree. Thank you Samuel
-and Eric.
-
--- 
-Dmitry
+MjAwOC0zLTIxCqH2Cgqkc+C+rOyn3rr0rbazXa1wCrF6wdmoU6azpECt07FNxN2quqX4t3669K+4
+ttyhSAoKpHPgvqzsp96xwKVYUEhQwcqqq6iuuOquxq53uvSvuLFNrtcKpXWtbqJDorGis6FBorii
+r6KvCqFlt3yt+6FEsqOrfqFErXGz5rjqrsaudy4uLi4uLrWloWYKpkGwZaRApn4xMDBNQqSjra2s
+ebZxterAwKVEvvcKCqTfsMqko6ZwsKikV6bmsMqz4Qqkc+C+rOyn3rjqsFSms62tpL2lcQq90KjT
+uXGsorjftsCxTa37oUcwOTM4NzY0Mzk1CgozOjMyOjM0CgrDpwo=

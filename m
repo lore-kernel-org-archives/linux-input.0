@@ -1,70 +1,53 @@
-From: "eric miao" <eric.y.miao@gmail.com>
-Subject: Re: [PATCH] Fix pxa27x keypad KPC macros
-Date: Thu, 20 Mar 2008 15:02:17 +0800
-Message-ID: <f17812d70803200002p7f806969jb303ce175daebc8@mail.gmail.com>
-References: <20080219102511.GA6396@caravaggio>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Patch to add NOGET for DMI/Acomdata
+Date: Thu, 20 Mar 2008 09:58:23 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0803200955500.30831@jikos.suse.cz>
+References: <20080319154331.c670489d.zaitcev@redhat.com>
+ <Pine.LNX.4.64.0803200010200.19269@twin.jikos.cz> <20080319165132.f831c344.zaitcev@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.178]:48983 "EHLO
-	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751618AbYCTHCS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 20 Mar 2008 03:02:18 -0400
-Received: by wa-out-1112.google.com with SMTP id v27so878690wah.23
-        for <linux-input@vger.kernel.org>; Thu, 20 Mar 2008 00:02:17 -0700 (PDT)
-In-Reply-To: <20080219102511.GA6396@caravaggio>
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:47112 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753481AbYCTI6Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Mar 2008 04:58:24 -0400
+In-Reply-To: <20080319165132.f831c344.zaitcev@redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Ortiz <sameo@openedhand.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, Eric Miao <eric.miao@marvell.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-input@vger.kernel.org
 
-Yes, indeed. Sorry I'm replying this late as I just come across.
+On Wed, 19 Mar 2008, Pete Zaitcev wrote:
 
+> To tell you the truth, I just now noticed that the button does not
+> work. Kernel prints this:
+> hiddev96hidraw0: USB HID v1.10 Device [DMI      WD5000AAKB-00UKA] on usb-0000:00:13.5-3
+> But then the events do not get delivered. This is what happens
+> with DEBUG enabled in hid-core.c:
+> usb 2-3.2: new high speed USB device using address 3
+>   INPUT[INPUT]
+>     Field(0)
+>       Usage(2)
+>         ffa0.00a6
+>         ffa0.00a7
+>       Logical Minimum(-128)
+>       Logical Maximum(127)
+>       Report Size(8)
+>       Report Count(2)
+>       Report Offset(0)
+>       Flags( Variable Absolute )
 
-On Tue, Feb 19, 2008 at 6:25 PM, Samuel Ortiz <sameo@openedhand.com> wrote:
-> Hi Dmitry,
->
->  On the pxa27x keypad driver, we want to mask (key_number - 1), not
->  key_number.
->  The current implementation works fine for all values but the maximum
->  one, i.e. 8.
->
->  This patch is against your input git tree.
->
->  Signed-off-by: Samuel Ortiz <sameo@openedhand.com>
->  ---
->   drivers/input/keyboard/pxa27x_keypad.c |    6 +++---
->   1 file changed, 3 insertions(+), 3 deletions(-)
->
->  Index: linux-2.6-input/drivers/input/keyboard/pxa27x_keypad.c
->  ===================================================================
->  --- linux-2.6-input.orig/drivers/input/keyboard/pxa27x_keypad.c 2008-02-19 11:10:04.000000000 +0100
->  +++ linux-2.6-input/drivers/input/keyboard/pxa27x_keypad.c      2008-02-19 11:11:00.000000000 +0100
->  @@ -50,9 +50,9 @@
->   #define KPKDI           0x0048
->
->   /* bit definitions */
->  -#define KPC_MKRN(n)    ((((n) & 0x7) - 1) << 26) /* matrix key row number */
->  -#define KPC_MKCN(n)    ((((n) & 0x7) - 1) << 23) /* matrix key column number */
->  -#define KPC_DKN(n)     ((((n) & 0x7) - 1) << 6)  /* direct key number */
->  +#define KPC_MKRN(n)    ((((n) - 1) & 0x7) << 26) /* matrix key row number */
->  +#define KPC_MKCN(n)    ((((n) - 1) & 0x7) << 23) /* matrix key column number */
->  +#define KPC_DKN(n)     ((((n) - 1) & 0x7) << 6)  /* direct key number */
->
->   #define KPC_AS          (0x1 << 30)  /* Automatic Scan bit */
->   #define KPC_ASACT       (0x1 << 29)  /* Automatic Scan on Activity */
->
->  -
->  To unsubscribe from this list: send the line "unsubscribe linux-input" in
->  the body of a message to majordomo@vger.kernel.org
->  More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Hi Pete,
 
+yes, so the device doesn't provide any application we handle in HID <-> 
+input mapping, it contains only vendor-speicific usages from 0xffa0 page.
 
+hiddev/hidraw device surely is created for this device (as it is not 
+handled by hid-input), so a userspace driver can be written easily to 
+handle this button.
+
+So your patch makes sense, I will apply it to my tree, thanks.
 
 -- 
-Cheers
-- eric
+Jiri Kosina
+SUSE Labs

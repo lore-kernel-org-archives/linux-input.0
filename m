@@ -1,75 +1,62 @@
-From: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: Patch for oops in a grabbed evdev after disconnect
-Date: Fri, 21 Mar 2008 10:51:24 -0700
-Message-ID: <20080321105124.9fa577f8.zaitcev@redhat.com>
-References: <20080317234807.42c72a76.zaitcev@redhat.com>
-	<20080318092733.ZZRA012@mailhub.coreip.homeip.net>
-	<20080318110342.ad2bb3ea.zaitcev@redhat.com>
-	<20080318144432.ZZRA012@mailhub.coreip.homeip.net>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: [patch] hid: only dump report traffic with debug level 2
+Date: Fri, 21 Mar 2008 22:52:29 +0200
+Message-ID: <47E4200D.9080904@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:37477 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752688AbYCURzy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Mar 2008 13:55:54 -0400
-In-Reply-To: <20080318144432.ZZRA012@mailhub.coreip.homeip.net>
+Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:59071 "EHLO
+	pne-smtpout3-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755406AbYCUUwb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Mar 2008 16:52:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, dwmw2@redhat.com, greg@kroah.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 18 Mar 2008 14:54:17 -0400, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Currently using debug=1 with hid module prints out all sent and received
+reports to the kernel log, while in many cases we only want to see the
+report descriptors and hid-input mappings that are printed when a device
+is probed.
 
-I'm sorry, but I'm weak. I'll have to poke Greg (to cc:), although
-I know he's pretty busy, but I don't grok sysfs and kobjects. So:
+Add new level debug=2, and only dump the report traffic with that level.
 
-> > > > If a device was grabbed through evdev and then became disconnected,
-> > > > we oops on close. This happens because input_release_device uses memory
-> > > > which was freed.
-> > 
-> > > Could you tell me what memory is freed?
-> > 
-> > The input_dev is freed. [...]
+Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
 
-> > > [] As far as I understand the
-> > > the input_dev structure shold be pinned in memory by the driver
-> > > core since we have this link:
-> > > 
-> > > 	evdev->dev.parent = &input_dev->dev;
-> > > 
-> > > This should guarantee that input_device is not gone until we
-> > > call evdev_free which should be done way after the ungrab.
-> > 
-> > I don't think anyone checks this, unless the accompaining refcount
-> > is set.
+---
 
-> I dont oppose your patch, I am just trying to understand why it
-> is needed because driver core should pin the parent device as
-> far as I understand and if this does not happen there are other
-> issues in input core that need to be taken care of.
-> 
-> From what I see we should be automatically taking the reference
-> to parent kobject in
-> 
-> kobject_add_internal():
-> 	parent = kobject_get(kobj->parent);
-> 
-> perent is set in kobject_add_varg():
-> 	kobj->parent = parent;
-> 
-> .. which is called from kobject_add() which is called from
-> device_add().
+Index: linux-2.6.24-verbosehid/drivers/hid/hid-core.c
+===================================================================
+--- linux-2.6.24-verbosehid/drivers/hid/hid-core.c
++++ linux-2.6.24-verbosehid/drivers/hid/hid-core.c	2008-03-21 13:03:29.000000000 +0200
+@@ -43,8 +43,8 @@
+ 
+ #ifdef CONFIG_HID_DEBUG
+ int hid_debug = 0;
+-module_param_named(debug, hid_debug, bool, 0600);
+-MODULE_PARM_DESC(debug, "Turn HID debugging mode on and off");
++module_param_named(debug, hid_debug, int, 0600);
++MODULE_PARM_DESC(debug, "HID debugging (0=off, 1=probing info, 2=continuous data dumping)");
+ EXPORT_SYMBOL_GPL(hid_debug);
+ #endif
+ 
+Index: linux-2.6.24-verbosehid/drivers/hid/hid-debug.c
+===================================================================
+--- linux-2.6.24-verbosehid/drivers/hid/hid-debug.c
++++ linux-2.6.24-verbosehid/drivers/hid/hid-debug.c	2008-03-21 13:01:21.000000000 +0200
+@@ -498,7 +498,7 @@
+ EXPORT_SYMBOL_GPL(hid_dump_device);
+ 
+ void hid_dump_input(struct hid_usage *usage, __s32 value) {
+-	if (!hid_debug)
++	if (hid_debug < 2)
+ 		return;
+ 
+ 	printk(KERN_DEBUG "hid-debug: input ");
 
-Hmm, I see it now. OK.
 
-> Hmm, I wonder if obsolete sysfs links mess up proper parenting
-> data... I dont think I have obsolete links set up on any of my
-> boxes, can you see if oops goes away if you disable deprectated
-> sysfs? If so then instead of checking exist flag we need explicitely
-> take reference to the parent input_dev. []
+-- Anssi Hannula
 
-I'll check this.
 
--- Pete

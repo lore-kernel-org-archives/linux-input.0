@@ -1,50 +1,75 @@
-From: "M G" <lists.mg@googlemail.com>
-Subject: xpad - led/rumble completely disables controller
-Date: Fri, 21 Mar 2008 18:52:58 +0100
-Message-ID: <74d457500803211052l1beada9by3a72a240a3602dfe@mail.gmail.com>
+From: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: Patch for oops in a grabbed evdev after disconnect
+Date: Fri, 21 Mar 2008 10:51:24 -0700
+Message-ID: <20080321105124.9fa577f8.zaitcev@redhat.com>
+References: <20080317234807.42c72a76.zaitcev@redhat.com>
+	<20080318092733.ZZRA012@mailhub.coreip.homeip.net>
+	<20080318110342.ad2bb3ea.zaitcev@redhat.com>
+	<20080318144432.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_14507_21092229.1206121978542"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.181]:50938 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760338AbYCURxB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 21 Mar 2008 13:53:01 -0400
-Received: by py-out-1112.google.com with SMTP id u52so2127971pyb.10
-        for <linux-input@vger.kernel.org>; Fri, 21 Mar 2008 10:52:59 -0700 (PDT)
+Received: from mx1.redhat.com ([66.187.233.31]:37477 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752688AbYCURzy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 21 Mar 2008 13:55:54 -0400
+In-Reply-To: <20080318144432.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dwmw2@redhat.com, greg@kroah.com
 
-------=_Part_14507_21092229.1206121978542
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 18 Mar 2008 14:54:17 -0400, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Hi, I'm trying to use my Xbox360 Controller with the xpad driver. But
-as soon as the led status is set (i.e. right after pluging it in) it
-becomes completely unresponsive. If I comment out the led-setting code
-in xpad.c the controller works but only until a rumble effect is
-played, then it will become unresponsive again.
+I'm sorry, but I'm weak. I'll have to poke Greg (to cc:), although
+I know he's pretty busy, but I don't grok sysfs and kobjects. So:
 
-I have found that this does not occur if transfer_buffer_length is set
-to the exact value, 3 for the led and 8 for rumble.
+> > > > If a device was grabbed through evdev and then became disconnected,
+> > > > we oops on close. This happens because input_release_device uses memory
+> > > > which was freed.
+> > 
+> > > Could you tell me what memory is freed?
+> > 
+> > The input_dev is freed. [...]
 
-------=_Part_14507_21092229.1206121978542
-Content-Type: text/x-diff; name=xpad-transferlength.patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fe31rwzf0
-Content-Disposition: attachment; filename=xpad-transferlength.patch
+> > > [] As far as I understand the
+> > > the input_dev structure shold be pinned in memory by the driver
+> > > core since we have this link:
+> > > 
+> > > 	evdev->dev.parent = &input_dev->dev;
+> > > 
+> > > This should guarantee that input_device is not gone until we
+> > > call evdev_free which should be done way after the ungrab.
+> > 
+> > I don't think anyone checks this, unless the accompaining refcount
+> > is set.
 
-LS0tIGEveHBhZC5jCTIwMDgtMDMtMjEgMTY6Mzk6NTguMDAwMDAwMDAwICswMTAwCisrKyBiL3hw
-YWQuYwkyMDA4LTAzLTIxIDE2OjM4OjQxLjAwMDAwMDAwMCArMDEwMApAQCAtNDY5LDYgKzQ2OSw3
-IEBACiAJCXhwYWQtPm9kYXRhWzVdID0gMHgwMDsKIAkJeHBhZC0+b2RhdGFbNl0gPSAweDAwOwog
-CQl4cGFkLT5vZGF0YVs3XSA9IDB4MDA7CisJCXhwYWQtPmlycV9vdXQtPnRyYW5zZmVyX2J1ZmZl
-cl9sZW5ndGggPSA4OwogCQl1c2Jfc3VibWl0X3VyYih4cGFkLT5pcnFfb3V0LCBHRlBfS0VSTkVM
-KTsKIAl9CiAKQEAgLTUwMiw2ICs1MDMsNyBAQAogCQl4cGFkLT5vZGF0YVswXSA9IDB4MDE7CiAJ
-CXhwYWQtPm9kYXRhWzFdID0gMHgwMzsKIAkJeHBhZC0+b2RhdGFbMl0gPSBjb21tYW5kOworCQl4
-cGFkLT5pcnFfb3V0LT50cmFuc2Zlcl9idWZmZXJfbGVuZ3RoID0gMzsKIAkJdXNiX3N1Ym1pdF91
-cmIoeHBhZC0+aXJxX291dCwgR0ZQX0tFUk5FTCk7CiAJCW11dGV4X3VubG9jaygmeHBhZC0+b2Rh
-dGFfbXV0ZXgpOwogCX0K
-------=_Part_14507_21092229.1206121978542--
+> I dont oppose your patch, I am just trying to understand why it
+> is needed because driver core should pin the parent device as
+> far as I understand and if this does not happen there are other
+> issues in input core that need to be taken care of.
+> 
+> From what I see we should be automatically taking the reference
+> to parent kobject in
+> 
+> kobject_add_internal():
+> 	parent = kobject_get(kobj->parent);
+> 
+> perent is set in kobject_add_varg():
+> 	kobj->parent = parent;
+> 
+> .. which is called from kobject_add() which is called from
+> device_add().
+
+Hmm, I see it now. OK.
+
+> Hmm, I wonder if obsolete sysfs links mess up proper parenting
+> data... I dont think I have obsolete links set up on any of my
+> boxes, can you see if oops goes away if you disable deprectated
+> sysfs? If so then instead of checking exist flag we need explicitely
+> take reference to the parent input_dev. []
+
+I'll check this.
+
+-- Pete

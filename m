@@ -1,26 +1,215 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] Fix sh_keysc double free
-Date: Mon, 24 Mar 2008 15:13:18 +0900
-Message-ID: <20080324061318.GB17734@linux-sh.org>
-References: <20080321111446.13134.8863.sendpatchset@rx1.opensource.se>
+From: Helge Deller <deller@gmx.de>
+Subject: [PATCH] locomokbd.c: Add "Off"-button functionality for Sharp Collie/Poodle
+Date: Mon, 24 Mar 2008 14:19:37 +0100
+Message-ID: <200803241419.38374.deller@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta23.gyao.ne.jp ([125.63.38.249]:48887 "EHLO mx.gate01.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755512AbYCXGNl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Mar 2008 02:13:41 -0400
+Received: from mail.gmx.net ([213.165.64.20]:46437 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1757013AbYCXNUa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2008 09:20:30 -0400
 Content-Disposition: inline
-In-Reply-To: <20080321111446.13134.8863.sendpatchset@rx1.opensource.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, akpm@linux-foundation.org, linux-sh@vger.kernel.org
+To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc: thommycheck@gmx.de, rpurdie@rpsys.net, hvontres@gmail.com
 
-On Fri, Mar 21, 2008 at 08:14:46PM +0900, Magnus Damm wrote:
-> Avoid double free situation from happening by removing input_free_device() 
-> after input_unregister_device(). Suggested by Dmitry Torokhov.
-> 
-> Signed-off-by: Magnus Damm <damm@igel.co.jp>
+This patch enables the Sharp Zaurus Collie and Poodle devices to be turned
+off by pressing the "Cancel" button for a few seconds (as designed by Sharp).
 
-Applied, thanks.
+Additional small cleanups:
+- removal of unused #defines and variables
+- add missing __devinit/__devexit/__devinitconst annotations
+- reorganized copyright notice
+
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+CC: Thomas Kunze <thommycheck@gmx.de>
+CC: Richard Purdie <rpurdie@rpsys.net>
+CC: Hans Henry von Tresckow <hvontres@gmail.com>
+
+--
+
+ locomokbd.c |   72 +++++++++++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 47 insertions(+), 25 deletions(-)
+
+--
+
+diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
+index 5a0ca18..69e954a 100644
+--- a/drivers/input/keyboard/locomokbd.c
++++ b/drivers/input/keyboard/locomokbd.c
+@@ -1,14 +1,12 @@
+ /*
+- *  Copyright (c) 2005 John Lenz
++ * LoCoMo keyboard driver for Linux-based ARM PDAs:
++ * 	- SHARP Zaurus Collie (SL-5500)
++ * 	- SHARP Zaurus Poodle (SL-5600)
+  *
++ * Copyright (c) 2005 John Lenz
+  * Based on from xtkbd.c
+- */
+-
+-/*
+- * LoCoMo keyboard driver for Linux/ARM
+- */
+-
+-/*
++ *
++ *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+  * the Free Software Foundation; either version 2 of the License, or
+@@ -47,7 +45,8 @@ MODULE_LICENSE("GPL");
+ #define KEY_CONTACT		KEY_F18
+ #define KEY_CENTER		KEY_F15
+ 
+-static unsigned char locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
++static const unsigned char
++ locomokbd_keycode[LOCOMOKBD_NUMKEYS] __devinitconst = {
+ 	0, KEY_ESC, KEY_ACTIVITY, 0, 0, 0, 0, 0, 0, 0,				/* 0 - 9 */
+ 	0, 0, 0, 0, 0, 0, 0, KEY_MENU, KEY_HOME, KEY_CONTACT,			/* 10 - 19 */
+ 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,						/* 20 - 29 */
+@@ -67,22 +66,21 @@ static unsigned char locomokbd_keycode[LOCOMOKBD_NUMKEYS] = {
+ #define KB_COLS			8
+ #define KB_ROWMASK(r)		(1 << (r))
+ #define SCANCODE(c,r)		( ((c)<<4) + (r) + 1 )
+-#define	NR_SCANCODES		128
+ 
+ #define KB_DELAY		8
+ #define SCAN_INTERVAL		(HZ/10)
+-#define LOCOMOKBD_PRESSED	1
+ 
+ struct locomokbd {
+ 	unsigned char keycode[LOCOMOKBD_NUMKEYS];
+ 	struct input_dev *input;
+ 	char phys[32];
+ 
+-	struct locomo_dev *ldev;
+ 	unsigned long base;
+ 	spinlock_t lock;
+ 
+ 	struct timer_list timer;
++	unsigned long suspend_jiffies;
++	unsigned int count_cancel;
+ };
+ 
+ /* helper functions for reading the keyboard matrix */
+@@ -128,7 +126,7 @@ static inline void locomokbd_reset_col(unsigned long membase, int col)
+ /* Scan the hardware keyboard and push any changes up through the input layer */
+ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
+ {
+-	unsigned int row, col, rowd, scancode;
++	unsigned int row, col, rowd;
+ 	unsigned long flags;
+ 	unsigned int num_pressed;
+ 	unsigned long membase = locomokbd->base;
+@@ -145,13 +143,33 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
+ 
+ 		rowd = ~locomo_readl(membase + LOCOMO_KIB);
+ 		for (row = 0; row < KB_ROWS; row++) {
++			unsigned int scancode, pressed, key;
++
+ 			scancode = SCANCODE(col, row);
+-			if (rowd & KB_ROWMASK(row)) {
+-				num_pressed += 1;
+-				input_report_key(locomokbd->input, locomokbd->keycode[scancode], 1);
+-			} else {
+-				input_report_key(locomokbd->input, locomokbd->keycode[scancode], 0);
+-			}
++			pressed = rowd & KB_ROWMASK(row);
++			key = locomokbd->keycode[scancode];
++
++			input_report_key(locomokbd->input, key, pressed);
++			if (likely(!pressed))
++				continue;
++
++			num_pressed++;
++
++			/* The "Cancel/ESC" key is labeled "On/Off" on
++			 * Collie and Poodle and should suspend the device
++			 * if it was pressed for more than a second. */
++			if (unlikely(key == KEY_ESC)) {
++				if (!time_after(jiffies,
++					locomokbd->suspend_jiffies + HZ))
++					continue;
++				if (locomokbd->count_cancel++
++					!= (HZ/SCAN_INTERVAL + 1))
++					continue;
++				input_event(locomokbd->input, EV_PWR,
++					KEY_SUSPEND, 1);
++				locomokbd->suspend_jiffies = jiffies;
++			} else
++				locomokbd->count_cancel = 0;
+ 		}
+ 		locomokbd_reset_col(membase, col);
+ 	}
+@@ -162,6 +180,8 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
+ 	/* if any keys are pressed, enable the timer */
+ 	if (num_pressed)
+ 		mod_timer(&locomokbd->timer, jiffies + SCAN_INTERVAL);
++	else
++		locomokbd->count_cancel = 0;
+ 
+ 	spin_unlock_irqrestore(&locomokbd->lock, flags);
+ }
+@@ -189,7 +209,7 @@ static void locomokbd_timer_callback(unsigned long data)
+ 	locomokbd_scankeyboard(locomokbd);
+ }
+ 
+-static int locomokbd_probe(struct locomo_dev *dev)
++static int __devinit locomokbd_probe(struct locomo_dev *dev)
+ {
+ 	struct locomokbd *locomokbd;
+ 	struct input_dev *input_dev;
+@@ -211,7 +231,6 @@ static int locomokbd_probe(struct locomo_dev *dev)
+ 		goto err_free_mem;
+ 	}
+ 
+-	locomokbd->ldev = dev;
+ 	locomo_set_drvdata(dev, locomokbd);
+ 
+ 	locomokbd->base = (unsigned long) dev->mapbase;
+@@ -222,6 +241,8 @@ static int locomokbd_probe(struct locomo_dev *dev)
+ 	locomokbd->timer.function = locomokbd_timer_callback;
+ 	locomokbd->timer.data = (unsigned long) locomokbd;
+ 
++	locomokbd->suspend_jiffies = jiffies;
++
+ 	locomokbd->input = input_dev;
+ 	strcpy(locomokbd->phys, "locomokbd/input0");
+ 
+@@ -233,9 +254,10 @@ static int locomokbd_probe(struct locomo_dev *dev)
+ 	input_dev->id.version = 0x0100;
+ 	input_dev->dev.parent = &dev->dev;
+ 
+-	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
++				BIT_MASK(EV_PWR);
+ 	input_dev->keycode = locomokbd->keycode;
+-	input_dev->keycodesize = sizeof(unsigned char);
++	input_dev->keycodesize = sizeof(locomokbd_keycode[0]);
+ 	input_dev->keycodemax = ARRAY_SIZE(locomokbd_keycode);
+ 
+ 	memcpy(locomokbd->keycode, locomokbd_keycode, sizeof(locomokbd->keycode));
+@@ -268,7 +290,7 @@ static int locomokbd_probe(struct locomo_dev *dev)
+ 	return err;
+ }
+ 
+-static int locomokbd_remove(struct locomo_dev *dev)
++static int __devexit locomokbd_remove(struct locomo_dev *dev)
+ {
+ 	struct locomokbd *locomokbd = locomo_get_drvdata(dev);
+ 
+@@ -292,7 +314,7 @@ static struct locomo_driver keyboard_driver = {
+ 	},
+ 	.devid	= LOCOMO_DEVID_KEYBOARD,
+ 	.probe	= locomokbd_probe,
+-	.remove	= locomokbd_remove,
++	.remove	= __devexit_p(locomokbd_remove),
+ };
+ 
+ static int __init locomokbd_init(void)

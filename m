@@ -1,37 +1,26 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch] hid: only dump report traffic with debug level 2
-Date: Sat, 22 Mar 2008 23:36:30 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0803222335270.5541@jikos.suse.cz>
-References: <47E4200D.9080904@gmail.com> <Pine.LNX.4.64.0803222248360.5541@jikos.suse.cz>
- <47E58129.7050607@gmail.com> <Pine.LNX.4.64.0803222328590.5541@jikos.suse.cz>
- <47E5892C.9010708@gmail.com>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] Fix sh_keysc double free
+Date: Mon, 24 Mar 2008 15:13:18 +0900
+Message-ID: <20080324061318.GB17734@linux-sh.org>
+References: <20080321111446.13134.8863.sendpatchset@rx1.opensource.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:47905 "EHLO mail.suse.cz"
+Received: from mta23.gyao.ne.jp ([125.63.38.249]:48887 "EHLO mx.gate01.com"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753222AbYCVWgb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 22 Mar 2008 18:36:31 -0400
-In-Reply-To: <47E5892C.9010708@gmail.com>
+	id S1755512AbYCXGNl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2008 02:13:41 -0400
+Content-Disposition: inline
+In-Reply-To: <20080321111446.13134.8863.sendpatchset@rx1.opensource.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, akpm@linux-foundation.org, linux-sh@vger.kernel.org
 
-On Sun, 23 Mar 2008, Anssi Hannula wrote:
+On Fri, Mar 21, 2008 at 08:14:46PM +0900, Magnus Damm wrote:
+> Avoid double free situation from happening by removing input_free_device() 
+> after input_unregister_device(). Suggested by Dmitry Torokhov.
+> 
+> Signed-off-by: Magnus Damm <damm@igel.co.jp>
 
-> > I agee. On the other hand, I am currently quite often telling people 
-> > who (for example) complain about non-functioning keys on some expotic 
-> > keyboard "just modprobe the hid module with debug=1, press the 
-> > non-functioning key, and send me dmesg output". This would now be 
-> > different depending on the kernel version they use, which I don't like 
-> > too much.
-> Wouldn't debug=2 work with older kernel versions as well?
-
-Of course it would, I need to have some rest, sorry for the noise :)
-
-I will apply your patch to my tree, thanks.
-
--- 
-Jiri Kosina
-SUSE Labs
+Applied, thanks.

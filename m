@@ -1,37 +1,20 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] apm-power.c: Fix crash when unloading modules
-Date: Mon, 24 Mar 2008 11:03:29 -0400
-Message-ID: <20080324150329.GA20402@anvil.corenet.prv>
-References: <200803241443.19164.deller@gmx.de>
+From: "sulei man" <beticherich@gmx.de>
+Subject: Hi guys
+Date: Tue, 25 Mar 2008 03:30:04 +0100
+Message-ID: <20080325023004.142920@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.183]:58354 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758425AbYCXPDe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 24 Mar 2008 11:03:34 -0400
-Received: by py-out-1112.google.com with SMTP id u52so4206765pyb.10
-        for <linux-input@vger.kernel.org>; Mon, 24 Mar 2008 08:03:34 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <200803241443.19164.deller@gmx.de>
+Received: from mail.gmx.net ([213.165.64.20]:36657 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751509AbYCYCaG (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Mar 2008 22:30:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Helge Deller <deller@gmx.de>
-Cc: linux-input@vger.kernel.org, Richard Purdie <rpurdie@rpsys.net>
+To: linux-input@vger.kernel.org
 
-On Mon, Mar 24, 2008 at 02:43:18PM +0100, Helge Deller wrote:
-> This patch fixes a crash in the apm-power driver when a input-device
-> (e.g. a keyboard driver module) is unloaded.
-> Fix is the same as it's used in the evbug driver.
-> I assume this patch went unnoticed, since most keyboard drivers
-> in PDAs are not compiled as modules.
-> 
-> Signed-off-by: Helge Deller <deller@gmx.de>
-> CC: Richard Purdie <rpurdie@rpsys.net>
-> 
-
-Applied to the "for-linus" branch of my tree, thank you Helge.
-
+Hi, this is a test. I am weak.
 -- 
-Dmitry
+GMX startet ShortView.de. Hier findest Du Leute mit Deinen Interessen!
+Jetzt dabei sein: http://www.shortview.de/?mc=sv_ext_mf@gmx

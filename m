@@ -1,51 +1,100 @@
-From: "M G" <lists.mg@googlemail.com>
-Subject: xpad - led or rumble disables controller
-Date: Tue, 25 Mar 2008 20:15:32 +0100
-Message-ID: <74d457500803251215h5e7ae88erf58e2fb1f141745a@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [Bugme-new] [Bug 10327] New: keyboard stops responding after
+ "ifdown eth0"
+Date: Tue, 25 Mar 2008 14:39:41 -0700
+Message-ID: <20080325143941.300d415f.akpm@linux-foundation.org>
+References: <bug-10327-10286@http.bugzilla.kernel.org/>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.180]:25481 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759415AbYCYTPd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2008 15:15:33 -0400
-Received: by py-out-1112.google.com with SMTP id u52so5123015pyb.10
-        for <linux-input@vger.kernel.org>; Tue, 25 Mar 2008 12:15:32 -0700 (PDT)
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <bug-10327-10286@http.bugzilla.kernel.org/>
+Sender: netdev-owner@vger.kernel.org
+To: marcus@better.se
+Cc: bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-
-Hi, I'm trying to use my Xbox360 Controller with the xpad driver. But
-as soon as the led status is set (i.e. right after pluging it in) it
-becomes unresponsive. If I comment out the led-setting code in xpad.c
-the controller works but only until a rumble effect is played, then it
-will become unresponsive again.
-
-I have found that this does not occur if transfer_buffer_length is set
-to the exact value, 3 for the led and 8 for rumble.
 
 
---- a/xpad.c	2008-03-21 16:39:58.000000000 +0100
-+++ b/xpad.c	2008-03-21 16:38:41.000000000 +0100
-@@ -469,6 +469,7 @@
- 		xpad->odata[5] = 0x00;
- 		xpad->odata[6] = 0x00;
- 		xpad->odata[7] = 0x00;
-+		xpad->irq_out->transfer_buffer_length = 8;
- 		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
- 	}
+(switched to email.  Please respond via emailed reply-to-all, not via the
+bugzilla web interface).
 
-@@ -502,6 +503,7 @@
- 		xpad->odata[0] = 0x01;
- 		xpad->odata[1] = 0x03;
- 		xpad->odata[2] = command;
-+		xpad->irq_out->transfer_buffer_length = 3;
- 		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
- 		mutex_unlock(&xpad->odata_mutex);
- 	}
+On Tue, 25 Mar 2008 14:22:51 -0700 (PDT)
+bugme-daemon@bugzilla.kernel.org wrote:
+
+> http://bugzilla.kernel.org/show_bug.cgi?id=10327
+> 
+>            Summary: keyboard stops responding after "ifdown eth0"
+>            Product: Drivers
+>            Version: 2.5
+>      KernelVersion: 2.6.24, 2.6.25-rc6
+>           Platform: All
+>         OS/Version: Linux
+>               Tree: Mainline
+>             Status: NEW
+>           Severity: normal
+>           Priority: P1
+>          Component: Network
+>         AssignedTo: jgarzik@pobox.com
+>         ReportedBy: marcus@better.se
+> 
+> 
+> Latest working kernel version: unknown
+> Earliest failing kernel version: 2.6.24
+> Distribution: Debian testing/unstable
+> Hardware Environment: LG LE50 Express laptop
+> Software Environment: Debian i386, X.org 7.3, KDE 4
+> Problem Description:
+> 
+> The keyboard stops working when I'm manipulating the Ethernet interface while
+> in an X.org session. The session doesn't respond to keyboard input, although
+> the magic SysReq key still works, and the mouse also works. The only way out is
+> a reboot.
+> 
+> The bug is triggered consistently when I bring down the eth0 interface with
+> "ifdown eth0". (I normally use only wireless, so I didn't notice this before.)
+> 
+> Steps to reproduce:
+> 
+> Boot up, log in to KDE, bring up eth0, assign an address and send some traffic,
+> then "ifdown eth0".
+> 
+
+(this is using sky2)
 
 
-Does that seem right?
+> ~$ cat /proc/interrupts
+>            CPU0
+>   0:      32835  local-APIC-edge-fasteoi   timer
+>   1:         10   IO-APIC-edge      i8042
+>   8:          2   IO-APIC-edge      rtc
+>  12:        138   IO-APIC-edge      i8042
+>  14:      28322   IO-APIC-edge      ide0
+>  15:      10618   IO-APIC-edge      ide1
+>  16:        334   IO-APIC-fasteoi   HDA Intel
+>  19:      19243   IO-APIC-fasteoi   ohci_hcd:usb1, ohci_hcd:usb2, ehci_hcd:usb3
+>  20:         20   IO-APIC-fasteoi   firewire_ohci, yenta, tifm_7xx1,
+> sdhc0:slot0, sdhc0:slot1, sdhc0:slot2
+>  21:       1827   IO-APIC-fasteoi   acpi
+>  22:      19159   IO-APIC-fasteoi   0000:08:02.0
+> 223:          2   PCI-MSI-edge      eth0
+> NMI:          0   Non-maskable interrupts
+> LOC:    1415833   Local timer interrupts
+> TRM:          0   Thermal event interrupts
+> SPU:          0   Spurious interrupts
+> ERR:          0
+> MIS:          0
+
+So it's not an ill-advised disable_irq().
+
+I guess the first question is: did the ifdown just kill the keyboard, or
+did more things die?
+
+Perhaps you could try
+
+	ifdown eth0 ; sleep 5 ; ifup eth0
+
+and see if the machine recovers?
+
+(I am just maxed out on bug reports at present - could someone please take
+this up and see if we can get it fixed?)
+

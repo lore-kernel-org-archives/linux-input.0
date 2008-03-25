@@ -1,42 +1,51 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] ati_remote2 autorepeat and loadable keymap support
-Date: Tue, 25 Mar 2008 09:23:02 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0803250922090.32241@twin.jikos.cz>
-References: <200802161622.43223.linux@dadeos.co.uk> <200803041855.50138.linux@dadeos.co.uk>
- <20080304203822.GF531@sci.fi> <200803042134.30339.linux@dadeos.co.uk>
- <20080304221749.GH531@sci.fi> <Pine.LNX.4.64.0803042320450.15209@jikos.suse.cz>
+From: "M G" <lists.mg@googlemail.com>
+Subject: xpad - led or rumble disables controller
+Date: Tue, 25 Mar 2008 20:15:32 +0100
+Message-ID: <74d457500803251215h5e7ae88erf58e2fb1f141745a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:45383 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752038AbYCYIXU (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2008 04:23:20 -0400
-In-Reply-To: <Pine.LNX.4.64.0803042320450.15209@jikos.suse.cz>
+Received: from py-out-1112.google.com ([64.233.166.180]:25481 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759415AbYCYTPd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Mar 2008 15:15:33 -0400
+Received: by py-out-1112.google.com with SMTP id u52so5123015pyb.10
+        for <linux-input@vger.kernel.org>; Tue, 25 Mar 2008 12:15:32 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: =?ISO-8859-2?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>, Peter Stokes <linux@dadeos.co.uk>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Tue, 4 Mar 2008, Jiri Kosina wrote:
+Hi, I'm trying to use my Xbox360 Controller with the xpad driver. But
+as soon as the led status is set (i.e. right after pluging it in) it
+becomes unresponsive. If I comment out the led-setting code in xpad.c
+the controller works but only until a rumble effect is played, then it
+will become unresponsive again.
 
-> > However I don't see why the repeat vs. no repeat case should depend on 
-> > the device reporting or not reporting keyboard keys. I don't see any 
-> > real connection with a device having some keyboard keys and sending 
-> > repeat events for buttons.
-> The problem is, that currently EV_REP is per-device flag. Once we set 
-> it, it is valid for all EV_KEY events (which includes keyboard events, 
-> but also mouse buttons).
-> I think it might be good to redesign this a little bit, but I'd like to 
-> hear Dmitry's opinion here, let's see when he will appear.
+I have found that this does not occur if transfer_buffer_length is set
+to the exact value, 3 for the led and 8 for rumble.
 
-Dmitry,
 
-do you have any opinion/idea what might be the best soltuion please?
+--- a/xpad.c	2008-03-21 16:39:58.000000000 +0100
++++ b/xpad.c	2008-03-21 16:38:41.000000000 +0100
+@@ -469,6 +469,7 @@
+ 		xpad->odata[5] = 0x00;
+ 		xpad->odata[6] = 0x00;
+ 		xpad->odata[7] = 0x00;
++		xpad->irq_out->transfer_buffer_length = 8;
+ 		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+ 	}
 
-Thanks,
+@@ -502,6 +503,7 @@
+ 		xpad->odata[0] = 0x01;
+ 		xpad->odata[1] = 0x03;
+ 		xpad->odata[2] = command;
++		xpad->irq_out->transfer_buffer_length = 3;
+ 		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+ 		mutex_unlock(&xpad->odata_mutex);
+ 	}
 
--- 
-Jiri Kosina
-SUSE Labs
 
+Does that seem right?

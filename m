@@ -1,26 +1,24 @@
-From: Marcus Better <marcus@better.se>
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
 Subject: Re: [Bugme-new] [Bug 10327] New: keyboard stops responding after
  "ifdown eth0"
-Date: Tue, 25 Mar 2008 22:43:56 +0100
-Message-ID: <47E9721C.2000306@better.se>
-References: <bug-10327-10286@http.bugzilla.kernel.org/> <20080325143941.300d415f.akpm@linux-foundation.org>
+Date: Wed, 26 Mar 2008 01:01:28 +0100
+Message-ID: <47E99258.3060005@s5r6.in-berlin.de>
+References: <bug-10327-10286@http.bugzilla.kernel.org/> <20080325143941.300d415f.akpm@linux-foundation.org> <47E9721C.2000306@better.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20080325143941.300d415f.akpm@linux-foundation.org>
+In-Reply-To: <47E9721C.2000306@better.se>
 Sender: netdev-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
+To: Marcus Better <marcus@better.se>
+Cc: Andrew Morton <akpm@linux-foundation.org>, bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Andrew Morton wrote:
-> Perhaps you could try
-> 
-> 	ifdown eth0 ; sleep 5 ; ifup eth0
+One possible reason for unresponsive keyboard is a workqueue job in the 
+shared workqueue sleeping very long or indefinitely.
 
-Will try. There is also a Debian bug report of the same or a similar 
-problem with kernels from 2.6.18:
-
-http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=415147
-
+Sky2.c has only one workqueue job: sky2_restart().
+-- 
+Stefan Richter
+-=====-==--- --== ==-=-
+http://arcgraph.de/sr/

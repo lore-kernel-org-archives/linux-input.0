@@ -1,52 +1,86 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [Bugme-new] [Bug 10327] New: keyboard stops responding after
- "ifdown eth0"
-Date: Tue, 25 Mar 2008 17:16:08 -0700
-Message-ID: <20080325171608.509f4ca7.akpm@linux-foundation.org>
-References: <bug-10327-10286@http.bugzilla.kernel.org/>
-	<20080325143941.300d415f.akpm@linux-foundation.org>
-	<47E9721C.2000306@better.se>
-	<47E99258.3060005@s5r6.in-berlin.de>
+From: "Magnus Damm" <magnus.damm@gmail.com>
+Subject: Re: [PATCH] Touch screen driver for the SuperH MigoR board
+Date: Wed, 26 Mar 2008 13:03:09 +0900
+Message-ID: <aec7e5c30803252103x1534e43dv3f31a3bc731fc9bf@mail.gmail.com>
+References: <20080321111630.13138.14500.sendpatchset@rx1.opensource.se>
+	 <20080321155515.bb9f945e.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:58686 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757486AbYCZAQ0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Mar 2008 20:16:26 -0400
-In-Reply-To: <47E99258.3060005@s5r6.in-berlin.de>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080321155515.bb9f945e.akpm@linux-foundation.org>
+Content-Disposition: inline
+Sender: linux-sh-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, dmitry.torokhov@gmail.com, linux-sh@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Marcus Better <marcus@better.se>, bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 
-On Wed, 26 Mar 2008 01:01:28 +0100 Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+On Sat, Mar 22, 2008 at 7:55 AM, Andrew Morton
+<akpm@linux-foundation.org> wrote:
+> On Fri, 21 Mar 2008 20:16:30 +0900
+>  Magnus Damm <magnus.damm@gmail.com> wrote:
+>
+>  > This patch adds a touch screen driver for the MigoR board. The chip we
+>  > interface to is unfortunately a custom designed microcontroller speaking
+>  > some undocumented protocol over i2c.
 
-> One possible reason for unresponsive keyboard is a workqueue job in the 
-> shared workqueue sleeping very long or indefinitely.
-> 
-> Sky2.c has only one workqueue job: sky2_restart().
+[snip]
 
-Yeah.
+>  > +static irqreturn_t migor_ts_isr(int irq, void *dev_id)
+>  > +{
+>  > +     struct migor_ts_priv *priv = dev_id;
+>  > +
+>  > +     disable_irq_nosync(irq);
+>  > +     schedule_delayed_work(&priv->work, HZ / 20);
+>  > +     return IRQ_HANDLED;
+>  > +}
+>
+>  eww.  Doing a disable_irq() on each interrupt and reenabling interrupts
+>  later isn't very nice.  And it might cause havoc if that interrupt is
+>  shared.
+>
+>  Why is this code like this?
 
-Marcus, please try something like this:
+The code is more or less doing the same thing as the ads7846 driver,
+except this one is communicating over i2c instead of spi. This means
+is because of great hardware design with interrupts that needs to be
+acked over an extremely slow serial bus. So we just disable the
+interrupt and handle everything from a different context. Apart from
+avoiding serious latency issues, doing things from interrupt context
+simply won't work since the i2c bus driver may be interrupt driven and
+may sleep while waiting for the serial bus data to be sent.
 
-- become root
+And you are right, this won't work with shared interrupts.
 
-- run
+>  No, don't answer that question.  If I wanted to know this when reading
+>  the code, then others will want to know it also.  It needs to be fully
+>  explained in code comments, please.
 
-	( sleep 10 ; echo t > /proc/sysrq-trigger ) &
-	ifdown eth0
+Yeah, having a comment in there would certainly help.
 
-- wait a minute or so
+>  Can we not pull the data out of the hardware at interrupt time and then
+>  queue that data up for the keventd processing?
 
-- reboot
+No can do, the serial bus is too slow.
 
-- See if the sysrq-t output made it to /var/log/messages
+>  > +static int migor_ts_remove(struct i2c_client *client)
+>  > +{
+>  > +     struct migor_ts_priv *priv = dev_get_drvdata(&client->dev);
+>  > +
+>  > +     /* disable controller */
+>  > +     i2c_master_send(client, migor_ts_dis_seq, sizeof(migor_ts_dis_seq));
+>  > +
+>  > +     free_irq(priv->irq, priv);
+>  > +     input_unregister_device(priv->input);
+>  > +     kfree(priv);
+>  > +     return 0;
+>  > +}
+>
+>  Might a delayed work still be scheduled when we run this?  A
+>  cancel_delayed_work_sync() would set minds at rest.
 
-  If it did, please send it as reply-to-all to this email.  Try to avoid
-  wordwrapping it, as many do.
+Good catch. I'll fix this up and repost.
 
-Thanks.
+Thanks!
+
+/ magnus

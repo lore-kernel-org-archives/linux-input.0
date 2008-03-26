@@ -1,48 +1,115 @@
-From: "Bryan Wu" <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142
-	joystick driver
-Date: Thu, 27 Mar 2008 00:15:07 +0800
-Message-ID: <386072610803260915j7e4ca889ud193457367c712d3@mail.gmail.com>
-References: <1206579622-21915-1-git-send-email-cooloney@kernel.org>
-	<8bd0f97a0803260736v58c11f8g8a5f740c62891174@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [Bugme-new] [Bug 10327] New: keyboard stops responding after
+ "ifdown eth0"
+Date: Wed, 26 Mar 2008 10:29:31 -0700
+Message-ID: <20080326102931.484285f3.akpm@linux-foundation.org>
+References: <bug-10327-10286@http.bugzilla.kernel.org/>
+	<20080325143941.300d415f.akpm@linux-foundation.org>
+	<47E9721C.2000306@better.se>
+	<47E99258.3060005@s5r6.in-berlin.de>
+	<20080325171608.509f4ca7.akpm@linux-foundation.org>
+	<47EA152C.6000008@better.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-In-Reply-To: <8bd0f97a0803260736v58c11f8g8a5f740c62891174-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Disposition: inline
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Bryan Wu <bryan.wu-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760086AbYCZRaR@vger.kernel.org>
+In-Reply-To: <47EA152C.6000008@better.se>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Marcus Better <marcus@better.se>
+Cc: stefanr@s5r6.in-berlin.de, bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Mar 26, 2008 at 10:36 PM, Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Wed, Mar 26, 2008 at 9:00 PM, Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
->  >  +config JOYSTICK_AD7142
->  >  +       tristate "Analog Devices AD7142 Joystick support"
->  >  +       depends on BLACKFIN && I2C
->  >  +       ---help---
->  >  +         Say Y here if you want to support an AD7142 joystick
->
->  since you're going to send another patch anyways ;), this kconfig text
->  could use a line telling you the module name if built as a module.
->  -mike
+On Wed, 26 Mar 2008 10:19:40 +0100
+Marcus Better <marcus@better.se> wrote:
 
-No problem, I am waiting you guys to give some comments and update
-this driver later.
+> Andrew Morton wrote:
+> > 	( sleep 10 ; echo t > /proc/sysrq-trigger ) &
+> > 	ifdown eth0
+> > 
+> > 
+> > - See if the sysrq-t output made it to /var/log/messages
+> 
+> No, not a word. It hung after printing this:
+> 
+> ...
+> DHCPRELEASE ...
+> send_packet: Network is unreachable
+> send_packet: please consult README ...
+> sky2 eth0: disabling interface
+> ~# sky2 eth0: enabling interface
+> 
+> I'm running ifplugd, but this time there was no network cable connected. 
+> Also ran from virtual console this time, the keyboard locked up like before.
+> 
+> SysRq keys work, so I could do sysrq-s, sysrq-b. Also pressed sysrq-t 
+> before rebooting.
 
-Thanks
--Bryan
+It certainy does sound like networking has gummed up the keventd queue(s).
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+> Any use trying netconsole? Can I run it over the wireless interface?
+
+I don't think many (or any?) wireless drivers support netconsole.
+
+I'd suggest running (and perhaps suitably modifying) this:
+
+diff -puN drivers/net/sky2.c~a drivers/net/sky2.c
+--- a/drivers/net/sky2.c~a
++++ a/drivers/net/sky2.c
+@@ -50,6 +50,8 @@
+ 
+ #include "sky2.h"
+ 
++#define D() printk("%s:%d\n", __FILE__, __LINE__)
++
+ #define DRV_NAME		"sky2"
+ #define DRV_VERSION		"1.21"
+ #define PFX			DRV_NAME " "
+@@ -2931,32 +2933,42 @@ static void sky2_restart(struct work_str
+ 	struct net_device *dev;
+ 	int i, err;
+ 
++	D();
+ 	rtnl_lock();
++	D();
+ 	for (i = 0; i < hw->ports; i++) {
++		D();
+ 		dev = hw->dev[i];
+ 		if (netif_running(dev))
+ 			sky2_down(dev);
+ 	}
+-
++	D();
+ 	napi_disable(&hw->napi);
++	D();
+ 	sky2_write32(hw, B0_IMSK, 0);
+ 	sky2_reset(hw);
+ 	sky2_write32(hw, B0_IMSK, Y2_IS_BASE);
+ 	napi_enable(&hw->napi);
+-
++	D();
+ 	for (i = 0; i < hw->ports; i++) {
++		D();
+ 		dev = hw->dev[i];
+ 		if (netif_running(dev)) {
++			D();
+ 			err = sky2_up(dev);
++			D();
+ 			if (err) {
++				D();
+ 				printk(KERN_INFO PFX "%s: could not restart %d\n",
+ 				       dev->name, err);
+ 				dev_close(dev);
++			D();
+ 			}
+ 		}
+ 	}
+-
++	D();
+ 	rtnl_unlock();
++	D();
+ }
+ 
+ static inline u8 sky2_wol_supported(const struct sky2_hw *hw)
+_
+
+to see if things are getting stuck and if so, where.

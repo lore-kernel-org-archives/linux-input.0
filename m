@@ -1,32 +1,70 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: WM97xx touchscreen drivers
-Date: Tue, 1 Apr 2008 14:34:02 -0700
-Message-ID: <20080401143402.6e433a3b.akpm@linux-foundation.org>
-References: <20080401102825.GA30868@rakim.wolfsonmicro.main>
+From: Dmitry <dbaryshkov@gmail.com>
+Subject: Re: [PATCH] Fix tosakbd suspend
+Date: Wed, 2 Apr 2008 01:51:28 +0400
+Message-ID: <bc64b4640804011451y71c095dfhddc26067a8d3eb6f@mail.gmail.com>
+References: <20080331213801.GA9372@doriath.ww600.siemens.net>
+	 <20080401034903.GB18041@anvil.corenet.prv>
+	 <bc64b4640804010627n172be3fbi9a43eb392c487358@mail.gmail.com>
+	 <20080401144224.GA6436@USFSHXP-002051>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:37802 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753976AbYDAVgR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Apr 2008 17:36:17 -0400
-In-Reply-To: <20080401102825.GA30868@rakim.wolfsonmicro.main>
+Received: from py-out-1112.google.com ([64.233.166.179]:36707 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756504AbYDAVva (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Apr 2008 17:51:30 -0400
+Received: by py-out-1112.google.com with SMTP id u52so3340087pyb.10
+        for <linux-input@vger.kernel.org>; Tue, 01 Apr 2008 14:51:29 -0700 (PDT)
+In-Reply-To: <20080401144224.GA6436@USFSHXP-002051>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: dtor@mail.ru, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hcegtvedt@atmel.com, liam.girdwood@wolfsonmicro.com, gg@opensource.wolfsonmicro.com, dbaryshkov@gmail.com, giometti@enneenne.com, rmk@arm.linux.org.uk, mkl@pengutronix.de, linux01@architechnical.net, spyro@f2s.com, vince@kyllikki.org, zap@homelink.ru
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2008 11:28:25 +0100
-Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
+Hi,
 
-> This patch series adds support for the touchscreen controllers found in
-> WM97xx devices.  This revision of the series fixes some races when
-> closing an active device and fixes a shadowed variable.
-> 
-> This patch series is also available in the git repository at:
-> 
->   git://opensource.wolfsonmicro.com/linux-2.6-touch upstream
+2008/4/1, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Tue, Apr 01, 2008 at 04:27:38PM +0300, Dmitry wrote:
+>  > Hi, Dmitry,
+>  >
+>  > 2008/4/1, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>  > > Hi Dmitry,
+>  > >
+>  > >
+>  > >  On Tue, Apr 01, 2008 at 01:38:01AM +0400, Dmitry Baryshkov wrote:
+>  > >  > Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+>  > >  > ---
+>  > >  >  drivers/input/keyboard/tosakbd.c |    3 +++
+>  > >  >  1 files changed, 3 insertions(+), 0 deletions(-)
+>  > >  >
+>  > >  > diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
+>  > >  > index 3884d1e..306cbe8 100644
+>  > >  > --- a/drivers/input/keyboard/tosakbd.c
+>  > >  > +++ b/drivers/input/keyboard/tosakbd.c
+>  > >  > @@ -210,6 +210,9 @@ static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
+>  > >  >
+>  > >  >       del_timer_sync(&tosakbd->timer);
+>  > >  >
+>  > >
+>  > >
+>  > > What if interrupt comes here? The whole suspend path seems racy with
+>  > >  interrup handler/timer.
+>  >
+>  > What is the best way to fix it? Moving from suspend to suspend_late
+>  > seems to be a hack.
+>  > Should I call a bunch of disable_irq or just introduce an atomic flag?
+>  >
+>
+>
+> How about we take the lock in tosakbd_suspend, set flag indicating that the
+>  picece is suspended, do the discharge and then del_timer_sync()? If you change
+>  tosakbd_scankeyboard() to check for suspend flag and exit as soon as it sees it
+>  it should take care of the most of the issues I think. Something like this:
 
-I added that git tree to the -mm lineup.
+This should do the trick. I'll test the patch tomorrow.
+
+-- 
+With best wishes
+Dmitry

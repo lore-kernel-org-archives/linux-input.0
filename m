@@ -1,51 +1,45 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Fix tosakbd suspend
-Date: Mon, 31 Mar 2008 23:49:03 -0400
-Message-ID: <20080401034903.GB18041@anvil.corenet.prv>
-References: <20080331213801.GA9372@doriath.ww600.siemens.net>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: WM97xx touchscreen drivers
+Date: Tue, 1 Apr 2008 11:28:25 +0100
+Message-ID: <20080401102825.GA30868@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.181]:43152 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752224AbYDADtJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 31 Mar 2008 23:49:09 -0400
-Received: by py-out-1112.google.com with SMTP id u52so2778877pyb.10
-        for <linux-input@vger.kernel.org>; Mon, 31 Mar 2008 20:49:08 -0700 (PDT)
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757864AbYDAK2l@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20080331213801.GA9372@doriath.ww600.siemens.net>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dtor@mail.ru>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>, Liam Girdwood <liam.girdwood@wolfsonmicro.com>, Graeme Gregory <gg@opensource.wolfsonmicro.com>, Dmitry Baryshkov <dbaryshkov@gmail.com>, Rodolfo Giometti <giometti@enneenne.com>, Russell King <rmk@arm.linux.org.uk>, Marc Kleine-Budde <mkl@pengutronix.de>, Pete MacKay <linux01@architechnical.net>, Ian Molton <spyro@f2s.com>, Vince Sanders <vince@kyllikki.org>, Andrew Zabolotny <zap@homelink.ru>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Dmitry,
+This patch series adds support for the touchscreen controllers found in
+WM97xx devices.  This revision of the series fixes some races when
+closing an active device and fixes a shadowed variable.
 
-On Tue, Apr 01, 2008 at 01:38:01AM +0400, Dmitry Baryshkov wrote:
-> Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
-> ---
->  drivers/input/keyboard/tosakbd.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
-> index 3884d1e..306cbe8 100644
-> --- a/drivers/input/keyboard/tosakbd.c
-> +++ b/drivers/input/keyboard/tosakbd.c
-> @@ -210,6 +210,9 @@ static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
->  
->  	del_timer_sync(&tosakbd->timer);
->  
+This patch series is also available in the git repository at:
 
-What if interrupt comes here? The whole suspend path seems racy with
-interrup handler/timer.
+  git://opensource.wolfsonmicro.com/linux-2.6-touch upstream
 
-> +	PGSR1 = (PGSR1 & ~TOSA_GPIO_LOW_STROBE_BIT);
-> +	PGSR2 = (PGSR2 & ~TOSA_GPIO_HIGH_STROBE_BIT);
-> +
->  	return 0;
->  }
->  
+Mark Brown (6):
+      Core driver for WM97xx touchscreens
+      Add chip driver for WM9705 touchscreen
+      Add chip driver for WM9712 touchscreen
+      Add chip driver for WM9713 touchscreen
+      Driver for WM97xx touchscreens in streaming mode on Mainstone
+      Build system and MAINTAINERS entry for WM97xx touchscreen drivers
 
--- 
-Dmitry
+ MAINTAINERS                                  |   10 +
+ drivers/input/touchscreen/Kconfig            |   52 ++
+ drivers/input/touchscreen/Makefile           |    7 +
+ drivers/input/touchscreen/mainstone-wm97xx.c |  300 ++++++++++
+ drivers/input/touchscreen/wm9705.c           |  352 ++++++++++++
+ drivers/input/touchscreen/wm9712.c           |  461 +++++++++++++++
+ drivers/input/touchscreen/wm9713.c           |  459 +++++++++++++++
+ drivers/input/touchscreen/wm97xx-core.c      |  786 ++++++++++++++++++++++++++
+ include/linux/wm97xx.h                       |  311 ++++++++++
+ 9 files changed, 2738 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/mainstone-wm97xx.c
+ create mode 100644 drivers/input/touchscreen/wm9705.c
+ create mode 100644 drivers/input/touchscreen/wm9712.c
+ create mode 100644 drivers/input/touchscreen/wm9713.c
+ create mode 100644 drivers/input/touchscreen/wm97xx-core.c
+ create mode 100644 include/linux/wm97xx.h

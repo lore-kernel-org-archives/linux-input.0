@@ -1,142 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Fix tosakbd suspend
-Date: Tue, 1 Apr 2008 10:42:25 -0400
-Message-ID: <20080401144224.GA6436@USFSHXP-002051>
-References: <20080331213801.GA9372@doriath.ww600.siemens.net> <20080401034903.GB18041@anvil.corenet.prv> <bc64b4640804010627n172be3fbi9a43eb392c487358@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: WM97xx touchscreen drivers
+Date: Tue, 1 Apr 2008 14:34:02 -0700
+Message-ID: <20080401143402.6e433a3b.akpm@linux-foundation.org>
+References: <20080401102825.GA30868@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wr-out-0506.google.com ([64.233.184.239]:5163 "EHLO
-	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755883AbYDAOmg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Apr 2008 10:42:36 -0400
-Received: by wr-out-0506.google.com with SMTP id c48so1316702wra.1
-        for <linux-input@vger.kernel.org>; Tue, 01 Apr 2008 07:42:33 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <bc64b4640804010627n172be3fbi9a43eb392c487358@mail.gmail.com>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37802 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753976AbYDAVgR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Apr 2008 17:36:17 -0400
+In-Reply-To: <20080401102825.GA30868@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry <dbaryshkov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: dtor@mail.ru, jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hcegtvedt@atmel.com, liam.girdwood@wolfsonmicro.com, gg@opensource.wolfsonmicro.com, dbaryshkov@gmail.com, giometti@enneenne.com, rmk@arm.linux.org.uk, mkl@pengutronix.de, linux01@architechnical.net, spyro@f2s.com, vince@kyllikki.org, zap@homelink.ru
 
-On Tue, Apr 01, 2008 at 04:27:38PM +0300, Dmitry wrote:
-> Hi, Dmitry,
+On Tue, 1 Apr 2008 11:28:25 +0100
+Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
+
+> This patch series adds support for the touchscreen controllers found in
+> WM97xx devices.  This revision of the series fixes some races when
+> closing an active device and fixes a shadowed variable.
 > 
-> 2008/4/1, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> > Hi Dmitry,
-> >
-> >
-> >  On Tue, Apr 01, 2008 at 01:38:01AM +0400, Dmitry Baryshkov wrote:
-> >  > Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
-> >  > ---
-> >  >  drivers/input/keyboard/tosakbd.c |    3 +++
-> >  >  1 files changed, 3 insertions(+), 0 deletions(-)
-> >  >
-> >  > diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
-> >  > index 3884d1e..306cbe8 100644
-> >  > --- a/drivers/input/keyboard/tosakbd.c
-> >  > +++ b/drivers/input/keyboard/tosakbd.c
-> >  > @@ -210,6 +210,9 @@ static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
-> >  >
-> >  >       del_timer_sync(&tosakbd->timer);
-> >  >
-> >
-> >
-> > What if interrupt comes here? The whole suspend path seems racy with
-> >  interrup handler/timer.
+> This patch series is also available in the git repository at:
 > 
-> What is the best way to fix it? Moving from suspend to suspend_late
-> seems to be a hack.
-> Should I call a bunch of disable_irq or just introduce an atomic flag?
-> 
+>   git://opensource.wolfsonmicro.com/linux-2.6-touch upstream
 
-How about we take the lock in tosakbd_suspend, set flag indicating that the
-picece is suspended, do the discharge and then del_timer_sync()? If you change
-tosakbd_scankeyboard() to check for suspend flag and exit as soon as it sees it
-it should take care of the most of the issues I think. Something like this:
-
-Subject: Input: tosakbd - fix suspend
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-
-Input: tosakbd - fix suspend
-
-Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
- drivers/input/keyboard/tosakbd.c |   19 ++++++++++++++++---
- 1 file changed, 16 insertions(+), 3 deletions(-)
-
-Index: linux/drivers/input/keyboard/tosakbd.c
-===================================================================
---- linux.orig/drivers/input/keyboard/tosakbd.c
-+++ linux/drivers/input/keyboard/tosakbd.c
-@@ -52,7 +52,7 @@ KEY_X, KEY_F, KEY_SPACE, KEY_APOSTROPHE,
- struct tosakbd {
- 	unsigned int keycode[ARRAY_SIZE(tosakbd_keycode)];
- 	struct input_dev *input;
--
-+	int suspeneded;
- 	spinlock_t lock; /* protect kbd scanning */
- 	struct timer_list timer;
- };
-@@ -133,6 +133,9 @@ static void tosakbd_scankeyboard(struct 
- 
- 	spin_lock_irqsave(&tosakbd->lock, flags);
- 
-+	if (tosakbd->suspended)
-+		goto out;
-+
- 	for (col = 0; col < TOSA_KEY_STROBE_NUM; col++) {
- 		/*
- 		 * Discharge the output driver capacitatance
-@@ -174,6 +177,7 @@ static void tosakbd_scankeyboard(struct 
- 	if (num_pressed)
- 		mod_timer(&tosakbd->timer, jiffies + SCAN_INTERVAL);
- 
-+ out:
- 	spin_unlock_irqrestore(&tosakbd->lock, flags);
- }
- 
-@@ -200,6 +204,7 @@ static irqreturn_t tosakbd_interrupt(int
- static void tosakbd_timer_callback(unsigned long __dev)
- {
- 	struct platform_device *dev = (struct platform_device *)__dev;
-+
- 	tosakbd_scankeyboard(dev);
- }
- 
-@@ -207,6 +212,13 @@ static void tosakbd_timer_callback(unsig
- static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
- {
- 	struct tosakbd *tosakbd = platform_get_drvdata(dev);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&tosakbd->lock, flags);
-+	PGSR1 = (PGSR1 & ~TOSA_GPIO_LOW_STROBE_BIT);
-+	PGSR2 = (PGSR2 & ~TOSA_GPIO_HIGH_STROBE_BIT);
-+	tosakbd->suspended = 1;
-+	spin_unlock_irqrestore(&tosakbd->lock, flags);
- 
- 	del_timer_sync(&tosakbd->timer);
- 
-@@ -215,6 +227,7 @@ static int tosakbd_suspend(struct platfo
- 
- static int tosakbd_resume(struct platform_device *dev)
- {
-+	tosakbd->suspended = 0;
- 	tosakbd_scankeyboard(dev);
- 
- 	return 0;
-@@ -365,8 +378,8 @@ fail:
- 	return error;
- }
- 
--static int __devexit tosakbd_remove(struct platform_device *dev) {
--
-+static int __devexit tosakbd_remove(struct platform_device *dev)
-+{
- 	int i;
- 	struct tosakbd *tosakbd = platform_get_drvdata(dev);
- 
--- 
-Dmitry
+I added that git tree to the -mm lineup.

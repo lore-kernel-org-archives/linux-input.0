@@ -1,55 +1,187 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] appletouch driver and 4th generation macbooks
-Date: Wed, 2 Apr 2008 10:19:47 -0400
-Message-ID: <20080402101704.ZZRA012@mailhub.coreip.homeip.net>
-References: <47DAB465.7090100@twam.info> <1205588795.15910.34.camel@johannes.berg> <47F36B03.4060704@twam.info> <1207135383.10910.39.camel@johannes.berg>
+From: Dmitry <dbaryshkov@gmail.com>
+Subject: Re: [PATCH] Fix tosakbd suspend
+Date: Wed, 2 Apr 2008 18:38:26 +0400
+Message-ID: <bc64b4640804020738l25b51263la04cff12c38e0325@mail.gmail.com>
+References: <20080401144224.GA6436@USFSHXP-002051>
+	 <20080402141632.GA19698@doriath.ww600.siemens.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.185]:27584 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753503AbYDBOUd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Apr 2008 10:20:33 -0400
-Received: by nf-out-0910.google.com with SMTP id g13so1138743nfb.21
-        for <linux-input@vger.kernel.org>; Wed, 02 Apr 2008 07:20:14 -0700 (PDT)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756763AbYDBOjA@vger.kernel.org>
+In-Reply-To: <20080402141632.GA19698@doriath.ww600.siemens.net>
 Content-Disposition: inline
-In-Reply-To: <1207135383.10910.39.camel@johannes.berg>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Tobias M?ller <Tobias_Mueller@twam.info>, linux-input@vger.kernel.org
 
-Hi Johannes, Tobias,
+Hi,
 
-On Wed, Apr 02, 2008 at 01:23:03PM +0200, Johannes Berg wrote:
-> 
-> On Wed, 2008-04-02 at 13:16 +0200, Tobias M??ller wrote:
-> > Hi,
-> > 
-> > Johannes Berg schrieb:
-> > >> Adds product ids for 4th generation MacBooks in appletouch driver. 
-> > > 
-> > > Looks good.
-> > > 
-> > >> Signed-off-by: Tobias Mueller <Tobias_Mueller@twam.info>
-> > > 
-> > > Acked-by: Johannes Berg <johannes@sipsolutions.net>
-> >  
-> > I still cannot find the new device ids in 2.6.25-rc8. Is there anything to do further from my side?
-> 
-> I guess I was supposed to pick up the patch and thought somebody else
-> would. Dmitry, can you pick it up into your input tree?
-> 
-> I don't expect it to be going into 2.6.25 at this point, it's rather
-> close to being released. On the other hand, it's not like it can cause
-> regressions, but I guess we need to draw a line at some point.
-> 
+Sorry, that was me... Sometimes I hate git-am & git-format-patch
 
-I applied the patch to my tree. I will try to push the change to Linus
-before 2.6.25 since it is very low risk. Btw, is_geyser3() function
-is becoming unwieldy. We might consider changing it to something that
-scans array of integers instead of adding more conditions to that "if"
-statement next time we add more IDs to it.
+2008/4/2, Dmitry Torokhov <dbaryshkov@gmail.com>:
+> Hi,
+>
+>
+>  2008/4/1, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>  > On Tue, Apr 01, 2008 at 04:27:38PM +0300, Dmitry wrote:
+>  > > Hi, Dmitry,
+>  > >
+>  > > 2008/4/1, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+>  > > > Hi Dmitry,
+>  > > >
+>  > > >
+>  > > >  On Tue, Apr 01, 2008 at 01:38:01AM +0400, Dmitry Baryshkov wrote:
+>  > > >  > Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+>  > > >  > ---
+>  > > >  >  drivers/input/keyboard/tosakbd.c |    3 +++
+>  > > >  >  1 files changed, 3 insertions(+), 0 deletions(-)
+>  > > >  >
+>  > > >  > diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
+>  > > >  > index 3884d1e..306cbe8 100644
+>  > > >  > --- a/drivers/input/keyboard/tosakbd.c
+>  > > >  > +++ b/drivers/input/keyboard/tosakbd.c
+>  > > >  > @@ -210,6 +210,9 @@ static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
+>  > > >  >
+>  > > >  >       del_timer_sync(&tosakbd->timer);
+>  > > >  >
+>  > > >
+>  > > >
+>  > > > What if interrupt comes here? The whole suspend path seems racy with
+>  > > >  interrup handler/timer.
+>  > >
+>  > > What is the best way to fix it? Moving from suspend to suspend_late
+>  > > seems to be a hack.
+>  > > Should I call a bunch of disable_irq or just introduce an atomic flag?
+>  > >
+>  >
+>  > How about we take the lock in tosakbd_suspend, set flag indicating that the
+>  > picece is suspended, do the discharge and then del_timer_sync()? If you change
+>  > tosakbd_scankeyboard() to check for suspend flag and exit as soon as it sees it
+>  > it should take care of the most of the issues I think. Something like this:
+>
+>
+> Fixed two minor glitches. Works for me. Please add it to your tree.
+>
+>
+>  Subject: Input: tosakbd - fix suspend
+>
+> Input: tosakbd - fix suspend
+>
+>  Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+>  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+>  ---
+>
+>  drivers/input/keyboard/tosakbd.c |   21 ++++++++++++++++++---
+>   1 files changed, 18 insertions(+), 3 deletions(-)
+>
+>
+>  diff --git a/drivers/input/keyboard/tosakbd.c b/drivers/input/keyboard/tosakbd.c
+>
+> index 3884d1e..a247006 100644
+>
+> --- a/drivers/input/keyboard/tosakbd.c
+>  +++ b/drivers/input/keyboard/tosakbd.c
+>
+> @@ -52,7 +52,7 @@ KEY_X, KEY_F, KEY_SPACE, KEY_APOSTROPHE, TOSA_KEY_MAIL, KEY_LEFT, KEY_DOWN, KEY_
+>
+>  struct tosakbd {
+>         unsigned int keycode[ARRAY_SIZE(tosakbd_keycode)];
+>         struct input_dev *input;
+>  -
+>
+> +       int suspended;
+>
+>         spinlock_t lock; /* protect kbd scanning */
+>         struct timer_list timer;
+>   };
+>
+> @@ -133,6 +133,9 @@ static void tosakbd_scankeyboard(struct platform_device *dev)
+>
+>
+>         spin_lock_irqsave(&tosakbd->lock, flags);
+>
+>  +       if (tosakbd->suspended)
+>  +               goto out;
+>  +
+>         for (col = 0; col < TOSA_KEY_STROBE_NUM; col++) {
+>                 /*
+>                  * Discharge the output driver capacitatance
+>
+> @@ -174,6 +177,7 @@ static void tosakbd_scankeyboard(struct platform_device *dev)
+>
+>         if (num_pressed)
+>                 mod_timer(&tosakbd->timer, jiffies + SCAN_INTERVAL);
+>
+>  + out:
+>         spin_unlock_irqrestore(&tosakbd->lock, flags);
+>   }
+>
+>
+> @@ -200,6 +204,7 @@ static irqreturn_t tosakbd_interrupt(int irq, void *__dev)
+>
+>  static void tosakbd_timer_callback(unsigned long __dev)
+>   {
+>         struct platform_device *dev = (struct platform_device *)__dev;
+>  +
+>         tosakbd_scankeyboard(dev);
+>   }
+>
+>
+> @@ -207,6 +212,13 @@ static void tosakbd_timer_callback(unsigned long __dev)
+>
+>  static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
+>   {
+>         struct tosakbd *tosakbd = platform_get_drvdata(dev);
+>  +       unsigned long flags;
+>  +
+>  +       spin_lock_irqsave(&tosakbd->lock, flags);
+>  +       PGSR1 = (PGSR1 & ~TOSA_GPIO_LOW_STROBE_BIT);
+>  +       PGSR2 = (PGSR2 & ~TOSA_GPIO_HIGH_STROBE_BIT);
+>  +       tosakbd->suspended = 1;
+>  +       spin_unlock_irqrestore(&tosakbd->lock, flags);
+>
+>         del_timer_sync(&tosakbd->timer);
+>
+>
+> @@ -215,6 +227,9 @@ static int tosakbd_suspend(struct platform_device *dev, pm_message_t state)
+>
+>
+>   static int tosakbd_resume(struct platform_device *dev)
+>   {
+>
+> +       struct tosakbd *tosakbd = platform_get_drvdata(dev);
+>
+> +
+>  +       tosakbd->suspended = 0;
+>         tosakbd_scankeyboard(dev);
+>
+>         return 0;
+>
+> @@ -365,8 +380,8 @@ fail:
+>
+>         return error;
+>   }
+>
+>  -static int __devexit tosakbd_remove(struct platform_device *dev) {
+>  -
+>  +static int __devexit tosakbd_remove(struct platform_device *dev)
+>  +{
+>         int i;
+>         struct tosakbd *tosakbd = platform_get_drvdata(dev);
+>
+>  --
+>
+> 1.5.4.4
+>
+>
+>  --
+>  With best wishes
+>  Dmitry
+>
+>
+
 
 -- 
+With best wishes
 Dmitry

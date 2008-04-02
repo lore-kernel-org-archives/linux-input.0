@@ -1,38 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] locomokbd.c: Add "Off"-button functionality for Sharp
-	Collie/Poodle
-Date: Wed, 2 Apr 2008 02:16:09 -0400
-Message-ID: <20080402061609.GC14189@anvil.corenet.prv>
-References: <200803241419.38374.deller@gmx.de>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 6/6] Build system and MAINTAINERS entry for WM97xx
+	touchscreen drivers
+Date: Wed, 2 Apr 2008 11:37:22 +0100
+Message-ID: <20080402103722.GA3432@rakim.wolfsonmicro.main>
+References: <20080401102825.GA30868@rakim.wolfsonmicro.main> <1207046169-2152-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1207046169-2152-2-git-send-email-broonie@opensource.wolfsonmicro.com> <1207046169-2152-3-git-send-email-broonie@opensource.wolfsonmicro.com> <1207046169-2152-4-git-send-email-broonie@opensource.wolfsonmicro.com> <1207046169-2152-5-git-send-email-broonie@opensource.wolfsonmicro.com> <1207046169-2152-6-git-send-email-broonie@opensource.wolfsonmicro.com> <20080402050400.GA14189@anvil.corenet.prv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.244]:9330 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759422AbYDBGQP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Apr 2008 02:16:15 -0400
-Received: by an-out-0708.google.com with SMTP id d31so651648and.103
-        for <linux-input@vger.kernel.org>; Tue, 01 Apr 2008 23:16:14 -0700 (PDT)
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:48289 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752086AbYDBKhY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Apr 2008 06:37:24 -0400
 Content-Disposition: inline
-In-Reply-To: <200803241419.38374.deller@gmx.de>
+In-Reply-To: <20080402050400.GA14189@anvil.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Helge Deller <deller@gmx.de>
-Cc: linux-input@vger.kernel.org, thommycheck@gmx.de, rpurdie@rpsys.net, hvontres@gmail.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Liam Girdwood <liam.girdwood@wolfsonmicro.com>
 
-On Mon, Mar 24, 2008 at 02:19:37PM +0100, Helge Deller wrote:
-> This patch enables the Sharp Zaurus Collie and Poodle devices to be turned
-> off by pressing the "Cancel" button for a few seconds (as designed by Sharp).
-> 
-> Additional small cleanups:
-> - removal of unused #defines and variables
-> - add missing __devinit/__devexit/__devinitconst annotations
-> - reorganized copyright notice
-> 
-> 
-> Signed-off-by: Helge Deller <deller@gmx.de>
+On Wed, Apr 02, 2008 at 01:04:00AM -0400, Dmitry Torokhov wrote:
 
-Applied to the input tree, thank you Helge.
+> applied the series to wm97xx branch of my input tree. I also moved
+> changes to Makefile/Kconfig to the appropriate patches instead of
+> doing bulk update as a separate patch. Please take a look and let
+> me know if you see anything wrong.
 
--- 
-Dmitry
+Everything looks good, thanks.
+
+The build infrastructure was split off to ensure that the tree was
+buildable with the partially applied series - the core is obviously
+non-functional without the individual chip drivers.  In the past it
+wouldn't build with missing chip drivers but that shouldn't be the case
+any more.

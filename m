@@ -1,29 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [patch]unnecessary GFP_ATOMIC in xpad driver
-Date: Thu, 3 Apr 2008 16:23:58 -0400
-Message-ID: <20080403162333.ZZRA012@mailhub.coreip.homeip.net>
-References: <200804031350.16684.oliver@neukum.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch 0/7] updates for xpad
+Date: Thu, 3 Apr 2008 16:26:16 -0400
+Message-ID: <20080403162520.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080317192250.208635026@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wx-out-0506.google.com ([66.249.82.230]:38604 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755132AbYDCU01 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 16:26:27 -0400
+Received: by wx-out-0506.google.com with SMTP id h31so3628656wxd.4
+        for <linux-input@vger.kernel.org>; Thu, 03 Apr 2008 13:26:21 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <200804031350.16684.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: jikos-AlSwsSmVLrQ@public.gmane.org, honza-wDf7oJUeT2I@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20080317192250.208635026@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Apr 03, 2008 at 01:50:15PM +0200, Oliver Neukum wrote:
-> GFP_ATOMIC should not be used when GFP_KERNEL can be used.
+Hi Anssi,
+
+On Mon, Mar 17, 2008 at 09:22:50PM +0200, Anssi Hannula wrote:
+> What follows is a few patches for xpad fixing some issues, adding new
+> ids, and Brian's xbox360 wireless patch adapted for current xpad.c.
 > 
-> Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+> They are against current mm, i.e. 'match xbox 360 devices with
+> interface info' should be applied first.
 > 
 
-Applied, thank you Oliver.
+I applied everything to xpad branch of my tree. Please take a look and
+see if I am missing anything and I will merge it into master.
+
+Thank you.
 
 -- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

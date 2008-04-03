@@ -1,84 +1,29 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: [patch]convert away from urb->status in xpad driver #2
-Date: Thu, 3 Apr 2008 21:40:59 +0200
-Message-ID: <200804032141.00023.oliver@neukum.org>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [patch]unnecessary GFP_ATOMIC in xpad driver
+Date: Thu, 3 Apr 2008 16:23:58 -0400
+Message-ID: <20080403162333.ZZRA012@mailhub.coreip.homeip.net>
+References: <200804031350.16684.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:44969 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762676AbYDCToE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 15:44:04 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <200804031350.16684.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: jikos-AlSwsSmVLrQ@public.gmane.org, honza-wDf7oJUeT2I@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: jikos@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, honza@jikos.cz, Greg KH <greg@kroah.com>
 
-USB is moving to transfering status as a parameter. To ease the transition
-urb->status is to be touched only once in a function. The xpad driver has
-been overlooked. Dmitry wants this to go through the USB tree.
+On Thu, Apr 03, 2008 at 01:50:15PM +0200, Oliver Neukum wrote:
+> GFP_ATOMIC should not be used when GFP_KERNEL can be used.
+> 
+> Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+> 
 
-Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Applied, thank you Oliver.
 
----
-
---- linux-2.6.25-rc7-vanilla/drivers/input/joystick/xpad.c	2008-03-31 15:20:58.000000000 +0200
-+++ linux-2.6.25-rc7-work/drivers/input/joystick/xpad.c	2008-04-03 13:05:26.000000000 +0200
-@@ -339,9 +339,11 @@ static void xpad360_process_packet(struc
- static void xpad_irq_in(struct urb *urb)
- {
- 	struct usb_xpad *xpad = urb->context;
--	int retval;
-+	int retval, status;
- 
--	switch (urb->status) {
-+	status = urb->status;
-+
-+	switch (status) {
- 	case 0:
- 		/* success */
- 		break;
-@@ -350,11 +352,11 @@ static void xpad_irq_in(struct urb *urb)
- 	case -ESHUTDOWN:
- 		/* this urb is terminated, clean up */
- 		dbg("%s - urb shutting down with status: %d",
--			__FUNCTION__, urb->status);
-+			__FUNCTION__, status);
- 		return;
- 	default:
- 		dbg("%s - nonzero urb status received: %d",
--			__FUNCTION__, urb->status);
-+			__FUNCTION__, status);
- 		goto exit;
- 	}
- 
-@@ -373,9 +375,11 @@ exit:
- #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
- static void xpad_irq_out(struct urb *urb)
- {
--	int retval;
-+	int retval, status;
-+
-+	status = urb->status;
- 
--	switch (urb->status) {
-+	switch (status) {
- 		case 0:
- 		/* success */
- 		break;
-@@ -384,11 +388,11 @@ static void xpad_irq_out(struct urb *urb
- 		case -ESHUTDOWN:
- 			/* this urb is terminated, clean up */
- 			dbg("%s - urb shutting down with status: %d",
--				__FUNCTION__, urb->status);
-+				__FUNCTION__, status);
- 			return;
- 		default:
- 			dbg("%s - nonzero urb status received: %d",
--				__FUNCTION__, urb->status);
-+				__FUNCTION__, status);
- 			goto exit;
- 	}
- 
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

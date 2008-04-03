@@ -1,47 +1,35 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+From: "Stefan Schweizer" <genstef@gentoo.org>
 Subject: Re: suspend
-Date: Thu, 3 Apr 2008 17:41:50 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0804031740100.5410-100000@iolanthe.rowland.org>
+Date: Fri, 4 Apr 2008 00:06:48 +0200
+Message-ID: <e79639220804031506p656e866ardaf5bbefa218b69a@mail.gmail.com>
 References: <200804032242.36493.oliver@neukum.org>
+	 <Pine.LNX.4.44L0.0804031740100.5410-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200804032242.36493.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Stefan Schweizer <genstef-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rv-out-0910.google.com ([209.85.198.186]:60460 "EHLO
+	rv-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751031AbYDCWGs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 18:06:48 -0400
+Received: by rv-out-0910.google.com with SMTP id k20so1852773rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 03 Apr 2008 15:06:48 -0700 (PDT)
+In-Reply-To: <Pine.LNX.4.44L0.0804031740100.5410-100000@iolanthe.rowland.org>
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 3 Apr 2008, Oliver Neukum wrote:
+Hi,
 
-> Am Donnerstag, 3. April 2008 17:44:19 schrieb Stefan Schweizer:
-> > Cannot seem to find the persist attribute even after this patch applied :((
-> > 
-> > CONFIG_USB_PERSIST is enabled, but other drivers do not provide it.
-> > However this is 2.6.24 - I will try it on 2.6.25 now.
-> 
-> Odd, I can't reproduce it. Alan?
-> 
-> 	Regards
-> 		Oliver
-> 
-> oneukum@tranquility:/sys/bus/usb/devices/6-1/power> ll
-> insgesamt 0
-> -r--r--r-- 1 root root 4096  3. Apr 22:40 active_duration
-> -rw-r--r-- 1 root root 4096  3. Apr 22:40 autosuspend
-> -r--r--r-- 1 root root 4096  3. Apr 22:40 connected_duration
-> -rw-r--r-- 1 root root 4096  3. Apr 22:40 level
-> -rw-r--r-- 1 root root 4096  3. Apr 22:40 persist
-> -rw-r--r-- 1 root root 4096  3. Apr 22:40 wakeup
+the problem was that I did not identify the correct /sys entry. Anyways with
 
-Sometimes people run into problems when rebuilding usbcore.  Depending
-on the distribution, the usbcore.ko module is sometimes loaded as part
-of an initramfs image.  Merely installing the new modules won't change
-the image.
+for i in $(find /sys -name persist); do echo 1 > '$i'; done
 
-Alan Stern
+it works perfectly :-)
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you very much! Finally working touchpad after resume :-)
+
+Best regards,
+Stefan

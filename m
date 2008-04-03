@@ -1,53 +1,66 @@
-From: Julia Lawall <dmitry.torokhov@gmail.com>
-Subject: [PATCH 33/37] Input: drivers/char/keyboard.c - use time_after
-Date: Thu, 17 Apr 2008 09:28:25 -0400
-Message-ID: <2fd746d97fa0452173e06ffd9d0bb376d97bef0b.1208783694.git.dmitry.torokhov@gmail.com>
+From: Anssi Hannula <dmitry.torokhov@gmail.com>
+Subject: [PATCH 12/37] Input: xpad - fix dpad handling of unknown devices
+Date: Thu, 3 Apr 2008 16:18:10 -0400
+Message-ID: <a0979923d7c34c9c60d0ee8a533f9502dcfbd42b.1208783694.git.dmitry.torokhov@gmail.com>
 References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from wa-out-1112.google.com ([209.85.146.180]:8681 "EHLO
 	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759563AbYDUNTo (ORCPT
+	with ESMTP id S1760144AbYDUNTY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:19:44 -0400
+	Mon, 21 Apr 2008 09:19:24 -0400
 Received: by wa-out-1112.google.com with SMTP id m16so3106317waf.23
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:43 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:24 -0700 (PDT)
 In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-The functions time_before, time_before_eq, time_after, and time_after_eq
-are more robust for comparing jiffies against other values.
+For devices not specifically listed in xpad.c, xpad->dpad_mapping
+is initially set to MAP_DPAD_UNKNOWN. In xpad_probe() it gets changed
+to either MAP_DPAD_TO_BUTTONS or MAP_DPAD_TO_AXES, depending on the
+module parameter dpad_to_buttons.
 
-Signed-off-by: Julia Lawall <julia@diku.dk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+However, MAP_DPAD_UNKNOWN is defined as -1, while the field is u8.
+This results in actual value of 255, causing the MAP_DPAD_UNKNOWN
+check in xpad_probe() to fail.
+Fix that by defining MAP_DPAD_UNKNOWN as 2 instead.
+
+Also, setting module parameter dpad_to_buttons to 1 should obviously
+map dpad to buttons, while the default behaviour (0) should be to map
+dpad to axes. However, dpad_to_buttons is directly assigned to
+xpad->dpad_mapping, and as MAP_DPAD_TO_BUTTONS is 0, the actual
+behaviour is reversed.
+Fix that by negating dpad_to_buttons in assignment.
+
+Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/char/keyboard.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+ drivers/input/joystick/xpad.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 59608e3..45806d2 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -42,6 +42,7 @@
- #include <linux/input.h>
- #include <linux/reboot.h>
- #include <linux/notifier.h>
-+#include <linux/jiffies.h>
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 8804ad3..6288c4f 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -87,7 +87,7 @@
+    but we map them to axes when possible to simplify things */
+ #define MAP_DPAD_TO_BUTTONS    0
+ #define MAP_DPAD_TO_AXES       1
+-#define MAP_DPAD_UNKNOWN       -1
++#define MAP_DPAD_UNKNOWN       2
  
- extern void ctrl_alt_del(void);
- 
-@@ -928,7 +929,8 @@ static void k_brl(struct vc_data *vc, unsigned char value, char up_flag)
- 	if (up_flag) {
- 		if (brl_timeout) {
- 			if (!committing ||
--			    jiffies - releasestart > (brl_timeout * HZ) / 1000) {
-+			    time_after(jiffies,
-+				       releasestart + msecs_to_jiffies(brl_timeout))) {
- 				committing = pressed;
- 				releasestart = jiffies;
- 			}
+ #define XTYPE_XBOX        0
+ #define XTYPE_XBOX360     1
+@@ -653,7 +653,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->dpad_mapping = xpad_device[i].dpad_mapping;
+ 	xpad->xtype = xpad_device[i].xtype;
+ 	if (xpad->dpad_mapping == MAP_DPAD_UNKNOWN)
+-		xpad->dpad_mapping = dpad_to_buttons;
++		xpad->dpad_mapping = !dpad_to_buttons;
+ 	if (xpad->xtype == XTYPE_UNKNOWN)
+ 		xpad->xtype = (intf->cur_altsetting->desc.bInterfaceClass == USB_CLASS_VENDOR_SPEC);
+ 	xpad->dev = input_dev;
 -- 
 1.5.5.rc2.6.gf58d
 

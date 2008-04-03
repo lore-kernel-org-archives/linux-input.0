@@ -1,235 +1,47 @@
-From: Oliver Neukum <oliver@neukum.org>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
 Subject: Re: suspend
-Date: Thu, 3 Apr 2008 23:07:06 +0200
-Message-ID: <200804032307.06766.oliver@neukum.org>
-References: <dd18b0c30804012331oc548416k113e492d7dc9c189@mail.gmail.com> <200804031258.32582.oliver@neukum.org> <e79639220804030714p31cbf680y6e9cd10ed10b853d@mail.gmail.com>
+Date: Thu, 3 Apr 2008 17:41:50 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0804031740100.5410-100000@iolanthe.rowland.org>
+References: <200804032242.36493.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:45468 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756194AbYDCVKJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 17:10:09 -0400
-In-Reply-To: <e79639220804030714p31cbf680y6e9cd10ed10b853d@mail.gmail.com>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200804032242.36493.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Stefan Schweizer <genstef-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Schweizer <genstef@gentoo.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-Am Donnerstag, 3. April 2008 16:14:29 schrieb Stefan Schweizer:
-> On Thu, Apr 3, 2008 at 12:58 PM, Oliver Neukum <oliver@neukum.org> wrote:
-> >  here I have another test request. This patch on top of the earlier patch
-> >  implements autosuspend for the appletouch driver. Can you try it? You
-> >  also need to activate it as described in Documentation/usb/power-management.txt
+On Thu, 3 Apr 2008, Oliver Neukum wrote:
+
+> Am Donnerstag, 3. April 2008 17:44:19 schrieb Stefan Schweizer:
+> > Cannot seem to find the persist attribute even after this patch applied :((
+> > 
+> > CONFIG_USB_PERSIST is enabled, but other drivers do not provide it.
+> > However this is 2.6.24 - I will try it on 2.6.25 now.
 > 
-> this one fails to build with  several
-> struct atp has no element intf
-> errors.
+> Odd, I can't reproduce it. Alan?
+> 
+> 	Regards
+> 		Oliver
+> 
+> oneukum@tranquility:/sys/bus/usb/devices/6-1/power> ll
+> insgesamt 0
+> -r--r--r-- 1 root root 4096  3. Apr 22:40 active_duration
+> -rw-r--r-- 1 root root 4096  3. Apr 22:40 autosuspend
+> -r--r--r-- 1 root root 4096  3. Apr 22:40 connected_duration
+> -rw-r--r-- 1 root root 4096  3. Apr 22:40 level
+> -rw-r--r-- 1 root root 4096  3. Apr 22:40 persist
+> -rw-r--r-- 1 root root 4096  3. Apr 22:40 wakeup
 
-Sorry. Here's a full patch.
+Sometimes people run into problems when rebuilding usbcore.  Depending
+on the distribution, the usbcore.ko module is sometimes loaded as part
+of an initramfs image.  Merely installing the new modules won't change
+the image.
 
-	Regards
-		Oliver
+Alan Stern
 
----
-
---- linux-2.6.25-rc7-vanilla/drivers/input/mouse/appletouch.c	2008-03-31 15:16:40.000000000 +0200
-+++ linux-2.6.25-rc7-work/drivers/input/mouse/appletouch.c	2008-04-03 12:46:24.000000000 +0200
-@@ -32,6 +32,7 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/module.h>
-+#include <linux/mutex.h>
- #include <linux/usb/input.h>
- 
- /* Apple has powerbooks which have the keyboard with different Product IDs */
-@@ -140,6 +141,7 @@ MODULE_DEVICE_TABLE (usb, atp_table);
- struct atp {
- 	char			phys[64];
- 	struct usb_device *	udev;		/* usb device */
-+	struct usb_interface *	intf;		/* usb interface */
- 	struct urb *		urb;		/* usb request block */
- 	signed char *		data;		/* transferred data */
- 	struct input_dev *	input;		/* input dev */
-@@ -158,6 +160,7 @@ struct atp {
- 	int			datalen;	/* size of an USB urb transfer */
- 	int			idlecount;      /* number of empty packets */
- 	struct work_struct      work;
-+	struct mutex		lock;
- };
- 
- #define dbg_dump(msg, tab) \
-@@ -345,6 +348,11 @@ static inline void atp_report_fingers(st
- 	input_report_key(input, BTN_TOOL_TRIPLETAP, fingers > 2);
- }
- 
-+static void atp_mark_busy(struct atp *dev)
-+{
-+	usb_mark_last_busy(dev->udev);
-+}
-+
- static void atp_complete(struct urb* urb)
- {
- 	int x, y, x_z, y_z, x_f, y_f;
-@@ -384,6 +392,9 @@ static void atp_complete(struct urb* urb
- 		goto exit;
- 	}
- 
-+	/* mark busy for autosuspend purposes */
-+	atp_mark_busy(dev);
-+
- 	/* reorder the sensors values */
- 	if (atp_is_geyser_3(dev)) {
- 		memset(dev->xy_cur, 0, sizeof(dev->xy_cur));
-@@ -561,21 +572,52 @@ exit:
- static int atp_open(struct input_dev *input)
- {
- 	struct atp *dev = input_get_drvdata(input);
-+	int rv;
- 
--	if (usb_submit_urb(dev->urb, GFP_ATOMIC))
--		return -EIO;
-+	mutex_lock(&dev->lock);
-+
-+	rv = usb_autopm_get_interface(dev->intf);
-+	if ( rv < 0)
-+		goto err_out;
-+
-+	rv = usb_submit_urb(dev->urb, GFP_KERNEL);
-+	if (rv < 0)
-+		goto err_put;
- 
- 	dev->open = 1;
--	return 0;
-+	dev->intf->needs_remote_wakeup = 1;
-+
-+err_put:
-+	usb_autopm_put_interface(dev->intf);
-+err_out:
-+	mutex_unlock(&dev->lock);
-+	return rv;
- }
- 
- static void atp_close(struct input_dev *input)
- {
- 	struct atp *dev = input_get_drvdata(input);
- 
-+	mutex_lock(&dev->lock);
- 	usb_kill_urb(dev->urb);
- 	cancel_work_sync(&dev->work);
- 	dev->open = 0;
-+	dev->intf->needs_remote_wakeup = 0;
-+	mutex_unlock(&dev->lock);
-+}
-+
-+static int handle_geyser(struct atp *dev)
-+{
-+	struct usb_device *udev = dev->udev;
-+
-+	if (!atp_is_fountain(dev)) {
-+		/* switch to raw sensor mode */
-+		if (atp_geyser_init(udev))
-+			return -EIO;
-+
-+		printk(KERN_INFO "appletouch: Geyser mode initialized.\n");
-+	}
-+	return 0;
- }
- 
- static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id)
-@@ -612,7 +654,9 @@ static int atp_probe(struct usb_interfac
- 		goto err_free_devs;
- 	}
- 
-+	mutex_init(&dev->lock);
- 	dev->udev = udev;
-+	dev->intf = iface;
- 	dev->input = input_dev;
- 	dev->overflowwarn = 0;
- 	if (atp_is_geyser_3(dev))
-@@ -622,13 +666,8 @@ static int atp_probe(struct usb_interfac
- 	else
- 		dev->datalen = 81;
- 
--	if (!atp_is_fountain(dev)) {
--		/* switch to raw sensor mode */
--		if (atp_geyser_init(udev))
--			goto err_free_devs;
--
--		printk(KERN_INFO "appletouch: Geyser mode initialized.\n");
--	}
-+	if (handle_geyser(dev) < 0)
-+		goto err_free_devs;
- 
- 	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!dev->urb)
-@@ -747,19 +786,65 @@ static int atp_resume(struct usb_interfa
- {
- 	struct atp *dev = usb_get_intfdata(iface);
- 
--	if (dev->open && usb_submit_urb(dev->urb, GFP_ATOMIC))
-+	if (dev->open && usb_submit_urb(dev->urb, GFP_NOIO))
- 		return -EIO;
- 
- 	return 0;
- }
- 
-+static int recover_dev(struct atp *dev)
-+{
-+	int rv;
-+
-+	rv = handle_geyser(dev);
-+	if (rv < 0)
-+		return rv;
-+
-+	if (dev->open && usb_submit_urb(dev->urb, GFP_NOIO))
-+		return -EIO;
-+
-+	return 0;	
-+}
-+
-+static int atp_pre_reset(struct usb_interface *iface)
-+{
-+	struct atp *dev = usb_get_intfdata(iface);
-+
-+	mutex_lock(&dev->lock);
-+	if (dev->open)
-+		usb_kill_urb(dev->urb);
-+
-+	return 0;
-+}
-+
-+static int atp_post_reset(struct usb_interface *iface)
-+{
-+	struct atp *dev = usb_get_intfdata(iface);
-+	int rv;
-+
-+	rv = recover_dev(dev);
-+	mutex_unlock(&dev->lock);
-+	return rv;
-+}
-+
-+static int atp_reset_resume(struct usb_interface *iface)
-+{
-+	struct atp *dev = usb_get_intfdata(iface);
-+
-+	return recover_dev(dev);
-+}
-+
- static struct usb_driver atp_driver = {
- 	.name		= "appletouch",
- 	.probe		= atp_probe,
- 	.disconnect	= atp_disconnect,
- 	.suspend	= atp_suspend,
- 	.resume		= atp_resume,
-+	.reset_resume	= atp_reset_resume,
-+	.pre_reset	= atp_pre_reset,
-+	.post_reset	= atp_post_reset,
- 	.id_table	= atp_table,
-+	.supports_autosuspend = 1,
- };
- 
- static int __init atp_init(void)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

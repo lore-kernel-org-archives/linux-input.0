@@ -1,47 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.25-rc5.git4 regression PS/2 mouse not detected/working
-Date: Wed, 2 Apr 2008 13:44:56 -0400
-Message-ID: <20080402134351.ZZRA012@mailhub.coreip.homeip.net>
-References: <1205775229.25146.11.camel@indigo.declera.com> <200804022038.33245.balajirrao@gmail.com> <20080402113043.ZZRA012@mailhub.coreip.homeip.net> <200804022300.14164.balajirrao@gmail.com>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH] appletouch driver and 4th generation macbooks
+Date: Thu, 03 Apr 2008 12:08:29 +0200
+Message-ID: <1207217310.3636.0.camel@johannes.berg>
+References: <47DAB465.7090100@twam.info>
+	 <1205588795.15910.34.camel@johannes.berg> <47F36B03.4060704@twam.info>
+	 <1207135383.10910.39.camel@johannes.berg>
+	 <20080402101704.ZZRA012@mailhub.coreip.homeip.net>
+	 (sfid-20080402_152027_997573_96CBDDA3)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zCo/ku4AAMVLUj50T3sH"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.176]:10557 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756593AbYDBRpC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 2 Apr 2008 13:45:02 -0400
-Received: by py-out-1112.google.com with SMTP id u52so3906236pyb.10
-        for <linux-input@vger.kernel.org>; Wed, 02 Apr 2008 10:45:01 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <200804022300.14164.balajirrao@gmail.com>
+Received: from crystal.sipsolutions.net ([195.210.38.204]:41013 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751566AbYDCKMT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 06:12:19 -0400
+In-Reply-To: <20080402101704.ZZRA012@mailhub.coreip.homeip.net> (sfid-20080402_152027_997573_96CBDDA3)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Balaji Rao <balajirrao@gmail.com>
-Cc: Yanko Kaneti <yaneti@declera.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu, Thomas Gleixner <tglx@linutronix.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Tobias M?ller <Tobias_Mueller@twam.info>, linux-input@vger.kernel.org
 
-On Wed, Apr 02, 2008 at 11:00:13PM +0530, Balaji Rao wrote:
-> On Wednesday 02 April 2008 09:03:28 pm Dmitry Torokhov wrote:
-> > Hi Blaji,
-> > 
-> > On Wed, Apr 02, 2008 at 08:38:33PM +0530, Balaji Rao wrote:
-> > > 
-> > > Coincidentally even I hit upon this bug a couple of days ago after enabling 
-> > > HPET in my BIOS. A quick check told me that IRQ 12 which the patch assigns to 
-> > > the HPET device is used by the PS/2 mouse as well. This makes the mouse 
-> > > inactive.
-> > > 
-> > > I am working on this.. I am not sure if the PS/2 code is misbehaving though..
-> > >
-> > 
-> > Normally IRQ12 can not be shared on X86 if PS/2 mouse is present.
-> > If PCI side tries to grab the IRQ then ISA (legacy) side will never
-> > see its interrupts coming.
-> > 
-> OK. So, I need to specifically check for IRQ12 being assigned and avoid it ?
-> 
 
-Yeah.. I think there are other legacy IRQs that should be avoided as well.
-I am pretty sure Ingo would have a better idea which they are.
+--=-zCo/ku4AAMVLUj50T3sH
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Dmitry
+Hi Dmitry,
+
+> I applied the patch to my tree. I will try to push the change to Linus
+> before 2.6.25 since it is very low risk.=20
+
+Good, thanks.
+
+> Btw, is_geyser3() function
+> is becoming unwieldy. We might consider changing it to something that
+> scans array of integers instead of adding more conditions to that "if"
+> statement next time we add more IDs to it.
+
+Yeah, good point. I'll try to remember when the next person comes
+around :)
+
+johannes
+
+--=-zCo/ku4AAMVLUj50T3sH
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIVAwUAR/SsnKVg1VMiehFYAQJYsQ//ZXvpRn3JNFjQ9F67CizaQY2AhxerRRQ8
+WQ4JsW0K+QXXR2tZ7gAXqTCISAQWj3UPwpycp8EzQdFmzAlwAj8U8daXtr2qPDo0
+9A9hnOiYIXZ5peLLCfYTyQGbZYprbXEMtFMWTXQ1UXVlOmzQ0/bn/C0BCbd/Gcx1
+Z8DLuxXj+r986qYmzDEN1R7xKRm2R6QQCQW8/XzBxuWSp78HPmCHRnw7WIF2v6RO
+l8Q7k8G/Lg6OQHiBiJ/d4EIWGS2N8XMbTbji88PLHOD9PaGLH5HEYPb405WTB/My
+RCIcAhb9jB9Ttjz5RBUGd8hxLutaeBtA7QDI0LvgWvC8O/9hKQbvUuCF2t4a7nr7
+SLjkt0RezpQX+EJvzAD+DVoe1ixKKSDsJCIxq5x3uSk1nEL48oYI1wppXDPlc/b0
+5YjK80X0Ooj+qt7R8SqGcOG/QfdmVkluuG7AmL1th+MnaCkUXQhe1+iGfDwm11cI
+y5QmP4OIzpoWYU71yRLJhoG9nH2F9QjDtOWQEz6AUsDXdmj5g76es96tofr/V/YI
+5TDgvpSLHY/7+6YXaUcG9A+b/YEUhmYgbMEp17xUIn1kXpXQiL3kJArgDoizLEoi
+S4wO7fbOHbQ5J68E9uC0qBZ9mkYvv+fWkrxkLs4/oXCDqfFjS6CCcXjSaiqSmny9
+7ljmFX1Ow48=
+=rU7W
+-----END PGP SIGNATURE-----
+
+--=-zCo/ku4AAMVLUj50T3sH--
+

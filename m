@@ -1,68 +1,187 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH] appletouch driver and 4th generation macbooks
-Date: Thu, 03 Apr 2008 12:08:29 +0200
-Message-ID: <1207217310.3636.0.camel@johannes.berg>
-References: <47DAB465.7090100@twam.info>
-	 <1205588795.15910.34.camel@johannes.berg> <47F36B03.4060704@twam.info>
-	 <1207135383.10910.39.camel@johannes.berg>
-	 <20080402101704.ZZRA012@mailhub.coreip.homeip.net>
-	 (sfid-20080402_152027_997573_96CBDDA3)
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: suspend
+Date: Thu, 3 Apr 2008 12:31:18 +0200
+Message-ID: <200804031231.19193.oliver@neukum.org>
+References: <dd18b0c30804012331oc548416k113e492d7dc9c189@mail.gmail.com> <200804031029.26635.oliver@neukum.org> <e79639220804030153q46fa82c7jb79bedbe88b30df7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zCo/ku4AAMVLUj50T3sH"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from crystal.sipsolutions.net ([195.210.38.204]:41013 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751566AbYDCKMT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 06:12:19 -0400
-In-Reply-To: <20080402101704.ZZRA012@mailhub.coreip.homeip.net> (sfid-20080402_152027_997573_96CBDDA3)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <e79639220804030153q46fa82c7jb79bedbe88b30df7-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stefan Schweizer <genstef-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Tobias M?ller <Tobias_Mueller@twam.info>, linux-input@vger.kernel.org
 
+Am Donnerstag, 3. April 2008 10:53:53 schrieb Stefan Schweizer:
+> >  On second thought, this should be fixed by usb persist if the appletouch
+> >  driver supported reset_resume. Would you be willing to test a kernel patch
+> >  that implements reset_resume in the appletouch driver?
+> 
+> Sure, I would love to have this fixed :-)
 
---=-zCo/ku4AAMVLUj50T3sH
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Then, here's the patch. Testing this is not trivial. Please
+compile your kernel with CONFIG_USB_SUSPEND and CONFIG_USB_PERSIST.
+To use the feature you need to switch it on as described in
+Documentation/usb/persist.txt
 
-Hi Dmitry,
+	Regards
+		Oliver
 
-> I applied the patch to my tree. I will try to push the change to Linus
-> before 2.6.25 since it is very low risk.=20
+----
 
-Good, thanks.
-
-> Btw, is_geyser3() function
-> is becoming unwieldy. We might consider changing it to something that
-> scans array of integers instead of adding more conditions to that "if"
-> statement next time we add more IDs to it.
-
-Yeah, good point. I'll try to remember when the next person comes
-around :)
-
-johannes
-
---=-zCo/ku4AAMVLUj50T3sH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iQIVAwUAR/SsnKVg1VMiehFYAQJYsQ//ZXvpRn3JNFjQ9F67CizaQY2AhxerRRQ8
-WQ4JsW0K+QXXR2tZ7gAXqTCISAQWj3UPwpycp8EzQdFmzAlwAj8U8daXtr2qPDo0
-9A9hnOiYIXZ5peLLCfYTyQGbZYprbXEMtFMWTXQ1UXVlOmzQ0/bn/C0BCbd/Gcx1
-Z8DLuxXj+r986qYmzDEN1R7xKRm2R6QQCQW8/XzBxuWSp78HPmCHRnw7WIF2v6RO
-l8Q7k8G/Lg6OQHiBiJ/d4EIWGS2N8XMbTbji88PLHOD9PaGLH5HEYPb405WTB/My
-RCIcAhb9jB9Ttjz5RBUGd8hxLutaeBtA7QDI0LvgWvC8O/9hKQbvUuCF2t4a7nr7
-SLjkt0RezpQX+EJvzAD+DVoe1ixKKSDsJCIxq5x3uSk1nEL48oYI1wppXDPlc/b0
-5YjK80X0Ooj+qt7R8SqGcOG/QfdmVkluuG7AmL1th+MnaCkUXQhe1+iGfDwm11cI
-y5QmP4OIzpoWYU71yRLJhoG9nH2F9QjDtOWQEz6AUsDXdmj5g76es96tofr/V/YI
-5TDgvpSLHY/7+6YXaUcG9A+b/YEUhmYgbMEp17xUIn1kXpXQiL3kJArgDoizLEoi
-S4wO7fbOHbQ5J68E9uC0qBZ9mkYvv+fWkrxkLs4/oXCDqfFjS6CCcXjSaiqSmny9
-7ljmFX1Ow48=
-=rU7W
------END PGP SIGNATURE-----
-
---=-zCo/ku4AAMVLUj50T3sH--
-
+--- linux-2.6.25-rc7-vanilla/drivers/input/mouse/appletouch.c	2008-03-31 15:16:40.000000000 +0200
++++ linux-2.6.25-rc7-work/drivers/input/mouse/appletouch.c	2008-04-03 12:17:01.000000000 +0200
+@@ -32,6 +32,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/module.h>
++#include <linux/mutex.h>
+ #include <linux/usb/input.h>
+ 
+ /* Apple has powerbooks which have the keyboard with different Product IDs */
+@@ -158,6 +159,7 @@ struct atp {
+ 	int			datalen;	/* size of an USB urb transfer */
+ 	int			idlecount;      /* number of empty packets */
+ 	struct work_struct      work;
++	struct mutex		lock;
+ };
+ 
+ #define dbg_dump(msg, tab) \
+@@ -562,10 +564,14 @@ static int atp_open(struct input_dev *in
+ {
+ 	struct atp *dev = input_get_drvdata(input);
+ 
+-	if (usb_submit_urb(dev->urb, GFP_ATOMIC))
++	mutex_lock(&dev->lock);
++	if (usb_submit_urb(dev->urb, GFP_KERNEL)) {
++		mutex_unlock(&dev->lock);
+ 		return -EIO;
++	}
+ 
+ 	dev->open = 1;
++	mutex_unlock(&dev->lock);
+ 	return 0;
+ }
+ 
+@@ -573,9 +579,25 @@ static void atp_close(struct input_dev *
+ {
+ 	struct atp *dev = input_get_drvdata(input);
+ 
++	mutex_lock(&dev->lock);
+ 	usb_kill_urb(dev->urb);
+ 	cancel_work_sync(&dev->work);
+ 	dev->open = 0;
++	mutex_unlock(&dev->lock);
++}
++
++static int handle_geyser(struct atp *dev)
++{
++	struct usb_device *udev = dev->udev;
++
++	if (!atp_is_fountain(dev)) {
++		/* switch to raw sensor mode */
++		if (atp_geyser_init(udev))
++			return -EIO;
++
++		printk(KERN_INFO "appletouch: Geyser mode initialized.\n");
++	}
++	return 0;
+ }
+ 
+ static int atp_probe(struct usb_interface *iface, const struct usb_device_id *id)
+@@ -612,6 +634,7 @@ static int atp_probe(struct usb_interfac
+ 		goto err_free_devs;
+ 	}
+ 
++	mutex_init(&dev->lock);
+ 	dev->udev = udev;
+ 	dev->input = input_dev;
+ 	dev->overflowwarn = 0;
+@@ -622,13 +645,8 @@ static int atp_probe(struct usb_interfac
+ 	else
+ 		dev->datalen = 81;
+ 
+-	if (!atp_is_fountain(dev)) {
+-		/* switch to raw sensor mode */
+-		if (atp_geyser_init(udev))
+-			goto err_free_devs;
+-
+-		printk(KERN_INFO "appletouch: Geyser mode initialized.\n");
+-	}
++	if (handle_geyser(dev) < 0)
++		goto err_free_devs;
+ 
+ 	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!dev->urb)
+@@ -747,18 +765,63 @@ static int atp_resume(struct usb_interfa
+ {
+ 	struct atp *dev = usb_get_intfdata(iface);
+ 
+-	if (dev->open && usb_submit_urb(dev->urb, GFP_ATOMIC))
++	if (dev->open && usb_submit_urb(dev->urb, GFP_NOIO))
+ 		return -EIO;
+ 
+ 	return 0;
+ }
+ 
++static int recover_dev(struct atp *dev)
++{
++	int rv;
++
++	rv = handle_geyser(dev);
++	if (rv < 0)
++		return rv;
++
++	if (dev->open && usb_submit_urb(dev->urb, GFP_NOIO))
++		return -EIO;
++
++	return 0;	
++}
++
++static int atp_pre_reset(struct usb_interface *iface)
++{
++	struct atp *dev = usb_get_intfdata(iface);
++
++	mutex_lock(&dev->lock);
++	if (dev->open)
++		usb_kill_urb(dev->urb);
++
++	return 0;
++}
++
++static int atp_post_reset(struct usb_interface *iface)
++{
++	struct atp *dev = usb_get_intfdata(iface);
++	int rv;
++
++	rv = recover_dev(dev);
++	mutex_unlock(&dev->lock);
++	return rv;
++}
++
++static int atp_reset_resume(struct usb_interface *iface)
++{
++	struct atp *dev = usb_get_intfdata(iface);
++
++	return recover_dev(dev);
++}
++
+ static struct usb_driver atp_driver = {
+ 	.name		= "appletouch",
+ 	.probe		= atp_probe,
+ 	.disconnect	= atp_disconnect,
+ 	.suspend	= atp_suspend,
+ 	.resume		= atp_resume,
++	.reset_resume	= atp_reset_resume,
++	.pre_reset	= atp_pre_reset,
++	.post_reset	= atp_post_reset,
+ 	.id_table	= atp_table,
+ };
+ 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

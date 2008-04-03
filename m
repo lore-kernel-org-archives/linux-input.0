@@ -1,47 +1,40 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: [patch 0/7] updates for xpad
-Date: Thu, 03 Apr 2008 23:44:02 +0300
-Message-ID: <47F54192.80100@gmail.com>
-References: <20080317192250.208635026@gmail.com> <20080403162520.ZZRA012@mailhub.coreip.homeip.net>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: suspend
+Date: Thu, 3 Apr 2008 22:42:35 +0200
+Message-ID: <200804032242.36493.oliver@neukum.org>
+References: <dd18b0c30804012331oc548416k113e492d7dc9c189@mail.gmail.com> <200804031231.19193.oliver@neukum.org> <e79639220804030844w40d50824q8fbb8352ac3c0f3b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pne-smtpout3-sn2.hy.skanova.net ([81.228.8.111]:34179 "EHLO
-	pne-smtpout3-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755139AbYDCUoH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 3 Apr 2008 16:44:07 -0400
-In-Reply-To: <20080403162520.ZZRA012@mailhub.coreip.homeip.net>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:52611 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758233AbYDCUpo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 16:45:44 -0400
+In-Reply-To: <e79639220804030844w40d50824q8fbb8352ac3c0f3b@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Stefan Schweizer <genstef@gentoo.org>, Alan Stern <stern@rowland.harvard.edu>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi Anssi,
+Am Donnerstag, 3. April 2008 17:44:19 schrieb Stefan Schweizer:
+> Cannot seem to find the persist attribute even after this patch applied :((
 > 
-> On Mon, Mar 17, 2008 at 09:22:50PM +0200, Anssi Hannula wrote:
->> What follows is a few patches for xpad fixing some issues, adding new
->> ids, and Brian's xbox360 wireless patch adapted for current xpad.c.
->>
->> They are against current mm, i.e. 'match xbox 360 devices with
->> interface info' should be applied first.
->>
-> 
-> I applied everything to xpad branch of my tree. Please take a look and
-> see if I am missing anything and I will merge it into master.
-> 
-> Thank you.
+> CONFIG_USB_PERSIST is enabled, but other drivers do not provide it.
+> However this is 2.6.24 - I will try it on 2.6.25 now.
 
-They seem ok :)
+Odd, I can't reproduce it. Alan?
 
-BTW, "xpad - enable force feedback on xbox 360 controllers only" seems
-to fix a null pointer dereference, I got a report from Edgar Simo that
-he experienced system hang when trying to use force feedback with a
-non-360 controller.
+	Regards
+		Oliver
 
-Maybe you should push it to the current stable trees as well?
-
--- 
-Anssi Hannula
+oneukum@tranquility:/sys/bus/usb/devices/6-1/power> ll
+insgesamt 0
+-r--r--r-- 1 root root 4096  3. Apr 22:40 active_duration
+-rw-r--r-- 1 root root 4096  3. Apr 22:40 autosuspend
+-r--r--r-- 1 root root 4096  3. Apr 22:40 connected_duration
+-rw-r--r-- 1 root root 4096  3. Apr 22:40 level
+-rw-r--r-- 1 root root 4096  3. Apr 22:40 persist
+-rw-r--r-- 1 root root 4096  3. Apr 22:40 wakeup

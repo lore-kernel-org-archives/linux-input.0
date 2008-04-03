@@ -1,44 +1,38 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: [patch]unnecessary GFP_ATOMIC in xpad driver
-Date: Thu, 3 Apr 2008 13:50:15 +0200
-Message-ID: <200804031350.16684.oliver@neukum.org>
+From: "Stefan Schweizer" <genstef@gentoo.org>
+Subject: Re: suspend
+Date: Thu, 3 Apr 2008 16:14:29 +0200
+Message-ID: <e79639220804030714p31cbf680y6e9cd10ed10b853d@mail.gmail.com>
+References: <dd18b0c30804012331oc548416k113e492d7dc9c189@mail.gmail.com>
+	 <200804031029.26635.oliver@neukum.org>
+	 <e79639220804030153q46fa82c7jb79bedbe88b30df7@mail.gmail.com>
+	 <200804031258.32582.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rn-out-0910.google.com ([64.233.170.187]:49952 "EHLO
+	rn-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756710AbYDCOOb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Apr 2008 10:14:31 -0400
+Received: by rn-out-0910.google.com with SMTP id e24so2051100rng.1
+        for <linux-input@vger.kernel.org>; Thu, 03 Apr 2008 07:14:30 -0700 (PDT)
+In-Reply-To: <200804031258.32582.oliver@neukum.org>
 Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jikos-AlSwsSmVLrQ@public.gmane.org, honza-wDf7oJUeT2I@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-GFP_ATOMIC should not be used when GFP_KERNEL can be used.
+On Thu, Apr 3, 2008 at 12:58 PM, Oliver Neukum <oliver@neukum.org> wrote:
+>  here I have another test request. This patch on top of the earlier patch
+>  implements autosuspend for the appletouch driver. Can you try it? You
+>  also need to activate it as described in Documentation/usb/power-management.txt
 
-Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+this one fails to build with  several
+struct atp has no element intf
+errors.
 
----
+trying the other one only now
 
---- linux-2.6.25-rc7-work/drivers/input/joystick/xpad.c.2	2008-04-03 13:29:55.000000000 +0200
-+++ linux-2.6.25-rc7-work/drivers/input/joystick/xpad.c	2008-04-03 13:30:01.000000000 +0200
-@@ -412,7 +412,7 @@ static int xpad_init_output(struct usb_i
- 		return 0;
- 
- 	xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN,
--				       GFP_ATOMIC, &xpad->odata_dma );
-+				       GFP_KERNEL, &xpad->odata_dma );
- 	if (!xpad->odata)
- 		goto fail1;
- 
-@@ -636,7 +636,7 @@ static int xpad_probe(struct usb_interfa
- 		goto fail1;
- 
- 	xpad->idata = usb_buffer_alloc(udev, XPAD_PKT_LEN,
--				       GFP_ATOMIC, &xpad->idata_dma);
-+				       GFP_KERNEL, &xpad->idata_dma);
- 	if (!xpad->idata)
- 		goto fail1;
- 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+regards,
+Stefan

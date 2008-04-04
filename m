@@ -1,53 +1,37 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: multi-input quirk and skip output reports quirk
-Date: Fri, 04 Apr 2008 17:40:04 +0300
-Message-ID: <47F63DC4.5030707@gmail.com>
-References: <47F21BA7.8030306@gmail.com> <Pine.LNX.4.64.0804011610450.5541@jikos.suse.cz> <47F2437C.6060203@gmail.com> <Pine.LNX.4.64.0804041629030.26562@twin.jikos.cz>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: full usbhid autosuspend
+Date: Fri, 4 Apr 2008 16:45:39 +0200
+Message-ID: <200804041645.40301.oliver@neukum.org>
+References: <200804011603.05998.oliver@neukum.org> <200804041628.14793.oliver@neukum.org> <Pine.LNX.4.64.0804041637150.32130@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pne-smtpout4-sn1.fre.skanova.net ([81.228.11.168]:37657 "EHLO
-	pne-smtpout4-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752718AbYDDOkG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Apr 2008 10:40:06 -0400
-In-Reply-To: <Pine.LNX.4.64.0804041629030.26562@twin.jikos.cz>
+Received: from smtp-out002.kontent.com ([81.88.40.216]:51364 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757033AbYDDOvX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 4 Apr 2008 10:51:23 -0400
+In-Reply-To: <Pine.LNX.4.64.0804041637150.32130@jikos.suse.cz>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Tue, 1 Apr 2008, Anssi Hannula wrote:
+Am Freitag, 4. April 2008 16:38:18 schrieb Jiri Kosina:
+> > > triggered it on my test system trivially by just attaching one PS2 and one 
+> > > USB keyboard to the system, fiddling a bit with leds on PS2 keyboard and 
+> > > then tried to perform remote-wakeup on the suspended USB keyboard.
+> > That is you hit a key on the USB keyboard?
 > 
->>>> I've encountered another multi-input device that needs the skip output
->>>> reports quirk (as it contains force feedback output reports), 0925:8866.
->>>> However, maybe we should use another approach, dropping
->>>> HID_QUIRK_SKIP_OUTPUT_REPORTS. Why not just *not* register the input
->>>> device for that report in case the report didn't contain anything that
->>>> was mapped by hidinput_configure_usage(), in hidinput_connect()?
->>> as long as we still have the possibility to see the coming data in debug 
->>> mode, I don't have objection to that.
->> Okay.
->>> Are you going to make that patch?
->> Not right now, maybe in a few weeks.
-> 
-> I will meanwhile queue the patch below, ok? After the hidinput_connect() 
-> is refactored to ignore devices for which the mappings haven't been 
-> established, we could then remove all the devices for which we have 
-> HID_QUIRK_SKIP_OUTPUT_REPORTS altogether.
+> Yes. Just letting the USB keyboard go auto-suspend, then fiddling with 
+> LEDs on PS2 keyboard and then hitting key on USB keyboard triggers it for 
+> me quite reliably (not 100% though, so you may have to retry).
 
-Ok.
+I mean did you hit e.g. CAPS LOCK or any key that should have switched an
+LED or just any other key?
 
-> BTW, do you happen to have any idea whether the Quad joypad needs this 
-> quirk too?
+	Regards
+		Oliver
 
-No, but I guess it is quite probable.
-
-> Thanks.
-> 
-
-
--- 
-Anssi Hannula

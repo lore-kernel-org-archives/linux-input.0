@@ -1,67 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: multi-input quirk and skip output reports quirk
-Date: Fri, 4 Apr 2008 16:37:05 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0804041629030.26562@twin.jikos.cz>
-References: <47F21BA7.8030306@gmail.com> <Pine.LNX.4.64.0804011610450.5541@jikos.suse.cz>
- <47F2437C.6060203@gmail.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: full usbhid autosuspend
+Date: Fri, 4 Apr 2008 16:38:18 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0804041637150.32130@jikos.suse.cz>
+References: <200804011603.05998.oliver@neukum.org>
+ <Pine.LNX.4.64.0804041437430.32130@jikos.suse.cz> <200804041628.14793.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:38200 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755712AbYDDOhL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Apr 2008 10:37:11 -0400
-In-Reply-To: <47F2437C.6060203@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200804041628.14793.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-On Tue, 1 Apr 2008, Anssi Hannula wrote:
+On Fri, 4 Apr 2008, Oliver Neukum wrote:
 
-> >> I've encountered another multi-input device that needs the skip output
-> >> reports quirk (as it contains force feedback output reports), 0925:8866.
-> >> However, maybe we should use another approach, dropping
-> >> HID_QUIRK_SKIP_OUTPUT_REPORTS. Why not just *not* register the input
-> >> device for that report in case the report didn't contain anything that
-> >> was mapped by hidinput_configure_usage(), in hidinput_connect()?
-> > as long as we still have the possibility to see the coming data in debug 
-> > mode, I don't have objection to that.
-> Okay.
-> > Are you going to make that patch?
-> Not right now, maybe in a few weeks.
-
-I will meanwhile queue the patch below, ok? After the hidinput_connect() 
-is refactored to ignore devices for which the mappings haven't been 
-established, we could then remove all the devices for which we have 
-HID_QUIRK_SKIP_OUTPUT_REPORTS altogether.
-
-BTW, do you happen to have any idea whether the Quad joypad needs this 
-quirk too?
+> > there is some deadlock in IRQ path, could you please look at it? I have
+> Sure.
 
 Thanks.
 
+> > triggered it on my test system trivially by just attaching one PS2 and one 
+> > USB keyboard to the system, fiddling a bit with leds on PS2 keyboard and 
+> > then tried to perform remote-wakeup on the suspended USB keyboard.
+> That is you hit a key on the USB keyboard?
 
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: HID: WiseGroup 866 Dual Joypad needs output reports quirk
+Yes. Just letting the USB keyboard go auto-suspend, then fiddling with 
+LEDs on PS2 keyboard and then hitting key on USB keyboard triggers it for 
+me quite reliably (not 100% though, so you may have to retry).
 
-WiseGroup Ltd, MP-8866 Dual Joypad needs to skip output reports,
-as it contains force-feedback output reports.
+Thanks,
 
-Reported-by: Anssi Hannula <anssi.hannula@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index a104d1e..ff6fadc 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -606,7 +606,7 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
- 	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
--	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
-+	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
- 	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
- 
- 	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
-
+-- 
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,1128 +1,1171 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [RFC 2/8] HID: hid, make parsing event driven
-Date: Fri,  4 Apr 2008 22:35:51 +0200
-Message-ID: <1207341357-17792-3-git-send-email-jirislaby@gmail.com>
+Subject: [RFC 7/8] HID: move apple quirks
+Date: Fri,  4 Apr 2008 22:35:56 +0200
+Message-ID: <1207341357-17792-8-git-send-email-jirislaby@gmail.com>
 References: <1207341357-17792-1-git-send-email-jirislaby@gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from smtp.wellnetcz.com ([212.24.148.102]:33498 "EHLO WNmonitoring"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751276AbYDDU7j (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 4 Apr 2008 16:59:39 -0400
+	id S1751373AbYDDU7n (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Apr 2008 16:59:43 -0400
 In-Reply-To: <1207341357-17792-1-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: jkosina@suse.cz, marcel@holtmann.org, dmitry.torokhov@gmail.com, Jiri Slaby <jirislaby@gmail.com>, Jiri Slaby <jslaby@suse.cz>
 
-Next step for complete hid bus, this patch includes:
-- call parser either from probe or from hid-core if there is no probe.
-- add ll_driver structure and centralize some stuff there (open, close...)
-- split and merge usb_hid_configure and hid_probe into several functions
-  to allow hooks/fixes between them
+Move them from core code to separate driver.
 
 Signed-off-by: Jiri Slaby <jslaby@suse.cz>
 ---
- drivers/hid/hid-core.c        |   24 ++-
- drivers/hid/hid-input.c       |   16 ++-
- drivers/hid/hidraw.c          |    6 +-
- drivers/hid/usbhid/hid-core.c |  330 ++++++++++++++++++++++++-----------------
- include/linux/hid.h           |   98 ++++++++++++-
- net/bluetooth/hidp/core.c     |  191 ++++++++++++++----------
- net/bluetooth/hidp/hidp.h     |    2 +
- 7 files changed, 427 insertions(+), 240 deletions(-)
+ drivers/hid/Kconfig             |    7 +
+ drivers/hid/Makefile            |    1 +
+ drivers/hid/hid-apple.c         |  496 +++++++++++++++++++++++++++++++=
+++++++++
+ drivers/hid/hid-core.c          |   33 +++-
+ drivers/hid/hid-input-quirks.c  |    8 -
+ drivers/hid/hid-input.c         |  218 +-----------------
+ drivers/hid/usbhid/hid-quirks.c |   43 ----
+ include/linux/hid.h             |   11 -
+ net/bluetooth/hidp/core.c       |   22 --
+ 9 files changed, 537 insertions(+), 302 deletions(-)
+ create mode 100644 drivers/hid/hid-apple.c
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index aa0ff0d..40de7e7 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -648,6 +648,9 @@ int hid_parse_report(struct hid_device *device, __u8 *start,
- 		hid_parser_reserved
- 	};
- 
-+	if (device->driver->report_fixup)
-+		device->driver->report_fixup(device, start, size);
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 2c252d6..c0d4d43 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -77,6 +77,13 @@ config HID_LOGITECH
+ 	Support for some Logitech devices which breaks less or more
+ 	HID specification.
+=20
++config HID_APPLE
++	tristate "Apple"
++	depends on (USB_HID || BT_HIDP)
++	---help---
++	Support for some Apple devices which less or more break
++	HID specification.
 +
- 	device->rdesc = kmalloc(size, GFP_KERNEL);
- 	if (device->rdesc == NULL)
- 		return -ENOMEM;
-@@ -1070,7 +1073,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
- 	unsigned int i;
- 	int ret;
- 
--	if (!hid)
-+	if (!hid || !hid->driver)
- 		return -ENODEV;
- 
- 	if (!size) {
-@@ -1155,15 +1158,20 @@ static int hid_device_probe(struct device *dev)
- 	int ret = 0;
- 
- 	if (!hdev->driver) {
-+		hdev->driver = hdrv;
- 		if (hdrv->probe) {
- 			ret = -ENODEV;
- 
- 			id = hid_match_id(hdrv->bus_type, hdev, hdrv->id_table);
- 			if (id)
- 				ret = hdrv->probe(hdev, id);
-+		} else { /* default probe */
-+			ret = hid_parse(hdev);
-+			if (!ret)
-+				ret = hid_hw_start(hdev);
- 		}
--		if (!ret)
--			hdev->driver = hdrv;
-+		if (ret)
-+			hdev->driver = NULL;
- 	}
- 	return ret;
- }
-@@ -1176,6 +1184,8 @@ static int hid_device_remove(struct device *dev)
- 	if (hdrv) {
- 		if (hdrv->remove)
- 			hdrv->remove(hdev);
-+		else /* default remove */
-+			hid_hw_stop(hdev);
- 		hdev->driver = NULL;
- 	}
- 
-@@ -1194,7 +1204,7 @@ int hid_add_device(struct hid_device *hdev)
- 	static atomic_t id = ATOMIC_INIT(0);
- 	int ret;
- 
--	if (WARN_ON(hdev->is_added))
-+	if (WARN_ON(hdev->status & HID_STAT_ADDED))
- 		return -EBUSY;
- 
- 	/* XXX hack, any other cleaner solution < 20 bus_id bytes? */
-@@ -1203,7 +1213,7 @@ int hid_add_device(struct hid_device *hdev)
- 
- 	ret = device_add(&hdev->dev);
- 	if (!ret)
--		hdev->is_added = 1;
-+		hdev->status |= HID_STAT_ADDED;
- 
- 	return ret;
- }
-@@ -1250,9 +1260,9 @@ EXPORT_SYMBOL_GPL(hid_allocate_device);
- 
- static void hid_remove_device(struct hid_device *hdev)
- {
--	if (hdev->is_added) {
-+	if (hdev->status & HID_STAT_ADDED) {
- 		device_del(&hdev->dev);
--		hdev->is_added = 0;
-+		hdev->status &= ~HID_STAT_ADDED;
- 	}
- }
- 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f300c7b..5f1a91a 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -389,6 +389,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 	if (ret)
- 		goto mapped;
- 
-+	if (device->driver->input_mapping &&
-+			device->driver->input_mapping(device, hidinput, usage,
-+				&bit, &max))
-+		goto mapped;
+ endmenu
+=20
+ endif # HID_SUPPORT
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index cae036b..8a5cbbe 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -9,6 +9,7 @@ hid-$(CONFIG_HID_DEBUG)		+=3D hid-debug.o
+ hid-$(CONFIG_HIDRAW)		+=3D hidraw.o
+=20
+ obj-$(CONFIG_HID_LOGITECH)	+=3D hid-logitech.o
++obj-$(CONFIG_HID_APPLE)		+=3D hid-apple.o
+=20
+ obj-$(CONFIG_USB_HID)		+=3D usbhid/
+ obj-$(CONFIG_USB_MOUSE)		+=3D usbhid/
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+new file mode 100644
+index 0000000..afb910f
+--- /dev/null
++++ b/drivers/hid/hid-apple.c
+@@ -0,0 +1,496 @@
++/*
++ *  USB HID quirks support for Linux
++ *
++ *  Copyright (c) 1999 Andreas Gal
++ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
++ *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Conc=
+ept2, Inc
++ *  Copyright (c) 2006-2007 Jiri Kosina
++ *  Copyright (c) 2007 Paul Walmsley
++ *  Copyright (c) 2008 Jiri Slaby <jslaby@suse.cz>
++ */
 +
- 	switch (usage->hid & HID_USAGE_PAGE) {
- 
- 		case HID_UP_UNDEFINED:
-@@ -753,6 +758,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 	}
- 
- mapped:
-+	if (device->driver->input_mapped)
-+		device->driver->input_mapped(device, hidinput, usage,
-+				&bit, &max);
++/*
++ * This program is free software; you can redistribute it and/or modif=
+y it
++ * under the terms of the GNU General Public License as published by t=
+he Free
++ * Software Foundation; either version 2 of the License, or (at your o=
+ption)
++ * any later version.
++ */
 +
- 	if (device->quirks & HID_QUIRK_MIGHTYMOUSE) {
- 		if (usage->hid == HID_GD_Z)
- 			map_rel(REL_HWHEEL);
-@@ -959,14 +968,14 @@ static int hidinput_open(struct input_dev *dev)
- {
- 	struct hid_device *hid = input_get_drvdata(dev);
- 
--	return hid->hid_open(hid);
-+	return hid->ll_driver->open(hid);
- }
- 
- static void hidinput_close(struct input_dev *dev)
- {
- 	struct hid_device *hid = input_get_drvdata(dev);
- 
--	hid->hid_close(hid);
-+	hid->ll_driver->close(hid);
- }
- 
- /*
-@@ -1017,7 +1026,8 @@ int hidinput_connect(struct hid_device *hid)
- 				}
- 
- 				input_set_drvdata(input_dev, hid);
--				input_dev->event = hid->hidinput_input_event;
-+				input_dev->event =
-+					hid->ll_driver->hidinput_input_event;
- 				input_dev->open = hidinput_open;
- 				input_dev->close = hidinput_close;
- 				input_dev->setkeycode = hidinput_setkeycode;
-diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
-index 1ca6f46..19081d0 100644
---- a/drivers/hid/hidraw.c
-+++ b/drivers/hid/hidraw.c
-@@ -178,7 +178,7 @@ static int hidraw_open(struct inode *inode, struct file *file)
- 
- 	dev = hidraw_table[minor];
- 	if (!dev->open++)
--		dev->hid->hid_open(dev->hid);
-+		dev->hid->ll_driver->open(dev->hid);
- 
- out_unlock:
- 	spin_unlock(&minors_lock);
-@@ -203,7 +203,7 @@ static int hidraw_release(struct inode * inode, struct file * file)
- 	dev = hidraw_table[minor];
- 	if (!dev->open--) {
- 		if (list->hidraw->exist)
--			dev->hid->hid_close(dev->hid);
-+			dev->hid->ll_driver->close(dev->hid);
- 		else
- 			kfree(list->hidraw);
- 	}
-@@ -359,7 +359,7 @@ void hidraw_disconnect(struct hid_device *hid)
- 	device_destroy(hidraw_class, MKDEV(hidraw_major, hidraw->minor));
- 
- 	if (hidraw->open) {
--		hid->hid_close(hid);
-+		hid->ll_driver->close(hid);
- 		wake_up_interruptible(&hidraw->wait);
- 	} else {
- 		kfree(hidraw);
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 25f5541..d655dfc 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -701,17 +701,84 @@ static void hid_fixup_sony_ps3_controller(struct usb_device *dev, int ifnum)
- 	kfree(buf);
- }
- 
--static struct hid_device *usb_hid_configure(struct usb_interface *intf)
-+static int usbhid_start_finish(struct hid_device *hid)
- {
-+	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
-+	char path[64], *type;
-+	unsigned int i;
++#include <linux/autoconf.h>
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++#include <linux/usb.h>
 +
-+	usbhid_init_reports(hid);
-+	hid_dump_device(hid);
-+	if (hid->quirks & HID_QUIRK_RESET_LEDS)
-+		usbhid_set_leds(hid);
++#include "hid-ids.h"
 +
-+	if (!hidinput_connect(hid))
-+		hid->claimed |= HID_CLAIMED_INPUT;
-+	if (!hiddev_connect(hid))
-+		hid->claimed |= HID_CLAIMED_HIDDEV;
-+	if (!hidraw_connect(hid))
-+		hid->claimed |= HID_CLAIMED_HIDRAW;
++/* to simplify the tests throughout the code */
++#ifdef CONFIG_BT_HIDP_MODULE
++#define CONFIG_BT_HIDP 1
++#endif
++#ifdef CONFIG_USB_HID_MODULE
++#define CONFIG_USB_HID 1
++#endif
 +
-+	if (!hid->claimed) {
-+		printk(KERN_ERR "HID device claimed by neither input, hiddev "
-+				"nor hidraw\n");
-+		return -ENODEV;
++#define APPLE_RDESC_JIS		0x0001
++#define APPLE_IGNORE_MOUSE	0x0002
++#define APPLE_HAS_FN		0x0004
++#define APPLE_FN_ON		0x0008	/* is fn pressed? */
++#define APPLE_HIDDEV		0x0010
++#define APPLE_ISO_KEYBOARD	0x0020
++#define APPLE_MIGHTYMOUSE	0x0040
++#define APPLE_INVERT_HWHEEL	0x0080
++#define APPLE_IGNORE_HIDINPUT	0x0100
++
++#define APPLE_FLAG_FKEY		0x01
++
++static unsigned int fnmode =3D 1;
++module_param(fnmode, uint, 0644);
++MODULE_PARM_DESC(fnmode, "Mode of fn key on Apple keyboards (0 =3D dis=
+abled, "
++		"[1] =3D fkeyslast, 2 =3D fkeysfirst)");
++
++struct apple_sc {
++	unsigned long quirks;
++	DECLARE_BITMAP(pressed_fn, KEY_CNT);
++	DECLARE_BITMAP(pressed_numlock, KEY_CNT);
++};
++
++struct apple_key_translation {
++	u16 from;
++	u16 to;
++	u8 flags;
++};
++
++static struct apple_key_translation apple_fn_keys[] =3D {
++	{ KEY_BACKSPACE, KEY_DELETE },
++	{ KEY_F1,	KEY_BRIGHTNESSDOWN, APPLE_FLAG_FKEY },
++	{ KEY_F2,	KEY_BRIGHTNESSUP,   APPLE_FLAG_FKEY },
++	{ KEY_F3,	KEY_FN_F5,          APPLE_FLAG_FKEY }, /* Expos=C3=A9 */
++	{ KEY_F4,	KEY_FN_F4,          APPLE_FLAG_FKEY }, /* Dashboard */
++	{ KEY_F7,	KEY_PREVIOUSSONG,   APPLE_FLAG_FKEY },
++	{ KEY_F8,	KEY_PLAYPAUSE,      APPLE_FLAG_FKEY },
++	{ KEY_F9,	KEY_NEXTSONG,       APPLE_FLAG_FKEY },
++	{ KEY_F10,	KEY_MUTE,           APPLE_FLAG_FKEY },
++	{ KEY_F11,	KEY_VOLUMEDOWN,     APPLE_FLAG_FKEY },
++	{ KEY_F12,	KEY_VOLUMEUP,       APPLE_FLAG_FKEY },
++	{ KEY_UP,	KEY_PAGEUP },
++	{ KEY_DOWN,	KEY_PAGEDOWN },
++	{ KEY_LEFT,	KEY_HOME },
++	{ KEY_RIGHT,	KEY_END },
++	{ }
++};
++
++static struct apple_key_translation powerbook_fn_keys[] =3D {
++	{ KEY_BACKSPACE, KEY_DELETE },
++	{ KEY_F1,	KEY_BRIGHTNESSDOWN,     APPLE_FLAG_FKEY },
++	{ KEY_F2,	KEY_BRIGHTNESSUP,       APPLE_FLAG_FKEY },
++	{ KEY_F3,	KEY_MUTE,               APPLE_FLAG_FKEY },
++	{ KEY_F4,	KEY_VOLUMEDOWN,         APPLE_FLAG_FKEY },
++	{ KEY_F5,	KEY_VOLUMEUP,           APPLE_FLAG_FKEY },
++	{ KEY_F6,	KEY_NUMLOCK,            APPLE_FLAG_FKEY },
++	{ KEY_F7,	KEY_SWITCHVIDEOMODE,    APPLE_FLAG_FKEY },
++	{ KEY_F8,	KEY_KBDILLUMTOGGLE,     APPLE_FLAG_FKEY },
++	{ KEY_F9,	KEY_KBDILLUMDOWN,       APPLE_FLAG_FKEY },
++	{ KEY_F10,	KEY_KBDILLUMUP,         APPLE_FLAG_FKEY },
++	{ KEY_UP,	KEY_PAGEUP },
++	{ KEY_DOWN,	KEY_PAGEDOWN },
++	{ KEY_LEFT,	KEY_HOME },
++	{ KEY_RIGHT,	KEY_END },
++	{ }
++};
++
++static struct apple_key_translation powerbook_numlock_keys[] =3D {
++	{ KEY_J,	KEY_KP1 },
++	{ KEY_K,	KEY_KP2 },
++	{ KEY_L,	KEY_KP3 },
++	{ KEY_U,	KEY_KP4 },
++	{ KEY_I,	KEY_KP5 },
++	{ KEY_O,	KEY_KP6 },
++	{ KEY_7,	KEY_KP7 },
++	{ KEY_8,	KEY_KP8 },
++	{ KEY_9,	KEY_KP9 },
++	{ KEY_M,	KEY_KP0 },
++	{ KEY_DOT,	KEY_KPDOT },
++	{ KEY_SLASH,	KEY_KPPLUS },
++	{ KEY_SEMICOLON, KEY_KPMINUS },
++	{ KEY_P,	KEY_KPASTERISK },
++	{ KEY_MINUS,	KEY_KPEQUAL },
++	{ KEY_0,	KEY_KPSLASH },
++	{ KEY_F6,	KEY_NUMLOCK },
++	{ KEY_KPENTER,	KEY_KPENTER },
++	{ KEY_BACKSPACE, KEY_BACKSPACE },
++	{ }
++};
++
++static struct apple_key_translation apple_iso_keyboard[] =3D {
++	{ KEY_GRAVE,	KEY_102ND },
++	{ KEY_102ND,	KEY_GRAVE },
++	{ }
++};
++
++static struct apple_key_translation *apple_find_translation(
++		struct apple_key_translation *table, u16 from)
++{
++	struct apple_key_translation *trans;
++
++	/* Look for the translation */
++	for (trans =3D table; trans->from; trans++)
++		if (trans->from =3D=3D from)
++			return trans;
++
++	return NULL;
++}
++
++static int hidinput_apple_event(struct hid_device *hid, struct input_d=
+ev *input,
++		struct hid_usage *usage, __s32 value)
++{
++	struct apple_sc *asc =3D hid_get_drvdata(hid);
++	struct apple_key_translation *trans;
++
++	if (usage->code =3D=3D KEY_FN) {
++		if (value)
++			asc->quirks |=3D APPLE_FN_ON;
++		else
++			asc->quirks &=3D ~APPLE_FN_ON;
++
++		input_event(input, usage->type, usage->code, value);
++
++		return 1;
 +	}
 +
-+	if ((hid->claimed & HID_CLAIMED_INPUT))
-+		hid_ff_init(hid);
++	if (fnmode) {
++		int do_translate;
 +
-+	if (hid->quirks & HID_QUIRK_SONY_PS3_CONTROLLER)
-+		hid_fixup_sony_ps3_controller(interface_to_usbdev(intf),
-+			intf->cur_altsetting->desc.bInterfaceNumber);
++		trans =3D apple_find_translation((hid->product < 0x220 ||
++					hid->product >=3D 0x300) ?
++					powerbook_fn_keys : apple_fn_keys,
++					usage->code);
++		if (trans) {
++			if (test_bit(usage->code, asc->pressed_fn))
++				do_translate =3D 1;
++			else if (trans->flags & APPLE_FLAG_FKEY)
++				do_translate =3D
++					(fnmode =3D=3D 2 && (asc->quirks & APPLE_FN_ON)) ||
++					(fnmode =3D=3D 1 && !(asc->quirks & APPLE_FN_ON));
++			else
++				do_translate =3D (asc->quirks & APPLE_FN_ON);
 +
-+	printk(KERN_INFO);
++			if (do_translate) {
++				if (value)
++					set_bit(usage->code, asc->pressed_fn);
++				else
++					clear_bit(usage->code, asc->pressed_fn);
 +
-+	if (hid->claimed & HID_CLAIMED_INPUT)
-+		printk("input");
-+	if ((hid->claimed & HID_CLAIMED_INPUT) &&
-+			((hid->claimed & HID_CLAIMED_HIDDEV) ||
-+				hid->claimed & HID_CLAIMED_HIDRAW))
-+		printk(",");
-+	if (hid->claimed & HID_CLAIMED_HIDDEV)
-+		printk("hiddev%d", hid->minor);
-+	if ((hid->claimed & HID_CLAIMED_INPUT) &&
-+			(hid->claimed & HID_CLAIMED_HIDDEV) &&
-+			(hid->claimed & HID_CLAIMED_HIDRAW))
-+		printk(",");
-+	if (hid->claimed & HID_CLAIMED_HIDRAW)
-+		printk("hidraw%d", ((struct hidraw *)hid->hidraw)->minor);
++				input_event(input, usage->type, trans->to,
++						value);
 +
-+	type = "Device";
-+	for (i = 0; i < hid->maxcollection; i++) {
-+		if (hid->collection[i].type == HID_COLLECTION_APPLICATION &&
-+		    (hid->collection[i].usage & HID_USAGE_PAGE) ==
-+						HID_UP_GENDESK &&
-+		    (hid->collection[i].usage & 0xffff) <
-+						ARRAY_SIZE(hid_types)) {
-+			type = hid_types[hid->collection[i].usage & 0xffff];
-+			break;
++				return 1;
++			}
++		}
++
++		if (test_bit(usage->code, asc->pressed_numlock) ||
++				test_bit(LED_NUML, input->led)) {
++			trans =3D apple_find_translation(powerbook_numlock_keys,
++					usage->code);
++
++			if (trans) {
++				if (value)
++					set_bit(usage->code,
++							asc->pressed_numlock);
++				else
++					clear_bit(usage->code,
++							asc->pressed_numlock);
++
++				input_event(input, usage->type, trans->to,
++						value);
++			}
++
++			return 1;
 +		}
 +	}
 +
-+	usb_make_path(interface_to_usbdev(intf), path, 63);
-+
-+	printk(": USB HID v%x.%02x %s [%s] on %s\n",
-+		hid->version >> 8, hid->version & 0xff, type, hid->name, path);
-+
-+	return 0;
-+}
-+
-+static int usbhid_parse(struct hid_device *hid)
-+{
-+	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
- 	struct usb_host_interface *interface = intf->cur_altsetting;
- 	struct usb_device *dev = interface_to_usbdev (intf);
- 	struct hid_descriptor *hdesc;
--	struct hid_device *hid;
- 	u32 quirks = 0;
--	unsigned int insize = 0, rsize = 0;
-+	unsigned int rsize = 0;
- 	char *rdesc;
--	int n, len;
--	struct usbhid_device *usbhid;
-+	int ret, n;
- 
- 	quirks = usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
- 			le16_to_cpu(dev->descriptor.idProduct));
-@@ -725,40 +792,44 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 	}
- 
- 	if (quirks & HID_QUIRK_IGNORE)
--		return NULL;
-+		return -ENODEV;
- 
- 	if ((quirks & HID_QUIRK_IGNORE_MOUSE) &&
- 		(interface->desc.bInterfaceProtocol == USB_INTERFACE_PROTOCOL_MOUSE))
--			return NULL;
--
-+			return -ENODEV;
- 
- 	if (usb_get_extra_descriptor(interface, HID_DT_HID, &hdesc) &&
- 	    (!interface->desc.bNumEndpoints ||
- 	     usb_get_extra_descriptor(&interface->endpoint[0], HID_DT_HID, &hdesc))) {
- 		dbg_hid("class descriptor not present\n");
--		return NULL;
-+		return -ENODEV;
- 	}
- 
-+	hid->version = le16_to_cpu(hdesc->bcdHID);
-+	hid->country = hdesc->bCountryCode;
-+
- 	for (n = 0; n < hdesc->bNumDescriptors; n++)
- 		if (hdesc->desc[n].bDescriptorType == HID_DT_REPORT)
- 			rsize = le16_to_cpu(hdesc->desc[n].wDescriptorLength);
- 
- 	if (!rsize || rsize > HID_MAX_DESCRIPTOR_SIZE) {
- 		dbg_hid("weird size of report descriptor (%u)\n", rsize);
--		return NULL;
-+		return -EINVAL;
- 	}
- 
- 	if (!(rdesc = kmalloc(rsize, GFP_KERNEL))) {
- 		dbg_hid("couldn't allocate rdesc memory\n");
--		return NULL;
-+		return -ENOMEM;
- 	}
- 
- 	hid_set_idle(dev, interface->desc.bInterfaceNumber, 0, 0);
- 
--	if ((n = hid_get_class_descriptor(dev, interface->desc.bInterfaceNumber, HID_DT_REPORT, rdesc, rsize)) < 0) {
-+	ret = hid_get_class_descriptor(dev, interface->desc.bInterfaceNumber,
-+			HID_DT_REPORT, rdesc, rsize);
-+	if (ret < 0) {
- 		dbg_hid("reading report descriptor failed\n");
- 		kfree(rdesc);
--		return NULL;
-+		goto err;
- 	}
- 
- 	usbhid_fixup_report_descriptor(le16_to_cpu(dev->descriptor.idVendor),
-@@ -770,24 +841,36 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 		dbg_hid_line(" %02x", (unsigned char) rdesc[n]);
- 	dbg_hid_line("\n");
- 
--	hid = hid_allocate_device();
--	if (IS_ERR(hid)) {
--		kfree(rdesc);
--		return NULL;
--	}
--
--	if (hid_parse_report(hid, rdesc, n)) {
-+	ret = hid_parse_report(hid, rdesc, rsize);
-+	kfree(rdesc);
-+	if (ret) {
- 		dbg_hid("parsing report descriptor failed\n");
--		hid_destroy_device(hid);
--		kfree(rdesc);
--		return NULL;
-+		goto err;
- 	}
- 
--	kfree(rdesc);
- 	hid->quirks = quirks;
- 
--	if (!(usbhid = kzalloc(sizeof(struct usbhid_device), GFP_KERNEL)))
--		goto fail_no_usbhid;
-+	return 0;
-+err:
-+	return ret;
-+}
-+
-+static int usbhid_start(struct hid_device *hid)
-+{
-+	struct usb_interface *intf = to_usb_interface(hid->dev.parent);
-+	struct usb_host_interface *interface = intf->cur_altsetting;
-+	struct usb_device *dev = interface_to_usbdev(intf);
-+	struct usbhid_device *usbhid;
-+	unsigned int n, insize = 0;
-+	int ret;
-+
-+	WARN_ON(hid->driver_data);
-+
-+	usbhid = kzalloc(sizeof(struct usbhid_device), GFP_KERNEL);
-+	if (usbhid == NULL) {
-+		ret = -ENOMEM;
-+		goto err;
++	if (asc->quirks & APPLE_ISO_KEYBOARD) {
++		trans =3D apple_find_translation(apple_iso_keyboard, usage->code);
++		if (trans) {
++			input_event(input, usage->type, trans->to, value);
++			return 1;
++		}
 +	}
- 
- 	hid->driver_data = usbhid;
- 	usbhid->hid = hid;
-@@ -805,27 +888,12 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 	if (insize > HID_MAX_BUFFER_SIZE)
- 		insize = HID_MAX_BUFFER_SIZE;
- 
--	if (hid_alloc_buffers(dev, hid))
-+	if (hid_alloc_buffers(dev, hid)) {
-+		ret = -ENOMEM;
- 		goto fail;
--
--	hid->name[0] = 0;
--
--	if (dev->manufacturer)
--		strlcpy(hid->name, dev->manufacturer, sizeof(hid->name));
--
--	if (dev->product) {
--		if (dev->manufacturer)
--			strlcat(hid->name, " ", sizeof(hid->name));
--		strlcat(hid->name, dev->product, sizeof(hid->name));
- 	}
- 
--	if (!strlen(hid->name))
--		snprintf(hid->name, sizeof(hid->name), "HID %04x:%04x",
--			 le16_to_cpu(dev->descriptor.idVendor),
--			 le16_to_cpu(dev->descriptor.idProduct));
--
- 	for (n = 0; n < interface->desc.bNumEndpoints; n++) {
--
- 		struct usb_endpoint_descriptor *endpoint;
- 		int pipe;
- 		int interval;
-@@ -837,7 +905,7 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 		interval = endpoint->bInterval;
- 
- 		/* Some vendors give fullspeed interval on highspeed devides */
--		if (quirks & HID_QUIRK_FULLSPEED_INTERVAL  &&
-+		if (hid->quirks & HID_QUIRK_FULLSPEED_INTERVAL &&
- 		    dev->speed == USB_SPEED_HIGH) {
- 			interval = fls(endpoint->bInterval*8);
- 			printk(KERN_INFO "%s: Fixing fullspeed to highspeed interval: %d -> %d\n",
-@@ -848,6 +916,7 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 		if (hid->collection->usage == HID_GD_MOUSE && hid_mousepoll_interval > 0)
- 			interval = hid_mousepoll_interval;
- 
-+		ret = -ENOMEM;
- 		if (usb_endpoint_dir_in(endpoint)) {
- 			if (usbhid->urbin)
- 				continue;
-@@ -873,6 +942,7 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 
- 	if (!usbhid->urbin) {
- 		err_hid("couldn't find an input interrupt endpoint");
-+		ret = -ENODEV;
- 		goto fail;
- 	}
- 
-@@ -884,44 +954,26 @@ static struct hid_device *usb_hid_configure(struct usb_interface *intf)
- 	spin_lock_init(&usbhid->outlock);
- 	spin_lock_init(&usbhid->ctrllock);
- 
--	hid->version = le16_to_cpu(hdesc->bcdHID);
--	hid->country = hdesc->bCountryCode;
--	hid->dev.parent = &intf->dev;
- 	usbhid->intf = intf;
- 	usbhid->ifnum = interface->desc.bInterfaceNumber;
- 
--	hid->bus = BUS_USB;
--	hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
--	hid->product = le16_to_cpu(dev->descriptor.idProduct);
--
--	usb_make_path(dev, hid->phys, sizeof(hid->phys));
--	strlcat(hid->phys, "/input", sizeof(hid->phys));
--	len = strlen(hid->phys);
--	if (len < sizeof(hid->phys) - 1)
--		snprintf(hid->phys + len, sizeof(hid->phys) - len,
--			 "%d", intf->altsetting[0].desc.bInterfaceNumber);
--
--	if (usb_string(dev, dev->descriptor.iSerialNumber, hid->uniq, 64) <= 0)
--		hid->uniq[0] = 0;
--
- 	usbhid->urbctrl = usb_alloc_urb(0, GFP_KERNEL);
--	if (!usbhid->urbctrl)
-+	if (!usbhid->urbctrl) {
-+		ret = -ENOMEM;
- 		goto fail;
-+	}
- 
- 	usb_fill_control_urb(usbhid->urbctrl, dev, 0, (void *) usbhid->cr,
- 			     usbhid->ctrlbuf, 1, hid_ctrl, hid);
- 	usbhid->urbctrl->setup_dma = usbhid->cr_dma;
- 	usbhid->urbctrl->transfer_dma = usbhid->ctrlbuf_dma;
- 	usbhid->urbctrl->transfer_flags |= (URB_NO_TRANSFER_DMA_MAP | URB_NO_SETUP_DMA_MAP);
--	hid->hidinput_input_event = usb_hidinput_input_event;
--	hid->hid_open = usbhid_open;
--	hid->hid_close = usbhid_close;
--#ifdef CONFIG_USB_HIDDEV
--	hid->hiddev_hid_event = hiddev_hid_event;
--	hid->hiddev_report_event = hiddev_report_event;
--#endif
--	hid->hid_output_raw_report = usbhid_output_raw_report;
--	return hid;
-+
-+	ret = usbhid_start_finish(hid);
-+	if (ret)
-+		goto fail;
 +
 +	return 0;
- 
- fail:
- 	usb_free_urb(usbhid->urbin);
-@@ -929,24 +981,18 @@ fail:
- 	usb_free_urb(usbhid->urbctrl);
- 	hid_free_buffers(dev, hid);
- 	kfree(usbhid);
--fail_no_usbhid:
--	hid_destroy_device(hid);
--
--	return NULL;
-+err:
-+	return ret;
- }
- 
--static void hid_disconnect(struct usb_interface *intf)
-+static void usbhid_stop(struct hid_device *hid)
- {
--	struct hid_device *hid = usb_get_intfdata (intf);
--	struct usbhid_device *usbhid;
-+	struct usbhid_device *usbhid = hid->driver_data;
- 
--	if (!hid)
-+	if (WARN_ON(!usbhid))
- 		return;
- 
--	usbhid = hid->driver_data;
--
- 	spin_lock_irq(&usbhid->inlock);	/* Sync with error handler */
--	usb_set_intfdata(intf, NULL);
- 	set_bit(HID_DISCONNECTED, &usbhid->iofl);
- 	spin_unlock_irq(&usbhid->inlock);
- 	usb_kill_urb(usbhid->urbin);
-@@ -963,93 +1009,99 @@ static void hid_disconnect(struct usb_interface *intf)
- 	if (hid->claimed & HID_CLAIMED_HIDRAW)
- 		hidraw_disconnect(hid);
- 
-+	hid->claimed = 0;
-+
- 	usb_free_urb(usbhid->urbin);
- 	usb_free_urb(usbhid->urbctrl);
- 	usb_free_urb(usbhid->urbout);
- 
- 	hid_free_buffers(hid_to_usb_dev(hid), hid);
- 	kfree(usbhid);
--	hid_destroy_device(hid);
-+	hid->driver_data = NULL;
- }
- 
-+static struct hid_ll_driver usb_hid_driver = {
-+	.parse = usbhid_parse,
-+	.start = usbhid_start,
-+	.stop = usbhid_stop,
-+	.open = usbhid_open,
-+	.close = usbhid_close,
-+	.hidinput_input_event = usb_hidinput_input_event,
-+};
-+
- static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
- {
-+	struct usb_device *dev = interface_to_usbdev(intf);
- 	struct hid_device *hid;
--	char path[64];
--	int i, ret;
--	char *c;
-+	size_t len;
-+	int ret;
- 
- 	dbg_hid("HID probe called for ifnum %d\n",
- 			intf->altsetting->desc.bInterfaceNumber);
- 
--	if (!(hid = usb_hid_configure(intf)))
--		return -ENODEV;
--
--	usbhid_init_reports(hid);
--	hid_dump_device(hid);
--	if (hid->quirks & HID_QUIRK_RESET_LEDS)
--		usbhid_set_leds(hid);
--
--	if (!hidinput_connect(hid))
--		hid->claimed |= HID_CLAIMED_INPUT;
--	if (!hiddev_connect(hid))
--		hid->claimed |= HID_CLAIMED_HIDDEV;
--	if (!hidraw_connect(hid))
--		hid->claimed |= HID_CLAIMED_HIDRAW;
-+	hid = hid_allocate_device();
-+	if (IS_ERR(hid))
-+		return PTR_ERR(hid);
- 
- 	usb_set_intfdata(intf, hid);
-+	hid->ll_driver = &usb_hid_driver;
-+	hid->hid_output_raw_report = usbhid_output_raw_report;
-+#ifdef CONFIG_USB_HIDDEV
-+	hid->hiddev_hid_event = hiddev_hid_event;
-+	hid->hiddev_report_event = hiddev_report_event;
-+#endif
-+	hid->dev.parent = &intf->dev;
-+	hid->bus = BUS_USB;
-+	hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
-+	hid->product = le16_to_cpu(dev->descriptor.idProduct);
-+	hid->name[0] = 0;
- 
--	if (!hid->claimed) {
--		printk ("HID device claimed by neither input, hiddev nor hidraw\n");
--		hid_disconnect(intf);
--		return -ENODEV;
--	}
--
--	if ((hid->claimed & HID_CLAIMED_INPUT))
--		hid_ff_init(hid);
--
--	if (hid->quirks & HID_QUIRK_SONY_PS3_CONTROLLER)
--		hid_fixup_sony_ps3_controller(interface_to_usbdev(intf),
--			intf->cur_altsetting->desc.bInterfaceNumber);
--
--	printk(KERN_INFO);
--
--	if (hid->claimed & HID_CLAIMED_INPUT)
--		printk("input");
--	if ((hid->claimed & HID_CLAIMED_INPUT) && ((hid->claimed & HID_CLAIMED_HIDDEV) ||
--				hid->claimed & HID_CLAIMED_HIDRAW))
--		printk(",");
--	if (hid->claimed & HID_CLAIMED_HIDDEV)
--		printk("hiddev%d", hid->minor);
--	if ((hid->claimed & HID_CLAIMED_INPUT) && (hid->claimed & HID_CLAIMED_HIDDEV) &&
--			(hid->claimed & HID_CLAIMED_HIDRAW))
--		printk(",");
--	if (hid->claimed & HID_CLAIMED_HIDRAW)
--		printk("hidraw%d", ((struct hidraw*)hid->hidraw)->minor);
-+	if (dev->manufacturer)
-+		strlcpy(hid->name, dev->manufacturer, sizeof(hid->name));
- 
--	c = "Device";
--	for (i = 0; i < hid->maxcollection; i++) {
--		if (hid->collection[i].type == HID_COLLECTION_APPLICATION &&
--		    (hid->collection[i].usage & HID_USAGE_PAGE) == HID_UP_GENDESK &&
--		    (hid->collection[i].usage & 0xffff) < ARRAY_SIZE(hid_types)) {
--			c = hid_types[hid->collection[i].usage & 0xffff];
--			break;
--		}
-+	if (dev->product) {
-+		if (dev->manufacturer)
-+			strlcat(hid->name, " ", sizeof(hid->name));
-+		strlcat(hid->name, dev->product, sizeof(hid->name));
- 	}
- 
--	usb_make_path(interface_to_usbdev(intf), path, 63);
-+	if (!strlen(hid->name))
-+		snprintf(hid->name, sizeof(hid->name), "HID %04x:%04x",
-+			 le16_to_cpu(dev->descriptor.idVendor),
-+			 le16_to_cpu(dev->descriptor.idProduct));
- 
--	printk(": USB HID v%x.%02x %s [%s] on %s\n",
--		hid->version >> 8, hid->version & 0xff, c, hid->name, path);
-+	usb_make_path(dev, hid->phys, sizeof(hid->phys));
-+	strlcat(hid->phys, "/input", sizeof(hid->phys));
-+	len = strlen(hid->phys);
-+	if (len < sizeof(hid->phys) - 1)
-+		snprintf(hid->phys + len, sizeof(hid->phys) - len,
-+			 "%d", intf->altsetting[0].desc.bInterfaceNumber);
-+
-+	if (usb_string(dev, dev->descriptor.iSerialNumber, hid->uniq, 64) <= 0)
-+		hid->uniq[0] = 0;
- 
- 	ret = hid_add_device(hid);
- 	if (ret) {
- 		dev_err(&intf->dev, "can't add hid device: %d\n", ret);
--		hid_disconnect(intf);
-+		goto err;
- 	}
-+
-+	return 0;
-+err:
-+	hid_destroy_device(hid);
- 	return ret;
- }
- 
-+static void hid_disconnect(struct usb_interface *intf)
-+{
-+	struct hid_device *hid = usb_get_intfdata(intf);
-+
-+	if (WARN_ON(!hid))
-+		return;
-+
-+	hid_destroy_device(hid);
 +}
 +
- static int hid_suspend(struct usb_interface *intf, pm_message_t message)
- {
- 	struct hid_device *hid = usb_get_intfdata (intf);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index fa1f28c..ff6df20 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -419,6 +419,9 @@ struct hid_control_fifo {
- #define HID_CLAIMED_HIDDEV	2
- #define HID_CLAIMED_HIDRAW	4
- 
-+#define HID_STAT_ADDED		1
-+#define HID_STAT_PARSED		2
-+
- #define HID_CTRL_RUNNING	1
- #define HID_OUT_RUNNING		2
- #define HID_IN_RUNNING		3
-@@ -434,6 +437,7 @@ struct hid_input {
- };
- 
- struct hid_driver;
-+struct hid_ll_driver;
- 
- struct hid_device {							/* device report descriptor */
- 	__u8 *rdesc;
-@@ -451,8 +455,9 @@ struct hid_device {							/* device report descriptor */
- 
- 	struct device dev;						/* device */
- 	struct hid_driver *driver;
-+	struct hid_ll_driver *ll_driver;
- 
--	unsigned int is_added;						/* hid_add_device called? */
-+	unsigned int status;						/* see STAT flags above */
- 	unsigned claimed;						/* Claimed by hidinput, hiddev? */
- 	unsigned quirks;						/* Various quirks the device can pull on us */
- 
-@@ -470,11 +475,6 @@ struct hid_device {							/* device report descriptor */
- 
- 	__s32 delayed_value;						/* For A4 Tech mice hwheel quirk */
- 
--	/* device-specific function pointers */
--	int (*hidinput_input_event) (struct input_dev *, unsigned int, unsigned int, int);
--	int (*hid_open) (struct hid_device *);
--	void (*hid_close) (struct hid_device *);
--
- 	/* hiddev event handler */
- 	void (*hiddev_hid_event) (struct hid_device *, struct hid_field *field,
- 				  struct hid_usage *, __s32);
-@@ -563,6 +563,9 @@ struct hid_usage_id {
-  * @raw_event: if report in report_table, this hook is called (NULL means nop)
-  * @usage_table: on which events to call event (NULL means all)
-  * @event: if usage in usage_table, this hook is called (NULL means nop)
-+ * @report_fixup: called before report descriptor parsing (NULL means nop)
-+ * @input_mapping: invoked on input registering before mapping an usage
-+ * @input_mapped: invoked on input registering after mapping an usage
-  */
- struct hid_driver {
- 	char *name;
-@@ -578,10 +581,43 @@ struct hid_driver {
- 	const struct hid_usage_id *usage_table;
- 	int (*event)(struct hid_device *hdev, struct hid_field *field,
- 			struct hid_usage *usage, __s32 value);
-+
-+	void (*report_fixup)(struct hid_device *hdev, __u8 *buf,
-+			unsigned int size);
-+
-+	int (*input_mapping)(struct hid_device *hdev,
-+			struct hid_input *hidinput, struct hid_usage *usage,
-+			unsigned long **bit, int *max);
-+	void (*input_mapped)(struct hid_device *hdev,
-+			struct hid_input *hidinput, struct hid_usage *usage,
-+			unsigned long **bit, int *max);
- /* private: */
- 	struct device_driver driver;
- };
- 
-+/**
-+ * hid_ll_driver - low level driver callbacks
-+ * @start: called on probe to start the device
-+ * @stop: called on remove
-+ * @open: called by input layer on open
-+ * @close: called by input layer on close
-+ * @hidinput_input_event: event input event (e.g. ff or leds)
-+ * @parse: this method is called only once to parse the device data,
-+ *	   shouldn't allocate anything to not leak memory
-+ */
-+struct hid_ll_driver {
-+	int (*start)(struct hid_device *hdev);
-+	void (*stop)(struct hid_device *hdev);
-+
-+	int (*open)(struct hid_device *hdev);
-+	void (*close)(struct hid_device *hdev);
-+
-+	int (*hidinput_input_event) (struct input_dev *idev, unsigned int type,
-+			unsigned int code, int value);
-+
-+	int (*parse)(struct hid_device *hdev);
-+};
-+
- /* Applications from HID Usage Tables 4/8/99 Version 1.1 */
- /* We ignore a few input applications that are not widely used */
- #define IS_INPUT_APPLICATION(a) (((a >= 0x00010000) && (a <= 0x00010008)) || (a == 0x00010080) || (a == 0x000c0001))
-@@ -618,6 +654,56 @@ void hid_output_report(struct hid_report *report, __u8 *data);
- struct hid_device *hid_allocate_device(void);
- int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned size);
- 
-+/**
-+ * hid_parse - parse HW reports
-+ *
-+ * @hdev: hid device
-+ *
-+ * Call this from probe after you set up the device (if needed). Your
-+ * report_fixup will be called (if non-NULL) after reading raw report from
-+ * device before passing it to hid layer for real parsing.
-+ */
-+static inline int __must_check hid_parse(struct hid_device *hdev)
++static int apple_event(struct hid_device *hdev, struct hid_field *fiel=
+d,
++		struct hid_usage *usage, __s32 value)
 +{
-+	int ret;
++	struct apple_sc *asc =3D hid_get_drvdata(hdev);
 +
-+	if (hdev->status & HID_STAT_PARSED)
++	if (!field->hidinput)
++		return -ENODEV;
++
++	if ((asc->quirks & APPLE_INVERT_HWHEEL) &&
++			usage->code =3D=3D REL_HWHEEL) {
++		input_event(field->hidinput->input, usage->type, usage->code,
++				-value);
++		return 0;
++	}
++
++	if ((asc->quirks & APPLE_HAS_FN) &&
++			hidinput_apple_event(hdev, field->hidinput->input,
++				usage, value))
 +		return 0;
 +
-+	ret = hdev->ll_driver->parse(hdev);
-+	if (!ret)
-+		hdev->status |= HID_STAT_PARSED;
 +
++	return -ENODEV;
++}
++
++static void apple_input_mapped(struct hid_device *hdev, struct hid_inp=
+ut *hi,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	struct apple_sc *asc =3D hid_get_drvdata(hdev);
++
++	if (asc->quirks & APPLE_MIGHTYMOUSE) {
++		if (usage->hid =3D=3D HID_GD_Z)
++			hid_map_usage(hi, usage, bit, max, EV_REL, REL_HWHEEL);
++		else if (usage->code =3D=3D BTN_1)
++			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_2);
++		else if (usage->code =3D=3D BTN_2)
++			hid_map_usage(hi, usage, bit, max, EV_KEY, BTN_1);
++	}
++}
++
++static int apple_probe(struct hid_device *hdev,
++		const struct hid_device_id *id)
++{
++	unsigned long quirks =3D id->driver_data;
++	struct apple_sc *asc;
++	int ret;
++
++	asc =3D kzalloc(sizeof(*asc), GFP_KERNEL);
++	if (asc =3D=3D NULL) {
++		dev_err(&hdev->dev, "can't alloc apple descriptor\n");
++		return -ENOMEM;
++	}
++
++	hid_set_drvdata(hdev, asc);
++
++	if (quirks & APPLE_HIDDEV)
++		hdev->quirks |=3D HID_QUIRK_HIDDEV;
++	if (quirks & APPLE_IGNORE_HIDINPUT)
++		hdev->quirks |=3D HID_QUIRK_IGNORE_HIDINPUT;
++
++	ret =3D hid_parse(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "parse failed\n");
++		goto err_free;
++	}
++
++	ret =3D hid_hw_start(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "hw start failed\n");
++		goto err_free;
++	}
++
++	return 0;
++err_free:
++	kfree(asc);
 +	return ret;
 +}
 +
-+/**
-+ * hid_hw_start - start underlaying HW
-+ *
-+ * @hdev: hid device
-+ *
-+ * Call this in probe function *after* hid_parse. This will setup HW buffers
-+ * and start the device (if not deffered to device open). hid_hw_stop must be
-+ * called if this was successfull.
-+ */
-+static inline int __must_check hid_hw_start(struct hid_device *hdev)
++static void apple_remove(struct hid_device *hdev)
 +{
-+	return hdev->ll_driver->start(hdev);
++	hid_hw_stop(hdev);
++	kfree(hid_get_drvdata(hdev));
 +}
 +
-+/**
-+ * hid_hw_stop - stop underlaying HW
-+ *
-+ * @hdev: hid device
-+ *
-+ * This is usually called from remove function or from probe when something
-+ * failed and hid_hw_start was called already.
++#ifdef CONFIG_USB_HID
++static const struct hid_device_id apple_usb_devices[] =3D {
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4),
++		.driver_data =3D APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE),
++		.driver_data =3D APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
++
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE |
++			APPLE_ISO_KEYBOARD},
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE |
++			APPLE_ISO_KEYBOARD},
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE |
++			APPLE_ISO_KEYBOARD},
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI),
++		.driver_data =3D APPLE_HAS_FN },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO),
++		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS),
++		.driver_data =3D APPLE_HAS_FN },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI=
+),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO)=
+,
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS)=
+,
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_AN=
+SI),
++		.driver_data =3D APPLE_HAS_FN },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_IS=
+O),
++		.driver_data =3D APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JI=
+S),
++		.driver_data =3D APPLE_HAS_FN },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONL=
+Y),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY=
+),
++		.driver_data =3D APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
++
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS),
++		.driver_data =3D APPLE_RDESC_JIS },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, apple_usb_devices);
++
++/*
++ * MacBook JIS keyboard has wrong logical maximum
 + */
-+static inline void hid_hw_stop(struct hid_device *hdev)
++static void apple_usb_report_fixup(struct hid_device *hdev, __u8 *rdes=
+c,
++		unsigned int rsize)
 +{
-+	hdev->ll_driver->stop(hdev);
++	struct apple_sc *asc =3D hid_get_drvdata(hdev);
++
++	if ((asc->quirks & APPLE_RDESC_JIS) && rsize >=3D 60 &&
++			rdesc[53] =3D=3D 0x65 && rdesc[59] =3D=3D 0x65) {
++		dev_info(&hdev->dev, "fixing up MacBook JIS keyboard report "
++				"descriptor\n");
++		rdesc[53] =3D rdesc[59] =3D 0xe7;
++	}
 +}
 +
- void hid_report_raw_event(struct hid_device *hid, int type, u8 *data, int size,
- 		int interrupt);
- 
-diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-index b3329bf..8261d4c 100644
---- a/net/bluetooth/hidp/core.c
-+++ b/net/bluetooth/hidp/core.c
-@@ -617,9 +617,15 @@ static struct device *hidp_get_device(struct hidp_session *session)
- static int hidp_setup_input(struct hidp_session *session,
- 				struct hidp_connadd_req *req)
- {
--	struct input_dev *input = session->input;
-+	struct input_dev *input;
- 	int i;
- 
-+	input = input_allocate_device();
-+	if (!input)
-+		return -ENOMEM;
-+
-+	session->input = input;
-+
- 	input_set_drvdata(input, session);
- 
- 	input->name = "Bluetooth HID Boot Protocol Device";
-@@ -692,55 +698,117 @@ static void hidp_setup_quirks(struct hid_device *hid)
- 			hid->quirks = hidp_blacklist[n].quirks;
- }
- 
-+static int hidp_parse(struct hid_device *hid)
++static void apple_setup_input(struct input_dev *input)
 +{
-+	struct hidp_session *session = hid->driver_data;
-+	struct hidp_connadd_req *req = session->req;
-+	unsigned char *buf;
-+	int ret;
++	struct apple_key_translation *trans;
 +
-+	buf = kmalloc(req->rd_size, GFP_KERNEL);
-+	if (!buf)
-+		return -ENOMEM;
++	set_bit(KEY_NUMLOCK, input->keybit);
 +
-+	if (copy_from_user(buf, req->rd_data, req->rd_size)) {
-+		kfree(buf);
-+		return -EFAULT;
++	/* Enable all needed keys */
++	for (trans =3D apple_fn_keys; trans->from; trans++)
++		set_bit(trans->to, input->keybit);
++
++	for (trans =3D powerbook_fn_keys; trans->from; trans++)
++		set_bit(trans->to, input->keybit);
++
++	for (trans =3D powerbook_numlock_keys; trans->from; trans++)
++		set_bit(trans->to, input->keybit);
++
++	for (trans =3D apple_iso_keyboard; trans->from; trans++)
++		set_bit(trans->to, input->keybit);
++}
++
++static int apple_input_mapping(struct hid_device *hdev, struct hid_inp=
+ut *hi,
++		struct hid_usage *usage, unsigned long **bit, int *max)
++{
++	if (usage->hid =3D=3D (HID_UP_CUSTOM | 0x0003)) {
++		/* The fn key on Apple USB keyboards */
++		hid_map_usage_clear(hi, usage, bit, max, EV_KEY, KEY_FN);
++		apple_setup_input(hi->input);
 +	}
 +
-+	ret = hid_parse_report(session->hid, buf, req->rd_size);
++	/* we want the hid layer to go through standard path (set and ignore)=
+ */
++	return 0;
++}
 +
-+	kfree(buf);
++static int apple_usb_probe(struct hid_device *hdev,
++		const struct hid_device_id *id)
++{
++	/* return something else or move to hid layer? device will reside
++	   allocated */
++	if ((id->driver_data & APPLE_IGNORE_MOUSE) &&
++			to_usb_interface(hdev->dev.parent)->cur_altsetting->
++			desc.bInterfaceProtocol =3D=3D USB_INTERFACE_PROTOCOL_MOUSE)
++		return -ENODEV;
 +
-+	if (ret)
++	return apple_probe(hdev, id);
++}
++
++static struct hid_driver apple_usb_driver =3D {
++	.name =3D "apple-usb",
++	.bus_type =3D BUS_USB,
++	.id_table =3D apple_usb_devices,
++	.report_fixup =3D apple_usb_report_fixup,
++	.probe =3D apple_usb_probe,
++	.remove =3D apple_remove,
++	.event =3D apple_event,
++	.input_mapping =3D apple_input_mapping,
++	.input_mapped =3D apple_input_mapped,
++};
++#endif /* USB_HID */
++
++#if CONFIG_BT_HIDP
++static const struct hid_device_id apple_bt_devices[] =3D {
++	/* Apple wireless Mighty Mouse */
++	{ HID_DEVICE(0x05ac, 0x030c),
++		.driver_data =3D APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, apple_bt_devices);
++
++static struct hid_driver apple_bt_driver =3D {
++	.name =3D "apple-bt",
++	.bus_type =3D BUS_BLUETOOTH,
++	.id_table =3D apple_bt_devices,
++	.probe =3D apple_probe,
++	.remove =3D apple_remove,
++	.event =3D apple_event,
++	.input_mapped =3D apple_input_mapped,
++};
++#endif /* BT_HIDP */
++
++static int apple_init(void)
++{
++	int ret =3D -ENODEV;
++#ifdef CONFIG_USB_HID
++	ret =3D hid_register_driver(&apple_usb_driver);
++	if (ret) {
++		printk(KERN_ERR "can't register apple-usb driver\n");
 +		return ret;
-+
-+	session->req = NULL;
-+
-+	hidp_setup_quirks(hid);
-+	return 0;
++	}
++#endif
++#ifdef CONFIG_BT_HIDP
++	ret =3D hid_register_driver(&apple_bt_driver);
++	if (ret) {
++#ifdef CONFIG_USB_HID
++		hid_unregister_driver(&apple_usb_driver);
++#endif
++		printk(KERN_ERR "can't register apple-bt driver\n");
++	}
++#endif
++	return ret;
 +}
 +
-+static int hidp_start(struct hid_device *hid)
++static void apple_exit(void)
 +{
-+	struct hidp_session *session = hid->driver_data;
-+	struct hid_report *report;
-+
-+	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].
-+			report_list, list)
-+		hidp_send_report(session, report);
-+
-+	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].
-+			report_list, list)
-+		hidp_send_report(session, report);
-+
-+	if (hidinput_connect(hid) == 0)
-+		hid->claimed |= HID_CLAIMED_INPUT;
-+
-+	return 0;
++#ifdef CONFIG_BT_HIDP
++	hid_unregister_driver(&apple_bt_driver);
++#endif
++#ifdef CONFIG_USB_HID
++	hid_unregister_driver(&apple_usb_driver);
++#endif
 +}
 +
-+static void hidp_stop(struct hid_device *hid)
-+{
-+	struct hidp_session *session = hid->driver_data;
-+
-+	skb_queue_purge(&session->ctrl_transmit);
-+	skb_queue_purge(&session->intr_transmit);
-+
-+	if (hid->claimed & HID_CLAIMED_INPUT)
-+		hidinput_disconnect(hid);
-+	hid->claimed = 0;
-+}
-+
-+static struct hid_ll_driver hidp_driver = {
-+	.parse = hidp_parse,
-+	.start = hidp_start,
-+	.stop = hidp_stop,
-+	.open  = hidp_open,
-+	.close = hidp_close,
-+	.hidinput_input_event = hidp_hidinput_event,
++module_init(apple_init);
++module_exit(apple_exit);
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 739adc5..e1b17e7 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1129,12 +1129,43 @@ static const struct hid_device_id hid_usb_black=
+list[] =3D {
+ 	{ HID_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) }=
+,
+ 	{ HID_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER) },
+ 	{ HID_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER_2) }=
+,
++	/* APPLE */
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI) =
+},
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO) }=
+,
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI) }=
+,
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI) }=
+,
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI=
+) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO)=
+ },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS)=
+ },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_AN=
+SI) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_IS=
+O) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JI=
+S) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONL=
+Y) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY=
+) },
++	{ HID_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS) },
++	{ }
 +};
 +
- static int hidp_setup_hid(struct hidp_session *session,
- 				struct hidp_connadd_req *req)
- {
--	struct hid_device *hid = session->hid;
--	struct hid_report *report;
-+	struct hid_device *hid;
- 	bdaddr_t src, dst;
- 	int ret;
- 
--	baswap(&src, &bt_sk(session->ctrl_sock->sk)->src);
--	baswap(&dst, &bt_sk(session->ctrl_sock->sk)->dst);
-+	hid = hid_allocate_device();
-+	if (IS_ERR(hid)) {
-+		ret = PTR_ERR(session->hid);
-+		goto err;
-+	}
- 
-+	session->hid = hid;
-+	session->req = req;
- 	hid->driver_data = session;
- 
--	hid->country = req->country;
-+	baswap(&src, &bt_sk(session->ctrl_sock->sk)->src);
-+	baswap(&dst, &bt_sk(session->ctrl_sock->sk)->dst);
- 
- 	hid->bus     = BUS_BLUETOOTH;
- 	hid->vendor  = req->vendor;
- 	hid->product = req->product;
- 	hid->version = req->version;
-+	hid->country = req->country;
- 
- 	strncpy(hid->name, req->name, 128);
- 	strncpy(hid->phys, batostr(&src), 64);
- 	strncpy(hid->uniq, batostr(&dst), 64);
- 
- 	hid->dev.parent = hidp_get_device(session);
--
--	hid->hid_open  = hidp_open;
--	hid->hid_close = hidp_close;
--
--	hid->hidinput_input_event = hidp_hidinput_event;
--
--	hidp_setup_quirks(hid);
--
--	list_for_each_entry(report, &hid->report_enum[HID_INPUT_REPORT].report_list, list)
--		hidp_send_report(session, report);
--
--	list_for_each_entry(report, &hid->report_enum[HID_FEATURE_REPORT].report_list, list)
--		hidp_send_report(session, report);
--
--	if (hidinput_connect(hid) == 0)
--		hid->claimed |= HID_CLAIMED_INPUT;
-+	hid->ll_driver = &hidp_driver;
- 
- 	ret = hid_add_device(hid);
--	if (ret) {
--		if (hid->claimed & HID_CLAIMED_INPUT)
--			hidinput_disconnect(hid);
--		skb_queue_purge(&session->intr_transmit);
--	}
-+	if (ret)
-+		goto err_hid;
- 
-+	return 0;
-+err_hid:
-+	hid_destroy_device(hid);
-+	session->hid = NULL;
-+err:
- 	return ret;
- }
- 
-@@ -761,46 +829,6 @@ int hidp_add_connection(struct hidp_connadd_req *req, struct socket *ctrl_sock,
- 
- 	BT_DBG("rd_data %p rd_size %d", req->rd_data, req->rd_size);
- 
--	if (req->rd_size > 0) {
--		unsigned char *buf = kmalloc(req->rd_size, GFP_KERNEL);
--
--		if (!buf) {
--			kfree(session);
--			return -ENOMEM;
--		}
--
--		if (copy_from_user(buf, req->rd_data, req->rd_size)) {
--			kfree(buf);
--			kfree(session);
--			return -EFAULT;
--		}
--
--		session->hid = hid_allocate_device();
--		if (IS_ERR(session->hid)) {
--			kfree(buf);
--			kfree(session);
--			return PTR_ERR(session->hid);
--		}
--
--		err = hid_parse_report(session->hid, buf, req->rd_size);
--
--		kfree(buf);
--
--		if (err) {
--			hid_destroy_device(session->hid);
--			kfree(session);
--			return -EINVAL;
--		}
--	}
--
--	if (!session->hid) {
--		session->input = input_allocate_device();
--		if (!session->input) {
--			kfree(session);
--			return -ENOMEM;
--		}
--	}
--
- 	down_write(&hidp_session_sem);
- 
- 	s = __hidp_get_session(&bt_sk(ctrl_sock->sk)->dst);
-@@ -828,16 +856,16 @@ int hidp_add_connection(struct hidp_connadd_req *req, struct socket *ctrl_sock,
- 	session->flags   = req->flags & (1 << HIDP_BLUETOOTH_VENDOR_ID);
- 	session->idle_to = req->idle_to;
- 
--	if (session->input) {
--		err = hidp_setup_input(session, req);
--		if (err < 0)
--			goto failed;
--	}
--
--	if (session->hid) {
-+	if (req->rd_size > 0) {
- 		err = hidp_setup_hid(session, req);
- 		if (err)
--			goto failed;
-+			goto err_skb;
-+	}
-+
-+	if (!session->hid) {
-+		err = hidp_setup_input(session, req);
-+		if (err < 0)
-+			goto err_skb;
- 	}
- 
- 	__hidp_link_session(session);
-@@ -865,16 +893,15 @@ unlink:
- 
- 	__hidp_unlink_session(session);
- 
--	if (session->input) {
-+	if (session->input)
- 		input_unregister_device(session->input);
--		session->input = NULL; /* don't try to free it here */
--	}
--
--failed:
--	up_write(&hidp_session_sem);
--
- 	if (session->hid)
- 		hid_destroy_device(session->hid);
-+err_skb:
-+	skb_queue_purge(&session->ctrl_transmit);
-+	skb_queue_purge(&session->intr_transmit);
-+failed:
-+	up_write(&hidp_session_sem);
- 
- 	input_free_device(session->input);
- 	kfree(session);
-diff --git a/net/bluetooth/hidp/hidp.h b/net/bluetooth/hidp/hidp.h
-index 343fb05..e503c89 100644
---- a/net/bluetooth/hidp/hidp.h
-+++ b/net/bluetooth/hidp/hidp.h
-@@ -151,6 +151,8 @@ struct hidp_session {
- 
- 	struct sk_buff_head ctrl_transmit;
- 	struct sk_buff_head intr_transmit;
-+
-+	struct hidp_connadd_req *req;
++static const struct hid_device_id hid_bt_blacklist[] =3D {
++	{ HID_DEVICE(0x05ac, 0x030c) },
+ 	{ }
  };
- 
- static inline void hidp_schedule(struct hidp_session *session)
--- 
+=20
+ static const struct hid_device_id *hid_blacklist[] =3D {
+ 	[BUS_USB] =3D hid_usb_blacklist,
+-	[BUS_BLUETOOTH] =3D NULL,
++	[BUS_BLUETOOTH] =3D hid_bt_blacklist,
+ };
+=20
+ static int hid_bus_match(struct device *dev, struct device_driver *drv=
+)
+diff --git a/drivers/hid/hid-input-quirks.c b/drivers/hid/hid-input-qui=
+rks.c
+index 51ae184..ff9bbdd 100644
+--- a/drivers/hid/hid-input-quirks.c
++++ b/drivers/hid/hid-input-quirks.c
+@@ -399,19 +399,11 @@ int hidinput_event_quirks(struct hid_device *hid,=
+ struct hid_field *field, struc
+ 		return 1;
+ 	}
+=20
+-	if ((hid->quirks & HID_QUIRK_INVERT_HWHEEL) && (usage->code =3D=3D RE=
+L_HWHEEL)) {
+-		input_event(input, usage->type, usage->code, -value);
+-		return 1;
+-	}
+-
+ 	if ((hid->quirks & HID_QUIRK_2WHEEL_MOUSE_HACK_ON) && (usage->code =3D=
+=3D REL_WHEEL)) {
+ 		input_event(input, usage->type, REL_HWHEEL, value);
+ 		return 1;
+ 	}
+=20
+-	if ((hid->quirks & HID_QUIRK_APPLE_HAS_FN) && hidinput_apple_event(hi=
+d, input, usage, value))
+-		return 1;
+-
+ 	/* Handling MS keyboards special buttons */
+ 	if (hid->quirks & HID_QUIRK_MICROSOFT_KEYS &&=20
+ 			usage->hid =3D=3D (HID_UP_MSVENDOR | 0xff05)) {
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 5439e76..0b13dca 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -34,11 +34,6 @@
+ #include <linux/hid.h>
+ #include <linux/hid-debug.h>
+=20
+-static int hid_apple_fnmode =3D 1;
+-module_param_named(pb_fnmode, hid_apple_fnmode, int, 0644);
+-MODULE_PARM_DESC(pb_fnmode,
+-		"Mode of fn key on Apple keyboards (0 =3D disabled, 1 =3D fkeyslast,=
+ 2 =3D fkeysfirst)");
+-
+ #define unk	KEY_UNKNOWN
+=20
+ static const unsigned char hid_keyboard[256] =3D {
+@@ -88,199 +83,6 @@ static const struct {
+ #define map_key_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, \
+ 		&max, EV_KEY, (c))
+=20
+-#ifdef CONFIG_USB_HIDINPUT_POWERBOOK
+-
+-struct hidinput_key_translation {
+-	u16 from;
+-	u16 to;
+-	u8 flags;
+-};
+-
+-#define APPLE_FLAG_FKEY 0x01
+-
+-static struct hidinput_key_translation apple_fn_keys[] =3D {
+-	{ KEY_BACKSPACE, KEY_DELETE },
+-	{ KEY_F1,       KEY_BRIGHTNESSDOWN, APPLE_FLAG_FKEY },
+-	{ KEY_F2,       KEY_BRIGHTNESSUP,   APPLE_FLAG_FKEY },
+-	{ KEY_F3,       KEY_FN_F5,          APPLE_FLAG_FKEY }, /* Expos=E9 */
+-	{ KEY_F4,       KEY_FN_F4,          APPLE_FLAG_FKEY }, /* Dashboard *=
+/
+-	{ KEY_F7,       KEY_PREVIOUSSONG,   APPLE_FLAG_FKEY },
+-	{ KEY_F8,       KEY_PLAYPAUSE,      APPLE_FLAG_FKEY },
+-	{ KEY_F9,       KEY_NEXTSONG,       APPLE_FLAG_FKEY },
+-	{ KEY_F10,      KEY_MUTE,           APPLE_FLAG_FKEY },
+-	{ KEY_F11,      KEY_VOLUMEDOWN,     APPLE_FLAG_FKEY },
+-	{ KEY_F12,      KEY_VOLUMEUP,       APPLE_FLAG_FKEY },
+-	{ KEY_UP,       KEY_PAGEUP },
+-	{ KEY_DOWN,     KEY_PAGEDOWN },
+-	{ KEY_LEFT,     KEY_HOME },
+-	{ KEY_RIGHT,    KEY_END },
+-	{ }
+-};
+-
+-static struct hidinput_key_translation powerbook_fn_keys[] =3D {
+-	{ KEY_BACKSPACE, KEY_DELETE },
+-	{ KEY_F1,       KEY_BRIGHTNESSDOWN,     APPLE_FLAG_FKEY },
+-	{ KEY_F2,       KEY_BRIGHTNESSUP,       APPLE_FLAG_FKEY },
+-	{ KEY_F3,       KEY_MUTE,               APPLE_FLAG_FKEY },
+-	{ KEY_F4,       KEY_VOLUMEDOWN,         APPLE_FLAG_FKEY },
+-	{ KEY_F5,       KEY_VOLUMEUP,           APPLE_FLAG_FKEY },
+-	{ KEY_F6,       KEY_NUMLOCK,            APPLE_FLAG_FKEY },
+-	{ KEY_F7,       KEY_SWITCHVIDEOMODE,    APPLE_FLAG_FKEY },
+-	{ KEY_F8,       KEY_KBDILLUMTOGGLE,     APPLE_FLAG_FKEY },
+-	{ KEY_F9,       KEY_KBDILLUMDOWN,       APPLE_FLAG_FKEY },
+-	{ KEY_F10,      KEY_KBDILLUMUP,         APPLE_FLAG_FKEY },
+-	{ KEY_UP,       KEY_PAGEUP },
+-	{ KEY_DOWN,     KEY_PAGEDOWN },
+-	{ KEY_LEFT,     KEY_HOME },
+-	{ KEY_RIGHT,    KEY_END },
+-	{ }
+-};
+-
+-static struct hidinput_key_translation powerbook_numlock_keys[] =3D {
+-	{ KEY_J,        KEY_KP1 },
+-	{ KEY_K,        KEY_KP2 },
+-	{ KEY_L,        KEY_KP3 },
+-	{ KEY_U,        KEY_KP4 },
+-	{ KEY_I,        KEY_KP5 },
+-	{ KEY_O,        KEY_KP6 },
+-	{ KEY_7,        KEY_KP7 },
+-	{ KEY_8,        KEY_KP8 },
+-	{ KEY_9,        KEY_KP9 },
+-	{ KEY_M,        KEY_KP0 },
+-	{ KEY_DOT,      KEY_KPDOT },
+-	{ KEY_SLASH,    KEY_KPPLUS },
+-	{ KEY_SEMICOLON, KEY_KPMINUS },
+-	{ KEY_P,        KEY_KPASTERISK },
+-	{ KEY_MINUS,    KEY_KPEQUAL },
+-	{ KEY_0,        KEY_KPSLASH },
+-	{ KEY_F6,       KEY_NUMLOCK },
+-	{ KEY_KPENTER,  KEY_KPENTER },
+-	{ KEY_BACKSPACE, KEY_BACKSPACE },
+-	{ }
+-};
+-
+-static struct hidinput_key_translation apple_iso_keyboard[] =3D {
+-	{ KEY_GRAVE,    KEY_102ND },
+-	{ KEY_102ND,    KEY_GRAVE },
+-	{ }
+-};
+-
+-static struct hidinput_key_translation *find_translation(struct hidinp=
+ut_key_translation *table, u16 from)
+-{
+-	struct hidinput_key_translation *trans;
+-
+-	/* Look for the translation */
+-	for (trans =3D table; trans->from; trans++)
+-		if (trans->from =3D=3D from)
+-			return trans;
+-
+-	return NULL;
+-}
+-
+-int hidinput_apple_event(struct hid_device *hid, struct input_dev *inp=
+ut,
+-		struct hid_usage *usage, __s32 value)
+-{
+-	struct hidinput_key_translation *trans;
+-
+-	if (usage->code =3D=3D KEY_FN) {
+-		if (value) hid->quirks |=3D  HID_QUIRK_APPLE_FN_ON;
+-		else       hid->quirks &=3D ~HID_QUIRK_APPLE_FN_ON;
+-
+-		input_event(input, usage->type, usage->code, value);
+-
+-		return 1;
+-	}
+-
+-	if (hid_apple_fnmode) {
+-		int do_translate;
+-
+-		trans =3D find_translation((hid->product < 0x220 ||
+-					  hid->product >=3D 0x300) ?
+-					 powerbook_fn_keys : apple_fn_keys,
+-					 usage->code);
+-		if (trans) {
+-			if (test_bit(usage->code, hid->apple_pressed_fn))
+-				do_translate =3D 1;
+-			else if (trans->flags & APPLE_FLAG_FKEY)
+-				do_translate =3D
+-					(hid_apple_fnmode =3D=3D 2 &&  (hid->quirks & HID_QUIRK_APPLE_FN_=
+ON)) ||
+-					(hid_apple_fnmode =3D=3D 1 && !(hid->quirks & HID_QUIRK_APPLE_FN_=
+ON));
+-			else
+-				do_translate =3D (hid->quirks & HID_QUIRK_APPLE_FN_ON);
+-
+-			if (do_translate) {
+-				if (value)
+-					set_bit(usage->code, hid->apple_pressed_fn);
+-				else
+-					clear_bit(usage->code, hid->apple_pressed_fn);
+-
+-				input_event(input, usage->type, trans->to, value);
+-
+-				return 1;
+-			}
+-		}
+-
+-		if (test_bit(usage->code, hid->pb_pressed_numlock) ||
+-				test_bit(LED_NUML, input->led)) {
+-			trans =3D find_translation(powerbook_numlock_keys, usage->code);
+-
+-			if (trans) {
+-				if (value)
+-					set_bit(usage->code, hid->pb_pressed_numlock);
+-				else
+-					clear_bit(usage->code, hid->pb_pressed_numlock);
+-
+-				input_event(input, usage->type, trans->to, value);
+-			}
+-
+-			return 1;
+-		}
+-	}
+-
+-	if (hid->quirks & HID_QUIRK_APPLE_ISO_KEYBOARD) {
+-		trans =3D find_translation(apple_iso_keyboard, usage->code);
+-		if (trans) {
+-			input_event(input, usage->type, trans->to, value);
+-			return 1;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-static void hidinput_apple_setup(struct input_dev *input)
+-{
+-	struct hidinput_key_translation *trans;
+-
+-	set_bit(KEY_NUMLOCK, input->keybit);
+-
+-	/* Enable all needed keys */
+-	for (trans =3D apple_fn_keys; trans->from; trans++)
+-		set_bit(trans->to, input->keybit);
+-
+-	for (trans =3D powerbook_fn_keys; trans->from; trans++)
+-		set_bit(trans->to, input->keybit);
+-
+-	for (trans =3D powerbook_numlock_keys; trans->from; trans++)
+-		set_bit(trans->to, input->keybit);
+-
+-	for (trans =3D apple_iso_keyboard; trans->from; trans++)
+-		set_bit(trans->to, input->keybit);
+-
+-}
+-#else
+-inline int hidinput_apple_event(struct hid_device *hid,
+-				       struct input_dev *input,
+-				       struct hid_usage *usage, __s32 value)
+-{
+-	return 0;
+-}
+-
+-static inline void hidinput_apple_setup(struct input_dev *input)
+-{
+-}
+-#endif
+-
+ static inline int match_scancode(int code, int scancode)
+ {
+ 	if (scancode =3D=3D 0)
+@@ -718,16 +520,7 @@ static void hidinput_configure_usage(struct hid_in=
+put *hidinput, struct hid_fiel
+ 		case HID_UP_CUSTOM: /* Reported on Logitech and Apple USB keyboards =
+*/
+=20
+ 			set_bit(EV_REP, input->evbit);
+-			switch(usage->hid & HID_USAGE) {
+-				case 0x003:
+-					/* The fn key on Apple USB keyboards */
+-					map_key_clear(KEY_FN);
+-					hidinput_apple_setup(input);
+-					break;
+-
+-				default:    goto ignore;
+-			}
+-			break;
++			goto ignore;
+=20
+ 		case HID_UP_LOGIVENDOR:
+=20
+@@ -764,15 +557,6 @@ mapped:
+ 		device->driver->input_mapped(device, hidinput, usage,
+ 				&bit, &max);
+=20
+-	if (device->quirks & HID_QUIRK_MIGHTYMOUSE) {
+-		if (usage->hid =3D=3D HID_GD_Z)
+-			map_rel(REL_HWHEEL);
+-		else if (usage->code =3D=3D BTN_1)
+-			map_key(BTN_2);
+-		else if (usage->code =3D=3D BTN_2)
+-			map_key(BTN_1);
+-	}
+-
+ 	if ((device->quirks & (HID_QUIRK_2WHEEL_MOUSE_HACK_7 | HID_QUIRK_2WHE=
+EL_MOUSE_HACK_5 |
+ 			HID_QUIRK_2WHEEL_MOUSE_HACK_B8)) && (usage->type =3D=3D EV_REL) &&
+ 			(usage->code =3D=3D REL_WHEEL))
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-q=
+uirks.c
+index 13f0365..a797f2c 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -54,7 +54,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULL=
+SPEED_INTERVAL },
+=20
+ 	{ USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM, HID_QUIRK_HIDDEV },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4, HID_QUIRK_HIDD=
+EV | HID_QUIRK_IGNORE_HIDINPUT },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV, HID_QUIRK_HID=
+INPUT },
+=20
+ 	{ USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193, HID_QUIRK_HWHEEL_WHEEL=
+_INVERT },
+@@ -65,8 +64,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K, HID_QUIRK_MICROSOFT=
+_KEYS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K, HID_QUIRK_MICROSOFT=
+_KEYS },
+=20
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE, HID_QUIRK_MIG=
+HTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
+-
+ 	{ USB_VENDOR_ID_PANTHERLORD, USB_DEVICE_ID_PANTHERLORD_TWIN_USB_JOYST=
+ICK, HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ USB_VENDOR_ID_PLAYDOTCOM, USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII, HID_Q=
+UIRK_MULTI_INPUT },
+=20
+@@ -90,29 +87,6 @@ static const struct hid_blacklist {
+=20
+ 	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_=
+QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+=20
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, HID_QUIRK_A=
+PPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO, HID_QUIRK_AP=
+PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_APPL=
+E_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_APPL=
+E_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_AP=
+PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI, HID_QUIRK_AP=
+PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI, HID_QUIRK_APPLE_=
+HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO, HID_QUIRK_APPLE_H=
+AS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS, HID_QUIRK_APPLE_H=
+AS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK=
+_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_=
+APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_=
+APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUI=
+RK_APPLE_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIR=
+K_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIR=
+K_APPLE_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIR=
+K_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK=
+_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-
+ 	{ USB_VENDOR_ID_DELL, USB_DEVICE_ID_DELL_W7658, HID_QUIRK_RESET_LEDS =
+},
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KBD, HID_QUIRK_RESET=
+_LEDS },
+=20
+@@ -132,8 +106,6 @@ static const struct hid_rdesc_blacklist {
+=20
+ 	{ USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E, HID_QUIRK_RDESC=
+_BUTTON_CONSUMER },
+=20
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_RDE=
+SC_MACBOOK_JIS },
+-
+ 	{ USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE, HID_Q=
+UIRK_RDESC_PETALYNX },
+=20
+ 	{ USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE, HID_QUIRK_R=
+DESC_SAMSUNG_REMOTE },
+@@ -474,18 +446,6 @@ static void usbhid_fixup_cypress_descriptor(unsign=
+ed char *rdesc, int rsize)
+ 		printk(KERN_INFO "Fixing up Cypress report descriptor\n");
+ }
+=20
+-/*
+- * MacBook JIS keyboard has wrong logical maximum
+- */
+-static void usbhid_fixup_macbook_descriptor(unsigned char *rdesc, int =
+rsize)
+-{
+-	if (rsize >=3D 60 && rdesc[53] =3D=3D 0x65
+-			&& rdesc[59] =3D=3D 0x65) {
+-		printk(KERN_INFO "Fixing up MacBook JIS keyboard report descriptor\n=
+");
+-		rdesc[53] =3D rdesc[59] =3D 0xe7;
+-	}
+-}
+-
+ static void usbhid_fixup_button_consumer_descriptor(unsigned char *rde=
+sc, int rsize)
+ {
+ 	if (rsize >=3D 30 && rdesc[29] =3D=3D 0x05
+@@ -528,9 +488,6 @@ static void __usbhid_fixup_report_descriptor(__u32 =
+quirks, char *rdesc, unsigned
+ 	if (quirks & HID_QUIRK_RDESC_PETALYNX)
+ 		usbhid_fixup_petalynx_descriptor(rdesc, rsize);
+=20
+-	if (quirks & HID_QUIRK_RDESC_MACBOOK_JIS)
+-		usbhid_fixup_macbook_descriptor(rdesc, rsize);
+-
+ 	if (quirks & HID_QUIRK_RDESC_BUTTON_CONSUMER)
+ 		usbhid_fixup_button_consumer_descriptor(rdesc, rsize);
+=20
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 0cbc747..550c9a3 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -267,11 +267,6 @@ struct hid_item {
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_7		0x00000080
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_5		0x00000100
+ #define HID_QUIRK_2WHEEL_MOUSE_HACK_ON		0x00000200
+-#define HID_QUIRK_MIGHTYMOUSE			0x00000400
+-#define HID_QUIRK_APPLE_HAS_FN			0x00000800
+-#define HID_QUIRK_APPLE_FN_ON			0x00001000
+-#define HID_QUIRK_INVERT_HWHEEL			0x00002000
+-#define HID_QUIRK_APPLE_ISO_KEYBOARD		0x00004000
+ #define HID_QUIRK_BAD_RELATIVE_KEYS		0x00008000
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		0x00010000
+ #define HID_QUIRK_IGNORE_MOUSE			0x00020000
+@@ -294,7 +289,6 @@ struct hid_item {
+ #define HID_QUIRK_RDESC_CYMOTION		0x00000001
+ #define HID_QUIRK_RDESC_SWAPPED_MIN_MAX		0x00000004
+ #define HID_QUIRK_RDESC_PETALYNX		0x00000008
+-#define HID_QUIRK_RDESC_MACBOOK_JIS		0x00000010
+ #define HID_QUIRK_RDESC_BUTTON_CONSUMER		0x00000020
+ #define HID_QUIRK_RDESC_SAMSUNG_REMOTE		0x00000040
+ #define HID_QUIRK_RDESC_MICROSOFT_RECV_1028	0x00000080
+@@ -481,10 +475,6 @@ struct hid_device {							/* device report descrip=
+tor */
+=20
+ 	/* handler for raw output data, used by hidraw */
+ 	int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t);
+-#ifdef CONFIG_USB_HIDINPUT_POWERBOOK
+-	unsigned long apple_pressed_fn[BITS_TO_LONGS(KEY_CNT)];
+-	unsigned long pb_pressed_numlock[BITS_TO_LONGS(KEY_CNT)];
+-#endif
+ };
+=20
+ static inline void *hid_get_drvdata(struct hid_device *hdev)
+@@ -648,7 +638,6 @@ int hid_input_report(struct hid_device *, int type,=
+ u8 *, int, int);
+ int hidinput_find_field(struct hid_device *hid, unsigned int type, uns=
+igned int code, struct hid_field **field);
+ int hidinput_mapping_quirks(struct hid_usage *, struct hid_input *, un=
+signed long **, int *);
+ int hidinput_event_quirks(struct hid_device *, struct hid_field *, str=
+uct hid_usage *, __s32);
+-int hidinput_apple_event(struct hid_device *, struct input_dev *, stru=
+ct hid_usage *, __s32);
+ void hid_output_report(struct hid_report *report, __u8 *data);
+ struct hid_device *hid_allocate_device(void);
+ int hid_parse_report(struct hid_device *hid, __u8 *start, unsigned siz=
+e);
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index b24a4d2..be3e17b 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -677,27 +677,6 @@ static void hidp_close(struct hid_device *hid)
+ {
+ }
+=20
+-static const struct {
+-	__u16 idVendor;
+-	__u16 idProduct;
+-	unsigned quirks;
+-} hidp_blacklist[] =3D {
+-	/* Apple wireless Mighty Mouse */
+-	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
+-
+-	{ }	/* Terminating entry */
+-};
+-
+-static void hidp_setup_quirks(struct hid_device *hid)
+-{
+-	unsigned int n;
+-
+-	for (n =3D 0; hidp_blacklist[n].idVendor; n++)
+-		if (hidp_blacklist[n].idVendor =3D=3D le16_to_cpu(hid->vendor) &&
+-				hidp_blacklist[n].idProduct =3D=3D le16_to_cpu(hid->product))
+-			hid->quirks =3D hidp_blacklist[n].quirks;
+-}
+-
+ static int hidp_parse(struct hid_device *hid)
+ {
+ 	struct hidp_session *session =3D hid->driver_data;
+@@ -723,7 +702,6 @@ static int hidp_parse(struct hid_device *hid)
+=20
+ 	session->req =3D NULL;
+=20
+-	hidp_setup_quirks(hid);
+ 	return 0;
+ }
+=20
+--=20
 1.5.4.4
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

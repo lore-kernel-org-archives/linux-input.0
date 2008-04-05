@@ -1,69 +1,40 @@
-From: Sam Liddicott <sam@liddicott.com>
-Subject: RE: multi-input quirk and skip output reports quirk
-Date: Sat, 5 Apr 2008 07:01:28 +0100
-Message-ID: <20080405055825.EA9F42FE066C@sam.liddicott.com>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: suspend
+Date: Sat, 5 Apr 2008 10:00:25 +0200
+Message-ID: <200804051000.26661.oliver@neukum.org>
+References: <200804032242.36493.oliver@neukum.org> <200804041336.32457.oliver@neukum.org> <e79639220804041540u3b0278cchff1d36b4cba5fc05@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sam.liddicott.com ([207.210.85.99]:57695 "EHLO
-	sam.liddicott.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750762AbYDEG2Q convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Apr 2008 02:28:16 -0400
-content-class: 
+Received: from smtp-out003.kontent.com ([81.88.40.217]:45443 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751141AbYDEIG5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Apr 2008 04:06:57 -0400
+In-Reply-To: <e79639220804041540u3b0278cchff1d36b4cba5fc05@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Stefan Schweizer <genstef@gentoo.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-I'm afraid I don't recognize that quirk name.
+Am Samstag, 5. April 2008 00:40:35 schrieb Stefan Schweizer:
+> On Fri, Apr 4, 2008 at 1:36 PM, Oliver Neukum <oliver@neukum.org> wrote:
+> > Am Freitag, 4. April 2008 11:20:51 schrieb Stefan Schweizer:
+> >
+> > > Yeah, I tested it with the combined patch. How can I test if
+> >  > autosuspend works? Seems to work fine so far but does not write in my
+> >  > logfile. No problems found when testing.
+> >
+> >  Please compile your kernel with CONFIG_PM_DEBUG and follow the
+> >  instructions in Documentation/usb. You should see something in the log.
+> 
+> there is still no information in dmesg when I use the device. Do I
+> need more debugging maybe?
 
-I'm all for setting quirks dynamically from user space during the plug event, as the delay between posting a patch and having it appear in distro of choice can be well over a year which is too long to remember and too long to be useful.
+Ok, please locate the directory for your touchpad in sysfs and post all
+files in the power subdirectory.
 
-I do remember that there were two quirks set for the same brand of dual controller and I copied them both to the quad controller. I was asked to check if both quirks were actually needed, I still haven't had the required couple of hours to rebuild my kernel to do this and it became simpler to use the quad controller as a single controller.
-
-I still feel guilty this but not guilty enough. Sorry.
-
-Sam
-
------Original Message-----
-From: Jiri Kosina <jkosina@suse.cz>
-Sent: 04 April 2008 15:51
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org; Sam Liddicott <sam@liddicott.com>
-Subject: Re: multi-input quirk and skip output reports quirk
-
-On Fri, 4 Apr 2008, Anssi Hannula wrote:
-
-> >>>> I've encountered another multi-input device that needs the skip output
-> >>>> reports quirk (as it contains force feedback output reports), 0925:8866.
-> >>>> However, maybe we should use another approach, dropping
-> >>>> HID_QUIRK_SKIP_OUTPUT_REPORTS. Why not just *not* register the input
-> >>>> device for that report in case the report didn't contain anything that
-> >>>> was mapped by hidinput_configure_usage(), in hidinput_connect()?
-> >>> as long as we still have the possibility to see the coming data in debug 
-> >>> mode, I don't have objection to that.
-> >> Okay.
-> >>> Are you going to make that patch?
-> >> Not right now, maybe in a few weeks.
-> > I will meanwhile queue the patch below, ok? After the hidinput_connect() 
-> > is refactored to ignore devices for which the mappings haven't been 
-> > established, we could then remove all the devices for which we have 
-> > HID_QUIRK_SKIP_OUTPUT_REPORTS altogether.
-> Ok.
-> > BTW, do you happen to have any idea whether the Quad joypad needs this 
-> > quirk too?
-> No, but I guess it is quite probable.
-
-I have added Sam (who reported the need of the quirk for Quad joypad) to 
-CC.
-
-Sam?
-
-Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
-
+	Regards
+		Oliver

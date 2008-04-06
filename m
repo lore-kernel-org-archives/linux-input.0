@@ -1,37 +1,41 @@
-From: su17171@freesurf.fr
-Subject: Dear Friend
-Date: Sat, 05 Apr 2008 22:35:10 +0200
-Message-ID: <20080405223510.65231h8jjfpzpvgg__18689.85158294$1207429449$gmane$org@webmail-html.freesurf.fr>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: multi-input quirk and skip output reports quirk
+Date: Sun, 6 Apr 2008 10:06:02 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0804061003490.26562@twin.jikos.cz>
+References: <47F21BA7.8030306@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fructidor.freesurf.fr ([212.43.206.30]:39821 "EHLO
-	smtp-out.freesurf.fr" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1753536AbYDEVC5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 5 Apr 2008 17:02:57 -0400
-Content-Disposition: inline
+Received: from twin.jikos.cz ([213.151.79.26]:46028 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751015AbYDFIGI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 6 Apr 2008 04:06:08 -0400
+In-Reply-To: <47F21BA7.8030306@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Dear Friend
+On Tue, 1 Apr 2008, Anssi Hannula wrote:
 
-I could not get connected to you on phone so I decided to send this  
-email to you.Presently, I am out of the country.Since, I could not  
-reach you before I travelled I lodged your money including the  
-interest with the correspondent Bank Cotonou-Benin, in respect of the  
-little assistance you rendered to me during the cost of transfering my  
-sum.
+> I've encountered another multi-input device that needs the skip output 
+> reports quirk (as it contains force feedback output reports), 0925:8866.
+> However, maybe we should use another approach, dropping
+> HID_QUIRK_SKIP_OUTPUT_REPORTS. Why not just *not* register the input
+> device for that report in case the report didn't contain anything that
+> was mapped by hidinput_configure_usage(), in hidinput_connect()?
 
-The Account Officer Name,Dr. Ken Ibru is informed on this contact him  
-to receive your fund. His email is:
-( ken55@sify.com )
+Oh, and I seem to have completely forgotten -- is this quirk needed at 
+all? Since commit 82eb12198 we ignore the non-LED output reports in 
+hidinput_configure_usages() altogether.
 
-Please I may not have time to respond your email, just contact Dr Ken  
-Ibru to release your payment.
-Best Regards,
-Dr.Andrew And Partners
+Do you still actually see issues of devices being misconfigured due to 
+output reports confusion in hidinput_configure_usage() even in kernels 
+having this commit included?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
 

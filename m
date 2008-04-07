@@ -1,45 +1,64 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: multi-input quirk and skip output reports quirk
-Date: Sun, 06 Apr 2008 17:12:40 +0300
-Message-ID: <47F8DA58.10705@gmail.com>
-References: <47F21BA7.8030306@gmail.com> <Pine.LNX.4.64.0804061003490.26562@twin.jikos.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input/Touchscreen Driver: add support AD7877
+	touchscreen driver
+Date: Mon, 7 Apr 2008 16:16:05 -0400
+Message-ID: <20080407161007.ZZRA012@mailhub.coreip.homeip.net>
+References: <1202980649-13309-1-git-send-email-bryan.wu@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from pne-smtpout4-sn2.hy.skanova.net ([81.228.8.154]:33936 "EHLO
-	pne-smtpout4-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751575AbYDFOMm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 6 Apr 2008 10:12:42 -0400
-In-Reply-To: <Pine.LNX.4.64.0804061003490.26562@twin.jikos.cz>
+Received: from wx-out-0506.google.com ([66.249.82.239]:1571 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752372AbYDGUQN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Apr 2008 16:16:13 -0400
+Received: by wx-out-0506.google.com with SMTP id h31so1589847wxd.4
+        for <linux-input@vger.kernel.org>; Mon, 07 Apr 2008 13:16:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1202980649-13309-1-git-send-email-bryan.wu@analog.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Bryan Wu <bryan.wu@analog.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>
 
-Jiri Kosina wrote:
-> On Tue, 1 Apr 2008, Anssi Hannula wrote:
-> 
->> I've encountered another multi-input device that needs the skip output 
->> reports quirk (as it contains force feedback output reports), 0925:8866.
->> However, maybe we should use another approach, dropping
->> HID_QUIRK_SKIP_OUTPUT_REPORTS. Why not just *not* register the input
->> device for that report in case the report didn't contain anything that
->> was mapped by hidinput_configure_usage(), in hidinput_connect()?
-> 
-> Oh, and I seem to have completely forgotten -- is this quirk needed at 
-> all? Since commit 82eb12198 we ignore the non-LED output reports in 
-> hidinput_configure_usages() altogether.
-> 
-> Do you still actually see issues of devices being misconfigured due to 
-> output reports confusion in hidinput_configure_usage() even in kernels 
-> having this commit included?
+Hi Bryan, Michael,
 
-Yes.
+On Thu, Feb 14, 2008 at 05:17:28PM +0800, Bryan Wu wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+> 
+> [try #3] Changlog (Add feedback from Dmitry Torokhov):
+>  - Change handling of spi_sync / spi_async return value handling
+>  - Remove depreciated dev->power.power_state
+>  - Fix error return path in ad7877_probe
+>  - delete pending kernel timer
+>  - Some minor cleanup (indention, use dev_err etc.)
 
-The point was that hidinput_connect() doesn't care whether all reports
-were ignored by hidinput_configure_usage() or not.
+Sorry for the long silence... I have a couple of comments at the moment
+but I am sure i will have more ;)
+
+> +
+> +	status = spi_sync(spi, &req->msg);
+> +
+> +	if (status == 0)
+> +		status = req->msg.status;
+> +
+> +	kfree(req);
+> +	return status ? status : req->sample;
+
+Use after free here.
+
+> +
+> +	ts->irq_disabled = 1;
+> +	disable_irq(spi->irq);
+
+I am a bit uneasy here... do we need to wait for an async spi completion
+here before proceeding? Overall I have some concerns about the
+irq/spi/removal/sysfs iteractions, I will need some more time to look
+through the driver.
+
+> +	status = spi_sync(spi, &req->msg);
+> +	ts->irq_disabled = 0;
+> +	enable_irq(spi->irq);
+> +
 
 -- 
-Anssi Hannula
+Dmitry

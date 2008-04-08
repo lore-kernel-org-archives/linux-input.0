@@ -1,53 +1,81 @@
-From: "Michael Gruber" <lists.mg@googlemail.com>
-Subject: [PATCH] xpad - Set buffer length for outgoing requests
-Date: Tue, 8 Apr 2008 13:05:27 +0200
-Message-ID: <74d457500804080405x50098dcfi6dfe965da2a962ef@mail.gmail.com>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [PATCH 1/1] Input/Touchscreen Driver: add support AD7877touchscreen driver
+Date: Tue, 8 Apr 2008 18:13:33 +0100
+Message-ID: <8A42379416420646B9BFAC9682273B6D56269C@limkexm3.ad.analog.com>
+References: <1202980649-13309-1-git-send-email-bryan.wu@analog.com> <20080407161007.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ti-out-0910.google.com ([209.85.142.186]:9700 "EHLO
-	ti-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751683AbYDHLFd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Apr 2008 07:05:33 -0400
-Received: by ti-out-0910.google.com with SMTP id 28so673731tif.23
-        for <linux-input@vger.kernel.org>; Tue, 08 Apr 2008 04:05:29 -0700 (PDT)
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756586AbYDHRNx@vger.kernel.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <20080407161007.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <bryan.wu@analog.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
 
-From: Michael Gruber <lists.mg@googlemail.com>
 
-The messages for led/rumble are exactly 3 and 8 bytes respectively.
-Hence set up the transfer_buffer_length accordingly.
 
-Signed-off-by: Michael Gruber <lists.mg@googlemail.com>
+>-----Original Message-----
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>Sent: Montag, 7. April 2008 22:16
+>To: Bryan Wu
+>Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Michael
+>Hennerich
+>Subject: Re: [PATCH 1/1] Input/Touchscreen Driver: add support
+>AD7877touchscreen driver
+>
+>Hi Bryan, Michael,
+>
+>On Thu, Feb 14, 2008 at 05:17:28PM +0800, Bryan Wu wrote:
+>> From: Michael Hennerich <michael.hennerich@analog.com>
+>>
+>> [try #3] Changlog (Add feedback from Dmitry Torokhov):
+>>  - Change handling of spi_sync / spi_async return value handling
+>>  - Remove depreciated dev->power.power_state
+>>  - Fix error return path in ad7877_probe
+>>  - delete pending kernel timer
+>>  - Some minor cleanup (indention, use dev_err etc.)
+>
+>Sorry for the long silence... I have a couple of comments at the moment
+>but I am sure i will have more ;)
+>
+>> +
+>> +	status = spi_sync(spi, &req->msg);
+>> +
+>> +	if (status == 0)
+>> +		status = req->msg.status;
+>> +
+>> +	kfree(req);
+>> +	return status ? status : req->sample;
+>
+>Use after free here.
 
----
+Yeah this is definitely broken. 
 
-Hi, my Xbox360 Controller will not work at all unless this is set up correctly.
-I am new to linux kernel programming and would appreciate any kinds of comments.
+>
+>> +
+>> +	ts->irq_disabled = 1;
+>> +	disable_irq(spi->irq);
+>
+>I am a bit uneasy here... do we need to wait for an async spi
+completion
+>here before proceeding? Overall I have some concerns about the
+>irq/spi/removal/sysfs iteractions, I will need some more time to look
+>through the driver.
 
- drivers/input/joystick/xpad.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/input/joystick/xpad.c	2008-04-05 15:18:37.000000000 +0200
-+++ b/drivers/input/joystick/xpad.c	2008-04-05 15:18:25.000000000 +0200
-@@ -558,6 +558,7 @@ static int xpad_play_effect(struct input
- 		xpad->odata[5] = 0x00;
- 		xpad->odata[6] = 0x00;
- 		xpad->odata[7] = 0x00;
-+		xpad->irq_out->transfer_buffer_length = 8;
- 		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
- 	}
+I think you are right - let me come up with a patch.
 
-@@ -594,6 +595,7 @@ static void xpad_send_led_command(struct
- 		xpad->odata[0] = 0x01;
- 		xpad->odata[1] = 0x03;
- 		xpad->odata[2] = command;
-+		xpad->irq_out->transfer_buffer_length = 3;
- 		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
- 		mutex_unlock(&xpad->odata_mutex);
- 	}
+Thanks and best regards,
+Michael
+
+>
+>> +	status = spi_sync(spi, &req->msg);
+>> +	ts->irq_disabled = 0;
+>> +	enable_irq(spi->irq);
+>> +
+>
+>--
+>Dmitry

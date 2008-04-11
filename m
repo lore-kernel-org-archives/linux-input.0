@@ -1,40 +1,20 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [RESEND patch 2.6.25-rc8] ads7846 vref support (ads7843)
-Date: Fri, 11 Apr 2008 01:15:25 -0700
-Message-ID: <200804110115.25647.david-b@pacbell.net>
-References: <200804110036.34408.david-b@pacbell.net>
+From: Marcus Better <marcus@better.se>
+Subject: Re: [Bug 10327] New: keyboard stops responding after "ifdown eth0"
+Date: Fri, 11 Apr 2008 13:12:01 +0200
+Message-ID: <47FF4781.3040506@better.se>
+References: <bug-10327-10286@http.bugzilla.kernel.org/>	<20080325143941.300d415f.akpm@linux-foundation.org>	<47E9721C.2000306@better.se>	<47E99258.3060005@s5r6.in-berlin.de>	<20080325171608.509f4ca7.akpm@linux-foundation.org>	<47EA152C.6000008@better.se> <20080326102931.484285f3.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp120.sbc.mail.sp1.yahoo.com ([69.147.64.93]:39881 "HELO
-	smtp120.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751301AbYDKIP1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Apr 2008 04:15:27 -0400
-In-Reply-To: <200804110036.34408.david-b@pacbell.net>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20080326102931.484285f3.akpm@linux-foundation.org>
+Sender: netdev-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: stefanr@s5r6.in-berlin.de, bugme-daemon@bugzilla.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, dtor@mail.ru, linux-input@atrey.karlin.mff.cuni.cz
 
-On Friday 11 April 2008, David Brownell wrote:
-> Updated since the version sent 5-January (evidently bounced from
-> list archives) ... to remove the warning fix that was merged (from
-> someone else) on 10-March.
-> 
-> MAINTAINERS says "linux-input@vger" but the only archives
-> I could find seems to say "@atrey.karlin.mff.cuni.cz"...
+Andrew Morton wrote:
+> I'd suggest running (and perhaps suitably modifying) this:
 
-I eventually found an @vger archive, but it seems to have no
-postings since February (unlike the @atrey one).  Those two
-lost patches certainly made it to that archive:
-
-  http://www.mail-archive.com/linux-input@vger.kernel.org/msg00086.html
-  http://www.mail-archive.com/linux-input@vger.kernel.org/msg00103.html
-
-It seems maybe the MAINTAINERS entry may be incorrect ...
-
-
+This doesn't seem to help, it freezes without printing anything, and 
+there is nothing in the logs either.

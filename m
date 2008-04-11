@@ -1,58 +1,64 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [RESEND patch 2.6.25-rc8] ads7846 vref support (ads7843)
-Date: Fri, 11 Apr 2008 08:28:30 -0700
-Message-ID: <200804110828.31244.david-b@pacbell.net>
-References: <200804110036.34408.david-b@pacbell.net> <200804110115.25647.david-b@pacbell.net> <20080411094738.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] xpad - Set buffer length for outgoing requests
+Date: Fri, 11 Apr 2008 11:34:17 -0400
+Message-ID: <20080411113140.ZZRA012@mailhub.coreip.homeip.net>
+References: <74d457500804080405x50098dcfi6dfe965da2a962ef@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp116.sbc.mail.sp1.yahoo.com ([69.147.64.89]:24888 "HELO
-	smtp116.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1759878AbYDKP2q (ORCPT
+Received: from rn-out-0910.google.com ([64.233.170.188]:18256 "EHLO
+	rn-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758556AbYDKPe0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Apr 2008 11:28:46 -0400
-In-Reply-To: <20080411094738.ZZRA012@mailhub.coreip.homeip.net>
+	Fri, 11 Apr 2008 11:34:26 -0400
+Received: by rn-out-0910.google.com with SMTP id e11so446931rng.17
+        for <linux-input@vger.kernel.org>; Fri, 11 Apr 2008 08:34:25 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <74d457500804080405x50098dcfi6dfe965da2a962ef@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+To: Michael Gruber <lists.mg@googlemail.com>, anssi.hannula@gmail.com
+Cc: linux-input@vger.kernel.org
 
-On Friday 11 April 2008, Dmitry Torokhov wrote:
-> On Fri, Apr 11, 2008 at 01:15:25AM -0700, David Brownell wrote:
-> > On Friday 11 April 2008, David Brownell wrote:
-> > > Updated since the version sent 5-January (evidently bounced from
-> > > list archives) ... to remove the warning fix that was merged (from
-> > > someone else) on 10-March.
-> > > 
+Hi Michael,
+
+On Tue, Apr 08, 2008 at 01:05:27PM +0200, Michael Gruber wrote:
+> From: Michael Gruber <lists.mg@googlemail.com>
 > 
-> Could you please check the following commit in my tree and make sure
-> it is the right one:
+> The messages for led/rumble are exactly 3 and 8 bytes respectively.
+> Hence set up the transfer_buffer_length accordingly.
 > 
-> http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commit;h=7c6d0ee14cb7a4cfad4864dc196256da5749bc0c
-
-Looks OK to me -- thanks!
-
-
-> > > MAINTAINERS says "linux-input@vger" but the only archives
-> > > I could find seems to say "@atrey.karlin.mff.cuni.cz"...
-> > 
-> > I eventually found an @vger archive, but it seems to have no
-> > postings since February (unlike the @atrey one).  Those two
-> > lost patches certainly made it to that archive:
-> > 
-> >   http://www.mail-archive.com/linux-input@vger.kernel.org/msg00086.html
-> >   http://www.mail-archive.com/linux-input@vger.kernel.org/msg00103.html
-> > 
-> > It seems maybe the MAINTAINERS entry may be incorrect ...
+> Signed-off-by: Michael Gruber <lists.mg@googlemail.com>
 > 
-> @vger is the correct only, we are migrating from @atrey due to heavy
-> spam issues.
 
-Are there better archives for that list?  Like, ones which
-include March and April?  I tried marc.info first, and it
-had nothing...
+Thank you for the patch, it seems reasonable. Anssi, any objections?
 
-- Dave
+> ---
+> 
+> Hi, my Xbox360 Controller will not work at all unless this is set up correctly.
+> I am new to linux kernel programming and would appreciate any kinds of comments.
+> 
+>  drivers/input/joystick/xpad.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> --- a/drivers/input/joystick/xpad.c	2008-04-05 15:18:37.000000000 +0200
+> +++ b/drivers/input/joystick/xpad.c	2008-04-05 15:18:25.000000000 +0200
+> @@ -558,6 +558,7 @@ static int xpad_play_effect(struct input
+>  		xpad->odata[5] = 0x00;
+>  		xpad->odata[6] = 0x00;
+>  		xpad->odata[7] = 0x00;
+> +		xpad->irq_out->transfer_buffer_length = 8;
+>  		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+>  	}
+> 
+> @@ -594,6 +595,7 @@ static void xpad_send_led_command(struct
+>  		xpad->odata[0] = 0x01;
+>  		xpad->odata[1] = 0x03;
+>  		xpad->odata[2] = command;
+> +		xpad->irq_out->transfer_buffer_length = 3;
+>  		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+>  		mutex_unlock(&xpad->odata_mutex);
+>  	}
+
+-- 
+Dmitry

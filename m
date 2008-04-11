@@ -1,51 +1,50 @@
 From: David Brownell <david-b@pacbell.net>
-Subject: [RESEND patch 2.6.25-rc8] gpio_keys irq handling
-Date: Fri, 11 Apr 2008 00:35:55 -0700
-Message-ID: <200804110035.55510.david-b@pacbell.net>
+Subject: [patch 2.6.25-rc8] omap-keypad: fix build warning
+Date: Fri, 11 Apr 2008 01:09:18 -0700
+Message-ID: <200804110109.19349.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp118.sbc.mail.sp1.yahoo.com ([69.147.64.91]:26397 "HELO
+Received: from smtp118.sbc.mail.sp1.yahoo.com ([69.147.64.91]:28791 "HELO
 	smtp118.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1757495AbYDKHpX (ORCPT
+	by vger.kernel.org with SMTP id S1750743AbYDKIJV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Apr 2008 03:45:23 -0400
+	Fri, 11 Apr 2008 04:09:21 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
-Cc: Jiri Kosina <jkosina@suse.cz>, Phil Blundell <pb@handhelds.org>
+To: Dmitry Torokhov <dtor@mail.ru>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
 
 From: David Brownell <dbrownell@users.sourceforge.net>
 
-Cleanup IRQ handling in gpio_keys:  bail after handling the IRQ, and
-report IRQ_NONE if we never handle it.
+Build fixes:
+
+drivers/input/keyboard/omap-keypad.c: In function 'omap_kp_probe':
+drivers/input/keyboard/omap-keypad.c:418: warning: 'row_idx' is used uninitialized in this function
+drivers/input/keyboard/omap-keypad.c:421: warning: 'col_idx' is used uninitialized in this function
+
+These variables are useful when cpu_is_omap24xx(), and otherwise just
+for useless cleanup.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Phil Blundell <pb@handhelds.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 ---
-No functional changes since the version sent 27-Dec-2007.
-MAINTAINERS says "linux-input@vger" but the only archives
-I could find seems to say "@atrey.karlin.mff.cuni.cz"...
+This has been in the OMAP tree since 24-Feb.
 
- drivers/input/keyboard/gpio_keys.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/keyboard/omap-keypad.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
---- g26.orig/drivers/input/keyboard/gpio_keys.c	2008-04-10 19:39:15.000000000 -0700
-+++ g26/drivers/input/keyboard/gpio_keys.c	2008-04-11 00:30:45.000000000 -0700
-@@ -43,10 +43,11 @@ static irqreturn_t gpio_keys_isr(int irq
- 
- 			input_event(input, type, button->code, !!state);
- 			input_sync(input);
-+			return IRQ_HANDLED;
+--- a/drivers/input/keyboard/omap-keypad.c	2008-02-24 18:50:32.000000000 -0800
++++ b/drivers/input/keyboard/omap-keypad.c	2008-02-24 19:10:17.000000000 -0800
+@@ -352,6 +352,9 @@ static int __init omap_kp_probe(struct p
+ 			}
+ 			omap_set_gpio_direction(row_gpios[row_idx], 1);
  		}
++	} else {
++		col_idx = 0;
++		row_idx = 0;
  	}
  
--	return IRQ_HANDLED;
-+	return IRQ_NONE;
- }
- 
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	setup_timer(&omap_kp->timer, omap_kp_timer, (unsigned long)omap_kp);

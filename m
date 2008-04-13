@@ -1,46 +1,172 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: rfkill-input understanding help
-Date: Sun, 13 Apr 2008 12:23:12 +0100
-Message-ID: <200804131223.13417.carlos@strangeworlds.co.uk>
-References: <200712110333.40946.carlos@strangeworlds.co.uk> <200801220055.39044.carlos@strangeworlds.co.uk> <200804121821.32519.carlos@strangeworlds.co.uk>
+From: "Ping Cheng" <pingc@wacom.com>
+Subject: Re: [patch]suspend and autosuspend for wacom devices
+Date: Sun, 13 Apr 2008 11:04:21 -0700
+Message-ID: <6753EB6004AFF34FAA275742C104F95271BC05@wacom-nt10.wacom.com>
+References: <200804111658.46522.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from phoenix.slamd64.com ([217.10.145.2]:58958 "EHLO
-	phoenix.slamd64.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755203AbYDMLXT (ORCPT
+Received: from wacom-nt10.wacom.com ([204.119.25.43]:34605 "EHLO
+	wacom-nt10.wacom.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755065AbYDMSR4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Apr 2008 07:23:19 -0400
-In-Reply-To: <200804121821.32519.carlos@strangeworlds.co.uk>
-Content-Disposition: inline
+	Sun, 13 Apr 2008 14:17:56 -0400
+In-Reply-To: <200804111658.46522.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ivo van Doorn <ivdoorn@gmail.com>, linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, USB list <linux-usb@vger.kernel.org>
 
-On Saturday 12 April 2008 18:21:31 Carlos Corbacho wrote:
-> Any thoughts at all on how to diagnose why rfkill-input is not able to find
-> a device to attach to the first time it loads (or more specifically, why
-> input_match_device() fails to return a match the first time around),
-> because I'm still scratching my head on this four months later...
+From: Oliver Neukum <oneukum@suse.de>
 
-I think I've found the problem here.
+This implements suspend and autosuspend support for wacom devices.
+It works by using the usb last busy functionality triggered in the
+completion
+callback.
 
-rfkill-input isn't being attached to a device because it's looking for 
-KEY_WLAN. The problem is that at boot time, I don't have a KEY_WLAN - the key 
-isn't mapped until HAL & hal-info kick in much later.
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
 
-I've tested this by blacklisting rfkill-input, waiting until HAL has loaded 
-and run setkeycodes, and then loaded rfkill-input, which then works properly 
-first time round.
+---
 
-Unfortunately, that's only a workaround, not a real solution, so we're going 
-to need a better way of handling this case.
-
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+--- linux-2.6.25-rc7-vanilla/drivers/input/tablet/wacom_sys.c
+2008-03-31 15:20:58.000000000 +0200
++++ linux-2.6.25-rc7-work/drivers/input/tablet/wacom_sys.c
+2008-04-11 15:04:18.000000000 +0200
+@@ -70,6 +70,7 @@ static void wacom_sys_irq(struct urb *ur
+ 		input_sync(get_input_dev(&wcombo));
+ 
+  exit:
++	usb_mark_last_busy(wacom->usbdev);
+ 	retval = usb_submit_urb (urb, GFP_ATOMIC);
+ 	if (retval)
+ 		err ("%s - usb_submit_urb failed with result %d",
+@@ -124,10 +125,22 @@ static int wacom_open(struct input_dev *
+ {
+ 	struct wacom *wacom = input_get_drvdata(dev);
+ 
++	mutex_lock(&wacom->lock);
+ 	wacom->irq->dev = wacom->usbdev;
+-	if (usb_submit_urb(wacom->irq, GFP_KERNEL))
++
++	if (usb_autopm_get_interface(wacom->intf) < 0) {
++		mutex_unlock(&wacom->lock);
++		return -EIO;
++	}
++	if (usb_submit_urb(wacom->irq, GFP_KERNEL)) {
++		usb_autopm_put_interface(wacom->intf);
++		mutex_unlock(&wacom->lock);
+ 		return -EIO;
++	}
++	wacom->open = 1;
++	wacom->intf->needs_remote_wakeup = 1;
+ 
++	mutex_unlock(&wacom->lock);
+ 	return 0;
+ }
+ 
+@@ -135,7 +148,11 @@ static void wacom_close(struct input_dev
+ {
+ 	struct wacom *wacom = input_get_drvdata(dev);
+ 
++	mutex_lock(&wacom->lock);
+ 	usb_kill_urb(wacom->irq);
++	wacom->open = 0;
++	wacom->intf->needs_remote_wakeup = 0;
++	mutex_unlock(&wacom->lock);
+ }
+ 
+ void input_dev_mo(struct input_dev *input_dev, struct wacom_wac
+*wacom_wac)
+@@ -243,6 +260,8 @@ static int wacom_probe(struct usb_interf
+ 
+ 	wacom->usbdev = dev;
+ 	wacom->dev = input_dev;
++	wacom->intf = intf;
++	mutex_init(&wacom->lock);
+ 	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+ 	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
+ 
+@@ -307,20 +326,54 @@ static void wacom_disconnect(struct usb_
+ 	struct wacom *wacom = usb_get_intfdata (intf);
+ 
+ 	usb_set_intfdata(intf, NULL);
+-	if (wacom) {
+-		usb_kill_urb(wacom->irq);
+-		input_unregister_device(wacom->dev);
+-		usb_free_urb(wacom->irq);
+-		usb_buffer_free(interface_to_usbdev(intf), 10,
+wacom->wacom_wac->data, wacom->data_dma);
+-		kfree(wacom->wacom_wac);
+-		kfree(wacom);
+-	}
++
++	usb_kill_urb(wacom->irq);
++	input_unregister_device(wacom->dev);
++	usb_free_urb(wacom->irq);
++	usb_buffer_free(interface_to_usbdev(intf), 10,
+wacom->wacom_wac->data, wacom->data_dma);
++	kfree(wacom->wacom_wac);
++	kfree(wacom);
++}
++
++static int wacom_suspend(struct usb_interface *intf, pm_message_t
+message)
++{
++	struct wacom *wacom = usb_get_intfdata (intf);
++
++	mutex_lock(&wacom->lock);
++	usb_kill_urb(wacom->irq);
++	mutex_unlock(&wacom->lock);
++
++	return 0;
++}
++
++static int wacom_resume(struct usb_interface *intf)
++{
++	struct wacom *wacom = usb_get_intfdata (intf);
++	int rv;
++
++	mutex_lock(&wacom->lock);
++	if (wacom->open)
++		rv = usb_submit_urb(wacom->irq, GFP_NOIO);
++	else
++		rv = 0;
++	mutex_unlock(&wacom->lock);
++
++	return rv;
++}
++
++static int wacom_reset_resume(struct usb_interface *intf)
++{
++	return wacom_resume(intf);
+ }
+ 
+ static struct usb_driver wacom_driver = {
+ 	.name =		"wacom",
+ 	.probe =	wacom_probe,
+ 	.disconnect =	wacom_disconnect,
++	.suspend =	wacom_suspend,
++	.resume =	wacom_resume,
++	.reset_resume =	wacom_reset_resume,
++	.supports_autosuspend = 1,
+ };
+ 
+ static int __init wacom_init(void)
+--- linux-2.6.25-rc7-vanilla/drivers/input/tablet/wacom.h
+2008-03-31 15:20:58.000000000 +0200
++++ linux-2.6.25-rc7-work/drivers/input/tablet/wacom.h	2008-04-11
+13:19:50.000000000 +0200
+@@ -101,8 +101,11 @@ struct wacom {
+ 	dma_addr_t data_dma;
+ 	struct input_dev *dev;
+ 	struct usb_device *usbdev;
++	struct usb_interface *intf;
+ 	struct urb *irq;
+ 	struct wacom_wac * wacom_wac;
++	struct mutex lock;
++	int open:1;
+ 	char phys[32];
+ };
+ 

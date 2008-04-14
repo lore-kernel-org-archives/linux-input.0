@@ -1,42 +1,51 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/3] wm97xx-core: Only schedule interrupt handler if
-	not already scheduled
-Date: Mon, 14 Apr 2008 14:10:02 -0400
-Message-ID: <20080414140832.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080414173841.GA2213@rakim.wolfsonmicro.main> <1208194775-4293-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: rfkill-input understanding help
+Date: Mon, 14 Apr 2008 14:12:28 -0400
+Message-ID: <20080414141054.ZZRA012@mailhub.coreip.homeip.net>
+References: <200712110333.40946.carlos@strangeworlds.co.uk> <200801220055.39044.carlos@strangeworlds.co.uk> <200804121821.32519.carlos@strangeworlds.co.uk> <200804131223.13417.carlos@strangeworlds.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ug-out-1314.google.com ([66.249.92.171]:18231 "EHLO
+Received: from ug-out-1314.google.com ([66.249.92.172]:22472 "EHLO
 	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759445AbYDNSKR (ORCPT
+	with ESMTP id S1757426AbYDNSMf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2008 14:10:17 -0400
-Received: by ug-out-1314.google.com with SMTP id z38so513797ugc.16
-        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2008 11:10:12 -0700 (PDT)
+	Mon, 14 Apr 2008 14:12:35 -0400
+Received: by ug-out-1314.google.com with SMTP id z38so514336ugc.16
+        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2008 11:12:33 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1208194775-4293-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <200804131223.13417.carlos@strangeworlds.co.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Cc: Ivo van Doorn <ivdoorn@gmail.com>, linux-input@vger.kernel.org
 
-Hi Mark,
+Hi Carols,
 
-On Mon, Apr 14, 2008 at 06:39:33PM +0100, Mark Brown wrote:
->  static irqreturn_t wm97xx_pen_interrupt(int irq, void *dev_id)
->  {
->  	struct wm97xx *wm = dev_id;
->  
-> -	wm->mach_ops->irq_enable(wm, 0);
-> -	queue_work(wm->ts_workq, &wm->pen_event_work);
-> +	if (!work_pending(&wm->pen_event_work)) {
-> +		wm->mach_ops->irq_enable(wm, 0);
-> +		queue_work(wm->ts_workq, &wm->pen_event_work);
-> +	}
+On Sun, Apr 13, 2008 at 12:23:12PM +0100, Carlos Corbacho wrote:
+> On Saturday 12 April 2008 18:21:31 Carlos Corbacho wrote:
+> > Any thoughts at all on how to diagnose why rfkill-input is not able to find
+> > a device to attach to the first time it loads (or more specifically, why
+> > input_match_device() fails to return a match the first time around),
+> > because I'm still scratching my head on this four months later...
+> 
+> I think I've found the problem here.
+> 
+> rfkill-input isn't being attached to a device because it's looking for 
+> KEY_WLAN. The problem is that at boot time, I don't have a KEY_WLAN - the key 
+> isn't mapped until HAL & hal-info kick in much later.
+> 
+> I've tested this by blacklisting rfkill-input, waiting until HAL has loaded 
+> and run setkeycodes, and then loaded rfkill-input, which then works properly 
+> first time round.
+> 
+> Unfortunately, that's only a workaround, not a real solution, so we're going 
+> to need a better way of handling this case.
+> 
 
-Given the fact that work will not be queued if it is pending anyway
-why is this change needed?
+Yes, setting KEY_X later, after registering input device will not
+cause device/handler rescanning. We'll have to do something about
+it now that we recommend using HAL to update keymaps properly.
 
 -- 
 Dmitry

@@ -1,114 +1,99 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: [2.6 patch] drivers/input/: #if 0 unused functions
-Date: Mon, 14 Apr 2008 21:41:37 +0300
-Message-ID: <20080414184137.GU6695@cs181133002.pp.htv.fi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/3] wm97xx-core: Support use as a wakeup source
+Date: Mon, 14 Apr 2008 16:34:13 -0400
+Message-ID: <20080414163033.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080414173841.GA2213@rakim.wolfsonmicro.main> <1208194775-4293-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1208194775-4293-2-git-send-email-broonie@opensource.wolfsonmicro.com> <1208194775-4293-3-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp4.pp.htv.fi ([213.243.153.38]:51117 "EHLO smtp4.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S934263AbYDNSmn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Apr 2008 14:42:43 -0400
+Received: from yw-out-2324.google.com ([74.125.46.30]:29396 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752003AbYDNUeW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Apr 2008 16:34:22 -0400
+Received: by yw-out-2324.google.com with SMTP id 5so786144ywb.1
+        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2008 13:34:17 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <1208194775-4293-3-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>
 
-This patch #if 0's the following unused functions:
-- gameport/gameport.c:gameport_reconnect()
-- gameport/gameport.c:gameport_rescan()
-- serio/libps2.c:ps2_execute_scheduled_command()
-- serio/libps2.c:ps2_schedule_command()
+Hi Mark,
 
-Signed-off-by: Adrian Bunk <bunk@kernel.org>
+On Mon, Apr 14, 2008 at 06:39:35PM +0100, Mark Brown wrote:
+> The PENDOWN signal from the WM97xx touch screen controllers can be used
+> to generate a wakeup event when the system is suspended. Provide a new
+> machine configuration option 'suspend_mode' allowing machine drivers to
+> enable this. If no suspend_mode is provided then the touch panel will be
+> powered down when the system is suspended.
+> 
 
----
+Hmm, another unique module option... How about using device_can_wakeup()
+infrastructure that we already have. I'm adding David Brownell to CC since
+I believe he's doing a lot of similar work.
 
-This patch has been sent on:
-- 31 Mar 2008
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> ---
+>  drivers/input/touchscreen/wm97xx-core.c |   22 ++++++++++++++++++++++
+>  include/linux/wm97xx.h                  |    3 +++
+>  2 files changed, 25 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+> index fec07c2..e1a1ca0 100644
+> --- a/drivers/input/touchscreen/wm97xx-core.c
+> +++ b/drivers/input/touchscreen/wm97xx-core.c
+> @@ -689,10 +689,32 @@ static int wm97xx_remove(struct device *dev)
+>  static int wm97xx_suspend(struct device *dev, pm_message_t state)
+>  {
+>  	struct wm97xx *wm = dev_get_drvdata(dev);
+> +	u16 reg;
+> +	int suspend_mode;
+> +
+> +	if (wm->mach_ops)
+> +		suspend_mode = wm->mach_ops->suspend_mode;
+> +	else
+> +		suspend_mode = 0;
+>  
+>  	if (wm->input_dev->users)
+>  		cancel_delayed_work_sync(&wm->ts_reader);
+>  
+> +	/* Power down the digitiser (bypassing the cache for resume) */
+> +	reg = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER2);
+> +	reg &= ~WM97XX_PRP_DET_DIG;
+> +	if (wm->input_dev->users && suspend_mode)
+> +		reg |= suspend_mode;
+> +	wm->ac97->bus->ops->write(wm->ac97, AC97_WM97XX_DIGITISER2, reg);
+> +
+> +	/* WM9713 has an additional power bit - turn it off if there
+> +	 * are no users or if suspend mode is zero. */
+> +	if (wm->id == WM9713_ID2 &&
+> +	    (!wm->input_dev->users || !suspend_mode)) {
+> +		reg = wm97xx_reg_read(wm, AC97_EXTENDED_MID) | 0x8000;
+> +		wm97xx_reg_write(wm, AC97_EXTENDED_MID, reg);
+> +	}
+> +
+>  	return 0;
+>  }
+>  
+> diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
+> index ed01c7d..2082833 100644
+> --- a/include/linux/wm97xx.h
+> +++ b/include/linux/wm97xx.h
+> @@ -258,6 +258,9 @@ struct wm97xx_mach_ops {
+>  	/* pre and post sample - can be used to minimise any analog noise */
+>  	void (*pre_sample) (int);  /* function to run before sampling */
+>  	void (*post_sample) (int);  /* function to run after sampling */
+> +
+> +	/* WM97XX_PRP value to configure while system is suspended */
+> +	u16 suspend_mode;
+>  };
+>  
+>  struct wm97xx {
+> -- 
+> 1.5.5
+> 
 
- drivers/input/gameport/gameport.c |    5 ++++-
- drivers/input/serio/libps2.c      |    4 ++++
- include/linux/gameport.h          |    1 -
- include/linux/libps2.h            |    1 -
- 4 files changed, 8 insertions(+), 3 deletions(-)
-
-0df226574e0cd37388380469589f9348e334a7a3 diff --git a/drivers/input/gameport/gameport.c b/drivers/input/gameport/gameport.c
-index c5600ac..a6f2552 100644
---- a/drivers/input/gameport/gameport.c
-+++ b/drivers/input/gameport/gameport.c
-@@ -36,7 +36,6 @@ EXPORT_SYMBOL(__gameport_register_driver);
- EXPORT_SYMBOL(gameport_unregister_driver);
- EXPORT_SYMBOL(gameport_open);
- EXPORT_SYMBOL(gameport_close);
--EXPORT_SYMBOL(gameport_rescan);
- EXPORT_SYMBOL(gameport_set_phys);
- EXPORT_SYMBOL(gameport_start_polling);
- EXPORT_SYMBOL(gameport_stop_polling);
-@@ -651,6 +650,8 @@ static void gameport_disconnect_port(struct gameport *gameport)
- 	device_release_driver(&gameport->dev);
- }
- 
-+#if 0
-+
- void gameport_rescan(struct gameport *gameport)
- {
- 	gameport_queue_event(gameport, NULL, GAMEPORT_RESCAN);
-@@ -661,6 +662,8 @@ void gameport_reconnect(struct gameport *gameport)
- 	gameport_queue_event(gameport, NULL, GAMEPORT_RECONNECT);
- }
- 
-+#endif  /*  0  */
-+
- /*
-  * Submits register request to kgameportd for subsequent execution.
-  * Note that port registration is always asynchronous.
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index b819239..5a8347c 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -245,6 +245,8 @@ int ps2_command(struct ps2dev *ps2dev, unsigned char *param, int command)
- }
- EXPORT_SYMBOL(ps2_command);
- 
-+#if 0
-+
- /*
-  * ps2_execute_scheduled_command() sends a command, previously scheduled by
-  * ps2_schedule_command(), to a PS/2 device (keyboard, mouse, etc.)
-@@ -288,6 +290,8 @@ int ps2_schedule_command(struct ps2dev *ps2dev, unsigned char *param, int comman
- }
- EXPORT_SYMBOL(ps2_schedule_command);
- 
-+#endif  /*  0  */
-+
- /*
-  * ps2_init() initializes ps2dev structure
-  */
-diff --git a/include/linux/gameport.h b/include/linux/gameport.h
-index afad952..f64e29c 100644
---- a/include/linux/gameport.h
-+++ b/include/linux/gameport.h
-@@ -68,7 +68,6 @@ struct gameport_driver {
- 
- int gameport_open(struct gameport *gameport, struct gameport_driver *drv, int mode);
- void gameport_close(struct gameport *gameport);
--void gameport_rescan(struct gameport *gameport);
- 
- #if defined(CONFIG_GAMEPORT) || (defined(MODULE) && defined(CONFIG_GAMEPORT_MODULE))
- 
-diff --git a/include/linux/libps2.h b/include/linux/libps2.h
-index f6f301e..afc4133 100644
---- a/include/linux/libps2.h
-+++ b/include/linux/libps2.h
-@@ -43,7 +43,6 @@ void ps2_init(struct ps2dev *ps2dev, struct serio *serio);
- int ps2_sendbyte(struct ps2dev *ps2dev, unsigned char byte, int timeout);
- void ps2_drain(struct ps2dev *ps2dev, int maxbytes, int timeout);
- int ps2_command(struct ps2dev *ps2dev, unsigned char *param, int command);
--int ps2_schedule_command(struct ps2dev *ps2dev, unsigned char *param, int command);
- int ps2_handle_ack(struct ps2dev *ps2dev, unsigned char data);
- int ps2_handle_response(struct ps2dev *ps2dev, unsigned char data);
- void ps2_cmd_aborted(struct ps2dev *ps2dev);
-
-
+-- 
+Dmitry

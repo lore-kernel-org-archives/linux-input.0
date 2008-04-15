@@ -1,30 +1,38 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/3] wm97xx-core: Only schedule interrupt handler if not already scheduled
-Date: Tue, 15 Apr 2008 15:42:50 +0100
-Message-ID: <20080415144250.GB5203@sirena.org.uk>
-References: <20080414173841.GA2213@rakim.wolfsonmicro.main> <1208194775-4293-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080414140832.ZZRA012@mailhub.coreip.homeip.net> <20080415084819.GA24498@rakim.wolfsonmicro.main> <20080415085946.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [RESEND patch 2.6.25-rc8] ads7846 vref support (ads7843)
+Date: Tue, 15 Apr 2008 14:56:46 -0400
+Message-ID: <20080415145523.ZZRA012@mailhub.coreip.homeip.net>
+References: <200804110036.34408.david-b@pacbell.net> <200804110115.25647.david-b@pacbell.net> <20080411094738.ZZRA012@mailhub.coreip.homeip.net> <200804110828.31244.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1764993AbYDOOnT@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wa-out-1112.google.com ([209.85.146.176]:35188 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752421AbYDOS4u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 15 Apr 2008 14:56:50 -0400
+Received: by wa-out-1112.google.com with SMTP id m16so3325752waf.23
+        for <linux-input@vger.kernel.org>; Tue, 15 Apr 2008 11:56:49 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080415085946.ZZRA012@mailhub.coreip.homeip.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <200804110828.31244.david-b@pacbell.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>, Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, Apr 15, 2008 at 09:02:35AM -0400, Dmitry Torokhov wrote:
-> On Tue, Apr 15, 2008 at 09:48:19AM +0100, Mark Brown wrote:
+On Fri, Apr 11, 2008 at 08:28:30AM -0700, David Brownell wrote:
+> On Friday 11 April 2008, Dmitry Torokhov wrote:
+> > 
+> > @vger is the correct only, we are migrating from @atrey due to heavy
+> > spam issues.
+> 
+> Are there better archives for that list?  Like, ones which
+> include March and April?  I tried marc.info first, and it
+> had nothing...
+> 
 
-> > As well as not queuing the work it ensures that the calls to
-> > irq_enable() are balanced which helps with implementing that operation.
+Hmm, not sure. Anssi, do you know if anyone carries decent argive for
+linux-input@vger?
 
-> Hmm... another question then - what would fire up wm97xx_pen_interrupt()
-> again, before wm97xx_pen_irq_worker had a chance to run, if the very
-> first thing we do after getting interrupt is irq_enable(wm, 0)?
-
-Normally nothing - in most systems the interrupt will not be shared
-and/or the board irq_enable() operation will completely disable the IRQ
-line.  The main use case would be if the interrupt is shared and the
-board irq_enable() operation doesn't affect other sources, though boards
-may also decide that they can do without disabling the interrupt.
+-- 
+Dmitry

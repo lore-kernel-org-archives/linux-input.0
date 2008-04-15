@@ -1,48 +1,28 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] xpad - Set buffer length for outgoing requests
-Date: Tue, 15 Apr 2008 01:39:00 -0400
-Message-ID: <20080415053900.GD24870@anvil.corenet.prv>
-References: <74d457500804080405x50098dcfi6dfe965da2a962ef@mail.gmail.com> <20080411113140.ZZRA012@mailhub.coreip.homeip.net> <48005344.2010700@gmail.com>
+From: "=?BIG5?B?pEK2rrlh?=" <q59s3zp208m@gmail.com>
+Subject: =?BIG5?B?snumYrX5pVW0TrBlMSwwMDDCSbX5pVU=?= =?BIG5?B?qvcorNu37anzpXi59CQxLDAwMLPhKQ==?=
+Date: Tue, 15 Apr 2008 14:28:33 +0800
+Message-ID: <212d1a8f0804142328s5290dfc5pc071acf16b67c78c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=BIG5
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.251]:5548 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753783AbYDOFjH (ORCPT
+Received: from qb-out-0506.google.com ([72.14.204.225]:3901 "EHLO
+	qb-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751932AbYDOG2f (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Apr 2008 01:39:07 -0400
-Received: by an-out-0708.google.com with SMTP id d31so500468and.103
-        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2008 22:39:05 -0700 (PDT)
+	Tue, 15 Apr 2008 02:28:35 -0400
+Received: by qb-out-0506.google.com with SMTP id o24so1540739qba.1
+        for <linux-input@vger.kernel.org>; Mon, 14 Apr 2008 23:28:34 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <48005344.2010700@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Michael Gruber <lists.mg@googlemail.com>, linux-input@vger.kernel.org
+To: linn@tantalum.com.tw
 
-On Sat, Apr 12, 2008 at 09:14:28AM +0300, Anssi Hannula wrote:
-> Dmitry Torokhov wrote:
-> > Hi Michael,
-> > 
-> > On Tue, Apr 08, 2008 at 01:05:27PM +0200, Michael Gruber wrote:
-> >> From: Michael Gruber <lists.mg@googlemail.com>
-> >>
-> >> The messages for led/rumble are exactly 3 and 8 bytes respectively.
-> >> Hence set up the transfer_buffer_length accordingly.
-> >>
-> >> Signed-off-by: Michael Gruber <lists.mg@googlemail.com>
-> >>
-> > 
-> > Thank you for the patch, it seems reasonable. Anssi, any objections?
-> 
-> Seems ok, though I'm not a urb expert.
-> 
-> Acked-by: Anssi Hannula <anssi.hannula@gmail.com>
-> 
-
-We do the similar manipulations in other drivers...
-
-Applied, thank you Michael.
-
--- 
-Dmitry
+oeE/ofWh7qG7ofeh4aH1Cgqh0VNBTa7Vtum69Lj0pEek4q7RqbEtxXeq76dBqNO0TcRfodEKCmh0
+dHA6Ly90dy53cnMueWFob28uY29tL195bHQ9QTh0VXpLZElKQVJJWnBrQTdDaHIxZ3QuO195bHU9
+WDNvRE1URXhiemR6Tm1KdkJITmxZd056Y2dSd2IzTURNUVJqYjJ4dkEzUndZd1IyZEdsa0F3Unhk
+QU5rY1EtLS9TSUc9MTFiOGY1cnBhL0VYUD0xMjA4MzE3Mzg0LyoqaHR0cCUzQS8vYm9vay5zYW0u
+Y29tLnR3LwoKs2+sT6RArdOnuaX+p0u2T7Z9qfGquqRHpOKu0bZSvealraV4CrJ7pmK1+aVVwdmw
+ZTEsMDAwwkm1+aVVqvcorNu37anzpXi59CQxLDAwMLPhKQoKprOu0a1upViyTaq6xXeq71BPpFeo
+073mp2FeLl4KCrfttU23UbZSrtGquqRIpF3Fd6rvpFeo07RNxF+q/F5eCgqmcKpHs3Oko6RXuvSn
+faZis2+hR6FAYm9vay5zYW0uY29tLnR3Cgqh0aHuP6Hwoe+h86H0ofAK

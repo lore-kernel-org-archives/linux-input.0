@@ -1,66 +1,64 @@
-From: Tobias Mueller <dmitry.torokhov@gmail.com>
-Subject: [PATCH 09/37] Input: appletouch - add product IDs for the 4th generation MacBooks
-Date: Wed, 2 Apr 2008 10:02:06 -0400
-Message-ID: <f23c1d7579211c801494c7a8d6fca12905f7949f.1208783694.git.dmitry.torokhov@gmail.com>
+From: David Brownell <dmitry.torokhov@gmail.com>
+Subject: [PATCH 24/37] Input: omap-keypad - fix build warning
+Date: Tue, 15 Apr 2008 01:31:33 -0400
+Message-ID: <da3e4c885e5ebbccc8181f53d8ae74c4c22d506f.1208783694.git.dmitry.torokhov@gmail.com>
 References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rn-out-0910.google.com ([64.233.170.189]:35324 "EHLO
-	rn-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759954AbYDUNTF (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.179]:9129 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759874AbYDUNS6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:19:05 -0400
-Received: by rn-out-0910.google.com with SMTP id e11so303938rng.17
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:05 -0700 (PDT)
+	Mon, 21 Apr 2008 09:18:58 -0400
+Received: by wa-out-1112.google.com with SMTP id m16so3106316waf.23
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:18:58 -0700 (PDT)
 In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-Signed-off-by: Tobias Mueller <Tobias_Mueller@twam.info>
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
+Fix the following build warning:
+
+drivers/input/keyboard/omap-keypad.c: In function 'omap_kp_probe':
+drivers/input/keyboard/omap-keypad.c:418: warning: 'row_idx' is used uninitialized in this function
+drivers/input/keyboard/omap-keypad.c:421: warning: 'col_idx' is used uninitialized in this function
+
+These variables are useful when cpu_is_omap24xx(), and otherwise just
+for useless cleanup.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/mouse/appletouch.c |   13 ++++++++++++-
- 1 files changed, 12 insertions(+), 1 deletions(-)
+ drivers/input/keyboard/omap-keypad.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index b4423a4..8dd3942 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -62,6 +62,10 @@
- #define GEYSER4_ISO_PRODUCT_ID	0x021B
- #define GEYSER4_JIS_PRODUCT_ID	0x021C
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index babc913..eec3281 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -352,6 +352,9 @@ static int __init omap_kp_probe(struct platform_device *pdev)
+ 			}
+ 			omap_set_gpio_direction(row_gpios[row_idx], 1);
+ 		}
++	} else {
++		col_idx = 0;
++		row_idx = 0;
+ 	}
  
-+#define GEYSER4_HF_ANSI_PRODUCT_ID	0x0229
-+#define GEYSER4_HF_ISO_PRODUCT_ID	0x022A
-+#define GEYSER4_HF_JIS_PRODUCT_ID	0x022B
-+
- #define ATP_DEVICE(prod)					\
- 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |		\
- 		       USB_DEVICE_ID_MATCH_INT_CLASS |		\
-@@ -93,6 +97,10 @@ static struct usb_device_id atp_table [] = {
- 	{ ATP_DEVICE(GEYSER4_ISO_PRODUCT_ID) },
- 	{ ATP_DEVICE(GEYSER4_JIS_PRODUCT_ID) },
+ 	setup_timer(&omap_kp->timer, omap_kp_timer, (unsigned long)omap_kp);
+@@ -415,10 +418,10 @@ err4:
+ err3:
+ 	device_remove_file(&pdev->dev, &dev_attr_enable);
+ err2:
+-	for (i = row_idx-1; i >=0; i--)
++	for (i = row_idx - 1; i >=0; i--)
+ 		omap_free_gpio(row_gpios[i]);
+ err1:
+-	for (i = col_idx-1; i >=0; i--)
++	for (i = col_idx - 1; i >=0; i--)
+ 		omap_free_gpio(col_gpios[i]);
  
-+	{ ATP_DEVICE(GEYSER4_HF_ANSI_PRODUCT_ID) },
-+	{ ATP_DEVICE(GEYSER4_HF_ISO_PRODUCT_ID) },
-+	{ ATP_DEVICE(GEYSER4_HF_JIS_PRODUCT_ID) },
-+
- 	/* Terminating entry */
- 	{ }
- };
-@@ -217,7 +225,10 @@ static inline int atp_is_geyser_3(struct atp *dev)
- 		(productId == GEYSER3_JIS_PRODUCT_ID) ||
- 		(productId == GEYSER4_ANSI_PRODUCT_ID) ||
- 		(productId == GEYSER4_ISO_PRODUCT_ID) ||
--		(productId == GEYSER4_JIS_PRODUCT_ID);
-+		(productId == GEYSER4_JIS_PRODUCT_ID) ||
-+		(productId == GEYSER4_HF_ANSI_PRODUCT_ID) ||
-+		(productId == GEYSER4_HF_ISO_PRODUCT_ID) ||
-+		(productId == GEYSER4_HF_JIS_PRODUCT_ID);
- }
- 
- /*
+ 	kfree(omap_kp);
 -- 
 1.5.5.rc2.6.gf58d
 

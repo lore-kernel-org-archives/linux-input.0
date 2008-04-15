@@ -1,34 +1,99 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/3] wm97xx-core: Only schedule interrupt handler if
-	not already scheduled
-Date: Tue, 15 Apr 2008 09:48:19 +0100
-Message-ID: <20080415084819.GA24498@rakim.wolfsonmicro.main>
-References: <20080414173841.GA2213@rakim.wolfsonmicro.main> <1208194775-4293-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080414140832.ZZRA012@mailhub.coreip.homeip.net>
+From: "Michael Gruber" <lists.mg@googlemail.com>
+Subject: xpad - Rename buttons to avoid conflict with mouse input
+Date: Tue, 15 Apr 2008 12:13:35 +0200
+Message-ID: <74d457500804150313n3487e672r35261b9dd75b0303@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:35400 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1755501AbYDOIsV (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.30]:45389 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753871AbYDOKNx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Apr 2008 04:48:21 -0400
+	Tue, 15 Apr 2008 06:13:53 -0400
+Received: by yw-out-2324.google.com with SMTP id 5so921277ywb.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Apr 2008 03:13:35 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080414140832.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-On Mon, Apr 14, 2008 at 02:10:02PM -0400, Dmitry Torokhov wrote:
-> On Mon, Apr 14, 2008 at 06:39:33PM +0100, Mark Brown wrote:
+From: Michael Gruber <lists.mg@googlemail.com>
 
-> > +	if (!work_pending(&wm->pen_event_work)) {
-> > +		wm->mach_ops->irq_enable(wm, 0);
-> > +		queue_work(wm->ts_workq, &wm->pen_event_work);
-> > +	}
+BTN_LEFT, BTN_RIGHT and BTN_BACK are listed as mouse buttons according to
+input.h. Rename them to make sure they do not interfere with mouse input.
 
-> Given the fact that work will not be queued if it is pending anyway
-> why is this change needed?
+Signed-off-by: Michael Gruber <lists.mg@googlemail.com>
 
-As well as not queuing the work it ensures that the calls to
-irq_enable() are balanced which helps with implementing that operation.
+---
+
+When I set up the driver to use MAP_DPAD_TO_BUTTONS the controller starts
+acting as mouse. Touching the d-pad issues left and right mouse click events
+and the back button acts like one of my other mouse buttons.
+
+ drivers/input/joystick/xpad.c |   20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+--- a/drivers/input/joystick/xpad.c	2008-04-15 10:41:42.000000000 +0200
++++ b/drivers/input/joystick/xpad.c	2008-04-15 10:49:41.000000000 +0200
+@@ -150,7 +150,7 @@ static const struct xpad_device {
+ /* buttons shared with xbox and xbox360 */
+ static const signed short xpad_common_btn[] = {
+ 	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
+-	BTN_START, BTN_BACK, BTN_THUMBL, BTN_THUMBR,	/* start/back/sticks */
++	BTN_START, BTN_SELECT, BTN_THUMBL, BTN_THUMBR,	/* start/back/sticks */
+ 	-1						/* terminating entry */
+ };
+
+@@ -162,9 +162,9 @@ static const signed short xpad_btn[] = {
+
+ /* only used if MAP_DPAD_TO_BUTTONS */
+ static const signed short xpad_btn_pad[] = {
+-	BTN_LEFT, BTN_RIGHT,		/* d-pad left, right */
+-	BTN_0, BTN_1,			/* d-pad up, down (XXX names??) */
+-	-1				/* terminating entry */
++	BTN_0, BTN_1,		/* d-pad up, down */
++	BTN_2, BTN_3,		/* d-pad left, right */
++	-1			/* terminating entry */
+ };
+
+ static const signed short xpad360_btn[] = {  /* buttons for x360 controller */
+@@ -279,15 +279,15 @@ static void xpad_process_packet(struct u
+ 		input_report_abs(dev, ABS_HAT0Y,
+ 				 !!(data[2] & 0x02) - !!(data[2] & 0x01));
+ 	} else /* xpad->dpad_mapping == MAP_DPAD_TO_BUTTONS */ {
+-		input_report_key(dev, BTN_LEFT,  data[2] & 0x04);
+-		input_report_key(dev, BTN_RIGHT, data[2] & 0x08);
+ 		input_report_key(dev, BTN_0,     data[2] & 0x01); /* up */
+ 		input_report_key(dev, BTN_1,     data[2] & 0x02); /* down */
++		input_report_key(dev, BTN_2,     data[2] & 0x04); /* left */
++		input_report_key(dev, BTN_3,     data[2] & 0x08); /* right */
+ 	}
+
+ 	/* start/back buttons and stick press left/right */
+ 	input_report_key(dev, BTN_START,  data[2] & 0x10);
+-	input_report_key(dev, BTN_BACK,   data[2] & 0x20);
++	input_report_key(dev, BTN_SELECT, data[2] & 0x20);
+ 	input_report_key(dev, BTN_THUMBL, data[2] & 0x40);
+ 	input_report_key(dev, BTN_THUMBR, data[2] & 0x80);
+
+@@ -327,15 +327,15 @@ static void xpad360_process_packet(struc
+ 				 !!(data[2] & 0x02) - !!(data[2] & 0x01));
+ 	} else if (xpad->dpad_mapping == MAP_DPAD_TO_BUTTONS) {
+ 		/* dpad as buttons (right, left, down, up) */
+-		input_report_key(dev, BTN_LEFT, data[2] & 0x04);
+-		input_report_key(dev, BTN_RIGHT, data[2] & 0x08);
+ 		input_report_key(dev, BTN_0, data[2] & 0x01);	/* up */
+ 		input_report_key(dev, BTN_1, data[2] & 0x02);	/* down */
++		input_report_key(dev, BTN_2, data[2] & 0x04);	/* left */
++		input_report_key(dev, BTN_3, data[2] & 0x08);	/* right */
+ 	}
+
+ 	/* start/back buttons */
+ 	input_report_key(dev, BTN_START,  data[2] & 0x10);
+-	input_report_key(dev, BTN_BACK,   data[2] & 0x20);
++	input_report_key(dev, BTN_SELECT, data[2] & 0x20);
+
+ 	/* stick press left/right */
+ 	input_report_key(dev, BTN_THUMBL, data[2] & 0x40);

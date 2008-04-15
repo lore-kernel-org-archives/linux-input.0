@@ -1,66 +1,176 @@
-From: Karl Dahlke <dmitry.torokhov@gmail.com>
-Subject: [PATCH 21/37] Input: put ledstate in the keyboard notifier
-Date: Tue, 15 Apr 2008 01:30:32 -0400
-Message-ID: <0beb4f6f294b0f2dde07fa9da9c00abd4f9c8b50.1208783694.git.dmitry.torokhov@gmail.com>
+From: Oliver Neukum <dmitry.torokhov@gmail.com>
+Subject: [PATCH 26/37] Input: wacom - implement suspend and autosuspend
+Date: Tue, 15 Apr 2008 01:31:57 -0400
+Message-ID: <e722409445fbe718f09f6d5e03d0ae84cf0954d0.1208783694.git.dmitry.torokhov@gmail.com>
 References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from wa-out-1112.google.com ([209.85.146.180]:8681 "EHLO
 	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759688AbYDUNTf (ORCPT
+	with ESMTP id S1760231AbYDUNTl (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:19:35 -0400
+	Mon, 21 Apr 2008 09:19:41 -0400
 Received: by wa-out-1112.google.com with SMTP id m16so3106317waf.23
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:35 -0700 (PDT)
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:41 -0700 (PDT)
 In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-Led state should be part of the key event, like shiftstate, and not
-grabbed asynchronously after the fact.
+This implements suspend and autosuspend support for wacom devices.
+It works by using the usb last busy functionality triggered in the
+completion callback.
 
-[samuel.thibault@ens-lyon.org: various fixes]
-
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Signed-off-by: Ping Cheng <pingc@wacom.com>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/char/keyboard.c  |    2 ++
- include/linux/keyboard.h |    1 +
- 2 files changed, 3 insertions(+), 0 deletions(-)
+ drivers/input/tablet/wacom.h     |    3 +
+ drivers/input/tablet/wacom_sys.c |   76 +++++++++++++++++++++++++++++++++-----
+ 2 files changed, 69 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 4dbd342..59608e3 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -1237,6 +1237,7 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
- 	}
- 
- 	param.shift = shift_final = (shift_state | kbd->slockstate) ^ kbd->lockstate;
-+	param.ledstate = kbd->ledflagstate;
- 	key_map = key_maps[shift_final];
- 
- 	if (atomic_notifier_call_chain(&keyboard_notifier_list, KBD_KEYCODE, &param) == NOTIFY_STOP || !key_map) {
-@@ -1285,6 +1286,7 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
- 
- 	(*k_handler[type])(vc, keysym & 0xff, !down);
- 
-+	param.ledstate = kbd->ledflagstate;
- 	atomic_notifier_call_chain(&keyboard_notifier_list, KBD_POST_KEYSYM, &param);
- 
- 	if (type != KT_SLOCK)
-diff --git a/include/linux/keyboard.h b/include/linux/keyboard.h
-index 65c2d70..a3c984d 100644
---- a/include/linux/keyboard.h
-+++ b/include/linux/keyboard.h
-@@ -33,6 +33,7 @@ struct keyboard_notifier_param {
- 	struct vc_data *vc;	/* VC on which the keyboard press was done */
- 	int down;		/* Pressure of the key? */
- 	int shift;		/* Current shift mask */
-+	int ledstate;		/* Current led state */
- 	unsigned int value;	/* keycode, unicode value or keysym */
+diff --git a/drivers/input/tablet/wacom.h b/drivers/input/tablet/wacom.h
+index acf9830..706619d 100644
+--- a/drivers/input/tablet/wacom.h
++++ b/drivers/input/tablet/wacom.h
+@@ -101,8 +101,11 @@ struct wacom {
+ 	dma_addr_t data_dma;
+ 	struct input_dev *dev;
+ 	struct usb_device *usbdev;
++	struct usb_interface *intf;
+ 	struct urb *irq;
+ 	struct wacom_wac * wacom_wac;
++	struct mutex lock;
++	int open:1;
+ 	char phys[32];
  };
  
+diff --git a/drivers/input/tablet/wacom_sys.c b/drivers/input/tablet/wacom_sys.c
+index 41caaef..71cc0c1 100644
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -70,6 +70,7 @@ static void wacom_sys_irq(struct urb *urb)
+ 		input_sync(get_input_dev(&wcombo));
+ 
+  exit:
++	usb_mark_last_busy(wacom->usbdev);
+ 	retval = usb_submit_urb (urb, GFP_ATOMIC);
+ 	if (retval)
+ 		err ("%s - usb_submit_urb failed with result %d",
+@@ -124,10 +125,25 @@ static int wacom_open(struct input_dev *dev)
+ {
+ 	struct wacom *wacom = input_get_drvdata(dev);
+ 
++	mutex_lock(&wacom->lock);
++
+ 	wacom->irq->dev = wacom->usbdev;
+-	if (usb_submit_urb(wacom->irq, GFP_KERNEL))
++
++	if (usb_autopm_get_interface(wacom->intf) < 0) {
++		mutex_unlock(&wacom->lock);
+ 		return -EIO;
++	}
++
++	if (usb_submit_urb(wacom->irq, GFP_KERNEL)) {
++		usb_autopm_put_interface(wacom->intf);
++		mutex_unlock(&wacom->lock);
++		return -EIO;
++	}
++
++	wacom->open = 1;
++	wacom->intf->needs_remote_wakeup = 1;
+ 
++	mutex_unlock(&wacom->lock);
+ 	return 0;
+ }
+ 
+@@ -135,7 +151,11 @@ static void wacom_close(struct input_dev *dev)
+ {
+ 	struct wacom *wacom = input_get_drvdata(dev);
+ 
++	mutex_lock(&wacom->lock);
+ 	usb_kill_urb(wacom->irq);
++	wacom->open = 0;
++	wacom->intf->needs_remote_wakeup = 0;
++	mutex_unlock(&wacom->lock);
+ }
+ 
+ void input_dev_mo(struct input_dev *input_dev, struct wacom_wac *wacom_wac)
+@@ -243,6 +263,8 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 
+ 	wacom->usbdev = dev;
+ 	wacom->dev = input_dev;
++	wacom->intf = intf;
++	mutex_init(&wacom->lock);
+ 	usb_make_path(dev, wacom->phys, sizeof(wacom->phys));
+ 	strlcat(wacom->phys, "/input0", sizeof(wacom->phys));
+ 
+@@ -304,23 +326,57 @@ static int wacom_probe(struct usb_interface *intf, const struct usb_device_id *i
+ 
+ static void wacom_disconnect(struct usb_interface *intf)
+ {
+-	struct wacom *wacom = usb_get_intfdata (intf);
++	struct wacom *wacom = usb_get_intfdata(intf);
+ 
+ 	usb_set_intfdata(intf, NULL);
+-	if (wacom) {
+-		usb_kill_urb(wacom->irq);
+-		input_unregister_device(wacom->dev);
+-		usb_free_urb(wacom->irq);
+-		usb_buffer_free(interface_to_usbdev(intf), 10, wacom->wacom_wac->data, wacom->data_dma);
+-		kfree(wacom->wacom_wac);
+-		kfree(wacom);
+-	}
++
++	usb_kill_urb(wacom->irq);
++	input_unregister_device(wacom->dev);
++	usb_free_urb(wacom->irq);
++	usb_buffer_free(interface_to_usbdev(intf), 10, wacom->wacom_wac->data, wacom->data_dma);
++	kfree(wacom->wacom_wac);
++	kfree(wacom);
++}
++
++static int wacom_suspend(struct usb_interface *intf, pm_message_t message)
++{
++	struct wacom *wacom = usb_get_intfdata(intf);
++
++	mutex_lock(&wacom->lock);
++	usb_kill_urb(wacom->irq);
++	mutex_unlock(&wacom->lock);
++
++	return 0;
++}
++
++static int wacom_resume(struct usb_interface *intf)
++{
++	struct wacom *wacom = usb_get_intfdata(intf);
++	int rv;
++
++	mutex_lock(&wacom->lock);
++	if (wacom->open)
++		rv = usb_submit_urb(wacom->irq, GFP_NOIO);
++	else
++		rv = 0;
++	mutex_unlock(&wacom->lock);
++
++	return rv;
++}
++
++static int wacom_reset_resume(struct usb_interface *intf)
++{
++	return wacom_resume(intf);
+ }
+ 
+ static struct usb_driver wacom_driver = {
+ 	.name =		"wacom",
+ 	.probe =	wacom_probe,
+ 	.disconnect =	wacom_disconnect,
++	.suspend =	wacom_suspend,
++	.resume =	wacom_resume,
++	.reset_resume =	wacom_reset_resume,
++	.supports_autosuspend = 1,
+ };
+ 
+ static int __init wacom_init(void)
 -- 
 1.5.5.rc2.6.gf58d
 

@@ -1,110 +1,43 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 3/3] wm97xx-core: Support use as a wakeup source
-Date: Tue, 15 Apr 2008 13:18:49 +0100
-Message-ID: <20080415121849.GB24498@rakim.wolfsonmicro.main>
-References: <20080414173841.GA2213@rakim.wolfsonmicro.main> <1208194775-4293-3-git-send-email-broonie@opensource.wolfsonmicro.com> <20080414163033.ZZRA012@mailhub.coreip.homeip.net> <200804141729.08036.david-b@pacbell.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] wm97xx-core: Only schedule interrupt handler if
+	not already scheduled
+Date: Tue, 15 Apr 2008 09:02:35 -0400
+Message-ID: <20080415085946.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080414173841.GA2213@rakim.wolfsonmicro.main> <1208194775-4293-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080414140832.ZZRA012@mailhub.coreip.homeip.net> <20080415084819.GA24498@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:55237 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751677AbYDOMSv (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.29]:5584 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759591AbYDONCk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 15 Apr 2008 08:18:51 -0400
+	Tue, 15 Apr 2008 09:02:40 -0400
+Received: by yw-out-2324.google.com with SMTP id 5so984457ywb.1
+        for <linux-input@vger.kernel.org>; Tue, 15 Apr 2008 06:02:40 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <200804141729.08036.david-b@pacbell.net>
+In-Reply-To: <20080415084819.GA24498@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Apr 14, 2008 at 05:29:07PM -0700, David Brownell wrote:
-> On Monday 14 April 2008, Dmitry Torokhov wrote:
-> > Hmm, another unique module option... How about using device_can_wakeup()
+On Tue, Apr 15, 2008 at 09:48:19AM +0100, Mark Brown wrote:
+> On Mon, Apr 14, 2008 at 02:10:02PM -0400, Dmitry Torokhov wrote:
+> > On Mon, Apr 14, 2008 at 06:39:33PM +0100, Mark Brown wrote:
+> 
+> > > +	if (!work_pending(&wm->pen_event_work)) {
+> > > +		wm->mach_ops->irq_enable(wm, 0);
+> > > +		queue_work(wm->ts_workq, &wm->pen_event_work);
+> > > +	}
+> 
+> > Given the fact that work will not be queued if it is pending anyway
+> > why is this change needed?
+> 
+> As well as not queuing the work it ensures that the calls to
+> irq_enable() are balanced which helps with implementing that operation.
 
-The reason there are so many configuration options here is that many of
-the features of the driver depend on exactly how the chip is connected
-to the rest of the system and can't be automatically discovered.  In the
-embedded applications where these devices are usually deployed this is
-usually an OK user experience - if these hooks aren't provided what
-tends to happen is that users patch the driver directly to get the
-configurablilty they need.
+Hmm... another question then - what would fire up wm97xx_pen_interrupt()
+again, before wm97xx_pen_irq_worker had a chance to run, if the very
+first thing we do after getting interrupt is irq_enable(wm, 0)?
 
-> I don't quite follow the technical content of this "suspend_mode"
-> mask, but it sure looks as if it should use the driver model flags
-> in addition to whatever that mask is doing.
-
-It's probably worth pointing out here that this part of the WM97xx
-driver is split into two portions.  This part of the driver covers the
-WM97xx itself but in order to actually use functionality like wakeup a
-machine specific driver needs to be added.  The WM97xx chips have a
-series of multi-function pins, some of which can be configured to
-provide a signal mirroring the pen down status with most of the chip
-powered down.  It can also be configured to do other things like try to
-start the AC97 bus and/or start the touchscreen digitiser up if it
-detects a pen down while suspended.
-
-At the minute this is implemented by having the WM97xx register a child
-device which platform code can provide.  When the child device probes it
-configures both the WM97xx and the rest of the system.  The child device
-can also provide other machine-specific things like use of the pen down
-or interrupt signals from the chip to control when the touch screen is
-read, synchronisation of the touch screen with writes to the display to
-reduce interference from the video signals and accelerated reading of
-the touchscreen if the AC97 controller is able to support it.
-
-> There are two aspects to this:
-
->  (a) Whether on a given system the touchscreen *can* issue wakeup
->      events ... call device_init_wakeup(dev, true) to say it can.
->      In this case, presumably suspend_mode == 0 means it can't.
->      Board setup, or at latest probe(), should device_init_wakeup().
-
-> So:  yes, this should initialize and use those driver model flags.
-
-There is a bit of a question about which device this should be checked,
-though the WM97xx itself is probably more sensible.
-
-> > > +	reg = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER2);
-> > > +	reg &= ~WM97XX_PRP_DET_DIG;
-> > > +	if (wm->input_dev->users && suspend_mode)
-
-> This should probably check device_may_wakeup(SOMEDEV), rather
-> than testing suspend_mode.
-
-That by itself isn't enough since if the system hasn't been configured
-appropriately then the WM97xx won't be able to wake the system - we need
-the suspend_mode configuration to know how to wake.  I'll do a spin of
-the patch which pushes the configuration of suspend mode through an API
-to let the core keep track of this.
-
-> The wakeup mechanism here isn't clear to me.  Does this assume
-> that the touchscreen IRQ is wakeup-capable?  I don't see any
-
-No, it doesn't assume that.  For example, the system may wish to have
-the chip initiate wakeup by bringing the AC97 bus up or have an output
-from the WM97xx wired directly to some other component such as a PMU or
-microcontroller rather than to an interrupt line visible to the CPU.
-
-In theory this could also be used for some purpose other than waking the
-system though I'm not aware of any such users so I don't think that's
-worth worrying about right now.  In any case, the default is to enable
-wakeup so most users won't notice this addition anyway.
-
-> calls to enable_irq_wake() or disable_irq_wake() ... or for that
-> matter any other calls that might affect system behavior.
-
-Some combination of the machine-specific driver and other platform code
-is expected to do this where required.
-
-> > > +	/* WM97XX_PRP value to configure while system is suspended */
-> > > +	u16 suspend_mode;
-
-> I'm more accustomed to thinking that the driver will
-> know "the" setup bit values to assign which will
-> ensure that the chip issues wakeup events ... that
-> stuff is usually not board-specific.
-
-Unfortunately the fact that there are many different ways for the chip
-to be used in a system (none of which can be automatically discovered)
-means that this does need to be board-specific.
+-- 
+Dmitry

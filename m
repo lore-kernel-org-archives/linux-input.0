@@ -1,116 +1,63 @@
 From: Mark Brown <dmitry.torokhov@gmail.com>
-Subject: [PATCH 32/37] Input: wm97xx-core - support use as a wakeup source
-Date: Thu, 17 Apr 2008 09:24:58 -0400
-Message-ID: <34d278534db050b93d79175d59a32a70ac25f9b5.1208783694.git.dmitry.torokhov@gmail.com>
+Subject: [PATCH 30/37] Input: wm97xx-core - only schedule interrupt handler if not already scheduled
+Date: Thu, 17 Apr 2008 09:24:39 -0400
+Message-ID: <d808fbe5b404854374917bd0d1db937a0a524665.1208783694.git.dmitry.torokhov@gmail.com>
 References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from el-out-1112.google.com ([209.85.162.176]:27661 "EHLO
-	el-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760140AbYDUNTO (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.180]:8681 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759997AbYDUNTJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:19:14 -0400
-Received: by el-out-1112.google.com with SMTP id n30so388929elf.21
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:14 -0700 (PDT)
+	Mon, 21 Apr 2008 09:19:09 -0400
+Received: by wa-out-1112.google.com with SMTP id m16so3106317waf.23
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:09 -0700 (PDT)
 In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-The WM97xx touch screen controllers can be used to generate a wakeup
-event when the system is suspended. Provide a new core API call
-wm97xx_set_suspend_mode() allowing machine drivers to enable this. If no
-suspend_mode is provided then the touch panel will be powered down when
-the system is suspended.
+As well as clarifying the fact that the driver can cope if a second
+interrupt occurs before the IRQ work is scheduled this also ensures
+that calls to the machine irq_enable() are balanced, making that easier
+to implement.  Normally this is redundant due to the interrupt disabling
+but some unusal board configurations can trigger it.
 
 Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/touchscreen/wm97xx-core.c |   39 +++++++++++++++++++++++++++++++
- include/linux/wm97xx.h                  |    3 ++
- 2 files changed, 42 insertions(+), 0 deletions(-)
+ drivers/input/touchscreen/wm97xx-core.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index fec07c2..e9c7ea4 100644
+index 2910999..e27b1e0 100644
 --- a/drivers/input/touchscreen/wm97xx-core.c
 +++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -262,6 +262,23 @@ void wm97xx_config_gpio(struct wm97xx *wm, u32 gpio, enum wm97xx_gpio_dir dir,
- EXPORT_SYMBOL_GPL(wm97xx_config_gpio);
- 
- /*
-+ * Configure the WM97XX_PRP value to use while system is suspended.
-+ * If a value other than 0 is set then WM97xx pen detection will be
-+ * left enabled in the configured mode while the system is in suspend,
-+ * the device has users and suspend has not been disabled via the
-+ * wakeup sysfs entries.
-+ *
-+ * @wm:   WM97xx device to configure
-+ * @mode: WM97XX_PRP value to configure while suspended
-+ */
-+void wm97xx_set_suspend_mode(struct wm97xx *wm, u16 mode)
-+{
-+	wm->suspend_mode = mode;
-+	device_init_wakeup(&wm->input_dev->dev, mode != 0);
-+}
-+EXPORT_SYMBOL_GPL(wm97xx_set_suspend_mode);
-+
-+/*
-  * Handle a pen down interrupt.
+@@ -328,18 +328,18 @@ static void wm97xx_pen_irq_worker(struct work_struct *work)
+  *
+  * We have to disable the codec interrupt in the handler because it
+  * can take upto 1ms to clear the interrupt source. We schedule a task
+- * in a work queue to do the actual interaction with the chip (it
+- * doesn't matter if we end up reenqueing it before it is executed
+- * since we don't touch the chip until it has run).  The interrupt is
+- * then enabled again in the slow handler when the source has been
+- * cleared.
++ * in a work queue to do the actual interaction with the chip.  The
++ * interrupt is then enabled again in the slow handler when the source
++ * has been cleared.
   */
- static void wm97xx_pen_irq_worker(struct work_struct *work)
-@@ -689,10 +706,32 @@ static int wm97xx_remove(struct device *dev)
- static int wm97xx_suspend(struct device *dev, pm_message_t state)
+ static irqreturn_t wm97xx_pen_interrupt(int irq, void *dev_id)
  {
- 	struct wm97xx *wm = dev_get_drvdata(dev);
-+	u16 reg;
-+	int suspend_mode;
-+
-+	if (device_may_wakeup(&wm->input_dev->dev))
-+		suspend_mode = wm->suspend_mode;
-+	else
-+		suspend_mode = 0;
+ 	struct wm97xx *wm = dev_id;
  
- 	if (wm->input_dev->users)
- 		cancel_delayed_work_sync(&wm->ts_reader);
- 
-+	/* Power down the digitiser (bypassing the cache for resume) */
-+	reg = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER2);
-+	reg &= ~WM97XX_PRP_DET_DIG;
-+	if (wm->input_dev->users)
-+		reg |= suspend_mode;
-+	wm->ac97->bus->ops->write(wm->ac97, AC97_WM97XX_DIGITISER2, reg);
-+
-+	/* WM9713 has an additional power bit - turn it off if there
-+	 * are no users or if suspend mode is zero. */
-+	if (wm->id == WM9713_ID2 &&
-+	    (!wm->input_dev->users || !suspend_mode)) {
-+		reg = wm97xx_reg_read(wm, AC97_EXTENDED_MID) | 0x8000;
-+		wm97xx_reg_write(wm, AC97_EXTENDED_MID, reg);
+-	wm->mach_ops->irq_enable(wm, 0);
+-	queue_work(wm->ts_workq, &wm->pen_event_work);
++	if (!work_pending(&wm->pen_event_work)) {
++		wm->mach_ops->irq_enable(wm, 0);
++		queue_work(wm->ts_workq, &wm->pen_event_work);
 +	}
-+
- 	return 0;
+ 
+ 	return IRQ_HANDLED;
  }
- 
-diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
-index ed01c7d..4d13732 100644
---- a/include/linux/wm97xx.h
-+++ b/include/linux/wm97xx.h
-@@ -282,6 +282,7 @@ struct wm97xx {
- 	unsigned pen_is_down:1;		/* Pen is down */
- 	unsigned aux_waiting:1;		/* aux measurement waiting */
- 	unsigned pen_probably_down:1;	/* used in polling mode */
-+	u16 suspend_mode;               /* PRP in suspend mode */
- };
- 
- /*
-@@ -297,6 +298,8 @@ void wm97xx_config_gpio(struct wm97xx *wm, u32 gpio,
- 				     enum wm97xx_gpio_sticky sticky,
- 				     enum wm97xx_gpio_wake wake);
- 
-+void wm97xx_set_suspend_mode(struct wm97xx *wm, u16 mode);
-+
- /* codec AC97 IO access */
- int wm97xx_reg_read(struct wm97xx *wm, u16 reg);
- void wm97xx_reg_write(struct wm97xx *wm, u16 reg, u16 val);
 -- 
 1.5.5.rc2.6.gf58d
 

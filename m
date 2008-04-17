@@ -1,40 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: HID bus
-Date: Wed, 16 Apr 2008 17:05:23 -0400
-Message-ID: <20080416170415.ZZRA012@mailhub.coreip.homeip.net>
-References: <1207341357-17792-1-git-send-email-jirislaby@gmail.com> <1207341357-17792-8-git-send-email-jirislaby@gmail.com> <Pine.LNX.4.64.0804161529270.12972@jikos.suse.cz> <480661FE.1040807@gmail.com> <20080416164500.ZZRA012@mailhub.coreip.homeip.net> <4806676B.30809@suse.cz>
+Subject: Re: [PATCH] ati_remote2 loadable keymap support
+Date: Thu, 17 Apr 2008 15:00:23 -0400
+Message-ID: <20080417144328.ZZRA012@mailhub.coreip.homeip.net>
+References: <200804051930.10574.linux@dadeos.co.uk> <20080408201826.GG16619@sci.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.29]:59726 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753584AbYDPVFm (ORCPT
+Received: from ug-out-1314.google.com ([66.249.92.172]:2028 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752088AbYDQTAa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Apr 2008 17:05:42 -0400
-Received: by yw-out-2324.google.com with SMTP id 5so1417533ywb.1
-        for <linux-input@vger.kernel.org>; Wed, 16 Apr 2008 14:05:27 -0700 (PDT)
+	Thu, 17 Apr 2008 15:00:30 -0400
+Received: by ug-out-1314.google.com with SMTP id z38so1221266ugc.16
+        for <linux-input@vger.kernel.org>; Thu, 17 Apr 2008 12:00:29 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4806676B.30809@suse.cz>
+In-Reply-To: <20080408201826.GG16619@sci.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, marcel@holtmann.org
+To: Ville Syrj?l? <syrjala@sci.fi>
+Cc: Peter Stokes <linux@dadeos.co.uk>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Wed, Apr 16, 2008 at 10:54:03PM +0200, Jiri Slaby wrote:
-> On 04/16/2008 10:45 PM, Dmitry Torokhov wrote:
->> When I added serio bus I had to send patches to Rusty for
->> module-init-tools... No way around it as far as I understand.
->
-> I have no fear of augmenting the tools, but the regressions. If one compile
-> those as modules, it won't work with older init tools installed, since it won't
-> get loaded. In that way I have been thinking of the option CONFIG_I_HAVE_OLD_MIT
-> which would integrate the drivers into hidbus module or something scary like that.
->
-> When you added that serio bus, you just added a new code, or converted something
-> into a bus?
+On Tue, Apr 08, 2008 at 11:18:26PM +0300, Ville Syrj?l? wrote:
+> On Sat, Apr 05, 2008 at 07:30:10PM +0100, Peter Stokes wrote:
+> > +	u8  hwcode;
+> > +	u16 keycode[ARRAY_SIZE(ati_remote2_modes)];
+> > +} ati_remote2_keycodes[] = {
+> > +/*	 hwcode   AUX1             AUX2             AUX3             AUX4             PC                */
+> 
+> checkpatch.pl doesn't like these long lines.
+> 
 
-The drivers already were there (atkbd, psmouse, etc) but I dont think
-they were auto-loading before.
+In this case screw checkpatch, sometimes longer lines are better than
+the alternative.
+
+Peter, is an updated patch addressing other Ville's concerns coming?
 
 -- 
 Dmitry

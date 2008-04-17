@@ -1,58 +1,54 @@
-From: Peter Zijlstra <dmitry.torokhov@gmail.com>
-Subject: [PATCH 37/37] Input: mac_hid - add lockdep annotation to emumousebtn
-Date: Fri, 18 Apr 2008 00:25:38 -0400
-Message-ID: <9e7ddf905834f7b2969464a49e95eb59f4b7b03c.1208783694.git.dmitry.torokhov@gmail.com>
+From: Julia Lawall <dmitry.torokhov@gmail.com>
+Subject: [PATCH 33/37] Input: drivers/char/keyboard.c - use time_after
+Date: Thu, 17 Apr 2008 09:28:25 -0400
+Message-ID: <2fd746d97fa0452173e06ffd9d0bb376d97bef0b.1208783694.git.dmitry.torokhov@gmail.com>
 References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.176]:8449 "EHLO
+Received: from wa-out-1112.google.com ([209.85.146.180]:8681 "EHLO
 	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757821AbYDUNTQ (ORCPT
+	with ESMTP id S1759563AbYDUNTo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:19:16 -0400
-Received: by wa-out-1112.google.com with SMTP id m16so3106305waf.23
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:16 -0700 (PDT)
+	Mon, 21 Apr 2008 09:19:44 -0400
+Received: by wa-out-1112.google.com with SMTP id m16so3106317waf.23
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:43 -0700 (PDT)
 In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-The mouse button emulation calls input device methods from an input
-device. This causes funny lock nesting which is harmless as each
-device has its own locks.
+The functions time_before, time_before_eq, time_after, and time_after_eq
+are more robust for comparing jiffies against other values.
 
-Give the nesting device its own lock classes so that lockdep will not
-consider them the same.
-
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Signed-off-by: Julia Lawall <julia@diku.dk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/macintosh/mac_hid.c |    6 ++++++
- 1 files changed, 6 insertions(+), 0 deletions(-)
+ drivers/char/keyboard.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/macintosh/mac_hid.c b/drivers/macintosh/mac_hid.c
-index 8930230..f972ff3 100644
---- a/drivers/macintosh/mac_hid.c
-+++ b/drivers/macintosh/mac_hid.c
-@@ -103,6 +103,9 @@ int mac_hid_mouse_emulate_buttons(int caller, unsigned int keycode, int down)
- 	return 0;
- }
+diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+index 59608e3..45806d2 100644
+--- a/drivers/char/keyboard.c
++++ b/drivers/char/keyboard.c
+@@ -42,6 +42,7 @@
+ #include <linux/input.h>
+ #include <linux/reboot.h>
+ #include <linux/notifier.h>
++#include <linux/jiffies.h>
  
-+static struct lock_class_key emumousebtn_event_class;
-+static struct lock_class_key emumousebtn_mutex_class;
-+
- static int emumousebtn_input_register(void)
- {
- 	int ret;
-@@ -111,6 +114,9 @@ static int emumousebtn_input_register(void)
- 	if (!emumousebtn)
- 		return -ENOMEM;
+ extern void ctrl_alt_del(void);
  
-+	lockdep_set_class(emumousebtn->event_lock, &emumousebtn_event_class);
-+	lockdep_set_class(emumousebtn->mutex, &emumousebtn_mutex_class);
-+
- 	emumousebtn->name = "Macintosh mouse button emulation";
- 	emumousebtn->id.bustype = BUS_ADB;
- 	emumousebtn->id.vendor = 0x0001;
+@@ -928,7 +929,8 @@ static void k_brl(struct vc_data *vc, unsigned char value, char up_flag)
+ 	if (up_flag) {
+ 		if (brl_timeout) {
+ 			if (!committing ||
+-			    jiffies - releasestart > (brl_timeout * HZ) / 1000) {
++			    time_after(jiffies,
++				       releasestart + msecs_to_jiffies(brl_timeout))) {
+ 				committing = pressed;
+ 				releasestart = jiffies;
+ 			}
 -- 
 1.5.5.rc2.6.gf58d
+
 

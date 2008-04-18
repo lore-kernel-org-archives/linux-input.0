@@ -1,237 +1,288 @@
 From: akpm@linux-foundation.org
-Subject: [patch 4/7] maple: allow removal and reinsertion of keyboard driver module
-Date: Fri, 18 Apr 2008 13:40:15 -0700
-Message-ID: <200804182040.m3IKeGGd014301@imap1.linux-foundation.org>
+Subject: [patch 7/7] Touch screen driver for the SuperH MigoR board
+Date: Fri, 18 Apr 2008 13:40:20 -0700
+Message-ID: <200804182040.m3IKeKNH014313@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:44515 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:33537 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752523AbYDRUkc (ORCPT
+	by vger.kernel.org with ESMTP id S1752513AbYDRUkb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Apr 2008 16:40:32 -0400
+	Fri, 18 Apr 2008 16:40:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, adrian@newgolddream.dyndns.info, adrian@mcmen.demon.co.uk, lethal@linux-sh.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, magnus.damm@gmail.com, broonie@opensource.wolfsonmicro.com, damm@igel.co.jp, lethal@linux-sh.org
 
-From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+From: Magnus Damm <magnus.damm@gmail.com>
 
-Allow the removal (and subsequent reinsertion) of the maple_keyb (maple
-keyboard) driver by adding a working removal function.
+This is a MigoR touch screen driver.  The chip we interface to is
+unfortunately a custom designed microcontroller speaking some undocumented
+protocol over i2c.
 
-Also tidy long lines.
+The board specific code is expected to register this device as an i2c chip
+using struct i2c_board_info [] and i2c_register_board_info().
 
-Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+[akpm@linux-foundation.org: coding-style fixes]
+Signed-off-by: Magnus Damm <damm@igel.co.jp>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Cc: Paul Mundt <lethal@linux-sh.org>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/maple_keyb.c |  124 ++++++++++++++++----------
- 1 file changed, 81 insertions(+), 43 deletions(-)
+ drivers/input/touchscreen/Kconfig    |   12 +
+ drivers/input/touchscreen/Makefile   |    1 
+ drivers/input/touchscreen/migor_ts.c |  213 +++++++++++++++++++++++++
+ 3 files changed, 226 insertions(+)
 
-diff -puN drivers/input/keyboard/maple_keyb.c~maple-allow-removal-and-reinsertion-of-keyboard-driver-module drivers/input/keyboard/maple_keyb.c
---- a/drivers/input/keyboard/maple_keyb.c~maple-allow-removal-and-reinsertion-of-keyboard-driver-module
-+++ a/drivers/input/keyboard/maple_keyb.c
-@@ -2,7 +2,7 @@
-  * SEGA Dreamcast keyboard driver
-  * Based on drivers/usb/usbkbd.c
-  * Copyright YAEGASHI Takeshi, 2001
-- * Porting to 2.6 Copyright Adrian McMenamin, 2007
-+ * Porting to 2.6 Copyright Adrian McMenamin, 2007, 2008
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -46,39 +46,51 @@ struct dc_kbd {
- };
+diff -puN drivers/input/touchscreen/Kconfig~touch-screen-driver-for-the-superh-migor-board drivers/input/touchscreen/Kconfig
+--- a/drivers/input/touchscreen/Kconfig~touch-screen-driver-for-the-superh-migor-board
++++ a/drivers/input/touchscreen/Kconfig
+@@ -147,6 +147,18 @@ config TOUCHSCREEN_HP7XX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called jornada720_ts.
  
- static const unsigned short dc_kbd_keycode[NR_SCANCODES] = {
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_A, KEY_B, KEY_C, KEY_D,
--	KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L,
--	KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T,
--	KEY_U, KEY_V, KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_1, KEY_2,
--	KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0,
--	KEY_ENTER, KEY_ESC, KEY_BACKSPACE, KEY_TAB, KEY_SPACE, KEY_MINUS, KEY_EQUAL, KEY_LEFTBRACE,
--	KEY_RIGHTBRACE, KEY_BACKSLASH, KEY_BACKSLASH, KEY_SEMICOLON, KEY_APOSTROPHE, KEY_GRAVE, KEY_COMMA,
--	KEY_DOT, KEY_SLASH, KEY_CAPSLOCK, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_A, KEY_B,
-+	KEY_C, KEY_D, KEY_E, KEY_F, KEY_G, KEY_H, KEY_I, KEY_J, KEY_K, KEY_L,
-+	KEY_M, KEY_N, KEY_O, KEY_P, KEY_Q, KEY_R, KEY_S, KEY_T, KEY_U, KEY_V,
-+	KEY_W, KEY_X, KEY_Y, KEY_Z, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6,
-+	KEY_7, KEY_8, KEY_9, KEY_0, KEY_ENTER, KEY_ESC, KEY_BACKSPACE,
-+	KEY_TAB, KEY_SPACE, KEY_MINUS, KEY_EQUAL, KEY_LEFTBRACE,
-+	KEY_RIGHTBRACE, KEY_BACKSLASH, KEY_BACKSLASH, KEY_SEMICOLON,
-+	KEY_APOSTROPHE, KEY_GRAVE, KEY_COMMA, KEY_DOT, KEY_SLASH,
-+	KEY_CAPSLOCK, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6,
- 	KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_SYSRQ,
--	KEY_SCROLLLOCK, KEY_PAUSE, KEY_INSERT, KEY_HOME, KEY_PAGEUP, KEY_DELETE,
--	KEY_END, KEY_PAGEDOWN, KEY_RIGHT, KEY_LEFT, KEY_DOWN, KEY_UP,
--	KEY_NUMLOCK, KEY_KPSLASH, KEY_KPASTERISK, KEY_KPMINUS, KEY_KPPLUS, KEY_KPENTER, KEY_KP1, KEY_KP2,
--	KEY_KP3, KEY_KP4, KEY_KP5, KEY_KP6, KEY_KP7, KEY_KP8, KEY_KP9, KEY_KP0, KEY_KPDOT,
--	KEY_102ND, KEY_COMPOSE, KEY_POWER, KEY_KPEQUAL, KEY_F13, KEY_F14, KEY_F15,
--	KEY_F16, KEY_F17, KEY_F18, KEY_F19, KEY_F20,
--	KEY_F21, KEY_F22, KEY_F23, KEY_F24, KEY_OPEN, KEY_HELP, KEY_PROPS, KEY_FRONT,
--	KEY_STOP, KEY_AGAIN, KEY_UNDO, KEY_CUT, KEY_COPY, KEY_PASTE, KEY_FIND, KEY_MUTE,
--	KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_KPCOMMA, KEY_RESERVED, KEY_RO, KEY_KATAKANAHIRAGANA , KEY_YEN,
--	KEY_HENKAN, KEY_MUHENKAN, KEY_KPJPCOMMA, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_HANGEUL, KEY_HANJA, KEY_KATAKANA, KEY_HIRAGANA, KEY_ZENKAKUHANKAKU, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
--	KEY_LEFTCTRL, KEY_LEFTSHIFT, KEY_LEFTALT, KEY_LEFTMETA, KEY_RIGHTCTRL, KEY_RIGHTSHIFT, KEY_RIGHTALT, KEY_RIGHTMETA,
--	KEY_PLAYPAUSE, KEY_STOPCD, KEY_PREVIOUSSONG, KEY_NEXTSONG, KEY_EJECTCD, KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_MUTE,
--	KEY_WWW, KEY_BACK, KEY_FORWARD, KEY_STOP, KEY_FIND, KEY_SCROLLUP, KEY_SCROLLDOWN, KEY_EDIT, KEY_SLEEP,
--	KEY_SCREENLOCK, KEY_REFRESH, KEY_CALC, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED
-+	KEY_SCROLLLOCK, KEY_PAUSE, KEY_INSERT, KEY_HOME, KEY_PAGEUP,
-+	KEY_DELETE, KEY_END, KEY_PAGEDOWN, KEY_RIGHT, KEY_LEFT, KEY_DOWN,
-+	KEY_UP, KEY_NUMLOCK, KEY_KPSLASH, KEY_KPASTERISK, KEY_KPMINUS,
-+	KEY_KPPLUS, KEY_KPENTER, KEY_KP1, KEY_KP2, KEY_KP3, KEY_KP4, KEY_KP5,
-+	KEY_KP6, KEY_KP7, KEY_KP8, KEY_KP9, KEY_KP0, KEY_KPDOT, KEY_102ND,
-+	KEY_COMPOSE, KEY_POWER, KEY_KPEQUAL, KEY_F13, KEY_F14, KEY_F15,
-+	KEY_F16, KEY_F17, KEY_F18, KEY_F19, KEY_F20, KEY_F21, KEY_F22,
-+	KEY_F23, KEY_F24, KEY_OPEN, KEY_HELP, KEY_PROPS, KEY_FRONT, KEY_STOP,
-+	KEY_AGAIN, KEY_UNDO, KEY_CUT, KEY_COPY, KEY_PASTE, KEY_FIND, KEY_MUTE,
-+	KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_KPCOMMA, KEY_RESERVED, KEY_RO, KEY_KATAKANAHIRAGANA , KEY_YEN,
-+	KEY_HENKAN, KEY_MUHENKAN, KEY_KPJPCOMMA, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_HANGEUL, KEY_HANJA, KEY_KATAKANA, KEY_HIRAGANA,
-+	KEY_ZENKAKUHANKAKU, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED,
-+	KEY_RESERVED, KEY_RESERVED, KEY_LEFTCTRL, KEY_LEFTSHIFT, KEY_LEFTALT,
-+	KEY_LEFTMETA, KEY_RIGHTCTRL, KEY_RIGHTSHIFT, KEY_RIGHTALT,
-+	KEY_RIGHTMETA, KEY_PLAYPAUSE, KEY_STOPCD, KEY_PREVIOUSSONG,
-+	KEY_NEXTSONG, KEY_EJECTCD, KEY_VOLUMEUP, KEY_VOLUMEDOWN, KEY_MUTE,
-+	KEY_WWW, KEY_BACK, KEY_FORWARD, KEY_STOP, KEY_FIND, KEY_SCROLLUP,
-+	KEY_SCROLLDOWN, KEY_EDIT, KEY_SLEEP, KEY_SCREENLOCK, KEY_REFRESH,
-+	KEY_CALC, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED, KEY_RESERVED
- };
- 
- static void dc_scan_kbd(struct dc_kbd *kbd)
-@@ -152,14 +164,15 @@ static int dc_kbd_connect(struct maple_d
- 	struct dc_kbd *kbd;
- 	struct input_dev *dev;
- 
--	if (!(mdev->function & MAPLE_FUNC_KEYBOARD))
--		return -EINVAL;
--
- 	kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
-+	if (!kbd) {
-+		error = -ENOMEM;
-+		goto fail_kbd;
++config TOUCHSCREEN_MIGOR
++	tristate "Renesas MIGO-R touchscreen"
++	depends on SH_MIGOR
++	default n
++	help
++	  Say Y here to enable MIGO-R touchscreen support.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called migor_ts.
++
+ config TOUCHSCREEN_PENMOUNT
+ 	tristate "Penmount serial touchscreen"
+ 	select SERIO
+diff -puN drivers/input/touchscreen/Makefile~touch-screen-driver-for-the-superh-migor-board drivers/input/touchscreen/Makefile
+--- a/drivers/input/touchscreen/Makefile~touch-screen-driver-for-the-superh-migor-board
++++ a/drivers/input/touchscreen/Makefile
+@@ -22,6 +22,7 @@ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= pe
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
++obj-$(CONFIG_TOUCHSCREEN_MIGOR)		+= migor_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)	+= wm9705.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
+diff -puN /dev/null drivers/input/touchscreen/migor_ts.c
+--- /dev/null
++++ a/drivers/input/touchscreen/migor_ts.c
+@@ -0,0 +1,213 @@
++/*
++ * Touch Screen driver for Renesas MIGO-R Platform
++ *
++ * Copyright (c) 2008 Magnus Damm
++ * Copyright (c) 2007 Ujjwal Pande <ujjwal@kenati.com>,
++ *  Kenati Technologies Pvt Ltd.
++ *
++ * This file is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU  General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This file is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ *  General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/i2c.h>
++#include <linux/timer.h>
++
++#define EVENT_PENDOWN 1
++#define EVENT_REPEAT  2
++#define EVENT_PENUP   3
++
++struct migor_ts_priv {
++	struct i2c_client *client;
++	struct input_dev *input;
++	struct delayed_work work;
++	int irq;
++};
++
++static const u_int8_t migor_ts_ena_seq[17] = { 0x33, 0x22, 0x11,
++					       0x01, 0x06, 0x07, };
++static const u_int8_t migor_ts_dis_seq[17] = { };
++
++static void migor_ts_poscheck(struct work_struct *work)
++{
++	struct migor_ts_priv *priv = container_of(work,
++						  struct migor_ts_priv,
++						  work.work);
++	unsigned short xpos, ypos;
++	unsigned char event;
++	u_int8_t buf[16];
++
++	memset(buf, 0, sizeof(buf));
++
++	/* Set Index 0 */
++	buf[0] = 0;
++	if (i2c_master_send(priv->client, buf, 1) != 1) {
++		dev_err(&priv->client->dev, "Unable to write i2c index\n");
++		goto out;
 +	}
- 	dev = input_allocate_device();
--	if (!kbd || !dev) {
-+	if (!dev) {
- 		error = -ENOMEM;
--		goto fail;
-+		goto fail_dev;
- 	}
- 
- 	mdev->private_data = kbd;
-@@ -170,7 +183,7 @@ static int dc_kbd_connect(struct maple_d
- 	dev->name = mdev->product_name;
- 	dev->evbit[0] = BIT(EV_KEY) | BIT(EV_REP);
- 	dev->keycode = kbd->keycode;
--	dev->keycodesize = sizeof (unsigned short);
-+	dev->keycodesize = sizeof(unsigned short);
- 	dev->keycodemax = ARRAY_SIZE(kbd->keycode);
- 	dev->id.bustype = BUS_HOST;
- 	dev->dev.parent = &mdev->dev;
-@@ -187,12 +200,15 @@ static int dc_kbd_connect(struct maple_d
- 		goto fail;
- 
- 	/* Maple polling is locked to VBLANK - which may be just 50/s */
--	maple_getcond_callback(mdev, dc_kbd_callback, HZ/50, MAPLE_FUNC_KEYBOARD);
-+	maple_getcond_callback(mdev, dc_kbd_callback, HZ/50,
-+		MAPLE_FUNC_KEYBOARD);
- 	return 0;
- 
-- fail:
-+fail:
- 	input_free_device(dev);
-+fail_dev:
- 	kfree(kbd);
-+fail_kbd:
- 	mdev->private_data = NULL;
- 	return error;
- }
-@@ -202,7 +218,7 @@ static void dc_kbd_disconnect(struct map
- 	struct dc_kbd *kbd;
- 
- 	mutex_lock(&maple_keyb_mutex);
--
-+	mdev->callback = NULL;
- 	kbd = mdev->private_data;
- 	mdev->private_data = NULL;
- 	input_unregister_device(kbd->dev);
-@@ -223,11 +239,18 @@ static int probe_maple_kbd(struct device
- 		return error;
- 
- 	mdev->driver = mdrv;
--	mdev->registered = 1;
- 
- 	return 0;
- }
- 
-+static int remove_maple_kbd(struct device *dev)
-+{
-+	struct maple_device *mdev = to_maple_dev(dev);
 +
-+	dc_kbd_disconnect(mdev);
-+	return 0;
++	/* Now do Page Read */
++	if (i2c_master_recv(priv->client, buf, sizeof(buf)) != sizeof(buf)) {
++		dev_err(&priv->client->dev, "Unable to read i2c page\n");
++		goto out;
++	}
++
++	ypos = ((buf[9] & 0x03) << 8 | buf[8]);
++	xpos = ((buf[11] & 0x03) << 8 | buf[10]);
++	event = buf[12];
++
++	if ((event == EVENT_PENDOWN) || (event == EVENT_REPEAT)) {
++		input_report_key(priv->input, BTN_TOUCH, 1);
++		input_report_abs(priv->input, ABS_X, ypos); /*X-Y swap*/
++		input_report_abs(priv->input, ABS_Y, xpos);
++		input_report_abs(priv->input, ABS_PRESSURE, 120);
++		input_sync(priv->input);
++	} else if (event == EVENT_PENUP) {
++		input_report_abs(priv->input, ABS_PRESSURE, 0);
++		input_sync(priv->input);
++	}
++ out:
++	enable_irq(priv->irq);
 +}
 +
- static struct maple_driver dc_kbd_driver = {
- 	.function = MAPLE_FUNC_KEYBOARD,
- 	.connect = dc_kbd_connect,
-@@ -235,9 +258,23 @@ static struct maple_driver dc_kbd_driver
- 	.drv = {
- 		.name = "Dreamcast_keyboard",
- 		.probe = probe_maple_kbd,
-+		.remove = remove_maple_kbd,
-        },
- };
- 
-+static int unplug_maple_keyb(struct device *dev, void *ignored)
++static irqreturn_t migor_ts_isr(int irq, void *dev_id)
 +{
-+	/* Please DO NOT really unplug your keyboard */
-+	struct maple_device *mdev;
++	struct migor_ts_priv *priv = dev_id;
 +
-+	mdev = to_maple_dev(dev);
-+	if ((mdev->function & MAPLE_FUNC_KEYBOARD)
-+		&& (mdev->driver == &dc_kbd_driver))
-+		remove_maple_kbd(dev);
++	/* the touch screen controller chip is hooked up to the cpu
++	 * using i2c and a single interrupt line. the interrupt line
++	 * is pulled low whenever someone taps the screen. to deassert
++	 * the interrupt line we need to acknowledge the interrupt by
++	 * communicating with the controller over the slow i2c bus.
++	 *
++	 * we can't acknowledge from interrupt context since the i2c
++	 * bus controller may sleep, so we just disable the interrupt
++	 * here and handle the acknowledge using delayed work.
++	 */
 +
-+	return 0;
++	disable_irq_nosync(irq);
++	schedule_delayed_work(&priv->work, HZ / 20);
++	return IRQ_HANDLED;
 +}
 +
- static int __init dc_kbd_init(void)
- {
- 	return maple_driver_register(&dc_kbd_driver.drv);
-@@ -245,6 +282,7 @@ static int __init dc_kbd_init(void)
- 
- static void __exit dc_kbd_exit(void)
- {
-+	bus_for_each_dev(&maple_bus_type, NULL, NULL, unplug_maple_keyb);
- 	driver_unregister(&dc_kbd_driver.drv);
- }
- 
++static int migor_ts_probe(struct i2c_client *client)
++{
++	struct migor_ts_priv *priv;
++	int res = 0;
++
++	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
++	if (priv == NULL) {
++		dev_err(&client->dev, "failed to allocate driver data\n");
++		res = -ENOMEM;
++		goto err0;
++	}
++
++	dev_set_drvdata(&client->dev, priv);
++	priv->client = client;
++	INIT_DELAYED_WORK(&priv->work, migor_ts_poscheck);
++	priv->irq = client->irq;
++
++	priv->input = input_allocate_device();
++	if (!priv->input) {
++		dev_err(&client->dev, "Failed to allocate input device.\n");
++		res = -ENOMEM;
++		goto err1;
++	}
++
++	priv->input->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	priv->input->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++
++	input_set_abs_params(priv->input, ABS_X, 95, 955, 0, 0);
++	input_set_abs_params(priv->input, ABS_Y, 85, 935, 0, 0);
++	input_set_abs_params(priv->input, ABS_PRESSURE, 0, 0, 0, 0);
++
++	priv->input->name = client->driver_name;
++	priv->input->phys = "input/event0";
++	priv->input->id.bustype = BUS_ISA;
++
++	res = input_register_device(priv->input);
++	if (res) {
++		input_free_device(priv->input);
++		goto err1;
++	}
++
++	if (request_irq(priv->irq, migor_ts_isr, IRQF_TRIGGER_LOW,
++			client->driver_name, priv)) {
++		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
++		res = -EBUSY;
++		goto err2;
++	}
++
++	/* enable controller */
++	if (i2c_master_send(client, migor_ts_ena_seq, sizeof(migor_ts_ena_seq))
++	    == sizeof(migor_ts_ena_seq))
++		return 0;
++
++	dev_err(&client->dev, "Unable to enable touchscreen.\n");
++
++	free_irq(priv->irq, priv);
++ err2:
++	input_unregister_device(priv->input);
++ err1:
++	kfree(priv);
++ err0:
++	return res;
++}
++
++static int migor_ts_remove(struct i2c_client *client)
++{
++	struct migor_ts_priv *priv = dev_get_drvdata(&client->dev);
++	int ret;
++
++	/* cancel pending work and wait for migor_ts_poscheck() to finish */
++	ret = cancel_delayed_work_sync(&priv->work);
++	if (ret)
++		return ret;
++
++	/* disable controller */
++	i2c_master_send(client, migor_ts_dis_seq, sizeof(migor_ts_dis_seq));
++
++	free_irq(priv->irq, priv);
++	input_unregister_device(priv->input);
++	kfree(priv);
++	return ret;
++}
++
++static struct i2c_driver migor_ts_driver = {
++	.driver = {
++		.name = "migor_ts",
++	},
++	.probe = migor_ts_probe,
++	.remove = migor_ts_remove,
++};
++
++static int __init migor_ts_init(void)
++{
++	return i2c_add_driver(&migor_ts_driver);
++}
++
++static void __exit migor_ts_exit(void)
++{
++	i2c_del_driver(&migor_ts_driver);
++}
++
++MODULE_DESCRIPTION("MigoR Touchscreen driver");
++MODULE_AUTHOR("Magnus Damm <damm@opensource.se>");
++MODULE_LICENSE("GPL");
++
++module_init(migor_ts_init);
++module_exit(migor_ts_exit);
 _

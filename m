@@ -1,69 +1,58 @@
-From: Anssi Hannula <dmitry.torokhov@gmail.com>
-Subject: [PATCH 17/37] Input: xpad - drop obsolete driver versioning
-Date: Thu, 3 Apr 2008 16:19:10 -0400
-Message-ID: <bf8cb3141884138c2e4a2ecb56300ece6e8020a2.1208783694.git.dmitry.torokhov@gmail.com>
+From: Peter Zijlstra <dmitry.torokhov@gmail.com>
+Subject: [PATCH 37/37] Input: mac_hid - add lockdep annotation to emumousebtn
+Date: Fri, 18 Apr 2008 00:25:38 -0400
+Message-ID: <9e7ddf905834f7b2969464a49e95eb59f4b7b03c.1208783694.git.dmitry.torokhov@gmail.com>
 References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.29]:15846 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759686AbYDUNSw (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.176]:8449 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757821AbYDUNTQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:18:52 -0400
-Received: by yw-out-2324.google.com with SMTP id 5so1005565ywb.1
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:18:51 -0700 (PDT)
+	Mon, 21 Apr 2008 09:19:16 -0400
+Received: by wa-out-1112.google.com with SMTP id m16so3106305waf.23
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:19:16 -0700 (PDT)
 In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-The driver version numbers and changelog have not been updated in a
-long while to reflect actual changes. Remove the version number and
-add a notice that later changes can be tracked in SCM.
+The mouse button emulation calls input device methods from an input
+device. This causes funny lock nesting which is harmless as each
+device has its own locks.
 
-Signed-off-by: Anssi Hannula <anssi.hannula@gmail.com>
+Give the nesting device its own lock classes so that lockdep will not
+consider them the same.
+
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/joystick/xpad.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/macintosh/mac_hid.c |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index fd80113..7188eec 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1,5 +1,5 @@
- /*
-- * X-Box gamepad - v0.0.6
-+ * X-Box gamepad driver
-  *
-  * Copyright (c) 2002 Marko Friedemann <mfr@bmx-chemnitz.de>
-  *               2004 Oliver Schwartz <Oliver.Schwartz@gmx.de>,
-@@ -68,6 +68,8 @@
-  *  - dance pads will map D-PAD to buttons, not axes
-  *  - pass the module paramater 'dpad_to_buttons' to force
-  *    the D-PAD to map to buttons if your pad is not detected
-+ *
-+ * Later changes can be tracked in SCM.
-  */
- 
- #include <linux/kernel.h>
-@@ -77,7 +79,6 @@
- #include <linux/module.h>
- #include <linux/usb/input.h>
- 
--#define DRIVER_VERSION "v0.0.6"
- #define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
- #define DRIVER_DESC "X-Box pad driver"
- 
-@@ -771,7 +772,7 @@ static int __init usb_xpad_init(void)
- {
- 	int result = usb_register(&xpad_driver);
- 	if (result == 0)
--		info(DRIVER_DESC ":" DRIVER_VERSION);
-+		info(DRIVER_DESC);
- 	return result;
+diff --git a/drivers/macintosh/mac_hid.c b/drivers/macintosh/mac_hid.c
+index 8930230..f972ff3 100644
+--- a/drivers/macintosh/mac_hid.c
++++ b/drivers/macintosh/mac_hid.c
+@@ -103,6 +103,9 @@ int mac_hid_mouse_emulate_buttons(int caller, unsigned int keycode, int down)
+ 	return 0;
  }
  
++static struct lock_class_key emumousebtn_event_class;
++static struct lock_class_key emumousebtn_mutex_class;
++
+ static int emumousebtn_input_register(void)
+ {
+ 	int ret;
+@@ -111,6 +114,9 @@ static int emumousebtn_input_register(void)
+ 	if (!emumousebtn)
+ 		return -ENOMEM;
+ 
++	lockdep_set_class(emumousebtn->event_lock, &emumousebtn_event_class);
++	lockdep_set_class(emumousebtn->mutex, &emumousebtn_mutex_class);
++
+ 	emumousebtn->name = "Macintosh mouse button emulation";
+ 	emumousebtn->id.bustype = BUS_ADB;
+ 	emumousebtn->id.vendor = 0x0001;
 -- 
 1.5.5.rc2.6.gf58d
-
 

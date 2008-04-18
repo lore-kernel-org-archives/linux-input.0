@@ -1,48 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142
-	joystick	driver (v2)
-Date: Fri, 18 Apr 2008 13:15:58 -0400
-Message-ID: <20080418131149.ZZRA012@mailhub.coreip.homeip.net>
-References: <1206643110-8789-1-git-send-email-cooloney@kernel.org>
+From: Roel Kluin <12o3l@tiscali.nl>
+Subject: No mouse, Power Button (FF) as /class/input/input1
+Date: Fri, 18 Apr 2008 18:11:57 +0200
+Message-ID: <4808C84D.4020009@tiscali.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1206643110-8789-1-git-send-email-cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/i2c>
-List-Post: <mailto:i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>
-List-Help: <mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/i2c>,
-	<mailto:i2c-request-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org?subject=subscribe>
-Sender: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Errors-To: i2c-bounces-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-To: Bryan Wu <cooloney-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: andre-uV3PkZocewMvJ4zyQN8m6A@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out2.tiscali.nl ([195.241.79.177]:58446 "EHLO
+	smtp-out2.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751484AbYDRQMA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Apr 2008 12:12:00 -0400
+Received: from [82.171.187.43] (helo=[192.168.1.2])
+	by smtp-out2.tiscali.nl with esmtp (Tiscali http://www.tiscali.nl)
+	id 1JmtBv-00006p-4c
+	for <linux-input@vger.kernel.org>; Fri, 18 Apr 2008 18:11:59 +0200
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Hi Bryan,
+I have a PS/2 mouse:
 
-On Thu, Mar 27, 2008 at 11:38:30AM -0700, Bryan Wu wrote:
-> +	input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
-> +						BIT_MASK(BTN_BASE2) |
-> +						BIT_MASK(BTN_BASE3) |
-> +						BIT_MASK(BTN_BASE4);
-> +	input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
-> +						BIT_MASK(KEY_DOWN) |
-> +						BIT_MASK(KEY_LEFT) |
-> +						BIT_MASK(KEY_RIGHT);
-> +
+dmesg | grep "^input:"
+input: AT Translated Set 2 keyboard as /class/input/input0
+input: PS2++ Logitech Wheel Mouse as /class/input/input1
+input: Power Button (FF) as /class/input/input2
+input: Power Button (CM) as /class/input/input3
 
-Why don't you use REL_X/REL_Y to report directional movement? Using
-buttons for that is pretty unusual.
+About once a month, however, this mouse is not working after boot.
 
--- 
-Dmitry
+* cat /dev/input/mice does not print when moving mouse
+* /etc/rc.d/rc.udev restart; /etc/rc.d/rc.gpm restart does not give a mouse
 
-_______________________________________________
-i2c mailing list
-i2c-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-http://lists.lm-sensors.org/mailman/listinfo/i2c
+However, usually after reboot the mouse is working again. I have had this problem
+for a few years now, not sure when it started.
+
+when comparing dmesg:
+diff -u dmesg_no_mouse dmesg_mouse | grep "^[-+]\(input:\|[-+][-+]\)"
+--- dmesg_no_mouse      2008-04-18 10:17:58.000000000 +0200
++++ dmesg_mouse         2008-04-18 10:59:30.000000000 +0200
++input: PS2++ Logitech Wheel Mouse as /class/input/input1
++input: Power Button (FF) as /class/input/input2
+-input: Power Button (FF) as /class/input/input1
+-input: Power Button (CM) as /class/input/input2
++input: Power Button (CM) as /class/input/input3
+
+No mouse and Power Button (FF) as /class/input/input1 also occurred in dmesgs on
+2007-09-15 12:35
+2007-11-23 10:25
+2007-12-01 18:34
+2008-04-18 10:17
+
+and Mouse as /class/input/input1 with mouse functioning in dmesgs on
+2007-09-15 12:37
+2007-11-23 10:28
+2007-11-23 10:46
+2008-04-18 10:59
+
+Any ideas what goes wrong?

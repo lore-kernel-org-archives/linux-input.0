@@ -1,287 +1,333 @@
 From: akpm@linux-foundation.org
-Subject: [patch 6/7] input: add debouncing for generic gpio input device gpio_key.c
-Date: Fri, 18 Apr 2008 13:40:18 -0700
-Message-ID: <200804182040.m3IKeI8l014307@imap1.linux-foundation.org>
+Subject: [patch 1/7] input: fix platform driver hotplug/coldplug
+Date: Fri, 18 Apr 2008 13:40:12 -0700
+Message-ID: <200804182040.m3IKeDhl014292@imap1.linux-foundation.org>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:40675 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:33510 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752935AbYDRUkt (ORCPT
+	by vger.kernel.org with ESMTP id S1753106AbYDRUkd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Apr 2008 16:40:49 -0400
+	Fri, 18 Apr 2008 16:40:33 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, ek9852@gmail.com, anti.sullin@artecdesign.ee, david-b@pacbell.net, hvr@gnu.org, jirislaby@gmail.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, kay.sievers@vrfy.org, dbrownell@users.sourceforge.net, jikos@jikos.cz
 
-From: Keith Mok <ek9852@gmail.com>
+=46rom: Kay Sievers <kay.sievers@vrfy.org>
 
-Add debouncing support for the generic gpio input device, since debouncing is
-most likely to happen.
+Since 43cc71eed1250755986da4c0f9898f9a635cb3bf, the platform modalias i=
+s
+prefixed with "platform:".  Add MODULE_ALIAS() to the hotpluggable "inp=
+ut"
+platform drivers, to re-enable auto loading.
 
-Signed-off-by: Keith Mok <ek9852@gmail.com>
-Cc: Herbert Valerio Riedel <hvr@gnu.org>
+[dbrownell@users.sourceforge.net: more drivers, registration fixes]
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Cc: Dmitry Torokhov <dtor@mail.ru>
-Cc: Jiri Slaby <jirislaby@gmail.com>
-Cc: Anti Sullin <anti.sullin@artecdesign.ee>
-Cc: David Brownell <david-b@pacbell.net>
+Cc: Jiri Kosina <jikos@jikos.cz>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/gpio_keys.c |  127 ++++++++++++++++++++++-----
- 1 file changed, 107 insertions(+), 20 deletions(-)
+ drivers/input/keyboard/aaed2000_kbd.c     |    4 ++++
+ drivers/input/keyboard/bf54x-keys.c       |    2 ++
+ drivers/input/keyboard/corgikbd.c         |    2 ++
+ drivers/input/keyboard/gpio_keys.c        |    2 ++
+ drivers/input/keyboard/jornada680_kbd.c   |    2 ++
+ drivers/input/keyboard/jornada720_kbd.c   |    4 ++++
+ drivers/input/keyboard/omap-keypad.c      |    2 ++
+ drivers/input/keyboard/pxa27x_keypad.c    |    4 ++++
+ drivers/input/keyboard/spitzkbd.c         |    1 +
+ drivers/input/keyboard/tosakbd.c          |    2 ++
+ drivers/input/misc/cobalt_btns.c          |    3 +++
+ drivers/input/mouse/gpio_mouse.c          |    4 ++++
+ drivers/input/serio/rpckbd.c              |    2 ++
+ drivers/input/touchscreen/corgi_ts.c      |    2 ++
+ drivers/input/touchscreen/jornada720_ts.c |    4 ++++
+ 15 files changed, 40 insertions(+)
 
-diff -puN drivers/input/keyboard/gpio_keys.c~input-add-debouncing-for-generic-gpio-input-device-gpio_keyc drivers/input/keyboard/gpio_keys.c
---- a/drivers/input/keyboard/gpio_keys.c~input-add-debouncing-for-generic-gpio-input-device-gpio_keyc
-+++ a/drivers/input/keyboard/gpio_keys.c
-@@ -26,33 +26,45 @@
- 
- #include <asm/gpio.h>
- 
-+static void do_gpio_keys_timer(unsigned long);
-+
-+struct gpio_key_data {
-+	struct timer_list gpio_keys_timer;
-+	spinlock_t suspend_lock;
-+	int suspended;
-+};
-+
- static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- {
--	int i;
- 	struct platform_device *pdev = dev_id;
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
- 	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_key_data *pgpiodata = input_get_drvdata(input);
-+	int i;
-+	unsigned long flags;
- 
--	for (i = 0; i < pdata->nbuttons; i++) {
--		struct gpio_keys_button *button = &pdata->buttons[i];
--		int gpio = button->gpio;
--
--		if (irq == gpio_to_irq(gpio)) {
--			unsigned int type = button->type ?: EV_KEY;
--			int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
-+	spin_lock_irqsave(&(pgpiodata->suspend_lock), flags);
-+	if (pgpiodata->suspended) {
-+		spin_unlock_irqrestore(&(pgpiodata->suspend_lock), flags);
-+		return IRQ_HANDLED;
-+	}
-+	spin_unlock_irqrestore(&(pgpiodata->suspend_lock), flags);
- 
--			input_event(input, type, button->code, !!state);
--			input_sync(input);
--			return IRQ_HANDLED;
--		}
-+	/* disable keyboard interrupt and schedule for handling */
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		int irq = gpio_to_irq(pdata->buttons[i].gpio);
-+		disable_irq_nosync(irq);
- 	}
- 
--	return IRQ_NONE;
-+	mod_timer(&(pgpiodata->gpio_keys_timer), jiffies + HZ / 100);
-+
-+	return IRQ_HANDLED;
+diff -puN drivers/input/keyboard/aaed2000_kbd.c~input-fix-platform-driv=
+er-hotplug-coldplug drivers/input/keyboard/aaed2000_kbd.c
+--- a/drivers/input/keyboard/aaed2000_kbd.c~input-fix-platform-driver-h=
+otplug-coldplug
++++ a/drivers/input/keyboard/aaed2000_kbd.c
+@@ -156,11 +156,15 @@ static int __devexit aaedkbd_remove(stru
+ 	return 0;
  }
- 
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_key_data *pgpiodata;
- 	struct input_dev *input;
- 	int i, error;
- 	int wakeup = 0;
-@@ -61,6 +73,17 @@ static int __devinit gpio_keys_probe(str
- 	if (!input)
- 		return -ENOMEM;
- 
-+	pgpiodata = kmalloc(sizeof(struct gpio_key_data), GFP_KERNEL);
-+	if (!pgpiodata) {
-+		error = -ENOMEM;
-+		goto fail2;
-+	}
+=20
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:aaed2000-keyboard");
 +
-+	setup_timer(&(pgpiodata->gpio_keys_timer), do_gpio_keys_timer,
-+		(unsigned long) pdev);
-+	spin_lock_init(&(pgpiodata->suspend_lock));
-+	pgpiodata->suspended = 0;
-+
- 	platform_set_drvdata(pdev, input);
- 
- 	input->evbit[0] = BIT_MASK(EV_KEY);
-@@ -74,6 +97,8 @@ static int __devinit gpio_keys_probe(str
- 	input->id.product = 0x0001;
- 	input->id.version = 0x0100;
- 
-+	input_set_drvdata(input, pgpiodata);
-+
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		struct gpio_keys_button *button = &pdata->buttons[i];
- 		int irq;
-@@ -83,7 +108,7 @@ static int __devinit gpio_keys_probe(str
- 		if (error < 0) {
- 			pr_err("gpio-keys: failed to request GPIO %d,"
- 				" error %d\n", button->gpio, error);
--			goto fail;
-+			goto fail1;
- 		}
- 
- 		error = gpio_direction_input(button->gpio);
-@@ -92,7 +117,7 @@ static int __devinit gpio_keys_probe(str
- 				" direction for GPIO %d, error %d\n",
- 				button->gpio, error);
- 			gpio_free(button->gpio);
--			goto fail;
-+			goto fail1;
- 		}
- 
- 		irq = gpio_to_irq(button->gpio);
-@@ -102,7 +127,7 @@ static int __devinit gpio_keys_probe(str
- 				" for GPIO %d, error %d\n",
- 				button->gpio, error);
- 			gpio_free(button->gpio);
--			goto fail;
-+			goto fail1;
- 		}
- 
- 		error = request_irq(irq, gpio_keys_isr,
-@@ -114,7 +139,7 @@ static int __devinit gpio_keys_probe(str
- 			pr_err("gpio-keys: Unable to claim irq %d; error %d\n",
- 				irq, error);
- 			gpio_free(button->gpio);
--			goto fail;
-+			goto fail1;
- 		}
- 
- 		if (button->wakeup)
-@@ -127,20 +152,21 @@ static int __devinit gpio_keys_probe(str
- 	if (error) {
- 		pr_err("gpio-keys: Unable to register input device, "
- 			"error: %d\n", error);
--		goto fail;
-+		goto fail1;
+ static struct platform_driver aaedkbd_driver =3D {
+ 	.probe		=3D aaedkbd_probe,
+ 	.remove		=3D __devexit_p(aaedkbd_remove),
+ 	.driver		=3D {
+ 		.name	=3D "aaed2000-keyboard",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+diff -puN drivers/input/keyboard/bf54x-keys.c~input-fix-platform-driver=
+-hotplug-coldplug drivers/input/keyboard/bf54x-keys.c
+--- a/drivers/input/keyboard/bf54x-keys.c~input-fix-platform-driver-hot=
+plug-coldplug
++++ a/drivers/input/keyboard/bf54x-keys.c
+@@ -359,6 +359,7 @@ struct platform_driver bfin_kpad_device_
+ 	.remove		=3D __devexit_p(bfin_kpad_remove),
+ 	.driver		=3D {
+ 		.name	=3D DRV_NAME,
++		.owner	=3D THIS_MODULE,
  	}
- 
- 	device_init_wakeup(&pdev->dev, wakeup);
- 
+ };
+=20
+@@ -378,3 +379,4 @@ module_exit(bfin_kpad_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
+ MODULE_DESCRIPTION("Keypad driver for BF54x Processors");
++MODULE_ALIAS("platform:bf54x-keys");
+diff -puN drivers/input/keyboard/corgikbd.c~input-fix-platform-driver-h=
+otplug-coldplug drivers/input/keyboard/corgikbd.c
+--- a/drivers/input/keyboard/corgikbd.c~input-fix-platform-driver-hotpl=
+ug-coldplug
++++ a/drivers/input/keyboard/corgikbd.c
+@@ -393,6 +393,7 @@ static struct platform_driver corgikbd_d
+ 	.resume		=3D corgikbd_resume,
+ 	.driver		=3D {
+ 		.name	=3D "corgi-keyboard",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+@@ -412,3 +413,4 @@ module_exit(corgikbd_exit);
+ MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
+ MODULE_DESCRIPTION("Corgi Keyboard Driver");
+ MODULE_LICENSE("GPLv2");
++MODULE_ALIAS("platform:corgi-keyboard");
+diff -puN drivers/input/keyboard/gpio_keys.c~input-fix-platform-driver-=
+hotplug-coldplug drivers/input/keyboard/gpio_keys.c
+--- a/drivers/input/keyboard/gpio_keys.c~input-fix-platform-driver-hotp=
+lug-coldplug
++++ a/drivers/input/keyboard/gpio_keys.c
+@@ -214,6 +214,7 @@ struct platform_driver gpio_keys_device_
+ 	.resume		=3D gpio_keys_resume,
+ 	.driver		=3D {
+ 		.name	=3D "gpio-keys",
++		.owner	=3D THIS_MODULE,
+ 	}
+ };
+=20
+@@ -233,3 +234,4 @@ module_exit(gpio_keys_exit);
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Phil Blundell <pb@handhelds.org>");
+ MODULE_DESCRIPTION("Keyboard driver for CPU GPIOs");
++MODULE_ALIAS("platform:gpio-keys");
+diff -puN drivers/input/keyboard/jornada680_kbd.c~input-fix-platform-dr=
+iver-hotplug-coldplug drivers/input/keyboard/jornada680_kbd.c
+--- a/drivers/input/keyboard/jornada680_kbd.c~input-fix-platform-driver=
+-hotplug-coldplug
++++ a/drivers/input/keyboard/jornada680_kbd.c
+@@ -254,6 +254,7 @@ static int __devexit jornada680kbd_remov
+ static struct platform_driver jornada680kbd_driver =3D {
+ 	.driver	=3D {
+ 		.name	=3D "jornada680_kbd",
++		.owner	=3D THIS_MODULE,
+ 	},
+ 	.probe	=3D jornada680kbd_probe,
+ 	.remove	=3D __devexit_p(jornada680kbd_remove),
+@@ -275,3 +276,4 @@ module_exit(jornada680kbd_exit);
+ MODULE_AUTHOR("Kristoffer Ericson <kristoffer.ericson@gmail.com>");
+ MODULE_DESCRIPTION("HP Jornada 620/660/680/690 Keyboard Driver");
+ MODULE_LICENSE("GPLv2");
++MODULE_ALIAS("platform:jornada680_kbd");
+diff -puN drivers/input/keyboard/jornada720_kbd.c~input-fix-platform-dr=
+iver-hotplug-coldplug drivers/input/keyboard/jornada720_kbd.c
+--- a/drivers/input/keyboard/jornada720_kbd.c~input-fix-platform-driver=
+-hotplug-coldplug
++++ a/drivers/input/keyboard/jornada720_kbd.c
+@@ -162,9 +162,13 @@ static int __devexit jornada720_kbd_remo
  	return 0;
- 
-- fail:
-+ fail1:
- 	while (--i >= 0) {
- 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), pdev);
- 		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
- 	platform_set_drvdata(pdev, NULL);
-+ fail2:
- 	input_free_device(input);
- 
- 	return error;
-@@ -150,6 +176,7 @@ static int __devexit gpio_keys_remove(st
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
- 	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_key_data *pgpiodata = input_get_drvdata(input);
- 	int i;
- 
- 	device_init_wakeup(&pdev->dev, 0);
-@@ -157,9 +184,15 @@ static int __devexit gpio_keys_remove(st
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
- 		free_irq(irq, pdev);
--		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
-+	del_timer_sync(&(pgpiodata->gpio_keys_timer));
+ }
+=20
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:jornada720_kbd");
 +
-+	for (i = 0; i < pdata->nbuttons; i++)
-+		gpio_free(pdata->buttons[i].gpio);
-+
-+	kfree(pgpiodata);
-+
- 	input_unregister_device(input);
- 
+ static struct platform_driver jornada720_kbd_driver =3D {
+ 	.driver  =3D {
+ 		.name    =3D "jornada720_kbd",
++		.owner	=3D THIS_MODULE,
+ 	 },
+ 	.probe   =3D jornada720_kbd_probe,
+ 	.remove  =3D __devexit_p(jornada720_kbd_remove),
+diff -puN drivers/input/keyboard/omap-keypad.c~input-fix-platform-drive=
+r-hotplug-coldplug drivers/input/keyboard/omap-keypad.c
+--- a/drivers/input/keyboard/omap-keypad.c~input-fix-platform-driver-ho=
+tplug-coldplug
++++ a/drivers/input/keyboard/omap-keypad.c
+@@ -467,6 +467,7 @@ static struct platform_driver omap_kp_dr
+ 	.resume		=3D omap_kp_resume,
+ 	.driver		=3D {
+ 		.name	=3D "omap-keypad",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+@@ -487,3 +488,4 @@ module_exit(omap_kp_exit);
+ MODULE_AUTHOR("Timo Ter=C3=A4s");
+ MODULE_DESCRIPTION("OMAP Keypad Driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:omap-keypad");
+diff -puN drivers/input/keyboard/pxa27x_keypad.c~input-fix-platform-dri=
+ver-hotplug-coldplug drivers/input/keyboard/pxa27x_keypad.c
+--- a/drivers/input/keyboard/pxa27x_keypad.c~input-fix-platform-driver-=
+hotplug-coldplug
++++ a/drivers/input/keyboard/pxa27x_keypad.c
+@@ -545,6 +545,9 @@ static int __devexit pxa27x_keypad_remov
  	return 0;
-@@ -169,9 +202,30 @@ static int __devexit gpio_keys_remove(st
- #ifdef CONFIG_PM
- static int gpio_keys_suspend(struct platform_device *pdev, pm_message_t state)
+ }
+=20
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:pxa27x-keypad");
++
+ static struct platform_driver pxa27x_keypad_driver =3D {
+ 	.probe		=3D pxa27x_keypad_probe,
+ 	.remove		=3D __devexit_p(pxa27x_keypad_remove),
+@@ -552,6 +555,7 @@ static struct platform_driver pxa27x_key
+ 	.resume		=3D pxa27x_keypad_resume,
+ 	.driver		=3D {
+ 		.name	=3D "pxa27x-keypad",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+diff -puN drivers/input/keyboard/spitzkbd.c~input-fix-platform-driver-h=
+otplug-coldplug drivers/input/keyboard/spitzkbd.c
+--- a/drivers/input/keyboard/spitzkbd.c~input-fix-platform-driver-hotpl=
+ug-coldplug
++++ a/drivers/input/keyboard/spitzkbd.c
+@@ -495,3 +495,4 @@ module_exit(spitzkbd_exit);
+ MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
+ MODULE_DESCRIPTION("Spitz Keyboard Driver");
+ MODULE_LICENSE("GPLv2");
++MODULE_ALIAS("platform:spitz-keyboard");
+diff -puN drivers/input/keyboard/tosakbd.c~input-fix-platform-driver-ho=
+tplug-coldplug drivers/input/keyboard/tosakbd.c
+--- a/drivers/input/keyboard/tosakbd.c~input-fix-platform-driver-hotplu=
+g-coldplug
++++ a/drivers/input/keyboard/tosakbd.c
+@@ -409,6 +409,7 @@ static struct platform_driver tosakbd_dr
+ 	.resume		=3D tosakbd_resume,
+ 	.driver		=3D {
+ 		.name	=3D "tosa-keyboard",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+@@ -428,3 +429,4 @@ module_exit(tosakbd_exit);
+ MODULE_AUTHOR("Dirk Opfer <Dirk@Opfer-Online.de>");
+ MODULE_DESCRIPTION("Tosa Keyboard Driver");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:tosa-keyboard");
+diff -puN drivers/input/misc/cobalt_btns.c~input-fix-platform-driver-ho=
+tplug-coldplug drivers/input/misc/cobalt_btns.c
+--- a/drivers/input/misc/cobalt_btns.c~input-fix-platform-driver-hotplu=
+g-coldplug
++++ a/drivers/input/misc/cobalt_btns.c
+@@ -148,6 +148,9 @@ static int __devexit cobalt_buttons_remo
+ 	return 0;
+ }
+=20
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:Cobalt buttons");
++
+ static struct platform_driver cobalt_buttons_driver =3D {
+ 	.probe	=3D cobalt_buttons_probe,
+ 	.remove	=3D __devexit_p(cobalt_buttons_remove),
+diff -puN drivers/input/mouse/gpio_mouse.c~input-fix-platform-driver-ho=
+tplug-coldplug drivers/input/mouse/gpio_mouse.c
+--- a/drivers/input/mouse/gpio_mouse.c~input-fix-platform-driver-hotplu=
+g-coldplug
++++ a/drivers/input/mouse/gpio_mouse.c
+@@ -171,10 +171,14 @@ static int __devexit gpio_mouse_remove(s
+ 	return 0;
+ }
+=20
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:gpio_mouse");
++
+ struct platform_driver gpio_mouse_device_driver =3D {
+ 	.remove		=3D __devexit_p(gpio_mouse_remove),
+ 	.driver		=3D {
+ 		.name	=3D "gpio_mouse",
++		.owner	=3D THIS_MODULE,
+ 	}
+ };
+=20
+diff -puN drivers/input/serio/rpckbd.c~input-fix-platform-driver-hotplu=
+g-coldplug drivers/input/serio/rpckbd.c
+--- a/drivers/input/serio/rpckbd.c~input-fix-platform-driver-hotplug-co=
+ldplug
++++ a/drivers/input/serio/rpckbd.c
+@@ -45,6 +45,7 @@
+ MODULE_AUTHOR("Vojtech Pavlik, Russell King");
+ MODULE_DESCRIPTION("Acorn RiscPC PS/2 keyboard controller driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:kart");
+=20
+ static int rpckbd_write(struct serio *port, unsigned char val)
  {
-+	unsigned long flags;
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_key_data *pgpiodata = input_get_drvdata(input);
- 	int i;
- 
-+	spin_lock_irqsave(&(pgpiodata->suspend_lock), flags);
+@@ -140,6 +141,7 @@ static struct platform_driver rpckbd_dri
+ 	.remove		=3D __devexit_p(rpckbd_remove),
+ 	.driver		=3D {
+ 		.name	=3D "kart",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+diff -puN drivers/input/touchscreen/corgi_ts.c~input-fix-platform-drive=
+r-hotplug-coldplug drivers/input/touchscreen/corgi_ts.c
+--- a/drivers/input/touchscreen/corgi_ts.c~input-fix-platform-driver-ho=
+tplug-coldplug
++++ a/drivers/input/touchscreen/corgi_ts.c
+@@ -362,6 +362,7 @@ static struct platform_driver corgits_dr
+ 	.resume		=3D corgits_resume,
+ 	.driver		=3D {
+ 		.name	=3D "corgi-ts",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
+@@ -381,3 +382,4 @@ module_exit(corgits_exit);
+ MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
+ MODULE_DESCRIPTION("Corgi TouchScreen Driver");
+ MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:corgi-ts");
+diff -puN drivers/input/touchscreen/jornada720_ts.c~input-fix-platform-=
+driver-hotplug-coldplug drivers/input/touchscreen/jornada720_ts.c
+--- a/drivers/input/touchscreen/jornada720_ts.c~input-fix-platform-driv=
+er-hotplug-coldplug
++++ a/drivers/input/touchscreen/jornada720_ts.c
+@@ -160,11 +160,15 @@ static int __devexit jornada720_ts_remov
+ 	return 0;
+ }
+=20
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:jornada_ts");
 +
-+	/*
-+	 * Re-enable the interrupt in case it has been masked by the
-+	 * handler and a key is still pressed.  We need the interrupt
-+	 * to wake us up from suspended.
-+	 */
-+
-+	pgpiodata->suspended = 1;
-+
-+	spin_unlock_irqrestore(&(pgpiodata->suspend_lock), flags);
-+	del_timer_sync(&(pgpiodata->gpio_keys_timer));
-+
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		int irq = gpio_to_irq(pdata->buttons[i].gpio);
-+		enable_irq(irq);
-+	}
-+
- 	if (device_may_wakeup(&pdev->dev)) {
- 		for (i = 0; i < pdata->nbuttons; i++) {
- 			struct gpio_keys_button *button = &pdata->buttons[i];
-@@ -188,8 +242,11 @@ static int gpio_keys_suspend(struct plat
- static int gpio_keys_resume(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_key_data *pgpiodata = input_get_drvdata(input);
- 	int i;
- 
-+	pgpiodata->suspended = 0;
- 	if (device_may_wakeup(&pdev->dev)) {
- 		for (i = 0; i < pdata->nbuttons; i++) {
- 			struct gpio_keys_button *button = &pdata->buttons[i];
-@@ -207,6 +264,36 @@ static int gpio_keys_resume(struct platf
- #define gpio_keys_resume	NULL
- #endif
- 
-+static void do_gpio_keys_timer(unsigned long data)
-+{
-+	int pressed;
-+	int i;
-+	struct platform_device *pdev = (struct platform_device *)data;
-+	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_key_data *pgpiodata = input_get_drvdata(input);
-+
-+	/* check for any changes */
-+	pressed = 0;
-+	for (i = 0; i < pdata->nbuttons; i++) {
-+		struct gpio_keys_button *button = &pdata->buttons[i];
-+		int gpio = button->gpio;
-+
-+		unsigned int type = button->type ?: EV_KEY;
-+		int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
-+
-+		input_event(input, type, button->code, !!state);
-+		pressed |= !!state;
-+		input_sync(input);
-+	}
-+	if (pressed) {
-+		int delay = HZ / 20;
-+		/* some key is pressed - keep irq disabled and use timer
-+		 * to poll */
-+		mod_timer(&(pgpiodata->gpio_keys_timer), jiffies + delay);
-+	}
-+}
-+
- struct platform_driver gpio_keys_device_driver = {
- 	.probe		= gpio_keys_probe,
- 	.remove		= __devexit_p(gpio_keys_remove),
+ static struct platform_driver jornada720_ts_driver =3D {
+ 	.probe		=3D jornada720_ts_probe,
+ 	.remove		=3D __devexit_p(jornada720_ts_remove),
+ 	.driver		=3D {
+ 		.name	=3D "jornada_ts",
++		.owner	=3D THIS_MODULE,
+ 	},
+ };
+=20
 _
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

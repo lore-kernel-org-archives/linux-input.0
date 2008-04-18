@@ -1,45 +1,38 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: HID bus
-Date: Fri, 18 Apr 2008 13:36:07 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz>
-References: <1207341357-17792-1-git-send-email-jirislaby@gmail.com>
- <1207341357-17792-8-git-send-email-jirislaby@gmail.com>
- <Pine.LNX.4.64.0804161529270.12972@jikos.suse.cz> <480661FE.1040807@gmail.com>
- <20080416164500.ZZRA012@mailhub.coreip.homeip.net> <4806676B.30809@suse.cz>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [RFC 7/8] HID: move apple quirks
+Date: Fri, 18 Apr 2008 04:35:34 -0700 (PDT)
+Message-ID: <20080418.043534.160130917.davem@davemloft.net>
+References: <Pine.LNX.4.64.0804161544490.12972@jikos.suse.cz>
+	<48061042.6030005@gmail.com>
+	<Pine.LNX.4.64.0804181332040.12972@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:41006 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751743AbYDRLgI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 18 Apr 2008 07:36:08 -0400
-In-Reply-To: <4806676B.30809@suse.cz>
+Received: from 74-93-104-97-Washington.hfc.comcastbusiness.net ([74.93.104.97]:42409
+	"EHLO sunset.davemloft.net" rhost-flags-OK-FAIL-OK-OK)
+	by vger.kernel.org with ESMTP id S1750921AbYDRLff (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 18 Apr 2008 07:35:35 -0400
+In-Reply-To: <Pine.LNX.4.64.0804181332040.12972@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jslaby@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org
+To: jkosina@suse.cz
+Cc: jirislaby@gmail.com, linux-input@vger.kernel.org, marcel@holtmann.org, dmitry.torokhov@gmail.com, jslaby@suse.cz
 
-On Wed, 16 Apr 2008, Jiri Slaby wrote:
+From: Jiri Kosina <jkosina@suse.cz>
+Date: Fri, 18 Apr 2008 13:33:06 +0200 (CEST)
 
-> > When I added serio bus I had to send patches to Rusty for 
-> > module-init-tools... No way around it as far as I understand.
-> I have no fear of augmenting the tools, but the regressions. If one 
-> compile those as modules, it won't work with older init tools installed, 
-> since it won't get loaded. In that way I have been thinking of the 
-> option CONFIG_I_HAVE_OLD_MIT which would integrate the drivers into 
-> hidbus module or something scary like that.
+> On Wed, 16 Apr 2008, Jiri Slaby wrote:
+> 
+> > Since the apple mightymouse is only quirked bluetooth device. Do you 
+> > want me to split it to 2 patches -- an usb part and a BT part? (Or note 
+> > this in changelog?)
+> 
+> I think this is up to Marcel -- if he is OK with me taking this through my 
+> tree eventually, just Acked-by is OK. If he wants to take it through 
+> his/Davem's tree, a separate patch will be probably needed.
 
-I don't seem to be smart enough to come up with any clever solution to 
-this either.
-
-So please also consider submitting the patch to module-init-tools, thanks.
-
-Maybe introducing CONFIG_HID_COMPAT (which will link everything together 
-again) and leaving it there for a few releases might help to leave the 
-complaints from users on reasonable level.
-
-Thanks!
-
--- 
-Jiri Kosina
-SUSE Labs
+I'm ambivalent, you guys do whatever is most convenient for you.
+It doesn't have to go through my tree at all and I doubt it will
+generate any merge hassles for net-2.6.26.

@@ -1,39 +1,48 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] ati_remote2 loadable keymap support
-Date: Thu, 17 Apr 2008 15:00:23 -0400
-Message-ID: <20080417144328.ZZRA012@mailhub.coreip.homeip.net>
-References: <200804051930.10574.linux@dadeos.co.uk> <20080408201826.GG16619@sci.fi>
+Subject: Re: WM97xx touchscreen updates
+Date: Fri, 18 Apr 2008 00:48:45 -0400
+Message-ID: <20080418044844.GA15686@anvil.corenet.prv>
+References: <20080415144535.GA20619@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ug-out-1314.google.com ([66.249.92.172]:2028 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752088AbYDQTAa (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.31]:6526 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751482AbYDREs5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Apr 2008 15:00:30 -0400
-Received: by ug-out-1314.google.com with SMTP id z38so1221266ugc.16
-        for <linux-input@vger.kernel.org>; Thu, 17 Apr 2008 12:00:29 -0700 (PDT)
+	Fri, 18 Apr 2008 00:48:57 -0400
+Received: by yw-out-2324.google.com with SMTP id 5so265352ywb.1
+        for <linux-input@vger.kernel.org>; Thu, 17 Apr 2008 21:48:47 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080408201826.GG16619@sci.fi>
+In-Reply-To: <20080415144535.GA20619@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ville Syrj?l? <syrjala@sci.fi>
-Cc: Peter Stokes <linux@dadeos.co.uk>, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, David Brownell <david-b@pacbell.net>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Apr 08, 2008 at 11:18:26PM +0300, Ville Syrj?l? wrote:
-> On Sat, Apr 05, 2008 at 07:30:10PM +0100, Peter Stokes wrote:
-> > +	u8  hwcode;
-> > +	u16 keycode[ARRAY_SIZE(ati_remote2_modes)];
-> > +} ati_remote2_keycodes[] = {
-> > +/*	 hwcode   AUX1             AUX2             AUX3             AUX4             PC                */
+On Tue, Apr 15, 2008 at 03:45:35PM +0100, Mark Brown wrote:
+> This patch series updates the WM97xx touchscreen drivers with a couple
+> of small cleanups and the addition of support for use of the WM97xx
+> touchpanels to wake up from suspend.  Since the last submission I have:
 > 
-> checkpatch.pl doesn't like these long lines.
+>  - Updated the commit message for scheduling of the interrupt handler. 
+>  - Hooked the touchscreen into the driver model wakeup infrastructure.
+> 
+> It is also available in the git repository at:
+> 
+>   git://opensource.wolfsonmicro.com/linux-2.6-touch upstream
+> 
+> Mark Brown (3):
+>       wm97xx-core: Only schedule interrupt handler if not already scheduled
+>       wm97xx-core: Use IRQF_SAMPLE_RANDOM
+>       wm97xx-core: Support use as a wakeup source
+> 
+>  drivers/input/touchscreen/wm97xx-core.c |   56 ++++++++++++++++++++++++++----
+>  include/linux/wm97xx.h                  |    3 ++
+>  2 files changed, 51 insertions(+), 8 deletions(-)
 > 
 
-In this case screw checkpatch, sometimes longer lines are better than
-the alternative.
-
-Peter, is an updated patch addressing other Ville's concerns coming?
+Applied the lot, thank you Mark.
 
 -- 
 Dmitry

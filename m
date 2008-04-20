@@ -1,33 +1,74 @@
-From: Jiri Slaby <jirislaby@gmail.com>
+From: Anssi Hannula <anssi.hannula@gmail.com>
 Subject: Re: HID bus
-Date: Sun, 20 Apr 2008 13:57:14 +0200
-Message-ID: <480B2F9A.3020104@gmail.com>
+Date: Sun, 20 Apr 2008 19:15:18 +0300
+Message-ID: <480B6C16.40806@gmail.com>
 References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz> <1208644696-29129-1-git-send-email-jirislaby@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.159]:30061 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754480AbYDTL5Z (ORCPT
+Received: from pne-smtpout3-sn1.fre.skanova.net ([81.228.11.120]:33436 "EHLO
+	pne-smtpout3-sn1.fre.skanova.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751689AbYDTQP1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Apr 2008 07:57:25 -0400
-Received: by fg-out-1718.google.com with SMTP id l27so1365804fgb.17
-        for <linux-input@vger.kernel.org>; Sun, 20 Apr 2008 04:57:24 -0700 (PDT)
+	Sun, 20 Apr 2008 12:15:27 -0400
 In-Reply-To: <1208644696-29129-1-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
 
-On 04/20/2008 12:38 AM, Jiri Slaby wrote:
-> Now, I wonder for exactly what purpose are module.*map files in
-> /lib/modules/`uname -r`/ dir, i.e. what would break, if the devices won't
-> be listed there on systems with unpatched module-init-tools.
+Jiri Slaby wrote:
+> Hmm, I must admit, I didn't know how exactly autoloading works. On suse,
+> at least, module aliases are used. So autoloading works for me after this
+> patch and slight modifications of the previous patches. The pro of this
+> is that it's in-kernel modification of modpost phase.
 
-Well, used by /sbin/hotplug. I.e. on systems which uses that hotplugging system 
-and not new enough udev. It means older RHEL, SLE* et al., and older 
-distributions too...
+Indeed in current systems udev uses module aliases for autoloading.
 
-So I suppose we still need the option to let users compile all the chosen 
-drivers into hid.
+> --
+> 
+> Generate aliases for usb hid device modules to support autoloading.
+> 
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+[...]
+> +/* Looks like: usb */
+
+Looks like: "usb:vNpNd*dc*dsc*dp*ic3isc*ip*"
+
+> +static int do_hid_usb_entry(const char *filename,
+> +			     struct hid_device_id *id, char *alias)
+> +{
+> +	__u16 v = TO_NATIVE((__u16)id->vendor);
+> +	__u16 p = TO_NATIVE((__u16)id->product);
+> +
+> +	strcpy(alias, "usb:");
+> +	ADD(alias, "v", id->vendor != HID_ANY_ID, v);
+> +	ADD(alias, "p", id->product != HID_ANY_ID, p);
+> +
+> +	sprintf(alias + strlen(alias), "d*dc*dsc*dp*ic%02Xisc*ip*",
+> +			USB_INTERFACE_CLASS_HID);
+> +
+> +	return 1;
+> +}
+
+Oh, so we create a normal usb modalias entry anyway, not a custom
+'usbhid:' one.
+
+Why not just do something like
+
+#define HID_DEVICE(vend, dev) \
+	.match_flags = USB_DEVICE_ID_MATCH_DEVICE | \
+		       USB_DEVICE_ID_MATCH_INT_CLASS, \
+	.idVendor = (vend), \
+	.idProduct = (prod), \
+	.bInterfaceClass = USB_INTERFACE_CLASS_HID
+(see linux/usb.h)
+
+and use USB hotplugging?
+
+Or do we plan to match against something else as well, such as hid
+reports or something?
+
+-- 
+Anssi Hannula

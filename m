@@ -1,102 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: UCB1400 Touchscreen IRQ
-Date: Mon, 21 Apr 2008 12:24:57 -0400
-Message-ID: <20080421162457.GB7819@anvil.corenet.prv>
-References: <DDFD17CC94A9BD49A82147DDF7D545C5694711@exchange.ZeugmaSystems.local>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: HID bus
+Date: Tue, 22 Apr 2008 01:05:28 +0200
+Message-ID: <480D1DB8.20109@gmail.com>
+References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz> <1208644696-29129-1-git-send-email-jirislaby@gmail.com> <480B6C16.40806@gmail.com> <Pine.LNX.4.64.0804211124060.19002@twin.jikos.cz> <20080421133621.GA27646@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wx-out-0506.google.com ([66.249.82.234]:3568 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755340AbYDUQZP (ORCPT
+Received: from mu-out-0910.google.com ([209.85.134.188]:13738 "EHLO
+	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751274AbYDUXFo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 12:25:15 -0400
-Received: by wx-out-0506.google.com with SMTP id h31so1396171wxd.4
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 09:25:13 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <DDFD17CC94A9BD49A82147DDF7D545C5694711@exchange.ZeugmaSystems.local>
+	Mon, 21 Apr 2008 19:05:44 -0400
+Received: by mu-out-0910.google.com with SMTP id i10so1671484mue.1
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 16:05:42 -0700 (PDT)
+In-Reply-To: <20080421133621.GA27646@anvil.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Ma <PeterMa@zeugmasystems.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
 
-Hi Peter,
-
-On Sun, Feb 24, 2008 at 10:24:11PM -0800, Peter Ma wrote:
-> I apologize for contacting you directly.  I believe you are the
-> maintainer of the Linux input drivers.
-> If there is a forum I ought to be checking, please point me in that
-> direction.
+On 04/21/2008 03:36 PM, Dmitry Torokhov wrote:
+> On Mon, Apr 21, 2008 at 11:25:43AM +0200, Jiri Kosina wrote:
+>> On Sun, 20 Apr 2008, Anssi Hannula wrote:
+>>
+>>> Why not just do something like
+>>>
+>>> #define HID_DEVICE(vend, dev) \
+>>> 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE | \
+>>> 		       USB_DEVICE_ID_MATCH_INT_CLASS, \
+>>> 	.idVendor = (vend), \
+>>> 	.idProduct = (prod), \
+>>> 	.bInterfaceClass = USB_INTERFACE_CLASS_HID
+>>> (see linux/usb.h)
+>>>
+>>> and use USB hotplugging?
+>>> Or do we plan to match against something else as well, such as hid
+>>> reports or something?
+>> No, we plan to do matching based solely on VID/PID. The report-specific 
+>> stuff is then handled between the specific driver and HID generic code.
+>>
 > 
-> The UCB1400 touchscreen driver (input/touchscreen/ucb1400_ts.c)
-> currently uses an interrupt autoprobe to self-discover its interrupt.
-> The probe_irq_on/off functions indicate interrupts using a 32-bit field.
-> I am using a SoC (Atmel AVR32), in which the available external
-> interrupts are enumerated starting from 64, which cannot be represented
-> in a 32-bit field.  Thus interrupt autoprobing always fails.
-> 
-> I believe the solution is to somehow pass a IRQ down from the driver
-> instantiation, and modify ucb1400_ts_probe() to check for the IRQ number
-> before attempting to autoprobe.
-> 
-> In a couple of board setups I have seen (e.g.
-> arch/arm/mach-pca/cm-x270.c), ucb1400_ts is instantiated as a
-> "platform_device", eventhough the driver is written as a regular
-> "device".  Normally, something board-specific like an IRQ assignment is
-> passed in platform_device->resource, but I do not see how ucb1400_ts
-> device would be able to fetch that.
-> 
-> I see there is a device.platform_data, and I see a platform_device.dev.
-> I attempted to pass a pointer through
-> platform_device->dev.platform_data, but it did not appear to make it
-> through to device.platform_data down in the driver.
-> 
-> Is there a correct method for passing information (like IRQ assignment)
-> into a "device" driver, like ucb1400_ts?
-> 
-> I am quite new to linux drivers, so any guidance you can provide would
-> be greatly appreciated.
-> 
+> Hmm, [ab]using USB modalias makes me a bit uneasy. What about bluetooth
+> HID devices?
 
-I apologize for not responding earlier, I was not able to spend much
-time on the kernel for the last several months..
-
-I believe your issue is fixed by the following patch from Vernon
-Snauder.
-
--- 
-Dmitry
-
-From: Vernon Sauder <vernoninhand@gmail.com>
-
-Input: ucb1400_ts - IRQ probe fix
-
-The UCB1400 driver IRQ probe code fails to find an interrupt if all
-the interrupts in the range 0-31 are nonprobe-able. This patch
-removes the check of the return value so interrupts above 31 can be
-detected.
-
-Tested on InHand Fingertip4 PXA270 board.
-
-Signed-off-by: Vernon Sauder <vsauder@inhand.com>
-Acked-by: Nicolas Pitre <nico@marvell.com>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
- drivers/input/touchscreen/ucb1400_ts.c |    4 ----
- 1 file changed, 4 deletions(-)
-
-Index: work/drivers/input/touchscreen/ucb1400_ts.c
-===================================================================
---- work.orig/drivers/input/touchscreen/ucb1400_ts.c
-+++ work/drivers/input/touchscreen/ucb1400_ts.c
-@@ -427,10 +427,6 @@ static int ucb1400_detect_irq(struct ucb
- 	unsigned long mask, timeout;
- 
- 	mask = probe_irq_on();
--	if (!mask) {
--		probe_irq_off(mask);
--		return -EBUSY;
--	}
- 
- 	/* Enable the ADC interrupt. */
- 	ucb1400_reg_write(ucb, UCB_IE_RIS, UCB_IE_ADC);
+I do agree, it won't be nice and abstract enough. Working on it, give me some 
+time, please.

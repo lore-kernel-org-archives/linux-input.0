@@ -1,532 +1,162 @@
-From: Mark Brown <dmitry.torokhov@gmail.com>
-Subject: [PATCH 06/37] Input: WM97xx - add chip driver for WM9712 touchscreen
-Date: Wed, 2 Apr 2008 00:51:26 -0400
-Message-ID: <de22b9ef1020ffdb9e1ed6f4686e2e62eaeb0958.1208783694.git.dmitry.torokhov@gmail.com>
-References: <cover.1208783694.git.dmitry.torokhov@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 00/37] Input queue for 2.6.26 merge window
+Date: Mon, 21 Apr 2008 09:14:54 -0400
+Message-ID: <cover.1208783694.git.dmitry.torokhov@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rn-out-0910.google.com ([64.233.170.189]:35324 "EHLO
-	rn-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757650AbYDUNSp (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.176]:8449 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756942AbYDUNSj (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 09:18:45 -0400
-Received: by rn-out-0910.google.com with SMTP id e11so303938rng.17
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:18:44 -0700 (PDT)
-In-Reply-To: <cover.1208783694.git.dmitry.torokhov@gmail.com>
+	Mon, 21 Apr 2008 09:18:39 -0400
+Received: by wa-out-1112.google.com with SMTP id m16so3106305waf.23
+        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 06:18:39 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, jkosina@suse.cz, akpm@linux-foundation.org
 
-Signed-off-by: Liam Girdwood <liam.girdwood@wolfsonmicro.com>
-Signed-off-by: Graeme Gregory <gg@opensource.wolfsonmicro.com>
-Signed-off-by: Mike Arthur <mike.arthur@wolfsonmicro.com>
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Signed-off-by: Lars Munch <lars@segv.dk>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
- drivers/input/touchscreen/Kconfig  |    9 +
- drivers/input/touchscreen/Makefile |    1 +
- drivers/input/touchscreen/wm9712.c |  462 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 472 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/wm9712.c
+Hi,
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 4939a96..240e441 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -208,6 +208,15 @@ config TOUCHSCREEN_WM9705
- 
- 	  If unsure, say N.
- 
-+config TOUCHSCREEN_WM9712
-+	bool "WM9712 Touchscreen interface support"
-+	depends on TOUCHSCREEN_WM97XX
-+	help
-+	  Say Y here if you have a Wolfson Microelectronics WM9712
-+	  touchscreen controller connected to your system.
-+
-+	  If unsure, say N.
-+
- config TOUCHSCREEN_USB_COMPOSITE
- 	tristate "USB Touchscreen Driver"
- 	depends on USB_ARCH_HAS_HCD
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 5829a43..eb57f66 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -23,3 +23,4 @@ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
- obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)	+= wm9705.o
-+wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
-diff --git a/drivers/input/touchscreen/wm9712.c b/drivers/input/touchscreen/wm9712.c
-new file mode 100644
-index 0000000..0b6e4cf
---- /dev/null
-+++ b/drivers/input/touchscreen/wm9712.c
-@@ -0,0 +1,462 @@
-+/*
-+ * wm9712.c  --  Codec driver for Wolfson WM9712 AC97 Codecs.
-+ *
-+ * Copyright 2003, 2004, 2005, 2006, 2007 Wolfson Microelectronics PLC.
-+ * Author: Liam Girdwood
-+ *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Parts Copyright : Ian Molton <spyro@f2s.com>
-+ *                   Andrew Zabolotny <zap@homelink.ru>
-+ *                   Russell King <rmk@arm.linux.org.uk>
-+ *
-+ *  This program is free software; you can redistribute  it and/or modify it
-+ *  under  the terms of  the GNU General  Public License as published by the
-+ *  Free Software Foundation;  either version 2 of the  License, or (at your
-+ *  option) any later version.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/version.h>
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include <linux/delay.h>
-+#include <linux/bitops.h>
-+#include <linux/wm97xx.h>
-+
-+#define TS_NAME			"wm97xx"
-+#define WM9712_VERSION		"1.00"
-+#define DEFAULT_PRESSURE	0xb0c0
-+
-+/*
-+ * Module parameters
-+ */
-+
-+/*
-+ * Set internal pull up for pen detect.
-+ *
-+ * Pull up is in the range 1.02k (least sensitive) to 64k (most sensitive)
-+ * i.e. pull up resistance = 64k Ohms / rpu.
-+ *
-+ * Adjust this value if you are having problems with pen detect not
-+ * detecting any down event.
-+ */
-+static int rpu = 8;
-+module_param(rpu, int, 0);
-+MODULE_PARM_DESC(rpu, "Set internal pull up resitor for pen detect.");
-+
-+/*
-+ * Set current used for pressure measurement.
-+ *
-+ * Set pil = 2 to use 400uA
-+ *     pil = 1 to use 200uA and
-+ *     pil = 0 to disable pressure measurement.
-+ *
-+ * This is used to increase the range of values returned by the adc
-+ * when measureing touchpanel pressure.
-+ */
-+static int pil;
-+module_param(pil, int, 0);
-+MODULE_PARM_DESC(pil, "Set current used for pressure measurement.");
-+
-+/*
-+ * Set threshold for pressure measurement.
-+ *
-+ * Pen down pressure below threshold is ignored.
-+ */
-+static int pressure = DEFAULT_PRESSURE & 0xfff;
-+module_param(pressure, int, 0);
-+MODULE_PARM_DESC(pressure, "Set threshold for pressure measurement.");
-+
-+/*
-+ * Set adc sample delay.
-+ *
-+ * For accurate touchpanel measurements, some settling time may be
-+ * required between the switch matrix applying a voltage across the
-+ * touchpanel plate and the ADC sampling the signal.
-+ *
-+ * This delay can be set by setting delay = n, where n is the array
-+ * position of the delay in the array delay_table below.
-+ * Long delays > 1ms are supported for completeness, but are not
-+ * recommended.
-+ */
-+static int delay = 3;
-+module_param(delay, int, 0);
-+MODULE_PARM_DESC(delay, "Set adc sample delay.");
-+
-+/*
-+ * Set five_wire = 1 to use a 5 wire touchscreen.
-+ *
-+ * NOTE: Five wire mode does not allow for readback of pressure.
-+ */
-+static int five_wire;
-+module_param(five_wire, int, 0);
-+MODULE_PARM_DESC(five_wire, "Set to '1' to use 5-wire touchscreen.");
-+
-+/*
-+ * Set adc mask function.
-+ *
-+ * Sources of glitch noise, such as signals driving an LCD display, may feed
-+ * through to the touch screen plates and affect measurement accuracy. In
-+ * order to minimise this, a signal may be applied to the MASK pin to delay or
-+ * synchronise the sampling.
-+ *
-+ * 0 = No delay or sync
-+ * 1 = High on pin stops conversions
-+ * 2 = Edge triggered, edge on pin delays conversion by delay param (above)
-+ * 3 = Edge triggered, edge on pin starts conversion after delay param
-+ */
-+static int mask;
-+module_param(mask, int, 0);
-+MODULE_PARM_DESC(mask, "Set adc mask function.");
-+
-+/*
-+ * Coordinate Polling Enable.
-+ *
-+ * Set to 1 to enable coordinate polling. e.g. x,y[,p] is sampled together
-+ * for every poll.
-+ */
-+static int coord;
-+module_param(coord, int, 0);
-+MODULE_PARM_DESC(coord, "Polling coordinate mode");
-+
-+/*
-+ * ADC sample delay times in uS
-+ */
-+static const int delay_table[] = {
-+	21,    /* 1 AC97 Link frames */
-+	42,    /* 2 */
-+	84,    /* 4 */
-+	167,   /* 8 */
-+	333,   /* 16 */
-+	667,   /* 32 */
-+	1000,  /* 48 */
-+	1333,  /* 64 */
-+	2000,  /* 96 */
-+	2667,  /* 128 */
-+	3333,  /* 160 */
-+	4000,  /* 192 */
-+	4667,  /* 224 */
-+	5333,  /* 256 */
-+	6000,  /* 288 */
-+	0      /* No delay, switch matrix always on */
-+};
-+
-+/*
-+ * Delay after issuing a POLL command.
-+ *
-+ * The delay is 3 AC97 link frames + the touchpanel settling delay
-+ */
-+static inline void poll_delay(int d)
-+{
-+	udelay(3 * AC97_LINK_FRAME + delay_table[d]);
-+}
-+
-+/*
-+ * set up the physical settings of the WM9712
-+ */
-+static void wm9712_phy_init(struct wm97xx *wm)
-+{
-+	u16 dig1 = 0;
-+	u16 dig2 = WM97XX_RPR | WM9712_RPU(1);
-+
-+	/* WM9712 rpu */
-+	if (rpu) {
-+		dig2 &= 0xffc0;
-+		dig2 |= WM9712_RPU(rpu);
-+		dev_dbg(wm->dev, "setting pen detect pull-up to %d Ohms",
-+			64000 / rpu);
-+	}
-+
-+	/* touchpanel pressure current*/
-+	if (pil == 2) {
-+		dig2 |= WM9712_PIL;
-+		dev_dbg(wm->dev,
-+			"setting pressure measurement current to 400uA.");
-+	} else if (pil)
-+		dev_dbg(wm->dev,
-+			"setting pressure measurement current to 200uA.");
-+	if (!pil)
-+		pressure = 0;
-+
-+	/* WM9712 five wire */
-+	if (five_wire) {
-+		dig2 |= WM9712_45W;
-+		dev_dbg(wm->dev, "setting 5-wire touchscreen mode.");
-+	}
-+
-+	/* polling mode sample settling delay */
-+	if (delay < 0 || delay > 15) {
-+		dev_dbg(wm->dev, "supplied delay out of range.");
-+		delay = 4;
-+	}
-+	dig1 &= 0xff0f;
-+	dig1 |= WM97XX_DELAY(delay);
-+	dev_dbg(wm->dev, "setting adc sample delay to %d u Secs.",
-+		delay_table[delay]);
-+
-+	/* mask */
-+	dig2 |= ((mask & 0x3) << 6);
-+	if (mask) {
-+		u16 reg;
-+		/* Set GPIO4 as Mask Pin*/
-+		reg = wm97xx_reg_read(wm, AC97_MISC_AFE);
-+		wm97xx_reg_write(wm, AC97_MISC_AFE, reg | WM97XX_GPIO_4);
-+		reg = wm97xx_reg_read(wm, AC97_GPIO_CFG);
-+		wm97xx_reg_write(wm, AC97_GPIO_CFG, reg | WM97XX_GPIO_4);
-+	}
-+
-+	/* wait - coord mode */
-+	if (coord)
-+		dig2 |= WM9712_WAIT;
-+
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, dig1);
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, dig2);
-+}
-+
-+static void wm9712_dig_enable(struct wm97xx *wm, int enable)
-+{
-+	u16 dig2 = wm->dig[2];
-+
-+	if (enable) {
-+		wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2,
-+				 dig2 | WM97XX_PRP_DET_DIG);
-+		wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD); /* dummy read */
-+	} else
-+		wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2,
-+				 dig2 & ~WM97XX_PRP_DET_DIG);
-+}
-+
-+static void wm9712_aux_prepare(struct wm97xx *wm)
-+{
-+	memcpy(wm->dig_save, wm->dig, sizeof(wm->dig));
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, 0);
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, WM97XX_PRP_DET_DIG);
-+}
-+
-+static void wm9712_dig_restore(struct wm97xx *wm)
-+{
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, wm->dig_save[1]);
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, wm->dig_save[2]);
-+}
-+
-+static inline int is_pden(struct wm97xx *wm)
-+{
-+	return wm->dig[2] & WM9712_PDEN;
-+}
-+
-+/*
-+ * Read a sample from the WM9712 adc in polling mode.
-+ */
-+static int wm9712_poll_sample(struct wm97xx *wm, int adcsel, int *sample)
-+{
-+	int timeout = 5 * delay;
-+
-+	if (!wm->pen_probably_down) {
-+		u16 data = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
-+		if (!(data & WM97XX_PEN_DOWN))
-+			return RC_PENUP;
-+		wm->pen_probably_down = 1;
-+	}
-+
-+	/* set up digitiser */
-+	if (adcsel & 0x8000)
-+		adcsel = ((adcsel & 0x7fff) + 3) << 12;
-+
-+	if (wm->mach_ops && wm->mach_ops->pre_sample)
-+		wm->mach_ops->pre_sample(adcsel);
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1,
-+			 adcsel | WM97XX_POLL | WM97XX_DELAY(delay));
-+
-+	/* wait 3 AC97 time slots + delay for conversion */
-+	poll_delay(delay);
-+
-+	/* wait for POLL to go low */
-+	while ((wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER1) & WM97XX_POLL)
-+	       && timeout) {
-+		udelay(AC97_LINK_FRAME);
-+		timeout--;
-+	}
-+
-+	if (timeout <= 0) {
-+		/* If PDEN is set, we can get a timeout when pen goes up */
-+		if (is_pden(wm))
-+			wm->pen_probably_down = 0;
-+		else
-+			dev_dbg(wm->dev, "adc sample timeout");
-+		return RC_PENUP;
-+	}
-+
-+	*sample = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
-+	if (wm->mach_ops && wm->mach_ops->post_sample)
-+		wm->mach_ops->post_sample(adcsel);
-+
-+	/* check we have correct sample */
-+	if ((*sample & WM97XX_ADCSEL_MASK) != adcsel) {
-+		dev_dbg(wm->dev, "adc wrong sample, read %x got %x", adcsel,
-+		*sample & WM97XX_ADCSEL_MASK);
-+		return RC_PENUP;
-+	}
-+
-+	if (!(*sample & WM97XX_PEN_DOWN)) {
-+		wm->pen_probably_down = 0;
-+		return RC_PENUP;
-+	}
-+
-+	return RC_VALID;
-+}
-+
-+/*
-+ * Read a coord from the WM9712 adc in polling mode.
-+ */
-+static int wm9712_poll_coord(struct wm97xx *wm, struct wm97xx_data *data)
-+{
-+	int timeout = 5 * delay;
-+
-+	if (!wm->pen_probably_down) {
-+		u16 data_rd = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
-+		if (!(data_rd & WM97XX_PEN_DOWN))
-+			return RC_PENUP;
-+		wm->pen_probably_down = 1;
-+	}
-+
-+	/* set up digitiser */
-+	if (wm->mach_ops && wm->mach_ops->pre_sample)
-+		wm->mach_ops->pre_sample(WM97XX_ADCSEL_X | WM97XX_ADCSEL_Y);
-+
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1,
-+		WM97XX_COO | WM97XX_POLL | WM97XX_DELAY(delay));
-+
-+	/* wait 3 AC97 time slots + delay for conversion and read x */
-+	poll_delay(delay);
-+	data->x = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
-+	/* wait for POLL to go low */
-+	while ((wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER1) & WM97XX_POLL)
-+	       && timeout) {
-+		udelay(AC97_LINK_FRAME);
-+		timeout--;
-+	}
-+
-+	if (timeout <= 0) {
-+		/* If PDEN is set, we can get a timeout when pen goes up */
-+		if (is_pden(wm))
-+			wm->pen_probably_down = 0;
-+		else
-+			dev_dbg(wm->dev, "adc sample timeout");
-+		return RC_PENUP;
-+	}
-+
-+	/* read back y data */
-+	data->y = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
-+	if (pil)
-+		data->p = wm97xx_reg_read(wm, AC97_WM97XX_DIGITISER_RD);
-+	else
-+		data->p = DEFAULT_PRESSURE;
-+
-+	if (wm->mach_ops && wm->mach_ops->post_sample)
-+		wm->mach_ops->post_sample(WM97XX_ADCSEL_X | WM97XX_ADCSEL_Y);
-+
-+	/* check we have correct sample */
-+	if (!(data->x & WM97XX_ADCSEL_X) || !(data->y & WM97XX_ADCSEL_Y))
-+		goto err;
-+	if (pil && !(data->p & WM97XX_ADCSEL_PRES))
-+		goto err;
-+
-+	if (!(data->x & WM97XX_PEN_DOWN) || !(data->y & WM97XX_PEN_DOWN)) {
-+		wm->pen_probably_down = 0;
-+		return RC_PENUP;
-+	}
-+	return RC_VALID;
-+err:
-+	return 0;
-+}
-+
-+/*
-+ * Sample the WM9712 touchscreen in polling mode
-+ */
-+static int wm9712_poll_touch(struct wm97xx *wm, struct wm97xx_data *data)
-+{
-+	int rc;
-+
-+	if (coord) {
-+		rc = wm9712_poll_coord(wm, data);
-+		if (rc != RC_VALID)
-+			return rc;
-+	} else {
-+		rc = wm9712_poll_sample(wm, WM97XX_ADCSEL_X, &data->x);
-+		if (rc != RC_VALID)
-+			return rc;
-+
-+		rc = wm9712_poll_sample(wm, WM97XX_ADCSEL_Y, &data->y);
-+		if (rc != RC_VALID)
-+			return rc;
-+
-+		if (pil && !five_wire) {
-+			rc = wm9712_poll_sample(wm, WM97XX_ADCSEL_PRES,
-+						&data->p);
-+			if (rc != RC_VALID)
-+				return rc;
-+		} else
-+			data->p = DEFAULT_PRESSURE;
-+	}
-+	return RC_VALID;
-+}
-+
-+/*
-+ * Enable WM9712 continuous mode, i.e. touch data is streamed across
-+ * an AC97 slot
-+ */
-+static int wm9712_acc_enable(struct wm97xx *wm, int enable)
-+{
-+	u16 dig1, dig2;
-+	int ret = 0;
-+
-+	dig1 = wm->dig[1];
-+	dig2 = wm->dig[2];
-+
-+	if (enable) {
-+		/* continous mode */
-+		if (wm->mach_ops->acc_startup) {
-+			ret = wm->mach_ops->acc_startup(wm);
-+			if (ret < 0)
-+				return ret;
-+		}
-+		dig1 &= ~(WM97XX_CM_RATE_MASK | WM97XX_ADCSEL_MASK |
-+			WM97XX_DELAY_MASK | WM97XX_SLT_MASK);
-+		dig1 |= WM97XX_CTC | WM97XX_COO | WM97XX_SLEN |
-+			WM97XX_DELAY(delay) |
-+			WM97XX_SLT(wm->acc_slot) |
-+			WM97XX_RATE(wm->acc_rate);
-+		if (pil)
-+			dig1 |= WM97XX_ADCSEL_PRES;
-+		dig2 |= WM9712_PDEN;
-+	} else {
-+		dig1 &= ~(WM97XX_CTC | WM97XX_COO | WM97XX_SLEN);
-+		dig2 &= ~WM9712_PDEN;
-+		if (wm->mach_ops->acc_shutdown)
-+			wm->mach_ops->acc_shutdown(wm);
-+	}
-+
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER1, dig1);
-+	wm97xx_reg_write(wm, AC97_WM97XX_DIGITISER2, dig2);
-+
-+	return 0;
-+}
-+
-+struct wm97xx_codec_drv wm9712_codec = {
-+	.id = WM9712_ID2,
-+	.name = "wm9712",
-+	.poll_sample = wm9712_poll_sample,
-+	.poll_touch = wm9712_poll_touch,
-+	.acc_enable = wm9712_acc_enable,
-+	.phy_init = wm9712_phy_init,
-+	.dig_enable = wm9712_dig_enable,
-+	.dig_restore = wm9712_dig_restore,
-+	.aux_prepare = wm9712_aux_prepare,
-+};
-+EXPORT_SYMBOL_GPL(wm9712_codec);
-+
-+/* Module information */
-+MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_DESCRIPTION("WM9712 Touch Screen Driver");
-+MODULE_LICENSE("GPL");
+The following patches are what I would like to get in 2.6.26
+in the next couple of days. Please shout if you see any problems.
+
+Thanks.
+
 -- 
-1.5.5.rc2.6.gf58d
+Dmitry
 
+Anssi Hannula (7):
+  Input: xpad - match xbox 360 devices with interface info
+  Input: xpad - fix dpad handling of unknown devices
+  Input: xpad - fix inverted Y and RY axes
+  Input: xpad - add more xbox 360 controller ids
+  Input: xpad - do not report nonexistent buttons for xbox360
+  Input: xpad - enable force feedback on xbox 360 controllers only
+  Input: xpad - drop obsolete driver versioning
+
+Brian Magnuson (1):
+  Input: xpad - add support for wireless xbox360 controllers
+
+David Brownell (3):
+  Input: ads7846 - simplify support of external vREF (and ads7843)
+  Input: gpio_keys - irq handling cleanup
+  Input: omap-keypad - fix build warning
+
+Dmitry Baryshkov (1):
+  Input: tosakbd - fix suspend
+
+Dmitry Torokhov (1):
+  Input: remove private member from input_dev structure
+
+Guryanov Dmitry (1):
+  Input: aiptek - add support for Genius G-PEN 560 tablet
+
+Hans-Christian Egtvedt (1):
+  Input: add PS/2 serio driver for AVR32 devices
+
+Helge Deller (1):
+  Input: locomokbd - add 'off' button support for Sharp Collie/Poodle
+
+Jiri Kosina (1):
+  Input: fix ordering in joystick Makefile
+
+Julia Lawall (1):
+  Input: drivers/char/keyboard.c - use time_after
+
+Karl Dahlke (1):
+  Input: put ledstate in the keyboard notifier
+
+Kay Sievers (1):
+  Input: add MODULE_ALIAS() to hotpluggable platform modules
+
+Mark Brown (8):
+  Input: add support for WM97xx familty touchscreens
+  Input: WM97xx - add chip driver for WM9705 touchscreen
+  Input: WM97xx - add chip driver for WM9712 touchscreen
+  Input: WM97xx - add chip driver for WM97123 touchscreen
+  Input: WM97xx - add support for streaming mode on Mainstone
+  Input: wm97xx-core - only schedule interrupt handler if not already
+    scheduled
+  Input: wm97xx-core - use IRQF_SAMPLE_RANDOM
+  Input: wm97xx-core - support use as a wakeup source
+
+Martin Kebert (1):
+  Input: add Zhen Hua driver
+
+Michael Gruber (1):
+  Input: xpad - set proper buffer length for outgoing requests
+
+Michael Hennerich (1):
+  Input: bf54x-keys - add infrastructure for keypad wakeups
+
+Oliver Neukum (3):
+  Input: xpad - don't use GFP_ATOMIC
+  Input: usbtouchscreen - don't use DMA on stack
+  Input: wacom - implement suspend and autosuspend
+
+Peter Zijlstra (1):
+  Input: mac_hid - add lockdep annotation to emumousebtn
+
+Roel Kluin (1):
+  Input: i8042 - fix incorrect usage of strncpy and strncat
+
+Tobias Mueller (1):
+  Input: appletouch - add product IDs for the 4th generation MacBooks
+
+ MAINTAINERS                                  |   10 +
+ drivers/char/keyboard.c                      |    6 +-
+ drivers/hid/usbhid/hid-quirks.c              |    4 +
+ drivers/input/input-polldev.c                |    6 +-
+ drivers/input/joystick/Kconfig               |   12 +
+ drivers/input/joystick/Makefile              |    4 +-
+ drivers/input/joystick/xpad.c                |  213 ++++++-
+ drivers/input/joystick/zhenhua.c             |  243 ++++++++
+ drivers/input/keyboard/aaed2000_kbd.c        |    4 +
+ drivers/input/keyboard/bf54x-keys.c          |   37 +-
+ drivers/input/keyboard/corgikbd.c            |    2 +
+ drivers/input/keyboard/gpio_keys.c           |    5 +-
+ drivers/input/keyboard/jornada680_kbd.c      |    2 +
+ drivers/input/keyboard/jornada720_kbd.c      |    4 +
+ drivers/input/keyboard/locomokbd.c           |   73 ++-
+ drivers/input/keyboard/omap-keypad.c         |    9 +-
+ drivers/input/keyboard/pxa27x_keypad.c       |    4 +
+ drivers/input/keyboard/spitzkbd.c            |    1 +
+ drivers/input/keyboard/tosakbd.c             |   23 +-
+ drivers/input/misc/cobalt_btns.c             |    3 +
+ drivers/input/mouse/appletouch.c             |   13 +-
+ drivers/input/mouse/gpio_mouse.c             |    4 +
+ drivers/input/serio/Kconfig                  |   10 +
+ drivers/input/serio/Makefile                 |    1 +
+ drivers/input/serio/at32psif.c               |  375 ++++++++++++
+ drivers/input/serio/i8042-x86ia64io.h        |   12 +-
+ drivers/input/serio/rpckbd.c                 |    2 +
+ drivers/input/tablet/Kconfig                 |   10 +-
+ drivers/input/tablet/aiptek.c                |    2 +
+ drivers/input/tablet/wacom.h                 |    3 +
+ drivers/input/tablet/wacom_sys.c             |   76 ++-
+ drivers/input/touchscreen/Kconfig            |   53 ++
+ drivers/input/touchscreen/Makefile           |    7 +
+ drivers/input/touchscreen/ads7846.c          |   22 +-
+ drivers/input/touchscreen/corgi_ts.c         |    2 +
+ drivers/input/touchscreen/jornada720_ts.c    |    4 +
+ drivers/input/touchscreen/mainstone-wm97xx.c |  302 ++++++++++
+ drivers/input/touchscreen/usbtouchscreen.c   |   31 +-
+ drivers/input/touchscreen/wm9705.c           |  353 +++++++++++
+ drivers/input/touchscreen/wm9712.c           |  462 ++++++++++++++
+ drivers/input/touchscreen/wm9713.c           |  460 ++++++++++++++
+ drivers/input/touchscreen/wm97xx-core.c      |  829 ++++++++++++++++++++++++++
+ drivers/macintosh/mac_hid.c                  |    6 +
+ include/linux/input.h                        |    8 +-
+ include/linux/keyboard.h                     |    1 +
+ include/linux/serio.h                        |    1 +
+ include/linux/spi/ads7846.h                  |    3 +-
+ include/linux/wm97xx.h                       |  314 ++++++++++
+ 48 files changed, 3915 insertions(+), 116 deletions(-)
+ create mode 100644 drivers/input/joystick/zhenhua.c
+ create mode 100644 drivers/input/serio/at32psif.c
+ create mode 100644 drivers/input/touchscreen/mainstone-wm97xx.c
+ create mode 100644 drivers/input/touchscreen/wm9705.c
+ create mode 100644 drivers/input/touchscreen/wm9712.c
+ create mode 100644 drivers/input/touchscreen/wm9713.c
+ create mode 100644 drivers/input/touchscreen/wm97xx-core.c
+ create mode 100644 include/linux/wm97xx.h
 

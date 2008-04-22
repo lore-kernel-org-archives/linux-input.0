@@ -1,48 +1,33 @@
-From: Jiri Slaby <jirislaby@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: HID bus
-Date: Tue, 22 Apr 2008 01:05:28 +0200
-Message-ID: <480D1DB8.20109@gmail.com>
-References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz> <1208644696-29129-1-git-send-email-jirislaby@gmail.com> <480B6C16.40806@gmail.com> <Pine.LNX.4.64.0804211124060.19002@twin.jikos.cz> <20080421133621.GA27646@anvil.corenet.prv>
+Date: Tue, 22 Apr 2008 02:00:12 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
+References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz>
+ <1208644696-29129-1-git-send-email-jirislaby@gmail.com> <480B2F9A.3020104@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mu-out-0910.google.com ([209.85.134.188]:13738 "EHLO
-	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751274AbYDUXFo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Apr 2008 19:05:44 -0400
-Received: by mu-out-0910.google.com with SMTP id i10so1671484mue.1
-        for <linux-input@vger.kernel.org>; Mon, 21 Apr 2008 16:05:42 -0700 (PDT)
-In-Reply-To: <20080421133621.GA27646@anvil.corenet.prv>
+Received: from styx.suse.cz ([82.119.242.94]:50227 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755107AbYDVAAN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 21 Apr 2008 20:00:13 -0400
+In-Reply-To: <480B2F9A.3020104@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
 
-On 04/21/2008 03:36 PM, Dmitry Torokhov wrote:
-> On Mon, Apr 21, 2008 at 11:25:43AM +0200, Jiri Kosina wrote:
->> On Sun, 20 Apr 2008, Anssi Hannula wrote:
->>
->>> Why not just do something like
->>>
->>> #define HID_DEVICE(vend, dev) \
->>> 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE | \
->>> 		       USB_DEVICE_ID_MATCH_INT_CLASS, \
->>> 	.idVendor = (vend), \
->>> 	.idProduct = (prod), \
->>> 	.bInterfaceClass = USB_INTERFACE_CLASS_HID
->>> (see linux/usb.h)
->>>
->>> and use USB hotplugging?
->>> Or do we plan to match against something else as well, such as hid
->>> reports or something?
->> No, we plan to do matching based solely on VID/PID. The report-specific 
->> stuff is then handled between the specific driver and HID generic code.
->>
-> 
-> Hmm, [ab]using USB modalias makes me a bit uneasy. What about bluetooth
-> HID devices?
+On Sun, 20 Apr 2008, Jiri Slaby wrote:
 
-I do agree, it won't be nice and abstract enough. Working on it, give me some 
-time, please.
+> So I suppose we still need the option to let users compile all the 
+> chosen drivers into hid.
+
+Another possible workaround is to introduce dummy "hid" module, that will 
+just depend on all other drivers with a reference to certail symbol (and 
+this could of course be optional as CONFIG_HID_COMPAT, or whatever).
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

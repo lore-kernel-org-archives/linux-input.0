@@ -1,65 +1,69 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [patch 11/15] m68k: Some input drivers do not check the platform
-Date: Thu, 24 Apr 2008 20:29:51 +0200
-Message-ID: <20080424183243.180200826@mail.of.borg>
-References: <20080424182940.424312704@mail.of.borg>
-Return-path: <linux-parisc-owner@vger.kernel.org>
-Content-Disposition: inline; filename=m68k-input-drivers-break-multiplatform.diff
-Sender: linux-parisc-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-parisc@vger.kernel.org
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [alsa-devel] [RFC] ucb1400 touchscreen, irq auto probing and ac97 with its	private field
+Date: Thu, 24 Apr 2008 19:56:58 +0100
+Message-ID: <20080424185658.GA19029@sirena.org.uk>
+References: <20080424140459.GB24212@Chamillionaire.breakpoint.cc> <20080424145749.GB22369@sirena.org.uk> <s5hr6cvb5f3.wl%tiwai@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:3215 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750967AbYDXS5G (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 24 Apr 2008 14:57:06 -0400
+Content-Disposition: inline
+In-Reply-To: <s5hr6cvb5f3.wl%tiwai@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: dtor@mail.ru, Sebastian Siewior <al+sa@ml.breakpoint.cc>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+On Thu, Apr 24, 2008 at 06:09:52PM +0200, Takashi Iwai wrote:
 
-Some input drivers do not check whether they're actually running on the
-correct platform, causing multi-platform kernels to crash if they are not.
+> The problem with void * is that you don't know what it really is.
+> Yes, it's exactly the purpose - to be generic.  But, this means that
+> the true shape of the tossed data from the ac97 controller driver to
+> the platform driver is anonymous, too.
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Indeed, but unfortunately if you try to cater for everything that might
+need to pass data through you rapidly get a balloning stucture - it's
+the same use case as the device_data in struct device (in fact, now that
+I think about it it may be best to just do the same thing as the
+platform bus does and define accessor macros for getting at this from a
+struct snd_ac97).
 
----
- drivers/input/misc/hp_sdc_rtc.c  |    5 +++++
- drivers/input/serio/hp_sdc_mlc.c |    5 +++++
- 2 files changed, 10 insertions(+)
+> > Note that this will also need changes in all the relevant AC97 drivers
+> > to support getting the private data from platform/machine definition
+> > code to the relevant driver using whatever methods are appropriate for
+> > the platform.
 
---- a/drivers/input/misc/hp_sdc_rtc.c
-+++ b/drivers/input/misc/hp_sdc_rtc.c
-@@ -691,6 +691,11 @@ static int __init hp_sdc_rtc_init(void)
- {
- 	int ret;
- 
-+#ifdef __mc68000__
-+	if (!MACH_IS_HP300)
-+		return -ENODEV;
-+#endif
-+
- 	init_MUTEX(&i8042tregs);
- 
- 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -306,6 +306,11 @@ static int __init hp_sdc_mlc_init(void)
- {
- 	hil_mlc *mlc = &hp_sdc_mlc;
- 
-+#ifdef __mc68000__
-+	if (!MACH_IS_HP300)
-+		return -ENODEV;
-+#endif
-+
- 	printk(KERN_INFO PREFIX "Registering the System Domain Controller's HIL MLC.\n");
- 
- 	hp_sdc_mlc_priv.emtestmode = 0;
+> What kind of data are needed be passed?
 
--- 
-Gr{oetje,eeting}s,
+In the case of the WM97xx driver it currently takes a structure
+containing seven function pointers, an interrupt number and a boolean
+for managing integration of the touchscreen interface an auxiliary ADCs
+with the rest of the system.  It's really not terribly generic and
+there's probably more things that could be added if there were use
+cases:
 
-						Geert
+/* Machine specific and accelerated touch operations */
+struct wm97xx_mach_ops {
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+        /* accelerated touch readback - coords are transmited on AC97 link */
+        int acc_enabled;
+        void (*acc_pen_up) (struct wm97xx *);
+        int (*acc_pen_down) (struct wm97xx *);
+        int (*acc_startup) (struct wm97xx *);
+        void (*acc_shutdown) (struct wm97xx *);
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+        /* interrupt mask control - required for accelerated operation */
+        void (*irq_enable) (struct wm97xx *, int enable);
+
+        /* GPIO pin used for accelerated operation */
+        int irq_gpio;
+
+        /* pre and post sample - can be used to minimise any analog noise */
+        void (*pre_sample) (int);  /* function to run before sampling */
+        void (*post_sample) (int);  /* function to run after sampling */
+};
 

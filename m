@@ -1,56 +1,53 @@
-From: Sebastian Siewior <bigeasy@linutronix.de>
-Subject: [PATCH] [INPUT] ucb1400: add key interface
-Date: Thu, 24 Apr 2008 13:03:05 +0200
-Message-ID: <20080424110305.GA2971@www.tglx.de>
+From: Sebastian Siewior <al+sa@ml.breakpoint.cc>
+Subject: [RFC] ucb1400 touchscreen,
+	irq auto probing and ac97 with its	private field
+Date: Thu, 24 Apr 2008 16:04:59 +0200
+Message-ID: <20080424140459.GB24212@Chamillionaire.breakpoint.cc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:41115 "EHLO www.tglx.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751947AbYDXLDO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Apr 2008 07:03:14 -0400
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Jaroslav Kysela <perex@perex.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru, Takashi Iwai <tiwai@suse.de>
+Cc: alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru
-Cc: linux-input@vger.kernel.org
 
-now the driver sends key events and feeds /dev/input/mice
+Hello,
 
-Signed-off-by: Sebastian Siewior <bigeasy@linutronix.de>
----
- drivers/input/touchscreen/ucb1400_ts.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+I've sent a RFC to the alsa mailing list [1] about adding an extra field in
+order to pass the IRQ from the AC97 driver to the ucb1400 driver. The
+result was:
+- William Pitcock recommended to hack up the ucb1400 driver and save the
+  irq there. The result is [2]. What I don't like very much is the
+  global variable and the fact that has to be done for every platform.
+- Mark Brown has the same problem with his wm97xx driver [3].
 
-diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
-index 9337352..ad14413 100644
---- a/drivers/input/touchscreen/ucb1400_ts.c
-+++ b/drivers/input/touchscreen/ucb1400_ts.c
-@@ -326,12 +326,14 @@ static int ucb1400_ts_thread(void *_ucb)
- 			 */
- 			if (valid) {
- 				ucb1400_ts_event_release(ucb->ts_idev);
-+				input_report_key(ucb->ts_idev, BTN_TOUCH, 0);
- 				valid = 0;
- 			}
- 
- 			timeout = MAX_SCHEDULE_TIMEOUT;
- 		} else {
- 			valid = 1;
-+			input_report_key(ucb->ts_idev, BTN_TOUCH, 1);
- 			ucb1400_ts_evt_add(ucb->ts_idev, p, x, y);
- 			timeout = msecs_to_jiffies(10);
- 		}
-@@ -527,7 +529,8 @@ static int ucb1400_ts_probe(struct device *dev)
- 	idev->id.product	= id;
- 	idev->open		= ucb1400_ts_open;
- 	idev->close		= ucb1400_ts_close;
--	idev->evbit[0]		= BIT_MASK(EV_ABS);
-+	idev->evbit[0]		= BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
-+	idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
- 	ucb1400_adc_enable(ucb);
- 	x_res = ucb1400_ts_read_xres(ucb);
--- 
-1.5.4.3
+and while browsing a dead list archive of linux-input I noticed that a
+guy named Peter Ma has the same problem on his AVR32 [4].
 
+I haven't heard anything from the ALSA Maintainer but according to git
+he didn't put a sing-of-by line since Thu Jan 31 17:40:18 2008 +0100 so
+maybe he is sleeping. That's why I've add Takashi Iwai since he seems to
+be in charge some how.
+
+Now I'm curious what solution the people here prefer:
+- adding a private field [1] (my favorite)
+- hacking up the ucb1400 [2] (doesn't solve [3] and needs addition code
+  to solve [4]).
+- something totally different what did not come to my attention yet.
+
+[1] http://mailman.alsa-project.org/pipermail/alsa-devel/2008-March/006555.html
+[2] http://mailman.alsa-project.org/pipermail/alsa-devel/2008-March/006559.html
+[3] http://mailman.alsa-project.org/pipermail/alsa-devel/2008-March/006564.html
+[4] http://www.mail-archive.com/linux-input@vger.kernel.org/msg00307.html
+
+Sebastian

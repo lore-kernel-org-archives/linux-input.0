@@ -1,44 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] [INPUT/KEYBOARD] Blackfin BF54x: Add
-	infrastructure for keypad wakeups
-Date: Fri, 25 Apr 2008 00:14:42 -0400
-Message-ID: <20080425041441.GA13328@anvil.corenet.prv>
-References: <1209095728-21119-1-git-send-email-cooloney@kernel.org> <386072610804242106r123e6334id39a18002915464e@mail.gmail.com>
+From: Jaroslav Kysela <perex@perex.cz>
+Subject: Re: [RFC / PATCH] [SOUND] add a private field for ac97-device drivers
+ and let ucb1400 be its first user
+Date: Fri, 25 Apr 2008 08:30:40 +0200 (CEST)
+Message-ID: <Pine.LNX.4.61.0804250830030.7882@tm8103.perex-int.cz>
+References: <20080424153753.GD26452@Chamillionaire.breakpoint.cc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.31]:47541 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750986AbYDYEOx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Apr 2008 00:14:53 -0400
-Received: by yw-out-2324.google.com with SMTP id 5so457785ywh.1
-        for <linux-input@vger.kernel.org>; Thu, 24 Apr 2008 21:14:44 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <386072610804242106r123e6334id39a18002915464e@mail.gmail.com>
+Received: from mail1.perex.cz ([212.20.107.53]:40754 "EHLO mail1.perex.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756214AbYDYGam (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Apr 2008 02:30:42 -0400
+In-Reply-To: <20080424153753.GD26452@Chamillionaire.breakpoint.cc>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bryan Wu <cooloney@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>
+To: Sebastian Siewior <al+sa@ml.breakpoint.cc>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 
-On Fri, Apr 25, 2008 at 12:06:13PM +0800, Bryan Wu wrote:
-> On Fri, Apr 25, 2008 at 11:55 AM, Bryan Wu <cooloney@kernel.org> wrote:
-> > From: Michael Hennerich <michael.hennerich@analog.com>
-> >
-> >  Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> >  Signed-off-by: Bryan Wu <cooloney@kernel.org>
-> >  ---
-> >   drivers/input/keyboard/bf54x-keys.c |   36 ++++++++++++++++++++++++++++++++--
-> >   1 files changed, 33 insertions(+), 3 deletions(-)
-> >
-> 
-> Hi Dmitry,
-> 
-> Sorry for resending this patch, I forget it was accept by you.
-> Please ignore this.
-> 
+On Thu, 24 Apr 2008, Sebastian Siewior wrote:
 
-No worries. Thanks Bryan.
+> From: Sebastian Siewior <bigeasy@linutronix.de>
+> 
+> Currently the UCB1400 driver discovers the interrupt via probing. This works
+> probably only on x86. This patch adds a private field to the ac97 struct
+> where the ac97 driver can deposit informations for the device driver that
+> serves a device which is attached to the ac97 bus.
+> This patch also converts the UCB1400 driver to use this information if available.
+> 
+> Signed-off-by: Sebastian Siewior <bigeasy@linutronix.de>
 
--- 
-Dmitry
+Thanks. I applied your patch to our tree.
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@perex.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, Red Hat, Inc.
+

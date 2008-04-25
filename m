@@ -1,157 +1,54 @@
-From: Jaroslav Kysela <perex@perex.cz>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [alsa-devel] [RFC] ucb1400 touchscreen, irq auto probing and
- ac97 with its private field
-Date: Fri, 25 Apr 2008 11:45:01 +0200 (CEST)
-Message-ID: <Pine.LNX.4.61.0804251134010.7882@tm8103.perex-int.cz>
-References: <20080424140459.GB24212@Chamillionaire.breakpoint.cc>
- <20080424145749.GB22369@sirena.org.uk> <s5hr6cvb5f3.wl%tiwai@suse.de>
- <20080424185658.GA19029@sirena.org.uk> <s5h8wz24dto.wl%tiwai@suse.de>
- <Pine.LNX.4.61.0804250906090.7882@tm8103.perex-int.cz> <s5h4p9q4d2e.wl%tiwai@suse.de>
- <Pine.LNX.4.61.0804250931050.7882@tm8103.perex-int.cz> <s5hve26v0aw.wl%tiwai@suse.de>
- <Pine.LNX.4.61.0804251008270.7882@tm8103.perex-int.cz> <s5hprsel2da.wl%tiwai@suse.de>
+	ac97 with its private field
+Date: Fri, 25 Apr 2008 10:51:07 +0100
+Message-ID: <20080425095107.GA22926@rakim.wolfsonmicro.main>
+References: <20080424140459.GB24212@Chamillionaire.breakpoint.cc> <20080424145749.GB22369@sirena.org.uk> <s5hr6cvb5f3.wl%tiwai@suse.de> <20080424185658.GA19029@sirena.org.uk> <s5h8wz24dto.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail1.perex.cz ([212.20.107.53]:44239 "EHLO mail1.perex.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752555AbYDYJpE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Apr 2008 05:45:04 -0400
-In-Reply-To: <s5hprsel2da.wl%tiwai@suse.de>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43755 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1753927AbYDYJvJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Apr 2008 05:51:09 -0400
+Content-Disposition: inline
+In-Reply-To: <s5h8wz24dto.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Takashi Iwai <tiwai@suse.de>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, dtor@mail.ru, Sebastian Siewior <al+sa@ml.breakpoint.cc>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, ALSA development <alsa-devel@alsa-project.org>, linux-input@vger.kernel.org
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, dtor@mail.ru, Sebastian Siewior <al+sa@ml.breakpoint.cc>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, perex@perex.cz, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 
-On Fri, 25 Apr 2008, Takashi Iwai wrote:
+On Fri, Apr 25, 2008 at 09:02:27AM +0200, Takashi Iwai wrote:
+> Mark Brown wrote:
 
-> At Fri, 25 Apr 2008 10:23:51 +0200 (CEST),
-> Jaroslav Kysela wrote:
-> > 
-> > On Fri, 25 Apr 2008, Takashi Iwai wrote:
-> > 
-> > > At Fri, 25 Apr 2008 09:35:47 +0200 (CEST),
-> > > Jaroslav Kysela wrote:
-> > > > 
-> > > > On Fri, 25 Apr 2008, Takashi Iwai wrote:
-> > > > 
-> > > > > > Sure. I applied the simple 'void *device_private_data' patch, because 
-> > > > > > current usage request is really trivial. We can implement complex code to 
-> > > > > > handle data for multiple "extra" devices on AC97 bus later.
-> > > > > 
-> > > > > Actually, it's not "used" yet.  The ucb1000 reads the data but no one
-> > > > > stores yet.  And, if its usage request is trivial, we should use "int
-> > > > 
-> > > > Yes, I hope that the appropriate initialization code will be added to SoC 
-> > > > drivers, too.
-> > > > 
-> > > > > irq" as in the original patch instead of void data and cast.
-> > > > 
-> > > > But other SoC (or other) drivers might want to pass to extra devices on 
-> > > > AC97 bus something different or more complex. Mark Brown already noted
-> > > > that. I would keep it as 'void *'.
-> > > 
-> > > That's the very problem I've been trying to point out.
-> > > The void pointer is good if the same driver assigns and casts.  But,
-> > > in this case, the allocator and the receiver are different.  Thus,
-> > > there is no guarantee that the data type is what you want.  OTOH, if
-> > > it's "int irq", this is crystal clear.
-> > > 
-> > > So, in short:
-> > > 
-> > > - if only one device needs such data, it should be a strong type like
-> > >   "int irq" anyway -- no extra need to cast to void pointer
-> > > - if multiple devices need such a pass-away mechanism, then they can
-> > >   crash because you have no data type check.  The void pointer is
-> > >   dangerous for multiple devices.
-> > 
-> > I see. In this case, I would propose to add a 32-bit "magic" at the 
-> > start of 'void *' data. How about this modification:
-> 
-> The magic number sounds OK, but funky cast to integer pointer is bad.
-> If you have a long or a pointer after int, you can have an alignment
-> problem on 64bit archs, for example.
+> > I think about it it may be best to just do the same thing as the
+> > platform bus does and define accessor macros for getting at this from a
+> > struct snd_ac97).
 
-Not really. First 32-bit word has offset 0 and next 64-bit word has offset 
-8 on x86-64. So alignment is OK.
+> Not really as same as device_data.  Normally, device data is handled
+> by superseding the base device class (just includes struct device) and
+> retrieve the class via container_of() or such.
 
-Anyway, I agree that with a struct, code is more readable without hidden 
-things. Also, drivers can define own struct with magic member as first.
+That's normal usage for getting generic class data, not for obtaining
+information specific to a particular driver.
 
-Here is corrected patch:
+> In this case, however, you don't know exactly whether the given struct
+> ac97 is really created by the specific controller, and thus you cannot
+> assume that the ac97 can be cast to its specific class.
 
-diff -r e2ff47e8771b include/ac97_codec.h
---- a/include/ac97_codec.h	Fri Apr 25 08:29:05 2008 +0200
-+++ b/include/ac97_codec.h	Fri Apr 25 11:43:11 2008 +0200
-@@ -407,6 +407,9 @@
- #define AC97_RATES_MIC_ADC	4
- #define AC97_RATES_SPDIF	5
- 
-+/* device private data magic number */
-+#define AC97_PDEVMAGIC_UIRQ	0x55495251	/* in ASCII: UIRQ, for UCB1400 */
-+
- /*
-  *
-  */
-@@ -470,6 +473,15 @@ struct snd_ac97_template {
- 	const struct snd_ac97_res_table *res_table;	/* static resolution */
- };
- 
-+struct ac97_pdevdata {
-+	unsigned int magic;	/* see AC97_PDEVMAGIC */
-+	union {
-+		int ivalue;
-+		long lvalue;
-+		void *pvalue;
-+	} u;
-+};
-+
- struct snd_ac97 {
- 	/* -- lowlevel (hardware) driver specific -- */
- 	struct snd_ac97_build_ops * build_ops;
-@@ -478,7 +490,7 @@ struct snd_ac97 {
- 	/* This field is used by device drivers which serve devices which are
- 	 * attached to the AC97 bus.
- 	 */
--	void *device_private_data;
-+	struct ac97_pdevdata *device_private_data;
- 	/* --- */
- 	struct snd_ac97_bus *bus;
- 	struct pci_dev *pci;	/* assigned PCI device - used for quirks */
-@@ -545,6 +557,11 @@ static inline int ac97_can_spdif(struct 
- static inline int ac97_can_spdif(struct snd_ac97 * ac97)
- {
- 	return (ac97->ext_id & AC97_EI_SPDIF) != 0;
-+}
-+static inline int ac97_check_pdevdata_magic(struct snd_ac97 * ac97, unsigned int magic)
-+{
-+	return ac97->device_private_data &&
-+	       ac97->device_private_data->magic == magic;
- }
- 
- /* functions */
-diff -r e2ff47e8771b kernel/drivers/input/touchscreen/ucb1400_ts.c
---- a/kernel/drivers/input/touchscreen/ucb1400_ts.c	Fri Apr 25 08:29:05 2008 +0200
-+++ b/kernel/drivers/input/touchscreen/ucb1400_ts.c	Fri Apr 25 11:43:11 2008 +0200
-@@ -492,14 +492,14 @@ static int ucb1400_ts_probe(struct devic
- 		goto err_free_devs;
- 	}
- 
--	if (!ucb->ac97->device_private_data) {
-+	if (!ac97_check_pdevdata_magic(usb->ac97, AC97_PDEVMAGIC_UIRQ)) {
- 		error = ucb1400_detect_irq(ucb);
- 		if (error) {
- 			printk(KERN_ERR "UCB1400: IRQ probe failed\n");
- 			goto err_free_devs;
- 		}
- 	} else {
--		ucb->irq = (int) ucb->ac97->device_private_data;
-+		ucb->irq = ucb->ac97->device_private_data->u.ivalue;
- 	}
- 
- 	error = request_irq(ucb->irq, ucb1400_hard_irq, IRQF_TRIGGER_RISING,
+Right, which is why the device_data pointer is used by things like
+platform drivers for getting device-specific (as opposed to class
+specific) data into the driver from the machine code.
 
------
-Jaroslav Kysela <perex@perex.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, Red Hat, Inc.
+> For multiple anonymous data, we can use a data with a key like below:
 
+This sounds like a reinvention of OpenFirmware, which presents pretty
+much the same sort of key/value interface.  It'd be nice to be able to
+share the same client code.
+
+> and the controller driver assigns the data like
+
+Doing this would mean that the controller would need to be modified for
+each system that wants to pass configuration data to a driver - at that
+point much of the win from providing an interface like this is lost.

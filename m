@@ -1,54 +1,62 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142 joystick
-	driver (v2)
-Date: Fri, 25 Apr 2008 11:39:59 -0400
-Message-ID: <20080425113501.ZZRA012@mailhub.coreip.homeip.net>
-References: <1206643110-8789-1-git-send-email-cooloney@kernel.org> <20080418131149.ZZRA012@mailhub.coreip.homeip.net> <386072610804250309j5f2222cfj2f58b3b92d091a3a@mail.gmail.com>
+From: Sebastian Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH] [INPUT] ucb1400: add key interface
+Date: Fri, 25 Apr 2008 19:45:35 +0200
+Message-ID: <20080425174535.GA10734@www.tglx.de>
+References: <20080424110305.GA2971@www.tglx.de> <20080425112156.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759197AbYDYPk1@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-15
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from www.tglx.de ([62.245.132.106]:46839 "EHLO www.tglx.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754731AbYDYRpq (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 25 Apr 2008 13:45:46 -0400
 Content-Disposition: inline
-In-Reply-To: <386072610804250309j5f2222cfj2f58b3b92d091a3a@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bryan Wu <cooloney@kernel.org>
-Cc: khali@linux-fr.org, andre@bitwigglers.org, linux-input@vger.kernel.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org, vapier.adi@gmail.com, Michael Hennerich <michael.hennerich@analog.com>
+In-Reply-To: <20080425112156.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Fri, Apr 25, 2008 at 06:09:52PM +0800, Bryan Wu wrote:
-> On Sat, Apr 19, 2008 at 1:15 AM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > Hi Bryan,
-> >
-> >
-> >  On Thu, Mar 27, 2008 at 11:38:30AM -0700, Bryan Wu wrote:
-> >  > +     input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
-> >  > +                                             BIT_MASK(BTN_BASE2) |
-> >  > +                                             BIT_MASK(BTN_BASE3) |
-> >  > +                                             BIT_MASK(BTN_BASE4);
-> >  > +     input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
-> >  > +                                             BIT_MASK(KEY_DOWN) |
-> >  > +                                             BIT_MASK(KEY_LEFT) |
-> >  > +                                             BIT_MASK(KEY_RIGHT);
-> >  > +
-> >
-> >  Why don't you use REL_X/REL_Y to report directional movement? Using
-> >  buttons for that is pretty unusual.
-> >
-> 
-> In our development board, it includes UP/DOWN/LEFT/RIGHT 4 buttons. So
-> this driver matches this.
-> Please found some information about the hardware as below:
-> http://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors&s[]=ad7142
+* Dmitry Torokhov | 2008-04-25 11:26:23 [-0400]:
 
-What is the expected behaviur when a person touches one of these
-buttons? Is it generatig a left/rigth mouse button clocks or moving a
-pointer in some direction? Judging by the category of the devices you
-are placing it in (joystick) it seems that latter is what you want,
-therefore it should generate REL_X and REL_Y events. Otherwise it
-should probably be called a button driver and live either in
-drivers/input/keyboard or driver/input/misc. Do you agree?
+>Hi Sebastian,
+Hello Dimitry,
 
-Thanks.
+>> diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
+>> index 9337352..ad14413 100644
+>> --- a/drivers/input/touchscreen/ucb1400_ts.c
+>> +++ b/drivers/input/touchscreen/ucb1400_ts.c
+>> @@ -326,12 +326,14 @@ static int ucb1400_ts_thread(void *_ucb)
+>>  			 */
+>>  			if (valid) {
+>>  				ucb1400_ts_event_release(ucb->ts_idev);
+>> +				input_report_key(ucb->ts_idev, BTN_TOUCH, 0);
+>
+>Why don't you put input_repoer_key() inside ts_event_release()?
+yep, looks better.
 
--- 
-Dmitry
+>>  				valid = 0;
+>>  			}
+>>  
+>>  			timeout = MAX_SCHEDULE_TIMEOUT;
+>>  		} else {
+>>  			valid = 1;
+>> +			input_report_key(ucb->ts_idev, BTN_TOUCH, 1);
+>
+>And here it should go into ucb1400_ts_evt_add().
+same..
+
+>Plus, you might want
+>to select some kind of pressure thresholds before reporting touch press
+>and release.
+Sure but depending on what? Are there any drivers doing this allready?
+I didn't find any on my grep.
+Since these values are HW specifc they should be some userspace control
+(like for max/min x/y).
+
+>Thanks.
+>
+>-- 
+>Dmitry
+
+Sebastian

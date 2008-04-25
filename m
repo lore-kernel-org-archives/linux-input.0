@@ -1,218 +1,82 @@
-From: Kevin Milburn <linux-user@kmilburn.me.uk>
-Subject: Re: support for Logitech Wave
-Date: Fri, 25 Apr 2008 00:12:19 +0100
-Message-ID: <200804250012.19227.linux-user@kmilburn.me.uk>
-Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_TPREIkCf83duaZT"
+From: Bryan Wu <cooloney@kernel.org>
+Subject: [PATCH 1/1] [INPUT/KEYBOARD] Blackfin BF54x: Add infrastructure for keypad wakeups
+Date: Fri, 25 Apr 2008 11:55:28 +0800
+Message-ID: <1209095728-21119-1-git-send-email-cooloney@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ptb-relay03.plus.net ([212.159.14.214]:46497 "EHLO
-	ptb-relay03.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751430AbYDXXmf (ORCPT
+Received: from nwd2mail10.analog.com ([137.71.25.55]:8754 "EHLO
+	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753199AbYDYDzt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Apr 2008 19:42:35 -0400
+	Thu, 24 Apr 2008 23:55:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jikos@jikos.cz
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
---Boundary-00=_TPREIkCf83duaZT
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-Hi Jiri
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
+---
+ drivers/input/keyboard/bf54x-keys.c |   36 ++++++++++++++++++++++++++++++++--
+ 1 files changed, 33 insertions(+), 3 deletions(-)
 
-I'm having problems with a Logitech Wave (cordless) keyboard and its extra 
-keys,   and am hoping the following information will help in resolving the 
-problem.
-
-This testing has been done with the following configuration :
-
-Distribution : openSuse 10.3
-Kernel :  2.6.25-18-default  (built with source from openSuse build service)
-Keyboard :  Logitech Cordless Desktop Wave,  Model Y-RCP140  
-<http://www.logitech.com/index.cfm/keyboards/keyboard_mice_combos/devices/3072&cl=us,en>
-
-I've tested the keyboard with evtest,  and none of the extra keys are 
-recognized,  and no information reported when they are pressed
-
-Testing with Xorg indicates that some of the keys work when the 'kbd' driver 
-is used,  but not when 'evdev' is used  (probably due to the above).
-
-Evbug does see most of these extra keys,  but not all of them. 
-
-I've attached a copy of  information from a debug session of the HID,  and 
-information from evbug.  It also indicates which keys work (depending on 
-layout).
-
-If there's anything else I can do to help,  please let me know.
-
-TIA
-Kevin.
-
---Boundary-00=_TPREIkCf83duaZT
-Content-Type: application/x-bzip2;
-  name="logicdwave.txt.bz2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="logicdwave.txt.bz2"
-
-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
-
---Boundary-00=_TPREIkCf83duaZT--
+diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+index 05e3494..2db5d37 100644
+--- a/drivers/input/keyboard/bf54x-keys.c
++++ b/drivers/input/keyboard/bf54x-keys.c
+@@ -312,6 +312,8 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
+ 
+ 	bfin_write_KPAD_CTL(bfin_read_KPAD_CTL() | KPAD_EN);
+ 
++	device_init_wakeup(&pdev->dev, 1);
++
+ 	printk(KERN_ERR DRV_NAME
+ 		": Blackfin BF54x Keypad registered IRQ %d\n", bf54x_kpad->irq);
+ 
+@@ -354,12 +356,40 @@ static int __devexit bfin_kpad_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
++static int bfin_kpad_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(bf54x_kpad->irq);
++
++	return 0;
++}
++
++static int bfin_kpad_resume(struct platform_device *pdev)
++{
++	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(bf54x_kpad->irq);
++
++	return 0;
++}
++#else
++# define bfin_kpad_suspend NULL
++# define bfin_kpad_resume  NULL
++#endif
++
+ struct platform_driver bfin_kpad_device_driver = {
+-	.probe		= bfin_kpad_probe,
+-	.remove		= __devexit_p(bfin_kpad_remove),
+ 	.driver		= {
+ 		.name	= DRV_NAME,
+-	}
++		.owner	= THIS_MODULE,
++	},
++	.probe		= bfin_kpad_probe,
++	.remove		= __devexit_p(bfin_kpad_remove),
++	.suspend	= bfin_kpad_suspend,
++	.resume		= bfin_kpad_resume,
+ };
+ 
+ static int __init bfin_kpad_init(void)
+-- 
+1.5.5

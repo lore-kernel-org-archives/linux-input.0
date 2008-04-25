@@ -1,82 +1,40 @@
-From: Bryan Wu <cooloney@kernel.org>
-Subject: [PATCH 1/1] [INPUT/KEYBOARD] Blackfin BF54x: Add infrastructure for keypad wakeups
-Date: Fri, 25 Apr 2008 11:55:28 +0800
-Message-ID: <1209095728-21119-1-git-send-email-cooloney@kernel.org>
+From: "Bryan Wu" <cooloney@kernel.org>
+Subject: Re: [PATCH 1/1] [INPUT/KEYBOARD] Blackfin BF54x: Add infrastructure for keypad wakeups
+Date: Fri, 25 Apr 2008 12:06:13 +0800
+Message-ID: <386072610804242106r123e6334id39a18002915464e@mail.gmail.com>
+References: <1209095728-21119-1-git-send-email-cooloney@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:8754 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753199AbYDYDzt (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.31]:38011 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750971AbYDYEGV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Apr 2008 23:55:49 -0400
+	Fri, 25 Apr 2008 00:06:21 -0400
+Received: by yw-out-2324.google.com with SMTP id 5so456739ywh.1
+        for <linux-input@vger.kernel.org>; Thu, 24 Apr 2008 21:06:13 -0700 (PDT)
+In-Reply-To: <1209095728-21119-1-git-send-email-cooloney@kernel.org>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+On Fri, Apr 25, 2008 at 11:55 AM, Bryan Wu <cooloney@kernel.org> wrote:
+> From: Michael Hennerich <michael.hennerich@analog.com>
+>
+>  Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+>  Signed-off-by: Bryan Wu <cooloney@kernel.org>
+>  ---
+>   drivers/input/keyboard/bf54x-keys.c |   36 ++++++++++++++++++++++++++++++++--
+>   1 files changed, 33 insertions(+), 3 deletions(-)
+>
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
----
- drivers/input/keyboard/bf54x-keys.c |   36 ++++++++++++++++++++++++++++++++--
- 1 files changed, 33 insertions(+), 3 deletions(-)
+Hi Dmitry,
 
-diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
-index 05e3494..2db5d37 100644
---- a/drivers/input/keyboard/bf54x-keys.c
-+++ b/drivers/input/keyboard/bf54x-keys.c
-@@ -312,6 +312,8 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
- 
- 	bfin_write_KPAD_CTL(bfin_read_KPAD_CTL() | KPAD_EN);
- 
-+	device_init_wakeup(&pdev->dev, 1);
-+
- 	printk(KERN_ERR DRV_NAME
- 		": Blackfin BF54x Keypad registered IRQ %d\n", bf54x_kpad->irq);
- 
-@@ -354,12 +356,40 @@ static int __devexit bfin_kpad_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM
-+static int bfin_kpad_suspend(struct platform_device *pdev, pm_message_t state)
-+{
-+	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		enable_irq_wake(bf54x_kpad->irq);
-+
-+	return 0;
-+}
-+
-+static int bfin_kpad_resume(struct platform_device *pdev)
-+{
-+	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		disable_irq_wake(bf54x_kpad->irq);
-+
-+	return 0;
-+}
-+#else
-+# define bfin_kpad_suspend NULL
-+# define bfin_kpad_resume  NULL
-+#endif
-+
- struct platform_driver bfin_kpad_device_driver = {
--	.probe		= bfin_kpad_probe,
--	.remove		= __devexit_p(bfin_kpad_remove),
- 	.driver		= {
- 		.name	= DRV_NAME,
--	}
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe		= bfin_kpad_probe,
-+	.remove		= __devexit_p(bfin_kpad_remove),
-+	.suspend	= bfin_kpad_suspend,
-+	.resume		= bfin_kpad_resume,
- };
- 
- static int __init bfin_kpad_init(void)
--- 
-1.5.5
+Sorry for resending this patch, I forget it was accept by you.
+Please ignore this.
+
+Thanks
+-Bryan

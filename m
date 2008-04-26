@@ -1,29 +1,67 @@
-From: Sebastian Siewior <bigeasy@linutronix.de>
-Subject: Re: [PATCH] [INPUT] ucb1400: add key interface
-Date: Sat, 26 Apr 2008 15:13:11 +0200
-Message-ID: <20080426131311.GA24887@www.tglx.de>
-References: <20080424110305.GA2971@www.tglx.de> <20080425112156.ZZRA012@mailhub.coreip.homeip.net> <20080425174535.GA10734@www.tglx.de> <20080425142949.ZZRA012@mailhub.coreip.homeip.net> <20080425184723.GA23710@www.tglx.de> <20080425145231.ZZRA012@mailhub.coreip.homeip.net> <20080425191026.GA25987@www.tglx.de> <20080425162040.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Subject: Re: [PATCH] gpio-keys debouncing support
+Date: Sat, 26 Apr 2008 19:14:38 +0000 (UTC)
+Message-ID: <fuvuuu$kpa$1@ger.gmane.org>
+References: <20080319221323.GA2710@doriath.ww600.siemens.net>
+	<20080421144019.GA6516@doriath.ww600.siemens.net>
+	<20080421155516.GD6884@anvil.corenet.prv>
+	<20080422011448.GA16851@doriath.ww600.siemens.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:40777 "EHLO www.tglx.de"
+Received: from main.gmane.org ([80.91.229.2]:53828 "EHLO ciao.gmane.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751358AbYDZNNQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Apr 2008 09:13:16 -0400
-Content-Disposition: inline
-In-Reply-To: <20080425162040.ZZRA012@mailhub.coreip.homeip.net>
+	id S1761534AbYDZTOz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Apr 2008 15:14:55 -0400
+Received: from list by ciao.gmane.org with local (Exim 4.43)
+	id 1JpprE-0007iP-28
+	for linux-input@vger.kernel.org; Sat, 26 Apr 2008 19:14:48 +0000
+Received: from ppp78-37-170-127.pppoe.avangarddsl.ru ([78.37.170.127])
+        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sat, 26 Apr 2008 19:14:48 +0000
+Received: from dbaryshkov by ppp78-37-170-127.pppoe.avangarddsl.ru with local (Gmexim 0.1 (Debian))
+        id 1AlnuQ-0007hv-00
+        for <linux-input@vger.kernel.org>; Sat, 26 Apr 2008 19:14:48 +0000
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-* Dmitry Torokhov | 2008-04-25 16:22:46 [-0400]:
+Hi,
 
->So do you think we should still apply your patch?
-This patch ain't a big thing. Drop it for now please, thank you for
-considering it. Depending on how things will work I will either resend
-it or drop it totally.
+Dmitry Baryshkov wrote:
 
->Dmitry
+> Hi,
+> 
+> On Mon, Apr 21, 2008 at 11:55:16AM -0400, Dmitry Torokhov wrote:
+>> Hi Dmitry,
+>> 
+>> On Mon, Apr 21, 2008 at 06:40:19PM +0400, Dmitry Baryshkov wrote:
+>> > Hi,
+>> > 
+>> > What about this patch? I still got no comments.
+>> > 
+>> > 
+>> I thought I CCed you form slightly different thread. I don't think that
+>> this should be a separate Kconfig option, we shoudl make it permanent
+>> in the driver. I also wonder if it would be better to allocate debounce
+>> data once for all buttons instead of nickel-and-dime-ing memory
+>> allocator with tiny requests. Timer shoudl be moved into debounce data
+>> too BTW.
+> 
+> Please review the updated patch:
+> 
+> From acf6027db75bca502d1baf45e48418ddb7aadcb7 Mon Sep 17 00:00:00 2001
+> From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+> Date: Tue, 22 Apr 2008 05:12:07 +0400
+> Subject: [PATCH] gpio-keys debouncing support
+> 
 
-Sebastian
+So, what about this patch?
+
+-- 
+With best wishes
+Dmitry
+
+

@@ -1,44 +1,29 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH 1/2] atmel_tsadcc: Device driver for AT91SAM9RL Touchscreen
-Date: Fri, 25 Apr 2008 15:52:32 -0700
-Message-ID: <200804251552.32601.david-b@pacbell.net>
-References: <1209149798-20418-1-git-send-email-justin.waters@timesys.com> <20080425211041.GC28497@flint.arm.linux.org.uk> <1209159453.6990.48.camel@justin-linux>
+From: Sebastian Siewior <bigeasy@linutronix.de>
+Subject: Re: [PATCH] [INPUT] ucb1400: add key interface
+Date: Sat, 26 Apr 2008 15:13:11 +0200
+Message-ID: <20080426131311.GA24887@www.tglx.de>
+References: <20080424110305.GA2971@www.tglx.de> <20080425112156.ZZRA012@mailhub.coreip.homeip.net> <20080425174535.GA10734@www.tglx.de> <20080425142949.ZZRA012@mailhub.coreip.homeip.net> <20080425184723.GA23710@www.tglx.de> <20080425145231.ZZRA012@mailhub.coreip.homeip.net> <20080425191026.GA25987@www.tglx.de> <20080425162040.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=iso-8859-15
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp121.sbc.mail.sp1.yahoo.com ([69.147.64.94]:23243 "HELO
-	smtp121.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752781AbYDYXHY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Apr 2008 19:07:24 -0400
-In-Reply-To: <1209159453.6990.48.camel@justin-linux>
+Received: from www.tglx.de ([62.245.132.106]:40777 "EHLO www.tglx.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751358AbYDZNNQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Apr 2008 09:13:16 -0400
 Content-Disposition: inline
+In-Reply-To: <20080425162040.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Justin Waters <justin.waters@timesys.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, Russell King - ARM Linux <linux@arm.linux.org.uk>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux@maxim.org.za" <linux@maxim.org.za>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Friday 25 April 2008, Justin Waters wrote:
->=20
-> 	 =A0Since HRT
-> support is not mainline for the SAM9 platforms,
+* Dmitry Torokhov | 2008-04-25 16:22:46 [-0400]:
 
-It's not?  I though that all got merged.  PIT supports clocksource
-and periodic clockevents, and the TC modules support oneshot timers
-sufficient for HRT and NO_HZ.  Merged for 2.6.26-rc1 ...
+>So do you think we should still apply your patch?
+This patch ain't a big thing. Drop it for now please, thank you for
+considering it. Depending on how things will work I will either resend
+it or drop it totally.
 
-- Dave
+>Dmitry
 
-
-> I'm going to remove all=20
-> references to it and worry about high resolution timer support at a
-> later time.
->=20
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Sebastian

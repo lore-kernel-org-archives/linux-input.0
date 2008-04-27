@@ -1,67 +1,70 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: Re: [PATCH] gpio-keys debouncing support
-Date: Sat, 26 Apr 2008 19:14:38 +0000 (UTC)
-Message-ID: <fuvuuu$kpa$1@ger.gmane.org>
-References: <20080319221323.GA2710@doriath.ww600.siemens.net>
-	<20080421144019.GA6516@doriath.ww600.siemens.net>
-	<20080421155516.GD6884@anvil.corenet.prv>
-	<20080422011448.GA16851@doriath.ww600.siemens.net>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142 joystickdriver (v2)
+Date: Sat, 26 Apr 2008 21:09:09 -0400
+Message-ID: <200804262109.09596.rgetz@blackfin.uclinux.org>
+References: <1206643110-8789-1-git-send-email-cooloney@kernel.org> <386072610804250309j5f2222cfj2f58b3b92d091a3a@mail.gmail.com> <20080425113501.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from main.gmane.org ([80.91.229.2]:53828 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761534AbYDZTOz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Apr 2008 15:14:55 -0400
-Received: from list by ciao.gmane.org with local (Exim 4.43)
-	id 1JpprE-0007iP-28
-	for linux-input@vger.kernel.org; Sat, 26 Apr 2008 19:14:48 +0000
-Received: from ppp78-37-170-127.pppoe.avangarddsl.ru ([78.37.170.127])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sat, 26 Apr 2008 19:14:48 +0000
-Received: from dbaryshkov by ppp78-37-170-127.pppoe.avangarddsl.ru with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Sat, 26 Apr 2008 19:14:48 +0000
+Received: from nwd2mail10.analog.com ([137.71.25.55]:61773 "EHLO
+	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753138AbYD0BIp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 26 Apr 2008 21:08:45 -0400
+In-Reply-To: <20080425113501.ZZRA012@mailhub.coreip.homeip.net>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Bryan Wu <cooloney@kernel.org>, khali@linux-fr.org, andre@bitwigglers.org, linux-input@vger.kernel.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org, vapier.adi@gmail.com, Michael Hennerich <michael.hennerich@analog.com>
 
-Hi,
-
-Dmitry Baryshkov wrote:
-
-> Hi,
+On Fri 25 Apr 2008 11:39, Dmitry Torokhov pondered:
+> On Fri, Apr 25, 2008 at 06:09:52PM +0800, Bryan Wu wrote:
+> > On Sat, Apr 19, 2008 at 1:15 AM, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> wrote:
+> > > Hi Bryan,
+> > >
+> > >  Why don't you use REL_X/REL_Y to report directional movement? Using
+> > >  buttons for that is pretty unusual.
+> > >
+> > 
+> > In our development board, it includes UP/DOWN/LEFT/RIGHT 4 buttons. So
+> > this driver matches this.
+> > Please found some information about the hardware as below:
+> >
+> http://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors&s
+> []=ad7142
 > 
-> On Mon, Apr 21, 2008 at 11:55:16AM -0400, Dmitry Torokhov wrote:
->> Hi Dmitry,
->> 
->> On Mon, Apr 21, 2008 at 06:40:19PM +0400, Dmitry Baryshkov wrote:
->> > Hi,
->> > 
->> > What about this patch? I still got no comments.
->> > 
->> > 
->> I thought I CCed you form slightly different thread. I don't think that
->> this should be a separate Kconfig option, we shoudl make it permanent
->> in the driver. I also wonder if it would be better to allocate debounce
->> data once for all buttons instead of nickel-and-dime-ing memory
->> allocator with tiny requests. Timer shoudl be moved into debounce data
->> too BTW.
-> 
-> Please review the updated patch:
-> 
-> From acf6027db75bca502d1baf45e48418ddb7aadcb7 Mon Sep 17 00:00:00 2001
-> From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-> Date: Tue, 22 Apr 2008 05:12:07 +0400
-> Subject: [PATCH] gpio-keys debouncing support
-> 
+> What is the expected behaviur when a person touches one of these
+> buttons?
 
-So, what about this patch?
+It depends on the design of the button on the target hardware. They can be 
+pretty much any number of different shapes and sizes. Buttons, wheels, 
+scroll-bar, joypad, and touchpad shapes can be laid out as traces on the 
+sensor PCB. While we tested/wrote something for what we had hardware to 
+verify, it is not restricted to this.
 
--- 
-With best wishes
-Dmitry
+As Bryan indicated - have a look at:
+http://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors#overview
 
+for a variety of options.
 
+> Is it generatig a left/rigth mouse button clocks or moving a 
+> pointer in some direction? Judging by the category of the devices you
+> are placing it in (joystick) it seems that latter is what you want,
+> therefore it should generate REL_X and REL_Y events. Otherwise it
+> should probably be called a button driver and live either in
+> drivers/input/keyboard or driver/input/misc. Do you agree?
+
+If someone makes a joypad, it is a joypad. If someone makes a button, it is a 
+button. The specific ad7142_work function will need to be modified to match 
+the hardware design.
+
+So, I am not sure where it should live - maybe driver/input/misc since it can 
+be so many different things. The issue (in my mind) is how it gets exposed to 
+userspace. If someone makes a joypad - they want it to show up as a joystick, 
+so they don't have to modify any standard userspace applications to use it.
+
+-Robin

@@ -1,77 +1,72 @@
-From: Dag Bakke <dag@bakke.com>
-Subject: [PATCH] fix apple alu keyboard with numpad
-Date: Sun, 27 Apr 2008 13:19:11 +0200
-Message-ID: <4814612F.5030606@bakke.com>
+From: "Bryan Wu" <cooloney@kernel.org>
+Subject: Re: [PATCH 1/1] Input/Joystick Driver: add support AD7142 joystick driver (v2)
+Date: Sun, 27 Apr 2008 21:52:22 +0800
+Message-ID: <386072610804270652m7b3c35eubc7c4b2ae5a929a7@mail.gmail.com>
+References: <1206643110-8789-1-git-send-email-cooloney@kernel.org>
+	 <20080418131149.ZZRA012@mailhub.coreip.homeip.net>
+	 <386072610804250309j5f2222cfj2f58b3b92d091a3a@mail.gmail.com>
+	 <20080425113501.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail43.e.nsc.no ([193.213.115.43]:52565 "EHLO mail43.e.nsc.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754735AbYD0M3S (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 27 Apr 2008 08:29:18 -0400
+Received: from yw-out-2324.google.com ([74.125.46.28]:1095 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754057AbYD0Nww (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 27 Apr 2008 09:52:52 -0400
+Received: by yw-out-2324.google.com with SMTP id 5so857920ywh.1
+        for <linux-input@vger.kernel.org>; Sun, 27 Apr 2008 06:52:22 -0700 (PDT)
+In-Reply-To: <20080425113501.ZZRA012@mailhub.coreip.homeip.net>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: khali@linux-fr.org, andre@bitwigglers.org, linux-input@vger.kernel.org, i2c@lm-sensors.org, linux-kernel@vger.kernel.org, vapier.adi@gmail.com, Michael Hennerich <michael.hennerich@analog.com>
 
-The nice apple alu keyboards with numpads are pretty much unusable in
-vanilla 2.6.25.
-(http://images.apple.com/keyboard/images/gallery/wired_1_20070813.jpg)
-Hitting the 'clear' key (=numlock) disables the numpad, and maps multiple
-alphanumeric keys to numpad symbols in typical laptopkeyboard fashion.
+On Fri, Apr 25, 2008 at 11:39 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Fri, Apr 25, 2008 at 06:09:52PM +0800, Bryan Wu wrote:
+>  > On Sat, Apr 19, 2008 at 1:15 AM, Dmitry Torokhov
+>  > <dmitry.torokhov@gmail.com> wrote:
+>  > > Hi Bryan,
+>  > >
+>  > >
+>  > >  On Thu, Mar 27, 2008 at 11:38:30AM -0700, Bryan Wu wrote:
+>  > >  > +     input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
+>  > >  > +                                             BIT_MASK(BTN_BASE2) |
+>  > >  > +                                             BIT_MASK(BTN_BASE3) |
+>  > >  > +                                             BIT_MASK(BTN_BASE4);
+>  > >  > +     input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
+>  > >  > +                                             BIT_MASK(KEY_DOWN) |
+>  > >  > +                                             BIT_MASK(KEY_LEFT) |
+>  > >  > +                                             BIT_MASK(KEY_RIGHT);
+>  > >  > +
+>  > >
+>  > >  Why don't you use REL_X/REL_Y to report directional movement? Using
+>  > >  buttons for that is pretty unusual.
+>  > >
+>  >
+>  > In our development board, it includes UP/DOWN/LEFT/RIGHT 4 buttons. So
+>  > this driver matches this.
+>  > Please found some information about the hardware as below:
+>  > http://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors&s[]=ad7142
+>
+>  What is the expected behaviur when a person touches one of these
+>  buttons? Is it generatig a left/rigth mouse button clocks or moving a
+>  pointer in some direction? Judging by the category of the devices you
+>  are placing it in (joystick) it seems that latter is what you want,
+>  therefore it should generate REL_X and REL_Y events. Otherwise it
+>  should probably be called a button driver and live either in
+>  drivers/input/keyboard or driver/input/misc. Do you agree?
+>
 
-Furthermore, some of the F-keys do double duty as multimedia keys. The
-vanilla kernel defaults to multimedia keys, requiring the user to hit
-the 'fn' key to get F-key events. I use F-keys more often than multimedia
-keys, so I included the patch to change the default to be F-keys.
+AD7142 is a chip for input devices over i2c interface. So it can be a
+joystick, joypad or other input devices.
+And this driver is an example for real product driver developers.
 
-The following patch is taken from:
-https://bugs.launchpad.net/mactel-support/+bug/201887
-and appears to have been written by Eric Johney. I have merely lifted
-the two patches from the webpage above and submitted it, as I couldn't
-see it upstream after a brief search.
+Maybe drivers/input/misc is OK for this driver.
 
-
-Tested-by: dag@bakke.com
-
---- linux-2.6.25-gentoo/drivers/hid/hid-input.c 2008-04-17 04:49:44.000000000 +0200
-+++ linux-2.6.25-gentoo-r1-apple/drivers/hid/hid-input.c        2008-04-25 23:07:52.925613698 +0200
-@@ -34,7 +34,7 @@
-  #include <linux/hid.h>
-  #include <linux/hid-debug.h>
-
--static int hid_apple_fnmode = 1;
-+static int hid_apple_fnmode = 2;
-  module_param_named(pb_fnmode, hid_apple_fnmode, int, 0644);
-  MODULE_PARM_DESC(pb_fnmode,
-                 "Mode of fn key on Apple keyboards (0 = disabled, 1 = fkeyslast, 2 = fkeysfirst)");
-@@ -218,8 +218,9 @@
-                         }
-                 }
-
--               if (test_bit(usage->code, hid->pb_pressed_numlock) ||
--                               test_bit(LED_NUML, input->led)) {
-+               if ((test_bit(usage->code, hid->pb_pressed_numlock) ||
-+                               test_bit(LED_NUML, input->led)) &&
-+                               (hid->product < 0x220 ||hid->product >= 0x300)) {
-                         trans = find_translation(powerbook_numlock_keys, usage->code);
-
-                         if (trans) {
-
-
-
-For "completeness" and the benfit of someone finding this in an archive
-later, the following 4 commands provides correct keys for
-the multimediakeys in X:
-
-setxkbmap -model macintosh
-xmodmap -e "keycode 162 = XF86AudioPlay"
-xmodmap -e "keycode 153 = XF86AudioNext"
-xmodmap -e "keycode 144 = XF86AudioPrev"
-
-Works with a US layout keyboard, anyway.
-
-
-Regards,
-
-Dag B.
+Thanks
+-Bryan

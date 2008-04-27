@@ -1,31 +1,121 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: HID bus
-Date: Sun, 27 Apr 2008 13:22:36 +0200
-Message-ID: <481461FC.8000006@gmail.com>
-References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz> <1208644696-29129-1-git-send-email-jirislaby@gmail.com> <480B2F9A.3020104@gmail.com> <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760198AbYD0LWy@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
+Subject: [RFC v2 1/8] modpost: add support for hid
+Date: Sun, 27 Apr 2008 13:48:59 +0200
+Message-ID: <1209296946-18454-1-git-send-email-jirislaby@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.wellnetcz.com ([212.24.148.102]:33287 "EHLO WNmonitoring"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755038AbYD0LtV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 27 Apr 2008 07:49:21 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, Jiri Slaby <jirislaby@gmail.com>
 
-On 04/22/2008 02:00 AM, Jiri Kosina wrote:
-> On Sun, 20 Apr 2008, Jiri Slaby wrote:
-> 
->> So I suppose we still need the option to let users compile all the 
->> chosen drivers into hid.
-> 
-> Another possible workaround is to introduce dummy "hid" module, that will 
-> just depend on all other drivers with a reference to certail symbol (and 
-> this could of course be optional as CONFIG_HID_COMPAT, or whatever).
+Hi,
+	
+I respun the patches, here comes the turn two.
 
-If I understand correctly, it would create circular dependency:
-hid->dummy_hid->hid_apple->hid
+v1..v2 diff:
+- generating hid aliases in uevent, so that we can handle
+  MODULE_DEVICE_TABLE(hid) directly. This also solves bluetooth modules
+  autoloading. It needed rework of matching and hid_device_id table
+  structure. BT and USB designator is needed for each table entry, that
+  means three things: 1) bigger tables, 2) mod aliases might be handled
+  smoothly, 3) tables might be mixed BT and USB or any other subsystem
+  -- no longer table per subsystem is needed (but still possible).
+- some bug fixes and cleanups
 
-Is is correct?
+KNOWN ISSUES
+- bus_id is ugly
+- IGNORE_MOUSE leaves hid device allocated to wait for incoming driver
+  (it's unbounded)
+- report parsing is done only once. When a device needs special
+  processing and e.g. generic driver grabbed the device before, the device
+  is already parsed and unbind followed by bind to another driver won't
+  trigger the new driver's report_fixup().
+- untested with BT devices
+- compat autoload method still missing
 
-Thanks.
+--
+
+Generate aliases for hid device modules to support autoloading.
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ include/linux/hid.h             |    1 +
+ include/linux/mod_devicetable.h |    9 +++++++++
+ scripts/mod/file2alias.c        |   18 ++++++++++++++++++
+ 3 files changed, 28 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index d951ec4..fe28e44 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -69,6 +69,7 @@
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
++#include <linux/mod_devicetable.h> /* hid_device_id */
+ #include <linux/timer.h>
+ #include <linux/workqueue.h>
+ #include <linux/input.h>
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index 139d49d..abb5da3 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -131,6 +131,15 @@ struct usb_device_id {
+ #define USB_DEVICE_ID_MATCH_INT_SUBCLASS	0x0100
+ #define USB_DEVICE_ID_MATCH_INT_PROTOCOL	0x0200
+ 
++#define HID_ANY_ID				(~0)
++
++struct hid_device_id {
++	__u16 bus;
++	__u32 vendor;
++	__u32 product;
++	kernel_ulong_t driver_data;
++};
++
+ /* s390 CCW devices */
+ struct ccw_device_id {
+ 	__u16	match_flags;	/* which fields to match against */
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index 769b69d..03d5c8e 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -199,6 +199,20 @@ static void do_usb_table(void *symval, unsigned long size,
+ 		do_usb_entry_multi(symval + i, mod);
+ }
+ 
++/* Looks like: hid:bNvNpN */
++static int do_hid_entry(const char *filename,
++			     struct hid_device_id *id, char *alias)
++{
++	id->vendor = TO_NATIVE(id->vendor);
++	id->product = TO_NATIVE(id->product);
++
++	sprintf(alias, "hid:b%04X", id->bus);
++	ADD(alias, "v", id->vendor != HID_ANY_ID, id->vendor);
++	ADD(alias, "p", id->product != HID_ANY_ID, id->product);
++
++	return 1;
++}
++
+ /* Looks like: ieee1394:venNmoNspNverN */
+ static int do_ieee1394_entry(const char *filename,
+ 			     struct ieee1394_device_id *id, char *alias)
+@@ -642,6 +656,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
+ 	else if (sym_is(symname, "__mod_usb_device_table"))
+ 		/* special case to handle bcdDevice ranges */
+ 		do_usb_table(symval, sym->st_size, mod);
++	else if (sym_is(symname, "__mod_hid_device_table"))
++		do_table(symval, sym->st_size,
++			 sizeof(struct hid_device_id), "hid",
++			 do_hid_entry, mod);
+ 	else if (sym_is(symname, "__mod_ieee1394_device_table"))
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct ieee1394_device_id), "ieee1394",
+-- 
+1.5.4.5
+

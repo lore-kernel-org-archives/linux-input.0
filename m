@@ -1,53 +1,61 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <Uwe.Kleine-Koenig@digi.com>
-Subject: Re: [PATCH 1/2] atmel_tsadcc: Device driver for AT91SAM9RL Touchscreen
-Date: Mon, 28 Apr 2008 07:55:58 +0200
-Message-ID: <20080428055558.GC9804@digi.com>
-References: <1209149798-20418-1-git-send-email-justin.waters@timesys.com> <1209149798-20418-2-git-send-email-justin.waters@timesys.com> <20080425211041.GC28497@flint.arm.linux.org.uk>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: support for Logitech Wave
+Date: Mon, 28 Apr 2008 08:59:22 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0804280851580.7756@jikos.suse.cz>
+References: <200804250012.19227.linux-user@kmilburn.me.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail164.messagelabs.com ([216.82.253.131]:56802 "EHLO
-	mail164.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751605AbYD1F4H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 28 Apr 2008 01:56:07 -0400
-Content-Disposition: inline
-In-Reply-To: <20080425211041.GC28497@flint.arm.linux.org.uk>
+Received: from styx.suse.cz ([82.119.242.94]:54271 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1756168AbYD1G7Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 28 Apr 2008 02:59:24 -0400
+In-Reply-To: <200804250012.19227.linux-user@kmilburn.me.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: Justin Waters <justin.waters@timesys.com>, dmitry.torokhov@gmail.com, linux-arm-kernel@lists.arm.linux.org.uk, linux@maxim.org.za, linux-input@vger.kernel.org
+To: Kevin Milburn <linux-user@kmilburn.me.uk>
+Cc: linux-input@vger.kernel.org
 
-Hello,
+On Fri, 25 Apr 2008, Kevin Milburn wrote:
 
-> > +	/* Setup Clock */
-> > +	ts->tsc_clk =3D clk_get(&pdev->dev,"tsc_clk");
-> > +	if (IS_ERR(ts->tsc_clk)) {
->=20
-> Great, nice to see a driver using the clock API properly.
->=20
-> > +		dev_err(&pdev->dev, "unable to get clock\n");
-> > +		err =3D PTR_ERR(ts->tsc_clk);
-> > +		goto err_iounmap;
-> > +        }
->=20
-> Odd indentation on the last line above.
->=20
-> > +	clk_enable(ts->tsc_clk);
-To use the clock API properly you should check the return value of
-clk_enable, too :-)
+> I'm having problems with a Logitech Wave (cordless) keyboard and its 
+> extra keys, and am hoping the following information will help in 
+> resolving the problem.
 
-Uwe
+Hi Kevin,
 
---=20
-Uwe Kleine-K=F6nig, Software Engineer
-Digi International GmbH Branch Breisach, K=FCferstrasse 8, 79206 Breisa=
-ch, Germany
-Tax: 315/5781/0242 / VAT: DE153662976 / Reg. Amtsgericht Dortmund HRB 1=
-3962
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+is the device in question vendor ID 0x046d and product ID 0xc517? (you can 
+find out using lsusb, for example).
+
+If so, then that's the very same receiver that Logitech ships with S510 
+keyboards, so we'll have to put this extra mappings into the 
+quirk_logitech_wireless() function.
+
+> I've tested the keyboard with evtest, and none of the extra keys are 
+> recognized, and no information reported when they are pressed
+
+Could you please be more specific here? Those keys for which there is some 
+'evbug' output should definitely also appear in evtest output (if X driver 
+will then receive the code or not is a different story).
+
+> I've attached a copy of information from a debug session of the HID, and 
+> information from evbug.  It also indicates which keys work (depending on 
+> layout).
+
+Thanks, this is all the information that will be needed for establishing 
+proper mappings for non-working keys, but I'd like to understand first 
+whether there are keys that appear in evbug output, but there is no event 
+happening on evdev (as seen by evtest).
+
+A few remarks from quick look at the output:
+
+- what are the "Vista Flip" and "Vista Gadget" keys supposed to do?
+- the keys that are labelled "works depending on layout" -- what exactly 
+  does that mean? Is there still output from hid-debug, no matter the 
+  layout?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

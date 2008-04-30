@@ -1,37 +1,41 @@
-From: "xerces8" <xerces8-i80Im65WZOA@public.gmane.org>
-Subject: USB mouse protocol,
-Date: Wed, 30 Apr 2008 11:28:59 +0200
-Message-ID: <WorldClient-F200804301128.AA28590066@butn.net>
+From: Kevin Milburn <linux-user@kmilburn.me.uk>
+Subject: Re: support for Logitech Wave
+Date: Wed, 30 Apr 2008 11:41:08 +0100
+Message-ID: <200804301141.08619.linux-user@kmilburn.me.uk>
+References: <200804250012.19227.linux-user@kmilburn.me.uk> <200804281131.06389.linux-user@kmilburn.me.uk> <Pine.LNX.4.64.0804301119050.7756@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: vojtech-AlSwsSmVLrQ@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from pih-relay08.plus.net ([212.159.14.134]:42470 "EHLO
+	pih-relay08.plus.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756056AbYD3KlN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 30 Apr 2008 06:41:13 -0400
+In-Reply-To: <Pine.LNX.4.64.0804301119050.7756@jikos.suse.cz>
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-Hi!
+On Wednesday 30 April 2008 10:21:16 Jiri Kosina wrote:
+> The keyboard probably has two separate interfaces, with some multimedia
+> keys being reported on a different one. That's why you see them in evbug
+> output, but not in evtest output, because they appear under different
+> event device.
 
-I'm curious about some details in the protocol used by USB mice.
-A cursory look at the "Device Class Definition for HID 1.11" documents
-tells me (note this is the first USB technical document I ever read)
-that a mouse can tell the host the format (the protocol) used to report
-data (movement, button state etc.).
+I''m sure I tried that before,  but from retesting today I guess I didn't....
 
-Also a quick look into linuxv2.6.25/drivers/hid/usbhid/usbmouse.c suggests
-that 8 bits are used for position.
+You're right,   the missing keys reported by evbug are showing up in evtest 
+when I connect to the second event interface,  a.k.a 
+usb-Logitech_USB_Receiver-event-mouse.
 
-So my questions are:
- - is the position data always 8 bits wide ?
- - when are reports sent ? Are they polled by host ? Or sent by the device
-on its own ?
+so it is just the ones that evbug wasn't reporting that are missing...
 
-Thanks for any answers,
-David Balazic
- 
+Looks like I need to have some fun with getting xkbd and evdev in X working 
+properly.....
 
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+TIA
+Kev.

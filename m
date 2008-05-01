@@ -1,203 +1,438 @@
-From: Diego 'Flameeyes' =?utf-8?q?Petten=C3=B2?= <flameeyes@gmail.com>
-Subject: [PATCH] Disable numlock emulation for Apple Aluminium keyboards
-Date: Thu, 1 May 2008 23:30:16 +0200
-Message-ID: <200805012330.18152@enterprise.flameeyes.is-a-geek.org>
+From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Subject: Re: [HP6xx/Patch] - update touchscreen driver
+Date: Thu, 1 May 2008 23:08:28 +0200
+Message-ID: <20080501230828.765c5194.Kristoffer.Ericson@Gmail.com>
+References: <20080427164944.dd3ce43e.Kristoffer.Ericson@Gmail.com>
+	<20080428114945.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3137338.jJIHHRD64E";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:13860 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758334AbYEAVaZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 May 2008 17:30:25 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so687977fgg.17
-        for <linux-input@vger.kernel.org>; Thu, 01 May 2008 14:30:23 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <20080428114945.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-sh-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, linux-sh <linux-sh@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
-
---nextPart3137338.jJIHHRD64E
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_qZjGISA9AGqVgAO"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
---Boundary-01=_qZjGISA9AGqVgAO
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-This is the patch to fix bug #10584=20
-(http://bugzilla.kernel.org/show_bug.cgi?id=3D10584).
-
-HTH,
-=2D-=20
-Diego "Flameeyes" Petten=C3=B2
-http://blog.flameeyes.eu/
 
 
---Boundary-01=_qZjGISA9AGqVgAO
-Content-Type: text/x-diff;
-  charset="utf-8";
-  name="apple-aluminium-keyboard-no-numlock.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="apple-aluminium-keyboard-no-numlock.patch"
+Updated patch: See changelog below.
 
-Don't enable numlock emulation on all Apple keyboards, do so only for
+diff --git a/drivers/input/touchscreen/hp680_ts_input.c b/drivers/input/touchscreen/hp680_ts_input.c
+index c38d4e0..1c3b36f 100644
+--- a/drivers/input/touchscreen/hp680_ts_input.c
++++ b/drivers/input/touchscreen/hp680_ts_input.c
+@@ -1,7 +1,16 @@
++/*
++ * Platform driver for the HP Jornada 620/660/680/690 Touchscreen.
++ *
++ * Copyright 2008 Kristoffer Ericson <kristoffer.ericson@gmail.com>
++ *  Copyright ...-2007 Andriy Skulysh <askulysh@image.kiev.ua>
++ */
+ #include <linux/input.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/workqueue.h>
++
+ #include <asm/io.h>
+ #include <asm/delay.h>
+ #include <asm/adc.h>
+@@ -9,20 +18,14 @@
+ 
+ #define MODNAME "hp680_ts_input"
+ 
+-#define HP680_TS_ABS_X_MIN	40
+-#define HP680_TS_ABS_X_MAX	950
+-#define HP680_TS_ABS_Y_MIN	80
+-#define HP680_TS_ABS_Y_MAX	910
+-
+-#define	PHDR	0xa400012e
+-#define SCPDR	0xa4000136
++#define	PHDR	0xa400012e	/* PORT H  DATA REGISTER */
++#define SCPDR	0xa4000136	/* PORT SC DATA REGISTER */
+ 
+-static void do_softint(struct work_struct *work);
+-
+-static struct input_dev *hp680_ts_dev;
++static struct input_dev *ts_dev;
++static void do_softint(struct delayed_work *work);
+ static DECLARE_DELAYED_WORK(work, do_softint);
+ 
+-static void do_softint(struct work_struct *work)
++static void do_softint(struct delayed_work *work)
+ {
+ 	int absx = 0, absy = 0;
+ 	u8 scpdr;
+@@ -53,77 +56,104 @@ static void do_softint(struct work_struct *work)
+ 		touched = ctrl_inb(PHDR) & PHDR_TS_PEN_DOWN;
+ 	}
+ 
++
++	/* note, tslib currently expects ABS_PRESSURE also */
+ 	if (touched) {
+-		input_report_key(hp680_ts_dev, BTN_TOUCH, 1);
+-		input_report_abs(hp680_ts_dev, ABS_X, absx);
+-		input_report_abs(hp680_ts_dev, ABS_Y, absy);
++		input_report_abs(ts_dev, ABS_X, absx);
++		input_report_abs(ts_dev, ABS_Y, absy);
++		input_report_key(ts_dev, BTN_TOUCH, 1);
+ 	} else {
+-		input_report_key(hp680_ts_dev, BTN_TOUCH, 0);
++		input_report_key(ts_dev, BTN_TOUCH, 0);
+ 	}
+-
+-	input_sync(hp680_ts_dev);
++	input_sync(ts_dev);
+ 	enable_irq(HP680_TS_IRQ);
+ }
+ 
+-static irqreturn_t hp680_ts_interrupt(int irq, void *dev)
++static irqreturn_t hp680_ts_interrupt(int irq, void *pdev)
+ {
+ 	disable_irq_nosync(irq);
+ 	schedule_delayed_work(&work, HZ / 20);
+-
+ 	return IRQ_HANDLED;
+ }
+ 
+-static int __init hp680_ts_init(void)
++static int __devinit jornada680_ts_probe(struct platform_device *pdev)
+ {
+-	int err;
++	int error;
+ 
+-	hp680_ts_dev = input_allocate_device();
+-	if (!hp680_ts_dev)
+-		return -ENOMEM;
++	ts_dev = input_allocate_device();
+ 
+-	hp680_ts_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
+-	hp680_ts_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	if (!ts_dev) {
++		printk(KERN_ERR "ts: failed to allocate device\n");
++		error = -ENOMEM;
++		return error;
++	}
+ 
+-	input_set_abs_params(hp680_ts_dev, ABS_X,
+-		HP680_TS_ABS_X_MIN, HP680_TS_ABS_X_MAX, 0, 0);
+-	input_set_abs_params(hp680_ts_dev, ABS_Y,
+-		HP680_TS_ABS_Y_MIN, HP680_TS_ABS_Y_MAX, 0, 0);
++	ts_dev->name = "HP Jornada 6xx Touchscreen";
++	ts_dev->phys = "jornada_ts/input0";
++	ts_dev->id.bustype = BUS_HOST;
++	ts_dev->dev.parent = &pdev->dev;
++	ts_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
++	ts_dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
++	ts_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	input_set_abs_params(ts_dev, ABS_X, 40, 950, 0, 0);
++	input_set_abs_params(ts_dev, ABS_Y, 80, 910, 0, 0);
++
++	error = input_register_device(ts_dev);
++	if (error) {
++		printk(KERN_ERR "jornada_ts: failed to register device\n");
++		goto fail2;
++	}
+ 
+-	hp680_ts_dev->name = "HP Jornada touchscreen";
+-	hp680_ts_dev->phys = "hp680_ts/input0";
++	error = request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
++			IRQF_DISABLED, "HP6xx Touchscreen driver", NULL);
+ 
+-	if (request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
+-			IRQF_DISABLED, MODNAME, 0) < 0) {
+-		printk(KERN_ERR "hp680_touchscreen.c: Can't allocate irq %d\n",
+-		       HP680_TS_IRQ);
+-		err = -EBUSY;
+-		goto fail1;
++	if (error) {
++		printk(KERN_ERR "jornada_ts: unable to acquire irq\n");
++		goto fail3;
+ 	}
+ 
+-	err = input_register_device(hp680_ts_dev);
+-	if (err)
+-		goto fail2;
+-
+ 	return 0;
+ 
+- fail2:	free_irq(HP680_TS_IRQ, NULL);
+-	cancel_delayed_work(&work);
+-	flush_scheduled_work();
+- fail1:	input_free_device(hp680_ts_dev);
+-	return err;
++fail3:
++fail2:
++	input_free_device(ts_dev);
++
++	return error;
+ }
+ 
+-static void __exit hp680_ts_exit(void)
++static int __devexit jornada680_ts_remove(struct platform_device *pdev)
+ {
+-	free_irq(HP680_TS_IRQ, NULL);
++	free_irq(HP680_TS_IRQ, pdev);
+ 	cancel_delayed_work(&work);
+ 	flush_scheduled_work();
+-	input_unregister_device(hp680_ts_dev);
++	input_unregister_device(dev);
++	return 0;
+ }
+ 
++/* work with hotplug and coldplug */
++MODULE_ALIAS("platform:jornada_ts");
++
++static struct platform_driver jornada680_ts_driver = {
++	.probe	= jornada680_ts_probe,
++	.remove	= jornada680_ts_remove,
++	.driver = {
++		.name = "jornada_ts",
++		.owner= THIS_MODULE,
++	},
++};
++
++static int __init hp680_ts_init(void)
++{
++	return platform_driver_register(&jornada680_ts_driver);
++}
++
++static void __exit hp680_ts_exit(void)
++{
++	platform_driver_unregister(&jornada680_ts_driver);
++}
+ module_init(hp680_ts_init);
+ module_exit(hp680_ts_exit);
+ 
+-MODULE_AUTHOR("Andriy Skulysh, askulysh@image.kiev.ua");
+-MODULE_DESCRIPTION("HP Jornada 680 touchscreen driver");
++MODULE_AUTHOR("Andriy Skulysh <askulysh@image.kiev.ua>, Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
++MODULE_DESCRIPTION("HP Jornada 6xx touchscreen driver");
+ MODULE_LICENSE("GPL");
 
-=46rom: Diego 'Flameeyes' Petten=C3=B2 <flameeyes@gmail.com>
-
-Laptop keyboards.
-
-Signed-off-by: Diego 'Flameeyes' Petten=C3=B2 <flameeyes@gmail.com>
-=2D--
-
- drivers/hid/hid-input.c         |    5 +++--
- drivers/hid/usbhid/hid-quirks.c |   32 ++++++++++++++++----------------
- include/linux/hid.h             |    1 +
- 3 files changed, 20 insertions(+), 18 deletions(-)
 
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index c3eb3f1..452b94d 100644
-=2D-- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -218,8 +218,9 @@ int hidinput_apple_event(struct hid_device *hid, struct=
- input_dev *input,
- 			}
- 		}
-=20
-=2D		if (test_bit(usage->code, hid->pb_pressed_numlock) ||
-=2D				test_bit(LED_NUML, input->led)) {
-+		if (hid->quirks & HID_QUIRK_APPLE_NUMLOCK_EMULATION && (
-+				test_bit(usage->code, hid->pb_pressed_numlock) ||
-+				test_bit(LED_NUML, input->led))) {
- 			trans =3D find_translation(powerbook_numlock_keys, usage->code);
-=20
- 			if (trans) {
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirk=
-s.c
-index d3f8d91..6dc6a2c 100644
-=2D-- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -611,28 +611,28 @@ static const struct hid_blacklist {
-=20
- 	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_QUIR=
-K_NOGET | HID_QUIRK_MULTI_INPUT },
-=20
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, HID_QUIRK_APP=
-LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO, HID_QUIRK_APPL=
-E_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_APPLE=
-_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_APPLE_=
-HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_APPLE_=
-HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_APPL=
-E_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_APPLE=
-_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_APPLE=
-_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI, HID_QUIRK_APPL=
-E_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO, HID_QUIRK_APPLE=
-_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_APPLE=
-_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, HID_QUIRK_APPLE=
-_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO, HID_QUIRK_APPLE_=
-NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_APPLE_N=
-UMLOCK_EMULATION | QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_APPLE_NU=
-MLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUI=
-RK_APPLE_ISO_KEYBOARD},
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_APPLE_NU=
-MLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_APPLE_=
-NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_APPLE_N=
-UMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QU=
-IRK_APPLE_ISO_KEYBOARD},
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_APPLE_N=
-UMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI, HID_QUIRK_APPLE_=
-NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO, HID_QUIRK_APPLE_N=
-UMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QU=
-IRK_APPLE_ISO_KEYBOARD},
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_APPLE_N=
-UMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI, HID_QUIRK_APPLE_HAS_=
-=46N },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO, HID_QUIRK_APPLE_HAS_F=
-N | HID_QUIRK_APPLE_ISO_KEYBOARD },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS, HID_QUIRK_APPLE_HAS_F=
-N },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK_A=
-PPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_AP=
-PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_AP=
-PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK_APP=
-LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_APPL=
-E_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_APPL=
-E_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUIRK_A=
-PPLE_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIRK_AP=
-PLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIRK_AP=
-PLE_HAS_FN },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_=
-APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=2D	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_A=
-PPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_AP=
-PLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_APP=
-LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-=20
- 	{ USB_VENDOR_ID_DELL, USB_DEVICE_ID_DELL_W7658, HID_QUIRK_RESET_LEDS },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KBD, HID_QUIRK_RESET_LED=
-S },
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 4ce3b7a..6fc10d1 100644
-=2D-- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -285,6 +285,7 @@ struct hid_item {
- #define HID_QUIRK_HWHEEL_WHEEL_INVERT		0x04000000
- #define HID_QUIRK_MICROSOFT_KEYS		0x08000000
- #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
-+#define HID_QUIRK_APPLE_NUMLOCK_EMULATION	0x20000000
-=20
- /*
-  * Separate quirks for runtime report descriptor fixup
+On Mon, 28 Apr 2008 12:00:27 -0400
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
---Boundary-01=_qZjGISA9AGqVgAO--
+> Hi Kristoffer,
+> 
+> On Sun, Apr 27, 2008 at 04:49:44PM +0200, Kristoffer Ericson wrote:
+> > -
+> > -static struct input_dev *hp680_ts_dev;
+> > +struct input_dev *dev;
+> 
+> Why does it need to be global? dev a a name is ratehr non-descriptive
+> too given that we are dealing with input devices, platform devices and
+> other kinds of devices.
 
---nextPart3137338.jJIHHRD64E
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
+No need for global agreed. Ive changed dev->ts_dev. Dont need it needs to be more specific than
+that.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
+> 
+> > +static void do_softint(struct delayed_work *work);
+> >  static DECLARE_DELAYED_WORK(work, do_softint);
+> >  
+> > -static void do_softint(struct work_struct *work)
+> > +static void do_softint(struct delayed_work *work)
+> >  {
+> >  	int absx = 0, absy = 0;
+> >  	u8 scpdr;
+> > @@ -53,77 +56,104 @@ static void do_softint(struct work_struct *work)
+> >  		touched = ctrl_inb(PHDR) & PHDR_TS_PEN_DOWN;
+> >  	}
+> >  
+> > +
+> > +	/* note, tslib currently expects ABS_PRESSURE also */
+> 
+> But that will change in the future... I dont see the need for such
+> comment.
+> 
 
-iEYEABECAAYFAkgaNmoACgkQe2h1+2mHVWP3/gCfVfcYYmq7HUOki5hT48JBHWv5
-FtQAoN+amCrbcH1WyLSzz4nNCoBq+meT
-=kQWR
------END PGP SIGNATURE-----
+Roger, see your point. Ive removed the comment.
 
---nextPart3137338.jJIHHRD64E--
+> >  	if (touched) {
+> > -		input_report_key(hp680_ts_dev, BTN_TOUCH, 1);
+> > -		input_report_abs(hp680_ts_dev, ABS_X, absx);
+> > -		input_report_abs(hp680_ts_dev, ABS_Y, absy);
+> > +		input_report_abs(dev, ABS_X, absx);
+> > +		input_report_abs(dev, ABS_Y, absy);
+> > +		input_report_key(dev, BTN_TOUCH, 1);
+> >  	} else {
+> > -		input_report_key(hp680_ts_dev, BTN_TOUCH, 0);
+> > +		input_report_key(dev, BTN_TOUCH, 0);
+> >  	}
+> > -
+> > -	input_sync(hp680_ts_dev);
+> > +	input_sync(dev);
+> >  	enable_irq(HP680_TS_IRQ);
+> >  }
+> >  
+> > -static irqreturn_t hp680_ts_interrupt(int irq, void *dev)
+> > +static irqreturn_t hp680_ts_interrupt(int irq, void *pdev)
+> >  {
+> >  	disable_irq_nosync(irq);
+> >  	schedule_delayed_work(&work, HZ / 20);
+> > -
+> >  	return IRQ_HANDLED;
+> >  }
+> >  
+> > -static int __init hp680_ts_init(void)
+> > +static int __devinit jornada680_ts_probe(struct platform_device *pdev)
+> >  {
+> > -	int err;
+> > +	int error;
+> >  
+> > -	hp680_ts_dev = input_allocate_device();
+> > -	if (!hp680_ts_dev)
+> > -		return -ENOMEM;
+> > +	dev = input_allocate_device();
+> >  
+> > -	hp680_ts_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
+> > -	hp680_ts_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> > +	if (!dev) {
+> > +		printk(KERN_INFO "ts: failed to allocate device\n");
+> 
+> Just "ts:"? "<driver name>: " is usually more informative.
+> 
+
+"jornada_ts" then.
+
+> > +		error = -ENODEV;
+> 
+> -ENOMEM
+> 
+> > +		return error;
+> > +	}
+> >  
+> > -	input_set_abs_params(hp680_ts_dev, ABS_X,
+> > -		HP680_TS_ABS_X_MIN, HP680_TS_ABS_X_MAX, 0, 0);
+> > -	input_set_abs_params(hp680_ts_dev, ABS_Y,
+> > -		HP680_TS_ABS_Y_MIN, HP680_TS_ABS_Y_MAX, 0, 0);
+> > +	dev->name = "HP Jornada 6xx Touchscreen";
+> > +	dev->phys = "jornadats/input0";
+> 
+> "jornada_ts/input0"
+> 
+
+roger.
+
+> > +	dev->id.bustype = BUS_HOST;
+> > +	dev->dev.parent = &pdev->dev;
+> > +	dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
+> > +	dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
+> > +	dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> > +	input_set_abs_params(dev, ABS_X, 40, 950, 0, 0);
+> > +	input_set_abs_params(dev, ABS_Y, 80, 910, 0, 0);
+> > +
+> > +	error = input_register_device(dev);
+> > +	if (error) {
+> > +		printk(KERN_ERR "ts: failed to register device\n");
+> > +		goto fail2;
+> > +	}
+> >  
+> > -	hp680_ts_dev->name = "HP Jornada touchscreen";
+> > -	hp680_ts_dev->phys = "hp680_ts/input0";
+> > +	error = request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
+> > +			IRQF_DISABLED, "HP6xx Touchscreen driver", NULL);
+> >  
+> > -	if (request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
+> > -			IRQF_DISABLED, MODNAME, 0) < 0) {
+> > -		printk(KERN_ERR "hp680_touchscreen.c: Can't allocate irq %d\n",
+> > -		       HP680_TS_IRQ);
+> > -		err = -EBUSY;
+> > -		goto fail1;
+> > +	if (error) {
+> > +		printk(KERN_INFO "ts: unable to aquire irq\n");
+> 
+> acquire.
+> 
+
+Thanks.
+
+> > +		goto fail3;
+> >  	}
+> >  
+> > -	err = input_register_device(hp680_ts_dev);
+> > -	if (err)
+> > -		goto fail2;
+> > -
+> >  	return 0;
+> >  
+> > - fail2:	free_irq(HP680_TS_IRQ, NULL);
+> > -	cancel_delayed_work(&work);
+> > -	flush_scheduled_work();
+> > - fail1:	input_free_device(hp680_ts_dev);
+> > -	return err;
+> > +fail3:
+> > +		input_unregister_device(dev);
+> > +fail2:
+> > +		input_free_device(dev);
+> 
+> Dont ever call input_free_device() after calling
+> input_unregister_device(). The old flow was correct.
+> 
+
+Oki, wont be anything there basicly then. I mean since the IRQ never was acquired it shouldnt need anything besides freeing the
+device?
+
+
+> > +	return error;
+> >  }
+> >  
+> > -static void __exit hp680_ts_exit(void)
+> > +static int __devexit jornada680_ts_remove(struct platform_device *pdev)
+> >  {
+> > -	free_irq(HP680_TS_IRQ, NULL);
+> >  	cancel_delayed_work(&work);
+> >  	flush_scheduled_work();
+> > -	input_unregister_device(hp680_ts_dev);
+> > +	free_irq(HP680_TS_IRQ, pdev);
+> 
+> You have to free IRQ first. Or disable it. Otherwise you may get
+> another work scheduled after you flush it.
+
+Oki, moved it back.
+
+> 
+> > +	input_unregister_device(dev);
+> > +	return 0;
+> > +}
+> > +
+> > +/* work with hotplug and coldplug */
+> > +MODULE_ALIAS("platform:jornada_ts");
+> > +
+> > +static struct platform_driver jornada680_ts_driver = {
+> > +	.probe	= jornada680_ts_probe,
+> > +	.remove	= jornada680_ts_remove,
+> > +	.driver = {
+> > +		.name = "jornada_ts",
+> > +		.owner= THIS_MODULE,
+> > +	},
+> > +};
+> > +
+> > +static int __init hp680_ts_init(void)
+> > +{
+> > +	return platform_driver_register(&jornada680_ts_driver);
+> >  }
+> >  
+> > +static void __exit hp680_ts_exit(void)
+> > +{
+> > +	platform_driver_unregister(&jornada680_ts_driver);
+> > +}
+> >  module_init(hp680_ts_init);
+> >  module_exit(hp680_ts_exit);
+> >  
+> > -MODULE_AUTHOR("Andriy Skulysh, askulysh@image.kiev.ua");
+> > -MODULE_DESCRIPTION("HP Jornada 680 touchscreen driver");
+> > +MODULE_AUTHOR("Andriy Skulysh <askulysh@image.kiev.ua>, Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
+> > +MODULE_DESCRIPTION("HP Jornada 6xx touchscreen driver");
+> >  MODULE_LICENSE("GPL");
+> 
+> -- 
+> Dmitry
+
+
+-- 
+Kristoffer Ericson <Kristoffer.Ericson@Gmail.com>

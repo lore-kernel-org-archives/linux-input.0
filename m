@@ -1,438 +1,235 @@
-From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Subject: Re: [HP6xx/Patch] - update touchscreen driver
-Date: Thu, 1 May 2008 23:08:28 +0200
-Message-ID: <20080501230828.765c5194.Kristoffer.Ericson@Gmail.com>
-References: <20080427164944.dd3ce43e.Kristoffer.Ericson@Gmail.com>
-	<20080428114945.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Subject: [PATCH][RESEND] gpio-keys debouncing support
+Date: Fri, 2 May 2008 15:20:48 +0400
+Message-ID: <20080502112048.GA8664@doriath.ww600.siemens.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080428114945.ZZRA012@mailhub.coreip.homeip.net>
-Sender: linux-sh-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input <linux-input@atrey.karlin.mff.cuni.cz>, linux-sh <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fg-out-1718.google.com ([72.14.220.152]:51353 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751114AbYEBLU4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 May 2008 07:20:56 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so908934fgg.17
+        for <linux-input@vger.kernel.org>; Fri, 02 May 2008 04:20:55 -0700 (PDT)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dtor@mail.ru
 
+Sometimes gpio line can generate jitter while transitioning from one state
+to another one. Implement a way to filter such noise during transitions.
 
-Updated patch: See changelog below.
+Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+---
+ drivers/input/keyboard/gpio_keys.c |  102 ++++++++++++++++++++++++++++++++---
+ include/linux/gpio_keys.h          |    2 +
+ 2 files changed, 95 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/touchscreen/hp680_ts_input.c b/drivers/input/touchscreen/hp680_ts_input.c
-index c38d4e0..1c3b36f 100644
---- a/drivers/input/touchscreen/hp680_ts_input.c
-+++ b/drivers/input/touchscreen/hp680_ts_input.c
-@@ -1,7 +1,16 @@
-+/*
-+ * Platform driver for the HP Jornada 620/660/680/690 Touchscreen.
-+ *
-+ * Copyright 2008 Kristoffer Ericson <kristoffer.ericson@gmail.com>
-+ *  Copyright ...-2007 Andriy Skulysh <askulysh@image.kiev.ua>
-+ */
- #include <linux/input.h>
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/workqueue.h>
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index bbd00c3..c5f7a3d 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -26,23 +26,72 @@
+ 
+ #include <asm/gpio.h>
+ 
++struct gpio_button_data {
++	struct platform_device *pdev;
++	struct gpio_keys_button *button;
 +
- #include <asm/io.h>
- #include <asm/delay.h>
- #include <asm/adc.h>
-@@ -9,20 +18,14 @@
- 
- #define MODNAME "hp680_ts_input"
- 
--#define HP680_TS_ABS_X_MIN	40
--#define HP680_TS_ABS_X_MAX	950
--#define HP680_TS_ABS_Y_MIN	80
--#define HP680_TS_ABS_Y_MAX	910
--
--#define	PHDR	0xa400012e
--#define SCPDR	0xa4000136
-+#define	PHDR	0xa400012e	/* PORT H  DATA REGISTER */
-+#define SCPDR	0xa4000136	/* PORT SC DATA REGISTER */
- 
--static void do_softint(struct work_struct *work);
--
--static struct input_dev *hp680_ts_dev;
-+static struct input_dev *ts_dev;
-+static void do_softint(struct delayed_work *work);
- static DECLARE_DELAYED_WORK(work, do_softint);
- 
--static void do_softint(struct work_struct *work)
-+static void do_softint(struct delayed_work *work)
- {
- 	int absx = 0, absy = 0;
- 	u8 scpdr;
-@@ -53,77 +56,104 @@ static void do_softint(struct work_struct *work)
- 		touched = ctrl_inb(PHDR) & PHDR_TS_PEN_DOWN;
- 	}
- 
-+
-+	/* note, tslib currently expects ABS_PRESSURE also */
- 	if (touched) {
--		input_report_key(hp680_ts_dev, BTN_TOUCH, 1);
--		input_report_abs(hp680_ts_dev, ABS_X, absx);
--		input_report_abs(hp680_ts_dev, ABS_Y, absy);
-+		input_report_abs(ts_dev, ABS_X, absx);
-+		input_report_abs(ts_dev, ABS_Y, absy);
-+		input_report_key(ts_dev, BTN_TOUCH, 1);
- 	} else {
--		input_report_key(hp680_ts_dev, BTN_TOUCH, 0);
-+		input_report_key(ts_dev, BTN_TOUCH, 0);
- 	}
--
--	input_sync(hp680_ts_dev);
-+	input_sync(ts_dev);
- 	enable_irq(HP680_TS_IRQ);
- }
- 
--static irqreturn_t hp680_ts_interrupt(int irq, void *dev)
-+static irqreturn_t hp680_ts_interrupt(int irq, void *pdev)
- {
- 	disable_irq_nosync(irq);
- 	schedule_delayed_work(&work, HZ / 20);
--
- 	return IRQ_HANDLED;
- }
- 
--static int __init hp680_ts_init(void)
-+static int __devinit jornada680_ts_probe(struct platform_device *pdev)
- {
--	int err;
-+	int error;
- 
--	hp680_ts_dev = input_allocate_device();
--	if (!hp680_ts_dev)
--		return -ENOMEM;
-+	ts_dev = input_allocate_device();
- 
--	hp680_ts_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
--	hp680_ts_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	if (!ts_dev) {
-+		printk(KERN_ERR "ts: failed to allocate device\n");
-+		error = -ENOMEM;
-+		return error;
-+	}
- 
--	input_set_abs_params(hp680_ts_dev, ABS_X,
--		HP680_TS_ABS_X_MIN, HP680_TS_ABS_X_MAX, 0, 0);
--	input_set_abs_params(hp680_ts_dev, ABS_Y,
--		HP680_TS_ABS_Y_MIN, HP680_TS_ABS_Y_MAX, 0, 0);
-+	ts_dev->name = "HP Jornada 6xx Touchscreen";
-+	ts_dev->phys = "jornada_ts/input0";
-+	ts_dev->id.bustype = BUS_HOST;
-+	ts_dev->dev.parent = &pdev->dev;
-+	ts_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
-+	ts_dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
-+	ts_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	input_set_abs_params(ts_dev, ABS_X, 40, 950, 0, 0);
-+	input_set_abs_params(ts_dev, ABS_Y, 80, 910, 0, 0);
-+
-+	error = input_register_device(ts_dev);
-+	if (error) {
-+		printk(KERN_ERR "jornada_ts: failed to register device\n");
-+		goto fail2;
-+	}
- 
--	hp680_ts_dev->name = "HP Jornada touchscreen";
--	hp680_ts_dev->phys = "hp680_ts/input0";
-+	error = request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
-+			IRQF_DISABLED, "HP6xx Touchscreen driver", NULL);
- 
--	if (request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
--			IRQF_DISABLED, MODNAME, 0) < 0) {
--		printk(KERN_ERR "hp680_touchscreen.c: Can't allocate irq %d\n",
--		       HP680_TS_IRQ);
--		err = -EBUSY;
--		goto fail1;
-+	if (error) {
-+		printk(KERN_ERR "jornada_ts: unable to acquire irq\n");
-+		goto fail3;
- 	}
- 
--	err = input_register_device(hp680_ts_dev);
--	if (err)
--		goto fail2;
--
- 	return 0;
- 
-- fail2:	free_irq(HP680_TS_IRQ, NULL);
--	cancel_delayed_work(&work);
--	flush_scheduled_work();
-- fail1:	input_free_device(hp680_ts_dev);
--	return err;
-+fail3:
-+fail2:
-+	input_free_device(ts_dev);
-+
-+	return error;
- }
- 
--static void __exit hp680_ts_exit(void)
-+static int __devexit jornada680_ts_remove(struct platform_device *pdev)
- {
--	free_irq(HP680_TS_IRQ, NULL);
-+	free_irq(HP680_TS_IRQ, pdev);
- 	cancel_delayed_work(&work);
- 	flush_scheduled_work();
--	input_unregister_device(hp680_ts_dev);
-+	input_unregister_device(dev);
-+	return 0;
- }
- 
-+/* work with hotplug and coldplug */
-+MODULE_ALIAS("platform:jornada_ts");
-+
-+static struct platform_driver jornada680_ts_driver = {
-+	.probe	= jornada680_ts_probe,
-+	.remove	= jornada680_ts_remove,
-+	.driver = {
-+		.name = "jornada_ts",
-+		.owner= THIS_MODULE,
-+	},
++	/* For debounce */
++	int state;
++	int count;
++	struct timer_list	timer;
 +};
 +
-+static int __init hp680_ts_init(void)
++struct gpio_keys_drvdata {
++	struct input_dev *input;
++	struct gpio_button_data data[0];
++};
++
++static void gpio_debounce_timer(unsigned long _data)
 +{
-+	return platform_driver_register(&jornada680_ts_driver);
++	struct gpio_button_data *data = (struct gpio_button_data *)_data;
++	struct gpio_keys_button *button = data->button;
++	int gpio = button->gpio;
++	unsigned int type = button->type ?: EV_KEY;
++	int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
++	struct gpio_keys_drvdata *ddata = platform_get_drvdata(data->pdev);
++	struct input_dev *input = ddata->input;
++
++	if (state != data->state) {
++		data->count = 0;
++		data->state = state;
++		mod_timer(&data->timer, jiffies +
++					msecs_to_jiffies(button->interval));
++	} else if (data->count < button->count) {
++		data->count ++;
++		mod_timer(&data->timer, jiffies +
++					msecs_to_jiffies(button->interval));
++	} else {
++		input_event(input, type, button->code, !!state);
++		input_sync(input);
++	}
 +}
 +
-+static void __exit hp680_ts_exit(void)
-+{
-+	platform_driver_unregister(&jornada680_ts_driver);
-+}
- module_init(hp680_ts_init);
- module_exit(hp680_ts_exit);
+ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ {
+ 	int i;
+ 	struct platform_device *pdev = dev_id;
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+-	struct input_dev *input = platform_get_drvdata(pdev);
++	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
++	struct input_dev *input = ddata->input;
  
--MODULE_AUTHOR("Andriy Skulysh, askulysh@image.kiev.ua");
--MODULE_DESCRIPTION("HP Jornada 680 touchscreen driver");
-+MODULE_AUTHOR("Andriy Skulysh <askulysh@image.kiev.ua>, Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
-+MODULE_DESCRIPTION("HP Jornada 6xx touchscreen driver");
- MODULE_LICENSE("GPL");
-
-
-
-On Mon, 28 Apr 2008 12:00:27 -0400
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> Hi Kristoffer,
-> 
-> On Sun, Apr 27, 2008 at 04:49:44PM +0200, Kristoffer Ericson wrote:
-> > -
-> > -static struct input_dev *hp680_ts_dev;
-> > +struct input_dev *dev;
-> 
-> Why does it need to be global? dev a a name is ratehr non-descriptive
-> too given that we are dealing with input devices, platform devices and
-> other kinds of devices.
-
-No need for global agreed. Ive changed dev->ts_dev. Dont need it needs to be more specific than
-that.
-
-> 
-> > +static void do_softint(struct delayed_work *work);
-> >  static DECLARE_DELAYED_WORK(work, do_softint);
-> >  
-> > -static void do_softint(struct work_struct *work)
-> > +static void do_softint(struct delayed_work *work)
-> >  {
-> >  	int absx = 0, absy = 0;
-> >  	u8 scpdr;
-> > @@ -53,77 +56,104 @@ static void do_softint(struct work_struct *work)
-> >  		touched = ctrl_inb(PHDR) & PHDR_TS_PEN_DOWN;
-> >  	}
-> >  
-> > +
-> > +	/* note, tslib currently expects ABS_PRESSURE also */
-> 
-> But that will change in the future... I dont see the need for such
-> comment.
-> 
-
-Roger, see your point. Ive removed the comment.
-
-> >  	if (touched) {
-> > -		input_report_key(hp680_ts_dev, BTN_TOUCH, 1);
-> > -		input_report_abs(hp680_ts_dev, ABS_X, absx);
-> > -		input_report_abs(hp680_ts_dev, ABS_Y, absy);
-> > +		input_report_abs(dev, ABS_X, absx);
-> > +		input_report_abs(dev, ABS_Y, absy);
-> > +		input_report_key(dev, BTN_TOUCH, 1);
-> >  	} else {
-> > -		input_report_key(hp680_ts_dev, BTN_TOUCH, 0);
-> > +		input_report_key(dev, BTN_TOUCH, 0);
-> >  	}
-> > -
-> > -	input_sync(hp680_ts_dev);
-> > +	input_sync(dev);
-> >  	enable_irq(HP680_TS_IRQ);
-> >  }
-> >  
-> > -static irqreturn_t hp680_ts_interrupt(int irq, void *dev)
-> > +static irqreturn_t hp680_ts_interrupt(int irq, void *pdev)
-> >  {
-> >  	disable_irq_nosync(irq);
-> >  	schedule_delayed_work(&work, HZ / 20);
-> > -
-> >  	return IRQ_HANDLED;
-> >  }
-> >  
-> > -static int __init hp680_ts_init(void)
-> > +static int __devinit jornada680_ts_probe(struct platform_device *pdev)
-> >  {
-> > -	int err;
-> > +	int error;
-> >  
-> > -	hp680_ts_dev = input_allocate_device();
-> > -	if (!hp680_ts_dev)
-> > -		return -ENOMEM;
-> > +	dev = input_allocate_device();
-> >  
-> > -	hp680_ts_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
-> > -	hp680_ts_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> > +	if (!dev) {
-> > +		printk(KERN_INFO "ts: failed to allocate device\n");
-> 
-> Just "ts:"? "<driver name>: " is usually more informative.
-> 
-
-"jornada_ts" then.
-
-> > +		error = -ENODEV;
-> 
-> -ENOMEM
-> 
-> > +		return error;
-> > +	}
-> >  
-> > -	input_set_abs_params(hp680_ts_dev, ABS_X,
-> > -		HP680_TS_ABS_X_MIN, HP680_TS_ABS_X_MAX, 0, 0);
-> > -	input_set_abs_params(hp680_ts_dev, ABS_Y,
-> > -		HP680_TS_ABS_Y_MIN, HP680_TS_ABS_Y_MAX, 0, 0);
-> > +	dev->name = "HP Jornada 6xx Touchscreen";
-> > +	dev->phys = "jornadats/input0";
-> 
-> "jornada_ts/input0"
-> 
-
-roger.
-
-> > +	dev->id.bustype = BUS_HOST;
-> > +	dev->dev.parent = &pdev->dev;
-> > +	dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
-> > +	dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
-> > +	dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> > +	input_set_abs_params(dev, ABS_X, 40, 950, 0, 0);
-> > +	input_set_abs_params(dev, ABS_Y, 80, 910, 0, 0);
-> > +
-> > +	error = input_register_device(dev);
-> > +	if (error) {
-> > +		printk(KERN_ERR "ts: failed to register device\n");
-> > +		goto fail2;
-> > +	}
-> >  
-> > -	hp680_ts_dev->name = "HP Jornada touchscreen";
-> > -	hp680_ts_dev->phys = "hp680_ts/input0";
-> > +	error = request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
-> > +			IRQF_DISABLED, "HP6xx Touchscreen driver", NULL);
-> >  
-> > -	if (request_irq(HP680_TS_IRQ, hp680_ts_interrupt,
-> > -			IRQF_DISABLED, MODNAME, 0) < 0) {
-> > -		printk(KERN_ERR "hp680_touchscreen.c: Can't allocate irq %d\n",
-> > -		       HP680_TS_IRQ);
-> > -		err = -EBUSY;
-> > -		goto fail1;
-> > +	if (error) {
-> > +		printk(KERN_INFO "ts: unable to aquire irq\n");
-> 
-> acquire.
-> 
-
-Thanks.
-
-> > +		goto fail3;
-> >  	}
-> >  
-> > -	err = input_register_device(hp680_ts_dev);
-> > -	if (err)
-> > -		goto fail2;
-> > -
-> >  	return 0;
-> >  
-> > - fail2:	free_irq(HP680_TS_IRQ, NULL);
-> > -	cancel_delayed_work(&work);
-> > -	flush_scheduled_work();
-> > - fail1:	input_free_device(hp680_ts_dev);
-> > -	return err;
-> > +fail3:
-> > +		input_unregister_device(dev);
-> > +fail2:
-> > +		input_free_device(dev);
-> 
-> Dont ever call input_free_device() after calling
-> input_unregister_device(). The old flow was correct.
-> 
-
-Oki, wont be anything there basicly then. I mean since the IRQ never was acquired it shouldnt need anything besides freeing the
-device?
-
-
-> > +	return error;
-> >  }
-> >  
-> > -static void __exit hp680_ts_exit(void)
-> > +static int __devexit jornada680_ts_remove(struct platform_device *pdev)
-> >  {
-> > -	free_irq(HP680_TS_IRQ, NULL);
-> >  	cancel_delayed_work(&work);
-> >  	flush_scheduled_work();
-> > -	input_unregister_device(hp680_ts_dev);
-> > +	free_irq(HP680_TS_IRQ, pdev);
-> 
-> You have to free IRQ first. Or disable it. Otherwise you may get
-> another work scheduled after you flush it.
-
-Oki, moved it back.
-
-> 
-> > +	input_unregister_device(dev);
-> > +	return 0;
-> > +}
-> > +
-> > +/* work with hotplug and coldplug */
-> > +MODULE_ALIAS("platform:jornada_ts");
-> > +
-> > +static struct platform_driver jornada680_ts_driver = {
-> > +	.probe	= jornada680_ts_probe,
-> > +	.remove	= jornada680_ts_remove,
-> > +	.driver = {
-> > +		.name = "jornada_ts",
-> > +		.owner= THIS_MODULE,
-> > +	},
-> > +};
-> > +
-> > +static int __init hp680_ts_init(void)
-> > +{
-> > +	return platform_driver_register(&jornada680_ts_driver);
-> >  }
-> >  
-> > +static void __exit hp680_ts_exit(void)
-> > +{
-> > +	platform_driver_unregister(&jornada680_ts_driver);
-> > +}
-> >  module_init(hp680_ts_init);
-> >  module_exit(hp680_ts_exit);
-> >  
-> > -MODULE_AUTHOR("Andriy Skulysh, askulysh@image.kiev.ua");
-> > -MODULE_DESCRIPTION("HP Jornada 680 touchscreen driver");
-> > +MODULE_AUTHOR("Andriy Skulysh <askulysh@image.kiev.ua>, Kristoffer Ericson <Kristoffer.Ericson@gmail.com>");
-> > +MODULE_DESCRIPTION("HP Jornada 6xx touchscreen driver");
-> >  MODULE_LICENSE("GPL");
-> 
-> -- 
-> Dmitry
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		struct gpio_keys_button *button = &pdata->buttons[i];
++		struct gpio_button_data *data = &ddata->data[i];
+ 		int gpio = button->gpio;
+ 
+ 		if (irq == gpio_to_irq(gpio)) {
+-			unsigned int type = button->type ?: EV_KEY;
+-			int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
+-
+-			input_event(input, type, button->code, !!state);
+-			input_sync(input);
++			if (button->count) {
++				if (!timer_pending(&data->timer))
++					mod_timer(&data->timer, jiffies +
++							msecs_to_jiffies(
++							button->interval));
++			} else {
++				unsigned int type = button->type ?: EV_KEY;
++				int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
++
++				input_event(input, type, button->code, !!state);
++				input_sync(input);
++			}
+ 			return IRQ_HANDLED;
+ 		}
+ 	}
+@@ -53,15 +102,26 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
++	struct gpio_keys_drvdata *ddata;
+ 	struct input_dev *input;
+ 	int i, error;
+ 	int wakeup = 0;
+ 
++	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
++			sizeof(struct gpio_button_data) * pdata->nbuttons,
++			GFP_KERNEL);
++
++	if (!ddata)
++		return -ENOMEM;
++
+ 	input = input_allocate_device();
+-	if (!input)
++	if (!input) {
++		kfree(ddata);
+ 		return -ENOMEM;
++	}
++	ddata->input = input;
+ 
+-	platform_set_drvdata(pdev, input);
++	platform_set_drvdata(pdev, ddata);
+ 
+ 	input->evbit[0] = BIT_MASK(EV_KEY);
+ 
+@@ -78,6 +138,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		struct gpio_keys_button *button = &pdata->buttons[i];
+ 		int irq;
+ 		unsigned int type = button->type ?: EV_KEY;
++		struct gpio_button_data *data = &ddata->data[i];
++
++		data->pdev = pdev;
++		data->button = button;
+ 
+ 		error = gpio_request(button->gpio, button->desc ?: "gpio_keys");
+ 		if (error < 0) {
+@@ -104,6 +168,16 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 			gpio_free(button->gpio);
+ 			goto fail;
+ 		}
++		if (button->count && button->interval) {
++			data->state = -1;
++
++			init_timer(&data->timer);
++			data->timer.function = gpio_debounce_timer;
++			data->timer.data = (unsigned long)data;
++
++			mod_timer(&data->timer, jiffies +
++					msecs_to_jiffies(button->interval));
++		}
+ 
+ 		error = request_irq(irq, gpio_keys_isr,
+ 				    IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_RISING |
+@@ -113,7 +187,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 		if (error) {
+ 			pr_err("gpio-keys: Unable to claim irq %d; error %d\n",
+ 				irq, error);
++			if (button->count)
++				del_timer_sync(&data->timer);
+ 			gpio_free(button->gpio);
++
+ 			goto fail;
+ 		}
+ 
+@@ -137,11 +214,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+  fail:
+ 	while (--i >= 0) {
+ 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), pdev);
++		if (pdata->buttons[i].count) {
++			del_timer_sync(&ddata->data[i].timer);
++		}
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+ 	platform_set_drvdata(pdev, NULL);
+ 	input_free_device(input);
++	kfree(ddata);
+ 
+ 	return error;
+ }
+@@ -149,7 +230,8 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ {
+ 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
+-	struct input_dev *input = platform_get_drvdata(pdev);
++	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
++	struct input_dev *input = ddata->input;
+ 	int i;
+ 
+ 	device_init_wakeup(&pdev->dev, 0);
+@@ -157,6 +239,8 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+ 		free_irq(irq, pdev);
++		if (pdata->buttons[i].count)
++			del_timer_sync(&ddata->data[i].timer);
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index c6d3a9d..5d09862 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -9,6 +9,8 @@ struct gpio_keys_button {
+ 	char *desc;
+ 	int type;		/* input event type (EV_KEY, EV_SW) */
+ 	int wakeup;		/* configure the button as a wake-up source */
++	int count;		/* debounce ticks count */
++	int interval;		/* debounce ticks interval in msecs */
+ };
+ 
+ struct gpio_keys_platform_data {
+-- 
+1.5.5
 
 
 -- 
-Kristoffer Ericson <Kristoffer.Ericson@Gmail.com>
+With best wishes
+Dmitry
+

@@ -1,144 +1,201 @@
-From: "Michael Gruber" <backup.mg@gmx.de>
-Subject: [PATCH 2/2] xpad - Allow mapping triggers to buttons
-Date: Mon, 05 May 2008 12:34:43 +0200
-Message-ID: <20080505103443.266050@gmx.net>
+From: Diego 'Flameeyes' =?utf-8?q?Petten=C3=B2?= <flameeyes@gmail.com>
+Subject: [PATCH] Split Numlock emulation quirk from HID_QUIRK_APPLE_HAS_FN.
+Date: Mon, 05 May 2008 16:20:50 +0200
+Message-ID: <20080505142050.2145.20872.stgit@hit-nxdomain.opendns.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:39861 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752935AbYEEKep (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 5 May 2008 06:34:45 -0400
+Received: from hs-out-0708.google.com ([64.233.178.251]:53977 "EHLO
+	hs-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756386AbYEEOUz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 5 May 2008 10:20:55 -0400
+Received: by hs-out-0708.google.com with SMTP id 4so565529hsl.5
+        for <linux-input@vger.kernel.org>; Mon, 05 May 2008 07:20:54 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
+To: jkosina@suse.cz, akpm@linux-foundation.org
 Cc: linux-input@vger.kernel.org
 
-From: Michael Gruber <lists.mg@googlemail.com>
+Since 2.6.25 the HID_QUIRK_APPLE_HAS_FN quirk is enabled even for
+non-laptop Apple keyboards of the Aluminium series. The USB version of
+these don't need Numlock emulation, like the laptop (and Aluminium
+Wireless) do, as they have a proper keypad.
 
-If the new module option triggers_to_buttons is set, the two analog shoulder
-triggers will be mapped to 2buttons instead of 2axes for all controllers.
+This patch splits the Numlock emulation for Apple keyboards in a
+different quirk flag, so that it can be enabled for all the keyboards
+but the Aluminium USB ones.
 
-Signed-off-by: Michael Gruber <lists.mg@googlemail.com>
+If the Numlock emulation is enabled for Aluminium USB keyboards, the
+JKL and UIO keys become the numeric pad, and the rest of the keyboard
+is disabled, included the key used to disable Numlock.
 
+Additionally, these keyboard should not have a Numlock at all, as the
+Numlock key is instead replaced by the 'Clear' key as usual for Apple
+USB keyboards.
+
+Aluminium Wireless (Bluetooth) keyboards don't have a keypad so they
+still need the numlock emulation, although I'm not sure whether their
+numlock key will work to disable it after enabling, as I don't have
+hardware to test those.
+
+Signed-off-by: Diego 'Flameeyes' Petten=C3=B2 <flameeyes@gmail.com>
 ---
 
-A lot of Xbox360 games use LT and RT just like digital buttons, usually for
-important commands like attack. Linux users should have access to the same
-functionality.
+ drivers/hid/hid-input.c         |    5 +++--
+ drivers/hid/usbhid/hid-quirks.c |   38 +++++++++++++++++++------------=
+-------
+ include/linux/hid.h             |    1 +
+ 3 files changed, 23 insertions(+), 21 deletions(-)
 
- Documentation/input/xpad.txt  |    3 ++
- drivers/input/joystick/xpad.c |   40 ++++++++++++++++++++++++++++----
- 2 files changed, 38 insertions(+), 5 deletions(-)
 
---- a/Documentation/input/xpad.txt	2008-04-30 20:02:35.000000000 +0200
-+++ b/Documentation/input/xpad.txt	2008-05-01 00:09:46.000000000 +0200
-@@ -29,6 +29,9 @@ dpad_to_buttons has no effect for known 
- d-pad mapping to use buttons instead of axes for a known controller you
- should set force_dpad_to_buttons to Y. The default is N.
- 
-+You can also map the two analog shoulder triggers to digital buttons by
-+setting triggers_to_buttons to Y. The default is N.
-+
- 0.1 Normal Controllers
- ----------------------
- With a normal controller, the directional pad is mapped to its own X/Y axes.
---- a/drivers/input/joystick/xpad.c	2008-04-30 20:02:35.000000000 +0200
-+++ b/drivers/input/joystick/xpad.c	2008-04-30 20:34:02.000000000 +0200
-@@ -101,6 +101,9 @@ MODULE_PARM_DESC(dpad_to_buttons, "Map D
- static int force_dpad_to_buttons;
- module_param(force_dpad_to_buttons, bool, S_IRUGO);
- MODULE_PARM_DESC(force_dpad_to_buttons, "Map D-PAD to buttons rather than axes for all pads");
-+static int triggers_to_buttons;
-+module_param(triggers_to_buttons, bool, S_IRUGO);
-+MODULE_PARM_DESC(triggers_to_buttons, "Map triggers to buttons rather than axes for all pads");
- 
- static const struct xpad_device {
- 	u16 idVendor;
-@@ -176,10 +179,15 @@ static const signed short xpad360_btn[] 
- 	-1
- };
- 
-+/* only used if triggers_to_buttons is set */
-+static const signed short xpad_btn_trigger[] = {
-+	BTN_TL2, BTN_TR2,	/* triggers left/right */
-+	-1			/* terminating entry */
-+};
-+
- static const signed short xpad_abs[] = {
- 	ABS_X, ABS_Y,		/* left stick */
- 	ABS_RX, ABS_RY,		/* right stick */
--	ABS_Z, ABS_RZ,		/* triggers left/right */
- 	-1			/* terminating entry */
- };
- 
-@@ -189,6 +197,12 @@ static const signed short xpad_abs_pad[]
- 	-1			/* terminating entry */
- };
- 
-+/* only used if triggers_to_buttons is not set */
-+static const signed short xpad_abs_trigger[] = {
-+	ABS_Z, ABS_RZ,		/* triggers left/right */
-+	-1			/* terminating entry */
-+};
-+
- /* Xbox 360 has a vendor-specific class, so we cannot match it with only
-  * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
-  * match against vendor id as well. Wired Xbox 360 devices have protocol 1,
-@@ -272,8 +286,13 @@ static void xpad_process_packet(struct u
- 			 ~(__s16) le16_to_cpup((__le16 *)(data + 18)));
- 
- 	/* triggers left/right */
--	input_report_abs(dev, ABS_Z, data[10]);
--	input_report_abs(dev, ABS_RZ, data[11]);
-+	if (triggers_to_buttons) {
-+		input_report_key(dev, BTN_TL2, data[10] > 0x50);
-+		input_report_key(dev, BTN_TR2, data[11] > 0x50);
-+	} else {
-+		input_report_abs(dev, ABS_Z,  data[10]);
-+		input_report_abs(dev, ABS_RZ, data[11]);
-+	}
- 
- 	/* digital pad */
- 	if (xpad->dpad_mapping == MAP_DPAD_TO_AXES) {
-@@ -366,8 +385,13 @@ static void xpad360_process_packet(struc
- 			 ~(__s16) le16_to_cpup((__le16 *)(data + 12)));
- 
- 	/* triggers left/right */
--	input_report_abs(dev, ABS_Z, data[4]);
--	input_report_abs(dev, ABS_RZ, data[5]);
-+	if (triggers_to_buttons) {
-+		input_report_key(dev, BTN_TL2, data[4] > 0x50);
-+		input_report_key(dev, BTN_TR2, data[5] > 0x50);
-+	} else {
-+		input_report_abs(dev, ABS_Z,  data[4]);
-+		input_report_abs(dev, ABS_RZ, data[5]);
-+	}
- 
- 	input_sync(dev);
- }
-@@ -786,6 +810,9 @@ static int xpad_probe(struct usb_interfa
- 	if (xpad->dpad_mapping == MAP_DPAD_TO_BUTTONS)
- 		for (i = 0; xpad_btn_pad[i] >= 0; i++)
- 			set_bit(xpad_btn_pad[i], input_dev->keybit);
-+	if (triggers_to_buttons)
-+		for (i = 0; xpad_btn_trigger[i] >= 0; i++)
-+			set_bit(xpad_btn_trigger[i], input_dev->keybit);
- 
- 	/* set up axes */
- 	for (i = 0; xpad_abs[i] >= 0; i++)
-@@ -793,6 +820,9 @@ static int xpad_probe(struct usb_interfa
- 	if (xpad->dpad_mapping == MAP_DPAD_TO_AXES)
- 		for (i = 0; xpad_abs_pad[i] >= 0; i++)
- 		    xpad_set_up_abs(input_dev, xpad_abs_pad[i]);
-+	if (!triggers_to_buttons)
-+		for (i = 0; xpad_abs_trigger[i] >= 0; i++)
-+		    xpad_set_up_abs(input_dev, xpad_abs_trigger[i]);
- 
- 	error = xpad_init_output(intf, xpad);
- 	if (error)
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c3eb3f1..452b94d 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -218,8 +218,9 @@ int hidinput_apple_event(struct hid_device *hid, st=
+ruct input_dev *input,
+ 			}
+ 		}
+=20
+-		if (test_bit(usage->code, hid->pb_pressed_numlock) ||
+-				test_bit(LED_NUML, input->led)) {
++		if (hid->quirks & HID_QUIRK_APPLE_NUMLOCK_EMULATION && (
++				test_bit(usage->code, hid->pb_pressed_numlock) ||
++				test_bit(LED_NUML, input->led))) {
+ 			trans =3D find_translation(powerbook_numlock_keys, usage->code);
+=20
+ 			if (trans) {
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-q=
+uirks.c
+index d3f8d91..a2fc8d4 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -611,28 +611,28 @@ static const struct hid_blacklist {
+=20
+ 	{ USB_VENDOR_ID_WISEGROUP_LTD, USB_DEVICE_ID_SMARTJOY_DUAL_PLUS, HID_=
+QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+=20
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, HID_QUIRK_A=
+PPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO, HID_QUIRK_AP=
+PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_APPL=
+E_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_APPL=
+E_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_AP=
+PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI, HID_QUIRK_AP=
+PLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE | HID_QUIRK_APPLE_ISO_KEYBOARD},
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_APP=
+LE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI, HID_QUIRK_A=
+PPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUS=
+E },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO, HID_QUIRK_AP=
+PLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE=
+ },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI, HID_QUIRK_APP=
+LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE =
+},
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO, HID_QUIRK_APPL=
+E_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE |=
+ HID_QUIRK_APPLE_ISO_KEYBOARD},
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS, HID_QUIRK_APPL=
+E_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE }=
+,
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI, HID_QUIRK_AP=
+PLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE=
+ },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO, HID_QUIRK_APP=
+LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE =
+| HID_QUIRK_APPLE_ISO_KEYBOARD},
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS, HID_QUIRK_APP=
+LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE =
+},
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI, HID_QUIRK_AP=
+PLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE=
+ },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO, HID_QUIRK_APP=
+LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE =
+| HID_QUIRK_APPLE_ISO_KEYBOARD},
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS, HID_QUIRK_APP=
+LE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE =
+},
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI, HID_QUIRK_APPLE_=
+HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO, HID_QUIRK_APPLE_H=
+AS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS, HID_QUIRK_APPLE_H=
+AS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK=
+_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_=
+APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_=
+APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUI=
+RK_APPLE_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIR=
+K_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIR=
+K_APPLE_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIR=
+K_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK=
+_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK=
+_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MO=
+USE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_=
+APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOU=
+SE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_=
+APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOU=
+SE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUI=
+RK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIR=
+K_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_IS=
+O_KEYBOARD },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIR=
+K_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIR=
+K_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_M=
+OUSE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK=
+_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MO=
+USE },
+=20
+ 	{ USB_VENDOR_ID_DELL, USB_DEVICE_ID_DELL_W7658, HID_QUIRK_RESET_LEDS =
+},
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KBD, HID_QUIRK_RESET=
+_LEDS },
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 4ce3b7a..6fc10d1 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -285,6 +285,7 @@ struct hid_item {
+ #define HID_QUIRK_HWHEEL_WHEEL_INVERT		0x04000000
+ #define HID_QUIRK_MICROSOFT_KEYS		0x08000000
+ #define HID_QUIRK_FULLSPEED_INTERVAL		0x10000000
++#define HID_QUIRK_APPLE_NUMLOCK_EMULATION	0x20000000
+=20
+ /*
+  * Separate quirks for runtime report descriptor fixup
 
--- 
-Ist Ihr Browser Vista-kompatibel? Jetzt die neuesten 
-Browser-Versionen downloaden: http://www.gmx.net/de/go/browser
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

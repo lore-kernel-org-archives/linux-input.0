@@ -1,235 +1,93 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: [PATCH][RESEND] gpio-keys debouncing support
-Date: Fri, 2 May 2008 15:20:48 +0400
-Message-ID: <20080502112048.GA8664@doriath.ww600.siemens.net>
+From: "Michael Gruber" <backup.mg@gmx.de>
+Subject: [PATCH 1/2] xpad - Allow mapping D-pad to buttons for all pads
+Date: Mon, 05 May 2008 12:34:00 +0200
+Message-ID: <20080505103400.284050@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.152]:51353 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751114AbYEBLU4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 May 2008 07:20:56 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so908934fgg.17
-        for <linux-input@vger.kernel.org>; Fri, 02 May 2008 04:20:55 -0700 (PDT)
-Content-Disposition: inline
+Received: from mail.gmx.net ([213.165.64.20]:47433 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1754711AbYEEKeB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 May 2008 06:34:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dtor@mail.ru
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-Sometimes gpio line can generate jitter while transitioning from one state
-to another one. Implement a way to filter such noise during transitions.
+=46rom: Michael Gruber <lists.mg@googlemail.com>
 
-Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+If the new module option force_dpad_to_buttons is set, the directional =
+pad will
+be mapped to 4buttons instead of 2axes for all controllers. This includ=
+es those
+in the list of known controllers which are not affected by the existing=
+ option
+dpad_to_buttons.
+
+Signed-off-by: Michael Gruber <lists.mg@googlemail.com>
+
 ---
- drivers/input/keyboard/gpio_keys.c |  102 ++++++++++++++++++++++++++++++++---
- include/linux/gpio_keys.h          |    2 +
- 2 files changed, 95 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index bbd00c3..c5f7a3d 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -26,23 +26,72 @@
- 
- #include <asm/gpio.h>
- 
-+struct gpio_button_data {
-+	struct platform_device *pdev;
-+	struct gpio_keys_button *button;
-+
-+	/* For debounce */
-+	int state;
-+	int count;
-+	struct timer_list	timer;
-+};
-+
-+struct gpio_keys_drvdata {
-+	struct input_dev *input;
-+	struct gpio_button_data data[0];
-+};
-+
-+static void gpio_debounce_timer(unsigned long _data)
-+{
-+	struct gpio_button_data *data = (struct gpio_button_data *)_data;
-+	struct gpio_keys_button *button = data->button;
-+	int gpio = button->gpio;
-+	unsigned int type = button->type ?: EV_KEY;
-+	int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
-+	struct gpio_keys_drvdata *ddata = platform_get_drvdata(data->pdev);
-+	struct input_dev *input = ddata->input;
-+
-+	if (state != data->state) {
-+		data->count = 0;
-+		data->state = state;
-+		mod_timer(&data->timer, jiffies +
-+					msecs_to_jiffies(button->interval));
-+	} else if (data->count < button->count) {
-+		data->count ++;
-+		mod_timer(&data->timer, jiffies +
-+					msecs_to_jiffies(button->interval));
-+	} else {
-+		input_event(input, type, button->code, !!state);
-+		input_sync(input);
-+	}
-+}
-+
- static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- {
- 	int i;
- 	struct platform_device *pdev = dev_id;
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
--	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
-+	struct input_dev *input = ddata->input;
- 
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		struct gpio_keys_button *button = &pdata->buttons[i];
-+		struct gpio_button_data *data = &ddata->data[i];
- 		int gpio = button->gpio;
- 
- 		if (irq == gpio_to_irq(gpio)) {
--			unsigned int type = button->type ?: EV_KEY;
--			int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
--
--			input_event(input, type, button->code, !!state);
--			input_sync(input);
-+			if (button->count) {
-+				if (!timer_pending(&data->timer))
-+					mod_timer(&data->timer, jiffies +
-+							msecs_to_jiffies(
-+							button->interval));
-+			} else {
-+				unsigned int type = button->type ?: EV_KEY;
-+				int state = (gpio_get_value(gpio) ? 1 : 0) ^ button->active_low;
-+
-+				input_event(input, type, button->code, !!state);
-+				input_sync(input);
-+			}
- 			return IRQ_HANDLED;
- 		}
- 	}
-@@ -53,15 +102,26 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
-+	struct gpio_keys_drvdata *ddata;
- 	struct input_dev *input;
- 	int i, error;
- 	int wakeup = 0;
- 
-+	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
-+			sizeof(struct gpio_button_data) * pdata->nbuttons,
-+			GFP_KERNEL);
-+
-+	if (!ddata)
-+		return -ENOMEM;
-+
- 	input = input_allocate_device();
--	if (!input)
-+	if (!input) {
-+		kfree(ddata);
- 		return -ENOMEM;
-+	}
-+	ddata->input = input;
- 
--	platform_set_drvdata(pdev, input);
-+	platform_set_drvdata(pdev, ddata);
- 
- 	input->evbit[0] = BIT_MASK(EV_KEY);
- 
-@@ -78,6 +138,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		struct gpio_keys_button *button = &pdata->buttons[i];
- 		int irq;
- 		unsigned int type = button->type ?: EV_KEY;
-+		struct gpio_button_data *data = &ddata->data[i];
-+
-+		data->pdev = pdev;
-+		data->button = button;
- 
- 		error = gpio_request(button->gpio, button->desc ?: "gpio_keys");
- 		if (error < 0) {
-@@ -104,6 +168,16 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 			gpio_free(button->gpio);
- 			goto fail;
- 		}
-+		if (button->count && button->interval) {
-+			data->state = -1;
-+
-+			init_timer(&data->timer);
-+			data->timer.function = gpio_debounce_timer;
-+			data->timer.data = (unsigned long)data;
-+
-+			mod_timer(&data->timer, jiffies +
-+					msecs_to_jiffies(button->interval));
-+		}
- 
- 		error = request_irq(irq, gpio_keys_isr,
- 				    IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_RISING |
-@@ -113,7 +187,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 		if (error) {
- 			pr_err("gpio-keys: Unable to claim irq %d; error %d\n",
- 				irq, error);
-+			if (button->count)
-+				del_timer_sync(&data->timer);
- 			gpio_free(button->gpio);
-+
- 			goto fail;
- 		}
- 
-@@ -137,11 +214,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
-  fail:
- 	while (--i >= 0) {
- 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), pdev);
-+		if (pdata->buttons[i].count) {
-+			del_timer_sync(&ddata->data[i].timer);
-+		}
- 		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
- 	platform_set_drvdata(pdev, NULL);
- 	input_free_device(input);
-+	kfree(ddata);
- 
- 	return error;
- }
-@@ -149,7 +230,8 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- static int __devexit gpio_keys_remove(struct platform_device *pdev)
- {
- 	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
--	struct input_dev *input = platform_get_drvdata(pdev);
-+	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
-+	struct input_dev *input = ddata->input;
- 	int i;
- 
- 	device_init_wakeup(&pdev->dev, 0);
-@@ -157,6 +239,8 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
- 		free_irq(irq, pdev);
-+		if (pdata->buttons[i].count)
-+			del_timer_sync(&ddata->data[i].timer);
- 		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index c6d3a9d..5d09862 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -9,6 +9,8 @@ struct gpio_keys_button {
- 	char *desc;
- 	int type;		/* input event type (EV_KEY, EV_SW) */
- 	int wakeup;		/* configure the button as a wake-up source */
-+	int count;		/* debounce ticks count */
-+	int interval;		/* debounce ticks interval in msecs */
- };
- 
- struct gpio_keys_platform_data {
--- 
-1.5.5
+The ability to switch between axes and buttons mode is already present =
+in the
+driver but it is only possible if the connected controller is not known=
+ by the
+driver. This patch makes the feature available for all pads.
 
+ Documentation/input/xpad.txt  |    4 +++-
+ drivers/input/joystick/xpad.c |    7 ++++++-
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
--- 
-With best wishes
-Dmitry
+--- a/Documentation/input/xpad.txt	2008-04-14 01:50:14.000000000 +0200
++++ b/Documentation/input/xpad.txt	2008-04-30 16:04:23.000000000 +0200
+@@ -25,7 +25,9 @@ not listed below), the driver will map t
+ if you said N it will map the d-pad to buttons, which is needed for da=
+nce
+ style games to function correctly.  The default is Y.
+=20
+-dpad_to_buttons has no effect for known pads.
++dpad_to_buttons has no effect for known pads. If you want to override =
+the
++d-pad mapping to use buttons instead of axes for a known controller yo=
+u
++should set force_dpad_to_buttons to Y. The default is N.
+=20
+ 0.1 Normal Controllers
+ ----------------------
+--- a/drivers/input/joystick/xpad.c	2008-04-15 10:41:42.000000000 +0200
++++ b/drivers/input/joystick/xpad.c	2008-04-30 15:11:14.000000000 +0200
+@@ -98,6 +98,9 @@
+ static int dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+ MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than ax=
+es for unknown pads");
++static int force_dpad_to_buttons;
++module_param(force_dpad_to_buttons, bool, S_IRUGO);
++MODULE_PARM_DESC(force_dpad_to_buttons, "Map D-PAD to buttons rather t=
+han axes for all pads");
+=20
+ static const struct xpad_device {
+ 	u16 idVendor;
+@@ -742,7 +745,9 @@ static int xpad_probe(struct usb_interfa
+ 	xpad->udev =3D udev;
+ 	xpad->dpad_mapping =3D xpad_device[i].dpad_mapping;
+ 	xpad->xtype =3D xpad_device[i].xtype;
+-	if (xpad->dpad_mapping =3D=3D MAP_DPAD_UNKNOWN)
++	if (force_dpad_to_buttons)
++		xpad->dpad_mapping =3D MAP_DPAD_TO_BUTTONS;
++	else if (xpad->dpad_mapping =3D=3D MAP_DPAD_UNKNOWN)
+ 		xpad->dpad_mapping =3D !dpad_to_buttons;
+ 	if (xpad->xtype =3D=3D XTYPE_UNKNOWN) {
+ 		if (intf->cur_altsetting->desc.bInterfaceClass =3D=3D USB_CLASS_VEND=
+OR_SPEC) {
 
+--=20
+249 Spiele f=FCr nur 1 Preis. Die GMX Spieleflatrate schon ab 9,90 Euro=
+=2E
+Neu: Asterix bei den Olympischen Spielen: http://flat.games.gmx.de
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

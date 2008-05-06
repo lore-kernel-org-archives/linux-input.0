@@ -1,44 +1,28 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] fix apple alu keyboard with numpad
-Date: Tue, 6 May 2008 22:46:37 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz>
-References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [RFC v2 2/8] HID: make a bus from hid code
+Date: Tue, 06 May 2008 23:25:30 +0200
+Message-ID: <4820CCCA.6040601@gmail.com>
+References: <1209296946-18454-1-git-send-email-jirislaby@gmail.com> <1209296946-18454-2-git-send-email-jirislaby@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:38082 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755241AbYEFUqj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 May 2008 16:46:39 -0400
-In-Reply-To: <20080506125406.dc047710.akpm@linux-foundation.org>
+Received: from fg-out-1718.google.com ([72.14.220.155]:8278 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933648AbYEFVZs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2008 17:25:48 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so571201fgg.17
+        for <linux-input@vger.kernel.org>; Tue, 06 May 2008 14:25:45 -0700 (PDT)
+In-Reply-To: <1209296946-18454-2-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dag Bakke <dag@bakke.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
 
-On Tue, 6 May 2008, Andrew Morton wrote:
+On 04/27/2008 01:49 PM, Jiri Slaby wrote:
+> Make a bus from hid core. This is the first step for converting all the
+> quirks and separate almost-drivers into real drivers attached to this bus.
 
-> > The nice apple alu keyboards with numpads are pretty much unusable in
-> > vanilla 2.6.25.
-> > (http://images.apple.com/keyboard/images/gallery/wired_1_20070813.jpg)
-> > Hitting the 'clear' key (=numlock) disables the numpad, and maps multiple
-> > alphanumeric keys to numpad symbols in typical laptopkeyboard fashion.
-> This conflicts rather directly with 
-> hid-disable-numlock-emulation-for-apple-aluminium-keyboards.patch below 
-> (hm, seems we didn't get a changelog for that one).
-
-Hi,
-
-I have just today applied Diego's patch into my tree [1], he has provided 
-the changelog out of list to me.
-
-> Jiri, what should we do here?
-
-Dag, I think Diego's patch should solve the issue you are seeing, right?
-
-[1] http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=ffe6f7b799e33f51732520979f9c253a252b9d5e
-
-Thanks,
-
--- 
-Jiri Kosina
+If no objections I would like to merge it to hid#mm along with patch for 
+module-init-tools. (I've changed apple driver little bit and need to rebase it 
+to hid#mm branch.)

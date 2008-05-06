@@ -1,28 +1,28 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [RFC v2 2/8] HID: make a bus from hid code
-Date: Tue, 06 May 2008 23:25:30 +0200
-Message-ID: <4820CCCA.6040601@gmail.com>
-References: <1209296946-18454-1-git-send-email-jirislaby@gmail.com> <1209296946-18454-2-git-send-email-jirislaby@gmail.com>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH] fix apple alu keyboard with numpad
+Date: Wed, 7 May 2008 00:43:07 +0100
+Message-ID: <20080506234307.GA27714@srcf.ucam.org>
+References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.155]:8278 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S933648AbYEFVZs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2008 17:25:48 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so571201fgg.17
-        for <linux-input@vger.kernel.org>; Tue, 06 May 2008 14:25:45 -0700 (PDT)
-In-Reply-To: <1209296946-18454-2-git-send-email-jirislaby@gmail.com>
+Received: from mjg.x.mythic-beasts.com ([93.93.128.6]:41292 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org
+	with ESMTP id S1760018AbYEFXnW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 6 May 2008 19:43:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20080506125406.dc047710.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dag Bakke <dag@bakke.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
 
-On 04/27/2008 01:49 PM, Jiri Slaby wrote:
-> Make a bus from hid core. This is the first step for converting all the
-> quirks and separate almost-drivers into real drivers attached to this bus.
+On Tue, May 06, 2008 at 12:54:06PM -0700, Andrew Morton wrote:
 
-If no objections I would like to merge it to hid#mm along with patch for 
-module-init-tools. (I've changed apple driver little bit and need to rebase it 
-to hid#mm branch.)
+> > -static int hid_apple_fnmode = 1;
+> > +static int hid_apple_fnmode = 2;
+
+Regardless of anything else, we don't want this hunk.
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

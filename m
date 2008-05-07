@@ -1,54 +1,38 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [patch]full autosuspend for USB HID
-Date: Wed, 7 May 2008 11:46:38 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0805071145130.3701-100000@iolanthe.rowland.org>
-References: <200805071450.39499.oliver@neukum.org>
+Date: Wed, 7 May 2008 17:49:35 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0805071747210.11363@jikos.suse.cz>
+References: <Pine.LNX.4.44L0.0805071145130.3701-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200805071450.39499.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from styx.suse.cz ([82.119.242.94]:47919 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755815AbYEGPtg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 7 May 2008 11:49:36 -0400
+In-Reply-To: <Pine.LNX.4.44L0.0805071145130.3701-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Wed, 7 May 2008, Oliver Neukum wrote:
+On Wed, 7 May 2008, Alan Stern wrote:
 
-> Hi,
-> 
-> this patch introduces full autosuspend support for USB HID devices that
-> support remote wakeup. It is quite large a patch because keyboards are
-> hard to handle. That's because keyboards are also output devices.
-> The current support for autosuspend in usbhid is based on the pm counters
-> and works on an open/close base. This patch uses the last busy timer based
-> approach.
-> 
-> It does the following changes:
-> 
-> - mark the device busy when input data arrives
-> - extend the suspend() method to fail autosuspend if
-> a - a key is being pressed as keyboards usually fail to wakeup on key release
-> b - an LED is on as that makes suspension detectable to the user (optional)
-> c - output is being performed
-> - defer output to a suspended device (in interrupt)
-> - handle deferred output in resume()
-> - trigger wakeup if deferred output is queued
-> - rework of locking for open/close to make sure suspend/resume have reliable state
-> - unify locking for the output code path
-> - handle resets correctly
-> - synchronize power management and error handling
-> - request remote wakeup
-> 
-> The basic strategy for input is to keep the device marked busy. The bulk of the
-> patch is for output, the work around for the release stuff and synchronization.
+> One big problem we always faced with autosuspend for keyboards is that 
+> most of them were not able to autoresume quickly enough to avoid losing 
+> keystrokes.  Isn't that still a problem?
 
-One big problem we always faced with autosuspend for keyboards is that
-most of them were not able to autoresume quickly enough to avoid losing
-keystrokes.  Isn't that still a problem?
+Hi Alan,
 
-Alan Stern
+it definitely is, but with autosuspend defaulting to off, and possibility 
+of whitelisting known-good keyboards, we (or HAL, respectively) can still 
+turn autosupend on those that are known to work properly, and still save 
+some power on some systems.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Unfortunately, I vaguely remember that some keyboards exposed the 
+behaviors only when connected to certain HCI controllers, so building the 
+whitelist might not be completely trivial.
+
+-- 
+Jiri Kosina
+SUSE Labs

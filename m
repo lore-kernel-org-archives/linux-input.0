@@ -1,48 +1,48 @@
-From: Dmitry <dbaryshkov@gmail.com>
-Subject: Re: [PATCH][RESEND] gpio-keys debouncing support
-Date: Wed, 7 May 2008 20:21:27 +0400
-Message-ID: <bc64b4640805070921o2f036252m9c03b830a1b1e759@mail.gmail.com>
-References: <20080502112048.GA8664@doriath.ww600.siemens.net>
-	 <20080506095530.ZZRA012@mailhub.coreip.homeip.net>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [patch]full autosuspend for USB HID
+Date: Wed, 7 May 2008 19:13:35 +0200
+Message-ID: <200805071913.36445.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.0805071145130.3701-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.181]:60572 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754347AbYEGQVb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 May 2008 12:21:31 -0400
-Received: by py-out-1112.google.com with SMTP id u52so487584pyb.10
-        for <linux-input@vger.kernel.org>; Wed, 07 May 2008 09:21:28 -0700 (PDT)
-In-Reply-To: <20080506095530.ZZRA012@mailhub.coreip.homeip.net>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:50943 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751453AbYEGRNj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 7 May 2008 13:13:39 -0400
+In-Reply-To: <Pine.LNX.4.44L0.0805071145130.3701-100000@iolanthe.rowland.org>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Jiri Kosina <jkosina@suse.cz>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi, Dmitry,
+Am Mittwoch 07 Mai 2008 17:46:38 schrieb Alan Stern:
+> > The basic strategy for input is to keep the device marked busy. The=
+ bulk of the
+> > patch is for output, the work around for the release stuff and sync=
+hronization.
+>=20
+> One big problem we always faced with autosuspend for keyboards is tha=
+t
+> most of them were not able to autoresume quickly enough to avoid losi=
+ng
+> keystrokes. =A0Isn't that still a problem?
 
-2008/5/6, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> Hi Dmitry,
->
->
->  On Fri, May 02, 2008 at 03:20:48PM +0400, Dmitry Baryshkov wrote:
->  > Sometimes gpio line can generate jitter while transitioning from one state
->  > to another one. Implement a way to filter such noise during transitions.
->  >
->
->
-> I don't think we need to do both count and interval and you don't
->  really need to track state... What do you think about the patch below?
+=46or some keyboards that seems to be a limitation of the hardware noth=
+ing
+can be done about. Others do work, for example 046d:c312. Generally
+as autosuspend is now disabled by default this is user space's problem.
+IMHO the main use case for autosuspend of keyboards will be synchronize=
+d
+with the screen saver.
 
-I would say it's pretty different from what I meant. You patch only
-delays the decision about the status of the pin while mine does really
-"average" the status
-of the pin. E.g. in my tosa PDA the headphones jack is a bit noisy. So
-the input layer shouldn't react to the noise. And with your patch each
-time the GPIO irq is generated the input layer will get input_sync.
+	Regards
+		Oliver
 
--- 
-With best wishes
-Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

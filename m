@@ -1,45 +1,38 @@
 From: Dag Bakke <dag@bakke.com>
 Subject: Re: [PATCH] fix apple alu keyboard with numpad
-Date: Thu, 08 May 2008 19:24:23 +0200
-Message-ID: <48233747.1030605@bakke.com>
-References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org> <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz>
+Date: Thu, 08 May 2008 19:29:14 +0200
+Message-ID: <4823386A.6000501@bakke.com>
+References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org> <20080506234307.GA27714@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail43.e.nsc.no ([193.213.115.43]:55786 "EHLO mail43.e.nsc.no"
+Received: from mail47.e.nsc.no ([193.213.115.47]:58341 "EHLO mail47.e.nsc.no"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757451AbYEHRZO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 8 May 2008 13:25:14 -0400
-In-Reply-To: <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz>
+	id S1754005AbYEHR34 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 May 2008 13:29:56 -0400
+In-Reply-To: <20080506234307.GA27714@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
 
-Jiri Kosina wrote, On 05/06/2008 10:46 PM:
-> On Tue, 6 May 2008, Andrew Morton wrote:
+Matthew Garrett wrote, On 05/07/2008 01:43 AM:
+> On Tue, May 06, 2008 at 12:54:06PM -0700, Andrew Morton wrote:
 > 
->>> The nice apple alu keyboards with numpads are pretty much unusable in
->>> vanilla 2.6.25.
->>> (http://images.apple.com/keyboard/images/gallery/wired_1_20070813.jpg)
->>> Hitting the 'clear' key (=numlock) disables the numpad, and maps multiple
->>> alphanumeric keys to numpad symbols in typical laptopkeyboard fashion.
->> This conflicts rather directly with 
->> hid-disable-numlock-emulation-for-apple-aluminium-keyboards.patch below 
->> (hm, seems we didn't get a changelog for that one).
+>>> -static int hid_apple_fnmode = 1;
+>>> +static int hid_apple_fnmode = 2;
 > 
-> Hi,
+> Regardless of anything else, we don't want this hunk.
 > 
-> I have just today applied Diego's patch into my tree [1], he has provided 
-> the changelog out of list to me.
-> 
->> Jiri, what should we do here?
-> 
-> Dag, I think Diego's patch should solve the issue you are seeing, right?
-> 
-> [1] http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=ffe6f7b799e33f51732520979f9c253a252b9d5e
 
-I'll give it a shot and let you know.
+Was my reasoning for this change off ("F-keys used more often that 
+multimediakeys, ergo make that the default"), or is your resistance to 
+this change due to some kind of policy?
+
+Sorry if the reason is obvious to you. It isn't to me, yet.
+
+
+Regards,
 
 Dag B

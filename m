@@ -1,70 +1,35 @@
-From: Dmitry <dbaryshkov@gmail.com>
-Subject: Re: [PATCH][RESEND] gpio-keys debouncing support
-Date: Wed, 7 May 2008 23:06:15 +0400
-Message-ID: <bc64b4640805071206macd3746u40cff8c7bca8e5d3@mail.gmail.com>
-References: <20080502112048.GA8664@doriath.ww600.siemens.net>
-	 <20080506095530.ZZRA012@mailhub.coreip.homeip.net>
-	 <bc64b4640805070921o2f036252m9c03b830a1b1e759@mail.gmail.com>
-	 <20080507131649.ZZRA012@mailhub.coreip.homeip.net>
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Subject: remove duplicated include
+Date: Thu, 08 May 2008 22:16:07 +0800
+Message-ID: <20080508221348.8965.WEIYI.HUANG@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.179]:50704 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755403AbYEGTGQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 May 2008 15:06:16 -0400
-Received: by py-out-1112.google.com with SMTP id u52so574200pyb.10
-        for <linux-input@vger.kernel.org>; Wed, 07 May 2008 12:06:15 -0700 (PDT)
-In-Reply-To: <20080507131649.ZZRA012@mailhub.coreip.homeip.net>
-Content-Disposition: inline
+Received: from wa-out-1112.google.com ([209.85.146.176]:54138 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752741AbYEHOQI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2008 10:16:08 -0400
+Received: by wa-out-1112.google.com with SMTP id j37so1153467waf.23
+        for <linux-input@vger.kernel.org>; Thu, 08 May 2008 07:16:07 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: dmitry.torokhov@gmail.com, dtor@mail.ru
 Cc: linux-input@vger.kernel.org
 
-Hi,
+Removed duplicated include file <linux/module.h>.
 
-2008/5/7, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
-> On Wed, May 07, 2008 at 08:21:27PM +0400, Dmitry wrote:
->  > Hi, Dmitry,
->  >
->  > 2008/5/6, Dmitry Torokhov <dmitry.torokhov@gmail.com>:
->  > > Hi Dmitry,
->  > >
->  > >
->  > >  On Fri, May 02, 2008 at 03:20:48PM +0400, Dmitry Baryshkov wrote:
->  > >  > Sometimes gpio line can generate jitter while transitioning from one state
->  > >  > to another one. Implement a way to filter such noise during transitions.
->  > >  >
->  > >
->  > >
->  > > I don't think we need to do both count and interval and you don't
->  > >  really need to track state... What do you think about the patch below?
->  >
->  > I would say it's pretty different from what I meant. You patch only
->  > delays the decision about the status of the pin while mine does really
->  > "average" the status
->  > of the pin. E.g. in my tosa PDA the headphones jack is a bit noisy. So
->  > the input layer shouldn't react to the noise.
->
->
-> The userspace will not see the new event until gpio stabilizes,
->  that's all that is needed.
->
->
->  > And with your patch each
->  > time the GPIO irq is generated the input layer will get input_sync.
->
->
-> That I think I need to fix in input core. I think we used to not reset
->  sync flag on ignored events.
+Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
 
-I'm not sure of the current state of it. At least it was generating
-syncs some time ago. If you say, input layer won't generate
-unnecessary syncs, it's OK to merge your version of the patch.
+--- a/drivers/input/misc/apanel.c       2008-05-08 22:09:04.000000000 +0800
++++ b/drivers/input/misc/apanel.c       2008-05-08 22:09:16.000000000 +0800
+@@ -20,7 +20,6 @@
+ #include <linux/module.h>
+ #include <linux/ioport.h>
+ #include <linux/io.h>
+-#include <linux/module.h>
+ #include <linux/input-polldev.h>
+ #include <linux/i2c.h>
+ #include <linux/workqueue.h>
 
 
--- 
-With best wishes
-Dmitry

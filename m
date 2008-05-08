@@ -1,35 +1,45 @@
-From: Huang Weiyi <weiyi.huang@gmail.com>
-Subject: remove duplicated include
-Date: Thu, 08 May 2008 22:16:07 +0800
-Message-ID: <20080508221348.8965.WEIYI.HUANG@gmail.com>
+From: Dag Bakke <dag@bakke.com>
+Subject: Re: [PATCH] fix apple alu keyboard with numpad
+Date: Thu, 08 May 2008 19:24:23 +0200
+Message-ID: <48233747.1030605@bakke.com>
+References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org> <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.176]:54138 "EHLO
-	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752741AbYEHOQI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2008 10:16:08 -0400
-Received: by wa-out-1112.google.com with SMTP id j37so1153467waf.23
-        for <linux-input@vger.kernel.org>; Thu, 08 May 2008 07:16:07 -0700 (PDT)
+Received: from mail43.e.nsc.no ([193.213.115.43]:55786 "EHLO mail43.e.nsc.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757451AbYEHRZO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 May 2008 13:25:14 -0400
+In-Reply-To: <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
 
-Removed duplicated include file <linux/module.h>.
+Jiri Kosina wrote, On 05/06/2008 10:46 PM:
+> On Tue, 6 May 2008, Andrew Morton wrote:
+> 
+>>> The nice apple alu keyboards with numpads are pretty much unusable in
+>>> vanilla 2.6.25.
+>>> (http://images.apple.com/keyboard/images/gallery/wired_1_20070813.jpg)
+>>> Hitting the 'clear' key (=numlock) disables the numpad, and maps multiple
+>>> alphanumeric keys to numpad symbols in typical laptopkeyboard fashion.
+>> This conflicts rather directly with 
+>> hid-disable-numlock-emulation-for-apple-aluminium-keyboards.patch below 
+>> (hm, seems we didn't get a changelog for that one).
+> 
+> Hi,
+> 
+> I have just today applied Diego's patch into my tree [1], he has provided 
+> the changelog out of list to me.
+> 
+>> Jiri, what should we do here?
+> 
+> Dag, I think Diego's patch should solve the issue you are seeing, right?
+> 
+> [1] http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=ffe6f7b799e33f51732520979f9c253a252b9d5e
 
-Signed-off-by: Huang Weiyi <weiyi.huang@gmail.com>
+I'll give it a shot and let you know.
 
---- a/drivers/input/misc/apanel.c       2008-05-08 22:09:04.000000000 +0800
-+++ b/drivers/input/misc/apanel.c       2008-05-08 22:09:16.000000000 +0800
-@@ -20,7 +20,6 @@
- #include <linux/module.h>
- #include <linux/ioport.h>
- #include <linux/io.h>
--#include <linux/module.h>
- #include <linux/input-polldev.h>
- #include <linux/i2c.h>
- #include <linux/workqueue.h>
-
-
+Dag B

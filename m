@@ -1,120 +1,36 @@
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-Subject: [Fwd: Re: MPX merge coming up]
-Date: Fri, 09 May 2008 15:59:03 +0200
-Message-ID: <1210341543.5088.3.camel@rousalka.okg>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: HID bus
+Date: Fri, 09 May 2008 23:24:43 +0200
+Message-ID: <4824C11B.4090305@gmail.com>
+References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz> <1208644696-29129-1-git-send-email-jirislaby@gmail.com> <480B2F9A.3020104@gmail.com> <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0881835700=="
-Return-path: <xorg-bounces@lists.freedesktop.org>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/xorg>
-List-Post: <mailto:xorg@lists.freedesktop.org>
-List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
-Mime-version: 1.0
-Sender: xorg-bounces@lists.freedesktop.org
-Errors-To: xorg-bounces@lists.freedesktop.org
-To: linux-input <linux-input@vger.kernel.org>
-Cc: xorg <xorg@freedesktop.org>
-List-Id: linux-input@vger.kernel.org
-
-
---===============0881835700==
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ko0+OeZxnSlVSSJynuEa"
-
-
---=-ko0+OeZxnSlVSSJynuEa
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-The xorg devs want the kernel to quirk devices such as the following
-one:
-=EF=BB=BF
-> I: Bus=3D0003 Vendor=3D045e Product=3D00db Version=3D0111
-> N: Name=3D"Microsoft Natural=C2=AE Ergonomic Keyboard 4000"
-> P: Phys=3Dusb-0000:00:02.1-8.3/input0
-> S: Sysfs=3D/devices/pci0000:00/0000:00:02.1/usb1/1-8/1-8.3/1-8.3:1.0/inpu=
-t/input2
-> U: Uniq=3D
-> H: Handlers=3Dkbd event2=20
-> B: EV=3D120013
-> B: KEY=3D1000000000007 ff800000000007ff febeffdff3cfffff fffffffffffffffe
-> B: MSC=3D10
-> B: LED=3D107
->=20
-> I: Bus=3D0003 Vendor=3D045e Product=3D00db Version=3D0111
-> N: Name=3D"Microsoft Natural=C2=AE Ergonomic Keyboard 4000"
-> P: Phys=3Dusb-0000:00:02.1-8.3/input1
-> S: Sysfs=3D/devices/pci0000:00/0000:00:02.1/usb1/1-8/1-8.3/1-8.3:1.1/inpu=
-t/input3
-> U: Uniq=3D
-> H: Handlers=3Dkbd event3=20
-> B: EV=3D10001f
-> B: KEY=3D37fff002c3027 bf00444400000000 1 10f848a27c007 ff7f7bfad9415fff =
-febeffdfffefffff fffffffffffffffe
-> B: REL=3D40
-> B: ABS=3D100000000
-> B: MSC=3D10
-
-I hope it's in the kernel plans too.
-
--------- Message transf=C3=A9r=C3=A9 --------
-De: Daniel Stone=20
-=C3=80: Nicolas Mailhot=20
-Cc: Peter Hutterer, Colin Guthrie=20
-Sujet: Re: MPX merge coming up
-Date: Fri, 9 May 2008 16:24:24 +0300
-
-On Fri, May 09, 2008 at 03:11:42PM +0200, Nicolas Mailhot wrote:
-> Le vendredi 09 mai 2008 =C3=A0 19:01 +0930, Peter Hutterer a =C3=A9crit :
-> > On Fri, May 09, 2008 at 09:46:53AM +0100, Colin Guthrie wrote:
-> > > Your above comment immediately makes me think of laptops with=20
-> > > mouse+trackpad. These would presumably count as multiple input device=
-s,=20
-> >=20
-> > they do count as multiple input devices. except that we differ between
-> > physical input devices (mouse + trackpad) and virtual input devices. Th=
-e
-> > latter are cursors and keyboard foci but NOT physical devices.
->=20
-> BTW some keyboards (MS ones) expose two HID devices: one HID device for
-> the standard part of the keyboard (pc105), another for extended
-> multimedia keys. I hope MPX will be smart enough to keep both parts
-> together.
-
-Kernel quirk.
-
-Daniel, rapidly becoming a parody of himself
---=20
-Nicolas Mailhot
-
---=-ko0+OeZxnSlVSSJynuEa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkgkWKMACgkQI2bVKDsp8g2JbACfYsxY2aa8FWnrk9D/8xlNNRUr
-Vs4An1O/wwYizErWSqwGW2dP8CzDU6Go
-=5kKb
------END PGP SIGNATURE-----
-
---=-ko0+OeZxnSlVSSJynuEa--
-
-
---===============0881835700==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fg-out-1718.google.com ([72.14.220.159]:20301 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754978AbYEIVZE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 9 May 2008 17:25:04 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so955981fgg.17
+        for <linux-input@vger.kernel.org>; Fri, 09 May 2008 14:25:01 -0700 (PDT)
+In-Reply-To: <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
 
-_______________________________________________
-xorg mailing list
-xorg@lists.freedesktop.org
-http://lists.freedesktop.org/mailman/listinfo/xorg
---===============0881835700==--
+On 04/22/2008 02:00 AM, Jiri Kosina wrote:
+> On Sun, 20 Apr 2008, Jiri Slaby wrote:
+> 
+>> So I suppose we still need the option to let users compile all the 
+>> chosen drivers into hid.
+
+This won't work either. It wouldn't link due to multiple definitions of 
+module_init, module_exit and some module tables.
+
+> Another possible workaround is to introduce dummy "hid" module, that will 
+> just depend on all other drivers with a reference to certail symbol (and 
+> this could of course be optional as CONFIG_HID_COMPAT, or whatever).
+
+Actually this may work if we load hid_dummy by request_module from hid. I have 
+no other better idea.

@@ -1,60 +1,120 @@
-From: "Michael Gruber" <lists.mg@googlemail.com>
-Subject: Re: [PATCH 1/2] xpad - Allow mapping D-pad to buttons for all pads
-Date: Fri, 9 May 2008 02:20:28 +0200
-Message-ID: <74d457500805081720i36fdc887ue34b7bc7fdef8d86@mail.gmail.com>
-References: <20080505103400.284050@gmx.net>
-	 <20080507111713.ZZRA012@mailhub.coreip.homeip.net>
+From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+Subject: [Fwd: Re: MPX merge coming up]
+Date: Fri, 09 May 2008 15:59:03 +0200
+Message-ID: <1210341543.5088.3.camel@rousalka.okg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.28]:36854 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756472AbYEIAVQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 8 May 2008 20:21:16 -0400
-Received: by yw-out-2324.google.com with SMTP id 9so586693ywe.1
-        for <linux-input@vger.kernel.org>; Thu, 08 May 2008 17:21:00 -0700 (PDT)
-In-Reply-To: <20080507111713.ZZRA012@mailhub.coreip.homeip.net>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============0881835700=="
+Return-path: <xorg-bounces@lists.freedesktop.org>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/xorg>
+List-Post: <mailto:xorg@lists.freedesktop.org>
+List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
+Mime-version: 1.0
+Sender: xorg-bounces@lists.freedesktop.org
+Errors-To: xorg-bounces@lists.freedesktop.org
+To: linux-input <linux-input@vger.kernel.org>
+Cc: xorg <xorg@freedesktop.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-
-On Wed, May 7, 2008 at 5:19 PM, Dmitry Torokhov wrote:
-> Hi Michael,
->
-> On Mon, May 05, 2008 at 12:34:00PM +0200, Michael Gruber wrote:
->> From: Michael Gruber <lists.mg@googlemail.com>
->>
->> If the new module option force_dpad_to_buttons is set, the directional pad will
->> be mapped to 4buttons instead of 2axes for all controllers. This includes those
->> in the list of known controllers which are not affected by the existing option
->> dpad_to_buttons.
->>
->
-> The option was there to adapt mappings for the new controllers we
-> don'ty know about yet. Coudl you explain why one would want to map
-> axes to buttons on a controller that is known to be not a d-pad?
->
-> Thanks!
->
-> --
-> Dmitry
 
 
-For me being able to choose between 2axis or 4buttons is an additional feature.
-Currently this feature is only offered if the controller is unknown which means
-that if you have a known controller you end up with less features, which is
-paradox.
-Possible usage scenario: A user wants to play a first person shooter; he needs
-2axes to look around and 2axes to move. Those 4axes are provided by the two
-thumbsticks; the dpad and the trigger axes are useless for this player but he
-might need a lot of buttons: fire, zoom, jump, duck, sprint, reload, switch
-weapons, grenades, flashlight, and more; hence he would profit from having more
-buttons; if the triggers acted as buttons then he could bind fire to the
-trigger and if the directional pad acted as 4 buttons then he could for example
-use them as shortcuts to his four favourite weapons.
-A lot of Xbox360 games use the triggers and dpad axes for actions that can
-usually only be bound to buttons in PC games. Thus a Xbox-user might be
-expecting an easy way to get the same functionality with the linux driver.
+--===============0881835700==
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ko0+OeZxnSlVSSJynuEa"
+
+
+--=-ko0+OeZxnSlVSSJynuEa
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+The xorg devs want the kernel to quirk devices such as the following
+one:
+=EF=BB=BF
+> I: Bus=3D0003 Vendor=3D045e Product=3D00db Version=3D0111
+> N: Name=3D"Microsoft Natural=C2=AE Ergonomic Keyboard 4000"
+> P: Phys=3Dusb-0000:00:02.1-8.3/input0
+> S: Sysfs=3D/devices/pci0000:00/0000:00:02.1/usb1/1-8/1-8.3/1-8.3:1.0/inpu=
+t/input2
+> U: Uniq=3D
+> H: Handlers=3Dkbd event2=20
+> B: EV=3D120013
+> B: KEY=3D1000000000007 ff800000000007ff febeffdff3cfffff fffffffffffffffe
+> B: MSC=3D10
+> B: LED=3D107
+>=20
+> I: Bus=3D0003 Vendor=3D045e Product=3D00db Version=3D0111
+> N: Name=3D"Microsoft Natural=C2=AE Ergonomic Keyboard 4000"
+> P: Phys=3Dusb-0000:00:02.1-8.3/input1
+> S: Sysfs=3D/devices/pci0000:00/0000:00:02.1/usb1/1-8/1-8.3/1-8.3:1.1/inpu=
+t/input3
+> U: Uniq=3D
+> H: Handlers=3Dkbd event3=20
+> B: EV=3D10001f
+> B: KEY=3D37fff002c3027 bf00444400000000 1 10f848a27c007 ff7f7bfad9415fff =
+febeffdfffefffff fffffffffffffffe
+> B: REL=3D40
+> B: ABS=3D100000000
+> B: MSC=3D10
+
+I hope it's in the kernel plans too.
+
+-------- Message transf=C3=A9r=C3=A9 --------
+De: Daniel Stone=20
+=C3=80: Nicolas Mailhot=20
+Cc: Peter Hutterer, Colin Guthrie=20
+Sujet: Re: MPX merge coming up
+Date: Fri, 9 May 2008 16:24:24 +0300
+
+On Fri, May 09, 2008 at 03:11:42PM +0200, Nicolas Mailhot wrote:
+> Le vendredi 09 mai 2008 =C3=A0 19:01 +0930, Peter Hutterer a =C3=A9crit :
+> > On Fri, May 09, 2008 at 09:46:53AM +0100, Colin Guthrie wrote:
+> > > Your above comment immediately makes me think of laptops with=20
+> > > mouse+trackpad. These would presumably count as multiple input device=
+s,=20
+> >=20
+> > they do count as multiple input devices. except that we differ between
+> > physical input devices (mouse + trackpad) and virtual input devices. Th=
+e
+> > latter are cursors and keyboard foci but NOT physical devices.
+>=20
+> BTW some keyboards (MS ones) expose two HID devices: one HID device for
+> the standard part of the keyboard (pc105), another for extended
+> multimedia keys. I hope MPX will be smart enough to keep both parts
+> together.
+
+Kernel quirk.
+
+Daniel, rapidly becoming a parody of himself
+--=20
+Nicolas Mailhot
+
+--=-ko0+OeZxnSlVSSJynuEa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkgkWKMACgkQI2bVKDsp8g2JbACfYsxY2aa8FWnrk9D/8xlNNRUr
+Vs4An1O/wwYizErWSqwGW2dP8CzDU6Go
+=5kKb
+-----END PGP SIGNATURE-----
+
+--=-ko0+OeZxnSlVSSJynuEa--
+
+
+--===============0881835700==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+xorg mailing list
+xorg@lists.freedesktop.org
+http://lists.freedesktop.org/mailman/listinfo/xorg
+--===============0881835700==--

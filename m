@@ -1,36 +1,94 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: HID bus
-Date: Fri, 09 May 2008 23:24:43 +0200
-Message-ID: <4824C11B.4090305@gmail.com>
-References: <Pine.LNX.4.64.0804181333180.12972@jikos.suse.cz> <1208644696-29129-1-git-send-email-jirislaby@gmail.com> <480B2F9A.3020104@gmail.com> <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1/9] modpost: add support for hid
+Date: Sun, 11 May 2008 22:00:35 +0200
+Message-ID: <1210536043-19812-1-git-send-email-jirislaby@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.159]:20301 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754978AbYEIVZE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 May 2008 17:25:04 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so955981fgg.17
-        for <linux-input@vger.kernel.org>; Fri, 09 May 2008 14:25:01 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.0804220158560.12972@jikos.suse.cz>
+Received: from smtp.wellnetcz.com ([212.24.148.102]:49763 "EHLO WNmonitoring"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755534AbYEKUBU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 May 2008 16:01:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, mit-devel@lists.printk.net, linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, akpm@linux-foundation.org, Jiri Slaby <jirislaby@gmail.com>
 
-On 04/22/2008 02:00 AM, Jiri Kosina wrote:
-> On Sun, 20 Apr 2008, Jiri Slaby wrote:
-> 
->> So I suppose we still need the option to let users compile all the 
->> chosen drivers into hid.
+Generate aliases for hid device modules to support autoloading.
 
-This won't work either. It wouldn't link due to multiple definitions of 
-module_init, module_exit and some module tables.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ include/linux/hid.h             |    1 +
+ include/linux/mod_devicetable.h |    9 +++++++++
+ scripts/mod/file2alias.c        |   18 ++++++++++++++++++
+ 3 files changed, 28 insertions(+), 0 deletions(-)
 
-> Another possible workaround is to introduce dummy "hid" module, that will 
-> just depend on all other drivers with a reference to certail symbol (and 
-> this could of course be optional as CONFIG_HID_COMPAT, or whatever).
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 6fc10d1..8466292 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -69,6 +69,7 @@
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
++#include <linux/mod_devicetable.h> /* hid_device_id */
+ #include <linux/timer.h>
+ #include <linux/workqueue.h>
+ #include <linux/input.h>
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index d73ecea..72d34c1 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -131,6 +131,15 @@ struct usb_device_id {
+ #define USB_DEVICE_ID_MATCH_INT_SUBCLASS	0x0100
+ #define USB_DEVICE_ID_MATCH_INT_PROTOCOL	0x0200
+ 
++#define HID_ANY_ID				(~0)
++
++struct hid_device_id {
++	__u16 bus;
++	__u32 vendor;
++	__u32 product;
++	kernel_ulong_t driver_data;
++};
++
+ /* s390 CCW devices */
+ struct ccw_device_id {
+ 	__u16	match_flags;	/* which fields to match against */
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index e04c421..a19e385 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -199,6 +199,20 @@ static void do_usb_table(void *symval, unsigned long size,
+ 		do_usb_entry_multi(symval + i, mod);
+ }
+ 
++/* Looks like: hid:bNvNpN */
++static int do_hid_entry(const char *filename,
++			     struct hid_device_id *id, char *alias)
++{
++	id->vendor = TO_NATIVE(id->vendor);
++	id->product = TO_NATIVE(id->product);
++
++	sprintf(alias, "hid:b%04X", id->bus);
++	ADD(alias, "v", id->vendor != HID_ANY_ID, id->vendor);
++	ADD(alias, "p", id->product != HID_ANY_ID, id->product);
++
++	return 1;
++}
++
+ /* Looks like: ieee1394:venNmoNspNverN */
+ static int do_ieee1394_entry(const char *filename,
+ 			     struct ieee1394_device_id *id, char *alias)
+@@ -651,6 +665,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
+ 	else if (sym_is(symname, "__mod_usb_device_table"))
+ 		/* special case to handle bcdDevice ranges */
+ 		do_usb_table(symval, sym->st_size, mod);
++	else if (sym_is(symname, "__mod_hid_device_table"))
++		do_table(symval, sym->st_size,
++			 sizeof(struct hid_device_id), "hid",
++			 do_hid_entry, mod);
+ 	else if (sym_is(symname, "__mod_ieee1394_device_table"))
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct ieee1394_device_id), "ieee1394",
+-- 
+1.5.4.5
 
-Actually this may work if we load hid_dummy by request_module from hid. I have 
-no other better idea.

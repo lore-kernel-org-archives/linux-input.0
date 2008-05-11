@@ -1,31 +1,73 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] fix apple alu keyboard with numpad
-Date: Mon, 12 May 2008 00:54:12 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0805120053520.11363@jikos.suse.cz>
-References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org>
- <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz> <48233747.1030605@bakke.com>
+From: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH 2/9] HID: make a bus from hid code
+Date: Mon, 12 May 2008 01:05:58 +0200
+Message-ID: <1210547158.16390.28.camel@violet.holtmann.net>
+References: <1210536043-19812-1-git-send-email-jirislaby@gmail.com>
+	 <1210536043-19812-2-git-send-email-jirislaby@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759410AbYEKWyV@vger.kernel.org>
-In-Reply-To: <48233747.1030605@bakke.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dag Bakke <dag@bakke.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from senator.holtmann.net ([87.106.208.187]:33170 "EHLO
+	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752769AbYEKXFx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 11 May 2008 19:05:53 -0400
+In-Reply-To: <1210536043-19812-2-git-send-email-jirislaby@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, akpm@linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
 
-On Thu, 8 May 2008, Dag Bakke wrote:
+Hi Jiri,
 
-> > Dag, I think Diego's patch should solve the issue you are seeing, right?
-> > 
-> > [1]
-> > http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=ffe6f7b799e33f51732520979f9c253a252b9d5e
-> I'll give it a shot and let you know.
+> Make a bus from hid core. This is the first step for converting all the
+> quirks and separate almost-drivers into real drivers attached to this bus.
+> 
+> It's implemented to change behaviour in very tiny manner, so that no driver
+> needs to be changed this time.
+> 
+> Also add generic drivers for both usb and bt into usbhid or hidp
+> respectively which will bind all non-blacklisted device. Those blacklisted
+> will be either grabbed by special drivers or by nobody if they are broken at
+> the very rude base.
+> 
+> Signed-off-by: Jiri Slaby <jslaby@suse.cz>
 
-Dag,
+<snip>
+ 
+> +static const struct hid_device_id hid_generic_bt_ids[] = {
+> +	{ HID_BT_DEVICE(HID_ANY_ID, HID_ANY_ID) },
+> +	{ }
+> +};
 
-any update here, please?
+please rename it to hidp_table[].
 
-Thanks,
+Also can we do HID_BLUETOOTH_DEVICE() here. Since the bus constant is
+called BUS_BLUETOOTH. Please don't shortcut it.
 
--- 
-Jiri Kosina
+> +static struct hid_driver hid_generic_bt = {
+> +	.name = "hid-generic-bt",
+> +	.id_table = hid_generic_bt_ids,
+> +};
+
+And this one to hidp_driver instead of hid_generic_bt.
+
+Also the name "hid-generic-bt" is not okay. Call it "hidp" since that is
+the driver name. An alternative would be "hid-bluetooth". I don't like
+the "generic" part and we never used the shortcut "bt" in any sysfs
+visible file.
+
+Do we really need the "hid-" prefix here. Since it is on the HID bus
+anyway, we can leave the magic details to the driver model and simply
+call it "bluetooth".
+
+Other than that:
+
+Acked-by: Marcel Holtmann <marcel@holtmann.org>
+
+Regards
+
+Marcel
+
+

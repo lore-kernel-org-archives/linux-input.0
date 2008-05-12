@@ -1,38 +1,71 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 3/9] HID: hid, make parsing event driven
-Date: Mon, 12 May 2008 01:20:50 +0200
-Message-ID: <1210548050.16390.39.camel@violet.holtmann.net>
-References: <1210536043-19812-1-git-send-email-jirislaby@gmail.com>
-	 <1210536043-19812-2-git-send-email-jirislaby@gmail.com>
-	 <1210536043-19812-3-git-send-email-jirislaby@gmail.com>
+From: "Bryan Wu" <cooloney@kernel.org>
+Subject: Re: [PATCH 1/1 try#2] [INPUT] keypad driver: Added support for OpenCores Keyboard Controller
+Date: Mon, 12 May 2008 13:50:42 +0800
+Message-ID: <386072610805112250p33e1c10cm347682fc5fe40d55@mail.gmail.com>
+References: <1201686610-31458-1-git-send-email-bryan.wu@analog.com>
+	 <87a5b0800801300353l196b39bekad6af6ccdbd49d5b@mail.gmail.com>
+	 <1201713502.8345.1.camel@roc-laptop> <20080205104242.GA11437@suse.cz>
+	 <47A845F7.8030102@hvsistemas.es> <20080205112242.GA5398@suse.cz>
+	 <47A84979.5080004@hvsistemas.es>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:59484 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756727AbYEKXUo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 May 2008 19:20:44 -0400
-In-Reply-To: <1210536043-19812-3-git-send-email-jirislaby@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757593AbYELFvA@vger.kernel.org>
+In-Reply-To: <47A84979.5080004@hvsistemas.es>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Javier Herrero <jherrero@hvsistemas.es>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Bryan Wu <bryan.wu@analog.com>, Will Newton <will.newton@gmail.com>, dmitry.torokhov@gmail.com, linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, akpm@linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
 
-Hi Jiri,
+On Tue, Feb 5, 2008 at 7:33 PM, Javier Herrero <jherrero@hvsistemas.es>=
+ wrote:
+> Vojtech Pavlik escribi=F3:
+>>
+>> On Tue, Feb 05, 2008 at 12:18:15PM +0100, Javier Herrero wrote:
+>>>
+>>> Dear Vojtech,
+>>>
+>>> I think that a 1:1 mapping between linux keycodes and what keyboard=
+ sends
+>>> is right, because the scan code to key code conversion is already p=
+rogrammed
+>>> and done inside the FPGA code.
+>>
+>> And the FPGA code changes with different keyboards attached?
+>>
+> The original OpenCores keyboard controller is a 6 rows x 12 cols keyb=
+oard
+> controller that can be customized for other row/col sizes modifiying
+> Constants.vhd VHDL file, in which also the translation table is defin=
+ed, and
+> for different key disposition schemes both the number of rows and col=
+s can
+> be changed. We are currently using this controller with a 4x4 key mat=
+rix,
+> and with a different key mapping values, so I thought that it would b=
+e
+> preferable to have the driver mapping fixed to 1:1 and do the mapping=
+ in the
+> VHDL, since in most cases the keyboard using this controller would be
+> different to the default keyboard defined in the original Contants.vh=
+d VHDL
+> file.
+>
+> Regards,
+>
+> Javier
+>
 
-> Next step for complete hid bus, this patch includes:
-> - call parser either from probe or from hid-core if there is no probe.
-> - add ll_driver structure and centralize some stuff there (open, close...)
-> - split and merge usb_hid_configure and hid_probe into several functions
->   to allow hooks/fixes between them
+Hi Vojtech, Will and Dmitry,
 
-has the Bluetooth HIDP changes been tested. You move a lot of code
-around and this might have side effects.
+How do you think of this driver from Javier?
+It works fine on Blackfin arch, but it can also be shared by other plat=
+form.
+So this driver is useful of the other developers.
+Could you please consider merging this driver?
 
-Regards
+If you need me to resend this patch, please ping me.
 
-Marcel
-
-
+Thanks
+-Bryan

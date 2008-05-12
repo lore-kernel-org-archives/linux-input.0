@@ -1,29 +1,44 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 9/9] HID: add compat support
-Date: Mon, 12 May 2008 09:19:28 +0200
-Message-ID: <4827EF80.7070404@gmail.com>
-References: <1210536043-19812-2-git-send-email-jirislaby@gmail.com> <1210536043-19812-3-git-send-email-jirislaby@gmail.com> <1210536043-19812-4-git-send-email-jirislaby@gmail.com> <1210536043-19812-5-git-send-email-jirislaby@gmail.com> <1210536043-19812-6-git-send-email-jirislaby@gmail.com> <1210536043-19812-7-git-send-email-jirislaby@gmail.com> <1210536043-19812-8-git-send-email-jirislaby@gmail.com> <1210536043-19812-9-git-send-email-jirislaby@gmail.com> <20080511204807.GB850@uranus.ravnborg.org> <48275FFC.9060305@gmail.com> <20080511211839.GA1641@uranus.ravnborg.org>
+From: Dag Bakke <dag@bakke.com>
+Subject: Re: [PATCH] fix apple alu keyboard with numpad
+Date: Mon, 12 May 2008 09:45:22 +0200
+Message-ID: <4827F592.50500@bakke.com>
+References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org> <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz> <48233747.1030605@bakke.com> <Pine.LNX.4.64.0805120053520.11363@jikos.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760458AbYELHUH@vger.kernel.org>
-In-Reply-To: <20080511211839.GA1641@uranus.ravnborg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, akpm@linux-foundation.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail43.e.nsc.no ([193.213.115.43]:51653 "EHLO mail43.e.nsc.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755705AbYELHq1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 May 2008 03:46:27 -0400
+In-Reply-To: <Pine.LNX.4.64.0805120053520.11363@jikos.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
 
-On 05/11/2008 11:18 PM, Sam Ravnborg wrote:
-> So what I try to say is that we should replace the above with
-> a hid-dummy.h file that is handedited.
+Jiri Kosina wrote, On 05/12/2008 12:54 AM:
+> On Thu, 8 May 2008, Dag Bakke wrote:
+> 
+>>> Dag, I think Diego's patch should solve the issue you are seeing, right?
+>>>
+>>> [1]
+>>> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=ffe6f7b799e33f51732520979f9c253a252b9d5e
+>> I'll give it a shot and let you know.
+> 
+> Dag,
+> 
+> any update here, please?
+> 
+> Thanks,
+> 
 
-Ah, yes, I got it now. I mulled over that, we're talking about 15 or so drivers 
-and it's pretty ugly. I'll drop hid-dummy.h file generation, since it will be no 
-longer needed.
+The patch works, thank you. Looks like all keys produce what I expect now.
 
-> We could stick a few comments in the .h file explaining the usage too.
+Well. At least in X11 they do.
+In the console, I get '~' instead of '=', when hitting the numpad '=' key.
 
-I think it's not worth it. It's just for 2, 3 kernel releases and then we will
-say it goodbye.
+This may have been no different with the patch I used previously.
 
-Thanks.
+
+Dag B

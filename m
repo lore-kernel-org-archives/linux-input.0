@@ -1,44 +1,40 @@
-From: Dag Bakke <dag@bakke.com>
-Subject: Re: [PATCH] fix apple alu keyboard with numpad
-Date: Mon, 12 May 2008 09:45:22 +0200
-Message-ID: <4827F592.50500@bakke.com>
-References: <4814612F.5030606@bakke.com> <20080506125406.dc047710.akpm@linux-foundation.org> <Pine.LNX.4.64.0805062244130.11363@jikos.suse.cz> <48233747.1030605@bakke.com> <Pine.LNX.4.64.0805120053520.11363@jikos.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/1] Input/Touchscreen Driver: add support
+	AD7877touchscreen driver
+Date: Mon, 12 May 2008 08:40:38 -0400
+Message-ID: <20080512083954.ZZRA012@mailhub.coreip.homeip.net>
+References: <1202980649-13309-1-git-send-email-bryan.wu@analog.com> <20080407161007.ZZRA012@mailhub.coreip.homeip.net> <8A42379416420646B9BFAC9682273B6D56269C@limkexm3.ad.analog.com> <386072610805112333w7bc935eo4ad0aae47b1c3975@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail43.e.nsc.no ([193.213.115.43]:51653 "EHLO mail43.e.nsc.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755705AbYELHq1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2008 03:46:27 -0400
-In-Reply-To: <Pine.LNX.4.64.0805120053520.11363@jikos.suse.cz>
+Received: from py-out-1112.google.com ([64.233.166.177]:29769 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751958AbYELMkn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 May 2008 08:40:43 -0400
+Received: by py-out-1112.google.com with SMTP id u52so2441911pyb.10
+        for <linux-input@vger.kernel.org>; Mon, 12 May 2008 05:40:42 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <386072610805112333w7bc935eo4ad0aae47b1c3975@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Diego 'Flameeyes' Petteno <flameeyes@gmail.com>
+To: Bryan Wu <cooloney@kernel.org>
+Cc: "Hennerich, Michael" <Michael.Hennerich@analog.com>, Bryan Wu <bryan.wu@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Jiri Kosina wrote, On 05/12/2008 12:54 AM:
-> On Thu, 8 May 2008, Dag Bakke wrote:
+Hi Bryan,
+
+On Mon, May 12, 2008 at 02:33:50PM +0800, Bryan Wu wrote:
 > 
->>> Dag, I think Diego's patch should solve the issue you are seeing, right?
->>>
->>> [1]
->>> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commit;h=ffe6f7b799e33f51732520979f9c253a252b9d5e
->> I'll give it a shot and let you know.
+> Hi Dmitry,
 > 
-> Dag,
+> Sorry for no updates, I forget to send out that patch, although
+> Michael fixed the driver as your review.
 > 
-> any update here, please?
-> 
-> Thanks,
+> So need I send out one updated patch including Michael's fixing or
+> just send out his incremental patch?$B!)
 > 
 
-The patch works, thank you. Looks like all keys produce what I expect now.
+Please send me the whole thing. Thanks!
 
-Well. At least in X11 they do.
-In the console, I get '~' instead of '=', when hitting the numpad '=' key.
-
-This may have been no different with the patch I used previously.
-
-
-Dag B
+-- 
+Dmitry

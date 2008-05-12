@@ -1,95 +1,29 @@
-From: "Bryan Wu" <cooloney@kernel.org>
-Subject: Re: [PATCH 1/1] Input/Touchscreen Driver: add support AD7877touchscreen driver
-Date: Mon, 12 May 2008 14:33:50 +0800
-Message-ID: <386072610805112333w7bc935eo4ad0aae47b1c3975@mail.gmail.com>
-References: <1202980649-13309-1-git-send-email-bryan.wu@analog.com>
-	 <20080407161007.ZZRA012@mailhub.coreip.homeip.net>
-	 <8A42379416420646B9BFAC9682273B6D56269C@limkexm3.ad.analog.com>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 9/9] HID: add compat support
+Date: Mon, 12 May 2008 09:19:28 +0200
+Message-ID: <4827EF80.7070404@gmail.com>
+References: <1210536043-19812-2-git-send-email-jirislaby@gmail.com> <1210536043-19812-3-git-send-email-jirislaby@gmail.com> <1210536043-19812-4-git-send-email-jirislaby@gmail.com> <1210536043-19812-5-git-send-email-jirislaby@gmail.com> <1210536043-19812-6-git-send-email-jirislaby@gmail.com> <1210536043-19812-7-git-send-email-jirislaby@gmail.com> <1210536043-19812-8-git-send-email-jirislaby@gmail.com> <1210536043-19812-9-git-send-email-jirislaby@gmail.com> <20080511204807.GB850@uranus.ravnborg.org> <48275FFC.9060305@gmail.com> <20080511211839.GA1641@uranus.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.30]:7440 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754597AbYELGdx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2008 02:33:53 -0400
-Received: by yw-out-2324.google.com with SMTP id 9so1229443ywe.1
-        for <linux-input@vger.kernel.org>; Sun, 11 May 2008 23:33:50 -0700 (PDT)
-In-Reply-To: <8A42379416420646B9BFAC9682273B6D56269C@limkexm3.ad.analog.com>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760458AbYELHUH@vger.kernel.org>
+In-Reply-To: <20080511211839.GA1641@uranus.ravnborg.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
-To: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bryan Wu <bryan.wu@analog.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Apr 9, 2008 at 1:13 AM, Hennerich, Michael
-<Michael.Hennerich@analog.com> wrote:
->
->
->>-----Original Message-----
->>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
->>Sent: Montag, 7. April 2008 22:16
->>To: Bryan Wu
->>Cc: linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; Michael
->>Hennerich
->>Subject: Re: [PATCH 1/1] Input/Touchscreen Driver: add support
->>AD7877touchscreen driver
->>
->>Hi Bryan, Michael,
->>
->>On Thu, Feb 14, 2008 at 05:17:28PM +0800, Bryan Wu wrote:
->>> From: Michael Hennerich <michael.hennerich@analog.com>
->>>
->>> [try #3] Changlog (Add feedback from Dmitry Torokhov):
->>>  - Change handling of spi_sync / spi_async return value handling
->>>  - Remove depreciated dev->power.power_state
->>>  - Fix error return path in ad7877_probe
->>>  - delete pending kernel timer
->>>  - Some minor cleanup (indention, use dev_err etc.)
->>
->>Sorry for the long silence... I have a couple of comments at the moment
->>but I am sure i will have more ;)
->>
->>> +
->>> +    status = spi_sync(spi, &req->msg);
->>> +
->>> +    if (status == 0)
->>> +            status = req->msg.status;
->>> +
->>> +    kfree(req);
->>> +    return status ? status : req->sample;
->>
->>Use after free here.
->
-> Yeah this is definitely broken.
->
->>
->>> +
->>> +    ts->irq_disabled = 1;
->>> +    disable_irq(spi->irq);
->>
->>I am a bit uneasy here... do we need to wait for an async spi
-> completion
->>here before proceeding? Overall I have some concerns about the
->>irq/spi/removal/sysfs iteractions, I will need some more time to look
->>through the driver.
->
->
-> I think you are right - let me come up with a patch.
->
-> Thanks and best regards,
-> Michael
->
->>
+On 05/11/2008 11:18 PM, Sam Ravnborg wrote:
+> So what I try to say is that we should replace the above with
+> a hid-dummy.h file that is handedited.
 
-Hi Dmitry,
+Ah, yes, I got it now. I mulled over that, we're talking about 15 or so drivers 
+and it's pretty ugly. I'll drop hid-dummy.h file generation, since it will be no 
+longer needed.
 
-Sorry for no updates, I forget to send out that patch, although
-Michael fixed the driver as your review.
+> We could stick a few comments in the .h file explaining the usage too.
 
-So need I send out one updated patch including Michael's fixing or
-just send out his incremental patch？
+I think it's not worth it. It's just for 2, 3 kernel releases and then we will
+say it goodbye.
 
-Thanks
--Bryan
+Thanks.

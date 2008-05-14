@@ -1,126 +1,45 @@
-From: "D. Ragno" <homerj@icculus.org>
-Subject: Re: G25 + Linux
-Date: Mon, 12 May 2008 23:15:13 -0400
-Message-ID: <d43da00b0805122015v9793aafj96bdcb9e5cb68d1c@mail.gmail.com>
-References: <48287096.7070105@free.fr>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 2/9] HID: make a bus from hid code
+Date: Wed, 14 May 2008 11:30:23 +0200
+Message-ID: <482AB12F.20106@gmail.com>
+References: <1210536043-19812-1-git-send-email-jirislaby@gmail.com>	 <1210536043-19812-2-git-send-email-jirislaby@gmail.com> <1210547158.16390.28.camel@violet.holtmann.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs-out-0708.google.com ([64.233.178.243]:60430 "EHLO
-	hs-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754953AbYEMDPQ (ORCPT
+Received: from fk-out-0910.google.com ([209.85.128.191]:1743 "EHLO
+	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752016AbYENJa1 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 May 2008 23:15:16 -0400
-Received: by hs-out-0708.google.com with SMTP id 4so2067413hsl.5
-        for <linux-input@vger.kernel.org>; Mon, 12 May 2008 20:15:14 -0700 (PDT)
-In-Reply-To: <48287096.7070105@free.fr>
-Content-Disposition: inline
+	Wed, 14 May 2008 05:30:27 -0400
+Received: by fk-out-0910.google.com with SMTP id 18so2647239fkq.5
+        for <linux-input@vger.kernel.org>; Wed, 14 May 2008 02:30:26 -0700 (PDT)
+In-Reply-To: <1210547158.16390.28.camel@violet.holtmann.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, akpm@linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
 
-I never did get all of this to work with a MOMO Racing (black) wheel.
-The wheel by itself was ok, however i had combined not separate axis
-for the pedals and no FF.
+Hi!
 
-I'd like do some further investigation on the why, I only really
-started to look into it, when rFactor and GTR2 started to work in
-wine. I think this wheel is acting similar to the G25, starting in a
-compatibility mode, and needed commands to set it to native. I'm not
-sure if the hardware itself is a single axis for the pedals, with some
-separation done in the driver to report two separate ones. I've seen a
-patch for a 2.4 kernel to this effect.
+Marcel Holtmann napsal(a):
+>> +static struct hid_driver hid_generic_bt = {
+>> +	.name = "hid-generic-bt",
+>> +	.id_table = hid_generic_bt_ids,
+>> +};
+> 
+> And this one to hidp_driver instead of hid_generic_bt.
+> 
+> Also the name "hid-generic-bt" is not okay. Call it "hidp" since that is
+> the driver name. An alternative would be "hid-bluetooth". I don't like
+> the "generic" part and we never used the shortcut "bt" in any sysfs
+> visible file.
 
-If there's some serious work going into better support of the Logitech
-loops, I'd like to keep in the loop and contribute. Jean-Philippe
-probably has the best overall explanation of it all, as when I was
-looking for information, it was sparse at best and conflicting at
-worst. Is there someone at Logitech that could offer up some actual
-documentation?
+Thanks for comments, I fixed all those except this one. The generic- word is 
+tested in the core to recognize generic drivers which bind non-blacklisted 
+devices and are handled separately. Anyway I've renamed them to 
+generic-bluetooth and generic-usb instead of hid-generic-{bt,usb}.
 
-2008/5/12 Annick et Jean-Philippe <jpmeuret@free.fr>:
-> Hi, all.
->
-> For the happy owners of a Logitech G25 wheel that did not manage yet
-> to enjoy the full features of the beast under Linux, this is a small
-> summary of what I found on the net and my own humble experience about it
-> on a 2.6.22.9 Kernel (Mandriva 2008.0 x86_64) :
->
-> Note: This is only my own understanding and summarizing of what people cleverer
->      than me discovered by themselves. My work only consisted to put
->      all the stuff together in an as clear, simple and explict as possible
->      sum-up. See at the bottom for references and real authors.
->
-> 1) when plugged in, the G25 identies itself as a Logitech Formula Force EX
->   USB device (046d:c294) ; you only get 4 axes and 12 buttons, that is
->   neither clutch pedal nor any of the 3trd to 6th gear on the grid shifter
-> 2) to get the lacking native features of the beast, it must be sent a command
->   to switch to its native mode, that makes it disconnect and reconnect
->   as itself this time (USB device ids 046d:c299)
->   Note: Another similar command can also switch it to the Logitech Driving
->         Force Pro mode.
-> 3) to send the command, you need a userland tool that basically writes
->   the associated bytes on the USB device, and the one I am using is
->   usbtool <ftp://srv.l14.ru/pub/usbtool-0.1.tar.gz>
->   (the package includes pre-built binaries for python 2.5,
->    and sources if you need to build it yourself) ;
->
->   to swhitch the G25 to its native mode, after plugging it in, I simply use :
->     ./usbtool -v g25-set-extended-mode
->
->   Note: you can also send other pre-configured commands with the usbtool
->         (run ./usbtool --list-commands to see which)
->         like g25-set-range-wheel-900 (teasing ;-)
->   BUT: I never succeeded to send 2 successive commands to the device :
->        the first one is generally OK (sometimes, though, you may need to repeat
->        it), but the second (and following ones) seems to be completely ignored.
->
-> 4) but this makes disappear the /dev/jsX and /dev/input/eventY devices !
->   to get them back and be able to play with the G25, I use :
->     sudo rmmod joydev
->     sudo rmmod usbhid
->     sudo modprobe usbhid
->   (man sudo and sudoers to be able to run these root commands)
->
-> 5) Then, if you find that the "dead zone" at the center of the wheel
->   is too large (the centered angle where nothing happens when you steer into),
->   it is only beacause you need to calibrate your device.
->   I use jscal (ff-utils @ http://www.sourceforge.net/projects/libff)
->   to do that :
->   a) plug-in the device
->   b) send the native mode-switch command if you like (see above 3)
->   c) jscal -c /dev/jsX (X being 0, 1, ... look which in /dev after plugging-in)
->   d) jstest /dev/jsX (to test if everything fits your desire)
->   e) jscal -p /dev/jsX (to get the jscal command to put in your .bashrc
->      or any script you would run before your favorite games ...)
->
-> Note: All this stuff should also work for a Driving Force Pro, and some says
->      that it's also true for the Momo Racing wheels ... but don't tested.
->
-> Now, as far as force feedback is concerned, I have no such good news
-> for the moment : fftest and ffcstress don't work for me for the moment.
->
-> References:
->
-> Thanks to avl, eckzow, anrp, thelusiv, tof8pool, synapse247 and cuckoo,
->  on http://vdrift.net forum :
->  http://vdrift.net/Forum/viewtopic.php?t=412&postdays=0&postorder=asc&start=60
->  http://vdrift.net/Forum/viewtopic.php?p=3751&highlight=linuxinput#3751
->  ftp://srv.l14.ru/pub/usbtool-0.1.tar.gz
->
-> Thanks to Jiri Kosina, Chris Guirl,
->  from the Linux input dev team
->  http://www.mail-archive.com/linux-input@atrey.karlin.mff.cuni.cz
->  http://www.mail-archive.com/linux-input@vger.kernel.org
-> (search "g25" on each list)
->
-> Hoping this helps ...
->
-> Jean-Philippe.
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+I think the generic word in the driver name is OK, so that one ordinary user 
+can see, my device is handled by the generic driver without special 
+processing. Would you rather see some flag or something?

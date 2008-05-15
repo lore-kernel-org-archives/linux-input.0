@@ -1,82 +1,65 @@
-From: Eric.Brunet@lps.ens.fr
-Subject: Bug with keyboard input
-Date: Thu, 15 May 2008 14:02:25 +0200
-Message-ID: <20080515120225.GA20070@platane.lps.ens.fr>
+From: Tino Keitel <tino.keitel@gmx.de>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Thu, 15 May 2008 15:21:08 +0200
+Message-ID: <20080515132108.GA9327@dose.home.local>
+References: <20080514221519.GA6575@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nef2.ens.fr ([129.199.96.40]:1441 "EHLO nef2.ens.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752843AbYEOMl3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 May 2008 08:41:29 -0400
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1757527AbYEONVW@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20080514221519.GA6575@kroah.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-Hi list,
+On Wed, May 14, 2008 at 15:15:19 -0700, Greg KH wrote:
+> From: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> This driver was originally written by James McKenzie but forward ported
+> and cleaned up by me to get it to work with modern kernel versions.
+> 
+> Tested on my mac mini and it actually works!
+> 
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> ---
+> 
+> Jiri, is it ok for this quirks addtion to go through Dmitry's triee?  Or
+> do you want me to split it out into two different patches?
+> 
+> Dmitry, is this ok to go through your tree?  Or I can take it as well if
+> you don't want it :)
+> 
+>  drivers/hid/usbhid/hid-quirks.c |    2 
+>  drivers/input/misc/Kconfig      |   12 +
+>  drivers/input/misc/Makefile     |    1 
+>  drivers/input/misc/appleir.c    |  361 ++++++++++++++++++++++++++++++++++++++++
+>  4 files changed, 376 insertions(+)
+> 
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -77,6 +77,7 @@
+>  #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS   0x022e
+>  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+>  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+> +#define USB_DEVICE_ID_APPLE_IRCONTROL	0x8240
+>  #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
+>  
+>  #define USB_VENDOR_ID_ASUS		0x0b05
+> @@ -443,6 +444,7 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_AFATECH, USB_DEVICE_ID_AFATECH_AF9016, HID_QUIRK_FULLSPEED_INTERVAL },
+>  
+>  	{ USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM, HID_QUIRK_HIDDEV },
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL, HID_QUIRK_IGNORE },
+>  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4, HID_QUIRK_HIDDEV | HID_QUIRK_IGNORE_HIDINPUT },
+>  	{ USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE, HID_QUIRK_HIDDEV | HID_QUIRK_IGNORE_HIDINPUT },
+>  	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_SIDEWINDER_GV, HID_QUIRK_HIDINPUT },
 
-The following bug is on uptodate Fedora 7 on a Dell D430 laptop. It
-happens both with the Fedora kernel-2.6.23.15-80.fc7 and with a vanilla
-2.6.25.
-
-In short, if I do
-	echo -n "i8042" > /sys/bus/platform/drivers/i8042/unbind
-followed by
-	echo -n "i8042" > /sys/bus/platform/drivers/i8042/bind
-everything works fine, EXCEPT if I hit a key on the keyboard between th=
-e
-unbind and the bind (tested with leftcontrol and spacebar). If I did hi=
-t a
-key, it looks like the keyboard isn't taking release events anymore and
-the next key I hit is forever repeated. When my keyboard is in its work=
-ing
-state, I read
-	N: Name=3D"AT Translated Set 2 keyboard"
-in /proc/bus/input/devices. When it is in its non-working state (I hit =
-a
-key between unbind and bind), I read
-	N: Name=3D"AT Raw Set 2 keyboard"
-in the same file, and each time I hit a key, I have messages such as
-    atkbd.c: Unknown key pressed (raw set 2, code 0x11f on isa0060/seri=
-o0).
-    atkbd.c: Use 'setkeycodes 1f <keycode>' to make it known.
-    atkbd.c: Unknown key pressed (raw set 2, code 0x11e on isa0060/seri=
-o0).
-    atkbd.c: Use 'setkeycodes 1e <keycode>' to make it known.
-in my logs.
-
-Note that the key doesn't have to be pressed while the bind happens, it
-is sufficient that the key have been pressed and released before the
-bind.
-
-So, is there a way to make it work and have the input layer automatical=
-ly
-recognize the correct keyboard type or keyboard mode ? If not, is there=
- a
-way to keep it from guessing and to force it to treat the keyboard as a=
-n
-"AT Translated Set 2 keyboard" ?
-
-As a final note, I get hit by this bug quite often during suspend/resum=
-e
-cycles. I had found that the keyboard wasn't all the time properly waki=
-ng up,
-(it was getting stuck) so I've added a file in /etc/pm/sleep.d to do th=
-e
-unbind at suspend time and the bind at resume time. This fixed my
-problem, except that at times I stupidly press a key in the hope that t=
-he
-resume is done and that the screen is black only because of the
-screensaver, and that hitting a key will make appear the unlocking
-window...
-
-Thanks,
-
-	=C9ric Brunet
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi,                                                                             
+                                                                                
+I'm pretty sure that this breaks the macmini LIRC driver again, see             
+commit 3e1928e8793208802589aae851b6685671187242.                                
+                                                                                
+Regards,                                                                        
+Tino                                                                            

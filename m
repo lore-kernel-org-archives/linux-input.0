@@ -1,52 +1,34 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH] fix migor_ts dependency and compile warning
-Date: Thu, 15 May 2008 20:38:21 +0900
-Message-ID: <20080515113821.18971.12147.sendpatchset@rx1.opensource.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] fix migor_ts dependency and compile warning
+Date: Thu, 15 May 2008 08:38:54 -0400
+Message-ID: <20080515083758.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080515113821.18971.12147.sendpatchset@rx1.opensource.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.174]:23014 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752396AbYEOLiJ (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.180]:28477 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753004AbYEOMi6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 May 2008 07:38:09 -0400
-Received: by wf-out-1314.google.com with SMTP id 27so350877wfd.4
-        for <linux-input@vger.kernel.org>; Thu, 15 May 2008 04:38:09 -0700 (PDT)
+	Thu, 15 May 2008 08:38:58 -0400
+Received: by py-out-1112.google.com with SMTP id u52so324407pyb.10
+        for <linux-input@vger.kernel.org>; Thu, 15 May 2008 05:38:57 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080515113821.18971.12147.sendpatchset@rx1.opensource.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-This patch adds I2C dependencies to the MigoR touchscreen driver,
-and while at it kills off a compile warning.
+Hi Magnus,
 
-Signed-off-by: Magnus Damm <damm@igel.co.jp>
----
+On Thu, May 15, 2008 at 08:38:21PM +0900, Magnus Damm wrote:
+> This patch adds I2C dependencies to the MigoR touchscreen driver,
+> and while at it kills off a compile warning.
+> 
 
- Applies to the git input tree b92b4853a19498f17ae802b382e3deee8cb01bc8.
+I am going to fold it into original patch since I have to rebuild my
+tree for that -next thing, if you don't mind.
 
- drivers/input/touchscreen/Kconfig    |    2 +-
- drivers/input/touchscreen/migor_ts.c |    3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
---- 0001/drivers/input/touchscreen/Kconfig
-+++ work/drivers/input/touchscreen/Kconfig	2008-05-15 19:42:16.000000000 +0900
-@@ -148,7 +148,7 @@ config TOUCHSCREEN_PENMOUNT
- 
- config TOUCHSCREEN_MIGOR
- 	tristate "Renesas MIGO-R touchscreen"
--	depends on SH_MIGOR
-+	depends on SH_MIGOR && I2C
- 	help
- 	  Say Y here to enable MIGO-R touchscreen support.
- 
---- 0001/drivers/input/touchscreen/migor_ts.c
-+++ work/drivers/input/touchscreen/migor_ts.c	2008-05-15 19:41:37.000000000 +0900
-@@ -144,7 +144,8 @@ static void migor_ts_close(struct input_
- 	enable_irq(priv->irq);
- }
- 
--static int migor_ts_probe(struct i2c_client *client)
-+static int migor_ts_probe(struct i2c_client *client,
-+			  const struct i2c_device_id *idp)
- {
- 	struct migor_ts_priv *priv;
- 	struct input_dev *input;
+-- 
+Dmitry

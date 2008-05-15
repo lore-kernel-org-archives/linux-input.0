@@ -1,33 +1,63 @@
-From: Tino Keitel <tino.keitel-Mmb7MZpHnFY@public.gmane.org>
+From: Tino Keitel <tino.keitel@gmx.de>
 Subject: Re: [PATCH] Input: add appleir USB driver
-Date: Thu, 15 May 2008 15:40:46 +0200
-Message-ID: <20080515134046.GA9529@dose.home.local>
-References: <20080514221519.GA6575@kroah.com>
+Date: Thu, 15 May 2008 19:49:39 +0200
+Message-ID: <20080515174939.GA10881@dose.home.local>
+References: <20080514221519.GA6575@kroah.com> <20080515132108.GA9327@dose.home.local> <20080515094212.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from eazy.amigager.de ([213.239.192.238]:50591 "EHLO
+	eazy.amigager.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751264AbYEORtl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 15 May 2008 13:49:41 -0400
 Content-Disposition: inline
-In-Reply-To: <20080514221519.GA6575-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20080515094212.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg KH <greg@kroah.com>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, May 14, 2008 at 15:15:19 -0700, Greg KH wrote:
-> From: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
+On Thu, May 15, 2008 at 09:45:52 -0400, Dmitry Torokhov wrote:
+> Hi Tino,
 > 
-> This driver was originally written by James McKenzie but forward ported
-> and cleaned up by me to get it to work with modern kernel versions.
+> On Thu, May 15, 2008 at 03:21:08PM +0200, Tino Keitel wrote:
+> > Hi,
+> >
+> > I'm pretty sure that this breaks the macmini LIRC driver again, see
+> > commit 3e1928e8793208802589aae851b6685671187242.
+> >
 > 
-> Tested on my mac mini and it actually works!
+> But with in-kernel driver can't LIRC feed of event device?
 
-Did you test suspend to RAM? Last time I used the original driver, I
-had to reload it after resume, otherwise LIRC didn't receive events
-anymore.
+Sure, it can. But in its current state, it breaks existing scenarios
+and seems to have restrictions. See the comment below regarding
+learning remotes, and my other mail in this thread regarding broken
+suspend with the appleir driver.
+
+> Ane people that dont use LIRC can also have access to the remote?
+
+I know. I just wanted to point out that this is a regression for all
+people who use the macmini LIRC driver. This driver was present at
+least in the last 2 LIRC releases. The quirks stuff in the above patch
+looks like there is no way to make the macmini LIRC driver work with
+the patch applied. It relies on a USB HID device, which wouldn't be
+created anymore, and the user has no way to bring it back. Please
+correct me with a pointer to the appropriate documentation if I'm
+wrong.
+
+>From the user's point of view: There are no official kernel release
+notes about what devices are added/removed to/from the various ignore
+lists and blacklists. The kernel doesn't produce any output about
+devices that are ignored or blacklisted in may cases (and also this
+one). The user has no indication why his LIRC setup stops working with
+the new kernel.
+
+Even if all LIRC users switch to the appleir driver, what about people
+who use a learning remote to have more than 6 keys that the Apple
+remote has? Does this work at all? After a quick look at the key
+handling it seems to me that the codes of the 6 keys are hardcoded in
+the driver. So a learning remote with more keys wouldn't work anymore.
 
 Regards,
 Tino
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

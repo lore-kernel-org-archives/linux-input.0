@@ -1,196 +1,72 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 09/10] HID: add compat support
-Date: Fri, 16 May 2008 11:49:22 +0200
-Message-ID: <1210931362-18422-9-git-send-email-jirislaby@gmail.com>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-2-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-3-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-4-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-5-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-6-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-7-git-send-email-jirislaby@gmail.com>
- <1210931362-18422-8-git-send-email-jirislaby@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: add appleir USB driver
+Date: Fri, 16 May 2008 09:13:41 -0400
+Message-ID: <20080516090351.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080514221519.GA6575@kroah.com> <20080515132108.GA9327@dose.home.local> <20080515094212.ZZRA012@mailhub.coreip.homeip.net> <20080515174939.GA10881@dose.home.local> <20080515142845.ZZRA012@mailhub.coreip.homeip.net> <20080515205950.GA11794@dose.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.wellnetcz.com ([212.24.148.102]:49871 "EHLO WNmonitoring"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752563AbYEPJyr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 16 May 2008 05:54:47 -0400
-In-Reply-To: <1210931362-18422-8-git-send-email-jirislaby@gmail.com>
+Received: from py-out-1112.google.com ([64.233.166.183]:14852 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752589AbYEPNNq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 16 May 2008 09:13:46 -0400
+Received: by py-out-1112.google.com with SMTP id u52so843712pyb.10
+        for <linux-input@vger.kernel.org>; Fri, 16 May 2008 06:13:46 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080515205950.GA11794@dose.home.local>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, Jiri Slaby <jirislaby@gmail.com>
+To: Greg KH <greg@kroah.com>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add compat option to hid code to allow loading of all modules on
-systems which don't allow autoloading because of old userspace.
+On Thu, May 15, 2008 at 10:59:50PM +0200, Tino Keitel wrote:
+> On Thu, May 15, 2008 at 14:35:54 -0400, Dmitry Torokhov wrote:
+> > On Thu, May 15, 2008 at 07:49:39PM +0200, Tino Keitel wrote:
+> > 
+> > > From the user's point of view: There are no official kernel release
+> > > notes about what devices are added/removed to/from the various
+> > > ignore lists and blacklists. The kernel doesn't produce any output
+> > > about devices that are ignored or blacklisted in may cases (and
+> > > also this one). The user has no indication why his LIRC setup stops
+> > > working with the new kernel.
+> > >
+> > 
+> > Not sure what we can do here... The only thing I guess is better
+> > commit message mentioning LIRC setup concerns.
+> 
+> Who reads commit messages? I think it should be easy to add some
+> printk()s saying something like "skipping device foo, because it is on
+> the ignore list".
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
----
- Documentation/feature-removal-schedule.txt |    7 +++++++
- drivers/hid/Kconfig                        |   11 +++++++++++
- drivers/hid/Makefile                       |    4 ++++
- drivers/hid/hid-apple.c                    |    2 ++
- drivers/hid/hid-core.c                     |   12 ++++++++++++
- drivers/hid/hid-dummy.c                    |   13 +++++++++++++
- drivers/hid/hid-logitech.c                 |    2 ++
- include/linux/hid.h                        |   17 +++++++++++++++--
- 8 files changed, 66 insertions(+), 2 deletions(-)
- create mode 100644 drivers/hid/hid-dummy.c
+Then every user of Wacom tablet will be alarmed and ask "why my tablet
+is ignored". The only thing that I can think of is making that quirk
+compiled in depending on whether CONFIG_APPLEIR is selected.
 
-diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-index 3c35d45..1564e87 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -289,6 +289,13 @@ Who:	Glauber Costa <gcosta@redhat.com>
- 
- ---------------------------
- 
-+What:	remove HID compat support
-+When:	2.6.29
-+Why:	needed only as a temporary solution until distros fix themselves up
-+Who:	Jiri Slaby <jirislaby@gmail.com>
-+
-+---------------------------
-+
- What:	/sys/o2cb symlink
- When:	January 2010
- Why:	/sys/fs/o2cb is the proper location for this information - /sys/o2cb
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9a9fd7d..ba9ca39 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -70,6 +70,17 @@ source "drivers/hid/usbhid/Kconfig"
- menu "Special HID drivers"
- 	depends on HID
- 
-+config HID_COMPAT
-+	bool "Load all HID drivers on hid core load"
-+	---help---
-+	Compatible option for older userspace. If you have system without udev
-+	support of module loading through aliases and also old
-+	module-init-tools which can't handle hid bus, choose Y here. Otherwise
-+	say N. If you say N and your userspace is old enough, the only
-+	functionality you loose is modules autoloading.
-+
-+	If unsure, say N.
-+
- config HID_LOGITECH
- 	tristate "Logitech"
- 	default m
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 8a5cbbe..ccc169d 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -8,6 +8,10 @@ obj-$(CONFIG_HID)		+= hid.o
- hid-$(CONFIG_HID_DEBUG)		+= hid-debug.o
- hid-$(CONFIG_HIDRAW)		+= hidraw.o
- 
-+ifdef CONFIG_HID_COMPAT
-+obj-m				+= hid-dummy.o
-+endif
-+
- obj-$(CONFIG_HID_LOGITECH)	+= hid-logitech.o
- obj-$(CONFIG_HID_APPLE)		+= hid-apple.o
- 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index b39d25c..325d27f 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -464,3 +464,5 @@ static void apple_exit(void)
- module_init(apple_init);
- module_exit(apple_exit);
- MODULE_LICENSE("GPL");
-+
-+HID_COMPAT_LOAD_DRIVER(hid_apple);
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index be080d4..5134d41 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1565,6 +1565,14 @@ void hid_unregister_driver(struct hid_driver *hdrv)
- }
- EXPORT_SYMBOL_GPL(hid_unregister_driver);
- 
-+#ifdef CONFIG_HID_COMPAT
-+static void hid_compat_load(struct work_struct *ws)
-+{
-+	request_module("hid-dummy");
-+}
-+static DECLARE_WORK(hid_compat_work, hid_compat_load);
-+#endif
-+
- static int __init hid_init(void)
- {
- 	int ret;
-@@ -1579,6 +1587,10 @@ static int __init hid_init(void)
- 	if (ret)
- 		goto err_bus;
- 
-+#ifdef CONFIG_HID_COMPAT
-+	schedule_work(&hid_compat_work);
-+#endif
-+
- 	return 0;
- err_bus:
- 	bus_unregister(&hid_bus_type);
-diff --git a/drivers/hid/hid-dummy.c b/drivers/hid/hid-dummy.c
-new file mode 100644
-index 0000000..b426134
---- /dev/null
-+++ b/drivers/hid/hid-dummy.c
-@@ -0,0 +1,13 @@
-+#include <linux/module.h>
-+#include <linux/hid.h>
-+
-+static int __init hid_dummy_init(void)
-+{
-+	HID_COMPAT_CALL_DRIVER(hid_logitech);
-+	HID_COMPAT_CALL_DRIVER(hid_apple);
-+
-+	return -EIO;
-+}
-+module_init(hid_dummy_init);
-+
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-logitech.c b/drivers/hid/hid-logitech.c
-index 5b145c9..6a70ca9 100644
---- a/drivers/hid/hid-logitech.c
-+++ b/drivers/hid/hid-logitech.c
-@@ -72,3 +72,5 @@ static void lg_exit(void)
- module_init(lg_init);
- module_exit(lg_exit);
- MODULE_LICENSE("GPL");
-+
-+HID_COMPAT_LOAD_DRIVER(hid_logitech);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index c67e5fe..447aed9 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -784,10 +784,23 @@ dbg_hid(const char *fmt, ...)
- 	return 0;
- }
- #define dbg_hid_line dbg_hid
--#endif
-+#endif /* HID_DEBUG */
- 
- #define err_hid(format, arg...) printk(KERN_ERR "%s: " format "\n" , \
- 		__FILE__ , ## arg)
--#endif
-+#endif /* HID_FF */
-+
-+#ifdef CONFIG_HID_COMPAT
-+#define HID_COMPAT_LOAD_DRIVER(name)	\
-+void hid_compat_##name(void) { }	\
-+EXPORT_SYMBOL(hid_compat_##name)
-+#else
-+#define HID_COMPAT_LOAD_DRIVER(name)
-+#endif /* HID_COMPAT */
-+#define HID_COMPAT_CALL_DRIVER(name)	do {	\
-+	extern void hid_compat_##name(void);	\
-+	hid_compat_##name();			\
-+} while (0)
-+
- #endif
- 
+> 
+> > > Even if all LIRC users switch to the appleir driver, what about
+> > > people who use a learning remote to have more than 6 keys that the
+> > > Apple remote has? Does this work at all? After a quick look at the
+> > > key handling it seems to me that the codes of the 6 keys are
+> > > hardcoded in the driver. So a learning remote with more keys
+> > > wouldn't work anymore.
+> > >
+> > 
+> > We'll have to adjust the driver to allow changing keymap on a
+> > per-device base from userspace. That's pretty easy actually.
+> 
+> I'm not talking about the keymap that is visible in userspace, but
+> about the keys on the remote that are detected by the kernel. The Apple
+> remote has only 6 keys, and they are mapped in a static array:
+> 
+> #define MAX_KEYS       8
+> static int keymap[MAX_KEYS] = ...
+> 
+> With the LIRC driver, I can use a learning remote with much more keys,
+> and then just use irrecord to create a LIRC config file.
+> 
+
+Does the learning remote have the same VID/PID as AppleIr? If not I am
+not sure why you are btringing it here.
+
 -- 
-1.5.4.5
-
+Dmitry

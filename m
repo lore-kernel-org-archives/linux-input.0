@@ -1,83 +1,270 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [patch 11/18] m68k: Some input drivers do not check the platform
-Date: Sun, 18 May 2008 20:47:17 +0200
-Message-ID: <20080518185152.437771120@mail.of.borg>
-References: <20080518184706.631023070@mail.of.borg>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yorgi.telenet-ops.be ([195.130.133.69]:35187 "EHLO
-	yorgi.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759968AbYERSy3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 May 2008 14:54:29 -0400
-Content-Disposition: inline; filename=m68k-input-drivers-break-multiplatform.diff
-Sender: linux-input-owner@vger.kernel.org
+From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Subject: [PATCH] input: add support for SEGA Dreamcast controller as
+	joystick
+Date: Sun, 18 May 2008 20:18:42 +0100
+Message-ID: <1211138322.6354.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756614AbYERTTd@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-sh <linux-sh@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-parisc@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+Use a Maple controller as a joystick device.
 
-Some input drivers do not check whether they're actually running on the
-correct platform, causing multi-platform kernels to crash if they are not.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
 ---
- drivers/input/keyboard/hilkbd.c  |    4 ++++
- drivers/input/misc/hp_sdc_rtc.c  |    5 +++++
- drivers/input/serio/hp_sdc_mlc.c |    5 +++++
- 3 files changed, 14 insertions(+)
-
---- a/drivers/input/keyboard/hilkbd.c
-+++ b/drivers/input/keyboard/hilkbd.c
-@@ -217,6 +217,10 @@ hil_keyb_init(void)
- 		return -ENOMEM;
+diff -ruN a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
+--- a/drivers/input/joystick/Kconfig	2008-05-18 20:04:42.000000000 +0100
++++ b/drivers/input/joystick/Kconfig	2008-05-18 19:53:42.000000000 +0100
+@@ -294,4 +294,17 @@
+ 	  This option enables support for the LED which surrounds the Big X on
+ 	  XBox 360 controller.
  
- #if defined(CONFIG_HP300)
-+	if (!MACH_IS_HP300) {
-+		err = -ENODEV;
-+		goto err1;
++config JOYSTICK_MAPLE
++	tristate "Dreamcast control pad"
++	depends on SH_DREAMCAST
++	select MAPLE
++	help
++	  Say Y here if you have a SEGA Dreamcast and want to use your
++	  controller.
++
++	  Most Dreamcast users will say Y.
++
++	  To compile this as a module choose M here: the
++	  module will be called maplecontrol.
++
+ endif
+diff -ruN a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
+--- a/drivers/input/joystick/Makefile	2008-05-18 20:04:42.000000000 +0100
++++ b/drivers/input/joystick/Makefile	2008-05-18 19:53:42.000000000 +0100
+@@ -19,6 +19,7 @@
+ obj-$(CONFIG_JOYSTICK_INTERACT)		+= interact.o
+ obj-$(CONFIG_JOYSTICK_JOYDUMP)		+= joydump.o
+ obj-$(CONFIG_JOYSTICK_MAGELLAN)		+= magellan.o
++obj-$(CONFIG_JOYSTICK_MAPLE)		+= maplecontrol.o
+ obj-$(CONFIG_JOYSTICK_SIDEWINDER)	+= sidewinder.o
+ obj-$(CONFIG_JOYSTICK_SPACEBALL)	+= spaceball.o
+ obj-$(CONFIG_JOYSTICK_SPACEORB)		+= spaceorb.o
+diff -ruN a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
+--- a/drivers/input/joystick/maplecontrol.c	1970-01-01 01:00:00.000000000 +0100
++++ b/drivers/input/joystick/maplecontrol.c	2008-05-18 19:53:42.000000000 +0100
+@@ -0,0 +1,217 @@
++/*
++ * 	SEGA Dreamcast controller driver
++ *	Based on drivers/usb/iforce.c
++ *
++ * 	Copyright Yaegashi Takeshi, 2001
++ *	Porting to 2.6 by Adrian McMenamin, copyright 2008
++ */
++
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/maple.h>
++#include <asm/mach/maple.h>
++
++MODULE_AUTHOR("YAEGASHI Takeshi <t@keshi.org>");
++MODULE_DESCRIPTION("SEGA Dreamcast controller driver");
++MODULE_LICENSE("GPL");
++
++struct dc_pad {
++	struct input_dev *dev;
++	struct maple_device *mdev;
++};
++
++static void dc_pad_callback(struct mapleq *mq)
++{
++	unsigned short buttons;
++	struct maple_device *mapledev = mq->dev;
++	struct dc_pad *pad = mapledev->private_data;
++	struct input_dev *dev = pad->dev;
++	unsigned char *res = mq->recvbuf;
++
++	buttons = ~cpu_to_le16(*(unsigned short *)(res + 8));
++
++	input_report_abs(dev, ABS_HAT0Y,
++			 (buttons & 0x0010 ? -1:0) + (buttons & 0x0020 ? 1:0));
++	input_report_abs(dev, ABS_HAT0X,
++			 (buttons & 0x0040 ? -1:0) + (buttons & 0x0080 ? 1:0));
++	input_report_abs(dev, ABS_HAT1Y,
++			 (buttons & 0x1000 ? -1:0) + (buttons & 0x2000 ? 1:0));
++	input_report_abs(dev, ABS_HAT1X,
++			 (buttons & 0x4000 ? -1:0) + (buttons & 0x8000 ? 1:0));
++
++	input_report_key(dev, BTN_C,      buttons & 0x0001);
++	input_report_key(dev, BTN_B,      buttons & 0x0002);
++	input_report_key(dev, BTN_A,      buttons & 0x0004);
++	input_report_key(dev, BTN_START,  buttons & 0x0008);
++	input_report_key(dev, BTN_Z,      buttons & 0x0100);
++	input_report_key(dev, BTN_Y,      buttons & 0x0200);
++	input_report_key(dev, BTN_X,      buttons & 0x0400);
++	input_report_key(dev, BTN_SELECT, buttons & 0x0800);
++
++	input_report_abs(dev, ABS_GAS,   res[10]);
++	input_report_abs(dev, ABS_BRAKE, res[11]);
++	input_report_abs(dev, ABS_X,     res[12]);
++	input_report_abs(dev, ABS_Y,     res[13]);
++	input_report_abs(dev, ABS_RX,    res[14]);
++	input_report_abs(dev, ABS_RY,    res[15]);
++}
++
++static void dc_pad_disconnect(struct maple_device *mdev)
++{
++	struct dc_pad *pad = mdev->private_data;
++
++	mdev->callback = NULL;
++	input_unregister_device(pad->dev);
++	kfree(pad);
++}
++
++static int dc_pad_open(struct input_dev *dev)
++{
++	struct dc_pad *pad;
++
++	pad = dev->dev.platform_data;
++	maple_getcond_callback(pad->mdev, dc_pad_callback, HZ/20,
++		MAPLE_FUNC_CONTROLLER);
++	return 0;
++}
++
++static void dc_pad_close(struct input_dev *dev)
++{
++	struct dc_pad *pad;
++	
++	pad = dev->dev.platform_data;
++	maple_getcond_callback(pad->mdev, dc_pad_callback, 0,
++		MAPLE_FUNC_CONTROLLER);
++}
++
++static int dc_pad_connect(struct maple_device *mdev)
++{
++	int i, error;
++	unsigned long data = be32_to_cpu(mdev->devinfo.function_data[0]);
++	struct dc_pad *pad;
++	struct input_dev *dev;
++
++	const short btn_bit[32] = {
++		BTN_C, BTN_B, BTN_A, BTN_START, -1, -1, -1, -1,
++		BTN_Z, BTN_Y, BTN_X, BTN_SELECT, -1, -1, -1, -1,
++		-1, -1, -1, -1, -1, -1, -1, -1,
++		-1, -1, -1, -1, -1, -1, -1, -1,
++	};
++
++	const short abs_bit[32] = {
++		-1, -1, -1, -1, ABS_HAT0Y, ABS_HAT0Y, ABS_HAT0X, ABS_HAT0X,
++		-1, -1, -1, -1, ABS_HAT1Y, ABS_HAT1Y, ABS_HAT1X, ABS_HAT1X,
++		ABS_GAS, ABS_BRAKE, ABS_X, ABS_Y, ABS_RX, ABS_RY, -1, -1,
++		-1, -1, -1, -1, -1, -1, -1, -1,
++	};
++
++	pad = kzalloc(sizeof(struct dc_pad), GFP_KERNEL);
++	if (!pad){
++		error = ENOMEM;
++		goto fail_nomem_1;
 +	}
- 	if (!hwreg_present((void *)(HILBASE + HIL_DATA))) {
- 		printk(KERN_ERR "HIL: hardware register was not found\n");
- 		err = -ENODEV;
---- a/drivers/input/misc/hp_sdc_rtc.c
-+++ b/drivers/input/misc/hp_sdc_rtc.c
-@@ -691,6 +691,11 @@ static int __init hp_sdc_rtc_init(void)
- {
- 	int ret;
- 
-+#ifdef __mc68000__
-+	if (!MACH_IS_HP300)
-+		return -ENODEV;
-+#endif
 +
- 	init_MUTEX(&i8042tregs);
- 
- 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -306,6 +306,11 @@ static int __init hp_sdc_mlc_init(void)
- {
- 	hil_mlc *mlc = &hp_sdc_mlc;
- 
-+#ifdef __mc68000__
-+	if (!MACH_IS_HP300)
-+		return -ENODEV;
-+#endif
++	dev = input_allocate_device();
++	if (!dev) {
++		error = ENOMEM;
++		goto fail_nomem_2;
++	}
 +
- 	printk(KERN_INFO PREFIX "Registering the System Domain Controller's HIL MLC.\n");
- 
- 	hp_sdc_mlc_priv.emtestmode = 0;
-
--- 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
++	pad->dev = dev;
++	pad->mdev = mdev;
++	mdev->private_data = pad;
++	dev->open = dc_pad_open;
++	dev->close = dc_pad_close;
++
++	for (i = 0; i < 32; i++)
++		if (data & (1<<i) && btn_bit[i] >= 0)
++			dev->keybit[BIT_WORD(BTN_JOYSTICK)] |= BIT_MASK(btn_bit[i]);
++
++	if (dev->keybit[BTN_JOYSTICK/32])
++		dev->evbit[0] |= BIT_MASK(EV_KEY);
++
++	for (i = 0; i < 32; i++)
++		if (data & (1<<i) && abs_bit[i] >= 0)
++			dev->absbit[0] |= BIT_MASK(abs_bit[i]);
++
++	if (dev->absbit[0])
++		dev->evbit[0] |= BIT_MASK(EV_ABS);
++
++	for (i = ABS_X; i <= ABS_BRAKE; i++)
++		input_set_abs_params(dev, i, 0, 255, 0, 0);
++
++	for (i = ABS_HAT0X; i <= ABS_HAT3Y; i++)
++		input_set_abs_params(dev, i, 1, -1, 0, 0);
++
++	dev->dev.platform_data = pad;
++	dev->event = NULL;
++	dev->dev.parent = &mdev->dev;
++	dev->name = mdev->product_name;
++	dev->id.bustype = BUS_HOST;
++	input_set_drvdata(dev, pad);
++
++	error = input_register_device(dev);
++	if (error)
++		goto fail_register;
++
++	return error;
++
++fail_register:
++	input_free_device(pad->dev);
++fail_nomem_2:
++	kfree(pad);
++fail_nomem_1:
++	return -error;
++}
++
++/* allow the controller to be used */
++static int probe_maple_controller(struct device *dev)
++{
++	struct maple_device *mdev = to_maple_dev(dev);
++	struct maple_driver *mdrv = to_maple_driver(dev->driver);
++	int error;
++
++	error = dc_pad_connect(mdev);
++	if (error)
++		return error;
++
++	mdev->driver = mdrv;
++
++	return 0;
++}
++
++static int remove_maple_controller(struct device *dev)
++{
++	struct maple_device *mdev = to_maple_dev(dev);
++
++	dc_pad_disconnect(mdev);
++	return 0;
++}
++
++static struct maple_driver dc_pad_driver = {
++	.function =	MAPLE_FUNC_CONTROLLER,
++	.connect =	dc_pad_connect,
++	.disconnect =	dc_pad_disconnect,
++	.drv = {
++		.name = "Dreamcast_controller",
++		.probe = probe_maple_controller,
++		.remove = remove_maple_controller,
++	},
++};
++
++static int __init dc_pad_init(void)
++{
++	return 	maple_driver_register(&dc_pad_driver.drv);
++}
++
++static void __exit dc_pad_exit(void)
++{
++	driver_unregister(&dc_pad_driver.drv);
++}
++
++module_init(dc_pad_init);
++module_exit(dc_pad_exit);

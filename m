@@ -1,86 +1,45 @@
-From: Marcin Slusarz <marcin.slusarz@gmail.com>
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
 Subject: Re: [PATCH] Add support for HTC Shift Touchscreen
-Date: Sun, 18 May 2008 11:26:50 +0200
-Message-ID: <20080518092627.GA21237@joi>
+Date: Sun, 18 May 2008 12:39:29 +0300
+Message-ID: <84144f020805180239t4c4952e6i7dcaa224a53bebb7@mail.gmail.com>
 References: <482ED31E.2000009@eslack.org> <482F09FC.9050403@eslack.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.190]:22082 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752688AbYERJ1T (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.235]:19855 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751184AbYERJja (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 May 2008 05:27:19 -0400
-Received: by fk-out-0910.google.com with SMTP id 18so1296888fkq.5
-        for <linux-input@vger.kernel.org>; Sun, 18 May 2008 02:27:16 -0700 (PDT)
-Content-Disposition: inline
+	Sun, 18 May 2008 05:39:30 -0400
+Received: by rv-out-0506.google.com with SMTP id l9so893523rvb.1
+        for <linux-input@vger.kernel.org>; Sun, 18 May 2008 02:39:29 -0700 (PDT)
 In-Reply-To: <482F09FC.9050403@eslack.org>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Pau Oliva Fora <pau@eslack.org>
-Cc: dmitry.torokhov@gmail.com, sam@ravnborg.org, penberg@cs.helsinki.fi, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, sam@ravnborg.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Sat, May 17, 2008 at 06:38:20PM +0200, Pau Oliva Fora wrote:
-> +static int __init htcpen_init(void)
-> +{
-> +	int err;
-> +
-> +	printk(KERN_INFO "htcpen: module inserted\n");
-> +
-> +	inb_p(HTCPEN_PORT_IRQ_CLEAR);
-> +
-> +	htcpen_dev = input_allocate_device();
-> +	if (!htcpen_dev) {
-> +		printk(KERN_ERR "htcpen: can't allocate device\n");
-> +		err = -ENOMEM;
-> +		goto fail1;
+On Sat, May 17, 2008 at 7:38 PM, Pau Oliva Fora <pau@eslack.org> wrote:
+>>> +struct input_dev *htcpen_dev;
+>>
+>> Why are you not using isa_register_driver() instead?
+>
+> I have no specifications from the manufacturer, so don't know how to
+> properly prove the device, etc.
 
-htcpen_dev is null here, so no need to call input_free_device
+You can still use isa_register_driver() which is nicer IMHO.
 
-> +	}
-> +
-> +	htcpen_dev->name = "HTC Pen TouchScreen";
-> +	htcpen_dev->id.bustype = BUS_ISA;
-> +	htcpen_dev->id.vendor = 0;
-> +	htcpen_dev->id.product = 0;
-> +	htcpen_dev->id.version = 0;
-> +
-> +	input_set_abs_params(htcpen_dev, ABS_X, 0, X_AXIS_MAX, 0, 0);
-> +	input_set_abs_params(htcpen_dev, ABS_Y, 0, Y_AXIS_MAX, 0, 0);
-> +
-> +	htcpen_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
-> +	htcpen_dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
-> +	htcpen_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> +
-> +	err = request_irq(HTCPEN_IRQ, htcpen_interrupt, 0, "htcpen",
-> +		htcpen_dev);
-> +	if (err) {
-> +		printk(KERN_ERR "htcpen: irq busy\n");
-> +		err = -EBUSY;
-> +		goto fail1;
-> +	}
-> +
-> +	err = input_register_device(htcpen_dev);
-> +	if (err)
-> +		goto fail2;
-> +
-> +	outb_p(DEVICE_ENABLE, HTCPEN_PORT_INIT);
-> +
-> +	return 0;
-> +
-> + fail2:	free_irq(HTCPEN_IRQ, htcpen_dev);
-> + fail1:	input_free_device(htcpen_dev);
-> +	return err;
-> +}
-> +
-> +static void __exit htcpen_exit(void)
-> +{
-> +	input_unregister_device(htcpen_dev);
-> +	free_irq(HTCPEN_IRQ, htcpen_dev);
+On Sat, May 17, 2008 at 7:38 PM, Pau Oliva Fora <pau@eslack.org> wrote:
+>>> +       printk(KERN_INFO "htcpen: module inserted\n");
+>>> +
+>>> +       inb_p(HTCPEN_PORT0);
+>>
+>> So there's no way to probe the existence of this device?
+>
+> I can add a minimal sanity check if that is a must, but I don't have
+> a datasheet and contacting HTC did not help.
 
-input_free_device ?
-
-> +	printk(KERN_INFO "htcpen: module removed\n");
-> +}
-
-Marcin
+Well, you probably want distributions to be able to enable this by
+default so any kind probing is helpful, yes.

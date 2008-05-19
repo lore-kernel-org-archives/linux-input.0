@@ -1,37 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Jiri Slaby <jirislaby@gmail.com>
 Subject: Re: [PATCH 01/10] modpost: add support for hid
-Date: Mon, 19 May 2008 15:36:00 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0805191535071.6718@jikos.suse.cz>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
+Date: Mon, 19 May 2008 15:38:46 +0200
+Message-ID: <483182E6.1020709@gmail.com>
+References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <Pine.LNX.4.64.0805191535071.6718@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:34055 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1763070AbYESNgD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2008 09:36:03 -0400
-In-Reply-To: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
+Received: from ik-out-1112.google.com ([66.249.90.180]:22350 "EHLO
+	ik-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1765415AbYESNjW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2008 09:39:22 -0400
+Received: by ik-out-1112.google.com with SMTP id c28so477164ika.5
+        for <linux-input@vger.kernel.org>; Mon, 19 May 2008 06:39:20 -0700 (PDT)
+In-Reply-To: <Pine.LNX.4.64.0805191535071.6718@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
 
-On Fri, 16 May 2008, Jiri Slaby wrote:
+On 05/19/2008 03:36 PM, Jiri Kosina wrote:
+> On Fri, 16 May 2008, Jiri Slaby wrote:
+>> Generate aliases for hid device modules to support autoloading.
 
-> Generate aliases for hid device modules to support autoloading.
-> 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> Hi Jiri,
 
-Hi Jiri,
+Hi!
 
-thanks for rebasing the series and fixing the comments raised during 
-review.
+> thanks for rebasing the series and fixing the comments raised during 
+> review.
 
-However, I seem to miss the 10/10 patch from this series, and it doesn't 
-seem to be even in my lkml/linux-input folder.
+BTW. this patch (01) needs fix. It breaks crossbuilds. I will repost the 01 
+patch in few moments.
 
-Thanks,
+> However, I seem to miss the 10/10 patch from this series, and it doesn't 
+> seem to be even in my lkml/linux-input folder.
 
--- 
-Jiri Kosina
-SUSE Labs
+:) It should have been X/9. The 10th patch is only my testing patch.

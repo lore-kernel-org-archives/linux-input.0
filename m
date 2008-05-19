@@ -1,85 +1,265 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] input: add support for SEGA Dreamcast controller as joystick
-Date: Mon, 19 May 2008 10:09:28 +0900
-Message-ID: <20080519010928.GA8797@linux-sh.org>
-References: <1211138322.6354.5.camel@localhost.localdomain>
+From: Pau Oliva Fora <pau@eslack.org>
+Subject: Re: [PATCH] Add support for HTC Shift Touchscreen
+Date: Mon, 19 May 2008 05:16:27 +0200
+Message-ID: <4830F10B.5070303@eslack.org>
+References: <482ED31E.2000009@eslack.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta23.gyao.ne.jp ([125.63.38.249]:22513 "EHLO mx.gate01.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751417AbYESBLD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 18 May 2008 21:11:03 -0400
-Content-Disposition: inline
-In-Reply-To: <1211138322.6354.5.camel@localhost.localdomain>
+Received: from 81.184.114.62.dyn.user.ono.com ([81.184.114.62]:56956 "EHLO
+	pof.eslack.org." rhost-flags-OK-OK-FAIL-FAIL) by vger.kernel.org
+	with ESMTP id S1753553AbYESDRA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 18 May 2008 23:17:00 -0400
+In-Reply-To: <482ED31E.2000009@eslack.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-sh <linux-sh@vger.kernel.org>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, sam@ravnborg.org, penberg@cs.helsinki.fi, marcin.slusarz@gmail.com
 
-On Sun, May 18, 2008 at 08:18:42PM +0100, Adrian McMenamin wrote:
-> +MODULE_AUTHOR("YAEGASHI Takeshi <t@keshi.org>");
-> +MODULE_DESCRIPTION("SEGA Dreamcast controller driver");
-> +MODULE_LICENSE("GPL");
-> +
-MODULE_AUTHOR() is a bit ambiguous here. As this is user-visible by way
-of modinfo, it really doesn't make any sense to list someone who has
-nothing to do with the driver in its present form here. Especially since
-it's been 7 years since their last contribution or even basic list
-activity, I think it's safe to say that you are going to be the only one
-that users wish to contact about this.
+The patch below adds support for HTC Shift UMPC touchscreen.
 
-In this case, the copyright should suffice. You may wish to add a bit of
-a note there indicating where the driver came from, but there's not much
-point in going beyond that.
+Signed-off-by: Pau Oliva Fora <pau@eslack.org>
 
-Note that if you aren't comfortable with being in MODULE_AUTHOR(), you
-can also make this more generic and attribute it to the LinuxDC or
-Linux/SH teams respectively, as that's a bit more true to form as far as
-all copyright holders are concerned, and gives people a pointer to a list
-to go to with problems.
+---
 
-It's probably more reasonable to treat MODULE_AUTHOR() as
-MODULE_MAINTAINER() rather than the literal original author, as the
-latter is of zero interest or relevance to users that are looking at
-this information on the other side of the fence.
+Patch against linux-2.6.25.4, should apply clean on other versions too.
+Includes all the suggestions by Sam Ravnborg, Pekka Enberg and Marcin Slusarz.
 
-> +struct dc_pad {
-> +	struct input_dev *dev;
-> +	struct maple_device *mdev;
-> +};
-> +
-This is pretty ugly, you should really fix up your private device
-pointer layering to get around having to use this structure at all.
 
-> +static struct maple_driver dc_pad_driver = {
-> +	.function =	MAPLE_FUNC_CONTROLLER,
-> +	.connect =	dc_pad_connect,
-> +	.disconnect =	dc_pad_disconnect,
-> +	.drv = {
-> +		.name = "Dreamcast_controller",
+diff -uprN linux-2.6.25.4/drivers/input/touchscreen/htcpen.c linux/drivers/input/touchscreen/htcpen.c
+--- linux-2.6.25.4/drivers/input/touchscreen/htcpen.c	1970-01-01 01:00:00.000000000 +0100
++++ linux/drivers/input/touchscreen/htcpen.c	2008-05-19 04:44:16.000000000 +0200
+@@ -0,0 +1,199 @@
++/*
++ * HTC Shift touchscreen driver
++ *
++ * Copyright (C) 2008 Pau Oliva Fora <pof@eslack.org>
++ *
++ * Thanks to:
++ * 	Heikki Linnakangas - Penmount LPC touchscreen driver
++ * 	Wacom / Ping Cheng - Help on linuxwacom-devel
++ * 	Esteve Espuna      - Ideas, tips, moral support :)
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published
++ * by the Free Software Foundation.
++ */
++
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/isa.h>
++
++#define DRIVER_VERSION	"0.7"
++#define DRIVER_DESC	"HTC Shift touchscreen driver v" DRIVER_VERSION
++
++MODULE_AUTHOR("Pau Oliva Fora <pau@eslack.org>");
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_VERSION(DRIVER_VERSION);
++MODULE_LICENSE("GPL");
++
++#define HTCPEN_PORT_IRQ_CLEAR 0x068
++#define HTCPEN_PORT_INIT 0x06c
++#define HTCPEN_PORT_INDEX 0x0250
++#define HTCPEN_PORT_DATA 0x0251
++#define HTCPEN_IRQ 3
++
++#define X_INDEX 3
++#define Y_INDEX 5
++#define LSB_XY_INDEX 0xc
++#define X_AXIS_MAX 2040
++#define Y_AXIS_MAX 2040
++#define DEVICE_ENABLE 0xa2
++
++static int inverse_x;
++module_param(inverse_x, bool, 0644);
++MODULE_PARM_DESC(inverse_x, "If set X axis is inversed");
++static int inverse_y;
++module_param(inverse_y, bool, 0644);
++MODULE_PARM_DESC(inverse_y, "If set Y axis is inversed");
++
++struct input_dev *htcpen_dev;
++
++static void poll_htcpen(void)
++{
++	unsigned short x, y, xy;
++	unsigned short touch;
++
++	/* 0=press ; 1=release */
++	outb_p(0xb, HTCPEN_PORT_INDEX);
++	touch = inb_p(HTCPEN_PORT_DATA);
++	if (touch)
++		touch = 0;
++	else
++		touch = 1;
++
++	input_report_key(htcpen_dev, BTN_TOUCH, touch);
++
++	/* only update X/Y when screen is being touched */
++	if (touch) {
++		outb_p(X_INDEX, HTCPEN_PORT_INDEX);
++		x = inb_p(HTCPEN_PORT_DATA);
++
++		outb_p(Y_INDEX, HTCPEN_PORT_INDEX);
++		y = inb_p(HTCPEN_PORT_DATA);
++
++		outb_p(LSB_XY_INDEX, HTCPEN_PORT_INDEX);
++		xy = inb_p(HTCPEN_PORT_DATA);
++
++		/* get high resolution value of X and Y using LSB */
++		x = X_AXIS_MAX - ((x * 8) + ((xy >> 4) & 0xf));
++		y = (y * 8) + (xy & 0xf);
++		if (inverse_x)
++			x = X_AXIS_MAX - x;
++		if (inverse_y)
++			y = Y_AXIS_MAX - y;
++
++		input_report_abs(htcpen_dev, ABS_X, x);
++		input_report_abs(htcpen_dev, ABS_Y, y);
++	}
++
++	input_sync(htcpen_dev);
++
++	inb_p(HTCPEN_PORT_IRQ_CLEAR);
++}
++
++static irqreturn_t htcpen_interrupt(int irq, void *handle)
++{
++	poll_htcpen();
++	return IRQ_HANDLED;
++}
++
++static int __devinit htcpen_isa_probe(struct device *dev, unsigned int id)
++{
++	int err;
++
++	printk(KERN_INFO "htcpen: %s\n", DRIVER_DESC);
++
++	inb_p(HTCPEN_PORT_IRQ_CLEAR);
++
++	htcpen_dev = input_allocate_device();
++	if (!htcpen_dev) {
++		printk(KERN_ERR "htcpen: can't allocate device\n");
++		err = -ENOMEM;
++		goto fail1;
++	}
++
++	htcpen_dev->name = "HTC Pen TouchScreen";
++	htcpen_dev->id.bustype = BUS_ISA;
++	htcpen_dev->id.vendor = 0;
++	htcpen_dev->id.product = 0;
++	htcpen_dev->id.version = 0;
++
++	input_set_abs_params(htcpen_dev, ABS_X, 0, X_AXIS_MAX, 0, 0);
++	input_set_abs_params(htcpen_dev, ABS_Y, 0, Y_AXIS_MAX, 0, 0);
++
++	htcpen_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
++	htcpen_dev->absbit[0] = BIT_MASK(ABS_X) | BIT_MASK(ABS_Y);
++	htcpen_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++
++	err = request_irq(HTCPEN_IRQ, htcpen_interrupt, 0, "htcpen",
++		htcpen_dev);
++	if (err) {
++		printk(KERN_ERR "htcpen: irq busy\n");
++		err = -EBUSY;
++		goto fail2;
++	}
++
++	err = input_register_device(htcpen_dev);
++	if (err)
++		goto fail3;
++
++	outb_p(DEVICE_ENABLE, HTCPEN_PORT_INIT);
++
++	return 0;
++
++ fail3:	free_irq(HTCPEN_IRQ, htcpen_dev);
++ fail2:	input_free_device(htcpen_dev);
++ fail1:
++	return err;
++}
++
++static int __devinit htcpen_isa_match(struct device *dev, unsigned int id)
++{
++	unsigned short val1, val2;
++
++	/* device detection */
++	val1 = inb_p(HTCPEN_PORT_INIT);
++	val2 = inb_p(HTCPEN_PORT_IRQ_CLEAR);
++	if ((val1 != 0x8 && val1 != 0x9 && val1 != 0xa) || (val2 != 0x55)) {
++		printk(KERN_ERR "htcpen: no such device\n");
++		return 0;
++	}
++	return 1;
++}
++
++static int __devexit htcpen_isa_remove(struct device *dev, unsigned int id)
++{
++	input_unregister_device(htcpen_dev);
++	free_irq(HTCPEN_IRQ, htcpen_dev);
++	input_free_device(htcpen_dev);
++	printk(KERN_INFO "htcpen: module removed\n");
++	return 0;
++}
++
++static struct isa_driver htcpen_isa_driver = {
++	.match		= htcpen_isa_match,
++	.probe		= htcpen_isa_probe,
++	.remove		= __devexit_p(htcpen_isa_remove),
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "htcpen",
++	}
++};
++
++static int __init htcpen_isa_init(void)
++{
++	return isa_register_driver(&htcpen_isa_driver, 1);
++}
++
++static void __exit htcpen_isa_exit(void)
++{
++	isa_unregister_driver(&htcpen_isa_driver);
++}
++
++module_init(htcpen_isa_init);
++module_exit(htcpen_isa_exit);
+diff -uprN linux-2.6.25.4/drivers/input/touchscreen/Kconfig linux/drivers/input/touchscreen/Kconfig
+--- linux-2.6.25.4/drivers/input/touchscreen/Kconfig	2008-05-15 17:00:12.000000000 +0200
++++ linux/drivers/input/touchscreen/Kconfig	2008-05-17 03:23:14.000000000 +0200
+@@ -134,6 +134,17 @@ config TOUCHSCREEN_HP7XX
+  	  To compile this driver as a module, choose M here: the
+  	  module will be called jornada720_ts.
 
-Is there some particular reason why the driver name can't reflect the
-module name? There's no reason to have such sickeningly verbose driver
-names.
-
-> +		.probe = probe_maple_controller,
-> +		.remove = remove_maple_controller,
-> +	},
-> +};
-> +
-These should be __devinit/__devexit at least, with the latter being
-__devexit_p() wrapped..
-
-> +static int __init dc_pad_init(void)
-> +{
-> +	return 	maple_driver_register(&dc_pad_driver.drv);
-> +}
-> +
-> +static void __exit dc_pad_exit(void)
-> +{
-> +	driver_unregister(&dc_pad_driver.drv);
-> +}
-> +
-If you don't have a maple_driver_unregister(), stub one in, even if it's
-just a wrapper.
++config TOUCHSCREEN_HTCPEN
++	tristate "HTC Shift X9500 touchscreen"
++	help
++	  Say Y here if you have an HTC Shift UMPC also known as HTC X9500
++	  Clio / Shangrila and want to support the built-in touchscreen.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called htcpen.
++
+  config TOUCHSCREEN_PENMOUNT
+  	tristate "Penmount serial touchscreen"
+  	select SERIO
+diff -uprN linux-2.6.25.4/drivers/input/touchscreen/Makefile linux/drivers/input/touchscreen/Makefile
+--- linux-2.6.25.4/drivers/input/touchscreen/Makefile	2008-05-15 17:00:12.000000000 +0200
++++ linux/drivers/input/touchscreen/Makefile	2008-05-17 03:10:12.000000000 +0200
+@@ -14,6 +14,7 @@ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtou
+  obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+  obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+  obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
++obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
+  obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+  obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+  obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o

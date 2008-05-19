@@ -1,40 +1,97 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 01/10] modpost: add support for hid
-Date: Mon, 19 May 2008 15:38:46 +0200
-Message-ID: <483182E6.1020709@gmail.com>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <Pine.LNX.4.64.0805191535071.6718@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH v2] modpost: add support for hid
+Date: Mon, 19 May 2008 15:50:01 +0200
+Message-ID: <1211205001-11888-1-git-send-email-jirislaby@gmail.com>
+References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ik-out-1112.google.com ([66.249.90.180]:22350 "EHLO
-	ik-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1765415AbYESNjW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2008 09:39:22 -0400
-Received: by ik-out-1112.google.com with SMTP id c28so477164ika.5
-        for <linux-input@vger.kernel.org>; Mon, 19 May 2008 06:39:20 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.0805191535071.6718@jikos.suse.cz>
+Received: from smtp.wellnetcz.com ([212.24.148.102]:46614 "EHLO WNmonitoring"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751991AbYESNum (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2008 09:50:42 -0400
+In-Reply-To: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, Jiri Slaby <jirislaby@gmail.com>
 
-On 05/19/2008 03:36 PM, Jiri Kosina wrote:
-> On Fri, 16 May 2008, Jiri Slaby wrote:
->> Generate aliases for hid device modules to support autoloading.
+Generate aliases for hid device modules to support autoloading.
 
-> Hi Jiri,
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ include/linux/hid.h             |    1 +
+ include/linux/mod_devicetable.h |   10 ++++++++++
+ scripts/mod/file2alias.c        |   18 ++++++++++++++++++
+ 3 files changed, 29 insertions(+), 0 deletions(-)
 
-Hi!
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 6fc10d1..8466292 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -69,6 +69,7 @@
+ #include <linux/types.h>
+ #include <linux/slab.h>
+ #include <linux/list.h>
++#include <linux/mod_devicetable.h> /* hid_device_id */
+ #include <linux/timer.h>
+ #include <linux/workqueue.h>
+ #include <linux/input.h>
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index d73ecea..3511694 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -131,6 +131,16 @@ struct usb_device_id {
+ #define USB_DEVICE_ID_MATCH_INT_SUBCLASS	0x0100
+ #define USB_DEVICE_ID_MATCH_INT_PROTOCOL	0x0200
+ 
++#define HID_ANY_ID				(~0)
++
++struct hid_device_id {
++	__u16 bus;
++	__u32 vendor;
++	__u32 product;
++	kernel_ulong_t driver_data
++		__attribute__((aligned(sizeof(kernel_ulong_t))));
++};
++
+ /* s390 CCW devices */
+ struct ccw_device_id {
+ 	__u16	match_flags;	/* which fields to match against */
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index cea4a79..383af1b 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -206,6 +206,20 @@ static void do_usb_table(void *symval, unsigned long size,
+ 		do_usb_entry_multi(symval + i, mod);
+ }
+ 
++/* Looks like: hid:bNvNpN */
++static int do_hid_entry(const char *filename,
++			     struct hid_device_id *id, char *alias)
++{
++	id->vendor = TO_NATIVE(id->vendor);
++	id->product = TO_NATIVE(id->product);
++
++	sprintf(alias, "hid:b%04X", id->bus);
++	ADD(alias, "v", id->vendor != HID_ANY_ID, id->vendor);
++	ADD(alias, "p", id->product != HID_ANY_ID, id->product);
++
++	return 1;
++}
++
+ /* Looks like: ieee1394:venNmoNspNverN */
+ static int do_ieee1394_entry(const char *filename,
+ 			     struct ieee1394_device_id *id, char *alias)
+@@ -668,6 +682,10 @@ void handle_moddevtable(struct module *mod, struct elf_info *info,
+ 	else if (sym_is(symname, "__mod_usb_device_table"))
+ 		/* special case to handle bcdDevice ranges */
+ 		do_usb_table(symval, sym->st_size, mod);
++	else if (sym_is(symname, "__mod_hid_device_table"))
++		do_table(symval, sym->st_size,
++			 sizeof(struct hid_device_id), "hid",
++			 do_hid_entry, mod);
+ 	else if (sym_is(symname, "__mod_ieee1394_device_table"))
+ 		do_table(symval, sym->st_size,
+ 			 sizeof(struct ieee1394_device_id), "ieee1394",
+-- 
+1.5.4.5
 
-> thanks for rebasing the series and fixing the comments raised during 
-> review.
-
-BTW. this patch (01) needs fix. It breaks crossbuilds. I will repost the 01 
-patch in few moments.
-
-> However, I seem to miss the 10/10 patch from this series, and it doesn't 
-> seem to be even in my lkml/linux-input folder.
-
-:) It should have been X/9. The 10th patch is only my testing patch.

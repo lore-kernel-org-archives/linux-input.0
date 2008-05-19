@@ -1,86 +1,39 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: add support for SEGA Dreamcast controller as
-	joystick
-Date: Mon, 19 May 2008 11:47:08 -0400
-Message-ID: <20080519114515.ZZRA012@mailhub.coreip.homeip.net>
-References: <1211138322.6354.5.camel@localhost.localdomain> <20080519010928.GA8797@linux-sh.org>
+Subject: Re: Input+S3: extra keycodes forgotten after suspend
+Date: Mon, 19 May 2008 11:50:47 -0400
+Message-ID: <20080519114827.ZZRA012@mailhub.coreip.homeip.net>
+References: <200805162225.44284.bonbons@linux-vserver.org> <20080516163318.ZZRA012@mailhub.coreip.homeip.net> <200805162300.06027.bonbons@linux-vserver.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.176]:50986 "EHLO
+Received: from py-out-1112.google.com ([64.233.166.178]:60646 "EHLO
 	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761989AbYESPrz (ORCPT
+	with ESMTP id S1753261AbYESPvT (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2008 11:47:55 -0400
-Received: by py-out-1112.google.com with SMTP id u52so1942234pyb.10
-        for <linux-input@vger.kernel.org>; Mon, 19 May 2008 08:47:54 -0700 (PDT)
+	Mon, 19 May 2008 11:51:19 -0400
+Received: by py-out-1112.google.com with SMTP id u52so1944978pyb.10
+        for <linux-input@vger.kernel.org>; Mon, 19 May 2008 08:51:16 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080519010928.GA8797@linux-sh.org>
+In-Reply-To: <200805162300.06027.bonbons@linux-vserver.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>, Adrian McMenamin <adrian@newgolddream.dyndns.info>, LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, linux-sh <linux-sh@vger.kern>
+To: Bruno Pr?mont <bonbons@linux-vserver.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
 
-On Mon, May 19, 2008 at 10:09:28AM +0900, Paul Mundt wrote:
-> On Sun, May 18, 2008 at 08:18:42PM +0100, Adrian McMenamin wrote:
-> > +MODULE_AUTHOR("YAEGASHI Takeshi <t@keshi.org>");
-> > +MODULE_DESCRIPTION("SEGA Dreamcast controller driver");
-> > +MODULE_LICENSE("GPL");
-> > +
-> MODULE_AUTHOR() is a bit ambiguous here. As this is user-visible by way
-> of modinfo, it really doesn't make any sense to list someone who has
-> nothing to do with the driver in its present form here. Especially since
-> it's been 7 years since their last contribution or even basic list
-> activity, I think it's safe to say that you are going to be the only one
-> that users wish to contact about this.
-> 
-> In this case, the copyright should suffice. You may wish to add a bit of
-> a note there indicating where the driver came from, but there's not much
-> point in going beyond that.
-> 
-> Note that if you aren't comfortable with being in MODULE_AUTHOR(), you
-> can also make this more generic and attribute it to the LinuxDC or
-> Linux/SH teams respectively, as that's a bit more true to form as far as
-> all copyright holders are concerned, and gives people a pointer to a list
-> to go to with problems.
-> 
-> It's probably more reasonable to treat MODULE_AUTHOR() as
-> MODULE_MAINTAINER() rather than the literal original author, as the
-> latter is of zero interest or relevance to users that are looking at
-> this information on the other side of the fence.
-> 
-> > +struct dc_pad {
-> > +	struct input_dev *dev;
-> > +	struct maple_device *mdev;
-> > +};
-> > +
-> This is pretty ugly, you should really fix up your private device
-> pointer layering to get around having to use this structure at all.
-> 
-> > +static struct maple_driver dc_pad_driver = {
-> > +	.function =	MAPLE_FUNC_CONTROLLER,
-> > +	.connect =	dc_pad_connect,
-> > +	.disconnect =	dc_pad_disconnect,
-> > +	.drv = {
-> > +		.name = "Dreamcast_controller",
-> 
-> Is there some particular reason why the driver name can't reflect the
-> module name? There's no reason to have such sickeningly verbose driver
-> names.
-> 
-> > +		.probe = probe_maple_controller,
-> > +		.remove = remove_maple_controller,
-> > +	},
-> > +};
-> > +
-> These should be __devinit/__devexit at least, with the latter being
-> __devexit_p() wrapped..
-> 
+Hi Bruno,
 
-In addition to Pauls comments - is there a reson why maple drivers
-need to brovide both connect/disconnect and probe/remove functions?
-Normally the layer has generic probe/remove defined on bus level and
-individual drivers provide connect/disconnect (or their equivalent)
-which is called from the bus's probe/remove.
+On Fri, May 16, 2008 at 11:00:04PM +0200, Bruno Pr?mont wrote:
+> [  252.668456] PM: Finishing wakeup.
+> [  252.668456] Restarting tasks ... done.
+> [  252.745418] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input7
+
+Ok, so for some reason it could not resume and here it re-detected the
+keyboard creating the new input device thus resetting the keymap. The
+question is why it had to re-detect. Could you please do
+
+	echo 1 > /sys/modules/i8042/parameters/debug
+
+before suspending and send me full dmesg please?
 
 -- 
 Dmitry

@@ -1,36 +1,103 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: uinput problem
-Date: Mon, 19 May 2008 13:20:49 -0400
-Message-ID: <20080519131815.ZZRA012@mailhub.coreip.homeip.net>
-References: <482DB441.7020205@twam.info> <20080519115457.ZZRA012@mailhub.coreip.homeip.net> <4831AD1F.2000606@twam.info>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: [2.6 patch] HID: remove CVS keywords
+Date: Tue, 20 May 2008 01:03:03 +0300
+Message-ID: <20080519220303.GF17716@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.176]:45729 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753747AbYESRU6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 19 May 2008 13:20:58 -0400
-Received: by py-out-1112.google.com with SMTP id u52so1997398pyb.10
-        for <linux-input@vger.kernel.org>; Mon, 19 May 2008 10:20:57 -0700 (PDT)
+Received: from smtp6.pp.htv.fi ([213.243.153.40]:40139 "EHLO smtp6.pp.htv.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758733AbYESWFJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 19 May 2008 18:05:09 -0400
 Content-Disposition: inline
-In-Reply-To: <4831AD1F.2000606@twam.info>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tobias M??ller <Tobias_Mueller@twam.info>
-Cc: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2008 at 06:38:55PM +0200, Tobias M??ller wrote:
-> Hi Dmitry!
->
-> Dmitry Torokhov wrote:
->> Are you working in the console or in X?
-> In X. I tried it in the console and it seems to work. Problem occurs only within X.
->
+This patch removes CVS keywords that weren't updated for a long time 
+from comments.
 
-In this case I would recommend contacting X guys. You see that your
-uinput program works and the in-kernel consode driver works as well.
-Does xev reports the events you expect?
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
 
--- 
-Dmitry
+---
+
+ drivers/hid/hid-debug.c       |    2 --
+ drivers/hid/hid-input.c       |    2 --
+ drivers/hid/usbhid/usbkbd.c   |    2 --
+ drivers/hid/usbhid/usbmouse.c |    2 --
+ include/linux/hid.h           |    2 --
+ include/linux/hiddev.h        |    2 --
+ 6 files changed, 12 deletions(-)
+
+92263a976df55d0025a2a1e224582d3478c4d8ab diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index f88714b..47ac1a7 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1,6 +1,4 @@
+ /*
+- * $Id: hid-debug.h,v 1.8 2001/09/25 09:37:57 vojtech Exp $
+- *
+  *  (c) 1999 Andreas Gal		<gal@cs.uni-magdeburg.de>
+  *  (c) 2000-2001 Vojtech Pavlik	<vojtech@ucw.cz>
+  *  (c) 2007 Jiri Kosina
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c3eb3f1..cbf2947 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1,6 +1,4 @@
+ /*
+- * $Id: hid-input.c,v 1.2 2002/04/23 00:59:25 rdamazio Exp $
+- *
+  *  Copyright (c) 2000-2001 Vojtech Pavlik
+  *  Copyright (c) 2006-2007 Jiri Kosina
+  *
+diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
+index 5d9dbb4..3cd46d2 100644
+--- a/drivers/hid/usbhid/usbkbd.c
++++ b/drivers/hid/usbhid/usbkbd.c
+@@ -1,6 +1,4 @@
+ /*
+- * $Id: usbkbd.c,v 1.27 2001/12/27 10:37:41 vojtech Exp $
+- *
+  *  Copyright (c) 1999-2001 Vojtech Pavlik
+  *
+  *  USB HIDBP Keyboard support
+diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
+index df0d96d..703e9d0 100644
+--- a/drivers/hid/usbhid/usbmouse.c
++++ b/drivers/hid/usbhid/usbmouse.c
+@@ -1,6 +1,4 @@
+ /*
+- * $Id: usbmouse.c,v 1.15 2001/12/27 10:37:41 vojtech Exp $
+- *
+  *  Copyright (c) 1999-2001 Vojtech Pavlik
+  *
+  *  USB HIDBP Mouse support
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 4ce3b7a..4de7806 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -2,8 +2,6 @@
+ #define __HID_H
+ 
+ /*
+- * $Id: hid.h,v 1.24 2001/12/27 10:37:41 vojtech Exp $
+- *
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2001 Vojtech Pavlik
+  *  Copyright (c) 2006-2007 Jiri Kosina
+diff --git a/include/linux/hiddev.h b/include/linux/hiddev.h
+index acbdae6..a416b90 100644
+--- a/include/linux/hiddev.h
++++ b/include/linux/hiddev.h
+@@ -2,8 +2,6 @@
+ #define _HIDDEV_H
+ 
+ /*
+- * $Id: hiddev.h,v 1.2 2001/04/26 11:26:09 vojtech Exp $
+- *
+  *  Copyright (c) 1999-2000 Vojtech Pavlik
+  *
+  *  Sponsored by SuSE
+

@@ -1,39 +1,75 @@
-From: "Phil Endecott" <spam_from_linux_input@chezphil.org>
-Subject: Apple bluetooth keyboard
-Date: Wed, 21 May 2008 20:56:41 +0100
-Message-ID: <1211399801133@dmwebmail.dmwebmail.chezphil.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input+S3: extra keycodes forgotten after suspend
+Date: Wed, 21 May 2008 16:38:08 -0400
+Message-ID: <20080521163638.ZZRA012@mailhub.coreip.homeip.net>
+References: <200805162225.44284.bonbons@linux-vserver.org> <20080516163318.ZZRA012@mailhub.coreip.homeip.net> <200805162300.06027.bonbons@linux-vserver.org> <20080519114827.ZZRA012@mailhub.coreip.homeip.net> <20080519184501.38647a94@neptune.home> <20080521135345.ZZRA012@mailhub.coreip.homeip.net> <20080521220833.2e4345cb@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; format="flowed"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from japan.chezphil.org ([77.240.5.4]:3458 "EHLO japan.chezphil.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754683AbYEUU0l (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2008 16:26:41 -0400
-Received: from localhost ([127.0.0.1] helo=chezphil.org)
-	by japan.chezphil.org with esmtp (Exim 4.67)
-	(envelope-from <spam_from_linux_input@chezphil.org>)
-	id 1JyuQT-0002Kw-Vu
-	for linux-input@vger.kernel.org; Wed, 21 May 2008 20:56:42 +0100
+Received: from py-out-1112.google.com ([64.233.166.178]:18553 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S937418AbYEUUiM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 21 May 2008 16:38:12 -0400
+Received: by py-out-1112.google.com with SMTP id p76so361907pyb.10
+        for <linux-input@vger.kernel.org>; Wed, 21 May 2008 13:38:11 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080521220833.2e4345cb@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux-input <linux-input@vger.kernel.org>
+To: Bruno Pr??mont <bonbons@linux-vserver.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
 
-Dear Experts,
+On Wed, May 21, 2008 at 10:08:33PM +0200, Bruno Pr??mont wrote:
+> Hi Dmitry,
+> 
+> On Wed, 21 May 2008 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > Hi Bruno,
+> > 
+> > On Mon, May 19, 2008 at 06:45:01PM +0200, Bruno Pr??mont wrote:
+> > > Hi Dmitry,
+> > > 
+> > > Please find attached dmesg output.
+> > > 
+> > > The suspend process looked somewhat like the following:
+> > > - quick test of 
+> > >     echo 1 > /sys/modules/i8042/parameters/debug
+> > >   and disabled it again
+> > >     echo 0 > /sys/modules/i8042/parameters/debug
+> > > - exit X and rmmod usb-storage and a few other modules
+> > >   (nfs, xfs and the like).
+> > > - checked the extra keys (showkey) and enabled debug again
+> > > - echo mem > /sys/power/state
+> > > 
+> > > Wait half a minute with laptop in S3
+> > > 
+> > > - hit enter to resume
+> > > - wait a bit, as it takes too long help out with short
+> > >   presses on power button (somehow it helps the HDD/CDROM
+> > >   to resume), also pressed caps-lock when graphics were
+> > >   resumed and cursor blinking (very slowly)
+> > > - once userspace was awake again check extra keys with
+> > >   showkeys
+> > > - disabled input debug
+> > > 
+> > > I hope this is detailed enough.
+> > > 
+> > > List of patches applied to linux-2.6.25.4:
+> > >   http://lkml.org/lkml/2008/5/16/430
+> > >   http://lkml.org/lkml/2008/5/16/429
+> > >   squashfs
+> > > 
+> > 
+> > Question - does the problem happen if you dont have dritek extension
+> > enabled (i.e. on unpatched kernel)?
+> 
+> When running 2.6.25.4 without the two dritek patches it does not
+> redetect the keyboard (but obviously the extra keys don't work at all)
+> 
 
-I have the bluetooth version of the Apple aluminium keyboard and I'm 
-having trouble getting it to work right.
+Ah, ok, great.. I think we simply need to move dritek out of the place
+where you put it in so it does not interfere with our efforts to
+resume keyboard and mouse ;) I will see what I can do there..
 
-I'm running 2.6.25 and I can see that it has some quirks for these 
-keyboards that should do some of the things that I want.  
-(Specifically, HID_QUIRK_APPLE_ISO_KEYBOARD and 
-HID_QUIRK_APPLE_HAS_FN.)  But it looks as if they're keyed on the USB 
-vendor/product IDs, which presumably don't match my bluetooth device.
-
-Can someone please explain how input quirks should be applied to 
-bluetooth devices?
-
-Thanks,  Phil.
-
-
-
-
+-- 
+Dmitry

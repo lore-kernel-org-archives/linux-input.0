@@ -1,102 +1,63 @@
-From: "eric miao" <eric.y.miao@gmail.com>
-Subject: [PATCH] input: correct the MODULE_LICENSE of corgikbd.c and spitzkbd.c
-Date: Wed, 21 May 2008 18:20:45 +0800
-Message-ID: <f17812d70805210320i6dc27b3fjff09ae08bef8f12f@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input+S3: extra keycodes forgotten after suspend
+Date: Wed, 21 May 2008 13:55:13 -0400
+Message-ID: <20080521135345.ZZRA012@mailhub.coreip.homeip.net>
+References: <200805162225.44284.bonbons@linux-vserver.org> <20080516163318.ZZRA012@mailhub.coreip.homeip.net> <200805162300.06027.bonbons@linux-vserver.org> <20080519114827.ZZRA012@mailhub.coreip.homeip.net> <20080519184501.38647a94@neptune.home>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_5228_17266869.1211365245717"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.28]:62127 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754925AbYEUKVE (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.180]:46007 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S936588AbYEURzV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2008 06:21:04 -0400
-Received: by yw-out-2324.google.com with SMTP id 9so1608501ywe.1
-        for <linux-input@vger.kernel.org>; Wed, 21 May 2008 03:20:45 -0700 (PDT)
+	Wed, 21 May 2008 13:55:21 -0400
+Received: by py-out-1112.google.com with SMTP id p76so292179pyb.10
+        for <linux-input@vger.kernel.org>; Wed, 21 May 2008 10:55:20 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080519184501.38647a94@neptune.home>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-arm <linux-arm-kernel@lists.arm.linux.org.uk>
-Cc: Dmitry Baryshkov <dbaryshkov@gmail.com>, Richard Purdie <rpurdie@rpsys.net>
+To: Bruno Pr??mont <bonbons@linux-vserver.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
 
-------=_Part_5228_17266869.1211365245717
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Bruno,
 
->From 4a99f96d2a27e668f9e78e75fcee24d8f5bca261 Mon Sep 17 00:00:00 2001
-From: Eric Miao <eric.miao@marvell.com>
-Date: Wed, 21 May 2008 18:18:32 +0800
-Subject: [PATCH] input: correct the MODULE_LICENSE of corgikbd.c and spitzkbd.c
+On Mon, May 19, 2008 at 06:45:01PM +0200, Bruno Pr??mont wrote:
+> Hi Dmitry,
+> 
+> Please find attached dmesg output.
+> 
+> The suspend process looked somewhat like the following:
+> - quick test of 
+>     echo 1 > /sys/modules/i8042/parameters/debug
+>   and disabled it again
+>     echo 0 > /sys/modules/i8042/parameters/debug
+> - exit X and rmmod usb-storage and a few other modules
+>   (nfs, xfs and the like).
+> - checked the extra keys (showkey) and enabled debug again
+> - echo mem > /sys/power/state
+> 
+> Wait half a minute with laptop in S3
+> 
+> - hit enter to resume
+> - wait a bit, as it takes too long help out with short
+>   presses on power button (somehow it helps the HDD/CDROM
+>   to resume), also pressed caps-lock when graphics were
+>   resumed and cursor blinking (very slowly)
+> - once userspace was awake again check extra keys with
+>   showkeys
+> - disabled input debug
+> 
+> I hope this is detailed enough.
+> 
+> List of patches applied to linux-2.6.25.4:
+>   http://lkml.org/lkml/2008/5/16/430
+>   http://lkml.org/lkml/2008/5/16/429
+>   squashfs
+> 
 
-Signed-off-by: Eric Miao <eric.miao@marvell.com>
----
- drivers/input/keyboard/corgikbd.c |    2 +-
- drivers/input/keyboard/spitzkbd.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/corgikbd.c
-b/drivers/input/keyboard/corgikbd.c
-index 29fbec6..1aa46ae 100644
---- a/drivers/input/keyboard/corgikbd.c
-+++ b/drivers/input/keyboard/corgikbd.c
-@@ -412,5 +412,5 @@ module_exit(corgikbd_exit);
-
- MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
- MODULE_DESCRIPTION("Corgi Keyboard Driver");
--MODULE_LICENSE("GPLv2");
-+MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:corgi-keyboard");
-diff --git a/drivers/input/keyboard/spitzkbd.c
-b/drivers/input/keyboard/spitzkbd.c
-index 61e401b..1aa3718 100644
---- a/drivers/input/keyboard/spitzkbd.c
-+++ b/drivers/input/keyboard/spitzkbd.c
-@@ -494,5 +494,5 @@ module_exit(spitzkbd_exit);
-
- MODULE_AUTHOR("Richard Purdie <rpurdie@rpsys.net>");
- MODULE_DESCRIPTION("Spitz Keyboard Driver");
--MODULE_LICENSE("GPLv2");
-+MODULE_LICENSE("GPL v2");
- MODULE_ALIAS("platform:spitz-keyboard");
--- 
-1.5.4.3
-
-
+Question - does the problem happen if you dont have dritek extension
+enabled (i.e. on unpatched kernel)?
 
 -- 
-Cheers
-- eric
-
-------=_Part_5228_17266869.1211365245717
-Content-Type: text/x-diff;
- name=0001-input-correct-the-MODULE_LICENSE-of-corgikbd.c-and.patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fghrkflr0
-Content-Disposition: attachment;
- filename=0001-input-correct-the-MODULE_LICENSE-of-corgikbd.c-and.patch
-
-RnJvbSA0YTk5Zjk2ZDJhMjdlNjY4ZjllNzhlNzVmY2VlMjRkOGY1YmNhMjYxIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBFcmljIE1pYW8gPGVyaWMubWlhb0BtYXJ2ZWxsLmNvbT4KRGF0
-ZTogV2VkLCAyMSBNYXkgMjAwOCAxODoxODozMiArMDgwMApTdWJqZWN0OiBbUEFUQ0hdIGlucHV0
-OiBjb3JyZWN0IHRoZSBNT0RVTEVfTElDRU5TRSBvZiBjb3JnaWtiZC5jIGFuZCBzcGl0emtiZC5j
-CgpTaWduZWQtb2ZmLWJ5OiBFcmljIE1pYW8gPGVyaWMubWlhb0BtYXJ2ZWxsLmNvbT4KLS0tCiBk
-cml2ZXJzL2lucHV0L2tleWJvYXJkL2Nvcmdpa2JkLmMgfCAgICAyICstCiBkcml2ZXJzL2lucHV0
-L2tleWJvYXJkL3NwaXR6a2JkLmMgfCAgICAyICstCiAyIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0
-aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJv
-YXJkL2Nvcmdpa2JkLmMgYi9kcml2ZXJzL2lucHV0L2tleWJvYXJkL2Nvcmdpa2JkLmMKaW5kZXgg
-MjlmYmVjNi4uMWFhNDZhZSAxMDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9jb3Jn
-aWtiZC5jCisrKyBiL2RyaXZlcnMvaW5wdXQva2V5Ym9hcmQvY29yZ2lrYmQuYwpAQCAtNDEyLDUg
-KzQxMiw1IEBAIG1vZHVsZV9leGl0KGNvcmdpa2JkX2V4aXQpOwogCiBNT0RVTEVfQVVUSE9SKCJS
-aWNoYXJkIFB1cmRpZSA8cnB1cmRpZUBycHN5cy5uZXQ+Iik7CiBNT0RVTEVfREVTQ1JJUFRJT04o
-IkNvcmdpIEtleWJvYXJkIERyaXZlciIpOwotTU9EVUxFX0xJQ0VOU0UoIkdQTHYyIik7CitNT0RV
-TEVfTElDRU5TRSgiR1BMIHYyIik7CiBNT0RVTEVfQUxJQVMoInBsYXRmb3JtOmNvcmdpLWtleWJv
-YXJkIik7CmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L2tleWJvYXJkL3NwaXR6a2JkLmMgYi9k
-cml2ZXJzL2lucHV0L2tleWJvYXJkL3NwaXR6a2JkLmMKaW5kZXggNjFlNDAxYi4uMWFhMzcxOCAx
-MDA2NDQKLS0tIGEvZHJpdmVycy9pbnB1dC9rZXlib2FyZC9zcGl0emtiZC5jCisrKyBiL2RyaXZl
-cnMvaW5wdXQva2V5Ym9hcmQvc3BpdHprYmQuYwpAQCAtNDk0LDUgKzQ5NCw1IEBAIG1vZHVsZV9l
-eGl0KHNwaXR6a2JkX2V4aXQpOwogCiBNT0RVTEVfQVVUSE9SKCJSaWNoYXJkIFB1cmRpZSA8cnB1
-cmRpZUBycHN5cy5uZXQ+Iik7CiBNT0RVTEVfREVTQ1JJUFRJT04oIlNwaXR6IEtleWJvYXJkIERy
-aXZlciIpOwotTU9EVUxFX0xJQ0VOU0UoIkdQTHYyIik7CitNT0RVTEVfTElDRU5TRSgiR1BMIHYy
-Iik7CiBNT0RVTEVfQUxJQVMoInBsYXRmb3JtOnNwaXR6LWtleWJvYXJkIik7Ci0tIAoxLjUuNC4z
-Cgo=
-------=_Part_5228_17266869.1211365245717--
+Dmitry

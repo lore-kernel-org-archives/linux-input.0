@@ -1,29 +1,55 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH] input: correct the MODULE_LICENSE of corgikbd.c and spitzkbd.c
-Date: Thu, 22 May 2008 08:50:29 +0100
-Message-ID: <20080522075029.GA25367@flint.arm.linux.org.uk>
-References: <f17812d70805210320i6dc27b3fjff09ae08bef8f12f@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] wm97xx-core: Report a phys for WM97xx touchscreens
+Date: Thu, 22 May 2008 12:35:06 +0100
+Message-ID: <1211456106-10882-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:34862 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758703AbYEVHup (ORCPT
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:2089 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756708AbYEVLfW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2008 03:50:45 -0400
-Content-Disposition: inline
-In-Reply-To: <f17812d70805210320i6dc27b3fjff09ae08bef8f12f@mail.gmail.com>
+	Thu, 22 May 2008 07:35:22 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: eric miao <eric.y.miao@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-arm <linux-arm-kernel@lists.arm.linux.org.uk>, Dmitry Baryshkov <dbaryshkov@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-On Wed, May 21, 2008 at 06:20:45PM +0800, eric miao wrote:
-> >From 4a99f96d2a27e668f9e78e75fcee24d8f5bca261 Mon Sep 17 00:00:00 2001
-> From: Eric Miao <eric.miao@marvell.com>
-> Date: Wed, 21 May 2008 18:18:32 +0800
-> Subject: [PATCH] input: correct the MODULE_LICENSE of corgikbd.c and spitzkbd.c
-> 
-> Signed-off-by: Eric Miao <eric.miao@marvell.com>
+phys is displayed in various diagnostic output so ensure that it is set
+to something sensible.
 
-Ok.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+It'd be nice to get this merged into 2.6.26 since this is rather user visible
+and given that this is a new driver there's no risk of regressions.
+
+ drivers/input/touchscreen/wm97xx-core.c |    2 ++
+ include/linux/wm97xx.h                  |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index e9c7ea4..12ae1ba 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -616,6 +616,8 @@ static int wm97xx_probe(struct device *dev)
+ 
+ 	/* set up touch configuration */
+ 	wm->input_dev->name = "wm97xx touchscreen";
++	snprintf(wm->phys, sizeof(wm->phys), "%s/input0", dev->bus_id);
++	wm->input_dev->phys = wm->phys;
+ 	wm->input_dev->open = wm97xx_ts_input_open;
+ 	wm->input_dev->close = wm97xx_ts_input_close;
+ 	set_bit(EV_ABS, wm->input_dev->evbit);
+diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
+index 4d13732..1f38fc4 100644
+--- a/include/linux/wm97xx.h
++++ b/include/linux/wm97xx.h
+@@ -261,6 +261,7 @@ struct wm97xx_mach_ops {
+ };
+ 
+ struct wm97xx {
++	char phys[32];			/* Device name */
+ 	u16 dig[3], id, gpio[6], misc;	/* Cached codec registers */
+ 	u16 dig_save[3];		/* saved during aux reading */
+ 	struct wm97xx_codec_drv *codec;	/* attached codec driver*/
+-- 
+1.5.3.2
+

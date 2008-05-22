@@ -1,75 +1,60 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input+S3: extra keycodes forgotten after suspend
-Date: Wed, 21 May 2008 16:38:08 -0400
-Message-ID: <20080521163638.ZZRA012@mailhub.coreip.homeip.net>
-References: <200805162225.44284.bonbons@linux-vserver.org> <20080516163318.ZZRA012@mailhub.coreip.homeip.net> <200805162300.06027.bonbons@linux-vserver.org> <20080519114827.ZZRA012@mailhub.coreip.homeip.net> <20080519184501.38647a94@neptune.home> <20080521135345.ZZRA012@mailhub.coreip.homeip.net> <20080521220833.2e4345cb@neptune.home>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 1/5] xen: Enable console tty by
+ default in domU if it's not a dummy
+Date: Wed, 21 May 2008 17:26:13 -0700
+Message-ID: <20080521172613.18eb24c4.akpm@linux-foundation.org>
+References: <87d4ngm4s4.fsf@pike.pond.sub.org>
+	<878wy4m4px.fsf@pike.pond.sub.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.178]:18553 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937418AbYEUUiM (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 May 2008 16:38:12 -0400
-Received: by py-out-1112.google.com with SMTP id p76so361907pyb.10
-        for <linux-input@vger.kernel.org>; Wed, 21 May 2008 13:38:11 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080521220833.2e4345cb@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-fbdev-devel-bounces@lists.sourceforge.net>
+In-Reply-To: <878wy4m4px.fsf@pike.pond.sub.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
+	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linux-fbdev-devel>
+List-Post: <mailto:linux-fbdev-devel@lists.sourceforge.net>
+List-Help: <mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel>,
+	<mailto:linux-fbdev-devel-request@lists.sourceforge.net?subject=subscribe>
+Sender: linux-fbdev-devel-bounces@lists.sourceforge.net
+Errors-To: linux-fbdev-devel-bounces@lists.sourceforge.net
+To: Markus Armbruster <armbru@redhat.com>
+Cc: jeremy@goop.org, xen-devel@lists.xensource.com, linux-fbdev-devel@lists.sourceforge.net, adaplas@gmail.com, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mingo@redhat.com, plc@novell.com, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno Pr??mont <bonbons@linux-vserver.org>
-Cc: Linux Input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
 
-On Wed, May 21, 2008 at 10:08:33PM +0200, Bruno Pr??mont wrote:
-> Hi Dmitry,
-> 
-> On Wed, 21 May 2008 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > Hi Bruno,
-> > 
-> > On Mon, May 19, 2008 at 06:45:01PM +0200, Bruno Pr??mont wrote:
-> > > Hi Dmitry,
-> > > 
-> > > Please find attached dmesg output.
-> > > 
-> > > The suspend process looked somewhat like the following:
-> > > - quick test of 
-> > >     echo 1 > /sys/modules/i8042/parameters/debug
-> > >   and disabled it again
-> > >     echo 0 > /sys/modules/i8042/parameters/debug
-> > > - exit X and rmmod usb-storage and a few other modules
-> > >   (nfs, xfs and the like).
-> > > - checked the extra keys (showkey) and enabled debug again
-> > > - echo mem > /sys/power/state
-> > > 
-> > > Wait half a minute with laptop in S3
-> > > 
-> > > - hit enter to resume
-> > > - wait a bit, as it takes too long help out with short
-> > >   presses on power button (somehow it helps the HDD/CDROM
-> > >   to resume), also pressed caps-lock when graphics were
-> > >   resumed and cursor blinking (very slowly)
-> > > - once userspace was awake again check extra keys with
-> > >   showkeys
-> > > - disabled input debug
-> > > 
-> > > I hope this is detailed enough.
-> > > 
-> > > List of patches applied to linux-2.6.25.4:
-> > >   http://lkml.org/lkml/2008/5/16/430
-> > >   http://lkml.org/lkml/2008/5/16/429
-> > >   squashfs
-> > > 
-> > 
-> > Question - does the problem happen if you dont have dritek extension
-> > enabled (i.e. on unpatched kernel)?
-> 
-> When running 2.6.25.4 without the two dritek patches it does not
-> redetect the keyboard (but obviously the extra keys don't work at all)
-> 
+On Wed, 21 May 2008 10:38:50 +0200
+Markus Armbruster <armbru@redhat.com> wrote:
 
-Ah, ok, great.. I think we simply need to move dritek out of the place
-where you put it in so it does not interfere with our efforts to
-resume keyboard and mouse ;) I will see what I can do there..
+> Without console= arguments on the kernel command line, the first
+> console to register becomes enabled and the preferred console (the one
+> behind /dev/console).  This is normally tty (assuming
+> CONFIG_VT_CONSOLE is enabled, which it commonly is).
+> 
+> This is okay as long tty is a useful console.  But unless we have the
+> PV framebuffer, and it is enabled for this domain, tty0 in domU is
+> merely a dummy.  In that case, we want the preferred console to be the
+> Xen console hvc0, and we want it without having to fiddle with the
+> kernel command line.  Commit b8c2d3dfbc117dff26058fbac316b8acfc2cb5f7
+> did that for us.
+> 
+> Since we now have the PV framebuffer, we want to enable and prefer tty
+> again, but only when PVFB is enabled.  But even then we still want to
+> enable the Xen console as well.
+> 
+> Problem: when tty registers, we can't yet know whether the PVFB is
+> enabled.  By the time we can know (xenstore is up), the console setup
+> game is over.
+> 
+> Solution: enable console tty by default, but keep hvc as the preferred
+> console.  Change the preferred console to tty when PVFB probes
+> successfully, unless we've been given console kernel parameters.
 
--- 
-Dmitry
+What a stunningly good changelog - I'd buy the tee-shirt.
+
+Ack on the non-xen bits.
+
+-------------------------------------------------------------------------
+This SF.net email is sponsored by: Microsoft
+Defy all challenges. Microsoft(R) Visual Studio 2008.
+http://clk.atdmt.com/MRT/go/vse0120000070mrt/direct/01/

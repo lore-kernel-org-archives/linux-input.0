@@ -1,55 +1,38 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] wm97xx-core: Report a phys for WM97xx touchscreens
-Date: Thu, 22 May 2008 12:35:06 +0100
-Message-ID: <1211456106-10882-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] wm97xx-core: Report a phys for WM97xx touchscreens
+Date: Thu, 22 May 2008 09:41:48 -0400
+Message-ID: <20080522093759.ZZRA012@mailhub.coreip.homeip.net>
+References: <1211456106-10882-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:2089 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756708AbYEVLfW (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.180]:34500 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752964AbYEVNlx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2008 07:35:22 -0400
+	Thu, 22 May 2008 09:41:53 -0400
+Received: by py-out-1112.google.com with SMTP id p76so28142pyb.10
+        for <linux-input@vger.kernel.org>; Thu, 22 May 2008 06:41:52 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1211456106-10882-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 
-phys is displayed in various diagnostic output so ensure that it is set
-to something sensible.
+Hi Mark,
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
-It'd be nice to get this merged into 2.6.26 since this is rather user visible
-and given that this is a new driver there's no risk of regressions.
+On Thu, May 22, 2008 at 12:35:06PM +0100, Mark Brown wrote:
+> phys is displayed in various diagnostic output so ensure that it is set
+> to something sensible.
+>
 
- drivers/input/touchscreen/wm97xx-core.c |    2 ++
- include/linux/wm97xx.h                  |    1 +
- 2 files changed, 3 insertions(+), 0 deletions(-)
+Phys is used to describe the physical connection of a device that is
+ideally not changing between reboots so having it set up based on
+device's bus_id is not a best option I think.
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index e9c7ea4..12ae1ba 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -616,6 +616,8 @@ static int wm97xx_probe(struct device *dev)
- 
- 	/* set up touch configuration */
- 	wm->input_dev->name = "wm97xx touchscreen";
-+	snprintf(wm->phys, sizeof(wm->phys), "%s/input0", dev->bus_id);
-+	wm->input_dev->phys = wm->phys;
- 	wm->input_dev->open = wm97xx_ts_input_open;
- 	wm->input_dev->close = wm97xx_ts_input_close;
- 	set_bit(EV_ABS, wm->input_dev->evbit);
-diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
-index 4d13732..1f38fc4 100644
---- a/include/linux/wm97xx.h
-+++ b/include/linux/wm97xx.h
-@@ -261,6 +261,7 @@ struct wm97xx_mach_ops {
- };
- 
- struct wm97xx {
-+	char phys[32];			/* Device name */
- 	u16 dig[3], id, gpio[6], misc;	/* Cached codec registers */
- 	u16 dig_save[3];		/* saved during aux reading */
- 	struct wm97xx_codec_drv *codec;	/* attached codec driver*/
+What tools besides evbug use phys? They probably should display both
+phys and sysfs paths (I will be changing evbug soon).
+
 -- 
-1.5.3.2
-
+Dmitry

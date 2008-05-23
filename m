@@ -1,47 +1,123 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] wm97xx-core: Report a phys for WM97xx touchscreens
-Date: Thu, 22 May 2008 16:01:19 +0100
-Message-ID: <20080522150119.GA25172@opensource.wolfsonmicro.com>
-References: <1211456106-10882-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080522093759.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Input+S3: extra keycodes forgotten after suspend
+Date: Fri, 23 May 2008 00:44:30 -0400
+Message-ID: <20080523044430.GA9809@anvil.corenet.prv>
+References: <200805162225.44284.bonbons@linux-vserver.org> <20080516163318.ZZRA012@mailhub.coreip.homeip.net> <200805162300.06027.bonbons@linux-vserver.org> <20080519114827.ZZRA012@mailhub.coreip.homeip.net> <20080519184501.38647a94@neptune.home> <20080521135345.ZZRA012@mailhub.coreip.homeip.net> <20080521220833.2e4345cb@neptune.home> <20080521163638.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:40220 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751896AbYEVPBV (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.178]:32016 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751544AbYEWEod (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 May 2008 11:01:21 -0400
+	Fri, 23 May 2008 00:44:33 -0400
+Received: by py-out-1112.google.com with SMTP id p76so352450pyb.10
+        for <linux-input@vger.kernel.org>; Thu, 22 May 2008 21:44:33 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080522093759.ZZRA012@mailhub.coreip.homeip.net>
+In-Reply-To: <20080521163638.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
+To: Bruno Pr??mont <bonbons@linux-vserver.org>
+Cc: Linux Input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
 
-On Thu, May 22, 2008 at 09:41:48AM -0400, Dmitry Torokhov wrote:
-> On Thu, May 22, 2008 at 12:35:06PM +0100, Mark Brown wrote:
+On Wed, May 21, 2008 at 04:38:08PM -0400, Dmitry Torokhov wrote:
+>=20
+> Ah, ok, great.. I think we simply need to move dritek out of the plac=
+e
+> where you put it in so it does not interfere with our efforts to
+> resume keyboard and mouse ;) I will see what I can do there..
+>=20
 
-> > phys is displayed in various diagnostic output so ensure that it is set
-> > to something sensible.
+So what about the patch below? Does it work for you?
 
-> Phys is used to describe the physical connection of a device that is
-> ideally not changing between reboots so having it set up based on
-> device's bus_id is not a best option I think.
+Thanks!
 
-It didn't seem terribly wonderful to me either but I saw that some other
-drivers were doing the same thing so I assumed it was idiomatic.  A
-quick survey of devices on my laptop suggets that it's getting filled in
-with USB bus IDs for some devices.
+--=20
+Dmitry
 
-For a WM97xx device it should actually be OK almost all the time - AC97
-bus identifiers are fixed in hardware, there would only be a problem if
-additional AC97 buses are added which is relatively unlikely, especially
-in the embedded applications where the WM97xx devices get used.
-However, if it's supposed to be OK to leave this null then that would be
-better.
+=46rom: Bruno Pr=E9mont <bonbons@linux-vserver.org>
 
-> What tools besides evbug use phys? They probably should display both
-> phys and sysfs paths (I will be changing evbug soon).
+Input: i8042 - make sure Dritek quirk is invoked at resume
 
-It was actually evbug that prompted this - it prints a rather alarming
-'Connected device: "foo", NULL' when phys is left empty.
+Also do not fail i8042 entire initialization if enabling dritek extensi=
+on
+fails.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+ drivers/input/serio/i8042.c |   33 +++++++++++++++++++++++++--------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
+
+Index: work/drivers/input/serio/i8042.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- work.orig/drivers/input/serio/i8042.c
++++ work/drivers/input/serio/i8042.c
+@@ -885,6 +885,20 @@ static long i8042_panic_blink(long count
+=20
+ #undef DELAY
+=20
++#ifdef CONFIG_X86
++static void i8042_dritek_enable(void)
++{
++	char param =3D 0x90;
++	int error;
++
++	error =3D i8042_command(&param, 0x1059);
++	if (error)
++		printk(KERN_WARNING
++			"Failed to enable DRITEK extension: %d\n",
++			error);
++}
++#endif
++
+ #ifdef CONFIG_PM
+ /*
+  * Here we try to restore the original BIOS settings. We only want to
+@@ -942,6 +956,12 @@ static int i8042_resume(struct platform_
+ 		return -EIO;
+ 	}
+=20
++
++#ifdef CONFIG_X86
++	if (i8042_dritek)
++		i8042_dritek_enable();
++#endif
++
+ 	if (i8042_mux_present) {
+ 		if (i8042_set_mux_mode(1, NULL) || i8042_enable_mux_ports())
+ 			printk(KERN_WARNING
+@@ -1160,6 +1180,11 @@ static int __devinit i8042_probe(struct=20
+ 	if (error)
+ 		return error;
+=20
++#ifdef CONFIG_X86
++	if (i8042_dritek)
++		i8042_dritek_enable();
++#endif
++
+ 	if (!i8042_noaux) {
+ 		error =3D i8042_setup_aux();
+ 		if (error && error !=3D -ENODEV && error !=3D -EBUSY)
+@@ -1171,14 +1196,6 @@ static int __devinit i8042_probe(struct=20
+ 		if (error)
+ 			goto out_fail;
+ 	}
+-#ifdef CONFIG_X86
+-	if (i8042_dritek) {
+-		char param =3D 0x90;
+-		error =3D i8042_command(&param, 0x1059);
+-		if (error)
+-			goto out_fail;
+-	}
+-#endif
+ /*
+  * Ok, everything is ready, let's register all serio ports
+  *
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

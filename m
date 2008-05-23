@@ -1,123 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input+S3: extra keycodes forgotten after suspend
-Date: Fri, 23 May 2008 00:44:30 -0400
-Message-ID: <20080523044430.GA9809@anvil.corenet.prv>
-References: <200805162225.44284.bonbons@linux-vserver.org> <20080516163318.ZZRA012@mailhub.coreip.homeip.net> <200805162300.06027.bonbons@linux-vserver.org> <20080519114827.ZZRA012@mailhub.coreip.homeip.net> <20080519184501.38647a94@neptune.home> <20080521135345.ZZRA012@mailhub.coreip.homeip.net> <20080521220833.2e4345cb@neptune.home> <20080521163638.ZZRA012@mailhub.coreip.homeip.net>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: [PATCH] Add switch for dock events
+Date: Fri, 23 May 2008 17:09:55 +0100
+Message-ID: <20080523160955.GA19674@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.178]:32016 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751544AbYEWEod (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:49442 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754259AbYEWQKV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 May 2008 00:44:33 -0400
-Received: by py-out-1112.google.com with SMTP id p76so352450pyb.10
-        for <linux-input@vger.kernel.org>; Thu, 22 May 2008 21:44:33 -0700 (PDT)
+	Fri, 23 May 2008 12:10:21 -0400
 Content-Disposition: inline
-In-Reply-To: <20080521163638.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bruno Pr??mont <bonbons@linux-vserver.org>
-Cc: Linux Input <linux-input@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, "R. J. Wysocki" <Rafal.Wysocki@fuw.edu.pl>
+To: linux-input@vger.kernel.org
+Cc: linu-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, May 21, 2008 at 04:38:08PM -0400, Dmitry Torokhov wrote:
->=20
-> Ah, ok, great.. I think we simply need to move dritek out of the plac=
-e
-> where you put it in so it does not interfere with our efforts to
-> resume keyboard and mouse ;) I will see what I can do there..
->=20
+Add a switch to signal dock events to userspace.
 
-So what about the patch below? Does it work for you?
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
 
-Thanks!
-
---=20
-Dmitry
-
-=46rom: Bruno Pr=E9mont <bonbons@linux-vserver.org>
-
-Input: i8042 - make sure Dritek quirk is invoked at resume
-
-Also do not fail i8042 entire initialization if enabling dritek extensi=
-on
-fails.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
- drivers/input/serio/i8042.c |   33 +++++++++++++++++++++++++--------
- 1 file changed, 25 insertions(+), 8 deletions(-)
 
-Index: work/drivers/input/serio/i8042.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- work.orig/drivers/input/serio/i8042.c
-+++ work/drivers/input/serio/i8042.c
-@@ -885,6 +885,20 @@ static long i8042_panic_blink(long count
-=20
- #undef DELAY
-=20
-+#ifdef CONFIG_X86
-+static void i8042_dritek_enable(void)
-+{
-+	char param =3D 0x90;
-+	int error;
-+
-+	error =3D i8042_command(&param, 0x1059);
-+	if (error)
-+		printk(KERN_WARNING
-+			"Failed to enable DRITEK extension: %d\n",
-+			error);
-+}
-+#endif
-+
- #ifdef CONFIG_PM
- /*
-  * Here we try to restore the original BIOS settings. We only want to
-@@ -942,6 +956,12 @@ static int i8042_resume(struct platform_
- 		return -EIO;
- 	}
-=20
-+
-+#ifdef CONFIG_X86
-+	if (i8042_dritek)
-+		i8042_dritek_enable();
-+#endif
-+
- 	if (i8042_mux_present) {
- 		if (i8042_set_mux_mode(1, NULL) || i8042_enable_mux_ports())
- 			printk(KERN_WARNING
-@@ -1160,6 +1180,11 @@ static int __devinit i8042_probe(struct=20
- 	if (error)
- 		return error;
-=20
-+#ifdef CONFIG_X86
-+	if (i8042_dritek)
-+		i8042_dritek_enable();
-+#endif
-+
- 	if (!i8042_noaux) {
- 		error =3D i8042_setup_aux();
- 		if (error && error !=3D -ENODEV && error !=3D -EBUSY)
-@@ -1171,14 +1196,6 @@ static int __devinit i8042_probe(struct=20
- 		if (error)
- 			goto out_fail;
- 	}
--#ifdef CONFIG_X86
--	if (i8042_dritek) {
--		char param =3D 0x90;
--		error =3D i8042_command(&param, 0x1059);
--		if (error)
--			goto out_fail;
--	}
--#endif
- /*
-  * Ok, everything is ready, let's register all serio ports
-  *
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I've done this as an input event rather than anything else since there 
+isn't necessarily a terribly coherent concept of a dock device. HPs (for 
+example) don't use ACPI for docking - the dock is simply an extension of 
+devices that are already on the system. We can't sensibly create a dock 
+platform device and then generate uevents on it. Doing it this way lets 
+us standardise on a way to send docking events to userspace, which lets 
+desktops do things like automatically expand onto external monitors when 
+the system is docked.
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 28a094f..0bc55ee 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -638,6 +638,7 @@ struct input_absinfo {
+ #define SW_TABLET_MODE		0x01  /* set = tablet mode */
+ #define SW_HEADPHONE_INSERT	0x02  /* set = inserted */
+ #define SW_RADIO		0x03  /* set = radio enabled */
++#define SW_DOCK			0x04  /* set = plugged into dock */
+ #define SW_MAX			0x0f
+ #define SW_CNT			(SW_MAX+1)
+
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

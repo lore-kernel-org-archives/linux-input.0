@@ -1,100 +1,55 @@
-From: Thomas Kunze <thommycheck@gmx.de>
-Subject: [PATCH] locomokbd.c: remove locomo_readl/locomo_writel
-Date: Fri, 23 May 2008 23:10:11 +0200
-Message-ID: <483732B3.2000608@gmx.de>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] Add switch for dock events
+Date: Fri, 23 May 2008 18:23:00 -0700
+Message-ID: <20080523182300.bd05ec54.akpm@linux-foundation.org>
+References: <20080523160955.GA19674@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:45477 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1756277AbYEWVKT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 23 May 2008 17:10:19 -0400
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760352AbYEXBXV@vger.kernel.org>
+In-Reply-To: <20080523160955.GA19674@srcf.ucam.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-input@vger.kernel.org, linu-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: deller@gmx.de
 
-This patch replaces the locomo_readl/writel calls with standard
+On Fri, 23 May 2008 17:09:55 +0100 Matthew Garrett <mjg59@srcf.ucam.org> wrote:
 
-ioread/write16 calls. As an additional small bugfix it initializes KSC to zero
+> Add a switch to signal dock events to userspace.
+> 
+> Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> 
+> ---
+> 
+> I've done this as an input event rather than anything else since there 
+> isn't necessarily a terribly coherent concept of a dock device. HPs (for 
+> example) don't use ACPI for docking - the dock is simply an extension of 
+> devices that are already on the system. We can't sensibly create a dock 
+> platform device and then generate uevents on it. Doing it this way lets 
+> us standardise on a way to send docking events to userspace, which lets 
+> desktops do things like automatically expand onto external monitors when 
+> the system is docked.
+> 
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 28a094f..0bc55ee 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -638,6 +638,7 @@ struct input_absinfo {
+>  #define SW_TABLET_MODE		0x01  /* set = tablet mode */
+>  #define SW_HEADPHONE_INSERT	0x02  /* set = inserted */
+>  #define SW_RADIO		0x03  /* set = radio enabled */
+> +#define SW_DOCK			0x04  /* set = plugged into dock */
+>  #define SW_MAX			0x0f
+>  #define SW_CNT			(SW_MAX+1)
+> 
+> 
 
-at load time. This fixes a bug where some keys don't work until a key that 
+Confused.  This patch doesn't do anything.
 
-works was pressed.
+Also, please sort out the changelogging?
 
-Signed-off-by: Thomas Kunze <thommycheck@gmx.de>
+- The one-line changelog you have there would make a decent _title_. 
+  Better than the one which was actually chosen.
 
---
-
-diff --git a/drivers/input/keyboard/locomokbd.c b/drivers/input/keyboard/locomokbd.c
-index 9caed30..7f9852a 100644
---- a/drivers/input/keyboard/locomokbd.c
-+++ b/drivers/input/keyboard/locomokbd.c
-@@ -31,6 +31,7 @@
- #include <linux/device.h>
- #include <linux/interrupt.h>
- #include <linux/ioport.h>
-+#include <linux/io.h>
- 
- #include <asm/hardware/locomo.h>
- #include <asm/irq.h>
-@@ -86,17 +87,17 @@ struct locomokbd {
- /* helper functions for reading the keyboard matrix */
- static inline void locomokbd_charge_all(unsigned long membase)
- {
--	locomo_writel(0x00FF, membase + LOCOMO_KSC);
-+	iowrite16(0x00FF, membase + LOCOMO_KSC);
- }
- 
- static inline void locomokbd_activate_all(unsigned long membase)
- {
- 	unsigned long r;
- 
--	locomo_writel(0, membase + LOCOMO_KSC);
--	r = locomo_readl(membase + LOCOMO_KIC);
-+	iowrite16(0, membase + LOCOMO_KSC);
-+	r = ioread16(membase + LOCOMO_KIC);
- 	r &= 0xFEFF;
--	locomo_writel(r, membase + LOCOMO_KIC);
-+	iowrite16(r, membase + LOCOMO_KIC);
- }
- 
- static inline void locomokbd_activate_col(unsigned long membase, int col)
-@@ -106,7 +107,7 @@ static inline void locomokbd_activate_col(unsigned long membase, int col)
- 
- 	nset = 0xFF & ~(1 << col);
- 	nbset = (nset << 8) + nset;
--	locomo_writel(nbset, membase + LOCOMO_KSC);
-+	iowrite16(nbset, membase + LOCOMO_KSC);
- }
- 
- static inline void locomokbd_reset_col(unsigned long membase, int col)
-@@ -114,7 +115,7 @@ static inline void locomokbd_reset_col(unsigned long membase, int col)
- 	unsigned short nbset;
- 
- 	nbset = ((0xFF & ~(1 << col)) << 8) + 0xFF;
--	locomo_writel(nbset, membase + LOCOMO_KSC);
-+	iowrite16(nbset, membase + LOCOMO_KSC);
- }
- 
- /*
-@@ -141,7 +142,7 @@ static void locomokbd_scankeyboard(struct locomokbd *locomokbd)
- 		locomokbd_activate_col(membase, col);
- 		udelay(KB_DELAY);
- 
--		rowd = ~locomo_readl(membase + LOCOMO_KIB);
-+		rowd = ~ioread16(membase + LOCOMO_KIB);
- 		for (row = 0; row < KB_ROWS; row++) {
- 			unsigned int scancode, pressed, key;
- 
-@@ -266,6 +267,8 @@ static int __devinit locomokbd_probe(struct locomo_dev *dev)
- 		set_bit(locomokbd->keycode[i], input_dev->keybit);
- 	clear_bit(0, input_dev->keybit);
- 
-+	iowrite16(0, locomokbd->base + LOCOMO_KSC);
-+
- 	/* attempt to get the interrupt */
- 	err = request_irq(dev->irq[0], locomokbd_interrupt, 0, "locomokbd", locomokbd);
- 	if (err) {
-
+- The not-to-be-included discussion which you have below the "---"
+  cutoff line would make a reasonable changelog.

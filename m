@@ -1,69 +1,40 @@
-From: Johannes Berg <johannes@sipsolutions.net>
+From: Oliver Neukum <oliver@neukum.org>
 Subject: Re: 2.6.26-rc3 - appletouch resume "incomplete data package"
-Date: Mon, 26 May 2008 13:06:44 +0200
-Message-ID: <1211800004.17151.51.camel@johannes.berg>
+Date: Mon, 26 May 2008 14:29:33 +0200
+Message-ID: <200805261429.34566.oliver@neukum.org>
 References: <b6c5339f0805251324k70a3a56ci9cab5274acc2d01d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kwlRZvUtXlELej4Xxn0G"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:33442 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753446AbYEZLID (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:55595 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757341AbYEZM3b (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 May 2008 07:08:03 -0400
+	Mon, 26 May 2008 08:29:31 -0400
 In-Reply-To: <b6c5339f0805251324k70a3a56ci9cab5274acc2d01d@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Bob Copeland <me@bobcopeland.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-
---=-kwlRZvUtXlELej4Xxn0G
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, 2008-05-25 at 16:24 -0400, Bob Copeland wrote:
+Am Sonntag 25 Mai 2008 22:24:13 schrieb Bob Copeland:
 > This appears to be a regression since 2.6.25.  After resuming, I get:
->=20
+> 
 >     appletouch: incomplete data package (first byte: 2, length: 4).
 >     appletouch: incomplete data package (first byte: 2, length: 4).
 >     appletouch: incomplete data package (first byte: 2, length: 4).
 >     [...]
->=20
+> 
 > And the touchpad doesn't work.  This is on a first gen MacBook.  I
 > didn't see any changes to the driver itself in that timeframe.
 > Anyone have ideas, or should I try a bisect?
+> 
 
-I have intermittently seen this problem happen for quite a while, a
-bisect will probably not help you. The "incomplete data package" message
-doesn't actually seem to be related to the fact that suspend/resume
-sometimes breaks the touchpad though, it seems to happen, for example,
-when you switch from X to a console and back, something must be bad with
-the timing, possibly even in the hardware.
+Can you add a RESET_RESUME quirk for the device?
 
-johannes
-
---=-kwlRZvUtXlELej4Xxn0G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iQIVAwUASDqZwqVg1VMiehFYAQK3WhAAob1er7d/yyLA1HX8otI5N+9eDfgb1T4O
-1R0/4f2XOoIR8pJaIaFmbwMi6kVDkpVc704PlxZrHwHxcFCe6/uaqefz56XMBrpn
-SCiOw8SjhZANBcFekKSyFbN+h3aIwpwNtaRmNtyYhtg/DeE1lo2BZPzm1ZYPghUG
-k4bM3zd+g2Rvq37NKPB441xOlE4W03coxP+mtZXJpWikgCAjif98FOe53eCTBsvO
-lZfrXMSPoSBUNpKBRYYHHePpmcxcMmYwJgvJblAf92QXRl7YEwhQRhBVf/MpKwp7
-2BlgkYem7k1nXu6WfjtOGoPLQzk+9C2VsEd+UO4b7HYW0wdj+m+Kp1AA3ukCsSIi
-YWz4zHMStd8f9KMek00HDUi/l2mACAhng92MlS1vGmtiXULo6AFHrK+S0M5kdCcL
-RLXMDTuPUii9lq6Oshm0k7yvihchqDjbMS/AN1DFiFlqFXsDA9cXyMmSzPSa9HuF
-0ydBLwI1Q0PrAPf5+EYs/RODBTvKF67CbvLJii9YwUIBtW0CXGKZT3PvskRpJ7ZY
-Mb7Afo0YlV/COvtF7d0kleLKDuOZXH7us0lNm4Fvlfa3jjBR9scRkOUWD0kaJMXS
-veWUkLAH2CMNhcn+RtKBXyAT65i4JRSxuZRIYtyG5l8h0Xul7PMesHEiEatrbpW9
-ytLLAdpRfqM=
-=FNu7
------END PGP SIGNATURE-----
-
---=-kwlRZvUtXlELej4Xxn0G--
+	Regards
+		Oliver
 

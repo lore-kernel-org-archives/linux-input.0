@@ -1,73 +1,47 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 3/4] wm97xx-core: Fix race on PHY init
-Date: Mon, 26 May 2008 14:42:02 +0100
-Message-ID: <1211809323-4742-3-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1211809323-4742-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <1211809323-4742-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Dmitry Torokhov <dtor@insightbb.com>
+Subject: Re: i8042 resume timing
+Date: Mon, 26 May 2008 12:35:19 -0400
+Message-ID: <200805261235.20588.dtor@insightbb.com>
+References: <Pine.LNX.4.64.0805261509250.6718@jikos.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:54455 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1751544AbYEZNmI (ORCPT
+Received: from qmta09.emeryville.ca.mail.comcast.net ([76.96.30.96]:39599 "EHLO
+	QMTA09.emeryville.ca.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754723AbYEZQfb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 May 2008 09:42:08 -0400
-In-Reply-To: <1211809323-4742-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Mon, 26 May 2008 12:35:31 -0400
+In-Reply-To: <Pine.LNX.4.64.0805261509250.6718@jikos.suse.cz>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Rodolfo Giometti <giometti@enneenne.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, hschaa@novell.com
 
-The chip phy_init() function must be called before the dig_enable() function
-but dig_enable() is called when the device is opened and we only call
-phy_init() after having reigstered the device, meaning the two can race.
-Fix this by doing the phy_init() before we register the input device.
+Hi Jiri,
 
-Thanks to Rodolfo Giometti <giometti@enneenne.com> for the report.
+On Monday 26 May 2008 09:19, Jiri Kosina wrote:
+> Hi Dmitry,
+> 
+> There are systems [1] that fail in i8042_resume(), as 
+> i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR) call returns error (not sure 
+> about the exact error yet, the reporter didn't yet collect i8042.debug 
+> output during the failure, as it is not completely reproducible), but 
+> retrying after small amount of time succeeds.
+> 
+> Looks like a buggy hardware to me, which we should workaround. Would you 
+> prefer DMI-based match for this retry logic with respect to CTR register 
+> on the resume path, or would you accept this as a general retry logic on 
+> resume path? (which is very probably not needed on vast majority of 
+> systems though).
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/touchscreen/wm97xx-core.c |   22 +++++++++++-----------
- 1 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 8a00918..cdc24ad 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -608,6 +608,17 @@ static int wm97xx_probe(struct device *dev)
- 		goto alloc_err;
- 	}
- 
-+	/* set up physical characteristics */
-+	wm->codec->phy_init(wm);
-+
-+	/* load gpio cache */
-+	wm->gpio[0] = wm97xx_reg_read(wm, AC97_GPIO_CFG);
-+	wm->gpio[1] = wm97xx_reg_read(wm, AC97_GPIO_POLARITY);
-+	wm->gpio[2] = wm97xx_reg_read(wm, AC97_GPIO_STICKY);
-+	wm->gpio[3] = wm97xx_reg_read(wm, AC97_GPIO_WAKEUP);
-+	wm->gpio[4] = wm97xx_reg_read(wm, AC97_GPIO_STATUS);
-+	wm->gpio[5] = wm97xx_reg_read(wm, AC97_MISC_AFE);
-+
- 	wm->input_dev = input_allocate_device();
- 	if (wm->input_dev == NULL) {
- 		ret = -ENOMEM;
-@@ -635,17 +646,6 @@ static int wm97xx_probe(struct device *dev)
- 	if (ret < 0)
- 		goto dev_alloc_err;
- 
--	/* set up physical characteristics */
--	wm->codec->phy_init(wm);
--
--	/* load gpio cache */
--	wm->gpio[0] = wm97xx_reg_read(wm, AC97_GPIO_CFG);
--	wm->gpio[1] = wm97xx_reg_read(wm, AC97_GPIO_POLARITY);
--	wm->gpio[2] = wm97xx_reg_read(wm, AC97_GPIO_STICKY);
--	wm->gpio[3] = wm97xx_reg_read(wm, AC97_GPIO_WAKEUP);
--	wm->gpio[4] = wm97xx_reg_read(wm, AC97_GPIO_STATUS);
--	wm->gpio[5] = wm97xx_reg_read(wm, AC97_MISC_AFE);
--
- 	/* register our battery device */
- 	wm->battery_dev = platform_device_alloc("wm97xx-battery", -1);
- 	if (!wm->battery_dev) {
+I think just retrying a couple of times in case of failure is the most
+sensible thing to do.
+
+Thanks.
+
 -- 
-1.5.5.1
-
+Dmitry

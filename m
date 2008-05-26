@@ -1,33 +1,69 @@
-From: "Bob Copeland" <me@bobcopeland.com>
-Subject: 2.6.26-rc3 - appletouch resume "incomplete data package"
-Date: Sun, 25 May 2008 16:24:13 -0400
-Message-ID: <b6c5339f0805251324k70a3a56ci9cab5274acc2d01d@mail.gmail.com>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: 2.6.26-rc3 - appletouch resume "incomplete data package"
+Date: Mon, 26 May 2008 13:06:44 +0200
+Message-ID: <1211800004.17151.51.camel@johannes.berg>
+References: <b6c5339f0805251324k70a3a56ci9cab5274acc2d01d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kwlRZvUtXlELej4Xxn0G"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.237]:43429 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754950AbYEYUYN (ORCPT
+Received: from xc.sipsolutions.net ([83.246.72.84]:33442 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753446AbYEZLID (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 May 2008 16:24:13 -0400
-Received: by rv-out-0506.google.com with SMTP id l9so1976973rvb.1
-        for <linux-input@vger.kernel.org>; Sun, 25 May 2008 13:24:13 -0700 (PDT)
-Content-Disposition: inline
+	Mon, 26 May 2008 07:08:03 -0400
+In-Reply-To: <b6c5339f0805251324k70a3a56ci9cab5274acc2d01d@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Bob Copeland <me@bobcopeland.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-This appears to be a regression since 2.6.25.  After resuming, I get:
 
-    appletouch: incomplete data package (first byte: 2, length: 4).
-    appletouch: incomplete data package (first byte: 2, length: 4).
-    appletouch: incomplete data package (first byte: 2, length: 4).
-    [...]
+--=-kwlRZvUtXlELej4Xxn0G
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-And the touchpad doesn't work.  This is on a first gen MacBook.  I
-didn't see any changes to the driver itself in that timeframe.
-Anyone have ideas, or should I try a bisect?
+On Sun, 2008-05-25 at 16:24 -0400, Bob Copeland wrote:
+> This appears to be a regression since 2.6.25.  After resuming, I get:
+>=20
+>     appletouch: incomplete data package (first byte: 2, length: 4).
+>     appletouch: incomplete data package (first byte: 2, length: 4).
+>     appletouch: incomplete data package (first byte: 2, length: 4).
+>     [...]
+>=20
+> And the touchpad doesn't work.  This is on a first gen MacBook.  I
+> didn't see any changes to the driver itself in that timeframe.
+> Anyone have ideas, or should I try a bisect?
 
--- 
-Bob Copeland %% www.bobcopeland.com
+I have intermittently seen this problem happen for quite a while, a
+bisect will probably not help you. The "incomplete data package" message
+doesn't actually seem to be related to the fact that suspend/resume
+sometimes breaks the touchpad though, it seems to happen, for example,
+when you switch from X to a console and back, something must be bad with
+the timing, possibly even in the hardware.
+
+johannes
+
+--=-kwlRZvUtXlELej4Xxn0G
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIVAwUASDqZwqVg1VMiehFYAQK3WhAAob1er7d/yyLA1HX8otI5N+9eDfgb1T4O
+1R0/4f2XOoIR8pJaIaFmbwMi6kVDkpVc704PlxZrHwHxcFCe6/uaqefz56XMBrpn
+SCiOw8SjhZANBcFekKSyFbN+h3aIwpwNtaRmNtyYhtg/DeE1lo2BZPzm1ZYPghUG
+k4bM3zd+g2Rvq37NKPB441xOlE4W03coxP+mtZXJpWikgCAjif98FOe53eCTBsvO
+lZfrXMSPoSBUNpKBRYYHHePpmcxcMmYwJgvJblAf92QXRl7YEwhQRhBVf/MpKwp7
+2BlgkYem7k1nXu6WfjtOGoPLQzk+9C2VsEd+UO4b7HYW0wdj+m+Kp1AA3ukCsSIi
+YWz4zHMStd8f9KMek00HDUi/l2mACAhng92MlS1vGmtiXULo6AFHrK+S0M5kdCcL
+RLXMDTuPUii9lq6Oshm0k7yvihchqDjbMS/AN1DFiFlqFXsDA9cXyMmSzPSa9HuF
+0ydBLwI1Q0PrAPf5+EYs/RODBTvKF67CbvLJii9YwUIBtW0CXGKZT3PvskRpJ7ZY
+Mb7Afo0YlV/COvtF7d0kleLKDuOZXH7us0lNm4Fvlfa3jjBR9scRkOUWD0kaJMXS
+veWUkLAH2CMNhcn+RtKBXyAT65i4JRSxuZRIYtyG5l8h0Xul7PMesHEiEatrbpW9
+ytLLAdpRfqM=
+=FNu7
+-----END PGP SIGNATURE-----
+
+--=-kwlRZvUtXlELej4Xxn0G--
+

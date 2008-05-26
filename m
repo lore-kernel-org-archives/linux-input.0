@@ -1,37 +1,35 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: i8042 resume timing
-Date: Mon, 26 May 2008 15:19:00 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0805261509250.6718@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:60014 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751697AbYEZNTD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 May 2008 09:19:03 -0400
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 2/4] wm97xx-core: Fix driver name
+Date: Mon, 26 May 2008 14:42:01 +0100
+Message-ID: <1211809323-4742-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+References: <1211809323-4742-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755627AbYEZNmW@vger.kernel.org>
+In-Reply-To: <1211809323-4742-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, hschaa@novell.com
+Cc: Rodolfo Giometti <giometti@enneenne.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+List-Id: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Fix driver name - thanks to Guennadi Liakhovetski <g.liakhovetski@gmx.de> for
+reporting this.
 
-There are systems [1] that fail in i8042_resume(), as 
-i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR) call returns error (not sure 
-about the exact error yet, the reporter didn't yet collect i8042.debug 
-output during the failure, as it is not completely reproducible), but 
-retrying after small amount of time succeeds.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm97xx-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Looks like a buggy hardware to me, which we should workaround. Would you 
-prefer DMI-based match for this retry logic with respect to CTR register 
-on the resume path, or would you accept this as a general retry logic on 
-resume path? (which is very probably not needed on vast majority of 
-systems though).
-
-Thanks.
-
-[1] https://bugzilla.novell.com/show_bug.cgi?id=351119
-
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index ba6fb28..8a00918 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -802,7 +802,7 @@ void wm97xx_unregister_mach_ops(struct wm97xx *wm)
+ EXPORT_SYMBOL_GPL(wm97xx_unregister_mach_ops);
+ 
+ static struct device_driver wm97xx_driver = {
+-	.name =		"ac97",
++	.name =		"wm97xx-ts",
+ 	.bus =		&ac97_bus_type,
+ 	.owner =	THIS_MODULE,
+ 	.probe =	wm97xx_probe,
 -- 
-Jiri Kosina
-SUSE Labs
+1.5.5.1

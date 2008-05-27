@@ -1,44 +1,66 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH resend] HTC Shift Touchscreen Driver
-Date: Tue, 27 May 2008 10:55:06 -0400
-Message-ID: <20080527105118.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080527144603.GA18796@s0.pofhq.net>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] Input: Add i8042.nopnp for Intel D845PESV
+Date: Tue, 27 May 2008 17:15:56 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0805271710240.6718@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756541AbYE0Ozc@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080527144603.GA18796@s0.pofhq.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Pau Oliva Fora (pof)" <pau@eslack.org>
-Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from styx.suse.cz ([82.119.242.94]:54651 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754717AbYE0PP5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 27 May 2008 11:15:57 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Pau,
+From: Jiri Kosina <jkosina@suse.cz>
 
-I have couple more comments...
+Input: Add i8042.nopnp for Intel D845PESV
 
-On Tue, May 27, 2008 at 04:46:03PM +0200, Pau Oliva Fora (pof) wrote:
-> +
-> +static void htcpen_close(struct input_dev *dev)
-> +{
-> +	free_irq(HTCPEN_IRQ, dev);
+This patch introduces i8042_dmi_nopnp_table to make it possible to perform 
+DMI matches for systems that need 'i8042.nopnp' to work correctly, and 
+introduces such an entry for Intel D845PESV -- this system doesn't 
+detect PS2 mouse reliably without this option, as reported by Robert 
+Lewis.
 
-No, free_irq() should go into htcpen_remove(). Otherwise if we don't
-unload the driver and open the device again we will not have IRQ
-handler installed.
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-> +	outb_p(DEVICE_DISABLE, HTCPEN_PORT_INIT);
-> +}
-> +
-> +static int __devinit htcpen_isa_probe(struct device *dev, unsigned int id)
-> +{
-> +	int err;
-> +	struct input_dev *htcpen_dev;
-> +
-> +	inb_p(HTCPEN_PORT_IRQ_CLEAR);
+--- 
 
-You should not touch the ports until you resetved them with request
-region.
+ drivers/input/serio/i8042-x86ia64io.h |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
--- 
-Dmitry
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 5ece9f5..709c9d9 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -287,7 +287,16 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
+ 	{ }
+ };
+ 
+-
++static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
++	{
++		.ident = "Intel MBO Desktop D845PESV",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++		},
++	},
++	{ }
++};
+ 
+ #endif
+ 
+@@ -569,6 +578,10 @@ static int __init i8042_platform_init(void)
+ 	i8042_kbd_irq = I8042_MAP_IRQ(1);
+ 	i8042_aux_irq = I8042_MAP_IRQ(12);
+ 
++#if defined(__i386__) || defined(__x86_64__)
++	if (dmi_check_system(i8042_dmi_nopnp_table))
++		i8042_nopnp = 1;
++#endif
+ 	retval = i8042_pnp_init();
+ 	if (retval)
+ 		return retval;

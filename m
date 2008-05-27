@@ -1,170 +1,332 @@
-From: "Richie Ward" <richies@gmail.com>
-Subject: G25 + Linux
-Date: Tue, 27 May 2008 07:20:42 +0100
-Message-ID: <6b33c0ac0805262320g38b2cb40h5dc6ab3b7c77230e@mail.gmail.com>
-References: <48287096.7070105@free.fr>
-	 <d43da00b0805122015v9793aafj96bdcb9e5cb68d1c@mail.gmail.com>
-	 <6b33c0ac0805262319y423b20b3u11cb61b72638d6a2@mail.gmail.com>
+From: "Pau Oliva Fora (pof)" <pau@eslack.org>
+Subject: [PATCH resend] HTC Shift Touchscreen Driver
+Date: Tue, 27 May 2008 16:46:03 +0200
+Message-ID: <20080527144603.GA18796@s0.pofhq.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ti-out-0910.google.com ([209.85.142.191]:8533 "EHLO
-	ti-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757201AbYE0GUr (ORCPT
+Received: from 81.184.114.62.dyn.user.ono.com ([81.184.114.62]:53989 "EHLO
+	pof.eslack.org." rhost-flags-OK-OK-FAIL-FAIL) by vger.kernel.org
+	with ESMTP id S1755359AbYE0OqH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 27 May 2008 02:20:47 -0400
-Received: by ti-out-0910.google.com with SMTP id b6so1607345tic.23
-        for <linux-input@vger.kernel.org>; Mon, 26 May 2008 23:20:45 -0700 (PDT)
-In-Reply-To: <6b33c0ac0805262319y423b20b3u11cb61b72638d6a2@mail.gmail.com>
+	Tue, 27 May 2008 10:46:07 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: akpm@linux-foundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Don't expect help from Logitech unless an employee is a friend there.
-Maybe someone can reverse engineer windows drivers or sniff the usb.
+From: Pau Oliva Fora <pau@eslack.org>
 
-I have usbtool mirrored on my site:
-http://richieward.com/files/usbtool-0.1-compiled.tar.gz
-People should make more mirrors.
+Add support for HTC Shift UMPC touchscreen.
 
-I made some of that into a bash script (run script as root):
-#!/bin/bash
-./usbtool g25-set-extended-mode
-sleep 1
-./usbtool g25-set-range-wheel-900
-sleep 1
-rmmod joydev
-sleep 1
-rmmod usbhid
-sleep 1
-modprobe usbhid
+Signed-off-by: Pau Oliva Fora <pau@eslack.org>
 
-some ff attempts:
-richie@richie-desktop:~/Downloads/ff-utils$ sudo ./ffcfstress -d /dev/input/js0
-ERROR: can not get key bits (Invalid argument) [ffcfstress.c:118]
+---
 
-richie@richie-desktop:~/Downloads/ff-utils$ sudo ./ffcfstress -d
-/dev/input/by-id/usb-046d_G25_Racing_Wheel-event-joystick
-ERROR: device (or driver) has no force feedback support [ffcfstress.c:165]
-
-richie@richie-desktop:~/Downloads/ff-utils$ sudo ./ffcfstress -d
-/dev/input/by-id/usb-046d_G25_Racing_Wheel-joystick
-ERROR: can not get key bits (Invalid argument) [ffcfstress.c:118]
-
-On Tue, May 13, 2008 at 4:15 AM, D. Ragno <homerj@icculus.org> wrote:
-> I never did get all of this to work with a MOMO Racing (black) wheel.
-> The wheel by itself was ok, however i had combined not separate axis
-> for the pedals and no FF.
->
-> I'd like do some further investigation on the why, I only really
-> started to look into it, when rFactor and GTR2 started to work in
-> wine. I think this wheel is acting similar to the G25, starting in a
-> compatibility mode, and needed commands to set it to native. I'm not
-> sure if the hardware itself is a single axis for the pedals, with some
-> separation done in the driver to report two separate ones. I've seen a
-> patch for a 2.4 kernel to this effect.
->
-> If there's some serious work going into better support of the Logitech
-> loops, I'd like to keep in the loop and contribute. Jean-Philippe
-> probably has the best overall explanation of it all, as when I was
-> looking for information, it was sparse at best and conflicting at
-> worst. Is there someone at Logitech that could offer up some actual
-> documentation?
->
-> 2008/5/12 Annick et Jean-Philippe <jpmeuret@free.fr>:
->> Hi, all.
->>
->> For the happy owners of a Logitech G25 wheel that did not manage yet
->> to enjoy the full features of the beast under Linux, this is a small
->> summary of what I found on the net and my own humble experience about it
->> on a 2.6.22.9 Kernel (Mandriva 2008.0 x86_64) :
->>
->> Note: This is only my own understanding and summarizing of what people cleverer
->>      than me discovered by themselves. My work only consisted to put
->>      all the stuff together in an as clear, simple and explict as possible
->>      sum-up. See at the bottom for references and real authors.
->>
->> 1) when plugged in, the G25 identies itself as a Logitech Formula Force EX
->>   USB device (046d:c294) ; you only get 4 axes and 12 buttons, that is
->>   neither clutch pedal nor any of the 3trd to 6th gear on the grid shifter
->> 2) to get the lacking native features of the beast, it must be sent a command
->>   to switch to its native mode, that makes it disconnect and reconnect
->>   as itself this time (USB device ids 046d:c299)
->>   Note: Another similar command can also switch it to the Logitech Driving
->>         Force Pro mode.
->> 3) to send the command, you need a userland tool that basically writes
->>   the associated bytes on the USB device, and the one I am using is
->>   usbtool <ftp://srv.l14.ru/pub/usbtool-0.1.tar.gz>
->>   (the package includes pre-built binaries for python 2.5,
->>    and sources if you need to build it yourself) ;
->>
->>   to swhitch the G25 to its native mode, after plugging it in, I simply use :
->>     ./usbtool -v g25-set-extended-mode
->>
->>   Note: you can also send other pre-configured commands with the usbtool
->>         (run ./usbtool --list-commands to see which)
->>         like g25-set-range-wheel-900 (teasing ;-)
->>   BUT: I never succeeded to send 2 successive commands to the device :
->>        the first one is generally OK (sometimes, though, you may need to repeat
->>        it), but the second (and following ones) seems to be completely ignored.
->>
->> 4) but this makes disappear the /dev/jsX and /dev/input/eventY devices !
->>   to get them back and be able to play with the G25, I use :
->>     sudo rmmod joydev
->>     sudo rmmod usbhid
->>     sudo modprobe usbhid
->>   (man sudo and sudoers to be able to run these root commands)
->>
->> 5) Then, if you find that the "dead zone" at the center of the wheel
->>   is too large (the centered angle where nothing happens when you steer into),
->>   it is only beacause you need to calibrate your device.
->>   I use jscal (ff-utils @ http://www.sourceforge.net/projects/libff)
->>   to do that :
->>   a) plug-in the device
->>   b) send the native mode-switch command if you like (see above 3)
->>   c) jscal -c /dev/jsX (X being 0, 1, ... look which in /dev after plugging-in)
->>   d) jstest /dev/jsX (to test if everything fits your desire)
->>   e) jscal -p /dev/jsX (to get the jscal command to put in your .bashrc
->>      or any script you would run before your favorite games ...)
->>
->> Note: All this stuff should also work for a Driving Force Pro, and some says
->>      that it's also true for the Momo Racing wheels ... but don't tested.
->>
->> Now, as far as force feedback is concerned, I have no such good news
->> for the moment : fftest and ffcstress don't work for me for the moment.
->>
->> References:
->>
->> Thanks to avl, eckzow, anrp, thelusiv, tof8pool, synapse247 and cuckoo,
->>  on http://vdrift.net forum :
->>  http://vdrift.net/Forum/viewtopic.php?t=412&postdays=0&postorder=asc&start=60
->>  http://vdrift.net/Forum/viewtopic.php?p=3751&highlight=linuxinput#3751
->>  ftp://srv.l14.ru/pub/usbtool-0.1.tar.gz
->>
->> Thanks to Jiri Kosina, Chris Guirl,
->>  from the Linux input dev team
->>  http://www.mail-archive.com/linux-input@atrey.karlin.mff.cuni.cz
->>  http://www.mail-archive.com/linux-input@vger.kernel.org
->> (search "g25" on each list)
->>
->> Hoping this helps ...
->>
->> Jean-Philippe.
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Patch against linux-2.6.26-rc4, should apply clean on other versions too.
 
 
-
---
-Thanks, Richie Ward
+diff -uprN linux-2.6.26-rc4/drivers/input/touchscreen/htcpen.c linux/drivers/input/touchscreen/htcpen.c
+--- linux-2.6.26-rc4/drivers/input/touchscreen/htcpen.c	1970-01-01 01:00:00.000000000 +0100
++++ linux/drivers/input/touchscreen/htcpen.c	2008-05-27 16:09:20.000000000 +0200
+@@ -0,0 +1,251 @@
++/*
++ * HTC Shift touchscreen driver
++ *
++ * Copyright (C) 2008 Pau Oliva Fora <pof@eslack.org>
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published
++ * by the Free Software Foundation.
++ */
++
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/init.h>
++#include <linux/irq.h>
++#include <linux/isa.h>
++#include <linux/ioport.h>
++#include <linux/dmi.h>
++
++MODULE_AUTHOR("Pau Oliva Fora <pau@eslack.org>");
++MODULE_DESCRIPTION("HTC Shift touchscreen driver");
++MODULE_LICENSE("GPL");
++
++#define HTCPEN_PORT_IRQ_CLEAR 0x068
++#define HTCPEN_PORT_INIT 0x06c
++#define HTCPEN_PORT_INDEX 0x0250
++#define HTCPEN_PORT_DATA 0x0251
++#define HTCPEN_IRQ 3
++
++#define X_INDEX 3
++#define Y_INDEX 5
++#define TOUCH_INDEX 0xb
++#define LSB_XY_INDEX 0xc
++#define X_AXIS_MAX 2040
++#define Y_AXIS_MAX 2040
++#define DEVICE_ENABLE 0xa2
++#define DEVICE_DISABLE 0xa3
++
++static int invert_x;
++module_param(invert_x, bool, 0644);
++MODULE_PARM_DESC(invert_x, "If set, X axis is inverted");
++static int invert_y;
++module_param(invert_y, bool, 0644);
++MODULE_PARM_DESC(invert_y, "If set, Y axis is inverted");
++
++static struct pnp_device_id pnp_ids[] = {
++	{ .id = "PNP0cc0" },
++	{ .id = "" }
++};
++MODULE_DEVICE_TABLE(pnp, pnp_ids);
++
++static const struct dmi_system_id htcshift_dmi_table[] = {
++	{
++		.ident = "Shift",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "High Tech Computer Corp"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Shift"),
++		},
++	},
++	{ }
++};
++
++static irqreturn_t htcpen_interrupt(int irq, void *handle)
++{
++	struct input_dev *htcpen_dev = handle;
++	unsigned short x, y, xy;
++
++	/* 0=press ; 1=release */
++	outb_p(TOUCH_INDEX, HTCPEN_PORT_INDEX);
++
++	/* only update X/Y when screen is being touched */
++	if (inb_p(HTCPEN_PORT_DATA)) {
++		input_report_key(htcpen_dev, BTN_TOUCH, 0);
++	} else {
++		outb_p(X_INDEX, HTCPEN_PORT_INDEX);
++		x = inb_p(HTCPEN_PORT_DATA);
++
++		outb_p(Y_INDEX, HTCPEN_PORT_INDEX);
++		y = inb_p(HTCPEN_PORT_DATA);
++
++		outb_p(LSB_XY_INDEX, HTCPEN_PORT_INDEX);
++		xy = inb_p(HTCPEN_PORT_DATA);
++
++		/* get high resolution value of X and Y using LSB */
++		x = X_AXIS_MAX - ((x * 8) + ((xy >> 4) & 0xf));
++		y = (y * 8) + (xy & 0xf);
++		if (invert_x)
++			x = X_AXIS_MAX - x;
++		if (invert_y)
++			y = Y_AXIS_MAX - y;
++
++		if ((x != X_AXIS_MAX) && (x != 0)) {
++			input_report_key(htcpen_dev, BTN_TOUCH, 1);
++			input_report_abs(htcpen_dev, ABS_X, x);
++			input_report_abs(htcpen_dev, ABS_Y, y);
++		}
++	}
++
++	input_sync(htcpen_dev);
++
++	inb_p(HTCPEN_PORT_IRQ_CLEAR);
++
++	return IRQ_HANDLED;
++}
++
++static int htcpen_open(struct input_dev *dev)
++{
++	outb_p(DEVICE_ENABLE, HTCPEN_PORT_INIT);
++	return 0;
++}
++
++static void htcpen_close(struct input_dev *dev)
++{
++	free_irq(HTCPEN_IRQ, dev);
++	outb_p(DEVICE_DISABLE, HTCPEN_PORT_INIT);
++}
++
++static int __devinit htcpen_isa_probe(struct device *dev, unsigned int id)
++{
++	int err;
++	struct input_dev *htcpen_dev;
++
++	inb_p(HTCPEN_PORT_IRQ_CLEAR);
++
++	htcpen_dev = input_allocate_device();
++	if (!htcpen_dev) {
++		printk(KERN_ERR "htcpen: can't allocate device\n");
++		err = -ENOMEM;
++		goto input_alloc_failed;
++	}
++
++	htcpen_dev->name = "HTC Shift EC TouchScreen";
++	htcpen_dev->id.bustype = BUS_ISA;
++
++	input_set_abs_params(htcpen_dev, ABS_X, 0, X_AXIS_MAX, 0, 0);
++	input_set_abs_params(htcpen_dev, ABS_Y, 0, Y_AXIS_MAX, 0, 0);
++
++	htcpen_dev->evbit[0] = BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
++	htcpen_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	htcpen_dev->open = htcpen_open;
++	htcpen_dev->close = htcpen_close;
++
++	err = request_irq(HTCPEN_IRQ, htcpen_interrupt, 0, "htcpen",
++		htcpen_dev);
++	if (err) {
++		printk(KERN_ERR "htcpen: irq busy\n");
++		goto request_irq_failed;
++	}
++
++	if (!request_region(HTCPEN_PORT_IRQ_CLEAR, 1, "htcpen")) {
++		printk(KERN_WARNING "htcpen: unable to get IO region 0x%x\n",
++			HTCPEN_PORT_IRQ_CLEAR);
++		err = -ENODEV;
++		goto request_region1_failed;
++	}
++
++	if (!request_region(HTCPEN_PORT_INIT, 1, "htcpen")) {
++		printk(KERN_WARNING "htcpen: unable to get IO region 0x%x\n",
++			HTCPEN_PORT_INIT);
++		err = -ENODEV;
++		goto request_region2_failed;
++	}
++
++	if (!request_region(HTCPEN_PORT_INDEX, 2, "htcpen")) {
++		printk(KERN_WARNING "htcpen: unable to get IO region 0x%x\n",
++			HTCPEN_PORT_INDEX);
++		err = -ENODEV;
++		goto request_region3_failed;
++	}
++
++	err = input_register_device(htcpen_dev);
++	if (err)
++		goto input_register_failed;
++
++	dev_set_drvdata(dev, htcpen_dev);
++	return 0;
++
++ input_register_failed:
++	release_region(HTCPEN_PORT_INDEX, 2);
++ request_region3_failed:
++	release_region(HTCPEN_PORT_INIT, 1);
++ request_region2_failed:
++	release_region(HTCPEN_PORT_IRQ_CLEAR, 1);
++ request_region1_failed:
++	free_irq(HTCPEN_IRQ, htcpen_dev);
++ request_irq_failed:
++	input_free_device(htcpen_dev);
++ input_alloc_failed:
++	return err;
++}
++
++static int __devinit htcpen_isa_match(struct device *dev, unsigned int id)
++{
++	if (!dmi_check_system(htcshift_dmi_table))
++		return 0;
++	return 1;
++}
++
++static int __devexit htcpen_isa_remove(struct device *dev, unsigned int id)
++{
++	input_unregister_device(dev_get_drvdata(dev));
++	dev_set_drvdata(dev, NULL);
++	release_region(HTCPEN_PORT_IRQ_CLEAR, 1);
++	release_region(HTCPEN_PORT_INIT, 1);
++	release_region(HTCPEN_PORT_INDEX, 2);
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int htcpen_isa_suspend(struct device *dev, unsigned int n,
++				pm_message_t state)
++{
++	outb_p(DEVICE_DISABLE, HTCPEN_PORT_INIT);
++	return 0;
++}
++
++static int htcpen_isa_resume(struct device *dev, unsigned int n)
++{
++	return htcpen_open(dev_get_drvdata(dev));
++}
++#endif
++
++static struct isa_driver htcpen_isa_driver = {
++	.match		= htcpen_isa_match,
++	.probe		= htcpen_isa_probe,
++	.remove		= __devexit_p(htcpen_isa_remove),
++#ifdef CONFIG_PM
++	.suspend	= htcpen_isa_suspend,
++	.resume		= htcpen_isa_resume,
++#endif
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "htcpen",
++	}
++};
++
++static int __init htcpen_isa_init(void)
++{
++	return isa_register_driver(&htcpen_isa_driver, 1);
++}
++
++static void __exit htcpen_isa_exit(void)
++{
++	isa_unregister_driver(&htcpen_isa_driver);
++}
++
++module_init(htcpen_isa_init);
++module_exit(htcpen_isa_exit);
+diff -uprN linux-2.6.26-rc4/drivers/input/touchscreen/Kconfig linux/drivers/input/touchscreen/Kconfig
+--- linux-2.6.26-rc4/drivers/input/touchscreen/Kconfig	2008-05-27 12:24:08.000000000 +0200
++++ linux/drivers/input/touchscreen/Kconfig	2008-05-27 12:38:48.000000000 +0200
+@@ -134,6 +134,18 @@ config TOUCHSCREEN_HP7XX
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called jornada720_ts.
+ 
++config TOUCHSCREEN_HTCPEN
++	tristate "HTC Shift X9500 touchscreen"
++	depends on ISA
++	help
++	  Say Y here if you have an HTC Shift UMPC also known as HTC X9500
++	  Clio / Shangrila and want to support the built-in touchscreen.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called htcpen.
++
+ config TOUCHSCREEN_PENMOUNT
+ 	tristate "Penmount serial touchscreen"
+ 	select SERIO
+diff -uprN linux-2.6.26-rc4/drivers/input/touchscreen/Makefile linux/drivers/input/touchscreen/Makefile
+--- linux-2.6.26-rc4/drivers/input/touchscreen/Makefile	2008-05-27 12:24:08.000000000 +0200
++++ linux/drivers/input/touchscreen/Makefile	2008-05-27 12:34:10.000000000 +0200
+@@ -16,6 +16,7 @@ obj-$(CONFIG_TOUCHSCREEN_MTOUCH)	+= mtou
+ obj-$(CONFIG_TOUCHSCREEN_MK712)		+= mk712.o
+ obj-$(CONFIG_TOUCHSCREEN_HP600)		+= hp680_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_HP7XX)		+= jornada720_ts.o
++obj-$(CONFIG_TOUCHSCREEN_HTCPEN)	+= htcpen.o
+ obj-$(CONFIG_TOUCHSCREEN_USB_COMPOSITE)	+= usbtouchscreen.o
+ obj-$(CONFIG_TOUCHSCREEN_PENMOUNT)	+= penmount.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+--- linux-2.6.26-rc4/MAINTAINERS	2008-05-27 12:24:07.000000000 +0200
++++ linux/MAINTAINERS	2008-05-27 13:01:52.000000000 +0200
+@@ -1945,6 +1945,12 @@ M:	mikulas@artax.karlin.mff.cuni.cz
+ W:	http://artax.karlin.mff.cuni.cz/~mikulas/vyplody/hpfs/index-e.cgi
+ S:	Maintained
+ 
++HTCPEN TOUCHSCREEN DRIVER
++P:	Pau Oliva Fora
++M:	pof@eslack.org
++L:	linux-input@vger.kernel.org
++S:	Maintained
++
+ HUGETLB FILESYSTEM
+ P:	William Irwin
+ M:	wli@holomorphy.com

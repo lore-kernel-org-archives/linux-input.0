@@ -1,53 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] pxa: Fix some issues with pxa27x_keypad driver v2
-Date: Wed, 28 May 2008 11:15:36 -0400
-Message-ID: <20080528111503.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080528162539.6d7a2158.ospite@studenti.unina.it> <20080528103004.ZZRA012@mailhub.coreip.homeip.net> <20080528171114.ed177b63.ospite@studenti.unina.it>
+From: Eric Paris <eparis@redhat.com>
+Subject: Hang in mousedev_init
+Date: Wed, 28 May 2008 11:49:42 -0400
+Message-ID: <1211989782.3079.68.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.242]:65457 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751211AbYE1PPl (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 May 2008 11:15:41 -0400
-Received: by an-out-0708.google.com with SMTP id d40so645277and.103
-        for <linux-input@vger.kernel.org>; Wed, 28 May 2008 08:15:40 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080528171114.ed177b63.ospite@studenti.unina.it>
+Received: from mx1.redhat.com ([66.187.233.31]:54439 "EHLO mx1.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751434AbYE1Puf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 May 2008 11:50:35 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antonio Ospite <ospite@studenti.unina.it>
-Cc: linux-input@vger.kernel.org, eric miao <eric.y.miao@gmail.com>
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, yoann.v@prelude-ids.com
 
-On Wed, May 28, 2008 at 05:11:14PM +0200, Antonio Ospite wrote:
-> On Wed, 28 May 2008 10:31:25 -0400
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > Hi Antonio,
-> > 
-> > On Wed, May 28, 2008 at 04:25:39PM +0200, Antonio Ospite wrote:
-> > >  
-> > > -	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-> > > -		BIT_MASK(EV_REL);
-> > > +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
-> > > +	if (keypad->pdata->rotary0_rel_code || keypad->pdata->rotary1_rel_code)
-> > > +		input_dev->evbit[0] |= BIT_MASK(EV_REL);
-> > 
-> > Shouldn't this also check pdata->enable_rotaryX?
-> >
-> 
-> Yes, maybe.
-> Do you prefer a check like this?
-> 
-> if ((keypad->pdata->enable_rotary0 && keypad->pdata->rotary0_rel_code) ||
-> 	(keypad->pdata->enable_rotary1 && keypad->pdata->rotary1_rel_code))
-> 	input_dev->evbit[0] |= BIT_MASK(EV_REL);
-> 
-> Just confirm that and I'll resend a fixed version of the patch.
-> 
+I have a report of a person who is booting a 2.6.25 based fedora kernel
+and hanging in mounsedev_init().  Moving to our old 2.6.24 based fedora
+kernels he doesn't see any problems.
 
-Yep, that should work, thanks.
+we know its mousedev_init since we added initcall_debug and
+mousedev_init() is called but never returns...
 
--- 
-Dmitry
+Doesn't look like many patches between then and now
+
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3b04a61107dfe46dbfc1796298b59ca3c0a09cd9
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=d182c10c842007984e12b3b816df2b10d997cc8e
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a7097ff89c3204737a07eecbc83f9ae6002cc534
+
+About the only thing my clueless eye noticed was in
+d182c10c842007984e12b3b816df2b10d997cc8e
+
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -1032,7 +1032,7 @@ static const struct input_device_id mousedev_ids[] = {
+                .flags = INPUT_DEVICE_ID_MATCH_EVBIT |
+                        INPUT_DEVICE_ID_MATCH_KEYBIT |
+                        INPUT_DEVICE_ID_MATCH_ABSBIT,
+-               .evbit = { BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_SYN) },
++               .evbit = { BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS) },
+                .keybit = { [BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) },
+                .absbit = { BIT_MASK(ABS_X) | BIT_MASK(ABS_Y) },
+        },      /* Mouse-like device with absolute X and Y but ordinary
+
+You dropped the | BIT(EV_SYN)   does that matter?  What could have
+changed to cause a hang?  Any clues?
+

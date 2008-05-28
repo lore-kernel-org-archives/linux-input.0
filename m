@@ -1,64 +1,93 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Hang in mousedev_init
-Date: Wed, 28 May 2008 13:32:51 -0400
-Message-ID: <20080528133017.ZZRA012@mailhub.coreip.homeip.net>
-References: <1211989782.3079.68.camel@localhost.localdomain>
+From: Antonio Ospite <ospite@studenti.unina.it>
+Subject: Re: [PATCH] pxa: Fix some issues with pxa27x_keypad driver v3
+Date: Wed, 28 May 2008 19:36:24 +0200
+Message-ID: <20080528193624.3b2e97b8.ospite@studenti.unina.it>
+References: <20080528162539.6d7a2158.ospite@studenti.unina.it>
+	<20080528103004.ZZRA012@mailhub.coreip.homeip.net>
+	<20080528171114.ed177b63.ospite@studenti.unina.it>
+	<20080528111503.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wx-out-0506.google.com ([66.249.82.234]:52404 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753355AbYE1Rc4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 May 2008 13:32:56 -0400
-Received: by wx-out-0506.google.com with SMTP id h29so2365499wxd.4
-        for <linux-input@vger.kernel.org>; Wed, 28 May 2008 10:32:55 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1211989782.3079.68.camel@localhost.localdomain>
+Received: from vsmtp14.tin.it ([212.216.176.118]:39953 "EHLO vsmtp14.tin.it"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752007AbYE1Rg2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 May 2008 13:36:28 -0400
+In-Reply-To: <20080528111503.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Paris <eparis@redhat.com>
-Cc: linux-input@vger.kernel.org, yoann.v@prelude-ids.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, eric miao <eric.y.miao@gmail.com>
 
-On Wed, May 28, 2008 at 11:49:42AM -0400, Eric Paris wrote:
-> I have a report of a person who is booting a 2.6.25 based fedora kernel
-> and hanging in mounsedev_init().  Moving to our old 2.6.24 based fedora
-> kernels he doesn't see any problems.
-> 
-> we know its mousedev_init since we added initcall_debug and
-> mousedev_init() is called but never returns...
-> 
 
-Is it possible to get a SysRQ-P and SysRq-T traces and see where we
-get stuck? Does the boot progress if you exclude mousedev from the
-kernel?
+Fix some issues with pxa27x_keypad driver:
 
-> Doesn't look like many patches between then and now
-> 
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=3b04a61107dfe46dbfc1796298b59ca3c0a09cd9
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=d182c10c842007984e12b3b816df2b10d997cc8e
-> http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a7097ff89c3204737a07eecbc83f9ae6002cc534
-> 
-> About the only thing my clueless eye noticed was in
-> d182c10c842007984e12b3b816df2b10d997cc8e
-> 
-> --- a/drivers/input/mousedev.c
-> +++ b/drivers/input/mousedev.c
-> @@ -1032,7 +1032,7 @@ static const struct input_device_id mousedev_ids[] = {
->                 .flags = INPUT_DEVICE_ID_MATCH_EVBIT |
->                         INPUT_DEVICE_ID_MATCH_KEYBIT |
->                         INPUT_DEVICE_ID_MATCH_ABSBIT,
-> -               .evbit = { BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_SYN) },
-> +               .evbit = { BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS) },
->                 .keybit = { [BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) },
->                 .absbit = { BIT_MASK(ABS_X) | BIT_MASK(ABS_Y) },
->         },      /* Mouse-like device with absolute X and Y but ordinary
-> 
-> You dropped the | BIT(EV_SYN)   does that matter?  What could have
-> changed to cause a hang?  Any clues?
-> 
+1. set input bits for direct keys codes
+2. set input bits for rotary encoder codes only if rotary
+   encoder is enabled
+3. enable EV_REL only if rel_codes are set for rotary encoders
 
-Every device has EV_SYN so it makes no sense to try to match on it.
+Signed-off-by: Antonio Ospite <ao2@openezx.org>
 
--- 
-Dmitry
+Index: linux-2.6.26-rc3/drivers/input/keyboard/pxa27x_keypad.c
+===================================================================
+--- linux-2.6.26-rc3.orig/drivers/input/keyboard/pxa27x_keypad.c
++++ linux-2.6.26-rc3/drivers/input/keyboard/pxa27x_keypad.c
+@@ -136,6 +136,9 @@
+ 		set_bit(code, input_dev->keybit);
+ 	}
+ 
++	for (i = 0; i < pdata->direct_key_num; i++)
++		set_bit(pdata->direct_key_map[i], input_dev->keybit);
++
+ 	keypad->rotary_up_key[0] = pdata->rotary0_up_key;
+ 	keypad->rotary_up_key[1] = pdata->rotary1_up_key;
+ 	keypad->rotary_down_key[0] = pdata->rotary0_down_key;
+@@ -143,17 +146,21 @@
+ 	keypad->rotary_rel_code[0] = pdata->rotary0_rel_code;
+ 	keypad->rotary_rel_code[1] = pdata->rotary1_rel_code;
+ 
+-	if (pdata->rotary0_up_key && pdata->rotary0_down_key) {
+-		set_bit(pdata->rotary0_up_key, input_dev->keybit);
+-		set_bit(pdata->rotary0_down_key, input_dev->keybit);
+-	} else
+-		set_bit(pdata->rotary0_rel_code, input_dev->relbit);
+-
+-	if (pdata->rotary1_up_key && pdata->rotary1_down_key) {
+-		set_bit(pdata->rotary1_up_key, input_dev->keybit);
+-		set_bit(pdata->rotary1_down_key, input_dev->keybit);
+-	} else
+-		set_bit(pdata->rotary1_rel_code, input_dev->relbit);
++	if (pdata->enable_rotary0) {
++		if (pdata->rotary0_up_key && pdata->rotary0_down_key) {
++			set_bit(pdata->rotary0_up_key, input_dev->keybit);
++			set_bit(pdata->rotary0_down_key, input_dev->keybit);
++		} else
++			set_bit(pdata->rotary0_rel_code, input_dev->relbit);
++	}
++
++	if (pdata->enable_rotary1) {
++		if (pdata->rotary1_up_key && pdata->rotary1_down_key) {
++			set_bit(pdata->rotary1_up_key, input_dev->keybit);
++			set_bit(pdata->rotary1_down_key, input_dev->keybit);
++		} else
++			set_bit(pdata->rotary1_rel_code, input_dev->relbit);
++	}
+ }
+ 
+ static inline unsigned int lookup_matrix_keycode(
+@@ -484,8 +491,11 @@
+ 	keypad->input_dev = input_dev;
+ 	input_set_drvdata(input_dev, keypad);
+ 
+-	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
+-		BIT_MASK(EV_REL);
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	if ((keypad->pdata->enable_rotary0 && keypad->pdata->rotary0_rel_code)
++	    || (keypad->pdata->enable_rotary1
++		&& keypad->pdata->rotary1_rel_code))
++		input_dev->evbit[0] |= BIT_MASK(EV_REL);
+ 
+ 	pxa27x_keypad_build_keycode(keypad);
+ 	platform_set_drvdata(pdev, keypad);

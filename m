@@ -1,94 +1,102 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 2/2] Eliminate double kfree
-Date: Thu, 29 May 2008 15:05:07 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0805291504400.26229@ask.diku.dk>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Eliminate double kfree
+Date: Thu, 29 May 2008 11:33:39 -0400
+Message-ID: <20080529101012.ZZRA012@mailhub.coreip.homeip.net>
+References: <Pine.LNX.4.64.0805291504400.26229@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756975AbYE2NFw@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ug-out-1314.google.com ([66.249.92.170]:38426 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753744AbYE2Pdr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 May 2008 11:33:47 -0400
+Received: by ug-out-1314.google.com with SMTP id h2so119374ugf.16
+        for <linux-input@vger.kernel.org>; Thu, 29 May 2008 08:33:45 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0805291504400.26229@ask.diku.dk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Julia Lawall <julia@diku.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-From: Julia Lawall <julia@diku.dk>
+Hi Julia,
 
-The variable report is only non-NULL and non-freed in a small region of
-code, so it should only be freed in error handling code that comes from
-that region.
+On Thu, May 29, 2008 at 03:05:07PM +0200, Julia Lawall wrote:
+> From: Julia Lawall <julia@diku.dk>
+> 
+> The variable report is only non-NULL and non-freed in a small region of
+> code, so it should only be freed in error handling code that comes from
+> that region.
+> 
 
-This was found using the following semantic match.
-(http://www.emn.fr/x-info/coccinelle/)
+Thank you for your patch. There isn't a double-kfree though, as far
+as I can see. Because we need to free the report in both success and
+failure cases the error handling is a bit unwieldy I agree. I don't
+want to apply your patch though because I don't like when we bypass
+parts of error handling path that weren't bypassed if we aborted
+earlier, if you follow me.
 
-// <smpl>
-@r1@
-expression E;
-position p1,p2;
-@@
+What do you think about the patch below?
 
-kfree@p1(E);
-...
-kfree@p2(E);
+-- 
+Dmitry
 
-@subexps@
-expression E1;
-position r1.p1,p;
-@@
+Input: gtco - clean up error handling in gtco_probe
 
-kfree@p1(<+... E1@p ...+>);
+Thanks to Julia Lawall for noticing ugliness.
 
-@recollect@
-position subexps.p;
-expression E1;
-@@
-
-E1@p
-
-@doublekfree@
-position r1.p1,r1.p2;
-expression recollect.E1,E2,E;
-position p;
-statement S;
-@@
-
-kfree@p1(E);
-<+... E1@p=E2 ...+> // the actual semantic match contains other assignments
-kfree@p2(E);
-
-@notdoublekfree@
-position r1.p1,r1.p2;
-position any doublekfree.p;
-expression E,E1,E2;
-@@
-
-* kfree@p1(E);
-... when != E1@p
-    when != E1@p = E2 // needed to match a variable decl
-* kfree@p2(E);
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 ---
+ drivers/input/tablet/gtco.c |   17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
-diff -u -p a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
---- a/drivers/input/tablet/gtco.c	2008-05-09 16:46:57.000000000 +0200
-+++ b/drivers/input/tablet/gtco.c	2008-05-29 14:12:31.000000000 +0200
-@@ -926,7 +926,7 @@ static int gtco_probe(struct usb_interfa
- 		err("Failed to get HID Report Descriptor of size: %d",
- 		    hid_desc->wDescriptorLength);
- 		error = -EIO;
--		goto err_free_urb;
-+		goto err_free_report;
+Index: linux/drivers/input/tablet/gtco.c
+===================================================================
+--- linux.orig/drivers/input/tablet/gtco.c
++++ linux/drivers/input/tablet/gtco.c
+@@ -830,7 +830,7 @@ static int gtco_probe(struct usb_interfa
+ 	struct gtco             *gtco;
+ 	struct input_dev        *input_dev;
+ 	struct hid_descriptor   *hid_desc;
+-	char                    *report = NULL;
++	char                    *report;
+ 	int                     result = 0, retry;
+ 	int			error;
+ 	struct usb_endpoint_descriptor *endpoint;
+@@ -916,12 +916,16 @@ static int gtco_probe(struct usb_interfa
+ 					 le16_to_cpu(hid_desc->wDescriptorLength),
+ 					 5000); /* 5 secs */
+ 
+-		if (result == le16_to_cpu(hid_desc->wDescriptorLength))
++		dbg("usb_control_msg result: %d", result);
++		if (result == le16_to_cpu(hid_desc->wDescriptorLength)) {
++			parse_hid_report_descriptor(gtco, report, result);
+ 			break;
++		}
  	}
  
- 	/* Now we parse the report */
-@@ -982,13 +982,14 @@ static int gtco_probe(struct usb_interfa
- 
- 	return 0;
- 
-+ err_free_report:
 +	kfree(report);
-  err_free_urb:
- 	usb_free_urb(gtco->urbinfo);
-  err_free_buf:
++
+ 	/* If we didn't get the report, fail */
+-	dbg("usb_control_msg result: :%d", result);
+ 	if (result != le16_to_cpu(hid_desc->wDescriptorLength)) {
+ 		err("Failed to get HID Report Descriptor of size: %d",
+ 		    hid_desc->wDescriptorLength);
+@@ -929,12 +933,6 @@ static int gtco_probe(struct usb_interfa
+ 		goto err_free_urb;
+ 	}
+ 
+-	/* Now we parse the report */
+-	parse_hid_report_descriptor(gtco, report, result);
+-
+-	/* Now we delete it */
+-	kfree(report);
+-
+ 	/* Create a device file node */
+ 	usb_make_path(gtco->usbdev, gtco->usbpath, sizeof(gtco->usbpath));
+ 	strlcat(gtco->usbpath, "/input0", sizeof(gtco->usbpath));
+@@ -988,7 +986,6 @@ static int gtco_probe(struct usb_interfa
  	usb_buffer_free(gtco->usbdev, REPORT_MAX_SIZE,
  			gtco->buffer, gtco->buf_dma);
   err_free_devs:

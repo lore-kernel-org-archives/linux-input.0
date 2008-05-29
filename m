@@ -1,59 +1,158 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: RESEND: [PATCH 2/3] ACPI: Send switch event on dock events
-Date: Wed, 28 May 2008 22:32:25 -0700
-Message-ID: <20080528223225.51cf8298.akpm@linux-foundation.org>
-References: <20080528130621.GA32646@srcf.ucam.org>
-	<20080528132152.GB32646@srcf.ucam.org>
+Subject: Re: RESEND: [PATCH 3/3] Misc: Add HP WMI laptop extras driver
+Date: Wed, 28 May 2008 22:42:00 -0700
+Message-ID: <20080528224200.0c740819.akpm@linux-foundation.org>
+References: <20080528132152.GB32646@srcf.ucam.org>
+	<20080528132900.GC32646@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:46673 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:53793 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750711AbYE2Fcc (ORCPT
+	by vger.kernel.org with ESMTP id S1750711AbYE2FmI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 May 2008 01:32:32 -0400
-In-Reply-To: <20080528132152.GB32646@srcf.ucam.org>
+	Thu, 29 May 2008 01:42:08 -0400
+In-Reply-To: <20080528132900.GC32646@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, kristen.c.accardi@intel.com
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, carlos@strangeworlds.co.uk
 
-On Wed, 28 May 2008 14:33:49 +0100 Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+On Wed, 28 May 2008 14:34:25 +0100 Matthew Garrett <mjg59@srcf.ucam.org> wrote:
 
-> Send a switch event on docking for consistency with docks that don't 
-> present as a separate device.
+> This driver adds support for reading and configuring certain information 
+> on modern HP laptops with WMI BIOS interfaces. It supports enabling and 
+> disabling the ambient light sensor, querying attached displays and hard 
+> drive temperature, sending events on docking and querying the state of 
+> the dock and toggling the state of the wifi, bluetooth and wwan hardware 
+> via rfkill. It also makes the little "(i)" button work on machines that 
+> send that via WMI rather than via the keyboard controller.
 > 
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
-> 
-> ---
-> 
-> diff --git a/drivers/acpi/dock.c b/drivers/acpi/dock.c
-> index fa44fb9..a67e74c 100644
-> --- a/drivers/acpi/dock.c
-> +++ b/drivers/acpi/dock.c
-> @@ -25,6 +25,7 @@
->  #include <linux/kernel.h>
->  #include <linux/module.h>
->  #include <linux/init.h>
-> +#include <linux/input.h>
->  #include <linux/types.h>
->  #include <linux/notifier.h>
->  #include <linux/platform_device.h>
-> @@ -65,6 +66,7 @@ struct dock_station {
->  	struct mutex hp_lock;
->  	struct list_head dependent_devices;
->  	struct list_head hotplug_devices;
-> +	struct input_dev *dock_input;
->  };
->  
->  struct dock_dependent_device {
-> @@ -345,10 +347,13 @@ static void dock_event(struct dock_station *ds, u32 event, int num)
->  	char event_string[13];
->  	char *envp[] = { event_string, NULL };
->  
-> -	if (num == UNDOCK_EVENT)
-> +	if (num == UNDOCK_EVENT) {
-> +		input_report_switch(dock_station->dock_input, SW_DOCK, 0);
+> ...
+>
+> --- /dev/null
+> +++ b/drivers/misc/hp-wmi.c
 
-Is CONFIG_ACPI_DOCK=y, CONFIG_INPUT=n possible?  I think so..
+I see no Kconfig or Makefile updates.
+
+>
+> ...
+>
+> +static struct key_entry hp_wmi_keymap[] = {
+> +	{KE_SW, 0x01, SW_DOCK},
+> +	{KE_KEY, 0x02, KEY_BRIGHTNESSUP},
+> +	{KE_KEY, 0x03, KEY_BRIGHTNESSDOWN},
+> +	{KE_KEY, 0x04, KEY_HELP},
+> +	{KE_END, 0}
+> +};
+
+Could be made const.  hp_wmi_input_setup() already honours that,
+others will need tweaks.
+
+> +static struct input_dev *hp_wmi_input_dev;
+> +static struct platform_device *hp_wmi_platform_dev;
+> +
+> +static struct rfkill *wifi_rfkill;
+> +static struct rfkill *bluetooth_rfkill;
+> +static struct rfkill *wwan_rfkill;
+
+It will be interesting to see the Kconfig rules for this driver..
+
+> +static struct platform_driver hp_wmi_driver = {
+> +	.driver = {
+> +		   .name = "hp-wmi",
+> +		   .owner = THIS_MODULE,
+> +		   },
+
+	.driver = {
+		   .name = "hp-wmi",
+		   .owner = THIS_MODULE,
+	},
+
+would be more conventional layout.
+
+> +	.probe = hp_wmi_bios_setup,
+> +	.remove = hp_wmi_bios_remove,
+> +};
+> +
+> +static int hp_wmi_perform_query(int query, int write, int value)
+> +{
+> +	struct acpi_buffer input, output = { ACPI_ALLOCATE_BUFFER, NULL };
+
+The NULL isn't strictly needed.
+
+> +	struct bios_args args;
+> +	struct bios_return bios_return;
+> +	acpi_status status;
+> +	union acpi_object *obj;
+> +
+> +	args.signature = 0x55434553;
+> +	args.command = write ? 0x2 : 0x1;
+> +	args.commandtype = query;
+> +	args.datasize = write ? 0x4 : 0;
+> +	args.data = value;
+
+Could have populated args with `= { .name = value, ... }'?
+
+> +	input.length = sizeof(struct bios_args);
+> +	input.pointer = &args;
+
+And `input', perhaps.
+
+> +	status = wmi_evaluate_method(HPWMI_BIOS_GUID, 0, 0x3, &input, &output);
+> +
+> +	obj = output.pointer;
+> +
+> +	if (!obj || obj->type != ACPI_TYPE_BUFFER)
+> +		return -EINVAL;
+> +
+> +	bios_return = *((struct bios_return *)obj->buffer.pointer);
+> +	if (bios_return.return_code > 0)
+> +		return bios_return.return_code * -1;
+> +	else
+> +		return bios_return.value;
+> +}
+> +
+>
+> ...
+>
+> +static int hp_wmi_setkeycode(struct input_dev *dev, int scancode, int keycode)
+> +{
+> +	struct key_entry *key;
+> +
+> +	int old_keycode;
+
+Unneeded newline.
+
+> +	if (keycode < 0 || keycode > KEY_MAX)
+> +		return -EINVAL;
+> +
+> +	key = hp_wmi_get_entry_by_scancode(scancode);
+> +	if (key && key->type == KE_KEY) {
+> +		old_keycode = key->keycode;
+> +		key->keycode = keycode;
+> +		set_bit(keycode, dev->keybit);
+> +		if (!hp_wmi_get_entry_by_keycode(old_keycode))
+> +			clear_bit(old_keycode, dev->keybit);
+> +		return 0;
+> +	}
+> +
+> +	return -EINVAL;
+> +}
+> +
+>
+> ...
+>
+> +static int __init hp_wmi_bios_setup(struct platform_device *device)
+> +{
+> +	device_create_file(&device->dev, &dev_attr_display);
+> +	device_create_file(&device->dev, &dev_attr_hddtemp);
+> +	device_create_file(&device->dev, &dev_attr_als);
+> +	device_create_file(&device->dev, &dev_attr_dock);
+
+wham, four new warnings.
+
+Please check and suitably handle errors.
+
+

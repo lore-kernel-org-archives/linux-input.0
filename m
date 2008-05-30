@@ -1,88 +1,84 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: 2.6.26-rc3 - appletouch resume "incomplete data package"
-Date: Fri, 30 May 2008 10:41:43 +0200
-Message-ID: <1212136904.10109.21.camel@johannes.berg>
-References: <b6c5339f0805251324k70a3a56ci9cab5274acc2d01d@mail.gmail.com>
-	 <1211800004.17151.51.camel@johannes.berg>
-	 <b6c5339f0805291956j1d39b728n6482003d4b79141b@mail.gmail.com>
-	 (sfid-20080530_045702_923794_B79C8717)
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH/RFC 1/2] Add jack reporting API for ALSA
+Date: Fri, 30 May 2008 11:15:57 +0100
+Message-ID: <20080530101557.GB7729@sirena.org.uk>
+References: <1212095345928-git-send-email-broonie@opensource.wolfsonmicro.com>
+	<s5hhccgjjgw.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-/AviL3Y25sia2XCO1XIX"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:48279 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751569AbYE3InA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 May 2008 04:43:00 -0400
-In-Reply-To: <b6c5339f0805291956j1d39b728n6482003d4b79141b@mail.gmail.com> (sfid-20080530_045702_923794_B79C8717)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <s5hhccgjjgw.wl%tiwai@suse.de>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dtor@insightbb.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bob Copeland <me@bobcopeland.com>
-Cc: oliver@neukum.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
+On Fri, May 30, 2008 at 10:15:43AM +0200, Takashi Iwai wrote:
 
---=-/AviL3Y25sia2XCO1XIX
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> The implementation looks good, simple enough.
 
-On Thu, 2008-05-29 at 22:56 -0400, Bob Copeland wrote:
-> On Mon, May 26, 2008 at 7:06 AM, Johannes Berg
-> <johannes@sipsolutions.net> wrote:
-> > On Sun, 2008-05-25 at 16:24 -0400, Bob Copeland wrote:
-> >> This appears to be a regression since 2.6.25.  After resuming, I get:
-> >>
-> >>     appletouch: incomplete data package (first byte: 2, length: 4).
-> >>     appletouch: incomplete data package (first byte: 2, length: 4).
-> >>     appletouch: incomplete data package (first byte: 2, length: 4).
->=20
-> > I have intermittently seen this problem happen for quite a while, a
-> > bisect will probably not help you.
->=20
-> Hmm, well the console switch in suspend may be triggering it, but I
-> didn't have the issue in 2.6.25 and it seems to be easily repeatable
-> for me in .26 so far.  Doing ctrl-alt-f1 to switch to text mode and
-> back a dozen times didn't break the mouse, but suspending once did.
+Thanks.
 
-Oh I didn't say it breaks, the thing is I get this message once a while
-without it breaking, while suspend once a while breaks it (but I'm not
-sure the message happens when it breaks)
+> Mark Brown wrote:
 
-> I tried a bisect anyway but didn't come up with any smoking gun.  Darn.
+> > +config SND_JACK
+> > +	tristate
+> > +	depends on SND
+> > +	depends on INPUT
 
-Yeah, I tried looking at the code but didn't really find anything
-either. There must be something else... The thing is, nothing makes
-sense unless there's a bug elsewhere, because it works fine after you
-resume broken and reload the module. But reloading the module doesn't
-really do anything to the hardware, it only submits a new urb while
-resume simply resubmits the old one. All the other code is
-kernel-internal housekeeping stuff.
+> The code is small, and I don't see a big merit to make it a module.
 
-Or can the urb endpoint information change so we need to re-do
-usb_fill_int_urb?
+I agree - I had meant to flag this up, actually.  I hadn't been sure if
+some of the other objects were being built conditionally for size or not
+since they seemed relatively small too.  When I respin I'll remove this
+option.
 
-johannes
+> > +	snprintf(jack->name, sizeof(jack->name), "%s %s",
+> > +		 card->longname, jack->id);
 
---=-/AviL3Y25sia2XCO1XIX
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> The longname field could be sometimes really too long and verbose.
+> I guess shortname would match better.
 
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
+The general style for input device names tends towards the long and
+verbose.  For example, on my work laptop I have devices with names like:
 
-iQIVAwUASD+9xqVg1VMiehFYAQJTxA/+M3qo0VmFnH9G8d6gS20ZdU2ZtO9+i+Bq
-xP19fKqFjqZgBJNY7I+Cpvy5n1Z0q16bulTmoWe6/C0XjaVWr217O+3mY2vjKrIc
-qAyHh49NWArd0B5w/l1z6x6z3vHAwPlYpRZvvU/c3hiksroAqlM+BomLr5gkNHIi
-K1OW6WoSzNUZW0cC+r5CvTbU7A11Xl07Z0IsXNxyFfwiOIUYCDaLYcqGNlYUPw/y
-sa2ETu1fl5mR6qAeJEWm1bBFy845ObaYARCOy2sOB9jvDpj0nFNKz5aC0Z0kRSQK
-NpeqC6jGxDIeHYBHGmBvdxfr1BogdZvxXtEPKqZSpsIyctIWKRDa5A7gSVzU9SOZ
-HMp5JH4enOFnmSccvMLpqLcv/I0iFdHzL/y/ntOweqdxXhV6OS8rUndop4fEdwwn
-gJi724mZABZ7VaEEQqvmRZ9UwxIy0PpV0e+J5xG89evXQy2wDT6eQ1DLEqA+bpNB
-Tk8AvZU21w7EJ1P3aXiOT5m8cfmLhNUsS3pZOmPh5owT0SMOp63lMqR5p/VAHuRD
-Y0ioW/z7fs3g1Uw0MjgHTTvNkVwjWHIO9r9M1HVo77CFpDwJpVhQAZoOzxKnpXs6
-LOGDozuJPoHPm0sY06vcrtQy9pM3zTBdHn1/C8/7c+YbOZbKPEQTHKSznwGw3Pl4
-373Wz9WTuQ0=
-=0EL/
------END PGP SIGNATURE-----
+   Macintosh mouse button emulation
+   AT Translated Set 2 Keyboard
+   Lid Switch
+   Power Button (CM)
+   Sleep Button (CM)
+   AlpsPS/2 ALPS GlidePoint
 
---=-/AviL3Y25sia2XCO1XIX--
+The ALSA long name seems more idiomatic for this context.
 
+> > +int snd_jack_new(struct snd_card *card, const char *id, int type,
+> > +		 struct snd_jack **jjack)
+> (snip)
+> > +	jack->input_dev->phys = "ALSA";
+> > +	jack->input_dev->dev.parent = card->dev;
+
+> The card->dev pointer might not be initialized always at this stage.
+> You should check rather at register.
+
+Will do.
+
+> Also, someone may want to pass a different device pointer for this.
+> Passing struct device * to snd_jack_new would be an alternative.
+
+Good idea, that might be useful for ASoC v2 sound cards.  I'll add
+something which allows the caller to optionally specify a parent,
+defaulting to the sound card if none is given.
+
+The only issue might be for user space figuring out which sound card
+corresponds to which jack but if jacks might be implemented outside of
+ALSA anyway (which is possible) that could happen anyway.

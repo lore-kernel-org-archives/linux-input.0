@@ -1,84 +1,100 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH/RFC 1/2] Add jack reporting API for ALSA
-Date: Fri, 30 May 2008 11:15:57 +0100
-Message-ID: <20080530101557.GB7729@sirena.org.uk>
-References: <1212095345928-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<s5hhccgjjgw.wl%tiwai@suse.de>
+From: Thomas Ilnseher <illth@gmx.de>
+Subject: [RFC][PATCH] correct some quirks for trust 15351 bluetooth mouse
+Date: Fri, 30 May 2008 21:21:10 +0200
+Message-ID: <1212175271.22054.19.camel@note.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <s5hhccgjjgw.wl%tiwai@suse.de>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dtor@insightbb.com>, linux-input@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-FhogaqTRknCDB+Lcb8wR"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.gmx.net ([213.165.64.20]:42735 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1751482AbYE3TVN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 May 2008 15:21:13 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: vojtech@ucw.cz, linux-input@vger.kernel.org
 
-On Fri, May 30, 2008 at 10:15:43AM +0200, Takashi Iwai wrote:
 
-> The implementation looks good, simple enough.
+--=-FhogaqTRknCDB+Lcb8wR
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanks.
+I recently got a (trust 15351) bluetooth mouse.
 
-> Mark Brown wrote:
+when I hooked it up to my notebook, Only the Y-Axis did work,
+not the X-Axis. with some help from peter hutterer, I could track the
+problem down an hid->usage of 0006.0020 that got mapped to abs.misc,
+which confused evdev.
 
-> > +config SND_JACK
-> > +	tristate
-> > +	depends on SND
-> > +	depends on INPUT
+There is also a Consumer.HWheel reported, which is not present on the
+mouse, but is a further annoyance (it gets mapped to buttens 6/7,
+that remaps the real buttons 6/7 to 8/9, and you have to use xmodmap).
 
-> The code is small, and I don't see a big merit to make it a module.
+I composed this patch to make the hid driver ignore these two "features"
+of the mouse.
 
-I agree - I had meant to flag this up, actually.  I hadn't been sure if
-some of the other objects were being built conditionally for size or not
-since they seemed relatively small too.  When I respin I'll remove this
-option.
+I'm not sure if this is the right way to do things.
 
-> > +	snprintf(jack->name, sizeof(jack->name), "%s %s",
-> > +		 card->longname, jack->id);
+Cheers,
+Thomas
+-- 
+Thomas Ilnseher <illth@gmx.de>
 
-> The longname field could be sometimes really too long and verbose.
-> I guess shortname would match better.
+--=-FhogaqTRknCDB+Lcb8wR
+Content-Description: 
+Content-Disposition: inline; filename=hid-quirk-trust15351.diff
+Content-Type: text/x-patch; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-The general style for input device names tends towards the long and
-verbose.  For example, on my work laptop I have devices with names like:
+--- linux/drivers/hid/hid-input-quirks.c.orig	2008-04-17 04:49:44.000000000 +0200
++++ linux/drivers/hid/hid-input-quirks.c	2008-05-30 20:36:55.867668169 +0200
+@@ -24,6 +24,18 @@
+ #define map_abs_clear(c)        do { map_abs(c); clear_bit(c, *bit); } while (0)
+ #define map_key_clear(c)        do { map_key(c); clear_bit(c, *bit); } while (0)
+ 
++static int quirk_trust15351_ignore_weird_axis(struct hid_usage *usage, struct input_dev *input,
++			      unsigned long **bit, int *max)
++{
++	/* 0006.0020 is some weird absolute axis that gets mapped to abs.misc */
++	if (usage->hid == 0x60020)
++		return 2;
++	/* consumer.hwheel (but the mouse has no hwheel) */
++	if (usage->hid == 0xc0238)
++		return 2;
++	return 0;
++}
++
+ static int quirk_belkin_wkbd(struct hid_usage *usage, struct input_dev *input,
+ 			      unsigned long **bit, int *max)
+ {
+@@ -306,6 +318,9 @@
+ #define VENDOR_ID_PETALYNX			0x18b1
+ #define DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
+ 
++#define VENDOR_ID_TRUST				0x0a5c
++#define DEVICE_IS_13531_BT			0x0001
++
+ static const struct hid_input_blacklist {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+@@ -332,6 +346,8 @@
+ 	{ VENDOR_ID_MONTEREY, DEVICE_ID_GENIUS_KB29E, quirk_cherry_genius_29e },
+ 
+ 	{ VENDOR_ID_PETALYNX, DEVICE_ID_PETALYNX_MAXTER_REMOTE, quirk_petalynx_remote },
++
++	{ VENDOR_ID_TRUST, DEVICE_IS_13531_BT, quirk_trust15351_ignore_weird_axis },
+ 	
+ 	{ 0, 0, 0 }
+ };
+--- linux/drivers/hid/hid-input.c.orig	2008-05-30 20:18:43.000000000 +0200
++++ linux/drivers/hid/hid-input.c	2008-05-30 20:36:55.880256291 +0200
+@@ -387,6 +387,8 @@
+ 
+ 	/* handle input mappings for quirky devices */
+ 	ret = hidinput_mapping_quirks(usage, input, &bit, &max);
++	if (ret == 2)
++		goto ignore;
+ 	if (ret)
+ 		goto mapped;
 
-   Macintosh mouse button emulation
-   AT Translated Set 2 Keyboard
-   Lid Switch
-   Power Button (CM)
-   Sleep Button (CM)
-   AlpsPS/2 ALPS GlidePoint
+--=-FhogaqTRknCDB+Lcb8wR--
 
-The ALSA long name seems more idiomatic for this context.
-
-> > +int snd_jack_new(struct snd_card *card, const char *id, int type,
-> > +		 struct snd_jack **jjack)
-> (snip)
-> > +	jack->input_dev->phys = "ALSA";
-> > +	jack->input_dev->dev.parent = card->dev;
-
-> The card->dev pointer might not be initialized always at this stage.
-> You should check rather at register.
-
-Will do.
-
-> Also, someone may want to pass a different device pointer for this.
-> Passing struct device * to snd_jack_new would be an alternative.
-
-Good idea, that might be useful for ASoC v2 sound cards.  I'll add
-something which allows the caller to optionally specify a parent,
-defaulting to the sound card if none is given.
-
-The only issue might be for user space figuring out which sound card
-corresponds to which jack but if jacks might be implemented outside of
-ALSA anyway (which is possible) that could happen anyway.

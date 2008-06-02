@@ -1,24 +1,39 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH] input: pxa27x_keypad: add wakeup support
-Date: Mon, 2 Jun 2008 12:24:24 +0100
-Message-ID: <20080602112424.GD26127@flint.arm.linux.org.uk>
-References: <4843C4D2.8060800@gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: RESEND: [PATCH 3/3] Misc: Add HP WMI laptop extras driver
+Date: Mon, 2 Jun 2008 16:30:37 -0700
+Message-ID: <20080602163037.a7044f68.akpm@linux-foundation.org>
+References: <20080528132152.GB32646@srcf.ucam.org>
+	<20080528132900.GC32646@srcf.ucam.org>
+	<20080529082356.GE16444@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:32899 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752284AbYFBLYf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Jun 2008 07:24:35 -0400
-Content-Disposition: inline
-In-Reply-To: <4843C4D2.8060800@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20080529082356.GE16444@srcf.ucam.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, carlos@strangeworlds.co.uk
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
 
-On Mon, Jun 02, 2008 at 06:00:50PM +0800, Eric Miao wrote:
-> 
-> Signed-off-by: eric miao <eric.miao@marvell.com>
+On Thu, 29 May 2008 09:23:56 +0100
+Matthew Garrett <mjg59@srcf.ucam.org> wrote:
 
-Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> This driver adds support for reading and configuring certain information 
+> on modern HP laptops with WMI BIOS interfaces. It supports enabling and 
+> disabling the ambient light sensor, querying attached displays and hard 
+> drive temperature, sending events on docking and querying the state of 
+> the dock and toggling the state of the wifi, bluetooth and wwan hardware 
+> via rfkill. It also makes the little "(i)" button work on machines that 
+> send that via WMI rather than via the keyboard controller.
+
+I should upgrade everyone to checkpatch-0.19...
+
+WARNING: consider using strict_strtoul in preference to simple_strtoul
+#300: FILE: drivers/misc/hp-wmi.c:244:
++       u32 tmp = simple_strtoul(buf, NULL, 10);
+
+The reason for this is that simple_strtoul(() will treat "42foo" as
+valid input (ie: 42).  Whereas strict_strtoul() will report an error,
+which is neater of us.
+
+

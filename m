@@ -1,276 +1,286 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: [PATCH] ati_remote2 loadable keymap support
-Date: Tue, 3 Jun 2008 21:45:26 +0300
-Message-ID: <20080603184525.GC5067@sci.fi>
-References: <200804051930.10574.linux@dadeos.co.uk> <20080408201826.GG16619@sci.fi> <200804182042.29337.linux@dadeos.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5.pp.htv.fi ([213.243.153.39]:33610 "EHLO smtp5.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753385AbYFCSp2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Jun 2008 14:45:28 -0400
-Content-Disposition: inline
-In-Reply-To: <200804182042.29337.linux@dadeos.co.uk>
-Sender: linux-input-owner@vger.kernel.org
+From: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
+Subject: [PATCH 1/2] ati_remote2: Add loadable keymap support
+Date: Tue,  3 Jun 2008 21:45:46 +0300
+Message-ID: <1212518747-23000-1-git-send-email-syrjala@sci.fi>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Peter Stokes <linux@dadeos.co.uk>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, dmitry.torokhov@gmail.com
 
-On Fri, Apr 18, 2008 at 08:42:29PM +0100, Peter Stokes wrote:
->=20
-> Ville,
->=20
-> My apologies for not responding to your feedback sooner. I had not no=
-ticed the=20
-> comments that you had inserted within the patch. Please find my respo=
-nses=20
-> below:
+Support for loadable keymaps. The driver now supports individual keymaps
+for each of the five modes (AUX1-AUX4 and PC) of the remote. To achieve
+this the keymap scancode is interpreted as a combination of the mode and
+actual button scancode. The original keycode patches were done by Peter
+Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org> but I modified it quite a lot.
 
-Sorry it took so long to respond. I'll just throw some comments here bu=
-t
-I'll also post a modifed patch that I cooked up.
+Signed-off-by: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
+---
+ drivers/input/misc/ati_remote2.c |  130 +++++++++++++++++++++++++++++---------
+ 1 files changed, 101 insertions(+), 29 deletions(-)
 
-> On Tuesday 08 April 2008 21:18:26 Ville Syrj=E4l=E4 wrote:
-> > On Sat, Apr 05, 2008 at 07:30:10PM +0100, Peter Stokes wrote:
-> > > +static int ati_remote2_getkeycode(struct input_dev *idev,
-> > > +				  int scancode, int *keycode)
-> > > +{
-> > > +	struct ati_remote2 *ar2 =3D input_get_drvdata(idev);
-> > > +	int index, mode;
-> > > +
-> > > +	if (((scancode >> 8) & mode_mask) !=3D (scancode >> 8))
-> > > +		return -EINVAL;
-> > > +
-> > > +	index =3D ati_remote2_lookup(scancode & 0xFF);
-> > > +	if (index =3D=3D -1)
-> > > +		return -EINVAL;
-> > > +
-> > > +	for (mode =3D 0; mode < ARRAY_SIZE(ati_remote2_modes); mode++) =
-{
-> > > +		if ((1 << mode) & (scancode >> 8)) {
-> > > +			*keycode =3D ar2->keycode[index][mode];
-> > > +			return 0;
-> > > +		}
-> > > +	}
-> >
-> > Is there a reason you using the high bits like a mask? IIRC the har=
-dware
-> > mode byte isn't a mask. So something like this should do:
-> >
-> > mode =3D scancode >> 8;
-> > if (mode < 0 || mode > MAX_MODE)
-> > 	return -EINVAL;
-> > index =3D ati_remote2_lookup(scancode & 0xff);
-> > if (index < 0)
-> > 	return -EINVAL;
-> >
-> >
-> > I'm not sure if mode_mask should affect the keymap handling at all =
-since
-> > both can be changed runtime.
-> >
->=20
-> The reason I am using the high bits as a mode mask is in order to add=
-ress the=20
-> issues I felt some people might have regarding the interpretation of =
-the=20
-> device that allows mapping separate keycodes to each physical button=20
-> dependant upon which mode the remote control is currently in. This ap=
-proach=20
-> address two issues.
->=20
-> Firstly, whilst the input system provides a mechanism to configure th=
-e=20
-> scancode to keycode mapping on a per-device basis (each device can ha=
-ve it's=20
-> own mapping table) unfortunately the mechanism by which the mapping t=
-ables=20
-> can be manipulated (via the 'setkeycodes' utility) does not allow for=
- the=20
-> device that should be modified to be specified. What actually appears=
- to=20
-> happen is that the first device that accepts the specified scancode a=
-s being=20
-> one it can produce changes it's mapping for that scancode to use the =
-new=20
-> keycode provided. The practical upshot of this is that I wish to be a=
-ble to=20
-> remap the keycodes associated with the remote control but if the scan=
-codes=20
-> the remote control reports are within the normal range associated wit=
-h a=20
-> regular keyboard (i.e. <=3D255) then the keyboard driver accepts the =
-change=20
-> first. This not only results in the ati_remote2 not even seeing the r=
-equest=20
-> for the new mapping it also has the undesirable side effect of corrup=
-ting the=20
-> mappings for the regular keyboard. To overcome this problem, I decide=
-d that=20
-> instead of using the mode byte as is (i.e. a number between 0 and 4) =
-I would=20
-> convert it into a bit mask, thus moving all the remote's reported sca=
-ncodes=20
-> (0x0100 -> 0x1FF9) outside to the regular keyboard range.
-
-That just tells me that setkeycodes is the wrong tool for this job.
-Trying to work around bugs/misfeatures in a simple tool like that insid=
-e
-the kernel is no good. Writing a small tool that directly uses the even=
-t
-device (or patching setkeycodes) is trivial enough.
-
-> Secondly. whilst I decided to provide the flexibility of a mechanism =
-by which=20
-> a single key may be mapped to different keycodes dependant upon which=
- mode=20
-> the remote is currently in, I expected that not everyone would need t=
-hat=20
-> functionality. A potential downside to providing the flexible impleme=
-ntation=20
-> could be that if a user simply wanted to change the mapping for a giv=
-en=20
-> physical button regardless of what mode the remote is currently in th=
-en it=20
-> might be necessary to submit five requests to update the mappings for=
- each=20
-> mode. By converting the mode byte into a mode bit mask it allows a ma=
-pping=20
-> request to simultaneously update the mapping for a single physical bu=
-tton for=20
-> all modes. So, for example:
->=20
-> setkeycodes 0x015C 28    - Would map the OK button for AUX1 mode to b=
-e 'enter'
-> setkeycodes 0x1F5C 28    - Would map the OK button for all modes to b=
-e 'enter'
->=20
-> The usage of the mode_mask module parameter in the 'ati_remote2_getke=
-ycode'=20
-> and 'ati_remote2_setkeycode' is only used determine whether the drive=
-r, as=20
-> currently configured, will respond to the specified scancode. If the =
-driver=20
-> will not currently respond, because a given mode is masked out, then =
-it is=20
-> not possible to request or modify the keymapping for a physical butto=
-n in=20
-> that mode.=20
-
-I understand but I still think it's the wrong thing to do. The API is
-documented to do 1:1 mapping and you're making it do something else.
-Also getkeycode can't really handle a mask since you'd need to return
-multiple keycodes for one scancode which would make API strangely
-assymmetric (and not to mention confusing for unwary users).
-
-> > > +
-> > > +	return -EINVAL;
-> > > +}
-> > > +
-> > > +static int ati_remote2_setkeycode(struct input_dev *idev,
-> > > +				  int scancode, int keycode)
-> > > +{
-> > > +	struct ati_remote2 *ar2 =3D input_get_drvdata(idev);
-> > > +	int old_keycode =3D -1;
-> > > +	int index, mode;
-> > > +
-> > > +	if (((scancode >> 8) & mode_mask) !=3D (scancode >> 8))
-> > > +		return -EINVAL;
-> > > +
-> >
-> > Same comments as above.
-> >
-> > > +	index =3D ati_remote2_lookup(scancode & 0xFF);
-> > > +	if (index =3D=3D -1)
-> > > +		return -EINVAL;
-> > > +
-> > > +	if (keycode < 0 || keycode > KEY_MAX)
-> >
-> > Are KEY_RESERVED/KEY_MAX valid here?
-> >
->=20
-> Yes, this is merely checking that the keycode provided is within the =
-range=20
-> expected by the linux input system.
-
-I meant that it now accepts KEY_RESERVED and KEY_MAX. Are those suppose=
-d
-to be valid keycodes? Hmm, I suppose KEY_MAX at least is supposed to va=
-lid
-judging from REP_MAX and FF_STATUS_MAX.
-
-> > > +		return -EINVAL;
-> > > +
-> > > +	for (mode =3D 0; mode < ARRAY_SIZE(ati_remote2_modes); mode++) =
-{
-> > > +		if ((1 << mode) & (scancode >> 8)) {
-> > > +			old_keycode =3D ar2->keycode[index][mode];
-> > > +			ar2->keycode[index][mode] =3D keycode;
-> > > +		}
-> > > +	}
-> > > +
-> > > +	set_bit(keycode, idev->keybit);
-> > > +
-> > > +	for (index =3D 0; index < ARRAY_SIZE(ati_remote2_keycodes); ind=
-ex++) {
-> > > +		for (mode =3D 0; mode < ARRAY_SIZE(ati_remote2_modes); mode++)=
+diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
+index f2709b8..b80b2fa 100644
+--- a/drivers/input/misc/ati_remote2.c
++++ b/drivers/input/misc/ati_remote2.c
+@@ -1,8 +1,8 @@
+ /*
+  * ati_remote2 - ATI/Philips USB RF remote driver
+  *
+- * Copyright (C) 2005 Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
+- * Copyright (C) 2007 Peter Stokes <linux-c3qaBEMxZpTYB/AZRZ3tHL0Ud+EcFu5g@public.gmane.org>
++ * Copyright (C) 2005-2008 Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
++ * Copyright (C) 2007-2008 Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2
+@@ -12,7 +12,7 @@
+ #include <linux/usb/input.h>
+ 
+ #define DRIVER_DESC    "ATI/Philips USB RF remote driver"
+-#define DRIVER_VERSION "0.2"
++#define DRIVER_VERSION "0.3"
+ 
+ MODULE_DESCRIPTION(DRIVER_DESC);
+ MODULE_VERSION(DRIVER_VERSION);
+@@ -27,7 +27,7 @@ MODULE_LICENSE("GPL");
+  * A remote's "channel" may be altered by pressing and holding the "PC" button for
+  * approximately 3 seconds, after which the button will slowly flash the count of the
+  * currently configured "channel", using the numeric keypad enter a number between 1 and
+- * 16 and then the "PC" button again, the button will slowly flash the count of the
++ * 16 and then press the "PC" button again, the button will slowly flash the count of the
+  * newly configured "channel".
+  */
+ 
+@@ -45,9 +45,18 @@ static struct usb_device_id ati_remote2_id_table[] = {
+ };
+ MODULE_DEVICE_TABLE(usb, ati_remote2_id_table);
+ 
+-static struct {
+-	int hw_code;
+-	int key_code;
++enum {
++	ATI_REMOTE2_AUX1,
++	ATI_REMOTE2_AUX2,
++	ATI_REMOTE2_AUX3,
++	ATI_REMOTE2_AUX4,
++	ATI_REMOTE2_PC,
++	ATI_REMOTE2_MODES,
++};
++
++static const struct {
++	u8  hw_code;
++	u16 keycode;
+ } ati_remote2_key_table[] = {
+ 	{ 0x00, KEY_0 },
+ 	{ 0x01, KEY_1 },
+@@ -73,6 +82,7 @@ static struct {
+ 	{ 0x37, KEY_RECORD },
+ 	{ 0x38, KEY_DVD },
+ 	{ 0x39, KEY_TV },
++	{ 0x3f, KEY_PROG1 }, /* AUX1-AUX4 and PC */
+ 	{ 0x54, KEY_MENU },
+ 	{ 0x58, KEY_UP },
+ 	{ 0x59, KEY_DOWN },
+@@ -91,15 +101,9 @@ static struct {
+ 	{ 0xa9, BTN_LEFT },
+ 	{ 0xaa, BTN_RIGHT },
+ 	{ 0xbe, KEY_QUESTION },
+-	{ 0xd5, KEY_FRONT },
+ 	{ 0xd0, KEY_EDIT },
++	{ 0xd5, KEY_FRONT },
+ 	{ 0xf9, KEY_INFO },
+-	{ (0x00 << 8) | 0x3f, KEY_PROG1 },
+-	{ (0x01 << 8) | 0x3f, KEY_PROG2 },
+-	{ (0x02 << 8) | 0x3f, KEY_PROG3 },
+-	{ (0x03 << 8) | 0x3f, KEY_PROG4 },
+-	{ (0x04 << 8) | 0x3f, KEY_PC },
+-	{ 0, KEY_RESERVED }
+ };
+ 
+ struct ati_remote2 {
+@@ -117,6 +121,9 @@ struct ati_remote2 {
+ 
+ 	char name[64];
+ 	char phys[64];
++
++	/* Each mode (AUX1-AUX4 and PC) can have an independent keymap. */
++	u16 keycode[ATI_REMOTE2_MODES][ARRAY_SIZE(ati_remote2_key_table)];
+ };
+ 
+ static int ati_remote2_probe(struct usb_interface *interface, const struct usb_device_id *id);
+@@ -172,7 +179,7 @@ static void ati_remote2_input_mouse(struct ati_remote2 *ar2)
+ 
+ 	mode = data[0] & 0x0F;
+ 
+-	if (mode > 4) {
++	if (mode > ATI_REMOTE2_PC) {
+ 		dev_err(&ar2->intf[0]->dev,
+ 			"Unknown mode byte (%02x %02x %02x %02x)\n",
+ 			data[3], data[2], data[1], data[0]);
+@@ -191,7 +198,7 @@ static int ati_remote2_lookup(unsigned int hw_code)
  {
-> > > +			if (ar2->keycode[index][mode] =3D=3D old_keycode)
-> > > +				return 0;
-> > > +		}
-> > > +	}
-> >
-> > Because of using the scancode high bits as a mask this could leave =
-some
-> > bits set even though they are no longer in the map.
-> >
->=20
-> No, in this function the 'mode' variable is an index into the ar2->ke=
-ycode=20
-> table (i.e. a number between 0 and 4). The implementation is attempti=
-ng to=20
-> ascertain whether or not the 'old_keycode' is still in use within the=
- key=20
-> table. The implementation does not filter the contents of idev->keybi=
-t based=20
-> upon whether a given keycode is only used by the remote in modes that=
- are=20
-> currently masked off. Is that what you meant?
+ 	int i;
+ 
+-	for (i = 0; ati_remote2_key_table[i].key_code != KEY_RESERVED; i++)
++	for (i = 0; i < ARRAY_SIZE(ati_remote2_key_table); i++)
+ 		if (ati_remote2_key_table[i].hw_code == hw_code)
+ 			return i;
+ 
+@@ -211,7 +218,7 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
+ 
+ 	mode = data[0] & 0x0F;
+ 
+-	if (mode > 4) {
++	if (mode > ATI_REMOTE2_PC) {
+ 		dev_err(&ar2->intf[1]->dev,
+ 			"Unknown mode byte (%02x %02x %02x %02x)\n",
+ 			data[3], data[2], data[1], data[0]);
+@@ -219,10 +226,6 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
+ 	}
+ 
+ 	hw_code = data[2];
+-	/*
+-	 * Mode keys (AUX1-AUX4, PC) all generate the same code byte.
+-	 * Use the mode byte to figure out which one was pressed.
+-	 */
+ 	if (hw_code == 0x3f) {
+ 		/*
+ 		 * For some incomprehensible reason the mouse pad generates
+@@ -236,8 +239,6 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
+ 
+ 		if (data[1] == 0)
+ 			ar2->mode = mode;
+-
+-		hw_code |= mode << 8;
+ 	}
+ 
+ 	if (!((1 << mode) & mode_mask))
+@@ -260,8 +261,8 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
+ 	case 2:	/* repeat */
+ 
+ 		/* No repeat for mouse buttons. */
+-		if (ati_remote2_key_table[index].key_code == BTN_LEFT ||
+-		    ati_remote2_key_table[index].key_code == BTN_RIGHT)
++		if (ar2->keycode[mode][index] == BTN_LEFT ||
++		    ar2->keycode[mode][index] == BTN_RIGHT)
+ 			return;
+ 
+ 		if (!time_after_eq(jiffies, ar2->jiffies))
+@@ -276,7 +277,7 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
+ 		return;
+ 	}
+ 
+-	input_event(idev, EV_KEY, ati_remote2_key_table[index].key_code, data[1]);
++	input_event(idev, EV_KEY, ar2->keycode[mode][index], data[1]);
+ 	input_sync(idev);
+ }
+ 
+@@ -334,10 +335,60 @@ static void ati_remote2_complete_key(struct urb *urb)
+ 			"%s(): usb_submit_urb() = %d\n", __FUNCTION__, r);
+ }
+ 
++static int ati_remote2_getkeycode(struct input_dev *idev,
++				  int scancode, int *keycode)
++{
++	struct ati_remote2 *ar2 = input_get_drvdata(idev);
++	int index, mode;
++
++	mode = scancode >> 8;
++	if (mode > ATI_REMOTE2_PC || !((1 << mode) & mode_mask))
++		return -EINVAL;
++
++	index = ati_remote2_lookup(scancode & 0xFF);
++	if (index < 0)
++		return -EINVAL;
++
++	*keycode = ar2->keycode[mode][index];
++	return 0;
++}
++
++static int ati_remote2_setkeycode(struct input_dev *idev, int scancode, int keycode)
++{
++	struct ati_remote2 *ar2 = input_get_drvdata(idev);
++	int index, mode, old_keycode;
++
++	mode = scancode >> 8;
++	if (mode > ATI_REMOTE2_PC || !((1 << mode) & mode_mask))
++		return -EINVAL;
++
++	index = ati_remote2_lookup(scancode & 0xFF);
++	if (index < 0)
++		return -EINVAL;
++
++	if (keycode < KEY_RESERVED || keycode > KEY_MAX)
++		return -EINVAL;
++
++	old_keycode = ar2->keycode[mode][index];
++	ar2->keycode[mode][index] = keycode;
++	set_bit(keycode, idev->keybit);
++
++	for (mode = 0; mode < ATI_REMOTE2_MODES; mode++) {
++		for (index = 0; index < ARRAY_SIZE(ati_remote2_key_table); index++) {
++			if (ar2->keycode[mode][index] == old_keycode)
++				return 0;
++		}
++	}
++
++	clear_bit(old_keycode, idev->keybit);
++
++	return 0;
++}
++
+ static int ati_remote2_input_init(struct ati_remote2 *ar2)
+ {
+ 	struct input_dev *idev;
+-	int i, retval;
++	int index, mode, retval;
+ 
+ 	idev = input_allocate_device();
+ 	if (!idev)
+@@ -350,8 +401,26 @@ static int ati_remote2_input_init(struct ati_remote2 *ar2)
+ 	idev->keybit[BIT_WORD(BTN_MOUSE)] = BIT_MASK(BTN_LEFT) |
+ 		BIT_MASK(BTN_RIGHT);
+ 	idev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
+-	for (i = 0; ati_remote2_key_table[i].key_code != KEY_RESERVED; i++)
+-		set_bit(ati_remote2_key_table[i].key_code, idev->keybit);
++
++	for (mode = 0; mode < ATI_REMOTE2_MODES; mode++) {
++		for (index = 0; index < ARRAY_SIZE(ati_remote2_key_table); index++) {
++			ar2->keycode[mode][index] = ati_remote2_key_table[index].keycode;
++			set_bit(ar2->keycode[mode][index], idev->keybit);
++		}
++	}
++
++	/* AUX1-AUX4 and PC generate the same scancode. */
++	index = ati_remote2_lookup(0x3f);
++	ar2->keycode[ATI_REMOTE2_AUX1][index] = KEY_PROG1;
++	ar2->keycode[ATI_REMOTE2_AUX2][index] = KEY_PROG2;
++	ar2->keycode[ATI_REMOTE2_AUX3][index] = KEY_PROG3;
++	ar2->keycode[ATI_REMOTE2_AUX4][index] = KEY_PROG4;
++	ar2->keycode[ATI_REMOTE2_PC][index] = KEY_PC;
++	set_bit(KEY_PROG1, idev->keybit);
++	set_bit(KEY_PROG2, idev->keybit);
++	set_bit(KEY_PROG3, idev->keybit);
++	set_bit(KEY_PROG4, idev->keybit);
++	set_bit(KEY_PC, idev->keybit);
+ 
+ 	idev->rep[REP_DELAY]  = 250;
+ 	idev->rep[REP_PERIOD] = 33;
+@@ -359,6 +428,9 @@ static int ati_remote2_input_init(struct ati_remote2 *ar2)
+ 	idev->open = ati_remote2_open;
+ 	idev->close = ati_remote2_close;
+ 
++	idev->getkeycode = ati_remote2_getkeycode;
++	idev->setkeycode = ati_remote2_setkeycode;
++
+ 	idev->name = ar2->name;
+ 	idev->phys = ar2->phys;
+ 
+-- 
+1.5.3.7
 
-No. I meant that scancode is a mask so you could end up updating severa=
-l
-keys in the keycode table but you clear the keybit only for the last ke=
-ycode
-to be overwritten. One or more of the other overwritten keycodes could
-have also disappeared from the keycode table but still be present in ke=
-ybit.
-
-Example:
-Let's say you have KEY_FOO and KEY_BAR mapped to the same button in
-modes AUX1 and AUX2. No other key is mapped to KEY_FOO or KEY_BAR.
-You then call setkeycode with the mask set to AUX1|AUX2 and KEY_NEW.
-The code would basically do this:
-
-old_keycode =3D KEY_FOO;
-keycode[button][AUX1] =3D KEY_NEW;
-old_keycode =3D KEY_BAR;
-keycode[button][AUX2] =3D KEY_NEW;
-set_bit(KEY_NEW, keybit);
-clear_bit(KEY_BAR, keybit);
-
-In the end KEY_FOO would still be present in keybit even though it was
-overwritten in the keycode table.
-
-But anyways I got rid of this mask feature in my modifed patch.
-
---=20
-Ville Syrj=E4l=E4
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

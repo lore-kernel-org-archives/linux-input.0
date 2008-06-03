@@ -1,286 +1,270 @@
-From: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-Subject: [PATCH 1/2] ati_remote2: Add loadable keymap support
-Date: Tue,  3 Jun 2008 21:45:46 +0300
-Message-ID: <1212518747-23000-1-git-send-email-syrjala@sci.fi>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
+From: Ville Syrjala <syrjala@sci.fi>
+Subject: [PATCH 2/2] ati_remote2: Add autosuspend support
+Date: Tue,  3 Jun 2008 21:45:47 +0300
+Message-ID: <1212518747-23000-2-git-send-email-syrjala@sci.fi>
+References: <1212518747-23000-1-git-send-email-syrjala@sci.fi>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp6.pp.htv.fi ([213.243.153.40]:53848 "EHLO smtp6.pp.htv.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754860AbYFCSps (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Jun 2008 14:45:48 -0400
+In-Reply-To: <1212518747-23000-1-git-send-email-syrjala@sci.fi>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-usb@vger.kernel.org, Peter Stokes <linux@dadeos.co.uk>
 
-Support for loadable keymaps. The driver now supports individual keymaps
-for each of the five modes (AUX1-AUX4 and PC) of the remote. To achieve
-this the keymap scancode is interpreted as a combination of the mode and
-actual button scancode. The original keycode patches were done by Peter
-Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org> but I modified it quite a lot.
+Add USB autosuspend support to ati_remote2.
 
-Signed-off-by: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
+Signed-off-by: Ville Syrjala <syrjala@sci.fi>
 ---
- drivers/input/misc/ati_remote2.c |  130 +++++++++++++++++++++++++++++---------
- 1 files changed, 101 insertions(+), 29 deletions(-)
+The only issue I have so far with this patch is that the first key press
+is lost when the device wakes up.
+
+Do I need to worry about the remote wakeup thingy? At least remote wakeup
+doesn't seem to be enabled (according to lsusb, short except below) and the
+device wakes up just fine. There is a LED on the receiver which dims but
+doesn't completely turn off when the device is suspended.
+
+Bus 003 Device 003: ID 0471:0602 Philips 
+Device Descriptor:
+  Configuration Descriptor:
+    bmAttributes         0xa0
+      (Bus Powered)
+      Remote Wakeup
+Device Status:     0x0000
+  (Bus Powered)
+
+ drivers/input/misc/ati_remote2.c |  140 ++++++++++++++++++++++++++++++++++++--
+ 1 files changed, 134 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
-index f2709b8..b80b2fa 100644
+index b80b2fa..47071bf 100644
 --- a/drivers/input/misc/ati_remote2.c
 +++ b/drivers/input/misc/ati_remote2.c
-@@ -1,8 +1,8 @@
- /*
-  * ati_remote2 - ATI/Philips USB RF remote driver
-  *
-- * Copyright (C) 2005 Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-- * Copyright (C) 2007 Peter Stokes <linux-c3qaBEMxZpTYB/AZRZ3tHL0Ud+EcFu5g@public.gmane.org>
-+ * Copyright (C) 2005-2008 Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-+ * Copyright (C) 2007-2008 Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2
-@@ -12,7 +12,7 @@
- #include <linux/usb/input.h>
- 
- #define DRIVER_DESC    "ATI/Philips USB RF remote driver"
--#define DRIVER_VERSION "0.2"
-+#define DRIVER_VERSION "0.3"
- 
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_VERSION(DRIVER_VERSION);
-@@ -27,7 +27,7 @@ MODULE_LICENSE("GPL");
-  * A remote's "channel" may be altered by pressing and holding the "PC" button for
-  * approximately 3 seconds, after which the button will slowly flash the count of the
-  * currently configured "channel", using the numeric keypad enter a number between 1 and
-- * 16 and then the "PC" button again, the button will slowly flash the count of the
-+ * 16 and then press the "PC" button again, the button will slowly flash the count of the
-  * newly configured "channel".
-  */
- 
-@@ -45,9 +45,18 @@ static struct usb_device_id ati_remote2_id_table[] = {
+@@ -45,6 +45,13 @@ static struct usb_device_id ati_remote2_id_table[] = {
  };
  MODULE_DEVICE_TABLE(usb, ati_remote2_id_table);
  
--static struct {
--	int hw_code;
--	int key_code;
++static DEFINE_MUTEX(ati_remote2_mutex);
++
 +enum {
-+	ATI_REMOTE2_AUX1,
-+	ATI_REMOTE2_AUX2,
-+	ATI_REMOTE2_AUX3,
-+	ATI_REMOTE2_AUX4,
-+	ATI_REMOTE2_PC,
-+	ATI_REMOTE2_MODES,
++	ATI_REMOTE2_OPENED = 0x1,
++	ATI_REMOTE2_SUSPENDED = 0x2,
 +};
 +
-+static const struct {
-+	u8  hw_code;
-+	u16 keycode;
- } ati_remote2_key_table[] = {
- 	{ 0x00, KEY_0 },
- 	{ 0x01, KEY_1 },
-@@ -73,6 +82,7 @@ static struct {
- 	{ 0x37, KEY_RECORD },
- 	{ 0x38, KEY_DVD },
- 	{ 0x39, KEY_TV },
-+	{ 0x3f, KEY_PROG1 }, /* AUX1-AUX4 and PC */
- 	{ 0x54, KEY_MENU },
- 	{ 0x58, KEY_UP },
- 	{ 0x59, KEY_DOWN },
-@@ -91,15 +101,9 @@ static struct {
- 	{ 0xa9, BTN_LEFT },
- 	{ 0xaa, BTN_RIGHT },
- 	{ 0xbe, KEY_QUESTION },
--	{ 0xd5, KEY_FRONT },
- 	{ 0xd0, KEY_EDIT },
-+	{ 0xd5, KEY_FRONT },
- 	{ 0xf9, KEY_INFO },
--	{ (0x00 << 8) | 0x3f, KEY_PROG1 },
--	{ (0x01 << 8) | 0x3f, KEY_PROG2 },
--	{ (0x02 << 8) | 0x3f, KEY_PROG3 },
--	{ (0x03 << 8) | 0x3f, KEY_PROG4 },
--	{ (0x04 << 8) | 0x3f, KEY_PC },
--	{ 0, KEY_RESERVED }
- };
+ enum {
+ 	ATI_REMOTE2_AUX1,
+ 	ATI_REMOTE2_AUX2,
+@@ -124,46 +131,112 @@ struct ati_remote2 {
  
- struct ati_remote2 {
-@@ -117,6 +121,9 @@ struct ati_remote2 {
- 
- 	char name[64];
- 	char phys[64];
+ 	/* Each mode (AUX1-AUX4 and PC) can have an independent keymap. */
+ 	u16 keycode[ATI_REMOTE2_MODES][ARRAY_SIZE(ati_remote2_key_table)];
 +
-+	/* Each mode (AUX1-AUX4 and PC) can have an independent keymap. */
-+	u16 keycode[ATI_REMOTE2_MODES][ARRAY_SIZE(ati_remote2_key_table)];
++	unsigned int flags;
  };
  
  static int ati_remote2_probe(struct usb_interface *interface, const struct usb_device_id *id);
-@@ -172,7 +179,7 @@ static void ati_remote2_input_mouse(struct ati_remote2 *ar2)
+ static void ati_remote2_disconnect(struct usb_interface *interface);
++static int ati_remote2_suspend(struct usb_interface *interface, pm_message_t message);
++static int ati_remote2_resume(struct usb_interface *interface);
  
- 	mode = data[0] & 0x0F;
+ static struct usb_driver ati_remote2_driver = {
+ 	.name       = "ati_remote2",
+ 	.probe      = ati_remote2_probe,
+ 	.disconnect = ati_remote2_disconnect,
+ 	.id_table   = ati_remote2_id_table,
++	.suspend    = ati_remote2_suspend,
++	.resume     = ati_remote2_resume,
++	.supports_autosuspend = 1,
+ };
  
--	if (mode > 4) {
-+	if (mode > ATI_REMOTE2_PC) {
+-static int ati_remote2_open(struct input_dev *idev)
++static int ati_remote2_submit_urbs(struct ati_remote2 *ar2)
+ {
+-	struct ati_remote2 *ar2 = input_get_drvdata(idev);
+ 	int r;
+ 
+ 	r = usb_submit_urb(ar2->urb[0], GFP_KERNEL);
+ 	if (r) {
  		dev_err(&ar2->intf[0]->dev,
- 			"Unknown mode byte (%02x %02x %02x %02x)\n",
- 			data[3], data[2], data[1], data[0]);
-@@ -191,7 +198,7 @@ static int ati_remote2_lookup(unsigned int hw_code)
- {
- 	int i;
- 
--	for (i = 0; ati_remote2_key_table[i].key_code != KEY_RESERVED; i++)
-+	for (i = 0; i < ARRAY_SIZE(ati_remote2_key_table); i++)
- 		if (ati_remote2_key_table[i].hw_code == hw_code)
- 			return i;
- 
-@@ -211,7 +218,7 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 
- 	mode = data[0] & 0x0F;
- 
--	if (mode > 4) {
-+	if (mode > ATI_REMOTE2_PC) {
+-			"%s: usb_submit_urb() = %d\n", __FUNCTION__, r);
++			"%s(): usb_submit_urb() = %d\n", __FUNCTION__, r);
+ 		return r;
+ 	}
+ 	r = usb_submit_urb(ar2->urb[1], GFP_KERNEL);
+ 	if (r) {
+ 		usb_kill_urb(ar2->urb[0]);
  		dev_err(&ar2->intf[1]->dev,
- 			"Unknown mode byte (%02x %02x %02x %02x)\n",
- 			data[3], data[2], data[1], data[0]);
-@@ -219,10 +226,6 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
+-			"%s: usb_submit_urb() = %d\n", __FUNCTION__, r);
++			"%s(): usb_submit_urb() = %d\n", __FUNCTION__, r);
+ 		return r;
  	}
  
- 	hw_code = data[2];
--	/*
--	 * Mode keys (AUX1-AUX4, PC) all generate the same code byte.
--	 * Use the mode byte to figure out which one was pressed.
--	 */
- 	if (hw_code == 0x3f) {
- 		/*
- 		 * For some incomprehensible reason the mouse pad generates
-@@ -236,8 +239,6 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 
- 		if (data[1] == 0)
- 			ar2->mode = mode;
--
--		hw_code |= mode << 8;
- 	}
- 
- 	if (!((1 << mode) & mode_mask))
-@@ -260,8 +261,8 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 	case 2:	/* repeat */
- 
- 		/* No repeat for mouse buttons. */
--		if (ati_remote2_key_table[index].key_code == BTN_LEFT ||
--		    ati_remote2_key_table[index].key_code == BTN_RIGHT)
-+		if (ar2->keycode[mode][index] == BTN_LEFT ||
-+		    ar2->keycode[mode][index] == BTN_RIGHT)
- 			return;
- 
- 		if (!time_after_eq(jiffies, ar2->jiffies))
-@@ -276,7 +277,7 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 		return;
- 	}
- 
--	input_event(idev, EV_KEY, ati_remote2_key_table[index].key_code, data[1]);
-+	input_event(idev, EV_KEY, ar2->keycode[mode][index], data[1]);
- 	input_sync(idev);
+ 	return 0;
  }
  
-@@ -334,10 +335,60 @@ static void ati_remote2_complete_key(struct urb *urb)
- 			"%s(): usb_submit_urb() = %d\n", __FUNCTION__, r);
- }
- 
-+static int ati_remote2_getkeycode(struct input_dev *idev,
-+				  int scancode, int *keycode)
++static void ati_remote2_kill_urbs(struct ati_remote2 *ar2)
 +{
-+	struct ati_remote2 *ar2 = input_get_drvdata(idev);
-+	int index, mode;
-+
-+	mode = scancode >> 8;
-+	if (mode > ATI_REMOTE2_PC || !((1 << mode) & mode_mask))
-+		return -EINVAL;
-+
-+	index = ati_remote2_lookup(scancode & 0xFF);
-+	if (index < 0)
-+		return -EINVAL;
-+
-+	*keycode = ar2->keycode[mode][index];
-+	return 0;
++	usb_kill_urb(ar2->urb[1]);
++	usb_kill_urb(ar2->urb[0]);
 +}
 +
-+static int ati_remote2_setkeycode(struct input_dev *idev, int scancode, int keycode)
++static int ati_remote2_open(struct input_dev *idev)
 +{
 +	struct ati_remote2 *ar2 = input_get_drvdata(idev);
-+	int index, mode, old_keycode;
++	int r;
 +
-+	mode = scancode >> 8;
-+	if (mode > ATI_REMOTE2_PC || !((1 << mode) & mode_mask))
-+		return -EINVAL;
++	dev_dbg(&ar2->intf[0]->dev, "%s()\n", __FUNCTION__);
 +
-+	index = ati_remote2_lookup(scancode & 0xFF);
-+	if (index < 0)
-+		return -EINVAL;
-+
-+	if (keycode < KEY_RESERVED || keycode > KEY_MAX)
-+		return -EINVAL;
-+
-+	old_keycode = ar2->keycode[mode][index];
-+	ar2->keycode[mode][index] = keycode;
-+	set_bit(keycode, idev->keybit);
-+
-+	for (mode = 0; mode < ATI_REMOTE2_MODES; mode++) {
-+		for (index = 0; index < ARRAY_SIZE(ati_remote2_key_table); index++) {
-+			if (ar2->keycode[mode][index] == old_keycode)
-+				return 0;
-+		}
++	r = usb_autopm_get_interface(ar2->intf[0]);
++	if (r) {
++		dev_err(&ar2->intf[0]->dev,
++			"%s(): usb_autopm_get_interface() = %d\n", __FUNCTION__, r);
++		goto fail1;
++	}
++	r = usb_autopm_get_interface(ar2->intf[1]);
++	if (r) {
++		dev_err(&ar2->intf[1]->dev,
++			"%s(): usb_autopm_get_interface() = %d\n", __FUNCTION__, r);
++		goto fail2;
 +	}
 +
-+	clear_bit(old_keycode, idev->keybit);
++	mutex_lock(&ati_remote2_mutex);
++
++	if (!(ar2->flags & ATI_REMOTE2_SUSPENDED)) {
++		r = ati_remote2_submit_urbs(ar2);
++		if (r)
++			goto fail3;
++	}
++
++	ar2->flags |= ATI_REMOTE2_OPENED;
++
++	mutex_unlock(&ati_remote2_mutex);
++
++	usb_autopm_put_interface(ar2->intf[1]);
++	usb_autopm_put_interface(ar2->intf[0]);
 +
 +	return 0;
++
++ fail3:
++	mutex_unlock(&ati_remote2_mutex);
++	usb_autopm_put_interface(ar2->intf[1]);
++ fail2:
++	usb_autopm_put_interface(ar2->intf[0]);
++ fail1:
++	return r;
 +}
 +
- static int ati_remote2_input_init(struct ati_remote2 *ar2)
+ static void ati_remote2_close(struct input_dev *idev)
  {
- 	struct input_dev *idev;
--	int i, retval;
-+	int index, mode, retval;
+ 	struct ati_remote2 *ar2 = input_get_drvdata(idev);
  
- 	idev = input_allocate_device();
- 	if (!idev)
-@@ -350,8 +401,26 @@ static int ati_remote2_input_init(struct ati_remote2 *ar2)
- 	idev->keybit[BIT_WORD(BTN_MOUSE)] = BIT_MASK(BTN_LEFT) |
- 		BIT_MASK(BTN_RIGHT);
- 	idev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
--	for (i = 0; ati_remote2_key_table[i].key_code != KEY_RESERVED; i++)
--		set_bit(ati_remote2_key_table[i].key_code, idev->keybit);
+-	usb_kill_urb(ar2->urb[0]);
+-	usb_kill_urb(ar2->urb[1]);
++	dev_dbg(&ar2->intf[0]->dev, "%s()\n", __FUNCTION__);
 +
-+	for (mode = 0; mode < ATI_REMOTE2_MODES; mode++) {
-+		for (index = 0; index < ARRAY_SIZE(ati_remote2_key_table); index++) {
-+			ar2->keycode[mode][index] = ati_remote2_key_table[index].keycode;
-+			set_bit(ar2->keycode[mode][index], idev->keybit);
-+		}
-+	}
++	mutex_lock(&ati_remote2_mutex);
 +
-+	/* AUX1-AUX4 and PC generate the same scancode. */
-+	index = ati_remote2_lookup(0x3f);
-+	ar2->keycode[ATI_REMOTE2_AUX1][index] = KEY_PROG1;
-+	ar2->keycode[ATI_REMOTE2_AUX2][index] = KEY_PROG2;
-+	ar2->keycode[ATI_REMOTE2_AUX3][index] = KEY_PROG3;
-+	ar2->keycode[ATI_REMOTE2_AUX4][index] = KEY_PROG4;
-+	ar2->keycode[ATI_REMOTE2_PC][index] = KEY_PC;
-+	set_bit(KEY_PROG1, idev->keybit);
-+	set_bit(KEY_PROG2, idev->keybit);
-+	set_bit(KEY_PROG3, idev->keybit);
-+	set_bit(KEY_PROG4, idev->keybit);
-+	set_bit(KEY_PC, idev->keybit);
- 
- 	idev->rep[REP_DELAY]  = 250;
- 	idev->rep[REP_PERIOD] = 33;
-@@ -359,6 +428,9 @@ static int ati_remote2_input_init(struct ati_remote2 *ar2)
- 	idev->open = ati_remote2_open;
- 	idev->close = ati_remote2_close;
- 
-+	idev->getkeycode = ati_remote2_getkeycode;
-+	idev->setkeycode = ati_remote2_setkeycode;
++	if (!(ar2->flags & ATI_REMOTE2_SUSPENDED))
++		ati_remote2_kill_urbs(ar2);
 +
- 	idev->name = ar2->name;
- 	idev->phys = ar2->phys;
++	ar2->flags &= ~ATI_REMOTE2_OPENED;
++
++	mutex_unlock(&ati_remote2_mutex);
+ }
  
+ static void ati_remote2_input_mouse(struct ati_remote2 *ar2)
+@@ -288,6 +361,7 @@ static void ati_remote2_complete_mouse(struct urb *urb)
+ 
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(ar2->udev);
+ 		ati_remote2_input_mouse(ar2);
+ 		break;
+ 	case -ENOENT:
+@@ -298,6 +372,7 @@ static void ati_remote2_complete_mouse(struct urb *urb)
+ 			"%s(): urb status = %d\n", __FUNCTION__, urb->status);
+ 		return;
+ 	default:
++		usb_mark_last_busy(ar2->udev);
+ 		dev_err(&ar2->intf[0]->dev,
+ 			"%s(): urb status = %d\n", __FUNCTION__, urb->status);
+ 	}
+@@ -315,6 +390,7 @@ static void ati_remote2_complete_key(struct urb *urb)
+ 
+ 	switch (urb->status) {
+ 	case 0:
++		usb_mark_last_busy(ar2->udev);
+ 		ati_remote2_input_key(ar2);
+ 		break;
+ 	case -ENOENT:
+@@ -325,6 +401,7 @@ static void ati_remote2_complete_key(struct urb *urb)
+ 			"%s(): urb status = %d\n", __FUNCTION__, urb->status);
+ 		return;
+ 	default:
++		usb_mark_last_busy(ar2->udev);
+ 		dev_err(&ar2->intf[1]->dev,
+ 			"%s(): urb status = %d\n", __FUNCTION__, urb->status);
+ 	}
+@@ -594,6 +671,57 @@ static void ati_remote2_disconnect(struct usb_interface *interface)
+ 	kfree(ar2);
+ }
+ 
++static int ati_remote2_suspend(struct usb_interface *interface,
++			       pm_message_t message)
++{
++	struct ati_remote2 *ar2;
++	struct usb_host_interface *alt = interface->cur_altsetting;
++
++	if (alt->desc.bInterfaceNumber)
++		return 0;
++
++	ar2 = usb_get_intfdata(interface);
++
++	dev_dbg(&ar2->intf[0]->dev, "%s()\n", __FUNCTION__);
++
++	mutex_lock(&ati_remote2_mutex);
++
++	if (ar2->flags & ATI_REMOTE2_OPENED)
++		ati_remote2_kill_urbs(ar2);
++
++	ar2->flags |= ATI_REMOTE2_SUSPENDED;
++
++	mutex_unlock(&ati_remote2_mutex);
++
++	return 0;
++}
++
++static int ati_remote2_resume(struct usb_interface *interface)
++{
++	struct ati_remote2 *ar2;
++	struct usb_host_interface *alt = interface->cur_altsetting;
++	int r = 0;
++
++	if (alt->desc.bInterfaceNumber)
++		return 0;
++
++	ar2 = usb_get_intfdata(interface);
++
++	dev_dbg(&ar2->intf[0]->dev, "%s()\n", __FUNCTION__);
++
++	mutex_lock(&ati_remote2_mutex);
++
++	if (ar2->flags & ATI_REMOTE2_OPENED)
++		r = ati_remote2_submit_urbs(ar2);
++
++	if (!r)
++		ar2->flags &= ~ATI_REMOTE2_SUSPENDED;
++
++	mutex_unlock(&ati_remote2_mutex);
++
++	return r;
++}
++
+ static int __init ati_remote2_init(void)
+ {
+ 	int r;
 -- 
 1.5.3.7
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,74 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: Jack reporting v2
-Date: Tue, 3 Jun 2008 11:17:26 -0400
-Message-ID: <20080603105920.ZZRA012@mailhub.coreip.homeip.net>
-References: <1212095345928-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<20080603104048.GA17007@rakim.wolfsonmicro.main>
+Date: Tue, 3 Jun 2008 16:36:53 +0100
+Message-ID: <20080603153652.GA3245@rakim.wolfsonmicro.main>
+References: <1212095345928-git-send-email-broonie@opensource.wolfsonmicro.com> <20080603104048.GA17007@rakim.wolfsonmicro.main> <s5h8wxm7ev1.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:59643 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752788AbYFCPgz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Jun 2008 11:36:55 -0400
 Content-Disposition: inline
-In-Reply-To: <20080603104048.GA17007@rakim.wolfsonmicro.main>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
-Cc: mjg59@srcf.ucam.org
+In-Reply-To: <s5h8wxm7ev1.wl%tiwai@suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Dmitry Torokhov <dtor@insightbb.com>, Jaroslav Kysela <perex@perex.cz>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 
-Hi Mark,
+On Tue, Jun 03, 2008 at 04:49:38PM +0200, Takashi Iwai wrote:
 
-On Tue, Jun 03, 2008 at 11:40:48AM +0100, Mark Brown wrote:
-> The following couple of patches update the jack reporting API I posted
-> last week with the feedback I have received so far.  The changes since
-> the last submision are:
-> 
->  - Addition of snd_jack_set_parent(), allowing drivers to override the
->    default parent for the input device prior to registration.
->  - The jack detection support is now included unconditionally in ALSA,
->    requiring a dependency on the input subsystem.
-> 
-> I'm not entirely happy with making ALSA depend on input but given that
-> it is only optional on embedded systems and that the input core is not
-> that large it seemed the best way of ensuring that the input subsystem
-> is available for the jack API without hassle for drivers using it,
-> especially given the lack of dependency propagation from select.
+> Yeah, it looks horrible at a first glance, but it's a known workaround
+> for reverse selections...
 
-I think it is a great idea to intoroduce a mechanism treporting state
-of a generic connector, it was a long overdue. However I don't think
-that using input as a delivery mechanism is the best solution. What is
-needed from a connector:
+Indeed - that was the main other solution I'd looked at.  It seemed like
+too much splatter in the configuration for the drivers but it's about as
+good as it looks like it'll get if simply depending on input isn't going
+to be OK.
 
-1. A way to query its state
-2. A way to notify userspace of state change.
+Looking at all this I'm thinking we may as well leave the jack stuff as
+a module - it'd at least make the dependency stuff at runtime slightly
+easier and if we're going to put in the effort to support all these
+mixes of SND and INPUT it's probably as well to remove the runtime
+dependency between ALSA and input if jacks aren't actually in use too.
 
-Pros for using input devices:
-- we already have them
+> Also, sound/jack.h should provide empty inline functions for the case 
+> CONFIG_SND_JACK=n.  Then you'll be able to reduce ifdefs in the driver
+> codes.
 
-Cons:
-- space consideration. Input_dev structure is quite fat. It has all
-  the capabilities strings exported through sysfs, hist of other
-  attributes, etc. On top of that we have a character device (evdev)
-  plus its own sysfs representation. IOW lots of stuff.
-- input device require ioctl to get the switch state, no easy way to
-  do it through sysfs.
-- As the number of types of connectors grows new switches will need to
-  be added to input, potentially completely unrelated. My lacmus test
-  for it - does it make sense to add network cable state to inputi
-  core?
-
-Do you think that something small that has only one sysfs device per
-switch and uses KOBJ_ONLINE/KOBJ_OFFLINE to signal state change would
-be better suited here?
-
-BTW, the same goes for the SW_DOCK that Matthew wants to add (CC-ed).
-
--- 
-Dmitry
+Yeah, probably.  Though from that point of view it might be as well to
+cut out the SND_JACK middleman...

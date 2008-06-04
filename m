@@ -1,90 +1,75 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: Jack reporting v2
-Date: Wed, 4 Jun 2008 00:38:14 +0100
-Message-ID: <20080603233813.GA30512@sirena.org.uk>
-References: <1212095345928-git-send-email-broonie@opensource.wolfsonmicro.com> <20080603104048.GA17007@rakim.wolfsonmicro.main> <20080603105920.ZZRA012@mailhub.coreip.homeip.net>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala-ORSVBvAovxo@public.gmane.org>
+Subject: Re: [PATCH 2/2] ati_remote2: Add autosuspend support
+Date: Wed, 4 Jun 2008 11:20:21 +0300
+Message-ID: <20080604082021.GH5067@sci.fi>
+References: <1212518747-23000-1-git-send-email-syrjala@sci.fi> <1212518747-23000-2-git-send-email-syrjala@sci.fi> <200806032211.10052.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:4958 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754338AbYFCXiS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Jun 2008 19:38:18 -0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20080603105920.ZZRA012@mailhub.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <200806032211.10052.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Takashi Iwai <tiwai@suse.de>, Jaroslav Kysela <perex@perex.cz>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org, mjg59@srcf.ucam.org
 
-On Tue, Jun 03, 2008 at 11:17:26AM -0400, Dmitry Torokhov wrote:
+On Tue, Jun 03, 2008 at 10:11:09PM +0200, Oliver Neukum wrote:
+> Am Dienstag 03 Juni 2008 20:45:47 schrieb Ville Syrjala:
+> > +static int ati_remote2_open(struct input_dev *idev)
+> > +{
+> > +=A0=A0=A0=A0=A0=A0=A0struct ati_remote2 *ar2 =3D input_get_drvdata=
+(idev);
+> > +=A0=A0=A0=A0=A0=A0=A0int r;
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0dev_dbg(&ar2->intf[0]->dev, "%s()\n", __FUNCT=
+ION__);
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0r =3D usb_autopm_get_interface(ar2->intf[0]);
+> > +=A0=A0=A0=A0=A0=A0=A0if (r) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0dev_err(&ar2->intf[0]=
+->dev,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0"%s(): usb_autopm_get_interface() =3D %d\n", __FUNCTION__, r);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto fail1;
+> > +=A0=A0=A0=A0=A0=A0=A0}
+> > +=A0=A0=A0=A0=A0=A0=A0r =3D usb_autopm_get_interface(ar2->intf[1]);
+> > +=A0=A0=A0=A0=A0=A0=A0if (r) {
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0dev_err(&ar2->intf[1]=
+->dev,
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0"%s(): usb_autopm_get_interface() =3D %d\n", __FUNCTION__, r);
+> > +=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0goto fail2;
+> > +=A0=A0=A0=A0=A0=A0=A0}
+>=20
+> If you have two interfaces on one device upping the count for one of =
+them
+> is enough.
 
-> Pros for using input devices:
-> - we already have them
+OK. But now I wonder why do I even bother calling this function. It
+doesn't seem to do anything particularly useful.
 
-...and it already models switches.
+> > +
+> > +=A0=A0=A0=A0=A0=A0=A0mutex_lock(&ati_remote2_mutex);
+>=20
+> Too late. You can race with disconnect()
 
-As mentioned in the description of the original patch there's also the
-fact that the existing implementations I've found are doing things this
-way.  The only in-kernel ones are corgi and spitz which skip the input
-device overhead by using the keyboard input device.
+Hmm. Do you mean open() vs. disconnect()? Doesn't the input_dev's locki=
+ng
+take care of that? ati_remote2_mutex is there just to make ar2->flags
+handling and urb submitting/killing atomic, it didn't even exist before
+this autosuspend patch. Or perhaps I'm missing something...
 
-There is an additional motivation for using an input device for jacks -
-it is common to support a button implemented by shorting the microphone
-connection as well as simply detecting the presence of something in the
-jack.
+> And you should set needs_remote_wakeup.
 
-> Cons:
-> - space consideration. Input_dev structure is quite fat. It has all
->   the capabilities strings exported through sysfs, hist of other
->   attributes, etc. On top of that we have a character device (evdev)
->   plus its own sysfs representation. IOW lots of stuff.
+What exactly does that do? As I said remote wakeup isn't enabled on the
+device but it still wakes up just fine.
 
-I'm not sure how many systems this is a concern for these days (the
-things I found exporting to user space at the minute are embedded) but
-it could be an issue.
-
-> - input device require ioctl to get the switch state, no easy way to
->   do it through sysfs.
-
-That sounds like something that is worth adding anyway, regardless of
-what gets done with jacks.
-
-> - As the number of types of connectors grows new switches will need to
->   be added to input, potentially completely unrelated. My lacmus test
->   for it - does it make sense to add network cable state to inputi
->   core?
-
-The number of potential switches could get rather large, yes - to my
-mind it's the main concern with using the input API.
-
-> Do you think that something small that has only one sysfs device per
-> switch and uses KOBJ_ONLINE/KOBJ_OFFLINE to signal state change would
-> be better suited here?
-
-It's certainly doable and it would avoid any issues with memory overhead
-and with the number of switch types.
-
-Jacks would in general have more than one thing to report - as well as
-jacks for headsets with both headphone and optional microphone support
-on one physical jack many devices will also be able to give an idea of
-the device connected to a jack, doing things like distinguishing between
-speakers and headphones.  This information could still be exported via
-the sort of interface you suggest, for example with one sysfs file per
-thing that can be detected contents indicating the state for that thing.
-It could also be exported as environment variables along with the
-uevent.  The jack API would be able to standardise the names so that
-shouldn't be an issue.
-
-Ignoring the buttons it should be fairly straightforward from a kernel
-point of view.  I'm not sure how some of the userspace people would feel
-about it, mainly those in embedded systems not already dealing with
-uevents, but if they don't want to use netlink then uevent_helper should
-do the job for them even though it is a bit more cumbersome than the
-input API.
-
-Buttons would presumably end up as an input device registered only if
-supported by the jack - this would be easy enough for the kernel.
-
-If jack reporting is implemented this way we'd want to add a comment
-indicating that SW_HEADPHONE_INSERT shouldn't be used.
+--=20
+Ville Syrj=E4l=E4
+syrjala-ORSVBvAovxo@public.gmane.org
+http://www.sci.fi/~syrjala/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

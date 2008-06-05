@@ -1,38 +1,61 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 01/10] modpost: add support for hid
-Date: Thu, 5 Jun 2008 11:26:43 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0806051123300.10085@jikos.suse.cz>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
+From: Haavard Skinnemoen <haavard.skinnemoen@atmel.com>
+Subject: Re: [PATCH 1/2] atmel_tsadcc: Device driver for AT91SAM9RL Touchscreen
+Date: Thu, 5 Jun 2008 15:49:51 +0200
+Message-ID: <20080605154951.2d32d106@hskinnemo-gx745.norway.atmel.com>
+References: <1209149798-20418-1-git-send-email-justin.waters@timesys.com>
+	<1209149798-20418-2-git-send-email-justin.waters@timesys.com>
+	<20080425211041.GC28497@flint.arm.linux.org.uk>
+	<1209159453.6990.48.camel@justin-linux>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:48399 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752439AbYFEJ0p (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Jun 2008 05:26:45 -0400
-In-Reply-To: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+In-Reply-To: <1209159453.6990.48.camel@justin-linux>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: Justin Waters <justin.waters@timesys.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "linux-arm-kernel@lists.arm.linux.org.uk" <linux-arm-kernel@lists.arm.linux.org.uk>, "linux@maxim.org.za" <linux@maxim.org.za>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
 
-On Fri, 16 May 2008, Jiri Slaby wrote:
+Justin Waters <justin.waters@timesys.com> wrote:
+> On Fri, 2008-04-25 at 17:10 -0400, Russell King - ARM Linux wrote:
+> > > +config TOUCHSCREEN_ATMEL_TSADCC
+> > > +     tristate "Atmel Touchscreen Interface"  
+> > 
+> > No dependencies.  So does this mean this'll build and link on an
+> > x86 platform?
+> >   
+> I was actually thinking that this IP will end up on an AVR32 platform as
+> well, so I intentionally tried to avoid making the driver too ARM
+> specific.  However, I definitely see the point of specifying
+> ARCH_AT91SAM9RL and worrying about adding additional support for new
+> platforms later, so I'll add that in.
 
-> Generate aliases for hid device modules to support autoloading.
+Thanks for thinking about AVR32 as well :-)
 
-Jiri,
+I think adding a dependency on AT91 is the right thing to do for now. We
+can always patch in "|| AVR32" later if/when this IP finds its way into
+an AVR32 chip.
 
-I have rebased the patch series on top of current state of the queued 
-patches in my tree and applied them to 'hidbus' branch of my tree. So you 
-can base any further respins of the patches on the version you can find in 
-this branch right now.
+Though it looks like the only thing this driver uses that isn't
+available on x86 is the clk API, so perhaps it would be best to depend
+on HAVE_CLK assuming this patch gets merged:
 
-I have not yet pulled that branch into the branch that is pulled into -mm 
-and linux-next, there are some things that I think still need sorting out 
--- I have sent you some feedback yesterday.
+http://lkml.org/lkml/2008/5/29/367
 
-Thanks a lot,
+This would give the driver much better compile-testing coverage by
+people who do allyesconfig builds and such on different platforms.
 
--- 
-Jiri Kosina
-SUSE Labs
+Haavard
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

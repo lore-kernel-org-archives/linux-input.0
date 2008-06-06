@@ -1,39 +1,38 @@
-From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: fix appletouch regression bugzilla.kernel.org#10825
-Date: Fri, 6 Jun 2008 10:07:08 -0400
-Message-ID: <20080606094514.ZZRA012@mailhub.coreip.homeip.net>
-References: <200806061213.18066.oliver@neukum.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: Jack reporting v2
+Date: Fri, 6 Jun 2008 15:23:01 +0100
+Message-ID: <20080606142300.GE24872@sirena.org.uk>
+References: <1212095345928-git-send-email-broonie@opensource.wolfsonmicro.com>
+	<20080603104048.GA17007@rakim.wolfsonmicro.main>
+	<20080603105920.ZZRA012@mailhub.coreip.homeip.net>
+	<20080603233813.GA30512@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 Content-Disposition: inline
-In-Reply-To: <200806061213.18066.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20080603233813.GA30512@sirena.org.uk>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Takashi Iwai <tiwai@suse.de>, mjg59@srcf.ucam.org, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Hi Oliver,
+On Wed, Jun 04, 2008 at 12:38:14AM +0100, Mark Brown wrote:
 
-On Fri, Jun 06, 2008 at 12:13:17PM +0200, Oliver Neukum wrote:
-> Hi,
-> 
-> this touchpad needs, probably due to a change in timing of suspension,
-> a quirk in 2.6.25 and later. To use this quirk the driver needs to implement
-> reset_resume(). I had written a patch that does that and implements USB
-> autosuspend. The reporter tested it and found it to work.
-> If you want me to I can't isolate the implementation of reset_resume() from
-> the rest but I can't test it.
-> 
+> There is an additional motivation for using an input device for jacks -
+> it is common to support a button implemented by shorting the microphone
+> connection as well as simply detecting the presence of something in the
+> jack.
 
-Yes, that'd be great since I'd like the regression fix to show up in
-.26 while the autosuspend can wait till .27.
-
-Thanks!
-
--- 
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Dimitry, do you have any further thoughts on this?  Due to jacks being
+able to function as buttons as well as switches I do prefer the use of
+input devices for jack reporting but if you still disagree I'll redo the
+patch since I don't feel *that* strongly.

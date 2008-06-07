@@ -1,69 +1,41 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: [PATCH] Input: Add newer Apple keyboards to hid quirks table
-Date: Sat, 7 Jun 2008 03:46:31 +0100
-Message-ID: <20080607024631.GA24254@srcf.ucam.org>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: RESEND: [PATCH 3/3] Misc: Add HP WMI laptop extras driver
+Date: Sat, 7 Jun 2008 11:00:02 +0100
+Message-ID: <200806071100.03097.carlos@strangeworlds.co.uk>
+References: <20080528132900.GC32646@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:33807 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756834AbYFGCqh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Jun 2008 22:46:37 -0400
+Received: from phoenix.slamd64.com ([217.10.145.2]:37580 "EHLO
+	phoenix.slamd64.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755400AbYFGKAF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jun 2008 06:00:05 -0400
+In-Reply-To: <20080528132900.GC32646@srcf.ucam.org>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The keyboards in recent Apple hardware are still not properly supported 
-by Linux due to them not being in the hid quirks table. This patch adds 
-the current hardware. Device IDs come from the Mactel Linux project.
+On Wednesday 28 May 2008 14:34:25 Matthew Garrett wrote:
+> This driver adds support for reading and configuring certain information
+> on modern HP laptops with WMI BIOS interfaces. It supports enabling and
+> disabling the ambient light sensor, querying attached displays and hard
+> drive temperature, sending events on docking and querying the state of
+> the dock and toggling the state of the wifi, bluetooth and wwan hardware
+> via rfkill. It also makes the little "(i)" button work on machines that
+> send that via WMI rather than via the keyboard controller.
+>
+> Signed-off-by: Matthew Garrett <mjg@redhat.com>
 
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
+For the ACPI-WMI bits:
 
----
+Acked-by: Carlos Corbacho <carlos@strangeworlds.co.uk>
 
-Would be nice to get these in for 2.6.26 if possible - I just spent some 
-time trying to work out why my brightness keys didnt work, before 
-finally realising that it was just the kernel being awkward.
-
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 1df832a..5214b0d 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -69,12 +69,19 @@
- #define USB_DEVICE_ID_APPLE_ALU_ANSI	0x0220
- #define USB_DEVICE_ID_APPLE_ALU_ISO	0x0221
- #define USB_DEVICE_ID_APPLE_ALU_JIS	0x0222
-+#define USB_DEVICE_ID_APPLE_WELLSPRING_ANSI    0x0223
-+#define USB_DEVICE_ID_APPLE_WELLSPRING_ISO     0x0224
-+#define USB_DEVICE_ID_APPLE_WELLSPRING_JIS     0x0225
- #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI    0x0229
- #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO     0x022a
- #define USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS     0x022b
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI  0x022c
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO   0x022d
- #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS   0x022e
-+#define USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI   0x0230
-+#define USB_DEVICE_ID_APPLE_WELLSPRING2_ISO    0x0231
-+#define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS    0x0232
-+
- #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
- #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
-@@ -644,6 +651,12 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
- 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
-+	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
- 
- 	{ USB_VENDOR_ID_DELL, USB_DEVICE_ID_DELL_W7658, HID_QUIRK_RESET_LEDS },
- 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KBD, HID_QUIRK_RESET_LEDS },
-
+-Carlos
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

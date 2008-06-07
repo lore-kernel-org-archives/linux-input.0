@@ -1,56 +1,69 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: fix appletouch regression bugzilla.kernel.org#10825
-Date: Fri, 6 Jun 2008 11:53:54 -0700
-Message-ID: <20080606185354.GA8576@kroah.com>
-References: <200806061213.18066.oliver@neukum.org>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: [PATCH] Input: Add newer Apple keyboards to hid quirks table
+Date: Sat, 7 Jun 2008 03:46:31 +0100
+Message-ID: <20080607024631.GA24254@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cavan.codon.org.uk ([93.93.128.6]:33807 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756834AbYFGCqh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Jun 2008 22:46:37 -0400
 Content-Disposition: inline
-In-Reply-To: <200806061213.18066.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, Jun 06, 2008 at 12:13:17PM +0200, Oliver Neukum wrote:
-> Hi,
-> 
-> this touchpad needs, probably due to a change in timing of suspension,
-> a quirk in 2.6.25 and later. To use this quirk the driver needs to implement
-> reset_resume(). I had written a patch that does that and implements USB
-> autosuspend. The reporter tested it and found it to work.
-> If you want me to I can't isolate the implementation of reset_resume() from
-> the rest but I can't test it.
-> 
-> 	Regards
-> 		Oliver
-> 
-> Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
-> 
-> ---
-> 
-> --- linux-2.6.26-rc5/drivers/usb/core/quirks.c	2008-06-05 13:45:57.000000000 +0200
-> +++ linux-2.6.26-rc5-btusb/drivers/usb/core/quirks.c	2008-06-06 08:12:10.000000000 +0200
-> @@ -47,6 +47,9 @@ static const struct usb_device_id usb_qu
->  	/* Edirol SD-20 */
->  	{ USB_DEVICE(0x0582, 0x0027), .driver_info = USB_QUIRK_RESET_RESUME },
->  
-> +	/* appletouch */
-> +	{ USB_DEVICE(0x05ac, 0x021a), .driver_info = USB_QUIRK_RESET_RESUME },
-> +
->  	/* Avision AV600U */
->  	{ USB_DEVICE(0x0638, 0x0a13), .driver_info =
->  	  USB_QUIRK_STRING_FETCH_255 },
+The keyboards in recent Apple hardware are still not properly supported 
+by Linux due to them not being in the hid quirks table. This patch adds 
+the current hardware. Device IDs come from the Mactel Linux project.
 
-So should this portion go into 2.6.26 now, and in .25-stable as well?
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
 
-Or are the changes to the driver also needed?
+---
 
-thanks,
+Would be nice to get these in for 2.6.26 if possible - I just spent some 
+time trying to work out why my brightness keys didnt work, before 
+finally realising that it was just the kernel being awkward.
 
-greg k-h
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 1df832a..5214b0d 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -69,12 +69,19 @@
+ #define USB_DEVICE_ID_APPLE_ALU_ANSI	0x0220
+ #define USB_DEVICE_ID_APPLE_ALU_ISO	0x0221
+ #define USB_DEVICE_ID_APPLE_ALU_JIS	0x0222
++#define USB_DEVICE_ID_APPLE_WELLSPRING_ANSI    0x0223
++#define USB_DEVICE_ID_APPLE_WELLSPRING_ISO     0x0224
++#define USB_DEVICE_ID_APPLE_WELLSPRING_JIS     0x0225
+ #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI    0x0229
+ #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO     0x022a
+ #define USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS     0x022b
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI  0x022c
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO   0x022d
+ #define USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS   0x022e
++#define USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI   0x0230
++#define USB_DEVICE_ID_APPLE_WELLSPRING2_ISO    0x0231
++#define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS    0x0232
++
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
+@@ -644,6 +651,12 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
++	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+ 
+ 	{ USB_VENDOR_ID_DELL, USB_DEVICE_ID_DELL_W7658, HID_QUIRK_RESET_LEDS },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_KBD, HID_QUIRK_RESET_LEDS },
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

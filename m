@@ -1,41 +1,38 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: RESEND: [PATCH 3/3] Misc: Add HP WMI laptop extras driver
-Date: Sat, 7 Jun 2008 11:00:02 +0100
-Message-ID: <200806071100.03097.carlos@strangeworlds.co.uk>
-References: <20080528132900.GC32646@srcf.ucam.org>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH] drivers/input/tablet/gtco.c: eliminate early return
+Date: Sun, 8 Jun 2008 14:58:49 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0806081458190.10294@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from phoenix.slamd64.com ([217.10.145.2]:37580 "EHLO
-	phoenix.slamd64.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755400AbYFGKAF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 7 Jun 2008 06:00:05 -0400
-In-Reply-To: <20080528132900.GC32646@srcf.ucam.org>
-Content-Disposition: inline
+Received: from mgw2.diku.dk ([130.225.96.92]:42924 "EHLO mgw2.diku.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758305AbYFHM6w (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 8 Jun 2008 08:58:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Wednesday 28 May 2008 14:34:25 Matthew Garrett wrote:
-> This driver adds support for reading and configuring certain information
-> on modern HP laptops with WMI BIOS interfaces. It supports enabling and
-> disabling the ambient light sensor, querying attached displays and hard
-> drive temperature, sending events on docking and querying the state of
-> the dock and toggling the state of the wifi, bluetooth and wwan hardware
-> via rfkill. It also makes the little "(i)" button work on machines that
-> send that via WMI rather than via the keyboard controller.
->
-> Signed-off-by: Matthew Garrett <mjg@redhat.com>
+From: Julia Lawall <julia@diku.dk>
 
-For the ACPI-WMI bits:
+There seems to be no reason why this error case should do less cleaning up
+than the other adjacent ones, so the goto, which is currently dead code,
+seems to be what is intended.
 
-Acked-by: Carlos Corbacho <carlos@strangeworlds.co.uk>
 
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+
+diff -u -p a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -863,7 +863,7 @@ static int gtco_probe(struct usb_interfa
+ 	gtco->urbinfo = usb_alloc_urb(0, GFP_KERNEL);
+ 	if (!gtco->urbinfo) {
+ 		err("Failed to allocate URB");
+-		return -ENOMEM;
++		error = -ENOMEM;
+ 		goto err_free_buf;
+ 	}
+ 

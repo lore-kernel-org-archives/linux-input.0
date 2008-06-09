@@ -1,49 +1,28 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] Input: add retry logic to resume with respect to CTR
-Date: Mon, 9 Jun 2008 12:03:40 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0806091202450.10085@jikos.suse.cz>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 06/10] HID: move logitech report quirks
+Date: Mon, 09 Jun 2008 12:29:50 +0200
+Message-ID: <484D061E.5000308@gmail.com>
+References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <1210931362-18422-2-git-send-email-jirislaby@gmail.com> <1210931362-18422-3-git-send-email-jirislaby@gmail.com> <1210931362-18422-4-git-send-email-jirislaby@gmail.com> <1210931362-18422-5-git-send-email-jirislaby@gmail.com> <1210931362-18422-6-git-send-email-jirislaby@gmail.com> <Pine.LNX.4.64.0806041415130.10085@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:58783 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1759006AbYFIKDl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Jun 2008 06:03:41 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759984AbYFIKbN@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0806041415130.10085@jikos.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, hschaa@novell.com
 
-There are systems that fail in i8042_resume() with
+Hi!
 
-	i8042: Can't write CTR to resume
+On 06/04/2008 02:16 PM, Jiri Kosina wrote:
+> On Fri, 16 May 2008, Jiri Slaby wrote:
+>> Move them from core code to a separate driver.
+> is there a reason why this moves only the report descriptor 
+> Logitech-specific quirks, but leaves the input mapping still in 
+> hid-input-quirks.c and doesn't move it into ->input_mapping method too?
 
-as i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR) fails even though the
-controller claimed itself to be ready before.
-
-One retry after failing write fixes the problems on the failing systems.
-
-Reported-by: Helmut Schaa <hschaa@novell.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
----
- drivers/input/serio/i8042.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
---- linux-2.6.25.orig/drivers/input/serio/i8042.c
-+++ linux-2.6.25/drivers/input/serio/i8042.c
-@@ -938,8 +938,12 @@ static int i8042_resume(struct platform_
- 	i8042_ctr |= I8042_CTR_AUXDIS | I8042_CTR_KBDDIS;
- 	i8042_ctr &= ~(I8042_CTR_AUXINT | I8042_CTR_KBDINT);
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
--		printk(KERN_ERR "i8042: Can't write CTR to resume\n");
--		return -EIO;
-+		printk(KERN_WARNING "i8042: Can't write CTR to resume, retrying ...\n");
-+		msleep(50);
-+		if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-+			printk(KERN_ERR "i8042: CTR write retry failed\n");
-+			return -EIO;
-+		}
- 	}
- 
- 	if (i8042_mux_present) {
+No, there is no strong reason, I just postponed it to the second round of 
+changes. I wanted to hear comments first, so I only moved fully only apple 
+driver (to present how the concept was thought). After things settle down, I'm 
+going to move the rest of quirks including this one.

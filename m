@@ -1,27 +1,47 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 01/10] modpost: add support for hid
-Date: Mon, 09 Jun 2008 12:41:13 +0200
-Message-ID: <484D08C9.7050900@gmail.com>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <Pine.LNX.4.64.0806051123300.10085@jikos.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] Input: Add newer Apple keyboards to hid quirks table
+Date: Mon, 9 Jun 2008 13:44:02 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0806091342420.10085@jikos.suse.cz>
+References: <20080607024631.GA24254@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.154]:61732 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759429AbYFIKmR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Jun 2008 06:42:17 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so1466388fgg.17
-        for <linux-input@vger.kernel.org>; Mon, 09 Jun 2008 03:42:16 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.0806051123300.10085@jikos.suse.cz>
+Received: from styx.suse.cz ([82.119.242.94]:35068 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1758652AbYFILoF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Jun 2008 07:44:05 -0400
+In-Reply-To: <20080607024631.GA24254@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
+To: Matthew Garrett <mjg59@srcf.ucam.org>, Alexandre Karpenko <alexander@comm.utoronto.ca>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 06/05/2008 11:26 AM, Jiri Kosina wrote:
-> I have not yet pulled that branch into the branch that is pulled into -mm 
-> and linux-next, there are some things that I think still need sorting out 
-> -- I have sent you some feedback yesterday.
+On Sat, 7 Jun 2008, Matthew Garrett wrote:
 
-Thanks a lot for the review!
+> The keyboards in recent Apple hardware are still not properly supported 
+> by Linux due to them not being in the hid quirks table. This patch adds 
+> the current hardware. Device IDs come from the Mactel Linux project.
+
+Hi Matthew,
+
+the patch adding these product IDs is already queued in my 
+'upstream-fixes' branch.
+
+However ...
+
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+> +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+
+Alexandre's original patch is missing the 
+HID_QUIRK_APPLE_NUMLOCK_EMULATION quirk ... Alexandre, was this 
+intentional?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

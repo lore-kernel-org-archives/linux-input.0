@@ -1,70 +1,36 @@
-From: Alexander Karpenko <alexander@comm.utoronto.ca>
-Subject: Re: [PATCH] Input: Add newer Apple keyboards to hid quirks table
-Date: Mon, 09 Jun 2008 11:22:44 -0400
-Message-ID: <1213024964.8396.7.camel@tesseract>
-References: <20080607024631.GA24254@srcf.ucam.org>
-	 <Pine.LNX.4.64.0806091342420.10085@jikos.suse.cz>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: [2.6 patch] make q40kbd_lock static
+Date: Tue, 10 Jun 2008 01:23:06 +0300
+Message-ID: <20080609222306.GL1987@cs181133002.pp.htv.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759023AbYFIPXH@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0806091342420.10085@jikos.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp6.pp.htv.fi ([213.243.153.40]:40985 "EHLO smtp6.pp.htv.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1760625AbYFIWYA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Jun 2008 18:24:00 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Jiri,
+This patch makes the needlessly global q40kbd_lock static.
 
-The Macbook Pro 4,1 has no numlock key. I am not sure what
-the =EF=BB=BFHID_QUIRK_APPLE_NUMLOCK_EMULATION flag does.
+Signed-off-by: Adrian Bunk <bunk@kernel.org>
 
-On a somewhat related note, the function key secondary functionality ha=
-s
-also changed in the new Macbook Pro/Air models; this requires the
-"powerbook_fn_keys" lookup table in drivers/hid/hid-input.c to be
-updated accordingly. The new key layout is detailed here:
-http://support.apple.com/kb/HT1117
+---
+1bf64b91d180438d8810ea49a02687657d3a488e diff --git a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
+index d962a8d..52a531b 100644
+--- a/drivers/input/serio/q40kbd.c
++++ b/drivers/input/serio/q40kbd.c
+@@ -49,7 +49,7 @@ MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
+ MODULE_DESCRIPTION("Q40 PS/2 keyboard controller driver");
+ MODULE_LICENSE("GPL");
+ 
+-DEFINE_SPINLOCK(q40kbd_lock);
++static DEFINE_SPINLOCK(q40kbd_lock);
+ static struct serio *q40kbd_port;
+ static struct platform_device *q40kbd_device;
+ 
 
-Regards,
-Alex
-
-
-On Mon, 2008-06-09 at 13:44 +0200, Jiri Kosina wrote:
-> On Sat, 7 Jun 2008, Matthew Garrett wrote:
->=20
-> > The keyboards in recent Apple hardware are still not properly suppo=
-rted=20
-> > by Linux due to them not being in the hid quirks table. This patch =
-adds=20
-> > the current hardware. Device IDs come from the Mactel Linux project=
-=2E
->=20
-> Hi Matthew,
->=20
-> the patch adding these product IDs is already queued in my=20
-> 'upstream-fixes' branch.
->=20
-> However ...
->=20
-> > +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI, HID_Q=
-UIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> > +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO, HID_QU=
-IRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_=
-ISO_KEYBOARD },
-> > +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS, HID_QU=
-IRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> > +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI, HID_=
-QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> > +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO, HID_Q=
-UIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE=
-_ISO_KEYBOARD },
-> > +	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS, HID_Q=
-UIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
->=20
-> Alexandre's original patch is missing the=20
-> HID_QUIRK_APPLE_NUMLOCK_EMULATION quirk ... Alexandre, was this=20
-> intentional?
->=20
-> Thanks,
->=20

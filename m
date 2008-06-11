@@ -1,51 +1,48 @@
-From: Oliver Neukum <oliver@neukum.org>
+From: Anssi Hannula <anssi.hannula@gmail.com>
 Subject: Re: [PATCH 06/10] HID: move logitech report quirks
-Date: Wed, 11 Jun 2008 17:39:23 +0200
-Message-ID: <200806111739.24421.oliver@neukum.org>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <484D070E.9050707@gmail.com> <Pine.LNX.4.64.0806111611540.10085@jikos.suse.cz>
+Date: Wed, 11 Jun 2008 21:23:55 +0300
+Message-ID: <4850183B.90609@gmail.com>
+References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <1210931362-18422-2-git-send-email-jirislaby@gmail.com> <1210931362-18422-3-git-send-email-jirislaby@gmail.com> <1210931362-18422-4-git-send-email-jirislaby@gmail.com> <1210931362-18422-5-git-send-email-jirislaby@gmail.com> <1210931362-18422-6-git-send-email-jirislaby@gmail.com> <Pine.LNX.4.64.0806041520140.10085@jikos.suse.cz> <484D070E.9050707@gmail.com> <Pine.LNX.4.64.0806111611540.10085@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:54188 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753952AbYFKPjG (ORCPT
+Received: from mta-out.inet.fi ([195.156.147.13]:36526 "EHLO
+	jenni2.rokki.sonera.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751309AbYFKSYB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jun 2008 11:39:06 -0400
+	Wed, 11 Jun 2008 14:24:01 -0400
 In-Reply-To: <Pine.LNX.4.64.0806111611540.10085@jikos.suse.cz>
-Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
+Cc: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org
 
-Am Mittwoch 11 Juni 2008 16:13:43 schrieb Jiri Kosina:
+Jiri Kosina wrote:
 > On Mon, 9 Jun 2008, Jiri Slaby wrote:
 > 
-> > > > static const struct hid_device_id hid_blacklist[] = {
-> > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > > USB_DEVICE_ID_MX3000_RECEIVER) },
-> > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER)
-> > > > },
-> > > > +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-> > > > USB_DEVICE_ID_S510_RECEIVER_2) },
-> > > >  	{ }
-> > > >  };
-> > > This shouldn't be needed as soon as the userspace supports the proper module
-> > > autoloading, right?
-> > This is needed to tell generic drivers not to bind these, its' generic
-> > blacklist. I have no idea how this could be done better with current
-> > drivers/base/.
+>>>> static const struct hid_device_id hid_blacklist[] = {
+>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+>>>> USB_DEVICE_ID_MX3000_RECEIVER) },
+>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER)
+>>>> },
+>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
+>>>> USB_DEVICE_ID_S510_RECEIVER_2) },
+>>>>  	{ }
+>>>>  };
+>>> This shouldn't be needed as soon as the userspace supports the proper module
+>>> autoloading, right?
+>> This is needed to tell generic drivers not to bind these, its' generic
+>> blacklist. I have no idea how this could be done better with current
+>> drivers/base/.
 > 
 > Hmm ... but if we make sure that the order in `modules.order' puts all the 
 > specialized drivers before the generic one, the binding should be done 
 > correctly even without blacklist, right?
 
-No. You might have two devices connected. The first correctly triggers
-the loading of the generic driver. The second would first load the specialised
-driver but the already loaded driver will be faster.
+A little off-topic, but is there a module-init-tools repository with
+modules.order handling somewhere, or does it (still) only exist as
+not-yet-integrated patches?
 
-	Regards
-		Oliver
-
+-- 
+Anssi Hannula

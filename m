@@ -1,10 +1,13 @@
 From: Paul Collins <paul-dsjeNyW6Qm/D+ROgJ3VA+kB+6BGkLq7r@public.gmane.org>
-Subject: [PATCH] fix HID quirks for aluminium apple wireless keyboards
-Date: Fri, 13 Jun 2008 00:26:19 +1200
-Message-ID: <87iqweltzo.fsf@burly.wgtn.ondioline.org>
+Subject: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless keyboards
+Date: Fri, 13 Jun 2008 00:57:55 +1200
+Message-ID: <874p7ylsj0.fsf@burly.wgtn.ondioline.org>
+References: <87iqweltzo.fsf@burly.wgtn.ondioline.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87iqweltzo.fsf-D7l3p2TGOOdLdt5/z87VRY6ehsQQaF5K@public.gmane.org> (Paul Collins's message
+	of "Fri, 13 Jun 2008 00:26:19 +1200")
 Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -20,7 +23,11 @@ applied the Fn key on my Apple wireless keyboard now works as expected.
 I also took the liberty of adding defines for the vendor and for the
 existing Mighty Mouse quirk.
 
-Signed-off-by: Paul Collins <paul-ElVlcqu8pLbNLxjTenLetw@public.gmane.org
+Signed-off-by: Paul Collins <paul-ElVlcqu8pLbNLxjTenLetw@public.gmane.org>
+
+---
+Here's a new version with corrected Signed-off-by line.  Also the
+previous one was truncated by gmane; with any luck this makes it.
 
 diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
 index 1df832a..ff41c07 100644

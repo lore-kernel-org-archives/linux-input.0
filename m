@@ -1,58 +1,70 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 06/10] HID: move logitech report quirks
-Date: Wed, 11 Jun 2008 20:35:54 +0200
-Message-ID: <48501B0A.2020902@gmail.com>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com> <484D070E.9050707@gmail.com> <Pine.LNX.4.64.0806111611540.10085@jikos.suse.cz> <200806111739.24421.oliver@neukum.org>
+From: Paul Collins <paul-dsjeNyW6Qm/D+ROgJ3VA+kB+6BGkLq7r@public.gmane.org>
+Subject: [PATCH] fix HID quirks for aluminium apple wireless keyboards
+Date: Fri, 13 Jun 2008 00:26:19 +1200
+Message-ID: <87iqweltzo.fsf@burly.wgtn.ondioline.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.156]:43780 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754716AbYFKShH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Jun 2008 14:37:07 -0400
-Received: by fg-out-1718.google.com with SMTP id 19so2205762fgg.17
-        for <linux-input@vger.kernel.org>; Wed, 11 Jun 2008 11:37:04 -0700 (PDT)
-In-Reply-To: <200806111739.24421.oliver@neukum.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com
 
-On 06/11/2008 05:39 PM, Oliver Neukum wrote:
-> Am Mittwoch 11 Juni 2008 16:13:43 schrieb Jiri Kosina:
->> On Mon, 9 Jun 2008, Jiri Slaby wrote:
->>
->>>>> static const struct hid_device_id hid_blacklist[] = {
->>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->>>>> USB_DEVICE_ID_MX3000_RECEIVER) },
->>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_S510_RECEIVER)
->>>>> },
->>>>> +	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
->>>>> USB_DEVICE_ID_S510_RECEIVER_2) },
->>>>>  	{ }
->>>>>  };
->>>> This shouldn't be needed as soon as the userspace supports the proper module
->>>> autoloading, right?
->>> This is needed to tell generic drivers not to bind these, its' generic
->>> blacklist. I have no idea how this could be done better with current
->>> drivers/base/.
->> Hmm ... but if we make sure that the order in `modules.order' puts all the 
->> specialized drivers before the generic one, the binding should be done 
->> correctly even without blacklist, right?
-> 
-> No. You might have two devices connected. The first correctly triggers
-> the loading of the generic driver. The second would first load the specialised
-> driver but the already loaded driver will be faster.
+Hi Marcel and Jiri,
 
-Hm, the problem here is, that report (supported inputs et al.) parsing needs to 
-be done some time. Since some devices have reports broken too, some of their 
-reports need to be fixed before parsing. So the parsing is postponed after 
-*first* driver binds, then it's checked if the coming driver has report_fixup 
-hook and if yes, it's executed and the device is finally parsed and set up. If 
-it has not (e.g. generic), it's just parsed and set up.
+I noticed that the quirks for Bluetooth Apple keyboards seem to have
+been incorrectly added to the USB HID, thus rendering them ineffective.
+Here is a patch that moves them to the Bluetooth HID.  With this patch
+applied the Fn key on my Apple wireless keyboard now works as expected.
 
-If you bind the generic driver as the first driver and the particular device 
-needs report fixing, it never performs the fixup. Actually what I don't know is 
-how to solve this effectively.
+I also took the liberty of adding defines for the vendor and for the
+existing Mighty Mouse quirk.
+
+Signed-off-by: Paul Collins <paul-ElVlcqu8pLbNLxjTenLetw@public.gmane.org
+
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 1df832a..ff41c07 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -72,9 +72,6 @@
+ #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI    0x0229
+ #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO     0x022a
+ #define USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS     0x022b
+-#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI  0x022c
+-#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO   0x022d
+-#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS   0x022e
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+ #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
+@@ -639,9 +636,6 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+-	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+ 	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+ 
+diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+index 519cdb9..f0762e5 100644
+--- a/net/bluetooth/hidp/core.c
++++ b/net/bluetooth/hidp/core.c
+@@ -671,14 +671,26 @@ static void hidp_close(struct hid_device *hid)
+ {
+ }
+ 
++#define BT_VENDOR_ID_APPLE				0x05ac
++
++#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI		0x022c
++#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_ISO		0x022d
++#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_JIS		0x022e
++#define BT_DEVICE_ID_APPLE_MIGHTY_MOUSE_WIRELESS	0x030c
++
+ static const struct {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+ 	unsigned quirks;
+ } hidp_blacklist[] = {
+-	/* Apple wireless Mighty Mouse */
+-	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },

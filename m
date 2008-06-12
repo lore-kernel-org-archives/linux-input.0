@@ -1,48 +1,117 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [RESEND] [PATCH] Input: add retry logic to resume with respect to
- CTR
-Date: Thu, 12 Jun 2008 15:12:34 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0806121511290.10085@jikos.suse.cz>
+From: "Phil Endecott" <phil_wueww_endecott@chezphil.org>
+Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless
+	keyboards
+Date: Thu, 12 Jun 2008 14:17:16 +0100
+Message-ID: <1213276636216@dmwebmail.dmwebmail.chezphil.org>
+References: <874p7ylsj0.fsf@burly.wgtn.ondioline.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761782AbYFLNMs@vger.kernel.org>
+Content-Type: text/plain; format="fixed"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762839AbYFLOEu@vger.kernel.org>
+In-Reply-To: <874p7ylsj0.fsf@burly.wgtn.ondioline.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Paul Collins <paul@burly.ondioline.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, marcel@holtmann.org, jkosina@suse.cz
 List-Id: linux-input@vger.kernel.org
 
-There are systems that fail in i8042_resume() with
+Paul Collins wrote:
+> Hi Marcel and Jiri,
+>
+> I noticed that the quirks for Bluetooth Apple keyboards seem to have
+> been incorrectly added to the USB HID, thus rendering them ineffective.
+> Here is a patch that moves them to the Bluetooth HID.  With this patch
+> applied the Fn key on my Apple wireless keyboard now works as expected.
+>
+> I also took the liberty of adding defines for the vendor and for the
+> existing Mighty Mouse quirk.
+>
+> Signed-off-by: Paul Collins <paul@ondioline.org>
+>
+> ---
+> Here's a new version with corrected Signed-off-by line.  Also the
+> previous one was truncated by gmane; with any luck this makes it.
+>
+> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+> index 1df832a..ff41c07 100644
+> --- a/drivers/hid/usbhid/hid-quirks.c
+> +++ b/drivers/hid/usbhid/hid-quirks.c
+> @@ -72,9 +72,6 @@
+>  #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI    0x0229
+>  #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO     0x022a
+>  #define USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS     0x022b
+> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI  0x022c
+> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO   0x022d
+> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS   0x022e
+>  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+>  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
+>  #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
+> @@ -639,9 +636,6 @@ static const struct hid_blacklist {
+>  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+>  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+>  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+> -	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> -	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+> -	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+>  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+>  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
+>  
+> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> index 519cdb9..f0762e5 100644
+> --- a/net/bluetooth/hidp/core.c
+> +++ b/net/bluetooth/hidp/core.c
+> @@ -671,14 +671,26 @@ static void hidp_close(struct hid_device *hid)
+>  {
+>  }
+>  
+> +#define BT_VENDOR_ID_APPLE				0x05ac
+> +
+> +#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI		0x022c
+> +#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_ISO		0x022d
+> +#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_JIS		0x022e
+> +#define BT_DEVICE_ID_APPLE_MIGHTY_MOUSE_WIRELESS	0x030c
+> +
+>  static const struct {
+>  	__u16 idVendor;
+>  	__u16 idProduct;
+>  	unsigned quirks;
+>  } hidp_blacklist[] = {
+> -	/* Apple wireless Mighty Mouse */
+> -	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
+> -
+> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI,
+> +	  HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_ALU_WIRELESS_ISO,
+> +	  HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_ALU_WIRELESS_JIS,
+> +	  HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_MIGHTY_MOUSE_WIRELESS,
+> +	  HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
+>  	{ }	/* Terminating entry */
+>  };
+>  
 
-	i8042: Can't write CTR to resume
+Hi Paul,
 
-as i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR) fails even though the
-controller claimed itself to be ready before.
+Did you see my messages about this a few weeks ago?  
+http://thread.gmane.org/gmane.linux.kernel.input/4984
 
-One retry after failing write fixes the problems on the failing systems.
+I didn't post a patch because I believe that this stuff has all moved as a 
+result of Jiri Slaby's patch "HID: move apple quirks" posted to linux-input 
+on 2008-05-16.  One of us should prepare a patch against the tree after 
+that patch.
 
-Reported-by: Helmut Schaa <hschaa@novell.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
----
- drivers/input/serio/i8042.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+Does HID_QUIRK_APPLE_NUMLOCK_EMULATION do anything useful on these keyboards?  
+I have not enabled it.
 
---- linux-2.6.25.orig/drivers/input/serio/i8042.c
-+++ linux-2.6.25/drivers/input/serio/i8042.c
-@@ -938,8 +938,12 @@ static int i8042_resume(struct platform_
- 	i8042_ctr |= I8042_CTR_AUXDIS | I8042_CTR_KBDDIS;
- 	i8042_ctr &= ~(I8042_CTR_AUXINT | I8042_CTR_KBDINT);
- 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
--		printk(KERN_ERR "i8042: Can't write CTR to resume\n");
--		return -EIO;
-+		printk(KERN_WARNING "i8042: Can't write CTR to resume, retrying ...\n");
-+		msleep(50);
-+		if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR)) {
-+			printk(KERN_ERR "i8042: CTR write retry failed\n");
-+			return -EIO;
-+		}
- 	}
- 
- 	if (i8042_mux_present) {
+Do you know what happens if you have a USB bluetooth dongle with HID proxy 
+mode?  My assumption was that the vendor and product IDs from the keyboard 
+would then appear to the kernel as USB IDs.  If this is true, then you should 
+keep the existing entries for these devices in the USB quirks tables.  Does 
+anyone know if HID proxy dongles actually do this?  In any case, leaving 
+the existing entries in the USB quirks table can't do any harm.
 
---
-1.5.2.4
+I wrote this up at http://chezphil.org/apple-alu-bluetooth-kb-linux/ and I'll 
+just post that URL again to help the search engines...
+
+Cheers,
+
+Phil.

@@ -1,117 +1,56 @@
-From: "Phil Endecott" <phil_wueww_endecott@chezphil.org>
-Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless
-	keyboards
-Date: Thu, 12 Jun 2008 14:17:16 +0100
-Message-ID: <1213276636216@dmwebmail.dmwebmail.chezphil.org>
+From: Paul Collins <paul-dsjeNyW6Qm/D+ROgJ3VA+kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless keyboards
+Date: Fri, 13 Jun 2008 02:55:43 +1200
+Message-ID: <87prqmk8i8.fsf@burly.wgtn.ondioline.org>
 References: <874p7ylsj0.fsf@burly.wgtn.ondioline.org>
+	<1213276636216@dmwebmail.dmwebmail.chezphil.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format="fixed"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1762839AbYFLOEu@vger.kernel.org>
-In-Reply-To: <874p7ylsj0.fsf@burly.wgtn.ondioline.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Collins <paul@burly.ondioline.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, marcel@holtmann.org, jkosina@suse.cz
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1213276636216-YnoLgZYwwYuCbKHnblo0pmrPP3OPMK55cpQHUIT47Ck@public.gmane.org> (Phil Endecott's
+	message of "Thu, 12 Jun 2008 14:17:16 +0100")
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Phil Endecott <phil_tuhck_endecott-wZDNlLIRyE5g9hUCZPvPmw@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Paul Collins wrote:
-> Hi Marcel and Jiri,
->
-> I noticed that the quirks for Bluetooth Apple keyboards seem to have
-> been incorrectly added to the USB HID, thus rendering them ineffective.
-> Here is a patch that moves them to the Bluetooth HID.  With this patch
-> applied the Fn key on my Apple wireless keyboard now works as expected.
->
-> I also took the liberty of adding defines for the vendor and for the
-> existing Mighty Mouse quirk.
->
-> Signed-off-by: Paul Collins <paul@ondioline.org>
->
-> ---
-> Here's a new version with corrected Signed-off-by line.  Also the
-> previous one was truncated by gmane; with any luck this makes it.
->
-> diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-> index 1df832a..ff41c07 100644
-> --- a/drivers/hid/usbhid/hid-quirks.c
-> +++ b/drivers/hid/usbhid/hid-quirks.c
-> @@ -72,9 +72,6 @@
->  #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI    0x0229
->  #define USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO     0x022a
->  #define USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS     0x022b
-> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI  0x022c
-> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO   0x022d
-> -#define USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS   0x022e
->  #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
->  #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
->  #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
-> @@ -639,9 +636,6 @@ static const struct hid_blacklist {
->  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
->  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
->  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
-> -	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> -	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
-> -	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
->  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
->  	{ USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_IGNORE_MOUSE },
->  
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index 519cdb9..f0762e5 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-> @@ -671,14 +671,26 @@ static void hidp_close(struct hid_device *hid)
->  {
->  }
->  
-> +#define BT_VENDOR_ID_APPLE				0x05ac
-> +
-> +#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI		0x022c
-> +#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_ISO		0x022d
-> +#define BT_DEVICE_ID_APPLE_ALU_WIRELESS_JIS		0x022e
-> +#define BT_DEVICE_ID_APPLE_MIGHTY_MOUSE_WIRELESS	0x030c
-> +
->  static const struct {
->  	__u16 idVendor;
->  	__u16 idProduct;
->  	unsigned quirks;
->  } hidp_blacklist[] = {
-> -	/* Apple wireless Mighty Mouse */
-> -	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
-> -
-> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI,
-> +	  HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_ALU_WIRELESS_ISO,
-> +	  HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
-> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_ALU_WIRELESS_JIS,
-> +	  HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> +	{ BT_VENDOR_ID_APPLE, BT_DEVICE_ID_APPLE_MIGHTY_MOUSE_WIRELESS,
-> +	  HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
->  	{ }	/* Terminating entry */
->  };
->  
+"Phil Endecott" <phil_tuhck_endecott-wZDNlLIRyE5g9hUCZPvPmw@public.gmane.org> writes:
 
-Hi Paul,
+> Did you see my messages about this a few weeks ago?  
+> http://thread.gmane.org/gmane.linux.kernel.input/4984
 
-Did you see my messages about this a few weeks ago?  
-http://thread.gmane.org/gmane.linux.kernel.input/4984
+Alas, no!  That would have been very helpful.
 
-I didn't post a patch because I believe that this stuff has all moved as a 
-result of Jiri Slaby's patch "HID: move apple quirks" posted to linux-input 
-on 2008-05-16.  One of us should prepare a patch against the tree after 
-that patch.
+> I didn't post a patch because I believe that this stuff has all moved
+> as a result of Jiri Slaby's patch "HID: move apple quirks" posted to
+> linux-input on 2008-05-16.  One of us should prepare a patch against
+> the tree after that patch.
 
-Does HID_QUIRK_APPLE_NUMLOCK_EMULATION do anything useful on these keyboards?  
-I have not enabled it.
+I'm happy to do this, although the only tree I track closely is Linus's.
 
-Do you know what happens if you have a USB bluetooth dongle with HID proxy 
-mode?  My assumption was that the vendor and product IDs from the keyboard 
-would then appear to the kernel as USB IDs.  If this is true, then you should 
-keep the existing entries for these devices in the USB quirks tables.  Does 
-anyone know if HID proxy dongles actually do this?  In any case, leaving 
-the existing entries in the USB quirks table can't do any harm.
+> Do you know what happens if you have a USB bluetooth dongle with HID
+> proxy mode?  My assumption was that the vendor and product IDs from
+> the keyboard would then appear to the kernel as USB IDs.  If this is
+> true, then you should keep the existing entries for these devices in
+> the USB quirks tables.  Does anyone know if HID proxy dongles actually
+> do this?  In any case, leaving the existing entries in the USB quirks
+> table can't do any harm.
 
-I wrote this up at http://chezphil.org/apple-alu-bluetooth-kb-linux/ and I'll 
-just post that URL again to help the search engines...
+Hmm, no idea.  Absent confirmation I guess I'll drop the USB HID changes
+to be on the safe side.
 
-Cheers,
+> I wrote this up at http://chezphil.org/apple-alu-bluetooth-kb-linux/
+> and I'll just post that URL again to help the search engines...
 
-Phil.
+Nice writeup!  Small correction: when the quirk is active, you can
+generate forward delete by pressing Fn-backspace.
+
+-- 
+Paul Collins
+Wellington, New Zealand
+
+Dag vijandelijk luchtschip de huismeester is dood
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

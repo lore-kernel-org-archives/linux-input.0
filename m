@@ -1,63 +1,52 @@
-From: "Phil Endecott" <phil_dubhl_endecott@chezphil.org>
-Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless
-	keyboards
-Date: Sat, 14 Jun 2008 13:51:33 +0100
-Message-ID: <1213447893811@dmwebmail.dmwebmail.chezphil.org>
-References: <87tzfwiguc.fsf@burly.wgtn.ondioline.org>
-Mime-Version: 1.0
-Content-Type: text/plain; format="flowed"
+From: Dan Nicholson <dbn.lists@gmail.com>
+Subject: [PATCH] HID: Invert HWHEEL mappings for some Logitech mice
+Date: Sat, 14 Jun 2008 10:26:24 -0700
+Message-ID: <1213464384-4602-1-git-send-email-dbn.lists@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from japan.chezphil.org ([77.240.5.4]:3609 "EHLO japan.chezphil.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754205AbYFNMvg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Jun 2008 08:51:36 -0400
-Received: from localhost ([127.0.0.1] helo=chezphil.org)
-	by japan.chezphil.org with esmtp (Exim 4.69)
-	(envelope-from <phil_dubhl_endecott@chezphil.org>)
-	id 1K7VEF-0003sm-2F
-	for linux-input@vger.kernel.org; Sat, 14 Jun 2008 13:51:35 +0100
-In-Reply-To: <87tzfwiguc.fsf@burly.wgtn.ondioline.org>
+Received: from qmta10.westchester.pa.mail.comcast.net ([76.96.62.17]:53243
+	"EHLO QMTA10.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750744AbYFNRbZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 Jun 2008 13:31:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Collins <paul@burly.ondioline.org>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>
+To: linux-input@vger.kernel.org
 
-Paul Collins wrote:
-> Here is a new version of the patch that just adds the entries to
-> hidp_blacklist using your suggested style.  I'm leaving the USB HID's
-> table alone based on Phil Endecott's remarks regarding HID proxy mode,
-> so now this patch only touches Bluetooth code.
->
->
-> bluetooth: fix Fn on Apple Wireless Keyboard
->
-> Enable the HID quirks for Apple Wireless Keyboards, based on the quirk
-> table entries in the USB HID.  With this patch applied the Fn key on my
-> keyboard now functions as expected.
->
-> diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> index 519cdb9..62f174a 100644
-> --- a/net/bluetooth/hidp/core.c
-> +++ b/net/bluetooth/hidp/core.c
-> @@ -676,6 +676,12 @@ static const struct {
->  	__u16 idProduct;
->  	unsigned quirks;
->  } hidp_blacklist[] = {
-> +	/* Apple Wireless Keyboard, ANSI layout */
-> +	{ 0x05ac, 0x022c, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> +	/* Apple Wireless Keyboard, ISO layout */
-> +	{ 0x05ac, 0x022d, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
-> +	/* Apple Wireless Keyboard, JIS layout */
-> +	{ 0x05ac, 0x022e, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
->  	/* Apple wireless Mighty Mouse */
->  	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
+Some Logitech mice have a tilt wheel which register as HWHEEL buttons.
+The events are positive for a click to the right and negative for a
+click to the left. Applications expect the opposite, though.
 
-Why do you set HID_QUIRK_APPLE_NUMLOCK_EMULATION ?  I don't know what 
-that quirk really does, but since these keyboards have neither a 
-numeric keypad nor a numlock key I can't see any benefit.
+I suspect this affects a lot more Logitech mice, but these are the only
+two I have. I tested this using evtest and a GTK application. A similar
+Microsoft Intellimouse I have works correctly.
 
+Signed-off-by: Dan Nicholson <dbn.lists@gmail.com>
+---
+ drivers/hid/usbhid/hid-quirks.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
-Phil.
-
-
+diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
+index 1df832a..372799f 100644
+--- a/drivers/hid/usbhid/hid-quirks.c
++++ b/drivers/hid/usbhid/hid-quirks.c
+@@ -241,6 +241,8 @@
+ #define USB_DEVICE_ID_LD_MACHINETEST	0x2040
+ 
+ #define USB_VENDOR_ID_LOGITECH		0x046d
++#define USB_DEVICE_ID_LOGITECH_LX3	0xc044
++#define USB_DEVICE_ID_LOGITECH_V150	0xc047
+ #define USB_DEVICE_ID_LOGITECH_RECEIVER	0xc101
+ #define USB_DEVICE_ID_LOGITECH_HARMONY  0xc110
+ #define USB_DEVICE_ID_LOGITECH_HARMONY_2 0xc111
+@@ -593,6 +595,8 @@ static const struct hid_blacklist {
+ 
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_ELITE_KBD, HID_QUIRK_LOGITECH_IGNORE_DOUBLED_WHEEL | HID_QUIRK_LOGITECH_EXPANDED_KEYMAP },
+ 	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_CORDLESS_DESKTOP_LX500, HID_QUIRK_LOGITECH_IGNORE_DOUBLED_WHEEL | HID_QUIRK_LOGITECH_EXPANDED_KEYMAP },
++	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_LX3, HID_QUIRK_INVERT_HWHEEL },
++	{ USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_V150, HID_QUIRK_INVERT_HWHEEL },
+ 
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_NE4K, HID_QUIRK_MICROSOFT_KEYS },
+ 	{ USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_LK6K, HID_QUIRK_MICROSOFT_KEYS },
+-- 
+1.5.3.2
 

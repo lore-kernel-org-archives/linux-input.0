@@ -1,48 +1,40 @@
-From: Marcel Holtmann <marcel@holtmann.org>
+From: "Phil Endecott" <phil_dubhl_endecott@chezphil.org>
 Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless
 	keyboards
-Date: Sat, 14 Jun 2008 14:22:40 +0200
-Message-ID: <1213446160.17870.145.camel@violet.holtmann.net>
-References: <87iqweltzo.fsf@burly.wgtn.ondioline.org>
-	 <874p7ylsj0.fsf@burly.wgtn.ondioline.org>
-	 <1213301289.17870.72.camel@violet.holtmann.net>
-	 <87tzfwiguc.fsf@burly.wgtn.ondioline.org>
+Date: Sat, 14 Jun 2008 13:51:33 +0100
+Message-ID: <1213447893811@dmwebmail.dmwebmail.chezphil.org>
+References: <87tzfwiguc.fsf@burly.wgtn.ondioline.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format="flowed"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:34492 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752528AbYFNMTm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 14 Jun 2008 08:19:42 -0400
+Received: from japan.chezphil.org ([77.240.5.4]:3609 "EHLO japan.chezphil.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754205AbYFNMvg (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 Jun 2008 08:51:36 -0400
+Received: from localhost ([127.0.0.1] helo=chezphil.org)
+	by japan.chezphil.org with esmtp (Exim 4.69)
+	(envelope-from <phil_dubhl_endecott@chezphil.org>)
+	id 1K7VEF-0003sm-2F
+	for linux-input@vger.kernel.org; Sat, 14 Jun 2008 13:51:35 +0100
 In-Reply-To: <87tzfwiguc.fsf@burly.wgtn.ondioline.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Paul Collins <paul@burly.ondioline.org>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>
 
-Hi Paul,
-
-> >> I also took the liberty of adding defines for the vendor and for the
-> >> existing Mighty Mouse quirk.
-> >
-> > I prefer not to do this. I don't see any benefit or readability coming
-> > out of it. Leave it as it is. Add the numeric ids and then a line on top
-> > of it describing the devices.
-> 
+Paul Collins wrote:
 > Here is a new version of the patch that just adds the entries to
 > hidp_blacklist using your suggested style.  I'm leaving the USB HID's
 > table alone based on Phil Endecott's remarks regarding HID proxy mode,
 > so now this patch only touches Bluetooth code.
-> 
-> 
+>
+>
 > bluetooth: fix Fn on Apple Wireless Keyboard
-> 
+>
 > Enable the HID quirks for Apple Wireless Keyboards, based on the quirk
 > table entries in the USB HID.  With this patch applied the Fn key on my
 > keyboard now functions as expected.
-> 
+>
 > diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
 > index 519cdb9..62f174a 100644
 > --- a/net/bluetooth/hidp/core.c
@@ -60,13 +52,12 @@ Hi Paul,
 >  	/* Apple wireless Mighty Mouse */
 >  	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
 
-Acked-by: Marcel Holtmann <marcel@holtmann.org>
+Why do you set HID_QUIRK_APPLE_NUMLOCK_EMULATION ?  I don't know what 
+that quirk really does, but since these keyboards have neither a 
+numeric keypad nor a numlock key I can't see any benefit.
 
-However depending on if Jiri's changes for the HID bus are ready, this
-patch might become obsolete.
 
-Regards
+Phil.
 
-Marcel
 
 

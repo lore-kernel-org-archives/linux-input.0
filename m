@@ -1,57 +1,79 @@
-From: Markus Heidelberg <markus.heidelberg@web.de>
-Subject: serial touchscreen and inputattach
-Date: Sun, 15 Jun 2008 21:01:09 +0200
-Message-ID: <200806152101.10156.markus.heidelberg@web.de>
-Reply-To: markus.heidelberg@web.de
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Sleeping inside spinlock in force feedback input event code
+Date: Sun, 15 Jun 2008 22:01:55 +0300
+Message-ID: <48556723.2090204@gmail.com>
+References: <4868e2410806150157o5b290bf7kaccdeb2faf5057d6@mail.gmail.com>	 <485540A6.1050306@gmail.com>	 <4868e2410806151023j67ceea16pe1c5ad8ab9a8e122@mail.gmail.com>	 <4855507E.4030201@gmail.com>	 <4868e2410806151036o1a1652d8y8bf8432e3c6c0d06@mail.gmail.com>	 <4868e2410806151036r6d96a840v41b8ee745041db35@mail.gmail.com> <4868e2410806151105v3fec88a1qa439e2cc1423bc6a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fmmailgate03.web.de ([217.72.192.234]:37679 "EHLO
-	fmmailgate03.web.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750755AbYFOTBP (ORCPT
+Received: from mta-out.inet.fi ([195.156.147.13]:45727 "EHLO
+	kirsi2.rokki.sonera.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750832AbYFOTB7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 15 Jun 2008 15:01:15 -0400
-Received: from smtp05.web.de (fmsmtp05.dlan.cinetic.de [172.20.4.166])
-	by fmmailgate03.web.de (Postfix) with ESMTP id 4824CDFEB272
-	for <linux-input@vger.kernel.org>; Sun, 15 Jun 2008 21:01:14 +0200 (CEST)
-Received: from [91.19.29.124] (helo=pluto)
-	by smtp05.web.de with asmtp (TLSv1:AES256-SHA:256)
-	(WEB.DE 4.109 #226)
-	id 1K7xTW-0008Bs-00
-	for linux-input@vger.kernel.org; Sun, 15 Jun 2008 21:01:14 +0200
-Content-Disposition: inline
+	Sun, 15 Jun 2008 15:01:59 -0400
+In-Reply-To: <4868e2410806151105v3fec88a1qa439e2cc1423bc6a@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: James Carthew <jcarthew@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hello,
+Hi all!
 
-I'm currently working on a serial touchscreen driver and have some questions.
+It seems a new spinlock input_dev->event_lock has been added [1] to the
+input subsystem since the force feedback support was reworked.
 
-What's the rule for creating a new name for serio protocol in serio.h for use
-in serio_device_id.proto and input_dev.id.vendor? Can I just take a free
-number? I guess then I should take the next one (currently 0x37 after
-SERIO_ZHENHUA), however there are some gaps in the list.
+However, the force feedback subsystem sleeps on events in multiple
+places, e.g. ff-core.c uses a mutex, and hid-pidff driver waits for hid
+io (otherwise commands were lost, IIRC; if necessary I'll test again).
 
-Is there an official version of inputattach? I found different sources. The
-last change at [1] is about 2 years ago. At [2] there is a broken CVS link to
-[1]. The inputattach tool in buildroot's tslib package is derived from [1] with
-some minor changes. The inputattach from Debian's joystick package is derived
-from a three years old version of [1], the tool from Gentoo's joystick package
-is the same as in [1].
+ff_device->mutex is used to shield effects[], so it is locked when
+handling EV_FF events, on flushes, and on effect upload and erase ioctls.
 
-So it seems as if [1] is quite official, because everything is pointing to it.
-But there is another inputattach at [3] with a reworked code base, which is
-only 1 year old and supports some more devices, mainly touchscreens.
+Maybe we should make EV_FF handling atomic? For effect uploading we
+could either make it completely atomic, or lock only for reserving the
+effect slot, then release the lock, and mark it as ready after upload is
+complete.
+Making even the upload completely atomic would mean that no force
+feedback events/ioctl() would sleep, which AFAIK would be a plus for
+userspace ff applications. On the other hand, hid-pidff (device managed
+mode) driver doesn't know whether effect upload was successful until it
+has received a report from the device, so it wouldn't be able to report
+failure immediately. Other drivers would, though.
 
-Or is there another preferred way beside inputattach to bind the touchscreen to
-its driver and inputattach is obsolete?
+What do you think?
 
-[1] http://linuxconsole.cvs.sourceforge.net/linuxconsole/ruby/utils/
-[2] http://atrey.karlin.mff.cuni.cz/~vojtech/input/
-[3] http://kernel.org/pub/linux/kernel/people/dtor/
+I just noticed this (due to James' freeze report below), so I haven't
+yet put much thought into this.
 
-Markus
+[1]
+http://git.kernel.org/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=8006479c9b75fb6594a7b746af3d7f1fbb68f18f
 
+James Carthew wrote:
+> ok I managed to get sysrq to print some stuff out by switching to
+> console logging level 6:
+> BUG: scheduling while atomic: ffcfstress/6888/0x00000003
+> PID: 6888, comm: ffcfstress Tainted: P 2.6.26-rc5 #2
+> [<c0757a2f>] schedule+0x9b/0x5f9
+> [<c0226ccf>] lock_timer_base+0x19/0x35
+> [<c0759431>] _spin_unlock_irqrestore+0xe/0x21]
+> [<c0226de0>] __mod_timer+0x97/0xa1
+> [<c075813f>] schedule_timeout+0x6b/0x86
+> [<c0226bb5>] process_timeout+0x0/0x5
+> [<c069ad55>] usbhid_wait_io+0x76/0xb9
+> [<c022eebd>] autoremove_wake_function+0x0/0x2b
+> [<c069c8c1>] pidff_playback_pid+0x3c/0x49
+> [<c069c9ac>] pidff_playback+0x15/0x18
+> [<c0665dd6>] input_ff_event+0x79/0x89
+> [<c0665d5d>] input_ff_event+0x0/0x89
+> [<c0664d5d>] input_handle_event+0x32a/0x362
+> [<c0665728>] input_inject_event+0x59/0x92
+> [<c0668bff>] evdev_write+0x77/0x84
+> [<c0668b88>] evdev_write+0x0/0x84
+> [<c025ed95>] vfs_write+0x83/0xf6
+> [<c025f2a2>] sys_write+0x3c/0x63
+> [<c02038dd>] sysenter_past_esp+0x6a/0x91
+
+
+-- 
+Anssi Hannula

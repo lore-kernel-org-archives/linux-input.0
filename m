@@ -1,61 +1,36 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH] input: make mainstone-wm97xx.c depend on MACH_MAINSTONE
-	instead of ARCH_PXA
-Date: Mon, 16 Jun 2008 15:06:16 +0300
-Message-ID: <48565738.5030907@compulab.co.il>
-References: <48564133.3070609@gmail.com>
+From: David Kraeutmann <david@davidkra.net>
+Subject: Re: N-Trig Dual-Input digitzer
+Date: Mon, 16 Jun 2008 14:47:02 +0200
+Message-ID: <485660C6.5070509@davidkra.net>
+References: <4852C03F.3080607@davidkra.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-In-Reply-To: <48564133.3070609@gmail.com>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input <linux-input@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kane.davidkra.net ([80.152.186.145]:31698 "HELO
+	mail.davidkra.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753343AbYFPOrP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Jun 2008 10:47:15 -0400
+In-Reply-To: <4852C03F.3080607@davidkra.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-Eric,
-
-Eric Miao wrote:
-> If this is totally mainstone specific.
-
-I had a quick glance at the driver, and I think it can be generalized to work on
-other PXA platforms with WM97xx codecs. If you'd like to I can try to enable it
-on EM-X270 to see if I'm right.
-
-> Signed-off-by: Eric Miao <eric.miao@marvell.com>
-> ---
->  drivers/input/touchscreen/Kconfig |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+David Kraeutmann wrote:
+> Hello,
+> I've reverse-engineered N-Trig's Dual-Input digitizer and I'm searching
+> for someone to write a driver for it.
+> This digitizer is used in Dells Latitude XT.
+> I also wrote a small python script that analyzes the output, you can
+> download it from http://kane.redfox-media.net/hidraw0.py .
 > 
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index 565ec71..17d0623 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -228,7 +228,7 @@ config TOUCHSCREEN_WM9713
->  
->  config TOUCHSCREEN_WM97XX_MAINSTONE
->  	tristate "WM97xx Mainstone accelerated touch"
-> -	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
-> +	depends on TOUCHSCREEN_WM97XX && MACH_MAINSTONE
->  	help
->  	  Say Y here for support for streaming mode with WM97xx touchscreens
->  	  on Mainstone systems.
+> David Kraeutmann
+> 
+> -- 
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
--- 
-Sincerely yours,
-Mike.
+Nobody's interested in developing a driver?
 
-
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

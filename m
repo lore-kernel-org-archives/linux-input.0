@@ -1,34 +1,61 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] input: make mainstone-wm97xx.c depend on
-	MACH_MAINSTONE instead of ARCH_PXA
-Date: Mon, 16 Jun 2008 13:07:56 +0100
-Message-ID: <20080616120756.GA7302@rakim.wolfsonmicro.main>
+From: Mike Rapoport <mike@compulab.co.il>
+Subject: Re: [PATCH] input: make mainstone-wm97xx.c depend on MACH_MAINSTONE
+	instead of ARCH_PXA
+Date: Mon, 16 Jun 2008 15:06:16 +0300
+Message-ID: <48565738.5030907@compulab.co.il>
 References: <48564133.3070609@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:42476 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1753051AbYFPMH7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Jun 2008 08:07:59 -0400
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
 In-Reply-To: <48564133.3070609@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
 To: Eric Miao <eric.y.miao@gmail.com>
-Cc: linux-input <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input <linux-input@vger.kernel.org>
+List-Id: linux-input@vger.kernel.org
 
-On Mon, Jun 16, 2008 at 06:32:19PM +0800, Eric Miao wrote:
+Eric,
+
+Eric Miao wrote:
 > If this is totally mainstone specific.
 
+I had a quick glance at the driver, and I think it can be generalized to work on
+other PXA platforms with WM97xx codecs. If you'd like to I can try to enable it
+on EM-X270 to see if I'm right.
+
 > Signed-off-by: Eric Miao <eric.miao@marvell.com>
+> ---
+>  drivers/input/touchscreen/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+> index 565ec71..17d0623 100644
+> --- a/drivers/input/touchscreen/Kconfig
+> +++ b/drivers/input/touchscreen/Kconfig
+> @@ -228,7 +228,7 @@ config TOUCHSCREEN_WM9713
+>  
+>  config TOUCHSCREEN_WM97XX_MAINSTONE
+>  	tristate "WM97xx Mainstone accelerated touch"
+> -	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
+> +	depends on TOUCHSCREEN_WM97XX && MACH_MAINSTONE
+>  	help
+>  	  Say Y here for support for streaming mode with WM97xx touchscreens
+>  	  on Mainstone systems.
 
-It is and it isn't.  It's very thin and stands a reasonable chance of
-working with generic PXA systems - ideally at some point we will have 
-the ability to pass platform data to AC97 devices which would let it run
-elsewhere.  The driver was until very recently called pxa-wm97xx but
-renamed recently due to the fact that we can't assume it'll work on
-other things due to having the GPIO hookup hardcoded.
+-- 
+Sincerely yours,
+Mike.
 
-I'd rather let it be visible but I'm not *too* bothered either way.
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

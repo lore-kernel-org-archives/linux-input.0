@@ -1,54 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless
- keyboards
-Date: Tue, 17 Jun 2008 15:54:56 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0806171553490.10085@jikos.suse.cz>
-References: <87iqweltzo.fsf@burly.wgtn.ondioline.org>
- <874p7ylsj0.fsf@burly.wgtn.ondioline.org>  <1213301289.17870.72.camel@violet.holtmann.net>
-  <87tzfwiguc.fsf@burly.wgtn.ondioline.org> <1213446160.17870.145.camel@violet.holtmann.net>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] ati_remote2: Add autosuspend support
+Date: Tue, 17 Jun 2008 10:13:09 -0400
+Message-ID: <20080617100959.ZZRA012@mailhub.coreip.homeip.net>
+References: <1212518747-23000-1-git-send-email-syrjala@sci.fi> <200806032211.10052.oliver@neukum.org> <20080604082021.GH5067@sci.fi> <200806041032.58237.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:38527 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752862AbYFQNy5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Jun 2008 09:54:57 -0400
-In-Reply-To: <1213446160.17870.145.camel@violet.holtmann.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <200806041032.58237.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Ville Syrj?l? <syrjala-ORSVBvAovxo@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Paul Collins <paul@burly.ondioline.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Sat, 14 Jun 2008, Marcel Holtmann wrote:
+On Wed, Jun 04, 2008 at 10:32:57AM +0200, Oliver Neukum wrote:
+> Am Mittwoch 04 Juni 2008 10:20:21 schrieb Ville Syrj?l?:
+> > On Tue, Jun 03, 2008 at 10:11:09PM +0200, Oliver Neukum wrote:
+> > > Am Dienstag 03 Juni 2008 20:45:47 schrieb Ville Syrjala:
+> > > > +
+> > > > +???????mutex_lock(&ati_remote2_mutex);
+> > > 
+> > > Too late. You can race with disconnect()
+> > 
+> > Hmm. Do you mean open() vs. disconnect()? Doesn't the input_dev's locking
+> > take care of that? ati_remote2_mutex is there just to make ar2->flags
+> > handling and urb submitting/killing atomic, it didn't even exist before
+> > this autosuspend patch. Or perhaps I'm missing something...
+> 
+> Hm. Anybody on the list an expert on locking in the input layer?
+> 
 
-> > diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
-> > index 519cdb9..62f174a 100644
-> > --- a/net/bluetooth/hidp/core.c
-> > +++ b/net/bluetooth/hidp/core.c
-> > @@ -676,6 +676,12 @@ static const struct {
-> >  	__u16 idProduct;
-> >  	unsigned quirks;
-> >  } hidp_blacklist[] = {
-> > +	/* Apple Wireless Keyboard, ANSI layout */
-> > +	{ 0x05ac, 0x022c, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> > +	/* Apple Wireless Keyboard, ISO layout */
-> > +	{ 0x05ac, 0x022d, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
-> > +	/* Apple Wireless Keyboard, JIS layout */
-> > +	{ 0x05ac, 0x022e, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
-> >  	/* Apple wireless Mighty Mouse */
-> >  	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
-> However depending on if Jiri's changes for the HID bus are ready, this
-> patch might become obsolete.
-
-This is however still not merged yet -- there is still some minor work to 
-do. So I am now merging the incoming stuff as it comes, and hidbus patches 
-will then be easily rebased.
-
-So please, proceed with this patch through your/DaveM's tree, if you like 
-to.
-
-Thanks,
+Input core only protects open() and close(); connect() and
+disconnect() belong to respective bus's implementation the device is
+sitting on and input core has no authority over it.
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

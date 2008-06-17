@@ -1,30 +1,54 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] input: make mainstone-wm97xx.c depend on	MACH_MAINSTONE instead of ARCH_PXA
-Date: Tue, 17 Jun 2008 12:58:41 +0100
-Message-ID: <20080617115835.GA16002@sirena.org.uk>
-References: <48564133.3070609@gmail.com> <20080616120756.GA7302@rakim.wolfsonmicro.main> <48570E1E.3070301@gmail.com> <20080617095928.GD6114@rakim.wolfsonmicro.main> <4857A577.5030506@compulab.co.il>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless
+ keyboards
+Date: Tue, 17 Jun 2008 15:54:56 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0806171553490.10085@jikos.suse.cz>
+References: <87iqweltzo.fsf@burly.wgtn.ondioline.org>
+ <874p7ylsj0.fsf@burly.wgtn.ondioline.org>  <1213301289.17870.72.camel@violet.holtmann.net>
+  <87tzfwiguc.fsf@burly.wgtn.ondioline.org> <1213446160.17870.145.camel@violet.holtmann.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:1543 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754907AbYFQL6r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Jun 2008 07:58:47 -0400
-Content-Disposition: inline
-In-Reply-To: <4857A577.5030506@compulab.co.il>
+Received: from styx.suse.cz ([82.119.242.94]:38527 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752862AbYFQNy5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Jun 2008 09:54:57 -0400
+In-Reply-To: <1213446160.17870.145.camel@violet.holtmann.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Rapoport <mike@compulab.co.il>
-Cc: Eric Miao <eric.y.miao@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input <linux-input@vger.kernel.org>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Paul Collins <paul@burly.ondioline.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, Jun 17, 2008 at 02:52:23PM +0300, Mike Rapoport wrote:
+On Sat, 14 Jun 2008, Marcel Holtmann wrote:
 
-> Probably something like the patch below may allow passing platform data at least
-> for ASoC devices:
+> > diff --git a/net/bluetooth/hidp/core.c b/net/bluetooth/hidp/core.c
+> > index 519cdb9..62f174a 100644
+> > --- a/net/bluetooth/hidp/core.c
+> > +++ b/net/bluetooth/hidp/core.c
+> > @@ -676,6 +676,12 @@ static const struct {
+> >  	__u16 idProduct;
+> >  	unsigned quirks;
+> >  } hidp_blacklist[] = {
+> > +	/* Apple Wireless Keyboard, ANSI layout */
+> > +	{ 0x05ac, 0x022c, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> > +	/* Apple Wireless Keyboard, ISO layout */
+> > +	{ 0x05ac, 0x022d, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN | HID_QUIRK_APPLE_ISO_KEYBOARD },
+> > +	/* Apple Wireless Keyboard, JIS layout */
+> > +	{ 0x05ac, 0x022e, HID_QUIRK_APPLE_NUMLOCK_EMULATION | HID_QUIRK_APPLE_HAS_FN },
+> >  	/* Apple wireless Mighty Mouse */
+> >  	{ 0x05ac, 0x030c, HID_QUIRK_MIGHTYMOUSE | HID_QUIRK_INVERT_HWHEEL },
+> However depending on if Jiri's changes for the HID bus are ready, this
+> patch might become obsolete.
 
-This needs to be something that can be used on all AC97 systems, not
-just ASoC ones (people use these devices on things like x86 too, for
-example).  The last time someone proposed something to deal with this
-the ALSA maintainers were very reluctant to allow any sort of void *
-through the AC97 bus which stalled everything.
+This is however still not merged yet -- there is still some minor work to 
+do. So I am now merging the incoming stuff as it comes, and hidbus patches 
+will then be easily rebased.
+
+So please, proceed with this patch through your/DaveM's tree, if you like 
+to.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

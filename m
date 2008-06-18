@@ -1,36 +1,38 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: [2.6 patch] input/serio/hp_sdc_mlc.c: make a struct static
-Date: Wed, 18 Jun 2008 01:30:08 +0300
-Message-ID: <20080617223008.GD25911@cs181133002.pp.htv.fi>
+From: Paul Collins <paul@burly.ondioline.org>
+Subject: Re: [PATCH] [RESEND] fix HID quirks for aluminium apple wireless keyboards
+Date: Wed, 18 Jun 2008 22:19:13 +1200
+Message-ID: <87mylj2ggu.fsf@burly.wgtn.ondioline.org>
+References: <87tzfwiguc.fsf@burly.wgtn.ondioline.org>
+	<1213447893811@dmwebmail.dmwebmail.chezphil.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5.pp.htv.fi ([213.243.153.39]:46779 "EHLO smtp5.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758716AbYFQWbf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Jun 2008 18:31:35 -0400
-Content-Disposition: inline
+Received: from jenny.ondioline.org ([66.220.1.122]:46356 "EHLO
+	jenny.ondioline.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752506AbYFRKTP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 18 Jun 2008 06:19:15 -0400
+In-Reply-To: <1213447893811@dmwebmail.dmwebmail.chezphil.org> (Phil Endecott's
+	message of "Sat, 14 Jun 2008 13:51:33 +0100")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Phil Endecott <phil_tuhck_endecott@chezphil.org>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>
 
-This patch makes the needlessly global struct hp_sdc_mlc_priv_s static.
+"Phil Endecott" <phil_tuhck_endecott@chezphil.org> writes:
 
-Signed-off-by: Adrian Bunk <bunk@kernel.org>
+> Why do you set HID_QUIRK_APPLE_NUMLOCK_EMULATION ?  I don't know what
+> that quirk really does, but since these keyboards have neither a
+> numeric keypad nor a numlock key I can't see any benefit.
 
----
-a393b82d875616b9a78382d260b89f50b37fde71 diff --git a/drivers/input/serio/hp_sdc_mlc.c b/drivers/input/serio/hp_sdc_mlc.c
-index 587398f..b587e2d 100644
---- a/drivers/input/serio/hp_sdc_mlc.c
-+++ b/drivers/input/serio/hp_sdc_mlc.c
-@@ -50,7 +50,7 @@ MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
- MODULE_DESCRIPTION("Glue for onboard HIL MLC in HP-PARISC machines");
- MODULE_LICENSE("Dual BSD/GPL");
- 
--struct hp_sdc_mlc_priv_s {
-+static struct hp_sdc_mlc_priv_s {
- 	int emtestmode;
- 	hp_sdc_transaction trans;
- 	u8 tseq[16];
+>From a quick skim of the code (drivers/hid/hid-input.c) it looks like
+it's supposed to allow a laptop-style numeric keymap mapping to be
+enabled with F6, but I can't make it do anything here.  Perhaps it is
+best removed after the hid-bus merge, otherwise there'll be different
+quirks in different places for the same devices.
 
+-- 
+Paul Collins
+Wellington, New Zealand
+
+Dag vijandelijk luchtschip de huismeester is dood

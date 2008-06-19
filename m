@@ -1,40 +1,67 @@
-From: "Dan Nicholson" <dbn.lists@gmail.com>
-Subject: Re: [PATCH] HID: Invert HWHEEL mappings for some Logitech mice
-Date: Wed, 18 Jun 2008 14:20:34 -0700
-Message-ID: <91705d080806181420p24db55a3xd323a540b8a5c476@mail.gmail.com>
-References: <1213464384-4602-1-git-send-email-dbn.lists@gmail.com>
-	 <Pine.LNX.4.64.0806181802480.23194@twin.jikos.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [RFC][PATCH] correct some quirks for trust 15351 bluetooth
+ mouse
+Date: Thu, 19 Jun 2008 11:14:33 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0806191111000.4593@jikos.suse.cz>
+References: <1212175271.22054.19.camel@note.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.244]:56062 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753418AbYFRVUg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Jun 2008 17:20:36 -0400
-Received: by an-out-0708.google.com with SMTP id d40so104330and.103
-        for <linux-input@vger.kernel.org>; Wed, 18 Jun 2008 14:20:34 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.0806181802480.23194@twin.jikos.cz>
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:57951 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753737AbYFSJOf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Jun 2008 05:14:35 -0400
+In-Reply-To: <1212175271.22054.19.camel@note.localnet>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Thomas Ilnseher <illth@gmx.de>
+Cc: vojtech@ucw.cz, linux-input@vger.kernel.org
 
-On Wed, Jun 18, 2008 at 9:03 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Sat, 14 Jun 2008, Dan Nicholson wrote:
+On Fri, 30 May 2008, Thomas Ilnseher wrote:
+
+> I recently got a (trust 15351) bluetooth mouse.
 >
->> Some Logitech mice have a tilt wheel which register as HWHEEL buttons.
->> The events are positive for a click to the right and negative for a
->> click to the left. Applications expect the opposite, though.
->> I suspect this affects a lot more Logitech mice, but these are the only
->> two I have. I tested this using evtest and a GTK application. A similar
->> Microsoft Intellimouse I have works correctly.
+> when I hooked it up to my notebook, Only the Y-Axis did work,
+> not the X-Axis. with some help from peter hutterer, I could track the
+> problem down an hid->usage of 0006.0020 that got mapped to abs.misc,
+> which confused evdev.
 >
-> Thanks Dan, applied.
+> There is also a Consumer.HWheel reported, which is not present on the
+> mouse, but is a further annoyance (it gets mapped to buttens 6/7,
+> that remaps the real buttons 6/7 to 8/9, and you have to use xmodmap).
+>
+> I composed this patch to make the hid driver ignore these two "features"
+> of the mouse.
+>
+> I'm not sure if this is the right way to do things.
 
-Great! I thought I would have a harder time convincing you. :)
+Hi Thomas,
 
---
-Dan
+yes, the patch is OK, thanks. I would just prefer if you could change 
+this:
+
+> @@ -387,6 +387,8 @@
+>
+>         /* handle input mappings for quirky devices */
+>         ret = hidinput_mapping_quirks(usage, input, &bit, &max);
+> +       if (ret == 2)
+> +               goto ignore;
+>         if (ret)
+>                 goto mapped;
+
+and introduce some constants for return values of hidinput_mapping_quirks 
+to make this more readable.
+
+I.e. something like HIDINPUT_QUIRK_MAPPED, HIDINPUT_QUIRK_IGNORED, 
+HIDINPUT_QUIRK_NONE, and return these values from 
+hidinput_mapping_quirks() and all the quirk mapping functions, instead of 
+values 0, 1 and 2.
+
+Also, please send the patch with your Signed-off-by: line, so that I can 
+merge it into my tree.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

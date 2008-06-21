@@ -1,67 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [RFC][PATCH] correct some quirks for trust 15351 bluetooth
- mouse
-Date: Thu, 19 Jun 2008 11:14:33 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0806191111000.4593@jikos.suse.cz>
-References: <1212175271.22054.19.camel@note.localnet>
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+Date: Sun, 22 Jun 2008 00:23:33 +0200
+Message-ID: <485D7F65.4080700@db.org>
+References: <47AB5012.20509@db.org> <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:57951 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753737AbYFSJOf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Jun 2008 05:14:35 -0400
-In-Reply-To: <1212175271.22054.19.camel@note.localnet>
+Received: from submit-tmp.sysedata.no ([195.159.29.133]:33390 "EHLO
+	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751355AbYFUWwg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 21 Jun 2008 18:52:36 -0400
+In-Reply-To: <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Ilnseher <illth@gmx.de>
-Cc: vojtech@ucw.cz, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Fri, 30 May 2008, Thomas Ilnseher wrote:
+Hi Dmitry
 
-> I recently got a (trust 15351) bluetooth mouse.
->
-> when I hooked it up to my notebook, Only the Y-Axis did work,
-> not the X-Axis. with some help from peter hutterer, I could track the
-> problem down an hid->usage of 0006.0020 that got mapped to abs.misc,
-> which confused evdev.
->
-> There is also a Consumer.HWheel reported, which is not present on the
-> mouse, but is a further annoyance (it gets mapped to buttens 6/7,
-> that remaps the real buttons 6/7 to 8/9, and you have to use xmodmap).
->
-> I composed this patch to make the hid driver ignore these two "features"
-> of the mouse.
->
-> I'm not sure if this is the right way to do things.
+Dmitry Torokhov wrote:
+> Hi Alfred,
+> 
+> On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
+>> From: Alfred E. Heggestad <aeh@db.org>
+>>
+>> This driver adds support for USB VoIP phones using the CM109 chipset,
+>> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
+>> events are reported to the input subsystem. The buzzer can be activated
+>> by sending SND_TONE or SND_BELL to the input device. The phone keymap
+>> can be selected in run-time by using the "phone" module parameter.
+>> The driver has been tested with linux 2.6.24 on i386, and also tested
+>> to build cleanly on AMD64.
+>> More testing and code review is welcome..
+>>
+> 
+> For a long time I was sitting on the patch not sure what to do about
+> the pound key, but I think we need to allocate separate keycodes for
+> remote controls and phones that work regardless of users keymap.
+> 
 
-Hi Thomas,
+do you think we could add a new KEY_KPPOUND to include/linux/input.h ?
 
-yes, the patch is OK, thanks. I would just prefer if you could change 
-this:
+I just had a quick look in latest git, but could not find anything..
+do you want me to define a key and make a patch for you?
 
-> @@ -387,6 +387,8 @@
->
->         /* handle input mappings for quirky devices */
->         ret = hidinput_mapping_quirks(usage, input, &bit, &max);
-> +       if (ret == 2)
-> +               goto ignore;
->         if (ret)
->                 goto mapped;
+BTW, for now I have defined a work-around in my cm109 driver:
 
-and introduce some constants for return values of hidinput_mapping_quirks 
-to make this more readable.
+#ifndef KEY_KPPOUND
+#define KEY_KPPOUND (KEY_LEFTSHIFT | KEY_3 << 8)
+#endif
 
-I.e. something like HIDINPUT_QUIRK_MAPPED, HIDINPUT_QUIRK_IGNORED, 
-HIDINPUT_QUIRK_NONE, and return these values from 
-hidinput_mapping_quirks() and all the quirk mapping functions, instead of 
-values 0, 1 and 2.
+that hack was "copied" from drivers/input/misc/yealink.c
 
-Also, please send the patch with your Signed-off-by: line, so that I can 
-merge it into my tree.
+         case 0x32: return KEY_LEFTSHIFT |
+                           KEY_3 << 8;   /*   #          */
 
-Thanks,
 
--- 
-Jiri Kosina
-SUSE Labs
+
+/alfred
+
+
+<snip>

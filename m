@@ -1,64 +1,26 @@
-From: "Alfred E. Heggestad" <aeh@db.org>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
-Date: Sun, 22 Jun 2008 00:23:33 +0200
-Message-ID: <485D7F65.4080700@db.org>
-References: <47AB5012.20509@db.org> <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH] input: make mainstone-wm97xx.c depend on MACH_MAINSTONE instead of ARCH_PXA
+Date: Sun, 22 Jun 2008 09:53:45 +0100
+Message-ID: <20080622085344.GC30754@flint.arm.linux.org.uk>
+References: <48564133.3070609@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from submit-tmp.sysedata.no ([195.159.29.133]:33390 "EHLO
-	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751355AbYFUWwg (ORCPT
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:39231 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751185AbYFVIx7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Jun 2008 18:52:36 -0400
-In-Reply-To: <20080207165144.ZZRA012@mailhub.coreip.homeip.net>
+	Sun, 22 Jun 2008 04:53:59 -0400
+Content-Disposition: inline
+In-Reply-To: <48564133.3070609@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: linux-input <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
 
-Hi Dmitry
-
-Dmitry Torokhov wrote:
-> Hi Alfred,
+On Mon, Jun 16, 2008 at 06:32:19PM +0800, Eric Miao wrote:
+> If this is totally mainstone specific.
 > 
-> On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
->> From: Alfred E. Heggestad <aeh@db.org>
->>
->> This driver adds support for USB VoIP phones using the CM109 chipset,
->> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
->> events are reported to the input subsystem. The buzzer can be activated
->> by sending SND_TONE or SND_BELL to the input device. The phone keymap
->> can be selected in run-time by using the "phone" module parameter.
->> The driver has been tested with linux 2.6.24 on i386, and also tested
->> to build cleanly on AMD64.
->> More testing and code review is welcome..
->>
-> 
-> For a long time I was sitting on the patch not sure what to do about
-> the pound key, but I think we need to allocate separate keycodes for
-> remote controls and phones that work regardless of users keymap.
-> 
+> Signed-off-by: Eric Miao <eric.miao@marvell.com>
 
-do you think we could add a new KEY_KPPOUND to include/linux/input.h ?
-
-I just had a quick look in latest git, but could not find anything..
-do you want me to define a key and make a patch for you?
-
-BTW, for now I have defined a work-around in my cm109 driver:
-
-#ifndef KEY_KPPOUND
-#define KEY_KPPOUND (KEY_LEFTSHIFT | KEY_3 << 8)
-#endif
-
-that hack was "copied" from drivers/input/misc/yealink.c
-
-         case 0x32: return KEY_LEFTSHIFT |
-                           KEY_3 << 8;   /*   #          */
-
-
-
-/alfred
-
-
-<snip>
+Ok.  Should probably be a -rc thing.

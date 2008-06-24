@@ -1,113 +1,67 @@
-From: Shaohua Li <shaohua.li@intel.com>
-Subject: Re: [RFC] serio driver: speed up resume
-Date: Tue, 24 Jun 2008 10:02:58 +0800
-Message-ID: <1214272978.29380.2.camel@sli10-desk.sh.intel.com>
-References: <1213607375.31950.2.camel@sli10-desk.sh.intel.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+Date: Tue, 24 Jun 2008 00:59:19 -0400
+Message-ID: <20080624045919.GA18612@anvil.corenet.prv>
+References: <47AB5012.20509@db.org> <20080207165144.ZZRA012@mailhub.coreip.homeip.net> <485D7F65.4080700@db.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1213607375.31950.2.camel@sli10-desk.sh.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, Len Brown <lenb@kernel.org>, linux acpi <linux-acpi@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753557AbYFXE7i@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <485D7F65.4080700@db.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Alfred E. Heggestad" <aeh@db.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Mon, 2008-06-16 at 17:09 +0800, Shaohua Li wrote:
-> serio_resume will call into psmouse_extensions(). In my test, the
-> routine is very slow, it blocks resume about 1 sec. Below patch (move
-> resume to kseriod, just like boot time probe) cures the issue in my
-> test, and seems no side effect. I'm no familiar with serio driver, so
-> please check.
-Any comments from input guys?
+Hi Alfred,
 
-Thanks,
-Shaohua
+On Sun, Jun 22, 2008 at 12:23:33AM +0200, Alfred E. Heggestad wrote:
+> Hi Dmitry
+>
+> Dmitry Torokhov wrote:
+>> Hi Alfred,
+>>
+>> On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
+>>> From: Alfred E. Heggestad <aeh@db.org>
+>>>
+>>> This driver adds support for USB VoIP phones using the CM109 chipset,
+>>> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
+>>> events are reported to the input subsystem. The buzzer can be activated
+>>> by sending SND_TONE or SND_BELL to the input device. The phone keymap
+>>> can be selected in run-time by using the "phone" module parameter.
+>>> The driver has been tested with linux 2.6.24 on i386, and also tested
+>>> to build cleanly on AMD64.
+>>> More testing and code review is welcome..
+>>>
+>>
+>> For a long time I was sitting on the patch not sure what to do about
+>> the pound key, but I think we need to allocate separate keycodes for
+>> remote controls and phones that work regardless of users keymap.
+>>
+>
+> do you think we could add a new KEY_KPPOUND to include/linux/input.h ?
+>
+> I just had a quick look in latest git, but could not find anything..
+> do you want me to define a key and make a patch for you?
+>
+I was pretty sure I have commited that patch a few weeks ago but I was
+wrong. Anyway, please take a look at the master branch of my input tree
+on git.kernel.org, it has a few new keycode definitions I woudl like us
+to start using.
 
+> BTW, for now I have defined a work-around in my cm109 driver:
+>
+> #ifndef KEY_KPPOUND
+> #define KEY_KPPOUND (KEY_LEFTSHIFT | KEY_3 << 8)
+> #endif
+>
+> that hack was "copied" from drivers/input/misc/yealink.c
+>
+>         case 0x32: return KEY_LEFTSHIFT |
+>                           KEY_3 << 8;   /*   #          */
+>
 
-> Signed-off-by: Shaohua Li <shaohua.li@intel.com>
-> 
-> diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-> index 7f52938..7dad33f 100644
-> --- a/drivers/input/serio/serio.c
-> +++ b/drivers/input/serio/serio.c
-> @@ -163,6 +163,7 @@ enum serio_event_type {
->         SERIO_RECONNECT_PORT,
->         SERIO_REGISTER_PORT,
->         SERIO_ATTACH_DRIVER,
-> +       SERIO_RESUME_PORT,
->  };
-> 
->  struct serio_event {
-> @@ -287,6 +288,13 @@ static struct serio_event *serio_get_event(void)
->         return event;
->  }
-> 
-> +#ifdef CONFIG_PM
-> +static void serio_resume_port(struct device *dev);
-> +#else
-> +static inline void serio_resume_port(struct device *dev)
-> +{
-> +}
-> +#endif /* CONFIG_PM */
->  static void serio_handle_event(void)
->  {
->         struct serio_event *event;
-> @@ -319,6 +327,10 @@ static void serio_handle_event(void)
->                                 serio_attach_driver(event->object);
->                                 break;
-> 
-> +                       case SERIO_RESUME_PORT:
-> +                               serio_resume_port(event->object);
-> +                               break;
-> +
->                         default:
->                                 break;
->                 }
-> @@ -922,21 +934,26 @@ static int serio_suspend(struct device *dev,
-> pm_message_t state)
->         return 0;
->  }
-> 
-> -static int serio_resume(struct device *dev)
-> +static void serio_resume_port(struct device *dev)
->  {
->         struct serio *serio = to_serio_port(dev);
-> 
-> -       if (dev->power.power_state.event != PM_EVENT_ON &&
-> -           serio_reconnect_driver(serio)) {
-> -               /*
-> -                * Driver re-probing can take a while, so better let
-> kseriod
-> -                * deal with it.
-> -                */
-> -               serio_rescan(serio);
-> +       if (serio_reconnect_driver(serio)) {
-> +               serio_disconnect_port(serio);
-> +               serio_find_driver(serio);
->         }
-> 
->         dev->power.power_state = PMSG_ON;
-> +}
-> 
-> +static int serio_resume(struct device *dev)
-> +{
-> +       /*
-> +        * Driver reconnect can take a while, so better let kseriod
-> +        * deal with it.
-> +        */
-> +       if (dev->power.power_state.event != PM_EVENT_ON)
-> +               serio_queue_event(dev, NULL, SERIO_RESUME_PORT);
->         return 0;
->  }
->  #endif /* CONFIG_PM */
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-> 
+Yeah, well, sometimes we let suboptimal solutions sneak in... our fault.
 
+-- 
+Dmitry

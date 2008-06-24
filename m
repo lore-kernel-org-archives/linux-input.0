@@ -1,67 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
-Date: Tue, 24 Jun 2008 00:59:19 -0400
-Message-ID: <20080624045919.GA18612@anvil.corenet.prv>
-References: <47AB5012.20509@db.org> <20080207165144.ZZRA012@mailhub.coreip.homeip.net> <485D7F65.4080700@db.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753557AbYFXE7i@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <485D7F65.4080700@db.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Alfred E. Heggestad" <aeh@db.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] WM9712: Warn if user attempts to use pressure measurement with 5 wire mode
+Date: Tue, 24 Jun 2008 12:57:10 +0100
+Message-ID: <1214308630-11154-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:4168 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751237AbYFXL5P (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 24 Jun 2008 07:57:15 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Hi Alfred,
+This is not supported by the hardware.
 
-On Sun, Jun 22, 2008 at 12:23:33AM +0200, Alfred E. Heggestad wrote:
-> Hi Dmitry
->
-> Dmitry Torokhov wrote:
->> Hi Alfred,
->>
->> On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
->>> From: Alfred E. Heggestad <aeh@db.org>
->>>
->>> This driver adds support for USB VoIP phones using the CM109 chipset,
->>> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
->>> events are reported to the input subsystem. The buzzer can be activated
->>> by sending SND_TONE or SND_BELL to the input device. The phone keymap
->>> can be selected in run-time by using the "phone" module parameter.
->>> The driver has been tested with linux 2.6.24 on i386, and also tested
->>> to build cleanly on AMD64.
->>> More testing and code review is welcome..
->>>
->>
->> For a long time I was sitting on the patch not sure what to do about
->> the pound key, but I think we need to allocate separate keycodes for
->> remote controls and phones that work regardless of users keymap.
->>
->
-> do you think we could add a new KEY_KPPOUND to include/linux/input.h ?
->
-> I just had a quick look in latest git, but could not find anything..
-> do you want me to define a key and make a patch for you?
->
-I was pretty sure I have commited that patch a few weeks ago but I was
-wrong. Anyway, please take a look at the master branch of my input tree
-on git.kernel.org, it has a few new keycode definitions I woudl like us
-to start using.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm9712.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
 
-> BTW, for now I have defined a work-around in my cm109 driver:
->
-> #ifndef KEY_KPPOUND
-> #define KEY_KPPOUND (KEY_LEFTSHIFT | KEY_3 << 8)
-> #endif
->
-> that hack was "copied" from drivers/input/misc/yealink.c
->
->         case 0x32: return KEY_LEFTSHIFT |
->                           KEY_3 << 8;   /*   #          */
->
-
-Yeah, well, sometimes we let suboptimal solutions sneak in... our fault.
-
+diff --git a/drivers/input/touchscreen/wm9712.c b/drivers/input/touchscreen/wm9712.c
+index 0b6e4cf..4c5d85a 100644
+--- a/drivers/input/touchscreen/wm9712.c
++++ b/drivers/input/touchscreen/wm9712.c
+@@ -168,6 +168,18 @@ static void wm9712_phy_init(struct wm97xx *wm)
+ 			64000 / rpu);
+ 	}
+ 
++	/* WM9712 five wire */
++	if (five_wire) {
++		dig2 |= WM9712_45W;
++		dev_dbg(wm->dev, "setting 5-wire touchscreen mode.");
++
++		if (pil) {
++			dev_warn(wm->dev, "pressure measurement is not "
++				 "supported in 5-wire mode\n");
++			pil = 0;
++		}
++	}
++
+ 	/* touchpanel pressure current*/
+ 	if (pil == 2) {
+ 		dig2 |= WM9712_PIL;
+@@ -179,12 +191,6 @@ static void wm9712_phy_init(struct wm97xx *wm)
+ 	if (!pil)
+ 		pressure = 0;
+ 
+-	/* WM9712 five wire */
+-	if (five_wire) {
+-		dig2 |= WM9712_45W;
+-		dev_dbg(wm->dev, "setting 5-wire touchscreen mode.");
+-	}
+-
+ 	/* polling mode sample settling delay */
+ 	if (delay < 0 || delay > 15) {
+ 		dev_dbg(wm->dev, "supplied delay out of range.");
 -- 
-Dmitry
+1.5.3.2
+

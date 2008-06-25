@@ -1,288 +1,833 @@
-From: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-Subject: [PATCH 1/2] ati_remote2: Add loadable keymap support
-Date: Wed, 25 Jun 2008 13:56:10 +0300
-Message-ID: <1214391371-13698-2-git-send-email-syrjala@sci.fi>
-References: <1214391371-13698-1-git-send-email-syrjala@sci.fi>
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1214391371-13698-1-git-send-email-syrjala-ORSVBvAovxo@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+Date: Wed, 25 Jun 2008 22:07:34 +0200
+Message-ID: <4862A586.4050406@db.org>
+References: <47AB5012.20509@db.org> <20080207165144.ZZRA012@mailhub.coreip.homeip.net> <485D7F65.4080700@db.org> <20080624045919.GA18612@anvil.corenet.prv>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from submit-tmp.sysedata.no ([195.159.29.133]:40506 "EHLO
+	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750749AbYFYUHi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 25 Jun 2008 16:07:38 -0400
+In-Reply-To: <20080624045919.GA18612@anvil.corenet.prv>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Support for loadable keymaps. The driver now supports individual keymaps for
-each of the five modes (AUX1-AUX4 and PC) of the remote. To achieve this the
-keymap scancode is interpreted as a combination of the mode and actual button
-scancode. The original keycode patches were done by Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
-but I modified it quite a lot.
+Hi,
 
-Signed-off-by: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
----
- drivers/input/misc/ati_remote2.c |  130 +++++++++++++++++++++++++++++---------
- 1 files changed, 101 insertions(+), 29 deletions(-)
+see inline.
 
-diff --git a/drivers/input/misc/ati_remote2.c b/drivers/input/misc/ati_remote2.c
-index f2709b8..b80b2fa 100644
---- a/drivers/input/misc/ati_remote2.c
-+++ b/drivers/input/misc/ati_remote2.c
-@@ -1,8 +1,8 @@
- /*
-  * ati_remote2 - ATI/Philips USB RF remote driver
-  *
-- * Copyright (C) 2005 Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-- * Copyright (C) 2007 Peter Stokes <linux-c3qaBEMxZpTYB/AZRZ3tHL0Ud+EcFu5g@public.gmane.org>
-+ * Copyright (C) 2005-2008 Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-+ * Copyright (C) 2007-2008 Peter Stokes <linux-2UcvvYt7w9fQXOPxS62xeg@public.gmane.org>
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License version 2
-@@ -12,7 +12,7 @@
- #include <linux/usb/input.h>
- 
- #define DRIVER_DESC    "ATI/Philips USB RF remote driver"
--#define DRIVER_VERSION "0.2"
-+#define DRIVER_VERSION "0.3"
- 
- MODULE_DESCRIPTION(DRIVER_DESC);
- MODULE_VERSION(DRIVER_VERSION);
-@@ -27,7 +27,7 @@ MODULE_LICENSE("GPL");
-  * A remote's "channel" may be altered by pressing and holding the "PC" button for
-  * approximately 3 seconds, after which the button will slowly flash the count of the
-  * currently configured "channel", using the numeric keypad enter a number between 1 and
-- * 16 and then the "PC" button again, the button will slowly flash the count of the
-+ * 16 and then press the "PC" button again, the button will slowly flash the count of the
-  * newly configured "channel".
-  */
- 
-@@ -45,9 +45,18 @@ static struct usb_device_id ati_remote2_id_table[] = {
- };
- MODULE_DEVICE_TABLE(usb, ati_remote2_id_table);
- 
--static struct {
--	int hw_code;
--	int key_code;
+Dmitry Torokhov wrote:
+> Hi Alfred,
+> 
+> On Sun, Jun 22, 2008 at 12:23:33AM +0200, Alfred E. Heggestad wrote:
+>> Hi Dmitry
+>>
+>> Dmitry Torokhov wrote:
+>>> Hi Alfred,
+>>>
+>>> On Thu, Feb 07, 2008 at 07:38:10PM +0100, Alfred E. Heggestad wrote:
+>>>> From: Alfred E. Heggestad <aeh@db.org>
+>>>>
+>>>> This driver adds support for USB VoIP phones using the CM109 chipset,
+>>>> such as Komunikate KIP-1000 and Genius G-talk. Keypad is scanned and
+>>>> events are reported to the input subsystem. The buzzer can be activated
+>>>> by sending SND_TONE or SND_BELL to the input device. The phone keymap
+>>>> can be selected in run-time by using the "phone" module parameter.
+>>>> The driver has been tested with linux 2.6.24 on i386, and also tested
+>>>> to build cleanly on AMD64.
+>>>> More testing and code review is welcome..
+>>>>
+>>> For a long time I was sitting on the patch not sure what to do about
+>>> the pound key, but I think we need to allocate separate keycodes for
+>>> remote controls and phones that work regardless of users keymap.
+>>>
+>> do you think we could add a new KEY_KPPOUND to include/linux/input.h ?
+>>
+>> I just had a quick look in latest git, but could not find anything..
+>> do you want me to define a key and make a patch for you?
+>>
+> I was pretty sure I have commited that patch a few weeks ago but I was
+> wrong. Anyway, please take a look at the master branch of my input tree
+> on git.kernel.org, it has a few new keycode definitions I woudl like us
+> to start using.
+> 
+
+many thanks, I am now using the new KEY_NUMERIC_POUND value
+include/linux/input.h -- new patch inlined below for review.
+
+one remaining issue which should be fixed before mainline
+inclusion, is using proper keymaps. currently there are 3
+phone models supported by the driver, and they all have
+different keymaps, and must be selected when the module
+is loaded. is it possible to use getkeycode/setkeycode
+on struct input_dev for that purpose? do you know how/where
+the various keymap files will be stored/packaged in
+userspace? if you know any other driver doing similar
+stuff, please let me know ..
+
+
+/alfred
+
+>> BTW, for now I have defined a work-around in my cm109 driver:
+>>
+>> #ifndef KEY_KPPOUND
+>> #define KEY_KPPOUND (KEY_LEFTSHIFT | KEY_3 << 8)
+>> #endif
+>>
+>> that hack was "copied" from drivers/input/misc/yealink.c
+>>
+>>         case 0x32: return KEY_LEFTSHIFT |
+>>                           KEY_3 << 8;   /*   #          */
+>>
+> 
+> Yeah, well, sometimes we let suboptimal solutions sneak in... our fault.
+> 
+
+
+
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/cm109.c linux-2.6.25/drivers/input/misc/cm109.c
+--- linux-2.6.25-orig/drivers/input/misc/cm109.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.25/drivers/input/misc/cm109.c	2008-06-25 21:41:30.000000000 +0200
+@@ -0,0 +1,703 @@
++/*
++ * Driver for the VoIP USB phones with CM109 chipsets.
++ *
++ * Copyright (C) 2007 - 2008 Alfred E. Heggestad <aeh@db.org>
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License as
++ *	published by the Free Software Foundation, version 2.
++ */
++
++/*
++ *   Tested devices:
++ *	- Komunikate KIP1000
++ *	- Genius G-talk
++ *	- Allied-Telesis Corega USBPH01
++ *	- ...
++ *
++ * This driver is based on the yealink.c driver
++ *
++ * Thanks to:
++ *   - Authors of yealink.c
++ *   - Thomas Reitmayr
++ *   - Oliver Neukum for good review comments
++ *   - Shaun Jackman <sjackman@gmail.com> for Genius G-talk keymap
++ *
++ * Todo:
++ *   - Fix bug with buzz and urb_ctl_callback:usb_submit_urb() -EINVAL
++ *   - Fix KEY_KPPOUND
++ *   - Read/write EEPROM
++ *   - Report input events volume up/down
++ */
++
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/rwsem.h>
++#include <linux/usb/input.h>
++
++#define CM109_DEBUG 0
++
++#define DRIVER_VERSION "20080625"
++#define DRIVER_AUTHOR  "Alfred E. Heggestad"
++#define DRIVER_DESC    "CM109 phone driver"
++
++static char *phone = "kip1000";
++module_param(phone, charp, S_IRUSR);
++MODULE_PARM_DESC(phone, "Phone name {kip1000, gtalk, usbph01}");
++
++
 +enum {
-+	ATI_REMOTE2_AUX1,
-+	ATI_REMOTE2_AUX2,
-+	ATI_REMOTE2_AUX3,
-+	ATI_REMOTE2_AUX4,
-+	ATI_REMOTE2_PC,
-+	ATI_REMOTE2_MODES,
++	/* HID Registers */
++	HID_IR0 = 0x00, /* Record/Playback-mute button, Volume up/down  */
++	HID_IR1 = 0x01, /* GPI, generic registers or EEPROM_DATA0       */
++	HID_IR2 = 0x02, /* Generic registers or EEPROM_DATA1            */
++	HID_IR3 = 0x03, /* Generic registers or EEPROM_CTRL             */
++	HID_OR0 = 0x00, /* Mapping control, buzzer, SPDIF (offset 0x04) */
++	HID_OR1 = 0x01, /* GPO - General Purpose Output                 */
++	HID_OR2 = 0x02, /* Set GPIO to input/output mode                */
++	HID_OR3 = 0x03, /* SPDIF status channel or EEPROM_CTRL          */
++
++	/* HID_IR0 */
++	RECORD_MUTE   = 1 << 3,
++	PLAYBACK_MUTE = 1 << 2,
++	VOLUME_DOWN   = 1 << 1,
++	VOLUME_UP     = 1 << 0,
++
++	/* HID_OR0 */
++	/* bits 7-6
++	   0: HID_OR1-2 are used for GPO; HID_OR0, 3 are used for buzzer
++	      and SPDIF
++	   1: HID_OR0-3 are used as generic HID registers
++	   2: Values written to HID_OR0-3 are also mapped to MCU_CTRL,
++	      EEPROM_DATA0-1, EEPROM_CTRL (see Note)
++	   3: Reserved
++	 */
++	HID_OR_GPO_BUZ_SPDIF   = 0 << 6,
++	HID_OR_GENERIC_HID_REG = 1 << 6,
++	HID_OR_MAP_MCU_EEPROM  = 2 << 6,
++
++	BUZZER_ON = 1 << 5,
 +};
 +
-+static const struct {
-+	u8  hw_code;
-+	u16 keycode;
- } ati_remote2_key_table[] = {
- 	{ 0x00, KEY_0 },
- 	{ 0x01, KEY_1 },
-@@ -73,6 +82,7 @@ static struct {
- 	{ 0x37, KEY_RECORD },
- 	{ 0x38, KEY_DVD },
- 	{ 0x39, KEY_TV },
-+	{ 0x3f, KEY_PROG1 }, /* AUX1-AUX4 and PC */
- 	{ 0x54, KEY_MENU },
- 	{ 0x58, KEY_UP },
- 	{ 0x59, KEY_DOWN },
-@@ -91,15 +101,9 @@ static struct {
- 	{ 0xa9, BTN_LEFT },
- 	{ 0xaa, BTN_RIGHT },
- 	{ 0xbe, KEY_QUESTION },
--	{ 0xd5, KEY_FRONT },
- 	{ 0xd0, KEY_EDIT },
-+	{ 0xd5, KEY_FRONT },
- 	{ 0xf9, KEY_INFO },
--	{ (0x00 << 8) | 0x3f, KEY_PROG1 },
--	{ (0x01 << 8) | 0x3f, KEY_PROG2 },
--	{ (0x02 << 8) | 0x3f, KEY_PROG3 },
--	{ (0x03 << 8) | 0x3f, KEY_PROG4 },
--	{ (0x04 << 8) | 0x3f, KEY_PC },
--	{ 0, KEY_RESERVED }
- };
- 
- struct ati_remote2 {
-@@ -117,6 +121,9 @@ struct ati_remote2 {
- 
- 	char name[64];
- 	char phys[64];
++/* CM109 protocol packet */
++struct cm109_ctl_packet {
++	u8 byte[4];
++} __attribute__ ((packed));
 +
-+	/* Each mode (AUX1-AUX4 and PC) can have an independent keymap. */
-+	u16 keycode[ATI_REMOTE2_MODES][ARRAY_SIZE(ati_remote2_key_table)];
- };
- 
- static int ati_remote2_probe(struct usb_interface *interface, const struct usb_device_id *id);
-@@ -172,7 +179,7 @@ static void ati_remote2_input_mouse(struct ati_remote2 *ar2)
- 
- 	mode = data[0] & 0x0F;
- 
--	if (mode > 4) {
-+	if (mode > ATI_REMOTE2_PC) {
- 		dev_err(&ar2->intf[0]->dev,
- 			"Unknown mode byte (%02x %02x %02x %02x)\n",
- 			data[3], data[2], data[1], data[0]);
-@@ -191,7 +198,7 @@ static int ati_remote2_lookup(unsigned int hw_code)
- {
- 	int i;
- 
--	for (i = 0; ati_remote2_key_table[i].key_code != KEY_RESERVED; i++)
-+	for (i = 0; i < ARRAY_SIZE(ati_remote2_key_table); i++)
- 		if (ati_remote2_key_table[i].hw_code == hw_code)
- 			return i;
- 
-@@ -211,7 +218,7 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 
- 	mode = data[0] & 0x0F;
- 
--	if (mode > 4) {
-+	if (mode > ATI_REMOTE2_PC) {
- 		dev_err(&ar2->intf[1]->dev,
- 			"Unknown mode byte (%02x %02x %02x %02x)\n",
- 			data[3], data[2], data[1], data[0]);
-@@ -219,10 +226,6 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 	}
- 
- 	hw_code = data[2];
--	/*
--	 * Mode keys (AUX1-AUX4, PC) all generate the same code byte.
--	 * Use the mode byte to figure out which one was pressed.
--	 */
- 	if (hw_code == 0x3f) {
- 		/*
- 		 * For some incomprehensible reason the mouse pad generates
-@@ -236,8 +239,6 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 
- 		if (data[1] == 0)
- 			ar2->mode = mode;
--
--		hw_code |= mode << 8;
- 	}
- 
- 	if (!((1 << mode) & mode_mask))
-@@ -260,8 +261,8 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 	case 2:	/* repeat */
- 
- 		/* No repeat for mouse buttons. */
--		if (ati_remote2_key_table[index].key_code == BTN_LEFT ||
--		    ati_remote2_key_table[index].key_code == BTN_RIGHT)
-+		if (ar2->keycode[mode][index] == BTN_LEFT ||
-+		    ar2->keycode[mode][index] == BTN_RIGHT)
- 			return;
- 
- 		if (!time_after_eq(jiffies, ar2->jiffies))
-@@ -276,7 +277,7 @@ static void ati_remote2_input_key(struct ati_remote2 *ar2)
- 		return;
- 	}
- 
--	input_event(idev, EV_KEY, ati_remote2_key_table[index].key_code, data[1]);
-+	input_event(idev, EV_KEY, ar2->keycode[mode][index], data[1]);
- 	input_sync(idev);
- }
- 
-@@ -334,10 +335,60 @@ static void ati_remote2_complete_key(struct urb *urb)
- 			"%s(): usb_submit_urb() = %d\n", __FUNCTION__, r);
- }
- 
-+static int ati_remote2_getkeycode(struct input_dev *idev,
-+				  int scancode, int *keycode)
++enum {USB_PKT_LEN = sizeof(struct cm109_ctl_packet)};
++
++/* CM109 device structure */
++struct cm109_dev {
++	struct input_dev *idev;	 /* input device */
++	struct usb_device *udev; /* usb device */
++
++	/* irq input channel */
++	struct cm109_ctl_packet *irq_data;
++	dma_addr_t irq_dma;
++	struct urb *urb_irq;
++
++	/* control output channel */
++	struct cm109_ctl_packet *ctl_data;
++	dma_addr_t ctl_dma;
++	struct usb_ctrlrequest *ctl_req;
++	dma_addr_t ctl_req_dma;
++	struct urb *urb_ctl;
++
++	spinlock_t submit_lock;
++	int disconnecting;
++
++	char phys[64];		/* physical device path */
++	int key_code;		/* last reported key */
++	int keybit;		/* 0=new scan  1,2,4,8=scan columns  */
++	u8 gpi;			/* Cached value of GPI (high nibble) */
++};
++
++/******************************************************************************
++ * CM109 key interface
++ *****************************************************************************/
++
++/* TODO: remove this code when KEY_NUMERIC_POUND is defined in linux/input.h
++ *
++ * if KEY_NUMERIC_POUND is not defined, we define our own version which
++ * is a rather dirty hack.
++ */
++#ifndef KEY_NUMERIC_POUND
++#warning "using dirty hack for pound key"
++#define KEY_NUMERIC_POUND (KEY_LEFTSHIFT | KEY_3 << 8)
++#endif
++
++
++/* Map device buttons to internal key events.
++ *
++ * The "up" and "down" keys, are symbolised by arrows on the button.
++ * The "pickup" and "hangup" keys are symbolised by a green and red phone
++ * on the button.
++
++ Komunikate KIP1000 Keyboard Matrix
++
++     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
++      |    |    |    |
++     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
++      |    |    |    |
++     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
++      |    |    |    |
++     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
++      |    |    |    |
++
++     /|\  /|\  /|\  /|\
++      |    |    |    |
++GPO
++pin:  3    2    1    0
++     0x8  0x4  0x2  0x1
++
++ */
++static int keymap_kip1000(int scancode)
 +{
-+	struct ati_remote2 *ar2 = input_get_drvdata(idev);
-+	int index, mode;
++	switch (scancode) {				/* phone key:   */
++	case 0x82: return KEY_0;			/*   0          */
++	case 0x14: return KEY_1;			/*   1          */
++	case 0x12: return KEY_2;			/*   2          */
++	case 0x11: return KEY_3;			/*   3          */
++	case 0x24: return KEY_4;			/*   4          */
++	case 0x22: return KEY_5;			/*   5          */
++	case 0x21: return KEY_6;			/*   6          */
++	case 0x44: return KEY_7;			/*   7          */
++	case 0x42: return KEY_8;			/*   8          */
++	case 0x41: return KEY_9;			/*   9          */
++	case 0x81: return KEY_NUMERIC_POUND;		/*   #          */
++	case 0x84: return KEY_KPASTERISK;		/*   *          */
++	case 0x88: return KEY_ENTER;			/*   pickup     */
++	case 0x48: return KEY_ESC;			/*   hangup     */
++	case 0x28: return KEY_LEFT;			/*   IN         */
++	case 0x18: return KEY_RIGHT;			/*   OUT        */
++	}
++	return -EINVAL;
++}
 +
-+	mode = scancode >> 8;
-+	if (mode > ATI_REMOTE2_PC || !((1 << mode) & mode_mask))
-+		return -EINVAL;
++/*
++  Contributed by Shaun Jackman <sjackman@gmail.com>
 +
-+	index = ati_remote2_lookup(scancode & 0xFF);
-+	if (index < 0)
-+		return -EINVAL;
++  Genius G-Talk keyboard matrix
++     0 1 2 3
++  4: 0 4 8 Talk
++  5: 1 5 9 End
++  6: 2 6 # Up
++  7: 3 7 * Down
++*/
++static int keymap_gtalk(int scancode)
++{
++	switch (scancode) {
++	case 0x11: return KEY_0;
++	case 0x21: return KEY_1;
++	case 0x41: return KEY_2;
++	case 0x81: return KEY_3;
++	case 0x12: return KEY_4;
++	case 0x22: return KEY_5;
++	case 0x42: return KEY_6;
++	case 0x82: return KEY_7;
++	case 0x14: return KEY_8;
++	case 0x24: return KEY_9;
++	case 0x44: return KEY_NUMERIC_POUND; /* # */
++	case 0x84: return KEY_KPASTERISK;
++	case 0x18: return KEY_ENTER; /* Talk (green handset) */
++	case 0x28: return KEY_ESC; /* End (red handset) */
++	case 0x48: return KEY_UP; /* Menu up (rocker switch) */
++	case 0x88: return KEY_DOWN; /* Menu down (rocker switch) */
++	}
++	return -EINVAL;
++}
 +
-+	*keycode = ar2->keycode[mode][index];
++/*
++ * Keymap for Allied-Telesis Corega USBPH01
++ * http://www.alliedtelesis-corega.com/2/1344/1437/1360/chprd.html
++ *
++ * Contributed by july@nat.bg
++ */
++static int keymap_usbph01(int scancode)
++{
++	switch (scancode) {
++	case 0x11: return KEY_0;			/*   0          */
++	case 0x21: return KEY_1;			/*   1          */
++	case 0x41: return KEY_2;			/*   2          */
++	case 0x81: return KEY_3;			/*   3          */
++	case 0x12: return KEY_4;			/*   4          */
++	case 0x22: return KEY_5;			/*   5          */
++	case 0x42: return KEY_6;			/*   6          */
++	case 0x82: return KEY_7;			/*   7          */
++	case 0x14: return KEY_8;			/*   8          */
++	case 0x24: return KEY_9;			/*   9          */
++	case 0x44: return KEY_NUMERIC_POUND;		/*   #          */
++	case 0x84: return KEY_KPASTERISK;		/*   *          */
++	case 0x18: return KEY_ENTER;			/*   pickup     */
++	case 0x28: return KEY_ESC;			/*   hangup     */
++	case 0x48: return KEY_LEFT;			/*   IN         */
++	case 0x88: return KEY_RIGHT;			/*   OUT        */
++	}
++	return -EINVAL;
++}
++
++static int (*keymap)(int) = keymap_kip1000;
++
++
++/* Completes a request by converting the data into events for the
++ * input subsystem.
++ *
++ * The key parameter can be cascaded: key2 << 8 | key1
++ */
++static void report_key(struct cm109_dev *dev, int key)
++{
++	struct input_dev *idev = dev->idev;
++
++	if (dev->key_code >= 0) {
++		/* old key up */
++		input_report_key(idev, dev->key_code & 0xff, 0);
++		if (dev->key_code >> 8)
++			input_report_key(idev, dev->key_code >> 8, 0);
++	}
++
++	dev->key_code = key;
++	if (key >= 0) {
++		/* new valid key */
++		input_report_key(idev, key & 0xff, 1);
++		if (key >> 8)
++			input_report_key(idev, key >> 8, 1);
++	}
++	input_sync(idev);
++}
++
++/******************************************************************************
++ * CM109 usb communication interface
++ *****************************************************************************/
++
++
++/*
++ * IRQ handler
++ */
++static void urb_irq_callback(struct urb *urb)
++{
++	struct cm109_dev *dev = urb->context;
++	int ret;
++
++#if CM109_DEBUG
++	info("### URB IRQ: [0x%02x 0x%02x 0x%02x 0x%02x] keybit=0x%02x",
++	     dev->irq_data->byte[0],
++	     dev->irq_data->byte[1],
++	     dev->irq_data->byte[2],
++	     dev->irq_data->byte[3],
++	     dev->keybit);
++#endif
++
++	if (urb->status) {
++		if (-ESHUTDOWN == urb->status)
++			return;
++		err("%s - urb status %d", __FUNCTION__, urb->status);
++	}
++
++	/* Scan key column */
++	if (0xf == dev->keybit) {
++
++		/* Any changes ? */
++		if ((dev->gpi & 0xf0) == (dev->irq_data->byte[HID_IR1] & 0xf0)) {
++			goto out;
++		}
++
++		dev->gpi = dev->irq_data->byte[HID_IR1] & 0xf0;
++
++		dev->keybit = 0x1;
++	} else {
++		report_key(dev, keymap(dev->irq_data->byte[HID_IR1]));
++
++		dev->keybit <<= 1;
++		if (dev->keybit > 0x8)
++			dev->keybit = 0xf;
++	}
++
++	dev->ctl_data->byte[HID_OR1] = dev->keybit;
++	dev->ctl_data->byte[HID_OR2] = dev->keybit;
++
++      out:
++	ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
++	if (ret)
++		err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
++}
++
++static void urb_ctl_callback(struct urb *urb)
++{
++	struct cm109_dev *dev = urb->context;
++	int ret = 0;
++
++#if CM109_DEBUG
++	info("### URB CTL: [0x%02x 0x%02x 0x%02x 0x%02x]",
++	     dev->ctl_data->byte[0],
++	     dev->ctl_data->byte[1],
++	     dev->ctl_data->byte[2],
++	     dev->ctl_data->byte[3]);
++#endif
++
++	if (urb->status)
++		err("%s - urb status %d", __FUNCTION__, urb->status);
++
++	spin_lock(&dev->submit_lock);
++	/* ask for a response */
++	if (!dev->disconnecting)
++		ret = usb_submit_urb(dev->urb_irq, GFP_ATOMIC);
++	spin_unlock(&dev->submit_lock);
++
++	if (ret)
++		err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
++}
++
++/******************************************************************************
++ * input event interface
++ *****************************************************************************/
++
++static DEFINE_SPINLOCK(cm109_buzz_lock);
++
++static int input_open(struct input_dev *idev)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++	int ret;
++
++	dev->key_code = -1;	/* no keys pressed */
++	dev->keybit = 0xf;
++
++	/* issue INIT */
++	dev->ctl_data->byte[HID_OR0] = HID_OR_GPO_BUZ_SPDIF;
++	dev->ctl_data->byte[HID_OR1] = dev->keybit;
++	dev->ctl_data->byte[HID_OR2] = dev->keybit;
++	dev->ctl_data->byte[HID_OR3] = 0x00;
++
++	if ((ret = usb_submit_urb(dev->urb_ctl, GFP_KERNEL)) != 0) {
++		err("%s - usb_submit_urb failed with result %d",
++		    __FUNCTION__, ret);
++		return ret;
++	}
++
 +	return 0;
 +}
 +
-+static int ati_remote2_setkeycode(struct input_dev *idev, int scancode, int keycode)
++static void input_close(struct input_dev *idev)
 +{
-+	struct ati_remote2 *ar2 = input_get_drvdata(idev);
-+	int index, mode, old_keycode;
++	struct cm109_dev *dev = input_get_drvdata(idev);
 +
-+	mode = scancode >> 8;
-+	if (mode > ATI_REMOTE2_PC || !((1 << mode) & mode_mask))
-+		return -EINVAL;
++	usb_kill_urb(dev->urb_ctl);
++	usb_kill_urb(dev->urb_irq);
++}
 +
-+	index = ati_remote2_lookup(scancode & 0xFF);
-+	if (index < 0)
-+		return -EINVAL;
++static void buzz(struct cm109_dev *dev, int on)
++{
++	int ret;
 +
-+	if (keycode < KEY_RESERVED || keycode > KEY_MAX)
-+		return -EINVAL;
-+
-+	old_keycode = ar2->keycode[mode][index];
-+	ar2->keycode[mode][index] = keycode;
-+	set_bit(keycode, idev->keybit);
-+
-+	for (mode = 0; mode < ATI_REMOTE2_MODES; mode++) {
-+		for (index = 0; index < ARRAY_SIZE(ati_remote2_key_table); index++) {
-+			if (ar2->keycode[mode][index] == old_keycode)
-+				return 0;
-+		}
++	if (dev == NULL) {
++		err("buzz: dev is NULL");
++		return;
 +	}
 +
-+	clear_bit(old_keycode, idev->keybit);
++	dbg("Buzzer %s", on ? "on" : "off");
++	if (on)
++		dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
++	else
++		dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
++
++	ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
++	if (ret)
++		err("%s - usb_submit_urb failed %d", __FUNCTION__, ret);
++}
++
++static int input_ev(struct input_dev *idev, unsigned int type,
++		    unsigned int code, int value)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++	unsigned long flags;
++
++#if CM109_DEBUG
++	info("input_ev: type=%u code=%u value=%d", type, code, value);
++#endif
++
++	if (type != EV_SND)
++		return -EINVAL;
++
++	switch (code) {
++	case SND_TONE:
++	case SND_BELL:
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	spin_lock_irqsave(&cm109_buzz_lock, flags);
++	buzz(dev, value);
++	spin_unlock_irqrestore(&cm109_buzz_lock, flags);
 +
 +	return 0;
 +}
 +
- static int ati_remote2_input_init(struct ati_remote2 *ar2)
- {
- 	struct input_dev *idev;
--	int i, retval;
-+	int index, mode, retval;
- 
- 	idev = input_allocate_device();
- 	if (!idev)
-@@ -350,8 +401,26 @@ static int ati_remote2_input_init(struct ati_remote2 *ar2)
- 	idev->keybit[BIT_WORD(BTN_MOUSE)] = BIT_MASK(BTN_LEFT) |
- 		BIT_MASK(BTN_RIGHT);
- 	idev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
--	for (i = 0; ati_remote2_key_table[i].key_code != KEY_RESERVED; i++)
--		set_bit(ati_remote2_key_table[i].key_code, idev->keybit);
 +
-+	for (mode = 0; mode < ATI_REMOTE2_MODES; mode++) {
-+		for (index = 0; index < ARRAY_SIZE(ati_remote2_key_table); index++) {
-+			ar2->keycode[mode][index] = ati_remote2_key_table[index].keycode;
-+			set_bit(ar2->keycode[mode][index], idev->keybit);
++/******************************************************************************
++ * Linux interface and usb initialisation
++ *****************************************************************************/
++
++struct driver_info {
++	char *name;
++};
++
++static const struct driver_info info_cm109 = {
++	.name = "CM109 USB driver",
++};
++
++enum {
++	VENDOR_ID        = 0x0d8c, /* C-Media Electronics */
++	PRODUCT_ID_CM109 = 0x000e, /* CM109 defines range 0x0008 - 0x000f */
++};
++
++/* table of devices that work with this driver */
++static const struct usb_device_id usb_table[] = {
++	{
++	 .match_flags = USB_DEVICE_ID_MATCH_DEVICE |
++	 USB_DEVICE_ID_MATCH_INT_INFO,
++	 .idVendor = VENDOR_ID,
++	 .idProduct = PRODUCT_ID_CM109,
++	 .bInterfaceClass = USB_CLASS_HID,
++	 .bInterfaceSubClass = 0,
++	 .bInterfaceProtocol = 0,
++	 .driver_info = (kernel_ulong_t) & info_cm109},
++	/* you can add more devices here with product ID 0x0008 - 0x000f */
++	{}
++};
++
++static int usb_cleanup(struct cm109_dev *dev, int err)
++{
++	if (dev == NULL)
++		return err;
++
++	usb_kill_urb(dev->urb_irq);	/* parameter validation in core/urb */
++	usb_kill_urb(dev->urb_ctl);	/* parameter validation in core/urb */
++
++	if (dev->idev) {
++		if (err)
++			input_free_device(dev->idev);
++		else
++			input_unregister_device(dev->idev);
++	}
++	if (dev->ctl_req)
++		usb_buffer_free(dev->udev, sizeof(*(dev->ctl_req)),
++				dev->ctl_req, dev->ctl_req_dma);
++	if (dev->ctl_data)
++		usb_buffer_free(dev->udev, USB_PKT_LEN,
++				dev->ctl_data, dev->ctl_dma);
++	if (dev->irq_data)
++		usb_buffer_free(dev->udev, USB_PKT_LEN,
++				dev->irq_data, dev->irq_dma);
++
++	usb_free_urb(dev->urb_irq);	/* parameter validation in core/urb */
++	usb_free_urb(dev->urb_ctl);	/* parameter validation in core/urb */
++	kfree(dev);
++
++	return err;
++}
++
++static void usb_disconnect(struct usb_interface *interface)
++{
++	struct cm109_dev *dev;
++
++	dev = usb_get_intfdata(interface);
++
++	/* Wait for URB idle */
++	spin_lock_irq(&dev->submit_lock);
++	dev->disconnecting = 1;
++	spin_unlock_irq(&dev->submit_lock);
++
++	usb_set_intfdata(interface, NULL);
++
++	usb_cleanup(dev, 0);
++}
++
++static int usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct driver_info *nfo = (struct driver_info *)id->driver_info;
++	struct usb_host_interface *interface;
++	struct usb_endpoint_descriptor *endpoint;
++	struct cm109_dev *dev;
++	struct input_dev *input_dev;
++	int ret, pipe, i;
++
++	interface = intf->cur_altsetting;
++	endpoint = &interface->endpoint[0].desc;
++
++	if (!usb_endpoint_is_int_in(endpoint))
++		return -ENODEV;
++
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	spin_lock_init(&dev->submit_lock);
++	dev->disconnecting = 0;
++
++	dev->udev = udev;
++
++	dev->idev = input_dev = input_allocate_device();
++	if (!input_dev)
++		goto err;
++
++	/* allocate usb buffers */
++	dev->irq_data = usb_buffer_alloc(udev, USB_PKT_LEN,
++					 GFP_KERNEL, &dev->irq_dma);
++	if (dev->irq_data == NULL)
++		goto err;
++
++	dev->ctl_data = usb_buffer_alloc(udev, USB_PKT_LEN,
++					 GFP_KERNEL, &dev->ctl_dma);
++	if (!dev->ctl_data)
++		goto err;
++
++	dev->ctl_req = usb_buffer_alloc(udev, sizeof(*(dev->ctl_req)),
++					GFP_KERNEL, &dev->ctl_req_dma);
++	if (dev->ctl_req == NULL)
++		goto err;
++
++	/* allocate urb structures */
++	dev->urb_irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (dev->urb_irq == NULL)
++		goto err;
++
++	dev->urb_ctl = usb_alloc_urb(0, GFP_KERNEL);
++	if (dev->urb_ctl == NULL)
++		goto err;
++
++	/* get a handle to the interrupt data pipe */
++	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
++	ret = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
++	if (ret != USB_PKT_LEN)
++		err("invalid payload size %d, expected %d", ret, USB_PKT_LEN);
++
++	/* initialise irq urb */
++	usb_fill_int_urb(dev->urb_irq, udev, pipe, dev->irq_data,
++			 USB_PKT_LEN,
++			 urb_irq_callback, dev, endpoint->bInterval);
++	dev->urb_irq->transfer_dma = dev->irq_dma;
++	dev->urb_irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++	dev->urb_irq->dev = udev;
++
++	/* initialise ctl urb */
++	dev->ctl_req->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE |
++	    USB_DIR_OUT;
++	dev->ctl_req->bRequest = USB_REQ_SET_CONFIGURATION;
++	dev->ctl_req->wValue = cpu_to_le16(0x200);
++	dev->ctl_req->wIndex = cpu_to_le16(interface->desc.bInterfaceNumber);
++	dev->ctl_req->wLength = cpu_to_le16(USB_PKT_LEN);
++
++	usb_fill_control_urb(dev->urb_ctl, udev, usb_sndctrlpipe(udev, 0),
++			     (void *)dev->ctl_req, dev->ctl_data, USB_PKT_LEN,
++			     urb_ctl_callback, dev);
++	dev->urb_ctl->setup_dma = dev->ctl_req_dma;
++	dev->urb_ctl->transfer_dma = dev->ctl_dma;
++	dev->urb_ctl->transfer_flags |= URB_NO_SETUP_DMA_MAP |
++	    URB_NO_TRANSFER_DMA_MAP;
++	dev->urb_ctl->dev = udev;
++
++	/* find out the physical bus location */
++	usb_make_path(udev, dev->phys, sizeof(dev->phys));
++	strlcat(dev->phys, "/input0", sizeof(dev->phys));
++
++	/* register settings for the input device */
++	input_dev->name = nfo->name;
++	input_dev->phys = dev->phys;
++	usb_to_input_id(udev, &input_dev->id);
++	input_dev->dev.parent = &intf->dev;
++
++	input_set_drvdata(input_dev, dev);
++	input_dev->open = input_open;
++	input_dev->close = input_close;
++	input_dev->event = input_ev;
++
++	/* register available key events */
++	input_dev->evbit[0] = BIT_MASK(EV_KEY);
++	for (i = 0; i < 256; i++) {
++		int k = keymap(i);
++		if (k >= 0) {
++			set_bit(k & 0xff, input_dev->keybit);
++			if (k >> 8)
++				set_bit(k >> 8, input_dev->keybit);
 +		}
 +	}
 +
-+	/* AUX1-AUX4 and PC generate the same scancode. */
-+	index = ati_remote2_lookup(0x3f);
-+	ar2->keycode[ATI_REMOTE2_AUX1][index] = KEY_PROG1;
-+	ar2->keycode[ATI_REMOTE2_AUX2][index] = KEY_PROG2;
-+	ar2->keycode[ATI_REMOTE2_AUX3][index] = KEY_PROG3;
-+	ar2->keycode[ATI_REMOTE2_AUX4][index] = KEY_PROG4;
-+	ar2->keycode[ATI_REMOTE2_PC][index] = KEY_PC;
-+	set_bit(KEY_PROG1, idev->keybit);
-+	set_bit(KEY_PROG2, idev->keybit);
-+	set_bit(KEY_PROG3, idev->keybit);
-+	set_bit(KEY_PROG4, idev->keybit);
-+	set_bit(KEY_PC, idev->keybit);
- 
- 	idev->rep[REP_DELAY]  = 250;
- 	idev->rep[REP_PERIOD] = 33;
-@@ -359,6 +428,9 @@ static int ati_remote2_input_init(struct ati_remote2 *ar2)
- 	idev->open = ati_remote2_open;
- 	idev->close = ati_remote2_close;
- 
-+	idev->getkeycode = ati_remote2_getkeycode;
-+	idev->setkeycode = ati_remote2_setkeycode;
++	input_dev->evbit[0] |= BIT_MASK(EV_SND);
++	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
 +
- 	idev->name = ar2->name;
- 	idev->phys = ar2->phys;
- 
--- 
-1.5.4.5
++	ret = input_register_device(dev->idev);
++	if (ret)
++		goto err;
++
++	usb_set_intfdata(intf, dev);
++
++	return 0;
++
++      err:
++	return usb_cleanup(dev, -ENOMEM);
++}
++
++static struct usb_driver cm109_driver = {
++	.name       = "cm109",
++	.probe      = usb_probe,
++	.disconnect = usb_disconnect,
++	.id_table   = usb_table,
++};
++
++static int __init select_keymap(void)
++{
++	/* Load the phone keymap */
++	if (0 == strcasecmp(phone, "kip1000")) {
++		keymap = keymap_kip1000;
++		info("Keymap for Komunikate KIP1000 phone loaded");
++	}
++	else if (0 == strcasecmp(phone, "gtalk")) {
++		keymap = keymap_gtalk;
++		info("Keymap for Genius G-talk phone loaded");
++	}
++	else if (0 == strcasecmp(phone, "usbph01")) {
++		keymap = keymap_usbph01;
++		info("Keymap for Allied-Telesis Corega USBPH01 phone loaded");
++	}
++	else {
++		err("Unsupported phone: %s", phone);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int __init cm109_dev_init(void)
++{
++	int err;
++
++	err = select_keymap();
++	if (err)
++		return err;
++
++	err = usb_register(&cm109_driver);
++	if (err)
++		return err;
++
++	info(DRIVER_DESC ": " DRIVER_VERSION " (C) " DRIVER_AUTHOR);
++
++	return err;
++}
++
++static void __exit cm109_dev_exit(void)
++{
++	usb_deregister(&cm109_driver);
++}
++
++module_init(cm109_dev_init);
++module_exit(cm109_dev_exit);
++
++MODULE_DEVICE_TABLE(usb, usb_table);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
++MODULE_LICENSE("GPL");
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/Kconfig linux-2.6.25/drivers/input/misc/Kconfig
+--- linux-2.6.25-orig/drivers/input/misc/Kconfig	2008-04-17 04:49:44.000000000 +0200
++++ linux-2.6.25/drivers/input/misc/Kconfig	2008-06-21 23:11:48.000000000 +0200
+@@ -180,6 +180,18 @@ config INPUT_YEALINK
+  	  To compile this driver as a module, choose M here: the module will be
+  	  called yealink.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
++config INPUT_CM109
++	tristate "C-Media CM109 USB I/O Controller"
++	depends on INPUT && EXPERIMENTAL
++	select USB
++	---help---
++	  Say Y here if you want to enable keyboard and buzzer functions of the
++	  C-Media CM109 usb phones. The audio part is enabled by the generic
++	  usb sound driver, so you might want to enable that as well.
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called cm109.
++
+  config INPUT_UINPUT
+  	tristate "User level driver support"
+  	help
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/Makefile linux-2.6.25/drivers/input/misc/Makefile
+--- linux-2.6.25-orig/drivers/input/misc/Makefile	2008-04-17 04:49:44.000000000 +0200
++++ linux-2.6.25/drivers/input/misc/Makefile	2008-06-21 23:11:48.000000000 +0200
+@@ -16,6 +16,7 @@ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_
+  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+  obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+  obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o

@@ -1,36 +1,29 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [patch]fix race between disconnect and open in usbtouch
-Date: Thu, 26 Jun 2008 16:35:01 +0200
-Message-ID: <200806261635.03051.oliver@neukum.org>
-References: <200806261532.06544.oliver@neukum.org> <200806261549.28084.oliver@neukum.org> <20080626143010.GA17001@anvil.corenet.prv>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 0/2] ati_remote2 patches
+Date: Thu, 26 Jun 2008 10:37:48 -0400
+Message-ID: <20080626103728.ZZRA012@mailhub.coreip.homeip.net>
+References: <1214391371-13698-1-git-send-email-syrjala@sci.fi>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:45116 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758113AbYFZOed (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Jun 2008 10:34:33 -0400
-In-Reply-To: <20080626143010.GA17001@anvil.corenet.prv>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <1214391371-13698-1-git-send-email-syrjala-ORSVBvAovxo@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ville =?iso-8859-1?q?Syrj=E4l=E4?= <syrjala@sci.fi>, daniel.ritz@gmx.ch, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-Am Donnerstag 26 Juni 2008 16:30:11 schrieb Dmitry Torokhov:
-> > > I think you can just remove that usb_kill_urb() call since
-> > > usbtouch_close() has already called it by that time.
-> > 
-> > Are you sure?
+On Wed, Jun 25, 2008 at 01:56:09PM +0300, Ville Syrjala wrote:
+> I posted these patches earlier and I believe all issues found during
+> the review were addressed.
 > 
-> Yes, calling dev->close for opened devices as part of unregister is done
-> by the input core.
+> Dmitry, please apply.
 
-OK, thanks.
+Applied to my tree, will be in next shortly.
 
-	Regards
-		Oliver
-
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

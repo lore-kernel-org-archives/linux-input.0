@@ -1,164 +1,176 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH 001/001] linux-input:  Support for BCM5974 multitouch trackpad
-Date: Fri, 27 Jun 2008 09:43:46 +0200
-Message-ID: <200806270943.48634.oliver@neukum.org>
-References: <1214521639.20365.1.camel@alnilam>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: [rft]power management for usbtouch
+Date: Fri, 27 Jun 2008 10:50:00 +0200
+Message-ID: <200806271050.02579.oliver@neukum.org>
+References: <200806261557.19095.oliver@neukum.org> <20080626144545.GF22310@sci.fi> <200806261656.06457.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:56875 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754028AbYF0HnU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jun 2008 03:43:20 -0400
-In-Reply-To: <1214521639.20365.1.camel@alnilam>
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200806261656.06457.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ville =?iso-8859-1?q?Syrj=E4l=E4?= <syrjala-ORSVBvAovxo@public.gmane.org>
+Cc: daniel.ritz-OI3hZJvNYWs@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, robfitz@273k.net, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org
 
-Am Freitag 27 Juni 2008 01:07:19 schrieb Henrik Rydberg:
-> From: Henrik Rydberg <rydberg@euromail.se>
-> 
-> BCM5974: This driver adds support for the multitouch trackpad on the new
-> Apple Macbook Air and Macbook Pro Penryn laptops. It replaces the
-> appletouch driver on those computers, and integrates well with the
-> synaptics driver of the Xorg system. 
+Hi,
 
-Some comments on the driver.
+this patch should fix everything you complained about. As I don't have
+the hardware, please test.
 
 	Regards
 		Oliver
 
-> +
-> +static int atp_wellspring_init(struct usb_device *udev)
-> +{
-> +  const struct atp_config_t *cfg = atp_product_config(udev);
-> +  char data[8];
+---
 
-DMA on the stack. You must kmalloc that buffer.
-> +  int size;
-> +
-> +  /* reset button endpoint */
-> +  if (usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-> +		      USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
-> +		      0, cfg->bt_ep, NULL, 0, 5000)) {
-> +    err("Could not reset button endpoint");
-> +    return -EIO;
-> +  }
-> +
-> +  /* reset trackpad endpoint */
-> +  if (usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-> +		      USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
-> +		      0, cfg->tp_ep, NULL, 0, 5000)) {
-> +    err("Could not reset trackpad endpoint");
-> +    return -EIO;
-> +  }
-> +
-> +  /* read configuration */
-> +  size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-> +			 ATP_WELLSPRING_MODE_READ_REQUEST_ID,
-> +			 USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> +			 ATP_WELLSPRING_MODE_REQUEST_VALUE,
-> +			 ATP_WELLSPRING_MODE_REQUEST_INDEX, data, 8, 5000);
-> +
-> +  if (size != 8) {
-> +    err("Could not do mode read request from device (Wellspring Raw mode)");
-> +    return -EIO;
-> +  }
-> +
-> +  /* apply the mode switch */
-> +  data[0] = ATP_WELLSPRING_MODE_VENDOR_VALUE_1;
-> +  data[1] = ATP_WELLSPRING_MODE_VENDOR_VALUE_2;
-> +
-> +  /* write configuration */
-> +  size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-> +			 ATP_WELLSPRING_MODE_WRITE_REQUEST_ID,
-> +			 USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-> +			 ATP_WELLSPRING_MODE_REQUEST_VALUE,
-> +			 ATP_WELLSPRING_MODE_REQUEST_INDEX, data, 8, 5000);
-> +
-> +  if (size != 8) {
-> +    err("Could not do mode write request to device (Wellspring Raw mode)");
-> +    return -EIO;
-> +  }
-> +
-> +  return 0;
-> +}
-[..]
-> +static inline int raw2int(unsigned char hi, unsigned char lo)
-> +{
-> +  return (short)(hi<<8)+lo;
-> +}
-
-Use the standard function.
-
-[..]
-> +static int atp_open(struct input_dev *input)
-> +{
-> +  struct atp *dev = input_get_drvdata(input);
-> +
-> +  if (usb_submit_urb(dev->bt_urb, GFP_ATOMIC))
-> +    return -EIO;
-> +
-> +  if (usb_submit_urb(dev->tp_urb, GFP_ATOMIC))
-> +    return -EIO;
-
-Resource leak. You must kill the first urb if you bail out here.
-> +
-> +  dev->open = 1;
-> +  return 0;
-> +}
-> +
-> +static void atp_close(struct input_dev *input)
-> +{
-> +  struct atp *dev = input_get_drvdata(input);
-> +
-> +  usb_kill_urb(dev->tp_urb);
-> +  usb_kill_urb(dev->bt_urb);
-> +  cancel_work_sync(&dev->work);
-
-I can't see where you use that work struct. Anyway, this is a race.
-As the work handler can submit urbs, you must first cancel the work,
-then kill the urbs.
-
-> +  dev->open = 0;
-> +}
-> +
-[..]
-> +static void atp_disconnect(struct usb_interface *iface)
-> +{
-> +  struct atp *dev = usb_get_intfdata(iface);
-> +
-> +  usb_set_intfdata(iface, NULL);
-> +  if (dev) {
-> +    usb_kill_urb(dev->tp_urb);
-> +    usb_kill_urb(dev->bt_urb);
-
-close will do that. no need to kill here.
-> +    input_unregister_device(dev->input);
-> +    usb_buffer_free(dev->udev, dev->cfg.tp_datalen,
-> +		    dev->tp_data, dev->tp_urb->transfer_dma);
-> +    usb_buffer_free(dev->udev, dev->cfg.bt_datalen,
-> +		    dev->bt_data, dev->bt_urb->transfer_dma);
-> +    usb_free_urb(dev->tp_urb);
-> +    usb_free_urb(dev->bt_urb);
-> +    kfree(dev);
-> +  }
-> +  printk(KERN_INFO "input: bcm5974 disconnected\n");
-> +}
-> +
-> +static int atp_suspend(struct usb_interface *iface, pm_message_t message)
-> +{
-> +  struct atp *dev = usb_get_intfdata(iface);
-> +
-> +  usb_kill_urb(dev->tp_urb);
-> +  dev->tp_valid = 0;
-> +
-> +  usb_kill_urb(dev->bt_urb);
-> +  dev->bt_valid = 0;
-
-Why don't you cancel the work here?
+--- linux-2.6.26-sierra/drivers/input/touchscreen/usbtouchscreen.c.alt	2008-06-26 15:23:34.000000000 +0200
++++ linux-2.6.26-sierra/drivers/input/touchscreen/usbtouchscreen.c	2008-06-27 10:38:49.000000000 +0200
+@@ -89,13 +89,17 @@ struct usbtouch_usb {
+ 	int buf_len;
+ 	struct urb *irq;
+ 	struct usb_device *udev;
++	struct usb_interface *intf;
+ 	struct input_dev *input;
+ 	struct usbtouch_device_info *type;
++	struct mutex lock;
+ 	char name[128];
+ 	char phys[64];
+ 
+ 	int x, y;
+ 	int touch, press;
++
++	char open:1;
+ };
+ 
+ 
+@@ -820,20 +824,34 @@ exit:
+ static int usbtouch_open(struct input_dev *input)
+ {
+ 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
++	int rv;
+ 
++	rv = usb_autopm_get_interface(usbtouch->intf);
++	if (rv < 0)
++		goto bail;
++	mutex_lock(&usbtouch->lock);
+ 	usbtouch->irq->dev = usbtouch->udev;
+ 
+-	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
+-		return -EIO;
+-
+-	return 0;
++	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL)) {
++		rv = -EIO;
++		usb_autopm_put_interface(usbtouch->intf);
++	} else {
++		usbtouch->open = 1;
++	}
++	mutex_unlock(&usbtouch->lock);
++bail:
++	return rv;
+ }
+ 
+ static void usbtouch_close(struct input_dev *input)
+ {
+ 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
+ 
++	mutex_lock(&usbtouch->lock);
++	usbtouch->open = 0;
++	mutex_unlock(&usbtouch->lock);
+ 	usb_kill_urb(usbtouch->irq);
++	usb_autopm_put_interface(usbtouch->intf);
+ }
+ 
+ 
+@@ -889,6 +907,8 @@ static int usbtouch_probe(struct usb_int
+ 
+ 	usbtouch->udev = udev;
+ 	usbtouch->input = input_dev;
++	mutex_init(&usbtouch->lock);
++	usbtouch->intf = intf;
+ 
+ 	if (udev->manufacturer)
+ 		strlcpy(usbtouch->name, udev->manufacturer, sizeof(usbtouch->name));
+@@ -973,20 +993,75 @@ static void usbtouch_disconnect(struct u
+ 
+ 	dbg("%s - usbtouch is initialized, cleaning up", __FUNCTION__);
+ 	usb_set_intfdata(intf, NULL);
+-	usb_kill_urb(usbtouch->irq);
+ 	input_unregister_device(usbtouch->input);
+ 	usb_free_urb(usbtouch->irq);
+ 	usbtouch_free_buffers(interface_to_usbdev(intf), usbtouch);
+ 	kfree(usbtouch);
+ }
+ 
++static int usbtouch_suspend(struct usb_interface *intf, pm_message_t message)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++
++	dbg("%s - called", __FUNCTION__);
++
++	mutex_lock(&usbtouch->lock);
++	usb_kill_urb(usbtouch->irq);
++	mutex_unlock(&usbtouch->lock);
++	return 0;
++}
++
++static int usbtouch_resume(struct usb_interface *intf)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++	int rv = 0;
++
++	dbg("%s - called", __FUNCTION__);
++
++	mutex_lock(&usbtouch->lock);
++	if (usbtouch->open)
++		rv = usb_submit_urb(usbtouch->irq, GFP_NOIO);
++	mutex_unlock(&usbtouch->lock);
++	return rv;
++}
++
++static int usbtouch_pre_reset(struct usb_interface *intf)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++
++	dbg("%s - called", __FUNCTION__);
++
++	mutex_lock(&usbtouch->lock);
++	usb_kill_urb(usbtouch->irq);
++	return 0;
++}
++
++static int usbtouch_post_reset(struct usb_interface *intf)
++{
++	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
++	int rv = 0;
++
++	dbg("%s - called", __FUNCTION__);
++
++	if (usbtouch->open)
++		rv = usb_submit_urb(usbtouch->irq, GFP_NOIO);
++	mutex_unlock(&usbtouch->lock);
++	return rv;
++}
++
+ MODULE_DEVICE_TABLE(usb, usbtouch_devices);
+ 
+ static struct usb_driver usbtouch_driver = {
+ 	.name		= "usbtouchscreen",
+ 	.probe		= usbtouch_probe,
+ 	.disconnect	= usbtouch_disconnect,
++	.suspend	= usbtouch_suspend,
++	.resume		= usbtouch_resume,
++	.reset_resume	= usbtouch_resume,
++	.pre_reset	= usbtouch_pre_reset,
++	.post_reset	= usbtouch_post_reset,
+ 	.id_table	= usbtouch_devices,
++	.supports_autosuspend = 1,
+ };
+ 
+ static int __init usbtouch_init(void)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

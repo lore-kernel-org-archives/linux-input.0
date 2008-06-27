@@ -1,54 +1,73 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 1/1] HID: fix quirk handling in usbmouse/kbd
-Date: Fri, 27 Jun 2008 22:09:25 +0200
-Message-ID: <1214597365-21719-1-git-send-email-jirislaby@gmail.com>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+Subject: Re: [rft]power management for usbtouch
+Date: Fri, 27 Jun 2008 23:20:27 +0300
+Message-ID: <20080627202027.GG19430@sci.fi>
+References: <200806261557.19095.oliver@neukum.org> <200806271050.02579.oliver@neukum.org> <20080627161036.GE19430@sci.fi> <200806272107.14934.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.wellnetcz.com ([212.24.148.102]:40593 "EHLO
-	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754422AbYF0ULE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jun 2008 16:11:04 -0400
+Received: from smtp4.pp.htv.fi ([213.243.153.38]:52115 "EHLO smtp4.pp.htv.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1756281AbYF0UU2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jun 2008 16:20:28 -0400
+Content-Disposition: inline
+In-Reply-To: <200806272107.14934.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: daniel.ritz@gmx.ch, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-When usbmouse/kbd is set to build, USB_HID is never defined due to
-the USB_HID!=y Kconfig rule. Test CONFIG_USB_HID_MODULE in both
-drivers instead.
+On Fri, Jun 27, 2008 at 09:07:13PM +0200, Oliver Neukum wrote:
+> Am Freitag 27 Juni 2008 18:10:36 schrieb Ville Syrj=E4l=E4:
+> > On Fri, Jun 27, 2008 at 10:50:00AM +0200, Oliver Neukum wrote:
+> > > @@ -820,20 +824,34 @@ exit:
+> > >  static int usbtouch_open(struct input_dev *input)
+> > >  {
+> > >  	struct usbtouch_usb *usbtouch =3D input_get_drvdata(input);
+> > > +	int rv;
+> > > =20
+> > > +	rv =3D usb_autopm_get_interface(usbtouch->intf);
+> > > +	if (rv < 0)
+> > > +		goto bail;
+> > > +	mutex_lock(&usbtouch->lock);
+> > >  	usbtouch->irq->dev =3D usbtouch->udev;
+> > > =20
+> > > -	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
+> > > -		return -EIO;
+> > > -
+> > > -	return 0;
+> > > +	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL)) {
+> > > +		rv =3D -EIO;
+> > > +		usb_autopm_put_interface(usbtouch->intf);
+> > > +	} else {
+> > > +		usbtouch->open =3D 1;
+> > > +	}
+> > > +	mutex_unlock(&usbtouch->lock);
+> > > +bail:
+> > > +	return rv;
+> > >  }
+> >=20
+> > What if the device is already suspended when open() is called?
+> >=20
+>=20
+> It cannot be. usb_autopm_get_interface() is called, which will resume
+> the device.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
----
- drivers/hid/usbhid/usbkbd.c   |    2 +-
- drivers/hid/usbhid/usbmouse.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+Ah, so it resumes the device even if it was not autosuspended but
+suspended for another reason?
 
-diff --git a/drivers/hid/usbhid/usbkbd.c b/drivers/hid/usbhid/usbkbd.c
-index 3cd46d2..695929c 100644
---- a/drivers/hid/usbhid/usbkbd.c
-+++ b/drivers/hid/usbhid/usbkbd.c
-@@ -233,7 +233,7 @@ static int usb_kbd_probe(struct usb_interface *iface,
- 	if (!usb_endpoint_is_int_in(endpoint))
- 		return -ENODEV;
- 
--#ifdef CONFIG_USB_HID
-+#ifdef CONFIG_USB_HID_MODULE
- 	if (usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
- 				le16_to_cpu(dev->descriptor.idProduct))
- 			& HID_QUIRK_IGNORE) {
-diff --git a/drivers/hid/usbhid/usbmouse.c b/drivers/hid/usbhid/usbmouse.c
-index 703e9d0..f74740f 100644
---- a/drivers/hid/usbhid/usbmouse.c
-+++ b/drivers/hid/usbhid/usbmouse.c
-@@ -129,7 +129,7 @@ static int usb_mouse_probe(struct usb_interface *intf, const struct usb_device_i
- 	if (!usb_endpoint_is_int_in(endpoint))
- 		return -ENODEV;
- 
--#ifdef CONFIG_USB_HID
-+#ifdef CONFIG_USB_HID_MODULE
- 	if (usbhid_lookup_quirk(le16_to_cpu(dev->descriptor.idVendor),
- 				le16_to_cpu(dev->descriptor.idProduct))
- 			& (HID_QUIRK_IGNORE|HID_QUIRK_IGNORE_MOUSE)) {
--- 
-1.5.6
+If I understood correctly usb_autpm_get_interface() will only prevent
+further autosuspend requests. But is there anything protecting this
+against another (non-auto) suspend request coming in between
+usb_autopm_get_interface() and mutex_lock()?
 
+--=20
+Ville Syrj=E4l=E4
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

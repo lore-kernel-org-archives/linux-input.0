@@ -1,48 +1,59 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [RFC] serio driver: speed up resume
-Date: Fri, 27 Jun 2008 18:03:47 +0200
-Message-ID: <200806271803.48164.rjw@sisk.pl>
-References: <1213607375.31950.2.camel@sli10-desk.sh.intel.com> <1214272978.29380.2.camel@sli10-desk.sh.intel.com> <alpine.LFD.1.10.0806271148140.2988@localhost.localdomain>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+Subject: Re: [rft]power management for usbtouch
+Date: Fri, 27 Jun 2008 19:10:36 +0300
+Message-ID: <20080627161036.GE19430@sci.fi>
+References: <200806261557.19095.oliver@neukum.org> <20080626144545.GF22310@sci.fi> <200806261656.06457.oliver@neukum.org> <200806271050.02579.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:37590 "EHLO ogre.sisk.pl"
+Received: from smtp5.pp.htv.fi ([213.243.153.39]:41229 "EHLO smtp5.pp.htv.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752727AbYF0QCI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Jun 2008 12:02:08 -0400
-In-Reply-To: <alpine.LFD.1.10.0806271148140.2988@localhost.localdomain>
-Content-Disposition: inline
+	id S1754221AbYF0QKi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jun 2008 12:10:38 -0400
+Content-Disposition: attachment
+In-Reply-To: <200806271050.02579.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Len Brown <lenb@kernel.org>
-Cc: Shaohua Li <shaohua.li@intel.com>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux acpi <linux-acpi@vger.kernel.org>, Linux Power Management List <linux-pm@lists.osdl.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: daniel.ritz@gmx.ch, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Friday, 27 of June 2008, Len Brown wrote:
-> 
-> <rafael and linux-pm cc'd>
-> 
-> On Tue, 24 Jun 2008, Shaohua Li wrote:
-> 
-> > On Mon, 2008-06-16 at 17:09 +0800, Shaohua Li wrote:
-> > > serio_resume will call into psmouse_extensions(). In my test, the
-> > > routine is very slow, it blocks resume about 1 sec. Below patch (move
-> > > resume to kseriod, just like boot time probe) cures the issue in my
-> > > test, and seems no side effect. I'm no familiar with serio driver, so
-> > > please check.
-> 
-> > Any comments from input guys?
-> 
-> none that i can see.
-> 
-> Rafael,
-> can you put this patch in with your suspend test patches?
-> I would do so, but as I'll be out for a bit I'll not
-> be here to babysit it if something breaks.
+On Fri, Jun 27, 2008 at 10:50:00AM +0200, Oliver Neukum wrote:
+> @@ -820,20 +824,34 @@ exit:
+>  static int usbtouch_open(struct input_dev *input)
+>  {
+>  	struct usbtouch_usb *usbtouch =3D input_get_drvdata(input);
+> +	int rv;
+> =20
+> +	rv =3D usb_autopm_get_interface(usbtouch->intf);
+> +	if (rv < 0)
+> +		goto bail;
+> +	mutex_lock(&usbtouch->lock);
+>  	usbtouch->irq->dev =3D usbtouch->udev;
+> =20
+> -	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
+> -		return -EIO;
+> -
+> -	return 0;
+> +	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL)) {
+> +		rv =3D -EIO;
+> +		usb_autopm_put_interface(usbtouch->intf);
+> +	} else {
+> +		usbtouch->open =3D 1;
+> +	}
+> +	mutex_unlock(&usbtouch->lock);
+> +bail:
+> +	return rv;
+>  }
 
-I will, but my series has been a bit out of order recently.  I'm going to fix
-it up shortly, though.
+What if the device is already suspended when open() is called?
 
-Thanks,
-Rafael
+--=20
+Ville Syrj=E4l=E4
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,176 +1,53 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: [rft]power management for usbtouch
-Date: Fri, 27 Jun 2008 10:50:00 +0200
-Message-ID: <200806271050.02579.oliver@neukum.org>
-References: <200806261557.19095.oliver@neukum.org> <20080626144545.GF22310@sci.fi> <200806261656.06457.oliver@neukum.org>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [patch]reliably killing urbs in yealink driver
+Date: Fri, 27 Jun 2008 14:00:55 +0200
+Message-ID: <200806271400.57257.oliver@neukum.org>
+References: <200806261344.32326.oliver@neukum.org> <200806261632.18258.oliver@neukum.org> <20080626134141.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200806261656.06457.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:59683 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757985AbYF0MAa (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Jun 2008 08:00:30 -0400
+In-Reply-To: <20080626134141.ZZRA012@mailhub.coreip.homeip.net>
 Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ville =?iso-8859-1?q?Syrj=E4l=E4?= <syrjala-ORSVBvAovxo@public.gmane.org>
-Cc: daniel.ritz-OI3hZJvNYWs@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Alfred E. Heggestad" <aeh@db.org>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Henk.Vergonet@gmail.com
 
-Hi,
+Am Donnerstag 26 Juni 2008 19:43:15 schrieb Dmitry Torokhov:
+> On Thu, Jun 26, 2008 at 04:32:16PM +0200, Oliver Neukum wrote:
+> > Am Donnerstag 26 Juni 2008 16:26:34 schrieb Dmitry Torokhov:
+> > > Hi Oliver,
+> > > 
+> > > On Thu, Jun 26, 2008 at 01:44:30PM +0200, Oliver Neukum wrote:
+> > > > @@ -809,8 +831,7 @@ static int usb_cleanup(struct yealink_de
+> > > >  	if (yld == NULL)
+> > > >  		return err;
+> > > >  
+> > > > -	usb_kill_urb(yld->urb_irq);	/* parameter validation in core/urb */
+> > > > -	usb_kill_urb(yld->urb_ctl);	/* parameter validation in core/urb */
+> > > > +	stop_traffic(yld);
+> > > 
+> > > stop_traffic is unneeded here since input core guarantees that close is
+> > > called when you unregister and opened device. Do you have the hardware
+> > > to test? If not I will fold stop_traffic back into yealink_close
+> > > locally.
+> > > 
+> > 
+> > No, I don't have hardware to test.
+> > 
+> 
+> OK, then I'll change it. I wonder whether we really need spinlock
+> though or a simple wmb() is enough to make sure other CPUs notice
+> the flag being set before we get to executing usb_kill_urb()...
 
-this patch should fix everything you complained about. As I don't have
-the hardware, please test.
+I am unsure and wouldn't try anything so subtle without a clear need.
 
 	Regards
 		Oliver
-
----
-
---- linux-2.6.26-sierra/drivers/input/touchscreen/usbtouchscreen.c.alt	2008-06-26 15:23:34.000000000 +0200
-+++ linux-2.6.26-sierra/drivers/input/touchscreen/usbtouchscreen.c	2008-06-27 10:38:49.000000000 +0200
-@@ -89,13 +89,17 @@ struct usbtouch_usb {
- 	int buf_len;
- 	struct urb *irq;
- 	struct usb_device *udev;
-+	struct usb_interface *intf;
- 	struct input_dev *input;
- 	struct usbtouch_device_info *type;
-+	struct mutex lock;
- 	char name[128];
- 	char phys[64];
- 
- 	int x, y;
- 	int touch, press;
-+
-+	char open:1;
- };
- 
- 
-@@ -820,20 +824,34 @@ exit:
- static int usbtouch_open(struct input_dev *input)
- {
- 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
-+	int rv;
- 
-+	rv = usb_autopm_get_interface(usbtouch->intf);
-+	if (rv < 0)
-+		goto bail;
-+	mutex_lock(&usbtouch->lock);
- 	usbtouch->irq->dev = usbtouch->udev;
- 
--	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL))
--		return -EIO;
--
--	return 0;
-+	if (usb_submit_urb(usbtouch->irq, GFP_KERNEL)) {
-+		rv = -EIO;
-+		usb_autopm_put_interface(usbtouch->intf);
-+	} else {
-+		usbtouch->open = 1;
-+	}
-+	mutex_unlock(&usbtouch->lock);
-+bail:
-+	return rv;
- }
- 
- static void usbtouch_close(struct input_dev *input)
- {
- 	struct usbtouch_usb *usbtouch = input_get_drvdata(input);
- 
-+	mutex_lock(&usbtouch->lock);
-+	usbtouch->open = 0;
-+	mutex_unlock(&usbtouch->lock);
- 	usb_kill_urb(usbtouch->irq);
-+	usb_autopm_put_interface(usbtouch->intf);
- }
- 
- 
-@@ -889,6 +907,8 @@ static int usbtouch_probe(struct usb_int
- 
- 	usbtouch->udev = udev;
- 	usbtouch->input = input_dev;
-+	mutex_init(&usbtouch->lock);
-+	usbtouch->intf = intf;
- 
- 	if (udev->manufacturer)
- 		strlcpy(usbtouch->name, udev->manufacturer, sizeof(usbtouch->name));
-@@ -973,20 +993,75 @@ static void usbtouch_disconnect(struct u
- 
- 	dbg("%s - usbtouch is initialized, cleaning up", __FUNCTION__);
- 	usb_set_intfdata(intf, NULL);
--	usb_kill_urb(usbtouch->irq);
- 	input_unregister_device(usbtouch->input);
- 	usb_free_urb(usbtouch->irq);
- 	usbtouch_free_buffers(interface_to_usbdev(intf), usbtouch);
- 	kfree(usbtouch);
- }
- 
-+static int usbtouch_suspend(struct usb_interface *intf, pm_message_t message)
-+{
-+	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
-+
-+	dbg("%s - called", __FUNCTION__);
-+
-+	mutex_lock(&usbtouch->lock);
-+	usb_kill_urb(usbtouch->irq);
-+	mutex_unlock(&usbtouch->lock);
-+	return 0;
-+}
-+
-+static int usbtouch_resume(struct usb_interface *intf)
-+{
-+	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
-+	int rv = 0;
-+
-+	dbg("%s - called", __FUNCTION__);
-+
-+	mutex_lock(&usbtouch->lock);
-+	if (usbtouch->open)
-+		rv = usb_submit_urb(usbtouch->irq, GFP_NOIO);
-+	mutex_unlock(&usbtouch->lock);
-+	return rv;
-+}
-+
-+static int usbtouch_pre_reset(struct usb_interface *intf)
-+{
-+	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
-+
-+	dbg("%s - called", __FUNCTION__);
-+
-+	mutex_lock(&usbtouch->lock);
-+	usb_kill_urb(usbtouch->irq);
-+	return 0;
-+}
-+
-+static int usbtouch_post_reset(struct usb_interface *intf)
-+{
-+	struct usbtouch_usb *usbtouch = usb_get_intfdata(intf);
-+	int rv = 0;
-+
-+	dbg("%s - called", __FUNCTION__);
-+
-+	if (usbtouch->open)
-+		rv = usb_submit_urb(usbtouch->irq, GFP_NOIO);
-+	mutex_unlock(&usbtouch->lock);
-+	return rv;
-+}
-+
- MODULE_DEVICE_TABLE(usb, usbtouch_devices);
- 
- static struct usb_driver usbtouch_driver = {
- 	.name		= "usbtouchscreen",
- 	.probe		= usbtouch_probe,
- 	.disconnect	= usbtouch_disconnect,
-+	.suspend	= usbtouch_suspend,
-+	.resume		= usbtouch_resume,
-+	.reset_resume	= usbtouch_resume,
-+	.pre_reset	= usbtouch_pre_reset,
-+	.post_reset	= usbtouch_post_reset,
- 	.id_table	= usbtouch_devices,
-+	.supports_autosuspend = 1,
- };
- 
- static int __init usbtouch_init(void)
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

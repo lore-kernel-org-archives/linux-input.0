@@ -1,57 +1,36 @@
-From: Daniel Ritz <daniel.ritz-ml@swissonline.ch>
-Subject: Re: [PATCH] input: Add support for eGalax TouchKit USB touchscreen used on HP tx1305us
-Date: Sat, 28 Jun 2008 17:57:47 +0200
-Message-ID: <200806281757.48201.daniel.ritz-ml@swissonline.ch>
-References: <200806281719.16837.daniel.ritz-ml@swissonline.ch>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [rft]power management for usbtouch
+Date: Sat, 28 Jun 2008 12:33:30 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0806281230510.23173-100000@netrider.rowland.org>
+References: <200806281453.17896.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from viefep28-int.chello.at ([62.179.121.48]:5362 "EHLO
-	viefep28-int.chello.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750997AbYF1Pw4 (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:3575 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752287AbYF1Qdc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Jun 2008 11:52:56 -0400
-In-Reply-To: <200806281719.16837.daniel.ritz-ml@swissonline.ch>
-Content-Disposition: inline
+	Sat, 28 Jun 2008 12:33:32 -0400
+In-Reply-To: <200806281453.17896.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alastair Bridgewater <nyef@lisphacker.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Ville =?iso-8859-1?q?Syrj=E4l=E4?= <syrjala@sci.fi>, daniel.ritz@gmx.ch, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Saturday 28 June 2008 17:19:16 Daniel Ritz wrote:
-> hi
-> 
-> > The eGalax touchscreen used in the HP tx1305us tablet PC (and presumably 
-> > the rest of the tx1000 series) uses a different format for events from 
-> > the device than the existing driver supports.
-> > 
-> is there more information available? datasheets? drivers?
-> 
-> > Add a new device description and interrupt packet handler for the 
-> > touchscreen used in the tx1305us, claiming the USB device ID for the 
-> > device that this patch was tested with from the older eGalax device code.
-> >
-> NAK. you cannot change device IDs currently used to some new code.
-> this will break most eGalax setups as the device ID 0x0eef,0x0001 is used
-> in most of them, including the one i have..
-> 
-> you'll need to find a way to distinguish the screens. as a starting point
-> i attached an lsusb -vvv output from my screen...
-> 
+On Sat, 28 Jun 2008, Oliver Neukum wrote:
 
-reading the latest driver guide and programming guide from eGalax (now EETI btw.
-www.eeti.com.tw ) it turns out that the newer devices should support the HID
-format and report with that by default. those newer screens are handled by the
-'usbhid' driver. have you tried loading that one before usbtouchscreen?
+> In hindsight adding that interface at all was an error. I was in favor
+> of it and that was a mistake. Maybe it should be removed.
+> Complicating good drivers for its sake I therefore consider an error.
+> Possibly we should consider a forcible suspension a form of disconnection.
 
-can you give an lsusb -vvv output?
+Are you suggesting that the "off" value in /sys/.../power/level 
+shouldn't be allowed?  I don't see it that way -- there's no other 
+mechanism for userspace to force a USB device into the low-power state.
 
-in case the usbhid driver does not work, it's possible to put the touchscreen
-into the non-HID operating mode and have to current code work again..it's easy
-to code...but please try usbhid first...
+Forcing a disconnection during suspend might be a good idea.  But if 
+you do, is there any reason to consider manual suspension different 
+from system sleep?
 
-rgds
--daniel
+Alan Stern
 

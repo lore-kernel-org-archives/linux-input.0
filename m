@@ -1,758 +1,973 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [PATCH 001/002] linux-input:  bcm5974-0.31:  fixed resource leak,
-	removed work struct, device data struct introduced
-Date: Sat, 28 Jun 2008 13:47:09 +0200
-Message-ID: <1214653629.10495.11.camel@alnilam>
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+ #2
+Date: Sat, 28 Jun 2008 17:03:45 +0200
+Message-ID: <486652D1.4010008@db.org>
+References: <200806271424.50425.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from imsc.euromail.se ([217.174.79.94]:37918 "HELO
-	monroe.euromail.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751128AbYF1MyV (ORCPT
+Received: from submit-tmp.sysedata.no ([195.159.29.133]:62720 "EHLO
+	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750704AbYF1PDw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Jun 2008 08:54:21 -0400
+	Sat, 28 Jun 2008 11:03:52 -0400
+In-Reply-To: <200806271424.50425.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, robfitz@273k.net, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-From: Henrik Rydberg <rydberg@euromail.se>
+Oliver Neukum wrote:
+> Am Mittwoch 25 Juni 2008 22:07:34 schrieb Alfred E. Heggestad:
+> 
+> Very well
+> 
+> - urb->status is about to go away and replaced by a parameter
+> - reliably kill two URBs submitting each other cannot be done with
+>   usb_kill_urb() alone
+> - you close the device but leave the buzzer on
+> - no support for suspend/resume
+> - no support for pre/post_reset
+> 
+> Could you test this new additional patch? The original patch had some
+> issues I corrected.
+> 
 
-BCM5974: This driver adds support for the multitouch trackpad on the new
-Apple Macbook Air and Macbook Pro Penryn laptops. It replaces the
-appletouch driver on those computers, and integrates well with the
-synaptics driver of the Xorg system. 
+Hi Oliver,
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
+many many thanks for your patch and your suggested code improvements.
+I have tested your patch and I have some comments:
 
-The touchpad on the new Macbook Air and Macbook Pro Penryn laptops is
-based on the Broadcom BCM5974 chip, of which very little is publicly
-known. The device is currently not recognized by the kernel, and as a
-consequence the synaptics system fails to operate. The fall-back mouse
-handling is very poor. The attached driver, bcm5974, remedies this. It
-operates similarly to the appletouch driver.
+* The first version of your patch was tested, and it applied cleanly
+   and compiled with out any errors. The module was loaded OK, but when
+   I inserted the CM109-device into the USB-port, the machine crashed.
+   I fixed that issue by adding this to the usb_probe() function:
 
-This is version bcm5974-0.31, incorporating changes suggested by Oliver
-Neukum. The driver usability is also discussed at
-http://ubuntuforums.org/showthread.php?t=840040.
+	init_waitqueue_head(&dev->wait);
+
+* The second version of your patch was applied with some local mods.
+   This is now working as expected.
+
+* I have tested suspend/resume with 2.6.25.9 and TuxOnIce 3.0-rc7
+   and it works fine (cm109 device was plugged in during suspend).
+   During suspend I get this in syslog:
+
+     drivers/input/misc/cm109.c: cm109: usb_suspend (event=1)
+     drivers/input/misc/cm109.c: urb_irq_callback: urb status -2
 
 
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index 7bbea09..89ef7c3 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -130,6 +130,29 @@ config MOUSE_APPLETOUCH
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called appletouch.
- 
-+config MOUSE_BCM5974
-+	tristate "Apple USB BCM5974 Multitouch trackpad support"
-+	depends on USB_ARCH_HAS_HCD
-+	select USB
-+	help
-+	  Say Y here if you have an Apple USB BCM5974 Multitouch
-+	  trackpad.
-+
-+          The BCM5974 is the multitouch trackpad found in the Macbook
-+          Air (JAN2008) and Macbook Pro Penryn (FEB2008) laptops.
-+
-+          It is also found in the IPhone (2007) and Ipod Touch (2008).
-+
-+	  This driver provides multitouch functionality together with
-+          the synaptics X11 driver.
-+
-+          The interface is currently identical to the appletouch interface,
-+          for further information, see
-+          <file:Documentation/input/appletouch.txt>.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called bcm5974.
-+
- config MOUSE_INPORT
- 	tristate "InPort/MS/ATIXL busmouse"
- 	depends on ISA
-diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-index 9e6e363..d4d2025 100644
---- a/drivers/input/mouse/Makefile
-+++ b/drivers/input/mouse/Makefile
-@@ -6,6 +6,7 @@
- 
- obj-$(CONFIG_MOUSE_AMIGA)	+= amimouse.o
- obj-$(CONFIG_MOUSE_APPLETOUCH)	+= appletouch.o
-+obj-$(CONFIG_MOUSE_BCM5974)	+= bcm5974.o
- obj-$(CONFIG_MOUSE_ATARI)	+= atarimouse.o
- obj-$(CONFIG_MOUSE_RISCPC)	+= rpcmouse.o
- obj-$(CONFIG_MOUSE_INPORT)	+= inport.o
-diff -uprN -X upstream-2.6/Documentation/dontdiff baseline-2.6/drivers/input/mouse/bcm5974.c upstream-2.6/drivers/input/mouse/bcm5974.c
---- baseline-2.6/drivers/input/mouse/bcm5974.c	1970-01-01 01:00:00.000000000 +0100
-+++ upstream-2.6/drivers/input/mouse/bcm5974.c	2008-06-27 23:59:42.000000000 +0200
-@@ -0,0 +1,667 @@
+* The flag "char disconnecting:1" is no longer used in your second
+   patch, and has been removed from the struct.
+
+* When the buzzer is triggered by SND_TONE/SND_BELL, I get these
+   warnings in syslog:
+
+     drivers/input/misc/cm109.c: urb_ctl_callback: usb_submit_urb failed -22
+     drivers/input/misc/cm109.c: buzz: usb_submit_urb failed -22
+     drivers/input/misc/cm109.c: urb_ctl_callback: usb_submit_urb failed -22
+     drivers/input/misc/cm109.c: buzz: usb_submit_urb failed -22
+
+   It seems that the ctl URB is shared between buzzer and keypress
+   handling. I am thinking about adding a new URB just for the buzzer,
+   but I am not sure if that really is necesary. Any suggestions?
+
+
+OK, once again - many thanks for your input
+
+
+/alfred
+
+
+> 	Regards
+> 		Oliver
+> 
+> ---
+> 
+
+new patch:
+
+
+
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/cm109.c linux-2.6.25/drivers/input/misc/cm109.c
+--- linux-2.6.25-orig/drivers/input/misc/cm109.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.25/drivers/input/misc/cm109.c	2008-06-28 16:46:36.000000000 +0200
+@@ -0,0 +1,829 @@
 +/*
-+ * Apple USB BCM5974 (Macbook Air and Penryn Macbook Pro) multitouch driver
++ * Driver for the VoIP USB phones with CM109 chipsets.
 + *
-+ * Copyright (C) 2008	   Henrik Rydberg (rydberg@euromail.se)
++ * Copyright (C) 2007 - 2008 Alfred E. Heggestad <aeh@db.org>
 + *
-+ * The USB initialization and package decoding was made by
-+ * Scott Shawcroft as part of the touchd user-space driver project:
-+ * Copyright (C) 2008	   Scott Shawcroft (tannewt of tannewt.org)
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License as
++ *	published by the Free Software Foundation, version 2.
++ */
++
++/*
++ *   Tested devices:
++ *	- Komunikate KIP1000
++ *	- Genius G-talk
++ *	- Allied-Telesis Corega USBPH01
++ *	- ...
 + *
-+ * The BCM5974 driver is based on the appletouch driver:
-+ * Copyright (C) 2001-2004 Greg Kroah-Hartman (greg@kroah.com)
-+ * Copyright (C) 2005	   Johannes Berg (johannes@sipsolutions.net)
-+ * Copyright (C) 2005	   Stelian Pop (stelian@popies.net)
-+ * Copyright (C) 2005	   Frank Arnold (frank@scirocco-5v-turbo.de)
-+ * Copyright (C) 2005	   Peter Osterlund (petero2@telia.com)
-+ * Copyright (C) 2005	   Michael Hanselmann (linux-kernel@hansmi.ch)
-+ * Copyright (C) 2006	   Nicolas Boichat (nicolas@boichat.ch)
++ * This driver is based on the yealink.c driver
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
++ * Thanks to:
++ *   - Authors of yealink.c
++ *   - Thomas Reitmayr
++ *   - Oliver Neukum for good review comments and code
++ *   - Shaun Jackman <sjackman@gmail.com> for Genius G-talk keymap
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
++ * Todo:
++ *   - Fix bug with buzz and urb_ctl_callback:usb_submit_urb() -EINVAL
++ *   - Fix KEY_KPPOUND
++ *   - Read/write EEPROM
++ *   - Report input events volume up/down
 + */
 +
 +#include <linux/kernel.h>
-+#include <linux/errno.h>
 +#include <linux/init.h>
 +#include <linux/slab.h>
 +#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/rwsem.h>
 +#include <linux/usb/input.h>
 +
-+#define APPLE_VENDOR_ID		       0x05AC
++#define CM109_DEBUG 0
 +
-+/* MacbookAir BCM5974, aka wellspring */
++#define DRIVER_VERSION "20080628"
++#define DRIVER_AUTHOR  "Alfred E. Heggestad"
++#define DRIVER_DESC    "CM109 phone driver"
 +
-+#define ATP_WELLSPRING_ANSI    0x0223
-+#define ATP_WELLSPRING_ISO     0x0224
-+#define ATP_WELLSPRING_JIS     0x0225
-+#define ATP_WELLSPRING2_ANSI   0x0230
-+#define ATP_WELLSPRING2_ISO    0x0231
-+#define ATP_WELLSPRING2_JIS    0x0232
++static char *phone = "kip1000";
++module_param(phone, charp, S_IRUSR);
++MODULE_PARM_DESC(phone, "Phone name {kip1000, gtalk, usbph01}");
 +
-+#define ATP_DEVICE(prod) {					\
-+    .match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-+		    USB_DEVICE_ID_MATCH_INT_CLASS |		\
-+		    USB_DEVICE_ID_MATCH_INT_PROTOCOL),		\
-+      .idVendor = APPLE_VENDOR_ID,				\
-+      .idProduct = (prod),					\
-+      .bInterfaceClass = 0x03,					\
-+      .bInterfaceProtocol = 0x02				\
-+      }
++
++enum {
++	/* HID Registers */
++	HID_IR0 = 0x00, /* Record/Playback-mute button, Volume up/down  */
++	HID_IR1 = 0x01, /* GPI, generic registers or EEPROM_DATA0       */
++	HID_IR2 = 0x02, /* Generic registers or EEPROM_DATA1            */
++	HID_IR3 = 0x03, /* Generic registers or EEPROM_CTRL             */
++	HID_OR0 = 0x00, /* Mapping control, buzzer, SPDIF (offset 0x04) */
++	HID_OR1 = 0x01, /* GPO - General Purpose Output                 */
++	HID_OR2 = 0x02, /* Set GPIO to input/output mode                */
++	HID_OR3 = 0x03, /* SPDIF status channel or EEPROM_CTRL          */
++
++	/* HID_IR0 */
++	RECORD_MUTE   = 1 << 3,
++	PLAYBACK_MUTE = 1 << 2,
++	VOLUME_DOWN   = 1 << 1,
++	VOLUME_UP     = 1 << 0,
++
++	/* HID_OR0 */
++	/* bits 7-6
++	   0: HID_OR1-2 are used for GPO; HID_OR0, 3 are used for buzzer
++	      and SPDIF
++	   1: HID_OR0-3 are used as generic HID registers
++	   2: Values written to HID_OR0-3 are also mapped to MCU_CTRL,
++	      EEPROM_DATA0-1, EEPROM_CTRL (see Note)
++	   3: Reserved
++	 */
++	HID_OR_GPO_BUZ_SPDIF   = 0 << 6,
++	HID_OR_GENERIC_HID_REG = 1 << 6,
++	HID_OR_MAP_MCU_EEPROM  = 2 << 6,
++
++	BUZZER_ON = 1 << 5,
++};
++
++/* CM109 protocol packet */
++struct cm109_ctl_packet {
++	u8 byte[4];
++} __attribute__ ((packed));
++
++enum {USB_PKT_LEN = sizeof(struct cm109_ctl_packet)};
++
++/* CM109 device structure */
++struct cm109_dev {
++	struct input_dev *idev;	 /* input device */
++	struct usb_device *udev; /* usb device */
++	struct usb_interface *intf;
++
++	/* irq input channel */
++	struct cm109_ctl_packet *irq_data;
++	dma_addr_t irq_dma;
++	struct urb *urb_irq;
++
++	/* control output channel */
++	struct cm109_ctl_packet *ctl_data;
++	dma_addr_t ctl_dma;
++	struct usb_ctrlrequest *ctl_req;
++	dma_addr_t ctl_req_dma;
++	struct urb *urb_ctl;
++
++	spinlock_t submit_lock;
++	wait_queue_head_t wait;
++
++	/* flags */
++	char shutting_down:1;
++	char buzz_state:1;
++	char open:1;
++	char resetting:1;
++
++	char phys[64];		/* physical device path */
++	int key_code;		/* last reported key */
++	int keybit;		/* 0=new scan  1,2,4,8=scan columns  */
++	u8 gpi;			/* Cached value of GPI (high nibble) */
++};
++
++static DEFINE_MUTEX(reset_mutex);
++static int buzz(struct cm109_dev *dev, int on);
++
++/******************************************************************************
++ * CM109 key interface
++ *****************************************************************************/
++
++/* TODO: remove this code when KEY_NUMERIC_POUND is defined in linux/input.h
++ *
++ * if KEY_NUMERIC_POUND is not defined, we define our own version which
++ * is a rather dirty hack.
++ */
++#ifndef KEY_NUMERIC_POUND
++#warning "using dirty hack for pound key"
++#define KEY_NUMERIC_POUND (KEY_LEFTSHIFT | KEY_3 << 8)
++#endif
++
++
++/* Map device buttons to internal key events.
++ *
++ * The "up" and "down" keys, are symbolised by arrows on the button.
++ * The "pickup" and "hangup" keys are symbolised by a green and red phone
++ * on the button.
++
++ Komunikate KIP1000 Keyboard Matrix
++
++     -> -- 1 -- 2 -- 3  --> GPI pin 4 (0x10)
++      |    |    |    |
++     <- -- 4 -- 5 -- 6  --> GPI pin 5 (0x20)
++      |    |    |    |
++     END - 7 -- 8 -- 9  --> GPI pin 6 (0x40)
++      |    |    |    |
++     OK -- * -- 0 -- #  --> GPI pin 7 (0x80)
++      |    |    |    |
++
++     /|\  /|\  /|\  /|\
++      |    |    |    |
++GPO
++pin:  3    2    1    0
++     0x8  0x4  0x2  0x1
++
++ */
++static int keymap_kip1000(int scancode)
++{
++	switch (scancode) {				/* phone key:   */
++	case 0x82: return KEY_0;			/*   0          */
++	case 0x14: return KEY_1;			/*   1          */
++	case 0x12: return KEY_2;			/*   2          */
++	case 0x11: return KEY_3;			/*   3          */
++	case 0x24: return KEY_4;			/*   4          */
++	case 0x22: return KEY_5;			/*   5          */
++	case 0x21: return KEY_6;			/*   6          */
++	case 0x44: return KEY_7;			/*   7          */
++	case 0x42: return KEY_8;			/*   8          */
++	case 0x41: return KEY_9;			/*   9          */
++	case 0x81: return KEY_NUMERIC_POUND;		/*   #          */
++	case 0x84: return KEY_KPASTERISK;		/*   *          */
++	case 0x88: return KEY_ENTER;			/*   pickup     */
++	case 0x48: return KEY_ESC;			/*   hangup     */
++	case 0x28: return KEY_LEFT;			/*   IN         */
++	case 0x18: return KEY_RIGHT;			/*   OUT        */
++	}
++	return -EINVAL;
++}
++
++/*
++  Contributed by Shaun Jackman <sjackman@gmail.com>
++
++  Genius G-Talk keyboard matrix
++     0 1 2 3
++  4: 0 4 8 Talk
++  5: 1 5 9 End
++  6: 2 6 # Up
++  7: 3 7 * Down
++*/
++static int keymap_gtalk(int scancode)
++{
++	switch (scancode) {
++	case 0x11: return KEY_0;
++	case 0x21: return KEY_1;
++	case 0x41: return KEY_2;
++	case 0x81: return KEY_3;
++	case 0x12: return KEY_4;
++	case 0x22: return KEY_5;
++	case 0x42: return KEY_6;
++	case 0x82: return KEY_7;
++	case 0x14: return KEY_8;
++	case 0x24: return KEY_9;
++	case 0x44: return KEY_NUMERIC_POUND; /* # */
++	case 0x84: return KEY_KPASTERISK;
++	case 0x18: return KEY_ENTER; /* Talk (green handset) */
++	case 0x28: return KEY_ESC; /* End (red handset) */
++	case 0x48: return KEY_UP; /* Menu up (rocker switch) */
++	case 0x88: return KEY_DOWN; /* Menu down (rocker switch) */
++	}
++	return -EINVAL;
++}
++
++/*
++ * Keymap for Allied-Telesis Corega USBPH01
++ * http://www.alliedtelesis-corega.com/2/1344/1437/1360/chprd.html
++ *
++ * Contributed by july@nat.bg
++ */
++static int keymap_usbph01(int scancode)
++{
++	switch (scancode) {
++	case 0x11: return KEY_0;			/*   0          */
++	case 0x21: return KEY_1;			/*   1          */
++	case 0x41: return KEY_2;			/*   2          */
++	case 0x81: return KEY_3;			/*   3          */
++	case 0x12: return KEY_4;			/*   4          */
++	case 0x22: return KEY_5;			/*   5          */
++	case 0x42: return KEY_6;			/*   6          */
++	case 0x82: return KEY_7;			/*   7          */
++	case 0x14: return KEY_8;			/*   8          */
++	case 0x24: return KEY_9;			/*   9          */
++	case 0x44: return KEY_NUMERIC_POUND;		/*   #          */
++	case 0x84: return KEY_KPASTERISK;		/*   *          */
++	case 0x18: return KEY_ENTER;			/*   pickup     */
++	case 0x28: return KEY_ESC;			/*   hangup     */
++	case 0x48: return KEY_LEFT;			/*   IN         */
++	case 0x88: return KEY_RIGHT;			/*   OUT        */
++	}
++	return -EINVAL;
++}
++
++static int (*keymap)(int) = keymap_kip1000;
++
++
++/* Completes a request by converting the data into events for the
++ * input subsystem.
++ *
++ * The key parameter can be cascaded: key2 << 8 | key1
++ */
++static void report_key(struct cm109_dev *dev, int key)
++{
++	struct input_dev *idev = dev->idev;
++
++	if (dev->key_code >= 0) {
++		/* old key up */
++		input_report_key(idev, dev->key_code & 0xff, 0);
++		if (dev->key_code >> 8)
++			input_report_key(idev, dev->key_code >> 8, 0);
++	}
++
++	dev->key_code = key;
++	if (key >= 0) {
++		/* new valid key */
++		input_report_key(idev, key & 0xff, 1);
++		if (key >> 8)
++			input_report_key(idev, key >> 8, 1);
++	}
++	input_sync(idev);
++}
++
++/******************************************************************************
++ * CM109 usb communication interface
++ *****************************************************************************/
++
++
++/*
++ * IRQ handler
++ */
++static void urb_irq_callback(struct urb *urb)
++{
++	struct cm109_dev *dev = urb->context;
++	const int status = urb->status;
++	int ret;
++
++#if CM109_DEBUG
++	info("### URB IRQ: [0x%02x 0x%02x 0x%02x 0x%02x] keybit=0x%02x",
++	     dev->irq_data->byte[0],
++	     dev->irq_data->byte[1],
++	     dev->irq_data->byte[2],
++	     dev->irq_data->byte[3],
++	     dev->keybit);
++#endif
++
++	if (status) {
++		if (-ESHUTDOWN == status)
++			return;
++		err("%s: urb status %d", __func__, status);
++	}
++
++	/* Scan key column */
++	if (0xf == dev->keybit) {
++
++		/* Any changes ? */
++		if ((dev->gpi & 0xf0) == (dev->irq_data->byte[HID_IR1] & 0xf0)) {
++			goto out;
++		}
++
++		dev->gpi = dev->irq_data->byte[HID_IR1] & 0xf0;
++
++		dev->keybit = 0x1;
++	} else {
++		report_key(dev, keymap(dev->irq_data->byte[HID_IR1]));
++
++		dev->keybit <<= 1;
++		if (dev->keybit > 0x8)
++			dev->keybit = 0xf;
++	}
++
++	dev->ctl_data->byte[HID_OR1] = dev->keybit;
++	dev->ctl_data->byte[HID_OR2] = dev->keybit;
++
++      out:
++	spin_lock(&dev->submit_lock);
++	if (!dev->shutting_down) {
++		ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
++		if (ret)
++			err("%s: usb_submit_urb failed %d", __func__, ret);
++	}
++	spin_unlock(&dev->submit_lock);
++}
++
++static void urb_ctl_callback(struct urb *urb)
++{
++	struct cm109_dev *dev = urb->context;
++	const int status = urb->status;
++	int ret = 0;
++
++#if CM109_DEBUG
++	info("### URB CTL: [0x%02x 0x%02x 0x%02x 0x%02x]",
++	     dev->ctl_data->byte[0],
++	     dev->ctl_data->byte[1],
++	     dev->ctl_data->byte[2],
++	     dev->ctl_data->byte[3]);
++#endif
++
++	if (status)
++		err("%s: urb status %d", __func__, status);
++
++	spin_lock(&dev->submit_lock);
++	/* ask for a response */
++	if (!dev->shutting_down)
++		ret = usb_submit_urb(dev->urb_irq, GFP_ATOMIC);
++	spin_unlock(&dev->submit_lock);
++
++	if (ret)
++		err("%s: usb_submit_urb failed %d", __func__, ret);
++	wake_up(&dev->wait);
++}
++
++/******************************************************************************
++ * input event interface
++ *****************************************************************************/
++
++static void stop_traffic(struct cm109_dev *dev)
++{
++	spin_lock_irq(&dev->submit_lock);
++	dev->shutting_down = 1;
++	spin_unlock_irq(&dev->submit_lock);
++
++	usb_kill_urb(dev->urb_ctl);
++	usb_kill_urb(dev->urb_irq);
++
++	spin_lock_irq(&dev->submit_lock);
++	dev->shutting_down = 0;
++	spin_unlock_irq(&dev->submit_lock);
++}
++
++static int input_open(struct input_dev *idev)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++	int ret;
++
++	dev->key_code = -1;	/* no keys pressed */
++	dev->keybit = 0xf;
++
++	/* issue INIT */
++	dev->ctl_data->byte[HID_OR0] = HID_OR_GPO_BUZ_SPDIF;
++	dev->ctl_data->byte[HID_OR1] = dev->keybit;
++	dev->ctl_data->byte[HID_OR2] = dev->keybit;
++	dev->ctl_data->byte[HID_OR3] = 0x00;
++
++	ret = usb_autopm_get_interface(dev->intf);
++	if (ret < 0) {
++		err("%s - cannot autoresume, result %d",
++		    __func__, ret);
++		return ret;
++	}
++
++	mutex_lock(&reset_mutex);
++	if ((ret = usb_submit_urb(dev->urb_ctl, GFP_KERNEL)) != 0) {
++		err("%s: usb_submit_urb failed with result %d",
++		    __func__, ret);
++		usb_autopm_put_interface(dev->intf);
++		mutex_unlock(&reset_mutex);
++		return ret;
++	}
++
++	dev->open = 1;
++	mutex_unlock(&reset_mutex);
++
++	return 0;
++}
++
++static void input_close(struct input_dev *idev)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++	int traffic = 0;
++	int r;
++
++	dev->open = 0;
++	stop_traffic(dev);
++
++	spin_lock_irq(&dev->submit_lock);
++	if (dev->buzz_state) {
++		r = buzz(dev, 0);
++		spin_unlock_irq(&dev->submit_lock);
++		if (!r) {
++			wait_event(dev->wait, !dev->buzz_state);
++			traffic = 1;
++		}
++	} else {
++		spin_unlock_irq(&dev->submit_lock);
++	}
++	if (traffic)
++		stop_traffic(dev);
++
++	usb_autopm_put_interface(dev->intf);
++}
++
++static int buzz(struct cm109_dev *dev, int on)
++{
++	int ret = 0;
++
++	if (dev == NULL) {
++		err("buzz: dev is NULL");
++		return -EINVAL;
++	}
++
++	dbg("Buzzer %s", on ? "on" : "off");
++	if (dev->resetting)
++		goto skip_io;
++	if (on)
++		dev->ctl_data->byte[HID_OR0] |= BUZZER_ON;
++	else
++		dev->ctl_data->byte[HID_OR0] &= ~BUZZER_ON;
++
++	ret = usb_submit_urb(dev->urb_ctl, GFP_ATOMIC);
++	if (ret) {
++		err("%s: usb_submit_urb failed %d", __func__, ret);
++	} else {
++skip_io:
++		dev->buzz_state = on ? 1 : 0;
++	}
++	return ret;
++}
++
++static int input_ev(struct input_dev *idev, unsigned int type,
++		    unsigned int code, int value)
++{
++	struct cm109_dev *dev = input_get_drvdata(idev);
++
++#if CM109_DEBUG
++	info("input_ev: type=%u code=%u value=%d", type, code, value);
++#endif
++
++	if (type != EV_SND)
++		return -EINVAL;
++
++	switch (code) {
++	case SND_TONE:
++	case SND_BELL:
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	return buzz(dev, value);
++}
++
++
++/******************************************************************************
++ * Linux interface and usb initialisation
++ *****************************************************************************/
++
++struct driver_info {
++	char *name;
++};
++
++static const struct driver_info info_cm109 = {
++	.name = "CM109 USB driver",
++};
++
++enum {
++	VENDOR_ID        = 0x0d8c, /* C-Media Electronics */
++	PRODUCT_ID_CM109 = 0x000e, /* CM109 defines range 0x0008 - 0x000f */
++};
 +
 +/* table of devices that work with this driver */
-+static const struct usb_device_id atp_table [] = {
-+  /* MacbookAir1.1 */
-+  ATP_DEVICE(ATP_WELLSPRING_ANSI),
-+  ATP_DEVICE(ATP_WELLSPRING_ISO),
-+  ATP_DEVICE(ATP_WELLSPRING_JIS),
-+
-+  /* MacbookProPenryn */
-+  ATP_DEVICE(ATP_WELLSPRING2_ANSI),
-+  ATP_DEVICE(ATP_WELLSPRING2_ISO),
-+  ATP_DEVICE(ATP_WELLSPRING2_JIS),
-+
-+  /* Terminating entry */
-+  {}
-+};
-+MODULE_DEVICE_TABLE(usb, atp_table);
-+
-+struct atp_params_t {
-+  int devmin; /* device minimum reading */
-+  int devmax; /* device maximum reading */
-+  int min; /* logical minimum reading */
-+  int max; /* logical maximum reading */
-+  int fuzz; /* reading noise value */
-+  int flat; /* zero */
++static const struct usb_device_id usb_table[] = {
++	{
++	 .match_flags = USB_DEVICE_ID_MATCH_DEVICE |
++	 USB_DEVICE_ID_MATCH_INT_INFO,
++	 .idVendor = VENDOR_ID,
++	 .idProduct = PRODUCT_ID_CM109,
++	 .bInterfaceClass = USB_CLASS_HID,
++	 .bInterfaceSubClass = 0,
++	 .bInterfaceProtocol = 0,
++	 .driver_info = (kernel_ulong_t) & info_cm109},
++	/* you can add more devices here with product ID 0x0008 - 0x000f */
++	{}
 +};
 +
-+struct atp_config_t {
-+  int ansi, iso, jis; /* the product id of this device */
-+  int bt_ep;	      /* the endpoint of the button interface */
-+  int bt_datalen;     /* data length of the button interface */
-+  int tp_ep;	      /* the endpoint of the trackpad interface */
-+  int tp_datalen;     /* data length of the trackpad interface */
-+  struct atp_params_t x; /* horizontal limits */
-+  struct atp_params_t y; /* vertical limits */
-+  struct atp_params_t p; /* pressure limits */
-+};
-+
-+/* trackpad header structure */
-+struct tp_header_t {
-+  u8 unknown1[16];   /* constants, timers, etc */
-+  u8 nfinger;        /* number of fingers on trackpad */
-+  u8 unknown2[9];    /* constants, timers, etc */
-+};
-+
-+/* trackpad finger structure */
-+struct tp_finger_t {
-+  __le16 origin;       /* left/right origin? */
-+  __le16 abs_x;        /* absolute x coodinate */
-+  __le16 abs_y;        /* absolute y coodinate */
-+  __le16 rel_x;        /* relative x coodinate */
-+  __le16 rel_y;        /* relative y coodinate */
-+  __le16 size_major;   /* finger size, major axis? */
-+  __le16 size_minor;   /* finger size, minor axis? */
-+  __le16 orientation;  /* 16384 when point, else 15 bit angle */
-+  __le16 force_major;  /* trackpad force, major axis? */
-+  __le16 force_minor;  /* trackpad force, minor axis? */
-+  __le16 unused[3];    /* zeros */
-+  __le16 multi;        /* one finger: varies, more fingers: constant */
-+};
-+
-+/* trackpad data structure */
-+struct tp_data_t {
-+  struct tp_header_t header;
-+  struct tp_finger_t finger[16];
-+};
-+
-+/* device constants */
-+static const struct atp_config_t atp_config_table[] = {
-+  {
-+    ATP_WELLSPRING_ANSI,
-+    ATP_WELLSPRING_ISO,
-+    ATP_WELLSPRING_JIS,
-+    0x84, 4,
-+    0x81, sizeof(struct tp_data_t),
-+    {-4824, 5342, 0, 1280, 16, 0},
-+    {-172, 5820, 0, 800, 16, 0},
-+    {0, 256, 0, 256, 16, 0}
-+  },
-+  {
-+    ATP_WELLSPRING2_ANSI,
-+    ATP_WELLSPRING2_ISO,
-+    ATP_WELLSPRING2_JIS,
-+    0x84, 4,
-+    0x81, sizeof(struct tp_data_t),
-+    {-4824, 5342, 0, 1280, 16, 0},
-+    {-172, 5820, 0, 800, 16, 0},
-+    {0, 256, 0, 256, 16, 0}
-+  },
-+  {}
-+};
-+
-+static inline
-+const struct atp_config_t *atp_product_config(struct usb_device *udev)
++static void usb_cleanup(struct cm109_dev *dev, int err)
 +{
-+  u16 id = le16_to_cpu(udev->descriptor.idProduct);
-+  const struct atp_config_t *config;
-+  for (config = atp_config_table; config->ansi; ++config)
-+    if (config->ansi == id || config->iso == id || config->jis == id)
-+      return config;
-+  return atp_config_table;
++	if (dev == NULL)
++		return;
++
++	stop_traffic(dev);
++
++	if (dev->idev) {
++		if (err)
++			input_free_device(dev->idev);
++		else
++			input_unregister_device(dev->idev);
++	}
++	if (dev->ctl_req)
++		usb_buffer_free(dev->udev, sizeof(*(dev->ctl_req)),
++				dev->ctl_req, dev->ctl_req_dma);
++	if (dev->ctl_data)
++		usb_buffer_free(dev->udev, USB_PKT_LEN,
++				dev->ctl_data, dev->ctl_dma);
++	if (dev->irq_data)
++		usb_buffer_free(dev->udev, USB_PKT_LEN,
++				dev->irq_data, dev->irq_dma);
++
++	usb_free_urb(dev->urb_irq);	/* parameter validation in core/urb */
++	usb_free_urb(dev->urb_ctl);	/* parameter validation in core/urb */
++	kfree(dev);
 +}
 +
-+/* Wellspring initialization constants */
-+#define ATP_WELLSPRING_MODE_READ_REQUEST_ID   1
-+#define ATP_WELLSPRING_MODE_WRITE_REQUEST_ID  9
-+#define ATP_WELLSPRING_MODE_REQUEST_VALUE     0x300
-+#define ATP_WELLSPRING_MODE_REQUEST_INDEX     0
-+#define ATP_WELLSPRING_MODE_VENDOR_VALUE_1    0x01
-+#define ATP_WELLSPRING_MODE_VENDOR_VALUE_2    0x05
++static void usb_disconnect(struct usb_interface *interface)
++{
++	struct cm109_dev *dev;
 +
-+#define dprintk(format, a...) \
-+  { if (debug) printk(KERN_DEBUG format, ##a); }
++	dev = usb_get_intfdata(interface);
 +
-+MODULE_AUTHOR("Henrik Rydberg");
-+MODULE_DESCRIPTION("Apple USB BCM5974 multitouch driver");
++	usb_set_intfdata(interface, NULL);
++
++	usb_cleanup(dev, 0);
++}
++
++static int usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
++{
++	struct usb_device *udev = interface_to_usbdev(intf);
++	struct driver_info *nfo = (struct driver_info *)id->driver_info;
++	struct usb_host_interface *interface;
++	struct usb_endpoint_descriptor *endpoint;
++	struct cm109_dev *dev;
++	struct input_dev *input_dev;
++	int ret, pipe, i;
++
++	interface = intf->cur_altsetting;
++	endpoint = &interface->endpoint[0].desc;
++
++	if (!usb_endpoint_is_int_in(endpoint))
++		return -ENODEV;
++
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	if (!dev)
++		return -ENOMEM;
++
++	spin_lock_init(&dev->submit_lock);
++	init_waitqueue_head(&dev->wait);
++
++	dev->udev = udev;
++	dev->intf = intf;
++
++	dev->idev = input_dev = input_allocate_device();
++	if (!input_dev)
++		goto err;
++
++	/* allocate usb buffers */
++	dev->irq_data = usb_buffer_alloc(udev, USB_PKT_LEN,
++					 GFP_KERNEL, &dev->irq_dma);
++	if (dev->irq_data == NULL)
++		goto err;
++
++	dev->ctl_data = usb_buffer_alloc(udev, USB_PKT_LEN,
++					 GFP_KERNEL, &dev->ctl_dma);
++	if (!dev->ctl_data)
++		goto err;
++
++	dev->ctl_req = usb_buffer_alloc(udev, sizeof(*(dev->ctl_req)),
++					GFP_KERNEL, &dev->ctl_req_dma);
++	if (dev->ctl_req == NULL)
++		goto err;
++
++	/* allocate urb structures */
++	dev->urb_irq = usb_alloc_urb(0, GFP_KERNEL);
++	if (dev->urb_irq == NULL)
++		goto err;
++
++	dev->urb_ctl = usb_alloc_urb(0, GFP_KERNEL);
++	if (dev->urb_ctl == NULL)
++		goto err;
++
++	/* get a handle to the interrupt data pipe */
++	pipe = usb_rcvintpipe(udev, endpoint->bEndpointAddress);
++	ret = usb_maxpacket(udev, pipe, usb_pipeout(pipe));
++	if (ret != USB_PKT_LEN)
++		err("invalid payload size %d, expected %d", ret, USB_PKT_LEN);
++
++	/* initialise irq urb */
++	usb_fill_int_urb(dev->urb_irq, udev, pipe, dev->irq_data,
++			 USB_PKT_LEN,
++			 urb_irq_callback, dev, endpoint->bInterval);
++	dev->urb_irq->transfer_dma = dev->irq_dma;
++	dev->urb_irq->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
++	dev->urb_irq->dev = udev;
++
++	/* initialise ctl urb */
++	dev->ctl_req->bRequestType = USB_TYPE_CLASS | USB_RECIP_INTERFACE |
++	    USB_DIR_OUT;
++	dev->ctl_req->bRequest = USB_REQ_SET_CONFIGURATION;
++	dev->ctl_req->wValue = cpu_to_le16(0x200);
++	dev->ctl_req->wIndex = cpu_to_le16(interface->desc.bInterfaceNumber);
++	dev->ctl_req->wLength = cpu_to_le16(USB_PKT_LEN);
++
++	usb_fill_control_urb(dev->urb_ctl, udev, usb_sndctrlpipe(udev, 0),
++			     (void *)dev->ctl_req, dev->ctl_data, USB_PKT_LEN,
++			     urb_ctl_callback, dev);
++	dev->urb_ctl->setup_dma = dev->ctl_req_dma;
++	dev->urb_ctl->transfer_dma = dev->ctl_dma;
++	dev->urb_ctl->transfer_flags |= URB_NO_SETUP_DMA_MAP |
++	    URB_NO_TRANSFER_DMA_MAP;
++	dev->urb_ctl->dev = udev;
++
++	/* find out the physical bus location */
++	usb_make_path(udev, dev->phys, sizeof(dev->phys));
++	strlcat(dev->phys, "/input0", sizeof(dev->phys));
++
++	/* register settings for the input device */
++	input_dev->name = nfo->name;
++	input_dev->phys = dev->phys;
++	usb_to_input_id(udev, &input_dev->id);
++	input_dev->dev.parent = &intf->dev;
++
++	input_set_drvdata(input_dev, dev);
++	input_dev->open = input_open;
++	input_dev->close = input_close;
++	input_dev->event = input_ev;
++
++	/* register available key events */
++	input_dev->evbit[0] = BIT_MASK(EV_KEY);
++	for (i = 0; i < 256; i++) {
++		int k = keymap(i);
++		if (k >= 0) {
++			set_bit(k & 0xff, input_dev->keybit);
++			if (k >> 8)
++				set_bit(k >> 8, input_dev->keybit);
++		}
++	}
++
++	input_dev->evbit[0] |= BIT_MASK(EV_SND);
++	input_dev->sndbit[0] = BIT_MASK(SND_BELL) | BIT_MASK(SND_TONE);
++
++	ret = input_register_device(dev->idev);
++	if (ret)
++		goto err;
++
++	usb_set_intfdata(intf, dev);
++
++	return 0;
++
++      err:
++	usb_cleanup(dev, 1);
++	return -ENOMEM;
++}
++
++static int restore_state(struct cm109_dev *dev)
++{
++	int rv;
++
++	spin_lock_irq(&dev->submit_lock);
++	/* if not open, just restore buzz, else submit urb */
++	dev->shutting_down = dev->open;
++	spin_unlock_irq(&dev->submit_lock);
++	rv = buzz(dev, dev->buzz_state);
++	spin_lock_irq(&dev->submit_lock);
++	dev->shutting_down = 0;
++	spin_unlock_irq(&dev->submit_lock);
++
++	return rv;
++}
++
++static int usb_suspend(struct usb_interface *intf, pm_message_t message)
++{
++	struct cm109_dev *dev = usb_get_intfdata(intf);
++
++	info("cm109: usb_suspend (event=%d)", message.event);
++
++	stop_traffic(dev);
++	return 0;
++}
++
++static int usb_resume(struct usb_interface *intf)
++{
++	struct cm109_dev *dev = usb_get_intfdata(intf);
++	int rv;
++
++	info("cm109: usb_resume");
++
++	rv = restore_state(dev);
++
++	return rv;
++}
++
++static int usb_pre_reset(struct usb_interface *intf)
++{
++	struct cm109_dev *dev = usb_get_intfdata(intf);
++
++	mutex_lock(&reset_mutex);
++	spin_lock_irq(&dev->submit_lock);
++	dev->resetting = 1;
++	spin_unlock_irq(&dev->submit_lock);
++	stop_traffic(dev);
++
++	return 0;
++}
++
++static int usb_post_reset(struct usb_interface *intf)
++{
++	struct cm109_dev *dev = usb_get_intfdata(intf);
++	int rv;
++
++	spin_lock_irq(&dev->submit_lock);
++	dev->resetting = 0;
++	spin_unlock_irq(&dev->submit_lock);
++	rv = restore_state(dev);
++	mutex_unlock(&reset_mutex);
++	return rv;
++}
++
++static struct usb_driver cm109_driver = {
++	.name		= "cm109",
++	.probe		= usb_probe,
++	.disconnect	= usb_disconnect,
++	.suspend	= usb_suspend,
++	.resume		= usb_resume,
++	.reset_resume	= usb_resume,
++	.pre_reset	= usb_pre_reset,
++	.post_reset	= usb_post_reset,
++	.id_table	= usb_table,
++	.supports_autosuspend = 1,
++};
++
++static int __init select_keymap(void)
++{
++	/* Load the phone keymap */
++	if (0 == strcasecmp(phone, "kip1000")) {
++		keymap = keymap_kip1000;
++		info("Keymap for Komunikate KIP1000 phone loaded");
++	}
++	else if (0 == strcasecmp(phone, "gtalk")) {
++		keymap = keymap_gtalk;
++		info("Keymap for Genius G-talk phone loaded");
++	}
++	else if (0 == strcasecmp(phone, "usbph01")) {
++		keymap = keymap_usbph01;
++		info("Keymap for Allied-Telesis Corega USBPH01 phone loaded");
++	}
++	else {
++		err("Unsupported phone: %s", phone);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int __init cm109_dev_init(void)
++{
++	int err;
++
++	err = select_keymap();
++	if (err)
++		return err;
++
++	err = usb_register(&cm109_driver);
++	if (err)
++		return err;
++
++	info(DRIVER_DESC ": " DRIVER_VERSION " (C) " DRIVER_AUTHOR);
++
++	return 0;
++}
++
++static void __exit cm109_dev_exit(void)
++{
++	usb_deregister(&cm109_driver);
++}
++
++module_init(cm109_dev_init);
++module_exit(cm109_dev_exit);
++
++MODULE_DEVICE_TABLE(usb, usb_table);
++
++MODULE_AUTHOR(DRIVER_AUTHOR);
++MODULE_DESCRIPTION(DRIVER_DESC);
 +MODULE_LICENSE("GPL");
-+
-+static int debug = 1;
-+module_param(debug, int, 0644);
-+MODULE_PARM_DESC(debug, "Activate debugging output");
-+
-+static int atp_wellspring_init(struct usb_device *udev)
-+{
-+  const struct atp_config_t *cfg = atp_product_config(udev);
-+  char *data = kmalloc(8, GFP_DMA);
-+  int size;
-+
-+  /* reset button endpoint */
-+  if (usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		      USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
-+		      0, cfg->bt_ep, NULL, 0, 5000)) {
-+    err("Could not reset button endpoint");
-+    goto error;
-+  }
-+
-+  /* reset trackpad endpoint */
-+  if (usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		      USB_REQ_CLEAR_FEATURE, USB_RECIP_ENDPOINT,
-+		      0, cfg->tp_ep, NULL, 0, 5000)) {
-+    err("Could not reset trackpad endpoint");
-+    goto error;
-+  }
-+
-+  /* read configuration */
-+  size = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+			 ATP_WELLSPRING_MODE_READ_REQUEST_ID,
-+			 USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+			 ATP_WELLSPRING_MODE_REQUEST_VALUE,
-+			 ATP_WELLSPRING_MODE_REQUEST_INDEX, data, 8, 5000);
-+
-+  if (size != 8) {
-+    err("Could not do mode read request from device (Wellspring Raw mode)");
-+    goto error;
-+  }
-+
-+  /* apply the mode switch */
-+  data[0] = ATP_WELLSPRING_MODE_VENDOR_VALUE_1;
-+  data[1] = ATP_WELLSPRING_MODE_VENDOR_VALUE_2;
-+
-+  /* write configuration */
-+  size = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
-+			 ATP_WELLSPRING_MODE_WRITE_REQUEST_ID,
-+			 USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-+			 ATP_WELLSPRING_MODE_REQUEST_VALUE,
-+			 ATP_WELLSPRING_MODE_REQUEST_INDEX, data, 8, 5000);
-+
-+  if (size != 8) {
-+    err("Could not do mode write request to device (Wellspring Raw mode)");
-+    goto error;
-+  }
-+
-+  kfree(data);
-+  return 0;
-+
-+ error:
-+  kfree(data);
-+  return -EIO;
-+}
-+
-+/* Structure to hold all of our device specific stuff */
-+struct atp {
-+  char			phys[64];
-+  struct usb_device    *udev;	      /* usb device */
-+  struct input_dev     *input;	      /* input dev */
-+  struct atp_config_t	cfg;	      /* device configuration */
-+  unsigned		open;	      /* non-zero if opened */
-+  struct urb	       *bt_urb;	      /* button usb request block */
-+  signed char	       *bt_data;      /* button transferred data */
-+  unsigned		bt_valid;     /* are the button sensors valid ? */
-+  unsigned		bt_state;     /* current button state */
-+  struct urb	       *tp_urb;	      /* trackpad usb request block */
-+  signed char	       *tp_data;      /* trackpad transferred data */
-+  unsigned		tp_valid;     /* are the trackpad sensors valid ? */
-+};
-+
-+static inline int raw2int(__le16 x)
-+{
-+  return (short)le16_to_cpu(x);
-+}
-+
-+static inline int int2scale(const struct atp_params_t *p, int x)
-+{
-+  return ((p->max-p->min)*x)/(p->devmax-p->devmin);
-+}
-+
-+/**
-+ * all value ranges, both device and logical, are assumed to be [a,b).
-+ */
-+static inline int int2bound(const struct atp_params_t *p, int x)
-+{
-+  int s = p->min+int2scale(p, x);
-+  return s < p->min?p->min:s >= p->max?p->max-1:s;
-+}
-+
-+/**
-+ * check quality of reading.
-+ * -1: bad data
-+ * 0:  ignore this reading
-+ * 1:  good reading
-+ */
-+static int compute_quality(const unsigned char *data, int size)
-+{
-+  if (size < 26 || (size-26)%28 != 0)
-+    return -1;
-+
-+  return 1;
-+}
-+
-+/**
-+ * convert raw data to synaptics sensor output.
-+ * returns the number of fingers on the trackpad,
-+ * or a negative number in vase of bad data.
-+ */
-+static int compute_movement(int *abs_x, int *abs_y,
-+			    int *rel_x, int *rel_y,
-+			    int *pressure,
-+			    struct atp_config_t *cfg,
-+			    const unsigned char *data, int size)
-+{
-+  const int nfinger = (size-26)/28;
-+  const struct tp_data_t *tp = (struct tp_data_t *) data;
-+
-+  if (nfinger) {
-+    *abs_x = int2bound(&cfg->x, raw2int(tp->finger->abs_x) - cfg->x.devmin);
-+    *abs_y = int2bound(&cfg->y, cfg->y.devmax - raw2int(tp->finger->abs_y));
-+    *rel_x = int2scale(&cfg->x, raw2int(tp->finger->rel_x));
-+    *rel_y = int2scale(&cfg->y, -raw2int(tp->finger->rel_y));
-+    *pressure = int2bound(&cfg->p, raw2int(tp->finger->force_major));
-+  } else {
-+    *abs_x = 0;
-+    *abs_y = 0;
-+    *rel_x = 0;
-+    *rel_y = 0;
-+    *pressure = 0;
-+  }
-+
-+  /* report zero fingers for zero pressure */
-+  return *pressure > 0?nfinger:0;
-+}
-+
-+static void atp_button(struct urb *urb)
-+{
-+  struct atp *dev = urb->context;
-+  const unsigned char *data = dev->bt_data;
-+  const int size = dev->bt_urb->actual_length;
-+  int button = 0, retval;
-+
-+  switch (urb->status) {
-+  case 0:
-+    /* success */
-+    break;
-+  case -EOVERFLOW:
-+  case -ECONNRESET:
-+  case -ENOENT:
-+  case -ESHUTDOWN:
-+    /* This urb is terminated, clean up */
-+    dbg("%s - urb shutting down with status: %d",
-+	__func__, urb->status);
-+    return;
-+  default:
-+    dbg("%s - nonzero urb status received: %d",
-+	__func__, urb->status);
-+    goto exit;
-+  }
-+
-+  /* first sample data ignored */
-+  if (!dev->bt_valid) {
-+    dev->bt_valid = 1;
-+    goto exit;
-+  }
-+
-+  /* drop incomplete datasets */
-+  if (size != 4) {
-+    dprintk("bcm5974: incomplete button package (first byte: %d, length: %d)\n",
-+	    (int)data[0], size);
-+    goto exit;
-+  }
-+
-+  button = data[1];
-+
-+  /* only report button state changes */
-+  if (button != dev->bt_state) {
-+    input_report_key(dev->input, BTN_LEFT, button);
-+    input_sync(dev->input);
-+  }
-+
-+  dev->bt_state = button;
-+
-+ exit:
-+  retval = usb_submit_urb(dev->bt_urb, GFP_ATOMIC);
-+  if (retval) {
-+    err("%s - button usb_submit_urb failed with result %d",
-+	__func__, retval);
-+  }
-+}
-+
-+static void atp_trackpad(struct urb *urb)
-+{
-+  struct atp *dev = urb->context;
-+  int abs_x, abs_y, rel_x, rel_y, pressure;
-+  int quality, nfinger, retval;
-+
-+  switch (urb->status) {
-+  case 0:
-+    /* success */
-+    break;
-+  case -EOVERFLOW:
-+  case -ECONNRESET:
-+  case -ENOENT:
-+  case -ESHUTDOWN:
-+    /* This urb is terminated, clean up */
-+    dbg("%s - urb shutting down with status: %d",
-+	__func__, urb->status);
-+    return;
-+  default:
-+    dbg("%s - nonzero urb status received: %d",
-+	__func__, urb->status);
-+    goto exit;
-+  }
-+
-+  /* first sample data ignored */
-+  if (!dev->tp_valid) {
-+    dev->tp_valid = 1;
-+    goto exit;
-+  }
-+
-+  /* determine quality of reading */
-+  quality = compute_quality(dev->tp_data, dev->tp_urb->actual_length);
-+
-+  /* drop incomplete datasets */
-+  if (quality < 0) {
-+    dprintk("bcm5974: incomplete trackpad package "
-+	    "(first byte: %d, length: %d)\n",
-+	    (int)dev->tp_data[0], dev->tp_urb->actual_length);
-+    goto exit;
-+  }
-+
-+  /* drop poor quality readings */
-+  if (quality == 0)
-+    goto exit;
-+
-+  nfinger = compute_movement(&abs_x, &abs_y, &rel_x, &rel_y, &pressure,
-+			     &dev->cfg,
-+			     dev->tp_data, dev->tp_urb->actual_length);
-+
-+  if (debug > 1) {
-+    printk(KERN_DEBUG "bcm5974: x: %04d y: %04d dx: %3d dy: %3d p: %3d\n",
-+	   abs_x, abs_y, rel_x, rel_y, pressure);
-+  }
-+
-+  /* input_report_key(dev->input,BTN_TOUCH,pressure>dev->cfg.p.fuzz); */
-+  input_report_abs(dev->input, ABS_PRESSURE, pressure);
-+  input_report_abs(dev->input, ABS_X, abs_x);
-+  input_report_abs(dev->input, ABS_Y, abs_y);
-+  /* input_report_rel(dev->input, REL_X, rel_x); */
-+  /* input_report_rel(dev->input, REL_Y, rel_y); */
-+  input_report_key(dev->input, BTN_TOOL_FINGER, nfinger == 1);
-+  input_report_key(dev->input, BTN_TOOL_DOUBLETAP, nfinger == 2);
-+  input_report_key(dev->input, BTN_TOOL_TRIPLETAP, nfinger > 2);
-+  input_sync(dev->input);
-+
-+ exit:
-+  retval = usb_submit_urb(dev->tp_urb, GFP_ATOMIC);
-+  if (retval) {
-+    err("%s - trackpad usb_submit_urb failed with result %d",
-+	__func__, retval);
-+  }
-+}
-+
-+static int atp_open(struct input_dev *input)
-+{
-+  struct atp *dev = input_get_drvdata(input);
-+
-+  if (usb_submit_urb(dev->bt_urb, GFP_ATOMIC))
-+    goto error;
-+
-+  if (usb_submit_urb(dev->tp_urb, GFP_ATOMIC))
-+    goto err_free_bt_urb;
-+
-+  dev->open = 1;
-+  return 0;
-+
-+ err_free_bt_urb:
-+  usb_free_urb(dev->bt_urb);
-+ error:
-+  return -EIO;
-+}
-+
-+static void atp_close(struct input_dev *input)
-+{
-+  struct atp *dev = input_get_drvdata(input);
-+
-+  usb_kill_urb(dev->tp_urb);
-+  usb_kill_urb(dev->bt_urb);
-+  dev->open = 0;
-+}
-+
-+static int atp_probe(struct usb_interface *iface,
-+		     const struct usb_device_id *id)
-+{
-+  int error = -ENOMEM;
-+  struct usb_device *udev = interface_to_usbdev(iface);
-+  const struct atp_config_t *cfg;
-+  struct atp *dev;
-+  struct input_dev *input_dev;
-+
-+  /* find the product index */
-+  cfg = atp_product_config(udev);
-+
-+  /* allocate memory for our device state and initialize it */
-+  dev = kzalloc(sizeof(struct atp), GFP_KERNEL);
-+  input_dev = input_allocate_device();
-+  if (!dev || !input_dev) {
-+    err("Out of memory");
-+    goto err_free_devs;
-+  }
-+
-+  dev->udev = udev;
-+  dev->input = input_dev;
-+  dev->cfg = *cfg;
-+
-+  /* switch to raw sensor mode */
-+  if (atp_wellspring_init(udev))
-+    goto err_free_devs;
-+
-+  printk(KERN_INFO "bcm5974: Wellspring mode initialized.\n");
-+
-+  dev->bt_urb = usb_alloc_urb(0, GFP_KERNEL);
-+  if (!dev->bt_urb)
-+    goto err_free_devs;
-+
-+  dev->tp_urb = usb_alloc_urb(0, GFP_KERNEL);
-+  if (!dev->tp_urb)
-+    goto err_free_bt_urb;
-+
-+  dev->bt_data = usb_buffer_alloc(dev->udev,
-+				  dev->cfg.bt_datalen,
-+				  GFP_KERNEL,
-+				  &dev->bt_urb->transfer_dma);
-+  if (!dev->bt_data)
-+    goto err_free_urb;
-+
-+  dev->tp_data = usb_buffer_alloc(dev->udev,
-+				  dev->cfg.tp_datalen,
-+				  GFP_KERNEL,
-+				  &dev->tp_urb->transfer_dma);
-+  if (!dev->tp_data)
-+    goto err_free_bt_buffer;
-+
-+  usb_fill_int_urb(dev->bt_urb, udev,
-+		   usb_rcvintpipe(udev, cfg->bt_ep),
-+		   dev->bt_data, dev->cfg.bt_datalen,
-+		   atp_button, dev, 1);
-+
-+  usb_fill_int_urb(dev->tp_urb, udev,
-+		   usb_rcvintpipe(udev, cfg->tp_ep),
-+		   dev->tp_data, dev->cfg.tp_datalen,
-+		   atp_trackpad, dev, 1);
-+
-+  usb_make_path(udev, dev->phys, sizeof(dev->phys));
-+  strlcat(dev->phys, "/input0", sizeof(dev->phys));
-+
-+  input_dev->name = "bcm5974";
-+  input_dev->phys = dev->phys;
-+  usb_to_input_id(dev->udev, &input_dev->id);
-+  input_dev->dev.parent = &iface->dev;
-+
-+  input_set_drvdata(input_dev, dev);
-+
-+  input_dev->open = atp_open;
-+  input_dev->close = atp_close;
-+
-+  set_bit(EV_ABS, input_dev->evbit);
-+  input_set_abs_params(input_dev, ABS_X,
-+		       cfg->x.min, cfg->x.max, cfg->x.fuzz, cfg->x.flat);
-+  input_set_abs_params(input_dev, ABS_Y,
-+		       cfg->y.min, cfg->y.max, cfg->y.fuzz, cfg->y.flat);
-+  input_set_abs_params(input_dev, ABS_PRESSURE,
-+		       cfg->p.min, cfg->p.max, cfg->p.fuzz, cfg->p.flat);
-+  /* set_bit(EV_REL, input_dev->evbit); */
-+
-+  set_bit(EV_KEY, input_dev->evbit);
-+  /* set_bit(BTN_TOUCH, input_dev->keybit); */
-+  set_bit(BTN_TOOL_FINGER, input_dev->keybit);
-+  set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
-+  set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
-+  set_bit(BTN_LEFT, input_dev->keybit);
-+
-+  error = input_register_device(dev->input);
-+  if (error)
-+    goto err_free_buffer;
-+
-+  /* save our data pointer in this interface device */
-+  usb_set_intfdata(iface, dev);
-+
-+  return 0;
-+
-+ err_free_buffer:
-+  usb_buffer_free(dev->udev, dev->cfg.tp_datalen,
-+		  dev->tp_data, dev->tp_urb->transfer_dma);
-+ err_free_bt_buffer:
-+  usb_buffer_free(dev->udev, dev->cfg.bt_datalen,
-+		  dev->bt_data, dev->bt_urb->transfer_dma);
-+ err_free_urb:
-+  usb_free_urb(dev->tp_urb);
-+ err_free_bt_urb:
-+  usb_free_urb(dev->bt_urb);
-+ err_free_devs:
-+  usb_set_intfdata(iface, NULL);
-+  kfree(dev);
-+  input_free_device(input_dev);
-+  return error;
-+}
-+
-+static void atp_disconnect(struct usb_interface *iface)
-+{
-+  struct atp *dev = usb_get_intfdata(iface);
-+
-+  usb_set_intfdata(iface, NULL);
-+  if (dev) {
-+    input_unregister_device(dev->input);
-+    usb_buffer_free(dev->udev, dev->cfg.tp_datalen,
-+		    dev->tp_data, dev->tp_urb->transfer_dma);
-+    usb_buffer_free(dev->udev, dev->cfg.bt_datalen,
-+		    dev->bt_data, dev->bt_urb->transfer_dma);
-+    usb_free_urb(dev->tp_urb);
-+    usb_free_urb(dev->bt_urb);
-+    kfree(dev);
-+  }
-+  printk(KERN_INFO "input: bcm5974 disconnected\n");
-+}
-+
-+static int atp_suspend(struct usb_interface *iface, pm_message_t message)
-+{
-+  struct atp *dev = usb_get_intfdata(iface);
-+
-+  usb_kill_urb(dev->tp_urb);
-+  dev->tp_valid = 0;
-+
-+  usb_kill_urb(dev->bt_urb);
-+  dev->bt_valid = 0;
-+
-+  return 0;
-+}
-+
-+static int atp_resume(struct usb_interface *iface)
-+{
-+  struct atp *dev = usb_get_intfdata(iface);
-+
-+  if (dev->open) {
-+    if (usb_submit_urb(dev->bt_urb, GFP_ATOMIC))
-+      goto error;
-+    if (usb_submit_urb(dev->tp_urb, GFP_ATOMIC))
-+      goto err_free_bt_urb;
-+  }
-+
-+  return 0;
-+
-+ err_free_bt_urb:
-+  usb_free_urb(dev->bt_urb);
-+ error:
-+  return -EIO;
-+}
-+
-+static struct usb_driver atp_driver = {
-+  .name		= "bcm5974",
-+  .probe	= atp_probe,
-+  .disconnect	= atp_disconnect,
-+  .suspend	= atp_suspend,
-+  .resume	= atp_resume,
-+  .id_table	= atp_table,
-+};
-+
-+static int __init atp_init(void)
-+{
-+  return usb_register(&atp_driver);
-+}
-+
-+static void __exit atp_exit(void)
-+{
-+  usb_deregister(&atp_driver);
-+}
-+
-+module_init(atp_init);
-+module_exit(atp_exit);
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/Kconfig linux-2.6.25/drivers/input/misc/Kconfig
+--- linux-2.6.25-orig/drivers/input/misc/Kconfig	2008-04-17 04:49:44.000000000 +0200
++++ linux-2.6.25/drivers/input/misc/Kconfig	2008-06-21 23:11:48.000000000 +0200
+@@ -180,6 +180,18 @@ config INPUT_YEALINK
+  	  To compile this driver as a module, choose M here: the module will be
+  	  called yealink.
 
++config INPUT_CM109
++	tristate "C-Media CM109 USB I/O Controller"
++	depends on INPUT && EXPERIMENTAL
++	select USB
++	---help---
++	  Say Y here if you want to enable keyboard and buzzer functions of the
++	  C-Media CM109 usb phones. The audio part is enabled by the generic
++	  usb sound driver, so you might want to enable that as well.
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called cm109.
++
+  config INPUT_UINPUT
+  	tristate "User level driver support"
+  	help
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/Makefile linux-2.6.25/drivers/input/misc/Makefile
+--- linux-2.6.25-orig/drivers/input/misc/Makefile	2008-04-17 04:49:44.000000000 +0200
++++ linux-2.6.25/drivers/input/misc/Makefile	2008-06-21 23:11:48.000000000 +0200
+@@ -16,6 +16,7 @@ obj-$(CONFIG_INPUT_ATI_REMOTE2)		+= ati_
+  obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
+  obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
+  obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
++obj-$(CONFIG_INPUT_CM109)		+= cm109.o
+  obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+  obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/misc/modules.order linux-2.6.25/drivers/input/misc/modules.order
+--- linux-2.6.25-orig/drivers/input/misc/modules.order	2008-06-21 23:05:28.000000000 +0200
++++ linux-2.6.25/drivers/input/misc/modules.order	2008-06-28 15:56:50.000000000 +0200
+@@ -1,2 +1,3 @@
+  kernel/drivers/input/misc/yealink.ko
++kernel/drivers/input/misc/cm109.ko
+  kernel/drivers/input/misc/uinput.ko
+diff -uprN -X linux-2.6.25/Documentation/dontdiff linux-2.6.25-orig/drivers/input/modules.order linux-2.6.25/drivers/input/modules.order
+--- linux-2.6.25-orig/drivers/input/modules.order	2008-06-21 23:05:28.000000000 +0200
++++ linux-2.6.25/drivers/input/modules.order	2008-06-28 15:56:58.000000000 +0200
+@@ -1,3 +1,4 @@
+  kernel/drivers/input/misc/yealink.ko
++kernel/drivers/input/misc/cm109.ko
+  kernel/drivers/input/misc/uinput.ko
+  kernel/drivers/input/input-polldev.ko

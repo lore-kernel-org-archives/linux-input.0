@@ -1,23 +1,41 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-Date: Mon, 30 Jun 2008 19:55:48 +0200
-Message-ID: <877ic6dcyj.fsf@macbook.be.48ers.dk>
-References: <20080630153824.ED3D319B0075@mail96-wa4.bigfish.com>
+From: John Linn <John.Linn@xilinx.com>
+Subject: RE: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
+Date: Mon, 30 Jun 2008 11:59:22 -0600
+Message-ID: <20080630175925.0A1DFC38071@mail110-dub.bigfish.com>
+References: <20080630153824.ED3D319B0075@mail96-wa4.bigfish.com> <877ic6dcyj.fsf@macbook.be.48ers.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.190]:18032 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752954AbYF3Rzw (ORCPT
+Received: from outbound-dub.frontbridge.com ([213.199.154.16]:19308 "EHLO
+	IE1EHSOBE005.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755034AbYF3R7c convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2008 13:55:52 -0400
-Received: by nf-out-0910.google.com with SMTP id d3so466562nfc.21
-        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2008 10:55:50 -0700 (PDT)
-In-Reply-To: <20080630153824.ED3D319B0075@mail96-wa4.bigfish.com> (John Linn's message of "Mon\, 30 Jun 2008 08\:38\:21 -0700")
+	Mon, 30 Jun 2008 13:59:32 -0400
+Content-Class: urn:content-classes:message
+In-Reply-To: <877ic6dcyj.fsf@macbook.be.48ers.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John Linn <john.linn@xilinx.com>
-Cc: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, Sadanand <sadanan@xilinx.com>
+To: Peter Korsgaard <jacmet@sunsite.dk>
+Cc: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, Sadanand Mutyala <sadanan@xilinx.com>
+
+Ahh... sorry about that Peter, didn't ignore your comments on purpose. 
+
+Just got on a tangent about sending it to the other mailing list and
+forgot to look on down.
+
+I'll review them.
+
+-- John
+
+-----Original Message-----
+From: Peter Korsgaard [mailto:jacmet@gmail.com] On Behalf Of Peter
+Korsgaard
+Sent: Monday, June 30, 2008 11:56 AM
+To: John Linn
+Cc: linuxppc-dev@ozlabs.org; linux-input@vger.kernel.org; Sadanand
+Mutyala
+Subject: Re: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
 
 >>>>> "John" == John Linn <john.linn@xilinx.com> writes:
 
@@ -39,3 +57,8 @@ What about my comments?
 
 -- 
 Bye, Peter Korsgaard
+
+
+This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
+
+

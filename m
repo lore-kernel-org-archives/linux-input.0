@@ -1,217 +1,89 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-Date: Mon, 30 Jun 2008 14:10:23 -0400
-Message-ID: <20080630135531.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080630142451.516A41D1006C@mail57-sin.bigfish.com> <20080630171628.GF17916@secretlab.ca>
+Subject: Re: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
+Date: Mon, 30 Jun 2008 14:21:12 -0400
+Message-ID: <20080630141552.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080630153824.ED3D319B0075@mail96-wa4.bigfish.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.247]:64584 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1763136AbYF3SK3 (ORCPT
+Received: from yx-out-2324.google.com ([74.125.44.29]:17062 "EHLO
+	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932117AbYF3SVR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2008 14:10:29 -0400
-Received: by an-out-0708.google.com with SMTP id d40so321774and.103
-        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2008 11:10:28 -0700 (PDT)
+	Mon, 30 Jun 2008 14:21:17 -0400
+Received: by yx-out-2324.google.com with SMTP id 8so17200yxm.1
+        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2008 11:21:14 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080630171628.GF17916@secretlab.ca>
+In-Reply-To: <20080630153824.ED3D319B0075@mail96-wa4.bigfish.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: John Linn <john.linn@xilinx.com>, linuxppc-dev@ozlabs.org, Sadanand <sadanan@xilinx.com>, linux-input@vger.kernel.org
+To: John Linn <john.linn@xilinx.com>
+Cc: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, Sadanand <sadanan@xilinx.com>
 
-Hi Grant, John,
+On Mon, Jun 30, 2008 at 08:38:21AM -0700, John Linn wrote:
+> +	spin_lock_init(&drvdata->lock);
+> +	dev_set_drvdata(dev, (void *)drvdata);
 
-On Mon, Jun 30, 2008 at 11:16:28AM -0600, Grant Likely wrote:
-> On Mon, Jun 30, 2008 at 07:24:48AM -0700, John Linn wrote:
-> > +config SERIO_XILINX_XPS_PS2
-> > +	tristate "Xilinx XPS PS/2 Controller Support"
-> > +	help
-> > +	  This driver supports XPS PS/2 IP from Xilinx EDK.
-> > +
-> 
-> Consider moving this block to somewhere in the middle of the file to
-> reduce the possibility of merge conflicts.
-> 
+No need to cast to void *.
 
-I can take care of that, no worries.
+> +
+> +	if (!regs_res || !irq_res) {
+> +		dev_err(dev, "IO resource(s) not found\n");
+> +		retval = -EFAULT;
+> +		goto failed1;
+> +	}
+> +
+> +	drvdata->irq = irq_res->start;
+> +	remap_size = regs_res->end - regs_res->start + 1;
+> +	if (!request_mem_region(regs_res->start, remap_size, DRIVER_NAME)) {
+> +
+> +		dev_err(dev, "Couldn't lock memory region at 0x%08X\n",
+> +			(unsigned int)regs_res->start);
+> +		retval = -EBUSY;
+> +		goto failed1;
+> +	}
+> +
+> +	/* Fill in configuration data and add them to the list */
+> +	drvdata->phys_addr = regs_res->start;
+> +	drvdata->remap_size = remap_size;
+> +	drvdata->base_address = ioremap(regs_res->start, remap_size);
+> +	if (drvdata->base_address == NULL) {
+> +
+> +		dev_err(dev, "Couldn't ioremap memory at 0x%08X\n",
+> +			(unsigned int)regs_res->start);
+> +		retval = -EFAULT;
+> +		goto failed2;
+> +	}
+> +
+> +	/* Initialize the PS/2 interface */
+> +	down(&cfg_sem);
+> +	if (xps2_initialize(drvdata)) {
+> +		up(&cfg_sem);
+> +		dev_err(dev, "Could not initialize device\n");
+> +		retval = -ENODEV;
+> +		goto failed3;
+> +	}
+> +	up(&cfg_sem);
 
-> > + *
-> > + * (c) 2005 MontaVista Software, Inc.
-> > + * (c) 2008 Xilinx Inc.
-> > + *
-> > + * This program is free software; you can redistribute it and/or modify it
-> > + * under the terms of the GNU General Public License as published by the
-> > + * Free Software Foundation; either version 2 of the License, or (at your
-> > + * option) any later version.
-> > + *
-> > + * You should have received a copy of the GNU General Public License along
-> > + * with this program; if not, write to the Free Software Foundation, Inc.,
-> > + * 675 Mass Ave, Cambridge, MA 02139, USA.
-> 
-> These two paragraphs are redundant.  Being in the Linux source tree
-> implies that it is GPL licensed.  You can remove them.
-> 
+Do you need a counting semaphore here?
 
-I prefer having the statement in right in the code actually. While
-being the in kernel implies that the code is GPLv2 compatible it could
-be dual-licensed or GPLv2 only. This removes any doubt as to what
-license is used on this particular piece of code.
+> +
+> +	dev_info(dev, "Xilinx PS2 at 0x%08X mapped to 0x%08X, irq=%d\n",
+> +		drvdata->phys_addr, (u32)drvdata->base_address, drvdata->irq);
+> +
+> +	drvdata->serio.id.type = SERIO_8042;
+> +	drvdata->serio.write = sxps2_write;
+> +	drvdata->serio.open = sxps2_open;
+> +	drvdata->serio.close = sxps2_close;
+> +	drvdata->serio.port_data = drvdata;
+> +	drvdata->serio.dev.parent = dev;
+> +	snprintf(drvdata->serio.name, sizeof(drvdata->serio.name),
+> +		 XPS2_NAME_DESC, id);
+> +	snprintf(drvdata->serio.phys, sizeof(drvdata->serio.phys),
+> +		 XPS2_PHYS_DESC, id);
 
-> > + */
-> > +
-> > +
-> > +#include <linux/module.h>
-> > +#include <linux/serio.h>
-> > +#include <linux/interrupt.h>
-> > +#include <linux/errno.h>
-> > +#include <linux/init.h>
-> > +#include <linux/list.h>
-> > +#include <asm/io.h>
-> > +
-> > +#ifdef CONFIG_OF		/* For open firmware */
-> > + #include <linux/of_device.h>
-> > + #include <linux/of_platform.h>
-> > +#endif /* CONFIG_OF */
-> 
-> This is a given for mainline since arch/ppc will not exist in 2.6.27
-> 
-> > +
-> > +#include "xilinx_ps2.h"
-> 
-> This header can simple be rolled into this .c file because the driver no
-> longer has multiple .c files.
-> 
-> 
-> > +#define DRIVER_DESCRIPTION	"Xilinx XPS PS/2 driver"
-> > +#define XPS2_NAME_DESC		"Xilinx XPS PS/2 Port #%d"
-> > +#define XPS2_PHYS_DESC		"xilinxps2/serio%d"
-> 
-> These strings are only used in 1 place each, no need to use a #define
-> 
-> > +
-> > +
-> > +static DECLARE_MUTEX(cfg_sem);
-> 
-> This mutex should be part of the driver private data structure
-> 
-> > +
-> > +/*********************/
-> > +/* Interrupt handler */
-> > +/*********************/
-> > +static irqreturn_t xps2_interrupt(int irq, void *dev_id)
-> > +{
-> > +	struct xps2data *drvdata = (struct xps2data *)dev_id;
-> > +	u32 intr_sr;
-> > +	u32 ier;
-> > +	u8 c;
-> > +	u8 retval;
-> > +
-> > +	/* Get the PS/2 interrupts and clear them */
-> > +	intr_sr = in_be32(drvdata->base_address + XPS2_IPISR_OFFSET);
-> > +	out_be32(drvdata->base_address + XPS2_IPISR_OFFSET, intr_sr);
-> > +
-> > +	/* Check which interrupt is active */
-> > +	if (intr_sr & XPS2_IPIXR_RX_OVF) {
-> > +		printk(KERN_ERR "%s: receive overrun error\n",
-> > +			drvdata->serio.name);
-> > +	}
-> > +
-> > +	if (intr_sr & XPS2_IPIXR_RX_ERR) {
-> > +		drvdata->dfl |= SERIO_PARITY;
-> > +	}
-> > +
-> > +	if (intr_sr & (XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_WDT_TOUT)) {
-> > +		drvdata->dfl |= SERIO_TIMEOUT;
-> > +	}
-> > +
-> > +	if (intr_sr & XPS2_IPIXR_RX_FULL) {
-> > +		retval = xps2_recv(drvdata, &drvdata->rxb);
-> > +
-> > +		/* Error, if 1 byte is not received */
-> > +		if (retval != 1) {
-> > +			printk(KERN_ERR
-> > +				"%s: wrong rcvd byte count (%d)\n",
-> > +				drvdata->serio.name, retval);
-
-Don't you want to bail out here? Otherwise you will feed garbage to
-serio_interrupt() I think.
-
-> > +		}
-> > +		c = drvdata->rxb;
-> > +		serio_interrupt(&drvdata->serio, c, drvdata->dfl);
-> > +		drvdata->dfl = 0;
-> > +	}
-> > +
-> > +	if (intr_sr & XPS2_IPIXR_TX_ACK) {
-> > +
-> > +		/* Disable the TX interrupts after the transmission is
-> > +		 * complete */
-> > +		ier = in_be32(drvdata->base_address + XPS2_IPIER_OFFSET);
-> > +		ier &= (~(XPS2_IPIXR_TX_ACK & XPS2_IPIXR_ALL ));
-> > +		out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, ier);
-> > +		drvdata->dfl = 0;
-> > +	}
-> > +
-> > +	return IRQ_HANDLED;
-> > +}
-> > +
-> > +/*******************/
-> > +/* serio callbacks */
-> > +/*******************/
-> > +
-> > +/*
-> > + * sxps2_write() sends a byte out through the PS/2 interface.
-> > + *
-> > + * The sole purpose of drvdata->tx_end is to prevent the driver
-> > + * from locking up in the do {} while; loop when nothing is connected
-> > + * to the given PS/2 port. That's why we do not try to recover
-> > + * from the transmission failure.
-> > + * drvdata->tx_end needs not to be initialized to some "far in the
-> > + * future" value, as the very first attempt to xps2_send() a byte
-> > + * is always successful, and drvdata->tx_end will be set to a proper
-> > + * value at that moment - before the 1st use in the comparison.
-> > + */
-> 
-> Good comment block.
-> 
-> nitpick: can you reformat the comment blocks to be in kerneldoc format?
-> That will allow the automatic document generation tools to parse it.
-> 
-> see: Documentation/kernel-doc-nano-HOWTO.txt
-
-This is an internal function so its not going to be exposed in
-kerneldoc though.
-
-> 
-> > +static int sxps2_write(struct serio *pserio, unsigned char c)
-> > +{
-> > +	struct xps2data *drvdata = pserio->port_data;
-> > +	unsigned long flags;
-> > +	int retval;
-> > +
-> > +	do {
-> > +		spin_lock_irqsave(&drvdata->lock, flags);
-> > +		retval = xps2_send(drvdata, &c);
-> > +		spin_unlock_irqrestore(&drvdata->lock, flags);
-> > +
-> > +		if (retval == 1) {
-> > +			drvdata->tx_end = jiffies + HZ;
-> > +			return 0;	/* success */
-> > +		}
-> > +	} while (!time_after(jiffies, drvdata->tx_end));
-
-The logic escapes me... Let's say you send a byte and time when
-jiffies were 10000 and now it is time 20000 and we try to send another
-byte. Our first attempt fails and with time fence 11000 (HZ=1000) we
-bail out of sxps2_write() after the very first unsiccessful attempt.
-Is this what you intended?
-
-> > +
-> > +	return 1;			/* transmission is frozen */
-
-It is better to return a negative on error, even if you don't report
-actual -EXXXX error code.
+I bet if you make a temp variable for drvdata->serio the code size wil
+shrink a tiny bit.
 
 -- 
 Dmitry

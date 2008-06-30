@@ -1,194 +1,131 @@
-From: John Linn <John.Linn@xilinx.com>
-Subject: RE: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-Date: Mon, 30 Jun 2008 15:28:26 -0600
-Message-ID: <20080630212827.DBE0E5E0076@mail105-va3.bigfish.com>
-References: <20080630153824.ED3D319B0075@mail96-wa4.bigfish.com> <20080630141552.ZZRA012@mailhub.coreip.homeip.net>
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: Re: [rft]suspend/resume support for yealink
+Date: Mon, 30 Jun 2008 23:39:00 +0200
+Message-ID: <48695274.8040009@db.org>
+References: <200806301608.03788.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outbound-va3.frontbridge.com ([216.32.180.16]:41395 "EHLO
-	VA3EHSOBE006.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757000AbYF3V2b convert rfc822-to-8bit (ORCPT
+Received: from submit-tmp.sysedata.no ([195.159.29.133]:63550 "EHLO
+	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S933278AbYF3VjK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2008 17:28:31 -0400
-Content-Class: urn:content-classes:message
-In-Reply-To: <20080630141552.ZZRA012@mailhub.coreip.homeip.net>
+	Mon, 30 Jun 2008 17:39:10 -0400
+In-Reply-To: <200806301608.03788.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, Sadanand Mutyala <sadanan@xilinx.com>
+To: Oliver Neukum <oliver@neukum.org>, Thomas Reitmayr <treitmayr@yahoo.com>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Henk.Vergonet@gmail.com
 
-Thanks Dmitry, see my comments inline.
+Oliver Neukum wrote:
+> This implements basic suspend/resume support for yealink.
+> Could somebody test it?
+> 
 
--- John
+(copied Thomas)
 
->On Mon, Jun 30, 2008 at 08:38:21AM -0700, John Linn wrote:
->> +	spin_lock_init(&drvdata->lock);
->> +	dev_set_drvdata(dev, (void *)drvdata);
->
->No need to cast to void *.
+Hi Thomas, could you please test this patch with your Yealink device?
 
-OK.
 
->
->> +
->> +	if (!regs_res || !irq_res) {
->> +		dev_err(dev, "IO resource(s) not found\n");
->> +		retval = -EFAULT;
->> +		goto failed1;
->> +	}
->> +
->> +	drvdata->irq = irq_res->start;
->> +	remap_size = regs_res->end - regs_res->start + 1;
->> +	if (!request_mem_region(regs_res->start, remap_size,
-DRIVER_NAME)) {
->> +
->> +		dev_err(dev, "Couldn't lock memory region at 0x%08X\n",
->> +			(unsigned int)regs_res->start);
->> +		retval = -EBUSY;
->> +		goto failed1;
->> +	}
->> +
->> +	/* Fill in configuration data and add them to the list */
->> +	drvdata->phys_addr = regs_res->start;
->> +	drvdata->remap_size = remap_size;
->> +	drvdata->base_address = ioremap(regs_res->start, remap_size);
->> +	if (drvdata->base_address == NULL) {
->> +
->> +		dev_err(dev, "Couldn't ioremap memory at 0x%08X\n",
->> +			(unsigned int)regs_res->start);
->> +		retval = -EFAULT;
->> +		goto failed2;
->> +	}
->> +
->> +	/* Initialize the PS/2 interface */
->> +	down(&cfg_sem);
->> +	if (xps2_initialize(drvdata)) {
->> +		up(&cfg_sem);
->> +		dev_err(dev, "Could not initialize device\n");
->> +		retval = -ENODEV;
->> +		goto failed3;
->> +	}
->> +	up(&cfg_sem);
->
->Do you need a counting semaphore here?
->
+/alfred
 
-Seems like a simpler kind of mutal exclusion would do the job, like a
-spinlock.
-Looks like mutual exclusion is needed as the device contains 2 ps2
-controllers.
-
->> +
->> +	dev_info(dev, "Xilinx PS2 at 0x%08X mapped to 0x%08X, irq=%d\n",
->> +		drvdata->phys_addr, (u32)drvdata->base_address,
-drvdata->irq);
->> +
->> +	drvdata->serio.id.type = SERIO_8042;
->> +	drvdata->serio.write = sxps2_write;
->> +	drvdata->serio.open = sxps2_open;
->> +	drvdata->serio.close = sxps2_close;
->> +	drvdata->serio.port_data = drvdata;
->> +	drvdata->serio.dev.parent = dev;
->> +	snprintf(drvdata->serio.name, sizeof(drvdata->serio.name),
->> +		 XPS2_NAME_DESC, id);
->> +	snprintf(drvdata->serio.phys, sizeof(drvdata->serio.phys),
->> +		 XPS2_PHYS_DESC, id);
->
->I bet if you make a temp variable for drvdata->serio the code size wil
->shrink a tiny bit.
-
-Ok, not sure the complexity of the temp is worth the tiny code
-shrinkage.
-I would think the compiler should optimize it as well but your
-experience
-must say otherwise.
-
->
->-- 
->Dmitry
->
-
------Original Message-----
-From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com] 
-Sent: Monday, June 30, 2008 12:21 PM
-To: John Linn
-Cc: linuxppc-dev@ozlabs.org; linux-input@vger.kernel.org; Sadanand
-Mutyala
-Subject: Re: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-
-On Mon, Jun 30, 2008 at 08:38:21AM -0700, John Linn wrote:
-> +	spin_lock_init(&drvdata->lock);
-> +	dev_set_drvdata(dev, (void *)drvdata);
-
-No need to cast to void *.
-
+> 	Regards
+> 		Oliver
+> 
+> ---
+> 
+> --- linux-2.6.26-sierra/drivers/input/misc/yealink.alt2.c	2008-06-30 14:13:58.000000000 +0200
+> +++ linux-2.6.26-sierra/drivers/input/misc/yealink.c	2008-06-30 16:02:30.000000000 +0200
+> @@ -120,6 +120,7 @@ struct yealink_dev {
+>  	u8 lcdMap[ARRAY_SIZE(lcdMap)];	/* state of LCD, LED ... */
+>  	int key_code;			/* last reported key	 */
+>  	int shutdown:1;
+> +	int open:1;
+>  
+>  	int	stat_ix;
+>  	union {
+> @@ -128,6 +129,7 @@ struct yealink_dev {
+>  	} master, copy;
+>  };
+>  
+> +static DECLARE_RWSEM(sysfs_rwsema);
+>  
+>  /*******************************************************************************
+>   * Yealink lcd interface
+> @@ -530,12 +532,16 @@ static int input_open(struct input_dev *
+>  	yld->ctl_data->cmd	= CMD_INIT;
+>  	yld->ctl_data->size	= 10;
+>  	yld->ctl_data->sum	= 0x100-CMD_INIT-10;
+> -	if ((ret = usb_submit_urb(yld->urb_ctl, GFP_KERNEL)) != 0) {
+> +	down_write(&sysfs_rwsema);
+> +	if ((ret = usb_submit_urb(yld->urb_ctl, GFP_KERNEL)) != 0)
+>  		dbg("%s - usb_submit_urb failed with result %d",
+>  		     __FUNCTION__, ret);
+> -		return ret;
+> -	}
+> -	return 0;
+> +	else
+> +		yld->open = 1;
 > +
-> +	if (!regs_res || !irq_res) {
-> +		dev_err(dev, "IO resource(s) not found\n");
-> +		retval = -EFAULT;
-> +		goto failed1;
-> +	}
+> +	up_write(&sysfs_rwsema);
 > +
-> +	drvdata->irq = irq_res->start;
-> +	remap_size = regs_res->end - regs_res->start + 1;
-> +	if (!request_mem_region(regs_res->start, remap_size,
-DRIVER_NAME)) {
+> +	return ret;
+>  }
+>  
+>  static void stop_traffic(struct yealink_dev *yld)
+> @@ -556,6 +562,9 @@ static void input_close(struct input_dev
+>  {
+>  	struct yealink_dev *yld = input_get_drvdata(dev);
+>  
+> +	down_write(&sysfs_rwsema);
+> +	yld->open = 0;
+> +	up_write(&sysfs_rwsema);
+>  	stop_traffic(yld);
+>  }
+>  
+> @@ -563,8 +572,6 @@ static void input_close(struct input_dev
+>   * sysfs interface
+>   ******************************************************************************/
+>  
+> -static DECLARE_RWSEM(sysfs_rwsema);
+> -
+>  /* Interface to the 7-segments translation table aka. char set.
+>   */
+>  static ssize_t show_map(struct device *dev, struct device_attribute *attr,
+> @@ -856,6 +863,25 @@ static int usb_cleanup(struct yealink_de
+>  	return err;
+>  }
+>  
+> +static int usb_suspend(struct usb_interface *intf, pm_message_t message)
+> +{
+> +	struct yealink_dev *yld = usb_get_intfdata(intf);
 > +
-> +		dev_err(dev, "Couldn't lock memory region at 0x%08X\n",
-> +			(unsigned int)regs_res->start);
-> +		retval = -EBUSY;
-> +		goto failed1;
-> +	}
+> +	stop_traffic(yld);
+> +	return 0;
+> +}
 > +
-> +	/* Fill in configuration data and add them to the list */
-> +	drvdata->phys_addr = regs_res->start;
-> +	drvdata->remap_size = remap_size;
-> +	drvdata->base_address = ioremap(regs_res->start, remap_size);
-> +	if (drvdata->base_address == NULL) {
+> +static int usb_resume(struct usb_interface *intf)
+> +{
+> +	struct yealink_dev *yld = usb_get_intfdata(intf);
+> +	int rv = 0;
 > +
-> +		dev_err(dev, "Couldn't ioremap memory at 0x%08X\n",
-> +			(unsigned int)regs_res->start);
-> +		retval = -EFAULT;
-> +		goto failed2;
-> +	}
-> +
-> +	/* Initialize the PS/2 interface */
-> +	down(&cfg_sem);
-> +	if (xps2_initialize(drvdata)) {
-> +		up(&cfg_sem);
-> +		dev_err(dev, "Could not initialize device\n");
-> +		retval = -ENODEV;
-> +		goto failed3;
-> +	}
-> +	up(&cfg_sem);
-
-Do you need a counting semaphore here?
-
-> +
-> +	dev_info(dev, "Xilinx PS2 at 0x%08X mapped to 0x%08X, irq=%d\n",
-> +		drvdata->phys_addr, (u32)drvdata->base_address,
-drvdata->irq);
-> +
-> +	drvdata->serio.id.type = SERIO_8042;
-> +	drvdata->serio.write = sxps2_write;
-> +	drvdata->serio.open = sxps2_open;
-> +	drvdata->serio.close = sxps2_close;
-> +	drvdata->serio.port_data = drvdata;
-> +	drvdata->serio.dev.parent = dev;
-> +	snprintf(drvdata->serio.name, sizeof(drvdata->serio.name),
-> +		 XPS2_NAME_DESC, id);
-> +	snprintf(drvdata->serio.phys, sizeof(drvdata->serio.phys),
-> +		 XPS2_PHYS_DESC, id);
-
-I bet if you make a temp variable for drvdata->serio the code size wil
-shrink a tiny bit.
-
--- 
-Dmitry
-
-
-This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
-
+> +	down_read(&sysfs_rwsema);
+> +	if (yld->open)
+> +		rv = usb_submit_urb(yld->urb_ctl, GFP_NOIO);
+> +	up_read(&sysfs_rwsema);
+> +	return rv;
+> +}
+>  static void usb_disconnect(struct usb_interface *intf)
+>  {
+>  	struct yealink_dev *yld;
+> @@ -1002,6 +1028,8 @@ static struct usb_driver yealink_driver
+>  	.name		= "yealink",
+>  	.probe		= usb_probe,
+>  	.disconnect	= usb_disconnect,
+> +	.suspend	= usb_suspend,
+> +	.resume		= usb_resume,
+>  	.id_table	= usb_table,
+>  };
+>  
 

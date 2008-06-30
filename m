@@ -1,37 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] atkbd.c: make the unknown key warnings controllable
-	thru a config option
-Date: Mon, 30 Jun 2008 08:21:30 -0400
-Message-ID: <20080630081937.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080629225423.A23524@ward.six>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] WM9712: Warn if user attempts to use pressure measurement with 5 wire mode
+Date: Mon, 30 Jun 2008 13:35:25 +0100
+Message-ID: <1214829325-5414-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.249]:26234 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761430AbYF3MVg (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:47983 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1752004AbYF3Mf3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2008 08:21:36 -0400
-Received: by an-out-0708.google.com with SMTP id d40so291665and.103
-        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2008 05:21:33 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080629225423.A23524@ward.six>
+	Mon, 30 Jun 2008 08:35:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: vojtech@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-Hi Denis,
+This is not supported by the hardware.
 
-On Sun, Jun 29, 2008 at 10:54:23PM +0600, Denis Zaitceff wrote:
-> The patch allows to configure off the logging of ATKBD_KEY_UNKNOWN
-> events.  This logging can be healthy, but usually it just pollutes the
-> kernel log.  And this logging may be _very_ massive.
-> 
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/input/touchscreen/wm9712.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
 
-You can easily shut off the warnings by actually mapping the key,
-so there is no need to add a new config option.
-
-Thanks.
-
+diff --git a/drivers/input/touchscreen/wm9712.c b/drivers/input/touchscreen/wm9712.c
+index 0b6e4cf..4c5d85a 100644
+--- a/drivers/input/touchscreen/wm9712.c
++++ b/drivers/input/touchscreen/wm9712.c
+@@ -168,6 +168,18 @@ static void wm9712_phy_init(struct wm97xx *wm)
+ 			64000 / rpu);
+ 	}
+ 
++	/* WM9712 five wire */
++	if (five_wire) {
++		dig2 |= WM9712_45W;
++		dev_dbg(wm->dev, "setting 5-wire touchscreen mode.");
++
++		if (pil) {
++			dev_warn(wm->dev, "pressure measurement is not "
++				 "supported in 5-wire mode\n");
++			pil = 0;
++		}
++	}
++
+ 	/* touchpanel pressure current*/
+ 	if (pil == 2) {
+ 		dig2 |= WM9712_PIL;
+@@ -179,12 +191,6 @@ static void wm9712_phy_init(struct wm97xx *wm)
+ 	if (!pil)
+ 		pressure = 0;
+ 
+-	/* WM9712 five wire */
+-	if (five_wire) {
+-		dig2 |= WM9712_45W;
+-		dev_dbg(wm->dev, "setting 5-wire touchscreen mode.");
+-	}
+-
+ 	/* polling mode sample settling delay */
+ 	if (delay < 0 || delay > 15) {
+ 		dev_dbg(wm->dev, "supplied delay out of range.");
 -- 
-Dmitry
+1.5.6
+

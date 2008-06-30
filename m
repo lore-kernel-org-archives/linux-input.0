@@ -1,38 +1,57 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-Date: Mon, 30 Jun 2008 16:45:27 -0600
-Message-ID: <20080630224526.GA23679@secretlab.ca>
-References: <20080630142451.516A41D1006C@mail57-sin.bigfish.com> <20080630171628.GF17916@secretlab.ca> <20080630200015.06E6E1F8054@mail93-va3.bigfish.com>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [rft]power management for usbtouch
+Date: Tue, 1 Jul 2008 00:46:33 +0200
+Message-ID: <200807010046.34219.oliver@neukum.org>
+References: <20080630112709.ZZRA012@mailhub.coreip.homeip.net> <Pine.LNX.4.44L0.0806301145020.2708-100000@iolanthe.rowland.org> <20080630115953.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from py-out-1112.google.com ([64.233.166.183]:31985 "EHLO
-	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762522AbYF3Wpc (ORCPT
+Received: from smtp-out003.kontent.com ([81.88.40.217]:55689 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932307AbYF3WqF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 30 Jun 2008 18:45:32 -0400
-Received: by py-out-1112.google.com with SMTP id p76so439072pyb.10
-        for <linux-input@vger.kernel.org>; Mon, 30 Jun 2008 15:45:29 -0700 (PDT)
+	Mon, 30 Jun 2008 18:46:05 -0400
+In-Reply-To: <20080630115953.ZZRA012@mailhub.coreip.homeip.net>
 Content-Disposition: inline
-In-Reply-To: <20080630200015.06E6E1F8054@mail93-va3.bigfish.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John Linn <John.Linn@xilinx.com>
-Cc: linuxppc-dev@ozlabs.org, Sadanand Mutyala <sadanan@xilinx.com>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Ville Syrj?l? <syrjala@sci.fi>, daniel.ritz@gmx.ch, Jiri Kosina <jkosina@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Jun 30, 2008 at 02:00:12PM -0600, John Linn wrote:
-> >
-> >Since xps2_recv() and xps2_send() are used by the sxps2_* routines and
-> >by the irq handler, they should be moved to about them in this file.
-> >
+Am Montag 30 Juni 2008 18:02:44 schrieb Dmitry Torokhov:
+> On Mon, Jun 30, 2008 at 11:47:28AM -0400, Alan Stern wrote:
+> > On Mon, 30 Jun 2008, Dmitry Torokhov wrote:
+> > 
+> > > > > Forcing a disconnection during suspend might be a good idea.  But if 
+> > > > > you do, is there any reason to consider manual suspension different 
+> > > > > from system sleep?
+> > > > 
+> > > > During system sleep user space is asleep and cannot make demands
+> > > > on drivers. If you force a device to sleep, the driver cannot work. Therefore
+> > > > it should not be bound to such a device. It's cleaner to disconnect.
+> > > 
+> > > I'd agree with this. Otherwise we need somehow to be able to resync
+> > > the state of the device (like have LEDs and repeat rate reset,
+> > > re-upload force-feedback effects, etc, etc) once device is resumed.
+> > > So... what is the consensus? Do we need to worry about manual
+> > > device-level suspension or it will be reworked/removed?
+> > 
+> > My feeling is that we will leave manual suspension in the kernel.  The
+> > code passed to the USB driver's suspend method will be changed so that
+> > the method can tell whether it is being called for a system sleep vs.
+> > an autosuspend vs. a manual suspend.
+> > 
 > 
-> OK, keeping them close makes maintenance easier I guess.
-> 
+> Ok, I see... So what does a device do when it is suspended and a
+> request comes in? Does it automatically resume and service the request
+> (and potentially goes back to sleep)? Does it queue the request for
+> later? Ignore it? Is it a system-wide policy or up to the device
+> [class]?
 
-Oops, there is a typo in my comment:
+Return an error. If you queue, how much would you queue?
+There's no sane answer, so you better fail right away.
 
-"... they should be moved to *above* them in this file."  'about' doesn't
-make much sense.
-
-g.
-
+	Regards
+		Oliver

@@ -1,59 +1,74 @@
-From: Denis Zaitceff <zaitceff@gmail.com>
-Subject: [PATCH] atkbd.c: make the unknown key warnings controllable thru a config option
-Date: Sun, 29 Jun 2008 22:54:23 +0600
-Message-ID: <20080629225423.A23524@ward.six>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset #2
+Date: Mon, 30 Jun 2008 13:06:27 +0200
+Message-ID: <200806301306.27933.oliver@neukum.org>
+References: <200806271424.50425.oliver@neukum.org> <486652D1.4010008@db.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756720AbYF2QzA@vger.kernel.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp-out003.kontent.com ([81.88.40.217]:45082 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752856AbYF3LF5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Jun 2008 07:05:57 -0400
+In-Reply-To: <486652D1.4010008@db.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: vojtech@suse.cz, dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Alfred E. Heggestad" <aeh@db.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The patch allows to configure off the logging of ATKBD_KEY_UNKNOWN
-events.  This logging can be healthy, but usually it just pollutes the
-kernel log.  And this logging may be _very_ massive.
-
-Very probably that other (than atkbd) keyboard drivers may win from
-the similar patches.
-
-Please apply this patch.
-
-
---- drivers/input/keyboard/Kconfig
-+++ drivers/input/keyboard/Kconfig
-@@ -12,6 +12,15 @@ menuconfig INPUT_KEYBOARD
+Am Samstag 28 Juni 2008 17:03:45 schrieb Alfred E. Heggestad:
  
- if INPUT_KEYBOARD
- 
-+config KEYBOARD_VERBOSE_KEY_UNKNOWN
-+	bool "Report unknown keys"
-+	default n
-+	help
-+	  If Y, each press and release of any key unknown to the keyboard driver
-+	  will be logged at the KERN_WARNING level.  This is really good if you
-+	  want to study your keyboard, but may really flood your logs.
-+	  Be warned!
-+
- config KEYBOARD_ATKBD
- 	tristate "AT keyboard" if EMBEDDED || !X86_PC
- 	default y
---- drivers/input/keyboard/atkbd.c
-+++ drivers/input/keyboard/atkbd.c
-@@ -442,6 +442,7 @@ static irqreturn_t atkbd_interrupt(struc
- 		case ATKBD_KEY_NULL:
- 			break;
- 		case ATKBD_KEY_UNKNOWN:
-+#ifdef KEYBOARD_VERBOSE_KEY_UNKNOWN
- 			printk(KERN_WARNING
- 			       "atkbd.c: Unknown key %s (%s set %d, code %#x on %s).\n",
- 			       atkbd->release ? "released" : "pressed",
-@@ -450,6 +451,7 @@ static irqreturn_t atkbd_interrupt(struc
- 			printk(KERN_WARNING
- 			       "atkbd.c: Use 'setkeycodes %s%02x <keycode>' to make it known.\n",
- 			       code & 0x80 ? "e0" : "", code & 0x7f);
-+#endif
- 			input_sync(dev);
- 			break;
- 		case ATKBD_SCR_1:
+Hello,
+
+> many many thanks for your patch and your suggested code improvements.
+> I have tested your patch and I have some comments:
+> 
+> * The first version of your patch was tested, and it applied cleanly
+>    and compiled with out any errors. The module was loaded OK, but when
+>    I inserted the CM109-device into the USB-port, the machine crashed.
+>    I fixed that issue by adding this to the usb_probe() function:
+> 
+> 	init_waitqueue_head(&dev->wait);
+
+Sorry about that.
+
+> * The second version of your patch was applied with some local mods.
+>    This is now working as expected.
+
+Good.
+
+> * I have tested suspend/resume with 2.6.25.9 and TuxOnIce 3.0-rc7
+>    and it works fine (cm109 device was plugged in during suspend).
+>    During suspend I get this in syslog:
+> 
+>      drivers/input/misc/cm109.c: cm109: usb_suspend (event=1)
+>      drivers/input/misc/cm109.c: urb_irq_callback: urb status -2
+
+That is normal. It indicates that usb_kill_urb() had terminated the URB.
+Which logging level did you use?
+
+> * The flag "char disconnecting:1" is no longer used in your second
+>    patch, and has been removed from the struct.
+
+Sorry again.
+
+> * When the buzzer is triggered by SND_TONE/SND_BELL, I get these
+>    warnings in syslog:
+> 
+>      drivers/input/misc/cm109.c: urb_ctl_callback: usb_submit_urb failed -22
+>      drivers/input/misc/cm109.c: buzz: usb_submit_urb failed -22
+>      drivers/input/misc/cm109.c: urb_ctl_callback: usb_submit_urb failed -22
+>      drivers/input/misc/cm109.c: buzz: usb_submit_urb failed -22
+> 
+>    It seems that the ctl URB is shared between buzzer and keypress
+>    handling. I am thinking about adding a new URB just for the buzzer,
+>    but I am not sure if that really is necesary. Any suggestions?
+
+Under which conditions did you get this? Was the device opened or not?
+
+	Regards
+		Oliver

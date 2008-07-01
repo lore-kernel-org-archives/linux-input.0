@@ -1,46 +1,62 @@
-From: "Magnus Damm" <magnus.damm@gmail.com>
-Subject: Re: [PATCH] Touch screen driver for the SuperH MigoR board
-Date: Tue, 1 Jul 2008 20:22:56 +0900
-Message-ID: <aec7e5c30807010422m4ea7dcdqae2efe5caf93efb2@mail.gmail.com>
-References: <486A07E7.1070906@mpc-data.co.uk>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] drivers/input/ff-core.c needs <linux/sched.h>
+Date: Tue, 1 Jul 2008 13:55:25 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0807011300110.21227@anakin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <486A07E7.1070906@mpc-data.co.uk>
-Content-Disposition: inline
-Sender: linux-sh-owner@vger.kernel.org
-To: Nicholas Beck <nbeck@mpc-data.co.uk>
-Cc: linux-sh@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755515AbYGALzn@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Nicholas,
+commit 656acd2bbc4ce7f224de499ee255698701396c48
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date:   Thu Jun 26 11:30:02 2008 -0400
 
-Thanks for your email!
+    Input: fix locking in force-feedback core
 
-On Tue, Jul 1, 2008 at 7:33 PM, Nicholas Beck <nbeck@mpc-data.co.uk> wrote:
-> Hi Magnus,
->
-> Firstly, thanks for the great work. I have one issue with the touch
-> screen driver for the MigoR board though.
->
-> I don't get any BTN_TOUCH release events using the touch screen driver
-> for the MigoR board. Do you experience the same problem?
+    The newly added event_lock spinlock in the input core disallows sleeping
+    and therefore using mutexes in event handlers. Convert force-feedback 
+    core to rely on event_lock instead of mutex to protect slots allocated  
+    for fore-feedback effects. The original mutex is still used to serialize
+    uploading and erasing of effects.
 
-This problem has been fixed by Dmitry Torokhov. The linux-input
-archives seem gone though.
+causes the following regression on m68k:
 
-The updated patch below did not make it into 2.6.26, but it should be
-included in 2.6.27.
+| linux/drivers/input/ff-core.c: In function 'input_ff_upload':
+| linux/drivers/input/ff-core.c:172: error: dereferencing pointer to incomplete type
+| linux/drivers/input/ff-core.c: In function 'erase_effect':
+| linux/drivers/input/ff-core.c:197: error: dereferencing pointer to incomplete type
+| linux/drivers/input/ff-core.c:204: error: dereferencing pointer to incomplete type
+| make[4]: *** [drivers/input/ff-core.o] Error 1
 
-http://git.kernel.org/?p=linux/kernel/git/dtor/input.git;a=commit;h=885c316d776b64728b4ed30e3af60d23c9e46825
+As the incomplete type is `struct task_struct', including <linux/sched.h> fixes
+it.
 
-> I have a patch that adds a timer to perform the BTN_TOUCH release event
-> (kind of like a WDT), that I can submit if this is of any interest?
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+---
+ drivers/input/ff-core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-Does Dmitrys patch above solve your problem? If not, please post your
-patch and I'll have a look.
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -28,6 +28,7 @@
+ #include <linux/input.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
++#include <linux/sched.h>
+ 
+ /*
+  * Check that the effect_id is a valid effect and whether the user
 
-Thank you!
+Gr{oetje,eeting}s,
 
-/ magnus
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

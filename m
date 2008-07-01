@@ -1,50 +1,50 @@
-From: Daniel Walker <dwalker@mvista.com>
-Subject: [PATCH] hid: gyration sleep button quirk
-Date: Tue,  1 Jul 2008 09:24:12 -0700
-Message-ID: <1214929451-14515-2-git-send-email-dwalker@mvista.com>
-References: <1214929451-14515-1-git-send-email-dwalker@mvista.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gateway-1237.mvista.com ([63.81.120.158]:27458 "EHLO
-	dwalker1.mvista.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751282AbYGAQY6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2008 12:24:58 -0400
-In-Reply-To: <1214929451-14515-1-git-send-email-dwalker@mvista.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: [rft]power management for usbtouch
+Date: Tue, 1 Jul 2008 18:57:01 +0200
+Message-ID: <200807011857.02259.oliver@neukum.org>
+References: <20080630112709.ZZRA012@mailhub.coreip.homeip.net> <200807011108.48556.oliver@neukum.org> <20080701085504.ZZRA012@mailhub.coreip.homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20080701085504.ZZRA012-NG0XCrj25/nJrYCpivWRnl5pS2h4L8biXqFh9Ls21Oc@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Ville Syrj?l? <syrjala-ORSVBvAovxo@public.gmane.org>, daniel.ritz-OI3hZJvNYWs@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Philippe Troin <phil@fifi.org>, "Adolfo R. Brandes" <arbrandes@gmail.com>, linux-input@vger.kernel.org
 
-This patch is based on one provided by Jiri Kosina to handle the sleep
-button. I just added some cleanup and integrated it into my series.
+Am Dienstag 01 Juli 2008 14:56:30 schrieb Dmitry Torokhov:
+> On Tue, Jul 01, 2008 at 11:08:47AM +0200, Oliver Neukum wrote:
+> > Am Dienstag 01 Juli 2008 09:59:01 schrieb Jiri Kosina:
 
-Signed-off-by: Daniel Walker <dwalker@mvista.com>
----
- drivers/hid/hid-input-quirks.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+> > > I really don't think we want to return error in such cases. Either resume 
+> > > the device, or queue some requests (maybe depending on the type of 
+> > > requests), right?
+> > 
+> > We are talking about forcibly suspended devices, so they cannot be
+> > resumed. We could queue, but where would we end queuing? And we
+> > have to decide to stop it at some point, or we create a DoS problem.
+> > 
+> > The user has decided to put the device in a state in which the driver
+> > cannot properly function. If the user wanted the driver to work, he should
+> > select autosuspend.
+> >
+> 
+> That is the thing with the forced suspend - it leaves device out of
+> sync with the rest of the system. If user really does not want to use
+> the device it should probably be completely disconnected?
 
-diff --git a/drivers/hid/hid-input-quirks.c b/drivers/hid/hid-input-quirks.c
-index e6a937a..16feea0 100644
---- a/drivers/hid/hid-input-quirks.c
-+++ b/drivers/hid/hid-input-quirks.c
-@@ -466,6 +466,18 @@ int hidinput_event_quirks(struct hid_device *hid, struct hid_field *field, struc
- 		input_event(input, usage->type, REL_WHEEL, -value);
- 		return 1;
- 	}
-+
-+	/* Gyration MCE remote "Sleep" key */
-+	if (hid->vendor == VENDOR_ID_GYRATION &&
-+	    hid->product == DEVICE_ID_GYRATION_REMOTE &&
-+	    (usage->hid & HID_USAGE_PAGE) == HID_UP_GENDESK &&
-+	    (usage->hid & 0xff) == 0x82) {
-+		input_event(input, usage->type, usage->code, 1);
-+		input_sync(input);
-+		input_event(input, usage->type, usage->code, 0);
-+		input_sync(input);
-+		return 1;
-+	}
- 	return 0;
- }
- 
--- 
-1.5.5.1.1.g0dfaf8
+Yes, therefore I suggested doing the logical disconnect.
 
+The drawback is that we lose all settings made on the device. But
+to keep those we have autosuspend. It's true that currently many drivers lack
+support for autosuspend, but the API should be designed for the final state.
+
+	Regards
+		Oliver
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

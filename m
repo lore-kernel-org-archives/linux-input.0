@@ -1,73 +1,37 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] drivers/input/ff-core.c needs <linux/sched.h>
-Date: Tue, 1 Jul 2008 09:27:02 -0400
-Message-ID: <20080701092542.ZZRA012@mailhub.coreip.homeip.net>
-References: <Pine.LNX.4.64.0807011300110.21227@anakin> <20080701084316.ZZRA012@mailhub.coreip.homeip.net> <20080701130517.GA29863@cs181140183.pp.htv.fi>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [rft]power management for usbtouch
+Date: Tue, 1 Jul 2008 11:00:10 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0807011058340.2780-100000@iolanthe.rowland.org>
+References: <20080701085504.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wx-out-0506.google.com ([66.249.82.227]:49801 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753776AbYGAN1H (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2008 09:27:07 -0400
-Received: by wx-out-0506.google.com with SMTP id h29so689798wxd.4
-        for <linux-input@vger.kernel.org>; Tue, 01 Jul 2008 06:27:06 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080701130517.GA29863@cs181140183.pp.htv.fi>
+Received: from iolanthe.rowland.org ([192.131.102.54]:59542 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1754925AbYGAPAM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2008 11:00:12 -0400
+In-Reply-To: <20080701085504.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Adrian Bunk <bunk@kernel.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Jiri Kosina <jkosina@suse.cz>, Ville Syrj?l? <syrjala@sci.fi>, daniel.ritz@gmx.ch, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, Jul 01, 2008 at 04:05:17PM +0300, Adrian Bunk wrote:
-> On Tue, Jul 01, 2008 at 08:46:54AM -0400, Dmitry Torokhov wrote:
-> > On Tue, Jul 01, 2008 at 01:55:25PM +0200, Geert Uytterhoeven wrote:
-> > > commit 656acd2bbc4ce7f224de499ee255698701396c48
-> > > Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > > Date:   Thu Jun 26 11:30:02 2008 -0400
-> > > 
-> > >     Input: fix locking in force-feedback core
-> > > 
-> > >     The newly added event_lock spinlock in the input core disallows sleeping
-> > >     and therefore using mutexes in event handlers. Convert force-feedback 
-> > >     core to rely on event_lock instead of mutex to protect slots allocated  
-> > >     for fore-feedback effects. The original mutex is still used to serialize
-> > >     uploading and erasing of effects.
-> > > 
-> > > causes the following regression on m68k:
-> > > 
-> > > | linux/drivers/input/ff-core.c: In function 'input_ff_upload':
-> > > | linux/drivers/input/ff-core.c:172: error: dereferencing pointer to incomplete type
-> > > | linux/drivers/input/ff-core.c: In function 'erase_effect':
-> > > | linux/drivers/input/ff-core.c:197: error: dereferencing pointer to incomplete type
-> > > | linux/drivers/input/ff-core.c:204: error: dereferencing pointer to incomplete type
-> > > | make[4]: *** [drivers/input/ff-core.o] Error 1
-> > > 
-> > 
-> > Argh! Sorry about it.
-> > 
-> > > As the incomplete type is `struct task_struct', including <linux/sched.h> fixes
-> > > it.
-> > 
-> > Not linux/spinlock.h? I wonder if I need to include linux/spinlock.h and
-> > linux/mutex.h directly from linux/input.h... What is the current
-> > policy on headers - do they need to include everything to be
-> > functional or it is responsibility of the user?
-> 
-> Theoretically it's the responsibility of the header to include 
-> everything it needs.
-> 
-> In practice we are after -rc8 and even thinking of this kind of #include 
-> changes under include/linux/ makes me nervous - like the fact that the 
-> ff-core.c problem occured _only_ on m68k our headers are too fragile for 
-> expecting such changes to simply work.
-> 
-> Can we go with Geert's patch for 2.6.26 and if you want to fix it 
-> properly you can send a patch for 2.6.27?
-> 
+On Tue, 1 Jul 2008, Dmitry Torokhov wrote:
 
-No, no, I am totally fine with Geert's fix, I am talking about later of
-course.
+> > The user has decided to put the device in a state in which the driver
+> > cannot properly function. If the user wanted the driver to work, he should
+> > select autosuspend.
+> >
+> 
+> That is the thing with the forced suspend - it leaves device out of
+> sync with the rest of the system. If user really does not want to use
+> the device it should probably be completely disconnected?
 
--- 
-Dmitry
+Some devices are rather difficult to disconnect (the cabling may be 
+inaccessible).
+
+Also, devices can be suspended by software, but generally speaking they 
+cannot be disconnected by software.
+
+Alan Stern
+

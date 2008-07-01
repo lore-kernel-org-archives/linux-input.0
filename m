@@ -1,23 +1,25 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: [PATCH] drivers/input/ff-core.c needs <linux/sched.h>
-Date: Tue, 1 Jul 2008 15:14:19 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0807011512400.21227@anakin>
-References: <Pine.LNX.4.64.0807011300110.21227@anakin>
- <20080701084316.ZZRA012@mailhub.coreip.homeip.net> <20080701130517.GA29863@cs181140183.pp.htv.fi>
+Date: Tue, 1 Jul 2008 09:27:02 -0400
+Message-ID: <20080701092542.ZZRA012@mailhub.coreip.homeip.net>
+References: <Pine.LNX.4.64.0807011300110.21227@anakin> <20080701084316.ZZRA012@mailhub.coreip.homeip.net> <20080701130517.GA29863@cs181140183.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from edna.telenet-ops.be ([195.130.132.58]:34948 "EHLO
-	edna.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753096AbYGANOX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2008 09:14:23 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:49801 "EHLO
+	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753776AbYGAN1H (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2008 09:27:07 -0400
+Received: by wx-out-0506.google.com with SMTP id h29so689798wxd.4
+        for <linux-input@vger.kernel.org>; Tue, 01 Jul 2008 06:27:06 -0700 (PDT)
+Content-Disposition: inline
 In-Reply-To: <20080701130517.GA29863@cs181140183.pp.htv.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Adrian Bunk <bunk@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
 
-On Tue, 1 Jul 2008, Adrian Bunk wrote:
+On Tue, Jul 01, 2008 at 04:05:17PM +0300, Adrian Bunk wrote:
 > On Tue, Jul 01, 2008 at 08:46:54AM -0400, Dmitry Torokhov wrote:
 > > On Tue, Jul 01, 2008 at 01:55:25PM +0200, Geert Uytterhoeven wrote:
 > > > commit 656acd2bbc4ce7f224de499ee255698701396c48
@@ -48,18 +50,13 @@ On Tue, 1 Jul 2008, Adrian Bunk wrote:
 > > > it.
 > > 
 > > Not linux/spinlock.h? I wonder if I need to include linux/spinlock.h and
-
-Nope, tried that first...
-
 > > linux/mutex.h directly from linux/input.h... What is the current
 > > policy on headers - do they need to include everything to be
 > > functional or it is responsibility of the user?
 > 
 > Theoretically it's the responsibility of the header to include 
 > everything it needs.
-
-Indeed. But due to Include Hell that's not always possible.
-
+> 
 > In practice we are after -rc8 and even thinking of this kind of #include 
 > changes under include/linux/ makes me nervous - like the fact that the 
 > ff-core.c problem occured _only_ on m68k our headers are too fragile for 
@@ -67,16 +64,10 @@ Indeed. But due to Include Hell that's not always possible.
 > 
 > Can we go with Geert's patch for 2.6.26 and if you want to fix it 
 > properly you can send a patch for 2.6.27?
+> 
 
-And let the proper patch boil in linux-next for a while...
+No, no, I am totally fine with Geert's fix, I am talking about later of
+course.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Dmitry

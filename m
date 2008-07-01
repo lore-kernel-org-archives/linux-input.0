@@ -1,54 +1,56 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: Re: m68k input/ff-core.c build error
-Date: Tue, 1 Jul 2008 14:58:46 +0300
-Message-ID: <20080701115845.GC17558@cs181140183.pp.htv.fi>
-References: <20080701115619.GB17558@cs181140183.pp.htv.fi>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] drivers/input/ff-core.c needs <linux/sched.h>
+Date: Tue, 1 Jul 2008 08:46:54 -0400
+Message-ID: <20080701084316.ZZRA012@mailhub.coreip.homeip.net>
+References: <Pine.LNX.4.64.0807011300110.21227@anakin>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6.pp.htv.fi ([213.243.153.40]:36094 "EHLO smtp6.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751768AbYGAL7F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Jul 2008 07:59:05 -0400
+Received: from an-out-0708.google.com ([209.85.132.246]:52810 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753422AbYGAMrY (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 1 Jul 2008 08:47:24 -0400
+Received: by an-out-0708.google.com with SMTP id d40so398104and.103
+        for <linux-input@vger.kernel.org>; Tue, 01 Jul 2008 05:47:23 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080701115619.GB17558@cs181140183.pp.htv.fi>
+In-Reply-To: <Pine.LNX.4.64.0807011300110.21227@anakin>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>, geert@linux-m68k.org, zippel@linux-m68k.org
-Cc: linux-m68k@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
 
-On Tue, Jul 01, 2008 at 02:56:19PM +0300, Adrian Bunk wrote:
-> Commit 656acd2bbc4ce7f224de499ee255698701396c48
-> (Input: fix locking in force-feedback core)
-> causes the following build error on m68k:
+On Tue, Jul 01, 2008 at 01:55:25PM +0200, Geert Uytterhoeven wrote:
+> commit 656acd2bbc4ce7f224de499ee255698701396c48
+> Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Date:   Thu Jun 26 11:30:02 2008 -0400
 > 
-> <--  snip  -->
+>     Input: fix locking in force-feedback core
 > 
-> ...
->   CC      drivers/input/ff-core.o
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c: In function 'input_ff_upload':
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c:172: error: dereferencing pointer to incomplete type
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c: In function 'erase_effect':
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c:197: error: dereferencing pointer to incomplete type
-> /home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c:204: error: dereferencing pointer to incomplete type
-> make[3]: *** [drivers/input/ff-core.o] Error 1
+>     The newly added event_lock spinlock in the input core disallows sleeping
+>     and therefore using mutexes in event handlers. Convert force-feedback 
+>     core to rely on event_lock instead of mutex to protect slots allocated  
+>     for fore-feedback effects. The original mutex is still used to serialize
+>     uploading and erasing of effects.
 > 
-> <--  snip  -->
+> causes the following regression on m68k:
 > 
-> Not sure what exactly the problem is, the failures are the
-> added spin_unlock_irq(&dev->event_lock)'s.
+> | linux/drivers/input/ff-core.c: In function 'input_ff_upload':
+> | linux/drivers/input/ff-core.c:172: error: dereferencing pointer to incomplete type
+> | linux/drivers/input/ff-core.c: In function 'erase_effect':
+> | linux/drivers/input/ff-core.c:197: error: dereferencing pointer to incomplete type
+> | linux/drivers/input/ff-core.c:204: error: dereferencing pointer to incomplete type
+> | make[4]: *** [drivers/input/ff-core.o] Error 1
+> 
 
-And just before I send my email Geert already sends a fix...
+Argh! Sorry about it.
 
-:-)
+> As the incomplete type is `struct task_struct', including <linux/sched.h> fixes
+> it.
 
-cu
-Adrian
+Not linux/spinlock.h? I wonder if I need to include linux/spinlock.h and
+linux/mutex.h directly from linux/input.h... What is the current
+policy on headers - do they need to include everything to be
+functional or it is responsibility of the user?
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Dmitry

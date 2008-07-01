@@ -1,62 +1,47 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] drivers/input/ff-core.c needs <linux/sched.h>
-Date: Tue, 1 Jul 2008 13:55:25 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0807011300110.21227@anakin>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: m68k input/ff-core.c build error
+Date: Tue, 1 Jul 2008 14:56:19 +0300
+Message-ID: <20080701115619.GB17558@cs181140183.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755515AbYGALzn@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dtor@mail.ru>
-Cc: linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp4.pp.htv.fi ([213.243.153.38]:60326 "EHLO smtp4.pp.htv.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753171AbYGAL4i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 1 Jul 2008 07:56:38 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>, geert@linux-m68k.org, zippel@linux-m68k.org
+Cc: linux-m68k@lists.linux-m68k.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-commit 656acd2bbc4ce7f224de499ee255698701396c48
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Thu Jun 26 11:30:02 2008 -0400
+Commit 656acd2bbc4ce7f224de499ee255698701396c48
+(Input: fix locking in force-feedback core)
+causes the following build error on m68k:
 
-    Input: fix locking in force-feedback core
+<--  snip  -->
 
-    The newly added event_lock spinlock in the input core disallows sleeping
-    and therefore using mutexes in event handlers. Convert force-feedback 
-    core to rely on event_lock instead of mutex to protect slots allocated  
-    for fore-feedback effects. The original mutex is still used to serialize
-    uploading and erasing of effects.
+...
+  CC      drivers/input/ff-core.o
+/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c: In function 'input_ff_upload':
+/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c:172: error: dereferencing pointer to incomplete type
+/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c: In function 'erase_effect':
+/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c:197: error: dereferencing pointer to incomplete type
+/home/bunk/linux/kernel-2.6/git/linux-2.6/drivers/input/ff-core.c:204: error: dereferencing pointer to incomplete type
+make[3]: *** [drivers/input/ff-core.o] Error 1
 
-causes the following regression on m68k:
+<--  snip  -->
 
-| linux/drivers/input/ff-core.c: In function 'input_ff_upload':
-| linux/drivers/input/ff-core.c:172: error: dereferencing pointer to incomplete type
-| linux/drivers/input/ff-core.c: In function 'erase_effect':
-| linux/drivers/input/ff-core.c:197: error: dereferencing pointer to incomplete type
-| linux/drivers/input/ff-core.c:204: error: dereferencing pointer to incomplete type
-| make[4]: *** [drivers/input/ff-core.o] Error 1
+Not sure what exactly the problem is, the failures are the
+added spin_unlock_irq(&dev->event_lock)'s.
 
-As the incomplete type is `struct task_struct', including <linux/sched.h> fixes
-it.
+cu
+Adrian
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
----
- drivers/input/ff-core.c |    1 +
- 1 file changed, 1 insertion(+)
+-- 
 
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -28,6 +28,7 @@
- #include <linux/input.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-+#include <linux/sched.h>
- 
- /*
-  * Check that the effect_id is a valid effect and whether the user
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

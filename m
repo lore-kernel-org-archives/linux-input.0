@@ -1,57 +1,40 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/2] hid: gyration remote support
-Date: Tue, 1 Jul 2008 09:55:40 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0807010954540.6375@jikos.suse.cz>
-References: <1214854982-20611-1-git-send-email-dwalker@mvista.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [rft]power management for usbtouch
+Date: Tue, 1 Jul 2008 09:59:01 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0807010957320.6375@jikos.suse.cz>
+References: <20080630112709.ZZRA012@mailhub.coreip.homeip.net> <Pine.LNX.4.44L0.0806301145020.2708-100000@iolanthe.rowland.org> <20080630115953.ZZRA012@mailhub.coreip.homeip.net> <200807010046.34219.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:58782 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752632AbYGAHzl (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 1 Jul 2008 03:55:41 -0400
-In-Reply-To: <1214854982-20611-1-git-send-email-dwalker@mvista.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200807010046.34219.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Ville Syrj?l? <syrjala-ORSVBvAovxo@public.gmane.org>, daniel.ritz-OI3hZJvNYWs@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Philippe Troin <phil@fifi.org>, "Adolfo R. Brandes" <arbrandes@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, 30 Jun 2008, Daniel Walker wrote:
+On Tue, 1 Jul 2008, Oliver Neukum wrote:
 
-> This adds in a quirk for the additional un-mapped buttons on the
-> gyration MCE remote.
->
-> Signed-off-by: Daniel Walker <dwalker@mvista.com>
-> ---
-> drivers/hid/hid-input-quirks.c |   28 ++++++++++++++++++++++++++++
-> 1 files changed, 28 insertions(+), 0 deletions(-)
-[ ... ]
-> @@ -324,6 +347,9 @@ static int quirk_sunplus_wdesktop(struct hid_usage *usage, struct input_dev *inp
-> #define VENDOR_ID_SUNPLUS			0x04fc
-> #define DEVICE_ID_SUNPLUS_WDESKTOP		0x05d8
->
-> +#define VENDOR_ID_GYRATION			0x0c16
-> +#define DEVICE_ID_GYRATION_REMOTE		0x0002
+>> Ok, I see... So what does a device do when it is suspended and a 
+>> request comes in? Does it automatically resume and service the request 
+>> (and potentially goes back to sleep)? Does it queue the request for 
+>> later? Ignore it? Is it a system-wide policy or up to the device 
+>> [class]?
+> Return an error. If you queue, how much would you queue?
+> There's no sane answer, so you better fail right away.
 
-Hi daniel,
+I guess that Dmitry's question was about the behavior of the driver, 
+right? For example in situation when the LED state changes on PS/2 
+keyboard, what should the USB keyboard driver do for a suspended USB 
+keyboard.
 
-thanks a lot for the patch. Could you please leave the order of these 
-defines alphabetically sorted?
-
-> static const struct hid_input_blacklist {
-> 	__u16 idVendor;
-> 	__u16 idProduct;
-> @@ -353,6 +379,8 @@ static const struct hid_input_blacklist {
->
-> 	{ VENDOR_ID_SUNPLUS, DEVICE_ID_SUNPLUS_WDESKTOP, quirk_sunplus_wdesktop },
->
-> +	{ VENDOR_ID_GYRATION, DEVICE_ID_GYRATION_REMOTE, quirk_gyration_remote },
-> +
-
-And here too, please.
-
-Thanks,
+I really don't think we want to return error in such cases. Either resume 
+the device, or queue some requests (maybe depending on the type of 
+requests), right?
 
 -- 
 Jiri Kosina
 SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

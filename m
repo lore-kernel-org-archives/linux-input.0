@@ -1,37 +1,37 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH 001/002] linux-input:  bcm5974-0.31: fixed resource leak, removed work struct, device data struct introduced
-Date: Tue, 1 Jul 2008 20:53:31 -0700
-Message-ID: <200807012053.31524.david-b@pacbell.net>
-References: <1214653629.10495.11.camel@alnilam> <200807012004.17292.david-b@pacbell.net> <20080701203847.2dae15ba.akpm@linux-foundation.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 001/002] linux-input:  bcm5974-0.31: fixed resource
+	leak, removed work struct, device data struct introduced
+Date: Wed, 02 Jul 2008 09:46:39 +0200
+Message-ID: <1214984799.11086.6.camel@alnilam>
+References: <1214653629.10495.11.camel@alnilam>
+	 <20080701155925.a4c00a8e.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20080701203847.2dae15ba.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robfitz-lqAI2a470fI@public.gmane.org, jikos-wDf7oJUeT2I@public.gmane.org, vojtech-AlSwsSmVLrQ@public.gmane.org, dmonakhov-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:39109 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754329AbYGBHsV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jul 2008 03:48:21 -0400
+In-Reply-To: <20080701155925.a4c00a8e.akpm@linux-foundation.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, robfitz@273k.net, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org, linux-usb@vger.kernel.org
 
-On Tuesday 01 July 2008, Andrew Morton wrote:
-> > > I dunno what USB driver normally use for their dma memory. __Perh=
-aps
-> > > dma_alloc_coherent()?
-> >=20
-> > kmalloc() as a rule ...
->=20
-> kmalloc(GFP_DMA)? =A0Hopefully not...
+On Tue, 2008-07-01 at 15:59 -0700, Andrew Morton wrote:
+> > Subject: [PATCH 001/002] linux-input:  bcm5974-0.31: fixed resource leak, removed work struct, device data struct introduced
+> 
+> hm, I wonder where [002/002] went.
 
-Right.  Does anything except parport need that any more?
-Precious little ISA stuff does DMA.
+Thank you very much for your comments, I will return shortly with a new
+version. I did not fully grasp, from reading
+Documentation/SubmitPatches, how the numbering in the subject should
+work; when I submit my new version in reply to your mail, should I
+submit a complete patch against the vanilla kernel, with number 001/003?
 
-USB should never use GFP_DMA.
-
-
+Best Regards,
+Henrik Rydberg
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

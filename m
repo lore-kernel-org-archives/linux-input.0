@@ -1,50 +1,40 @@
-From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: [PATCH 001/002] linux-input:  bcm5974-0.31: fixed resource
- leak, removed work struct, device data struct introduced
-Date: Wed, 2 Jul 2008 00:53:55 -0700
-Message-ID: <20080702005355.8da89ef7.akpm@linux-foundation.org>
-References: <1214653629.10495.11.camel@alnilam>
-	<20080701155925.a4c00a8e.akpm@linux-foundation.org>
-	<1214984799.11086.6.camel@alnilam>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH] Input: add Acer Aspire 1360 to nomux blacklist
+Date: Wed, 2 Jul 2008 11:48:06 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0807021147150.6375@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1214984799.11086.6.camel@alnilam>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robfitz-lqAI2a470fI@public.gmane.org, jikos-wDf7oJUeT2I@public.gmane.org, vojtech-AlSwsSmVLrQ@public.gmane.org, dmonakhov-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from styx.suse.cz ([82.119.242.94]:44439 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753508AbYGBJsI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jul 2008 05:48:08 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Clark Tompsett <clarkt@cnsp.com>
 
-On Wed, 02 Jul 2008 09:46:39 +0200 Henrik Rydberg <rydberg-Hk7bIW8heu4wFerOooGFRg@public.gmane.org> wrote:
+Acer Aspire 1360 needs to be added to nomux blacklist, otherwise its 
+touchpad misbehaves.
 
-> On Tue, 2008-07-01 at 15:59 -0700, Andrew Morton wrote:
-> > > Subject: [PATCH 001/002] linux-input:  bcm5974-0.31: fixed resource leak, removed work struct, device data struct introduced
-> > 
-> > hm, I wonder where [002/002] went.
-> 
-> Thank you very much for your comments, I will return shortly with a new
-> version. I did not fully grasp, from reading
-> Documentation/SubmitPatches, how the numbering in the subject should
-> work; when I submit my new version in reply to your mail, should I
-> submit a complete patch against the vanilla kernel, with number 001/003?
-> 
+Reported-by: Clark Tompsett <clarkt@cnsp.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 
-no....
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 78eb784..1d7b175 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -291,6 +291,13 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
+  			DMI_MATCH(DMI_PRODUCT_VERSION, "3000 N100"),
+  		},
+  	},
++	{
++		.ident = "Acer Aspire 1360",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 1360"),
++		},
++	},
+  	{ }
+  };
 
-The sequence numbering is only used when you're sending two or more
-patches at the same time.  It is used so that the recipient can work
-out what order they are to be applied in (they can get reordered in
-flight) and so that the recipient can verify that none were missed.
-
-So for a single patch, don't include it at all.
-
-Also, it is better to prepare 2.6.27 patches against linux-next, as
-that is the candidate 2.6.27 tree.  But in the case of a brand new
-driver it doesn't matter a lot.  Unless you're using some interface
-which we've gone and changed, but that's fairly uncommon.
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

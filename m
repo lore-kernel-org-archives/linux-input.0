@@ -1,91 +1,75 @@
-From: Thomas Reitmayr <treitmayr-lNf3axTzMcOzZXS1Dc/lvw@public.gmane.org>
-Subject: Re: [rft]suspend/resume support for yealink
-Date: Thu, 03 Jul 2008 20:27:53 +0200
-Message-ID: <1215109674.6680.17.camel@localhost>
-References: <200806301608.03788.oliver@neukum.org>
-	 <1214862428.6977.27.camel@localhost> <200807021626.50883.oliver@neukum.org>
+From: John Linn <John.Linn@xilinx.com>
+Subject: RE: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2 driver
+Date: Thu, 3 Jul 2008 11:59:50 -0600
+Message-ID: <20080703175952.74E449C0051@mail178-wa4.bigfish.com>
+References: <20080703164235.37739A006B@mail196-wa4.bigfish.com> <20080703132305.ZZRA012@mailhub.coreip.homeip.net> <20080703174229.GL2284@secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200807021626.50883.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: "Alfred E. Heggestad" <aeh-VqIxOk2P1jc@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Henk.Vergonet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from outbound-wa4.frontbridge.com ([216.32.181.16]:47008 "EHLO
+	WA4EHSOBE004.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753562AbYGCSna convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jul 2008 14:43:30 -0400
+Content-Class: urn:content-classes:message
+In-Reply-To: <20080703174229.GL2284@secretlab.ca>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, jwboyer@linux.vnet.ibm.com, jacmet@sunsite.dk, Sadanand Mutyala <sadanan@xilinx.com>
 
-Hi Oliver,
-your patch did improve things, however I had to add the submission of
-the control URB to get the update/scan cycle going (same as in
-usb_resume). As yealink_set_ringtone uses synchronous USB submissions it
-won't invoke the callback function. Also apart from restoring the
-ringtone, I forced an update of the remaining device data (display,
-LED, ...). Otherwise if during suspend the device is unplugged and
-plugged in again, the driver does not know about the changes on the
-display (for example) and the driver's data and the data stored in the
-device are out of sync.
-My test went all well with these additions.
+In reviewing the data sheet for the device, I don't see any shared
+information between the 2 channels of the device.
 
-The patch below builds on your latest patch.
-Regards,
--Thomas
+The mutex looks like it's not needed to me also.  
 
-Signed-off-by: Thomas Reitmayr <treitmayr-lNf3axTzMcOzZXS1Dc/lvw@public.gmane.org>
+I'll review with some others here to make sure I'm not overlooking
+something. 
 
----
+-- John
 
---- linux-2.6.26-rc8/drivers/input/misc/yealink.old.c	2008-07-03 20:10:36.000000000 +0200
-+++ linux-2.6.26-rc8/drivers/input/misc/yealink.c	2008-07-03 20:10:26.000000000 +0200
-@@ -903,10 +903,18 @@ static int usb_reset_resume(struct usb_i
- {
- 	struct yealink_dev *yld = usb_get_intfdata(intf);
- 	int rv = 0;
-+	int i;
- 
- 	down_read(&sysfs_rwsema);
- 	if (!yld->open)
- 		goto skip_io;
-+
-+	/* force updates to device */
-+	for (i = 0; i<sizeof(yld->master); i++)
-+		yld->copy.b[i] = ~yld->master.b[i];
-+	yld->key_code = -1;	/* no keys pressed */
-+
-+	/* restore the ringtone */
- 	if (yld->old_ringtone)
- 		rv = yealink_set_ringtone(yld,
- 					  yld->old_ringtone,
-@@ -916,6 +924,10 @@ static int usb_reset_resume(struct usb_i
- 					  default_ringtone,
- 					  sizeof(default_ringtone));
- 
-+	/* restart updates and key scan */
-+	if (rv == 0)
-+		rv = usb_submit_urb(yld->urb_ctl, GFP_NOIO);
-+
- skip_io:
- 	up_read(&sysfs_rwsema);
- 
---
-
-
-
-Am Mittwoch, den 02.07.2008, 16:26 +0200 schrieb Oliver Neukum:
-> Am Montag 30 Juni 2008 23:47:08 schrieb Thomas Reitmayr:
-> > * Suspend to RAM:
-> >   The device suspends properly, I hear the audio subsystem turning off
-> > while the display keeps its current state.
-> >   Apparently the USB root hub gets reset during suspend/resume according
-> > to the kernel log. Then after resume the input events are generated
+> -----Original Message-----
+> From: Grant Likely [mailto:glikely@secretlab.ca] On Behalf Of Grant
+Likely
+> Sent: Thursday, July 03, 2008 11:42 AM
+> To: Dmitry Torokhov
+> Cc: John Linn; linuxppc-dev@ozlabs.org; linux-input@vger.kernel.org;
+jwboyer@linux.vnet.ibm.com;
+> jacmet@sunsite.dk; Sadanand Mutyala
+> Subject: Re: [PATCH] [V2] powerpc: Xilinx: PS2: Added new XPS PS2
+driver
 > 
-> This patch may help.
+> On Thu, Jul 03, 2008 at 01:27:00PM -0400, Dmitry Torokhov wrote:
+> > Hi John,
+> >
+> > On Thu, Jul 03, 2008 at 09:42:31AM -0700, John Linn wrote:
+> > > +
+> > > +	/* Initialize the PS/2 interface */
+> > > +	mutex_lock(&drvdata->cfg_mutex);
+> > > +	if (xps2_initialize(drvdata)) {
+> > > +		mutex_unlock(&drvdata->cfg_mutex);
+> > > +		dev_err(dev, "Could not initialize device\n");
+> > > +		retval = -ENODEV;
+> > > +		goto failed3;
+> > > +	}
+> > > +	mutex_unlock(&drvdata->cfg_mutex);
+> >
+> > The drvdata is allocated per-port and so both (there are 2 PS/2
+ports,
+> > right?) ports get their own copy of cfg_mutex. Since you are trying
+to
+> > serialze access to resource shared by both ports it will not work.
+> > The original driver-global mutex was appropriate (the only thing I
+> > objected there was use of a counting semaphore instead of a mutex).
 > 
-> 	Regards
-> 		Oliver
+> John, correct me if I'm wrong, but I don't think there are any shared
+> resources being accessed here and I believe the mutex is entirely
+> unnecessary.
 > 
+> Cheers,
+> g.
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
+
+

@@ -1,47 +1,29 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: disconnect in ati_remote2
-Date: Wed, 2 Jul 2008 23:31:43 +0200
-Message-ID: <200807022331.44288.oliver@neukum.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] drivers/input/ff-core.c needs <linux/sched.h>
+Date: Wed, 2 Jul 2008 18:39:55 -0700 (PDT)
+Message-ID: <alpine.LFD.1.10.0807021839390.18105@woody.linux-foundation.org>
+References: <Pine.LNX.4.64.0807011300110.21227@anakin> <20080701084316.ZZRA012@mailhub.coreip.homeip.net> <20080701130517.GA29863@cs181140183.pp.htv.fi> <20080701092542.ZZRA012@mailhub.coreip.homeip.net> <20080702164128.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ville Syrjala <syrjala-ORSVBvAovxo@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:33069 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752171AbYGCBkT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 2 Jul 2008 21:40:19 -0400
+In-Reply-To: <20080702164128.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Linux Kernel Development <linux-kernel@vger.kernel.org>, Linux/m68k <linux-m68k@vger.kernel.org>, Adrian Bunk <bunk@kernel.org>
 
-Hi,
 
-this doesn't look quite right. Somebody might use sysfs or usbfs to
-disconnect only one interface. In that case you should give up the other
-interface, not depending on the first interface being disconnected.
 
-	Regards
-		Oliver
+On Wed, 2 Jul 2008, Dmitry Torokhov wrote:
+> 
+> Linus, will you apply Geert's patch directly or you would prefer me
+> set up my tree for another pull?
 
-static void ati_remote2_disconnect(struct usb_interface *interface)
-{
-	struct ati_remote2 *ar2;
-	struct usb_host_interface *alt = interface->cur_altsetting;
+I took it directly.
 
-	if (alt->desc.bInterfaceNumber)
-		return;
-
-	ar2 = usb_get_intfdata(interface);
-	usb_set_intfdata(interface, NULL);
-
-	input_unregister_device(ar2->idev);
-
-	ati_remote2_urb_cleanup(ar2);
-
-	usb_driver_release_interface(&ati_remote2_driver, ar2->intf[1]);
-
-	kfree(ar2);
-}
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+		Linus

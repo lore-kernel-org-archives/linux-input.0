@@ -1,39 +1,34 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: [rft]powermate runtime pm
-Date: Fri, 4 Jul 2008 00:13:53 +0200
-Message-ID: <200807040013.54237.oliver@neukum.org>
-References: <200807031753.16960.oliver@neukum.org> <20080703134107.ZZRA012@mailhub.coreip.homeip.net> <200807040008.50174.oliver@neukum.org>
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala-ORSVBvAovxo@public.gmane.org>
+Subject: Re: disconnect in ati_remote2
+Date: Fri, 4 Jul 2008 01:49:50 +0300
+Message-ID: <20080703224949.GB7132@sci.fi>
+References: <200807022331.44288.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200807040008.50174.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <200807022331.44288.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
 Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, will-ffEBwZeNOFERmelmmXo44Q@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-Am Freitag 04 Juli 2008 00:08:49 schrieb Oliver Neukum:
-> Mutual exclusion is a very good idea. And telling input devices that
-> they are open is also a good idea. But this will be difficult, as open()
-> will almost certainly wish to do as memory allocations can trigger
-> an autoresume.
+On Wed, Jul 02, 2008 at 11:31:43PM +0200, Oliver Neukum wrote:
+> Hi,
+>=20
+> this doesn't look quite right. Somebody might use sysfs or usbfs to
+> disconnect only one interface. In that case you should give up the ot=
+her
+> interface, not depending on the first interface being disconnected.
 
-Sorry, it is late.
+I never considered the possibility of disconnecting just one interface.
+I'll put it on my TODO list for the future.
 
-Again, in clear language.
-
-You will face a deadlock problem, as open can call into resume,
-due to
-a) usb_autopm_get_interface()
-b) any memory allocation that triggers autoresumption of another
-    interface of the same device
-
-	Regards
-		Oliver
-
+--=20
+Ville Syrj=E4l=E4
+syrjala-ORSVBvAovxo@public.gmane.org
+http://www.sci.fi/~syrjala/
 --
 To unsubscribe from this list: send the line "unsubscribe linux-usb" in
 the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org

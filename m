@@ -1,35 +1,60 @@
-From: Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH] hid: gyration sleep button quirk
-Date: Thu, 03 Jul 2008 09:33:59 -0700
-Message-ID: <1215102839.3400.31.camel@localhost.localdomain>
-References: <1214929451-14515-1-git-send-email-dwalker@mvista.com>
-	 <alpine.LNX.1.10.0807031816530.25376@jikos.suse.cz>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 001/002] linux-input:  bcm5974-0.31: fixed resource
+	leak, removed work struct, device data struct introduced
+Date: Thu, 03 Jul 2008 18:33:40 +0200
+Message-ID: <1215102820.4138.17.camel@alnilam>
+References: <1214653629.10495.11.camel@alnilam>
+	 <20080701155925.a4c00a8e.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gateway-1237.mvista.com ([63.81.120.158]:41078 "EHLO
-	gateway-1237.mvista.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751694AbYGCQeD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jul 2008 12:34:03 -0400
-In-Reply-To: <alpine.LNX.1.10.0807031816530.25376@jikos.suse.cz>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:43498 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751222AbYGCQea (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 3 Jul 2008 12:34:30 -0400
+In-Reply-To: <20080701155925.a4c00a8e.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Philippe Troin <phil@fifi.org>, "Adolfo R. Brandes" <arbrandes@gmail.com>, linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, robfitz@273k.net, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org, linux-usb@vger.kernel.org
 
-
-On Thu, 2008-07-03 at 18:17 +0200, Jiri Kosina wrote:
-
-> Hi Daniel,
+On Tue, 2008-07-01 at 15:59 -0700, Andrew Morton wrote:
+> > +  }
+> > +
+> > +  button = data[1];
+> > +
+> > +  /* only report button state changes */
+> > +  if (button != dev->bt_state) {
+> > +    input_report_key(dev->input, BTN_LEFT, button);
+> > +    input_sync(dev->input);
+> > +  }
+> > +
+> > +  dev->bt_state = button;
+> > +
+> > + exit:
+> > +  retval = usb_submit_urb(dev->bt_urb, GFP_ATOMIC);
 > 
-> thanks a lot. Could you please fold these two patches into one, and send 
-> it to me? I will then merge it into my tree.
-> I don't think there is a reason to have this split into two separate 
-> patches.
+> GFP_ATOMIC is a red flag.  Is this quite unrelaible allocation mode
+> really needed here?
 
-They're split due to authorship .. The second patch is largely your
-work ..
+Being new to kernel work, I rely a lot on how other drivers work.
+However, doing some reading, these are my observations:
 
-Daniel
+* The URB works in interrupt mode.
+
+* The call to usb_submit_urb above is within a completion handler.
+
+* From what I read on kerneltrap (2.6.22), such URBs should be
+resubmitted using the ATOMIC method. Maybe this changed, I could not
+tell.
+
+* Personally, I am starting to worry about concurrency races, with the
+two URBs writing to the same input device. I suppose it depends on
+whether they are issued on the same interrupt or not? Spin locks?
+
+Best regards,
+Henrik Rydberg
+
 

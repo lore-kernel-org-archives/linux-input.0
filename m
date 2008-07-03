@@ -1,124 +1,26 @@
-From: =?utf-8?q?Uwe=20Kleine-K=C3=B6nig?= <Uwe.Kleine-Koenig@digi.com>
-Subject: [PATCH] [RFC] gpio-keys: let platform code specify the trigger type
-Date: Thu, 3 Jul 2008 09:28:00 +0200
-Message-ID: <1215070080-13755-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [0/2] Jack reporting
+Date: Thu, 3 Jul 2008 10:50:27 +0100
+Message-ID: <20080703095026.GA652@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail164.messagelabs.com ([216.82.253.131]:23807 "EHLO
-	mail164.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S937008AbYGCH2G (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 3 Jul 2008 03:28:06 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Takashi Iwai <tiwai@suse.de>, Dmitry Torokhov <dtor@insightbb.com>, Jaroslav Kysela <perex@perex.cz>
+Cc: alsa-devel@alsa-project.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Kay Sievers <kay.sievers@vrfy.org>, David Brownell <dbrownell@users.sourceforge.net>, Dmitry Torokhov <dtor@mail.ru>, Herbert Valerio Riedel <hvr@gnu.org>
 
-The intend for this change is that not all platform's irqs support
-triggering on both edges.  Examples are ns9xxx[1] and txx9[2], and I
-expect that there are more.
-
-Provided that the platform data is initialized with zeros there is no
-change in behavior if the new struct member 'trigger' isn't set in
-platform code.
-
-open points:
- - if only one trigger direction is used it should match active_low suc=
-h
-   that the button press generates the irq.
- - poll for button release instead of generate the release event
-   directly after the press?
- - is it correct to input_sync() between press and release event?
- - sanitize button->trigger &=3D IRQF_TRIGGER_EDGE in gpio_keys_probe
-   before passing it to request_irq?
- - a comment describing the trigger member of struct gpio_keys_button
-
-I'd like to have polling support in this driver.  This could use
-button->trigger =3D=3D 0, so it might be sensible to add a
-WARN_ON(!button->trigger) for now and wait some time before implementin=
-g
-it.
-
-[There is no MAINTAINER entry for gpio-keys, so I Cc: the last
-contributors.]=20
-
-[1] The code to show that isn't in vanilla yet.  Basic machine support
-    is in arch/arm/mach-ns9xxx.
-[2] see txx9_irq_set_type in arch/mips/kernel/irq_txx9.c
-
-Signed-off-by: Uwe Kleine-K=C3=B6nig <Uwe.Kleine-Koenig@digi.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>
-Cc: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Cc: Herbert Valerio Riedel <hvr@gnu.org>
-
----
- drivers/input/keyboard/gpio_keys.c |   15 +++++++++++++--
- include/linux/gpio_keys.h          |    1 +
- 2 files changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboar=
-d/gpio_keys.c
-index bbd00c3..43a4c0c 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -26,6 +26,10 @@
-=20
- #include <asm/gpio.h>
-=20
-+#ifndef IRQF_TRIGGER_EDGE
-+#define IRQF_TRIGGER_EDGE (IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING)
-+#endif
-+
- static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- {
- 	int i;
-@@ -43,6 +47,11 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_=
-id)
-=20
- 			input_event(input, type, button->code, !!state);
- 			input_sync(input);
-+
-+			if (~button->trigger & IRQF_TRIGGER_EDGE) {
-+				input_event(input, type, button->code, !state);
-+				input_sync(input);
-+			}
- 			return IRQ_HANDLED;
- 		}
- 	}
-@@ -105,9 +114,11 @@ static int __devinit gpio_keys_probe(struct platfo=
-rm_device *pdev)
- 			goto fail;
- 		}
-=20
-+		if (!button->trigger)
-+			button->trigger =3D IRQF_TRIGGER_EDGE;
-+
- 		error =3D request_irq(irq, gpio_keys_isr,
--				    IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_RISING |
--					IRQF_TRIGGER_FALLING,
-+				    IRQF_SAMPLE_RANDOM | button->trigger,
- 				    button->desc ? button->desc : "gpio_keys",
- 				    pdev);
- 		if (error) {
-diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-index c6d3a9d..afe9d5d 100644
---- a/include/linux/gpio_keys.h
-+++ b/include/linux/gpio_keys.h
-@@ -9,6 +9,7 @@ struct gpio_keys_button {
- 	char *desc;
- 	int type;		/* input event type (EV_KEY, EV_SW) */
- 	int wakeup;		/* configure the button as a wake-up source */
-+	unsigned long trigger;
- };
-=20
- struct gpio_keys_platform_data {
---=20
-1.5.6
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This is a repost of the the jack reporting API I posted recently.  There
+are no chances since the last submission - as discussed in that thread
+the existing users and the need to support buttons implemented in jacks
+pushes me towards use of an input device to represent jacks.

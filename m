@@ -1,35 +1,31 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala-ORSVBvAovxo@public.gmane.org>
-Subject: Re: disconnect in ati_remote2
-Date: Fri, 4 Jul 2008 01:49:50 +0300
-Message-ID: <20080703224949.GB7132@sci.fi>
-References: <200807022331.44288.oliver@neukum.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: gyration sleep button quirk
+Date: Fri, 4 Jul 2008 14:46:40 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0807041446290.25376@jikos.suse.cz>
+References: <1214929451-14515-1-git-send-email-dwalker@mvista.com>  <alpine.LNX.1.10.0807031816530.25376@jikos.suse.cz> <1215102839.3400.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <200807022331.44288.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from styx.suse.cz ([82.119.242.94]:43669 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753808AbYGDMql (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 4 Jul 2008 08:46:41 -0400
+In-Reply-To: <1215102839.3400.31.camel@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Philippe Troin <phil@fifi.org>, "Adolfo R. Brandes" <arbrandes@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Jul 02, 2008 at 11:31:43PM +0200, Oliver Neukum wrote:
-> Hi,
->=20
-> this doesn't look quite right. Somebody might use sysfs or usbfs to
-> disconnect only one interface. In that case you should give up the ot=
-her
-> interface, not depending on the first interface being disconnected.
+On Thu, 3 Jul 2008, Daniel Walker wrote:
 
-I never considered the possibility of disconnecting just one interface.
-I'll put it on my TODO list for the future.
+>> thanks a lot. Could you please fold these two patches into one, and 
+>> send it to me? I will then merge it into my tree. I don't think there 
+>> is a reason to have this split into two separate patches.
+> They're split due to authorship .. The second patch is largely your
+> work ..
 
---=20
-Ville Syrj=E4l=E4
-syrjala-ORSVBvAovxo@public.gmane.org
-http://www.sci.fi/~syrjala/
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Applied to my tree, thanks a lot.
+
+-- 
+Jiri Kosina
+SUSE Labs

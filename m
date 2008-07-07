@@ -1,40 +1,49 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: push down scancode negative checking
-Date: Mon, 7 Jul 2008 15:00:53 -0400
-Message-ID: <20080707150041.ZZRA012@mailhub.coreip.homeip.net>
-References: <1214854426-20442-1-git-send-email-dwalker@mvista.com> <20080630154701.ZZRA012@mailhub.coreip.homeip.net> <1214855780.5764.3.camel@localhost.localdomain> <alpine.LNX.1.10.0807010950250.4593@jikos.suse.cz> <1214933005.5764.6.camel@localhost.localdomain>
+From: John Linn <john.linn@xilinx.com>
+Subject: [PATCH] powerpc: Xilinx: PS2: Update Kconfig for new XPS PS2 driver
+Date: Mon, 7 Jul 2008 13:02:08 -0700
+Message-ID: <20080707200216.78A3B1568059@mail174-wa4.bigfish.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.31]:17326 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755223AbYGGTBD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2008 15:01:03 -0400
-Received: by yw-out-2324.google.com with SMTP id 9so1037700ywe.1
-        for <linux-input@vger.kernel.org>; Mon, 07 Jul 2008 12:01:02 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1214933005.5764.6.camel@localhost.localdomain>
+Received: from outbound-wa4.frontbridge.com ([216.32.181.16]:34958 "EHLO
+	WA4EHSOBE003.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755418AbYGGUCT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2008 16:02:19 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Philippe Troin <phil@fifi.org>, "Adolfo R. Brandes" <arbrandes@gmail.com>, linux-input@vger.kernel.org
+To: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org
+Cc: grant.likely@secretlab.ca, jwboyer@linux.vnet.ibm.com, dmitry.torokhov@gmail.com, jacmet@sunsite.dk, John Linn <john.linn@xilinx.com>, Sadanand <sadanan@xilinx.com>
 
-On Tue, Jul 01, 2008 at 10:23:25AM -0700, Daniel Walker wrote:
-> 
-> On Tue, 2008-07-01 at 09:51 +0200, Jiri Kosina wrote:
-> > On Mon, 30 Jun 2008, Daniel Walker wrote:
-> > 
-> > >> Hmm, I wonder if we just need to type these as unsigned.
-> > > I think it would make sense, because AFAIK scancodes don't really have a
-> > > concept of signed-ness anyway .. I almost did it that way, but I wasn't
-> > > sure enough about the reasoning for the signed int ..
-> > 
-> > That would be the option I'd prefer too.
-> 
-> Do you guys want me to send another patch for this?
-> 
+This patch is an incremental patch for the patch titled:
+[V3] powerpc: Xilinx: PS2: Added new XPS PS2 driver. This patch
+adds powerpc as a dependency for the driver.
 
-Yes please.
+Signed-off-by: Sadanand <sadanan@xilinx.com>
+Signed-off-by: John Linn <john.linn@xilinx.com>
+---
+ drivers/input/serio/Kconfig |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+index 0e62b39..683f495 100644
+--- a/drivers/input/serio/Kconfig
++++ b/drivers/input/serio/Kconfig
+@@ -192,7 +192,9 @@ config SERIO_RAW
+ 
+ config SERIO_XILINX_XPS_PS2
+ 	tristate "Xilinx XPS PS/2 Controller Support"
++	depends on PPC
+ 	help
+-	  This driver supports XPS PS/2 IP from Xilinx EDK.
++	  This driver supports XPS PS/2 IP from the Xilinx EDK on the
++	  PowerPC platform.
+ 
+ endif
 -- 
-Dmitry
+1.5.2.1
+
+
+
+This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
+
+

@@ -1,37 +1,435 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [V3] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-Date: Mon, 7 Jul 2008 14:45:54 -0400
-Message-ID: <20080707144358.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080707153850.4C83B128005C@mail53-wa4.bigfish.com> <20080707141843.ZZRA012@mailhub.coreip.homeip.net> <20080707182711.7F7E012D0061@mail133-dub.bigfish.com>
+From: stefan@datenfreihafen.org
+Subject: [Patch 08/10] input: Touchscreen driver for the PCAP
+Date: Mon, 07 Jul 2008 20:40:08 +0200
+Message-ID: <20080707184131.286622542@datenfreihafen.org>
+References: <20080707184000.411913919@datenfreihafen.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.251]:39486 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756637AbYGGSp6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 7 Jul 2008 14:45:58 -0400
-Received: by an-out-0708.google.com with SMTP id d40so440343and.103
-        for <linux-input@vger.kernel.org>; Mon, 07 Jul 2008 11:45:58 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080707182711.7F7E012D0061@mail133-dub.bigfish.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Content-Disposition: inline; filename=pcap-ts.patch
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: linux-arm-kernel@lists.arm.linux.org.uk
+Cc: Daniel Ribeiro <wyrm@openezx.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John Linn <John.Linn@xilinx.com>
-Cc: Sadanand Mutyala <sadanan@xilinx.com>, linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org
 
-On Mon, Jul 07, 2008 at 12:27:09PM -0600, John Linn wrote:
-> Thanks Dmitry, appreciate the help.
-> 
-> Powerpc dependencies in the Kconfig sound right.  Sorry for not thinking
-> that thru well across all architectures. 
-> 
-> Do you want me to spin the patch again?
-> 
+Touchscreen driver based on the MFD PCAP available on the EZX mobile phones.
 
-Please send me incremental patch that implements proper Kconfig
-dependencies and I will fold it all together on my side.
+Signed-off-by: Daniel Ribeiro <wyrm@openezx.org>
 
-Thanks.
+PATCH FOLLOWS
+KernelVersion: 2.6-arm-git pxa branch
+
+Index: linux-2.6-arm/drivers/input/touchscreen/Kconfig
+===================================================================
+--- linux-2.6-arm.orig/drivers/input/touchscreen/Kconfig
++++ linux-2.6-arm/drivers/input/touchscreen/Kconfig
+@@ -316,4 +316,13 @@
+ 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EMBEDDED
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
+ 
++config TOUCHSCREEN_PCAP
++	tristate "Motorola PCAP touchscreen"
++	depends on EZX_PCAP
++	help
++	  Say Y here if you have a Motorola EZX telephone and
++	  want to support the built-in touchscreen.
++
++	  If unsure, say N.
++
+ endif
+Index: linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
+===================================================================
+--- /dev/null
++++ linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
+@@ -0,0 +1,316 @@
++/*
++ * pcap_ts.c - Touchscreen driver for Motorola PCAP2 based touchscreen as found
++ * 	       in the EZX phone platform.
++ *
++ *  Copyright (C) 2006 Harald Welte <laforge@openezx.org>
++ *  Copyright (C) 2007 Daniel Ribeiro <wyrm@openezx.org>
++ *
++ *  Based on information found in the original Motorola 2.4.x ezx-ts.c driver.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/string.h>
++#include <linux/pm.h>
++#include <linux/timer.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/mfd/ezx-pcap.h>
++
++#include <asm/arch/hardware.h>
++#include <asm/arch/pxa-regs.h>
++
++/* PCAP_ADC_TS_M modes */
++#define POSITION_X_MEASUREMENT	0
++#define POSITION_XY_MEASUREMENT	1
++#define PRESSURE_MEASUREMENT	2
++#define PLATE_X_MEASUREMENT	3
++#define PLATE_Y_MEASUREMENT	4
++#define STANDBY_MODE		5
++#define NONTS_MODE		6
++
++struct pcap_ts {
++	int irq_xy;
++	int irq_touch;
++	struct input_dev *input;
++	struct timer_list timer;
++	u_int16_t x, y;
++	u_int16_t pressure;
++	u_int8_t read_state;
++};
++
++#define X_AXIS_MIN	0
++#define X_AXIS_MAX	1023
++
++#define Y_AXIS_MAX	X_AXIS_MAX
++#define Y_AXIS_MIN	X_AXIS_MIN
++
++#define PRESSURE_MAX	X_AXIS_MAX
++#define PRESSURE_MIN	X_AXIS_MIN
++
++/* if we try to read faster, pressure reading becomes unreliable */
++#define SAMPLE_INTERVAL		(HZ/50)
++
++
++static void pcap_ts_mode(struct pcap_ts *pcap_ts, u_int32_t mode)
++{
++	u_int32_t tmp;
++
++	pcap_ts->read_state = mode;
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp &= ~PCAP_ADC_TS_M_MASK;
++	tmp |= ((mode << PCAP_ADC_TS_M_SHIFT) & PCAP_ADC_TS_M_MASK);
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++}
++
++/* issue a XY read command to the ADC of PCAP2.  Well get an ADCDONE interrupt
++ * once the result of the conversion is available */
++static void pcap_ts_start_xy_read(struct pcap_ts *pcap_ts)
++{
++	u_int32_t tmp;
++
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp &= ~(PCAP_ADC_RAND | PCAP_ADC_ADA1_MASK | PCAP_ADC_ADA2_MASK);
++	tmp |= (PCAP_ADC_ADEN | PCAP_ADC_AD_SEL1 |
++		PCAP_ADC_AD_SEL2 | (5 << PCAP_ADC_ADA1_SHIFT) |
++					(3 << PCAP_ADC_ADA2_SHIFT));
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++
++	ezx_pcap_write(PCAP_REG_ADR, PCAP_ADR_ASC);
++}
++
++/* read the XY result from the ADC of PCAP2 */
++static void pcap_ts_get_xy_value(struct pcap_ts *pcap_ts)
++{
++	u_int32_t tmp;
++
++	ezx_pcap_read(PCAP_REG_ADR, &tmp);
++
++	if (pcap_ts->read_state == POSITION_XY_MEASUREMENT) {
++		pcap_ts->x = (tmp & PCAP_ADR_ADD1_MASK) >>
++					PCAP_ADR_ADD1_SHIFT;
++		pcap_ts->y = (tmp & PCAP_ADR_ADD2_MASK) >>
++					PCAP_ADR_ADD2_SHIFT;
++	} else {
++		pcap_ts->pressure = (tmp & PCAP_ADR_ADD2_MASK) >>
++						PCAP_ADR_ADD2_SHIFT;
++	}
++}
++
++/* PCAP2 interrupts us when ADC conversion result is available */
++static irqreturn_t pcap_ts_irq_xy(int irq, void *dev_id)
++{
++	struct pcap_ts *pcap_ts = dev_id;
++
++	pcap_ts_get_xy_value(pcap_ts);
++	switch (pcap_ts->read_state) {
++	case PRESSURE_MEASUREMENT:
++		if (!(pcap_ts->pressure >= PRESSURE_MAX ||
++				pcap_ts->pressure <= PRESSURE_MIN)) {
++			/* pen has been touched down */
++			input_report_key(pcap_ts->input, BTN_TOUCH, 1);
++			input_report_abs(pcap_ts->input, ABS_PRESSURE,
++							pcap_ts->pressure);
++		}
++		/* switch state machine into coordinate read mode */
++		pcap_ts_mode(pcap_ts, POSITION_XY_MEASUREMENT);
++		pcap_ts_start_xy_read(pcap_ts);
++		break;
++	case POSITION_XY_MEASUREMENT:
++		if (pcap_ts->x <= X_AXIS_MIN || pcap_ts->x >= X_AXIS_MAX ||
++		    pcap_ts->y <= Y_AXIS_MIN || pcap_ts->y >= Y_AXIS_MAX) {
++			/* pen has been released */
++			input_report_key(pcap_ts->input, BTN_TOUCH, 0);
++			input_report_abs(pcap_ts->input, ABS_PRESSURE, 0);
++
++			/* no need for timer, we'll get interrupted with
++			 * next touch down event */
++			del_timer(&pcap_ts->timer);
++
++			/* ask PCAP2 to interrupt us if touch event happens
++			 * again */
++			pcap_ts_mode(pcap_ts, STANDBY_MODE);
++			enable_irq(pcap_ts->irq_touch);
++		} else {
++			input_report_abs(pcap_ts->input, ABS_X, pcap_ts->x);
++			input_report_abs(pcap_ts->input, ABS_Y, pcap_ts->y);
++
++			/* switch back to pressure read mode */
++			pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
++			mod_timer(&pcap_ts->timer, jiffies + SAMPLE_INTERVAL);
++		}
++		input_sync(pcap_ts->input);
++		break;
++	default:
++		break;
++	}
++	return IRQ_HANDLED;
++}
++
++/* PCAP2 interrupts us on pen down/up */
++static irqreturn_t pcap_ts_irq_touch(int irq, void *dev_id)
++{
++	struct pcap_ts *pcap_ts = dev_id;
++	/* mask Touchscreen interrupt bit, prevents further touch events
++	 * from being reported to us until we're finished with reading
++	 * both pressure and x/y from ADC */
++	disable_irq(pcap_ts->irq_touch);
++
++	pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
++	pcap_ts_start_xy_read(pcap_ts);
++	return IRQ_HANDLED;
++}
++
++static void pcap_ts_timer_fn(unsigned long data)
++{
++	struct pcap_ts *pcap_ts = (struct pcap_ts *) data;
++
++	pcap_ts_start_xy_read(pcap_ts);
++}
++
++static int __init ezxts_probe(struct platform_device *pdev)
++{
++	struct pcap_ts *pcap_ts;
++	struct input_dev *input_dev;
++	int err = -ENOMEM;
++
++	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!pcap_ts || !input_dev)
++		goto fail;
++
++	pcap_ts->irq_xy = platform_get_irq(pdev, 0);
++	if (pcap_ts->irq_xy < 0) {
++		err = pcap_ts->irq_xy;
++		goto fail;
++	}
++
++	pcap_ts->irq_touch = platform_get_irq(pdev, 1);
++	if (pcap_ts->irq_touch < 0) {
++		err = pcap_ts->irq_touch;
++		goto fail;
++	}
++
++	ezx_pcap_write(PCAP_REG_ADC, 0);
++	ezx_pcap_write(PCAP_REG_ADR, 0);
++	pcap_ts_mode(pcap_ts, STANDBY_MODE);
++
++	err = request_irq(pcap_ts->irq_xy, pcap_ts_irq_xy, IRQF_DISABLED,
++			  "pcap-ts X/Y", pcap_ts);
++	if (err < 0) {
++		printk(KERN_ERR "pcap_ts: can't grab xy irq %d: %d\n",
++		       pcap_ts->irq_xy, err);
++		goto fail;
++	}
++
++	err = request_irq(pcap_ts->irq_touch, pcap_ts_irq_touch, IRQF_DISABLED,
++			  "pcap-ts touch", pcap_ts);
++	if (err < 0) {
++		printk(KERN_ERR "pcap_ts: can't grab touch irq %d: %d\n",
++		       pcap_ts->irq_touch, err);
++		goto fail_xy;
++	}
++
++	pcap_ts->input = input_dev;
++	init_timer(&pcap_ts->timer);
++	pcap_ts->timer.data = (unsigned long) pcap_ts;
++	pcap_ts->timer.function = &pcap_ts_timer_fn;
++
++	platform_set_drvdata(pdev, pcap_ts);
++
++	input_dev->name = "pcap-touchscreen";
++	input_dev->phys = "ezxts/input0";
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0002;
++	input_dev->id.version = 0x0100;
++	input_dev->dev.parent = &pdev->dev;
++
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN,
++			     PRESSURE_MAX, 0, 0);
++
++	input_register_device(pcap_ts->input);
++
++	return 0;
++
++fail_xy:
++	free_irq(pcap_ts->irq_xy, pcap_ts);
++fail:
++	input_free_device(input_dev);
++	kfree(pcap_ts);
++
++	return err;
++}
++
++static int ezxts_remove(struct platform_device *pdev)
++{
++	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
++
++	del_timer_sync(&pcap_ts->timer);
++
++	free_irq(pcap_ts->irq_touch, pcap_ts);
++	free_irq(pcap_ts->irq_xy, pcap_ts);
++
++	input_unregister_device(pcap_ts->input);
++	kfree(pcap_ts);
++
++	return 0;
++}
++
++static int ezxts_suspend(struct platform_device *dev, pm_message_t state)
++{
++	u_int32_t tmp;
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp |= PCAP_ADC_TS_REF_LOWPWR;
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++	return 0;
++}
++
++static int ezxts_resume(struct platform_device *dev)
++{
++	u_int32_t tmp;
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp &= ~PCAP_ADC_TS_REF_LOWPWR;
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++	return 0;
++}
++
++
++static struct platform_driver ezxts_driver = {
++	.probe		= ezxts_probe,
++	.remove		= ezxts_remove,
++	.suspend	= ezxts_suspend,
++	.resume		= ezxts_resume,
++	.driver		= {
++		.name	= "pcap-ts",
++		.owner	= THIS_MODULE,
++	},
++};
++
++static int __init ezxts_init(void)
++{
++	return platform_driver_register(&ezxts_driver);
++}
++
++static void __exit ezxts_exit(void)
++{
++	platform_driver_unregister(&ezxts_driver);
++}
++
++module_init(ezxts_init);
++module_exit(ezxts_exit);
++
++MODULE_DESCRIPTION("Motorola PCAP2 touchscreen driver");
++MODULE_AUTHOR("Harald Welte <laforge@openezx.org>");
++MODULE_LICENSE("GPL");
+Index: linux-2.6-arm/drivers/input/touchscreen/Makefile
+===================================================================
+--- linux-2.6-arm.orig/drivers/input/touchscreen/Makefile
++++ linux-2.6-arm/drivers/input/touchscreen/Makefile
+@@ -26,3 +26,4 @@
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
++obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+Index: linux-2.6-arm/arch/arm/mach-pxa/ezx.c
+===================================================================
+--- linux-2.6-arm.orig/arch/arm/mach-pxa/ezx.c
++++ linux-2.6-arm/arch/arm/mach-pxa/ezx.c
+@@ -244,6 +244,30 @@
+ 	.setpower       = ezx_mci_setpower,
+ 	.exit           = ezx_mci_exit,
+ };
++/* PCAP_TS */
++struct resource pcap_ts_resources[] = {
++	[0] = {
++		.start          = EZX_IRQ_ADCDONE,
++		.end            = EZX_IRQ_ADCDONE,
++		.flags          = IORESOURCE_IRQ,
++	},
++	[1] = {
++		.start          = EZX_IRQ_TS,
++		.end            = EZX_IRQ_TS,
++		.flags          = IORESOURCE_IRQ,
++	}
++};
++
++struct platform_device pcap_ts_device = {
++	.name           = "pcap-ts",
++	.id             = -1,
++	.dev        = {
++		.parent = &ezx_pcap_device.dev,
++	},
++	.num_resources  = ARRAY_SIZE(pcap_ts_resources),
++	.resource       = pcap_ts_resources,
++};
++
+ 
+ static struct platform_device *devices[] __initdata = {
+ 	&ezx_backlight_device,
+@@ -294,6 +318,14 @@
+ 	else
+ 		set_pxa_fb_info(&ezx_fb_info_2);
+ 	platform_device_register(&ezx_pcap_device);
++	/* A780 and E680 AP is connected to PCAP port 2 */
++	if (machine_is_ezx_a780() || machine_is_ezx_e680()) {
++		pcap_ts_resources[0].start = EZX_IRQ_ADCDONE2;
++		pcap_ts_resources[0].end = EZX_IRQ_ADCDONE2;
++	}
++	/* A910 and E2 dont have a touchscreen */
++	if (!(machine_is_ezx_a910() || machine_is_ezx_e2()))
++		platform_device_register(&pcap_ts_device);
+ 	pxa_set_mci_info(&ezx_mci_platform_data);
+ 	platform_add_devices(devices, ARRAY_SIZE(devices));
+ }
 
 -- 
-Dmitry
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

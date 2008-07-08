@@ -1,131 +1,38 @@
-From: Andreas Ericsson <ae@op5.se>
-Subject: Touchpad gone berserk on dell XPS 1530 (AlpsPS/2 ALPS GlidePoint)
-Date: Tue, 08 Jul 2008 18:42:37 +0200
-Message-ID: <487398FD.2050305@op5.se>
+From: Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: Re: [Patch 08/10] input: Touchscreen driver for the PCAP
+Date: Tue, 8 Jul 2008 22:24:12 +0200
+Message-ID: <20080708202412.GD18479@datenfreihafen.org>
+References: <20080707184000.411913919@datenfreihafen.org> <20080707184131.286622542@datenfreihafen.org> <20080707161212.ZZRA012@mailhub.coreip.homeip.net> <20080707202200.GB3449@datenfreihafen.org> <487319FB.5040907@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.op5.se ([193.201.96.20]:34783 "EHLO mail.op5.se"
+Received: from sirius.lasnet.de ([78.47.116.19]:34633 "EHLO sirius.lasnet.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750889AbYGHQt5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Jul 2008 12:49:57 -0400
+	id S1752699AbYGHUUM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Jul 2008 16:20:12 -0400
+Content-Disposition: inline
+In-Reply-To: <487319FB.5040907@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, =?ISO-8859-15?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, Daniel Ribeiro <wyrm@openezx.org>
 
-Hi all.
+Hello.
 
-I'm a happy owner of a Dell XPS 1530 laptop where I use an external mou=
-se
-and usually keep the internal touchpad disabled.
+On Tue, 2008-07-08 at 15:40, Eric Miao wrote:
+> 
+> Well, one small nit: I'm not a language lawyer, but I don't think usage of
+> u_int32_t/u_int16_t/u_int8_t is encourage nowadays, use uin32_t/uint16_t/uint8_t
+> or u32/u16/u8.
+> 
+> Note: I'm not going to start an argument on which is the correct one to
+> use, so it's totally up to you.
 
-=46edora bugzilla link:
-https://bugzilla.redhat.com/show_bug.cgi?id=3D448656
-The bugzilla entry has more text, but I've tried to distil the info her=
-e
-so one doesn't have to wade over several pages of postings in order to
-get to the info. Kristian H=F6gsberg Cc'd as he's the assigned redhat
-resource for that particular bug.
+I would like to discuss this with Daniel and then submit a patch for all this
+files to make them consistent. Doing this now would make life harder as some are
+already acked, I need to take care with different maintainers, etc.
 
+Hope this is ok with you.
 
-The problem:
-Some time ago (I'm not sure when as I've been suspending the computer
-rather than rebooting it) I started noticing that I got some really wei=
-rd
-input from the keyboard without me pressing any keys. The most frequent=
-ly
-"fake-pressed" key is the equivalent of F7 (^[[18~). It seems to always
-generate escape-sequences similar to those of pressing either of the F-=
-keys
-for some reason (not a blessing when 14000 help-browser windows suddenl=
-y
-try to spawn after the touchpad generating F1 sequences under Gnome).
-
-The mouse-pointer also jumps around the screen like a wild monkey rando=
-mly
-activating left or right button at near-tachyon speed. So far I haven't
-noticed it scrolling or middle-clicking.
-
-
-The troubleshooting:
-At first I thought it was the motherboard acting up (and got it replace=
-d
-as it actually broke down 4 days after the problems started). After tha=
-t
-I upgraded from Fedora 8 to Fedora 9, and none of the fedora9-shipped
-kernels work. Suspecting the technician was a bit clumsy or perhaps
-managed to short-circuit the touchpad, I loaded up Windows Vista,
-which works perfectly, ruling out hardware errors. Unfortunately, I nee=
-d
-this laptop for more than watching porn and playing games, so running
-vista isn't really an option.
-
-I've tried booting latest master from linux-input.git
-(eff88f9927b8a54b378b4d4863eef488612b6dd7, v2.6.26-rc9-80-geff88f9 as
-of this writing), but to no avail. Finally, I located an ancient kernel
-(2.6.23.1-42) that doesn't have this particular problem but exhibits a
-much more common and less serious problem (tapping the touchpad doesn't
-work - everything else is fine). The next released kernel from fedora
-(2.6.24.3-12) doesn't work.
-
-dmesg output gets flooded with entries like this:
-psmouse.c: bad data from KBC - bad parity
-<about 10-30 of those> followed by
-input: Virtual ThinkFinger Keyboard as /devices/virtual/input/input11
-psmouse.c: bad data from KBC - bad parity
-psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwin=
-g 1 bytes away.
-psmouse.c: failed to re-enable mouse on isa0060/serio1
-psmouse.c: resync failed, issuing reconnect request
-psmouse.c: Failed to reset mouse on isa0060/serio1
-input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/input/input=
-12
-psmouse.c: Failed to enable mouse on isa0060/serio1
-
-
-It loops over every 1.5-3 minutes or so.
-
-
-Progress so far:
-=46rom what information I've been able to gather from simple printk() d=
-ebugging
-is that it seems the kernel doesn't get further than the initial check =
-in
-alps_detect on the touchpad but falls back to some version of "generic =
-ps/2"
-mode.
-The patches the fedora team apply to their kernels are numerous, and I =
-haven't
-been able to find a listing showing which git commit any particular fed=
-ora
-kernel is built upon. Not very many of them touch the drivers/input sec=
-tion
-though, and those that do do it either for the macbook touchpad driver =
-or
-to suppress some user-scaring message.
-
-I've set my hopes to finding the bug somewhere in the range v2.6.23..v2=
-=2E6.24,
-and that's what I'm currently bisecting. So far it's slow going though =
-as
-I'm not very familiar with kernel hacking and I don't know a quick way =
-to
-boot a kernel so that all the hardware with 100% certainty gets a hard
-reset.
-
-
-Any hints, help or pointers would be much appreciated.
-
-TIA
-
---=20
-Andreas Ericsson                   andreas.ericsson@op5.se
-OP5 AB                             www.op5.se
-Tel: +46 8-230225                  Fax: +46 8-230231
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+regards
+Stefan Schmidt

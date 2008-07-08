@@ -1,28 +1,131 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] serio.h: trivial documentation fix
-Date: Tue, 8 Jul 2008 10:37:32 -0400
-Message-ID: <20080708143731.GA8560@USFSHXP-002051>
-References: <48733119.5080502@wincor-nixdorf.com>
+From: Andreas Ericsson <ae@op5.se>
+Subject: Touchpad gone berserk on dell XPS 1530 (AlpsPS/2 ALPS GlidePoint)
+Date: Tue, 08 Jul 2008 18:42:37 +0200
+Message-ID: <487398FD.2050305@op5.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755261AbYGHOhs@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <48733119.5080502@wincor-nixdorf.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Niels de Vos <niels.devos@wincor-nixdorf.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.op5.se ([193.201.96.20]:34783 "EHLO mail.op5.se"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750889AbYGHQt5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 8 Jul 2008 12:49:57 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, =?ISO-8859-15?Q?Kristian_H=F8gsberg?= <krh@redhat.com>
 
-On Tue, Jul 08, 2008 at 11:19:21AM +0200, Niels de Vos wrote:
-> In include/linux/serio.h two different define-series are
-> documented as "Serio types". However the second series contains
-> defines for the different protocols.
->
+Hi all.
 
-Applied, thank you Niels.
+I'm a happy owner of a Dell XPS 1530 laptop where I use an external mou=
+se
+and usually keep the internal touchpad disabled.
 
-BTW, your e-mail client mangles whitespace which causes trouble
-when applying patches, you may want to look into it.
+=46edora bugzilla link:
+https://bugzilla.redhat.com/show_bug.cgi?id=3D448656
+The bugzilla entry has more text, but I've tried to distil the info her=
+e
+so one doesn't have to wade over several pages of postings in order to
+get to the info. Kristian H=F6gsberg Cc'd as he's the assigned redhat
+resource for that particular bug.
 
--- 
-Dmitry
+
+The problem:
+Some time ago (I'm not sure when as I've been suspending the computer
+rather than rebooting it) I started noticing that I got some really wei=
+rd
+input from the keyboard without me pressing any keys. The most frequent=
+ly
+"fake-pressed" key is the equivalent of F7 (^[[18~). It seems to always
+generate escape-sequences similar to those of pressing either of the F-=
+keys
+for some reason (not a blessing when 14000 help-browser windows suddenl=
+y
+try to spawn after the touchpad generating F1 sequences under Gnome).
+
+The mouse-pointer also jumps around the screen like a wild monkey rando=
+mly
+activating left or right button at near-tachyon speed. So far I haven't
+noticed it scrolling or middle-clicking.
+
+
+The troubleshooting:
+At first I thought it was the motherboard acting up (and got it replace=
+d
+as it actually broke down 4 days after the problems started). After tha=
+t
+I upgraded from Fedora 8 to Fedora 9, and none of the fedora9-shipped
+kernels work. Suspecting the technician was a bit clumsy or perhaps
+managed to short-circuit the touchpad, I loaded up Windows Vista,
+which works perfectly, ruling out hardware errors. Unfortunately, I nee=
+d
+this laptop for more than watching porn and playing games, so running
+vista isn't really an option.
+
+I've tried booting latest master from linux-input.git
+(eff88f9927b8a54b378b4d4863eef488612b6dd7, v2.6.26-rc9-80-geff88f9 as
+of this writing), but to no avail. Finally, I located an ancient kernel
+(2.6.23.1-42) that doesn't have this particular problem but exhibits a
+much more common and less serious problem (tapping the touchpad doesn't
+work - everything else is fine). The next released kernel from fedora
+(2.6.24.3-12) doesn't work.
+
+dmesg output gets flooded with entries like this:
+psmouse.c: bad data from KBC - bad parity
+<about 10-30 of those> followed by
+input: Virtual ThinkFinger Keyboard as /devices/virtual/input/input11
+psmouse.c: bad data from KBC - bad parity
+psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwin=
+g 1 bytes away.
+psmouse.c: failed to re-enable mouse on isa0060/serio1
+psmouse.c: resync failed, issuing reconnect request
+psmouse.c: Failed to reset mouse on isa0060/serio1
+input: PS/2 Generic Mouse as /devices/platform/i8042/serio1/input/input=
+12
+psmouse.c: Failed to enable mouse on isa0060/serio1
+
+
+It loops over every 1.5-3 minutes or so.
+
+
+Progress so far:
+=46rom what information I've been able to gather from simple printk() d=
+ebugging
+is that it seems the kernel doesn't get further than the initial check =
+in
+alps_detect on the touchpad but falls back to some version of "generic =
+ps/2"
+mode.
+The patches the fedora team apply to their kernels are numerous, and I =
+haven't
+been able to find a listing showing which git commit any particular fed=
+ora
+kernel is built upon. Not very many of them touch the drivers/input sec=
+tion
+though, and those that do do it either for the macbook touchpad driver =
+or
+to suppress some user-scaring message.
+
+I've set my hopes to finding the bug somewhere in the range v2.6.23..v2=
+=2E6.24,
+and that's what I'm currently bisecting. So far it's slow going though =
+as
+I'm not very familiar with kernel hacking and I don't know a quick way =
+to
+boot a kernel so that all the hardware with 100% certainty gets a hard
+reset.
+
+
+Any hints, help or pointers would be much appreciated.
+
+TIA
+
+--=20
+Andreas Ericsson                   andreas.ericsson@op5.se
+OP5 AB                             www.op5.se
+Tel: +46 8-230225                  Fax: +46 8-230231
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

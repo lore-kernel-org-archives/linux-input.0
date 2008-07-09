@@ -1,83 +1,84 @@
-From: Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: Re: [Patch 08/10] input: Touchscreen driver for the PCAP
-Date: Tue, 8 Jul 2008 22:26:22 +0200
-Message-ID: <20080708202622.GE18479@datenfreihafen.org>
-References: <20080707184000.411913919@datenfreihafen.org> <20080707184131.286622542@datenfreihafen.org> <20080707161212.ZZRA012@mailhub.coreip.homeip.net>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: [PATCH 2/3] Matrix keypad
+Date: Wed, 9 Jul 2008 03:41:20 +0200
+Message-ID: <200807090341.20397.marek.vasut@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_AdBdIU9jnH54HFp"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sirius.lasnet.de ([78.47.116.19]:34695 "EHLO sirius.lasnet.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754074AbYGHUWW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 8 Jul 2008 16:22:22 -0400
+Received: from fk-out-0910.google.com ([209.85.128.184]:29183 "EHLO
+	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751381AbYGIBj0 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jul 2008 21:39:26 -0400
+Received: by fk-out-0910.google.com with SMTP id 18so1478137fkq.5
+        for <linux-input@vger.kernel.org>; Tue, 08 Jul 2008 18:39:24 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080707161212.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, Daniel Ribeiro <wyrm@openezx.org>
+To: linux-arm-kernel@lists.arm.linux.org.uk
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Eric Miao <eric.y.miao@gmail.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Hello.
+--Boundary-00=_AdBdIU9jnH54HFp
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Mon, 2008-07-07 at 16:13, Dmitry Torokhov wrote:
-> 
-> On Mon, Jul 07, 2008 at 08:40:08PM +0200, stefan@datenfreihafen.org wrote:
-> > +
-> > +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-> > +	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-> > +	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
-> > +	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
-> > +	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN,
-> > +			     PRESSURE_MAX, 0, 0);
-> > +
-> > +	input_register_device(pcap_ts->input);
-> 
-> Please add error handling here, otherwise looks good.
+Hi,
+this is the gpio driven matrix keypad. Final version.
+I also CCed it to linux-input since it might interest them.
 
-Added, how about this one?
+--Boundary-00=_AdBdIU9jnH54HFp
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="09-matrix_keypad.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="09-matrix_keypad.patch"
 
-
-Subject: [@num@/@total@] input: Touchscreen driver for the PCAP
-Cc: linux-input@vger.kernel.org
-
-Touchscreen driver based on the MFD PCAP available on the EZX mobile phones.
-
-Signed-off-by: Daniel Ribeiro <drwyrm@gmail.com>
-
-PATCH FOLLOWS
-KernelVersion: 2.6-arm-git pxa branch
-
-Index: linux-2.6-arm/drivers/input/touchscreen/Kconfig
-===================================================================
---- linux-2.6-arm.orig/drivers/input/touchscreen/Kconfig
-+++ linux-2.6-arm/drivers/input/touchscreen/Kconfig
-@@ -316,4 +316,13 @@
- 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EMBEDDED
- 	depends on TOUCHSCREEN_USB_COMPOSITE
+Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index efd70a9..31b91ba 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -323,4 +323,14 @@ config KEYBOARD_SH_KEYSC
  
-+config TOUCHSCREEN_PCAP
-+	tristate "Motorola PCAP touchscreen"
-+	depends on EZX_PCAP
-+	help
-+	  Say Y here if you have a Motorola EZX telephone and
-+	  want to support the built-in touchscreen.
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sh_keysc.
 +
-+	  If unsure, say N.
++config KEYBOARD_MATRIX
++	tristate "GPIO driven matrix keypad support"
++	depends on GENERIC_GPIO
++	help
++	  Enable support for GPIO driven matrix keypad
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called matrix_keypad.
 +
  endif
-Index: linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
-===================================================================
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index 0edc8f2..b22bae1 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -27,3 +27,4 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
+ obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
+ obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
+ obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
++obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+new file mode 100644
+index 0000000..1a1503d
 --- /dev/null
-+++ linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
-@@ -0,0 +1,320 @@
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -0,0 +1,351 @@
 +/*
-+ * pcap_ts.c - Touchscreen driver for Motorola PCAP2 based touchscreen as found
-+ * 	       in the EZX phone platform.
++ * drivers/input/keyboard/matrix_keypad.c
 + *
-+ *  Copyright (C) 2006 Harald Welte <laforge@openezx.org>
-+ *  Copyright (C) 2007 Daniel Ribeiro <drwyrm@gmail.com>
++ *  GPIO driven matrix keyboard driver
 + *
-+ *  Based on information found in the original Motorola 2.4.x ezx-ts.c driver.
++ *  Copyright (c) 2008 Marek Vasut <marek.vasut@gmail.com>
++ *
++ *  Based on corgikbd.c
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License version 2 as
@@ -85,370 +86,382 @@ Index: linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
 + *
 + */
 +
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/string.h>
-+#include <linux/pm.h>
-+#include <linux/timer.h>
-+#include <linux/interrupt.h>
++#include <linux/delay.h>
 +#include <linux/platform_device.h>
++#include <linux/init.h>
 +#include <linux/input.h>
-+#include <linux/mfd/ezx-pcap.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <linux/jiffies.h>
++#include <linux/module.h>
++#include <linux/gpio.h>
++#include <linux/matrix_keypad.h>
 +
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/pxa-regs.h>
++struct matrix_keypad {
++	struct matrix_keypad_platform_data *pdata;
++	struct input_dev *input_dev;
 +
-+/* PCAP_ADC_TS_M modes */
-+#define POSITION_X_MEASUREMENT	0
-+#define POSITION_XY_MEASUREMENT	1
-+#define PRESSURE_MEASUREMENT	2
-+#define PLATE_X_MEASUREMENT	3
-+#define PLATE_Y_MEASUREMENT	4
-+#define STANDBY_MODE		5
-+#define NONTS_MODE		6
-+
-+struct pcap_ts {
-+	int irq_xy;
-+	int irq_touch;
-+	struct input_dev *input;
++	spinlock_t lock;
 +	struct timer_list timer;
-+	u_int16_t x, y;
-+	u_int16_t pressure;
-+	u_int8_t read_state;
++
++	unsigned int suspended;
++	unsigned long suspend_jiffies;
++
++	/* on, off, alt flags */
++	unsigned int size;
++	unsigned int *flags;
 +};
 +
-+#define X_AXIS_MIN	0
-+#define X_AXIS_MAX	1023
-+
-+#define Y_AXIS_MAX	X_AXIS_MAX
-+#define Y_AXIS_MIN	X_AXIS_MIN
-+
-+#define PRESSURE_MAX	X_AXIS_MAX
-+#define PRESSURE_MIN	X_AXIS_MIN
-+
-+/* if we try to read faster, pressure reading becomes unreliable */
-+#define SAMPLE_INTERVAL		(HZ/50)
-+
-+
-+static void pcap_ts_mode(struct pcap_ts *pcap_ts, u_int32_t mode)
++/*
++ * Get alternate function button status (if there is any on our keypad)
++ */
++static unsigned char matrix_keypad_get_fn(struct matrix_keypad *keypad)
 +{
-+	u_int32_t tmp;
++	unsigned char fn = 0;
++	struct matrix_keypad_platform_data *pdata = keypad->pdata;
 +
-+	pcap_ts->read_state = mode;
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp &= ~PCAP_ADC_TS_M_MASK;
-+	tmp |= ((mode << PCAP_ADC_TS_M_SHIFT) & PCAP_ADC_TS_M_MASK);
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
++	if (!pdata->alt_row || !pdata->alt_col)
++		return 0;
++
++	/* get the altfn key status */
++	gpio_set_value(pdata->row_gpio[pdata->alt_row],	!pdata->row_polarity);
++	udelay(50);
++	fn = !!gpio_get_value(pdata->col_gpio[pdata->alt_col]);
++	if (pdata->col_polarity)
++		fn = !fn;
++	gpio_set_value(pdata->row_gpio[pdata->alt_row],	pdata->row_polarity);
++	return fn;
 +}
 +
-+/* issue a XY read command to the ADC of PCAP2.  Well get an ADCDONE interrupt
-+ * once the result of the conversion is available */
-+static void pcap_ts_start_xy_read(struct pcap_ts *pcap_ts)
++/*
++ * Lookup the key in our keymap
++ */
++static unsigned int matrix_keypad_lookup(int row, int col,
++				struct matrix_keypad *keypad, int altfn)
 +{
-+	u_int32_t tmp;
++	int i;
++	struct matrix_keypad_platform_data *pdata = keypad->pdata;
 +
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp &= ~(PCAP_ADC_RAND | PCAP_ADC_ADA1_MASK | PCAP_ADC_ADA2_MASK);
-+	tmp |= (PCAP_ADC_ADEN | PCAP_ADC_AD_SEL1 |
-+		PCAP_ADC_AD_SEL2 | (5 << PCAP_ADC_ADA1_SHIFT) |
-+					(3 << PCAP_ADC_ADA2_SHIFT));
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+
-+	ezx_pcap_write(PCAP_REG_ADR, PCAP_ADR_ASC);
++	for (i = 0; i < pdata->map_size; i++)
++		if ((row == ((pdata->map[i]>>28) & 0xf)) &&
++		     (col == ((pdata->map[i]>>24) & 0xf)))
++			return (pdata->map[i] >> (12 * altfn)) & 0xfff;
++	return 0xfff;
 +}
 +
-+/* read the XY result from the ADC of PCAP2 */
-+static void pcap_ts_get_xy_value(struct pcap_ts *pcap_ts)
++/*
++ * This gets the keys from keyboard and reports it to input subsystem
++ */
++static void matrix_keypad_process(struct matrix_keypad *keypad)
 +{
-+	u_int32_t tmp;
++	unsigned char fn = 0;
++	int i, j, pressed = 0;
++	unsigned long flags;
++	int gpio, key = 0;
++	struct matrix_keypad_platform_data *pdata = keypad->pdata;
 +
-+	ezx_pcap_read(PCAP_REG_ADR, &tmp);
++	spin_lock_irqsave(&keypad->lock, flags);
 +
-+	if (pcap_ts->read_state == POSITION_XY_MEASUREMENT) {
-+		pcap_ts->x = (tmp & PCAP_ADR_ADD1_MASK) >>
-+					PCAP_ADR_ADD1_SHIFT;
-+		pcap_ts->y = (tmp & PCAP_ADR_ADD2_MASK) >>
-+					PCAP_ADR_ADD2_SHIFT;
-+	} else {
-+		pcap_ts->pressure = (tmp & PCAP_ADR_ADD2_MASK) >>
-+						PCAP_ADR_ADD2_SHIFT;
-+	}
-+}
++	/* disable interrupts */
++	for (i = 0; i < pdata->col_gpio_size; i++)
++		set_irq_type(gpio_to_irq(pdata->col_gpio[i]),
++				IRQF_TRIGGER_NONE);
 +
-+/* PCAP2 interrupts us when ADC conversion result is available */
-+static irqreturn_t pcap_ts_irq_xy(int irq, void *dev_id)
-+{
-+	struct pcap_ts *pcap_ts = dev_id;
++	/* set all unreadable */
++	for (i = 0; i < pdata->row_gpio_size; i++)
++		gpio_set_value(pdata->row_gpio[i], pdata->row_polarity);
 +
-+	pcap_ts_get_xy_value(pcap_ts);
-+	switch (pcap_ts->read_state) {
-+	case PRESSURE_MEASUREMENT:
-+		if (!(pcap_ts->pressure >= PRESSURE_MAX ||
-+				pcap_ts->pressure <= PRESSURE_MIN)) {
-+			/* pen has been touched down */
-+			input_report_key(pcap_ts->input, BTN_TOUCH, 1);
-+			input_report_abs(pcap_ts->input, ABS_PRESSURE,
-+							pcap_ts->pressure);
++	fn = matrix_keypad_get_fn(keypad);
++
++	/* read the keypad matrix */
++	for (i = 0; i < pdata->row_gpio_size; i++) {
++		gpio_set_value(pdata->row_gpio[i], !pdata->row_polarity);
++		udelay(50);
++		for (j = 0; j < pdata->col_gpio_size; j++) {
++				gpio = gpio_get_value(pdata->col_gpio[j]);
++				if (pdata->col_polarity)
++					gpio = !gpio;
++				if (gpio)
++					pressed++;
++				key = matrix_keypad_lookup(i, j, keypad, fn);
++				if (key == 0xfff)
++					continue;
++				if (gpio) {
++					input_report_key(keypad->input_dev,
++							key, 1);
++					keypad->flags[(key/32) + (keypad->size
++						* fn)] |= 1<<(key%32);
++				} else if ((keypad->flags[(key/32) +
++						(keypad->size * fn)] &
++						(1<<(key%32))) && !gpio) {
++					input_report_key(keypad->input_dev,
++							key, 0);
++					keypad->flags[(key/32) + (keypad->size
++						* fn)] &= ~(1<<(key%32));
++				}
 +		}
-+		/* switch state machine into coordinate read mode */
-+		pcap_ts_mode(pcap_ts, POSITION_XY_MEASUREMENT);
-+		pcap_ts_start_xy_read(pcap_ts);
-+		break;
-+	case POSITION_XY_MEASUREMENT:
-+		if (pcap_ts->x <= X_AXIS_MIN || pcap_ts->x >= X_AXIS_MAX ||
-+		    pcap_ts->y <= Y_AXIS_MIN || pcap_ts->y >= Y_AXIS_MAX) {
-+			/* pen has been released */
-+			input_report_key(pcap_ts->input, BTN_TOUCH, 0);
-+			input_report_abs(pcap_ts->input, ABS_PRESSURE, 0);
-+
-+			/* no need for timer, we'll get interrupted with
-+			 * next touch down event */
-+			del_timer(&pcap_ts->timer);
-+
-+			/* ask PCAP2 to interrupt us if touch event happens
-+			 * again */
-+			pcap_ts_mode(pcap_ts, STANDBY_MODE);
-+			enable_irq(pcap_ts->irq_touch);
-+		} else {
-+			input_report_abs(pcap_ts->input, ABS_X, pcap_ts->x);
-+			input_report_abs(pcap_ts->input, ABS_Y, pcap_ts->y);
-+
-+			/* switch back to pressure read mode */
-+			pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
-+			mod_timer(&pcap_ts->timer, jiffies + SAMPLE_INTERVAL);
-+		}
-+		input_sync(pcap_ts->input);
-+		break;
-+	default:
-+		break;
++		gpio_set_value(pdata->row_gpio[i], pdata->row_polarity);
++		udelay(50);
 +	}
++
++	/* set all readable */
++	for (i = 0; i < pdata->row_gpio_size; i++)
++		gpio_set_value(pdata->row_gpio[i],
++				!pdata->row_polarity);
++
++	/* reenable interrupts */
++	for (i = 0; i < pdata->col_gpio_size; i++)
++		set_irq_type(gpio_to_irq(pdata->col_gpio[i]),
++			    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING);
++
++	/* report to input subsystem */
++	input_sync(keypad->input_dev);
++
++	/* if there were any new keypresses, handle repeats by rereading */
++	if (pressed)
++		mod_timer(&keypad->timer, jiffies + msecs_to_jiffies(
++				    pdata->debounce_interval));
++
++	spin_unlock_irqrestore(&keypad->lock, flags);
++}
++
++/*
++ * Interrupt handler
++ */
++static irqreturn_t matrix_keypad_interrupt(int irq, void *id)
++{
++	struct matrix_keypad *keypad = id;
++
++	if (!timer_pending(&keypad->timer)) {
++		udelay(20);
++		matrix_keypad_process(keypad);
++	}
++
 +	return IRQ_HANDLED;
 +}
 +
-+/* PCAP2 interrupts us on pen down/up */
-+static irqreturn_t pcap_ts_irq_touch(int irq, void *dev_id)
++/*
++ * Timer checking for released keys and still held keys
++ */
++static void matrix_keypad_timer_callback(unsigned long data)
 +{
-+	struct pcap_ts *pcap_ts = dev_id;
-+	/* mask Touchscreen interrupt bit, prevents further touch events
-+	 * from being reported to us until we're finished with reading
-+	 * both pressure and x/y from ADC */
-+	disable_irq(pcap_ts->irq_touch);
-+
-+	pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
-+	pcap_ts_start_xy_read(pcap_ts);
-+	return IRQ_HANDLED;
++	struct matrix_keypad *keypad = (struct matrix_keypad *) data;
++	matrix_keypad_process(keypad);
 +}
 +
-+static void pcap_ts_timer_fn(unsigned long data)
++#ifdef CONFIG_PM
++static int matrix_keypad_suspend(struct platform_device *dev,
++				pm_message_t state)
 +{
-+	struct pcap_ts *pcap_ts = (struct pcap_ts *) data;
++	int i;
++	struct matrix_keypad *keypad = platform_get_drvdata(dev);
 +
-+	pcap_ts_start_xy_read(pcap_ts);
++	keypad->suspended = 1;
++
++	/* we dont really want to suspend power key here */
++	for (i = 1; i < keypad->pdata->row_gpio_size; i++)
++		gpio_direction_input(keypad->pdata->row_gpio[i]);
++
++	return 0;
 +}
 +
-+static int __init ezxts_probe(struct platform_device *pdev)
++static int matrix_keypad_resume(struct platform_device *dev)
 +{
-+	struct pcap_ts *pcap_ts;
++	int i;
++	struct matrix_keypad *keypad = platform_get_drvdata(dev);
++
++	/* Set strobe lines as outputs, low */
++	for (i = 0; i < keypad->pdata->row_gpio_size; i++)
++		gpio_direction_output(keypad->pdata->row_gpio[i], 0);
++
++	/* Upon resume, ignore the suspend key for a short while */
++	keypad->suspend_jiffies = jiffies;
++	keypad->suspended = 0;
++
++	return 0;
++}
++#else
++#define matrix_keypad_suspend	NULL
++#define matrix_keypad_resume	NULL
++#endif
++
++/*
++ * Everything starts here
++ */
++static int __init matrix_keypad_probe(struct platform_device *pdev)
++{
++	struct matrix_keypad *keypad;
 +	struct input_dev *input_dev;
-+	int err = -ENOMEM;
++	int i, err = -ENOMEM;
 +
-+	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
++	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
 +	input_dev = input_allocate_device();
-+	if (!pcap_ts || !input_dev)
++	if (!keypad || !input_dev)
 +		goto fail;
 +
-+	pcap_ts->irq_xy = platform_get_irq(pdev, 0);
-+	if (pcap_ts->irq_xy < 0) {
-+		err = pcap_ts->irq_xy;
++	platform_set_drvdata(pdev, keypad);
++
++	keypad->input_dev = input_dev;
++	keypad->pdata = pdev->dev.platform_data;
++	keypad->size = (keypad->pdata->map_size / sizeof(unsigned int))+1;
++	keypad->flags = kzalloc(2 * keypad->size, GFP_KERNEL);
++	if (!keypad->flags)
 +		goto fail;
-+	}
 +
-+	pcap_ts->irq_touch = platform_get_irq(pdev, 1);
-+	if (pcap_ts->irq_touch < 0) {
-+		err = pcap_ts->irq_touch;
-+		goto fail;
-+	}
++	spin_lock_init(&keypad->lock);
 +
-+	ezx_pcap_write(PCAP_REG_ADC, 0);
-+	ezx_pcap_write(PCAP_REG_ADR, 0);
-+	pcap_ts_mode(pcap_ts, STANDBY_MODE);
++	/* Init Keyboard rescan timer */
++	init_timer(&keypad->timer);
++	keypad->timer.function = matrix_keypad_timer_callback;
++	keypad->timer.data = (unsigned long) keypad;
 +
-+	err = request_irq(pcap_ts->irq_xy, pcap_ts_irq_xy, IRQF_DISABLED,
-+			  "pcap-ts X/Y", pcap_ts);
-+	if (err < 0) {
-+		printk(KERN_ERR "pcap_ts: can't grab xy irq %d: %d\n",
-+		       pcap_ts->irq_xy, err);
-+		goto fail;
-+	}
++	keypad->suspend_jiffies = jiffies;
 +
-+	err = request_irq(pcap_ts->irq_touch, pcap_ts_irq_touch, IRQF_DISABLED,
-+			  "pcap-ts touch", pcap_ts);
-+	if (err < 0) {
-+		printk(KERN_ERR "pcap_ts: can't grab touch irq %d: %d\n",
-+		       pcap_ts->irq_touch, err);
-+		goto fail_xy;
-+	}
-+
-+	pcap_ts->input = input_dev;
-+	init_timer(&pcap_ts->timer);
-+	pcap_ts->timer.data = (unsigned long) pcap_ts;
-+	pcap_ts->timer.function = &pcap_ts_timer_fn;
-+
-+	platform_set_drvdata(pdev, pcap_ts);
-+
-+	input_dev->name = "pcap-touchscreen";
-+	input_dev->phys = "ezxts/input0";
++	input_dev->name = pdev->name;
 +	input_dev->id.bustype = BUS_HOST;
-+	input_dev->id.vendor = 0x0001;
-+	input_dev->id.product = 0x0002;
-+	input_dev->id.version = 0x0100;
 +	input_dev->dev.parent = &pdev->dev;
 +
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN,
-+			     PRESSURE_MAX, 0, 0);
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
++		BIT_MASK(EV_PWR) | BIT_MASK(EV_SW);
++	input_dev->keycodesize = sizeof(unsigned int);
 +
-+	err = input_register_device(pcap_ts->input);
++	for (i = 0; i < keypad->pdata->map_size; i++) {
++		if ((keypad->pdata->map[i] & 0xfff) != 0xfff)
++			set_bit((keypad->pdata->map[i] & 0xfff),
++				input_dev->keybit);
++		if (((keypad->pdata->map[i] >> 12) & 0xfff) != 0xfff)
++			set_bit((keypad->pdata->map[i] >> 12) & 0xfff,
++				input_dev->keybit);
++	}
++
++	err = input_register_device(keypad->input_dev);
 +	if (err)
-+		goto fail_touch;
++		goto fail;
++
++	for (i = 0; i < keypad->pdata->col_gpio_size; i++) {
++		gpio_direction_input(keypad->pdata->col_gpio[i]);
++		if (request_irq(gpio_to_irq(keypad->pdata->col_gpio[i]),
++				matrix_keypad_interrupt, IRQF_DISABLED |
++				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++				"matrix-keypad", keypad))
++			printk(KERN_ERR "Unable to acquire interrupt"
++				" for GPIO line %i\n",
++				keypad->pdata->col_gpio[i]);
++	}
++
++	/* Set strobe lines as outputs, low */
++	for (i = 0; i < keypad->pdata->row_gpio_size; i++) {
++		err = gpio_request(keypad->pdata->row_gpio[i],
++				    "KBD_LINE");
++		if (err)
++			goto gpio_err;
++		gpio_direction_output(keypad->pdata->row_gpio[i], 0);
++	}
 +
 +	return 0;
 +
-+fail_touch:
-+	free_irq(pcap_ts->irq_touch, pcap_ts);
-+fail_xy:
-+	free_irq(pcap_ts->irq_xy, pcap_ts);
-+fail:
-+	input_free_device(input_dev);
-+	kfree(pcap_ts);
++gpio_err:
++	for (i = i-1; i >= 0; i--)
++		gpio_free(keypad->pdata->row_gpio[i]);
 +
++fail:	input_free_device(input_dev);
++	kfree(keypad);
 +	return err;
 +}
 +
-+static int ezxts_remove(struct platform_device *pdev)
++/*
++ * Everything ends here
++ */
++static int matrix_keypad_remove(struct platform_device *pdev)
 +{
-+	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
++	int i;
++	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
 +
-+	del_timer_sync(&pcap_ts->timer);
++	for (i = 0; i < keypad->pdata->col_gpio_size; i++)
++		free_irq(gpio_to_irq(keypad->pdata->col_gpio[i]),
++				    keypad);
 +
-+	free_irq(pcap_ts->irq_touch, pcap_ts);
-+	free_irq(pcap_ts->irq_xy, pcap_ts);
++	for (i = 0; i < keypad->pdata->row_gpio_size; i++)
++		gpio_free(keypad->pdata->row_gpio[i]);
 +
-+	input_unregister_device(pcap_ts->input);
-+	kfree(pcap_ts);
++	del_timer_sync(&keypad->timer);
++
++	input_unregister_device(keypad->input_dev);
++
++	kfree(keypad->flags);
++	kfree(keypad);
 +
 +	return 0;
 +}
 +
-+static int ezxts_suspend(struct platform_device *dev, pm_message_t state)
-+{
-+	u_int32_t tmp;
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp |= PCAP_ADC_TS_REF_LOWPWR;
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+	return 0;
-+}
-+
-+static int ezxts_resume(struct platform_device *dev)
-+{
-+	u_int32_t tmp;
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp &= ~PCAP_ADC_TS_REF_LOWPWR;
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+	return 0;
-+}
-+
-+
-+static struct platform_driver ezxts_driver = {
-+	.probe		= ezxts_probe,
-+	.remove		= ezxts_remove,
-+	.suspend	= ezxts_suspend,
-+	.resume		= ezxts_resume,
++static struct platform_driver matrix_keypad_driver = {
++	.probe		= matrix_keypad_probe,
++	.remove		= matrix_keypad_remove,
++	.suspend	= matrix_keypad_suspend,
++	.resume		= matrix_keypad_resume,
 +	.driver		= {
-+		.name	= "pcap-ts",
++		.name	= "matrix-keypad",
 +		.owner	= THIS_MODULE,
 +	},
 +};
 +
-+static int __init ezxts_init(void)
++static int __devinit matrix_keypad_init(void)
 +{
-+	return platform_driver_register(&ezxts_driver);
++	return platform_driver_register(&matrix_keypad_driver);
 +}
 +
-+static void __exit ezxts_exit(void)
++static void __exit matrix_keypad_exit(void)
 +{
-+	platform_driver_unregister(&ezxts_driver);
++	platform_driver_unregister(&matrix_keypad_driver);
 +}
 +
-+module_init(ezxts_init);
-+module_exit(ezxts_exit);
++module_init(matrix_keypad_init);
++module_exit(matrix_keypad_exit);
 +
-+MODULE_DESCRIPTION("Motorola PCAP2 touchscreen driver");
-+MODULE_AUTHOR("Harald Welte <laforge@openezx.org>");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6-arm/drivers/input/touchscreen/Makefile
-===================================================================
---- linux-2.6-arm.orig/drivers/input/touchscreen/Makefile
-+++ linux-2.6-arm/drivers/input/touchscreen/Makefile
-@@ -26,3 +26,4 @@
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
-+obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
-Index: linux-2.6-arm/arch/arm/mach-pxa/ezx.c
-===================================================================
---- linux-2.6-arm.orig/arch/arm/mach-pxa/ezx.c
-+++ linux-2.6-arm/arch/arm/mach-pxa/ezx.c
-@@ -245,6 +245,30 @@
- 	.setpower       = ezx_mci_setpower,
- 	.exit           = ezx_mci_exit,
- };
-+/* PCAP_TS */
-+struct resource pcap_ts_resources[] = {
-+	[0] = {
-+		.start          = EZX_IRQ_ADCDONE,
-+		.end            = EZX_IRQ_ADCDONE,
-+		.flags          = IORESOURCE_IRQ,
-+	},
-+	[1] = {
-+		.start          = EZX_IRQ_TS,
-+		.end            = EZX_IRQ_TS,
-+		.flags          = IORESOURCE_IRQ,
-+	}
++MODULE_AUTHOR("Marek Vasut <marek.vasut@gmail.com>");
++MODULE_DESCRIPTION("GPIO Driven Matrix Keypad Driver");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:matrix-keypad");
+diff --git a/include/linux/matrix_keypad.h b/include/linux/matrix_keypad.h
+new file mode 100644
+index 0000000..fe72721
+--- /dev/null
++++ b/include/linux/matrix_keypad.h
+@@ -0,0 +1,35 @@
++#ifndef _MATRIX_KEYPAD_H
++#define _MATRIX_KEYPAD_H
++
++#include <linux/input.h>
++
++struct matrix_keypad_platform_data {
++
++	/* code map for the matrix keys */
++	unsigned int	*map;
++	int		map_size;
++
++	unsigned int	*col_gpio;
++	int		col_gpio_size;
++	unsigned int	*row_gpio;
++	int		row_gpio_size;
++
++	/* ALTFN key */
++	int		alt_row;
++	int		alt_col;
++
++	/* line polarities */
++	unsigned int	col_polarity;
++	unsigned int	row_polarity;
++
++	/* key debounce interval */
++	unsigned int	debounce_interval;
 +};
 +
-+struct platform_device pcap_ts_device = {
-+	.name           = "pcap-ts",
-+	.id             = -1,
-+	.dev        = {
-+		.parent = &ezx_pcap_device.dev,
-+	},
-+	.num_resources  = ARRAY_SIZE(pcap_ts_resources),
-+	.resource       = pcap_ts_resources,
-+};
++#define KEY(row, col, val, alt)	(((row) << 28) | ((col) << 24) | \
++				((alt & 0xfff) << 12) | (val & 0xfff))
 +
- 
- static struct platform_device *devices[] __initdata = {
- 	&ezx_pcap_device,
-@@ -294,11 +318,17 @@
- 	if (machine_is_ezx_a780() || machine_is_ezx_e680()) {
- 		set_pxa_fb_info(&ezx_fb_info_1);
- 		ezx_pcap_platform_data.config |= CS_INVERTED;
-+		pcap_ts_resources[0].start = EZX_IRQ_ADCDONE2;
-+		pcap_ts_resources[0].end = EZX_IRQ_ADCDONE2;
- 	} else {
- 		set_pxa_fb_info(&ezx_fb_info_2);
- 	}
- 	platform_add_devices(devices, ARRAY_SIZE(devices));
- 	pxa_set_mci_info(&ezx_mci_platform_data);
++/* key not connected */
++#define KEY_NC	0xfff
 +
-+	/* A910 and E2 dont have a touchscreen */
-+	if (!(machine_is_ezx_a910() || machine_is_ezx_e2()))
-+		platform_device_register(&pcap_ts_device);
- }
- 
- static void __init ezx_fixup(struct machine_desc *desc, struct tag *tags,
++#endif /* _MATRIX_KEYPAD_H */
+
+--Boundary-00=_AdBdIU9jnH54HFp--

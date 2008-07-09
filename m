@@ -1,40 +1,106 @@
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] [V3] powerpc: Xilinx: PS2: Added new XPS PS2 driver
-Date: Wed, 9 Jul 2008 14:13:12 -0400
-Message-ID: <d120d5000807091113n494485f2m66b22a0b9897b395@mail.gmail.com>
-References: <20080707153850.4C83B128005C@mail53-wa4.bigfish.com>
-	 <878wwcsqcm.fsf@macbook.be.48ers.dk>
-	 <20080709161408.55E0F4A006C@mail60-va3.bigfish.com>
+From: Thomas Reitmayr <treitmayr@devbase.at>
+Subject: Re: [rft]suspend/resume support for yealink
+Date: Wed, 09 Jul 2008 22:33:52 +0200
+Message-ID: <1215635632.6742.5.camel@localhost>
+References: <200806301608.03788.oliver@neukum.org>
+	 <1214862428.6977.27.camel@localhost> <200807021626.50883.oliver@neukum.org>
+	 <1215109674.6680.17.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from el-out-1112.google.com ([209.85.162.179]:48263 "EHLO
-	el-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751351AbYGISNP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2008 14:13:15 -0400
-Received: by el-out-1112.google.com with SMTP id z25so497109ele.1
-        for <linux-input@vger.kernel.org>; Wed, 09 Jul 2008 11:13:12 -0700 (PDT)
-In-Reply-To: <20080709161408.55E0F4A006C@mail60-va3.bigfish.com>
-Content-Disposition: inline
+Received: from smtpgw01.world4you.com ([80.243.163.21]:47977 "EHLO
+	smtpgw01.world4you.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754931AbYGIUd7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2008 16:33:59 -0400
+In-Reply-To: <1215109674.6680.17.camel@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: John Linn <John.Linn@xilinx.com>
-Cc: Peter Korsgaard <jacmet@sunsite.dk>, linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, grant.likely@secretlab.ca, jwboyer@linux.vnet.ibm.com, Sadanand Mutyala <sadanan@xilinx.com>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Wed, Jul 9, 2008 at 12:14 PM, John Linn <John.Linn@xilinx.com> wrote:
-> These look like good comments from Peter.
->
-> Dmitry, how would you like to do this, would you prefer us to do an
-> incremental patch from the existing patch (V3)?  Or a new V4 for the
-> patch?
->
+Hi Oliver,
+I just wanted to make sure my little patch on top of yours did not get
+missed in all the other stuff going on. Does it look ok to you (and
+possibly others) to be added?
+Regards,
+-Thomas
 
-Incremental please. I already committed V3 to the 'next' branch and I
-don't want to rebuild it unless the patch is completely broken so
-incremental cleanup is the way to go.
+Am Donnerstag, den 03.07.2008, 20:27 +0200 schrieb Thomas Reitmayr:
+> Hi Oliver,
+> your patch did improve things, however I had to add the submission of
+> the control URB to get the update/scan cycle going (same as in
+> usb_resume). As yealink_set_ringtone uses synchronous USB submissions it
+> won't invoke the callback function. Also apart from restoring the
+> ringtone, I forced an update of the remaining device data (display,
+> LED, ...). Otherwise if during suspend the device is unplugged and
+> plugged in again, the driver does not know about the changes on the
+> display (for example) and the driver's data and the data stored in the
+> device are out of sync.
+> My test went all well with these additions.
+> 
+> The patch below builds on your latest patch.
+> Regards,
+> -Thomas
+> 
+> Signed-off-by: Thomas Reitmayr <treitmayr@devbase.at>
+> 
+> ---
+> 
+> --- linux-2.6.26-rc8/drivers/input/misc/yealink.old.c	2008-07-03 20:10:36.000000000 +0200
+> +++ linux-2.6.26-rc8/drivers/input/misc/yealink.c	2008-07-03 20:10:26.000000000 +0200
+> @@ -903,10 +903,18 @@ static int usb_reset_resume(struct usb_i
+>  {
+>  	struct yealink_dev *yld = usb_get_intfdata(intf);
+>  	int rv = 0;
+> +	int i;
+>  
+>  	down_read(&sysfs_rwsema);
+>  	if (!yld->open)
+>  		goto skip_io;
+> +
+> +	/* force updates to device */
+> +	for (i = 0; i<sizeof(yld->master); i++)
+> +		yld->copy.b[i] = ~yld->master.b[i];
+> +	yld->key_code = -1;	/* no keys pressed */
+> +
+> +	/* restore the ringtone */
+>  	if (yld->old_ringtone)
+>  		rv = yealink_set_ringtone(yld,
+>  					  yld->old_ringtone,
+> @@ -916,6 +924,10 @@ static int usb_reset_resume(struct usb_i
+>  					  default_ringtone,
+>  					  sizeof(default_ringtone));
+>  
+> +	/* restart updates and key scan */
+> +	if (rv == 0)
+> +		rv = usb_submit_urb(yld->urb_ctl, GFP_NOIO);
+> +
+>  skip_io:
+>  	up_read(&sysfs_rwsema);
+>  
+> --
+> 
+> 
+> 
+> Am Mittwoch, den 02.07.2008, 16:26 +0200 schrieb Oliver Neukum:
+> > Am Montag 30 Juni 2008 23:47:08 schrieb Thomas Reitmayr:
+> > > * Suspend to RAM:
+> > >   The device suspends properly, I hear the audio subsystem turning off
+> > > while the display keeps its current state.
+> > >   Apparently the USB root hub gets reset during suspend/resume according
+> > > to the kernel log. Then after resume the input events are generated
+> > 
+> > This patch may help.
+> > 
+> > 	Regards
+> > 		Oliver
+> > 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
 
-Thanks.
-
--- 
-Dmitry

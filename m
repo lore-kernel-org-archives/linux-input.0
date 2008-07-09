@@ -1,467 +1,468 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: [PATCH 2/3] Matrix keypad
-Date: Wed, 9 Jul 2008 03:41:20 +0200
-Message-ID: <200807090341.20397.marek.vasut@gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH] [V3] powerpc: Xilinx: PS2: Added new XPS PS2 driver
+Date: Wed, 9 Jul 2008 10:04:07 -0600
+Message-ID: <20080709160407.GB28130@secretlab.ca>
+References: <20080707153850.4C83B128005C@mail53-wa4.bigfish.com>
 Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_AdBdIU9jnH54HFp"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.184]:29183 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751381AbYGIBj0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 8 Jul 2008 21:39:26 -0400
-Received: by fk-out-0910.google.com with SMTP id 18so1478137fkq.5
-        for <linux-input@vger.kernel.org>; Tue, 08 Jul 2008 18:39:24 -0700 (PDT)
+Received: from wf-out-1314.google.com ([209.85.200.174]:27820 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754899AbYGIQEK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 9 Jul 2008 12:04:10 -0400
+Received: by wf-out-1314.google.com with SMTP id 27so2945748wfd.4
+        for <linux-input@vger.kernel.org>; Wed, 09 Jul 2008 09:04:10 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <20080707153850.4C83B128005C@mail53-wa4.bigfish.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Eric Miao <eric.y.miao@gmail.com>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: John Linn <john.linn@xilinx.com>
+Cc: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org, jwboyer@linux.vnet.ibm.com, dmitry.torokhov@gmail.com, jacmet@sunsite.dk, Sadanand <sadanan@xilinx.com>
 
---Boundary-00=_AdBdIU9jnH54HFp
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Jul 07, 2008 at 08:38:45AM -0700, John Linn wrote:
+> Added a new driver for Xilinx XPS PS2 IP. This driver is
+> a flat driver to better match the Linux driver pattern.
+> 
+> Signed-off-by: Sadanand <sadanan@xilinx.com>
+> Signed-off-by: John Linn <john.linn@xilinx.com>
 
-Hi,
-this is the gpio driven matrix keypad. Final version.
-I also CCed it to linux-input since it might interest them.
+I know there are a couple of minor comments floating around; but as far
+as I'm concerned....
 
---Boundary-00=_AdBdIU9jnH54HFp
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="09-matrix_keypad.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="09-matrix_keypad.patch"
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
 
-Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index efd70a9..31b91ba 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -323,4 +323,14 @@ config KEYBOARD_SH_KEYSC
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sh_keysc.
-+
-+config KEYBOARD_MATRIX
-+	tristate "GPIO driven matrix keypad support"
-+	depends on GENERIC_GPIO
-+	help
-+	  Enable support for GPIO driven matrix keypad
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called matrix_keypad.
-+
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 0edc8f2..b22bae1 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -27,3 +27,4 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-+obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-new file mode 100644
-index 0000000..1a1503d
---- /dev/null
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -0,0 +1,351 @@
-+/*
-+ * drivers/input/keyboard/matrix_keypad.c
-+ *
-+ *  GPIO driven matrix keyboard driver
-+ *
-+ *  Copyright (c) 2008 Marek Vasut <marek.vasut@gmail.com>
-+ *
-+ *  Based on corgikbd.c
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/platform_device.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/gpio.h>
-+#include <linux/matrix_keypad.h>
-+
-+struct matrix_keypad {
-+	struct matrix_keypad_platform_data *pdata;
-+	struct input_dev *input_dev;
-+
-+	spinlock_t lock;
-+	struct timer_list timer;
-+
-+	unsigned int suspended;
-+	unsigned long suspend_jiffies;
-+
-+	/* on, off, alt flags */
-+	unsigned int size;
-+	unsigned int *flags;
-+};
-+
-+/*
-+ * Get alternate function button status (if there is any on our keypad)
-+ */
-+static unsigned char matrix_keypad_get_fn(struct matrix_keypad *keypad)
-+{
-+	unsigned char fn = 0;
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+
-+	if (!pdata->alt_row || !pdata->alt_col)
-+		return 0;
-+
-+	/* get the altfn key status */
-+	gpio_set_value(pdata->row_gpio[pdata->alt_row],	!pdata->row_polarity);
-+	udelay(50);
-+	fn = !!gpio_get_value(pdata->col_gpio[pdata->alt_col]);
-+	if (pdata->col_polarity)
-+		fn = !fn;
-+	gpio_set_value(pdata->row_gpio[pdata->alt_row],	pdata->row_polarity);
-+	return fn;
-+}
-+
-+/*
-+ * Lookup the key in our keymap
-+ */
-+static unsigned int matrix_keypad_lookup(int row, int col,
-+				struct matrix_keypad *keypad, int altfn)
-+{
-+	int i;
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+
-+	for (i = 0; i < pdata->map_size; i++)
-+		if ((row == ((pdata->map[i]>>28) & 0xf)) &&
-+		     (col == ((pdata->map[i]>>24) & 0xf)))
-+			return (pdata->map[i] >> (12 * altfn)) & 0xfff;
-+	return 0xfff;
-+}
-+
-+/*
-+ * This gets the keys from keyboard and reports it to input subsystem
-+ */
-+static void matrix_keypad_process(struct matrix_keypad *keypad)
-+{
-+	unsigned char fn = 0;
-+	int i, j, pressed = 0;
-+	unsigned long flags;
-+	int gpio, key = 0;
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+
-+	spin_lock_irqsave(&keypad->lock, flags);
-+
-+	/* disable interrupts */
-+	for (i = 0; i < pdata->col_gpio_size; i++)
-+		set_irq_type(gpio_to_irq(pdata->col_gpio[i]),
-+				IRQF_TRIGGER_NONE);
-+
-+	/* set all unreadable */
-+	for (i = 0; i < pdata->row_gpio_size; i++)
-+		gpio_set_value(pdata->row_gpio[i], pdata->row_polarity);
-+
-+	fn = matrix_keypad_get_fn(keypad);
-+
-+	/* read the keypad matrix */
-+	for (i = 0; i < pdata->row_gpio_size; i++) {
-+		gpio_set_value(pdata->row_gpio[i], !pdata->row_polarity);
-+		udelay(50);
-+		for (j = 0; j < pdata->col_gpio_size; j++) {
-+				gpio = gpio_get_value(pdata->col_gpio[j]);
-+				if (pdata->col_polarity)
-+					gpio = !gpio;
-+				if (gpio)
-+					pressed++;
-+				key = matrix_keypad_lookup(i, j, keypad, fn);
-+				if (key == 0xfff)
-+					continue;
-+				if (gpio) {
-+					input_report_key(keypad->input_dev,
-+							key, 1);
-+					keypad->flags[(key/32) + (keypad->size
-+						* fn)] |= 1<<(key%32);
-+				} else if ((keypad->flags[(key/32) +
-+						(keypad->size * fn)] &
-+						(1<<(key%32))) && !gpio) {
-+					input_report_key(keypad->input_dev,
-+							key, 0);
-+					keypad->flags[(key/32) + (keypad->size
-+						* fn)] &= ~(1<<(key%32));
-+				}
-+		}
-+		gpio_set_value(pdata->row_gpio[i], pdata->row_polarity);
-+		udelay(50);
-+	}
-+
-+	/* set all readable */
-+	for (i = 0; i < pdata->row_gpio_size; i++)
-+		gpio_set_value(pdata->row_gpio[i],
-+				!pdata->row_polarity);
-+
-+	/* reenable interrupts */
-+	for (i = 0; i < pdata->col_gpio_size; i++)
-+		set_irq_type(gpio_to_irq(pdata->col_gpio[i]),
-+			    IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING);
-+
-+	/* report to input subsystem */
-+	input_sync(keypad->input_dev);
-+
-+	/* if there were any new keypresses, handle repeats by rereading */
-+	if (pressed)
-+		mod_timer(&keypad->timer, jiffies + msecs_to_jiffies(
-+				    pdata->debounce_interval));
-+
-+	spin_unlock_irqrestore(&keypad->lock, flags);
-+}
-+
-+/*
-+ * Interrupt handler
-+ */
-+static irqreturn_t matrix_keypad_interrupt(int irq, void *id)
-+{
-+	struct matrix_keypad *keypad = id;
-+
-+	if (!timer_pending(&keypad->timer)) {
-+		udelay(20);
-+		matrix_keypad_process(keypad);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Timer checking for released keys and still held keys
-+ */
-+static void matrix_keypad_timer_callback(unsigned long data)
-+{
-+	struct matrix_keypad *keypad = (struct matrix_keypad *) data;
-+	matrix_keypad_process(keypad);
-+}
-+
-+#ifdef CONFIG_PM
-+static int matrix_keypad_suspend(struct platform_device *dev,
-+				pm_message_t state)
-+{
-+	int i;
-+	struct matrix_keypad *keypad = platform_get_drvdata(dev);
-+
-+	keypad->suspended = 1;
-+
-+	/* we dont really want to suspend power key here */
-+	for (i = 1; i < keypad->pdata->row_gpio_size; i++)
-+		gpio_direction_input(keypad->pdata->row_gpio[i]);
-+
-+	return 0;
-+}
-+
-+static int matrix_keypad_resume(struct platform_device *dev)
-+{
-+	int i;
-+	struct matrix_keypad *keypad = platform_get_drvdata(dev);
-+
-+	/* Set strobe lines as outputs, low */
-+	for (i = 0; i < keypad->pdata->row_gpio_size; i++)
-+		gpio_direction_output(keypad->pdata->row_gpio[i], 0);
-+
-+	/* Upon resume, ignore the suspend key for a short while */
-+	keypad->suspend_jiffies = jiffies;
-+	keypad->suspended = 0;
-+
-+	return 0;
-+}
-+#else
-+#define matrix_keypad_suspend	NULL
-+#define matrix_keypad_resume	NULL
-+#endif
-+
-+/*
-+ * Everything starts here
-+ */
-+static int __init matrix_keypad_probe(struct platform_device *pdev)
-+{
-+	struct matrix_keypad *keypad;
-+	struct input_dev *input_dev;
-+	int i, err = -ENOMEM;
-+
-+	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!keypad || !input_dev)
-+		goto fail;
-+
-+	platform_set_drvdata(pdev, keypad);
-+
-+	keypad->input_dev = input_dev;
-+	keypad->pdata = pdev->dev.platform_data;
-+	keypad->size = (keypad->pdata->map_size / sizeof(unsigned int))+1;
-+	keypad->flags = kzalloc(2 * keypad->size, GFP_KERNEL);
-+	if (!keypad->flags)
-+		goto fail;
-+
-+	spin_lock_init(&keypad->lock);
-+
-+	/* Init Keyboard rescan timer */
-+	init_timer(&keypad->timer);
-+	keypad->timer.function = matrix_keypad_timer_callback;
-+	keypad->timer.data = (unsigned long) keypad;
-+
-+	keypad->suspend_jiffies = jiffies;
-+
-+	input_dev->name = pdev->name;
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->dev.parent = &pdev->dev;
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-+		BIT_MASK(EV_PWR) | BIT_MASK(EV_SW);
-+	input_dev->keycodesize = sizeof(unsigned int);
-+
-+	for (i = 0; i < keypad->pdata->map_size; i++) {
-+		if ((keypad->pdata->map[i] & 0xfff) != 0xfff)
-+			set_bit((keypad->pdata->map[i] & 0xfff),
-+				input_dev->keybit);
-+		if (((keypad->pdata->map[i] >> 12) & 0xfff) != 0xfff)
-+			set_bit((keypad->pdata->map[i] >> 12) & 0xfff,
-+				input_dev->keybit);
-+	}
-+
-+	err = input_register_device(keypad->input_dev);
-+	if (err)
-+		goto fail;
-+
-+	for (i = 0; i < keypad->pdata->col_gpio_size; i++) {
-+		gpio_direction_input(keypad->pdata->col_gpio[i]);
-+		if (request_irq(gpio_to_irq(keypad->pdata->col_gpio[i]),
-+				matrix_keypad_interrupt, IRQF_DISABLED |
-+				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+				"matrix-keypad", keypad))
-+			printk(KERN_ERR "Unable to acquire interrupt"
-+				" for GPIO line %i\n",
-+				keypad->pdata->col_gpio[i]);
-+	}
-+
-+	/* Set strobe lines as outputs, low */
-+	for (i = 0; i < keypad->pdata->row_gpio_size; i++) {
-+		err = gpio_request(keypad->pdata->row_gpio[i],
-+				    "KBD_LINE");
-+		if (err)
-+			goto gpio_err;
-+		gpio_direction_output(keypad->pdata->row_gpio[i], 0);
-+	}
-+
-+	return 0;
-+
-+gpio_err:
-+	for (i = i-1; i >= 0; i--)
-+		gpio_free(keypad->pdata->row_gpio[i]);
-+
-+fail:	input_free_device(input_dev);
-+	kfree(keypad);
-+	return err;
-+}
-+
-+/*
-+ * Everything ends here
-+ */
-+static int matrix_keypad_remove(struct platform_device *pdev)
-+{
-+	int i;
-+	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
-+
-+	for (i = 0; i < keypad->pdata->col_gpio_size; i++)
-+		free_irq(gpio_to_irq(keypad->pdata->col_gpio[i]),
-+				    keypad);
-+
-+	for (i = 0; i < keypad->pdata->row_gpio_size; i++)
-+		gpio_free(keypad->pdata->row_gpio[i]);
-+
-+	del_timer_sync(&keypad->timer);
-+
-+	input_unregister_device(keypad->input_dev);
-+
-+	kfree(keypad->flags);
-+	kfree(keypad);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver matrix_keypad_driver = {
-+	.probe		= matrix_keypad_probe,
-+	.remove		= matrix_keypad_remove,
-+	.suspend	= matrix_keypad_suspend,
-+	.resume		= matrix_keypad_resume,
-+	.driver		= {
-+		.name	= "matrix-keypad",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __devinit matrix_keypad_init(void)
-+{
-+	return platform_driver_register(&matrix_keypad_driver);
-+}
-+
-+static void __exit matrix_keypad_exit(void)
-+{
-+	platform_driver_unregister(&matrix_keypad_driver);
-+}
-+
-+module_init(matrix_keypad_init);
-+module_exit(matrix_keypad_exit);
-+
-+MODULE_AUTHOR("Marek Vasut <marek.vasut@gmail.com>");
-+MODULE_DESCRIPTION("GPIO Driven Matrix Keypad Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:matrix-keypad");
-diff --git a/include/linux/matrix_keypad.h b/include/linux/matrix_keypad.h
-new file mode 100644
-index 0000000..fe72721
---- /dev/null
-+++ b/include/linux/matrix_keypad.h
-@@ -0,0 +1,35 @@
-+#ifndef _MATRIX_KEYPAD_H
-+#define _MATRIX_KEYPAD_H
-+
-+#include <linux/input.h>
-+
-+struct matrix_keypad_platform_data {
-+
-+	/* code map for the matrix keys */
-+	unsigned int	*map;
-+	int		map_size;
-+
-+	unsigned int	*col_gpio;
-+	int		col_gpio_size;
-+	unsigned int	*row_gpio;
-+	int		row_gpio_size;
-+
-+	/* ALTFN key */
-+	int		alt_row;
-+	int		alt_col;
-+
-+	/* line polarities */
-+	unsigned int	col_polarity;
-+	unsigned int	row_polarity;
-+
-+	/* key debounce interval */
-+	unsigned int	debounce_interval;
-+};
-+
-+#define KEY(row, col, val, alt)	(((row) << 28) | ((col) << 24) | \
-+				((alt & 0xfff) << 12) | (val & 0xfff))
-+
-+/* key not connected */
-+#define KEY_NC	0xfff
-+
-+#endif /* _MATRIX_KEYPAD_H */
-
---Boundary-00=_AdBdIU9jnH54HFp--
+> ---
+> V2
+> 	Updated the driver based on feedback from Dmitry, Peter, and Grant.
+> 	We believe Montavista copyright is still valid.
+> V3
+> 	Incorporated Dmitry and Grant's 2nd set of comments which were some
+> 	minor cleanup and removal of the mutex which was not needed.
+>  
+>  drivers/input/serio/Kconfig      |    5 +
+>  drivers/input/serio/Makefile     |    1 +
+>  drivers/input/serio/xilinx_ps2.c |  384 ++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 390 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/serio/xilinx_ps2.c
+> 
+> diff --git a/drivers/input/serio/Kconfig b/drivers/input/serio/Kconfig
+> index ec4b661..0e62b39 100644
+> --- a/drivers/input/serio/Kconfig
+> +++ b/drivers/input/serio/Kconfig
+> @@ -190,4 +190,9 @@ config SERIO_RAW
+>  	  To compile this driver as a module, choose M here: the
+>  	  module will be called serio_raw.
+>  
+> +config SERIO_XILINX_XPS_PS2
+> +	tristate "Xilinx XPS PS/2 Controller Support"
+> +	help
+> +	  This driver supports XPS PS/2 IP from Xilinx EDK.
+> +
+>  endif
+> diff --git a/drivers/input/serio/Makefile b/drivers/input/serio/Makefile
+> index 38b8868..9b6c813 100644
+> --- a/drivers/input/serio/Makefile
+> +++ b/drivers/input/serio/Makefile
+> @@ -21,3 +21,4 @@ obj-$(CONFIG_SERIO_PCIPS2)	+= pcips2.o
+>  obj-$(CONFIG_SERIO_MACEPS2)	+= maceps2.o
+>  obj-$(CONFIG_SERIO_LIBPS2)	+= libps2.o
+>  obj-$(CONFIG_SERIO_RAW)		+= serio_raw.o
+> +obj-$(CONFIG_SERIO_XILINX_XPS_PS2)	+= xilinx_ps2.o
+> diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
+> new file mode 100644
+> index 0000000..e86f11b
+> --- /dev/null
+> +++ b/drivers/input/serio/xilinx_ps2.c
+> @@ -0,0 +1,384 @@
+> +/*
+> + * Xilinx XPS PS/2 device driver
+> + *
+> + * (c) 2005 MontaVista Software, Inc.
+> + * (c) 2008 Xilinx, Inc.
+> + *
+> + * This program is free software; you can redistribute it and/or modify it
+> + * under the terms of the GNU General Public License as published by the
+> + * Free Software Foundation; either version 2 of the License, or (at your
+> + * option) any later version.
+> + *
+> + * You should have received a copy of the GNU General Public License along
+> + * with this program; if not, write to the Free Software Foundation, Inc.,
+> + * 675 Mass Ave, Cambridge, MA 02139, USA.
+> + */
+> +
+> +
+> +#include <linux/module.h>
+> +#include <linux/serio.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/errno.h>
+> +#include <linux/init.h>
+> +#include <linux/list.h>
+> +#include <linux/io.h>
+> +
+> +#include <linux/of_device.h>
+> +#include <linux/of_platform.h>
+> +
+> +#define DRIVER_NAME		"xilinx_ps2"
+> +
+> +/* Register offsets for the xps2 device */
+> +#define XPS2_SRST_OFFSET	0x00000000 /* Software Reset register */
+> +#define XPS2_STATUS_OFFSET	0x00000004 /* Status register */
+> +#define XPS2_RX_DATA_OFFSET	0x00000008 /* Receive Data register */
+> +#define XPS2_TX_DATA_OFFSET	0x0000000C /* Transmit Data register */
+> +#define XPS2_GIER_OFFSET	0x0000002C /* Global Interrupt Enable reg */
+> +#define XPS2_IPISR_OFFSET	0x00000030 /* Interrupt Status register */
+> +#define XPS2_IPIER_OFFSET	0x00000038 /* Interrupt Enable register */
+> +
+> +/* Reset Register Bit Definitions */
+> +#define XPS2_SRST_RESET		0x0000000A /* Software Reset  */
+> +
+> +/* Status Register Bit Positions */
+> +#define XPS2_STATUS_RX_FULL	0x00000001 /* Receive Full  */
+> +#define XPS2_STATUS_TX_FULL	0x00000002 /* Transmit Full  */
+> +
+> +/* Bit definitions for ISR/IER registers. Both the registers have the same bit
+> + * definitions and are only defined once. */
+> +#define XPS2_IPIXR_WDT_TOUT	0x00000001 /* Watchdog Timeout Interrupt */
+> +#define XPS2_IPIXR_TX_NOACK	0x00000002 /* Transmit No ACK Interrupt */
+> +#define XPS2_IPIXR_TX_ACK	0x00000004 /* Transmit ACK (Data) Interrupt */
+> +#define XPS2_IPIXR_RX_OVF	0x00000008 /* Receive Overflow Interrupt */
+> +#define XPS2_IPIXR_RX_ERR	0x00000010 /* Receive Error Interrupt */
+> +#define XPS2_IPIXR_RX_FULL	0x00000020 /* Receive Data Interrupt */
+> +
+> +/* Mask for all the Transmit Interrupts */
+> +#define XPS2_IPIXR_TX_ALL	(XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_TX_ACK)
+> +
+> +/* Mask for all the Receive Interrupts */
+> +#define XPS2_IPIXR_RX_ALL	(XPS2_IPIXR_RX_OVF | XPS2_IPIXR_RX_ERR |  \
+> +					XPS2_IPIXR_RX_FULL)
+> +
+> +/* Mask for all the Interrupts */
+> +#define XPS2_IPIXR_ALL		(XPS2_IPIXR_TX_ALL | XPS2_IPIXR_RX_ALL |  \
+> +					XPS2_IPIXR_WDT_TOUT)
+> +
+> +/* Global Interrupt Enable mask */
+> +#define XPS2_GIER_GIE_MASK	0x80000000
+> +
+> +struct xps2data {
+> +	int irq;
+> +	u32 phys_addr;
+> +	u32 remap_size;
+> +	spinlock_t lock;
+> +	u8 rxb;				/* Rx buffer */
+> +	void __iomem *base_address;	/* virt. address of control registers */
+> +	unsigned int dfl;
+> +	struct serio serio;		/* serio */
+> +};
+> +
+> +/************************************/
+> +/* XPS PS/2 data transmission calls */
+> +/************************************/
+> +
+> +/*
+> + * xps2_recv() will attempt to receive a byte of data from the PS/2 port.
+> + */
+> +static int xps2_recv(struct xps2data *drvdata, u8 *byte)
+> +{
+> +	u32 sr;
+> +	int status = -1;
+> +
+> +	/* If there is data available in the PS/2 receiver, read it */
+> +	sr = in_be32(drvdata->base_address + XPS2_STATUS_OFFSET);
+> +	if (sr & XPS2_STATUS_RX_FULL) {
+> +		*byte = in_be32(drvdata->base_address + XPS2_RX_DATA_OFFSET);
+> +		status = 0;
+> +	}
+> +
+> +	return status;
+> +}
+> +
+> +/*********************/
+> +/* Interrupt handler */
+> +/*********************/
+> +static irqreturn_t xps2_interrupt(int irq, void *dev_id)
+> +{
+> +	struct xps2data *drvdata = (struct xps2data *)dev_id;
+> +	u32 intr_sr;
+> +	u8 c;
+> +	int status;
+> +
+> +	/* Get the PS/2 interrupts and clear them */
+> +	intr_sr = in_be32(drvdata->base_address + XPS2_IPISR_OFFSET);
+> +	out_be32(drvdata->base_address + XPS2_IPISR_OFFSET, intr_sr);
+> +
+> +	/* Check which interrupt is active */
+> +	if (intr_sr & XPS2_IPIXR_RX_OVF) {
+> +		printk(KERN_ERR "%s: receive overrun error\n",
+> +			drvdata->serio.name);
+> +	}
+> +
+> +	if (intr_sr & XPS2_IPIXR_RX_ERR)
+> +		drvdata->dfl |= SERIO_PARITY;
+> +
+> +	if (intr_sr & (XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_WDT_TOUT))
+> +		drvdata->dfl |= SERIO_TIMEOUT;
+> +
+> +	if (intr_sr & XPS2_IPIXR_RX_FULL) {
+> +		status = xps2_recv(drvdata, &drvdata->rxb);
+> +
+> +		/* Error, if a byte is not received */
+> +		if (status) {
+> +			printk(KERN_ERR
+> +				"%s: wrong rcvd byte count (%d)\n",
+> +				drvdata->serio.name, status);
+> +		} else {
+> +			c = drvdata->rxb;
+> +			serio_interrupt(&drvdata->serio, c, drvdata->dfl);
+> +			drvdata->dfl = 0;
+> +		}
+> +	}
+> +
+> +	if (intr_sr & XPS2_IPIXR_TX_ACK)
+> +		drvdata->dfl = 0;
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/*******************/
+> +/* serio callbacks */
+> +/*******************/
+> +
+> +/*
+> + * sxps2_write() sends a byte out through the PS/2 interface.
+> + */
+> +static int sxps2_write(struct serio *pserio, unsigned char c)
+> +{
+> +	struct xps2data *drvdata = pserio->port_data;
+> +	unsigned long flags;
+> +	u32 sr;
+> +	int status = -1;
+> +
+> +	spin_lock_irqsave(&drvdata->lock, flags);
+> +	/* If the PS/2 transmitter is empty send a byte of data */
+> +	sr = in_be32(drvdata->base_address + XPS2_STATUS_OFFSET);
+> +	if ((sr & XPS2_STATUS_TX_FULL) == 0) {
+> +		out_be32(drvdata->base_address + XPS2_TX_DATA_OFFSET, c);
+> +		status = 0;
+> +	}
+> +	spin_unlock_irqrestore(&drvdata->lock, flags);
+> +
+> +	return status;
+> +}
+> +
+> +/*
+> + * sxps2_open() is called when a port is open by the higher layer.
+> + */
+> +static int sxps2_open(struct serio *pserio)
+> +{
+> +	struct xps2data *drvdata = pserio->port_data;
+> +	int retval;
+> +
+> +	retval = request_irq(drvdata->irq, &xps2_interrupt, 0,
+> +				DRIVER_NAME, drvdata);
+> +	if (retval) {
+> +		printk(KERN_ERR
+> +			"%s: Couldn't allocate interrupt %d\n",
+> +			drvdata->serio.name, drvdata->irq);
+> +		return retval;
+> +	}
+> +
+> +	/* start reception by enabling the interrupts */
+> +	out_be32(drvdata->base_address + XPS2_GIER_OFFSET, XPS2_GIER_GIE_MASK);
+> +	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, XPS2_IPIXR_RX_ALL);
+> +	(void)xps2_recv(drvdata, &drvdata->rxb);
+> +
+> +	return 0;		/* success */
+> +}
+> +
+> +/*
+> + * sxps2_close() frees the interrupt.
+> + */
+> +static void sxps2_close(struct serio *pserio)
+> +{
+> +	struct xps2data *drvdata = pserio->port_data;
+> +
+> +	/* Disable the PS2 interrupts */
+> +	out_be32(drvdata->base_address + XPS2_GIER_OFFSET, 0x00);
+> +	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, 0x00);
+> +	free_irq(drvdata->irq, drvdata);
+> +}
+> +
+> +/*********************/
+> +/* Device setup code */
+> +/*********************/
+> +
+> +static int xps2_setup(struct device *dev, struct resource *regs_res,
+> +		      struct resource *irq_res)
+> +{
+> +	struct xps2data *drvdata;
+> +	struct serio *serio;
+> +	unsigned long remap_size;
+> +	int retval;
+> +
+> +	if (!dev)
+> +		return -EINVAL;
+> +
+> +	drvdata = kzalloc(sizeof(struct xps2data), GFP_KERNEL);
+> +	if (!drvdata) {
+> +		dev_err(dev, "Couldn't allocate device private record\n");
+> +		return -ENOMEM;
+> +	}
+> +	spin_lock_init(&drvdata->lock);
+> +	dev_set_drvdata(dev, drvdata);
+> +
+> +	if (!regs_res || !irq_res) {
+> +		dev_err(dev, "IO resource(s) not found\n");
+> +		retval = -EFAULT;
+> +		goto failed1;
+> +	}
+> +
+> +	drvdata->irq = irq_res->start;
+> +	remap_size = regs_res->end - regs_res->start + 1;
+> +	if (!request_mem_region(regs_res->start, remap_size, DRIVER_NAME)) {
+> +
+> +		dev_err(dev, "Couldn't lock memory region at 0x%08X\n",
+> +			(unsigned int)regs_res->start);
+> +		retval = -EBUSY;
+> +		goto failed1;
+> +	}
+> +
+> +	/* Fill in configuration data and add them to the list */
+> +	drvdata->phys_addr = regs_res->start;
+> +	drvdata->remap_size = remap_size;
+> +	drvdata->base_address = ioremap(regs_res->start, remap_size);
+> +	if (drvdata->base_address == NULL) {
+> +
+> +		dev_err(dev, "Couldn't ioremap memory at 0x%08X\n",
+> +			(unsigned int)regs_res->start);
+> +		retval = -EFAULT;
+> +		goto failed2;
+> +	}
+> +
+> +	/* Disable all the interrupts, just in case */
+> +	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, 0);
+> +
+> +	/* Reset the PS2 device and abort any current transaction, to make sure
+> +	 * we have the PS2 in a good state */
+> +	out_be32(drvdata->base_address + XPS2_SRST_OFFSET, XPS2_SRST_RESET);
+> +
+> +	dev_info(dev, "Xilinx PS2 at 0x%08X mapped to 0x%08X, irq=%d\n",
+> +		drvdata->phys_addr, (u32)drvdata->base_address, drvdata->irq);
+> +
+> +	serio = &drvdata->serio;
+> +	serio->id.type = SERIO_8042;
+> +	serio->write = sxps2_write;
+> +	serio->open = sxps2_open;
+> +	serio->close = sxps2_close;
+> +	serio->port_data = drvdata;
+> +	serio->dev.parent = dev;
+> +	snprintf(drvdata->serio.name, sizeof(serio->name),
+> +		 "Xilinx XPS PS/2 at %08X", drvdata->phys_addr);
+> +	snprintf(drvdata->serio.phys, sizeof(serio->phys),
+> +		 "xilinxps2/serio at %08X", drvdata->phys_addr);
+> +	serio_register_port(serio);
+> +
+> +	return 0;		/* success */
+> +
+> +failed2:
+> +	release_mem_region(regs_res->start, remap_size);
+> +
+> +failed1:
+> +	kfree(drvdata);
+> +	dev_set_drvdata(dev, NULL);
+> +
+> +	return retval;
+> +}
+> +
+> +/***************************/
+> +/* OF Platform Bus Support */
+> +/***************************/
+> +
+> +static int __devinit xps2_of_probe(struct of_device *ofdev, const struct
+> +				   of_device_id * match)
+> +{
+> +	struct resource r_irq; /* Interrupt resources */
+> +	struct resource r_mem; /* IO mem resources */
+> +	int rc = 0;
+> +
+> +	printk(KERN_INFO "Device Tree Probing \'%s\'\n",
+> +			ofdev->node->name);
+> +
+> +	/* Get iospace for the device */
+> +	rc = of_address_to_resource(ofdev->node, 0, &r_mem);
+> +	if (rc) {
+> +		dev_err(&ofdev->dev, "invalid address\n");
+> +		return rc;
+> +	}
+> +
+> +	/* Get IRQ for the device */
+> +	rc = of_irq_to_resource(ofdev->node, 0, &r_irq);
+> +	if (rc == NO_IRQ) {
+> +		dev_err(&ofdev->dev, "no IRQ found\n");
+> +		return rc;
+> +	}
+> +
+> +	return xps2_setup(&ofdev->dev, &r_mem, &r_irq);
+> +}
+> +
+> +static int __devexit xps2_of_remove(struct of_device *of_dev)
+> +{
+> +	struct xps2data *drvdata;
+> +	struct device *dev;
+> +
+> +	dev = &of_dev->dev;
+> +	if (!dev)
+> +		return -EINVAL;
+> +
+> +	drvdata = (struct xps2data *)dev_get_drvdata(dev);
+> +
+> +	serio_unregister_port(&drvdata->serio);
+> +
+> +	iounmap(drvdata->base_address);
+> +
+> +	release_mem_region(drvdata->phys_addr, drvdata->remap_size);
+> +
+> +	kfree(drvdata);
+> +	dev_set_drvdata(dev, NULL);
+> +
+> +	return 0;		/* success */
+> +}
+> +
+> +/* Match table for of_platform binding */
+> +static struct of_device_id xps2_of_match[] __devinitdata = {
+> +	{ .compatible = "xlnx,xps-ps2-1.00.a", },
+> +	{ /* end of list */ },
+> +};
+> +MODULE_DEVICE_TABLE(of, xps2_of_match);
+> +
+> +static struct of_platform_driver xps2_of_driver = {
+> +	.name		= DRIVER_NAME,
+> +	.match_table	= xps2_of_match,
+> +	.probe		= xps2_of_probe,
+> +	.remove		= __devexit_p(xps2_of_remove),
+> +};
+> +
+> +static int __init xps2_init(void)
+> +{
+> +	return of_register_platform_driver(&xps2_of_driver);
+> +}
+> +
+> +static void __exit xps2_cleanup(void)
+> +{
+> +	of_unregister_platform_driver(&xps2_of_driver);
+> +}
+> +
+> +module_init(xps2_init);
+> +module_exit(xps2_cleanup);
+> +
+> +MODULE_AUTHOR("Xilinx, Inc.");
+> +MODULE_DESCRIPTION("Xilinx XPS PS/2 driver");
+> +MODULE_LICENSE("GPL");
+> +
+> -- 
+> 1.5.2.1
+> 
+> 
+> 
+> This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
+> 
+> 

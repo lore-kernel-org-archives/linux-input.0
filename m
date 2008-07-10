@@ -1,422 +1,152 @@
-From: John Linn <john.linn@xilinx.com>
-Subject: [PATCH] powerpc: Xilinx: PS2: driver updates based on review
-Date: Thu, 10 Jul 2008 08:40:07 -0700
-Message-ID: <20080710154010.7358F1BA004D@mail124-sin.bigfish.com>
+From: Thomas Reitmayr <treitmayr-lNf3axTzMcOzZXS1Dc/lvw@public.gmane.org>
+Subject: [patch]reset/resume support for yealink
+Date: Thu, 10 Jul 2008 20:03:22 +0200
+Message-ID: <1215713002.6672.23.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outbound-sin.frontbridge.com ([207.46.51.80]:23659 "EHLO
-	SG2EHSOBE001.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751010AbYGJPkU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 10 Jul 2008 11:40:20 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Henk.Vergonet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, "Alfred E. Heggestad" <aeh-VqIxOk2P1jc@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, grant.likely@secretlab.ca, jwboyer@linux.vnet.ibm.com, jacmet@sunsite.dk, John Linn <john.linn@xilinx.com>, Sadanand <sadanan@xilinx.com>
 
-Review comments were incorporated to improve the driver.
+Hi Dmitry,
+the following two patches add reset/resume support to the yealink driver
+and were created & reviewed by Oliver and me and tested on my yealink
+device. The patches have to be applied in the same order as listed
+below.
+Regards,
+-Thomas
 
-1. Some data was eliminated that was not needed.
-2. Renaming of variables for clarity.
-3. Removed unneeded type casting.
-4. Changed to use dev_err rather than other I/O.
-5. Merged together some functions.
-6. Added kerneldoc format to functions.
 
-Signed-off-by: Sadanand <sadanan@xilinx.com>
-Signed-off-by: John Linn <john.linn@xilinx.com>
+Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+Signed-off-by: Thomas Reitmayr <treitmayr-lNf3axTzMcOzZXS1Dc/lvw@public.gmane.org>
+
 ---
 
-This patch is an incremental patch to be applied to 
-[V3] powerpc: Xilinx: PS2: Added new XPS PS2 driver.
-
- drivers/input/serio/xilinx_ps2.c |  220 +++++++++++++++++++++----------------
- 1 files changed, 125 insertions(+), 95 deletions(-)
-
-diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
-index e86f11b..eba46c7 100644
---- a/drivers/input/serio/xilinx_ps2.c
-+++ b/drivers/input/serio/xilinx_ps2.c
-@@ -58,23 +58,20 @@
+--- linux-2.6.26-sierra/drivers/input/misc/yealink.alt3.c	2008-07-02 15:42:35.000000000 +0200
++++ linux-2.6.26-sierra/drivers/input/misc/yealink.c	2008-07-02 16:14:57.000000000 +0200
+@@ -122,6 +122,9 @@ struct yealink_dev {
+ 	int shutdown:1;
+ 	int open:1;
  
- /* Mask for all the Receive Interrupts */
- #define XPS2_IPIXR_RX_ALL	(XPS2_IPIXR_RX_OVF | XPS2_IPIXR_RX_ERR |  \
--					XPS2_IPIXR_RX_FULL)
-+				 XPS2_IPIXR_RX_FULL)
++	u8 *old_ringtone;
++	int tonecount;
++
+ 	int	stat_ix;
+ 	union {
+ 		struct yld_status s;
+@@ -564,6 +567,8 @@ static void input_close(struct input_dev
  
- /* Mask for all the Interrupts */
- #define XPS2_IPIXR_ALL		(XPS2_IPIXR_TX_ALL | XPS2_IPIXR_RX_ALL |  \
--					XPS2_IPIXR_WDT_TOUT)
-+				 XPS2_IPIXR_WDT_TOUT)
+ 	down_write(&sysfs_rwsema);
+ 	yld->open = 0;
++	kfree(yld->old_ringtone),
++	yld->old_ringtone = NULL;
+ 	up_write(&sysfs_rwsema);
+ 	stop_traffic(yld);
+ }
+@@ -767,6 +772,9 @@ static ssize_t store_ringtone(struct dev
+ {
+ 	struct yealink_dev *yld;
  
- /* Global Interrupt Enable mask */
- #define XPS2_GIER_GIE_MASK	0x80000000
++	if (!count)
++		return 0;
++
+ 	down_write(&sysfs_rwsema);
+ 	yld = dev_get_drvdata(dev);
+ 	if (yld == NULL) {
+@@ -776,6 +784,14 @@ static ssize_t store_ringtone(struct dev
  
- struct xps2data {
- 	int irq;
--	u32 phys_addr;
--	u32 remap_size;
- 	spinlock_t lock;
--	u8 rxb;				/* Rx buffer */
- 	void __iomem *base_address;	/* virt. address of control registers */
--	unsigned int dfl;
-+	unsigned int flags;
- 	struct serio serio;		/* serio */
+ 	/* TODO locking with async usb control interface??? */
+ 	yealink_set_ringtone(yld, (char *)buf, count);
++	kfree(yld->old_ringtone);
++	yld->old_ringtone = kmalloc(count, GFP_KERNEL);
++	if (!yld->old_ringtone)
++		goto error_bail;
++	memcpy(yld->old_ringtone, buf, count);
++	yld->tonecount = count;
++
++error_bail:
+ 	up_write(&sysfs_rwsema);
+ 	return count;
+ }
+@@ -882,6 +898,30 @@ static int usb_resume(struct usb_interfa
+ 	up_read(&sysfs_rwsema);
+ 	return rv;
+ }
++
++static int usb_reset_resume(struct usb_interface *intf)
++{
++	struct yealink_dev *yld = usb_get_intfdata(intf);
++	int rv = 0;
++
++	down_read(&sysfs_rwsema);
++	if (!yld->open)
++		goto skip_io;
++	if (yld->old_ringtone)
++		rv = yealink_set_ringtone(yld,
++					  yld->old_ringtone,
++					  yld->tonecount);
++	else
++		rv = yealink_set_ringtone(yld,
++					  default_ringtone,
++					  sizeof(default_ringtone));
++
++skip_io:
++	up_read(&sysfs_rwsema);
++
++	return rv;
++}
++
+ static void usb_disconnect(struct usb_interface *intf)
+ {
+ 	struct yealink_dev *yld;
+@@ -1030,6 +1070,7 @@ static struct usb_driver yealink_driver
+ 	.disconnect	= usb_disconnect,
+ 	.suspend	= usb_suspend,
+ 	.resume		= usb_resume,
++	.reset_resume	= usb_reset_resume,
+ 	.id_table	= usb_table,
  };
  
-@@ -82,8 +79,13 @@ struct xps2data {
- /* XPS PS/2 data transmission calls */
- /************************************/
- 
--/*
-- * xps2_recv() will attempt to receive a byte of data from the PS/2 port.
-+/**
-+ * xps2_recv() - attempts to receive a byte from the PS/2 port.
-+ * @drvdata:	pointer to ps2 device private data structure
-+ * @byte:	address where the read data will be copied
-+ *
-+ * If there is any data available in the PS/2 receiver, this functions reads
-+ * the data, otherwise it returns error.
-  */
- static int xps2_recv(struct xps2data *drvdata, u8 *byte)
+
+--- linux-2.6.26-rc8/drivers/input/misc/yealink.old.c	2008-07-03 20:10:36.000000000 +0200
++++ linux-2.6.26-rc8/drivers/input/misc/yealink.c	2008-07-03 20:10:26.000000000 +0200
+@@ -903,10 +903,18 @@ static int usb_reset_resume(struct usb_i
  {
-@@ -105,7 +107,7 @@ static int xps2_recv(struct xps2data *drvdata, u8 *byte)
- /*********************/
- static irqreturn_t xps2_interrupt(int irq, void *dev_id)
- {
--	struct xps2data *drvdata = (struct xps2data *)dev_id;
-+	struct xps2data *drvdata = dev_id;
- 	u32 intr_sr;
- 	u8 c;
- 	int status;
-@@ -115,35 +117,28 @@ static irqreturn_t xps2_interrupt(int irq, void *dev_id)
- 	out_be32(drvdata->base_address + XPS2_IPISR_OFFSET, intr_sr);
+ 	struct yealink_dev *yld = usb_get_intfdata(intf);
+ 	int rv = 0;
++	int i;
  
- 	/* Check which interrupt is active */
--	if (intr_sr & XPS2_IPIXR_RX_OVF) {
--		printk(KERN_ERR "%s: receive overrun error\n",
--			drvdata->serio.name);
--	}
-+	if (intr_sr & XPS2_IPIXR_RX_OVF)
-+		dev_err(drvdata->serio.dev.parent, "receive overrun error\n");
- 
- 	if (intr_sr & XPS2_IPIXR_RX_ERR)
--		drvdata->dfl |= SERIO_PARITY;
-+		drvdata->flags |= SERIO_PARITY;
- 
- 	if (intr_sr & (XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_WDT_TOUT))
--		drvdata->dfl |= SERIO_TIMEOUT;
-+		drvdata->flags |= SERIO_TIMEOUT;
- 
- 	if (intr_sr & XPS2_IPIXR_RX_FULL) {
--		status = xps2_recv(drvdata, &drvdata->rxb);
-+		status = xps2_recv(drvdata, &c);
- 
- 		/* Error, if a byte is not received */
- 		if (status) {
--			printk(KERN_ERR
--				"%s: wrong rcvd byte count (%d)\n",
--				drvdata->serio.name, status);
-+			dev_err(drvdata->serio.dev.parent,
-+				"wrong rcvd byte count\n");
- 		} else {
--			c = drvdata->rxb;
--			serio_interrupt(&drvdata->serio, c, drvdata->dfl);
--			drvdata->dfl = 0;
-+			serio_interrupt(&drvdata->serio, c, drvdata->flags);
-+			drvdata->flags = 0;
- 		}
- 	}
- 
--	if (intr_sr & XPS2_IPIXR_TX_ACK)
--		drvdata->dfl = 0;
--
- 	return IRQ_HANDLED;
- }
- 
-@@ -151,8 +146,15 @@ static irqreturn_t xps2_interrupt(int irq, void *dev_id)
- /* serio callbacks */
- /*******************/
- 
--/*
-- * sxps2_write() sends a byte out through the PS/2 interface.
-+/**
-+ * sxps2_write() - sends a byte out through the PS/2 port.
-+ * @pserio:	pointer to the serio structure of the PS/2 port
-+ * @c:		data that needs to be written to the PS/2 port
-+ *
-+ * This fucntion checks if the PS/2 transmitter is empty and sends a byte.
-+ * Otherwise it returns error. Transmission fails only when nothing is connected
-+ * to the PS/2 port. Thats why, we do not try to resend the data in case of a
-+ * failure.
-  */
- static int sxps2_write(struct serio *pserio, unsigned char c)
- {
-@@ -173,33 +175,39 @@ static int sxps2_write(struct serio *pserio, unsigned char c)
- 	return status;
- }
- 
--/*
-- * sxps2_open() is called when a port is open by the higher layer.
-+/**
-+ * sxps2_open() - called when a port is opened by the higher layer.
-+ * @pserio:	pointer to the serio structure of the PS/2 device
-+ *
-+ * This function requests irq and enables interrupts for the PS/2 device.
-  */
- static int sxps2_open(struct serio *pserio)
- {
- 	struct xps2data *drvdata = pserio->port_data;
- 	int retval;
-+	u8 c;
- 
- 	retval = request_irq(drvdata->irq, &xps2_interrupt, 0,
- 				DRIVER_NAME, drvdata);
- 	if (retval) {
--		printk(KERN_ERR
--			"%s: Couldn't allocate interrupt %d\n",
--			drvdata->serio.name, drvdata->irq);
-+		dev_err(drvdata->serio.dev.parent,
-+			"Couldn't allocate interrupt %d\n", drvdata->irq);
- 		return retval;
- 	}
- 
- 	/* start reception by enabling the interrupts */
- 	out_be32(drvdata->base_address + XPS2_GIER_OFFSET, XPS2_GIER_GIE_MASK);
- 	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, XPS2_IPIXR_RX_ALL);
--	(void)xps2_recv(drvdata, &drvdata->rxb);
-+	(void)xps2_recv(drvdata, &c);
- 
- 	return 0;		/* success */
- }
- 
--/*
-- * sxps2_close() frees the interrupt.
-+/**
-+ * sxps2_close() - frees the interrupt.
-+ * @pserio:	pointer to the serio structure of the PS/2 device
-+ *
-+ * This function frees the irq and disables interrupts for the PS/2 device.
-  */
- static void sxps2_close(struct serio *pserio)
- {
-@@ -211,21 +219,60 @@ static void sxps2_close(struct serio *pserio)
- 	free_irq(drvdata->irq, drvdata);
- }
- 
--/*********************/
--/* Device setup code */
--/*********************/
-+/***************************/
-+/* OF Platform Bus Support */
-+/***************************/
- 
--static int xps2_setup(struct device *dev, struct resource *regs_res,
--		      struct resource *irq_res)
-+/**
-+ * xps2_of_probe - probe method for the PS/2 device.
-+ * @of_dev:	pointer to OF device structure
-+ * @match:	pointer to the stucture used for matching a device
-+ *
-+ * This function probes for a matching PS/2 device using OF properties and
-+ * attaches it to the platform bus. It initializes the driver data structure
-+ * and also initializes the hardware.
-+ * It returns 0, if the driver is bound to the PS/2 device, or a negative value
-+ * if there is an error. It releases all the allocated resources in case of an
-+ * error.
-+ *
-+ */
-+static int __devinit xps2_of_probe(struct of_device *ofdev, const struct
-+				   of_device_id * match)
- {
-+	struct resource r_irq; /* Interrupt resources */
-+	struct resource r_mem; /* IO mem resources */
- 	struct xps2data *drvdata;
- 	struct serio *serio;
--	unsigned long remap_size;
--	int retval;
-+	struct device *dev;
-+	resource_size_t remap_size, phys_addr;
-+	int rc = 0;
- 
-+	dev = &ofdev->dev;
- 	if (!dev)
- 		return -EINVAL;
- 
-+	dev_info(dev, "Device Tree Probing \'%s\'\n",
-+			ofdev->node->name);
+ 	down_read(&sysfs_rwsema);
+ 	if (!yld->open)
+ 		goto skip_io;
 +
-+	/* Get iospace for the device */
-+	rc = of_address_to_resource(ofdev->node, 0, &r_mem);
-+	if (rc) {
-+		dev_err(dev, "invalid address\n");
-+		return rc;
-+	}
++	/* force updates to device */
++	for (i = 0; i<sizeof(yld->master); i++)
++		yld->copy.b[i] = ~yld->master.b[i];
++	yld->key_code = -1;	/* no keys pressed */
 +
-+	/* Get IRQ for the device */
-+	rc = of_irq_to_resource(ofdev->node, 0, &r_irq);
-+	if (rc == NO_IRQ) {
-+		dev_err(dev, "no IRQ found\n");
-+		return rc;
-+	}
++	/* restore the ringtone */
+ 	if (yld->old_ringtone)
+ 		rv = yealink_set_ringtone(yld,
+ 					  yld->old_ringtone,
+@@ -916,6 +924,10 @@ static int usb_reset_resume(struct usb_i
+ 					  default_ringtone,
+ 					  sizeof(default_ringtone));
+ 
++	/* restart updates and key scan */
++	if (rv == 0)
++		rv = usb_submit_urb(yld->urb_ctl, GFP_NOIO);
 +
-+	if (!(&r_mem) || !(&r_irq)) {
-+		dev_err(dev, "IO resource(s) not found\n");
-+		return -EFAULT;
-+	}
-+
- 	drvdata = kzalloc(sizeof(struct xps2data), GFP_KERNEL);
- 	if (!drvdata) {
- 		dev_err(dev, "Couldn't allocate device private record\n");
-@@ -234,31 +281,24 @@ static int xps2_setup(struct device *dev, struct resource *regs_res,
- 	spin_lock_init(&drvdata->lock);
- 	dev_set_drvdata(dev, drvdata);
+ skip_io:
+ 	up_read(&sysfs_rwsema);
  
--	if (!regs_res || !irq_res) {
--		dev_err(dev, "IO resource(s) not found\n");
--		retval = -EFAULT;
--		goto failed1;
--	}
--
--	drvdata->irq = irq_res->start;
--	remap_size = regs_res->end - regs_res->start + 1;
--	if (!request_mem_region(regs_res->start, remap_size, DRIVER_NAME)) {
-+	drvdata->irq = r_irq.start;
-+	phys_addr = r_mem.start;
-+	remap_size = r_mem.end - r_mem.start + 1;
-+	if (!request_mem_region(phys_addr, remap_size, DRIVER_NAME)) {
- 
- 		dev_err(dev, "Couldn't lock memory region at 0x%08X\n",
--			(unsigned int)regs_res->start);
--		retval = -EBUSY;
-+			(unsigned int)phys_addr);
-+		rc = -EBUSY;
- 		goto failed1;
- 	}
- 
- 	/* Fill in configuration data and add them to the list */
--	drvdata->phys_addr = regs_res->start;
--	drvdata->remap_size = remap_size;
--	drvdata->base_address = ioremap(regs_res->start, remap_size);
-+	drvdata->base_address = ioremap(phys_addr, remap_size);
- 	if (drvdata->base_address == NULL) {
- 
- 		dev_err(dev, "Couldn't ioremap memory at 0x%08X\n",
--			(unsigned int)regs_res->start);
--		retval = -EFAULT;
-+			(unsigned int)phys_addr);
-+		rc = -EFAULT;
- 		goto failed2;
- 	}
- 
-@@ -270,7 +310,8 @@ static int xps2_setup(struct device *dev, struct resource *regs_res,
- 	out_be32(drvdata->base_address + XPS2_SRST_OFFSET, XPS2_SRST_RESET);
- 
- 	dev_info(dev, "Xilinx PS2 at 0x%08X mapped to 0x%08X, irq=%d\n",
--		drvdata->phys_addr, (u32)drvdata->base_address, drvdata->irq);
-+		 (unsigned int)phys_addr, (u32)drvdata->base_address,
-+		 drvdata->irq);
- 
- 	serio = &drvdata->serio;
- 	serio->id.type = SERIO_8042;
-@@ -280,58 +321,38 @@ static int xps2_setup(struct device *dev, struct resource *regs_res,
- 	serio->port_data = drvdata;
- 	serio->dev.parent = dev;
- 	snprintf(drvdata->serio.name, sizeof(serio->name),
--		 "Xilinx XPS PS/2 at %08X", drvdata->phys_addr);
-+		 "Xilinx XPS PS/2 at %08X", (unsigned int)phys_addr);
- 	snprintf(drvdata->serio.phys, sizeof(serio->phys),
--		 "xilinxps2/serio at %08X", drvdata->phys_addr);
-+		 "xilinxps2/serio at %08X", (unsigned int)phys_addr);
- 	serio_register_port(serio);
- 
- 	return 0;		/* success */
- 
- failed2:
--	release_mem_region(regs_res->start, remap_size);
-+	release_mem_region(phys_addr, remap_size);
- 
- failed1:
- 	kfree(drvdata);
- 	dev_set_drvdata(dev, NULL);
- 
--	return retval;
--}
--
--/***************************/
--/* OF Platform Bus Support */
--/***************************/
--
--static int __devinit xps2_of_probe(struct of_device *ofdev, const struct
--				   of_device_id * match)
--{
--	struct resource r_irq; /* Interrupt resources */
--	struct resource r_mem; /* IO mem resources */
--	int rc = 0;
--
--	printk(KERN_INFO "Device Tree Probing \'%s\'\n",
--			ofdev->node->name);
--
--	/* Get iospace for the device */
--	rc = of_address_to_resource(ofdev->node, 0, &r_mem);
--	if (rc) {
--		dev_err(&ofdev->dev, "invalid address\n");
--		return rc;
--	}
--
--	/* Get IRQ for the device */
--	rc = of_irq_to_resource(ofdev->node, 0, &r_irq);
--	if (rc == NO_IRQ) {
--		dev_err(&ofdev->dev, "no IRQ found\n");
--		return rc;
--	}
--
--	return xps2_setup(&ofdev->dev, &r_mem, &r_irq);
-+	return rc;
- }
- 
-+/**
-+ * xps2_of_remove - unbinds the driver from the PS/2 device.
-+ * @of_dev:	pointer to OF device structure
-+ *
-+ * This function is called if a device is physically removed from the system or
-+ * if the driver module is being unloaded. It checks if the device is present
-+ * and frees any resources allocated to the device.
-+ */
- static int __devexit xps2_of_remove(struct of_device *of_dev)
- {
- 	struct xps2data *drvdata;
- 	struct device *dev;
-+	struct resource r_mem; /* IO mem resources */
-+	resource_size_t phys_addr, remap_size;
-+	int rc;
- 
- 	dev = &of_dev->dev;
- 	if (!dev)
-@@ -343,7 +364,16 @@ static int __devexit xps2_of_remove(struct of_device *of_dev)
- 
- 	iounmap(drvdata->base_address);
- 
--	release_mem_region(drvdata->phys_addr, drvdata->remap_size);
-+	/* Get iospace of the device */
-+	rc = of_address_to_resource(of_dev->node, 0, &r_mem);
-+	if (rc) {
-+		dev_err(dev, "invalid address\n");
-+		return rc;
-+	}
-+
-+	phys_addr = r_mem.start;
-+	remap_size = r_mem.end - r_mem.start + 1;
-+	release_mem_region(phys_addr, remap_size);
- 
- 	kfree(drvdata);
- 	dev_set_drvdata(dev, NULL);
--- 
-1.5.2.1
 
 
 
-This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

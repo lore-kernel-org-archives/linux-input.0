@@ -1,575 +1,217 @@
-From: Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: Re: [Patch 08/10] input: Touchscreen driver for the PCAP
-Date: Fri, 11 Jul 2008 17:23:47 +0200
-Message-ID: <20080711152347.GM14476@datenfreihafen.org>
-References: <20080707184000.411913919@datenfreihafen.org> <20080707184131.286622542@datenfreihafen.org> <20080707161212.ZZRA012@mailhub.coreip.homeip.net> <20080708202622.GE18479@datenfreihafen.org> <20080710142320.GB3125@anvil.corenet.prv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH] new driver for SGI Indy volume buttons
+Date: Fri, 11 Jul 2008 20:34:35 +0200 (CEST)
+Message-ID: <20080711183435.4C53AC2EBF@solo.franken.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sirius.lasnet.de ([78.47.116.19]:44047 "EHLO sirius.lasnet.de"
+Received: from elvis.franken.de ([193.175.24.41]:44265 "EHLO elvis.franken.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1761849AbYGKPTr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 11 Jul 2008 11:19:47 -0400
-Content-Disposition: inline
-In-Reply-To: <20080710142320.GB3125@anvil.corenet.prv>
+	id S1753254AbYGKSei (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jul 2008 14:34:38 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, Daniel Ribeiro <wyrm@openezx.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, dtor@mail.ru
 
-Hello.
+This driver adds support for the volume buttons on the front of every
+SGI Indy workstation.
 
-On Thu, 2008-07-10 at 10:23, Dmitry Torokhov wrote:
-> 
-> On Tue, Jul 08, 2008 at 10:26:22PM +0200, Stefan Schmidt wrote:
-> 
-> Looks better, more comments though.
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+---
 
-Which are very much welcome.
+Please apply for 2.6.27.
 
-> > +static int __init ezxts_probe(struct platform_device *pdev)
-> 
-> This should be __devinit.
+ drivers/input/misc/Kconfig         |   10 +++
+ drivers/input/misc/Makefile        |    1 +
+ drivers/input/misc/sgi_indy_btns.c |  154 ++++++++++++++++++++++++++++++++++++
+ 3 files changed, 165 insertions(+), 0 deletions(-)
 
-Done
-
-> > +{
-> > +	struct pcap_ts *pcap_ts;
-> > +	struct input_dev *input_dev;
-> > +	int err = -ENOMEM;
-> > +
-> > +	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
-> > +	input_dev = input_allocate_device();
-> > +	if (!pcap_ts || !input_dev)
-> > +		goto fail;
-> > +
-> > +	pcap_ts->irq_xy = platform_get_irq(pdev, 0);
-> > +	if (pcap_ts->irq_xy < 0) {
-> > +		err = pcap_ts->irq_xy;
-> > +		goto fail;
-> > +	}
-> > +
-> > +	pcap_ts->irq_touch = platform_get_irq(pdev, 1);
-> > +	if (pcap_ts->irq_touch < 0) {
-> > +		err = pcap_ts->irq_touch;
-> > +		goto fail;
-> > +	}
-> > +
-> > +	ezx_pcap_write(PCAP_REG_ADC, 0);
-> > +	ezx_pcap_write(PCAP_REG_ADR, 0);
-> > +	pcap_ts_mode(pcap_ts, STANDBY_MODE);
-> > +
-> 
-> OK, so if I understand this correctly we make the hardware fully ready
-> here...
-
-Yes
-
-> > +	err = request_irq(pcap_ts->irq_xy, pcap_ts_irq_xy, IRQF_DISABLED,
-> > +			  "pcap-ts X/Y", pcap_ts);
-> > +	if (err < 0) {
-> > +		printk(KERN_ERR "pcap_ts: can't grab xy irq %d: %d\n",
-> > +		       pcap_ts->irq_xy, err);
-> > +		goto fail;
-> > +	}
-> > +
-> > +	err = request_irq(pcap_ts->irq_touch, pcap_ts_irq_touch, IRQF_DISABLED,
-> > +			  "pcap-ts touch", pcap_ts);
-> > +	if (err < 0) {
-> > +		printk(KERN_ERR "pcap_ts: can't grab touch irq %d: %d\n",
-> > +		       pcap_ts->irq_touch, err);
-> > +		goto fail_xy;
-> > +	}
-> > +
-> 
-> And request IRQ.. At this point in time IRQ may come up if pen is
-> touching the screen...
-
-Yes
-
-> > +	pcap_ts->input = input_dev;
-> > +	init_timer(&pcap_ts->timer);
-> > +	pcap_ts->timer.data = (unsigned long) pcap_ts;
-> > +	pcap_ts->timer.function = &pcap_ts_timer_fn;
-> 
-> But the timer is not setup yet... This may cause problems.
-
-Good point. Moved the timer code block before request_irq.
-
-> > +
-> > +static int ezxts_remove(struct platform_device *pdev)
-> > +{
-> 
-> __devexit?
-
-Done
-
-> > +	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
-> > +
-> > +	del_timer_sync(&pcap_ts->timer);
-> > +
-> 
-> We delete the timer but if IRQ comes up right here we'll reactivate it
-> again. Is there a way to disable the hardware? Something like putting it
-> into low power mode like you do in suspend to make sure it does not
-> generate IRQs? I guess you can just disable_irq before trying to delete
-> the timer.
-
-Sadly the chip does not support this. At least as far as we know, because
-Motorola does not give us any docs about it. In low power mode it still reacts
-on IRQs. To avoid the disable_irq we just reorder it to delete the pointer after
-the free_irq. Should do the same job, right?
-
-> > +	free_irq(pcap_ts->irq_touch, pcap_ts);
-> > +	free_irq(pcap_ts->irq_xy, pcap_ts);
-> > +
-> > +	input_unregister_device(pcap_ts->input);
-> > +	kfree(pcap_ts);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> 
-> > +static int ezxts_suspend(struct platform_device *dev, pm_message_t state)
-> > +static int ezxts_resume(struct platform_device *dev)
-> 
-> Guard with CONFIG_PM?
-
-Done
-
-> > +static struct platform_driver ezxts_driver = {
-> > +	.probe		= ezxts_probe,
-> > +	.remove		= ezxts_remove,
-> 
-> __devexit_p()
-
-Done
-
-> > +	.suspend	= ezxts_suspend,
-> > +	.resume		= ezxts_resume,
-> 
-> Guard with CONFIG_PM here as well.
-
-Done
-
-How about this version?
-
-
-Subject: [@num@/@total@] input: Touchscreen driver for the PCAP
-Cc: linux-input@vger.kernel.org
-
-Touchscreen driver based on the MFD PCAP available on the EZX mobile phones.
-
-Signed-off-by: Daniel Ribeiro <drwyrm@gmail.com>
-
-PATCH FOLLOWS
-KernelVersion: 2.6-arm-git pxa branch
-
-Index: linux-2.6-arm/drivers/input/touchscreen/Kconfig
-===================================================================
---- linux-2.6-arm.orig/drivers/input/touchscreen/Kconfig
-+++ linux-2.6-arm/drivers/input/touchscreen/Kconfig
-@@ -316,4 +316,13 @@
- 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EMBEDDED
- 	depends on TOUCHSCREEN_USB_COMPOSITE
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 432699d..6c9d545 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -189,6 +189,16 @@ config INPUT_UINPUT
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called uinput.
  
-+config TOUCHSCREEN_PCAP
-+	tristate "Motorola PCAP touchscreen"
-+	depends on EZX_PCAP
++config INPUT_SGI_INDY_BTNS
++	tristate "SGI Indy volume button interface"
++	depends on SGI_IP22
++	select INPUT_POLLDEV
 +	help
-+	  Say Y here if you have a Motorola EZX telephone and
-+	  want to support the built-in touchscreen.
++	  Say Y here if you want to support SGI Indy volume button interface.
 +
-+	  If unsure, say N.
++	  To compile this driver as a module, choose M here: the
++	  module will be called sgi_indy_btns.
 +
- endif
-Index: linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
-===================================================================
+ config HP_SDC_RTC
+ 	tristate "HP SDC Real Time Clock"
+ 	depends on GSC || HP300
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index ebd39f2..b86360e 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -19,3 +19,4 @@ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
+ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+ obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
+ obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
++obj-$(CONFIG_INPUT_SGI_INDY_BTNS)	+= sgi_indy_btns.o
+diff --git a/drivers/input/misc/sgi_indy_btns.c b/drivers/input/misc/sgi_indy_btns.c
+new file mode 100644
+index 0000000..15f891a
 --- /dev/null
-+++ linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
-@@ -0,0 +1,323 @@
++++ b/drivers/input/misc/sgi_indy_btns.c
+@@ -0,0 +1,154 @@
 +/*
-+ * pcap_ts.c - Touchscreen driver for Motorola PCAP2 based touchscreen as found
-+ * 	       in the EZX phone platform.
++ *  SGI Indy Volume Button interface driver
 + *
-+ *  Copyright (C) 2006 Harald Welte <laforge@openezx.org>
-+ *  Copyright (C) 2007 Daniel Ribeiro <drwyrm@gmail.com>
-+ *
-+ *  Based on information found in the original Motorola 2.4.x ezx-ts.c driver.
++ *  Copyright (C) 2008  Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 + *
 + *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
 + *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 + */
-+
-+#include <linux/module.h>
 +#include <linux/init.h>
-+#include <linux/fs.h>
-+#include <linux/string.h>
-+#include <linux/pm.h>
-+#include <linux/timer.h>
-+#include <linux/interrupt.h>
++#include <linux/input-polldev.h>
++#include <linux/ioport.h>
++#include <linux/module.h>
 +#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/mfd/ezx-pcap.h>
 +
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/pxa-regs.h>
++#include <asm/sgi/ioc.h>
 +
-+/* PCAP_ADC_TS_M modes */
-+#define POSITION_X_MEASUREMENT	0
-+#define POSITION_XY_MEASUREMENT	1
-+#define PRESSURE_MEASUREMENT	2
-+#define PLATE_X_MEASUREMENT	3
-+#define PLATE_Y_MEASUREMENT	4
-+#define STANDBY_MODE		5
-+#define NONTS_MODE		6
++#define BUTTONS_POLL_INTERVAL	30	/* msec */
++#define BUTTONS_COUNT_THRESHOLD	3
 +
-+struct pcap_ts {
-+	int irq_xy;
-+	int irq_touch;
-+	struct input_dev *input;
-+	struct timer_list timer;
-+	u16 x, y;
-+	u16 pressure;
-+	u8 read_state;
++static const unsigned short sgi_indy_map[] = {
++	KEY_VOLUMEDOWN,
++	KEY_VOLUMEUP
 +};
 +
-+#define X_AXIS_MIN	0
-+#define X_AXIS_MAX	1023
++struct buttons_dev {
++	struct input_polled_dev *poll_dev;
++	unsigned short keymap[ARRAY_SIZE(sgi_indy_map)];
++	int count[ARRAY_SIZE(sgi_indy_map)];
++	void __iomem *reg;
++};
 +
-+#define Y_AXIS_MAX	X_AXIS_MAX
-+#define Y_AXIS_MIN	X_AXIS_MIN
-+
-+#define PRESSURE_MAX	X_AXIS_MAX
-+#define PRESSURE_MIN	X_AXIS_MIN
-+
-+/* if we try to read faster, pressure reading becomes unreliable */
-+#define SAMPLE_INTERVAL		(HZ/50)
-+
-+
-+static void pcap_ts_mode(struct pcap_ts *pcap_ts, u32 mode)
++static void handle_buttons(struct input_polled_dev *dev)
 +{
-+	u32 tmp;
++	struct buttons_dev *bdev = dev->private;
++	struct input_dev *input = dev->input;
++	u8 status;
++	int i;
 +
-+	pcap_ts->read_state = mode;
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp &= ~PCAP_ADC_TS_M_MASK;
-+	tmp |= ((mode << PCAP_ADC_TS_M_SHIFT) & PCAP_ADC_TS_M_MASK);
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+}
++	status = readb(&sgioc->panel) ^ 0xa0;
++	status = ((status & 0x80) >> 7) | ((status & 0x20) >> 5);
 +
-+/* issue a XY read command to the ADC of PCAP2.  Well get an ADCDONE interrupt
-+ * once the result of the conversion is available */
-+static void pcap_ts_start_xy_read(struct pcap_ts *pcap_ts)
-+{
-+	u32 tmp;
-+
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp &= ~(PCAP_ADC_RAND | PCAP_ADC_ADA1_MASK | PCAP_ADC_ADA2_MASK);
-+	tmp |= (PCAP_ADC_ADEN | PCAP_ADC_AD_SEL1 |
-+		PCAP_ADC_AD_SEL2 | (5 << PCAP_ADC_ADA1_SHIFT) |
-+					(3 << PCAP_ADC_ADA2_SHIFT));
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+
-+	ezx_pcap_write(PCAP_REG_ADR, PCAP_ADR_ASC);
-+}
-+
-+/* read the XY result from the ADC of PCAP2 */
-+static void pcap_ts_get_xy_value(struct pcap_ts *pcap_ts)
-+{
-+	u32 tmp;
-+
-+	ezx_pcap_read(PCAP_REG_ADR, &tmp);
-+
-+	if (pcap_ts->read_state == POSITION_XY_MEASUREMENT) {
-+		pcap_ts->x = (tmp & PCAP_ADR_ADD1_MASK) >>
-+					PCAP_ADR_ADD1_SHIFT;
-+		pcap_ts->y = (tmp & PCAP_ADR_ADD2_MASK) >>
-+					PCAP_ADR_ADD2_SHIFT;
-+	} else {
-+		pcap_ts->pressure = (tmp & PCAP_ADR_ADD2_MASK) >>
-+						PCAP_ADR_ADD2_SHIFT;
-+	}
-+}
-+
-+/* PCAP2 interrupts us when ADC conversion result is available */
-+static irqreturn_t pcap_ts_irq_xy(int irq, void *dev_id)
-+{
-+	struct pcap_ts *pcap_ts = dev_id;
-+
-+	pcap_ts_get_xy_value(pcap_ts);
-+	switch (pcap_ts->read_state) {
-+	case PRESSURE_MEASUREMENT:
-+		if (!(pcap_ts->pressure >= PRESSURE_MAX ||
-+				pcap_ts->pressure <= PRESSURE_MIN)) {
-+			/* pen has been touched down */
-+			input_report_key(pcap_ts->input, BTN_TOUCH, 1);
-+			input_report_abs(pcap_ts->input, ABS_PRESSURE,
-+							pcap_ts->pressure);
-+		}
-+		/* switch state machine into coordinate read mode */
-+		pcap_ts_mode(pcap_ts, POSITION_XY_MEASUREMENT);
-+		pcap_ts_start_xy_read(pcap_ts);
-+		break;
-+	case POSITION_XY_MEASUREMENT:
-+		if (pcap_ts->x <= X_AXIS_MIN || pcap_ts->x >= X_AXIS_MAX ||
-+		    pcap_ts->y <= Y_AXIS_MIN || pcap_ts->y >= Y_AXIS_MAX) {
-+			/* pen has been released */
-+			input_report_key(pcap_ts->input, BTN_TOUCH, 0);
-+			input_report_abs(pcap_ts->input, ABS_PRESSURE, 0);
-+
-+			/* no need for timer, we'll get interrupted with
-+			 * next touch down event */
-+			del_timer(&pcap_ts->timer);
-+
-+			/* ask PCAP2 to interrupt us if touch event happens
-+			 * again */
-+			pcap_ts_mode(pcap_ts, STANDBY_MODE);
-+			enable_irq(pcap_ts->irq_touch);
++	for (i = 0; i < ARRAY_SIZE(bdev->keymap); i++) {
++		if (status & (1U << i)) {
++			if (++bdev->count[i] == BUTTONS_COUNT_THRESHOLD) {
++				input_event(input, EV_MSC, MSC_SCAN, i);
++				input_report_key(input, bdev->keymap[i], 1);
++				input_sync(input);
++			}
 +		} else {
-+			input_report_abs(pcap_ts->input, ABS_X, pcap_ts->x);
-+			input_report_abs(pcap_ts->input, ABS_Y, pcap_ts->y);
-+
-+			/* switch back to pressure read mode */
-+			pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
-+			mod_timer(&pcap_ts->timer, jiffies + SAMPLE_INTERVAL);
++			if (bdev->count[i] >= BUTTONS_COUNT_THRESHOLD) {
++				input_event(input, EV_MSC, MSC_SCAN, i);
++				input_report_key(input, bdev->keymap[i], 0);
++				input_sync(input);
++			}
++			bdev->count[i] = 0;
 +		}
-+		input_sync(pcap_ts->input);
-+		break;
-+	default:
-+		break;
 +	}
-+	return IRQ_HANDLED;
 +}
 +
-+/* PCAP2 interrupts us on pen down/up */
-+static irqreturn_t pcap_ts_irq_touch(int irq, void *dev_id)
++static int __devinit sgi_indy_buttons_probe(struct platform_device *pdev)
 +{
-+	struct pcap_ts *pcap_ts = dev_id;
-+	/* mask Touchscreen interrupt bit, prevents further touch events
-+	 * from being reported to us until we're finished with reading
-+	 * both pressure and x/y from ADC */
-+	disable_irq(pcap_ts->irq_touch);
++	struct buttons_dev *bdev;
++	struct input_polled_dev *poll_dev;
++	struct input_dev *input;
++	int error, i;
 +
-+	pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
-+	pcap_ts_start_xy_read(pcap_ts);
-+	return IRQ_HANDLED;
++	bdev = kzalloc(sizeof(struct buttons_dev), GFP_KERNEL);
++	poll_dev = input_allocate_polled_device();
++	if (!bdev || !poll_dev) {
++		error = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	memcpy(bdev->keymap, sgi_indy_map, sizeof(bdev->keymap));
++
++	poll_dev->private = bdev;
++	poll_dev->poll = handle_buttons;
++	poll_dev->poll_interval = BUTTONS_POLL_INTERVAL;
++
++	input = poll_dev->input;
++	input->name = "SGI Indy buttons";
++	input->phys = "indy/input0";
++	input->id.bustype = BUS_HOST;
++	input->dev.parent = &pdev->dev;
++
++	input->keycode = bdev->keymap;
++	input->keycodemax = ARRAY_SIZE(bdev->keymap);
++	input->keycodesize = sizeof(unsigned short);
++
++	input_set_capability(input, EV_MSC, MSC_SCAN);
++	__set_bit(EV_KEY, input->evbit);
++	for (i = 0; i < ARRAY_SIZE(sgi_indy_map); i++)
++		__set_bit(bdev->keymap[i], input->keybit);
++	__clear_bit(KEY_RESERVED, input->keybit);
++
++	bdev->poll_dev = poll_dev;
++	dev_set_drvdata(&pdev->dev, bdev);
++
++	error = input_register_polled_device(poll_dev);
++	if (!error)
++		return 0;
++
++ err_free_mem:
++	input_free_polled_device(poll_dev);
++	kfree(bdev);
++	dev_set_drvdata(&pdev->dev, NULL);
++	return error;
 +}
 +
-+static void pcap_ts_timer_fn(unsigned long data)
++static int __devexit sgi_indy_buttons_remove(struct platform_device *pdev)
 +{
-+	struct pcap_ts *pcap_ts = (struct pcap_ts *) data;
++	struct device *dev = &pdev->dev;
++	struct buttons_dev *bdev = dev_get_drvdata(dev);
 +
-+	pcap_ts_start_xy_read(pcap_ts);
-+}
-+
-+static int __devinit ezxts_probe(struct platform_device *pdev)
-+{
-+	struct pcap_ts *pcap_ts;
-+	struct input_dev *input_dev;
-+	int err = -ENOMEM;
-+
-+	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
-+	input_dev = input_allocate_device();
-+	if (!pcap_ts || !input_dev)
-+		goto fail;
-+
-+	pcap_ts->irq_xy = platform_get_irq(pdev, 0);
-+	if (pcap_ts->irq_xy < 0) {
-+		err = pcap_ts->irq_xy;
-+		goto fail;
-+	}
-+
-+	pcap_ts->irq_touch = platform_get_irq(pdev, 1);
-+	if (pcap_ts->irq_touch < 0) {
-+		err = pcap_ts->irq_touch;
-+		goto fail;
-+	}
-+
-+	ezx_pcap_write(PCAP_REG_ADC, 0);
-+	ezx_pcap_write(PCAP_REG_ADR, 0);
-+	pcap_ts_mode(pcap_ts, STANDBY_MODE);
-+
-+	init_timer(&pcap_ts->timer);
-+	pcap_ts->timer.data = (unsigned long) pcap_ts;
-+	pcap_ts->timer.function = &pcap_ts_timer_fn;
-+
-+	pcap_ts->input = input_dev;
-+	platform_set_drvdata(pdev, pcap_ts);
-+
-+	input_dev->name = "pcap-touchscreen";
-+	input_dev->phys = "ezxts/input0";
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->id.vendor = 0x0001;
-+	input_dev->id.product = 0x0002;
-+	input_dev->id.version = 0x0100;
-+	input_dev->dev.parent = &pdev->dev;
-+
-+	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
-+	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN,
-+			     PRESSURE_MAX, 0, 0);
-+
-+	err = request_irq(pcap_ts->irq_xy, pcap_ts_irq_xy, IRQF_DISABLED,
-+			  "pcap-ts X/Y", pcap_ts);
-+	if (err < 0) {
-+		printk(KERN_ERR "pcap_ts: can't grab xy irq %d: %d\n",
-+		       pcap_ts->irq_xy, err);
-+		goto fail;
-+	}
-+
-+	err = request_irq(pcap_ts->irq_touch, pcap_ts_irq_touch, IRQF_DISABLED,
-+			  "pcap-ts touch", pcap_ts);
-+	if (err < 0) {
-+		printk(KERN_ERR "pcap_ts: can't grab touch irq %d: %d\n",
-+		       pcap_ts->irq_touch, err);
-+		goto fail_xy;
-+	}
-+
-+	err = input_register_device(pcap_ts->input);
-+	if (err)
-+		goto fail_touch;
-+
-+	return 0;
-+
-+fail_touch:
-+	free_irq(pcap_ts->irq_touch, pcap_ts);
-+fail_xy:
-+	free_irq(pcap_ts->irq_xy, pcap_ts);
-+fail:
-+	input_free_device(input_dev);
-+	kfree(pcap_ts);
-+
-+	return err;
-+}
-+
-+static int __devexit ezxts_remove(struct platform_device *pdev)
-+{
-+	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
-+
-+	free_irq(pcap_ts->irq_touch, pcap_ts);
-+	free_irq(pcap_ts->irq_xy, pcap_ts);
-+
-+	del_timer_sync(&pcap_ts->timer);
-+
-+	input_unregister_device(pcap_ts->input);
-+	kfree(pcap_ts);
++	input_unregister_polled_device(bdev->poll_dev);
++	input_free_polled_device(bdev->poll_dev);
++	kfree(bdev);
++	dev_set_drvdata(dev, NULL);
 +
 +	return 0;
 +}
 +
-+#ifdef CONFIG_PM
-+static int ezxts_suspend(struct platform_device *dev, pm_message_t state)
-+{
-+	u32 tmp;
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp |= PCAP_ADC_TS_REF_LOWPWR;
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+	return 0;
-+}
-+
-+static int ezxts_resume(struct platform_device *dev)
-+{
-+	u32 tmp;
-+	ezx_pcap_read(PCAP_REG_ADC, &tmp);
-+	tmp &= ~PCAP_ADC_TS_REF_LOWPWR;
-+	ezx_pcap_write(PCAP_REG_ADC, tmp);
-+	return 0;
-+}
-+#endif
-+
-+static struct platform_driver ezxts_driver = {
-+	.probe		= ezxts_probe,
-+	.remove		= __devexit_p(ezxts_remove),
-+#ifdef CONFIG_PM
-+	.suspend	= ezxts_suspend,
-+	.resume		= ezxts_resume,
-+#endif
-+	.driver		= {
-+		.name	= "pcap-ts",
++static struct platform_driver sgi_indy_buttons_driver = {
++	.probe	= sgi_indy_buttons_probe,
++	.remove	= __devexit_p(sgi_indy_buttons_remove),
++	.driver	= {
++		.name	= "sgiindybtns",
 +		.owner	= THIS_MODULE,
 +	},
 +};
 +
-+static int __init ezxts_init(void)
++static int __init sgi_indy_buttons_init(void)
 +{
-+	return platform_driver_register(&ezxts_driver);
++	return platform_driver_register(&sgi_indy_buttons_driver);
 +}
 +
-+static void __exit ezxts_exit(void)
++static void __exit sgi_indy_buttons_exit(void)
 +{
-+	platform_driver_unregister(&ezxts_driver);
++	platform_driver_unregister(&sgi_indy_buttons_driver);
 +}
 +
-+module_init(ezxts_init);
-+module_exit(ezxts_exit);
-+
-+MODULE_DESCRIPTION("Motorola PCAP2 touchscreen driver");
-+MODULE_AUTHOR("Harald Welte <laforge@openezx.org>");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6-arm/drivers/input/touchscreen/Makefile
-===================================================================
---- linux-2.6-arm.orig/drivers/input/touchscreen/Makefile
-+++ linux-2.6-arm/drivers/input/touchscreen/Makefile
-@@ -26,3 +26,4 @@
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
-+obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
-Index: linux-2.6-arm/arch/arm/mach-pxa/ezx.c
-===================================================================
---- linux-2.6-arm.orig/arch/arm/mach-pxa/ezx.c
-+++ linux-2.6-arm/arch/arm/mach-pxa/ezx.c
-@@ -239,6 +239,30 @@
- 	GPIO56_USB_P3_4,	/* ICL_VMOUT */
- 	GPIO113_USB_P3_3,	/* /ICL_VMIN */
- };
-+/* PCAP_TS */
-+struct resource pcap_ts_resources[] = {
-+	[0] = {
-+		.start          = EZX_IRQ_ADCDONE,
-+		.end            = EZX_IRQ_ADCDONE,
-+		.flags          = IORESOURCE_IRQ,
-+	},
-+	[1] = {
-+		.start          = EZX_IRQ_TS,
-+		.end            = EZX_IRQ_TS,
-+		.flags          = IORESOURCE_IRQ,
-+	}
-+};
-+
-+struct platform_device pcap_ts_device = {
-+	.name           = "pcap-ts",
-+	.id             = -1,
-+	.dev        = {
-+		.parent = &ezx_pcap_device.dev,
-+	},
-+	.num_resources  = ARRAY_SIZE(pcap_ts_resources),
-+	.resource       = pcap_ts_resources,
-+};
-+
- 
- static void __init ezx_init(void)
- {
-@@ -248,11 +272,17 @@
- 		set_pxa_fb_info(&ezx_fb_info_1);
- 		ezx_pcap_platform_data.config |=
- 			(PCAP_SECOND_PORT | PCAP_CS_INVERTED);
-+		pcap_ts_resources[0].start = EZX_IRQ_ADCDONE2;
-+		pcap_ts_resources[0].end = EZX_IRQ_ADCDONE2;
- 	} else {
- 		set_pxa_fb_info(&ezx_fb_info_2);
- 	}
- 	pxa_set_mci_info(&ezx_mci_platform_data);
- 	platform_add_devices(devices, ARRAY_SIZE(devices));
-+
-+	/* A910 and E2 dont have a touchscreen */
-+	if (!(machine_is_ezx_a910() || machine_is_ezx_e2()))
-+		platform_device_register(&pcap_ts_device);
- }
- 
- static void __init ezx_fixup(struct machine_desc *desc, struct tag *tags,
++module_init(sgi_indy_buttons_init);
++module_exit(sgi_indy_buttons_exit);

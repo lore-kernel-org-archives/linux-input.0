@@ -1,420 +1,575 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH] [V2] powerpc: Xilinx: PS2: driver updates based on review
-Date: Fri, 11 Jul 2008 08:45:40 -0600
-Message-ID: <20080711144540.GA12751@secretlab.ca>
-References: <20080710193451.ED2B51D18066@mail97-dub.bigfish.com>
+From: Stefan Schmidt <stefan@datenfreihafen.org>
+Subject: Re: [Patch 08/10] input: Touchscreen driver for the PCAP
+Date: Fri, 11 Jul 2008 17:23:47 +0200
+Message-ID: <20080711152347.GM14476@datenfreihafen.org>
+References: <20080707184000.411913919@datenfreihafen.org> <20080707184131.286622542@datenfreihafen.org> <20080707161212.ZZRA012@mailhub.coreip.homeip.net> <20080708202622.GE18479@datenfreihafen.org> <20080710142320.GB3125@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from sirius.lasnet.de ([78.47.116.19]:44047 "EHLO sirius.lasnet.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1761849AbYGKPTr (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 11 Jul 2008 11:19:47 -0400
 Content-Disposition: inline
-In-Reply-To: <20080710193451.ED2B51D18066@mail97-dub.bigfish.com>
-List-Unsubscribe: <https://ozlabs.org/mailman/options/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=unsubscribe>
-List-Archive: <http://ozlabs.org/pipermail/linuxppc-dev>
-List-Post: <mailto:linuxppc-dev@ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@ozlabs.org?subject=help>
-List-Subscribe: <https://ozlabs.org/mailman/listinfo/linuxppc-dev>,
-	<mailto:linuxppc-dev-request@ozlabs.org?subject=subscribe>
-Sender: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-Errors-To: linuxppc-dev-bounces+glppd-linuxppc64-dev=m.gmane.org@ozlabs.org
-To: John Linn <john.linn@xilinx.com>
-Cc: Sadanand <sadanan@xilinx.com>, dmitry.torokhov@gmail.com, linuxppc-dev@ozlabs.org, linux-input@vger.kernel.org
+In-Reply-To: <20080710142320.GB3125@anvil.corenet.prv>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, Daniel Ribeiro <wyrm@openezx.org>
 
-On Thu, Jul 10, 2008 at 12:34:43PM -0700, John Linn wrote:
-> Review comments were incorporated to improve the driver.
+Hello.
+
+On Thu, 2008-07-10 at 10:23, Dmitry Torokhov wrote:
 > 
-> 1. Some data was eliminated that was not needed.
-> 2. Renaming of variables for clarity.
-> 3. Removed unneeded type casting.
-> 4. Changed to use dev_err rather than other I/O.
-> 5. Merged together some functions.
-> 6. Added kerneldoc format to functions.
+> On Tue, Jul 08, 2008 at 10:26:22PM +0200, Stefan Schmidt wrote:
 > 
-> Signed-off-by: Sadanand <sadanan@xilinx.com>
-> Signed-off-by: John Linn <john.linn@xilinx.com>
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
-> ---
+> Looks better, more comments though.
+
+Which are very much welcome.
+
+> > +static int __init ezxts_probe(struct platform_device *pdev)
 > 
-> This patch is an incremental patch to be applied to 
-> [V3] powerpc: Xilinx: PS2: Added new XPS PS2 driver.
+> This should be __devinit.
+
+Done
+
+> > +{
+> > +	struct pcap_ts *pcap_ts;
+> > +	struct input_dev *input_dev;
+> > +	int err = -ENOMEM;
+> > +
+> > +	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
+> > +	input_dev = input_allocate_device();
+> > +	if (!pcap_ts || !input_dev)
+> > +		goto fail;
+> > +
+> > +	pcap_ts->irq_xy = platform_get_irq(pdev, 0);
+> > +	if (pcap_ts->irq_xy < 0) {
+> > +		err = pcap_ts->irq_xy;
+> > +		goto fail;
+> > +	}
+> > +
+> > +	pcap_ts->irq_touch = platform_get_irq(pdev, 1);
+> > +	if (pcap_ts->irq_touch < 0) {
+> > +		err = pcap_ts->irq_touch;
+> > +		goto fail;
+> > +	}
+> > +
+> > +	ezx_pcap_write(PCAP_REG_ADC, 0);
+> > +	ezx_pcap_write(PCAP_REG_ADR, 0);
+> > +	pcap_ts_mode(pcap_ts, STANDBY_MODE);
+> > +
 > 
-> V2
-> 	Updated based on Peter's comments.
+> OK, so if I understand this correctly we make the hardware fully ready
+> here...
+
+Yes
+
+> > +	err = request_irq(pcap_ts->irq_xy, pcap_ts_irq_xy, IRQF_DISABLED,
+> > +			  "pcap-ts X/Y", pcap_ts);
+> > +	if (err < 0) {
+> > +		printk(KERN_ERR "pcap_ts: can't grab xy irq %d: %d\n",
+> > +		       pcap_ts->irq_xy, err);
+> > +		goto fail;
+> > +	}
+> > +
+> > +	err = request_irq(pcap_ts->irq_touch, pcap_ts_irq_touch, IRQF_DISABLED,
+> > +			  "pcap-ts touch", pcap_ts);
+> > +	if (err < 0) {
+> > +		printk(KERN_ERR "pcap_ts: can't grab touch irq %d: %d\n",
+> > +		       pcap_ts->irq_touch, err);
+> > +		goto fail_xy;
+> > +	}
+> > +
 > 
->  drivers/input/serio/xilinx_ps2.c |  207 ++++++++++++++++++++------------------
->  1 files changed, 111 insertions(+), 96 deletions(-)
+> And request IRQ.. At this point in time IRQ may come up if pen is
+> touching the screen...
+
+Yes
+
+> > +	pcap_ts->input = input_dev;
+> > +	init_timer(&pcap_ts->timer);
+> > +	pcap_ts->timer.data = (unsigned long) pcap_ts;
+> > +	pcap_ts->timer.function = &pcap_ts_timer_fn;
 > 
-> diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
-> index e86f11b..86ec91c 100644
-> --- a/drivers/input/serio/xilinx_ps2.c
-> +++ b/drivers/input/serio/xilinx_ps2.c
-> @@ -58,23 +58,20 @@
->  
->  /* Mask for all the Receive Interrupts */
->  #define XPS2_IPIXR_RX_ALL	(XPS2_IPIXR_RX_OVF | XPS2_IPIXR_RX_ERR |  \
-> -					XPS2_IPIXR_RX_FULL)
-> +				 XPS2_IPIXR_RX_FULL)
->  
->  /* Mask for all the Interrupts */
->  #define XPS2_IPIXR_ALL		(XPS2_IPIXR_TX_ALL | XPS2_IPIXR_RX_ALL |  \
-> -					XPS2_IPIXR_WDT_TOUT)
-> +				 XPS2_IPIXR_WDT_TOUT)
->  
->  /* Global Interrupt Enable mask */
->  #define XPS2_GIER_GIE_MASK	0x80000000
->  
->  struct xps2data {
->  	int irq;
-> -	u32 phys_addr;
-> -	u32 remap_size;
->  	spinlock_t lock;
-> -	u8 rxb;				/* Rx buffer */
->  	void __iomem *base_address;	/* virt. address of control registers */
-> -	unsigned int dfl;
-> +	unsigned int flags;
->  	struct serio serio;		/* serio */
->  };
->  
-> @@ -82,8 +79,13 @@ struct xps2data {
->  /* XPS PS/2 data transmission calls */
->  /************************************/
->  
-> -/*
-> - * xps2_recv() will attempt to receive a byte of data from the PS/2 port.
-> +/**
-> + * xps2_recv() - attempts to receive a byte from the PS/2 port.
-> + * @drvdata:	pointer to ps2 device private data structure
-> + * @byte:	address where the read data will be copied
-> + *
-> + * If there is any data available in the PS/2 receiver, this functions reads
-> + * the data, otherwise it returns error.
->   */
->  static int xps2_recv(struct xps2data *drvdata, u8 *byte)
->  {
-> @@ -105,7 +107,7 @@ static int xps2_recv(struct xps2data *drvdata, u8 *byte)
->  /*********************/
->  static irqreturn_t xps2_interrupt(int irq, void *dev_id)
->  {
-> -	struct xps2data *drvdata = (struct xps2data *)dev_id;
-> +	struct xps2data *drvdata = dev_id;
->  	u32 intr_sr;
->  	u8 c;
->  	int status;
-> @@ -115,35 +117,28 @@ static irqreturn_t xps2_interrupt(int irq, void *dev_id)
->  	out_be32(drvdata->base_address + XPS2_IPISR_OFFSET, intr_sr);
->  
->  	/* Check which interrupt is active */
-> -	if (intr_sr & XPS2_IPIXR_RX_OVF) {
-> -		printk(KERN_ERR "%s: receive overrun error\n",
-> -			drvdata->serio.name);
-> -	}
-> +	if (intr_sr & XPS2_IPIXR_RX_OVF)
-> +		dev_err(drvdata->serio.dev.parent, "receive overrun error\n");
->  
->  	if (intr_sr & XPS2_IPIXR_RX_ERR)
-> -		drvdata->dfl |= SERIO_PARITY;
-> +		drvdata->flags |= SERIO_PARITY;
->  
->  	if (intr_sr & (XPS2_IPIXR_TX_NOACK | XPS2_IPIXR_WDT_TOUT))
-> -		drvdata->dfl |= SERIO_TIMEOUT;
-> +		drvdata->flags |= SERIO_TIMEOUT;
->  
->  	if (intr_sr & XPS2_IPIXR_RX_FULL) {
-> -		status = xps2_recv(drvdata, &drvdata->rxb);
-> +		status = xps2_recv(drvdata, &c);
->  
->  		/* Error, if a byte is not received */
->  		if (status) {
-> -			printk(KERN_ERR
-> -				"%s: wrong rcvd byte count (%d)\n",
-> -				drvdata->serio.name, status);
-> +			dev_err(drvdata->serio.dev.parent,
-> +				"wrong rcvd byte count (%d)\n", status);
->  		} else {
-> -			c = drvdata->rxb;
-> -			serio_interrupt(&drvdata->serio, c, drvdata->dfl);
-> -			drvdata->dfl = 0;
-> +			serio_interrupt(&drvdata->serio, c, drvdata->flags);
-> +			drvdata->flags = 0;
->  		}
->  	}
->  
-> -	if (intr_sr & XPS2_IPIXR_TX_ACK)
-> -		drvdata->dfl = 0;
-> -
->  	return IRQ_HANDLED;
->  }
->  
-> @@ -151,8 +146,15 @@ static irqreturn_t xps2_interrupt(int irq, void *dev_id)
->  /* serio callbacks */
->  /*******************/
->  
-> -/*
-> - * sxps2_write() sends a byte out through the PS/2 interface.
-> +/**
-> + * sxps2_write() - sends a byte out through the PS/2 port.
-> + * @pserio:	pointer to the serio structure of the PS/2 port
-> + * @c:		data that needs to be written to the PS/2 port
-> + *
-> + * This function checks if the PS/2 transmitter is empty and sends a byte.
-> + * Otherwise it returns error. Transmission fails only when nothing is connected
-> + * to the PS/2 port. Thats why, we do not try to resend the data in case of a
-> + * failure.
->   */
->  static int sxps2_write(struct serio *pserio, unsigned char c)
->  {
-> @@ -173,33 +175,39 @@ static int sxps2_write(struct serio *pserio, unsigned char c)
->  	return status;
->  }
->  
-> -/*
-> - * sxps2_open() is called when a port is open by the higher layer.
-> +/**
-> + * sxps2_open() - called when a port is opened by the higher layer.
-> + * @pserio:	pointer to the serio structure of the PS/2 device
-> + *
-> + * This function requests irq and enables interrupts for the PS/2 device.
->   */
->  static int sxps2_open(struct serio *pserio)
->  {
->  	struct xps2data *drvdata = pserio->port_data;
->  	int retval;
-> +	u8 c;
->  
->  	retval = request_irq(drvdata->irq, &xps2_interrupt, 0,
->  				DRIVER_NAME, drvdata);
->  	if (retval) {
-> -		printk(KERN_ERR
-> -			"%s: Couldn't allocate interrupt %d\n",
-> -			drvdata->serio.name, drvdata->irq);
-> +		dev_err(drvdata->serio.dev.parent,
-> +			"Couldn't allocate interrupt %d\n", drvdata->irq);
->  		return retval;
->  	}
->  
->  	/* start reception by enabling the interrupts */
->  	out_be32(drvdata->base_address + XPS2_GIER_OFFSET, XPS2_GIER_GIE_MASK);
->  	out_be32(drvdata->base_address + XPS2_IPIER_OFFSET, XPS2_IPIXR_RX_ALL);
-> -	(void)xps2_recv(drvdata, &drvdata->rxb);
-> +	(void)xps2_recv(drvdata, &c);
->  
->  	return 0;		/* success */
->  }
->  
-> -/*
-> - * sxps2_close() frees the interrupt.
-> +/**
-> + * sxps2_close() - frees the interrupt.
-> + * @pserio:	pointer to the serio structure of the PS/2 device
-> + *
-> + * This function frees the irq and disables interrupts for the PS/2 device.
->   */
->  static void sxps2_close(struct serio *pserio)
->  {
-> @@ -211,21 +219,48 @@ static void sxps2_close(struct serio *pserio)
->  	free_irq(drvdata->irq, drvdata);
->  }
->  
-> -/*********************/
-> -/* Device setup code */
-> -/*********************/
-> -
-> -static int xps2_setup(struct device *dev, struct resource *regs_res,
-> -		      struct resource *irq_res)
-> +/**
-> + * xps2_of_probe - probe method for the PS/2 device.
-> + * @of_dev:	pointer to OF device structure
-> + * @match:	pointer to the stucture used for matching a device
-> + *
-> + * This function probes the PS/2 device in the device tree.
-> + * It initializes the driver data structure and the hardware.
-> + * It returns 0, if the driver is bound to the PS/2 device, or a negative
-> + * value if there is an error.
-> + */
-> +static int __devinit xps2_of_probe(struct of_device *ofdev, const struct
-> +				   of_device_id * match)
->  {
-> +	struct resource r_irq; /* Interrupt resources */
-> +	struct resource r_mem; /* IO mem resources */
->  	struct xps2data *drvdata;
->  	struct serio *serio;
-> -	unsigned long remap_size;
-> -	int retval;
-> +	struct device *dev;
-> +	resource_size_t remap_size, phys_addr;
-> +	int rc = 0;
->  
-> +	dev = &ofdev->dev;
->  	if (!dev)
->  		return -EINVAL;
->  
-> +	dev_info(dev, "Device Tree Probing \'%s\'\n",
-> +			ofdev->node->name);
-> +
-> +	/* Get iospace for the device */
-> +	rc = of_address_to_resource(ofdev->node, 0, &r_mem);
-> +	if (rc) {
-> +		dev_err(dev, "invalid address\n");
-> +		return rc;
-> +	}
-> +
-> +	/* Get IRQ for the device */
-> +	rc = of_irq_to_resource(ofdev->node, 0, &r_irq);
-> +	if (rc == NO_IRQ) {
-> +		dev_err(dev, "no IRQ found\n");
-> +		return rc;
-> +	}
-> +
->  	drvdata = kzalloc(sizeof(struct xps2data), GFP_KERNEL);
->  	if (!drvdata) {
->  		dev_err(dev, "Couldn't allocate device private record\n");
-> @@ -234,31 +269,24 @@ static int xps2_setup(struct device *dev, struct resource *regs_res,
->  	spin_lock_init(&drvdata->lock);
->  	dev_set_drvdata(dev, drvdata);
->  
-> -	if (!regs_res || !irq_res) {
-> -		dev_err(dev, "IO resource(s) not found\n");
-> -		retval = -EFAULT;
-> -		goto failed1;
-> -	}
-> -
-> -	drvdata->irq = irq_res->start;
-> -	remap_size = regs_res->end - regs_res->start + 1;
-> -	if (!request_mem_region(regs_res->start, remap_size, DRIVER_NAME)) {
-> +	drvdata->irq = r_irq.start;
-> +	phys_addr = r_mem.start;
-> +	remap_size = r_mem.end - r_mem.start + 1;
-> +	if (!request_mem_region(phys_addr, remap_size, DRIVER_NAME)) {
->  
->  		dev_err(dev, "Couldn't lock memory region at 0x%08X\n",
-> -			(unsigned int)regs_res->start);
-> -		retval = -EBUSY;
-> +			(unsigned int)phys_addr);
-> +		rc = -EBUSY;
->  		goto failed1;
->  	}
->  
->  	/* Fill in configuration data and add them to the list */
-> -	drvdata->phys_addr = regs_res->start;
-> -	drvdata->remap_size = remap_size;
-> -	drvdata->base_address = ioremap(regs_res->start, remap_size);
-> +	drvdata->base_address = ioremap(phys_addr, remap_size);
->  	if (drvdata->base_address == NULL) {
->  
->  		dev_err(dev, "Couldn't ioremap memory at 0x%08X\n",
-> -			(unsigned int)regs_res->start);
-> -		retval = -EFAULT;
-> +			(unsigned int)phys_addr);
-> +		rc = -EFAULT;
->  		goto failed2;
->  	}
->  
-> @@ -270,7 +298,8 @@ static int xps2_setup(struct device *dev, struct resource *regs_res,
->  	out_be32(drvdata->base_address + XPS2_SRST_OFFSET, XPS2_SRST_RESET);
->  
->  	dev_info(dev, "Xilinx PS2 at 0x%08X mapped to 0x%08X, irq=%d\n",
-> -		drvdata->phys_addr, (u32)drvdata->base_address, drvdata->irq);
-> +		 (unsigned int)phys_addr, (u32)drvdata->base_address,
-> +		 drvdata->irq);
->  
->  	serio = &drvdata->serio;
->  	serio->id.type = SERIO_8042;
-> @@ -280,58 +309,37 @@ static int xps2_setup(struct device *dev, struct resource *regs_res,
->  	serio->port_data = drvdata;
->  	serio->dev.parent = dev;
->  	snprintf(drvdata->serio.name, sizeof(serio->name),
-> -		 "Xilinx XPS PS/2 at %08X", drvdata->phys_addr);
-> +		 "Xilinx XPS PS/2 at %08X", (unsigned int)phys_addr);
->  	snprintf(drvdata->serio.phys, sizeof(serio->phys),
-> -		 "xilinxps2/serio at %08X", drvdata->phys_addr);
-> +		 "xilinxps2/serio at %08X", (unsigned int)phys_addr);
->  	serio_register_port(serio);
->  
->  	return 0;		/* success */
->  
->  failed2:
-> -	release_mem_region(regs_res->start, remap_size);
-> +	release_mem_region(phys_addr, remap_size);
->  
->  failed1:
->  	kfree(drvdata);
->  	dev_set_drvdata(dev, NULL);
->  
-> -	return retval;
-> -}
-> -
-> -/***************************/
-> -/* OF Platform Bus Support */
-> -/***************************/
-> -
-> -static int __devinit xps2_of_probe(struct of_device *ofdev, const struct
-> -				   of_device_id * match)
-> -{
-> -	struct resource r_irq; /* Interrupt resources */
-> -	struct resource r_mem; /* IO mem resources */
-> -	int rc = 0;
-> -
-> -	printk(KERN_INFO "Device Tree Probing \'%s\'\n",
-> -			ofdev->node->name);
-> -
-> -	/* Get iospace for the device */
-> -	rc = of_address_to_resource(ofdev->node, 0, &r_mem);
-> -	if (rc) {
-> -		dev_err(&ofdev->dev, "invalid address\n");
-> -		return rc;
-> -	}
-> -
-> -	/* Get IRQ for the device */
-> -	rc = of_irq_to_resource(ofdev->node, 0, &r_irq);
-> -	if (rc == NO_IRQ) {
-> -		dev_err(&ofdev->dev, "no IRQ found\n");
-> -		return rc;
-> -	}
-> -
-> -	return xps2_setup(&ofdev->dev, &r_mem, &r_irq);
-> +	return rc;
->  }
->  
-> +/**
-> + * xps2_of_remove - unbinds the driver from the PS/2 device.
-> + * @of_dev:	pointer to OF device structure
-> + *
-> + * This function is called if a device is physically removed from the system or
-> + * if the driver module is being unloaded. It frees any resources allocated to
-> + * the device.
-> + */
->  static int __devexit xps2_of_remove(struct of_device *of_dev)
->  {
->  	struct xps2data *drvdata;
->  	struct device *dev;
-> +	struct resource r_mem; /* IO mem resources */
-> +	int rc;
->  
->  	dev = &of_dev->dev;
->  	if (!dev)
-> @@ -343,7 +351,14 @@ static int __devexit xps2_of_remove(struct of_device *of_dev)
->  
->  	iounmap(drvdata->base_address);
->  
-> -	release_mem_region(drvdata->phys_addr, drvdata->remap_size);
-> +	/* Get iospace of the device */
-> +	rc = of_address_to_resource(of_dev->node, 0, &r_mem);
-> +	if (rc) {
-> +		dev_err(dev, "invalid address\n");
-> +		return rc;
-> +	}
-> +
-> +	release_mem_region(r_mem.start, r_mem.end - r_mem.start + 1);
->  
->  	kfree(drvdata);
->  	dev_set_drvdata(dev, NULL);
-> -- 
-> 1.5.2.1
+> But the timer is not setup yet... This may cause problems.
+
+Good point. Moved the timer code block before request_irq.
+
+> > +
+> > +static int ezxts_remove(struct platform_device *pdev)
+> > +{
 > 
+> __devexit?
+
+Done
+
+> > +	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
+> > +
+> > +	del_timer_sync(&pcap_ts->timer);
+> > +
 > 
+> We delete the timer but if IRQ comes up right here we'll reactivate it
+> again. Is there a way to disable the hardware? Something like putting it
+> into low power mode like you do in suspend to make sure it does not
+> generate IRQs? I guess you can just disable_irq before trying to delete
+> the timer.
+
+Sadly the chip does not support this. At least as far as we know, because
+Motorola does not give us any docs about it. In low power mode it still reacts
+on IRQs. To avoid the disable_irq we just reorder it to delete the pointer after
+the free_irq. Should do the same job, right?
+
+> > +	free_irq(pcap_ts->irq_touch, pcap_ts);
+> > +	free_irq(pcap_ts->irq_xy, pcap_ts);
+> > +
+> > +	input_unregister_device(pcap_ts->input);
+> > +	kfree(pcap_ts);
+> > +
+> > +	return 0;
+> > +}
+> > +
 > 
-> This email and any attachments are intended for the sole use of the named recipient(s) and contain(s) confidential information that may be proprietary, privileged or copyrighted under applicable law. If you are not the intended recipient, do not read, copy, or forward this email message or any attachments. Delete this email message and any attachments immediately.
+> > +static int ezxts_suspend(struct platform_device *dev, pm_message_t state)
+> > +static int ezxts_resume(struct platform_device *dev)
 > 
+> Guard with CONFIG_PM?
+
+Done
+
+> > +static struct platform_driver ezxts_driver = {
+> > +	.probe		= ezxts_probe,
+> > +	.remove		= ezxts_remove,
 > 
+> __devexit_p()
+
+Done
+
+> > +	.suspend	= ezxts_suspend,
+> > +	.resume		= ezxts_resume,
+> 
+> Guard with CONFIG_PM here as well.
+
+Done
+
+How about this version?
+
+
+Subject: [@num@/@total@] input: Touchscreen driver for the PCAP
+Cc: linux-input@vger.kernel.org
+
+Touchscreen driver based on the MFD PCAP available on the EZX mobile phones.
+
+Signed-off-by: Daniel Ribeiro <drwyrm@gmail.com>
+
+PATCH FOLLOWS
+KernelVersion: 2.6-arm-git pxa branch
+
+Index: linux-2.6-arm/drivers/input/touchscreen/Kconfig
+===================================================================
+--- linux-2.6-arm.orig/drivers/input/touchscreen/Kconfig
++++ linux-2.6-arm/drivers/input/touchscreen/Kconfig
+@@ -316,4 +316,13 @@
+ 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EMBEDDED
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
+ 
++config TOUCHSCREEN_PCAP
++	tristate "Motorola PCAP touchscreen"
++	depends on EZX_PCAP
++	help
++	  Say Y here if you have a Motorola EZX telephone and
++	  want to support the built-in touchscreen.
++
++	  If unsure, say N.
++
+ endif
+Index: linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
+===================================================================
+--- /dev/null
++++ linux-2.6-arm/drivers/input/touchscreen/pcap_ts.c
+@@ -0,0 +1,323 @@
++/*
++ * pcap_ts.c - Touchscreen driver for Motorola PCAP2 based touchscreen as found
++ * 	       in the EZX phone platform.
++ *
++ *  Copyright (C) 2006 Harald Welte <laforge@openezx.org>
++ *  Copyright (C) 2007 Daniel Ribeiro <drwyrm@gmail.com>
++ *
++ *  Based on information found in the original Motorola 2.4.x ezx-ts.c driver.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/fs.h>
++#include <linux/string.h>
++#include <linux/pm.h>
++#include <linux/timer.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/mfd/ezx-pcap.h>
++
++#include <asm/arch/hardware.h>
++#include <asm/arch/pxa-regs.h>
++
++/* PCAP_ADC_TS_M modes */
++#define POSITION_X_MEASUREMENT	0
++#define POSITION_XY_MEASUREMENT	1
++#define PRESSURE_MEASUREMENT	2
++#define PLATE_X_MEASUREMENT	3
++#define PLATE_Y_MEASUREMENT	4
++#define STANDBY_MODE		5
++#define NONTS_MODE		6
++
++struct pcap_ts {
++	int irq_xy;
++	int irq_touch;
++	struct input_dev *input;
++	struct timer_list timer;
++	u16 x, y;
++	u16 pressure;
++	u8 read_state;
++};
++
++#define X_AXIS_MIN	0
++#define X_AXIS_MAX	1023
++
++#define Y_AXIS_MAX	X_AXIS_MAX
++#define Y_AXIS_MIN	X_AXIS_MIN
++
++#define PRESSURE_MAX	X_AXIS_MAX
++#define PRESSURE_MIN	X_AXIS_MIN
++
++/* if we try to read faster, pressure reading becomes unreliable */
++#define SAMPLE_INTERVAL		(HZ/50)
++
++
++static void pcap_ts_mode(struct pcap_ts *pcap_ts, u32 mode)
++{
++	u32 tmp;
++
++	pcap_ts->read_state = mode;
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp &= ~PCAP_ADC_TS_M_MASK;
++	tmp |= ((mode << PCAP_ADC_TS_M_SHIFT) & PCAP_ADC_TS_M_MASK);
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++}
++
++/* issue a XY read command to the ADC of PCAP2.  Well get an ADCDONE interrupt
++ * once the result of the conversion is available */
++static void pcap_ts_start_xy_read(struct pcap_ts *pcap_ts)
++{
++	u32 tmp;
++
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp &= ~(PCAP_ADC_RAND | PCAP_ADC_ADA1_MASK | PCAP_ADC_ADA2_MASK);
++	tmp |= (PCAP_ADC_ADEN | PCAP_ADC_AD_SEL1 |
++		PCAP_ADC_AD_SEL2 | (5 << PCAP_ADC_ADA1_SHIFT) |
++					(3 << PCAP_ADC_ADA2_SHIFT));
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++
++	ezx_pcap_write(PCAP_REG_ADR, PCAP_ADR_ASC);
++}
++
++/* read the XY result from the ADC of PCAP2 */
++static void pcap_ts_get_xy_value(struct pcap_ts *pcap_ts)
++{
++	u32 tmp;
++
++	ezx_pcap_read(PCAP_REG_ADR, &tmp);
++
++	if (pcap_ts->read_state == POSITION_XY_MEASUREMENT) {
++		pcap_ts->x = (tmp & PCAP_ADR_ADD1_MASK) >>
++					PCAP_ADR_ADD1_SHIFT;
++		pcap_ts->y = (tmp & PCAP_ADR_ADD2_MASK) >>
++					PCAP_ADR_ADD2_SHIFT;
++	} else {
++		pcap_ts->pressure = (tmp & PCAP_ADR_ADD2_MASK) >>
++						PCAP_ADR_ADD2_SHIFT;
++	}
++}
++
++/* PCAP2 interrupts us when ADC conversion result is available */
++static irqreturn_t pcap_ts_irq_xy(int irq, void *dev_id)
++{
++	struct pcap_ts *pcap_ts = dev_id;
++
++	pcap_ts_get_xy_value(pcap_ts);
++	switch (pcap_ts->read_state) {
++	case PRESSURE_MEASUREMENT:
++		if (!(pcap_ts->pressure >= PRESSURE_MAX ||
++				pcap_ts->pressure <= PRESSURE_MIN)) {
++			/* pen has been touched down */
++			input_report_key(pcap_ts->input, BTN_TOUCH, 1);
++			input_report_abs(pcap_ts->input, ABS_PRESSURE,
++							pcap_ts->pressure);
++		}
++		/* switch state machine into coordinate read mode */
++		pcap_ts_mode(pcap_ts, POSITION_XY_MEASUREMENT);
++		pcap_ts_start_xy_read(pcap_ts);
++		break;
++	case POSITION_XY_MEASUREMENT:
++		if (pcap_ts->x <= X_AXIS_MIN || pcap_ts->x >= X_AXIS_MAX ||
++		    pcap_ts->y <= Y_AXIS_MIN || pcap_ts->y >= Y_AXIS_MAX) {
++			/* pen has been released */
++			input_report_key(pcap_ts->input, BTN_TOUCH, 0);
++			input_report_abs(pcap_ts->input, ABS_PRESSURE, 0);
++
++			/* no need for timer, we'll get interrupted with
++			 * next touch down event */
++			del_timer(&pcap_ts->timer);
++
++			/* ask PCAP2 to interrupt us if touch event happens
++			 * again */
++			pcap_ts_mode(pcap_ts, STANDBY_MODE);
++			enable_irq(pcap_ts->irq_touch);
++		} else {
++			input_report_abs(pcap_ts->input, ABS_X, pcap_ts->x);
++			input_report_abs(pcap_ts->input, ABS_Y, pcap_ts->y);
++
++			/* switch back to pressure read mode */
++			pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
++			mod_timer(&pcap_ts->timer, jiffies + SAMPLE_INTERVAL);
++		}
++		input_sync(pcap_ts->input);
++		break;
++	default:
++		break;
++	}
++	return IRQ_HANDLED;
++}
++
++/* PCAP2 interrupts us on pen down/up */
++static irqreturn_t pcap_ts_irq_touch(int irq, void *dev_id)
++{
++	struct pcap_ts *pcap_ts = dev_id;
++	/* mask Touchscreen interrupt bit, prevents further touch events
++	 * from being reported to us until we're finished with reading
++	 * both pressure and x/y from ADC */
++	disable_irq(pcap_ts->irq_touch);
++
++	pcap_ts_mode(pcap_ts, PRESSURE_MEASUREMENT);
++	pcap_ts_start_xy_read(pcap_ts);
++	return IRQ_HANDLED;
++}
++
++static void pcap_ts_timer_fn(unsigned long data)
++{
++	struct pcap_ts *pcap_ts = (struct pcap_ts *) data;
++
++	pcap_ts_start_xy_read(pcap_ts);
++}
++
++static int __devinit ezxts_probe(struct platform_device *pdev)
++{
++	struct pcap_ts *pcap_ts;
++	struct input_dev *input_dev;
++	int err = -ENOMEM;
++
++	pcap_ts = kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!pcap_ts || !input_dev)
++		goto fail;
++
++	pcap_ts->irq_xy = platform_get_irq(pdev, 0);
++	if (pcap_ts->irq_xy < 0) {
++		err = pcap_ts->irq_xy;
++		goto fail;
++	}
++
++	pcap_ts->irq_touch = platform_get_irq(pdev, 1);
++	if (pcap_ts->irq_touch < 0) {
++		err = pcap_ts->irq_touch;
++		goto fail;
++	}
++
++	ezx_pcap_write(PCAP_REG_ADC, 0);
++	ezx_pcap_write(PCAP_REG_ADR, 0);
++	pcap_ts_mode(pcap_ts, STANDBY_MODE);
++
++	init_timer(&pcap_ts->timer);
++	pcap_ts->timer.data = (unsigned long) pcap_ts;
++	pcap_ts->timer.function = &pcap_ts_timer_fn;
++
++	pcap_ts->input = input_dev;
++	platform_set_drvdata(pdev, pcap_ts);
++
++	input_dev->name = "pcap-touchscreen";
++	input_dev->phys = "ezxts/input0";
++	input_dev->id.bustype = BUS_HOST;
++	input_dev->id.vendor = 0x0001;
++	input_dev->id.product = 0x0002;
++	input_dev->id.version = 0x0100;
++	input_dev->dev.parent = &pdev->dev;
++
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++	input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AXIS_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AXIS_MAX, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_MIN,
++			     PRESSURE_MAX, 0, 0);
++
++	err = request_irq(pcap_ts->irq_xy, pcap_ts_irq_xy, IRQF_DISABLED,
++			  "pcap-ts X/Y", pcap_ts);
++	if (err < 0) {
++		printk(KERN_ERR "pcap_ts: can't grab xy irq %d: %d\n",
++		       pcap_ts->irq_xy, err);
++		goto fail;
++	}
++
++	err = request_irq(pcap_ts->irq_touch, pcap_ts_irq_touch, IRQF_DISABLED,
++			  "pcap-ts touch", pcap_ts);
++	if (err < 0) {
++		printk(KERN_ERR "pcap_ts: can't grab touch irq %d: %d\n",
++		       pcap_ts->irq_touch, err);
++		goto fail_xy;
++	}
++
++	err = input_register_device(pcap_ts->input);
++	if (err)
++		goto fail_touch;
++
++	return 0;
++
++fail_touch:
++	free_irq(pcap_ts->irq_touch, pcap_ts);
++fail_xy:
++	free_irq(pcap_ts->irq_xy, pcap_ts);
++fail:
++	input_free_device(input_dev);
++	kfree(pcap_ts);
++
++	return err;
++}
++
++static int __devexit ezxts_remove(struct platform_device *pdev)
++{
++	struct pcap_ts *pcap_ts = platform_get_drvdata(pdev);
++
++	free_irq(pcap_ts->irq_touch, pcap_ts);
++	free_irq(pcap_ts->irq_xy, pcap_ts);
++
++	del_timer_sync(&pcap_ts->timer);
++
++	input_unregister_device(pcap_ts->input);
++	kfree(pcap_ts);
++
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int ezxts_suspend(struct platform_device *dev, pm_message_t state)
++{
++	u32 tmp;
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp |= PCAP_ADC_TS_REF_LOWPWR;
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++	return 0;
++}
++
++static int ezxts_resume(struct platform_device *dev)
++{
++	u32 tmp;
++	ezx_pcap_read(PCAP_REG_ADC, &tmp);
++	tmp &= ~PCAP_ADC_TS_REF_LOWPWR;
++	ezx_pcap_write(PCAP_REG_ADC, tmp);
++	return 0;
++}
++#endif
++
++static struct platform_driver ezxts_driver = {
++	.probe		= ezxts_probe,
++	.remove		= __devexit_p(ezxts_remove),
++#ifdef CONFIG_PM
++	.suspend	= ezxts_suspend,
++	.resume		= ezxts_resume,
++#endif
++	.driver		= {
++		.name	= "pcap-ts",
++		.owner	= THIS_MODULE,
++	},
++};
++
++static int __init ezxts_init(void)
++{
++	return platform_driver_register(&ezxts_driver);
++}
++
++static void __exit ezxts_exit(void)
++{
++	platform_driver_unregister(&ezxts_driver);
++}
++
++module_init(ezxts_init);
++module_exit(ezxts_exit);
++
++MODULE_DESCRIPTION("Motorola PCAP2 touchscreen driver");
++MODULE_AUTHOR("Harald Welte <laforge@openezx.org>");
++MODULE_LICENSE("GPL");
+Index: linux-2.6-arm/drivers/input/touchscreen/Makefile
+===================================================================
+--- linux-2.6-arm.orig/drivers/input/touchscreen/Makefile
++++ linux-2.6-arm/drivers/input/touchscreen/Makefile
+@@ -26,3 +26,4 @@
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
++obj-$(CONFIG_TOUCHSCREEN_PCAP)		+= pcap_ts.o
+Index: linux-2.6-arm/arch/arm/mach-pxa/ezx.c
+===================================================================
+--- linux-2.6-arm.orig/arch/arm/mach-pxa/ezx.c
++++ linux-2.6-arm/arch/arm/mach-pxa/ezx.c
+@@ -239,6 +239,30 @@
+ 	GPIO56_USB_P3_4,	/* ICL_VMOUT */
+ 	GPIO113_USB_P3_3,	/* /ICL_VMIN */
+ };
++/* PCAP_TS */
++struct resource pcap_ts_resources[] = {
++	[0] = {
++		.start          = EZX_IRQ_ADCDONE,
++		.end            = EZX_IRQ_ADCDONE,
++		.flags          = IORESOURCE_IRQ,
++	},
++	[1] = {
++		.start          = EZX_IRQ_TS,
++		.end            = EZX_IRQ_TS,
++		.flags          = IORESOURCE_IRQ,
++	}
++};
++
++struct platform_device pcap_ts_device = {
++	.name           = "pcap-ts",
++	.id             = -1,
++	.dev        = {
++		.parent = &ezx_pcap_device.dev,
++	},
++	.num_resources  = ARRAY_SIZE(pcap_ts_resources),
++	.resource       = pcap_ts_resources,
++};
++
+ 
+ static void __init ezx_init(void)
+ {
+@@ -248,11 +272,17 @@
+ 		set_pxa_fb_info(&ezx_fb_info_1);
+ 		ezx_pcap_platform_data.config |=
+ 			(PCAP_SECOND_PORT | PCAP_CS_INVERTED);
++		pcap_ts_resources[0].start = EZX_IRQ_ADCDONE2;
++		pcap_ts_resources[0].end = EZX_IRQ_ADCDONE2;
+ 	} else {
+ 		set_pxa_fb_info(&ezx_fb_info_2);
+ 	}
+ 	pxa_set_mci_info(&ezx_mci_platform_data);
+ 	platform_add_devices(devices, ARRAY_SIZE(devices));
++
++	/* A910 and E2 dont have a touchscreen */
++	if (!(machine_is_ezx_a910() || machine_is_ezx_e2()))
++		platform_device_register(&pcap_ts_device);
+ }
+ 
+ static void __init ezx_fixup(struct machine_desc *desc, struct tag *tags,

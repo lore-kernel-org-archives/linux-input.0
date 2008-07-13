@@ -1,55 +1,43 @@
-From: Helge Deller <deller@gmx.de>
-Subject: [PATCH, HP SDC] add option to disable HP SDC driver
-Date: Sun, 13 Jul 2008 18:12:56 +0200
-Message-ID: <200807131812.56801.deller@gmx.de>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: [PATCH] hid: apple_fn_keys F5 and F6
+Date: Sun, 13 Jul 2008 18:12:55 +0200
+Message-ID: <1215965784.20146.0.camel@alnilam>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:38810 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1751977AbYGMQNA (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 13 Jul 2008 12:13:00 -0400
-Content-Disposition: inline
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:48224 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752200AbYGMQQP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 13 Jul 2008 12:16:15 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com, robfitz@273k.net, akpm@osdl.org, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org
 
-Add "no_hpsdc" kernel module option to the hp_sdc driver, so that
-the driver can be instructed to not enable the HP SDC port.
+From: Henrik Rydberg <rydberg@euromail.se>
 
-This is useful on some older HPPA boxes with HIL keyboard 
-and HIL mouse where the new HP SDC HIL drivers don't work 
-yet. By disabling the new hp_sdc driver users are able to use
-the older hilkbd driver instead.
+In drivers/hid/hid-input.c, the apple_fn_keys translation table
+contains no entries for the F5 and F6 keys. This patch maps the F5 and
+F6 keys to KBDILLUMDOWN and KBDILLUMUP, respektively, which make them
+work as keyboard backlight control keys.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
 
-diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
-index edfedd9..ba11d1b 100644
---- a/drivers/input/serio/hp_sdc.c
-+++ b/drivers/input/serio/hp_sdc.c
-@@ -105,6 +105,10 @@ EXPORT_SYMBOL(__hp_sdc_enqueue_transaction);
- EXPORT_SYMBOL(hp_sdc_enqueue_transaction);
- EXPORT_SYMBOL(hp_sdc_dequeue_transaction);
- 
-+static unsigned int hp_sdc_disabled;
-+module_param_named(no_hpsdc, hp_sdc_disabled, bool, 0);
-+MODULE_PARM_DESC(no_hpsdc, "Do not enable HP SDC driver.");
-+
- static hp_i8042_sdc	hp_sdc;	/* All driver state is kept in here. */
- 
- /*************** primitives for use in any context *********************/
-@@ -980,6 +984,11 @@ static int __init hp_sdc_register(void)
- 	unsigned char i;
- #endif
- 
-+	if (hp_sdc_disabled) {
-+		printk(KERN_WARNING PREFIX "HP SDC driver disabled by no_hpsdc=1.\n");
-+		return -ENODEV;
-+	}
-+	
- 	hp_sdc.dev = NULL;
- 	hp_sdc.dev_err = 0;
- #if defined(__hppa__)
+This patch is against the linux-next tree: v2.6.26-rc9-7639-g60392c2
+
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 0ef778a..1b2e8dc 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -100,6 +100,8 @@ static struct hidinput_key_translation apple_fn_keys[] = {
+        { KEY_F2,       KEY_BRIGHTNESSUP,   APPLE_FLAG_FKEY },
+        { KEY_F3,       KEY_FN_F5,          APPLE_FLAG_FKEY }, /* Expos<E9> */
+        { KEY_F4,       KEY_FN_F4,          APPLE_FLAG_FKEY }, /* Dashboard */
++       { KEY_F5,       KEY_KBDILLUMDOWN,   APPLE_FLAG_FKEY },
++       { KEY_F6,       KEY_KBDILLUMUP,     APPLE_FLAG_FKEY },
+        { KEY_F7,       KEY_PREVIOUSSONG,   APPLE_FLAG_FKEY },
+        { KEY_F8,       KEY_PLAYPAUSE,      APPLE_FLAG_FKEY },
+        { KEY_F9,       KEY_NEXTSONG,       APPLE_FLAG_FKEY },
+

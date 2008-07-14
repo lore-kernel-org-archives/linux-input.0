@@ -1,31 +1,37 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [0/2] Jack reporting
-Date: Mon, 14 Jul 2008 16:11:00 +0100
-Message-ID: <20080714151058.GF25448@sirena.org.uk>
-References: <20080703095026.GA652@sirena.org.uk>
+From: tsbogend@alpha.franken.de (Thomas Bogendoerfer)
+Subject: Re: [PATCH] new driver for SGI Indy volume buttons
+Date: Mon, 14 Jul 2008 17:47:06 +0200
+Message-ID: <20080714154706.GA9817@alpha.franken.de>
+References: <20080711183435.4C53AC2EBF@solo.franken.de> <20080714143210.GB13938@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from elvis.franken.de ([193.175.24.41]:54270 "EHLO elvis.franken.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753834AbYGNPrL (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 14 Jul 2008 11:47:11 -0400
 Content-Disposition: inline
-In-Reply-To: <20080703095026.GA652@sirena.org.uk>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dtor@insightbb.com>, linux-input@vger.kernel.org
+In-Reply-To: <20080714143210.GB13938@anvil.corenet.prv>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Thu, Jul 03, 2008 at 10:50:27AM +0100, Mark Brown wrote:
-> This is a repost of the the jack reporting API I posted recently.  There
-> are no chances since the last submission - as discussed in that thread
-> the existing users and the need to support buttons implemented in jacks
-> pushes me towards use of an input device to represent jacks.
+On Mon, Jul 14, 2008 at 10:32:10AM -0400, Dmitry Torokhov wrote:
+> On Fri, Jul 11, 2008 at 08:34:35PM +0200, Thomas Bogendoerfer wrote:
+> > This driver adds support for the volume buttons on the front of every
+> > SGI Indy workstation.
+> > 
+> 
+> This driver looks like a twin brother to sgio2_btns. Is is possible to
+> merge these 2?
 
-Takashi, do you have any comments on these patches?
+It'd need some #ifdefs to select the hardware register and decide
+whether the events need to be acked. If you prefer just one driver,
+I'll put both together.
+
+Thomas.
+
+-- 
+Crap can work. Given enough thrust pigs will fly, but it's not necessary a
+good idea.                                                [ RFC1925, 2.3 ]

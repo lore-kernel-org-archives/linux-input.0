@@ -1,102 +1,36 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <Uwe.Kleine-Koenig@digi.com>
-Subject: Re: [PATCH RESENT] [RFC] gpio-keys: let platform code specify the trigger type
-Date: Mon, 14 Jul 2008 07:33:09 +0200
-Message-ID: <20080714053309.GA26232@digi.com>
-References: <1215070080-13755-1-git-send-email-Uwe.Kleine-Koenig@digi.com> <1215680324-32164-1-git-send-email-Uwe.Kleine-Koenig@digi.com> <20080710135426.GA3125@anvil.corenet.prv>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH, HP SDC] add option to disable HP SDC driver
+Date: Mon, 14 Jul 2008 10:30:04 -0400
+Message-ID: <20080714143003.GA13938@anvil.corenet.prv>
+References: <200807131812.56801.deller@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail164.messagelabs.com ([216.82.253.131]:25458 "EHLO
-	mail164.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752138AbYGNFdQ (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.247]:39792 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755601AbYGNOaL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 14 Jul 2008 01:33:16 -0400
+	Mon, 14 Jul 2008 10:30:11 -0400
+Received: by an-out-0708.google.com with SMTP id d40so945366and.103
+        for <linux-input@vger.kernel.org>; Mon, 14 Jul 2008 07:30:08 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080710135426.GA3125@anvil.corenet.prv>
+In-Reply-To: <200807131812.56801.deller@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Kay Sievers <kay.sievers@vrfy.org>, David Brownell <dbrownell@users.sourceforge.net>, Herbert Valerio Riedel <hvr@gnu.org>
+To: Helge Deller <deller@gmx.de>
+Cc: linux-input@vger.kernel.org
 
-Hello Dmitry,
+On Sun, Jul 13, 2008 at 06:12:56PM +0200, Helge Deller wrote:
+> Add "no_hpsdc" kernel module option to the hp_sdc driver, so that
+> the driver can be instructed to not enable the HP SDC port.
+> 
+> This is useful on some older HPPA boxes with HIL keyboard 
+> and HIL mouse where the new HP SDC HIL drivers don't work 
+> yet. By disabling the new hp_sdc driver users are able to use
+> the older hilkbd driver instead.
+> 
 
-Dmitry Torokhov wrote:
-> On Thu, Jul 10, 2008 at 10:58:44AM +0200, Uwe Kleine-K=F6nig wrote:
-> > The intend for this change is that not all platform's irqs support
-> > triggering on both edges.  Examples are ns9xxx[1] and txx9[2], and =
-I
-> > expect that there are more.
-> >
-> > Provided that the platform data is initialized with zeros there is =
-no
-> > change in behavior if the new struct member 'trigger' isn't set in
-> > platform code.
-> >
->=20
-> OK, makes sense. Unfortunately the patch conflicts with debounce supp=
-ort
-> that is in 'next' branch of my tree so I can't apply it as is. Actual=
-ly,
-> with debounce support is may not even be needed in the present form.
-So I will resend an updated version when the details are resolved.
+Will apply, thank you Helge.
 
-> > open points:
-> >  - if only one trigger direction is used it should match active_low=
- such
-> >    that the button press generates the irq.
-> >  - poll for button release instead of generate the release event
-> >    directly after the press?
->=20
-> Yes, I think that would be the best option.
-OK.
-
-> >  - is it correct to input_sync() between press and release event?
-> Yes, button press and release are 2 distinct states of the device and=
- so
-> it is prudent to have input_sync in between.
-OK.
-=20
-> >  - sanitize button->trigger &=3D IRQF_TRIGGER_EDGE in gpio_keys_pro=
-be
-> >    before passing it to request_irq?
->=20
-> Would be nice, together with WARN() in case it needed stanitizing.
-OK.
-=20
-> >  - a comment describing the trigger member of struct gpio_keys_butt=
-on
-> >
-> > I'd like to have polling support in this driver.  This could use
-> > button->trigger =3D=3D 0, so it might be sensible to add a
-> > WARN_ON(!button->trigger) for now and wait some time before impleme=
-nting
-> > it.
-> >
->=20
-> I am not sure if addin a pure polling mode to this driver is a best
-> idea. Maybe writing a separate one based on input-polldev will allow
-> keep them both simpler than combined one.
-So you suggest to implement polling in gpio-keys only for button releas=
-e
-(if triggering for both doesn't work) and add a new driver that does
-polling only?
-
-I havn't looked deeply, but maybe it makes sense to export some
-functions from drivers/input/input-polldev.c and use them as applicable
-in the gpio-keys driver?
-
-Thanks and best regards
-Uwe
-
---=20
-Uwe Kleine-K=F6nig, Software Engineer
-Digi International GmbH Branch Breisach, K=FCferstrasse 8, 79206 Breisa=
-ch, Germany
-Tax: 315/5781/0242 / VAT: DE153662976 / Reg. Amtsgericht Dortmund HRB 1=
-3962
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

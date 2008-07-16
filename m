@@ -1,74 +1,88 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [alsa-devel] [0/2] Jack reporting
-Date: Wed, 16 Jul 2008 12:36:06 -0400
-Message-ID: <20080716112939.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080703095026.GA652@sirena.org.uk> <20080714151058.GF25448@sirena.org.uk> <s5hlk02148k.wl%tiwai@suse.de> <20080716125053.GA17134@rakim.wolfsonmicro.main>
+From: "Igor Zhbanov" <izh1979@gmail.com>
+Subject: No standard touchscreen driver for Samwell Ruggedbook Tablet PC 800. Which to use?
+Date: Wed, 16 Jul 2008 20:54:23 +0400
+Message-ID: <f44001920807160954tb492bcdpadc66b91ff532367@mail.gmail.com>
+References: <f44001920807160849p679857dbn7bf0fec419229cd6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wx-out-0506.google.com ([66.249.82.235]:64453 "EHLO
-	wx-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752116AbYGPQgJ (ORCPT
+Received: from el-out-1112.google.com ([209.85.162.176]:57109 "EHLO
+	el-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755584AbYGPQy0 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 16 Jul 2008 12:36:09 -0400
-Received: by wx-out-0506.google.com with SMTP id h29so3384875wxd.4
-        for <linux-input@vger.kernel.org>; Wed, 16 Jul 2008 09:36:09 -0700 (PDT)
+	Wed, 16 Jul 2008 12:54:26 -0400
+Received: by el-out-1112.google.com with SMTP id z25so1080229ele.1
+        for <linux-input@vger.kernel.org>; Wed, 16 Jul 2008 09:54:25 -0700 (PDT)
+In-Reply-To: <f44001920807160849p679857dbn7bf0fec419229cd6@mail.gmail.com>
 Content-Disposition: inline
-In-Reply-To: <20080716125053.GA17134@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Wed, Jul 16, 2008 at 01:50:53PM +0100, Mark Brown wrote:
-> On Wed, Jul 16, 2008 at 01:02:35PM +0200, Takashi Iwai wrote:
-> > Mark Brown wrote:
-> 
-> > > Takashi, do you have any comments on these patches?
-> 
-> > I have no strong opinion about this.  Your implementation looks small
-> > enough.  But, if Dmitry finds the input layer not suitable for such a
-> > purpose, this isn't a good way to go.
-> 
-> Unfortunately Dimitry hasn't been responding to any of the e-mails on
-> this subject since his initial one.  :/
-> 
+Hello!
 
-Completely my fault, I am verry sorry.
+I have Samwell Ruggedbook Tablet PC 800:
+http://www.ruggedbook.com.tw/product_view.asp?ID=50
 
-> > I think the question is how general and how extensible these features
-> > should be.  If it's just a jack reporting, there are bunch of other
-> 
-> To reiterate points I've previously made:
-> 
-> As well as detecting the presence of a connected device typical jack
-> detection implementations also support the implementation of at least
-> one button which would require an input device for at least some jacks
-> even if something else were done.  This is consistent with existing
-> usage of the input layer - it's similar to multimedia keys which are
-> normally reported via the input layer.  Things like sleep and power
-> buttons are implemented as individual input devices.
-> 
+It has 4-wire resistive touchscreen controlled by PIC16F819. Microcontroller
+has 10-bit ADC and it seems to be connected to PS/2. (I have no idea what
+is inside PIC's ROM.) Under Windows device works well with Wacom Tablet PC
+and PanJit TouchSet drivers (the later is not proprietary for this device).
 
-It really depends on what you can do with this button. If it is just a
-simple circuit breaker then it is not really an input device. However
-is you can remap it for different purposes or map a regular key on a
-keybaord to perform this function then I will agree with you. For example
-sleep and power buttons can be anywhere. They can be implemented as
-ACPI button but there also a bunch of keyboards that have a sleep
-button on them. Or, like you said, multimedia keys - they not always
-control hardware directly, often you have an option to remap and
-re-use them.
+Under Linux I can capture events from /dev/input/event2 device. So I
+have written
+simple program that dumps data in hexadecimal view.
 
-> We do also already have existing in-kernel users of the input API to
-> report jack status (usually done via GPIOs outside of ALSA).  From that
-> point of view this ALSA helper is simply implementing the existing user
-> space interface for reporting jacks.  I feel that if we want to do
-> something different we should work out how to transition these existing
-> users to it too.  We can always add the existing code while working out
-> what that transition plan might be.
+Data from device comes in packets of 16 bytes long.
+First 4 bytes are Unix time stamp, next 4 bytes are millionth's of second
+(from 0 to 999999). Both fields are stored in Intel's byteorder.
 
-Yes, I agree, we would need to transit the existing users to the new
-scheme.
+Since first 8 bytes has the same meaning for all types of events, I
+will omit them.
+(I will number bytes since 9-th byte - 9-th will be refered as 0-th, etc)
 
--- 
-Dmitry
+I have seen 4 types of events: X-coordinate, Y-coordinate, unknown (reserved for
+Z-coordinate or pressure?) and probably OnClick event.
+
+Coordinates comes in group of 3 events, e.g.:
+
+02 00 00 00 b0 00 00 00 (X = 0xb0)
+02 00 01 00 ac ff ff ff (Y = 0xac)
+00 00 00 00 00 00 00 00 (Unknown. Reserved for Z-coordinate or pressure?)
+
+Having 0-th byte set to 02 denotes coordinate. 00 in 2-nd byte means
+X-coordinate
+and 01 means Y. Coordinate itself is stored in 4-th byte. It can be
+from 0 to 255.
+(In practice, from 15 to 237 - perhaps of screen borders).
+
+Next three bytes can be 0x000000 or 0xffffff. Numbers are changes very quickly
+but with some regularity. Perhaps it is  the least significant bit of
+coordinate.
+I shift 4-th byte 1 bit left and add 1 right bit from 5-th byte to
+compute coordinates.
+So, I have 9-bit coordinates. The ADC in PIC16F819 is 10-bit, but I don't have
+any ideas where developers have lost one bit. ;-)
+
+Also I have seen events like
+01 00 12 01 01 00 00 00
+or
+01 00 12 01 00 00 00 00.
+
+They have 0-th byte set to 01. It looks like OnClick event notification.
+First event of that type comes in about of three groups of coordinate events
+after touching screen with stylus. And until release you will see about 2-4
+that events. 4-th byte can be 00 or 01 and always changes on next event.
+So, if you read an event with 4-th byte set to 00, the next event will be
+with 4-th byte set to 01 and vice verse. I don't know what is the reason
+to have OnClick event on a touchscreen - if coordinates changes then
+the screen is touched. ;-)
+
+Now is the main question. Is there a driver suitable for this protocol
+or it should be written? Have you seen this protocol in another touchscreen
+controllers already?
+
+Thank you.
+
+P.S. I have not subscribed to linux-input mailing list. Please CC to Reply.

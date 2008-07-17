@@ -1,37 +1,34 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [alsa-devel] [0/2] Jack reporting
-Date: Thu, 17 Jul 2008 11:31:12 +0100
-Message-ID: <20080717103111.GB15333@sirena.org.uk>
-References: <20080703095026.GA652@sirena.org.uk> <20080714151058.GF25448@sirena.org.uk> <s5hlk02148k.wl%tiwai@suse.de> <20080716125053.GA17134@rakim.wolfsonmicro.main> <20080716112939.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] new driver for SGI volume buttons
+Date: Thu, 17 Jul 2008 12:05:11 -0400
+Message-ID: <20080717120337.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080715110436.7E8F2C312F@solo.franken.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:4220 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753801AbYGQKbY (ORCPT
+Received: from hs-out-0708.google.com ([64.233.178.241]:50004 "EHLO
+	hs-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757393AbYGQQFP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 17 Jul 2008 06:31:24 -0400
+	Thu, 17 Jul 2008 12:05:15 -0400
+Received: by hs-out-0708.google.com with SMTP id 4so1698757hsl.5
+        for <linux-input@vger.kernel.org>; Thu, 17 Jul 2008 09:05:14 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <20080716112939.ZZRA012@mailhub.coreip.homeip.net>
+In-Reply-To: <20080715110436.7E8F2C312F@solo.franken.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org, linux-input@vger.kernel.org
+To: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Jul 16, 2008 at 12:36:06PM -0400, Dmitry Torokhov wrote:
-> On Wed, Jul 16, 2008 at 01:50:53PM +0100, Mark Brown wrote:
+On Tue, Jul 15, 2008 at 01:04:36PM +0200, Thomas Bogendoerfer wrote:
+> This driver adds support for the volume buttons on the front of every
+> SGI Indy and O2 workstation.
 
-> > As well as detecting the presence of a connected device typical jack
-> > detection implementations also support the implementation of at least
-> > one button which would require an input device for at least some jacks
+Looks very nice. Do you think we could pass a pointer to
+button_status() in device's platform data and get rid of ifdefs
+altogether?
 
-> It really depends on what you can do with this button. If it is just a
-> simple circuit breaker then it is not really an input device. However
-> is you can remap it for different purposes or map a regular key on a
-> keybaord to perform this function then I will agree with you. For example
+Thanks.
 
-As far as the hardware is concerned it's just a button - if it's visible
-to software then there's no fixed function for it and any action taken
-will be application/system specific.  There will normally be a side
-effect in hardware muting the microphone but that's not intended to be
-the main effect.
+-- 
+Dmitry

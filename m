@@ -1,33 +1,50 @@
-From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Subject: Re: [PATCH] input: Clean up maple keyboard driver
-Date: Sat, 19 Jul 2008 13:17:59 +0100
-Message-ID: <1216469879.8959.0.camel@localhost.localdomain>
-References: <1213559019.22707.12.camel@localhost.localdomain>
-	 <20080718224323.GA19263@linux-sh.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: [PATCH] Maintaining the new bcm5974 driver
+Date: Sat, 19 Jul 2008 17:46:16 +0200
+Message-ID: <1216482728.4528.0.camel@alnilam>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <20080718224323.GA19263@linux-sh.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:42750 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752376AbYGSPwR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 19 Jul 2008 11:52:17 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: akpm@osdl.org, torvalds@linux-foundation.org
+Cc: vojtech@suse.cz, johannes@sipsolutions.net, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, trivial@kernel.org
 
-On Sat, 2008-07-19 at 07:43 +0900, Paul Mundt wrote:
-> On Sun, Jun 15, 2008 at 08:43:39PM +0100, Adrian McMenamin wrote:
-> > Have a single probe function instead of a probe and a connect function.
-> > Also tidy a comment.
-> > 1 files changed, 33 insertions(+), 48 deletions(-)
-> > 
-> > 
-> > Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-> 
-> Ok, so I was going to take this through my tree, but it doesn't apply any
-> more. Please send an updated version that can be merged.
+From: Henrik Rydberg <rydberg@euromail.se>
 
-What is the problem? Is it just a badly formed patch or has something
-changed elsewhere?
+In case the bcm5974 multitouch driver would be picked up, I am of
+course happy to maintain it.
 
-I'll have a look but as I have no issues I'm not sure what is wrong.
+This patch was applied to linux-next, version v2.6.26-8133-g151da15.
+
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ MAINTAINERS |    6 ++++++
+ 1 files changed, 6 insertions(+), 0 deletions(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bc91036..8c99a32 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -413,6 +413,12 @@ L:	linux-laptop@vger.kernel.org
+ W:	http://www.canb.auug.org.au/~sfr/
+ S:	Supported
+ 
++APPLE BCM5974 MULTITOUCH DRIVER
++P:	Henrik Rydberg
++M:	rydberg@euromail.se
++L:	linux-input@vger.kernel.org
++S:	Maintained
++
+ APPLE SMC DRIVER
+ P:	Nicolas Boichat
+ M:	nicolas@boichat.ch
+-- 
+1.5.4.3
 

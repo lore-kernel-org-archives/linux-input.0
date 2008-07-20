@@ -1,42 +1,39 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [alsa-devel] [0/2] Jack reporting
-Date: Sun, 20 Jul 2008 20:30:17 +0100
-Message-ID: <20080720193015.GC6719@sirena.org.uk>
-References: <20080703095026.GA652@sirena.org.uk> <20080714151058.GF25448@sirena.org.uk> <s5hlk02148k.wl%tiwai@suse.de> <20080716125053.GA17134@rakim.wolfsonmicro.main> <20080716112939.ZZRA012@mailhub.coreip.homeip.net> <20080717103111.GB15333@sirena.org.uk> <20080720052320.GB7853@anvil.corenet.prv> <20080720121745.GA27546@sirena.org.uk> <s5hzlocd1g1.wl%tiwai@suse.de>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] input: Clean up maple keyboard driver
+Date: Mon, 21 Jul 2008 08:55:30 +0900
+Message-ID: <20080720235530.GA19854@linux-sh.org>
+References: <1213559019.22707.12.camel@localhost.localdomain> <20080718224323.GA19263@linux-sh.org> <1216469879.8959.0.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:2539 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751409AbYGTTa3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jul 2008 15:30:29 -0400
+Received: from mta23.gyao.ne.jp ([125.63.38.249]:22876 "EHLO mx.gate01.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753797AbYGTXzz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 20 Jul 2008 19:55:55 -0400
 Content-Disposition: inline
-In-Reply-To: <s5hzlocd1g1.wl%tiwai@suse.de>
+In-Reply-To: <1216469879.8959.0.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Takashi Iwai <tiwai@suse.de>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, lkml <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>
 
-On Sun, Jul 20, 2008 at 05:23:26PM +0200, Takashi Iwai wrote:
-> Mark Brown wrote:
-
-> > Takashi, what's the best way to handle the ALSA bits?  The first patch
-> > doesn't depend on the new switch type so could be applied as-is but the
-> > second (adding the microphone switch type) depends on the input switch
-> > type being added - should I resubmit that when the switch type has been
-> > merged?
-
-> Yes, please.  We need also some consensus how to handle these patches
-> covering both areas.
-
-OK, I'll add all the bits that apply to my patch queue for you.
-Hopefully we shouldn't find too many changes that need to touch both
-sides of things.  For those that do hopefully we can do something
-similar to what we do with ARM and agree to merge both via one of the
-trees.
-
-> BTW, I'll be on vacation for the next week, so the reply will be
-> delayed.
-
-Enjoy your holiday!
+On Sat, Jul 19, 2008 at 01:17:59PM +0100, Adrian McMenamin wrote:
+> On Sat, 2008-07-19 at 07:43 +0900, Paul Mundt wrote:
+> > On Sun, Jun 15, 2008 at 08:43:39PM +0100, Adrian McMenamin wrote:
+> > > Have a single probe function instead of a probe and a connect function.
+> > > Also tidy a comment.
+> > > 1 files changed, 33 insertions(+), 48 deletions(-)
+> > > 
+> > > 
+> > > Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+> > 
+> > Ok, so I was going to take this through my tree, but it doesn't apply any
+> > more. Please send an updated version that can be merged.
+> 
+> What is the problem? Is it just a badly formed patch or has something
+> changed elsewhere?
+> 
+> I'll have a look but as I have no issues I'm not sure what is wrong.
+> 
+The problem is it doesnt apply, and the code it is against has also
+changed. If you have no issues, you obviously havent tried to apply it.

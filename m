@@ -1,90 +1,42 @@
-From: Edgar Simo <bobbens@gmail.com>
-Subject: Force Feedback Comments
-Date: Sun, 20 Jul 2008 19:28:01 +0200
-Message-ID: <488375A1.2020109@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [alsa-devel] [0/2] Jack reporting
+Date: Sun, 20 Jul 2008 20:30:17 +0100
+Message-ID: <20080720193015.GC6719@sirena.org.uk>
+References: <20080703095026.GA652@sirena.org.uk> <20080714151058.GF25448@sirena.org.uk> <s5hlk02148k.wl%tiwai@suse.de> <20080716125053.GA17134@rakim.wolfsonmicro.main> <20080716112939.ZZRA012@mailhub.coreip.homeip.net> <20080717103111.GB15333@sirena.org.uk> <20080720052320.GB7853@anvil.corenet.prv> <20080720121745.GA27546@sirena.org.uk> <s5hzlocd1g1.wl%tiwai@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ug-out-1314.google.com ([66.249.92.175]:32166 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757638AbYGTR2G (ORCPT
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:2539 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751409AbYGTTa3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 20 Jul 2008 13:28:06 -0400
-Received: by ug-out-1314.google.com with SMTP id h2so189954ugf.16
-        for <linux-input@vger.kernel.org>; Sun, 20 Jul 2008 10:28:04 -0700 (PDT)
+	Sun, 20 Jul 2008 15:30:29 -0400
+Content-Disposition: inline
+In-Reply-To: <s5hzlocd1g1.wl%tiwai@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Takashi Iwai <tiwai@suse.de>
+Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jul 20, 2008 at 05:23:26PM +0200, Takashi Iwai wrote:
+> Mark Brown wrote:
 
-Hello,
+> > Takashi, what's the best way to handle the ALSA bits?  The first patch
+> > doesn't depend on the new switch type so could be applied as-is but the
+> > second (adding the microphone switch type) depends on the input switch
+> > type being added - should I resubmit that when the switch type has been
+> > merged?
 
+> Yes, please.  We need also some consensus how to handle these patches
+> covering both areas.
 
-I'm working on developing a cross-platform API for doing force feedback.
- I've noticed some lacking features which other OS (in this case Mac OS
-X and Windows) seem to have and would like to see if they could be
-implemented:
+OK, I'll add all the bits that apply to my patch queue for you.
+Hopefully we shouldn't find too many changes that need to touch both
+sides of things.  For those that do hopefully we can do something
+similar to what we do with ARM and agree to merge both via one of the
+trees.
 
-   * Effect Status - Be able to query whether or not an effect is
-playing on a device.  Linux equivalent of Mac OS X FFEffectGetEffectStatus.
+> BTW, I'll be on vacation for the next week, so the reply will be
+> delayed.
 
-   * Pause/Stop/Disable Device - Allow pausing/resuming/stopping all the
-effects on a device at the same time.  Also allow disabling/enabling of
-actuators or reseting the device.  Analogous to Mac OS X
-FFDeviceSendForceFeedbackCommand.  While I see the pause/resume/stop as
-pretyt feasible, the disabling actuators would be more complicated
-unless you do that in software (would have to reverse engineer).
-
-  * Get maximum effects playing at the same time - Currently there only
-is EVIOCGEFFECTS which returns the number of effects the device can keep
-in memory (Documentation/ff.txt is right, while linux/input.h is wrong
-about this).
-
-  * Check device state - While not really needed, I'm just adding it
-here for the sake of completion.  Would let you see if the device is
-paused, has actuators disabled, is empty, not powered, safety switch on,
-etc...  Similar to Mac OS X FFDeviceGetForceFeedbackState.
-
-
-Things I've noticed that are wrong/missing:
-
-   * The ff_trigger doesn't seem to work (tested with the Rumblepad 2).
- I've tried uploading the effect and pressing the button and running it.
- If you run the effect it just plays normally.  I'm assuming that you
-just need to upload it and it'll work automatically.  A bit lost with this.
-
-   * Condition effects have no envelope - I really don't know the reason
-about this.  As far as I can see condition effects on other systems do
-use the envelope, but maybe I'm wrong.
-
-   * Condition effects use only and always two axis.  I have yet to see
-a three axis controller (not even really sure what I'm looking for), but
-what is the reason behind this?  Windows and Mac OS X API make you set
-the number of axes you want to use and which ones you want to use then
-work with those.  Not really sure about the reason behind this, but I'm
-guessing it's because there really only are two axis controllers
-(joysticks) while the fancier ones (ex: Novint Falcon) use weirder API.
-  Also how does the direction interact with this?  In Mac OS X if you
-use more then one axis you must send data individually to each axis, but
-if you only define one axis you can use the direction. Any ideas on this?
-
-
-Overall the linux force feedback API seems a bit rough around the edges,
-and not many people seem to use it.  I'm hoping to change this with my
-cross platform force feedback api.  It's great to see it working and the
-API is much nicer to use overall then the Mac OS X and Windows equivalents.
-
-Thanks,
-
-
-Edgar
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkiDdaEACgkQolm4VNX3QTyc6QCeIqalOeur/BCaRfZhkxUHxUf1
-WO4AmQGPZnQuHhiNNSPvC5VCcpYRlbfp
-=2MJi
------END PGP SIGNATURE-----
+Enjoy your holiday!

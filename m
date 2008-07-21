@@ -1,126 +1,119 @@
-From: Alexey Torkhov <atorkhov@gmail.com>
-Subject: Re: Problem with Genius Ergomedia 700
-Date: Mon, 21 Jul 2008 17:51:32 +0400
-Message-ID: <48849464.8040705@gmail.com>
-References: <4790713A.9@gmail.com> <Pine.LNX.4.64.0801181208380.15647@twin.jikos.cz> <4790B634.5040701@gmail.com> <479203AA.7010607@gmail.com> <Pine.LNX.4.64.0802112232360.7699@twin.jikos.cz> <47B35742.7010305@gmail.com> <Pine.LNX.4.64.0802191359390.30955@jikos.suse.cz>
+From: "D. Ragno" <homerj@icculus.org>
+Subject: Re: Force Feedback Comments
+Date: Mon, 21 Jul 2008 15:32:29 -0400
+Message-ID: <d43da00b0807211232j32806aeseaae38a99761269d@mail.gmail.com>
+References: <488375A1.2020109@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.190]:38335 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752033AbYGUOKF (ORCPT
+Received: from wr-out-0506.google.com ([64.233.184.231]:19566 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753012AbYGUTca (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2008 10:10:05 -0400
-Received: by fk-out-0910.google.com with SMTP id 18so918745fkq.5
-        for <linux-input@vger.kernel.org>; Mon, 21 Jul 2008 07:10:03 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.0802191359390.30955@jikos.suse.cz>
+	Mon, 21 Jul 2008 15:32:30 -0400
+Received: by wr-out-0506.google.com with SMTP id 69so771616wri.5
+        for <linux-input@vger.kernel.org>; Mon, 21 Jul 2008 12:32:29 -0700 (PDT)
+In-Reply-To: <488375A1.2020109@gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Edgar Simo <bobbens@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi.
+Well, the issue with a lot of FF devices, is they also really aren't
+true HID compliant. Like my Logitech MOMO racing wheel for instance.
+It appears as a standard device, but it's really a compatibility mode.
+Logitech regards this information like the Dept. of Defense does
+nuclear launch codes. Any real support would just have to come by a
+usermode USB driver that knew the command set.
 
-Sorry, I forgot about this as I don't have access to that keyboard
-anymore. What's the status of this patch? If it's still not applied
-then, I think, it will work and could be merged.
+I don't think there is really and standard TO do force feedback. A
+standard API maybe, but actually getting the various devices to do
+what you want them seems far from trivial. There is the standard for
+FF in the USB HID spec, but I think its use is pretty rare. Most real
+devices use their own command set.
 
-Alex.
-
-Jiri Kosina wrote:
-> On Wed, 13 Feb 2008, Alexey Torkhov wrote:
-> 
->>>   as a key to input.h right now, sorry; if you have any idea for
->>>   alternatives that it would make sense to map them, please let me know
->> It could be mapped to AL Logon/Logoff (19D) - if I remember, it doesn't
->> written what it should logon or logoff - user session or any other thing like
->> IM client.
-> 
-> Could you please try the patch below and report back whether it makes all 
-> the buttons behave correctly? If so, I'd ask Dmitry for ACK with respect 
-> to adding new KEY_ definitions.
-> 
-> diff --git a/drivers/hid/hid-input-quirks.c b/drivers/hid/hid-input-quirks.c
-> index a870ba5..1db3a36 100644
-> --- a/drivers/hid/hid-input-quirks.c
-> +++ b/drivers/hid/hid-input-quirks.c
-> @@ -276,6 +276,24 @@ static int quirk_btc_8193(struct hid_usage *usage, struct input_dev *input,
->  	return 1;
->  }
->  
-> +static int quirk_genius_ergomedia_700(struct hid_usage *usage, struct input_dev *input,
-> +			      unsigned long **bit, int *max)
-> +{
-> +	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_CONSUMER)
-> +		return 0;
-> +
-> +	switch (usage->hid & HID_USAGE) {
-> +		case 0x029d: map_key_clear(KEY_PROG1);		break;
-> +		case 0x029e: map_key_clear(KEY_PROG2);		break;
-> +		case 0x029f: map_key_clear(KEY_PROG3);		break;
-> +		case 0x02a1: map_key_clear(KEY_LOGON_LOGOFF);	break;
-> +		case 0x02a2: map_key_clear(KEY_CAMERA);		break;
-> +		case 0x02a3: map_key_clear(KEY_DOCUMENTS);	break;
-> +		case 0x02a4: map_key_clear(KEY_AUDIO);		break;
-> +		case 0x02a5: map_key_clear(KEY_PRESENTATION);	break;
-> +
-> +}
-> +
->  #define VENDOR_ID_BELKIN			0x1020
->  #define DEVICE_ID_BELKIN_WIRELESS_KEYBOARD	0x0006
->  
-> @@ -306,6 +324,9 @@ static int quirk_btc_8193(struct hid_usage *usage, struct input_dev *input,
->  #define VENDOR_ID_PETALYNX			0x18b1
->  #define DEVICE_ID_PETALYNX_MAXTER_REMOTE	0x0037
->  
-> +#define VENDOR_ID_SUPERGATE			0x05d5
-> +#define DEVICE_ID_GENIUS_ERGOMEDIA_700		0x8001
-> +
->  static const struct hid_input_blacklist {
->  	__u16 idVendor;
->  	__u16 idProduct;
-> @@ -332,7 +353,9 @@ static const struct hid_input_blacklist {
->  	{ VENDOR_ID_MONTEREY, DEVICE_ID_GENIUS_KB29E, quirk_cherry_genius_29e },
->  
->  	{ VENDOR_ID_PETALYNX, DEVICE_ID_PETALYNX_MAXTER_REMOTE, quirk_petalynx_remote },
-> -	
-> +
-> +	{ VENDOR_ID_SUPERGATE, DEVICE_ID_GENIUS_ERGOMEDIA_700, quirk_genius_ergomedia_700 },
-> +
->  	{ 0, 0, 0 }
->  };
->  
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index 5325d98..ef4e472 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -635,8 +635,11 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  				case 0x192: map_key_clear(KEY_CALC);		break;
->  				case 0x194: map_key_clear(KEY_FILE);		break;
->  				case 0x196: map_key_clear(KEY_WWW);		break;
-> +				case 0x19b: map_key_clear(KEY_LOGON);		break;
->  				case 0x19c: map_key_clear(KEY_LOGOFF);		break;
-> +				case 0x19d: map_key_clear(KEY_LOGON_LOGOFF);	break;
->  				case 0x19e: map_key_clear(KEY_COFFEE);		break;
-> +				case 0x1a2: map_key_clear(KEY_TASKSELECT);	break;
->  				case 0x1a6: map_key_clear(KEY_HELP);		break;
->  				case 0x1a7: map_key_clear(KEY_DOCUMENTS);	break;
->  				case 0x1ab: map_key_clear(KEY_SPELLCHECK);	break;
-> diff --git a/include/linux/input.h b/include/linux/input.h
-> index 1bdc39a..cc322a5 100644
-> --- a/include/linux/input.h
-> +++ b/include/linux/input.h
-> @@ -536,6 +536,9 @@ struct input_absinfo {
->  #define KEY_FRAMEFORWARD	0x1b5
->  
->  #define KEY_CONTEXT_MENU	0x1b6	/* GenDesc - system context menu */
-> +#define KEY_TASKSELECT		0x1b7	/* Consumer - AL select task */
-> +#define KEY_LOGON_LOGOFF	0x1b8	/* Consumer - AL Logon/Logoff */
-> +#define KEY_LOGON		0x1b9	/* Consumer - AL Logon */
->  
->  #define KEY_DEL_EOL		0x1c0
->  #define KEY_DEL_EOS		0x1c1
-> 
+I did a 1/2 attempt at a MOMO Racing driver, that would at least give
+full functionality sans FF, but Logitech never replied to to my email,
+and to be honest I didn't feel like using USB snoop and using
+trial/error on the commands. Perhaps I'll pick it up someday.
 
 
-
+2008/7/20 Edgar Simo <bobbens@gmail.com>:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> Hello,
+>
+>
+> I'm working on developing a cross-platform API for doing force feedback.
+>  I've noticed some lacking features which other OS (in this case Mac OS
+> X and Windows) seem to have and would like to see if they could be
+> implemented:
+>
+>   * Effect Status - Be able to query whether or not an effect is
+> playing on a device.  Linux equivalent of Mac OS X FFEffectGetEffectStatus.
+>
+>   * Pause/Stop/Disable Device - Allow pausing/resuming/stopping all the
+> effects on a device at the same time.  Also allow disabling/enabling of
+> actuators or reseting the device.  Analogous to Mac OS X
+> FFDeviceSendForceFeedbackCommand.  While I see the pause/resume/stop as
+> pretyt feasible, the disabling actuators would be more complicated
+> unless you do that in software (would have to reverse engineer).
+>
+>  * Get maximum effects playing at the same time - Currently there only
+> is EVIOCGEFFECTS which returns the number of effects the device can keep
+> in memory (Documentation/ff.txt is right, while linux/input.h is wrong
+> about this).
+>
+>  * Check device state - While not really needed, I'm just adding it
+> here for the sake of completion.  Would let you see if the device is
+> paused, has actuators disabled, is empty, not powered, safety switch on,
+> etc...  Similar to Mac OS X FFDeviceGetForceFeedbackState.
+>
+>
+> Things I've noticed that are wrong/missing:
+>
+>   * The ff_trigger doesn't seem to work (tested with the Rumblepad 2).
+>  I've tried uploading the effect and pressing the button and running it.
+>  If you run the effect it just plays normally.  I'm assuming that you
+> just need to upload it and it'll work automatically.  A bit lost with this.
+>
+>   * Condition effects have no envelope - I really don't know the reason
+> about this.  As far as I can see condition effects on other systems do
+> use the envelope, but maybe I'm wrong.
+>
+>   * Condition effects use only and always two axis.  I have yet to see
+> a three axis controller (not even really sure what I'm looking for), but
+> what is the reason behind this?  Windows and Mac OS X API make you set
+> the number of axes you want to use and which ones you want to use then
+> work with those.  Not really sure about the reason behind this, but I'm
+> guessing it's because there really only are two axis controllers
+> (joysticks) while the fancier ones (ex: Novint Falcon) use weirder API.
+>  Also how does the direction interact with this?  In Mac OS X if you
+> use more then one axis you must send data individually to each axis, but
+> if you only define one axis you can use the direction. Any ideas on this?
+>
+>
+> Overall the linux force feedback API seems a bit rough around the edges,
+> and not many people seem to use it.  I'm hoping to change this with my
+> cross platform force feedback api.  It's great to see it working and the
+> API is much nicer to use overall then the Mac OS X and Windows equivalents.
+>
+> Thanks,
+>
+>
+> Edgar
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.4.9 (GNU/Linux)
+>
+> iEYEARECAAYFAkiDdaEACgkQolm4VNX3QTyc6QCeIqalOeur/BCaRfZhkxUHxUf1
+> WO4AmQGPZnQuHhiNNSPvC5VCcpYRlbfp
+> =2MJi
+> -----END PGP SIGNATURE-----
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>

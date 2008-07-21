@@ -1,45 +1,49 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: Sleeping inside spinlock in force feedback input event code
-Date: Mon, 21 Jul 2008 11:27:31 +0300
-Message-ID: <48844873.8050705@gmail.com>
-References: <4868e2410806151036o1a1652d8y8bf8432e3c6c0d06@mail.gmail.com> <4868e2410806151036r6d96a840v41b8ee745041db35@mail.gmail.com> <4868e2410806151105v3fec88a1qa439e2cc1423bc6a@mail.gmail.com> <48556723.2090204@gmail.com> <20080616143112.ZZRA012@mailhub.coreip.homeip.net> <485807F4.3010903@gmail.com> <20080617153423.ZZRA012@mailhub.coreip.homeip.net> <48581857.2080906@gmail.com> <4866E804.3000603@gmail.com> <4883474D.6080602@gmail.com> <20080721042112.GB14432@anvil.corenet.prv>
+From: "Liang, Dan" <Dan.Liang@atmel.com>
+Subject: RE: [PATCH 1/2] Device driver for Atmelintegratedtouchscreencontroller
+Date: Mon, 21 Jul 2008 11:55:35 +0200
+Message-ID: <0F5F73E36031FD46AD3F2E6948F0C0A023ED7C@frimb01.corp.atmel.com>
+References: <0F5F73E36031FD46AD3F2E6948F0C0A020866D@frimb01.corp.atmel.com> <0F5F73E36031FD46AD3F2E6948F0C0A0208916@frimb01.corp.atmel.com> <0F5F73E36031FD46AD3F2E6948F0C0A02089F8@frimb01.corp.atmel.com> <20080719043440.GC29551@anvil.corenet.prv> <0F5F73E36031FD46AD3F2E6948F0C0A023EB9F@frimb01.corp.atmel.com> <20080721031913.GA14432@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta-out.inet.fi ([195.156.147.13]:53174 "EHLO
-	kirsi2.rokki.sonera.fi" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755010AbYGUI1c (ORCPT
+Received: from smtpeu1.atmel.com ([195.65.72.27]:62670 "EHLO bagnes.atmel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751664AbYGUJ5j convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2008 04:27:32 -0400
-In-Reply-To: <20080721042112.GB14432@anvil.corenet.prv>
+	Mon, 21 Jul 2008 05:57:39 -0400
+Content-class: urn:content-classes:message
+In-Reply-To: <20080721031913.GA14432@anvil.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, James Carthew <jcarthew@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk, linux@maxim.org.za, Justin Waters <justin.waters@timesys.com>
+
+
 
 Dmitry Torokhov wrote:
-> On Sun, Jul 20, 2008 at 05:10:21PM +0300, Anssi Hannula wrote:
->> Ping? Please comment :) I'd really much like the hid-pidff driver
->> to not panic when used.
->>
->> For the record, here is a workqueue solution. It is much less
->> intrusive than the previous patch, but IMO less correct.
->>
+> > Hi Dmitry,
+> >
+> > >  - The device does not seem to support pressure reading so I will drop
+> > >    ABS_PRESSURE reporting.
+> >
+> > I tried to remove the faked pressure report and tested with tslib. But there is an error message:
+> > "selected device is not a touchscreen I understand". And the touch screen seems not to work properly.
+> >
+> >
 > 
-> I was deferring the final judgement to Jiri but I like the generic
-> solution with com plete copy of the report best of all. I also wonder if
-> we could pre-allocate the buffer for the report queue so we dont need to
-> allocate it separately for each request.
+> This is the problem with tslib and I am hoping that someone will find
+> the time to fix it there.
 
-It would take (biggest report of the hid device)*64 bytes for output
-fifo and (biggest report of the hid device)*256 bytes for control fifo.
-Maximum report size is 4096 bytes, though I guess most devices' biggest
-report is far shorter than that.
+Hi Dmitry,
 
-I'll leave it up to you people. I'll be away (military service) for the
-next 2 weeks, but after that I can do some quick testing on any
-suggested patch on my next short vacation.
+To make the driver to work properly before someone fixs tslib, I wonder if the ABS_PRESSURE reporting could be kept for the moment. Other driver like "drivers/input/touchscreen/ads7846.c" also fakes the pressure value for ads7843 chip.
 
--- 
-Anssi Hannula
+And another issue, could you please add the copyright in "drivers/input/touchscreen/atmel_tsadcc.c":
+ * Copyright (c) 2008 TimeSys Corporation
+ * Copyright (c) 2008 Justin Waters
+
+
+Best regards
+Dan
+

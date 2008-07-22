@@ -1,33 +1,53 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Problem with Genius Ergomedia 700
-Date: Tue, 22 Jul 2008 15:30:15 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0807221529360.3037@jikos.suse.cz>
-References: <4790713A.9@gmail.com> <Pine.LNX.4.64.0801181208380.15647@twin.jikos.cz> <4790B634.5040701@gmail.com> <479203AA.7010607@gmail.com> <Pine.LNX.4.64.0802112232360.7699@twin.jikos.cz> <47B35742.7010305@gmail.com> <Pine.LNX.4.64.0802191359390.30955@jikos.suse.cz>
- <48849464.8040705@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] hid: wellspring device quirks
+Date: Tue, 22 Jul 2008 15:31:42 +0200
+Message-ID: <4885E13E.1010607@euromail.se>
+References: <1215963466.12757.0.camel@alnilam> <alpine.LNX.1.10.0807221504380.3037@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:34623 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751901AbYGVNaQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jul 2008 09:30:16 -0400
-In-Reply-To: <48849464.8040705@gmail.com>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:41995 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750845AbYGVNb6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jul 2008 09:31:58 -0400
+In-Reply-To: <alpine.LNX.1.10.0807221504380.3037@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alexey Torkhov <atorkhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, robfitz@273k.net, akpm@osdl.org, Vojtech Pavlik <vojtech@suse.cz>, dmonakhov@openvz.org
 
-On Mon, 21 Jul 2008, Alexey Torkhov wrote:
+Jiri Kosina wrote:
+> On Sun, 13 Jul 2008, Henrik Rydberg wrote:
+> 
+>> This patch adds the HID_QUIRK_IGNORE_MOUSE quirk for the Apple USB
+>> multitouch devices based on BCM5974, aka Wellspring. These devices
+>> will instead be picked up by the new bcm5974 driver.
+> 
+> Hi Henrik,
+> 
+> is the mouse not working at all with standard HID driver?
+> 
 
-> Sorry, I forgot about this as I don't have access to that keyboard 
-> anymore. What's the status of this patch? If it's still not applied 
-> then, I think, it will work and could be merged.
+Yes, it is working out-of-the-box, only poorly.
 
-Hi Alex,
+> I'd prefer to postpone merging this patch until bcm5974 hits mainline if
+> the device works in a limited way with standard HID driver, so that we
+> don't introduce regression.
+> 
 
-it is not applied, I always prefer to have the code tested by someone who 
-actually owns the hardware, before just "blindly" merging it.
+Absolutely, this patch should be applied together with the bcm5974 driver,
+or not be applied. The driver patch is here:
 
--- 
-Jiri Kosina
-SUSE Labs
+http://userweb.kernel.org/~akpm/mmotm/broken-out/input-bcm5974-055-smoother-motion-irq-simplification.patch
+
+> If the device doesn't work with HID driver at all though, it is probably
+> perfectly fine to merge it right away. Please let me know, I have no
+> knowledge about this particular device.
+
+It is fine to leave it, but I would of course prefer to have the driver included together with this patch.
+
+Thanks!
+Henrik Rydberg
+

@@ -1,53 +1,70 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] hid: wellspring device quirks
-Date: Tue, 22 Jul 2008 15:31:42 +0200
-Message-ID: <4885E13E.1010607@euromail.se>
-References: <1215963466.12757.0.camel@alnilam> <alpine.LNX.1.10.0807221504380.3037@jikos.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] linux-input: bcm5974-0.57: mode-switch to atp_open,
+	cleanup bug fixed
+Date: Tue, 22 Jul 2008 09:52:58 -0400
+Message-ID: <20080722093606.ZZRA012@mailhub.coreip.homeip.net>
+References: <1216466049.6238.0.camel@alnilam> <20080720051016.GA7853@anvil.corenet.prv> <1216688142.4768.26.camel@alnilam>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:41995 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750845AbYGVNb6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jul 2008 09:31:58 -0400
-In-Reply-To: <alpine.LNX.1.10.0807221504380.3037@jikos.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752357AbYGVNxT@vger.kernel.org>
+Content-Description: uplicated.uplicated.
+Content-Disposition: inline
+In-Reply-To: <1216688142.4768.26.camel@alnilam>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robfitz@273k.net, akpm@osdl.org, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org, johannes@sipsolutions.net, Oliver Neukum <oliver@neukum.org>, stern@rowland.harvard.edu
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, robfitz@273k.net, akpm@osdl.org, Vojtech Pavlik <vojtech@suse.cz>, dmonakhov@openvz.org
 
-Jiri Kosina wrote:
-> On Sun, 13 Jul 2008, Henrik Rydberg wrote:
+On Tue, Jul 22, 2008 at 02:55:42AM +0200, Henrik Rydberg wrote:
+> Hi Dmitri,
 > 
->> This patch adds the HID_QUIRK_IGNORE_MOUSE quirk for the Apple USB
->> multitouch devices based on BCM5974, aka Wellspring. These devices
->> will instead be picked up by the new bcm5974 driver.
+> Regarding open/close and suspend/resume, I have difficulties finding out
+> what the proper behavior is for the various error states that can
+> appear. I also wonder whether open should commute with suspend or not.
+> It would be of great help to get answers to the scenarios below.
+>
+
+Hm, hard questions. I will try answering them but I am also CCing Alan
+Stern and Oliver Neikum who are experts in USB suspend/resume.
+ 
+> 1. From the state (!opened,!suspended), calling open followed by
+> suspend, or suspend followed by open, are we in the same state?
+>
+
+No, we are not... if we first open then suspend then device stays open
+but we are not getting reports from it. Opening suspended device will
+fail. Autosuspended device should be waken up by open() though.
+ 
+> 2. From the state (!opened,!suspended), calling open fails. What state
+> are we in?
+
+Device is closed, the driver will have to make sure that it cleans up
+steps that succeded while opening device (like if you submitted 1 URB
+successfully and the 2nd URB failed open should kill the first one
+before returning).
+
 > 
-> Hi Henrik,
+> 3. From the state (!opened,suspended), calling open gets us to what
+> state?
+>
+
+Depens on the kind of suspend - manual suspend will cause open to
+fail. Autosuspend (if driver implements it) should resume the device.
+
+> 4. From the state (!opened,suspended), calling open fails. Where are we?
+>
+
+Manual suspend will surely cause open to fail. Autosuspend - if
+autoresume fails then (closed, unknown) otherwise (closed,
+autosuspended - autosuspension may not kick in immediately I think).
+
+> 5. From the state (opened,suspended), calling resume fails. What state
+> are we in?
 > 
-> is the mouse not working at all with standard HID driver?
-> 
 
-Yes, it is working out-of-the-box, only poorly.
-
-> I'd prefer to postpone merging this patch until bcm5974 hits mainline if
-> the device works in a limited way with standard HID driver, so that we
-> don't introduce regression.
-> 
-
-Absolutely, this patch should be applied together with the bcm5974 driver,
-or not be applied. The driver patch is here:
-
-http://userweb.kernel.org/~akpm/mmotm/broken-out/input-bcm5974-055-smoother-motion-irq-simplification.patch
-
-> If the device doesn't work with HID driver at all though, it is probably
-> perfectly fine to merge it right away. Please let me know, I have no
-> knowledge about this particular device.
-
-It is fine to leave it, but I would of course prefer to have the driver included together with this patch.
+Screwed up ;) From the driver POV still (opened, suspended) I think.
 
 Thanks!
-Henrik Rydberg
 
+-- 
+Dmitry

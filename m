@@ -1,36 +1,54 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: wellspring device quirks
-Date: Tue, 22 Jul 2008 15:59:52 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0807221559010.3037@jikos.suse.cz>
-References: <1215963466.12757.0.camel@alnilam> <alpine.LNX.1.10.0807221504380.3037@jikos.suse.cz> <4885E13E.1010607@euromail.se> <20080722095311.ZZRA012@mailhub.coreip.homeip.net>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] linux-input: bcm5974-0.57: mode-switch to atp_open,	cleanup
+ bug fixed
+Date: Wed, 23 Jul 2008 00:19:12 +0200
+Message-ID: <48865CE0.3020605@euromail.se>
+References: <1216466049.6238.0.camel@alnilam> <20080720051016.GA7853@anvil.corenet.prv> <1216688142.4768.26.camel@alnilam> <20080722093606.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:35961 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750975AbYGVN7x (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jul 2008 09:59:53 -0400
-In-Reply-To: <20080722095311.ZZRA012@mailhub.coreip.homeip.net>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:49247 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750855AbYGVWTb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jul 2008 18:19:31 -0400
+In-Reply-To: <20080722093606.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robfitz@273k.net, akpm@osdl.org, Vojtech Pavlik <vojtech@suse.cz>, dmonakhov@openvz.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robfitz@273k.net, akpm@osdl.org, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org, johannes@sipsolutions.net, Oliver Neukum <oliver@neukum.org>, stern@rowland.harvard.edu
 
-On Tue, 22 Jul 2008, Dmitry Torokhov wrote:
+Dmitry,
 
-> Should I take the quirks patch through my tree when I'm ready to apply 
-> bcm5974?
+thank you so much for your answers! I would like to send you
+a non-patch of the updated driver shortly if I may; it will
+require more testing before submission, but having your blessing
+first should make things turn around faster.
 
-Hi Dmitry,
+> >
+> > 3. From the state (!opened,suspended), calling open gets us to what
+> > state?
+> >
 
-that would be the best option, thanks a lot. Please feel free to add
+Depens on the kind of suspend - manual suspend will cause open to
+fail. Autosuspend (if driver implements it) should resume the device.
 
- 	Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+[...]
 
-to Henrik's quirk addition patch when you are going to merge it.
+>> 5. From the state (opened,suspended), calling resume fails. What state
+>> are we in?
+>>
+> 
+> Screwed up ;) From the driver POV still (opened, suspended) I think.
+> 
 
-Thanks,
+I feel a bit reluctant to implement this particular behavior, since it
+will leave the device in a bad state; if resume fails and stays suspended,
+the device cannot later be opened according to 3). What if a failed
+resume leaves the device in state (!opened,!suspended)? It could then
+later be reopened.
 
--- 
-Jiri Kosina
-SUSE Labs
+Cheers,
+Henrik Rydberg
+

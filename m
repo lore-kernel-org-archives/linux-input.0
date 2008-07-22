@@ -1,47 +1,41 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] linux-input: bcm5974-0.57: mode-switch to atp_open,
-	cleanup bug fixed
-Date: Tue, 22 Jul 2008 02:55:42 +0200
-Message-ID: <1216688142.4768.26.camel@alnilam>
-References: <1216466049.6238.0.camel@alnilam>
-	 <20080720051016.GA7853@anvil.corenet.prv>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: wellspring device quirks
+Date: Tue, 22 Jul 2008 15:08:52 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0807221504380.3037@jikos.suse.cz>
+References: <1215963466.12757.0.camel@alnilam>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:39840 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752268AbYGVAz5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 21 Jul 2008 20:55:57 -0400
-In-Reply-To: <20080720051016.GA7853@anvil.corenet.prv>
+Received: from styx.suse.cz ([82.119.242.94]:33585 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751023AbYGVNIx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jul 2008 09:08:53 -0400
+In-Reply-To: <1215963466.12757.0.camel@alnilam>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robfitz@273k.net, akpm@osdl.org, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org, johannes@sipsolutions.net
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, robfitz@273k.net, akpm@osdl.org, Vojtech Pavlik <vojtech@suse.cz>, dmonakhov@openvz.org
 
-Hi Dmitri,
+On Sun, 13 Jul 2008, Henrik Rydberg wrote:
 
-Regarding open/close and suspend/resume, I have difficulties finding out
-what the proper behavior is for the various error states that can
-appear. I also wonder whether open should commute with suspend or not.
-It would be of great help to get answers to the scenarios below.
+> This patch adds the HID_QUIRK_IGNORE_MOUSE quirk for the Apple USB
+> multitouch devices based on BCM5974, aka Wellspring. These devices
+> will instead be picked up by the new bcm5974 driver.
 
-1. From the state (!opened,!suspended), calling open followed by
-suspend, or suspend followed by open, are we in the same state?
+Hi Henrik,
 
-2. From the state (!opened,!suspended), calling open fails. What state
-are we in?
+is the mouse not working at all with standard HID driver?
 
-3. From the state (!opened,suspended), calling open gets us to what
-state?
+I'd prefer to postpone merging this patch until bcm5974 hits mainline if 
+the device works in a limited way with standard HID driver, so that we 
+don't introduce regression.
 
-4. From the state (!opened,suspended), calling open fails. Where are we?
+If the device doesn't work with HID driver at all though, it is probably 
+perfectly fine to merge it right away. Please let me know, I have no 
+knowledge about this particular device.
 
-5. From the state (opened,suspended), calling resume fails. What state
-are we in?
+Thanks a lot,
 
-Best regards,
-Henrik Rydberg
-
-
+-- 
+Jiri Kosina
+SUSE Labs

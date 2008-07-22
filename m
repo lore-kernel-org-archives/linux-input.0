@@ -1,27 +1,32 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: apple_fn_keys F5 and F6
-Date: Tue, 22 Jul 2008 15:18:26 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0807221514300.3037@jikos.suse.cz>
-References: <1215965784.20146.0.camel@alnilam>
+Subject: Re: Problem with Genius Ergomedia 700
+Date: Tue, 22 Jul 2008 15:30:15 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0807221529360.3037@jikos.suse.cz>
+References: <4790713A.9@gmail.com> <Pine.LNX.4.64.0801181208380.15647@twin.jikos.cz> <4790B634.5040701@gmail.com> <479203AA.7010607@gmail.com> <Pine.LNX.4.64.0802112232360.7699@twin.jikos.cz> <47B35742.7010305@gmail.com> <Pine.LNX.4.64.0802191359390.30955@jikos.suse.cz>
+ <48849464.8040705@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:34105 "EHLO mail.suse.cz"
+Received: from styx.suse.cz ([82.119.242.94]:34623 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751234AbYGVNS1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 22 Jul 2008 09:18:27 -0400
-In-Reply-To: <1215965784.20146.0.camel@alnilam>
+	id S1751901AbYGVNaQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 22 Jul 2008 09:30:16 -0400
+In-Reply-To: <48849464.8040705@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, robfitz@273k.net, akpm@osdl.org, Vojtech Pavlik <vojtech@suse.cz>, dmonakhov@openvz.org
+To: Alexey Torkhov <atorkhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sun, 13 Jul 2008, Henrik Rydberg wrote:
+On Mon, 21 Jul 2008, Alexey Torkhov wrote:
 
-> This patch maps the F5 and F6 keys to KBDILLUMDOWN and KBDILLUMUP, 
-> respektively, which make them work as keyboard backlight control keys.
+> Sorry, I forgot about this as I don't have access to that keyboard 
+> anymore. What's the status of this patch? If it's still not applied 
+> then, I think, it will work and could be merged.
 
-Applied, thanks a lot Henrik.
+Hi Alex,
+
+it is not applied, I always prefer to have the code tested by someone who 
+actually owns the hardware, before just "blindly" merging it.
 
 -- 
 Jiri Kosina

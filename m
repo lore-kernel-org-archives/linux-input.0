@@ -1,44 +1,31 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] linux-input: bcm5974-0.57: mode-switch to atp_open,
- cleanup bug fixed
-Date: Wed, 23 Jul 2008 09:38:21 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0807230934330.22282-100000@netrider.rowland.org>
-References: <20080722093606.ZZRA012@mailhub.coreip.homeip.net>
+From: Huang Weiyi <weiyi.huang@gmail.com>
+Subject: drivers/input/misc/uinput.c: Removed duplicated include
+Date: Wed, 23 Jul 2008 22:45:05 +0800
+Message-ID: <20080723221059.9434.WEIYI.HUANG@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:3582 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751400AbYGWNiW (ORCPT
+Received: from ti-out-0910.google.com ([209.85.142.189]:42025 "EHLO
+	ti-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754002AbYGWOpE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 23 Jul 2008 09:38:22 -0400
-In-Reply-To: <20080722093606.ZZRA012@mailhub.coreip.homeip.net>
+	Wed, 23 Jul 2008 10:45:04 -0400
+Received: by ti-out-0910.google.com with SMTP id b6so1200607tic.23
+        for <linux-input@vger.kernel.org>; Wed, 23 Jul 2008 07:45:04 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, Kernel development list <linux-kernel@vger.kernel.org>, robfitz@273k.net, akpm@osdl.org, Jiri Kosina <jikos@jikos.cz>, vojtech@suse.cz, dmonakhov@openvz.org, johannes@sipsolutions.net, Oliver Neukum <oliver@neukum.org>
+To: vojtech@suse.cz, dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: linux-input@vger.kernel.org
 
-On Tue, 22 Jul 2008, Dmitry Torokhov wrote:
-
-> > 4. From the state (!opened,suspended), calling open fails. Where are we?
-> >
-> 
-> Manual suspend will surely cause open to fail. Autosuspend - if
-> autoresume fails then (closed, unknown) otherwise (closed,
-> autosuspended - autosuspension may not kick in immediately I think).
-> 
-> > 5. From the state (opened,suspended), calling resume fails. What state
-> > are we in?
-> > 
-> 
-> Screwed up ;) From the driver POV still (opened, suspended) I think.
-
-In both of these cases, the final result depends on the reason why the
-resume failed.  If it failed for administrative reasons (such as it was
-an autoresume and the device had been manually suspended), then the
-final state is still suspended.  But if it fails because the kernel
-actually tried to resume the device and couldn't do so, then the final
-state is that the device is gone, logically disconnected.
-
-Alan Stern
+UmVtb3ZlZCBkdXBsaWNhdGVkIGluY2x1ZGUgZmlsZSA8bGludXgvc21wX2xvY2suaD4gaW4gDQpk
+cml2ZXJzL2lucHV0L21pc2MvdWlucHV0LmMuDQoNClNpZ25lZC1vZmYtYnk6IEh1YW5nIFdlaXlp
+IDx3ZWl5aS5odWFuZ0BnbWFpbC5jb20+DQoNCmRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L21p
+c2MvdWlucHV0LmMgYi9kcml2ZXJzL2lucHV0L21pc2MvdWlucHV0LmMNCmluZGV4IDJiY2ZhMGIu
+LjIyM2Q1NmQgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2lucHV0L21pc2MvdWlucHV0LmMNCisrKyBi
+L2RyaXZlcnMvaW5wdXQvbWlzYy91aW5wdXQuYw0KQEAgLTM3LDcgKzM3LDYgQEANCiAjaW5jbHVk
+ZSA8bGludXgvZnMuaD4NCiAjaW5jbHVkZSA8bGludXgvbWlzY2RldmljZS5oPg0KICNpbmNsdWRl
+IDxsaW51eC91aW5wdXQuaD4NCi0jaW5jbHVkZSA8bGludXgvc21wX2xvY2suaD4NCg0KIHN0YXRp
+YyBpbnQgdWlucHV0X2Rldl9ldmVudChzdHJ1Y3QgaW5wdXRfZGV2ICpkZXYsIHVuc2lnbmVkIGlu
+dCB0eXBlLCB1bnNpZ25lZCBpbnQgY29kZSwgaW50IHZhbA0KIHsNCg==
 

@@ -1,40 +1,46 @@
-From: Arjan van de Ven <arjan@infradead.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH] Input: Enable WM97xx touchscreen sub-drivers by default
-Date: Thu, 24 Jul 2008 06:57:56 -0700
-Message-ID: <20080724065756.55954c35@infradead.org>
-References: <1216905308-4723-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<1216906867-5058-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Date: Thu, 24 Jul 2008 15:26:51 +0100
+Message-ID: <20080724142650.GA5234@rakim.wolfsonmicro.main>
+References: <1216905308-4723-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1216906867-5058-1-git-send-email-broonie@opensource.wolfsonmicro.com> <20080724065756.55954c35@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:47314 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755636AbYGXN6F (ORCPT
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:41745 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751544AbYGXO0w (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 24 Jul 2008 09:58:05 -0400
-In-Reply-To: <1216906867-5058-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Thu, 24 Jul 2008 10:26:52 -0400
+Content-Disposition: inline
+In-Reply-To: <20080724065756.55954c35@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 24 Jul 2008 14:41:07 +0100
-Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
+On Thu, Jul 24, 2008 at 06:57:56AM -0700, Arjan van de Ven wrote:
+> Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
+> 
+> > Currently the support for each WM97xx touchscreen model is compiled
+> > out by default, meaning that the default configuration when the
 
-> Currently the support for each WM97xx touchscreen model is compiled
-> out by default, meaning that the default configuration when the
-> driver is built is for it to support no hardware.  This is suboptimal
-> and leads to problems like distribution kernels shipping a
-> non-functional driver.
+> this isn't normally how things are done; Linux is on a "off unless
+> selected or unless it breaks booting" policy nowadays...
 
+These options only be visible if the user has chosen to build the WM97xx
+touchscreen driver which does the default thing already.  Within the
+context of the driver these options are of the broken boot variety since
+without at least one of them being enabled the driver will do nothing
+except waste resources.
 
-this isn't normally how things are done; Linux is on a "off unless
-selected or unless it breaks booting" policy nowadays...
+I really don't think it's sensible for the default configuration of the
+driver to produce something totally non-functional.
 
-(and distributions don't follow "default" anyway, so don't worry about
-that part)
+> (and distributions don't follow "default" anyway, so don't worry about
+> that part)
 
--- 
-If you want to reach me at my work email, use arjan@linux.intel.com
-For development, discussion and tips for power savings, 
-visit http://www.lesswatts.org
+This change is a direct result of Ubuntu enabling the driver with all
+the controllers compiled out.  This seems like a completely reasonable
+thing for them to do - nothing in Kconfig suggests that it is mandatory
+to enable at least one of the options and the existing default and help
+text both suggest that it should be turned off.

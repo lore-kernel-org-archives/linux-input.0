@@ -1,66 +1,73 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] bcm5974-0.58: name changes, open/close and
-	suspend/resume serialized
-Date: Fri, 25 Jul 2008 14:37:56 -0400
-Message-ID: <20080725143015.ZZRA012@mailhub.coreip.homeip.net>
-References: <4888311E.9010005@euromail.se> <20080725154250.GA1861@anvil.corenet.prv> <488A1A99.2070609@euromail.se>
+From: Harley Laue <losinggeneration@gmail.com>
+Subject: [PATCH] The Pelican Eclipse's D-Pad isn't functional without this.
+Date: Fri, 25 Jul 2008 15:09:57 -0500
+Message-ID: <488A3315.5020300@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed;
+ boundary="------------060403090406010406040309"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.247]:62396 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751100AbYGYSiC (ORCPT
+Received: from py-out-1112.google.com ([64.233.166.180]:5421 "EHLO
+	py-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751572AbYGYUKF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 25 Jul 2008 14:38:02 -0400
-Received: by an-out-0708.google.com with SMTP id d40so743239and.103
-        for <linux-input@vger.kernel.org>; Fri, 25 Jul 2008 11:38:01 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <488A1A99.2070609@euromail.se>
+	Fri, 25 Jul 2008 16:10:05 -0400
+Received: by py-out-1112.google.com with SMTP id p76so2648751pyb.10
+        for <linux-input@vger.kernel.org>; Fri, 25 Jul 2008 13:10:04 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robfitz@273k.net, akpm@osdl.org, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org, johannes@sipsolutions.net
+To: linux-input@vger.kernel.org
 
-On Fri, Jul 25, 2008 at 08:25:29PM +0200, Henrik Rydberg wrote:
-> Hello Dmitry,
-> > 
-> > Thank you for the changes.  You don't have to track whether device is
-> > manually suspended or not - usb_submit_urb will fail and that is it.
-> > 
-> 
-> Perfect.
-> 
-> > Attached are 2 patches. First cleans suspend state tracking as it is not
-> > really needed and does some formatting and other minor changes and 2nd
-> > implements runtime pm for the device. Could you please try them and if
-> > everything still works I will apply the driver.
-> 
-> Patch 1:
-> 
->   Looking good, just a few comments:
-> 
->   * I notice that clamp_val is new since 2.6.24.3
+This is a multi-part message in MIME format.
+--------------060403090406010406040309
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Probably, I am not sure...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->   * Regarding the open-fails comment: is EACCES correct?
+I got tired of having to add this every time I wanted to use the pad. I
+hope everything sends alright and I made the patch correctly.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-We don't return EACCESS anymore, I don't think. We will return what
-bcm5974_start_traffic returns which in turn returns result of
-usb_submit_urb and the likes.
+iEYEARECAAYFAkiKMxUACgkQulFr2MEc2vtnBACbBMNlJsIC8+x8snylQyUyFpcD
+FNgAoIhxA5ELWAIKMOYuCId2O14t1a0/
+=g4ZM
+-----END PGP SIGNATURE-----
 
-I don't think returning -EACCESS was proper - it usually indicates
-permisison issues, not the fact that the hardware is unavailable.
+--------------060403090406010406040309
+Content-Type: text/x-patch;
+ name="0001-The-Pelican-Eclipse-s-D-Pad-isn-t-functional-without.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="0001-The-Pelican-Eclipse-s-D-Pad-isn-t-functional-without.pa";
+ filename*1="tch"
 
-> 
-> Patch 2:
-> 
->   Perfect.
-> 
-> Thank you so much, Dmitry - it's a GO!
-> 
+>From b0cf0f02b7c64dfb3e76fd785b0170ddf5666898 Mon Sep 17 00:00:00 2001
+From: Harley Laue <losinggeneration@gmail.com>
+Date: Fri, 25 Jul 2008 10:53:42 -0500
+Subject: [PATCH] The Pelican Eclipse's D-Pad isn't functional without this.
 
-Great, thank you!
+Signed-off-by: Harley Laue <losinggeneration@gmail.com>
+---
+ drivers/input/joystick/xpad.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 87d3e7e..6791be8 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -127,6 +127,7 @@ static const struct xpad_device {
+ 	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+ 	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+ 	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
++	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+ 	{ 0x0c12, 0x8810, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+ 	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+ 	{ 0x0e4c, 0x1097, "Radica Gamester Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
 -- 
-Dmitry
+1.5.6.2
+
+
+--------------060403090406010406040309--

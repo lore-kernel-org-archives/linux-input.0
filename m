@@ -1,34 +1,67 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset #2
-Date: Sat, 26 Jul 2008 20:45:21 +0200
-Message-ID: <200807262045.22722.oliver@neukum.org>
-References: <200806271424.50425.oliver@neukum.org> <20080725141420.GA29395@anvil.corenet.prv> <488B48F7.5060002@db.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.27-rc0 (round 2)
+Date: Mon, 28 Jul 2008 12:59:26 -0400
+Message-ID: <20080728165926.GA21561@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:55653 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750967AbYGZSod (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.241]:44777 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756771AbYG1Q7b (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 26 Jul 2008 14:44:33 -0400
-In-Reply-To: <488B48F7.5060002@db.org>
+	Mon, 28 Jul 2008 12:59:31 -0400
+Received: by an-out-0708.google.com with SMTP id d40so922127and.103
+        for <linux-input@vger.kernel.org>; Mon, 28 Jul 2008 09:59:29 -0700 (PDT)
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Alfred E. Heggestad" <aeh@db.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Am Samstag 26 Juli 2008 17:55:35 schrieb Alfred E. Heggestad:
-> Jul 26 17:32:33 io kernel: hald-addon-keyb[23629]: segfault at 6f6f6c5f ip b7e9855b sp bf9d89dc error 4 in libc-2.6.1.so[b7e28000+144000]
-> Jul 26 17:32:43 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
-> Jul 26 17:33:21 io last message repeated 6 times
-> Jul 26 17:34:28 io last message repeated 17 times
+Hi Linus,
 
-This should not happen. Please provide more context. If possible
-recompile your kernel with CONFIG_USB_DEBUG.
+Please pull from:
 
-	Regards
-		Oliver
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
+to receive updates for the input subsystem.
+
+Changelog:
+---------
+
+Dan Liang (1):
+      Input: add driver for Atmel integrated touchscreen controller
+
+Dmitry Torokhov (1):
+      Input: serio - mark serio_register_driver() __must_check
+
+Hans-Christian Egtvedt (1):
+      Input: ads7846 - optimize order of calculating Rt in ads7846_rx()
+
+Harvey Harrison (1):
+      Input: ads7846 - fix sparse endian warnings
+
+Huang Weiyi (1):
+      Input: uinput - remove duplicate include
+
+Shaohua Li (1):
+      Input: serio - offload resume to kseriod
+
+
+Diffstat:
+--------
+
+ drivers/input/misc/uinput.c              |    1 -
+ drivers/input/serio/serio.c              |   55 ++++--
+ drivers/input/touchscreen/Kconfig        |   12 +
+ drivers/input/touchscreen/Makefile       |    1 +
+ drivers/input/touchscreen/ads7846.c      |   16 +-
+ drivers/input/touchscreen/atmel_tsadcc.c |  332 ++++++++++++++++++++++++++++++
+ include/linux/serio.h                    |    3 +-
+ 7 files changed, 390 insertions(+), 30 deletions(-)
+ create mode 100644 drivers/input/touchscreen/atmel_tsadcc.c
+
+-- 
+Dmitry

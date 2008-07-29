@@ -1,99 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset #2
-Date: Tue, 29 Jul 2008 01:47:53 -0400
-Message-ID: <20080729054753.GB5345@anvil.corenet.prv>
-References: <200806271424.50425.oliver@neukum.org> <486652D1.4010008@db.org> <20080725141420.GA29395@anvil.corenet.prv> <488B48F7.5060002@db.org>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH] bcm5974-0.58: name changes, open/close and
+	suspend/resume serialized
+Date: Tue, 29 Jul 2008 08:46:13 +0200
+Message-ID: <1217313973.15381.9.camel@johannes.berg>
+References: <4888311E.9010005@euromail.se>
+	 <20080725154250.GA1861@anvil.corenet.prv> <488A1A99.2070609@euromail.se>
+	 <20080725143015.ZZRA012@mailhub.coreip.homeip.net>
+	 <488AD712.1020102@euromail.se>  <20080729054132.GA5345@anvil.corenet.prv>
+	 (sfid-20080729_074139_861345_F4154FB2)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YVHjpPkc4dgmKK4pyMrO"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.241]:10205 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754146AbYG2Fr6 (ORCPT
+Received: from xc.sipsolutions.net ([83.246.72.84]:56951 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750728AbYG2GqU (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 29 Jul 2008 01:47:58 -0400
-Received: by an-out-0708.google.com with SMTP id d40so965151and.103
-        for <linux-input@vger.kernel.org>; Mon, 28 Jul 2008 22:47:56 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <488B48F7.5060002@db.org>
+	Tue, 29 Jul 2008 02:46:20 -0400
+In-Reply-To: <20080729054132.GA5345@anvil.corenet.prv> (sfid-20080729_074139_861345_F4154FB2)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Alfred E. Heggestad" <aeh@db.org>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, robfitz@273k.net, akpm@osdl.org, jikos@jikos.cz, vojtech@suse.cz, dmonakhov@openvz.org
 
-On Sat, Jul 26, 2008 at 05:55:35PM +0200, Alfred E. Heggestad wrote:
-> Dmitry Torokhov wrote:
->>
->> Hi Alfred,
->>
->> I tried to adjust the patch to fix isues with CTL URB sharing between
->> keys and buzzer, bitfield access from process context and IRQ and keymap
->> loading support. The result is below. Could you please try it and see if
->> I broke it completely or if it indeed works. The patch depends on some
->> new key definitions so you probbaly want to fetch 'master' branch form
->> my tree on kernel.org before applying it.
->>
->> BTW, can I please have your 'Signed-off-by:' string so I can add it to
->> the commit?
->>
->> Thanks!
->>
->
-> Hi Dmitry
->
-> thanks for your patch, I have merged it into my working copy and the
-> updated patch is below.
->
-> Your patch is working and keys are reported as expected, buzzer is
-> also working, although with some syslog warnings:
->
->
-> Jul 26 17:32:22 io kernel: cm109: Keymap for Komunikate KIP1000 phone loaded
-> Jul 26 17:32:22 io kernel: input: CM109 USB driver as /class/input/input14
-> Jul 26 17:32:22 io kernel: usbcore: registered new interface driver cm109
-> Jul 26 17:32:22 io kernel: cm109: CM109 phone driver: 20080726 (C) Alfred E. Heggestad
->
-> -> key is pressed here ..
->
-> Jul 26 17:32:33 io kernel: hald-addon-keyb[23629]: segfault at 6f6f6c5f ip b7e9855b sp bf9d89dc error 4 in libc-2.6.1.so[b7e28000+144000]
-> Jul 26 17:32:43 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
-> Jul 26 17:33:21 io last message repeated 6 times
-> Jul 26 17:34:28 io last message repeated 17 times
->
->
-> Jul 26 17:35:02 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
-> Jul 26 17:35:21 io last message repeated 2 times
-> Jul 26 17:35:55 io last message repeated 2 times
->
-> -> module is unloaded here:
->
-> Jul 26 17:35:59 io kernel: usbcore: deregistering interface driver cm109
-> Jul 26 17:35:59 io kernel: cm109: cm109_toggle_buzzer_sync: usb_control_msg) failed 4
->
 
-Hmm, should not be happening, I don't quite see anything wrong.
-Hopefully USB debug that Oliver mentioned will help us figure this out.
+--=-YVHjpPkc4dgmKK4pyMrO
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->
-> In addition the latest patch also adds support for special keys like volume up/down
-> and mute, and preliminary keymap for carpophone II.
->
+On Tue, 2008-07-29 at 01:41 -0400, Dmitry Torokhov wrote:
 
-I wonder if we should keep adding new keymaps to the driver... Now that
-setkeycode [supposedly] works we can offload this task to userspace.
+> > one thing about the drivers/input/mouse/Kconfig patch:
+> >=20
+> > The original version contained "select USB", which was later changed
+> > to "depends on USB" by Andrew Morton. I saw it reappear as "select USB"
+> > in your latest patch, and simply considered it a change back, but
+> > maybe it was an oversight?
+> >=20
+>=20
+> I am of the opinion that it is OK to "select" high-level subsystems that
+> don't have additional dependencies, especially if they are "past" the
+> original driver in menuconfig. I don't really like the idea of forcing
+> users revisiting earlier sub-menus after they selected a new subsystem
+> to see if there are any new options. Plus, if user wants driver for his
+> touchpad he does not really care whether it is PS/2 or USB, [s]he just
+> wants it to work.
 
->
-> it is my understanding that all user-space applications must be updated
-> or rewritten to consume KEY_NUMERIC_xyz ? I have written a simple application
-> that reads input from /dev/input/event8 and handles KEY_NUMERIC_xyz correctly.
-> this application is working with your input-branch kernel version.
->
+USB tends to have implicit dependencies like the ehci/ohci/uhci
+controller though, so it's not going to work like that anyway starting
+from a minimal config, and all defconfigs probably have USB anyway.
 
-Well, kind of. You have the option of resetting the keymap to old KEY_1
-(by means of setkeycode) or you can load keymap that maps KEY_NUMERIC_1
-to '1' etc for legacy console. But since you need to handle new keycodes
-KEY_NUMERIC_POUND/STAR in applications anyway (we really don't want the
-shift tricks because they break in sertain keyboard layouts) you may add
-support for KEY_NUMERIC_[0-9] as well.
+Therefore, I personally would keep it as "depends on" rather than
+"select". YMMV.
 
--- 
-Dmitry
+johannes
+
+--=-YVHjpPkc4dgmKK4pyMrO
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIcBAABAgAGBQJIjryyAAoJEKVg1VMiehFYR9kQAJOEnL5JHJVEmzp/o9l//26f
+P+3Q9OiuezchkYuLz8ILglFVNLy5U9cHZYbtDB59Bdh4cuf8k6nwLtGBPGEBQTIe
++/eb/Udw0WfbZZ1ty2l1cPR1l7YloX+ztKAPE4Cuv4ayIXTk7WRrGtz23CEfKJpB
+aiqe86oxMkjYcHB5AJ/Uiu5g9MT1+4S4GaffPaLTVHgEFGEC+wL22PDm5/VXw4aP
++Ss0RJaSQhyN8ZzT9HRsD8I6EB8Kbc58I566J/7ZwFfQycRSVY2+KCQIDyzsMQ5l
+T+gkOsbS1Kzf687T/+KTBtMm9aKnmt5VFJDpwwKNHoOFssjvGqQBNBBMitpdznQv
+7pJh5m8diyMYIoVLKM6yQ3c73mLLf8hQDHUJ1OqwOp9naY2fJ0xnSojgRfwfylrw
+l9tIJ8/EmvKiORt6LuoasL6YCmDrktwfb5pdqAhtsMBzZIlc0x/LeCuWthpnV9Ll
+e30NXbpOcgZsjPSz8GADKTYv0t0ocoiEWbkLjm710Jucg3D+HFoa2s+3I2GZAmPK
+Y4lM3ckZ4k/GgSw2NtZok1s5B1wefPl6Ihq+Pnqu+oNclXo48ZwFcFN2Rm2Hquh4
+2tTa0PMOBOBMv9xeRhXrUcUfaElzg3FsaFu1WUyy1DGBjNSFW721IvtPKuqXVyd0
+Kfb7WdNZKNRk5tDLSFry
+=77XC
+-----END PGP SIGNATURE-----
+
+--=-YVHjpPkc4dgmKK4pyMrO--
+

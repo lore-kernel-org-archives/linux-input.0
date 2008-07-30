@@ -1,44 +1,35 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <Uwe.Kleine-Koenig@digi.com>
-Subject: Re: [PATCH] Input: gpio-keys - fix possible NULL pointer dereference
-Date: Wed, 30 Jul 2008 15:32:15 +0200
-Message-ID: <20080730133215.GA8702@digi.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: gpio-keys - fix possible NULL pointer
+	dereference
+Date: Wed, 30 Jul 2008 10:53:03 -0400
+Message-ID: <20080730104856.ZZRA012@mailhub.coreip.homeip.net>
 References: <1217424431-8732-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail164.messagelabs.com ([216.82.253.131]:12091 "EHLO
-	mail164.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751201AbYG3NcX (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.248]:5294 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752387AbYG3OxH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jul 2008 09:32:23 -0400
+	Wed, 30 Jul 2008 10:53:07 -0400
+Received: by an-out-0708.google.com with SMTP id d40so7603and.103
+        for <linux-input@vger.kernel.org>; Wed, 30 Jul 2008 07:53:06 -0700 (PDT)
 Content-Disposition: inline
 In-Reply-To: <1217424431-8732-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Baryshkov <dbaryshkov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
+To: Uwe Kleine-K??nig <Uwe.Kleine-Koenig@digi.com>
+Cc: linux-input@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>
 
-Hello,
+Hi Uwe,
 
-I forgot to mention that you can pull these changes from
+On Wed, Jul 30, 2008 at 03:27:10PM +0200, Uwe Kleine-K??nig wrote:
+> bdata->button is used in gpio_check_button but never initialized.  Having a
+> device with debounce_interval != 0 without this patch resulted on an oops on
+> my machine.
+> 
 
-	git://www.modarm9.com/gitsrc/pub/people/ukleinek/linux-2.6.git gpio-ke=
-ys-fixes
+Applied both patches to 'for-linus' branch, thanks!
 
-Just in case you prefer it this way ...
-
-Best regards
-Uwe
-
---=20
-Uwe Kleine-K=F6nig, Software Engineer
-Digi International GmbH Branch Breisach, K=FCferstrasse 8, 79206 Breisa=
-ch, Germany
-Tax: 315/5781/0242 / VAT: DE153662976 / Reg. Amtsgericht Dortmund HRB 1=
-3962
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

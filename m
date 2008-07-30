@@ -1,35 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: gpio-keys - fix possible NULL pointer
-	dereference
-Date: Wed, 30 Jul 2008 10:53:03 -0400
-Message-ID: <20080730104856.ZZRA012@mailhub.coreip.homeip.net>
-References: <1217424431-8732-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
+From: akpm@linux-foundation.org
+Subject: [patch 6/8] input: i8042: add Dritek quirk for Acer TravelMate 660
+Date: Wed, 30 Jul 2008 12:31:41 -0700
+Message-ID: <200807301931.m6UJVffQ012061@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.248]:5294 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752387AbYG3OxH (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:34995 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753565AbYG3TcH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jul 2008 10:53:07 -0400
-Received: by an-out-0708.google.com with SMTP id d40so7603and.103
-        for <linux-input@vger.kernel.org>; Wed, 30 Jul 2008 07:53:06 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1217424431-8732-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
+	Wed, 30 Jul 2008 15:32:07 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe Kleine-K??nig <Uwe.Kleine-Koenig@digi.com>
-Cc: linux-input@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, bonbons@linux-vserver.org
 
-Hi Uwe,
+=46rom: Bruno Pr=E9mont <bonbons@linux-vserver.org>
 
-On Wed, Jul 30, 2008 at 03:27:10PM +0200, Uwe Kleine-K??nig wrote:
-> bdata->button is used in gpio_check_button but never initialized.  Having a
-> device with debounce_interval != 0 without this patch resulted on an oops on
-> my machine.
-> 
+The Acer TravelMate 660 series also requires the Dritek quirk to enable
+the extra scancodes.
 
-Applied both patches to 'for-linus' branch, thanks!
+Signed-off-by: Bruno Pr=E9mont <bonbons@linux-vserver.org>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
--- 
-Dmitry
+ drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff -puN drivers/input/serio/i8042-x86ia64io.h~input-i8042-add-dritek-=
+quirk-for-acer-travelmate-660 drivers/input/serio/i8042-x86ia64io.h
+--- a/drivers/input/serio/i8042-x86ia64io.h~input-i8042-add-dritek-quir=
+k-for-acer-travelmate-660
++++ a/drivers/input/serio/i8042-x86ia64io.h
+@@ -388,6 +388,13 @@ static struct dmi_system_id __initdata i
+ 		},
+ 	},
+ 	{
++		.ident =3D "Acer TravelMate 660",
++		.matches =3D {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 660"),
++		},
++	},
++	{
+ 		.ident =3D "Acer TravelMate 2490",
+ 		.matches =3D {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
+_
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

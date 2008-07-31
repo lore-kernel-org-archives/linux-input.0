@@ -1,111 +1,88 @@
-From: =?utf-8?q?Uwe=20Kleine-K=C3=B6nig?= <Uwe.Kleine-Koenig@digi.com>
-Subject: [PATCH 1/3] Input: gpio-keys - optimize interrupt handler
-Date: Thu, 31 Jul 2008 21:04:21 +0200
-Message-ID: <1217531063-2472-2-git-send-email-Uwe.Kleine-Koenig@digi.com>
-References: <1217531063-2472-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: linux-next: Tree for July 30
+Date: Thu, 31 Jul 2008 12:13:08 -0700
+Message-ID: <20080731121308.bfbdcd0d.akpm@linux-foundation.org>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
+	<20080731104437.5e5669bc.akpm@linux-foundation.org>
+	<20080731141302.ZZRA012@mailhub.coreip.homeip.net>
+	<200807312048.57575.rjw@sisk.pl>
+	<20080731145023.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail51.messagelabs.com ([216.82.244.179]:29292 "EHLO
-	mail51.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757480AbYGaTEa (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:53958 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756731AbYGaTNR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 15:04:30 -0400
-In-Reply-To: <1217531063-2472-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
+	Thu, 31 Jul 2008 15:13:17 -0400
+In-Reply-To: <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: rjw@sisk.pl, bzolnier@gmail.com, sfr@canb.auug.org.au, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, torvalds@linux-foundation.org
 
-By passing a gpio_button_data structure to the handler instead of the
-whole platform_device the search for the right button can go away.
+On Thu, 31 Jul 2008 14:54:52 -0400
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <Uwe.Kleine-Koenig@digi.com>
----
- drivers/input/keyboard/gpio_keys.c |   36 +++++++++++++---------------=
---------
- 1 files changed, 13 insertions(+), 23 deletions(-)
+> > IOW, if the change responsible for this makes it to the mainline kernel, it
+> > will be considered as a regression.
+> > 
+> 
+> Like I said, I don't agree.
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboar=
-d/gpio_keys.c
-index 3f48279..3835892 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -56,29 +56,19 @@ static void gpio_check_button(unsigned long _data)
-=20
- static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- {
--	struct platform_device *pdev =3D dev_id;
--	struct gpio_keys_platform_data *pdata =3D pdev->dev.platform_data;
--	struct gpio_keys_drvdata *ddata =3D platform_get_drvdata(pdev);
--	int i;
-+	struct gpio_button_data *bdata =3D dev_id;
-+	struct gpio_keys_button *button =3D bdata->button;
-=20
--	for (i =3D 0; i < pdata->nbuttons; i++) {
--		struct gpio_keys_button *button =3D &pdata->buttons[i];
-+	BUG_ON(irq !=3D gpio_to_irq(button->gpio));
-=20
--		if (irq =3D=3D gpio_to_irq(button->gpio)) {
--			struct gpio_button_data *bdata =3D &ddata->data[i];
--
--			if (button->debounce_interval)
--				mod_timer(&bdata->timer,
--					  jiffies +
--					  msecs_to_jiffies(button->debounce_interval));
--			else
--				gpio_keys_report_event(button, bdata->input);
--
--			return IRQ_HANDLED;
--		}
--	}
-+	if (button->debounce_interval)
-+		mod_timer(&bdata->timer,
-+				jiffies +
-+				msecs_to_jiffies(button->debounce_interval));
-+	else
-+		gpio_keys_report_event(button, bdata->input);
-=20
--	return IRQ_NONE;
-+	return IRQ_HANDLED;
- }
-=20
- static int __devinit gpio_keys_probe(struct platform_device *pdev)
-@@ -152,7 +142,7 @@ static int __devinit gpio_keys_probe(struct platfor=
-m_device *pdev)
- 				    IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_RISING |
- 					IRQF_TRIGGER_FALLING,
- 				    button->desc ? button->desc : "gpio_keys",
--				    pdev);
-+				    bdata);
- 		if (error) {
- 			pr_err("gpio-keys: Unable to claim irq %d; error %d\n",
- 				irq, error);
-@@ -179,7 +169,7 @@ static int __devinit gpio_keys_probe(struct platfor=
-m_device *pdev)
-=20
-  fail2:
- 	while (--i >=3D 0) {
--		free_irq(gpio_to_irq(pdata->buttons[i].gpio), pdev);
-+		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
- 		if (pdata->buttons[i].debounce_interval)
- 			del_timer_sync(&ddata->data[i].timer);
- 		gpio_free(pdata->buttons[i].gpio);
-@@ -204,7 +194,7 @@ static int __devexit gpio_keys_remove(struct platfo=
-rm_device *pdev)
-=20
- 	for (i =3D 0; i < pdata->nbuttons; i++) {
- 		int irq =3D gpio_to_irq(pdata->buttons[i].gpio);
--		free_irq(irq, pdev);
-+		free_irq(irq, &ddata->data[i]);
- 		if (pdata->buttons[i].debounce_interval)
- 			del_timer_sync(&ddata->data[i].timer);
- 		gpio_free(pdata->buttons[i].gpio);
---=20
-1.5.6.3
+It really really doesn't matter what the causes are or which piece of
+code is at fault or anything else like that.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+What _does_ matter is that people's stuff will break.  Apparently lots
+of people's.  That's a problem.  A _practical_ problem.  Can we
+pleeeeeeze be practical and find some way of preventing it?
+
+I assume this is the commit?
+
+
+commit 03bac96fae0efdb25e2059e5accbe4f3ee6328dd
+Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date:   Mon Jun 23 10:47:34 2008 -0400
+
+    Input: expand keycode space
+    
+    Expand the number of potential key codes from 512 to 768 since people
+    are coming up with more and more keys.
+    
+    Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index a5802c9..7fae1de 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -579,7 +579,7 @@ struct input_absinfo {
+ 
+ /* We avoid low common keys in module aliases so they don't get huge. */
+ #define KEY_MIN_INTERESTING	KEY_MUTE
+-#define KEY_MAX			0x1ff
++#define KEY_MAX			0x2ff
+ #define KEY_CNT			(KEY_MAX+1)
+ 
+ /*
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+index c4db582..0dddfa4 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -274,7 +274,7 @@ struct pcmcia_device_id {
+ /* Input */
+ #define INPUT_DEVICE_ID_EV_MAX		0x1f
+ #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
+-#define INPUT_DEVICE_ID_KEY_MAX		0x1ff
++#define INPUT_DEVICE_ID_KEY_MAX		0x2ff
+ #define INPUT_DEVICE_ID_REL_MAX		0x0f
+ #define INPUT_DEVICE_ID_ABS_MAX		0x3f
+ #define INPUT_DEVICE_ID_MSC_MAX		0x07
+
+
+I'm unable to work out how necessary this change is?
+
+
+Please: what proportion of the existing X installations do you expect will
+be affected by this?
+

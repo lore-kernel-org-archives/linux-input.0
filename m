@@ -1,43 +1,26 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 6/8] input: i8042: add Dritek quirk for Acer TravelMate
-	660
-Date: Wed, 30 Jul 2008 15:47:41 -0400
-Message-ID: <20080730154701.ZZRA012@mailhub.coreip.homeip.net>
-References: <200807301931.m6UJVffQ012061@imap1.linux-foundation.org>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: linux-next: Tree for July 30
+Date: Wed, 30 Jul 2008 23:10:29 -0700
+Message-ID: <20080730231029.9818953c.akpm@linux-foundation.org>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.242]:42795 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756756AbYG3Trr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 30 Jul 2008 15:47:47 -0400
-Received: by an-out-0708.google.com with SMTP id d40so30079and.103
-        for <linux-input@vger.kernel.org>; Wed, 30 Jul 2008 12:47:45 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <200807301931.m6UJVffQ012061@imap1.linux-foundation.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
+Sender: linux-next-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, bonbons@linux-vserver.org
 
-On Wed, Jul 30, 2008 at 12:31:41PM -0700, akpm@linux-foundation.org wro=
-te:
-> From: Bruno Pr=E9mont <bonbons@linux-vserver.org>
->=20
-> The Acer TravelMate 660 series also requires the Dritek quirk to enab=
-le
-> the extra scancodes.
->=20
+On Wed, 30 Jul 2008 17:06:35 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 
-Andrew,
+> I have created today's linux-next tree at
+> git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git
 
-Please drop this patch - it's been in mainline for a while now.
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The X server broke on my FC8 t61p thinkpad.  Mainline is OK.
+
+Various information is at http://userweb.kernel.org/~akpm/mo/
+
+I'm suspecting the input layer - my synaptics device seems to have
+disappeared?  See http://userweb.kernel.org/~akpm/mo/Xorg-log-diff.txt

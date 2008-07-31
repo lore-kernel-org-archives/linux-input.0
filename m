@@ -1,91 +1,101 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 20:48:56 +0200
-Message-ID: <200807312048.57575.rjw@sisk.pl>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net>
+Date: Thu, 31 Jul 2008 14:54:52 -0400
+Message-ID: <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:56532 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752503AbYGaSqJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 14:46:09 -0400
-In-Reply-To: <20080731141302.ZZRA012@mailhub.coreip.homeip.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-next-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+In-Reply-To: <200807312048.57575.rjw@sisk.pl>
+Sender: linux-next-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
 Cc: Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+List-Id: linux-input@vger.kernel.org
 
-On Thursday, 31 of July 2008, Dmitry Torokhov wrote:
-> On Thu, Jul 31, 2008 at 10:44:37AM -0700, Andrew Morton wrote:
-> > On Thu, 31 Jul 2008 11:56:48 -0400 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > 
-> > > On Thu, Jul 31, 2008 at 05:36:16PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > On Thu, Jul 31, 2008 at 4:07 PM, Dmitry Torokhov
-> > > > <dmitry.torokhov@gmail.com> wrote:
-> > > > > On Wed, Jul 30, 2008 at 11:10:29PM -0700, Andrew Morton wrote:
-> > > > >> On Wed, 30 Jul 2008 17:06:35 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> > > > >>
-> > > > >> > I have created today's linux-next tree at
-> > > > >> > git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git
-> > > > >>
-> > > > >> The X server broke on my FC8 t61p thinkpad.  Mainline is OK.
-> > > > >>
-> > > > >> Various information is at http://userweb.kernel.org/~akpm/mo/
-> > > > >>
-> > > > >> I'm suspecting the input layer - my synaptics device seems to have
-> > > > >> disappeared?  See http://userweb.kernel.org/~akpm/mo/Xorg-log-diff.txt
-> > > > >>
-> > > > >
-> > > > > I think this patch should help with Synaptics:
+On Thu, Jul 31, 2008 at 08:48:56PM +0200, Rafael J. Wysocki wrote:
+> On Thursday, 31 of July 2008, Dmitry Torokhov wrote:
+> > On Thu, Jul 31, 2008 at 10:44:37AM -0700, Andrew Morton wrote:
+> > > On Thu, 31 Jul 2008 11:56:48 -0400 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > > 
+> > > > On Thu, Jul 31, 2008 at 05:36:16PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > > > On Thu, Jul 31, 2008 at 4:07 PM, Dmitry Torokhov
+> > > > > <dmitry.torokhov@gmail.com> wrote:
+> > > > > > On Wed, Jul 30, 2008 at 11:10:29PM -0700, Andrew Morton wrote:
+> > > > > >> On Wed, 30 Jul 2008 17:06:35 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> > > > > >>
+> > > > > >> > I have created today's linux-next tree at
+> > > > > >> > git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git
+> > > > > >>
+> > > > > >> The X server broke on my FC8 t61p thinkpad.  Mainline is OK.
+> > > > > >>
+> > > > > >> Various information is at http://userweb.kernel.org/~akpm/mo/
+> > > > > >>
+> > > > > >> I'm suspecting the input layer - my synaptics device seems to have
+> > > > > >> disappeared?  See http://userweb.kernel.org/~akpm/mo/Xorg-log-diff.txt
+> > > > > >>
+> > > > > >
+> > > > > > I think this patch should help with Synaptics:
+> > > > > 
+> > > > > Which unfortunately doesn't help all people running with older synaptics
+> > > > > user-space after commit 0571c5d20aca71c735222132b02aebddf593045c
+> > > > > ("Input: expand keycode space").
+> > > > > 
+> > > > > Can't this be solved without breaking Xorg on newer kernels running
+> > > > > older synaptics?
+> > > > > 
 > > > > 
-> > > > Which unfortunately doesn't help all people running with older synaptics
-> > > > user-space after commit 0571c5d20aca71c735222132b02aebddf593045c
-> > > > ("Input: expand keycode space").
+> > > > No. The X driver is broken. It tells kernel to use buffer bugger than
+> > > > allocated and gets its stack smashed. Tslib has also soma funkiness
+> > > > in the ioctl handling as well... *shrug*
 > > > > 
-> > > > Can't this be solved without breaking Xorg on newer kernels running
-> > > > older synaptics?
+> > > > We have a couple months to get distros updated...
 > > > > 
 > > > 
-> > > No. The X driver is broken. It tells kernel to use buffer bugger than
-> > > allocated and gets its stack smashed. Tslib has also soma funkiness
-> > > in the ioctl handling as well... *shrug*
+> > > aaarrrrgggggghhh.  I don't think this is practical.  This means that
+> > > (for example) FC5 machines (of which I happen to have one) are dead. 
+> > > And lots of other older-distro-based systems.
 > > > 
-> > > We have a couple months to get distros updated...
+> > > Is there some userspace workaround which doesn't require an X server
+> > > update?
+> > > 
+> > > Surely it must be possible to make the kernel contiue to support these
+> > > servers?
 > > > 
 > > 
-> > aaarrrrgggggghhh.  I don't think this is practical.  This means that
-> > (for example) FC5 machines (of which I happen to have one) are dead. 
-> > And lots of other older-distro-based systems.
+> > Andrew,
 > > 
-> > Is there some userspace workaround which doesn't require an X server
-> > update?
+> > It is not like we broke ABI here. The progam (synaptics driver) had a
+> > grave bug. Older kernels happened to paper over the bug because they
+> > did not fill the whole buffer that was advertised as available. Now
+> > that we have more data to report the bug bit us. What do you want me
+> > to do?
 > > 
-> > Surely it must be possible to make the kernel contiue to support these
-> > servers?
-> > 
+> > Synaptics driver is a small package and takes 2 minutes to recompile.
+> > You don't have to update entire X server with it (in fact I don't think
+> > it is even part of X distribution because it is GPL).
 > 
-> Andrew,
+> Well, we're not supposed to break user space that we used to work with, even
+> if it is known to be buggy.
+
+No, I am sorry. We are not supposed to break userspace ABI, but that
+is it. Can you vouch that 2.6.25 did not break a single userspace
+program out there?
+
+>  Many people use the older user space on their
+> test systems which are not practical to upgrade.
 > 
-> It is not like we broke ABI here. The progam (synaptics driver) had a
-> grave bug. Older kernels happened to paper over the bug because they
-> did not fill the whole buffer that was advertised as available. Now
-> that we have more data to report the bug bit us. What do you want me
-> to do?
+
+I don't understand this - it is expected that everyone jumps and
+upgrades their kernels with ease but updating broken userspace
+bits is super-hard... Plus, in this case the fixed driver will
+happily work with old kernels.
+
+> IOW, if the change responsible for this makes it to the mainline kernel, it
+> will be considered as a regression.
 > 
-> Synaptics driver is a small package and takes 2 minutes to recompile.
-> You don't have to update entire X server with it (in fact I don't think
-> it is even part of X distribution because it is GPL).
 
-Well, we're not supposed to break user space that we used to work with, even
-if it is known to be buggy.  Many people use the older user space on their
-test systems which are not practical to upgrade.
+Like I said, I don't agree.
 
-IOW, if the change responsible for this makes it to the mainline kernel, it
-will be considered as a regression.
-
-Thanks,
-Rafael
+-- 
+Dmitry

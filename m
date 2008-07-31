@@ -1,68 +1,27 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 13:28:37 -0700 (PDT)
-Message-ID: <alpine.LFD.1.10.0807311318580.3277@nehalem.linux-foundation.org>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
- <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org> <20080731151625.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311235350.3277@nehalem.linux-foundation.org> <20080731155701.ZZRA012@mailhub.coreip.homeip.net>
- <alpine.LFD.1.10.0807311310090.3277@nehalem.linux-foundation.org>
+Date: Thu, 31 Jul 2008 16:39:44 -0400
+Message-ID: <20080731163738.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org> <20080731151625.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311235350.3277@nehalem.linux-foundation.org> <20080731155701.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311310090.3277@nehalem.linux-foundation.org> <alpine.LFD.1.10.0807311318580.3277@nehalem.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <alpine.LFD.1.10.0807311310090.3277@nehalem.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.1.10.0807311318580.3277@nehalem.linux-foundation.org>
 Sender: linux-next-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-
-
-On Thu, 31 Jul 2008, Linus Torvalds wrote:
-> >     /* Check for ABS_X, ABS_Y, ABS_PRESSURE and BTN_TOOL_FINGER */
-> > 
-> >     SYSCALL(ret = ioctl(fd, EVIOCGBIT(0, KEY_MAX), evbits));
-> > 
-> > So we allocate 64 bytes on stack and then as kernel to fill it with
-> > 511 bytes worth of data.
+On Thu, Jul 31, 2008 at 01:28:37PM -0700, Linus Torvalds wrote:
 > 
-> Ok, I can see how it's confused, asking for KEY_MAX _bits_. If this is the 
-> main user, why not just change the definition to be in bits?
+> +				/* Some people get confused about size in bits vs bytes */
+> +				if (size >= len/8)
+> +					size = size/8;
 
-Or just say that "if the buffer is really much too big, maybe they meant 
-bits"?
+People usually allocate single buffer (big enough) and the do a bunch
+of tests so this condiion is likely to fire on EV_SW and similar event
+types. I think it is safer to explicitely test for EV_KEY/0x1ff.
 
-IOW, something like this?
-
-(And no, I'm not seriously proposing _this_ patch, but you get the idea)
-
-		Linus
----
- drivers/input/evdev.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 2d65411..e45451d 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -734,7 +734,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 		if (_IOC_DIR(cmd) == _IOC_READ) {
- 
- 			if ((_IOC_NR(cmd) & ~EV_MAX) == _IOC_NR(EVIOCGBIT(0, 0))) {
--
-+				unsigned int size = _IOC_SIZE(cmd);
- 				unsigned long *bits;
- 				int len;
- 
-@@ -751,7 +751,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 				case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
- 				default: return -EINVAL;
- 				}
--				return bits_to_user(bits, len, _IOC_SIZE(cmd), p, compat_mode);
-+
-+				/* Some people get confused about size in bits vs bytes */
-+				if (size >= len/8)
-+					size = size/8;
-+
-+				return bits_to_user(bits, len, size, p, compat_mode);
- 			}
- 
- 			if (_IOC_NR(cmd) == _IOC_NR(EVIOCGKEY(0)))
+-- 
+Dmitry

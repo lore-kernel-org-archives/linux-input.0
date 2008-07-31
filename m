@@ -1,49 +1,75 @@
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 13:10:56 -0700
-Message-ID: <20080731131056.eecc4826.akpm@linux-foundation.org>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
-	<20080731104437.5e5669bc.akpm@linux-foundation.org>
-	<20080731141302.ZZRA012@mailhub.coreip.homeip.net>
-	<200807312048.57575.rjw@sisk.pl>
-	<20080731145023.ZZRA012@mailhub.coreip.homeip.net>
-	<alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org>
-	<20080731151625.ZZRA012@mailhub.coreip.homeip.net>
-	<20080731194207.GA12233@anvil.corenet.prv>
+Date: Thu, 31 Jul 2008 13:16:52 -0700 (PDT)
+Message-ID: <alpine.LFD.1.10.0807311310090.3277@nehalem.linux-foundation.org>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
+ <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org> <20080731151625.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311235350.3277@nehalem.linux-foundation.org> <20080731155701.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:50545 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:54560 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751083AbYGaUNf (ORCPT
+	by vger.kernel.org with ESMTP id S1751293AbYGaUUa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 16:13:35 -0400
-In-Reply-To: <20080731194207.GA12233@anvil.corenet.prv>
+	Thu, 31 Jul 2008 16:20:30 -0400
+In-Reply-To: <20080731155701.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: torvalds@linux-foundation.org, rjw@sisk.pl, bzolnier@gmail.com, sfr@canb.auug.org.au, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, 31 Jul 2008 15:42:07 -0400
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-> -				return bits_to_user(bits, len, _IOC_SIZE(cmd), p, compat_mode);
-> +
-> +				if ((_IOC_NR(cmd) & EV_MAX) == EV_KEY && buf_len == 0x1ff) {
-> +					printk(KERN_WARNING
-> +						"evdev.c(EVIOCGBIT): Detected suspicious "
-> +						"buffer size 0x1ff, limiting output to 64 "
-> +						"bytes. Make sure you are not using "
-> +						"EVIOCGBIT(EV_KEY, KEY_MAX)\n");
-> +					buf_len = 64; 
-> +				}
 
-If that works then great.  But I think the printk could be improved. 
-Please provide sufficient information so that users (not programmers)
-can go off and fix things up without needing to email kernel developers.
+On Thu, 31 Jul 2008, Dmitry Torokhov wrote:
+> 
+> Sometimes we do need to upgrade userspace though. Can we make
+> Documentation/Changes more prominent? Maybe have it published on
+> kernel.org?
 
-One suitable approach would be
+We basically _never_ have to upgrade userspace that aggressively. We can 
+have a Changes file that talks about things that will eventually break 
+when we remove support for it eventually, but it should never EVER be used 
+as an excuse for "I needed to break it now".
 
-	printk("see http://userweb.kernel.org/~dtor/read-this.txt")
+So no, I refuse to make it any more prominent. Because it would just be 
+used as an excuse for behavior that I consider unacceptable. It was 
+different back when we had 3-year development windows and people upgrading 
+from 2.4.x to 2.6.x had to learn new things, but for 2.6.26 to .27 or 
+similar it's simply not acceptable.
 
+Look at the VFS layer. Look at how we have multiple different versions of 
+"readdir()" (well, getdents, really), and "stat()". Exactly because we 
+don't break user space.
+
+> It did specify the size. Something 448 more bytes than it allocated:
+> 
+>     unsigned long evbits[NBITS(KEY_MAX)];
+> 
+>     /* Check for ABS_X, ABS_Y, ABS_PRESSURE and BTN_TOOL_FINGER */
+> 
+>     SYSCALL(ret = ioctl(fd, EVIOCGBIT(0, KEY_MAX), evbits));
+> 
+> So we allocate 64 bytes on stack and then as kernel to fill it with
+> 511 bytes worth of data.
+
+Ok, I can see how it's confused, asking for KEY_MAX _bits_. If this is the 
+main user, why not just change the definition to be in bits?
+
+> >  - help fix up the userspace driver regardless
+> 
+> In progress.
+> > 
+> >  - a year down the line, maybe breakage will be a non-issue.
+> 
+> Around when 2.6.28 is released, right? ;)
+
+A year down the line would be 2.6.30 or so.
+
+> We do need more keycodes. People are coming wioth more and more. The
+> patch following the one in question adds about 10 new kodes for remote
+> controls/phones. And we will get more.
+
+Maybe the problem is a bad design that encourages people to just create 
+new keycodes when they really shouldn't? 
+
+			Linus

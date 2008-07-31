@@ -1,81 +1,90 @@
-From: Hugh Dickins <hugh@veritas.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 20:20:33 +0100 (BST)
-Message-ID: <Pine.LNX.4.64.0807312013460.7388@blonde.site>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
- <20080730231029.9818953c.akpm@linux-foundation.org> <20080731140708.GA11229@core.corenet.prv>
- <58cb370e0807310836x4a6e3c40rf5c3c8ec8b5caae0@mail.gmail.com>
- <20080731115301.ZZRA012@mailhub.coreip.homeip.net>
- <20080731104437.5e5669bc.akpm@linux-foundation.org>
- <20080731141302.ZZRA012@mailhub.coreip.homeip.net>
- <20080731112654.d9620b36.akpm@linux-foundation.org>
- <20080731143013.ZZRA012@mailhub.coreip.homeip.net>
- <20080731115538.238b5e75.akpm@linux-foundation.org>
+Date: Thu, 31 Jul 2008 15:24:02 -0400
+Message-ID: <20080731151625.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from extu-mxob-2.symantec.com ([216.10.194.135]:55120 "EHLO
-	extu-mxob-2.symantec.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753516AbYGaTUz (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.241]:39272 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751875AbYGaTYN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 15:20:55 -0400
-In-Reply-To: <20080731115538.238b5e75.akpm@linux-foundation.org>
+	Thu, 31 Jul 2008 15:24:13 -0400
+Received: by an-out-0708.google.com with SMTP id d40so113548and.103
+        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2008 12:24:12 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, bzolnier@gmail.com, sfr@canb.auug.org.au, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thu, 31 Jul 2008, Andrew Morton wrote:
-> On Thu, 31 Jul 2008 14:34:41 -0400
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > 
-> > > Where would I (Aunt Tillie running FC5) go to find out how to fix my
-> > > machine up again? 
-> > 
-> > What is Aunt Tillie doing compiling her own kernels on FC5? You
-> > OTOH managed to get an answer fairly quickly ;)
+On Thu, Jul 31, 2008 at 12:10:40PM -0700, Linus Torvalds wrote:
 > 
-> I'll ask again: where do our users go to find out how to make their X
-> server work again?  If the answer is "nowhere" then can we please at 
-> least write up a simple step-by-step repair procedure, as we'll surely
-> be needing it a lot.
+> 
+> On Thu, 31 Jul 2008, Dmitry Torokhov wrote:
+> > > 
+> > > Well, we're not supposed to break user space that we used to work with, even
+> > > if it is known to be buggy.
+> > 
+> > No, I am sorry. We are not supposed to break userspace ABI, but that
+> > is it. Can you vouch that 2.6.25 did not break a single userspace
+> > program out there?
+> 
+> Dmitry - irrelevant. If we know of breakage, then that is a FACT, and it's 
+> a regression, and it needs to be fixed.
 
-Thanks for pursuing this, Andrew: here's a kernel patch deduced
-from this thread, which has indeed got me moving again.  Perhaps
-an optional patch for hotfixes while the right answer is decided.
+Does it have to be papered over in the kernel though?
 
+> 
+> Trying to say "there might be _other_ breakage that we don't even know of" 
+> does not change the situation ONE LITTLE BIT!
+> 
+> Don't you see how stupid that approach is? You're basically trying to make 
+> excuses for known breakage by saying that there might be _other_ breakage 
+> that we don't know about? Why the _hell_ do you think that is an excuse at 
+> all?
 
-If you want to test 2.6.27-rc1-mm1, but your Synaptics pad is making X
-crash immediately, and like Aunt Tillie and me you're more comfortable
-patching your kernel than messing around in your userspace,
-then reverting back from 768 to 512 keys should help.
+We can only guarantee one thing - ABI. And that is kept intact. But I
+literally have no idea if a kernel breaks a random program out there
+that happens to have a bug.
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+> 
+> > >  Many people use the older user space on their
+> > > test systems which are not practical to upgrade.
+> > 
+> > I don't understand this - it is expected that everyone jumps and
+> > upgrades their kernels with ease but updating broken userspace
+> > bits is super-hard...
+> 
+> You're missing the point.
+> 
+> People are supposed to be able to upgrade things _independently_. It's not 
+> about "you're supposed to be able to upgrade the kernel, but not upgrade 
+> user space". It's about "you shouldn't evemn have to _worry_ about it.
+> 
+> > > IOW, if the change responsible for this makes it to the mainline kernel, it
+> > > will be considered as a regression.
+> > 
+> > Like I said, I don't agree.
+> 
+> Sorry, but you're simply wrong.
+> 
+> If somebody has the commit that broke user space, that commit will be 
+> _reverted_ unless it's fixed. It's that simple. The rules are: we don't 
+> knowingly break user space. 
+>
 
- include/linux/input.h           |    2 +-
- include/linux/mod_devicetable.h |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+We have 3 options now:
 
---- 2.6.27-rc1-mm1/include/linux/input.h	2008-07-31 09:30:09.000000000 +0100
-+++ linux/include/linux/input.h	2008-07-31 19:39:20.000000000 +0100
-@@ -592,7 +592,7 @@ struct input_absinfo {
+1. Never change KEY_MAX and dont add any new key definitions.
+2. Introduce a new ioctl and have all wel-behaving programs rewritten
+   to support it.
+3. Fix userspace driver (patch is available).
+
+Gioventhe fact that I wanted that change to go when .28 opens and it
+will really hit users in 6+ months I'd still like to have 3.
  
- /* We avoid low common keys in module aliases so they don't get huge. */
- #define KEY_MIN_INTERESTING	KEY_MUTE
--#define KEY_MAX			0x2ff
-+#define KEY_MAX			0x1ff
- #define KEY_CNT			(KEY_MAX+1)
- 
- /*
---- 2.6.27-rc1-mm1/include/linux/mod_devicetable.h	2008-07-31 09:30:09.000000000 +0100
-+++ linux/include/linux/mod_devicetable.h	2008-07-31 19:43:19.000000000 +0100
-@@ -274,7 +274,7 @@ struct pcmcia_device_id {
- /* Input */
- #define INPUT_DEVICE_ID_EV_MAX		0x1f
- #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
--#define INPUT_DEVICE_ID_KEY_MAX		0x2ff
-+#define INPUT_DEVICE_ID_KEY_MAX		0x1ff
- #define INPUT_DEVICE_ID_REL_MAX		0x0f
- #define INPUT_DEVICE_ID_ABS_MAX		0x3f
- #define INPUT_DEVICE_ID_MSC_MAX		0x07
+-- 
+Dmitry

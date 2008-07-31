@@ -1,90 +1,53 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 15:24:02 -0400
-Message-ID: <20080731151625.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org>
+From: =?utf-8?q?Uwe=20Kleine-K=C3=B6nig?= <Uwe.Kleine-Koenig@digi.com>
+Subject: [PATCH 0/3] Updates for gpio-keys
+Date: Thu, 31 Jul 2008 21:04:20 +0200
+Message-ID: <1217531063-2472-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.241]:39272 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751875AbYGaTYN (ORCPT
+Received: from mail164.messagelabs.com ([216.82.253.131]:5572 "EHLO
+	mail164.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755548AbYGaTZ5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 15:24:13 -0400
-Received: by an-out-0708.google.com with SMTP id d40so113548and.103
-        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2008 12:24:12 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org>
+	Thu, 31 Jul 2008 15:25:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Thu, Jul 31, 2008 at 12:10:40PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 31 Jul 2008, Dmitry Torokhov wrote:
-> > > 
-> > > Well, we're not supposed to break user space that we used to work with, even
-> > > if it is known to be buggy.
-> > 
-> > No, I am sorry. We are not supposed to break userspace ABI, but that
-> > is it. Can you vouch that 2.6.25 did not break a single userspace
-> > program out there?
-> 
-> Dmitry - irrelevant. If we know of breakage, then that is a FACT, and it's 
-> a regression, and it needs to be fixed.
 
-Does it have to be papered over in the kernel though?
+Hello,
 
-> 
-> Trying to say "there might be _other_ breakage that we don't even know of" 
-> does not change the situation ONE LITTLE BIT!
-> 
-> Don't you see how stupid that approach is? You're basically trying to make 
-> excuses for known breakage by saying that there might be _other_ breakage 
-> that we don't know about? Why the _hell_ do you think that is an excuse at 
-> all?
+some time ago I posted a patch that allows using gpio-keys for gpios
+that can only trigger an irq on one one edge.
 
-We can only guarantee one thing - ABI. And that is kept intact. But I
-literally have no idea if a kernel breaks a random program out there
-that happens to have a bug.
+This is still the main reason I modified gpio-keys for.
 
-> 
-> > >  Many people use the older user space on their
-> > > test systems which are not practical to upgrade.
-> > 
-> > I don't understand this - it is expected that everyone jumps and
-> > upgrades their kernels with ease but updating broken userspace
-> > bits is super-hard...
-> 
-> You're missing the point.
-> 
-> People are supposed to be able to upgrade things _independently_. It's not 
-> about "you're supposed to be able to upgrade the kernel, but not upgrade 
-> user space". It's about "you shouldn't evemn have to _worry_ about it.
-> 
-> > > IOW, if the change responsible for this makes it to the mainline kernel, it
-> > > will be considered as a regression.
-> > 
-> > Like I said, I don't agree.
-> 
-> Sorry, but you're simply wrong.
-> 
-> If somebody has the commit that broke user space, that commit will be 
-> _reverted_ unless it's fixed. It's that simple. The rules are: we don't 
-> knowingly break user space. 
->
+What's new (apart from some clean-ups that went into seperate patches)
+is that the edges that don't trigger an irq (only one or even both) are
+now polled.  This should make the driver generic enough to substitute
+all other gpio-key drivers.  (I didn't check this though.)
 
-We have 3 options now:
+As a result gpio-keys now depends on INPUT_POLLDEV which together with
+an increased memory footprint should be the only downside.
 
-1. Never change KEY_MAX and dont add any new key definitions.
-2. Introduce a new ioctl and have all wel-behaving programs rewritten
-   to support it.
-3. Fix userspace driver (patch is available).
+I appreciate any constructive feedback.
 
-Gioventhe fact that I wanted that change to go when .28 opens and it
-will really hit users in 6+ months I'd still like to have 3.
- 
--- 
-Dmitry
+Best regards
+Uwe
+
+Uwe Kleine-K=C3=B6nig (3):
+  Input: gpio-keys - optimize interrupt handler
+  Input: gpio-keys - simplify argument list for report_event
+  Input: gpio-keys - add polling support
+
+ drivers/input/keyboard/Kconfig     |    1 +
+ drivers/input/keyboard/gpio_keys.c |  194 +++++++++++++++++++++++++---=
+--------
+ include/linux/gpio_keys.h          |    3 +
+ 3 files changed, 138 insertions(+), 60 deletions(-)
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,88 +1,61 @@
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 12:13:08 -0700
-Message-ID: <20080731121308.bfbdcd0d.akpm@linux-foundation.org>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
-	<20080731104437.5e5669bc.akpm@linux-foundation.org>
-	<20080731141302.ZZRA012@mailhub.coreip.homeip.net>
-	<200807312048.57575.rjw@sisk.pl>
-	<20080731145023.ZZRA012@mailhub.coreip.homeip.net>
+Date: Thu, 31 Jul 2008 12:10:40 -0700 (PDT)
+Message-ID: <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:53958 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756731AbYGaTNR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 15:13:17 -0400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-next-owner@vger.kernel.org>
 In-Reply-To: <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
+Sender: linux-next-owner@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: rjw@sisk.pl, bzolnier@gmail.com, sfr@canb.auug.org.au, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, torvalds@linux-foundation.org
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Thu, 31 Jul 2008 14:54:52 -0400
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+
+On Thu, 31 Jul 2008, Dmitry Torokhov wrote:
+> > 
+> > Well, we're not supposed to break user space that we used to work with, even
+> > if it is known to be buggy.
+> 
+> No, I am sorry. We are not supposed to break userspace ABI, but that
+> is it. Can you vouch that 2.6.25 did not break a single userspace
+> program out there?
+
+Dmitry - irrelevant. If we know of breakage, then that is a FACT, and it's 
+a regression, and it needs to be fixed.
+
+Trying to say "there might be _other_ breakage that we don't even know of" 
+does not change the situation ONE LITTLE BIT!
+
+Don't you see how stupid that approach is? You're basically trying to make 
+excuses for known breakage by saying that there might be _other_ breakage 
+that we don't know about? Why the _hell_ do you think that is an excuse at 
+all?
+
+> >  Many people use the older user space on their
+> > test systems which are not practical to upgrade.
+> 
+> I don't understand this - it is expected that everyone jumps and
+> upgrades their kernels with ease but updating broken userspace
+> bits is super-hard...
+
+You're missing the point.
+
+People are supposed to be able to upgrade things _independently_. It's not 
+about "you're supposed to be able to upgrade the kernel, but not upgrade 
+user space". It's about "you shouldn't evemn have to _worry_ about it.
 
 > > IOW, if the change responsible for this makes it to the mainline kernel, it
 > > will be considered as a regression.
-> > 
 > 
 > Like I said, I don't agree.
 
-It really really doesn't matter what the causes are or which piece of
-code is at fault or anything else like that.
+Sorry, but you're simply wrong.
 
-What _does_ matter is that people's stuff will break.  Apparently lots
-of people's.  That's a problem.  A _practical_ problem.  Can we
-pleeeeeeze be practical and find some way of preventing it?
+If somebody has the commit that broke user space, that commit will be 
+_reverted_ unless it's fixed. It's that simple. The rules are: we don't 
+knowingly break user space. 
 
-I assume this is the commit?
-
-
-commit 03bac96fae0efdb25e2059e5accbe4f3ee6328dd
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Mon Jun 23 10:47:34 2008 -0400
-
-    Input: expand keycode space
-    
-    Expand the number of potential key codes from 512 to 768 since people
-    are coming up with more and more keys.
-    
-    Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-
-diff --git a/include/linux/input.h b/include/linux/input.h
-index a5802c9..7fae1de 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -579,7 +579,7 @@ struct input_absinfo {
- 
- /* We avoid low common keys in module aliases so they don't get huge. */
- #define KEY_MIN_INTERESTING	KEY_MUTE
--#define KEY_MAX			0x1ff
-+#define KEY_MAX			0x2ff
- #define KEY_CNT			(KEY_MAX+1)
- 
- /*
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index c4db582..0dddfa4 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -274,7 +274,7 @@ struct pcmcia_device_id {
- /* Input */
- #define INPUT_DEVICE_ID_EV_MAX		0x1f
- #define INPUT_DEVICE_ID_KEY_MIN_INTERESTING	0x71
--#define INPUT_DEVICE_ID_KEY_MAX		0x1ff
-+#define INPUT_DEVICE_ID_KEY_MAX		0x2ff
- #define INPUT_DEVICE_ID_REL_MAX		0x0f
- #define INPUT_DEVICE_ID_ABS_MAX		0x3f
- #define INPUT_DEVICE_ID_MSC_MAX		0x07
-
-
-I'm unable to work out how necessary this change is?
-
-
-Please: what proportion of the existing X installations do you expect will
-be affected by this?
-
+			Linus

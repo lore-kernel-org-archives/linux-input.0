@@ -1,53 +1,87 @@
-From: =?utf-8?q?Uwe=20Kleine-K=C3=B6nig?= <Uwe.Kleine-Koenig@digi.com>
-Subject: [PATCH 0/3] Updates for gpio-keys
-Date: Thu, 31 Jul 2008 21:04:20 +0200
-Message-ID: <1217531063-2472-1-git-send-email-Uwe.Kleine-Koenig@digi.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: linux-next: Tree for July 30
+Date: Thu, 31 Jul 2008 15:42:07 -0400
+Message-ID: <20080731194207.GA12233@anvil.corenet.prv>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org> <20080731151625.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail164.messagelabs.com ([216.82.253.131]:5572 "EHLO
-	mail164.messagelabs.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755548AbYGaTZ5 (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.247]:40584 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758156AbYGaTmL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 31 Jul 2008 15:25:57 -0400
+	Thu, 31 Jul 2008 15:42:11 -0400
+Received: by an-out-0708.google.com with SMTP id d40so114794and.103
+        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2008 12:42:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080731151625.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
+On Thu, Jul 31, 2008 at 03:24:02PM -0400, Dmitry Torokhov wrote:
+> On Thu, Jul 31, 2008 at 12:10:40PM -0700, Linus Torvalds wrote:
+> > 
+> > Sorry, but you're simply wrong.
+> > 
+> > If somebody has the commit that broke user space, that commit will be 
+> > _reverted_ unless it's fixed. It's that simple. The rules are: we don't 
+> > knowingly break user space. 
+> >
+> 
+> We have 3 options now:
+> 
+> 1. Never change KEY_MAX and dont add any new key definitions.
+> 2. Introduce a new ioctl and have all wel-behaving programs rewritten
+>    to support it.
+> 3. Fix userspace driver (patch is available).
+> 
+> Gioventhe fact that I wanted that change to go when .28 opens and it
+> will really hit users in 6+ months I'd still like to have 3.
+>  
 
-Hello,
+I guess we could do something like the below, but it is soooo ugly...
 
-some time ago I posted a patch that allows using gpio-keys for gpios
-that can only trigger an irq on one one edge.
+Input: paper over a bug in Synaptics X driver
 
-This is still the main reason I modified gpio-keys for.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-What's new (apart from some clean-ups that went into seperate patches)
-is that the edges that don't trigger an irq (only one or even both) are
-now polled.  This should make the driver generic enough to substitute
-all other gpio-key drivers.  (I didn't check this though.)
+ drivers/input/evdev.c |   14 +++++++++++++-
+ 1 files changed, 13 insertions(+), 1 deletions(-)
 
-As a result gpio-keys now depends on INPUT_POLLDEV which together with
-an increased memory footprint should be the only downside.
-
-I appreciate any constructive feedback.
-
-Best regards
-Uwe
-
-Uwe Kleine-K=C3=B6nig (3):
-  Input: gpio-keys - optimize interrupt handler
-  Input: gpio-keys - simplify argument list for report_event
-  Input: gpio-keys - add polling support
-
- drivers/input/keyboard/Kconfig     |    1 +
- drivers/input/keyboard/gpio_keys.c |  194 +++++++++++++++++++++++++---=
---------
- include/linux/gpio_keys.h          |    3 +
- 3 files changed, 138 insertions(+), 60 deletions(-)
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 2d65411..c78a63b 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -736,8 +736,10 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 			if ((_IOC_NR(cmd) & ~EV_MAX) == _IOC_NR(EVIOCGBIT(0, 0))) {
+ 
+ 				unsigned long *bits;
++				unsigned int buf_len = _IOC_SIZE(cmd);
+ 				int len;
+ 
++
+ 				switch (_IOC_NR(cmd) & EV_MAX) {
+ 
+ 				case      0: bits = dev->evbit;  len = EV_MAX;  break;
+@@ -751,7 +753,17 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 				case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
+ 				default: return -EINVAL;
+ 				}
+-				return bits_to_user(bits, len, _IOC_SIZE(cmd), p, compat_mode);
++
++				if ((_IOC_NR(cmd) & EV_MAX) == EV_KEY && buf_len == 0x1ff) {
++					printk(KERN_WARNING
++						"evdev.c(EVIOCGBIT): Detected suspicious "
++						"buffer size 0x1ff, limiting output to 64 "
++						"bytes. Make sure you are not using "
++						"EVIOCGBIT(EV_KEY, KEY_MAX)\n");
++					buf_len = 64; 
++				}
++
++				return bits_to_user(bits, len, buf_len, p, compat_mode);
+ 			}
+ 
+ 			if (_IOC_NR(cmd) == _IOC_NR(EVIOCGKEY(0)))

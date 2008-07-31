@@ -1,112 +1,112 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Subject: Re: linux-next: Tree for July 30
-Date: Thu, 31 Jul 2008 21:57:13 +0200
-Message-ID: <200807312157.15101.rjw@sisk.pl>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
+Date: Thu, 31 Jul 2008 16:05:45 -0400
+Message-ID: <20080731155701.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au> <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org> <20080731151625.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311235350.3277@nehalem.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <20080731145023.ZZRA012@mailhub.coreip.homeip.net>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wr-out-0506.google.com ([64.233.184.233]:43258 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752494AbYGaUFx (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 31 Jul 2008 16:05:53 -0400
+Received: by wr-out-0506.google.com with SMTP id 69so574742wri.5
+        for <linux-input@vger.kernel.org>; Thu, 31 Jul 2008 13:05:52 -0700 (PDT)
 Content-Disposition: inline
-Sender: linux-next-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>
+In-Reply-To: <alpine.LFD.1.10.0807311235350.3277@nehalem.linux-foundation.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@linux-foundation.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Thursday, 31 of July 2008, Dmitry Torokhov wrote:
-> On Thu, Jul 31, 2008 at 08:48:56PM +0200, Rafael J. Wysocki wrote:
-> > On Thursday, 31 of July 2008, Dmitry Torokhov wrote:
-> > > On Thu, Jul 31, 2008 at 10:44:37AM -0700, Andrew Morton wrote:
-> > > > On Thu, 31 Jul 2008 11:56:48 -0400 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > > 
-> > > > > On Thu, Jul 31, 2008 at 05:36:16PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > > > > > On Thu, Jul 31, 2008 at 4:07 PM, Dmitry Torokhov
-> > > > > > <dmitry.torokhov@gmail.com> wrote:
-> > > > > > > On Wed, Jul 30, 2008 at 11:10:29PM -0700, Andrew Morton wrote:
-> > > > > > >> On Wed, 30 Jul 2008 17:06:35 +1000 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> > > > > > >>
-> > > > > > >> > I have created today's linux-next tree at
-> > > > > > >> > git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git
-> > > > > > >>
-> > > > > > >> The X server broke on my FC8 t61p thinkpad.  Mainline is OK.
-> > > > > > >>
-> > > > > > >> Various information is at http://userweb.kernel.org/~akpm/mo/
-> > > > > > >>
-> > > > > > >> I'm suspecting the input layer - my synaptics device seems to have
-> > > > > > >> disappeared?  See http://userweb.kernel.org/~akpm/mo/Xorg-log-diff.txt
-> > > > > > >>
-> > > > > > >
-> > > > > > > I think this patch should help with Synaptics:
-> > > > > > 
-> > > > > > Which unfortunately doesn't help all people running with older synaptics
-> > > > > > user-space after commit 0571c5d20aca71c735222132b02aebddf593045c
-> > > > > > ("Input: expand keycode space").
-> > > > > > 
-> > > > > > Can't this be solved without breaking Xorg on newer kernels running
-> > > > > > older synaptics?
-> > > > > > 
-> > > > > 
-> > > > > No. The X driver is broken. It tells kernel to use buffer bugger than
-> > > > > allocated and gets its stack smashed. Tslib has also soma funkiness
-> > > > > in the ioctl handling as well... *shrug*
-> > > > > 
-> > > > > We have a couple months to get distros updated...
-> > > > > 
-> > > > 
-> > > > aaarrrrgggggghhh.  I don't think this is practical.  This means that
-> > > > (for example) FC5 machines (of which I happen to have one) are dead. 
-> > > > And lots of other older-distro-based systems.
-> > > > 
-> > > > Is there some userspace workaround which doesn't require an X server
-> > > > update?
-> > > > 
-> > > > Surely it must be possible to make the kernel contiue to support these
-> > > > servers?
-> > > > 
-> > > 
-> > > Andrew,
-> > > 
-> > > It is not like we broke ABI here. The progam (synaptics driver) had a
-> > > grave bug. Older kernels happened to paper over the bug because they
-> > > did not fill the whole buffer that was advertised as available. Now
-> > > that we have more data to report the bug bit us. What do you want me
-> > > to do?
-> > > 
-> > > Synaptics driver is a small package and takes 2 minutes to recompile.
-> > > You don't have to update entire X server with it (in fact I don't think
-> > > it is even part of X distribution because it is GPL).
-> > 
-> > Well, we're not supposed to break user space that we used to work with, even
-> > if it is known to be buggy.
+On Thu, Jul 31, 2008 at 12:44:04PM -0700, Linus Torvalds wrote:
 > 
-> No, I am sorry. We are not supposed to break userspace ABI, but that
-> is it. Can you vouch that 2.6.25 did not break a single userspace
-> program out there?
-
-It probably did break some, but that doesn't imply it's acceptable.
-
-> >  Many people use the older user space on their
-> > test systems which are not practical to upgrade.
-> > 
 > 
-> I don't understand this - it is expected that everyone jumps and
-> upgrades their kernels with ease but updating broken userspace
-> bits is super-hard... Plus, in this case the fixed driver will
-> happily work with old kernels.
+> On Thu, 31 Jul 2008, Dmitry Torokhov wrote:
+> > 
+> > Does it have to be papered over in the kernel though?
+> 
+> Yes. It's how we have worked. Asking people to upgrade big core programs 
+> is not reasonable.
+>
+> Think of it this way: we absolutely _want_ people to run the latest 
+> kernel. We want it for their own sake (security etc fixes), but we want it 
+> even more for *our* own sake (testing, fixes etc).
+> 
+> And if we want to encourage people to upgrade their kernel very 
+> aggressively (and we absolutely do!), then that means that we have to also 
+> make sure it doesn't require them upgrading anything else.
 
-Please look at it from a different angle.
+Sometimes we do need to upgrade userspace though. Can we make
+Documentation/Changes more prominent? Maybe have it published on
+kernel.org?
 
-Kernel testers usually don't expect the kernel to break their X servers,
-whatever the reason.  So, if they are not warned to expect the breakage, they
-will search for the reason of it, as Andrew has just done, losing their time.
-To prevent such losses of time from happening, it's better not to break user
-space.
+> 
+> > We can only guarantee one thing - ABI. And that is kept intact. But I
+> > literally have no idea if a kernel breaks a random program out there
+> > that happens to have a bug.
+> 
+> There are gray areas, yes. For example, timing changes do mean that a new 
+> kenrel can easily break a program that used to work. We cannot handle 
+> _everyting_. 
+> 
+> But when the ABI in question is some very specific one, that some 
+> important program uses (even if the "uses" is "misuses") then it really 
+> isn't a gray area any more.
+> 
+> And quite frankly, the ABI was apparently pretty bad to begin with, if 
+> user space got an array back but didn't get to specify the size. So you 
+> may want to say that user space was broken, but on the other hand, it's 
+> equally arguable that the ABI was crap.
 
-Still, if you really think there's no other way to go (like deferring the change
-in question until everyone can be safely assumed to have upgraded their user
-space already), please do something to keep people informed.
+It did specify the size. Something 448 more bytes than it allocated:
 
-Thanks,
-Rafael
+    unsigned long evbits[NBITS(KEY_MAX)];
+
+    /* Check for ABS_X, ABS_Y, ABS_PRESSURE and BTN_TOOL_FINGER */
+
+    SYSCALL(ret = ioctl(fd, EVIOCGBIT(0, KEY_MAX), evbits));
+
+So we allocate 64 bytes on stack and then as kernel to fill it with
+511 bytes worth of data.
+
+> 
+> (Which is something you can pretty much take for granted with ioctl's, of 
+> course. DO NOT CHANGE IOCTL'S. EVER!)
+> 
+> > We have 3 options now:
+> > 
+> > 1. Never change KEY_MAX and dont add any new key definitions.
+> > 2. Introduce a new ioctl and have all wel-behaving programs rewritten
+> >    to support it.
+> > 3. Fix userspace driver (patch is available).
+> 
+> You ignore the obvious choice, which is how we _usually_ do it:
+> 
+>  - help fix up the userspace driver regardless
+
+In progress.
+> 
+>  - a year down the line, maybe breakage will be a non-issue.
+>
+
+Around when 2.6.28 is released, right? ;)
+ 
+>  - but at least _think_ about the fact that yes, most ioctl interfaces are 
+>    pure and utter sh*t, and the problem was probably not so much the user 
+>    space driver as the crap interface to begin with!
+> 
+> and discuss whether KEY_MAX really needs to be changed that much. I 
+> suspect that the change was done without even realizing just how painful 
+> it was, and that if you look at the original reason for it with the 
+> hindsight of knowing that it was painful, maybe it wasn't that critical to 
+> do it after all?
+>
+
+We do need more keycodes. People are coming wioth more and more. The
+patch following the one in question adds about 10 new kodes for remote
+controls/phones. And we will get more.
+
+-- 
+Dmitry

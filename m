@@ -1,58 +1,34 @@
-From: Aivils Stoss <aivils.stoss@latnet.lv>
-Subject: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Sat, 2 Aug 2008 07:05:31 +0100
-Message-ID: <200808020705.31740.aivils.stoss@latnet.lv>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH] generic GPIO driven matrix keypad
+Date: Sat, 2 Aug 2008 16:22:02 +0200
+Message-ID: <200808021622.02686.marek.vasut@gmail.com>
+References: <200808011950.26388.marek.vasut@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from esbens.latnet.lv ([92.240.66.74]:53462 "EHLO esbens.latnet.lv"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752005AbYHBGgg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 2 Aug 2008 02:36:36 -0400
+Received: from fk-out-0910.google.com ([209.85.128.186]:52726 "EHLO
+	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751003AbYHBOTB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Aug 2008 10:19:01 -0400
+Received: by fk-out-0910.google.com with SMTP id 18so1231855fkq.5
+        for <linux-input@vger.kernel.org>; Sat, 02 Aug 2008 07:18:59 -0700 (PDT)
+In-Reply-To: <200808011950.26388.marek.vasut@gmail.com>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-Hello All!
+Dne Friday 01 of August 2008 19:50:26 Marek Vasut napsal(a):
+> Hi,
+> the following patch adds the generic GPIO driven matrix keypad driver. I
+> tested this on two devices I had available - palmtc and palmt3. It should
+> be able to replace corgikbd.c later as well, but I dont have that device.
+> And since this is platform independent driver, any chip that makes it's
+> GPIOs available through gpiolib should be OK with this driver as well.
+> Please consider applying.
 
-PROBLEM: USB keyboards works only 4 per PC host port.
-
-I work for project which will use 15 - 25 keyboards for children teaching.
-I discover current Linux 2.6.22 , 2.6.24, 2.6.26 dot not support more
-than 4 keyboards per single PC host port. All plugged in keyboards
-are listed as USB devices, listed as input devices, but capable to
-send input events are only 4 keyboards, no matter where keyboards
-are plugged in to HUB cascade. All plugged in keyboards switch LED's,
-when i press NumLock.
-
-I tested various usb-hub units and various host PC hardware, i even
-replace hub power supplay units from 5V1A to 5V3A. All tested cases
-give best results - 4 keyboards per PC host port and worstest - some PC
-cannot do more than 8 keyboards at all.
-I suppose this is Linux kernel bug because i test keyboards under
-Windows, which support any schema of cascading of usb hubs.
-
-I will send any log file if that is necessary, but trouble will pop up
-in a row of kernels. 2.6.22 didn't have error messages. 2.6.24, 2.6.26
-tend to total slow down with eternal reset messages:
-Jul 25 07:16:00 awork kernel: input,hiddev97: USB HID v1.10 Mouse 
-[USB-compliant keyboard] on usb-0000:00:1d.0-1.1.2
-Jul 25 07:16:01 awork kernel: usb 2-1.1.1: reset low speed USB device using 
-uhci_hcd and address 17
-Jul 25 07:16:01 awork kernel: usb 2-1.1.2: reset low speed USB device using 
-uhci_hcd and address 18
-Jul 25 07:16:02 awork kernel: usb 2-1.1.1: reset low speed USB device using 
-uhci_hcd and address 17
-Jul 25 07:16:03 awork kernel: usb 2-1.1.2: reset low speed USB device using 
-uhci_hcd and address 18
-Jul 25 07:16:04 awork kernel: usb 2-1.1.1: reset low speed USB device using 
-uhci_hcd and address 17
-Jul 25 07:16:05 awork kernel: usb 2-1.1.2: reset low speed USB device using 
-uhci_hcd and address 18
-
-
-Best regards,
-Aivils Stoss
+Just to be exact, I was reported by Ian Molton, that the matrix keypad driver 
+works on Toshiba e800 as well.

@@ -1,35 +1,37 @@
-From: "=?BIG5?B?p/Ww6qxQ?=" <egx5l1y542w@gmail.com>
-Subject: =?BIG5?B?sXrB2ahTprOkQK3TsU3E3aq6pfi3frr0r7i23KFI?=
-Date: Sun, 3 Aug 2008 06:03:18 +0800
-Message-ID: <97923a2a0808021503n5038d28eo782bb4352506124b@mail.gmail.com>
+From: Chris Rankin <rankincj@yahoo.com>
+Subject: [2.6.26.1] And one very confused mouse!
+Date: Sun, 3 Aug 2008 04:57:46 -0700 (PDT)
+Message-ID: <405580.49576.qm@web52909.mail.re2.yahoo.com>
+Reply-To: rankincj@yahoo.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=BIG5
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from po-out-1718.google.com ([72.14.252.158]:20110 "EHLO
-	po-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753153AbYHBWDV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 2 Aug 2008 18:03:21 -0400
-Received: by po-out-1718.google.com with SMTP id c31so2587474poi.1
-        for <linux-input@vger.kernel.org>; Sat, 02 Aug 2008 15:03:20 -0700 (PDT)
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756728AbYHCL56@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: links@transparency.org
 
-pHPgvqzsp9669K22s12tcAoKp9qtzKq6qXamrqFHq8ik4aq6qEOjuKXzpHCoxrGhoUGzo6xPpHPg
-vqq6pGqoxrGhCgqn2q3MpmKxwKVYpfi3fqfOtki69K+4pV2ndKtlpXi69K22rPykdSur4aV4ut6y
-erV7pqEKCq2trsmtrbZxsU2u17v5IKV1rW4kMjksOTAwCgoopmKwZaO4pn4xMDBNQqSjra2sebZx
-uvSvuKrFtqEpCgqn2q3MsLWquqSjpXWsT7r0r7ihQabTrE+xeqX4t36quqRKpGYKCqO4rdOmbqq6
-pfi3frr0r7i46q7Gp1muyafzt3OqurN0q9esT6vcrautbqq6Cgql+Ld+ou2kxqq6sKqrfr3ouc62
-pKFBpbSzebF6qrq69Lj0qvmtsQoKv+++3KRz4L6mqLROsXqqurnat1EKCqHjoeOh46HjoeOh46Hj
-oeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeMKUFM6IL11pFfByqqruvSvuKfa
-rczB2aVptKOo0ajqpWS+96juoUEKoUChQLtQvXWkV6ZDpkyxYrPmpf6s2bZXsNMrtmynvcO6tk8u
-Li4uLi61par3rHmqQbDIvveo7gqh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh
-46HjoeOh46HjoeOh46HjCgrFd6rvqNO5cayiuN+2wLFNrfuhXVNhbaFeoUcwOTgwMTE5ODEyIC8g
-MDkzODc2NDM5NQoKpFe69LdqtE2heaFApHPgvqzsp96kvaVxuvSvuKFAoXqnWaVpp+So7KfarcwK
-CqHjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeMKpbuk
-vaVxpXSlfrSjqNHD9sHkpnJTRU+xxqfHqkGwyAqrT8PSsU6xeqq6uvSvuKZiWXggLyBHeCAuLi6x
-xqZissSkQK22CqFAoUChQKFAoUChQKFAoUChQKFAoUChQKFAoUChQKFAoUChQCDFd6rvqNO5cbjf
-sN0hISEKoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh
-4wo=
+Hi,
+
+I have just cold-booted a machine into 2.6.26.1 for the very first time, and for a few seconds I had great difficulty using my PS/2 mouse. Here is what I found in the dmesg log afterwards:
+
+input: PS/2 Generic Mouse as /class/input/input6
+psmouse.c: Failed to enable mouse on isa0060/serio1
+psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
+psmouse.c: resync failed, issuing reconnect request
+psmouse.c: Failed to enable mouse on isa0060/serio1
+psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
+psmouse.c: resync failed, issuing reconnect request
+input: ImPS/2 Generic Wheel Mouse as /class/input/input7
+
+It seems to have recovered now, but I have never seen this behaviour before and so thought that I should report it. I will monitor this...
+
+Cheers,
+Chris
+
+
+
+      __________________________________________________________
+Not happy with your email address?.
+Get the one you really want - millions of new email addresses available now at Yahoo! http://uk.docs.yahoo.com/ymail/new.html

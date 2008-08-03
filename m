@@ -1,37 +1,141 @@
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: [2.6.26.1] And one very confused mouse!
-Date: Sun, 3 Aug 2008 04:57:46 -0700 (PDT)
-Message-ID: <405580.49576.qm@web52909.mail.re2.yahoo.com>
-Reply-To: rankincj@yahoo.com
+From: "Alfred E. Heggestad" <aeh@db.org>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
+ #2
+Date: Mon, 04 Aug 2008 00:04:58 +0200
+Message-ID: <48962B8A.8030307@db.org>
+References: <200806271424.50425.oliver@neukum.org> <20080725141420.GA29395@anvil.corenet.prv> <488B48F7.5060002@db.org> <200807262045.22722.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756728AbYHCL56@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from submit-tmp.sysedata.no ([195.159.29.133]:65424 "EHLO
+	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756079AbYHCWFG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Aug 2008 18:05:06 -0400
+In-Reply-To: <200807262045.22722.oliver@neukum.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+Oliver Neukum wrote:
+> Am Samstag 26 Juli 2008 17:55:35 schrieb Alfred E. Heggestad:
+>> Jul 26 17:32:33 io kernel: hald-addon-keyb[23629]: segfault at 6f6f6c5f ip b7e9855b sp bf9d89dc error 4 in libc-2.6.1.so[b7e28000+144000]
+>> Jul 26 17:32:43 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
+>> Jul 26 17:33:21 io last message repeated 6 times
+>> Jul 26 17:34:28 io last message repeated 17 times
+> 
+> This should not happen. Please provide more context. If possible
+> recompile your kernel with CONFIG_USB_DEBUG.
+> 
 
-I have just cold-booted a machine into 2.6.26.1 for the very first time, and for a few seconds I had great difficulty using my PS/2 mouse. Here is what I found in the dmesg log afterwards:
+Hi Oliver
 
-input: PS/2 Generic Mouse as /class/input/input6
-psmouse.c: Failed to enable mouse on isa0060/serio1
-psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-psmouse.c: resync failed, issuing reconnect request
-psmouse.c: Failed to enable mouse on isa0060/serio1
-psmouse.c: Mouse at isa0060/serio1/input0 lost synchronization, throwing 1 bytes away.
-psmouse.c: resync failed, issuing reconnect request
-input: ImPS/2 Generic Wheel Mouse as /class/input/input7
+sorry for the delay, I was out travelling with no access to CM109 hardware..
 
-It seems to have recovered now, but I have never seen this behaviour before and so thought that I should report it. I will monitor this...
-
-Cheers,
-Chris
+I recompiled the latest kernel from input-branch with CONFIG_USB_DEBUG enabled,
+the version reported is 2.6.27-rc1. Below you can see the syslog and the
+context of events:
 
 
 
-      __________________________________________________________
-Not happy with your email address?.
-Get the one you really want - millions of new email addresses available now at Yahoo! http://uk.docs.yahoo.com/ymail/new.html
+;;;
+;;; Insert CM109 device here:
+;;;
+
+Aug  3 23:42:49 io kernel: usb usb1: usb resume
+Aug  3 23:42:49 io kernel: usb usb1: wakeup_rh
+Aug  3 23:42:49 io kernel: hub 1-0:1.0: hub_resume
+Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: port 2 portsc 0093,00
+Aug  3 23:42:49 io kernel: hub 1-0:1.0: port 2: status 0101 change 0001
+Aug  3 23:42:49 io kernel: hub 1-0:1.0: state 7 ports 2 chg 0004 evt 0000
+Aug  3 23:42:49 io kernel: hub 1-0:1.0: port 2, status 0101, change 0000, 12 Mb/s
+Aug  3 23:42:49 io kernel: usb 1-2: new full speed USB device using uhci_hcd and address 3
+Aug  3 23:42:49 io kernel: usb 1-2: skipped 7 descriptors after interface
+Aug  3 23:42:49 io kernel: usb 1-2: skipped 2 descriptors after interface
+Aug  3 23:42:49 io kernel: usb 1-2: skipped 1 descriptor after endpoint
+Aug  3 23:42:49 io kernel: usb 1-2: skipped 2 descriptors after interface
+Aug  3 23:42:49 io kernel: usb 1-2: skipped 1 descriptor after endpoint
+Aug  3 23:42:49 io kernel: usb 1-2: skipped 1 descriptor after interface
+Aug  3 23:42:49 io kernel: usb 1-2: default language 0x0409
+Aug  3 23:42:49 io kernel: usb 1-2: uevent
+Aug  3 23:42:49 io kernel: usb 1-2: usb_probe_device
+Aug  3 23:42:49 io kernel: usb 1-2: configuration #1 chosen from 1 choice
+Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.0 (config #1, interface 0)
+Aug  3 23:42:49 io kernel: usb 1-2:1.0: uevent
+Aug  3 23:42:49 io kernel: snd-usb-audio 1-2:1.0: usb_probe_interface
+Aug  3 23:42:49 io kernel: snd-usb-audio 1-2:1.0: usb_probe_interface - got id
+Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.1 (config #1, interface 1)
+Aug  3 23:42:49 io kernel: usb 1-2:1.1: uevent
+Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.2 (config #1, interface 2)
+Aug  3 23:42:49 io kernel: usb 1-2:1.2: uevent
+Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.3 (config #1, interface 3)
+Aug  3 23:42:49 io kernel: usb 1-2:1.3: uevent
+Aug  3 23:42:49 io kernel: cm109 1-2:1.3: usb_probe_interface
+Aug  3 23:42:49 io kernel: cm109 1-2:1.3: usb_probe_interface - got id
+Aug  3 23:42:49 io kernel: input: CM109 USB driver as /class/input/input9
+Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:42:49 io kernel: drivers/usb/core/inode.c: creating file '003'
+Aug  3 23:42:49 io kernel: usb 1-2: New USB device found, idVendor=0d8c, idProduct=000e
+Aug  3 23:42:49 io kernel: usb 1-2: New USB device strings: Mfr=0, Product=1, SerialNumber=0
+Aug  3 23:42:49 io kernel: usb 1-2: Product: Generic USB Audio Device   
+Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
+
+;;;
+;;; Buzzer is actived here (twice):
+;;;
+
+Aug  3 23:42:54 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
+Aug  3 23:42:55 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
+
+;;;
+;;; CM109 Device unplugged here:
+;;;
+
+Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
+Aug  3 23:43:14 io kernel: cm109: cm109_urb_irq_callback: urb status -84
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
+Aug  3 23:43:14 io kernel: cm109: cm109_urb_ctl_callback: urb status -71
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
+Aug  3 23:43:14 io kernel: cm109: cm109_urb_irq_callback: urb status -84
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
+Aug  3 23:43:14 io kernel: cm109: cm109_urb_ctl_callback: urb status -71
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: hub 1-0:1.0: state 7 ports 2 chg 0000 evt 0004
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: port 2 portsc 008a,00
+Aug  3 23:43:14 io kernel: hub 1-0:1.0: port 2, status 0100, change 0003, 12 Mb/s
+Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
+Aug  3 23:43:14 io kernel: cm109: cm109_urb_irq_callback: urb status -84
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
+Aug  3 23:43:14 io kernel: cm109: cm109_urb_ctl_callback: urb status -71
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: hub 1-0:1.0: debounce: port 2: total 100ms stable 100ms status 0x100
+Aug  3 23:43:14 io kernel: usb 1-2: USB disconnect, address 3
+Aug  3 23:43:14 io kernel: usb 1-2: unregistering device
+Aug  3 23:43:14 io kernel: usb 1-2: usb_disable_device nuking all URBs
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: shutdown urb ceeaff40 ep3in-intr
+Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
+Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.0
+Aug  3 23:43:14 io kernel: usb 1-2:1.0: uevent
+Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.1
+Aug  3 23:43:14 io kernel: usb 1-2:1.1: uevent
+Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.2
+Aug  3 23:43:14 io kernel: usb 1-2:1.2: uevent
+Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.3
+Aug  3 23:43:14 io kernel: cm109: cm109_toggle_buzzer_sync: usb_control_msg) failed -19
+Aug  3 23:43:14 io kernel: usb 1-2:1.3: uevent
+Aug  3 23:43:14 io kernel: usb 1-2: uevent
+Aug  3 23:43:15 io kernel: usb usb1: suspend_rh (auto-stop)
+Aug  3 23:43:16 io kernel: hub 1-0:1.0: hub_suspend
+Aug  3 23:43:16 io kernel: usb usb1: bus auto-suspend
+Aug  3 23:43:16 io kernel: usb usb1: suspend_rh
+
+
+
+
+/alfred

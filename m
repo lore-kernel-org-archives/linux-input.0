@@ -1,65 +1,46 @@
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-Subject: Re: linux-next: Tree for July 30
-Date: Mon, 4 Aug 2008 15:47:17 +1000
-Message-ID: <20080804154717.cfdb6710.sfr@canb.auug.org.au>
-References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
-	<20080730231029.9818953c.akpm@linux-foundation.org>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset #2
+Date: Mon, 4 Aug 2008 13:56:57 +0200
+Message-ID: <200808041356.57928.oliver@neukum.org>
+References: <200806271424.50425.oliver@neukum.org> <200807262045.22722.oliver@neukum.org> <48962B8A.8030307@db.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from chilli.pcug.org.au ([203.10.76.44]:58489 "EHLO smtps.tip.net.au"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752834AbYHDFrY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 4 Aug 2008 01:47:24 -0400
-In-Reply-To: <20080730231029.9818953c.akpm@linux-foundation.org>
+Received: from smtp-out002.kontent.com ([81.88.40.216]:53695 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751959AbYHDL5B (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 Aug 2008 07:57:01 -0400
+In-Reply-To: <48962B8A.8030307@db.org>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
+To: "Alfred E. Heggestad" <aeh@db.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
---Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Am Montag 04 August 2008 00:04:58 schrieb Alfred E. Heggestad:
+> Oliver Neukum wrote:
+> > Am Samstag 26 Juli 2008 17:55:35 schrieb Alfred E. Heggestad:
+> >> Jul 26 17:32:33 io kernel: hald-addon-keyb[23629]: segfault at 6f6f6c5f ip b7e9855b sp bf9d89dc error 4 in libc-2.6.1.so[b7e28000+144000]
+> >> Jul 26 17:32:43 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
+> >> Jul 26 17:33:21 io last message repeated 6 times
+> >> Jul 26 17:34:28 io last message repeated 17 times
+> > 
+> > This should not happen. Please provide more context. If possible
+> > recompile your kernel with CONFIG_USB_DEBUG.
+> > 
+> 
+> Hi Oliver
+> 
+> sorry for the delay, I was out travelling with no access to CM109 hardware..
+> 
+> I recompiled the latest kernel from input-branch with CONFIG_USB_DEBUG enabled,
+> the version reported is 2.6.27-rc1. Below you can see the syslog and the
+> context of events:
 
-Hi Andrew, Dmitry,
+Looks like urb_irq is not properly initialised. Is there really nothing in the syslog?
+Please print out urb->interval
 
-On Wed, 30 Jul 2008 23:10:29 -0700 Andrew Morton <akpm@linux-foundation.org=
-> wrote:
->
-> On Wed, 30 Jul 2008 17:06:35 +1000 Stephen Rothwell <sfr@canb.auug.org.au=
-> wrote:
->=20
-> > I have created today's linux-next tree at
-> > git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git
->=20
-> The X server broke on my FC8 t61p thinkpad.  Mainline is OK.
->=20
-> Various information is at http://userweb.kernel.org/~akpm/mo/
->=20
-> I'm suspecting the input layer - my synaptics device seems to have
-> disappeared?  See http://userweb.kernel.org/~akpm/mo/Xorg-log-diff.txt
-
-I have reverted commit 03bac96fae0efdb25e2059e5accbe4f3ee6328dd ("Input:
-expand keycode space") from linux-next until we have some resolution of
-this problem.
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkiWl+UACgkQjjKRsyhoI8wjmQCeMU1gFz7Ghksk3x2cS467FEUh
-ajUAn2a+k/1zjQkzaapO5v0ArarZuo1A
-=+Hcp
------END PGP SIGNATURE-----
-
---Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU--
+	Regards
+		Oliver

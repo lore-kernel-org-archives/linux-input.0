@@ -1,141 +1,65 @@
-From: "Alfred E. Heggestad" <aeh@db.org>
-Subject: Re: [PATCH] input: driver for USB VoIP phones with CM109 chipset
- #2
-Date: Mon, 04 Aug 2008 00:04:58 +0200
-Message-ID: <48962B8A.8030307@db.org>
-References: <200806271424.50425.oliver@neukum.org> <20080725141420.GA29395@anvil.corenet.prv> <488B48F7.5060002@db.org> <200807262045.22722.oliver@neukum.org>
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+Subject: Re: linux-next: Tree for July 30
+Date: Mon, 4 Aug 2008 15:47:17 +1000
+Message-ID: <20080804154717.cfdb6710.sfr@canb.auug.org.au>
+References: <20080730170635.f737ffe9.sfr@canb.auug.org.au>
+	<20080730231029.9818953c.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from submit-tmp.sysedata.no ([195.159.29.133]:65424 "EHLO
-	submit-tmp.sysedata.no" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756079AbYHCWFG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 3 Aug 2008 18:05:06 -0400
-In-Reply-To: <200807262045.22722.oliver@neukum.org>
+Received: from chilli.pcug.org.au ([203.10.76.44]:58489 "EHLO smtps.tip.net.au"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752834AbYHDFrY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 4 Aug 2008 01:47:24 -0400
+In-Reply-To: <20080730231029.9818953c.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org
 
-Oliver Neukum wrote:
-> Am Samstag 26 Juli 2008 17:55:35 schrieb Alfred E. Heggestad:
->> Jul 26 17:32:33 io kernel: hald-addon-keyb[23629]: segfault at 6f6f6c5f ip b7e9855b sp bf9d89dc error 4 in libc-2.6.1.so[b7e28000+144000]
->> Jul 26 17:32:43 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
->> Jul 26 17:33:21 io last message repeated 6 times
->> Jul 26 17:34:28 io last message repeated 17 times
-> 
-> This should not happen. Please provide more context. If possible
-> recompile your kernel with CONFIG_USB_DEBUG.
-> 
+--Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Oliver
+Hi Andrew, Dmitry,
 
-sorry for the delay, I was out travelling with no access to CM109 hardware..
+On Wed, 30 Jul 2008 23:10:29 -0700 Andrew Morton <akpm@linux-foundation.org=
+> wrote:
+>
+> On Wed, 30 Jul 2008 17:06:35 +1000 Stephen Rothwell <sfr@canb.auug.org.au=
+> wrote:
+>=20
+> > I have created today's linux-next tree at
+> > git://git.kernel.org/pub/scm/linux/kernel/git/sfr/linux-next.git
+>=20
+> The X server broke on my FC8 t61p thinkpad.  Mainline is OK.
+>=20
+> Various information is at http://userweb.kernel.org/~akpm/mo/
+>=20
+> I'm suspecting the input layer - my synaptics device seems to have
+> disappeared?  See http://userweb.kernel.org/~akpm/mo/Xorg-log-diff.txt
 
-I recompiled the latest kernel from input-branch with CONFIG_USB_DEBUG enabled,
-the version reported is 2.6.27-rc1. Below you can see the syslog and the
-context of events:
+I have reverted commit 03bac96fae0efdb25e2059e5accbe4f3ee6328dd ("Input:
+expand keycode space") from linux-next until we have some resolution of
+this problem.
 
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+--Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU
+Content-Type: application/pgp-signature
 
-;;;
-;;; Insert CM109 device here:
-;;;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-Aug  3 23:42:49 io kernel: usb usb1: usb resume
-Aug  3 23:42:49 io kernel: usb usb1: wakeup_rh
-Aug  3 23:42:49 io kernel: hub 1-0:1.0: hub_resume
-Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: port 2 portsc 0093,00
-Aug  3 23:42:49 io kernel: hub 1-0:1.0: port 2: status 0101 change 0001
-Aug  3 23:42:49 io kernel: hub 1-0:1.0: state 7 ports 2 chg 0004 evt 0000
-Aug  3 23:42:49 io kernel: hub 1-0:1.0: port 2, status 0101, change 0000, 12 Mb/s
-Aug  3 23:42:49 io kernel: usb 1-2: new full speed USB device using uhci_hcd and address 3
-Aug  3 23:42:49 io kernel: usb 1-2: skipped 7 descriptors after interface
-Aug  3 23:42:49 io kernel: usb 1-2: skipped 2 descriptors after interface
-Aug  3 23:42:49 io kernel: usb 1-2: skipped 1 descriptor after endpoint
-Aug  3 23:42:49 io kernel: usb 1-2: skipped 2 descriptors after interface
-Aug  3 23:42:49 io kernel: usb 1-2: skipped 1 descriptor after endpoint
-Aug  3 23:42:49 io kernel: usb 1-2: skipped 1 descriptor after interface
-Aug  3 23:42:49 io kernel: usb 1-2: default language 0x0409
-Aug  3 23:42:49 io kernel: usb 1-2: uevent
-Aug  3 23:42:49 io kernel: usb 1-2: usb_probe_device
-Aug  3 23:42:49 io kernel: usb 1-2: configuration #1 chosen from 1 choice
-Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.0 (config #1, interface 0)
-Aug  3 23:42:49 io kernel: usb 1-2:1.0: uevent
-Aug  3 23:42:49 io kernel: snd-usb-audio 1-2:1.0: usb_probe_interface
-Aug  3 23:42:49 io kernel: snd-usb-audio 1-2:1.0: usb_probe_interface - got id
-Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.1 (config #1, interface 1)
-Aug  3 23:42:49 io kernel: usb 1-2:1.1: uevent
-Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.2 (config #1, interface 2)
-Aug  3 23:42:49 io kernel: usb 1-2:1.2: uevent
-Aug  3 23:42:49 io kernel: usb 1-2: adding 1-2:1.3 (config #1, interface 3)
-Aug  3 23:42:49 io kernel: usb 1-2:1.3: uevent
-Aug  3 23:42:49 io kernel: cm109 1-2:1.3: usb_probe_interface
-Aug  3 23:42:49 io kernel: cm109 1-2:1.3: usb_probe_interface - got id
-Aug  3 23:42:49 io kernel: input: CM109 USB driver as /class/input/input9
-Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:42:49 io kernel: drivers/usb/core/inode.c: creating file '003'
-Aug  3 23:42:49 io kernel: usb 1-2: New USB device found, idVendor=0d8c, idProduct=000e
-Aug  3 23:42:49 io kernel: usb 1-2: New USB device strings: Mfr=0, Product=1, SerialNumber=0
-Aug  3 23:42:49 io kernel: usb 1-2: Product: Generic USB Audio Device   
-Aug  3 23:42:49 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
+iEYEARECAAYFAkiWl+UACgkQjjKRsyhoI8wjmQCeMU1gFz7Ghksk3x2cS467FEUh
+ajUAn2a+k/1zjQkzaapO5v0ArarZuo1A
+=+Hcp
+-----END PGP SIGNATURE-----
 
-;;;
-;;; Buzzer is actived here (twice):
-;;;
-
-Aug  3 23:42:54 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
-Aug  3 23:42:55 io kernel: cm109: cm109_urb_ctl_callback: usb_submit_urb (urb_irq) failed -22
-
-;;;
-;;; CM109 Device unplugged here:
-;;;
-
-Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
-Aug  3 23:43:14 io kernel: cm109: cm109_urb_irq_callback: urb status -84
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
-Aug  3 23:43:14 io kernel: cm109: cm109_urb_ctl_callback: urb status -71
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
-Aug  3 23:43:14 io kernel: cm109: cm109_urb_irq_callback: urb status -84
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
-Aug  3 23:43:14 io kernel: cm109: cm109_urb_ctl_callback: urb status -71
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: hub 1-0:1.0: state 7 ports 2 chg 0000 evt 0004
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: port 2 portsc 008a,00
-Aug  3 23:43:14 io kernel: hub 1-0:1.0: port 2, status 0100, change 0003, 12 Mb/s
-Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
-Aug  3 23:43:14 io kernel: cm109: cm109_urb_irq_callback: urb status -84
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: usb 1-2: uhci_result_common: failed with status 440000
-Aug  3 23:43:14 io kernel: cm109: cm109_urb_ctl_callback: urb status -71
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: reserve dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: hub 1-0:1.0: debounce: port 2: total 100ms stable 100ms status 0x100
-Aug  3 23:43:14 io kernel: usb 1-2: USB disconnect, address 3
-Aug  3 23:43:14 io kernel: usb 1-2: unregistering device
-Aug  3 23:43:14 io kernel: usb 1-2: usb_disable_device nuking all URBs
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: shutdown urb ceeaff40 ep3in-intr
-Aug  3 23:43:14 io kernel: uhci_hcd 0000:00:1f.2: release dev 3 ep83-INT, period 32, phase 16, 14 us
-Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.0
-Aug  3 23:43:14 io kernel: usb 1-2:1.0: uevent
-Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.1
-Aug  3 23:43:14 io kernel: usb 1-2:1.1: uevent
-Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.2
-Aug  3 23:43:14 io kernel: usb 1-2:1.2: uevent
-Aug  3 23:43:14 io kernel: usb 1-2: unregistering interface 1-2:1.3
-Aug  3 23:43:14 io kernel: cm109: cm109_toggle_buzzer_sync: usb_control_msg) failed -19
-Aug  3 23:43:14 io kernel: usb 1-2:1.3: uevent
-Aug  3 23:43:14 io kernel: usb 1-2: uevent
-Aug  3 23:43:15 io kernel: usb usb1: suspend_rh (auto-stop)
-Aug  3 23:43:16 io kernel: hub 1-0:1.0: hub_suspend
-Aug  3 23:43:16 io kernel: usb usb1: bus auto-suspend
-Aug  3 23:43:16 io kernel: usb usb1: suspend_rh
-
-
-
-
-/alfred
+--Signature=_Mon__4_Aug_2008_15_47_17_+1000_ndiXz4hh.vR59FiU--

@@ -1,44 +1,30 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: [PATCH] Input: i8042 - Add Dritek quirk for Acer TravelMate 4280
-Date: Wed, 06 Aug 2008 19:16:09 +0100
-Message-ID: <20080806181608.5883.89155.stgit@localhost>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: i8042 - Add Dritek quirk for Acer TravelMate
+	4280
+Date: Wed, 6 Aug 2008 14:29:09 -0400
+Message-ID: <20080806182909.GA25371@anvil.corenet.prv>
+References: <20080806181608.5883.89155.stgit@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bb-87-81-255-5.ukonline.co.uk ([87.81.255.5]:57528 "EHLO
-	pegasus." rhost-flags-OK-OK-FAIL-FAIL) by vger.kernel.org with ESMTP
-	id S1754309AbYHFSQM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 6 Aug 2008 14:16:12 -0400
+Received: from an-out-0708.google.com ([209.85.132.244]:36010 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754015AbYHFS3O (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 6 Aug 2008 14:29:14 -0400
+Received: by an-out-0708.google.com with SMTP id d40so6825and.103
+        for <linux-input@vger.kernel.org>; Wed, 06 Aug 2008 11:29:12 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080806181608.5883.89155.stgit@localhost>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
+To: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Cc: linux-input@vger.kernel.org
 
-Reported-by: Mattias Jernberg <nostrad@gmail.com>
-Signed-off-by: Carlos Corbacho <carlos@strangeworlds.co.uk>
----
+On Wed, Aug 06, 2008 at 07:16:09PM +0100, Carlos Corbacho wrote:
+> Reported-by: Mattias Jernberg <nostrad@gmail.com>
+> Signed-off-by: Carlos Corbacho <carlos@strangeworlds.co.uk>
 
- drivers/input/serio/i8042-x86ia64io.h |    7 +++++++
- 1 files changed, 7 insertions(+), 0 deletions(-)
+Applied to 'for-linus', thanks!
 
-
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index fe732a5..3282b74 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -394,6 +394,13 @@ static struct dmi_system_id __initdata i8042_dmi_dritek_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 2490"),
- 		},
- 	},
-+	{
-+		.ident = "Acer TravelMate 4280",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "TravelMate 4280"),
-+		},
-+	},
- 	{ }
- };
- 
-
+-- 
+Dmitry

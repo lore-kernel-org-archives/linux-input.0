@@ -1,85 +1,127 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: linux-next: Tree for July 30
-Date: Thu, 7 Aug 2008 15:06:10 -0400
-Message-ID: <20080807150231.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080731104437.5e5669bc.akpm@linux-foundation.org> <20080731141302.ZZRA012@mailhub.coreip.homeip.net> <200807312048.57575.rjw@sisk.pl> <20080731145023.ZZRA012@mailhub.coreip.homeip.net> <alpine.LFD.1.10.0807311207000.3277@nehalem.linux-foundation.org> <20080731151625.ZZRA012@mailhub.coreip.homeip.net> <20080731194207.GA12233@anvil.corenet.prv> <20080731131056.eecc4826.akpm@linux-foundation.org> <20080807140357.ZZRA012@mailhub.coreip.homeip.net> <20080807115031.6e136ecf.akpm@linux-foundation.org>
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: INFO: possible recursive locking detected ps2_command
+Date: Fri, 08 Aug 2008 12:49:49 +0200
+Message-ID: <1218192589.8625.88.camel@twins>
+References: <c4e36d110807310241n512b01e4v898e883d740de879@mail.gmail.com>
+	 <20080731145739.fe8923be.akpm@linux-foundation.org>
+	 <20080801030444.GB18953@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-next-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20080807115031.6e136ecf.akpm@linux-foundation.org>
-Sender: linux-next-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: torvalds@linux-foundation.org, rjw@sisk.pl, bzolnier@gmail.com, sfr@canb.auug.org.au, linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, stable@kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from viefep18-int.chello.at ([213.46.255.22]:11989 "EHLO
+	viefep34-int.chello.at" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1754537AbYHHKui (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 8 Aug 2008 06:50:38 -0400
+In-Reply-To: <20080801030444.GB18953@anvil.corenet.prv>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Zdenek Kabelac <zdenek.kabelac@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, Rabin Vincent <rabin@rab.in>
 
-On Thu, Aug 07, 2008 at 11:50:31AM -0700, Andrew Morton wrote:
-> On Thu, 7 Aug 2008 14:11:09 -0400
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > On Thu, Jul 31, 2008 at 01:10:56PM -0700, Andrew Morton wrote:
-> > > 
-> > > If that works then great.  But I think the printk could be improved. 
-> > > Please provide sufficient information so that users (not programmers)
-> > > can go off and fix things up without needing to email kernel developers.
-> > > 
-> > > One suitable approach would be
-> > > 
-> > > 	printk("see http://userweb.kernel.org/~dtor/read-this.txt")
-> > > 
+On Thu, 2008-07-31 at 23:04 -0400, Dmitry Torokhov wrote:
+> On Thu, Jul 31, 2008 at 02:57:39PM -0700, Andrew Morton wrote:
 > > 
-> > Ok, I made a small page here:
+> > (cc linux-input)
 > > 
-> > 	http://userweb.kernel.org/~dtor/eviocgbit-bug.html
+> > On Thu, 31 Jul 2008 11:41:25 +0200
+> > "Zdenek Kabelac" <zdenek.kabelac@gmail.com> wrote:
+> > 
+> > > Hi
+> > > 
+> > > During mouse unplugging from psaux connector from the laptops' docking
+> > > station I've got attached INFO trace.
+> > > (laptops still has synaptics device)
+> > > 
 > 
-> You need to mv that file.  It's actually at
-> http://userweb.kernel.org/~dtor/eviogcbit-bug.html
+> Dell?
 > 
-> And
+> > > Also for unknown reason to me  psaux mouse & synaptic device do not
+> > > work somehow together - is it hw limitation
+> > > of /dev/input/mice  interface?
+> > > (USB mouse and synaptics do work quite well together)
+> > > 
+> > > [ INFO: possible recursive locking detected ]
+> > > 2.6.27-rc1 #48
+> > 
+> > (it's 2.6.27-rc1)
+> > 
 > 
->      evdev.c(EVIOCGBIT): Suspicious buffer size 511, limiting output to 64
->      bytes. See http://userweb.kernel.org/~dtor/eviocgbit-bug.html 
-> 
-> will get a 404.
-> 
+> Peter, here is the trace we talked about long time ago. For some reason
+> lockdep annotation only works once. If reconnect is forced or psmouse
+> module is reloaded lockdep starts complaining about passthrough port.
 
-Fixed.
+Bit puzzling - and I don't have any ps2 hardware around to test with
+(nor do I normally use modules - but that is fixable of course).
 
-> typo: s/distribbution/distribution/
-> 
+Does Rabin's patch help?
 
-Fixed.
+  http://lkml.org/lkml/2008/8/7/329
 
-> The text looks good.  A user would come away wondering which packages
-> need to be updated.  Do we have a suitable text pattern whcih will help
-> them?
-> 
-> On a fedora system I have
-> 
-> y:/home/akpm> rpm -qa|grep -i syna
-> synaptics-0.14.6-2.fc8
-> 
-> So "the synaptics package" would be a suitably distro-neutral description.
-> 
+> > > ---------------------------------------------
+> > > kseriod/166 is trying to acquire lock:
+> > >  (&ps2dev->cmd_mutex){--..}, at: [<ffffffff8126e9ae>] ps2_command+0x5e/0x460
+> > > 
+> > > but task is already holding lock:
+> > >  (&ps2dev->cmd_mutex){--..}, at: [<ffffffff8126e9ae>] ps2_command+0x5e/0x460
+> > > 
+> > > other info that might help us debug this:
+> > > 4 locks held by kseriod/166:
+> > >  #0:  (serio_mutex){--..}, at: [<ffffffff8126cc1e>] serio_thread+0x3e/0x410
+> > >  #1:  (&serio->drv_mutex){--..}, at: [<ffffffff8126bf8b>]
+> > > serio_connect_driver+0x2b/0x50
+> > >  #2:  (psmouse_mutex){--..}, at: [<ffffffffa009aa00>]
+> > > psmouse_connect+0x30/0x2c0 [psmouse]
+> > >  #3:  (&ps2dev->cmd_mutex){--..}, at: [<ffffffff8126e9ae>]
+> > > ps2_command+0x5e/0x460
+> > > 
+> > > stack backtrace:
+> > > Pid: 166, comm: kseriod Not tainted 2.6.27-rc1 #48
+> > > 
+> > > Call Trace:
+> > >  [<ffffffff81068bda>] __lock_acquire+0xcea/0x13b0
+> > >  [<ffffffff81066401>] ? trace_hardirqs_off_caller+0x21/0xc0
+> > >  [<ffffffff810664ad>] ? trace_hardirqs_off+0xd/0x10
+> > >  [<ffffffff8126e9ae>] ? ps2_command+0x5e/0x460
+> > >  [<ffffffff81069336>] lock_acquire+0x96/0xe0
+> > >  [<ffffffff8126e9ae>] ? ps2_command+0x5e/0x460
+> > >  [<ffffffff81313861>] mutex_lock_nested+0xc1/0x340
+> > >  [<ffffffff8126e9ae>] ? ps2_command+0x5e/0x460
+> > >  [<ffffffff810135a0>] ? native_sched_clock+0x90/0xb0
+> > >  [<ffffffff8126e9ae>] ps2_command+0x5e/0x460
+> > >  [<ffffffff81066401>] ? trace_hardirqs_off_caller+0x21/0xc0
+> > >  [<ffffffff81065834>] ? get_lock_stats+0x34/0x70
+> > >  [<ffffffffa009977d>] psmouse_sliced_command+0x2d/0x90 [psmouse]
+> > >  [<ffffffff8126e838>] ? ps2_sendbyte+0x48/0x130
+> > >  [<ffffffffa009b8f7>] synaptics_pt_write+0x27/0x60 [psmouse]
+> > >  [<ffffffff81315acd>] ? _spin_unlock_irq+0x3d/0x80
+> > >  [<ffffffff8126e84d>] ps2_sendbyte+0x5d/0x130
+> > >  [<ffffffff81319840>] ? sub_preempt_count+0x80/0x120
+> > >  [<ffffffff8126ea4d>] ps2_command+0xfd/0x460
+> > >  [<ffffffff81319840>] ? sub_preempt_count+0x80/0x120
+> > >  [<ffffffff81315acd>] ? _spin_unlock_irq+0x3d/0x80
+> > >  [<ffffffffa0099917>] psmouse_probe+0x27/0xa0 [psmouse]
+> > >  [<ffffffff8126c1e1>] ? serio_open+0x11/0x50
+> > >  [<ffffffffa009ab48>] psmouse_connect+0x178/0x2c0 [psmouse]
+> > >  [<ffffffff8126bf96>] serio_connect_driver+0x36/0x50
+> > >  [<ffffffff8126bfcb>] serio_driver_probe+0x1b/0x20
+> > >  [<ffffffff81221112>] driver_probe_device+0xa2/0x1e0
+> > >  [<ffffffff812212e0>] ? __device_attach+0x0/0x10
+> > >  [<ffffffff812212e9>] __device_attach+0x9/0x10
+> > >  [<ffffffff8122050b>] bus_for_each_drv+0x6b/0xa0
+> > >  [<ffffffff812213b8>] device_attach+0x88/0x90
+> > >  [<ffffffff812202d5>] bus_attach_device+0x55/0x80
+> > >  [<ffffffff8121ee99>] device_add+0x4f9/0x610
+> > >  [<ffffffff81319840>] ? sub_preempt_count+0x80/0x120
+> > >  [<ffffffff8126ce1c>] serio_thread+0x23c/0x410
+> > >  [<ffffffff810571a0>] ? autoremove_wake_function+0x0/0x40
+> > >  [<ffffffff8126cbe0>] ? serio_thread+0x0/0x410
+> > >  [<ffffffff81056de9>] kthread+0x49/0x90
+> > >  [<ffffffff8100d669>] child_rip+0xa/0x11
+> > >  [<ffffffff8103b757>] ? finish_task_switch+0x57/0x110
+> > >  [<ffffffff81315acd>] ? _spin_unlock_irq+0x3d/0x80
+> > >  [<ffffffff8100cc73>] ? restore_args+0x0/0x30
+> > >  [<ffffffff810664ad>] ? trace_hardirqs_off+0xd/0x10
+> > >  [<ffffffff81056da0>] ? kthread+0x0/0x90
+> > >  [<ffffffff8100d65f>] ? child_rip+0x0/0x11
 
-There is apparently Synaptic package manager - quite similar name - so
-I want to emphasize that we are concerned with a driver for X.
-
-> `rpm -qa|grep -i tslib' comes up blank so I don't know about that one.
-
-This is a touchscreen library that is used by embedded people.
-Unfortunately I have no idea where the authoritative source is.
-
-> 
-> > If you think this is sufficient I'd like to put the patch with the
-> > warning in 2.6.27 so people and distributions could start updarting
-> > affected programs.
-> 
-> Sure.  It'd make sense to get that warning into 2.6.25.x and 2.6.26.x
-> as well, to accelerate the process a bit.
-> 
-
-Ok, good.
-
--- 
-Dmitry

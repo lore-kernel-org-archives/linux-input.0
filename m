@@ -1,44 +1,65 @@
-From: Aivils Stoss <aivils@latnet.lv>
-Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Sun, 10 Aug 2008 04:08:37 +0100
-Message-ID: <200808100408.37473.aivils@latnet.lv>
-References: <200808080702.24969.aivils@latnet.lv> <20080809104226.GF4546@implementation>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from esbens.latnet.lv ([92.240.66.74]:39014 "EHLO esbens.latnet.lv"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753835AbYHKDIv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 10 Aug 2008 23:08:51 -0400
-In-Reply-To: <20080809104226.GF4546@implementation>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] input: migor_ts compile and detection fix
+Date: Mon, 11 Aug 2008 14:53:49 +0900
+Message-ID: <20080811055349.19913.70612.sendpatchset@rx1.opensource.se>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: lethal@linux-sh.org, Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com, linux-sh@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
 
-On Saturday 09 August 2008 11:42:26 am Samuel Thibault wrote:
-> Aivils Stoss, le Fri 08 Aug 2008 07:02:24 +0100, a =E9crit :
-> > I suppose this is Linux kernel bug because i test keyboards under
-> > Windows, which support any schema of cascading of usb hubs.
->
-> On the very same machine and hubs?
+From: Magnus Damm <damm@igel.co.jp>
 
-Yes, on same machine. Under Windows i don't have evdev interface,
-checked only how keypress go to console.
-Of course to repeat a try You must have at least 5 keyboards and
-1 7-port or 2 4-port hubs and kernel 2.6.22 and above. I allways
-got result - 5th, 6th, 7th keyboard does not send events to console
-or evdev.
+The i2c layer got changed while the migor_ts driver was in the input
+tree waiting to get merged upstream. Fix current compile issue by using
+struct i2c_client member "name" instead of "driver_name". Also, add
+id_table to make sure the device gets properly detected.
 
->
-> Samuel
+Signed-off-by: Magnus Damm <damm@igel.co.jp>
+---
 
+ Paul, can you pick up this one together with other SuperH fixes?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/input/touchscreen/migor_ts.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+--- 0001/drivers/input/touchscreen/migor_ts.c
++++ work/drivers/input/touchscreen/migor_ts.c	2008-08-04 11:19:21.000000000 +0900
+@@ -173,7 +173,7 @@ static int migor_ts_probe(struct i2c_cli
+ 	input_set_abs_params(input, ABS_X, 95, 955, 0, 0);
+ 	input_set_abs_params(input, ABS_Y, 85, 935, 0, 0);
+ 
+-	input->name = client->driver_name;
++	input->name = client->name;
+ 	input->id.bustype = BUS_I2C;
+ 	input->dev.parent = &client->dev;
+ 
+@@ -192,7 +192,7 @@ static int migor_ts_probe(struct i2c_cli
+ 		goto err1;
+ 
+ 	error = request_irq(priv->irq, migor_ts_isr, IRQF_TRIGGER_LOW,
+-			    client->driver_name, priv);
++			    client->name, priv);
+ 	if (error) {
+ 		dev_err(&client->dev, "Unable to request touchscreen IRQ.\n");
+ 		goto err2;
+@@ -224,12 +224,19 @@ static int migor_ts_remove(struct i2c_cl
+ 	return 0;
+ }
+ 
++static const struct i2c_device_id migor_ts_id[] = {
++	{ "migor_ts", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, migor_ts);
++
+ static struct i2c_driver migor_ts_driver = {
+ 	.driver = {
+ 		.name = "migor_ts",
+ 	},
+ 	.probe = migor_ts_probe,
+ 	.remove = migor_ts_remove,
++	.id_table = migor_ts_id,
+ };
+ 
+ static int __init migor_ts_init(void)

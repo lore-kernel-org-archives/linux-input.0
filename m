@@ -1,62 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Daniel Stone <daniel@fooishbar.org>
 Subject: Re: Warning: evdev changes - no auto-grabs anymore
-Date: Fri, 15 Aug 2008 10:10:10 -0400
-Message-ID: <20080815100717.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080814044337.GA11632@emu> <1218725645.907.27.camel@thor.sulgenrain.local> <1218736209.4467.11.camel@localhost.localdomain> <20080815002458.GA16836@emu> <20080815065159.GA16680@sci.fi> <20080815080247.GA17613@fooishbar.org> <20080815082629.GB16680@sci.fi>
+Date: Fri, 15 Aug 2008 17:31:19 +0300
+Message-ID: <20080815143119.GB2779@fooishbar.org>
+References: <20080814044337.GA11632@emu>
+	<1218725645.907.27.camel@thor.sulgenrain.local>
+	<1218736209.4467.11.camel@localhost.localdomain>
+	<20080815002458.GA16836@emu> <20080815065159.GA16680@sci.fi>
+	<20080815080247.GA17613@fooishbar.org>
+	<20080815082629.GB16680@sci.fi>
+	<20080815100717.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.25]:16763 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753879AbYHOOKR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Aug 2008 10:10:17 -0400
-Received: by qw-out-2122.google.com with SMTP id 3so75051qwe.37
-        for <linux-input@vger.kernel.org>; Fri, 15 Aug 2008 07:10:16 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20080815082629.GB16680@sci.fi>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/mixed; boundary="===============2093089557=="
+Return-path: <xorg-bounces@lists.freedesktop.org>
+In-Reply-To: <20080815100717.ZZRA012@mailhub.coreip.homeip.net>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/xorg>
+List-Post: <mailto:xorg@lists.freedesktop.org>
+List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
+	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
+Mime-version: 1.0
+Sender: xorg-bounces@lists.freedesktop.org
+Errors-To: xorg-bounces@lists.freedesktop.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Michel D?nzer <michel@tungstengraphics.com>, xorg@lists.freedesktop.org
 List-Id: linux-input@vger.kernel.org
-To: Ville Syrj?l? <syrjala@sci.fi>
-Cc: Daniel Stone <daniel@fooishbar.org>, Peter Hutterer <peter.hutterer@who-t.net>, Michel D?nzer <michel@tungstengraphics.com>, xorg@lists.freedesktop.org, linux-input@vger.kernel.org
 
-On Fri, Aug 15, 2008 at 11:26:29AM +0300, Ville Syrj?l? wrote:
-> On Fri, Aug 15, 2008 at 11:02:48AM +0300, Daniel Stone wrote:
-> > On Fri, Aug 15, 2008 at 09:51:59AM +0300, Ville Syrj?l? wrote:
-> > > On Fri, Aug 15, 2008 at 09:54:58AM +0930, Peter Hutterer wrote:
-> > > > On Thu, Aug 14, 2008 at 01:50:09PM -0400, Adam Jackson wrote:
-> > > > > This is, in fact, one of the main reasons I put SIOCGRAB there in the
-> > > > > first place; you need to keep the keyboard's event stream out of the tty
-> > > > > layer entirely, not just out of reach of the kbd driver.  At the time
-> > > > > the argument was also that you wanted to keep them out of reach of
-> > > > > normal users so you couldn't snoop passwords, but now that there's a
-> > > > > ConsoleKit I think that's less true.
-> > > > > 
-> > > > > Mac mouse emulation we could probably just blacklist away from the evdev
-> > > > > driver.  rfkill is... harder?  Does it get its own event device or not?
-> > > > > I'd think it would have to get one kill device per wireless device.
-> > > > 
-> > > > The issue is not grabbing the mouse emulation device, it's grabbing the
-> > > > keyboard that generates those keys events that should result in a button click
-> > > > on a different device. So we'd need something in the kernel I guess.
-> > > 
-> > > I was pondering about the same issue wrt. DirectFB. I wonder if
-> > > KDSETMODE/KD_GRAPHICS could be extended to take care of this or
-> > > would it break some existing applications.
-> > 
-> > Yeah, I was thinking about that, but that would mean we have issues
-> > under older kernels. I think the best was what I was proposing, which
-> > would be EVIOCSERIOUSLYDONTSENDANYCONSOLEINPUTWEWILLDEALWITHIT().
-> 
-> Yeah that would be better since support for it could be detected runtime
-> so the driver could do the right thing when running with a recent kernel,
-> and it could just fall back to the normal grab with old kernels.
-> 
 
-If evdev support in X is maturing why does it even need using tty and
-mousedev multiplexors? If you just use evdev for all of your devices
-you would not have the problem of duplicate events coming from 2
-interfaces.
+--===============2093089557==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
 
--- 
-Dmitry
+
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Aug 15, 2008 at 10:10:10AM -0400, Dmitry Torokhov wrote:
+> On Fri, Aug 15, 2008 at 11:26:29AM +0300, Ville Syrj?l? wrote:
+> > On Fri, Aug 15, 2008 at 11:02:48AM +0300, Daniel Stone wrote:
+> > > On Fri, Aug 15, 2008 at 09:51:59AM +0300, Ville Syrj?l? wrote:
+> > > > I was pondering about the same issue wrt. DirectFB. I wonder if
+> > > > KDSETMODE/KD_GRAPHICS could be extended to take care of this or
+> > > > would it break some existing applications.
+> > >=20
+> > > Yeah, I was thinking about that, but that would mean we have issues
+> > > under older kernels. I think the best was what I was proposing, which
+> > > would be EVIOCSERIOUSLYDONTSENDANYCONSOLEINPUTWEWILLDEALWITHIT().
+> >=20
+> > Yeah that would be better since support for it could be detected runtime
+> > so the driver could do the right thing when running with a recent kerne=
+l,
+> > and it could just fall back to the normal grab with old kernels.
+>=20
+> If evdev support in X is maturing why does it even need using tty and
+> mousedev multiplexors? If you just use evdev for all of your devices
+> you would not have the problem of duplicate events coming from 2
+> interfaces.
+
+We don't, and killing them is fine.  Even so, try doing that, and
+realise that the TTY layer has helpfully spewed out every single thing
+you've typed, oh, and Ctrl-C kills the X server.
+
+So it would seem that an ioctl to say 'I'm dealing with this, don't let
+the TTY layer and mousedev get at it' would be helpful, but one that
+stops short of a full grab.
+
+Cheers,
+Daniel
+
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAkilkzcACgkQUVYB1rKAgJS+7ACaAqiO5GQZbOaFYTwbKTIiBluj
+gqEAn1zjvaJczLw9y1xxdY7qvLirB50z
+=YAkU
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--
+
+--===============2093089557==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+xorg mailing list
+xorg@lists.freedesktop.org
+http://lists.freedesktop.org/mailman/listinfo/xorg
+--===============2093089557==--

@@ -1,120 +1,62 @@
-From: Richard Hughes <rhughes@redhat.com>
-Subject: Remove HID ignore quirk for MGE UPS devices
-Date: Fri, 15 Aug 2008 12:01:01 +0100
-Message-ID: <1218798061.14646.13.camel@hughsie-work>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Warning: evdev changes - no auto-grabs anymore
+Date: Fri, 15 Aug 2008 10:10:10 -0400
+Message-ID: <20080815100717.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080814044337.GA11632@emu> <1218725645.907.27.camel@thor.sulgenrain.local> <1218736209.4467.11.camel@localhost.localdomain> <20080815002458.GA16836@emu> <20080815065159.GA16680@sci.fi> <20080815080247.GA17613@fooishbar.org> <20080815082629.GB16680@sci.fi>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-frwWP/FJFdxJGvNI/gee"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:53995 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752944AbYHOMlx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 Aug 2008 08:41:53 -0400
+Received: from qw-out-2122.google.com ([74.125.92.25]:16763 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753879AbYHOOKR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Aug 2008 10:10:17 -0400
+Received: by qw-out-2122.google.com with SMTP id 3so75051qwe.37
+        for <linux-input@vger.kernel.org>; Fri, 15 Aug 2008 07:10:16 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080815082629.GB16680@sci.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input <linux-input@vger.kernel.org>, Arnaud Quette <aquette.dev@gmail.com>, David Zeuthen <davidz@redhat.com>, "kay.sievers" <kay.sievers@vrfy.org>
+To: Ville Syrj?l? <syrjala@sci.fi>
+Cc: Daniel Stone <daniel@fooishbar.org>, Peter Hutterer <peter.hutterer@who-t.net>, Michel D?nzer <michel@tungstengraphics.com>, xorg@lists.freedesktop.org, linux-input@vger.kernel.org
 
+On Fri, Aug 15, 2008 at 11:26:29AM +0300, Ville Syrj?l? wrote:
+> On Fri, Aug 15, 2008 at 11:02:48AM +0300, Daniel Stone wrote:
+> > On Fri, Aug 15, 2008 at 09:51:59AM +0300, Ville Syrj?l? wrote:
+> > > On Fri, Aug 15, 2008 at 09:54:58AM +0930, Peter Hutterer wrote:
+> > > > On Thu, Aug 14, 2008 at 01:50:09PM -0400, Adam Jackson wrote:
+> > > > > This is, in fact, one of the main reasons I put SIOCGRAB there in the
+> > > > > first place; you need to keep the keyboard's event stream out of the tty
+> > > > > layer entirely, not just out of reach of the kbd driver.  At the time
+> > > > > the argument was also that you wanted to keep them out of reach of
+> > > > > normal users so you couldn't snoop passwords, but now that there's a
+> > > > > ConsoleKit I think that's less true.
+> > > > > 
+> > > > > Mac mouse emulation we could probably just blacklist away from the evdev
+> > > > > driver.  rfkill is... harder?  Does it get its own event device or not?
+> > > > > I'd think it would have to get one kill device per wireless device.
+> > > > 
+> > > > The issue is not grabbing the mouse emulation device, it's grabbing the
+> > > > keyboard that generates those keys events that should result in a button click
+> > > > on a different device. So we'd need something in the kernel I guess.
+> > > 
+> > > I was pondering about the same issue wrt. DirectFB. I wonder if
+> > > KDSETMODE/KD_GRAPHICS could be extended to take care of this or
+> > > would it break some existing applications.
+> > 
+> > Yeah, I was thinking about that, but that would mean we have issues
+> > under older kernels. I think the best was what I was proposing, which
+> > would be EVIOCSERIOUSLYDONTSENDANYCONSOLEINPUTWEWILLDEALWITHIT().
+> 
+> Yeah that would be better since support for it could be detected runtime
+> so the driver could do the right thing when running with a recent kernel,
+> and it could just fall back to the normal grab with old kernels.
+> 
 
---=-frwWP/FJFdxJGvNI/gee
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+If evdev support in X is maturing why does it even need using tty and
+mousedev multiplexors? If you just use evdev for all of your devices
+you would not have the problem of duplicate events coming from 2
+interfaces.
 
-The attached patch reverts the change made four years ago here:
-http://www.vg.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-hid-2.4.25-pre7.patch
-
-UPS's made by MGE can be used with usbhid just fine, and by removing the
-ignore quirk allows them to be used with HAL so they just work when plugged
-in, without needing to be manually configured.
-
-With the ignore quirk in place a user would have to configure NUT before the
-UPS could be used, as NUT uses it's own internal USB matching framework
-to match against the USB devices, do low level control messages on the
-device and then parse the HID tables all in userspace.
-
-This is not needed, as allowing the device to be claimed as a usbhid device
-allows it to be used like any other USB UPS device. The devices correctly
-advertise the power device page which can be queried for the device state.
-
-I assume the quirk was changed so that people using < libusb 0.1.8 could
-still use NUT's internal HID code to manage the UPS.
-libusb 0.1.8 was released quite some time ago: 2004-02-11.
-
-This patch does not break NUT as in drivers/libusb.c the device is force
-unbound from the kernel driver using usb_detach_kernel_driver_np () where
-it can be controlled like normal.
-
-Signed-off-by: Richard Hughes <rhughes@redhat.com>
-
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 61e78a4..faf3f4e 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -568,8 +568,8 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_MACHINETEST, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1024LS, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1208LS, HID_QUIRK_IGNORE },
--	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_IGNORE },
--	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_HIDDEV },
-+	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1, HID_QUIRK_HIDDEV },
- 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 20, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 30, HID_QUIRK_IGNORE },
-
-
-
---=-frwWP/FJFdxJGvNI/gee
-Content-Disposition: attachment; filename=0001-remove-hid-ignore-quirk-for-mge-ups-devices.patch
-Content-Type: text/x-patch; name=0001-remove-hid-ignore-quirk-for-mge-ups-devices.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-commit 0abf9c8395f83ba1396574ee4ca0efa3541b56b1
-Author: Richard Hughes <richard@hughsie.com>
-Date:   Wed Aug 13 09:43:02 2008 +0100
-
-    remove hid ignore quirk for MGE UPS devices
-    
-    This patch reverts the change made four years ago here:
-    http://www.vg.kernel.org/pub/linux/kernel/people/gregkh/usb/2.4/usb-hid-2.4.25-pre7.patch
-    
-    UPS's made by MGE can be used with usbhid just fine, and by removing the
-    ignore quirk allows them to be used with HAL so they just work when plugged
-    in, without needing to be manually configured.
-    
-    With the ignore quirk in place a user would have to configure NUT before the
-    UPS could be used, as NUT uses it's own internal USB matching framework
-    to match against the USB devices, do low level control messages on the
-    device and then parse the HID tables all in userspace.
-    
-    This is not needed, as allowing the device to be claimed as a usbhid device
-    allows it to be used like any other USB UPS device. The devices correctly
-    advertise the power device page which can be queried for the device state.
-    
-    I assume the quirk was changed so that people using < libusb 0.1.8 could
-    still use NUT's internal HID code to manage the UPS.
-    libusb 0.1.8 was released quite some time ago: 2004-02-11.
-    
-    This patch does not break NUT as in drivers/libusb.c the device is force
-    unbound from the kernel driver using usb_detach_kernel_driver_np () where
-    it can be controlled like normal.
-    
-    Signed-off-by: Richard Hughes <rhughes@redhat.com>
-
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-quirks.c
-index 61e78a4..faf3f4e 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -568,8 +568,8 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_MACHINETEST, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1024LS, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_MCC, USB_DEVICE_ID_MCC_PMD1208LS, HID_QUIRK_IGNORE },
--	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_IGNORE },
--	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1, HID_QUIRK_IGNORE },
-+	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS, HID_QUIRK_HIDDEV },
-+	{ USB_VENDOR_ID_MGE, USB_DEVICE_ID_MGE_UPS1, HID_QUIRK_HIDDEV },
- 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 20, HID_QUIRK_IGNORE },
- 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 30, HID_QUIRK_IGNORE },
-
---=-frwWP/FJFdxJGvNI/gee--
-
+-- 
+Dmitry

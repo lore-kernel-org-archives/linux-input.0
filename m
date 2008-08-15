@@ -1,50 +1,89 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH/RFC]  Resolve 2 year old issue with different demands
-	on EVIOCGRAB
-Date: Thu, 14 Aug 2008 22:24:53 -0400
-Message-ID: <20080815022453.GA9438@anvil.corenet.prv>
-References: <18596.58273.713075.332009@notabene.brown>
+Subject: [git pull] Input updates for 2.6.27-rc0 (round 2)
+Date: Thu, 14 Aug 2008 22:28:26 -0400
+Message-ID: <20080815022826.GB9438@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f16.google.com ([209.85.217.16]:35125 "EHLO
-	mail-gx0-f16.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752412AbYHOCY5 (ORCPT
+Received: from yx-out-2324.google.com ([74.125.44.28]:19567 "EHLO
+	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752691AbYHOC2a (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 Aug 2008 22:24:57 -0400
-Received: by gxk9 with SMTP id 9so3071978gxk.13
-        for <linux-input@vger.kernel.org>; Thu, 14 Aug 2008 19:24:56 -0700 (PDT)
+	Thu, 14 Aug 2008 22:28:30 -0400
+Received: by yx-out-2324.google.com with SMTP id 8so546887yxm.1
+        for <linux-input@vger.kernel.org>; Thu, 14 Aug 2008 19:28:29 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <18596.58273.713075.332009@notabene.brown>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Neil Brown <neilb@suse.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Neil,
+Hi Linus,
 
-On Fri, Aug 15, 2008 at 12:02:09PM +1000, Neil Brown wrote:
-> 
-> I'll let the comments in the patch below to most of the talking.
-> This came up because I wanted to use EVIOCGRAB in some code on an
-> Openmoko Freerunner, and found that EVIOCGRAG does different things on
-> that kernel to elsewhere.  I looked into why, and found that there was
-> a good reason but that the issues hadn't been completely resolved.  I
-> hope to help resolve the issues so that EVIOCGRAB can behave the same
-> everywhere, and still meet everybody's needs.
-> 
-> I would have Cc:ed to Magnus Vigerlof who wrote the original patch on
-> which this is based, but his Email address doesn't appear in lkml.org.
-> 
+Please pull from:
 
-I don't think this is a viable solution - there are other "good"
-handlers beisdes evdev, such as rfkill-input, which will still get
-disabled by the "lightweight" grabs.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Overall I think it is application's responsibility to not use
-multiplexing devices if they use evdev, bit I can consider adding a new
-interface (maybe another ioctl) that would disable event delivery though
-certain interfaces for a device.
+to receive updates for the input subsystem. You will get a bunch of
+small fixes, the change to evdev to print an warning abount invalid
+parameters to EVIOCGBIT ioctl and a new driver for Macbook Air
+touchpads.
 
--- 
+Changelog:
+---------
+
+Andrew Morton (1):
+      Input: xilinx_ps2 - fix warning
+
+Carlos Corbacho (1):
+      Input: i8042 - Add Dritek quirk for Acer TravelMate 4280
+
+Dmitry Torokhov (2):
+      Input: paper over a bug in Synaptics X driver
+      Input: bcm5974 - implement autosuspend support
+
+Harley Laue (1):
+      Input: xpad - add Pelican Eclipse D-Pad to the list of devices
+
+Henrik Rydberg (1):
+      Input: bcm5974 - add driver for Macbook Air and Pro Penryn touchp=
+ads
+
+Linus Torvalds (1):
+      Input: evdev - split EVIOCGBIT handlig into a separate function
+
+Mark Brown (1):
+      Input: wm97xx - enable sub-drivers by default
+
+Uwe Kleine-K=F6nig (2):
+      Input: gpio-keys - fix possible NULL pointer dereference
+      Input: gpio-keys - make gpio_keys_device_driver static
+
+
+Diffstat:
+--------
+
+ drivers/hid/usbhid/hid-quirks.c       |   12 +-
+ drivers/input/evdev.c                 |   63 ++-
+ drivers/input/joystick/xpad.c         |    1 +
+ drivers/input/keyboard/gpio_keys.c    |    3 +-
+ drivers/input/mouse/Kconfig           |   23 ++
+ drivers/input/mouse/Makefile          |    1 +
+ drivers/input/mouse/bcm5974.c         |  681 +++++++++++++++++++++++++=
+++++++++
+ drivers/input/serio/i8042-x86ia64io.h |    7 +
+ drivers/input/serio/xilinx_ps2.c      |    4 +-
+ drivers/input/touchscreen/Kconfig     |   21 +-
+ 10 files changed, 775 insertions(+), 41 deletions(-)
+ create mode 100644 drivers/input/mouse/bcm5974.c
+
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

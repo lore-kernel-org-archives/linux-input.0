@@ -1,77 +1,73 @@
-From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
-Subject: Re: Warning: evdev changes - no auto-grabs anymore
-Date: Fri, 15 Aug 2008 11:26:29 +0300
-Message-ID: <20080815082629.GB16680@sci.fi>
-References: <20080814044337.GA11632@emu>
-	<1218725645.907.27.camel@thor.sulgenrain.local>
-	<1218736209.4467.11.camel@localhost.localdomain>
-	<20080815002458.GA16836@emu> <20080815065159.GA16680@sci.fi>
-	<20080815080247.GA17613@fooishbar.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <xorg-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20080815080247.GA17613@fooishbar.org>
-List-Unsubscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <http://lists.freedesktop.org/archives/xorg>
-List-Post: <mailto:xorg@lists.freedesktop.org>
-List-Help: <mailto:xorg-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/xorg>,
-	<mailto:xorg-request@lists.freedesktop.org?subject=subscribe>
-Sender: xorg-bounces@lists.freedesktop.org
-Errors-To: xorg-bounces@lists.freedesktop.org
-To: Daniel Stone <daniel@fooishbar.org>, Peter Hutterer <peter.hutterer@who-t.net>, Michel =?iso-8859-1?Q?D=E4nzer?= <michel@tungstengraphics.com>, xorg@lists.freedesktop.org
-Cc: linux-input@vger.kernel.org
+From: Bryan Wu <cooloney@kernel.org>
+Subject: [PATCH 1/1] Input/keyboard: add uctional power management support to Blackfin BF54x keypad driver
+Date: Fri, 15 Aug 2008 17:02:39 +0800
+Message-ID: <1218790959-12694-1-git-send-email-cooloney@kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nwd2mail11.analog.com ([137.71.25.57]:33443 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753066AbYHOJCp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 Aug 2008 05:02:45 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+Cc: akpm@linux-foundation.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Fri, Aug 15, 2008 at 11:02:48AM +0300, Daniel Stone wrote:
-> On Fri, Aug 15, 2008 at 09:51:59AM +0300, Ville Syrj=E4l=E4 wrote:
-> > On Fri, Aug 15, 2008 at 09:54:58AM +0930, Peter Hutterer wrote:
-> > > On Thu, Aug 14, 2008 at 01:50:09PM -0400, Adam Jackson wrote:
-> > > > This is, in fact, one of the main reasons I put SIOCGRAB there in t=
-he
-> > > > first place; you need to keep the keyboard's event stream out of th=
-e tty
-> > > > layer entirely, not just out of reach of the kbd driver.  At the ti=
-me
-> > > > the argument was also that you wanted to keep them out of reach of
-> > > > normal users so you couldn't snoop passwords, but now that there's a
-> > > > ConsoleKit I think that's less true.
-> > > > =
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-> > > > Mac mouse emulation we could probably just blacklist away from the =
-evdev
-> > > > driver.  rfkill is... harder?  Does it get its own event device or =
-not?
-> > > > I'd think it would have to get one kill device per wireless device.
-> > > =
+Fix Bug: does nor properply resume after suspend mem
+Fix for PM_SUSPEND_MEM: Save and restore peripheral base registers
 
-> > > The issue is not grabbing the mouse emulation device, it's grabbing t=
-he
-> > > keyboard that generates those keys events that should result in a but=
-ton click
-> > > on a different device. So we'd need something in the kernel I guess.
-> > =
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
+---
+ drivers/input/keyboard/bf54x-keys.c |   13 ++++++++++++-
+ 1 files changed, 12 insertions(+), 1 deletions(-)
 
-> > I was pondering about the same issue wrt. DirectFB. I wonder if
-> > KDSETMODE/KD_GRAPHICS could be extended to take care of this or
-> > would it break some existing applications.
-> =
-
-> Yeah, I was thinking about that, but that would mean we have issues
-> under older kernels. I think the best was what I was proposing, which
-> would be EVIOCSERIOUSLYDONTSENDANYCONSOLEINPUTWEWILLDEALWITHIT().
-
-Yeah that would be better since support for it could be detected runtime
-so the driver could do the right thing when running with a recent kernel,
-and it could just fall back to the normal grab with old kernels.
-
-Let's cc the linux-input list...
-
--- =
-
-Ville Syrj=E4l=E4
-syrjala@sci.fi
-http://www.sci.fi/~syrjala/
+diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+index 54ed8e2..f1d2081 100644
+--- a/drivers/input/keyboard/bf54x-keys.c
++++ b/drivers/input/keyboard/bf54x-keys.c
+@@ -8,7 +8,7 @@
+  *
+  *
+  * Modified:
+- *               Copyright 2007 Analog Devices Inc.
++ *               Copyright 2007-2008 Analog Devices Inc.
+  *
+  * Bugs:         Enter bugs at http://blackfin.uclinux.org/
+  *
+@@ -82,6 +82,9 @@ struct bf54x_kpad {
+ 	unsigned short *keycode;
+ 	struct timer_list timer;
+ 	unsigned int keyup_test_jiffies;
++	unsigned short kpad_msel;
++	unsigned short kpad_prescale;
++	unsigned short kpad_ctl;
+ };
+ 
+ static inline int bfin_kpad_find_key(struct bf54x_kpad *bf54x_kpad,
+@@ -361,6 +364,10 @@ static int bfin_kpad_suspend(struct platform_device *pdev, pm_message_t state)
+ {
+ 	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+ 
++	bf54x_kpad->kpad_msel = bfin_read_KPAD_MSEL();
++	bf54x_kpad->kpad_prescale = bfin_read_KPAD_PRESCALE();
++	bf54x_kpad->kpad_ctl = bfin_read_KPAD_CTL();
++
+ 	if (device_may_wakeup(&pdev->dev))
+ 		enable_irq_wake(bf54x_kpad->irq);
+ 
+@@ -371,6 +378,10 @@ static int bfin_kpad_resume(struct platform_device *pdev)
+ {
+ 	struct bf54x_kpad *bf54x_kpad = platform_get_drvdata(pdev);
+ 
++	bfin_write_KPAD_MSEL(bf54x_kpad->kpad_msel);
++	bfin_write_KPAD_PRESCALE(bf54x_kpad->kpad_prescale);
++	bfin_write_KPAD_CTL(bf54x_kpad->kpad_ctl);
++
+ 	if (device_may_wakeup(&pdev->dev))
+ 		disable_irq_wake(bf54x_kpad->irq);
+ 
+-- 
+1.5.6

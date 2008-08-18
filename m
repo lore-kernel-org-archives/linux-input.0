@@ -1,128 +1,75 @@
-From: "=?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP0YjQvtCy?="
-	<sergey.belyashov@gmail.com>
-Subject: [PATCH] Autocentering support for Logitech MOMO Racing Wheel (force feedback)
-Date: Mon, 18 Aug 2008 13:17:48 +0400
-Message-ID: <bb829a0b0808180217t2bd3ed49q4cf5734dcc756311@mail.gmail.com>
+From: Aivils Stoss <aivils@latnet.lv>
+Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
+Date: Mon, 18 Aug 2008 16:42:49 +0530
+Message-ID: <200808181642.49489.aivils@latnet.lv>
+References: <200808080702.24969.aivils@latnet.lv> <200808100408.37473.aivils@latnet.lv> <20080814184948.093d2cad.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qb-out-0506.google.com ([72.14.204.238]:36864 "EHLO
-	qb-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751149AbYHRJRu (ORCPT
+Received: from dzilna.latnet.lv ([92.240.66.75]:50240 "EHLO dzilna.latnet.lv"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751586AbYHRLM5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Aug 2008 05:17:50 -0400
-Received: by qb-out-0506.google.com with SMTP id a16so2512110qbd.17
-        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2008 02:17:49 -0700 (PDT)
+	Mon, 18 Aug 2008 07:12:57 -0400
+In-Reply-To: <20080814184948.093d2cad.rdunlap@xenotime.net>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: lud <linux-usb@vger.kernel.org>, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-input@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
 
-Hello.
-  Current kernel has no support for autocentering for Logitech wheels.
-By default autocentering enabled in wheel and constant effect does not
-work properly. Using USB sniffer I found command which change
-autocentering settings: 0xFE, 0x0D, 0x0R, 0x0L, 0x80, 0x00, 0x00,
-where R - clockwise force, L - counter-clockwise (0x0-0xF, 0xC =
-100%). I write patch for my current kernel (2.6.25), but I think git
-version also supported, because I do not found any changes in it.
-Currently kernel interface has no support for separate autocenter
-control and so I do not implement it.
-  And some interesting command 0xF3 (or 0xF5 - I do not understand
-difference) which makes wheel very easy to rotate (a-la wheel booster
-- no any resistance). Effect of that command can be disabled by
-setting any (zero too) autocentering strength. I do not found in
-kernel interface any standart command for this feature.
+On Friday 15 August 2008 7:19:48 am Randy Dunlap wrote:
+> On Sun, 10 Aug 2008 04:08:37 +0100 Aivils Stoss wrote:
+> > On Saturday 09 August 2008 11:42:26 am Samuel Thibault wrote:
+> > > Aivils Stoss, le Fri 08 Aug 2008 07:02:24 +0100, a =E9crit :
+> > > > I suppose this is Linux kernel bug because i test keyboards und=
+er
+> > > > Windows, which support any schema of cascading of usb hubs.
+> > >
+> > > On the very same machine and hubs?
+> >
+> > Yes, on same machine. Under Windows i don't have evdev interface,
+> > checked only how keypress go to console.
+> > Of course to repeat a try You must have at least 5 keyboards and
+> > 1 7-port or 2 4-port hubs and kernel 2.6.22 and above. I allways
+> > got result - 5th, 6th, 7th keyboard does not send events to console
+> > or evdev.
+>
+> [adding linux-usb mailing list]
+>
+> Hi,
+>
+> I finally got 5 USB keyboards together along with 2 hubs.
+> I daisy-chained the hubs and connected 1 keyboard to the hub that is
+> on the notebook computer USB port, then I connected 4 keyboards to th=
+e
+> second hub.  They all worked for me, meaning that I can type on all o=
+f
+> them and have their characters show up on my console.
+>
+> I'm testing with 2.6.7-rc2.
+> 'usbtree' output of the USB subsystem is attached.
 
-===================================================================================
+Yeah! 2.6.7 is a bit obsolete. At my end 2.6.15 support more than 4
+keyboards per PC port , but mess up input when is plugged more than
+9 keyboards. 10th is capable to send keypress events, but last pressed
+key will be repeated until ctrl-c . 10th keyboard disturb an auto repea=
+t of=20
+all keyboards.
 
---- linux-source-2.6.24/drivers/hid/usbhid/hid-lgff.c	2008-02-11
-08:51:11.000000000 +0300
-+++ linux-source-2.6.24.n/drivers/hid/usbhid/hid-lgff.c	2008-08-15
-14:00:39.000000000 +0400
-@@ -48,6 +48,12 @@
- 	-1
- };
+Aivils
 
-+static const signed short ff_momo_wheel[] = {
-+	FF_CONSTANT,
-+	FF_AUTOCENTER,
-+	-1
-+};
-+
- static const struct dev_type devices[] = {
- 	{ 0x046d, 0xc211, ff_rumble },
- 	{ 0x046d, 0xc219, ff_rumble },
-@@ -55,7 +61,7 @@
- 	{ 0x046d, 0xc286, ff_joystick },
- 	{ 0x046d, 0xc294, ff_joystick },
- 	{ 0x046d, 0xc295, ff_joystick },
--	{ 0x046d, 0xca03, ff_joystick },
-+	{ 0x046d, 0xca03, ff_momo_wheel },
- };
+>
+>
+> ---
+> ~Randy
+> Linux Plumbers Conference, 17-19 September 2008, Portland, Oregon USA
+> http://linuxplumbersconf.org/
 
- static int hid_lgff_play(struct input_dev *dev, void *data, struct
-ff_effect *effect)
-@@ -100,6 +106,23 @@
- 	return 0;
- }
 
-+static void hid_lgff_set_autocenter(struct input_dev *dev, u16 magnitude)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct list_head *report_list =
-&hid->report_enum[HID_OUTPUT_REPORT].report_list;
-+	struct hid_report *report = list_entry(report_list->next, struct
-hid_report, list);
-+	__s32 *value = report->field[0]->value;
-+	magnitude = (magnitude >> 12) & 0xf;
-+	*value++ = 0xfe;
-+	*value++ = 0x0d;
-+	*value++ = magnitude;	/* clockwise strength */
-+	*value++ = magnitude;	/* counter-clockwise strength */
-+	*value++ = 0x80;
-+	*value++ = 0x00;
-+	*value++ = 0x00;
-+	usbhid_submit_report(hid, report, USB_DIR_OUT);
-+}
-+
- int hid_lgff_init(struct hid_device* hid)
- {
- 	struct hid_input *hidinput = list_entry(hid->inputs.next, struct
-hid_input, list);
-@@ -110,6 +133,7 @@
- 	const signed short *ff_bits = ff_joystick;
- 	int error;
- 	int i;
-+	int autocenter = 0;
-
- 	/* Find the report to use */
- 	if (list_empty(report_list)) {
-@@ -138,13 +162,19 @@
- 		}
- 	}
-
--	for (i = 0; ff_bits[i] >= 0; i++)
-+	for (i = 0; ff_bits[i] >= 0; i++) {
- 		set_bit(ff_bits[i], dev->ffbit);
-+		if (ff_bits[i] == FF_AUTOCENTER)
-+		    autocenter = 1;
-+	}
-
- 	error = input_ff_create_memless(dev, NULL, hid_lgff_play);
- 	if (error)
- 		return error;
-
-+	if (autocenter && dev->ff && (!dev->ff->set_autocenter))
-+		dev->ff->set_autocenter = hid_lgff_set_autocenter;
-+
- 	printk(KERN_INFO "Force feedback for Logitech force feedback devices
-by Johann Deneux <johann.deneux@it.uu.se>\n");
-
- 	return 0;
-
-========================================================================
-Changes in this patch only for MOMO Racing wheels. But some other
-wheels (G25, for example) may be also understand this protocol, but I
-cannot check it.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

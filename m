@@ -1,47 +1,58 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Mon, 18 Aug 2008 17:14:11 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0808181712280.18058@jikos.suse.cz>
-References: <200808080702.24969.aivils@latnet.lv> <200808100408.37473.aivils@latnet.lv> <20080814184948.093d2cad.rdunlap@xenotime.net> <200808181642.49489.aivils@latnet.lv>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Autocentering support for Logitech MOMO Racing Wheel
+	(force feedback)
+Date: Mon, 18 Aug 2008 11:24:18 -0400
+Message-ID: <20080818110815.ZZRA012@mailhub.coreip.homeip.net>
+References: <bb829a0b0808180217t2bd3ed49q4cf5734dcc756311@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:56822 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752774AbYHRPOM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Aug 2008 11:14:12 -0400
-In-Reply-To: <200808181642.49489.aivils@latnet.lv>
+Received: from wr-out-0506.google.com ([64.233.184.229]:19027 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751811AbYHRPYZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 18 Aug 2008 11:24:25 -0400
+Received: by wr-out-0506.google.com with SMTP id 69so2119102wri.5
+        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2008 08:24:23 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <bb829a0b0808180217t2bd3ed49q4cf5734dcc756311@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Aivils Stoss <aivils@latnet.lv>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, lud <linux-usb@vger.kernel.org>, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
+To: ???????????? ?????????????? <sergey.belyashov@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, 18 Aug 2008, Aivils Stoss wrote:
+Hi Sergey,
 
->> I finally got 5 USB keyboards together along with 2 hubs. I 
->> daisy-chained the hubs and connected 1 keyboard to the hub that is on 
->> the notebook computer USB port, then I connected 4 keyboards to the 
->> second hub.  They all worked for me, meaning that I can type on all of 
->> them and have their characters show up on my console.
->> I'm testing with 2.6.7-rc2. 'usbtree' output of the USB subsystem is 
->> attached.
-> Yeah! 2.6.7 is a bit obsolete.
+On Mon, Aug 18, 2008 at 01:17:48PM +0400, ???????????? ?????????????? wrote:
+> Hello.
+>   Current kernel has no support for autocentering for Logitech wheels.
+> By default autocentering enabled in wheel and constant effect does not
+> work properly. Using USB sniffer I found command which change
+> autocentering settings: 0xFE, 0x0D, 0x0R, 0x0L, 0x80, 0x00, 0x00,
+> where R - clockwise force, L - counter-clockwise (0x0-0xF, 0xC =
+> 100%). I write patch for my current kernel (2.6.25), but I think git
+> version also supported, because I do not found any changes in it.
+> Currently kernel interface has no support for separate autocenter
+> control and so I do not implement it.
+>   And some interesting command 0xF3 (or 0xF5 - I do not understand
+> difference) which makes wheel very easy to rotate (a-la wheel booster
+> - no any resistance). Effect of that command can be disabled by
+> setting any (zero too) autocentering strength. I do not found in
+> kernel interface any standart command for this feature.
 
-I think that Randy really meant 2.6.27-rc2.
+This could probably implemented via a sysfs device knob...
 
-> At my end 2.6.15 support more than 4 keyboards per PC port , but mess up 
-> input when is plugged more than 9 keyboards. 10th is capable to send 
-> keypress events, but last pressed key will be repeated until ctrl-c . 
-> 10th keyboard disturb an auto repeat of all keyboards.
+> 
+>  	error = input_ff_create_memless(dev, NULL, hid_lgff_play);
+>  	if (error)
+>  		return error;
+> 
+> +	if (autocenter && dev->ff && (!dev->ff->set_autocenter))
+> +		dev->ff->set_autocenter = hid_lgff_set_autocenter;
+> +
 
-Could you please verify with any more recent kernel than 2.6.15 and report 
-back whether the issue is still present, please?
-
-Also, is this bug specific to USB keyboards? i.e. if you for example plug 
-in USB flash sticks instead of keyboards, do they all work correctly?
-
-Thanks,
+You can just do "if (test_bit(FF_AUTOCENTER, dev->ffbit))" and you
+won't need a temp variable. Also why do you need the rest of the check?
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

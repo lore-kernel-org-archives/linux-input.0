@@ -1,75 +1,35 @@
-From: Aivils Stoss <aivils@latnet.lv>
-Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Mon, 18 Aug 2008 16:42:49 +0530
-Message-ID: <200808181642.49489.aivils@latnet.lv>
-References: <200808080702.24969.aivils@latnet.lv> <200808100408.37473.aivils@latnet.lv> <20080814184948.093d2cad.rdunlap@xenotime.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [INPUT] removed unused #include <version.h>
+Date: Mon, 18 Aug 2008 11:04:46 -0400
+Message-ID: <20080818110400.ZZRA012@mailhub.coreip.homeip.net>
+References: <20080817064601.160F.WEIYI.HUANG@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from dzilna.latnet.lv ([92.240.66.75]:50240 "EHLO dzilna.latnet.lv"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751586AbYHRLM5 convert rfc822-to-8bit (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.27]:28650 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751586AbYHRPEv (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 Aug 2008 07:12:57 -0400
-In-Reply-To: <20080814184948.093d2cad.rdunlap@xenotime.net>
+	Mon, 18 Aug 2008 11:04:51 -0400
+Received: by qw-out-2122.google.com with SMTP id 3so128437qwe.37
+        for <linux-input@vger.kernel.org>; Mon, 18 Aug 2008 08:04:50 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <20080817064601.160F.WEIYI.HUANG@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: lud <linux-usb@vger.kernel.org>, Samuel Thibault <samuel.thibault@ens-lyon.org>, linux-input@vger.kernel.org, jkosina@suse.cz, linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net
+To: Huang Weiyi <weiyi.huang@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Friday 15 August 2008 7:19:48 am Randy Dunlap wrote:
-> On Sun, 10 Aug 2008 04:08:37 +0100 Aivils Stoss wrote:
-> > On Saturday 09 August 2008 11:42:26 am Samuel Thibault wrote:
-> > > Aivils Stoss, le Fri 08 Aug 2008 07:02:24 +0100, a =E9crit :
-> > > > I suppose this is Linux kernel bug because i test keyboards und=
-er
-> > > > Windows, which support any schema of cascading of usb hubs.
-> > >
-> > > On the very same machine and hubs?
-> >
-> > Yes, on same machine. Under Windows i don't have evdev interface,
-> > checked only how keypress go to console.
-> > Of course to repeat a try You must have at least 5 keyboards and
-> > 1 7-port or 2 4-port hubs and kernel 2.6.22 and above. I allways
-> > got result - 5th, 6th, 7th keyboard does not send events to console
-> > or evdev.
->
-> [adding linux-usb mailing list]
->
-> Hi,
->
-> I finally got 5 USB keyboards together along with 2 hubs.
-> I daisy-chained the hubs and connected 1 keyboard to the hub that is
-> on the notebook computer USB port, then I connected 4 keyboards to th=
-e
-> second hub.  They all worked for me, meaning that I can type on all o=
-f
-> them and have their characters show up on my console.
->
-> I'm testing with 2.6.7-rc2.
-> 'usbtree' output of the USB subsystem is attached.
+On Sun, Aug 17, 2008 at 07:50:53AM +0800, Huang Weiyi wrote:
+> The drivers below do not use LINUX_VERSION_CODE nor KERNEL_VERSION.
+>   drivers/input/keyboard/gpio_keys.c
+>   drivers/input/mouse/gpio_mouse.c
+>   drivers/input/tablet/gtco.c
+> 
+> This patch removes the said #include <version.h>.
+> 
 
-Yeah! 2.6.7 is a bit obsolete. At my end 2.6.15 support more than 4
-keyboards per PC port , but mess up input when is plugged more than
-9 keyboards. 10th is capable to send keypress events, but last pressed
-key will be repeated until ctrl-c . 10th keyboard disturb an auto repea=
-t of=20
-all keyboards.
+Folded with the other version.h removeal patch and applied, thank you.
 
-Aivils
-
->
->
-> ---
-> ~Randy
-> Linux Plumbers Conference, 17-19 September 2008, Portland, Oregon USA
-> http://linuxplumbersconf.org/
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

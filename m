@@ -1,83 +1,131 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Tue, 19 Aug 2008 14:21:03 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0808191400150.3391-100000@iolanthe.rowland.org>
-References: <25da0a65dd8a41208a8a0c0a.20080819094057.whnafynlgba@webmail.dslextreme.com>
+From: =?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP0YjQvtCy?=
+	<Sergey.Belyashov@gmail.com>
+Subject: Re: [PATCH] Autocentering support for Logitech MOMO Racing Wheel
+ (force feedback)
+Date: Tue, 19 Aug 2008 21:46:27 +0400
+Message-ID: <48AB06F3.10808@gmail.com>
+References: <bb829a0b0808180217t2bd3ed49q4cf5734dcc756311@mail.gmail.com>  <20080818110815.ZZRA012@mailhub.coreip.homeip.net>  <bb829a0b0808180916l1d2ca72fj689edcf5b8c156e5@mail.gmail.com>  <20080818131807.ZZRA012@mailhub.coreip.homeip.net> <bb829a0b0808181130r4c45403al45fffb356f321f9@mail.gmail.com> <alpine.LNX.1.10.0808191458050.18058@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <25da0a65dd8a41208a8a0c0a.20080819094057.whnafynlgba-2RFepEojUI1A/VoSMG3fsAVB4TfmtpSe@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: juanslayton-QP1aEjBt37AFQeE35raUng@public.gmane.org
-Cc: Aivils Stoss <aivils-zFrTw0b2IqLyG1zEObXtfA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, lud <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, linuxconsole-dev-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.ultranet.ru ([81.25.53.82]:40195 "EHLO mail.ultranet.ru"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752900AbYHSS6e (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 Aug 2008 14:58:34 -0400
+In-Reply-To: <alpine.LNX.1.10.0808191458050.18058@jikos.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input <linux-input@vger.kernel.org>
 
-On Tue, 19 Aug 2008 juanslayton-QP1aEjBt37AFQeE35raUng@public.gmane.org wrote:
+Jiri Kosina =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> On Mon, 18 Aug 2008, Sergey Belyashov wrote:
+>=20
+>> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D
+>> Logitech MOMO Recing Wheel Force Feedback autocenter setting support
+>> (also may be work on G25 etc. but I cann't check):
+>=20
+> Hi Sergey,
+>=20
+> sorry for late reply, I have been on vacation.
+>=20
+> Could you please send the patch with proper Signed-off-by: line, as=20
+> documented in Documentation/SubmittingPatches, so that I can merge it=
+=20
+> properly?
+>=20
+> Thanks!
+>=20
 
-> I have to apologize for my limited knowledge, but mere ignorance never yet
-> kept a teacher quiet.  I am trying to follow this discussion because
-> Aivils and I are  basically trying to do the same thing.  In my case I am
-> presently running 20 keyboards on a 2.6.26 kernel, using an EHCI
-> controller, and they all work fine.
+  Current kernel has no support for autocentering for Logitech wheels.
+By default autocentering enabled in wheel and constant effect does not
+work properly. Using USB sniffer I found command which change
+autocentering settings: 0xFE, 0x0D, 0x0R, 0x0L, 0x80, 0x00, 0x00,
+where R - clockwise force, L - counter-clockwise (0x0-0xF, 0xC =3D
+100%). I write patch for my current kernel (2.6.25), but I think git
+version also supported, because I do not found any changes in it.
 
-You must be using some hubs.  The results you get will depend on the 
-type of hub you use.
 
-> If I understand your analysis, Aivils' problem is because the UHCI
-> controllers are too slow.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- drivers/hid/usbhid/hid-lgff.c	2008-04-17 06:49:44.000000000 +0400
++++ drivers/hid/usbhid/hid-lgff.c	2008-08-19 20:57:00.000000000 +0400
+@@ -48,6 +48,12 @@ static const signed short ff_joystick[]=20
+ 	-1
+ };
+=20
++static const signed short ff_wheel[] =3D {
++	FF_CONSTANT,
++	FF_AUTOCENTER,
++	-1
++};
++
+ static const struct dev_type devices[] =3D {
+ 	{ 0x046d, 0xc211, ff_rumble },
+ 	{ 0x046d, 0xc219, ff_rumble },
+@@ -55,7 +61,7 @@ static const struct dev_type devices[] =3D
+ 	{ 0x046d, 0xc286, ff_joystick },
+ 	{ 0x046d, 0xc294, ff_joystick },
+ 	{ 0x046d, 0xc295, ff_joystick },
+-	{ 0x046d, 0xca03, ff_joystick },
++	{ 0x046d, 0xca03, ff_wheel },
+ };
+=20
+ static int hid_lgff_play(struct input_dev *dev, void *data, struct ff_=
+effect *effect)
+@@ -100,6 +106,23 @@ static int hid_lgff_play(struct input_de
+ 	return 0;
+ }
+=20
++static void hid_lgff_set_autocenter(struct input_dev *dev, u16 magnitu=
+de)
++{
++	struct hid_device *hid =3D input_get_drvdata(dev);
++	struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_REPORT=
+].report_list;
++	struct hid_report *report =3D list_entry(report_list->next, struct hi=
+d_report, list);
++	__s32 *value =3D report->field[0]->value;
++	magnitude =3D (magnitude >> 12) & 0xf;
++	*value++ =3D 0xfe;
++	*value++ =3D 0x0d;
++	*value++ =3D magnitude;   /* clockwise strength */
++	*value++ =3D magnitude;   /* counter-clockwise strength */
++	*value++ =3D 0x80;
++	*value++ =3D 0x00;
++	*value =3D 0x00;
++	usbhid_submit_report(hid, report, USB_DIR_OUT);
++}
++
+ int hid_lgff_init(struct hid_device* hid)
+ {
+ 	struct hid_input *hidinput =3D list_entry(hid->inputs.next, struct hi=
+d_input, list);
+@@ -145,6 +168,9 @@ int hid_lgff_init(struct hid_device* hid
+ 	if (error)
+ 		return error;
+=20
++	if ( test_bit(FF_AUTOCENTER, dev->ffbit) )
++		dev->ff->set_autocenter =3D hid_lgff_set_autocenter;
++
+ 	printk(KERN_INFO "Force feedback for Logitech force feedback devices =
+by Johann Deneux <johann.deneux@it.uu.se>\n");
+=20
+ 	return 0;
 
-Not just that; it also is a question of scheduling.  The uhci-hcd
-driver isn't very clever about scheduling, and it tries to put all the
-packets into the same frame.  If the packets were distributed among
-multiple frames then the limit would be considerably higher (eight
-times higher in this case).
-
-I'm not sure of the scheduling details in the ohci-hcd driver; they
-might well be more flexible than in uhci-hcd.  In which case a single
-OHCI controller would be able to handle up to 32 of these keyboards, 
-even though it is no faster than a UHCI controller.
-
->  (I just happened to get lucky with another
-> controller.)  I am left with two questions.
-> 
-> 1.  What if Aivils needs more than 16 keyboards?  (Standard class sizes
-> here in California run from 20 to about 30.)  Is there any way he can do
-> this without a faster controller?
-
-You should realize that Aivils _does_ have an EHCI controller.  He just
-isn't using it, because his hubs are old.  So the easiest approach for 
-him would be to buy USB-2.0 hubs.
-
-If he doesn't want to do that there are a few ways, but they mostly
-boil down to getting more controllers.  If he is good at kernel
-programming, he could upgrade the scheduling algorithm in uhci-hcd --
-but that will be a messy job and probably not worth the time spent
-(which is why I've never done it).
-
-> 2.  What does the bandwidth limitation say about the maximum number of
-> boards with the EHCI controller?  I modified the kernel evdev.c and
-> input.c files to raise the maximum events from 32 to 64, but I hadn't
-> figured in the effects of bandwidth.
-
-Like I said above, it depends on the type of hub you use.  If you have
-hubs with multiple Transaction Translators then the bandwidth limit
-will be very high.  I don't know how high exactly, but probably higher
-than other limits, like the maximum number of USB devices on a single
-bus (127).
-
-If you have hubs with only a single Transaction Translator then the
-limit will be lower, but still pretty high.  Certainly you would be
-able to connect no more than four keyboards to each hub, but you could
-have many hubs.  The details would depend on the scheduling algorithm 
-in ehci-hcd, which I'm also not familiar with.
-
-If you have only full-speed hubs (i.e., USB-1.1 hubs rather than
-USB-2.0) then you won't be able to make use of the EHCI controller at
-all.  That's the situation Aivils is in.
-
-Alan Stern
-
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+Signed-off-by: Sergey Belyashov <Sergey.Belyashov@gmail.com>
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

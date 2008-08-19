@@ -1,60 +1,83 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
 Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Tue, 19 Aug 2008 13:55:58 -0400
-Message-ID: <20080819135447.ZZRA012@mailhub.coreip.homeip.net>
-References: <200808080702.24969.aivils@latnet.lv>
-	<200808181642.49489.aivils@latnet.lv>
-	<20080818081432.782d9632.rdunlap@xenotime.net>
-	<200808191527.06945.aivils@latnet.lv>
-	<20080819081936.37fef673.rdunlap@xenotime.net>
-	<alpine.LNX.1.10.0808191721560.18058@jikos.suse.cz>
+Date: Tue, 19 Aug 2008 14:21:03 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0808191400150.3391-100000@iolanthe.rowland.org>
+References: <25da0a65dd8a41208a8a0c0a.20080819094057.whnafynlgba@webmail.dslextreme.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxconsole-dev-bounces@lists.sourceforge.net>
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.1.10.0808191721560.18058@jikos.suse.cz>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxconsole-dev>,
-	<mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxconsole-dev>
-List-Post: <mailto:linuxconsole-dev@lists.sourceforge.net>
-List-Help: <mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxconsole-dev>,
-	<mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=subscribe>
-Sender: linuxconsole-dev-bounces@lists.sourceforge.net
-Errors-To: linuxconsole-dev-bounces@lists.sourceforge.net
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: lud <linux-usb@vger.kernel.org>, linux-kernel@vger.kernel.org, Randy Dunlap <rdunlap@xenotime.net>, linuxconsole-dev@lists.sourceforge.net, stern@rowland.harvard.edu, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <25da0a65dd8a41208a8a0c0a.20080819094057.whnafynlgba-2RFepEojUI1A/VoSMG3fsAVB4TfmtpSe@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: juanslayton-QP1aEjBt37AFQeE35raUng@public.gmane.org
+Cc: Aivils Stoss <aivils-zFrTw0b2IqLyG1zEObXtfA@public.gmane.org>, jkosina-AlSwsSmVLrQ@public.gmane.org, lud <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, linuxconsole-dev-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, Aug 19, 2008 at 05:23:07PM +0200, Jiri Kosina wrote:
-> On Tue, 19 Aug 2008, Randy Dunlap wrote:
-> 
-> > > 2.6.22-1-mepis-smp
-> > > Quite stable. Have oops sometime inside evdev. Support up to 16 
-> > > USB keyboards, where 4 hubs are plugged into PC and 4 keyboards on
-> > > each hub. Any hub cascade support only 4 keyboards, where 5th or more
-> > > is registered but don't send input events. Oops inside evdev , when
-> > > USB keyboard unplugged. No slow down even all USB keyboards does
-> > > not work properly. My be this one support more than 16 keyboards, but
-> > > i don't have PC USB ports enough.
-> > Has the evdev oops been reported and/or fixed? I think that we would 
-> > prefer to fix that soonish.
-> 
-> We haven't seen the respective oops yet, or have I missed it?
-> 
-> I'd bet it is fixed in newer kernels by patches that introduce proper 
-> locking into evdev code.
-> 
+On Tue, 19 Aug 2008 juanslayton-QP1aEjBt37AFQeE35raUng@public.gmane.org wrote:
 
-If evdev (or any other part of the input sybsystem) still oopses in
-2.6.26 and 2.6.27 I would like to see that oops very much.
+> I have to apologize for my limited knowledge, but mere ignorance never yet
+> kept a teacher quiet.  I am trying to follow this discussion because
+> Aivils and I are  basically trying to do the same thing.  In my case I am
+> presently running 20 keyboards on a 2.6.26 kernel, using an EHCI
+> controller, and they all work fine.
 
--- 
-Dmitry
+You must be using some hubs.  The results you get will depend on the 
+type of hub you use.
 
--------------------------------------------------------------------------
-This SF.Net email is sponsored by the Moblin Your Move Developer's challenge
-Build the coolest Linux based applications with Moblin SDK & win great prizes
-Grand prize is a trip for two to an Open Source event anywhere in the world
-http://moblin-contest.org/redirect.php?banner_id=100&url=/
+> If I understand your analysis, Aivils' problem is because the UHCI
+> controllers are too slow.
+
+Not just that; it also is a question of scheduling.  The uhci-hcd
+driver isn't very clever about scheduling, and it tries to put all the
+packets into the same frame.  If the packets were distributed among
+multiple frames then the limit would be considerably higher (eight
+times higher in this case).
+
+I'm not sure of the scheduling details in the ohci-hcd driver; they
+might well be more flexible than in uhci-hcd.  In which case a single
+OHCI controller would be able to handle up to 32 of these keyboards, 
+even though it is no faster than a UHCI controller.
+
+>  (I just happened to get lucky with another
+> controller.)  I am left with two questions.
+> 
+> 1.  What if Aivils needs more than 16 keyboards?  (Standard class sizes
+> here in California run from 20 to about 30.)  Is there any way he can do
+> this without a faster controller?
+
+You should realize that Aivils _does_ have an EHCI controller.  He just
+isn't using it, because his hubs are old.  So the easiest approach for 
+him would be to buy USB-2.0 hubs.
+
+If he doesn't want to do that there are a few ways, but they mostly
+boil down to getting more controllers.  If he is good at kernel
+programming, he could upgrade the scheduling algorithm in uhci-hcd --
+but that will be a messy job and probably not worth the time spent
+(which is why I've never done it).
+
+> 2.  What does the bandwidth limitation say about the maximum number of
+> boards with the EHCI controller?  I modified the kernel evdev.c and
+> input.c files to raise the maximum events from 32 to 64, but I hadn't
+> figured in the effects of bandwidth.
+
+Like I said above, it depends on the type of hub you use.  If you have
+hubs with multiple Transaction Translators then the bandwidth limit
+will be very high.  I don't know how high exactly, but probably higher
+than other limits, like the maximum number of USB devices on a single
+bus (127).
+
+If you have hubs with only a single Transaction Translator then the
+limit will be lower, but still pretty high.  Certainly you would be
+able to connect no more than four keyboards to each hub, but you could
+have many hubs.  The details would depend on the scheduling algorithm 
+in ehci-hcd, which I'm also not familiar with.
+
+If you have only full-speed hubs (i.e., USB-1.1 hubs rather than
+USB-2.0) then you won't be able to make use of the EHCI controller at
+all.  That's the situation Aivils is in.
+
+Alan Stern
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

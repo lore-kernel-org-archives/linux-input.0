@@ -1,81 +1,156 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+From: Randy Dunlap <rdunlap@xenotime.net>
 Subject: Re: PROBLEM: USB keyboards works only 4 per PC host port
-Date: Tue, 19 Aug 2008 11:03:18 -0400 (EDT)
-Message-ID: <Pine.LNX.4.44L0.0808191049490.2669-100000@iolanthe.rowland.org>
-References: <200808191527.06945.aivils@latnet.lv>
+Date: Tue, 19 Aug 2008 08:19:36 -0700
+Message-ID: <20080819081936.37fef673.rdunlap@xenotime.net>
+References: <200808080702.24969.aivils@latnet.lv>
+	<200808181642.49489.aivils@latnet.lv>
+	<20080818081432.782d9632.rdunlap@xenotime.net>
+	<200808191527.06945.aivils@latnet.lv>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200808191527.06945.aivils-zFrTw0b2IqLyG1zEObXtfA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Aivils Stoss <aivils-zFrTw0b2IqLyG1zEObXtfA@public.gmane.org>
-Cc: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, lud <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Thibault <samuel.thibault-vYW+cPY1g1pg9hUCZPvPmw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jkosina-AlSwsSmVLrQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxconsole-dev-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linuxconsole-dev-bounces@lists.sourceforge.net>
+In-Reply-To: <200808191527.06945.aivils@latnet.lv>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/linuxconsole-dev>,
+	<mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=linuxconsole-dev>
+List-Post: <mailto:linuxconsole-dev@lists.sourceforge.net>
+List-Help: <mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/linuxconsole-dev>,
+	<mailto:linuxconsole-dev-request@lists.sourceforge.net?subject=subscribe>
+Sender: linuxconsole-dev-bounces@lists.sourceforge.net
+Errors-To: linuxconsole-dev-bounces@lists.sourceforge.net
+To: Aivils Stoss <aivils@latnet.lv>, stern@rowland.harvard.edu
+Cc: jkosina@suse.cz, lud <linux-usb@vger.kernel.org>, linux-kernel@vger.kernel.org, linuxconsole-dev@lists.sourceforge.net, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Tue, 19 Aug 2008, Aivils Stoss wrote:
+On Tue, 19 Aug 2008 15:27:06 +0530 Aivils Stoss wrote:
+
+> On Monday 18 August 2008 8:44:32 pm Randy Dunlap wrote:
+> > On Mon, 18 Aug 2008 16:42:49 +0530 Aivils Stoss wrote:
+> > > On Friday 15 August 2008 7:19:48 am Randy Dunlap wrote:
+> > > > On Sun, 10 Aug 2008 04:08:37 +0100 Aivils Stoss wrote:
+> > > > > On Saturday 09 August 2008 11:42:26 am Samuel Thibault wrote:
+> > > > > > Aivils Stoss, le Fri 08 Aug 2008 07:02:24 +0100, a =E9crit :
+> > > > > > > I suppose this is Linux kernel bug because i test keyboards u=
+nder
+> > > > > > > Windows, which support any schema of cascading of usb hubs.
+> > > > > >
+> > > > > > On the very same machine and hubs?
+> > > > >
+> > > > > Yes, on same machine. Under Windows i don't have evdev interface,
+> > > > > checked only how keypress go to console.
+> > > > > Of course to repeat a try You must have at least 5 keyboards and
+> > > > > 1 7-port or 2 4-port hubs and kernel 2.6.22 and above. I allways
+> > > > > got result - 5th, 6th, 7th keyboard does not send events to conso=
+le
+> > > > > or evdev.
+> > > >
+> > > > [adding linux-usb mailing list]
+> > > >
+> > > > Hi,
+> > > >
+> > > > I finally got 5 USB keyboards together along with 2 hubs.
+> > > > I daisy-chained the hubs and connected 1 keyboard to the hub that is
+> > > > on the notebook computer USB port, then I connected 4 keyboards to =
+the
+> > > > second hub.  They all worked for me, meaning that I can type on all=
+ of
+> > > > them and have their characters show up on my console.
+> > > >
+> > > > I'm testing with 2.6.7-rc2.
+> > > > 'usbtree' output of the USB subsystem is attached.
+> > >
+> > > Yeah! 2.6.7 is a bit obsolete. At my end 2.6.15 support more than 4
+> > > keyboards per PC port , but mess up input when is plugged more than
+> > > 9 keyboards. 10th is capable to send keypress events, but last pressed
+> > > key will be repeated until ctrl-c . 10th keyboard disturb an auto rep=
+eat
+> > > of all keyboards.
+> >
+> > Sorry, my keyboard made a typo.  I'm testing with 2.6.27-rc2.
+> >
+> > So the problem is now different from your original report, right?
+> =
 
 > No problem is same. Older kernels have another troubles.
 > 2.6.22-1-mepis-smp
-> Quite stable. Have oops sometime inside evdev. Support up to 16 
+> Quite stable. Have oops sometime inside evdev. Support up to 16 =
+
 > USB keyboards, where 4 hubs are plugged into PC and 4 keyboards on
 > each hub. Any hub cascade support only 4 keyboards, where 5th or more
 > is registered but don't send input events. Oops inside evdev , when
 > USB keyboard unplugged. No slow down even all USB keyboards does
 > not work properly. My be this one support more than 16 keyboards, but
 > i don't have PC USB ports enough.
-> 
+
+Has the evdev oops been reported and/or fixed?
+I think that we would prefer to fix that soonish.
+
+
 > 2.6.24-7
-> 4 keyboards per port. If plug in 5th tend to total slow down with this one:
-> usb 2-1.1.1: reset low speed USB device using 
+> 4 keyboards per port. If plug in 5th tend to total slow down with this on=
+e:
+> usb 2-1.1.1: reset low speed USB device using =
+
 > uhci_hcd and address 17
 > 5th - means 5th keyboard in USB hub's cascade, which is plugged into
 > single PC USB port.
-> 
+> =
+
 > 2.6.26
 > 4 keyboards per port. If plug in 5th tend to total slow down.
-> 
+> =
+
 > 2.6.27-rc3
 > Sorry Randy i cannot repeat Your achievement. This worse of all tested
 > kernels. I got working 3 USB keyboards, when i plug in 4th, all keyboards,
 > include PS/2 stop working. Kernel does not hung up. I can reach box
 > via net. dmesg , /proc/bus/input/devices attached. lsusb hung up.
 
-Have you tried looking in your system log for error messages indicating 
-the source of the problem?
+Please try to include full dmesg (kernel boot log) in the future.
+This was was truncated at the front (early messages).
 
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-input: USB HID v1.10 Device [CHESEN USB Keyboard] on usb-0000:00:1d.1-2.2.4
-usbcore: registered new interface driver usbhid
-usbhid: v2.6:USB HID core driver
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
-uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 + 118 us
+> Please notify me , if i should use 2.6.27-rc2 !
 
-Those messages seem pretty clear.  Each keyboard requires two interrupt 
-transfers occupying 118 us of bandwidth apiece.  That's 236 us per 
-keyboard.
+It doesn't seem preferable for you yet.
 
-Since there is only 900 us total available for interrupt transfers in
-any frame, and since uhci-hcd isn't smart enough to allocate different
-interrupt endpoints to different frames, you run out of bandwidth after
-four keyboards.
+Looks like it could be a problem just to put N low-speed devices on one roo=
+t hub/port:
 
-Now if you plugged some of these keyboards into different UHCI 
-controllers on the computer, then the problem wouldn't arise.  Each of 
-your four UHCI controllers has two ports.  So without using any hubs at 
-all, you can plug 8 keyboards into the computer and they will all work.
+uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 =
++ 118 us
+uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 =
++ 118 us
+uhci_hcd 0000:00:1d.1: bandwidth allocation failed: period 8, phase 4, 826 =
++ 118 us
+etc etc.
 
-If you use some extra hubs as well then you can plug four keyboards 
-into each controller, allowing you to use 16 keyboards total.
+Alan (Stern), could you look at this one, please?
 
-Alan Stern
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Aivils
+> =
+
+> >
+> >
+> > What speed is the host port that the keyboards are connected to?
+> > Could it be a USB bus bandwidth limitation?  (not that any code
+> > checks for that)
+> >
+> > I barely found 5 USB keyboards, so I surely can't test 10 or more.  ;)
+> > I suppose that it will take some USB debug messages to attempt to see
+> > what is going on...
+
+
+---
+~Randy
+Linux Plumbers Conference, 17-19 September 2008, Portland, Oregon USA
+http://linuxplumbersconf.org/
+
+-------------------------------------------------------------------------
+This SF.Net email is sponsored by the Moblin Your Move Developer's challenge
+Build the coolest Linux based applications with Moblin SDK & win great priz=
+es
+Grand prize is a trip for two to an Open Source event anywhere in the world
+http://moblin-contest.org/redirect.php?banner_id=3D100&url=3D/

@@ -1,32 +1,128 @@
-From: Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [patch 1/4] drivers/input/touchscreen/ucb1400_ts.c needs GPIO
-Date: Thu, 21 Aug 2008 00:50:01 +0100
-Message-ID: <20080820235001.GG18947@flint.arm.linux.org.uk>
-References: <200808202346.m7KNkfRW005712@imap1.linux-foundation.org>
+From: Neil Brown <neilb@suse.de>
+Subject: Re: [PATCH/RFC]  Resolve 2 year old issue with different demands
+	on EVIOCGRAB
+Date: Thu, 21 Aug 2008 10:10:33 +1000
+Message-ID: <18604.45689.859491.192621@notabene.brown>
+References: <18596.58273.713075.332009@notabene.brown>
+	<20080815022453.GA9438@anvil.corenet.prv>
+	<18600.51093.613662.435395@notabene.brown>
+	<20080818112609.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:32782 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755548AbYHTXuW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 Aug 2008 19:50:22 -0400
-Content-Disposition: inline
-In-Reply-To: <200808202346.m7KNkfRW005712@imap1.linux-foundation.org>
+Received: from mx1.suse.de ([195.135.220.2]:39385 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752031AbYHUAKm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 Aug 2008 20:10:42 -0400
+In-Reply-To: message from Dmitry Torokhov on Monday August 18
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: dtor@mail.ru, linux-input@vger.kernel.org, david-b@pacbell.net, marek.vasut@gmail.com, nico@marvell.com, vsauder@inhand.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Aug 20, 2008 at 04:46:41PM -0700, akpm@linux-foundation.org wrote:
-> From: Andrew Morton <akpm@linux-foundation.org>
+On Monday August 18, dmitry.torokhov@gmail.com wrote:
+> On Mon, Aug 18, 2008 at 10:51:33AM +1000, Neil Brown wrote:
+> >  But the X server still needs to know a little bit about /dev/tty to
+> >  make sure that control-C doesn't get delivered the wrong way.  That's
+> >  awkward.
 > 
-> ia64 allmodconfig:
+> Does it need to do anything besides switching VC into the raw mode?
 
-NAK.  As was explained earlier this morning by others, the fixes
-have been passed to me.  As of this evening, they're in my git tree.
+Probably not, no.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:
+> 
+> >  It also negates much of the power of the input layer (easy hot-plug).
+> >  I don't much like that approach.
+> > 
+> 
+> I think this is the only sensible approach though. X needs to have
+> native hotplug capabilities anyway because of all these new mice that
+> have bazillion of buttons on them that PS/2 emulation simply can not
+> support. And once you have hotplug support in X and don't rely on
+> myultiplexors anymore you can remove bunch of things, like grabbing
+> devices in one fashion or another and you can even keep the devices
+> open while switching to the text mode - no need to close and reopen
+> them all the time.
+
+So your position is that for anything non-trivial, the clever stuff in
+the input layer like multiplexing and simulating PS2 mice is not
+sufficiently powerful and not worth fixing, and it should all be left
+to userspace.  Correct?
+I must confess a certain sympathy for that position, but it does make
+solving my current problem harder - which dampens my enthusiasm :-)
+
+So:  The X server need to support hotplug of input devices. 
+Apparently there is code out there (for nearly 2 years) but it doesn't
+seem to be in a release yet.
+Quoting http://wiki.x.org/wiki/XInputHotplug
+
+   The X.org server supports hotplugging input devices since November
+   2006
+   http://lists.freedesktop.org/archives/xorg/2006-October/019007.html
+   (X11R7.2 will NOT have hotplug support yet).  
+
+So both the kernel and the X server could provide the hotplug support
+required, but neither are really quite usable at the moment for very
+different reasons.  Sad.
+Options...
+ First: problem description.
+   Device with a touchscreen wants:
+    - touch screen events to be delivered as absolute events to X
+         server.
+    - Other programs to be able to monitor the touch screen to
+      e.g. detect activity independently of whether an X server is in
+      use or direct fbdev access is happening (e.g. Qtopia).
+    - hot-plugged mice (e.g. bluetooth) should be recognised by
+      X server.
+
+ We could:
+  1/ Wait for X11 XInputHotplug to be released.
+  2/ Hack a little input driver for X which somehow finds 
+     mouse devices and interprets them.
+  3/ Use kernel's input multiplexing and:
+   3a/ change EVIOCGRAB to not exclude other evdev devices
+   3b/ change EVIOCGRAB to optionally not exclude other evdev devices.
+   3c/ somehow convince mousedev never to listen on the touchscreen.
+
+ Did I miss anything?
+
+ 3a is what the openmoko kernel (and presumably others) do today.  But
+ it breaks backwards compatibility .
+ 3b is what I suggested but you don't like.
+ 1 does not provide a solution in a reasonable time frame
+ 2 is likely to be very messy and error prone
+
+ So I'm now wondering about 3c.
+ While I can understand the value of pretending that a touch-pad looks
+ like a mouse, a touch-screen is a very different thing.  I don't
+ think it would ever make sense for a touch screen to generate
+ relative events.
+ So how might we make our touchscreen appear uninteresting to
+ mousedev?
+
+ We could get it to return some other 'key' rather one of
+     BTN_TOUCH BTN_TOOL_FINGER BTN_LEFT
+
+ Maybe BTN_STYLUS.  Given that the touchpad is designed for finger
+ usage it is a bit of a lie.  But it would work.
+
+ This is really sidestepping the issue.  We really want to be able to
+ say "This is a device where relative events are completely
+ meaningless".  I suspect that isn't going to happen though.
+
+ tslib doesn't seem to care much about what key is sent.  It only
+ looks for BTN_TOUCH, but all it sees is when the value goes to zero
+ as a "finger is removed" event.  It equally gets that from
+ ABS_PRESSURE going to zero.
+
+ So if I just arranged for the touchscreen to deliver BTN_STYLUS
+ instead of BTN_TOUCH it would hide it from all the mousedev devices
+ (which I think is the correct thing) and mean that the Xserver
+ doesn't need to use EVIOCGRAB, so we don't need to break it in the
+ kernel.
+
+OK, I think I can go forward with that.  Thanks for listening.
+
+NeilBrown
+

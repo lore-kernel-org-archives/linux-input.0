@@ -1,33 +1,78 @@
-From: etjazz <etjazz@aurigatech.it>
-Subject: n-trig tablet driver
-Date: Thu, 21 Aug 2008 09:12:07 +0200
-Message-ID: <1219302727.10857.20.camel@localhost.localdomain>
+From: "Justin Mattock" <justinmattock@gmail.com>
+Subject: Re: evdev.c(EVIOCGBIT): Suspicious buffer size 511,
+Date: Thu, 21 Aug 2008 15:47:22 -0700
+Message-ID: <dd18b0c30808211547l27591f0aia498e08997f64b2@mail.gmail.com>
+References: <dd18b0c30808172310u7cf7836ai15e19485908ae0ce@mail.gmail.com>
+	 <20080820000040.55015b48.akpm@linux-foundation.org>
+	 <20080820092806.ZZRA012@mailhub.coreip.homeip.net>
+	 <dd18b0c30808200931x2aea0dc6t2986b7a4c3daeff9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from averell.mail.tiscali.it ([213.205.33.55]:54755 "EHLO
-	averell.mail.tiscali.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755346AbYHUHRy (ORCPT
+Received: from wf-out-1314.google.com ([209.85.200.175]:31087 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758140AbYHUWrY (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 Aug 2008 03:17:54 -0400
-Received: from [10.1.65.61] (84.222.74.99) by averell.mail.tiscali.it (8.0.022)
-        id 48A12570001EF940 for linux-input@vger.kernel.org; Thu, 21 Aug 2008 09:12:08 +0200
+	Thu, 21 Aug 2008 18:47:24 -0400
+Received: by wf-out-1314.google.com with SMTP id 27so256473wfd.4
+        for <linux-input@vger.kernel.org>; Thu, 21 Aug 2008 15:47:23 -0700 (PDT)
+In-Reply-To: <dd18b0c30808200931x2aea0dc6t2986b7a4c3daeff9@mail.gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux-Input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-=EF=BB=BFHello,
-  I'm an owner of a Dell Latitude XT with n-trig duosense tablet,
-Is there anyone working on this driver?
-Is this device in some way similar to a wacom tablet?
+On Wed, Aug 20, 2008 at 9:31 AM, Justin Mattock <justinmattock@gmail.com> wrote:
+> On Wed, Aug 20, 2008 at 6:31 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+>> On Wed, Aug 20, 2008 at 12:00:40AM -0700, Andrew Morton wrote:
+>>> On Sun, 17 Aug 2008 23:10:54 -0700 "Justin Mattock" <justinmattock@gmail.com> wrote:
+>>>
+>>> > I'm noticing:
+>>> > evdev.c(EVIOCGBIT): Suspicious buffer size 511, limiting output to 64
+>>> > bytes. See http://userweb.kernel.org/~dtor/eviocgbit-bug.html
+>>> > with rc-3 not with rc2.
+>>> > Did the patch to synaptics, seems
+>>> > my xorg is not reading /usr/X11R6/lib/modules/input/synaptics_drv.o
+>>> > only /usr/lib/xorg/modules/input/synaptics_drv.so
+>>> > is there any easy fix, or do I have to recompile xorg?
+>>> > regards;
+>>> >
+>>>
+>>> (cc's added)
+>>>
+>>
+>> You can just copy the updated file manually into
+>> /usr/lib/xorg/modules/input/.
+>>
+>> I tried rebuilding synaptics from here:
+>>
+>> git://anongit.freedesktop.org/git/xorg/driver/xf86-input-synaptics
+>>
+>> but unfortunately it fails with some automake crap that I don't have
+>> time to trace through at the moment.
+>>
+>> --
+>> Dmitry
+>>
+>
+> Cool, I'll have a try at it again.
+> What I did was copy /usr/lib/X11R6/lib/modules/input/synaptics_drv.o
+> to /usr/lib/xorg/modules/input/   then renamed it to synaptics_drv.so
+> the module loads but is broken.  When given time today I'll try and
+> reinstall, and see if I can get it working.
+>
+>
+> --
+> Justin P. Mattock
+>
 
 
-Andrea
+debian SID  upgraded there package
+for synaptic message
+is fixed.
 
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Justin P. Mattock

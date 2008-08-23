@@ -1,87 +1,59 @@
-From: Thomas Reitmayr <treitmayr@devbase.at>
-Subject: Re: Usage of new KEY_NUMERIC_* codes in an existing driver
-	(yealink)
-Date: Sat, 23 Aug 2008 14:39:16 +0200
-Message-ID: <1219495156.6680.4.camel@localhost>
-References: <1219424488.6684.20.camel@localhost>
-	 <20080822155829.ZZRA012@mailhub.coreip.homeip.net>
+From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: LID switch and /dev/input/event*
+Date: Sat, 23 Aug 2008 23:43:55 +0200
+Message-ID: <48B0849B.7070800@freemail.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtpgw01.world4you.com ([80.243.163.21]:57924 "EHLO
-	smtpgw01.world4you.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751057AbYHWMj2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 23 Aug 2008 08:39:28 -0400
-In-Reply-To: <20080822155829.ZZRA012@mailhub.coreip.homeip.net>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-acpi <linux-acpi@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Linux-Input <linux-input@vger.kernel.org>
 
-=EF=BB=BFThanks =EF=BB=BFDmitry,
-I will take a look at the cm109 driver to see how setkeycode/getkeycode
-support is implemented and how this fits into the yealink code.
-As soon as I have done that (and cleaned up a few things) I will post
-the code as a patch.
-Best regards,
--Thomas
+Hi,
 
+I am using Linux 2.6.27-rc4 on Clevo D410J laptop and the I can
+query the LID switch state like this:
 
-Am Freitag, den 22.08.2008, 16:02 -0400 schrieb Dmitry Torokhov:
-> Hi Thomas,
->=20
-> On Fri, Aug 22, 2008 at 07:01:28PM +0200, Thomas Reitmayr wrote:
-> > Hi,
-> > I am in the process of extending the existing yealink driver, partl=
-y to
-> > support various other models. The existing driver as included in th=
-e
-> > current kernel uses the shift key to report the keys "*" and "#", b=
-ut I
-> > am hesitating to do the same bad "trick" for the other models.
-> >=20
-> > As I would like to eventually submit the extended driver upstream, =
-what
-> > is the recommended strategy in my situation regarding usage of the =
-new
-> > KEY_NUMERIC_* codes? Use them only for the new models (which would
-> > result in an ugly mix), or also update the codes for the existing
-> > USB-P1K model (which would break userspace programs but finally fix
-> > things for some foreign keyboard layouts),=20
->=20
-> Do you think that we need to add more keymaps to the kernel? What I
-> woudl like to see is adding setkeycode/getkeycode support to yealink
-> so proper keymap can be loaded from userspace (udev, hal, whatever)
-> when a device is plugged into a box. USB-P1K coudl also get the new
-> keymap loaded from userspace while keeping the current legacy keymap
-> for existing users.
->=20
-> >or for the existing USB-P1K
-> > model report the old and the new codes (which might look like two k=
-ey
-> > presses)?
->=20
-> No, that is not a good idea.
->=20
-> > Thanks for your advice,
-> > -Thomas
-> >=20
-> > PS: The updated driver is available at
-> > http://www.devbase.at/svn/view.cgi/yealink-module/trunk/?root=3Dvoi=
-p
-> > (still including #if's reg. kernel versions, some comments to be
-> > corrected, etc.)
-> >=20
->=20
-> Would you mind posting it as a patch - it is much easier to comment o=
-n
-> it in e-mail... Thanks!
->=20
+# cat /proc/acpi/button/lid/LID/state
+state:      open
+# cat /proc/acpi/button/lid/LID/state
+state:      closed
+
+If I check the event4, I get no events when the LID switch is pushed:
+
+# evtest /dev/input/event4
+Input driver version is 1.0.0
+Input device ID: bus 0x19 vendor 0x0 product 0x5 version 0x0
+Input device name: "Lid Switch"
+Supported events:
+  Event type 0 (Sync)
+  Event type 5 (?)
+    Event code 0 (?)
+Testing ... (interrupt to exit)
+
+The events are only reported if I suspend to RAM with "s2ram -f -p -s".=
+ I did
+the following steps:
+
+1. Execute "s2ram -f -p -s". Now the system suspends to RAM.
+2. Push the LID switch and hold it down.
+3. Wake the system with the POWER button.
+4. After the system is up, release the LID switch to see the screen.
+5. "evtest" reports the following line:
+
+Event: time 1219526119.163805, type 5 (?), code 0 (?), value 1
+
+6. Execute "s2ram -f -p -s" again.
+7. Wake the system with the POWER button.
+8. "evtest" reports the following line:
+
+Event: time 1219526913.208803, type 5 (?), code 0 (?), value 0
+
+	M=E1rton N=E9meth
 
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

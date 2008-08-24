@@ -1,59 +1,49 @@
-From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Subject: LID switch and /dev/input/event*
-Date: Sat, 23 Aug 2008 23:43:55 +0200
-Message-ID: <48B0849B.7070800@freemail.hu>
+From: Neil Brown <neilb@suse.de>
+Subject: Re: [PATCH/RFC]  Resolve 2 year old issue with different demands
+	on EVIOCGRAB
+Date: Mon, 25 Aug 2008 09:48:54 +1000
+Message-ID: <18609.62310.72394.640097@notabene.brown>
+References: <18596.58273.713075.332009@notabene.brown>
+	<20080815022453.GA9438@anvil.corenet.prv>
+	<18600.51093.613662.435395@notabene.brown>
+	<20080818112609.ZZRA012@mailhub.coreip.homeip.net>
+	<18604.45689.859491.192621@notabene.brown>
+	<20080822160414.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-acpi <linux-acpi@vger.kernel.org>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ns2.suse.de ([195.135.220.15]:43875 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752832AbYHXXtD (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 24 Aug 2008 19:49:03 -0400
+In-Reply-To: message from Dmitry Torokhov on Friday August 22
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi,
+On Friday August 22, dmitry.torokhov@gmail.com wrote:
+> 
+> Maybe openmoko could just patch mousedev to ignore touchscreens for
+> now, until X is fixed?
 
-I am using Linux 2.6.27-rc4 on Clevo D410J laptop and the I can
-query the LID switch state like this:
+Maybe.  And in fact it already is!
+As I delved further in to this issue, I find that not only is there a
+patch in tslib to use EVIOCGRAB, but there is also a patch in the
+kernel to exclude the "ABS_X + ABS_Y + BTN_TOUCH" case from mousedev,
+making the EVIOCGRAB patch pointless.
+And there might even be another patch in the kdrive Xserver to use
+EVIOCGRAB in a different context (which might not actually be being
+used, I'm not sure).  A twisted maze of little passages, all
+twisted. :-)
 
-# cat /proc/acpi/button/lid/LID/state
-state:      open
-# cat /proc/acpi/button/lid/LID/state
-state:      closed
+But I am firmly against carrying patches like this which cannot go
+upstream.  They can lead to subtle incompatibilities and can be hard
+to get rid of.  I much prefer a solution that can work for everyone,
+and I currently think the BTN_TOUCH -> BTN_STYLUS change is that
+solution.  It remains to be seen which I can push into the openmoko
+source tree :-)
 
-If I check the event4, I get no events when the LID switch is pushed:
-
-# evtest /dev/input/event4
-Input driver version is 1.0.0
-Input device ID: bus 0x19 vendor 0x0 product 0x5 version 0x0
-Input device name: "Lid Switch"
-Supported events:
-  Event type 0 (Sync)
-  Event type 5 (?)
-    Event code 0 (?)
-Testing ... (interrupt to exit)
-
-The events are only reported if I suspend to RAM with "s2ram -f -p -s".=
- I did
-the following steps:
-
-1. Execute "s2ram -f -p -s". Now the system suspends to RAM.
-2. Push the LID switch and hold it down.
-3. Wake the system with the POWER button.
-4. After the system is up, release the LID switch to see the screen.
-5. "evtest" reports the following line:
-
-Event: time 1219526119.163805, type 5 (?), code 0 (?), value 1
-
-6. Execute "s2ram -f -p -s" again.
-7. Wake the system with the POWER button.
-8. "evtest" reports the following line:
-
-Event: time 1219526913.208803, type 5 (?), code 0 (?), value 0
-
-	M=E1rton N=E9meth
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+NeilBrown

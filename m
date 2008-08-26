@@ -1,50 +1,108 @@
 From: Niels de Vos <niels.devos@wincor-nixdorf.com>
 Subject: Re: [RFC][PATCH] POSKeyboard driver for exclusive keyboard access
-Date: Tue, 26 Aug 2008 08:11:29 +0000 (UTC)
-Message-ID: <loom.20080826T080624-638@post.gmane.org>
-References: <1b51b6f80808220917t20fdb09el78b117c5ba5b7f7c@mail.gmail.com> <20080822111924.d0713931.akpm@linux-foundation.org>
+Date: Tue, 26 Aug 2008 11:19:30 +0200
+Message-ID: <48B3CAA2.5040207@wincor-nixdorf.com>
+References: <1b51b6f80808220917t20fdb09el78b117c5ba5b7f7c@mail.gmail.com> <20080822135507.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig5F5CAF4660E6F2FF8572A796"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from main.gmane.org ([80.91.229.2]:60574 "EHLO ciao.gmane.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752056AbYHZIPF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Aug 2008 04:15:05 -0400
-Received: from root by ciao.gmane.org with local (Exim 4.43)
-	id 1KXthf-0004Ib-5F
-	for linux-input@vger.kernel.org; Tue, 26 Aug 2008 08:15:03 +0000
-Received: from prpdbx1e.wincor-nixdorf.com ([prpdbx1e.wincor-nixdorf.com])
-        by main.gmane.org with esmtp (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Tue, 26 Aug 2008 08:15:03 +0000
-Received: from niels.devos by prpdbx1e.wincor-nixdorf.com with local (Gmexim 0.1 (Debian))
-        id 1AlnuQ-0007hv-00
-        for <linux-input@vger.kernel.org>; Tue, 26 Aug 2008 08:15:03 +0000
+Received: from mxpdbe2.wincor-nixdorf.com ([80.154.98.130]:58433 "EHLO
+	mxpdbe2.wincor-nixdorf.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752410AbYHZJ2Q (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Aug 2008 05:28:16 -0400
+In-Reply-To: <20080822135507.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm <at> linux-foundation.org> writes:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig5F5CAF4660E6F2FF8572A796
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> On Fri, 22 Aug 2008 18:17:28 +0200
-> "Niels de Vos" <niels.devos <at> wincor-nixdorf.com> wrote:
-> 
-> > This new driver makes it possible for middleware like JavaPOS to use
-> > a POSKeyboard (connected to PS/2) with exclusive access. This is
-> > required by the UnifiedPOS Specification which is available from
-> > http://www.nrf-arts.org/UnifiedPOS. Any middleware using this driver
-> > should implement the full exception-handling in user-space. Therefor
-> > it is possible to use specific POS-extensions of POSKeyboards, without
-> > abusing other keyboard-drivers.
+Hello Dmitry,
 
-Hello Andrew,
+Dmitry Torokhov wrote:
+> Hi Niels,
+>=20
+> On Fri, Aug 22, 2008 at 06:17:28PM +0200, Niels de Vos wrote:
+>> This new driver makes it possible for middleware like JavaPOS to use
+>> a POSKeyboard (connected to PS/2) with exclusive access. This is
+>> required by the UnifiedPOS Specification which is available from
+>> http://www.nrf-arts.org/UnifiedPOS. Any middleware using this driver
+>> should implement the full exception-handling in user-space. Therefor
+>> it is possible to use specific POS-extensions of POSKeyboards, without=
 
-thanks for your review. However I will look into the suggestions of Dmitry which
-could include little changes to serio_raw instead of this new poskbd driver.
+>> abusing other keyboard-drivers.
+>>
+>> Opening /dev/poskeyboard will route all scancodes to this device. The
+>> scancodes will not be processes by the input-subsystem anymore. Readin=
+g
+>> /dev/poskeyboard results in receiving the scancodes as raw data for
+>> further processing by the reader. Sending commands to the hardware can=
 
-Thanks again,
+>> be done by writing to /dev/poskeyboard.
+>>
+>> If the driver is loaded and /dev/poskeyboard is not opened, all
+>> scancodes are given to the input-subsystem. This allows 'normal' use o=
+f
+>> the keyboard.
+>>
+>> Making the driver active involves some commands like the following:
+>>    echo -n serio1 > /sys/bus/serio/drivers/atkbd/unbind
+>>    echo -n serio1 > /sys/bus/serio/drivers/poskbd/bind
+>>
+>=20
+> It seems you have just reimplemented serio_raw driver, therefore NAK.
+> Right now serio_raw is limited to untranslated ports but adding
+> SERIO_I8042XL signature should be easy.
+
+Okay, thanks for pointing this out, I'll look into using serio_raw
+instead. If a patch is needed I'll send you one.
+
+
+>> Open questions:
+>> - How to achieve the same with USB-HID complaint keyboards?
+>=20
+> Thsi is probably is the candidate for legitimate use of EVIOCGRAB.
+> Just grab device for exclusive access and do your processing, probably
+> looking at MSC_SCAN (or KEY_*, depends on how hardware-sepcific this
+> thing is). This approach shoudl work equally well for HID, PS/2,
+> serial or any other kind of keyboard/input device actually. You can
+> also re-inject the keystrokes you are not interested in back into
+> input core via uinput.
+
+Great. I already saw input_dev->grab but never really understood what
+it would do or how it could be used. Tried it with a small test and
+should be sufficient for the UnifiedPOS requirements.
+
+
+>> - Does serio_unregister_port() a kfree() on the port?
+>=20
+> Eventually, after the last user drops off.
+
+Okay, so the driver allocates it, but never needs to do a kfree() on
+it, because the serio-layer takes care of it.
+
+Thanks for the infos,
 Niels
 
 
+--------------enig5F5CAF4660E6F2FF8572A796
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFIs8qi5KAkGQPO/QoRAqrCAKCtdEAH+uSNK16z1cdfE1kYAIHNNACfSq5K
+OpqWPtOuOAhVMjll8DqjGx4=
+=alLi
+-----END PGP SIGNATURE-----
+
+--------------enig5F5CAF4660E6F2FF8572A796--

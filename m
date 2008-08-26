@@ -1,45 +1,71 @@
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Subject: Re: [patch]full runtime power management for usbhid
-Date: Tue, 26 Aug 2008 12:49:15 +0300
-Message-ID: <20080826094915.GQ20450@gandalf.research.nokia.com>
-References: <200808261139.14410.oliver@neukum.org>
-Reply-To: felipe.balbi@nokia.com
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: [PATCH] hp-wmi: Add proper hotkey support
+Date: Tue, 26 Aug 2008 14:25:25 +0100
+Message-ID: <20080826132525.GA29293@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.233]:25384 "EHLO
-	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750755AbYHZJuW (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:53506 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753139AbYHZNZa (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Aug 2008 05:50:22 -0400
+	Tue, 26 Aug 2008 09:25:30 -0400
 Content-Disposition: inline
-In-Reply-To: <200808261139.14410.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Oliver Neukum <oliver@neukum.org>
-Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-pm@lists.linux-foundation.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Aug 26, 2008 at 11:39:13AM +0200, ext Oliver Neukum wrote:
-> --- a/drivers/hid/usbhid/usbhid.h	2008-05-06 13:49:51.000000000 +0200
-> +++ b/drivers/hid/usbhid/usbhid.h	2008-05-06 14:58:49.000000000 +0200
-> @@ -37,7 +37,10 @@ int usbhid_wait_io(struct hid_device* hi
->  void usbhid_close(struct hid_device *hid);
->  int usbhid_open(struct hid_device *hid);
->  void usbhid_init_reports(struct hid_device *hid);
-> -void usbhid_submit_report(struct hid_device *hid, struct hid_report *report, unsigned char dir);
-> +void usbhid_submit_report
-> +(struct hid_device *hid, struct hid_report *report, unsigned char dir);
+It turns out that event 0x4 merely indcates that a hotkey has been 
+pressed, not which one. A further query is required in order to 
+determine the actual keypress. The following patch adds support for that 
+along with the known keycodes.
 
-void usbhid_submit_report(struct hid_device *hid,
-	struct hid_report *report, unsigned char dir);
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
 
-would look better. Matter of taste. ditto below.
+---
 
->  	switch (urb->status) {
->  		case 0:			/* success */
-> +			usbhid_mark_busy(usbhid);	
-						 ^^^^^^^
-			you added whitespaces there
+diff --git a/drivers/misc/hp-wmi.c b/drivers/misc/hp-wmi.c
+index bc6ccfb..0968304 100644
+--- a/drivers/misc/hp-wmi.c
++++ b/drivers/misc/hp-wmi.c
+@@ -49,6 +49,7 @@ MODULE_ALIAS("wmi:5FB7F034-2C63-45e9-BE91-3D44E2C707E4");
+ #define HPWMI_ALS_QUERY 0x3
+ #define HPWMI_DOCK_QUERY 0x4
+ #define HPWMI_WIRELESS_QUERY 0x5
++#define HPWMI_HOTKEY_QUERY 0xc
+ 
+ static int __init hp_wmi_bios_setup(struct platform_device *device);
+ static int __exit hp_wmi_bios_remove(struct platform_device *device);
+@@ -69,7 +70,7 @@ struct bios_return {
+ 
+ struct key_entry {
+ 	char type;		/* See KE_* below */
+-	u8 code;
++	u16 code;
+ 	u16 keycode;
+ };
+ 
+@@ -79,7 +80,9 @@ static struct key_entry hp_wmi_keymap[] = {
+ 	{KE_SW, 0x01, SW_DOCK},
+ 	{KE_KEY, 0x02, KEY_BRIGHTNESSUP},
+ 	{KE_KEY, 0x03, KEY_BRIGHTNESSDOWN},
+-	{KE_KEY, 0x04, KEY_HELP},
++	{KE_KEY, 0x20e6, KEY_PROG1},
++	{KE_KEY, 0x2142, KEY_MEDIA},
++	{KE_KEY, 0x231b, KEY_HELP},
+ 	{KE_END, 0}
+ };
+ 
+@@ -318,6 +321,9 @@ void hp_wmi_notify(u32 value, void *context)
+ 
+ 	if (obj && obj->type == ACPI_TYPE_BUFFER && obj->buffer.length == 8) {
+ 		int eventcode = *((u8 *) obj->buffer.pointer);
++		if (eventcode == 0x4)
++			eventcode = hp_wmi_perform_query(HPWMI_HOTKEY_QUERY, 0,
++							 0);
+ 		key = hp_wmi_get_entry_by_scancode(eventcode);
+ 		if (key) {
+ 			switch (key->type) {
 
 -- 
-balbi
+Matthew Garrett | mjg59@srcf.ucam.org

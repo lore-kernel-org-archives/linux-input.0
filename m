@@ -1,71 +1,44 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: [PATCH] hp-wmi: Add proper hotkey support
-Date: Tue, 26 Aug 2008 14:25:25 +0100
-Message-ID: <20080826132525.GA29293@srcf.ucam.org>
+From: Pavel Machek <pavel@suse.cz>
+Subject: Re: [linux-pm] [patch]full runtime power management for usbhid
+Date: Tue, 26 Aug 2008 16:28:49 +0200
+Message-ID: <20080826142848.GB5496@ucw.cz>
+References: <200808261139.14410.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:53506 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753139AbYHZNZa (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 Aug 2008 09:25:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4644 "EHLO spitz.ucw.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1756812AbYHZO24 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 26 Aug 2008 10:28:56 -0400
 Content-Disposition: inline
+In-Reply-To: <200808261139.14410.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: dmitry.torokhov@gmail.com, jkosina@suse.cz, linux-pm@lists.linux-foundation.org, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-It turns out that event 0x4 merely indcates that a hotkey has been 
-pressed, not which one. A further query is required in order to 
-determine the actual keypress. The following patch adds support for that 
-along with the known keycodes.
+Hi!
 
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> this patch enables full runtime power management for usbhid.
+> Currently usbhid supports autosuspend only upon open and close. Thus
+> it is useless for devices which are always opened, such as keyboards
+> and mice. This patch enables the use of remote wakeup for devices that
+> support it.
+> 
+> It suspends idle usb hid devices after a timeout if possible unless
+> 
+> - hiddev has opened the device
+> - error handling is under way
+> - a key is being held down
+> (keyboards don't signal remote wakeup upon release of a key)
+> - an led is active on the device
+> (leds use too much power for a suspend device to keep lit -
+> this can be overridden with a module parameter)
 
----
+Hmm... so numlock now costs ~3W... perhaps we should be defaulting to
+numlock=off, again?
 
-diff --git a/drivers/misc/hp-wmi.c b/drivers/misc/hp-wmi.c
-index bc6ccfb..0968304 100644
---- a/drivers/misc/hp-wmi.c
-+++ b/drivers/misc/hp-wmi.c
-@@ -49,6 +49,7 @@ MODULE_ALIAS("wmi:5FB7F034-2C63-45e9-BE91-3D44E2C707E4");
- #define HPWMI_ALS_QUERY 0x3
- #define HPWMI_DOCK_QUERY 0x4
- #define HPWMI_WIRELESS_QUERY 0x5
-+#define HPWMI_HOTKEY_QUERY 0xc
- 
- static int __init hp_wmi_bios_setup(struct platform_device *device);
- static int __exit hp_wmi_bios_remove(struct platform_device *device);
-@@ -69,7 +70,7 @@ struct bios_return {
- 
- struct key_entry {
- 	char type;		/* See KE_* below */
--	u8 code;
-+	u16 code;
- 	u16 keycode;
- };
- 
-@@ -79,7 +80,9 @@ static struct key_entry hp_wmi_keymap[] = {
- 	{KE_SW, 0x01, SW_DOCK},
- 	{KE_KEY, 0x02, KEY_BRIGHTNESSUP},
- 	{KE_KEY, 0x03, KEY_BRIGHTNESSDOWN},
--	{KE_KEY, 0x04, KEY_HELP},
-+	{KE_KEY, 0x20e6, KEY_PROG1},
-+	{KE_KEY, 0x2142, KEY_MEDIA},
-+	{KE_KEY, 0x231b, KEY_HELP},
- 	{KE_END, 0}
- };
- 
-@@ -318,6 +321,9 @@ void hp_wmi_notify(u32 value, void *context)
- 
- 	if (obj && obj->type == ACPI_TYPE_BUFFER && obj->buffer.length == 8) {
- 		int eventcode = *((u8 *) obj->buffer.pointer);
-+		if (eventcode == 0x4)
-+			eventcode = hp_wmi_perform_query(HPWMI_HOTKEY_QUERY, 0,
-+							 0);
- 		key = hp_wmi_get_entry_by_scancode(eventcode);
- 		if (key) {
- 			switch (key->type) {
-
+							Pavel
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

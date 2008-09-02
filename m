@@ -1,62 +1,52 @@
 From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: bcm5974-0.61: New default mouse driver mode
-Date: Tue, 02 Sep 2008 20:23:38 +0200
-Message-ID: <48BD84AA.2030005@euromail.se>
-References: <48BC4BC3.1080903@euromail.se> <20080902085209.ZZRA012@mailhub.coreip.homeip.net>
+Subject: [PATCH] bcm5974-0.62: Compatibility mode reverted, BTN_TOUCH event
+ added
+Date: Tue, 02 Sep 2008 22:05:56 +0200
+Message-ID: <48BD9CA4.7080805@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:37926 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751360AbYIBSXs (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:35322 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751351AbYIBUGI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Sep 2008 14:23:48 -0400
-In-Reply-To: <20080902085209.ZZRA012@mailhub.coreip.homeip.net>
+	Tue, 2 Sep 2008 16:06:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: akpm@osdl.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: akpm@osdl.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi Henrik,
-> 
-> On Mon, Sep 01, 2008 at 10:08:35PM +0200, Henrik Rydberg wrote:
->> Currently, the Apple bcm5974 driver only mimics a synaptics touchpad, not a mouse.
->> This creates unnecessary complications on systems where the synaptics driver is absent
->> or not configured, such as in a completely new system, or a text console.
-> 
-> Mousedev should provide a reasonable emulation of standard mouse
-> giving user chance to configure the system properly. There is no need
-> to task the driver to provide such emulation and therefore I will not
-> apply this patch.
-> 
+The mousedev driver requires the use of BTN_TOUCH events to process
+ABS_X and ABS_Y events properly, which is what is needed for the
+bcm5974-based apple computers to have a functional pointer out-of-the-box.
+This patch adds the BTN_TOUCH events to bcm5974.
 
-I see, this is what puzzled me. Currently mousedev does not work with
-bcm5974, but given the statement that it should, it was not hard finding
-the reason; the ABS_X/Y messages get stuck in mousedev because bcm5974 does
-not fire BTN_TOUCH events. I will send a fix for it shortly. I take it the
-first clean-up patch is being applied.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-> 
->> * Two-finger scroll emulates a mouse wheel.
->>
->> * Three-finger swipe emulates a horizontal mouse wheel.
->>
->> * Multi-finger clicks emulate the middle and right mouse buttons.
->>
-> 
-> The kenel driver should only do as little translation as possible,
-> allowing userspace to decide how to implement more fancy features.
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index ae78bb8..cafbb71 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -248,6 +248,7 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ 				0, cfg->y.dim, cfg->y.fuzz, 0);
 
-One could argue that those features are basic rather than fancy; virtually
-every mouse of today provides equivalent functionality, and multitouch
-features are here to stay. It is also discouraging in particular to
-first-time apple users, having to spend a lot of time configuring their
-system, only to be able to right-click or scroll using the trackpad.
-Could it be something for the mousedev driver, perhaps?
+ 	__set_bit(EV_KEY, input_dev->evbit);
++	__set_bit(BTN_TOUCH, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+@@ -296,6 +297,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
 
+ 	input_report_abs(input, ABS_PRESSURE, int2bound(&c->p, p));
 
-Many thanks,
-Henrik
++	input_report_key(input, BTN_TOUCH, p > 0);
+ 	input_report_key(input, BTN_TOOL_FINGER, n == 1);
+ 	input_report_key(input, BTN_TOOL_DOUBLETAP, n == 2);
+ 	input_report_key(input, BTN_TOOL_TRIPLETAP, n > 2);
+-- 
+1.5.4.3
 

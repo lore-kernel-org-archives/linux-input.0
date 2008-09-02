@@ -1,35 +1,62 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Autocentering support for Logitech MOMO Racing Wheel
- (force feedback)
-Date: Tue, 2 Sep 2008 17:11:16 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0809021710180.23448@jikos.suse.cz>
-References: <bb829a0b0808180217t2bd3ed49q4cf5734dcc756311@mail.gmail.com>  <20080818110815.ZZRA012@mailhub.coreip.homeip.net>  <bb829a0b0808180916l1d2ca72fj689edcf5b8c156e5@mail.gmail.com>  <20080818131807.ZZRA012@mailhub.coreip.homeip.net>
- <bb829a0b0808181130r4c45403al45fffb356f321f9@mail.gmail.com> <alpine.LNX.1.10.0808191458050.18058@jikos.suse.cz> <48AB06F3.10808@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: bcm5974-0.61: New default mouse driver mode
+Date: Tue, 02 Sep 2008 20:23:38 +0200
+Message-ID: <48BD84AA.2030005@euromail.se>
+References: <48BC4BC3.1080903@euromail.se> <20080902085209.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:50174 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753575AbYIBPLS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Sep 2008 11:11:18 -0400
-In-Reply-To: <48AB06F3.10808@gmail.com>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:37926 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751360AbYIBSXs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Sep 2008 14:23:48 -0400
+In-Reply-To: <20080902085209.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Sergey.Belyashov@gmail.com
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: akpm@osdl.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2008, ?????? ??????? wrote:
+Dmitry Torokhov wrote:
+> Hi Henrik,
+> 
+> On Mon, Sep 01, 2008 at 10:08:35PM +0200, Henrik Rydberg wrote:
+>> Currently, the Apple bcm5974 driver only mimics a synaptics touchpad, not a mouse.
+>> This creates unnecessary complications on systems where the synaptics driver is absent
+>> or not configured, such as in a completely new system, or a text console.
+> 
+> Mousedev should provide a reasonable emulation of standard mouse
+> giving user chance to configure the system properly. There is no need
+> to task the driver to provide such emulation and therefore I will not
+> apply this patch.
+> 
 
->   Current kernel has no support for autocentering for Logitech wheels. 
-> By default autocentering enabled in wheel and constant effect does not 
-> work properly. Using USB sniffer I found command which change 
-> autocentering settings: 0xFE, 0x0D, 0x0R, 0x0L, 0x80, 0x00, 0x00, where 
-> R - clockwise force, L - counter-clockwise (0x0-0xF, 0xC = 100%). I 
-> write patch for my current kernel (2.6.25), but I think git version also 
-> supported, because I do not found any changes in it.
+I see, this is what puzzled me. Currently mousedev does not work with
+bcm5974, but given the statement that it should, it was not hard finding
+the reason; the ABS_X/Y messages get stuck in mousedev because bcm5974 does
+not fire BTN_TOUCH events. I will send a fix for it shortly. I take it the
+first clean-up patch is being applied.
 
-Applied, thanks Sergey.
+> 
+>> * Two-finger scroll emulates a mouse wheel.
+>>
+>> * Three-finger swipe emulates a horizontal mouse wheel.
+>>
+>> * Multi-finger clicks emulate the middle and right mouse buttons.
+>>
+> 
+> The kenel driver should only do as little translation as possible,
+> allowing userspace to decide how to implement more fancy features.
 
--- 
-Jiri Kosina
-SUSE Labs
+One could argue that those features are basic rather than fancy; virtually
+every mouse of today provides equivalent functionality, and multitouch
+features are here to stay. It is also discouraging in particular to
+first-time apple users, having to spend a lot of time configuring their
+system, only to be able to right-click or scroll using the trackpad.
+Could it be something for the mousedev driver, perhaps?
+
+
+Many thanks,
+Henrik
+

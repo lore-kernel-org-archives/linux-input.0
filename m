@@ -1,51 +1,38 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [PATCH 2/2] bcm5974-0.63: BTN_TOUCH event added for mousedev
-Date: Wed, 03 Sep 2008 14:02:54 +0200
-Message-ID: <48BE7CEE.1030000@euromail.se>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Remove HID ignore quirk for MGE UPS devices
+Date: Wed, 3 Sep 2008 15:33:36 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0809031530430.23448@jikos.suse.cz>
+References: <1218798061.14646.13.camel@hughsie-work>  <ec33acbd0809010450r1a14a3e8x3ea3e1ada63c2484@mail.gmail.com> <1220271242.16219.39.camel@hughsie-work>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:34033 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751575AbYICMDD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Sep 2008 08:03:03 -0400
+Received: from styx.suse.cz ([82.119.242.94]:60616 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751888AbYICNdi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Sep 2008 09:33:38 -0400
+In-Reply-To: <1220271242.16219.39.camel@hughsie-work>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@osdl.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: Richard Hughes <rhughes@redhat.com>
+Cc: Arnaud Quette <aquette.dev@gmail.com>, linux-input <linux-input@vger.kernel.org>, David Zeuthen <davidz@redhat.com>, "kay.sievers" <kay.sievers@vrfy.org>
 
-The mousedev driver requires the use of BTN_TOUCH events to process
-ABS_X and ABS_Y events properly, which is what is needed for the
-bcm5974-based apple computers to have a functional pointer out-of-the-box.
-This patch adds the BTN_TOUCH events to bcm5974.
+On Mon, 1 Sep 2008, Richard Hughes wrote:
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/mouse/bcm5974.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+> > the userland support is there, and for some time mature, propose more 
+> > features, best device handling (and there are many devices specifics 
+> > out there)
+> Right, there are a ton of HID quirks right now, I don't think adding a
+> couple more for obsolete devices there would be a problem.
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index acc401d..5132775 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -253,6 +253,7 @@ static void setup_events_to_report(struct input_dev *input_dev,
- 				0, cfg->y.dim, cfg->y.fuzz, 0);
+Agreed. Even the "quirk support" is now more mature -- there are hidbus 
+patches queued in my tree, that allow for creation of separate drivers for 
+every non-standard HID device, so that quirks don't have to be sprinkled 
+randomly all over the HID code.
+If you are going to add any new more or less complex quirks, I'd like to 
+ask you to look into this infrastructure.
 
- 	__set_bit(EV_KEY, input_dev->evbit);
-+	__set_bit(BTN_TOUCH, input_dev->keybit);
- 	__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
- 	__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
- 	__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
-@@ -303,6 +304,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 	if (dev->fingers > nmax)
- 		dev->fingers = nmax;
+Thanks,
 
-+	input_report_key(input, BTN_TOUCH, dev->fingers > 0);
- 	input_report_key(input, BTN_TOOL_FINGER, dev->fingers == 1);
- 	input_report_key(input, BTN_TOOL_DOUBLETAP, dev->fingers == 2);
- 	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers > 2);
 -- 
-1.5.4.3
-
+Jiri Kosina
+SUSE Labs

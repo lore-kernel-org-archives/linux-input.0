@@ -1,34 +1,118 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] bcm5974-0.62: Compatibility mode reverted, BTN_TOUCH
-	event added
-Date: Tue, 2 Sep 2008 16:15:29 -0400
-Message-ID: <20080902161432.ZZRA012@mailhub.coreip.homeip.net>
-References: <48BD9CA4.7080805@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: [PATCH 1/2] bcm5974-0.63: Finger counting improved
+Date: Wed, 03 Sep 2008 14:01:52 +0200
+Message-ID: <48BE7CB0.7090201@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs-out-0708.google.com ([64.233.178.241]:29766 "EHLO
-	hs-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751646AbYIBUPh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Sep 2008 16:15:37 -0400
-Received: by hs-out-0708.google.com with SMTP id 4so262350hsl.5
-        for <linux-input@vger.kernel.org>; Tue, 02 Sep 2008 13:15:34 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <48BD9CA4.7080805@euromail.se>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:49640 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751568AbYICMCB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Sep 2008 08:02:01 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: akpm@osdl.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: akpm@osdl.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2008 at 10:05:56PM +0200, Henrik Rydberg wrote:
-> @@ -296,6 +297,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
-> 
->  	input_report_abs(input, ABS_PRESSURE, int2bound(&c->p, p));
-> 
-> +	input_report_key(input, BTN_TOUCH, p > 0);
+A finger counting method based on pressure information from all fingers is introduced. Together
+with a pressure hysteresis window, this yields a more stable counting of the number of fingers
+on the trackpad.
 
-Just relying on p will probably make it too sensitive, have you tried
-adding hysteresis, like synaptics driver does?
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |   54 ++++++++++++++++++++++++++++-------------
+ 1 files changed, 37 insertions(+), 17 deletions(-)
+
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index ae78bb8..acc401d 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -159,6 +159,7 @@ struct bcm5974 {
+ 	struct bt_data *bt_data;	/* button transferred data */
+ 	struct urb *tp_urb;		/* trackpad usb request block */
+ 	struct tp_data *tp_data;	/* trackpad transferred data */
++	int fingers;			/* number of fingers on trackpad */
+ };
+
+ /* logical dimensions */
+@@ -172,6 +173,10 @@ struct bcm5974 {
+ #define SN_WIDTH	100		/* width signal-to-noise ratio */
+ #define SN_COORD	250		/* coordinate signal-to-noise ratio */
+
++/* pressure thresholds */
++#define PRESSURE_LOW	(2 * DIM_PRESSURE / SN_PRESSURE)
++#define PRESSURE_HIGH	(3 * PRESSURE_LOW)
++
+ /* device constants */
+ static const struct bcm5974_config bcm5974_config_table[] = {
+ 	{
+@@ -273,32 +278,47 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	const struct tp_finger *f = dev->tp_data->finger;
+ 	struct input_dev *input = dev->input;
+ 	const int fingers = (size - 26) / 28;
+-	int p = 0, w, x, y, n = 0;
++	int nmin = 0, nmax = 0, p = 0, w = 0, x = 0, y = 0;
+
+ 	if (size < 26 || (size - 26) % 28 != 0)
+ 		return -EIO;
+
+-	if (fingers) {
+-		p = raw2int(f->force_major);
+-		w = raw2int(f->size_major);
+-		x = raw2int(f->abs_x);
+-		y = raw2int(f->abs_y);
+-		n = p > 0 ? fingers : 0;
+-
+-		dprintk(9,
+-			"bcm5974: p: %+05d w: %+05d x: %+05d y: %+05d n: %d\n",
+-			p, w, x, y, n);
++	for (; f != dev->tp_data->finger + fingers; f++) {
++		int ptest = raw2int(f->force_major);
++		if (ptest > PRESSURE_LOW) {
++			if (!nmax++) {
++				p = ptest;
++				w = raw2int(f->size_major);
++				x = raw2int(f->abs_x) - c->x.devmin;
++				y = c->y.devmax - raw2int(f->abs_y);
++			}
++		}
++		if (ptest > PRESSURE_HIGH)
++			nmin++;
+
+-		input_report_abs(input, ABS_TOOL_WIDTH, int2bound(&c->w, w));
+-		input_report_abs(input, ABS_X, int2bound(&c->x, x - c->x.devmin));
+-		input_report_abs(input, ABS_Y, int2bound(&c->y, c->y.devmax - y));
+ 	}
+
++	if (dev->fingers < nmin)
++		dev->fingers = nmin;
++	if (dev->fingers > nmax)
++		dev->fingers = nmax;
++
++	input_report_key(input, BTN_TOOL_FINGER, dev->fingers == 1);
++	input_report_key(input, BTN_TOOL_DOUBLETAP, dev->fingers == 2);
++	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers > 2);
++
+ 	input_report_abs(input, ABS_PRESSURE, int2bound(&c->p, p));
++	input_report_abs(input, ABS_TOOL_WIDTH, int2bound(&c->w, w));
++
++	if (nmax > 0) {
++		dprintk(9,
++			"bcm5974: p: %+05d w: %+05d x: %+05d y: %+05d "
++			"nmin: %d nmax: %d\n",
++			p, w, x, y, nmin, nmax);
+
+-	input_report_key(input, BTN_TOOL_FINGER, n == 1);
+-	input_report_key(input, BTN_TOOL_DOUBLETAP, n == 2);
+-	input_report_key(input, BTN_TOOL_TRIPLETAP, n > 2);
++		input_report_abs(input, ABS_X, int2bound(&c->x, x));
++		input_report_abs(input, ABS_Y, int2bound(&c->y, y));
++	}
+
+ 	input_sync(input);
 
 -- 
-Dmitry
+1.5.4.3
+

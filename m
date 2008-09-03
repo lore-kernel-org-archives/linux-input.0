@@ -1,56 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] bcm5974-0.62: Compatibility mode reverted, BTN_TOUCH
-	event added
-Date: Wed, 3 Sep 2008 16:02:04 -0400
-Message-ID: <20080903160046.ZZRA012@mailhub.coreip.homeip.net>
-References: <48BD9CA4.7080805@euromail.se> <20080902161432.ZZRA012@mailhub.coreip.homeip.net> <48BEEBA4.4050301@euromail.se>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: [PATCH 1/3] bcm5974-0.64: minor cleanups for scripts/checkpatch.pl
+Date: Wed, 03 Sep 2008 22:21:59 +0200
+Message-ID: <48BEF1E7.1040708@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f16.google.com ([209.85.217.16]:35241 "EHLO
-	mail-gx0-f16.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753758AbYICUCK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Sep 2008 16:02:10 -0400
-Received: by gxk9 with SMTP id 9so6118415gxk.13
-        for <linux-input@vger.kernel.org>; Wed, 03 Sep 2008 13:02:08 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <48BEEBA4.4050301@euromail.se>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:38384 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752602AbYICUWG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 3 Sep 2008 16:22:06 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: akpm@osdl.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, akpm@osdl.org, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Wed, Sep 03, 2008 at 09:55:16PM +0200, Henrik Rydberg wrote:
-> Dmitry Torokhov wrote:
-> > On Tue, Sep 02, 2008 at 10:05:56PM +0200, Henrik Rydberg wrote:
-> >> @@ -296,6 +297,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
-> >>
-> >>  	input_report_abs(input, ABS_PRESSURE, int2bound(&c->p, p));
-> >>
-> >> +	input_report_key(input, BTN_TOUCH, p > 0);
-> > 
-> > Just relying on p will probably make it too sensitive, have you tried
-> > adding hysteresis, like synaptics driver does?
-> > 
-> 
-> I have, and the problem is somewhat more complicated when dealing with
-> multiple fingers. The simple patch shown about actually works very well
-> in practice. However, things can always improve. Yesterday I sent a
-> second patch, bcm5974-0.63, which addressed this issue. However, the
-> quality of the mouse movement has regressed a little in that patch.
-> I would like to send yet another patch today, bcm5974-0.64, I hope this
-> does not cause too much confusion.
-> 
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-That is fine.
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 2ec921b..ae78bb8 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -63,7 +63,7 @@
+ }
 
-> Regarding mousedev, I noticed that the tap functionality does not distinguish
-> between a tap (on/off localized in time and space) and a quick drag (on/off
-> localized in time only).
-> 
-
-Yes. Mousedev is a stop-gap measure and is to be used only while user
-installs proper driver. It does not need to be perfect.
-
+ /* table of devices that work with this driver */
+-static const struct usb_device_id bcm5974_table [] = {
++static const struct usb_device_id bcm5974_table[] = {
+ 	/* MacbookAir1.1 */
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
 -- 
-Dmitry
+1.5.4.3
+
+Diff is against v2.6.27-rc5-103-g0a7574e

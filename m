@@ -1,209 +1,185 @@
-From: "Eric Miao" <eric.y.miao@gmail.com>
-Subject: Re: [PATCH 1/3] Input: ads7846 - introduce .gpio_pendown to get pendown state
-Date: Thu, 4 Sep 2008 18:50:04 +0800
-Message-ID: <f17812d70809040350v153c92cenff5886fe92da420b@mail.gmail.com>
-References: <f17812d70809040221u606f5bfaxe4ae41fae644391f@mail.gmail.com>
-	 <20080904100051.GC10426@flint.arm.linux.org.uk>
-	 <f17812d70809040338u3f6345a2ja76ccb76b96cc9dc@mail.gmail.com>
-	 <f17812d70809040339y29836549mf20259f0f1b9acb8@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: [PATCH 4/5] HID: remove hid-ff
+Date: Thu,  4 Sep 2008 14:59:46 +0200
+Message-ID: <1220533187-21848-4-git-send-email-jirislaby@gmail.com>
+References: <1220533187-21848-1-git-send-email-jirislaby@gmail.com>
+ <1220533187-21848-2-git-send-email-jirislaby@gmail.com>
+ <1220533187-21848-3-git-send-email-jirislaby@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.30]:62827 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752887AbYIDKuG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2008 06:50:06 -0400
-Received: by yx-out-2324.google.com with SMTP id 8so1860853yxm.1
-        for <linux-input@vger.kernel.org>; Thu, 04 Sep 2008 03:50:05 -0700 (PDT)
-In-Reply-To: <f17812d70809040339y29836549mf20259f0f1b9acb8@mail.gmail.com>
-Content-Disposition: inline
+Received: from smtp.wellnetcz.com ([212.24.148.102]:43578 "EHLO
+	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757555AbYIDM7x (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2008 08:59:53 -0400
+In-Reply-To: <1220533187-21848-3-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Cc: ARM Linux <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-Signed-off-by: Eric Miao <eric.miao@marvell.com>
+hid-ff.c now calls only pidff (generic driver), the special ones are now
+in separate drivers. Invoke pidff on all non-special directly.
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 ---
+ drivers/hid/usbhid/Kconfig    |   13 --------
+ drivers/hid/usbhid/Makefile   |    3 --
+ drivers/hid/usbhid/hid-core.c |    2 +-
+ drivers/hid/usbhid/hid-ff.c   |   69 -----------------------------------------
+ include/linux/hid.h           |    9 +-----
+ 5 files changed, 2 insertions(+), 94 deletions(-)
+ delete mode 100644 drivers/hid/usbhid/hid-ff.c
 
-This one should be cleaner.
-
- drivers/input/touchscreen/ads7846.c |   68 +++++++++++++++++++++++++++-------
- include/linux/spi/ads7846.h         |    3 ++
- 2 files changed, 57 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ads7846.c
-b/drivers/input/touchscreen/ads7846.c
-index ce6f48c..8583c76 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -24,6 +24,7 @@
- #include <linux/input.h>
- #include <linux/interrupt.h>
- #include <linux/slab.h>
-+#include <linux/gpio.h>
- #include <linux/spi/spi.h>
- #include <linux/spi/ads7846.h>
- #include <asm/irq.h>
-@@ -116,6 +117,7 @@ struct ads7846 {
- 	void			*filter_data;
- 	void			(*filter_cleanup)(void *data);
- 	int			(*get_pendown_state)(void);
-+	int			gpio_pendown;
- };
-
- /* leave chip selected when we're done, for quicker re-select? */
-@@ -491,6 +493,14 @@ static struct attribute_group ads784x_attr_group = {
-
- /*--------------------------------------------------------------------------*/
-
-+static int get_pendown_state(struct ads7846 *ts)
-+{
-+	if (ts->get_pendown_state)
-+		return ts->get_pendown_state();
-+
-+	return !gpio_get_value(ts->gpio_pendown);
-+}
-+
- /*
-  * PENIRQ only kicks the timer.  The timer only reissues the SPI transfer,
-  * to retrieve touchscreen status.
-@@ -550,7 +560,7 @@ static void ads7846_rx(void *ads)
- 	 */
- 	if (ts->penirq_recheck_delay_usecs) {
- 		udelay(ts->penirq_recheck_delay_usecs);
--		if (!ts->get_pendown_state())
-+		if (!get_pendown_state(ts))
- 			Rt = 0;
- 	}
-
-@@ -677,7 +687,7 @@ static enum hrtimer_restart ads7846_timer(struct
-hrtimer *handle)
-
- 	spin_lock_irq(&ts->lock);
-
--	if (unlikely(!ts->get_pendown_state() ||
-+	if (unlikely(!get_pendown_state(ts) ||
- 		     device_suspended(&ts->spi->dev))) {
- 		if (ts->pendown) {
- 			struct input_dev *input = ts->input;
-@@ -716,7 +726,7 @@ static irqreturn_t ads7846_irq(int irq, void *handle)
- 	unsigned long flags;
-
- 	spin_lock_irqsave(&ts->lock, flags);
--	if (likely(ts->get_pendown_state())) {
-+	if (likely(get_pendown_state(ts))) {
- 		if (!ts->irq_disabled) {
- 			/* The ARM do_simple_IRQ() dispatcher doesn't act
- 			 * like the other dispatchers:  it will report IRQs
-@@ -806,6 +816,36 @@ static int ads7846_resume(struct spi_device *spi)
- 	return 0;
- }
-
-+static int __devinit setup_pendown(struct spi_device *spi, struct ads7846 *ts)
-+{
-+	struct ads7846_platform_data *pdata = spi->dev.platform_data;
-+	int err;
-+
-+	/* REVISIT when the irq can be triggered active-low, or if for some
-+	 * reason the touchscreen isn't hooked up, we don't need to access
-+	 * the pendown state.
-+	 */
-+	if (!pdata->get_pendown_state && !gpio_is_valid(pdata->gpio_pendown)) {
-+		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
-+		return -EINVAL;
-+	}
-+
-+	if (pdata->get_pendown_state) {
-+		ts->get_pendown_state = pdata->get_pendown_state;
-+		return 0;
-+	}
-+
-+	err = gpio_request(pdata->gpio_pendown, "ads7846_pendown");
-+	if (err) {
-+		dev_err(&spi->dev, "failed to request pendown GPIO%d\n",
-+				pdata->gpio_pendown);
-+		return err;
-+	}
-+
-+	ts->gpio_pendown = pdata->gpio_pendown;
-+	return 0;
-+}
-+
- static int __devinit ads7846_probe(struct spi_device *spi)
- {
- 	struct ads7846			*ts;
-@@ -833,15 +873,6 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		return -EINVAL;
- 	}
-
--	/* REVISIT when the irq can be triggered active-low, or if for some
--	 * reason the touchscreen isn't hooked up, we don't need to access
--	 * the pendown state.
--	 */
--	if (pdata->get_pendown_state == NULL) {
--		dev_dbg(&spi->dev, "no get_pendown_state function?\n");
--		return -EINVAL;
--	}
+diff --git a/drivers/hid/usbhid/Kconfig b/drivers/hid/usbhid/Kconfig
+index 3cfc076..5d9aa95 100644
+--- a/drivers/hid/usbhid/Kconfig
++++ b/drivers/hid/usbhid/Kconfig
+@@ -24,21 +24,8 @@ config USB_HID
+ comment "Input core support is needed for USB HID input layer or HIDBP support"
+ 	depends on USB_HID && INPUT=n
+ 
+-config HID_FF
+-	bool "Force feedback support (EXPERIMENTAL)"
+-	depends on USB_HID && EXPERIMENTAL
+-	help
+-	  Say Y here is you want force feedback support for a few HID devices.
+-	  See below for a list of supported devices.
 -
- 	/* We'd set TX wordsize 8 bits and RX wordsize to 13 bits ... except
- 	 * that even if the hardware can do that, the SPI controller driver
- 	 * may not.  So we stick to very-portable 8 bit words, both RX and TX.
-@@ -893,7 +924,10 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		ts->filter_data = ts;
- 	} else
- 		ts->filter = ads7846_no_filter;
--	ts->get_pendown_state = pdata->get_pendown_state;
-+
-+	err = setup_pendown(spi, ts);
-+	if (err)
-+		goto err_cleanup_filter;
-
- 	if (pdata->penirq_recheck_delay_usecs)
- 		ts->penirq_recheck_delay_usecs =
-@@ -1085,7 +1119,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 			spi->dev.driver->name, ts)) {
- 		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
- 		err = -EBUSY;
--		goto err_cleanup_filter;
-+		goto err_free_gpio;
- 	}
-
- 	err = ads784x_hwmon_register(spi, ts);
-@@ -1116,6 +1150,9 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 	ads784x_hwmon_unregister(spi, ts);
-  err_free_irq:
- 	free_irq(spi->irq, ts);
-+ err_free_gpio:
-+	if (ts->gpio_pendown != -1)
-+		gpio_free(ts->gpio_pendown);
-  err_cleanup_filter:
- 	if (ts->filter_cleanup)
- 		ts->filter_cleanup(ts->filter_data);
-@@ -1140,6 +1177,9 @@ static int __devexit ads7846_remove(struct
-spi_device *spi)
- 	/* suspend left the IRQ disabled */
- 	enable_irq(ts->spi->irq);
-
-+	if (ts->gpio_pendown != -1)
-+		gpio_free(ts->gpio_pendown);
-+
- 	if (ts->filter_cleanup)
- 		ts->filter_cleanup(ts->filter_data);
-
-diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
-index daf7440..05eab2f 100644
---- a/include/linux/spi/ads7846.h
-+++ b/include/linux/spi/ads7846.h
-@@ -43,6 +43,9 @@ struct ads7846_platform_data {
- 	u16	debounce_tol;		/* tolerance used for filtering */
- 	u16	debounce_rep;		/* additional consecutive good readings
- 					 * required after the first two */
-+	int	gpio_pendown;		/* the GPIO used to decide the pendown
-+					 * state if get_pendown_state == NULL
-+					 */
- 	int	(*get_pendown_state)(void);
- 	int	(*filter_init)	(struct ads7846_platform_data *pdata,
- 				 void **filter_data);
+-	  See <file:Documentation/input/ff.txt> for a description of the force
+-	  feedback API.
+-
+-	  If unsure, say N.
+-
+ config HID_PID
+ 	bool "PID device support"
+-	depends on HID_FF
+ 	help
+ 	  Say Y here if you have a PID-compliant device and wish to enable force
+ 	  feedback for it. Microsoft Sidewinder Force Feedback 2 is one of such
+diff --git a/drivers/hid/usbhid/Makefile b/drivers/hid/usbhid/Makefile
+index 5c460fc..1329ecb 100644
+--- a/drivers/hid/usbhid/Makefile
++++ b/drivers/hid/usbhid/Makefile
+@@ -13,9 +13,6 @@ endif
+ ifeq ($(CONFIG_HID_PID),y)
+ 	usbhid-objs	+= hid-pidff.o
+ endif
+-ifeq ($(CONFIG_HID_FF),y)
+-	usbhid-objs	+= hid-ff.o
+-endif
+ 
+ obj-$(CONFIG_USB_HID)		+= usbhid.o
+ obj-$(CONFIG_USB_KBD)		+= usbkbd.o
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 5f32e30..d448e4d 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -938,7 +938,7 @@ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	usb_set_intfdata(intf, hid);
+ 	hid->ll_driver = &usb_hid_driver;
+ 	hid->hid_output_raw_report = usbhid_output_raw_report;
+-	hid->ff_init = hid_ff_init;
++	hid->ff_init = hid_pidff_init;
+ #ifdef CONFIG_USB_HIDDEV
+ 	hid->hiddev_connect = hiddev_connect;
+ 	hid->hiddev_hid_event = hiddev_hid_event;
+diff --git a/drivers/hid/usbhid/hid-ff.c b/drivers/hid/usbhid/hid-ff.c
+deleted file mode 100644
+index eca01a6..0000000
+--- a/drivers/hid/usbhid/hid-ff.c
++++ /dev/null
+@@ -1,69 +0,0 @@
+-/*
+- *  Force feedback support for hid devices.
+- *  Not all hid devices use the same protocol. For example, some use PID,
+- *  other use their own proprietary procotol.
+- *
+- *  Copyright (c) 2002-2004 Johann Deneux
+- */
+-
+-/*
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; either version 2 of the License, or
+- * (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+- *
+- * Should you need to contact me, the author, you can do so by
+- * e-mail - mail your message to <johann.deneux@it.uu.se>
+- */
+-
+-#include <linux/input.h>
+-
+-#undef DEBUG
+-#include <linux/usb.h>
+-
+-#include <linux/hid.h>
+-#include "usbhid.h"
+-
+-/*
+- * This table contains pointers to initializers. To add support for new
+- * devices, you need to add the USB vendor and product ids here.
+- */
+-struct hid_ff_initializer {
+-	u16 idVendor;
+-	u16 idProduct;
+-	int (*init)(struct hid_device*);
+-};
+-
+-/*
+- * We try pidff when no other driver is found because PID is the
+- * standards compliant way of implementing force feedback in HID.
+- * pidff_init() will quickly abort if the device doesn't appear to
+- * be a PID device
+- */
+-static struct hid_ff_initializer inits[] = {
+-	{ 0,	 0,	 hid_pidff_init}  /* Matches anything */
+-};
+-
+-int hid_ff_init(struct hid_device* hid)
+-{
+-	struct hid_ff_initializer *init;
+-	int vendor = le16_to_cpu(hid_to_usb_dev(hid)->descriptor.idVendor);
+-	int product = le16_to_cpu(hid_to_usb_dev(hid)->descriptor.idProduct);
+-
+-	for (init = inits; init->idVendor; init++)
+-		if (init->idVendor == vendor && init->idProduct == product)
+-			break;
+-
+-	return init->init(hid);
+-}
+-EXPORT_SYMBOL_GPL(hid_ff_init);
+-
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 6cf0357..eb1844c 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -757,17 +757,10 @@ int usbhid_quirks_init(char **quirks_param);
+ void usbhid_quirks_exit(void);
+ void usbhid_set_leds(struct hid_device *hid);
+ 
+-#ifdef CONFIG_HID_FF
+-int hid_ff_init(struct hid_device *hid);
+-
+ #ifdef CONFIG_HID_PID
+ int hid_pidff_init(struct hid_device *hid);
+ #else
+-static inline int hid_pidff_init(struct hid_device *hid) { return -ENODEV; }
+-#endif
+-
+-#else
+-#define hid_ff_init	NULL
++#define hid_pidff_init NULL
+ #endif
+ 
+ #ifdef CONFIG_HID_DEBUG
 -- 
-1.5.4.3
+1.6.0
+

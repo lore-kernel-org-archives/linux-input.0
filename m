@@ -1,163 +1,123 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 1/5] HID: move pantherlord FF processing
-Date: Thu,  4 Sep 2008 14:59:43 +0200
-Message-ID: <1220533187-21848-1-git-send-email-jirislaby@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Subject: [PATCH 3/5] HID: move zeroplus FF processing
+Date: Thu,  4 Sep 2008 14:59:45 +0200
+Message-ID: <1220533187-21848-3-git-send-email-jirislaby@gmail.com>
+References: <1220533187-21848-1-git-send-email-jirislaby@gmail.com>
+ <1220533187-21848-2-git-send-email-jirislaby@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.wellnetcz.com ([212.24.148.102]:43582 "EHLO
+Received: from smtp.wellnetcz.com ([212.24.148.102]:43583 "EHLO
 	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755765AbYIDM7x (ORCPT
+	with ESMTP id S1755479AbYIDM7x (ORCPT
 	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Sep 2008 08:59:53 -0400
+In-Reply-To: <1220533187-21848-2-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-Move the force feedback precessing into a separate module.
-
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 ---
- drivers/hid/Kconfig             |   16 +++
- drivers/hid/Makefile            |    1 +
- drivers/hid/hid-core.c          |    2 +
- drivers/hid/hid-dummy.c         |    3 +
- drivers/hid/hid-ids.h           |    2 +
- drivers/hid/hid-pl.c            |  205 +++++++++++++++++++++++++++++++=
-++++++++
- drivers/hid/usbhid/Kconfig      |    8 --
- drivers/hid/usbhid/Makefile     |    3 -
- drivers/hid/usbhid/hid-ff.c     |    4 -
- drivers/hid/usbhid/hid-plff.c   |  139 --------------------------
- drivers/hid/usbhid/hid-quirks.c |    1 -
- include/linux/hid.h             |    1 -
- 12 files changed, 229 insertions(+), 156 deletions(-)
- create mode 100644 drivers/hid/hid-pl.c
- delete mode 100644 drivers/hid/usbhid/hid-plff.c
+ drivers/hid/Kconfig           |    8 ++
+ drivers/hid/Makefile          |    1 +
+ drivers/hid/hid-core.c        |    2 +
+ drivers/hid/hid-dummy.c       |    3 +
+ drivers/hid/hid-ids.h         |    2 +
+ drivers/hid/hid-zpff.c        |  162 +++++++++++++++++++++++++++++++++++++++++
+ drivers/hid/usbhid/Kconfig    |    8 --
+ drivers/hid/usbhid/Makefile   |    3 -
+ drivers/hid/usbhid/hid-ff.c   |    4 -
+ drivers/hid/usbhid/hid-zpff.c |  107 ---------------------------
+ include/linux/hid.h           |    1 -
+ 11 files changed, 178 insertions(+), 123 deletions(-)
+ create mode 100644 drivers/hid/hid-zpff.c
+ delete mode 100644 drivers/hid/usbhid/hid-zpff.c
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 46337a2..7220e6f 100644
+index 268fcd1..e4d5263 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -199,6 +199,22 @@ config HID_MONTEREY
- 	---help---
- 	Support for Monterey Genius KB29E.
-=20
-+config HID_PANTHERLORD
-+	tristate "Pantherlord"
+@@ -252,6 +252,14 @@ config THRUSTMASTER_FF
+ 	  Say Y here if you have a THRUSTMASTER FireStore Dual Power 2 or
+ 	  a THRUSTMASTER Ferrari GT Rumble Force or Force Feedback Wheel.
+ 
++config ZEROPLUS_FF
++	tristate "Zeroplus based game controller support"
 +	default m
 +	depends on USB_HID
-+	---help---
-+	Support for PantherLord/GreenAsia based device support (including
-+	force feedback).
-+
-+config PANTHERLORD_FF
-+	bool "Force feedback support"
-+	depends on HID_PANTHERLORD
 +	select INPUT_FF_MEMLESS
 +	help
-+	  Say Y here if you have a PantherLord/GreenAsia based game controlle=
-r
-+	  or adapter and want to enable force feedback support for it.
++	  Say Y here if you have a Zeroplus based game controller.
 +
- config HID_PETALYNX
- 	tristate "Petalynx"
- 	default m
+ endmenu
+ 
+ endif # HID_SUPPORT
 diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 300ee00..e607068 100644
+index 9bd6daf..767f295 100644
 --- a/drivers/hid/Makefile
 +++ b/drivers/hid/Makefile
-@@ -32,6 +32,7 @@ obj-$(CONFIG_HID_GYRATION)	+=3D hid-gyration.o
- obj-$(CONFIG_HID_LOGITECH)	+=3D hid-logitech.o
- obj-$(CONFIG_HID_MICROSOFT)	+=3D hid-microsoft.o
- obj-$(CONFIG_HID_MONTEREY)	+=3D hid-monterey.o
-+obj-$(CONFIG_HID_PANTHERLORD)	+=3D hid-pl.o
- obj-$(CONFIG_HID_PETALYNX)	+=3D hid-petalynx.o
- obj-$(CONFIG_HID_SAMSUNG)	+=3D hid-samsung.o
- obj-$(CONFIG_HID_SONY)		+=3D hid-sony.o
+@@ -38,6 +38,7 @@ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
+ obj-$(CONFIG_HID_SONY)		+= hid-sony.o
+ obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
+ obj-$(CONFIG_THRUSTMASTER_FF)	+= hid-tmff.o
++obj-$(CONFIG_ZEROPLUS_FF)	+= hid-zpff.o
+ 
+ obj-$(CONFIG_USB_HID)		+= usbhid/
+ obj-$(CONFIG_USB_MOUSE)		+= usbhid/
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 798bb0a..3a12bb6 100644
+index e6624d9..92c16e1 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1411,6 +1411,7 @@ static const struct hid_device_id hid_ignore_list=
-[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EARTHMA=
-TE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_DELORME, USB_DEVICE_ID_DELORME_EM_LT20=
-) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSEN=
-TIAL_REALITY_P5) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PS=
-X_ADAPTOR) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0001) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0002) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERAL_TOUCH, 0x0003) },
-@@ -1426,6 +1427,7 @@ static const struct hid_device_id hid_ignore_list=
-[] =3D {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOTOP, USB_DEVICE_ID_SUPER_Q2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOTOP, USB_DEVICE_ID_GOGOPEN) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GOTOP, USB_DEVICE_ID_PENPOWER) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GRETAGMACBETH, USB_DEVICE_ID_GRETAGMAC=
-BETH_HUEY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GRIFFIN, USB_DEVICE_ID_POWERMATE) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_GRIFFIN, USB_DEVICE_ID_SOUNDKNOB) },
+@@ -1528,6 +1528,8 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_1_PHIDGETSERVO_20) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_8_8_4_IF_KIT) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_YEALINK, USB_DEVICE_ID_YEALINK_P1K_P4K_B2K) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 	{ }
+ };
+ 
 diff --git a/drivers/hid/hid-dummy.c b/drivers/hid/hid-dummy.c
-index 69dcf9b..2f5d9a1 100644
+index ae122a1..54d1fb6 100644
 --- a/drivers/hid/hid-dummy.c
 +++ b/drivers/hid/hid-dummy.c
-@@ -40,6 +40,9 @@ static int __init hid_dummy_init(void)
- #ifdef CONFIG_HID_MONTEREY_MODULE
- 	HID_COMPAT_CALL_DRIVER(monterey);
+@@ -58,6 +58,9 @@ static int __init hid_dummy_init(void)
+ #ifdef CONFIG_THRUSTMASTER_FF_MODULE
+ 	HID_COMPAT_CALL_DRIVER(thrustmaster);
  #endif
-+#ifdef CONFIG_HID_PANTHERLORD_MODULE
-+	HID_COMPAT_CALL_DRIVER(pantherlord);
++#ifdef CONFIG_ZEROPLUS_FF_MODULE
++	HID_COMPAT_CALL_DRIVER(zeroplus);
 +#endif
- #ifdef CONFIG_HID_PETALYNX_MODULE
- 	HID_COMPAT_CALL_DRIVER(petalynx);
- #endif
+ 
+ 	return -EIO;
+ }
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 0784a09..a4d9695 100644
+index 30dcc93..11b0720 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -373,6 +373,8 @@
+@@ -375,6 +375,8 @@
  #define USB_DEVICE_ID_QUAD_USB_JOYPAD	0x8800
  #define USB_DEVICE_ID_DUAL_USB_JOYPAD	0x8866
-=20
-+#define USB_VENDOR_ID_GREENASIA		0x0e8f
+ 
++#define USB_VENDOR_ID_ZEROPLUS		0x0c12
 +
+ #define USB_VENDOR_ID_GREENASIA		0x0e8f
+ 
  #define USB_VENDOR_ID_WISEGROUP_LTD	0x6666
- #define USB_VENDOR_ID_WISEGROUP_LTD2	0x6677
- #define USB_DEVICE_ID_SMARTJOY_DUAL_PLUS 0x8802
-diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
+diff --git a/drivers/hid/hid-zpff.c b/drivers/hid/hid-zpff.c
 new file mode 100644
-index 0000000..b450084
+index 0000000..9ed04ee
 --- /dev/null
-+++ b/drivers/hid/hid-pl.c
-@@ -0,0 +1,205 @@
++++ b/drivers/hid/hid-zpff.c
+@@ -0,0 +1,162 @@
 +/*
-+ *  Force feedback support for PantherLord/GreenAsia based devices
++ *  Force feedback support for Zeroplus based devices
 + *
-+ *  The devices are distributed under various names and the same USB d=
-evice ID
-+ *  can be used in both adapters and actual game controllers.
-+ *
-+ *  0810:0001 "Twin USB Joystick"
-+ *   - tested with PantherLord USB/PS2 2in1 Adapter
-+ *   - contains two reports, one for each port (HID_QUIRK_MULTI_INPUT)
-+ *
-+ *  0e8f:0003 "GreenAsia Inc.    USB Joystick     "
-+ *   - tested with K=C3=B6ng Gaming gamepad
-+ *
-+ *  Copyright (c) 2007 Anssi Hannula <anssi.hannula@gmail.com>
++ *  Copyright (c) 2005, 2006 Anssi Hannula <anssi.hannula@gmail.com>
 + */
 +
 +/*
-+ * This program is free software; you can redistribute it and/or modif=
-y
-+ * it under the terms of the GNU General Public License as published b=
-y
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
 + * the Free Software Foundation; either version 2 of the License, or
 + * (at your option) any later version.
 + *
@@ -168,268 +128,212 @@ y
 + *
 + * You should have received a copy of the GNU General Public License
 + * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307=
- USA
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 + */
 +
 +
-+/* #define DEBUG */
-+
-+#define debug(format, arg...) pr_debug("hid-plff: " format "\n" , ## a=
-rg)
-+
++#include <linux/hid.h>
 +#include <linux/input.h>
 +#include <linux/usb.h>
-+#include <linux/hid.h>
 +
 +#include "hid-ids.h"
 +
-+#ifdef CONFIG_PANTHERLORD_FF
 +#include "usbhid/usbhid.h"
 +
-+struct plff_device {
++struct zpff_device {
 +	struct hid_report *report;
 +};
 +
-+static int hid_plff_play(struct input_dev *dev, void *data,
++static int zpff_play(struct input_dev *dev, void *data,
 +			 struct ff_effect *effect)
 +{
-+	struct hid_device *hid =3D input_get_drvdata(dev);
-+	struct plff_device *plff =3D data;
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct zpff_device *zpff = data;
 +	int left, right;
 +
-+	left =3D effect->u.rumble.strong_magnitude;
-+	right =3D effect->u.rumble.weak_magnitude;
-+	debug("called with 0x%04x 0x%04x", left, right);
++	/*
++	 * The following is specified the other way around in the Zeroplus
++	 * datasheet but the order below is correct for the XFX Executioner;
++	 * however it is possible that the XFX Executioner is an exception
++	 */
 +
-+	left =3D left * 0x7f / 0xffff;
-+	right =3D right * 0x7f / 0xffff;
++	left = effect->u.rumble.strong_magnitude;
++	right = effect->u.rumble.weak_magnitude;
++	dbg_hid("called with 0x%04x 0x%04x\n", left, right);
 +
-+	plff->report->field[0]->value[2] =3D left;
-+	plff->report->field[0]->value[3] =3D right;
-+	debug("running with 0x%02x 0x%02x", left, right);
-+	usbhid_submit_report(hid, plff->report, USB_DIR_OUT);
++	left = left * 0x7f / 0xffff;
++	right = right * 0x7f / 0xffff;
++
++	zpff->report->field[2]->value[0] = left;
++	zpff->report->field[3]->value[0] = right;
++	dbg_hid("running with 0x%02x 0x%02x\n", left, right);
++	usbhid_submit_report(hid, zpff->report, USB_DIR_OUT);
 +
 +	return 0;
 +}
 +
-+static int plff_init(struct hid_device *hid)
++static int zpff_init(struct hid_device *hid)
 +{
-+	struct plff_device *plff;
++	struct zpff_device *zpff;
 +	struct hid_report *report;
-+	struct hid_input *hidinput;
-+	struct list_head *report_list =3D
++	struct hid_input *hidinput = list_entry(hid->inputs.next,
++						struct hid_input, list);
++	struct list_head *report_list =
 +			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
-+	struct list_head *report_ptr =3D report_list;
-+	struct input_dev *dev;
++	struct input_dev *dev = hidinput->input;
 +	int error;
 +
-+	/* The device contains one output report per physical device, all
-+	   containing 1 field, which contains 4 ff00.0002 usages and 4 16bit
-+	   absolute values.
-+
-+	   The input reports also contain a field which contains
-+	   8 ff00.0001 usages and 8 boolean values. Their meaning is
-+	   currently unknown. */
-+
 +	if (list_empty(report_list)) {
-+		printk(KERN_ERR "hid-plff: no output reports found\n");
++		printk(KERN_ERR "hid-zpff: no output report found\n");
 +		return -ENODEV;
 +	}
 +
-+	list_for_each_entry(hidinput, &hid->inputs, list) {
++	report = list_entry(report_list->next, struct hid_report, list);
 +
-+		report_ptr =3D report_ptr->next;
-+
-+		if (report_ptr =3D=3D report_list) {
-+			printk(KERN_ERR "hid-plff: required output report is missing\n");
-+			return -ENODEV;
-+		}
-+
-+		report =3D list_entry(report_ptr, struct hid_report, list);
-+		if (report->maxfield < 1) {
-+			printk(KERN_ERR "hid-plff: no fields in the report\n");
-+			return -ENODEV;
-+		}
-+
-+		if (report->field[0]->report_count < 4) {
-+			printk(KERN_ERR "hid-plff: not enough values in the field\n");
-+			return -ENODEV;
-+		}
-+
-+		plff =3D kzalloc(sizeof(struct plff_device), GFP_KERNEL);
-+		if (!plff)
-+			return -ENOMEM;
-+
-+		dev =3D hidinput->input;
-+
-+		set_bit(FF_RUMBLE, dev->ffbit);
-+
-+		error =3D input_ff_create_memless(dev, plff, hid_plff_play);
-+		if (error) {
-+			kfree(plff);
-+			return error;
-+		}
-+
-+		plff->report =3D report;
-+		plff->report->field[0]->value[0] =3D 0x00;
-+		plff->report->field[0]->value[1] =3D 0x00;
-+		plff->report->field[0]->value[2] =3D 0x00;
-+		plff->report->field[0]->value[3] =3D 0x00;
-+		usbhid_submit_report(hid, plff->report, USB_DIR_OUT);
++	if (report->maxfield < 4) {
++		printk(KERN_ERR "hid-zpff: not enough fields in report\n");
++		return -ENODEV;
 +	}
 +
-+	printk(KERN_INFO "hid-plff: Force feedback for PantherLord/GreenAsia =
-"
-+	       "devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
++	zpff = kzalloc(sizeof(struct zpff_device), GFP_KERNEL);
++	if (!zpff)
++		return -ENOMEM;
++
++	set_bit(FF_RUMBLE, dev->ffbit);
++
++	error = input_ff_create_memless(dev, zpff, zpff_play);
++	if (error) {
++		kfree(zpff);
++		return error;
++	}
++
++	zpff->report = report;
++	zpff->report->field[0]->value[0] = 0x00;
++	zpff->report->field[1]->value[0] = 0x02;
++	zpff->report->field[2]->value[0] = 0x00;
++	zpff->report->field[3]->value[0] = 0x00;
++	usbhid_submit_report(hid, zpff->report, USB_DIR_OUT);
++
++	printk(KERN_INFO "Force feedback for Zeroplus based devices by "
++	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
 +
 +	return 0;
 +}
-+#else
-+static inline int plff_init(struct hid_device *hid)
-+{
-+	return 0;
-+}
-+#endif
 +
-+static int pl_probe(struct hid_device *hdev, const struct hid_device_i=
-d *id)
++static int zp_probe(struct hid_device *hdev, const struct hid_device_id *id)
 +{
 +	int ret;
 +
-+	if (id->driver_data)
-+		hdev->quirks |=3D HID_QUIRK_MULTI_INPUT;
-+
-+	ret =3D hid_parse(hdev);
++	ret = hid_parse(hdev);
 +	if (ret) {
 +		dev_err(&hdev->dev, "parse failed\n");
 +		goto err;
 +	}
 +
-+	ret =3D hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
 +	if (ret) {
 +		dev_err(&hdev->dev, "hw start failed\n");
 +		goto err;
 +	}
 +
-+	plff_init(hdev);
++	zpff_init(hdev);
 +
 +	return 0;
 +err:
 +	return ret;
 +}
 +
-+static const struct hid_device_id pl_devices[] =3D {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PS=
-X_ADAPTOR),
-+		.driver_data =3D 1 }, /* Twin USB Joystick */
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GREENASIA, 0x0003), }, /* GreenAsia In=
-c. USB Joystick */
++static const struct hid_device_id zp_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
 +	{ }
 +};
-+MODULE_DEVICE_TABLE(hid, pl_devices);
++MODULE_DEVICE_TABLE(hid, zp_devices);
 +
-+static struct hid_driver pl_driver =3D {
-+	.name =3D "pantherlord",
-+	.id_table =3D pl_devices,
-+	.probe =3D pl_probe,
++static struct hid_driver zp_driver = {
++	.name = "zeroplus",
++	.id_table = zp_devices,
++	.probe = zp_probe,
 +};
 +
-+static int pl_init(void)
++static int zp_init(void)
 +{
-+	return hid_register_driver(&pl_driver);
++	return hid_register_driver(&zp_driver);
 +}
 +
-+static void pl_exit(void)
++static void zp_exit(void)
 +{
-+	hid_unregister_driver(&pl_driver);
++	hid_unregister_driver(&zp_driver);
 +}
 +
-+module_init(pl_init);
-+module_exit(pl_exit);
++module_init(zp_init);
++module_exit(zp_exit);
 +MODULE_LICENSE("GPL");
 +
-+HID_COMPAT_LOAD_DRIVER(pantherlord);
++HID_COMPAT_LOAD_DRIVER(zeroplus);
 diff --git a/drivers/hid/usbhid/Kconfig b/drivers/hid/usbhid/Kconfig
-index 0e7e2e6..02c8228 100644
+index c236fb3..3cfc076 100644
 --- a/drivers/hid/usbhid/Kconfig
 +++ b/drivers/hid/usbhid/Kconfig
 @@ -44,14 +44,6 @@ config HID_PID
- 	  feedback for it. Microsoft Sidewinder Force Feedback 2 is one of su=
-ch
+ 	  feedback for it. Microsoft Sidewinder Force Feedback 2 is one of such
  	  devices.
-=20
--config PANTHERLORD_FF
--	bool "PantherLord/GreenAsia based device support"
+ 
+-config ZEROPLUS_FF
+-	bool "Zeroplus based game controller support"
 -	depends on HID_FF
 -	select INPUT_FF_MEMLESS if USB_HID
 -	help
--	  Say Y here if you have a PantherLord/GreenAsia based game controlle=
-r
--	  or adapter and want to enable force feedback support for it.
+-	  Say Y here if you have a Zeroplus based game controller and want to
+-	  enable force feedback for it.
 -
- config THRUSTMASTER_FF
- 	bool "ThrustMaster devices support"
- 	depends on HID_FF
+ config USB_HIDDEV
+ 	bool "/dev/hiddev raw HID device support"
+ 	depends on USB_HID
 diff --git a/drivers/hid/usbhid/Makefile b/drivers/hid/usbhid/Makefile
-index 224c62d..0ee4803 100644
+index dd3b863..5c460fc 100644
 --- a/drivers/hid/usbhid/Makefile
 +++ b/drivers/hid/usbhid/Makefile
 @@ -13,9 +13,6 @@ endif
  ifeq ($(CONFIG_HID_PID),y)
- 	usbhid-objs	+=3D hid-pidff.o
+ 	usbhid-objs	+= hid-pidff.o
  endif
--ifeq ($(CONFIG_PANTHERLORD_FF),y)
--	usbhid-objs	+=3D hid-plff.o
+-ifeq ($(CONFIG_ZEROPLUS_FF),y)
+-	usbhid-objs	+= hid-zpff.o
 -endif
- ifeq ($(CONFIG_THRUSTMASTER_FF),y)
- 	usbhid-objs	+=3D hid-tmff.o
+ ifeq ($(CONFIG_HID_FF),y)
+ 	usbhid-objs	+= hid-ff.o
  endif
 diff --git a/drivers/hid/usbhid/hid-ff.c b/drivers/hid/usbhid/hid-ff.c
-index 8891f60..a868eef 100644
+index ed3a869..eca01a6 100644
 --- a/drivers/hid/usbhid/hid-ff.c
 +++ b/drivers/hid/usbhid/hid-ff.c
 @@ -50,10 +50,6 @@ struct hid_ff_initializer {
   * be a PID device
   */
- static struct hid_ff_initializer inits[] =3D {
--#ifdef CONFIG_PANTHERLORD_FF
--	{ 0x810, 0x0001, hid_plff_init }, /* "Twin USB Joystick" */
--	{ 0xe8f, 0x0003, hid_plff_init }, /* "GreenAsia Inc.    USB Joystick =
-    " */
+ static struct hid_ff_initializer inits[] = {
+-#ifdef CONFIG_ZEROPLUS_FF
+-	{ 0xc12, 0x0005, hid_zpff_init },
+-	{ 0xc12, 0x0030, hid_zpff_init },
 -#endif
- #ifdef CONFIG_THRUSTMASTER_FF
- 	{ 0x44f, 0xb300, hid_tmff_init },
- 	{ 0x44f, 0xb304, hid_tmff_init },
-diff --git a/drivers/hid/usbhid/hid-plff.c b/drivers/hid/usbhid/hid-plf=
-f.c
+ 	{ 0,	 0,	 hid_pidff_init}  /* Matches anything */
+ };
+ 
+diff --git a/drivers/hid/usbhid/hid-zpff.c b/drivers/hid/usbhid/hid-zpff.c
 deleted file mode 100644
-index 9eb83cf..0000000
---- a/drivers/hid/usbhid/hid-plff.c
+index 5a68827..0000000
+--- a/drivers/hid/usbhid/hid-zpff.c
 +++ /dev/null
-@@ -1,139 +0,0 @@
+@@ -1,107 +0,0 @@
 -/*
-- *  Force feedback support for PantherLord/GreenAsia based devices
+- *  Force feedback support for Zeroplus based devices
 - *
-- *  The devices are distributed under various names and the same USB d=
-evice ID
-- *  can be used in both adapters and actual game controllers.
-- *
-- *  0810:0001 "Twin USB Joystick"
-- *   - tested with PantherLord USB/PS2 2in1 Adapter
-- *   - contains two reports, one for each port (HID_QUIRK_MULTI_INPUT)
-- *
-- *  0e8f:0003 "GreenAsia Inc.    USB Joystick     "
-- *   - tested with K=C3=B6ng Gaming gamepad
-- *
-- *  Copyright (c) 2007 Anssi Hannula <anssi.hannula@gmail.com>
+- *  Copyright (c) 2005, 2006 Anssi Hannula <anssi.hannula@gmail.com>
 - */
 -
 -/*
-- * This program is free software; you can redistribute it and/or modif=
-y
-- * it under the terms of the GNU General Public License as published b=
-y
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
 - * the Free Software Foundation; either version 2 of the License, or
 - * (at your option) any later version.
 - *
@@ -440,154 +344,106 @@ y
 - *
 - * You should have received a copy of the GNU General Public License
 - * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307=
- USA
+- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 - */
 -
--
--/* #define DEBUG */
--
--#define debug(format, arg...) pr_debug("hid-plff: " format "\n" , ## a=
-rg)
 -
 -#include <linux/input.h>
 -#include <linux/usb.h>
 -#include <linux/hid.h>
 -#include "usbhid.h"
 -
--struct plff_device {
+-struct zpff_device {
 -	struct hid_report *report;
 -};
 -
--static int hid_plff_play(struct input_dev *dev, void *data,
+-static int hid_zpff_play(struct input_dev *dev, void *data,
 -			 struct ff_effect *effect)
 -{
--	struct hid_device *hid =3D input_get_drvdata(dev);
--	struct plff_device *plff =3D data;
+-	struct hid_device *hid = input_get_drvdata(dev);
+-	struct zpff_device *zpff = data;
 -	int left, right;
 -
--	left =3D effect->u.rumble.strong_magnitude;
--	right =3D effect->u.rumble.weak_magnitude;
--	debug("called with 0x%04x 0x%04x", left, right);
+-	/*
+-	 * The following is specified the other way around in the Zeroplus
+-	 * datasheet but the order below is correct for the XFX Executioner;
+-	 * however it is possible that the XFX Executioner is an exception
+-	 */
 -
--	left =3D left * 0x7f / 0xffff;
--	right =3D right * 0x7f / 0xffff;
+-	left = effect->u.rumble.strong_magnitude;
+-	right = effect->u.rumble.weak_magnitude;
+-	dbg_hid("called with 0x%04x 0x%04x\n", left, right);
 -
--	plff->report->field[0]->value[2] =3D left;
--	plff->report->field[0]->value[3] =3D right;
--	debug("running with 0x%02x 0x%02x", left, right);
--	usbhid_submit_report(hid, plff->report, USB_DIR_OUT);
+-	left = left * 0x7f / 0xffff;
+-	right = right * 0x7f / 0xffff;
+-
+-	zpff->report->field[2]->value[0] = left;
+-	zpff->report->field[3]->value[0] = right;
+-	dbg_hid("running with 0x%02x 0x%02x\n", left, right);
+-	usbhid_submit_report(hid, zpff->report, USB_DIR_OUT);
 -
 -	return 0;
 -}
 -
--int hid_plff_init(struct hid_device *hid)
+-int hid_zpff_init(struct hid_device *hid)
 -{
--	struct plff_device *plff;
+-	struct zpff_device *zpff;
 -	struct hid_report *report;
--	struct hid_input *hidinput;
--	struct list_head *report_list =3D
+-	struct hid_input *hidinput = list_entry(hid->inputs.next,
+-						struct hid_input, list);
+-	struct list_head *report_list =
 -			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
--	struct list_head *report_ptr =3D report_list;
--	struct input_dev *dev;
+-	struct input_dev *dev = hidinput->input;
 -	int error;
 -
--	/* The device contains one output report per physical device, all
--	   containing 1 field, which contains 4 ff00.0002 usages and 4 16bit
--	   absolute values.
--
--	   The input reports also contain a field which contains
--	   8 ff00.0001 usages and 8 boolean values. Their meaning is
--	   currently unknown. */
--
 -	if (list_empty(report_list)) {
--		printk(KERN_ERR "hid-plff: no output reports found\n");
+-		printk(KERN_ERR "hid-zpff: no output report found\n");
 -		return -ENODEV;
 -	}
 -
--	list_for_each_entry(hidinput, &hid->inputs, list) {
+-	report = list_entry(report_list->next, struct hid_report, list);
 -
--		report_ptr =3D report_ptr->next;
--
--		if (report_ptr =3D=3D report_list) {
--			printk(KERN_ERR "hid-plff: required output report is missing\n");
--			return -ENODEV;
--		}
--
--		report =3D list_entry(report_ptr, struct hid_report, list);
--		if (report->maxfield < 1) {
--			printk(KERN_ERR "hid-plff: no fields in the report\n");
--			return -ENODEV;
--		}
--
--		if (report->field[0]->report_count < 4) {
--			printk(KERN_ERR "hid-plff: not enough values in the field\n");
--			return -ENODEV;
--		}
--
--		plff =3D kzalloc(sizeof(struct plff_device), GFP_KERNEL);
--		if (!plff)
--			return -ENOMEM;
--
--		dev =3D hidinput->input;
--
--		set_bit(FF_RUMBLE, dev->ffbit);
--
--		error =3D input_ff_create_memless(dev, plff, hid_plff_play);
--		if (error) {
--			kfree(plff);
--			return error;
--		}
--
--		plff->report =3D report;
--		plff->report->field[0]->value[0] =3D 0x00;
--		plff->report->field[0]->value[1] =3D 0x00;
--		plff->report->field[0]->value[2] =3D 0x00;
--		plff->report->field[0]->value[3] =3D 0x00;
--		usbhid_submit_report(hid, plff->report, USB_DIR_OUT);
+-	if (report->maxfield < 4) {
+-		printk(KERN_ERR "hid-zpff: not enough fields in report\n");
+-		return -ENODEV;
 -	}
 -
--	printk(KERN_INFO "hid-plff: Force feedback for PantherLord/GreenAsia =
-"
--	       "devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
+-	zpff = kzalloc(sizeof(struct zpff_device), GFP_KERNEL);
+-	if (!zpff)
+-		return -ENOMEM;
+-
+-	set_bit(FF_RUMBLE, dev->ffbit);
+-
+-	error = input_ff_create_memless(dev, zpff, hid_zpff_play);
+-	if (error) {
+-		kfree(zpff);
+-		return error;
+-	}
+-
+-	zpff->report = report;
+-	zpff->report->field[0]->value[0] = 0x00;
+-	zpff->report->field[1]->value[0] = 0x02;
+-	zpff->report->field[2]->value[0] = 0x00;
+-	zpff->report->field[3]->value[0] = 0x00;
+-	usbhid_submit_report(hid, zpff->report, USB_DIR_OUT);
+-
+-	printk(KERN_INFO "Force feedback for Zeroplus based devices by "
+-	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
 -
 -	return 0;
 -}
-diff --git a/drivers/hid/usbhid/hid-quirks.c b/drivers/hid/usbhid/hid-q=
-uirks.c
-index d40f009..47ebe04 100644
---- a/drivers/hid/usbhid/hid-quirks.c
-+++ b/drivers/hid/usbhid/hid-quirks.c
-@@ -32,7 +32,6 @@ static const struct hid_blacklist {
- 	{ USB_VENDOR_ID_AASHIMA, USB_DEVICE_ID_AASHIMA_PREDATOR, HID_QUIRK_BA=
-DPAD },
- 	{ USB_VENDOR_ID_ALPS, USB_DEVICE_ID_IBM_GAMEPAD, HID_QUIRK_BADPAD },
- 	{ USB_VENDOR_ID_CHIC, USB_DEVICE_ID_CHIC_GAMEPAD, HID_QUIRK_BADPAD },
--	{ USB_VENDOR_ID_GAMERON, USB_DEVICE_ID_GAMERON_DUAL_PSX_ADAPTOR, HID_=
-QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_DRIVING, HID_QUIRK_BADPAD | =
-HID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FLYING, HID_QUIRK_BADPAD | H=
-ID_QUIRK_MULTI_INPUT },
- 	{ USB_VENDOR_ID_HAPP, USB_DEVICE_ID_UGCI_FIGHTING, HID_QUIRK_BADPAD |=
- HID_QUIRK_MULTI_INPUT },
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 164ce7f..260beba 100644
+index 2af65a7..6cf0357 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
 @@ -760,7 +760,6 @@ void usbhid_set_leds(struct hid_device *hid);
  #ifdef CONFIG_HID_FF
  int hid_ff_init(struct hid_device *hid);
-=20
--int hid_plff_init(struct hid_device *hid);
- int hid_tmff_init(struct hid_device *hid);
- int hid_zpff_init(struct hid_device *hid);
+ 
+-int hid_zpff_init(struct hid_device *hid);
  #ifdef CONFIG_HID_PID
---=20
+ int hid_pidff_init(struct hid_device *hid);
+ #else
+-- 
 1.6.0
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

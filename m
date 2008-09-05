@@ -1,105 +1,181 @@
-From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Subject: __initdata and struct dmi_system_id?
-Date: Fri, 05 Sep 2008 07:45:42 +0200
-Message-ID: <48C0C786.5020809@freemail.hu>
+From: xavier hervy <xavier.hervy@bluebottle.com>
+Subject: Support Touchscreen SoundGraph
+Date: Fri, 05 Sep 2008 17:33:43 +0100
+Message-ID: <1220632423.6207.26.camel@xavier-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail00d.mail.t-online.hu ([84.2.42.5]:59452 "EHLO
-	mail00d.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751864AbYIEFpq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2008 01:45:46 -0400
+Received: from mi1.bluebottle.com ([206.188.25.14]:54668 "EHLO
+	mi1.bluebottle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751232AbYIERft (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2008 13:35:49 -0400
+Received: from fe1.bluebottle.com (internal.bluebottle.com [206.188.24.43])
+	by mi1.bluebottle.com (8.13.1/8.13.1) with ESMTP id m85GXneK028867
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Fri, 5 Sep 2008 16:33:50 GMT
+Received: from [192.168.1.168] (82-69-180-249.dsl.in-addr.zen.co.uk [82.69.180.249])
+	(authenticated bits=0)
+	by fe1.bluebottle.com (8.13.1/8.13.1) with ESMTP id m85GXieE021493
+	for <linux-input@vger.kernel.org>; Fri, 5 Sep 2008 16:33:48 GMT
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
 Hi,
+I am trying to make my touch screen work (Zalman HD160XT Plus) but I
+could not find any suitable driver for it.
+The Touch screen is an USB Device which consist of :
+- a touch screen
+- a knob
+- few buttons in a front panel
+- A remote control
+lsusb -v
 
-I have a question about how the __initdata sections are handled
-under Linux. As far as I understand after the init function is
-finished all the data from the __initdata section is freed. For
-this reason all the data which are marked as __initdata should
-be separated to a different section by the compiler.
+Bus 004 Device 004: ID 15c2:0034 SoundGraph Inc. 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0         8
+  idVendor           0x15c2 SoundGraph Inc.
+  idProduct          0x0034 
+  bcdDevice            0.12
+  iManufacturer           0 
+  iProduct                0 
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           59
+    bNumInterfaces          2
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0x80
+      (Bus Powered)
+    MaxPower              100mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      2 Mouse
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.01
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength     121
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        1
+      bAlternateSetting       0
+      bNumEndpoints           1
+      bInterfaceClass         3 Human Interface Devices
+      bInterfaceSubClass      0 No Subclass
+      bInterfaceProtocol      0 None
+      iInterface              0 
+        HID Device Descriptor:
+          bLength                 9
+          bDescriptorType        33
+          bcdHID               1.00
+          bCountryCode            0 Not supported
+          bNumDescriptors         1
+          bDescriptorType        34 Report
+          wDescriptorLength      50
+         Report Descriptors: 
+           ** UNAVAILABLE **
+      Endpoint Descriptor:
+        bLength                 7
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            3
+          Transfer Type            Interrupt
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0008  1x 8 bytes
+        bInterval              10
+Device Status:     0x0000
+  (Bus Powered)
 
-I take for example the drivers/input/keyboards/atkbd.c where we
-can see the following dmi_system_id structure:
+I am currently running Ubuntu 7.10
+Two input device are created when plugged:
+lrwxrwxrwx 1 root root   9 2008-09-04 22:56 usb-15c2_0034-event-mouse
+-> ../event1
+lrwxrwxrwx 1 root root   9 2008-09-04 22:56 usb-15c2_0034-mouse
+-> ../mouse1
 
-static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata =3D {
-        {
-                .ident =3D "Dell Latitude series",
-                .matches =3D {
-                        DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
-                        DMI_MATCH(DMI_PRODUCT_NAME, "Latitude"),
-                },
-                .callback =3D atkbd_setup_fixup,
-                .driver_data =3D atkbd_latitude_keymap_fixup,
-        },
-        {
-                .ident =3D "HP 2133",
-                .matches =3D {
-                        DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-                        DMI_MATCH(DMI_PRODUCT_NAME, "HP 2133"),
-                },
-                .callback =3D atkbd_setup_fixup,
-                .driver_data =3D atkbd_hp_keymap_fixup,
-        },
-        { }
-};
+As well as  /dev/usb/hiddev0
 
-All these data should be separated to the section marked
-with __initdata, so it can be freed. Let's see what happens
-after compiling this with gcc 4.2.4. Here is the some part
-of the output of "objdump -s drivers/input/keyboards/atkbd.o":
+The input device does give me anything usefull but the hiddev0 device
+provide me some infos:
+A packet seems to be 64 Bytes  (in opposite two 2 * 8 Bytes according to
+lsusb)
+The knob and buttons seem quiet easily to decode:
+Example knob -: (the 5th bytes is equal to 1)
+[03 00 cd ff 01 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 12 00 00 00] 
+[04 00 cd ff ee ff ff ff] 
 
-Contents of section .init.text:
- 0000 558b4028 89e55da3 20000000 31c0c390  U.@(..]. ...1...
- 0010 55b80000 000089e5 e8fcffff ffb95000  U.............P.
- 0020 000031d2 b8200000 00e8fcff ffff5dc3  ..1.. ........].
-Contents of section .rodata.str1.1:
- 0000 256c750a 0025640a 00415420 53657420  %lu..%d..AT Set
- 0010 32204578 74726120 6b657962 6f617264  2 Extra keyboard
- 0020 00547261 6e736c61 74656400 52617700  .Translated.Raw.
- 0030 41542025 73205365 74202564 206b6579  AT %s Set %d key
- 0040 626f6172 64002573 2f696e70 75743000  board.%s/input0.
- 0050 61746b62 64002628 2661746b 62642d3e  atkbd.&(&atkbd->
- 0060 6576656e 745f776f 726b292d 3e776f72  event_work)->wor
- 0070 6b002661 746b6264 2d3e6576 656e745f  k.&atkbd->event_
- 0080 6d757465 78004143 4b004e41 4b007472  mutex.ACK.NAK.tr
- 0090 616e736c 61746564 00726177 0072656c  anslated.raw.rel
- 00a0 65617365 64007072 65737365 64006530  eased.pressed.e0
- 00b0 00004465 6c6c204c 61746974 75646520  ..Dell Latitude
- 00c0 73657269 65730044 656c6c20 496e632e  series.Dell Inc.
- 00d0 004c6174 69747564 65004850 20323133  .Latitude.HP 213
- 00e0 33004865 776c6574 742d5061 636b6172  3.Hewlett-Packar
- 00f0 64004154 20616e64 2050532f 32206b65  d.AT and PS/2 ke
- 0100 79626f61 72642064 72697665 72006578  yboard driver.ex
- 0110 74726100 7363726f 6c6c0073 65740073  tra.scroll.set.s
- 0120 6f667472 65706561 7400736f 66747261  oftrepeat.softra
- 0130 77006572 725f636f 756e7400           w.err_count.
+Example knob -: (the 13th bytes is equal to 1)
+[03 00 cd ff 00 00 00 00] 
+[04 00 cd ff 01 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 00 00 00 00] 
+[04 00 cd ff 12 00 00 00] 
+[04 00 cd ff ee ff ff ff] 
+For the front panel button the 29th bytes change (I suppose the remote
+work the same way but I didn't try for a while)
 
-What I can see here is that some of the atkbd_dmi_quirk_table[]
-content was stored into .init.text, but the strings like
-"Dell Latitude series", "Dell Inc.", "Latitude", etc. were
-combined to .rodata.str1.1 which also contain strings which
-are NOT marked with __initdata. For example the string
-"AT Set 2 Extra keyboard" is used in atkbd_set_device_attrs()
-function thus the section .rodata.str1.1 cannot be freed after
-the init is done.
+For the touch screen it self, I did not manage to understand fully what
+is been sent but my packet look like
+[03 00 cd ff dd ff ff ff ... 
+with the 5th byte value changing according to Y (or X) axe and  the 6th,
+7th and 9th to FF
 
-Did I understand the situation correctly?
-How is it possible to also allocate the strings which
-belongs to struct dmi_system_id go to the section .init.text?
+Does anybody know a driver capable to support this protocol.
+If not, I am willing to write the drive for it but I will need a lot of
+help too as I never wrote any driver before.
+How does it work when the same device is used like a keyboard and a
+touch screen ?
 
-Also note that the drivers/input/keyboards/atkbd.c is only a
-random example, drivers/leds/leds-clevo-mail.c has the same problem.
+Why the wMaxPacketSize is set at 8 Bytes when the size seems to be 64 ?
+
+Where should I start ?
 
 Regards,
 
-	M=E1rton N=E9meth
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Xavier
+
+
+

@@ -1,102 +1,105 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [PATCH 2/2] input: mousedev: Emulate right and middle buttons for
- single-button touchpads
-Date: Fri, 05 Sep 2008 03:19:56 +0200
-Message-ID: <48C0893C.6060901@euromail.se>
+From: =?ISO-8859-2?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: __initdata and struct dmi_system_id?
+Date: Fri, 05 Sep 2008 07:45:42 +0200
+Message-ID: <48C0C786.5020809@freemail.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:39345 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751716AbYIEBUH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 4 Sep 2008 21:20:07 -0400
+Received: from mail00d.mail.t-online.hu ([84.2.42.5]:59452 "EHLO
+	mail00d.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751864AbYIEFpq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2008 01:45:46 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@osdl.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: linux-input@vger.kernel.org
 
-On most linux-based systems, the right and middle buttons are used
-extensively. On computers lacking either of those buttons, such as
-the Apple Macbooks, emulation is needed. This patch adds emulation
-of the missing buttons via two-fingers-and-click and three-fingers-
-and-click operations, which has recently become standard, both in
-MacOS and in the Xorg synaptics driver.
+Hi,
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/mousedev.c |   31 +++++++++++++++++++++++++++++++
- 1 files changed, 31 insertions(+), 0 deletions(-)
+I have a question about how the __initdata sections are handled
+under Linux. As far as I understand after the init function is
+finished all the data from the __initdata section is freed. For
+this reason all the data which are marked as __initdata should
+be separated to a different section by the compiler.
 
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index 27e1d73..a1e929f 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -53,6 +53,14 @@ static unsigned tap_move = 20;
- module_param(tap_move, uint, 0644);
- MODULE_PARM_DESC(tap_move, "Tap distance for touchpads in absolute mode (res)");
+I take for example the drivers/input/keyboards/atkbd.c where we
+can see the following dmi_system_id structure:
 
-+static unsigned two_finger_code = BTN_RIGHT;
-+module_param(two_finger_code, uint, 0644);
-+MODULE_PARM_DESC(two_finger_code, "Button code of two-finger click");
-+
-+static unsigned three_finger_code = BTN_MIDDLE;
-+module_param(three_finger_code, uint, 0644);
-+MODULE_PARM_DESC(three_finger_code, "Button code of three-finger click");
-+
- struct mousedev_hw_data {
- 	int dx, dy, dz;
- 	int x, y;
-@@ -81,6 +89,7 @@ struct mousedev {
- 	int frac_dx, frac_dy;
- 	unsigned long touch;
- 	int touch_dx, touch_dy;
-+	int double_tap, triple_tap;
- };
+static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata =3D {
+        {
+                .ident =3D "Dell Latitude series",
+                .matches =3D {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "Latitude"),
+                },
+                .callback =3D atkbd_setup_fixup,
+                .driver_data =3D atkbd_latitude_keymap_fixup,
+        },
+        {
+                .ident =3D "HP 2133",
+                .matches =3D {
+                        DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
+                        DMI_MATCH(DMI_PRODUCT_NAME, "HP 2133"),
+                },
+                .callback =3D atkbd_setup_fixup,
+                .driver_data =3D atkbd_hp_keymap_fixup,
+        },
+        { }
+};
 
- enum mousedev_emul {
-@@ -225,11 +234,31 @@ static void mousedev_rel_event(struct mousedev *mousedev,
- 	}
- }
+All these data should be separated to the section marked
+with __initdata, so it can be freed. Let's see what happens
+after compiling this with gcc 4.2.4. Here is the some part
+of the output of "objdump -s drivers/input/keyboards/atkbd.o":
 
-+/* multi-finger emulation of non-existing buttons */
-+static unsigned int get_button_code(const struct mousedev *mousedev)
-+{
-+	unsigned int code = BTN_LEFT;
-+	if (mousedev->double_tap)
-+		code = two_finger_code;
-+	if (mousedev->triple_tap)
-+		code = three_finger_code;
-+	if (test_bit(code, mousedev->handle.dev->keybit))
-+		code = BTN_LEFT;
-+	return code;
-+}
-+
- static void mousedev_key_event(struct mousedev *mousedev,
- 				unsigned int code, int value)
- {
- 	int index;
+Contents of section .init.text:
+ 0000 558b4028 89e55da3 20000000 31c0c390  U.@(..]. ...1...
+ 0010 55b80000 000089e5 e8fcffff ffb95000  U.............P.
+ 0020 000031d2 b8200000 00e8fcff ffff5dc3  ..1.. ........].
+Contents of section .rodata.str1.1:
+ 0000 256c750a 0025640a 00415420 53657420  %lu..%d..AT Set
+ 0010 32204578 74726120 6b657962 6f617264  2 Extra keyboard
+ 0020 00547261 6e736c61 74656400 52617700  .Translated.Raw.
+ 0030 41542025 73205365 74202564 206b6579  AT %s Set %d key
+ 0040 626f6172 64002573 2f696e70 75743000  board.%s/input0.
+ 0050 61746b62 64002628 2661746b 62642d3e  atkbd.&(&atkbd->
+ 0060 6576656e 745f776f 726b292d 3e776f72  event_work)->wor
+ 0070 6b002661 746b6264 2d3e6576 656e745f  k.&atkbd->event_
+ 0080 6d757465 78004143 4b004e41 4b007472  mutex.ACK.NAK.tr
+ 0090 616e736c 61746564 00726177 0072656c  anslated.raw.rel
+ 00a0 65617365 64007072 65737365 64006530  eased.pressed.e0
+ 00b0 00004465 6c6c204c 61746974 75646520  ..Dell Latitude
+ 00c0 73657269 65730044 656c6c20 496e632e  series.Dell Inc.
+ 00d0 004c6174 69747564 65004850 20323133  .Latitude.HP 213
+ 00e0 33004865 776c6574 742d5061 636b6172  3.Hewlett-Packar
+ 00f0 64004154 20616e64 2050532f 32206b65  d.AT and PS/2 ke
+ 0100 79626f61 72642064 72697665 72006578  yboard driver.ex
+ 0110 74726100 7363726f 6c6c0073 65740073  tra.scroll.set.s
+ 0120 6f667472 65706561 7400736f 66747261  oftrepeat.softra
+ 0130 77006572 725f636f 756e7400           w.err_count.
 
-+	if (code == BTN_TOOL_DOUBLETAP)
-+		mousedev->double_tap = value;
-+	if (code == BTN_TOOL_TRIPLETAP)
-+		mousedev->triple_tap = value;
-+	if (code == BTN_LEFT)
-+		code = get_button_code(mousedev);
-+
- 	switch (code) {
+What I can see here is that some of the atkbd_dmi_quirk_table[]
+content was stored into .init.text, but the strings like
+"Dell Latitude series", "Dell Inc.", "Latitude", etc. were
+combined to .rodata.str1.1 which also contain strings which
+are NOT marked with __initdata. For example the string
+"AT Set 2 Extra keyboard" is used in atkbd_set_device_attrs()
+function thus the section .rodata.str1.1 cannot be freed after
+the init is done.
 
- 	case BTN_TOUCH:
-@@ -327,6 +356,8 @@ static void mousedev_touchpad_touch(struct mousedev *mousedev, int value)
- {
- 	if (!value) {
- 		if (mousedev->touch &&
-+		    !mousedev->double_tap &&
-+		    !mousedev->triple_tap &&
- 		    abs(mousedev->touch_dx) < tap_move &&
- 		    abs(mousedev->touch_dy) < tap_move &&
- 		    time_before(jiffies,
--- 
-1.5.4.3
+Did I understand the situation correctly?
+How is it possible to also allocate the strings which
+belongs to struct dmi_system_id go to the section .init.text?
 
+Also note that the drivers/input/keyboards/atkbd.c is only a
+random example, drivers/leds/leds-clevo-mail.c has the same problem.
+
+Regards,
+
+	M=E1rton N=E9meth
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

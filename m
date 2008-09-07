@@ -1,181 +1,57 @@
-From: xavier hervy <xavier.hervy@bluebottle.com>
-Subject: Support Touchscreen SoundGraph
-Date: Fri, 05 Sep 2008 17:33:43 +0100
-Message-ID: <1220632423.6207.26.camel@xavier-desktop>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.27-rc5
+Date: Sat, 6 Sep 2008 23:56:48 -0400
+Message-ID: <20080907035647.GA24245@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mi1.bluebottle.com ([206.188.25.14]:54668 "EHLO
-	mi1.bluebottle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751232AbYIERft (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 5 Sep 2008 13:35:49 -0400
-Received: from fe1.bluebottle.com (internal.bluebottle.com [206.188.24.43])
-	by mi1.bluebottle.com (8.13.1/8.13.1) with ESMTP id m85GXneK028867
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <linux-input@vger.kernel.org>; Fri, 5 Sep 2008 16:33:50 GMT
-Received: from [192.168.1.168] (82-69-180-249.dsl.in-addr.zen.co.uk [82.69.180.249])
-	(authenticated bits=0)
-	by fe1.bluebottle.com (8.13.1/8.13.1) with ESMTP id m85GXieE021493
-	for <linux-input@vger.kernel.org>; Fri, 5 Sep 2008 16:33:48 GMT
+Received: from an-out-0708.google.com ([209.85.132.251]:43463 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753616AbYIGD4y (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 6 Sep 2008 23:56:54 -0400
+Received: by an-out-0708.google.com with SMTP id d40so170859and.103
+        for <linux-input@vger.kernel.org>; Sat, 06 Sep 2008 20:56:52 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi,
-I am trying to make my touch screen work (Zalman HD160XT Plus) but I
-could not find any suitable driver for it.
-The Touch screen is an USB Device which consist of :
-- a touch screen
-- a knob
-- few buttons in a front panel
-- A remote control
-lsusb -v
+Hi Linus,
 
-Bus 004 Device 004: ID 15c2:0034 SoundGraph Inc. 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0         8
-  idVendor           0x15c2 SoundGraph Inc.
-  idProduct          0x0034 
-  bcdDevice            0.12
-  iManufacturer           0 
-  iProduct                0 
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           59
-    bNumInterfaces          2
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0x80
-      (Bus Powered)
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Devices
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      2 Mouse
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.01
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength     121
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval              10
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        1
-      bAlternateSetting       0
-      bNumEndpoints           1
-      bInterfaceClass         3 Human Interface Devices
-      bInterfaceSubClass      0 No Subclass
-      bInterfaceProtocol      0 None
-      iInterface              0 
-        HID Device Descriptor:
-          bLength                 9
-          bDescriptorType        33
-          bcdHID               1.00
-          bCountryCode            0 Not supported
-          bNumDescriptors         1
-          bDescriptorType        34 Report
-          wDescriptorLength      50
-         Report Descriptors: 
-           ** UNAVAILABLE **
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0008  1x 8 bytes
-        bInterval              10
-Device Status:     0x0000
-  (Bus Powered)
+Please pull from:
 
-I am currently running Ubuntu 7.10
-Two input device are created when plugged:
-lrwxrwxrwx 1 root root   9 2008-09-04 22:56 usb-15c2_0034-event-mouse
--> ../event1
-lrwxrwxrwx 1 root root   9 2008-09-04 22:56 usb-15c2_0034-mouse
--> ../mouse1
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-As well as  /dev/usb/hiddev0
+to receive updates for the input subsystem. You will get an update to
+the new bcm5974 touchpad driver. While is it bigger than I would like at
+this stage the changes are needed for mousedev to bind to the touchpad
+and provide basic mouse emulation (until user installs Synaptics X
+driver). Another change is refining quirk for Lenovo N3000 to activate
+for a specific board version only.
 
-The input device does give me anything usefull but the hiddev0 device
-provide me some infos:
-A packet seems to be 64 Bytes  (in opposite two 2 * 8 Bytes according to
-lsusb)
-The knob and buttons seem quiet easily to decode:
-Example knob -: (the 5th bytes is equal to 1)
-[03 00 cd ff 01 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 12 00 00 00] 
-[04 00 cd ff ee ff ff ff] 
+Changelog:
+---------
 
-Example knob -: (the 13th bytes is equal to 1)
-[03 00 cd ff 00 00 00 00] 
-[04 00 cd ff 01 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 00 00 00 00] 
-[04 00 cd ff 12 00 00 00] 
-[04 00 cd ff ee ff ff ff] 
-For the front panel button the 29th bytes change (I suppose the remote
-work the same way but I didn't try for a while)
+Henrik Rydberg (4):
+      Input: bcm5974 - add maintainer entry
+      Input: bcm5974 - small formatting cleanup
+      Input: bcm5974 - improve finger tracking and counting
+      Input: bcm5974 - add BTN_TOUCH event for mousedev benefit
 
-For the touch screen it self, I did not manage to understand fully what
-is been sent but my packet look like
-[03 00 cd ff dd ff ff ff ... 
-with the 5th byte value changing according to Y (or X) axe and  the 6th,
-7th and 9th to FF
-
-Does anybody know a driver capable to support this protocol.
-If not, I am willing to write the drive for it but I will need a lot of
-help too as I never wrote any driver before.
-How does it work when the same device is used like a keyboard and a
-touch screen ?
-
-Why the wMaxPacketSize is set at 8 Bytes when the size seems to be 64 ?
-
-Where should I start ?
-
-Regards,
-
-Xavier
+Jiri Kosina (1):
+      Input: i8042 - make Lenovo 3000 N100 blacklist entry more specific
 
 
+Diffstat:
+--------
 
+ drivers/input/mouse/bcm5974.c         |   74 +++++++++++++++++++++++++--------
+ drivers/input/serio/i8042-x86ia64io.h |    2 +-
+ 2 files changed, 58 insertions(+), 18 deletions(-)
+
+
+-- 
+Dmitry

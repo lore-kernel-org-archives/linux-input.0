@@ -1,38 +1,34 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 2/2] input: mousedev: Emulate right and middle buttons
- for single-button touchpads
-Date: Wed, 10 Sep 2008 18:05:51 +0200
-Message-ID: <48C7F05F.8070308@euromail.se>
-References: <48C0893C.6060901@euromail.se> <20080910125228.GA25221@anvil.corenet.prv> <48C7DF08.4060208@euromail.se> <20080910153213.GA6940@USFSHXP-002051>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] Input: ads7846 - introduce .gpio_pendown to get
+	pendown state
+Date: Wed, 10 Sep 2008 12:18:31 -0400
+Message-ID: <20080910121802.ZZRA012@mailhub.coreip.homeip.net>
+References: <f17812d70809040221u606f5bfaxe4ae41fae644391f@mail.gmail.com> <20080904100051.GC10426@flint.arm.linux.org.uk> <f17812d70809040338u3f6345a2ja76ccb76b96cc9dc@mail.gmail.com> <f17812d70809040339y29836549mf20259f0f1b9acb8@mail.gmail.com> <f17812d70809040350v153c92cenff5886fe92da420b@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:51115 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751838AbYIJQFz (ORCPT
+Received: from mail-gx0-f16.google.com ([209.85.217.16]:41774 "EHLO
+	mail-gx0-f16.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752216AbYIJQSi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Sep 2008 12:05:55 -0400
-In-Reply-To: <20080910153213.GA6940@USFSHXP-002051>
+	Wed, 10 Sep 2008 12:18:38 -0400
+Received: by gxk9 with SMTP id 9so14077658gxk.13
+        for <linux-input@vger.kernel.org>; Wed, 10 Sep 2008 09:18:37 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <f17812d70809040350v153c92cenff5886fe92da420b@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: akpm@osdl.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, ARM Linux <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input@vger.kernel.org
 
->> Regarding the tapping patch; it is addressing the correctness of
->> already implemented functionality. I can see nothing wrong with that.
->>
+On Thu, Sep 04, 2008 at 06:50:04PM +0800, Eric Miao wrote:
+> Signed-off-by: Eric Miao <eric.miao@marvell.com>
+> ---
 > 
-> My position that since the isssue can be "fixed" by simply installing
-> the proper X driver I'd rather not include it. Mousedev purpose is to
-> provide good enough emulation in absence of a native driver and that's
-> it. Also, the default value would not work well on high-resiolution
-> devices (like Synaptics) and would require user fiddling with kernel
-> parameters - not worth it in my opinion.
+> This one should be cleaner.
+> 
 
-The parameter could be made dimensionless and the distance test scaled
-with the size of the device; the argument invalidates the current patch,
-but not the idea itself. Maybe the patch will appear in acceptable form
-at some point, but for now, I rest my case.
+Applied to next. Thank you Eric.
 
-Henrik
+-- 
+Dmitry

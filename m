@@ -1,7 +1,7 @@
 From: Andres Salomon <dilinger@queued.net>
 Subject: Re: [PATCH 3/3] OLPC: touchpad driver (take 2)
-Date: Thu, 11 Sep 2008 10:32:28 -0400
-Message-ID: <20080911103228.3a55d1b3@dev.queued.net>
+Date: Thu, 11 Sep 2008 14:32:16 -0400
+Message-ID: <20080911143216.3d618691@dev.queued.net>
 References: <20080813152459.4d6bb0cb@ephemeral>
 	<20080815031435.GD9438@anvil.corenet.prv>
 	<20080910175513.17d900bc@dev.queued.net>
@@ -12,10 +12,10 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.queued.net ([207.210.101.209]:3481 "EHLO mail.queued.net"
+Received: from mail.queued.net ([207.210.101.209]:2383 "EHLO mail.queued.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752384AbYIKOct (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Sep 2008 10:32:49 -0400
+	id S1752608AbYIKScj (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Sep 2008 14:32:39 -0400
 In-Reply-To: <20080911090103.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -36,29 +36,106 @@ Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > everything? Ummm....
 > 
 
-Thanks, will do.
+Here's the patch.  This is on top of the other 2 psmouse patches that
+were previously sent.
 
 
-> > diff --git a/drivers/input/mouse/Kconfig
-> > b/drivers/input/mouse/Kconfig index 7bbea09..fff0253 100644
-> > --- a/drivers/input/mouse/Kconfig
-> > +++ b/drivers/input/mouse/Kconfig
-> > @@ -96,6 +96,16 @@ config MOUSE_PS2_TOUCHKIT
-> >  
-> >  	  If unsure, say N.
-> >  
-> > +config MOUSE_PS2_OLPC
-> > +	bool "OLPC PS/2 mouse protocol extension"
-> > +	depends on MOUSE_PS2 && OLPC
-> 
-> Are you sure it shoudl depend on OLPC? It looks like driver should
-> work on any box with PS/2 port. I understand that only OLPC has the
-> hardware installed but can this change?
-> 
-> Thanks!
-> 
 
-Positive; the majority of this driver is just workarounds for bugs in
-the hardware that are specific to OLPC.  If we didn't have to
-deal with flaky hardware and recalibrations, we could just
-use standard psmouse without extensions.  :/
+
+From: Andres Salomon <dilinger@debian.org>
+Subject: [PATCH] psmouse: tweak PSMOUSE_DEFINE_ATTR to support raw set callbacks
+
+We want to support attr->set callbacks that may need psmouse->state to
+not be updated, or may want to manually deal w/ enabling and disabling
+the device.  To do that, we create __PSMOUSE_DEFINE_ATTR which enables
+us to set a 'protect' argument specifying whether or not the set
+callback should be protected with psmouse_disable and state setting.
+
+Signed-off-by: Andres Salomon <dilinger@debian.org>
+---
+ drivers/input/mouse/psmouse-base.c |   30 +++++++++++++++++-------------
+ drivers/input/mouse/psmouse.h      |    7 ++++++-
+ 2 files changed, 23 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index 488ba95..f7278e6 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -1401,25 +1401,29 @@ ssize_t psmouse_attr_set_helper(struct device *dev, struct device_attribute *dev
+ 
+ 	psmouse = serio_get_drvdata(serio);
+ 
+-	if (psmouse->state == PSMOUSE_IGNORE) {
+-		retval = -ENODEV;
+-		goto out_unlock;
+-	}
++	if (attr->protect) {
++		if (psmouse->state == PSMOUSE_IGNORE) {
++			retval = -ENODEV;
++			goto out_unlock;
++		}
+ 
+-	if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
+-		parent = serio_get_drvdata(serio->parent);
+-		psmouse_deactivate(parent);
+-	}
++		if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
++			parent = serio_get_drvdata(serio->parent);
++			psmouse_deactivate(parent);
++		}
+ 
+-	psmouse_deactivate(psmouse);
++		psmouse_deactivate(psmouse);
++	}
+ 
+ 	retval = attr->set(psmouse, attr->data, buf, count);
+ 
+-	if (retval != -ENODEV)
+-		psmouse_activate(psmouse);
++	if (attr->protect) {
++		if (retval != -ENODEV)
++			psmouse_activate(psmouse);
+ 
+-	if (parent)
+-		psmouse_activate(parent);
++		if (parent)
++			psmouse_activate(parent);
++	}
+ 
+  out_unlock:
+ 	mutex_unlock(&psmouse_mutex);
+diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
+index 48e0112..0f13c1b 100644
+--- a/drivers/input/mouse/psmouse.h
++++ b/drivers/input/mouse/psmouse.h
+@@ -106,6 +106,7 @@ struct psmouse_attribute {
+ 	ssize_t (*show)(struct psmouse *psmouse, void *data, char *buf);
+ 	ssize_t (*set)(struct psmouse *psmouse, void *data,
+ 			const char *buf, size_t count);
++	int protect;
+ };
+ #define to_psmouse_attr(a)	container_of((a), struct psmouse_attribute, dattr)
+ 
+@@ -114,7 +115,7 @@ ssize_t psmouse_attr_show_helper(struct device *dev, struct device_attribute *at
+ ssize_t psmouse_attr_set_helper(struct device *dev, struct device_attribute *attr,
+ 				const char *buf, size_t count);
+ 
+-#define PSMOUSE_DEFINE_ATTR(_name, _mode, _data, _show, _set)			\
++#define __PSMOUSE_DEFINE_ATTR(_name, _mode, _data, _show, _set, _protect)	\
+ static ssize_t _show(struct psmouse *, void *data, char *);			\
+ static ssize_t _set(struct psmouse *, void *data, const char *, size_t);	\
+ static struct psmouse_attribute psmouse_attr_##_name = {			\
+@@ -129,6 +130,10 @@ static struct psmouse_attribute psmouse_attr_##_name = {			\
+ 	.data	= _data,							\
+ 	.show	= _show,							\
+ 	.set	= _set,								\
++	.protect = _protect,							\
+ }
+ 
++#define PSMOUSE_DEFINE_ATTR(_name, _mode, _data, _show, _set)	\
++		__PSMOUSE_DEFINE_ATTR(_name, _mode, _data, _show, _set, 1)
++
+ #endif /* _PSMOUSE_H */
+-- 
+1.5.6.5
+

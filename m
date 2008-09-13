@@ -1,58 +1,60 @@
-From: Matteo Croce <technoboy85@gmail.com>
-Subject: Re: [PATCH] usbtouchscreen: option to swap X and Y axes
-Date: Sat, 20 Sep 2008 18:47:42 +0200
-Message-ID: <200809201847.42939.technoboy85@gmail.com>
-References: <40101cc30809181016l632de30en6ff56b1fe9fe36ff@mail.gmail.com> <Pine.LNX.4.64.0809200444570.27884@twin.jikos.cz>
+From: Annick et Jean-Philippe <jpmeuret@free.fr>
+Subject: Re: Force Feedback for Thrustmaster RGT Pro Clutch Pedal Edition
+ racing wheel
+Date: Sat, 13 Sep 2008 18:32:06 +0200
+Message-ID: <48CBEB06.5070104@free.fr>
+References: <48CBD7B3.4070104@xs4all.be>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.27]:9293 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750710AbYITQrt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Sep 2008 12:47:49 -0400
-Received: by ey-out-2122.google.com with SMTP id 6so268562eyi.37
-        for <linux-input@vger.kernel.org>; Sat, 20 Sep 2008 09:47:48 -0700 (PDT)
-In-Reply-To: <Pine.LNX.4.64.0809200444570.27884@twin.jikos.cz>
-Content-Disposition: inline
+Received: from smtp4-g19.free.fr ([212.27.42.30]:33613 "EHLO smtp4-g19.free.fr"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751028AbYITSsh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 20 Sep 2008 14:48:37 -0400
+In-Reply-To: <48CBD7B3.4070104@xs4all.be>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: Didier Moens <moensd@xs4all.be>
 Cc: linux-input@vger.kernel.org
 
-On Saturday 20 September 2008 04:45:48 Jiri Kosina wrote:
-> On Thu, 18 Sep 2008, Matteo Croce wrote:
-> > Here there is a patch to invert the X and Y axes, as my controller swaps
-> > it:
-> >
-> > Signed-off-by: Matteo Croce <matteo@openwrt.org>
-> >
-> > --- a/drivers/input/touchscreen/usbtouchscreen.c	2008-09-18
-> > 18:50:44.294868149 +0200
-> > +++ b/drivers/input/touchscreen/usbtouchscreen.c	2008-09-18
-> > 18:50:44.226867816 +0200
-> > @@ -56,8 +56,16 @@
-> >  #define DRIVER_DESC		"USB Touchscreen Driver"
-> >
-> >  static int swap_xy;
-> > +static int invert_x;
-> > +static int invert_y;
-> > +
-> >  module_param(swap_xy, bool, 0644);
-> > +module_param(invert_x, bool, 0644);
-> > +module_param(invert_y, bool, 0644);
-> > +
-> >  MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-> > +MODULE_PARM_DESC(invert_x, "If set X axe is inverted.");
-> > +MODULE_PARM_DESC(invert_y, "If set Y axe is inverted.");
->
-> If this is done just by certain devices, maybe VID/PID-based autodetection
-> might be much more user friendly than using module parameter?
+Hi, Didier, and all.
 
-no, sometimes you have to swap just because you attached it in the wrong 
-direction,
-this is what appened to me, I have 50 swapped touchscreens, and i decided to 
-hack
-the driver instead to redo all the work
+> I'm trying to get force feedback activated on this quite wonderful 
+> racing wheel 
+> ...
+> (patches against 2.6.25, but I've already tested with 2.6.26.3)
+> ...
+> Unfortunately, this yields no improvement : no force feedback is sent to 
+> the wheel (tested with ff-utils).
+> ...
+
+Not sure this will fix your issues, but ...
+
+ff-utils original code has 2 flaws :
+- it is NOT 64-bit compatible
+- it was coded for 2.4.x kernels, and when you compile it, it does not use
+   the includes of your specific kernel, but those shipped with the sources
+   (see sub-folder "linux")
+
+So I recommend you apply the patch that fixes this issues :
+look on SourceForge libff patches page ...
+
+https://sourceforge.net/tracker/?func=detail&atid=440671&aid=2098907&group_id=44724
+
+Then, be sure to test FF with "ffcfstress" (only for Constant Force),
+not only with "fftest" ;
+the first one works very well with my Logitech G25,
+whereas I not sure the second one does ... (the rendered Constant Force effect 
+is so week, that it's not that clear ...).
+
+Finally, you can try the FFConsoleDemo of the OIS library (get 1.2.0 sources,
+and apply the recent "Linux FF 64bit port + Windows FF fixes + DemoFFTest" patch
+https://sourceforge.net/tracker/?func=detail&atid=775955&aid=2087429&group_id=149835) 
+; it tests constant and periodic FF (Constant Force test is OK for my G25, not 
+periodic).
+
+Hope this helps.
+
+Jean-Philippe MEURET
+

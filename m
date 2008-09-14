@@ -1,35 +1,56 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: bcm5974: Switch back to normal mode when closing
-Date: Sun, 14 Sep 2008 11:18:26 -0400
-Message-ID: <20080914151824.GB5391@amd.corenet.prb>
-References: <48CD25C3.8050008@euromail.se>
+From: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
+Subject: Re: __initdata and struct dmi_system_id?
+Date: Sun, 14 Sep 2008 18:26:52 +0200
+Message-ID: <48CD3B4C.8010106@freemail.hu>
+References: <48C0C786.5020809@freemail.hu> <48CCBD83.1030001@freemail.hu> <20080914113316.GA27289@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs-out-0708.google.com ([64.233.178.245]:10674 "EHLO
-	hs-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753551AbYINPSf (ORCPT
+Received: from mail01d.mail.t-online.hu ([84.2.42.6]:64012 "EHLO
+	mail01d.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752738AbYINQ06 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Sep 2008 11:18:35 -0400
-Received: by hs-out-0708.google.com with SMTP id 4so572447hsl.5
-        for <linux-input@vger.kernel.org>; Sun, 14 Sep 2008 08:18:32 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <48CD25C3.8050008@euromail.se>
+	Sun, 14 Sep 2008 12:26:58 -0400
+In-Reply-To: <20080914113316.GA27289@khazad-dum.debian.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: akpm@osdl.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: Helge Deller <deller@gmx.de>, Jan Beulich <jbeulich@novell.com>, linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 
-Hi Henrik,
+Henrique de Moraes Holschuh wrote:
+> On Sun, 14 Sep 2008, N=E9meth M=E1rton wrote:
+>> The other interesting question on this topic is that what about the
+>> error message strings which are used as parameter of the printk() ca=
+lls.
+>> Those strings are combined together for a function which is marked w=
+ith
+>> __init and the functions which are normal functions. The strings whi=
+ch
+>> are only used by the functions marked with __init could be freed, bu=
+t
+>> the strings of the normal functions shouldn't be.
+>=20
+> Yeah, if we could get them all in a init.rodata section, we could jus=
+t throw
+> them away along with the init section afterwards...
+>=20
+> I do think I have seen a patch about init.rodata in LKML not too long=
+ ago,
+> though.
 
-On Sun, Sep 14, 2008 at 04:54:59PM +0200, Henrik Rydberg wrote:
-> Staying in multi-touch mode after closing the device sometimes makes the keyboard drop keys or
-> repeat keys irratically. The conjecture is that some internal buffer starts to overflow,
-> resulting in undefined behavior. Switching back to normal mode when closing the device makes the
-> problem go away.
-> 
+Do you mean this one?
 
-Makes sense, will apply.
+Date: Fri, 05 Sep 2008 13:03:17 +0100
+=46rom: Jan Beulich <jbeulich@novell.com>
+Subject: [PATCH] .init.rodata and modpost adjustments
+http://lkml.org/lkml/2008/9/5/126
 
--- 
-Dmitry
+Regards,
+
+	M=E1rton N=E9meth
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

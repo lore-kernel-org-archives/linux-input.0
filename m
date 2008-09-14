@@ -1,804 +1,1526 @@
-From: Didier Moens <moensd@xs4all.be>
-Subject: Force Feedback for Thrustmaster RGT Pro Clutch Pedal Edition racing
- wheel
-Date: Sat, 13 Sep 2008 17:09:39 +0200
-Message-ID: <48CBD7B3.4070104@xs4all.be>
+From: Arjan Opmeer <arjan@opmeer.net>
+Subject: [PATCH] input: Update Elantech touchpad driver to v5 for kernel
+	2.6.27-rc5-mm1
+Date: Sun, 14 Sep 2008 05:23:44 +0200
+Message-ID: <20080914032344.GA16228@adopmeer.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------020709070405060407010100"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.xs4all.be ([195.144.64.135]:57794 "EHLO smtp1.evonet.be"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751640AbYIMPyc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 13 Sep 2008 11:54:32 -0400
-Received: from dmbr042.fvms.UGent.be (195-144-080-226.dyn.adsl.xs4all.be [195.144.80.226])
-	(authenticated bits=0)
-	by smtp1.evonet.be (8.13.8/8.13.8) with ESMTP id m8DF9iu6014645
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
-	for <linux-input@vger.kernel.org>; Sat, 13 Sep 2008 17:09:45 +0200
+Received: from smtp-out0.tiscali.nl ([195.241.79.175]:33451 "EHLO
+	smtp-out0.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752476AbYINDmI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 13 Sep 2008 23:42:08 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-
-This is a multi-part message in MIME format.
---------------020709070405060407010100
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Dear all,
+To: akpm@linux-foundation.org, dtor@mail.ru
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
-I'm trying to get force feedback activated on this quite wonderful 
-racing wheel 
-(http://www.thrustmaster.com/product.aspx?ProductID=8&PlatformID=5).
+From: Arjan Opmeer <arjan@opmeer.net>
 
+Update the Elantech touchpad driver to v5
 
-Based on the thread started by Gerald Folcher of 16 Jul 2007 (force 
-feedback for Thrustmaster FGT Wheel) and subsequent patches, I've added 
-following USB id's :
+- Put the Elantech entry last in the psmouse_protocols[] list as it is also
+  the last one in the psmouse_type enum.
+- Remove support for relative mode. The driver now always uses the touchpad
+  in absolute mode.
+- Add support for the new Elantech touchpad model as found in the EeePC that
+  uses a new protocol.
 
-(patches against 2.6.25, but I've already tested with 2.6.26.3)
+Signed-off-by: Arjan Opmeer <arjan@opmeer.net>
 
-diff -uNrp kernel-2.6.25.orig/drivers/hid/usbhid/hid-ff.c 
-kernel-2.6.25.new/drivers/hid/usbhid/hid-ff.c
---- kernel-2.6.25.orig/drivers/hid/usbhid/hid-ff.c      2008-04-17 
-04:49:44.000000000 +0200
-+++ kernel-2.6.25.new/drivers/hid/usbhid/hid-ff.c       2008-09-09 
-16:56:34.000000000 +0200
-@@ -62,11 +62,13 @@ static struct hid_ff_initializer inits[]
- #ifdef CONFIG_PANTHERLORD_FF
-        { 0x810, 0x0001, hid_plff_init }, /* "Twin USB Joystick" */
-        { 0xe8f, 0x0003, hid_plff_init }, /* "GreenAsia Inc.    USB 
-Joystick     " */
-+       { 0xe8f, 0x0012, hid_plff_init }, /* "GreenAsia Inc.    USB 
-Joystick     " */
- #endif
- #ifdef CONFIG_THRUSTMASTER_FF
-        { 0x44f, 0xb300, hid_tmff_init },
-        { 0x44f, 0xb304, hid_tmff_init },
-        { 0x44f, 0xb651, hid_tmff_init }, /* FGT Rumble Force Wheel */
-+       { 0x44f, 0xb653, hid_tmff_init }, /* Thrustmaster RGT Force 
-Feedback Pro Clutch Edition */
-        { 0x44f, 0xb654, hid_tmff_init }, /* FGT Force Feedback Wheel */
- #endif
- #ifdef CONFIG_ZEROPLUS_FF
-diff -uNrp kernel-2.6.25.orig/drivers/hid/usbhid/hid-tmff.c 
-kernel-2.6.25.new/drivers/hid/usbhid/hid-tmff.c
---- kernel-2.6.25.orig/drivers/hid/usbhid/hid-tmff.c    2008-04-17 
-04:49:44.000000000 +0200
-+++ kernel-2.6.25.new/drivers/hid/usbhid/hid-tmff.c     2008-09-09 
-17:00:45.000000000 +0200
-@@ -58,6 +58,7 @@ static const struct dev_type devices[] =
-        { 0x44f, 0xb300, ff_rumble },
-        { 0x44f, 0xb304, ff_rumble },
-        { 0x44f, 0xb651, ff_rumble },   /* FGT Rumble Force Wheel */
-+       { 0x44f, 0xb653, ff_joystick }, /* Thrustmaster RGT Force 
-Feedback Pro Clutch Edition */
-        { 0x44f, 0xb654, ff_joystick }, /* FGT Force Feedback Wheel */
+---
+
+diff --git a/Documentation/input/elantech.txt b/Documentation/input/elantech.txt
+index 679e74b..a10c3b6 100644
+--- a/Documentation/input/elantech.txt
++++ b/Documentation/input/elantech.txt
+@@ -1,27 +1,125 @@
+ Elantech Touchpad Driver
+ ========================
+-        Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
+ 
+-        Extra information found and provided by Steve Havelka
++	Copyright (C) 2007-2008 Arjan Opmeer <arjan@opmeer.net>
+ 
+-Configuration of the touchpad is performed by writing values to registers
+-found under sysfs entries /sys/bus/serio/drivers/psmouse/serio?/reg_*.
++	Extra information for hardware version 1 found and
++	provided by Steve Havelka
+ 
+-E.g. to disable tapping while leaving the other settings to the default
+-Windows driver value one would:
++	Version 2 (EeePC) hardware support based on patches
++	received from Woody at Xandros and forwarded to me
++	by user StewieGriffin at the eeeuser.com forum
+ 
+-   echo -n 0x32 > reg_10
+ 
++Contents
++~~~~~~~~
+ 
+-Registers
+-~~~~~~~~~
++ 1. Introduction
++ 2. Extra knobs
++ 3. Hardware version 1
++    3.1 Registers
++    3.2 Native relative mode 4 byte packet format
++    3.3 Native absolute mode 4 byte packet format
++ 4. Hardware version 2
++    4.1 Registers
++    4.2 Native absolute mode 6 byte packet format
++        4.2.1 One finger touch
++        4.2.2 Two finger touch
+ 
+-* reg_10        (Windows driver default value 0x12)
++
++
++1. Introduction
++   ~~~~~~~~~~~~
++
++Currently the Linux Elantech touchpad driver is aware of two different
++hardware versions unimaginatively called version 1 and version 2. Version 1
++is found in "older" laptops and uses 4 bytes per packet. Version 2 seems to
++be introduced with the EeePC and uses 6 bytes per packet.
++
++The driver tries to support both hardware versions and should be compatible
++with the Xorg Synaptics touchpad driver and its graphical configuration
++utilities.
++
++Additionally the operation of the touchpad can be altered by adjusting the
++contents of some of its internal registers. These registers are represented
++by the driver as sysfs entries under /sys/bus/serio/drivers/psmouse/serio?
++that can be read from and written to.
++
++Currently only the registers for hardware version 1 are somewhat understood.
++Hardware version 2 seems to use some of the same registers but it is not
++known whether the bits in the registers represent the same thing or might
++have changed their meaning.
++
++On top of that, some register settings have effect only when the touchpad is
++in relative mode and not in absolute mode. As the Linux Elantech touchpad
++driver always puts the hardware into absolute mode not all information
++mentioned below can be used immediately. But because there is no freely
++available Elantech documentation the information is provided here anyway for
++completeness sake.
++
++
++/////////////////////////////////////////////////////////////////////////////
++
++
++2. Extra knobs
++   ~~~~~~~~~~~
++
++Currently the Linux Elantech touchpad driver provides two extra knobs under
++/sys/bus/serio/drivers/psmouse/serio? for the user.
++
++* debug
++
++   Turn different levels of debugging ON or OFF.
++
++   By echoing "0" to this file all debugging will be turned OFF.
++
++   Currently a value of "1" will turn on some basic debugging and a value of
++   "2" will turn on packet debugging. For hardware version 1 the default is
++   OFF. For version 2 the default is "1".
++
++   Turning packet debugging on will make the driver dump every packet
++   received to the syslog before processing it. Be warned that this can
++   generate quite a lot of data!
++
++* paritycheck
++
++   Turns parity checking ON or OFF.
++
++   By echoing "0" to this file parity checking will be turned OFF. Any
++   non-zero value will turn it ON. For hardware version 1 the default is ON.
++   For version 2 the default it is OFF.
++
++   Hardware version 1 provides basic data integrity verification by
++   calculating a parity bit for the last 3 bytes of each packet. The driver
++   can check these bits and reject any packet that appears corrupted. Using
++   this knob you can bypass that check.
++
++   It is not known yet whether hardware version 2 provides the same parity
++   bits. Hence checking is disabled by default. Currently even turning it on
++   will do nothing.
++
++
++/////////////////////////////////////////////////////////////////////////////
++
++
++3. Hardware version 1
++   ==================
++
++3.1 Registers
++    ~~~~~~~~~
++
++By echoing a hexadecimal value to a register it contents can be altered.
++
++For example:
++
++   echo -n 0x16 > reg_10
++
++* reg_10
+ 
+    bit   7   6   5   4   3   2   1   0
+          B   C   T   D   L   A   S   E
+ 
+-         E: 1 = enable smart edges in other cases
++         E: 1 = enable smart edges unconditionally
+          S: 1 = enable smart edges only when dragging
+          A: 1 = absolute mode (needs 4 byte packets, see reg_11)
+          L: 1 = enable drag lock (see reg_22)
+@@ -30,7 +128,7 @@ Registers
+          C: 1 = enable corner tap
+          B: 1 = swap left and right button
+ 
+-* reg_11        (Windows driver default value 0x8f)
++* reg_11
+ 
+    bit   7   6   5   4   3   2   1   0
+          1   0   0   H   V   1   F   P
+@@ -38,68 +136,49 @@ Registers
+          P: 1 = enable parity checking for relative mode
+          F: 1 = enable native 4 byte packet mode
+          V: 1 = enable vertical scroll area
+-         H: 1 = enable horizonal scroll area
++         H: 1 = enable horizontal scroll area
+ 
+-
+-* reg_20        (Windows driver default value 0x0a)
++* reg_20
+ 
+          single finger width?
+ 
+-* reg_21        (Windows driver default value 0x60)
++* reg_21
+ 
+          scroll area width (small: 0x40 ... wide: 0xff)
+ 
+-* reg_22        (Windows driver default value 0xff)
++* reg_22
+ 
+-         drag lock time out (short: 0x14 ... long: 0xfe; 0xff =never)
++         drag lock time out (short: 0x14 ... long: 0xfe;
++                             0xff = tap again to release)
+ 
+-* reg_23        (Windows driver default value 0x10)
++* reg_23
+ 
+          tap make timeout?
+ 
+-         Note: the Windows driver does not write this register
+-
+-* reg_24        (Windows driver default value 0x10)
++* reg_24
+ 
+          tap release timeout?
+ 
+-         Note: the Windows driver does not write this register
+-
+-* reg_25        (Windows driver default value 0x03)
++* reg_25
+ 
+          smart edge cursor speed (0x02 = slow, 0x03 = medium, 0x04 = fast)
+ 
+-* reg_26        (Windows driver default value 0x00 ?? )
++* reg_26
+ 
+          smart edge activation area width?
+ 
+-         Note: the Windows driver does not write this register
+-         Note: the Windows driver default value of 0x00 disables smart edges
+-               when it would get written
+-         Note: the Windows driver sets bit 0 of the registry value to disable
+-               tapping when typing, but never actually writes the register.
+-               Only used as an internal driver flag?
+-
+ 
+-
+-Initially the Elantouch Touchpad is in emulation mode and reports 3 byte
+-standard PS/2 packets and hence works with a standard mouse driver.
+-However, it can be configured to talk its native 4 byte relative mode and 4
+-byte absolute mode both for which a dedicated driver is needed.
+-
+-
+-Native 4 byte relative mode packet format
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++3.2 Native relative mode 4 byte packet format
++    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ byte 0:
+    bit   7   6   5   4   3   2   1   0
+          c   c  p2  p1   1   M   R   L
+ 
+          L, R, M = 1 when Left, Right, Middle mouse button pressed
+-            some models have M as byte 3 odd parity
+-         when parity checking is enabled (P = 1):
+-            p1 = byte 1 odd parity
+-            p2 = byte 2 odd parity
++            some models have M as byte 3 odd parity bit
++         when parity checking is enabled (reg_11, P = 1):
++            p1..p2 = byte 1 and 2 odd parity bit
+          c = 1 when corner tap detected
+ 
+ byte 1:
+@@ -116,48 +195,73 @@ byte 2:
+          dy7..dy0 = y movement;   positive = up,    negative = down
+ 
+ byte 3:
+-   bit   7   6   5   4   3   2   1   0
+-         w   h  n1  n0  d3  d2  d1  d0
++   parity checking enabled (reg_11, P = 1):
++
++      bit   7   6   5   4   3   2   1   0
++            w   h  n1  n0  ds3 ds2 ds1 ds0
+ 
+-         when parity checking is enabled (P = 1):
+             normally:
+-               d3..d0 = scroll wheel amount and direction
+-                        positive = down or left
+-                        negative = up or right
++               ds3..ds0 = scroll wheel amount and direction
++                          positive = down or left
++                          negative = up or right
+             when corner tap detected:
+-               d0 = 1 when top right corner tapped
+-               d1 = 1 when bottom right corner tapped
+-               d2 = 1 when bottom left corner tapped
+-               d3 = 1 when top left corner tapped
++               ds0 = 1 when top right corner tapped
++               ds1 = 1 when bottom right corner tapped
++               ds2 = 1 when bottom left corner tapped
++               ds3 = 1 when top left corner tapped
+             n1..n0 = number of fingers on touchpad
+-               not all models report this but map one, two and three
+-               finger taps directly to L, M and R mouse buttons
+-            w = 1 when wide finger touch?
++               only models with firmware 2.x report this, models with
++               firmware 1.x seem to map one, two and three finger taps
++               directly to L, M and R mouse buttons
+             h = 1 when horizontal scroll action
+-         otherwise (P = 0):
+-            all of byte 3 is vertical scroll amount and direction
+-            negative = up
+-            positive = down
++            w = 1 when wide finger touch?
++
++   otherwise (reg_11, P = 0):
++
++      bit   7   6   5   4   3   2   1   0
++           ds7 ds6 ds5 ds4 ds3 ds2 ds1 ds0
+ 
++            ds7..ds0 = vertical scroll amount and direction
++                       negative = up
++                       positive = down
+ 
+-Native 4 byte absolute mode packet format
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++3.3 Native absolute mode 4 byte packet format
++    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ byte 0:
+-   bit   7   6   5   4   3   2   1   0
+-         D   U  p1  p2   1  p3   R   L
++   firmware version 1.x:
+ 
+-         L, R = 1 when Left, Right mouse button pressed
+-         p1..p3 = parity bit of bytes 1..3
+-         D, U = 1 when rocker switch pressed Up, Down
++      bit   7   6   5   4   3   2   1   0
++            D   U  p1  p2   1  p3   R   L
++
++            L, R = 1 when Left, Right mouse button pressed
++            p1..p3 = byte 1..3 odd parity bit
++            D, U = 1 when rocker switch pressed Up, Down
++
++   firmware version 2.x:
++
++      bit   7   6   5   4   3   2   1   0
++           n1  n0  p2  p1   1  p3   R   L
++
++            L, R = 1 when Left, Right mouse button pressed
++            p1..p3 = byte 1..3 odd parity bit
++            n1..n0 = number of fingers on touchpad
+ 
+ byte 1:
+-   bit   7   6   5   4   3   2   1   0
+-         f   0  th  tw  x9  x8  y9  y8
++   firmware version 1.x:
++
++      bit   7   6   5   4   3   2   1   0
++            f   0  th  tw  x9  x8  y9  y8
++
++            tw = 1 when two finger touch
++            th = 1 when three finger touch
++            f  = 1 when finger touch
+ 
+-         tw = 1 when two finger touch
+-         th = 1 when three finger touch
+-         f  = 1 when finger touch
++   firmware version 2.x:
++
++      bit   7   6   5   4   3   2   1   0
++            .   .   .   .  x9  x8  y9  y8
+ 
+ byte 2:
+    bit   7   6   5   4   3   2   1   0
+@@ -170,3 +274,132 @@ byte 3:
+         y7  y6  y5  y4  y3  y2  y1  y0
+ 
+          y9..y0 = absolute y value (vertical)
++
++
++/////////////////////////////////////////////////////////////////////////////
++
++
++4. Hardware version 2
++   ==================
++
++
++4.1 Registers
++    ~~~~~~~~~
++
++By echoing a hexadecimal value to a register it contents can be altered.
++
++For example:
++
++   echo -n 0x56 > reg_10
++
++* reg_10
++
++   bit   7   6   5   4   3   2   1   0
++         0   1   0   1   0   1   D   0
++
++         D: 1 = enable drag and drop
++
++* reg_11
++
++   bit   7   6   5   4   3   2   1   0
++         1   0   0   0   S   0   1   0
++
++         S: 1 = enable vertical scroll
++
++* reg_21
++
++         unknown (0x00)
++
++* reg_22
++
++         drag and drop release time out (short: 0x70 ... long 0x7e;
++                                   0x7f = never i.e. tap again to release)
++
++
++4.2 Native absolute mode 6 byte packet format
++    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++4.2.1 One finger touch
++      ~~~~~~~~~~~~~~~~
++
++byte 0:
++
++   bit   7   6   5   4   3   2   1   0
++        n1  n0   .   .   .   .   R   L
++
++         L, R = 1 when Left, Right mouse button pressed
++         n1..n0 = numbers of fingers on touchpad
++
++byte 1:
++
++   bit   7   6   5   4   3   2   1   0
++        x15 x14 x13 x12 x11 x10 x9  x8
++
++byte 2:
++
++   bit   7   6   5   4   3   2   1   0
++        x7  x6  x5  x4  x4  x2  x1  x0
++
++         x15..x0 = absolute x value (horizontal)
++
++byte 3:
++
++   bit   7   6   5   4   3   2   1   0
++         .   .   .   .   .   .   .   .
++
++byte 4:
++
++   bit   7   6   5   4   3   2   1   0
++        y15 y14 y13 y12 y11 y10 y8  y8
++
++byte 5:
++
++   bit   7   6   5   4   3   2   1   0
++        y7  y6  y5  y4  y3  y2  y1  y0
++
++         y15..y0 = absolute y value (vertical)
++
++
++4.2.2 Two finger touch
++      ~~~~~~~~~~~~~~~~
++
++byte 0:
++
++   bit   7   6   5   4   3   2   1   0
++        n1  n0  ay8 ax8  .   .   R   L
++
++         L, R = 1 when Left, Right mouse button pressed
++         n1..n0 = numbers of fingers on touchpad
++
++byte 1:
++
++   bit   7   6   5   4   3   2   1   0
++        ax7 ax6 ax5 ax4 ax3 ax2 ax1 ax0
++
++         ax8..ax0 = first finger absolute x value
++
++byte 2:
++
++   bit   7   6   5   4   3   2   1   0
++        ay7 ay6 ay5 ay4 ay3 ay2 ay1 ay0
++
++         ay8..ay0 = first finger absolute y value
++
++byte 3:
++
++   bit   7   6   5   4   3   2   1   0
++         .   .  by8 bx8  .   .   .   .
++
++byte 4:
++
++   bit   7   6   5   4   3   2   1   0
++        bx7 bx6 bx5 bx4 bx3 bx2 bx1 bx0
++
++         bx8..bx0 = second finger absolute x value
++
++byte 5:
++
++   bit   7   6   5   4   3   2   1   0
++        by7 by8 by5 by4 by3 by2 by1 by0
++
++         by8..by0 = second finger absolute y value
+diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
+index ea3701b..9bf887c 100644
+--- a/drivers/input/mouse/elantech.c
++++ b/drivers/input/mouse/elantech.c
+@@ -1,7 +1,7 @@
+ /*
+- * Elantech Touchpad driver
++ * Elantech Touchpad driver (v5)
+  *
+- * Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
++ * Copyright (C) 2007-2008 Arjan Opmeer <arjan@opmeer.net>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2 as published
+@@ -10,53 +10,151 @@
+  * Trademarks are the property of their respective owners.
+  */
+ 
++#include <linux/delay.h>
+ #include <linux/module.h>
+ #include <linux/input.h>
+ #include <linux/serio.h>
+ #include <linux/libps2.h>
+ #include "psmouse.h"
+-#include "synaptics.h"
+ #include "elantech.h"
+ 
++/* Quickest way to access etd->debug in the macro below */
++static struct elantech_data *etd;
++
++#define elantech_debug(format, arg...)				\
++	do {							\
++		if (etd->debug)					\
++			printk(KERN_DEBUG format, ##arg);	\
++	} while (0)
++
+ /*
+- * Native absolute mode reporting has odd parity check on the last 3 bytes.
+- * Native relative mode can have odd parity checking on second and third byte,
+- * or last 3 bytes depending on model.
++ * Send a Synaptics style sliced query command
+  */
+-static unsigned char parity[256];
++static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c,
++				unsigned char *param)
++{
++	if (psmouse_sliced_command(psmouse, c) ||
++	    ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETINFO)) {
++		pr_err("elantech.c: synaptics_send_cmd query 0x%02x failed.\n", c);
++		return -1;
++	}
++
++	return 0;
++}
+ 
+ /*
+- * Send a synaptics style special commands
++ * A retrying version of ps2_command
+  */
+-static int synaptics_send_cmd(struct psmouse *psmouse, unsigned char c, unsigned char *param)
++static int elantech_ps2_command(struct ps2dev *ps2dev, unsigned char *param,
++				int command)
+ {
+-	if (psmouse_sliced_command(psmouse, c))
++	int	rc;
++	int	tries = ETP_PS2_COMMAND_TRIES;
++
++	do {
++		rc = ps2_command(ps2dev, param, command);
++		if (rc == 0)
++			break;
++		tries--;
++		elantech_debug("elantech.c: retrying ps2 command 0x%02x (%d).\n",
++			command, tries);
++		msleep(ETP_PS2_COMMAND_DELAY);
++	} while (tries > 0);
++
++	if (rc)
++		pr_err("elantech.c: ps2 command 0x%02x failed.\n", command);
++
++	return rc;
++}
++
++/*
++ * Send an Elantech style special command to read a value from a register
++ */
++static int elantech_read_reg(struct psmouse *psmouse, unsigned char reg,
++				unsigned char *val)
++{
++	struct ps2dev		*ps2dev = &psmouse->ps2dev;
++	unsigned char		param[3];
++	int			rc = 0;
++
++	if ((reg < 0x10) || (reg > 0x26))
+ 		return -1;
+-	if (ps2_command(&psmouse->ps2dev, param, PSMOUSE_CMD_GETINFO))
++	if ((reg > 0x11) && (reg < 0x20))
+ 		return -1;
+-	return 0;
++
++	switch (etd->hw_version) {
++	case 1:
++		if (psmouse_sliced_command(psmouse, ETP_REGISTER_READ) ||
++		    psmouse_sliced_command(psmouse, reg) ||
++		    ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO)) {
++			rc = -1;
++		}
++		break;
++	case 2:
++		if (elantech_ps2_command(ps2dev,  NULL, ETP_PS2_CUSTOM_COMMAND) ||
++		    elantech_ps2_command(ps2dev,  NULL, ETP_REGISTER_READ) ||
++		    elantech_ps2_command(ps2dev,  NULL, ETP_PS2_CUSTOM_COMMAND) ||
++		    elantech_ps2_command(ps2dev,  NULL, reg) ||
++		    elantech_ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO)) {
++			rc = -1;
++		}
++		break;
++	}
++
++	if (rc)
++		pr_err("elantech.c: failed to read register 0x%02x.\n", reg);
++	else
++		*val = param[0];
++
++	return rc;
+ }
+ 
+ /*
+  * Send an Elantech style special command to write a register with a value
+  */
+-static int elantech_write_reg(struct psmouse *psmouse, unsigned char reg, unsigned char val)
++static int elantech_write_reg(struct psmouse *psmouse, unsigned char reg,
++				unsigned char val)
+ {
++	struct ps2dev		*ps2dev = &psmouse->ps2dev;
++	int			rc = 0;
++
+ 	if ((reg < 0x10) || (reg > 0x26))
+ 		return -1;
+ 	if ((reg > 0x11) && (reg < 0x20))
+ 		return -1;
+ 
+-	if (psmouse_sliced_command(psmouse, ELANTECH_COMMAND_START) ||
+-	    psmouse_sliced_command(psmouse, reg) ||
+-	    psmouse_sliced_command(psmouse, val) ||
+-	    ps2_command(&psmouse->ps2dev, NULL, PSMOUSE_CMD_SETSCALE11)) {
+-		return -1;
++	switch (etd->hw_version) {
++	case 1:
++		if (psmouse_sliced_command(psmouse, ETP_REGISTER_WRITE) ||
++		    psmouse_sliced_command(psmouse, reg) ||
++		    psmouse_sliced_command(psmouse, val) ||
++		    ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11)) {
++			rc = -1;
++		}
++		break;
++	case 2:
++		if (elantech_ps2_command(ps2dev, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++		    elantech_ps2_command(ps2dev, NULL, ETP_REGISTER_WRITE) ||
++		    elantech_ps2_command(ps2dev, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++		    elantech_ps2_command(ps2dev, NULL, reg) ||
++		    elantech_ps2_command(ps2dev, NULL, ETP_PS2_CUSTOM_COMMAND) ||
++		    elantech_ps2_command(ps2dev, NULL, val) ||
++		    elantech_ps2_command(ps2dev, NULL, PSMOUSE_CMD_SETSCALE11)) {
++			rc = -1;
++		}
++		break;
+ 	}
+ 
+-	return 0;
++	if (rc)
++		pr_err("elantech.c: failed to write register 0x%02x with value 0x%02x.\n",
++			reg, val);
++
++	return rc;
+ }
+ 
++/*
++ * Dump a complete mouse movement packet to the syslog
++ */
+ static void elantech_packet_dump(unsigned char *packet, int size)
+ {
+ 	int	i;
+@@ -68,25 +166,33 @@ static void elantech_packet_dump(unsigned char *packet, int size)
+ }
+ 
+ /*
+- * Report absolute mode input events
++ * Interpret complete data packets and report absolute mode input events for
++ * hardware version 1. (4 byte packets)
+  */
+-static void elantech_report_absolute(struct psmouse *psmouse)
++static void elantech_report_absolute_v1(struct psmouse *psmouse)
+ {
+-	struct elantech_data 	*etd = psmouse->private;
+ 	struct input_dev 	*dev = psmouse->dev;
+ 	unsigned char 		*packet = psmouse->packet;
+ 	int			fingers;
+ 
+-	/* byte 0:  D   U  p1  p2   1  p3   R   L
+-	 * byte 1:  f   0  th  tw  x9  x8  y9  y8
+-	 * byte 2: x7  x6  x5  x4  x3  x2  x1  x0
+-	 * byte 3: y7  y6  y5  y4  y3  y2  y1  y0 */
+-	fingers = ((packet[1] & 0x80) >> 7) + ((packet[1] & 0x30) >> 4);
++	if (etd->fw_version_maj == 0x01) {
++		/* byte 0:  D   U  p1  p2   1  p3   R   L
++		   byte 1:  f   0  th  tw  x9  x8  y9  y8 */
++		fingers = ((packet[1] & 0x80) >> 7) +
++				((packet[1] & 0x30) >> 4);
++	} else {
++		/* byte 0: n1  n0  p2  p1   1  p3   R   L
++		   byte 1:  0   0   0   0  x9  x8  y9  y8 */
++		fingers = (packet[0] & 0xc0) >> 6;
++	}
++
+ 	input_report_key(dev, BTN_TOUCH, fingers != 0);
+-	if (fingers == 1) {
++	/* byte 2: x7  x6  x5  x4  x3  x2  x1  x0
++	   byte 3: y7  y6  y5  y4  y3  y2  y1  y0 */
++	if (fingers) {
+ 		input_report_abs(dev, ABS_X,
+ 			((packet[1] & 0x0c) << 6) | packet[2]);
+-		input_report_abs(dev, ABS_Y, ETP_YMAX -
++		input_report_abs(dev, ABS_Y, ETP_YMAX_V1 -
+ 			(((packet[1] & 0x03) << 8) | packet[3]));
+ 	}
+ 	input_report_abs(dev, ABS_PRESSURE, (fingers) ? ETP_DEF_PRESSURE : 0);
+@@ -95,115 +201,118 @@ static void elantech_report_absolute(struct psmouse *psmouse)
+ 	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
+ 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+ 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+-	if (etd->capabilities & ETP_CAP_HAS_ROCKER) {
+-		input_report_key(dev, BTN_FORWARD, packet[0] & 0x40); /* rocker up */
+-		input_report_key(dev, BTN_BACK, packet[0] & 0x80); /* rocker down */
++	if ((etd->fw_version_maj == 0x01) &&
++	    (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
++		/* rocker up */
++		input_report_key(dev, BTN_FORWARD, packet[0] & 0x40);
++		/* rocker down */
++		input_report_key(dev, BTN_BACK, packet[0] & 0x80);
+ 	}
+ }
+ 
+ /*
+- * Report relative mode input events
++ * Interpret complete data packets and report absolute mode input events for
++ * hardware version 2. (6 byte packets)
+  */
+-static void elantech_report_relative(struct psmouse *psmouse)
++static void elantech_report_absolute_v2(struct psmouse *psmouse)
+ {
+-	struct elantech_data 	*etd = psmouse->private;
+ 	struct input_dev 	*dev = psmouse->dev;
+ 	unsigned char 		*packet = psmouse->packet;
+-	int 			fingers, cornertap;
++	int			fingers, x1, y1, x2, y2;
+ 
+-	/* byte 0:  c   c  p2  p1   1   M   R   L
+-	 * byte 1: dx7 dx6 dx5 dx4 dx3 dx2 dx1 dx0
+-	 * byte 2: dy7 dy6 dy5 dy4 dy3 dy2 dy1 dy0
+-	 * byte 3:  w   h  n1  n0  d3  d2  d1  d0 */
++	/* byte 0: n1  n0   .   .   .   .   R   L */
++	fingers = (packet[0] & 0xc0) >> 6;
++	input_report_key(dev, BTN_TOUCH, fingers != 0);
++	switch (fingers) {
++	case 1:
++		/* byte 1: x15 x14 x13 x12 x11 x10 x9  x8
++		   byte 2: x7  x6  x5  x4  x4  x2  x1  x0 */
++		input_report_abs(dev, ABS_X, (packet[1] << 8) | packet[2]);
++		/* byte 4: y15 y14 y13 y12 y11 y10 y8  y8
++		   byte 5: y7  y6  y5  y4  y3  y2  y1  y0 */
++		input_report_abs(dev, ABS_Y, ETP_YMAX_V2 -
++			((packet[4] << 8) | packet[5]));
++		break;
++	case 2:
++		/* The coordinate of each finger is reported separately with
++		   a lower resolution for two finger touches */
++		/* byte 0:  .   .  ay8 ax8  .   .   .   .
++		   byte 1: ax7 ax6 ax5 ax4 ax3 ax2 ax1 ax0 */
++		x1 = ((packet[0] & 0x10) << 4) | packet[1];
++		/* byte 2: ay7 ay6 ay5 ay4 ay3 ay2 ay1 ay0 */
++		y1 = ETP_2FT_YMAX - (((packet[0] & 0x20) << 3) | packet[2]);
++		/* byte 3:  .   .  by8 bx8  .   .   .   .
++		   byte 4: bx7 bx6 bx5 bx4 bx3 bx2 bx1 bx0 */
++		x2 = ((packet[3] & 0x10) << 4) | packet[4];
++		/* byte 5: by7 by8 by5 by4 by3 by2 by1 by0 */
++		y2 = ETP_2FT_YMAX - (((packet[3] & 0x20) << 3) | packet[5]);
++		/* For compatibility with the X Synaptics driver scale up one
++		   coordinate and report as ordinary mouse movent */
++		input_report_abs(dev, ABS_X, x1 << 2);
++		input_report_abs(dev, ABS_Y, y1 << 2);
++		/* For compatibility with the proprietary X Elantech driver
++		   report both coordinates as hat coordinates */
++		input_report_abs(dev, ABS_HAT0X, x1);
++		input_report_abs(dev, ABS_HAT0Y, y1);
++		input_report_abs(dev, ABS_HAT1X, x2);
++		input_report_abs(dev, ABS_HAT1Y, y2);
++		break;
++	}
++	input_report_abs(dev, ABS_PRESSURE, (fingers) ? ETP_DEF_PRESSURE : 0);
++	input_report_key(dev, BTN_TOOL_FINGER, fingers == 1);
++	input_report_key(dev, BTN_TOOL_DOUBLETAP, fingers == 2);
++	input_report_key(dev, BTN_TOOL_TRIPLETAP, fingers == 3);
+ 	input_report_key(dev, BTN_LEFT, packet[0] & 0x01);
+ 	input_report_key(dev, BTN_RIGHT, packet[0] & 0x02);
+-
+-	if (etd->capabilities & ETP_CAP_REPORTS_MIDDLE_BUTTON)
+-		input_report_key(dev, BTN_MIDDLE, packet[0] & 0x04);
+-
+-	if (etd->capabilities & ETP_CAP_ALTERNATE_TAP_BITS) {
+-		fingers = (packet[3] & 0x30) >> 4;
+-		input_report_key(dev, BTN_LEFT, fingers == 1);
+-		input_report_key(dev, BTN_MIDDLE, fingers == 2);
+-		input_report_key(dev, BTN_RIGHT, fingers == 3);
+-	}
+-
+-	cornertap = (((packet[0] & 0xc0) == 0xc0) && ((packet[1] & 0xf0) == 0xf0));
+-	if (!cornertap) {
+-		input_report_rel(dev, REL_X, (int) (packet[1] & 0x7f) -
+-					     (int) (packet[1] & 0x80));
+-		input_report_rel(dev, REL_Y, (int) (packet[2] & 0x80) -
+-					     (int) (packet[2] & 0x7f));
+-	}
+-
+-	/* No more information in 3 bytes */
+-	if (!(etd->reg_11 & ETP_R11_4_BYTE_MODE))
+-		return;
+-
+-	if (cornertap) {
+-		input_report_key(dev, BTN_0, packet[3] & 0x01);	/* top right */
+-		input_report_key(dev, BTN_1, packet[3] & 0x02);	/* bottom right */
+-		input_report_key(dev, BTN_2, packet[3] & 0x04);	/* bottom left */
+-		input_report_key(dev, BTN_3, packet[3] & 0x08);	/* top left */
+-	}
+-
+-	if (etd->reg_11 & ETP_R11_PARITY_CHECKING) {
+-		if (packet[3] & 0x0f) {
+-			if (packet[3] & 0x40) {
+-				input_report_rel(dev, REL_HWHEEL,
+-					(int) (packet[3] & 0x08) -
+-					(int) (packet[3] & 0x07));
+-			} else {
+-				input_report_rel(dev, REL_WHEEL,
+-					(int) (packet[3] & 0x08) -
+-					(int) (packet[3] & 0x07));
+-			}
+-		}
+-	} else {
+-		if (packet[3])
+-			input_report_rel(dev, REL_WHEEL,
+-				(int) (packet[3] & 0x80) -
+-				(int) (packet[3] & 0x7f));
+-	}
+ }
+ 
+ /*
+- * Process byte stream from mouse and interpret complete data packets
++ * Process byte stream from mouse and handle complete packets
+  */
+ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+ {
+-	struct elantech_data 	*etd = psmouse->private;
+ 	struct input_dev 	*dev = psmouse->dev;
+ 	unsigned char 		*packet = psmouse->packet;
++	unsigned char		p1, p2, p3;
+ 
+ 	if (psmouse->pktcnt < psmouse->pktsize)
+ 		return PSMOUSE_GOOD_DATA;
+ 
+-	if (etd->debug)
++	if (etd->debug > 1)
+ 		elantech_packet_dump(packet, psmouse->pktsize);
+ 
+-	if (etd->reg_10 & ETP_R10_ABSOLUTE_MODE) {
+-		/* byte 0:  D   U  p1  p2   1  p3   R   L */
+-		if ((parity[packet[1]] != ((packet[0] & 0x20) >> 5)) ||
+-		    (parity[packet[2]] != ((packet[0] & 0x10) >> 4)) ||
+-		    (parity[packet[3]] != ((packet[0] & 0x04) >> 2)))
+-			return PSMOUSE_BAD_DATA;
+-	} else if (etd->reg_11 & ETP_R11_PARITY_CHECKING) {
+-		/* byte 0:  c   c  p2  p1   1   M   R   L */
+-		if ((parity[packet[1]] != ((packet[0] & 0x10) >> 4)) ||
+-		    (parity[packet[2]] != ((packet[0] & 0x20) >> 5)))
+-			return PSMOUSE_BAD_DATA;
+-		/* Parity bit has not been sacrificed as middle mouse button bit */
+-		if (!(etd->capabilities & ETP_CAP_REPORTS_MIDDLE_BUTTON)) {
+-			if (parity[packet[3]] != ((packet[0] & 0x04) >> 2))
++	if (etd->paritycheck) {
++		switch (etd->hw_version) {
++		case 1:
++			/* Parity bits are placed differently */
++			if (etd->fw_version_maj == 0x01) {
++				/* byte 0:  D   U  p1  p2   1  p3   R   L */
++				p1 = (packet[0] & 0x20) >> 5;
++				p2 = (packet[0] & 0x10) >> 4;
++			} else {
++				/* byte 0: n1  n0  p2  p1   1  p3   R   L */
++				p1 = (packet[0] & 0x10) >> 4;
++				p2 = (packet[0] & 0x20) >> 5;
++			}
++			p3 = (packet[0] & 0x04) >> 2;
++			if ((etd->parity[packet[1]] != p1) ||
++			    (etd->parity[packet[2]] != p2) ||
++			    (etd->parity[packet[3]] != p3))
+ 				return PSMOUSE_BAD_DATA;
++			break;
++		case 2:
++			/* Does version 2 hardware have parity bits? */
++			break;
+ 		}
+ 	}
+ 
+-	if (etd->reg_10 & ETP_R10_ABSOLUTE_MODE) {
+-		elantech_report_absolute(psmouse);
+-	} else {
+-		elantech_report_relative(psmouse);
++	switch (etd->hw_version) {
++	case 1:
++		elantech_report_absolute_v1(psmouse);
++		break;
++	case 2:
++		elantech_report_absolute_v2(psmouse);
++		break;
+ 	}
+ 
+ 	input_sync(dev);
+@@ -212,54 +321,69 @@ static psmouse_ret_t elantech_process_byte(struct psmouse *psmouse)
+ }
+ 
+ /*
+- * Initialise the touchpad to a default state. Because we don't know (yet)
+- * how to read registers we need to write some default values so we can
+- * report their contents when asked to.
++ * Put the touchpad into absolute mode
+  */
+-static void elantech_set_defaults(struct psmouse *psmouse)
++static int elantech_set_absolute_mode(struct psmouse *psmouse)
+ {
+-	struct elantech_data 	*etd = psmouse->private;
+-	struct input_dev 	*dev = psmouse->dev;
++	int		rc = 0;
++	unsigned char	val;
++	int		tries = ETP_READ_BACK_TRIES;
++
++	switch (etd->hw_version) {
++	case 1:
++		etd->reg_10 = 0x16;
++		etd->reg_11 = 0x8f;
++		if (elantech_write_reg(psmouse, 0x10, etd->reg_10) ||
++		    elantech_write_reg(psmouse, 0x11, etd->reg_11)) {
++			rc = -1;
++		}
++		break;
++	case 2:
++					/* Windows driver values */
++		etd->reg_10 = 0x54;
++		etd->reg_11 = 0x88;	/* 0x8a */
++		etd->reg_21 = 0x60;	/* 0x00 */
++		if (elantech_write_reg(psmouse, 0x10, etd->reg_10) ||
++		    elantech_write_reg(psmouse, 0x11, etd->reg_11) ||
++		    elantech_write_reg(psmouse, 0x21, etd->reg_21)) {
++			rc = -1;
++			break;
++		}
++		/*
++		 * Read back reg 0x10. The touchpad is probably initalising
++		 * and not ready until we read back the value we just wrote.
++		 */
++		do {
++			rc = elantech_read_reg(psmouse, 0x10, &val);
++			if (rc == 0)
++				break;
++			tries--;
++			elantech_debug("elantech.c: retrying read (%d).\n",
++				tries);
++			msleep(ETP_READ_BACK_DELAY);
++		} while (tries > 0);
++		if (rc)
++			pr_err("elantech.c: failed to read back register 0x10.\n");
++		break;
++	}
+ 
+-	/*
+-	 * For now, use the Elantech Windows driver default values
+-	 */
+-	etd->reg_10 = 0x12;
+-	elantech_write_reg(psmouse, 0x10, etd->reg_10);
+-	etd->reg_11 = 0x8f;
+-	elantech_write_reg(psmouse, 0x11, etd->reg_11);
+-	etd->reg_20 = 0x0a;
+-	elantech_write_reg(psmouse, 0x20, etd->reg_20);
+-	etd->reg_21 = 0x60;
+-	elantech_write_reg(psmouse, 0x21, etd->reg_21);
+-	etd->reg_22 = 0xff;
+-	elantech_write_reg(psmouse, 0x22, etd->reg_22);
+-	/*
+-	 * However, the Windows driver mentions registers 23, 24 and 26
+-	 * but seems to never actually write them
+-	 */
+-	etd->reg_23 = 0x10;
+-	/*
+-	 * elantech_write_reg(psmouse, 0x23, etd->reg_23);
+-	 */
+-	etd->reg_24 = 0x10;
+-	/*
+-	 * elantech_write_reg(psmouse, 0x24, etd->reg_24);
+-	 */
+-	etd->reg_25 = 0x03;
+-	elantech_write_reg(psmouse, 0x25, etd->reg_25);
+-	/*
+-	 * The Windows driver default value of 0x00 seems wrong as it
+-	 * disables smart edge cursor movement
+-	 */
+-	etd->reg_26 = 0x00;
+-	/*
+-	 * elantech_write_reg(psmouse, 0x26, etd->reg_26);
+-	 */
++	if (rc)
++		pr_err("elantech.c: failed to initialise registers.\n");
++
++	return rc;
++}
++
++/*
++ * Set the appropriate event bits for the input subsystem
++ */
++static void elantech_set_input_params(struct psmouse *psmouse)
++{
++	struct input_dev 	*dev = psmouse->dev;
+ 
+ 	set_bit(EV_KEY, dev->evbit);
++	set_bit(EV_ABS, dev->evbit);
++
+ 	set_bit(BTN_LEFT, dev->keybit);
+-	set_bit(BTN_MIDDLE, dev->keybit);
+ 	set_bit(BTN_RIGHT, dev->keybit);
+ 
+ 	set_bit(BTN_TOUCH, dev->keybit);
+@@ -267,27 +391,26 @@ static void elantech_set_defaults(struct psmouse *psmouse)
+ 	set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+ 	set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
+ 
+-	/* Rocker button */
+-	if (etd->capabilities & ETP_CAP_HAS_ROCKER) {
+-		set_bit(BTN_FORWARD, dev->keybit);
+-		set_bit(BTN_BACK, dev->keybit);
++	switch (etd->hw_version) {
++	case 1:
++		/* Rocker button */
++		if ((etd->fw_version_maj == 0x01) &&
++		    (etd->capabilities & ETP_CAP_HAS_ROCKER)) {
++			set_bit(BTN_FORWARD, dev->keybit);
++			set_bit(BTN_BACK, dev->keybit);
++		}
++		input_set_abs_params(dev, ABS_X, ETP_XMIN_V1, ETP_XMAX_V1, 0, 0);
++		input_set_abs_params(dev, ABS_Y, ETP_YMIN_V1, ETP_YMAX_V1, 0, 0);
++		break;
++	case 2:
++		input_set_abs_params(dev, ABS_X, ETP_XMIN_V2, ETP_XMAX_V2, 0, 0);
++		input_set_abs_params(dev, ABS_Y, ETP_YMIN_V2, ETP_YMAX_V2, 0, 0);
++		input_set_abs_params(dev, ABS_HAT0X, ETP_2FT_XMIN, ETP_2FT_XMAX, 0, 0);
++		input_set_abs_params(dev, ABS_HAT0Y, ETP_2FT_YMIN, ETP_2FT_YMAX, 0, 0);
++		input_set_abs_params(dev, ABS_HAT1X, ETP_2FT_XMIN, ETP_2FT_XMAX, 0, 0);
++		input_set_abs_params(dev, ABS_HAT1Y, ETP_2FT_YMIN, ETP_2FT_YMAX, 0, 0);
+ 	}
+ 
+-	/* Corner taps */
+-	set_bit(BTN_0, dev->keybit);
+-	set_bit(BTN_1, dev->keybit);
+-	set_bit(BTN_2, dev->keybit);
+-	set_bit(BTN_3, dev->keybit);
+-
+-	set_bit(EV_REL, dev->evbit);
+-	set_bit(REL_X, dev->relbit);
+-	set_bit(REL_Y, dev->relbit);
+-	set_bit(REL_WHEEL, dev->relbit);
+-	set_bit(REL_HWHEEL, dev->relbit);
+-
+-	set_bit(EV_ABS, dev->evbit);
+-	input_set_abs_params(dev, ABS_X, ETP_XMIN, ETP_XMAX, 0, 0);
+-	input_set_abs_params(dev, ABS_Y, ETP_YMIN, ETP_YMAX, 0, 0);
+ 	input_set_abs_params(dev, ABS_PRESSURE, 0, ETP_MAX_PRESSURE, 0, 0);
+ }
+ 
+@@ -299,14 +422,19 @@ struct elantech_attr_data {
+ /*
+  * Display a register value by reading a sysfs entry
+  */
+-static ssize_t elantech_show_int_attr(struct psmouse *psmouse, void *data, char *buf)
++static ssize_t elantech_show_int_attr(struct psmouse *psmouse, void *data,
++					char *buf)
+ {
+ 	struct elantech_data		*etd = psmouse->private;
+ 	struct elantech_attr_data	*attr = data;
+ 	unsigned char			*reg = (unsigned char *)
+ 						etd + attr->field_offset;
++	int				rc = 0;
++
++	if (attr->reg)
++		rc = elantech_read_reg(psmouse, attr->reg, reg);
+ 
+-	return sprintf(buf, "0x%02x\n", *reg);
++	return sprintf(buf, "0x%02x\n", (attr->reg && rc) ? -1 : *reg);
+ }
+ 
+ /*
+@@ -315,40 +443,34 @@ static ssize_t elantech_show_int_attr(struct psmouse *psmouse, void *data, char
+ static ssize_t elantech_set_int_attr(struct psmouse *psmouse, void *data,
+ 						const char *buf, size_t count)
+ {
+-	struct elantech_data 		*etd = psmouse->private;
+-	struct elantech_attr_data 	*attr = data;
++	struct elantech_attr_data	*attr = data;
+ 	unsigned char 			*reg = (unsigned char *)
+ 						etd + attr->field_offset;
+ 	unsigned long			value;
+-	char				*rest;
++	int				err;
+ 
+-	value = simple_strtoul(buf, &rest, 16);
+-	if (*rest || value > 255)
++	err = strict_strtoul(buf, 16, &value);
++	if (err)
++		return err;
++	if (value > 0xff)
+ 		return -EINVAL;
+ 
+-	if (attr->reg == 0x10) {
+-		/* Force on 4 byte mode when absolute mode gets selected */
+-		if ((value & ETP_R10_ABSOLUTE_MODE) &&
+-		   !(etd->reg_11 & ETP_R11_4_BYTE_MODE)) {
+-			etd->reg_11 |= ETP_R11_4_BYTE_MODE;
+-			elantech_write_reg(psmouse, 0x11, etd->reg_11);
+-			psmouse->pktsize = 4;
+-		}
+-	} else if (attr->reg == 0x11) {
+-		if (value & ETP_R11_4_BYTE_MODE)
+-			psmouse->pktsize = 4;
+-		else {
+-			/* Force off absolute mode when 4 byte mode is no longer selected */
+-			if (etd->reg_10 & ETP_R10_ABSOLUTE_MODE) {
+-				etd->reg_10 ^= ETP_R10_ABSOLUTE_MODE;
+-				elantech_write_reg(psmouse, 0x10, etd->reg_10);
+-			}
+-			psmouse->pktsize = 3;
+-		}
++	/* Do we need to preserve some bits for version 2 hardware too? */
++	if (etd->hw_version == 1) {
++		if (attr->reg == 0x10)
++			/* Force absolute mode always on */
++			value |= ETP_R10_ABSOLUTE_MODE;
++		else if (attr->reg == 0x11)
++			/* Force 4 byte mode always on */
++			value |= ETP_R11_4_BYTE_MODE;
+ 	}
+ 
+-	*reg = value;
+-	elantech_write_reg(psmouse, attr->reg, value);
++	if (attr->reg) {
++		if (elantech_write_reg(psmouse, attr->reg, value) == 0)
++			*reg = value;
++	} else {
++		*reg = value;
++	}
+ 
+ 	return count;
+ }
+@@ -373,6 +495,7 @@ ELANTECH_INT_ATTR(reg_24, 0x24);
+ ELANTECH_INT_ATTR(reg_25, 0x25);
+ ELANTECH_INT_ATTR(reg_26, 0x26);
+ ELANTECH_INT_ATTR(debug, 0);
++ELANTECH_INT_ATTR(paritycheck, 0);
+ 
+ static struct attribute *elantech_attrs[] = {
+ 	&psmouse_attr_reg_10.dattr.attr,
+@@ -385,6 +508,7 @@ static struct attribute *elantech_attrs[] = {
+ 	&psmouse_attr_reg_25.dattr.attr,
+ 	&psmouse_attr_reg_26.dattr.attr,
+ 	&psmouse_attr_debug.dattr.attr,
++	&psmouse_attr_paritycheck.dattr.attr,
+ 	NULL
  };
  
-
-Unfortunately, this yields no improvement : no force feedback is sent to 
-the wheel (tested with ff-utils).
-
-/var/log/messages :
-
-Sep 10 08:46:40 moewelstat1 kernel: usb 1-4.3: new low speed USB device 
-using ehci_hcd and address 17
-Sep 10 08:46:40 moewelstat1 kernel: usb 1-4.3: configuration #1 chosen 
-from 1 choice
-Sep 10 08:46:40 moewelstat1 kernel: input: Thrustmaster Thrustmaster 
-force feedback wheel as /class/input/input13
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0022
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0050
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0022
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0060
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0063
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0022
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0070
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0022
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0079
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: 
-ignoring unknown output usage 000f0097
-Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: Force 
-feedback for ThrustMaster devices by Zinx Verituse <zinx@epicsol.org>
-Sep 10 08:46:40 moewelstat1 kernel: input,hidraw0: USB HID v1.10 
-Joystick [Thrustmaster Thrustmaster force feedback wheel] on 
-usb-0000:00:02.1-4.3
-Sep 10 08:46:40 moewelstat1 kernel: usb 1-4.3: New USB device found, 
-idVendor=044f, idProduct=b653
-Sep 10 08:46:40 moewelstat1 kernel: usb 1-4.3: New USB device strings: 
-Mfr=3, Product=1, SerialNumber=0
-Sep 10 08:46:40 moewelstat1 kernel: usb 1-4.3: Product: Thrustmaster 
-force feedback wheel
-Sep 10 08:46:40 moewelstat1 kernel: usb 1-4.3: Manufacturer: Thrustmaster
-
-
-Changing the hid-tmff.c code to forcibly run the THRUSTMASTER_USAGE_FF 
-clause (preventing 'ignoring unknown output usage') yields :
-
-Sep 12 20:50:59 moewelstat1 kernel: input: Thrustmaster Thrustmaster 
-force feedback wheel as /class/input/input7
-Sep 12 20:50:59 moewelstat1 kernel: usbhid: ignoring FF field with 
-report_count < 2
-Sep 12 20:50:59 moewelstat1 kernel:last message repeated 2 times
-Sep 12 20:50:59 moewelstat1 kernel: usbhid: ignoring FF field in other 
-report
-Sep 12 20:50:59 moewelstat1 kernel: usbhid: ignoring FF field in other 
-report
-Sep 12 20:50:59 moewelstat1 kernel: usbhid: ignoring FF field with 
-report_count < 2
-Sep 12 20:51:00 moewelstat1 kernel:last message repeated 4 times
-Sep 12 20:50:59 moewelstat1 kernel: usbhid: Force feedback for 
-ThrustMaster devices by Zinx Verituse <zinx@epicsol.org>
-
-
-Please find in attachment kernel DEBUG output from dmesg , 
-/var/log/messages and output from the ff-utils evtest application.
-
-
-
-Of course, I'm eager to supply test feedback in case anybody feels 
-compelled to provide me with some corrective code patches (please note 
-I'm not truly acquainted with C code, though).
-If required, I could run USB snooping with the Windows Thrustmaster 
-drivers through a VMware session.
-
-
-
-As I'm not currently subscribed to linux-input, CC: to moensd@xs4all.be 
-would be much appreciated.
-
-
-Best regards and thank you in advance,
-Didier
-
-
---------------020709070405060407010100
-Content-Type: text/plain;
- name="dmesg.out"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
- filename="dmesg.out"
-
-usb 2-6: new low speed USB device using ohci_hcd and address 4
-usb 2-6: configuration #1 chosen from 1 choice
-drivers/hid/usbhid/hid-core.c: HID probe called for ifnum 0
-drivers/hid/usbhid/hid-core.c: report descriptor (size 455, read 455) =3D=
-  05 01 09 04 a1 01 09 01 a1 00 85 81 06 00 ff 15 00 27 ff ff 00 00 09 01=
- 09 02 75 10 95 02 b1 a2 09 03 09 04 85 82 25 7f 75 08 95 02 b1 02 85 01 =
-05 09 19 01 29 0a 25 01 75 01 95 0a 81 02 05 01 09 39 25 07 35 00 46 3b 0=
-1 65 14 95 01 75 04 81 42 09 30 46 ff 03 16 00 fe 26 ff 01 65 00 75 0a 95=
- 01 81 02 09 31 46 ff 00 15 00 26 ff 00 75 08 81 02 09 35 81 02 09 36 81 =
-02 09 37 81 02 c0 85 40 09 bb 15 00 26 ff 00 35 00 46 ff 00 75 08 95 04 9=
-1 02 05 0f 09 21 a1 02 85 41 09 22 15 01 25 04 75 08 95 01 91 02 09 50 15=
- 00 25 7f 35 00 46 c0 1f 75 08 66 03 10 55 0d 95 01 91 02 c0 09 5f a1 02 =
-85 43 09 22 15 01 25 04 75 08 95 01 91 02 09 60 09 61 09 62 15 80 25 7f 9=
-5 03 91 02 09 63 09 64 09 65 15 00 91 02 c0 09 73 a1 02 85 45 09 22 15 01=
- 25 04 75 08 95 01 91 02 09 70 15 80 25 7f 75 08 91 02 c0 09 77 a1 02 85 =
-4a 09 22 15 01 25 04 75 08 95 01 91 02 09 78 a1 02 09 79 09 7a 09 7b 25 0=
-3 75 08 91 00 c0 c0 09 92 a1 02 85 88 09 22 15 01 25 04 75 08 b1 02 09 94=
- 09 a0 09 9f 15 00 25 01 75 01 95 03 b1 02 95 05 b1 03 c0 09 95 a1 02 85 =
-4b 09 96 a1 02 09 97 09 98 09 99 09 9a 09 9b 09 9c 15 01 25 06 75 08 95 0=
-1 91 00 c0 c0 09 ab a1 02 85 85 09 25 a1 02 09 26 09 40 15 01 25 02 75 08=
- 95 01 b1 00 c0 c0 09 89 a1 02 85 86 09 22 15 01 25 04 75 08 95 01 b1 02 =
-09 8b a1 02 09 8c 09 8d 09 8e 15 01 25 03 75 08 95 01 b1 00 c0 c0 09 90 a=
-1 02 85 87 09 22 15 01 25 04 75 08 95 01 b1 02 c0 c0
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0101 wIndex=3D0x0000 wLength=3D8
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0381 wIndex=3D0x0000 wLength=3D5
-drivers/hid/hid-core.c: report (size 5) (numbered)
-drivers/hid/hid-core.c: report 129 (size 4) =3D  01 21 ff ff
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0382 wIndex=3D0x0000 wLength=3D3
-drivers/hid/hid-core.c: report (size 3) (numbered)
-drivers/hid/hid-core.c: report 130 (size 2) =3D  50 5a
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0388 wIndex=3D0x0000 wLength=3D3
-drivers/hid/hid-core.c: report (size 3) (numbered)
-drivers/hid/hid-core.c: report 136 (size 2) =3D  00 02
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0385 wIndex=3D0x0000 wLength=3D2
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0386 wIndex=3D0x0000 wLength=3D3
-drivers/hid/hid-core.c: report (size 3) (numbered)
-drivers/hid/hid-core.c: report 134 (size 2) =3D  00 01
-drivers/hid/usbhid/hid-core.c: submitting ctrl urb: Get_Report wValue=3D0=
-x0387 wIndex=3D0x0000 wLength=3D2
-  INPUT(1)[INPUT]
-    Field(0)
-      Physical(GenericDesktop.Pointer)
-      Usage(10)
-        Button.0001
-        Button.0002
-        Button.0003
-        Button.0004
-        Button.0005
-        Button.0006
-        Button.0007
-        Button.0008
-        Button.0009
-        Button.000a
-      Logical Minimum(0)
-      Logical Maximum(1)
-      Report Size(1)
-      Report Count(10)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.HatSwitch
-      Logical Minimum(0)
-      Logical Maximum(7)
-      Physical Minimum(0)
-      Physical Maximum(315)
-      Unit(English Rotation : Degrees)
-      Report Size(4)
-      Report Count(1)
-      Report Offset(10)
-      Flags( Variable Absolute NullState )
-    Field(2)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.X
-      Logical Minimum(-512)
-      Logical Maximum(511)
-      Physical Minimum(0)
-      Physical Maximum(1023)
-      Report Size(10)
-      Report Count(1)
-      Report Offset(14)
-      Flags( Variable Absolute )
-    Field(3)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.Y
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Physical Minimum(0)
-      Physical Maximum(255)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(24)
-      Flags( Variable Absolute )
-    Field(4)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.Rz
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Physical Minimum(0)
-      Physical Maximum(255)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(32)
-      Flags( Variable Absolute )
-    Field(5)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.Slider
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Physical Minimum(0)
-      Physical Maximum(255)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(40)
-      Flags( Variable Absolute )
-    Field(6)
-      Physical(GenericDesktop.Pointer)
-      Usage(1)
-        GenericDesktop.Dial
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Physical Minimum(0)
-      Physical Maximum(255)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(48)
-      Flags( Variable Absolute )
-  OUTPUT(64)[OUTPUT]
-    Field(0)
-      Usage(4)
-        GenericDesktop.00bb
-        GenericDesktop.00bb
-        GenericDesktop.00bb
-        GenericDesktop.00bb
-      Logical Minimum(0)
-      Logical Maximum(255)
-      Physical Minimum(0)
-      Physical Maximum(255)
-      Report Size(8)
-      Report Count(4)
-      Report Offset(0)
-      Flags( Variable Absolute )
-  OUTPUT(65)[OUTPUT]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0021)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(255)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Logical(PhysicalInterfaceDevice.0021)
-      Usage(1)
-        PhysicalInterfaceDevice.0050
-      Logical Minimum(0)
-      Logical Maximum(127)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(8)
-      Flags( Variable Absolute )
-  OUTPUT(67)[OUTPUT]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.005f)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Logical(PhysicalInterfaceDevice.005f)
-      Usage(3)
-        PhysicalInterfaceDevice.0060
-        PhysicalInterfaceDevice.0061
-        PhysicalInterfaceDevice.0062
-      Logical Minimum(-128)
-      Logical Maximum(127)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(3)
-      Report Offset(8)
-      Flags( Variable Absolute )
-    Field(2)
-      Logical(PhysicalInterfaceDevice.005f)
-      Usage(3)
-        PhysicalInterfaceDevice.0063
-        PhysicalInterfaceDevice.0064
-        PhysicalInterfaceDevice.0065
-      Logical Minimum(0)
-      Logical Maximum(127)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(3)
-      Report Offset(32)
-      Flags( Variable Absolute )
-  OUTPUT(69)[OUTPUT]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0073)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Logical(PhysicalInterfaceDevice.0073)
-      Usage(1)
-        PhysicalInterfaceDevice.0070
-      Logical Minimum(-128)
-      Logical Maximum(127)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(8)
-      Flags( Variable Absolute )
-  OUTPUT(74)[OUTPUT]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0077)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Logical(PhysicalInterfaceDevice.0078)
-      Usage(3)
-        PhysicalInterfaceDevice.0079
-        PhysicalInterfaceDevice.007a
-        PhysicalInterfaceDevice.007b
-      Logical Minimum(1)
-      Logical Maximum(3)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(8)
-      Flags( Array Absolute )
-  OUTPUT(75)[OUTPUT]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0096)
-      Usage(6)
-        PhysicalInterfaceDevice.0097
-        PhysicalInterfaceDevice.0098
-        PhysicalInterfaceDevice.0099
-        PhysicalInterfaceDevice.009a
-        PhysicalInterfaceDevice.009b
-        PhysicalInterfaceDevice.009c
-      Logical Minimum(1)
-      Logical Maximum(6)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Array Absolute )
-  FEATURE(129)[FEATURE]
-    Field(0)
-      Physical(GenericDesktop.Pointer)
-      Usage(2)
-        ff00.0001
-        ff00.0002
-      Logical Minimum(0)
-      Logical Maximum(65535)
-      Report Size(16)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Variable Absolute NoPreferredState Volatile )
-  FEATURE(130)[FEATURE]
-    Field(0)
-      Physical(GenericDesktop.Pointer)
-      Usage(2)
-        ff00.0003
-        ff00.0004
-      Logical Minimum(0)
-      Logical Maximum(127)
-      Report Size(8)
-      Report Count(2)
-      Report Offset(0)
-      Flags( Variable Absolute )
-  FEATURE(136)[FEATURE]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0092)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Logical(PhysicalInterfaceDevice.0092)
-      Usage(3)
-        PhysicalInterfaceDevice.0094
-        PhysicalInterfaceDevice.00a0
-        PhysicalInterfaceDevice.009f
-      Logical Minimum(0)
-      Logical Maximum(1)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(1)
-      Report Count(3)
-      Report Offset(8)
-      Flags( Variable Absolute )
-  FEATURE(133)[FEATURE]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0025)
-      Usage(2)
-        PhysicalInterfaceDevice.0026
-        PhysicalInterfaceDevice.0040
-      Logical Minimum(1)
-      Logical Maximum(2)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Array Absolute )
-  FEATURE(134)[FEATURE]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0089)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-    Field(1)
-      Logical(PhysicalInterfaceDevice.008b)
-      Usage(3)
-        PhysicalInterfaceDevice.008c
-        PhysicalInterfaceDevice.008d
-        PhysicalInterfaceDevice.008e
-      Logical Minimum(1)
-      Logical Maximum(3)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(8)
-      Flags( Array Absolute )
-  FEATURE(135)[FEATURE]
-    Field(0)
-      Logical(PhysicalInterfaceDevice.0090)
-      Usage(1)
-        PhysicalInterfaceDevice.0022
-      Logical Minimum(1)
-      Logical Maximum(4)
-      Physical Minimum(0)
-      Physical Maximum(8128)
-      Unit Exponent(13)
-      Unit(English Linear : Seconds)
-      Report Size(8)
-      Report Count(1)
-      Report Offset(0)
-      Flags( Variable Absolute )
-drivers/hid/hid-input.c: Mapping: Button.0001 ---> Key.Trigger
-drivers/hid/hid-input.c: Mapping: Button.0002 ---> Key.ThumbBtn
-drivers/hid/hid-input.c: Mapping: Button.0003 ---> Key.ThumbBtn2
-drivers/hid/hid-input.c: Mapping: Button.0004 ---> Key.TopBtn
-drivers/hid/hid-input.c: Mapping: Button.0005 ---> Key.TopBtn2
-drivers/hid/hid-input.c: Mapping: Button.0006 ---> Key.PinkieBtn
-drivers/hid/hid-input.c: Mapping: Button.0007 ---> Key.BaseBtn
-drivers/hid/hid-input.c: Mapping: Button.0008 ---> Key.BaseBtn2
-drivers/hid/hid-input.c: Mapping: Button.0009 ---> Key.BaseBtn3
-drivers/hid/hid-input.c: Mapping: Button.000a ---> Key.BaseBtn4
-drivers/hid/hid-input.c: Mapping: GenericDesktop.HatSwitch ---> Absolute.=
-Hat0X
-drivers/hid/hid-input.c: Mapping: GenericDesktop.X ---> Absolute.X
-drivers/hid/hid-input.c: Mapping: GenericDesktop.Y ---> Absolute.Y
-drivers/hid/hid-input.c: Mapping: GenericDesktop.Rz ---> Absolute.Rz
-drivers/hid/hid-input.c: Mapping: GenericDesktop.Slider ---> Absolute.Thr=
-ottle
-drivers/hid/hid-input.c: Mapping: GenericDesktop.Dial ---> Absolute.Rudde=
-r
-drivers/hid/hid-input.c: Mapping: GenericDesktop.00bb --->  [non-LED outp=
-ut field] IGNORED
-drivers/hid/hid-input.c: Mapping: GenericDesktop.00bb --->  [non-LED outp=
-ut field] IGNORED
-drivers/hid/hid-input.c: Mapping: GenericDesktop.00bb --->  [non-LED outp=
-ut field] IGNORED
-drivers/hid/hid-input.c: Mapping: GenericDesktop.00bb --->  [non-LED outp=
-ut field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0022 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0050 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0022 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0060 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0061 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0062 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0063 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0064 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0065 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0022 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0070 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0022 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0079 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.007a --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.007b --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0097 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0098 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.0099 --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.009a --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.009b --->  [non=
--LED output field] IGNORED
-drivers/hid/hid-input.c: Mapping: PhysicalInterfaceDevice.009c --->  [non=
--LED output field] IGNORED
-input: Thrustmaster Thrustmaster force feedback wheel as /class/input/inp=
-ut8
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field in other report
-usbhid: ignoring FF field in other report
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field with report_count < 2
-usbhid: ignoring FF field with report_count < 2
-usbhid: Force feedback for ThrustMaster devices by Zinx Verituse <zinx@ep=
-icsol.org>
-input,hidraw0: USB HID v1.10 Joystick [Thrustmaster Thrustmaster force fe=
-edback wheel] on usb-0000:00:02.0-6
-usb 2-6: New USB device found, idVendor=3D044f, idProduct=3Db653
-usb 2-6: New USB device strings: Mfr=3D3, Product=3D1, SerialNumber=3D0
-usb 2-6: Product: Thrustmaster force feedback wheel
-usb 2-6: Manufacturer: Thrustmaster
-
-
---------------020709070405060407010100
-Content-Type: text/plain;
- name="messages.out"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="messages.out"
-
-Sep 13 14:18:43 moewelstat1 kernel: usb 2-6: new low speed USB device using ohci_hcd and address 4
-Sep 13 14:18:44 moewelstat1 kernel: usb 2-6: configuration #1 chosen from 1 choice
-Sep 13 14:18:44 moewelstat1 kernel:  25 04 75 08 b1 02 09 94 09 a0 09 9f 15 00 25 01 75 01 95 03 b1 02 95 05 b1 03 c0 09 95 a1 02 85 4b 09 96 a1 02 09 97 09 98 09 99 09 9a 09 9b 09 9c 15 01 25 06 75 08 95 01 91 00 c0 c0 09 ab a1 02 85 85 09 25 a1 02 09 26 09 40 15 01 25 02 75 08 95 01 b1 00 c0 c0 09 89 a1 02 85 86 09 22 15 01 25 04 75 08 95 01 b1 02 09 8b a1 02 09 8c 09 8d 09 8e 15 01 25 03 75 08 95 01 b1 00 c0 c0 09 90 a1 02 85 87 09 22 15 01 25 04 75 08 95 01 b1 02 c0 c0
-Sep 13 14:18:44 moewelstat1 kernel: input: Thrustmaster Thrustmaster force feedback wheel as /class/input/input8
-Sep 13 14:18:44 moewelstat1 kernel: usbhid: ignoring FF field with report_count < 2
-Sep 13 14:18:44 moewelstat1 kernel:last message repeated 2 times
-Sep 13 14:18:44 moewelstat1 kernel: usbhid: ignoring FF field in other report
-Sep 13 14:18:44 moewelstat1 kernel: usbhid: ignoring FF field in other report
-Sep 13 14:18:44 moewelstat1 kernel: usbhid: ignoring FF field with report_count < 2
-Sep 13 14:18:44 moewelstat1 kernel:last message repeated 4 times
-Sep 13 14:18:44 moewelstat1 kernel: usbhid: Force feedback for ThrustMaster devices by Zinx Verituse <zinx@epicsol.org>
-Sep 13 14:18:44 moewelstat1 kernel: input,hidraw0: USB HID v1.10 Joystick [Thrustmaster Thrustmaster force feedback wheel] on usb-0000:00:02.0-6
-Sep 13 14:18:44 moewelstat1 kernel: usb 2-6: New USB device found, idVendor=044f, idProduct=b653
-Sep 13 14:18:44 moewelstat1 kernel: usb 2-6: New USB device strings: Mfr=3, Product=1, SerialNumber=0
-Sep 13 14:18:44 moewelstat1 kernel: usb 2-6: Product: Thrustmaster force feedback wheel
-Sep 13 14:18:44 moewelstat1 kernel: usb 2-6: Manufacturer: Thrustmaster
-
-
---------------020709070405060407010100
-Content-Type: text/plain;
- name="evtest.out"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="evtest.out"
-
-Input driver version is 1.0.0
-Input device ID: bus 0x3 vendor 0x44f product 0xb653 version 0x110
-Input device name: "Thrustmaster Thrustmaster force feedback wheel"
-Supported events:
-  Event type 0 (Reset)
-    Event code 0 (Reset)
-    Event code 1 (Key)
-    Event code 3 (Absolute)
-    Event code 4 (?)
-    Event code 21 (ForceFeedback)
-  Event type 1 (Key)
-    Event code 288 (Trigger)
-    Event code 289 (ThumbBtn)
-    Event code 290 (ThumbBtn2)
-    Event code 291 (TopBtn)
-    Event code 292 (TopBtn2)
-    Event code 293 (PinkieBtn)
-    Event code 294 (BaseBtn)
-    Event code 295 (BaseBtn2)
-    Event code 296 (BaseBtn3)
-    Event code 297 (BaseBtn4)
-  Event type 3 (Absolute)
-    Event code 0 (X)
-      Value      0
-      Min     -512
-      Max      511
-      Fuzz       3
-      Flat      63
-    Event code 1 (Y)
-      Value      0
-      Min        0
-      Max      255
-      Flat      15
-    Event code 5 (Rz)
-      Value      0
-      Min        0
-      Max      255
-      Flat      15
-    Event code 6 (Throttle)
-      Value      0
-      Min        0
-      Max      255
-      Flat      15
-    Event code 7 (Rudder)
-      Value      0
-      Min        0
-      Max      255
-      Flat      15
-    Event code 16 (Hat0X)
-      Value      0
-      Min       -1
-      Max        1
-    Event code 17 (Hat0Y)
-      Value      0
-      Min       -1
-      Max        1
-  Event type 4 (?)
-    Event code 4 (?)
-  Event type 21 (ForceFeedback)
-    Event code 82 (?)
-    Event code 96 (?)
-Testing ... (interrupt to exit)
-Event: time 1221308641.483012, type 4 (?), code 4 (?), value 589834
-Event: time 1221308641.483018, type 1 (Key), code 297 (BaseBtn4), value 1
-Event: time 1221308641.483022, type 3 (Absolute), code 0 (X), value 39
-Event: time 1221308641.483025, type 3 (Absolute), code 1 (Y), value 243
-Event: time 1221308641.483027, type 3 (Absolute), code 5 (Rz), value 4
-Event: time 1221308641.483030, type 3 (Absolute), code 6 (Throttle), value 253
-Event: time 1221308641.483033, type 0 (Reset), code 0 (Reset), value 0
-Event: time 1221308641.498997, type 4 (?), code 4 (?), value 589834
-Event: time 1221308641.499002, type 1 (Key), code 297 (BaseBtn4), value 0
-Event: time 1221308641.499005, type 3 (Absolute), code 0 (X), value 8
-Event: time 1221308641.499007, type 3 (Absolute), code 1 (Y), value 255
-Event: time 1221308641.499010, type 3 (Absolute), code 5 (Rz), value 255
-Event: time 1221308641.499012, type 3 (Absolute), code 6 (Throttle), value 255
-Event: time 1221308641.499014, type 3 (Absolute), code 7 (Rudder), value 255
-Event: time 1221308641.499016, type 0 (Reset), code 0 (Reset), value 0
-Event: time 1221308641.514999, type 3 (Absolute), code 0 (X), value -512
-Event: time 1221308641.515005, type 0 (Reset), code 0 (Reset), value 0
-
-[snip]
-...
-
-
---------------020709070405060407010100--
+@@ -393,17 +517,6 @@ static struct attribute_group elantech_attr_group = {
+ };
+ 
+ /*
+- * Clean up sysfs entries when disconnecting
+- */
+-static void elantech_disconnect(struct psmouse *psmouse)
+-{
+-	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
+-				&elantech_attr_group);
+-	kfree(psmouse->private);
+-	psmouse->private = NULL;
+-}
+-
+-/*
+  * Use magic knock to detect Elantech touchpad
+  */
+ int elantech_detect(struct psmouse *psmouse, int set_properties)
+@@ -411,12 +524,19 @@ int elantech_detect(struct psmouse *psmouse, int set_properties)
+ 	struct ps2dev	*ps2dev = &psmouse->ps2dev;
+ 	unsigned char	param[3];
+ 
+-	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_DISABLE);
+-	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO);
++	if (ps2_command(ps2dev,  NULL, PSMOUSE_CMD_DISABLE) ||
++	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
++	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
++	    ps2_command(ps2dev,  NULL, PSMOUSE_CMD_SETSCALE11) ||
++	    ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO)) {
++		pr_err("elantech.c: sending Elantech magic knock failed.\n");
++		return -1;
++	}
+ 
++	/*
++	 * Report this in case there are Elantech models that use a different
++	 * set of magic numbers
++	 */
+ 	if ((param[0] != 0x3c) || (param[1] != 0x03) || (param[2] != 0xc8)) {
+ 		pr_info("elantech.c: unexpected magic knock result 0x%02x, 0x%02x, 0x%02x.\n",
+ 			param[0], param[1], param[2]);
+@@ -432,54 +552,111 @@ int elantech_detect(struct psmouse *psmouse, int set_properties)
+ }
+ 
+ /*
++ * Clean up sysfs entries when disconnecting
++ */
++static void elantech_disconnect(struct psmouse *psmouse)
++{
++	sysfs_remove_group(&psmouse->ps2dev.serio->dev.kobj,
++				&elantech_attr_group);
++	kfree(psmouse->private);
++	psmouse->private = NULL;
++}
++
++/*
++ * Put the touchpad back into absolute mode when reconnecting
++ */
++static int elantech_reconnect(struct psmouse *psmouse)
++{
++	if (elantech_detect(psmouse, 0))
++		return -1;
++
++	if (elantech_set_absolute_mode(psmouse)) {
++		pr_err("elantech.c: failed to put touchpad back into absolute mode.\n");
++		return -1;
++	}
++
++	return 0;
++}
++
++/*
+  * Initialize the touchpad and create sysfs entries
+  */
+ int elantech_init(struct psmouse *psmouse)
+ {
+-	struct elantech_data 	*etd;
+-	int			i, error;
+-	unsigned char		param[3];
++	int		i, error;
++	unsigned char	param[3];
+ 
+ 	etd = kzalloc(sizeof(struct elantech_data), GFP_KERNEL);
+ 	psmouse->private = etd;
+ 	if (!etd)
+ 		return -1;
+ 
+-	parity[0] = 1;
++	etd->parity[0] = 1;
+ 	for (i = 1; i < 256; i++)
+-		parity[i] = (parity[i & (i - 1)] ^ 1);
++		etd->parity[i] = (etd->parity[i & (i - 1)] ^ 1);
+ 
+ 	/*
+-	 * Why does the Elantech Windows driver try this?
+-	 * For now just report it and see if it makes sense
+-	 * when more people use this driver
++	 * Find out what version hardware this is
+ 	 */
+-	if (!synaptics_send_cmd(psmouse, SYN_QUE_IDENTIFY, param))
+-		pr_info("elantech.c: Synaptics identify query result 0x%02x, 0x%02x, 0x%02x.\n",
+-			param[0], param[1], param[2]);
+-	if (!synaptics_send_cmd(psmouse, SYN_QUE_MODES, param))
+-		pr_info("elantech.c: Synaptics modes query result 0x%02x, 0x%02x, 0x%02x.\n",
+-			param[0], param[1], param[2]);
+-	if (!synaptics_send_cmd(psmouse, SYN_QUE_CAPABILITIES, param)) {
+-		pr_info("elantech.c: Synaptics capabilities query result 0x%02x, 0x%02x, 0x%02x.\n",
+-			param[0], param[1], param[2]);
+-		etd->capabilities = param[0];
++	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
++		pr_err("elantech.c: failed to query firmware version.\n");
++		goto init_fail;
+ 	}
++	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
++		param[0], param[1], param[2]);
++	etd->fw_version_maj = param[0];
++	etd->fw_version_min = param[2];
+ 
+-	elantech_set_defaults(psmouse);
++	/*
++	 * Assume every version greater than this is new EeePC style
++	 * hardware with 6 byte packets
++	 */
++	if ((etd->fw_version_maj >= 0x02) && (etd->fw_version_min >= 0x30)) {
++		etd->hw_version = 2;
++		/* For now show extra debug information */
++		etd->debug = 1;
++		/* Don't know how to do parity checking for version 2 */
++		etd->paritycheck = 0;
++	} else {
++		etd->hw_version = 1;
++		etd->paritycheck = 1;
++	}
++	pr_info("elantech.c: assuming hardware version %d, firmware version %d.%d\n",
++		etd->hw_version, etd->fw_version_maj, etd->fw_version_min);
+ 
+-	psmouse->protocol_handler = elantech_process_byte;
+-	psmouse->disconnect = elantech_disconnect;
+-	psmouse->pktsize = 4;
++	if (synaptics_send_cmd(psmouse, ETP_CAPABILITIES_QUERY, param)) {
++		pr_err("elantech.c: failed to query capabilities.\n");
++		goto init_fail;
++	}
++	pr_info("elantech.c: Synaptics capabilities query result 0x%02x, 0x%02x, 0x%02x.\n",
++		param[0], param[1], param[2]);
++	etd->capabilities = param[0];
++
++	if (elantech_set_absolute_mode(psmouse)) {
++		pr_err("elantech.c: failed to put touchpad into absolute mode.\n");
++		goto init_fail;
++	}
++	elantech_set_input_params(psmouse);
+ 
+ 	error = sysfs_create_group(&psmouse->ps2dev.serio->dev.kobj,
+ 					&elantech_attr_group);
+ 	if (error) {
+-		printk(KERN_ERR "elantech.c: failed to create sysfs attributes, error: %d\n",
++		pr_err("elantech.c: failed to create sysfs attributes, error: %d.\n",
+ 			error);
+-		kfree(etd);
+-		return -1;
++		goto init_fail;
+ 	}
+ 
++	psmouse->protocol_handler = elantech_process_byte;
++	psmouse->disconnect = elantech_disconnect;
++	psmouse->reconnect = elantech_reconnect;
++	if (etd->hw_version == 2)
++		psmouse->pktsize = 6;
++	else
++		psmouse->pktsize = 4;
++
+ 	return 0;
++
++init_fail:
++	kfree(etd);
++	return -1;
+ }
+diff --git a/drivers/input/mouse/elantech.h b/drivers/input/mouse/elantech.h
+index e5a6157..3fb996e 100644
+--- a/drivers/input/mouse/elantech.h
++++ b/drivers/input/mouse/elantech.h
+@@ -1,7 +1,7 @@
+ /*
+- * Elantech Touchpad driver
++ * Elantech Touchpad driver (v5)
+  *
+- * Copyright (C) 2007 Arjan Opmeer <arjan@opmeer.net>
++ * Copyright (C) 2007-2008 Arjan Opmeer <arjan@opmeer.net>
+  *
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2 as published
+@@ -14,42 +14,86 @@
+ #define _ELANTECH_H
+ 
+ /*
+- * Commands start with this value
++ * Command values for Synaptics style queries
+  */
+-#define ELANTECH_COMMAND_START		0x11
++#define ETP_FW_VERSION_QUERY		0x01
++#define ETP_CAPABILITIES_QUERY		0x02
+ 
+ /*
+- * Register bitmasks
++ * Command values for register reading or writing
++ */
++#define ETP_REGISTER_READ		0x10
++#define ETP_REGISTER_WRITE		0x11
++
++/*
++ * Hardware version 2 custom PS/2 command value
++ */
++#define ETP_PS2_CUSTOM_COMMAND		0xf8
++
++/*
++ * Times to retry a ps2_command and millisecond delay between tries
++ */
++#define ETP_PS2_COMMAND_TRIES		3
++#define ETP_PS2_COMMAND_DELAY		500
++
++/*
++ * Times to try to read back a register and millisecond delay between tries
++ */
++#define ETP_READ_BACK_TRIES		5
++#define ETP_READ_BACK_DELAY		2000
++
++/*
++ * Register bitmasks for hardware version 1
+  */
+ #define ETP_R10_ABSOLUTE_MODE		0x04
+-#define ETP_R11_PARITY_CHECKING		0x01
+ #define ETP_R11_4_BYTE_MODE 		0x02
+ 
+ /*
+  * Capability bitmasks
+  */
+-#define ETP_CAP_REPORTS_MIDDLE_BUTTON	0x02
+ #define ETP_CAP_HAS_ROCKER		0x04
+-#define ETP_CAP_ALTERNATE_TAP_BITS	0x10
+ 
+ /*
+  * One hard to find application note states that X axis range is 0 to 576
+- * and Y axis range is 0 to 384.
+- * Edge fuzz might be necessary because of bezel around the touchpad.
++ * and Y axis range is 0 to 384 for harware version 1.
++ * Edge fuzz might be necessary because of bezel around the touchpad
++ */
++#define ETP_EDGE_FUZZ_V1		32
++
++#define ETP_XMIN_V1 			(  0 + ETP_EDGE_FUZZ_V1)
++#define ETP_XMAX_V1 			(576 - ETP_EDGE_FUZZ_V1)
++#define ETP_YMIN_V1 			(  0 + ETP_EDGE_FUZZ_V1)
++#define ETP_YMAX_V1 			(384 - ETP_EDGE_FUZZ_V1)
++
++/*
++ * It seems the resolution for hardware version 2 doubled.
++ * Hence the X and Y ranges are doubled too.
++ * The bezel around the pad also appears to be smaller
++ */
++#define ETP_EDGE_FUZZ_V2		8
++
++#define ETP_XMIN_V2 			(   0 + ETP_EDGE_FUZZ_V2)
++#define ETP_XMAX_V2 			(1152 - ETP_EDGE_FUZZ_V2)
++#define ETP_YMIN_V2 			(   0 + ETP_EDGE_FUZZ_V2)
++#define ETP_YMAX_V2 			( 768 - ETP_EDGE_FUZZ_V2)
++
++/*
++ * For two finger touches the coordinate of each finger gets reported
++ * separately but with reduced resolution.
+  */
+-#define ETP_EDGE_FUZZ			32
++#define ETP_2FT_FUZZ			4
+ 
+-#define ETP_XMIN 			(  0 + ETP_EDGE_FUZZ)
+-#define ETP_XMAX 			(576 - ETP_EDGE_FUZZ)
+-#define ETP_YMIN 			(  0 + ETP_EDGE_FUZZ)
+-#define ETP_YMAX 			(384 - ETP_EDGE_FUZZ)
++#define ETP_2FT_XMIN			(  0 + ETP_2FT_FUZZ)
++#define ETP_2FT_XMAX			(288 - ETP_2FT_FUZZ)
++#define ETP_2FT_YMIN			(  0 + ETP_2FT_FUZZ)
++#define ETP_2FT_YMAX			(192 - ETP_2FT_FUZZ)
+ 
+ /*
+  * It seems the touchpad does not report pressure.
+  * Just choose some values for compatibility with X Synaptics driver
+  */
+-#define ETP_MAX_PRESSURE		127
+-#define ETP_DEF_PRESSURE		64
++#define ETP_MAX_PRESSURE		255
++#define ETP_DEF_PRESSURE		128
+ 
+ struct elantech_data {
+ 	unsigned char reg_10;
+@@ -63,6 +107,11 @@ struct elantech_data {
+ 	unsigned char reg_26;
+ 	unsigned char debug;
+ 	unsigned char capabilities;
++	unsigned char fw_version_maj;
++	unsigned char fw_version_min;
++	unsigned char hw_version;
++	unsigned char paritycheck;
++	unsigned char parity[256];
+ };
+ 
+ #ifdef CONFIG_MOUSE_PS2_ELANTECH
+diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+index d42ff6f..300d960 100644
+--- a/drivers/input/mouse/psmouse-base.c
++++ b/drivers/input/mouse/psmouse-base.c
+@@ -770,6 +770,12 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+ 		.detect		= touchkit_ps2_detect,
+ 	},
+ #endif
++	{
++		.type		= PSMOUSE_CORTRON,
++		.name		= "CortronPS/2",
++		.alias		= "cortps",
++		.detect		= cortron_detect,
++	},
+ #ifdef CONFIG_MOUSE_PS2_ELANTECH
+ 	{
+ 		.type		= PSMOUSE_ELANTECH,
+@@ -780,12 +786,6 @@ static const struct psmouse_protocol psmouse_protocols[] = {
+ 	},
+ #endif
+ 	{
+-		.type		= PSMOUSE_CORTRON,
+-		.name		= "CortronPS/2",
+-		.alias		= "cortps",
+-		.detect		= cortron_detect,
+-	},
+-	{
+ 		.type		= PSMOUSE_AUTO,
+ 		.name		= "auto",
+ 		.alias		= "any",

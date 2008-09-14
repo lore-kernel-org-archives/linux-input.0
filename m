@@ -1,50 +1,84 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: __initdata and struct dmi_system_id?
-Date: Sun, 14 Sep 2008 08:33:16 -0300
-Message-ID: <20080914113316.GA27289@khazad-dum.debian.net>
-References: <48C0C786.5020809@freemail.hu> <48CCBD83.1030001@freemail.hu>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: [PATCH] input: bcm5974: Switch back to normal mode when closing
+Date: Sun, 14 Sep 2008 16:54:59 +0200
+Message-ID: <48CD25C3.8050008@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:46302 "EHLO
-	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752544AbYINLdY (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:39480 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751941AbYINOzN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 14 Sep 2008 07:33:24 -0400
-Content-Disposition: inline
-In-Reply-To: <48CCBD83.1030001@freemail.hu>
+	Sun, 14 Sep 2008 10:55:13 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?iso-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Cc: LKML <linux-kernel@vger.kernel.org>, Helge Deller <deller@gmx.de>, linux-input@vger.kernel.org
+To: akpm@osdl.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 
-On Sun, 14 Sep 2008, N=E9meth M=E1rton wrote:
-> The other interesting question on this topic is that what about the
-> error message strings which are used as parameter of the printk() cal=
-ls.
-> Those strings are combined together for a function which is marked wi=
-th
-> __init and the functions which are normal functions. The strings whic=
-h
-> are only used by the functions marked with __init could be freed, but
-> the strings of the normal functions shouldn't be.
+Staying in multi-touch mode after closing the device sometimes makes the keyboard drop keys or
+repeat keys irratically. The conjecture is that some internal buffer starts to overflow,
+resulting in undefined behavior. Switching back to normal mode when closing the device makes the
+problem go away.
 
-Yeah, if we could get them all in a init.rodata section, we could just =
-throw
-them away along with the init section afterwards...
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
 
-I do think I have seen a patch about init.rodata in LKML not too long a=
-go,
-though.
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 18f4d7f..2998a6a 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -351,8 +351,9 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ #define BCM5974_WELLSPRING_MODE_REQUEST_VALUE		0x300
+ #define BCM5974_WELLSPRING_MODE_REQUEST_INDEX		0
+ #define BCM5974_WELLSPRING_MODE_VENDOR_VALUE		0x01
++#define BCM5974_WELLSPRING_MODE_NORMAL_VALUE		0x08
 
---=20
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-static int bcm5974_wellspring_mode(struct bcm5974 *dev)
++static int bcm5974_wellspring_mode(struct bcm5974 *dev, bool on)
+ {
+ 	char *data = kmalloc(8, GFP_KERNEL);
+ 	int retval = 0, size;
+@@ -377,7 +378,9 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev)
+ 	}
+
+ 	/* apply the mode switch */
+-	data[0] = BCM5974_WELLSPRING_MODE_VENDOR_VALUE;
++	data[0] = on ?
++		BCM5974_WELLSPRING_MODE_VENDOR_VALUE :
++		BCM5974_WELLSPRING_MODE_NORMAL_VALUE;
+
+ 	/* write configuration */
+ 	size = usb_control_msg(dev->udev, usb_sndctrlpipe(dev->udev, 0),
+@@ -392,7 +395,8 @@ static int bcm5974_wellspring_mode(struct bcm5974 *dev)
+ 		goto out;
+ 	}
+
+-	dprintk(2, "bcm5974: switched to wellspring mode.\n");
++	dprintk(2, "bcm5974: switched to %s mode.\n",
++		on ? "wellspring" : "normal");
+
+  out:
+ 	kfree(data);
+@@ -481,7 +485,7 @@ exit:
+  */
+ static int bcm5974_start_traffic(struct bcm5974 *dev)
+ {
+-	if (bcm5974_wellspring_mode(dev)) {
++	if (bcm5974_wellspring_mode(dev, true)) {
+ 		dprintk(1, "bcm5974: mode switch failed\n");
+ 		goto error;
+ 	}
+@@ -504,6 +508,7 @@ static void bcm5974_pause_traffic(struct bcm5974 *dev)
+ {
+ 	usb_kill_urb(dev->tp_urb);
+ 	usb_kill_urb(dev->bt_urb);
++	bcm5974_wellspring_mode(dev, false);
+ }
+
+ /*
+-- 
+1.5.4.3
+

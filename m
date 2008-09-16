@@ -1,76 +1,34 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.27-rc6] ads7846: work better with DMA
-Date: Mon, 15 Sep 2008 16:32:17 -0700
-Message-ID: <200809151632.17505.david-b@pacbell.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: disable repeat on single key
+Date: Tue, 16 Sep 2008 12:59:41 -0400
+Message-ID: <20080916165938.GB9252@amd.corenet.prb>
+References: <f96d234e0809150717i5f393008u4988e91ef5c23738@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:44867 "HELO
-	smtp107.sbc.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753554AbYIOXi7 (ORCPT
+Received: from mail-gx0-f16.google.com ([209.85.217.16]:41293 "EHLO
+	mail-gx0-f16.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753165AbYIPQ7u (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Sep 2008 19:38:59 -0400
+	Tue, 16 Sep 2008 12:59:50 -0400
+Received: by gxk9 with SMTP id 9so27882440gxk.13
+        for <linux-input@vger.kernel.org>; Tue, 16 Sep 2008 09:59:49 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <f96d234e0809150717i5f393008u4988e91ef5c23738@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Cliff Brake <cliff.brake@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+Hi Cliff,
 
-We had a report a while back that the ads7846 driver had some issues
-when used with DMA-based SPI controllers (like atmel_spi) on systems
-where main memory is not DMA-coherent (most non-x86 boards) ... but no
-mergeable patch addressed it.  Pending any more comprehensive fix,
-just push the relevant data into cache lines that won't be shared,
-preventing those issues (but not in a very pretty way).
+On Mon, Sep 15, 2008 at 10:17:59AM -0400, Cliff Brake wrote:
+> Is there any way in the Linux input layer to disable repeat on a
+> single key vs the entire device?
+> 
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
----
-Please merge for 2.6.27-final (and forward to -stable for backports);
-this lack-of-patch has lingered for way too long.
+No, there is not. If your device require fine-grained repeat control you
+will have to implement it in the driver.
 
- drivers/input/touchscreen/ads7846.c |   24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
-
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -85,10 +85,6 @@ struct ads7846 {
- 	u16			x_plate_ohms;
- 	u16			pressure_max;
- 
--	u8			read_x, read_y, read_z1, read_z2, pwrdown;
--	u16			dummy;		/* for the pwrdown read */
--	struct ts_event		tc;
--
- 	struct spi_transfer	xfer[18];
- 	struct spi_message	msg[5];
- 	struct spi_message	*last_msg;
-@@ -116,6 +112,26 @@ struct ads7846 {
- 	void			*filter_data;
- 	void			(*filter_cleanup)(void *data);
- 	int			(*get_pendown_state)(void);
-+
-+	/* NOTE: this is a bit klugey.  Ideally all these I/O buffers
-+	 * would be in a separate buffer (from the heap) to make DMA
-+	 * work better.  Instead, we trust that starting them on their
-+	 * own cache line, at the end of this struct, suffices to avoid
-+	 * cacheline sharing issues -- pending any better fix.
-+	 *
-+	 * The first several systems to use this driver didn't use DMA
-+	 * with SPI, at least for small I/O requests as used here, so
-+	 * the cache line sharing issues wouldn't show up there.
-+	 */
-+	u8			read_x ____cacheline_aligned;
-+	u8			read_y;
-+	u8			read_z1:
-+	u8			read_z2;
-+	u8			pwrdown;
-+	u16			dummy;		/* for the pwrdown read */
-+
-+	struct ts_event		tc;
-+
- };
- 
- /* leave chip selected when we're done, for quicker re-select? */
+-- 
+Dmitry

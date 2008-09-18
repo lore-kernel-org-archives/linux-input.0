@@ -1,344 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.27-rc6] ads7846: work better with DMA
-Date: Tue, 16 Sep 2008 15:21:56 -0400
-Message-ID: <20080916192156.GE9252@amd.corenet.prb>
-References: <200809151632.17505.david-b@pacbell.net>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [PATCH 1/5] HID: move pantherlord FF processing
+Date: Thu, 18 Sep 2008 10:41:08 +0200
+Message-ID: <48D21424.9030807@gmail.com>
+References: <1220533187-21848-1-git-send-email-jirislaby@gmail.com> <alpine.LNX.1.10.0809171900030.19221@pegasus.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.242]:12865 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753211AbYIPTWG (ORCPT
+Received: from mu-out-0910.google.com ([209.85.134.190]:5734 "EHLO
+	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753209AbYIRIlP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Sep 2008 15:22:06 -0400
-Received: by an-out-0708.google.com with SMTP id d40so281434and.103
-        for <linux-input@vger.kernel.org>; Tue, 16 Sep 2008 12:22:05 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <200809151632.17505.david-b@pacbell.net>
+	Thu, 18 Sep 2008 04:41:15 -0400
+Received: by mu-out-0910.google.com with SMTP id g7so2683675muf.1
+        for <linux-input@vger.kernel.org>; Thu, 18 Sep 2008 01:41:12 -0700 (PDT)
+In-Reply-To: <alpine.LNX.1.10.0809171900030.19221@pegasus.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>, linux-kernel@vger.kernel.org
 
-On Mon, Sep 15, 2008 at 04:32:17PM -0700, David Brownell wrote:
-> From: David Brownell <dbrownell@users.sourceforge.net>
+On 09/17/2008 07:03 PM, Jiri Kosina wrote:
+> On Thu, 4 Sep 2008, Jiri Slaby wrote:
 > 
-> We had a report a while back that the ads7846 driver had some issues
-> when used with DMA-based SPI controllers (like atmel_spi) on systems
-> where main memory is not DMA-coherent (most non-x86 boards) ... but no
-> mergeable patch addressed it.  Pending any more comprehensive fix,
-> just push the relevant data into cache lines that won't be shared,
-> preventing those issues (but not in a very pretty way).
+>> Move the force feedback precessing into a separate module.
+>>
+>> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 > 
+>> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+>> index 0784a09..a4d9695 100644
+>> --- a/drivers/hid/hid-ids.h
+>> +++ b/drivers/hid/hid-ids.h
+>> @@ -373,6 +373,8 @@
+>>  #define USB_DEVICE_ID_QUAD_USB_JOYPAD	0x8800
+>>  #define USB_DEVICE_ID_DUAL_USB_JOYPAD	0x8866
+>>  
+>> +#define USB_VENDOR_ID_GREENASIA		0x0e8f
+>> +
+>>  #define USB_VENDOR_ID_WISEGROUP_LTD	0x6666
+>>  #define USB_VENDOR_ID_WISEGROUP_LTD2	0x6677
+>>  #define USB_DEVICE_ID_SMARTJOY_DUAL_PLUS 0x8802
+> 
+> Could we please preserve alphabetical ordering in hid-ids.h file?
 
-How about this one? Because the change is purely mechanical I feel
-pretty safe about it...
+Oops, sorry for that, I tried to sort it numerically not noticing it's sorted
+alphabetically.
 
--- 
-Dmitry
+> Otherwise the series looks good to me, and Anssi didn't complain as well. 
+> Could you please rebase it on top of the current HID tree, fix the 
+> ordering, and send it to me again, I will apply it?
 
+No problem.
 
-Input: ads7846 - fix cache line sharing issue
-
-We had a report a while back that the ads7846 driver had some issues
-when used with DMA-based SPI controllers (like atmel_spi) on systems
-where main memory is not DMA-coherent (most non-x86 boards). Allocate
-memory potentially used for DMA separately to avoid cache line issues.
-
-Reported-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/touchscreen/ads7846.c |   87 +++++++++++++++++++++--------------
- 1 files changed, 51 insertions(+), 36 deletions(-)
-
-
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 6020a7d..b9b7fc6 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -69,6 +69,17 @@ struct ts_event {
- 	int	ignore;
- };
- 
-+/*
-+ * We allocate this separately to avoid cache line sharing issues when
-+ * driver is used with DMA-based SPI controllers (like atmel_spi) on
-+ * systems where main memory is not DMA-coherent (most non-x86 boards).
-+ */
-+struct ads7846_packet {
-+	u8			read_x, read_y, read_z1, read_z2, pwrdown;
-+	u16			dummy;		/* for the pwrdown read */
-+	struct ts_event		tc;
-+};
-+
- struct ads7846 {
- 	struct input_dev	*input;
- 	char			phys[32];
-@@ -86,9 +97,7 @@ struct ads7846 {
- 	u16			x_plate_ohms;
- 	u16			pressure_max;
- 
--	u8			read_x, read_y, read_z1, read_z2, pwrdown;
--	u16			dummy;		/* for the pwrdown read */
--	struct ts_event		tc;
-+	struct ads7846_packet	*packet;
- 
- 	struct spi_transfer	xfer[18];
- 	struct spi_message	msg[5];
-@@ -513,16 +522,17 @@ static int get_pendown_state(struct ads7846 *ts)
- static void ads7846_rx(void *ads)
- {
- 	struct ads7846		*ts = ads;
-+	struct ads7846_packet	*packet = ts->packet;
- 	unsigned		Rt;
- 	u16			x, y, z1, z2;
- 
- 	/* ads7846_rx_val() did in-place conversion (including byteswap) from
- 	 * on-the-wire format as part of debouncing to get stable readings.
- 	 */
--	x = ts->tc.x;
--	y = ts->tc.y;
--	z1 = ts->tc.z1;
--	z2 = ts->tc.z2;
-+	x = packet->tc.x;
-+	y = packet->tc.y;
-+	z1 = packet->tc.z1;
-+	z2 = packet->tc.z2;
- 
- 	/* range filtering */
- 	if (x == MAX_12BIT)
-@@ -546,10 +556,10 @@ static void ads7846_rx(void *ads)
- 	 * the maximum. Don't report it to user space, repeat at least
- 	 * once more the measurement
- 	 */
--	if (ts->tc.ignore || Rt > ts->pressure_max) {
-+	if (packet->tc.ignore || Rt > ts->pressure_max) {
- #ifdef VERBOSE
- 		pr_debug("%s: ignored %d pressure %d\n",
--			ts->spi->dev.bus_id, ts->tc.ignore, Rt);
-+			ts->spi->dev.bus_id, packet->tc.ignore, Rt);
- #endif
- 		hrtimer_start(&ts->timer, ktime_set(0, TS_POLL_PERIOD),
- 			      HRTIMER_MODE_REL);
-@@ -642,6 +652,7 @@ static int ads7846_no_filter(void *ads, int data_idx, int *val)
- static void ads7846_rx_val(void *ads)
- {
- 	struct ads7846 *ts = ads;
-+	struct ads7846_packet *packet = ts->packet;
- 	struct spi_message *m;
- 	struct spi_transfer *t;
- 	int val;
-@@ -661,7 +672,7 @@ static void ads7846_rx_val(void *ads)
- 	case ADS7846_FILTER_REPEAT:
- 		break;
- 	case ADS7846_FILTER_IGNORE:
--		ts->tc.ignore = 1;
-+		packet->tc.ignore = 1;
- 		/* Last message will contain ads7846_rx() as the
- 		 * completion function.
- 		 */
-@@ -669,7 +680,7 @@ static void ads7846_rx_val(void *ads)
- 		break;
- 	case ADS7846_FILTER_OK:
- 		*(u16 *)t->rx_buf = val;
--		ts->tc.ignore = 0;
-+		packet->tc.ignore = 0;
- 		m = &ts->msg[++ts->msg_idx];
- 		break;
- 	default:
-@@ -774,7 +785,6 @@ static void ads7846_disable(struct ads7846 *ts)
- 	/* we know the chip's in lowpower mode since we always
- 	 * leave it that way after every request
- 	 */
--
- }
- 
- /* Must be called with ts->lock held */
-@@ -850,6 +860,7 @@ static int __devinit setup_pendown(struct spi_device *spi, struct ads7846 *ts)
- static int __devinit ads7846_probe(struct spi_device *spi)
- {
- 	struct ads7846			*ts;
-+	struct ads7846_packet		*packet;
- 	struct input_dev		*input_dev;
- 	struct ads7846_platform_data	*pdata = spi->dev.platform_data;
- 	struct spi_message		*m;
-@@ -885,14 +896,16 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		return err;
- 
- 	ts = kzalloc(sizeof(struct ads7846), GFP_KERNEL);
-+	packet = kzalloc(sizeof(struct ads7846_packet), GFP_KERNEL);
- 	input_dev = input_allocate_device();
--	if (!ts || !input_dev) {
-+	if (!ts || !packet || !input_dev) {
- 		err = -ENOMEM;
- 		goto err_free_mem;
- 	}
- 
- 	dev_set_drvdata(&spi->dev, ts);
- 
-+	ts->packet = packet;
- 	ts->spi = spi;
- 	ts->input = input_dev;
- 	ts->vref_mv = pdata->vref_mv;
-@@ -964,13 +977,13 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 	spi_message_init(m);
- 
- 	/* y- still on; turn on only y+ (and ADC) */
--	ts->read_y = READ_Y(vref);
--	x->tx_buf = &ts->read_y;
-+	packet->read_y = READ_Y(vref);
-+	x->tx_buf = &packet->read_y;
- 	x->len = 1;
- 	spi_message_add_tail(x, m);
- 
- 	x++;
--	x->rx_buf = &ts->tc.y;
-+	x->rx_buf = &packet->tc.y;
- 	x->len = 2;
- 	spi_message_add_tail(x, m);
- 
-@@ -982,12 +995,12 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		x->delay_usecs = pdata->settle_delay_usecs;
- 
- 		x++;
--		x->tx_buf = &ts->read_y;
-+		x->tx_buf = &packet->read_y;
- 		x->len = 1;
- 		spi_message_add_tail(x, m);
- 
- 		x++;
--		x->rx_buf = &ts->tc.y;
-+		x->rx_buf = &packet->tc.y;
- 		x->len = 2;
- 		spi_message_add_tail(x, m);
- 	}
-@@ -1000,13 +1013,13 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 
- 	/* turn y- off, x+ on, then leave in lowpower */
- 	x++;
--	ts->read_x = READ_X(vref);
--	x->tx_buf = &ts->read_x;
-+	packet->read_x = READ_X(vref);
-+	x->tx_buf = &packet->read_x;
- 	x->len = 1;
- 	spi_message_add_tail(x, m);
- 
- 	x++;
--	x->rx_buf = &ts->tc.x;
-+	x->rx_buf = &packet->tc.x;
- 	x->len = 2;
- 	spi_message_add_tail(x, m);
- 
-@@ -1015,12 +1028,12 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		x->delay_usecs = pdata->settle_delay_usecs;
- 
- 		x++;
--		x->tx_buf = &ts->read_x;
-+		x->tx_buf = &packet->read_x;
- 		x->len = 1;
- 		spi_message_add_tail(x, m);
- 
- 		x++;
--		x->rx_buf = &ts->tc.x;
-+		x->rx_buf = &packet->tc.x;
- 		x->len = 2;
- 		spi_message_add_tail(x, m);
- 	}
-@@ -1034,13 +1047,13 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		spi_message_init(m);
- 
- 		x++;
--		ts->read_z1 = READ_Z1(vref);
--		x->tx_buf = &ts->read_z1;
-+		packet->read_z1 = READ_Z1(vref);
-+		x->tx_buf = &packet->read_z1;
- 		x->len = 1;
- 		spi_message_add_tail(x, m);
- 
- 		x++;
--		x->rx_buf = &ts->tc.z1;
-+		x->rx_buf = &packet->tc.z1;
- 		x->len = 2;
- 		spi_message_add_tail(x, m);
- 
-@@ -1049,12 +1062,12 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 			x->delay_usecs = pdata->settle_delay_usecs;
- 
- 			x++;
--			x->tx_buf = &ts->read_z1;
-+			x->tx_buf = &packet->read_z1;
- 			x->len = 1;
- 			spi_message_add_tail(x, m);
- 
- 			x++;
--			x->rx_buf = &ts->tc.z1;
-+			x->rx_buf = &packet->tc.z1;
- 			x->len = 2;
- 			spi_message_add_tail(x, m);
- 		}
-@@ -1066,13 +1079,13 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		spi_message_init(m);
- 
- 		x++;
--		ts->read_z2 = READ_Z2(vref);
--		x->tx_buf = &ts->read_z2;
-+		packet->read_z2 = READ_Z2(vref);
-+		x->tx_buf = &packet->read_z2;
- 		x->len = 1;
- 		spi_message_add_tail(x, m);
- 
- 		x++;
--		x->rx_buf = &ts->tc.z2;
-+		x->rx_buf = &packet->tc.z2;
- 		x->len = 2;
- 		spi_message_add_tail(x, m);
- 
-@@ -1081,12 +1094,12 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 			x->delay_usecs = pdata->settle_delay_usecs;
- 
- 			x++;
--			x->tx_buf = &ts->read_z2;
-+			x->tx_buf = &packet->read_z2;
- 			x->len = 1;
- 			spi_message_add_tail(x, m);
- 
- 			x++;
--			x->rx_buf = &ts->tc.z2;
-+			x->rx_buf = &packet->tc.z2;
- 			x->len = 2;
- 			spi_message_add_tail(x, m);
- 		}
-@@ -1100,13 +1113,13 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 	spi_message_init(m);
- 
- 	x++;
--	ts->pwrdown = PWRDOWN;
--	x->tx_buf = &ts->pwrdown;
-+	packet->pwrdown = PWRDOWN;
-+	x->tx_buf = &packet->pwrdown;
- 	x->len = 1;
- 	spi_message_add_tail(x, m);
- 
- 	x++;
--	x->rx_buf = &ts->dummy;
-+	x->rx_buf = &packet->dummy;
- 	x->len = 2;
- 	CS_CHANGE(*x);
- 	spi_message_add_tail(x, m);
-@@ -1159,6 +1172,7 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 		ts->filter_cleanup(ts->filter_data);
-  err_free_mem:
- 	input_free_device(input_dev);
-+	kfree(packet);
- 	kfree(ts);
- 	return err;
- }
-@@ -1184,6 +1198,7 @@ static int __devexit ads7846_remove(struct spi_device *spi)
- 	if (ts->filter_cleanup)
- 		ts->filter_cleanup(ts->filter_data);
- 
-+	kfree(ts->packet);
- 	kfree(ts);
- 
- 	dev_dbg(&spi->dev, "unregistered touchscreen\n");
+Thanks.

@@ -1,216 +1,80 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 5/5 #2] HID: convert to dev_* prints
-Date: Thu, 18 Sep 2008 12:23:34 +0200
-Message-ID: <1221733414-26924-5-git-send-email-jirislaby@gmail.com>
-References: <1221733414-26924-1-git-send-email-jirislaby@gmail.com>
- <1221733414-26924-2-git-send-email-jirislaby@gmail.com>
- <1221733414-26924-3-git-send-email-jirislaby@gmail.com>
- <1221733414-26924-4-git-send-email-jirislaby@gmail.com>
+From: "Matteo Croce" <technoboy85@gmail.com>
+Subject: [PATCH] usbtouchscreen: option to swap X and Y axes
+Date: Thu, 18 Sep 2008 19:16:40 +0200
+Message-ID: <40101cc30809181016l632de30en6ff56b1fe9fe36ff@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.wellnetcz.com ([212.24.148.102]:36952 "EHLO
-	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754225AbYIRK0T (ORCPT
+Received: from mail-gx0-f16.google.com ([209.85.217.16]:65180 "EHLO
+	mail-gx0-f16.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754128AbYIRRQm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Sep 2008 06:26:19 -0400
-In-Reply-To: <1221733414-26924-4-git-send-email-jirislaby@gmail.com>
+	Thu, 18 Sep 2008 13:16:42 -0400
+Received: by gxk9 with SMTP id 9so31534630gxk.13
+        for <linux-input@vger.kernel.org>; Thu, 18 Sep 2008 10:16:40 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, anssi.hannula@gmail.com, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
+To: linux-input@vger.kernel.org
 
-Since we have a real device bound to a driver, we may use struct
-device for printing. Use dev_* functions instead of printks in
-4 drivers.
+Here there is a patch to invert the X and Y axes, as my controller swaps it:
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
----
- drivers/hid/hid-lg2ff.c |    8 ++++----
- drivers/hid/hid-pl.c    |   11 ++++++-----
- drivers/hid/hid-tmff.c  |   26 ++++++++++++++------------
- drivers/hid/hid-zpff.c  |    6 +++---
- 4 files changed, 27 insertions(+), 24 deletions(-)
+Signed-off-by: Matteo Croce <matteo@openwrt.org>
 
-diff --git a/drivers/hid/hid-lg2ff.c b/drivers/hid/hid-lg2ff.c
-index b2e9a67..4e6dc6e 100644
---- a/drivers/hid/hid-lg2ff.c
-+++ b/drivers/hid/hid-lg2ff.c
-@@ -71,18 +71,18 @@ int lg2ff_init(struct hid_device *hid)
- 	int error;
- 
- 	if (list_empty(report_list)) {
--		printk(KERN_ERR "hid-lg2ff: no output report found\n");
-+		dev_err(&hid->dev, "no output report found\n");
- 		return -ENODEV;
- 	}
- 
- 	report = list_entry(report_list->next, struct hid_report, list);
- 
- 	if (report->maxfield < 1) {
--		printk(KERN_ERR "hid-lg2ff: output report is empty\n");
-+		dev_err(&hid->dev, "output report is empty\n");
- 		return -ENODEV;
- 	}
- 	if (report->field[0]->report_count < 7) {
--		printk(KERN_ERR "hid-lg2ff: not enough values in the field\n");
-+		dev_err(&hid->dev, "not enough values in the field\n");
- 		return -ENODEV;
- 	}
- 
-@@ -109,7 +109,7 @@ int lg2ff_init(struct hid_device *hid)
- 
- 	usbhid_submit_report(hid, report, USB_DIR_OUT);
- 
--	printk(KERN_INFO "Force feedback for Logitech Rumblepad 2 by "
-+	dev_info(&hid->dev, "Force feedback for Logitech Rumblepad 2 by "
- 	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
- 
- 	return 0;
-diff --git a/drivers/hid/hid-pl.c b/drivers/hid/hid-pl.c
-index b450084..682cac1 100644
---- a/drivers/hid/hid-pl.c
-+++ b/drivers/hid/hid-pl.c
-@@ -90,7 +90,7 @@ static int plff_init(struct hid_device *hid)
- 	   currently unknown. */
- 
- 	if (list_empty(report_list)) {
--		printk(KERN_ERR "hid-plff: no output reports found\n");
-+		dev_err(&hid->dev, "no output reports found\n");
- 		return -ENODEV;
- 	}
- 
-@@ -99,18 +99,19 @@ static int plff_init(struct hid_device *hid)
- 		report_ptr = report_ptr->next;
- 
- 		if (report_ptr == report_list) {
--			printk(KERN_ERR "hid-plff: required output report is missing\n");
-+			dev_err(&hid->dev, "required output report is "
-+					"missing\n");
- 			return -ENODEV;
- 		}
- 
- 		report = list_entry(report_ptr, struct hid_report, list);
- 		if (report->maxfield < 1) {
--			printk(KERN_ERR "hid-plff: no fields in the report\n");
-+			dev_err(&hid->dev, "no fields in the report\n");
- 			return -ENODEV;
- 		}
- 
- 		if (report->field[0]->report_count < 4) {
--			printk(KERN_ERR "hid-plff: not enough values in the field\n");
-+			dev_err(&hid->dev, "not enough values in the field\n");
- 			return -ENODEV;
- 		}
- 
-@@ -136,7 +137,7 @@ static int plff_init(struct hid_device *hid)
- 		usbhid_submit_report(hid, plff->report, USB_DIR_OUT);
- 	}
- 
--	printk(KERN_INFO "hid-plff: Force feedback for PantherLord/GreenAsia "
-+	dev_info(&hid->dev, "Force feedback for PantherLord/GreenAsia "
- 	       "devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
- 
- 	return 0;
-diff --git a/drivers/hid/hid-tmff.c b/drivers/hid/hid-tmff.c
-index be7ebe2..1b7cba0 100644
---- a/drivers/hid/hid-tmff.c
-+++ b/drivers/hid/hid-tmff.c
-@@ -149,27 +149,28 @@ static int tmff_init(struct hid_device *hid, const signed short *ff_bits)
- 			switch (field->usage[0].hid) {
- 			case THRUSTMASTER_USAGE_FF:
- 				if (field->report_count < 2) {
--					warn("ignoring FF field with "
--							"report_count < 2");
-+					dev_warn(&hid->dev, "ignoring FF field "
-+						"with report_count < 2\n");
- 					continue;
- 				}
- 
- 				if (field->logical_maximum ==
- 						field->logical_minimum) {
--					warn("ignoring FF field with "
--							"logical_maximum == "
--							"logical_minimum");
-+					dev_warn(&hid->dev, "ignoring FF field "
-+							"with logical_maximum "
-+							"== logical_minimum\n");
- 					continue;
- 				}
- 
- 				if (tmff->report && tmff->report != report) {
--					warn("ignoring FF field in other "
--							"report");
-+					dev_warn(&hid->dev, "ignoring FF field "
-+							"in other report\n");
- 					continue;
- 				}
- 
- 				if (tmff->ff_field && tmff->ff_field != field) {
--					warn("ignoring duplicate FF field");
-+					dev_warn(&hid->dev, "ignoring "
-+							"duplicate FF field\n");
- 					continue;
- 				}
- 
-@@ -182,7 +183,8 @@ static int tmff_init(struct hid_device *hid, const signed short *ff_bits)
- 				break;
- 
- 			default:
--				warn("ignoring unknown output usage %08x",
-+				dev_warn(&hid->dev, "ignoring unknown output "
-+						"usage %08x\n",
- 						field->usage[0].hid);
- 				continue;
- 			}
-@@ -190,7 +192,7 @@ static int tmff_init(struct hid_device *hid, const signed short *ff_bits)
- 	}
- 
- 	if (!tmff->report) {
--		err("cant find FF field in output reports\n");
-+		dev_err(&hid->dev, "can't find FF field in output reports\n");
- 		error = -ENODEV;
- 		goto fail;
- 	}
-@@ -199,8 +201,8 @@ static int tmff_init(struct hid_device *hid, const signed short *ff_bits)
- 	if (error)
- 		goto fail;
- 
--	info("Force feedback for ThrustMaster devices by Zinx Verituse "
--			"<zinx@epicsol.org>");
-+	dev_info(&hid->dev, "force feedback for ThrustMaster devices by Zinx "
-+			"Verituse <zinx@epicsol.org>");
- 	return 0;
- 
- fail:
-diff --git a/drivers/hid/hid-zpff.c b/drivers/hid/hid-zpff.c
-index 9ed04ee..ea82f37 100644
---- a/drivers/hid/hid-zpff.c
-+++ b/drivers/hid/hid-zpff.c
-@@ -73,14 +73,14 @@ static int zpff_init(struct hid_device *hid)
- 	int error;
- 
- 	if (list_empty(report_list)) {
--		printk(KERN_ERR "hid-zpff: no output report found\n");
-+		dev_err(&hid->dev, "no output report found\n");
- 		return -ENODEV;
- 	}
- 
- 	report = list_entry(report_list->next, struct hid_report, list);
- 
- 	if (report->maxfield < 4) {
--		printk(KERN_ERR "hid-zpff: not enough fields in report\n");
-+		dev_err(&hid->dev, "not enough fields in report\n");
- 		return -ENODEV;
- 	}
- 
-@@ -103,7 +103,7 @@ static int zpff_init(struct hid_device *hid)
- 	zpff->report->field[3]->value[0] = 0x00;
- 	usbhid_submit_report(hid, zpff->report, USB_DIR_OUT);
- 
--	printk(KERN_INFO "Force feedback for Zeroplus based devices by "
-+	dev_info(&hid->dev, "force feedback for Zeroplus based devices by "
- 	       "Anssi Hannula <anssi.hannula@gmail.com>\n");
- 
- 	return 0;
--- 
-1.6.0.1
+--- a/drivers/input/touchscreen/usbtouchscreen.c	2008-09-18
+18:50:44.294868149 +0200
++++ b/drivers/input/touchscreen/usbtouchscreen.c	2008-09-18
+18:50:44.226867816 +0200
+@@ -56,8 +56,16 @@
+ #define DRIVER_DESC		"USB Touchscreen Driver"
 
+ static int swap_xy;
++static int invert_x;
++static int invert_y;
++
+ module_param(swap_xy, bool, 0644);
++module_param(invert_x, bool, 0644);
++module_param(invert_y, bool, 0644);
++
+ MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
++MODULE_PARM_DESC(invert_x, "If set X axe is inverted.");
++MODULE_PARM_DESC(invert_y, "If set Y axe is inverted.");
+
+ /* device specifc data/functions */
+ struct usbtouch_usb;
+@@ -683,6 +691,7 @@
+                                  unsigned char *pkt, int len)
+ {
+ 	struct usbtouch_device_info *type = usbtouch->type;
++	int x, y;
+
+ 	if (!type->read_data(usbtouch, pkt))
+ 			return;
+@@ -690,12 +699,22 @@
+ 	input_report_key(usbtouch->input, BTN_TOUCH, usbtouch->touch);
+
+ 	if (swap_xy) {
+-		input_report_abs(usbtouch->input, ABS_X, usbtouch->y);
+-		input_report_abs(usbtouch->input, ABS_Y, usbtouch->x);
++		x = usbtouch->y;
++		y = usbtouch->x;
++		if(invert_x)
++			x = type->max_yc - (x - type->min_yc);
++		if(invert_y)
++			y = type->max_xc - (y - type->min_xc);
+ 	} else {
+-		input_report_abs(usbtouch->input, ABS_X, usbtouch->x);
+-		input_report_abs(usbtouch->input, ABS_Y, usbtouch->y);
++		x = usbtouch->x;
++		y = usbtouch->y;
++		if(invert_x)
++			x = type->max_xc - (x - type->min_xc);
++		if(invert_y)
++			y = type->max_yc - (y - type->min_yc);
+ 	}
++	input_report_abs(usbtouch->input, ABS_X, x);
++	input_report_abs(usbtouch->input, ABS_Y, y);
+ 	if (type->max_press)
+ 		input_report_abs(usbtouch->input, ABS_PRESSURE, usbtouch->press);
+ 	input_sync(usbtouch->input);

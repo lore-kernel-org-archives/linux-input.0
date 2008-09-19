@@ -1,43 +1,48 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/5 #2] HID: move pantherlord FF processing
-Date: Thu, 18 Sep 2008 19:29:10 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0809181925050.4671@pegasus.suse.cz>
-References: <1221733414-26924-1-git-send-email-jirislaby@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: Update Elantech touchpad driver to v5 for
+	kernel 2.6.27-rc5-mm1
+Date: Fri, 19 Sep 2008 00:17:27 -0400
+Message-ID: <20080919041727.GB7594@core.corenet.prv>
+References: <20080914032344.GA16228@adopmeer.homeip.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:34554 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754110AbYIRR2x (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Sep 2008 13:28:53 -0400
-In-Reply-To: <1221733414-26924-1-git-send-email-jirislaby@gmail.com>
+Received: from wr-out-0506.google.com ([64.233.184.226]:14613 "EHLO
+	wr-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750711AbYISERi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Sep 2008 00:17:38 -0400
+Received: by wr-out-0506.google.com with SMTP id 69so90718wri.5
+        for <linux-input@vger.kernel.org>; Thu, 18 Sep 2008 21:17:36 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20080914032344.GA16228@adopmeer.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-input@vger.kernel.org, anssi.hannula@gmail.com, linux-kernel@vger.kernel.org
+To: Arjan Opmeer <arjan@opmeer.net>
+Cc: akpm@linux-foundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 18 Sep 2008, Jiri Slaby wrote:
+Hi Arjan,
 
-> +config HID_PANTHERLORD
-> +	tristate "Pantherlord"
-> +	default m
-> +	depends on USB_HID
-> +	---help---
-> +	Support for PantherLord/GreenAsia based device support (including
-> +	force feedback).
+On Sun, Sep 14, 2008 at 05:23:44AM +0200, Arjan Opmeer wrote:
+> 
+> From: Arjan Opmeer <arjan@opmeer.net>
+> 
+> Update the Elantech touchpad driver to v5
+> 
+> - Put the Elantech entry last in the psmouse_protocols[] list as it is also
+>   the last one in the psmouse_type enum.
+> - Remove support for relative mode. The driver now always uses the touchpad
+>   in absolute mode.
+> - Add support for the new Elantech touchpad model as found in the EeePC that
+>   uses a new protocol.
+> 
 
-This comment is a little bit misleading -- it says that 
-CONFIG_HID_PANTHERLORD includes force feedback support, but you have to 
-turn that on explicitly by:
+Could you tell me if issues with pressure reporting mentioned in
+bugzilla #8781 have been resolved? I am about to put the driver in my
+tree and need to know if I can enable it unconditionally or need to
+mark it experimental.
 
-> +config PANTHERLORD_FF
-> +	bool "Force feedback support"
-
-Also, mentioning "Pantherlord" here might make things more clear, this way 
-it looks like this enables generic force feedback.
-
-I will fix that up in the patchset, if you don't mind, and apply.
+Thanks!
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

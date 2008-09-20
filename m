@@ -1,62 +1,58 @@
-From: Arjan Opmeer <arjan@opmeer.net>
-Subject: Re: [PATCH] input: Update Elantech touchpad driver to v5 for
-	kernel 2.6.27-rc5-mm1
-Date: Fri, 19 Sep 2008 09:05:30 +0200
-Message-ID: <20080919070530.GA7599@adopmeer.homeip.net>
-References: <20080914032344.GA16228@adopmeer.homeip.net> <20080919041727.GB7594@core.corenet.prv>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Force Feedback for Thrustmaster RGT Pro Clutch Pedal Edition
+ racing wheel
+Date: Sat, 20 Sep 2008 04:44:16 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0809200442010.27884@twin.jikos.cz>
+References: <48CBD7B3.4070104@xs4all.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out0.tiscali.nl ([195.241.79.175]:38136 "EHLO
-	smtp-out0.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750761AbYISHFi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Sep 2008 03:05:38 -0400
-Content-Disposition: inline
-In-Reply-To: <20080919041727.GB7594@core.corenet.prv>
+Received: from twin.jikos.cz ([213.151.79.26]:42623 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752936AbYITCoY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Sep 2008 22:44:24 -0400
+In-Reply-To: <48CBD7B3.4070104@xs4all.be>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: akpm@linux-foundation.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Didier Moens <moensd@xs4all.be>
+Cc: linux-input@vger.kernel.org, Zinx Verituse <zinx@epicsol.org>
 
+On Sat, 13 Sep 2008, Didier Moens wrote:
 
-Hi Dmitry,
+> Sep 10 08:46:40 moewelstat1 kernel: input: Thrustmaster Thrustmaster force
+> feedback wheel as /class/input/input13
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0022
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0050
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0022
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0060
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0063
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0022
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0070
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0022
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0079
+> Sep 10 08:46:40 moewelstat1 kernel: drivers/hid/usbhid/hid-tmff.c: ignoring
+> unknown output usage 000f0097
 
-(Sorry for calling you Dimitry earlier :)
+Hi,
 
-On Fri, Sep 19, 2008 at 12:17:27AM -0400, Dmitry Torokhov wrote:
-> On Sun, Sep 14, 2008 at 05:23:44AM +0200, Arjan Opmeer wrote:
-> > 
-> > Update the Elantech touchpad driver to v5
-> 
-> Could you tell me if issues with pressure reporting mentioned in bugzilla
-> #8781 have been resolved?
+apparently, Thrustmaster has changed the report descriptor of the device a 
+little bit. Probably also the protocol for this device is a little bit 
+different. I have added Zinx to CC, as he wrote the original driver.
 
-I am not exactly sure what the issue is that is described there.
+For start, running hd in debugging mode (CONFIG_HID_DEBUG and modprobing 
+'hid' module with 'debug=2' parameter) and capturing output of a working 
+session in windows might be good steps.
 
-As far as I know the touchpad does not report pressure (maybe the EeePC
-style touchpad does, but I do not have hands on experience with that).
-However the Xorg Synaptics driver requires pressure events to work. So I
-chose a default pressure value and the driver always toggles between no
-pressure and default pressure for no touch and touch respectively. This
-seems to work well for all my testers as I have not heard any complaints.
+-- 
+Jiri Kosina
+SUSE Labs
 
-A related issue seems to be that the Ubuntu packaged version of the Xorg
-Synaptics driver appears to have a bug where adjusting MaxTapTime doesn't
-have any effect. In the absence of true pressure reporting this is the
-primary parameter to configure ones personal tapping preference for the
-Elantech touchpad. I believe the bug reporter in question wants to set this
-value to 0 to disable tapping altogether (although the TouchpadOff option
-would be better suited), but because of this bug cannot do so.
-
-So all in all I am not quite sure that this is a problem with the Elantech
-driver per se.
-
-> I am about to put the driver in my tree and need to know if I can enable
-> it unconditionally or need to mark it experimental.
-
-Well, either is fine with me. Just getting it in the mainline kernel will
-give it a broader exposure and more testing I guess.
-
-
-Arjan

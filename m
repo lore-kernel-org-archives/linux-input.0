@@ -1,83 +1,49 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: Force Feedback for Thrustmaster RGT Pro Clutch Pedal Edition
- racing wheel
-Date: Sat, 20 Sep 2008 23:49:46 +0300
-Message-ID: <48D561EA.5060402@gmail.com>
-References: <48CBD7B3.4070104@xs4all.be> <48CBEB06.5070104@free.fr>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.27-rc7
+Date: Sun, 21 Sep 2008 18:56:21 -0400
+Message-ID: <20080921225621.GA10188@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta-out.inet.fi ([195.156.147.13]:45447 "EHLO jenni2.inet.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751128AbYITUtt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Sep 2008 16:49:49 -0400
-In-Reply-To: <48CBEB06.5070104@free.fr>
+Received: from yx-out-2324.google.com ([74.125.44.28]:62240 "EHLO
+	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752719AbYIUW41 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Sep 2008 18:56:27 -0400
+Received: by yx-out-2324.google.com with SMTP id 8so185100yxm.1
+        for <linux-input@vger.kernel.org>; Sun, 21 Sep 2008 15:56:25 -0700 (PDT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Annick et Jean-Philippe <jpmeuret@free.fr>
-Cc: Didier Moens <moensd@xs4all.be>, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Annick et Jean-Philippe wrote:
-> Hi, Didier, and all.
+Hi Linus,
 
-Hi!
+Please pull from:
 
->> I'm trying to get force feedback activated on this quite wonderful
->> racing wheel ...
->> (patches against 2.6.25, but I've already tested with 2.6.26.3)
->> ...
->> Unfortunately, this yields no improvement : no force feedback is sent
->> to the wheel (tested with ff-utils).
->> ...
-> 
-> Not sure this will fix your issues, but ...
-> 
-> ff-utils original code has 2 flaws :
-> - it is NOT 64-bit compatible
-> - it was coded for 2.4.x kernels, and when you compile it, it does not use
->   the includes of your specific kernel, but those shipped with the sources
->   (see sub-folder "linux")
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Works fine for me here on 64-bit, and uses standard headers. Maybe you
-are using an old version?
+to receive updates for the input subsystem.
 
-The latest version is in linuxconsole SVN:
-http://linuxconsole.svn.sourceforge.net/viewvc/linuxconsole/trunk/utils/
-Downloadable with SVN command (on one line):
-svn co
-https://linuxconsole.svn.sourceforge.net/svnroot/linuxconsole/trunk/utils
-input-utils
+Changelog:
+---------
+
+Henrik Rydberg (1):
+      Input: bcm5974 - switch back to normal mode when closing
+
+Kristoffer Ericson (1):
+      Input: jornada720_ts - fix build error ( LONG() usage )
 
 
-> So I recommend you apply the patch that fixes this issues :
-> look on SourceForge libff patches page ...
-> 
-> https://sourceforge.net/tracker/?func=detail&atid=440671&aid=2098907&group_id=44724
+Diffstat:
+--------
 
-libff is stale project, I suspect this should be filed to linuxconsole
-instead (after checking the problems still exist, of course). Hopefully
-its maintainers are active. If not, post here.
-
-> 
-> Then, be sure to test FF with "ffcfstress" (only for Constant Force),
-> not only with "fftest" ;
-> the first one works very well with my Logitech G25,
-> whereas I not sure the second one does ... (the rendered Constant Force
-> effect is so week, that it's not that clear ...).
-> 
-> Finally, you can try the FFConsoleDemo of the OIS library (get 1.2.0
-> sources,
-> and apply the recent "Linux FF 64bit port + Windows FF fixes +
-> DemoFFTest" patch
-> https://sourceforge.net/tracker/?func=detail&atid=775955&aid=2087429&group_id=149835)
-> ; it tests constant and periodic FF (Constant Force test is OK for my
-> G25, not periodic).
-> 
-> Hope this helps.
-> 
-> Jean-Philippe MEURET
-
+ drivers/input/mouse/bcm5974.c             |   13 +++++++++----
+ drivers/input/touchscreen/jornada720_ts.c |    4 ++--
+ 2 files changed, 11 insertions(+), 6 deletions(-)
 
 -- 
-Anssi Hannula
+Dmitry

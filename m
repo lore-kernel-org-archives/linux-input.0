@@ -1,88 +1,72 @@
-From: Greg KH <gregkh@suse.de>
+From: Phil Hannent <phil@hannent.co.uk>
 Subject: Re: [PATCH] Input: add mmio xi driver
-Date: Thu, 25 Sep 2008 20:19:18 -0700
-Message-ID: <20080926031918.GA10083@suse.de>
-References: <20080925232237.GA22938@suse.de> <20080925182055.f12f5d0b.randy.dunlap@oracle.com>
+Date: Fri, 26 Sep 2008 11:51:47 +0100
+Message-ID: <48DCBEC3.2020904@hannent.co.uk>
+References: <20080925232237.GA22938@suse.de> <20080925182055.f12f5d0b.randy.dunlap@oracle.com> <20080926031918.GA10083@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="------------enig99566593677E74112CB86E6E"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:32882 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754603AbYIZDVE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Sep 2008 23:21:04 -0400
-Content-Disposition: inline
-In-Reply-To: <20080925182055.f12f5d0b.randy.dunlap@oracle.com>
+Received: from lax-green-bigip-5.dreamhost.com ([208.113.200.5]:44870 "EHLO
+	spaceymail-a6.g.dreamhost.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751583AbYIZKfr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Sep 2008 06:35:47 -0400
+In-Reply-To: <20080926031918.GA10083@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, phil@hannent.co.uk, mwilder@cs.nmsu.edu
+To: Greg KH <gregkh@suse.de>
+Cc: Randy Dunlap <randy.dunlap@oracle.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, mwilder@cs.nmsu.edu
 
-On Thu, Sep 25, 2008 at 06:20:55PM -0700, Randy Dunlap wrote:
-> On Thu, 25 Sep 2008 16:22:37 -0700 Greg KH wrote:
-> 
-> > 
-> > From: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > This patch adds the Mimio Xi interactive whiteboard driver to the tree.
-> > 
-> > It was originally written by mwilder@cs.nmsu.edu, but cleaned up and
-> > forward ported by me to the latest kernel version.
-> > 
-> > 
-> > Cc: Phil Hannent <phil@hannent.co.uk>
-> > Cc: <mwilder@cs.nmsu.edu>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> > 
-> > ---
-> >  drivers/input/misc/Kconfig  |   11 
-> >  drivers/input/misc/Makefile |    1 
-> >  drivers/input/misc/mimio.c  |  913 ++++++++++++++++++++++++++++++++++++++++++++
-> >  3 files changed, 925 insertions(+)
-> > 
-> > --- a/drivers/input/misc/Kconfig
-> > +++ b/drivers/input/misc/Kconfig
-> > @@ -164,6 +164,17 @@ config INPUT_POWERMATE
-> >  	  To compile this driver as a module, choose M here: the
-> >  	  module will be called powermate.
-> >  
-> > +config INPUT_MIMIO
-> > +	tristate "Mimio Xi interactive whiteboard support"
-> > +	depends on USB_ARCH_HAS_HCD
-> > +	select USB
-> 
-> Prefer not to select entire subsystems, but to depend on them.
-> However, lots of drivers in drivers/input/ select USB...  :(
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig99566593677E74112CB86E6E
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-When in Rome... :)
+Greg KH wrote:
+> On Thu, Sep 25, 2008 at 06:20:55PM -0700, Randy Dunlap wrote:
+>> On Thu, 25 Sep 2008 16:22:37 -0700 Greg KH wrote:
+>>
+>>> From: Greg Kroah-Hartman <gregkh@suse.de>
+>>>
+>>> This patch adds the Mimio Xi interactive whiteboard driver to the tre=
+e.
+>>>
+>>> It was originally written by mwilder@cs.nmsu.edu, but cleaned up and
+>>> forward ported by me to the latest kernel version.
+I have been given the protocol document for the whiteboards, I am not all=
+owed to
+share it with anybody unfortunately.
 
-> > +static void mimio_irq_out(struct urb *urb)
-> > +{
-> > +	unsigned long flags;
-> > +	struct mimio *mimio;
-> > +
-> > +	mimio = urb->context;
-> > +
-> > +	if (urb->status)
-> > +		dev_dbg(&mimio->idev->dev, "urb-status: %d.\n", urb->status);
-> > +
-> > +	spin_lock_irqsave(&mimio->txlock, flags);
-> > +	mimio->txflags |= MIMIO_TXDONE;
-> > +	spin_unlock_irqrestore(&mimio->txlock, flags);
-> > +	wmb();
-> 
-> We want comments/explanation on all barriers or just "barrier();" ??
+I am just waiting for approval of funds for me to start development of th=
+is
+driver and an X11 library to make the ink capture work.
 
-Ick, good catch, that shouldn't be needed, I'll go delete it.
+I expect to start work at the end of October, I could do with a mentor to=
+ help
+me with this.
 
-> > +	/*
-> > +	 * Build input device info
-> > +	 */
-> > +	usb_make_path(udev, path, 64);
-> 
-> s/64/sizeof(path)/
+Just so you do not get the wrong idea, I plan on sticking around to maint=
+ain the
+driver once its complete even if its my spare time to do so.
 
-Thanks, will fix.
+Regards
+Phil Hannent
 
-Thanks for the review, I appreciate it.
 
-greg k-h
+
+--------------enig99566593677E74112CB86E6E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (MingW32)
+
+iEYEAREKAAYFAkjcvsMACgkQIdVDbqU9AOTdEgCdFFBOrSfRR3RIVlBKO7Gn/HgU
+akUAn3VBNy7YjHPMBm+VOVcyZffukuXD
+=WqZM
+-----END PGP SIGNATURE-----
+
+--------------enig99566593677E74112CB86E6E--

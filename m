@@ -1,51 +1,82 @@
-From: Greg KH <gregkh@suse.de>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: [PATCH] Input: add mmio xi driver
-Date: Fri, 26 Sep 2008 10:46:07 -0700
-Message-ID: <20080926174607.GA700@suse.de>
-References: <20080925232237.GA22938@suse.de> <20080925182055.f12f5d0b.randy.dunlap@oracle.com> <20080926031918.GA10083@suse.de> <48DCBEC3.2020904@hannent.co.uk>
+Date: Wed, 1 Oct 2008 23:12:16 -0700
+Message-ID: <20081001231216.68c7328d.akpm@linux-foundation.org>
+References: <20080925232237.GA22938@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:34255 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752900AbYIZToq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Sep 2008 15:44:46 -0400
-Content-Disposition: inline
-In-Reply-To: <48DCBEC3.2020904@hannent.co.uk>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:47777 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753983AbYJBGMd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Oct 2008 02:12:33 -0400
+In-Reply-To: <20080925232237.GA22938@suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Phil Hannent <phil@hannent.co.uk>
-Cc: Randy Dunlap <randy.dunlap@oracle.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, mwilder@cs.nmsu.edu
+To: Greg KH <gregkh@suse.de>
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, phil@hannent.co.uk, mwilder@cs.nmsu.edu
 
-On Fri, Sep 26, 2008 at 11:51:47AM +0100, Phil Hannent wrote:
-> Greg KH wrote:
-> > On Thu, Sep 25, 2008 at 06:20:55PM -0700, Randy Dunlap wrote:
-> >> On Thu, 25 Sep 2008 16:22:37 -0700 Greg KH wrote:
-> >>
-> >>> From: Greg Kroah-Hartman <gregkh@suse.de>
-> >>>
-> >>> This patch adds the Mimio Xi interactive whiteboard driver to the tree.
-> >>>
-> >>> It was originally written by mwilder@cs.nmsu.edu, but cleaned up and
-> >>> forward ported by me to the latest kernel version.
-> I have been given the protocol document for the whiteboards, I am not allowed to
-> share it with anybody unfortunately.
+> On Thu, 25 Sep 2008 16:22:37 -0700 Greg KH <gregkh@suse.de> wrote:
+> 
+> From: Greg Kroah-Hartman <gregkh@suse.de>
 
-That's great news, and not that big of a deal about the "no share" issue
-as long as you are allowed to contribute.
+Is this true?
 
-> I am just waiting for approval of funds for me to start development of this
-> driver and an X11 library to make the ink capture work.
+> This patch adds the Mimio Xi interactive whiteboard driver to the tree.
+> 
+> It was originally written by mwilder@cs.nmsu.edu, but cleaned up and
+> forward ported by me to the latest kernel version.
 
-Um, what's wrong with the driver that I just posted?  Does it not work
-properly?  I'll gladly accept patches for things that are wrong, but
-don't start over from scratch please.
+Oh.  Tricky.
+ 
+>
+> ...
+>
+> +#define isvalidtxsize(n)	((n) > 0 && (n) <= MIMIO_MAXPAYLOAD)
 
-> I expect to start work at the end of October, I could do with a mentor to help
-> me with this.
+grumble.
 
-If you need help on the kernel side, feel free to contact me off-list.
+- should be written in C
 
-thanks,
+- buggy when passed expresion-with-side-effects.
 
-greg k-h
+>
+> ...
+>
+> +static DECLARE_MUTEX(disconnect_sem);
+
+ooh, a semaphore - I remember them.
+
+checkpatch used to warn about newly-added semaphores but a) it broke and
+b) this patch doesn't seem to have met checkpatch.
+
+>
+> ...
+>
+> +static int mimio_greet(struct mimio *mimio)
+> +{
+> +	const struct grtpkt {
+> +		int nbytes;
+> +		unsigned delay;
+> +		char data[8];
+> +	} grtpkts[] = {
+> +		{ 3, 0, { 0x11, 0x55, 0x44, 0x00, 0x00, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x53, 0x55, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x43, 0x55, 0x00, 0x00, 0x16, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x33, 0x55, 0x00, 0x00, 0x66, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x13, 0x00, 0x5e, 0x02, 0x4f, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x13, 0x00, 0x04, 0x03, 0x14, 0x00, 0x00, 0x00 } },
+> +		{ 5, 2, { 0x13, 0x00, 0x00, 0x04, 0x17, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x13, 0x00, 0x0d, 0x08, 0x16, 0x00, 0x00, 0x00 } },
+> +		{ 5, 0, { 0x13, 0x00, 0x4d, 0x01, 0x5f, 0x00, 0x00, 0x00 } },
+> +		{ 3, 0, { 0xf1, 0x55, 0xa4, 0x00, 0x00, 0x00, 0x00, 0x00 } },
+> +		{ 7, 2, { 0x52, 0x55, 0x00, 0x07, 0x31, 0x55, 0x64, 0x00 } },
+> +		{ 0, 0, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } },
+> +	};
+
+I believe that gcc does the right thing here, but an explict `static' would set
+minds at ease.
+
+

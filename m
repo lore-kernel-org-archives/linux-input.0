@@ -1,31 +1,42 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Sleeping inside spinlock in force feedback input event code
-Date: Sat, 4 Oct 2008 14:46:35 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810041446030.26779@jikos.suse.cz>
-References: <4868e2410806150157o5b290bf7kaccdeb2faf5057d6@mail.gmail.com> <485540A6.1050306@gmail.com> <4868e2410806151023j67ceea16pe1c5ad8ab9a8e122@mail.gmail.com> <4855507E.4030201@gmail.com> <4868e2410806151036o1a1652d8y8bf8432e3c6c0d06@mail.gmail.com>
- <4868e2410806151036r6d96a840v41b8ee745041db35@mail.gmail.com> <4868e2410806151105v3fec88a1qa439e2cc1423bc6a@mail.gmail.com> <48556723.2090204@gmail.com> <20080616143112.ZZRA012@mailhub.coreip.homeip.net> <485807F4.3010903@gmail.com>
- <20080617153423.ZZRA012@mailhub.coreip.homeip.net> <48581857.2080906@gmail.com> <4866E804.3000603@gmail.com> <4883474D.6080602@gmail.com> <alpine.LNX.1.10.0807251122210.16387@jikos.suse.cz> <48D55D8B.4070904@gmail.com> <alpine.LNX.1.10.0810031123000.26779@jikos.suse.cz>
- <48E7546F.3010307@gmail.com> <alpine.LNX.1.10.0810041358370.26779@jikos.suse.cz> <48E7645C.7080100@gmail.com>
+Subject: [PATCH] Input: document i8042.debug in kernel-parameters.txt
+Date: Sat, 4 Oct 2008 23:28:19 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0810042326540.26779@jikos.suse.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:43297 "EHLO mail.suse.cz"
+Received: from styx.suse.cz ([82.119.242.94]:53459 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751893AbYJDMqg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Oct 2008 08:46:36 -0400
-In-Reply-To: <48E7645C.7080100@gmail.com>
+	id S1753539AbYJDV2U (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 4 Oct 2008 17:28:20 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, James Carthew <jcarthew@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, 4 Oct 2008, Anssi Hannula wrote:
+From: Jiri Kosina <jkosina@suse.cz>
 
-> From: Anssi Hannula <anssi.hannula@gmail.com>
-> Subject: HID: fix a lockup regression when using force feedback on a PID device
+Input: document i8042.debug in kernel-parameters.txt
 
-Applied, thanks.
+i8042.debug parameter was missing in Documentation/kernel-parameters.txt. 
+Add it.
 
--- 
-Jiri Kosina
-SUSE Labs
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+
+--- 
+
+ Documentation/kernel-parameters.txt |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 1150444..c44bf65 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -796,6 +796,7 @@ and is between 256 and 4096 characters. It is defined in the file
+ 			Defaults to the default architecture's huge page size
+ 			if not specified.
+ 
++	i8042.debug	[HW] Toggle i8042 debug mode
+ 	i8042.direct	[HW] Put keyboard port into non-translated mode
+ 	i8042.dumbkbd	[HW] Pretend that controller can only read data from
+ 			     keyboard and cannot control its state

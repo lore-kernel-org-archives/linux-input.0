@@ -1,42 +1,52 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH] Input: document i8042.debug in kernel-parameters.txt
-Date: Sat, 4 Oct 2008 23:28:19 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810042326540.26779@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: [PATCH] hid: add appletv IR receiver quirk
+Date: Mon,  6 Oct 2008 10:06:28 +0200
+Message-ID: <1223280388-1297-1-git-send-email-jacmet@sunsite.dk>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:53459 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1753539AbYJDV2U (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 4 Oct 2008 17:28:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:10801 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751249AbYJFIGd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Oct 2008 04:06:33 -0400
+Received: by nf-out-0910.google.com with SMTP id d3so970086nfc.21
+        for <linux-input@vger.kernel.org>; Mon, 06 Oct 2008 01:06:31 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org
+Cc: Peter Korsgaard <jacmet@sunsite.dk>
 
-From: Jiri Kosina <jkosina@suse.cz>
+Similar to the existing IRCONTROL4 handling
 
-Input: document i8042.debug in kernel-parameters.txt
+Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+---
+ drivers/hid/hid-apple.c |    2 ++
+ drivers/hid/hid-ids.h   |    1 +
+ 2 files changed, 3 insertions(+), 0 deletions(-)
 
-i8042.debug parameter was missing in Documentation/kernel-parameters.txt. 
-Add it.
-
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
---- 
-
- Documentation/kernel-parameters.txt |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index 1150444..c44bf65 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -796,6 +796,7 @@ and is between 256 and 4096 characters. It is defined in the file
- 			Defaults to the default architecture's huge page size
- 			if not specified.
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index a808e57..fd7f896 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -359,6 +359,8 @@ static void apple_remove(struct hid_device *hdev)
+ }
  
-+	i8042.debug	[HW] Toggle i8042 debug mode
- 	i8042.direct	[HW] Put keyboard port into non-translated mode
- 	i8042.dumbkbd	[HW] Pretend that controller can only read data from
- 			     keyboard and cannot control its state
+ static const struct hid_device_id apple_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ATV_IRCONTROL),
++		.driver_data = APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_IRCONTROL4),
+ 		.driver_data = APPLE_HIDDEV | APPLE_IGNORE_HIDINPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MIGHTYMOUSE),
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index fa4e4fd..9fc2636 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -84,6 +84,7 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS	0x0232
+ #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
+ #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
++#define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
+ #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
+ 
+ #define USB_VENDOR_ID_ASUS		0x0b05
+-- 
+1.5.6.5
+

@@ -1,53 +1,58 @@
-From: "Shem Multinymous" <multinymous@gmail.com>
-Subject: ThinkPad input device IDs
-Date: Wed, 8 Oct 2008 00:44:02 -0400
-Message-ID: <41840b750810072144g6e6becfby1c960eb24249869c@mail.gmail.com>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH 0/2] appletouch updates for geyser 3/4
+Date: Wed, 08 Oct 2008 10:18:16 +0200
+Message-ID: <1223453896.3618.32.camel@johannes.berg>
+References: <20080729111108.070166000@sipsolutions.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-flkEU6WCfx29Mz57m01C"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.178]:30510 "EHLO
-	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750825AbYJHEoE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2008 00:44:04 -0400
-Received: by wa-out-1112.google.com with SMTP id v27so1999530wah.21
-        for <linux-input@vger.kernel.org>; Tue, 07 Oct 2008 21:44:03 -0700 (PDT)
-Content-Disposition: inline
+Received: from xc.sipsolutions.net ([83.246.72.84]:33449 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751021AbYJHISQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2008 04:18:16 -0400
+In-Reply-To: <20080729111108.070166000@sipsolutions.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Sven Anders <anders@anduras.de>
 
-Hi Dmitry and Henrique,
 
-We seem to have a bit of a mess in regard to input device
-identification on ThinkPad-specific devices.
+--=-flkEU6WCfx29Mz57m01C
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-thinkpad-acpi does essentially the following (Henrique's commit
-7f5d1cd62 from July 2007, after macro expansion):
+On Tue, 2008-07-29 at 13:18 +0200, Johannes Berg wrote:
+> Not much to say here, works fine on older models and Sven says
+> it works on new models.
 
-        tpacpi_inputdev->name = "ThinkPad Extra Buttons";
-        tpacpi_inputdev->phys = "thinkpad_acpi/input0";
-        tpacpi_inputdev->id.bustype = BUS_HOST;
-        tpacpi_inputdev->id.vendor = PCI_VENDOR_ID_IBM or PCI_VENDOR_ID_LENOVO;
-        tpacpi_inputdev->id.product = 0x5054 /* "TP" */;
-        tpacpi_inputdev->id.version = 0x4101;
+Dmitry,
 
-But mainline hdaps uses a different convention (Dmitry's commit
-d2fc60d692 from May 2008):
+Sven says this patch series is nowhere to be found in git, any reason?
+Did you miss it?
 
-        idev->name = "hdaps";
-        idev->phys = "isa1600/input0";
-        idev->id.bustype = BUS_ISA;
+johannes
 
-What's the rationale for the different bus and phys convention?
-Also, where does the "isa1600" come from, and why BUS_ISA? As far as I
-can tell, the input device polls the ThinkPad embedded controller via
-the LPC bus interface of the chipset, so no ISA-like bus is involved.
+--=-flkEU6WCfx29Mz57m01C
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-More concretely:
-The out-of-tree tp_smapi version of hdaps followed the thinkpad-acpi
-convention so it now conflicts with mainline hdaps. Which should I
-follow?
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
 
-  Shem
+iQIcBAABAgAGBQJI7GzEAAoJEKVg1VMiehFYlFUP/R84pdfwdDLWq77lABhRG2MI
+fuu+Ae2FxF/k6vCbL5o9jnclK/WPvLFl0ERhfCVkPIAGHOhUBPNHcu9Ag3k246XV
+KG+uFO19s+KtOjtYjQhnPfXwq+V0Tojys3QHQGTP1PP1VuESqlQJe75fzI3lKt+X
+IDo2nGWVREN5sl1UfyJfNJwQrkH8k6iFhHZCxs/HytLlnkvALcFpto12lrwfGH+I
+ZA7U3Hesn9B33p7AeRK5cYsW4s3NgOa7UMA8JiiZNLX8r+Lo6w2fCmsyd5zOtxHf
++OnjCNCVQJfnnERbdILc64H42ikGULZo/9HzK3OMX+lPrtoh0LMxJt5PWd6O59ss
+dL2SbLvS2r/1r0q1C15j2E2SIf3OE0iRf0rIZfgn0efqCeX47lrRc6eoHpnNRJFb
+saqSpPLQygi/SxlQVIlhrvU7JfgnHxrdqhO6pX+J1/cJ74Lfed0IZ11uROO7dMFE
+z7droOrDdrYJZ7jroXsa4h2bR6opt87jDVLQW7WOLRIEKNbI/JS4TD3MOuSfgScE
+o1OUQz6GCmTQ3GRGsS4Y2Kj0SlC7dQwFRAjpe+4Br2tnh4PPaPKg0jU+VttvJzms
+tnGzht1WQZjZqYC5j+xwvJ5zWU03wK9t0yNypMHuUj+bPbdE2PVoa5Q+mg0e70nE
+eCPrnMgdsqfkXsd+7Qgb
+=ss7z
+-----END PGP SIGNATURE-----
+
+--=-flkEU6WCfx29Mz57m01C--
+

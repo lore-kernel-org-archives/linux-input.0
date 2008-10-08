@@ -1,41 +1,75 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] appletouch updates for geyser 3/4
-Date: Wed, 8 Oct 2008 08:48:51 -0400
-Message-ID: <20081008084707.ZZRA012@mailhub.coreip.homeip.net>
-References: <20080729111108.070166000@sipsolutions.net> <1223453896.3618.32.camel@johannes.berg>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: ThinkPad input device IDs
+Date: Wed, 8 Oct 2008 10:44:02 -0300
+Message-ID: <20081008134402.GA15645@khazad-dum.debian.net>
+References: <41840b750810072144g6e6becfby1c960eb24249869c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hs-out-0708.google.com ([64.233.178.251]:11766 "EHLO
-	hs-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750781AbYJHMs5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2008 08:48:57 -0400
-Received: by hs-out-0708.google.com with SMTP id 4so1330836hsl.5
-        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2008 05:48:54 -0700 (PDT)
+Received: from out3.smtp.messagingengine.com ([66.111.4.27]:40927 "EHLO
+	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751284AbYJHNoJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Oct 2008 09:44:09 -0400
 Content-Disposition: inline
-In-Reply-To: <1223453896.3618.32.camel@johannes.berg>
+In-Reply-To: <41840b750810072144g6e6becfby1c960eb24249869c@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: linux-input@vger.kernel.org, Sven Anders <anders@anduras.de>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Oct 08, 2008 at 10:18:16AM +0200, Johannes Berg wrote:
-> On Tue, 2008-07-29 at 13:18 +0200, Johannes Berg wrote:
-> > Not much to say here, works fine on older models and Sven says
-> > it works on new models.
+On Wed, 08 Oct 2008, Shem Multinymous wrote:
+> We seem to have a bit of a mess in regard to input device
+> identification on ThinkPad-specific devices.
+
+Heh :-)
+
+> thinkpad-acpi does essentially the following (Henrique's commit
+> 7f5d1cd62 from July 2007, after macro expansion):
 > 
-> Dmitry,
+>         tpacpi_inputdev->name = "ThinkPad Extra Buttons";
+>         tpacpi_inputdev->phys = "thinkpad_acpi/input0";
+>         tpacpi_inputdev->id.bustype = BUS_HOST;
+>         tpacpi_inputdev->id.vendor = PCI_VENDOR_ID_IBM or PCI_VENDOR_ID_LENOVO;
+>         tpacpi_inputdev->id.product = 0x5054 /* "TP" */;
+>         tpacpi_inputdev->id.version = 0x4101;
 > 
-> Sven says this patch series is nowhere to be found in git, any reason?
-> Did you miss it?
+> But mainline hdaps uses a different convention (Dmitry's commit
+> d2fc60d692 from May 2008):
 > 
+>         idev->name = "hdaps";
+>         idev->phys = "isa1600/input0";
+>         idev->id.bustype = BUS_ISA;
 
-Johannes,
+I am not too surprised, mainline HDAPS is a ugly hack with no thought on
+design.
 
-I believe it is in my 'next' branch of the input tree, commits:
+HDAPS:
 
-d83d213d9fda671dfd84ea81182742f9e329a6b4
-82a196f481661170b4982dc7e68a12e9253309d0
+I guess it used "isa1600" because it talks to the EC over LPC3B port IO, and
+the ports are in the 1600-161F range, over the LPC bus.  LPC is considered
+to be ISA (mostly because it exists to emulate a restricted set of ISA, just
+enough to get IRQs, port I/O and mem I/O). That also explains BUS_ISA.
+
+Now, for thinkpad-acpi:
+
+thinkpad-acpi talks to the ACPI interpretor and the ACPI EC (through the
+standard Linux ACPI/ACPICA API), which are considered platform devices (thus
+BUS_HOST).  In that case, the phys designator is sort of arbitrary.  I used
+thinkpad_acpi/input#, and I will keep that constant as if it were an ABI,
+even if I break thinkpad_acpi into various modules later.
+
+> More concretely:
+> The out-of-tree tp_smapi version of hdaps followed the thinkpad-acpi
+> convention so it now conflicts with mainline hdaps. Which should I
+> follow?
+
+I think it is better to use the BUS_HOST convention for this, since HDAPS
+really is just one of the services on LPC3B even if LPC3B really *is*
+BUS_ISA, ports 1600-161F.  Dmitry would know better, though.  Dmitry?
 
 -- 
-Dmitry
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

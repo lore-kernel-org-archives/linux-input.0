@@ -1,75 +1,51 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+From: "Shem Multinymous" <multinymous@gmail.com>
 Subject: Re: ThinkPad input device IDs
-Date: Wed, 8 Oct 2008 10:44:02 -0300
-Message-ID: <20081008134402.GA15645@khazad-dum.debian.net>
+Date: Wed, 8 Oct 2008 14:12:37 -0400
+Message-ID: <41840b750810081112p1c2e4071xd34f095091faa060@mail.gmail.com>
 References: <41840b750810072144g6e6becfby1c960eb24249869c@mail.gmail.com>
+	 <20081008134402.GA15645@khazad-dum.debian.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:40927 "EHLO
-	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751284AbYJHNoJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 8 Oct 2008 09:44:09 -0400
+Received: from wf-out-1314.google.com ([209.85.200.171]:48455 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752594AbYJHSMi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Oct 2008 14:12:38 -0400
+Received: by wf-out-1314.google.com with SMTP id 27so4156527wfd.4
+        for <linux-input@vger.kernel.org>; Wed, 08 Oct 2008 11:12:37 -0700 (PDT)
+In-Reply-To: <20081008134402.GA15645@khazad-dum.debian.net>
 Content-Disposition: inline
-In-Reply-To: <41840b750810072144g6e6becfby1c960eb24249869c@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Shem Multinymous <multinymous@gmail.com>
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, 08 Oct 2008, Shem Multinymous wrote:
-> We seem to have a bit of a mess in regard to input device
-> identification on ThinkPad-specific devices.
+On Wed, Oct 8, 2008 at 9:44 AM, Henrique de Moraes Holschuh
+<hmh@hmh.eng.br> wrote:
+> I guess it used "isa1600" because it talks to the EC over LPC3B port IO, and
+> the ports are in the 1600-161F range, over the LPC bus.
 
-Heh :-)
+I see... But this is an ad-hoc port assignment by IBM and other
+machines may map different devices to port 1600h. Is it presently
+possible to write a udev rule that will match the (mainline) hdaps
+input device but not random junk at port 1600 on other machines?
 
-> thinkpad-acpi does essentially the following (Henrique's commit
-> 7f5d1cd62 from July 2007, after macro expansion):
-> 
->         tpacpi_inputdev->name = "ThinkPad Extra Buttons";
->         tpacpi_inputdev->phys = "thinkpad_acpi/input0";
->         tpacpi_inputdev->id.bustype = BUS_HOST;
->         tpacpi_inputdev->id.vendor = PCI_VENDOR_ID_IBM or PCI_VENDOR_ID_LENOVO;
->         tpacpi_inputdev->id.product = 0x5054 /* "TP" */;
->         tpacpi_inputdev->id.version = 0x4101;
-> 
-> But mainline hdaps uses a different convention (Dmitry's commit
-> d2fc60d692 from May 2008):
-> 
->         idev->name = "hdaps";
->         idev->phys = "isa1600/input0";
->         idev->id.bustype = BUS_ISA;
 
-I am not too surprised, mainline HDAPS is a ugly hack with no thought on
-design.
+>> The out-of-tree tp_smapi version of hdaps followed the thinkpad-acpi
+>> convention so it now conflicts with mainline hdaps. Which should I
+>> follow?
+>
+> I think it is better to use the BUS_HOST convention for this, since HDAPS
+> really is just one of the services on LPC3B even if LPC3B really *is*
+> BUS_ISA, ports 1600-161F.  Dmitry would know better, though.  Dmitry?
 
-HDAPS:
+For what it's worth, I should note that tp_smapi's hdaps input IDs
+were introduced in July 2007 [1] and are by now in widespread use by
+udev rules since they're needed for the reduced-interrupts mode of
+hdaps+hdapsd [2].
 
-I guess it used "isa1600" because it talks to the EC over LPC3B port IO, and
-the ports are in the 1600-161F range, over the LPC bus.  LPC is considered
-to be ISA (mostly because it exists to emulate a restricted set of ISA, just
-enough to get IRQs, port I/O and mem I/O). That also explains BUS_ISA.
+  Shem
 
-Now, for thinkpad-acpi:
-
-thinkpad-acpi talks to the ACPI interpretor and the ACPI EC (through the
-standard Linux ACPI/ACPICA API), which are considered platform devices (thus
-BUS_HOST).  In that case, the phys designator is sort of arbitrary.  I used
-thinkpad_acpi/input#, and I will keep that constant as if it were an ABI,
-even if I break thinkpad_acpi into various modules later.
-
-> More concretely:
-> The out-of-tree tp_smapi version of hdaps followed the thinkpad-acpi
-> convention so it now conflicts with mainline hdaps. Which should I
-> follow?
-
-I think it is better to use the BUS_HOST convention for this, since HDAPS
-really is just one of the services on LPC3B even if LPC3B really *is*
-BUS_ISA, ports 1600-161F.  Dmitry would know better, though.  Dmitry?
-
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+[1] http://article.gmane.org/gmane.linux.drivers.hdaps.devel/1040
+[2] http://www.thinkwiki.org/wiki/HDAPS#Userspace_daemon)

@@ -1,29 +1,176 @@
-From: Randy Dunlap <rdunlap@xenotime.net>
-Subject: touchpad rate limiting
-Date: Thu, 9 Oct 2008 12:55:47 -0700
-Message-ID: <20081009125547.d7928542.rdunlap@xenotime.net>
+From: Greg KH <greg@kroah.com>
+Subject: [PATCH] USB: remove info() macro from usb input drivers
+Date: Thu, 9 Oct 2008 22:03:05 -0700
+Message-ID: <20081010050305.GA32476@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([66.160.160.81]:38350 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752309AbYJITzx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 9 Oct 2008 15:55:53 -0400
-Received: from chimera.site ([71.117.247.66]) by xenotime.net for <linux-input@vger.kernel.org>; Thu, 9 Oct 2008 12:55:48 -0700
+Received: from kroah.org ([198.145.64.141]:41649 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751543AbYJJFVv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Oct 2008 01:21:51 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hi,
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-I could swear that I saw a patch that limits how messy some touchpads
-can act by looking for deltas in X/Y positions and tempering the
-movement based on that.
+USB should not be having it's own printk macros, so remove info() and
+use the system-wide standard of dev_info() wherever possible.
 
-Does anyone recall this patch?  I can't find it.
-Pointers or Subject: ?
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-TIA,
 ---
-~Randy
+Dmitry, this has been in the USB tree for a few months now, sorry for
+not sending it to you sooner.  I can easily keep it in my tree and send
+it to Linus for this merge if you want me to, or you can take it in your
+tree, which ever you want me to do.
+
+thanks,
+
+greg k-h
+
+ drivers/input/joystick/xpad.c    |    2 +-
+ drivers/input/misc/ati_remote.c  |    6 ++++--
+ drivers/input/misc/yealink.c     |    3 ++-
+ drivers/input/tablet/acecad.c    |    3 ++-
+ drivers/input/tablet/aiptek.c    |   13 ++++++++-----
+ drivers/input/tablet/gtco.c      |    4 ++--
+ drivers/input/tablet/kbtab.c     |    3 ++-
+ drivers/input/tablet/wacom_sys.c |    3 ++-
+ 8 files changed, 23 insertions(+), 14 deletions(-)
+
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -911,7 +911,7 @@ static int __init usb_xpad_init(void)
+ {
+ 	int result = usb_register(&xpad_driver);
+ 	if (result == 0)
+-		info(DRIVER_DESC);
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_DESC "\n");
+ 	return result;
+ }
+ 
+--- a/drivers/input/misc/ati_remote.c
++++ b/drivers/input/misc/ati_remote.c
+@@ -834,9 +834,11 @@ static int __init ati_remote_init(void)
+ 
+ 	result = usb_register(&ati_remote_driver);
+ 	if (result)
+-		err("usb_register error #%d\n", result);
++		printk(KERN_ERR KBUILD_MODNAME
++		       ": usb_register error #%d\n", result);
+ 	else
+-		info("Registered USB driver " DRIVER_DESC " v. " DRIVER_VERSION);
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
++		       DRIVER_DESC "\n");
+ 
+ 	return result;
+ }
+--- a/drivers/input/misc/yealink.c
++++ b/drivers/input/misc/yealink.c
+@@ -999,7 +999,8 @@ static int __init yealink_dev_init(void)
+ {
+ 	int ret = usb_register(&yealink_driver);
+ 	if (ret == 0)
+-		info(DRIVER_DESC ":" DRIVER_VERSION);
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
++		       DRIVER_DESC "\n");
+ 	return ret;
+ }
+ 
+--- a/drivers/input/tablet/acecad.c
++++ b/drivers/input/tablet/acecad.c
+@@ -280,7 +280,8 @@ static int __init usb_acecad_init(void)
+ {
+ 	int result = usb_register(&usb_acecad_driver);
+ 	if (result == 0)
+-		info(DRIVER_VERSION ":" DRIVER_DESC);
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
++		       DRIVER_DESC "\n");
+ 	return result;
+ }
+ 
+--- a/drivers/input/tablet/aiptek.c
++++ b/drivers/input/tablet/aiptek.c
+@@ -1821,8 +1821,9 @@ aiptek_probe(struct usb_interface *intf,
+ 		aiptek->curSetting.programmableDelay = speeds[i];
+ 		(void)aiptek_program_tablet(aiptek);
+ 		if (aiptek->inputdev->absmax[ABS_X] > 0) {
+-			info("input: Aiptek using %d ms programming speed\n",
+-			     aiptek->curSetting.programmableDelay);
++			dev_info(&intf->dev,
++				 "Aiptek using %d ms programming speed\n",
++				 aiptek->curSetting.programmableDelay);
+ 			break;
+ 		}
+ 	}
+@@ -1830,7 +1831,8 @@ aiptek_probe(struct usb_interface *intf,
+ 	/* Murphy says that some day someone will have a tablet that fails the
+ 	   above test. That's you, Frederic Rodrigo */
+ 	if (i == ARRAY_SIZE(speeds)) {
+-		info("input: Aiptek tried all speeds, no sane response");
++		dev_info(&intf->dev,
++			 "Aiptek tried all speeds, no sane response\n");
+ 		goto fail2;
+ 	}
+ 
+@@ -1902,8 +1904,9 @@ static int __init aiptek_init(void)
+ {
+ 	int result = usb_register(&aiptek_driver);
+ 	if (result == 0) {
+-		info(DRIVER_VERSION ": " DRIVER_AUTHOR);
+-		info(DRIVER_DESC);
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
++		       DRIVER_DESC "\n");
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_AUTHOR "\n");
+ 	}
+ 	return result;
+ }
+--- a/drivers/input/tablet/gtco.c
++++ b/drivers/input/tablet/gtco.c
+@@ -2,7 +2,7 @@
+ 
+ GTCO digitizer USB driver
+ 
+-Use the err(), dbg() and info() macros from usb.h for system logging
++Use the err() and dbg() macros from usb.h for system logging
+ 
+ TO CHECK:  Is pressure done right on report 5?
+ 
+@@ -1010,7 +1010,7 @@ static void gtco_disconnect(struct usb_i
+ 		kfree(gtco);
+ 	}
+ 
+-	info("gtco driver disconnected");
++	dev_info(&interface->dev, "gtco driver disconnected\n");
+ }
+ 
+ /*   STANDARD MODULE LOAD ROUTINES  */
+--- a/drivers/input/tablet/kbtab.c
++++ b/drivers/input/tablet/kbtab.c
+@@ -215,7 +215,8 @@ static int __init kbtab_init(void)
+ 	retval = usb_register(&kbtab_driver);
+ 	if (retval)
+ 		goto out;
+-	info(DRIVER_VERSION ":" DRIVER_DESC);
++	printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
++	       DRIVER_DESC "\n");
+ out:
+ 	return retval;
+ }
+--- a/drivers/input/tablet/wacom_sys.c
++++ b/drivers/input/tablet/wacom_sys.c
+@@ -385,7 +385,8 @@ static int __init wacom_init(void)
+ 	wacom_driver.id_table = get_device_table();
+ 	result = usb_register(&wacom_driver);
+ 	if (result == 0)
+-		info(DRIVER_VERSION ":" DRIVER_DESC);
++		printk(KERN_INFO KBUILD_MODNAME ": " DRIVER_VERSION ":"
++		       DRIVER_DESC "\n");
+ 	return result;
+ }
+ 

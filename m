@@ -1,163 +1,53 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: [PATCH] Add KD_X console mode to avoid keyboard passthrough
-Date: Sun, 12 Oct 2008 18:47:10 +0100
-Message-ID: <20081012174710.GA5206@srcf.ucam.org>
+From: Colin Macdonald <cbm@math.ucla.edu>
+Subject: Re: [PATCH] input: Thinkpad R31 i8042 nomux quirk
+Date: Sun, 12 Oct 2008 11:39:54 -0700
+Message-ID: <48F2447A.40607@math.ucla.edu>
+References: <48F0EDF0.3020702@math.ucla.edu> <48F1AC77.3020503@email.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:53222 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754356AbYJLRrQ (ORCPT
+Received: from walnut.math.ucla.edu ([128.97.19.2]:58680 "EHLO
+	walnut.math.ucla.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753890AbYJLSkF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Oct 2008 13:47:16 -0400
-Content-Disposition: inline
+	Sun, 12 Oct 2008 14:40:05 -0400
+In-Reply-To: <48F1AC77.3020503@email.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com
+To: legolas558 <legolas558@email.it>
+Cc: linux-input@vger.kernel.org
 
-When using the evdev input driver, X currently claims the devices 
-exclusively in order to prevent characters leaking through to the 
-underlying VT. This has the downside that other consumers of input 
-events no longer receive the keys - rfkill and mouseemu no longer work 
-in the kernel, and hal is unable to pass through input events. Removing 
-the exclusive access results in events being passed through to the 
-underlying VT, which may result in leaking sensitive information.
+legolas558 wrote:
+> I also have a notebook, Maxdata Pro 7000X (Fujitsu clone), which has
+> such problem (needs i8042.nomux=1, perhaps kernel bug #8740).
+> 
+> Can we also use a patch for it?
 
-This patch adds an extra KD_X mode. It's semantically identical to 
-KD_GRAPHICS, except that keyboard events are no longer sent to the 
-console device. This allows X to avoid exclusive access without breaking 
-any applications which depend upon the existing KD_GRAPHICS semantics.
+Can you test the patch below and see if it fixes the problem?
 
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> Handle 0x0001, DMI type 1, 25 bytes
+> System Information
+>        Manufacturer: MAXDATA              Product Name: Pro 7000X    
+>        Version: xxxxxxxxxx
+>        Serial Number: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+>        UUID: xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxx
+>        Wake-up Type: Power Switch
 
----
 
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index 7b3a212..b0b8285 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -1298,6 +1298,10 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
- static void kbd_event(struct input_handle *handle, unsigned int event_type,
- 		      unsigned int event_code, int value)
- {
-+	struct vc_data *vc = vc_cons[fg_console].d;
-+
-+	if (vc->vc_mode == KD_X)
-+		return;
- 	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
- 		kbd_rawcode(value);
- 	if (event_type == EV_KEY)
-diff --git a/drivers/char/vt.c b/drivers/char/vt.c
-index 60359c3..1f56eab 100644
---- a/drivers/char/vt.c
-+++ b/drivers/char/vt.c
-@@ -601,7 +601,8 @@ static void hide_cursor(struct vc_data *vc)
- static void set_cursor(struct vc_data *vc)
- {
- 	if (!IS_FG(vc) || console_blanked ||
--	    vc->vc_mode == KD_GRAPHICS)
-+	    vc->vc_mode == KD_GRAPHICS ||
-+	    vc->vc_mode == KD_X)
- 		return;
- 	if (vc->vc_deccm) {
- 		if (vc == sel_cons)
-@@ -696,7 +697,8 @@ void redraw_screen(struct vc_data *vc, int is_switch)
- 			update_attr(vc);
- 			clear_buffer_attributes(vc);
- 		}
--		if (update && vc->vc_mode != KD_GRAPHICS)
-+		if (update && vc->vc_mode != KD_GRAPHICS &&
-+			vc->vc_mode != KD_X)
- 			do_update_region(vc, vc->vc_origin, vc->vc_screenbuf_size / 2);
- 	}
- 	set_cursor(vc);
-@@ -790,7 +792,8 @@ static inline int resize_screen(struct vc_data *vc, int width, int height,
- 	/* Resizes the resolution of the display adapater */
- 	int err = 0;
- 
--	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
-+	if (vc->vc_mode != KD_GRAPHICS && vc->vc_mode != KD_X &&
-+	    vc->vc_sw->con_resize)
- 		err = vc->vc_sw->con_resize(vc, width, height, user);
- 
- 	return err;
-@@ -2426,7 +2429,8 @@ int set_console(int nr)
- 	struct vc_data *vc = vc_cons[fg_console].d;
- 
- 	if (!vc_cons_allocated(nr) || vt_dont_switch ||
--		(vc->vt_mode.mode == VT_AUTO && vc->vc_mode == KD_GRAPHICS)) {
-+	    (vc->vt_mode.mode == VT_AUTO && (vc->vc_mode == KD_GRAPHICS ||
-+					     vc->vc_mode == KD_X))) {
- 
- 		/*
- 		 * Console switch will fail in console_callback() or
-@@ -3098,7 +3102,8 @@ static int con_is_graphics(const struct consw *csw, int first, int last)
- 	for (i = first; i <= last; i++) {
- 		struct vc_data *vc = vc_cons[i].d;
- 
--		if (vc && vc->vc_mode == KD_GRAPHICS) {
-+		if (vc && (vc->vc_mode == KD_GRAPHICS ||
-+			   vc->vc_mode == KD_X)) {
- 			retval = 1;
- 			break;
- 		}
-@@ -3759,7 +3764,9 @@ void poke_blanked_console(void)
- 	del_timer(&console_timer);
- 	blank_timer_expired = 0;
- 
--	if (ignore_poke || !vc_cons[fg_console].d || vc_cons[fg_console].d->vc_mode == KD_GRAPHICS)
-+	if (ignore_poke || !vc_cons[fg_console].d ||
-+	    vc_cons[fg_console].d->vc_mode == KD_GRAPHICS ||
-+	    vc_cons[fg_console].d->vc_mode == KD_X)
- 		return;
- 	if (console_blanked)
- 		unblank_screen();
-@@ -3777,7 +3784,7 @@ static void set_palette(struct vc_data *vc)
- {
- 	WARN_CONSOLE_UNLOCKED();
- 
--	if (vc->vc_mode != KD_GRAPHICS)
-+	if (vc->vc_mode != KD_GRAPHICS && vc->vc_mode != KD_X)
- 		vc->vc_sw->con_set_palette(vc, color_table);
- }
- 
-diff --git a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
-index c904e9a..899d898 100644
---- a/drivers/char/vt_ioctl.c
-+++ b/drivers/char/vt_ioctl.c
-@@ -488,6 +488,8 @@ int vt_ioctl(struct tty_struct *tty, struct file * file,
- 		if (!perm)
- 			goto eperm;
- 		switch (arg) {
-+		case KD_X:
-+			break;
- 		case KD_GRAPHICS:
- 			break;
- 		case KD_TEXT0:
-@@ -1383,7 +1385,7 @@ void change_console(struct vc_data *new_vc)
- 	/*
- 	 * Ignore all switches in KD_GRAPHICS+VT_AUTO mode
- 	 */
--	if (vc->vc_mode == KD_GRAPHICS)
-+	if (vc->vc_mode == KD_GRAPHICS || vc->vc_mode == KD_X)
- 		return;
- 
- 	complete_change_console(new_vc);
-diff --git a/include/linux/kd.h b/include/linux/kd.h
-index 15f2853..36975a3 100644
---- a/include/linux/kd.h
-+++ b/include/linux/kd.h
-@@ -45,6 +45,9 @@ struct consolefontdesc {
- #define		KD_GRAPHICS	0x01
- #define		KD_TEXT0	0x02	/* obsolete */
- #define		KD_TEXT1	0x03	/* obsolete */
-+#define		KD_X            0x04	/* Like KD_GRAPHICS, but doesn't allow
-+					   input events to pass through to
-+					   /dev/console */
- #define KDGETMODE	0x4B3B	/* get current mode */
- 
- #define KDMAPDISP	0x4B3C	/* map display into address space */
+--- linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h.orig	2008-10-12 11:31:43.000000000 -0700
++++ linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h	2008-10-12 11:33:11.000000000 -0700
+@@ -329,6 +329,13 @@ static struct dmi_system_id __initdata i
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
+ 		},
+ 	},
++	{
++		.ident = "Maxdata Pro 7000X (Fujitsu clone)",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MAXDATA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Pro 7000X"),
++		},
++	},
+ 	{ }
+ };
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org

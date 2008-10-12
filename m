@@ -1,485 +1,163 @@
-From: Stelian Pop <stelian@popies.net>
-Subject: [PATCH v3] Input: appletouch - driver refactoring
-Date: Sun, 12 Oct 2008 18:03:41 +0200
-Message-ID: <1223827421.11389.5.camel@galileo>
-References: <1223542147.6130.14.camel@galileo>
-	 <20081011032120.GB22499@anvil.corenet.prv>
-	 <1223822468.9733.1.camel@galileo>  <1223822674.9733.5.camel@galileo>
-	 <1223823289.10176.9.camel@johannes.berg> <1223827257.11389.1.camel@galileo>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: [PATCH] Add KD_X console mode to avoid keyboard passthrough
+Date: Sun, 12 Oct 2008 18:47:10 +0100
+Message-ID: <20081012174710.GA5206@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from sd-11162.dedibox.fr ([88.191.70.230]:53267 "EHLO
-	sd-11162.dedibox.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752122AbYJLQDq (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:53222 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754356AbYJLRrQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Oct 2008 12:03:46 -0400
-In-Reply-To: <1223827257.11389.1.camel@galileo>
+	Sun, 12 Oct 2008 13:47:16 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com
 
-The appletouch driver has grown up from supporting only a couple of
-touchpads into supporting many touchpads, which can have different
-number of sensors, different aspect ratios etc.
+When using the evdev input driver, X currently claims the devices 
+exclusively in order to prevent characters leaking through to the 
+underlying VT. This has the downside that other consumers of input 
+events no longer receive the keys - rfkill and mouseemu no longer work 
+in the kernel, and hal is unable to pass through input events. Removing 
+the exclusive access results in events being passed through to the 
+underlying VT, which may result in leaking sensitive information.
 
-This patch cleans up the current driver code and makes it easy to
-support the features of each different touchpad.
+This patch adds an extra KD_X mode. It's semantically identical to 
+KD_GRAPHICS, except that keyboard events are no longer sent to the 
+console device. This allows X to avoid exclusive access without breaking 
+any applications which depend upon the existing KD_GRAPHICS semantics.
 
-As a side effect, this patch also modifies the 'Y' multiplication factor
-of the 'geyser3' and 'geyser4' touchpads (found on Core Duo and Core2
-Duo MacBook and MacBook Pro laptops) in order to make the touchpad
-output match the aspect ratio of the touchpad (Y factor changed from 43
-to 64).
+Signed-off-by: Matthew Garrett <mjg@redhat.com>
 
-Signed-off-by: Stelian Pop <stelian@popies.net>
 ---
 
-This patch applies on top of the 'next' branch of the linux-input
-git tree.
-
-This is the third iteration of the patch, which removes the atp_touchpad_type
-enumeration completely.
-
- drivers/input/mouse/appletouch.c |  245 +++++++++++++++++++-------------------
- 1 files changed, 120 insertions(+), 125 deletions(-)
-
-diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/appletouch.c
-index 079816e..ea36f14 100644
---- a/drivers/input/mouse/appletouch.c
-+++ b/drivers/input/mouse/appletouch.c
-@@ -3,7 +3,7 @@
-  *
-  * Copyright (C) 2001-2004 Greg Kroah-Hartman (greg@kroah.com)
-  * Copyright (C) 2005-2008 Johannes Berg (johannes@sipsolutions.net)
-- * Copyright (C) 2005      Stelian Pop (stelian@popies.net)
-+ * Copyright (C) 2005-2008 Stelian Pop (stelian@popies.net)
-  * Copyright (C) 2005      Frank Arnold (frank@scirocco-5v-turbo.de)
-  * Copyright (C) 2005      Peter Osterlund (petero2@telia.com)
-  * Copyright (C) 2005      Michael Hanselmann (linux-kernel@hansmi.ch)
-@@ -35,16 +35,70 @@
- #include <linux/module.h>
- #include <linux/usb/input.h>
- 
--/* Type of touchpad */
--enum atp_touchpad_type {
--	ATP_FOUNTAIN,
--	ATP_GEYSER1,
--	ATP_GEYSER2,
--	ATP_GEYSER3,
--	ATP_GEYSER4
-+/*
-+ * Note: We try to keep the touchpad aspect ratio while still doing only
-+ * simple arithmetics:
-+ *	0 <= x <= (xsensors - 1) * xfact
-+ *	0 <= y <= (ysensors - 1) * yfact
-+ */
-+struct atp_info {
-+	int xsensors;				/* number of X sensors */
-+	int ysensors;				/* number of Y sensors */
-+	int xfact;				/* X multiplication factor */
-+	int yfact;				/* Y multiplication factor */
-+	int datalen;				/* size of USB transfers */
-+	void (*callback)(struct urb *);		/* callback function */
-+};
+diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+index 7b3a212..b0b8285 100644
+--- a/drivers/char/keyboard.c
++++ b/drivers/char/keyboard.c
+@@ -1298,6 +1298,10 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
+ static void kbd_event(struct input_handle *handle, unsigned int event_type,
+ 		      unsigned int event_code, int value)
+ {
++	struct vc_data *vc = vc_cons[fg_console].d;
 +
-+static void atp_complete_geyser_1_2(struct urb *urb);
-+static void atp_complete_geyser_3_4(struct urb *urb);
-+
-+static struct atp_info fountain_info = {
-+	.xsensors	= 16,		/* will be set to 26 on 17" */
-+	.ysensors	= 16,
-+	.xfact		= 64,
-+	.yfact		= 43,
-+	.datalen	= 81,
-+	.callback	= atp_complete_geyser_1_2,
-+};
-+
-+static struct atp_info geyser1_info = {
-+	.xsensors	= 16,		/* will be set to 26 on 17" */
-+	.ysensors	= 16,
-+	.xfact		= 64,
-+	.yfact		= 43,
-+	.datalen	= 81,
-+	.callback	= atp_complete_geyser_1_2,
- };
- 
--#define ATP_DEVICE(prod, type)					\
-+static struct atp_info geyser2_info = {
-+	.xsensors	= 15,		/* will be set to 20 on 17" */
-+	.ysensors	= 9,
-+	.xfact		= 64,
-+	.yfact		= 43,
-+	.datalen	= 64,
-+	.callback	= atp_complete_geyser_1_2,
-+};
-+
-+static struct atp_info geyser3_info = {
-+	.xsensors	= 20,
-+	.ysensors	= 10,
-+	.xfact		= 64,
-+	.yfact		= 64,
-+	.datalen	= 64,
-+	.callback	= atp_complete_geyser_3_4,
-+};
-+
-+static struct atp_info geyser4_info = {
-+	.xsensors	= 20,
-+	.ysensors	= 10,
-+	.xfact		= 64,
-+	.yfact		= 64,
-+	.datalen	= 64,
-+	.callback	= atp_complete_geyser_3_4,
-+};
-+
-+#define ATP_DEVICE(prod, info)					\
- {								\
- 	.match_flags = USB_DEVICE_ID_MATCH_DEVICE |		\
- 		       USB_DEVICE_ID_MATCH_INT_CLASS |		\
-@@ -53,7 +107,7 @@ enum atp_touchpad_type {
- 	.idProduct = (prod),					\
- 	.bInterfaceClass = 0x03,				\
- 	.bInterfaceProtocol = 0x02,				\
--	.driver_info = ATP_ ## type,				\
-+	.driver_info = (unsigned long) &info,			\
- }
- 
- /*
-@@ -62,43 +116,39 @@ enum atp_touchpad_type {
-  *  According to Info.plist Geyser IV is the same as Geyser III.)
-  */
- 
--static struct usb_device_id atp_table [] = {
-+static struct usb_device_id atp_table[] = {
- 	/* PowerBooks Feb 2005, iBooks G4 */
--	ATP_DEVICE(0x020e, FOUNTAIN),	/* FOUNTAIN ANSI */
--	ATP_DEVICE(0x020f, FOUNTAIN),	/* FOUNTAIN ISO */
--	ATP_DEVICE(0x030a, FOUNTAIN),	/* FOUNTAIN TP ONLY */
--	ATP_DEVICE(0x030b, GEYSER1),	/* GEYSER 1 TP ONLY */
-+	ATP_DEVICE(0x020e, fountain_info),	/* FOUNTAIN ANSI */
-+	ATP_DEVICE(0x020f, fountain_info),	/* FOUNTAIN ISO */
-+	ATP_DEVICE(0x030a, fountain_info),	/* FOUNTAIN TP ONLY */
-+	ATP_DEVICE(0x030b, geyser1_info),	/* GEYSER 1 TP ONLY */
- 
- 	/* PowerBooks Oct 2005 */
--	ATP_DEVICE(0x0214, GEYSER2),	/* GEYSER 2 ANSI */
--	ATP_DEVICE(0x0215, GEYSER2),	/* GEYSER 2 ISO */
--	ATP_DEVICE(0x0216, GEYSER2),	/* GEYSER 2 JIS */
-+	ATP_DEVICE(0x0214, geyser2_info),	/* GEYSER 2 ANSI */
-+	ATP_DEVICE(0x0215, geyser2_info),	/* GEYSER 2 ISO */
-+	ATP_DEVICE(0x0216, geyser2_info),	/* GEYSER 2 JIS */
- 
- 	/* Core Duo MacBook & MacBook Pro */
--	ATP_DEVICE(0x0217, GEYSER3),	/* GEYSER 3 ANSI */
--	ATP_DEVICE(0x0218, GEYSER3),	/* GEYSER 3 ISO */
--	ATP_DEVICE(0x0219, GEYSER3),	/* GEYSER 3 JIS */
-+	ATP_DEVICE(0x0217, geyser3_info),	/* GEYSER 3 ANSI */
-+	ATP_DEVICE(0x0218, geyser3_info),	/* GEYSER 3 ISO */
-+	ATP_DEVICE(0x0219, geyser3_info),	/* GEYSER 3 JIS */
- 
- 	/* Core2 Duo MacBook & MacBook Pro */
--	ATP_DEVICE(0x021a, GEYSER4),	/* GEYSER 4 ANSI */
--	ATP_DEVICE(0x021b, GEYSER4),	/* GEYSER 4 ISO */
--	ATP_DEVICE(0x021c, GEYSER4),	/* GEYSER 4 JIS */
-+	ATP_DEVICE(0x021a, geyser4_info),	/* GEYSER 4 ANSI */
-+	ATP_DEVICE(0x021b, geyser4_info),	/* GEYSER 4 ISO */
-+	ATP_DEVICE(0x021c, geyser4_info),	/* GEYSER 4 JIS */
- 
- 	/* Core2 Duo MacBook3,1 */
--	ATP_DEVICE(0x0229, GEYSER4),	/* GEYSER 4 HF ANSI */
--	ATP_DEVICE(0x022a, GEYSER4),	/* GEYSER 4 HF ISO */
--	ATP_DEVICE(0x022b, GEYSER4),	/* GEYSER 4 HF JIS */
-+	ATP_DEVICE(0x0229, geyser4_info),	/* GEYSER 4 HF ANSI */
-+	ATP_DEVICE(0x022a, geyser4_info),	/* GEYSER 4 HF ISO */
-+	ATP_DEVICE(0x022b, geyser4_info),	/* GEYSER 4 HF JIS */
- 
- 	/* Terminating entry */
- 	{ }
- };
- MODULE_DEVICE_TABLE(usb, atp_table);
- 
--/*
-- * number of sensors. Note that only 16 instead of 26 X (horizontal)
-- * sensors exist on 12" and 15" PowerBooks. All models have 16 Y
-- * (vertical) sensors.
-- */
-+/* maximum number of sensors */
- #define ATP_XSENSORS	26
- #define ATP_YSENSORS	16
- 
-@@ -107,21 +157,6 @@ MODULE_DEVICE_TABLE(usb, atp_table);
- 
- /* maximum pressure this driver will report */
- #define ATP_PRESSURE	300
--/*
-- * multiplication factor for the X and Y coordinates.
-- * We try to keep the touchpad aspect ratio while still doing only simple
-- * arithmetics.
-- * The factors below give coordinates like:
-- *
-- *      0 <= x <  960 on 12" and 15" Powerbooks
-- *      0 <= x < 1600 on 17" Powerbooks and 17" MacBook Pro
-- *      0 <= x < 1216 on MacBooks and 15" MacBook Pro
-- *
-- *      0 <= y <  646 on all Powerbooks
-- *      0 <= y <  774 on all MacBooks
-- */
--#define ATP_XFACT	64
--#define ATP_YFACT	43
- 
- /*
-  * Threshold for the touchpad sensors. Any change less than ATP_THRESHOLD is
-@@ -159,7 +194,7 @@ struct atp {
- 	struct urb		*urb;		/* usb request block */
- 	u8			*data;		/* transferred data */
- 	struct input_dev	*input;		/* input dev */
--	enum atp_touchpad_type	type;		/* type of touchpad */
-+	struct atp_info		*info;		/* touchpad model */
- 	bool			open;
- 	bool			valid;		/* are the samples valid? */
- 	bool			size_detect_done;
-@@ -169,7 +204,6 @@ struct atp {
- 	signed char		xy_cur[ATP_XSENSORS + ATP_YSENSORS];
- 	signed char		xy_old[ATP_XSENSORS + ATP_YSENSORS];
- 	int			xy_acc[ATP_XSENSORS + ATP_YSENSORS];
--	int			datalen;	/* size of USB transfer */
- 	int			idlecount;	/* number of empty packets */
- 	struct work_struct	work;
- };
-@@ -359,7 +393,7 @@ static int atp_status_check(struct urb *urb)
- 		if (!dev->overflow_warned) {
- 			printk(KERN_WARNING "appletouch: OVERFLOW with data "
- 				"length %d, actual length is %d\n",
--				dev->datalen, dev->urb->actual_length);
-+				dev->info->datalen, dev->urb->actual_length);
- 			dev->overflow_warned = true;
++	if (vc->vc_mode == KD_X)
++		return;
+ 	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
+ 		kbd_rawcode(value);
+ 	if (event_type == EV_KEY)
+diff --git a/drivers/char/vt.c b/drivers/char/vt.c
+index 60359c3..1f56eab 100644
+--- a/drivers/char/vt.c
++++ b/drivers/char/vt.c
+@@ -601,7 +601,8 @@ static void hide_cursor(struct vc_data *vc)
+ static void set_cursor(struct vc_data *vc)
+ {
+ 	if (!IS_FG(vc) || console_blanked ||
+-	    vc->vc_mode == KD_GRAPHICS)
++	    vc->vc_mode == KD_GRAPHICS ||
++	    vc->vc_mode == KD_X)
+ 		return;
+ 	if (vc->vc_deccm) {
+ 		if (vc == sel_cons)
+@@ -696,7 +697,8 @@ void redraw_screen(struct vc_data *vc, int is_switch)
+ 			update_attr(vc);
+ 			clear_buffer_attributes(vc);
  		}
- 	case -ECONNRESET:
-@@ -377,7 +411,7 @@ static int atp_status_check(struct urb *urb)
+-		if (update && vc->vc_mode != KD_GRAPHICS)
++		if (update && vc->vc_mode != KD_GRAPHICS &&
++			vc->vc_mode != KD_X)
+ 			do_update_region(vc, vc->vc_origin, vc->vc_screenbuf_size / 2);
  	}
+ 	set_cursor(vc);
+@@ -790,7 +792,8 @@ static inline int resize_screen(struct vc_data *vc, int width, int height,
+ 	/* Resizes the resolution of the display adapater */
+ 	int err = 0;
  
- 	/* drop incomplete datasets */
--	if (dev->urb->actual_length != dev->datalen) {
-+	if (dev->urb->actual_length != dev->info->datalen) {
- 		dprintk("appletouch: incomplete data package"
- 			" (first byte: %d, length: %d).\n",
- 			dev->data[0], dev->urb->actual_length);
-@@ -407,7 +441,7 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 		goto exit;
+-	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
++	if (vc->vc_mode != KD_GRAPHICS && vc->vc_mode != KD_X &&
++	    vc->vc_sw->con_resize)
+ 		err = vc->vc_sw->con_resize(vc, width, height, user);
  
- 	/* reorder the sensors values */
--	if (dev->type == ATP_GEYSER2) {
-+	if (dev->info == &geyser2_info) {
- 		memset(dev->xy_cur, 0, sizeof(dev->xy_cur));
+ 	return err;
+@@ -2426,7 +2429,8 @@ int set_console(int nr)
+ 	struct vc_data *vc = vc_cons[fg_console].d;
+ 
+ 	if (!vc_cons_allocated(nr) || vt_dont_switch ||
+-		(vc->vt_mode.mode == VT_AUTO && vc->vc_mode == KD_GRAPHICS)) {
++	    (vc->vt_mode.mode == VT_AUTO && (vc->vc_mode == KD_GRAPHICS ||
++					     vc->vc_mode == KD_X))) {
  
  		/*
-@@ -437,8 +471,8 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 				dev->xy_cur[i + 24] = dev->data[5 * i + 44];
+ 		 * Console switch will fail in console_callback() or
+@@ -3098,7 +3102,8 @@ static int con_is_graphics(const struct consw *csw, int first, int last)
+ 	for (i = first; i <= last; i++) {
+ 		struct vc_data *vc = vc_cons[i].d;
  
- 			/* Y values */
--			dev->xy_cur[i + 26] = dev->data[5 * i +  1];
--			dev->xy_cur[i + 34] = dev->data[5 * i +  3];
-+			dev->xy_cur[ATP_XSENSORS + i] = dev->data[5 * i +  1];
-+			dev->xy_cur[ATP_XSENSORS + i + 8] = dev->data[5 * i + 3];
+-		if (vc && vc->vc_mode == KD_GRAPHICS) {
++		if (vc && (vc->vc_mode == KD_GRAPHICS ||
++			   vc->vc_mode == KD_X)) {
+ 			retval = 1;
+ 			break;
  		}
- 	}
+@@ -3759,7 +3764,9 @@ void poke_blanked_console(void)
+ 	del_timer(&console_timer);
+ 	blank_timer_expired = 0;
  
-@@ -456,26 +490,22 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 		if (!dev->size_detect_done) {
- 
- 			/* 17" Powerbooks have extra X sensors */
--			for (i = (dev->type == ATP_GEYSER2 ? 15 : 16);
--			     i < ATP_XSENSORS; i++) {
-+			for (i = dev->info->xsensors; i < ATP_XSENSORS; i++) {
- 				if (!dev->xy_cur[i])
- 					continue;
- 
- 				printk(KERN_INFO
- 					"appletouch: 17\" model detected.\n");
- 
--				if (dev->type == ATP_GEYSER2)
--					input_set_abs_params(dev->input, ABS_X,
--							     0,
--							     (20 - 1) *
--							     ATP_XFACT - 1,
--							     ATP_FUZZ, 0);
-+				if (dev->info == &geyser2_info)
-+					dev->info->xsensors = 20;
- 				else
--					input_set_abs_params(dev->input, ABS_X,
--							     0,
--							     (26 - 1) *
--							     ATP_XFACT - 1,
--							     ATP_FUZZ, 0);
-+					dev->info->xsensors = 26;
-+
-+				input_set_abs_params(dev->input, ABS_X, 0,
-+						     (dev->info->xsensors - 1) *
-+						     dev->info->xfact - 1,
-+						     ATP_FUZZ, 0);
- 				break;
- 			}
- 
-@@ -499,10 +529,10 @@ static void atp_complete_geyser_1_2(struct urb *urb)
- 	dbg_dump("accumulator", dev->xy_acc);
- 
- 	x = atp_calculate_abs(dev->xy_acc, ATP_XSENSORS,
--			      ATP_XFACT, &x_z, &x_f);
-+			      dev->info->xfact, &x_z, &x_f);
- 	y = atp_calculate_abs(dev->xy_acc + ATP_XSENSORS, ATP_YSENSORS,
--			      ATP_YFACT, &y_z, &y_f);
--	key = dev->data[dev->datalen - 1] & ATP_STATUS_BUTTON;
-+			      dev->info->yfact, &y_z, &y_f);
-+	key = dev->data[dev->info->datalen - 1] & ATP_STATUS_BUTTON;
- 
- 	if (x && y) {
- 		if (dev->x_old != -1) {
-@@ -583,7 +613,7 @@ static void atp_complete_geyser_3_4(struct urb *urb)
- 	dbg_dump("sample", dev->xy_cur);
- 
- 	/* Just update the base values (i.e. touchpad in untouched state) */
--	if (dev->data[dev->datalen - 1] & ATP_STATUS_BASE_UPDATE) {
-+	if (dev->data[dev->info->datalen - 1] & ATP_STATUS_BASE_UPDATE) {
- 
- 		dprintk(KERN_DEBUG "appletouch: updated base values\n");
- 
-@@ -610,10 +640,10 @@ static void atp_complete_geyser_3_4(struct urb *urb)
- 	dbg_dump("accumulator", dev->xy_acc);
- 
- 	x = atp_calculate_abs(dev->xy_acc, ATP_XSENSORS,
--			      ATP_XFACT, &x_z, &x_f);
-+			      dev->info->xfact, &x_z, &x_f);
- 	y = atp_calculate_abs(dev->xy_acc + ATP_XSENSORS, ATP_YSENSORS,
--			      ATP_YFACT, &y_z, &y_f);
--	key = dev->data[dev->datalen - 1] & ATP_STATUS_BUTTON;
-+			      dev->info->yfact, &y_z, &y_f);
-+	key = dev->data[dev->info->datalen - 1] & ATP_STATUS_BUTTON;
- 
- 	if (x && y) {
- 		if (dev->x_old != -1) {
-@@ -705,7 +735,7 @@ static int atp_handle_geyser(struct atp *dev)
+-	if (ignore_poke || !vc_cons[fg_console].d || vc_cons[fg_console].d->vc_mode == KD_GRAPHICS)
++	if (ignore_poke || !vc_cons[fg_console].d ||
++	    vc_cons[fg_console].d->vc_mode == KD_GRAPHICS ||
++	    vc_cons[fg_console].d->vc_mode == KD_X)
+ 		return;
+ 	if (console_blanked)
+ 		unblank_screen();
+@@ -3777,7 +3784,7 @@ static void set_palette(struct vc_data *vc)
  {
- 	struct usb_device *udev = dev->udev;
+ 	WARN_CONSOLE_UNLOCKED();
  
--	if (dev->type != ATP_FOUNTAIN) {
-+	if (dev->info != &fountain_info) {
- 		/* switch to raw sensor mode */
- 		if (atp_geyser_init(udev))
- 			return -EIO;
-@@ -726,6 +756,7 @@ static int atp_probe(struct usb_interface *iface,
- 	struct usb_endpoint_descriptor *endpoint;
- 	int int_in_endpointAddr = 0;
- 	int i, error = -ENOMEM;
-+	struct atp_info *info = (struct atp_info *)id->driver_info;
+-	if (vc->vc_mode != KD_GRAPHICS)
++	if (vc->vc_mode != KD_GRAPHICS && vc->vc_mode != KD_X)
+ 		vc->vc_sw->con_set_palette(vc, color_table);
+ }
  
- 	/* set up the endpoint information */
- 	/* use only the first interrupt-in endpoint */
-@@ -753,35 +784,22 @@ static int atp_probe(struct usb_interface *iface,
+diff --git a/drivers/char/vt_ioctl.c b/drivers/char/vt_ioctl.c
+index c904e9a..899d898 100644
+--- a/drivers/char/vt_ioctl.c
++++ b/drivers/char/vt_ioctl.c
+@@ -488,6 +488,8 @@ int vt_ioctl(struct tty_struct *tty, struct file * file,
+ 		if (!perm)
+ 			goto eperm;
+ 		switch (arg) {
++		case KD_X:
++			break;
+ 		case KD_GRAPHICS:
+ 			break;
+ 		case KD_TEXT0:
+@@ -1383,7 +1385,7 @@ void change_console(struct vc_data *new_vc)
+ 	/*
+ 	 * Ignore all switches in KD_GRAPHICS+VT_AUTO mode
+ 	 */
+-	if (vc->vc_mode == KD_GRAPHICS)
++	if (vc->vc_mode == KD_GRAPHICS || vc->vc_mode == KD_X)
+ 		return;
  
- 	dev->udev = udev;
- 	dev->input = input_dev;
--	dev->type = id->driver_info;
-+	dev->info = info;
- 	dev->overflow_warned = false;
--	if (dev->type == ATP_FOUNTAIN || dev->type == ATP_GEYSER1)
--		dev->datalen = 81;
--	else
--		dev->datalen = 64;
+ 	complete_change_console(new_vc);
+diff --git a/include/linux/kd.h b/include/linux/kd.h
+index 15f2853..36975a3 100644
+--- a/include/linux/kd.h
++++ b/include/linux/kd.h
+@@ -45,6 +45,9 @@ struct consolefontdesc {
+ #define		KD_GRAPHICS	0x01
+ #define		KD_TEXT0	0x02	/* obsolete */
+ #define		KD_TEXT1	0x03	/* obsolete */
++#define		KD_X            0x04	/* Like KD_GRAPHICS, but doesn't allow
++					   input events to pass through to
++					   /dev/console */
+ #define KDGETMODE	0x4B3B	/* get current mode */
  
- 	dev->urb = usb_alloc_urb(0, GFP_KERNEL);
- 	if (!dev->urb)
- 		goto err_free_devs;
- 
--	dev->data = usb_buffer_alloc(dev->udev, dev->datalen, GFP_KERNEL,
-+	dev->data = usb_buffer_alloc(dev->udev, dev->info->datalen, GFP_KERNEL,
- 				     &dev->urb->transfer_dma);
- 	if (!dev->data)
- 		goto err_free_urb;
- 
--	/* Select the USB complete (callback) function */
--	if (dev->type == ATP_FOUNTAIN ||
--	    dev->type == ATP_GEYSER1 ||
--	    dev->type == ATP_GEYSER2)
--		usb_fill_int_urb(dev->urb, udev,
--				 usb_rcvintpipe(udev, int_in_endpointAddr),
--				 dev->data, dev->datalen,
--				 atp_complete_geyser_1_2, dev, 1);
--	else
--		usb_fill_int_urb(dev->urb, udev,
--				 usb_rcvintpipe(udev, int_in_endpointAddr),
--				 dev->data, dev->datalen,
--				 atp_complete_geyser_3_4, dev, 1);
-+	usb_fill_int_urb(dev->urb, udev,
-+			 usb_rcvintpipe(udev, int_in_endpointAddr),
-+			 dev->data, dev->info->datalen,
-+			 dev->info->callback, dev, 1);
- 
- 	error = atp_handle_geyser(dev);
- 	if (error)
-@@ -802,35 +820,12 @@ static int atp_probe(struct usb_interface *iface,
- 
- 	set_bit(EV_ABS, input_dev->evbit);
- 
--	if (dev->type == ATP_GEYSER3 || dev->type == ATP_GEYSER4) {
--		/*
--		 * MacBook have 20 X sensors, 10 Y sensors
--		 */
--		input_set_abs_params(input_dev, ABS_X, 0,
--				     ((20 - 1) * ATP_XFACT) - 1, ATP_FUZZ, 0);
--		input_set_abs_params(input_dev, ABS_Y, 0,
--				     ((10 - 1) * ATP_YFACT) - 1, ATP_FUZZ, 0);
--	} else if (dev->type == ATP_GEYSER2) {
--		/*
--		 * Oct 2005 15" PowerBooks have 15 X sensors, 17" are detected
--		 * later.
--		 */
--		input_set_abs_params(input_dev, ABS_X, 0,
--				     ((15 - 1) * ATP_XFACT) - 1, ATP_FUZZ, 0);
--		input_set_abs_params(input_dev, ABS_Y, 0,
--				     ((9 - 1) * ATP_YFACT) - 1, ATP_FUZZ, 0);
--	} else {
--		/*
--		 * 12" and 15" Powerbooks only have 16 x sensors,
--		 * 17" models are detected later.
--		 */
--		input_set_abs_params(input_dev, ABS_X, 0,
--				     (16 - 1) * ATP_XFACT - 1,
--				     ATP_FUZZ, 0);
--		input_set_abs_params(input_dev, ABS_Y, 0,
--				     (ATP_YSENSORS - 1) * ATP_YFACT - 1,
--				     ATP_FUZZ, 0);
--	}
-+	input_set_abs_params(input_dev, ABS_X, 0,
-+			     (dev->info->xsensors - 1) * dev->info->xfact - 1,
-+			     ATP_FUZZ, 0);
-+	input_set_abs_params(input_dev, ABS_Y, 0,
-+			     (dev->info->ysensors - 1) * dev->info->yfact - 1,
-+			     ATP_FUZZ, 0);
- 	input_set_abs_params(input_dev, ABS_PRESSURE, 0, ATP_PRESSURE, 0, 0);
- 
- 	set_bit(EV_KEY, input_dev->evbit);
-@@ -852,7 +847,7 @@ static int atp_probe(struct usb_interface *iface,
- 	return 0;
- 
-  err_free_buffer:
--	usb_buffer_free(dev->udev, dev->datalen,
-+	usb_buffer_free(dev->udev, dev->info->datalen,
- 			dev->data, dev->urb->transfer_dma);
-  err_free_urb:
- 	usb_free_urb(dev->urb);
-@@ -871,7 +866,7 @@ static void atp_disconnect(struct usb_interface *iface)
- 	if (dev) {
- 		usb_kill_urb(dev->urb);
- 		input_unregister_device(dev->input);
--		usb_buffer_free(dev->udev, dev->datalen,
-+		usb_buffer_free(dev->udev, dev->info->datalen,
- 				dev->data, dev->urb->transfer_dma);
- 		usb_free_urb(dev->urb);
- 		kfree(dev);
+ #define KDMAPDISP	0x4B3C	/* map display into address space */
+
 -- 
-1.5.4.3
-
-
-
+Matthew Garrett | mjg59@srcf.ucam.org

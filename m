@@ -1,157 +1,40 @@
-From: Liam Girdwood <lrg@kernel.org>
-Subject: [PATCH] input: wm97xx - update email address for Liam Girdwood
-Date: Sun, 12 Oct 2008 13:27:57 +0100
-Message-ID: <1223814477.6814.351.camel@dell-desktop.example.com>
+From: Stelian Pop <stelian@popies.net>
+Subject: Re: [PATCH] appletouch driver refactoring
+Date: Sun, 12 Oct 2008 16:41:08 +0200
+Message-ID: <1223822468.9733.1.camel@galileo>
+References: <1223542147.6130.14.camel@galileo>
+	 <20081011032120.GB22499@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hera.kernel.org ([140.211.167.34]:52627 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752076AbYJLM2E (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Oct 2008 08:28:04 -0400
+Received: from sd-11162.dedibox.fr ([88.191.70.230]:44378 "EHLO
+	sd-11162.dedibox.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752122AbYJLOlb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 12 Oct 2008 10:41:31 -0400
+In-Reply-To: <20081011032120.GB22499@anvil.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>
 
-This updates the email address for Liam Girdwood as my old address is no
-longer valid.
+Hi Dmitry,
 
-Signed-off-by: Liam Girdwood <lrg@slimlogic.co.uk>
----
- MAINTAINERS                                  |    2 +-
- drivers/input/touchscreen/mainstone-wm97xx.c |    5 ++---
- drivers/input/touchscreen/wm9705.c           |    5 ++---
- drivers/input/touchscreen/wm9712.c           |    5 ++---
- drivers/input/touchscreen/wm9713.c           |    5 ++---
- drivers/input/touchscreen/wm97xx-core.c      |    5 ++---
- 6 files changed, 11 insertions(+), 16 deletions(-)
+Le vendredi 10 octobre 2008 =C3=A0 23:21 -0400, Dmitry Torokhov a =C3=A9=
+crit :
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 587f418..ca5f4f6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4591,7 +4591,7 @@ WM97XX TOUCHSCREEN DRIVERS
- P:	Mark Brown
- M:	broonie@opensource.wolfsonmicro.com
- P:	Liam Girdwood
--M:	liam.girdwood@wolfsonmicro.com
-+M:	lrg@slimlogic.co.uk
- L:	linux-input@vger.kernel.org
- T:	git git://opensource.wolfsonmicro.com/linux-2.6-touch
- W:	http://opensource.wolfsonmicro.com/node/7
-diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-index 37a555f..ba64875 100644
---- a/drivers/input/touchscreen/mainstone-wm97xx.c
-+++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -3,8 +3,7 @@
-  *                         Wolfson WM97xx AC97 Codecs.
-  *
-  * Copyright 2004, 2007 Wolfson Microelectronics PLC.
-- * Author: Liam Girdwood
-- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
-  * Parts Copyright : Ian Molton <spyro@f2s.com>
-  *                   Andrew Zabolotny <zap@homelink.ru>
-  *
-@@ -296,6 +295,6 @@ module_init(mainstone_wm97xx_init);
- module_exit(mainstone_wm97xx_exit);
- 
- /* Module information */
--MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
- MODULE_DESCRIPTION("wm97xx continuous touch driver for mainstone");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/wm9705.c b/drivers/input/touchscreen/wm9705.c
-index 372efbc..6b5be74 100644
---- a/drivers/input/touchscreen/wm9705.c
-+++ b/drivers/input/touchscreen/wm9705.c
-@@ -2,8 +2,7 @@
-  * wm9705.c  --  Codec driver for Wolfson WM9705 AC97 Codec.
-  *
-  * Copyright 2003, 2004, 2005, 2006, 2007 Wolfson Microelectronics PLC.
-- * Author: Liam Girdwood
-- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
-  * Parts Copyright : Ian Molton <spyro@f2s.com>
-  *                   Andrew Zabolotny <zap@homelink.ru>
-  *                   Russell King <rmk@arm.linux.org.uk>
-@@ -347,6 +346,6 @@ struct wm97xx_codec_drv wm9705_codec = {
- EXPORT_SYMBOL_GPL(wm9705_codec);
- 
- /* Module information */
--MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
- MODULE_DESCRIPTION("WM9705 Touch Screen Driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/wm9712.c b/drivers/input/touchscreen/wm9712.c
-index c8bb1e7..7490b05 100644
---- a/drivers/input/touchscreen/wm9712.c
-+++ b/drivers/input/touchscreen/wm9712.c
-@@ -2,8 +2,7 @@
-  * wm9712.c  --  Codec driver for Wolfson WM9712 AC97 Codecs.
-  *
-  * Copyright 2003, 2004, 2005, 2006, 2007 Wolfson Microelectronics PLC.
-- * Author: Liam Girdwood
-- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
-  * Parts Copyright : Ian Molton <spyro@f2s.com>
-  *                   Andrew Zabolotny <zap@homelink.ru>
-  *                   Russell King <rmk@arm.linux.org.uk>
-@@ -462,6 +461,6 @@ struct wm97xx_codec_drv wm9712_codec = {
- EXPORT_SYMBOL_GPL(wm9712_codec);
- 
- /* Module information */
--MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
- MODULE_DESCRIPTION("WM9712 Touch Screen Driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/wm9713.c b/drivers/input/touchscreen/wm9713.c
-index 781ee83..238b513 100644
---- a/drivers/input/touchscreen/wm9713.c
-+++ b/drivers/input/touchscreen/wm9713.c
-@@ -2,8 +2,7 @@
-  * wm9713.c  --  Codec touch driver for Wolfson WM9713 AC97 Codec.
-  *
-  * Copyright 2003, 2004, 2005, 2006, 2007, 2008 Wolfson Microelectronics PLC.
-- * Author: Liam Girdwood
-- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
-  * Parts Copyright : Ian Molton <spyro@f2s.com>
-  *                   Andrew Zabolotny <zap@homelink.ru>
-  *                   Russell King <rmk@arm.linux.org.uk>
-@@ -476,6 +475,6 @@ struct wm97xx_codec_drv wm9713_codec = {
- EXPORT_SYMBOL_GPL(wm9713_codec);
- 
- /* Module information */
--MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
- MODULE_DESCRIPTION("WM9713 Touch Screen Driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index d589ab0..d15aa11 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -3,8 +3,7 @@
-  *                    and WM9713 AC97 Codecs.
-  *
-  * Copyright 2003, 2004, 2005, 2006, 2007, 2008 Wolfson Microelectronics PLC.
-- * Author: Liam Girdwood
-- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
-+ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
-  * Parts Copyright : Ian Molton <spyro@f2s.com>
-  *                   Andrew Zabolotny <zap@homelink.ru>
-  *                   Russell King <rmk@arm.linux.org.uk>
-@@ -824,6 +823,6 @@ module_init(wm97xx_init);
- module_exit(wm97xx_exit);
- 
- /* Module information */
--MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
-+MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
- MODULE_DESCRIPTION("WM97xx Core - Touch Screen / AUX ADC / GPIO Driver");
- MODULE_LICENSE("GPL");
--- 
-1.5.4.3
+> I have some changes to appletouch in my 'next' branch, would you mind
+> rediffing against those changes?
 
+Sure, here it comes.
 
+Stelian.
+--=20
+Stelian Pop <stelian@popies.net>
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

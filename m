@@ -1,78 +1,157 @@
-From: legolas558 <legolas558@email.it>
-Subject: Re: [PATCH] input: Thinkpad R31 i8042 nomux quirk
-Date: Sun, 12 Oct 2008 09:51:19 +0200
-Message-ID: <48F1AC77.3020503@email.it>
-References: <48F0EDF0.3020702@math.ucla.edu>
+From: Liam Girdwood <lrg@kernel.org>
+Subject: [PATCH] input: wm97xx - update email address for Liam Girdwood
+Date: Sun, 12 Oct 2008 13:27:57 +0100
+Message-ID: <1223814477.6814.351.camel@dell-desktop.example.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m-04.th.seeweb.it ([217.64.195.227]:40270 "EHLO
-	m-04.th.seeweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751035AbYJLIAW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Oct 2008 04:00:22 -0400
-In-Reply-To: <48F0EDF0.3020702@math.ucla.edu>
+Received: from hera.kernel.org ([140.211.167.34]:52627 "EHLO hera.kernel.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752076AbYJLM2E (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 12 Oct 2008 08:28:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin Macdonald <cbm@math.ucla.edu>, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-Hello,
+This updates the email address for Liam Girdwood as my old address is no
+longer valid.
 
-I also have a notebook, Maxdata Pro 7000X (Fujitsu clone), which has 
-such problem (needs i8042.nomux=1, perhaps kernel bug #8740).
+Signed-off-by: Liam Girdwood <lrg@slimlogic.co.uk>
+---
+ MAINTAINERS                                  |    2 +-
+ drivers/input/touchscreen/mainstone-wm97xx.c |    5 ++---
+ drivers/input/touchscreen/wm9705.c           |    5 ++---
+ drivers/input/touchscreen/wm9712.c           |    5 ++---
+ drivers/input/touchscreen/wm9713.c           |    5 ++---
+ drivers/input/touchscreen/wm97xx-core.c      |    5 ++---
+ 6 files changed, 11 insertions(+), 16 deletions(-)
 
-Can we also use a patch for it?
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 587f418..ca5f4f6 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4591,7 +4591,7 @@ WM97XX TOUCHSCREEN DRIVERS
+ P:	Mark Brown
+ M:	broonie@opensource.wolfsonmicro.com
+ P:	Liam Girdwood
+-M:	liam.girdwood@wolfsonmicro.com
++M:	lrg@slimlogic.co.uk
+ L:	linux-input@vger.kernel.org
+ T:	git git://opensource.wolfsonmicro.com/linux-2.6-touch
+ W:	http://opensource.wolfsonmicro.com/node/7
+diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
+index 37a555f..ba64875 100644
+--- a/drivers/input/touchscreen/mainstone-wm97xx.c
++++ b/drivers/input/touchscreen/mainstone-wm97xx.c
+@@ -3,8 +3,7 @@
+  *                         Wolfson WM97xx AC97 Codecs.
+  *
+  * Copyright 2004, 2007 Wolfson Microelectronics PLC.
+- * Author: Liam Girdwood
+- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+  * Parts Copyright : Ian Molton <spyro@f2s.com>
+  *                   Andrew Zabolotny <zap@homelink.ru>
+  *
+@@ -296,6 +295,6 @@ module_init(mainstone_wm97xx_init);
+ module_exit(mainstone_wm97xx_exit);
+ 
+ /* Module information */
+-MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
++MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
+ MODULE_DESCRIPTION("wm97xx continuous touch driver for mainstone");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/wm9705.c b/drivers/input/touchscreen/wm9705.c
+index 372efbc..6b5be74 100644
+--- a/drivers/input/touchscreen/wm9705.c
++++ b/drivers/input/touchscreen/wm9705.c
+@@ -2,8 +2,7 @@
+  * wm9705.c  --  Codec driver for Wolfson WM9705 AC97 Codec.
+  *
+  * Copyright 2003, 2004, 2005, 2006, 2007 Wolfson Microelectronics PLC.
+- * Author: Liam Girdwood
+- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+  * Parts Copyright : Ian Molton <spyro@f2s.com>
+  *                   Andrew Zabolotny <zap@homelink.ru>
+  *                   Russell King <rmk@arm.linux.org.uk>
+@@ -347,6 +346,6 @@ struct wm97xx_codec_drv wm9705_codec = {
+ EXPORT_SYMBOL_GPL(wm9705_codec);
+ 
+ /* Module information */
+-MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
++MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
+ MODULE_DESCRIPTION("WM9705 Touch Screen Driver");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/wm9712.c b/drivers/input/touchscreen/wm9712.c
+index c8bb1e7..7490b05 100644
+--- a/drivers/input/touchscreen/wm9712.c
++++ b/drivers/input/touchscreen/wm9712.c
+@@ -2,8 +2,7 @@
+  * wm9712.c  --  Codec driver for Wolfson WM9712 AC97 Codecs.
+  *
+  * Copyright 2003, 2004, 2005, 2006, 2007 Wolfson Microelectronics PLC.
+- * Author: Liam Girdwood
+- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+  * Parts Copyright : Ian Molton <spyro@f2s.com>
+  *                   Andrew Zabolotny <zap@homelink.ru>
+  *                   Russell King <rmk@arm.linux.org.uk>
+@@ -462,6 +461,6 @@ struct wm97xx_codec_drv wm9712_codec = {
+ EXPORT_SYMBOL_GPL(wm9712_codec);
+ 
+ /* Module information */
+-MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
++MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
+ MODULE_DESCRIPTION("WM9712 Touch Screen Driver");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/wm9713.c b/drivers/input/touchscreen/wm9713.c
+index 781ee83..238b513 100644
+--- a/drivers/input/touchscreen/wm9713.c
++++ b/drivers/input/touchscreen/wm9713.c
+@@ -2,8 +2,7 @@
+  * wm9713.c  --  Codec touch driver for Wolfson WM9713 AC97 Codec.
+  *
+  * Copyright 2003, 2004, 2005, 2006, 2007, 2008 Wolfson Microelectronics PLC.
+- * Author: Liam Girdwood
+- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+  * Parts Copyright : Ian Molton <spyro@f2s.com>
+  *                   Andrew Zabolotny <zap@homelink.ru>
+  *                   Russell King <rmk@arm.linux.org.uk>
+@@ -476,6 +475,6 @@ struct wm97xx_codec_drv wm9713_codec = {
+ EXPORT_SYMBOL_GPL(wm9713_codec);
+ 
+ /* Module information */
+-MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
++MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
+ MODULE_DESCRIPTION("WM9713 Touch Screen Driver");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index d589ab0..d15aa11 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -3,8 +3,7 @@
+  *                    and WM9713 AC97 Codecs.
+  *
+  * Copyright 2003, 2004, 2005, 2006, 2007, 2008 Wolfson Microelectronics PLC.
+- * Author: Liam Girdwood
+- *         liam.girdwood@wolfsonmicro.com or linux@wolfsonmicro.com
++ * Author: Liam Girdwood <lrg@slimlogic.co.uk>
+  * Parts Copyright : Ian Molton <spyro@f2s.com>
+  *                   Andrew Zabolotny <zap@homelink.ru>
+  *                   Russell King <rmk@arm.linux.org.uk>
+@@ -824,6 +823,6 @@ module_init(wm97xx_init);
+ module_exit(wm97xx_exit);
+ 
+ /* Module information */
+-MODULE_AUTHOR("Liam Girdwood <liam.girdwood@wolfsonmicro.com>");
++MODULE_AUTHOR("Liam Girdwood <lrg@slimlogic.co.uk>");
+ MODULE_DESCRIPTION("WM97xx Core - Touch Screen / AUX ADC / GPIO Driver");
+ MODULE_LICENSE("GPL");
+-- 
+1.5.4.3
 
-dmidecode useful information:
-
-Handle 0x0001, DMI type 1, 25 bytes
-System Information
-        Manufacturer: MAXDATA       
-        Product Name: Pro 7000X     
-        Version: xxxxxxxxxx
-        Serial Number: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-        UUID: xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxx
-        Wake-up Type: Power Switch
-
-Thanks,
---
-  Daniele C.
-
-
-Colin Macdonald ha scritto:
-> Subject: [PATCH] input: Thinkpad R31 i8042 nomux quirk
-> from: Colin B Macdonald <cbm@m.fsf.org>
->
-> Thinkpad R31 needs i8042 nomux quirk.  Stops jittery jumping mouse
-> and random keyboard input.  Fixes kernel bug #11723.  Cherry picked
-> from Ubuntu who have sometimes (on-again-off-again) had a fix in
-> their patched kernels.
->
-> Signed-off-by: Colin B Macdonald <cbm@m.fsf.org>
->
-> ---
->
-> --- linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h.orig	2008-10-11 01:07:22.000000000 -0700
-> +++ linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h	2008-10-11 01:06:24.000000000 -0700
-> @@ -322,6 +322,13 @@ static struct dmi_system_id __initdata i
->  			DMI_MATCH(DMI_PRODUCT_NAME, "N34AS6"),
->  		},
->  	},
-> +	{
-> +		.ident = "IBM 2656",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
-> +		},
-> +	},
->  	{ }
->  };
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->   
 

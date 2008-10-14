@@ -1,65 +1,80 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Add KD_X console mode to avoid keyboard passthrough
-Date: Mon, 13 Oct 2008 23:12:44 -0400
-Message-ID: <20081014031244.GE8594@anvil.corenet.prv>
-References: <20081012174710.GA5206@srcf.ucam.org>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH v3] Input: appletouch - driver refactoring
+Date: Tue, 14 Oct 2008 10:10:59 +0200
+Message-ID: <1223971859.10113.14.camel@johannes.berg>
+References: <1223542147.6130.14.camel@galileo>
+	 <20081011032120.GB22499@anvil.corenet.prv>
+	 <1223822468.9733.1.camel@galileo> <1223822674.9733.5.camel@galileo>
+	 <1223823289.10176.9.camel@johannes.berg> <1223827257.11389.1.camel@galileo>
+	 <1223827421.11389.5.camel@galileo> <1223891135.24954.1.camel@johannes.berg>
+	 <20081014025748.GB8594@anvil.corenet.prv>
+	 (sfid-20081014_045823_487749_39C794AC)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yWdg+GZ+IfXlFZsrePo5"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.29]:8767 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755733AbYJNDMt (ORCPT
+Received: from xc.sipsolutions.net ([83.246.72.84]:59112 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756564AbYJNILk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Oct 2008 23:12:49 -0400
-Received: by yw-out-2324.google.com with SMTP id 9so473476ywe.1
-        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2008 20:12:48 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20081012174710.GA5206@srcf.ucam.org>
+	Tue, 14 Oct 2008 04:11:40 -0400
+In-Reply-To: <20081014025748.GB8594@anvil.corenet.prv> (sfid-20081014_045823_487749_39C794AC)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Stelian Pop <stelian@popies.net>, linux-input@vger.kernel.org
 
-Hi Matthew,
 
-On Sun, Oct 12, 2008 at 06:47:10PM +0100, Matthew Garrett wrote:
-> When using the evdev input driver, X currently claims the devices 
-> exclusively in order to prevent characters leaking through to the 
-> underlying VT. This has the downside that other consumers of input 
-> events no longer receive the keys - rfkill and mouseemu no longer work 
-> in the kernel, and hal is unable to pass through input events. Removing 
-> the exclusive access results in events being passed through to the 
-> underlying VT, which may result in leaking sensitive information.
-> 
-> This patch adds an extra KD_X mode. It's semantically identical to 
-> KD_GRAPHICS, except that keyboard events are no longer sent to the 
-> console device. This allows X to avoid exclusive access without breaking 
-> any applications which depend upon the existing KD_GRAPHICS semantics.
-> 
+--=-yWdg+GZ+IfXlFZsrePo5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Is this really needed? The current X does not leak anything onto its VT
-and the new one should not have either, unless they forget to switch
-virtual console into raw mode. Plus, if you make everything work with
-KD_GRAPHICS you don't have to have new kernel.
+On Mon, 2008-10-13 at 22:57 -0400, Dmitry Torokhov wrote:
+> On Mon, Oct 13, 2008 at 11:45:35AM +0200, Johannes Berg wrote:
+> > On Sun, 2008-10-12 at 18:03 +0200, Stelian Pop wrote:
+> > > The appletouch driver has grown up from supporting only a couple of
+> > > touchpads into supporting many touchpads, which can have different
+> > > number of sensors, different aspect ratios etc.
+> > >=20
+> > > This patch cleans up the current driver code and makes it easy to
+> > > support the features of each different touchpad.
+> > >=20
+> > > As a side effect, this patch also modifies the 'Y' multiplication fac=
+tor
+> > > of the 'geyser3' and 'geyser4' touchpads (found on Core Duo and Core2
+> > > Duo MacBook and MacBook Pro laptops) in order to make the touchpad
+> > > output match the aspect ratio of the touchpad (Y factor changed from =
+43
+> > > to 64).
 
-> 
-> diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-> index 7b3a212..b0b8285 100644
-> --- a/drivers/char/keyboard.c
-> +++ b/drivers/char/keyboard.c
-> @@ -1298,6 +1298,10 @@ static void kbd_keycode(unsigned int keycode, int down, int hw_raw)
->  static void kbd_event(struct input_handle *handle, unsigned int event_type,
->  		      unsigned int event_code, int value)
->  {
-> +	struct vc_data *vc = vc_cons[fg_console].d;
-> +
-> +	if (vc->vc_mode == KD_X)
-> +		return;
+> I consider it an "Acked-by" then?
 
-This surely kills SysRq handling.
+Right.
 
->  	if (event_type == EV_MSC && event_code == MSC_RAW && HW_RAW(handle->dev))
->  		kbd_rawcode(value);
->  	if (event_type == EV_KEY)
--- 
-Dmitry
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
+
+johannes
+
+--=-yWdg+GZ+IfXlFZsrePo5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIcBAABAgAGBQJI9FQPAAoJEKVg1VMiehFYm2QP/jSksn8ujOdFn8uDc9jPXEUs
+sB6d6O/rt4WWQSaJp9r1cnzYmBvMqhFuz5wijF4Qg0pcepLfitQb0g6KbyIOGhki
+MqqIPXrkFB6/BMmqWAwfLVQ44CL4wpm6T8ET6AaRG4AxOJRVAigZNv3vqOb8Ys2l
+7ofNF17sDyxBJ22Gds7jG/A4JVgef30J6rz50x15kHmBvgNGfodvEn4lKNAFgNtk
+llZyfymygNhIbdVbSEXe3iCNdkg3e9kJ5gnVDeBm/rTNx8sNcpPEg+b28Kz98hiY
+YHT9klmiWqV0nUF4hPkh4Uv2YAaoviAqhWaQ8tx51IMXyfrTcTCkTjgh+nJlBloI
+Eh0VLia2azmOoT67pGO4q0SbpDRZ5MaJwVMtqn8P4bAggYS80UVfJIMei6F60shO
+1XxCD3kRSJVOGVFTFSQey6jAI470A0A0/8PgnDwWXdcOulZ8v1GVlg+XTzcJxuEj
+9KwY7jFYT0dRHLEAd49149p/K/7trlAnGohIzjK2sYSKVGpKTmeirTrpW/50fMNI
+YteTyYeoE9XvM73ooy9zPqHLGK2f94lokmEPiK/4jMYC4oQVGiOL5bfhwG8Ivtcn
+9tFYJA4w4f+cfYDist2QI4qiT6D4uABTwLzrry/sHkUAIiWRab/a5UzW5Q9GfLpN
+ZtBeJMu3sTCVm6MDUfWu
+=OXAe
+-----END PGP SIGNATURE-----
+
+--=-yWdg+GZ+IfXlFZsrePo5--
+

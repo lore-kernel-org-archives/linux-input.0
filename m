@@ -1,77 +1,55 @@
-From: legolas558 <legolas558@email.it>
-Subject: Re: [PATCH] input: Thinkpad R31 i8042 nomux quirk
-Date: Mon, 13 Oct 2008 21:58:51 +0200
-Message-ID: <48F3A87B.402@email.it>
-References: <48F0EDF0.3020702@math.ucla.edu> <48F1AC77.3020503@email.it> <48F2447A.40607@math.ucla.edu>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH v3] Input: appletouch - driver refactoring
+Date: Mon, 13 Oct 2008 22:57:48 -0400
+Message-ID: <20081014025748.GB8594@anvil.corenet.prv>
+References: <1223542147.6130.14.camel@galileo> <20081011032120.GB22499@anvil.corenet.prv> <1223822468.9733.1.camel@galileo> <1223822674.9733.5.camel@galileo> <1223823289.10176.9.camel@johannes.berg> <1223827257.11389.1.camel@galileo> <1223827421.11389.5.camel@galileo> <1223891135.24954.1.camel@johannes.berg>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from m-04.th.seeweb.it ([217.64.195.227]:57770 "EHLO
-	m-04.th.seeweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751324AbYJMT7F (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.242]:46934 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755627AbYJNC5x (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Oct 2008 15:59:05 -0400
-In-Reply-To: <48F2447A.40607@math.ucla.edu>
+	Mon, 13 Oct 2008 22:57:53 -0400
+Received: by an-out-0708.google.com with SMTP id d40so153099and.103
+        for <linux-input@vger.kernel.org>; Mon, 13 Oct 2008 19:57:51 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1223891135.24954.1.camel@johannes.berg>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Colin Macdonald <cbm@math.ucla.edu>
-Cc: linux-input@vger.kernel.org
+To: Johannes Berg <johannes@sipsolutions.net>
+Cc: Stelian Pop <stelian@popies.net>, linux-input@vger.kernel.org
 
-Hi Colin,
+On Mon, Oct 13, 2008 at 11:45:35AM +0200, Johannes Berg wrote:
+> On Sun, 2008-10-12 at 18:03 +0200, Stelian Pop wrote:
+> > The appletouch driver has grown up from supporting only a couple of
+> > touchpads into supporting many touchpads, which can have different
+> > number of sensors, different aspect ratios etc.
+> > 
+> > This patch cleans up the current driver code and makes it easy to
+> > support the features of each different touchpad.
+> > 
+> > As a side effect, this patch also modifies the 'Y' multiplication factor
+> > of the 'geyser3' and 'geyser4' touchpads (found on Core Duo and Core2
+> > Duo MacBook and MacBook Pro laptops) in order to make the touchpad
+> > output match the aspect ratio of the touchpad (Y factor changed from 43
+> > to 64).
+> 
+> Looks good, the only thing I can find to complain about is that you
+> modify
+> 
+> 
+> > +static struct atp_info geyser1_info = {
+> > +	.xsensors	= 16,		/* will be set to 26 on 17" */
+> 
+> those static variables ;)
+> 
+> Considering these devices aren't available outside of apple laptops and
+> those always come with exactly one, I don't think it's much of a
+> problem.
+> 
 
-I have removed 'i8042.nomux=1' from my kernel command line (kernel 
-2.6.25-gentoo-r8) and the mouse glitches bug has not yet happened (last 
-time I had 2.6.22 or so).
+I consider it an "Acked-by" then?
 
-I assume it has been fixed in previous releases, and got unnoticed. I 
-will reply again to this message if there is again necessity to use 
-i8042.nomux=1.
-
-Thanks for your help, and sorry for the noise.
-
-Best regards,
---
-  Daniele C.
-
-Colin Macdonald ha scritto:
-> legolas558 wrote:
->   
->> I also have a notebook, Maxdata Pro 7000X (Fujitsu clone), which has
->> such problem (needs i8042.nomux=1, perhaps kernel bug #8740).
->>
->> Can we also use a patch for it?
->>     
->
-> Can you test the patch below and see if it fixes the problem?
->
->   
->> Handle 0x0001, DMI type 1, 25 bytes
->> System Information
->>        Manufacturer: MAXDATA              Product Name: Pro 7000X    
->>        Version: xxxxxxxxxx
->>        Serial Number: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
->>        UUID: xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxx
->>        Wake-up Type: Power Switch
->>     
->
->
-> --- linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h.orig	2008-10-12 11:31:43.000000000 -0700
-> +++ linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h	2008-10-12 11:33:11.000000000 -0700
-> @@ -329,6 +329,13 @@ static struct dmi_system_id __initdata i
->  			DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
->  		},
->  	},
-> +	{
-> +		.ident = "Maxdata Pro 7000X (Fujitsu clone)",
-> +		.matches = {
-> +			DMI_MATCH(DMI_SYS_VENDOR, "MAXDATA"),
-> +			DMI_MATCH(DMI_PRODUCT_NAME, "Pro 7000X"),
-> +		},
-> +	},
->  	{ }
->  };
->
->
->   
-
+-- 
+Dmitry

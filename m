@@ -1,79 +1,49 @@
-From: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Slow boot due perhaps to locks in mouse and platform system
-Date: Tue, 14 Oct 2008 11:58:20 -0400
-Message-ID: <20081014115820.21cd3d98@infradead.org>
-References: <1223993968942@dmwebmail.dmwebmail.chezphil.org>
-	<20081014104442.ZZRA012@mailhub.coreip.homeip.net>
-	<20081014111236.2495140c@infradead.org>
-	<20081014112912.ZZRA012@mailhub.coreip.homeip.net>
-	<20081014113749.75278492@infradead.org>
-	<20081014114658.ZZRA012@mailhub.coreip.homeip.net>
+From: Alexey Starikovskiy <astarikovskiy@suse.de>
+Subject: Re: Need for 'nomux' has been rising lately ...
+Date: Tue, 14 Oct 2008 19:59:01 +0400
+Message-ID: <48F4C1C5.9090006@suse.de>
+References: <alpine.LNX.1.10.0810141652090.26779@jikos.suse.cz> <20081014111522.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:45807 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751105AbYJNP6Q (ORCPT
+Received: from charybdis-ext.suse.de ([195.135.221.2]:42961 "EHLO
+	emea5-mh.id5.novell.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1751572AbYJNP7E (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Oct 2008 11:58:16 -0400
-In-Reply-To: <20081014114658.ZZRA012@mailhub.coreip.homeip.net>
+	Tue, 14 Oct 2008 11:59:04 -0400
+In-Reply-To: <20081014111522.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Phil Endecott <phil_dubhl_endecott@chezphil.org>, linux-input <linux-input@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Carlos Tonussi <tonussi@farmaco.ufsc.br>
 
-On Tue, 14 Oct 2008 11:48:37 -0400
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-
-> On Tue, Oct 14, 2008 at 11:37:49AM -0400, Arjan van de Ven wrote:
-> > On Tue, 14 Oct 2008 11:29:55 -0400
-> > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > 
-> > > On Tue, Oct 14, 2008 at 11:12:36AM -0400, Arjan van de Ven wrote:
-> > > > On Tue, 14 Oct 2008 10:54:36 -0400
-> > > > Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> > > > > On Tue, Oct 14, 2008 at 03:19:28PM +0100, Phil Endecott wrote:
-> > > > > > What can be done about this?  Is it unreasonable for the
-> > > > > > mouse probing to take 2 seconds?  Should it not be holding
-> > > > > > the conflicting lock while it is probing?  Does the platform
-> > > > > > matching code really need to hold the lock when it's just
-> > > > > > comparing the string names of the device and driver?
-> > > > > >
-> > > > 
-> > > > the real thing is to not wait on this while booting;
-> > > > my fastboot git tree has the patches to fix that part..
-> > > > 
-> > > 
-> > > Could you please be more specific?
-> > \
-> > oh btw you could make the mouse be exempt from this waiting that'd
-> > be a much simpler/nicer solution ;-)
-> > 
+Dmitry Torokhov wrote:
+> Hi Jiri,
 > 
-> Like I said, mouse probing is done in kseriod which is a separate
-> thread. If you look at the trace psmouse_init returned way way before,
-> its pcspkr got stuck for some reason (after completing
-> pcspkr_probe)...
-but without that locking issue we still have the delay.
-Because you run as a probe, and the kernel code waits until ALL probes
-are done:
-        /* wait for the known devices to complete their probing */
-        while (driver_probe_done() != 0)
-                msleep(100);
-
-
-if the serio stuff wouldn't run as a "probe"... we wouldn't wait on it 
-before mounting the root fs.
-
-(and whoever comes up with "but I have my root fs on my mouse....
-"LALALALALALA" <fingers in ears>)
-
-
+> On Tue, Oct 14, 2008 at 04:55:22PM +0200, Jiri Kosina wrote:
+>> Hi Dmitry,
+>>
+>> lately, I have been seeing a couple of bug reports in which touchpad of 
+>> certain notebooks misbehaved, and i8042.nomux solved the problem. Most 
+>> recently, this happened on [1]. Do you have any idea what might be the 
+>> cause of the need for nomux rising so much lately? Apparently, some older 
+>> kernels behaved correctly even without this workaround, at least on Acer 
+>> Aspire 5710, as referenced in the bugreport.
+>>
 > 
+> I am always happy to blame ACPI code (especially EC) for bad
+> iteraction with input devices ;), especially since there weren't any
+> significant changes to i8042 in any recent kernels. Do you think the
+> person reporting the failure on Acer could try bisecting it? Could
+> ALexey Starikovskiy have any ideas whether there is bad EC iteractions
+> stopping timely delivery of mouse interrupts?
+> 
+There was an issue with EC interrupt storm on several Acer notebooks lately,
+hopefully solved (bug 11549).
+Symptoms could be that keyboard/mouse are slow, missing keys, etc.
+I suggest you should try the patch in 11549, or acpi-test tree, and see if your
+problem goes away...
 
-
--- 
-Arjan van de Ven 	Intel Open Source Technology Centre
-For development, discussion and tips for power savings, 
-visit http://www.lesswatts.org
+Regards,
+Alex.

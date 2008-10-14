@@ -1,34 +1,73 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: question on LEDs on keyboards
-Date: Tue, 14 Oct 2008 15:32:41 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810141530220.26779@jikos.suse.cz>
-References: <200810141521.00225.oliver@neukum.org>
+From: "Phil Endecott" <phil_dubhl_endecott@chezphil.org>
+Subject: Slow boot due perhaps to locks in mouse and platform system
+Date: Tue, 14 Oct 2008 15:19:28 +0100
+Message-ID: <1223993968942@dmwebmail.dmwebmail.chezphil.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; format="flowed"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:54073 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750722AbYJNNcn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Oct 2008 09:32:43 -0400
-In-Reply-To: <200810141521.00225.oliver@neukum.org>
+Received: from japan.chezphil.org ([77.240.5.4]:5819 "EHLO japan.chezphil.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751028AbYJNOTc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Oct 2008 10:19:32 -0400
+Received: from localhost ([127.0.0.1] helo=chezphil.org)
+	by japan.chezphil.org with esmtp (Exim 4.69)
+	(envelope-from <phil_dubhl_endecott@chezphil.org>)
+	id 1KpkkE-0000QH-1c
+	for linux-input@vger.kernel.org; Tue, 14 Oct 2008 15:19:30 +0100
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-On Tue, 14 Oct 2008, Oliver Neukum wrote:
+Dear All,
 
-> I found an error in the hid autosuspend patches. Keyboards can have more 
-> than one LED. Is there a way to query the HID layer about active LEDs?
+I am seeing a 2-second pause while booting which I hypothesize is due 
+to a locking interaction between the mouse system and the platform bus 
+system.  Here's a fragment from dmesg:
 
-Hi Oliver,
+[    2.202156] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    2.202170] serio: i8042 AUX port at 0x60,0x64 irq 12
+[    2.202183] initcall i8042_init+0x0/0x32a returned 0 after 29 msecs
+[    2.202191] calling  serio_raw_init+0x0/0x11 @ 1
+[    2.202345] initcall serio_raw_init+0x0/0x11 returned 0 after 0 msecs
+[    2.202356] calling  mousedev_init+0x0/0x72 @ 1
+[    2.202638] mice: PS/2 mouse device common for all mice
+[    2.202648] initcall mousedev_init+0x0/0x72 returned 0 after 0 msecs
+[    2.202657] calling  evdev_init+0x0/0xa @ 1
+[    2.208739] initcall evdev_init+0x0/0xa returned 0 after 5 msecs
+[    2.208746] calling  atkbd_init+0x0/0x1b @ 1
+[    2.208855] initcall atkbd_init+0x0/0x1b returned 0 after 0 msecs
+[    2.208864] calling  psmouse_init+0x0/0x58 @ 1
+[    2.232546] input: AT Translated Set 2 keyboard as /class/input/input5
+[    2.247037] initcall psmouse_init+0x0/0x58 returned 0 after 36 msecs
+[    2.247047] calling  pcspkr_init+0x0/0xa @ 1
+[    2.247067] pcspkr_probe starting
+[    2.249202] input: PC Speaker as /class/input/input6
+[    2.259239] pcspkr_probe done
+[    4.379527] input: ImPS/2 Logitech Wheel Mouse as /class/input/input7
+[    4.387077] initcall pcspkr_init+0x0/0xa returned 0 after 2040 msecs
 
-you can either get the information from the underlying input device, or 
-you can use hidinput_find_field() to find the fields of EV_LED type, and 
-obtain the value from the offset that this function gives you.
+Note that the pause is between pcspkr_probe returning and pcspkr_init 
+returning.  My guess is that during this time the platform bus is 
+matching the pcspkr driver against all the other platform devices, and 
+in order to do so it is taking various device locks; at the same time 
+the kpsmoused workqueue is locking one of the same devices and spending 
+a couple of seconds probing it.  But that's only a guess based on a 
+couple of hours work; no doubt you experts will have a better idea of 
+what's going on.
 
-Hope this helps,
+What can be done about this?  Is it unreasonable for the mouse probing 
+to take 2 seconds?  Should it not be holding the conflicting lock while 
+it is probing?  Does the platform matching code really need to hold the 
+lock when it's just comparing the string names of the device and driver?
 
--- 
-Jiri Kosina
-SUSE Labs
+This is on an ASUS Eee 901, which is the same machine that Arjan van de 
+Ven and Auke Kok have got to boot in 5 seconds (with only 1 second of 
+that in the kernel).  As you can see I have some way to go still.  I 
+would also be interested to hear if anyone knows what the touchpad in 
+this machine really is - is "ImPS/2 Logitech Wheel Mouse" right?  I'd 
+like to be able to tweak things like tap-to-click and two-finger scrolling.
+
+Cheers,  Phil.
+
+
+

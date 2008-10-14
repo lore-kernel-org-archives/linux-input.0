@@ -1,44 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Input: Add Acer Aspire 5710 to nomux blacklist
-Date: Tue, 14 Oct 2008 17:28:23 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810141727020.26779@jikos.suse.cz>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Slow boot due perhaps to locks in mouse and platform system
+Date: Tue, 14 Oct 2008 11:29:55 -0400
+Message-ID: <20081014112912.ZZRA012@mailhub.coreip.homeip.net>
+References: <1223993968942@dmwebmail.dmwebmail.chezphil.org> <20081014104442.ZZRA012@mailhub.coreip.homeip.net> <20081014111236.2495140c@infradead.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:60528 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751318AbYJNP2Y (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Oct 2008 11:28:24 -0400
+Received: from an-out-0708.google.com ([209.85.132.242]:60979 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751533AbYJNPaB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Oct 2008 11:30:01 -0400
+Received: by an-out-0708.google.com with SMTP id d40so166849and.103
+        for <linux-input@vger.kernel.org>; Tue, 14 Oct 2008 08:30:00 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20081014111236.2495140c@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Carlos Tonussi <tonussi@farmaco.ufsc.br>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Phil Endecott <phil_dubhl_endecott@chezphil.org>, linux-input <linux-input@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
 
-From: Jiri Kosina <jkosina@suse.cz>
+On Tue, Oct 14, 2008 at 11:12:36AM -0400, Arjan van de Ven wrote:
+> On Tue, 14 Oct 2008 10:54:36 -0400
+> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > On Tue, Oct 14, 2008 at 03:19:28PM +0100, Phil Endecott wrote:
+> > > What can be done about this?  Is it unreasonable for the mouse
+> > > probing to take 2 seconds?  Should it not be holding the
+> > > conflicting lock while it is probing?  Does the platform matching
+> > > code really need to hold the lock when it's just comparing the
+> > > string names of the device and driver?
+> > >
+> 
+> the real thing is to not wait on this while booting;
+> my fastboot git tree has the patches to fix that part..
+> 
 
-Acer Aspire needs to be added to nomux blacklist, otherwise the touchpad 
-misbehaves.
+Could you please be more specific?
 
-Reported-by: Carlos Tonussi <tonussi@farmaco.ufsc.br>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-
---- 
-
-Index: linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h
-===================================================================
---- linux-2.6.27.orig/drivers/input/serio/i8042-x86ia64io.h
-+++ linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h
-@@ -316,6 +316,13 @@ static struct dmi_system_id __initdata i
- 		},
- 	},
- 	{
-+		.ident = "Acer Aspire 5710",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 5710"),
-+		},
-+	},
-+	{
- 		.ident = "Gericom Bellagio",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Gericom"),
+-- 
+Dmitry

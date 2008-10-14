@@ -1,7 +1,7 @@
 From: Arjan van de Ven <arjan@infradead.org>
 Subject: Re: Slow boot due perhaps to locks in mouse and platform system
-Date: Tue, 14 Oct 2008 11:37:49 -0400
-Message-ID: <20081014113749.75278492@infradead.org>
+Date: Tue, 14 Oct 2008 11:37:09 -0400
+Message-ID: <20081014113709.5a2f2c2e@infradead.org>
 References: <1223993968942@dmwebmail.dmwebmail.chezphil.org>
 	<20081014104442.ZZRA012@mailhub.coreip.homeip.net>
 	<20081014111236.2495140c@infradead.org>
@@ -10,11 +10,11 @@ Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:52836 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:52832 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751052AbYJNPhp (ORCPT
+	with ESMTP id S1750900AbYJNPhH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Oct 2008 11:37:45 -0400
+	Tue, 14 Oct 2008 11:37:07 -0400
 In-Reply-To: <20081014112912.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -40,10 +40,13 @@ Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 > > 
 > 
 > Could you please be more specific?
-\
-oh btw you could make the mouse be exempt from this waiting that'd be a
-much simpler/nicer solution ;-)
 
+right now, the linux kernel boot will wait for this probing to be done
+before mounting the root fs and then exec()ing /sbin/init.
+On my test laptop this takes 7 seconds of .. nothing ;-)
+
+the patch I have makes the kernel NOT wait for this, but just it tries
+to mount root right away (and if that fails, it THEN waits and retries)
 
 > 
 

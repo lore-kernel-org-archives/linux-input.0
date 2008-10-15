@@ -1,86 +1,55 @@
-From: Adrian Bunk <bunk@kernel.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 Subject: Re: [2.6 patch] HID: fix default building of all quirky devices
-Date: Wed, 15 Oct 2008 13:20:56 +0300
-Message-ID: <20081015102056.GH20183@cs181140183.pp.htv.fi>
+Date: Wed, 15 Oct 2008 10:09:05 -0700 (PDT)
+Message-ID: <alpine.LFD.2.00.0810151002120.3288@nehalem.linux-foundation.org>
 References: <20081015041346.GE4710@cs181140183.pp.htv.fi> <20081015050557.GB20183@cs181140183.pp.htv.fi> <20081015073011.GE20183@cs181140183.pp.htv.fi> <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5.pp.htv.fi ([213.243.153.39]:46721 "EHLO smtp5.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753842AbYJOKU7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2008 06:20:59 -0400
-Content-Disposition: inline
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:53769 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752455AbYJORPZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Oct 2008 13:15:25 -0400
 In-Reply-To: <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: zippel@linux-m68k.org, sam@ravnborg.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: Adrian Bunk <bunk@kernel.org>, zippel@linux-m68k.org, sam@ravnborg.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-On Wed, Oct 15, 2008 at 09:43:18AM +0200, Jiri Kosina wrote:
-> On Wed, 15 Oct 2008, Adrian Bunk wrote:
-> 
-> > Commit 9be7bbd54df3c9c393ccd19acc49f90c517d1291
-> > (HID: build drivers for all quirky devices by default)
-> > was wrong in that it select'ed the drivers, causing
-> > build errors like the following with CONFIG_USB_HID=n:
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      .tmp_vmlinux1
-> > drivers/built-in.o: In function `bright_probe':
-> > drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
-> > drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
-> > drivers/built-in.o: In function `dell_probe':
-> > drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
-> > drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
-> > drivers/built-in.o: In function `lg_probe':
-> > drivers/hid/hid-lg.c:252: undefined reference to `usbhid_set_leds'
-> > drivers/hid/hid-lg.c:252: more undefined references to `usbhid_set_leds' follow
-> > drivers/built-in.o: In function `sony_set_operational':
-> > drivers/hid/hid-sony.c:42: undefined reference to `usb_control_msg'
-> > drivers/hid/hid-sony.c:42: undefined reference to `usb_control_msg'
-> > make[1]: *** [.tmp_vmlinux1] Error 1
+
+
+On Wed, 15 Oct 2008, Jiri Kosina wrote:
 > 
 > Hmm ... I am not really sure, isn't this a bug in Kconfig?
 
-No.
+Not really, more of a misfeature.
 
-> What we have right now:
-> 
-> - CONFIG_HID selects all the individual quirk-drivers automatically
-> - the individual quirk drivers have dependency on CONFIG_USB_HID
-> 
-> Therefore I'd expect when CONFIG_HID is selected and CONFIG_USB_HID 
-> deselected the individual drivers not to get built (due to their 
-> dependency on unset option).
+That said, even if we were to consider it a bug, Adrian's patch is 
+obviously the better way to do it. You shouldn't do non-local dependencies 
+(have one config option select fifty other ones), when the local ones are 
+clearer and more readable (have one config option just describe its *own* 
+dependencies).
 
-Different people have different expectations.
+Don't get me wrong - select is very useful, but not for "should I ask this 
+question or not". The point to use select is when you have some library or 
+other common infrastructure that isn't worth a question of its own (eg 
+"Why the hell would the user want to care whether he needs CRC32 
+routines?"), and some code says "I will need this infrastructure" by just 
+saying "select CRC32" to let the build system know that it needs that 
+particular piece of functionality.
 
-Many kernel developers seem to wrongly assume kconfig was something 
-trivial and everything that does not work as expected was a bug in 
-kconfig. But it is not, and there is no magic bullet like changing
-how select behaves in some way that will suddenly solve all problems.
+In other words, "select" is kind of a "depends on", but for things that it 
+is insane to ask. It would be totally _idiotic_ to ask a user "do you want 
+to have CRC32 routines in the kernel?" and then based on that say "ok, you 
+didn't ask for CRC32, so now you cannot use the AX88796 network driver".
 
-> But currently what happens is when I de-select CONFIG_USB_HID in 
-> menuconfig, the configuration options for individual drivers vanish from 
-> the menuconfig menu (which is expected, they depend on unset option), but 
-> after saving .config they are still there. Is this how it is expected to 
-> behave? (i.e. select having preference over dependency).
+See? THAT is what "select" is for. And when you use select, the way we do 
+things now, you have to select everything you need. You cannot assume that 
+it will recursively select whatever it needs.
 
-Select ignores dependencies on the selected options.
+And notice how you mis-use select. That's not how to disable a question. A 
+question gets disabled by just doing an "if xyz" on the question itself, 
+like Adrian did.
 
-That's the documented behavior.
-
-> Thanks,
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+			Linus

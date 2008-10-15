@@ -1,59 +1,45 @@
-From: Adrian Bunk <bunk@kernel.org>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: usbhid_set_leds problems
-Date: Wed, 15 Oct 2008 08:05:57 +0300
-Message-ID: <20081015050557.GB20183@cs181140183.pp.htv.fi>
-References: <20081015041346.GE4710@cs181140183.pp.htv.fi>
+Date: Wed, 15 Oct 2008 09:13:32 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0810150912500.26779@jikos.suse.cz>
+References: <20081015041346.GE4710@cs181140183.pp.htv.fi> <20081015050557.GB20183@cs181140183.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6.pp.htv.fi ([213.243.153.40]:53498 "EHLO smtp6.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750973AbYJOFF6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2008 01:05:58 -0400
-Content-Disposition: inline
-In-Reply-To: <20081015041346.GE4710@cs181140183.pp.htv.fi>
+Received: from styx.suse.cz ([82.119.242.94]:32936 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751789AbYJOHNe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Oct 2008 03:13:34 -0400
+In-Reply-To: <20081015050557.GB20183@cs181140183.pp.htv.fi>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Mauro Carvalho Chehab <mchehab@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Adrian Bunk <bunk@kernel.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2008 at 07:13:46AM +0300, Adrian Bunk wrote:
-> With CONFIG_USB_HID=n I'm getting the following build error:
-> 
-> <--  snip  -->
-> 
-> ...
->   LD      .tmp_vmlinux1
-> drivers/built-in.o: In function `bright_probe':
-> drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
-> drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
-> drivers/built-in.o: In function `dell_probe':
-> drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
-> drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
-> drivers/built-in.o: In function `lg_probe':
-> drivers/hid/hid-lg.c:252: undefined reference to `usbhid_set_leds'
-> drivers/hid/hid-lg.c:252: more undefined references to `usbhid_set_leds' follow
-> ...
-> make[1]: *** [.tmp_vmlinux1] Error 1
-> 
-> <--  snip  -->
-> 
-> 
-> And I'm not sure commit 6edfa8dc33803a49ad936ead9840e453bee6ca3b
-> (HID: move reset leds quirk) was a good idea at all since I don't
-> see cases like HID_DELL=y, CONFIG_USB_HID=m could now work at all.
+On Wed, 15 Oct 2008, Adrian Bunk wrote:
 
-Scrap that mail, I shouldn't send patches before the first cup of tea...
+> >   LD      .tmp_vmlinux1
+> > drivers/built-in.o: In function `bright_probe':
+> > drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
+> > drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
+> > drivers/built-in.o: In function `dell_probe':
+> > drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
+> > drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
+> > drivers/built-in.o: In function `lg_probe':
+> > drivers/hid/hid-lg.c:252: undefined reference to `usbhid_set_leds'
+> > drivers/hid/hid-lg.c:252: more undefined references to `usbhid_set_leds' follow
+> > ...
+> > make[1]: *** [.tmp_vmlinux1] Error 1
+> > And I'm not sure commit 6edfa8dc33803a49ad936ead9840e453bee6ca3b
+> > (HID: move reset leds quirk) was a good idea at all since I don't
+> > see cases like HID_DELL=y, CONFIG_USB_HID=m could now work at all.
+> Scrap that mail, I shouldn't send patches before the first cup of tea...
+> I just found the actual problem.
 
-I just found the actual problem.
+Hmm, so what was the culprit actually? The build error shouldn't be there.
 
-cu
-Adrian
+Thanks,
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Jiri Kosina
+SUSE Labs

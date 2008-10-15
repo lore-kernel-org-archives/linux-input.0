@@ -1,49 +1,86 @@
-From: "Phil Endecott" <phil_dubhl_endecott@chezphil.org>
-Subject: Re: Slow boot due perhaps to locks in mouse and platform system
-Date: Wed, 15 Oct 2008 10:19:28 +0100
-Message-ID: <1224062368151@dmwebmail.dmwebmail.chezphil.org>
-References: <20081014222222.4260fa48@infradead.org>
+From: Adrian Bunk <bunk@kernel.org>
+Subject: Re: [2.6 patch] HID: fix default building of all quirky devices
+Date: Wed, 15 Oct 2008 13:20:56 +0300
+Message-ID: <20081015102056.GH20183@cs181140183.pp.htv.fi>
+References: <20081015041346.GE4710@cs181140183.pp.htv.fi> <20081015050557.GB20183@cs181140183.pp.htv.fi> <20081015073011.GE20183@cs181140183.pp.htv.fi> <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; format="flowed"
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from japan.chezphil.org ([77.240.5.4]:3568 "EHLO japan.chezphil.org"
+Received: from smtp5.pp.htv.fi ([213.243.153.39]:46721 "EHLO smtp5.pp.htv.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751030AbYJOJTa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2008 05:19:30 -0400
-Received: from localhost ([127.0.0.1] helo=chezphil.org)
-	by japan.chezphil.org with esmtp (Exim 4.69)
-	(envelope-from <phil_dubhl_endecott@chezphil.org>)
-	id 1Kq2XQ-00014L-ST
-	for linux-input@vger.kernel.org; Wed, 15 Oct 2008 10:19:28 +0100
-In-Reply-To: <20081014222222.4260fa48@infradead.org>
+	id S1753842AbYJOKU7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Oct 2008 06:20:59 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-input <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: zippel@linux-m68k.org, sam@ravnborg.org, Linus Torvalds <torvalds@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-Arjan van de Ven wrote:
-> On Wed, 15 Oct 2008 00:17:29 +0100
-> "Phil Endecott" <phil_dubhl_endecott@chezphil.org> wrote:
->
->> 
->> It looks to me as if uhci holds some lock that 8250 needs before it
->> can complete.  Now those are both PCI drivers in the same way that
->> the last two that seemed to contend were both input drivers (touchpad
->> and speaker) [hmm, except that as Dmitry pointed out there's a
->> distinction between the platform bus and the serio bus].  Anyway, my
->> ignorant suspicion is that there's some lock related to the bus or
->> subsystem that they both need.  Maybe something in sysfs?
->
-> it does do this. And I know which lock... and I fixed it ;)
-> Just the patch for this is in Gregkh's tree since it's a change to the
-> device/sysfs layer and he wanted to carry it via that way.
->
-> I can dig that patch out if you want
+On Wed, Oct 15, 2008 at 09:43:18AM +0200, Jiri Kosina wrote:
+> On Wed, 15 Oct 2008, Adrian Bunk wrote:
+> 
+> > Commit 9be7bbd54df3c9c393ccd19acc49f90c517d1291
+> > (HID: build drivers for all quirky devices by default)
+> > was wrong in that it select'ed the drivers, causing
+> > build errors like the following with CONFIG_USB_HID=n:
+> > <--  snip  -->
+> > 
+> > ...
+> >   LD      .tmp_vmlinux1
+> > drivers/built-in.o: In function `bright_probe':
+> > drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
+> > drivers/hid/hid-bright.c:38: undefined reference to `usbhid_set_leds'
+> > drivers/built-in.o: In function `dell_probe':
+> > drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
+> > drivers/hid/hid-dell.c:41: undefined reference to `usbhid_set_leds'
+> > drivers/built-in.o: In function `lg_probe':
+> > drivers/hid/hid-lg.c:252: undefined reference to `usbhid_set_leds'
+> > drivers/hid/hid-lg.c:252: more undefined references to `usbhid_set_leds' follow
+> > drivers/built-in.o: In function `sony_set_operational':
+> > drivers/hid/hid-sony.c:42: undefined reference to `usb_control_msg'
+> > drivers/hid/hid-sony.c:42: undefined reference to `usb_control_msg'
+> > make[1]: *** [.tmp_vmlinux1] Error 1
+> 
+> Hmm ... I am not really sure, isn't this a bug in Kconfig?
 
-Yes please!
+No.
 
+> What we have right now:
+> 
+> - CONFIG_HID selects all the individual quirk-drivers automatically
+> - the individual quirk drivers have dependency on CONFIG_USB_HID
+> 
+> Therefore I'd expect when CONFIG_HID is selected and CONFIG_USB_HID 
+> deselected the individual drivers not to get built (due to their 
+> dependency on unset option).
 
-Phil.
+Different people have different expectations.
 
+Many kernel developers seem to wrongly assume kconfig was something 
+trivial and everything that does not work as expected was a bug in 
+kconfig. But it is not, and there is no magic bullet like changing
+how select behaves in some way that will suddenly solve all problems.
 
+> But currently what happens is when I de-select CONFIG_USB_HID in 
+> menuconfig, the configuration options for individual drivers vanish from 
+> the menuconfig menu (which is expected, they depend on unset option), but 
+> after saving .config they are still there. Is this how it is expected to 
+> behave? (i.e. select having preference over dependency).
+
+Select ignores dependencies on the selected options.
+
+That's the documented behavior.
+
+> Thanks,
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

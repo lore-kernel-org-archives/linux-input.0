@@ -1,61 +1,67 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: [PATCH] additional SoundGraph iMon LCD devices for hid_ignore_list
-Date: Wed, 15 Oct 2008 15:00:20 -0400
-Message-ID: <200810151500.21023.jarod@redhat.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [2.6 patch] HID: fix default building of all quirky devices
+Date: Thu, 16 Oct 2008 00:54:13 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0810160050180.26779@jikos.suse.cz>
+References: <20081015041346.GE4710@cs181140183.pp.htv.fi> <20081015050557.GB20183@cs181140183.pp.htv.fi> <20081015073011.GE20183@cs181140183.pp.htv.fi> <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz> <alpine.LFD.2.00.0810151002120.3288@nehalem.linux-foundation.org>
+ <alpine.LFD.2.00.0810151009350.3288@nehalem.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.redhat.com ([66.187.237.31]:48983 "EHLO mx2.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753392AbYJOTAZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2008 15:00:25 -0400
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:48077 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754731AbYJOWyP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Oct 2008 18:54:15 -0400
+In-Reply-To: <alpine.LFD.2.00.0810151009350.3288@nehalem.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Adrian Bunk <bunk@kernel.org>, zippel@linux-m68k.org, sam@ravnborg.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-hid_ignore_list additions for more SoundGraph iMon LCD devices
+On Wed, 15 Oct 2008, Linus Torvalds wrote:
 
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
+> > Hmm ... I am not really sure, isn't this a bug in Kconfig?
+> Not really, more of a misfeature.
+> That said, even if we were to consider it a bug, Adrian's patch is 
+> obviously the better way to do it. You shouldn't do non-local dependencies 
+> (have one config option select fifty other ones), when the local ones are 
+> clearer and more readable (have one config option just describe its *own* 
+> dependencies).
 
----
+I agree. 
 
- drivers/hid/hid-core.c |    2 ++
- drivers/hid/hid-ids.h  |    2 ++
- 2 files changed, 4 insertions(+), 0 deletions(-)
+And even though I really think this is at least a misfeature, it's indeed 
+properly documented in Documentation/kbuild/kconfig-language.txt, so I am 
+really the only one to blame here.
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8a7d9db..721a36d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1518,6 +1518,8 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY1) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index aad9ed1..d9a1ba9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -354,6 +354,8 @@
- 
- #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
- #define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD	0x0038
-+#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2	0x0036
-+#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3	0x0034
- 
- #define USB_VENDOR_ID_SUN		0x0430
- #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
+On Wed, 15 Oct 2008, Linus Torvalds wrote:
 
+> Side note: Adrian too has a very odd and non-obvious way of doing this.
+> 
+> His patch did config entries like
+> 
+> 	config HID_BRIGHT
+> 		tristate "Bright" if EMBEDDED
+> 		default USB_HID
+> 		depends on USB_HID
+> 
+> which is a really odd way to express this. The much more natural one is
+> 
+> 	config HID_BRIGHT
+> 		tristate "Bright" if EMBEDDED
+> 		depends on USB_HID
+> 		default y
+> 
+> since there's no point in saying "default USB_HID" + "depends on USB_HID", 
+> and that's just confusing. Since it depends on USB_HID, the "default y" 
+> will automatically degrade to whatever USB_HID was set to.
+
+Hmm, yes, looks slightly better.
+
+I see you haven't pulled Adrian's fix from my tree yet. So please drop my 
+latest pull request, I will do it the "depens on + default y" way and send 
+you a new one shortly. There have been some more VID/PID additions 
+accumulated in the meantime anyway, so I'll send them too within a new 
+pull request.
 
 -- 
-Jarod Wilson
-jarod@redhat.com
-
+Jiri Kosina

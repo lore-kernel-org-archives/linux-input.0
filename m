@@ -1,39 +1,61 @@
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [2.6 patch] HID: fix default building of all quirky devices
-Date: Wed, 15 Oct 2008 10:43:36 -0700 (PDT)
-Message-ID: <alpine.LFD.2.00.0810151036400.3288@nehalem.linux-foundation.org>
-References: <20081015041346.GE4710@cs181140183.pp.htv.fi> <20081015050557.GB20183@cs181140183.pp.htv.fi> <20081015073011.GE20183@cs181140183.pp.htv.fi> <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz> <alpine.LFD.2.00.0810151002120.3288@nehalem.linux-foundation.org>
- <alpine.LFD.2.00.0810151009350.3288@nehalem.linux-foundation.org> <20081015173245.GA19255@cs181140183.pp.htv.fi>
+From: Jarod Wilson <jarod@redhat.com>
+Subject: [PATCH] additional SoundGraph iMon LCD devices for hid_ignore_list
+Date: Wed, 15 Oct 2008 15:00:20 -0400
+Message-ID: <200810151500.21023.jarod@redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:45755 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752876AbYJORol (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Oct 2008 13:44:41 -0400
-In-Reply-To: <20081015173245.GA19255@cs181140183.pp.htv.fi>
+Received: from mx2.redhat.com ([66.187.237.31]:48983 "EHLO mx2.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753392AbYJOTAZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Oct 2008 15:00:25 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Adrian Bunk <bunk@kernel.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, zippel@linux-m68k.org, sam@ravnborg.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
+To: linux-input@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>
+
+hid_ignore_list additions for more SoundGraph iMon LCD devices
+
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+
+---
+
+ drivers/hid/hid-core.c |    2 ++
+ drivers/hid/hid-ids.h  |    2 ++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 8a7d9db..721a36d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1518,6 +1518,8 @@ static const struct hid_device_id hid_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0003) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY1) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TENX, USB_DEVICE_ID_TENX_IBUDDY2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb300) },
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index aad9ed1..d9a1ba9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -354,6 +354,8 @@
+ 
+ #define USB_VENDOR_ID_SOUNDGRAPH	0x15c2
+ #define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD	0x0038
++#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD2	0x0036
++#define USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD3	0x0034
+ 
+ #define USB_VENDOR_ID_SUN		0x0430
+ #define USB_DEVICE_ID_RARITAN_KVM_DONGLE	0xcdab
 
 
+-- 
+Jarod Wilson
+jarod@redhat.com
 
-On Wed, 15 Oct 2008, Adrian Bunk wrote:
-> 
-> For me the more obvious way was what I did, but I agree that your 
-> solution looks better.
-
-I guess the "more obvious" part simply depends on what you're used to. The 
-"default y" + "depends on XYZ" thing is a rather common model, so I find 
-it to not just be shorter, but also "more obvious", exactly because I've 
-seen it before.
-
-Of course, the behaviour of 'default y' is much simpler (and _much_ more 
-common!) for a bool than for a tristate, and the rules for tristate logic 
-in general are obviously often a bit non-intuitive considering that we're 
-almost always used to the binary kind, and then the fact that Kconfgi uses 
-ternary logic has caused no end of hiccups.
-
-		Linus

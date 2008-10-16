@@ -1,57 +1,66 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: mmotm 2008-10-16-00-52 uploaded (HID)
-Date: Fri, 17 Oct 2008 01:15:30 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810170113570.28536@jikos.suse.cz>
-References: <200810160758.m9G7wZmt018529@imap1.linux-foundation.org> <Pine.LNX.4.64.0810161558341.14604@shark.he.net>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 1/1] input: AD7879 Touchscreen driver
+Date: Thu, 16 Oct 2008 16:32:40 -0700
+Message-ID: <20081016163240.ee06818b.akpm@linux-foundation.org>
+References: <1224179836-14639-1-git-send-email-cooloney@kernel.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:60607 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755146AbYJPXPc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Oct 2008 19:15:32 -0400
-In-Reply-To: <Pine.LNX.4.64.0810161558341.14604@shark.he.net>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37166 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752876AbYJPXdI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Oct 2008 19:33:08 -0400
+In-Reply-To: <1224179836-14639-1-git-send-email-cooloney@kernel.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, michael.hennerich@analog.com, cooloney@kernel.org
 
-On Thu, 16 Oct 2008, Randy.Dunlap wrote:
+On Fri, 17 Oct 2008 01:57:16 +0800
+Bryan Wu <cooloney@kernel.org> wrote:
 
-> > The mm-of-the-moment snapshot 2008-10-16-00-52 has been uploaded to
-> >    http://userweb.kernel.org/~akpm/mmotm/
-> > It contains the following patches against 2.6.27:
-> mmotm has several various build failures when
-> HID=y and USB=n
-> or
-> HID=y and USB_HID=m.
-> These are (mostly) caused by drivers/hid/Kconfig doing lots of "select"s
-> when EMBEDDED=n, such as
-> config HID
-> 	tristate "Generic HID support"
-> 	depends on INPUT
-> 	default y
->         select HID_A4TECH if !EMBEDDED
-[ ... ]
-> Build failure examples:
-> 9168:
-> HID=y, USB=n
-> hid-bright.c:(.text+0x1013f0): undefined reference to `usbhid_set_leds'
-> hid-dell.c:(.text+0x1019bc): undefined reference to `usbhid_set_leds'
-> hid-lg.c:(.text+0x102310): undefined reference to `usbhid_set_leds'
-> hid-lgff.c:(.text+0x102509): undefined reference to `usbhid_submit_report'
-> hid-lgff.c:(.text+0x102566): undefined reference to `usbhid_submit_report'
-> hid-pl.c:(.text+0x102bbb): undefined reference to `usbhid_submit_report'
-> hid-pl.c:(.text+0x102ddf): undefined reference to `usbhid_submit_report'
-> hid-sony.c:(.text+0x103339): undefined reference to `usb_control_msg'
+a little thing..
 
-Hi Randy,
+> +static void ad7879_disable(struct ad7879 *ts)
+> +{
+> +	unsigned long flags;
+> +
+> +	if (ts->disabled)
+> +		return;
+> +
+> +	spin_lock_irqsave(&ts->lock, flags);
+> +	ts->disabled = 1;
+> +	disable_irq(ts->bus->irq);
+> +	spin_unlock_irqrestore(&ts->lock, flags);
+> +
+> +	cancel_work_sync(&ts->work);
+> +
+> +	if (del_timer_sync(&ts->timer))
+> +		ad7879_ts_event_release(ts);
+> +
+> +	/* we know the chip's in lowpower mode since we always
+> +	 * leave it that way after every request
+> +	 */
+> +}
+> +
+> +static void ad7879_enable(struct ad7879 *ts)
+> +{
+> +	unsigned long flags;
+> +
+> +	if (!ts->disabled)
+> +		return;
+> +
+> +	spin_lock_irqsave(&ts->lock, flags);
+> +	ts->disabled = 0;
+> +	enable_irq(ts->bus->irq);
+> +	spin_unlock_irqrestore(&ts->lock, flags);
+> +}
 
-yes, that's my bug, and it is already fixed in Linus' tree (commit 
-b36299bcc0f).
+It would looks less racy if ts->disabled was tested while the lock was held.
 
-Thanks,
+Also, it would be more grammatically pleasing if ad7879_destruct() was
+called ad7879_destroy(), but the current spelling will still compile
+and run :)
 
--- 
-Jiri Kosina
-SUSE Labs
+

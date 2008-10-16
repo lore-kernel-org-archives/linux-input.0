@@ -1,94 +1,90 @@
-From: Adrian Bunk <bunk@kernel.org>
-Subject: Re: select validation (was: Re: [2.6 patch] HID: fix default
-	building of all quirky devices)
-Date: Thu, 16 Oct 2008 22:31:03 +0300
-Message-ID: <20081016193103.GC22554@cs181140183.pp.htv.fi>
-References: <20081015041346.GE4710@cs181140183.pp.htv.fi> <20081015050557.GB20183@cs181140183.pp.htv.fi> <20081015073011.GE20183@cs181140183.pp.htv.fi> <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz> <alpine.LFD.2.00.0810151002120.3288@nehalem.linux-foundation.org> <Pine.LNX.4.64.0810161002240.25933@anakin> <alpine.LFD.2.00.0810161133150.3288@nehalem.linux-foundation.org>
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: mmotm 2008-10-16-00-52 uploaded (HID)
+Date: Thu, 16 Oct 2008 16:05:25 -0700 (PDT)
+Message-ID: <Pine.LNX.4.64.0810161558341.14604@shark.he.net>
+References: <200810160758.m9G7wZmt018529@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp5.pp.htv.fi ([213.243.153.39]:39016 "EHLO smtp5.pp.htv.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751886AbYJPTbO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Oct 2008 15:31:14 -0400
-Content-Disposition: inline
-In-Reply-To: <alpine.LFD.2.00.0810161133150.3288@nehalem.linux-foundation.org>
+Received: from xenotime.net ([66.160.160.81]:40215 "HELO xenotime.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1757616AbYJPXF3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Oct 2008 19:05:29 -0400
+Received: from shark.he.net ([66.160.160.2]) by xenotime.net for <linux-input@vger.kernel.org>; Thu, 16 Oct 2008 16:05:25 -0700
+In-Reply-To: <200810160758.m9G7wZmt018529@imap1.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jiri Kosina <jkosina@suse.cz>, zippel@linux-m68k.org, sam@ravnborg.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, jkosina@suse.cz
 
-On Thu, Oct 16, 2008 at 11:47:55AM -0700, Linus Torvalds wrote:
+On Thu, 16 Oct 2008, akpm@linux-foundation.org wrote:
+
+> The mm-of-the-moment snapshot 2008-10-16-00-52 has been uploaded to
 > 
+>    http://userweb.kernel.org/~akpm/mmotm/
 > 
-> On Thu, 16 Oct 2008, Geert Uytterhoeven wrote:
-> > 
-> > Would it be possible for kconfig to check for invalid usage of select?
-> > 
-> > Like you should not use select to enable something that has
-> > dependencies. However, that would fail in case both the selector option
-> > and the selected option depend on the same.
-> 
-> Well, at least in theory you may actually want to select something that 
-> has dependencies, even if you don't want to select the dependencies.
-> 
-> For example, some feature may be enabled by default on some architecture 
-> or with some config. Example:
-> 
-> 	bool SUPPORT_FEATURE
-> 		default y
-> 		depends on EXPERIMENTAL
-> 		depends on !EMBEDDED
-> 		depends on X86
-> 
-> which is just another way of saying
-> 
-> 	bool SUPPORT_FEATURE
-> 		default X86 && !EMBEDDED && EXPERIMENTAL
+> It contains the following patches against 2.6.27:
 
-Such constructs without a prompt are for a different usecase than what 
-you have in mind, there wouldn't be EXPERIMENTAL or EMBEDDED in the 
-dependencies, this is used for stuff like
+mmotm has several various build failures when
+HID=y and USB=n
+or
+HID=y and USB_HID=m.
 
-config X86_HT
-        bool
-        depends on SMP
-        depends on (X86_32 && !X86_VOYAGER) || X86_64
-        default y
+These are (mostly) caused by drivers/hid/Kconfig doing lots of "select"s
+when EMBEDDED=n, such as
 
-And that's usually not the kind of symbol that should get selected.
+config HID
+	tristate "Generic HID support"
+	depends on INPUT
+	default y
+        select HID_A4TECH if !EMBEDDED
+        select HID_APPLE if !EMBEDDED
+        select HID_BELKIN if !EMBEDDED
+        select HID_BRIGHT if !EMBEDDED
+
+and HID_BRIGHT (just to pick one of them) says:
+
+config HID_BRIGHT
+	tristate "Bright"
+	default m
+	depends on USB_HID
+
+but that "depends on USB_HID" isn't being "honored" because "select"
+doesn't honor (or care) about dependencies.
+
+I think that you already know about this, but drivers/hid/Kconfig
+does need fixing.
 
 
-In reality your example would be:
+Build failure examples:
 
-config SUPPORT_FEATURE
-        bool "support feature" if EMBEDDED
-        default y
-        depends on X86 && EXPERIMENTAL
+9168:
+HID=y, USB=n
+hid-bright.c:(.text+0x1013f0): undefined reference to `usbhid_set_leds'
+hid-dell.c:(.text+0x1019bc): undefined reference to `usbhid_set_leds'
+hid-lg.c:(.text+0x102310): undefined reference to `usbhid_set_leds'
+hid-lgff.c:(.text+0x102509): undefined reference to `usbhid_submit_report'
+hid-lgff.c:(.text+0x102566): undefined reference to `usbhid_submit_report'
+hid-pl.c:(.text+0x102bbb): undefined reference to `usbhid_submit_report'
+hid-pl.c:(.text+0x102ddf): undefined reference to `usbhid_submit_report'
+hid-sony.c:(.text+0x103339): undefined reference to `usb_control_msg'
 
+9170:
+HID=y, USB_HID=m
+hid-bright.c:(.text+0xa9d2e): undefined reference to `usbhid_set_leds'
+hid-dell.c:(.text+0xaa332): undefined reference to `usbhid_set_leds'
+hid-lg.c:(.text+0xaa7e8): undefined reference to `usbhid_set_leds'
+hid-pl.c:(.text+0xab669): undefined reference to `usbhid_submit_report'
+hid-pl.c:(.text+0xab88d): undefined reference to `usbhid_submit_report'
 
-> and it's still possible that some code wants to do a
-> 
-> 	select SUPPORT_FEATURE
-> 
-> because the dependency isn't a _code_ dependency, it's a default-value 
-> dependency.
->...
-
-I'd be more concerned about dependencies that are used to make the 
-kconfig UI better.
-
-Dependencies on options like NETDEV_1000 are not code dependencies.
-
-> 		Linus
-
-cu
-Adrian
+9174:
+HID=y, USB=n
+hid-bright.c:(.text+0x1b4cf2): undefined reference to `usbhid_set_leds'
+hid-dell.c:(.text+0x1b52e2): undefined reference to `usbhid_set_leds'
+hid-lg.c:(.text+0x1b5790): undefined reference to `usbhid_set_leds'
+hid-lg2ff.c:(.text+0x1b6077): undefined reference to `usbhid_submit_report'
+(.text+0x1b61d2): undefined reference to `usbhid_submit_report'
+hid-sony.c:(.text+0x1b6db7): undefined reference to `usb_control_msg'
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+~Randy

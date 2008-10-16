@@ -1,90 +1,57 @@
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: mmotm 2008-10-16-00-52 uploaded (HID)
-Date: Thu, 16 Oct 2008 16:05:25 -0700 (PDT)
-Message-ID: <Pine.LNX.4.64.0810161558341.14604@shark.he.net>
-References: <200810160758.m9G7wZmt018529@imap1.linux-foundation.org>
+Date: Fri, 17 Oct 2008 01:15:30 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0810170113570.28536@jikos.suse.cz>
+References: <200810160758.m9G7wZmt018529@imap1.linux-foundation.org> <Pine.LNX.4.64.0810161558341.14604@shark.he.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xenotime.net ([66.160.160.81]:40215 "HELO xenotime.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1757616AbYJPXF3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Oct 2008 19:05:29 -0400
-Received: from shark.he.net ([66.160.160.2]) by xenotime.net for <linux-input@vger.kernel.org>; Thu, 16 Oct 2008 16:05:25 -0700
-In-Reply-To: <200810160758.m9G7wZmt018529@imap1.linux-foundation.org>
+Received: from styx.suse.cz ([82.119.242.94]:60607 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1755146AbYJPXPc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Oct 2008 19:15:32 -0400
+In-Reply-To: <Pine.LNX.4.64.0810161558341.14604@shark.he.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, jkosina@suse.cz
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thu, 16 Oct 2008, akpm@linux-foundation.org wrote:
+On Thu, 16 Oct 2008, Randy.Dunlap wrote:
 
-> The mm-of-the-moment snapshot 2008-10-16-00-52 has been uploaded to
-> 
->    http://userweb.kernel.org/~akpm/mmotm/
-> 
-> It contains the following patches against 2.6.27:
+> > The mm-of-the-moment snapshot 2008-10-16-00-52 has been uploaded to
+> >    http://userweb.kernel.org/~akpm/mmotm/
+> > It contains the following patches against 2.6.27:
+> mmotm has several various build failures when
+> HID=y and USB=n
+> or
+> HID=y and USB_HID=m.
+> These are (mostly) caused by drivers/hid/Kconfig doing lots of "select"s
+> when EMBEDDED=n, such as
+> config HID
+> 	tristate "Generic HID support"
+> 	depends on INPUT
+> 	default y
+>         select HID_A4TECH if !EMBEDDED
+[ ... ]
+> Build failure examples:
+> 9168:
+> HID=y, USB=n
+> hid-bright.c:(.text+0x1013f0): undefined reference to `usbhid_set_leds'
+> hid-dell.c:(.text+0x1019bc): undefined reference to `usbhid_set_leds'
+> hid-lg.c:(.text+0x102310): undefined reference to `usbhid_set_leds'
+> hid-lgff.c:(.text+0x102509): undefined reference to `usbhid_submit_report'
+> hid-lgff.c:(.text+0x102566): undefined reference to `usbhid_submit_report'
+> hid-pl.c:(.text+0x102bbb): undefined reference to `usbhid_submit_report'
+> hid-pl.c:(.text+0x102ddf): undefined reference to `usbhid_submit_report'
+> hid-sony.c:(.text+0x103339): undefined reference to `usb_control_msg'
 
-mmotm has several various build failures when
-HID=y and USB=n
-or
-HID=y and USB_HID=m.
+Hi Randy,
 
-These are (mostly) caused by drivers/hid/Kconfig doing lots of "select"s
-when EMBEDDED=n, such as
+yes, that's my bug, and it is already fixed in Linus' tree (commit 
+b36299bcc0f).
 
-config HID
-	tristate "Generic HID support"
-	depends on INPUT
-	default y
-        select HID_A4TECH if !EMBEDDED
-        select HID_APPLE if !EMBEDDED
-        select HID_BELKIN if !EMBEDDED
-        select HID_BRIGHT if !EMBEDDED
-
-and HID_BRIGHT (just to pick one of them) says:
-
-config HID_BRIGHT
-	tristate "Bright"
-	default m
-	depends on USB_HID
-
-but that "depends on USB_HID" isn't being "honored" because "select"
-doesn't honor (or care) about dependencies.
-
-I think that you already know about this, but drivers/hid/Kconfig
-does need fixing.
-
-
-Build failure examples:
-
-9168:
-HID=y, USB=n
-hid-bright.c:(.text+0x1013f0): undefined reference to `usbhid_set_leds'
-hid-dell.c:(.text+0x1019bc): undefined reference to `usbhid_set_leds'
-hid-lg.c:(.text+0x102310): undefined reference to `usbhid_set_leds'
-hid-lgff.c:(.text+0x102509): undefined reference to `usbhid_submit_report'
-hid-lgff.c:(.text+0x102566): undefined reference to `usbhid_submit_report'
-hid-pl.c:(.text+0x102bbb): undefined reference to `usbhid_submit_report'
-hid-pl.c:(.text+0x102ddf): undefined reference to `usbhid_submit_report'
-hid-sony.c:(.text+0x103339): undefined reference to `usb_control_msg'
-
-9170:
-HID=y, USB_HID=m
-hid-bright.c:(.text+0xa9d2e): undefined reference to `usbhid_set_leds'
-hid-dell.c:(.text+0xaa332): undefined reference to `usbhid_set_leds'
-hid-lg.c:(.text+0xaa7e8): undefined reference to `usbhid_set_leds'
-hid-pl.c:(.text+0xab669): undefined reference to `usbhid_submit_report'
-hid-pl.c:(.text+0xab88d): undefined reference to `usbhid_submit_report'
-
-9174:
-HID=y, USB=n
-hid-bright.c:(.text+0x1b4cf2): undefined reference to `usbhid_set_leds'
-hid-dell.c:(.text+0x1b52e2): undefined reference to `usbhid_set_leds'
-hid-lg.c:(.text+0x1b5790): undefined reference to `usbhid_set_leds'
-hid-lg2ff.c:(.text+0x1b6077): undefined reference to `usbhid_submit_report'
-(.text+0x1b61d2): undefined reference to `usbhid_submit_report'
-hid-sony.c:(.text+0x1b6db7): undefined reference to `usb_control_msg'
+Thanks,
 
 -- 
-~Randy
+Jiri Kosina
+SUSE Labs

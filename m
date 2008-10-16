@@ -1,31 +1,79 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Input: Add Acer Aspire 5710 to nomux blacklist
-Date: Thu, 16 Oct 2008 09:39:50 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810160939370.26779@jikos.suse.cz>
-References: <alpine.LNX.1.10.0810141727020.26779@jikos.suse.cz> <20081016040509.GA16860@anvil.corenet.prv>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: select validation (was: Re: [2.6 patch] HID: fix default building
+ of all quirky devices)
+Date: Thu, 16 Oct 2008 10:06:41 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0810161002240.25933@anakin>
+References: <20081015041346.GE4710@cs181140183.pp.htv.fi>
+ <20081015050557.GB20183@cs181140183.pp.htv.fi> <20081015073011.GE20183@cs181140183.pp.htv.fi>
+ <alpine.LNX.1.10.0810150931350.26779@jikos.suse.cz>
+ <alpine.LFD.2.00.0810151002120.3288@nehalem.linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:32807 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751507AbYJPHjw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Oct 2008 03:39:52 -0400
-In-Reply-To: <20081016040509.GA16860@anvil.corenet.prv>
+Received: from yorgi.telenet-ops.be ([195.130.133.69]:41309 "EHLO
+	yorgi.telenet-ops.be" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752479AbYJPIHS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Oct 2008 04:07:18 -0400
+Received: from wilson.telenet-ops.be (wilson.telenet-ops.be [195.130.132.42])
+	by yorgi.telenet-ops.be (Postfix) with ESMTP id E8E545891CD
+	for <linux-input@vger.kernel.org>; Thu, 16 Oct 2008 10:07:16 +0200 (CEST)
+In-Reply-To: <alpine.LFD.2.00.0810151002120.3288@nehalem.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Carlos Tonussi <tonussi@farmaco.ufsc.br>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, Adrian Bunk <bunk@kernel.org>, zippel@linux-m68k.org, sam@ravnborg.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>, Mauro Carvalho Chehab <mchehab@redhat.com>
 
-On Thu, 16 Oct 2008, Dmitry Torokhov wrote:
+On Wed, 15 Oct 2008, Linus Torvalds wrote:
+> On Wed, 15 Oct 2008, Jiri Kosina wrote:
+> > Hmm ... I am not really sure, isn't this a bug in Kconfig?
+> 
+> Not really, more of a misfeature.
+> 
+> That said, even if we were to consider it a bug, Adrian's patch is 
+> obviously the better way to do it. You shouldn't do non-local dependencies 
+> (have one config option select fifty other ones), when the local ones are 
+> clearer and more readable (have one config option just describe its *own* 
+> dependencies).
+> 
+> Don't get me wrong - select is very useful, but not for "should I ask this 
+> question or not". The point to use select is when you have some library or 
+> other common infrastructure that isn't worth a question of its own (eg 
+> "Why the hell would the user want to care whether he needs CRC32 
+> routines?"), and some code says "I will need this infrastructure" by just 
+> saying "select CRC32" to let the build system know that it needs that 
+> particular piece of functionality.
+> 
+> In other words, "select" is kind of a "depends on", but for things that it 
+> is insane to ask. It would be totally _idiotic_ to ask a user "do you want 
+> to have CRC32 routines in the kernel?" and then based on that say "ok, you 
+> didn't ask for CRC32, so now you cannot use the AX88796 network driver".
+> 
+> See? THAT is what "select" is for. And when you use select, the way we do 
+> things now, you have to select everything you need. You cannot assume that 
+> it will recursively select whatever it needs.
+> 
+> And notice how you mis-use select. That's not how to disable a question. A 
+> question gets disabled by just doing an "if xyz" on the question itself, 
+> like Adrian did.
 
-> > Acer Aspire needs to be added to nomux blacklist, otherwise the touchpad 
-> > misbehaves.
-> > Reported-by: Carlos Tonussi <tonussi@farmaco.ufsc.br>
-> > Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> I will hold off applying this patch pending testing EC patches.
+Would it be possible for kconfig to check for invalid usage of select?
 
-Absolutely. I will let you know.
+Like you should not use select to enable something that has
+dependencies. However, that would fail in case both the selector option
+and the selected option depend on the same.
 
--- 
-Jiri Kosina
-SUSE Labs
+And doing it dynamically (you should not use select to enable something that
+has dependencies that are (currently) not fulfilled) wouldn't find all
+incorrect usages.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

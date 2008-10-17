@@ -1,35 +1,40 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: [patch]port of usbhid autosuspend to hidbus tree
-Date: Fri, 17 Oct 2008 12:07:02 +0200
-Message-ID: <200810171207.03289.oliver@neukum.org>
-References: <200809261630.04578.oliver@neukum.org> <alpine.LNX.1.10.0810171146180.28536@jikos.suse.cz>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.1.10.0810171146180.28536-YCXOAqNspd+N3ZZ/Hiejyg@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: [PATCH 1/1] HID: fix hidraw_exit section mismatch
+Date: Fri, 17 Oct 2008 18:04:48 +0200
+Message-ID: <1224259488-11467-1-git-send-email-jirislaby@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.wellnetcz.com ([212.24.148.102]:42766 "EHLO
+	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754314AbYJQQEy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Oct 2008 12:04:54 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-Am Freitag, 17. Oktober 2008 11:47:00 schrieb Jiri Kosina:
-> On Fri, 26 Sep 2008, Oliver Neukum wrote:
-> 
-> > this ports the usbhid autosuspend to Jiri's tree with hidbus
-> 
-> Hi Oliver,
-> 
-> so did I get it right that you are going to send me an updated version 
-> with improved LED handling, which I then could queue for -next?
+hidraw_exit() marked as __exit is called from __init function
+from HID core. Remove the section placement from that function.
 
-Next week. I have too many bugs to look at this week.
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ drivers/hid/hidraw.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index af3edb9..1c23813 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -403,7 +403,7 @@ out:
+ 	return result;
+ }
+ 
+-void __exit hidraw_exit(void)
++void hidraw_exit(void)
+ {
+ 	dev_t dev_id = MKDEV(hidraw_major, 0);
+ 
+-- 
+1.6.0.2
+

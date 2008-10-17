@@ -1,42 +1,38 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Force Feedback for Thrustmaster RGT Pro Clutch Pedal Edition
- racing wheel
-Date: Fri, 17 Oct 2008 11:18:56 +0200 (CEST)
-Message-ID: <alpine.LNX.1.10.0810171118040.28536@jikos.suse.cz>
-References: <48CBD7B3.4070104@xs4all.be> <Pine.LNX.4.64.0809200442010.27884@twin.jikos.cz> <48DA2557.2030008@xs4all.be>
+Subject: Re: [PATCH] Revert "HID: Invert HWHEEL mappings for some Logitech
+ mice"
+Date: Fri, 17 Oct 2008 11:26:37 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0810171125090.28536@jikos.suse.cz>
+References: <Pine.LNX.4.64.0806181802480.23194@twin.jikos.cz> <1224219974-4216-1-git-send-email-dbn.lists@gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:46386 "EHLO mail.suse.cz"
+Received: from styx.suse.cz ([82.119.242.94]:46702 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752201AbYJQJS5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Oct 2008 05:18:57 -0400
-In-Reply-To: <48DA2557.2030008@xs4all.be>
+	id S1752683AbYJQJ0i (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Oct 2008 05:26:38 -0400
+In-Reply-To: <1224219974-4216-1-git-send-email-dbn.lists@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Didier Moens <moensd@xs4all.be>
-Cc: linux-input@vger.kernel.org, Zinx Verituse <zinx@epicsol.org>
+To: Dan Nicholson <dbn.lists@gmail.com>
+Cc: Ander Conselvan de Oliveira <ander@c3sl.ufpr.br>, linux-input@vger.kernel.org, stable@kernel.org
 
-On Wed, 24 Sep 2008, Didier Moens wrote:
+On Thu, 16 Oct 2008, Dan Nicholson wrote:
 
-> > For start, running hd in debugging mode (CONFIG_HID_DEBUG and 
-> > modprobing 'hid' module with 'debug=2' parameter) and capturing output 
-> > of a working session in windows might be good steps.
-> Thank you all (Jiri, Anssi, Jean-Philippe) for your highly valued input 
-> in getting this steering wheel supported. By Jiri's request, I've 
-> retested the device with hid_debug=2 (recompiled kernel 2.6.26.5-27.fc8, 
-> as hid is not modularized in Fedora 8 : patch see below).
-> For brevity's sake and to not clog up the mailing list, all logs and generated
-> output are available at http://www.dmbr.UGent.be/~didier/tmff/ ; directory
-> contents :
+> This reverts commit 740f370dc61dc478d891d7d47660bb3ae39ddb4f.
+> 
+> It turned out to be correct in the first place: a positive value should
+> be sent when the wheel is moved to the right, and a negative value when
+> moved to the left. This is the behavior expected by the Xorg evdev
+> driver. I must have had a remapping somewhere else in my system when
+> originally testing this. Testing on another system shows that the
+> unpatched kernel is correct.
 
-Hi Didier,
+Hi Dan,
 
-sorry for not getting back to you sooner. The URL doesn't seem to be alive 
-any more. Could you please send the output data as mail attachment, if 
-they are not too huge?
-
-Thanks,
+thanks. Still I'd like to understand what caused the behavior you were 
+seeing. Do you still have the system showing the inverted values 
+available?
 
 -- 
 Jiri Kosina

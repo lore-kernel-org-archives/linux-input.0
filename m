@@ -1,202 +1,69 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 2/2] HID: fix appletouch regression
-Date: Sun, 19 Oct 2008 16:15:49 +0200
-Message-ID: <1224425749-22652-2-git-send-email-jirislaby@gmail.com>
-References: <1224425749-22652-1-git-send-email-jirislaby@gmail.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751958AbYJSOQg@vger.kernel.org>
-In-Reply-To: <1224425749-22652-1-git-send-email-jirislaby@gmail.com>
+Subject: [PATCH 1/2] HID: add hid_type
+Date: Sun, 19 Oct 2008 16:15:48 +0200
+Message-ID: <1224425749-22652-1-git-send-email-jirislaby@gmail.com>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751967AbYJSOQW@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: jkosina@suse.cz
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Steven Noonan <steven@uplinklabs.net>, Justin Mattock <justinmattock@gmail.com>, Sven Anders <anders@anduras.de>, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 List-Id: linux-input@vger.kernel.org
 
-The appletouch mouse devices are grabbed by the hid bus and not
-released even if apple driver says ENODEV (as expected).
+Add type to the hid structure to distinguish to which device type
+(mouse/kbd) we are talking to. Needed for per device type ignore
+list support.
 
-Move the ignoration one level upper to deny the hid layer to grab
-the device and return error to the usb hid which, as a result,
-releases the device.
+Note: this patch leaves the type as unknown for bluetooth devices,
+there is not support for this in the hidp code.
 
-Otherwise input/mouse/appletouch and others needn't be attached.
-
-Reported-by: Justin Mattock <justinmattock@gmail.com>
-Reported-by: Steven Noonan <steven@uplinklabs.net>
 Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 ---
- drivers/hid/hid-apple.c |   63 ++++++++++++++++------------------------------
- drivers/hid/hid-core.c  |   33 ++++++++++++++++++++++++
- 2 files changed, 55 insertions(+), 41 deletions(-)
+ drivers/hid/usbhid/hid-core.c |    8 ++++++++
+ include/linux/hid.h           |    7 +++++++
+ 2 files changed, 15 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index fd7f896..c6ab4ba 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -312,13 +312,6 @@ static int apple_probe(struct hid_device *hdev,
- 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
- 	int ret;
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 1d3b8a3..20617d8 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -972,6 +972,14 @@ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
+ 	hid->product = le16_to_cpu(dev->descriptor.idProduct);
+ 	hid->name[0] = 0;
++	switch (intf->cur_altsetting->desc.bInterfaceProtocol) {
++	case USB_INTERFACE_PROTOCOL_KEYBOARD:
++		hid->type = HID_TYPE_KEYBOARD;
++		break;
++	case USB_INTERFACE_PROTOCOL_MOUSE:
++		hid->type = HID_TYPE_MOUSE;
++		break;
++	}
  
--	/* return something else or move to hid layer? device will reside
--	   allocated */
--	if (id->bus == BUS_USB && (quirks & APPLE_IGNORE_MOUSE) &&
--			to_usb_interface(hdev->dev.parent)->cur_altsetting->
--			desc.bInterfaceProtocol == USB_INTERFACE_PROTOCOL_MOUSE)
--		return -ENODEV;
--
- 	asc = kzalloc(sizeof(*asc), GFP_KERNEL);
- 	if (asc == NULL) {
- 		dev_err(&hdev->dev, "can't alloc apple descriptor\n");
-@@ -367,38 +360,32 @@ static const struct hid_device_id apple_devices[] = {
- 		.driver_data = APPLE_MIGHTYMOUSE | APPLE_INVERT_HWHEEL },
- 
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE | APPLE_ISO_KEYBOARD },
-+			APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE | APPLE_ISO_KEYBOARD },
-+			APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE | APPLE_RDESC_JIS },
-+			APPLE_RDESC_JIS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE | APPLE_ISO_KEYBOARD },
-+			APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE | APPLE_RDESC_JIS},
-+			APPLE_RDESC_JIS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ANSI),
- 		.driver_data = APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_ISO),
-@@ -406,14 +393,12 @@ static const struct hid_device_id apple_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_JIS),
- 		.driver_data = APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE | APPLE_RDESC_JIS },
-+			APPLE_RDESC_JIS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO),
-@@ -422,25 +407,21 @@ static const struct hid_device_id apple_devices[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_ALU_WIRELESS_JIS),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
--		.driver_data = APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS),
--		.driver_data = APPLE_HAS_FN | APPLE_IGNORE_MOUSE | APPLE_RDESC_JIS },
-+		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI),
--		.driver_data = APPLE_HAS_FN | APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO),
--		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
--		.driver_data = APPLE_HAS_FN | APPLE_IGNORE_MOUSE | APPLE_RDESC_JIS },
-+		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
--		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
--			APPLE_IGNORE_MOUSE },
-+		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 
- 	/* Apple wireless Mighty Mouse */
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 0x030c),
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 8a7d9db..90bdc6f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1539,6 +1539,35 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ }
+ 	if (dev->manufacturer)
+ 		strlcpy(hid->name, dev->manufacturer, sizeof(hid->name));
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index f13bca2..36a3953 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -417,6 +417,12 @@ struct hid_input {
+ 	struct input_dev *input;
  };
  
-+/**
-+ * hid_mouse_ignore_list - mouse devices which must not be held by the hid layer
-+ */
-+static const struct hid_device_id hid_mouse_ignore_list[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER3_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
-+	{ }
++enum hid_type {
++	HID_TYPE_UNKNOWN = 0,
++	HID_TYPE_MOUSE,
++	HID_TYPE_KEYBOARD
 +};
 +
- static bool hid_ignore(struct hid_device *hdev)
- {
- 	switch (hdev->vendor) {
-@@ -1555,6 +1584,10 @@ static bool hid_ignore(struct hid_device *hdev)
- 		break;
- 	}
+ struct hid_driver;
+ struct hid_ll_driver;
  
-+	if (hdev->type == HID_TYPE_MOUSE &&
-+			hid_match_id(hdev, hid_mouse_ignore_list))
-+		return true;
-+
- 	return !!hid_match_id(hdev, hid_ignore_list);
- }
+@@ -431,6 +437,7 @@ struct hid_device {							/* device report descriptor */
+ 	__u32 vendor;							/* Vendor ID */
+ 	__u32 product;							/* Product ID */
+ 	__u32 version;							/* HID version */
++	enum hid_type type;						/* device type (mouse, kbd, ...) */
+ 	unsigned country;						/* HID country */
+ 	struct hid_report_enum report_enum[HID_REPORT_TYPES];
  
 -- 
 1.6.0.2

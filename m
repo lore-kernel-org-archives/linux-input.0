@@ -1,69 +1,54 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: [PATCH 1/2] HID: add hid_type
-Date: Sun, 19 Oct 2008 16:15:48 +0200
-Message-ID: <1224425749-22652-1-git-send-email-jirislaby@gmail.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751967AbYJSOQW@vger.kernel.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 2/2] HID: fix appletouch regression (was Re: several
+ messages)
+Date: Mon, 20 Oct 2008 00:23:26 +0200 (CEST)
+Message-ID: <alpine.LNX.1.10.0810200017150.27479@jikos.suse.cz>
+References: <1224425749-22652-1-git-send-email-jirislaby@gmail.com> <1224425749-22652-2-git-send-email-jirislaby@gmail.com> <alpine.LNX.1.10.0810192135010.27479@jikos.suse.cz> <48FBB012.40605@gmail.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752436AbYJSWXi@vger.kernel.org>
+In-Reply-To: <48FBB012.40605@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Steven Noonan <steven@uplinklabs.net>, Justin Mattock <justinmattock@gmail.com>, Sven Anders <anders@anduras.de>, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Steven Noonan <steven@uplinklabs.net>, Justin Mattock <justinmattock@gmail.com>, Sven Anders <anders@anduras.de>, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Add type to the hid structure to distinguish to which device type
-(mouse/kbd) we are talking to. Needed for per device type ignore
-list support.
 
-Note: this patch leaves the type as unknown for bluetooth devices,
-there is not support for this in the hidp code.
+[ restored previous subject, sorry for the "several messagess" mess, 
+alpine didn't handle multi-message reply with different subjects nicely ]
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
----
- drivers/hid/usbhid/hid-core.c |    8 ++++++++
- include/linux/hid.h           |    7 +++++++
- 2 files changed, 15 insertions(+), 0 deletions(-)
+On Mon, 20 Oct 2008, Jiri Slaby wrote:
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 1d3b8a3..20617d8 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -972,6 +972,14 @@ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
- 	hid->product = le16_to_cpu(dev->descriptor.idProduct);
- 	hid->name[0] = 0;
-+	switch (intf->cur_altsetting->desc.bInterfaceProtocol) {
-+	case USB_INTERFACE_PROTOCOL_KEYBOARD:
-+		hid->type = HID_TYPE_KEYBOARD;
-+		break;
-+	case USB_INTERFACE_PROTOCOL_MOUSE:
-+		hid->type = HID_TYPE_MOUSE;
-+		break;
-+	}
- 
- 	if (dev->manufacturer)
- 		strlcpy(hid->name, dev->manufacturer, sizeof(hid->name));
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index f13bca2..36a3953 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -417,6 +417,12 @@ struct hid_input {
- 	struct input_dev *input;
- };
- 
-+enum hid_type {
-+	HID_TYPE_UNKNOWN = 0,
-+	HID_TYPE_MOUSE,
-+	HID_TYPE_KEYBOARD
-+};
-+
- struct hid_driver;
- struct hid_ll_driver;
- 
-@@ -431,6 +437,7 @@ struct hid_device {							/* device report descriptor */
- 	__u32 vendor;							/* Vendor ID */
- 	__u32 product;							/* Product ID */
- 	__u32 version;							/* HID version */
-+	enum hid_type type;						/* device type (mouse, kbd, ...) */
- 	unsigned country;						/* HID country */
- 	struct hid_report_enum report_enum[HID_REPORT_TYPES];
- 
+> >> +enum hid_type {
+> >> +	HID_TYPE_UNKNOWN = 0,
+> >> +	HID_TYPE_MOUSE,
+> >> +	HID_TYPE_KEYBOARD
+> > Do we really need the HID_TYPE_KEYBOARD at all? It's not used anywhere 
+> > in the code. I'd propose to add it when it is actually needed. I.e. 
+> > have the enum contain something like HID_TYPE_MOUSE HID_TYPE_OTHER for 
+> > now, and add whatever will become necessary in the future, what do you 
+> > think?
+> I would use unknown rather than other, since on bluetooth mouse is unknown
+> not other, if you don't mind?
+> Or did you mean tristate unknown, mouse and other?
+
+Well, basically the points I am trying to make:
+
+1) the code doesn't currently need HID_TYPE_KEYBOARD at all
+
+and
+
+2) by definition, HID are not just mice and keyboards, so adding just 
+   these two doesn't look particularly correct, if just one of them is 
+   needed
+
+For bluetooth we even don't have the possibility to distinguish these, 
+yes. So probably something like HID_TYPE_USBMOUSE/HID_TYPE_OTHER for now, 
+and we could extend the enum whenever the need to recognize a different 
+type comes up?
+
+Thanks,
+
 -- 
-1.6.0.2
+Jiri Kosina
+SUSE Labs

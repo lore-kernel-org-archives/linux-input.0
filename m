@@ -1,87 +1,69 @@
-From: "Justin Mattock" <justinmattock@gmail.com>
-Subject: Re: [PATCH 1/2] HID: add hid_type
-Date: Sun, 19 Oct 2008 12:08:01 -0700
-Message-ID: <dd18b0c30810191208p62bc8b1eub53b79de2d2d6261@mail.gmail.com>
-References: <1224425749-22652-1-git-send-email-jirislaby@gmail.com>
+From: Dominic Curran <dcurran@ti.com>
+Subject: [PATCH] GPIO-KEY: Add flag to allow gpio key auto repeat.
+Date: Mon, 20 Oct 2008 19:44:41 -0500
+Message-ID: <200810201944.42118.dcurran@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752021AbYJSTIT@vger.kernel.org>
-In-Reply-To: <1224425749-22652-1-git-send-email-jirislaby@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from arroyo.ext.ti.com ([192.94.94.40]:48868 "EHLO arroyo.ext.ti.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752436AbYJUAos (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 20 Oct 2008 20:44:48 -0400
+Received: from dlep35.itg.ti.com ([157.170.170.118])
+	by arroyo.ext.ti.com (8.13.7/8.13.7) with ESMTP id m9L0ihAU016287
+	for <linux-input@vger.kernel.org>; Mon, 20 Oct 2008 19:44:48 -0500
+Received: from gromit.am.dhcp.ti.com (localhost [127.0.0.1])
+	by dlep35.itg.ti.com (8.13.7/8.13.7) with ESMTP id m9L0igZq014718
+	for <linux-input@vger.kernel.org>; Mon, 20 Oct 2008 19:44:42 -0500 (CDT)
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Steven Noonan <steven@uplinklabs.net>, Sven Anders <anders@anduras.de>, Marcel Holtmann <marcel@holtmann.org>, linux-bluetooth@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Sun, Oct 19, 2008 at 7:15 AM, Jiri Slaby <jirislaby@gmail.com> wrote:
-> Add type to the hid structure to distinguish to which device type
-> (mouse/kbd) we are talking to. Needed for per device type ignore
-> list support.
->
-> Note: this patch leaves the type as unknown for bluetooth devices,
-> there is not support for this in the hidp code.
->
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-> ---
->  drivers/hid/usbhid/hid-core.c |    8 ++++++++
->  include/linux/hid.h           |    7 +++++++
->  2 files changed, 15 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 1d3b8a3..20617d8 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -972,6 +972,14 @@ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
->        hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
->        hid->product = le16_to_cpu(dev->descriptor.idProduct);
->        hid->name[0] = 0;
-> +       switch (intf->cur_altsetting->desc.bInterfaceProtocol) {
-> +       case USB_INTERFACE_PROTOCOL_KEYBOARD:
-> +               hid->type = HID_TYPE_KEYBOARD;
-> +               break;
-> +       case USB_INTERFACE_PROTOCOL_MOUSE:
-> +               hid->type = HID_TYPE_MOUSE;
-> +               break;
-> +       }
->
->        if (dev->manufacturer)
->                strlcpy(hid->name, dev->manufacturer, sizeof(hid->name));
-> diff --git a/include/linux/hid.h b/include/linux/hid.h
-> index f13bca2..36a3953 100644
-> --- a/include/linux/hid.h
-> +++ b/include/linux/hid.h
-> @@ -417,6 +417,12 @@ struct hid_input {
->        struct input_dev *input;
->  };
->
-> +enum hid_type {
-> +       HID_TYPE_UNKNOWN = 0,
-> +       HID_TYPE_MOUSE,
-> +       HID_TYPE_KEYBOARD
-> +};
-> +
->  struct hid_driver;
->  struct hid_ll_driver;
->
-> @@ -431,6 +437,7 @@ struct hid_device {                                                 /* device report descriptor */
->        __u32 vendor;                                                   /* Vendor ID */
->        __u32 product;                                                  /* Product ID */
->        __u32 version;                                                  /* HID version */
-> +       enum hid_type type;                                             /* device type (mouse, kbd, ...) */
->        unsigned country;                                               /* HID country */
->        struct hid_report_enum report_enum[HID_REPORT_TYPES];
->
-> --
-> 1.6.0.2
->
->
+This patch adds a flag to gpio-key driver to turn on the input subsystems 
+auto repeat feature if needed.
 
-O.k. reverted the old patch and
-applied the two new ones.
-appletouchpad is working;
-I didn't use patch -p1,
-just manually applied the two.
+Signed-off-by: Dominic Curran <dcurran@ti.com>
+---
+ drivers/input/keyboard/gpio_keys.c |    4 ++++
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 5 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 drivers/input/keyboard/gpio_keys.c
+ mode change 100644 => 100755 include/linux/gpio_keys.h
 
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+old mode 100644
+new mode 100755
+index 05f3f43..722529c
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -98,6 +98,10 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 	input->id.product = 0x0001;
+ 	input->id.version = 0x0100;
+ 
++	/* Enable auto repeat feature of Linux input subsystem */
++	if (pdata->rep)
++		set_bit(EV_REP, input->evbit);
++
+ 	ddata->input = input;
+ 
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+old mode 100644
+new mode 100755
+index ec6ecd7..1289fa7
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -15,6 +15,7 @@ struct gpio_keys_button {
+ struct gpio_keys_platform_data {
+ 	struct gpio_keys_button *buttons;
+ 	int nbuttons;
++	unsigned int rep:1;		/* enable input subsystem auto repeat */
+ };
+ 
+ #endif
 -- 
-Justin P. Mattock
+1.5.4.1
+

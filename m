@@ -1,28 +1,24 @@
-From: Ivo van Doorn <ivdoorn@gmail.com>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 Subject: Re: [PATCH] RFKILL: fix input layer initialisation
-Date: Wed, 22 Oct 2008 19:05:58 +0200
-Message-ID: <200810221905.58169.IvDoorn@gmail.com>
+Date: Wed, 22 Oct 2008 15:15:02 -0200
+Message-ID: <20081022171502.GD1069@khazad-dum.debian.net>
 References: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.190]:37875 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756726AbYJVRGE (ORCPT
+Received: from out3.smtp.messagingengine.com ([66.111.4.27]:40121 "EHLO
+	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757058AbYJVRPI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Oct 2008 13:06:04 -0400
-Received: by nf-out-0910.google.com with SMTP id d3so1473275nfc.21
-        for <linux-input@vger.kernel.org>; Wed, 22 Oct 2008 10:06:02 -0700 (PDT)
-In-Reply-To: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
+	Wed, 22 Oct 2008 13:15:08 -0400
 Content-Disposition: inline
+In-Reply-To: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Baryshkov <dbaryshkov@gmail.com>
 Cc: linux-wireless@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wednesday 22 October 2008, Dmitry Baryshkov wrote:
+On Wed, 22 Oct 2008, Dmitry Baryshkov wrote:
 > Initialise correctly last fields, so tasks can be actually executed.
 > On some architectures the initial jiffies value is not zero, so later
 > all rfkill incorrectly decides that rfkill_*.last is in future.
@@ -48,12 +44,16 @@ On Wednesday 22 October 2008, Dmitry Baryshkov wrote:
 >  	return input_register_handler(&rfkill_handler);
 >  }
 
-I believe Dmitry Torokhov recently moved the rfkill structures for wlan, bt, etc
-into an array which allowed for easy looping through all structures. That would
-make updating all entries easier (and less prone to errors when a new structure
-is added).
+This is not needed for wireless-testing's rfkill-input.
 
-Could you rebase thise patch on top of that one?
-Thanks,
+It is needed on 2.6.28, since AFAIK the stuff in wireless-testing is not
+going to be sent for 2.6.28.
 
-Ivo
+A similar patch to this was sent not a month ago, I think.  One of the two
+needs to be merged for 2.6.28.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

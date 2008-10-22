@@ -1,45 +1,59 @@
-From: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Subject: [PATCH] RFKILL: fix input layer initialisation
-Date: Wed, 22 Oct 2008 20:52:55 +0400
-Message-ID: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
+From: Ivo van Doorn <ivdoorn@gmail.com>
+Subject: Re: [PATCH] RFKILL: fix input layer initialisation
+Date: Wed, 22 Oct 2008 19:05:58 +0200
+Message-ID: <200810221905.58169.IvDoorn@gmail.com>
+References: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.186]:44241 "EHLO
+Received: from nf-out-0910.google.com ([64.233.182.190]:37875 "EHLO
 	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751684AbYJVQxG (ORCPT
+	with ESMTP id S1756726AbYJVRGE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Oct 2008 12:53:06 -0400
-Received: by nf-out-0910.google.com with SMTP id d3so1470271nfc.21
-        for <linux-input@vger.kernel.org>; Wed, 22 Oct 2008 09:53:03 -0700 (PDT)
+	Wed, 22 Oct 2008 13:06:04 -0400
+Received: by nf-out-0910.google.com with SMTP id d3so1473275nfc.21
+        for <linux-input@vger.kernel.org>; Wed, 22 Oct 2008 10:06:02 -0700 (PDT)
+In-Reply-To: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-wireless@vger.kernel.org
-Cc: linux-input@vger.kernel.org, Dmitry Baryshkov <dbaryshkov@gmail.com>
+To: Dmitry Baryshkov <dbaryshkov@gmail.com>
+Cc: linux-wireless@vger.kernel.org, linux-input@vger.kernel.org
 
-Initialise correctly last fields, so tasks can be actually executed.
-On some architectures the initial jiffies value is not zero, so later
-all rfkill incorrectly decides that rfkill_*.last is in future.
+On Wednesday 22 October 2008, Dmitry Baryshkov wrote:
+> Initialise correctly last fields, so tasks can be actually executed.
+> On some architectures the initial jiffies value is not zero, so later
+> all rfkill incorrectly decides that rfkill_*.last is in future.
+> 
+> Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
+> ---
+>  net/rfkill/rfkill-input.c |    5 +++++
+>  1 files changed, 5 insertions(+), 0 deletions(-)
+> 
+> diff --git a/net/rfkill/rfkill-input.c b/net/rfkill/rfkill-input.c
+> index e5b6955..cd93f48 100644
+> --- a/net/rfkill/rfkill-input.c
+> +++ b/net/rfkill/rfkill-input.c
+> @@ -255,6 +255,11 @@ static struct input_handler rfkill_handler = {
+>  
+>  static int __init rfkill_handler_init(void)
+>  {
+> +	unsigned long last_run = jiffies - msecs_to_jiffies(500);
+> +	rfkill_wlan.last = last_run;
+> +	rfkill_bt.last = last_run;
+> +	rfkill_uwb.last = last_run;
+> +	rfkill_wimax.last = last_run;
+>  	return input_register_handler(&rfkill_handler);
+>  }
 
-Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
----
- net/rfkill/rfkill-input.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
+I believe Dmitry Torokhov recently moved the rfkill structures for wlan, bt, etc
+into an array which allowed for easy looping through all structures. That would
+make updating all entries easier (and less prone to errors when a new structure
+is added).
 
-diff --git a/net/rfkill/rfkill-input.c b/net/rfkill/rfkill-input.c
-index e5b6955..cd93f48 100644
---- a/net/rfkill/rfkill-input.c
-+++ b/net/rfkill/rfkill-input.c
-@@ -255,6 +255,11 @@ static struct input_handler rfkill_handler = {
- 
- static int __init rfkill_handler_init(void)
- {
-+	unsigned long last_run = jiffies - msecs_to_jiffies(500);
-+	rfkill_wlan.last = last_run;
-+	rfkill_bt.last = last_run;
-+	rfkill_uwb.last = last_run;
-+	rfkill_wimax.last = last_run;
- 	return input_register_handler(&rfkill_handler);
- }
- 
--- 
-1.5.6.5
+Could you rebase thise patch on top of that one?
+Thanks,
 
+Ivo

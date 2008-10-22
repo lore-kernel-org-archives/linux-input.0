@@ -1,59 +1,62 @@
-From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH] RFKILL: fix input layer initialisation
-Date: Wed, 22 Oct 2008 15:15:02 -0200
-Message-ID: <20081022171502.GD1069@khazad-dum.debian.net>
-References: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
+From: "Phil Endecott" <phil_dubhl_endecott@chezphil.org>
+Subject: Re: Slow boot due perhaps to locks in mouse and platform system
+Date: Thu, 23 Oct 2008 00:07:07 +0100
+Message-ID: <1224716827443@dmwebmail.dmwebmail.chezphil.org>
+References: <1224062368151@dmwebmail.dmwebmail.chezphil.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; format="flowed"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from out3.smtp.messagingengine.com ([66.111.4.27]:40121 "EHLO
-	out3.smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757058AbYJVRPI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Oct 2008 13:15:08 -0400
-Content-Disposition: inline
-In-Reply-To: <1224694375-29318-1-git-send-email-dbaryshkov@gmail.com>
+Received: from japan.chezphil.org ([77.240.5.4]:5313 "EHLO japan.chezphil.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752720AbYJVXHJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Oct 2008 19:07:09 -0400
+Received: from localhost ([127.0.0.1] helo=chezphil.org)
+	by japan.chezphil.org with esmtp (Exim 4.69)
+	(envelope-from <phil_dubhl_endecott@chezphil.org>)
+	id 1KsmnE-0007yj-95
+	for linux-input@vger.kernel.org; Thu, 23 Oct 2008 00:07:08 +0100
+In-Reply-To: <1224062368151@dmwebmail.dmwebmail.chezphil.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Baryshkov <dbaryshkov@gmail.com>
-Cc: linux-wireless@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-On Wed, 22 Oct 2008, Dmitry Baryshkov wrote:
-> Initialise correctly last fields, so tasks can be actually executed.
-> On some architectures the initial jiffies value is not zero, so later
-> all rfkill incorrectly decides that rfkill_*.last is in future.
-> 
-> Signed-off-by: Dmitry Baryshkov <dbaryshkov@gmail.com>
-> ---
->  net/rfkill/rfkill-input.c |    5 +++++
->  1 files changed, 5 insertions(+), 0 deletions(-)
-> 
-> diff --git a/net/rfkill/rfkill-input.c b/net/rfkill/rfkill-input.c
-> index e5b6955..cd93f48 100644
-> --- a/net/rfkill/rfkill-input.c
-> +++ b/net/rfkill/rfkill-input.c
-> @@ -255,6 +255,11 @@ static struct input_handler rfkill_handler = {
->  
->  static int __init rfkill_handler_init(void)
->  {
-> +	unsigned long last_run = jiffies - msecs_to_jiffies(500);
-> +	rfkill_wlan.last = last_run;
-> +	rfkill_bt.last = last_run;
-> +	rfkill_uwb.last = last_run;
-> +	rfkill_wimax.last = last_run;
->  	return input_register_handler(&rfkill_handler);
->  }
+Phil Endecott wrote:
+> Arjan van de Ven wrote:
+>> On Wed, 15 Oct 2008 00:17:29 +0100
+>> "Phil Endecott" <phil_dubhl_endecott@chezphil.org> wrote:
+>>
+>>> 
+>>> It looks to me as if uhci holds some lock that 8250 needs before it
+>>> can complete.  Now those are both PCI drivers in the same way that
+>>> the last two that seemed to contend were both input drivers (touchpad
+>>> and speaker) [hmm, except that as Dmitry pointed out there's a
+>>> distinction between the platform bus and the serio bus].  Anyway, my
+>>> ignorant suspicion is that there's some lock related to the bus or
+>>> subsystem that they both need.  Maybe something in sysfs?
+>>
+>> it does do this. And I know which lock... and I fixed it ;)
+>> Just the patch for this is in Gregkh's tree since it's a change to the
+>> device/sysfs layer and he wanted to carry it via that way.
+>>
+>> I can dig that patch out if you want
+>
+> Yes please!
 
-This is not needed for wireless-testing's rfkill-input.
+Google eventually found this for me:
+   http://thread.gmane.org/gmane.linux.usb.general/9923
 
-It is needed on 2.6.28, since AFAIK the stuff in wireless-testing is not
-going to be sent for 2.6.28.
+I presume that this is what Arjan was referring to.  It causes the 
+device-to-driver matching loop to not take the device lock unless the 
+match function succeeds.  In my case, the need to take this look was 
+preventing the pcspkr initialisation from terminating until the mouse 
+initialisation was done, even though the mouse initialisation is in a 
+different thread, because the pcspkr init wanted to lock the mouse to 
+check if it was actually a speaker.
 
-A similar patch to this was sent not a month ago, I think.  One of the two
-needs to be merged for 2.6.28.
+Fixing it has halved my boot time.
 
--- 
-  "One disk to rule them all, One disk to find them. One disk to bring
-  them all and in the darkness grind them. In the Land of Redmond
-  where the shadows lie." -- The Silicon Valley Tarot
-  Henrique Holschuh
+
+Phil.
+
+
+

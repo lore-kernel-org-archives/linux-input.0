@@ -1,31 +1,35 @@
 From: Andreas Schwab <schwab@suse.de>
-Subject: Re: appletouch driver broken
-Date: Sat, 25 Oct 2008 23:46:26 +0200
-Message-ID: <je3aikmjpp.fsf@sykes.suse.de>
-References: <je7i7wmlbg.fsf@sykes.suse.de> <49038BDD.1050801@gmail.com>
+Subject: [PATCH] Fix hid_device_id for cross compiling
+Date: Sun, 26 Oct 2008 00:30:18 +0200
+Message-ID: <jevdvgl345.fsf@sykes.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:44454 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751277AbYJYVq2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Oct 2008 17:46:28 -0400
-In-Reply-To: <49038BDD.1050801@gmail.com> (Jiri Slaby's message of "Sat, 25
-	Oct 2008 23:13:01 +0200")
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752902AbYJYWaa@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@ver.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-input@vger.kernel.org
 
-Jiri Slaby <jirislaby@gmail.com> writes:
+struct hid_device_id contains hidden padding which is bad for cross
+compiling.  Make the padding explicit and consistent across
+architectures.
 
-> Hi, please follow
-> http://bugzilla.kernel.org/show_bug.cgi?id=3D11825
-
-Thanks for the pointer.
-
-Andreas.
+Signed-off-by: Andreas Schwab <schwab@suse.de>
+---
+diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_device=
+table.h
+index eb71b45..0e4f303 100644
+--- a/include/linux/mod_devicetable.h
++++ b/include/linux/mod_devicetable.h
+@@ -135,6 +135,7 @@ struct usb_device_id {
+=20
+ struct hid_device_id {
+ 	__u16 bus;
++	__u16 pad1;
+ 	__u32 vendor;
+ 	__u32 product;
+ 	kernel_ulong_t driver_data
 
 --=20
 Andreas Schwab, SuSE Labs, schwab@suse.de
@@ -33,8 +37,3 @@ SuSE Linux Products GmbH, Maxfeldstra=DFe 5, 90409 N=FCrnberg, Germany
 PGP key fingerprint =3D 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4=
 ED5
 "And now for something completely different."
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

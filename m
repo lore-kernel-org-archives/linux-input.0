@@ -1,37 +1,30 @@
-From: Andreas Schwab <schwab@suse.de>
-Subject: appletouch driver broken
-Date: Sat, 25 Oct 2008 23:11:47 +0200
-Message-ID: <je7i7wmlbg.fsf@sykes.suse.de>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: appletouch driver broken
+Date: Sat, 25 Oct 2008 23:13:01 +0200
+Message-ID: <49038BDD.1050801@gmail.com>
+References: <je7i7wmlbg.fsf@sykes.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:42768 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751098AbYJYVLt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 25 Oct 2008 17:11:49 -0400
+Received: from fg-out-1718.google.com ([72.14.220.157]:32099 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751477AbYJYVNI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 25 Oct 2008 17:13:08 -0400
+Received: by fg-out-1718.google.com with SMTP id 19so1391322fgg.17
+        for <linux-input@vger.kernel.org>; Sat, 25 Oct 2008 14:13:06 -0700 (PDT)
+In-Reply-To: <je7i7wmlbg.fsf@sykes.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
+To: Andreas Schwab <schwab@suse.de>
 Cc: linux-input@vger.kernel.org
 
-Commit c500c9714011edab021591340042787722db9cf0 ("HID: hid, make parsin=
-g
-event driven") broke the appletouch driver on iBook G4: the module is n=
-o
-longer autoloaded, and manual loading does not make it work either
-(atp_probe is never called).
+On 10/25/2008 11:11 PM, Andreas Schwab wrote:
+> Commit c500c9714011edab021591340042787722db9cf0 ("HID: hid, make parsing
+> event driven") broke the appletouch driver on iBook G4: the module is no
+> longer autoloaded, and manual loading does not make it work either
+> (atp_probe is never called).
 
-Andreas.
-
---=20
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstra=DFe 5, 90409 N=FCrnberg, Germany
-PGP key fingerprint =3D 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4=
-ED5
-"And now for something completely different."
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Hi, please follow
+http://bugzilla.kernel.org/show_bug.cgi?id=11825

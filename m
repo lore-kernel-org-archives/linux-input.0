@@ -1,22 +1,17 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: [patch]aggessive autosuspend for HID devices
-Date: Mon, 27 Oct 2008 10:37:56 +0100
-Message-ID: <200810271037.58051.oliver@neukum.org>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: [patch]aggessive autosuspend for HID devices (resent due to corruption)
+Date: Mon, 27 Oct 2008 10:42:36 +0100
+Message-ID: <200810271042.37365.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:60916 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751999AbYJ0Jhk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Oct 2008 05:37:40 -0400
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jikos-wDf7oJUeT2I@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Yang, Yi Y" <yi.y.yang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, "Yang, Yi Y" <yi.y.yang@intel.com>
 
 Hi,
 
@@ -41,8 +36,15 @@ context meaning a lot a queuing and locking had to be touched. The LED stuff
 has been solved by means of a simple counter. Additions to the generic HID code
 could be avoided.
 
-The patch is against 2.6.28-rc2diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 721a36d..11f442a 100644
+The patch is against 2.6.28-rc2diff
+
+Regards
+	Oliver
+
+Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+
+---
+
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
 @@ -1674,6 +1674,22 @@ static DECLARE_WORK(hid_compat_work, hid_compat_load);
@@ -68,13 +70,11 @@ index 721a36d..11f442a 100644
  static int __init hid_init(void)
  {
  	int ret;
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 705a43c..ed2e789 100644
 --- a/drivers/hid/usbhid/hid-core.c
 +++ b/drivers/hid/usbhid/hid-core.c
 @@ -5,6 +5,7 @@
-  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
-  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>
+  *  Copyright (c) 2005 Michael Haboustak <mike--vDbLwGUA7lNWk0Htik3J/w@public.gmane.org> for Concept2, Inc
   *  Copyright (c) 2006-2007 Jiri Kosina
 + *  Copyright (c) 2007-2008 Oliver Neukum
   */
@@ -782,8 +782,6 @@ index 705a43c..ed2e789 100644
  }
  
  module_init(hid_init);
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index babd65d..aec5eb9 100644
 --- a/drivers/hid/usbhid/hiddev.c
 +++ b/drivers/hid/usbhid/hiddev.c
 @@ -249,10 +249,12 @@ static int hiddev_release(struct inode * inode, struct file * file)
@@ -825,8 +823,6 @@ index babd65d..aec5eb9 100644
  
  	return 0;
  }
-diff --git a/drivers/hid/usbhid/usbhid.h b/drivers/hid/usbhid/usbhid.h
-index abedb13..9528954 100644
 --- a/drivers/hid/usbhid/usbhid.h
 +++ b/drivers/hid/usbhid/usbhid.h
 @@ -37,7 +37,10 @@ int usbhid_wait_io(struct hid_device* hid);
@@ -874,8 +870,6 @@ index abedb13..9528954 100644
  };
  
  #define	hid_to_usb_dev(hid_dev) \
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index f13bca2..2f64b30 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
 @@ -410,6 +410,9 @@ struct hid_output_fifo {
@@ -898,10 +892,7 @@ index f13bca2..2f64b30 100644
  /**
 
 
-	Regards
-		Oliver
-
-Signed-off-by: Oliver Neukum <oneukum@suse.de>
-
----
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

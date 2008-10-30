@@ -1,49 +1,76 @@
-From: Andreas Schwab <schwab@suse.de>
-Subject: Re: [PATCH] Fix hid_device_id for cross compiling
-Date: Thu, 30 Oct 2008 10:19:51 +0100
-Message-ID: <jehc6u8mo8.fsf@sykes.suse.de>
-References: <jevdvgl345.fsf@sykes.suse.de>
-	<20081030002332.4ef1fac4.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754310AbYJ3JUH@vger.kernel.org>
-In-Reply-To: <20081030002332.4ef1fac4.akpm@linux-foundation.org> (Andrew
-	Morton's message of "Thu, 30 Oct 2008 00:23:32 -0700")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@ver.kernel.org
+From: Bryan Wu <cooloney@kernel.org>
+Subject: [PATCH 1/1] input: AD7877 driver fixup
+Date: Thu, 30 Oct 2008 17:46:50 +0800
+Message-ID: <1225360010-20176-1-git-send-email-cooloney@kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nwd2mail11.analog.com ([137.71.25.57]:3517 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753410AbYJ3JqH (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Oct 2008 05:46:07 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dtor@mail.ru, akpm@linux-foundation.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-Andrew Morton <akpm@linux-foundation.org> writes:
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-> On Sun, 26 Oct 2008 00:30:18 +0200 Andreas Schwab <schwab@suse.de> wr=
-ote:
->
->> struct hid_device_id contains hidden padding which is bad for cross
->> compiling.  Make the padding explicit and consistent across
->> architectures.
->>=20
->
-> What is "bad" about it?
+ - Test flag with spinlock hold
 
-It is bad because it depends on the alignment restrictions of the
-architecture.  On m68k everything is aligned on a 2-byte boundary, so
-this padding does not exist.
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
+---
+ drivers/input/touchscreen/ad7877.c |   20 ++++++++++++--------
+ 1 files changed, 12 insertions(+), 8 deletions(-)
 
-> Can you expand a bit on the problem which is being fixed here?
-
-It's the well known cross compiling problem with modpost that has bitte=
-n
-us so often before.  This one is even worse, because modpost would
-silently read bogus values since the struct size is the same, only the
-padding moves elsewhere.
-
-Andreas.
-
---=20
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstra=DFe 5, 90409 N=FCrnberg, Germany
-PGP key fingerprint =3D 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4=
-ED5
-"And now for something completely different."
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index aaf88c9..6615bcd 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -388,10 +388,11 @@ static irqreturn_t ad7877_irq(int irq, void *handle)
+ 	 * doesn't get issued twice while in work.
+ 	 */
+ 
+-	if (ts->pending)
+-		return IRQ_HANDLED;
+-
+ 	spin_lock_irqsave(&ts->lock, flags);
++	if (ts->pending) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return IRQ_HANDLED;
++	}
+ 	ts->pending = 1;
+ 	spin_unlock_irqrestore(&ts->lock, flags);
+ 
+@@ -420,10 +421,12 @@ static void ad7877_disable(struct ad7877 *ts)
+ {
+ 	unsigned long flags;
+ 
+-	if (ts->disabled)
++	spin_lock_irqsave(&ts->lock, flags);
++	if (ts->disabled) {
++		spin_unlock_irqrestore(&ts->lock, flags);
+ 		return;
++	}
+ 
+-	spin_lock_irqsave(&ts->lock, flags);
+ 	ts->disabled = 1;
+ 	disable_irq(ts->spi->irq);
+ 	spin_unlock_irqrestore(&ts->lock, flags);
+@@ -443,10 +446,11 @@ static void ad7877_enable(struct ad7877 *ts)
+ {
+ 	unsigned long flags;
+ 
+-	if (!ts->disabled)
+-		return;
+-
+ 	spin_lock_irqsave(&ts->lock, flags);
++	if (ts->disabled) {
++		spin_unlock_irqrestore(&ts->lock, flags);
++		return;
++	}
+ 	ts->disabled = 0;
+ 	enable_irq(ts->spi->irq);
+ 	spin_unlock_irqrestore(&ts->lock, flags);
+-- 
+1.5.6

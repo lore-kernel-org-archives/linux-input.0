@@ -1,84 +1,52 @@
 From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: proposal on runtime power management in hid
-Date: Fri, 31 Oct 2008 10:26:28 +0100
-Message-ID: <200810311026.29916.oliver@neukum.org>
-References: <200810301704.01005.oliver@neukum.org> <alpine.LNX.1.10.0810310015250.31273@jikos.suse.cz>
+Subject: [patch]fix memleak in error case of hiddev
+Date: Fri, 31 Oct 2008 10:31:38 +0100
+Message-ID: <200810311031.39083.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:46749 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752392AbYJaJ03 (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:57494 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752004AbYJaJbg (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2008 05:26:29 -0400
-In-Reply-To: <alpine.LNX.1.10.0810310015250.31273@jikos.suse.cz>
+	Fri, 31 Oct 2008 05:31:36 -0400
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brownell <david-b@pacbell.net>, Alan Stern <stern@rowland.harvard.edu>, "Rafael J. Wysocki" <rjw@sisk.pl>, Jiri Slaby <jslaby@suse.cz>, linux-pm@vger.kernel.org, pavel@ucw.cz
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Am Freitag, 31. Oktober 2008 00:17:38 schrieb Jiri Kosina:
-> On Thu, 30 Oct 2008, Oliver Neukum wrote:
-> 
-> > I am looking at runtime power management for usb hid devices. There's a 
-> > problem with hidraw. As we have no idea, what goes on between a device 
-> > and users of hidraw, it seems to me that such a device should not be 
-> > subject to runtime power management without the user's explicit 
-> > agreement. But that would be only a kludge. Therefore this is my first 
-> > draft of an API to cleanly allow this.
-> 
-> Hi Oliver,
-> 
-> isn't this just a little bit way too complex?
+Hi,
 
-That depends on the eventual goal. If hidraw were the only problem,
-I could find a simpler solution.
+this bug is old, the patch should go into 2.6.28 and stable.
 
-> I think the simple and working solution would be never suspedning devices 
-> that have interface open through hidraw, unless user explicitly allows 
-> this through respective power/autosuspend setting in sysfs (which will by 
-> default be set to 'off' for HID devices anyway, right?).
+This fixes a memleak in hiddev's open in an error case.
 
-That we already have. That's the simple copout. Do not enable autosuspend
-if you allow hidraw for a device. However, if normal users shall be able to use
-the hidraw device that means that autosuspend can never be enabled for the
-device, as we don't know when someone will use the device.
-
-For hiddev we can do better, the device is not autosuspended while it is
-open. This allows allowing ordinary users to use the device. Doing so for
-hidraw would require to extended the low level hid API. But not as extensively
-as I suggested.
-
-But I consider this to be a lost opportunity.
-Currently the ll driver must assume that the device is required to be fully
-operational when it is open. This means different things for ordinary input
-devices and "raw" devices. Raw devices must not be autosuspended when
-open at all. Ordinary devices must be able to process input.
-
-But that is often overkill. In many situations, for example when a the screen
-saver is running, you only care that a key has been pressed, not which key.
-Drivers can save more power if they know this.
-
-Quote Alan Stern:
-> Would it make more sense never to autosuspend a device that has an open
-> hidraw interface?  Then if you want to, you could add an API allowing
-
-That is the sane default.
-
-> the user to tell the kernel to suspend or to resume (if the existing
-> sysfs interface isn't sufficient).
-
-The existing sysfs interface is clearly not designed for this. It's designed
-for system administration work. We are talking about ordinary user tasks
-accessing a generic interface. This leads to the following deficiencies:
-
-- the sysfs interface is specific to USB, hidraw is for all HID devices
-- the sysfs interface operates on physical devices, hidraw on logical devices
-- the sysfs interface is not designed to be shared among tasks
-- user space tasks know a device node, not the sysfs directory
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
 
 	Regards
 		Oliver
+
+---
+
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index b218cbc..6834d1f 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -291,8 +291,13 @@ static int hiddev_open(struct inode *inode, struct file *file)
+ 		if (list->hiddev->exist) {
+ 			struct hid_device *hid = hiddev_table[i]->hid;
+ 			res = usbhid_get_power(hid);
+-			if (res < 0)
++			if (res < 0) {
++				spin_lock_irqsave(&list->hiddev->list_lock, flags);
++				list_del(&list->node);
++				spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
++				kfree(list->hiddev);
+ 				return -EIO;
++			}
+ 			usbhid_open(hid);
+ 		}
+ 

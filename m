@@ -1,52 +1,32 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: [patch]fix memleak in error case of hiddev
-Date: Fri, 31 Oct 2008 10:31:38 +0100
-Message-ID: <200810311031.39083.oliver@neukum.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: 2.6.28-rc2: USB/INPUT: slab error in cache_alloc_debugcheck_after():
+ double free?
+Date: Fri, 31 Oct 2008 12:55:08 +0100 (CET)
+Message-ID: <alpine.LRH.1.10.0810311254400.7585@twin.jikos.cz>
+References: <200810310011.08618.deller@gmx.de> <20081031044553.50882e86@epia.jer-c2.orkz.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:57494 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752004AbYJaJbg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 31 Oct 2008 05:31:36 -0400
-Content-Disposition: inline
+Received: from twin.jikos.cz ([213.151.79.26]:40606 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750779AbYJaLz1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 31 Oct 2008 07:55:27 -0400
+In-Reply-To: <20081031044553.50882e86@epia.jer-c2.orkz.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Jeroen Roovers <jer@gentoo.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
 
-Hi,
+On Fri, 31 Oct 2008, Jeroen Roovers wrote:
 
-this bug is old, the patch should go into 2.6.28 and stable.
+> I am seeing the same USB problem but without the SLAB errors - [1] is
+> the Gentoo bug report. The kernel boots fine with both USB keyboard and
+> mouse detached.
 
-This fixes a memleak in hiddev's open in an error case.
+Could you please provide your config? I am still not able to reproduce it 
+here. Thanks.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.de>
+-- 
+Jiri Kosina
+SUSE Labs
 
-	Regards
-		Oliver
-
----
-
-diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
-index b218cbc..6834d1f 100644
---- a/drivers/hid/usbhid/hiddev.c
-+++ b/drivers/hid/usbhid/hiddev.c
-@@ -291,8 +291,13 @@ static int hiddev_open(struct inode *inode, struct file *file)
- 		if (list->hiddev->exist) {
- 			struct hid_device *hid = hiddev_table[i]->hid;
- 			res = usbhid_get_power(hid);
--			if (res < 0)
-+			if (res < 0) {
-+				spin_lock_irqsave(&list->hiddev->list_lock, flags);
-+				list_del(&list->node);
-+				spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
-+				kfree(list->hiddev);
- 				return -EIO;
-+			}
- 			usbhid_open(hid);
- 		}
- 

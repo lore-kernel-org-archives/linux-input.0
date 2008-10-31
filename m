@@ -1,16 +1,16 @@
 From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: 2.6.28-rc2: USB/INPUT: slab error in cache_alloc_debugcheck_after():
  double free?
-Date: Fri, 31 Oct 2008 02:10:04 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0810310209410.7585@twin.jikos.cz>
+Date: Fri, 31 Oct 2008 03:09:25 +0100 (CET)
+Message-ID: <alpine.LRH.1.10.0810310305000.7585@twin.jikos.cz>
 References: <200810310011.08618.deller@gmx.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:55330 "EHLO twin.jikos.cz"
+Received: from twin.jikos.cz ([213.151.79.26]:58584 "EHLO twin.jikos.cz"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753200AbYJaBKL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Oct 2008 21:10:11 -0400
+	id S1750993AbYJaCJ3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Oct 2008 22:09:29 -0400
 In-Reply-To: <200810310011.08618.deller@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -19,26 +19,6 @@ Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-parisc@vger
 
 On Fri, 31 Oct 2008, Helge Deller wrote:
 
-> I noticed various slab errors with complete kernel crashes with my USB keyboard/mouse on a 32bit parisc machine with both 2.6.28-rc1 and -rc2.
-> Kernel 2.6.27 was still OK.
-> 
-> Linux kernel bootlog shows:
-> ---------------
-> ohci_hcd: USB 1.1 'Open' Host Controller (OHCI) Driver
-> ohci_hcd 0000:00:0e.2: OHCI Host Controller
-> ohci_hcd 0000:00:0e.2: new USB bus registered, assigned bus number 1
-> ohci_hcd 0000:00:0e.2: irq 1, io mem 0xf2007000
-> usb usb1: configuration #1 chosen from 1 choice
-> hub 1-0:1.0: USB hub found
-> hub 1-0:1.0: 3 ports detected
-> usb usb1: New USB device found, idVendor=1d6b, idProduct=0001
-> usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
-> usb usb1: Product: OHCI Host Controller
-> usb usb1: Manufacturer: Linux 2.6.28-rc2 ohci_hcd
-> usb usb1: SerialNumber: 0000:00:0e.2
-> uhci_hcd: USB Universal Host Controller Interface driver
-> 
-> 
 > After sucessful bootup (without any USB devices attached)
 > I get this when I insert a USB keyboard:
 > ---------------
@@ -53,61 +33,18 @@ On Fri, 31 Oct 2008, Helge Deller wrote:
 > 040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 > 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 > generic-usb 0004:047B:0002.0001: input,hidraw0: USB HID v1.00 Keyboard [SILITEK USB Keyboard and Mouse] on usb-0000:00:0e.2-1/input0
-> input: SILITEK USB Keyboard and Mouse as /class/input/input1
-> generic-usb 0003:047B:0002.0002: input,hidraw1: USB HID v1.00 Mouse [SILITEK USB Keyboard and Mouse] on usb-0000:00:0e.2-1/input1
-> usb 1-1: New USB device found, idVendor=047b, idProduct=0002
-> usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> usb 1-1: Product: USB Keyboard and Mouse
-> usb 1-1: Manufacturer: SILITEK
-> 
-> 
-> Similiar when I insert a mouse:
-> ------------------
-> usb 1-1: new low speed USB device using ohci_hcd and address 2
-> usb 1-1: configuration #1 chosen from 1 choice
-> input: Logitech N48 as /class/input/input0
-> Slab corruption: shmem_inode_cache start=8bd9daa0, len=640
-> Redzone: 0x0/0x9f911029d74e35b.
-> Last user: [<00000000>](0x0)
-> 000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> Prev obj: start=8bd9d870, len=640
-> Redzone: 0x6b6b6b6b6b6b6b6b/0x0.
-> Last user: [<00000000>](0x0)
-> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-> 010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> slab error in cache_alloc_debugcheck_after(): cache `shmem_inode_cache': double free, or memory outside objecn
-> Backtrace:
->  [<101a4e84>] cache_alloc_debugcheck_after+0xd8/0x200
->  [<101a540c>] kmem_cache_alloc+0x1a0/0x1e8
->  [<101a26e4>] shmem_alloc_inode+0x18/0x34
->  [<101be158>] alloc_inode+0x28/0x238
->  [<101bf204>] new_inode+0x20/0xc0
->  [<101a0eb8>] shmem_get_inode+0x34/0x1ac
->  [<101a1be0>] shmem_symlink+0x60/0x260
->  [<101b6034>] vfs_symlink+0x74/0xc8
->  [<101b6118>] sys_symlinkat+0x90/0xfc
->  [<101190c0>] syscall_exit+0x0/0x28
-> 
-> 8bd9da98: redzone 1:0x0, redzone 2:0x9f911029d74e35b
-> Slab corruption: size-4096 start=8bd18000, len=4096
-> 000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> generic-usb 0003:046D:C001.0001: input,hidraw0: USB HID v1.00 Mouse [Logitech N48] on usb-0000:00:0e.2-1/inpu0
-> usb 1-1: New USB device found, idVendor=046d, idProduct=c001
-> usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> usb 1-1: Product: N48
-> usb 1-1: Manufacturer: Logitech
-> 
-> 
+
+Looks like something goes wrong somewhere around hid_connect() -- 
+hidinput_connect() is called, then slab complains about corruption, and 
+then the rest of the code in hid_connect() is executed, priting the 
+'generic-usb ...' message.
+
+I can't reproduce it here myself with CONFIG_DEBUG_SLAB=y. Could you 
+please send me your config?
+
+It is also quite strange that stacktrace is missing here for some 
+reason.
+
 > On 2.6.28-rc1 I saw e.g. this:
 > --------------------
 > usbcore: registered new interface driver usbhid
@@ -131,7 +68,11 @@ On Fri, 31 Oct 2008, Helge Deller wrote:
 >    [<1042e5f8>] hid_add_field+0x40/0x1a4
 >    [<1042ec40>] hid_parser_main+0x94/0xc4
 
-Was Redzone 1 in this case also 0x0 please?
+This looks rather incomplete, backtrace starting at hid_parser_main is 
+odd.
+
+Also, this seems to happen for different slab cache than the previous 
+corrutpion.
 
 -- 
 Jiri Kosina

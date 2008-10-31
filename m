@@ -1,80 +1,95 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 2.6.28-rc2: USB/INPUT: slab error in cache_alloc_debugcheck_after():
- double free?
-Date: Fri, 31 Oct 2008 03:09:25 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0810310305000.7585@twin.jikos.cz>
+From: Jeroen Roovers <jer@gentoo.org>
+Subject: Re: 2.6.28-rc2: USB/INPUT: slab error in
+ cache_alloc_debugcheck_after(): double free?
+Date: Fri, 31 Oct 2008 04:45:53 +0100
+Message-ID: <20081031044553.50882e86@epia.jer-c2.orkz.net>
 References: <200810310011.08618.deller@gmx.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:58584 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750993AbYJaCJ3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Oct 2008 22:09:29 -0400
+Received: from smtp-vbr19.xs4all.nl ([194.109.24.39]:3857 "EHLO
+	smtp-vbr19.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751076AbYJaDzD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 30 Oct 2008 23:55:03 -0400
 In-Reply-To: <200810310011.08618.deller@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Helge Deller <deller@gmx.de>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
 
-On Fri, 31 Oct 2008, Helge Deller wrote:
+I am seeing the same USB problem but without the SLAB errors - [1] is
+the Gentoo bug report. The kernel boots fine with both USB keyboard and
+mouse detached.
 
-> After sucessful bootup (without any USB devices attached)
-> I get this when I insert a USB keyboard:
-> ---------------
-> usb 1-1: new low speed USB device using ohci_hcd and address 2
-> usb 1-1: configuration #1 chosen from 1 choice
-> input: SILITEK USB Keyboard and Mouse as /class/input/input0
-> Slab corruption: size-4096 start=8dd9b000, len=4096
-> 000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 010: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 020: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 030: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 040: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 050: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> generic-usb 0004:047B:0002.0001: input,hidraw0: USB HID v1.00 Keyboard [SILITEK USB Keyboard and Mouse] on usb-0000:00:0e.2-1/input0
 
-Looks like something goes wrong somewhere around hid_connect() -- 
-hidinput_connect() is called, then slab complains about corruption, and 
-then the rest of the code in hid_connect() is executed, priting the 
-'generic-usb ...' message.
+[17179609.760000] usb 1-2: configuration #1 chosen from 1 choice
+[17179609.860000] input: Kensington Kensington USB/PS2 Trackball as
+/class/inpu1
+[17179609.972000] Backtrace:
+[17179609.972000]  [<101daa9c>] sysfs_find_dirent+0x34/0x50
+[17179609.972000]  [<101daad8>] __sysfs_add_one+0x20/0xc0
+[17179609.972000]  [<101dab8c>] sysfs_add_one+0x14/0x50
+[17179609.972000]  [<101db250>] create_dir+0x64/0xcc
+[17179609.972000]  [<101db2e4>] sysfs_create_dir+0x2c/0x5c
+[17179609.972000]  [<102f2cd0>] kobject_add_internal+0xb8/0x1b0
+[17179609.972000]  [<102f326c>] kobject_add+0x38/0x68
+[17179609.972000]  [<1035b2b0>] device_add+0xdc/0x55c
+[17179609.972000]  [<103d6930>] mousedev_create+0x17c/0x1f8
+[17179609.972000]  [<103d7284>] mousedev_connect+0x48/0x138
+[17179609.972000]  [<103d2b50>] input_attach_handler+0x6c/0xac
+[17179609.972000]  [<103d5014>] input_register_device+0x1a4/0x250
+[17179609.972000]  [<103dfe08>] hidinput_connect+0x308/0x3b40
+[17179609.972000]  [<103de5d4>] hid_connect+0x22c/0x2c0
+[17179609.972000]  [<103de740>] hid_device_probe+0xd8/0xfc
+[17179609.972000]  [<1035db94>] driver_probe_device+0xa4/0x198
+[17179609.972000]
+[17179609.972000]
+[17179609.972000] Kernel Fault: Code=26 regs=8f86d0c0 (Addr=00000000)
+[17179609.972000]
+[17179609.972000]      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
+[17179609.972000] PSW: 00000000000001001111111000001111 Not tainted
+[17179609.972000] r00-03  0004fe0f 105a8e50 101daa9c 8ecef000
+[17179609.972000] r04-07  8f8d4d70 fffffff4 8f296f60 8f86cf48
+[17179609.972000] r08-11  8f297ac8 8ec37000 8f293e90 00000008
+[17179609.972000] r12-15  00000006 00000001 00000002 00000003
+[17179609.972000] r16-19  8ec37000 fffeffff fffeff70 00000073
+[17179609.972000] r20-23  00000006 0000000f 000003e0 8f296f60
+[17179609.972000] r24-27  101da714 8f8d4d70 00000000 105a8650
+[17179609.972000] r28-31  8ecef000 156979c9 8f86d0c0 101a0274
+[17179609.972000] sr00-03  00000000 00000000 00000000 0000000c
+[17179609.972000] sr04-07  00000000 00000000 00000000 00000000
+[17179609.972000]
+[17179609.972000] IASQ: 00000000 00000000 IAOQ: 102f6a50 102f6a54
+[17179609.972000]  IIR: 0f40101c    ISR: 00000000  IOR: 00000000
+[17179609.972000]  CPU:        0   CR30: 8f86c000 CR31: 11111111
+[17179609.972000]  ORIG_R28: 0000000f
+[17179609.972000]  IAOQ[0]: strcmp+0x0/0x34
+[17179609.972000]  IAOQ[1]: strcmp+0x4/0x34
+[17179609.972000]  RP(r2): sysfs_find_dirent+0x34/0x50
+[17179609.972000] Backtrace:
+[17179609.972000]  [<101daa9c>] sysfs_find_dirent+0x34/0x50
+[17179609.972000]  [<101daad8>] __sysfs_add_one+0x20/0xc0
+[17179609.972000]  [<101dab8c>] sysfs_add_one+0x14/0x50
+[17179609.972000]  [<101db250>] create_dir+0x64/0xcc
+[17179609.972000]  [<101db2e4>] sysfs_create_dir+0x2c/0x5c
+[17179609.972000]  [<102f2cd0>] kobject_add_internal+0xb8/0x1b0
+[17179609.972000]  [<102f326c>] kobject_add+0x38/0x68
+[17179609.972000]  [<1035b2b0>] device_add+0xdc/0x55c
+[17179609.972000]  [<103d6930>] mousedev_create+0x17c/0x1f8
+[17179609.972000]  [<103d7284>] mousedev_connect+0x48/0x138
+[17179609.972000]  [<103d2b50>] input_attach_handler+0x6c/0xac
+[17179609.972000]  [<103d5014>] input_register_device+0x1a4/0x250
+[17179609.972000]  [<103dfe08>] hidinput_connect+0x308/0x3b40
+[17179609.972000]  [<103de5d4>] hid_connect+0x22c/0x2c0
+[17179609.972000]  [<103de740>] hid_device_probe+0xd8/0xfc
+[17179609.972000]  [<1035db94>] driver_probe_device+0xa4/0x198
+[17179609.972000]
+[17179609.972000] Kernel panic - not syncing: Kernel Fault
 
-I can't reproduce it here myself with CONFIG_DEBUG_SLAB=y. Could you 
-please send me your config?
 
-It is also quite strange that stacktrace is missing here for some 
-reason.
+Kind regards,
+     JeR
 
-> On 2.6.28-rc1 I saw e.g. this:
-> --------------------
-> usbcore: registered new interface driver usbhid
-> usbhid: v2.6:USB HID core driver
-> usb 1-1: new low speed USB device using ohci_hcd and address 2
-> usb 1-1: configuration #1 chosen from 1 choice
-> input: Logitech N48 as /class/input/input0
-> generic-usb 0003:046D:C001.0001: input,hidraw0: USB HID v1.00 Mouse 
-> [Logitech N48] on usb-0000:00:0e.2-1/inpu0
-> usb 1-1: New USB device found, idVendor=046d, idProduct=c001
-> usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> usb 1-1: Product: N48
-> usb 1-1: Manufacturer: Logitech
-> usb 1-2: new low speed USB device using ohci_hcd and address 3
-> usb 1-2: configuration #1 chosen from 1 choice
-> slab error in cache_alloc_debugcheck_after(): cache `size-512': double free, or memory outside object was oven
-> Backtrace:
->    [<101a5724>] cache_alloc_debugcheck_after+0xd8/0x200
->    [<101a5cac>] kmem_cache_alloc+0x1a0/0x1e8
->    [<1042e294>] hid_register_report+0x60/0xc4
->    [<1042e5f8>] hid_add_field+0x40/0x1a4
->    [<1042ec40>] hid_parser_main+0x94/0xc4
 
-This looks rather incomplete, backtrace starting at hid_parser_main is 
-odd.
-
-Also, this seems to happen for different slab cache than the previous 
-corrutpion.
-
--- 
-Jiri Kosina
-SUSE Labs
-
+[1] https://bugs.gentoo.org/show_bug.cgi?id=245001

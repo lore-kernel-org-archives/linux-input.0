@@ -1,95 +1,84 @@
-From: Jeroen Roovers <jer@gentoo.org>
-Subject: Re: 2.6.28-rc2: USB/INPUT: slab error in
- cache_alloc_debugcheck_after(): double free?
-Date: Fri, 31 Oct 2008 04:45:53 +0100
-Message-ID: <20081031044553.50882e86@epia.jer-c2.orkz.net>
-References: <200810310011.08618.deller@gmx.de>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: proposal on runtime power management in hid
+Date: Fri, 31 Oct 2008 10:26:28 +0100
+Message-ID: <200810311026.29916.oliver@neukum.org>
+References: <200810301704.01005.oliver@neukum.org> <alpine.LNX.1.10.0810310015250.31273@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-vbr19.xs4all.nl ([194.109.24.39]:3857 "EHLO
-	smtp-vbr19.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751076AbYJaDzD (ORCPT
+Received: from smtp-out003.kontent.com ([81.88.40.217]:46749 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752392AbYJaJ03 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Oct 2008 23:55:03 -0400
-In-Reply-To: <200810310011.08618.deller@gmx.de>
+	Fri, 31 Oct 2008 05:26:29 -0400
+In-Reply-To: <alpine.LNX.1.10.0810310015250.31273@jikos.suse.cz>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brownell <david-b@pacbell.net>, Alan Stern <stern@rowland.harvard.edu>, "Rafael J. Wysocki" <rjw@sisk.pl>, Jiri Slaby <jslaby@suse.cz>, linux-pm@vger.kernel.org, pavel@ucw.cz
 
-I am seeing the same USB problem but without the SLAB errors - [1] is
-the Gentoo bug report. The kernel boots fine with both USB keyboard and
-mouse detached.
+Am Freitag, 31. Oktober 2008 00:17:38 schrieb Jiri Kosina:
+> On Thu, 30 Oct 2008, Oliver Neukum wrote:
+> 
+> > I am looking at runtime power management for usb hid devices. There's a 
+> > problem with hidraw. As we have no idea, what goes on between a device 
+> > and users of hidraw, it seems to me that such a device should not be 
+> > subject to runtime power management without the user's explicit 
+> > agreement. But that would be only a kludge. Therefore this is my first 
+> > draft of an API to cleanly allow this.
+> 
+> Hi Oliver,
+> 
+> isn't this just a little bit way too complex?
 
+That depends on the eventual goal. If hidraw were the only problem,
+I could find a simpler solution.
 
-[17179609.760000] usb 1-2: configuration #1 chosen from 1 choice
-[17179609.860000] input: Kensington Kensington USB/PS2 Trackball as
-/class/inpu1
-[17179609.972000] Backtrace:
-[17179609.972000]  [<101daa9c>] sysfs_find_dirent+0x34/0x50
-[17179609.972000]  [<101daad8>] __sysfs_add_one+0x20/0xc0
-[17179609.972000]  [<101dab8c>] sysfs_add_one+0x14/0x50
-[17179609.972000]  [<101db250>] create_dir+0x64/0xcc
-[17179609.972000]  [<101db2e4>] sysfs_create_dir+0x2c/0x5c
-[17179609.972000]  [<102f2cd0>] kobject_add_internal+0xb8/0x1b0
-[17179609.972000]  [<102f326c>] kobject_add+0x38/0x68
-[17179609.972000]  [<1035b2b0>] device_add+0xdc/0x55c
-[17179609.972000]  [<103d6930>] mousedev_create+0x17c/0x1f8
-[17179609.972000]  [<103d7284>] mousedev_connect+0x48/0x138
-[17179609.972000]  [<103d2b50>] input_attach_handler+0x6c/0xac
-[17179609.972000]  [<103d5014>] input_register_device+0x1a4/0x250
-[17179609.972000]  [<103dfe08>] hidinput_connect+0x308/0x3b40
-[17179609.972000]  [<103de5d4>] hid_connect+0x22c/0x2c0
-[17179609.972000]  [<103de740>] hid_device_probe+0xd8/0xfc
-[17179609.972000]  [<1035db94>] driver_probe_device+0xa4/0x198
-[17179609.972000]
-[17179609.972000]
-[17179609.972000] Kernel Fault: Code=26 regs=8f86d0c0 (Addr=00000000)
-[17179609.972000]
-[17179609.972000]      YZrvWESTHLNXBCVMcbcbcbcbOGFRQPDI
-[17179609.972000] PSW: 00000000000001001111111000001111 Not tainted
-[17179609.972000] r00-03  0004fe0f 105a8e50 101daa9c 8ecef000
-[17179609.972000] r04-07  8f8d4d70 fffffff4 8f296f60 8f86cf48
-[17179609.972000] r08-11  8f297ac8 8ec37000 8f293e90 00000008
-[17179609.972000] r12-15  00000006 00000001 00000002 00000003
-[17179609.972000] r16-19  8ec37000 fffeffff fffeff70 00000073
-[17179609.972000] r20-23  00000006 0000000f 000003e0 8f296f60
-[17179609.972000] r24-27  101da714 8f8d4d70 00000000 105a8650
-[17179609.972000] r28-31  8ecef000 156979c9 8f86d0c0 101a0274
-[17179609.972000] sr00-03  00000000 00000000 00000000 0000000c
-[17179609.972000] sr04-07  00000000 00000000 00000000 00000000
-[17179609.972000]
-[17179609.972000] IASQ: 00000000 00000000 IAOQ: 102f6a50 102f6a54
-[17179609.972000]  IIR: 0f40101c    ISR: 00000000  IOR: 00000000
-[17179609.972000]  CPU:        0   CR30: 8f86c000 CR31: 11111111
-[17179609.972000]  ORIG_R28: 0000000f
-[17179609.972000]  IAOQ[0]: strcmp+0x0/0x34
-[17179609.972000]  IAOQ[1]: strcmp+0x4/0x34
-[17179609.972000]  RP(r2): sysfs_find_dirent+0x34/0x50
-[17179609.972000] Backtrace:
-[17179609.972000]  [<101daa9c>] sysfs_find_dirent+0x34/0x50
-[17179609.972000]  [<101daad8>] __sysfs_add_one+0x20/0xc0
-[17179609.972000]  [<101dab8c>] sysfs_add_one+0x14/0x50
-[17179609.972000]  [<101db250>] create_dir+0x64/0xcc
-[17179609.972000]  [<101db2e4>] sysfs_create_dir+0x2c/0x5c
-[17179609.972000]  [<102f2cd0>] kobject_add_internal+0xb8/0x1b0
-[17179609.972000]  [<102f326c>] kobject_add+0x38/0x68
-[17179609.972000]  [<1035b2b0>] device_add+0xdc/0x55c
-[17179609.972000]  [<103d6930>] mousedev_create+0x17c/0x1f8
-[17179609.972000]  [<103d7284>] mousedev_connect+0x48/0x138
-[17179609.972000]  [<103d2b50>] input_attach_handler+0x6c/0xac
-[17179609.972000]  [<103d5014>] input_register_device+0x1a4/0x250
-[17179609.972000]  [<103dfe08>] hidinput_connect+0x308/0x3b40
-[17179609.972000]  [<103de5d4>] hid_connect+0x22c/0x2c0
-[17179609.972000]  [<103de740>] hid_device_probe+0xd8/0xfc
-[17179609.972000]  [<1035db94>] driver_probe_device+0xa4/0x198
-[17179609.972000]
-[17179609.972000] Kernel panic - not syncing: Kernel Fault
+> I think the simple and working solution would be never suspedning devices 
+> that have interface open through hidraw, unless user explicitly allows 
+> this through respective power/autosuspend setting in sysfs (which will by 
+> default be set to 'off' for HID devices anyway, right?).
 
+That we already have. That's the simple copout. Do not enable autosuspend
+if you allow hidraw for a device. However, if normal users shall be able to use
+the hidraw device that means that autosuspend can never be enabled for the
+device, as we don't know when someone will use the device.
 
-Kind regards,
-     JeR
+For hiddev we can do better, the device is not autosuspended while it is
+open. This allows allowing ordinary users to use the device. Doing so for
+hidraw would require to extended the low level hid API. But not as extensively
+as I suggested.
 
+But I consider this to be a lost opportunity.
+Currently the ll driver must assume that the device is required to be fully
+operational when it is open. This means different things for ordinary input
+devices and "raw" devices. Raw devices must not be autosuspended when
+open at all. Ordinary devices must be able to process input.
 
-[1] https://bugs.gentoo.org/show_bug.cgi?id=245001
+But that is often overkill. In many situations, for example when a the screen
+saver is running, you only care that a key has been pressed, not which key.
+Drivers can save more power if they know this.
+
+Quote Alan Stern:
+> Would it make more sense never to autosuspend a device that has an open
+> hidraw interface?  Then if you want to, you could add an API allowing
+
+That is the sane default.
+
+> the user to tell the kernel to suspend or to resume (if the existing
+> sysfs interface isn't sufficient).
+
+The existing sysfs interface is clearly not designed for this. It's designed
+for system administration work. We are talking about ordinary user tasks
+accessing a generic interface. This leads to the following deficiencies:
+
+- the sysfs interface is specific to USB, hidraw is for all HID devices
+- the sysfs interface operates on physical devices, hidraw on logical devices
+- the sysfs interface is not designed to be shared among tasks
+- user space tasks know a device node, not the sysfs directory
+
+	Regards
+		Oliver

@@ -1,41 +1,53 @@
-From: Grant Grundler <grundler@parisc-linux.org>
-Subject: Re: 2.6.28-rc2: USB/INPUT: slab error in
-	cache_alloc_debugcheck_after(): double free?
-Date: Sat, 1 Nov 2008 11:56:52 -0600
-Message-ID: <20081101175652.GH13302@colo.lackof.org>
-References: <200810310011.08618.deller@gmx.de> <20081031044553.50882e86@epia.jer-c2.orkz.net> <alpine.LRH.1.10.0810311254400.7585@twin.jikos.cz> <20081031161640.16f20fd1@epia.jer-c2.orkz.net> <alpine.LNX.1.10.0810311626160.31273@jikos.suse.cz>
+From: Pavel Machek <pavel@suse.cz>
+Subject: Re: proposal on runtime power management in hid
+Date: Sat, 1 Nov 2008 19:30:24 +0100
+Message-ID: <20081101183024.GA1531@ucw.cz>
+References: <200810301704.01005.oliver@neukum.org> <alpine.LNX.1.10.0810310015250.31273@jikos.suse.cz> <200810311026.29916.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from colo.lackof.org ([198.49.126.79]:47889 "EHLO colo.lackof.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752002AbYKAR5G (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 1 Nov 2008 13:57:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47900 "EHLO UNKNOWN"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752010AbYKASal (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 1 Nov 2008 14:30:41 -0400
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.1.10.0810311626160.31273@jikos.suse.cz>
+In-Reply-To: <200810311026.29916.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jeroen Roovers <jer@gentoo.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-parisc@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, David Brownell <david-b@pacbell.net>, Alan Stern <stern@rowland.harvard.edu>, "Rafael J. Wysocki" <rjw@sisk.pl>, Jiri Slaby <jslaby@suse.cz>, linux-pm@vger.kernel.org
 
-On Fri, Oct 31, 2008 at 04:27:48PM +0100, Jiri Kosina wrote:
-> On Fri, 31 Oct 2008, Jeroen Roovers wrote:
+Hi!
+
+> > I think the simple and working solution would be never suspedning devices 
+> > that have interface open through hidraw, unless user explicitly allows 
+> > this through respective power/autosuspend setting in sysfs (which will by 
+> > default be set to 'off' for HID devices anyway, right?).
 > 
-> > > Could you please provide your config? I am still not able to reproduce 
-> > > it here. Thanks.
-> > Added to the bug report[1]. The architecture is hppa (parisc).
+> That we already have. That's the simple copout. Do not enable autosuspend
+> if you allow hidraw for a device. However, if normal users shall be able to use
+> the hidraw device that means that autosuspend can never be enabled for the
+> device, as we don't know when someone will use the device.
 > 
-> Hmm, so we have just two reports of this corruption, and both of them come 
-> from PA-RISC systems. Noone else has reported this, and I haven't been 
-> able to reproduce it myself on x86.
+> For hiddev we can do better, the device is not autosuspended while it is
+> open. This allows allowing ordinary users to use the device. Doing so for
+> hidraw would require to extended the low level hid API. But not as extensively
+> as I suggested.
 > 
-> On the other hand I don't seem to see any commit that went into 
-> arch/parisc between .27 and 28-rc1 which could possibly cause this...
+> But I consider this to be a lost opportunity.
+> Currently the ll driver must assume that the device is required to be fully
+> operational when it is open. This means different things for ordinary input
+> devices and "raw" devices. Raw devices must not be autosuspended when
+> open at all. Ordinary devices must be able to process input.
+> 
+> But that is often overkill. In many situations, for example when a the screen
+> saver is running, you only care that a key has been pressed, not which key.
+> Drivers can save more power if they know this.
 
-Maybe check drivers/parisc/?
-Long shot but if it's easy to check...
 
-Any chance this is a big endian vs little endian problem?
-I've found at least one of those in the USB layer before.
+...way more power in some cases. Yes, I'd love to see interface like
+that.
 
-grant
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

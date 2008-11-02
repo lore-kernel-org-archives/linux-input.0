@@ -1,29 +1,33 @@
 From: "Adel Gadllah" <adel.gadllah@gmail.com>
-Subject: [PATCH] atkdb: Keymap quirk for Inventec Symphony systems
-Date: Sun, 2 Nov 2008 15:27:34 +0100
-Message-ID: <6cf6b73e0811020627n6a0f78ei5975af077bd8ab5b@mail.gmail.com>
+Subject: [PATCH v2] atkbd: Keymap quirk for Inventec Symphony systems
+Date: Sun, 2 Nov 2008 15:42:43 +0100
+Message-ID: <6cf6b73e0811020642s3c263c43uedac10334f7e9f6d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.26]:52551 "EHLO
+Received: from qw-out-2122.google.com ([74.125.92.27]:50489 "EHLO
 	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753377AbYKBO1g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2008 09:27:36 -0500
-Received: by qw-out-2122.google.com with SMTP id 3so922100qwe.37
-        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2008 06:27:34 -0800 (PST)
+	with ESMTP id S1753442AbYKBOmo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2008 09:42:44 -0500
+Received: by qw-out-2122.google.com with SMTP id 3so925907qwe.37
+        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2008 06:42:43 -0800 (PST)
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: mjg@redhat.com
 
+Fix spelling errors.
+
+----
+
 From: Matthew Garrett <mjg@redhat.com>
 
 The Zepto 6615WD laptop (rebranded Inventec Symphony system) needs a
 key release quirk
 for its volume keys to work. The attached patch adds the quirk to the
-atkdb driver.
+atkbd driver.
 
 Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=460237
 

@@ -1,79 +1,50 @@
-From: "Adel Gadllah" <adel.gadllah@gmail.com>
-Subject: [PATCH v2] atkbd: Keymap quirk for Inventec Symphony systems
-Date: Sun, 2 Nov 2008 15:42:43 +0100
-Message-ID: <6cf6b73e0811020642s3c263c43uedac10334f7e9f6d@mail.gmail.com>
+From: Helge Deller <deller@gmx.de>
+Subject: Re: [PATCH 1/1] USBHID: correct start/stop cycle
+Date: Sun, 02 Nov 2008 17:50:49 +0100
+Message-ID: <490DDA69.4000404@gmx.de>
+References: <1225579306-28524-1-git-send-email-jirislaby@gmail.com> <alpine.LNX.1.10.0811020000360.29633@jikos.suse.cz> <490CE128.3020007@gmail.com> <490D8467.5090206@gmx.de> <490D873D.9010005@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:50489 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753442AbYKBOmo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2008 09:42:44 -0500
-Received: by qw-out-2122.google.com with SMTP id 3so925907qwe.37
-        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2008 06:42:43 -0800 (PST)
-Content-Disposition: inline
+Received: from mail.gmx.net ([213.165.64.20]:52918 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1753688AbYKBQux (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 2 Nov 2008 11:50:53 -0500
+In-Reply-To: <490D873D.9010005@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: mjg@redhat.com
+To: Jiri Slaby <jirislaby@gmail.com>, Denys Vlasenko <vda.linux@googlemail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, Jeroen Roovers <jer@gentoo.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Fix spelling errors.
+Jiri Slaby wrote:
+> Helge Deller napsal(a):
+>> Jiri Slaby wrote:
+>>> On 11/02/2008 12:02 AM, Jiri Kosina wrote:
+>>>> On Sat, 1 Nov 2008, Jiri Slaby wrote:
+>>>>
+>>>>> `stop' left out usbhid->urb* pointers and so the next `start' thought
+>>>>> it needs to allocate nothing and used the memory pointers previously
+>>>>> pointed to. This led to memory corruption and device malfunction.
+>>> [...]
+>>>> could you please verify whether this patch fixes the corruption you
+>>>> were experiencing?
+>>> btw. this is not expected to fix that, but if it does, the better ;).
+>> I tried the patch and sadly it didn't fixed the parisc bug.
+> 
+> Could you bisect it?
 
-----
+I fully bisected it, and the final "buggy" patch seems to have been 
+Denys Vlasenko's patch: cb8f488c33539f096580e202f5438a809195008f
+(see 
+http://github.com/jonsmirl/digispeaker/commit/cb8f488c33539f096580e202f5438a809195008f)
+Denys: Any reason you removed "!prev" in front of "expand_stack" ? It 
+seems wrong to remove the prev-check, else it would crash in 
+expand_upwards(in the CONFIG_STACK_GROWSUP case).
+This is parisc architecture (stack grows up, big-endian).
 
-From: Matthew Garrett <mjg@redhat.com>
+Sadly reverting just this patch, didn't fixed the bugzilla bug either: 
+http://bugzilla.kernel.org/show_bug.cgi?id=11913
+I think I need to redo all of my bisecting again... sigh...
 
-The Zepto 6615WD laptop (rebranded Inventec Symphony system) needs a
-key release quirk
-for its volume keys to work. The attached patch adds the quirk to the
-atkbd driver.
-
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=460237
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Matthew Garrett <mjg@redhat.com>
-Signed-off-by: Adel Gadllah <adel.gadllah@gmail.com>
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -868,6 +868,22 @@ static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
- }
-
- /*
-+ * Inventec system with broken key release on volume keys
-+ */
-+static void atkbd_inventec_keymap_fixup(struct atkbd *atkbd)
-+{
-+	const unsigned int forced_release_keys[] = {
-+		0xae, 0xb0,
-+	};
-+	int i;
-+
-+	if (atkbd->set == 2)
-+		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
-+			__set_bit(forced_release_keys[i],
-+				  atkbd->force_release_mask);
-+}
-+
-+/*
-  * atkbd_set_keycode_table() initializes keyboard's keycode table
-  * according to the selected scancode set
-  */
-@@ -1468,6 +1484,15 @@ static struct dmi_system_id
-atkbd_dmi_quirk_table[] __initdata = {
- 		.callback = atkbd_setup_fixup,
- 		.driver_data = atkbd_hp_keymap_fixup,
- 	},
-+	{
-+		.ident = "Inventec Symphony",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "INVENTEC"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "SYMPHONY 6.0/7.0"),
-+		},
-+		.callback = atkbd_setup_fixup,
-+		.driver_data = atkbd_inventec_keymap_fixup,
-+	},
- 	{ }
- };
+Helge

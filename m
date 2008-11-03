@@ -1,82 +1,108 @@
-From: "Zoltan Devai" <zdevai@gmail.com>
-Subject: [PATCH] Fix PIT lockup on some chipsets when using the PC-Speaker
-Date: Mon, 3 Nov 2008 00:27:31 +0100
-Message-ID: <5b7270f40811021527j26c22d2ana3b5b9c437173989@mail.gmail.com>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: cleanup of hiddev
+Date: Mon, 3 Nov 2008 17:31:36 +0100
+Message-ID: <200811031731.38055.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ik-out-1112.google.com ([66.249.90.181]:4700 "EHLO
-	ik-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753735AbYKBX1d (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 2 Nov 2008 18:27:33 -0500
-Received: by ik-out-1112.google.com with SMTP id c29so819718ika.5
-        for <linux-input@vger.kernel.org>; Sun, 02 Nov 2008 15:27:31 -0800 (PST)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+Cc: Jiri Kosina <jikos-wDf7oJUeT2I@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
+Hi Ji=C5=99is,
 
-There've been reports [1] about the sysem bell causing a hard lockup.
-My machine was affected as well: Any speaker output hung the machine
-completely, nothing in the logs, no magic sysrq, etc., looked like a
-hardware problem.
-Had a closer look on the issue, and it turned out that the pcspkr module is
-responsible. The cause is the bad setup of Timer 2 in the i8253 controller,
-which probably hangs the whole PIT controller.
+this is the cleanup of hiddev against current vanilla. What do you thin=
+k?
 
-Intel datasheets [2] state that the timer registers are in an undefined
-state after reset and they need to be programmed before enabling the
-timer. (And enabling without programming the frequency first doesn't
-make sense anyway).
+	Regards
+		Oliver
 
-I don't know which chipsets are affected (if not all), it also depends on
-the BIOS whether it initializes the timer (e.g. to beep when you start the
-machine).
+---
 
-The following patch solved the issue on my ICH6 notebook, couldn't
-test it with any others, but should be safe to apply.
-
-I'll also send a patch to the ALSA people for the snd-pcsp version.
-
-Cheers,
-Zoltan
-
-[1]
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/146151
-https://bugs.launchpad.net/ubuntu/+bug/270790
-http://ubuntuforums.org/showthread.php?t=227693
-http://bugs.gentoo.org/show_bug.cgi?id=222583
-https://bugzilla.redhat.com/show_bug.cgi?id=454225
-
-[2]
-http://www.intel.com/assets/pdf/datasheet/252516.pdf
-http://www.intel.com/assets/pdf/datasheet/301473.pdf
-http://www.intel.com/design/chipsets/datashts/29065503.pdf
-
-------------------
-
-Fix PIT lockup on some chipsets when using the PC-Speaker.
-
-Signed-off-by: Zoltan Devai <zdevai@gmail.com>
-
---- a/drivers/input/misc/pcspkr.c
-+++ b/drivers/input/misc/pcspkr.c
-@@ -52,13 +52,13 @@
- 	spin_lock_irqsave(&i8253_lock, flags);
-
- 	if (count) {
--		/* enable counter 2 */
--		outb_p(inb_p(0x61) | 3, 0x61);
- 		/* set command for counter 2, 2 byte write */
- 		outb_p(0xB6, 0x43);
- 		/* select desired HZ */
- 		outb_p(count & 0xff, 0x42);
- 		outb((count >> 8) & 0xff, 0x42);
-+		/* enable counter 2 */
-+		outb_p(inb_p(0x61) | 3, 0x61);
- 	} else {
- 		/* disable counter 2 */
- 		outb(inb_p(0x61) & 0xFC, 0x61);
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 3ac3207..78f5a3b 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -266,11 +266,11 @@ static int hiddev_release(struct inode * inode, s=
+truct file * file)
+ static int hiddev_open(struct inode *inode, struct file *file)
+ {
+ 	struct hiddev_list *list;
+-	unsigned long flags;
++	int res;
+=20
+ 	int i =3D iminor(inode) - HIDDEV_MINOR_BASE;
+=20
+-	if (i >=3D HIDDEV_MINORS || !hiddev_table[i])
++	if (i >=3D HIDDEV_MINORS || i < 0 || !hiddev_table[i])
+ 		return -ENODEV;
+=20
+ 	if (!(list =3D kzalloc(sizeof(struct hiddev_list), GFP_KERNEL)))
+@@ -278,17 +278,25 @@ static int hiddev_open(struct inode *inode, struc=
+t file *file)
+=20
+ 	list->hiddev =3D hiddev_table[i];
+=20
+-	spin_lock_irqsave(&list->hiddev->list_lock, flags);
+-	list_add_tail(&list->node, &hiddev_table[i]->list);
+-	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
+-
+ 	file->private_data =3D list;
+=20
+-	if (!list->hiddev->open++)
+-		if (list->hiddev->exist)
+-			usbhid_open(hiddev_table[i]->hid);
++	if (!list->hiddev->open++) {
++		if (list->hiddev->exist) {
++			res =3D usbhid_open(hiddev_table[i]->hid);
++			if (res < 0)
++				goto bail;
++		}
++	}
++
++	spin_lock_irq(&list->hiddev->list_lock);
++	list_add_tail(&list->node, &hiddev_table[i]->list);
++	spin_unlock_irq(&list->hiddev->list_lock);
+=20
+ 	return 0;
++bail:
++	file->private_data =3D NULL;
++	kfree(list->hiddev);
++	return -EIO;
+ }
+=20
+ /*
+@@ -317,8 +325,8 @@ static ssize_t hiddev_read(struct file * file, char=
+ __user * buffer, size_t coun
+=20
+ 	while (retval =3D=3D 0) {
+ 		if (list->head =3D=3D list->tail) {
+-			add_wait_queue(&list->hiddev->wait, &wait);
+ 			set_current_state(TASK_INTERRUPTIBLE);
++			add_wait_queue(&list->hiddev->wait, &wait);
+=20
+ 			while (list->head =3D=3D list->tail) {
+ 				if (file->f_flags & O_NONBLOCK) {
+@@ -335,7 +343,6 @@ static ssize_t hiddev_read(struct file * file, char=
+ __user * buffer, size_t coun
+ 				}
+=20
+ 				schedule();
+-				set_current_state(TASK_INTERRUPTIBLE);
+ 			}
+=20
+ 			set_current_state(TASK_RUNNING);
+@@ -810,13 +817,6 @@ int hiddev_connect(struct hid_device *hid, unsigne=
+d int force)
+ 	if (!(hiddev =3D kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+ 		return -1;
+=20
+-	retval =3D usb_register_dev(usbhid->intf, &hiddev_class);
+-	if (retval) {
+-		err_hid("Not able to get a minor for this device.");
+-		kfree(hiddev);
+-		return -1;
+-	}

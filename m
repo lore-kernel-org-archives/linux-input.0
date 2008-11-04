@@ -1,40 +1,25 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+From: Jiri Slaby <jirislaby@gmail.com>
 Subject: Re: cleanup of hiddev
-Date: Tue, 4 Nov 2008 16:29:38 +0100
-Message-ID: <200811041629.39945.oliver@neukum.org>
-References: <200811031731.38055.oliver@neukum.org> <200811041317.40482.oliver@neukum.org> <4910681D.6020701@gmail.com>
+Date: Tue, 04 Nov 2008 16:33:49 +0100
+Message-ID: <49106B5D.5020701@gmail.com>
+References: <200811031731.38055.oliver@neukum.org> <200811041317.40482.oliver@neukum.org> <4910681D.6020701@gmail.com> <200811041629.39945.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4910681D.6020701-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jiri Kosina <jikos-wDf7oJUeT2I@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ug-out-1314.google.com ([66.249.92.175]:39296 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751911AbYKDPeC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Nov 2008 10:34:02 -0500
+In-Reply-To: <200811041629.39945.oliver@neukum.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Jiri Kosina <jikos@jikos.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Am Dienstag, 4. November 2008 16:19:57 schrieb Jiri Slaby:
-> Oliver Neukum napsal(a):
-> > Am Montag, 3. November 2008 20:58:11 schrieb Jiri Slaby:
-> >>> @@ -828,6 +828,14 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
-> >>>  
-> >>>  	hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
-> >> usbhid->intf->minor is set even after this call:
-> > 
-> > What does this mean?
-> 
-> You removed the usb_register_dev() call when replying. It sets the
-> intf->minor, but you use it above it now.
-> 
+Oliver Neukum napsal(a):
+> Yes, I see. However, the device must not be registered before the table
+> is correctly filled and the minor must be filled out before. A mutex then?
 
-Yes, I see. However, the device must not be registered before the table
-is correctly filled and the minor must be filled out before. A mutex then?
-
-	Regards
-		Oliver
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+It's enough to assign the hiddev_table after the register, isn't it?
+Actually, it's how it's done now... BTW what was the reason to move with that?

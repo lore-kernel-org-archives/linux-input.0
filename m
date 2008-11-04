@@ -1,35 +1,33 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: cleanup of hiddev
-Date: Tue, 4 Nov 2008 18:56:47 +0100
-Message-ID: <200811041856.47950.oliver@neukum.org>
-References: <200811031731.38055.oliver@neukum.org> <200811041629.39945.oliver@neukum.org> <49106B5D.5020701@gmail.com>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] hid: Add support for the new unibody macbooks
+Date: Tue, 04 Nov 2008 19:48:59 +0100
+Message-ID: <4910991B.5010903@euromail.se>
+References: <49103CFA.1010707@euromail.se> <49106747.8060709@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:40422 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752123AbYKDR4g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Nov 2008 12:56:36 -0500
-In-Reply-To: <49106B5D.5020701@gmail.com>
-Content-Disposition: inline
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:33110 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751520AbYKDStN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 4 Nov 2008 13:49:13 -0500
+In-Reply-To: <49106747.8060709@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Am Dienstag, 4. November 2008 16:33:49 schrieb Jiri Slaby:
-> Oliver Neukum napsal(a):
-> > Yes, I see. However, the device must not be registered before the table
-> > is correctly filled and the minor must be filled out before. A mutex then?
+Jiri Slaby wrote:
+> Henrik Rydberg napsal(a):
+>> The unibody MacBook 5 and MacBook Pro 5 come with a new version of
+>> the bcm5974 trackpad. This patch adds the USB device ids and the
+>> appropriate quirks.
 > 
-> It's enough to assign the hiddev_table after the register, isn't it?
-> Actually, it's how it's done now... BTW what was the reason to move with that?
+> Hi, thanks for the patch, but you omitted hid_blacklist addition.
+> 
+> Jiri K. (HID maintainer) is out for a while, expect longer rtt ;).
 
-No, you have a race condition where open() for an announced device
-will fail.
-
-	Regards
-		Oliver
+Yes, I sent it separately, sorry about the confusion. I will resend
+the whole patch shortly, with the blacklist included. Thanks!
 

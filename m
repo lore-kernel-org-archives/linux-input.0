@@ -1,77 +1,121 @@
 From: Dmitri Vorobiev <dmitri.vorobiev@movial.fi>
-Subject: [PATCH 1/2] INPUT: remove IP22-specific code from sgi_btns
-Date: Tue,  4 Nov 2008 22:56:55 +0200
-Message-ID: <1225832216-6893-1-git-send-email-dmitri.vorobiev@movial.fi>
+Subject: [PATCH 2/2] INPUT: an interrupt-driven driver for Indy volume control
+Date: Tue,  4 Nov 2008 22:56:56 +0200
+Message-ID: <1225832216-6893-2-git-send-email-dmitri.vorobiev@movial.fi>
+References: <1225832216-6893-1-git-send-email-dmitri.vorobiev@movial.fi>
 Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <1225832216-6893-1-git-send-email-dmitri.vorobiev@movial.fi>
 Sender: linux-mips-bounce@linux-mips.org
 Errors-to: linux-mips-bounce@linux-mips.org
 To: ralf@linux-mips.org, linux-mips@linux-mips.org
 Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, Dmitri Vorobiev <dmitri.vorobiev@movial.fi>
 List-Id: linux-input@vger.kernel.org
 
-The Indy front panel gets its own interrupt-based driver, so
-all Indy-specific code needs to be removed from the common
-Indy/O2 volume button driver. Additionally, the driver name
-is changed to emphasize that it is now SGI O2-specific.
+This patch introduces an interrupt-driven version of the SGI
+Indy volume control buttons driver.
 
-Build-tested for IP22 and IP32 targets.
+Tested using an Indy box.
 
 Signed-off-by: Dmitri Vorobiev <dmitri.vorobiev@movial.fi>
 ---
- drivers/input/misc/Kconfig    |   12 ++--
- drivers/input/misc/Makefile   |    2 +-
- drivers/input/misc/o2_btns.c  |  165 +++++++++++++++++++++++++++++++++++++
- drivers/input/misc/sgi_btns.c |  179 -----------------------------------------
- 4 files changed, 172 insertions(+), 186 deletions(-)
- create mode 100644 drivers/input/misc/o2_btns.c
- delete mode 100644 drivers/input/misc/sgi_btns.c
+ arch/mips/sgi-ip22/Makefile        |    2 +-
+ arch/mips/sgi-ip22/ip22-platform.c |    6 +-
+ arch/mips/sgi-ip22/ip22-reset.c    |    3 +-
+ drivers/input/misc/Kconfig         |   11 ++
+ drivers/input/misc/Makefile        |    1 +
+ drivers/input/misc/sgipanel.c      |  219 ++++++++++++++++++++++++++++++++++++
+ 6 files changed, 237 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/input/misc/sgipanel.c
 
+diff --git a/arch/mips/sgi-ip22/Makefile b/arch/mips/sgi-ip22/Makefile
+index ef1564e..416b18f 100644
+--- a/arch/mips/sgi-ip22/Makefile
++++ b/arch/mips/sgi-ip22/Makefile
+@@ -10,4 +10,4 @@ obj-$(CONFIG_SGI_IP22) += ip22-berr.o
+ obj-$(CONFIG_SGI_IP28) += ip28-berr.o
+ obj-$(CONFIG_EISA)	+= ip22-eisa.o
+ 
+-# EXTRA_CFLAGS += -Werror
++EXTRA_CFLAGS += -Werror
+diff --git a/arch/mips/sgi-ip22/ip22-platform.c b/arch/mips/sgi-ip22/ip22-platform.c
+index deddbf0..1380566 100644
+--- a/arch/mips/sgi-ip22/ip22-platform.c
++++ b/arch/mips/sgi-ip22/ip22-platform.c
+@@ -183,15 +183,15 @@ static int __init sgi_hal2_devinit(void)
+ 
+ device_initcall(sgi_hal2_devinit);
+ 
+-static int __init sgi_button_devinit(void)
++static int __init sgi_panel_devinit(void)
+ {
+ 	if (ip22_is_fullhouse())
+ 		return 0; /* full house has no volume buttons */
+ 
+-	return IS_ERR(platform_device_register_simple("sgibtns", -1, NULL, 0));
++	return IS_ERR(platform_device_register_simple("sgipanel", -1, NULL, 0));
+ }
+ 
+-device_initcall(sgi_button_devinit);
++device_initcall(sgi_panel_devinit);
+ 
+ static int __init sgi_ds1286_devinit(void)
+ {
+diff --git a/arch/mips/sgi-ip22/ip22-reset.c b/arch/mips/sgi-ip22/ip22-reset.c
+index 4ad5c33..b340fa1 100644
+--- a/arch/mips/sgi-ip22/ip22-reset.c
++++ b/arch/mips/sgi-ip22/ip22-reset.c
+@@ -191,7 +191,8 @@ static int __init reboot_setup(void)
+ 	_machine_halt = sgi_machine_halt;
+ 	pm_power_off = sgi_machine_power_off;
+ 
+-	res = request_irq(SGI_PANEL_IRQ, panel_int, 0, "Front Panel", NULL);
++	res = request_irq(SGI_PANEL_IRQ, panel_int, IRQF_SHARED, "Front Panel",
++								reboot_setup);
+ 	if (res) {
+ 		printk(KERN_ERR "Allocation of front panel IRQ failed\n");
+ 		return res;
 diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 199055d..1f93202 100644
+index 1f93202..47e98e1 100644
 --- a/drivers/input/misc/Kconfig
 +++ b/drivers/input/misc/Kconfig
-@@ -202,15 +202,15 @@ config INPUT_UINPUT
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called uinput.
+@@ -212,6 +212,17 @@ config INPUT_SGI_O2_BTNS
+ 	  To compile this driver as a module, choose M here: the module will
+ 	  be called o2_btns.
  
--config INPUT_SGI_BTNS
--	tristate "SGI Indy/O2 volume button interface"
--	depends on SGI_IP22 || SGI_IP32
-+config INPUT_SGI_O2_BTNS
-+	tristate "SGI O2 volume button interface"
-+	depends on SGI_IP32
- 	select INPUT_POLLDEV
- 	help
--	  Say Y here if you want to support SGI Indy/O2 volume button interface.
-+	  Say Y here if you want to support SGI O2 volume button interface.
- 
--	  To compile this driver as a module, choose M here: the
--	  module will be called sgi_btns.
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called o2_btns.
- 
++config INPUT_SGI_INDY_PANEL
++	tristate "SGI Indy front panel buttons support"
++	depends on SGI_IP22
++	default m
++	help
++	  Select Y here if you want to support SGI Indy volume control
++	  buttons.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called sgipanel.
++
  config HP_SDC_RTC
  	tristate "HP SDC Real Time Clock"
+ 	depends on GSC || HP300
 diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index d7db2ae..2b18c92 100644
+index 2b18c92..d5e197c 100644
 --- a/drivers/input/misc/Makefile
 +++ b/drivers/input/misc/Makefile
-@@ -20,4 +20,4 @@ obj-$(CONFIG_INPUT_CM109)		+= cm109.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
+@@ -21,3 +21,4 @@ obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
  obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
  obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
--obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
-+obj-$(CONFIG_INPUT_SGI_O2_BTNS)		+= o2_btns.o
-diff --git a/drivers/input/misc/o2_btns.c b/drivers/input/misc/o2_btns.c
+ obj-$(CONFIG_INPUT_SGI_O2_BTNS)		+= o2_btns.o
++obj-$(CONFIG_INPUT_SGI_INDY_PANEL)	+= sgipanel.o
+diff --git a/drivers/input/misc/sgipanel.c b/drivers/input/misc/sgipanel.c
 new file mode 100644
-index 0000000..7adadc5
+index 0000000..d1e2092
 --- /dev/null
-+++ b/drivers/input/misc/o2_btns.c
-@@ -0,0 +1,165 @@
++++ b/drivers/input/misc/sgipanel.c
+@@ -0,0 +1,219 @@
 +/*
-+ *  SGI Volume Button interface driver
++ *  SGI Indy front panel driver
 + *
-+ *  Copyright (C) 2008  Thomas Bogendoerfer <tsbogend@alpha.franken.de>
++ *  Copyright (C) 2008 Dmitri Vorobiev <dmitri.vorobiev@movial.fi>
++ *  Based on the polling driver by Thomas Bogendoerfer
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -87,87 +131,129 @@ index 0000000..7adadc5
 + *  along with this program; if not, write to the Free Software
 + *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 + */
-+#include <linux/init.h>
-+#include <linux/input-polldev.h>
-+#include <linux/ioport.h>
++
++#include <linux/bitops.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/jiffies.h>
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
 +
-+#include <asm/ip32/mace.h>
++#include <asm/sgi/ioc.h>
++#include <asm/sgi/ip22.h>
 +
-+static inline u8 button_status(void)
++#define POLL_INTERVAL_MSECS 30
++#define POLL_INTERVAL msecs_to_jiffies(POLL_INTERVAL_MSECS)
++
++static struct timer_list panel_timer;
++
++static const unsigned short panel_map[] = {
++	KEY_VOLUMEDOWN,
++	KEY_VOLUMEUP,
++};
++
++struct sgipanel {
++	struct input_dev *input;
++	struct timer_list *timer;
++	int pressed[ARRAY_SIZE(panel_map)];
++	int shutting_down;
++	unsigned short keymap[ARRAY_SIZE(panel_map)];
++};
++
++static inline u8 panel_status(void)
 +{
-+	u64 status;
++	u8 status;
 +
-+	status = readq(&mace->perif.audio.control);
-+	writeq(status & ~(3U << 23), &mace->perif.audio.control);
++	status = sgioc->panel;
++	status ^= (SGIOC_PANEL_VOLDNHOLD | SGIOC_PANEL_VOLUPHOLD);
 +
-+	return (status >> 23) & 3;
++	return ((status & SGIOC_PANEL_VOLUPHOLD) >> 6) |
++		((status & SGIOC_PANEL_VOLDNHOLD) >> 5);
 +}
 +
-+#define BUTTONS_POLL_INTERVAL	30	/* msec */
-+#define BUTTONS_COUNT_THRESHOLD	3
-+
-+static const unsigned short sgi_map[] = {
-+	KEY_VOLUMEDOWN,
-+	KEY_VOLUMEUP
-+};
-+
-+struct buttons_dev {
-+	struct input_polled_dev *poll_dev;
-+	unsigned short keymap[ARRAY_SIZE(sgi_map)];
-+	int count[ARRAY_SIZE(sgi_map)];
-+};
-+
-+static void handle_buttons(struct input_polled_dev *dev)
++static void timer(unsigned long data)
 +{
-+	struct buttons_dev *bdev = dev->private;
-+	struct input_dev *input = dev->input;
-+	u8 status;
++	struct sgipanel *bdev = (struct sgipanel *) data;
++	struct input_dev *input = bdev->input;
++	int status = panel_status();
 +	int i;
 +
-+	status = button_status();
-+
 +	for (i = 0; i < ARRAY_SIZE(bdev->keymap); i++) {
-+		if (status & (1U << i)) {
-+			if (++bdev->count[i] == BUTTONS_COUNT_THRESHOLD) {
++		if (status & BIT(i)) {
++			if (!bdev->pressed[i]) {
 +				input_event(input, EV_MSC, MSC_SCAN, i);
 +				input_report_key(input, bdev->keymap[i], 1);
 +				input_sync(input);
 +			}
++			bdev->pressed[i] = 1;
++			bdev->timer->expires = jiffies + POLL_INTERVAL;
++			if (!bdev->shutting_down)
++				add_timer(bdev->timer);
 +		} else {
-+			if (bdev->count[i] >= BUTTONS_COUNT_THRESHOLD) {
++			if (bdev->pressed[i]) {
 +				input_event(input, EV_MSC, MSC_SCAN, i);
 +				input_report_key(input, bdev->keymap[i], 0);
 +				input_sync(input);
 +			}
-+			bdev->count[i] = 0;
++			bdev->pressed[i] = 0;
 +		}
 +	}
 +}
 +
-+static int __devinit sgi_buttons_probe(struct platform_device *pdev)
++static irqreturn_t panel_interrupt(int irq, void *data)
 +{
-+	struct buttons_dev *bdev;
-+	struct input_polled_dev *poll_dev;
-+	struct input_dev *input;
-+	int error, i;
++	struct sgipanel *bdev = (struct sgipanel *) data;
 +
-+	bdev = kzalloc(sizeof(struct buttons_dev), GFP_KERNEL);
-+	poll_dev = input_allocate_polled_device();
-+	if (!bdev || !poll_dev) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
++	bdev->timer->expires = jiffies;
++	add_timer(bdev->timer);
++	return IRQ_HANDLED;
++}
++
++static int __devinit sgi_indy_panel_probe(struct platform_device *pdev)
++{
++	struct sgipanel *bdev;
++	struct input_dev *input;
++	int i, error;
++
++	/*
++	 * Section 2.6.2 of ioc.ps states: "Full House does not have
++	 * any support for Volume Control."
++	 */
++	if (ip22_is_fullhouse()) {
++		error = -ENODEV;
++		goto err_return;
 +	}
 +
-+	memcpy(bdev->keymap, sgi_map, sizeof(bdev->keymap));
++	bdev = kzalloc(sizeof(struct sgipanel), GFP_KERNEL);
++	if (!bdev) {
++		error = -ENOMEM;
++		dev_err(&pdev->dev, "Could not allocate memory\n");
++		goto err_return;
++	}
 +
-+	poll_dev->private = bdev;
-+	poll_dev->poll = handle_buttons;
-+	poll_dev->poll_interval = BUTTONS_POLL_INTERVAL;
++	bdev->timer = &panel_timer;
 +
-+	input = poll_dev->input;
-+	input->name = "SGI buttons";
++	init_timer(bdev->timer);
++	bdev->timer->data = (unsigned long) bdev;
++	bdev->timer->function = timer;
++
++	error = request_irq(SGI_PANEL_IRQ, panel_interrupt, IRQF_SHARED,
++							"Front Panel", bdev);
++	if (error) {
++		dev_err(&pdev->dev, "Failed to get IRQ\n");
++		goto err_free_bdev;
++	}
++
++	input = input_allocate_device();
++	if (!input) {
++		error = -ENOMEM;
++		dev_err(&pdev->dev, "Could not allocate input device\n");
++		goto err_free_irq;
++	}
++
++	memcpy(bdev->keymap, panel_map, sizeof(bdev->keymap));
++
++	input->name = "SGI panel";
 +	input->phys = "sgi/input0";
 +	input->id.bustype = BUS_HOST;
 +	input->dev.parent = &pdev->dev;
@@ -178,245 +264,71 @@ index 0000000..7adadc5
 +
 +	input_set_capability(input, EV_MSC, MSC_SCAN);
 +	__set_bit(EV_KEY, input->evbit);
-+	for (i = 0; i < ARRAY_SIZE(sgi_map); i++)
++	for (i = 0; i < ARRAY_SIZE(panel_map); i++)
 +		__set_bit(bdev->keymap[i], input->keybit);
 +	__clear_bit(KEY_RESERVED, input->keybit);
 +
-+	bdev->poll_dev = poll_dev;
++	bdev->input = input;
 +	dev_set_drvdata(&pdev->dev, bdev);
 +
-+	error = input_register_polled_device(poll_dev);
-+	if (error)
++	error = input_register_device(input);
++	if (error) {
++		dev_err(&pdev->dev, "Could not register input device\n");
 +		goto err_free_mem;
++	}
 +
 +	return 0;
 +
-+ err_free_mem:
-+	input_free_polled_device(poll_dev);
-+	kfree(bdev);
++err_free_mem:
 +	dev_set_drvdata(&pdev->dev, NULL);
++	input_free_device(input);
++err_free_irq:
++	free_irq(SGI_PANEL_IRQ, bdev);
++err_free_bdev:
++	kfree(bdev);
++err_return:
 +	return error;
 +}
 +
-+static int __devexit sgi_buttons_remove(struct platform_device *pdev)
++static int __devexit sgi_indy_panel_remove(struct platform_device *pdev)
 +{
 +	struct device *dev = &pdev->dev;
-+	struct buttons_dev *bdev = dev_get_drvdata(dev);
++	struct sgipanel *bdev = dev_get_drvdata(dev);
 +
-+	input_unregister_polled_device(bdev->poll_dev);
-+	input_free_polled_device(bdev->poll_dev);
++	bdev->shutting_down = 1;
++	input_unregister_device(bdev->input);
++	free_irq(SGI_PANEL_IRQ, bdev);
++	del_timer_sync(bdev->timer);
 +	kfree(bdev);
 +	dev_set_drvdata(dev, NULL);
 +
 +	return 0;
 +}
 +
-+static struct platform_driver sgi_buttons_driver = {
-+	.probe	= sgi_buttons_probe,
-+	.remove	= __devexit_p(sgi_buttons_remove),
++static struct platform_driver sgi_indy_panel_driver = {
++	.probe	= sgi_indy_panel_probe,
++	.remove	= __devexit_p(sgi_indy_panel_remove),
 +	.driver	= {
-+		.name	= "sgibtns",
++		.name	= "sgipanel",
 +		.owner	= THIS_MODULE,
 +	},
 +};
 +
-+static int __init sgi_buttons_init(void)
++static int __init sgi_indy_panel_init(void)
 +{
-+	return platform_driver_register(&sgi_buttons_driver);
++	return platform_driver_register(&sgi_indy_panel_driver);
 +}
 +
-+static void __exit sgi_buttons_exit(void)
++static void __exit sgi_indy_panel_exit(void)
 +{
-+	platform_driver_unregister(&sgi_buttons_driver);
++	platform_driver_unregister(&sgi_indy_panel_driver);
 +}
 +
 +MODULE_LICENSE("GPL");
-+module_init(sgi_buttons_init);
-+module_exit(sgi_buttons_exit);
-diff --git a/drivers/input/misc/sgi_btns.c b/drivers/input/misc/sgi_btns.c
-deleted file mode 100644
-index be3a15f..0000000
---- a/drivers/input/misc/sgi_btns.c
-+++ /dev/null
-@@ -1,179 +0,0 @@
--/*
-- *  SGI Volume Button interface driver
-- *
-- *  Copyright (C) 2008  Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-- *
-- *  This program is free software; you can redistribute it and/or modify
-- *  it under the terms of the GNU General Public License as published by
-- *  the Free Software Foundation; either version 2 of the License, or
-- *  (at your option) any later version.
-- *
-- *  This program is distributed in the hope that it will be useful,
-- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- *  GNU General Public License for more details.
-- *
-- *  You should have received a copy of the GNU General Public License
-- *  along with this program; if not, write to the Free Software
-- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-- */
--#include <linux/init.h>
--#include <linux/input-polldev.h>
--#include <linux/ioport.h>
--#include <linux/module.h>
--#include <linux/platform_device.h>
--
--#ifdef CONFIG_SGI_IP22
--#include <asm/sgi/ioc.h>
--
--static inline u8 button_status(void)
--{
--	u8 status;
--
--	status = readb(&sgioc->panel) ^ 0xa0;
--	return ((status & 0x80) >> 6) | ((status & 0x20) >> 5);
--}
--#endif
--
--#ifdef CONFIG_SGI_IP32
--#include <asm/ip32/mace.h>
--
--static inline u8 button_status(void)
--{
--	u64 status;
--
--	status = readq(&mace->perif.audio.control);
--	writeq(status & ~(3U << 23), &mace->perif.audio.control);
--
--	return (status >> 23) & 3;
--}
--#endif
--
--#define BUTTONS_POLL_INTERVAL	30	/* msec */
--#define BUTTONS_COUNT_THRESHOLD	3
--
--static const unsigned short sgi_map[] = {
--	KEY_VOLUMEDOWN,
--	KEY_VOLUMEUP
--};
--
--struct buttons_dev {
--	struct input_polled_dev *poll_dev;
--	unsigned short keymap[ARRAY_SIZE(sgi_map)];
--	int count[ARRAY_SIZE(sgi_map)];
--};
--
--static void handle_buttons(struct input_polled_dev *dev)
--{
--	struct buttons_dev *bdev = dev->private;
--	struct input_dev *input = dev->input;
--	u8 status;
--	int i;
--
--	status = button_status();
--
--	for (i = 0; i < ARRAY_SIZE(bdev->keymap); i++) {
--		if (status & (1U << i)) {
--			if (++bdev->count[i] == BUTTONS_COUNT_THRESHOLD) {
--				input_event(input, EV_MSC, MSC_SCAN, i);
--				input_report_key(input, bdev->keymap[i], 1);
--				input_sync(input);
--			}
--		} else {
--			if (bdev->count[i] >= BUTTONS_COUNT_THRESHOLD) {
--				input_event(input, EV_MSC, MSC_SCAN, i);
--				input_report_key(input, bdev->keymap[i], 0);
--				input_sync(input);
--			}
--			bdev->count[i] = 0;
--		}
--	}
--}
--
--static int __devinit sgi_buttons_probe(struct platform_device *pdev)
--{
--	struct buttons_dev *bdev;
--	struct input_polled_dev *poll_dev;
--	struct input_dev *input;
--	int error, i;
--
--	bdev = kzalloc(sizeof(struct buttons_dev), GFP_KERNEL);
--	poll_dev = input_allocate_polled_device();
--	if (!bdev || !poll_dev) {
--		error = -ENOMEM;
--		goto err_free_mem;
--	}
--
--	memcpy(bdev->keymap, sgi_map, sizeof(bdev->keymap));
--
--	poll_dev->private = bdev;
--	poll_dev->poll = handle_buttons;
--	poll_dev->poll_interval = BUTTONS_POLL_INTERVAL;
--
--	input = poll_dev->input;
--	input->name = "SGI buttons";
--	input->phys = "sgi/input0";
--	input->id.bustype = BUS_HOST;
--	input->dev.parent = &pdev->dev;
--
--	input->keycode = bdev->keymap;
--	input->keycodemax = ARRAY_SIZE(bdev->keymap);
--	input->keycodesize = sizeof(unsigned short);
--
--	input_set_capability(input, EV_MSC, MSC_SCAN);
--	__set_bit(EV_KEY, input->evbit);
--	for (i = 0; i < ARRAY_SIZE(sgi_map); i++)
--		__set_bit(bdev->keymap[i], input->keybit);
--	__clear_bit(KEY_RESERVED, input->keybit);
--
--	bdev->poll_dev = poll_dev;
--	dev_set_drvdata(&pdev->dev, bdev);
--
--	error = input_register_polled_device(poll_dev);
--	if (error)
--		goto err_free_mem;
--
--	return 0;
--
-- err_free_mem:
--	input_free_polled_device(poll_dev);
--	kfree(bdev);
--	dev_set_drvdata(&pdev->dev, NULL);
--	return error;
--}
--
--static int __devexit sgi_buttons_remove(struct platform_device *pdev)
--{
--	struct device *dev = &pdev->dev;
--	struct buttons_dev *bdev = dev_get_drvdata(dev);
--
--	input_unregister_polled_device(bdev->poll_dev);
--	input_free_polled_device(bdev->poll_dev);
--	kfree(bdev);
--	dev_set_drvdata(dev, NULL);
--
--	return 0;
--}
--
--static struct platform_driver sgi_buttons_driver = {
--	.probe	= sgi_buttons_probe,
--	.remove	= __devexit_p(sgi_buttons_remove),
--	.driver	= {
--		.name	= "sgibtns",
--		.owner	= THIS_MODULE,
--	},
--};
--
--static int __init sgi_buttons_init(void)
--{
--	return platform_driver_register(&sgi_buttons_driver);
--}
--
--static void __exit sgi_buttons_exit(void)
--{
--	platform_driver_unregister(&sgi_buttons_driver);
--}
--
--MODULE_LICENSE("GPL");
--module_init(sgi_buttons_init);
--module_exit(sgi_buttons_exit);
++MODULE_AUTHOR("Dmitri Vorobiev <dmitri.vorobiev@movial.fi");
++MODULE_ALIAS("platform:sgipanel");
++MODULE_DESCRIPTION("SGI front panel driver");
++module_init(sgi_indy_panel_init);
++module_exit(sgi_indy_panel_exit);
 -- 
 1.5.4.3

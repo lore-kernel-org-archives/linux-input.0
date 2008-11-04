@@ -1,75 +1,210 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [PATCH] input: Map missing keys to appropriate functions
-Date: Tue, 04 Nov 2008 13:31:38 +0100
-Message-ID: <491040AA.7010208@euromail.se>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: cleanup of hiddev
+Date: Tue, 4 Nov 2008 14:07:27 +0100
+Message-ID: <200811041407.28543.oliver@neukum.org>
+References: <200811031731.38055.oliver@neukum.org> <490F57D3.6060503@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:37468 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753272AbYKDMbm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Nov 2008 07:31:42 -0500
+Received: from smtp-out003.kontent.com ([81.88.40.217]:38579 "EHLO
+	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751681AbYKDNHR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 4 Nov 2008 08:07:17 -0500
+In-Reply-To: <490F57D3.6060503@gmail.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Jiri Kosina <jikos@jikos.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On macbooks there are specific keys for the user-space functions Expose
-and Dashboard, which currently has no counterpart in input.h. This patc=
-h
-adds KEY_SCALE and KEY_DASHBOARD, and maps the keyboard accordingly.
+Am Montag, 3. November 2008 20:58:11 schrieb Jiri Slaby:
+> Hi.
+> 
+> > this is the cleanup of hiddev against current vanilla. What do you think?
+> 
+> See my comments below.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Hi,
+
+I've addressed all comments I understood. In addition it seems to me that
+the read method is not thread-safe.
+
+	Regards
+		Oliver
+
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+
 ---
- drivers/hid/hid-apple.c |    5 +++--
- include/linux/input.h   |    2 ++
- 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index c6ab4ba..b25d90c 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -55,10 +55,11 @@ struct apple_key_translation {
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 3ac3207..a35576b 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -63,6 +63,7 @@ struct hiddev_list {
+ 	struct fasync_struct *fasync;
+ 	struct hiddev *hiddev;
+ 	struct list_head node;
++	struct mutex thread_lock;
+ };
+ 
+ static struct hiddev *hiddev_table[HIDDEV_MINORS];
+@@ -266,29 +267,38 @@ static int hiddev_release(struct inode * inode, struct file * file)
+ static int hiddev_open(struct inode *inode, struct file *file)
+ {
+ 	struct hiddev_list *list;
+-	unsigned long flags;
++	int res;
+ 
+ 	int i = iminor(inode) - HIDDEV_MINOR_BASE;
+ 
+-	if (i >= HIDDEV_MINORS || !hiddev_table[i])
++	if (i >= HIDDEV_MINORS || i < 0 || !hiddev_table[i])
+ 		return -ENODEV;
+ 
+ 	if (!(list = kzalloc(sizeof(struct hiddev_list), GFP_KERNEL)))
+ 		return -ENOMEM;
++	mutex_init(&list->thread_lock);
+ 
+ 	list->hiddev = hiddev_table[i];
+ 
+-	spin_lock_irqsave(&list->hiddev->list_lock, flags);
+-	list_add_tail(&list->node, &hiddev_table[i]->list);
+-	spin_unlock_irqrestore(&list->hiddev->list_lock, flags);
+-
+ 	file->private_data = list;
+ 
+-	if (!list->hiddev->open++)
+-		if (list->hiddev->exist)
+-			usbhid_open(hiddev_table[i]->hid);
++	if (!list->hiddev->open++) {
++		if (list->hiddev->exist) {
++			res = usbhid_open(hiddev_table[i]->hid);
++			if (res < 0)
++				goto bail;
++		}
++	}
++
++	spin_lock_irq(&list->hiddev->list_lock);
++	list_add_tail(&list->node, &hiddev_table[i]->list);
++	spin_unlock_irq(&list->hiddev->list_lock);
+ 
+ 	return 0;
++bail:
++	file->private_data = NULL;
++	kfree(list->hiddev);
++	return -EIO;
+ }
+ 
+ /*
+@@ -307,7 +317,7 @@ static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t coun
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	struct hiddev_list *list = file->private_data;
+ 	int event_size;
+-	int retval = 0;
++	int retval;
+ 
+ 	event_size = ((list->flags & HIDDEV_FLAG_UREF) != 0) ?
+ 		sizeof(struct hiddev_usage_ref) : sizeof(struct hiddev_event);
+@@ -315,10 +325,14 @@ static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t coun
+ 	if (count < event_size)
+ 		return 0;
+ 
++	/* lock against other threads */
++	retval = mutex_lock_interruptible(&list->thread_lock);
++	if (retval)
++		return -ERESTARTSYS;
++
+ 	while (retval == 0) {
+ 		if (list->head == list->tail) {
+-			add_wait_queue(&list->hiddev->wait, &wait);
+-			set_current_state(TASK_INTERRUPTIBLE);
++			prepare_to_wait(&list->hiddev->wait, &wait, TASK_INTERRUPTIBLE);
+ 
+ 			while (list->head == list->tail) {
+ 				if (file->f_flags & O_NONBLOCK) {
+@@ -337,32 +351,38 @@ static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t coun
+ 				schedule();
+ 				set_current_state(TASK_INTERRUPTIBLE);
+ 			}
++			finish_wait(&list->hiddev->wait, &wait);
+ 
+-			set_current_state(TASK_RUNNING);
+-			remove_wait_queue(&list->hiddev->wait, &wait);
+ 		}
+ 
+-		if (retval)
++		if (retval) {
++			mutex_unlock(&list->thread_lock);
+ 			return retval;
++		}
+ 
+ 
+ 		while (list->head != list->tail &&
+ 		       retval + event_size <= count) {
+ 			if ((list->flags & HIDDEV_FLAG_UREF) == 0) {
+-				if (list->buffer[list->tail].field_index !=
+-				    HID_FIELD_INDEX_NONE) {
++				if (list->buffer[list->tail].field_index != HID_FIELD_INDEX_NONE) {
+ 					struct hiddev_event event;
++
+ 					event.hid = list->buffer[list->tail].usage_code;
+ 					event.value = list->buffer[list->tail].value;
+-					if (copy_to_user(buffer + retval, &event, sizeof(struct hiddev_event)))
++					if (copy_to_user(buffer + retval, &event, sizeof(struct hiddev_event))) {
++						mutex_unlock(&list->thread_lock);
+ 						return -EFAULT;
++					}
+ 					retval += sizeof(struct hiddev_event);
+ 				}
+ 			} else {
+ 				if (list->buffer[list->tail].field_index != HID_FIELD_INDEX_NONE ||
+ 				    (list->flags & HIDDEV_FLAG_REPORT) != 0) {
+-					if (copy_to_user(buffer + retval, list->buffer + list->tail, sizeof(struct hiddev_usage_ref)))
++
++					if (copy_to_user(buffer + retval, list->buffer + list->tail, sizeof(struct hiddev_usage_ref))) {
++						mutex_unlock(&list->thread_lock);
+ 						return -EFAULT;
++					}
+ 					retval += sizeof(struct hiddev_usage_ref);
+ 				}
+ 			}
+@@ -370,6 +390,7 @@ static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t coun
+ 		}
+ 
+ 	}
++	mutex_unlock(&list->thread_lock);
+ 
+ 	return retval;
+ }
+@@ -810,13 +831,6 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+ 	if (!(hiddev = kzalloc(sizeof(struct hiddev), GFP_KERNEL)))
+ 		return -1;
+ 
+-	retval = usb_register_dev(usbhid->intf, &hiddev_class);
+-	if (retval) {
+-		err_hid("Not able to get a minor for this device.");
+-		kfree(hiddev);
+-		return -1;
+-	}
+-
+ 	init_waitqueue_head(&hiddev->wait);
+ 	INIT_LIST_HEAD(&hiddev->list);
+ 	spin_lock_init(&hiddev->list_lock);
+@@ -828,6 +842,14 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+ 
+ 	hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
+ 
++	retval = usb_register_dev(usbhid->intf, &hiddev_class);
++	if (retval) {
++		err_hid("Not able to get a minor for this device.");
++		hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = NULL;
++		kfree(hiddev);
++		return -1;
++	}
++
+ 	return 0;
+ }
+ 
 
- static struct apple_key_translation apple_fn_keys[] =3D {
- 	{ KEY_BACKSPACE, KEY_DELETE },
-+	{ KEY_ENTER,	KEY_INSERT },
- 	{ KEY_F1,	KEY_BRIGHTNESSDOWN, APPLE_FLAG_FKEY },
- 	{ KEY_F2,	KEY_BRIGHTNESSUP,   APPLE_FLAG_FKEY },
--	{ KEY_F3,	KEY_FN_F5,          APPLE_FLAG_FKEY }, /* Expos=C3=A9 */
--	{ KEY_F4,	KEY_FN_F4,          APPLE_FLAG_FKEY }, /* Dashboard */
-+	{ KEY_F3,	KEY_SCALE,          APPLE_FLAG_FKEY },
-+	{ KEY_F4,	KEY_DASHBOARD,      APPLE_FLAG_FKEY },
- 	{ KEY_F5,	KEY_KBDILLUMDOWN,   APPLE_FLAG_FKEY },
- 	{ KEY_F6,	KEY_KBDILLUMUP,     APPLE_FLAG_FKEY },
- 	{ KEY_F7,	KEY_PREVIOUSSONG,   APPLE_FLAG_FKEY },
-diff --git a/include/linux/input.h b/include/linux/input.h
-index b86fb55..5341e82 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -238,6 +238,7 @@ struct input_absinfo {
- #define KEY_KPEQUAL		117
- #define KEY_KPPLUSMINUS		118
- #define KEY_PAUSE		119
-+#define KEY_SCALE		120	/* AL Compiz Scale (Expose) */
-
- #define KEY_KPCOMMA		121
- #define KEY_HANGEUL		122
-@@ -322,6 +323,7 @@ struct input_absinfo {
- #define KEY_PAUSECD		201
- #define KEY_PROG3		202
- #define KEY_PROG4		203
-+#define KEY_DASHBOARD		204	/* AL Dashboard */
- #define KEY_SUSPEND		205
- #define KEY_CLOSE		206	/* AC Close */
- #define KEY_PLAY		207
---=20
-1.5.6.3
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

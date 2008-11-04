@@ -1,77 +1,52 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: [PATCH] hid: Add support for the new unibody macbooks
-Date: Tue, 04 Nov 2008 13:15:54 +0100
-Message-ID: <49103CFA.1010707@euromail.se>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: Re: cleanup of hiddev
+Date: Tue, 4 Nov 2008 13:17:39 +0100
+Message-ID: <200811041317.40482.oliver@neukum.org>
+References: <200811031731.38055.oliver@neukum.org> <490F57D3.6060503@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:56352 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751397AbYKDMQG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 4 Nov 2008 07:16:06 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <490F57D3.6060503-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jikos-wDf7oJUeT2I@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-The unibody MacBook 5 and MacBook Pro 5 come with a new version of
-the bcm5974 trackpad. This patch adds the USB device ids and the
-appropriate quirks.
+Am Montag, 3. November 2008 20:58:11 schrieb Jiri Slaby:
+> Oliver Neukum napsal(a):
+> > Hi Ji=C5=99is,
+>=20
+> :)
+>=20
+> Hi.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/hid/hid-apple.c |    6 ++++++
- drivers/hid/hid-core.c  |    3 +++
- drivers/hid/hid-ids.h   |    3 +++
- 3 files changed, 12 insertions(+), 0 deletions(-)
+Hi,
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index c6ab4ba..ce3c399 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -418,6 +418,12 @@ static const struct hid_device_id apple_devices[] = {
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
- 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
-+		.driver_data = APPLE_HAS_FN },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_KEYBOARD },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
-+		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY),
- 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 1903e75..aa51488 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1572,6 +1572,9 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
- 	{ }
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5cc4042..0e27587 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -82,6 +82,9 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI	0x0230
- #define USB_DEVICE_ID_APPLE_WELLSPRING2_ISO	0x0231
- #define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS	0x0232
-+#define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
-+#define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
-+#define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
- #define USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY	0x030a
- #define USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY	0x030b
- #define USB_DEVICE_ID_APPLE_ATV_IRCONTROL	0x8241
--- 
-1.5.6.3
+>=20
+> > this is the cleanup of hiddev against current vanilla. What do you =
+think?
+>=20
+> See my comments below.
 
+OK, all clear, except for:
+
+> > @@ -828,6 +828,14 @@ int hiddev_connect(struct hid_device *hid, uns=
+igned int force)
+> > =20
+> >  	hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] =3D hiddev;
+>=20
+> usbhid->intf->minor is set even after this call:
+
+What does this mean?
+
+	Regards
+		Oliver
+
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

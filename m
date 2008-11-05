@@ -1,32 +1,46 @@
-From: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: cleanup of hiddev
-Date: Wed, 05 Nov 2008 13:03:47 +0100
-Message-ID: <49118BA3.90004@suse.cz>
-References: <200811051252.40133.oliver@neukum.org>
+From: Jiri Pirko <jpirko@redhat.com>
+Subject: [PATCH] atkbd: cancel delayed work before freeing its structure
+Date: Wed, 5 Nov 2008 15:31:40 +0100
+Message-ID: <20081105153140.25132ca1@psychotron.englab.brq.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <200811051252.40133.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jikos-wDf7oJUeT2I@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.redhat.com ([66.187.237.31]:44036 "EHLO mx2.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751550AbYKEObi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 5 Nov 2008 09:31:38 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, oleg@redhat.com
 
-On 11/05/2008 12:52 PM, Oliver Neukum wrote:
-> @@ -334,35 +354,45 @@ static ssize_t hiddev_read(struct file * file, char __user * buffer, size_t coun
->  					break;
->  				}
->  
-> +				/* let O_NONBLOCK tasks run */
-> +				mutex_unlock(&list->thread_lock);
->  				schedule();
-> +				if (mutex_lock_interruptible(&list->thread_lock))
-> +					return -ERESTARTSYS;
+Pointed out by Oleg Nesterov. Since delayed work is used here, use of
+flush_scheduled_work() is not sufficient in atkbd_disconnect(). It does
+not wait for scheduled delayed work to finish. This patch prevents
+delayed work to be processed after freeing atkbd structure (used struct
+delayed_work is part of atkbd) by cancelling this delayed work.
 
-This should be EINTR, since the code potentially moved with tail and no rollback
-is performed.
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Jirka
+
+Signed-off-by: Jiri Pirko <jpirko@redhat.com>
+---
+ drivers/input/keyboard/atkbd.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 22016ca..f3bbf49 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -824,7 +824,7 @@ static void atkbd_disconnect(struct serio *serio)
+ 	atkbd_disable(atkbd);
+ 
+ 	/* make sure we don't have a command in flight */
+-	flush_scheduled_work();
++	cancel_delayed_work_sync(&atkbd->event_work);
+ 
+ 	sysfs_remove_group(&serio->dev.kobj, &atkbd_attribute_group);
+ 	input_unregister_device(atkbd->dev);
+-- 
+1.5.6.5
+

@@ -1,277 +1,159 @@
-From: David Anders <dave123_aml@yahoo.com>
-Subject: [PATCH] Add generic EV_LED handler and LED trigger
-Date: Wed, 5 Nov 2008 09:54:24 -0800 (PST)
-Message-ID: <779405.87509.qm@web54401.mail.yahoo.com>
-Reply-To: dave123_aml@yahoo.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Bryan Wu <cooloney@kernel.org>
+Subject: [PATCH] Input/AD7879: Fix/workaroud build error reported by Andrew Morton:
+Date: Thu,  6 Nov 2008 17:22:23 +0800
+Message-ID: <1225963343-8827-1-git-send-email-cooloney@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from web54401.mail.yahoo.com ([206.190.49.131]:44988 "HELO
-	web54401.mail.yahoo.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753179AbYKESBG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 5 Nov 2008 13:01:06 -0500
+Received: from nwd2mail11.analog.com ([137.71.25.57]:2496 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753287AbYKFJVB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2008 04:21:01 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Richard Purdie <rpurdie@rpsys.net>
+To: dmitry.torokhov@gmail.com, akpm@linux-foundation.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-this patch is to provide for an initial implementation of a generic EV_LED handler which supports LED triggers in the leds subsystem.
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-Signed-off-by: David Anders <danders at amltd.com>
+On Thu, 30 Oct 2008 02:24:25 -0700 akpm@linux-foundation.org wrote:
 
-diff -urN linux-2.6.27-clean/drivers/input/generic-leds.c linux-2.6.27/drivers/input/generic-leds.c
---- linux-2.6.27-clean/drivers/input/generic-leds.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.27/drivers/input/generic-leds.c	2008-11-05 10:27:06.000000000 -0600
-@@ -0,0 +1,116 @@
-+/*
-+ *  Generic Leds Event
-+ *
-+ *  Copyright (c) 2008 David Anders
-+ *
-+ *  Based on the Input Power Event -> APM Bridge
-+ *
-+ *  Copyright (c) 2007 Richard Purdie
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/tty.h>
-+#include <linux/delay.h>
-+#include <linux/pm.h>
-+#include <linux/leds.h>
-+
-+static void generic_leds_event(struct input_handle *handle, unsigned int type,
-+				unsigned int code, int value)
-+{
-+	switch (type) {
-+	case EV_LED:
-+		ledtrig_ev_led_activity(value);
-+		break;
-+
-+	default:
-+		break;
-+	}
-+}
-+
-+static int generic_leds_connect(struct input_handler *handler,
-+					  struct input_dev *dev,
-+					  const struct input_device_id *id)
-+{
-+	struct input_handle *handle;
-+	int error;
-+
-+	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
-+	if (!handle)
-+		return -ENOMEM;
-+
-+	handle->dev = dev;
-+	handle->handler = handler;
-+	handle->name = "generic-leds";
-+
-+	error = input_register_handle(handle);
-+	if (error) {
-+		printk(KERN_ERR
-+			"generic-leds: Failed to register generic-leds handler,"
-+			" error %d\n", error);
-+		kfree(handle);
-+		return error;
-+	}
-+
-+	error = input_open_device(handle);
-+	if (error) {
-+		printk(KERN_ERR
-+			"generic-leds: Failed to open generic-leds device,"
-+			" error %d\n", error);
-+		input_unregister_handle(handle);
-+		kfree(handle);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static void generic_leds_disconnect(struct input_handle *handle)
-+{
-+	input_close_device(handle);
-+	input_unregister_handle(handle);
-+	kfree(handle);
-+}
-+
-+static const struct input_device_id generic_leds_ids[] = {
-+	{
-+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
-+		.evbit = { BIT_MASK(EV_LED) },
-+	},
-+	{ },
-+};
-+
-+MODULE_DEVICE_TABLE(input, generic_leds_ids);
-+
-+
-+static struct input_handler generic_leds_handler = {
-+	.event =	generic_leds_event,
-+	.connect =	generic_leds_connect,
-+	.disconnect =	generic_leds_disconnect,
-+	.name =		"generic-leds",
-+	.id_table =	generic_leds_ids,
-+};
-+
-+static int __init generic_leds_init(void)
-+{
-+	return input_register_handler(&generic_leds_handler);
-+}
-+
-+static void __exit generic_leds_exit(void)
-+{
-+	input_unregister_handler(&generic_leds_handler);
-+}
-+
-+module_init(generic_leds_init);
-+module_exit(generic_leds_exit);
-+
-+MODULE_AUTHOR("David Anders <danders@amltd.com>");
-+MODULE_DESCRIPTION("Generic Led Events");
-+MODULE_LICENSE("GPL");
-diff -urN linux-2.6.27-clean/drivers/input/Kconfig linux-2.6.27/drivers/input/Kconfig
---- linux-2.6.27-clean/drivers/input/Kconfig	2008-11-05 08:26:48.000000000 -0600
-+++ linux-2.6.27/drivers/input/Kconfig	2008-11-05 11:24:57.000000000 -0600
-@@ -52,6 +52,15 @@
+> The mm-of-the-moment snapshot 2008-10-30-02-23 has been uploaded to
+>
+>    http://userweb.kernel.org/~akpm/mmotm/
+>
+> It contains the following patches against 2.6.28-rc2:
+
+CONFIG_TOUCHSCREEN_AD7879=y
+CONFIG_TOUCHSCREEN_AD7879_I2C=y
+CONFIG_I2C=m <<<<<<<<<<
+CONFIG_I2C_BOARDINFO=y
+CONFIG_I2C_CHARDEV=m
+CONFIG_I2C_HELPER_AUTO=y
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCA=m
+CONFIG_I2C_GPIO=m
+
+causes
+drivers/built-in.o: In function `ad7879_write':
+ad7879.c:(.text+0x749ce): undefined reference to
+`i2c_smbus_write_word_data'
+drivers/built-in.o: In function `ad7879_read':
+ad7879.c:(.text+0x749ee): undefined reference to
+`i2c_smbus_read_word_data'
+drivers/built-in.o: In function `ad7879_init':
+ad7879.c:(.init.text+0x3a6e): undefined reference to
+`i2c_register_driver'
+drivers/built-in.o: In function `ad7879_exit':
+ad7879.c:(.exit.text+0x6c1): undefined reference to `i2c_del_driver'
+
+rand-config attached.
+
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
+---
+ drivers/input/touchscreen/Kconfig  |   35 ++++++++++++++++++++---------------
+ drivers/input/touchscreen/ad7879.c |   10 +++++-----
+ 2 files changed, 25 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index e76e223..7698275 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -42,32 +42,37 @@ config TOUCHSCREEN_AD7877
  	  To compile this driver as a module, choose M here: the
- 	  module will be called input-polldev.
+ 	  module will be called ad7877.
  
-+config INPUT_GENERICLEDS
-+	tristate "Generic LED Handler"
-+	depends on INPUT
-+	---help---
-+	  Say Y here if you want LED events to be passed to the
-+	  leds subsystem as a trigger. This is useful on embedded
-+	  systems where such behviour is desired without userspace
-+	  interaction. If unsure, say N.
-+
- comment "Userland interfaces"
+-config TOUCHSCREEN_AD7879
+-	tristate "AD7879 based touchscreens"
+-	depends on SPI_MASTER || I2C
++config TOUCHSCREEN_AD7879_I2C
++	tristate "AD7879 based touchscreens: AD7879-1 I2C Interface"
++	depends on I2C
++	select TOUCHSCREEN_AD7879
+ 	help
+ 	  Say Y here if you have a touchscreen interface using the
+-	  AD7879(-1) controller, and your board-specific initialization
+-	  code includes that in its table of SPI/I2C devices.
++	  AD7879-1 controller, and your board-specific initialization
++	  code includes that in its table of I2C devices.
  
- config INPUT_MOUSEDEV
-diff -urN linux-2.6.27-clean/drivers/input/Makefile linux-2.6.27/drivers/input/Makefile
---- linux-2.6.27-clean/drivers/input/Makefile	2008-11-05 08:26:49.000000000 -0600
-+++ linux-2.6.27/drivers/input/Makefile	2008-11-05 10:17:00.000000000 -0600
-@@ -9,6 +9,7 @@
+ 	  If unsure, say N (but it's safe to say "Y").
  
- obj-$(CONFIG_INPUT_FF_MEMLESS)	+= ff-memless.o
- obj-$(CONFIG_INPUT_POLLDEV)	+= input-polldev.o
-+obj-$(CONFIG_INPUT_GENERICLEDS)	+= generic-leds.o
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ad7879.
  
- obj-$(CONFIG_INPUT_MOUSEDEV)	+= mousedev.o
- obj-$(CONFIG_INPUT_JOYDEV)	+= joydev.o
-diff -urN linux-2.6.27-clean/drivers/leds/Kconfig linux-2.6.27/drivers/leds/Kconfig
---- linux-2.6.27-clean/drivers/leds/Kconfig	2008-11-05 08:27:05.000000000 -0600
-+++ linux-2.6.27/drivers/leds/Kconfig	2008-11-05 11:14:02.000000000 -0600
-@@ -172,6 +172,13 @@
- 	  These triggers allow kernel events to drive the LEDs and can
- 	  be configured via sysfs. If unsure, say Y.
- 
-+config LEDS_TRIGGER_EV_LED
-+	tristate "EV_LED Input Trigger"
-+	depends on LEDS_TRIGGERS
+-choice
+-	prompt "Interface Selection"
+-	depends on TOUCHSCREEN_AD7879
++config TOUCHSCREEN_AD7879_SPI
++	tristate "AD7879 based touchscreens: AD7879 SPI Interface"
++	depends on SPI_MASTER && TOUCHSCREEN_AD7879_I2C = n
++	select TOUCHSCREEN_AD7879
 +	help
-+	  This allows LEDs to be controlled by the use of the EV_LED
-+	  events from the input system.
-+
- config LEDS_TRIGGER_TIMER
- 	tristate "LED Timer Trigger"
- 	depends on LEDS_TRIGGERS
-diff -urN linux-2.6.27-clean/drivers/leds/ledtrig-ev-led.c linux-2.6.27/drivers/leds/ledtrig-ev-led.c
---- linux-2.6.27-clean/drivers/leds/ledtrig-ev-led.c	1969-12-31 18:00:00.000000000 -0600
-+++ linux-2.6.27/drivers/leds/ledtrig-ev-led.c	2008-11-05 11:27:32.000000000 -0600
-@@ -0,0 +1,55 @@
-+/*
-+ * EV_LED event LED Trigger
-+ *
-+ * Copyright 2008 David Anders
-+ *
-+ * Author: David Anders <danders@amltd.com>
-+ *
-+ * Based on the LED IDE-Disk Activity Trigger - ledtrig-ide-disk.c
-+ *
-+ * Copyright 2006 Openedhand Ltd.
-+ *
-+ * Author: Richard Purdie <rpurdie@openedhand.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/timer.h>
-+#include <linux/leds.h>
-+
-+DEFINE_LED_TRIGGER(ledtrig_ev_led);
-+
-+void ledtrig_ev_led_activity(int value)
-+{
-+	if (!value)
-+		led_trigger_event(ledtrig_ev_led, LED_FULL);
-+	else
-+		led_trigger_event(ledtrig_ev_led, LED_OFF);
-+
-+}
-+EXPORT_SYMBOL(ledtrig_ev_led_activity);
-+
-+static int __init ledtrig_ev_led_init(void)
-+{
-+	led_trigger_register_simple("ev-led", &ledtrig_ev_led);
-+	return 0;
-+}
-+
-+static void __exit ledtrig_ev_led_exit(void)
-+{
-+	led_trigger_unregister_simple(ledtrig_ev_led);
-+}
-+
-+module_init(ledtrig_ev_led_init);
-+module_exit(ledtrig_ev_led_exit);
-+
-+MODULE_AUTHOR("David Anders <danders@amltd.com");
-+MODULE_DESCRIPTION("EV_LED Input LED Trigger");
-+MODULE_LICENSE("GPL");
-diff -urN linux-2.6.27-clean/drivers/leds/Makefile linux-2.6.27/drivers/leds/Makefile
---- linux-2.6.27-clean/drivers/leds/Makefile	2008-11-05 08:27:05.000000000 -0600
-+++ linux-2.6.27/drivers/leds/Makefile	2008-11-05 11:12:17.000000000 -0600
-@@ -25,6 +25,7 @@
- obj-$(CONFIG_LEDS_PCA955X)		+= leds-pca955x.o
++	  Say Y here if you have a touchscreen interface using the
++	  AD7879 controller, and your board-specific initialization
++	  code includes that in its table of SPI devices.
  
- # LED Triggers
-+obj-$(CONFIG_LEDS_TRIGGER_EV_LED)	+= ledtrig-ev-led.o
- obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
- obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
- obj-$(CONFIG_LEDS_TRIGGER_HEARTBEAT)	+= ledtrig-heartbeat.o
-diff -urN linux-2.6.27-clean/include/linux/leds.h linux-2.6.27/include/linux/leds.h
---- linux-2.6.27-clean/include/linux/leds.h	2008-11-05 08:26:39.000000000 -0600
-+++ linux-2.6.27/include/linux/leds.h	2008-11-05 11:05:54.000000000 -0600
-@@ -118,6 +118,12 @@
- #define ledtrig_ide_activity() do {} while(0)
+-config TOUCHSCREEN_AD7879_I2C
+-	bool "AD7879-1 I2C"
+-	depends on I2C
++	  If unsure, say N (but it's safe to say "Y").
+ 
+-config TOUCHSCREEN_AD7879_SPI
+-	bool "AD7879 SPI"
+-	depends on SPI_MASTER
+-endchoice
++	  To compile this driver as a module, choose M here: the
++	  module will be called ad7879.
+ 
++config TOUCHSCREEN_AD7879
++	tristate
++	default n
+ 
+ config TOUCHSCREEN_BITSY
+ 	tristate "Compaq iPAQ H3600 (Bitsy) touchscreen"
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index 8e62f8a..bd23bcc 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -120,10 +120,10 @@ enum {
+ #define	MAX_12BIT			((1<<12)-1)
+ #define	TS_PEN_UP_TIMEOUT		msecs_to_jiffies(50)
+ 
+-#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI)
++#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) || defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
+ #define AD7879_DEVID		0x7A
+ typedef struct spi_device	bus_device;
+-#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C)
++#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C) || defined(CONFIG_TOUCHSCREEN_AD7879_I2C_MODULE)
+ #define AD7879_DEVID		0x79
+ typedef struct i2c_client	bus_device;
+ #endif
+@@ -135,7 +135,7 @@ struct ad7879 {
+ 	struct timer_list	timer;
+ 	spinlock_t		lock;
+ 
+-#ifdef CONFIG_TOUCHSCREEN_AD7879_SPI
++#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) || defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
+ 	struct spi_message	msg;
+ 	struct spi_transfer	xfer[AD7879_NR_SENSE + 1];
+ 	u16			cmd;
+@@ -527,7 +527,7 @@ static int ad7879_resume(bus_device *bus)
+ #define ad7879_resume  NULL
  #endif
  
-+#ifdef CONFIG_LEDS_TRIGGER_EV_LED
-+extern void ledtrig_ev_led_activity(void);
-+#else
-+#define ledtrig_ev_led_activity() do {} while (0)
-+#endif
-+
- /*
-  * Generic LED platform data for describing LED names and default triggers.
-  */
-
-
-      
+-#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI)
++#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) || defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
+ #define MAX_SPI_FREQ_HZ		5000000
+ #define AD7879_CMD_MAGIC	0xE000
+ #define AD7879_CMD_READ		(1 << 10)
+@@ -700,7 +700,7 @@ static void __exit ad7879_exit(void)
+ }
+ module_exit(ad7879_exit);
+ 
+-#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C)
++#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C) || defined(CONFIG_TOUCHSCREEN_AD7879_I2C_MODULE)
+ 
+ /* All registers are word-sized.
+  * AD7879 uses a high-byte first convention.
+-- 
+1.5.6.3

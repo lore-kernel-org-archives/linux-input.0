@@ -1,159 +1,82 @@
-From: Bryan Wu <cooloney@kernel.org>
-Subject: [PATCH] Input/AD7879: Fix/workaroud build error reported by Andrew Morton:
-Date: Thu,  6 Nov 2008 17:22:23 +0800
-Message-ID: <1225963343-8827-1-git-send-email-cooloney@kernel.org>
+From: "Nuno Lucas" <ntlucas@gmail.com>
+Subject: [PATCH] linux-input: TSC-10 DM USB touchscreen driver assume 2-byte response from controller
+Date: Thu, 6 Nov 2008 15:25:40 +0000
+Message-ID: <c4f20e170811060725v2ae331f9t7b1ba48059f93170@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_Part_23384_23790623.1225985140744"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:2496 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753287AbYKFJVB (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2008 04:21:01 -0500
+Received: from rv-out-0506.google.com ([209.85.198.235]:60403 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751016AbYKFPZn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 6 Nov 2008 10:25:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Andrew Morton <akpm@linux-foundation.org>
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+------=_Part_23384_23790623.1225985140744
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Thu, 30 Oct 2008 02:24:25 -0700 akpm@linux-foundation.org wrote:
+The usbtouchscreen module implements a driver for the TSC-10 DM USB
+touchscreen controllers, but assumes a 2-byte response for the
+CMD_RESET and CMD_RATE commands, when they can be only a single byte
+when no EEPROM is connected.
 
-> The mm-of-the-moment snapshot 2008-10-30-02-23 has been uploaded to
->
->    http://userweb.kernel.org/~akpm/mmotm/
->
-> It contains the following patches against 2.6.28-rc2:
+The driver worked with an earlier controller revision, but new
+revisions of the controller fail.
 
-CONFIG_TOUCHSCREEN_AD7879=y
-CONFIG_TOUCHSCREEN_AD7879_I2C=y
-CONFIG_I2C=m <<<<<<<<<<
-CONFIG_I2C_BOARDINFO=y
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_HELPER_AUTO=y
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ALGOPCA=m
-CONFIG_I2C_GPIO=m
+It seems the problem is that the early controller had the
+SEL4/EEPROM-CS pin high, but the new controller has it down, making
+the response different.
 
-causes
-drivers/built-in.o: In function `ad7879_write':
-ad7879.c:(.text+0x749ce): undefined reference to
-`i2c_smbus_write_word_data'
-drivers/built-in.o: In function `ad7879_read':
-ad7879.c:(.text+0x749ee): undefined reference to
-`i2c_smbus_read_word_data'
-drivers/built-in.o: In function `ad7879_init':
-ad7879.c:(.init.text+0x3a6e): undefined reference to
-`i2c_register_driver'
-drivers/built-in.o: In function `ad7879_exit':
-ad7879.c:(.exit.text+0x6c1): undefined reference to `i2c_del_driver'
+Without the fix, the controller would answer the single byte 0x06
+(ACK), making the init fail with -ENODEV because buf[1] is 0xFF (as
+initialized before).
 
-rand-config attached.
+As the single byte is the only thing we need to check it was ok, there
+is no need to verify the second byte.
 
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
----
- drivers/input/touchscreen/Kconfig  |   35 ++++++++++++++++++++---------------
- drivers/input/touchscreen/ad7879.c |   10 +++++-----
- 2 files changed, 25 insertions(+), 20 deletions(-)
+The [0x15 0x01] case is the NAK [0x15] response for when there is no
+data in the EEPROM [bit-0 of second byte set], so I let that be, as I
+don't have any controller with an EEPROM.
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index e76e223..7698275 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -42,32 +42,37 @@ config TOUCHSCREEN_AD7877
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ad7877.
- 
--config TOUCHSCREEN_AD7879
--	tristate "AD7879 based touchscreens"
--	depends on SPI_MASTER || I2C
-+config TOUCHSCREEN_AD7879_I2C
-+	tristate "AD7879 based touchscreens: AD7879-1 I2C Interface"
-+	depends on I2C
-+	select TOUCHSCREEN_AD7879
- 	help
- 	  Say Y here if you have a touchscreen interface using the
--	  AD7879(-1) controller, and your board-specific initialization
--	  code includes that in its table of SPI/I2C devices.
-+	  AD7879-1 controller, and your board-specific initialization
-+	  code includes that in its table of I2C devices.
- 
- 	  If unsure, say N (but it's safe to say "Y").
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ad7879.
- 
--choice
--	prompt "Interface Selection"
--	depends on TOUCHSCREEN_AD7879
-+config TOUCHSCREEN_AD7879_SPI
-+	tristate "AD7879 based touchscreens: AD7879 SPI Interface"
-+	depends on SPI_MASTER && TOUCHSCREEN_AD7879_I2C = n
-+	select TOUCHSCREEN_AD7879
-+	help
-+	  Say Y here if you have a touchscreen interface using the
-+	  AD7879 controller, and your board-specific initialization
-+	  code includes that in its table of SPI devices.
- 
--config TOUCHSCREEN_AD7879_I2C
--	bool "AD7879-1 I2C"
--	depends on I2C
-+	  If unsure, say N (but it's safe to say "Y").
- 
--config TOUCHSCREEN_AD7879_SPI
--	bool "AD7879 SPI"
--	depends on SPI_MASTER
--endchoice
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called ad7879.
- 
-+config TOUCHSCREEN_AD7879
-+	tristate
-+	default n
- 
- config TOUCHSCREEN_BITSY
- 	tristate "Compaq iPAQ H3600 (Bitsy) touchscreen"
-diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
-index 8e62f8a..bd23bcc 100644
---- a/drivers/input/touchscreen/ad7879.c
-+++ b/drivers/input/touchscreen/ad7879.c
-@@ -120,10 +120,10 @@ enum {
- #define	MAX_12BIT			((1<<12)-1)
- #define	TS_PEN_UP_TIMEOUT		msecs_to_jiffies(50)
- 
--#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI)
-+#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) || defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
- #define AD7879_DEVID		0x7A
- typedef struct spi_device	bus_device;
--#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C)
-+#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C) || defined(CONFIG_TOUCHSCREEN_AD7879_I2C_MODULE)
- #define AD7879_DEVID		0x79
- typedef struct i2c_client	bus_device;
- #endif
-@@ -135,7 +135,7 @@ struct ad7879 {
- 	struct timer_list	timer;
- 	spinlock_t		lock;
- 
--#ifdef CONFIG_TOUCHSCREEN_AD7879_SPI
-+#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) || defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
- 	struct spi_message	msg;
- 	struct spi_transfer	xfer[AD7879_NR_SENSE + 1];
- 	u16			cmd;
-@@ -527,7 +527,7 @@ static int ad7879_resume(bus_device *bus)
- #define ad7879_resume  NULL
- #endif
- 
--#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI)
-+#if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) || defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
- #define MAX_SPI_FREQ_HZ		5000000
- #define AD7879_CMD_MAGIC	0xE000
- #define AD7879_CMD_READ		(1 << 10)
-@@ -700,7 +700,7 @@ static void __exit ad7879_exit(void)
- }
- module_exit(ad7879_exit);
- 
--#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C)
-+#elif defined(CONFIG_TOUCHSCREEN_AD7879_I2C) || defined(CONFIG_TOUCHSCREEN_AD7879_I2C_MODULE)
- 
- /* All registers are word-sized.
-  * AD7879 uses a high-byte first convention.
--- 
-1.5.6.3
+With this patch, both the earlier and latest controller work the same.
+
+Note: This was previously submited as BUG #11961 [1] on the bugzilla
+tracker, but rebased to version 2.6.27.4 and with unnecessary comments
+and printk's removed.
+
+
+Signed-off-by: Nuno Lucas <ntlucas@gmail.com>
+
+
+[1] http://bugzilla.kernel.org/show_bug.cgi?id=11961
+
+------=_Part_23384_23790623.1225985140744
+Content-Type: text/x-patch; name=patch-fix_for_some_tsc205_controllers.diff
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_fn7jtj9h0
+Content-Disposition: attachment;
+ filename=patch-fix_for_some_tsc205_controllers.diff
+
+ZGlmZiAtdXJOcCBsaW51eC0yLjYuMjcuNC9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL3VzYnRv
+dWNoc2NyZWVuLmMgbGludXgtMi42LjI3LjQtcGF0Y2hlZC9kcml2ZXJzL2lucHV0L3RvdWNoc2Ny
+ZWVuL3VzYnRvdWNoc2NyZWVuLmMKLS0tIGxpbnV4LTIuNi4yNy40L2RyaXZlcnMvaW5wdXQvdG91
+Y2hzY3JlZW4vdXNidG91Y2hzY3JlZW4uYwkyMDA4LTEwLTI1IDIzOjA1OjA3LjAwMDAwMDAwMCAr
+MDEwMAorKysgbGludXgtMi42LjI3LjQtcGF0Y2hlZC9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVu
+L3VzYnRvdWNoc2NyZWVuLmMJMjAwOC0xMS0wNiAxNTowNzo0OS4wMDAwMDAwMDAgKzAwMDAKQEAg
+LTQyNCw3ICs0MjQsNyBAQCBzdGF0aWMgaW50IGRtY190c2MxMF9pbml0KHN0cnVjdCB1c2J0b3Vj
+CiAJICAgICAgICAgICAgICAgICAgICAgIDAsIDAsIGJ1ZiwgMiwgVVNCX0NUUkxfU0VUX1RJTUVP
+VVQpOwogCWlmIChyZXQgPCAwKQogCQlnb3RvIGVycl9vdXQ7Ci0JaWYgKGJ1ZlswXSAhPSAweDA2
+IHx8IGJ1ZlsxXSAhPSAweDAwKSB7CisJaWYgKGJ1ZlswXSAhPSAweDA2KSB7CiAJCXJldCA9IC1F
+Tk9ERVY7CiAJCWdvdG8gZXJyX291dDsKIAl9CkBAIC00MzcsOCArNDM3LDcgQEAgc3RhdGljIGlu
+dCBkbWNfdHNjMTBfaW5pdChzdHJ1Y3QgdXNidG91YwogCSAgICAgICAgICAgICAgICAgICAgICBU
+U0MxMF9SQVRFXzE1MCwgMCwgYnVmLCAyLCBVU0JfQ1RSTF9TRVRfVElNRU9VVCk7CiAJaWYgKHJl
+dCA8IDApCiAJCWdvdG8gZXJyX291dDsKLQlpZiAoKGJ1ZlswXSAhPSAweDA2IHx8IGJ1ZlsxXSAh
+PSAweDAwKSAmJgotCSAgICAoYnVmWzBdICE9IDB4MTUgfHwgYnVmWzFdICE9IDB4MDEpKSB7CisJ
+aWYgKChidWZbMF0gIT0gMHgwNikgJiYgKGJ1ZlswXSAhPSAweDE1IHx8IGJ1ZlsxXSAhPSAweDAx
+KSkgewogCQlyZXQgPSAtRU5PREVWOwogCQlnb3RvIGVycl9vdXQ7CiAJfQo=
+------=_Part_23384_23790623.1225985140744--

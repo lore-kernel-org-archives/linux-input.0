@@ -1,25 +1,75 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
- protocol
-Date: Fri, 07 Nov 2008 16:07:09 +0100
-Message-ID: <4914599D.9060403@euromail.se>
-References: <49142351.9080805@euromail.se>	 <3aaafc130811070534p54eebeb6q9b57d3e847ed859a@mail.gmail.com>	 <49145016.7090206@euromail.se>	 <3aaafc130811070636g681accf5qae252679c2edcdb9@mail.gmail.com>	 <49145628.7030804@euromail.se> <3aaafc130811070657o63894848l3c11989c9b0f2911@mail.gmail.com>
+From: "Jon Smirl" <jonsmirl@gmail.com>
+Subject: Bringing IR (common remote controls) into the input fold
+Date: Fri, 7 Nov 2008 14:57:55 -0500
+Message-ID: <9e4733910811071157o30629f69xce03e5f6a1f68324@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753526AbYKGPH2@vger.kernel.org>
-In-Reply-To: <3aaafc130811070657o63894848l3c11989c9b0f2911@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "J.R. Mauro" <jrm8005@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rv-out-0506.google.com ([209.85.198.226]:55726 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750952AbYKGT54 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 7 Nov 2008 14:57:56 -0500
+Received: by rv-out-0506.google.com with SMTP id k40so1419814rvb.1
+        for <linux-input@vger.kernel.org>; Fri, 07 Nov 2008 11:57:55 -0800 (PST)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
+I just found the linux-input list. I've been working on integrating IR
+support into the kernel in a manner consistent with the design of the
+rest of the input subsystem. I'm aware of LIRC. I'm posting this code
+to the LIRC mailing list and asking for feedback/help but none has
+been forth coming.
 
-> I think this approach is cleaner than "fooling" userspace into seeing
-> a bunch of mice.
+LIRC exists outside of the kernel and builds its device drivers
+externally. It has an independent design as an input system and
+requires apps to be aware of it. It needs a daemon running.  LIRC has
+been around ten years and works fine, it's just not integrated with
+the rest of input.
 
-The many-input-device approach has problems with synchronicity. In
-particular when envisioning the appearance of more advanced chips,
-with finger matching in hardware. Currently, no chip with open or
-sufficient documentation has these features, but it is probably
-only a matter of time.
+I'm looking for feedback and help designing a more optimal way of
+integrating IR into the input framework.
+
+I posted V4 of my in-kernel IR system to LKML.  It supports mapping
+from IR events to key strokes now.
+http://lkml.org/lkml/2008/11/5/233
+
+To do the mapping it uses configfs (part of the kernel).  The main
+directory is remotes. You use a shell script to build mappings between
+the IR event and key stroke.
+
+mkdir /config/remotes/sony
+  -- this creates a new evdev device
+mkdir remotes/sony/one
+echo 7 >remotes/sony/one/procotol
+echo 264 >remotes/sony/one/command
+echo 2 >remotes/sony/one/keycode
+
+This transforms a button push of 1 on my remote into a key stroke for KEY_1
+
+ *   configfs root
+ *   --remotes
+ *   ----specific remote
+ *   ------keymap
+ *   --------protocol
+ *   --------device
+ *   --------command
+ *   --------keycode
+ *   ------repeat keymaps
+ *   --------....
+ *   ----another remote
+ *   ------more keymaps
+
+You can map the 1 button from multiple remote to KEY_1 if you want. Or
+you can use a single remote to create multiple virtual keyboards.
+
+I'm always looking for help with this code. I've implemented support
+for my embedded GPIO based receiver and Microsoft MCEUSB. I'd really
+like to see IR added to existing Linux input family of keyboards,
+mice, joystick, tablet, touchscreen and gameport.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

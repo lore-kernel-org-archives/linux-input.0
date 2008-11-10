@@ -1,56 +1,35 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
- protocol
-Date: Sat, 08 Nov 2008 13:02:47 +0100
-Message-ID: <49157FE7.7040503@euromail.se>
-References: <49142351.9080805@euromail.se> <20081108005125.GA24783@adopmeer.homeip.net> <49156D54.8060109@euromail.se> <20081108112901.GA12987@adopmeer.homeip.net>
+From: Craig Milo Rogers <rogers@ISI.EDU>
+Subject: kernel: logips2pp: Detected unknown logitech mouse model 14
+Date: Sun, 9 Nov 2008 23:35:16 -0800
+Message-ID: <20081110073516.GA9908@isi.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:46066 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753122AbYKHMCw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 8 Nov 2008 07:02:52 -0500
-In-Reply-To: <20081108112901.GA12987@adopmeer.homeip.net>
+Received: from vapor.isi.edu ([128.9.64.64]:35391 "EHLO vapor.isi.edu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753301AbYKJH6G (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 10 Nov 2008 02:58:06 -0500
+Received: from jib.isi.edu (jib.isi.edu [128.9.128.193])
+	by vapor.isi.edu (8.13.8/8.13.8) with ESMTP id mAA7ZHDf025919
+	for <linux-input@vger.kernel.org>; Sun, 9 Nov 2008 23:35:18 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arjan Opmeer <arjan@opmeer.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
 
->> The minimum set of data is TOUCH, POSITION_X and POSITION_Y. If touch
->> pressure information is not given in trackpad dimension units, use a
->> specific range.
-> 
-> The Elantech touchpad does not seem to be able to report pressure, only
-> finger coordinates.
+	Hi.  I recently updated drom SuSE 10.3 to SuSE 11.0.  I had some
+trouble, and noticed the following entry in "/var/log/messages" when
+I investigated:
 
-I was envisioning a binary TOUCH value, but it is arguably redundant.
+Nov  9 10:28:14 jib2 kernel: logips2pp: Detected unknown logitech mouse model 14
 
->> I believe all current drivers are able to produce this data.
-> 
-> The Elantech driver is not... :)
+	The Logitech mouse in question has a scroll wheel.  I think it
+also has an extra button on top, whit an icon that looks like a
+rectangle overlapping and obscuring a second rectangle.
 
-So only POSITION_X and POSITION_Y for elantech, then :-)
+	It would be nice for me if the standard kernel knew about this
+mouse.  Should I submit a patch for "logips2pp.c" to this list?
+Thanks.
 
->> It is designed to bring advanced gestures to the linux desktop.
-> 
-> Certainly. Have you already thought about the rest of the path from driver
-> to application, ie kernel driver -> X.org driver -> X events -> toolkit
-> events -> application?
-
-I am involved in the synaptics Xorg driver. I have an experimental Xorg
-driver utilizing the multi-touch interface. The plan is to map stable
-gestures to the existing toolkit events, removing the need for programs
-like syndaemon.
-
-> For instance does the X.org driver interpret the data and emit a zoom or
-> rotate event based on the finger position and movement? As far as I know
-> those event do not exist and would have to be added to X.org as well as the
-> toolkits like GTK+ and Qt. It could be a long implementation process... :(
-
-Every journey begins with a step.
-
-Henrik
+					Craig Milo Rogers
 

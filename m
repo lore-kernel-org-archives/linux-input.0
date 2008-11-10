@@ -1,70 +1,59 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: Mighty mouse (bluetooth) with ID 0x1000 (vendor ID 0x05ac apple)
- any chance for mousewheel?
-Date: Mon, 10 Nov 2008 11:53:19 +0100
-Message-ID: <4918129F.5000106@gmail.com>
-References: <3d0c012d0811100104o6de42b6er279498eec6781698@mail.gmail.com>
+From: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Subject: [PATCH] Input: i8042 - add Dell XPS M1530 to nomux list
+Date: Mon, 10 Nov 2008 14:34:04 -0200
+Message-ID: <200811101434.04830.herton@mandriva.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.186]:24840 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754872AbYKJKxZ (ORCPT
+Received: from perninha.conectiva.com.br ([200.140.247.100]:48818 "EHLO
+	perninha.conectiva.com.br" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752759AbYKJQds (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Nov 2008 05:53:25 -0500
-In-Reply-To: <3d0c012d0811100104o6de42b6er279498eec6781698@mail.gmail.com>
+	Mon, 10 Nov 2008 11:33:48 -0500
+Received: from localhost (perninha.conectiva.com.br [127.0.0.1])
+	by perninha.conectiva.com.br (Postfix) with ESMTP id 799553EB3
+	for <linux-input@vger.kernel.org>; Mon, 10 Nov 2008 11:34:05 -0500 (EST)
+Received: from perninha.conectiva.com.br ([127.0.0.1])
+	by localhost (perninha.conectiva.com.br [127.0.0.1]) (amavisd-new, port 10025)
+	with LMTP id LmRPFuvfwaxP for <linux-input@vger.kernel.org>;
+	Mon, 10 Nov 2008 11:34:05 -0500 (EST)
+Received: from fox.conectiva (fox.conectiva [10.0.2.195])
+	by perninha.conectiva.com.br (Postfix) with ESMTP id 25B443EB2
+	for <linux-input@vger.kernel.org>; Mon, 10 Nov 2008 11:34:05 -0500 (EST)
+Received: from gotham.conectiva (gotham.conectiva [10.0.2.23])
+	by fox.conectiva (Postfix) with ESMTP id 7FF842F20B
+	for <linux-input@vger.kernel.org>; Mon, 10 Nov 2008 13:33:45 -0300 (BRT)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?Q2hyaXN0b2YgS8OkbGlu?= <christof.kaelin@gmail.com>
-Cc: linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-On 11/10/2008 10:04 AM, Christof K=C3=A4lin wrote:
-> Hi
->=20
-> As a newbie, I just saw your email in the source-file when I was look=
-ing
-> into the sources of hid-apple.c to find my mighty mouse somewhere:
->=20
-> /* Apple wireless Mighty Mouse */
->         { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 0x030c),
->                 .driver_data =3D APPLE_MIGHTYMOUSE | APPLE_INVERT_HWH=
-EEL },
->=20
-> According to hid-ids.h, the ID 0x030c is a TDK mighty mouse. On my
-> Alu-iMac (last year edition), it's a Apple's owned mighty mouse (vend=
-or
-> 0x05ac, ID 0x1000), which is not currently listed in hid-ids.h. My
-> mighty mouse anyway runs o.k. with the "wrong" ID, but since the star=
-t
-> withouth the mouse-wheel.
-> It did not help when I changed the ID's accordingly. So my question i=
-s:
-> Is there anything to be done in bluetooth driver area too to get this
-> mighty mouse fully supported (some quirks needed)?
->=20
-> Sorry for my annoying questions.
->=20
-> Thanks in advance for any suggestions and best regards
+Dell XPS M1530 needs i8042.nomux=1 for ALPS touchpad to work as reported on
+https://qa.mandriva.com/show_bug.cgi?id=43532
 
-I guess, they map Z axis to be a wheel instead a wheel be a wheel like =
-in the
-0x030c case.
+It is said that before A08 bios version this isn't needed (I don't have the
+hardware so can't check), and suppose this will not break with bios versions
+before A08.
 
-Could you add
-{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 0x030c),
-  .driver_data =3D APPLE_MIGHTYMOUSE }
-there and
-HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 0x030c)
-to hid_blacklist in drivers/hid/hid-core.c and try? If the wheel is inv=
-erted
-with your device, then you need also APPLE_INVERT_HWHEEL aswell.
+Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
 
-<me goes to implement new_id like in the PCI case to not bother users w=
-ith
-recompiling the kernel for testing such things>
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index eec375c..5db1d0b 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -337,6 +337,13 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
+ 		},
+ 	},
++	{
++		.ident = "Dell XPS M1530",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "XPS M1530"),
++		},
++	},
+ 	{ }
+ };
+ 

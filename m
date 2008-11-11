@@ -1,62 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] atkbd: cancel delayed work before freeing its structure
-Date: Tue, 11 Nov 2008 11:30:38 -0500
-Message-ID: <20081111112741.ZZRA012@mailhub.coreip.homeip.net>
-References: <20081105153140.25132ca1@psychotron.englab.brq.redhat.com> <20081107154325.GD9368@redhat.com> <20081111145155.GA24881@anvil.corenet.prv> <20081111172050.GC18214@redhat.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: USB hid blocks USB port in 2.6.28rc3
+Date: Tue, 11 Nov 2008 12:02:09 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.0811111143050.29125-100000@netrider.rowland.org>
+References: <20081111084132.GE3810@one.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rn-out-0910.google.com ([64.233.170.187]:42362 "EHLO
-	rn-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751144AbYKKQal (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:1665 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751625AbYKKRCK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Nov 2008 11:30:41 -0500
-Received: by rn-out-0910.google.com with SMTP id k40so1910973rnd.17
-        for <linux-input@vger.kernel.org>; Tue, 11 Nov 2008 08:30:40 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <20081111172050.GC18214@redhat.com>
+	Tue, 11 Nov 2008 12:02:10 -0500
+In-Reply-To: <20081111084132.GE3810@one.firstfloor.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oleg Nesterov <oleg@redhat.com>
-Cc: Jiri Pirko <jpirko@redhat.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Andi Kleen <andi@firstfloor.org>
+Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, Nov 11, 2008 at 06:20:50PM +0100, Oleg Nesterov wrote:
-> On 11/11, Dmitry Torokhov wrote:
-> >
-> > On Fri, Nov 07, 2008 at 04:43:25PM +0100, Oleg Nesterov wrote:
-> > >
-> > > While we are here, what is the reason for atkbd_schedule_event_work()->wmb() ?
-> > > It looks absolutely bogus. Is it for atkbd_event_work() ? In that case it
-> > > is not needed, it must see all previous STOREs because both queue_work() and
-> > > run_workqueue() take cwq->lock. And in any case,
-> > > test_and_set_bit(WORK_STRUCT_PENDING) implies mb().
-> >
-> > I wanted to be sure that event_mask is set before we schedule event_work
-> > and I don't want to rely on details of queue_delayed_work
-> > implementation. If the fact that queue_delayed_work acts as a barrier
-> > would be listed part of its published spec I would gladly remove wmb()
-> > from atkbd.
+On Tue, 11 Nov 2008, Andi Kleen wrote:
+
+> On Mon, Nov 10, 2008 at 07:45:28PM -0500, Alan Stern wrote:
+> > On Tue, 11 Nov 2008, Andi Kleen wrote:
+> > 
+> > > Hi,
+> > > 
+> > > I have a box here which has a couple of USB devices connected.
+> > > That includes several HID devices (keyboards, mouse) and a couple
+> > > of others including a USB powerswitch driven through a user space
+> > > program.
+> > > 
+> > > Now what happened is that I changed some of the HID devices
+> > > around (moving from a direct port to a hub) and also moved
+> > > the USB power switch from one port to another. But after that
+> > > the power switch didn't work anymore, just giving a flood 
+> > > of
+> > > 
+> > > usb 2-2: usbfs: interface 0 claimed by usbhid while 'sispm' sets config #1
+> > > 
+> > > (sispm is the user space driver)
+> > > 
+> > > Kernel is 2.6.28-rc3
+> > 
+> > This sounds like a userspace problem.  The sispm program should unbind 
+> > usbhid from interface 0 before trying to set the config.
 > 
-> Yes, queue_delayed_work() acts as a barrier for the work->func(), otherwise
-> almost any code which uses wqs is broken.
-> 
-> But let me repeat, if queue_delayed_work() fails becuase this work is
-> already queued we (in this particular case) need mb(), not wmb(). Or
-> atkbd_schedule_event_work() can miss a bit in ->event_mask. So I think
-> this wmb() is misleading.
+> Can you please explain in layman's terms why usbhid does not 
+> unbind itself when it detects the removal of a device? 
 
-Could you please explain why wmb() is not enough and full mb() is
-needed in this case? I thought that if write happens before we decide
-whether to schedule event_work or not it would be enough.
+It does.  The problem is on the other side: Your power switch presents 
+itself as an HID device, so when it is _detected_ it binds to usbhid.
 
-> And unneeded because queue_work() implies mb(),
-> but this is not really documented.
-> 
+On the other hand, your log contains an error message saying "couldn't 
+find an input interrupt endpoint".  That should have caused usbhid's 
+probe to fail.  Perhaps the failure occurred on interface 1, leaving 
+usbhid still bound to interface 0.
 
-It would be great if we can get it documented and then i'd drop *mb()
-from atkbd.
+You can find out exactly which drivers are bound to which interfaces by 
+looking at /proc/bus/usb/devices.  (Depending on your distribution, you 
+may first need to mount /proc/bus/usb as type usbfs.)
 
-Thanks.
+> Why should sispm need to unbind someone else?
 
--- 
-Dmitry
+The usbfs API does not allow user programs to set a device's
+configuration if any drivers are bound to the device.  Therefore, if a 
+program wants to set a config then it must unbind all the existing 
+drivers first.  This is a safety precaution against programs 
+interfering with other drivers.
+
+Now in fact, sispm probably doesn't need to set the configuration at 
+all.  This is undoubtedly a holdover from a Windows version, because 
+Windows does not set device configurations by default whereas Linus 
+does.
+
+Alan Stern
+

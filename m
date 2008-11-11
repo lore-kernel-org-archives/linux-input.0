@@ -1,29 +1,35 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] input: Map missing keys to appropriate functions
-Date: Tue, 11 Nov 2008 23:33:38 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0811112333180.24889@jikos.suse.cz>
-References: <491040AA.7010208@euromail.se> <alpine.LNX.1.10.0811111826270.24889@jikos.suse.cz> <20081111134955.ZZRA012@mailhub.coreip.homeip.net>
+Subject: Re: [PATCH] hid: Complete support for the new unibody macbooks
+Date: Tue, 11 Nov 2008 23:48:31 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811112347260.24889@jikos.suse.cz>
+References: <49109C91.6090207@euromail.se> <alpine.LNX.1.10.0811111835540.24889@jikos.suse.cz> <4919C979.3000501@euromail.se>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:42078 "EHLO mail.suse.cz"
+Received: from styx.suse.cz ([82.119.242.94]:42405 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751795AbYKKWdk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Nov 2008 17:33:40 -0500
-In-Reply-To: <20081111134955.ZZRA012@mailhub.coreip.homeip.net>
+	id S1751219AbYKKWsc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Nov 2008 17:48:32 -0500
+In-Reply-To: <4919C979.3000501@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 11 Nov 2008, Dmitry Torokhov wrote:
+On Tue, 11 Nov 2008, Henrik Rydberg wrote:
 
-> > Dmitry, could you please Ack this? Is it OK if I take it through my 
-> > tree, together with the hid-apple mapping update? Thanks.
-> Sorry, running a bit behind... Yep, please take these through your
-> tree.
+> No worries. I should have mentioned earlier that the hid update is best 
+> synchronized with the bcm5974 update, since the latter is the only 
+> driver that will pick the mouse interface up after the hid update. The 
+> bcm5974 patch was sent on October 23, but I have not received any 
+> feedback to it yet.
 
-Thanks a lot, applied to my tree.
+Yes, I am aware of bcm5974 being dependent in HID driver not claiming the 
+mouse interface on this hardware.
+
+Dmitry, what are your plans with this bcm5974 patch? 2.6.28 or 2.6.29?
+
+Thanks,
 
 -- 
 Jiri Kosina

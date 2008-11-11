@@ -1,53 +1,46 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: USB hid blocks USB port in 2.6.28rc3
-Date: Mon, 10 Nov 2008 19:45:28 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0811101939100.15552-100000@netrider.rowland.org>
-References: <20081111003117.GA10904@basil.nowhere.org>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
+	protocol
+Date: Tue, 11 Nov 2008 14:08:09 +1000
+Message-ID: <20081111040808.GA6776@dingo.redhat.com>
+References: <49142351.9080805@euromail.se> <3aaafc130811070534p54eebeb6q9b57d3e847ed859a@mail.gmail.com> <49145016.7090206@euromail.se> <3aaafc130811070636g681accf5qae252679c2edcdb9@mail.gmail.com> <49145628.7030804@euromail.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from netrider.rowland.org ([192.131.102.5]:1357 "HELO
-	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751068AbYKKApa (ORCPT
+Received: from ipx-119-252-190-80.ipxserver.de ([80.190.252.119]:50888 "EHLO
+	ipx10616.ipxserver.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1750787AbYKKEJe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Nov 2008 19:45:30 -0500
-In-Reply-To: <20081111003117.GA10904@basil.nowhere.org>
+	Mon, 10 Nov 2008 23:09:34 -0500
+Content-Disposition: inline
+In-Reply-To: <49145628.7030804@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: "J.R. Mauro" <jrm8005@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 11 Nov 2008, Andi Kleen wrote:
-
-> Hi,
+On Fri, Nov 07, 2008 at 03:52:24PM +0100, Henrik Rydberg wrote:
+> > Have you worked with MPX? Or was a vanilla-X11 driver simple enough?
+> > How does this all get presented to userspace applications? Multiple
+> > mouse inputs or special stuff that applications would need a rewrite
+> > to leverage?
 > 
-> I have a box here which has a couple of USB devices connected.
-> That includes several HID devices (keyboards, mouse) and a couple
-> of others including a USB powerswitch driven through a user space
-> program.
-> 
-> Now what happened is that I changed some of the HID devices
-> around (moving from a direct port to a hub) and also moved
-> the USB power switch from one port to another. But after that
-> the power switch didn't work anymore, just giving a flood 
-> of
-> 
-> usb 2-2: usbfs: interface 0 claimed by usbhid while 'sispm' sets config #1
-> 
-> (sispm is the user space driver)
-> 
-> Kernel is 2.6.28-rc3
+> MPX is about making use of multiple pointers. The MT protocol is about
+> making use of multiple fingers. It can in principle be used as input
+> to MPX applications; I will bring it up with Peter Hutterer. However,
+> the main aim is to bring advanced gestures to the linux desktop.
 
-This sounds like a userspace problem.  The sispm program should unbind 
-usbhid from interface 0 before trying to set the config.
+MPX is about making use of multiple input devices simultaneously and most of
+the groundwork to get MT devices going is already there. From X's point of
+view we need a bunch of new events to be sent to clients (and the bells and
+whistles around it). The hard bit here is deciding which client to send the
+events to.
 
-I don't know why it should start showing up now.  Perhaps you need to 
-add the power switch to usbhid's blacklist.
+I'd also say that an MT device should be presented as a single device with
+multiple input points rather than as multiple separate devices.
+This does require to rewrite applications (or at least slot some intermediate
+layer in between), but having multitouch look like multi-mouse is a really bad
+idea.
 
-At any rate, you should be able to get it working again by unbinding 
-usbhid manually:
-
-	echo -n 2-2:1.0 >/sys/bus/usb/drivers/usbhid/unbind
-
-Alan Stern
-
+Cheers,
+  Peter

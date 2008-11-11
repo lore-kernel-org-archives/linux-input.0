@@ -1,53 +1,54 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
-	protocol
-Date: Tue, 11 Nov 2008 14:20:09 +1000
-Message-ID: <20081111042009.GC6776@dingo.redhat.com>
-References: <49142351.9080805@euromail.se>
+From: Andi Kleen <andi@firstfloor.org>
+Subject: Re: USB hid blocks USB port in 2.6.28rc3
+Date: Tue, 11 Nov 2008 09:41:32 +0100
+Message-ID: <20081111084132.GE3810@one.firstfloor.org>
+References: <20081111003117.GA10904@basil.nowhere.org> <Pine.LNX.4.44L0.0811101939100.15552-100000@netrider.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ipx-119-252-190-80.ipxserver.de ([80.190.252.119]:47916 "EHLO
-	ipx10616.ipxserver.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752308AbYKKEVf (ORCPT
+Received: from one.firstfloor.org ([213.235.205.2]:39874 "EHLO
+	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754077AbYKKIcZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 10 Nov 2008 23:21:35 -0500
+	Tue, 11 Nov 2008 03:32:25 -0500
 Content-Disposition: inline
-In-Reply-To: <49142351.9080805@euromail.se>
+In-Reply-To: <Pine.LNX.4.44L0.0811101939100.15552-100000@netrider.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Andi Kleen <andi@firstfloor.org>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, Nov 07, 2008 at 12:15:29PM +0100, Henrik Rydberg wrote:
-> In order to utilize the full power of the new multi-touch devices, a
-> way to report detailed finger data to user space is needed. This patch
-> adds a multi-touch (MT) protocol which allows drivers to report details
-> for an arbitrary number of fingers.
+On Mon, Nov 10, 2008 at 07:45:28PM -0500, Alan Stern wrote:
+> On Tue, 11 Nov 2008, Andi Kleen wrote:
+> 
+> > Hi,
+> > 
+> > I have a box here which has a couple of USB devices connected.
+> > That includes several HID devices (keyboards, mouse) and a couple
+> > of others including a USB powerswitch driven through a user space
+> > program.
+> > 
+> > Now what happened is that I changed some of the HID devices
+> > around (moving from a direct port to a hub) and also moved
+> > the USB power switch from one port to another. But after that
+> > the power switch didn't work anymore, just giving a flood 
+> > of
+> > 
+> > usb 2-2: usbfs: interface 0 claimed by usbhid while 'sispm' sets config #1
+> > 
+> > (sispm is the user space driver)
+> > 
+> > Kernel is 2.6.28-rc3
+> 
+> This sounds like a userspace problem.  The sispm program should unbind 
+> usbhid from interface 0 before trying to set the config.
 
-[...]
+Can you please explain in layman's terms why usbhid does not 
+unbind itself when it detects the removal of a device? 
 
->  /* We avoid low common keys in module aliases so they don't get huge. */
->  #define KEY_MIN_INTERESTING	KEY_MUTE
->  #define KEY_MAX			0x2ff
-> @@ -642,6 +645,15 @@ struct input_absinfo {
->  #define ABS_TOOL_WIDTH		0x1c
->  #define ABS_VOLUME		0x20
->  #define ABS_MISC		0x28
-> +#define ABS_MT_TOUCH		0x30	/* Diameter of touching circle */
-> +#define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
-> +#define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis of touching ellipse */
-> +#define ABS_MT_WIDTH		0x32	/* Diameter of approaching circle */
-> +#define ABS_MT_WIDTH_MAJOR	0x32	/* Major axis of approaching ellipse */
-> +#define ABS_MT_WIDTH_MINOR	0x33	/* Minor axis of approaching ellipse */
-> +#define ABS_MT_ORIENTATION	0x34	/* Ellipse orientation */
-> +#define ABS_MT_POSITION_X	0x35	/* Center X ellipse position */
-> +#define ABS_MT_POSITION_Y	0x36	/* Center Y ellipse position */
->  #define ABS_MAX			0x3f
->  #define ABS_CNT			(ABS_MAX+1)
+Why should sispm need to unbind someone else?
 
-is there hardware that can do finger identification? (i.e. thumb vs. index
-finger)? Should we accommodate for this?
- 
-Cheers,
-  Peter
+-Andi
+
+-- 
+ak@linux.intel.com

@@ -1,54 +1,62 @@
-From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: USB hid blocks USB port in 2.6.28rc3
-Date: Tue, 11 Nov 2008 09:41:32 +0100
-Message-ID: <20081111084132.GE3810@one.firstfloor.org>
-References: <20081111003117.GA10904@basil.nowhere.org> <Pine.LNX.4.44L0.0811101939100.15552-100000@netrider.rowland.org>
+From: Andreas Ericsson <ae@op5.se>
+Subject: Re: [PATCH] Input: i8042 - add Dell XPS M1530 to nomux list
+Date: Tue, 11 Nov 2008 10:40:09 +0100
+Message-ID: <491952F9.8030807@op5.se>
+References: <200811101434.04830.herton@mandriva.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from one.firstfloor.org ([213.235.205.2]:39874 "EHLO
-	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754077AbYKKIcZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Nov 2008 03:32:25 -0500
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0811101939100.15552-100000@netrider.rowland.org>
+Received: from mail.op5.se ([193.201.96.20]:43906 "EHLO mail.op5.se"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753531AbYKKJtI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Nov 2008 04:49:08 -0500
+In-Reply-To: <200811101434.04830.herton@mandriva.com.br>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andi Kleen <andi@firstfloor.org>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Nov 10, 2008 at 07:45:28PM -0500, Alan Stern wrote:
-> On Tue, 11 Nov 2008, Andi Kleen wrote:
+Herton Ronaldo Krzesinski wrote:
+> Dell XPS M1530 needs i8042.nomux=1 for ALPS touchpad to work as reported on
+> https://qa.mandriva.com/show_bug.cgi?id=43532
 > 
-> > Hi,
-> > 
-> > I have a box here which has a couple of USB devices connected.
-> > That includes several HID devices (keyboards, mouse) and a couple
-> > of others including a USB powerswitch driven through a user space
-> > program.
-> > 
-> > Now what happened is that I changed some of the HID devices
-> > around (moving from a direct port to a hub) and also moved
-> > the USB power switch from one port to another. But after that
-> > the power switch didn't work anymore, just giving a flood 
-> > of
-> > 
-> > usb 2-2: usbfs: interface 0 claimed by usbhid while 'sispm' sets config #1
-> > 
-> > (sispm is the user space driver)
-> > 
-> > Kernel is 2.6.28-rc3
+> It is said that before A08 bios version this isn't needed (I don't have the
+> hardware so can't check), and suppose this will not break with bios versions
+> before A08.
 > 
-> This sounds like a userspace problem.  The sispm program should unbind 
-> usbhid from interface 0 before trying to set the config.
+> Signed-off-by: Herton Ronaldo Krzesinski <herton@mandriva.com.br>
+> 
 
-Can you please explain in layman's terms why usbhid does not 
-unbind itself when it detects the removal of a device? 
+I've got bios A08 (can't downgrade though). It works here, so:
 
-Why should sispm need to unbind someone else?
+Tested-by: Andreas Ericsson <ae@op5.se>
 
--Andi
+> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+> index eec375c..5db1d0b 100644
+> --- a/drivers/input/serio/i8042-x86ia64io.h
+> +++ b/drivers/input/serio/i8042-x86ia64io.h
+> @@ -337,6 +337,13 @@ static struct dmi_system_id __initdata i8042_dmi_nomux_table[] = {
+>  			DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
+>  		},
+>  	},
+> +	{
+> +		.ident = "Dell XPS M1530",
+> +		.matches = {
+> +			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+> +			DMI_MATCH(DMI_PRODUCT_NAME, "XPS M1530"),
+> +		},
+> +	},
+>  	{ }
+>  };
+>  
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
 
 -- 
-ak@linux.intel.com
+Andreas Ericsson                   andreas.ericsson@op5.se
+OP5 AB                             www.op5.se
+Tel: +46 8-230225                  Fax: +46 8-230231

@@ -1,33 +1,51 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 1/1] USBHID: correct start/stop cycle
-Date: Wed, 12 Nov 2008 00:22:33 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0811120021500.24889@jikos.suse.cz>
-References: <1225579306-28524-1-git-send-email-jirislaby@gmail.com> <490D873D.9010005@gmail.com> <490DDA69.4000404@gmx.de> <200811022024.31528.vda.linux@googlemail.com>
+Subject: Re: cleanup of hiddev
+Date: Wed, 12 Nov 2008 00:53:10 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811120050160.24889@jikos.suse.cz>
+References: <200811051252.40133.oliver@neukum.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:42997 "EHLO mail.suse.cz"
+Received: from styx.suse.cz ([82.119.242.94]:43586 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751709AbYKKXWe (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 11 Nov 2008 18:22:34 -0500
-In-Reply-To: <200811022024.31528.vda.linux@googlemail.com>
+	id S1751902AbYKKXxM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 11 Nov 2008 18:53:12 -0500
+In-Reply-To: <200811051252.40133.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Denys Vlasenko <vda.linux@googlemail.com>
-Cc: Helge Deller <deller@gmx.de>, Jiri Slaby <jirislaby@gmail.com>, Jeroen Roovers <jer@gentoo.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Jiri Slaby <jslaby@suse.cz>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Sun, 2 Nov 2008, Denys Vlasenko wrote:
+On Wed, 5 Nov 2008, Oliver Neukum wrote:
 
-> > I fully bisected it, and the final "buggy" patch seems to have been 
-> > Denys Vlasenko's patch: cb8f488c33539f096580e202f5438a809195008f (see 
-> > http://github.com/jonsmirl/digispeaker/commit/cb8f488c33539f096580e202f5438a809195008f) 
-> > Denys: Any reason you removed "!prev" in front of "expand_stack"?
-> Looks like I erroneously thought it can't be NULL,
-> or that expand_upwards() is ok with getting NULL vma parameter.
-> I looked again and neither is true.
-> Sorry, looks like I indeed broke this.
+> this, I think, fixes everything.
 
-Hmm, so ... ? Seems like this didn't get fixed in Linus' tree yet?
+Thanks a lot for working on this, Oliver. Could you please add a proper
+changelog, describing all the changes that had been done and why they were
+needed, so that this can be queued for 2.6.29?
+
+>  				schedule();
+> +				if (mutex_lock_interruptible(&list->thread_lock))
+> +					return -ERESTARTSYS;
+
+Is ERESTARTSYS really appropriate here? Tail could have already moved from
+within other thread, right?
+
+>  	case HIDIOCGSTRING:
+> -		return hiddev_ioctl_string(hiddev, cmd, user_arg);
+> +		lock_kernel();
+> +		if (!hiddev->exist)
+> +			r = hiddev_ioctl_string(hiddev, cmd, user_arg);
+> +		else
+> +			r = -ENODEV;
+> +		unlock_kernel();
+> +		return r;
+
+Hmm, I know that this is a legacy interface, but I am really hesitant to
+add a new synchronization using lock_kernel(), instead of removing it
+gradually altogether.
+
+Thanks,
 
 -- 
 Jiri Kosina

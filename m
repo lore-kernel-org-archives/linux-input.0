@@ -1,46 +1,49 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: locking in hidraw
-Date: Wed, 12 Nov 2008 15:51:06 +0100
-Message-ID: <200811121551.07909.oliver@neukum.org>
-References: <200811041534.38166.oliver@neukum.org> <4910B24D.2020700@gmail.com> <alpine.LNX.1.10.0811121539090.32143@jikos.suse.cz>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: USB hid blocks USB port in 2.6.28rc3
+Date: Wed, 12 Nov 2008 09:53:30 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.0811120948480.2336-100000@iolanthe.rowland.org>
+References: <20081111210705.GG3810@one.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:60838 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751617AbYKLOuk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2008 09:50:40 -0500
-In-Reply-To: <alpine.LNX.1.10.0811121539090.32143@jikos.suse.cz>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20081111210705.GG3810-qrUzlfsMFqo/4alezvVtWx2eb7JE58TQ@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andi Kleen <andi-Vw/NltI1exuRpAAqCnN02g@public.gmane.org>
+Cc: jkosina-AlSwsSmVLrQ@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-KKrjLPT3xs0@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
 
-Am Mittwoch, 12. November 2008 15:39:49 schrieb Jiri Kosina:
-> On Tue, 4 Nov 2008, Jiri Slaby wrote:
+On Tue, 11 Nov 2008, Andi Kleen wrote:
+
+> > It does.  The problem is on the other side: Your power switch presents 
+> > itself as an HID device, so when it is _detected_ it binds to usbhid.
 > 
-> > > in this code:
-> > > 
-> > > 		mutex_lock(&list->read_mutex);
-> > > 
-> > > 		if (list->head == list->tail) {
-> > > 			add_wait_queue(&list->hidraw->wait, &wait);
-> > > 			set_current_state(TASK_INTERRUPTIBLE);
-> > > 
-> > > it would make more sense to lock the mutex interruptable so all
-> > > tasks sleep the same way. Is this intentional?
-> 
-> Well, we have the test for pending signals just below that code, right?
+> Ok, but it worked in all kernels before. Why has that changed?
 
-So the tasks blocking on the mutex sleep all the time until another
-task is finished and unlocks the mutex, only to return to user space
-because signals are pending. Therefore why not make the wait on
-the mutex interruptible, so the signals are processed right away?
+I don't know.
 
-	Regards
-		Oliver
+> So you're saying that sispm should be changed to not do something?
+> What something exactly? And it would work then?
 
+It should be changed either to:
+
+	Not do Set-Configuration, or
+
+	Detach the HID driver before doing the Set-Configuration.
+
+Either of these should allow it to work.
+
+> And why exactly does what it used to do before not work anymore now?
+
+This is a repeat of your first question above.  I still don't know.
+
+If you're interested in finding out the answer, here's what you should
+do.  First, as Jiri and I have both suggested, post the contents of
+your /proc/bus/usb/devices.  Second, post copies of the full system log
+for both old and new kernels with the usbfs_snoop module parameter set.
+
+Alan Stern
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

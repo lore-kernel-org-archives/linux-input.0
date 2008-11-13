@@ -1,38 +1,75 @@
 From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH] HID: don't grab devices with no input
-Date: Thu, 13 Nov 2008 23:05:09 +0100
-Message-ID: <491CA495.7010007@gmail.com>
-References: <Pine.LNX.4.44L0.0811131632150.3036-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1/1 v2] HID: don't grab devices with no input
+Date: Thu, 13 Nov 2008 23:10:21 +0100
+Message-ID: <1226614221-17118-1-git-send-email-jirislaby@gmail.com>
+References: <491CA495.7010007@gmail.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.24]:7309 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751598AbYKMWFT (ORCPT
+Received: from smtp.wellnetcz.com ([212.24.148.102]:52588 "EHLO
+	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752766AbYKMWK2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2008 17:05:19 -0500
-Received: by ey-out-2122.google.com with SMTP id 6so474369eyi.37
-        for <linux-input@vger.kernel.org>; Thu, 13 Nov 2008 14:05:17 -0800 (PST)
-In-Reply-To: <Pine.LNX.4.44L0.0811131632150.3036-100000@iolanthe.rowland.org>
+	Thu, 13 Nov 2008 17:10:28 -0500
+In-Reply-To: <491CA495.7010007@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andi Kleen <andi@firstfloor.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Andi Kleen <andi@firstfloor.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-On 11/13/2008 10:37 PM, Alan Stern wrote:
->> +	for (n = 0; n < interface->desc.bNumEndpoints; n++)
->> +		if (usb_endpoint_dir_in(&interface->endpoint[n].desc))
->> +			has_in++;
->> +	if (!has_in) {
->> +		dev_err(&intf->dev, "couldn't find an input interrupt "
->> +				"endpoint");
->> +		return -ENODEV;
->> +	}
->> +
-> 
-> Do you want to use usb_endpoint_is_int_in() instead?  It matches the 
-> error message more closely.
+Some devices have no input interrupt endpoint. These won't be handled
+by usbhid, but currently they are not refused and reside on hid bus.
 
-Yes, good catch, thanks.
+Perform this checking earlier so that we refuse to control such
+a device early enough (and not pass it to the hid bus at all).
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ drivers/hid/usbhid/hid-core.c |   17 +++++++++++------
+ 1 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 05402e9..9c9bd4c 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -850,12 +850,6 @@ static int usbhid_start(struct hid_device *hid)
+ 		}
+ 	}
+ 
+-	if (!usbhid->urbin) {
+-		err_hid("couldn't find an input interrupt endpoint");
+-		ret = -ENODEV;
+-		goto fail;
+-	}
+-
+ 	init_waitqueue_head(&usbhid->wait);
+ 	INIT_WORK(&usbhid->reset_work, hid_reset);
+ 	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
+@@ -958,15 +952,26 @@ static struct hid_ll_driver usb_hid_driver = {
+ 
+ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
++	struct usb_host_interface *interface = intf->cur_altsetting;
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct usbhid_device *usbhid;
+ 	struct hid_device *hid;
++	unsigned int n, has_in = 0;
+ 	size_t len;
+ 	int ret;
+ 
+ 	dbg_hid("HID probe called for ifnum %d\n",
+ 			intf->altsetting->desc.bInterfaceNumber);
+ 
++	for (n = 0; n < interface->desc.bNumEndpoints; n++)
++		if (usb_endpoint_is_int_in(&interface->endpoint[n].desc))
++			has_in++;
++	if (!has_in) {
++		dev_err(&intf->dev, "couldn't find an input interrupt "
++				"endpoint");
++		return -ENODEV;
++	}
++
+ 	hid = hid_allocate_device();
+ 	if (IS_ERR(hid))
+ 		return PTR_ERR(hid);
+-- 
+1.6.0.4
 

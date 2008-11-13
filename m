@@ -1,38 +1,91 @@
-From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
-Subject: Re: Keyboard LED state after suspend
-Date: Thu, 13 Nov 2008 22:08:37 +0100
-Message-ID: <200811132208.37874.oliver@neukum.org>
-References: <Pine.LNX.4.44L0.0811131501250.3036-100000@iolanthe.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <Pine.LNX.4.44L0.0811131501250.3036-100000-IYeN2dnnYyZXsRXLowluHWD2FQJk+8+b@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Cc: Jiri Kosina <jikos-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: [PATCH] HID: don't grab devices with no input
+Date: Thu, 13 Nov 2008 22:10:00 +0100
+Message-ID: <1226610600-22899-1-git-send-email-jirislaby@gmail.com>
+References: <Pine.LNX.4.44L0.0811131040160.2380-100000@iolanthe.rowland.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.wellnetcz.com ([212.24.148.102]:44103 "EHLO
+	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754743AbYKMVKU (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Nov 2008 16:10:20 -0500
+In-Reply-To: <Pine.LNX.4.44L0.0811131040160.2380-100000@iolanthe.rowland.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-Am Donnerstag, 13. November 2008 21:05:39 schrieb Alan Stern:
-> Jiri and Oliver:
-> 
-> I tried the experiment of turning off NumLock and all the other 
-> keyboard LED settings before hibernating.  After resuming, the LEDs on 
-> my PS/2 keyboard remained off but the NumLock LED on my USB keyboard 
-> was on.  Probably the BIOS turned it on during the restart and Linux 
-> never turned it back off.
-> 
-> Should we set the keyboard LED state whenever a keyboard is resumed?  
-> Is this handled already in the new autosuspend work?
+Alan Stern wrote:
+> This suggests that a lot of the work in usbhid_start should be 
+> performed earlier, before calling hid_add_device.  After all, why 
+> bother registering a USB device on the input bus if usbhid isn't going 
+> to be able to drive it?
 
-No, as this is no autosuspend problem. In fact it is not a driver problem
-at all. This suggests that the HID layer should have hooks in resumption.
+None of the code can be moved to the usbhid probe function, because all
+of it depends on the driver's (potential) report_fixup.
 
-	Regards
-		Oliver
+However I suggest moving this test to the probe which ensures performing
+the test early enough.
+
+Andi, could you test the attached patch?
+
 --
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+Some devices have no input interrupt endpoint. These won't be handled
+by usbhid, but currently they are not refused and reside on hid bus.
+
+Perform this checking earlier so that we refuse to control such
+a device early enough (and not pass it to the hid bus at all).
+
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ drivers/hid/usbhid/hid-core.c |   17 +++++++++++------
+ 1 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index f7e0d71..2c5cb10 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -845,12 +845,6 @@ static int usbhid_start(struct hid_device *hid)
+ 		}
+ 	}
+ 
+-	if (!usbhid->urbin) {
+-		err_hid("couldn't find an input interrupt endpoint");
+-		ret = -ENODEV;
+-		goto fail;
+-	}
+-
+ 	init_waitqueue_head(&usbhid->wait);
+ 	INIT_WORK(&usbhid->reset_work, hid_reset);
+ 	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
+@@ -947,15 +941,26 @@ static struct hid_ll_driver usb_hid_driver = {
+ 
+ static int hid_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ {
++	struct usb_host_interface *interface = intf->cur_altsetting;
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct usbhid_device *usbhid;
+ 	struct hid_device *hid;
++	unsigned int n, has_in = 0;
+ 	size_t len;
+ 	int ret;
+ 
+ 	dbg_hid("HID probe called for ifnum %d\n",
+ 			intf->altsetting->desc.bInterfaceNumber);
+ 
++	for (n = 0; n < interface->desc.bNumEndpoints; n++)
++		if (usb_endpoint_dir_in(&interface->endpoint[n].desc))
++			has_in++;
++	if (!has_in) {
++		dev_err(&intf->dev, "couldn't find an input interrupt "
++				"endpoint");
++		return -ENODEV;
++	}
++
+ 	hid = hid_allocate_device();
+ 	if (IS_ERR(hid))
+ 		return PTR_ERR(hid);
+-- 
+1.6.0.3
+

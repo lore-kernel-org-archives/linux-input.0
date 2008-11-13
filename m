@@ -1,55 +1,36 @@
-From: Alexey Klimov <klimov.linux@gmail.com>
-Subject: [PATCH 2/2] hid: fix radio-mr800 hidquirks
-Date: Thu, 13 Nov 2008 05:44:50 +0300
-Message-ID: <1226544290.7246.14.camel@tux.localhost>
-References: <491B3E90.5020307@gmail.com>
-	 <alpine.LNX.1.10.0811130131190.32143@jikos.suse.cz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: next: 6a13378a5 (Don't allow KWorld radio...) is broken
+Date: Thu, 13 Nov 2008 10:37:49 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811131037020.32143@jikos.suse.cz>
+References: <491B3E90.5020307@gmail.com> <208cbae30811121824g2e2d4f3bvf2c982c9f54b30a2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ug-out-1314.google.com ([66.249.92.173]:25267 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752865AbYKMCoe (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2008 21:44:34 -0500
-Received: by ug-out-1314.google.com with SMTP id 39so1233622ugf.37
-        for <linux-input@vger.kernel.org>; Wed, 12 Nov 2008 18:44:34 -0800 (PST)
-In-Reply-To: <alpine.LNX.1.10.0811130131190.32143@jikos.suse.cz>
+Received: from styx.suse.cz ([82.119.242.94]:32947 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750728AbYKMJhv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Nov 2008 04:37:51 -0500
+In-Reply-To: <208cbae30811121824g2e2d4f3bvf2c982c9f54b30a2@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>
-Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Alexey Klimov <klimov.linux@gmail.com>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Tobias Lorenz <tobias.lorenz@gmx.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-This patch fixes radio-mr800 hidqurks. Removes it from blacklist entry
-and places it in ignore entry in hid/hid-core.c
+On Thu, 13 Nov 2008, Alexey Klimov wrote:
 
-Signed-off-by: Alexey Klimov <klimov.linux@gmail.com>
+> > Alexey, did you actually test it?
+> > I'd prefer taking this through my tree, if it doesn't impose any problem
+> > on your side. Could you please fix it up and resend?
+> It good thing to do. May i make patch against current kernel tree 
+> (rc4-git3) ? I also going to make patch for radio-mr800 that has wrong 
+> hidquirks too. I can send now, because this two patches ready.
 
----
+Thanks, I have applied both patches to my tree (but please remember to 
+always send kernel patches so that they apply using "patch -p1", I had to 
+fix this by hand).
 
-diff -r f8813f2b16f7 linux/drivers/hid/hid-core.c
---- a/linux/drivers/hid/hid-core.c	Thu Nov 13 05:39:06 2008 +0300
-+++ b/linux/drivers/hid/hid-core.c	Thu Nov 13 05:40:26 2008 +0300
-@@ -1252,7 +1252,6 @@
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, USB_DEVICE_ID_AVER_FM_MR800) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BELKIN, USB_DEVICE_ID_FLIP_KVM) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BRIGHT, USB_DEVICE_ID_BRIGHT_ABNT2) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_CYMOTION) },
-@@ -1408,6 +1407,7 @@
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ALCOR, USB_DEVICE_ID_ALCOR_USBRS232) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_LCM)},
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ASUS, USB_DEVICE_ID_ASUS_LCM2)},
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_AVERMEDIA, USB_DEVICE_ID_AVER_FM_MR800) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_BERKSHIRE, USB_DEVICE_ID_BERKSHIRE_PCWD) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CIDC, 0x0103) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CYGNAL, USB_DEVICE_ID_CYGNAL_RADIO_SI470X) },
+Thanks,
 
-
-> 
 -- 
-Best regards, Klimov Alexey
-
+Jiri Kosina
+SUSE Labs

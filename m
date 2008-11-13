@@ -1,69 +1,63 @@
 From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: Lockdep violation in 2.6.28-rc4 + gregkh-all
-Date: Thu, 13 Nov 2008 10:37:36 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0811131027190.2380-100000@iolanthe.rowland.org>
-References: <alpine.LNX.1.10.0811131244320.32143@jikos.suse.cz>
+Subject: Re: USB hid blocks USB port in 2.6.28rc3
+Date: Thu, 13 Nov 2008 10:54:34 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.0811131040160.2380-100000@iolanthe.rowland.org>
+References: <20081113143149.GW3810@one.firstfloor.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:35139 "HELO
+Received: from iolanthe.rowland.org ([192.131.102.54]:50501 "HELO
 	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751918AbYKMPhh (ORCPT
+	with SMTP id S1752971AbYKMPyf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2008 10:37:37 -0500
-In-Reply-To: <alpine.LNX.1.10.0811131244320.32143@jikos.suse.cz>
+	Thu, 13 Nov 2008 10:54:35 -0500
+In-Reply-To: <20081113143149.GW3810@one.firstfloor.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jslaby@suse.cz>, linux-input@vger.kernel.org
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Thu, 13 Nov 2008, Jiri Kosina wrote:
+On Thu, 13 Nov 2008, Andi Kleen wrote:
 
-> On Wed, 12 Nov 2008, Alan Stern wrote:
+> On Thu, Nov 13, 2008 at 01:30:55PM +0100, Jiri Slaby wrote:
+> > Andi Kleen napsal(a):
+> > > Which information do you need exactly out of /sys/bus/usb/devices? 
+> > 
+> > You misread the path, it's one file in /proc. (Make sure usbfs is mounted
 > 
-> > [  795.103175] =======================================================
-> > [  795.103347] [ INFO: possible circular locking dependency detected ]
-> > [  795.103439] 2.6.28-rc4 #1
-> > [  795.103522] -------------------------------------------------------
-> > [  795.103614] rmmod/2553 is trying to acquire lock:
-> > [  795.103703]  (&dev->mutex){--..}, at: [<c054680e>] input_unregister_device+0x16/0x15d
-> > [  795.103957] 
-> > [  795.103958] but task is already holding lock:
-> > [  795.104060]  (&usbhid->setup){--..}, at: [<f077a69e>] usbhid_stop+0x40/0xf8 [usbhid]
-> > [  795.104060] which lock already depends on the new lock.
+> There was nothing there, so I checked sysfs.
 > 
-> Hmm, I don't think I really understand the root cause here on a first 
-> sight. We always take usbhid->setup mutex in usbhid_stop() and after that 
-> call into input_unregister_device(), which acquires the corresponding 
-> input_dev->mutex.
+> > there.)
 > 
-> But I don't seem to be able find where we take input_dev->mutex before 
-> taking usbhid->setup mutex ... I somehow don't see that neither from the 
-> lockdep traces nor the code.
+> With the power switch connected I have:
+> 
+> ...
+> T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+> P:  Vendor=04b4 ProdID=fd11 Rev= 1.01
+> S:  Manufacturer=Gembird Electronics
+> S:  Product=Gembird Silver Shield PM
+> C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=150mA
+> I:* If#= 0 Alt= 0 #EPs= 0 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+> 
+> ...
 
-Here's what the lockdep trace indicates:
+It looks like this problem was caused by the introduction of the input 
+bus.
 
-	Somewhere in the input_register_device / input_attach_handler
-	path, you lock input_dev->mutex.  While that lock is held,
-	kbd_connect calls down to usbhid_open, which calls
-	usb_autopm_get_interface, which acquires usb_dev->pm_mutex.
+When the USB device is detected, the hid_probe routine in usbhid is
+called.  It registers the device on the input bus.  This causes the
+hid_probe routine in drivers/hid/hid-core.c to be called, and it fails.
 
-	hid_suspend is called with usb_dev->pm_mutex held.  It
-	acquires usbhid->setup.
+But that failure merely means there's no driver bound to the input
+device.  It's still registered on the input bus, and the USB device is
+still bound to usbhid.  Whereas before, the failure would occur in
+usbhid's probe and would leave the USB device unbound.
 
-Therefore we end up with the following 3-way loop:
-
-	The unregister path acquires input_dev->mutex while holding
-	usbhid->setup.
-
-	The register/attach/open path acquires usb_dev->pm_mutex
-	while holding input_dev->mutex.
-
-	The suspend path acquires usbhid->setup while holding
-	usb_dev->pm_mutex.
-
-I'm not familiar enough with the usbhid subsystem to know the right way
-to break this loop.
+This suggests that a lot of the work in usbhid_start should be 
+performed earlier, before calling hid_add_device.  After all, why 
+bother registering a USB device on the input bus if usbhid isn't going 
+to be able to drive it?
 
 Alan Stern
 

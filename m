@@ -1,63 +1,40 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH] HID: don't grab devices with no input
-Date: Thu, 13 Nov 2008 16:37:53 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0811131632150.3036-100000@iolanthe.rowland.org>
-References: <1226610600-22899-1-git-send-email-jirislaby@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Keyboard LED state after suspend
+Date: Thu, 13 Nov 2008 16:52:53 -0500
+Message-ID: <20081113165230.ZZRA012@mailhub.coreip.homeip.net>
+References: <Pine.LNX.4.44L0.0811131501250.3036-100000@iolanthe.rowland.org> <200811132208.37874.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:39433 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750852AbYKMVhy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2008 16:37:54 -0500
-In-Reply-To: <1226610600-22899-1-git-send-email-jirislaby@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <200811132208.37874.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Jiri Kosina <jikos-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Andi Kleen <andi@firstfloor.org>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2008, Jiri Slaby wrote:
-
-> Alan Stern wrote:
-> > This suggests that a lot of the work in usbhid_start should be 
-> > performed earlier, before calling hid_add_device.  After all, why 
-> > bother registering a USB device on the input bus if usbhid isn't going 
-> > to be able to drive it?
+On Thu, Nov 13, 2008 at 10:08:37PM +0100, Oliver Neukum wrote:
+> Am Donnerstag, 13. November 2008 21:05:39 schrieb Alan Stern:
+> > Jiri and Oliver:
+> > 
+> > I tried the experiment of turning off NumLock and all the other 
+> > keyboard LED settings before hibernating.  After resuming, the LEDs on 
+> > my PS/2 keyboard remained off but the NumLock LED on my USB keyboard 
+> > was on.  Probably the BIOS turned it on during the restart and Linux 
+> > never turned it back off.
+> > 
+> > Should we set the keyboard LED state whenever a keyboard is resumed?  
+> > Is this handled already in the new autosuspend work?
 > 
-> None of the code can be moved to the usbhid probe function, because all
-> of it depends on the driver's (potential) report_fixup.
+> No, as this is no autosuspend problem. In fact it is not a driver problem
+> at all. This suggests that the HID layer should have hooks in resumption.
 > 
-> However I suggest moving this test to the probe which ensures performing
-> the test early enough.
 
-That makes sense.  It's the only failure mode in usbhid_start which
-isn't a simple out-of-memory error.
+Actually I have patches that do that in input layer.
 
-> Andi, could you test the attached patch?
-> 
-> --
-> 
-> Some devices have no input interrupt endpoint. These won't be handled
-> by usbhid, but currently they are not refused and reside on hid bus.
-> 
-> Perform this checking earlier so that we refuse to control such
-> a device early enough (and not pass it to the hid bus at all).
-> 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-
-> +	for (n = 0; n < interface->desc.bNumEndpoints; n++)
-> +		if (usb_endpoint_dir_in(&interface->endpoint[n].desc))
-> +			has_in++;
-> +	if (!has_in) {
-> +		dev_err(&intf->dev, "couldn't find an input interrupt "
-> +				"endpoint");
-> +		return -ENODEV;
-> +	}
-> +
-
-Do you want to use usb_endpoint_is_int_in() instead?  It matches the 
-error message more closely.
-
-Alan Stern
-
+-- 
+Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

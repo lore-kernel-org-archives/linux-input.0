@@ -1,42 +1,55 @@
-From: "Alexey Klimov" <klimov.linux@gmail.com>
-Subject: Re: next: 6a13378a5 (Don't allow KWorld radio...) is broken
-Date: Thu, 13 Nov 2008 05:24:24 +0300
-Message-ID: <208cbae30811121824g2e2d4f3bvf2c982c9f54b30a2@mail.gmail.com>
+From: Alexey Klimov <klimov.linux@gmail.com>
+Subject: [PATCH 1/2] hid: fix kworld fm700 radio hidquirks
+Date: Thu, 13 Nov 2008 05:44:31 +0300
+Message-ID: <1226544271.7246.12.camel@tux.localhost>
 References: <491B3E90.5020307@gmail.com>
+	 <alpine.LNX.1.10.0811130131190.32143@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.238]:54257 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751206AbYKMCYZ (ORCPT
+Received: from ug-out-1314.google.com ([66.249.92.174]:22058 "EHLO
+	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751392AbYKMCoX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 12 Nov 2008 21:24:25 -0500
-Received: by rv-out-0506.google.com with SMTP id k40so693258rvb.1
-        for <linux-input@vger.kernel.org>; Wed, 12 Nov 2008 18:24:24 -0800 (PST)
-In-Reply-To: <491B3E90.5020307@gmail.com>
-Content-Disposition: inline
+	Wed, 12 Nov 2008 21:44:23 -0500
+Received: by ug-out-1314.google.com with SMTP id 39so1233623ugf.37
+        for <linux-input@vger.kernel.org>; Wed, 12 Nov 2008 18:44:21 -0800 (PST)
+In-Reply-To: <alpine.LNX.1.10.0811130131190.32143@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+To: Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>
 Cc: Tobias Lorenz <tobias.lorenz@gmx.net>, Mauro Carvalho Chehab <mchehab@redhat.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 
-On Wed, Nov 12, 2008 at 11:37 PM, Jiri Slaby <jirislaby@gmail.com> wrote:
-> There is a difference between hid_blacklist and hid_ignore_list. One forbids
-> generic hid driver to bind the device, while the other forces usbhid to release
-> the device and move hands away from it.
+This patch fixes kworld fm700 usb-radio hidqurks that handled by
+radio-si470x. Removes it from blacklist entry and places it in ignore
+entry in hid/hid-core.c
 
-I figured that out and remembered that this thing needed to be fixed and
-then got side-tracked by other things. Sorry.
+Signed-off-by: Alexey Klimov <klimov.linux@gmail.com>
 
-On Thu, Nov 13, 2008 at 3:33 AM, Jiri Kosina <jkosina@suse.cz> wrote:
-> Alexey, did you actually test it?
-> I'd prefer taking this through my tree, if it doesn't impose any problem
-> on your side. Could you please fix it up and resend?
+---
 
-It good thing to do. May i make patch against current kernel tree (rc4-git3) ?
-I also going to make patch for radio-mr800 that has wrong hidquirks too.
-I can send now, because this two patches ready.
+diff -r 43cd5fe03c6b linux/drivers/hid/hid-core.c
+--- a/linux/drivers/hid/hid-core.c	Thu Nov 13 05:08:59 2008 +0300
++++ b/linux/drivers/hid/hid-core.c	Thu Nov 13 05:12:13 2008 +0300
+@@ -1265,7 +1265,6 @@
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_EZKEY, USB_DEVICE_ID_BTC_8193) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GENERIC_13BA, USB_DEVICE_ID_GENERIC_13BA_KBD_MOUSE) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GYRATION, USB_DEVICE_ID_GYRATION_REMOTE_2) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LABTEC, USB_DEVICE_ID_LABTEC_WIRELESS_KEYBOARD) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER) },
+@@ -1486,6 +1485,7 @@
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_GTCO, USB_DEVICE_ID_GTCO_1007) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_IMATION, USB_DEVICE_ID_DISC_STAKKA) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KBGEAR, USB_DEVICE_ID_KBGEAR_JAMSTUDIO) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_KWORLD, USB_DEVICE_ID_KWORLD_RADIO_FM700) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_GPEN_560) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_CASSY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LD, USB_DEVICE_ID_LD_POCKETCASSY) },
+
 
 -- 
 Best regards, Klimov Alexey
+

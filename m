@@ -1,63 +1,61 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: USB hid blocks USB port in 2.6.28rc3
-Date: Thu, 13 Nov 2008 10:54:34 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0811131040160.2380-100000@iolanthe.rowland.org>
-References: <20081113143149.GW3810@one.firstfloor.org>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: Who broke cb8f488c33 patch? (was Re: [PATCH 1/1] USBHID: correct
+ start/stop cycle)
+Date: Thu, 13 Nov 2008 08:22:47 -0800 (PST)
+Message-ID: <alpine.LFD.2.00.0811130809570.3468@nehalem.linux-foundation.org>
+References: <1225579306-28524-1-git-send-email-jirislaby@gmail.com> <200811022024.31528.vda.linux@googlemail.com> <alpine.LNX.1.10.0811120021500.24889@jikos.suse.cz> <200811120124.41222.vda.linux@googlemail.com> <alpine.LNX.1.10.0811120126320.24889@jikos.suse.cz>
+ <20081111165038.fb1f2f45.akpm@linux-foundation.org> <491AA08D.9080401@gmail.com> <491C488E.8030609@gmx.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:50501 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1752971AbYKMPyf (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:39032 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751351AbYKMQXE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2008 10:54:35 -0500
-In-Reply-To: <20081113143149.GW3810@one.firstfloor.org>
+	Thu, 13 Nov 2008 11:23:04 -0500
+In-Reply-To: <491C488E.8030609@gmx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: Helge Deller <deller@gmx.de>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <jkosina@suse.cz>, vda.linux@googlemail.com, hugh@veritas.com, jer@gentoo.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 13 Nov 2008, Andi Kleen wrote:
 
-> On Thu, Nov 13, 2008 at 01:30:55PM +0100, Jiri Slaby wrote:
-> > Andi Kleen napsal(a):
-> > > Which information do you need exactly out of /sys/bus/usb/devices? 
-> > 
-> > You misread the path, it's one file in /proc. (Make sure usbfs is mounted
+
+On Thu, 13 Nov 2008, Helge Deller wrote:
 > 
-> There was nothing there, so I checked sysfs.
-> 
-> > there.)
-> 
-> With the power switch connected I have:
-> 
-> ...
-> T:  Bus=03 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
-> D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-> P:  Vendor=04b4 ProdID=fd11 Rev= 1.01
-> S:  Manufacturer=Gembird Electronics
-> S:  Product=Gembird Silver Shield PM
-> C:* #Ifs= 1 Cfg#= 1 Atr=80 MxPwr=150mA
-> I:* If#= 0 Alt= 0 #EPs= 0 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-> 
-> ...
+> I bisected twice. Both times I found this one to be the culprit.
+> Nevertheless, just reverting this (Thanks Denys!) didn't fixed the USB
+> problem.
 
-It looks like this problem was caused by the introduction of the input 
-bus.
+The trivial bisecting approach doesn't work if there are two independent 
+bugs that have overlapping lifetimes. In fact, bisection doesn't 
+necessarily work even if the lifetimes of the bugs are clearly disjoint, 
+because then if you look for bug A, but mark something "bad" because of 
+bug B, it can easily end up zeroing in on the wrong cause.
 
-When the USB device is detected, the hid_probe routine in usbhid is
-called.  It registers the device on the input bus.  This causes the
-hid_probe routine in drivers/hid/hid-core.c to be called, and it fails.
+So "git bisect" is an absolutely wonderful tool, but it does require you 
+to be able to be sure about _which_ exact bug you chase down to give 
+reliable answers.
 
-But that failure merely means there's no driver bound to the input
-device.  It's still registered on the input bus, and the USB device is
-still bound to usbhid.  Whereas before, the failure would occur in
-usbhid's probe and would leave the USB device unbound.
+In the presense of multiple bugs, you have two choices:
 
-This suggests that a lot of the work in usbhid_start should be 
-performed earlier, before calling hid_add_device.  After all, why 
-bother registering a USB device on the input bus if usbhid isn't going 
-to be able to drive it?
+ (a) either you have to know how to distinguish them reliably in order to 
+     give a clean good/bad for the particular bug you are chasing.
 
-Alan Stern
+     This can be impossible: one bug may make it impossible to even _test_ 
+     for the other bug, eg a bug that prevents bootup will obviously make 
+     it impossible to see whether an independent run-time bug exists or 
+     not. In this case, you have to do (b)
 
+ (b) Find _one_ bug first (doesn't matter which), and fix it. And then, do 
+     a second bisection run, but before each test, you may need to apply 
+     the fix for the first bug, so that you know that's not the an issue.
+
+     This can be automated (check if the broken commit is in the current 
+     tree to be tested, apply a patch to fix it if it is), but it's not as 
+     simple as just saying "let's bisect".
+
+So bisection with multiple bugs is certainly possible, but it's also 
+unquestionably a lot more work, and more complicated.
+
+			Linus

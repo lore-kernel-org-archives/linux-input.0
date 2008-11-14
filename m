@@ -1,33 +1,34 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
-Date: Fri, 14 Nov 2008 03:05:51 +0100
-Message-ID: <491CDCFF.5010202@euromail.se>
-References: <1226585461.6651.52.camel@jg-vaio>	 <491CCC8A.5090109@euromail.se> <1226626758.6651.107.camel@jg-vaio>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/1 v2] HID: don't grab devices with no input
+Date: Fri, 14 Nov 2008 12:02:27 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811141201450.19853@jikos.suse.cz>
+References: <491CA495.7010007@gmail.com> <1226614221-17118-1-git-send-email-jirislaby@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:50439 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752276AbYKNCF6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2008 21:05:58 -0500
-In-Reply-To: <1226626758.6651.107.camel@jg-vaio>
+Received: from styx.suse.cz ([82.119.242.94]:46435 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751492AbYKNLC2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 14 Nov 2008 06:02:28 -0500
+In-Reply-To: <1226614221-17118-1-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jg@laptop.org
-Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Andi Kleen <andi@firstfloor.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
->> Right. :-) I believe the ellipse model is adequate, because it is the
->> simplest model that allows for utilization of the orientation of a
->> single finger, for instance to turn a knob. At this point, it seems
->> like tough enough a challenge.
->>
->
-> Maybe; but modeling this as a parallelogram or trapezoid may be easier
-> to deal with computationally when you stroke a path from the data, to
-> which you may have fit a spline....
+On Thu, 13 Nov 2008, Jiri Slaby wrote:
 
-I believe the word "ellipse" is taken too literally here. Orientation
-and eccentricity are two parameters describing a non-circular
-object. I does not have to be realized as ellipses on a screen.
+> Some devices have no input interrupt endpoint. These won't be handled
+> by usbhid, but currently they are not refused and reside on hid bus.
+> Perform this checking earlier so that we refuse to control such
+> a device early enough (and not pass it to the hid bus at all).
+> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+
+As the patch is obviously correct(tm) :) I have queued it in my tree, but 
+Andi, please still report back whether it fixes the issue you are seeing.
+
+Thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,71 +1,83 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [patch] add module parameter to provide hardware-calibrated
-	coordinate data for MicroTouch/3M touchscreens
-Date: Thu, 13 Nov 2008 16:03:24 -0800
-Message-ID: <20081114000324.GB19644@kroah.com>
-References: <491CB773.2020205@ieee.org>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
+Date: Fri, 14 Nov 2008 01:55:38 +0100
+Message-ID: <491CCC8A.5090109@euromail.se>
+References: <1226585461.6651.52.camel@jg-vaio>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:57765 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754097AbYKNAHk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 13 Nov 2008 19:07:40 -0500
-Content-Disposition: inline
-In-Reply-To: <491CB773.2020205@ieee.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:51985 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751807AbYKNAzl (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 13 Nov 2008 19:55:41 -0500
+In-Reply-To: <1226585461.6651.52.camel@jg-vaio>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Streetman <ddstreet@ieee.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, daniel.ritz@gmx.ch, Vojtech Pavlik <vojtech@suse.cz>
+To: jg@laptop.org
+Cc: Peter Hutterer <peter.hutterer@who-t.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2008 at 06:25:39PM -0500, Dan Streetman wrote:
->
-> On Thu, Nov 13, 2008 at 3:31 PM, Greg KH <greg@kroah.com> wrote:
-> > On Thu, Nov 13, 2008 at 03:22:52PM -0500, Dan Streetman wrote:
-> >>
-> >> --- a/drivers/input/touchscreen/usbtouchscreen.c      2008-11-12
-> >> 13:06:23.000000000 -0500
-> >> +++ b/drivers/input/touchscreen/usbtouchscreen.c      2008-11-12
-> >> 13:07:44.000000000 -0500
-> >
-> > Your patch is line-wrapped :(
->
-> Stupid gmail! :(
-> I'm trying now with thunderbird but I'm not sure if it has problems also or 
-> not.  I'm attaching the patch as well just in case :(
+> Some systems (e.g. Merl's Diamond Touch), give you an ID associated
+> with the user (in that case, it works by knowing where you are
+> sitting by capacitive coupling). In this case, it is actually where
+> the person is sitting, rather than a particular person.
 
-Still linewrapped (the attached version isn't but then you have 2 copies
-of the same patch in one email, which our tools do not like...)
+This is similar to what I have experienced with the bcm5974. The chip
+outputs some identification based on position, but in the end, the
+information needed is of the kind 'which finger is being lifted', not
+'where is it lifted'.  Obtaining such tracking information requires
+the additional assumption of continuous movement, which makes the
+usefulness of position-based identifiers somewhat limited. I left out
+some finger details from the spec for that reason.
 
-> >> @@ -60,6 +60,10 @@ static int swap_xy;
-> >>  module_param(swap_xy, bool, 0644);
-> >>  MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
-> >>
-> >> +static int hwcalib_xy = 0;
-> >> +module_param(hwcalib_xy, bool, 0444);
-> >> +MODULE_PARM_DESC(hwcalib_xy, "If set hw-calibrated X/Y are used if 
-> available");
-> >
-> > Should this variable be allowed to be changed at run time?  That might
-> > be useful if the code is built into the system.  If so, please change
-> > the permissions on the module_param() call.
->
-> I set it as read only because I had to override the min/max coordinate 
-> values in the mtouch_init() function
-> if the hw-calibrated coordinates were being used, so if someone changed the 
-> value after a screen
-> was already connected, it would start reporting hw-calibrated coordinates 
-> but the min/max values
-> would still be the raw min/max...however, for people wanting to change the 
-> value and then hotplug
-> their touchscreens (to reset the min/max values), it would be useful.  
-> Below is the patch with the
-> permissions adjusted.
+> Another case that will be common soon is to be able to sense and
+> identify markers on the surface (which can be distinguished from
+> each other).  I know of at least three hardware systems able to do
+> this. One of these will be in commodity hardware soon enough to
+> worry about immediately.
 
-This kind of implies that you want this setting on a per-device basis,
-right?  Why not make it attached to the individual device instead of a
-system-wide option?
+Like putting pins on a map and being able to tell where each pin is?
 
-thanks,
+> So having and ID reported with a touch is clearly needed, whether
+> thumb, index finger, or some marker.
 
-greg k-h
+If a chip can actually classify fingers as index or thumb, it would
+definitely qualify as detailed finger information. Cool.
+
+> Whether such markers would have any user identity directly
+> associated with them is less than clear, though we'll certainly
+> start giving them such identity either by convention or fiat
+> somewhere in the system as the events get processed.  We may also
+> face co-located sensors, where two sensors are geometrically on top
+> of each other (but might even report different coordinates of
+> differing resolutions), but co-aligned.  I'm thinking of the Dell
+> Latitude XT in this case, though I don't yet know enough about it to
+> know if in fact its pen uses a different sensor than the capacitive
+> multi-touch screen.
+
+This sounds similar to the finger classification, although here
+distinguishing a pen from a finger.
+
+Looking at these three cases, it seems adding something like
+ABS_MT_TOOL_TYPE to the protocol right away makes sense. The wording
+here is chosen with the distinction between (pin1, pin2, index, thumb,
+pen) and (pointing-finger, clicking-finger) in mind.
+
+> Another question is whether an ellipse models a touch adequately at
+> the moment; other sensors may report more complex geometric
+> information.  There is a slippery slope here, of course.  In the
+> extreme case noted above, research systems give you a full image,
+> which seems like overkill.  I also note the current input system
+> does not provide any mechanism or hint to associate an input device
+> with a particular frame buffer or with each other.  Maybe it should,
+> maybe it shouldn't... Opinions?  Hope this helps.  The problem here
+> is to draw a line *before* we win our complexity merit badge, while
+> leaving things open to be extended as more instances of real
+> hardware appears and we have more experience.
+
+Right. :-) I believe the ellipse model is adequate, because it is the
+simplest model that allows for utilization of the orientation of a
+single finger, for instance to turn a knob. At this point, it seems
+like tough enough a challenge.
+

@@ -1,69 +1,52 @@
-From: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [patch] add module parameter to provide hardware-calibrated
-	coordinate data for MicroTouch/3M touchscreens
-Date: Sat, 15 Nov 2008 22:08:35 +0100
-Message-ID: <20081115210835.GH6995@suse.cz>
-References: <3fad22b40811131222k3a168a06tfe01b09ca106e0a2@mail.gmail.com> <20081114213125.GA6995@suse.cz> <3fad22b40811141346t5b4f90f8t3bfeaf34023222bc@mail.gmail.com>
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: USB hid blocks USB port in 2.6.28rc3
+Date: Sun, 16 Nov 2008 00:58:14 +0100
+Message-ID: <200811160058.14747.rjw@sisk.pl>
+References: <20081111084132.GE3810@one.firstfloor.org> <Pine.LNX.4.44L0.0811111143050.29125-100000@netrider.rowland.org> <20081111210705.GG3810@one.firstfloor.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:33220 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751518AbYKOVJT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 15 Nov 2008 16:09:19 -0500
+Received: from ogre.sisk.pl ([217.79.144.158]:41321 "EHLO ogre.sisk.pl"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751476AbYKOXxs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 15 Nov 2008 18:53:48 -0500
+In-Reply-To: <20081111210705.GG3810@one.firstfloor.org>
 Content-Disposition: inline
-In-Reply-To: <3fad22b40811141346t5b4f90f8t3bfeaf34023222bc@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Streetman <ddstreet@ieee.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Greg KH <greg@kroah.com>, daniel.ritz@gmx.ch
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, jkosina@suse.cz, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Fri, Nov 14, 2008 at 04:46:08PM -0500, Dan Streetman wrote:
-> Ok - I'll update the patch to invert Y before reporting.
+On Tuesday, 11 of November 2008, Andi Kleen wrote:
+> > It does.  The problem is on the other side: Your power switch presents 
+> > itself as an HID device, so when it is _detected_ it binds to usbhid.
 > 
-> On the issue of whether to use a module param to send raw coordinates
-> or hw-calibrated coordinates, or to just change the code to report the
-> hw-calibrated coordinates instead of the raw coordinates, what do you
-> think?
-
-I'm in favor for the option, because of:
-
-	* backwards compatibility 
-	* the Linux input standard is unprocessed coordinate data
-	  (but after compensating for all hardware quirks)
-	* most touchscreens can't do HW calibration anyway, and we
-	  benefit from common SW calibration code, eg in tslib
-
-Actually, I don't see much value in the hw-calibrated data, but I see it
-could be useful in some cases, so I'm still fine with adding the
-possibility to use that mode.
-
-Vojtech
-
+> Ok, but it worked in all kernels before. Why has that changed?
 > 
-> On Fri, Nov 14, 2008 at 4:31 PM, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > On Thu, Nov 13, 2008 at 03:22:52PM -0500, Dan Streetman wrote:
-> >
-> >> Note that the Y axis is inverted as reported by the touchscreen, so
-> >> this reverses the Y min and max (0xffff for the min, 0 for the max).
-> >> This works fine on my system using the X evdev driver.
-> >
-> >> +     // Default min/max xy are the raw values, override if using hw-calib
-> >> +     if (hwcalib_xy) {
-> >> +             input_set_abs_params(usbtouch->input, ABS_X, 0, 0xffff, 0, 0);
-> >> +             input_set_abs_params(usbtouch->input, ABS_Y, 0xffff, 0, 0, 0);
-> >
-> > While it does work with the X evdev, please don't do it, and instead do
-> > the inversion before reporting ABS_Y. Linux input devices should follow
-> > the (USB) HID specification of axis direction and stick to it. The
-> > behaviour with reversed min/max is undefined.
-> >
-> > --
-> > Vojtech Pavlik
-> > Director SuSE Labs
-> >
-> 
+> Looks like a regression to me. Rafael, can you please add it to the list?
 
--- 
-Vojtech Pavlik
-Director SuSE Labs
+Done.
+
+Thanks,
+Rafael
+
+ 
+> > > Why should sispm need to unbind someone else?
+> > 
+> > The usbfs API does not allow user programs to set a device's
+> > configuration if any drivers are bound to the device.  Therefore, if a 
+> > program wants to set a config then it must unbind all the existing 
+> > drivers first.  This is a safety precaution against programs 
+> > interfering with other drivers.
+> > 
+> > Now in fact, sispm probably doesn't need to set the configuration at 
+> > all.  This is undoubtedly a holdover from a Windows version, because 
+> > Windows does not set device configurations by default whereas Linus 
+> > does.
+> 
+> So you're saying that sispm should be changed to not do something?
+> What something exactly? And it would work then?
+> 
+> And why exactly does what it used to do before not work anymore now?

@@ -1,25 +1,19 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+From: Andi Kleen <andi-Vw/NltI1exuRpAAqCnN02g@public.gmane.org>
 Subject: Re: USB hid blocks USB port in 2.6.28rc3
-Date: Sun, 16 Nov 2008 13:35:27 +0100
-Message-ID: <200811161335.28354.rjw@sisk.pl>
-References: <20081111084132.GE3810@one.firstfloor.org> <200811160058.14747.rjw@sisk.pl> <alpine.LNX.1.10.0811160053580.19853@jikos.suse.cz>
+Date: Sun, 16 Nov 2008 23:12:23 +0100
+Message-ID: <20081116221223.GA6703@one.firstfloor.org>
+References: <20081111084132.GE3810@one.firstfloor.org> <Pine.LNX.4.44L0.0811111143050.29125-100000@netrider.rowland.org> <20081111210705.GG3810@one.firstfloor.org> <200811160058.14747.rjw@sisk.pl> <alpine.LNX.1.10.0811160053580.19853@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ogre.sisk.pl ([217.79.144.158]:42075 "EHLO ogre.sisk.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751969AbYKPMaw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 16 Nov 2008 07:30:52 -0500
-In-Reply-To: <alpine.LNX.1.10.0811160053580.19853@jikos.suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <alpine.LNX.1.10.0811160053580.19853-YCXOAqNspd+N3ZZ/Hiejyg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Andi Kleen <andi-Vw/NltI1exuRpAAqCnN02g@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andi Kleen <andi@firstfloor.org>, Alan Stern <stern@rowland.harvard.edu>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Sunday, 16 of November 2008, Jiri Kosina wrote:
+On Sun, Nov 16, 2008 at 12:54:28AM +0100, Jiri Kosina wrote:
 > On Sun, 16 Nov 2008, Rafael J. Wysocki wrote:
 > 
 > > > Ok, but it worked in all kernels before. Why has that changed?
@@ -29,16 +23,13 @@ On Sunday, 16 of November 2008, Jiri Kosina wrote:
 > I already have a (verified) fix in my tree (not sent to Linus yet, will 
 > happen in a day or two hopefully).
 
-OK, thanks for the info.
+Yes confirmed. Jiri fixed the problem.
 
-Jiri has added the patch link to the Bugzilla entry already.
-
-Best,
-Rafael
-
-
+-Andi
 
 -- 
-Everyone knows that debugging is twice as hard as writing a program
-in the first place.  So if you're as clever as you can be when you write it,
-how will you ever debug it? --- Brian Kernighan
+ak-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,35 +1,65 @@
-From: Andi Kleen <andi-Vw/NltI1exuRpAAqCnN02g@public.gmane.org>
-Subject: Re: USB hid blocks USB port in 2.6.28rc3
-Date: Sun, 16 Nov 2008 23:12:23 +0100
-Message-ID: <20081116221223.GA6703@one.firstfloor.org>
-References: <20081111084132.GE3810@one.firstfloor.org> <Pine.LNX.4.44L0.0811111143050.29125-100000@netrider.rowland.org> <20081111210705.GG3810@one.firstfloor.org> <200811160058.14747.rjw@sisk.pl> <alpine.LNX.1.10.0811160053580.19853@jikos.suse.cz>
+From: Ulrich Dangel <uli-kernel@spamt.net>
+Subject: [PATCH] input/mouse/alps.c: Handle touchpoints buttons correctly
+Date: Mon, 17 Nov 2008 02:42:50 +0100
+Message-ID: <200811170242.51046.uli-kernel@spamt.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from dino.spamt.net ([217.10.9.51]:48582 "EHLO dino.spamt.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753824AbYKQBnA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 16 Nov 2008 20:43:00 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.1.10.0811160053580.19853-YCXOAqNspd+N3ZZ/Hiejyg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Andi Kleen <andi-Vw/NltI1exuRpAAqCnN02g@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
 
-On Sun, Nov 16, 2008 at 12:54:28AM +0100, Jiri Kosina wrote:
-> On Sun, 16 Nov 2008, Rafael J. Wysocki wrote:
-> 
-> > > Ok, but it worked in all kernels before. Why has that changed?
-> > > Looks like a regression to me. Rafael, can you please add it to the list?
-> > Done.
-> 
-> I already have a (verified) fix in my tree (not sent to Linus yet, will 
-> happen in a day or two hopefully).
+When pressing any button belonging to the touchpoint, the generated click
+events dont belong to the touchpoint but to the touchpad.
 
-Yes confirmed. Jiri fixed the problem.
+This patch fixes this behaviour, the events will be sent via the correct
+device, so scrolling with touchpoint is possible.
 
--Andi
+The patch compiles cleanly and has been tested successfully on my
+machine.
 
--- 
-ak-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Ulrich Dangel <uli@spamt.net>
+
+---
+
+ alps.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+
+--- a/drivers/input/mouse/alps.c    2008-10-26 00:05:07.000000000 +0200
++++ b/drivers/input/mouse/alps.c    2008-11-17 01:22:03.738057264 +0100
+@@ -130,18 +130,23 @@ static void alps_process_packet(struct p
+    ges = packet[2] & 1;
+    fin = packet[2] & 2;
+
+-   input_report_key(dev, BTN_LEFT, left);
+-   input_report_key(dev, BTN_RIGHT, right);
+-   input_report_key(dev, BTN_MIDDLE, middle);
+-
+    if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
+        input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
+        input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
++
++       input_report_key(dev2, BTN_LEFT, left);
++       input_report_key(dev2, BTN_RIGHT, right);
++       input_report_key(dev2, BTN_MIDDLE, middle);
++
+        input_sync(dev);
+        input_sync(dev2);
+        return;
+    }
+
++   input_report_key(dev, BTN_LEFT, left);
++   input_report_key(dev, BTN_RIGHT, right);
++   input_report_key(dev, BTN_MIDDLE, middle);
++
+    /* Convert hardware tap to a reasonable Z value */
+    if (ges && !fin) z = 40;

@@ -1,104 +1,52 @@
-From: Dan Streetman <ddstreet@ieee.org>
-Subject: Re: [patch] add module parameter to provide hardware-calibrated
- coordinate data for MicroTouch/3M touchscreens
-Date: Mon, 17 Nov 2008 11:26:25 -0500 (EST)
-Message-ID: <alpine.LNX.1.10.0811171040200.17925@floyd.root.cx>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: 2.6.28-rc4-mmotm1110 shift-lock oddness
+Date: Mon, 17 Nov 2008 16:23:50 -0800
+Message-ID: <20081117162350.82b2806b.akpm@linux-foundation.org>
+References: <5397.1226959015@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cdptpa-omtalb.mail.rr.com ([75.180.132.120]:54100 "EHLO
-	cdptpa-omtalb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751997AbYKQR7M (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:38874 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750893AbYKRAYp (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Nov 2008 12:59:12 -0500
+	Mon, 17 Nov 2008 19:24:45 -0500
+In-Reply-To: <5397.1226959015@turing-police.cc.vt.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Greg KH <greg@kroah.com>, daniel.ritz@gmx.ch
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>, Jiri Kosina <jikos@jikos.cz>
 
+On Mon, 17 Nov 2008 16:56:55 -0500 Valdis.Kletnieks@vt.edu wrote:
 
-On Sat, Nov 15, 2008 at 4:08 PM, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Fri, Nov 14, 2008 at 04:46:08PM -0500, Dan Streetman wrote:
->> Ok - I'll update the patch to invert Y before reporting.
->>
->> On the issue of whether to use a module param to send raw coordinates
->> or hw-calibrated coordinates, or to just change the code to report the
->> hw-calibrated coordinates instead of the raw coordinates, what do you
->> think?
->
-> I'm in favor for the option, because of:
->
->        * backwards compatibility
->        * the Linux input standard is unprocessed coordinate data
->          (but after compensating for all hardware quirks)
->        * most touchscreens can't do HW calibration anyway, and we
->          benefit from common SW calibration code, eg in tslib
->
-> Actually, I don't see much value in the hw-calibrated data, but I see it
-> could be useful in some cases, so I'm still fine with adding the
-> possibility to use that mode.
+> Twice today, I've managed to get my laptop into an odd state where the keyboard
+> got quite confused:
+> 
+> 1) For the characters [a-z] the shift bit was *inverted* - if the shift-lock
+> LED was off, you'd get UPPER-case, and if it was on, you'd get lower-case.
+> 
+> 2) To add to the fun, the 0-9 keys were stuck shifted - I'd get the special
+> characters no matter what setting the shift or shift-lock key had.  I suspect
+> that the special-char keys like [{ and ;: were also stuck in shifted state,
+> but can't totally confirm it.
+> 
+> The previous two issues combined meant that I wasn't able to su or login
+> as root to do much of anything about it (guess who has special chars in their
+> root password? ;)
+> 
+> 3) ctl-alt-Fn to switch virtual consoles was spotty/erratic - one time
+> I was unable to use it at all, another time I was able to use c-a-F1 to get
+> to a green-screen console, but then F2 to get another one or F7 to get
+> back to the X server screen wouldn't work.
+> 
+> 4) Fortunately for my sanity, alt-sysrq was still working as advertised,
+> so I was able to reboot and thus clear the problem.
+> 
+> I was thinking this might be a simple "missed a key press/released" event
+> for a shift key, except that doesn't explain the numerics getting stuck shifted.
+> 
+> Any suggestions/hints for instrumentation/etc, in case I can replicate it
+> again?
 
-Just to point it out again because I think it's important...userspace can treat 
-the hardware-calibrated coordinates *exactly the same* as the raw coordinates if 
-using software calibration such as tslib.  So like I said there is not really a 
-benefit there of using the raw coordinates, except for one-time backwards 
-compatibility.  This is why I don't see the point in reporting the raw 
-coordinates by default instead of the hw-calibrated coordinates - I think the 
-module parameter is fine to let the user pick which one they want, but it should 
-default to the hw-calibrated coordinates.
-
-But, that's just my opinion :)  So here is the updated patch with the Y 
-inversion and normal non-inverted Y min/max, the module parameter permissions 
-set to 0644, and default to raw.
-
-
-This patch adds a module parameter to report either the raw coordinate data or 
-the hardware-calibrated coordinate data.  The default is set to the raw 
-coordinates for backwards compatibilty.
-
-Signed-off-by: Dan Streetman <ddstreet@ieee.org>
-
-
-
---- a/drivers/input/touchscreen/usbtouchscreen.c	2008-11-17 10:51:30.000000000 -0500
-+++ b/drivers/input/touchscreen/usbtouchscreen.c	2008-11-17 10:51:45.000000000 -0500
-@@ -60,6 +60,10 @@ static int swap_xy;
- module_param(swap_xy, bool, 0644);
- MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
- 
-+static int hwcalib_xy = 0;
-+module_param(hwcalib_xy, bool, 0644);
-+MODULE_PARM_DESC(hwcalib_xy, "If set hw-calibrated X/Y are used if available");
-+
- /* device specifc data/functions */
- struct usbtouch_usb;
- struct usbtouch_device_info {
-@@ -260,8 +264,13 @@ static int panjit_read_data(struct usbto
- 
- static int mtouch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- {
--	dev->x = (pkt[8] << 8) | pkt[7];
--	dev->y = (pkt[10] << 8) | pkt[9];
-+	if (hwcalib_xy) {
-+		dev->x = (pkt[4] << 8) | pkt[3];
-+		dev->y = 0xffff - ((pkt[6] << 8) | pkt[5]); // Invert Y
-+	} else {
-+		dev->x = (pkt[8] << 8) | pkt[7];
-+		dev->y = (pkt[10] << 8) | pkt[9];
-+	}
- 	dev->touch = (pkt[2] & 0x40) ? 1 : 0;
- 
- 	return 1;
-@@ -294,6 +303,12 @@ static int mtouch_init(struct usbtouch_u
- 			return ret;
- 	}
- 
-+	// Default min/max xy are the raw values, override if using hw-calib
-+	if (hwcalib_xy) {
-+		input_set_abs_params(usbtouch->input, ABS_X, 0, 0xffff, 0, 0);
-+		input_set_abs_params(usbtouch->input, ABS_Y, 0, 0xffff, 0, 0);
-+	}
-+
- 	return 0;
- }
- #endif
+That's the first such report I've seen.  Let's add some cc's.

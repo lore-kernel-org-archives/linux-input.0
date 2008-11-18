@@ -1,58 +1,64 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Valdis.Kletnieks@vt.edu
 Subject: Re: 2.6.28-rc4-mmotm1110 shift-lock oddness
-Date: Tue, 18 Nov 2008 01:26:51 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0811180125150.3104@twin.jikos.cz>
+Date: Mon, 17 Nov 2008 21:36:11 -0500
+Message-ID: <18584.1226975771@turing-police.cc.vt.edu>
 References: <5397.1226959015@turing-police.cc.vt.edu> <20081117162350.82b2806b.akpm@linux-foundation.org>
+            <alpine.LRH.1.10.0811180125150.3104@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:52889 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750893AbYKRA12 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 17 Nov 2008 19:27:28 -0500
-In-Reply-To: <20081117162350.82b2806b.akpm@linux-foundation.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; boundary="==_Exmh_1226975771_3596P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752770AbYKRChH@vger.kernel.org>
+In-Reply-To: Your message of "Tue, 18 Nov 2008 01:26:51 +0100."
+             <alpine.LRH.1.10.0811180125150.3104@twin.jikos.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
 
-On Mon, 17 Nov 2008, Andrew Morton wrote:
+--==_Exmh_1226975771_3596P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <18571.1226975763.1@turing-police.cc.vt.edu>
 
-> > Twice today, I've managed to get my laptop into an odd state where the keyboard
-> > got quite confused:
-> > 
-> > 1) For the characters [a-z] the shift bit was *inverted* - if the shift-lock
-> > LED was off, you'd get UPPER-case, and if it was on, you'd get lower-case.
-> > 
-> > 2) To add to the fun, the 0-9 keys were stuck shifted - I'd get the special
-> > characters no matter what setting the shift or shift-lock key had.  I suspect
-> > that the special-char keys like [{ and ;: were also stuck in shifted state,
-> > but can't totally confirm it.
-> > 
-> > The previous two issues combined meant that I wasn't able to su or login
-> > as root to do much of anything about it (guess who has special chars in their
-> > root password? ;)
-> > 
-> > 3) ctl-alt-Fn to switch virtual consoles was spotty/erratic - one time
-> > I was unable to use it at all, another time I was able to use c-a-F1 to get
-> > to a green-screen console, but then F2 to get another one or F7 to get
-> > back to the X server screen wouldn't work.
-> > 
-> > 4) Fortunately for my sanity, alt-sysrq was still working as advertised,
-> > so I was able to reboot and thus clear the problem.
-> > 
-> > I was thinking this might be a simple "missed a key press/released" event
-> > for a shift key, except that doesn't explain the numerics getting stuck shifted.
-> > 
-> > Any suggestions/hints for instrumentation/etc, in case I can replicate it
-> > again?
-> That's the first such report I've seen.  Let's add some cc's.
+On Tue, 18 Nov 2008 01:26:51 +0100, Jiri Kosina said:
 
-First, we'd need a little bit more information about the hardware in 
-question, I guess.
+> First, we'd need a little bit more information about the hardware in 
+> question, I guess.
 
-What laptop is that, please? Is the keyboard PS/2-connected or 
-USB-connected? Could you obtain evtest output from the buggy cases please?
+Dell Latitude D820 laptop, with a USB-connected Microsoft Natural keyboard. I
+don't think it's the USB subsystem going *completely* bonkers, as the
+USB-connected trackball mouse functions just fine when this happens...
 
--- 
-Jiri Kosina
+> What laptop is that, please? Is the keyboard PS/2-connected or 
+> USB-connected? Could you obtain evtest output from the buggy cases please?
+
+Hmm.. Got a pointer to a usable copy? The best I could find googling for
+'linux evtest' was:
+
+https://svn.openwrt.org/openwrt/packages/utils/event_test/src/evtest.c
+
+which wants a /dev/inputN - all I have is /dev/input/ and entries under that
+for the laptop's onboard mousepad and the trackball mouse, no keyboard entry.
+
+Hmm part two:
+
+% zgrep EVDEV /proc/config.gz 
+# CONFIG_INPUT_EVDEV is not set
+
+Should I be looking at rebuilding the kernel with this =m?
+
+
+
+--==_Exmh_1226975771_3596P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFJIiobcC3lWbTT17ARAoF3AKDWEWC4gQ3o6lAtJWZjtlgf/H7PoACeO9ii
++jOKsVSxWbSp8Bqc+FqissQ=
+=Ctug
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1226975771_3596P--

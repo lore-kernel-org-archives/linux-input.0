@@ -1,64 +1,52 @@
-From: Valdis.Kletnieks@vt.edu
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: 2.6.28-rc4-mmotm1110 shift-lock oddness
-Date: Mon, 17 Nov 2008 21:36:11 -0500
-Message-ID: <18584.1226975771@turing-police.cc.vt.edu>
-References: <5397.1226959015@turing-police.cc.vt.edu> <20081117162350.82b2806b.akpm@linux-foundation.org>
-            <alpine.LRH.1.10.0811180125150.3104@twin.jikos.cz>
+Date: Tue, 18 Nov 2008 10:37:53 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811181035020.19853@jikos.suse.cz>
+References: <5397.1226959015@turing-police.cc.vt.edu> <20081117162350.82b2806b.akpm@linux-foundation.org>            <alpine.LRH.1.10.0811180125150.3104@twin.jikos.cz> <18584.1226975771@turing-police.cc.vt.edu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1226975771_3596P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752770AbYKRChH@vger.kernel.org>
-In-Reply-To: Your message of "Tue, 18 Nov 2008 01:26:51 +0100."
-             <alpine.LRH.1.10.0811180125150.3104@twin.jikos.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from styx.suse.cz ([82.119.242.94]:51133 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751827AbYKRJhy (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 18 Nov 2008 04:37:54 -0500
+In-Reply-To: <18584.1226975771@turing-police.cc.vt.edu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
 
---==_Exmh_1226975771_3596P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <18571.1226975763.1@turing-police.cc.vt.edu>
+On Mon, 17 Nov 2008, Valdis.Kletnieks@vt.edu wrote:
 
-On Tue, 18 Nov 2008 01:26:51 +0100, Jiri Kosina said:
+> > First, we'd need a little bit more information about the hardware in 
+> > question, I guess.
+> Dell Latitude D820 laptop, with a USB-connected Microsoft Natural 
+> keyboard. I don't think it's the USB subsystem going *completely* 
+> bonkers, as the USB-connected trackball mouse functions just fine when 
+> this happens...
 
-> First, we'd need a little bit more information about the hardware in 
-> question, I guess.
+Does this happen only when Microsoft natural keyboard is connected, or 
+does it happen also when you use the built-in keyboard?
 
-Dell Latitude D820 laptop, with a USB-connected Microsoft Natural keyboard. I
-don't think it's the USB subsystem going *completely* bonkers, as the
-USB-connected trackball mouse functions just fine when this happens...
+What vendor/product ID does the USB keyboard have, please?
 
-> What laptop is that, please? Is the keyboard PS/2-connected or 
-> USB-connected? Could you obtain evtest output from the buggy cases please?
+> > What laptop is that, please? Is the keyboard PS/2-connected or 
+> > USB-connected? Could you obtain evtest output from the buggy cases please?
+> Hmm.. Got a pointer to a usable copy? 
 
-Hmm.. Got a pointer to a usable copy? The best I could find googling for
-'linux evtest' was:
+All decent distros ship this, usually as part of input-utils package.
 
-https://svn.openwrt.org/openwrt/packages/utils/event_test/src/evtest.c
-
-which wants a /dev/inputN - all I have is /dev/input/ and entries under that
-for the laptop's onboard mousepad and the trackball mouse, no keyboard entry.
-
-Hmm part two:
-
-% zgrep EVDEV /proc/config.gz 
-# CONFIG_INPUT_EVDEV is not set
-
-Should I be looking at rebuilding the kernel with this =m?
+> The best I could find googling for
+> 'linux evtest' was:
 
 
+> https://svn.openwrt.org/openwrt/packages/utils/event_test/src/evtest.c
+> which wants a /dev/inputN - all I have is /dev/input/ and entries under that
+> for the laptop's onboard mousepad and the trackball mouse, no keyboard entry.
 
---==_Exmh_1226975771_3596P
-Content-Type: application/pgp-signature
+Yes, /dev/input/eventN is used these days (when CONFIG_INPUT_EVDEV is 
+turned on).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFJIiobcC3lWbTT17ARAoF3AKDWEWC4gQ3o6lAtJWZjtlgf/H7PoACeO9ii
-+jOKsVSxWbSp8Bqc+FqissQ=
-=Ctug
------END PGP SIGNATURE-----
-
---==_Exmh_1226975771_3596P--
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,49 +1,100 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] hid: Complete support for the new unibody macbooks
-Date: Wed, 19 Nov 2008 11:40:35 -0500
-Message-ID: <20081119113753.ZZRA012@mailhub.coreip.homeip.net>
-References: <49109C91.6090207@euromail.se> <alpine.LNX.1.10.0811111835540.24889@jikos.suse.cz> <4919C979.3000501@euromail.se> <alpine.LNX.1.10.0811112347260.24889@jikos.suse.cz>
+From: Jim Gettys <jg@laptop.org>
+Subject: Re: [PATCH] input: Add a detailed multi-touch finger data report
+	protocol
+Date: Wed, 19 Nov 2008 11:54:59 -0500
+Message-ID: <1227113699.7181.103.camel@jg-vaio>
+References: <49142351.9080805@euromail.se>
+	 <20081119113508.ZZRA012@mailhub.coreip.homeip.net>
+Reply-To: jg@laptop.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f11.google.com ([209.85.217.11]:38129 "EHLO
-	mail-gx0-f11.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752267AbYKSQkm (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2008 11:40:42 -0500
-Received: by gxk4 with SMTP id 4so2001gxk.13
-        for <linux-input@vger.kernel.org>; Wed, 19 Nov 2008 08:40:40 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.1.10.0811112347260.24889@jikos.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754521AbYKSQzf@vger.kernel.org>
+In-Reply-To: <20081119113508.ZZRA012@mailhub.coreip.homeip.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Henrik Rydberg <rydberg@euromail.se>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 
-On Tue, Nov 11, 2008 at 11:48:31PM +0100, Jiri Kosina wrote:
-> On Tue, 11 Nov 2008, Henrik Rydberg wrote:
+On Wed, 2008-11-19 at 11:37 -0500, Dmitry Torokhov wrote:
+> Hi Henrik,
 > 
-> > No worries. I should have mentioned earlier that the hid update is best 
-> > synchronized with the bcm5974 update, since the latter is the only 
-> > driver that will pick the mouse interface up after the hid update. The 
-> > bcm5974 patch was sent on October 23, but I have not received any 
-> > feedback to it yet.
+> On Fri, Nov 07, 2008 at 12:15:29PM +0100, Henrik Rydberg wrote:
+> > In order to utilize the full power of the new multi-touch devices, a
+> > way to report detailed finger data to user space is needed. This patch
+> > adds a multi-touch (MT) protocol which allows drivers to report details
+> > for an arbitrary number of fingers.
+> > 
+> > BTN_MT_REPORT_PACKET
+> > 
+> > The driver presses this button to indicate the start of a packet of
+> > finger data. The button is released after the whole packet has been
+> > reported.
+> > 
+> > BTN_MT_REPORT_FINGER
+> > 
+> > The driver presses this button to indicate the start of a new
+> > finger. The button is released when the finger has been reported.
+> > 
+> > In order to stay compatible with existing applications, the data
+> > reported in a finger packet must not be recognized as single-touch
+> > events. Therefore, a specific set of ABS_MT events is used instead.
+> > 
+> > Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+> > ---
+> >  include/linux/input.h |   12 ++++++++++++
+> >  1 files changed, 12 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/include/linux/input.h b/include/linux/input.h
+> > index b86fb55..c82dd42 100644
+> > --- a/include/linux/input.h
+> > +++ b/include/linux/input.h
+> > @@ -590,6 +590,9 @@ struct input_absinfo {
+> >  #define KEY_NUMERIC_STAR	0x20a
+> >  #define KEY_NUMERIC_POUND	0x20b
+> > 
+> > +#define BTN_MT_REPORT_PACKET	0x210	/* report multitouch packet data */
+> > +#define BTN_MT_REPORT_FINGER	0x211	/* report multitouch finger data */
+> > +
+> >  /* We avoid low common keys in module aliases so they don't get huge. */
+> >  #define KEY_MIN_INTERESTING	KEY_MUTE
+> >  #define KEY_MAX			0x2ff
+> > @@ -642,6 +645,15 @@ struct input_absinfo {
+> >  #define ABS_TOOL_WIDTH		0x1c
+> >  #define ABS_VOLUME		0x20
+> >  #define ABS_MISC		0x28
+> > +#define ABS_MT_TOUCH		0x30	/* Diameter of touching circle */
+> > +#define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
+> > +#define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis of touching ellipse */
+> > +#define ABS_MT_WIDTH		0x32	/* Diameter of approaching circle */
+> > +#define ABS_MT_WIDTH_MAJOR	0x32	/* Major axis of approaching ellipse */
+> > +#define ABS_MT_WIDTH_MINOR	0x33	/* Minor axis of approaching ellipse */
+> > +#define ABS_MT_ORIENTATION	0x34	/* Ellipse orientation */
+> > +#define ABS_MT_POSITION_X	0x35	/* Center X ellipse position */
+> > +#define ABS_MT_POSITION_Y	0x36	/* Center Y ellipse position */
+> >  #define ABS_MAX			0x3f
+> >  #define ABS_CNT			(ABS_MAX+1)
+> > 
 > 
-> Yes, I am aware of bcm5974 being dependent in HID driver not claiming the 
-> mouse interface on this hardware.
+> Sorry for the long silence. I don't think utilizing button events for
+> this is a good idea. I'd rather just start reporting extended touch
+> events for a finger and signal end of sub-packet with something like
+> EV_SYN/SYN_MT_REPORT.
+
+I agree.
+
+Also, I'm still concerned about using elipses. I doubt very much any
+hardware will ever be reporting elipses; more likely are parallelograms,
+or trapezoids, other simple geometric figures, rather than a center with
+size and orientation.
+
+There are reasons Cairo uses aligned traps internally when tessellating
+figures....
+                                 - Jim
+
+
+
 > 
-> Dmitry, what are your plans with this bcm5974 patch? 2.6.28 or 2.6.29?
-> 
-
-2.6.29 - the driver is in use so I did nto want to touch it after .28
-merge window closed. Also I am moving to the west coast so swamped
-anyways but I hope I will be somewhat settled after December 8th.
-
-Btw, if you see something that you think needs to go into .28 for
-input could please merge it for me? I also going to ask Linus to pull
-from my for-linus branch in the next couple of days.
-
-Thanks!
-
 -- 
-Dmitry
+Jim Gettys <jg@laptop.org>
+One Laptop Per Child

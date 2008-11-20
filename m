@@ -1,43 +1,98 @@
-From: Henrik Rydberg <rydberg@euromail.se>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH] hid: Complete support for the new unibody macbooks
-Date: Thu, 20 Nov 2008 01:41:32 +0100
-Message-ID: <4924B23C.6050300@euromail.se>
-References: <49109C91.6090207@euromail.se> <alpine.LNX.1.10.0811111835540.24889@jikos.suse.cz> <4919C979.3000501@euromail.se> <alpine.LNX.1.10.0811112347260.24889@jikos.suse.cz> <20081119113753.ZZRA012@mailhub.coreip.homeip.net> <alpine.LNX.1.10.0811191803320.19853@jikos.suse.cz> <49249431.9040104@euromail.se> <alpine.LNX.1.10.0811192339560.19853@jikos.suse.cz> <49249CCB.7060807@euromail.se> <alpine.LNX.1.10.0811200056240.19853@jikos.suse.cz>
+Date: Thu, 20 Nov 2008 11:37:31 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811201135100.19853@jikos.suse.cz>
+References: <49109C91.6090207@euromail.se> <alpine.LNX.1.10.0811111835540.24889@jikos.suse.cz> <4919C979.3000501@euromail.se> <alpine.LNX.1.10.0811112347260.24889@jikos.suse.cz> <20081119113753.ZZRA012@mailhub.coreip.homeip.net> <alpine.LNX.1.10.0811191803320.19853@jikos.suse.cz>
+ <49249431.9040104@euromail.se> <alpine.LNX.1.10.0811192339560.19853@jikos.suse.cz> <49249CCB.7060807@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:60278 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752297AbYKTAlh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2008 19:41:37 -0500
-In-Reply-To: <alpine.LNX.1.10.0811200056240.19853@jikos.suse.cz>
+Received: from styx.suse.cz ([82.119.242.94]:47019 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1753245AbYKTKhd (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 20 Nov 2008 05:37:33 -0500
+In-Reply-To: <49249CCB.7060807@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: Henrik Rydberg <rydberg@euromail.se>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Thu, 20 Nov 2008, Henrik Rydberg wrote:
-> 
->>> Therefore my memory must have been wrong -- I thought that you told me 
->>> when I was merging f89bd95c5c that the devices are not standard HID 
->>> devices at all, and therefore they can be safely ignored by the driver 
->>> right away, as they can't be driven by HID driver anyway.
->> These usb devices provide several different functions through the same
->> interface. By default, it looks like a regular mouse interface, which
->> HID will claim. This is why we need the quirks.
-> 
-> That I fully understand. But I though that the device is so much HID 
-> standard non-compliant, that even basic functionality is not possible with 
-> the generic HID driver, and therefore blacklisting it immediately can't do 
-> any harm. That's what I understood previously. But if this is wrong, and 
-> the HID code can get at least basic functionality from the device, I will 
-> revert the blacklist addition.
+On Thu, 20 Nov 2008, Henrik Rydberg wrote:
 
-Basic functionality is possible with the generic HID driver.
+> > If this is not the case, I'll then revert the hid_mouse_ignore_list[] 
+> > addition peformed in a96d6ef34 and will push it for 2.6.29, so that it 
+> > goes in together with bcm5974 driver modifications.
+> Yes, I think that is best.
+
+OK, so I have queued this for 2.6.28
+
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: HID: unignore mouse on unibody macbooks
+
+In commit a96d6ef34, the mouse interfaces on the unibody macbooks were
+put into hid mouse ignore list. This was a little bit too premature
+though, as the corresponding bcm5974 changes are scheduled for 2.6.29.
+
+Remove these devices from the ignore list for now, in order to provide at
+least basic functionality with the HID driver.
+
+Will be reintroduced in 2.6.29
+
+Reported-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 69b1ce8..5000711 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1576,9 +1576,6 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ }
+
+
+
+And this for 2.6.29
+
+
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: HID: ignore mouse interface for unibody macbooks
+
+The mouse interface on unibody macbooks is going to be handled by
+bcm59743 driver in 2.6.29.
+
+Reported-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+---
+ drivers/hid/hid-core.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5000711..69b1ce8 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1576,6 +1576,9 @@ static const struct hid_device_id hid_mouse_ignore_list[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_FOUNTAIN_TP_ONLY) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY) },
+ 	{ }
 
 Thanks,
-Henrik
 
+-- 
+Jiri Kosina
+SUSE Labs

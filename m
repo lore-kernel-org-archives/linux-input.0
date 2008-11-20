@@ -1,41 +1,71 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: Complete support for the new unibody macbooks
-Date: Thu, 20 Nov 2008 00:57:49 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0811200056240.19853@jikos.suse.cz>
-References: <49109C91.6090207@euromail.se> <alpine.LNX.1.10.0811111835540.24889@jikos.suse.cz> <4919C979.3000501@euromail.se> <alpine.LNX.1.10.0811112347260.24889@jikos.suse.cz> <20081119113753.ZZRA012@mailhub.coreip.homeip.net> <alpine.LNX.1.10.0811191803320.19853@jikos.suse.cz>
- <49249431.9040104@euromail.se> <alpine.LNX.1.10.0811192339560.19853@jikos.suse.cz> <49249CCB.7060807@euromail.se>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: [PATCH] Input: synaptics - Only report double/triple tap if
+	supported by the device.
+Date: Thu, 20 Nov 2008 10:23:27 +1000
+Message-ID: <20081120002319.GA10883@dingo.redhat.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:33296 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751021AbYKSX5u (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 19 Nov 2008 18:57:50 -0500
-In-Reply-To: <49249CCB.7060807@euromail.se>
+Received: from ipx-119-252-190-80.ipxserver.de ([80.190.252.119]:54756 "EHLO
+	ipx10616.ipxserver.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1752193AbYKTAYr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 19 Nov 2008 19:24:47 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-On Thu, 20 Nov 2008, Henrik Rydberg wrote:
+According to Section 2.4.4 of the Synaptics TouchPad Interfacing Guide, bit 2
+specifies if multi-finger detection is provided by the touchpad. Thus, only
+set BTN_TOOL_DOUBLETAP and BTN_TOOL_TRIPLETAP if the device actually supports
+it.
 
-> > Therefore my memory must have been wrong -- I thought that you told me 
-> > when I was merging f89bd95c5c that the devices are not standard HID 
-> > devices at all, and therefore they can be safely ignored by the driver 
-> > right away, as they can't be driven by HID driver anyway.
-> These usb devices provide several different functions through the same
-> interface. By default, it looks like a regular mouse interface, which
-> HID will claim. This is why we need the quirks.
+Signed-off-by: Peter Hutterer <peter.hutterer@redhat.com>
+---
+ drivers/input/mouse/synaptics.c |   16 ++++++++++------
+ 1 files changed, 10 insertions(+), 6 deletions(-)
 
-That I fully understand. But I though that the device is so much HID 
-standard non-compliant, that even basic functionality is not possible with 
-the generic HID driver, and therefore blacklisting it immediately can't do 
-any harm. That's what I understood previously. But if this is wrong, and 
-the HID code can get at least basic functionality from the device, I will 
-revert the blacklist addition.
-
-Thanks,
-
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index d349c4a..865fc69 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -445,12 +445,14 @@ static void synaptics_process_packet(struct psmouse *psmouse)
+ 
+ 	input_report_abs(dev, ABS_TOOL_WIDTH, finger_width);
+ 	input_report_key(dev, BTN_TOOL_FINGER, num_fingers == 1);
+-	input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
+-	input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
+-
+ 	input_report_key(dev, BTN_LEFT, hw.left);
+ 	input_report_key(dev, BTN_RIGHT, hw.right);
+ 
++	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
++		input_report_key(dev, BTN_TOOL_DOUBLETAP, num_fingers == 2);
++		input_report_key(dev, BTN_TOOL_TRIPLETAP, num_fingers == 3);
++	}
++
+ 	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
+ 		input_report_key(dev, BTN_MIDDLE, hw.middle);
+ 
+@@ -543,12 +545,14 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
+ 	set_bit(EV_KEY, dev->evbit);
+ 	set_bit(BTN_TOUCH, dev->keybit);
+ 	set_bit(BTN_TOOL_FINGER, dev->keybit);
+-	set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
+-	set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
+-
+ 	set_bit(BTN_LEFT, dev->keybit);
+ 	set_bit(BTN_RIGHT, dev->keybit);
+ 
++	if (SYN_CAP_MULTIFINGER(priv->capabilities)) {
++		set_bit(BTN_TOOL_DOUBLETAP, dev->keybit);
++		set_bit(BTN_TOOL_TRIPLETAP, dev->keybit);
++	}
++
+ 	if (SYN_CAP_MIDDLE_BUTTON(priv->capabilities))
+ 		set_bit(BTN_MIDDLE, dev->keybit);
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+1.6.0.3

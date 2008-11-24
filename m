@@ -1,76 +1,40 @@
-From: Dan Streetman <ddstreet-EkmVulN54Sk@public.gmane.org>
-Subject: Re: [patch] add module parameter to provide hardware-calibrated
- coordinate data for MicroTouch/3M touchscreens
-Date: Mon, 24 Nov 2008 09:57:46 -0500 (EST)
-Message-ID: <alpine.LNX.1.10.0811240944520.4090@floyd.root.cx>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, daniel.ritz-OI3hZJvNYWs@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: [PATCH 3/4] HID: usbhid, use usb_endpoint_xfer_int
+Date: Mon, 24 Nov 2008 16:20:08 +0100
+Message-ID: <1227540009-14209-3-git-send-email-jirislaby@gmail.com>
+References: <1227540009-14209-1-git-send-email-jirislaby@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.wellnetcz.com ([212.24.148.102]:46418 "EHLO
+	smtp.wellnetcz.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751924AbYKXPUN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 24 Nov 2008 10:20:13 -0500
+In-Reply-To: <1227540009-14209-1-git-send-email-jirislaby@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
+Use usb_endpoint_xfer_int() instead of direct use of constants.
 
-Ping, in case my last email didn't go through.
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+---
+ drivers/hid/usbhid/hid-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Vojtech and Greg, is this patch ok?
-
-------
-
-
-
-This patch adds a module parameter to report either the raw coordinate data or 
-the hardware-calibrated coordinate data.  The default is set to the raw 
-coordinates for backwards compatibilty.
-
-Signed-off-by: Dan Streetman <ddstreet-EkmVulN54Sk@public.gmane.org>
-
-
-
---- a/drivers/input/touchscreen/usbtouchscreen.c	2008-11-17 10:51:30.000000000 -0500
-+++ b/drivers/input/touchscreen/usbtouchscreen.c	2008-11-17 10:51:45.000000000 -0500
-@@ -60,6 +60,10 @@ static int swap_xy;
- module_param(swap_xy, bool, 0644);
- MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 30f3add..f0a0f72 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -807,7 +807,7 @@ static int usbhid_start(struct hid_device *hid)
+ 		int interval;
  
-+static int hwcalib_xy = 0;
-+module_param(hwcalib_xy, bool, 0644);
-+MODULE_PARM_DESC(hwcalib_xy, "If set hw-calibrated X/Y are used if available");
-+
- /* device specifc data/functions */
- struct usbtouch_usb;
- struct usbtouch_device_info {
-@@ -260,8 +264,13 @@ static int panjit_read_data(struct usbto
+ 		endpoint = &interface->endpoint[n].desc;
+-		if ((endpoint->bmAttributes & 3) != 3)		/* Not an interrupt endpoint */
++		if (!usb_endpoint_xfer_int(endpoint))
+ 			continue;
  
- static int mtouch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- {
--	dev->x = (pkt[8] << 8) | pkt[7];
--	dev->y = (pkt[10] << 8) | pkt[9];
-+	if (hwcalib_xy) {
-+		dev->x = (pkt[4] << 8) | pkt[3];
-+		dev->y = 0xffff - ((pkt[6] << 8) | pkt[5]); // Invert Y
-+	} else {
-+		dev->x = (pkt[8] << 8) | pkt[7];
-+		dev->y = (pkt[10] << 8) | pkt[9];
-+	}
- 	dev->touch = (pkt[2] & 0x40) ? 1 : 0;
- 
- 	return 1;
-@@ -294,6 +303,12 @@ static int mtouch_init(struct usbtouch_u
- 			return ret;
- 	}
- 
-+	// Default min/max xy are the raw values, override if using hw-calib
-+	if (hwcalib_xy) {
-+		input_set_abs_params(usbtouch->input, ABS_X, 0, 0xffff, 0, 0);
-+		input_set_abs_params(usbtouch->input, ABS_Y, 0, 0xffff, 0, 0);
-+	}
-+
- 	return 0;
- }
- #endif
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 		interval = endpoint->bInterval;
+-- 
+1.6.0.4
+

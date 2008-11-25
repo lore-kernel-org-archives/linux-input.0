@@ -1,73 +1,74 @@
-From: mwilder <mwilder-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org>
+From: Phil Hannent <phil@hannent.co.uk>
 Subject: Re: [PATCH] Input: add mmio xi driver
-Date: Mon, 24 Nov 2008 21:19:35 -0700 (MST)
-Message-ID: <Pine.LNX.4.64.0811242028360.15284@gremlin.cs.nmsu.edu>
-References: <20080925232237.GA22938@suse.de> <20080925182055.f12f5d0b.randy.dunlap@oracle.com>
- <20080926031918.GA10083@suse.de> <48DCBEC3.2020904@hannent.co.uk>
- <20080926174607.GA700@suse.de>
+Date: Tue, 25 Nov 2008 09:48:15 +0000
+Message-ID: <492BC9DF.2@hannent.co.uk>
+References: <20080925232237.GA22938@suse.de> <20080925182055.f12f5d0b.randy.dunlap@oracle.com> <20080926031918.GA10083@suse.de> <48DCBEC3.2020904@hannent.co.uk> <20080926174607.GA700@suse.de> <Pine.LNX.4.64.0811242028360.15284@gremlin.cs.nmsu.edu>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20080926174607.GA700-l3A5Bk7waGM@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>
-Cc: Phil Hannent <phil-+6o+yPtToBIqdlJmJB21zg@public.gmane.org>, Randy Dunlap <randy.dunlap-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="------------enigB856ADC6129C24C814B3C08F"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from vm.orbit.me.uk ([89.16.177.134]:46641 "EHLO mail.orbit.me.uk"
+	rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752456AbYKYJ5b (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Nov 2008 04:57:31 -0500
+In-Reply-To: <Pine.LNX.4.64.0811242028360.15284@gremlin.cs.nmsu.edu>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: mwilder <mwilder@cs.nmsu.edu>
+Cc: Greg KH <gregkh@suse.de>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Hello.  I am the original developer of the mimio Xi driver for 2.4 
-kernel linux. I have been observing this particular thread of emails for 
-quite some time. I haven't been able to devote much attention to the 
-developments in this thread because my primary research emphasis lies 
-elsewhere.  Recent events, however, have provoked me to pay close 
-attention to this thread.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB856ADC6129C24C814B3C08F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I would like to thank gregkh-l3A5Bk7waGM@public.gmane.org for his work folding in the 
-2.6-specific mods to the driver.  This is something that I do not have the 
-time to do, and I am glad to see that he has taken up the slack so 
-that others may benefit from this work.
+mwilder wrote:
+> What _is_ wrong with the driver?  I am guessing that phil@hannet.co.uk =
+is=20
+> just struggling with creating X bindings for the module, but I would li=
+ke=20
+> to hear some elaboration on what is actually happening here.  Enlighten=
+=20
+> me.
+>  =20
+Hello,
 
-I would like to discuss the following dialog:
+The driver is great, however I have been given the Mimio Xi protocol
+documentation and it describes what all of the hex is doing.=20
+Unfortunately I am not at liberty to share the documentation with
+anybody due to an NDA, however I would hope that the code will be fairly
+clear as to what's happening as a lot of the protocol hex I have setup
+as defines.
 
-> On Fri, Sep 26, 2008 at 11:51:47AM +0100, Phil Hannent wrote:
-> > Greg KH wrote:
-> > > On Thu, Sep 25, 2008 at 06:20:55PM -0700, Randy Dunlap wrote:
-> > >> On Thu, 25 Sep 2008 16:22:37 -0700 Greg KH wrote:
-> > >>
-> > >>> From: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>
-> > >>>
-> > >>> This patch adds the Mimio Xi interactive whiteboard driver to the tree.
-> > >>>
-> > >>> It was originally written by mwilder-qcTL/1vZYtiVc3sceRu5cw@public.gmane.org, but cleaned up and
-> > >>> forward ported by me to the latest kernel version.
-> > I have been given the protocol document for the whiteboards, I am not allowed to
-> > share it with anybody unfortunately.
-> 
-> That's great news, and not that big of a deal about the "no share" issue
-> as long as you are allowed to contribute.
-> 
-> > I am just waiting for approval of funds for me to start development of this
-> > driver and an X11 library to make the ink capture work.
-> 
-> Um, what's wrong with the driver that I just posted?  Does it not work
-> properly?  I'll gladly accept patches for things that are wrong, but
-> don't start over from scratch please.
-> 
+The initialisation sequence in the current driver is just a series of
+hex codes which I am reimplementing as per the Xi protocol.  Also the
+board has on-board flash for the boards layout, dpi and firmware based
+upgrade methods.  I am going to implement access to these.
 
-> > I expect to start work at the end of October, I could do with a mentor to help
-> > me with this.
-> 
-> If you need help on the kernel side, feel free to contact me off-list.
-> 
->
+I am also, as you state, working on the X side of things.=20
 
-What _is_ wrong with the driver?  I am guessing that phil-U4DcaGvlwG/QXOPxS62xeg@public.gmane.org is 
-just struggling with creating X bindings for the module, but I would like 
-to hear some elaboration on what is actually happening here.  Enlighten 
-me.
+I certainly would not want to tread on your toes with regard to the
+development of this driver, however as you had mentioned to me in the
+past that you did not have the time to devote to this I decided to move
+ahead with it myself.  Are you planing on making changes to the existing
+driver?
+
+Regards
+Phil Hannent
 
 
+--------------enigB856ADC6129C24C814B3C08F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (MingW32)
+
+iEYEAREKAAYFAkkryd8ACgkQIdVDbqU9AOTtlwCgzDF0oWvlhHVcH1WmPZ55AbfM
+ksYAn18b/5MTYM85GeiLEF8QcEQnN/v2
+=JIBP
+-----END PGP SIGNATURE-----
+
+--------------enigB856ADC6129C24C814B3C08F--

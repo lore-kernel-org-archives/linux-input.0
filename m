@@ -1,71 +1,32 @@
-From: Rikard Ljungstrand <lrikard@student.chalmers.se>
-Subject: [PATCH] Input: Add keyboard quirk for HP Pavilion ZV6100 laptop
-Date: Tue, 25 Nov 2008 11:53:48 +0100
-Message-ID: <492BD93C.5070108@student.chalmers.se>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/4] USBHID: use GFP_KERNEL in hid_alloc_buffers
+Date: Tue, 25 Nov 2008 12:53:44 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0811251253141.19853@jikos.suse.cz>
+References: <1227540009-14209-1-git-send-email-jirislaby@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atum.ita.chalmers.se ([129.16.4.148]:42481 "EHLO
-	atum.ita.chalmers.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753784AbYKYLAW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 25 Nov 2008 06:00:22 -0500
+Received: from styx.suse.cz ([82.119.242.94]:49373 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750828AbYKYLxp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 25 Nov 2008 06:53:45 -0500
+In-Reply-To: <1227540009-14209-1-git-send-email-jirislaby@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, apw@canonical.com
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Add quirk for misbehaving volume buttons on HP Pavilion ZV6100 laptop which
-are not sending keyrelease events, as reported by Aaron Pickett.
+On Mon, 24 Nov 2008, Jiri Slaby wrote:
 
-Signed-off-by: Rikard Ljungstrand <lrikard@student.chalmers.se>
----
- drivers/input/keyboard/atkbd.c |   26 ++++++++++++++++++++++++++
- 1 files changed, 26 insertions(+), 0 deletions(-)
+> We might sleep, so no problem to use GFP_KERNEL.
+> 
+> While at it bring the function to coding style.
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index b1ce10f..1a3798e 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -868,6 +868,23 @@ static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
- }
- 
- /*
-+ * Perform fixup for HP Pavilion ZV6100 laptop that doesn't generate release
-+ * for its volume buttons
-+ */
-+static void atkbd_hp_zv6100_keymap_fixup(struct atkbd *atkbd)
-+{
-+	const unsigned int forced_release_keys[] = {
-+		0xae, 0xb0,
-+	};
-+	int i;
-+
-+	if (atkbd->set == 2)
-+		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
-+			__set_bit(forced_release_keys[i],
-+					atkbd->force_release_mask);
-+}
-+
-+/*
-  * atkbd_set_keycode_table() initializes keyboard's keycode table
-  * according to the selected scancode set
-  */
-@@ -1478,6 +1495,15 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
- 		.callback = atkbd_setup_fixup,
- 		.driver_data = atkbd_hp_keymap_fixup,
- 	},
-+	{
-+		.ident = "HP Pavilion ZV6100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Pavilion ZV6100"),
-+		},
-+		.callback = atkbd_setup_fixup,
-+		.driver_data = atkbd_hp_zv6100_keymap_fixup,
-+	},
- 	{ }
- };
- 
--- 1.5.6.3 
+Applied, as well as the other three patches in the series. All queued for 
+2.6.29.
+
+Thanks!
+
+-- 
+Jiri Kosina
+SUSE Labs

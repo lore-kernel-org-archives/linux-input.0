@@ -1,78 +1,76 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.28-rc6
-Date: Wed, 26 Nov 2008 11:26:20 -0500
-Message-ID: <20081126162620.GA27380@anvil.corenet.prv>
+From: Guennadi Liakhovetski <lg@denx.de>
+Subject: [PATCH] gpio-keys: support buttons with only one interrupt trigger
+ type
+Date: Wed, 26 Nov 2008 18:11:37 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.0811261804480.4749@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754736AbYKZQ0n@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail.gmx.net ([213.165.64.20]:43255 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1753202AbYKZRL0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 26 Nov 2008 12:11:26 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org
 
-Hi Linus,
+Some systems (e.g., i.MX31) do not support interrupts on both falling and 
+rising GPIO edge. Modify the gpio-keys input driver to support such 
+buttons, in which case, of course, no auto repeat can be provided.
 
-Please pull from:
+Signed-off-by: Guennadi Liakhovetski <lg@denx.de>
+---
+ drivers/input/keyboard/gpio_keys.c |   18 ++++++++++++++++--
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem. Mostly small fixups with the
-exception of Wacom driver, but the change only adds support for the new
-tablet PCs and should not affect devices that were already supported by
-earlier versions of the driver.
-
-Changelog:
----------
-
-Andres Salomon (1):
-      Input: psmouse - fix incorrect validate_byte check in OLPC protocol
-
-Arjan van de Ven (1):
-      Input: replace spin_lock_bh with spin_lock_irqsave in ml_ff_playback
-
-Daniel Gimpelevich (1):
-      Input: cm109 - add keymap for ATCom AU-100 phone
-
-Dmitri Vorobiev (1):
-      Input: fix the example of an input device driver
-
-Dmitry Torokhov (1):
-      Input: i8042 - add Compal Hel80 laptop to nomux blacklist
-
-Herton Ronaldo Krzesinski (1):
-      Input: i8042 - add Dell XPS M1530 to nomux list
-
-Jiri Pirko (1):
-      Input: atkbd - cancel delayed work before freeing its structure
-
-Matthew Garrett (1):
-      Input: atkbd - add keymap quirk for Inventec Symphony systems
-
-Ping Cheng (1):
-      Input: wacom - add support for new USB Tablet PCs
-
-Vojtech Pavlik (1):
-      Input: elo - fix format string in elo driver
-
-
-Diffstat:
---------
-
- Documentation/input/input-programming.txt |    3 +-
- drivers/input/ff-memless.c                |    5 +-
- drivers/input/keyboard/atkbd.c            |   27 ++++-
- drivers/input/misc/cm109.c                |   37 +++++-
- drivers/input/mouse/hgpk.c                |    2 +-
- drivers/input/serio/i8042-x86ia64io.h     |   14 ++
- drivers/input/tablet/wacom.h              |   13 +-
- drivers/input/tablet/wacom_sys.c          |  228 +++++++++++++++++++++++++----
- drivers/input/tablet/wacom_wac.c          |  160 ++++++++++++++++++--
- drivers/input/tablet/wacom_wac.h          |    4 +
- drivers/input/touchscreen/elo.c           |    2 +-
- 11 files changed, 439 insertions(+), 56 deletions(-)
-
--- 
-Dmitry
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index ad67d76..d9b4434 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -44,6 +44,14 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
+ 	int state = (gpio_get_value(button->gpio) ? 1 : 0) ^ button->active_low;
+ 
+ 	input_event(input, type, button->code, !!state);
++	/*
++	 * If the button only supports press events, simulate release
++	 * immediately
++	 */
++	if (button->irq_trigger != (IRQF_TRIGGER_RISING |
++				    IRQF_TRIGGER_FALLING))
++		input_event(input, type, button->code, !state);
++
+ 	input_sync(input);
+ }
+ 
+@@ -141,9 +149,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 			goto fail2;
+ 		}
+ 
++		button->irq_trigger &= IRQF_TRIGGER_RISING |
++			IRQF_TRIGGER_FALLING;
++
++		if (!button->irq_trigger)
++			button->irq_trigger = IRQF_TRIGGER_RISING |
++				IRQF_TRIGGER_FALLING;
++
+ 		error = request_irq(irq, gpio_keys_isr,
+-				    IRQF_SAMPLE_RANDOM | IRQF_TRIGGER_RISING |
+-					IRQF_TRIGGER_FALLING,
++				    IRQF_SAMPLE_RANDOM | button->irq_trigger,
+ 				    button->desc ? button->desc : "gpio_keys",
+ 				    bdata);
+ 		if (error) {
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 1289fa7..d0bd8e2 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -10,6 +10,7 @@ struct gpio_keys_button {
+ 	int type;		/* input event type (EV_KEY, EV_SW) */
+ 	int wakeup;		/* configure the button as a wake-up source */
+ 	int debounce_interval;	/* debounce ticks interval in msecs */
++	unsigned long irq_trigger; /* IRQF_TRIGGER_{RISING,FALLING} */
+ };
+ 
+ struct gpio_keys_platform_data {

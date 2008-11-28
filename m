@@ -1,89 +1,99 @@
-From: =?iso-8859-2?q?=A3ukasz_Luboja=F1ski?= <lukasz@lubojanski.info>
-Subject: Re: New Force Feedback device support - GreenAsia 0x12
-Date: Fri, 28 Nov 2008 20:08:40 +0100
-Message-ID: <200811282008.41601.lukasz@lubojanski.info>
-References: <200811262333.45245.lukasz@lubojanski.info> <alpine.LNX.1.10.0811281514210.19853@jikos.suse.cz> <49303827.4050907@gmail.com>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [Libusb-devel] libusb 0.1 usb_detach_kernel_driver_np works only
+ once
+Date: Fri, 28 Nov 2008 14:14:58 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.0811281411500.27856-100000@netrider.rowland.org>
+References: <200811271858.53579.e.fahle@wayoda.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.185]:63491 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752346AbYK1TJA convert rfc822-to-8bit (ORCPT
+Received: from netrider.rowland.org ([192.131.102.5]:3272 "HELO
+	netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752435AbYK1TO7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 28 Nov 2008 14:09:00 -0500
-Received: by nf-out-0910.google.com with SMTP id d3so837884nfc.21
-        for <linux-input@vger.kernel.org>; Fri, 28 Nov 2008 11:08:59 -0800 (PST)
-In-Reply-To: <49303827.4050907@gmail.com>
-Content-Disposition: inline
+	Fri, 28 Nov 2008 14:14:59 -0500
+In-Reply-To: <200811271858.53579.e.fahle@wayoda.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>, Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: Eberhard Fahle <e.fahle@wayoda.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: libusb-devel@lists.sourceforge.net, linux-input@vger.kernel.org
 
-> Jiri Kosina wrote:
-> > On Fri, 28 Nov 2008, =A3ukasz Luboja=F1ski wrote:
-> >>> Could you please rebase your patch on top of current state of Lin=
-us'
-> >>> kernel tree for 2.6.28-rc? Then the code could be reviewed and I'=
-ll
-> >>> merge it through my tree.
-> >>> For inspiration, you can look into
-> >>>
-> >>> 	drivers/hid/hid-pl.c
-> >>>
-> >>> That driver even contains support for some Greenasia device ...
-> >>> (0x0003).
-> >>
-> >> I have rewriten the code for 2.6.28-rc6 and after testing and chec=
-king
-> >> it with checkpatch I will send it again.
-> >
-> > Great, thanks.
-> >
-> >> Anyway I know that pantherlord code is also supporting greenasia d=
-evices
-> >> (first code was also mostly taken from that) - and I'm still don't=
- know
-> >> if I'm dooing right naming my part "greenasia" - because some peop=
-le
-> >> could get confused. It could also happen that someone else will
-> >> implement other greenasia device and this will make another confus=
-ion.
-> >
-> > The question is how much the protocol that is used by your device d=
-iffers
-> > from the one that is already implemented in hid-pl.c? Would it make=
- sense
-> > to have these two implementations in the same driver, or is the pro=
-tocol
-> > just completely different?
->
-> It seems the protocol resembles more the hid-lg2ff one. The differenc=
-es
-> are the additional 0xfa 0xfe 0x0 report sent to the device, and the
-> missing 0xf3 stop command.
->
-> =A3ukasz, I see your code implements both FF_RUMBLE and FF_CONSTANT i=
-n the
-> same way. If the device only supports rumble effects, then you should
-> only implement FF_RUMBLE.
+On Thu, 27 Nov 2008, Eberhard Fahle wrote:
 
-Yep - different reports are send in case of Pantherlord and GreenAsia 0=
-x12 - It=20
-could be implemented in it but it will require checking what hardware i=
-s used=20
-and send different reports. So it depends on you - what is better in yo=
-ur=20
-opinion ? Please note only that I have only one hardware that it will s=
-upport=20
-so it will require tests from Pantherlord/Logitech users test.
+> Hi,
+> On Donnerstag, 27. November 2008 16:56:32 Alan Stern wrote:
+> > On Thu, 27 Nov 2008, Eberhard Fahle wrote:
+> > > I'd sign that petiton for a user-editable "hid-quirks" file right=
+ away!
+> > >
+> > > This is the second time I come along a HID-Device that is grabbed=
+ by the
+> > > hiddev/hidraw drivers without suppling the necessary tools to act=
+ually
+> > > use the device!
+> > > Current issue : Device is grabbed by hidraw, and you can't even c=
+heck the
+> > > interface-number of the device you are looking at.
 
-No problem with the FF_CONSTANT - I will cut off that code. I was think=
-ing it=20
-will be better to have it implemented and as the hardware has the same =
-report=20
-for both effect and it was very easy to made.
+> > I don't understand this comment. =A0Do you mean that you can't tell=
+ which
+> > underlying USB interface or device is associated with a particular
+> > hidraw device file?
+
+> Right. In the hiddev-driver the device-info structure has everything =
+one could=20
+> possibly need to know:
+> struct hiddev_devinfo {
+> 	__u32 bustype;
+> 	__u32 busnum;
+> 	__u32 devnum;
+> 	__u32 ifnum;
+> 	__s16 vendor;
+> 	__s16 product;
+> 	__s16 version;
+> 	__u32 num_applications;
+> };
+> =20
+> And for some reason I don't understand, this is what's exposed of the=
+ above by=20
+> the hidraw driver (which keeps a struct hid_device internally and sim=
+ply=20
+> copies all the information from there):
+>=20
+> struct hidraw_devinfo {
+> 	__u32 bustype;
+> 	__s16 vendor;
+> 	__s16 product;
+> };
+>=20
+> At least knowing the interface-number is essential I think
+>=20
+> And hidraw has no ioctl to get a string-descriptor from the device (S=
+erial-
+> Numbers are very common nowadays)
+>=20
+> > There's no point debating this sort of thing on the libusb-devel
+> > mailing list. =20
+
+> Yes.
+
+> > If you're serious about it then you should post on the
+> > linux-usb list, where the kernel developers will become aware of yo=
+ur
+> > thoughts.  Better yet, instead of debating the issue, submit a patc=
+h!
+
+> I going to prepare for the hidraw driver since it basically works fin=
+e for my=20
+> specific device.=20
+
+I still think it's worthwhile to bring this to the attention of the=20
+appropriate kernel developers.  In fact, I'll get the process started:
+
+Dmitry, is there any way to accomplish what Eberhard wants to do?
+
+Alan Stern
 
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =

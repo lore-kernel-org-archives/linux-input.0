@@ -1,47 +1,35 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH] Input: Make MOUSE_PS2_LIFEBOOK depend on X86
-Date: Sat, 29 Nov 2008 19:11:30 +0100
-Message-ID: <20081129191130.6684c3e6@hyperion.delvare>
+From: "=?BIG5?B?pP2rYaZ0?=" <r0zm0p2u30p1s@gmail.com>
+Subject: =?BIG5?B?UEhQwcqqq6iuuOquxq53uvSvuLFNrtc=?=
+Date: Sun, 30 Nov 2008 05:10:21 +0800
+Message-ID: <fb25fa920811291310o441e31d3x679ec2f3648c5714@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=BIG5
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zone0.gcu-squad.org ([212.85.147.21]:4338 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751690AbYK2SLm (ORCPT
+Received: from qb-out-0506.google.com ([72.14.204.235]:34594 "EHLO
+	qb-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752270AbYK2VKX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Nov 2008 13:11:42 -0500
+	Sat, 29 Nov 2008 16:10:23 -0500
+Received: by qb-out-0506.google.com with SMTP id f11so2092106qba.17
+        for <linux-input@vger.kernel.org>; Sat, 29 Nov 2008 13:10:22 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: lin-amos@umail.hinet.net
 
-As far as I know, all Fujitsu-Siemens Lifebook systems are x86-based.
-So we might was well make MOUSE_PS2_LIFEBOOK depend on X86. This will
-avoid surprising things like:
-
-arch/arm/configs/s3c2410_defconfig:CONFIG_MOUSE_PS2_LIFEBOOK=y
-
-(and several dozen similar ones.)
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/mouse/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.28-rc6.orig/drivers/input/mouse/Kconfig	2008-11-04 21:39:20.000000000 +0100
-+++ linux-2.6.28-rc6/drivers/input/mouse/Kconfig	2008-11-29 19:00:31.000000000 +0100
-@@ -70,7 +70,7 @@ config MOUSE_PS2_SYNAPTICS
- config MOUSE_PS2_LIFEBOOK
- 	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EMBEDDED
- 	default y
--	depends on MOUSE_PS2
-+	depends on MOUSE_PS2 && X86
- 	help
- 	  Say Y here if you have a Fujitsu B-series Lifebook PS/2
- 	  TouchScreen connected to your system.
-
-
--- 
-Jean Delvare
+pHPgvqzsp9669K22s12tcAoKobOn2q3MqrqpdqauoUeryKThqrqoQ6O4pfOkcKjGsaGhQbOjrE+k
+c+C+qrqkaqjGsaEKCqGup9qtzKZiscClWKX4t36nzrZIuvSvuKVdp3SrZaV4uvSttqz8pHUrq+Gl
+eLresnq1e6ahCgqh8q2trsmtrbZxsU2u17v5IKV1rW4kMjksOTAwCgqh9CimYrBlo7imfjEwME1C
+pKOtrax5tnG69K+4qsW2oSkKCqG8p9qtzLC1qrqko6V1rE+69K+4oUGm06xPsXql+Ld+qrqkSqRm
+CgqhsKO4rdOmbqq6pfi3frr0r7i46q7Gp1muyafzt3OqurN0q9esT6vcrautbqq6Cgqhv6X4t36i
+7aTGqrqwqqt+vei5zrakoUGltLN5sXqqurr0uPSq+a2xCgqiRL/vvtykc+C+pqi0TrF6qrq52rdR
+Cgqh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjClBT
+OiC9daRXwcqqq7r0r7in2q3MwdmlabSjqNGo6qVkvveo7qFBCqFAoUC7UL11pFemQ6ZMsWKz5qX+
+rNm2V7DTK7Zsp73DurZPLi4uLi4utaWq96x5qkGwyL73qO4KoeOh46HjoeOh46HjoeOh46HjoeOh
+46HjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh4woKxXeq76jTuXGsorjftsCxTa37oV1TYW2h
+XqFHMDk4MDExOTgxMiAvIDA5Mzg3NjQzOTUKCqHjoeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh
+46HjoeOh46HjoeOh46HjoeOh46HjoeMKpbukvaVxpXSlfrSjqNHD9sHkpnJTRU+xxqfHqkGwyAqr
+T8PSsU6xeqq6uvSvuKZiWXggLyBHeCAuLi6xxqZissSkQK22CqFAoUChQKFAoUChQKFAoUChQKFA
+oUChQKFAoUChQKFAoUChQCDFd6rvqNO5cbjfsN0hISEKoeOh46HjoeOh46HjoeOh46HjoeOh46Hj
+oeOh46HjoeOh46HjoeOh46HjoeOh46HjoeOh4wo=

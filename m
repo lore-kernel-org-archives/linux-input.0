@@ -1,49 +1,103 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: New Force Feedback device support - GreenAsia 0x12
-Date: Sat, 29 Nov 2008 23:30:19 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0811292327470.19853@jikos.suse.cz>
-References: <200811262333.45245.lukasz@lubojanski.info> <alpine.LNX.1.10.0811281514210.19853@jikos.suse.cz> <49303827.4050907@gmail.com> <200811282008.41601.lukasz@lubojanski.info>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] Fujitsu Amilo PA 1510 key-release events quirk
+Date: Sat, 29 Nov 2008 23:38:26 -0800
+Message-ID: <20081129233826.be959cae.akpm@linux-foundation.org>
+References: <4931BB48.9010706@impulze.org>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="336216065-1904674071-1227997819=:19853"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:56807 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752769AbYK2WaV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 29 Nov 2008 17:30:21 -0500
-In-Reply-To: <200811282008.41601.lukasz@lubojanski.info>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:55320 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750898AbYK3Hig (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 30 Nov 2008 02:38:36 -0500
+In-Reply-To: <4931BB48.9010706@impulze.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-2?Q?=A3ukasz_Luboja=F1ski?= <lukasz@lubojanski.info>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org
+To: Daniel Mierswa <impulze@impulze.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Sat, 29 Nov 2008 22:59:36 +0100 Daniel Mierswa <impulze@impulze.org> wrote:
 
---336216065-1904674071-1227997819=:19853
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
-Content-Transfer-Encoding: 8BIT
+> heya,
+> the fujitsu amilo pa 1510 laptop needs a little lovin' regarding the 
+> release event of the volume up and down keys. I attached a format-patch 
+> (against torvalds/linux-2.6.git ed313489badef16d7) which separates the 
+> generation of release events for certain scancodes into a macro since 3 
+> dmi matches are already using it and generation of the missing release 
+> events for that particular laptop. Please post back with any advice and 
+> thoughts for that patch.
+> 
 
-On Fri, 28 Nov 2008, £ukasz Lubojañski wrote:
+Please don't send more than one patch per email.  I shall comment on
+the two patches in two separate replies.
 
-> > It seems the protocol resembles more the hid-lg2ff one. The differences
-> > are the additional 0xfa 0xfe 0x0 report sent to the device, and the
-> > missing 0xf3 stop command.
-> Yep - different reports are send in case of Pantherlord and GreenAsia 
-> 0x12 - It could be implemented in it but it will require checking what 
-> hardware is used and send different reports. 
+> From a197dfb0eed23b87418c0a7fe6a562910046576e Mon Sep 17 00:00:00 2001
+> From: Daniel Mierswa <impulze@impulze.org>
+> Date: Sat, 29 Nov 2008 22:39:34 +0100
+> Subject: [PATCH] Separate macro for generation of keyrelease events
+> 
+> ---
+>  drivers/input/keyboard/atkbd.c |   23 +++++++++++++----------
+>  1 files changed, 13 insertions(+), 10 deletions(-)
 
-OK, so as the reports are not really identical, and in the future we might 
-discover that there are many more other Greenasia devices which require a 
-slightly different handling as well, I would rather prefer to have it as a 
-separate driver, to avoid additions of here-and-there device-specific 
-quirks to random places in the code. That's exactly what we are trying to 
-avoid with the HID bus approach in the first place.
+Please also cc linux-input@vger.kernel.org on input-related patches.
 
-So I think separate driver is fine.
+> diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+> index 22016ca..99ef522 100644
+> --- a/drivers/input/keyboard/atkbd.c
+> +++ b/drivers/input/keyboard/atkbd.c
+> @@ -834,6 +834,17 @@ static void atkbd_disconnect(struct serio *serio)
+>  }
+>  
+>  /*
+> + * generate release events for the keycodes given in forced_release_keys[]
+> + */
+> +#define GEN_RELEASE_EVENT \
+> +	int i; \
+> +\
+> +	if (atkbd->set == 2) \
+> +		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++) \
+> +			__set_bit(forced_release_keys[i], \
+> +				atkbd->force_release_mask);
+> +
+> +/*
+>   * Most special keys (Fn+F?) on Dell laptops do not generate release
+>   * events so we have to do it ourselves.
+>   */
+> @@ -842,12 +853,8 @@ static void atkbd_dell_laptop_keymap_fixup(struct atkbd *atkbd)
+>  	const unsigned int forced_release_keys[] = {
+>  		0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8f, 0x93,
+>  	};
+> -	int i;
+>  
+> -	if (atkbd->set == 2)
+> -		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
+> -			__set_bit(forced_release_keys[i],
+> -				  atkbd->force_release_mask);
+> +	GEN_RELEASE_EVENT
+>  }
+>  
+>  /*
+> @@ -859,12 +866,8 @@ static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
+>  	const unsigned int forced_release_keys[] = {
+>  		0x94,
+>  	};
+> -	int i;
+>  
+> -	if (atkbd->set == 2)
+> -		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
+> -			__set_bit(forced_release_keys[i],
+> -					atkbd->force_release_mask);
+> +	GEN_RELEASE_EVENT
+>  }
 
-Thanks to both of you.
+oh my.  Please, no.  Just write a C function:
 
--- 
-Jiri Kosina
-SUSE Labs
---336216065-1904674071-1227997819=:19853--
+void atkbd_gen_release_event(unsigned int *keys, unsigned nr_keys)
+{
+	...
+}
+
+

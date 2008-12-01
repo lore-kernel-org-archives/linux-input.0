@@ -1,164 +1,139 @@
-From: Julian Sikorski <belegdol@gmail.com>
-Subject: Re: Logitech Alto Cordless
-Date: Mon, 01 Dec 2008 18:54:15 +0100
-Message-ID: <493424C7.30209@gmail.com>
-References: <4933E4BC.5090801@gmail.com> <alpine.LRH.1.10.0812011734130.28179@twin.jikos.cz>
+From: Daniel Mierswa <impulze@impulze.org>
+Subject: Re: [PATCH] Fujitsu Amilo PA 1510 key-release events quirk (PATCH
+ 1/3)
+Date: Mon, 01 Dec 2008 21:59:32 +0100
+Message-ID: <49345034.8050208@impulze.org>
+References: <4931BB48.9010706@impulze.org> <20081129233826.be959cae.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
- boundary="------------080805070706090805090406"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.187]:64716 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752071AbYLARyU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Dec 2008 12:54:20 -0500
-Received: by nf-out-0910.google.com with SMTP id d3so1354348nfc.21
-        for <linux-input@vger.kernel.org>; Mon, 01 Dec 2008 09:54:17 -0800 (PST)
-In-Reply-To: <alpine.LRH.1.10.0812011734130.28179@twin.jikos.cz>
-Sender: linux-input-owner@vger.kernel.org
+ boundary="------------030706030401000601040400"
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752890AbYLAU7a@vger.kernel.org>
+In-Reply-To: <20081129233826.be959cae.akpm@linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080805070706090805090406
-Content-Type: text/plain; charset=ISO-8859-1
+--------------030706030401000601040400
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Jiri Kosina pisze:
-> On Mon, 1 Dec 2008, Julian Sikorski wrote:
-> 
->> during a discussion on fedora-devel-list, I was suggested to check if
->> the said keyboard is compliant with the standards before requesting
->> xkeyboard-config changes. The problem exists with two keys:
->> - Fn-F3, has MSIE logo on it, emits XF86HomePage, should emit XF86WWW
->> - Fn-F4, has a tune on it, emit XF86Tools, should XF86AudioMedia
->> This is under Fedora 10 x86_64, using evdev driver and evdev-managed
->> keyboard map.
-> 
-> In order to answer this question, we need to know what the keyboard is 
-> acutally sending when these keys are being pressed (and also product ID 
-> would be useful -- this can be obtained from lsusb output).
-> 
-> Assuming that Fedora has the CONFIG_HID_DEBUG kernel option turned on (I 
-> don't know whether this is true or not), could you please
-> 
-> 	rmmod usbhid
-> 	rmmod hid
-> 	modprobe hid debug=2
-> 	modprobe usbhid
-> 
-> press the keys, and send the dmesg output?
-> 
-> Thanks,
-> 
-OK, got it. hid is builtin.
+Split patches as requested in "[PATCH] Fujitsu Amilo PA 1510 key-release
+events quirk"
+Here's the first out of 3.
 
---------------080805070706090805090406
-Content-Type: application/zip;
- name="dmesg.txt.zip"
-Content-Transfer-Encoding: base64
+
+On 30.11.2008 08:38, Andrew Morton wrote:
+> Please don't send more than one patch per email.  I shall comment on
+> the two patches in two separate replies.
+>   
+done, except that they are three now :)
+
+
+On 30.11.2008 08:38, Andrew Morton wrote:
+> Please also cc linux-input@vger.kernel.org on input-related patches.
+>
+>   
+done
+
+
+On 30.11.2008 08:38, Andrew Morton wrote:
+> oh my.  Please, no.  Just write a C function:
+>
+> void atkbd_gen_release_event(unsigned int *keys, unsigned nr_keys)
+> {
+> 	...
+> }
+>
+>   
+done, I prefer that myself, although I first thought it might be a bad
+idea to pass around pointers there, since
+other developers might expect ARRAY_SIZE to work in gen_release_events.
+
+-- 
+Mierswa, Daniel
+
+If you still don't like it, that's ok: that's why I'm boss. I simply 
+know better than you do.
+                --- Linus Torvalds, comp.os.linux.advocacy, 1996/07/22
+
+
+
+--------------030706030401000601040400
+Content-Type: text/plain;
+ name="atkbd_gen_release_events.patch"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="dmesg.txt.zip"
+ filename="atkbd_gen_release_events.patch"
 
-UEsDBBQDAAAIAI+WgTn9UvHW2xQAAMrbAQAJAAAAZG1lc2cudHh07N3bjhtFFIXhe57Cl0Ei
-Se/d50iAgABBEEAJCReIi+rqcmJw7JEPnJ6enknCdOCHSXkBQmgQh+GLd9tT45VybK+2t28s
-Xvz1wXazPz5Lu1tF4R1qjxpQB9SIOqIm1CVpWaAaqqOWqBVqjdqgtqgdao8aUAfUiDqiJlRc
-36pANVRHLVEr1Bq1QW1RO9QeNaAOqBF1RE2ouL51gWqojlqiVqg1aoPaonaoPWpAHVAj6oia
-UHF9mwLVUB21RK1Qa9QGtUXtUHvUgDqgRtQRNaHi+rYFqqE6aolaodaoDWqL2qH2qAF1QI2o
-I2pCxfXtClRDddQStUKtURvUFrVD7VED6oAaUUfUhIrr2xeohuqoJWqFWqM2qC1qh9qjBtQB
-NaKOqAkV1zcUqIbqqCVqhVqjNqgtaofaowbUATWijqgJFdd3KFAN1VFL1Aq1Rm1QW9QOtUcN
-qANqRB1REyqubyxQDdVRS9QKtUZtUFvUDrVHDagDakQdURMqru9YoBqqo5aoFWqN2qC2qB1q
-jxpQB9SIOqImVFzfVKAaqqOWqBVqjdqgtqgdao8aUAfUiDqiJlRc32WBaqiOWqJWqDVqg9qi
-dqg9akAdUCPqiJpQaX2tKFAN1VFL1Aq1Rm1QW9QOtUcNqANqRB1REyqurxWohuqoJWqFWqM2
-qC1qh9qjBtQBNaKOqAkV19cLVEN11BK1Qq1RG9QWtUPtUQPqgBpRR9SEiutbFqiG6qglaoVa
-ozaoLWqH2qMG1AE1oo6oCRXXtypQDdVRS9QKtUZtUFvUDrVHDagDakQdURMqrm9doBqqo5ao
-FWqN2qC2qB1qjxpQB9SIOqImVFzfpkA1VEctUSvUGrVBbVE71B41oA6oEXVETai4vm2BaqiO
-WqJWqDVqg9qidqg9akAdUCPqiJpQcX27AtVQHbVErVBr1Aa1Re1Qe9SAOqBG1BE1oeL69gWq
-oTpqiVqh1qgNaovaofaoAXVAjagjakLF9Q0FqqE6aolaodaoDWqL2qH2qAF1QI2oI2pCxfUd
-ClRDddQStUKtURvUFrVD7VED6oAaUUfUhIrrGwtUQ3XUErVCrVEb1Ba1Q+1RA+qAGlFH1ISK
-6zsWqIbqqCVqhVqjNqgtaofaowbUATWijqgJFdc3FaiG6qglaoVaozaoLWqH2qMG1AE1oo6o
-CRXXd1mgGqqjlqgVao3aoLaoHWqPGlAH1Ig6ouL64vO/XhSohuqoJWqFWqM2qC1qh9qjBtQB
-NaKOqAkV19cKVEN11BK1Qq1RG9QWtUPtUQPqgBpRR9SEiuvrBaqhOmqJWqHWqA1qi9qh9qgB
-dUCNqCNqQsX1LQtUQ3XUErVCrVFxfen533vb3eqX7eYQ1l8/TWmNYz1qQB1QI+qImlBxqasC
-1VAdtUStUGvUBrVF7VB71IA6oEbUETWh4vrWBaqhOmqJWqHWqA1qi9qh9qgBdUCNqCNqQsX1
-bQpUQ3XUErVCrVEb1Ba1Q+1RA+qAGlFH1ISK69sWqIbqqCVqhVqjNqgtaofaowbUATWijqgJ
-Fde3K1AN1VFL1Aq1Rm1QW9QOtUcNqLi+vz0V/Nn2ySqG9eL+arN6dnx2w978/S+Eny5+oan9
-5S89SGfb3WHxcPVLumHNqzpdyXFzuPH7y36xXO7T4Ubxkj9ahyf7G4v3drvw8+K9Yb9dHw9p
-8fn2y11apt0ujQ8P4RyO6/Xzr84HP/n8y0dfnV/jNxdfffvGxZFWaT1eHvjRPjxJN85v1Iu/
-lsuimN4ZU9g/Lr9fyuLPlnLaN2gpO1zJ5qSVnC1Xe/VyWf/H9fJr+dvkn7lnWH/yXeOLR1+9
-jNL05XWWXnvB2tdYsOs0/bPyz9w3Tk7TuFv9kHb7209X4/k/N1ebs+PhVrwz3Yyzs9XmyZ3f
-9t2LO/ji5s2b7yw++fjzLx58eDdz2JXhUhmulOFaGW6U4VYZ7pThXhkOyvCgDEdleFSGkzK8
-FIatUIaVPJuSZ1PybEqeTcmzKXk2Jc+m5NmUPJuSZ1PybEqeTcmzKXk2Jc+u5NmVPLuSZ1fy
-7EqeXcmzK3l2Jc+u5NmVPLuSZ1fy7EqeXcmzK3l2Jc+lkudSyXOp5LlU8ly+yPOn6edbD9cp
-nWWOK4kum8vrfv+wKTKnlUiXSqRLJdKlEulSiXSpRLpUIl0qkS6VSFfF5V3sftocM6eVTFdK
-pisl05WyR1f15Yo9CONqmzmu7NKVEulKiXSlRLpSIl0pka6USFdKpCsl0pUS6VrZpWsl0bWS
-6FpJdK0kulb26FrJc63kuVbyXCt5rpU810qeayXPtZLnWslzreS5UfLcKHlulDw3Sp4bJc+N
-kudGyXOj5LlR8twoeW6UPDdKnhslz42S50bJc6PkuVXy3Cp5bpU8t0qeWyXPrZLnVslzq+S5
-VfLcKnlulTy3Sp5bJc+tkudWyXOr5LlT8twpee6UPHfl5Z9jPwv7Q+a0EuhOCXSnBLpTAt11
-lyv25QeZs/3l7FePM2fD5ezXX3+dOTxcDt99nPsdx9l3/HS7SZnj42x8t32yC88yD5AuD/Bu
-5ujy5NH+lefEnmU+wdPb5fQHmevd++Xs4w8eZA6Xs7vYcZN2meOzJ7o//GmV+ftBP3tW7F5a
-Zz5L3jezmx7OMu9mfTvPlmcOz0L9MOR+18ou3YdZOh7n/rCVXbqPs7vo07DZpPWj3J/Y+IdD
-3N3+uMk8iLJn98qeHYpXgpZ5nwnKph2UTTsoD8KDsmcHZc8Oyp4dlD07KA/CgxLvoDwID0q8
-g/IgPCgPwoMS6KAEepgF+st1+Dlz2mbT4bjP3ICG2bb9IMXtbsycn+3cH00PxT/a7n4M2Qep
-5jfix9Umd362g3+efjo83G6eZB6hmT/cSz+stsf9CUdpZxvyYXuW+xhqmG3oH36X4iH7AErq
-ByX1g5L6IZ78gHdQMj8omR+UzEflD95R2cOjsodHZQ+Pyh4elT08Knt4VPbwqOzhUUlzVNIc
-lTRHZQ+P46ub4QlbWlRSHZVUj0qqRyXVo5LqUUn1qKR6VFI9KqkelVSPSqpHJdWjkupRSfWo
-pHpUdulRyfOo5Dk9z/NvPa1bj6f/PMv87SgpuU6zh+f3j4fcq1aCnZRgp9kj8vfDfv/+dpv7
-NH1S4p2UeCcl3uny2fIXd5fc56dS+P0R8p+eSkrUkxL1pEQ9KVFPStSXyta9VCK+VLbupZLw
-pZLwpbJ1L5VsL5VsL5VsL5Wte6ls3Uslz0slz0slz0slz0shz1YIeTalX21Kv9qUfrUp/WpT
-+tWm9KtN6Veb0q82pV9tSr/alH61Kf1qU/rVpvSrTelXm9KvNqVfbUq/2pR+tSn9alP61ab0
-q03pV5vSrzalX21Kv9qUfrUp/WpT+tWm9KtN6Veb0q82pV9tSr/alH61Kf1qU/rVpvSrTelX
-m9KvNqVfbUq/2pR+tSn9alP61ab0q03pV5vSrzalX21Kv9qUfrWVSp6VdrWVSp6VcrUp5WpT
-ytWmlKtNKVebUq42pVxtSrnalHK1VUqelW61Kd1qU7rVpnSrrVLyrDSrTWlWm9KsNqVZbUqz
-2pRmtSnNalOa1aY0q01pVpvSrDalWW1Ks9qUZrUpzWpTmtWmNKtNaVab0qw2pVltSrPalGa1
-Kc1qU5rVpjSrTWlWm9KsNqVZbUqz2pRmtSnNalOa1aY0q01pVpvSrDalWW1Ks9qUZrUpzWpT
-mtWmNKtNaVab0qw2pVltSrPalGa1Kc1qU5rVpjSrTWlWm9KsNqVZbUqz2pRmtSnNalOa1aY0
-q01pVpvSrDalWW3d7C1j09uuvn8Wdt/vMw8xK3VMvFzl9SCmj7Q+9f380+denz7anD7anj7a
-nT7anz4aLkfvh9U6c3o4/YpPrmpMHxF++mia3SHDOm3GkFcRtk4Jc6+EeV6q/mi1CZuY9y7O
-6cPOX/nmY+a0skP31fy2r3NvuLJF983pZw6wXtmie2WLVmrV1itbtFKrtnmtevoAjO1ymTmv
-7NL9PN3TVafc+5mS7aBkW2lTm9KmNqVNbUqb2pQ2tYVGONeChdk2fXcbJ90cMh/aKKVqU0rV
-ppSqLcx27Idnab3+4GmK32ceQ3kYrnSrTelWm9KttkFJ96Cke1DSPSjpHpR0D0q65y3q+2lc
-hczxeX16e8xsgdugRFtpTpvSnDalOW2nN6dtmD0c/2SzzDtVkCnVaVOq06ZUp02pTptSnTal
-Om1KddqU6rQp1WlTqtOmVKdNqU6bUp02pTptSnXaorJFK6VpU0rTppSmTSlNm1KaNqU0bUpp
-2pTStCmlaVNK06aUpk0pTZtSmjalNG1KadqU0rQppWlTStOWlDwrZWlLSp6VrrQpXWlLSp6V
-lrQpLWlTWtKWlDwnJc9KM9qUZrQpzWhTmtGmNKNNaUab0ow2pRltSjPalGa0Kc1oU5rRpjSj
-TWlGm9KMNqUZbUoz2pRmtCnNaFOa0aY0o11pRnth8zPt/Zg5PHsh64uzlHdKCy/mL0qvt5ln
-hfJCOUewK+1oV9rRXsyfFAs/5H7X3fy8hqtN7rfdz8e3Z3lPtrtSkXalIu1KRdqVirQrFWlX
-KtKuVKRdqUi7UpF2pSLtSkXalYq0KxVpVyrSrlSkXalIu83edfJoM+Y9Zew2zF/mPcs7z61b
-nE0fM38fs3F+ktx95nm0XKlJuy1n76HIPbWtKz1pd5vtHSns4tPM+dmG/fH2kPnz9tmGfW/7
-LH0ZnmSuu1fzs4hlvt7pXl9On3JaYvfmldP55r1Y7d7OT2q83KV97uorOVeq0+5BfQuhKwVq
-VwrU7ie/zcz95M/scD/5MztcqU67Up12pTrtZTlLR9xt17kfxOBl9bsj5H8Ogys1aldq1C7U
-qO9td6tftptDWH/9NKX18+M8SOtwmA5x69455r2j05VmtSvNalea1a40q11pVrvSrHalWe1K
-s9qVZrUrzWpXmtWuNKtdaVa70qx2pVntSrPalWa1K81qV5rVrjSrXWlWu9KsdqVZ7Uqz2pVm
-tSvNalea1a40q11pVrvSrHalWe1Ks9qVZrUrzWpXmtWuNKtdaVa70qz2ejlvTGxi7qMppVzt
-SrnalXK1K+VqV8rVrpSrXSlXu1KudqVc7Uq52pVytSvlalfK1a6Uq10pV7tSrnalXO1KudqV
-crUr5WpXytWulKtdKVe7Uq52pVztbT9/vi73yW2lXe1Ku9qVdrUr7WpX2tWutKtdaVe70q52
-5XOrvVMCrXxstSsfW+3Kx1a78rHV3imB7l4J9Nk68wWnTkl0N/zhtYfsmrZ3cf7yzWu9crRc
-FsV06vz8E9hfD77GYHb2rwevB68Hrwd/+z1n8c1mu7n52Yd3F9vjYbrsYrlK6/Hb6wP+Pw7o
-1we8PuD1Aa8PeH3A/9cBLw5wZzGdGmd1SPHp4tHD96c3bMR0fjWLsF/cHqfPjI9pf/ssrorp
-rztFcfvFf+/YeMtvH/dDdbu66ef/3LFbdvviiM//3TbPj//WdFOn4/Tt+Re78GN55+J67n1y
-d/HDNGKLuxdXsvgGb8a3i+1mMV3Nzfn13vQ3JlqcX+lier/+xcD4/CjL8zMsvLVYjY+nP1pu
-d28XVXPxv9P7vMdjPLwda+v+dHh/2E3LuJ8WdLl7295avBzytxYP024V1p8fnw1pOuhvR3h5
-kTuv3OjLX74fNsdliIfjLu0uF/oPP8m43aXzH+QunW13h8WN/eqXtKjfXNzYXFxhGt+8aqR8
-MVS9uXh7sZjeaja9b7o4//uNf+e6prdFFv7G+YXHNBynu+LFz37+534vp0vbG//Ozbn41q++
-Of/W6nTT6thf3Rzr/lOrY92/szrnNyTrftpN13XcvPa1FZdjl9fWvvzizxbi/KmpYTs9uXXr
-/MOSp8krLmJXX8Svvkh59UWqqy9SX32R5uqLtFdepGhf//76d/zQiusf2uLv+aH9e0n7tZ07
-WHEbhqIw/Cp+gRZJiRN3Wwpd9AWaZRLLUAqTMk0Xffs6oYUUMhyNb0bY0g9hVgfPkDtfji1b
-8QxNRvTQvMsqzY8/O4ZmHJrrsg7NMTQZ0UPzLuvHI52mI3porss6NL9haI15aH6T/eORoT1k
-aPmkuT1Da8xDc3ukLXNo+aSFjqE15qGF/Kf8DO0hQ0uUtp02tO3N0Ibh78vdn9jHX+fz6el6
-E//mT78bCCqwUoG1CrQqsFGBrQp0KvBBBfYqcFCBowr0KhBVYBAB7+4HPsen+Pzt+Cn+/H4+
-/Xj/dUy98zK2S4tdN2Tf/b0v7unOiyWCBSw2LEHGSsHSNxEsYLFgWcnYLs3U7LEcwQIWG5a1
-jIEFLGCpDMsBLGCxYWllrBQsNAtYjFjqaZYjq2FgyYKlgNUwlo7BYsSiK6MQLBcvDixgmY5F
-p7CCFaxgBStYwQoPhjVYebCVBAWFYBlfkWIBiwGLThWybMxJGFbyWFl+rwwD9yOxYrKSoKCQ
-YgELWMCSiiWCBSw2LFpBKVhoFrAYsdTULD1YwGLBohXs0raHzR5LDxaw2LBoBaVg4el8sBix
-JD5wrAtoAVhoFrDkwEKzgAUsiVgKaBZ2FIPFiKWeHcUjk4sUsIBlKpa0pWN9MKxgBSuFWIlY
-wYrNij67wgpWsFKVlR4rWLFZ0evBhVihV7BitFJNr8TGYwUrb29FrwDM3sqAFazYrGgFhVjp
-sYIVm5W065UCrNArWDFa0QoKsUKvYMVohV7BClbkv3ddvYIVrGAlycr48g4rWJluRafKoMKj
-k1AxUkmsFX2w2VvhViRWjFaquRXJMhhWjFaqWQbDClawghWsYAUrWMFKfis8ko8Vo5W0a3t9
-sAVYoVewksFKAb3C/RWsGK1oBYX0St8ErGDFYiXtekW3z+yt0CtYMVqpplewghWsYAUrWMEK
-VrCS3wpfD4YVo5W0a3t9sNlboVewYrRSTa9gBStYwQpWsPIYK/4fkfQtxB4rWJm2hVinZkzF
-vZ4KtQKVaqlwBgYVI5UazsCwghWsYAUrWMEKVrCCFaxgBStYwUrCweZu5cLlIgYrWJloRad2
-aaKwghWszMBKN81Kd2OlDfJu5Jf4+3DaP/fjOxj/ewfvR7yOBB1Z6chaR1od2ejIVkbacH2k
-IdfQEm4hMzQZaQPSljk0pC1waPmkhY6hNeahhe4q7Q9QSwECFAMUAwAACACPloE5/VLx1tsU
-AADK2wEACQAAAAAAAAAAACCAtIEAAAAAZG1lc2cudHh0UEsFBgAAAAABAAEANwAAAAIVAAAA
-AA==
---------------080805070706090805090406--
+>From f4889ca0b6895abdd1888cb1b56dd411045780be Mon Sep 17 00:00:00 2001
+From: Daniel Mierswa <impulze@impulze.org>
+Date: Sun, 30 Nov 2008 13:14:00 +0100
+Subject: [PATCH] use function for generation of keyrelease events
+
+---
+ drivers/input/keyboard/atkbd.c |   27 +++++++++++++++++----------
+ 1 files changed, 17 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 22016ca..c239745 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -834,6 +834,19 @@ static void atkbd_disconnect(struct serio *serio)
+ }
+ 
+ /*
++ * generate release events for the keycodes given in keys[]
++ */
++static void atkbd_gen_release_event(struct atkbd* atkbd, const unsigned int *keys,
++			unsigned int nr_keys)
++{
++	unsigned int i;
++
++	if (atkbd->set == 2)
++		for (i = 0; i < nr_keys; i++)
++			__set_bit(keys[i], atkbd->force_release_mask);
++}
++
++/*
+  * Most special keys (Fn+F?) on Dell laptops do not generate release
+  * events so we have to do it ourselves.
+  */
+@@ -842,12 +855,9 @@ static void atkbd_dell_laptop_keymap_fixup(struct atkbd *atkbd)
+ 	const unsigned int forced_release_keys[] = {
+ 		0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8f, 0x93,
+ 	};
+-	int i;
+ 
+-	if (atkbd->set == 2)
+-		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
+-			__set_bit(forced_release_keys[i],
+-				  atkbd->force_release_mask);
++	atkbd_gen_release_event(atkbd, forced_release_keys,
++		ARRAY_SIZE(forced_release_keys));
+ }
+ 
+ /*
+@@ -859,12 +869,9 @@ static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
+ 	const unsigned int forced_release_keys[] = {
+ 		0x94,
+ 	};
+-	int i;
+ 
+-	if (atkbd->set == 2)
+-		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
+-			__set_bit(forced_release_keys[i],
+-					atkbd->force_release_mask);
++	atkbd_gen_release_event(atkbd, forced_release_keys,
++		ARRAY_SIZE(forced_release_keys));
+ }
+ 
+ /*
+-- 
+1.6.0.4
+
+
+
+
+--------------030706030401000601040400--

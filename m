@@ -1,42 +1,30 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: locking in hidraw
-Date: Mon, 1 Dec 2008 11:07:13 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0812011106370.21911@jikos.suse.cz>
-References: <200811041534.38166.oliver@neukum.org> <4910B24D.2020700@gmail.com> <alpine.LNX.1.10.0811121539090.32143@jikos.suse.cz> <200811121551.07909.oliver@neukum.org>
+From: Julian Sikorski <belegdol@gmail.com>
+Subject: Logitech Alto Cordless
+Date: Mon, 01 Dec 2008 14:21:00 +0100
+Message-ID: <4933E4BC.5090801@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:60308 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1750824AbYLAKHO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Dec 2008 05:07:14 -0500
-In-Reply-To: <200811121551.07909.oliver@neukum.org>
+Received: from nf-out-0910.google.com ([64.233.182.184]:15861 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751111AbYLANVE (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 1 Dec 2008 08:21:04 -0500
+Received: by nf-out-0910.google.com with SMTP id d3so1289104nfc.21
+        for <linux-input@vger.kernel.org>; Mon, 01 Dec 2008 05:21:01 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Wed, 12 Nov 2008, Oliver Neukum wrote:
+Hi,
 
-> > > > in this code:
-> > > > 
-> > > > 		mutex_lock(&list->read_mutex);
-> > > > 
-> > > > 		if (list->head == list->tail) {
-> > > > 			add_wait_queue(&list->hidraw->wait, &wait);
-> > > > 			set_current_state(TASK_INTERRUPTIBLE);
-> > > > it would make more sense to lock the mutex interruptable so all
-> > > > tasks sleep the same way. Is this intentional?
-> > Well, we have the test for pending signals just below that code, right?
-> So the tasks blocking on the mutex sleep all the time until another
-> task is finished and unlocks the mutex, only to return to user space
-> because signals are pending. Therefore why not make the wait on
-> the mutex interruptible, so the signals are processed right away?
+during a discussion on fedora-devel-list, I was suggested to check if
+the said keyboard is compliant with the standards before requesting
+xkeyboard-config changes. The problem exists with two keys:
+- Fn-F3, has MSIE logo on it, emits XF86HomePage, should emit XF86WWW
+- Fn-F4, has a tune on it, emit XF86Tools, should XF86AudioMedia
+This is under Fedora 10 x86_64, using evdev driver and evdev-managed
+keyboard map.
 
-Yes, it makes sense. Could you please fold this change together with the 
-hidraw changes you are going to push with the autosuspend patches?
-
-Thanks,
-
--- 
-Jiri Kosina
+Regards,
+Julian

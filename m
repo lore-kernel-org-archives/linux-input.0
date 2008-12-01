@@ -1,47 +1,38 @@
 From: akpm@linux-foundation.org
-Subject: [patch 4/8] serio_raw: add support for translated (SERIO_I8042XL) ports
+Subject: [patch 3/8] input: ads7846.c sparse lock annotation
 Date: Mon, 01 Dec 2008 14:20:14 -0800
-Message-ID: <200812012220.mB1MKFcB012629@imap1.linux-foundation.org>
+Message-ID: <200812012220.mB1MKERa012626@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:44144 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:56036 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752824AbYLAWVJ (ORCPT
+	by vger.kernel.org with ESMTP id S1752756AbYLAWVI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Dec 2008 17:21:09 -0500
+	Mon, 1 Dec 2008 17:21:08 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, niels.devos@wincor-nixdorf.com, dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, harvey.harrison@gmail.com
 
-From: "Niels de Vos" <niels.devos@wincor-nixdorf.com>
+From: Harvey Harrison <harvey.harrison@gmail.com>
 
-serio_raw only binds to non-translated devices. Enable serio_raw to
-bind to normal (translated) keyboards which can have non-standard
-extensions (like POS Keyboards). With this it is possible to send
-commands to the device over /dev/serio_raw<n>.
-
-Signed-off-by: Niels de Vos <niels.devos@wincor-nixdorf.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Harvey Harrison <harvey.harrison@gmail.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/serio/serio_raw.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/input/touchscreen/ads7846.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff -puN drivers/input/serio/serio_raw.c~serio_raw-add-support-for-translated-serio_i8042xl-ports drivers/input/serio/serio_raw.c
---- a/drivers/input/serio/serio_raw.c~serio_raw-add-support-for-translated-serio_i8042xl-ports
-+++ a/drivers/input/serio/serio_raw.c
-@@ -378,6 +378,12 @@ static struct serio_device_id serio_raw_
- 		.id	= SERIO_ANY,
- 		.extra	= SERIO_ANY,
- 	},
-+	{
-+		.type   = SERIO_8042_XL,
-+		.proto  = SERIO_ANY,
-+		.id     = SERIO_ANY,
-+		.extra  = SERIO_ANY,
-+	},
- 	{ 0 }
- };
+diff -puN drivers/input/touchscreen/ads7846.c~input-ads7846c-sparse-lock-annotation drivers/input/touchscreen/ads7846.c
+--- a/drivers/input/touchscreen/ads7846.c~input-ads7846c-sparse-lock-annotation
++++ a/drivers/input/touchscreen/ads7846.c
+@@ -761,6 +761,8 @@ static irqreturn_t ads7846_irq(int irq, 
  
+ /* Must be called with ts->lock held */
+ static void ads7846_disable(struct ads7846 *ts)
++__acquires(&ts->lock)
++__releases(&ts->lock)
+ {
+ 	if (ts->disabled)
+ 		return;
 _

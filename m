@@ -1,65 +1,47 @@
 From: akpm@linux-foundation.org
-Subject: [patch 8/8] input/mouse/alps.c: handle touchpoints buttons correctly
-Date: Mon, 01 Dec 2008 14:20:17 -0800
-Message-ID: <200812012220.mB1MKH93012643@imap1.linux-foundation.org>
+Subject: [patch 4/8] serio_raw: add support for translated (SERIO_I8042XL) ports
+Date: Mon, 01 Dec 2008 14:20:14 -0800
+Message-ID: <200812012220.mB1MKFcB012629@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:58242 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:44144 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752824AbYLAWVO (ORCPT
+	by vger.kernel.org with ESMTP id S1752824AbYLAWVJ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 1 Dec 2008 17:21:14 -0500
+	Mon, 1 Dec 2008 17:21:09 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, uli-kernel@spamt.net, uli@spamt.net
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, niels.devos@wincor-nixdorf.com, dmitry.torokhov@gmail.com
 
-From: Ulrich Dangel <uli-kernel@spamt.net>
+From: "Niels de Vos" <niels.devos@wincor-nixdorf.com>
 
-When pressing any button belonging to the touchpoint, the generated click
-events dont belong to the touchpoint but to the touchpad.
+serio_raw only binds to non-translated devices. Enable serio_raw to
+bind to normal (translated) keyboards which can have non-standard
+extensions (like POS Keyboards). With this it is possible to send
+commands to the device over /dev/serio_raw<n>.
 
-This patch fixes this behaviour, the events will be sent via the correct
-device, so scrolling with touchpoint is possible.
-
-The patch compiles cleanly and has been tested successfully on my machine.
-
-Signed-off-by: Ulrich Dangel <uli@spamt.net>
-Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Niels de Vos <niels.devos@wincor-nixdorf.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/alps.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/input/serio/serio_raw.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff -puN drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly drivers/input/mouse/alps.c
---- a/drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly
-+++ a/drivers/input/mouse/alps.c
-@@ -131,18 +131,23 @@ static void alps_process_packet(struct p
- 	ges = packet[2] & 1;
- 	fin = packet[2] & 2;
- 
--	input_report_key(dev, BTN_LEFT, left);
--	input_report_key(dev, BTN_RIGHT, right);
--	input_report_key(dev, BTN_MIDDLE, middle);
--
- 	if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
- 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
- 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
-+
-+		input_report_key(dev2, BTN_LEFT, left);
-+		input_report_key(dev2, BTN_RIGHT, right);
-+		input_report_key(dev2, BTN_MIDDLE, middle);
-+
- 		input_sync(dev);
- 		input_sync(dev2);
- 		return;
- 	}
- 
-+	input_report_key(dev, BTN_LEFT, left);
-+	input_report_key(dev, BTN_RIGHT, right);
-+	input_report_key(dev, BTN_MIDDLE, middle);
-+
- 	/* Convert hardware tap to a reasonable Z value */
- 	if (ges && !fin) z = 40;
+diff -puN drivers/input/serio/serio_raw.c~serio_raw-add-support-for-translated-serio_i8042xl-ports drivers/input/serio/serio_raw.c
+--- a/drivers/input/serio/serio_raw.c~serio_raw-add-support-for-translated-serio_i8042xl-ports
++++ a/drivers/input/serio/serio_raw.c
+@@ -378,6 +378,12 @@ static struct serio_device_id serio_raw_
+ 		.id	= SERIO_ANY,
+ 		.extra	= SERIO_ANY,
+ 	},
++	{
++		.type   = SERIO_8042_XL,
++		.proto  = SERIO_ANY,
++		.id     = SERIO_ANY,
++		.extra  = SERIO_ANY,
++	},
+ 	{ 0 }
+ };
  
 _

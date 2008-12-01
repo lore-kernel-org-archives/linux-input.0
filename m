@@ -1,101 +1,65 @@
-From: Daniel Mierswa <impulze@impulze.org>
-Subject: Re: [PATCH] Fujitsu Amilo PA 1510 key-release events quirk (PATCH
- 3/3)
-Date: Mon, 01 Dec 2008 22:01:26 +0100
-Message-ID: <493450A6.7050108@impulze.org>
-References: <4931BB48.9010706@impulze.org> <20081129233826.be959cae.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060908080701040102060805"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754157AbYLAVBW@vger.kernel.org>
-In-Reply-To: <20081129233826.be959cae.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org
+From: akpm@linux-foundation.org
+Subject: [patch 8/8] input/mouse/alps.c: handle touchpoints buttons correctly
+Date: Mon, 01 Dec 2008 14:20:17 -0800
+Message-ID: <200812012220.mB1MKH93012643@imap1.linux-foundation.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:58242 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752824AbYLAWVO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 1 Dec 2008 17:21:14 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dtor@mail.ru
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, uli-kernel@spamt.net, uli@spamt.net
 
-This is a multi-part message in MIME format.
---------------060908080701040102060805
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Ulrich Dangel <uli-kernel@spamt.net>
 
-Split patches as requested in "[PATCH] Fujitsu Amilo PA 1510 key-release
-events quirk"
+When pressing any button belonging to the touchpoint, the generated click
+events dont belong to the touchpoint but to the touchpad.
 
--- 
+This patch fixes this behaviour, the events will be sent via the correct
+device, so scrolling with touchpoint is possible.
 
-Mierswa, Daniel
+The patch compiles cleanly and has been tested successfully on my machine.
 
-If you still don't like it, that's ok: that's why I'm boss. I simply 
-know better than you do.
-                --- Linus Torvalds, comp.os.linux.advocacy, 1996/07/22
-
-
-
---------------060908080701040102060805
-Content-Type: text/plain;
- name="fujitsu-siemens-amilopa1510-quirks.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fujitsu-siemens-amilopa1510-quirks.patch"
-
->From 1a786f4d720ad0dbaf4b8a03a5237b8433753a4d Mon Sep 17 00:00:00 2001
-From: Daniel Mierswa <impulze@impulze.org>
-Date: Sun, 30 Nov 2008 13:17:01 +0100
-Subject: [PATCH] Fujitsu Siemens Amilo PA 1510 quirks
-
-The volume up and down keys on the Fujitsu Siemens Amilo PA 1510 laptop
-won't generate release events, so we have to do that. Use the same
-way that is already used with other models.
+Signed-off-by: Ulrich Dangel <uli@spamt.net>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/input/keyboard/atkbd.c |   23 +++++++++++++++++++++++
- 1 files changed, 23 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 11ded7e..7347cd4 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -875,6 +875,20 @@ static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
- }
+ drivers/input/mouse/alps.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff -puN drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly drivers/input/mouse/alps.c
+--- a/drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly
++++ a/drivers/input/mouse/alps.c
+@@ -131,18 +131,23 @@ static void alps_process_packet(struct p
+ 	ges = packet[2] & 1;
+ 	fin = packet[2] & 2;
  
- /*
-+ * The volume up and volume down special keys on a Fujitsu Amilo PA 1510 laptop
-+ * do not generate release events so we have to do it ourselves.
-+ */
-+static void atkbd_amilopa1510_keymap_fixup(struct atkbd *atkbd)
-+{
-+	static const unsigned int forced_release_keys[] = {
-+		0xb0, 0xae,
-+	};
+-	input_report_key(dev, BTN_LEFT, left);
+-	input_report_key(dev, BTN_RIGHT, right);
+-	input_report_key(dev, BTN_MIDDLE, middle);
+-
+ 	if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
+ 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
+ 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
 +
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
-+}
++		input_report_key(dev2, BTN_LEFT, left);
++		input_report_key(dev2, BTN_RIGHT, right);
++		input_report_key(dev2, BTN_MIDDLE, middle);
 +
-+/*
-  * atkbd_set_keycode_table() initializes keyboard's keycode table
-  * according to the selected scancode set
-  */
-@@ -1475,6 +1489,15 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
- 		.callback = atkbd_setup_fixup,
- 		.driver_data = atkbd_hp_keymap_fixup,
- 	},
-+	{
-+		.ident = "Fujitsu Amilo PA 1510",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pa 1510"),
-+		},
-+		.callback = atkbd_setup_fixup,
-+		.driver_data = atkbd_amilopa1510_keymap_fixup,
-+	},
- 	{ }
- };
+ 		input_sync(dev);
+ 		input_sync(dev2);
+ 		return;
+ 	}
  
--- 
-1.6.0.4
-
-
-
-
---------------060908080701040102060805--
++	input_report_key(dev, BTN_LEFT, left);
++	input_report_key(dev, BTN_RIGHT, right);
++	input_report_key(dev, BTN_MIDDLE, middle);
++
+ 	/* Convert hardware tap to a reasonable Z value */
+ 	if (ges && !fin) z = 40;
+ 
+_

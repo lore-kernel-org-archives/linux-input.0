@@ -1,63 +1,49 @@
-From: Julian Sikorski <belegdol@gmail.com>
-Subject: Re: Logitech Alto Cordless
-Date: Wed, 03 Dec 2008 09:57:21 +0100
-Message-ID: <493649F1.8090001@gmail.com>
-References: <4933E4BC.5090801@gmail.com> <alpine.LRH.1.10.0812011734130.28179@twin.jikos.cz> <493424C7.30209@gmail.com>
+From: "hartleys" <hartleys@visionengravers.com>
+Subject: RE: [RFC] Matrix keypad driver for Cirrus EP93xx
+Date: Wed, 3 Dec 2008 12:39:44 -0500
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909E0E8ED@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE1909BD0BCD@mi8nycmail19.Mi8.com> <20081029040943.GD27906@anvil.corenet.prv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.190]:12978 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751446AbYLCI50 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2008 03:57:26 -0500
-Received: by nf-out-0910.google.com with SMTP id d3so1788467nfc.21
-        for <linux-input@vger.kernel.org>; Wed, 03 Dec 2008 00:57:24 -0800 (PST)
-In-Reply-To: <493424C7.30209@gmail.com>
+Received: from exprod6og107.obsmtp.com ([64.18.1.208]:37902 "HELO
+	exprod6og107.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751005AbYLCRkb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Dec 2008 12:40:31 -0500
+Content-class: urn:content-classes:message
+In-Reply-To: <20081029040943.GD27906@anvil.corenet.prv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Julian Sikorski pisze:
-> Jiri Kosina pisze:
->> On Mon, 1 Dec 2008, Julian Sikorski wrote:
->>
->>> during a discussion on fedora-devel-list, I was suggested to check if
->>> the said keyboard is compliant with the standards before requesting
->>> xkeyboard-config changes. The problem exists with two keys:
->>> - Fn-F3, has MSIE logo on it, emits XF86HomePage, should emit XF86WWW
->>> - Fn-F4, has a tune on it, emit XF86Tools, should XF86AudioMedia
->>> This is under Fedora 10 x86_64, using evdev driver and evdev-managed
->>> keyboard map.
->> In order to answer this question, we need to know what the keyboard is 
->> acutally sending when these keys are being pressed (and also product ID 
->> would be useful -- this can be obtained from lsusb output).
->>
->> Assuming that Fedora has the CONFIG_HID_DEBUG kernel option turned on (I 
->> don't know whether this is true or not), could you please
->>
->> 	rmmod usbhid
->> 	rmmod hid
->> 	modprobe hid debug=2
->> 	modprobe usbhid
->>
->> press the keys, and send the dmesg output?
->>
->> Thanks,
->>
-> OK, got it. hid is builtin.
-Here is what evtest reports:
-Event: time 1228294575.277680, type 4 (Misc), code 4 (ScanCode), value c0223
-Event: time 1228294575.277708, type 1 (Key), code 172 (HomePage), value 1
-Event: time 1228294575.277716, -------------- Report Sync ------------
-Event: time 1228294575.437667, type 4 (Misc), code 4 (ScanCode), value c0223
-Event: time 1228294575.437692, type 1 (Key), code 172 (HomePage), value 0
-Event: time 1228294575.437699, -------------- Report Sync ------------
-Event: time 1228294576.165695, type 4 (Misc), code 4 (ScanCode), value c0183
-Event: time 1228294576.165724, type 1 (Key), code 171 (Config), value 1
-Event: time 1228294576.165732, -------------- Report Sync ------------
-Event: time 1228294576.325660, type 4 (Misc), code 4 (ScanCode), value c0183
-Event: time 1228294576.325690, type 1 (Key), code 171 (Config), value 0
-Event: time 1228294576.325697, -------------- Report Sync ------------
+On Tuesday, October 28, 2008 9:10 PM, Dmitry Torokhov wrote:
+>> Hello all,
+>> 
+>> Following is a new input keyboard driver for the Cirrus Logic EP93xx 
+>> keypad matrix peripheral. This driver is based on the pxa27x_keypad 
+>> driver.
+>> 
+>> This is my first driver submission please forgive me if this is the 
+>> wrong place or something is just plain wrong.
+>> 
+>
+> The driver looks great, can I please have your "Signed-off-by" so I
+> can apply it to the 'next' branch? Thanks!
 
-Julian
+Dmitry,
+
+Did you get my "Signed-off-by"?  What is that status of this driver
+submission?  
+
+I still need to add support to arm/mach-ep93xx for the key_clk but
+Russell has added a new simple clk API to arm.  I'm waiting for that to
+show up in the kernel so I can add it correctly.
+
+Do you want to hold off applying the driver until that happens?  If so I
+can re-submit the driver with all the necessary pieces at that time.
+
+Thanks,
+Hartley

@@ -1,183 +1,89 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.28-rc7] hid: "default y" considered evil
-Date: Wed, 3 Dec 2008 13:01:11 -0800
-Message-ID: <200812031301.11475.david-b@pacbell.net>
+From: "=?UTF-8?Q?=C5=81ukasz_Luboja=C5=84ski?=" <lukasz@lubojanski.info>
+Subject: Re: New Force Feedback device support - GreenAsia 0x12
+Date: Thu, 4 Dec 2008 21:35:36 +0100
+Message-ID: <92cd8c320812041235u6bf501d9ta473398bc1374aac@mail.gmail.com>
+References: <200811262333.45245.lukasz@lubojanski.info>
+	 <alpine.LNX.1.10.0811281514210.19853@jikos.suse.cz>
+	 <49303827.4050907@gmail.com>
+	 <200811282008.41601.lukasz@lubojanski.info>
+	 <alpine.LNX.1.10.0811292327470.19853@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+	boundary="----=_Part_30839_1204760.1228422936977"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp123.sbc.mail.sp1.yahoo.com ([69.147.64.96]:41647 "HELO
-	smtp123.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751079AbYLCVHx (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Dec 2008 16:07:53 -0500
-Content-Disposition: inline
+Received: from ey-out-2122.google.com ([74.125.78.26]:23498 "EHLO
+	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754324AbYLDUfk (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2008 15:35:40 -0500
+Received: by ey-out-2122.google.com with SMTP id 6so1814098eyi.37
+        for <linux-input@vger.kernel.org>; Thu, 04 Dec 2008 12:35:37 -0800 (PST)
+In-Reply-To: <alpine.LNX.1.10.0811292327470.19853@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+------=_Part_30839_1204760.1228422936977
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+Content-Disposition: inline
 
-Fix the obnoxious "default y" for all the "special" HID code,
-which forces folk with EMBEDDED defined to manually override
-that inappropriate default for almost 20 choices.  The general
-policy is against "default y"; it should apply here too.
+MjAwOC8xMS8yOSBKaXJpIEtvc2luYSA8amtvc2luYUBzdXNlLmN6PjoKPiBPbiBGcmksIDI4IE5v
+diAyMDA4LCDFgXVrYXN6IEx1Ym9qYcWEc2tpIHdyb3RlOgo+Cj4+ID4gSXQgc2VlbXMgdGhlIHBy
+b3RvY29sIHJlc2VtYmxlcyBtb3JlIHRoZSBoaWQtbGcyZmYgb25lLiBUaGUgZGlmZmVyZW5jZXMK
+Pj4gPiBhcmUgdGhlIGFkZGl0aW9uYWwgMHhmYSAweGZlIDB4MCByZXBvcnQgc2VudCB0byB0aGUg
+ZGV2aWNlLCBhbmQgdGhlCj4+ID4gbWlzc2luZyAweGYzIHN0b3AgY29tbWFuZC4KPj4gWWVwIC0g
+ZGlmZmVyZW50IHJlcG9ydHMgYXJlIHNlbmQgaW4gY2FzZSBvZiBQYW50aGVybG9yZCBhbmQgR3Jl
+ZW5Bc2lhCj4+IDB4MTIgLSBJdCBjb3VsZCBiZSBpbXBsZW1lbnRlZCBpbiBpdCBidXQgaXQgd2ls
+bCByZXF1aXJlIGNoZWNraW5nIHdoYXQKPj4gaGFyZHdhcmUgaXMgdXNlZCBhbmQgc2VuZCBkaWZm
+ZXJlbnQgcmVwb3J0cy4KPgo+IE9LLCBzbyBhcyB0aGUgcmVwb3J0cyBhcmUgbm90IHJlYWxseSBp
+ZGVudGljYWwsIGFuZCBpbiB0aGUgZnV0dXJlIHdlIG1pZ2h0Cj4gZGlzY292ZXIgdGhhdCB0aGVy
+ZSBhcmUgbWFueSBtb3JlIG90aGVyIEdyZWVuYXNpYSBkZXZpY2VzIHdoaWNoIHJlcXVpcmUgYQo+
+IHNsaWdodGx5IGRpZmZlcmVudCBoYW5kbGluZyBhcyB3ZWxsLCBJIHdvdWxkIHJhdGhlciBwcmVm
+ZXIgdG8gaGF2ZSBpdCBhcyBhCj4gc2VwYXJhdGUgZHJpdmVyLCB0byBhdm9pZCBhZGRpdGlvbnMg
+b2YgaGVyZS1hbmQtdGhlcmUgZGV2aWNlLXNwZWNpZmljCj4gcXVpcmtzIHRvIHJhbmRvbSBwbGFj
+ZXMgaW4gdGhlIGNvZGUuIFRoYXQncyBleGFjdGx5IHdoYXQgd2UgYXJlIHRyeWluZyB0bwo+IGF2
+b2lkIHdpdGggdGhlIEhJRCBidXMgYXBwcm9hY2ggaW4gdGhlIGZpcnN0IHBsYWNlLgo+Cj4gU28g
+SSB0aGluayBzZXBhcmF0ZSBkcml2ZXIgaXMgZmluZS4KPgo+IFRoYW5rcyB0byBib3RoIG9mIHlv
+dS4KPgo+IC0tCj4gSmlyaSBLb3NpbmEKPiBTVVNFIExhYnMKCkhpLAoKSGVyZSBpcyBuZXcgdmVy
+c2lvbiBvZiB0aGUgR3JlZW5Bc2lhIHBhdGNoIC0gSSBob3BlIHRoaXMgdGltZQpldmVyeXRoaW5n
+IHdpbGwgYmUgT0suIEl0IGlzIGJhc2VkIG9uIHRoZSBQYW50aGVybG9yZC4KClNvcnJ5IHRvIHRh
+a2Ugc28gbG9uZyBidXQgSSBoYXZlIHByb2JsZW1zIHdpdGggdGhlIDIuNi4yOCAoMi42LjI4LXJj
+Ngp3YXMgbm90IGxvYWRpbmcgbXkgZHJpdmVyIGFuZCAyLjYuMjgtcmM3IGlzIGNyYXNoaW5nIHdo
+ZW4gSU8gQVBJQyBpcwplbmFibGVkKS4gQW55d2F5IEkgZG9uZSBpdCBhbmQgSSdtIHdhaXRpbmcg
+Zm9yIHlvdXIgZmVlZGJhY2sgOkQKCnJlZ2FyZHMKTHVrYXN6IEx1Ym9qYW5za2kK
+------=_Part_30839_1204760.1228422936977
+Content-Type: text/x-diff; name=greenasia.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_fobuzznq0
+Content-Disposition: attachment; filename=greenasia.patch
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
----
- drivers/hid/Kconfig |   36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
-
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -85,14 +85,14 @@ config HID_COMPAT
- config HID_A4TECH
- 	tristate "A4 tech" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
- 
- config HID_APPLE
- 	tristate "Apple" if EMBEDDED
- 	depends on (USB_HID || BT_HIDP)
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for some Apple devices which less or more break
- 	HID specification.
-@@ -103,42 +103,42 @@ config HID_APPLE
- config HID_BELKIN
- 	tristate "Belkin" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Belkin Flip KVM and Wireless keyboard.
- 
- config HID_BRIGHT
- 	tristate "Bright" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Bright ABNT-2 keyboard.
- 
- config HID_CHERRY
- 	tristate "Cherry" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Cherry Cymotion keyboard.
- 
- config HID_CHICONY
- 	tristate "Chicony" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Chicony Tactical pad.
- 
- config HID_CYPRESS
- 	tristate "Cypress" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for cypress mouse and barcode readers.
- 
- config HID_DELL
- 	tristate "Dell" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for quirky Dell HID hardware that require
- 	special LED handling (W7658 and SK8115 models)
-@@ -146,21 +146,21 @@ config HID_DELL
- config HID_EZKEY
- 	tristate "Ezkey" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Ezkey BTC 8193 keyboard.
- 
- config HID_GYRATION
- 	tristate "Gyration" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Gyration remote control.
- 
- config HID_LOGITECH
- 	tristate "Logitech" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Logitech devices that are not fully compliant with HID standard.
- 
-@@ -191,21 +191,21 @@ config LOGIRUMBLEPAD2_FF
- config HID_MICROSOFT
- 	tristate "Microsoft" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Microsoft devices that are not fully compliant with HID standard.
- 
- config HID_MONTEREY
- 	tristate "Monterey" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Monterey Genius KB29E.
- 
- config HID_PANTHERLORD
- 	tristate "Pantherlord devices support" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for PantherLord/GreenAsia based device support.
- 
-@@ -220,28 +220,28 @@ config PANTHERLORD_FF
- config HID_PETALYNX
- 	tristate "Petalynx" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Petalynx Maxter remote control.
- 
- config HID_SAMSUNG
- 	tristate "Samsung" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Samsung InfraRed remote control.
- 
- config HID_SONY
- 	tristate "Sony" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Sony PS3 controller.
- 
- config HID_SUNPLUS
- 	tristate "Sunplus" if EMBEDDED
- 	depends on USB_HID
--	default y
-+	default !EMBEDDED
- 	---help---
- 	Support for Sunplus wireless desktop.
- 
+U2lnbmVkLW9mZi1ieTogTHVrYXN6IEx1Ym9qYW5za2kgPGx1a2FzekBsdWJvamFuc2tpLmluZm8+
+CmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtZ2EuYyBiL2RyaXZlcnMvaGlkL2hpZC1nYS5j
+CmluZGV4IDMzYzlhMTkuLmU4MjE4OTggMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlkL2hpZC1nYS5j
+CisrKyBiL2RyaXZlcnMvaGlkL2hpZC1nYS5jCkBAIC02NSw3ICs2NSw3IEBAIHN0YXRpYyBpbnQg
+aGlkX2dhZmZfcGxheShzdHJ1Y3QgaW5wdXRfZGV2ICpkZXYsIHZvaWQgKmRhdGEsCiAJZGVidWco
+ImNhbGxlZCB3aXRoIDB4JTA0eCAweCUwNHgiLCBsZWZ0LCByaWdodCk7CiAKIAlsZWZ0ID0gbGVm
+dCAqIDB4ZmUgLyAweGZmZmY7Ci0gICAgCXJpZ2h0ID0gcmlnaHQgKiAweGZlIC8gMHhmZmZmOwor
+CXJpZ2h0ID0gcmlnaHQgKiAweGZlIC8gMHhmZmZmOwogCiAJZ2FmZi0+cmVwb3J0LT5maWVsZFsw
+XS0+dmFsdWVbMF0gPSAweDUxOwogCWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzFdID0g
+MHgwOwpAQCAtNzksOCArNzksOCBAQCBzdGF0aWMgaW50IGhpZF9nYWZmX3BsYXkoc3RydWN0IGlu
+cHV0X2RldiAqZGV2LCB2b2lkICpkYXRhLAogCWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVl
+WzBdID0gMHhmYTsKIAlnYWZmLT5yZXBvcnQtPmZpZWxkWzBdLT52YWx1ZVsxXSA9IDB4ZmU7CiAJ
+Z2FmZi0+cmVwb3J0LT5maWVsZFswXS0+dmFsdWVbMl0gPSAweDA7Ci0gICAgCWdhZmYtPnJlcG9y
+dC0+ZmllbGRbMF0tPnZhbHVlWzRdID0gMHgwOwotCQorCWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0t
+PnZhbHVlWzRdID0gMHgwOworCiAJdXNiaGlkX3N1Ym1pdF9yZXBvcnQoaGlkLCBnYWZmLT5yZXBv
+cnQsIFVTQl9ESVJfT1VUKTsKIAogCXJldHVybiAwOwpAQCAtMTM2LDE0ICsxMzYsMTQgQEAgc3Rh
+dGljIGludCBnYWZmX2luaXQoc3RydWN0IGhpZF9kZXZpY2UgKmhpZCkKIAkJCWtmcmVlKGdhZmYp
+OwogCQkJcmV0dXJuIGVycm9yOwogCQl9Ci0JCQorCiAJCWdhZmYtPnJlcG9ydCA9IHJlcG9ydDsK
+IAkJZ2FmZi0+cmVwb3J0LT5maWVsZFswXS0+dmFsdWVbMF0gPSAweDUxOwogCQlnYWZmLT5yZXBv
+cnQtPmZpZWxkWzBdLT52YWx1ZVsxXSA9IDB4MDA7CiAJCWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0t
+PnZhbHVlWzJdID0gMHgwMDsKIAkJZ2FmZi0+cmVwb3J0LT5maWVsZFswXS0+dmFsdWVbM10gPSAw
+eDAwOwogCQl1c2JoaWRfc3VibWl0X3JlcG9ydChoaWQsIGdhZmYtPnJlcG9ydCwgVVNCX0RJUl9P
+VVQpOwotCQkKKwogCQlnYWZmLT5yZXBvcnQtPmZpZWxkWzBdLT52YWx1ZVswXSA9IDB4ZmE7CiAJ
+CWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzFdID0gMHhmZTsKIApAQCAtMTY5LDcgKzE2
+OSw3IEBAIHN0YXRpYyBpbmxpbmUgaW50IGdhZmZfaW5pdChzdHJ1Y3QgaGlkX2RldmljZSAqaGlk
+KQogc3RhdGljIGludCBnYV9wcm9iZShzdHJ1Y3QgaGlkX2RldmljZSAqaGRldiwgY29uc3Qgc3Ry
+dWN0IGhpZF9kZXZpY2VfaWQgKmlkKQogewogCWludCByZXQ7Ci0JCisKIAlkZWJ1ZygiR3JlZW5h
+c2lhIEhJRCBoYXJkd2FyZSBwcm9iZS4uLiIpOwogCiAJaWYgKGlkLT5kcml2ZXJfZGF0YSkK
+------=_Part_30839_1204760.1228422936977--

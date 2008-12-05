@@ -1,217 +1,463 @@
-From: "=?UTF-8?Q?=C5=81ukasz_Luboja=C5=84ski?=" <lukasz@lubojanski.info>
-Subject: Re: New Force Feedback device support - GreenAsia 0x12
-Date: Thu, 4 Dec 2008 21:55:45 +0100
-Message-ID: <92cd8c320812041255i1a8bb4ces9468d2821ab7c620@mail.gmail.com>
-References: <200811262333.45245.lukasz@lubojanski.info>
-	 <alpine.LNX.1.10.0811281514210.19853@jikos.suse.cz>
-	 <49303827.4050907@gmail.com>
-	 <200811282008.41601.lukasz@lubojanski.info>
-	 <alpine.LNX.1.10.0811292327470.19853@jikos.suse.cz>
-	 <92cd8c320812041235u6bf501d9ta473398bc1374aac@mail.gmail.com>
+From: "Eric Miao" <eric.y.miao@gmail.com>
+Subject: [PATCH 1/3] input: add da9034 touchscreen support
+Date: Fri, 5 Dec 2008 10:10:35 +0800
+Message-ID: <f17812d70812041810o57726d24j4feabfbe89e7c271@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_Part_31256_26838029.1228424145923"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nf-out-0910.google.com ([64.233.182.186]:8230 "EHLO
-	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755338AbYLDUzs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2008 15:55:48 -0500
-Received: by nf-out-0910.google.com with SMTP id d3so2213265nfc.21
-        for <linux-input@vger.kernel.org>; Thu, 04 Dec 2008 12:55:46 -0800 (PST)
-In-Reply-To: <92cd8c320812041235u6bf501d9ta473398bc1374aac@mail.gmail.com>
+Received: from rv-out-0506.google.com ([209.85.198.225]:55695 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753987AbYLECKg (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 4 Dec 2008 21:10:36 -0500
+Received: by rv-out-0506.google.com with SMTP id k40so4264065rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 04 Dec 2008 18:10:35 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-------=_Part_31256_26838029.1228424145923
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-Content-Disposition: inline
+>From a3259123035102444c5868d825aa06fd9a49fad4 Mon Sep 17 00:00:00 2001
+From: Eric Miao <eric.miao@marvell.com>
+Date: Wed, 3 Dec 2008 13:39:28 +0800
+Subject: [PATCH] input: add da9034 touchscreen support
 
-T24gVGh1LCBEZWMgNCwgMjAwOCBhdCA5OjM1IFBNLCDFgXVrYXN6IEx1Ym9qYcWEc2tpCjxsdWth
-c3pAbHVib2phbnNraS5pbmZvPiB3cm90ZToKPiAyMDA4LzExLzI5IEppcmkgS29zaW5hIDxqa29z
-aW5hQHN1c2UuY3o+Ogo+PiBPbiBGcmksIDI4IE5vdiAyMDA4LCDFgXVrYXN6IEx1Ym9qYcWEc2tp
-IHdyb3RlOgo+Pgo+Pj4gPiBJdCBzZWVtcyB0aGUgcHJvdG9jb2wgcmVzZW1ibGVzIG1vcmUgdGhl
-IGhpZC1sZzJmZiBvbmUuIFRoZSBkaWZmZXJlbmNlcwo+Pj4gPiBhcmUgdGhlIGFkZGl0aW9uYWwg
-MHhmYSAweGZlIDB4MCByZXBvcnQgc2VudCB0byB0aGUgZGV2aWNlLCBhbmQgdGhlCj4+PiA+IG1p
-c3NpbmcgMHhmMyBzdG9wIGNvbW1hbmQuCj4+PiBZZXAgLSBkaWZmZXJlbnQgcmVwb3J0cyBhcmUg
-c2VuZCBpbiBjYXNlIG9mIFBhbnRoZXJsb3JkIGFuZCBHcmVlbkFzaWEKPj4+IDB4MTIgLSBJdCBj
-b3VsZCBiZSBpbXBsZW1lbnRlZCBpbiBpdCBidXQgaXQgd2lsbCByZXF1aXJlIGNoZWNraW5nIHdo
-YXQKPj4+IGhhcmR3YXJlIGlzIHVzZWQgYW5kIHNlbmQgZGlmZmVyZW50IHJlcG9ydHMuCj4+Cj4+
-IE9LLCBzbyBhcyB0aGUgcmVwb3J0cyBhcmUgbm90IHJlYWxseSBpZGVudGljYWwsIGFuZCBpbiB0
-aGUgZnV0dXJlIHdlIG1pZ2h0Cj4+IGRpc2NvdmVyIHRoYXQgdGhlcmUgYXJlIG1hbnkgbW9yZSBv
-dGhlciBHcmVlbmFzaWEgZGV2aWNlcyB3aGljaCByZXF1aXJlIGEKPj4gc2xpZ2h0bHkgZGlmZmVy
-ZW50IGhhbmRsaW5nIGFzIHdlbGwsIEkgd291bGQgcmF0aGVyIHByZWZlciB0byBoYXZlIGl0IGFz
-IGEKPj4gc2VwYXJhdGUgZHJpdmVyLCB0byBhdm9pZCBhZGRpdGlvbnMgb2YgaGVyZS1hbmQtdGhl
-cmUgZGV2aWNlLXNwZWNpZmljCj4+IHF1aXJrcyB0byByYW5kb20gcGxhY2VzIGluIHRoZSBjb2Rl
-LiBUaGF0J3MgZXhhY3RseSB3aGF0IHdlIGFyZSB0cnlpbmcgdG8KPj4gYXZvaWQgd2l0aCB0aGUg
-SElEIGJ1cyBhcHByb2FjaCBpbiB0aGUgZmlyc3QgcGxhY2UuCj4+Cj4+IFNvIEkgdGhpbmsgc2Vw
-YXJhdGUgZHJpdmVyIGlzIGZpbmUuCj4+Cj4+IFRoYW5rcyB0byBib3RoIG9mIHlvdS4KPj4KPj4g
-LS0KPj4gSmlyaSBLb3NpbmEKPj4gU1VTRSBMYWJzCj4KPiBIaSwKPgo+IEhlcmUgaXMgbmV3IHZl
-cnNpb24gb2YgdGhlIEdyZWVuQXNpYSBwYXRjaCAtIEkgaG9wZSB0aGlzIHRpbWUKPiBldmVyeXRo
-aW5nIHdpbGwgYmUgT0suIEl0IGlzIGJhc2VkIG9uIHRoZSBQYW50aGVybG9yZC4KPgo+IFNvcnJ5
-IHRvIHRha2Ugc28gbG9uZyBidXQgSSBoYXZlIHByb2JsZW1zIHdpdGggdGhlIDIuNi4yOCAoMi42
-LjI4LXJjNgo+IHdhcyBub3QgbG9hZGluZyBteSBkcml2ZXIgYW5kIDIuNi4yOC1yYzcgaXMgY3Jh
-c2hpbmcgd2hlbiBJTyBBUElDIGlzCj4gZW5hYmxlZCkuIEFueXdheSBJIGRvbmUgaXQgYW5kIEkn
-bSB3YWl0aW5nIGZvciB5b3VyIGZlZWRiYWNrIDpECj4KPiByZWdhcmRzCj4gTHVrYXN6IEx1Ym9q
-YW5za2kKPgoKQW5kIG9uZSBtb3JlIHRpbWUgLSBiZWNhdXNlIEkgaGF2ZSBnZW5lcmF0ZWQgYW5k
-IGF0dGFjaGVkIHdyb25nIGZpbGUgcHJldmlvdXNseS4KClRoaXMgdGltZSBzaG91bGQgYmUgT0su
-CgpyZWdhcmRzCkx1a2FzeiBMdWJvamFuc2tpCg==
-------=_Part_31256_26838029.1228424145923
-Content-Type: text/x-diff; name=greenasia.diff
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_fobvyej71
-Content-Disposition: attachment; filename=greenasia.diff
+Add support for the built-in touchscreen controller in DA9034 (aka Micco),
+usually found on platforms with xscale processors.
 
-U2lnbmVkLW9mZi1ieTogTHVrYXN6IEx1Ym9qYW5za2kgPGx1a2FzekBsdWJvamFuc2tpLmluZm8+
-CmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9LY29uZmlnIGIvZHJpdmVycy9oaWQvS2NvbmZpZwpp
-bmRleCBiNGZkOGNhLi40NWYyNWVmIDEwMDY0NAotLS0gYS9kcml2ZXJzL2hpZC9LY29uZmlnCisr
-KyBiL2RyaXZlcnMvaGlkL0tjb25maWcKQEAgLTIxNyw2ICsyMTcsMjQgQEAgY29uZmlnIFBBTlRI
-RVJMT1JEX0ZGCiAJICBTYXkgWSBoZXJlIGlmIHlvdSBoYXZlIGEgUGFudGhlckxvcmQvR3JlZW5B
-c2lhIGJhc2VkIGdhbWUgY29udHJvbGxlcgogCSAgb3IgYWRhcHRlciBhbmQgd2FudCB0byBlbmFi
-bGUgZm9yY2UgZmVlZGJhY2sgc3VwcG9ydCBmb3IgaXQuCiAKK2NvbmZpZyBISURfR1JFRU5BU0lB
-CisJdHJpc3RhdGUgIkdyZWVuQXNpYSAoUHJvZHVjdCBJRCAweDEyKSBiYXNlZCBkZXZpY2Ugc3Vw
-cG9ydCIgaWYgRU1CRURERUQKKwlkZXBlbmRzIG9uIFVTQl9ISUQKKwlkZWZhdWx0IHkKKwktLS1o
-ZWxwLS0tCisJICBTdXBwb3J0IGZvciBHcmVlbkFzaWEgKFByb2R1Y3QgSUQgMHgxMikgYmFzZWQg
-ZGV2aWNlIHN1cHBvcnQKKwkgIChsaWtlIE1BTlRBIFdhcmlvciBNTTgxNiBhbmQgU3BlZWRMaW5r
-IFN0cmlrZTIgU0wtNjYzNSkuCisKK2NvbmZpZyBHUkVFTkFTSUFfRkYKKwlib29sICJHcmVlbkFz
-aWEgKFByb2R1Y3QgSUQgMHgxMikgZm9yY2UgZmVlZGJhY2sgc3VwcG9ydCIKKwlkZXBlbmRzIG9u
-IEhJRF9HUkVFTkFTSUEKKwlzZWxlY3QgSU5QVVRfRkZfTUVNTEVTUworCS0tLWhlbHAtLS0KKwkg
-IFNheSBZIGhlcmUgaWYgeW91IGhhdmUgYSBHcmVlbkFzaWEgKFByb2R1Y3QgSUQgMHgxMikgYmFz
-ZWQgZ2FtZSBjb250cm9sbGVyCisJICBvciBhZGFwdGVyIGFuZCB3YW50IHRvIGVuYWJsZSBmb3Jj
-ZSBmZWVkYmFjayBzdXBwb3J0IGZvciBpdC4KKworCisKIGNvbmZpZyBISURfUEVUQUxZTlgKIAl0
-cmlzdGF0ZSAiUGV0YWx5bngiIGlmIEVNQkVEREVECiAJZGVwZW5kcyBvbiBVU0JfSElECmRpZmYg
-LS1naXQgYS9kcml2ZXJzL2hpZC9NYWtlZmlsZSBiL2RyaXZlcnMvaGlkL01ha2VmaWxlCmluZGV4
-IGIwOWU0M2UuLjIwNjYyYjcgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlkL01ha2VmaWxlCisrKyBi
-L2RyaXZlcnMvaGlkL01ha2VmaWxlCkBAIC0zMyw2ICszMyw3IEBAIG9iai0kKENPTkZJR19ISURf
-R1lSQVRJT04pCSs9IGhpZC1neXJhdGlvbi5vCiBvYmotJChDT05GSUdfSElEX0xPR0lURUNIKQkr
-PSBoaWQtbG9naXRlY2gubwogb2JqLSQoQ09ORklHX0hJRF9NSUNST1NPRlQpCSs9IGhpZC1taWNy
-b3NvZnQubwogb2JqLSQoQ09ORklHX0hJRF9NT05URVJFWSkJKz0gaGlkLW1vbnRlcmV5Lm8KK29i
-ai0kKENPTkZJR19ISURfR1JFRU5BU0lBKQkrPSBoaWQtZ2Eubwogb2JqLSQoQ09ORklHX0hJRF9Q
-QU5USEVSTE9SRCkJKz0gaGlkLXBsLm8KIG9iai0kKENPTkZJR19ISURfUEVUQUxZTlgpCSs9IGhp
-ZC1wZXRhbHlueC5vCiBvYmotJChDT05GSUdfSElEX1NBTVNVTkcpCSs9IGhpZC1zYW1zdW5nLm8K
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMgYi9kcml2ZXJzL2hpZC9oaWQtY29y
-ZS5jCmluZGV4IDQwZGYzZTEuLmYyMTg0Y2YgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlkL2hpZC1j
-b3JlLmMKKysrIGIvZHJpdmVycy9oaWQvaGlkLWNvcmUuYwpAQCAtMTI2OSw2ICsxMjY5LDcgQEAg
-c3RhdGljIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkIGhpZF9ibGFja2xpc3RbXSA9IHsKIAl7
-IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfR0FNRVJPTiwgVVNCX0RFVklDRV9JRF9HQU1F
-Uk9OX0RVQUxfUFNYX0FEQVBUT1IpIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0JfVkVORE9SX0lE
-X0dBTUVST04sIFVTQl9ERVZJQ0VfSURfR0FNRVJPTl9EVUFMX1BDU19BREFQVE9SKSB9LAogCXsg
-SElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRPUl9JRF9HUkVFTkFTSUEsIDB4MDAwMykgfSwKKwl7IEhJ
-RF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfR1JFRU5BU0lBLCAweDAwMTIpIH0sCiAJeyBISURf
-VVNCX0RFVklDRShVU0JfVkVORE9SX0lEX0dZUkFUSU9OLCBVU0JfREVWSUNFX0lEX0dZUkFUSU9O
-X1JFTU9URSkgfSwKIAl7IEhJRF9VU0JfREVWSUNFKFVTQl9WRU5ET1JfSURfR1lSQVRJT04sIFVT
-Ql9ERVZJQ0VfSURfR1lSQVRJT05fUkVNT1RFXzIpIH0sCiAJeyBISURfVVNCX0RFVklDRShVU0Jf
-VkVORE9SX0lEX0xBQlRFQywgVVNCX0RFVklDRV9JRF9MQUJURUNfV0lSRUxFU1NfS0VZQk9BUkQp
-IH0sCmRpZmYgLS1naXQgYS9kcml2ZXJzL2hpZC9oaWQtZHVtbXkuYyBiL2RyaXZlcnMvaGlkL2hp
-ZC1kdW1teS5jCmluZGV4IGUxNDhmODYuLmQyYjFiMzcgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaGlk
-L2hpZC1kdW1teS5jCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1kdW1teS5jCkBAIC00Myw2ICs0Myw5
-IEBAIHN0YXRpYyBpbnQgX19pbml0IGhpZF9kdW1teV9pbml0KHZvaWQpCiAjaWZkZWYgQ09ORklH
-X0hJRF9NT05URVJFWV9NT0RVTEUKIAlISURfQ09NUEFUX0NBTExfRFJJVkVSKG1vbnRlcmV5KTsK
-ICNlbmRpZgorI2lmZGVmIENPTkZJR19ISURfR1JFRU5BU0lBX01PRFVMRQorCUhJRF9DT01QQVRf
-Q0FMTF9EUklWRVIoZ3JlZW5hc2lhKTsKKyNlbmRpZgogI2lmZGVmIENPTkZJR19ISURfUEFOVEhF
-UkxPUkRfTU9EVUxFCiAJSElEX0NPTVBBVF9DQUxMX0RSSVZFUihwYW50aGVybG9yZCk7CiAjZW5k
-aWYKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2hpZC1nYS5jIGIvZHJpdmVycy9oaWQvaGlkLWdh
-LmMKbmV3IGZpbGUgbW9kZSAxMDA2NDQKaW5kZXggMDAwMDAwMC4uZTUwZjNmNQotLS0gL2Rldi9u
-dWxsCisrKyBiL2RyaXZlcnMvaGlkL2hpZC1nYS5jCkBAIC0wLDAgKzEsMjIzIEBACisvKgorICog
-IEZvcmNlIGZlZWRiYWNrIHN1cHBvcnQgZm9yIEdyZWVuQXNpYSAoUHJvZHVjdCBJRCAweDEyKSBi
-YXNlZCBkZXZpY2VzCisgKgorICogIFRoZSBkZXZpY2VzIGFyZSBkaXN0cmlidXRlZCB1bmRlciB2
-YXJpb3VzIG5hbWVzIGFuZCB0aGUgc2FtZSBVU0IgZGV2aWNlIElECisgKiAgY2FuIGJlIHVzZWQg
-aW4gbWFueSBnYW1lIGNvbnRyb2xsZXJzLgorICoKKyAqCisgKiAgMGU4ZjowMDEyICJHcmVlbkFz
-aWEgSW5jLiAgICBVU0IgSm95c3RpY2sgICAgICIKKyAqICAgLSB0ZXN0ZWQgd2l0aCBNQU5UQSBX
-YXJpb3IgTU04MTYgYW5kIFNwZWVkTGluayBTdHJpa2UyIFNMLTY2MzUuCisgKgorICogIENvcHly
-aWdodCAoYykgMjAwOCBMdWthc3ogTHVib2phbnNraSA8bHVrYXN6QGx1Ym9qYW5za2kuaW5mbz4K
-KyAqLworCisvKgorICogVGhpcyBwcm9ncmFtIGlzIGZyZWUgc29mdHdhcmU7IHlvdSBjYW4gcmVk
-aXN0cmlidXRlIGl0IGFuZC9vciBtb2RpZnkKKyAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUg
-R05VIEdlbmVyYWwgUHVibGljIExpY2Vuc2UgYXMgcHVibGlzaGVkIGJ5CisgKiB0aGUgRnJlZSBT
-b2Z0d2FyZSBGb3VuZGF0aW9uOyBlaXRoZXIgdmVyc2lvbiAyIG9mIHRoZSBMaWNlbnNlLCBvcgor
-ICogKGF0IHlvdXIgb3B0aW9uKSBhbnkgbGF0ZXIgdmVyc2lvbi4KKyAqCisgKiBUaGlzIHByb2dy
-YW0gaXMgZGlzdHJpYnV0ZWQgaW4gdGhlIGhvcGUgdGhhdCBpdCB3aWxsIGJlIHVzZWZ1bCwKKyAq
-IGJ1dCBXSVRIT1VUIEFOWSBXQVJSQU5UWTsgd2l0aG91dCBldmVuIHRoZSBpbXBsaWVkIHdhcnJh
-bnR5IG9mCisgKiBNRVJDSEFOVEFCSUxJVFkgb3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBV
-UlBPU0UuICBTZWUgdGhlCisgKiBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBmb3IgbW9yZSBk
-ZXRhaWxzLgorICoKKyAqIFlvdSBzaG91bGQgaGF2ZSByZWNlaXZlZCBhIGNvcHkgb2YgdGhlIEdO
-VSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlCisgKiBhbG9uZyB3aXRoIHRoaXMgcHJvZ3JhbTsgaWYg
-bm90LCB3cml0ZSB0byB0aGUgRnJlZSBTb2Z0d2FyZQorICogRm91bmRhdGlvbiwgSW5jLiwgNTkg
-VGVtcGxlIFBsYWNlLCBTdWl0ZSAzMzAsIEJvc3RvbiwgTUEgMDIxMTEtMTMwNyBVU0EKKyAqLwor
-CisKKyNkZWZpbmUgREVCVUcKKworI2RlZmluZSBkZWJ1Zyhmb3JtYXQsIGFyZy4uLikgcHJfZGVi
-dWcoImhpZC1nYTogIiBmb3JtYXQgIlxuIiAsICMjIGFyZykKKworI2luY2x1ZGUgPGxpbnV4L2lu
-cHV0Lmg+CisjaW5jbHVkZSA8bGludXgvdXNiLmg+CisjaW5jbHVkZSA8bGludXgvaGlkLmg+CisK
-KyNpbmNsdWRlICJoaWQtaWRzLmgiCisKKyNpZmRlZiBDT05GSUdfR1JFRU5BU0lBX0ZGCisjaW5j
-bHVkZSAidXNiaGlkL3VzYmhpZC5oIgorCisKK3N0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgZmZf
-cnVtYmxlW10gPSB7CisJRkZfUlVNQkxFLAorCS0xCit9OworCisKK3N0cnVjdCBnYWZmX2Rldmlj
-ZSB7CisJc3RydWN0IGhpZF9yZXBvcnQgKnJlcG9ydDsKK307CisKK3N0YXRpYyBpbnQgaGlkX2dh
-ZmZfcGxheShzdHJ1Y3QgaW5wdXRfZGV2ICpkZXYsIHZvaWQgKmRhdGEsCisJCQkgc3RydWN0IGZm
-X2VmZmVjdCAqZWZmZWN0KQoreworCXN0cnVjdCBoaWRfZGV2aWNlICpoaWQgPSBpbnB1dF9nZXRf
-ZHJ2ZGF0YShkZXYpOworCXN0cnVjdCBnYWZmX2RldmljZSAqZ2FmZiA9IGRhdGE7CisJaW50IGxl
-ZnQsIHJpZ2h0OworCisJbGVmdCA9IGVmZmVjdC0+dS5ydW1ibGUuc3Ryb25nX21hZ25pdHVkZTsK
-KwlyaWdodCA9IGVmZmVjdC0+dS5ydW1ibGUud2Vha19tYWduaXR1ZGU7CisKKwlkZWJ1ZygiY2Fs
-bGVkIHdpdGggMHglMDR4IDB4JTA0eCIsIGxlZnQsIHJpZ2h0KTsKKworCWxlZnQgPSBsZWZ0ICog
-MHhmZSAvIDB4ZmZmZjsKKwlyaWdodCA9IHJpZ2h0ICogMHhmZSAvIDB4ZmZmZjsKKworCWdhZmYt
-PnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzBdID0gMHg1MTsKKwlnYWZmLT5yZXBvcnQtPmZpZWxk
-WzBdLT52YWx1ZVsxXSA9IDB4MDsKKwlnYWZmLT5yZXBvcnQtPmZpZWxkWzBdLT52YWx1ZVsyXSA9
-IHJpZ2h0OworCWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzNdID0gMDsKKwlnYWZmLT5y
-ZXBvcnQtPmZpZWxkWzBdLT52YWx1ZVs0XSA9IGxlZnQ7CisJZ2FmZi0+cmVwb3J0LT5maWVsZFsw
-XS0+dmFsdWVbNV0gPSAwOworCWRlYnVnKCJydW5uaW5nIHdpdGggMHglMDJ4IDB4JTAyeCIsIGxl
-ZnQsIHJpZ2h0KTsKKwl1c2JoaWRfc3VibWl0X3JlcG9ydChoaWQsIGdhZmYtPnJlcG9ydCwgVVNC
-X0RJUl9PVVQpOworCisJZ2FmZi0+cmVwb3J0LT5maWVsZFswXS0+dmFsdWVbMF0gPSAweGZhOwor
-CWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzFdID0gMHhmZTsKKwlnYWZmLT5yZXBvcnQt
-PmZpZWxkWzBdLT52YWx1ZVsyXSA9IDB4MDsKKwlnYWZmLT5yZXBvcnQtPmZpZWxkWzBdLT52YWx1
-ZVs0XSA9IDB4MDsKKworCXVzYmhpZF9zdWJtaXRfcmVwb3J0KGhpZCwgZ2FmZi0+cmVwb3J0LCBV
-U0JfRElSX09VVCk7CisKKwlyZXR1cm4gMDsKK30KKworc3RhdGljIGludCBnYWZmX2luaXQoc3Ry
-dWN0IGhpZF9kZXZpY2UgKmhpZCkKK3sKKwlzdHJ1Y3QgZ2FmZl9kZXZpY2UgKmdhZmY7CisJc3Ry
-dWN0IGhpZF9yZXBvcnQgKnJlcG9ydDsKKwlzdHJ1Y3QgaGlkX2lucHV0ICpoaWRpbnB1dDsKKwlz
-dHJ1Y3QgbGlzdF9oZWFkICpyZXBvcnRfbGlzdCA9CisJCQkmaGlkLT5yZXBvcnRfZW51bVtISURf
-T1VUUFVUX1JFUE9SVF0ucmVwb3J0X2xpc3Q7CisJc3RydWN0IGxpc3RfaGVhZCAqcmVwb3J0X3B0
-ciA9IHJlcG9ydF9saXN0OworCXN0cnVjdCBpbnB1dF9kZXYgKmRldjsKKwlpbnQgZXJyb3I7CisK
-KwlpZiAobGlzdF9lbXB0eShyZXBvcnRfbGlzdCkpIHsKKwkJZGV2X2VycigmaGlkLT5kZXYsICJu
-byBvdXRwdXQgcmVwb3J0cyBmb3VuZFxuIik7CisJCXJldHVybiAtRU5PREVWOworCX0KKworCWxp
-c3RfZm9yX2VhY2hfZW50cnkoaGlkaW5wdXQsICZoaWQtPmlucHV0cywgbGlzdCkgeworCisJCXJl
-cG9ydF9wdHIgPSByZXBvcnRfcHRyLT5uZXh0OworCisJCWlmIChyZXBvcnRfcHRyID09IHJlcG9y
-dF9saXN0KSB7CisJCQlkZXZfZXJyKCZoaWQtPmRldiwgInJlcXVpcmVkIG91dHB1dCByZXBvcnQg
-aXMgIgorCQkJCQkibWlzc2luZ1xuIik7CisJCQlyZXR1cm4gLUVOT0RFVjsKKwkJfQorCisJCXJl
-cG9ydCA9IGxpc3RfZW50cnkocmVwb3J0X3B0ciwgc3RydWN0IGhpZF9yZXBvcnQsIGxpc3QpOwor
-CQlpZiAocmVwb3J0LT5tYXhmaWVsZCA8IDEpIHsKKwkJCWRldl9lcnIoJmhpZC0+ZGV2LCAibm8g
-ZmllbGRzIGluIHRoZSByZXBvcnRcbiIpOworCQkJcmV0dXJuIC1FTk9ERVY7CisJCX0KKworCQlp
-ZiAocmVwb3J0LT5maWVsZFswXS0+cmVwb3J0X2NvdW50IDwgNCkgeworCQkJZGV2X2VycigmaGlk
-LT5kZXYsICJub3QgZW5vdWdoIHZhbHVlcyBpbiB0aGUgZmllbGRcbiIpOworCQkJcmV0dXJuIC1F
-Tk9ERVY7CisJCX0KKworCQlnYWZmID0ga3phbGxvYyhzaXplb2Yoc3RydWN0IGdhZmZfZGV2aWNl
-KSwgR0ZQX0tFUk5FTCk7CisJCWlmICghZ2FmZikKKwkJCXJldHVybiAtRU5PTUVNOworCisJCWRl
-diA9IGhpZGlucHV0LT5pbnB1dDsKKworCQlzZXRfYml0KEZGX1JVTUJMRSwgZGV2LT5mZmJpdCk7
-CisKKwkJZXJyb3IgPSBpbnB1dF9mZl9jcmVhdGVfbWVtbGVzcyhkZXYsIGdhZmYsIGhpZF9nYWZm
-X3BsYXkpOworCQlpZiAoZXJyb3IpIHsKKwkJCWtmcmVlKGdhZmYpOworCQkJcmV0dXJuIGVycm9y
-OworCQl9CisKKwkJZ2FmZi0+cmVwb3J0ID0gcmVwb3J0OworCQlnYWZmLT5yZXBvcnQtPmZpZWxk
-WzBdLT52YWx1ZVswXSA9IDB4NTE7CisJCWdhZmYtPnJlcG9ydC0+ZmllbGRbMF0tPnZhbHVlWzFd
-ID0gMHgwMDsKKwkJZ2FmZi0+cmVwb3J0LT5maWVsZFswXS0+dmFsdWVbMl0gPSAweDAwOworCQln
-YWZmLT5yZXBvcnQtPmZpZWxkWzBdLT52YWx1ZVszXSA9IDB4MDA7CisJCXVzYmhpZF9zdWJtaXRf
-cmVwb3J0KGhpZCwgZ2FmZi0+cmVwb3J0LCBVU0JfRElSX09VVCk7CisKKwkJZ2FmZi0+cmVwb3J0
-LT5maWVsZFswXS0+dmFsdWVbMF0gPSAweGZhOworCQlnYWZmLT5yZXBvcnQtPmZpZWxkWzBdLT52
-YWx1ZVsxXSA9IDB4ZmU7CisKKwkJdXNiaGlkX3N1Ym1pdF9yZXBvcnQoaGlkLCBnYWZmLT5yZXBv
-cnQsIFVTQl9ESVJfT1VUKTsKKwl9CisKKworCWRldl9pbmZvKCZoaWQtPmRldiwgImhpZC1nYTog
-Rm9yY2UgRmVlZGJhY2sgZm9yIEdyZWVuQXNpYSAweDEyIgorCSAgICAgICAiIGRldmljZXMgYnkg
-THVrYXN6IEx1Ym9qYW5za2kgPGx1a2FzekBsdWJvamFuc2tpLmluZm8+XG4iKTsKKworCXJldHVy
-biAwOworfQorI2Vsc2UKK3N0YXRpYyBpbmxpbmUgaW50IGdhZmZfaW5pdChzdHJ1Y3QgaGlkX2Rl
-dmljZSAqaGlkKQoreworCWRldl9pbmZvKCZoaWQtPmRldiwgImhpZC1nYTogR3JlZW5Bc2lhIDB4
-MTIgIgorCQkiIGRldmljZXMgYnkgTHVrYXN6IEx1Ym9qYW5za2kgPGx1a2FzekBsdWJvamFuc2tp
-LmluZm8+XG4iKTsKKworCXJldHVybiAwOworfQorI2VuZGlmCisKK3N0YXRpYyBpbnQgZ2FfcHJv
-YmUoc3RydWN0IGhpZF9kZXZpY2UgKmhkZXYsIGNvbnN0IHN0cnVjdCBoaWRfZGV2aWNlX2lkICpp
-ZCkKK3sKKwlpbnQgcmV0OworCisJZGVidWcoIkdyZWVuYXNpYSBISUQgaGFyZHdhcmUgcHJvYmUu
-Li4iKTsKKworCWlmIChpZC0+ZHJpdmVyX2RhdGEpCisJCWhkZXYtPnF1aXJrcyB8PSBISURfUVVJ
-UktfTVVMVElfSU5QVVQ7CisKKwlyZXQgPSBoaWRfcGFyc2UoaGRldik7CisJaWYgKHJldCkgewor
-CQlkZXZfZXJyKCZoZGV2LT5kZXYsICJwYXJzZSBmYWlsZWRcbiIpOworCQlnb3RvIGVycjsKKwl9
-CisKKwlyZXQgPSBoaWRfaHdfc3RhcnQoaGRldiwgSElEX0NPTk5FQ1RfREVGQVVMVCAmIH5ISURf
-Q09OTkVDVF9GRik7CisJaWYgKHJldCkgeworCQlkZXZfZXJyKCZoZGV2LT5kZXYsICJodyBzdGFy
-dCBmYWlsZWRcbiIpOworCQlnb3RvIGVycjsKKwl9CisKKwlnYWZmX2luaXQoaGRldik7CisKKwly
-ZXR1cm4gMDsKK2VycjoKKwlyZXR1cm4gcmV0OworfQorCitzdGF0aWMgY29uc3Qgc3RydWN0IGhp
-ZF9kZXZpY2VfaWQgZ2FfZGV2aWNlc1tdID0geworCXsgSElEX1VTQl9ERVZJQ0UoVVNCX1ZFTkRP
-Ul9JRF9HUkVFTkFTSUEsIDB4MDAxMiksICB9LCAvKiBHcmVlbkFzaWEgSW5jLiBVU0IgSm95c3Rp
-Y2sgKi8KKwl7IH0KK307CitNT0RVTEVfREVWSUNFX1RBQkxFKGhpZCwgZ2FfZGV2aWNlcyk7CisK
-K3N0YXRpYyBzdHJ1Y3QgaGlkX2RyaXZlciBnYV9kcml2ZXIgPSB7CisJLm5hbWUgPSAiZ3JlZW5h
-c2lhIiwKKwkuaWRfdGFibGUgPSBnYV9kZXZpY2VzLAorCS5wcm9iZSA9IGdhX3Byb2JlLAorfTsK
-Kworc3RhdGljIGludCBnYV9pbml0KHZvaWQpCit7CisJcmV0dXJuIGhpZF9yZWdpc3Rlcl9kcml2
-ZXIoJmdhX2RyaXZlcik7Cit9CisKK3N0YXRpYyB2b2lkIGdhX2V4aXQodm9pZCkKK3sKKwloaWRf
-dW5yZWdpc3Rlcl9kcml2ZXIoJmdhX2RyaXZlcik7Cit9CisKK21vZHVsZV9pbml0KGdhX2luaXQp
-OworbW9kdWxlX2V4aXQoZ2FfZXhpdCk7CitNT0RVTEVfTElDRU5TRSgiR1BMIik7CisKK0hJRF9D
-T01QQVRfTE9BRF9EUklWRVIoZ3JlZW5hc2lhKTsK
-------=_Part_31256_26838029.1228424145923--
+Signed-off-by: Eric Miao <eric.miao@marvell.com>
+---
+ drivers/input/touchscreen/Kconfig     |    8 +
+ drivers/input/touchscreen/Makefile    |    1 +
+ drivers/input/touchscreen/da9034-ts.c |  385 +++++++++++++++++++++++++++++++++
+ 3 files changed, 394 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/da9034-ts.c
+
+diff --git a/drivers/input/touchscreen/Kconfig
+b/drivers/input/touchscreen/Kconfig
+index 3d1ab8f..f926d67 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -58,6 +58,14 @@ config TOUCHSCREEN_CORGI
+ 	  NOTE: this driver is deprecated, try enable SPI and generic
+ 	  ADS7846-based touchscreen driver.
+
++config TOUCHSCREEN_DA9034
++	tristate "Touchscreen support for Dialog Semiconductor DA9034"
++	depends on PMIC_DA903X
++	default y
++	help
++	  Say Y here to enable the support for the touchscreen found
++	  on Dialog Semiconductor DA9034 PMIC.
++
+ config TOUCHSCREEN_FUJITSU
+ 	tristate "Fujitsu serial touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/Makefile
+b/drivers/input/touchscreen/Makefile
+index 15cf290..f8235a1 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -27,6 +27,7 @@ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+= touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+= touchwin.o
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
++obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)	+= wm9705.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
+diff --git a/drivers/input/touchscreen/da9034-ts.c
+b/drivers/input/touchscreen/da9034-ts.c
+new file mode 100644
+index 0000000..9164d2d
+--- /dev/null
++++ b/drivers/input/touchscreen/da9034-ts.c
+@@ -0,0 +1,385 @@
++/*
++ * Touchscreen driver for Dialog Semiconductor DA9034
++ *
++ * Copyright (C) 2006-2008 Marvell International Ltd.
++ * 	Fengwei Yin <fengwei.yin@marvell.com>
++ * 	Eric Miao <eric.miao@marvell.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
++#include <linux/mfd/da903x.h>
++
++#define DA9034_MANUAL_CTRL	0x50
++#define DA9034_LDO_ADC_EN	(1 << 4)
++
++#define DA9034_AUTO_CTRL1	0x51
++
++#define DA9034_AUTO_CTRL2	0x52
++#define DA9034_AUTO_TSI_EN	(1 << 3)
++#define DA9034_PEN_DETECT	(1 << 4)
++
++#define DA9034_TSI_CTRL1	0x53
++#define DA9034_TSI_CTRL2	0x54
++#define DA9034_TSI_X_MSB	0x6c
++#define DA9034_TSI_Y_MSB	0x6d
++#define DA9034_TSI_XY_LSB	0x6e
++
++enum {
++	STATE_IDLE,	/* wait for pendown */
++	STATE_BUSY,	/* TSI busy sampling */
++	STATE_STOP,	/* sample available */
++	STATE_WAIT,	/* Wait to start next sample */
++};
++
++enum {
++	EVENT_PEN_DOWN,
++	EVENT_PEN_UP,
++	EVENT_TSI_READY,
++	EVENT_TIMEDOUT,
++};
++
++struct da9034_touch {
++	struct device		*da9034_dev;
++	struct input_dev	*input_dev;
++
++	struct delayed_work	tsi_work;
++	struct notifier_block	notifier;
++
++	int	state;
++
++	int	interval_ms;
++	int	x_inverted;
++	int	y_inverted;
++
++	int	last_x;
++	int	last_y;
++};
++
++static inline int is_pen_down(struct da9034_touch *touch)
++{
++	return da903x_query_status(touch->da9034_dev, DA9034_STATUS_PEN_DOWN);
++}
++
++static inline int detect_pen_down(struct da9034_touch *touch, int on)
++{
++	if (on)
++		return da903x_set_bits(touch->da9034_dev,
++				DA9034_AUTO_CTRL2, DA9034_PEN_DETECT);
++	else
++		return da903x_clr_bits(touch->da9034_dev,
++				DA9034_AUTO_CTRL2, DA9034_PEN_DETECT);
++}
++
++static int read_tsi(struct da9034_touch *touch)
++{
++	uint8_t _x, _y, _v;
++	int ret;
++
++	ret = da903x_read(touch->da9034_dev, DA9034_TSI_X_MSB, &_x);
++	if (ret)
++		return ret;
++
++	ret = da903x_read(touch->da9034_dev, DA9034_TSI_Y_MSB, &_y);
++	if (ret)
++		return ret;
++
++	ret = da903x_read(touch->da9034_dev, DA9034_TSI_XY_LSB, &_v);
++	if (ret)
++		return ret;
++
++	touch->last_x = ((_x << 2) & 0x3fc) | (_v & 0x3);
++	touch->last_y = ((_y << 2) & 0x3fc) | ((_v & 0xc) >> 2);
++	return 0;
++}
++
++static inline int start_tsi(struct da9034_touch *touch)
++{
++	return da903x_set_bits(touch->da9034_dev,
++			DA9034_AUTO_CTRL2, DA9034_AUTO_TSI_EN);
++}
++
++static inline int stop_tsi(struct da9034_touch *touch)
++{
++	return da903x_clr_bits(touch->da9034_dev,
++			DA9034_AUTO_CTRL2, DA9034_AUTO_TSI_EN);
++}
++
++static inline void report_pen_down(struct da9034_touch *touch)
++{
++	int x = touch->last_x;
++	int y = touch->last_y;
++
++	x &= 0xfff; x = touch->x_inverted ? (1024 - x) : x;
++	y &= 0xfff; y = touch->y_inverted ? (1024 - y) : y;
++
++	input_report_abs(touch->input_dev, ABS_X, x);
++	input_report_abs(touch->input_dev, ABS_Y, y);
++	input_report_abs(touch->input_dev, ABS_PRESSURE, 255);
++	input_report_key(touch->input_dev, BTN_TOUCH, 1);
++
++	input_sync(touch->input_dev);
++}
++
++static inline void report_pen_up(struct da9034_touch *touch)
++{
++	input_report_abs(touch->input_dev, ABS_PRESSURE, 0);
++	input_report_key(touch->input_dev, BTN_TOUCH, 0);
++
++	input_sync(touch->input_dev);
++}
++
++static void da9034_event_handler(struct da9034_touch *touch, int event)
++{
++	int err = 0;
++
++	switch (touch->state) {
++	case STATE_IDLE:
++		if (event != EVENT_PEN_DOWN)
++			break;
++
++		/* Enable auto measurement of the TSI, this will
++		 * automatically disable pen down detection
++		 */
++		err = start_tsi(touch);
++		if (err)
++			goto err_reset;
++
++		touch->state = STATE_BUSY;
++		break;
++
++	case STATE_BUSY:
++		if (event != EVENT_TSI_READY)
++			break;
++
++		err = read_tsi(touch);
++		if (err)
++			goto err_reset;
++		
++		/* Disable auto measurement of the TSI, so that
++		 * pen down status will be available
++		 */
++		err = stop_tsi(touch);
++		if (err)
++			goto err_reset;
++
++		touch->state = STATE_STOP;
++		break;
++
++	case STATE_STOP:
++		if (event == EVENT_PEN_DOWN) {
++			report_pen_down(touch);
++			schedule_delayed_work(&touch->tsi_work,
++				msecs_to_jiffies(touch->interval_ms));
++			touch->state = STATE_WAIT;
++		}
++
++		if (event == EVENT_PEN_UP) {
++			report_pen_up(touch);
++			touch->state = STATE_IDLE;
++		}
++
++		input_sync(touch->input_dev);
++		break;
++
++	case STATE_WAIT:
++		if (event != EVENT_TIMEDOUT)
++			break;
++
++		if (is_pen_down(touch)) {
++			start_tsi(touch);
++			touch->state = STATE_BUSY;
++		} else
++			touch->state = STATE_IDLE;
++		break;
++	}
++	return;
++
++err_reset:
++	touch->state = STATE_IDLE;
++	stop_tsi(touch);
++	detect_pen_down(touch, 1);
++}
++
++static void da9034_tsi_work(struct work_struct *work)
++{
++	struct da9034_touch *touch =
++		container_of(work, struct da9034_touch, tsi_work.work);
++
++	da9034_event_handler(touch, EVENT_TIMEDOUT);
++}
++
++static int da9034_touch_notifier(struct notifier_block *nb,
++				 unsigned long event, void *data)
++{
++	struct da9034_touch *touch =
++		container_of(nb, struct da9034_touch, notifier);
++
++	if (event & DA9034_EVENT_PEN_DOWN) {
++		if (is_pen_down(touch))
++			da9034_event_handler(touch, EVENT_PEN_DOWN);
++		else
++			da9034_event_handler(touch, EVENT_PEN_UP);
++	}
++
++	if (event & DA9034_EVENT_TSI_READY)
++		da9034_event_handler(touch, EVENT_TSI_READY);
++
++	return 0;
++}
++
++static int da9034_touch_open(struct input_dev *dev)
++{
++	struct da9034_touch *touch = input_get_drvdata(dev);
++	int ret;
++
++	ret = da903x_register_notifier(touch->da9034_dev, &touch->notifier,
++			DA9034_EVENT_PEN_DOWN | DA9034_EVENT_TSI_READY);
++	if (ret)
++		return -EBUSY;
++
++	/* Enable ADC LDO */
++	ret = da903x_set_bits(touch->da9034_dev,
++			DA9034_MANUAL_CTRL, DA9034_LDO_ADC_EN);
++	if (ret)
++		return ret;
++
++	/* TSI_DELAY: 3 slots, TSI_SKIP: 3 slots */
++	ret = da903x_write(touch->da9034_dev, DA9034_TSI_CTRL1, 0x1b);
++	if (ret)
++		return ret;
++
++	ret = da903x_write(touch->da9034_dev, DA9034_TSI_CTRL2, 0x00);
++	if (ret)
++		return ret;
++
++	touch->state = STATE_IDLE;
++	detect_pen_down(touch, 1);
++	return 0;
++}
++
++static void da9034_touch_close(struct input_dev *dev)
++{
++	struct da9034_touch *touch = input_get_drvdata(dev);
++
++	da903x_unregister_notifier(touch->da9034_dev, &touch->notifier,
++			DA9034_EVENT_PEN_DOWN | DA9034_EVENT_TSI_READY);
++
++	cancel_delayed_work_sync(&touch->tsi_work);
++
++	touch->state = STATE_IDLE;
++	stop_tsi(touch);
++	detect_pen_down(touch, 0);
++
++	/* Disable ADC LDO */
++	da903x_clr_bits(touch->da9034_dev,
++			DA9034_MANUAL_CTRL, DA9034_LDO_ADC_EN);
++}
++
++
++static int __devinit da9034_touch_probe(struct platform_device *pdev)
++{
++	struct da9034_touch_pdata *pdata = pdev->dev.platform_data;
++	struct da9034_touch *touch;
++	struct input_dev *input_dev;
++	int ret = 0;
++
++	touch = kzalloc(sizeof(struct da9034_touch), GFP_KERNEL);
++	if (touch == NULL) {
++		dev_err(&pdev->dev, "failed to allocate driver data\n");
++		return -ENOMEM;
++	}
++
++	touch->da9034_dev	= pdev->dev.parent;
++
++	if (pdata) {
++		touch->interval_ms	= pdata->interval_ms;
++		touch->x_inverted	= pdata->x_inverted;
++		touch->y_inverted	= pdata->y_inverted;
++	} else
++		/* fallback into default */
++		touch->interval_ms	= 10;
++
++	INIT_DELAYED_WORK(&touch->tsi_work, da9034_tsi_work);
++	touch->notifier.notifier_call = da9034_touch_notifier;
++
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		dev_err(&pdev->dev, "failed to allocate input device\n");
++		ret = -ENOMEM;
++		goto err_free_touch;
++	}
++
++	input_dev->name		= pdev->name;
++	input_dev->open		= da9034_touch_open;
++	input_dev->close	= da9034_touch_close;
++	input_dev->dev.parent	= &pdev->dev;
++
++	set_bit(EV_ABS, input_dev->evbit);
++	set_bit(ABS_X, input_dev->absbit);
++	set_bit(ABS_Y, input_dev->absbit);
++	set_bit(ABS_PRESSURE, input_dev->absbit);
++
++	input_set_abs_params(input_dev, ABS_X, 0, 1023, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, 1023, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 255, 0, 0);
++
++	touch->input_dev = input_dev;
++	input_set_drvdata(input_dev, touch);
++
++	ret = input_register_device(input_dev);
++	if (ret)
++		goto err_free_input;
++
++	platform_set_drvdata(pdev, touch);
++	return 0;
++
++err_free_input:
++	input_free_device(input_dev);
++err_free_touch:
++	kfree(touch);
++	return ret;
++}
++
++static int __devexit da9034_touch_remove(struct platform_device *pdev)
++{
++	struct da9034_touch *touch = platform_get_drvdata(pdev);
++
++	input_free_device(touch->input_dev);
++	kfree(touch);
++	return 0;
++}
++
++static struct platform_driver da9034_touch_driver = {
++	.driver	= {
++		.name	= "da9034-touch",
++		.owner	= THIS_MODULE,
++	},
++	.probe		= da9034_touch_probe,
++	.remove		= da9034_touch_remove,
++};
++
++static int __init da9034_touch_init(void)
++{
++	return platform_driver_register(&da9034_touch_driver);
++}
++module_init(da9034_touch_init);
++
++static void __exit da9034_touch_exit(void)
++{
++	platform_driver_unregister(&da9034_touch_driver);
++}
++module_exit(da9034_touch_exit);
++
++MODULE_DESCRIPTION("Touchscreen driver for Dialog Semiconductor DA9034");
++MODULE_AUTHOR("Eric Miao <eric.miao@marvell.com>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:da9034-touch");
+-- 
+1.6.0.4

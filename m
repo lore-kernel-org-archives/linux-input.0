@@ -1,307 +1,481 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] input: gpio_keys: Polling mode support.
-Date: Mon, 8 Dec 2008 12:32:22 +0900
-Message-ID: <20081208033222.GA11996@linux-sh.org>
-References: <20081021083816.GA29345@linux-sh.org> <20081028101857.GA25523@linux-sh.org> <20081029035123.GB27906@anvil.corenet.prv> <20081125204358.GA31335@linux-sh.org>
+From: "Kwangwoo Lee" <kwangwoo.lee@gmail.com>
+Subject: Re: + input-add-tsc2007-based-touchscreen-driver.patch added to -mm tree
+Date: Mon, 8 Dec 2008 14:35:59 +0900
+Message-ID: <483a38b80812072135iefd5390q82ce022359401451@mail.gmail.com>
+References: <200812070027.mB70R361001860@imap1.linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from fk-out-0910.google.com ([209.85.128.185]:3826 "EHLO
+	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751181AbYLHFgD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 8 Dec 2008 00:36:03 -0500
+Received: by fk-out-0910.google.com with SMTP id 18so1081882fkq.5
+        for <linux-input@vger.kernel.org>; Sun, 07 Dec 2008 21:36:00 -0800 (PST)
+In-Reply-To: <200812070027.mB70R361001860@imap1.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20081125204358.GA31335@linux-sh.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-sh@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: akpm@linux-foundation.org, linux-input@vger.kernel.org
+Cc: mm-commits@vger.kernel.org, dtor@mail.ru, khali@linux-fr.org, David Brownell <david-b@pacbell.net>, felipe.balbi@nokia.com, Trilok Soni <soni.trilok@gmail.com>
 
-Ping.
+>From d5258e21e38e38e4128112844f24621ffb1c1e86 Mon Sep 17 00:00:00 2001
+From: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+Date: Mon, 8 Dec 2008 13:42:14 +0900
+Subject: [PATCH] Add tsc2007 based touchscreen driver.
 
-On Wed, Nov 26, 2008 at 05:43:58AM +0900, Paul Mundt wrote:
-> On Tue, Oct 28, 2008 at 11:51:23PM -0400, Dmitry Torokhov wrote:
-> > On Tue, Oct 28, 2008 at 07:18:57PM +0900, Paul Mundt wrote:
-> > > On Tue, Oct 21, 2008 at 05:38:16PM +0900, Paul Mundt wrote:
-> > > > This implements an optional polling mode for the gpio_keys driver,
-> > > > necessary for GPIOs that are not able to generate IRQs.
-> > > > 
-> > > > Polling mode is done device granular, and can not be toggled for
-> > > > individual GPIOs in order to maintain simplicity. Platforms with both
-> > > > IRQ capable and incapable GPIOs are required to register multiple
-> > > > times, once for each case.
-> > > > 
-> > > >  
-> > > > -	input_unregister_device(input);
-> > > > +	if (pdata->polling)
-> > > > +		input_unregister_polled_device(poll_dev);
-> > 
-> > You also need to do input_free_polled_device (but not input_free_device
-> >  - yeah, I know, its confusing... The reason is that input_dev is
-> >    refcounted while input_polled_dev is not).
-> 
-> Thanks, fixed.
-> 
-> > > > +	else
-> > > > +		input_unregister_device(poll_dev->input);
-> > > >  
-> > 
-> > I also concerned with unconditionally polling INPUT_POLLDEV for all
-> > users of gpio-keys. Maybe we could make polling support optional?
-> > 
-> I thought that was what my patch was doing? I couldn't think of a clean
-> way to do it on a per-gpio basis, so the cleanest way seemed to be to
-> regster in polled and non-polled blocks. ie, polled devices will set
-> pdata->polling and register those for gpio_keys to set up a polled dev.
-> Devices that do not set pdata->polling will remain unaffected.
-> 
-> If you have some suggestions on how to toggle this on a per-gpio basis,
-> I am quite happy to change the code. If your concern is the select of
-> INPUT_POLLDEV, I can just select it from my platform code if you prefer.
-> This does mean that we would need nopped definitions in
-> linux/input-polldev.h though, or litter gpio_keys with ifdefs, which is
-> what I was trying to avoid in the first place. Let me know what you
-> prefer here, and I'll update accordingly.
-> 
-> For now, here is an updated version..
-> 
-> Signed-off-by: Paul Mundt <lethal@linux-sh.org>
-> 
-> ---
-> 
->  drivers/input/keyboard/Kconfig     |    1 
->  drivers/input/keyboard/gpio_keys.c |   92 ++++++++++++++++++++++++++++---------
->  include/linux/gpio_keys.h          |    1 
->  3 files changed, 73 insertions(+), 21 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index efd70a9..a8cefe9 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -283,6 +283,7 @@ config KEYBOARD_AAED2000
->  config KEYBOARD_GPIO
->  	tristate "GPIO Buttons"
->  	depends on GENERIC_GPIO
-> +	select INPUT_POLLDEV
->  	help
->  	  This driver implements support for buttons connected
->  	  to GPIO pins of various CPUs (and some other chips).
-> diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-> index 05f3f43..e7a46f8 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -1,7 +1,8 @@
->  /*
-> - * Driver for keys on GPIO lines capable of generating interrupts.
-> + * Driver for keys on GPIO lines, either IRQ-driven or polled.
->   *
->   * Copyright 2005 Phil Blundell
-> + * Copyright 2008 Paul Mundt
->   *
->   * This program is free software; you can redistribute it and/or modify
->   * it under the terms of the GNU General Public License version 2 as
-> @@ -9,7 +10,6 @@
->   */
->  
->  #include <linux/module.h>
-> -
->  #include <linux/init.h>
->  #include <linux/fs.h>
->  #include <linux/interrupt.h>
-> @@ -22,7 +22,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/input.h>
->  #include <linux/gpio_keys.h>
-> -
-> +#include <linux/input-polldev.h>
->  #include <asm/gpio.h>
->  
->  struct gpio_button_data {
-> @@ -32,7 +32,8 @@ struct gpio_button_data {
->  };
->  
->  struct gpio_keys_drvdata {
-> -	struct input_dev *input;
-> +	struct gpio_keys_platform_data *pdata;
-> +	struct input_polled_dev *poll_dev;
->  	struct gpio_button_data data[0];
->  };
->  
-> @@ -54,6 +55,33 @@ static void gpio_check_button(unsigned long _data)
->  	gpio_keys_report_event(data);
->  }
->  
-> +static void gpio_handle_button_event(struct gpio_keys_button *button,
-> +				     struct gpio_button_data *bdata)
-> +{
-> +	if (button->debounce_interval)
-> +		mod_timer(&bdata->timer,
-> +			jiffies + msecs_to_jiffies(button->debounce_interval));
-> +	else
-> +		gpio_keys_report_event(bdata);
-> +}
-> +
-> +static void gpio_keys_poll(struct input_polled_dev *dev)
-> +{
-> +	struct gpio_keys_drvdata *ddata = dev->private;
-> +	struct gpio_keys_platform_data *pdata = ddata->pdata;
-> +	int i;
-> +
-> +	for (i = 0; i < pdata->nbuttons; i++) {
-> +		struct gpio_keys_button *button = &pdata->buttons[i];
-> +		struct gpio_button_data *bdata = &ddata->data[i];
-> +
-> +		bdata->input = dev->input;
-> +		bdata->button = button;
-> +
-> +		gpio_handle_button_event(button, bdata);
-> +	}
-> +}
-> +
->  static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
->  {
->  	struct gpio_button_data *bdata = dev_id;
-> @@ -61,11 +89,7 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
->  
->  	BUG_ON(irq != gpio_to_irq(button->gpio));
->  
-> -	if (button->debounce_interval)
-> -		mod_timer(&bdata->timer,
-> -			jiffies + msecs_to_jiffies(button->debounce_interval));
-> -	else
-> -		gpio_keys_report_event(bdata);
-> +	gpio_handle_button_event(button, bdata);
->  
->  	return IRQ_HANDLED;
->  }
-> @@ -74,6 +98,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  {
->  	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
->  	struct gpio_keys_drvdata *ddata;
-> +	struct input_polled_dev *poll_dev;
->  	struct input_dev *input;
->  	int i, error;
->  	int wakeup = 0;
-> @@ -81,14 +106,19 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  	ddata = kzalloc(sizeof(struct gpio_keys_drvdata) +
->  			pdata->nbuttons * sizeof(struct gpio_button_data),
->  			GFP_KERNEL);
-> -	input = input_allocate_device();
-> -	if (!ddata || !input) {
-> +	poll_dev = input_allocate_polled_device();
-> +	if (!ddata || !poll_dev) {
->  		error = -ENOMEM;
->  		goto fail1;
->  	}
->  
->  	platform_set_drvdata(pdev, ddata);
->  
-> +	poll_dev->private = ddata;
-> +	poll_dev->poll = gpio_keys_poll;
-> +	poll_dev->poll_interval = 50; /* msec */
-> +
-> +	input = poll_dev->input;
->  	input->name = pdev->name;
->  	input->phys = "gpio-keys/input0";
->  	input->dev.parent = &pdev->dev;
-> @@ -98,7 +128,8 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  	input->id.product = 0x0001;
->  	input->id.version = 0x0100;
->  
-> -	ddata->input = input;
-> +	ddata->poll_dev = poll_dev;
-> +	ddata->pdata = pdata;
->  
->  	for (i = 0; i < pdata->nbuttons; i++) {
->  		struct gpio_keys_button *button = &pdata->buttons[i];
-> @@ -127,6 +158,15 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  			goto fail2;
->  		}
->  
-> +		input_set_capability(input, type, button->code);
-> +
-> +		/*
-> +		 * Skip the IRQ setup and wakeup source initialization if
-> +		 * we are going to be polled.
-> +		 */
-> +		if (pdata->polling)
-> +			continue;
-> +
->  		irq = gpio_to_irq(button->gpio);
->  		if (irq < 0) {
->  			error = irq;
-> @@ -151,11 +191,12 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  
->  		if (button->wakeup)
->  			wakeup = 1;
-> -
-> -		input_set_capability(input, type, button->code);
->  	}
->  
-> -	error = input_register_device(input);
-> +	if (pdata->polling)
-> +		error = input_register_polled_device(poll_dev);
-> +	else
-> +		error = input_register_device(input);
->  	if (error) {
->  		pr_err("gpio-keys: Unable to register input device, "
->  			"error: %d\n", error);
-> @@ -168,7 +209,9 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  
->   fail2:
->  	while (--i >= 0) {
-> -		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
-> +		if (!pdata->polling)
-> +			free_irq(gpio_to_irq(pdata->buttons[i].gpio),
-> +				 &ddata->data[i]);
->  		if (pdata->buttons[i].debounce_interval)
->  			del_timer_sync(&ddata->data[i].timer);
->  		gpio_free(pdata->buttons[i].gpio);
-> @@ -176,7 +219,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
->  
->  	platform_set_drvdata(pdev, NULL);
->   fail1:
-> -	input_free_device(input);
-> +	input_free_polled_device(poll_dev);
->  	kfree(ddata);
->  
->  	return error;
-> @@ -186,20 +229,27 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
->  {
->  	struct gpio_keys_platform_data *pdata = pdev->dev.platform_data;
->  	struct gpio_keys_drvdata *ddata = platform_get_drvdata(pdev);
-> -	struct input_dev *input = ddata->input;
-> +	struct input_polled_dev *poll_dev = ddata->poll_dev;
->  	int i;
->  
->  	device_init_wakeup(&pdev->dev, 0);
->  
->  	for (i = 0; i < pdata->nbuttons; i++) {
-> -		int irq = gpio_to_irq(pdata->buttons[i].gpio);
-> -		free_irq(irq, &ddata->data[i]);
-> +		if (!pdata->polling) {
-> +			int irq = gpio_to_irq(pdata->buttons[i].gpio);
-> +			free_irq(irq, &ddata->data[i]);
-> +		}
-> +
->  		if (pdata->buttons[i].debounce_interval)
->  			del_timer_sync(&ddata->data[i].timer);
->  		gpio_free(pdata->buttons[i].gpio);
->  	}
->  
-> -	input_unregister_device(input);
-> +	if (pdata->polling) {
-> +		input_unregister_polled_device(poll_dev);
-> +		input_free_polled_device(poll_dev);
-> +	} else
-> +		input_unregister_device(poll_dev->input);
->  
->  	return 0;
->  }
-> diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
-> index ec6ecd7..e869752 100644
-> --- a/include/linux/gpio_keys.h
-> +++ b/include/linux/gpio_keys.h
-> @@ -15,6 +15,7 @@ struct gpio_keys_button {
->  struct gpio_keys_platform_data {
->  	struct gpio_keys_button *buttons;
->  	int nbuttons;
-> +	int polling;		/* force polling mode */
->  };
->  
->  #endif
+corrected some parts following in helpful comments:
+Remove unnecessary headers and variables.
+Use i2c_smbus_read_word_data() to prevent race condition.
+Fix i2c_check_functionality() argument correctly.
+
+Signed-off-by: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+---
+ drivers/input/touchscreen/Kconfig   |    9 +
+ drivers/input/touchscreen/Makefile  |    1 +
+ drivers/input/touchscreen/tsc2007.c |  378 +++++++++++++++++++++++++++++++++++
+ include/linux/i2c/tsc2007.h         |   17 ++
+ 4 files changed, 405 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/tsc2007.c
+ create mode 100644 include/linux/i2c/tsc2007.h
+
+diff --git a/drivers/input/touchscreen/Kconfig
+b/drivers/input/touchscreen/Kconfig
+index 3d1ab8f..78abdfb 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -376,4 +376,13 @@ config TOUCHSCREEN_TOUCHIT213
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called touchit213.
+
++config TOUCHSCREEN_TSC2007
++	tristate "TSC2007 based touchscreens"
++	depends on I2C
++	help
++	  Say Y here if you have a TSC2007 based touchscreens.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called tsc2007.
++
+ endif
+diff --git a/drivers/input/touchscreen/Makefile
+b/drivers/input/touchscreen/Makefile
+index 15cf290..824999c 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -31,3 +31,4 @@ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)	+= wm9705.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
++obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc2007.o
+diff --git a/drivers/input/touchscreen/tsc2007.c
+b/drivers/input/touchscreen/tsc2007.c
+new file mode 100644
+index 0000000..44b68c1
+--- /dev/null
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -0,0 +1,378 @@
++/*
++ * drivers/input/touchscreen/tsc2007.c
++ *
++ * Copyright (c) 2008 MtekVision Co., Ltd.
++ * 	Kwangwoo Lee <kwlee@mtekvision.com>
++ *
++ * Using code from:
++ *  - ads7846.c
++ * 	Copyright (c) 2005 David Brownell
++ * 	Copyright (c) 2006 Nokia Corporation
++ *  - corgi_ts.c
++ *	Copyright (C) 2004-2005 Richard Purdie
++ *  - omap_ts.[hc], ads7846.h, ts_osk.c
++ *	Copyright (C) 2002 MontaVista Software
++ *	Copyright (C) 2004 Texas Instruments
++ *	Copyright (C) 2005 Dirk Behme
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ */
++
++#include <linux/module.h>
++#include <linux/hrtimer.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/i2c.h>
++#include <linux/i2c/tsc2007.h>
++
++#define TS_POLL_DELAY	(10 * 1000)	/* ns delay before the first sample */
++#define TS_POLL_PERIOD	(5 * 1000)	/* ns delay between samples */
++
++#define TSC2007_MEASURE_TEMP0		(0x0 << 4)
++#define TSC2007_MEASURE_AUX		(0x2 << 4)
++#define TSC2007_MEASURE_TEMP1		(0x4 << 4)
++#define TSC2007_ACTIVATE_XN		(0x8 << 4)
++#define TSC2007_ACTIVATE_YN		(0x9 << 4)
++#define TSC2007_ACTIVATE_YP_XN		(0xa << 4)
++#define TSC2007_SETUP			(0xb << 4)
++#define TSC2007_MEASURE_X		(0xc << 4)
++#define TSC2007_MEASURE_Y		(0xd << 4)
++#define TSC2007_MEASURE_Z1		(0xe << 4)
++#define TSC2007_MEASURE_Z2		(0xf << 4)
++
++#define TSC2007_POWER_OFF_IRQ_EN	(0x0 << 2)
++#define TSC2007_ADC_ON_IRQ_DIS0		(0x1 << 2)
++#define TSC2007_ADC_OFF_IRQ_EN		(0x2 << 2)
++#define TSC2007_ADC_ON_IRQ_DIS1		(0x3 << 2)
++
++#define TSC2007_12BIT			(0x0 << 1)
++#define TSC2007_8BIT			(0x1 << 1)
++
++#define	MAX_12BIT			((1 << 12) - 1)
++
++#define ADC_ON_12BIT	(TSC2007_12BIT | TSC2007_ADC_ON_IRQ_DIS0)
++
++#define READ_Y		(ADC_ON_12BIT | TSC2007_MEASURE_Y)
++#define READ_Z1		(ADC_ON_12BIT | TSC2007_MEASURE_Z1)
++#define READ_Z2		(ADC_ON_12BIT | TSC2007_MEASURE_Z2)
++#define READ_X		(ADC_ON_12BIT | TSC2007_MEASURE_X)
++#define PWRDOWN		(TSC2007_12BIT | TSC2007_POWER_OFF_IRQ_EN)
++
++struct ts_event {
++	u16	x;
++	u16	y;
++	u16	z1, z2;
++};
++
++struct tsc2007 {
++	struct input_dev	*input;
++	char			phys[32];
++	struct hrtimer		timer;
++	struct ts_event		tc;
++
++	struct i2c_client	*client;
++
++	spinlock_t		lock;
++
++	u16			model;
++	u16			x_plate_ohms;
++
++	unsigned		pendown;
++	int			irq;
++
++	int			(*get_pendown_state)(void);
++	void			(*clear_penirq)(void);
++};
++
++static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
++{
++	s32 data;
++	u16 val;
++
++	data = i2c_smbus_read_word_data(tsc->client, cmd);
++	if (data < 0) {
++		dev_err(&tsc->client->dev, "i2c io error: %d\n", data);
++		return data;
++	}
++
++	/* The protocol and raw data format from i2c interface:
++	 * S Addr Wr [A] Comm [A] S Addr Rd [A] [DataLow] A [DataHigh] NA P
++	 * Where DataLow has [D11-D4], DataHigh has [D3-D0 << 4 | Dummy 4bit].
++	 */
++
++	val = (u16) (data & 0xFFFF);
++	val = be16_to_cpu(val) >> 4;
++
++	dev_dbg(&tsc->client->dev, "data: 0x%x, val: 0x%x\n", data, val);
++
++	return val;
++}
++
++static void tsc2007_send_event(void *tsc)
++{
++	struct tsc2007	*ts = tsc;
++	u32		rt;
++	u16		x, y, z1, z2;
++
++	x = ts->tc.x;
++	y = ts->tc.y;
++	z1 = ts->tc.z1;
++	z2 = ts->tc.z2;
++
++	/* range filtering */
++	if (x == MAX_12BIT)
++		x = 0;
++
++	if (likely(x && z1)) {
++		/* compute touch pressure resistance using equation #1 */
++		rt = z2;
++		rt -= z1;
++		rt *= x;
++		rt *= ts->x_plate_ohms;
++		rt /= z1;
++		rt = (rt + 2047) >> 12;
++	} else
++		rt = 0;
++
++	/* Sample found inconsistent by debouncing or pressure is beyond
++	 * the maximum. Don't report it to user space, repeat at least
++	 * once more the measurement
++	 */
++	if (rt > MAX_12BIT) {
++		dev_dbg(&ts->client->dev, "ignored pressure %d\n", rt);
++
++		hrtimer_start(&ts->timer, ktime_set(0, TS_POLL_PERIOD),
++			      HRTIMER_MODE_REL);
++		return;
++	}
++
++	/* NOTE: We can't rely on the pressure to determine the pen down
++	 * state, even this controller has a pressure sensor.  The pressure
++	 * value can fluctuate for quite a while after lifting the pen and
++	 * in some cases may not even settle at the expected value.
++	 *
++	 * The only safe way to check for the pen up condition is in the
++	 * timer by reading the pen signal state (it's a GPIO _and_ IRQ).
++	 */
++	if (rt) {
++		struct input_dev *input = ts->input;
++
++		if (!ts->pendown) {
++			dev_dbg(&ts->client->dev, "DOWN\n");
++
++			input_report_key(input, BTN_TOUCH, 1);
++			ts->pendown = 1;
++		}
++
++		input_report_abs(input, ABS_X, x);
++		input_report_abs(input, ABS_Y, y);
++		input_report_abs(input, ABS_PRESSURE, rt);
++
++		input_sync(input);
++
++		dev_dbg(&ts->client->dev, "point(%4d,%4d), pressure (%4u)\n",
++			x, y, rt);
++	}
++
++	hrtimer_start(&ts->timer, ktime_set(0, TS_POLL_PERIOD),
++			HRTIMER_MODE_REL);
++}
++
++static int tsc2007_read_values(struct tsc2007 *tsc)
++{
++	/* y- still on; turn on only y+ (and ADC) */
++	tsc->tc.y = tsc2007_xfer(tsc, READ_Y);
++
++	/* turn y- off, x+ on, then leave in lowpower */
++	tsc->tc.x = tsc2007_xfer(tsc, READ_X);
++
++	/* turn y+ off, x- on; we'll use formula #1 */
++	tsc->tc.z1 = tsc2007_xfer(tsc, READ_Z1);
++	tsc->tc.z2 = tsc2007_xfer(tsc, READ_Z2);
++
++	/* power down */
++	tsc2007_xfer(tsc, PWRDOWN);
++	return 0;
++}
++
++static enum hrtimer_restart tsc2007_timer(struct hrtimer *handle)
++{
++	struct tsc2007	*ts = container_of(handle, struct tsc2007, timer);
++
++	spin_lock_irq(&ts->lock);
++
++	if (unlikely(!ts->get_pendown_state() && ts->pendown)) {
++		struct input_dev *input = ts->input;
++
++		dev_dbg(&ts->client->dev, "UP\n");
++
++		input_report_key(input, BTN_TOUCH, 0);
++		input_report_abs(input, ABS_PRESSURE, 0);
++		input_sync(input);
++
++		ts->pendown = 0;
++		enable_irq(ts->irq);
++	} else {
++		/* pen is still down, continue with the measurement */
++		dev_dbg(&ts->client->dev, "pen is still down\n");
++
++		tsc2007_read_values(ts);
++		tsc2007_send_event(ts);
++	}
++
++	spin_unlock_irq(&ts->lock);
++	return HRTIMER_NORESTART;
++}
++
++static irqreturn_t tsc2007_irq(int irq, void *handle)
++{
++	struct tsc2007 *ts = handle;
++	unsigned long flags;
++
++	spin_lock_irqsave(&ts->lock, flags);
++	if (likely(ts->get_pendown_state())) {
++		disable_irq(ts->irq);
++		hrtimer_start(&ts->timer, ktime_set(0, TS_POLL_DELAY),
++					HRTIMER_MODE_REL);
++	}
++
++	if (ts->clear_penirq)
++		ts->clear_penirq();
++
++	spin_unlock_irqrestore(&ts->lock, flags);
++
++	return IRQ_HANDLED;
++}
++
++static int tsc2007_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct tsc2007		*ts;
++	struct tsc2007_platform_data *pdata;
++	struct input_dev	*input_dev;
++	int			err;
++
++	pdata = client->dev.platform_data;
++	if (pdata == NULL) {
++		dev_err(&client->dev, "platform data is required!\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter,
++		I2C_FUNC_SMBUS_READ_WORD_DATA))
++		return -EIO;
++
++	ts = kzalloc(sizeof(struct tsc2007), GFP_KERNEL);
++	input_dev = input_allocate_device();
++	if (!ts || !input_dev) {
++		err = -ENOMEM;
++		goto err_free_mem;
++	}
++
++	ts->client = client;
++	i2c_set_clientdata(client, ts);
++
++	ts->input = input_dev;
++
++	hrtimer_init(&ts->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	ts->timer.function = tsc2007_timer;
++
++	spin_lock_init(&ts->lock);
++
++	ts->model             = pdata->model;
++	ts->x_plate_ohms      = pdata->x_plate_ohms;
++	ts->get_pendown_state = pdata->get_pendown_state;
++	ts->clear_penirq      = pdata->clear_penirq;
++
++	pdata->init_platform_hw();
++
++	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", client->dev.bus_id);
++
++	input_dev->name = "TSC2007 Touchscreen";
++	input_dev->phys = ts->phys;
++
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
++
++	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
++
++	tsc2007_read_values(ts);
++
++	ts->irq = client->irq;
++	err = request_irq(ts->irq, tsc2007_irq, 0,
++			client->dev.driver->name, ts);
++	if (err < 0) {
++		dev_err(&client->dev, "irq %d busy?\n", ts->irq);
++		goto err_free_mem;
++	}
++
++	err = input_register_device(input_dev);
++	if (err)
++		goto err_free_irq;
++
++	dev_info(&client->dev, "registered with irq (%d)\n", ts->irq);
++
++	return 0;
++
++ err_free_irq:
++	free_irq(ts->irq, ts);
++ err_free_mem:
++	input_free_device(input_dev);
++	kfree(ts);
++	return err;
++}
++
++static int tsc2007_remove(struct i2c_client *client)
++{
++	struct tsc2007	*ts = i2c_get_clientdata(client);
++	struct tsc2007_platform_data *pdata;
++
++	pdata = client->dev.platform_data;
++	pdata->exit_platform_hw();
++
++	input_unregister_device(ts->input);
++	free_irq(ts->irq, ts);
++	kfree(ts);
++
++	dev_info(&client->dev, "unregistered\n");
++	return 0;
++}
++
++static struct i2c_device_id tsc2007_idtable[] = {
++	{ "tsc2007", 0 },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(i2c, tsc2007_idtable);
++
++static struct i2c_driver tsc2007_driver = {
++	.driver = {
++		.owner	= THIS_MODULE,
++		.name	= "tsc2007"
++	},
++	.id_table	= tsc2007_idtable,
++	.probe		= tsc2007_probe,
++	.remove		= tsc2007_remove,
++};
++
++static int __init tsc2007_init(void)
++{
++	return i2c_add_driver(&tsc2007_driver);
++}
++
++static void __exit tsc2007_exit(void)
++{
++	i2c_del_driver(&tsc2007_driver);
++}
++
++module_init(tsc2007_init);
++module_exit(tsc2007_exit);
++
++MODULE_AUTHOR("Kwangwoo Lee <kwlee@mtekvision.com>");
++MODULE_DESCRIPTION("TSC2007 TouchScreen Driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.h
+new file mode 100644
+index 0000000..c6361fb
+--- /dev/null
++++ b/include/linux/i2c/tsc2007.h
+@@ -0,0 +1,17 @@
++#ifndef __LINUX_I2C_TSC2007_H
++#define __LINUX_I2C_TSC2007_H
++
++/* linux/i2c/tsc2007.h */
++
++struct tsc2007_platform_data {
++	u16	model;				/* 2007. */
++	u16	x_plate_ohms;
++
++	int	(*get_pendown_state)(void);
++	void	(*clear_penirq)(void);		/* If needed, clear 2nd level
++						   interrupt source */
++	int	(*init_platform_hw)(void);
++	void	(*exit_platform_hw)(void);
++};
++
++#endif
+-- 
+1.5.6.5

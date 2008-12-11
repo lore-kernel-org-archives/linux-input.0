@@ -1,33 +1,32 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch 2.6.28-rc7] hid: "default y" considered evil
-Date: Thu, 11 Dec 2008 14:55:12 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0812111454450.21089@jikos.suse.cz>
-References: <200812031301.11475.david-b@pacbell.net>
+From: Jim Gettys <jg@laptop.org>
+Subject: How do I find updates to the USB HID usage tables?
+Date: Thu, 11 Dec 2008 10:16:46 -0500
+Message-ID: <1229008606.14656.347.camel@jg-vaio>
+Reply-To: jg@laptop.org
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:33214 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1755802AbYLKNzO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2008 08:55:14 -0500
-In-Reply-To: <200812031301.11475.david-b@pacbell.net>
+Received: from qmta09.emeryville.ca.mail.comcast.net ([76.96.30.96]:43755 "EHLO
+	QMTA09.emeryville.ca.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755351AbYLKPQ7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2008 10:16:59 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Wed, 3 Dec 2008, David Brownell wrote:
+Specifically, I'm trying to find definitions for new digitizer page
+report fields not found in the USB serial bus HID usage tables v. 1.12
+(the latest on the USB web site).
 
-> From: David Brownell <dbrownell@users.sourceforge.net>
-> 
-> Fix the obnoxious "default y" for all the "special" HID code,
-> which forces folk with EMBEDDED defined to manually override
-> that inappropriate default for almost 20 choices.  The general
-> policy is against "default y"; it should apply here too.
+The fields of interest have values of 0x47, 0x48, and 0x49, that are in
+the reserved area of the digitizer's page in the 1.12 document.
 
-Fixed up to reflect the current state of HID patch queue, and applied. 
-Thanks.
+			Thanks,
+				- Jim Gettys
 
 -- 
-Jiri Kosina
-SUSE Labs
+Jim Gettys <jg@laptop.org>
+One Laptop Per Child
+

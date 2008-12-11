@@ -1,47 +1,49 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: New Force Feedback device support - GreenAsia 0x12
-Date: Thu, 11 Dec 2008 22:13:38 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0812112210060.21089@jikos.suse.cz>
-References: <200811262333.45245.lukasz@lubojanski.info>  <alpine.LNX.1.10.0811281514210.19853@jikos.suse.cz>  <49303827.4050907@gmail.com>  <200811282008.41601.lukasz@lubojanski.info>  <alpine.LNX.1.10.0811292327470.19853@jikos.suse.cz>
- <92cd8c320812041235u6bf501d9ta473398bc1374aac@mail.gmail.com>  <92cd8c320812041255i1a8bb4ces9468d2821ab7c620@mail.gmail.com>  <493973BA.1010902@gmail.com>  <92cd8c320812051249m39bcd8d6mb03e15e14398f01c@mail.gmail.com>  <alpine.LNX.1.10.0812111610330.21089@jikos.suse.cz>
- <92cd8c320812111146q60a70570w227dc6a4386703dd@mail.gmail.com>
+From: Jim Gettys <jg@laptop.org>
+Subject: Re: How do I find updates to the USB HID usage tables?
+Date: Thu, 11 Dec 2008 16:48:35 -0500
+Message-ID: <1229032115.14656.380.camel@jg-vaio>
+References: <1229008606.14656.347.camel@jg-vaio>
+	 <20081211153529.GB13887@kroah.com> <1229011317.14656.355.camel@jg-vaio>
+	 <alpine.LRH.1.10.0812112201450.11630@twin.jikos.cz>
+Reply-To: jg@laptop.org
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="336216065-851327688-1229030018=:21089"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:49617 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1756211AbYLKVNj (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Dec 2008 16:13:39 -0500
-In-Reply-To: <92cd8c320812111146q60a70570w227dc6a4386703dd@mail.gmail.com>
+Received: from qmta06.westchester.pa.mail.comcast.net ([76.96.62.56]:48549
+	"EHLO QMTA06.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1757320AbYLKVsi (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Dec 2008 16:48:38 -0500
+In-Reply-To: <alpine.LRH.1.10.0812112201450.11630@twin.jikos.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-2?Q?=A3ukasz_Luboja=F1ski?= <lukasz@lubojanski.info>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+The USB web site on
 
---336216065-851327688-1229030018=:21089
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+http://www.usb.org/developers/hidpage/question/
 
-On Thu, 11 Dec 2008, Łukasz Lubojański wrote:
+refers to a process for how new values are assigned (answer to question
+2.b); it talks about some "HID web page" where some such additions may
+be put until some annual update of the document: of course, version 1.12
+is 2004, so who knows what may be lurking on some mythical USB page, if
+anything...  
+                  - Jim
 
-> So I resend the patch with changed debug to dbg_hid, fixed report_count, 
-> init & exit functions are properly marked.
-
-I have applied your patch to my tree.
-
-> ps. Should I still send full diff every time or only the changes between 
-> my posts ?
-
-Up to now (as the driver hasn't been merged yet), full diffs were the 
-proper option. Now, as the code is merged, please send only incremental 
-patches on top of it.
-
-Thanks,
-
+On Thu, 2008-12-11 at 22:03 +0100, Jiri Kosina wrote:
+> On Thu, 11 Dec 2008, Jim Gettys wrote:
+> 
+> > Whether they are being used properly, is what I'd like to ensure; I have 
+> > a comment or two in the report data structure source I have that would 
+> > give me insight as to whether they are using them correctly.  If not, I 
+> > want to complain at them...
+> 
+> Well, if they are reserved in 1.12 HUT, I doubt there is any usage that 
+> can be considered correct.
+> 
 -- 
-Jiri Kosina
-SUSE Labs
---336216065-851327688-1229030018=:21089--
+Jim Gettys <jg@laptop.org>
+One Laptop Per Child
+

@@ -1,98 +1,68 @@
-From: "Dan Streetman" <ddstreet@ieee.org>
-Subject: Re: [patch] add module parameter to provide hardware-calibrated coordinate data for MicroTouch/3M touchscreens
-Date: Fri, 12 Dec 2008 12:40:52 -0500
-Message-ID: <3fad22b40812120940h54c28fb1o92528758ab900aa5__44816.6081020192$1229103747$gmane$org@mail.gmail.com>
-References: <alpine.LNX.1.10.0811251035260.30650@floyd.root.cx>
-	 <3fad22b40812021135v78410015ya0ea1bd149beeb0a@mail.gmail.com>
+From: Matt Helsley <matt.helsley@gmail.com>
+Subject: [PATCH] Fix genius pensketch 12x9 tablet
+Date: Fri, 12 Dec 2008 22:42:28 -0800
+Message-ID: <1229150548.11171.6.camel@molly>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.175]:44087 "EHLO
+Received: from wf-out-1314.google.com ([209.85.200.168]:33777 "EHLO
 	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756799AbYLLRkx (ORCPT
+	with ESMTP id S1750908AbYLMGmf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 12 Dec 2008 12:40:53 -0500
-In-Reply-To: <3fad22b40812021135v78410015ya0ea1bd149beeb0a@mail.gmail.com>
-Content-Disposition: inline
+	Sat, 13 Dec 2008 01:42:35 -0500
+Received: by wf-out-1314.google.com with SMTP id 27so1681146wfd.4
+        for <linux-input@vger.kernel.org>; Fri, 12 Dec 2008 22:42:32 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Vojtech Pavlik <vojtech@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Greg KH <greg@kroah.com>, daniel.ritz@gmx.ch, linux-usb@vger.kernel.org, linux-input@vger.kernel.o
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Ping.  Any comments on this?  Is it ok to get it into the kernel?
+The Genius PenSketch 12x9 tablet has a puck (labeled a
+"Tablet Mouse") in addition to a pen. Without registering a quirk
+the tablet appears to be a single input device that reports the
+wrong axis information in /proc/bus/input/devices, and sends
+incorrect events (e.g. ABS_Z instead of ABS_Y). This information
+confuses the X evdev driver and makes the device impossible to
+use.
 
-On Tue, Dec 2, 2008 at 2:35 PM, Dan Streetman <ddstreet@ieee.org> wrote:
-> Ping.
->
-> Dmitry, does the patch look ok?
->
-> On Tue, Nov 25, 2008 at 11:29 AM, Dan Streetman <ddstreet@ieee.org> wrote:
->>
->> On Tue, Nov 25, 2008 at 10:27 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->>> On Mon, 24 Nov 2008, Dan Streetman wrote:
->>>
->>>> +     // Default min/max xy are the raw values, override if using hw-calib
->>>
->>> Please use style of comments that is in compliance with kernel coding
->>> style.
->>
->> Oops, ok.  Updated patch below.
->>
->>
->>
->>
->> This patch adds a module parameter to report either the raw coordinate data or
->> the hardware-calibrated coordinate data.  The default is set to the raw
->> coordinates for backwards compatibilty.
->>
->> Signed-off-by: Dan Streetman <ddstreet@ieee.org>
->>
->>
->> --- a/drivers/input/touchscreen/usbtouchscreen.c        2008-11-17 10:51:30.000000000 -0500
->> +++ b/drivers/input/touchscreen/usbtouchscreen.c        2008-11-17 10:51:45.000000000 -0500
->> @@ -60,6 +60,10 @@ static int swap_xy;
->>  module_param(swap_xy, bool, 0644);
->>  MODULE_PARM_DESC(swap_xy, "If set X and Y axes are swapped.");
->>
->> +static int hwcalib_xy = 0;
->> +module_param(hwcalib_xy, bool, 0644);
->> +MODULE_PARM_DESC(hwcalib_xy, "If set hw-calibrated X/Y are used if available");
->> +
->>  /* device specifc data/functions */
->>  struct usbtouch_usb;
->>  struct usbtouch_device_info {
->> @@ -260,8 +264,13 @@ static int panjit_read_data(struct usbto
->>
->>  static int mtouch_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
->>  {
->> -       dev->x = (pkt[8] << 8) | pkt[7];
->> -       dev->y = (pkt[10] << 8) | pkt[9];
->> +       if (hwcalib_xy) {
->> +               dev->x = (pkt[4] << 8) | pkt[3];
->> +               dev->y = 0xffff - ((pkt[6] << 8) | pkt[5]);
->> +       } else {
->> +               dev->x = (pkt[8] << 8) | pkt[7];
->> +               dev->y = (pkt[10] << 8) | pkt[9];
->> +       }
->>        dev->touch = (pkt[2] & 0x40) ? 1 : 0;
->>
->>        return 1;
->> @@ -294,6 +303,12 @@ static int mtouch_init(struct usbtouch_u
->>                        return ret;
->>        }
->>
->> +       /* Default min/max xy are the raw values, override if using hw-calib */
->> +       if (hwcalib_xy) {
->> +               input_set_abs_params(usbtouch->input, ABS_X, 0, 0xffff, 0, 0);
->> +               input_set_abs_params(usbtouch->input, ABS_Y, 0, 0xffff, 0, 0);
->> +       }
->> +
->>        return 0;
->>  }
->>  #endif
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-input" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->
+The quirk fixes events and splits the device into multiple input
+event devices so that at least the puck is useful.
+
+Signed-off-by: Matt Helsley <matt.helsley@gmail.com>
+---
+NOTE: xinput lists the puck but not the pen. I've been using a
+python script to verify the contents of the events independently
+of X and, as far as I can tell, the remaining problems are in X
+itself.
+
+Tested on: 2.6.24, 2.6.25, 2.6.27, 2.6.28-rc8
+
+Index: linux-2.6.28-rc8/drivers/hid/hid-ids.h
+===================================================================
+--- linux-2.6.28-rc8.orig/drivers/hid/hid-ids.h	2008-12-12 16:27:19.000000000 -0800
++++ linux-2.6.28-rc8/drivers/hid/hid-ids.h	2008-12-12 16:30:35.000000000 -0800
+@@ -386,6 +386,9 @@
+ #define USB_VENDOR_ID_TURBOX		0x062a
+ #define USB_DEVICE_ID_TURBOX_KEYBOARD	0x0201
+ 
++#define USB_VENDOR_ID_UCLOGIC		0x5543
++#define USB_DEVICE_ID_UCLOGIC_TABLET_PF1209	0x0042
++
+ #define USB_VENDOR_ID_VERNIER		0x08f7
+ #define USB_DEVICE_ID_VERNIER_LABPRO	0x0001
+ #define USB_DEVICE_ID_VERNIER_GOTEMP	0x0002
+Index: linux-2.6.28-rc8/drivers/hid/usbhid/hid-quirks.c
+===================================================================
+--- linux-2.6.28-rc8.orig/drivers/hid/usbhid/hid-quirks.c	2008-12-12 17:22:59.000000000 -0800
++++ linux-2.6.28-rc8/drivers/hid/usbhid/hid-quirks.c	2008-12-12 17:30:44.000000000 -0800
+@@ -54,6 +54,7 @@
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_PF1209, HID_QUIRK_MULTI_INPUT },
+ 	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_DUAL_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT | HID_QUIRK_SKIP_OUTPUT_REPORTS },
+ 	{ USB_VENDOR_ID_WISEGROUP, USB_DEVICE_ID_QUAD_USB_JOYPAD, HID_QUIRK_NOGET | HID_QUIRK_MULTI_INPUT },
+ 
+
+

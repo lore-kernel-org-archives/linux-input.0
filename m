@@ -1,46 +1,55 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [RFC 2.6.27 1/1] Add support for Wacom W8001 penabled serial
-	touchscreen
-Date: Mon, 15 Dec 2008 02:06:02 -0500
-Message-ID: <20081215070601.GA1454@anvil.corenet.prv>
-References: <12274510394135-git-send-email-jayakumar.lkml@gmail.com> <45a44e480812140900i1c7fdfa4odd1d217ad312e4c0@mail.gmail.com>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: [patch for 2.6.28]open refcount issue in hidraw
+Date: Mon, 15 Dec 2008 13:04:45 +0100
+Message-ID: <200812151304.45996.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.24]:12650 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751744AbYLOHGL (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:55324 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750736AbYLOMCu convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Dec 2008 02:06:11 -0500
-Received: by qw-out-2122.google.com with SMTP id 3so571991qwe.37
-        for <linux-input@vger.kernel.org>; Sun, 14 Dec 2008 23:06:09 -0800 (PST)
+	Mon, 15 Dec 2008 07:02:50 -0500
 Content-Disposition: inline
-In-Reply-To: <45a44e480812140900i1c7fdfa4odd1d217ad312e4c0@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jaya Kumar <jayakumar.lkml@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Dec 15, 2008 at 01:00:26AM +0800, Jaya Kumar wrote:
-> On Sun, Nov 23, 2008 at 10:37 PM, Jaya Kumar <jayakumar.lkml@gmail.com> wrote:
-> > Hi Dmitry, linux-input,
-> >
-> > Thanks for your previous feedback. I've made the improvements to drop the use
-> > of cmd mutex, expected packet, cleanup and report tilt events. Let me know
-> > your thoughts.
-> >
-> > Thanks,
-> > jaya
-> >
-> 
-> Hi Dmitry,
-> 
-> Was this patch okay?
-> 
+The hidraw subsystem has a bug that prevents the close syscall from eve=
+r
+reaching the low level driver, leading to a resource leak. Fix by repla=
+cing
+postdecrement with predecrement.
 
-Hi Jaya,
+Signed-off-by: Oliver Neukum<oneukum@suse.de>
 
-The patch is in my 'next' branch, waiting for .29.
+Hi Ji=C5=99i,
 
--- 
-Dmitry
+I found this testing hid autosuspend, but it is absolutely independent
+from it. In fact it seems to me that it should still go into 2.6.28 des=
+pite
+the lateness and should definitely go into the stable series. Hence
+I am sending this as a separate patch.
+
+---
+
+diff --git a/drivers/hid/hidraw.c b/drivers/hid/hidraw.c
+index 7685ae6..96ec1ba 100644
+--- a/drivers/hid/hidraw.c
++++ b/drivers/hid/hidraw.c
+@@ -208,7 +208,7 @@ static int hidraw_release(struct inode * inode, str=
+uct file * file)
+=20
+ 	list_del(&list->node);
+ 	dev =3D hidraw_table[minor];
+-	if (!dev->open--) {
++	if (!--dev->open) {
+ 		if (list->hidraw->exist)
+ 			dev->hid->ll_driver->close(dev->hid);
+ 		else
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

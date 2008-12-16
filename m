@@ -1,71 +1,43 @@
-From: Julian Sikorski <belegdol@gmail.com>
-Subject: Re: Logitech Alto Cordless
-Date: Tue, 16 Dec 2008 19:37:10 +0100
-Message-ID: <4947F556.4000700@gmail.com>
-References: <4933E4BC.5090801@gmail.com> <alpine.LRH.1.10.0812011734130.28179@twin.jikos.cz> <493424C7.30209@gmail.com> <493649F1.8090001@gmail.com>
+From: Ben Dooks <ben-linux@fluff.org>
+Subject: Re: [PATCH] HID: avoid sparse warning in HID_COMPAT_LOAD_DRIVER
+Date: Tue, 16 Dec 2008 19:41:13 +0000
+Message-ID: <20081216194113.GF12431@fluff.org.uk>
+References: <4947a48f.08b6660a.34ca.ffffa1e8@mx.google.com> <20081216155822.GD12431@fluff.org.uk> <alpine.LNX.1.10.0812161659580.21089@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f17.google.com ([209.85.219.17]:48596 "EHLO
-	mail-ew0-f17.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752022AbYLPShP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2008 13:37:15 -0500
-Received: by ewy10 with SMTP id 10so3843223ewy.13
-        for <linux-input@vger.kernel.org>; Tue, 16 Dec 2008 10:37:12 -0800 (PST)
-In-Reply-To: <493649F1.8090001@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756071AbYLPTlm@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.1.10.0812161659580.21089@jikos.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Ben Dooks <ben-linux@fluff.org>, Hannes Eder <hannes@hanneseder.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Julian Sikorski pisze:
-> Julian Sikorski pisze:
->> Jiri Kosina pisze:
->>> On Mon, 1 Dec 2008, Julian Sikorski wrote:
->>>
->>>> during a discussion on fedora-devel-list, I was suggested to check if
->>>> the said keyboard is compliant with the standards before requesting
->>>> xkeyboard-config changes. The problem exists with two keys:
->>>> - Fn-F3, has MSIE logo on it, emits XF86HomePage, should emit XF86WWW
->>>> - Fn-F4, has a tune on it, emit XF86Tools, should XF86AudioMedia
->>>> This is under Fedora 10 x86_64, using evdev driver and evdev-managed
->>>> keyboard map.
->>> In order to answer this question, we need to know what the keyboard is 
->>> acutally sending when these keys are being pressed (and also product ID 
->>> would be useful -- this can be obtained from lsusb output).
->>>
->>> Assuming that Fedora has the CONFIG_HID_DEBUG kernel option turned on (I 
->>> don't know whether this is true or not), could you please
->>>
->>> 	rmmod usbhid
->>> 	rmmod hid
->>> 	modprobe hid debug=2
->>> 	modprobe usbhid
->>>
->>> press the keys, and send the dmesg output?
->>>
->>> Thanks,
->>>
->> OK, got it. hid is builtin.
-> Here is what evtest reports:
-> Event: time 1228294575.277680, type 4 (Misc), code 4 (ScanCode), value c0223
-> Event: time 1228294575.277708, type 1 (Key), code 172 (HomePage), value 1
-> Event: time 1228294575.277716, -------------- Report Sync ------------
-> Event: time 1228294575.437667, type 4 (Misc), code 4 (ScanCode), value c0223
-> Event: time 1228294575.437692, type 1 (Key), code 172 (HomePage), value 0
-> Event: time 1228294575.437699, -------------- Report Sync ------------
-> Event: time 1228294576.165695, type 4 (Misc), code 4 (ScanCode), value c0183
-> Event: time 1228294576.165724, type 1 (Key), code 171 (Config), value 1
-> Event: time 1228294576.165732, -------------- Report Sync ------------
-> Event: time 1228294576.325660, type 4 (Misc), code 4 (ScanCode), value c0183
-> Event: time 1228294576.325690, type 1 (Key), code 171 (Config), value 0
-> Event: time 1228294576.325697, -------------- Report Sync ------------
+On Tue, Dec 16, 2008 at 05:01:38PM +0100, Jiri Kosina wrote:
+> On Tue, 16 Dec 2008, Ben Dooks wrote:
 > 
-> Julian
-Could somebody help me in preparation of an appropriate patch? I took a
-look into drivers/hid/hid-input-quirks.c, but unfortunately that's
-beyond my skills. Thanks in advance!
+> > >  #ifdef CONFIG_HID_COMPAT
+> > >  #define HID_COMPAT_LOAD_DRIVER(name)	\
+> > > +/* prototype to avoid sparse warning */	\
+> > > +extern void hid_compat_##name(void);	\
+> > >  void hid_compat_##name(void) { }	\
+> > surely this could simply be changed to 'static void 
+> > hid_compat_##name(void)' if it is only being defined to be an empty 
+> 
+> This will cause gcc emit warnings about unused symbols.
 
-Regards,
-Julian
+sorry, 'static inline void' then.
+ 
+> -- 
+> Jiri Kosina
+> SUSE Labs
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Ben (ben@fluff.org, http://www.fluff.org/)
+
+  'a smiley only costs 4 bytes'

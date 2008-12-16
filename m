@@ -1,43 +1,36 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: [PATCH] HID: avoid sparse warning in HID_COMPAT_LOAD_DRIVER
-Date: Tue, 16 Dec 2008 19:41:13 +0000
-Message-ID: <20081216194113.GF12431@fluff.org.uk>
-References: <4947a48f.08b6660a.34ca.ffffa1e8@mx.google.com> <20081216155822.GD12431@fluff.org.uk> <alpine.LNX.1.10.0812161659580.21089@jikos.suse.cz>
+From: Deepak Saxena <dsaxena@laptop.org>
+Subject: Re: [PATCH 1/2] Add module parameters to control OLPC touchpad
+	delays
+Date: Tue, 16 Dec 2008 11:44:24 -0800
+Message-ID: <20081216194424.GA19237@trantor.hsd1.or.comcast.net>
+References: <20081216193500.GA15380@trantor.hsd1.or.comcast.net> <20081216144059.54901ec0@ephemeral>
+Reply-To: dsaxena@laptop.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756071AbYLPTlm@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from plexity.net ([206.123.115.38]:39668 "EHLO plexity.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752289AbYLPToZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Dec 2008 14:44:25 -0500
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.1.10.0812161659580.21089@jikos.suse.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Ben Dooks <ben-linux@fluff.org>, Hannes Eder <hannes@hanneseder.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+In-Reply-To: <20081216144059.54901ec0@ephemeral>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andres Salomon <dilinger@queued.net>
+Cc: dsaxena@laptop.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, pgf@laptop.org
 
-On Tue, Dec 16, 2008 at 05:01:38PM +0100, Jiri Kosina wrote:
-> On Tue, 16 Dec 2008, Ben Dooks wrote:
+On Dec 16 2008, at 14:40, Andres Salomon was caught saying:
+> Acked-By: Andres Salomon <dilinger@debian.org>
 > 
-> > >  #ifdef CONFIG_HID_COMPAT
-> > >  #define HID_COMPAT_LOAD_DRIVER(name)	\
-> > > +/* prototype to avoid sparse warning */	\
-> > > +extern void hid_compat_##name(void);	\
-> > >  void hid_compat_##name(void) { }	\
-> > surely this could simply be changed to 'static void 
-> > hid_compat_##name(void)' if it is only being defined to be an empty 
-> 
-> This will cause gcc emit warnings about unused symbols.
+> Is this from Paul or you?
 
-sorry, 'static inline void' then.
- 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>From Paul, minor changes on my end to make them work on 2.6.latest. 
+
+~Deepak
 
 -- 
-Ben (ben@fluff.org, http://www.fluff.org/)
-
-  'a smiley only costs 4 bytes'
+ Deepak Saxena - Kernel Developer, One Laptop Per Child
+   _____   __o                                   (o>
+------    -\<,  Give One Laptop, Get One Laptop  //\
+ ----- ( )/ ( )  http://www.amazon.com/xo        V_/_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,72 +1,94 @@
-From: pgf@laptop.org
-Subject: Re: [PATCH 2/2] Recover from failed recalibration for OLPC touchpad
-Date: Tue, 16 Dec 2008 16:00:18 -0500
-Message-ID: <16580.1229461218@foxharp.boston.ma.us>
-References: <20081216194509.GB15380@trantor.hsd1.or.comcast.net> <20081216145332.614b847a@ephemeral>
+From: "Trilok Soni" <soni.trilok@gmail.com>
+Subject: Re: [PATCH] Add TI TSC2005 Touchscreen driver
+Date: Thu, 18 Dec 2008 13:25:16 +0530
+Message-ID: <5d5443650812172355j6e548fa9scd55a2636341abfb@mail.gmail.com>
+References: <5d5443650812080949h5aff6010mb7341f581841f126@mail.gmail.com>
+	 <20081208182648.GA9740@uranus.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from colo3.heeltoe.com ([207.210.106.184]:48023 "EHLO
-	colo3.heeltoe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750998AbYLPV0a (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Dec 2008 16:26:30 -0500
-In-reply-to: <20081216145332.614b847a@ephemeral> 
-Content-ID: <16577.1229461218.1@foxharp.boston.ma.us>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20081208182648.GA9740@uranus.ravnborg.org>
+Content-Disposition: inline
+Sender: linux-omap-owner@vger.kernel.org
+To: Sam Ravnborg <sam@ravnborg.org>, Lauri Leukkunen <lauri.leukkunen@nokia.com>
+Cc: David Brownell <david-b@pacbell.net>, dmitry.torokhov@gmail.com, "linux-omap@vger.kernel.org Mailing List" <linux-omap@vger.kernel.org>, linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andres Salomon <dilinger@queued.net>
-Cc: dsaxena@laptop.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-andres wrote:
- > On Tue, 16 Dec 2008 11:45:09 -0800
- > Deepak Saxena <dsaxena@laptop.org> wrote:
- > 
- > > Sometimes the the HPGK touchpad will fail to properly respond
- > > to a ps2_command() during recalibration. This patch works around
- > > that issue be scheduling another recalibration if this happens.
- > > 
- > > This solves http://dev.laptop.org/ticket/9008
- > > 
- > 
- > The bug lacks details regarding testing, see below.
- > 
- > 
- > > Signed-off-by: Paul Fox <pgf@laptop.org>
- > > Signed-off-by: Deepak Saxena <dsaxena@laptop.org>
- > > ---
- > >  drivers/input/mouse/hgpk.c |    9 ++++++++-
- > >  1 files changed, 8 insertions(+), 1 deletions(-)
- > > 
- > > diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
- > > index 39cce65..9548e1c 100644
- > > --- a/drivers/input/mouse/hgpk.c
- > > +++ b/drivers/input/mouse/hgpk.c
- > > @@ -233,6 +233,9 @@ static int hgpk_force_recalibrate(struct psmouse
- > > *psmouse) ps2_command(ps2dev, NULL, 0xf5) ||
- > >  	    ps2_command(ps2dev, NULL, 0xe6) ||
- > >  	    ps2_command(ps2dev, NULL, 0xf5)) {
- > > + 		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
- > > + 		psmouse_queue_work(psmouse, &priv->recalib_wq,
- > > +				   msecs_to_jiffies(500));
- > >  		return -1;
- > >  	}
- > >  
- > 
- > Do we know why the ps2 commands are failing?  Do we really want to keep
- > trying to recalibrate if something's screwy with ps2, rather than (say)
- > completely reinitializing the driver?
- > 
- > Paul, did you manage to reproduce the problem with this patch applied?
+Hi Sam/Lauri,
 
-i used to see this problem regularly (the mouse simply stops working),
-and could reproduce it readily.  i was not able to reproduce it after
-applying the fix.
+>>
+>> +config TOUCHSCREEN_TSC2005
+>> +     tristate "TSC2005 touchscreen support"
+> I would be good to see Texas Instruments spelled out here.
+>> +     depends on SPI_MASTER
+>> +     help
+>> +       Say Y here for if you are using the touchscreen features of TSC2005.
+> And maybe with a bit text explaining where it is used or maybe where to find info.
 
-(that being said, i didn't look into why the ps2 commands were failing.)
+I can add this.
 
-paul
+>
+>> +#define TSC2005_VDD_LOWER_27
+>> +
+>> +#ifdef TSC2005_VDD_LOWER_27
+>> +#define TSC2005_HZ     (10000000)
+>> +#else
+>> +#define TSC2005_HZ     (25000000)
+>> +#endif
+>
+> You define TSC2005_VDD_LOWER_27 and test for it two
+> lines later - looks strange.
 
-=---------------------
- paul fox, pgf@laptop.org
- give one laptop, get one laptop --- http://www.laptop.com/xo
+I will this as is right now, probably Lauri can explain if there is
+some other way possible to pass it using platform hook if it is
+specific to particular board design.
+
+>
+>> +
+>> +static void tsc2005_cmd(struct tsc2005 *ts, u8 cmd)
+>> +{
+>> +     u16 data = TSC2005_CMD | TSC2005_CMD_12BIT | cmd;
+>> +     struct spi_message msg;
+>> +     struct spi_transfer xfer = { 0 };
+>> +
+>> +     xfer.tx_buf = &data;
+>> +     xfer.rx_buf = NULL;
+>> +     xfer.len = 1;
+>> +     xfer.bits_per_word = 8;
+> data is a 16 bit quantity yet you specify a len of 1.
+> Maybe len is counted from 0?
+>
+
+This looks like bug. I will change data to u8. Lauri please confirm.
+
+>> +static void tsc2005_write(struct tsc2005 *ts, u8 reg, u16 value)
+>> +{
+>> +     u32 tx;
+>> +     struct spi_message msg;
+>> +     struct spi_transfer xfer = { 0 };
+>> +
+>> +     tx = (TSC2005_REG | reg | TSC2005_REG_PND0 |
+>> +            TSC2005_REG_WRITE) << 16;
+>> +     tx |= value;
+> Is this endian safe? Does spi know about LSB/MSB in the value?
+>
+>> +
+>> +     xfer.tx_buf = &tx;
+>> +     xfer.rx_buf = NULL;
+>> +     xfer.len = 4;
+>> +     xfer.bits_per_word = 24;
+>> +
+
+As per this bits_per_word and length we have 4 messages of 24 bits
+each, and so it is job of omap2_mcspi_txrx_pio in
+drivers/spi/omap2_mcspi.c to handle this messages and proper order.
+AFAIR, OMAP2 mcspi block has registers settings for this byte-order
+stuf. Lauri could you please add some points here. I don't have access
+to OMAP2 TRM anymore. Thanks.
+
+
+-- 
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

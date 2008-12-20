@@ -1,65 +1,77 @@
-From: Jim Gettys <jg@laptop.org>
-Subject: Re: How do I find updates to the USB HID usage tables?
-Date: Fri, 19 Dec 2008 13:33:00 -0500
-Message-ID: <1229711580.9460.166.camel@jg-vaio>
-References: <1229008606.14656.347.camel@jg-vaio>
-	 <20081211153529.GB13887@kroah.com> <1229011317.14656.355.camel@jg-vaio>
-	 <alpine.LRH.1.10.0812112201450.11630@twin.jikos.cz>
-	 <1229032115.14656.380.camel@jg-vaio>  <20081211220703.GA24235@kroah.com>
-Reply-To: jg@laptop.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Recover from failed recalibration for OLPC touchpad
+Date: Sat, 20 Dec 2008 02:49:45 -0800
+Message-ID: <200812200249.45956.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qmta10.westchester.pa.mail.comcast.net ([76.96.62.17]:51636
-	"EHLO QMTA10.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751863AbYLSSdF (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.31]:23233 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751005AbYLTKuH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Dec 2008 13:33:05 -0500
-In-Reply-To: <20081211220703.GA24235@kroah.com>
+	Sat, 20 Dec 2008 05:50:07 -0500
+Received: by yw-out-2324.google.com with SMTP id 9so496613ywe.1
+        for <linux-input@vger.kernel.org>; Sat, 20 Dec 2008 02:50:06 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <greg@kroah.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
+To: pgf@laptop.org
+Cc: Andres Salomon <dilinger@queued.net>, dsaxena@laptop.org, linux-input@vger.kernel.org
 
+On Tuesday 16 December 2008 13:00:18 pgf@laptop.org wrote:
+> andres wrote:
+>  > On Tue, 16 Dec 2008 11:45:09 -0800
+>  >
+>  > Deepak Saxena <dsaxena@laptop.org> wrote:
+>  > > Sometimes the the HPGK touchpad will fail to properly respond
+>  > > to a ps2_command() during recalibration. This patch works around
+>  > > that issue be scheduling another recalibration if this happens.
+>  > >
+>  > > This solves http://dev.laptop.org/ticket/9008
+>  >
+>  > The bug lacks details regarding testing, see below.
+>  >
+>  > > Signed-off-by: Paul Fox <pgf@laptop.org>
+>  > > Signed-off-by: Deepak Saxena <dsaxena@laptop.org>
+>  > > ---
+>  > >  drivers/input/mouse/hgpk.c |    9 ++++++++-
+>  > >  1 files changed, 8 insertions(+), 1 deletions(-)
+>  > >
+>  > > diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+>  > > index 39cce65..9548e1c 100644
+>  > > --- a/drivers/input/mouse/hgpk.c
+>  > > +++ b/drivers/input/mouse/hgpk.c
+>  > > @@ -233,6 +233,9 @@ static int hgpk_force_recalibrate(struct psmouse
+>  > > *psmouse) ps2_command(ps2dev, NULL, 0xf5) ||
+>  > >  	    ps2_command(ps2dev, NULL, 0xe6) ||
+>  > >  	    ps2_command(ps2dev, NULL, 0xf5)) {
+>  > > + 		psmouse_set_state(psmouse, PSMOUSE_ACTIVATED);
+>  > > + 		psmouse_queue_work(psmouse, &priv->recalib_wq,
+>  > > +				   msecs_to_jiffies(500));
+>  > >  		return -1;
+>  > >  	}
+>  >
+>  > Do we know why the ps2 commands are failing?  Do we really want to keep
+>  > trying to recalibrate if something's screwy with ps2, rather than (say)
+>  > completely reinitializing the driver?
+>  >
+>  > Paul, did you manage to reproduce the problem with this patch applied?
+>
+> i used to see this problem regularly (the mouse simply stops working),
+> and could reproduce it readily.  i was not able to reproduce it after
+> applying the fix.
+>
+> (that being said, i didn't look into why the ps2 commands were failing.)
+>
 
-It appears Microsoft is proposing the usages (dunno if they have
-formally submitted them to the USB standards folks yet).
+I am not comfortable with the idea of endlessly recalibrating if device gets 
+really screwy. I'd rather see a patch that did that 3-5 times and then issued 
+complete reinitialization.
 
-There are some documents (dated November) you can find by searching the
-Microsoft web site for "multi-touch"; just found them today.  There
-wasn't anything when I went looking in October.
+Thanks.
 
-The most clearly applicable is:
-http://www.microsoft.com/whdc/device/input/DigitizerDrvs_touch.mspx
-
-I'll go over them and confirm that they are consistent with the device I
-have...
-                          - Jim
-
-On Thu, 2008-12-11 at 14:07 -0800, Greg KH wrote:
-> On Thu, Dec 11, 2008 at 04:48:35PM -0500, Jim Gettys wrote:
-> > The USB web site on
-> > 
-> > http://www.usb.org/developers/hidpage/question/
-> > 
-> > refers to a process for how new values are assigned (answer to question
-> > 2.b); it talks about some "HID web page" where some such additions may
-> > be put until some annual update of the document: of course, version 1.12
-> > is 2004, so who knows what may be lurking on some mythical USB page, if
-> > anything...  
-> 
-> There are no outstanding HID documents currently under review from the
-> USB IF that I could find by poking around the member side of usb.org.
-> 
-> So sorry, I couldn't find anything.
-> 
-> greg k-h
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 -- 
-Jim Gettys <jg@laptop.org>
-One Laptop Per Child
+Dmitry
 

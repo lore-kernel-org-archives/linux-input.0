@@ -1,38 +1,36 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] Add module parameters to control OLPC touchpad delays
-Date: Sat, 20 Dec 2008 02:49:54 -0800
-Message-ID: <200812200249.55002.dmitry.torokhov@gmail.com>
+Subject: Re: + input-add-tsc2007-based-touchscreen-driver-update.patch added to -mm tree
+Date: Sat, 20 Dec 2008 02:50:14 -0800
+Message-ID: <200812200250.15419.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.31]:23233 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751406AbYLTKuP (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.248]:54254 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753442AbYLTKug (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Dec 2008 05:50:15 -0500
-Received: by yw-out-2324.google.com with SMTP id 9so496613ywe.1
-        for <linux-input@vger.kernel.org>; Sat, 20 Dec 2008 02:50:14 -0800 (PST)
+	Sat, 20 Dec 2008 05:50:36 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dsaxena@laptop.org
-Cc: Andres Salomon <dilinger@queued.net>, linux-input@vger.kernel.org, pgf@laptop.org
+To: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+Cc: akpm@linux-foundation.org, Jean Delvare <khali@linux-fr.org>, David Brownell <david-b@pacbell.net>, felipe.balbi@nokia.com, Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org, mm-commits@vger.kernel.org
 
-On Tuesday 16 December 2008 11:44:24 Deepak Saxena wrote:
-> On Dec 16 2008, at 14:40, Andres Salomon was caught saying:
-> > Acked-By: Andres Salomon <dilinger@debian.org>
-> >
-> > Is this from Paul or you?
+Hi Kwangwoo,
+
+On Thursday 18 December 2008 18:09:44 Kwangwoo Lee wrote:
+> Hi Dmitry,
 >
-> From Paul, minor changes on my end to make them work on 2.6.latest.
+> I'm waiting for your comments. Let me know your thought about this
+> patch, please.
 >
 
-Please try to indicate attribution by including From: line in patches, I fixed 
-it up on my side for this one.
+I think to be completely safe we need hrtimer_cancel() right after free_irq(). 
+I added it and applied to my 'next' branch.
 
-Thanks.
+Thank you.
 
 -- 
 Dmitry

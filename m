@@ -1,26 +1,105 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH] HID: avoid sparse warning in HID_COMPAT_LOAD_DRIVER
-Date: Sat, 20 Dec 2008 17:55:55 +0100
-Message-ID: <494D239B.10800@gmail.com>
-References: <4947a48f.08b6660a.34ca.ffffa1e8@mx.google.com>  <20081216155822.GD12431@fluff.org.uk>  <alpine.LNX.1.10.0812161659580.21089@jikos.suse.cz>  <20081216194113.GF12431@fluff.org.uk> <154e089b0812161144x3c9579f5g8731b616fde6484c@mail.gmail.com> <494B5BC4.100@gmail.com> <alpine.LNX.1.10.0812191037110.26265@jikos.suse.cz>
+From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Subject: [PATCH] sh: maple: Robust checking for errors on maple keyboard
+ initialisation
+Date: Sat, 20 Dec 2008 18:25:27 +0000
+Message-ID: <1229797527.6502.18.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.25]:9865 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752618AbYLTQ4O (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Dec 2008 11:56:14 -0500
-In-Reply-To: <alpine.LNX.1.10.0812191037110.26265@jikos.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: lkmL <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>
+Cc: Paul Mundt <lethal@linux-sh.org>, Matt Fleming <matt@console-pimps.org>, Andrew Morton <akpm@osdl.org>
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Hannes Eder <hannes@hanneseder.net>, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org, Jon Masters <jcm@jonmasters.org>
 
-Jiri Kosina wrote:
-> BTW while we are at it -- what is the status with module-init-tools? Has 
-> the support been merged already?
+As was pointed out in response to http://lkml.org/lkml/2008/12/19/373
+maple drivers were not properly checking for NULL pointers.
 
-As far as I can see, not yet. Jon, what's the status of hid bus support in
-m-i-t, please?
+This patch fixes this for the keyboard driver already in mainline.
+
+Robust checking for errors on maple keyboard initialisation
+
+Reported-by: Matt Fleming <matt@console-pimps.org>
+Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+---
+
+diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
+index 22f17a5..9133af8 100644
+--- a/drivers/input/keyboard/maple_keyb.c
++++ b/drivers/input/keyboard/maple_keyb.c
+@@ -159,22 +159,41 @@ static void dc_kbd_callback(struct mapleq *mq)
+ 
+ static int probe_maple_kbd(struct device *dev)
+ {
+-	struct maple_device *mdev = to_maple_dev(dev);
+-	struct maple_driver *mdrv = to_maple_driver(dev->driver);
++	struct maple_device *mdev;
++	struct maple_driver *mdrv;
+ 	int i, error;
+ 	struct dc_kbd *kbd;
+ 	struct input_dev *idev;
+ 
+-	if (!(mdev->function & MAPLE_FUNC_KEYBOARD))
+-		return -EINVAL;
++	mdev = to_maple_dev(dev);
++	if (!mdev) {
++		error = EINVAL;
++		goto fail;
++	}
++
++	mdrv = to_maple_driver(dev->driver);
++	if (!mdrv) {
++		error = EINVAL;
++		goto fail;
++	}
++
++	if (!(mdev->function & MAPLE_FUNC_KEYBOARD)) {
++		error = EINVAL;
++		goto fail;
++	}
+ 
+ 	kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
+-	idev = input_allocate_device();
+-	if (!kbd || !idev) {
+-		error = -ENOMEM;
++	if (!kbd) {
++		error = ENOMEM;
+ 		goto fail;
+ 	}
+ 
++	idev = input_allocate_device();
++	if (!idev) {
++		error = ENOMEM;
++		goto fail_idev_alloc;
++	}
++
+ 	kbd->dev = idev;
+ 	memcpy(kbd->keycode, dc_kbd_keycode, sizeof(kbd->keycode));
+ 
+@@ -195,7 +214,7 @@ static int probe_maple_kbd(struct device *dev)
+ 
+ 	error = input_register_device(idev);
+ 	if (error)
+-		goto fail;
++		goto fail_register;
+ 
+ 	/* Maple polling is locked to VBLANK - which may be just 50/s */
+ 	maple_getcond_callback(mdev, dc_kbd_callback, HZ/50,
+@@ -207,11 +226,13 @@ static int probe_maple_kbd(struct device *dev)
+ 
+ 	return error;
+ 
+-fail:
++fail_register:
++	maple_set_drvdata(mdev, NULL);
+ 	input_free_device(idev);
++fail_idev_alloc:
+ 	kfree(kbd);
+-	maple_set_drvdata(mdev, NULL);
+-	return error;
++fail:
++	return -error;
+ }
+ 
+ static int remove_maple_kbd(struct device *dev)
+

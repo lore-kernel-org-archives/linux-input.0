@@ -1,27 +1,59 @@
-From: j7re7g9l07g9n <j7re7g9l07g9n@gmail.com>
-Subject: =?BIG5?B?okgyMDA4LzEyLzIxIKRz4L6s7KfeuvSttrNdrXA=?=
-Date: Sun, 21 Dec 2008 11:55:32 +0800
-Message-ID: <c46fa1830812201955y25fa18cja2bfaacf5b75a9ed__39890.7249946662$1229831825$gmane$org@mail.gmail.com>
+From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Subject: Re: 2.6.28-rc9: USB Mouse unhappy
+Date: Sat, 20 Dec 2008 22:12:53 -0800
+Message-ID: <20081220221253.e09b1b1f.akpm@linux-foundation.org>
+References: <f7848160812201911k7988221asd095ce873fd8105f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=BIG5
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qb-out-0506.google.com ([72.14.204.237]:42544 "EHLO
-	qb-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751144AbYLUDzh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Dec 2008 22:55:37 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <f7848160812201911k7988221asd095ce873fd8105f-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Parag Warudkar <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linuv@uv.es
 
-MjAwOC0xMi0yMSAgLSAgMTE6NTUKCqRzTeC+YazsVqfeabr0Za22erNdWa1wCgqn2k+tzGuqulSp
-dm2mrkyhR6vIpOGquqhDo7il86RwqMaxoaFBs6OsT6Rz4L6quqRqqMaxoQoKp9pkrcxoWaZiV7HA
-pVil+Ld+p862SLr0r7ilXad0q2WleLr0rbas/KR1K6vhpXi63rJ6tXumoQoKra1xrslLra04tnE4
-sU2u17v5IKV1rW4kMjksOTAwICAopmKwZaO4pn4xMDBNQiCko62trHm2cbr0r7iqxbahKQoKp9ph
-rcxOsLVoqrpnpKNFpXU4rE8wuvRkr7ihQabTRKxPR7F6QqX4dLd+Uqq6WKRKYqRmCgqjuE6t0zSm
-bmyqukOl+Ea3fk269FivuHO46m+uxlWnWWquyTmn81C3czKqunWzdGWr12SsT1Wr3Datq3OtbkSq
-ugoKpfhst36i7aTGUbCqYqt+NL3oTrnOerakoUGltDOzeTKxejiqumO69DK49Gqq+W6tsQoKv+9S
-vtx4pHM44L51pqg2tE5QsXpZqrpGudoyN7dRCgpYxXeq76jTuXGsorjftsCxTa37oUcwIDkgOCAw
-IDEgMSA5IDggMSAyCjeht1ahumehrXSh16HXYaH4Cg==
+(cc's added)
+
+On Sat, 20 Dec 2008 22:11:17 -0500 "Parag Warudkar" <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+
+> Just installed today's git on my workstation and my Logitech USB Mouse
+> only wants to move vertically around the centre of the monitor.
+> 
+> I have no clue where to look - all  I know is that it works with the
+> 2.6.27 and various 2.6.28-rcs prior to this one.
+> 
+> Parag
+> 
+> [parag@xw6600 ~]$ diff Xorg.0.log.not.working /var/log/Xorg.0.log |grep Logi
+> < (**) Logitech USB Receiver: Device: "/dev/input/event5"
+> > (**) Logitech USB Receiver: Device: "/dev/input/event6"
+> < (II) config/hal: Adding input device Logitech USB Receiver
+> < (**) Logitech USB Receiver: always reports core events
+> < (**) Logitech USB Receiver: Device: "/dev/input/event3"
+> < (II) Logitech USB Receiver: Found x and y relative axes
+> < (II) Logitech USB Receiver: Found mouse buttons
+> < (II) Logitech USB Receiver: Configuring as mouse
+> < (II) XINPUT: Adding extended input device "Logitech USB Receiver"
+> (type: MOUSE)
+> > (II) config/hal: Adding input device Logitech USB Receiver
+> > (**) Logitech USB Receiver: always reports core events
+> > (**) Logitech USB Receiver: Device: "/dev/input/event5"
+> > (II) Logitech USB Receiver: Found x and y relative axes
+> > (II) Logitech USB Receiver: Found mouse buttons
+> > (II) Logitech USB Receiver: Configuring as mouse
+> > (II) XINPUT: Adding extended input device "Logitech USB Receiver" (type: MOUSE)
+
+Could be input, could be HID, could even be USB.
+
+You're sure that 2.6.28-rc8 was OK?
+
+2.6.28-rc9 had only a small number of changes.  Nothing I can see in
+input or HID.  A few USB changes, but pretty specific ones -
+unusual_devs entries and such.
+
+Maybe your mouse has died?  Did you retest with an older kernel?
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

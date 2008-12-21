@@ -1,28 +1,42 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] sh: maple: Robust checking for errors on maple keyboard initialisation
-Date: Sat, 20 Dec 2008 22:17:04 -0800
-Message-ID: <200812202217.05002.dmitry.torokhov@gmail.com>
-References: <1229797527.6502.18.camel@localhost.localdomain>
+From: "Parag Warudkar" <parag.lkml@gmail.com>
+Subject: Re: 2.6.28-rc9: USB Mouse unhappy
+Date: Sun, 21 Dec 2008 01:26:00 -0500
+Message-ID: <f7848160812202226w1f930c86vfd17a2b0163bfc56@mail.gmail.com>
+References: <f7848160812201911k7988221asd095ce873fd8105f@mail.gmail.com>
+	 <20081220221253.e09b1b1f.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1229797527.6502.18.camel@localhost.localdomain>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wa-out-1112.google.com ([209.85.146.181]:43002 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750984AbYLUG0D (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Dec 2008 01:26:03 -0500
+In-Reply-To: <20081220221253.e09b1b1f.akpm@linux-foundation.org>
 Content-Disposition: inline
-Sender: linux-sh-owner@vger.kernel.org
-To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Cc: lkmL <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>, Paul Mundt <lethal@linux-sh.org>, Matt Fleming <matt@console-pimps.org>, Andrew Morton <akpm@osdl.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Saturday 20 December 2008 10:25:27 Adrian McMenamin wrote:
-> As was pointed out in response to http://lkml.org/lkml/2008/12/19/373
-> maple drivers were not properly checking for NULL pointers.
+On Sun, Dec 21, 2008 at 1:12 AM, Andrew Morton
+<akpm@linux-foundation.org> wrote:
+> You're sure that 2.6.28-rc8 was OK?
+
+Nope - not sure about 28-rc8. I meant to say some previous 28-rc's
+that I tested worked fine - can't recall which ones. it is likely I
+missed testing .28-rc8.
+
 >
-> This patch fixes this for the keyboard driver already in mainline.
+> 2.6.28-rc9 had only a small number of changes.  Nothing I can see in
+> input or HID.  A few USB changes, but pretty specific ones -
+> unusual_devs entries and such.
 >
+> Maybe your mouse has died?  Did you retest with an older kernel?
+>
+I did - rebooting into 2.6.27 (original distro kernel) makes it work again.
 
-This driver is fine as is, only the joystick driver had the issue.
+Thanks
 
--- 
-Dmitry
+Parag

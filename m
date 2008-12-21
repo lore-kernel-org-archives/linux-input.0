@@ -1,55 +1,31 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
 Subject: Re: 2.6.28-rc9: USB Mouse unhappy
-Date: Sun, 21 Dec 2008 18:30:18 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0812211824350.11630@twin.jikos.cz>
-References: <f7848160812201911k7988221asd095ce873fd8105f@mail.gmail.com>  <20081220221253.e09b1b1f.akpm@linux-foundation.org>  <f7848160812202226w1f930c86vfd17a2b0163bfc56@mail.gmail.com>  <494E20F7.7050106@gmail.com>
- <f7848160812210717w5e5cc7a2uc5571710f755ec99@mail.gmail.com>
+Date: Sun, 21 Dec 2008 19:39:52 +0100 (CET)
+Message-ID: <alpine.LRH.1.10.0812211939170.11630@twin.jikos.cz>
+References: <f7848160812201911k7988221asd095ce873fd8105f@mail.gmail.com>  <20081220221253.e09b1b1f.akpm@linux-foundation.org>  <f7848160812202226w1f930c86vfd17a2b0163bfc56@mail.gmail.com>  <494E20F7.7050106@gmail.com> <f7848160812210717w5e5cc7a2uc5571710f755ec99@mail.gmail.com>
+ <alpine.LRH.1.10.0812211824350.11630@twin.jikos.cz>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:47322 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750851AbYLURa1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 21 Dec 2008 12:30:27 -0500
-In-Reply-To: <f7848160812210717w5e5cc7a2uc5571710f755ec99@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LRH.1.10.0812211824350.11630-1ReQVI26iDCaZKY3DrU6dA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: Parag Warudkar <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anssi Hannula <anssi.hannula-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Parag Warudkar <parag.lkml@gmail.com>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Sun, 21 Dec 2008, Parag Warudkar wrote:
+On Sun, 21 Dec 2008, Jiri Kosina wrote:
 
-> > This sounds to me like 'usbmouse' gets used instead of 'usbhid' on
-> > 2.6.28-rc9. Many users have reported only vertical movement with
-> > 'usbmouse'. Better check the kernel configuration, if you had usbmouse
-> > disabled in 2.6.27, then disable it with 2.6.28-rc9 as well.
-> Sure enough - rmmod usbhid; modprobe usbmouse reproduces the exact same 
-> problem on a working kernel.
-> But the thing is I use the same base configuration across all kernels
-> I build (sans of course the newly added config options) - so something
-> changed somewhere and now usbmouse gets used instead of usbhid.
+>   usbmouse on 2.6.28-rc with the exact same mouse? (either check 
+>   /sys/bus/usb/devices or even lsusb shouldn't ideally show usbmouse 
+>   loaded at all)
 
-Could you please
-
-- make sure whether usbhid is used on 2.6.27 to drive the mouse and 
-  usbmouse on 2.6.28-rc with the exact same mouse? (either check 
-  /sys/bus/usb/devices or even lsusb shouldn't ideally show usbmouse 
-  loaded at all)
-- if so, make sure that you really need to build usbmouse (please read the 
-  help text in Kconfig for explanation)
-
-> What's the deal with usbmouse though - is it supposed to be working or 
-> is it considered lost cause in favor of usbhid? May be if people don't 
-> need to use it and it is not actively looked into, we can disable/remove 
-> it?
-
-Really, please read the help text.
-
-Maybe we should make it dependent on EMBEDDED.
-
-Thanks,
+Sorry for the above typo, 'lsusb' should of course be 'lsmod' here.
 
 -- 
 Jiri Kosina
 SUSE Labs
 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

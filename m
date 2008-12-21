@@ -1,40 +1,38 @@
-From: Parag Warudkar <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] USBHID: Make Boot Protocol drivers depend on EMBEDDED
-Date: Sun, 21 Dec 2008 14:49:19 -0500 (EST)
-Message-ID: <alpine.DEB.2.00.0812211441300.7101@parag-desktop>
-References: <f7848160812201911k7988221asd095ce873fd8105f@mail.gmail.com>  <20081220221253.e09b1b1f.akpm@linux-foundation.org>  <f7848160812202226w1f930c86vfd17a2b0163bfc56@mail.gmail.com>  <494E20F7.7050106@gmail.com> <f7848160812210717w5e5cc7a2uc5571710f755ec99@mail.gmail.com>
- <alpine.LRH.1.10.0812211824350.11630@twin.jikos.cz>
+From: "Tero Saarni" <tero.saarni@gmail.com>
+Subject: touchpad with unequal horizontal and vertical resolution
+Date: Sun, 21 Dec 2008 23:42:02 +0200
+Message-ID: <ad348feb0812211342h51f76e90u831e0435ee496188@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LRH.1.10.0812211824350.11630-1ReQVI26iDCaZKY3DrU6dA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Cc: Parag Warudkar <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anssi Hannula <anssi.hannula-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wf-out-1314.google.com ([209.85.200.170]:3285 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751378AbYLUVmD (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 21 Dec 2008 16:42:03 -0500
+Received: by wf-out-1314.google.com with SMTP id 27so1862195wfd.4
+        for <linux-input@vger.kernel.org>; Sun, 21 Dec 2008 13:42:02 -0800 (PST)
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
+Some laptops have touchpads with non-standard aspect ratio.  Currently
+they are quite painful to use since the driver does not compensate the
+ratio.  In my HP 2510p moving finger vertically moves the pointer
+twice as fast as moving it horizontally.  Same has been reported at
+least on HP Mini-note and Lenovo S10.
 
+Issuing SYN_QUE_RESOLUTION on 2510p returns "units per millimeter"
+values infoXupmm=74 infoYupmm=160.  For another laptop with normal
+touchpad they are 81 and 95.  I believe the reported absolute
+coordinates need to be compensated according to units per millimeter
+in order to get even speed in both directions.
 
-The usbmouse and usbkbd modules are not supposed to be used with regular 
-USB mice and keyboards. Make them depend on EMBEDDED to prevent them from 
-being built and loaded on non-EMBEDDED configs.
+I tried to study how to expose the values to user space but didn't
+find anything obvious.  Would it be correct to do the compensation in
+synaptics kernel driver instead of xorg?
 
-Signed-off-by: Parag Warudkar <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-diff --git a/drivers/hid/usbhid/Kconfig b/drivers/hid/usbhid/Kconfig
-index 5d9aa95..4edb3be 100644
---- a/drivers/hid/usbhid/Kconfig
-+++ b/drivers/hid/usbhid/Kconfig
-@@ -45,7 +45,7 @@ config USB_HIDDEV
- 	  If unsure, say Y.
- 
- menu "USB HID Boot Protocol drivers"
--	depends on USB!=n && USB_HID!=y
-+	depends on USB!=n && USB_HID!=y && EMBEDDED
- 
- config USB_KBD
- 	tristate "USB HIDBP Keyboard (simple Boot) support"
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Tero

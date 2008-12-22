@@ -1,73 +1,73 @@
-From: Roel Kluin <roel.kluin@gmail.com>
-Subject: frequent hangs
-Date: Mon, 22 Dec 2008 14:17:08 +0100
-Message-ID: <494F9354.2070701@gmail.com>
+From: mrsabdul120 <mrsabdul120@gmail.com>
+Subject: CAN YOU REAL.LY BE TRUSTED BELOVED?
+Date: Mon, 22 Dec 2008 15:50:18 +0100
+Message-ID: <86bb99540812220650o58833032oa66717e4669823a1__20827.3326782093$1229958366$gmane$org@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ug-out-1314.google.com ([66.249.92.173]:10183 "EHLO
-	ug-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753697AbYLVNRJ (ORCPT
+Received: from mail-bw0-f29.google.com ([209.85.218.29]:47309 "EHLO
+	mail-bw0-f29.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754671AbYLVPDb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 22 Dec 2008 08:17:09 -0500
+	Mon, 22 Dec 2008 10:03:31 -0500
+Received: by bwz10 with SMTP id 10so1977715bwz.13
+        for <linux-input@vger.kernel.org>; Mon, 22 Dec 2008 07:03:29 -0800 (PST)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>
 
-I am experiencing frequent (twice in 4 boots) hangs on my PC, just after
-entering X. Sometimes there is no problem and the PC starts up fine and keeps
-working normally. It seems to happen during boot only.
+Mrs. Abdul Esther,
+Demark Lout Street,
+93050 Kuching,
+Sarawak,Malaysia
 
-Hangs are: mouse first responds wildly, then stops working altogether as well as
-the keyboard.
+Beloved Friend,
 
-I compared diffs of /var/log/Xorg.0.log.old and /var/log/Xorg.0.log twice after
-hangs and noted these extra lines (with +) both times when boot was OK:
+I am writing this mail to you with heavy tears In my eyes and great
 
- enable montype: 1
-+enable montype: 1
-+(II) 3rd Button detected: disabling emulate3Button
+sorrow in my heart because my Doctor told me that I will die in
 
-I have a Logitech PS/2 wheel mouse. As normally I found in my dmesg:
+three months time due to my illness causer. Base on this
 
-mice: PS/2 mouse device common for all mice
-input: AT Translated Set 2 keyboard as /class/input/input0
-input: PS2++ Logitech Wheel Mouse as /class/input/input1
-input: Power Button (FF) as /class/input/input2
-input: Power Button (CM) as /class/input/input3
+development I want to will my money which is deposited in a security
 
-I compile a Linus git-pulled kernel with a .config that I do not change often
-and normally works. It seems that kernel changes somewhere between May and
-December 2008 caused this, I didn't compile new kernels a lot in this period.
+company. I sound pessimistic about my health because from the
 
-After reboot I noted (suspected to be related):
-Sound signals
-processor Clock settings altered
+look of things here in the hospital, I know I will surely die
+
+anytime. All my hairs are falling off. I am also finding it a
+
+difficult to breath freely because of the internal injuries. I am in
+
+search of a reliable person who will use the Money to build charity
+
+organization for the saints and the person will take 20% of the
+
+total sum. While 80% of the money will go to charity organization
+
+and helping the
+ orphanage. I grew up as an Orphan and i don't have
+
+anybody/family member to take care of my wealth. The total money in
+
+question is $3.5million dollars. I will provide you with other
+
+information's once you indicate your willingness.
+Please do contact me on my personal email,because i may not be able
+
+to open this dating site any longer due to my precarious
+
+condition.you can now contact me If really you are out to take up
+
+this great challenge.Waiting to read your message. I have limited internet
+access in the hospital.So I am still stuck to the laptop to read your message.
+contact me on my private email:
 
 
+mrsestherabdul11@yahoo.com in your next reply.
 
-A possibly related issue is that sometimes (about once every month) my mouse
-doesn't work when entering X. (I have sent an email previously for this).
 
-cat /dev/input/mice doesn't give strange characters when moving my mouse
+Yours sincerely.
 
-I stored dmesg when there was trouble:
-
-twice dmesg contained:
-psmouse.c: Failed to enable mouse on isa0060/serio1
-
-4 other times missing was:
-input: PS2++ Logitech Wheel Mouse as /class/input/input1
-
-and instead:
-mice: PS/2 mouse device common for all mice
-input: AT Translated Set 2 keyboard as /class/input/input0
-input: Power Button (FF) as /class/input/input1
-input: Power Button (CM) as /class/input/input2
-
-(in earlier dmesgs "/class" was "/devices/virtual".
-or /devices/platform/i8042/serio[10]/)
-
-Roel
+Mrs Abdul Esther.

@@ -1,79 +1,111 @@
 From: Helge Deller <deller@gmx.de>
-Subject: [PATCH] input/HIL drivers: add MODULE_ALIAS()
-Date: Fri, 26 Dec 2008 21:09:00 +0100
-Message-ID: <495539DC.9050602@gmx.de>
+Subject: [PATCH] drivers/input/serio/hp_sdc.c: fix crash when removing hp_sdc
+ module
+Date: Fri, 26 Dec 2008 21:24:31 +0100
+Message-ID: <49553D7F.1020608@gmx.de>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
- boundary="------------020602080508020500050708"
+ boundary="------------090307050902030104010105"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:41123 "HELO mail.gmx.net"
+Received: from mail.gmx.net ([213.165.64.20]:49358 "HELO mail.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1752161AbYLZUJB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Dec 2008 15:09:01 -0500
+	id S1752684AbYLZUYb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Dec 2008 15:24:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Helge Deller <deller@gmx.de>, Frans Pop <elendil@planet.nl>
 
 This is a multi-part message in MIME format.
---------------020602080508020500050708
+--------------090307050902030104010105
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Add MODULE_ALIAS() to the HIL keyboard (hil_kbd.c) and HIL mouse
-(hil_ptr.c) drivers to make kernel module autoloader functional.
-Report HIL port number ID in serio id.id field.
+On parisc machines, which don't have HIL, removing the hp_sdc module
+panics the kernel. Fix this by returning early in hp_sdc_exit() if no HP
+SDC controller was found.
+
+Add functionality to probe for the hp_sdc_mlc kernel module (which takes
+care of the upper layer HIL functionality on parisc) after two seconds.
+This is needed to get all the other HIL drivers (keyboard / mouse/ ..)
+drivers automatically loaded by udev later as well.
 
 Signed-off-by: Helge Deller <deller@gmx.de>
 
- keyboard/hil_kbd.c |    1 +
- mouse/hil_ptr.c    |    2 +-
- serio/hil_mlc.c    |    1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ hp_sdc.c |   24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
---------------020602080508020500050708
+
+--------------090307050902030104010105
 Content-Type: text/x-patch;
- name="hil_drivers.patch"
+ name="hp_sdc.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="hil_drivers.patch"
+ filename="hp_sdc.patch"
 
-diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
-index 71c1971..7d40c69 100644
---- a/drivers/input/keyboard/hil_kbd.c
-+++ b/drivers/input/keyboard/hil_kbd.c
-@@ -47,6 +47,7 @@
- MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
- MODULE_DESCRIPTION(HIL_GENERIC_NAME " driver");
- MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_ALIAS("serio:ty03pr25id00ex*");
+diff --git a/drivers/input/serio/hp_sdc.c b/drivers/input/serio/hp_sdc.c
+index bfe4924..1c9410d 100644
+--- a/drivers/input/serio/hp_sdc.c
++++ b/drivers/input/serio/hp_sdc.c
+@@ -819,6 +819,7 @@ static const struct parisc_device_id hp_sdc_tbl[] = {
+ MODULE_DEVICE_TABLE(parisc, hp_sdc_tbl);
  
- #define HIL_KBD_MAX_LENGTH 16
+ static int __init hp_sdc_init_hppa(struct parisc_device *d);
++static struct delayed_work moduleloader_work;
  
-diff --git a/drivers/input/mouse/hil_ptr.c b/drivers/input/mouse/hil_ptr.c
-index e532c48..0fd42e6 100644
---- a/drivers/input/mouse/hil_ptr.c
-+++ b/drivers/input/mouse/hil_ptr.c
-@@ -46,7 +46,7 @@
- MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
- MODULE_DESCRIPTION(HIL_GENERIC_NAME " driver");
- MODULE_LICENSE("Dual BSD/GPL");
--
-+MODULE_ALIAS("serio:ty03pr25id0Fex*");
+ static struct parisc_driver hp_sdc_driver = {
+ 	.name =		"hp_sdc",
+@@ -930,8 +931,15 @@ static int __init hp_sdc_init(void)
  
- #define TABLET_SIMULATES_MOUSE	/* allow tablet to be used as mouse */
- #undef  TABLET_AUTOADJUST	/* auto-adjust valid tablet ranges */
-diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
-index 37586a6..7ba9f2b 100644
---- a/drivers/input/serio/hil_mlc.c
-+++ b/drivers/input/serio/hil_mlc.c
-@@ -934,6 +934,7 @@ int hil_mlc_register(hil_mlc *mlc)
- 		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
- 		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
- 		mlc_serio->id			= hil_mlc_serio_id;
-+		mlc_serio->id.id		= i; /* HIL port no. */
- 		mlc_serio->write		= hil_mlc_serio_write;
- 		mlc_serio->open			= hil_mlc_serio_open;
- 		mlc_serio->close		= hil_mlc_serio_close;
+ #if defined(__hppa__)
+ 
++static void request_module_delayed(struct work_struct *work)
++{
++	request_module("hp_sdc_mlc");
++}
++
+ static int __init hp_sdc_init_hppa(struct parisc_device *d)
+ {
++	int ret;
++
+ 	if (!d)
+ 		return 1;
+ 	if (hp_sdc.dev != NULL)
+@@ -944,13 +952,26 @@ static int __init hp_sdc_init_hppa(struct parisc_device *d)
+ 	hp_sdc.data_io		= d->hpa.start + 0x800;
+ 	hp_sdc.status_io	= d->hpa.start + 0x801;
+ 
+-	return hp_sdc_init();
++	INIT_DELAYED_WORK(&moduleloader_work, request_module_delayed);
++
++	ret = hp_sdc_init();
++	/* after sucessfull initialization give SDC some time to settle
++	 * and then load the hp_sdc_mlc upper layer driver */
++	if (!ret)
++		schedule_delayed_work(&moduleloader_work,
++			msecs_to_jiffies(2000));
++
++	return ret;
+ }
+ 
+ #endif /* __hppa__ */
+ 
+ static void hp_sdc_exit(void)
+ {
++	/* do nothing if we don't have a SDC */
++	if (!hp_sdc.dev)
++		return;
++
+ 	write_lock_irq(&hp_sdc.lock);
+ 
+ 	/* Turn off all maskable "sub-function" irq's. */
+@@ -969,6 +990,7 @@ static void hp_sdc_exit(void)
+ 	tasklet_kill(&hp_sdc.task);
+ 
+ #if defined(__hppa__)
++	cancel_delayed_work_sync(&moduleloader_work);
+ 	if (unregister_parisc_driver(&hp_sdc_driver))
+ 		printk(KERN_WARNING PREFIX "Error unregistering HP SDC");
+ #endif
 
---------------020602080508020500050708--
+--------------090307050902030104010105--

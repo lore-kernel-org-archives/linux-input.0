@@ -1,159 +1,79 @@
 From: Helge Deller <deller@gmx.de>
-Subject: [PATCH] input/keyboard/hilkbd.c: fix crash when removing hilkbd module
-Date: Fri, 26 Dec 2008 20:51:21 +0100
-Message-ID: <495535B9.5070009@gmx.de>
+Subject: [PATCH] input/HIL drivers: add MODULE_ALIAS()
+Date: Fri, 26 Dec 2008 21:09:00 +0100
+Message-ID: <495539DC.9050602@gmx.de>
 Mime-Version: 1.0
 Content-Type: multipart/mixed;
- boundary="------------000901060502010008030002"
+ boundary="------------020602080508020500050708"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:45820 "HELO mail.gmx.net"
+Received: from mail.gmx.net ([213.165.64.20]:41123 "HELO mail.gmx.net"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1750933AbYLZTw5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 26 Dec 2008 14:52:57 -0500
+	id S1752161AbYLZUJB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 26 Dec 2008 15:09:01 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Helge Deller <deller@gmx.de>, Geert Uytterhoeven <geert@linux-m68k.org>, Frans Pop <elendil@planet.nl>
+Cc: Helge Deller <deller@gmx.de>, Frans Pop <elendil@planet.nl>
 
 This is a multi-part message in MIME format.
---------------000901060502010008030002
+--------------020602080508020500050708
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-On parisc machines, which don't have HIL, removing the hilkbd module
-panics the kernel. Fix this by adding proper implementations for the
-probe and remove functions to the parisc_driver structure.
-
-A few functions were renamed to clean up the code and make it easier
-readable.
-
-Disable the MODULE_DEVICE_TABLE() macro on parisc since the kernel
-module autoloader should instead prefer the hp_sdc driver which takes
-care of full HIL support, including HIL mouse and HIL tablets.
+Add MODULE_ALIAS() to the HIL keyboard (hil_kbd.c) and HIL mouse
+(hil_ptr.c) drivers to make kernel module autoloader functional.
+Report HIL port number ID in serio id.id field.
 
 Signed-off-by: Helge Deller <deller@gmx.de>
-CC: Geert Uytterhoeven <geert@linux-m68k.org>
 
+ keyboard/hil_kbd.c |    1 +
+ mouse/hil_ptr.c    |    2 +-
+ serio/hil_mlc.c    |    1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
---------------000901060502010008030002
+--------------020602080508020500050708
 Content-Type: text/x-patch;
- name="hilkbd.patch"
+ name="hil_drivers.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="hilkbd.patch"
+ filename="hil_drivers.patch"
 
-diff --git a/drivers/input/keyboard/hilkbd.c b/drivers/input/keyboard/hilkbd.c
-index aacf71f..9711547 100644
---- a/drivers/input/keyboard/hilkbd.c
-+++ b/drivers/input/keyboard/hilkbd.c
-@@ -198,9 +198,8 @@ static void hil_do(unsigned char cmd, unsigned char *data, unsigned int len)
- }
+diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
+index 71c1971..7d40c69 100644
+--- a/drivers/input/keyboard/hil_kbd.c
++++ b/drivers/input/keyboard/hil_kbd.c
+@@ -47,6 +47,7 @@
+ MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
+ MODULE_DESCRIPTION(HIL_GENERIC_NAME " driver");
+ MODULE_LICENSE("Dual BSD/GPL");
++MODULE_ALIAS("serio:ty03pr25id00ex*");
  
+ #define HIL_KBD_MAX_LENGTH 16
  
--/* initialise HIL */
--static int __init
--hil_keyb_init(void)
-+/* initialize HIL */
-+static int __init hil_keyb_init(void)
- {
- 	unsigned char c;
- 	unsigned int i, kbid;
-@@ -308,13 +307,39 @@ err1:
- 	return err;
- }
- 
-+static void __exit hil_keyb_exit(void)
-+{
-+	/* exit if there is no HIL keyboard */
-+	if (!hil_dev.dev)
-+		return;
-+
-+	if (HIL_IRQ) {
-+		disable_irq(HIL_IRQ);
-+		free_irq(HIL_IRQ, hil_dev.dev_id);
-+	}
-+
-+	/* Turn off interrupts */
-+	hil_do(HIL_INTOFF, NULL, 0);
-+
-+	input_unregister_device(hil_dev.dev);
-+
-+	hil_dev.dev = NULL;
-+
-+#if defined(CONFIG_HP300)
-+	release_region(HILBASE+HIL_DATA, 2);
-+#endif
-+}
- 
- #if defined(CONFIG_PARISC)
--static int __init
--hil_init_chip(struct parisc_device *dev)
-+static int __init hil_probe_chip(struct parisc_device *dev)
- {
-+	/* Only allow one HIL keyboard */
-+	if (hil_dev.dev)
-+		return -ENODEV;
-+
- 	if (!dev->irq) {
--		printk(KERN_WARNING "HIL: IRQ not found for HIL bus at 0x%08lx\n", dev->hpa.start);
-+		printk(KERN_WARNING "HIL: IRQ not found for HIL bus at 0x%p\n",
-+			(void *)dev->hpa.start);
- 		return -ENODEV;
- 	}
- 
-@@ -327,17 +352,27 @@ hil_init_chip(struct parisc_device *dev)
- 	return hil_keyb_init();
- }
- 
-+static int __exit hil_remove_chip(struct parisc_device *dev)
-+{
-+	hil_keyb_exit();
-+	return 0;
-+}
-+
- static struct parisc_device_id hil_tbl[] = {
- 	{ HPHW_FIO, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00073 },
- 	{ 0, }
- };
- 
-+#if 0
-+/* Disabled to avoid conflicts with the HP SDC HIL drivers */
- MODULE_DEVICE_TABLE(parisc, hil_tbl);
-+#endif
- 
- static struct parisc_driver hil_driver = {
- 	.name =		"hil",
- 	.id_table =	hil_tbl,
--	.probe =	hil_init_chip,
-+	.probe =	hil_probe_chip,
-+	.remove =	hil_remove_chip,
- };
- #endif /* CONFIG_PARISC */
- 
-@@ -354,22 +389,10 @@ static int __init hil_init(void)
- 
- static void __exit hil_exit(void)
- {
--	if (HIL_IRQ) {
--		disable_irq(HIL_IRQ);
--		free_irq(HIL_IRQ, hil_dev.dev_id);
--	}
+diff --git a/drivers/input/mouse/hil_ptr.c b/drivers/input/mouse/hil_ptr.c
+index e532c48..0fd42e6 100644
+--- a/drivers/input/mouse/hil_ptr.c
++++ b/drivers/input/mouse/hil_ptr.c
+@@ -46,7 +46,7 @@
+ MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
+ MODULE_DESCRIPTION(HIL_GENERIC_NAME " driver");
+ MODULE_LICENSE("Dual BSD/GPL");
 -
--	/* Turn off interrupts */
--	hil_do(HIL_INTOFF, NULL, 0);
--
--	input_unregister_device(hil_dev.dev);
--
--	hil_dev.dev = NULL;
--
- #if defined(CONFIG_PARISC)
- 	unregister_parisc_driver(&hil_driver);
- #else
--	release_region(HILBASE+HIL_DATA, 2);
-+	hil_keyb_exit();
- #endif
- }
++MODULE_ALIAS("serio:ty03pr25id0Fex*");
  
+ #define TABLET_SIMULATES_MOUSE	/* allow tablet to be used as mouse */
+ #undef  TABLET_AUTOADJUST	/* auto-adjust valid tablet ranges */
+diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
+index 37586a6..7ba9f2b 100644
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -934,6 +934,7 @@ int hil_mlc_register(hil_mlc *mlc)
+ 		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
+ 		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
+ 		mlc_serio->id			= hil_mlc_serio_id;
++		mlc_serio->id.id		= i; /* HIL port no. */
+ 		mlc_serio->write		= hil_mlc_serio_write;
+ 		mlc_serio->open			= hil_mlc_serio_open;
+ 		mlc_serio->close		= hil_mlc_serio_close;
 
---------------000901060502010008030002--
-
+--------------020602080508020500050708--

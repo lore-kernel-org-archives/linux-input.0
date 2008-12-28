@@ -1,40 +1,27 @@
-From: =?UTF-8?B?T3phbiDDh2HEn2xheWFu?= <ozan@pardus.org.tr>
-Subject: Re: hid-dummy in 2.6.28_rc8
-Date: Sun, 28 Dec 2008 02:29:14 +0200
-Message-ID: <4956C85A.7050501@pardus.org.tr>
-References: <495293BC.9000104@pardus.org.tr> <4956AF21.9070807@gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: 2.6.28 thinks that my PS/2 mouse is a touchpad
+Date: Sat, 27 Dec 2008 22:21:52 -0800
+Message-ID: <20081227222152.fdb4bf23.akpm@linux-foundation.org>
+References: <gj4r8h$okm$1@ger.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755022AbYL1Aat@vger.kernel.org>
-In-Reply-To: <4956AF21.9070807@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:38877 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751127AbYL1GVy (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 28 Dec 2008 01:21:54 -0500
+In-Reply-To: <gj4r8h$okm$1@ger.gmane.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "Alexander E. Patrakov" <patrakov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Jiri Slaby wrote:
->
-> Hi, the error is non-fatal in this case, in addition, it's intentiona=
-l. The
-> module is there only for dependency loading and kills itself by retur=
-ning the
-> error from load function to not eat resources any further after it do=
-es its job.
-> The module will be removed completely in next few releases.
->
->  =20
-Hi,
+On Sat, 27 Dec 2008 14:06:29 +0500 "Alexander E. Patrakov" <patrakov@gmail.com> wrote:
 
-In fact, this was probably caused by CONFIG_HID_COMPAT=3Dy which was=20
-loading all the hid_* modules(20~ or so) into the kernel. I disabled it=
-=20
-and now the message has gone.
+> Linux-2.6.28, as compiled by Arch Linux developers, thinks that my PS/2 mouse (a cheap M-BT58 optical wheel mouse by Logitech) is actually a touchpad. This makes it unusable. Adding the "proto=imps" parameter to the psmouse module helps.
+> 
+> Dmesg output and config are attached.
 
-Thanks,
-
---=20
-
-Ozan =C3=87a=C4=9Flayan
-<ozan_at_pardus.org.tr>
+(cc linux-input)

@@ -1,88 +1,91 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 2/13] drivers/input/tablet: use USB API functions rather than
- constants
-Date: Mon, 29 Dec 2008 11:19:32 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.0812291119120.9555@pc-004.diku.dk>
+From: Helge Deller <deller@gmx.de>
+Subject: [PATCH] input/HIL drivers: add MODULE_ALIAS()
+Date: Mon, 29 Dec 2008 13:17:25 +0100
+Message-ID: <4958BFD5.3080403@gmx.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+ boundary="------------060600040009040903010106"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw1.diku.dk ([130.225.96.91]:54464 "EHLO mgw1.diku.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753037AbYL2KTf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2008 05:19:35 -0500
+Received: from mail.gmx.net ([213.165.64.20]:49827 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1753218AbYL2MRc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2008 07:17:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org, gregkh@suse.de, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Linux/m68k <linux-m68k@vger.kernel.org>, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Frans Pop <elendil@planet.nl>
 
-From: Julia Lawall <julia@diku.dk>
+This is a multi-part message in MIME format.
+--------------060600040009040903010106
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-This set of patches introduces calls to the following set of functions:
+resending, as I forgot to CC: Geert and linux-m68k
 
-usb_endpoint_dir_in(epd)
-usb_endpoint_dir_out(epd)
-usb_endpoint_is_bulk_in(epd)
-usb_endpoint_is_bulk_out(epd)
-usb_endpoint_is_int_in(epd)
-usb_endpoint_is_int_out(epd)
-usb_endpoint_num(epd)
-usb_endpoint_type(epd)
-usb_endpoint_xfer_bulk(epd)
-usb_endpoint_xfer_control(epd)
-usb_endpoint_xfer_int(epd)
-usb_endpoint_xfer_isoc(epd)
+-------- Original Message --------
+Subject: [PATCH] input/HIL drivers: add MODULE_ALIAS()
+Date: Fri, 26 Dec 2008 21:09:00 +0100
+From: Helge Deller <deller@gmx.de>
+To: linux-input@vger.kernel.org,  Dmitry Torokhov
+<dmitry.torokhov@gmail.com>
+CC: Helge Deller <deller@gmx.de>, Frans Pop <elendil@planet.nl>
 
-In some cases, introducing one of these functions is not possible, and it
-just replaces an explicit integer value by one of the following constants:
+Add MODULE_ALIAS() to the HIL keyboard (hil_kbd.c) and HIL mouse
+(hil_ptr.c) drivers to make kernel module autoloader functional.
+Report HIL port number ID in serio id.id field.
 
-USB_ENDPOINT_XFER_BULK
-USB_ENDPOINT_XFER_CONTROL
-USB_ENDPOINT_XFER_INT
-USB_ENDPOINT_XFER_ISOC
+Signed-off-by: Helge Deller <deller@gmx.de>
 
-An extract of the semantic patch that makes these changes is as follows:
-(http://www.emn.fr/x-info/coccinelle/)
+ keyboard/hil_kbd.c |    1 +
+ mouse/hil_ptr.c    |    2 +-
+ serio/hil_mlc.c    |    1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
-// <smpl>
-@r1@ struct usb_endpoint_descriptor *epd; @@
 
-- ((epd->bmAttributes & \(USB_ENDPOINT_XFERTYPE_MASK\|3\)) ==
-- \(USB_ENDPOINT_XFER_CONTROL\|0\))
-+ usb_endpoint_xfer_control(epd)
+--------------060600040009040903010106
+Content-Type: text/x-patch;
+ name="hil_drivers.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="hil_drivers.patch"
 
-@r5@ struct usb_endpoint_descriptor *epd; @@
-
-- ((epd->bEndpointAddress & \(USB_ENDPOINT_DIR_MASK\|0x80\)) ==
--  \(USB_DIR_IN\|0x80\))
-+ usb_endpoint_dir_in(epd)
-
-@inc@
-@@
-
-#include <linux/usb.h>
-
-@depends on !inc && (r1||r5)@
-@@
-
-+ #include <linux/usb.h>
-  #include <linux/usb/...>
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
----
- drivers/input/tablet/gtco.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/tablet/gtco.c b/drivers/input/tablet/gtco.c
-index 5524e01..2e18a1c 100644
---- a/drivers/input/tablet/gtco.c
-+++ b/drivers/input/tablet/gtco.c
-@@ -877,7 +877,7 @@ static int gtco_probe(struct usb_interface *usbinterface,
- 	dbg("num endpoints:     %d", usbinterface->cur_altsetting->desc.bNumEndpoints);
- 	dbg("interface class:   %d", usbinterface->cur_altsetting->desc.bInterfaceClass);
- 	dbg("endpoint: attribute:0x%x type:0x%x", endpoint->bmAttributes, endpoint->bDescriptorType);
--	if ((endpoint->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) == USB_ENDPOINT_XFER_INT)
-+	if (usb_endpoint_xfer_int(endpoint))
- 		dbg("endpoint: we have interrupt endpoint\n");
+diff --git a/drivers/input/keyboard/hil_kbd.c b/drivers/input/keyboard/hil_kbd.c
+index 71c1971..7d40c69 100644
+--- a/drivers/input/keyboard/hil_kbd.c
++++ b/drivers/input/keyboard/hil_kbd.c
+@@ -47,6 +47,7 @@
+ MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
+ MODULE_DESCRIPTION(HIL_GENERIC_NAME " driver");
+ MODULE_LICENSE("Dual BSD/GPL");
++MODULE_ALIAS("serio:ty03pr25id00ex*");
  
- 	dbg("endpoint extra len:%d ", usbinterface->altsetting[0].extralen);
+ #define HIL_KBD_MAX_LENGTH 16
+ 
+diff --git a/drivers/input/mouse/hil_ptr.c b/drivers/input/mouse/hil_ptr.c
+index e532c48..0fd42e6 100644
+--- a/drivers/input/mouse/hil_ptr.c
++++ b/drivers/input/mouse/hil_ptr.c
+@@ -46,7 +46,7 @@
+ MODULE_AUTHOR("Brian S. Julin <bri@calyx.com>");
+ MODULE_DESCRIPTION(HIL_GENERIC_NAME " driver");
+ MODULE_LICENSE("Dual BSD/GPL");
+-
++MODULE_ALIAS("serio:ty03pr25id0Fex*");
+ 
+ #define TABLET_SIMULATES_MOUSE	/* allow tablet to be used as mouse */
+ #undef  TABLET_AUTOADJUST	/* auto-adjust valid tablet ranges */
+diff --git a/drivers/input/serio/hil_mlc.c b/drivers/input/serio/hil_mlc.c
+index 37586a6..7ba9f2b 100644
+--- a/drivers/input/serio/hil_mlc.c
++++ b/drivers/input/serio/hil_mlc.c
+@@ -934,6 +934,7 @@ int hil_mlc_register(hil_mlc *mlc)
+ 		snprintf(mlc_serio->name, sizeof(mlc_serio->name)-1, "HIL_SERIO%d", i);
+ 		snprintf(mlc_serio->phys, sizeof(mlc_serio->phys)-1, "HIL%d", i);
+ 		mlc_serio->id			= hil_mlc_serio_id;
++		mlc_serio->id.id		= i; /* HIL port no. */
+ 		mlc_serio->write		= hil_mlc_serio_write;
+ 		mlc_serio->open			= hil_mlc_serio_open;
+ 		mlc_serio->close		= hil_mlc_serio_close;
+
+
+--------------060600040009040903010106--

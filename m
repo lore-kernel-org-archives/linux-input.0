@@ -1,63 +1,61 @@
-From: Arjan Opmeer <arjan@opmeer.net>
-Subject: Re: 2.6.28 thinks that my PS/2 mouse is a touchpad
-Date: Mon, 29 Dec 2008 19:56:19 +0100
-Message-ID: <20081229185619.GA18394@adopmeer.homeip.net>
-References: <gj4r8h$okm$1@ger.gmane.org>
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: Re: [PATCH] sh: maple: add support for the Maple mouse on the SEGA Dreamcast
+Date: Mon, 29 Dec 2008 16:02:16 -0500
+Message-ID: <200812291602.18572.vapier@gentoo.org>
+References: <1230578246.6496.25.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1825196.4GJIt0R7Bs";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out3.tiscali.nl ([195.241.79.178]:39341 "EHLO
-	smtp-out3.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751677AbYL2TSH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2008 14:18:07 -0500
-Content-Disposition: inline
-In-Reply-To: <gj4r8h$okm$1@ger.gmane.org>
+Received: from smtp.gentoo.org ([140.211.166.183]:44549 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752940AbYL2VCT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Dec 2008 16:02:19 -0500
+In-Reply-To: <1230578246.6496.25.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Alexander E. Patrakov" <patrakov@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>
 
-On Sat, Dec 27, 2008 at 02:06:29PM +0500, Alexander E. Patrakov wrote:
-> 
-> Linux-2.6.28, as compiled by Arch Linux developers, thinks that my PS/2
-> mouse (a cheap M-BT58 optical wheel mouse by Logitech) is actually a
-> touchpad.  This makes it unusable.  Adding the "proto=imps" parameter to
-> the psmouse module helps.
+--nextPart1825196.4GJIt0R7Bs
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> CONFIG_MOUSE_PS2_ELANTECH=y
+On Monday 29 December 2008 14:17:25 Adrian McMenamin wrote:
+> +static int __devinit probe_maple_mouse(struct device *dev)
+> +static int remove_maple_mouse(struct device *dev)
 
-Oh dear. The first victim of this driver... :(
+i thought you were going the rout of not labeling any of the probe/remove=20
+functions ... but if you label the prob with __devinit, then the remove sho=
+uld=20
+be __devexit.  i.e. whichever way you go, the two should be consistent.
+=2Dmike
 
-As we can see below the mouse gets detected as an Elantech touchpad. This
-means that it reacts to the Elantech magic knock with the exact same
-response we expect from a real Elantech touchpad.
+--nextPart1825196.4GJIt0R7Bs
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
 
-I see no way to prevent this from happening.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
 
-> elantech.c: Elantech version query result 0x00, 0x01, 0x64.
-> elantech.c: assuming hardware version 1, firmware version 0.100
-> elantech.c: Synaptics capabilities query result 0x00, 0x02, 0x64.
+iQIcBAABAgAGBQJJWTraAAoJEEFjO5/oN/WBrk4QAJReN/EhBersFeV+BeCQArrQ
+mmHqZeRCDQGZSHVUNJ7nypZmvL3XN6nLRt1kr6XaW/+tK3i+8Aj5GyA4kD7dV1XM
+c76tCR3XgdL8XQjey2jGhiEtsiG7Ak2wqZynyBV7rYSNInTDDnNPHHbs8QG0SOCD
+4GTbzxYL4OZ9MWekEy/5SAOP6x6vw82WODBpF0pM8a08EGiPewBfjUtcL9QqfKs2
++1fMFhSxXvV/Ut9ZS69jOpdlEGEAoY4QbtIYYE+P6KGJKP5tXRq0jmx5qZ5Z63am
+iblnEGr2BEXOqvhuIry2X3BHLndV8QY6kjCP9e0x52b8aY3APqMZY4rTDtAzXVLC
+zWuHZrN6UR75qlj8kgc5qWJOkmFGHVIkSvg8gsMS8dOKQ8ZvVdmBDhpe6PZwvBYJ
+G4xFqbWCTZTesHpEhU5VKz7FSuteueDHtyf73Useb6gdmbS/iNd6lde4T95NkwAT
+EHuMlqyoxldlcK12c9RVVNA/V7Oc8ZmDV8xqzZFszTqT6miro553W66R1X6pEx96
+89dIwvJ63XdVEiA/dMr6J+M1mPI9aKUmvqGtzGbSj+ZGkZsUXRzPy9iO5kDG5sS9
+3i+UX5/kQArt+AOfbCbQP1BUJ8TKoc0ZozifnQSRnid7lwIcnVKOfyMzvguStM7v
+L+N9WZWLSJ6AuJKgshUa
+=XlRQ
+-----END PGP SIGNATURE-----
 
-However, all version query results I have seen from Elantech touchpads have
-a non-zero first byte and a zero second byte. So we could test for that to
-prevent this mouse from being detected as a touchpad.
-
-Dmitry, do you think something like this is sufficient?
-
---- elantech.c.ORIG	2008-12-29 19:35:01.000000000 +0100
-+++ elantech.c.NEW	2008-12-29 19:38:59.000000000 +0100
-@@ -618,6 +618,10 @@ int elantech_init(struct psmouse *psmous
- 	}
- 	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
- 		param[0], param[1], param[2]);
-+	if (param[0] == 0 || param[1] != 0) {
-+		pr_info("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
-+		goto init_fail;
-+	}
- 	etd->fw_version_maj = param[0];
- 	etd->fw_version_min = param[2];
-
-
-Arjan
-
+--nextPart1825196.4GJIt0R7Bs--

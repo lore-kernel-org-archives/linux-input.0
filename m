@@ -1,61 +1,196 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: Re: [PATCH] sh: maple: add support for the Maple mouse on the SEGA Dreamcast
-Date: Mon, 29 Dec 2008 16:02:16 -0500
-Message-ID: <200812291602.18572.vapier@gentoo.org>
+From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Subject: Re: [PATCH] sh: maple: add support for the Maple mouse on the SEGA
+ Dreamcast
+Date: Mon, 29 Dec 2008 21:30:14 +0000
+Message-ID: <1230586215.6496.28.camel@localhost.localdomain>
 References: <1230578246.6496.25.camel@localhost.localdomain>
+	 <200812291602.18572.vapier@gentoo.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1825196.4GJIt0R7Bs";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:44549 "EHLO smtp.gentoo.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752940AbYL2VCT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Dec 2008 16:02:19 -0500
-In-Reply-To: <1230578246.6496.25.camel@localhost.localdomain>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <200812291602.18572.vapier@gentoo.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: Mike Frysinger <vapier@gentoo.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>
+List-Id: linux-input@vger.kernel.org
 
---nextPart1825196.4GJIt0R7Bs
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Adding support for Maple mouse
 
-On Monday 29 December 2008 14:17:25 Adrian McMenamin wrote:
-> +static int __devinit probe_maple_mouse(struct device *dev)
-> +static int remove_maple_mouse(struct device *dev)
+Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+---
 
-i thought you were going the rout of not labeling any of the probe/remove=20
-functions ... but if you label the prob with __devinit, then the remove sho=
-uld=20
-be __devexit.  i.e. whichever way you go, the two should be consistent.
-=2Dmike
+diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
+index 4e99342..71cc98a 100644
+--- a/drivers/input/mouse/Kconfig
++++ b/drivers/input/mouse/Kconfig
+@@ -286,4 +286,15 @@ config MOUSE_GPIO
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called gpio_mouse.
+ 
++config MOUSE_MAPLE
++	tristate "Maple mouse (for the Dreamcast)"
++	depends on MAPLE
++	help
++	  This driver supports the Maple mouse on the SEGA Dreamcast.
++
++	  Most Dreamcast users, who have a mouse, will say Y here.
++
++	  To compile this driver as a module choose M here: the module will be
++	  called maplemouse.
++
+ endif
+diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
+index 96f1dd8..0272f5d 100644
+--- a/drivers/input/mouse/Makefile
++++ b/drivers/input/mouse/Makefile
+@@ -17,6 +17,7 @@ obj-$(CONFIG_MOUSE_SERIAL)	+= sermouse.o
+ obj-$(CONFIG_MOUSE_HIL)		+= hil_ptr.o
+ obj-$(CONFIG_MOUSE_VSXXXAA)	+= vsxxxaa.o
+ obj-$(CONFIG_MOUSE_GPIO)	+= gpio_mouse.o
++obj-$(CONFIG_MOUSE_MAPLE)	+= maplemouse.o
+ 
+ psmouse-objs := psmouse-base.o synaptics.o
+ 
+diff --git a/drivers/input/mouse/maplemouse.c b/drivers/input/mouse/maplemouse.c
+new file mode 100644
+index 0000000..1c0830b
+--- /dev/null
++++ b/drivers/input/mouse/maplemouse.c
+@@ -0,0 +1,135 @@
++/*
++ *	SEGA Dreamcast mouse driver
++ *	Based on drivers/usb/usbmouse.c
++ *
++ *	Copyright Yaegashi Takeshi, 2001
++ *	Adrian McMenamin, 2008
++ */
++
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/input.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/maple.h>
++
++MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk>");
++MODULE_DESCRIPTION("SEGA Dreamcast mouse driver");
++MODULE_LICENSE("GPL");
++
++struct dc_mouse {
++	struct input_dev *dev;
++	struct maple_device *mdev;
++};
++
++static void dc_mouse_callback(struct mapleq *mq)
++{
++	int buttons, relx, rely, relz;
++	struct maple_device *mapledev = mq->dev;
++	struct dc_mouse *mse = maple_get_drvdata(mapledev);
++	struct input_dev *dev = mse->dev;
++	unsigned char *res = mq->recvbuf;
++
++	buttons = ~res[8];
++	relx = *(unsigned short *)(res + 12) - 512;
++	rely = *(unsigned short *)(res + 14) - 512;
++	relz = *(unsigned short *)(res + 16) - 512;
++
++	input_report_key(dev, BTN_LEFT,   buttons & 4);
++	input_report_key(dev, BTN_MIDDLE, buttons & 9);
++	input_report_key(dev, BTN_RIGHT,  buttons & 2);
++	input_report_rel(dev, REL_X,      relx);
++	input_report_rel(dev, REL_Y,      rely);
++	input_report_rel(dev, REL_WHEEL,  relz);
++	input_sync(dev);
++}
++
++/* allow the mouse to be used */
++static int __devinit probe_maple_mouse(struct device *dev)
++{
++	struct maple_device *mdev;
++	struct maple_driver *mdrv;
++	int error;
++	struct input_dev *input_dev;
++	struct dc_mouse *mse;
++
++	mdev = to_maple_dev(dev);
++	mdrv = to_maple_driver(dev->driver);
++
++	mse = kzalloc(sizeof(struct dc_mouse), GFP_KERNEL);
++	if (!mse) {
++		error = -ENOMEM;
++		goto fail;
++	}
++
++	input_dev = input_allocate_device();
++	if (!input_dev) {
++		error = -ENOMEM;
++		goto fail_nomem;
++	}
++
++	mse->dev = input_dev;
++	mse->mdev = mdev;
++
++	input_set_drvdata(input_dev, mse);
++	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
++	input_dev->keybit[BIT_WORD(BTN_MOUSE)] = BIT_MASK(BTN_LEFT) |
++		BIT_MASK(BTN_RIGHT) | BIT_MASK(BTN_MIDDLE);
++	input_dev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y) |
++		BIT_MASK(REL_WHEEL);
++	input_dev->name = mdev->product_name;
++	input_dev->id.bustype = BUS_HOST;
++	error =	input_register_device(input_dev);
++	if (error)
++		goto fail_register;
++
++	mdev->driver = mdrv;
++	maple_set_drvdata(mdev, mse);
++
++	maple_getcond_callback(mdev, dc_mouse_callback, HZ/50,
++		MAPLE_FUNC_MOUSE);
++
++	return error;
++
++fail_register:
++	input_free_device(input_dev);
++fail_nomem:
++	kfree(mse);
++fail:
++	return error;
++}
++
++static int __devexit remove_maple_mouse(struct device *dev)
++{
++	struct maple_device *mdev = to_maple_dev(dev);
++	struct dc_mouse *mse = maple_get_drvdata(mdev);
++
++	mdev->callback = NULL;
++	input_unregister_device(mse->dev);
++	maple_set_drvdata(mdev, NULL);
++	kfree(mse);
++	return 0;
++}
++
++static struct maple_driver dc_mouse_driver = {
++	.function =	MAPLE_FUNC_MOUSE,
++	.drv = {
++		.name = "Dreamcast_mouse",
++		.probe = probe_maple_mouse,
++		.remove = remove_maple_mouse,
++	},
++};
++
++static int __init dc_mouse_init(void)
++{
++	return maple_driver_register(&dc_mouse_driver);
++}
++
++static void __exit dc_mouse_exit(void)
++{
++	maple_driver_unregister(&dc_mouse_driver);
++}
++
++module_init(dc_mouse_init);
++module_exit(dc_mouse_exit);
 
---nextPart1825196.4GJIt0R7Bs
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iQIcBAABAgAGBQJJWTraAAoJEEFjO5/oN/WBrk4QAJReN/EhBersFeV+BeCQArrQ
-mmHqZeRCDQGZSHVUNJ7nypZmvL3XN6nLRt1kr6XaW/+tK3i+8Aj5GyA4kD7dV1XM
-c76tCR3XgdL8XQjey2jGhiEtsiG7Ak2wqZynyBV7rYSNInTDDnNPHHbs8QG0SOCD
-4GTbzxYL4OZ9MWekEy/5SAOP6x6vw82WODBpF0pM8a08EGiPewBfjUtcL9QqfKs2
-+1fMFhSxXvV/Ut9ZS69jOpdlEGEAoY4QbtIYYE+P6KGJKP5tXRq0jmx5qZ5Z63am
-iblnEGr2BEXOqvhuIry2X3BHLndV8QY6kjCP9e0x52b8aY3APqMZY4rTDtAzXVLC
-zWuHZrN6UR75qlj8kgc5qWJOkmFGHVIkSvg8gsMS8dOKQ8ZvVdmBDhpe6PZwvBYJ
-G4xFqbWCTZTesHpEhU5VKz7FSuteueDHtyf73Useb6gdmbS/iNd6lde4T95NkwAT
-EHuMlqyoxldlcK12c9RVVNA/V7Oc8ZmDV8xqzZFszTqT6miro553W66R1X6pEx96
-89dIwvJ63XdVEiA/dMr6J+M1mPI9aKUmvqGtzGbSj+ZGkZsUXRzPy9iO5kDG5sS9
-3i+UX5/kQArt+AOfbCbQP1BUJ8TKoc0ZozifnQSRnid7lwIcnVKOfyMzvguStM7v
-L+N9WZWLSJ6AuJKgshUa
-=XlRQ
------END PGP SIGNATURE-----
-
---nextPart1825196.4GJIt0R7Bs--

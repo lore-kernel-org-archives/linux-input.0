@@ -1,38 +1,63 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: keyboards and evdev printing multiple keys
-Date: Thu, 1 Jan 2009 13:49:27 +1000
-Message-ID: <20090101034926.GA7361@dingo>
-References: <494FF40A.7000806@ameritech.net>
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: Re: [PATCH] sh: maple: add support for the Maple mouse on the SEGA Dreamcast
+Date: Thu, 1 Jan 2009 02:41:14 -0500
+Message-ID: <200901010241.16185.vapier@gentoo.org>
+References: <1230578246.6496.25.camel@localhost.localdomain> <200812300017.45336.dmitry.torokhov@gmail.com> <1230668825.6489.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ipx-119-252-190-80.ipxserver.de ([80.190.252.119]:60197 "EHLO
-	ipx10616.ipxserver.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754751AbZAAEeH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 31 Dec 2008 23:34:07 -0500
-Content-Disposition: inline
-In-Reply-To: <494FF40A.7000806@ameritech.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed;
+  boundary="nextPart32419704.AYxseJ8L90";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1230668825.6489.1.camel@localhost.localdomain>
+Sender: linux-sh-owner@vger.kernel.org
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>
 List-Id: linux-input@vger.kernel.org
-To: "F. Heitkamp" <heitkamp@ameritech.net>
-Cc: linux-input@vger.kernel.org
 
-On Mon, Dec 22, 2008 at 03:09:46PM -0500, F. Heitkamp wrote:
-> I am not sure this is a bug.
-> I have a Apple keyboard connected to a IOGear USB KVM.
-> I have installed evdev and the Xorg 1.5.3 server.
-> When I use any X apps the keyboard repeats three for one in.  i.e.  
-> typing one 'L' puts three of them in the input.
-> I noticed when looking at /proc/bus/input/devices there are three  
-> instanced of the keyboard.
+--nextPart32419704.AYxseJ8L90
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This is an X server problem and the most likely cause is that your server is
-picking up a keyboard device (driver "kbd") and the evdev device separately.
-If you are using evdev 2.1, then you will get two events for each key press.
+On Tuesday 30 December 2008 15:27:05 Adrian McMenamin wrote:
+> Adding maple mouse with proper __devexit_p() handling
 
-Another reason may be that you have an evdev device configured in the
-xorg.conf, and the same device gets added again through HAL.
+this kind of patch revision info typically goes below the --- marker and  t=
+he=20
+patch itself gets "v2", "v3", etc... header markers
 
-Cheers,
-  Peter
+otherwise, driver looks OK to me.  thanks for your dreamcast work.
+Acked-by: Mike Frysinger <vapier@gentoo.org>
+
+> +	mse =3D kzalloc(sizeof(struct dc_mouse), GFP_KERNEL);
+
+personally i find this style less likely to rot:
+mse =3D kzalloc(sizeof(*mse), GFP_KERNEL);
+=2Dmike
+
+--nextPart32419704.AYxseJ8L90
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
+
+iQIcBAABAgAGBQJJXHOcAAoJEEFjO5/oN/WBlqwQAMKseiErdo+hELWlxq9bXqSt
+Xu6D18iVDLTsph930I1U2hKZbKi/DWZXcc602kg7CNOzfqtlRepXpn5WWDP0GWoN
+fCb3IRjSJ4YcgJjJkvEhpytvd43K1n6GOmZtNXzPU4wF0U/6/33bYJiRaWdjVSEQ
+SFw20Zb8mdcuhMTRohJ7CkW34LB7Wq2tnccKw1u1t03F0tT4qRJaFoq1hxCTJjFf
+g2+AJYx8QtdfC0H+qBM6RHavs/SDOFvDQpom8nCyNaBeP69WD3oGag+oW/FUKBAy
+N9wn6J2V/9Cjpxjme14bEVUG+lbaN8y4qvcrbPq1bDR64FrpfMOGuTo2hTwT8Vkk
+fSltj4BdbhxmzYAqv9xIkF/u6VmbULlyUTPxHqNBUVO05+9u2WDqtIwlEi9kz86J
+mr7CMVyMbmbNq8mTYErqfOckob8DG01nkIbqdF9jm+xmH9dDl+OdyC8dhbx6OoGX
+PKPF1l8eIhgKuLewKxqukKnLr4NPS9Icg/4E0WQvdfpWiMA3qqpbD++1/RFet2Qh
+vkkwGJyTh3ozdO2k5GPQn560r0KXRLNsW/qsgkzUlfqhz2m771FgAY/BUHouP8BZ
+/o3X/llKDHZzIp2ifibQ04V5tCAUBHFxZntr8ctU/0cAi86bpU7Y7nE1j8zfCQ+p
+ErHfH5XfHIBmWkCifiey
+=o85d
+-----END PGP SIGNATURE-----
+
+--nextPart32419704.AYxseJ8L90--

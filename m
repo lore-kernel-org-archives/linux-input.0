@@ -1,63 +1,65 @@
-From: Mike Frysinger <vapier@gentoo.org>
-Subject: Re: [PATCH] sh: maple: add support for the Maple mouse on the SEGA Dreamcast
-Date: Thu, 1 Jan 2009 02:41:14 -0500
-Message-ID: <200901010241.16185.vapier@gentoo.org>
-References: <1230578246.6496.25.camel@localhost.localdomain> <200812300017.45336.dmitry.torokhov@gmail.com> <1230668825.6489.1.camel@localhost.localdomain>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [Bugme-new] [Bug 12340] New: [regression] USB keyboard no
+ longer recognised
+Date: Thu, 1 Jan 2009 01:12:23 -0800
+Message-ID: <20090101011223.6a10dd66.akpm@linux-foundation.org>
+References: <bug-12340-10286@http.bugzilla.kernel.org/>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart32419704.AYxseJ8L90";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1230668825.6489.1.camel@localhost.localdomain>
-Sender: linux-sh-owner@vger.kernel.org
-To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Sam Ravnborg <sam@ravnborg.org>, LKML <linux-kernel@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:55539 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751808AbZAAJMo (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 1 Jan 2009 04:12:44 -0500
+In-Reply-To: <bug-12340-10286@http.bugzilla.kernel.org/>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Cc: bugme-daemon@bugzilla.kernel.org, nm127@freemail.hu
 
---nextPart32419704.AYxseJ8L90
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-On Tuesday 30 December 2008 15:27:05 Adrian McMenamin wrote:
-> Adding maple mouse with proper __devexit_p() handling
+(switched to email.  Please respond via emailed reply-to-all, not via the
+bugzilla web interface).
 
-this kind of patch revision info typically goes below the --- marker and  t=
-he=20
-patch itself gets "v2", "v3", etc... header markers
+On Thu,  1 Jan 2009 00:52:59 -0800 (PST) bugme-daemon@bugzilla.kernel.org wrote:
 
-otherwise, driver looks OK to me.  thanks for your dreamcast work.
-Acked-by: Mike Frysinger <vapier@gentoo.org>
+> http://bugzilla.kernel.org/show_bug.cgi?id=12340
+> 
+>            Summary: [regression] USB keyboard no longer recognised
+>            Product: Drivers
+>            Version: 2.5
+>      KernelVersion: 2.6.28
+>           Platform: All
+>         OS/Version: Linux
+>               Tree: Mainline
+>             Status: NEW
+>           Severity: normal
+>           Priority: P1
+>          Component: USB
+>         AssignedTo: greg@kroah.com
+>         ReportedBy: nm127@freemail.hu
+> 
+> 
+> Latest working kernel version: 2.6.27
+> Earliest failing kernel version: 2.6.28
+> Distribution: 
+> Hardware Environment: ASUS Eee PC 901
+> Software Environment:
+> Problem Description:
+> 
+> The USB keyboard was recognised an working with kernel 2.6.27 but not working
+> with 2.6.28.
+> 
+> Steps to reproduce:
+> 1. boot kernel with parameters "rw root=/dev/sdb1 log_buf_len=1M init=/bin/
+> bash"
+> 2. modprobe -k uhci_hcd
+> 3. modprobe -k usbhid
+> 
+> Current result in case of 2.6.27: USB keyboard starts to work
+> Current result in case of 2.6.28: USB keyboard does not work
+> 
 
-> +	mse =3D kzalloc(sizeof(struct dc_mouse), GFP_KERNEL);
-
-personally i find this style less likely to rot:
-mse =3D kzalloc(sizeof(*mse), GFP_KERNEL);
-=2Dmike
-
---nextPart32419704.AYxseJ8L90
-Content-Type: application/pgp-signature; name=signature.asc 
-Content-Description: This is a digitally signed message part.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.9 (GNU/Linux)
-
-iQIcBAABAgAGBQJJXHOcAAoJEEFjO5/oN/WBlqwQAMKseiErdo+hELWlxq9bXqSt
-Xu6D18iVDLTsph930I1U2hKZbKi/DWZXcc602kg7CNOzfqtlRepXpn5WWDP0GWoN
-fCb3IRjSJ4YcgJjJkvEhpytvd43K1n6GOmZtNXzPU4wF0U/6/33bYJiRaWdjVSEQ
-SFw20Zb8mdcuhMTRohJ7CkW34LB7Wq2tnccKw1u1t03F0tT4qRJaFoq1hxCTJjFf
-g2+AJYx8QtdfC0H+qBM6RHavs/SDOFvDQpom8nCyNaBeP69WD3oGag+oW/FUKBAy
-N9wn6J2V/9Cjpxjme14bEVUG+lbaN8y4qvcrbPq1bDR64FrpfMOGuTo2hTwT8Vkk
-fSltj4BdbhxmzYAqv9xIkF/u6VmbULlyUTPxHqNBUVO05+9u2WDqtIwlEi9kz86J
-mr7CMVyMbmbNq8mTYErqfOckob8DG01nkIbqdF9jm+xmH9dDl+OdyC8dhbx6OoGX
-PKPF1l8eIhgKuLewKxqukKnLr4NPS9Icg/4E0WQvdfpWiMA3qqpbD++1/RFet2Qh
-vkkwGJyTh3ozdO2k5GPQn560r0KXRLNsW/qsgkzUlfqhz2m771FgAY/BUHouP8BZ
-/o3X/llKDHZzIp2ifibQ04V5tCAUBHFxZntr8ctU/0cAi86bpU7Y7nE1j8zfCQ+p
-ErHfH5XfHIBmWkCifiey
-=o85d
------END PGP SIGNATURE-----
-
---nextPart32419704.AYxseJ8L90--
+Is it input/HID, or USB?

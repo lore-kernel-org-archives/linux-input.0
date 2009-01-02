@@ -1,92 +1,38 @@
-From: Arjan Opmeer <arjan@opmeer.net>
-Subject: Re: 2.6.28 thinks that my PS/2 mouse is a touchpad
-Date: Fri, 2 Jan 2009 19:37:14 +0100
-Message-ID: <20090102183714.GA24438@adopmeer.homeip.net>
-References: <gj4r8h$okm$1@ger.gmane.org> <20081229185619.GA18394@adopmeer.homeip.net> <200901020107.54740.vda.linux@googlemail.com>
+From: Alessio Sangalli <alesan@manoweb.com>
+Subject: Equivalent of /dev/input/mice for keyboards
+Date: Fri, 02 Jan 2009 15:29:53 -0800
+Message-ID: <495EA371.8050304@manoweb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out2.tiscali.nl ([195.241.79.177]:50912 "EHLO
-	smtp-out2.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751839AbZABShT (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jan 2009 13:37:19 -0500
-Content-Disposition: inline
-In-Reply-To: <200901020107.54740.vda.linux@googlemail.com>
+Received: from moutng.kundenserver.de ([212.227.126.188]:60442 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751239AbZABX36 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jan 2009 18:29:58 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Denys Vlasenko <vda.linux@googlemail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Alexander E. Patrakov" <patrakov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Fri, Jan 02, 2009 at 01:07:54AM +0100, Denys Vlasenko wrote:
-> On Monday 29 December 2008 19:56, Arjan Opmeer wrote:
-> > On Sat, Dec 27, 2008 at 02:06:29PM +0500, Alexander E. Patrakov wrote:
-> > > 
-> > > Linux-2.6.28, as compiled by Arch Linux developers, thinks that my
-> > > PS/2 mouse (a cheap M-BT58 optical wheel mouse by Logitech) is
-> > > actually a touchpad.  This makes it unusable.  Adding the "proto=imps"
-> > > parameter to the psmouse module helps.
-> > 
-> > > CONFIG_MOUSE_PS2_ELANTECH=y
-> > 
-> > Oh dear. The first victim of this driver... :(
-> > 
-> > As we can see below the mouse gets detected as an Elantech touchpad.
-> > This means that it reacts to the Elantech magic knock with the exact
-> > same response we expect from a real Elantech touchpad.
-> 
-> I am affected too. I am getting:
-> 
-> input: AT Translated Set 2 keyboard as /class/input/input2
-> elantech.c: Elantech version query result 0x00, 0x01, 0x64.
-> elantech.c: assuming hardware version 1, firmware version 0.100
-> elantech.c: Synaptics capabilities query result 0x00, 0x02, 0x64.
-> input: ETPS/2 Elantech Touchpad as /class/input/input3
+Hi, I have developed a PS/2 driver for a new ARM-based hardware.
 
-So how about we try to solve it by duplicating the version query in
-elantech_detect() and check for sane values. Dmitry, do you think something
-like this would be acceptable?
+I have used the serio subsystem and I can test with input-event or
+similar programs that the keyboard and mouse I have connected work well.
+
+Now, this platform, being an embedded ARM board, does not have a
+"console" that can be attached to the keyboard. I only connect with
+serial port or telnet. And here I am getting confused: I can read one
+device at a time by opening /dev/input/event*.
+
+I would like to write my userspace application so that it gets all the
+input from the various keyboards (can be up to two PS/2 keyboards + USB
+ones) and process it. The struct input_event is very convenient but what
+I am doing now is to open all the event* devices and select() them. This
+wouldn't probably work if I connect/disconnect a device on the fly. It
+would be much easier if I had a device similar to input/mice that
+automatically does the muxing for me...
+
+Thank you
+Alessio
 
 
-Arjan
-
---- elantech.c.ORIG	2008-12-29 19:35:01.000000000 +0100
-+++ elantech.c.NEW2	2009-01-02 19:26:01.000000000 +0100
-@@ -556,6 +556,22 @@ int elantech_detect(struct psmouse *psmo
- 		return -1;
- 	}
- 
-+	/*
-+	 * There are Logitech mice that react to the magic knock exactly
-+	 * like an Elantech touchpad would, so do a version query here to
-+	 * try to distinguish the two
-+	 */
-+	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
-+		pr_err("elantech.c: failed to query firmware version.\n");
-+		return -1;
-+	}
-+	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
-+		param[0], param[1], param[2]);
-+	if (param[0] == 0 || param[1] != 0) {
-+		pr_info("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
-+		return -1;
-+	}
-+
- 	if (set_properties) {
- 		psmouse->vendor = "Elantech";
- 		psmouse->name = "Touchpad";
-@@ -610,14 +626,12 @@ int elantech_init(struct psmouse *psmous
- 		etd->parity[i] = etd->parity[i & (i - 1)] ^ 1;
- 
- 	/*
--	 * Find out what version hardware this is
-+	 * Do the version query again so we can store the result
- 	 */
- 	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
- 		pr_err("elantech.c: failed to query firmware version.\n");
- 		goto init_fail;
- 	}
--	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
--		param[0], param[1], param[2]);
- 	etd->fw_version_maj = param[0];
- 	etd->fw_version_min = param[2];
- 

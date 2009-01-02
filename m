@@ -1,46 +1,92 @@
-From: "F. Heitkamp" <heitkamp@ameritech.net>
-Subject: Re: keyboards and evdev printing multiple keys
-Date: Fri, 02 Jan 2009 11:26:57 -0500
-Message-ID: <495E4051.10602@ameritech.net>
-References: <494FF40A.7000806@ameritech.net> <20090101034926.GA7361@dingo>
+From: Arjan Opmeer <arjan@opmeer.net>
+Subject: Re: 2.6.28 thinks that my PS/2 mouse is a touchpad
+Date: Fri, 2 Jan 2009 19:37:14 +0100
+Message-ID: <20090102183714.GA24438@adopmeer.homeip.net>
+References: <gj4r8h$okm$1@ger.gmane.org> <20081229185619.GA18394@adopmeer.homeip.net> <200901020107.54740.vda.linux@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from flpi195.sbcis.sbc.com ([207.115.20.197]:45207 "EHLO
-	flpi195.prodigy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758547AbZABQ1I (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jan 2009 11:27:08 -0500
-In-Reply-To: <20090101034926.GA7361@dingo>
+Received: from smtp-out2.tiscali.nl ([195.241.79.177]:50912 "EHLO
+	smtp-out2.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751839AbZABShT (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jan 2009 13:37:19 -0500
+Content-Disposition: inline
+In-Reply-To: <200901020107.54740.vda.linux@googlemail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org
+To: Denys Vlasenko <vda.linux@googlemail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "Alexander E. Patrakov" <patrakov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Peter Hutterer wrote:
-> On Mon, Dec 22, 2008 at 03:09:46PM -0500, F. Heitkamp wrote:
->    
->> I am not sure this is a bug.
->> I have a Apple keyboard connected to a IOGear USB KVM.
->> I have installed evdev and the Xorg 1.5.3 server.
->> When I use any X apps the keyboard repeats three for one in.  i.e.
->> typing one 'L' puts three of them in the input.
->> I noticed when looking at /proc/bus/input/devices there are three
->> instanced of the keyboard.
->>      
->
-> This is an X server problem and the most likely cause is that your server is
-> picking up a keyboard device (driver "kbd") and the evdev device separately.
-> If you are using evdev 2.1, then you will get two events for each key press.
->
-> Another reason may be that you have an evdev device configured in the
-> xorg.conf, and the same device gets added again through HAL.
->    
+On Fri, Jan 02, 2009 at 01:07:54AM +0100, Denys Vlasenko wrote:
+> On Monday 29 December 2008 19:56, Arjan Opmeer wrote:
+> > On Sat, Dec 27, 2008 at 02:06:29PM +0500, Alexander E. Patrakov wrote:
+> > > 
+> > > Linux-2.6.28, as compiled by Arch Linux developers, thinks that my
+> > > PS/2 mouse (a cheap M-BT58 optical wheel mouse by Logitech) is
+> > > actually a touchpad.  This makes it unusable.  Adding the "proto=imps"
+> > > parameter to the psmouse module helps.
+> > 
+> > > CONFIG_MOUSE_PS2_ELANTECH=y
+> > 
+> > Oh dear. The first victim of this driver... :(
+> > 
+> > As we can see below the mouse gets detected as an Elantech touchpad.
+> > This means that it reacts to the Elantech magic knock with the exact
+> > same response we expect from a real Elantech touchpad.
+> 
+> I am affected too. I am getting:
+> 
+> input: AT Translated Set 2 keyboard as /class/input/input2
+> elantech.c: Elantech version query result 0x00, 0x01, 0x64.
+> elantech.c: assuming hardware version 1, firmware version 0.100
+> elantech.c: Synaptics capabilities query result 0x00, 0x02, 0x64.
+> input: ETPS/2 Elantech Touchpad as /class/input/input3
 
-I've tried commenting out all InputDevice sections in xorg.conf.
-It seems to have worked so far.  No "EE"s in Xorg.0.conf and my keyboard 
-and mouse
-are working.  Thanks!
+So how about we try to solve it by duplicating the version query in
+elantech_detect() and check for sane values. Dmitry, do you think something
+like this would be acceptable?
 
-Fred
 
+Arjan
+
+--- elantech.c.ORIG	2008-12-29 19:35:01.000000000 +0100
++++ elantech.c.NEW2	2009-01-02 19:26:01.000000000 +0100
+@@ -556,6 +556,22 @@ int elantech_detect(struct psmouse *psmo
+ 		return -1;
+ 	}
+ 
++	/*
++	 * There are Logitech mice that react to the magic knock exactly
++	 * like an Elantech touchpad would, so do a version query here to
++	 * try to distinguish the two
++	 */
++	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
++		pr_err("elantech.c: failed to query firmware version.\n");
++		return -1;
++	}
++	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
++		param[0], param[1], param[2]);
++	if (param[0] == 0 || param[1] != 0) {
++		pr_info("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
++		return -1;
++	}
++
+ 	if (set_properties) {
+ 		psmouse->vendor = "Elantech";
+ 		psmouse->name = "Touchpad";
+@@ -610,14 +626,12 @@ int elantech_init(struct psmouse *psmous
+ 		etd->parity[i] = etd->parity[i & (i - 1)] ^ 1;
+ 
+ 	/*
+-	 * Find out what version hardware this is
++	 * Do the version query again so we can store the result
+ 	 */
+ 	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
+ 		pr_err("elantech.c: failed to query firmware version.\n");
+ 		goto init_fail;
+ 	}
+-	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
+-		param[0], param[1], param[2]);
+ 	etd->fw_version_maj = param[0];
+ 	etd->fw_version_min = param[2];
+ 

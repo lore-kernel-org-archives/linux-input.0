@@ -1,66 +1,46 @@
-From: Denys Vlasenko <vda.linux@googlemail.com>
-Subject: Re: 2.6.28 thinks that my PS/2 mouse is a touchpad
-Date: Fri, 2 Jan 2009 01:07:54 +0100
-Message-ID: <200901020107.54740.vda.linux@googlemail.com>
-References: <gj4r8h$okm$1@ger.gmane.org> <20081229185619.GA18394@adopmeer.homeip.net>
+From: "F. Heitkamp" <heitkamp@ameritech.net>
+Subject: Re: keyboards and evdev printing multiple keys
+Date: Fri, 02 Jan 2009 11:26:57 -0500
+Message-ID: <495E4051.10602@ameritech.net>
+References: <494FF40A.7000806@ameritech.net> <20090101034926.GA7361@dingo>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.186]:41403 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750724AbZABAIE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 1 Jan 2009 19:08:04 -0500
-In-Reply-To: <20081229185619.GA18394@adopmeer.homeip.net>
-Content-Disposition: inline
+Received: from flpi195.sbcis.sbc.com ([207.115.20.197]:45207 "EHLO
+	flpi195.prodigy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758547AbZABQ1I (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jan 2009 11:27:08 -0500
+In-Reply-To: <20090101034926.GA7361@dingo>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arjan Opmeer <arjan@opmeer.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Alexander E. Patrakov" <patrakov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org
 
-On Monday 29 December 2008 19:56, Arjan Opmeer wrote:
-> On Sat, Dec 27, 2008 at 02:06:29PM +0500, Alexander E. Patrakov wrote:
-> > 
-> > Linux-2.6.28, as compiled by Arch Linux developers, thinks that my PS/2
-> > mouse (a cheap M-BT58 optical wheel mouse by Logitech) is actually a
-> > touchpad.  This makes it unusable.  Adding the "proto=imps" parameter to
-> > the psmouse module helps.
-> 
-> > CONFIG_MOUSE_PS2_ELANTECH=y
-> 
-> Oh dear. The first victim of this driver... :(
-> 
-> As we can see below the mouse gets detected as an Elantech touchpad. This
-> means that it reacts to the Elantech magic knock with the exact same
-> response we expect from a real Elantech touchpad.
+Peter Hutterer wrote:
+> On Mon, Dec 22, 2008 at 03:09:46PM -0500, F. Heitkamp wrote:
+>    
+>> I am not sure this is a bug.
+>> I have a Apple keyboard connected to a IOGear USB KVM.
+>> I have installed evdev and the Xorg 1.5.3 server.
+>> When I use any X apps the keyboard repeats three for one in.  i.e.
+>> typing one 'L' puts three of them in the input.
+>> I noticed when looking at /proc/bus/input/devices there are three
+>> instanced of the keyboard.
+>>      
+>
+> This is an X server problem and the most likely cause is that your server is
+> picking up a keyboard device (driver "kbd") and the evdev device separately.
+> If you are using evdev 2.1, then you will get two events for each key press.
+>
+> Another reason may be that you have an evdev device configured in the
+> xorg.conf, and the same device gets added again through HAL.
+>    
 
-I am affected too. I am getting:
+I've tried commenting out all InputDevice sections in xorg.conf.
+It seems to have worked so far.  No "EE"s in Xorg.0.conf and my keyboard 
+and mouse
+are working.  Thanks!
 
-2009-01-01_23:15:29.11109 kern.info: input: AT Translated Set 2 keyboard as /class/input/input2
-2009-01-01_23:15:29.11113 kern.info: elantech.c: Elantech version query result 0x00, 0x01, 0x64.
-2009-01-01_23:15:29.11118 kern.info: elantech.c: assuming hardware version 1, firmware version 0.100
-2009-01-01_23:15:29.11123 kern.info: elantech.c: Synaptics capabilities query result 0x00, 0x02, 0x64.
-2009-01-01_23:15:29.11128 kern.info: input: ETPS/2 Elantech Touchpad as /class/input/input3
+Fred
 
-and then on attempts to use the mouse:
-
-...
-2009-01-01_23:16:08.68831 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.70630 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.71730 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.72918 kern.notice: psmouse.c: Touchpad at isa0060/serio1/input0 - driver resynched.
-2009-01-01_23:16:08.74732 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.75832 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.76932 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.78732 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.79832 kern.warn: psmouse.c: Touchpad at isa0060/serio1/input0 lost sync at byte 4
-2009-01-01_23:16:08.79844 kern.notice: psmouse.c: issuing reconnect request
-...
-
-On old kernel it was:
-
-2008-10-30_07:37:01.41484 kern.info: input: ImExPS/2 Logitech Wheel Mouse as /class/input/input3
-
---
-vda

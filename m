@@ -1,38 +1,43 @@
-From: Alessio Sangalli <alesan@manoweb.com>
-Subject: Equivalent of /dev/input/mice for keyboards
-Date: Fri, 02 Jan 2009 15:29:53 -0800
-Message-ID: <495EA371.8050304@manoweb.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] [HID] hid-sony: regression probing a SIXAXIS controller
+ - wrong return value
+Date: Sat, 3 Jan 2009 02:21:51 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0901030220060.5377@jikos.suse.cz>
+References: <495A9D82.7090500@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.188]:60442 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751239AbZABX36 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 2 Jan 2009 18:29:58 -0500
+Received: from styx.suse.cz ([82.119.242.94]:48523 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1758321AbZACBVz (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 2 Jan 2009 20:21:55 -0500
+In-Reply-To: <495A9D82.7090500@web.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: Richard Nauber <RichardNauber@web.de>
+Cc: linux-input@vger.kernel.org
 
-Hi, I have developed a PS/2 driver for a new ARM-based hardware.
+On Tue, 30 Dec 2008, Richard Nauber wrote:
 
-I have used the serio subsystem and I can test with input-event or
-similar programs that the keyboard and mouse I have connected work well.
+> This patch fixes a regression introduced in bd28ce00. It occurs when
+> attaching a Sony SIXAXIS controller:
+> 
+> input: Sony PLAYSTATION(R)3 Controller as
+> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0/input/input9
+> sony 0003:054C:0268.0006: input,hiddev96,hidraw0: USB HID v1.11 Joystick
+> [Sony PLAYSTATION(R)3 Controller] on usb-0000:00:1d.0-1/input0
+> sony: probe of 0003:054C:0268.0006 failed with error 17
+> 
+> The reason for this nasty behavior is a wrong return value emitted by
+> sony_set_operational().
 
-Now, this platform, being an embedded ARM board, does not have a
-"console" that can be attached to the keyboard. I only connect with
-serial port or telnet. And here I am getting confused: I can read one
-device at a time by opening /dev/input/event*.
+Hi Richard,
 
-I would like to write my userspace application so that it gets all the
-input from the various keyboards (can be up to two PS/2 keyboards + USB
-ones) and process it. The struct input_event is very convenient but what
-I am doing now is to open all the event* devices and select() them. This
-wouldn't probably work if I connect/disconnect a device on the fly. It
-would be much easier if I had a device similar to input/mice that
-automatically does the muxing for me...
+the similar patch fixing this issue is already in my queue [1], Marcin 
+beat you in reporting this :) But thanks anyway!
 
-Thank you
-Alessio
+[1] http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commitdiff;h=7100c4281258f185d82430d1cab698de8db4ab75
 
-
+-- 
+Jiri Kosina
+SUSE Labs

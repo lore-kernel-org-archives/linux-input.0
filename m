@@ -1,43 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] [HID] hid-sony: regression probing a SIXAXIS controller
- - wrong return value
-Date: Sat, 3 Jan 2009 02:21:51 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0901030220060.5377@jikos.suse.cz>
-References: <495A9D82.7090500@web.de>
+From: "Trilok Soni" <soni.trilok@gmail.com>
+Subject: Re: [PATCH] Add TI TSC2005 Touchscreen driver
+Date: Sat, 3 Jan 2009 10:08:03 +0530
+Message-ID: <5d5443650901022038p310f77e3ifee241080126d9b1@mail.gmail.com>
+References: <5d5443650812080949h5aff6010mb7341f581841f126@mail.gmail.com>
+	 <20081208182812.GD13076@frodo>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:48523 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1758321AbZACBVz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 2 Jan 2009 20:21:55 -0500
-In-Reply-To: <495A9D82.7090500@web.de>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20081208182812.GD13076@frodo>
+Content-Disposition: inline
+Sender: linux-omap-owner@vger.kernel.org
+To: me@felipebalbi.com
+Cc: David Brownell <david-b@pacbell.net>, dmitry.torokhov@gmail.com, "linux-omap@vger.kernel.org Mailing List" <linux-omap@vger.kernel.org>, linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net, linux-input@vger.kernel.org, lauri.leukkunen@nokia.com
 List-Id: linux-input@vger.kernel.org
-To: Richard Nauber <RichardNauber@web.de>
-Cc: linux-input@vger.kernel.org
 
-On Tue, 30 Dec 2008, Richard Nauber wrote:
+Hi Felip,
 
-> This patch fixes a regression introduced in bd28ce00. It occurs when
-> attaching a Sony SIXAXIS controller:
-> 
-> input: Sony PLAYSTATION(R)3 Controller as
-> /devices/pci0000:00/0000:00:1d.0/usb2/2-1/2-1:1.0/input/input9
-> sony 0003:054C:0268.0006: input,hiddev96,hidraw0: USB HID v1.11 Joystick
-> [Sony PLAYSTATION(R)3 Controller] on usb-0000:00:1d.0-1/input0
-> sony: probe of 0003:054C:0268.0006 failed with error 17
-> 
-> The reason for this nasty behavior is a wrong return value emitted by
-> sony_set_operational().
+Sorry for the delayed reply.
 
-Hi Richard,
+On Mon, Dec 8, 2008 at 11:58 PM, Felipe Balbi <me@felipebalbi.com> wrote:
+> On Mon, Dec 08, 2008 at 11:19:53PM +0530, Trilok Soni wrote:
+>> +static ssize_t tsc2005_disable_store(struct device *dev,
+>> +                                  struct device_attribute *attr,
+>> +                                  const char *buf, size_t count)
+>> +{
+>> +     struct tsc2005          *tsc = dev_get_drvdata(dev);
+>> +     unsigned long res;
+>> +     int i;
+>> +
+>> +     i = strict_strtoul(buf, 10, &res);
+>> +     i = i ? 1 : 0;
+>
+> shouldn't this be i = res ? 1 : 0; ??
 
-the similar patch fixing this issue is already in my queue [1], Marcin 
-beat you in reporting this :) But thanks anyway!
-
-[1] http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commitdiff;h=7100c4281258f185d82430d1cab698de8db4ab75
+You are right, I will change this.
 
 -- 
-Jiri Kosina
-SUSE Labs
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

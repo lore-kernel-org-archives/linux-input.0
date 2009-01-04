@@ -1,56 +1,74 @@
-From: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Subject: Re: [Bugme-new] [Bug 12340] New: [regression] USB keyboard no longer
- recognised
-Date: Sun, 04 Jan 2009 13:04:50 +0100
-Message-ID: <4960A5E2.2050601@freemail.hu>
-References: <bug-12340-10286@http.bugzilla.kernel.org/> <20090101011223.6a10dd66.akpm@linux-foundation.org> <495C8AE3.5000502@freemail.hu> <alpine.LRH.1.10.0901041151510.2418@twin.jikos.cz>
+From: Nick Warne <nick@ukfsn.org>
+Subject: Re: [PATCH] Input: atkbd - broaden the Dell DMI signatures
+Date: Sun, 4 Jan 2009 17:49:17 +0000
+Message-ID: <20090104174917.4ef6fe9e@sauron.linicks.net>
+References: <20081111074702.75e71055@sauron.linicks.net>
+	<20081229113621.1a64caea@sauron.linicks.net>
+	<20081229142902.GC31266@srcf.ucam.org>
+	<200812292015.34296.dtor@mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail02a.mail.t-online.hu ([84.2.40.7]:53705 "EHLO
-	mail02a.mail.t-online.hu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751265AbZADME4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2009 07:04:56 -0500
-In-Reply-To: <alpine.LRH.1.10.0901041151510.2418@twin.jikos.cz>
+Received: from mail.ukfsn.org ([77.75.108.10]:33725 "EHLO mail.ukfsn.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752255AbZADRtV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 4 Jan 2009 12:49:21 -0500
+In-Reply-To: <200812292015.34296.dtor@mail.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, bugme-daemon@bugzilla.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-input@vger.kernel.org
 
-Jiri Kosina wrote:
-> On Thu, 1 Jan 2009, N=E9meth M=E1rton wrote:
->=20
->>>> Steps to reproduce:
->>>> 1. boot kernel with parameters "rw root=3D/dev/sdb1 log_buf_len=3D=
-1M init=3D/bin/
->>>> bash"
->>>> 2. modprobe -k uhci_hcd
->>>> 3. modprobe -k usbhid
->>>> Current result in case of 2.6.27: USB keyboard starts to work
->>>> Current result in case of 2.6.28: USB keyboard does not work
->>> Is it input/HID, or USB?
->> The same USB keyboard is working correctly with Clevo D410J laptop w=
-ith 2.6.28,
->> so I guess it might be an USB problem.
->=20
-> Why are you doing the modprobe by hand? Doesn't the module get autolo=
-aded=20
-> properly?
+Hi Matthew, Dmitry,
 
-The modules were not autoloaded. This is a minimal test environment wit=
-h only
-a few binaries in the root directory. Is the "modprobe" binary enough f=
-or
-autoloading?
+On Mon, 29 Dec 2008 20:15:33 -0800
+Dmitry Torokhov <dtor@mail.ru> wrote:
 
-> Anyway, in 2.6.28, this keyboard is driven by specialized 'hid-bright=
-'=20
-> driver. Does modprobing it by hand fix the problem?
+> On Monday 29 December 2008 06:29:02 Matthew Garrett wrote:
+> > Some Dells need the dell input quirk applied but have a different
+> > vendor string in their DMI tables. Add an extra entry to cover
+> > these machines as well.
+> >
+> > Signed-off-by: Matthew Garrett <mjg@redhat.com>
+> >
+> > ---
+> >
+> > Dmitry, any chance of getting this queued for .29? Probably
+> > suitable for -stable as well.
+> 
+> Yep, will send with the rest of stuff for .29. Thank you Matthew.
 
-I'll try the hid-bright module as soon as my laptop gets repaired.
+I am mailing off LKML here, as I don't know what to think, but somebody
+has reported a new ID for these Dell laptops:
+
+
+
+
+http://ubuntuforums.org/showpost.php?p=6488632&postcount=37
+===
+You say you're looking for people whose Vendor IDs don't say "Dell"?
+
+Looks like you're looking for me.
+
+261-BIOS Information
+278: Vendor: Phoenix Technologies LTD
+312- Version: A04
+809- Manufacturer: Dell Inc.
+834: Product Name: Inspiron 700m
+869- Version: -1
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+1050- Manufacturer: DELL SYSTEM
+1077: Product Name: 0D9593
+1099- Version:
+===
+
+
+I dunno if this is a rogue post, but have no reason to assume otherwise.
+
+Will this never end?
+
+Nick
+-- 
+Free Software Foundation Associate Member 5508
+http://linicks.net/

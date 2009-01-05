@@ -1,48 +1,68 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [Bugme-new] [Bug 12340] New: [regression] USB keyboard no longer
- recognised
-Date: Mon, 5 Jan 2009 10:13:51 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0901051011490.5377@jikos.suse.cz>
-References: <bug-12340-10286@http.bugzilla.kernel.org/> <20090101011223.6a10dd66.akpm@linux-foundation.org> <495C8AE3.5000502@freemail.hu> <alpine.LRH.1.10.0901041151510.2418@twin.jikos.cz> <4960A5E2.2050601@freemail.hu> <4961B734.80701@freemail.hu>
+From: Jim Gettys <jg@laptop.org>
+Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data
+	report  protocol (rev2)
+Date: Mon, 05 Jan 2009 11:22:33 -0500
+Message-ID: <1231172553.8379.12.camel@jg-vaio>
+References: <495804B1.10300@euromail.se>
+	 <20090105035758.GA28664@dingo.redhat.com>
+Reply-To: jg@laptop.org
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="336216065-355684867-1231146831=:5377"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:42018 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751890AbZAEJNy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 5 Jan 2009 04:13:54 -0500
-In-Reply-To: <4961B734.80701@freemail.hu>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752748AbZAEQWt@vger.kernel.org>
+In-Reply-To: <20090105035758.GA28664@dingo.redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?N=E9meth_M=E1rton?= <nm127@freemail.hu>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, bugme-daemon@bugzilla.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 2009-01-05 at 13:57 +1000, Peter Hutterer wrote:
+> On Sun, Dec 28, 2008 at 11:58:57PM +0100, Henrik Rydberg wrote:
+> > In order to utilize the full power of the new multi-touch devices, a
+> > way to report detailed finger data to user space is needed. This patch
+> > adds a multi-touch (MT) protocol which allows drivers to report details
+> > for an arbitrary number of fingers.
+> > 
+> > The driver sends a SYN_MT_REPORT event via the input_mt_sync() function
+> > when a complete finger has been reported.
+> > 
+> > In order to stay compatible with existing applications, the data
+> > reported in a finger packet must not be recognized as single-touch
+> > events. In addition, all finger data must bypass input filtering,
+> > since subsequent events of the same type refer to different fingers.
+> > 
+> > A set of ABS_MT events with the desired properties are defined. The
+> > events are divided into categories, to allow for partial implementation.
+> > The minimum set consists of ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X and
+> > ABS_MT_POSITION_Y, which allows for multiple fingers to be tracked.
+> > If the device supports it, the ABS_MT_WIDTH_MAJOR may be used to provide
+> > the size of the approaching finger. Anisotropy and direction may be
+> > specified with ABS_MT_TOUCH_MINOR, ABS_MT_WIDTH_MINOR and
+> > ABS_MT_ORIENTATION. Devices with more granular information may specify
+> > general shapes as blobs, i.e., as a sequence of rectangular shapes
+> > grouped together by a ABS_MT_BLOB_ID. 
+> 
+> To clarify: the MT_TOUCH_MAJOR is to track a touchpoint over time, and the
+> BLOB_ID to compile a arbitrarily shaped touchpoint within the same event?
+> 
+> Would it make sense to allow specification of a blob as bit/bytemask? There
+> are a few devices that can do detection of multi-color non-rectangular
+> touchpoints, especially camera-based systems. Limiting these to a sequence of
+> rectangles means dropping information that may be useful for certain tasks
+> (e.g. fingerprint detection).
+> OTOH, a rectangle as bounding box with an accompanying (optional) bytemask can
+> pass this data on to prospective clients.
 
---336216065-355684867-1231146831=:5377
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-
-On Mon, 5 Jan 2009, Németh Márton wrote:
-
-> > The modules were not autoloaded. This is a minimal test environment 
-> > with only a few binaries in the root directory. Is the "modprobe" 
-> > binary enough for autoloading?
-> I just was able to try the situation: the modules are not autoloaded.
-
-Does autoloading of other modules work well in the limited environment you 
-have? I suspect this might be something with your special configuration 
-(udev not triggering properly, etc.) rather than kernel problem.
-
-> >> Anyway, in 2.6.28, this keyboard is driven by specialized 'hid-bright' 
-> >> driver. Does modprobing it by hand fix the problem?
-> > I'll try the hid-bright module as soon as my laptop gets repaired.
-> Loading the hid-bright module handles the USB keyboard properly.
-
-Thanks for verifying.
+Urk.  I'd forgotten entirely about color.  Some people are certainly
+using tokens on surfaces, distinguishable either by shape or color. But
+maybe that is better left outside of this until we have a more concrete
+non-research system to grok before defining a kernel interface; many of
+these systems may be doing advanced image processing in user space
+processes and talking directly to X with the result rather than
+via /dev/input....  Or do you feel you have good enough experience with
+the MERL table and other systems to take a stab at it now?
+                               - Jim
 
 -- 
-Jiri Kosina
-SUSE Labs
---336216065-355684867-1231146831=:5377--
+Jim Gettys <jg@laptop.org>
+One Laptop Per Child

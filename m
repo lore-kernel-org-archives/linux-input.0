@@ -1,50 +1,37 @@
-From: Jim Gettys <jg@laptop.org>
-Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data
-	report  protocol (rev2)
-Date: Mon, 05 Jan 2009 11:22:33 -0500
-Message-ID: <1231172553.8379.12.camel@jg-vaio>
-References: <495804B1.10300@euromail.se>
-	 <20090105035758.GA28664@dingo.redhat.com>
-Reply-To: jg@laptop.org
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data	report
+  protocol (rev2)
+Date: Mon, 05 Jan 2009 19:55:26 +0100
+Message-ID: <4962579E.9080901@euromail.se>
+References: <495804B1.10300@euromail.se> <20090105035758.GA28664@dingo.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752748AbZAEQWt@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:50557 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753399AbZAESzm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 5 Jan 2009 13:55:42 -0500
 In-Reply-To: <20090105035758.GA28664@dingo.redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: Henrik Rydberg <rydberg@euromail.se>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, jg@laptop.org, linux-kernel@vger.kernel.org
 
-On Mon, 2009-01-05 at 13:57 +1000, Peter Hutterer wrote:
-> On Sun, Dec 28, 2008 at 11:58:57PM +0100, Henrik Rydberg wrote:
-> > In order to utilize the full power of the new multi-touch devices, a
-> > way to report detailed finger data to user space is needed. This patch
-> > adds a multi-touch (MT) protocol which allows drivers to report details
-> > for an arbitrary number of fingers.
-> > 
-> > The driver sends a SYN_MT_REPORT event via the input_mt_sync() function
-> > when a complete finger has been reported.
-> > 
-> > In order to stay compatible with existing applications, the data
-> > reported in a finger packet must not be recognized as single-touch
-> > events. In addition, all finger data must bypass input filtering,
-> > since subsequent events of the same type refer to different fingers.
-> > 
-> > A set of ABS_MT events with the desired properties are defined. The
-> > events are divided into categories, to allow for partial implementation.
-> > The minimum set consists of ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X and
-> > ABS_MT_POSITION_Y, which allows for multiple fingers to be tracked.
-> > If the device supports it, the ABS_MT_WIDTH_MAJOR may be used to provide
-> > the size of the approaching finger. Anisotropy and direction may be
-> > specified with ABS_MT_TOUCH_MINOR, ABS_MT_WIDTH_MINOR and
-> > ABS_MT_ORIENTATION. Devices with more granular information may specify
-> > general shapes as blobs, i.e., as a sequence of rectangular shapes
-> > grouped together by a ABS_MT_BLOB_ID. 
+Peter Hutterer wrote:
+[...]
 > 
 > To clarify: the MT_TOUCH_MAJOR is to track a touchpoint over time, and the
 > BLOB_ID to compile a arbitrarily shaped touchpoint within the same event?
-> 
+
+MT_TOUCH_MAJOR is the major size of the touching object, or "pressure" in
+case the size of the approaching object (MT_WIDTH_MAJOR) is not available
+to compare the size to. The touch and position packets are sent to the
+multitouch X driver, where the actual finger tracking takes place. Thanks
+for the chance to clarify this.
+
+
 > Would it make sense to allow specification of a blob as bit/bytemask? There
 > are a few devices that can do detection of multi-color non-rectangular
 > touchpoints, especially camera-based systems. Limiting these to a sequence of
@@ -53,16 +40,6 @@ On Mon, 2009-01-05 at 13:57 +1000, Peter Hutterer wrote:
 > OTOH, a rectangle as bounding box with an accompanying (optional) bytemask can
 > pass this data on to prospective clients.
 
-Urk.  I'd forgotten entirely about color.  Some people are certainly
-using tokens on surfaces, distinguishable either by shape or color. But
-maybe that is better left outside of this until we have a more concrete
-non-research system to grok before defining a kernel interface; many of
-these systems may be doing advanced image processing in user space
-processes and talking directly to X with the result rather than
-via /dev/input....  Or do you feel you have good enough experience with
-the MERL table and other systems to take a stab at it now?
-                               - Jim
+Very interesting idea, although I believe it is beyond the scope of the
+current patch.
 
--- 
-Jim Gettys <jg@laptop.org>
-One Laptop Per Child

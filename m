@@ -1,58 +1,61 @@
-From: Peter Hutterer <peter.hutterer@who-t.net>
-Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data
-	report  protocol (rev2)
-Date: Mon, 5 Jan 2009 13:57:59 +1000
-Message-ID: <20090105035758.GA28664@dingo.redhat.com>
-References: <495804B1.10300@euromail.se>
+From: =?ISO-8859-1?Q?N=E9meth_M=E1rton?= <nm127-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+Subject: Re: [Bugme-new] [Bug 12340] New: [regression] USB keyboard no longer
+ recognised
+Date: Mon, 05 Jan 2009 08:31:00 +0100
+Message-ID: <4961B734.80701@freemail.hu>
+References: <bug-12340-10286@http.bugzilla.kernel.org/> <20090101011223.6a10dd66.akpm@linux-foundation.org> <495C8AE3.5000502@freemail.hu> <alpine.LRH.1.10.0901041151510.2418@twin.jikos.cz> <4960A5E2.2050601@freemail.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ipx-119-252-190-80.ipxserver.de ([80.190.252.119]:42008 "EHLO
-	ipx10616.ipxserver.de" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1752227AbZAED7A (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 4 Jan 2009 22:59:00 -0500
-Content-Disposition: inline
-In-Reply-To: <495804B1.10300@euromail.se>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4960A5E2.2050601-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bugme-daemon-590EEB7GvNiWaY/ihj7yzEB+6BGkLq7r@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Henrik Rydberg <rydberg@euromail.se>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, jg@laptop.org, linux-kernel@vger.kernel.org
 
-On Sun, Dec 28, 2008 at 11:58:57PM +0100, Henrik Rydberg wrote:
-> In order to utilize the full power of the new multi-touch devices, a
-> way to report detailed finger data to user space is needed. This patch
-> adds a multi-touch (MT) protocol which allows drivers to report details
-> for an arbitrary number of fingers.
-> 
-> The driver sends a SYN_MT_REPORT event via the input_mt_sync() function
-> when a complete finger has been reported.
-> 
-> In order to stay compatible with existing applications, the data
-> reported in a finger packet must not be recognized as single-touch
-> events. In addition, all finger data must bypass input filtering,
-> since subsequent events of the same type refer to different fingers.
-> 
-> A set of ABS_MT events with the desired properties are defined. The
-> events are divided into categories, to allow for partial implementation.
-> The minimum set consists of ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X and
-> ABS_MT_POSITION_Y, which allows for multiple fingers to be tracked.
-> If the device supports it, the ABS_MT_WIDTH_MAJOR may be used to provide
-> the size of the approaching finger. Anisotropy and direction may be
-> specified with ABS_MT_TOUCH_MINOR, ABS_MT_WIDTH_MINOR and
-> ABS_MT_ORIENTATION. Devices with more granular information may specify
-> general shapes as blobs, i.e., as a sequence of rectangular shapes
-> grouped together by a ABS_MT_BLOB_ID. 
+N=E9meth M=E1rton wrote:
+> Jiri Kosina wrote:
+>> On Thu, 1 Jan 2009, N=E9meth M=E1rton wrote:
+>>
+>>>>> Steps to reproduce:
+>>>>> 1. boot kernel with parameters "rw root=3D/dev/sdb1 log_buf_len=3D=
+1M init=3D/bin/
+>>>>> bash"
+>>>>> 2. modprobe -k uhci_hcd
+>>>>> 3. modprobe -k usbhid
+>>>>> Current result in case of 2.6.27: USB keyboard starts to work
+>>>>> Current result in case of 2.6.28: USB keyboard does not work
+>>>> Is it input/HID, or USB?
+>>> The same USB keyboard is working correctly with Clevo D410J laptop =
+with 2.6.28,
+>>> so I guess it might be an USB problem.
+>> Why are you doing the modprobe by hand? Doesn't the module get autol=
+oaded=20
+>> properly?
+>=20
+> The modules were not autoloaded. This is a minimal test environment w=
+ith only
+> a few binaries in the root directory. Is the "modprobe" binary enough=
+ for
+> autoloading?
 
-To clarify: the MT_TOUCH_MAJOR is to track a touchpoint over time, and the
-BLOB_ID to compile a arbitrarily shaped touchpoint within the same event?
+I just was able to try the situation: the modules are not autoloaded.
 
-Would it make sense to allow specification of a blob as bit/bytemask? There
-are a few devices that can do detection of multi-color non-rectangular
-touchpoints, especially camera-based systems. Limiting these to a sequence of
-rectangles means dropping information that may be useful for certain tasks
-(e.g. fingerprint detection).
-OTOH, a rectangle as bounding box with an accompanying (optional) bytemask can
-pass this data on to prospective clients.
+>> Anyway, in 2.6.28, this keyboard is driven by specialized 'hid-brigh=
+t'=20
+>> driver. Does modprobing it by hand fix the problem?
+>=20
+> I'll try the hid-bright module as soon as my laptop gets repaired.
 
-Cheers,
-  Peter
+Loading the hid-bright module handles the USB keyboard properly.
+But it is still not clear for me why this module is not autoloaded?
+
+Regards,
+
+	M=E1rton N=E9meth
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

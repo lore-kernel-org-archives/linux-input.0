@@ -1,75 +1,46 @@
-From: Niels de Vos <niels.devos@wincor-nixdorf.com>
-Subject: Re: Support special keys on laptop by default?
-Date: Tue, 06 Jan 2009 17:13:36 +0100
-Message-ID: <49638330.2070605@wincor-nixdorf.com>
-References: <4963594B.9040705@wincor-nixdorf.com> <alpine.LRH.1.10.0901061526200.24105@twin.jikos.cz> <49636A4B.2050201@wincor-nixdorf.com>
+From: Jim Gettys <jg@laptop.org>
+Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data
+	report protocol (rev2)
+Date: Tue, 06 Jan 2009 13:32:49 -0500
+Message-ID: <1231266769.8379.79.camel@jg-vaio>
+References: <495804B1.10300@euromail.se>
+Reply-To: jg@laptop.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigAEAC7AC3BFD8B1547268F956"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mxpdbe1.wincor-nixdorf.com ([80.154.98.129]:46452 "EHLO
-	mxpdbe1.wincor-nixdorf.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752414AbZAFQQf (ORCPT
+Received: from qmta01.westchester.pa.mail.comcast.net ([76.96.62.16]:60086
+	"EHLO QMTA01.westchester.pa.mail.comcast.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751973AbZAFSdO (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Jan 2009 11:16:35 -0500
-In-Reply-To: <49636A4B.2050201@wincor-nixdorf.com>
+	Tue, 6 Jan 2009 13:33:14 -0500
+In-Reply-To: <495804B1.10300@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-laptop@vger.kernel.org
+To: Henrik Rydberg <rydberg@euromail.se>, jkosina@suse.cz, Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigAEAC7AC3BFD8B1547268F956
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+There is a remaining question: how/whether to implement this interface
+in USB HID.....
 
-Niels de Vos wrote:
-> Jiri Kosina wrote:
->> On Tue, 6 Jan 2009, Niels de Vos wrote:
->>
->>> on my HP/Compaq nc6400 there are three keys (info, presentation and
->>> battery) not directly recognized. If I press any of the keys, I get:
->>>
->>> atkbd.c: Unknown key released (translated set 2, code 0xd9 on isa0060=
-/serio0).
->>> atkbd.c: Use 'setkeycodes e059 <keycode>' to make it known.
->> [ ... ]
->>> Where should I start looking for creating a patch for solving problem=
-s=20
->>> of this kind? There seem to be quirks in atkbd.c, but I think they ar=
-e=20
->>> used for some other workarounds.
->> Please see=20
->> http://people.freedesktop.org/~hughsient/quirk/quirk-keymap-index.html=
+On page 9 of the document you'll find at:
+http://www.microsoft.com/whdc/device/input/DigitizerDrvs_touch.mspx
 
->>
+Microsoft is claiming in that document of December 8 they are proposing
+the interfaces in the document to the USB IF organization, and that
+hardware vendors for Windows 7 should follow that spec.
 
-Just for the record:
+Jiri, Greg:
 
-Okay, for these (and a lot more) keys I (and you) need at least
-hal-0.5.10 as said in the link above from Jiri. The keys supported by
-hal are available in the 30-keymap-*.fdi files from the hal-info git:
+1) Does anyone know if Microsoft has actually made the proposal to the
+USB IF?  Is there anyone in the community watching/commenting on USB IF
+proposals?
 
-http://cgit.freedesktop.org/hal-info/tree/fdi/information/10freedesktop
+2) do you want generic USB HID patches or do you want to, for now,
+confine these to USB device specific drivers as much as possible?
+                          - Jim
 
-I hope this helps people with the same questions and problems.
+-- 
+Jim Gettys <jg@laptop.org>
+One Laptop Per Child
 
-Thanks for your help,
-Niels
-
-
---------------enigAEAC7AC3BFD8B1547268F956
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFJY4Mw5KAkGQPO/QoRAh27AKCtjaI8ktmN15w9XkKZ9w3+cYs3IQCggujP
-Yk0Zh4Auz+rZ0zh0zF4FWJs=
-=Mp1r
------END PGP SIGNATURE-----
-
---------------enigAEAC7AC3BFD8B1547268F956--

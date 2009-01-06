@@ -1,57 +1,56 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: [PATCH] input: input: stop autorepeat timer on key release
-Date: Tue, 06 Jan 2009 12:26:24 +0100
-Message-ID: <1231241184.3684.1.camel@johannes>
+From: Niels de Vos <niels.devos@wincor-nixdorf.com>
+Subject: Support special keys on laptop by default?
+Date: Tue, 06 Jan 2009 14:14:51 +0100
+Message-ID: <4963594B.9040705@wincor-nixdorf.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:41846 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752198AbZAFNAR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 6 Jan 2009 08:00:17 -0500
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigA22C93980D1008BADA243EA9"
+Return-path: <linux-laptop-owner@vger.kernel.org>
+Sender: linux-laptop-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-laptop@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dtor@mail.ru>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-input <linux-input@vger.kernel.org>
 
-Whenever you press and then release a key, the CPU wakes up
-three times:
- * press
- * release
- * autorepeat timer exactly 250ms after press
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigA22C93980D1008BADA243EA9
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-The autorepeat timer has nothing to do, obviously, since you already
-have released the key, so stop it on key release.
+Hello,
 
-Signed-off-by: Johannes Berg <johannes@sipsolutions.net>
-Cc: Arjan van de Ven <arjan@infradead.org>
----
- drivers/input/input.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+on my HP/Compaq nc6400 there are three keys (info, presentation and
+battery) not directly recognized. If I press any of the keys, I get:
 
---- wireless-testing.orig/drivers/input/input.c	2009-01-06 12:15:56.000000000 +0100
-+++ wireless-testing/drivers/input/input.c	2009-01-06 12:17:13.000000000 +0100
-@@ -132,6 +132,11 @@ static void input_start_autorepeat(struc
- 	}
- }
- 
-+static void input_stop_autorepeat(struct input_dev *dev)
-+{
-+	del_timer(&dev->timer);
-+}
-+
- #define INPUT_IGNORE_EVENT	0
- #define INPUT_PASS_TO_HANDLERS	1
- #define INPUT_PASS_TO_DEVICE	2
-@@ -167,6 +172,8 @@ static void input_handle_event(struct in
- 				__change_bit(code, dev->key);
- 				if (value)
- 					input_start_autorepeat(dev, code);
-+				else
-+					input_stop_autorepeat(dev);
- 			}
- 
- 			disposition = INPUT_PASS_TO_HANDLERS;
+atkbd.c: Unknown key released (translated set 2, code 0xd9 on isa0060/ser=
+io0).
+atkbd.c: Use 'setkeycodes e059 <keycode>' to make it known.
+
+I would like to have these keys mapped by default to the
+corresponding defines in <linux/input.h>. Of course using the
+command as suggested would function, but that does not help other
+owners of this laptop. Moreover, other keys seem to be supported
+without requiring extra manual configuration.
+
+Where should I start looking for creating a patch for solving
+problems of this kind? There seem to be quirks in atkbd.c, but
+I think they are used for some other workarounds.
+
+Thanks for any pointers,
+Niels
 
 
+
+--------------enigA22C93980D1008BADA243EA9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFJY1lL5KAkGQPO/QoRAouTAKCNomnOhoaSTOj5l6Ogo/qOF53fnwCglWYl
+gWQkB7HrwSChGuyXqwPturo=
+=Et4W
+-----END PGP SIGNATURE-----
+
+--------------enigA22C93980D1008BADA243EA9--

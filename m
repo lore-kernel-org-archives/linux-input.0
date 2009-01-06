@@ -1,54 +1,36 @@
-From: "=?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP0YjQvtCy?="
-	<sergey.belyashov@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: Force feedback in Linux
-Date: Mon, 5 Jan 2009 22:55:08 +0300
-Message-ID: <bb829a0b0901051155k710b0ec8w42de31da0305f9e7@mail.gmail.com>
-References: <bb829a0b0901020434q6ab51b86na945179c56f79e9@mail.gmail.com>
-	 <alpine.LNX.1.10.0901051104390.5377@jikos.suse.cz>
+Date: Tue, 6 Jan 2009 11:02:30 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0901061102000.5377@jikos.suse.cz>
+References: <bb829a0b0901020434q6ab51b86na945179c56f79e9@mail.gmail.com>  <alpine.LNX.1.10.0901051104390.5377@jikos.suse.cz> <bb829a0b0901051155k710b0ec8w42de31da0305f9e7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f21.google.com ([209.85.218.21]:43249 "EHLO
-	mail-bw0-f21.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752556AbZAETzK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 5 Jan 2009 14:55:10 -0500
-Received: by bwz14 with SMTP id 14so23130527bwz.13
-        for <linux-input@vger.kernel.org>; Mon, 05 Jan 2009 11:55:08 -0800 (PST)
-In-Reply-To: <alpine.LNX.1.10.0901051104390.5377@jikos.suse.cz>
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:55186 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751552AbZAFKCb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Jan 2009 05:02:31 -0500
+In-Reply-To: <bb829a0b0901051155k710b0ec8w42de31da0305f9e7@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Jiri Kosina <jkosina@suse.cz>
+To: =?KOI8-R?B?88XSx8XKIOLFzNHbz9c=?= <sergey.belyashov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-SGVsbG8KICAgTXkgam95c3RpY2sgTG9naXRlY2ggRm9yY2UgM0QgUHJvICgweDA0NmQ6MHhjMjg2
-KSBzdWNjZXNzZnVsbHkKZGV0ZWN0ZWQgYnkgY3VycmVudCBrZXJuZWwgKEkgaGF2ZSAyLjYuMjcp
-LiBCdXQgZm9yY2UgZmVlZGJhY2sgY2Fubm90CndvcmsgcHJvcGVybHkgKGl0IHdvcmtzIG9ubHkg
-d2l0aCBvbmUgYXhpcykuIFRoaXMgam95c3RpY2sgaGF2ZSAyIEZGCmF4aXNlcyAoWCBhbmQgWSks
-IGJ1dCBrZXJuZWwgc3VwcG9ydHMgb25seSBvbmUgKGZmdGVzdCBwcm9ncmFtIG1vdmVzCm9ubHkg
-aW4gWC1heGlzKTogSSBjYW5ub3QgZm91bmQgYW55IElPQ1RMcyB3aGljaCBjYW4gYmUgdXNlZCBm
-b3IKc3dpdGNoaW5nIGF4aXNlcyBmb3IgZm9yY2UgZmVlZGJhY2sgZWZmZWN0cy4gQWxzbywgaXQg
-aXMgbm8gYW55CmRpc2N1c3Npb24gYWJvdXQgdGhhdC4KICAgSSB3YW50IHRvIGltcGxpbWVudCBu
-ZWNjZXNzYXJ5IGZ1bmN0aW9uYWxpdHkgYnV0IGtlcm5lbCByZWRlc2lnbiBpcwpyZXF1aXJlZCwg
-SSB0aGluay4KCkJlc3QgcmVnYXJkcywKU2VyZ2V5IEJlbHlhc2hvdgoKLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpQcmV2aW91cyBtZXNzYWdlczoKCjIwMDkvMS8yINCh
-0LXRgNCz0LXQuSDQkdC10LvRj9GI0L7QsiA8c2VyZ2V5LmJlbHlhc2hvdkBnbWFpbC5jb20+Ogo+
-ICAgSSBoYXZlIGpveXN0aWNrIExvZ2l0ZWNoIEZvcmNlIDNEIFBybyB3aGljaCBoYXMgMiBheGlz
-ZXMgKFggYW5kIFkpCj4gd2l0aCBmb3JjZSBmZWVkYmFjay4gQnV0IGN1cnJlbnQga2VybmVsIGlu
-dGVyZmFjZSBkb2VzIG5vdCBzdXBwb3J0Cj4gdGhpcyBmZWF0dXJlIChJIGRpZCBub3QgZm91bmQg
-YW55IElPQ1RMcyB3aGljaCBjYW4gY2hhbmdlIGF4aXMgZm9yIEZGCj4gZWZmZWN0cykuIElzIHRo
-ZXJlIGFueSBzdGFuZGFyZCB3YXkgdG8gc29sdmUgdGhpcyB0YXNrPwo+Cj4gQmVzdCByZWdhcmRz
-LAo+IFNlcmdleSBCZWx5YXNob3YKPgoKCgoyMDA5LzEvNSBKaXJpIEtvc2luYSA8amtvc2luYUBz
-dXNlLmN6PjoKPiBPbiBGcmksIDIgSmFuIDIwMDksID8/Pz8/PyA/Pz8/Pz8/IHdyb3RlOgo+Cj4+
-ICAgIEkgaGF2ZSBqb3lzdGljayBMb2dpdGVjaCBGb3JjZSAzRCBQcm8gd2hpY2ggaGFzIDIgYXhp
-c2VzIChYIGFuZCBZKQo+PiB3aXRoIGZvcmNlIGZlZWRiYWNrLiBCdXQgY3VycmVudCBrZXJuZWwg
-aW50ZXJmYWNlIGRvZXMgbm90IHN1cHBvcnQKPj4gdGhpcyBmZWF0dXJlIChJIGRpZCBub3QgZm91
-bmQgYW55IElPQ1RMcyB3aGljaCBjYW4gY2hhbmdlIGF4aXMgZm9yIEZGCj4+IGVmZmVjdHMpLiBJ
-cyB0aGVyZSBhbnkgc3RhbmRhcmQgd2F5IHRvIHNvbHZlIHRoaXMgdGFzaz8KPgo+IEhpIFNlcmdl
-eSwKPgo+IGlzIHRoYXQgam95c3RpY2sgdmVuZG9yIGlkIDB4YzIxNT8gSXQgaXMgcG9zc2libGUg
-dGhhdCBoYXZpbmcgaGlkLWxnZmYKPiBkcml2ZXIgaGFuZGxlIHRoaXMgam95c3RpY2sgbWlnaHQg
-YmUgZW5vdWdoLCBidXQgaXQncyBkaWZmaWN1bHQgdG8gc2F5Cj4gd2l0aG91dCBrbm93aW5nIHRo
-ZSBleGFjdCBwcm9wZXJ0aWVzIG9mIHRoZSBkZXZpY2UuCj4KPiBUaGFua3MsCj4KPiAtLQo+IEpp
-cmkgS29zaW5hCj4gU1VTRSBMYWJzCj4K
+On Mon, 5 Jan 2009, ?????? ??????? wrote:
+
+>    My joystick Logitech Force 3D Pro (0x046d:0xc286) successfully
+> detected by current kernel (I have 2.6.27). But force feedback cannot
+> work properly (it works only with one axis). This joystick have 2 FF
+> axises (X and Y), but kernel supports only one (fftest program moves
+> only in X-axis): I cannot found any IOCTLs which can be used for
+> switching axises for force feedback effects. Also, it is no any
+> discussion about that.
+>    I want to impliment neccessary functionality but kernel redesign is
+> required, I think.
+
+I don't think I fully understand, sorry. What's wrong with the 'direction' 
+field of struct ff_effect?
+
+-- 
+Jiri Kosina
+SUSE Labs

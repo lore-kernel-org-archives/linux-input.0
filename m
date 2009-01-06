@@ -1,50 +1,41 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data
-	report protocol (rev2)
-Date: Tue, 6 Jan 2009 14:21:41 -0800
-Message-ID: <20090106222141.GA685@kroah.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 2/2] input: Add a detailed multi-touch finger data	report
+ protocol (rev2)
+Date: Tue, 6 Jan 2009 23:50:57 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0901062347480.5377@jikos.suse.cz>
 References: <495804B1.10300@euromail.se> <1231266769.8379.79.camel@jg-vaio>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:49339 "EHLO coco.kroah.org"
+Received: from styx.suse.cz ([82.119.242.94]:42110 "EHLO mail.suse.cz"
 	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1758641AbZAFWWm (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 6 Jan 2009 17:22:42 -0500
-Content-Disposition: inline
+	id S1751705AbZAFWu6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 6 Jan 2009 17:50:58 -0500
 In-Reply-To: <1231266769.8379.79.camel@jg-vaio>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jim Gettys <jg@laptop.org>
-Cc: Henrik Rydberg <rydberg@euromail.se>, jkosina@suse.cz, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org
+Cc: Henrik Rydberg <rydberg@euromail.se>, Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, Peter Hutterer <peter.hutterer@who-t.net>, linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2009 at 01:32:49PM -0500, Jim Gettys wrote:
-> There is a remaining question: how/whether to implement this interface
-> in USB HID.....
-> 
-> On page 9 of the document you'll find at:
-> http://www.microsoft.com/whdc/device/input/DigitizerDrvs_touch.mspx
-> 
-> Microsoft is claiming in that document of December 8 they are proposing
-> the interfaces in the document to the USB IF organization, and that
-> hardware vendors for Windows 7 should follow that spec.
-> 
-> Jiri, Greg:
-> 
+On Tue, 6 Jan 2009, Jim Gettys wrote:
+
 > 1) Does anyone know if Microsoft has actually made the proposal to the
 > USB IF?  Is there anyone in the community watching/commenting on USB IF
 > proposals?
 
-Yes, I'm watching them, but nothing is public at this time (if it was
-currently under review privately within the USB-IF, I wouldn't be
-allowed to tell anyone, sorry.)
+This would be question for Greg.
 
-> 2) do you want generic USB HID patches or do you want to, for now,
+> 2) do you want generic USB HID patches or do you want to, for now, 
 > confine these to USB device specific drivers as much as possible?
 
-As more devices should be showing up with this kind of support, it would
-seem to make sense to add it to the HID core, right?
+We already have a lot of drivers for special HID devices that emit usages 
+that have not been defined by HID standard. These drivers are independent 
+on the underlying transport (USB, Bluetooth). Therefore all you ideally 
+need to do is to add just another driver which hooks itself to HID bus and 
+performs all that is needed in addition to what generic HID code does. 
+There are lot of such drivers in drivers/hid/hid-*.c which you can use as 
+examples. Please let me know if you have any further questions.
 
-thanks,
-
-greg k-h
+-- 
+Jiri Kosina
+SUSE Labs

@@ -1,69 +1,37 @@
-From: "Kim Kyuwon" <chammoru@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: Adding 'half shutter' definition to 'input.h'
-Date: Thu, 8 Jan 2009 11:48:31 +0900
-Message-ID: <4d34a0a70901071848m65efb9es26a326cf36feeef6@mail.gmail.com>
-References: <13840250.309261230013670370.JavaMail.weblogic@epml09>
-	 <200812230045.42765.dmitry.torokhov@gmail.com>
-	 <4d34a0a70812231631u359e85an29d2ed30bccd59a5@mail.gmail.com>
+Date: Thu, 8 Jan 2009 09:51:11 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0901080946460.5377@jikos.suse.cz>
+References: <13840250.309261230013670370.JavaMail.weblogic@epml09>  <200812230045.42765.dmitry.torokhov@gmail.com>  <4d34a0a70812231631u359e85an29d2ed30bccd59a5@mail.gmail.com> <4d34a0a70901071848m65efb9es26a326cf36feeef6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.173]:46095 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751132AbZAHCsd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 7 Jan 2009 21:48:33 -0500
-Received: by wf-out-1314.google.com with SMTP id 27so9029522wfd.4
-        for <linux-input@vger.kernel.org>; Wed, 07 Jan 2009 18:48:32 -0800 (PST)
-In-Reply-To: <4d34a0a70812231631u359e85an29d2ed30bccd59a5@mail.gmail.com>
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:60178 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751038AbZAHIvM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 8 Jan 2009 03:51:12 -0500
+In-Reply-To: <4d34a0a70901071848m65efb9es26a326cf36feeef6@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: kyuwonmoru.kim@samsung.com, sj76.park@samsung.com, sk.heo@samsung.com, kyungmin.park@samsung.com, Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Kim Kyuwon <chammoru@gmail.com>
+Cc: linux-input@vger.kernel.org, kyuwonmoru.kim@samsung.com, sj76.park@samsung.com, sk.heo@samsung.com, kyungmin.park@samsung.com, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-SGksIEFsbAoKQmVjYXVzZSBKaXJpIEtvc2luYSBwZXJzb25hbGx5IGFncmVlcyB3aXRoIGFkZGlu
-ZyB0aGUgW2hhbGZdc2h1dHRlcgprZXkgeWVzdGVyZGF5LApJJ20gc2VuZGluZyB0aGlzIHBhdGNo
-LiAoVGhhbmtzIEppcmkpCgpOZXcgY2FtZXJhcyBhbmQgbW9iaWxlIHBob25lcyAoYXQgbGVhc3Qg
-U0FNU1VORydzKSBoYXZlIHRoZSBoYWxmIHNodXR0ZXIgZm9yCidhdXRvLWZvY3VzJyBmdW5jdGlv
-bnMuIHNvIEkgdGhpbmsgdGhpcyBoYWxmIGFuZCBmdWxsIHNodXR0ZXIga2V5cyBhcmUgbmVlZGVk
-LgoKUGxlYXNlIHJldmlldyB0aGlzIHBhdGNoLgpUaGFuayB5b3UhCgpPbiBXZWQsIERlYyAyNCwg
-MjAwOCBhdCA5OjMxIEFNLCCx6LHUv/ggPGNoYW1tb3J1QGdtYWlsLmNvbT4gd3JvdGU6Cj4gVGhh
-bmtzIGZvciB5b3VyIHJlcGx5IDspCj4KPiBPbiBUdWUsIERlYyAyMywgMjAwOCBhdCA1OjQ1IFBN
-LCBEbWl0cnkgVG9yb2tob3YKPiA8ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbT4gd3JvdGU6Cj4+
-IEhpIEtpbSwKPj4KPj4gT24gTW9uZGF5IDIyIERlY2VtYmVyIDIwMDggMjI6Mjc6NTEgS3l1LVdv
-biBLaW0gd3JvdGU6Cj4+PiBIaSBEbWl0cnksCj4+Pgo+Pj4gV2UgYXJlIG1ha2luZyB0aGUgY2Ft
-ZXJhIGFwcGxpY2F0aW9uIGZvciBtb2JpbGUgcGhvbmUgYW5kIG91ciBwcm9kdWN0cyBoYXZlCj4+
-PiBoYWxmIHNodXR0ZXIgKHRoZSB0ZWNobmljYWwgbmFtZSBvZiBidXR0aW9uIGlzICJEb3VibGUt
-YWN0aW9uCj4+PiBTaWRlLW9wZXJhdGlvbiBUeXBlIExpZ2h0IFRvdWNoIFN3aXRjaCIpIGFzIG90
-aGVyIGdlbmVyYWwgY2FtZXJhcy4KPj4+IERhdGFzaGVldCBpcyBoZXJlOgo+Pj4gaHR0cDovL3d3
-dy5kYXRhc2hlZXRwcm8uY29tLzIwNTc5M192aWV3X0VWUVEwQzAzS19kYXRhc2hlZXQuaHRtbAo+
-Pj4KPj4+IFRoZSBwcm9ibGVtIGlzIHRoYXQgdGhlcmUgaXMgbm8gS0VZIGRlZmluaXRpb24gZm9y
-IGhhbGYgc2h1dHRlciBpbiBpbnB1dC5oLgo+Pj4gSSB0aGluayBLRVlfQ0FNRVJBIGlzIHRoZSBt
-b3N0IHJlbGF0ZWQga2V5IGJ1dCB3ZSBuZWVkIG1vcmUgZGVmaW5pdGlvbnMKPj4+IGxpa2UgS0VZ
-X0NBTUVSQTIsIEtFWV9IQUxGU1VUVEVSIG9yIEtFWV9GVUxMU0hVVFRFUgo+Pj4KPj4+IENvdWxk
-IHlvdSBnaXZlIG1lIHlvdXIgb3BpbmlvbnMgYWJvdXQgdGhpcyBoYWxmIHNodXR0ZXIKPj4+Cj4+
-Cj4+IEhtbSwgd2UgY2VydGFpbmx5IGNvdWxkIGFkZCBzb21lIG1vcmUga2V5IGRlZmluaXRpb25z
-LCBidXQgZ2l2ZW4gdGhhdCB0aGUKPj4gdXNhZ2UgaXMgdmVyeSB0aWdodGx5IGNvdXBsZWQgdG8g
-dGhlIGRldmljZSBhbmQgYXBwbGljYXRpb24gSSB3b25kZXIgaWYgeW91Cj4+IHNob3VsZCBzaW1w
-bHkgdXNlIEtFWV9QUk9HKiB0aGVyZS4uLgo+Cj4gV2UgY2FuIHNpbXBseSB1c2UgS0VZX1BST0cx
-LCBidXQgc3RhdGUtb2YtdGhlLWFydCBkaWdpdGFsIGNhbWVyYSBzdXBwb3J0cwo+ICdhdXRvLWZv
-Y3VzJyBmdW5jdGlvbnMgYW5kIHRoZXJlZm9yZSBJIHRoaW5rIEhhbGYtU2h1dHRlciBrZXkgaXMg
-YSBNVVNULiAoSSdtCj4gc3VyZSB0aGVyZSBhcmUgbWFueSBkaWdpdGFsIGNhbWVyYXMgd2hpY2gg
-dXNlIExpbnV4IGFzIE9TKS4KPgo+Pgo+PiBMZXQncyBDQyBKaXJpIEtvc2luYSBhbmQgc2VlIGlm
-IGhlIGhhcyBhbnkgaW5wdXQgb24gdGhpcyBtYXR0ZXIuCj4KPiBDYW4gSSBhc2sgS29zaW5hJ3Mg
-b3BpbmlvbiwgdG9vPwo+Cj4+Cj4+IC0tCj4+IERtaXRyeQo+Pgo+Cj4KPiAtLQo+IEtpbSBLeXV3
-b24KPgoKY29tbWl0IGEyZjA2MjlmOTIwMjQzM2NkMmIyM2I1Yzk1MWRhZTY2ZmQyYjRmMTQKQXV0
-aG9yOiBLaW0gS3l1d29uIDxreXV3b25tb3J1LmtpbUBzYW1zdW5nLmNvbT4KRGF0ZTogICBUaHUg
-SmFuIDggMTE6MDg6NDMgMjAwOSArMDkwMAoKICAgIElucHV0OiBhZGQgZGVmaW5pdGlvbnMgZm9y
-IGNhbWVyYSBmdWxsIGFuZCBoYWxmIHNodXR0ZXJzCiAgICBTaWduZWQtb2ZmLWJ5OiBLaW0gS3l1
-d29uIDxreXV3b25tb3J1LmtpbUBzYW1zdW5nLmNvbT4KCmRpZmYgLS1naXQgYS9pbmNsdWRlL2xp
-bnV4L2lucHV0LmggYi9pbmNsdWRlL2xpbnV4L2lucHV0LmgKaW5kZXggOWE2MzU1Zi4uNDFlZDJm
-YiAxMDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9pbnB1dC5oCisrKyBiL2luY2x1ZGUvbGludXgv
-aW5wdXQuaApAQCAtNTQxLDYgKzU0MSw5IEBAIHN0cnVjdCBpbnB1dF9hYnNpbmZvIHsKICNkZWZp
-bmUgS0VZX0NPTlRFWFRfTUVOVQkweDFiNgkvKiBHZW5EZXNjIC0gc3lzdGVtIGNvbnRleHQgbWVu
-dSAqLwogI2RlZmluZSBLRVlfTUVESUFfUkVQRUFUCTB4MWI3CS8qIENvbnN1bWVyIC0gdHJhbnNw
-b3J0IGNvbnRyb2wgKi8KCisjZGVmaW5lIEtFWV9IQUxGX1NIVVRURVIJMHgxYjgKKyNkZWZpbmUg
-S0VZX0ZVTExfU0hVVFRFUgkweDFiOQorCiAjZGVmaW5lIEtFWV9ERUxfRU9MCQkweDFjMAogI2Rl
-ZmluZSBLRVlfREVMX0VPUwkJMHgxYzEKICNkZWZpbmUgS0VZX0lOU19MSU5FCQkweDFjMgoKLS0g
-CktpbSBLeXV3b24K
+On Thu, 8 Jan 2009, Kim Kyuwon wrote:
+
+> Because Jiri Kosina personally agrees with adding the [half]shutter key 
+> yesterday, I'm sending this patch. (Thanks Jiri)
+> New cameras and mobile phones (at least SAMSUNG's) have the half shutter for
+> 'auto-focus' functions. so I think this half and full shutter keys are needed.
+> Please review this patch.
+
+Hi,
+
+please note the "if there is any in-kernel code that actually uses it" 
+part of my e-mail. Adding just the key definition without any kernel code 
+actually using is not likely to happen.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

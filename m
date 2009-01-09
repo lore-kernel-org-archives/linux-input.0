@@ -1,46 +1,70 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH] Input: Make MOUSE_PS2_LIFEBOOK depend on X86
-Date: Fri, 9 Jan 2009 10:52:29 +0100
-Message-ID: <20090109105229.37c2a09b@hyperion.delvare>
+From: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Subject: second race in hiddev
+Date: Fri, 9 Jan 2009 11:21:55 +0100
+Message-ID: <200901091121.56576.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zone0.gcu-squad.org ([212.85.147.21]:27432 "EHLO
-	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754507AbZAIJwh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 9 Jan 2009 04:52:37 -0500
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-As far as I know, all Fujitsu-Siemens Lifebook systems are x86-based.
-So we might as well make MOUSE_PS2_LIFEBOOK depend on X86. This will
-avoid surprising things like:
+Hi,
 
-arch/arm/configs/s3c2410_defconfig:CONFIG_MOUSE_PS2_LIFEBOOK=y
+upon further thought this code is still racy.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+	retval = usb_register_dev(usbhid->intf, &hiddev_class);
+
+here you open a window during which open can happen
+
+	if (retval) {
+		err_hid("Not able to get a minor for this device.");
+		hid->hiddev = NULL;
+		kfree(hiddev);
+		return -1;
+	} else {
+		hid->minor = usbhid->intf->minor;
+		hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
+
+and will fail because hiddev_table hasn't been updated
+	}
+
+The obvious fix of using a mutex to guard hiddev_table doesn't work because
+usb_open() and usb_register_dev() take minor_rwsem and we'd have an AB-BA
+deadlock. We need a lock usb_open() also takes in the right order and that leaves
+only one option, BKL. I don't like it but I see no alternative.
+
+	Regards
+		Oliver
+
+Signed-off-by: Oliver Neukum <oneukum-l3A5Bk7waGM@public.gmane.org>
+
 ---
-This patch was already sent on:
- * 2008-11-29
 
- drivers/input/mouse/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6.29-rc0.orig/drivers/input/mouse/Kconfig	2009-01-09 10:06:36.000000000 +0100
-+++ linux-2.6.29-rc0/drivers/input/mouse/Kconfig	2009-01-09 10:47:56.000000000 +0100
-@@ -70,7 +70,7 @@ config MOUSE_PS2_SYNAPTICS
- config MOUSE_PS2_LIFEBOOK
- 	bool "Fujitsu Lifebook PS/2 mouse protocol extension" if EMBEDDED
- 	default y
--	depends on MOUSE_PS2
-+	depends on MOUSE_PS2 && X86
- 	help
- 	  Say Y here if you have a Fujitsu B-series Lifebook PS/2
- 	  TouchScreen connected to your system.
-
-
--- 
-Jean Delvare
+@@ -878,16 +878,19 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+ 	hiddev->hid = hid;
+ 	hiddev->exist = 1;
+ 
++	lock_kernel();
+ 	retval = usb_register_dev(usbhid->intf, &hiddev_class);
+ 	if (retval) {
+ 		err_hid("Not able to get a minor for this device.");
+ 		hid->hiddev = NULL;
++		unlock_kernel();
+ 		kfree(hiddev);
+ 		return -1;
+ 	} else {
+ 		hid->minor = usbhid->intf->minor;
+ 		hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
+ 	}
++	unlock_kernel();
+ 
+ 	return 0;
+ }
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

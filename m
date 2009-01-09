@@ -1,13 +1,13 @@
 From: akpm@linux-foundation.org
-Subject: [patch 10/17] drivers/input/keyboard/atkbd.c: make forced_release_keys[] static
-Date: Fri, 09 Jan 2009 12:19:49 -0800
-Message-ID: <200901092019.n09KJnsJ017196@imap1.linux-foundation.org>
+Subject: [patch 11/17] drivers/input/keyboard/atkbd.c: Fujitsu Siemens Amilo PA 1510 quirks
+Date: Fri, 09 Jan 2009 12:19:50 -0800
+Message-ID: <200901092019.n09KJoFl017237@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:46364 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:51356 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755777AbZAIUa6 (ORCPT
+	by vger.kernel.org with ESMTP id S1752510AbZAIUcQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jan 2009 15:30:58 -0500
+	Fri, 9 Jan 2009 15:32:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
@@ -15,32 +15,55 @@ Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, impulze@impulze.org
 
 From: Daniel Mierswa <impulze@impulze.org>
 
+The volume up and down keys on the Fujitsu Siemens Amilo PA 1510 laptop
+won't generate release events, so we have to do that. Use the same
+way that is already used with other models.
+
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/atkbd.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/atkbd.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-make-forced_release_keys-static drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-make-forced_release_keys-static
+diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-fujitsu-siemens-amilo-pa-1510-quirks drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-fujitsu-siemens-amilo-pa-1510-quirks
 +++ a/drivers/input/keyboard/atkbd.c
-@@ -852,7 +852,7 @@ static void atkbd_gen_release_event(stru
-  */
- static void atkbd_dell_laptop_keymap_fixup(struct atkbd *atkbd)
- {
--	const unsigned int forced_release_keys[] = {
-+	static const unsigned int forced_release_keys[] = {
- 		0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8f, 0x93,
- 	};
+@@ -924,6 +924,20 @@ static void atkbd_samsung_keymap_fixup(s
+ }
  
-@@ -866,7 +866,7 @@ static void atkbd_dell_laptop_keymap_fix
-  */
- static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
- {
--	const unsigned int forced_release_keys[] = {
+ /*
++ * The volume up and volume down special keys on a Fujitsu Amilo PA 1510 laptop
++ * do not generate release events so we have to do it ourselves.
++ */
++static void atkbd_amilopa1510_keymap_fixup(struct atkbd *atkbd)
++{
 +	static const unsigned int forced_release_keys[] = {
- 		0x94,
- 	};
++		0xb0, 0xae,
++	};
++
++	atkbd_gen_release_event(atkbd, forced_release_keys,
++		ARRAY_SIZE(forced_release_keys));
++}
++
++/*
+  * atkbd_set_keycode_table() initializes keyboard's keycode table
+  * according to the selected scancode set
+  */
+@@ -1560,6 +1574,15 @@ static struct dmi_system_id atkbd_dmi_qu
+ 		.callback = atkbd_setup_fixup,
+ 		.driver_data = atkbd_samsung_keymap_fixup,
+ 	},
++	{
++		.ident = "Fujitsu Amilo PA 1510",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pa 1510"),
++		},
++		.callback = atkbd_setup_fixup,
++		.driver_data = atkbd_amilopa1510_keymap_fixup,
++	},
+ 	{ }
+ };
  
 _

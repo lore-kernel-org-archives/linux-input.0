@@ -1,64 +1,35 @@
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Subject: Re: Re (hello?): [PATCH] Let keyboard notifiers modify key codes
-Date: Fri, 9 Jan 2009 23:23:41 +0100
-Message-ID: <20090109222341.GI5073@const.famille.thibault.fr>
-References: <20090107005813.GA4987@const.famille.thibault.fr> <20090109212358.GG5073@const.famille.thibault.fr> <20090109213555.7f9275c9@lxorguk.ukuu.org.uk> <20090109214357.GH5073@const.famille.thibault.fr> <20090109220144.6b99ed72@lxorguk.ukuu.org.uk>
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: Re: 2.6.28-rc9: USB Mouse unhappy
+Date: Sat, 10 Jan 2009 00:11:34 +0100
+Message-ID: <200901100011.35332.rjw@sisk.pl>
+References: <f7848160812201911k7988221asd095ce873fd8105f@mail.gmail.com> <alpine.LRH.1.10.0812211824350.11630@twin.jikos.cz> <alpine.LRH.1.10.0812211939170.11630@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from solo.fdn.fr ([80.67.169.19]:33746 "EHLO solo.fdn.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758721AbZAIWXp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jan 2009 17:23:45 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LRH.1.10.0812211939170.11630-1ReQVI26iDCaZKY3DrU6dA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20090109220144.6b99ed72@lxorguk.ukuu.org.uk>
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: Parag Warudkar <parag.lkml-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Anssi Hannula <anssi.hannula-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Alan Cox, le Fri 09 Jan 2009 22:01:44 +0000, a =E9crit :
-> > > Surely that is just a new keymap ?
-> >=20
-> > No. That would mean a lot of keymapSSS. Doing it the keymap way
->=20
-> Why - its an  algorithmic question about how to edit them - remember =
-you
-> can edit keymaps in programs at runtime and live.
+Hi,
 
-Right. I'm still afraid by that: we'd need to know how to remap the
-various keycodes (amiga, atari, i386, mc, sun).  And we'd have to
-double the number of keymaps being used.  Maybe I should have given an
-example: somebody with one hand would rather not have to move it to
-type everything.  That means we should setup a key which, while being
-pressed, changes the keys under his hand, e.g. for a left-handed,
-putting l under the usual s, k under the usual d, j under the usual
-f, etc.  Of course we'd need to do that for all the shift/alt etc.
-variations too, thus double the number of keymaps, which may not
-possible, or else we'd drop some of them, but which ones?
+On Sunday 21 December 2008, Jiri Kosina wrote:
+> On Sun, 21 Dec 2008, Jiri Kosina wrote:
+> 
+> >   usbmouse on 2.6.28-rc with the exact same mouse? (either check 
+> >   /sys/bus/usb/devices or even lsusb shouldn't ideally show usbmouse 
+> >   loaded at all)
+> 
+> Sorry for the above typo, 'lsusb' should of course be 'lsmod' here.
 
-I'm also afraid of how to plug that into distributions.  Console
-keyboard setup seemed to me quite heterogeous among distributions
-already.  (In case somebody wonders, no, a distribution "for disabled
-people" is not a good idea, why should disabled people be left with jus=
-t
-one distribution and not have the choice?)
+Can you tell me what the status of this issue is, please?
 
-> > This really is a problem that is orthogonal to keymaps: I'm here ta=
-lking
-> > about _physical_ keys remapping, not remapping what is printed on t=
-hem
-> > (which is done after that).
->=20
-> Ok so this is analogous to the X key remapping.
-
-Not exactly: it's not 1-1, as examplified above.
-
-Thanks,
-Samuel
+Rafael
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

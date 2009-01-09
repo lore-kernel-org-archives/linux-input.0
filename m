@@ -1,65 +1,43 @@
 From: akpm@linux-foundation.org
-Subject: [patch 07/17] input/mouse/alps.c: handle touchpoints buttons correctly
-Date: Fri, 09 Jan 2009 12:19:46 -0800
-Message-ID: <200901092019.n09KJl5f017187@imap1.linux-foundation.org>
+Subject: [patch 14/17] input: fix function arg list
+Date: Fri, 09 Jan 2009 12:19:52 -0800
+Message-ID: <200901092019.n09KJq1t017301@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:54294 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:55709 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752510AbZAIUfn (ORCPT
+	by vger.kernel.org with ESMTP id S1753137AbZAIUgi (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jan 2009 15:35:43 -0500
+	Fri, 9 Jan 2009 15:36:38 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, uli-kernel@spamt.net, uli@spamt.net
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, randy.dunlap@oracle.com, dmitry.torokhov@gmail.com, rydberg@euromail.se
 
-From: Ulrich Dangel <uli-kernel@spamt.net>
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-When pressing any button belonging to the touchpoint, the generated click
-events dont belong to the touchpoint but to the touchpad.
+Fix function args build warning:
 
-This patch fixes this behaviour, the events will be sent via the correct
-device, so scrolling with touchpoint is possible.
+mmotm-2008-1230-1605/drivers/input/input.c:1661: warning: function declaration isn't a prototype
 
-The patch compiles cleanly and has been tested successfully on my machine.
-
-Signed-off-by: Ulrich Dangel <uli@spamt.net>
-Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@euromail.se>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/alps.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/input/input.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly drivers/input/mouse/alps.c
---- a/drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly
-+++ a/drivers/input/mouse/alps.c
-@@ -131,18 +131,23 @@ static void alps_process_packet(struct p
- 	ges = packet[2] & 1;
- 	fin = packet[2] & 2;
+diff -puN drivers/input/input.c~es-input-allow-certain-ev_abs-events-to-bypass-all-filtering-fix drivers/input/input.c
+--- a/drivers/input/input.c~es-input-allow-certain-ev_abs-events-to-bypass-all-filtering-fix
++++ a/drivers/input/input.c
+@@ -1644,7 +1644,7 @@ static const struct file_operations inpu
+ 	.open = input_open_file,
+ };
  
--	input_report_key(dev, BTN_LEFT, left);
--	input_report_key(dev, BTN_RIGHT, right);
--	input_report_key(dev, BTN_MIDDLE, middle);
--
- 	if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
- 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
- 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
-+
-+		input_report_key(dev2, BTN_LEFT, left);
-+		input_report_key(dev2, BTN_RIGHT, right);
-+		input_report_key(dev2, BTN_MIDDLE, middle);
-+
- 		input_sync(dev);
- 		input_sync(dev2);
- 		return;
- 	}
- 
-+	input_report_key(dev, BTN_LEFT, left);
-+	input_report_key(dev, BTN_RIGHT, right);
-+	input_report_key(dev, BTN_MIDDLE, middle);
-+
- 	/* Convert hardware tap to a reasonable Z value */
- 	if (ges && !fin) z = 40;
- 
+-static void __init input_init_abs_bypass()
++static void __init input_init_abs_bypass(void)
+ {
+ 	const unsigned int *p;
+ 	for (p = input_abs_bypass_init_data; *p; p++)
 _

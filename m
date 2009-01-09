@@ -1,78 +1,89 @@
 From: akpm@linux-foundation.org
-Subject: [patch 09/17] drivers/input/keyboard/atkbd.c: use function for generation of keyrelease events
-Date: Fri, 09 Jan 2009 12:19:48 -0800
-Message-ID: <200901092019.n09KJmft017193@imap1.linux-foundation.org>
+Subject: [patch 13/17] input: allow certain EV_ABS events to bypass all filtering
+Date: Fri, 09 Jan 2009 12:19:51 -0800
+Message-ID: <200901092019.n09KJqIj017298@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:43888 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:40308 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751031AbZAIUco (ORCPT
+	by vger.kernel.org with ESMTP id S1751125AbZAIUdN (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jan 2009 15:32:44 -0500
+	Fri, 9 Jan 2009 15:33:13 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, impulze@impulze.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-From: Daniel Mierswa <impulze@impulze.org>
+From: Henrik Rydberg <rydberg@euromail.se>
 
+With the upcoming multi-touch interface as an example, there is a need to
+make certain that all reported events actually get passed to the event
+handler.  This patch equips the input core with the ability to bypass all
+filtering for certain EV_ABS events.
+
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/atkbd.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/input/input.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-use-function-for-generation-of-keyrelease-events drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-use-function-for-generation-of-keyrelease-events
-+++ a/drivers/input/keyboard/atkbd.c
-@@ -834,6 +834,19 @@ static void atkbd_disconnect(struct seri
- }
+diff -puN drivers/input/input.c~input-allow-certain-ev_abs-events-to-bypass-all-filtering drivers/input/input.c
+--- a/drivers/input/input.c~input-allow-certain-ev_abs-events-to-bypass-all-filtering
++++ a/drivers/input/input.c
+@@ -29,6 +29,13 @@ MODULE_LICENSE("GPL");
  
- /*
-+ * generate release events for the keycodes given in keys[]
+ #define INPUT_DEVICES	256
+ 
++/*
++ * EV_ABS events which should not be cached are listed here.
 + */
-+static void atkbd_gen_release_event(struct atkbd* atkbd, const unsigned int *keys,
-+			unsigned int nr_keys)
-+{
-+	unsigned int i;
++static __initdata unsigned int input_abs_bypass_init_data[] = {
++	0
++};
 +
-+	if (atkbd->set == 2)
-+		for (i = 0; i < nr_keys; i++)
-+			__set_bit(keys[i], atkbd->force_release_mask);
+ static LIST_HEAD(input_dev_list);
+ static LIST_HEAD(input_handler_list);
+ 
+@@ -42,6 +49,8 @@ static DEFINE_MUTEX(input_mutex);
+ 
+ static struct input_handler *input_table[8];
+ 
++static unsigned long input_abs_bypass[BITS_TO_LONGS(ABS_CNT)];
++
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
+ {
+@@ -185,6 +194,11 @@ static void input_handle_event(struct in
+ 	case EV_ABS:
+ 		if (is_event_supported(code, dev->absbit, ABS_MAX)) {
+ 
++			if (test_bit(code, input_abs_bypass)) {
++				disposition = INPUT_PASS_TO_HANDLERS;
++				break;
++			}
++
+ 			value = input_defuzz_abs_event(value,
+ 					dev->abs[code], dev->absfuzz[code]);
+ 
+@@ -1630,10 +1644,19 @@ static const struct file_operations inpu
+ 	.open = input_open_file,
+ };
+ 
++static void __init input_init_abs_bypass()
++{
++	const unsigned int *p;
++	for (p = input_abs_bypass_init_data; *p; p++)
++		input_abs_bypass[BIT_WORD(*p)] |= BIT_MASK(*p);
 +}
 +
-+/*
-  * Most special keys (Fn+F?) on Dell laptops do not generate release
-  * events so we have to do it ourselves.
-  */
-@@ -842,12 +855,9 @@ static void atkbd_dell_laptop_keymap_fix
- 	const unsigned int forced_release_keys[] = {
- 		0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8f, 0x93,
- 	};
--	int i;
+ static int __init input_init(void)
+ {
+ 	int err;
  
--	if (atkbd->set == 2)
--		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
--			__set_bit(forced_release_keys[i],
--				  atkbd->force_release_mask);
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
- }
- 
- /*
-@@ -859,12 +869,9 @@ static void atkbd_hp_keymap_fixup(struct
- 	const unsigned int forced_release_keys[] = {
- 		0x94,
- 	};
--	int i;
- 
--	if (atkbd->set == 2)
--		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
--			__set_bit(forced_release_keys[i],
--					atkbd->force_release_mask);
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
- }
- 
- /*
++	input_init_abs_bypass();
++
+ 	err = class_register(&input_class);
+ 	if (err) {
+ 		printk(KERN_ERR "input: unable to register input_dev class\n");
 _

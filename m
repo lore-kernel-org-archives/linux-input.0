@@ -1,69 +1,62 @@
 From: akpm@linux-foundation.org
-Subject: [patch 11/17] drivers/input/keyboard/atkbd.c: Fujitsu Siemens Amilo PA 1510 quirks
+Subject: [patch 12/17] input: uvc: the button on the camera is KEY_CAMERA
 Date: Fri, 09 Jan 2009 12:19:50 -0800
-Message-ID: <200901092019.n09KJoFl017237@imap1.linux-foundation.org>
+Message-ID: <200901092019.n09KJoV2017259@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:51356 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:33084 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752510AbZAIUcQ (ORCPT
+	by vger.kernel.org with ESMTP id S1756727AbZAIUbw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jan 2009 15:32:16 -0500
+	Fri, 9 Jan 2009 15:31:52 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, impulze@impulze.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, hadess@hadess.net
 
-From: Daniel Mierswa <impulze@impulze.org>
+From: Bastien Nocera <hadess@hadess.net>
 
-The volume up and down keys on the Fujitsu Siemens Amilo PA 1510 laptop
-won't generate release events, so we have to do that. Use the same
-way that is already used with other models.
+Not BTN_0.  Also call input_sync() on the device once the button has been
+pressed.
 
-Cc: Dmitry Torokhov <dtor@mail.ru>
+
+
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/atkbd.c |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/media/video/uvc/uvc_status.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-fujitsu-siemens-amilo-pa-1510-quirks drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-fujitsu-siemens-amilo-pa-1510-quirks
-+++ a/drivers/input/keyboard/atkbd.c
-@@ -924,6 +924,20 @@ static void atkbd_samsung_keymap_fixup(s
+diff -puN drivers/media/video/uvc/uvc_status.c~input-uvc-the-button-on-the-camera-is-key_camera drivers/media/video/uvc/uvc_status.c
+--- a/drivers/media/video/uvc/uvc_status.c~input-uvc-the-button-on-the-camera-is-key_camera
++++ a/drivers/media/video/uvc/uvc_status.c
+@@ -47,7 +47,7 @@ static int uvc_input_init(struct uvc_dev
+ 	input->dev.parent = &dev->intf->dev;
+ 
+ 	set_bit(EV_KEY, input->evbit);
+-	set_bit(BTN_0, input->keybit);
++	set_bit(KEY_CAMERA, input->keybit);
+ 
+ 	if ((ret = input_register_device(input)) < 0)
+ 		goto error;
+@@ -70,8 +70,10 @@ static void uvc_input_cleanup(struct uvc
+ static void uvc_input_report_key(struct uvc_device *dev, unsigned int code,
+ 	int value)
+ {
+-	if (dev->input)
++	if (dev->input) {
+ 		input_report_key(dev->input, code, value);
++		input_sync(dev->input);
++	}
  }
  
- /*
-+ * The volume up and volume down special keys on a Fujitsu Amilo PA 1510 laptop
-+ * do not generate release events so we have to do it ourselves.
-+ */
-+static void atkbd_amilopa1510_keymap_fixup(struct atkbd *atkbd)
-+{
-+	static const unsigned int forced_release_keys[] = {
-+		0xb0, 0xae,
-+	};
-+
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
-+}
-+
-+/*
-  * atkbd_set_keycode_table() initializes keyboard's keycode table
-  * according to the selected scancode set
-  */
-@@ -1560,6 +1574,15 @@ static struct dmi_system_id atkbd_dmi_qu
- 		.callback = atkbd_setup_fixup,
- 		.driver_data = atkbd_samsung_keymap_fixup,
- 	},
-+	{
-+		.ident = "Fujitsu Amilo PA 1510",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pa 1510"),
-+		},
-+		.callback = atkbd_setup_fixup,
-+		.driver_data = atkbd_amilopa1510_keymap_fixup,
-+	},
- 	{ }
- };
- 
+ #else
+@@ -96,7 +98,7 @@ static void uvc_event_streaming(struct u
+ 			return;
+ 		uvc_trace(UVC_TRACE_STATUS, "Button (intf %u) %s len %d\n",
+ 			data[1], data[3] ? "pressed" : "released", len);
+-		uvc_input_report_key(dev, BTN_0, data[3]);
++		uvc_input_report_key(dev, KEY_CAMERA, data[3]);
+ 	} else {
+ 		uvc_trace(UVC_TRACE_STATUS, "Stream %u error event %02x %02x "
+ 			"len %d.\n", data[1], data[2], data[3], len);
 _

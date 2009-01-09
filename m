@@ -1,140 +1,65 @@
 From: akpm@linux-foundation.org
-Subject: [patch 15/17] input: add a detailed multi-touch finger data report protocol
-Date: Fri, 09 Jan 2009 12:19:53 -0800
-Message-ID: <200901092019.n09KJrNf017304@imap1.linux-foundation.org>
+Subject: [patch 07/17] input/mouse/alps.c: handle touchpoints buttons correctly
+Date: Fri, 09 Jan 2009 12:19:46 -0800
+Message-ID: <200901092019.n09KJl5f017187@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:54064 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:54294 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751588AbZAIUeK (ORCPT
+	by vger.kernel.org with ESMTP id S1752510AbZAIUfn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 9 Jan 2009 15:34:10 -0500
+	Fri, 9 Jan 2009 15:35:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, uli-kernel@spamt.net, uli@spamt.net
 
-From: Henrik Rydberg <rydberg@euromail.se>
+From: Ulrich Dangel <uli-kernel@spamt.net>
 
-In order to utilize the full power of the new multi-touch devices, a way
-to report detailed finger data to user space is needed.  This patch adds a
-multi-touch (MT) protocol which allows drivers to report details for an
-arbitrary number of fingers.
+When pressing any button belonging to the touchpoint, the generated click
+events dont belong to the touchpoint but to the touchpad.
 
-The driver sends a SYN_MT_REPORT event via the input_mt_sync() function
-when a complete finger has been reported.
+This patch fixes this behaviour, the events will be sent via the correct
+device, so scrolling with touchpoint is possible.
 
-In order to stay compatible with existing applications, the data reported
-in a finger packet must not be recognized as single-touch events.  In
-addition, all finger data must bypass input filtering, since subsequent
-events of the same type refer to different fingers.
+The patch compiles cleanly and has been tested successfully on my machine.
 
-A set of ABS_MT events with the desired properties are defined.  The
-events are divided into categories, to allow for partial implementation. 
-The minimum set consists of ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X and
-ABS_MT_POSITION_Y, which allows for multiple fingers to be tracked.  If
-the device supports it, the ABS_MT_WIDTH_MAJOR may be used to provide the
-size of the approaching finger.  Anisotropy and direction may be specified
-with ABS_MT_TOUCH_MINOR, ABS_MT_WIDTH_MINOR and ABS_MT_ORIENTATION. 
-Devices with more granular information may specify general shapes as
-blobs, i.e., as a sequence of rectangular shapes grouped together by a
-ABS_MT_BLOB_ID.  Finally, the ABS_MT_TOOL_TYPE may be used to specify
-whether the touching tool is a finger or a pen.
-
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Signed-off-by: Ulrich Dangel <uli@spamt.net>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/input.c |   13 +++++++++++++
- include/linux/input.h |   27 +++++++++++++++++++++++++++
- 2 files changed, 40 insertions(+)
+ drivers/input/mouse/alps.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff -puN drivers/input/input.c~input-add-a-detailed-multi-touch-finger-data-report-protocol-rev2 drivers/input/input.c
---- a/drivers/input/input.c~input-add-a-detailed-multi-touch-finger-data-report-protocol-rev2
-+++ a/drivers/input/input.c
-@@ -33,6 +33,15 @@ MODULE_LICENSE("GPL");
-  * EV_ABS events which should not be cached are listed here.
-  */
- static __initdata unsigned int input_abs_bypass_init_data[] = {
-+	ABS_MT_TOUCH_MAJOR,
-+	ABS_MT_TOUCH_MINOR,
-+	ABS_MT_WIDTH_MAJOR,
-+	ABS_MT_WIDTH_MINOR,
-+	ABS_MT_ORIENTATION,
-+	ABS_MT_POSITION_X,
-+	ABS_MT_POSITION_Y,
-+	ABS_MT_TOOL_TYPE,
-+	ABS_MT_BLOB_ID,
- 	0
- };
+diff -puN drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly drivers/input/mouse/alps.c
+--- a/drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly
++++ a/drivers/input/mouse/alps.c
+@@ -131,18 +131,23 @@ static void alps_process_packet(struct p
+ 	ges = packet[2] & 1;
+ 	fin = packet[2] & 2;
  
-@@ -165,6 +174,10 @@ static void input_handle_event(struct in
- 				disposition = INPUT_PASS_TO_HANDLERS;
- 			}
- 			break;
-+		case SYN_MT_REPORT:
-+			dev->sync = 0;
-+			disposition = INPUT_PASS_TO_HANDLERS;
-+			break;
- 		}
- 		break;
- 
-diff -puN include/linux/input.h~input-add-a-detailed-multi-touch-finger-data-report-protocol-rev2 include/linux/input.h
---- a/include/linux/input.h~input-add-a-detailed-multi-touch-finger-data-report-protocol-rev2
-+++ a/include/linux/input.h
-@@ -106,6 +106,7 @@ struct input_absinfo {
- 
- #define SYN_REPORT		0
- #define SYN_CONFIG		1
-+#define SYN_MT_REPORT		2
- 
- /*
-  * Keys and buttons
-@@ -644,6 +645,19 @@ struct input_absinfo {
- #define ABS_TOOL_WIDTH		0x1c
- #define ABS_VOLUME		0x20
- #define ABS_MISC		0x28
+-	input_report_key(dev, BTN_LEFT, left);
+-	input_report_key(dev, BTN_RIGHT, right);
+-	input_report_key(dev, BTN_MIDDLE, middle);
+-
+ 	if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
+ 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
+ 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
 +
-+#define ABS_MT_TOUCH		0x30	/* Diameter of touching circle */
-+#define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
-+#define ABS_MT_TOUCH_MINOR	0x31	/* Minor axis of touching ellipse */
-+#define ABS_MT_WIDTH		0x32	/* Diameter of approaching circle */
-+#define ABS_MT_WIDTH_MAJOR	0x32	/* Major axis of approaching ellipse */
-+#define ABS_MT_WIDTH_MINOR	0x33	/* Minor axis of approaching ellipse */
-+#define ABS_MT_ORIENTATION	0x34	/* Ellipse orientation */
-+#define ABS_MT_POSITION_X	0x35	/* Center X ellipse position */
-+#define ABS_MT_POSITION_Y	0x36	/* Center Y ellipse position */
-+#define ABS_MT_TOOL_TYPE	0x37	/* Type of touching device */
-+#define ABS_MT_BLOB_ID		0x38	/* Group a set of packets as a blob */
++		input_report_key(dev2, BTN_LEFT, left);
++		input_report_key(dev2, BTN_RIGHT, right);
++		input_report_key(dev2, BTN_MIDDLE, middle);
 +
- #define ABS_MAX			0x3f
- #define ABS_CNT			(ABS_MAX+1)
+ 		input_sync(dev);
+ 		input_sync(dev2);
+ 		return;
+ 	}
  
-@@ -742,6 +756,14 @@ struct input_absinfo {
- #define BUS_ATARI		0x1B
- 
- /*
-+ * MT_TOOL types
-+ */
-+#define MT_TOOL_FINGER		0
-+#define MT_TOOL_PEN		1
-+#define MT_TOOL_MAX		9
-+#define MT_TOOL_CNT		(MT_TOOL_MAX + 1)
++	input_report_key(dev, BTN_LEFT, left);
++	input_report_key(dev, BTN_RIGHT, right);
++	input_report_key(dev, BTN_MIDDLE, middle);
 +
-+/*
-  * Values describing the status of a force-feedback effect
-  */
- #define FF_STATUS_STOPPED	0x00
-@@ -1310,6 +1332,11 @@ static inline void input_sync(struct inp
- 	input_event(dev, EV_SYN, SYN_REPORT, 0);
- }
+ 	/* Convert hardware tap to a reasonable Z value */
+ 	if (ges && !fin) z = 40;
  
-+static inline void input_mt_sync(struct input_dev *dev)
-+{
-+	input_event(dev, EV_SYN, SYN_MT_REPORT, 0);
-+}
-+
- void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code);
- 
- static inline void input_set_abs_params(struct input_dev *dev, int axis, int min, int max, int fuzz, int flat)
 _

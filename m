@@ -1,73 +1,43 @@
-From: Rikard Ljungstrand <lrikard@student.chalmers.se>
-Subject: [PATCH] Input: Add keyboard quirk for HP Pavilion ZV6100 laptop
-Date: Sat, 10 Jan 2009 14:33:05 +0100
-Message-ID: <4968A391.2000400@student.chalmers.se>
+From: kate.goih08@handbag.com
+Subject: Ticket Number:194463-85
+Date: Sat, 10 Jan 2009 19:56:39 +0100
+Message-ID: <48D08D720000CA2C@mail-1-uk.mail.tiscali.sys>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from atum.ita.chalmers.se ([129.16.4.148]:42364 "EHLO
-	atum.ita.chalmers.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751308AbZAJNod (ORCPT
+Received: from mk-filter-4-a-2.mail.uk.tiscali.com ([212.74.100.51]:39750 "EHLO
+	mk-filter-4-a-2.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750755AbZAJTGc (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Jan 2009 08:44:33 -0500
+	Sat, 10 Jan 2009 14:06:32 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, apw@canonical.com
 
-Hi,
+Ticket Number:194463-85
 
-Sending an updated version of a trivial patch from last November which got no feedback on the list.
-Applies cleanly against the latest input.git tree (and probably other recent trees).
+This email is to notify you that you have won the Sum of (1,000,000:00 Euro
+only) in our Netherlands Postcode
+Loterij E-Mail Prize Program.
 
-Cheers,
-Rikard
+1.Reference Number: YOT/35/20/61
+2.BATCH NUMBER: 36/957/GHW
+3.Ticket Number:194463-85
 
-----
+Contact the claim officer with your winning Ref For more informations.
+Name:Mr.Roy Bosman.
+Tel: 0031-616-939-667.
+E-mail:agtdrroybosman@aol.nl
 
-Add quirk for misbehaving volume buttons on HP Pavilion ZV6100 laptop which
-are not sending keyrelease events, as reported by Aaron Pickett.
+Congratulations,
 
-Signed-off-by: Rikard Ljungstrand <lrikard@student.chalmers.se>
----
- drivers/input/keyboard/atkbd.c |   16 +++++++++++++---
- 1 files changed, 13 insertions(+), 3 deletions(-)
+Yours Sincerely,
+Mrs.Kate Goih.
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 379b7ff..99e73a1 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -868,9 +868,10 @@ static void atkbd_hp_keymap_fixup(struct atkbd *atkbd)
- }
- 
- /*
-- * Inventec system with broken key release on volume keys
-+ * Perform fixup for Inventec system and HP Pavilion ZV6100 laptop that don't
-+ * generate release for their volume buttons
-  */
--static void atkbd_inventec_keymap_fixup(struct atkbd *atkbd)
-+static void atkbd_inventec_and_hp_zv6100_keymap_fixup(struct atkbd *atkbd)
- {
- 	const unsigned int forced_release_keys[] = {
- 		0xae, 0xb0,
-@@ -1491,7 +1492,16 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "SYMPHONY 6.0/7.0"),
- 		},
- 		.callback = atkbd_setup_fixup,
--		.driver_data = atkbd_inventec_keymap_fixup,
-+		.driver_data = atkbd_inventec_and_hp_zv6100_keymap_fixup,
-+	},
-+	{
-+		.ident = "HP Pavilion ZV6100",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Pavilion ZV6100"),
-+		},
-+		.callback = atkbd_setup_fixup,
-+		.driver_data = atkbd_inventec_and_hp_zv6100_keymap_fixup,
- 	},
- 	{ }
- };
--- 
-1.5.6.3
+
+___________________________________________________________
+
+Tiscali Broadband from 14.99 with free setup!
+http://www.tiscali.co.uk/products/broadband/
+
+

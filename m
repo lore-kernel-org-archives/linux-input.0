@@ -1,43 +1,34 @@
-From: kate.goih08@handbag.com
-Subject: Ticket Number:194463-85
-Date: Sat, 10 Jan 2009 19:56:39 +0100
-Message-ID: <48D08D720000CA2C@mail-1-uk.mail.tiscali.sys>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Add keyboard quirk for HP Pavilion ZV6100 laptop
+Date: Sat, 10 Jan 2009 13:29:51 -0800
+Message-ID: <200901101329.51731.dmitry.torokhov@gmail.com>
+References: <4968A391.2000400@student.chalmers.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mk-filter-4-a-2.mail.uk.tiscali.com ([212.74.100.51]:39750 "EHLO
-	mk-filter-4-a-2.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750755AbZAJTGc (ORCPT
+Received: from yx-out-2324.google.com ([74.125.44.28]:55880 "EHLO
+	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755056AbZAJVae (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Jan 2009 14:06:32 -0500
+	Sat, 10 Jan 2009 16:30:34 -0500
+In-Reply-To: <4968A391.2000400@student.chalmers.se>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rikard Ljungstrand <lrikard@student.chalmers.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, apw@canonical.com
 
-Ticket Number:194463-85
+On Saturday 10 January 2009 05:33:05 Rikard Ljungstrand wrote:
+> Hi,
+>
+> Sending an updated version of a trivial patch from last November which got
+> no feedback on the list. Applies cleanly against the latest input.git tree
+> (and probably other recent trees).
+>
 
-This email is to notify you that you have won the Sum of (1,000,000:00 Euro
-only) in our Netherlands Postcode
-Loterij E-Mail Prize Program.
+It got applied silently ;) Its in mainline now, as part of 2.6.29.
 
-1.Reference Number: YOT/35/20/61
-2.BATCH NUMBER: 36/957/GHW
-3.Ticket Number:194463-85
-
-Contact the claim officer with your winning Ref For more informations.
-Name:Mr.Roy Bosman.
-Tel: 0031-616-939-667.
-E-mail:agtdrroybosman@aol.nl
-
-Congratulations,
-
-Yours Sincerely,
-Mrs.Kate Goih.
-
-
-___________________________________________________________
-
-Tiscali Broadband from 14.99 with free setup!
-http://www.tiscali.co.uk/products/broadband/
-
-
+-- 
+Dmitry

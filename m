@@ -1,34 +1,34 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Add keyboard quirk for HP Pavilion ZV6100 laptop
-Date: Sat, 10 Jan 2009 13:29:51 -0800
-Message-ID: <200901101329.51731.dmitry.torokhov@gmail.com>
-References: <4968A391.2000400@student.chalmers.se>
+Subject: Re: [PATCH] Input: Make MOUSE_PS2_LIFEBOOK depend on X86
+Date: Sat, 10 Jan 2009 22:10:18 -0800
+Message-ID: <20090110220954.ZZRA012@mailhub.coreip.homeip.net>
+References: <20090109105229.37c2a09b@hyperion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.28]:55880 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755056AbZAJVae (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.243]:34792 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750893AbZAKGLA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 10 Jan 2009 16:30:34 -0500
-In-Reply-To: <4968A391.2000400@student.chalmers.se>
+	Sun, 11 Jan 2009 01:11:00 -0500
+Received: by an-out-0708.google.com with SMTP id d40so3317780and.1
+        for <linux-input@vger.kernel.org>; Sat, 10 Jan 2009 22:10:57 -0800 (PST)
 Content-Disposition: inline
+In-Reply-To: <20090109105229.37c2a09b@hyperion.delvare>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rikard Ljungstrand <lrikard@student.chalmers.se>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, apw@canonical.com
+To: Jean Delvare <khali@linux-fr.org>
+Cc: linux-input@vger.kernel.org
 
-On Saturday 10 January 2009 05:33:05 Rikard Ljungstrand wrote:
-> Hi,
->
-> Sending an updated version of a trivial patch from last November which got
-> no feedback on the list. Applies cleanly against the latest input.git tree
-> (and probably other recent trees).
->
+On Fri, Jan 09, 2009 at 10:52:29AM +0100, Jean Delvare wrote:
+> As far as I know, all Fujitsu-Siemens Lifebook systems are x86-based.
+> So we might as well make MOUSE_PS2_LIFEBOOK depend on X86. This will
+> avoid surprising things like:
+> 
+> arch/arm/configs/s3c2410_defconfig:CONFIG_MOUSE_PS2_LIFEBOOK=y
+> 
 
-It got applied silently ;) Its in mainline now, as part of 2.6.29.
+Applied, thank you Jean.
 
 -- 
 Dmitry

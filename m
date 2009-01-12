@@ -1,58 +1,94 @@
-From: Daniel Silverstone <dsilvers@simtec.co.uk>
-Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
-Date: Mon, 12 Jan 2009 09:07:14 +0000
-Message-ID: <1231751234.23618.6.camel@petitemort>
-References: <20090109121026.052643915@fluff.org.uk>
-	 <20090111234903.ZZRA012@mailhub.coreip.homeip.net>
-Reply-To: dsilvers@simtec.co.uk
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Subject: [PATCH] input/mfd/ucb1400: move static function from header into core
+Date: Mon, 12 Jan 2009 10:31:30 +0100
+Message-ID: <20090112093130.GA15721@www.tglx.de>
+References: <20090108110757.GB24243@www.tglx.de> <200901081323.55398.marek.vasut@gmail.com> <4965F2A9.3060208@linutronix.de> <20090111234716.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from batfish.pepperfish.net ([87.237.62.180]:52458 "EHLO
-	flounder.pepperfish.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1751556AbZALJHS (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Jan 2009 04:07:18 -0500
-In-Reply-To: <20090111234903.ZZRA012@mailhub.coreip.homeip.net>
+Received: from www.tglx.de ([62.245.132.106]:44044 "EHLO www.tglx.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750984AbZALJbp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Jan 2009 04:31:45 -0500
+Content-Disposition: inline
+In-Reply-To: <20090111234716.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, vince@simtec.co.uk
+Cc: Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org
 
-> > Index: linux.git/drivers/input/touchscreen/usbtouchscreen.c
-> > +	/* Always service the USB devices irq not just when the input device is
-> > +	 * open.
-> > +	 */
-> > +	int irq_always;
-> > +
-> Why is this needed?
+it's a little too large for static line.
+The ts is currently the only mainline user but Marek Vasut claims that
+there is a battery driver in an ARM tree which also needs this function.
 
-Some devices (E.g. specifically this one) expect their interrupt
-endpoints to always be serviced. In this case, the device has an
-on-board watchdog and will reboot (disconnect and reconnecting to the
-USB) if it is not serviced in a timely fashion.
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/mfd/ucb1400_core.c |   20 ++++++++++++++++++++
+ include/linux/ucb1400.h    |   20 ++------------------
+ 2 files changed, 22 insertions(+), 18 deletions(-)
 
-
-> > +	case 0xC0: /* down */
-> > +		dev->x = (pkt[1] & 0x7f) | ((pkt[2] & 0x07) << 7);
-> > +		dev->y = (pkt[3] & 0x7f) | ((pkt[4] & 0x07) << 7);
-> > +		dev->touch = 1;
-> > +		dev->press = 1;
-> Since the device does not report real pressure readings don't try to
-> fake it, reporting touch is enough.
-
-I believe that this is because some userland libraries, particularly
-tslib, require the pressure reading in order to believe the device is
-functioning usefully. Specifically, consider plugins/input-raw of
-tslib's source package which uses pressure rather than touch.
-
-Regards,
-
-Daniel.
-
+diff --git a/drivers/mfd/ucb1400_core.c b/drivers/mfd/ucb1400_core.c
+index 88f33c1..3a89e7f 100644
+--- a/drivers/mfd/ucb1400_core.c
++++ b/drivers/mfd/ucb1400_core.c
+@@ -23,6 +23,26 @@
+ #include <linux/module.h>
+ #include <linux/ucb1400.h>
+ 
++unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
++		int adcsync)
++{
++	unsigned int val;
++
++	if (adcsync)
++		adc_channel |= UCB_ADC_SYNC_ENA;
++
++	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel);
++	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel |
++			UCB_ADC_START);
++
++	while (!((val = ucb1400_reg_read(ac97, UCB_ADC_DATA))
++				& UCB_ADC_DAT_VALID))
++		schedule_timeout_uninterruptible(1);
++
++	return val & UCB_ADC_DAT_MASK;
++}
++EXPORT_SYMBOL_GPL(ucb1400_adc_read);
++
+ static int ucb1400_core_probe(struct device *dev)
+ {
+ 	int err;
+diff --git a/include/linux/ucb1400.h b/include/linux/ucb1400.h
+index 970473b..1b0840d 100644
+--- a/include/linux/ucb1400.h
++++ b/include/linux/ucb1400.h
+@@ -134,24 +134,8 @@ static inline void ucb1400_adc_enable(struct snd_ac97 *ac97)
+ 	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA);
+ }
+ 
+-static unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
+-					int adcsync)
+-{
+-	unsigned int val;
+-
+-	if (adcsync)
+-		adc_channel |= UCB_ADC_SYNC_ENA;
+-
+-	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel);
+-	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel |
+-				UCB_ADC_START);
+-
+-	while (!((val = ucb1400_reg_read(ac97, UCB_ADC_DATA))
+-			& UCB_ADC_DAT_VALID))
+-		schedule_timeout_uninterruptible(1);
+-
+-	return val & UCB_ADC_DAT_MASK;
+-}
++unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
++		int adcsync);
+ 
+ static inline void ucb1400_adc_disable(struct snd_ac97 *ac97)
+ {
 -- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
-
+1.5.6.5
 

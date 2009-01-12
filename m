@@ -1,31 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 10/17] drivers/input/keyboard/atkbd.c: make
-	forced_release_keys[] static
-Date: Sun, 11 Jan 2009 00:28:43 -0800
-Message-ID: <20090111002825.ZZRA012@mailhub.coreip.homeip.net>
-References: <200901092019.n09KJnsJ017196@imap1.linux-foundation.org>
+From: "Kim Kyuwon" <chammoru@gmail.com>
+Subject: Re: Adding 'half shutter' definition to 'input.h'
+Date: Mon, 12 Jan 2009 10:00:32 +0900
+Message-ID: <4d34a0a70901111700g4b2ccc6fme6cfcf7aa32b46fa@mail.gmail.com>
+References: <13840250.309261230013670370.JavaMail.weblogic@epml09>
+	 <200812230045.42765.dmitry.torokhov@gmail.com>
+	 <4d34a0a70812231631u359e85an29d2ed30bccd59a5@mail.gmail.com>
+	 <4d34a0a70901071848m65efb9es26a326cf36feeef6@mail.gmail.com>
+	 <alpine.LNX.1.10.0901080946460.5377@jikos.suse.cz>
+	 <20090110235337.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.29]:49885 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750836AbZAKI3W (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.234]:30064 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751315AbZALBAd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 11 Jan 2009 03:29:22 -0500
-Received: by yw-out-2324.google.com with SMTP id 9so3270233ywe.1
-        for <linux-input@vger.kernel.org>; Sun, 11 Jan 2009 00:29:21 -0800 (PST)
+	Sun, 11 Jan 2009 20:00:33 -0500
+Received: by rv-out-0506.google.com with SMTP id k40so9986996rvb.1
+        for <linux-input@vger.kernel.org>; Sun, 11 Jan 2009 17:00:32 -0800 (PST)
+In-Reply-To: <20090110235337.ZZRA012@mailhub.coreip.homeip.net>
 Content-Disposition: inline
-In-Reply-To: <200901092019.n09KJnsJ017196@imap1.linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, impulze@impulze.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, sj76.park@samsung.com, sk.heo@samsung.com, kyungmin.park@samsung.com
 
-On Fri, Jan 09, 2009 at 12:19:49PM -0800, akpm@linux-foundation.org wrote:
-> From: Daniel Mierswa <impulze@impulze.org>
-> 
+Hi, Dmitry,
 
-Applied, thank you Daniel.
+On Sun, Jan 11, 2009 at 4:57 PM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> Hi Kim, Jiri,
+>
+> On Thu, Jan 08, 2009 at 09:51:11AM +0100, Jiri Kosina wrote:
+>> On Thu, 8 Jan 2009, Kim Kyuwon wrote:
+>>
+>> > Because Jiri Kosina personally agrees with adding the [half]shutter key
+>> > yesterday, I'm sending this patch. (Thanks Jiri)
+>> > New cameras and mobile phones (at least SAMSUNG's) have the half shutter for
+>> > 'auto-focus' functions. so I think this half and full shutter keys are needed.
+>> > Please review this patch.
+>>
+>> Hi,
+>>
+>> please note the "if there is any in-kernel code that actually uses it"
+>> part of my e-mail. Adding just the key definition without any kernel code
+>> actually using is not likely to happen.
+>>
+>
+> Additionally I don't think we need 2 new codes. We have KEY_CAMERA that
+> is supposed to be sent when we want to take the picture, so only one new
+> is needed. Probably should call it KEY_FOCUS or KEY_CAMERA_FOCUS.
+>
+> --
+> Dmitry
+>
+
+OK, It seems like your suggestion is better mine :)
+(Personally I prefer KEY_FOCUS to KEY_CAMERA_FOCUS )
+And I would be really satisfied, if any key which can represent the half
+shutter is added to 'input.h'
+
+Thank you for thinking this issue again.
+If there are further steps that I can take, please let me know.
 
 -- 
-Dmitry
+Kim Kyuwon

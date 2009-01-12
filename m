@@ -1,94 +1,54 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH] input/mfd/ucb1400: move static function from header into core
-Date: Mon, 12 Jan 2009 10:31:30 +0100
-Message-ID: <20090112093130.GA15721@www.tglx.de>
-References: <20090108110757.GB24243@www.tglx.de> <200901081323.55398.marek.vasut@gmail.com> <4965F2A9.3060208@linutronix.de> <20090111234716.ZZRA012@mailhub.coreip.homeip.net>
+From: Michael Tokarev <mjt@tls.msk.ru>
+Subject: new modular hid?
+Date: Mon, 12 Jan 2009 23:05:09 +0300
+Message-ID: <496BA275.1080504@msgid.tls.msk.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:44044 "EHLO www.tglx.de"
+Received: from hobbit.corpit.ru ([81.13.33.150]:24578 "EHLO hobbit.corpit.ru"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750984AbZALJbp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Jan 2009 04:31:45 -0500
-Content-Disposition: inline
-In-Reply-To: <20090111234716.ZZRA012@mailhub.coreip.homeip.net>
+	id S1754960AbZALUFM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Jan 2009 15:05:12 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org
+To: linux-input <linux-input@vger.kernel.org>
 
-it's a little too large for static line.
-The ts is currently the only mainline user but Marek Vasut claims that
-there is a battery driver in an ARM tree which also needs this function.
+Hello.
 
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
- drivers/mfd/ucb1400_core.c |   20 ++++++++++++++++++++
- include/linux/ucb1400.h    |   20 ++------------------
- 2 files changed, 22 insertions(+), 18 deletions(-)
+I tried to run a new (2.6.28) kernel today, to discover that
+my keyboard does not work anymore.  After investigation it
+turned out the keyboard is now handled by a hid-sub-driver,
+hid-bright, and it does not work if this (mostly one-liner)
+driver module is not loaded.
 
-diff --git a/drivers/mfd/ucb1400_core.c b/drivers/mfd/ucb1400_core.c
-index 88f33c1..3a89e7f 100644
---- a/drivers/mfd/ucb1400_core.c
-+++ b/drivers/mfd/ucb1400_core.c
-@@ -23,6 +23,26 @@
- #include <linux/module.h>
- #include <linux/ucb1400.h>
- 
-+unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
-+		int adcsync)
-+{
-+	unsigned int val;
-+
-+	if (adcsync)
-+		adc_channel |= UCB_ADC_SYNC_ENA;
-+
-+	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel);
-+	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel |
-+			UCB_ADC_START);
-+
-+	while (!((val = ucb1400_reg_read(ac97, UCB_ADC_DATA))
-+				& UCB_ADC_DAT_VALID))
-+		schedule_timeout_uninterruptible(1);
-+
-+	return val & UCB_ADC_DAT_MASK;
-+}
-+EXPORT_SYMBOL_GPL(ucb1400_adc_read);
-+
- static int ucb1400_core_probe(struct device *dev)
- {
- 	int err;
-diff --git a/include/linux/ucb1400.h b/include/linux/ucb1400.h
-index 970473b..1b0840d 100644
---- a/include/linux/ucb1400.h
-+++ b/include/linux/ucb1400.h
-@@ -134,24 +134,8 @@ static inline void ucb1400_adc_enable(struct snd_ac97 *ac97)
- 	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA);
- }
- 
--static unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
--					int adcsync)
--{
--	unsigned int val;
--
--	if (adcsync)
--		adc_channel |= UCB_ADC_SYNC_ENA;
--
--	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel);
--	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel |
--				UCB_ADC_START);
--
--	while (!((val = ucb1400_reg_read(ac97, UCB_ADC_DATA))
--			& UCB_ADC_DAT_VALID))
--		schedule_timeout_uninterruptible(1);
--
--	return val & UCB_ADC_DAT_MASK;
--}
-+unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
-+		int adcsync);
- 
- static inline void ucb1400_adc_disable(struct snd_ac97 *ac97)
- {
--- 
-1.5.6.5
+udev/m.i.t works fine, it's the initramfs which is broken.
+I.e., there's no keyboard during initramfs stage, only when
+udev runs and loads everything - as much as i hate it, it
+becomes more and more mandatory, but that's another story.
 
+Before 2.6.28, I used to include usbhid into initramfs.
+Now, it's not sufficient anymore.
+
+So I've two questions:
+
+1) which drivers to include into ramfs and load for a
+ "generic USB keyboard" to work?  Maybe from now on one
+ have to use usbkbd instead of usbhid?  I just want to
+ be able to do some rescue stuff before actual system
+ startup in case a system does not boot for whatever
+ reason (root fs is corrupt or wrong raid1 replacement
+ disk or whatever).
+
+2) why all those tiny "subdrivers" in the first place?
+ I looked into several of them, and they're mostly sort
+ of quirks or some additional features or additional key
+ (re)mapping.  Why can't it all be done in the main driver
+ instead, just like it is done for PCI bus for example?
+ The amount of real-work code is tiny, modules are much
+ bigger - both the resulting .ko files and all the
+ init/exit wrappers in .c files...
+
+Thanks!
+
+/mjt

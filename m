@@ -1,65 +1,44 @@
-From: Michael Tokarev <mjt@tls.msk.ru>
-Subject: input devices handling
-Date: Mon, 12 Jan 2009 23:19:20 +0300
-Message-ID: <496BA5C8.5090506@msgid.tls.msk.ru>
+From: Alessio Sangalli <alesan@manoweb.com>
+Subject: Re: Equivalent of /dev/input/mice for keyboards
+Date: Mon, 12 Jan 2009 13:14:43 -0800
+Message-ID: <496BB2C3.9080307@manoweb.com>
+References: <495EA371.8050304@manoweb.com> <20090111232539.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hobbit.corpit.ru ([81.13.33.150]:20984 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751235AbZALUTW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 12 Jan 2009 15:19:22 -0500
+Received: from moutng.kundenserver.de ([212.227.126.171]:61158 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753242AbZALVOt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 12 Jan 2009 16:14:49 -0500
+In-Reply-To: <20090111232539.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-[Repost for:
-Message-ID: <48FF9737.5050207@msgid.tls.msk.ru>
-Date:	Thu, 23 Oct 2008 01:12:23 +0400
-To: linux-kernel@vger.kernel.org,
-which is a repost of earlier message with similar
-content/question, both went unanswered]
+Dmitry Torokhov wrote:
 
-Hello.
+> I am very hesitant adding such multiplexing device to the kernel. While
+> it is pretty easy to write one we had only pain from them. There are all
+> kinds of quirks, grabs, and workarounds because people are using
+> /dev/input/mice and console but at the same time want to use event
+> devices for some of the hardware.
 
-Similar question has been asked already by me in the past,
-regarding "conversions" of ACPI button events to "keyboard
-events".  The talk is about how one is supposed to handle
-various "common" "meta-buttons" like Power, Sleep, and so
-on.
+Yes I appreciate your comments, I get your point.
 
-Before, there was /proc/acpi/event and /etc/acpid/* stuff,
-and it was easy (but somewhat clumsy) to act to system power
-down button.  But the "proper way" now is to handle
-/dev/input/event* interface, because such "Power" button can
-be on a keyboard, on a remote control, and so on.  I understand
-the idea, and I like it.
+What I would personally like to experiment with is:
+- enabling this driver would automatically disable the other event
+devices and the console, so it is the only source of input events for
+the system
+- to me it's also an exercise the helps the understanding of the input
+layer and the kernel in general.
 
-But now the question.  How one supposed to find all the devices
-which generate such events?  I mean not about scanning the /dev
-directory, which can be done once at startup, but about REscanning
-it to find which NEW keyboards and the like appeared since last
-(re)scan and which were removed.
+In my free time, I'd like to do the implementation, having in mind you
+are not interested in merging it into the kernel. Would you spare some
+hints on how you would proceed?
 
-For mouse, there is /dev/[input/]mice, which is a meta-device
-for all mouse-like devices out there, and it actually works.
-For an application that reacts to system button events, there
-is no such device, and the only way is to scan all keyboard-like
-devices and open them all (well, only ones which actually have
-the buttons in question, but that's minor detail).
-
-So now I have to know WHEN to (re)scan the devices.  Should I
-depend on udevd/hald for that (i really dislike this way)?
-Or should I just rescan periodically, say, every 10 sec or
-so?  Or is there other, better way?
-
-The only thing I need so far is to be able to shut down the
-machine on a power down button.  Maybe in the future something
-like changing audio volume etc will be of interest too, but
-that should be pretty similar.
-
-Thanks!
-
-/mjt
+bye
+as
 

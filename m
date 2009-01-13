@@ -1,51 +1,70 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: new modular hid?
-Date: Tue, 13 Jan 2009 01:08:51 -0800
-Message-ID: <20090113010658.ZZRA012@mailhub.coreip.homeip.net>
-References: <496BA275.1080504@msgid.tls.msk.ru> <alpine.LRH.1.10.0901130052180.24105@twin.jikos.cz> <20090112213924.ZZRA012@mailhub.coreip.homeip.net> <alpine.LNX.1.10.0901130939290.5377@jikos.suse.cz> <alpine.LNX.1.10.0901130958230.5377@jikos.suse.cz>
+From: Daniel Silverstone <dsilvers@simtec.co.uk>
+Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
+Date: Tue, 13 Jan 2009 09:29:18 +0000
+Message-ID: <1231838958.30531.3.camel@petitemort>
+References: <20090109121026.052643915@fluff.org.uk>
+	 <20090111234903.ZZRA012@mailhub.coreip.homeip.net>
+	 <1231751234.23618.6.camel@petitemort>
+	 <20090112212907.ZZRA012@mailhub.coreip.homeip.net>
+Reply-To: dsilvers@simtec.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.25]:30896 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754554AbZAMJJd (ORCPT
+Received: from batfish.pepperfish.net ([87.237.62.180]:46572 "EHLO
+	flounder.pepperfish.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1755533AbZAMJ3X (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2009 04:09:33 -0500
-Received: by qw-out-2122.google.com with SMTP id 3so10118983qwe.37
-        for <linux-input@vger.kernel.org>; Tue, 13 Jan 2009 01:09:31 -0800 (PST)
-Content-Disposition: inline
-In-Reply-To: <alpine.LNX.1.10.0901130958230.5377@jikos.suse.cz>
+	Tue, 13 Jan 2009 04:29:23 -0500
+In-Reply-To: <20090112212907.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-input <linux-input@vger.kernel.org>, Jiri Slaby <jslaby@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, vince@simtec.co.uk
 
-On Tue, Jan 13, 2009 at 10:00:52AM +0100, Jiri Kosina wrote:
-> On Tue, 13 Jan 2009, Jiri Kosina wrote:
-> 
-> > > I would agree with Michael here, it looks like we went a bit overboard 
-> > > with HID quirks. I think sensible solution would be to merge quirks into 
-> > > 3-4 files (one per device type) and maybe even compile keyboard quirks 
-> > > into hid core.
-> > It might seem a too bit too much fine-grained right now, but my 
-> > longer-term plan was to have more sophisticated drivers also register 
-> > themselves to the HID bus, make use of the common parser, etc (Wacom comes 
-> > to mind, for example). 
-> > Having the quirks grouped together rather than nicely separate would then 
-> > bring us close to the previous total mess, when unrelated quirks were 
-> > glued together randomly in the spaghetti-code-way, which I really would 
-> > like to avoid as much as possible, it started to become unmaintainable.
-> 
-> That being said, we of course need to think about the initrd issue brought 
-> up by Michael.
-> 
-> Compiling everything into single driver back again in the end would of 
-> course be a solution, but I am afraid that it'd be quite difficult with 
-> the bus infrastructure in place.
+On Mon, 2009-01-12 at 21:33 -0800, Dmitry Torokhov wrote:
+> > > > +	/* Always service the USB devices irq not just when the input device is
+> > > > +	 * open.
+> > > > +	 */
+> > > > +	int irq_always;
+> > > Why is this needed?
+> > Some devices (E.g. specifically this one) expect their interrupt
+> > endpoints to always be serviced. In this case, the device has an
+> > on-board watchdog and will reboot (disconnect and reconnecting to the
+> > USB) if it is not serviced in a timely fashion.
+> So what happens if driver was unloaded or there was no driver loaded at
+> all? Is this device constantly connecting and reconnecting?
 
-Not everything, just keyboards so they work even if userspace is not
-quite there yet. We just need to make sure we initialize hid bus before
-we register sub-drivers.
+As I understand it; yes. (Some bits of hardware really are hideous
+things) Indeed if the driver fails to load quickly enough, the device
+might disconnect/reconnect before the driver can get hold of it.
+
+> > > > +		dev->touch = 1;
+> > > > +		dev->press = 1;
+> > > Since the device does not report real pressure readings don't try to
+> > > fake it, reporting touch is enough.
+> > I believe that this is because some userland libraries, particularly
+> > tslib, require the pressure reading in order to believe the device is
+> > functioning usefully. Specifically, consider plugins/input-raw of
+> > tslib's source package which uses pressure rather than touch.
+> Yes, I am aware of TSLIB case and I am telling everyone who submits
+> touchscreen drivers that they need to fix it. The policy is that
+> kernel should not generate fake events but present as accurate state
+> of hardware as possible.
+
+Unfortunately it's often harder to get people to change their userland
+than their kernel. It seems a pity to make the driver less useful during
+any longer-term effort to fix TSLIB. If acceptance of this patch is
+predicated on removing that then I guess we'll have to discuss it
+amongst ourselves and try and work out what we'd rather do. Is removing
+the fake pressure report a requirement or a would-like?
+
+Regards,
+
+Daniel.
 
 -- 
-Dmitry
+Daniel Silverstone                              http://www.simtec.co.uk/
+PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
+
+

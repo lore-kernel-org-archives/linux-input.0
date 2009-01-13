@@ -1,34 +1,79 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Add N-Trig to USB HID quirks
-Date: Tue, 13 Jan 2009 23:52:16 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0901132350270.5377@jikos.suse.cz>
-References: <1231838198.8132.27.camel@micki-desktop.n-trig.com> <20090113103323.26dbe085@lxorguk.ukuu.org.uk> <alpine.LNX.1.10.0901131136470.5377@jikos.suse.cz> <496CC8EE.5030105@seas.upenn.edu>
+From: Nelson Castillo <arhuaco@freaks-unidos.net>
+Subject: [PATCH 0/5][RFC] Touchscreen filters
+Date: Tue, 13 Jan 2009 18:39:30 -0500
+Message-ID: <20090113233743.26361.14313.stgit@fugue.noexisteestedominiotanlargo.biz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:43757 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752888AbZAMWwS (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2009 17:52:18 -0500
-In-Reply-To: <496CC8EE.5030105@seas.upenn.edu>
+Received: from an-out-0708.google.com ([209.85.132.242]:54036 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752247AbZAMXjn (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 13 Jan 2009 18:39:43 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Micki <micki@n-trig.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, andy@openmoko.com
 
-On Tue, 13 Jan 2009, Rafi Rubin wrote:
+The following series implements a solution for a problem
+we have: lots of noise in the touchscreen of the Openmoko
+Neo1973/FreeRunner. This is the result of teamwork.
 
-> The patches I wrote make minimal pertubations to help the hid driver 
-> recognize and communicate with the digitizer.  The result has been an 
-> event device that actually works reasonably well with the existing X11 
-> wacom driver (at least with version 0.8.1.6).
+We are using a small touchscreen filtering framework
+in kernel space for the S3C2410/S3C2442 touchscreen
+controllers. The filters can be used by other drivers as
+well (we have noticed a few drivers include averaging and some
+other custom filters).
 
-Micki, could you please look into the current drivers/hid/hid-ntrig.c 
-driver to see if it is easily possible to have your driver based on top of 
-that code?
+We do not want to port tslib to kernel space. The big
+difference is that in tslib you cannot give feedback to an
+interrupt handler. tslib does what it can, but we have the
+power in kernel space to do better.
+
+With the current implementation we try to get as many points
+as we need to in order to provide a clean input event that
+does not need further user-space mangling. If we fail to get
+a valid point after some time we just ignore the event. In
+our tests this approach has been performing very well. Some
+of us think it would be nice if a program can gather clean
+touchscreen data from /dev/inputX.
+
+Here is a document that explains the filters with links to
+source code that lives in our GIT repository and some videos
+The videos are not polished but they illustrate what we
+wish to show.
+
+  https://wiki.openmoko.org/wiki/Touchscreen_Filters
+
+We hope this work is suitable for mainline inclusion.
+
+We will be waiting for your comments.
 
 Thanks,
+Nelson, on behalf of all who contributed to what is proposed in this email.
 
--- 
-Jiri Kosina
-SUSE Labs
+ drivers/input/touchscreen/Kconfig            |   44 +++++
+ drivers/input/touchscreen/Makefile           |    5 +
+ drivers/input/touchscreen/ts_filter.c        |   64 ++++++++
+ drivers/input/touchscreen/ts_filter_group.c  |  221 ++++++++++++++++++++++++++
+ drivers/input/touchscreen/ts_filter_linear.c |  178 +++++++++++++++++++++
+ drivers/input/touchscreen/ts_filter_mean.c   |  172 ++++++++++++++++++++
+ drivers/input/touchscreen/ts_filter_median.c |  215 +++++++++++++++++++++++++
+ include/linux/ts_filter.h                    |   56 +++++++
+ include/linux/ts_filter_group.h              |   39 +++++
+ include/linux/ts_filter_linear.h             |   64 ++++++++
+ include/linux/ts_filter_mean.h               |   34 ++++
+ include/linux/ts_filter_median.h             |   36 ++++
+ 12 files changed, 1128 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/ts_filter.c
+ create mode 100644 drivers/input/touchscreen/ts_filter_group.c
+ create mode 100644 drivers/input/touchscreen/ts_filter_linear.c
+ create mode 100644 drivers/input/touchscreen/ts_filter_mean.c
+ create mode 100644 drivers/input/touchscreen/ts_filter_median.c
+ create mode 100644 include/linux/ts_filter.h
+ create mode 100644 include/linux/ts_filter_group.h
+ create mode 100644 include/linux/ts_filter_linear.h
+ create mode 100644 include/linux/ts_filter_mean.h
+ create mode 100644 include/linux/ts_filter_median.h
+

@@ -1,70 +1,116 @@
-From: Daniel Silverstone <dsilvers@simtec.co.uk>
-Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
-Date: Tue, 13 Jan 2009 09:29:18 +0000
-Message-ID: <1231838958.30531.3.camel@petitemort>
-References: <20090109121026.052643915@fluff.org.uk>
-	 <20090111234903.ZZRA012@mailhub.coreip.homeip.net>
-	 <1231751234.23618.6.camel@petitemort>
-	 <20090112212907.ZZRA012@mailhub.coreip.homeip.net>
-Reply-To: dsilvers@simtec.co.uk
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 2.6.28-rc6-davinci1 5/6] dm355evm input driver
+Date: Tue, 13 Jan 2009 01:42:56 -0800
+Message-ID: <200901130142.57407.david-b@pacbell.net>
+References: <200812071159.50267.david-b@pacbell.net> <20090112220448.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from batfish.pepperfish.net ([87.237.62.180]:46572 "EHLO
-	flounder.pepperfish.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1755533AbZAMJ3X (ORCPT
+Received: from smtp116.sbc.mail.sp1.yahoo.com ([69.147.64.89]:43125 "HELO
+	smtp116.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752816AbZAMJnA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2009 04:29:23 -0500
-In-Reply-To: <20090112212907.ZZRA012@mailhub.coreip.homeip.net>
+	Tue, 13 Jan 2009 04:43:00 -0500
+In-Reply-To: <20090112220448.ZZRA012@mailhub.coreip.homeip.net>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, vince@simtec.co.uk
+Cc: davinci-linux-open-source@linux.davincidsp.com, Felipe Balbi <felipebalbi@users.sourceforge.net>, linux-input@vger.kernel.org
 
-On Mon, 2009-01-12 at 21:33 -0800, Dmitry Torokhov wrote:
-> > > > +	/* Always service the USB devices irq not just when the input device is
-> > > > +	 * open.
-> > > > +	 */
-> > > > +	int irq_always;
-> > > Why is this needed?
-> > Some devices (E.g. specifically this one) expect their interrupt
-> > endpoints to always be serviced. In this case, the device has an
-> > on-board watchdog and will reboot (disconnect and reconnecting to the
-> > USB) if it is not serviced in a timely fashion.
-> So what happens if driver was unloaded or there was no driver loaded at
-> all? Is this device constantly connecting and reconnecting?
+On Monday 12 January 2009, Dmitry Torokhov wrote:
+> ...
+> > Depends on the patch for the parent MFD driver, and won't work
+> > without the patch making GPIO IRQs work on dm355.
+> > 
+> > NOTE:  not suitable for mainline until the dm355evm board support
+> > (and parent MFD driver) is in the merge queue.
+> > 
+> 
+> It looks like the MFD driver was merged so we need to start wokring
+> on this one :)
 
-As I understand it; yes. (Some bits of hardware really are hideous
-things) Indeed if the driver fails to load quickly enough, the device
-might disconnect/reconnect before the driver can get hold of it.
+Much to my surprise!  :)
 
-> > > > +		dev->touch = 1;
-> > > > +		dev->press = 1;
-> > > Since the device does not report real pressure readings don't try to
-> > > fake it, reporting touch is enough.
-> > I believe that this is because some userland libraries, particularly
-> > tslib, require the pressure reading in order to believe the device is
-> > functioning usefully. Specifically, consider plugins/input-raw of
-> > tslib's source package which uses pressure rather than touch.
-> Yes, I am aware of TSLIB case and I am telling everyone who submits
-> touchscreen drivers that they need to fix it. The policy is that
-> kernel should not generate fake events but present as accurate state
-> of hardware as possible.
 
-Unfortunately it's often harder to get people to change their userland
-than their kernel. It seems a pity to make the driver less useful during
-any longer-term effort to fix TSLIB. If acceptance of this patch is
-predicated on removing that then I guess we'll have to discuss it
-amongst ourselves and try and work out what we'd rather do. Is removing
-the fake pressure report a requirement or a would-like?
+> > +		dev_dbg(&keys->pdev->dev,
+> > +			"input event 0x%04x--> keycode %d\n",
+> > +			event, keycode);
+> > +
+> > +		/* Report press + release ... we can't tell if
+> > +		 * this is an autorepeat, and we need to guess
+> > +		 * about the release.
+> > +		 */
+> > +		input_report_key(keys->input, keycode, 1);
+> 
+> input_sync() is also needed here.
+> 
+> > +		input_report_key(keys->input, keycode, 0);
+> > +	}
+> > +	input_sync(keys->input);
 
-Regards,
+If so, then the existing input_sync() needs to move up
+a few lines too ... I had thought that the "sync" was
+like with a filesystem, where lots of events could be
+batched, but evidently not.
 
-Daniel.
 
--- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
+> > +}
+> > +
+> > +static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
+> > +{
+> > +	if (index >= ARRAY_SIZE(dm355evm_keys))
+> > +		return -EINVAL;
+> > +
+> > +	dm355evm_keys[index].keycode = keycode;
+> 
+> You also need to alter dev->keybit to indicate that device may generate
+> new keycode, otherwise input core will drop event intead of passing it
+> on.
+
+Should something then be scrubbing out dev->keybit to
+indicate the *old* key code is no longer reported?
+(After verifying that no other button reports it.)
+
+
+> Also I prefer devices that support remapping to keep their copy of 
+> keymap so in unlikely case there are 2 devices in the system they can
+> have separate keymaps.
+
+That's physically impossible in this case.
+
+
+> > +	input->evbit[0] = BIT(EV_KEY);
+> > +	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++)
+> > +		set_bit(dm355evm_keys[i].keycode, input->keybit);
+> > +
+> > +	input->keycodemax = ARRAY_SIZE(dm355evm_keys);
+> > +	input->keycodesize = sizeof(dm355evm_keys[0]);
+> 
+> You don't need to setup keycodesize and keycodemax since you provide
+> your own get and set keycode helpers.
+
+... which I'm presuming is the right thing to do.  It's
+a bit surprising to see that the input core will then
+have no way to tell what keycodes are valid other than
+querying all possible codes!
+
+ 
+> > +	/* start reporting events */
+> > +	status = request_irq(keys->irq, dm355evm_keys_irq,
+> > +			IRQF_TRIGGER_FALLING,
+> > +			dev_name(&pdev->dev), keys);
+> > +	if (status < 0) {
+> > +		input_unregister_device(input);
+> > +		goto fail1;
+> 
+> You should not call input_free_device() after input_unregister_device().
+> Either jump to "fail0" or do "input = NULL;".
+
+"goto fail0" seems much simpler.  :)
+
+
 
 

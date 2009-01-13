@@ -1,116 +1,71 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 2.6.28-rc6-davinci1 5/6] dm355evm input driver
-Date: Tue, 13 Jan 2009 01:42:56 -0800
-Message-ID: <200901130142.57407.david-b@pacbell.net>
-References: <200812071159.50267.david-b@pacbell.net> <20090112220448.ZZRA012@mailhub.coreip.homeip.net>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] Add N-Trig to USB HID quirks
+Date: Tue, 13 Jan 2009 12:01:34 -0500
+Message-ID: <496CC8EE.5030105@seas.upenn.edu>
+References: <1231838198.8132.27.camel@micki-desktop.n-trig.com> <20090113103323.26dbe085@lxorguk.ukuu.org.uk> <alpine.LNX.1.10.0901131136470.5377@jikos.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp116.sbc.mail.sp1.yahoo.com ([69.147.64.89]:43125 "HELO
-	smtp116.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1752816AbZAMJnA (ORCPT
+Received: from stag.SEAS.UPENN.EDU ([158.130.70.79]:54275 "EHLO
+	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754135AbZAMRBw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2009 04:43:00 -0500
-In-Reply-To: <20090112220448.ZZRA012@mailhub.coreip.homeip.net>
-Content-Disposition: inline
+	Tue, 13 Jan 2009 12:01:52 -0500
+In-Reply-To: <alpine.LNX.1.10.0901131136470.5377@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: davinci-linux-open-source@linux.davincidsp.com, Felipe Balbi <felipebalbi@users.sourceforge.net>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Micki <micki@n-trig.com>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Monday 12 January 2009, Dmitry Torokhov wrote:
-> ...
-> > Depends on the patch for the parent MFD driver, and won't work
-> > without the patch making GPIO IRQs work on dm355.
-> > 
-> > NOTE:  not suitable for mainline until the dm355evm board support
-> > (and parent MFD driver) is in the merge queue.
-> > 
-> 
-> It looks like the MFD driver was merged so we need to start wokring
-> on this one :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Much to my surprise!  :)
+Jiri Kosina wrote:
+> On Tue, 13 Jan 2009, Alan Cox wrote:
+>
+>>> The N-trig Solution will consist of:
+>>>
+>>> 1. Kernel driver: The purpose of this driver is to translate USB
+>>> messages into input events. For example, EV_KEY, EV_ABS.
+>>>
+>>> 2. X11 input driver: The purpose of the X11 is to simulate X11 events,
+>>> according to input received from the driver.
+>> The ignore patch should go with the kernel driver patch and be submitted
+>> together I think
+>
+> Moreover, this device ID has been already added by Rafi Rubin (added to
+> CC), together with the simple driver for this device (see
+> drivers/hid/hid-ntrig.c in recent kernels).
+>
 
+The patches I wrote make minimal pertubations to help the hid driver recognize and communicate with
+the digitizer.  The result has been an event device that actually works reasonably well with the
+existing X11 wacom driver (at least with version 0.8.1.6).
 
-> > +		dev_dbg(&keys->pdev->dev,
-> > +			"input event 0x%04x--> keycode %d\n",
-> > +			event, keycode);
-> > +
-> > +		/* Report press + release ... we can't tell if
-> > +		 * this is an autorepeat, and we need to guess
-> > +		 * about the release.
-> > +		 */
-> > +		input_report_key(keys->input, keycode, 1);
-> 
-> input_sync() is also needed here.
-> 
-> > +		input_report_key(keys->input, keycode, 0);
-> > +	}
-> > +	input_sync(keys->input);
+That much was intended as preliminary support until I had time to figure out the multi-finger
+support and other features.  I don't want my work to block better support from people who are
+actually familiar with the workings of the device.  Please at least read what's been added, before
+building a whole new driver.
 
-If so, then the existing input_sync() needs to move up
-a few lines too ... I had thought that the "sync" was
-like with a filesystem, where lots of events could be
-batched, but evidently not.
+Also you should know people have been talking about a general multi-touch protocol on the
+linux-input list.  Perhaps N-Trig can help with that.  And perhaps you will benefit from the work
+they are doing.
 
 
-> > +}
-> > +
-> > +static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
-> > +{
-> > +	if (index >= ARRAY_SIZE(dm355evm_keys))
-> > +		return -EINVAL;
-> > +
-> > +	dm355evm_keys[index].keycode = keycode;
-> 
-> You also need to alter dev->keybit to indicate that device may generate
-> new keycode, otherwise input core will drop event intead of passing it
-> on.
+I would like to offer my personal assistance with the development and testing of both the kernel and
+X drivers.  A number of other linux users with n-trig digitizers have contacted me, I suspect some
+of them would be willing to help with testing.
 
-Should something then be scrubbing out dev->keybit to
-indicate the *old* key code is no longer reported?
-(After verifying that no other button reports it.)
+And I've also had a few ideas about features and user interfaces that I'd like to see in an X driver
+or utilities.
 
+Rafi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-> Also I prefer devices that support remapping to keep their copy of 
-> keymap so in unlikely case there are 2 devices in the system they can
-> have separate keymaps.
-
-That's physically impossible in this case.
-
-
-> > +	input->evbit[0] = BIT(EV_KEY);
-> > +	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++)
-> > +		set_bit(dm355evm_keys[i].keycode, input->keybit);
-> > +
-> > +	input->keycodemax = ARRAY_SIZE(dm355evm_keys);
-> > +	input->keycodesize = sizeof(dm355evm_keys[0]);
-> 
-> You don't need to setup keycodesize and keycodemax since you provide
-> your own get and set keycode helpers.
-
-... which I'm presuming is the right thing to do.  It's
-a bit surprising to see that the input core will then
-have no way to tell what keycodes are valid other than
-querying all possible codes!
-
- 
-> > +	/* start reporting events */
-> > +	status = request_irq(keys->irq, dm355evm_keys_irq,
-> > +			IRQF_TRIGGER_FALLING,
-> > +			dev_name(&pdev->dev), keys);
-> > +	if (status < 0) {
-> > +		input_unregister_device(input);
-> > +		goto fail1;
-> 
-> You should not call input_free_device() after input_unregister_device().
-> Either jump to "fail0" or do "input = NULL;".
-
-"goto fail0" seems much simpler.  :)
-
-
-
-
+iEYEARECAAYFAklsyO4ACgkQwuRiAT9o60/LSQCfTf/S9t3VkFVa6ACHenfBXhzO
+orMAn1Qpy/eK7C+R9DlUvg/uwp6NwAu9
+=V0Fw
+-----END PGP SIGNATURE-----

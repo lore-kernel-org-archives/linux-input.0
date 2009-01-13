@@ -1,176 +1,125 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.28-rc6-davinci1 5/6] dm355evm input driver
-Date: Mon, 12 Jan 2009 22:13:01 -0800
-Message-ID: <20090112220448.ZZRA012@mailhub.coreip.homeip.net>
-References: <200812071159.50267.david-b@pacbell.net>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH] input/mfd/ucb1400: move static function from header into core]
+Date: Tue, 13 Jan 2009 09:30:19 +0100
+Message-ID: <200901130930.19918.marek.vasut@gmail.com>
+References: <20090112212318.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:4903 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756252AbZAMGNm (ORCPT
+Received: from nf-out-0910.google.com ([64.233.182.184]:5362 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755466AbZAMIaS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2009 01:13:42 -0500
-Received: by qw-out-2122.google.com with SMTP id 3so10070764qwe.37
-        for <linux-input@vger.kernel.org>; Mon, 12 Jan 2009 22:13:40 -0800 (PST)
+	Tue, 13 Jan 2009 03:30:18 -0500
+Received: by nf-out-0910.google.com with SMTP id d3so1398766nfc.21
+        for <linux-input@vger.kernel.org>; Tue, 13 Jan 2009 00:30:16 -0800 (PST)
+In-Reply-To: <20090112212318.ZZRA012@mailhub.coreip.homeip.net>
 Content-Disposition: inline
-In-Reply-To: <200812071159.50267.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: davinci-linux-open-source@linux.davincidsp.com, Felipe Balbi <felipebalbi@users.sourceforge.net>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Cc: Samuel Ortiz <sameo@openedhand.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Hi David,
+On Tuesday 13 of January 2009 06:25:31 Dmitry Torokhov wrote:
+> Samuel,
+>
+> I suppose it should go through your tree, right?
+>
+> Thanks,
+> Dmitry
 
-On Sun, Dec 07, 2008 at 11:59:50AM -0800, David Brownell wrote:
-> From: David Brownell <dbrownell@users.sourceforge.net>
-> 
-> Simple input driver support for the events reported by the
-> MSP430 firmware on the DM355 EVM.  Verified using the remote
-> included with the kit; docs weren't quite right.  Some of
-> the keycode selections might need improvement; I'm hoping
-> I implemented the remapping support right, so there's at
-> least a runtime workaround.
-> 
-> Keys on the remote seem to repeat undesirably.  Someone might
-> want to see what's up with that, and fix it; it might just
-> be an issue of tracking RC5 state and using the toggle.
-> 
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Thanks. I'd be overly grateful if someone could pick up the ucb1400-battery 
+patch from LAKML and merge it as well (since I wont have any time to do it 
+myself any soon). Also there is GPIO handler for ucb1400 in LAKML, that one 
+would be nice to have merged as well.
+
+Thanks
+Marek
+
+>
+> ----- Forwarded message from Sebastian Andrzej Siewior
+> <bigeasy@linutronix.de> -----
+>
+> Date: Mon, 12 Jan 2009 10:31:30 +0100
+> From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+> To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Marek Vasut <marek.vasut@gmail.com>, linux-input@vger.kernel.org
+> Subject: [PATCH] input/mfd/ucb1400: move static function from header into
+> core
+>
+> it's a little too large for static line.
+> The ts is currently the only mainline user but Marek Vasut claims that
+> there is a battery driver in an ARM tree which also needs this function.
+>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 > ---
-> Depends on the patch for the parent MFD driver, and won't work
-> without the patch making GPIO IRQs work on dm355.
-> 
-> NOTE:  not suitable for mainline until the dm355evm board support
-> (and parent MFD driver) is in the merge queue.
-> 
-
-It looks like the MFD driver was merged so we need to start wokring
-on this one :)
-
-> +		dev_dbg(&keys->pdev->dev,
-> +			"input event 0x%04x--> keycode %d\n",
-> +			event, keycode);
-> +
-> +		/* Report press + release ... we can't tell if
-> +		 * this is an autorepeat, and we need to guess
-> +		 * about the release.
-> +		 */
-> +		input_report_key(keys->input, keycode, 1);
-
-input_sync() is also needed here.
-
-> +		input_report_key(keys->input, keycode, 0);
-> +	}
-> +	input_sync(keys->input);
-> +}
-> +
-> +static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
+>  drivers/mfd/ucb1400_core.c |   20 ++++++++++++++++++++
+>  include/linux/ucb1400.h    |   20 ++------------------
+>  2 files changed, 22 insertions(+), 18 deletions(-)
+>
+> diff --git a/drivers/mfd/ucb1400_core.c b/drivers/mfd/ucb1400_core.c
+> index 88f33c1..3a89e7f 100644
+> --- a/drivers/mfd/ucb1400_core.c
+> +++ b/drivers/mfd/ucb1400_core.c
+> @@ -23,6 +23,26 @@
+>  #include <linux/module.h>
+>  #include <linux/ucb1400.h>
+>
+> +unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
+> +		int adcsync)
 > +{
-> +	if (index >= ARRAY_SIZE(dm355evm_keys))
-> +		return -EINVAL;
+> +	unsigned int val;
 > +
-> +	dm355evm_keys[index].keycode = keycode;
-
-You also need to alter dev->keybit to indicate that device may generate
-new keycode, otherwise input core will drop event intead of passing it
-on. Also I prefer devices that support remapping to keep their copy of
-keymap so in unlikely case there are 2 devices in the system they can
-have separate keymaps.
-
-> +	return 0;
+> +	if (adcsync)
+> +		adc_channel |= UCB_ADC_SYNC_ENA;
+> +
+> +	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel);
+> +	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel |
+> +			UCB_ADC_START);
+> +
+> +	while (!((val = ucb1400_reg_read(ac97, UCB_ADC_DATA))
+> +				& UCB_ADC_DAT_VALID))
+> +		schedule_timeout_uninterruptible(1);
+> +
+> +	return val & UCB_ADC_DAT_MASK;
 > +}
+> +EXPORT_SYMBOL_GPL(ucb1400_adc_read);
 > +
-> +static int dm355evm_getkeycode(struct input_dev *dev, int index, int *keycode)
-> +{
-> +	if (index >= ARRAY_SIZE(dm355evm_keys))
-> +		return -EINVAL;
-> +
-> +	return dm355evm_keys[index].keycode;
-> +}
-> +
-> +/*----------------------------------------------------------------------*/
-> +
-> +static int __devinit dm355evm_keys_probe(struct platform_device *pdev)
-> +{
-> +	struct dm355evm_keys	*keys;
-> +	int			status = -ENOMEM;
-> +	struct input_dev	*input;
-> +	int			i;
-> +
-> +	/* allocate instance struct */
-> +	keys = kzalloc(sizeof *keys, GFP_KERNEL);
-> +	if (!keys)
-> +		goto fail0;
-> +	platform_set_drvdata(pdev, keys);
-> +	keys->pdev = pdev;
-> +
-> +	/* ... and input dev ... */
-> +	input = input_allocate_device();
-> +	if (!input)
-> +		goto fail0;
-> +	keys->input = input;
-> +	input_set_drvdata(input, keys);
-> +
-> +	input->name = "DM355 EVM Controls";
-> +	input->phys = "dm355evm/input0";
-> +	input->dev.parent = &pdev->dev;
-> +
-> +	input->id.bustype = BUS_I2C;
-> +	input->id.product = 0x0355;
-> +	input->id.version = dm355evm_msp_read(DM355EVM_MSP_FIRMREV);
-> +
-> +	input->evbit[0] = BIT(EV_KEY);
-> +	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++)
-> +		set_bit(dm355evm_keys[i].keycode, input->keybit);
-> +
-> +	input->keycodemax = ARRAY_SIZE(dm355evm_keys);
-> +	input->keycodesize = sizeof(dm355evm_keys[0]);
+>  static int ucb1400_core_probe(struct device *dev)
+>  {
+>  	int err;
+> diff --git a/include/linux/ucb1400.h b/include/linux/ucb1400.h
+> index 970473b..1b0840d 100644
+> --- a/include/linux/ucb1400.h
+> +++ b/include/linux/ucb1400.h
+> @@ -134,24 +134,8 @@ static inline void ucb1400_adc_enable(struct snd_ac97
+> *ac97) ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA);
+>  }
+>
+> -static unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16
+> adc_channel, -					int adcsync)
+> -{
+> -	unsigned int val;
+> -
+> -	if (adcsync)
+> -		adc_channel |= UCB_ADC_SYNC_ENA;
+> -
+> -	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel);
+> -	ucb1400_reg_write(ac97, UCB_ADC_CR, UCB_ADC_ENA | adc_channel |
+> -				UCB_ADC_START);
+> -
+> -	while (!((val = ucb1400_reg_read(ac97, UCB_ADC_DATA))
+> -			& UCB_ADC_DAT_VALID))
+> -		schedule_timeout_uninterruptible(1);
+> -
+> -	return val & UCB_ADC_DAT_MASK;
+> -}
+> +unsigned int ucb1400_adc_read(struct snd_ac97 *ac97, u16 adc_channel,
+> +		int adcsync);
+>
+>  static inline void ucb1400_adc_disable(struct snd_ac97 *ac97)
+>  {
 
-You don't need to setup keycodesize and keycodemax since you provide
-your own get and set keycode helpers.
 
-> +	input->keycode = dm355evm_keys;
-> +	input->setkeycode = dm355evm_setkeycode;
-> +	input->getkeycode = dm355evm_getkeycode;
-> +
-> +	/* set up "threaded IRQ handler" */
-> +	status = platform_get_irq(pdev, 0);
-> +	if (status < 0)
-> +		goto fail1;
-> +	keys->irq = status;
-> +	INIT_WORK(&keys->work, dm355evm_keys_work);
-> +
-> +	/* REVISIT:  flush the event queue? */
-> +
-> +	/* register */
-> +	status = input_register_device(input);
-> +	if (status < 0)
-> +		goto fail1;
-> +
-> +	/* start reporting events */
-> +	status = request_irq(keys->irq, dm355evm_keys_irq,
-> +			IRQF_TRIGGER_FALLING,
-> +			dev_name(&pdev->dev), keys);
-> +	if (status < 0) {
-> +		input_unregister_device(input);
-> +		goto fail1;
-
-You should not call input_free_device() after input_unregister_device().
-Either jump to "fail0" or do "input = NULL;".
-
-> +	}
-> +
-> +	return 0;
-> +
-> +fail1:
-> +	input_free_device(input);
-> +fail0:
-> +	kfree(keys);
-> +	dev_err(&pdev->dev, "can't register, err %d\n", status);
-> +	return status;
-> +}
-> +
-
--- 
-Dmitry

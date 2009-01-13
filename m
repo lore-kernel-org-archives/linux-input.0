@@ -1,7 +1,7 @@
 From: Nelson <arhuaco@freaks-unidos.net>
-Subject: [PATCH 5/5] Add linear filter
-Date: Tue, 13 Jan 2009 18:40:12 -0500
-Message-ID: <20090113234012.26361.46152.stgit@fugue.noexisteestedominiotanlargo.biz>
+Subject: [PATCH 4/5] Add mean filter
+Date: Tue, 13 Jan 2009 18:40:03 -0500
+Message-ID: <20090113234003.26361.93732.stgit@fugue.noexisteestedominiotanlargo.biz>
 References: <20090113233743.26361.14313.stgit@fugue.noexisteestedominiotanlargo.biz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
@@ -9,9 +9,9 @@ Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
 Received: from yx-out-2324.google.com ([74.125.44.30]:26100 "EHLO
 	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1760451AbZAMXkY (ORCPT
+	with ESMTP id S1758558AbZAMXkQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 13 Jan 2009 18:40:24 -0500
+	Tue, 13 Jan 2009 18:40:16 -0500
 In-Reply-To: <20090113233743.26361.14313.stgit@fugue.noexisteestedominiotanlargo.biz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
@@ -20,62 +20,61 @@ Cc: linux-input@vger.kernel.org, andy@openmoko.com
 
 From: Nelson Castillo <arhuaco@freaks-unidos.net>
 
-* Linearly scale touchscreen values.
-* Expose the constants for the linear transformation using sysfs.
-
-This patch allow programs to gather data directly from
-/dev/input/eventX. This is optional, you can use TSLIB
-to do the linear transformation if you prefer.
+This filter works well if the input data is already good quality,
+reducing sample jitter when the stylus is still, or moving
+very slowly, without introducing abrupt transitions or reducing
+ability to follow larger movements. Check the comments for a
+better description of what this filter does.
 
 Signed-off-by: Nelson Castillo <arhuaco@freaks-unidos.net>
 ---
 
- drivers/input/touchscreen/Kconfig            |    8 +
- drivers/input/touchscreen/Makefile           |    1 
- drivers/input/touchscreen/ts_filter_linear.c |  178 ++++++++++++++++++++++++++
- include/linux/ts_filter_linear.h             |   64 +++++++++
- 4 files changed, 251 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/ts_filter_linear.c
- create mode 100644 include/linux/ts_filter_linear.h
+ drivers/input/touchscreen/Kconfig          |    8 +
+ drivers/input/touchscreen/Makefile         |    1 
+ drivers/input/touchscreen/ts_filter_mean.c |  172 ++++++++++++++++++++++++++++
+ include/linux/ts_filter_mean.h             |   34 ++++++
+ 4 files changed, 215 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/touchscreen/ts_filter_mean.c
+ create mode 100644 include/linux/ts_filter_mean.h
 
 diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 3f725d4..a3ed1dc 100644
+index 5c84858..3f725d4 100644
 --- a/drivers/input/touchscreen/Kconfig
 +++ b/drivers/input/touchscreen/Kconfig
-@@ -45,6 +45,14 @@ config TOUCHSCREEN_FILTER_MEAN
- 	  Say Y here if you want to use the Mean touchscreen filter, it
- 	  can further improve decent quality data by removing jitter
+@@ -37,6 +37,14 @@ config TOUCHSCREEN_FILTER_MEDIAN
+ 	  Say Y here if you want to use the Median touchscreen filter, it's
+ 	  highly effective if you data is noisy with occasional excursions.
  
-+config TOUCHSCREEN_FILTER_LINEAR
-+	bool "Linear Touchscreen Filter"
++config TOUCHSCREEN_FILTER_MEAN
++	bool "Mean Average Touchscreen Filter"
 +	depends on INPUT_TOUCHSCREEN && TOUCHSCREEN_FILTER
 +	default Y
 +	help
-+	  Say Y here if you want to use the Linear touchscreen filter, it
-+	  enables the use of calibration data for the touchscreen.
++	  Say Y here if you want to use the Mean touchscreen filter, it
++	  can further improve decent quality data by removing jitter
 +
  endif
  
  config TOUCHSCREEN_ADS7846
 diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 84651c2..180b557 100644
+index e67c334..84651c2 100644
 --- a/drivers/input/touchscreen/Makefile
 +++ b/drivers/input/touchscreen/Makefile
-@@ -35,3 +35,4 @@ obj-$(CONFIG_TOUCHSCREEN_FILTER)	+= ts_filter.o
+@@ -34,3 +34,4 @@ obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_FILTER)	+= ts_filter.o
  obj-$(CONFIG_TOUCHSCREEN_FILTER_GROUP)	+= ts_filter_group.o
  obj-$(CONFIG_TOUCHSCREEN_FILTER_MEDIAN)	+= ts_filter_median.o
- obj-$(CONFIG_TOUCHSCREEN_FILTER_MEAN)	+= ts_filter_mean.o
-+obj-$(CONFIG_TOUCHSCREEN_FILTER_LINEAR)	+= ts_filter_linear.o
-diff --git a/drivers/input/touchscreen/ts_filter_linear.c b/drivers/input/touchscreen/ts_filter_linear.c
++obj-$(CONFIG_TOUCHSCREEN_FILTER_MEAN)	+= ts_filter_mean.o
+diff --git a/drivers/input/touchscreen/ts_filter_mean.c b/drivers/input/touchscreen/ts_filter_mean.c
 new file mode 100644
-index 0000000..4803e17
+index 0000000..34ac123
 --- /dev/null
-+++ b/drivers/input/touchscreen/ts_filter_linear.c
-@@ -0,0 +1,178 @@
++++ b/drivers/input/touchscreen/ts_filter_mean.c
+@@ -0,0 +1,172 @@
 +/*
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License, or
++ * the Free Software Foundation; either version 2 of the License, or
 + * (at your option) any later version.
 + *
 + * This program is distributed in the hope that it will be useful,
@@ -87,237 +86,201 @@ index 0000000..4803e17
 + * along with this program; if not, write to the Free Software
 + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 + *
-+ * Copyright (C) 2008 by Openmoko, Inc.
-+ * Author: Nelson Castillo <arhuaco@freaks-unidos.net>
-+ * All rights reserved.
++ * Copyright (c) 2008 Andy Green <andy@openmoko.com>
 + *
-+ * Linearly scale touchscreen values.
 + *
-+ * Expose the TS_FILTER_LINEAR_NCONSTANTS for the linear transformation
-+ * using sysfs.
++ * Mean has no effect if the samples are changing by more that the
++ * threshold set by averaging_threshold in the configuration.
 + *
++ * However while samples come in that don't go outside this threshold from
++ * the last reported sample, Mean replaces the samples with a simple mean
++ * of a configurable number of samples (set by bits_filter_length in config,
++ * which is 2^n, so 5 there makes 32 sample averaging).
++ *
++ * Mean works well if the input data is already good quality, reducing + / - 1
++ * sample jitter when the stylus is still, or moving very slowly, without
++ * introducing abrupt transitions or reducing ability to follow larger
++ * movements.  If you set the threshold higher than the dynamic range of the
++ * coordinates, you can just use it as a simple mean average.
 + */
 +
-+#include <linux/ts_filter_linear.h>
++#include <linux/errno.h>
 +#include <linux/kernel.h>
 +#include <linux/slab.h>
-+#include <linux/string.h>
++#include <linux/ts_filter_mean.h>
 +
-+
-+/*
-+ * sysfs functions
-+ */
-+
-+
-+static ssize_t const_attr_show(struct kobject *kobj,
-+			       struct attribute *attr,
-+			       char *buf)
++static void ts_filter_mean_clear_internal(struct ts_filter *tsf)
 +{
-+	struct const_attribute *a = to_const_attr(attr);
++	struct ts_filter_mean *tsfs = (struct ts_filter_mean *)tsf;
++	int n;
 +
-+	return a->show(to_const_obj(kobj), a, buf);
-+}
-+
-+static ssize_t const_attr_store(struct kobject *kobj,
-+				struct attribute *attr,
-+				const char *buf, size_t len)
-+{
-+	struct const_attribute *a = to_const_attr(attr);
-+
-+	return a->store(to_const_obj(kobj), a, buf, len);
-+}
-+
-+static struct sysfs_ops const_sysfs_ops = {
-+	.show =		const_attr_show,
-+	.store =	const_attr_store,
-+};
-+
-+static void const_release(struct kobject *kobj)
-+{
-+	kfree(to_const_obj(kobj)->tsfl);
-+}
-+
-+static ssize_t const_show(struct const_obj *obj, struct const_attribute *attr,
-+			  char *buf)
-+{
-+	int who;
-+
-+	sscanf(attr->attr.name, "%d", &who);
-+	return sprintf(buf, "%d\n", obj->tsfl->constants[who]);
-+}
-+
-+static ssize_t const_store(struct const_obj *obj, struct const_attribute *attr,
-+			   const char *buf, size_t count)
-+{
-+	int who;
-+
-+	sscanf(attr->attr.name, "%d", &who);
-+	sscanf(buf, "%d", &obj->tsfl->constants[who]);
-+	return count;
-+}
-+
-+/*
-+ * filter functions
-+ */
-+
-+static struct ts_filter *ts_filter_linear_create(struct platform_device *pdev,
-+						 void *conf, int count_coords)
-+{
-+	struct ts_filter_linear *tsfl;
-+	int i;
-+	int ret;
-+
-+	tsfl = kzalloc(sizeof(struct ts_filter_linear), GFP_KERNEL);
-+	if (!tsfl)
-+		return NULL;
-+
-+	tsfl->config = (struct ts_filter_linear_configuration *)conf;
-+	tsfl->tsf.count_coords = count_coords;
-+
-+	for (i = 0; i < TS_FILTER_LINEAR_NCONSTANTS; ++i) {
-+		tsfl->constants[i] = tsfl->config->constants[i];
-+
-+		/* sysfs */
-+		sprintf(tsfl->attr_names[i], "%d", i);
-+		tsfl->kattrs[i].attr.name = tsfl->attr_names[i];
-+		tsfl->kattrs[i].attr.mode = 0666;
-+		tsfl->kattrs[i].show = const_show;
-+		tsfl->kattrs[i].store = const_store;
-+		tsfl->attrs[i] = &tsfl->kattrs[i].attr;
++	for (n = 0; n < tsfs->tsf.count_coords; n++) {
++		tsfs->fhead[n] = 0;
++		tsfs->ftail[n] = 0;
++		tsfs->lowpass[n] = 0;
 +	}
-+	tsfl->attrs[i] = NULL;
-+
-+	tsfl->const_ktype.sysfs_ops = &const_sysfs_ops;
-+	tsfl->const_ktype.release = const_release;
-+	tsfl->const_ktype.default_attrs = tsfl->attrs;
-+	tsfl->c_obj.tsfl = tsfl; /* kernel frees tsfl in const_release */
-+
-+	/* TODO: /sys/ts-calibration is not OK */
-+	ret = kobject_init_and_add(&tsfl->c_obj.kobj, &tsfl->const_ktype,
-+				   &pdev->dev.kobj, "calibration");
-+	if (ret) {
-+		kobject_put(&tsfl->c_obj.kobj);
-+		return NULL;
-+	}
-+
-+	printk(KERN_INFO"  Created Linear ts filter depth %d\n", count_coords);
-+
-+	return &tsfl->tsf;
 +}
 +
-+static void ts_filter_linear_destroy(struct platform_device *pdev,
-+				     struct ts_filter *tsf)
++static void ts_filter_mean_clear(struct ts_filter *tsf)
 +{
-+	struct ts_filter_linear *tsfl = (struct ts_filter_linear *)tsf;
++	ts_filter_mean_clear_internal(tsf);
 +
-+	/* kernel frees tsfl in const_release */
-+	kobject_put(&tsfl->c_obj.kobj);
-+}
-+
-+static void ts_filter_linear_clear(struct ts_filter *tsf)
-+{
 +	if (tsf->next) /* chain */
 +		(tsf->next->api->clear)(tsf->next);
 +}
 +
-+
-+static void ts_filter_linear_scale(struct ts_filter *tsf, int *coords)
++static struct ts_filter *ts_filter_mean_create(struct platform_device *pdev,
++					       void *config, int count_coords)
 +{
-+	struct ts_filter_linear *tsfl = (struct ts_filter_linear *)tsf;
-+	int *k = tsfl->constants;
-+	int c0 = coords[tsfl->config->coord0];
-+	int c1 = coords[tsfl->config->coord1];
++	int *p;
++	int n;
++	struct ts_filter_mean *tsfs = kzalloc(
++				  sizeof(struct ts_filter_mean), GFP_KERNEL);
 +
-+	coords[tsfl->config->coord0] = (k[2] + k[0] * c0 + k[1] * c1) / k[6];
-+	coords[tsfl->config->coord1] = (k[5] + k[3] * c0 + k[4] * c1) / k[6];
++	if (!tsfs)
++		return NULL;
 +
-+	if (tsf->next)
++	BUG_ON((count_coords < 1) || (count_coords > MAX_TS_FILTER_COORDS));
++	tsfs->tsf.count_coords = count_coords;
++
++	tsfs->config = (struct ts_filter_mean_configuration *)config;
++
++	tsfs->config->extent = 1 << tsfs->config->bits_filter_length;
++	BUG_ON((tsfs->config->extent > 256) || (!tsfs->config->extent));
++
++	p = kmalloc(tsfs->config->extent * sizeof(int) * count_coords,
++								    GFP_KERNEL);
++	if (!p)
++		return NULL;
++
++	for (n = 0; n < count_coords; n++) {
++		tsfs->fifo[n] = p;
++		p += tsfs->config->extent;
++	}
++
++	if (!tsfs->config->averaging_threshold)
++		tsfs->config->averaging_threshold = 0xffff; /* always active */
++
++	ts_filter_mean_clear_internal(&tsfs->tsf);
++
++	printk(KERN_INFO"  Created Mean ts filter len %d depth %d thresh %d\n",
++	       tsfs->config->extent, count_coords,
++	       tsfs->config->averaging_threshold);
++
++	return &tsfs->tsf;
++}
++
++static void ts_filter_mean_destroy(struct platform_device *pdev,
++				   struct ts_filter *tsf)
++{
++	struct ts_filter_mean *tsfs = (struct ts_filter_mean *)tsf;
++
++	kfree(tsfs->fifo[0]); /* first guy has pointer from kmalloc */
++	kfree(tsf);
++}
++
++static void ts_filter_mean_scale(struct ts_filter *tsf, int *coords)
++{
++	if (tsf->next) /* chain */
 +		(tsf->next->api->scale)(tsf->next, coords);
 +}
 +
-+static int ts_filter_linear_process(struct ts_filter *tsf, int *coords)
++/* give us the raw sample data in x and y, and if we return 1 then you can
++ * get a filtered coordinate from tsm->x and tsm->y: if we return 0 you didn't
++ * fill the filter with samples yet.
++ */
++
++static int ts_filter_mean_process(struct ts_filter *tsf, int *coords)
 +{
-+	if (tsf->next)
++	struct ts_filter_mean *tsfs = (struct ts_filter_mean *)tsf;
++	int n;
++	int len;
++
++	for (n = 0; n < tsf->count_coords; n++) {
++
++		/* has he moved far enough away that we should abandon current
++		 * low pass filtering state?
++		 */
++		if ((coords[n] < (tsfs->reported[n] -
++					  tsfs->config->averaging_threshold)) ||
++		    (coords[n] > (tsfs->reported[n] +
++					  tsfs->config->averaging_threshold))) {
++			tsfs->fhead[n] = 0;
++			tsfs->ftail[n] = 0;
++			tsfs->lowpass[n] = 0;
++		}
++
++		/* capture this sample into fifo and sum */
++		tsfs->fifo[n][tsfs->fhead[n]++] = coords[n];
++		if (tsfs->fhead[n] == tsfs->config->extent)
++			tsfs->fhead[n] = 0;
++		tsfs->lowpass[n] += coords[n];
++
++		/* adjust the sum into an average and use that*/
++		len = (tsfs->fhead[n] - tsfs->ftail[n]) &
++						     (tsfs->config->extent - 1);
++		coords[n] = (tsfs->lowpass[n] + (len >> 1)) / len;
++		tsfs->reported[n] = coords[n];
++
++		/* remove oldest sample if we are full */
++		if (len == (tsfs->config->extent - 1)) {
++			tsfs->lowpass[n] -= tsfs->fifo[n][tsfs->ftail[n]++];
++			if (tsfs->ftail[n] == tsfs->config->extent)
++				tsfs->ftail[n] = 0;
++		}
++	}
++
++	if (tsf->next) /* chain */
 +		return (tsf->next->api->process)(tsf->next, coords);
 +
 +	return 1;
 +}
 +
-+struct ts_filter_api ts_filter_linear_api = {
-+	.create = ts_filter_linear_create,
-+	.destroy = ts_filter_linear_destroy,
-+	.clear = ts_filter_linear_clear,
-+	.process = ts_filter_linear_process,
-+	.scale = ts_filter_linear_scale,
++struct ts_filter_api ts_filter_mean_api = {
++	.create = ts_filter_mean_create,
++	.destroy = ts_filter_mean_destroy,
++	.clear = ts_filter_mean_clear,
++	.process = ts_filter_mean_process,
++	.scale = ts_filter_mean_scale,
 +};
-diff --git a/include/linux/ts_filter_linear.h b/include/linux/ts_filter_linear.h
+diff --git a/include/linux/ts_filter_mean.h b/include/linux/ts_filter_mean.h
 new file mode 100644
-index 0000000..dab5390
+index 0000000..46ff01a
 --- /dev/null
-+++ b/include/linux/ts_filter_linear.h
-@@ -0,0 +1,64 @@
-+#ifndef __TS_FILTER_LINEAR_H__
-+#define __TS_FILTER_LINEAR_H__
++++ b/include/linux/ts_filter_mean.h
+@@ -0,0 +1,34 @@
++#ifndef __TS_FILTER_MEAN_H__
++#define __TS_FILTER_MEAN_H__
 +
 +#include <linux/ts_filter.h>
-+#include <linux/kobject.h>
 +
 +/*
-+ * touchscreen linear filter.
++ * touchscreen filter
 + *
-+ * Copyright (C) 2008 by Openmoko, Inc.
-+ * Author: Nelson Castillo <arhuaco@freaks-unidos.net>
++ * mean
 + *
++ * (c) 2008 Andy Green <andy@openmoko.com>
 + */
 +
-+#define TS_FILTER_LINEAR_NCONSTANTS 7
++struct ts_filter_mean_configuration {
++	int bits_filter_length;
++	int averaging_threshold;
 +
-+/* sysfs */
-+
-+struct ts_filter_linear;
-+
-+struct const_obj {
-+	struct ts_filter_linear *tsfl;
-+	struct kobject kobj;
++	int extent;
 +};
 +
-+#define to_const_obj(x) container_of(x, struct const_obj, kobj)
-+
-+struct const_attribute {
-+	struct attribute attr;
-+	ssize_t (*show)(struct const_obj *const, struct const_attribute *attr,
-+			char *buf);
-+	ssize_t (*store)(struct const_obj *const, struct const_attribute *attr,
-+			 const char *buf, size_t count);
-+};
-+
-+#define to_const_attr(x) container_of(x, struct const_attribute, attr)
-+
-+/* filter configuration */
-+
-+struct ts_filter_linear_configuration {
-+	int constants[TS_FILTER_LINEAR_NCONSTANTS];
-+	int coord0;
-+	int coord1;
-+};
-+
-+/* the filter */
-+
-+struct ts_filter_linear {
++struct ts_filter_mean {
 +	struct ts_filter tsf;
-+	struct ts_filter_linear_configuration *config;
++	struct ts_filter_mean_configuration *config;
 +
-+	int constants[TS_FILTER_LINEAR_NCONSTANTS];
-+
-+	/* sysfs */
-+	struct const_obj c_obj;
-+	struct kobj_type const_ktype;
-+	struct const_attribute kattrs[TS_FILTER_LINEAR_NCONSTANTS];
-+	struct attribute *attrs[TS_FILTER_LINEAR_NCONSTANTS + 1];
-+	char attr_names[TS_FILTER_LINEAR_NCONSTANTS][2];
++	int reported[MAX_TS_FILTER_COORDS];
++	int lowpass[MAX_TS_FILTER_COORDS];
++	int *fifo[MAX_TS_FILTER_COORDS];
++	int fhead[MAX_TS_FILTER_COORDS];
++	int ftail[MAX_TS_FILTER_COORDS];
 +};
 +
-+extern struct ts_filter_api ts_filter_linear_api;
++extern struct ts_filter_api ts_filter_mean_api;
 +
 +#endif
 

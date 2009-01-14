@@ -1,44 +1,58 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: new modular hid?
-Date: Wed, 14 Jan 2009 14:39:00 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0901141435150.5377@jikos.suse.cz>
-References: <496BA275.1080504@msgid.tls.msk.ru> <alpine.LRH.1.10.0901130052180.24105@twin.jikos.cz> <20090112213924.ZZRA012@mailhub.coreip.homeip.net> <alpine.LNX.1.10.0901130939290.5377@jikos.suse.cz> <alpine.LNX.1.10.0901130958230.5377@jikos.suse.cz>
- <496DE7FD.8080406@msgid.tls.msk.ru>
+From: Daniel Silverstone <dsilvers@simtec.co.uk>
+Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
+Date: Wed, 14 Jan 2009 17:36:53 +0000
+Message-ID: <1231954613.9219.8.camel@ataraxia>
+References: <20090109121026.052643915@fluff.org.uk>
+	 <20090111234903.ZZRA012@mailhub.coreip.homeip.net>
+	 <1231751234.23618.6.camel@petitemort>
+	 <20090112212907.ZZRA012@mailhub.coreip.homeip.net>
+	 <1231838958.30531.3.camel@petitemort>
+	 <20090114053515.GC4375@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from styx.suse.cz ([82.119.242.94]:44542 "EHLO mail.suse.cz"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751007AbZANNjD (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 14 Jan 2009 08:39:03 -0500
-In-Reply-To: <496DE7FD.8080406@msgid.tls.msk.ru>
+Received: from batfish.pepperfish.net ([87.237.62.180]:44743 "EHLO
+	flounder.pepperfish.net" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+	with ESMTP id S1757497AbZANRgV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 14 Jan 2009 12:36:21 -0500
+In-Reply-To: <20090114053515.GC4375@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Slaby <jslaby@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, vince@simtec.co.uk
 
-On Wed, 14 Jan 2009, Michael Tokarev wrote:
+On Tue, 2009-01-13 at 21:35 -0800, Dmitry Torokhov wrote:
+> > As I understand it; yes. (Some bits of hardware really are hideous
+> > things) Indeed if the driver fails to load quickly enough, the device
+> > might disconnect/reconnect before the driver can get hold of it.
+> Geez... you sure it wasn't just broken device/batch?
 
-> Let's take a look at my example, hid_bright.  Without this module, my 
-> keyboard does not work, even if usbhid&Co is loaded.  But this module 
-> does exactly two things:
-> 
->   hid_hw_start(hdev, HID_CONNECT_DEFAULT);
->   usbhid_set_leds(hdev);
-> Maybe, just maybe, it's possible to init stuff by default, and get 
-> additional features or quirks later, when actually loading the 
-> sub-driver?  But any way, this "doing nothing" driver thing seems to be 
-> wrong...
+Nope, the datasheet proudly proclaims this watchdog functionality.
 
-Yes. And actually hid-bright and hid-dell drivers have been already 
-removed in current Linus' tree, and the leds are handled in the generic 
-code again. So in this particular case, things are exactly the same as 
-they used to be before for your hardware.
+> > Unfortunately it's often harder to get people to change their userland
+> > than their kernel. It seems a pity to make the driver less useful during
+> > any longer-term effort to fix TSLIB. If acceptance of this patch is
+> > predicated on removing that then I guess we'll have to discuss it
+> > amongst ourselves and try and work out what we'd rather do. Is removing
+> > the fake pressure report a requirement or a would-like?
+> I just checked TSLIB and the change to recognize devices that do not
+> report pressure was applied 2 months ago so everything should work fine
+> now. I do not think that we need to implement workarounds in newly
+> added drivers just because users are not willing to upgrade their
+> TSLIB installation.
 
-Still, there are drivers that are more complicated and having the code in 
-the generic code is not bearable, so we have to think about this and solve 
-it anyway, even though this is not going to be a problem particularly for 
-your system in 2.6.29.
+I see. I shall look into sorting out a fresh patch without fake
+pressure.
+
+Regards,
+
+Daniel.
 
 -- 
-Jiri Kosina
+Daniel Silverstone                              http://www.simtec.co.uk/
+PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
+
+
+

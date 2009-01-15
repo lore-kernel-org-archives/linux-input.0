@@ -1,58 +1,40 @@
-From: Ben Dooks <ben-linux@fluff.org>
-Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
-Date: Thu, 15 Jan 2009 15:12:28 +0000
-Message-ID: <20090115151228.GU15238@trinity.fluff.org>
-References: <20090109121026.052643915@fluff.org.uk> <20090111234903.ZZRA012@mailhub.coreip.homeip.net> <1231751234.23618.6.camel@petitemort> <20090112212907.ZZRA012@mailhub.coreip.homeip.net> <1231838958.30531.3.camel@petitemort> <20090114053515.GC4375@dtor-d630.eng.vmware.com> <1231954613.9219.8.camel@ataraxia>
+From: David Hagood <david.hagood@aeroflex.com>
+Subject: Re: [Bugme-new] [Bug 12447] New: usbtouchscreen submits URB too
+	quickly if built in to kernel
+Date: Thu, 15 Jan 2009 10:31:31 -0600
+Message-ID: <1232037091.9098.46.camel@sage.wic.aeroflex.com>
+References: <Pine.LNX.4.44L0.0901151008560.2490-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from trinity.fluff.org ([89.145.97.151]:42168 "EHLO
-	trinity.fluff.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752593AbZAOPkj (ORCPT
+Received: from outbound-wa4.frontbridge.com ([216.32.181.16]:26881 "EHLO
+	WA4EHSOBE001.bigfish.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755345AbZAOQbf (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 15 Jan 2009 10:40:39 -0500
-Content-Disposition: inline
-In-Reply-To: <1231954613.9219.8.camel@ataraxia>
+	Thu, 15 Jan 2009 11:31:35 -0500
+In-Reply-To: <Pine.LNX.4.44L0.0901151008560.2490-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Silverstone <dsilvers@simtec.co.uk>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, vince@simtec.co.uk
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, bugme-daemon@bugzilla.kernel.org
 
-On Wed, Jan 14, 2009 at 05:36:53PM +0000, Daniel Silverstone wrote:
-> On Tue, 2009-01-13 at 21:35 -0800, Dmitry Torokhov wrote:
-> > > As I understand it; yes. (Some bits of hardware really are hideous
-> > > things) Indeed if the driver fails to load quickly enough, the device
-> > > might disconnect/reconnect before the driver can get hold of it.
-> > Geez... you sure it wasn't just broken device/batch?
+On Thu, 2009-01-15 at 10:09 -0500, Alan Stern wrote:
+> On Wed, 14 Jan 2009, Dmitry Torokhov wrote:
 > 
-> Nope, the datasheet proudly proclaims this watchdog functionality.
-
-Would be useful to add a comment about that being the primary function
-for the irq_always flag, ie:
-
-+       /* Always service the USB devices irq not just when the input device is
-+        * open. This is often for devices that have a watchdog which watches
-+	 * the polling process.
-+        */
- 
-> > > Unfortunately it's often harder to get people to change their userland
-> > > than their kernel. It seems a pity to make the driver less useful during
-> > > any longer-term effort to fix TSLIB. If acceptance of this patch is
-> > > predicated on removing that then I guess we'll have to discuss it
-> > > amongst ourselves and try and work out what we'd rather do. Is removing
-> > > the fake pressure report a requirement or a would-like?
-> > I just checked TSLIB and the change to recognize devices that do not
-> > report pressure was applied 2 months ago so everything should work fine
-> > now. I do not think that we need to implement workarounds in newly
-> > added drivers just because users are not willing to upgrade their
-> > TSLIB installation.
+> > > I suppose this is device-specific an
+> A usbmon trace might come in useful here.  See the instructions in 
+> Documentation/usb/usbmon.txt.
 > 
-> I see. I shall look into sorting out a fresh patch without fake
-> pressure.
+> Alan Stern
+> 
 
--- 
-Ben
+Now that i've mounted the USB monitor system, it works. Heisenberg
+lives!
 
-Q:      What's a light-year?
-A:      One-third less calories than a regular year.
+
+Notice: This e-mail is intended solely for use of the individual or entity to which it is addressed and may contain information that is proprietary, privileged, company confidential and/or exempt from disclosure under applicable law. If the reader is not the intended recipient or agent responsible for delivering the message to the intended recipient, you are hereby notified that any dissemination, distribution or copying of this communication is strictly prohibited.  If this communication has been transmitted from a U.S. location it may also contain data subject to the International Traffic in Arms Regulations or U.S. Export Administration Regulations and cannot be disseminated, distributed or copied to foreign nationals, residing in the U.S. or abroad, without the prior approval of the U.
+ S. Department of State or appropriate export licensing authority. If you have received this communication in error, please notify the sender by reply e-mail or collect telephone call and del
+ ete or destroy all copies of this e-mail message, any physical copies made of this e-mail message and/or any file attachment(s).
+
 

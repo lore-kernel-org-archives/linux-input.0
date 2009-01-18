@@ -1,409 +1,585 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.29-rc2] input:  dm355evm_keys driver
-Date: Sat, 17 Jan 2009 13:15:07 -0800
-Message-ID: <200901171315.08019.david-b@pacbell.net>
+From: Philipp Kohlbecher <xt28@gmx.de>
+Subject: [PATCH] Make PNP IDs all uppercase
+Date: Sun, 18 Jan 2009 15:02:32 +0100
+Message-ID: <49733678.40006__48358.8633979254$1232287455$gmane$org@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp116.sbc.mail.sp1.yahoo.com ([69.147.64.89]:24942 "HELO
-	smtp116.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1757993AbZAQVWQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 17 Jan 2009 16:22:16 -0500
-Content-Disposition: inline
+Received: from mail.gmx.net ([213.165.64.20]:55003 "HELO mail.gmx.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+	id S1758276AbZAROCm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 18 Jan 2009 09:02:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Kevin Hilman <khilman@deeprootsystems.com>
+To: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Vojtech Pavlik <vojtech@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: linux-kernel@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
-Subject: input:  dm355evm_keys driver
-    
-Simple input driver support for the events reported by the
-MSP430 firmware on the DM355 EVM.  Verified using the RC5
-remote included with the kit; docs weren't quite right.
+If I understand correctly, ACPI _HIDs (including PNP IDs) should be all 
+uppercase, including the hex digits, cf. ACPI Specification 3.0b [1], 
+pp. 162-3 and acpi_glb_hex_to_ascii[] in drivers/acpi/utilities/utglobal.c.
 
-Some of the keycode selections might need improvement; they
-can be remapped, so there's at least a runtime workaround.
-(I also suspect Linux may someday merit more generic support
-for RC5 based remote controls.)
+Since compare_pnp_id() in drivers/pnp/driver.c is case-insensitive, the 
+case should only matter for the MODULE_DEVICE_TABLE and thus for module 
+aliases, as modprobe uses fnmatch() to match aliases, which is 
+case-sensitive. Therefore, using uppercase letters in PNP IDs can lead 
+to non-functional module aliases.
 
-These events don't distinguish key press vs release events,
-so this reports both and then skips the next event if it's
-identical.  The RC5 remote codes include a "toggle" bit that
-can help detect autorepeated keys; but this driver doesn't
-bother with those nuances.
+This patch converts all PNP IDs to uppercase.
 
-This driver relies on the drivers/mfd/dm355evm_msp.c code
-for core features, including sharing I2C access to this
-firmware with GPIO, LED, and RTC support.
+[1] http://www.acpi.info/spec.htm
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
+Signed-off-by: Philipp Kohlbecher <xt28@gmx.de>
+
 ---
-Incorporates previous feedback.
 
- drivers/input/keyboard/Kconfig         |    8 
- drivers/input/keyboard/Makefile        |    1 
- drivers/input/keyboard/dm355evm_keys.c |  332 +++++++++++++++++++++++++++++++
- 3 files changed, 341 insertions(+)
+I have successfully tested this patch for drivers/rtc/rtc-cmos.c.
 
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -332,4 +332,12 @@ config KEYBOARD_SH_KEYSC
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sh_keysc.
-+
-+config KEYBOARD_DM355EVM
-+	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
-+	depends on MFD_DM355EVM_MSP
-+	help
-+	  Supports the pushbuttons and IR remote used with
-+	  the DM355 EVM board.
-+
- endif
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -28,3 +28,4 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-+obj-$(CONFIG_KEYBOARD_DM355EVM)		+= dm355evm_keys.o
---- /dev/null
-+++ b/drivers/input/keyboard/dm355evm_keys.c
-@@ -0,0 +1,332 @@
-+/*
-+ * dm355evm_keys.c - support buttons and IR remote on DM355 EVM board
-+ *
-+ * Copyright (c) 2008 by David Brownell
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/platform_device.h>
-+#include <linux/interrupt.h>
-+
-+#include <linux/i2c/dm355evm_msp.h>
-+
-+
-+/*
-+ * The MSP430 firmware on the DM355 EVM monitors on-board pushbuttons
-+ * and an IR receptor used for the remote control.  When any key is
-+ * pressed, or its autorepeat kicks in, an event is sent.  This driver
-+ * read those events from the small (32 event) queue and reports them.
-+ *
-+ * Because we communicate with the MSP430 using I2C, and all I2C calls
-+ * in Linux sleep, we need to cons up a kind of threaded IRQ handler
-+ * using a work_struct.  The IRQ is active low, but we use it through
-+ * the GPIO controller so we can trigger on falling edges.
-+ *
-+ * Note that physically there can only be one of these devices.
-+ *
-+ * This driver was tested with firmware revision A4.
-+ */
-+struct dm355evm_keys {
-+	struct work_struct	work;
-+	struct input_dev	*input;
-+	struct device		*dev;
-+	int			irq;
-+};
-+
-+static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
-+{
-+	struct dm355evm_keys	*keys = _keys;
-+
-+	schedule_work(&keys->work);
-+	return IRQ_HANDLED;
-+}
-+
-+/* These initial keycodes can be remapped by dm355evm_setkeycode(). */
-+static struct {
-+	u16	event;
-+	u16	keycode;
-+} dm355evm_keys[] = {
-+
-+	/*
-+	 * Pushbuttons on the EVM board ... note that the labels for these
-+	 * are SW10/SW11/etc on the PC board.  The left/right orientation
-+	 * comes only from the firmware's documentation, and presumes the
-+	 * power connector is immediately in front of you and the IR sensor
-+	 * is to the right.  (That is, rotate the board counter-clockwise
-+	 * by 90 degrees from the SW10/etc and "DM355 EVM" labels.)
-+	 */
-+	{ 0x00d8, KEY_OK, },		/* SW12 */
-+	{ 0x00b8, KEY_UP, },		/* SW13 */
-+	{ 0x00e8, KEY_DOWN, },		/* SW11 */
-+	{ 0x0078, KEY_LEFT, },		/* SW14 */
-+	{ 0x00f0, KEY_RIGHT, },		/* SW10 */
-+
-+	/*
-+	 * IR buttons ... codes assigned to match the universal remote
-+	 * provided with the EVM (Philips PM4S) using DVD code 0020.
-+	 *
-+	 * These event codes match firmware documentation, but other
-+	 * remote controls could easily send more RC5-encoded events.
-+	 * The PM4S manual was used in several cases to help select
-+	 * a keycode reflecting the intended usage.
-+	 *
-+	 * RC5 codes are 14 bits, with two start bits (0x3 prefix)
-+	 * and a toggle bit (masked out below).
-+	 */
-+	{ 0x300c, KEY_POWER, },		/* NOTE: docs omit this */
-+	{ 0x3000, KEY_NUMERIC_0, },
-+	{ 0x3001, KEY_NUMERIC_1, },
-+	{ 0x3002, KEY_NUMERIC_2, },
-+	{ 0x3003, KEY_NUMERIC_3, },
-+	{ 0x3004, KEY_NUMERIC_4, },
-+	{ 0x3005, KEY_NUMERIC_5, },
-+	{ 0x3006, KEY_NUMERIC_6, },
-+	{ 0x3007, KEY_NUMERIC_7, },
-+	{ 0x3008, KEY_NUMERIC_8, },
-+	{ 0x3009, KEY_NUMERIC_9, },
-+	{ 0x3022, KEY_ENTER, },
-+	{ 0x30ec, KEY_MODE, },		/* "tv/vcr/..." */
-+	{ 0x300f, KEY_SELECT, },	/* "info" */
-+	{ 0x3020, KEY_CHANNELUP, },	/* "up" */
-+	{ 0x302e, KEY_MENU, },		/* "in/out" */
-+	{ 0x3011, KEY_VOLUMEDOWN, },	/* "left" */
-+	{ 0x300d, KEY_MUTE, },		/* "ok" */
-+	{ 0x3010, KEY_VOLUMEUP, },	/* "right" */
-+	{ 0x301e, KEY_SUBTITLE, },	/* "cc" */
-+	{ 0x3021, KEY_CHANNELDOWN, },	/* "down" */
-+	{ 0x3022, KEY_PREVIOUS, },
-+	{ 0x3026, KEY_SLEEP, },
-+	{ 0x3172, KEY_REWIND, },	/* NOTE: docs wrongly say 0x30ca */
-+	{ 0x3175, KEY_PLAY, },
-+	{ 0x3174, KEY_FASTFORWARD, },
-+	{ 0x3177, KEY_RECORD, },
-+	{ 0x3176, KEY_STOP, },
-+	{ 0x3169, KEY_PAUSE, },
-+};
-+
-+static void dm355evm_keys_work(struct work_struct *work)
-+{
-+	struct dm355evm_keys	*keys;
-+	int			status;
-+
-+	keys = container_of(work, struct dm355evm_keys, work);
-+
-+	/* For simplicity we ignore INPUT_COUNT and just read
-+	 * events until we get the "queue empty" indicator.
-+	 * Reading INPUT_LOW decrements the count.
-+	 */
-+	for (;;) {
-+		static u16	last_event;
-+
-+		u16		event;
-+		int		keycode;
-+		int		i;
-+
-+		status = dm355evm_msp_read(DM355EVM_MSP_INPUT_HIGH);
-+		if (status < 0) {
-+			dev_dbg(keys->dev, "input high err %d\n",
-+					status);
-+			break;
-+		}
-+		event = status << 8;
-+
-+		status = dm355evm_msp_read(DM355EVM_MSP_INPUT_LOW);
-+		if (status < 0) {
-+			dev_dbg(keys->dev, "input low err %d\n",
-+					status);
-+			break;
-+		}
-+		event |= status;
-+		if (event == 0xdead)
-+			break;
-+
-+		/* Press and release a button:  two events, same code.
-+		 * Press and hold (autorepeat), then release: N events
-+		 * (N > 2), same code.  For RC5 buttons the toggle bits
-+		 * distinguish (for example) "1-autorepeat" from "1 1";
-+		 * but PCB buttons don't support that bit.
-+		 *
-+		 * So we must synthesize release events.  We do that by
-+		 * mapping events to a press/release event pair; then
-+		 * to avoid adding extra events, skip the second event
-+		 * of each pair.
-+		 */
-+		if (event == last_event) {
-+			last_event = 0;
-+			continue;
-+		}
-+		last_event = event;
-+
-+		/* ignore the RC5 toggle bit */
-+		event &= ~0x0800;
-+
-+		/* find the key, or leave it as unknown */
-+		keycode = KEY_UNKNOWN;
-+		for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++) {
-+			if (dm355evm_keys[i].event != event)
-+				continue;
-+			keycode = dm355evm_keys[i].keycode;
-+			break;
-+		}
-+		dev_dbg(keys->dev,
-+			"input event 0x%04x--> keycode %d\n",
-+			event, keycode);
-+
-+		/* report press + release */
-+		input_report_key(keys->input, keycode, 1);
-+		input_sync(keys->input);
-+		input_report_key(keys->input, keycode, 0);
-+		input_sync(keys->input);
-+	}
-+}
-+
-+static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
-+{
-+	u16		old_keycode;
-+	unsigned	i;
-+
-+	if (((unsigned)index) >= ARRAY_SIZE(dm355evm_keys))
-+		return -EINVAL;
-+
-+	old_keycode = dm355evm_keys[index].keycode;
-+	dm355evm_keys[index].keycode = keycode;
-+	set_bit(keycode, dev->keybit);
-+
-+	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++) {
-+		if (dm355evm_keys[index].keycode == old_keycode)
-+			goto done;
-+	}
-+	clear_bit(old_keycode, dev->keybit);
-+done:
-+	return 0;
-+}
-+
-+static int dm355evm_getkeycode(struct input_dev *dev, int index, int *keycode)
-+{
-+	if (((unsigned)index) >= ARRAY_SIZE(dm355evm_keys))
-+		return -EINVAL;
-+
-+	return dm355evm_keys[index].keycode;
-+}
-+
-+/*----------------------------------------------------------------------*/
-+
-+static int __devinit dm355evm_keys_probe(struct platform_device *pdev)
-+{
-+	struct dm355evm_keys	*keys;
-+	int			status = -ENOMEM;
-+	struct input_dev	*input;
-+	int			i;
-+
-+	/* allocate instance struct */
-+	keys = kzalloc(sizeof *keys, GFP_KERNEL);
-+	if (!keys)
-+		goto fail0;
-+	platform_set_drvdata(pdev, keys);
-+	keys->dev = &pdev->dev;
-+
-+	/* ... and input dev ... */
-+	input = input_allocate_device();
-+	if (!input)
-+		goto fail0;
-+	keys->input = input;
-+	input_set_drvdata(input, keys);
-+
-+	input->name = "DM355 EVM Controls";
-+	input->phys = "dm355evm/input0";
-+	input->dev.parent = &pdev->dev;
-+
-+	input->id.bustype = BUS_I2C;
-+	input->id.product = 0x0355;
-+	input->id.version = dm355evm_msp_read(DM355EVM_MSP_FIRMREV);
-+
-+	input->evbit[0] = BIT(EV_KEY);
-+	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++)
-+		set_bit(dm355evm_keys[i].keycode, input->keybit);
-+
-+	input->keycode = dm355evm_keys;
-+	input->setkeycode = dm355evm_setkeycode;
-+	input->getkeycode = dm355evm_getkeycode;
-+
-+	/* set up "threaded IRQ handler" */
-+	status = platform_get_irq(pdev, 0);
-+	if (status < 0)
-+		goto fail1;
-+	keys->irq = status;
-+	INIT_WORK(&keys->work, dm355evm_keys_work);
-+
-+	/* REVISIT:  flush the event queue? */
-+
-+	/* register */
-+	status = input_register_device(input);
-+	if (status < 0)
-+		goto fail0;
-+
-+	/* start reporting events */
-+	status = request_irq(keys->irq, dm355evm_keys_irq,
-+			IRQF_TRIGGER_FALLING,
-+			dev_name(&pdev->dev), keys);
-+	if (status < 0) {
-+		input_unregister_device(input);
-+		goto fail1;
-+	}
-+
-+	return 0;
-+
-+fail1:
-+	input_free_device(input);
-+fail0:
-+	kfree(keys);
-+	dev_err(&pdev->dev, "can't register, err %d\n", status);
-+
-+	return status;
-+}
-+
-+static int __devexit dm355evm_keys_remove(struct platform_device *pdev)
-+{
-+	struct dm355evm_keys	*keys = platform_get_drvdata(pdev);
-+
-+	free_irq(keys->irq, keys);
-+	input_unregister_device(keys->input);
-+	kfree(keys);
-+
-+	return 0;
-+}
-+
-+/* REVISIT:  add suspend/resume when DaVinci supports it.  The IRQ should
-+ * be able to wake up the system.  When device_may_wakeup(&pdev->dev), call
-+ * enable_irq_wake() on suspend, and disable_irq_wake() on resume.
-+ */
-+
-+/*
-+ * I2C is used to talk to the MSP430, but this platform device is
-+ * exposed by an MFD driver that manages I2C communications.
-+ */
-+static struct platform_driver dm355evm_keys_driver = {
-+	.probe		= dm355evm_keys_probe,
-+	.remove		= __devexit_p(dm355evm_keys_remove),
-+	.driver		= {
-+		.owner	= THIS_MODULE,
-+		.name	= "dm355evm_keys",
-+	},
-+};
-+
-+static int __init dm355evm_keys_init(void)
-+{
-+	return platform_driver_register(&dm355evm_keys_driver);
-+}
-+module_init(dm355evm_keys_init);
-+
-+static void __exit dm355evm_keys_exit(void)
-+{
-+	platform_driver_unregister(&dm355evm_keys_driver);
-+}
-+module_exit(dm355evm_keys_exit);
-+
-+MODULE_LICENSE("GPL");
+If you would rather have this as a series of patches, one per file, let 
+me know.
+
+I hope I did not forget any recipients and that I didn't spam anyone 
+unnecessarily. If I did, I apologize.
+
+  arch/x86/kernel/rtc.c                 |    2 +-
+  drivers/input/gameport/ns558.c        |    6 ++--
+  drivers/input/serio/i8042-x86ia64io.h |   16 ++++++------
+  drivers/input/touchscreen/htcpen.c    |    2 +-
+  drivers/media/radio/radio-cadet.c     |    2 +-
+  drivers/net/3c509.c                   |    4 +-
+  drivers/net/irda/smsc-ircc2.c         |    2 +-
+  drivers/platform/x86/fujitsu-laptop.c |    2 +-
+  drivers/platform/x86/wmi.c            |    2 +-
+  drivers/pnp/quirks.c                  |    4 +-
+  drivers/pnp/system.c                  |    4 +-
+  drivers/rtc/rtc-cmos.c                |    6 ++--
+  sound/drivers/mpu401/mpu401.c         |    2 +-
+  sound/isa/cs423x/cs4236.c             |   42 
+++++++++++++++++----------------
+  sound/isa/gus/interwave.c             |    8 +++---
+  sound/isa/sb/sb16.c                   |   36 ++++++++++++++--------------
+  sound/isa/wavefront/wavefront.c       |    4 +-
+  sound/oss/sb_card.h                   |   10 ++++----
+  18 files changed, 77 insertions(+), 77 deletions(-)
+
+diff --git a/arch/x86/kernel/rtc.c b/arch/x86/kernel/rtc.c
+index dd6f2b7..e9a7cac 100644
+--- a/arch/x86/kernel/rtc.c
++++ b/arch/x86/kernel/rtc.c
+@@ -224,7 +224,7 @@ static __init int add_rtc_cmos(void)
+  {
+  #ifdef CONFIG_PNP
+  	static const char *ids[] __initconst =
+-	    { "PNP0b00", "PNP0b01", "PNP0b02", };
++	    { "PNP0B00", "PNP0B01", "PNP0B02", };
+  	struct pnp_dev *dev;
+  	struct pnp_id *id;
+  	int i;
+diff --git a/drivers/input/gameport/ns558.c b/drivers/input/gameport/ns558.c
+index db556b7..5bc2c57 100644
+--- a/drivers/input/gameport/ns558.c
++++ b/drivers/input/gameport/ns558.c
+@@ -171,11 +171,11 @@ static struct pnp_device_id pnp_devids[] = {
+  	{ .id = "@P@0020", .driver_data = 0 }, /* ALS 200 */
+  	{ .id = "@P@1001", .driver_data = 0 }, /* ALS 100+ */
+  	{ .id = "@P@2001", .driver_data = 0 }, /* ALS 120 */
+-	{ .id = "ASB16fd", .driver_data = 0 }, /* AdLib NSC16 */
++	{ .id = "ASB16FD", .driver_data = 0 }, /* AdLib NSC16 */
+  	{ .id = "AZT3001", .driver_data = 0 }, /* AZT1008 */
+  	{ .id = "CDC0001", .driver_data = 0 }, /* Opl3-SAx */
+  	{ .id = "CSC0001", .driver_data = 0 }, /* CS4232 */
+-	{ .id = "CSC000f", .driver_data = 0 }, /* CS4236 */
++	{ .id = "CSC000F", .driver_data = 0 }, /* CS4236 */
+  	{ .id = "CSC0101", .driver_data = 0 }, /* CS4327 */
+  	{ .id = "CTL7001", .driver_data = 0 }, /* SB16 */
+  	{ .id = "CTL7002", .driver_data = 0 }, /* AWE64 */
+@@ -188,7 +188,7 @@ static struct pnp_device_id pnp_devids[] = {
+  	{ .id = "OPT0001", .driver_data = 0 }, /* OPTi Audio16 */
+  	{ .id = "YMH0006", .driver_data = 0 }, /* Opl3-SA */
+  	{ .id = "YMH0022", .driver_data = 0 }, /* Opl3-SAx */
+-	{ .id = "PNPb02f", .driver_data = 0 }, /* Generic */
++	{ .id = "PNPB02F", .driver_data = 0 }, /* Generic */
+  	{ .id = "", },
+  };
+
+diff --git a/drivers/input/serio/i8042-x86ia64io.h 
+b/drivers/input/serio/i8042-x86ia64io.h
+index 6fa2def..9f531ae 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -510,7 +510,7 @@ static int i8042_pnp_aux_probe(struct pnp_dev *dev, 
+const struct pnp_device_id *
+
+  static struct pnp_device_id pnp_kbd_devids[] = {
+  	{ .id = "PNP0303", .driver_data = 0 },
+-	{ .id = "PNP030b", .driver_data = 0 },
++	{ .id = "PNP030B", .driver_data = 0 },
+  	{ .id = "", },
+  };
+
+@@ -523,13 +523,13 @@ static struct pnp_driver i8042_pnp_kbd_driver = {
+  static struct pnp_device_id pnp_aux_devids[] = {
+  	{ .id = "FJC6000", .driver_data = 0 },
+  	{ .id = "FJC6001", .driver_data = 0 },
+-	{ .id = "PNP0f03", .driver_data = 0 },
+-	{ .id = "PNP0f0b", .driver_data = 0 },
+-	{ .id = "PNP0f0e", .driver_data = 0 },
+-	{ .id = "PNP0f12", .driver_data = 0 },
+-	{ .id = "PNP0f13", .driver_data = 0 },
+-	{ .id = "PNP0f19", .driver_data = 0 },
+-	{ .id = "PNP0f1c", .driver_data = 0 },
++	{ .id = "PNP0F03", .driver_data = 0 },
++	{ .id = "PNP0F0B", .driver_data = 0 },
++	{ .id = "PNP0F0E", .driver_data = 0 },
++	{ .id = "PNP0F12", .driver_data = 0 },
++	{ .id = "PNP0F13", .driver_data = 0 },
++	{ .id = "PNP0F19", .driver_data = 0 },
++	{ .id = "PNP0F1C", .driver_data = 0 },
+  	{ .id = "SYN0801", .driver_data = 0 },
+  	{ .id = "", },
+  };
+diff --git a/drivers/input/touchscreen/htcpen.c 
+b/drivers/input/touchscreen/htcpen.c
+index 62811de..eddfdc1 100644
+--- a/drivers/input/touchscreen/htcpen.c
++++ b/drivers/input/touchscreen/htcpen.c
+@@ -48,7 +48,7 @@ module_param(invert_y, bool, 0644);
+  MODULE_PARM_DESC(invert_y, "If set, Y axis is inverted");
+
+  static struct pnp_device_id pnp_ids[] = {
+-	{ .id = "PNP0cc0" },
++	{ .id = "PNP0CC0" },
+  	{ .id = "" }
+  };
+  MODULE_DEVICE_TABLE(pnp, pnp_ids);
+diff --git a/drivers/media/radio/radio-cadet.c 
+b/drivers/media/radio/radio-cadet.c
+index cb3075a..7d29958 100644
+--- a/drivers/media/radio/radio-cadet.c
++++ b/drivers/media/radio/radio-cadet.c
+@@ -592,7 +592,7 @@ static struct video_device cadet_radio = {
+
+  static struct pnp_device_id cadet_pnp_devices[] = {
+  	/* ADS Cadet AM/FM Radio Card */
+-	{.id = "MSM0c24", .driver_data = 0},
++	{.id = "MSM0C24", .driver_data = 0},
+  	{.id = ""}
+  };
+
+diff --git a/drivers/net/3c509.c b/drivers/net/3c509.c
+index 535c234..8c2e86d 100644
+--- a/drivers/net/3c509.c
++++ b/drivers/net/3c509.c
+@@ -402,8 +402,8 @@ static struct pnp_device_id el3_pnp_ids[] = {
+  	{ .id = "TCM5094" }, /* 3Com Etherlink III (combo) */
+  	{ .id = "TCM5095" }, /* 3Com Etherlink III (TPO) */
+  	{ .id = "TCM5098" }, /* 3Com Etherlink III (TPC) */
+-	{ .id = "PNP80f7" }, /* 3Com Etherlink III compatible */
+-	{ .id = "PNP80f8" }, /* 3Com Etherlink III compatible */
++	{ .id = "PNP80F7" }, /* 3Com Etherlink III compatible */
++	{ .id = "PNP80F8" }, /* 3Com Etherlink III compatible */
+  	{ .id = "" }
+  };
+  MODULE_DEVICE_TABLE(pnp, el3_pnp_ids);
+diff --git a/drivers/net/irda/smsc-ircc2.c b/drivers/net/irda/smsc-ircc2.c
+index dd73cce..028e9c5 100644
+--- a/drivers/net/irda/smsc-ircc2.c
++++ b/drivers/net/irda/smsc-ircc2.c
+@@ -365,7 +365,7 @@ static inline void register_bank(int iobase, int bank)
+
+  /* PNP hotplug support */
+  static const struct pnp_device_id smsc_ircc_pnp_table[] = {
+-	{ .id = "SMCf010", .driver_data = 0 },
++	{ .id = "SMCF010", .driver_data = 0 },
+  	/* and presumably others */
+  	{ }
+  };
+diff --git a/drivers/platform/x86/fujitsu-laptop.c 
+b/drivers/platform/x86/fujitsu-laptop.c
+index 65dc415..ee14b57 100644
+--- a/drivers/platform/x86/fujitsu-laptop.c
++++ b/drivers/platform/x86/fujitsu-laptop.c
+@@ -1284,7 +1284,7 @@ 
+MODULE_ALIAS("dmi:*:svnFUJITSUSIEMENS:*:pvr:rvnFUJITSU:rnFJNB1E6:*:cvrS6420:*");
+  MODULE_ALIAS("dmi:*:svnFUJITSU:*:pvr:rvnFUJITSU:rnFJNB19C:*:cvrS7020:*");
+
+  static struct pnp_device_id pnp_ids[] = {
+-	{.id = "FUJ02bf"},
++	{.id = "FUJ02BF"},
+  	{.id = "FUJ02B1"},
+  	{.id = "FUJ02E3"},
+  	{.id = ""}
+diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
+index 8a8b377..79b8af7 100644
+--- a/drivers/platform/x86/wmi.c
++++ b/drivers/platform/x86/wmi.c
+@@ -84,7 +84,7 @@ static int acpi_wmi_add(struct acpi_device *device);
+
+  static const struct acpi_device_id wmi_device_ids[] = {
+  	{"PNP0C14", 0},
+-	{"pnp0c14", 0},
++	{"PNP0C14", 0},
+  	{"", 0},
+  };
+  MODULE_DEVICE_TABLE(acpi, wmi_device_ids);
+diff --git a/drivers/pnp/quirks.c b/drivers/pnp/quirks.c
+index 8473fe5..18c9335 100644
+--- a/drivers/pnp/quirks.c
++++ b/drivers/pnp/quirks.c
+@@ -325,8 +325,8 @@ static struct pnp_fixup pnp_fixups[] = {
+  	{"ADS7181", quirk_add_irq_optional_dependent_sets},
+  	{"AZT0002", quirk_add_irq_optional_dependent_sets},
+  	/* PnP resources that might overlap PCI BARs */
+-	{"PNP0c01", quirk_system_pci_resources},
+-	{"PNP0c02", quirk_system_pci_resources},
++	{"PNP0C01", quirk_system_pci_resources},
++	{"PNP0C02", quirk_system_pci_resources},
+  	{""}
+  };
+
+diff --git a/drivers/pnp/system.c b/drivers/pnp/system.c
+index 59b9092..36720df 100644
+--- a/drivers/pnp/system.c
++++ b/drivers/pnp/system.c
+@@ -16,9 +16,9 @@
+
+  static const struct pnp_device_id pnp_dev_table[] = {
+  	/* General ID for reserving resources */
+-	{"PNP0c02", 0},
++	{"PNP0C02", 0},
+  	/* memory controller */
+-	{"PNP0c01", 0},
++	{"PNP0C01", 0},
+  	{"", 0}
+  };
+
+diff --git a/drivers/rtc/rtc-cmos.c b/drivers/rtc/rtc-cmos.c
+index b6d35f5..f20e5ec 100644
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -1110,9 +1110,9 @@ static void cmos_pnp_shutdown(struct device *pdev)
+  }
+
+  static const struct pnp_device_id rtc_ids[] = {
+-	{ .id = "PNP0b00", },
+-	{ .id = "PNP0b01", },
+-	{ .id = "PNP0b02", },
++	{ .id = "PNP0B00", },
++	{ .id = "PNP0B01", },
++	{ .id = "PNP0B02", },
+  	{ },
+  };
+  MODULE_DEVICE_TABLE(pnp, rtc_ids);
+diff --git a/sound/drivers/mpu401/mpu401.c b/sound/drivers/mpu401/mpu401.c
+index 5b996f3..9bdd96e 100644
+--- a/sound/drivers/mpu401/mpu401.c
++++ b/sound/drivers/mpu401/mpu401.c
+@@ -150,7 +150,7 @@ static struct platform_driver snd_mpu401_driver = {
+  #define IO_EXTENT 2
+
+  static struct pnp_device_id snd_mpu401_pnpids[] = {
+-	{ .id = "PNPb006" },
++	{ .id = "PNPB006" },
+  	{ .id = "" }
+  };
+
+diff --git a/sound/isa/cs423x/cs4236.c b/sound/isa/cs423x/cs4236.c
+index 019c940..d7c0f3b 100644
+--- a/sound/isa/cs423x/cs4236.c
++++ b/sound/isa/cs423x/cs4236.c
+@@ -164,21 +164,21 @@ MODULE_DEVICE_TABLE(pnp, snd_cs4232_pnpbiosids);
+  #define CS423X_ISAPNP_DRIVER	"cs4232_isapnp"
+  static struct pnp_card_device_id snd_cs423x_pnpids[] = {
+  	/* Philips PCA70PS */
+-	{ .id = "CSC0d32", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPb006" 
+} } },
++	{ .id = "CSC0D32", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPB006" 
+} } },
+  	/* TerraTec Maestro 32/96 (CS4232) */
+-	{ .id = "CSC1a32", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSC1A32", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* HP Omnibook 5500 onboard */
+  	{ .id = "CSC4232", .devs = { { "CSC0000" }, { "CSC0002" }, { 
+"CSC0003" } } },
+  	/* Unnamed CS4236 card (Made in Taiwan) */
+  	{ .id = "CSC4236", .devs = { { "CSC0000" }, { "CSC0010" }, { 
+"CSC0003" } } },
+  	/* Turtle Beach TBS-2000 (CS4232) */
+-	{ .id = "CSC7532", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSCb006" 
+} } },
++	{ .id = "CSC7532", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSCB006" 
+} } },
+  	/* Turtle Beach Tropez Plus (CS4232) */
+-	{ .id = "CSC7632", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPb006" 
+} } },
++	{ .id = "CSC7632", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPB006" 
+} } },
+  	/* SIC CrystalWave 32 (CS4232) */
+-	{ .id = "CSCf032", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCF032", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* Netfinity 3000 on-board soundcard */
+-	{ .id = "CSCe825", .devs = { { "CSC0100" }, { "CSC0110" }, { "CSC010f" 
+} } },
++	{ .id = "CSCE825", .devs = { { "CSC0100" }, { "CSC0110" }, { "CSC010F" 
+} } },
+  	/* --- */
+  	{ .id = "" }	/* end */
+  };
+@@ -196,9 +196,9 @@ static struct pnp_card_device_id snd_cs423x_pnpids[] = {
+  	/* Digital PC 5000 Onboard - CS4236B */
+  	{ .id = "CSC0735", .devs = { { "CSC0000" }, { "CSC0010" } } },
+  	/* some uknown CS4236B */
+-	{ .id = "CSC0b35", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSC0B35", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* Intel PR440FX Onboard sound */
+-	{ .id = "CSC0b36", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSC0B36", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* CS4235 on mainboard without MPU */
+  	{ .id = "CSC1425", .devs = { { "CSC0100" }, { "CSC0110" } } },
+  	/* Gateway E1000 Onboard CS4236B */
+@@ -206,7 +206,7 @@ static struct pnp_card_device_id snd_cs423x_pnpids[] = {
+  	/* HP 6330 Onboard sound */
+  	{ .id = "CSC1525", .devs = { { "CSC0100" }, { "CSC0110" }, { 
+"CSC0103" } } },
+  	/* Crystal Computer TidalWave128 */
+-	{ .id = "CSC1e37", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSC1E37", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* ACER AW37 - CS4235 */
+  	{ .id = "CSC4236", .devs = { { "CSC0000" }, { "CSC0010" }, { 
+"CSC0003" } } },
+  	/* build-in soundcard in EliteGroup P5TX-LA motherboard - CS4237B */
+@@ -234,35 +234,35 @@ static struct pnp_card_device_id 
+snd_cs423x_pnpids[] = {
+  	/* IBM Aptiva 2137 E24 Onboard - CS4237B */
+  	{ .id = "CSC8037", .devs = { { "CSC0000" }, { "CSC0010" }, { 
+"CSC0003" } } },
+  	/* IBM IntelliStation M Pro motherboard */
+-	{ .id = "CSCc835", .devs = { { "CSC0000" }, { "CSC0010" } } },
++	{ .id = "CSCC835", .devs = { { "CSC0000" }, { "CSC0010" } } },
+  	/* Guillemot MaxiSound 16 PnP - CS4236B */
+  	{ .id = "CSC9836", .devs = { { "CSC0000" }, { "CSC0010" }, { 
+"CSC0003" } } },
+  	/* Gallant SC-70P */
+  	{ .id = "CSC9837", .devs = { { "CSC0000" }, { "CSC0010" }, { 
+"CSC0003" } } },
+  	/* Techmakers MF-4236PW */
+-	{ .id = "CSCa736", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCA736", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* TerraTec AudioSystem EWS64XL - CS4236B */
+-	{ .id = "CSCa836", .devs = { { "CSCa800" }, { "CSCa810" }, { "CSCa803" 
+} } },
++	{ .id = "CSCA836", .devs = { { "CSCA800" }, { "CSCA810" }, { "CSCA803" 
+} } },
+  	/* TerraTec AudioSystem EWS64XL - CS4236B */
+-	{ .id = "CSCa836", .devs = { { "CSCa800" }, { "CSCa810" } } },
++	{ .id = "CSCA836", .devs = { { "CSCA800" }, { "CSCA810" } } },
+  	/* ACER AW37/Pro - CS4235 */
+-	{ .id = "CSCd925", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCD925", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* ACER AW35/Pro - CS4237B */
+-	{ .id = "CSCd937", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCD937", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* CS4235 without MPU401 */
+-	{ .id = "CSCe825", .devs = { { "CSC0100" }, { "CSC0110" } } },
++	{ .id = "CSCE825", .devs = { { "CSC0100" }, { "CSC0110" } } },
+  	/* Unknown SiS530 - CS4235 */
+  	{ .id = "CSC4825", .devs = { { "CSC0100" }, { "CSC0110" } } },
+  	/* IBM IntelliStation M Pro 6898 11U - CS4236B */
+-	{ .id = "CSCe835", .devs = { { "CSC0000" }, { "CSC0010" } } },
++	{ .id = "CSCE835", .devs = { { "CSC0000" }, { "CSC0010" } } },
+  	/* IBM PC 300PL Onboard - CS4236B */
+-	{ .id = "CSCe836", .devs = { { "CSC0000" }, { "CSC0010" } } },
++	{ .id = "CSCE836", .devs = { { "CSC0000" }, { "CSC0010" } } },
+  	/* Some noname CS4236 based card */
+-	{ .id = "CSCe936", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCE936", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* CS4236B */
+-	{ .id = "CSCf235", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCF235", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* CS4236B */
+-	{ .id = "CSCf238", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
++	{ .id = "CSCF238", .devs = { { "CSC0000" }, { "CSC0010" }, { "CSC0003" 
+} } },
+  	/* --- */
+  	{ .id = "" }	/* end */
+  };
+diff --git a/sound/isa/gus/interwave.c b/sound/isa/gus/interwave.c
+index 5faecfb..6bbf6f2 100644
+--- a/sound/isa/gus/interwave.c
++++ b/sound/isa/gus/interwave.c
+@@ -142,19 +142,19 @@ static struct pnp_card_device_id 
+snd_interwave_pnpids[] = {
+  	/* Gravis UltraSound Plug & Play */
+  	{ .id = "GRV0001", .devs = { { .id = "GRV0000" } } },
+  	/* STB SoundRage32 */
+-	{ .id = "STB011a", .devs = { { .id = "STB0010" } } },
++	{ .id = "STB011A", .devs = { { .id = "STB0010" } } },
+  	/* MED3210 */
+  	{ .id = "DXP3201", .devs = { { .id = "DXP0010" } } },
+  	/* Dynasonic Pro */
+  	/* This device also have CDC1117:DynaSonix Pro Audio Effects Processor */
+  	{ .id = "CDC1111", .devs = { { .id = "CDC1112" } } },
+  	/* Panasonic PCA761AW Audio Card */
+-	{ .id = "ADV55ff", .devs = { { .id = "ADV0010" } } },
++	{ .id = "ADV55FF", .devs = { { .id = "ADV0010" } } },
+  	/* InterWave STB without TEA6330T */
+-	{ .id = "ADV550a", .devs = { { .id = "ADV0010" } } },
++	{ .id = "ADV550A", .devs = { { .id = "ADV0010" } } },
+  #else
+  	/* InterWave STB with TEA6330T */
+-	{ .id = "ADV550a", .devs = { { .id = "ADV0010" }, { .id = "ADV0015" } } },
++	{ .id = "ADV550A", .devs = { { .id = "ADV0010" }, { .id = "ADV0015" } } },
+  #endif
+  	{ .id = "" }
+  };
+diff --git a/sound/isa/sb/sb16.c b/sound/isa/sb/sb16.c
+index 2c201f7..65430f6 100644
+--- a/sound/isa/sb/sb16.c
++++ b/sound/isa/sb/sb16.c
+@@ -161,12 +161,12 @@ static struct pnp_card_device_id snd_sb16_pnpids[] = {
+  	/* Sound Blaster 16 PnP */
+  	{ .id = "CTL0029", .devs = { { "CTL0031" } } },
+  	/* Sound Blaster 16 PnP */
+-	{ .id = "CTL002a", .devs = { { "CTL0031" } } },
++	{ .id = "CTL002A", .devs = { { "CTL0031" } } },
+  	/* Sound Blaster 16 PnP */
+  	/* Note: This card has also a CTL0051:StereoEnhance device!!! */
+-	{ .id = "CTL002b", .devs = { { "CTL0031" } } },
++	{ .id = "CTL002B", .devs = { { "CTL0031" } } },
+  	/* Sound Blaster 16 PnP */
+-	{ .id = "CTL002c", .devs = { { "CTL0031" } } },
++	{ .id = "CTL002C", .devs = { { "CTL0031" } } },
+  	/* Sound Blaster Vibra16S */
+  	{ .id = "CTL0051", .devs = { { "CTL0001" } } },
+  	/* Sound Blaster Vibra16C */
+@@ -177,9 +177,9 @@ static struct pnp_card_device_id snd_sb16_pnpids[] = {
+  	/* but ct4131 on a sticker on the board.. */
+  	{ .id = "CTL0086", .devs = { { "CTL0041" } } },
+  	/* Sound Blaster Vibra16X */
+-	{ .id = "CTL00f0", .devs = { { "CTL0043" } } },
++	{ .id = "CTL00F0", .devs = { { "CTL0043" } } },
+  	/* Sound Blaster 16 (Virtual PC 2004) */
+-	{ .id = "tBA03b0", .devs = { {.id="PNPb003" } } },
++	{ .id = "TBA03B0", .devs = { {.id="PNPB003" } } },
+  #else  /* SNDRV_SBAWE defined */
+  	/* Sound Blaster AWE 32 PnP */
+  	{ .id = "CTL0035", .devs = { { "CTL0031" }, { "CTL0021" } } },
+@@ -204,31 +204,31 @@ static struct pnp_card_device_id snd_sb16_pnpids[] = {
+  	/* Sound Blaster AWE 32 PnP */
+  	{ .id = "CTL0054", .devs = { { "CTL0031" }, { "CTL0021" } } },
+  	/* Sound Blaster AWE 32 PnP */
+-	{ .id = "CTL009a", .devs = { { "CTL0041" }, { "CTL0021" } } },
++	{ .id = "CTL009A", .devs = { { "CTL0041" }, { "CTL0021" } } },
+  	/* Sound Blaster AWE 32 PnP */
+-	{ .id = "CTL009c", .devs = { { "CTL0041" }, { "CTL0021" } } },
++	{ .id = "CTL009C", .devs = { { "CTL0041" }, { "CTL0021" } } },
+  	/* Sound Blaster 32 PnP */
+-	{ .id = "CTL009f", .devs = { { "CTL0041" }, { "CTL0021" } } },
++	{ .id = "CTL009F", .devs = { { "CTL0041" }, { "CTL0021" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL009d", .devs = { { "CTL0042" }, { "CTL0022" } } },
++	{ .id = "CTL009D", .devs = { { "CTL0042" }, { "CTL0022" } } },
+  	/* Sound Blaster AWE 64 PnP Gold */
+-	{ .id = "CTL009e", .devs = { { "CTL0044" }, { "CTL0023" } } },
++	{ .id = "CTL009E", .devs = { { "CTL0044" }, { "CTL0023" } } },
+  	/* Sound Blaster AWE 64 PnP Gold */
+-	{ .id = "CTL00b2", .devs = { { "CTL0044" }, { "CTL0023" } } },
++	{ .id = "CTL00B2", .devs = { { "CTL0044" }, { "CTL0023" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL00c1", .devs = { { "CTL0042" }, { "CTL0022" } } },
++	{ .id = "CTL00C1", .devs = { { "CTL0042" }, { "CTL0022" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL00c3", .devs = { { "CTL0045" }, { "CTL0022" } } },
++	{ .id = "CTL00C3", .devs = { { "CTL0045" }, { "CTL0022" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL00c5", .devs = { { "CTL0045" }, { "CTL0022" } } },
++	{ .id = "CTL00C5", .devs = { { "CTL0045" }, { "CTL0022" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL00c7", .devs = { { "CTL0045" }, { "CTL0022" } } },
++	{ .id = "CTL00C7", .devs = { { "CTL0045" }, { "CTL0022" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL00e4", .devs = { { "CTL0045" }, { "CTL0022" } } },
++	{ .id = "CTL00E4", .devs = { { "CTL0045" }, { "CTL0022" } } },
+  	/* Sound Blaster AWE 64 PnP */
+-	{ .id = "CTL00e9", .devs = { { "CTL0045" }, { "CTL0022" } } },
++	{ .id = "CTL00E9", .devs = { { "CTL0045" }, { "CTL0022" } } },
+  	/* Sound Blaster 16 PnP (AWE) */
+-	{ .id = "CTL00ed", .devs = { { "CTL0041" }, { "CTL0070" } } },
++	{ .id = "CTL00ED", .devs = { { "CTL0041" }, { "CTL0070" } } },
+  	/* Generic entries */
+  	{ .id = "CTLXXXX" , .devs = { { "CTL0031" }, { "CTL0021" } } },
+  	{ .id = "CTLXXXX" , .devs = { { "CTL0041" }, { "CTL0021" } } },
+diff --git a/sound/isa/wavefront/wavefront.c 
+b/sound/isa/wavefront/wavefront.c
+index 4c095bc..b303cc5 100644
+--- a/sound/isa/wavefront/wavefront.c
++++ b/sound/isa/wavefront/wavefront.c
+@@ -91,9 +91,9 @@ static int pnp_registered;
+
+  static struct pnp_card_device_id snd_wavefront_pnpids[] = {
+  	/* Tropez */
+-	{ .id = "CSC7532", .devs = { { "CSC0000" }, { "CSC0010" }, { "PnPb006" 
+}, { "CSC0004" } } },
++	{ .id = "CSC7532", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPB006" 
+}, { "CSC0004" } } },
+  	/* Tropez+ */
+-	{ .id = "CSC7632", .devs = { { "CSC0000" }, { "CSC0010" }, { "PnPb006" 
+}, { "CSC0004" } } },
++	{ .id = "CSC7632", .devs = { { "CSC0000" }, { "CSC0010" }, { "PNPB006" 
+}, { "CSC0004" } } },
+  	{ .id = "" }
+  };
+
+diff --git a/sound/oss/sb_card.h b/sound/oss/sb_card.h
+index 5535cff..3f6fb43 100644
+--- a/sound/oss/sb_card.h
++++ b/sound/oss/sb_card.h
+@@ -37,13 +37,13 @@ static struct pnp_card_device_id sb_pnp_card_table[] = {
+  	/* Sound Blaster 16 */
+  	{.id = "CTL0029", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
+  	/* Sound Blaster 16 */
+-	{.id = "CTL002a", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
++	{.id = "CTL002A", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
+  	/* Sound Blaster 16 */
+-	{.id = "CTL002b", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
++	{.id = "CTL002B", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
+  	/* Sound Blaster 16 */
+-	{.id = "CTL002c", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
++	{.id = "CTL002C", .driver_data = 0, .devs = { {.id="CTL0031"}, } },
+  	/* Sound Blaster 16 */
+-	{.id = "CTL00ed", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
++	{.id = "CTL00ED", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
+  	/* Sound Blaster 16 */
+  	{.id = "CTL0086", .driver_data = 0, .devs = { {.id="CTL0041"}, } },
+  	/* Sound Blaster Vibra16S */
+@@ -141,7 +141,7 @@ static struct pnp_card_device_id sb_pnp_card_table[] = {
+  						     {.id="@X@2001"},
+  						     {.id="@H@0001"}, } },
+  	/* Sound Blaster 16 (Virtual PC 2004) */
+-	{.id = "tBA03b0", .driver_data = 0, .devs = { {.id="PNPb003"}, } },
++	{.id = "TBA03B0", .driver_data = 0, .devs = { {.id="PNPB003"}, } },
+  	/* -end- */
+  	{.id = "", }
+  };
+

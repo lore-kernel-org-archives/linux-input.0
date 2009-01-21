@@ -1,160 +1,107 @@
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: Need advice on USB device interaction
-Date: Wed, 21 Jan 2009 19:07:31 +0300
-Message-ID: <78f5d6bf0901210807x10666e93na53bf5c6453494c3@mail.gmail.com>
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [PATCH] Make PNP IDs all uppercase
+Date: Wed, 21 Jan 2009 10:09:46 -0700
+Message-ID: <200901211009.48191.bjorn.helgaas@hp.com>
+References: <49733678.40006@gmx.de> <200901201742.10155.bjorn.helgaas@hp.com> <4976D517.2070406@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.154]:37805 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751473AbZAUQHd convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 21 Jan 2009 11:07:33 -0500
-Received: by fg-out-1718.google.com with SMTP id 19so1825971fgg.17
-        for <linux-input@vger.kernel.org>; Wed, 21 Jan 2009 08:07:31 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <4976D517.2070406@gmx.de>
+Content-Disposition: inline
+Sender: linux-acpi-owner@vger.kernel.org
+To: Philipp Kohlbecher <xt28@gmx.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Vojtech Pavlik <vojtech@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, Hans Verkuil <hverkuil@xs4all.nl>, "David S. Miller" <davem@davemloft.net>, Jaroslav Kysela <perex@perex.cz>, Adam Belay <abelay@mit.edu>, Len Brown <lenb@kernel.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, Carlos Corbacho <carlos@strangeworlds.co.uk>, linux-acpi@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello everybody!
+On Wednesday 21 January 2009 12:56:07 am Philipp Kohlbecher wrote:
+> Bjorn Helgaas wrote:
+> > On Sunday 18 January 2009 07:02:32 am Philipp Kohlbecher wrote:
+> >> If I understand correctly, ACPI _HIDs (including PNP IDs) should b=
+e all=20
+> >> uppercase, including the hex digits, cf. ACPI Specification 3.0b [=
+1],=20
+> >> pp. 162-3
+> >=20
+> > Section 6.1.4, "_HID (Hardware ID)" says:
+> >=20
+> >     A valid PNP ID must be of the form =E2=80=9CAAA####=E2=80=9D wh=
+ere A is an uppercase
+> >     letter and # is a hex digit.  A valid ACPI ID must be of the fo=
+rm
+> >     =E2=80=9CACPI####=E2=80=9D where # is a hex digit.
+> >=20
+> > I don't see the part about requiring the hex digits to be uppercase=
+=2E
+> > Did I miss it, or is it somewhere else?
+>=20
+> It doesn't say explicitly, hence my reservation. The ACPI specificati=
+on=20
+> does, however, use uppercase hex digits in all examples of _HIDs.
 
-I'm working on force feedback support for Saitek gamepad devices. I
-base my work on J=C3=A9r=C3=B4me Poisson (goffi@goffi.org) Saitek P2500=
- driver,
-which was written pretty dirty and should be loaded before usbhid to
-work.
-Logitech/Thrustmaster/ZeroPlus/etc force feedback drivers are
-informative enough to build my own driver, but there are still 2
-things that I need to clear up:
+The PNPBIOS spec doesn't seem to say explicitly either, although the
+examples there also use uppercase.  So it'd probably be nicer if we
+used uppercase everywhere in Linux.  Unfortunately, we have the legacy
+of the kernel using lowercase in PNP IDs, and there are userspace thing=
+s
+like modprobe aliases that depend on that.
 
-1. there is always some init code in _probe() function, e.g. for hid-zp=
-ff:
+> I do. Thanks for noticing that. Now, how do I make sure this mix-up=20
+> doesn't go into the commit message? Re-submit or ask the committer to=
+=20
+> correct it?
 
->  zpff->report =3D report;
->  zpff->report->field[0]->value[0] =3D 0x00;
->  zpff->report->field[1]->value[0] =3D 0x02;
->  zpff->report->field[2]->value[0] =3D 0x00;
->  zpff->report->field[3]->value[0] =3D 0x00;
->  usbhid_submit_report(hid, zpff->report, USB_DIR_OUT);
+I think reposting the patch will be better.  But I would split this
+up into a patch per file, so they can go through the usual maintainers,
+and I think we should wait a bit (see below).
 
-J=C3=A9r=C3=B4me used this code in open() function (input_dev::open fie=
-ld):
+> > There are definitely some inconsistencies that it would be nice to
+> > fix, if we can do it safely.  For example, for ISAPNP and PNPBIOS
+> > devices, I think we always generate lowercase hex digits in the PNP
+> > IDs.  For PNPACPI, we generate uppercase digits for numeric _HIDs,
+> > but we use string _HIDs unchanged.
+> >=20
+> > Did you trip over an actual problem that is fixed by this patch?  I=
+f
+> > so, can you give any more details?
+>=20
+> Yes. After a package update, hwclock stopped using the "--directisa"=20
+> switch and could not access the RTC anymore. My RTC is handled by=20
+> rtc-cmos, which is compiled as a module. However, udev did not load t=
+his=20
+> module, as the device's modalias "acpi:PNP0B00:" did not match any of=
+=20
+> the module's aliasas, including "acpi*:PNP0b00:*". Thus, the system=20
+> clock was not set correctly at startup (my hardware clock is set to=20
+> local time). Changing the PNP IDs in drivers/rtc/rtc-cmos.c to use=20
+> uppercase hex digits solved that problem for me.
 
->  struct usb_device *udev;
->  char buf[2];
->
-> ...
->
->  buf[0]=3D0x15;
->  buf[1]=3D0x01;
->  usb_control_msg(udev, usb_sndctrlpipe(udev, 0), 0x09, 0x21, 0x315, 0=
-, &buf, 2, 50);
+Nice work debugging that problem!  I would include that synopsis in
+the changelog, because it helps people who trip over the same problem
+and are looking for a solution, and it helps people who want to
+understand why the change was made.
 
-May this be replaced by usbhid_submit_report() call and how report
-should look like then?
+IMO, part of the problem here is that there is a single PNP ID
+namespace, but it's shared between the PNP core and the ACPI core.
+And PNP doesn't emit uevents, so in this case, we're using ACPI
+uevents to load a PNP driver.  The ACPI uevents will be uppercase
+(which matches the IDs in ACPI drivers), but the IDs in PNP drivers
+are typically lowercase (which matches the strings in
+/sys/devices/pnp*/*/id).
 
-2. in kernell FF drivers all interaction with the device made using
-usbhid_submit_report() call, but J=C3=A9r=C3=B4me used usb_submit_urb()=
-:
+I started trying to untangle this last year, but I didn't get far
+enough to be comfortable that I wouldn't break existing userspace
+stuff.  Maybe it's time to resurrect that work.
 
-> static int SP2500_playback(struct input_dev *dev, int code, int value=
-)
-> {
->     struct usb_SP2500* sp2500 =3D (struct usb_SP2500*)(dev->private);
->     struct urb *urb =3D NULL;
->     char *buf =3D NULL;
->     int count=3D4;
->     int retval;
->
->     urb =3D usb_alloc_urb(0, GFP_KERNEL);
->     if (!urb) {
->         retval =3D -ENOMEM;
->         goto error;
->     }
->
->     buf =3D usb_buffer_alloc(sp2500->udev, count, GFP_KERNEL, &urb->t=
-ransfer_dma);
->     if (!buf) {
->         retval =3D -ENOMEM;
->         goto error;
->     }
->
->     if (code < 0 || code >=3D MAX_FF)
->         return -EINVAL;
->
->     buf[0]=3D0x51;
->     buf[1]=3D(__u8)code;
->
->     if (value > 0)
->         buf[2]=3D02;  //play
->     else
->         buf[2]=3D01;  //stop
->
->     buf[3]=3D01;
->     count=3D4;
->
->     usb_fill_int_urb(urb, sp2500->udev,
->                     usb_sndintpipe(sp2500->udev, sp2500->int_out_endp=
-ointAddr),
->                     buf, count, SP2500_write_int_callback, sp2500, 20=
-);
->     urb->transfer_flags |=3D URB_NO_TRANSFER_DMA_MAP;
->
->
->     retval =3D usb_submit_urb(urb, GFP_KERNEL);
->     if (retval) {
->         err("%s - failed submitting write urb, error %d", __FUNCTION_=
-_, retval);
->         goto error;
->     }
->
->     usb_free_urb(urb);
->
->     return 0;
->
-> error:
->     err ("playback error");
->     usb_buffer_free(sp2500->udev, count, buf, urb->transfer_dma);
->     usb_free_urb(urb);
->     return retval;
-> }
+The RTC problem is not really a regression; it sounds like this is
+a long-standing problem.  Given that, I'd like to have a clearer
+idea of how to clean up the namespace and uevent issues before we
+go changing all the PNP drivers.
 
-Is following my replacement for this function correct? Mainly, I want
-to know, if data packet is formed correctly.
+Bjorn
 
-> static int stff_play(struct input_dev *idev, int code, int value)
-> {
->     struct hid_device *hid =3D input_get_drvdata(idev);
->     struct list_head *report_list =3D &hid->report_enum[HID_OUTPUT_RE=
-PORT].report_list;
->     struct hid_report *report =3D list_entry(report_list->next, struc=
-t hid_report, list);
->
->     report->field[0]->value[0] =3D 0x51;
->     report->field[0]->value[1] =3D (__u8)code;
->
->     if (value > 0)
->         report->field[0]->value[2] =3D 02;  //play
->     else
->         report->field[0]->value[2] =3D 01;  //stop
->
->     report->field[0]->value[3]=3D01;
->
->     usbhid_submit_report(hid, report, USB_DIR_OUT);
->
->     return 0;
-> }
-
-
-P.S. you can find SP2500 driver source here:
-http://www.goffi.org/index.php?post/2006/09/14/Pilote-Linux-pour-le-joy=
-pad-Saitek-P2501
-P.P.S. original driver contains quirk from original saitek driver --
-d-pad and first analog stick swap on button press; I don't wan't to
-implement this quirk at the moment
 --
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,36 +1,73 @@
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [PATCH] Make PNP IDs all uppercase
-Date: Wed, 21 Jan 2009 09:18:30 +0100
-Message-ID: <20090121091830.225646d9@i1501.lan.towertech.it>
-References: <49733678.40006@gmx.de>
-	<200901201742.10155.bjorn.helgaas@hp.com>
-	<4976D517.2070406@gmx.de>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: second race in hiddev
+Date: Wed, 21 Jan 2009 10:05:22 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0901211003140.5377@jikos.suse.cz>
+References: <200901091121.56576.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <4976D517.2070406@gmx.de>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Philipp Kohlbecher <xt28@gmx.de>
-Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Vojtech Pavlik <vojtech@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, Hans Verkuil <hverkuil@xs4all.nl>, "David S. Miller" <davem@davemloft.net>, Jaroslav Kysela <perex@perex.cz>, Adam Belay <abelay@mit.edu>, Len Brown <lenb@kernel.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, Carlos Corbacho <carlos@strangeworlds.co.uk>, linux-acpi@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200901091121.56576.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 21 Jan 2009 08:56:07 +0100
-Philipp Kohlbecher <xt28@gmx.de> wrote:
+On Fri, 9 Jan 2009, Oliver Neukum wrote:
 
-> switch and could not access the RTC anymore. My RTC is handled by 
-> rtc-cmos, which is compiled as a module. However, udev did not load this 
-> module, as the device's modalias "acpi:PNP0B00:" did not match any of 
+> upon further thought this code is still racy.
+> 
+> 	retval = usb_register_dev(usbhid->intf, &hiddev_class);
+> 
+> here you open a window during which open can happen
+> 
+> 	if (retval) {
+> 		err_hid("Not able to get a minor for this device.");
+> 		hid->hiddev = NULL;
+> 		kfree(hiddev);
+> 		return -1;
+> 	} else {
+> 		hid->minor = usbhid->intf->minor;
+> 		hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
+> 
+> and will fail because hiddev_table hasn't been updated
 
- your main RTC should be compiled in, or you will have problems
- with fsck.
+Indeed, thanks for catching that. It's a small race window and not very 
+probably to be hit (or users aren't that fast, right? :) ).
+
+> The obvious fix of using a mutex to guard hiddev_table doesn't work 
+> because usb_open() and usb_register_dev() take minor_rwsem and we'd have 
+> an AB-BA deadlock. We need a lock usb_open() also takes in the right 
+> order and that leaves only one option, BKL. I don't like it but I see no 
+> alternative.
+[ ... ]
+> @@ -878,16 +878,19 @@ int hiddev_connect(struct hid_device *hid, unsigned int force)
+>  	hiddev->hid = hid;
+>  	hiddev->exist = 1;
+>  
+> +	lock_kernel();
+>  	retval = usb_register_dev(usbhid->intf, &hiddev_class);
+>  	if (retval) {
+>  		err_hid("Not able to get a minor for this device.");
+>  		hid->hiddev = NULL;
+> +		unlock_kernel();
+>  		kfree(hiddev);
+>  		return -1;
+>  	} else {
+>  		hid->minor = usbhid->intf->minor;
+>  		hiddev_table[usbhid->intf->minor - HIDDEV_MINOR_BASE] = hiddev;
+>  	}
+> +	unlock_kernel();
+
+This is really not nice and I would like to avoid pulling BKL in as much 
+as possible.
+
+What exactly is the lock_kernel() in usb_open() protecting from anyway? 
+Why isn't minor_rwsem sufficient protection?
 
 -- 
-
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Torino, Italy
-
-  http://www.towertech.it
-
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

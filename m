@@ -1,230 +1,48 @@
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_Weisbecker?= <fweisbec@gmail.com>
-Subject: Re: [PATCH] psmouse: run kpsmoused only while needed
-Date: Thu, 22 Jan 2009 21:36:44 +0100
-Message-ID: <c62985530901221236h692181b7p7c9e10b2ccf4ed8c@mail.gmail.com>
-References: <496fd1d3.0d135e0a.171b.43ea@mx.google.com>
+From: Carlos Corbacho <carlos@strangeworlds.co.uk>
+Subject: Re: [PATCH] Make PNP IDs all uppercase
+Date: Thu, 22 Jan 2009 23:03:38 +0000
+Message-ID: <200901222303.41737.carlos@strangeworlds.co.uk>
+References: <49733678.40006@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.187]:27759 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751388AbZAVUgq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 22 Jan 2009 15:36:46 -0500
-In-Reply-To: <496fd1d3.0d135e0a.171b.43ea@mx.google.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <49733678.40006@gmx.de>
+Content-Disposition: inline
+Sender: linux-acpi-owner@vger.kernel.org
+To: Philipp Kohlbecher <xt28@gmx.de>
+Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Vojtech Pavlik <vojtech@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, Hans Verkuil <hverkuil@xs4all.nl>, "David S. Miller" <davem@davemloft.net>, Jaroslav Kysela <perex@perex.cz>, Adam Belay <abelay@mit.edu>, Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <lenb@kernel.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, linux-acpi@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>, linux-input@vger.kernel.org
 
-2009/1/16 Frederic Weisbecker <fweisbec@gmail.com>:
-> While looking at the workqueue tracer, I noticed that kpsmoused receives
-> rarely (if not never) events.
->
-> Currently, when a mouse has to resync, it uses the kpsmoused singlethreaded
-> workqueue. But recync are rare. While reading an old discussion, it seems
-> that usual workqueue events can't be used for that purpose because resync
-> can take too much time and could delay the other works in queue.
->
-> But if you have built psmouse driver, this workqueue will always be present
-> whether you have a ps/2 port or not. And its events are rare.
->
-> To avoid this pointless task, this patch makes the kpsmoused a kernel
-> thread only created on the fly when a recync is needed. Once the recync is done,
-> this thread will die. So you will almost never see it, and it will not be
-> an inactive task anymore.
->
-> This thread is created through a usual workqueue event (because we can't create
-> it from interrupt).
->
-> Signed-off-by: Frederic Weisbecker <fweisbec@gmail.com>
-> ---
->  drivers/input/mouse/psmouse-base.c |   76 ++++++++++++++++++++++--------------
->  drivers/input/mouse/psmouse.h      |    4 +-
->  2 files changed, 50 insertions(+), 30 deletions(-)
->
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index f8f86de..7b78cee 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -20,6 +20,7 @@
->  #include <linux/init.h>
->  #include <linux/libps2.h>
->  #include <linux/mutex.h>
-> +#include <linux/kthread.h>
->
->  #include "psmouse.h"
->  #include "synaptics.h"
-> @@ -104,8 +105,6 @@ static struct attribute_group psmouse_attribute_group = {
->  */
->  static DEFINE_MUTEX(psmouse_mutex);
->
-> -static struct workqueue_struct *kpsmoused_wq;
-> -
->  struct psmouse_protocol {
->        enum psmouse_type type;
->        const char *name;
-> @@ -203,11 +202,6 @@ static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
->        return PSMOUSE_FULL_PACKET;
->  }
->
-> -void psmouse_queue_work(struct psmouse *psmouse, struct delayed_work *work,
-> -               unsigned long delay)
-> -{
-> -       queue_delayed_work(kpsmoused_wq, work, delay);
-> -}
->
->  /*
->  * __psmouse_set_state() sets new psmouse state and resets all flags.
-> @@ -313,7 +307,8 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->                       psmouse->name, psmouse->phys, psmouse->pktcnt);
->                psmouse->badbyte = psmouse->packet[0];
->                __psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-> -               psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
-> +               atomic_inc(&psmouse->nb_recync_pending);
-> +               schedule_work(&psmouse->resync_work);
->                goto out;
->        }
->
-> @@ -350,7 +345,8 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->            time_after(jiffies, psmouse->last + psmouse->resync_time * HZ)) {
->                psmouse->badbyte = psmouse->packet[0];
->                __psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-> -               psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
-> +               atomic_inc(&psmouse->nb_recync_pending);
-> +               schedule_work(&psmouse->resync_work);
->                goto out;
->        }
->
-> @@ -979,13 +975,16 @@ static int psmouse_poll(struct psmouse *psmouse)
->
->
->  /*
-> - * psmouse_resync() attempts to re-validate current protocol.
-> + * psmouse_resync_thread() attempts to re-validate current protocol.
-> + * This thread is created on the fly when needed because its job can take too
-> + * much time on events workqueues, and the resync is rare enough to avoid
-> + * the need of a private workqueue.
->  */
->
-> -static void psmouse_resync(struct work_struct *work)
-> +static int psmouse_resync_thread(void *v)
->  {
-> -       struct psmouse *parent = NULL, *psmouse =
-> -               container_of(work, struct psmouse, resync_work.work);
-> +       struct psmouse *psmouse = v;
-> +       struct psmouse *parent = NULL;
->        struct serio *serio = psmouse->ps2dev.serio;
->        psmouse_ret_t rc = PSMOUSE_GOOD_DATA;
->        int failed = 0, enabled = 0;
-> @@ -1072,6 +1071,30 @@ static void psmouse_resync(struct work_struct *work)
->                psmouse_activate(parent);
->  out:
->        mutex_unlock(&psmouse_mutex);
-> +
-> +       /*
-> +        * While disconnecting, the driver wants to be sure all resync are done
-> +        */
-> +       if (!atomic_dec_return(&psmouse->nb_recync_pending))
-> +               wake_up(&psmouse->recync_pending_queue);
-> +       return 0;
-> +}
-> +
-> +/* Launch the recync thread */
-> +static void psmouse_resync_thread_helper(struct work_struct *work)
-> +{
-> +       struct task_struct *t;
-> +       struct psmouse *psmouse;
-> +
-> +       psmouse = container_of(work, struct psmouse, resync_work);
-> +
-> +       t = kthread_run(psmouse_resync_thread, psmouse, "kpsmoused");
-> +       if (t == ERR_PTR(-ENOMEM)) {
-> +               printk(KERN_WARNING "psmouse.c: failed to create kpsmoused"
-> +                                   " thread\n");
-> +               if (!atomic_dec_return(&psmouse->nb_recync_pending))
-> +                       wake_up(&psmouse->recync_pending_queue);
-> +       }
->  }
->
->  /*
-> @@ -1120,6 +1143,7 @@ static void psmouse_cleanup(struct serio *serio)
->  static void psmouse_disconnect(struct serio *serio)
->  {
->        struct psmouse *psmouse, *parent = NULL;
-> +       DEFINE_WAIT(wait);
->
->        psmouse = serio_get_drvdata(serio);
->
-> @@ -1131,7 +1155,13 @@ static void psmouse_disconnect(struct serio *serio)
->
->        /* make sure we don't have a resync in progress */
->        mutex_unlock(&psmouse_mutex);
-> -       flush_workqueue(kpsmoused_wq);
-> +
-> +       prepare_to_wait(&psmouse->recync_pending_queue, &wait,
-> +                               TASK_UNINTERRUPTIBLE);
-> +       if (atomic_read(&psmouse->nb_recync_pending))
-> +               schedule();
-> +       finish_wait(&psmouse->recync_pending_queue, &wait);
-> +
->        mutex_lock(&psmouse_mutex);
->
->        if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-> @@ -1244,7 +1274,8 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
->                goto err_free;
->
->        ps2_init(&psmouse->ps2dev, serio);
-> -       INIT_DELAYED_WORK(&psmouse->resync_work, psmouse_resync);
-> +       INIT_WORK(&psmouse->resync_work, psmouse_resync_thread_helper);
-> +       init_waitqueue_head(&psmouse->recync_pending_queue);
->        psmouse->dev = input_dev;
->        snprintf(psmouse->phys, sizeof(psmouse->phys), "%s/input0", serio->phys);
->
-> @@ -1647,25 +1678,12 @@ static int psmouse_get_maxproto(char *buffer, struct kernel_param *kp)
->
->  static int __init psmouse_init(void)
->  {
-> -       int err;
-> -
-> -       kpsmoused_wq = create_singlethread_workqueue("kpsmoused");
-> -       if (!kpsmoused_wq) {
-> -               printk(KERN_ERR "psmouse: failed to create kpsmoused workqueue\n");
-> -               return -ENOMEM;
-> -       }
-> -
-> -       err = serio_register_driver(&psmouse_drv);
-> -       if (err)
-> -               destroy_workqueue(kpsmoused_wq);
-> -
-> -       return err;
-> +       return serio_register_driver(&psmouse_drv);
->  }
->
->  static void __exit psmouse_exit(void)
->  {
->        serio_unregister_driver(&psmouse_drv);
-> -       destroy_workqueue(kpsmoused_wq);
->  }
->
->  module_init(psmouse_init);
-> diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-> index 54ed267..6dc16ba 100644
-> --- a/drivers/input/mouse/psmouse.h
-> +++ b/drivers/input/mouse/psmouse.h
-> @@ -39,7 +39,9 @@ struct psmouse {
->        void *private;
->        struct input_dev *dev;
->        struct ps2dev ps2dev;
-> -       struct delayed_work resync_work;
-> +       struct work_struct resync_work;
-> +       atomic_t nb_recync_pending;
-> +       wait_queue_head_t recync_pending_queue;
->        char *vendor;
->        char *name;
->        unsigned char packet[8];
-> --
+On Sunday 18 January 2009 14:02:32 Philipp Kohlbecher wrote:
+> If I understand correctly, ACPI _HIDs (including PNP IDs) should be all
+> uppercase, including the hex digits, cf. ACPI Specification 3.0b [1],
+> pp. 162-3 and acpi_glb_hex_to_ascii[] in drivers/acpi/utilities/utglobal.c.
 
+ACPI-WMI violates the spec here.
 
-Well, absolutely no thought about this patch? :-)
+> diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
+> index 8a8b377..79b8af7 100644
+> --- a/drivers/platform/x86/wmi.c
+> +++ b/drivers/platform/x86/wmi.c
+> @@ -84,7 +84,7 @@ static int acpi_wmi_add(struct acpi_device *device);
+>
+>   static const struct acpi_device_id wmi_device_ids[] = {
+>   	{"PNP0C14", 0},
+> -	{"pnp0c14", 0},
+> +	{"PNP0C14", 0},
+>   	{"", 0},
+>   };
+>   MODULE_DEVICE_TABLE(acpi, wmi_device_ids);
+> diff --git a/drivers/pnp/quirks.c b/drivers/pnp/quirks.c
+> index 8473fe5..18c9335 100644
+
+NAK to the ACPI-WMI changes. There really is a pnp0c14 and a PNP0C14, and 
+removing the lower case version breaks ACPI-WMI on my laptop.
+
+-Carlos
+-- 
+E-Mail: carlos@strangeworlds.co.uk
+Web: strangeworlds.co.uk
+GPG Key ID: 0x23EE722D

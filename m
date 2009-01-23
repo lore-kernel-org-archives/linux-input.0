@@ -1,23 +1,23 @@
 From: "hartleys" <hartleys@visionengravers.com>
-Subject: [RFC] Matrix keypad driver for Cirrus EP93xx
-Date: Fri, 23 Jan 2009 17:31:10 -0500
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909010C9A32@mi8nycmail19.Mi8.com>
+Subject: RE: [RFC] Matrix keypad driver for Cirrus EP93xx
+Date: Fri, 23 Jan 2009 18:16:23 -0500
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909010C9A55@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE1909010C9A32@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exprod6ob113.obsmtp.com ([64.18.1.30]:55368 "HELO psmtp.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1757630AbZAWXQg convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jan 2009 18:16:36 -0500
 Content-class: urn:content-classes:message
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909010C9A32@mi8nycmail19.Mi8.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
 New input/keyboard driver for the Cirrus Logic EP93xx keypad matrix
 peripheral.
@@ -25,15 +25,33 @@ peripheral.
 This driver is based on the pxa27x_keypad driver and provides support
 for the 8x8 matrix keypad peripheral in the EP93xx ARM SOC.
 
+Take 2... The first patch was missing some changes to
+arch/arm/mach-ep93xx/clock.c
+
 Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
 
 ---
 
 diff --git a/arch/arm/mach-ep93xx/clock.c b/arch/arm/mach-ep93xx/clock.c
-index 9604928..b2f604e 100644
+index 9604928..6e39395 100644
 --- a/arch/arm/mach-ep93xx/clock.c
 +++ b/arch/arm/mach-ep93xx/clock.c
-@@ -24,10 +24,15 @@
+@@ -21,15 +21,31 @@
+ #include <asm/div64.h>
+ #include <mach/hardware.h>
+ 
++/*
++ * The EP93xx has two external crystal oscillators.  To generate the
++ * required high-frequency clocks, the processor uses two phase-locked-
++ * loops (PLLs) to multiply the incoming external clock signal to much
++ * higher frequencies that are then divided down by programmable
+dividers
++ * to produce the needed clocks.  The PLLs operate independently of one
++ * another.
++ */
++#define EP93XX_EXT_CLK_RATE	14745600
++#define EP93XX_EXT_RTC_RATE	32768
++
  struct clk {
  	unsigned long	rate;
  	int		users;
@@ -48,9 +66,12 @@ rate);
 +static int set_keyclk(struct clk *clk, unsigned long rate);
 +
  static struct clk clk_uart = {
- 	.rate		= 14745600,
+-	.rate		= 14745600,
++	.rate		= EP93XX_EXT_CLK_RATE,
  };
-@@ -40,6 +45,12 @@ static struct clk clk_usb_host = {
+ static struct clk clk_pll1;
+ static struct clk clk_f;
+@@ -40,6 +56,12 @@ static struct clk clk_usb_host = {
  	.enable_reg	= EP93XX_SYSCON_CLOCK_CONTROL,
  	.enable_mask	= EP93XX_SYSCON_CLOCK_USH_EN,
  };
@@ -63,7 +84,7 @@ rate);
  
  #define INIT_CK(dev,con,ck)					\
  	{ .dev_id = dev, .con_id = con, .clk = ck }
-@@ -54,6 +65,7 @@ static struct clk_lookup clocks[] = {
+@@ -54,6 +76,7 @@ static struct clk_lookup clocks[] = {
  	INIT_CK(NULL, "pclk", &clk_p),
  	INIT_CK(NULL, "pll2", &clk_pll2),
  	INIT_CK(NULL, "usb_host", &clk_usb_host),
@@ -71,7 +92,7 @@ rate);
  };
  
  
-@@ -63,6 +75,8 @@ int clk_enable(struct clk *clk)
+@@ -63,6 +86,8 @@ int clk_enable(struct clk *clk)
  		u32 value;
  
  		value = __raw_readl(clk->enable_reg);
@@ -80,7 +101,7 @@ rate);
  		__raw_writel(value | clk->enable_mask, clk->enable_reg);
  	}
  
-@@ -76,6 +90,8 @@ void clk_disable(struct clk *clk)
+@@ -76,6 +101,8 @@ void clk_disable(struct clk *clk)
  		u32 value;
  
  		value = __raw_readl(clk->enable_reg);
@@ -90,7 +111,7 @@ rate);
 clk->enable_reg);
  	}
  }
-@@ -87,6 +103,37 @@ unsigned long clk_get_rate(struct clk *clk)
+@@ -87,6 +114,37 @@ unsigned long clk_get_rate(struct clk *clk)
  }
  EXPORT_SYMBOL(clk_get_rate);
  
@@ -130,6 +151,39 @@ clk->enable_reg);
  
  static char fclk_divisors[] = { 1, 2, 4, 8, 16, 1, 1, 1 };
  static char hclk_divisors[] = { 1, 2, 4, 5, 6, 8, 16, 32 };
+@@ -100,7 +158,7 @@ static unsigned long calc_pll_rate(u32 config_word)
+ 	unsigned long long rate;
+ 	int i;
+ 
+-	rate = 14745600;
++	rate = EP93XX_EXT_CLK_RATE;
+ 	rate *= ((config_word >> 11) & 0x1f) + 1;		/* X1FBD
+*/
+ 	rate *= ((config_word >> 5) & 0x3f) + 1;		/* X2FBD
+*/
+ 	do_div(rate, (config_word & 0x1f) + 1);			/* X2IPD
+*/
+@@ -117,7 +175,7 @@ static int __init ep93xx_clock_init(void)
+ 
+ 	value = __raw_readl(EP93XX_SYSCON_CLOCK_SET1);
+ 	if (!(value & 0x00800000)) {			/* PLL1
+bypassed?  */
+-		clk_pll1.rate = 14745600;
++		clk_pll1.rate = EP93XX_EXT_CLK_RATE;
+ 	} else {
+ 		clk_pll1.rate = calc_pll_rate(value);
+ 	}
+@@ -127,7 +185,7 @@ static int __init ep93xx_clock_init(void)
+ 
+ 	value = __raw_readl(EP93XX_SYSCON_CLOCK_SET2);
+ 	if (!(value & 0x00080000)) {			/* PLL2
+bypassed?  */
+-		clk_pll2.rate = 14745600;
++		clk_pll2.rate = EP93XX_EXT_CLK_RATE;
+ 	} else if (value & 0x00040000) {		/* PLL2 enabled?
+*/
+ 		clk_pll2.rate = calc_pll_rate(value);
+ 	} else {
 diff --git a/arch/arm/mach-ep93xx/include/mach/ep93xx-regs.h
 b/arch/arm/mach-ep93xx/include/mach/ep93xx-regs.h
 index 22d6c9a..5664ec7 100644
@@ -714,8 +768,3 @@ pdev->name);
 +MODULE_AUTHOR("H Hartley Sweeten <hsweeten@visionengravers.com>");
 +MODULE_DESCRIPTION("EP93xx 8x8 Matrix Keypad Controller");
 +MODULE_ALIAS("platform:ep93xx-keypad"); 
-
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

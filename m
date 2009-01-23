@@ -1,48 +1,125 @@
-From: Carlos Corbacho <carlos@strangeworlds.co.uk>
-Subject: Re: [PATCH] Make PNP IDs all uppercase
-Date: Thu, 22 Jan 2009 23:03:38 +0000
-Message-ID: <200901222303.41737.carlos@strangeworlds.co.uk>
-References: <49733678.40006@gmx.de>
+From: Dan Streetman <ddstreet@ieee.org>
+Subject: Utility file to add to input-utils
+Date: Fri, 23 Jan 2009 13:41:16 -0500
+Message-ID: <3fad22b40901231041v2c2a4822p6c81d27afaeaf2a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <49733678.40006@gmx.de>
-Content-Disposition: inline
-Sender: linux-acpi-owner@vger.kernel.org
-To: Philipp Kohlbecher <xt28@gmx.de>
-Cc: Alessandro Zummo <a.zummo@towertech.it>, rtc-linux@googlegroups.com, Vojtech Pavlik <vojtech@ucw.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Pau Oliva Fora <pof@eslack.org>, Hans Verkuil <hverkuil@xs4all.nl>, "David S. Miller" <davem@davemloft.net>, Jaroslav Kysela <perex@perex.cz>, Adam Belay <abelay@mit.edu>, Bjorn Helgaas <bjorn.helgaas@hp.com>, Len Brown <lenb@kernel.org>, Jonathan Woithe <jwoithe@physics.adelaide.edu.au>, linux-acpi@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary=000e0cd22a14f108d204612abb34
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wf-out-1314.google.com ([209.85.200.169]:55055 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753397AbZAWSlR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 23 Jan 2009 13:41:17 -0500
+Received: by wf-out-1314.google.com with SMTP id 27so5692724wfd.4
+        for <linux-input@vger.kernel.org>; Fri, 23 Jan 2009 10:41:16 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vojtech Pavlik <vojtech@suse.cz>
 
-On Sunday 18 January 2009 14:02:32 Philipp Kohlbecher wrote:
-> If I understand correctly, ACPI _HIDs (including PNP IDs) should be all
-> uppercase, including the hex digits, cf. ACPI Specification 3.0b [1],
-> pp. 162-3 and acpi_glb_hex_to_ascii[] in drivers/acpi/utilities/utglobal.c.
+--000e0cd22a14f108d204612abb34
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-ACPI-WMI violates the spec here.
+Dmitry and/or Vojtech, are either of you the right person to send a
+new input utility to?
 
-> diff --git a/drivers/platform/x86/wmi.c b/drivers/platform/x86/wmi.c
-> index 8a8b377..79b8af7 100644
-> --- a/drivers/platform/x86/wmi.c
-> +++ b/drivers/platform/x86/wmi.c
-> @@ -84,7 +84,7 @@ static int acpi_wmi_add(struct acpi_device *device);
->
->   static const struct acpi_device_id wmi_device_ids[] = {
->   	{"PNP0C14", 0},
-> -	{"pnp0c14", 0},
-> +	{"PNP0C14", 0},
->   	{"", 0},
->   };
->   MODULE_DEVICE_TABLE(acpi, wmi_device_ids);
-> diff --git a/drivers/pnp/quirks.c b/drivers/pnp/quirks.c
-> index 8473fe5..18c9335 100644
+The attached file is a simple utility program that allows a user to
+set the absolute value parameters (min, max, fuzz, and flat values)
+for an absolute-value axis.  Can you add this to the input utils?
 
-NAK to the ACPI-WMI changes. There really is a pnp0c14 and a PNP0C14, and 
-removing the lower case version breaks ACPI-WMI on my laptop.
+Thanks.
 
--Carlos
--- 
-E-Mail: carlos@strangeworlds.co.uk
-Web: strangeworlds.co.uk
-GPG Key ID: 0x23EE722D
+--000e0cd22a14f108d204612abb34
+Content-Type: text/x-csrc; charset=US-ASCII; name="absset.c"
+Content-Disposition: attachment; filename="absset.c"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_fqb6uktp0
+
+LyoKICogYWJzc2V0LmMKICogU2V0cyBBYnNvbHV0ZSBsaW1pdHMvdmFsdWVzCiAqIENvcHlyaWdo
+dCAyMDA5IERhbiBTdHJlZXRtYW4gPGRkc3RyZWV0QGllZWUub3JnPgogKi8KCi8qCiAqIFRoaXMg
+cHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3Ig
+bW9kaWZ5CiAqIGl0IHVuZGVyIHRoZSB0ZXJtcyBvZiB0aGUgR05VIEdlbmVyYWwgUHVibGljIExp
+Y2Vuc2UgYXMgcHVibGlzaGVkIGJ5CiAqIHRoZSBGcmVlIFNvZnR3YXJlIEZvdW5kYXRpb247IGVp
+dGhlciB2ZXJzaW9uIDIgb2YgdGhlIExpY2Vuc2UsIG9yCiAqIChhdCB5b3VyIG9wdGlvbikgYW55
+IGxhdGVyIHZlcnNpb24uCiAqCiAqIFRoaXMgcHJvZ3JhbSBpcyBkaXN0cmlidXRlZCBpbiB0aGUg
+aG9wZSB0aGF0IGl0IHdpbGwgYmUgdXNlZnVsLAogKiBidXQgV0lUSE9VVCBBTlkgV0FSUkFOVFk7
+IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgogKiBNRVJDSEFOVEFCSUxJVFkg
+b3IgRklUTkVTUyBGT1IgQSBQQVJUSUNVTEFSIFBVUlBPU0UuICBTZWUgdGhlCiAqIEdOVSBHZW5l
+cmFsIFB1YmxpYyBMaWNlbnNlIGZvciBtb3JlIGRldGFpbHMuCiAqCiAqIFlvdSBzaG91bGQgaGF2
+ZSByZWNlaXZlZCBhIGNvcHkgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlCiAqIGFs
+b25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3YXJl
+CiAqIEZvdW5kYXRpb24sIEluYy4sIDU5IFRlbXBsZSBQbGFjZSwgU3VpdGUgMzMwLCBCb3N0b24s
+IE1BIDAyMTExLTEzMDcgVVNBCiAqLwoKI2luY2x1ZGUgPGZjbnRsLmg+CiNpbmNsdWRlIDxsaW51
+eC9pbnB1dC5oPgojaW5jbHVkZSA8dW5pc3RkLmg+CiNpbmNsdWRlIDxzdHJpbmcuaD4KI2luY2x1
+ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlIDxzdGRsaWIuaD4KI2luY2x1ZGUgPGdldG9wdC5oPgojaW5j
+bHVkZSA8ZXJybm8uaD4KCmNoYXIgKnByb2duYW1lOwoKdm9pZCBwcmludF91c2FnZSgpCnsKCXBy
+aW50ZigiVXNhZ2U6ICVzIFtwYXJhbS4uLl0gPGF4aXM+IDxkZXZpY2U+XG4iLCBwcm9nbmFtZSk7
+CglwcmludGYoIk1vZGlmaWVzIHRoZSBwYXJhbWV0ZXJzIG9mIGFuIGFic29sdXRlLXZhbHVlIGF4
+aXMuXG4iKTsKCXByaW50ZigiXG4iKTsKCXByaW50ZigiUGFyYW1zOlxuIik7CglwcmludGYoIiAg
+LXYgLS12YWx1ZT1WQUxVRSAgU2V0IHRoZSBjdXJyZW50IHZhbHVlLlxuIik7CglwcmludGYoIiAg
+LW0gLS1taW49TUlOICAgICAgU2V0IHRoZSBtaW5pbXVtIHZhbHVlLlxuIik7CglwcmludGYoIiAg
+LU0gLS1tYXg9TUFYICAgICAgU2V0IHRoZSBtYXhpbXVtIHZhbHVlLlxuIik7CglwcmludGYoIiAg
+LWYgLS1mdXp6PUZVWlogICAgU2V0IHRoZSBmdXp6IHZhbHVlLlxuIik7CglwcmludGYoIiAgLUYg
+LS1mbGF0PUZMQVQgICAgU2V0IHRoZSBmbGF0IHZhbHVlLlxuIik7CglwcmludGYoIlxuIik7Cglw
+cmludGYoIkF4aXMgc2V0dGluZzpcbiIpOwoJcHJpbnRmKCIgIC1hIC0tYXhpcz1OICAgICAgIENo
+YW5nZSB0aGUgdmFsdWVzIG9mIGF4aXMgbnVtYmVyIE4uXG4iKTsKCXByaW50ZigiICAteCAgICAg
+ICAgICAgICAgICBDaGFuZ2UgdGhlIFggYXhpcyB2YWx1ZXMsIHNhbWUgYXMgJy1hIDAnLlxuIik7
+CglwcmludGYoIiAgLXkgICAgICAgICAgICAgICAgQ2hhbmdlIHRoZSBZIGF4aXMgdmFsdWVzLCBz
+YW1lIGFzICctYSAxJy5cbiIpOwoJcHJpbnRmKCIgIC16ICAgICAgICAgICAgICAgIENoYW5nZSB0
+aGUgWiBheGlzIHZhbHVlcywgc2FtZSBhcyAnLWEgMicuXG4iKTsKfQoKaW50IHNldF9heGlzKGNo
+YXIgKmFyZywgaW50ICpheGlzU2V0KQp7CglpZiAoKmF4aXNTZXQpIHsKCQlmcHJpbnRmKHN0ZGVy
+ciwgIkNhbm5vdCBzZXQgbW9yZSB0aGFuIDEgYXhpc1xuXG4iKTsKCQlwcmludF91c2FnZSgpOwoJ
+CWV4aXQoMSk7Cgl9CgoJKmF4aXNTZXQgPSAxOwoKCXJldHVybiBzdHJ0b2woYXJnLCBOVUxMLCAw
+KTsKfQoKaW50IG1haW4oaW50IGFyZ2MsIGNoYXIqKiBhcmd2KQp7CglpbnQgZmQgPSAwOwoJY2hh
+ciAqZGV2aWNlX2ZpbGVfbmFtZTsKCWludCByZXR2YWwgPSAwOwoKCWludCBvcHQ7CgljaGFyICpz
+aG9ydG9wdHMgPSAiaHY6bTpNOmY6RjphOnh5eiI7CglzdHJ1Y3Qgb3B0aW9uIGxvbmdvcHRzW10g
+PSB7CgkJeyAidmFsdWUiLCAxLCBOVUxMLCAndicgfSwKCQl7ICJtaW4iLCAxLCBOVUxMLCAnbScg
+fSwKCQl7ICJtYXgiLCAxLCBOVUxMLCAnTScgfSwKCQl7ICJmdXp6IiwgMSwgTlVMTCwgJ2YnIH0s
+CgkJeyAiZmxhdCIsIDEsIE5VTEwsICdGJyB9LAoJCXsgImF4aXMiLCAxLCBOVUxMLCAnYScgfSwK
+CQl7IDAsIDAsIDAsIDAgfQoJfTsKCglfX3MzMiB2YWx1ZT0wLCBtaW49MCwgbWF4PTAsIGZ1eno9
+MCwgZmxhdD0wLCBheGlzPTA7CglpbnQgdmFsdWVTZXQ9MCwgbWluU2V0PTAsIG1heFNldD0wLCBm
+dXp6U2V0PTAsIGZsYXRTZXQ9MCwgYXhpc1NldD0wOwoJc3RydWN0IGlucHV0X2Fic2luZm8gKmlh
+ID0gTlVMTDsKCglwcm9nbmFtZSA9IGFyZ3ZbMF07CgoJd2hpbGUgKChvcHQgPSBnZXRvcHRfbG9u
+ZyhhcmdjLCBhcmd2LCBzaG9ydG9wdHMsIGxvbmdvcHRzLCBOVUxMKSkgIT0gLTEpIHsKCQlzd2l0
+Y2ggKG9wdCkgewoJCWNhc2UgJ3YnOiB2YWx1ZSA9IHN0cnRvbChvcHRhcmcsIE5VTEwsIDApOyB2
+YWx1ZVNldCA9IDE7IGJyZWFrOwoJCWNhc2UgJ20nOiBtaW4gPSBzdHJ0b2wob3B0YXJnLCBOVUxM
+LCAwKTsgbWluU2V0ID0gMTsgYnJlYWs7CgkJY2FzZSAnTSc6IG1heCA9IHN0cnRvbChvcHRhcmcs
+IE5VTEwsIDApOyBtYXhTZXQgPSAxOyBicmVhazsKCQljYXNlICdmJzogZnV6eiA9IHN0cnRvbChv
+cHRhcmcsIE5VTEwsIDApOyBmdXp6U2V0ID0gMTsgYnJlYWs7CgkJY2FzZSAnRic6IGZsYXQgPSBz
+dHJ0b2wob3B0YXJnLCBOVUxMLCAwKTsgZmxhdFNldCA9IDE7IGJyZWFrOwoJCWNhc2UgJ2EnOiBh
+eGlzID0gc2V0X2F4aXMob3B0YXJnLCAmYXhpc1NldCk7IGJyZWFrOwoJCWNhc2UgJ3gnOiBheGlz
+ID0gc2V0X2F4aXMoIjAiLCAmYXhpc1NldCk7IGJyZWFrOwoJCWNhc2UgJ3knOiBheGlzID0gc2V0
+X2F4aXMoIjEiLCAmYXhpc1NldCk7IGJyZWFrOwoJCWNhc2UgJ3onOiBheGlzID0gc2V0X2F4aXMo
+IjIiLCAmYXhpc1NldCk7IGJyZWFrOwoJCWNhc2UgJ2gnOiAvKiBmYWxsIHRocm91Z2ggKi8KCQlk
+ZWZhdWx0OgoJCQlwcmludF91c2FnZSgpOwoJCQlleGl0KDEpOwoJCX0KCX0KCglpZiAob3B0aW5k
+ID49IGFyZ2MpIHsKCQlmcHJpbnRmKHN0ZGVyciwgIk5vIGRldmljZSBub2RlIHNwZWNpZmllZC5c
+blxuIik7CgkJcHJpbnRfdXNhZ2UoKTsKCQlleGl0KDEpOwoJfQoKCWRldmljZV9maWxlX25hbWUg
+PSBhcmd2W29wdGluZF07CgoJaWYgKCF2YWx1ZVNldCAmJiAhbWluU2V0ICYmICFtYXhTZXQgJiYg
+IWZ1enpTZXQgJiYgIWZsYXRTZXQgJiYgIWF4aXNTZXQpIHsKCQlmcHJpbnRmKHN0ZGVyciwgIk5v
+IHBhcmFtIHNwZWNpZmllZC4gIFlvdSBtdXN0IHNwZWNpZnkgYXQgbGVhc3Qgb25lIHBhcmFtLlxu
+XG4iKTsKCQlwcmludF91c2FnZSgpOwoJCWV4aXQoMSk7Cgl9CgoJaWYgKCFheGlzU2V0KSB7CgkJ
+ZnByaW50ZihzdGRlcnIsICJObyBheGlzIHNwZWNpZmllZC5cblxuIik7CgkJcHJpbnRfdXNhZ2Uo
+KTsKCQlleGl0KDEpOwoJfQoKCS8qIE9wZW4gZGV2aWNlICovCglmZCA9IG9wZW4oZGV2aWNlX2Zp
+bGVfbmFtZSwgT19SRFdSKTsKCWlmIChmZCA9PSAtMSkgewoJCXJldHZhbCA9IC1lcnJubzsKCQlm
+cHJpbnRmKHN0ZGVyciwgIkVycm9yIG9wZW5pbmcgZGV2aWNlICVzIDogJXNcbiIsIGRldmljZV9m
+aWxlX25hbWUsIHN0cmVycm9yKC1yZXR2YWwpKTsKCQlnb3RvIGVuZDsKCX0KCglpZiAoIShpYSA9
+IG1hbGxvYyhzaXplb2YoKmlhKSkpKSB7CgkJZnByaW50ZihzdGRlcnIsICJPdXQgb2YgbWVtb3J5
+IVxuIik7CgkJcmV0dmFsID0gLUVOT01FTTsKCQlnb3RvIGVuZDsKCX0KCglpZiAoIXZhbHVlU2V0
+IHx8ICFtaW5TZXQgfHwgIW1heFNldCB8fCAhZnV6elNldCB8fCAhZmxhdFNldCB8fCAhYXhpc1Nl
+dCkgewoJCWlmIChpb2N0bChmZCwgRVZJT0NHQUJTKGF4aXMpLCBpYSkgPT0gLTEpIHsKCQkJcmV0
+dmFsID0gLWVycm5vOwoJCQlmcHJpbnRmKHN0ZGVyciwgIkVycm9yIGdldHRpbmcgY3VycmVudCBh
+eGlzICVkIHZhbHVlcyA6ICVzXG4iLCBheGlzLCBzdHJlcnJvcigtcmV0dmFsKSk7CgkJCWdvdG8g
+ZW5kOwoJCX0KCX0KCglpZiAodmFsdWVTZXQpCgkJaWEtPnZhbHVlID0gdmFsdWU7CglpZiAobWlu
+U2V0KQoJCWlhLT5taW5pbXVtID0gbWluOwoJaWYgKG1heFNldCkKCQlpYS0+bWF4aW11bSA9IG1h
+eDsKCWlmIChmdXp6U2V0KQoJCWlhLT5mdXp6ID0gZnV6ejsKCWlmIChmbGF0U2V0KQoJCWlhLT5m
+bGF0ID0gZmxhdDsKCWlmIChpb2N0bChmZCwgRVZJT0NTQUJTKGF4aXMpLCBpYSkgPT0gLTEpIHsK
+CQlmcHJpbnRmKHN0ZGVyciwgIkVycm9yIHNldHRpbmcgYXhpcyAlZCB2YWx1ZXMgOiAlc1xuIiwg
+YXhpcywgc3RyZXJyb3IoZXJybm8pKTsKCQlyZXR2YWwgPSAtMTsKCX0gZWxzZSB7CgkJY2hhciAq
+YXhpc3N0ciA9ICIiOwoJCXN3aXRjaCAoYXhpcykgewoJCWNhc2UgMDogYXhpc3N0ciA9ICIgKFgp
+IjsgYnJlYWs7CgkJY2FzZSAxOiBheGlzc3RyID0gIiAoWSkiOyBicmVhazsKCQljYXNlIDI6IGF4
+aXNzdHIgPSAiIChaKSI7IGJyZWFrOwoJCX0KCQlwcmludGYoIlNldCBheGlzICVkJXMgcGFyYW1l
+dGVyczpcblx0dmFsdWU6ICVkXG5cdG1pbmltdW06ICVkXG5cdG1heGltdW06ICVkXG5cdGZ1eno6
+ICVkXG5cdGZsYXQ6ICVkXG4iLAoJCQlheGlzLCBheGlzc3RyLCBpYS0+dmFsdWUsIGlhLT5taW5p
+bXVtLCBpYS0+bWF4aW11bSwgaWEtPmZ1enosIGlhLT5mbGF0KTsKCX0KCmVuZDoKCWlmIChmZCkK
+CQljbG9zZShmZCk7CglpZiAoaWEpCgkJZnJlZShpYSk7CglleGl0KHJldHZhbCk7Cn0K
+--000e0cd22a14f108d204612abb34--

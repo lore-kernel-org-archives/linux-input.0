@@ -1,46 +1,111 @@
-From: Phil Sutter <n0-1@freewrt.org>
-Subject: Re: [PATCH 2/2] input: add driver for S1 button of rb532
-Date: Sat, 24 Jan 2009 15:20:27 +0100
-Message-ID: <20090124141705.96C694CEAE@mail.nwl.cc>
-References: <1232651528-19870-1-git-send-email-n0-1@freewrt.org> <1232651528-19870-2-git-send-email-n0-1@freewrt.org> <20090122191216.15285400E106@mail.nwl.cc> <Pine.LNX.4.64.0901240934040.13803@anakin>
+From: legolas558 <legolas558@email.it>
+Subject: Re: [PATCH] input: Thinkpad R31 i8042 nomux quirk
+Date: Sat, 24 Jan 2009 21:51:53 +0100
+Message-ID: <497B7F69.5040705@email.it>
+References: <48F0EDF0.3020702@math.ucla.edu> <48F1AC77.3020503@email.it> <48F2447A.40607@math.ucla.edu> <48F3A87B.402@email.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from orbit.nwl.cc ([91.121.169.95]:33665 "EHLO mail.nwl.cc"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754130AbZAXORJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 24 Jan 2009 09:17:09 -0500
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0901240934040.13803@anakin>
+Received: from m-04.th.seeweb.it ([217.64.195.227]:56017 "EHLO
+	m-04.th.seeweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755742AbZAXVAB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 24 Jan 2009 16:00:01 -0500
+In-Reply-To: <48F3A87B.402@email.it>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>, linux-mips@linux-mips.org, Florian Fainelli <florian@openwrt.org>
+To: Colin Macdonald <cbm@math.ucla.edu>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+Hello Colin,
 
-On Sat, Jan 24, 2009 at 09:34:43AM +0100, Geert Uytterhoeven wrote:
-> What happens when you receive UART input while the UART is disabled? Is it
-> lost?
+today I got the usual messages in dmesg which witness that kernel bug 
+8740 is not yet fixed. Please add your patch to the tracker 
+http://bugzilla.kernel.org/show_bug.cgi?id=8740 and set it to CODE_FIX 
+as I have again to use i8042.nomux=1 to prevent these messages.
 
-Yes, the input is lost, as well as any output sent by the device while
-UART0 is disabled. I've tested this adding a msleep() of 5s in between
-the calls to set_latch_u5() and increasing the delay between polls to
-10s.
+[ 3203.402077] psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at 
+byte 1
+[ 3203.403431] psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at 
+byte 1
+[ 3203.405245] psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at 
+byte 1
+[ 3203.406608] psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at 
+byte 1
+[ 3203.407971] psmouse.c: TouchPad at isa0060/serio4/input0 lost sync at 
+byte 1
+[ 3203.407979] psmouse.c: issuing reconnect request
 
-I've tried to reproduce this behaviour without the changes from above
-using a loop flooding the output of the serial console with increasing
-numbers, with somehow strange results. Instead of missing some output,
-occasionally the log shows additional characters (some non-printable).
-Also (seldomly) digits are replaced by other chars (also not necesarily
-printable).
+It is a very rare event but with i8042.nomux=1 it never happens, it has 
+happened because I removed i8042.nomux=1 when I sent you the below 
+message. The patch simply prevents me to set manually that kernel 
+parameter, which is an annoyance.
 
-So I can at least assume the two drivers interfere with each other,
-which could lead to bad results when using the UART for more advanced
-stuff. Although it may be possible to introduce some kind of locking for
-the serial output, I doubt this can be done with the input part, as the
-device is turned off while polling so data shouldn't even reach the device.
+Thank you,
+--
+   Daniele
 
-Any ideas?
 
-Greetings, Phil
+legolas558 ha scritto:
+> Hi Colin,
+> 
+> I have removed 'i8042.nomux=1' from my kernel command line (kernel 
+> 2.6.25-gentoo-r8) and the mouse glitches bug has not yet happened (last 
+> time I had 2.6.22 or so).
+> 
+> I assume it has been fixed in previous releases, and got unnoticed. I 
+> will reply again to this message if there is again necessity to use 
+> i8042.nomux=1.
+> 
+> Thanks for your help, and sorry for the noise.
+> 
+> Best regards,
+> -- 
+>  Daniele C.
+> 
+> Colin Macdonald ha scritto:
+>> legolas558 wrote:
+>>  
+>>> I also have a notebook, Maxdata Pro 7000X (Fujitsu clone), which has
+>>> such problem (needs i8042.nomux=1, perhaps kernel bug #8740).
+>>>
+>>> Can we also use a patch for it?
+>>>     
+>>
+>> Can you test the patch below and see if it fixes the problem?
+>>
+>>  
+>>> Handle 0x0001, DMI type 1, 25 bytes
+>>> System Information
+>>>        Manufacturer: MAXDATA              Product Name: Pro 7000X    
+>>>        Version: xxxxxxxxxx
+>>>        Serial Number: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+>>>        UUID: xxxxxxxxxx-xxxxxxxxxx-xxxxxxxxxxxxxxxxxxxx
+>>>        Wake-up Type: Power Switch
+>>>     
+>>
+>>
+>> --- linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h.orig    
+>> 2008-10-12 11:31:43.000000000 -0700
+>> +++ linux-2.6.27/drivers/input/serio/i8042-x86ia64io.h    2008-10-12 
+>> 11:33:11.000000000 -0700
+>> @@ -329,6 +329,13 @@ static struct dmi_system_id __initdata i
+>>              DMI_MATCH(DMI_PRODUCT_NAME, "2656"),
+>>          },
+>>      },
+>> +    {
+>> +        .ident = "Maxdata Pro 7000X (Fujitsu clone)",
+>> +        .matches = {
+>> +            DMI_MATCH(DMI_SYS_VENDOR, "MAXDATA"),
+>> +            DMI_MATCH(DMI_PRODUCT_NAME, "Pro 7000X"),
+>> +        },
+>> +    },
+>>      { }
+>>  };
+>>
+>>
+>>   
+> 
+> 
+

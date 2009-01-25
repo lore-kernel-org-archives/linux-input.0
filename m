@@ -1,66 +1,98 @@
-From: Jaswinder Singh Rajput <jaswinder@kernel.org>
-Subject: Re: [PATCH 09/10] HID: add compat support
-Date: Sun, 25 Jan 2009 22:41:38 +0530
-Message-ID: <1232903498.10995.2.camel@localhost.localdomain>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-2-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-3-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-4-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-5-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-6-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-7-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-8-git-send-email-jirislaby@gmail.com>
-	 <1210931362-18422-9-git-send-email-jirislaby@gmail.com>
-	 <3f9a31f40901232155q7f898f00l9a1cf16ca6c8fb75@mail.gmail.com>
-	 <alpine.LNX.1.10.0901251756200.5377@jikos.suse.cz>
+From: Kay Sievers <kay.sievers@vrfy.org>
+Subject: input: struct device - replace bus_id with dev_name(),
+ dev_set_name()
+Date: Sun, 25 Jan 2009 23:47:24 +0100
+Message-ID: <1232923644.2924.11.camel@nga>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hera.kernel.org ([140.211.167.34]:44737 "EHLO hera.kernel.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751609AbZAYRMV (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Jan 2009 12:12:21 -0500
-In-Reply-To: <alpine.LNX.1.10.0901251756200.5377@jikos.suse.cz>
+Received: from fg-out-1718.google.com ([72.14.220.153]:46739 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751062AbZAYWsR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Jan 2009 17:48:17 -0500
+Received: by fg-out-1718.google.com with SMTP id 19so3299762fgg.17
+        for <linux-input@vger.kernel.org>; Sun, 25 Jan 2009 14:48:15 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jaswinder Singh Rajput <jaswinderlinux@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, gregkh@suse.de, Sam Ravnborg <sam@ravnborg.org>, Ingo Molnar <mingo@elte.hu>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, gregkh <gregkh@suse.de>
 
-On Sun, 2009-01-25 at 17:57 +0100, Jiri Kosina wrote:
-> On Sat, 24 Jan 2009, Jaswinder Singh Rajput wrote:
-> 
-> > This leads to 3 headers_check warnings:
-> > 
-> >  usr/include/linux/hid.h:66: leaks CONFIG_HID to userspace where it is not valid
-> >  usr/include/linux/hid.h:69: extern's make no sense in userspace
-> >  usr/include/linux/hid.h:76: extern's make no sense in userspace
-> > 
-> > So I  am moving whole above block in #ifdef __KEREL__
-> > 
-> > If you have any objections, then let me know, now it will look like this:
-> > 
-> >  #endif /* HID_FF */
-> > 
-> > +#ifdef __KERNEL__
-> >  #ifdef CONFIG_HID_COMPAT
-> >  #define HID_COMPAT_LOAD_DRIVER(name)   \
-> >  /* prototype to avoid sparse warning */        \
-> > @@ -804,6 +805,7 @@ EXPORT_SYMBOL(hid_compat_##name)
-> >         extern void hid_compat_##name(void);    \
-> >         hid_compat_##name();                    \
-> >  } while (0)
-> > +#endif /* __KERNEL__ */
-> > 
-> >  #endif
-> 
-> Thanks for catching this. Could you please resend the patch to me, with 
-> proper changelog and Signed-off-by: line? Thanks.
-> 
+From: Kay Sievers <kay.sievers@vrfy.org>
+Subject: input: struct device - replace bus_id with dev_name(), dev_set_name()
 
-I have already send the patchset to Ingo "Re: [GIT PULL -tip] fix 22
-make headers_check - 200901" and I also CCed to you jirislaby@gmail.com
+Cc: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
+Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
+Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+---
+ drivers/input/serio/ambakmi.c            |    4 ++--
+ drivers/input/serio/gscps2.c             |    2 +-
+ drivers/input/serio/sa1111ps2.c          |    4 ++--
+ drivers/input/touchscreen/atmel_tsadcc.c |    2 +-
+ drivers/input/touchscreen/tsc2007.c      |    3 ++-
+ 5 files changed, 8 insertions(+), 7 deletions(-)
 
---
-JSR
+--- a/drivers/input/serio/ambakmi.c
++++ b/drivers/input/serio/ambakmi.c
+@@ -129,8 +129,8 @@ static int amba_kmi_probe(struct amba_de
+ 	io->write	= amba_kmi_write;
+ 	io->open	= amba_kmi_open;
+ 	io->close	= amba_kmi_close;
+-	strlcpy(io->name, dev->dev.bus_id, sizeof(io->name));
+-	strlcpy(io->phys, dev->dev.bus_id, sizeof(io->phys));
++	strlcpy(io->name, dev_name(&dev->dev), sizeof(io->name));
++	strlcpy(io->phys, dev_name(&dev->dev), sizeof(io->phys));
+ 	io->port_data	= kmi;
+ 	io->dev.parent	= &dev->dev;
+ 
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -359,7 +359,7 @@ static int __init gscps2_probe(struct pa
+ 
+ 	snprintf(serio->name, sizeof(serio->name), "GSC PS/2 %s",
+ 		 (ps2port->id == GSC_ID_KEYBOARD) ? "keyboard" : "mouse");
+-	strlcpy(serio->phys, dev->dev.bus_id, sizeof(serio->phys));
++	strlcpy(serio->phys, dev_name(&dev->dev), sizeof(serio->phys));
+ 	serio->id.type		= SERIO_8042;
+ 	serio->write		= gscps2_write;
+ 	serio->open		= gscps2_open;
+--- a/drivers/input/serio/sa1111ps2.c
++++ b/drivers/input/serio/sa1111ps2.c
+@@ -246,8 +246,8 @@ static int __devinit ps2_probe(struct sa
+ 	serio->write		= ps2_write;
+ 	serio->open		= ps2_open;
+ 	serio->close		= ps2_close;
+-	strlcpy(serio->name, dev->dev.bus_id, sizeof(serio->name));
+-	strlcpy(serio->phys, dev->dev.bus_id, sizeof(serio->phys));
++	strlcpy(serio->name, dev_name(&dev->dev), sizeof(serio->name));
++	strlcpy(serio->phys, dev_name(&dev->dev), sizeof(serio->phys));
+ 	serio->port_data	= ps2if;
+ 	serio->dev.parent	= &dev->dev;
+ 	ps2if->io		= serio;
+--- a/drivers/input/touchscreen/atmel_tsadcc.c
++++ b/drivers/input/touchscreen/atmel_tsadcc.c
+@@ -236,7 +236,7 @@ static int __devinit atmel_tsadcc_probe(
+ 	ts_dev->bufferedmeasure = 0;
+ 
+ 	snprintf(ts_dev->phys, sizeof(ts_dev->phys),
+-		 "%s/input0", pdev->dev.bus_id);
++		 "%s/input0", dev_name(&pdev->dev));
+ 
+ 	input_dev->name = "atmel touch screen controller";
+ 	input_dev->phys = ts_dev->phys;
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -289,7 +289,8 @@ static int tsc2007_probe(struct i2c_clie
+ 
+ 	pdata->init_platform_hw();
+ 
+-	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", client->dev.bus_id);
++	snprintf(ts->phys, sizeof(ts->phys),
++		 "%s/input0", dev_name(&client->dev));
+ 
+ 	input_dev->name = "TSC2007 Touchscreen";
+ 	input_dev->phys = ts->phys;
+
 

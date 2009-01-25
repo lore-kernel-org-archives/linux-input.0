@@ -1,28 +1,35 @@
-From: Jiri Slaby <jirislaby@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
 Subject: Re: [PATCH 09/10] HID: add compat support
-Date: Sun, 25 Jan 2009 14:03:53 +0100
-Message-ID: <497C6339.4040804__364.122648216103$1232890839$gmane$org@gmail.com>
-References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-2-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-3-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-4-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-5-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-6-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-7-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-8-git-send-email-jirislaby@gmail.com>	 <1210931362-18422-9-git-send-email-jirislaby@gmail.com> <3f9a31f40901232155q7f898f00l9a1cf16ca6c8fb75@mail.gmail.com>
+Date: Sun, 25 Jan 2009 17:57:10 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0901251756200.5377@jikos.suse.cz>
+References: <1210931362-18422-1-git-send-email-jirislaby@gmail.com>  <1210931362-18422-2-git-send-email-jirislaby@gmail.com>  <1210931362-18422-3-git-send-email-jirislaby@gmail.com>  <1210931362-18422-4-git-send-email-jirislaby@gmail.com>
+ <1210931362-18422-5-git-send-email-jirislaby@gmail.com>  <1210931362-18422-6-git-send-email-jirislaby@gmail.com>  <1210931362-18422-7-git-send-email-jirislaby@gmail.com>  <1210931362-18422-8-git-send-email-jirislaby@gmail.com>
+ <1210931362-18422-9-git-send-email-jirislaby@gmail.com> <3f9a31f40901232155q7f898f00l9a1cf16ca6c8fb75@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f10.google.com ([209.85.219.10]:33601 "EHLO
-	mail-ew0-f10.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754568AbZAYND5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Jan 2009 08:03:57 -0500
+Received: from styx.suse.cz ([82.119.242.94]:47269 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751839AbZAYQ5M (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 25 Jan 2009 11:57:12 -0500
 In-Reply-To: <3f9a31f40901232155q7f898f00l9a1cf16ca6c8fb75@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jaswinder Singh Rajput <jaswinderlinux@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, gregkh@suse.de, Sam Ravnborg <sam@ravnborg.org>, Ingo Molnar <mingo@elte.hu>
+Cc: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, marcel@holtmann.org, linux-kernel@vger.kernel.org, anssi.hannula@gmail.com, gregkh@suse.de, Sam Ravnborg <sam@ravnborg.org>, Ingo Molnar <mingo@elte.hu>
 
-Jaswinder Singh Rajput wrote:
+On Sat, 24 Jan 2009, Jaswinder Singh Rajput wrote:
+
+> This leads to 3 headers_check warnings:
+> 
+>  usr/include/linux/hid.h:66: leaks CONFIG_HID to userspace where it is not valid
+>  usr/include/linux/hid.h:69: extern's make no sense in userspace
+>  usr/include/linux/hid.h:76: extern's make no sense in userspace
+> 
+> So I  am moving whole above block in #ifdef __KEREL__
+> 
 > If you have any objections, then let me know, now it will look like this:
-
-No objections from me, nice catch, thanks.
-
+> 
 >  #endif /* HID_FF */
 > 
 > +#ifdef __KERNEL__
@@ -37,3 +44,9 @@ No objections from me, nice catch, thanks.
 > 
 >  #endif
 
+Thanks for catching this. Could you please resend the patch to me, with 
+proper changelog and Signed-off-by: line? Thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs

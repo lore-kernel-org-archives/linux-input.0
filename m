@@ -1,98 +1,46 @@
-From: Kay Sievers <kay.sievers@vrfy.org>
-Subject: input: struct device - replace bus_id with dev_name(),
- dev_set_name()
-Date: Sun, 25 Jan 2009 23:47:24 +0100
-Message-ID: <1232923644.2924.11.camel@nga>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: Re: 2.6.29rc1 breakes usb: hiddev device no longer available
+Date: Mon, 26 Jan 2009 20:05:07 +0100
+Message-ID: <200901262005.08168.oliver@neukum.org>
+References: <20090126170130.GG6158@vanheusden.com> <20090126182707.GI6158@vanheusden.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.153]:46739 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751062AbZAYWsR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 25 Jan 2009 17:48:17 -0500
-Received: by fg-out-1718.google.com with SMTP id 19so3299762fgg.17
-        for <linux-input@vger.kernel.org>; Sun, 25 Jan 2009 14:48:15 -0800 (PST)
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754271AbZAZTF1@vger.kernel.org>
+In-Reply-To: <20090126182707.GI6158@vanheusden.com>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Folkert van Heusden <folkert@vanheusden.com>, linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org, gregkh <gregkh@suse.de>
 
-From: Kay Sievers <kay.sievers@vrfy.org>
-Subject: input: struct device - replace bus_id with dev_name(), dev_set_name()
+Am Monday 26 January 2009 19:27:07 schrieb Folkert van Heusden:
+> > Since version 2.6.29rc1 querying cleware USb devices no longer works.
+> > 2.6.28 works fine. 2.6.29-rc2 also no longer works.
+> 
 
-Cc: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
-Acked-by: Greg Kroah-Hartman <gregkh@suse.de>
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
----
- drivers/input/serio/ambakmi.c            |    4 ++--
- drivers/input/serio/gscps2.c             |    2 +-
- drivers/input/serio/sa1111ps2.c          |    4 ++--
- drivers/input/touchscreen/atmel_tsadcc.c |    2 +-
- drivers/input/touchscreen/tsc2007.c      |    3 ++-
- 5 files changed, 8 insertions(+), 7 deletions(-)
+> the is the FAILURE situation (2.6.29-rc*):
+> open("/dev/usb/hiddev0", O_RDWR)        = 3
+> ioctl(3, HIDIOCGDEVINFO, 0xbf90c0d8)    = 0
+> ioctl(3, HIDIOCAPPLICATION, 0)          = -6291455
+> ioctl(3, HIDIOCGSTRING, 0x804e2c0)      = -1 ENODEV (No such device)
 
---- a/drivers/input/serio/ambakmi.c
-+++ b/drivers/input/serio/ambakmi.c
-@@ -129,8 +129,8 @@ static int amba_kmi_probe(struct amba_de
- 	io->write	= amba_kmi_write;
- 	io->open	= amba_kmi_open;
- 	io->close	= amba_kmi_close;
--	strlcpy(io->name, dev->dev.bus_id, sizeof(io->name));
--	strlcpy(io->phys, dev->dev.bus_id, sizeof(io->phys));
-+	strlcpy(io->name, dev_name(&dev->dev), sizeof(io->name));
-+	strlcpy(io->phys, dev_name(&dev->dev), sizeof(io->phys));
- 	io->port_data	= kmi;
- 	io->dev.parent	= &dev->dev;
- 
---- a/drivers/input/serio/gscps2.c
-+++ b/drivers/input/serio/gscps2.c
-@@ -359,7 +359,7 @@ static int __init gscps2_probe(struct pa
- 
- 	snprintf(serio->name, sizeof(serio->name), "GSC PS/2 %s",
- 		 (ps2port->id == GSC_ID_KEYBOARD) ? "keyboard" : "mouse");
--	strlcpy(serio->phys, dev->dev.bus_id, sizeof(serio->phys));
-+	strlcpy(serio->phys, dev_name(&dev->dev), sizeof(serio->phys));
- 	serio->id.type		= SERIO_8042;
- 	serio->write		= gscps2_write;
- 	serio->open		= gscps2_open;
---- a/drivers/input/serio/sa1111ps2.c
-+++ b/drivers/input/serio/sa1111ps2.c
-@@ -246,8 +246,8 @@ static int __devinit ps2_probe(struct sa
- 	serio->write		= ps2_write;
- 	serio->open		= ps2_open;
- 	serio->close		= ps2_close;
--	strlcpy(serio->name, dev->dev.bus_id, sizeof(serio->name));
--	strlcpy(serio->phys, dev->dev.bus_id, sizeof(serio->phys));
-+	strlcpy(serio->name, dev_name(&dev->dev), sizeof(serio->name));
-+	strlcpy(serio->phys, dev_name(&dev->dev), sizeof(serio->phys));
- 	serio->port_data	= ps2if;
- 	serio->dev.parent	= &dev->dev;
- 	ps2if->io		= serio;
---- a/drivers/input/touchscreen/atmel_tsadcc.c
-+++ b/drivers/input/touchscreen/atmel_tsadcc.c
-@@ -236,7 +236,7 @@ static int __devinit atmel_tsadcc_probe(
- 	ts_dev->bufferedmeasure = 0;
- 
- 	snprintf(ts_dev->phys, sizeof(ts_dev->phys),
--		 "%s/input0", pdev->dev.bus_id);
-+		 "%s/input0", dev_name(&pdev->dev));
- 
- 	input_dev->name = "atmel touch screen controller";
- 	input_dev->phys = ts_dev->phys;
---- a/drivers/input/touchscreen/tsc2007.c
-+++ b/drivers/input/touchscreen/tsc2007.c
-@@ -289,7 +289,8 @@ static int tsc2007_probe(struct i2c_clie
- 
- 	pdata->init_platform_hw();
- 
--	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", client->dev.bus_id);
-+	snprintf(ts->phys, sizeof(ts->phys),
-+		 "%s/input0", dev_name(&client->dev));
- 
- 	input_dev->name = "TSC2007 Touchscreen";
- 	input_dev->phys = ts->phys;
+Please try this patch.
 
+	Regards
+		Oliver
 
+--
+
+--- linux-2.6/drivers/hid/usbhid/hiddev.c.alt	2009-01-26 20:03:10.000000000 +0100
++++ linux-2.6/drivers/hid/usbhid/hiddev.c	2009-01-26 20:03:17.000000000 +0100
+@@ -656,7 +656,7 @@ static long hiddev_ioctl(struct file *fi
+ 
+ 	case HIDIOCGSTRING:
+ 		mutex_lock(&hiddev->existancelock);
+-		if (!hiddev->exist)
++		if (hiddev->exist)
+ 			r = hiddev_ioctl_string(hiddev, cmd, user_arg);
+ 		else
+ 			r = -ENODEV;

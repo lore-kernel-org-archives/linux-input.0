@@ -1,46 +1,88 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: 2.6.29rc1 breakes usb: hiddev device no longer available
-Date: Mon, 26 Jan 2009 20:05:07 +0100
-Message-ID: <200901262005.08168.oliver@neukum.org>
-References: <20090126170130.GG6158@vanheusden.com> <20090126182707.GI6158@vanheusden.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] psmouse: run kpsmoused only while needed
+Date: Mon, 26 Jan 2009 14:32:10 -0800
+Message-ID: <20090126143210.ce6a4503.akpm@linux-foundation.org>
+References: <496fd1d3.0d135e0a.171b.43ea@mx.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754271AbZAZTF1@vger.kernel.org>
-In-Reply-To: <20090126182707.GI6158@vanheusden.com>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Folkert van Heusden <folkert@vanheusden.com>, linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:52921 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1752518AbZAZWdF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 26 Jan 2009 17:33:05 -0500
+In-Reply-To: <496fd1d3.0d135e0a.171b.43ea@mx.google.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-kernel@vger.kernel.org, mingo@elte.hu, linux-input@vger.kernel.org
 
-Am Monday 26 January 2009 19:27:07 schrieb Folkert van Heusden:
-> > Since version 2.6.29rc1 querying cleware USb devices no longer works.
-> > 2.6.28 works fine. 2.6.29-rc2 also no longer works.
+On Thu, 15 Jan 2009 16:16:19 -0800 (PST)
+Frederic Weisbecker <fweisbec@gmail.com> wrote:
+
+> While looking at the workqueue tracer, I noticed that kpsmoused receives
+> rarely (if not never) events.
+> 
+> Currently, when a mouse has to resync, it uses the kpsmoused singlethreaded
+> workqueue. But recync are rare. While reading an old discussion, it seems
+> that usual workqueue events can't be used for that purpose because resync
+> can take too much time and could delay the other works in queue.
+> 
+> But if you have built psmouse driver, this workqueue will always be present
+> whether you have a ps/2 port or not. And its events are rare.
+> 
+> To avoid this pointless task, this patch makes the kpsmoused a kernel
+> thread only created on the fly when a recync is needed. Once the recync is done,
+> this thread will die. So you will almost never see it, and it will not be
+> an inactive task anymore.
+> 
+> This thread is created through a usual workqueue event (because we can't create
+> it from interrupt).
 > 
 
-> the is the FAILURE situation (2.6.29-rc*):
-> open("/dev/usb/hiddev0", O_RDWR)        = 3
-> ioctl(3, HIDIOCGDEVINFO, 0xbf90c0d8)    = 0
-> ioctl(3, HIDIOCAPPLICATION, 0)          = -6291455
-> ioctl(3, HIDIOCGSTRING, 0x804e2c0)      = -1 ENODEV (No such device)
+Seems like a reasonable objective.
 
-Please try this patch.
+>
+> ...
+>
+>  /*
+>   * __psmouse_set_state() sets new psmouse state and resets all flags.
+> @@ -313,7 +307,8 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+>  		       psmouse->name, psmouse->phys, psmouse->pktcnt);
+>  		psmouse->badbyte = psmouse->packet[0];
+>  		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
+> -		psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
+> +		atomic_inc(&psmouse->nb_recync_pending);
 
-	Regards
-		Oliver
+The patch and the changelog consistently misspell "sync".
 
---
+A code comment (in psmouse.h) which clearly spells out the role of
+nb_recync_pending would be useful.
 
---- linux-2.6/drivers/hid/usbhid/hiddev.c.alt	2009-01-26 20:03:10.000000000 +0100
-+++ linux-2.6/drivers/hid/usbhid/hiddev.c	2009-01-26 20:03:17.000000000 +0100
-@@ -656,7 +656,7 @@ static long hiddev_ioctl(struct file *fi
- 
- 	case HIDIOCGSTRING:
- 		mutex_lock(&hiddev->existancelock);
--		if (!hiddev->exist)
-+		if (hiddev->exist)
- 			r = hiddev_ioctl_string(hiddev, cmd, user_arg);
- 		else
- 			r = -ENODEV;
+> +		schedule_work(&psmouse->resync_work);
+>  		goto out;
+>  	}
+>  
+>
+> ...
+>
+> @@ -1131,7 +1155,13 @@ static void psmouse_disconnect(struct serio *serio)
+>  
+>  	/* make sure we don't have a resync in progress */
+>  	mutex_unlock(&psmouse_mutex);
+> -	flush_workqueue(kpsmoused_wq);
+> +
+> +	prepare_to_wait(&psmouse->recync_pending_queue, &wait,
+> +				TASK_UNINTERRUPTIBLE);
+> +	if (atomic_read(&psmouse->nb_recync_pending))
+> +		schedule();
+> +	finish_wait(&psmouse->recync_pending_queue, &wait);
+
+So... we're requiring that nb_recync_pending is zero at this stage?
+
+I wonder if the code manages to do that.  A little WARN_ON(), maybe?
+
+>  	mutex_lock(&psmouse_mutex);
+>  
+

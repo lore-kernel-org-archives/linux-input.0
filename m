@@ -1,104 +1,67 @@
-From: Frederic Weisbecker <fweisbec@gmail.com>
-Subject: Re: [PATCH] psmouse: run kpsmoused only while needed
-Date: Tue, 27 Jan 2009 01:34:15 +0100
-Message-ID: <20090127003412.GC4815@nowhere>
-References: <496fd1d3.0d135e0a.171b.43ea@mx.google.com> <20090126143210.ce6a4503.akpm@linux-foundation.org>
+From: Folkert van Heusden <folkert@vanheusden.com>
+Subject: Re: 2.6.29rc1 breakes usb: hiddev device no longer available
+Date: Tue, 27 Jan 2009 20:52:30 +0100
+Message-ID: <20090127195229.GA6158@vanheusden.com>
+References: <20090126170130.GG6158@vanheusden.com> <20090126182707.GI6158@vanheusden.com> <200901262005.08168.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.157]:33682 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753790AbZA0AeT (ORCPT
+Received: from smtp-vbr15.xs4all.nl ([194.109.24.35]:4234 "EHLO
+	smtp-vbr15.xs4all.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753459AbZA0Twe (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 26 Jan 2009 19:34:19 -0500
+	Tue, 27 Jan 2009 14:52:34 -0500
 Content-Disposition: inline
-In-Reply-To: <20090126143210.ce6a4503.akpm@linux-foundation.org>
+In-Reply-To: <200901262005.08168.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-kernel@vger.kernel.org, mingo@elte.hu, linux-input@vger.kernel.org
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Jan 26, 2009 at 02:32:10PM -0800, Andrew Morton wrote:
-> On Thu, 15 Jan 2009 16:16:19 -0800 (PST)
-> Frederic Weisbecker <fweisbec@gmail.com> wrote:
-> 
-> > While looking at the workqueue tracer, I noticed that kpsmoused receives
-> > rarely (if not never) events.
-> > 
-> > Currently, when a mouse has to resync, it uses the kpsmoused singlethreaded
-> > workqueue. But recync are rare. While reading an old discussion, it seems
-> > that usual workqueue events can't be used for that purpose because resync
-> > can take too much time and could delay the other works in queue.
-> > 
-> > But if you have built psmouse driver, this workqueue will always be present
-> > whether you have a ps/2 port or not. And its events are rare.
-> > 
-> > To avoid this pointless task, this patch makes the kpsmoused a kernel
-> > thread only created on the fly when a recync is needed. Once the recync is done,
-> > this thread will die. So you will almost never see it, and it will not be
-> > an inactive task anymore.
-> > 
-> > This thread is created through a usual workqueue event (because we can't create
-> > it from interrupt).
-> > 
-> 
-> Seems like a reasonable objective.
-> 
-> >
-> > ...
-> >
-> >  /*
-> >   * __psmouse_set_state() sets new psmouse state and resets all flags.
-> > @@ -313,7 +307,8 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
-> >  		       psmouse->name, psmouse->phys, psmouse->pktcnt);
-> >  		psmouse->badbyte = psmouse->packet[0];
-> >  		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-> > -		psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
-> > +		atomic_inc(&psmouse->nb_recync_pending);
-> 
-> The patch and the changelog consistently misspell "sync".
-> 
-> A code comment (in psmouse.h) which clearly spells out the role of
-> nb_recync_pending would be useful.
+> > > Since version 2.6.29rc1 querying cleware USb devices no longer wo=
+rks.
+> > > 2.6.28 works fine. 2.6.29-rc2 also no longer works.
+> >=20
+>=20
+> > the is the FAILURE situation (2.6.29-rc*):
+> > open("/dev/usb/hiddev0", O_RDWR)        =3D 3
+> > ioctl(3, HIDIOCGDEVINFO, 0xbf90c0d8)    =3D 0
+> > ioctl(3, HIDIOCAPPLICATION, 0)          =3D -6291455
+> > ioctl(3, HIDIOCGSTRING, 0x804e2c0)      =3D -1 ENODEV (No such devi=
+ce)
+> Please try this patch.
+
+Yes, that fixes it! Thanks!
 
 
-Ok.
+Ack-by: folkert@vanheusden.com
 
- 
-> > +		schedule_work(&psmouse->resync_work);
-> >  		goto out;
-> >  	}
-> >  
-> >
-> > ...
-> >
-> > @@ -1131,7 +1155,13 @@ static void psmouse_disconnect(struct serio *serio)
-> >  
-> >  	/* make sure we don't have a resync in progress */
-> >  	mutex_unlock(&psmouse_mutex);
-> > -	flush_workqueue(kpsmoused_wq);
-> > +
-> > +	prepare_to_wait(&psmouse->recync_pending_queue, &wait,
-> > +				TASK_UNINTERRUPTIBLE);
-> > +	if (atomic_read(&psmouse->nb_recync_pending))
-> > +		schedule();
-> > +	finish_wait(&psmouse->recync_pending_queue, &wait);
-> 
-> So... we're requiring that nb_recync_pending is zero at this stage?
-> 
-> I wonder if the code manages to do that.  A little WARN_ON(), maybe?
+> --- linux-2.6/drivers/hid/usbhid/hiddev.c.alt	2009-01-26 20:03:10.000=
+000000 +0100
+> +++ linux-2.6/drivers/hid/usbhid/hiddev.c	2009-01-26 20:03:17.0000000=
+00 +0100
+> @@ -656,7 +656,7 @@ static long hiddev_ioctl(struct file *fi
+> =20
+>  	case HIDIOCGSTRING:
+>  		mutex_lock(&hiddev->existancelock);
+> -		if (!hiddev->exist)
+> +		if (hiddev->exist)
+>  			r =3D hiddev_ioctl_string(hiddev, cmd, user_arg);
+>  		else
+>  			r =3D -ENODEV;
 
 
-Yes it is supposed to be zero since no new recync can be performed at this time.
-But a workqueue (one that creates the kpsmoused thread) or the thread itself can
-be still running, so we want to ensure all is completed.
+=46olkert van Heusden
 
-Perhaps a schedule_timeout with a warn_on would be better to detect soft-lockups?
-
-Thanks!
-
- 
-> >  	mutex_lock(&psmouse_mutex);
-> >  
-> 
-
+--=20
+MultiTail =E8 uno flexible tool per seguire di logfiles e effettuazione
+di commissioni. Feltrare, provedere da colore, merge, 'diff-view',
+etc. http://www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,35 +1,68 @@
 From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH 0/6] input: resend of pending patches
-Date: Wed, 28 Jan 2009 11:23:43 +0100
-Message-ID: <1233138229-12489-1-git-send-email-rydberg@euromail.se>
+Subject: [PATCH 2/6] input: bcm5974: Add quad-finger tapping
+Date: Wed, 28 Jan 2009 11:23:45 +0100
+Message-ID: <1233138229-12489-3-git-send-email-rydberg@euromail.se>
+References: <1233138229-12489-1-git-send-email-rydberg@euromail.se>
+ <1233138229-12489-2-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:48420 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750947AbZA1KX4 (ORCPT
+Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:45469 "EHLO
+	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751769AbZA1KYE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jan 2009 05:23:56 -0500
+	Wed, 28 Jan 2009 05:24:04 -0500
+In-Reply-To: <1233138229-12489-2-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Hi Dmitry,
+The integrated button on the new unibody Macbooks presents a need to
+report explicit four-finger actions. Evidently, the finger pressing
+the button is also touching the trackpad, so in order to fully support
+three-finger actions, the driver must be able to report four-finger
+actions. This patch adds a new button, BTN_TOOL_QUADTAP, which
+achieves this.
 
-here are the outstanding input patches.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |    4 +++-
+ include/linux/input.h         |    1 +
+ 2 files changed, 4 insertions(+), 1 deletions(-)
 
-Cheers,
-Henrik
-
-Henrik Rydberg (6):
-  input: bcm5974: Prepare for a new trackpad header type
-  input: bcm5974: Add quad-finger tapping
-  input: bcm5974: Add support for the Macbook 5 (Unibody)
-  input: bcm5974: Augmented debug information
-  input: Allow certain EV_ABS events to bypass all filtering
-  input: Add a detailed multi-touch finger data report protocol (rev2)
-
- drivers/input/input.c         |   36 +++++++++++++++
- drivers/input/mouse/bcm5974.c |   99 ++++++++++++++++++++++++++++++----------
- include/linux/input.h         |   29 ++++++++++++
- 3 files changed, 139 insertions(+), 25 deletions(-)
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index e97462e..a170574 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -258,6 +258,7 @@ static void setup_events_to_report(struct input_dev *input_dev,
+ 	__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
++	__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
+ 	__set_bit(BTN_LEFT, input_dev->keybit);
+ }
+ 
+@@ -328,7 +329,8 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	input_report_key(input, BTN_TOUCH, dev->fingers > 0);
+ 	input_report_key(input, BTN_TOOL_FINGER, dev->fingers == 1);
+ 	input_report_key(input, BTN_TOOL_DOUBLETAP, dev->fingers == 2);
+-	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers > 2);
++	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers == 3);
++	input_report_key(input, BTN_TOOL_QUADTAP, dev->fingers > 3);
+ 
+ 	input_report_abs(input, ABS_PRESSURE, abs_p);
+ 	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 1249a0c..ee5754a 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -445,6 +445,7 @@ struct input_absinfo {
+ #define BTN_STYLUS2		0x14c
+ #define BTN_TOOL_DOUBLETAP	0x14d
+ #define BTN_TOOL_TRIPLETAP	0x14e
++#define BTN_TOOL_QUADTAP	0x14f	/* Four fingers on trackpad */
+ 
+ #define BTN_WHEEL		0x150
+ #define BTN_GEAR_DOWN		0x150
+-- 
+1.5.6.3
 

@@ -1,35 +1,41 @@
-From: Jarod Wilson <jarod@redhat.com>
-Subject: Re: [PATCH] add antec-branded soundgraph imon devices to hid_ignore_list
-Date: Wed, 28 Jan 2009 15:31:05 -0500
-Message-ID: <200901281531.06045.jarod@redhat.com>
-References: <200901281049.28799.jarod@redhat.com> <alpine.LNX.1.10.0901282123520.5377@jikos.suse.cz>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: [PATCH] Input: scan pci_bus_type
+Date: Wed, 28 Jan 2009 22:53:58 +0100
+Message-ID: <4980D3F6.3050409@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.redhat.com ([66.187.237.31]:33354 "EHLO mx2.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755010AbZA1UbL (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jan 2009 15:31:11 -0500
-In-Reply-To: <alpine.LNX.1.10.0901282123520.5377@jikos.suse.cz>
-Content-Disposition: inline
+Received: from mail-ew0-f21.google.com ([209.85.219.21]:48319 "EHLO
+	mail-ew0-f21.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751727AbZA1Vx7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jan 2009 16:53:59 -0500
+Received: by ewy14 with SMTP id 14so3600680ewy.13
+        for <linux-input@vger.kernel.org>; Wed, 28 Jan 2009 13:53:56 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Wednesday 28 January 2009 15:24:18 Jiri Kosina wrote:
-> On Wed, 28 Jan 2009, Jarod Wilson wrote:
-> > hid_ignore_list additions for the Antec-branded SoundGraph iMon VFD and
-> > LCD devices (0x15c2:0x0044 and 0x0045).
->
-> lirc is capable of handling these as well, right?
+scan pci_bus_type rather then a get/put
 
-Correct. I added support for these to lirc a few weeks back after
-picking up one of the 0045 devices myself.
-
--- 
-Jarod Wilson
-jarod@redhat.com
-
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+diff --git a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
+index fd09c8d..f63995f 100644
+--- a/drivers/input/mouse/pc110pad.c
++++ b/drivers/input/mouse/pc110pad.c
+@@ -111,11 +111,8 @@ static int __init pc110pad_init(void)
+ 	struct pci_dev *dev;
+ 	int err;
+ 
+-	dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
+-	if (dev) {
+-		pci_dev_put(dev);
++	if (!no_pci_devices())
+ 		return -ENODEV;
+-	}
+ 
+ 	if (!request_region(pc110pad_io, 4, "pc110pad")) {
+ 		printk(KERN_ERR "pc110pad: I/O area %#x-%#x in use.\n",

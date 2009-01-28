@@ -1,41 +1,48 @@
-From: Roel Kluin <roel.kluin@gmail.com>
-Subject: [PATCH] Input: scan pci_bus_type
-Date: Wed, 28 Jan 2009 22:53:58 +0100
-Message-ID: <4980D3F6.3050409@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: blacklist Powercom UPSes which are not HIDs but Serial<=>USB
+ things
+Date: Wed, 28 Jan 2009 23:04:25 +0100 (CET)
+Message-ID: <alpine.LRH.1.10.0901282302450.15460@twin.jikos.cz>
+References: <1233173972.288064.6256.nullmailer@msgid.corpit.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f21.google.com ([209.85.219.21]:48319 "EHLO
-	mail-ew0-f21.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751727AbZA1Vx7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jan 2009 16:53:59 -0500
-Received: by ewy14 with SMTP id 14so3600680ewy.13
-        for <linux-input@vger.kernel.org>; Wed, 28 Jan 2009 13:53:56 -0800 (PST)
+Received: from twin.jikos.cz ([213.151.79.26]:44919 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751755AbZA1WEa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jan 2009 17:04:30 -0500
+In-Reply-To: <1233173972.288064.6256.nullmailer@msgid.corpit.ru>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: Linux INPUT list <linux-input@vger.kernel.org>
 
-scan pci_bus_type rather then a get/put
+On Wed, 28 Jan 2009, Michael Tokarev wrote:
 
-Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
----
-diff --git a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
-index fd09c8d..f63995f 100644
---- a/drivers/input/mouse/pc110pad.c
-+++ b/drivers/input/mouse/pc110pad.c
-@@ -111,11 +111,8 @@ static int __init pc110pad_init(void)
- 	struct pci_dev *dev;
- 	int err;
- 
--	dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
--	if (dev) {
--		pci_dev_put(dev);
-+	if (!no_pci_devices())
- 		return -ENODEV;
--	}
- 
- 	if (!request_region(pc110pad_io, 4, "pc110pad")) {
- 		printk(KERN_ERR "pc110pad: I/O area %#x-%#x in use.\n",
+> diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+> index 5d7640e..dcd4add 100644
+> --- a/drivers/hid/hid-core.c
+> +++ b/drivers/hid/hid-core.c
+> @@ -1295,6 +1295,7 @@ static const struct hid_device_id hid_blacklist[] = {
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_MONTEREY, USB_DEVICE_ID_GENIUS_KB29E) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG, USB_DEVICE_ID_NTRIG_TOUCH_SCREEN) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_PETALYNX, USB_DEVICE_ID_PETALYNX_MAXTER_REMOTE) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS3_CONTROLLER) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_VAIO_VGX_MOUSE) },
+
+This has to be added into hid_ignore_list[] so that HID code doesn't care 
+at all about that device.
+
+hid_blacklist[] is for devices which are broken in some way and require 
+some special handling by special hid sub-driver, but still this driver 
+operates on HID bus.
+
+I think a little comment for these lists won't hurt, you are not the first 
+one to get it wrong. I'll add it.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

@@ -1,53 +1,40 @@
-From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
-Subject: RE: [PATCH] Input, blackfin: ! has a higher priority than >
-Date: Thu, 29 Jan 2009 09:08:45 -0000
-Message-ID: <8A42379416420646B9BFAC9682273B6D0844D6E2@limkexm3.ad.analog.com>
-References: <4980DAB1.6090202@gmail.com>
+From: "Adrian McMenamin" <adrian@newgolddream.dyndns.info>
+Subject: Re: [PATCH RFC] sh: maple: Add support for SEGA Dreamcast VMU and
+     clean up maple bus driver (3/3)
+Date: Thu, 29 Jan 2009 10:34:43 -0000 (UTC)
+Message-ID: <509354d63a44246cefe01bd35eb1374c.squirrel@newgolddream.dyndns.info>
+References: <1233186456.6734.16.camel@localhost.localdomain>
+    <1233187069.6734.21.camel@localhost.localdomain>
+    <1233187750.6734.27.camel@localhost.localdomain>
+    <1233188287.6734.32.camel@localhost.localdomain>
+    <20090129025754.GC31096@linux-sh.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail10.analog.com ([137.71.25.55]:57574 "EHLO
-	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754295AbZA2JSk convert rfc822-to-8bit (ORCPT
+Received: from mk-filter-1-a-1.mail.uk.tiscali.com ([212.74.100.52]:1472 "EHLO
+	mk-filter-1-a-1.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751734AbZA2Kf5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2009 04:18:40 -0500
-Content-class: urn:content-classes:message
-In-Reply-To: <4980DAB1.6090202@gmail.com>
+	Thu, 29 Jan 2009 05:35:57 -0500
+In-Reply-To: <20090129025754.GC31096@linux-sh.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Roel Kluin <roel.kluin@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, michael.hennerich@analog.com, cooloney@kernel.org
-Cc: linux-input@vger.kernel.org
+To: Paul Mundt <lethal@linux-sh.org>, Adrian McMenamin <adrian@newgolddream.dyndns.info>, Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@in>
 
-
-
->From: Roel Kluin [mailto:roel.kluin@gmail.com]
+On Thu, January 29, 2009 2:57 am, Paul Mundt wrote:
+> On Thu, Jan 29, 2009 at 12:18:07AM +0000, Adrian McMenamin wrote:
+>> +	if (!(mdev->function & MAPLE_FUNC_KEYBOARD)) {
+>> +		error = EINVAL;
+>> +		goto fail;
+>> +	}
+>>
+> What is this all about? If the function doesn't match, you should never
+> enter the probe routine in the first place. The bus code should already
+> get this right.
 >
->! has a higher priority than >
->
->Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
->---
->diff --git a/drivers/input/keyboard/bf54x-keys.c
->b/drivers/input/keyboard/bf54x-keys.c
->index 1928401..ee855c5 100644
->--- a/drivers/input/keyboard/bf54x-keys.c
->+++ b/drivers/input/keyboard/bf54x-keys.c
->@@ -209,8 +209,8 @@ static int __devinit bfin_kpad_probe(struct
->platform_device *pdev)
-> 		goto out;
-> 	}
->
->-	if (!pdata->debounce_time || !pdata->debounce_time > MAX_MULT ||
->-	    !pdata->coldrive_time || !pdata->coldrive_time > MAX_MULT) {
->+	if (!pdata->debounce_time || pdata->debounce_time > MAX_MULT ||
->+	    !pdata->coldrive_time || pdata->coldrive_time > MAX_MULT) {
-> 		printk(KERN_ERR DRV_NAME
-> 			": Invalid Debounce/Columdrive Time from
-pdata\n");
-> 		bfin_write_KPAD_MSEL(0xFF0);	/* Default MSEL	*/
 
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+It does, it is a fragment of old code from when the bus code was wrong
+which for reasons which pass understanding I rewrote rather than just
+excised.
 
-Thanks,
-Michael

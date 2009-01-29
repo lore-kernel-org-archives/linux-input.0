@@ -1,34 +1,70 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 1/6] input: bcm5974: Prepare for a new trackpad header
- type
-Date: Thu, 29 Jan 2009 23:30:37 +0100
-Message-ID: <49822E0D.2070607@euromail.se>
-References: <1233138229-12489-1-git-send-email-rydberg@euromail.se>	<1233138229-12489-2-git-send-email-rydberg@euromail.se> <20090129003321.e9c8c36c.akpm@linux-foundation.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759993AbZA2WbV@vger.kernel.org>
-In-Reply-To: <20090129003321.e9c8c36c.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] input: bcm5974: Declare alignment usage
+Date: Fri, 30 Jan 2009 00:55:44 +0100
+Message-ID: <1233273344-6225-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:58778 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751850AbZA2Xz4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 29 Jan 2009 18:55:56 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
-Andrew Morton wrote:
-> On Wed, 28 Jan 2009 11:23:44 +0100 "Henrik Rydberg" <rydberg@euromail.se> wrote:
+This patch adds struct alignment information and adds comments to
+ensure all access of finger data is two-byte aligned.
 
-Thanks for taking care of the patches, and for spotting the surplus
-patches 5/6 and 6/6 - my mistake.
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ drivers/input/mouse/bcm5974.c |   13 +++++++------
+ 1 files changed, 7 insertions(+), 6 deletions(-)
 
->> +	f = (const struct tp_finger *)(dev->tp_data + c->tp_offset);
-> 
-> Is there anything which guarantees that `f' is sufficiently aligned? 
-> If not, the code might cause unaligned exceptions on some
-> architectures?
-> 
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index 874ae11..37f2341 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -110,17 +110,17 @@ enum tp_type {
+ 	TYPE2			/* button integrated in trackpad */
+ };
+ 
+-/* trackpad finger data offsets */
+-#define FINGER_TYPE1		26
+-#define FINGER_TYPE2		30
++/* trackpad finger data offsets, le16-aligned */
++#define FINGER_TYPE1		(13 * sizeof(__le16))
++#define FINGER_TYPE2		(15 * sizeof(__le16))
+ 
+-/* trackpad button data offsets */
++/* trackpad button data offsets, u8-aligned */
+ #define BUTTON_TYPE2		15
+ 
+ /* integrated button capability by configuration */
+ #define HAS_INTEGRATED_BUTTON(c)	(c->tp_type == TYPE2)
+ 
+-/* trackpad finger structure */
++/* trackpad finger structure, le16-aligned */
+ struct tp_finger {
+ 	__le16 origin;		/* zero when switching track finger */
+ 	__le16 abs_x;		/* absolute x coodinate */
+@@ -134,7 +134,7 @@ struct tp_finger {
+ 	__le16 force_minor;	/* trackpad force, minor axis? */
+ 	__le16 unused[3];	/* zeros */
+ 	__le16 multi;		/* one finger: varies, more fingers: constant */
+-};
++} __attribute__((packed,aligned(2)));
+ 
+ /* trackpad finger data size, empirically at least ten fingers */
+ #define SIZEOF_FINGER		sizeof(struct tp_finger)
+@@ -321,6 +321,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
+ 		return -EIO;
+ 
++	/* finger data, le16-aligned */
+ 	f = (const struct tp_finger *)(dev->tp_data + c->tp_offset);
+ 	raw_n = (size - c->tp_offset) / SIZEOF_FINGER;
+ 
+-- 
+1.5.6.3
 
-I believe it is - I will send a patch in reply to this message that
-ought to make it clearer.
-
-Thanks,
-Henrik

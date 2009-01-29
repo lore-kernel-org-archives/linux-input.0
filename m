@@ -1,118 +1,120 @@
-From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Subject: [PATCH RFC] sh: maple: Add support for SEGA Dreamcast VMU and
- clean up maple bus driver (3/3)
-Date: Thu, 29 Jan 2009 00:18:07 +0000
-Message-ID: <1233188287.6734.32.camel@localhost.localdomain>
-References: <1233186456.6734.16.camel@localhost.localdomain>
-	 <1233187069.6734.21.camel@localhost.localdomain>
-	 <1233187750.6734.27.camel@localhost.localdomain>
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: Re: [PATCH RFC] sh: maple: Add support for SEGA Dreamcast VMU and clean up maple bus driver (1/3)
+Date: Wed, 28 Jan 2009 19:42:20 -0500
+Message-ID: <200901281942.22332.vapier@gentoo.org>
+References: <1233186456.6734.16.camel@localhost.localdomain> <1233187069.6734.21.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed;
+  boundary="nextPart2726339.YXAjsRp0nJ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mk-filter-4-a-1.mail.uk.tiscali.com ([212.74.100.55]:23121 "EHLO
-	mk-filter-4-a-1.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1760282AbZA2AVL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 28 Jan 2009 19:21:11 -0500
-In-Reply-To: <1233187750.6734.27.camel@localhost.localdomain>
+Received: from smtp.gentoo.org ([140.211.166.183]:36325 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757784AbZA2AmY (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 28 Jan 2009 19:42:24 -0500
+In-Reply-To: <1233187069.6734.21.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@infradead.org>, linux-sh <linux-sh@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: Paul Mundt <lethal@linux-sh.org>, Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@infradead.org>, linux-sh <linux-sh@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, linux-mtd <linux-mtd@vger.kernel.org>
 
-Consequential patch to the maple keyboard driver and general fix to the keyboard driver.
+--nextPart2726339.YXAjsRp0nJ
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
----
+On Wednesday 28 January 2009 18:57:49 Adrian McMenamin wrote:
+> --- a/drivers/sh/maple/maple.c
+> +++ b/drivers/sh/maple/maple.c
+> -int maple_add_packet_sleeps(struct maple_device *mdev, u32 function,
+> -	u32 command, size_t length, void *data)
+> -{
+> -	int locking, ret =3D 0;
+> -	void *sendbuf =3D NULL;
+> -
+> -	locking =3D mutex_lock_interruptible(&mdev->mq->mutex);
+> -	if (locking) {
+> -		ret =3D -EIO;
+> -		goto out;
+> -	}
+> +	int ret =3D 0;
+> +	void *sendbuf;
+>
+> +	sendbuf =3D kzalloc(length * 4, GFP_KERNEL);
+>  	if (length) {
+> -		sendbuf =3D kmalloc(length * 4, GFP_KERNEL);
 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index 22f17a5..8d3bb1d 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -140,7 +140,7 @@ static void dc_kbd_callback(struct mapleq *mq)
- {
- 	struct maple_device *mapledev = mq->dev;
- 	struct dc_kbd *kbd = maple_get_drvdata(mapledev);
--	unsigned long *buf = mq->recvbuf;
-+	unsigned long *buf = (unsigned long *)(mq->recvbuf->buf);
- 
- 	/*
- 	 * We should always get the lock because the only
-@@ -159,22 +159,41 @@ static void dc_kbd_callback(struct mapleq *mq)
- 
- static int probe_maple_kbd(struct device *dev)
- {
--	struct maple_device *mdev = to_maple_dev(dev);
--	struct maple_driver *mdrv = to_maple_driver(dev->driver);
-+	struct maple_device *mdev;
-+	struct maple_driver *mdrv;
- 	int i, error;
- 	struct dc_kbd *kbd;
- 	struct input_dev *idev;
- 
--	if (!(mdev->function & MAPLE_FUNC_KEYBOARD))
--		return -EINVAL;
-+	mdev = to_maple_dev(dev);
-+	if (!mdev) {
-+		error = EINVAL;
-+		goto fail;
-+	}
-+
-+	mdrv = to_maple_driver(dev->driver);
-+	if (!mdrv) {
-+		error = EINVAL;
-+		goto fail;
-+	}
-+
-+	if (!(mdev->function & MAPLE_FUNC_KEYBOARD)) {
-+		error = EINVAL;
-+		goto fail;
-+	}
- 
- 	kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
--	idev = input_allocate_device();
--	if (!kbd || !idev) {
--		error = -ENOMEM;
-+	if (!kbd) {
-+		error = ENOMEM;
- 		goto fail;
- 	}
- 
-+	idev = input_allocate_device();
-+	if (!idev) {
-+		error = ENOMEM;
-+		goto fail_idev_alloc;
-+	}
-+
- 	kbd->dev = idev;
- 	memcpy(kbd->keycode, dc_kbd_keycode, sizeof(kbd->keycode));
- 
-@@ -195,7 +214,7 @@ static int probe_maple_kbd(struct device *dev)
- 
- 	error = input_register_device(idev);
- 	if (error)
--		goto fail;
-+		goto fail_register;
- 
- 	/* Maple polling is locked to VBLANK - which may be just 50/s */
- 	maple_getcond_callback(mdev, dc_kbd_callback, HZ/50,
-@@ -207,11 +226,13 @@ static int probe_maple_kbd(struct device *dev)
- 
- 	return error;
- 
--fail:
-+fail_register:
-+	maple_set_drvdata(mdev, NULL);
- 	input_free_device(idev);
-+fail_idev_alloc:
- 	kfree(kbd);
--	maple_set_drvdata(mdev, NULL);
--	return error;
-+fail:
-+	return -error;
- }
- 
- static int remove_maple_kbd(struct device *dev)
+that looks wonky ... you do the alloc first and then check the len ?
 
+>  failed_nomem:
+> +	printk(KERN_INFO "maple: could not allocate memory\n");
 
+should be a KERN_NOTICE or worse ... KERN_INFO doesnt seem appropriate
+
+> +	if (device_register(&mdev->dev)) {
+>  		printk(KERN_INFO
+> -		"Maple bus: Attempt to register device"
+> -		" (%x, %x) failed.\n",
+> +			"Maple bus: Attempt to register device"
+> +			" (%x, %x) failed.\n",
+
+same here ... KERN_INFO shouldnt be used in error handlers
+
+> +static void maple_response_fileerr(struct maple_device *mdev, void
+> *recvbuf) +{
+> +	if (mdev->fileerrhandler) {
+> +		mdev->fileerrhandler(mdev, recvbuf);
+> +		return;
+> +	} else
+> +		printk(KERN_INFO "maple: device (%d, %d) reports file error %d\n",
+> +			mdev->port, mdev->unit, ((int *)recvbuf)[1]);
+> +}
+
+and here ...
+
+>  			case MAPLE_RESPONSE_AGAIN:
+>  			case MAPLE_RESPONSE_BADCMD:
+>  			case MAPLE_RESPONSE_BADFUNC:
+> -				printk(KERN_DEBUG
+> +				printk(KERN_INFO
+>  				       "Maple non-fatal error 0x%X\n",
+>  				       code);
+
+and here ...
+
+>  /* Maple Bus command and response codes */
+>  enum maple_code {
+> +	MAPLE_RESPONSE_FILEERR =3D	-5,
+> +	MAPLE_RESPONSE_AGAIN =3D		-4,	/* retransmit */
+
+do you really need to set every value ?  i would only bother when there's a=
+=20
+discontinuity ...
+=2Dmike
+
+--nextPart2726339.YXAjsRp0nJ
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
+
+iQIcBAABAgAGBQJJgPtuAAoJEEFjO5/oN/WBo+AP/RKYSUZ4zV97VJJSkcFM97ji
+n0U10cpoUIPIdwSCSfn+FM/rXigfP6jSiSVGbhXwirLQr5+pZenGqlguAiqW6HCz
+pqJzJiH/3zX8fWLckOE/wmKTg6WQpseAsWpBVny/fjzNZh+h0xh21qlAiVjzmFpJ
+U9/OV8Dn+bcwhcwaQjLUm12Aox3ZGrWuYw1M076gQwRcaf4Rd/iNSnCeSKbxxr/W
+PY4NOCWZrgn6mve5wNMBIXAcg6NVVuqa7mskn6uvuoQ9McKAchVwKX7vWN2KRE6l
+zUPfbSbyB5RF+q8ZxQ2v5LGIftNOVUWrTRFYlFcC77pjt50rh0I2vhXfoiIrTMzy
+DEnjLHJrs3xu8FS6ihwKFlv8tb9OBQnuePHsvV6Tguge3Cn1HNJ4Bz5AeieVOqLp
++t08+YxUwz3zzyoikkRRAkjK/7BanAdU0brZetyd0n//ALPn3OhhbnadlVnNESGN
+APE1m634LKykwE6dKwXOPobYK5NTP5wwHMIbkgZi021T4PrYHtyBK9tNLIjshvNU
+e0FFLjvO85Jdk4p0T2YPjVnKDHsgtgwFWTfmarrafkVhtMqWuP0kntDFBM4t93el
+/xtg14S9OOl+4B9/dxmdHJBHIjHZRMiEPUBxMKmr9C2HZ9hRgB36uEm1Q6D40LFj
+IEbetuEbrB5U+dt2hDYt
+=4fnH
+-----END PGP SIGNATURE-----
+
+--nextPart2726339.YXAjsRp0nJ--

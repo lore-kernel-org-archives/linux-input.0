@@ -1,60 +1,63 @@
-From: "hartleys" <hartleys@visionengravers.com>
-Subject: RE: [patch/rfc 2.6.28-rc2] input: twl4030_keypad driver
-Date: Thu, 29 Jan 2009 19:17:43 -0500
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com>
-References: <200901211613.06427.david-b@pacbell.net>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [patch/rfc 2.6.28-rc2] input: twl4030_keypad driver
+Date: Thu, 29 Jan 2009 16:57:49 -0800
+Message-ID: <200901291657.50008.david-b@pacbell.net>
+References: <200901211613.06427.david-b@pacbell.net> <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og101.obsmtp.com ([64.18.1.181]:32913 "HELO
-	exprod6og101.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751601AbZA3ASr convert rfc822-to-8bit (ORCPT
+Received: from smtp125.sbc.mail.sp1.yahoo.com ([69.147.65.184]:48827 "HELO
+	smtp125.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754349AbZA3A5w (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2009 19:18:47 -0500
-Content-class: urn:content-classes:message
-In-Reply-To: <200901211613.06427.david-b@pacbell.net>
+	Thu, 29 Jan 2009 19:57:52 -0500
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>, linux-input@vger.kernel.org
-Cc: OMAP <linux-omap@vger.kernel.org>
+To: hartleys <hartleys@visionengravers.com>
+Cc: linux-input@vger.kernel.org, OMAP <linux-omap@vger.kernel.org>
 
-On Wednesday, January 21, 2009 5:13 PM, David Brownell wrote:
-> Driver for the twl4030 family keypad controller.  This controller
-> supports a key matrix of up to 8 rows by 8 columns.  Board init
-> code passes a description of the key matrix to the driver.
->
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-> ---
+On Thursday 29 January 2009, hartleys wrote:
+> > +/* Boards have uniqe mappings of {col, row} --> keycode.
+> > + * Column and row are 4 bits, but range only from 0..7;
+> > + * a PERSISTENT_KEY is "always on" and never reported.
+> > + */
+> > +#define KEY_PERSISTENT=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+0x00800000
+> > +#define KEY(col, row, keycode)=A0=A0=A0=A0=A0=A0=A0(((col) << 28) =
+| ((row) << 24) |
+> (keycode))
+>=20
+> The same KEY macro is defined in:
+>=20
+> arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
+> arch/arm/plat-omap/include/mach/keypad.h
 
-[SNIP]
+I copied it from the OMAP version as part of removing
+needless OMAP dependencies from this driver.
 
-> --- a/include/linux/i2c/twl4030.h
-> +++ b/include/linux/i2c/twl4030.h
-> @@ -255,11 +255,18 @@ struct twl4030_madc_platform_data {
->  	int		irq_line;
->  };
->  
-> +/* Boards have uniqe mappings of {col, row} --> keycode.
-> + * Column and row are 4 bits, but range only from 0..7;
-> + * a PERSISTENT_KEY is "always on" and never reported.
-> + */
-> +#define KEY_PERSISTENT		0x00800000
-> +#define KEY(col, row, keycode)	(((col) << 28) | ((row) << 24) |
-(keycode))
+=20
+> I also have a keypad driver for the ep93xx that uses the same macro.
+>=20
+> Shouldn't/couldn't this be generalized and added to the
+> include/linux/input.h file? =A0Allowing 4-bits for row/col gives a ma=
+ximum
+> key matrix of 16x16 keys which should be enough for just about anythi=
+ng.
 
-The same KEY macro is defined in:
+Makes sense.  But that's not what this patch is
+about, and I also think the KEY prefix is probably
+too generic.
 
-arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
-arch/arm/plat-omap/include/mach/keypad.h
+I'd support an overall cleanup patch that fixes
+all those things at once.
 
-I also have a keypad driver for the ep93xx that uses the same macro.
+- Dave
 
-Shouldn't/couldn't this be generalized and added to the
-include/linux/input.h file?  Allowing 4-bits for row/col gives a maximum
-key matrix of 16x16 keys which should be enough for just about anything.
-
-Regards,
-Hartley
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

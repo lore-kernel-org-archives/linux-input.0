@@ -1,70 +1,60 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: bcm5974: Declare alignment usage
-Date: Fri, 30 Jan 2009 00:55:44 +0100
-Message-ID: <1233273344-6225-1-git-send-email-rydberg@euromail.se>
+From: "hartleys" <hartleys@visionengravers.com>
+Subject: RE: [patch/rfc 2.6.28-rc2] input: twl4030_keypad driver
+Date: Thu, 29 Jan 2009 19:17:43 -0500
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com>
+References: <200901211613.06427.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:58778 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751850AbZA2Xz4 (ORCPT
+Received: from exprod6og101.obsmtp.com ([64.18.1.181]:32913 "HELO
+	exprod6og101.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751601AbZA3ASr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2009 18:55:56 -0500
+	Thu, 29 Jan 2009 19:18:47 -0500
+Content-class: urn:content-classes:message
+In-Reply-To: <200901211613.06427.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: David Brownell <david-b@pacbell.net>, linux-input@vger.kernel.org
+Cc: OMAP <linux-omap@vger.kernel.org>
 
-This patch adds struct alignment information and adds comments to
-ensure all access of finger data is two-byte aligned.
+On Wednesday, January 21, 2009 5:13 PM, David Brownell wrote:
+> Driver for the twl4030 family keypad controller.  This controller
+> supports a key matrix of up to 8 rows by 8 columns.  Board init
+> code passes a description of the key matrix to the driver.
+>
+> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> ---
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- drivers/input/mouse/bcm5974.c |   13 +++++++------
- 1 files changed, 7 insertions(+), 6 deletions(-)
+[SNIP]
 
-diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
-index 874ae11..37f2341 100644
---- a/drivers/input/mouse/bcm5974.c
-+++ b/drivers/input/mouse/bcm5974.c
-@@ -110,17 +110,17 @@ enum tp_type {
- 	TYPE2			/* button integrated in trackpad */
- };
- 
--/* trackpad finger data offsets */
--#define FINGER_TYPE1		26
--#define FINGER_TYPE2		30
-+/* trackpad finger data offsets, le16-aligned */
-+#define FINGER_TYPE1		(13 * sizeof(__le16))
-+#define FINGER_TYPE2		(15 * sizeof(__le16))
- 
--/* trackpad button data offsets */
-+/* trackpad button data offsets, u8-aligned */
- #define BUTTON_TYPE2		15
- 
- /* integrated button capability by configuration */
- #define HAS_INTEGRATED_BUTTON(c)	(c->tp_type == TYPE2)
- 
--/* trackpad finger structure */
-+/* trackpad finger structure, le16-aligned */
- struct tp_finger {
- 	__le16 origin;		/* zero when switching track finger */
- 	__le16 abs_x;		/* absolute x coodinate */
-@@ -134,7 +134,7 @@ struct tp_finger {
- 	__le16 force_minor;	/* trackpad force, minor axis? */
- 	__le16 unused[3];	/* zeros */
- 	__le16 multi;		/* one finger: varies, more fingers: constant */
--};
-+} __attribute__((packed,aligned(2)));
- 
- /* trackpad finger data size, empirically at least ten fingers */
- #define SIZEOF_FINGER		sizeof(struct tp_finger)
-@@ -321,6 +321,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
- 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
- 		return -EIO;
- 
-+	/* finger data, le16-aligned */
- 	f = (const struct tp_finger *)(dev->tp_data + c->tp_offset);
- 	raw_n = (size - c->tp_offset) / SIZEOF_FINGER;
- 
--- 
-1.5.6.3
+> --- a/include/linux/i2c/twl4030.h
+> +++ b/include/linux/i2c/twl4030.h
+> @@ -255,11 +255,18 @@ struct twl4030_madc_platform_data {
+>  	int		irq_line;
+>  };
+>  
+> +/* Boards have uniqe mappings of {col, row} --> keycode.
+> + * Column and row are 4 bits, but range only from 0..7;
+> + * a PERSISTENT_KEY is "always on" and never reported.
+> + */
+> +#define KEY_PERSISTENT		0x00800000
+> +#define KEY(col, row, keycode)	(((col) << 28) | ((row) << 24) |
+(keycode))
+
+The same KEY macro is defined in:
+
+arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
+arch/arm/plat-omap/include/mach/keypad.h
+
+I also have a keypad driver for the ep93xx that uses the same macro.
+
+Shouldn't/couldn't this be generalized and added to the
+include/linux/input.h file?  Allowing 4-bits for row/col gives a maximum
+key matrix of 16x16 keys which should be enough for just about anything.
+
+Regards,
+Hartley
 

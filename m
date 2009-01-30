@@ -1,63 +1,62 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [patch/rfc 2.6.28-rc2] input: twl4030_keypad driver
-Date: Thu, 29 Jan 2009 16:57:49 -0800
-Message-ID: <200901291657.50008.david-b@pacbell.net>
-References: <200901211613.06427.david-b@pacbell.net> <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com>
+From: Joon Young Shim <dofmind@gmail.com>
+Subject: Re: [PATCH 6/6] input: Add a detailed multi-touch finger data report
+	protocol (rev2)
+Date: Fri, 30 Jan 2009 14:54:48 +0900
+Message-ID: <4e1455be0901292154k20dd6f47i643d274fe52a7e16@mail.gmail.com>
+References: <1233138229-12489-1-git-send-email-rydberg@euromail.se>
+	 <1233138229-12489-2-git-send-email-rydberg@euromail.se>
+	 <1233138229-12489-3-git-send-email-rydberg@euromail.se>
+	 <1233138229-12489-4-git-send-email-rydberg@euromail.se>
+	 <1233138229-12489-5-git-send-email-rydberg@euromail.se>
+	 <1233138229-12489-6-git-send-email-rydberg@euromail.se>
+	 <1233138229-12489-7-git-send-email-rydberg@euromail.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp125.sbc.mail.sp1.yahoo.com ([69.147.65.184]:48827 "HELO
-	smtp125.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754349AbZA3A5w (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.232]:20094 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751111AbZA3Fyt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 29 Jan 2009 19:57:52 -0500
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com>
-Content-Disposition: inline
+	Fri, 30 Jan 2009 00:54:49 -0500
+In-Reply-To: <1233138229-12489-7-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: hartleys <hartleys@visionengravers.com>
-Cc: linux-input@vger.kernel.org, OMAP <linux-omap@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thursday 29 January 2009, hartleys wrote:
-> > +/* Boards have uniqe mappings of {col, row} --> keycode.
-> > + * Column and row are 4 bits, but range only from 0..7;
-> > + * a PERSISTENT_KEY is "always on" and never reported.
-> > + */
-> > +#define KEY_PERSISTENT=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
-0x00800000
-> > +#define KEY(col, row, keycode)=A0=A0=A0=A0=A0=A0=A0(((col) << 28) =
-| ((row) << 24) |
-> (keycode))
->=20
-> The same KEY macro is defined in:
->=20
-> arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
-> arch/arm/plat-omap/include/mach/keypad.h
+2009/1/28 Henrik Rydberg <rydberg@euromail.se>:
+> In order to utilize the full power of the new multi-touch devices, a
+> way to report detailed finger data to user space is needed. This patch
+> adds a multi-touch (MT) protocol which allows drivers to report details
+> for an arbitrary number of fingers.
+>
+> The driver sends a SYN_MT_REPORT event via the input_mt_sync() function
+> when a complete finger has been reported.
+>
+> In order to stay compatible with existing applications, the data
+> reported in a finger packet must not be recognized as single-touch
+> events. In addition, all finger data must bypass input filtering,
+> since subsequent events of the same type refer to different fingers.
+>
+> A set of ABS_MT events with the desired properties are defined. The
+> events are divided into categories, to allow for partial implementation.
+> The minimum set consists of ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X and
+> ABS_MT_POSITION_Y, which allows for multiple fingers to be tracked.
+> If the device supports it, the ABS_MT_WIDTH_MAJOR may be used to provide
+> the size of the approaching finger. Anisotropy and direction may be
+> specified with ABS_MT_TOUCH_MINOR, ABS_MT_WIDTH_MINOR and
+> ABS_MT_ORIENTATION. Devices with more granular information may specify
+> general shapes as blobs, i.e., as a sequence of rectangular shapes
+> grouped together by a ABS_MT_BLOB_ID. Finally, the ABS_MT_TOOL_TYPE
+> may be used to specify whether the touching tool is a finger or a pen.
 
-I copied it from the OMAP version as part of removing
-needless OMAP dependencies from this driver.
 
-=20
-> I also have a keypad driver for the ep93xx that uses the same macro.
->=20
-> Shouldn't/couldn't this be generalized and added to the
-> include/linux/input.h file? =A0Allowing 4-bits for row/col gives a ma=
-ximum
-> key matrix of 16x16 keys which should be enough for just about anythi=
-ng.
+Hi Henrik,
 
-Makes sense.  But that's not what this patch is
-about, and I also think the KEY prefix is probably
-too generic.
+I want to know how calculates touch coordinates at user space using a
+set of ABS_MT.
+If i do dual touch, can i get correct two coordinates through ABS_MT report?
 
-I'd support an overall cleanup patch that fixes
-all those things at once.
 
-- Dave
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Joonyoung

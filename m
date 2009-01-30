@@ -1,116 +1,40 @@
-From: Richard Atterer <atterer@debian.org>
-Subject: [PATCH 2.6.28] mousedev: Allow devices to be excluded from
-	/dev/input/mice
-Date: Fri, 30 Jan 2009 13:04:56 +0100
-Message-ID: <20090130120456.GA20461@arbonne.lan>
+From: Henrik Rydberg <rydberg@euromail.se>
+Subject: Re: [PATCH 6/6] input: Add a detailed multi-touch finger data report
+ 	protocol (rev2)
+Date: Fri, 30 Jan 2009 14:10:17 +0100
+Message-ID: <4982FC39.7080308@euromail.se>
+References: <1233138229-12489-1-git-send-email-rydberg@euromail.se>	 <1233138229-12489-2-git-send-email-rydberg@euromail.se>	 <1233138229-12489-3-git-send-email-rydberg@euromail.se>	 <1233138229-12489-4-git-send-email-rydberg@euromail.se>	 <1233138229-12489-5-git-send-email-rydberg@euromail.se>	 <1233138229-12489-6-git-send-email-rydberg@euromail.se>	 <1233138229-12489-7-git-send-email-rydberg@euromail.se> <4e1455be0901292210t793c942cg5776079ecc99080e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail.gmx.net ([213.165.64.20]:34583 "HELO mail.gmx.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
-	id S1750779AbZA3MFB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 30 Jan 2009 07:05:01 -0500
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754511AbZA3NKd@vger.kernel.org>
+In-Reply-To: <4e1455be0901292210t793c942cg5776079ecc99080e@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joon Young Shim <dofmind@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: vojtech@ucw.cz, linux-input@vger.kernel.org, dtor@mail.ru, rubini@ipvvis.unipv.it, jkosina@suse.cz
 
-From: Richard Atterer <atterer@debian.org>
+Joon Young Shim wrote:
+> 2009/1/28 Henrik Rydberg <rydberg@euromail.se>:
+[snip]
+> 
+> Hi Henrik,
+> 
+> Sorry for multiple posts.
+> 
+> I want to know how calculates touch coordinates at user space using a
+> set of ABS_MT.
+> If i do dual touch, can i get correct two coordinates through ABS_MT report?
 
-Allow devices to be excluded from /dev/input/mice
+The coordinates for the two fingers are sent from the driver in sequence
+as two separate finger packets. What then happens with it depends on the
+kind of application. For normal desktop usage, the packets are read from
+the input device by the multitouch X driver (a modified version of the
+synaptics driver), which does finger matching and transforms the
+messages into gestures, reported as X events. It is of course also
+possible to read the input device directly. It goes without saying that
+further development is needed before the multitouch X driver hits the
+repos, but none of this can really become reality without basic support
+in the kernel.
 
-This patch adds an "ignoreid=0x1234:0x5678" parameter to the mousedev 
-module. If a mouse matches the given device ID(s), its movement and button 
-presses will not be relayed via /dev/input/mice.
-
-Why is this needed? In my case, I'm using some mice as sensors (robotic 
-application, more or less), so their movement should not influence the 
-mouse pointer at all. I could simply specify only my main mouse in 
-xorg.conf rather than /dev/input/mice. However, /dev/input/mice is the only 
-way to allow hot-plugging of mice with X.
-
-This feature could also be used to disable non-working/buggy touchpads in 
-laptops.
-
-As soon as the "ignoreid" parameter is used, the code also prints out 
-information on devices that it does *not* ignore, to help users find out 
-the device IDs they may want to blacklist.
-
-mousedev is usually compiled into the kernel rather than as a module, so I 
-would have liked to make the sysfs permissions for the parameter 0644 
-rather than 0444. However, I believe there may be a bug in the code for 
-array-of-charp parameters which prevents this from working:
-After setting up the array via an "echo" to the sysfs file, only the number 
-of array entries is set correctly, the strings themselves are usually empty 
-or point to garbage. I don't think my own code is at fault here!? :-/
-
-  Richard
-
-Signed-off-by: Richard Atterer <atterer@debian.org>
----
- mousedev.c |   40 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
---- a/drivers/input/mousedev.c	2008-12-25 00:26:37.000000000 +0100
-+++ b/drivers/input/mousedev.c	2009-01-26 22:36:06.417673499 +0100
-@@ -49,6 +49,18 @@ static unsigned tap_time = 200;
- module_param(tap_time, uint, 0644);
- MODULE_PARM_DESC(tap_time, "Tap time for touchpads in absolute mode (msecs)");
- 
-+static char* ignoreid[8];
-+static int ignoreid_count;
-+/* Would like to make this 0644, but overwriting via sysfs seems buggy: */
-+module_param_array(ignoreid, charp, &ignoreid_count, 0444);
-+MODULE_PARM_DESC(ignoreid, "Specify input IDs of mouse devices which"
-+		" should not be included in /dev/input/mice, as a"
-+		" comma-separated list of \"idVendor:idProduct\" pairs,"
-+		" e.g. ignoreid=idVendor0:idProduct0,idVendor1:idProduct1"
-+		" where both idVendor and idProduct are hex with a 0x"
-+		" prefix. Changes after module load time only work for"
-+		" devices that are not yet plugged in.");
-+
- struct mousedev_hw_data {
- 	int dx, dy, dz;
- 	int x, y;
-@@ -962,6 +974,22 @@ static void mixdev_remove_device(struct 
- 	put_device(&mousedev->dev);
- }
- 
-+static int mixdev_ignore(struct input_dev *dev) {
-+	u16 idVendor, idProduct;
-+	int i;
-+	for (i = 0; i < ignoreid_count; ++i) {
-+		int m = sscanf(ignoreid[i], "0x%hx:0x%hx", &idVendor, &idProduct);
-+		if (m != 2) {
-+			printk(KERN_WARNING "mousedev: Could not parse"
-+			       " ignoreid param #%d \"%s\"\n", i, ignoreid[i]);
-+			continue;
-+		}
-+		if (dev->id.vendor == idVendor && dev->id.product == idProduct)
-+			return 1;
-+	}
-+	return 0;
-+}
-+
- static int mousedev_connect(struct input_handler *handler,
- 			    struct input_dev *dev,
- 			    const struct input_device_id *id)
-@@ -970,6 +998,18 @@ static int mousedev_connect(struct input
- 	int minor;
- 	int error;
- 
-+	if (ignoreid_count) {
-+		if (mixdev_ignore(dev)) {
-+			printk(KERN_INFO "mousedev: Ignoring device"
-+				" 0x%04x:0x%04x for /dev/input/mice\n",
-+				dev->id.vendor, dev->id.product);
-+			return 0;
-+		}
-+		printk(KERN_INFO "mousedev: Including device"
-+			" 0x%04x:0x%04x in /dev/input/mice\n",
-+			dev->id.vendor, dev->id.product);
-+	}
-+
- 	for (minor = 0; minor < MOUSEDEV_MINORS; minor++)
- 		if (!mousedev_table[minor])
- 			break;
+Henrik

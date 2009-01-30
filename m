@@ -1,40 +1,94 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 6/6] input: Add a detailed multi-touch finger data report
- 	protocol (rev2)
-Date: Fri, 30 Jan 2009 14:10:17 +0100
-Message-ID: <4982FC39.7080308@euromail.se>
-References: <1233138229-12489-1-git-send-email-rydberg@euromail.se>	 <1233138229-12489-2-git-send-email-rydberg@euromail.se>	 <1233138229-12489-3-git-send-email-rydberg@euromail.se>	 <1233138229-12489-4-git-send-email-rydberg@euromail.se>	 <1233138229-12489-5-git-send-email-rydberg@euromail.se>	 <1233138229-12489-6-git-send-email-rydberg@euromail.se>	 <1233138229-12489-7-git-send-email-rydberg@euromail.se> <4e1455be0901292210t793c942cg5776079ecc99080e@mail.gmail.com>
+From: "hartleys" <hartleys@visionengravers.com>
+Subject: RE: [patch/rfc 2.6.28-rc2] input: twl4030_keypad driver
+Date: Fri, 30 Jan 2009 12:13:48 -0500
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909011A53D4@mi8nycmail19.Mi8.com>
+References: <200901211613.06427.david-b@pacbell.net> <BD79186B4FD85F4B8E60E381CAEE1909011A527A@mi8nycmail19.Mi8.com> <200901291657.50008.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754511AbZA3NKd@vger.kernel.org>
-In-Reply-To: <4e1455be0901292210t793c942cg5776079ecc99080e@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joon Young Shim <dofmind@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exprod6og107.obsmtp.com ([64.18.1.208]:56751 "HELO
+	exprod6og107.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751618AbZA3ROP convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 30 Jan 2009 12:14:15 -0500
+Content-class: urn:content-classes:message
+In-Reply-To: <200901291657.50008.david-b@pacbell.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-input@vger.kernel.org, OMAP <linux-omap@vger.kernel.org>
 
-Joon Young Shim wrote:
-> 2009/1/28 Henrik Rydberg <rydberg@euromail.se>:
-[snip]
-> 
-> Hi Henrik,
-> 
-> Sorry for multiple posts.
-> 
-> I want to know how calculates touch coordinates at user space using a
-> set of ABS_MT.
-> If i do dual touch, can i get correct two coordinates through ABS_MT report?
+On Thursday, January 29, 2009 5:58 PM, David Brownell wrote:
+> On Thursday 29 January 2009, hartleys wrote:
+> > > +/* Boards have uniqe mappings of {col, row} --> keycode.
+> > > + * Column and row are 4 bits, but range only from 0..7;
+> > > + * a PERSISTENT_KEY is "always on" and never reported.
+> > > + */
+> > > +#define KEY_PERSISTENT=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A00x00800000 #define KEY(col,=20
+> > > +row, keycode)=A0=A0=A0=A0=A0=A0=A0(((col) << 28) | ((row) << 24)=
+ |
+> > (keycode))
+> >=20
+> > The same KEY macro is defined in:
+> >=20
+> > arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
+> > arch/arm/plat-omap/include/mach/keypad.h
+>=20
+> I copied it from the OMAP version as part of removing needless OMAP
+> dependencies from this driver.
 
-The coordinates for the two fingers are sent from the driver in sequence
-as two separate finger packets. What then happens with it depends on the
-kind of application. For normal desktop usage, the packets are read from
-the input device by the multitouch X driver (a modified version of the
-synaptics driver), which does finger matching and transforms the
-messages into gestures, reported as X events. It is of course also
-possible to read the input device directly. It goes without saying that
-further development is needed before the multitouch X driver hits the
-repos, but none of this can really become reality without basic support
-in the kernel.
+Makes sense.
+=20
+> > I also have a keypad driver for the ep93xx that uses the same macro=
+=2E
+> >=20
+> > Shouldn't/couldn't this be generalized and added to the=20
+> > include/linux/input.h file? =A0Allowing 4-bits for row/col gives a=20
+> > maximum key matrix of 16x16 keys which should be enough for just
+> > about anything.
+>=20
+> Makes sense.  But that's not what this patch is about, and I also
+> think the KEY prefix is probably too generic.
+=20
+Understand.  Just noticed the common macro and wondered if something sh=
+ould be done to generalize it.
 
-Henrik
+> I'd support an overall cleanup patch that fixes all those things at o=
+nce.
+
+How's this for a starting point?  I'm willing to create a cleanup patch=
+ for all the mach-omap1, mach-omap2, and mach-pxa users. =20
+
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+
+---
+
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 1249a0c..0879493 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -598,6 +598,14 @@ struct input_absinfo {
+ #define KEY_CNT			(KEY_MAX+1)
+=20
+ /*
++ * Macro to pack the row/col of a key on a matrix keypad and it's asso=
+ciated
++ * KEY_* code into into an array.  4 bits are used for both the row an=
+d column
++ * allowing for up to a 16x16 keypad.  The row (_r) and column (_c) ar=
+e
++ * interchangable depending on a keypad drivers usage.
++ */
++#define MATRIX_KEY(_r, _c, _v)	(((_r) << 28) | ((_c) << 24) | (_v))
++
++/*
+  * Relative axes
+  */
+ =20
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

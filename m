@@ -1,52 +1,38 @@
-From: Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: [PATCH 2.6.28] mousedev: Allow devices to be excluded from
-	/dev/input/mice
-Date: Fri, 30 Jan 2009 20:29:59 -0800
-Message-ID: <20090131042959.GA3529@dtor-d630.eng.vmware.com>
-References: <20090130120456.GA20461@arbonne.lan>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: [PATCH] input: i reaches -1
+Date: Sat, 31 Jan 2009 11:25:32 +0100
+Message-ID: <4984271C.1080908@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754896AbZAaEbD@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090130120456.GA20461@arbonne.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Richard Atterer <atterer@debian.org>
-Cc: linux-kernel@vger.kernel.org, vojtech@ucw.cz, linux-input@vger.kernel.org, rubini@ipvvis.unipv.it, jkosina@suse.cz
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-ew0-f21.google.com ([209.85.219.21]:55406 "EHLO
+	mail-ew0-f21.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751850AbZAaKZe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 Jan 2009 05:25:34 -0500
+Received: by ewy14 with SMTP id 14so1138724ewy.13
+        for <linux-input@vger.kernel.org>; Sat, 31 Jan 2009 02:25:33 -0800 (PST)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru
+Cc: linux-input@vger.kernel.org
 
-Hi Richard,
+With a postfix decrement i reaches -1 rather than 0,
+but after the loop it is tested whether it has become 0.
 
-On Friday 30 January 2009 04:04:56 Richard Atterer wrote:
-> From: Richard Atterer <atterer@debian.org>
->
-> Allow devices to be excluded from /dev/input/mice
->
-> This patch adds an "ignoreid=0x1234:0x5678" parameter to the mousedev
-> module. If a mouse matches the given device ID(s), its movement and button
-> presses will not be relayed via /dev/input/mice.
->
-
-Thank you for the patch, however I don't think that it is the right solution.
-
-> Why is this needed? In my case, I'm using some mice as sensors (robotic
-> application, more or less), so their movement should not influence the
-> mouse pointer at all.
-
-I think this is the case where EVIOCGRAB use is warranted then.
-
-> I could simply specify only my main mouse in
-> xorg.conf rather than /dev/input/mice. However, /dev/input/mice is the only
-> way to allow hot-plugging of mice with X.
->
-
-The newer X does support input hotplug pretty well actually.
-
-> This feature could also be used to disable non-working/buggy touchpads in
-> laptops.
->
-
-You can already do that by unbinding serio and usb devices from their 
-respective drivers, no need to modify mousedev.
-
--- 
-Dmitry
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+diff --git a/drivers/input/mouse/pxa930_trkball.c b/drivers/input/mouse/pxa930_trkball.c
+index d297acc..1e827ad 100644
+--- a/drivers/input/mouse/pxa930_trkball.c
++++ b/drivers/input/mouse/pxa930_trkball.c
+@@ -83,7 +83,7 @@ static int write_tbcr(struct pxa930_trkball *trkball, int v)
+ 
+ 	__raw_writel(v, trkball->mmio_base + TBCR);
+ 
+-	while (i--) {
++	while (--i) {
+ 		if (__raw_readl(trkball->mmio_base + TBCR) == v)
+ 			break;
+ 		msleep(1);

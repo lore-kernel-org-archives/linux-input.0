@@ -1,58 +1,38 @@
-From: Michael Tokarev <mjt@tls.msk.ru>
-Subject: [PATCH] blacklist Powercom USB UPS in hid
-Date: Sat, 31 Jan 2009 13:37:19 +0300
-Message-ID: <1233398239.117942.6436.nullmailer@msgid.corpit.ru>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: [PATCH] amba_kmi_write() timeleft reaches -1 rather than 0
+Date: Sat, 31 Jan 2009 14:33:58 +0100
+Message-ID: <49845346.2050006@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hobbit.corpit.ru ([81.13.33.150]:24523 "EHLO hobbit.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751096AbZAaKhW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 31 Jan 2009 05:37:22 -0500
+Received: from ey-out-2122.google.com ([74.125.78.24]:36260 "EHLO
+	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750953AbZAaNd7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 31 Jan 2009 08:33:59 -0500
+Received: by ey-out-2122.google.com with SMTP id 25so207423eya.37
+        for <linux-input@vger.kernel.org>; Sat, 31 Jan 2009 05:33:58 -0800 (PST)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linux INPUT list <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru
+Cc: linux-input@vger.kernel.org
 
-This is my second attempt to fix the thing.
-Now completely tested and appears to work as
-expected, finally (I hope anyway).
+With a postfix decrement timeleft reaches -1 rather than 0,
+but after the loop it is tested to have become 0.
 
-For quite some time users with various UPSes from
-Powercom were forced to play magic with bind/unbind
-in /sys in order to be able to see the UPSes.  The
-beasts does not work as HID devices, even if claims
-to do so.  cypress_m8 driver works with the devices
-instead, creating a normal serial port with which
-normal UPS controlling software works.
-
-The manufacturer confirmed the upcoming models with
-proper HID support will have different device IDs.
-In any way, it's wrong to have two completely different
-modules for one device in kernel.
-
-Blacklist the device in HID (add it to hid_ignore_list)
-to stop this mess, finally.
-
-Signed-off-By: Michael Tokarev <mjt@tls.msk.ru>
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index acc1abc..8beb9bd 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -348,6 +348,10 @@
- #define USB_VENDOR_ID_PLAYDOTCOM	0x0b43
- #define USB_DEVICE_ID_PLAYDOTCOM_EMS_USBII	0x0003
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+diff --git a/drivers/input/serio/ambakmi.c b/drivers/input/serio/ambakmi.c
+index b10ffae..ab3299c 100644
+--- a/drivers/input/serio/ambakmi.c
++++ b/drivers/input/serio/ambakmi.c
+@@ -57,7 +57,7 @@ static int amba_kmi_write(struct serio *io, unsigned char val)
+ 	struct amba_kmi_port *kmi = io->port_data;
+ 	unsigned int timeleft = 10000; /* timeout in 100ms */
  
-+/* Powercom UPS which is not HID but Serial<=>USB converter (cypress_m8 module) */
-+#define USB_VENDOR_ID_POWERCOM		0x0d9f
-+#define USB_DEVICE_ID_POWERCOM_UPS	0x0002
-+
- #define USB_VENDOR_ID_SAITEK		0x06a3
- #define USB_DEVICE_ID_SAITEK_RUMBLEPAD	0xff17
+-	while ((readb(KMISTAT) & KMISTAT_TXEMPTY) == 0 && timeleft--)
++	while ((readb(KMISTAT) & KMISTAT_TXEMPTY) == 0 && --timeleft)
+ 		udelay(10);
  
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 5d7640e..db03ca5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1605,2 +1605,3 @@ static const struct hid_device_id hid_ignore_list[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PANJIT, 0x0004) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_POWERCOM, USB_DEVICE_ID_POWERCOM_UPS) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SOUNDGRAPH, USB_DEVICE_ID_SOUNDGRAPH_IMON_LCD) },
+ 	if (timeleft)

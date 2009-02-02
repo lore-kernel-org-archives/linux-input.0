@@ -1,36 +1,56 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 2.6.29rc1 breakes usb: hiddev device no longer available
-Date: Mon, 2 Feb 2009 13:33:41 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0902021333180.22097@twin.jikos.cz>
-References: <20090126170130.GG6158@vanheusden.com> <20090126182707.GI6158@vanheusden.com> <200901262005.08168.oliver@neukum.org> <20090127195229.GA6158@vanheusden.com>
+From: Roel Kluin <roel.kluin@gmail.com>
+Subject: Re: [PATCH] Input: scan pci_bus_type
+Date: Mon, 02 Feb 2009 14:44:31 +0100
+Message-ID: <4986F8BF.9000102@gmail.com>
+References: <4980D3F6.3050409@gmail.com> <20090130071021.GB3481@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:46952 "EHLO twin.jikos.cz"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753079AbZBBMdr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Feb 2009 07:33:47 -0500
-In-Reply-To: <20090127195229.GA6158@vanheusden.com>
+Received: from mail-ew0-f21.google.com ([209.85.219.21]:39262 "EHLO
+	mail-ew0-f21.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751393AbZBBNoe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Feb 2009 08:44:34 -0500
+Received: by ewy14 with SMTP id 14so1846973ewy.13
+        for <linux-input@vger.kernel.org>; Mon, 02 Feb 2009 05:44:32 -0800 (PST)
+In-Reply-To: <20090130071021.GB3481@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tue, 27 Jan 2009, Folkert van Heusden wrote:
+Dmitry Torokhov wrote:
+> On Wed, Jan 28, 2009 at 10:53:58PM +0100, Roel Kluin wrote:
+>> scan pci_bus_type rather then a get/put
+>>
+>> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+> 
+> Applied to by 'next' branch, thank you Roel.
+> 
+A bit better is this patch, since struct pci_dev *dev isn't used
+anywhere else in this function.
+------------------->8--------------8<----------------------
+scan pci_bus_type rather then a get/put
 
-> > > > Since version 2.6.29rc1 querying cleware USb devices no longer works.
-> > > > 2.6.28 works fine. 2.6.29-rc2 also no longer works.
-> > > the is the FAILURE situation (2.6.29-rc*):
-> > > open("/dev/usb/hiddev0", O_RDWR)        = 3
-> > > ioctl(3, HIDIOCGDEVINFO, 0xbf90c0d8)    = 0
-> > > ioctl(3, HIDIOCAPPLICATION, 0)          = -6291455
-> > > ioctl(3, HIDIOCGSTRING, 0x804e2c0)      = -1 ENODEV (No such device)
-> > Please try this patch.
-> Yes, that fixes it! Thanks!
-
-Fixed in Linus' tree now. Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
-
+Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
+---
+diff --git a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
+index fd09c8d..3941f97 100644
+--- a/drivers/input/mouse/pc110pad.c
++++ b/drivers/input/mouse/pc110pad.c
+@@ -108,14 +108,10 @@ static int pc110pad_open(struct input_dev *dev)
+  */
+ static int __init pc110pad_init(void)
+ {
+-	struct pci_dev *dev;
+ 	int err;
+ 
+-	dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, NULL);
+-	if (dev) {
+-		pci_dev_put(dev);
++	if (!no_pci_devices())
+ 		return -ENODEV;
+-	}
+ 
+ 	if (!request_region(pc110pad_io, 4, "pc110pad")) {
+ 		printk(KERN_ERR "pc110pad: I/O area %#x-%#x in use.\n",

@@ -1,135 +1,74 @@
-From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Subject: Re: [PATCH] sh: maple: Add support for VMU devices (v2) [3/3]
-Date: Tue, 03 Feb 2009 00:17:58 +0000
-Message-ID: <1233620278.13918.33.camel@localhost.localdomain>
-References: <1233619569.13918.12.camel@localhost.localdomain>
+From: Mike Frysinger <vapier@gentoo.org>
+Subject: Re: [PATCH] sh: maple: Add support for VMU devices (v2) [1/3]
+Date: Mon, 2 Feb 2009 19:48:01 -0500
+Message-ID: <200902021948.04031.vapier@gentoo.org>
+References: <1233619569.13918.12.camel@localhost.localdomain> <1233620263.13918.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed;
+  boundary="nextPart3028677.rxxFT817vE";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1233619569.13918.12.camel@localhost.localdomain>
-Sender: linux-sh-owner@vger.kernel.org
-To: greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>, dwmw2 <dwmw2@infradead.org>, LKML <linux-kernel@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp.gentoo.org ([140.211.166.183]:58819 "EHLO smtp.gentoo.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752770AbZBCAsI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Feb 2009 19:48:08 -0500
+In-Reply-To: <1233620263.13918.31.camel@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: greg KH <greg@kroah.com>, dwmw2 <dwmw2@infradead.org>, Paul Mundt <lethal@linux-sh.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, LKML <linux-kernel@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-This patch updates the Maple keyboard driver to reflect changes in the
-maple bus code and also to tidy up some dubious legacy code.
+--nextPart3028677.rxxFT817vE
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
----
+On Monday 02 February 2009 19:17:43 Adrian McMenamin wrote:
+> +	if (src_ofs >=3D ((card->parts)[partition]).numblocks * card->blocklen)
+> +	if (num > ((card->parts)[partition]).numblocks)
+> +	pcache =3D (card->parts[partition]).pcache;
 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index 22f17a5..42ff911 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -1,8 +1,8 @@
- /*
-  * SEGA Dreamcast keyboard driver
-  * Based on drivers/usb/usbkbd.c
-- * Copyright YAEGASHI Takeshi, 2001
-- * Porting to 2.6 Copyright Adrian McMenamin, 2007, 2008
-+ * Copyright (c) YAEGASHI Takeshi, 2001
-+ * Porting to 2.6 Copyright (c) Adrian McMenamin, 2007 - 2009
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -33,7 +33,7 @@ static DEFINE_MUTEX(maple_keyb_mutex);
- 
- #define NR_SCANCODES 256
- 
--MODULE_AUTHOR("YAEGASHI Takeshi, Adrian McMenamin");
-+MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk");
- MODULE_DESCRIPTION("SEGA Dreamcast keyboard driver");
- MODULE_LICENSE("GPL");
- 
-@@ -115,7 +115,7 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 				input_event(dev, EV_MSC, MSC_SCAN, code);
- 				input_report_key(dev, keycode, 0);
- 			} else
--				printk(KERN_DEBUG "maple_keyb: "
-+				dev_dbg(&dev->dev,
- 					"Unknown key (scancode %#x) released.",
- 					code);
- 		}
-@@ -127,7 +127,7 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 				input_event(dev, EV_MSC, MSC_SCAN, code);
- 				input_report_key(dev, keycode, 1);
- 			} else
--				printk(KERN_DEBUG "maple_keyb: "
-+				dev_dbg(&dev->dev,
- 					"Unknown key (scancode %#x) pressed.",
- 					code);
- 		}
-@@ -140,7 +140,7 @@ static void dc_kbd_callback(struct mapleq *mq)
- {
- 	struct maple_device *mapledev = mq->dev;
- 	struct dc_kbd *kbd = maple_get_drvdata(mapledev);
--	unsigned long *buf = mq->recvbuf;
-+	unsigned long *buf = (unsigned long *)(mq->recvbuf->buf);
- 
- 	/*
- 	 * We should always get the lock because the only
-@@ -159,22 +159,30 @@ static void dc_kbd_callback(struct mapleq *mq)
- 
- static int probe_maple_kbd(struct device *dev)
- {
--	struct maple_device *mdev = to_maple_dev(dev);
--	struct maple_driver *mdrv = to_maple_driver(dev->driver);
-+	struct maple_device *mdev;
-+	struct maple_driver *mdrv;
- 	int i, error;
- 	struct dc_kbd *kbd;
- 	struct input_dev *idev;
- 
--	if (!(mdev->function & MAPLE_FUNC_KEYBOARD))
--		return -EINVAL;
-+	mdev = to_maple_dev(dev);
-+	if (!mdev) {
-+		error = -EINVAL;
-+		goto fail;
-+	}
- 
- 	kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
--	idev = input_allocate_device();
--	if (!kbd || !idev) {
-+	if (!kbd) {
- 		error = -ENOMEM;
- 		goto fail;
- 	}
- 
-+	idev = input_allocate_device();
-+	if (!idev) {
-+		error = -ENOMEM;
-+		goto fail_idev_alloc;
-+	}
-+
- 	kbd->dev = idev;
- 	memcpy(kbd->keycode, dc_kbd_keycode, sizeof(kbd->keycode));
- 
-@@ -195,7 +203,7 @@ static int probe_maple_kbd(struct device *dev)
- 
- 	error = input_register_device(idev);
- 	if (error)
--		goto fail;
-+		goto fail_register;
- 
- 	/* Maple polling is locked to VBLANK - which may be just 50/s */
- 	maple_getcond_callback(mdev, dc_kbd_callback, HZ/50,
-@@ -207,10 +215,12 @@ static int probe_maple_kbd(struct device *dev)
- 
- 	return error;
- 
--fail:
-+fail_register:
-+	maple_set_drvdata(mdev, NULL);
- 	input_free_device(idev);
-+fail_idev_alloc:
- 	kfree(kbd);
--	maple_set_drvdata(mdev, NULL);
-+fail:
- 	return error;
- }
- 
+ive only quoted some, but the use of parenthesis here is pointless and imo=
+=20
+makes the code harder to read.  it's like trying to parse lisp ;).
 
+> +	vblock =3D kmalloc(sizeof(struct vmu_block), GFP_KERNEL);
 
+sizeof(*vblock) ?
+
+> +static int __init vmu_flash_map_init(void)
+> +{
+> +	maple_driver_register(&vmu_flash_driver);
+> +	return 0;
+> +}
+
+shouldnt this be:
+	return maple_driver_register(&vmu_flash_driver);
+=2Dmike
+
+--nextPart3028677.rxxFT817vE
+Content-Type: application/pgp-signature; name=signature.asc 
+Content-Description: This is a digitally signed message part.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
+
+iQIcBAABAgAGBQJJh5RDAAoJEEFjO5/oN/WBRykP/iv7lqy/HPvyJ6uGn9lnDJTQ
+U/SP1CdoPdRekhY4cn0dmjmHhVk6NXtSy5Pm+TXJ3c024WEdU5MSu0h4ZVvJ77cF
+v44SU7rSBwvaGruUhMEpRzMdmBvaqrun4G7NhHcK5KT6Qkc9mKuC1vPVfJ8n9Na1
+4dTQv3dScf1y7RmETJwdUcfrleIE3bDODXOhI3MXoRKVpI96KRWJUp/bNGwxUEzB
+Gq6+lObXsCWD2rIhgMkRVC6dstb1A/RRkseH12DGyY51ke6mLMsnDuhAMJ0fhn/r
+jbwIrI//G+Hj00uWrmoBLz3idom9kgW2sTJRtjrnVg0++mqLpl+X9MMUdBHb1gsK
+Nz+JD6CVwdeZIfzEAJCBO6xa4U7v22cS9abxnpZd2Y7AsCyYgGCikymFoNlXMwr8
+39voMlruHucFzXABa0OTldRsUYjnO2GbmGtj3ARcBLIW1Vfpsn95TgPjMj4m6KlH
+gXHkFXFr6NpHOe98RgNBD9zrf+rPcOorWyGRAIpmwyzVoli3IEswgJhbbyeD15aE
+hxy8dmcmd689i/rMCc0Wr43zpW5WH22ugHwP1+kwDIJZeT+ATJ8L1WW1xvVKdLcp
+PTOZFij5W4laVhUGIsZMrNf13v5AJpRL4ouTbFiX02fIyROE5lcA86C+aehyEx2k
+ULxC3loEadAwU/58cap4
+=Iz4Y
+-----END PGP SIGNATURE-----
+
+--nextPart3028677.rxxFT817vE--

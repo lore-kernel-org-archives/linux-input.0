@@ -1,24 +1,33 @@
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: Re: hid-pidff bug: fails to find all required reports of saitek
-	gamepad
-Date: Mon, 2 Feb 2009 21:48:18 +0300
-Message-ID: <78f5d6bf0902021048g5d5d7435y91e3fabae5ec469a@mail.gmail.com>
-References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
-	 <49871663.4060605@gmail.com>
-	 <78f5d6bf0902021029g7e53f16ble27500b52f9498ba@mail.gmail.com>
+From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Subject: [PATCH] sh: maple: Add support for VMU devices (v2) [0/3]
+Date: Tue, 03 Feb 2009 00:06:09 +0000
+Message-ID: <1233619569.13918.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:40499 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753940AbZBBSsU (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Feb 2009 13:48:20 -0500
-Received: by fg-out-1718.google.com with SMTP id 16so678330fgg.17
-        for <linux-input@vger.kernel.org>; Mon, 02 Feb 2009 10:48:19 -0800 (PST)
-In-Reply-To: <78f5d6bf0902021029g7e53f16ble27500b52f9498ba@mail.gmail.com>
+Received: from mk-filter-1-a-1.mail.uk.tiscali.com ([212.74.100.52]:44805 "EHLO
+	mk-filter-1-a-1.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755017AbZBCAHG (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Feb 2009 19:07:06 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org
+To: greg KH <greg@kroah.com>, Paul Mundt <lethal@linux-sh.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@infradead.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 
-And here is log of hid module with debug=1: http://paste.org/5168
+This series of patches adds support for the Dreamcast Visual Memory
+Unit, reworking the maple bus code to ensure it supports asynchronous
+reads and writes. A consequential amendment to the keyboard driver is
+also included.
+
+The VMU is a 'smart' flash chip where access is controlled by a
+microcontroller so that, for instance, flash erases appear to be
+transparent to the end user. The VMU does, however, show typical
+flash-type behaviour (eg phased writes) and the MTD layer and the chip
+work well together (eg in the way they handle apparent hotplug events
+during a block write).
+
+Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+---
+

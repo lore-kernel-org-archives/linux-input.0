@@ -1,116 +1,91 @@
 From: Arjan van de Ven <arjan@infradead.org>
-Subject: [patch 1/2] input: introduce a tougher i8042.reset
-Date: Wed, 4 Feb 2009 19:16:31 -0800
-Message-ID: <20090204191631.21783c62@infradead.org>
+Subject: [patch 2/2] input: add a DMI table for the i8042.reset option; make
+ MSI Wind U-100 work
+Date: Wed, 4 Feb 2009 19:17:28 -0800
+Message-ID: <20090204191728.7ed66e58@infradead.org>
 References: <20090204191540.2d6abd87@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:57102 "EHLO
+Received: from casper.infradead.org ([85.118.1.10]:57104 "EHLO
 	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752780AbZBEDRR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2009 22:17:17 -0500
+	with ESMTP id S1755163AbZBEDRZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2009 22:17:25 -0500
 In-Reply-To: <20090204191540.2d6abd87@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
 Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 
-
->From 2c5ccde448ae5f4062802bcd6002f856acbd268f Mon Sep 17 00:00:00 2001
 From: Arjan van de Ven <arjan@linux.intel.com>
-Date: Tue, 3 Feb 2009 16:26:16 -0800
-Subject: [PATCH] input: introduce a tougher i8042.reset
+Subject: input: add a DMI table for the i8042.reset option; make MSI Wind U-100 work
 
-Some touchpads don't reset right the first time (MSI Wind U-100 for
-example). This patch will retry the reset up to 5 times.
+There are several DMI tables in the i8042 (keyboard) driver already,
+but not one for the i8042.reset option. This patch adds such an option
+(which also sets the nonfatal flag so that if the reset fails, the keyboard
+still works).
 
-In addition, this patch also adds a module parameter to not treat
-reset failures as fatal to the usage of the device. This prevents
-a touchpad failure from also disabling the keyboard....
+Two users for this table are added as well, the MSI Wind U-100 and the
+LG X110. The MSI Wind also needs to be in the "don't trust the pnp data"
+for the touchpad to work on my machine.
 
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
----
- Documentation/kernel-parameters.txt |    2 ++
- drivers/input/serio/i8042.c         |   33 ++++++++++++++++++++++++---------
- 2 files changed, 26 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
-index ac613a6..a43e3bd 100644
---- a/Documentation/kernel-parameters.txt
-+++ b/Documentation/kernel-parameters.txt
-@@ -855,6 +855,8 @@ and is between 256 and 4096 characters. It is defined in the file
- 			[HW] Frequency with which keyboard LEDs should blink
- 			     when kernel panics (default is 0.5 sec)
- 	i8042.reset	[HW] Reset the controller during init and cleanup
-+	i8042.nonfatal  [HW] Don't treat i8042.reset failures as fatal for the
-+			     device initialization.
- 	i8042.unlock	[HW] Unlock (ignore) the keylock
+--- linux-2.6.28/drivers/input/serio/i8042-x86ia64io.h.org	2009-02-01 18:31:29.000000000 -0800
++++ linux-2.6.28/drivers/input/serio/i8042-x86ia64io.h	2009-02-01 18:35:26.000000000 -0800
+@@ -378,6 +378,13 @@ static struct dmi_system_id __initdata i
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
+ 		},
+ 	},
++	{
++		.ident = "MSI Wind U-100",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
++		},
++	},
+ 	{ }
+ };
+ #endif
+@@ -448,6 +455,25 @@ static struct dmi_system_id __initdata i
+ 	{ }
+ };
  
- 	i810=		[HW,DRM]
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index 170f71e..2473a9a 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -47,6 +47,10 @@ static unsigned int i8042_reset;
- module_param_named(reset, i8042_reset, bool, 0);
- MODULE_PARM_DESC(reset, "Reset controller during init and cleanup.");
- 
-+static unsigned int i8042_nonfatal;
-+module_param_named(nonfatal, i8042_nonfatal, bool, 0);
-+MODULE_PARM_DESC(reset, "Treat controller test failures as non-fatal.");
++static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
++	{
++		.ident = "MSI Wind U-100",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
++		},
++	},
++	{
++		.ident = "LG Electronics X110",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "X110"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
++		},
++	},
++	{ }
++};
 +
- static unsigned int i8042_direct;
- module_param_named(direct, i8042_direct, bool, 0);
- MODULE_PARM_DESC(direct, "Put keyboard port into non-translated mode.");
-@@ -712,22 +716,33 @@ static int i8042_controller_check(void)
- static int i8042_controller_selftest(void)
- {
- 	unsigned char param;
-+	int i = 0;
++
+ #endif /* CONFIG_X86 */
  
- 	if (!i8042_reset)
+ #ifdef CONFIG_PNP
+@@ -564,6 +583,11 @@ static int __init i8042_pnp_init(void)
+ 		i8042_nopnp = 1;
+ #endif
+ 
++	if (dmi_check_system(i8042_dmi_reset_table)) {
++		i8042_reset = 1;
++		i8042_nonfatal = 1;
++	}
++
+ 	if (i8042_nopnp) {
+ 		printk(KERN_INFO "i8042: PNP detection disabled\n");
  		return 0;
- 
--	if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
--		printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
--		return -ENODEV;
--	}
-+	/*
-+	 * We try this 5 times; on some really fragile systems this does not
-+	 * take the first time...
-+	 */
-+	do {
-+
-+		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-+			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-+			return -ENODEV;
-+		}
-+
-+		if (param == I8042_RET_CTL_TEST)
-+			return 0;
- 
--	if (param != I8042_RET_CTL_TEST) {
- 		printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
--			 param, I8042_RET_CTL_TEST);
--		return -EIO;
--	}
-+			param, I8042_RET_CTL_TEST);
-+		msleep(50);
-+	} while (i++ < 5);
- 
--	return 0;
-+	if (i8042_nonfatal)
-+		return 0;
-+	return -EIO;
- }
- 
- /*
--- 
-1.6.0.6
-
-
 
 -- 
 Arjan van de Ven 	Intel Open Source Technology Centre

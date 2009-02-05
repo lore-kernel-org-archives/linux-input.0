@@ -1,37 +1,44 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Trying to remap a wrongly labelled key
-Date: Wed, 04 Feb 2009 12:52:11 +0000
-Message-ID: <1233751931.30414.715.camel@cookie.hadess.net>
-References: <1232640514.3330.665.camel@cookie.hadess.net>
-	 <alpine.LRH.1.10.0902021329210.22097@twin.jikos.cz>
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: [patch 0/2] Make the touchpad on the MSI Wind netbook work
+Date: Wed, 4 Feb 2009 19:15:40 -0800
+Message-ID: <20090204191540.2d6abd87@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.redhat.com ([66.187.237.31]:54181 "EHLO mx2.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757137AbZBDMwN (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Feb 2009 07:52:13 -0500
-In-Reply-To: <alpine.LRH.1.10.0902021329210.22097@twin.jikos.cz>
+Received: from casper.infradead.org ([85.118.1.10]:57101 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752735AbZBEDRQ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Feb 2009 22:17:16 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 
-On Mon, 2009-02-02 at 13:32 +0100, Jiri Kosina wrote:
-<snip>
-> Hi Bastien,
+Hi,
 
-Hey Jiri,
+A MSI Wind (100) netbook landed on my desk with the comment "touchpad
+doesn't work in Linux but works in XP". 
 
-> for HID devices, the 'scancode' is in fact the full usage as reported by 
-> the device (i.e. including the HID usage page), not only the usage code 
-> itself. I.e. in your case this should be 0xc0183.
+It turns out that there are a 2 separate issues with this netbook that
+needed fixing 
 
-Good catch, thanks. FYI, hal-info patch is now done:
-http://thread.gmane.org/gmane.comp.freedesktop.hal/12792
+1) The touchpad requires the equivalent of "i8042.reset", which resets
+the controller before probing. (This is done via a DMI quirk in patch
+2/2)
 
-Just need to move onto the next keyboard now :)
+2) About half the time, the reset will fail the first time. In the
+current code, this is fatal and then also disables the keyboard in
+addition to the touchpad. Ungood. Patch 1 makes the kernel retry the
+reset upto five times before giving up (it seems the 2nd or 3rd time
+succeed for me), and also adds an option to not make such a failure
+fatal to the keyboard.
 
-Cheers
+I don't think this is a regression, but it is pretty nasty behavior
+(the machine is useless without) so it could be a 2.6.29 candidate...
 
+
+-- 
+Arjan van de Ven 	Intel Open Source Technology Centre
+For development, discussion and tips for power savings, 
+visit http://www.lesswatts.org

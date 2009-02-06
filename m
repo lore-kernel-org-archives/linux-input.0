@@ -1,55 +1,171 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] Input: bf54x-keys: ! has a higher priority than >
-Date: Thu, 5 Feb 2009 14:00:45 -0800
-Message-ID: <20090205140045.ef9fd5e6.akpm@linux-foundation.org>
-References: <1233818395-6461-1-git-send-email-cooloney@kernel.org>
+Subject: Re: [patch 2/2] input: add a DMI table for the i8042.reset option;
+ make MSI Wind U-100 work
+Date: Thu, 5 Feb 2009 16:21:57 -0800
+Message-ID: <20090205162157.572f15bb.akpm@linux-foundation.org>
+References: <20090204191540.2d6abd87@infradead.org>
+	<20090204191728.7ed66e58@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:53821 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37742 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750871AbZBEWBf (ORCPT
+	by vger.kernel.org with ESMTP id S1753255AbZBFAWb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Feb 2009 17:01:35 -0500
-In-Reply-To: <1233818395-6461-1-git-send-email-cooloney@kernel.org>
+	Thu, 5 Feb 2009 19:22:31 -0500
+In-Reply-To: <20090204191728.7ed66e58@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, roel.kluin@gmail.com, michael.hennerich@analog.com, cooloney@kernel.org
+Cc: linux-input@vger.kernel.org, arjan@infradead.org, linux-kernel@vger.kernel.org
 
-On Thu,  5 Feb 2009 15:19:55 +0800
-Bryan Wu <cooloney@kernel.org> wrote:
+On Wed, 4 Feb 2009 19:17:28 -0800
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-> From: Roel Kluin <roel.kluin@gmail.com>
+> There are several DMI tables in the i8042 (keyboard) driver already,
+> but not one for the i8042.reset option. This patch adds such an option
+> (which also sets the nonfatal flag so that if the reset fails, the keyboard
+> still works).
 > 
-> Signed-off-by: Roel Kluin <roel.kluin@gmail.com>
-> Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> Signed-off-by: Bryan Wu <cooloney@kernel.org>
-> ---
->  drivers/input/keyboard/bf54x-keys.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
-> index 1928401..ee855c5 100644
-> --- a/drivers/input/keyboard/bf54x-keys.c
-> +++ b/drivers/input/keyboard/bf54x-keys.c
-> @@ -209,8 +209,8 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
->  		goto out;
->  	}
->  
-> -	if (!pdata->debounce_time || !pdata->debounce_time > MAX_MULT ||
-> -	    !pdata->coldrive_time || !pdata->coldrive_time > MAX_MULT) {
-> +	if (!pdata->debounce_time || pdata->debounce_time > MAX_MULT ||
-> +	    !pdata->coldrive_time || pdata->coldrive_time > MAX_MULT) {
+> Two users for this table are added as well, the MSI Wind U-100 and the
+> LG X110. The MSI Wind also needs to be in the "don't trust the pnp data"
+> for the touchpad to work on my machine.
 
-What is this `pdata' thing from which the data comes?
+x86_64 allnoconfig:
 
-It seems a bit rude to kill the driver when we've detected an error
-which could easily be fixed up.
+drivers/input/serio/i8042-x86ia64io.h:458: warning: 'i8042_dmi_reset_table' defined but not used
 
->  		printk(KERN_ERR DRV_NAME
->  			": Invalid Debounce/Columdrive Time from pdata\n");
 
-nit: a colon does not terminate a sentence.
+From: Andrew Morton <akpm@linux-foundation.org>
 
-This comment misspells "column".
+drivers/input/serio/i8042-x86ia64io.h:458: warning: 'i8042_dmi_reset_table' defined but not used
+
+Fix this by moving both i8042_dmi_nopnp_tablep[] and i8042_dmi_reset_table[]
+into a section which requires CONFIG_PNP and CONFIG_X86.  Give their
+usage sites the same treatment.
+
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ drivers/input/serio/i8042-x86ia64io.h |   79 +++++++++++-------------
+ 1 file changed, 39 insertions(+), 40 deletions(-)
+
+diff -puN drivers/input/serio/i8042-x86ia64io.h~input-add-a-dmi-table-for-the-i8042reset-option-make-msi-wind-u-100-work-fix drivers/input/serio/i8042-x86ia64io.h
+--- a/drivers/input/serio/i8042-x86ia64io.h~input-add-a-dmi-table-for-the-i8042reset-option-make-msi-wind-u-100-work-fix
++++ a/drivers/input/serio/i8042-x86ia64io.h
+@@ -369,26 +369,6 @@ static struct dmi_system_id __initdata i
+ 	{ }
+ };
+ 
+-#ifdef CONFIG_PNP
+-static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
+-	{
+-		.ident = "Intel MBO Desktop D845PESV",
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
+-			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
+-		},
+-	},
+-	{
+-		.ident = "MSI Wind U-100",
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
+-			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
+-		},
+-	},
+-	{ }
+-};
+-#endif
+-
+ /*
+  * Some Wistron based laptops need us to explicitly enable the 'Dritek
+  * keyboard extension' to make their extra keys start generating scancodes.
+@@ -455,25 +435,6 @@ static struct dmi_system_id __initdata i
+ 	{ }
+ };
+ 
+-static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
+-	{
+-		.ident = "MSI Wind U-100",
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
+-			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
+-		},
+-	},
+-	{
+-		.ident = "LG Electronics X110",
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "X110"),
+-			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
+-		},
+-	},
+-	{ }
+-};
+-
+-
+ #endif /* CONFIG_X86 */
+ 
+ #ifdef CONFIG_PNP
+@@ -492,6 +453,44 @@ static int i8042_pnp_aux_irq;
+ static char i8042_pnp_kbd_name[32];
+ static char i8042_pnp_aux_name[32];
+ 
++#ifdef CONFIG_X86
++static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
++	{
++		.ident = "Intel MBO Desktop D845PESV",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++		},
++	},
++	{
++		.ident = "MSI Wind U-100",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
++		},
++	},
++	{ }
++};
++
++static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
++	{
++		.ident = "MSI Wind U-100",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
++		},
++	},
++	{
++		.ident = "LG Electronics X110",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "X110"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
++		},
++	},
++	{ }
++};
++#endif
++
+ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
+ {
+ 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
+@@ -588,12 +587,12 @@ static int __init i8042_pnp_init(void)
+ #ifdef CONFIG_X86
+ 	if (dmi_check_system(i8042_dmi_nopnp_table))
+ 		i8042_nopnp = 1;
+-#endif
+ 
+ 	if (dmi_check_system(i8042_dmi_reset_table)) {
+ 		i8042_reset = 1;
+ 		i8042_nonfatal = 1;
+ 	}
++#endif
+ 
+ 	if (i8042_nopnp) {
+ 		printk(KERN_INFO "i8042: PNP detection disabled\n");
+_
+

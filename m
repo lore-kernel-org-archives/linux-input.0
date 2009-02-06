@@ -1,56 +1,80 @@
-From: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [patch 1/2] input: introduce a tougher i8042.reset
-Date: Thu, 5 Feb 2009 16:35:13 -0800
-Message-ID: <20090205163513.1a5d7308@infradead.org>
-References: <20090204191540.2d6abd87@infradead.org>
-	<20090204191631.21783c62@infradead.org>
-	<20090205135229.e4d5efc3.akpm@linux-foundation.org>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [patch/rfc 2.6.28-rc2] input: twl4030_keypad driver
+Date: Thu, 5 Feb 2009 17:11:57 -0800
+Message-ID: <200902051711.57605.david-b@pacbell.net>
+References: <200901211613.06427.david-b@pacbell.net> <200901291657.50008.david-b@pacbell.net> <BD79186B4FD85F4B8E60E381CAEE1909011A53D4@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:34500 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753723AbZBFAe6 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Feb 2009 19:34:58 -0500
-In-Reply-To: <20090205135229.e4d5efc3.akpm@linux-foundation.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909011A53D4@mi8nycmail19.Mi8.com>
+Content-Disposition: inline
+Sender: linux-omap-owner@vger.kernel.org
+To: hartleys <hartleys@visionengravers.com>
+Cc: linux-input@vger.kernel.org, OMAP <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2009 13:52:29 -0800
-Andrew Morton <akpm@linux-foundation.org> wrote:
+On Friday 30 January 2009, hartleys wrote:
+> > I'd support an overall cleanup patch that fixes all those things at=
+ once.
+>=20
+> How's this for a starting point? =A0I'm willing to create a cleanup p=
+atch
+> for all the mach-omap1, mach-omap2, and mach-pxa users.
+>=20
+> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
 
-> On Wed, 4 Feb 2009 19:16:31 -0800
-> Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> > Some touchpads don't reset right the first time (MSI Wind U-100 for
-> > example). This patch will retry the reset up to 5 times.
-> 
-> Sigh, real life sucks.  I wonder what the windows driver does.
+I think none of the twl4030 keypad users are in mainline, so far...
 
-I have no idea; but this worked for me.
-I bet the windows driver just retries as well.
+My first reaction to this is that it's a bit incomplete.
+It replaces only the KEY() macro in the $SUBJECT patch:
 
-> 
-> > In addition, this patch also adds a module parameter to not treat
-> > reset failures as fatal to the usage of the device. This prevents
-> > a touchpad failure from also disabling the keyboard....
-> > 
-> 
-> Is there any reason why we shouldn't just do this all the time?
-> 
-> IOW, is there any benefit in marking the 8042 as dead?
+ - There are two more public ones (for board files):
+     * KEY_PERSISTENT flags row/column values to ignore
+     * PERSISTENT_KEY (sigh) generates a row/col entry
+       with such a marking (instead of a keycode)
+ - Plus two driver-internal ones:
+     * ROWCOL_MASK to strip R/C from KEY()
+     * KEYCODE_MASK to stip the keycode from a KEY()
 
-if it really is not there, then the kernel later will stall talking to
-it.... for the "normal" headless server case.
-At least I suppose. The input people need to jump in on this one.. I
-didn't want to do a mass behavior change on something this fragile.
+If there is going to be something reusable across the whole
+input subsystem (for drivers that don't need fancy stuff),
+it should really address the whole problem...
+
+- Dave
 
 
+> ---
+>=20
+> diff --git a/include/linux/input.h b/include/linux/input.h
+> index 1249a0c..0879493 100644
+> --- a/include/linux/input.h
+> +++ b/include/linux/input.h
+> @@ -598,6 +598,14 @@ struct input_absinfo {
+> =A0#define KEY_CNT=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0(KEY_MAX+1)
+> =A0
+> =A0/*
+> + * Macro to pack the row/col of a key on a matrix keypad and it's as=
+sociated
+> + * KEY_* code into into an array. =A04 bits are used for both the ro=
+w and column
+> + * allowing for up to a 16x16 keypad. =A0The row (_r) and column (_c=
+) are
+> + * interchangable depending on a keypad drivers usage.
+> + */
+> +#define MATRIX_KEY(_r, _c, _v)=A0(((_r) << 28) | ((_c) << 24) | (_v)=
+)
+> +
+> +/*
+> =A0 * Relative axes
+> =A0 */
+> =A0=20
+>=20
 
--- 
-Arjan van de Ven 	Intel Open Source Technology Centre
-For development, discussion and tips for power savings, 
-visit http://www.lesswatts.org
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

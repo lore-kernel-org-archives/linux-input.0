@@ -1,43 +1,33 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 2.6.29-rc3-git] input:  twl4030_keypad driver
-Date: Fri, 6 Feb 2009 02:33:44 -0800
-Message-ID: <200902060233.44241.david-b@pacbell.net>
-References: <5A47E75E594F054BAF48C5E4FC4B92AB02F54B9C1F@dbde02.ent.ti.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] HID: avoid sparse warning in HID_COMPAT_LOAD_DRIVER
+Date: Fri, 6 Feb 2009 17:07:19 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0902061706480.11630@jikos.suse.cz>
+References: <4947a48f.08b6660a.34ca.ffffa1e8@mx.google.com>  <20081216155822.GD12431@fluff.org.uk>  <alpine.LNX.1.10.0812161659580.21089@jikos.suse.cz>  <20081216194113.GF12431@fluff.org.uk> <154e089b0812161144x3c9579f5g8731b616fde6484c@mail.gmail.com>
+ <494B5BC4.100@gmail.com> <alpine.LNX.1.10.0812191037110.26265@jikos.suse.cz> <494D239B.10800@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp119.sbc.mail.sp1.yahoo.com ([69.147.64.92]:45375 "HELO
-	smtp119.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751972AbZBFKdq (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2009 05:33:46 -0500
-In-Reply-To: <5A47E75E594F054BAF48C5E4FC4B92AB02F54B9C1F@dbde02.ent.ti.com>
-Content-Disposition: inline
+Received: from styx.suse.cz ([82.119.242.94]:34802 "EHLO mail.suse.cz"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752393AbZBFQHU (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2009 11:07:20 -0500
+In-Reply-To: <494D239B.10800@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Gadiyar, Anand" <gadiyar@ti.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, OMAP <linux-omap@vger.kernel.org>
+To: Jiri Slaby <jirislaby@gmail.com>, Jon Masters <jcm@jonmasters.org>
+Cc: Hannes Eder <hannes@hanneseder.net>, Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Friday 06 February 2009, Gadiyar, Anand wrote:
->=20
-> > Reviewed-by: Trilok Soni <soni.trilok@gmail.com>"
->=20
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0^^^
-> Cut-paste error?
+On Sat, 20 Dec 2008, Jiri Slaby wrote:
 
-Yes.
+> > BTW while we are at it -- what is the status with module-init-tools? Has 
+> > the support been merged already?
+> As far as I can see, not yet. Jon, what's the status of hid bus support in
+> m-i-t, please?
 
-> Will it mess up git-shortlog accounting a little=20
-> or is it safe to ignore?
+Any update here please? What is the current status in m-i-t?
 
-No idea; but that's trivial for whoever merges this
-to address.
+Thanks,
 
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Jiri Kosina
+SUSE Labs

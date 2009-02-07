@@ -1,47 +1,89 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Logitech MX5000 extra keys
-Date: Sat, 7 Feb 2009 02:12:56 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0902070209160.22097@twin.jikos.cz>
-References: <1233948279.8950.75.camel@cookie.hadess.net>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Sat, 07 Feb 2009 14:28:49 +0200
+Message-ID: <498D7E81.4060007@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <49871663.4060605@gmail.com> <78f5d6bf0902021029g7e53f16ble27500b52f9498ba@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/mixed;
+ boundary="------------000106030803010502010902"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from twin.jikos.cz ([213.151.79.26]:41040 "EHLO twin.jikos.cz"
+Received: from mta-out.inet.fi ([195.156.147.13]:42263 "EHLO jenni2.inet.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751880AbZBGBNB (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 6 Feb 2009 20:13:01 -0500
-In-Reply-To: <1233948279.8950.75.camel@cookie.hadess.net>
+	id S1752420AbZBGM2y (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 7 Feb 2009 07:28:54 -0500
+In-Reply-To: <78f5d6bf0902021029g7e53f16ble27500b52f9498ba@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Fri, 6 Feb 2009, Bastien Nocera wrote:
+This is a multi-part message in MIME format.
+--------------000106030803010502010902
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-> Some keys aren't reported at all through the input layer, but there is 
-> code in the mx5000-tools[2] to make those keys work through hiddev.
-[ ... ]
-> I was wondering what the best course of action would be to make this
-> code work out-of-the-box. Would it be better to write a HAL addon, and
-> do all this work in user-space, or would it be more useful to have
-> directly in the kernel?
-> Obviously, if the latter, I'd appreciate a bit of guidance on where I
-> should add the code.
+Dmitriy Geels wrote:
+> 2009/2/2 Anssi Hannula <anssi.hannula@gmail.com>:
+>>> I don't understand yet, how to fix this bug, so I'm posting this to
+>>> maillist with hope on someones help.
+>> The error message means that it can't find reports 0xab (create new
+>> effect), 0x89 (pid block load), 0x90 (pid block free), that according to
+>> your html page are in fact there.
+>>
+>> Could you provide the output with parameter debug=1 for hid module when
+>> device is initialized? It prints the raw HID descriptor and the kernel's
+>> interpretation of it.
+>> (If you have the hid module built-in, you can use "echo 1 >
+>> /sys/modules/hid/parameters/debug")
+> 
+> I'm discovering this situation, but haven't got much progress. Now I
+> consider, that problem is not in hid-pidff, but somewhere deeper, like
+> in hid_parse_report().
+> 
+> I saw strange things: report for usage 0x90 has empty field->logical
+> field (should be 0x000f0090, was seen as "checking field->logical ==
+> 0x00000000" earlier), that's why it's ignored. Reports, which are 0x25
+> and 0x8b, are feature reports and I have no clue yet, why wrong usages
+> were put into field->logical.
 
-Hi Bastien,
+It is because those collections are defined as "Report collections"
+instead of "Logical collections". Linux doesn't know about "Report
+collections", but according to HID spec it is also a Logical collection:
 
-the HAL people are trying to put as much possible of the mappings into the 
-userspace HAL code, see [1].
+"Defines a logical collection that wraps all the fields in a report. A
+unique report ID will be contained in this collection. An
+application can easily determine whether a device supports a
+certain function. Note that any valid Report ID value can be
+declared for a Report collection."
 
-If you prefer doing the mappings correctly already in-kernel for this 
-particular keyboard, please see Logitech-specific HID driver in 
-drivers/hid/hid-lg.c; we already handle various kinds of Logitech devices 
-there, and adding a new one is pretty straightforward (maybe the code can 
-even be shared with a different model).
+Try the attached patch, which simply changes the collection type for
+such collections.
 
-[1] http://people.freedesktop.org/~hughsient/quirk/quirk-keymap-index.html
+> Here is decoded hid descriptor with raw data:
+> http://docs.google.com/Doc?id=dhk68r8j_2gvttgsr8
+> Here is just raw data: http://docs.google.com/Doc?id=dhk68r8j_38stwrngm
 
 -- 
-Jiri Kosina
-SUSE Labs
+Anssi Hannula
 
+--------------000106030803010502010902
+Content-Type: text/plain;
+ name="hid-logical-subtypes.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="hid-logical-subtypes.diff"
+
+LS0tIGxpbnV4L2RyaXZlcnMvaGlkL2hpZC1jb3JlLmMub2xkCTIwMDktMDItMDcgMTQ6MTc6
+NDkuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC9kcml2ZXJzL2hpZC9oaWQtY29yZS5jCTIw
+MDktMDItMDcgMTQ6MjI6NDUuMDAwMDAwMDAwICswMjAwCkBAIC0xNDIsNiArMTQyLDEyIEBA
+CiAJcGFyc2VyLT5jb2xsZWN0aW9uX3N0YWNrW3BhcnNlci0+Y29sbGVjdGlvbl9zdGFja19w
+dHIrK10gPQogCQlwYXJzZXItPmRldmljZS0+bWF4Y29sbGVjdGlvbjsKIAorCS8qIFJlcG9y
+dCBjb2xsZWN0aW9ucyAoMHgwMyksIE5hbWVkIEFycmF5IGNvbGxlY3Rpb25zICgweDA0KSBh
+bmQgVXNhZ2UKKwkgKiBTd2l0Y2ggY29sbGVjdGlvbnMgKDB4MDUpIGFyZSBzdWJ0eXBlcyBv
+ZiBsb2dpY2FsIGNvbGxlY3Rpb25zCisJICogYWNjb3JkaW5nIHRvIHRoZSBISUQgc3BlY2lm
+aWNhdGlvbiAqLworCWlmICh0eXBlID49IDB4MDMgJiYgdHlwZSA8PSAweDA1KQorCQl0eXBl
+ID0gSElEX0NPTExFQ1RJT05fTE9HSUNBTDsKKwogCWNvbGxlY3Rpb24gPSBwYXJzZXItPmRl
+dmljZS0+Y29sbGVjdGlvbiArCiAJCXBhcnNlci0+ZGV2aWNlLT5tYXhjb2xsZWN0aW9uKys7
+CiAJY29sbGVjdGlvbi0+dHlwZSA9IHR5cGU7Cg==
+--------------000106030803010502010902--

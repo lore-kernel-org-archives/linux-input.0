@@ -1,87 +1,47 @@
-From: "hartleys" <hartleys@visionengravers.com>
-Subject: RE: [PATCH 2/5] input: Update omap_keypad to use MATRIX_KEY macro
-Date: Fri, 6 Feb 2009 17:54:17 -0500
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE19090120BD3E@mi8nycmail19.Mi8.com>
-References: <BD79186B4FD85F4B8E60E381CAEE1909011A5469@mi8nycmail19.Mi8.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Logitech MX5000 extra keys
+Date: Sat, 7 Feb 2009 02:12:56 +0100 (CET)
+Message-ID: <alpine.LRH.1.10.0902070209160.22097@twin.jikos.cz>
+References: <1233948279.8950.75.camel@cookie.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og116.obsmtp.com ([64.18.1.37]:47890 "HELO
-	exprod6og116.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1750832AbZBFWyg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Feb 2009 17:54:36 -0500
-Content-class: urn:content-classes:message
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909011A5469@mi8nycmail19.Mi8.com>
+Received: from twin.jikos.cz ([213.151.79.26]:41040 "EHLO twin.jikos.cz"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751880AbZBGBNB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 6 Feb 2009 20:13:01 -0500
+In-Reply-To: <1233948279.8950.75.camel@cookie.hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: David Brownell <david-b@pacbell.net>
+To: Bastien Nocera <hadess@hadess.net>
+Cc: linux-input@vger.kernel.org
 
-Update the omap_keypad driver to use common MATRIX_KEY macro.
+On Fri, 6 Feb 2009, Bastien Nocera wrote:
 
-As suggested by David Brownell, use two driver-internal defines:
-     * MATRIX_ROWCOL_MASK to strip R/C from MATRIX_KEY()
-     * MATRIX_KEYCODE_MASK to stip the keycode from a MATRIX_KEY()
+> Some keys aren't reported at all through the input layer, but there is 
+> code in the mx5000-tools[2] to make those keys work through hiddev.
+[ ... ]
+> I was wondering what the best course of action would be to make this
+> code work out-of-the-box. Would it be better to write a HAL addon, and
+> do all this work in user-space, or would it be more useful to have
+> directly in the kernel?
+> Obviously, if the latter, I'd appreciate a bit of guidance on where I
+> should add the code.
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Cc: David Brownell <david-b@pacbell.net>
+Hi Bastien,
 
----
+the HAL people are trying to put as much possible of the mappings into the 
+userspace HAL code, see [1].
 
-diff --git a/arch/arm/plat-omap/include/mach/keypad.h
-b/arch/arm/plat-omap/include/mach/keypad.h
-index 232923a..c8269c3 100644
---- a/arch/arm/plat-omap/include/mach/keypad.h
-+++ b/arch/arm/plat-omap/include/mach/keypad.h
-@@ -13,7 +13,7 @@
- struct omap_kp_platform_data {
- 	int rows;
- 	int cols;
--	int *keymap;
-+	unsigned int *keymap;
- 	unsigned int keymapsize;
- 	unsigned int rep:1;
- 	unsigned long delay;
-@@ -33,7 +33,5 @@ struct omap_kp_platform_data {
- #define GROUP_3		(3 << 16)
- #define GROUP_MASK	GROUP_3
- 
--#define KEY(col, row, val) (((col) << 28) | ((row) << 24) | (val))
--
- #endif
- 
-diff --git a/drivers/input/keyboard/omap-keypad.c
-b/drivers/input/keyboard/omap-keypad.c
-index 3f3d119..550b360 100644
---- a/drivers/input/keyboard/omap-keypad.c
-+++ b/drivers/input/keyboard/omap-keypad.c
-@@ -64,7 +64,7 @@ struct omap_kp {
- 
- static DECLARE_TASKLET_DISABLED(kp_tasklet, omap_kp_tasklet, 0);
- 
--static int *keymap;
-+static unsigned int *keymap;
- static unsigned int *row_gpios;
- static unsigned int *col_gpios;
- 
-@@ -151,12 +151,13 @@ static void omap_kp_scan_keypad(struct omap_kp
-*omap_kp, unsigned char *state)
- 
- static inline int omap_kp_find_key(int col, int row)
- {
--	int i, key;
-+	unsigned int key;
-+	int i;
- 
--	key = KEY(col, row, 0);
-+	key = MATRIX_KEY(col, row, 0);
- 	for (i = 0; keymap[i] != 0; i++)
--		if ((keymap[i] & 0xff000000) == key)
--			return keymap[i] & 0x00ffffff;
-+		if ((keymap[i] & MATRIX_ROWCOL_MASK) == key)
-+			return keymap[i] & MATRIX_KEYCODE_MASK;
- 	return -1;
- }
-  
+If you prefer doing the mappings correctly already in-kernel for this 
+particular keyboard, please see Logitech-specific HID driver in 
+drivers/hid/hid-lg.c; we already handle various kinds of Logitech devices 
+there, and adding a new one is pretty straightforward (maybe the code can 
+even be shared with a different model).
+
+[1] http://people.freedesktop.org/~hughsient/quirk/quirk-keymap-index.html
+
+-- 
+Jiri Kosina
+SUSE Labs
+

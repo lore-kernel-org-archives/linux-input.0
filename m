@@ -1,50 +1,53 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] sh: maple: add support for Visual Memory Card devices, and make consequential changes to maple input drivers - 2/3 - v5
-Date: Mon, 9 Feb 2009 15:56:32 +0900
-Message-ID: <20090209065632.GA21980@linux-sh.org>
-References: <1234122069.6736.8.camel@localhost.localdomain> <1234123473.6736.29.camel@localhost.localdomain>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Logitech MX5000 extra keys
+Date: Mon, 09 Feb 2009 11:31:55 +0000
+Message-ID: <1234179115.8950.3991.camel@cookie.hadess.net>
+References: <1233948279.8950.75.camel@cookie.hadess.net>
+	 <alpine.LRH.1.10.0902070209160.22097@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1234123473.6736.29.camel@localhost.localdomain>
-Sender: linux-sh-owner@vger.kernel.org
-To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@infradead.org>, LKML <linux-kernel@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mx2.redhat.com ([66.187.237.31]:37972 "EHLO mx2.redhat.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751534AbZBILcN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Feb 2009 06:32:13 -0500
+In-Reply-To: <alpine.LRH.1.10.0902070209160.22097@twin.jikos.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-On Sun, Feb 08, 2009 at 08:04:33PM +0000, Adrian McMenamin wrote:
-> Change the maple bus driver to support the visual memory unit driver.
+On Sat, 2009-02-07 at 02:12 +0100, Jiri Kosina wrote:
+> On Fri, 6 Feb 2009, Bastien Nocera wrote:
 > 
-> The maple bus driver currently only supports synchronous polling of attached devices status. These changes allow
-> the bus to handle asynchronous commands such as block reads and writes. 
+> > Some keys aren't reported at all through the input layer, but there is 
+> > code in the mx5000-tools[2] to make those keys work through hiddev.
+> [ ... ]
+> > I was wondering what the best course of action would be to make this
+> > code work out-of-the-box. Would it be better to write a HAL addon, and
+> > do all this work in user-space, or would it be more useful to have
+> > directly in the kernel?
+> > Obviously, if the latter, I'd appreciate a bit of guidance on where I
+> > should add the code.
 > 
-> Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+> Hi Bastien,
+> 
+> the HAL people are trying to put as much possible of the mappings into the 
+> userspace HAL code, see [1].
 
-The ordering of your patch series is a bit vague. Do the changes to the
-maple bus code need to be made before the VMU patch can be applied? Do
-the input driver changes have to be made at the same time as the changes
-to the bus code, or are they ok to leave as a separate patch after the
-bus changes?
+Problem is that it's not just a mapping problem, as the keys don't get
+out of the kernel at all. The code in hid-lg.c looks more like what's
+required. Not sure whether the magic is the same to enable the extra
+keys on this keyboard.
 
-All of these seem to have some interdependency issues that haven't been
-noted at all, making it incredibly difficult to apply incrementally. Your
-subject for the series also seems to imply you have no idea how they
-logically structure, and that you simply hacked things up until the point
-where everything worked, rather than paying attention to logical
-incremental changes to show how you got from point A to point B without
-breaking bisection along the way.
+> If you prefer doing the mappings correctly already in-kernel for this 
+> particular keyboard, please see Logitech-specific HID driver in 
+> drivers/hid/hid-lg.c; we already handle various kinds of Logitech devices 
+> there, and adding a new one is pretty straightforward (maybe the code can 
+> even be shared with a different model).
 
-We do not want to have the tree in a state where bisection is broken, nor
-do we want to apply huge monolothic changes that are unable to be clearly
-broken out.
+I'll have to get my kernel groove back on and test this.
 
-At this point the maple bus stuff I am fine with, and I have no real
-objections to the driver patches either, it is more your methodology or
-lack thereof that makes dealing with this rather taxing. If you want your
-patches applied, small incremental patches that don't leave the tree in a
-broken state are the way to go.
+Cheers
 
-Presently I have no idea how to split this series up, and even if the
-other subsystem folks add their Acked-bys, this will not be going in as
-one large change.

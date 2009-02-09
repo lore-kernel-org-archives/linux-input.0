@@ -1,275 +1,50 @@
-From: Alessandro Di Marco <dmr@c0nc3pt.com>
-Subject: [PATCH 2.6.28] input: activity counters (Perl trigger)
-Date: Mon, 09 Feb 2009 02:29:57 +0100
-Message-ID: <878wogjqly.fsf@c0nc3pt.com>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] sh: maple: add support for Visual Memory Card devices, and make consequential changes to maple input drivers - 2/3 - v5
+Date: Mon, 9 Feb 2009 15:56:32 +0900
+Message-ID: <20090209065632.GA21980@linux-sh.org>
+References: <1234122069.6736.8.camel@localhost.localdomain> <1234123473.6736.29.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bin.disi.unige.it ([130.251.61.176]:34136 "EHLO c0nc3pt.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753084AbZBICXJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 8 Feb 2009 21:23:09 -0500
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1234123473.6736.29.camel@localhost.localdomain>
+Sender: linux-sh-owner@vger.kernel.org
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@infradead.org>, LKML <linux-kernel@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru
 
-#!/usr/bin/perl -w
-
-# Copyright (C) 2009 Alessandro Di Marco <dmr@c0nc3pt.com>
-
-# This file is part of SIN.
-
-# SIN is free software: you can redistribute it and/or modify it under the
-# terms of the GNU General Public License as published by the Free Software
-# Foundation, either version 3 of the License, or (at your option) any later
-# version.
-
-# SIN is distributed in the hope that it will be useful, but WITHOUT ANY
-# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-# A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License along with
-# SIN.  If not, see <http://www.gnu.org/licenses/>.
-
-use strict;
-
-use IO::File;
-use IO::Select;
-use Getopt::Long;
-use Pod::Usage;
-
-use Storable;
-
-use constant CONFIG => 'SIN.conf';
-use constant ENROLL_TIMEOUT => 5;
-
-my @script = ( { timeout => 5, action => 'echo "dim screen"' },
-	       { timeout => 10, action => 'echo "blank screen"' },
-	       { timeout => 20, action => 'echo "system suspend"' } );
-
-use constant RESUME => 'echo "restore screen"';
-
-sub devices {
-    open my $devices, "/proc/bus/input/devices"
-	or die "uhm, no input devices?!?";
-
-    my $name;
-    my $devs;
-
-    while (<$devices>) {
-	$name = $1 if $_ =~ /^N: Name=\"(.*)\"\n$/;
-	$devs->{$1} = $name if $_ =~ /S: Sysfs=(.*)\n$/;
-    }
-
-    $devs;
-}
-
-sub activity {
-    my ($enrolled) = @_;
-
-    $enrolled = $_ unless defined $enrolled;
-
-    my $activities;
-
-    foreach (keys %$enrolled) {
-	open my $handle, "/sys$_/activity"
-	    or die "missing activity on $_; please apply the patch!";
-
-	my @data = <$handle>;
-
-	$data[0] =~ /A: (0|[1-9][0-9]*)\n$/;
-	my $last = $1;
-
-	$data[1] =~ /D: (0|[1-9][0-9]*)\n$/;
-	my $delta = $1;
-
-	$activities->{$handle} = {
-	    'path' => $_,
-	    'handle' => $handle,
-	    'last' => $last,
-	    'delta' => $delta,
-	};
-    }
-
-    $activities;
-}
-
-sub latest {
-    my ($activities) = @_;
-
-    $activities = $_ unless defined $activities;
-
-    foreach (values %$activities) {
-	my $handle = $_->{'handle'};
-
-	seek $handle, 0, SEEK_SET;
-
-	my @data = <$handle>;
-
-	$data[0] =~ /A: (0|[1-9][0-9]*)\n$/;
-	$_->{'last'} = $1;
-
-	$data[1] =~ /D: (0|[1-9][0-9]*)\n$/;
-	$_->{'delta'} = $1;
-    }
-
-    $activities;
-}
-
-sub configure {
-    my ($devs) = @_;
-
-    select(undef, undef, undef, 0.1);
-
-    print "Input device enrolling:\n";
-    print "  please interact with the desired input devices;\n";
-    print "  the process will terminate after " . ENROLL_TIMEOUT
-	. " seconds from the last enrollment.\n";
-
-    my $activities = activity($devs);
-
-    my $select = new IO::Select(map { $_->{'handle'} } values %$activities);
-
-    while ($select->handles) {
-	last unless my @picked = $select->can_read(ENROLL_TIMEOUT);
-
-    	foreach (@picked) {
-    	    print "Enrolled $devs->{$activities->{$_}->{'path'}}\n";
-    	}
-
-    	$select->remove(@picked);
-    }
-
-    delete $activities->{$_} foreach ($select->handles);
-
-    my $enrolled;
-
-    foreach (map { $_->{'path'} } values %$activities) {
-	$enrolled->{$_} = $devs->{$_};
-    }
-
-    $enrolled;
-}
-
-my %opts = ();
-
-GetOptions('configure' => \$opts{'configure'},
-	   'help|?' => \$opts{'help'},
-	   'man' => \$opts{'man'})
-    or pod2usage(2);
-
-pod2usage(1) if $opts{'help'};
-pod2usage('-exitstatus' => 0, '-verbose' => 2) if $opts{'man'};
-
-my $enrolled;
-
-if ($opts{'configure'}) {
-    $enrolled = configure devices;
-    store $enrolled, CONFIG;
-    exit 0;
-}
-
-die "No usable configuration found" unless -e CONFIG;
-
-$enrolled = retrieve(CONFIG)
-    or die "uhm, invalid configuration?!?\n";
-
-my $devs = devices;
-
-foreach (keys %$enrolled) {
-    die "uhm, stored configuration doesn't match?!?\n"
-	unless defined $devs->{$_};
-}
-
-sub latter_of {
-    my ($activities) = @_;
-
-    $activities = $_ unless defined $activities;
-
-    my $last = 0;
-    my $me;
-
-    foreach (values %$activities) {
-	if ($_->{'last'} > $last) {
-	    $last = $_->{'last'};
-	    $me = $_;
-	}
-    }
-
-    $me;
-}
-
-sub warp {
-    (($_[0]->{'timeout'} * 1000000) - $_[1]->{'delta'}) / 1000000;
-}
-
-my $activities = activity $enrolled;
-my $select = new IO::Select(map { $_->{'handle'} } values %$activities);
-
-start:
-    while (1) {
-	my $last = latter_of latest $activities;
-	my $trig = 0;
-
-	for (my $i = 0; $i < @script; $i++) {
-	    if ($trig) {
-		if ($select->can_read(warp($script[$i], $last))) {
-		    system RESUME;
-		    next start;
-		}
-
-		$last = latter_of latest $activities;
-	    } else {
-		while ((my $timeout = warp($script[$i], $last)) > 0) {
-		    select(undef, undef, undef, $timeout);
-		    $last = latter_of latest $activities;
-		}
-
-		$trig = 1;
-	    }
-
-	    system $script[$i]->{'action'};
-	}
-
-	$select->can_read;
-
-	system RESUME;
-}
-
-__END__
-
-=pod
-
-=head1 NAME
-
-SIN - System Inactivity Notifier
-
-=head1 SYNOPSIS
-
-B<SIN> [B<--configure>] [B<--help>] [B<--man>]
-
-=head1 OPTIONS
-
-=over 8
-
-=item B<--configure>
-
-Let the user configure SIN.
-
-=item B<--help>
-
-Print a brief help message and exits.
-
-=item B<--man>
-
-Prints the manual page and exits.
-
-=back
-
-=head1 DESCRIPTION
-
-B<SIN> is an inactivity notifier. This means that you can instruct SIN to
-perform different actions depending on the user's activity degree.
-
-=cut
+On Sun, Feb 08, 2009 at 08:04:33PM +0000, Adrian McMenamin wrote:
+> Change the maple bus driver to support the visual memory unit driver.
+> 
+> The maple bus driver currently only supports synchronous polling of attached devices status. These changes allow
+> the bus to handle asynchronous commands such as block reads and writes. 
+> 
+> Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+
+The ordering of your patch series is a bit vague. Do the changes to the
+maple bus code need to be made before the VMU patch can be applied? Do
+the input driver changes have to be made at the same time as the changes
+to the bus code, or are they ok to leave as a separate patch after the
+bus changes?
+
+All of these seem to have some interdependency issues that haven't been
+noted at all, making it incredibly difficult to apply incrementally. Your
+subject for the series also seems to imply you have no idea how they
+logically structure, and that you simply hacked things up until the point
+where everything worked, rather than paying attention to logical
+incremental changes to show how you got from point A to point B without
+breaking bisection along the way.
+
+We do not want to have the tree in a state where bisection is broken, nor
+do we want to apply huge monolothic changes that are unable to be clearly
+broken out.
+
+At this point the maple bus stuff I am fine with, and I have no real
+objections to the driver patches either, it is more your methodology or
+lack thereof that makes dealing with this rather taxing. If you want your
+patches applied, small incremental patches that don't leave the tree in a
+broken state are the way to go.
+
+Presently I have no idea how to split this series up, and even if the
+other subsystem folks add their Acked-bys, this will not be going in as
+one large change.

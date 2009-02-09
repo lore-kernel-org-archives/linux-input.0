@@ -1,161 +1,154 @@
-From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Subject: Re: [PATCH] sh: maple: add support for Visual Memory Card devices,
- and make consequential changes to maple input drivers - 0/3 - v5
-Date: Sun, 08 Feb 2009 20:07:37 +0000
-Message-ID: <1234123657.6736.32.camel@localhost.localdomain>
-References: <1234122069.6736.8.camel@localhost.localdomain>
+From: Alessandro Di Marco <dmr@c0nc3pt.com>
+Subject: [PATCH 2.6.28] input: activity counters
+Date: Mon, 09 Feb 2009 02:22:46 +0100
+Message-ID: <87skmojt14.fsf@c0nc3pt.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mk-filter-1-a-1.mail.uk.tiscali.com ([212.74.100.52]:40775 "EHLO
-	mk-filter-1-a-1.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751387AbZBHUHy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 8 Feb 2009 15:07:54 -0500
-In-Reply-To: <1234122069.6736.8.camel@localhost.localdomain>
+Received: from bin.disi.unige.it ([130.251.61.176]:51869 "EHLO c0nc3pt.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752934AbZBIBhb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 8 Feb 2009 20:37:31 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, dwmw2 <dwmw2@infradead.org>, LKML <linux-kernel@vger.kernel.org>, MTD <linux-mtd@lists.infradead.org>, linux-sh <linux-sh@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>, Paul Mundt <lethal@linux-sh.org>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, dtor@mail.ru
 
-Consequential changes to the maple input drivers as well as a cleanup of
-the keyboard code.
+This patch provides the input infrastructure with activity
+counters. Their purpose is to ease the development of idle triggers,
+such as screen-savers - see the followed-up Perl script as an example
+(X11 agnostic).
 
-Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
+I had submitted something similar a couple of years ago, by way of a
+kernel module named SIN (http://lkml.org/lkml/2007/1/18/138).
+
+Despite SIN has been properly maintained along this period, soon it
+revealed some design weaknesses which urged me towards alternative
+approaches. IMO the resulting patch fits the target: it is quite
+straightforward, yet provides good features such as:
+
+1) userland programs retains the whole control logic
+
+2) userland programs are EVIOCGRAB hassle free
+
+3) userland programs do not get biased towards a specific environment
+(e.g. one monitor, one keyboard...)
+
+4) userland programs do not need superuser privileges to do their work
+
+Regards,
+
+Signed-off-by: Alessandro Di Marco <dmr@c0nc3pt.com>
 ---
-diff --git a/drivers/input/joystick/maplecontrol.c b/drivers/input/joystick/maplecontrol.c
-index e50047b..77cfde5 100644
---- a/drivers/input/joystick/maplecontrol.c
-+++ b/drivers/input/joystick/maplecontrol.c
-@@ -3,7 +3,7 @@
-  *	Based on drivers/usb/iforce.c
-  *
-  *	Copyright Yaegashi Takeshi, 2001
-- *	Adrian McMenamin, 2008
-+ *	Adrian McMenamin, 2008 - 2009
-  */
- 
- #include <linux/kernel.h>
-@@ -29,7 +29,7 @@ static void dc_pad_callback(struct mapleq *mq)
- 	struct maple_device *mapledev = mq->dev;
- 	struct dc_pad *pad = maple_get_drvdata(mapledev);
- 	struct input_dev *dev = pad->dev;
--	unsigned char *res = mq->recvbuf;
-+	unsigned char *res = mq->recvbuf->buf;
- 
- 	buttons = ~le16_to_cpup((__le16 *)(res + 8));
- 
-diff --git a/drivers/input/keyboard/maple_keyb.c b/drivers/input/keyboard/maple_keyb.c
-index 22f17a5..5aa2361 100644
---- a/drivers/input/keyboard/maple_keyb.c
-+++ b/drivers/input/keyboard/maple_keyb.c
-@@ -1,8 +1,8 @@
- /*
-  * SEGA Dreamcast keyboard driver
-  * Based on drivers/usb/usbkbd.c
-- * Copyright YAEGASHI Takeshi, 2001
-- * Porting to 2.6 Copyright Adrian McMenamin, 2007, 2008
-+ * Copyright (c) YAEGASHI Takeshi, 2001
-+ * Porting to 2.6 Copyright (c) Adrian McMenamin, 2007 - 2009
-  *
-  * This program is free software; you can redistribute it and/or modify
-  * it under the terms of the GNU General Public License as published by
-@@ -33,7 +33,7 @@ static DEFINE_MUTEX(maple_keyb_mutex);
- 
- #define NR_SCANCODES 256
- 
--MODULE_AUTHOR("YAEGASHI Takeshi, Adrian McMenamin");
-+MODULE_AUTHOR("Adrian McMenamin <adrian@mcmen.demon.co.uk");
- MODULE_DESCRIPTION("SEGA Dreamcast keyboard driver");
- MODULE_LICENSE("GPL");
- 
-@@ -115,7 +115,7 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 				input_event(dev, EV_MSC, MSC_SCAN, code);
- 				input_report_key(dev, keycode, 0);
- 			} else
--				printk(KERN_DEBUG "maple_keyb: "
-+				dev_dbg(&dev->dev,
- 					"Unknown key (scancode %#x) released.",
- 					code);
- 		}
-@@ -127,7 +127,7 @@ static void dc_scan_kbd(struct dc_kbd *kbd)
- 				input_event(dev, EV_MSC, MSC_SCAN, code);
- 				input_report_key(dev, keycode, 1);
- 			} else
--				printk(KERN_DEBUG "maple_keyb: "
-+				dev_dbg(&dev->dev,
- 					"Unknown key (scancode %#x) pressed.",
- 					code);
- 		}
-@@ -140,7 +140,7 @@ static void dc_kbd_callback(struct mapleq *mq)
+ drivers/input/input.c |   47 +++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/input.h |    3 +++
+ 2 files changed, 50 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index c13ced3..1758144 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -73,6 +73,11 @@ static void input_pass_event(struct input_dev *dev,
  {
- 	struct maple_device *mapledev = mq->dev;
- 	struct dc_kbd *kbd = maple_get_drvdata(mapledev);
--	unsigned long *buf = mq->recvbuf;
-+	unsigned long *buf = (unsigned long *)(mq->recvbuf->buf);
- 
- 	/*
- 	 * We should always get the lock because the only
-@@ -159,22 +159,27 @@ static void dc_kbd_callback(struct mapleq *mq)
- 
- static int probe_maple_kbd(struct device *dev)
- {
--	struct maple_device *mdev = to_maple_dev(dev);
--	struct maple_driver *mdrv = to_maple_driver(dev->driver);
-+	struct maple_device *mdev;
-+	struct maple_driver *mdrv;
- 	int i, error;
- 	struct dc_kbd *kbd;
- 	struct input_dev *idev;
- 
--	if (!(mdev->function & MAPLE_FUNC_KEYBOARD))
--		return -EINVAL;
-+	mdev = to_maple_dev(dev);
-+	mdrv = to_maple_driver(dev->driver);
- 
- 	kbd = kzalloc(sizeof(struct dc_kbd), GFP_KERNEL);
--	idev = input_allocate_device();
--	if (!kbd || !idev) {
-+	if (!kbd) {
- 		error = -ENOMEM;
- 		goto fail;
- 	}
- 
-+	idev = input_allocate_device();
-+	if (!idev) {
-+		error = -ENOMEM;
-+		goto fail_idev_alloc;
-+	}
+ 	struct input_handle *handle;
+
++	dev->activity = ktime_get();
 +
- 	kbd->dev = idev;
- 	memcpy(kbd->keycode, dc_kbd_keycode, sizeof(kbd->keycode));
- 
-@@ -195,7 +200,7 @@ static int probe_maple_kbd(struct device *dev)
- 
- 	error = input_register_device(idev);
- 	if (error)
--		goto fail;
-+		goto fail_register;
- 
- 	/* Maple polling is locked to VBLANK - which may be just 50/s */
- 	maple_getcond_callback(mdev, dc_kbd_callback, HZ/50,
-@@ -207,10 +212,12 @@ static int probe_maple_kbd(struct device *dev)
- 
- 	return error;
- 
--fail:
-+fail_register:
-+	maple_set_drvdata(mdev, NULL);
- 	input_free_device(idev);
-+fail_idev_alloc:
- 	kfree(kbd);
--	maple_set_drvdata(mdev, NULL);
-+fail:
- 	return error;
++	if (dev->activity_notifier)
++		sysfs_notify_dirent(dev->activity_notifier);
++
+ 	rcu_read_lock();
+
+ 	handle = rcu_dereference(dev->grab);
+@@ -1012,11 +1017,25 @@ static ssize_t input_dev_show_modalias(struct device *dev,
  }
- 
+ static DEVICE_ATTR(modalias, S_IRUGO, input_dev_show_modalias, NULL);
 
++static ssize_t input_dev_show_activity(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf)
++{
++	struct input_dev *id = to_input_dev(dev);
++
++	return scnprintf(buf, PAGE_SIZE, "A: %lld\nD: %lld\n",
++			 ktime_to_ns(id->activity),
++			 ktime_to_us(ktime_sub(ktime_get(), id->activity)));
++}
++
++static DEVICE_ATTR(activity, S_IRUGO, input_dev_show_activity, NULL);
++
+ static struct attribute *input_dev_attrs[] = {
+ 	&dev_attr_name.attr,
+ 	&dev_attr_phys.attr,
+ 	&dev_attr_uniq.attr,
+ 	&dev_attr_modalias.attr,
++	&dev_attr_activity.attr,
+ 	NULL
+ };
 
+@@ -1227,10 +1246,33 @@ static int input_dev_uevent(struct device *device, struct kobj_uevent_env *env)
+ 	return 0;
+ }
 
++static inline int warp_activity(struct device *dev)
++{
++	struct input_dev *id = to_input_dev(dev);
++
++	id->activity = ktime_sub(ktime_get(), id->activity);
++	return 0;
++}
++
++int input_dev_suspend(struct device *dev, pm_message_t state)
++{
++	if (state.event & (PM_EVENT_FREEZE|PM_EVENT_SUSPEND))
++		(void) warp_activity(dev);
++
++	return 0;
++}
++
++int input_dev_resume(struct device *dev)
++{
++	return warp_activity(dev);
++}
++
+ static struct device_type input_dev_type = {
+ 	.groups		= input_dev_attr_groups,
+ 	.release	= input_dev_release,
+ 	.uevent		= input_dev_uevent,
++	.suspend	= input_dev_suspend,
++	.resume		= input_dev_resume,
+ };
 
+ struct class input_class = {
+@@ -1401,6 +1443,8 @@ int input_register_device(struct input_dev *dev)
+ 		dev->name ? dev->name : "Unspecified device", path ? path : "N/A");
+ 	kfree(path);
 
++	dev->activity_notifier = sysfs_get_dirent(dev->dev.kobj.sd, "activity");
++
+ 	error = mutex_lock_interruptible(&input_mutex);
+ 	if (error) {
+ 		device_del(&dev->dev);
+@@ -1446,6 +1490,9 @@ void input_unregister_device(struct input_dev *dev)
+
+ 	mutex_unlock(&input_mutex);
+
++	sysfs_put(dev->activity_notifier);
++	dev->activity_notifier = NULL;
++
+ 	device_unregister(&dev->dev);
+ }
+ EXPORT_SYMBOL(input_unregister_device);
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 9a6355f..d372bb9 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -1096,6 +1096,9 @@ struct input_dev {
+
+ 	struct input_handle *grab;
+
++	struct sysfs_dirent *activity_notifier;
++	ktime_t activity;
++
+ 	spinlock_t event_lock;
+ 	struct mutex mutex;

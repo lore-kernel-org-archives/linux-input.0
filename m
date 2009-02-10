@@ -1,35 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Logitech MX5000 extra keys
-Date: Tue, 10 Feb 2009 18:13:45 +0100 (CET)
-Message-ID: <alpine.LNX.1.10.0902101812440.11630@jikos.suse.cz>
-References: <1233948279.8950.75.camel@cookie.hadess.net>  <alpine.LRH.1.10.0902070209160.22097@twin.jikos.cz>  <1234179115.8950.3991.camel@cookie.hadess.net>  <alpine.LNX.1.10.0902101113360.11630@jikos.suse.cz> <1234263269.5677.939.camel@cookie.hadess.net>
+From: Pavel Machek <pavel@suse.cz>
+Subject: Re: [patch 0/2] Make the touchpad on the MSI Wind netbook work
+Date: Tue, 10 Feb 2009 21:25:58 +0100
+Message-ID: <20090210202558.GH1382@ucw.cz>
+References: <20090204191540.2d6abd87@infradead.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns2.suse.de ([195.135.220.15]:54713 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753634AbZBJRNs (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Feb 2009 12:13:48 -0500
-In-Reply-To: <1234263269.5677.939.camel@cookie.hadess.net>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:51038 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754408AbZBJU0V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 10 Feb 2009 15:26:21 -0500
+Content-Disposition: inline
+In-Reply-To: <20090204191540.2d6abd87@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input@vger.kernel.org
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org
 
-On Tue, 10 Feb 2009, Bastien Nocera wrote:
+On Wed 2009-02-04 19:15:40, Arjan van de Ven wrote:
+> Hi,
+> 
+> A MSI Wind (100) netbook landed on my desk with the comment "touchpad
+> doesn't work in Linux but works in XP". 
+> 
+> It turns out that there are a 2 separate issues with this netbook that
+> needed fixing 
+> 
+> 1) The touchpad requires the equivalent of "i8042.reset", which resets
+> the controller before probing. (This is done via a DMI quirk in patch
+> 2/2)
+> 
+> 2) About half the time, the reset will fail the first time. In the
+> current code, this is fatal and then also disables the keyboard in
+> addition to the touchpad. Ungood. Patch 1 makes the kernel retry the
+> reset upto five times before giving up (it seems the 2nd or 3rd time
+> succeed for me), and also adds an option to not make such a failure
+> fatal to the keyboard.
+> 
+> I don't think this is a regression, but it is pretty nasty behavior
+> (the machine is useless without) so it could be a 2.6.29 candidate...
 
-> > You can verify by adding the VID/PID of your device to struct 
-> > hid_device_id lg_devices[] with LG_RDESC flag.
-> I did, but without success (I didn't see the line "fixing up Logitech 
-> keyboard report descriptor" in the kernel logs). In user-space, the 
-> device needs to be poked to get the device to do something when the 
-> extra keys are pressed. I guess something similar is needed here.
-
-Please compile the kernel with CONFIG_HID_DEBUG, modprobe the hid module 
-with 'debug=2' and send me the report descriptor of the device (that 
-appears in the dmesg output when the device is connected) as well as the 
-output that appears when you press the non-working keys.
+Well, that beast was selling with linux preloaded, no? Or was it
+another msi wind? In such case I'd expect old kernel to work... or
+maybe some reasonable workaround somewhere...
 
 -- 
-Jiri Kosina
-SUSE Labs
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

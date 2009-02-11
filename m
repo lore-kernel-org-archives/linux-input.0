@@ -1,57 +1,151 @@
 From: akpm@linux-foundation.org
-Subject: [patch 18/19] ads7846: pin change interrupt support
-Date: Wed, 11 Feb 2009 13:23:55 -0800
-Message-ID: <200902112123.n1BLNuKv026896@imap1.linux-foundation.org>
+Subject: [patch 16/19] input/keyboard/hilkbd.c: fix crash when removing hilkbd module
+Date: Wed, 11 Feb 2009 13:23:53 -0800
+Message-ID: <200902112123.n1BLNrbe026798@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:33743 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:36011 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756735AbZBKVYW (ORCPT
+	by vger.kernel.org with ESMTP id S1756339AbZBKVYs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 16:24:22 -0500
+	Wed, 11 Feb 2009 16:24:48 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, mroth@nessie.de, imre.deak@nokia.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, deller@gmx.de, elendil@planet.nl, geert@linux-m68k.org, grundler@parisc-linux.org, kyle@mcmartin.ca
 
-From: Michael Roth <mroth@nessie.de>
+From: Helge Deller <deller@gmx.de>
 
-Some SoC supports only pin change interrupts on GPIO pins used as irq
-lines.
+On parisc machines, which don't have HIL, removing the hilkbd module
+panics the kernel.  Fix this by adding proper implementations for the
+probe and remove functions to the parisc_driver structure.
 
-The ads7846 core is not affected from the additional irqs on the rising
-edge because the code accounts touch bounce anyway by kicking in a timer
-and disabling the irq after the first request and reenabling the irq after
-a timeout when there is no longer pen down detected.
+A few functions were renamed to clean up the code and make it easier
+readable.
 
-Signed-off-by: Michael Roth <mroth@nessie.de>
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Cc: Imre Deak <imre.deak@nokia.com>
+Disable the MODULE_DEVICE_TABLE() macro on parisc since the kernel module
+autoloader should instead prefer the hp_sdc driver which takes care of
+full HIL support, including HIL mouse and HIL tablets.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Frans Pop <elendil@planet.nl>
+Cc: Kyle McMartin <kyle@mcmartin.ca>
+Cc: Grant Grundler <grundler@parisc-linux.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/touchscreen/ads7846.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/input/keyboard/hilkbd.c |   63 ++++++++++++++++++++----------
+ 1 file changed, 43 insertions(+), 20 deletions(-)
 
-diff -puN drivers/input/touchscreen/ads7846.c~ads7846-pin-change-interrupt-support drivers/input/touchscreen/ads7846.c
---- a/drivers/input/touchscreen/ads7846.c~ads7846-pin-change-interrupt-support
-+++ a/drivers/input/touchscreen/ads7846.c
-@@ -1133,9 +1133,15 @@ static int __devinit ads7846_probe(struc
+diff -puN drivers/input/keyboard/hilkbd.c~input-keyboard-hilkbdc-fix-crash-when-removing-hilkbd-module drivers/input/keyboard/hilkbd.c
+--- a/drivers/input/keyboard/hilkbd.c~input-keyboard-hilkbdc-fix-crash-when-removing-hilkbd-module
++++ a/drivers/input/keyboard/hilkbd.c
+@@ -198,9 +198,8 @@ static void hil_do(unsigned char cmd, un
+ }
  
- 	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
- 			spi->dev.driver->name, ts)) {
--		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
--		err = -EBUSY;
--		goto err_free_gpio;
-+		dev_info(&spi->dev,
-+			"trying pin change workaround on irq %d\n", spi->irq);
-+		if (request_irq(spi->irq, ads7846_irq,
-+				IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
-+				spi->dev.driver->name, ts)) {
-+			dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
-+			err = -EBUSY;
-+			goto err_free_gpio;
-+		}
+ 
+-/* initialise HIL */
+-static int __init
+-hil_keyb_init(void)
++/* initialize HIL */
++static int __init hil_keyb_init(void)
+ {
+ 	unsigned char c;
+ 	unsigned int i, kbid;
+@@ -308,13 +307,39 @@ err1:
+ 	return err;
+ }
+ 
++static void __exit hil_keyb_exit(void)
++{
++	/* exit if there is no HIL keyboard */
++	if (!hil_dev.dev)
++		return;
++
++	if (HIL_IRQ) {
++		disable_irq(HIL_IRQ);
++		free_irq(HIL_IRQ, hil_dev.dev_id);
++	}
++
++	/* Turn off interrupts */
++	hil_do(HIL_INTOFF, NULL, 0);
++
++	input_unregister_device(hil_dev.dev);
++
++	hil_dev.dev = NULL;
++
++#if defined(CONFIG_HP300)
++	release_region(HILBASE+HIL_DATA, 2);
++#endif
++}
+ 
+ #if defined(CONFIG_PARISC)
+-static int __init
+-hil_init_chip(struct parisc_device *dev)
++static int __init hil_probe_chip(struct parisc_device *dev)
+ {
++	/* Only allow one HIL keyboard */
++	if (hil_dev.dev)
++		return -ENODEV;
++
+ 	if (!dev->irq) {
+-		printk(KERN_WARNING "HIL: IRQ not found for HIL bus at 0x%08lx\n", dev->hpa.start);
++		printk(KERN_WARNING "HIL: IRQ not found for HIL bus at 0x%p\n",
++			(void *)dev->hpa.start);
+ 		return -ENODEV;
  	}
  
- 	err = ads784x_hwmon_register(spi, ts);
+@@ -327,17 +352,27 @@ hil_init_chip(struct parisc_device *dev)
+ 	return hil_keyb_init();
+ }
+ 
++static int __exit hil_remove_chip(struct parisc_device *dev)
++{
++	hil_keyb_exit();
++	return 0;
++}
++
+ static struct parisc_device_id hil_tbl[] = {
+ 	{ HPHW_FIO, HVERSION_REV_ANY_ID, HVERSION_ANY_ID, 0x00073 },
+ 	{ 0, }
+ };
+ 
++#if 0
++/* Disabled to avoid conflicts with the HP SDC HIL drivers */
+ MODULE_DEVICE_TABLE(parisc, hil_tbl);
++#endif
+ 
+ static struct parisc_driver hil_driver = {
+ 	.name =		"hil",
+ 	.id_table =	hil_tbl,
+-	.probe =	hil_init_chip,
++	.probe =	hil_probe_chip,
++	.remove =	hil_remove_chip,
+ };
+ #endif /* CONFIG_PARISC */
+ 
+@@ -354,22 +389,10 @@ static int __init hil_init(void)
+ 
+ static void __exit hil_exit(void)
+ {
+-	if (HIL_IRQ) {
+-		disable_irq(HIL_IRQ);
+-		free_irq(HIL_IRQ, hil_dev.dev_id);
+-	}
+-
+-	/* Turn off interrupts */
+-	hil_do(HIL_INTOFF, NULL, 0);
+-
+-	input_unregister_device(hil_dev.dev);
+-
+-	hil_dev.dev = NULL;
+-
+ #if defined(CONFIG_PARISC)
+ 	unregister_parisc_driver(&hil_driver);
+ #else
+-	release_region(HILBASE+HIL_DATA, 2);
++	hil_keyb_exit();
+ #endif
+ }
+ 
 _

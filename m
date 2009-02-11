@@ -1,78 +1,148 @@
 From: akpm@linux-foundation.org
-Subject: [patch 06/19] drivers/input/keyboard/atkbd.c: use function for generation of keyrelease events
-Date: Wed, 11 Feb 2009 13:23:44 -0800
-Message-ID: <200902112123.n1BLNiC2026547@imap1.linux-foundation.org>
+Subject: [patch 10/19] input: bcm5974: Add support for the Macbook 5 (Unibody)
+Date: Wed, 11 Feb 2009 13:23:48 -0800
+Message-ID: <200902112123.n1BLNmRw026646@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:55145 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:42402 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756345AbZBKVYA (ORCPT
+	by vger.kernel.org with ESMTP id S1755181AbZBKVX7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 16:24:00 -0500
+	Wed, 11 Feb 2009 16:23:59 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, impulze@impulze.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se, dmlary@gmail.com
 
-From: Daniel Mierswa <impulze@impulze.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 
+Add support for the new unibody Macbook, with physically integrated button
+and trackpad.  A new button, BTN_TOOL_PRESS, is introduced to allow for
+non-trivial handling of this device in user space.
+
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Tested-by: David M. Lary <dmlary@gmail.com>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/atkbd.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/input/mouse/bcm5974.c |   42 ++++++++++++++++++++++++++++++--
+ include/linux/input.h         |    1 
+ 2 files changed, 41 insertions(+), 2 deletions(-)
 
-diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-use-function-for-generation-of-keyrelease-events drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-use-function-for-generation-of-keyrelease-events
-+++ a/drivers/input/keyboard/atkbd.c
-@@ -834,6 +834,19 @@ static void atkbd_disconnect(struct seri
- }
+diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-add-support-for-the-macbook-5-unibody drivers/input/mouse/bcm5974.c
+--- a/drivers/input/mouse/bcm5974.c~input-bcm5974-add-support-for-the-macbook-5-unibody
++++ a/drivers/input/mouse/bcm5974.c
+@@ -51,6 +51,10 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI	0x0230
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_ISO	0x0231
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS	0x0232
++/* Macbook5,1 (unibody), aka wellspring3 */
++#define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
++#define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
++#define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
  
- /*
-+ * generate release events for the keycodes given in keys[]
-+ */
-+static void atkbd_gen_release_event(struct atkbd* atkbd, const unsigned int *keys,
-+			unsigned int nr_keys)
-+{
-+	unsigned int i;
+ #define BCM5974_DEVICE(prod) {					\
+ 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
+@@ -72,6 +76,10 @@ static const struct usb_device_id bcm597
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_ISO),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
++	/* Macbook5,1 */
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 	/* Terminating entry */
+ 	{}
+ };
+@@ -98,11 +106,19 @@ struct bt_data {
+ 
+ /* trackpad header types */
+ enum tp_type {
+-	TYPE1			/* plain trackpad */
++	TYPE1,			/* plain trackpad */
++	TYPE2			/* button integrated in trackpad */
+ };
+ 
+ /* trackpad finger data offsets */
+ #define FINGER_TYPE1		26
++#define FINGER_TYPE2		30
 +
-+	if (atkbd->set == 2)
-+		for (i = 0; i < nr_keys; i++)
-+			__set_bit(keys[i], atkbd->force_release_mask);
-+}
++/* trackpad button data offsets */
++#define BUTTON_TYPE2		15
 +
-+/*
-  * Most special keys (Fn+F?) on Dell laptops do not generate release
-  * events so we have to do it ourselves.
-  */
-@@ -842,12 +855,9 @@ static void atkbd_dell_laptop_keymap_fix
- 	static const unsigned int forced_release_keys[] = {
- 		0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8f, 0x93,
- 	};
--	int i;
++/* integrated button capability by configuration */
++#define HAS_INTEGRATED_BUTTON(c)	(c->tp_type == TYPE2)
  
--	if (atkbd->set == 2)
--		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
--			__set_bit(forced_release_keys[i],
--				  atkbd->force_release_mask);
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
+ /* trackpad finger structure */
+ struct tp_finger {
+@@ -202,6 +218,17 @@ static const struct bcm5974_config bcm59
+ 		{ DIM_X, DIM_X / SN_COORD, -4824, 4824 },
+ 		{ DIM_Y, DIM_Y / SN_COORD, -172, 4290 }
+ 	},
++	{
++		USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI,
++		USB_DEVICE_ID_APPLE_WELLSPRING3_ISO,
++		USB_DEVICE_ID_APPLE_WELLSPRING3_JIS,
++		0x84, sizeof(struct bt_data),
++		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
++		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
++		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
++		{ DIM_X, DIM_X / SN_COORD, -4460, 5166 },
++		{ DIM_Y, DIM_Y / SN_COORD, -75, 6700 }
++	},
+ 	{}
+ };
+ 
+@@ -259,6 +286,8 @@ static void setup_events_to_report(struc
+ 	__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
++	if (HAS_INTEGRATED_BUTTON(cfg))
++		__set_bit(BTN_TOOL_PRESS, input_dev->keybit);
+ 	__set_bit(BTN_LEFT, input_dev->keybit);
  }
  
- /*
-@@ -859,12 +869,9 @@ static void atkbd_hp_keymap_fixup(struct
- 	static const unsigned int forced_release_keys[] = {
- 		0x94,
- 	};
--	int i;
+@@ -281,7 +310,7 @@ static int report_tp_state(struct bcm597
+ 	const struct tp_finger *f;
+ 	struct input_dev *input = dev->input;
+ 	int raw_p, raw_w, raw_x, raw_y, raw_n;
+-	int ptest = 0, origin = 0, nmin = 0, nmax = 0;
++	int ptest = 0, origin = 0, ibt = 0, nmin = 0, nmax = 0;
+ 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
  
--	if (atkbd->set == 2)
--		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
--			__set_bit(forced_release_keys[i],
--					atkbd->force_release_mask);
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
- }
+ 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
+@@ -303,6 +332,10 @@ static int report_tp_state(struct bcm597
  
- /*
+ 		ptest = int2bound(&c->p, raw_p);
+ 		origin = raw2int(f->origin);
++
++		/* set the integrated button if applicable */
++		if (c->tp_type == TYPE2)
++			ibt = raw2int(dev->tp_data[BUTTON_TYPE2]);
+ 	}
+ 
+ 	/* while tracking finger still valid, count all fingers */
+@@ -346,6 +379,11 @@ static int report_tp_state(struct bcm597
+ 
+ 	}
+ 
++	if (HAS_INTEGRATED_BUTTON(c)) {
++		input_report_key(input, BTN_TOOL_PRESS, ibt);
++		input_report_key(input, BTN_LEFT, ibt);
++	}
++
+ 	input_sync(input);
+ 
+ 	return 0;
+diff -puN include/linux/input.h~input-bcm5974-add-support-for-the-macbook-5-unibody include/linux/input.h
+--- a/include/linux/input.h~input-bcm5974-add-support-for-the-macbook-5-unibody
++++ a/include/linux/input.h
+@@ -440,6 +440,7 @@ struct input_absinfo {
+ #define BTN_TOOL_FINGER		0x145
+ #define BTN_TOOL_MOUSE		0x146
+ #define BTN_TOOL_LENS		0x147
++#define BTN_TOOL_PRESS		0x148	/* The trackpad is a physical button */
+ #define BTN_TOUCH		0x14a
+ #define BTN_STYLUS		0x14b
+ #define BTN_STYLUS2		0x14c
 _

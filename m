@@ -1,93 +1,59 @@
-From: Andy Whitcroft <apw@canonical.com>
-Subject: Re: [patch 0/2] Make the touchpad on the MSI Wind netbook work
-Date: Wed, 11 Feb 2009 13:28:17 +0000
-Message-ID: <20090211132817.GD25898@shadowen.org>
-References: <20090204191540.2d6abd87@infradead.org> <20090211014506.GA5075@srcf.ucam.org> <alpine.LRH.1.10.0902111315360.22097@twin.jikos.cz>
+From: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: dead USB devices after resume [mmotm 2009-02-10-16-35]
+Date: Wed, 11 Feb 2009 14:38:11 +0100
+Message-ID: <4992D4C3.3050108@gmail.com>
+References: <200902110036.n1B0aBZs013975@imap1.linux-foundation.org> <49928FDB.5020007@gmail.com> <200902111044.57869.rjw@sisk.pl> <4992A040.6080302@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from adelie.canonical.com ([91.189.90.139]:53494 "EHLO
-	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750808AbZBKN2U (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 08:28:20 -0500
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.1.10.0902111315360.22097@twin.jikos.cz>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4992A040.6080302-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mm-commits-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Arjan van de Ven <arjan@infradead.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 
-On Wed, Feb 11, 2009 at 01:17:02PM +0100, Jiri Kosina wrote:
-> On Wed, 11 Feb 2009, Matthew Garrett wrote:
+On 02/11/2009 10:54 AM, Jiri Slaby wrote:
+> On 02/11/2009 10:44 AM, Rafael J. Wysocki wrote:
+>> Please test current mainline, it may be a regression in there.
 > 
-> > https://lists.ubuntu.com/archives/kernel-team/2009-February/004335.html 
-> > be related? It seems quite plausible that we want to do this on all 
-> > hardware.
+> OK, will do.
+
+I was not able to reproduce it with 1db8508. So it highly likely hasn't leaked
+to the mainline.
+
+>> How exactly are the failing devices connected to the box?
 > 
-> Actually I have also hit this on several machines. Dmitry, I would propose 
-> to take Andy's patch (maybe even for 2.6.29?), it would save us a lot of 
-> bugreports in the future.
+> There is a hub in the kbd. The mouse and kbd is behind it, I suppose:
+> 
+> /:  Bus 08.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> /:  Bus 07.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> /:  Bus 06.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+>     |__ Port 1: Dev 2, If 0, Class=hub, Driver=hub/3p, 12M
+>         |__ Port 1: Dev 3, If 0, Class=HID, Driver=usbhid, 12M
+>         |__ Port 1: Dev 3, If 1, Class=HID, Driver=usbhid, 12M
+>         |__ Port 2: Dev 4, If 0, Class=HID, Driver=usbhid, 1.5M
+> /:  Bus 05.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> /:  Bus 04.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> /:  Bus 03.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> /:  Bus 02.Port 1: Dev 1, Class=root_hub, Driver=ehci_hcd/6p, 480M
+> /:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=ehci_hcd/6p, 480M
+> 
+> There is also a wheel at 6.3 if 1...
+> 
+> Bus 006 Device 004: ID 045e:00f0 Microsoft Corp.
+> Bus 006 Device 003: ID 0458:004c KYE Systems Corp. (Mouse Systems) Slimstar Pro
+> Keyboard
+> Bus 006 Device 002: ID 04b4:2050 Cypress Semiconductor Corp.
+> Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+> 
+> I may try to plug the mouse directly to the root hub if it might help anyhow.
 
-Yes I was about to push this upstream.  I was supprised we had not seen
-any other reports of it, seems that we have all been seeing it and not
-realised.
+No change. Wherever it is connected it fails to emit anything.
 
-Including the patch inline for those who prefer to avoid links.
-
--apw
-
->From cce152ae74a5084c7e3dffc25032d43908a5fa77 Mon Sep 17 00:00:00 2001
-From: Andy Whitcroft <apw@canonical.com>
-Date: Mon, 2 Feb 2009 16:32:25 +0000
-Subject: [PATCH 1/1] psmouse/synaptics: ensure we reset the device on resume
-
-When resuming from suspend newer Synaptics touchpads do not recover
-correctly.  Analysis of the resume sequence as applied in Linux was
-compared to that of other operating systems.  This indicated that the
-other OSs were resetting the mouse before attempting to detect it (for
-all Synaptics touchpads, old and new).  Applying this same modification
-fixes these newer Synaptics touchpads and brings the driver into line
-with common OS reset behaviour.
-
-This patch adds this reset by default providing a module option to
-restore the previous non-reset behaviour:
-
-	psmouse.synaptics_resume_reset=N
-
-Also a message is emmitted on resume hinting as to how to fix a broken
-touchpad.
-
-Signed-off-by: Andy Whitcroft <apw@canonical.com>
----
- drivers/input/mouse/synaptics.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index d349c4a..5b01c14 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -60,11 +60,21 @@ static int synaptics_mode_cmd(struct psmouse *psmouse, unsigned char mode)
- 	return 0;
- }
- 
-+static int synaptics_resume_reset = 1;
-+module_param(synaptics_resume_reset, bool, 0);
-+MODULE_PARM_DESC(synaptics_resume_reset,
-+				"Enable reset on resume for Synaptics");
-+
- int synaptics_detect(struct psmouse *psmouse, int set_properties)
- {
- 	struct ps2dev *ps2dev = &psmouse->ps2dev;
- 	unsigned char param[4];
- 
-+	if (synaptics_resume_reset) {
-+		printk(KERN_CRIT "WARNING: synaptics was reset on resume, see synaptics_resume_reset if you have trouble on resume\n");
-+		psmouse_reset(psmouse);
-+	}
-+
- 	param[0] = 0;
- 
- 	ps2_command(ps2dev, param, PSMOUSE_CMD_SETRES);
--- 
-1.6.1.2.419.g0d87e
+BTW It is sufficient to unplug the mouse from the kbd (i.e. the hub) and replug
+it back.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,103 +1,89 @@
 From: akpm@linux-foundation.org
-Subject: [patch for 2.6.29? 1/2] input: introduce a tougher i8042.reset
-Date: Wed, 11 Feb 2009 13:10:41 -0800
-Message-ID: <200902112110.n1BLAfJA008014@imap1.linux-foundation.org>
+Subject: [patch 13/19] input: allow certain EV_ABS events to bypass all filtering
+Date: Wed, 11 Feb 2009 13:23:50 -0800
+Message-ID: <200902112123.n1BLNo1B026657@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:40142 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:57475 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756677AbZBKVLd (ORCPT
+	by vger.kernel.org with ESMTP id S1754785AbZBKVX5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 16:11:33 -0500
+	Wed, 11 Feb 2009 16:23:57 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, arjan@linux.intel.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-From: Arjan van de Ven <arjan@linux.intel.com>
+From: Henrik Rydberg <rydberg@euromail.se>
 
-Some touchpads don't reset right the first time (MSI Wind U-100 for
-example).  This patch will retry the reset up to 5 times.
+With the upcoming multi-touch interface as an example, there is a need to
+make certain that all reported events actually get passed to the event
+handler.  This patch equips the input core with the ability to bypass all
+filtering for certain EV_ABS events.
 
-In addition, this patch also adds a module parameter to not treat reset
-failures as fatal to the usage of the device.  This prevents a touchpad
-failure from also disabling the keyboard.
-
-Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- Documentation/kernel-parameters.txt |    2 +
- drivers/input/serio/i8042.c         |   33 ++++++++++++++++++--------
- 2 files changed, 26 insertions(+), 9 deletions(-)
+ drivers/input/input.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff -puN Documentation/kernel-parameters.txt~input-introduce-a-tougher-i8042reset Documentation/kernel-parameters.txt
---- a/Documentation/kernel-parameters.txt~input-introduce-a-tougher-i8042reset
-+++ a/Documentation/kernel-parameters.txt
-@@ -852,6 +852,8 @@ and is between 256 and 4096 characters. 
- 			[HW] Frequency with which keyboard LEDs should blink
- 			     when kernel panics (default is 0.5 sec)
- 	i8042.reset	[HW] Reset the controller during init and cleanup
-+	i8042.nonfatal  [HW] Don't treat i8042.reset failures as fatal for the
-+			     device initialization.
- 	i8042.unlock	[HW] Unlock (ignore) the keylock
+diff -puN drivers/input/input.c~input-allow-certain-ev_abs-events-to-bypass-all-filtering drivers/input/input.c
+--- a/drivers/input/input.c~input-allow-certain-ev_abs-events-to-bypass-all-filtering
++++ a/drivers/input/input.c
+@@ -29,6 +29,13 @@ MODULE_LICENSE("GPL");
  
- 	i810=		[HW,DRM]
-diff -puN drivers/input/serio/i8042.c~input-introduce-a-tougher-i8042reset drivers/input/serio/i8042.c
---- a/drivers/input/serio/i8042.c~input-introduce-a-tougher-i8042reset
-+++ a/drivers/input/serio/i8042.c
-@@ -47,6 +47,10 @@ static unsigned int i8042_reset;
- module_param_named(reset, i8042_reset, bool, 0);
- MODULE_PARM_DESC(reset, "Reset controller during init and cleanup.");
+ #define INPUT_DEVICES	256
  
-+static unsigned int i8042_nonfatal;
-+module_param_named(nonfatal, i8042_nonfatal, bool, 0);
-+MODULE_PARM_DESC(reset, "Treat controller test failures as non-fatal.");
++/*
++ * EV_ABS events which should not be cached are listed here.
++ */
++static __initdata unsigned int input_abs_bypass_init_data[] = {
++	0
++};
 +
- static unsigned int i8042_direct;
- module_param_named(direct, i8042_direct, bool, 0);
- MODULE_PARM_DESC(direct, "Put keyboard port into non-translated mode.");
-@@ -712,22 +716,33 @@ static int i8042_controller_check(void)
- static int i8042_controller_selftest(void)
+ static LIST_HEAD(input_dev_list);
+ static LIST_HEAD(input_handler_list);
+ 
+@@ -42,6 +49,8 @@ static DEFINE_MUTEX(input_mutex);
+ 
+ static struct input_handler *input_table[8];
+ 
++static unsigned long input_abs_bypass[BITS_TO_LONGS(ABS_CNT)];
++
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
  {
- 	unsigned char param;
-+	int i = 0;
+@@ -192,6 +201,11 @@ static void input_handle_event(struct in
+ 	case EV_ABS:
+ 		if (is_event_supported(code, dev->absbit, ABS_MAX)) {
  
- 	if (!i8042_reset)
- 		return 0;
- 
--	if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
--		printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
--		return -ENODEV;
--	}
-+	/*
-+	 * We try this 5 times; on some really fragile systems this does not
-+	 * take the first time...
-+	 */
-+	do {
++			if (test_bit(code, input_abs_bypass)) {
++				disposition = INPUT_PASS_TO_HANDLERS;
++				break;
++			}
 +
-+		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
-+			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
-+			return -ENODEV;
-+		}
+ 			value = input_defuzz_abs_event(value,
+ 					dev->abs[code], dev->absfuzz[code]);
+ 
+@@ -1635,10 +1649,19 @@ static const struct file_operations inpu
+ 	.open = input_open_file,
+ };
+ 
++static void __init input_init_abs_bypass()
++{
++	const unsigned int *p;
++	for (p = input_abs_bypass_init_data; *p; p++)
++		input_abs_bypass[BIT_WORD(*p)] |= BIT_MASK(*p);
++}
 +
-+		if (param == I8042_RET_CTL_TEST)
-+			return 0;
+ static int __init input_init(void)
+ {
+ 	int err;
  
--	if (param != I8042_RET_CTL_TEST) {
- 		printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
--			 param, I8042_RET_CTL_TEST);
--		return -EIO;
--	}
-+			param, I8042_RET_CTL_TEST);
-+		msleep(50);
-+	} while (i++ < 5);
- 
--	return 0;
-+	if (i8042_nonfatal)
-+		return 0;
-+	return -EIO;
- }
- 
- /*
++	input_init_abs_bypass();
++
+ 	err = class_register(&input_class);
+ 	if (err) {
+ 		printk(KERN_ERR "input: unable to register input_dev class\n");
 _

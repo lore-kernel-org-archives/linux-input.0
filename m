@@ -1,69 +1,38 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: dead USB devices after resume [mmotm 2009-02-10-16-35]
-Date: Wed, 11 Feb 2009 22:49:56 +0100
-Message-ID: <200902112249.57070.rjw@sisk.pl>
-References: <200902110036.n1B0aBZs013975@imap1.linux-foundation.org> <4992A040.6080302@gmail.com> <4992D4C3.3050108@gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: duplicate usb device ids
+Date: Thu, 12 Feb 2009 00:11:31 +0100 (CET)
+Message-ID: <alpine.LNX.1.10.0902120010260.31014@jikos.suse.cz>
+References: <4993342E.4050008@nicce.at>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4992D4C3.3050108-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mm-commits-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from ns2.suse.de ([195.135.220.15]:47462 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751222AbZBKXLe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Feb 2009 18:11:34 -0500
+In-Reply-To: <4993342E.4050008@nicce.at>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Michael Friedl <linux@nicce.at>, Remi Cattiau <remi@cattiau.com>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wednesday 11 February 2009, Jiri Slaby wrote:
-> On 02/11/2009 10:54 AM, Jiri Slaby wrote:
-> > On 02/11/2009 10:44 AM, Rafael J. Wysocki wrote:
-> >> Please test current mainline, it may be a regression in there.
-> > 
-> > OK, will do.
+On Wed, 11 Feb 2009, Michael Friedl wrote:
+
+> I got a new CCD 800B barcode scanner, but it has the same device id like
+> an other product from Tenx, which is on the ignore list for hid devices.
 > 
-> I was not able to reproduce it with 1db8508. So it highly likely hasn't leaked
-> to the mainline.
+> Found nothing about the old product so I report it here.
+> If the old one get removed from the ignore list the bardcode scanner
+> works perfect!
 
-Great, thanks for verifying!
+The device IDs were added by Remi, added to CC.
 
-> >> How exactly are the failing devices connected to the box?
-> > 
-> > There is a hub in the kbd. The mouse and kbd is behind it, I suppose:
-> > 
-> > /:  Bus 08.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
-> > /:  Bus 07.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
-> > /:  Bus 06.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
-> >     |__ Port 1: Dev 2, If 0, Class=hub, Driver=hub/3p, 12M
-> >         |__ Port 1: Dev 3, If 0, Class=HID, Driver=usbhid, 12M
-> >         |__ Port 1: Dev 3, If 1, Class=HID, Driver=usbhid, 12M
-> >         |__ Port 2: Dev 4, If 0, Class=HID, Driver=usbhid, 1.5M
-> > /:  Bus 05.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
-> > /:  Bus 04.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
-> > /:  Bus 03.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
-> > /:  Bus 02.Port 1: Dev 1, Class=root_hub, Driver=ehci_hcd/6p, 480M
-> > /:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=ehci_hcd/6p, 480M
-> > 
-> > There is also a wheel at 6.3 if 1...
-> > 
-> > Bus 006 Device 004: ID 045e:00f0 Microsoft Corp.
-> > Bus 006 Device 003: ID 0458:004c KYE Systems Corp. (Mouse Systems) Slimstar Pro
-> > Keyboard
-> > Bus 006 Device 002: ID 04b4:2050 Cypress Semiconductor Corp.
-> > Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
-> > 
-> > I may try to plug the mouse directly to the root hub if it might help anyhow.
-> 
-> No change. Wherever it is connected it fails to emit anything.
-> 
-> BTW It is sufficient to unplug the mouse from the kbd (i.e. the hub) and replug
-> it back.
-
-Well, I thought it might be an ordering issue, but apparently it isn't.
+Remi, are these really different devices with the same VID/PID? You were 
+stating that the devices are not HID-compilant, which contradicts what 
+Michael is saying ...
 
 Thanks,
-Rafael
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Jiri Kosina
+SUSE Labs

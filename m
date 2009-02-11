@@ -1,101 +1,85 @@
 From: akpm@linux-foundation.org
-Subject: [patch 17/19] drivers/input/serio/hp_sdc.c: fix crash when removing hp_sdc module
-Date: Wed, 11 Feb 2009 13:23:55 -0800
-Message-ID: <200902112123.n1BLNtRv026823@imap1.linux-foundation.org>
+Subject: [patch 02/19] input: mousedev: distinguish a moving finger from a tapping finger
+Date: Wed, 11 Feb 2009 13:23:41 -0800
+Message-ID: <200902112123.n1BLNfq6026394@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:59197 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37946 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757266AbZBKVY6 (ORCPT
+	by vger.kernel.org with ESMTP id S1756748AbZBKVZV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 16:24:58 -0500
+	Wed, 11 Feb 2009 16:25:21 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, deller@gmx.de, elendil@planet.nl, geert@linux-m68k.org, grundler@parisc-linux.org, kyle@mcmartin.ca
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-From: Helge Deller <deller@gmx.de>
+From: Henrik Rydberg <rydberg@euromail.se>
 
-On parisc machines, which don't have HIL, removing the hp_sdc module
-panics the kernel.  Fix this by returning early in hp_sdc_exit() if no HP
-SDC controller was found.
+The tap functionality of mousedev does not distinguish between a tap
+(on/off localized in time and space) and a quick move (on/off localized in
+time only).  This patch improves the tap detection by testing also for
+space locality.
 
-Add functionality to probe for the hp_sdc_mlc kernel module (which takes
-care of the upper layer HIL functionality on parisc) after two seconds. 
-This is needed to get all the other HIL drivers (keyboard / mouse/ ..)
-drivers automatically loaded by udev later as well.
-
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Frans Pop <elendil@planet.nl>
-Cc: Kyle McMartin <kyle@mcmartin.ca>
-Cc: Grant Grundler <grundler@parisc-linux.org>
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/serio/hp_sdc.c |   24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ drivers/input/mousedev.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff -puN drivers/input/serio/hp_sdc.c~drivers-input-serio-hp_sdcc-fix-crash-when-removing-hp_sdc-module drivers/input/serio/hp_sdc.c
---- a/drivers/input/serio/hp_sdc.c~drivers-input-serio-hp_sdcc-fix-crash-when-removing-hp_sdc-module
-+++ a/drivers/input/serio/hp_sdc.c
-@@ -819,6 +819,7 @@ static const struct parisc_device_id hp_
- MODULE_DEVICE_TABLE(parisc, hp_sdc_tbl);
+diff -puN drivers/input/mousedev.c~input-mousedev-distinguish-a-moving-finger-from-a-tapping-finger drivers/input/mousedev.c
+--- a/drivers/input/mousedev.c~input-mousedev-distinguish-a-moving-finger-from-a-tapping-finger
++++ a/drivers/input/mousedev.c
+@@ -49,6 +49,10 @@ static unsigned tap_time = 200;
+ module_param(tap_time, uint, 0644);
+ MODULE_PARM_DESC(tap_time, "Tap time for touchpads in absolute mode (msecs)");
  
- static int __init hp_sdc_init_hppa(struct parisc_device *d);
-+static struct delayed_work moduleloader_work;
- 
- static struct parisc_driver hp_sdc_driver = {
- 	.name =		"hp_sdc",
-@@ -930,8 +931,15 @@ static int __init hp_sdc_init(void)
- 
- #if defined(__hppa__)
- 
-+static void request_module_delayed(struct work_struct *work)
-+{
-+	request_module("hp_sdc_mlc");
-+}
++static unsigned tap_move = 20;
++module_param(tap_move, uint, 0644);
++MODULE_PARM_DESC(tap_move, "Tap distance for touchpads in absolute mode (res)");
 +
- static int __init hp_sdc_init_hppa(struct parisc_device *d)
+ struct mousedev_hw_data {
+ 	int dx, dy, dz;
+ 	int x, y;
+@@ -76,6 +80,7 @@ struct mousedev {
+ 	int old_x[4], old_y[4];
+ 	int frac_dx, frac_dy;
+ 	unsigned long touch;
++	int touch_dx, touch_dy;
+ };
+ 
+ enum mousedev_emul {
+@@ -143,6 +148,7 @@ static void mousedev_touchpad_event(stru
+ 			tmp = ((value - fx(2)) * 256 * FRACTION_DENOM) / size;
+ 			tmp += mousedev->frac_dx;
+ 			mousedev->packet.dx = tmp / FRACTION_DENOM;
++			mousedev->touch_dx += mousedev->packet.dx;
+ 			mousedev->frac_dx =
+ 				tmp - mousedev->packet.dx * FRACTION_DENOM;
+ 		}
+@@ -158,6 +164,7 @@ static void mousedev_touchpad_event(stru
+ 			tmp = -((value - fy(2)) * 256 * FRACTION_DENOM) / size;
+ 			tmp += mousedev->frac_dy;
+ 			mousedev->packet.dy = tmp / FRACTION_DENOM;
++			mousedev->touch_dy += mousedev->packet.dy;
+ 			mousedev->frac_dy = tmp -
+ 				mousedev->packet.dy * FRACTION_DENOM;
+ 		}
+@@ -320,6 +327,8 @@ static void mousedev_touchpad_touch(stru
  {
-+	int ret;
-+
- 	if (!d)
- 		return 1;
- 	if (hp_sdc.dev != NULL)
-@@ -944,13 +952,26 @@ static int __init hp_sdc_init_hppa(struc
- 	hp_sdc.data_io		= d->hpa.start + 0x800;
- 	hp_sdc.status_io	= d->hpa.start + 0x801;
+ 	if (!value) {
+ 		if (mousedev->touch &&
++		    abs(mousedev->touch_dx) < tap_move &&
++		    abs(mousedev->touch_dy) < tap_move &&
+ 		    time_before(jiffies,
+ 				mousedev->touch + msecs_to_jiffies(tap_time))) {
+ 			/*
+@@ -336,6 +345,7 @@ static void mousedev_touchpad_touch(stru
+ 			clear_bit(0, &mousedev_mix->packet.buttons);
+ 		}
+ 		mousedev->touch = mousedev->pkt_count = 0;
++		mousedev->touch_dx = mousedev->touch_dy = 0;
+ 		mousedev->frac_dx = 0;
+ 		mousedev->frac_dy = 0;
  
--	return hp_sdc_init();
-+	INIT_DELAYED_WORK(&moduleloader_work, request_module_delayed);
-+
-+	ret = hp_sdc_init();
-+	/* after sucessfull initialization give SDC some time to settle
-+	 * and then load the hp_sdc_mlc upper layer driver */
-+	if (!ret)
-+		schedule_delayed_work(&moduleloader_work,
-+			msecs_to_jiffies(2000));
-+
-+	return ret;
- }
- 
- #endif /* __hppa__ */
- 
- static void hp_sdc_exit(void)
- {
-+	/* do nothing if we don't have a SDC */
-+	if (!hp_sdc.dev)
-+		return;
-+
- 	write_lock_irq(&hp_sdc.lock);
- 
- 	/* Turn off all maskable "sub-function" irq's. */
-@@ -969,6 +990,7 @@ static void hp_sdc_exit(void)
- 	tasklet_kill(&hp_sdc.task);
- 
- #if defined(__hppa__)
-+	cancel_delayed_work_sync(&moduleloader_work);
- 	if (unregister_parisc_driver(&hp_sdc_driver))
- 		printk(KERN_WARNING PREFIX "Error unregistering HP SDC");
- #endif
 _

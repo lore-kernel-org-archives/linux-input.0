@@ -1,85 +1,65 @@
 From: akpm@linux-foundation.org
-Subject: [patch 02/19] input: mousedev: distinguish a moving finger from a tapping finger
-Date: Wed, 11 Feb 2009 13:23:41 -0800
-Message-ID: <200902112123.n1BLNfq6026394@imap1.linux-foundation.org>
+Subject: [patch 11/19] input: bcm5974: Augmented debug information
+Date: Wed, 11 Feb 2009 13:23:48 -0800
+Message-ID: <200902112123.n1BLNnel026651@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:37946 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:60157 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756748AbZBKVZV (ORCPT
+	by vger.kernel.org with ESMTP id S1756347AbZBKV0X (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 16:25:21 -0500
+	Wed, 11 Feb 2009 16:26:23 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
 Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-From: Henrik Rydberg <rydberg@euromail.se>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 
-The tap functionality of mousedev does not distinguish between a tap
-(on/off localized in time and space) and a quick move (on/off localized in
-time only).  This patch improves the tap detection by testing also for
-space locality.
+Add more button and finger data to the debug output.
 
 Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mousedev.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/input/mouse/bcm5974.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff -puN drivers/input/mousedev.c~input-mousedev-distinguish-a-moving-finger-from-a-tapping-finger drivers/input/mousedev.c
---- a/drivers/input/mousedev.c~input-mousedev-distinguish-a-moving-finger-from-a-tapping-finger
-+++ a/drivers/input/mousedev.c
-@@ -49,6 +49,10 @@ static unsigned tap_time = 200;
- module_param(tap_time, uint, 0644);
- MODULE_PARM_DESC(tap_time, "Tap time for touchpads in absolute mode (msecs)");
+diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-augmented-debug-information drivers/input/mouse/bcm5974.c
+--- a/drivers/input/mouse/bcm5974.c~input-bcm5974-augmented-debug-information
++++ a/drivers/input/mouse/bcm5974.c
+@@ -297,6 +297,11 @@ static int report_bt_state(struct bcm597
+ 	if (size != sizeof(struct bt_data))
+ 		return -EIO;
  
-+static unsigned tap_move = 20;
-+module_param(tap_move, uint, 0644);
-+MODULE_PARM_DESC(tap_move, "Tap distance for touchpads in absolute mode (res)");
++	dprintk(7,
++		"bcm5974: button data: %x %x %x %x\n",
++		dev->bt_data->unknown1, dev->bt_data->button,
++		dev->bt_data->rel_x, dev->bt_data->rel_y);
 +
- struct mousedev_hw_data {
- 	int dx, dy, dz;
- 	int x, y;
-@@ -76,6 +80,7 @@ struct mousedev {
- 	int old_x[4], old_y[4];
- 	int frac_dx, frac_dy;
- 	unsigned long touch;
-+	int touch_dx, touch_dy;
- };
+ 	input_report_key(dev->input, BTN_LEFT, dev->bt_data->button);
+ 	input_sync(dev->input);
  
- enum mousedev_emul {
-@@ -143,6 +148,7 @@ static void mousedev_touchpad_event(stru
- 			tmp = ((value - fx(2)) * 256 * FRACTION_DENOM) / size;
- 			tmp += mousedev->frac_dx;
- 			mousedev->packet.dx = tmp / FRACTION_DENOM;
-+			mousedev->touch_dx += mousedev->packet.dx;
- 			mousedev->frac_dx =
- 				tmp - mousedev->packet.dx * FRACTION_DENOM;
- 		}
-@@ -158,6 +164,7 @@ static void mousedev_touchpad_event(stru
- 			tmp = -((value - fy(2)) * 256 * FRACTION_DENOM) / size;
- 			tmp += mousedev->frac_dy;
- 			mousedev->packet.dy = tmp / FRACTION_DENOM;
-+			mousedev->touch_dy += mousedev->packet.dy;
- 			mousedev->frac_dy = tmp -
- 				mousedev->packet.dy * FRACTION_DENOM;
- 		}
-@@ -320,6 +327,8 @@ static void mousedev_touchpad_touch(stru
- {
- 	if (!value) {
- 		if (mousedev->touch &&
-+		    abs(mousedev->touch_dx) < tap_move &&
-+		    abs(mousedev->touch_dy) < tap_move &&
- 		    time_before(jiffies,
- 				mousedev->touch + msecs_to_jiffies(tap_time))) {
- 			/*
-@@ -336,6 +345,7 @@ static void mousedev_touchpad_touch(stru
- 			clear_bit(0, &mousedev_mix->packet.buttons);
- 		}
- 		mousedev->touch = mousedev->pkt_count = 0;
-+		mousedev->touch_dx = mousedev->touch_dy = 0;
- 		mousedev->frac_dx = 0;
- 		mousedev->frac_dy = 0;
+@@ -327,8 +332,8 @@ static int report_tp_state(struct bcm597
+ 		raw_y = raw2int(f->abs_y);
+ 
+ 		dprintk(9,
+-			"bcm5974: raw: p: %+05d w: %+05d x: %+05d y: %+05d\n",
+-			raw_p, raw_w, raw_x, raw_y);
++			"bcm5974: raw: p: %+05d w: %+05d x: %+05d y: %+05d "
++			"n: %d\n", raw_p, raw_w, raw_x, raw_y, raw_n);
+ 
+ 		ptest = int2bound(&c->p, raw_p);
+ 		origin = raw2int(f->origin);
+@@ -374,8 +379,8 @@ static int report_tp_state(struct bcm597
+ 
+ 		dprintk(8,
+ 			"bcm5974: abs: p: %+05d w: %+05d x: %+05d y: %+05d "
+-			"nmin: %d nmax: %d n: %d\n",
+-			abs_p, abs_w, abs_x, abs_y, nmin, nmax, dev->fingers);
++			"nmin: %d nmax: %d n: %d ibt: %d\n", abs_p, abs_w,
++			abs_x, abs_y, nmin, nmax, dev->fingers, ibt);
+ 
+ 	}
  
 _

@@ -1,73 +1,69 @@
-From: akpm@linux-foundation.org
-Subject: [patch 19/19] input: elantech touchpad driver miss-recognising logitech mice
-Date: Wed, 11 Feb 2009 13:23:57 -0800
-Message-ID: <200902112123.n1BLNvbc026899@imap1.linux-foundation.org>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:43120 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759053AbZBKV3r (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Feb 2009 16:29:47 -0500
-Sender: linux-input-owner@vger.kernel.org
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: Re: dead USB devices after resume [mmotm 2009-02-10-16-35]
+Date: Wed, 11 Feb 2009 22:49:56 +0100
+Message-ID: <200902112249.57070.rjw@sisk.pl>
+References: <200902110036.n1B0aBZs013975@imap1.linux-foundation.org> <4992A040.6080302@gmail.com> <4992D4C3.3050108@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4992D4C3.3050108-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mm-commits-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, arjan@opmeer.net, apw@shadowen.org
 
-From: Arjan Opmeer <arjan@opmeer.net>
+On Wednesday 11 February 2009, Jiri Slaby wrote:
+> On 02/11/2009 10:54 AM, Jiri Slaby wrote:
+> > On 02/11/2009 10:44 AM, Rafael J. Wysocki wrote:
+> >> Please test current mainline, it may be a regression in there.
+> > 
+> > OK, will do.
+> 
+> I was not able to reproduce it with 1db8508. So it highly likely hasn't leaked
+> to the mainline.
 
-Some Logitech mice react to the magic knock like an Elantech touchpad would.
-This leads to those mice being misdetected as Elantech touchpads.  Add a
-version query to elantech_detect() to distinguish the two.
+Great, thanks for verifying!
 
-Signed-off-by: Arjan Opmeer <arjan@opmeer.net>
-Cc: Andy Whitcroft <apw@shadowen.org>
-Cc: Dmitry Torokhov <dtor@mail.ru>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+> >> How exactly are the failing devices connected to the box?
+> > 
+> > There is a hub in the kbd. The mouse and kbd is behind it, I suppose:
+> > 
+> > /:  Bus 08.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> > /:  Bus 07.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> > /:  Bus 06.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> >     |__ Port 1: Dev 2, If 0, Class=hub, Driver=hub/3p, 12M
+> >         |__ Port 1: Dev 3, If 0, Class=HID, Driver=usbhid, 12M
+> >         |__ Port 1: Dev 3, If 1, Class=HID, Driver=usbhid, 12M
+> >         |__ Port 2: Dev 4, If 0, Class=HID, Driver=usbhid, 1.5M
+> > /:  Bus 05.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> > /:  Bus 04.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> > /:  Bus 03.Port 1: Dev 1, Class=root_hub, Driver=uhci_hcd/2p, 12M
+> > /:  Bus 02.Port 1: Dev 1, Class=root_hub, Driver=ehci_hcd/6p, 480M
+> > /:  Bus 01.Port 1: Dev 1, Class=root_hub, Driver=ehci_hcd/6p, 480M
+> > 
+> > There is also a wheel at 6.3 if 1...
+> > 
+> > Bus 006 Device 004: ID 045e:00f0 Microsoft Corp.
+> > Bus 006 Device 003: ID 0458:004c KYE Systems Corp. (Mouse Systems) Slimstar Pro
+> > Keyboard
+> > Bus 006 Device 002: ID 04b4:2050 Cypress Semiconductor Corp.
+> > Bus 006 Device 001: ID 1d6b:0001 Linux Foundation 1.1 root hub
+> > 
+> > I may try to plug the mouse directly to the root hub if it might help anyhow.
+> 
+> No change. Wherever it is connected it fails to emit anything.
+> 
+> BTW It is sufficient to unplug the mouse from the kbd (i.e. the hub) and replug
+> it back.
 
- drivers/input/mouse/elantech.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+Well, I thought it might be an ordering issue, but apparently it isn't.
 
-diff -puN drivers/input/mouse/elantech.c~input-elantech-touchpad-driver-miss-recognising-logitech-mice drivers/input/mouse/elantech.c
---- a/drivers/input/mouse/elantech.c~input-elantech-touchpad-driver-miss-recognising-logitech-mice
-+++ a/drivers/input/mouse/elantech.c
-@@ -556,6 +556,22 @@ int elantech_detect(struct psmouse *psmo
- 		return -1;
- 	}
- 
-+	/*
-+	 * There are Logitech mice that react to the magic knock exactly
-+	 * like an Elantech touchpad would, so do a version query here to
-+	 * try to distinguish the two
-+	 */
-+	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
-+		pr_err("elantech.c: failed to query firmware version.\n");
-+		return -1;
-+	}
-+	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
-+		param[0], param[1], param[2]);
-+	if (param[0] == 0 || param[1] != 0) {
-+		pr_info("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
-+		return -1;
-+	}
-+
- 	if (set_properties) {
- 		psmouse->vendor = "Elantech";
- 		psmouse->name = "Touchpad";
-@@ -610,14 +626,12 @@ int elantech_init(struct psmouse *psmous
- 		etd->parity[i] = etd->parity[i & (i - 1)] ^ 1;
- 
- 	/*
--	 * Find out what version hardware this is
-+	 * Do the version query again so we can store the result
- 	 */
- 	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
- 		pr_err("elantech.c: failed to query firmware version.\n");
- 		goto init_fail;
- 	}
--	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
--		param[0], param[1], param[2]);
- 	etd->fw_version_maj = param[0];
- 	etd->fw_version_min = param[2];
- 
-_
+Thanks,
+Rafael
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

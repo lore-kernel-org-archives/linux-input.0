@@ -1,249 +1,65 @@
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_Weisbecker?= <fweisbec@gmail.com>
-Subject: Re: [PATCH v2] psmouse: run kpsmoused only while needed
-Date: Fri, 13 Feb 2009 02:03:13 +0100
-Message-ID: <c62985530902121703t281e0caane3ce5d575ca26848@mail.gmail.com>
-References: <4984ec6a.0637560a.3217.4534@mx.google.com>
+From: Dmitriy Geels <dmitriy.geels@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+	gamepad
+Date: Fri, 13 Feb 2009 11:33:32 +0300
+Message-ID: <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
+	 <49871663.4060605@gmail.com>
+	 <78f5d6bf0902021029g7e53f16ble27500b52f9498ba@mail.gmail.com>
+	 <498D7E81.4060007@gmail.com>
+	 <78f5d6bf0902092146x2abaf45an79e4546e75a80356@mail.gmail.com>
+	 <4991A622.7020101@gmail.com>
+	 <78f5d6bf0902110112o434d43d3ycd473c7b803e8297@mail.gmail.com>
+	 <4992FC79.80106@gmail.com>
+	 <78f5d6bf0902121006r460ba8d6m61126af161358c19@mail.gmail.com>
+	 <49946D7A.408@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f25.google.com ([209.85.220.25]:64087 "EHLO
-	mail-fx0-f25.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750742AbZBMBDQ (ORCPT
+Received: from fk-out-0910.google.com ([209.85.128.186]:16993 "EHLO
+	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750774AbZBMIde (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Feb 2009 20:03:16 -0500
-In-Reply-To: <4984ec6a.0637560a.3217.4534@mx.google.com>
+	Fri, 13 Feb 2009 03:33:34 -0500
+Received: by fk-out-0910.google.com with SMTP id f33so496238fkf.5
+        for <linux-input@vger.kernel.org>; Fri, 13 Feb 2009 00:33:32 -0800 (PST)
+In-Reply-To: <49946D7A.408@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, fweisbec@gmail.com
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-2009/2/1 Frederic Weisbecker <fweisbec@gmail.com>:
-> While looking at the workqueue tracer, I noticed that kpsmoused receives
-> rarely (if not never) events.
+2009/2/12 Anssi Hannula <anssi.hannula@gmail.com>:
+>> Just rumble. There is only one motor inside. For constant effect motor
+>> spins with constant speed, as I understood, this speed is controlled
+>> by magnitude. Also it is a place for report fixup: magnitude logical
+>> values are -127/127, but actually 1/255 -- 255 is strongest.
 >
-> Currently, when a mouse has to resync, it uses the kpsmoused singlethreaded
-> workqueue. But resync are rare. While reading an old discussion, it seems
-> that usual workqueue events can't be used for that purpose because resync
-> can take too much time and could delay the other works in queue.
->
-> But if you have built psmouse driver, this workqueue will always be present
-> whether you have a ps/2 port or not. And its events are rare.
->
-> To avoid this pointless task, this patch makes the kpsmoused a kernel
-> thread only created on the fly when a resync is needed. Once the resync is done,
-> this thread will die. So you will almost never see it, and it will not be
-> an inactive task anymore.
->
-> This thread is created through a usual workqueue event (because we can't create
-> it from interrupt).
->
-> Changes in V2:
->
-> _ fix the "resync" mispelled in the patch and the changelog
-> _ don't schedule more than one resync in case of concurrent interrupts
-> _ if resync_pending is not cleared after a few time before disconnect, print a warning.
->
-> Signed-off-by: Frederic Weisbecker <fweisbec@gmail.com>
-> ---
->  drivers/input/mouse/psmouse-base.c |   86 ++++++++++++++++++++++++------------
->  drivers/input/mouse/psmouse.h      |    5 ++-
->  2 files changed, 61 insertions(+), 30 deletions(-)
->
-> diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-> index f8f86de..fc4490e 100644
-> --- a/drivers/input/mouse/psmouse-base.c
-> +++ b/drivers/input/mouse/psmouse-base.c
-> @@ -20,6 +20,7 @@
->  #include <linux/init.h>
->  #include <linux/libps2.h>
->  #include <linux/mutex.h>
-> +#include <linux/kthread.h>
->
->  #include "psmouse.h"
->  #include "synaptics.h"
-> @@ -104,8 +105,6 @@ static struct attribute_group psmouse_attribute_group = {
->  */
->  static DEFINE_MUTEX(psmouse_mutex);
->
-> -static struct workqueue_struct *kpsmoused_wq;
-> -
->  struct psmouse_protocol {
->        enum psmouse_type type;
->        const char *name;
-> @@ -203,11 +202,6 @@ static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
->        return PSMOUSE_FULL_PACKET;
->  }
->
-> -void psmouse_queue_work(struct psmouse *psmouse, struct delayed_work *work,
-> -               unsigned long delay)
-> -{
-> -       queue_delayed_work(kpsmoused_wq, work, delay);
-> -}
->
->  /*
->  * __psmouse_set_state() sets new psmouse state and resets all flags.
-> @@ -313,7 +307,10 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->                       psmouse->name, psmouse->phys, psmouse->pktcnt);
->                psmouse->badbyte = psmouse->packet[0];
->                __psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-> -               psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
-> +               if (atomic_inc_return(&psmouse->resync_pending) == 1)
-> +                       schedule_work(&psmouse->resync_work);
-> +               else
-> +                       atomic_dec(&psmouse->resync_pending);
->                goto out;
->        }
->
-> @@ -350,7 +347,11 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
->            time_after(jiffies, psmouse->last + psmouse->resync_time * HZ)) {
->                psmouse->badbyte = psmouse->packet[0];
->                __psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
-> -               psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
-> +
-> +               if (atomic_inc_return(&psmouse->resync_pending) == 1)
-> +                       schedule_work(&psmouse->resync_work);
-> +               else
-> +                       atomic_dec(&psmouse->resync_pending);
->                goto out;
->        }
->
-> @@ -979,13 +980,16 @@ static int psmouse_poll(struct psmouse *psmouse)
->
->
->  /*
-> - * psmouse_resync() attempts to re-validate current protocol.
-> + * psmouse_resync_thread() attempts to re-validate current protocol.
-> + * This thread is created on the fly when needed because its job can take too
-> + * much time on events workqueues, and the resync is rare enough to avoid
-> + * the need of a private workqueue.
->  */
->
-> -static void psmouse_resync(struct work_struct *work)
-> +static int psmouse_resync_thread(void *v)
->  {
-> -       struct psmouse *parent = NULL, *psmouse =
-> -               container_of(work, struct psmouse, resync_work.work);
-> +       struct psmouse *psmouse = v;
-> +       struct psmouse *parent = NULL;
->        struct serio *serio = psmouse->ps2dev.serio;
->        psmouse_ret_t rc = PSMOUSE_GOOD_DATA;
->        int failed = 0, enabled = 0;
-> @@ -1072,6 +1076,30 @@ static void psmouse_resync(struct work_struct *work)
->                psmouse_activate(parent);
->  out:
->        mutex_unlock(&psmouse_mutex);
-> +
-> +       /*
-> +        * While disconnecting, the driver wants to be sure all resync are done
-> +        */
-> +       atomic_dec(&psmouse->resync_pending);
-> +       wake_up(&psmouse->resync_pending_queue);
-> +       return 0;
-> +}
-> +
-> +/* Launch the resync thread */
-> +static void psmouse_resync_thread_helper(struct work_struct *work)
-> +{
-> +       struct task_struct *t;
-> +       struct psmouse *psmouse;
-> +
-> +       psmouse = container_of(work, struct psmouse, resync_work);
-> +
-> +       t = kthread_run(psmouse_resync_thread, psmouse, "kpsmoused");
-> +       if (t == ERR_PTR(-ENOMEM)) {
-> +               printk(KERN_WARNING "psmouse.c: failed to create kpsmoused"
-> +                                   " thread\n");
-> +               atomic_dec(&psmouse->resync_pending);
-> +               wake_up(&psmouse->resync_pending_queue);
-> +       }
->  }
->
->  /*
-> @@ -1120,6 +1148,8 @@ static void psmouse_cleanup(struct serio *serio)
->  static void psmouse_disconnect(struct serio *serio)
->  {
->        struct psmouse *psmouse, *parent = NULL;
-> +       long timeout;
-> +       DEFINE_WAIT(wait);
->
->        psmouse = serio_get_drvdata(serio);
->
-> @@ -1131,7 +1161,17 @@ static void psmouse_disconnect(struct serio *serio)
->
->        /* make sure we don't have a resync in progress */
->        mutex_unlock(&psmouse_mutex);
-> -       flush_workqueue(kpsmoused_wq);
-> +
-> +       prepare_to_wait(&psmouse->resync_pending_queue, &wait,
-> +                               TASK_UNINTERRUPTIBLE);
-> +       /* 4 seconds are more than enough to ensure a resync is completed */
-> +       if (atomic_read(&psmouse->resync_pending)) {
-> +               timeout = schedule_timeout(HZ * 4);
-> +               if (!timeout)
-> +                       WARN_ON(1);
-> +       }
-> +       finish_wait(&psmouse->resync_pending_queue, &wait);
-> +
->        mutex_lock(&psmouse_mutex);
->
->        if (serio->parent && serio->id.type == SERIO_PS_PSTHRU) {
-> @@ -1244,7 +1284,8 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
->                goto err_free;
->
->        ps2_init(&psmouse->ps2dev, serio);
-> -       INIT_DELAYED_WORK(&psmouse->resync_work, psmouse_resync);
-> +       INIT_WORK(&psmouse->resync_work, psmouse_resync_thread_helper);
-> +       init_waitqueue_head(&psmouse->resync_pending_queue);
->        psmouse->dev = input_dev;
->        snprintf(psmouse->phys, sizeof(psmouse->phys), "%s/input0", serio->phys);
->
-> @@ -1647,25 +1688,12 @@ static int psmouse_get_maxproto(char *buffer, struct kernel_param *kp)
->
->  static int __init psmouse_init(void)
->  {
-> -       int err;
-> -
-> -       kpsmoused_wq = create_singlethread_workqueue("kpsmoused");
-> -       if (!kpsmoused_wq) {
-> -               printk(KERN_ERR "psmouse: failed to create kpsmoused workqueue\n");
-> -               return -ENOMEM;
-> -       }
-> -
-> -       err = serio_register_driver(&psmouse_drv);
-> -       if (err)
-> -               destroy_workqueue(kpsmoused_wq);
-> -
-> -       return err;
-> +       return serio_register_driver(&psmouse_drv);
->  }
->
->  static void __exit psmouse_exit(void)
->  {
->        serio_unregister_driver(&psmouse_drv);
-> -       destroy_workqueue(kpsmoused_wq);
->  }
->
->  module_init(psmouse_init);
-> diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-> index 54ed267..dfb9b8c 100644
-> --- a/drivers/input/mouse/psmouse.h
-> +++ b/drivers/input/mouse/psmouse.h
-> @@ -39,7 +39,10 @@ struct psmouse {
->        void *private;
->        struct input_dev *dev;
->        struct ps2dev ps2dev;
-> -       struct delayed_work resync_work;
-> +       struct work_struct resync_work;
-> +       /* help to wait for mouse resync jobs before disconnect */
-> +       atomic_t resync_pending;
-> +       wait_queue_head_t resync_pending_queue;
->        char *vendor;
->        char *name;
->        unsigned char packet[8];
+> Hmm, so it is just rumble ( = periodic), not constant force. But what do the
+> periodic effects do then, if constant is rumble? Normally periodic effects
+> represent various types of rumble.
+Not exactly periodic, but same effect may be achieved using periodic
+effect with 0 period.
+This constant effect sets constant motor speed (and also could be more
+powerful, than periodic).
+Periodic effects control motor speed using effect type and parameters,
+so speed amplitude graph is sinusoidal or saw-like.
+Envelope for constant effect controls effect playback begin and end.
+For periodic effects it controls every period, as I understood.
 
+>> I tried this, no result.
+>> I think, this problem is connected somehow to log message about
+>> maxusage and report_count do not match.
+>
+> It is not related to those. I see two likely reasons:
+> 1) Device needs more initialization; in the dump we see a "Actuators Enable"
+> command sent first, and then the vendor report 64 three times with various
+> data.
+May be. I'll try to find some other PID drivers for windows to see if
+it will work without vendor reports.
 
-It looks like Dmitry is busy these times.
-Perhaps someone else can carry this patch?
-
-Thanks.
+> 2) Reports 21+22 are transmitted as control transfers in the dump. I'll have
+> to check whether we are doing the same.
+We do: http://paste.org.ru/index.pl?iyvkmg
+Got this log with patch: http://paste.org.ru/index.pl?m4wauv

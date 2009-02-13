@@ -1,40 +1,77 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: dead USB devices after resume [mmotm 2009-02-10-16-35]
-Date: Fri, 13 Feb 2009 19:19:03 +0100 (CET)
-Message-ID: <alpine.LRH.1.10.0902131917090.7361@twin.jikos.cz>
-References: <Pine.LNX.4.44L0.0902111009260.3056-100000@iolanthe.rowland.org> <49954E04.6090008@gmail.com>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Fri, 13 Feb 2009 21:43:00 +0200
+Message-ID: <4995CD44.5000808@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <49871663.4060605@gmail.com>	 <78f5d6bf0902021029g7e53f16ble27500b52f9498ba@mail.gmail.com>	 <498D7E81.4060007@gmail.com>	 <78f5d6bf0902092146x2abaf45an79e4546e75a80356@mail.gmail.com>	 <4991A622.7020101@gmail.com>	 <78f5d6bf0902110112o434d43d3ycd473c7b803e8297@mail.gmail.com>	 <4992FC79.80106@gmail.com>	 <78f5d6bf0902121006r460ba8d6m61126af161358c19@mail.gmail.com>	 <49946D7A.408@gmail.com> <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.suse.de ([195.135.220.15]:56157 "EHLO mx2.suse.de"
+Received: from mta-out.inet.fi ([195.156.147.13]:47976 "EHLO kirsi1.inet.fi"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751186AbZBMSTK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 13 Feb 2009 13:19:10 -0500
-In-Reply-To: <49954E04.6090008@gmail.com>
+	id S1752182AbZBMTnF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 13 Feb 2009 14:43:05 -0500
+In-Reply-To: <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>, linux-kernel@vger.kernel.org, mm-commits@vger.kernel.org, Greg KH <gregkh@suse.de>, USB list <linux-usb@vger.kernel.org>, linux-input@vger.kernel.org, Oliver Neukum <oliver@neukum.org>
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Fri, 13 Feb 2009, Jiri Slaby wrote:
+Dmitriy Geels wrote:
+> 2009/2/12 Anssi Hannula <anssi.hannula@gmail.com>:
+>>> Just rumble. There is only one motor inside. For constant effect motor
+>>> spins with constant speed, as I understood, this speed is controlled
+>>> by magnitude. Also it is a place for report fixup: magnitude logical
+>>> values are -127/127, but actually 1/255 -- 255 is strongest.
+>> Hmm, so it is just rumble ( = periodic), not constant force. But what do the
+>> periodic effects do then, if constant is rumble? Normally periodic effects
+>> represent various types of rumble.
+> Not exactly periodic, but same effect may be achieved using periodic
+> effect with 0 period.
+> This constant effect sets constant motor speed (and also could be more
+> powerful, than periodic).
+> Periodic effects control motor speed using effect type and parameters,
+> so speed amplitude graph is sinusoidal or saw-like.
 
-> Here comes the resume part (including unplug, replug). I suspect 
-> auto-suspend?
+Okay, so periodic effects are also different than what they are supposed
+to be. Saw-like etc define the force direction/magnitude (e.g. saw-like:
+the joystick increasingly pulls to one direction, then stops suddenly
+and starts doing it again; this happens quite quickly of course).
 
-The log looks fine IMHO.
+Basically this is a simple rumble device somewhat adapted into the PID
+model.
 
-The autosuspend shouldn't be the culprit, as it should definitely be 
-turned off by default for mice and keyboards (could you please verify that 
-it really is)?
+The best we can do is define constant force as FF_RUMBLE and pretend
+periodic is FF_PERIODIC.
 
-I any way, the autosuspend for HID has been implemented by Oliver and is 
-currently sitting as 8390887fae ("HID: autosuspend support for USB HID") 
-through which it gets to -next. Could you please verify that this patch 
-really isn't the culprit?
+> Envelope for constant effect controls effect playback begin and end.
 
-Thanks,
+That is what it is supposed to do.
+
+> For periodic effects it controls every period, as I understood.
+
+That is not supposed to be the case and seems very strange. Can you
+confirm this (maybe after we get it working on linux)?
+
+>>> I tried this, no result.
+>>> I think, this problem is connected somehow to log message about
+>>> maxusage and report_count do not match.
+>> It is not related to those. I see two likely reasons:
+>> 1) Device needs more initialization; in the dump we see a "Actuators Enable"
+>> command sent first, and then the vendor report 64 three times with various
+>> data.
+> May be. I'll try to find some other PID drivers for windows to see if
+> it will work without vendor reports.
+> 
+>> 2) Reports 21+22 are transmitted as control transfers in the dump. I'll have
+>> to check whether we are doing the same.
+> We do: http://paste.org.ru/index.pl?iyvkmg
+> Got this log with patch: http://paste.org.ru/index.pl?m4wauv
+
+Notice the difference in length of report 22 on windows and linux. Try
+this in pidff_init():
+pidff->reports[PID_BLOCK_LOAD]->size += 8;
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Anssi Hannula

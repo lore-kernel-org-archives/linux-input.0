@@ -1,41 +1,50 @@
 From: Adrian McMenamin <adrian@newgolddream.dyndns.info>
-Subject: [PATCH] sh: maple: Update the maple bus driver to support block
- reads and writes
-Date: Sat, 14 Feb 2009 20:05:48 +0000
-Message-ID: <1234641948.6609.13.camel@localhost.localdomain>
+Subject: Re: [PATCH] sh: maple: Update the maple bus driver to support
+ block reads and writes
+Date: Sat, 14 Feb 2009 20:16:45 +0000
+Message-ID: <1234642605.6609.17.camel@localhost.localdomain>
+References: <1234641948.6609.13.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mk-filter-2-a-1.mail.uk.tiscali.com ([212.74.100.53]:64892 "EHLO
+	mk-filter-2-a-1.mail.uk.tiscali.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751611AbZBNUQw (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 14 Feb 2009 15:16:52 -0500
+In-Reply-To: <1234641948.6609.13.camel@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Greg KH <greg@kroah.com>
 Cc: Paul Mundt <lethal@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
-List-Id: linux-input@vger.kernel.org
 
-Greg,
-
-This patch updates the maple bus to support asynchronous block reads and
-writes as well as generally improving the quality of the code and
-supporting concurrency (all needed to support the Dreamcast visual
-memory unit - a driver will also be posted for that).
-
-I have posted versions of this before but am here following the patch
-grouping suggested and have also tested this code and unlike earlier
-versions it shows no signs of suffering from race conditions - so I hope
-you will be happy to queue it for inclusion.
-
-Changes in the bus driver necessitate some changes in the two maple bus
-input drivers that are currently in mainline.
-
-(Maple is SEGA's proprietary serial bus for the Dreamcast. It is capable
-of comm speeds of up to 2Mbs.)
-
-As well as supporting block reads and writes this code clean up removes
-some poor handling of locks, uses an atomic status variable to serialise
-access to devices and more robusly handles the general performance
-problems of the bus.
-
-
+On Sat, 2009-02-14 at 20:06 +0000, Adrian McMenamin wrote:
+> Greg,
+> 
+> This patch updates the maple bus to support asynchronous block reads and
+> writes as well as generally improving the quality of the code and
+> supporting concurrency (all needed to support the Dreamcast visual
+> memory unit - a driver will also be posted for that).
+> 
+> I have posted versions of this before but am here following the patch
+> grouping suggested and have also tested this code and unlike earlier
+> versions it shows no signs of suffering from race conditions - so I hope
+> you will be happy to queue it for inclusion.
+> 
+> Changes in the bus driver necessitate some changes in the two maple bus
+> input drivers that are currently in mainline.
+> 
+> (Maple is SEGA's proprietary serial bus for the Dreamcast. It is capable
+> of comm speeds of up to 2Mbs.)
+> 
+> As well as supporting block reads and writes this code clean up removes
+> some poor handling of locks, uses an atomic status variable to serialise
+> access to devices and more robusly handles the general performance
+> problems of the bus.
+> 
+Apologies, some of the VMU patch slipped into that. Here is a completely
+clean version.
 
 Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
 ---
@@ -170,27 +179,6 @@ index 22f17a5..5aa2361 100644
  	return error;
  }
  
-diff --git a/drivers/mtd/maps/Kconfig b/drivers/mtd/maps/Kconfig
-index 0225cbb..9b3e564 100644
---- a/drivers/mtd/maps/Kconfig
-+++ b/drivers/mtd/maps/Kconfig
-@@ -551,5 +551,15 @@ config MTD_PLATRAM
- 
- 	  This selection automatically selects the map_ram driver.
- 
--endmenu
-+config MTD_VMU
-+	tristate "Map driver for Dreamcast VMU"
-+	depends on MAPLE
-+	help
-+	  This driver enables access to the Dreamcast Visual Memory Unit (VMU).
-+
-+	  Most Dreamcast users will want to say Y here.
- 
-+	  To build this as a module select M here, the module will be called
-+	  vmu-flash.
-+
-+endmenu
 diff --git a/drivers/sh/maple/maple.c b/drivers/sh/maple/maple.c
 index 63f0de2..4054fe9 100644
 --- a/drivers/sh/maple/maple.c

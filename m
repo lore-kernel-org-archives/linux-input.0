@@ -1,35 +1,44 @@
-From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Subject: Re: dead USB devices after resume [mmotm 2009-02-10-16-35]
-Date: Mon, 16 Feb 2009 14:58:23 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0902161448500.18928-100000@netrider.rowland.org>
-References: <49996F43.2070801@gmail.com>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] input: xpad.c - Xbox 360 wireless and sysfs support
+Date: Mon, 16 Feb 2009 12:22:15 -0800
+Message-ID: <20090216202215.GA6543@kroah.com>
+References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com> <200902160931.34771.oliver@neukum.org> <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com> <20090216161331.GB5008@kroah.com> <5aa163d00902161009l15dae120le96436d40f998d33@mail.gmail.com> <20090216185914.GA6239@kroah.com> <5aa163d00902161130r2030adb8h6eb1ec08bda92744@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <49996F43.2070801-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kernel development list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, mm-commits-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kroah.org ([198.145.64.141]:48549 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1750727AbZBPVq7 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Feb 2009 16:46:59 -0500
+Content-Disposition: inline
+In-Reply-To: <5aa163d00902161130r2030adb8h6eb1ec08bda92744@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mike Murphy <mamurph@cs.clemson.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, 16 Feb 2009, Jiri Slaby wrote:
-
-> Alan Stern wrote:
-> > So the problem must be lower down, such as in the usbhid driver.  The 
-> > best way to track this is to use usbmon.
+On Mon, Feb 16, 2009 at 02:30:01PM -0500, Mike Murphy wrote:
+> On Mon, Feb 16, 2009 at 1:59 PM, Greg KH <greg@kroah.com> wrote:
+> >
+> > Put it on the logical device, as given to you.
+> >
+> >> I tried not to break existing functionality.  Additionally, struct
+> >> usb_xpad contains two device pointers: one to the actual USB device,
+> >> and one to an input device (see source of the in-tree xpad.c). So I
+> >> followed your kobject.txt documentation and samples to create a new
+> >> object whose sole purpose in life is to expose the sysfs interface,
+> >> without interfering with the existing device entries in the driver.
+> >> I'm not sure I see a clean way to use a single struct device here....
+> >
+> > Put it on the input device, which is what is the per-device thing.  It's
+> > much simpler than creating a new struct kobject.  You can even create a
+> > subdirectory for your attributes if you use an attribute group (which
+> > you should be doing anyway, it's much simpler that way.)
+> >
 > 
-> Well, there is some traffic after resume, but nothing when pressing keys...
+> OK, one thing I'm not clear on: is there a clean API for adding
+> attributes to an existing struct device, or do I need to "subclass" it
+> (the C containment and delegation approach)?
 
-Unforunately the most important part of the log was lost, probably
-because the usbmon buffer filled up.  (It's the part between the
-2320601617 and 2376096580 timestamps -- a 56-second gap.)  You can try
-again after increasing the value of EVENT_MAX in
-drivers/usb/mon/mon_text.c.
+device_create_file()
 
-Alan Stern
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

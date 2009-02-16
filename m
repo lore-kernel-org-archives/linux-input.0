@@ -1,85 +1,84 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+From: Mike Murphy <mamurph@cs.clemson.edu>
 Subject: Re: [PATCH] input: xpad.c - Xbox 360 wireless and sysfs support
-Date: Mon, 16 Feb 2009 08:13:31 -0800
-Message-ID: <20090216161331.GB5008@kroah.com>
-References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com> <200902160931.34771.oliver@neukum.org> <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com>
+Date: Mon, 16 Feb 2009 13:09:00 -0500
+Message-ID: <5aa163d00902161009l15dae120le96436d40f998d33@mail.gmail.com>
+References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com>
+	 <200902160931.34771.oliver@neukum.org>
+	 <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com>
+	 <20090216161331.GB5008@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5aa163d00902160522r3a22412je3f5202076f57a0a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Murphy <mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org>
-Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from yw-out-2324.google.com ([74.125.46.30]:25625 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751301AbZBPSJC (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Feb 2009 13:09:02 -0500
+In-Reply-To: <20090216161331.GB5008@kroah.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2009 at 08:22:05AM -0500, Mike Murphy wrote:
-> On Mon, Feb 16, 2009 at 3:31 AM, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org> wrote:
-> ...
-> >
-> > 1. You need to check the returns of sscanf
-> 
-> Will add... this is currently preliminary and not very well tested.
-> 
-> > 2. This is very ugly:
-> >
-> > +/* read-only attrs */
-> > +static ssize_t xpad_show_int(struct xpad_data *xd, struct xpad_attribute *attr,
-> > +       char *buf)
-> > +{
-> > +       int value;
-> > +       if (!strcmp(attr->attr.name, "controller_number"))
-> > +               value = xd->controller_number;
-> > +       else if (!strcmp(attr->attr.name, "pad_present"))
-> > +               value = xd->pad_present;
-> > +       else if (!strcmp(attr->attr.name, "controller_type"))
-> > +               value = xd->controller_type;
-> > +       else
-> > +               value = 0;
-> > +       return sprintf(buf, "%d\n", value);
-> > +}
-> 
-> The above code is basically following the example in
-> samples/kobject/kset-example.c. I broke the rest of the sysfs stuff
-> out such that it uses separate functions for show/store, which
-> definitely looks cleaner. However, given the large amount of code that
-> results, I'm starting to think that re-factoring and pulling the sysfs
-> code out to a separate file might be useful.
-> 
-> >
-> > 3. Possible memory leak in error case:
-> >
-> > +static struct xpad_data *xpad_create_data(const char *name, struct kobject *parent) {
-> > +       struct xpad_data *data = NULL;
-> > +       int check;
-> > +
-> > +       data = kzalloc(sizeof(*data), GFP_KERNEL);
-> > +       if (!data)
-> > +               return NULL;
-> > +
-> > +       check = kobject_init_and_add(&data->kobj, &xpad_ktype, parent, "%s", name);
-> > +       if (check) {
-> > +               kobject_put(&data->kobj);
-> > +               return NULL;
-> > +       }
-> >
-> 
-> My understanding from Documentation/kobject.txt is that the
-> kobject_put in the 2nd error check will set the kobj's reference
-> counter to zero, eventually causing the kobject core to call my
-> cleanup function for the ktype (xpad_release) and free the memory.
+On Mon, Feb 16, 2009 at 11:13 AM, Greg KH <greg@kroah.com> wrote:
+...
+>
+> The bigger question is why are you using a struct kobject in the first
+> place?  As you are a device, just use a struct device.  What are you
+> trying to do in sysfs here to make you want to use a "raw" kobject in a
+> driver?
+>
+> thanks,
+>
+> greg k-h
+>
 
-That is correct.
+The purpose of the struct xpad_data (which contains the struct
+kobject) is to expose parameters that can be read and/or tweaked at
+runtime. At the moment, the adjustable parameters are the size of the
+dead zone around the center of the stick, and the choice of whether to
+map to a square axis. Read-only data include a unique identifier for
+each pad (wireless) and an indication as to whether the wireless pad
+is actually connected.
 
-The bigger question is why are you using a struct kobject in the first
-place?  As you are a device, just use a struct device.  What are you
-trying to do in sysfs here to make you want to use a "raw" kobject in a
-driver?
+The idea behind this interface is to enable a future userspace
+application, likely using HAL and D-BUS, to receive events whenever a
+wireless pad connects, and to identify the particular pad in question
+(specifically, the unique ID of the pad). The user could then, for
+example, have a different dead zone size for each pad, based upon the
+actual manufacturing variations in the sticks on that pad (some appear
+more precise at centering than others). Ideally, this functionality
+could be designed in a "common" way so that the userspace code could
+eventually work with other, non-xpad gaming devices.
 
-thanks,
+So I really just wanted a way to get some parameters to userspace. The
+consensus opinion of everything I read was that /proc additions were
+frowned upon for cluttering up /proc with kernel stuff, ioctls were
+viewed negatively because of their inconsistent nature from device to
+device, and that sysfs was the best solution for this problem.
 
-greg k-h
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I didn't use a struct device because of the existing struct usb_xpad
+that was created on a per-gamepad basis (not necessarily per device,
+as the wireless 360 adapter is one physical device but exposes 4
+gamepads by exposing 4 logical devices [and then each gamepad, in
+turn, is technically a USB hub that can have other stuff
+attached...]). I tried not to break existing functionality.
+Additionally, struct usb_xpad contains two device pointers: one to the
+actual USB device, and one to an input device (see source of the
+in-tree xpad.c). So I followed your kobject.txt documentation and
+samples to create a new object whose sole purpose in life is to expose
+the sysfs interface, without interfering with the existing device
+entries in the driver. I'm not sure I see a clean way to use a single
+struct device here....
+
+Thanks,
+Mike
+-- 
+Mike Murphy
+Ph.D. Candidate and NSF Graduate Research Fellow
+Clemson University School of Computing
+120 McAdams Hall
+Clemson, SC 29634-0974 USA
+Tel: +1 864.656.2838   Fax: +1 864.656.0145
+http://cirg.cs.clemson.edu/~mamurph

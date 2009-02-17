@@ -1,61 +1,53 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: [PATCH] Input: wm97xx: add BTN_TOUCH event to wm97xx to use it with Android
-Date: Tue, 17 Feb 2009 11:43:33 +0200
-Message-ID: <1234863813-12211-1-git-send-email-mike@compulab.co.il>
+From: Dmitriy Geels <dmitriy.geels@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+	gamepad
+Date: Tue, 17 Feb 2009 15:16:52 +0300
+Message-ID: <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
+	 <78f5d6bf0902110112o434d43d3ycd473c7b803e8297@mail.gmail.com>
+	 <4992FC79.80106@gmail.com>
+	 <78f5d6bf0902121006r460ba8d6m61126af161358c19@mail.gmail.com>
+	 <49946D7A.408@gmail.com>
+	 <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>
+	 <4995CD44.5000808@gmail.com>
+	 <78f5d6bf0902141125m1bf9ac00xb2b414e81d81b869@mail.gmail.com>
+	 <49972478.3060207@gmail.com>
+	 <78f5d6bf0902141433hca696fdo87140907cc358fbf@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cathcart.site5.com ([74.54.107.137]:47023 "EHLO
-	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750974AbZBQMIT (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.155]:15077 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751047AbZBQMQy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2009 07:08:19 -0500
+	Tue, 17 Feb 2009 07:16:54 -0500
+Received: by fg-out-1718.google.com with SMTP id 16so393763fgg.17
+        for <linux-input@vger.kernel.org>; Tue, 17 Feb 2009 04:16:52 -0800 (PST)
+In-Reply-To: <78f5d6bf0902141433hca696fdo87140907cc358fbf@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: lrg@slimlogic.co.uk, broonie@opensource.wolfsonmicro.com
-Cc: linux-input@vger.kernel.org, Mike Rapoport <mike@compulab.co.il>
+To: Anssi Hannula <anssi.hannula@gmail.com>, linux-input@vger.kernel.org
 
-Please CC me, I'm not subscribed to linux-input
+>>>> Notice the difference in length of report 22 on windows and linux. Try
+>>>> this in pidff_init():
+>>>> pidff->reports[PID_BLOCK_LOAD]->size += 8;
+>>> That's it!
+>>> I didn't pay attention to length value. Looks like a missing usage in
+>>> report descriptor!
+>>> So, quirk with report fix is needed for this device.
+I'm trying to understand better way to make this descriptor fix. Can
+you give me an advice on this?
+Or it's better to wait for patch discussed in "Allow drivers to
+replace report descriptors" topic?
 
-Android expects BTN_TOUCH events when pen state changes. Add BTN_TOUCH
-event reporting to allow use of wm97xx touchscreen controller wiht
-Android devices.
-
-Signed-off-by: Mike Rapoport <mike@compulab.co.il>
----
- drivers/input/touchscreen/wm97xx-core.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index d15aa11..4551f88 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -409,6 +409,7 @@ static int wm97xx_read_samples(struct wm97xx *wm)
- 			wm->pen_is_down = 0;
- 			dev_dbg(wm->dev, "pen up\n");
- 			input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-+			input_report_key(wm->input_dev, BTN_TOUCH, 0);
- 			input_sync(wm->input_dev);
- 		} else if (!(rc & RC_AGAIN)) {
- 			/* We need high frequency updates only while
-@@ -433,6 +434,7 @@ static int wm97xx_read_samples(struct wm97xx *wm)
- 		input_report_abs(wm->input_dev, ABS_X, data.x & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_Y, data.y & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_PRESSURE, data.p & 0xfff);
-+		input_report_key(wm->input_dev, BTN_TOUCH, 1);
- 		input_sync(wm->input_dev);
- 		wm->pen_is_down = 1;
- 		wm->ts_reader_interval = wm->ts_reader_min_interval;
-@@ -629,9 +631,11 @@ static int wm97xx_probe(struct device *dev)
- 	wm->input_dev->open = wm97xx_ts_input_open;
- 	wm->input_dev->close = wm97xx_ts_input_close;
- 	set_bit(EV_ABS, wm->input_dev->evbit);
-+	set_bit(EV_KEY, wm->input_dev->evbit);
- 	set_bit(ABS_X, wm->input_dev->absbit);
- 	set_bit(ABS_Y, wm->input_dev->absbit);
- 	set_bit(ABS_PRESSURE, wm->input_dev->absbit);
-+	set_bit(BTN_TOUCH, wm->input_dev->keybit);
- 	input_set_abs_params(wm->input_dev, ABS_X, abs_x[0], abs_x[1],
- 			     abs_x[2], 0);
- 	input_set_abs_params(wm->input_dev, ABS_Y, abs_y[0], abs_y[1],
--- 
-1.5.6.4
-
+>> Hmm, this says problems start with "fftest".
+>> [10054.751832] HID: implement() called with too large value 47113! (fftest)
+>>
+>> Could you print all the values set in pidff_set_effect_report() just
+>> before the usbhid_submit_report() call, and try to reproduce the WARNING
+>> with fftest.
+Problem in fftest is simple: using uninitialized structures. That also
+was causing slow path warning.
+But running ffmvforce after fftest brings device to unconsistent
+state, causing messages "usb 1-1: ctrl urb status -62 received".

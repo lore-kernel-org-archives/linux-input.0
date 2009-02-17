@@ -1,89 +1,41 @@
-From: Mike Murphy <mamurph@cs.clemson.edu>
+From: Greg KH <greg@kroah.com>
 Subject: Re: [PATCH] input: xpad.c - Xbox 360 wireless and sysfs support
-Date: Mon, 16 Feb 2009 21:53:54 -0500
-Message-ID: <5aa163d00902161853x27d98a83l3c2c02abe651fe1e@mail.gmail.com>
-References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com>
-	 <200902160931.34771.oliver@neukum.org>
-	 <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com>
-	 <20090216161331.GB5008@kroah.com>
-	 <5aa163d00902161009l15dae120le96436d40f998d33@mail.gmail.com>
-	 <20090216185914.GA6239@kroah.com>
-	 <5aa163d00902161130r2030adb8h6eb1ec08bda92744@mail.gmail.com>
-	 <20090216202215.GA6543@kroah.com>
+Date: Mon, 16 Feb 2009 19:18:13 -0800
+Message-ID: <20090217031813.GD8343@kroah.com>
+References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com> <200902160931.34771.oliver@neukum.org> <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com> <20090216161331.GB5008@kroah.com> <5aa163d00902161009l15dae120le96436d40f998d33@mail.gmail.com> <20090216185914.GA6239@kroah.com> <5aa163d00902161130r2030adb8h6eb1ec08bda92744@mail.gmail.com> <20090216202215.GA6543@kroah.com> <5aa163d00902161853x27d98a83l3c2c02abe651fe1e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from el-out-1112.google.com ([209.85.162.177]:9352 "EHLO
-	el-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751874AbZBQCxz (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Feb 2009 21:53:55 -0500
-In-Reply-To: <20090216202215.GA6543@kroah.com>
+Received: from kroah.org ([198.145.64.141]:35479 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752141AbZBQDXu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Feb 2009 22:23:50 -0500
+Content-Disposition: inline
+In-Reply-To: <5aa163d00902161853x27d98a83l3c2c02abe651fe1e@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Greg KH <greg@kroah.com>
+To: Mike Murphy <mamurph@cs.clemson.edu>
 Cc: Oliver Neukum <oliver@neukum.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Mon, Feb 16, 2009 at 3:22 PM, Greg KH <greg@kroah.com> wrote:
->> >
->> > Put it on the input device, which is what is the per-device thing.  It's
->> > much simpler than creating a new struct kobject.  You can even create a
->> > subdirectory for your attributes if you use an attribute group (which
->> > you should be doing anyway, it's much simpler that way.)
->> >
->>
->> OK, one thing I'm not clear on: is there a clean API for adding
->> attributes to an existing struct device, or do I need to "subclass" it
->> (the C containment and delegation approach)?
->
-> device_create_file()
->
+On Mon, Feb 16, 2009 at 09:53:54PM -0500, Mike Murphy wrote:
+> struct usb_xpad {
+> 	struct input_dev *dev;		/* input device interface */
+> 	struct usb_device *udev;	/* usb device */
+> ...
+> };
+> 
+> This is not my code... it was set up this way in the stable xpad driver.
 
-In the process of trying to re-factor the code for the above changes,
-I ran into the problem that the show and store functions for sysfs
-expect to be passed a struct device *. I can get to struct input_dev *
-without problems (since struct input_dev contains the struct device,
-and I can simply use container_of indirectly via to_input_dev).
-However, I can't seem to get back to struct usb_xpad, because that
-structure defines 2 pointers to devices, rather than simply embedding
-the devices:
+And it is correct :)
 
-struct usb_xpad {
-	struct input_dev *dev;		/* input device interface */
-	struct usb_device *udev;	/* usb device */
-...
-};
+> So it looks like I'm stuck with a struct input_dev * pointer to the
+> input device, a struct device * pointer in the show/store handlers,
+> and no way to get back to struct usb_xpad * with the container_of
+> macro. Unless, of course, there is something I don't know about
+> container_of (or another macro I can use in this instance).
 
-This is not my code... it was set up this way in the stable xpad driver.
+input_set_drvdata() and input_get_drvdata() is what you are looking for.
 
-So it looks like I'm stuck with a struct input_dev * pointer to the
-input device, a struct device * pointer in the show/store handlers,
-and no way to get back to struct usb_xpad * with the container_of
-macro. Unless, of course, there is something I don't know about
-container_of (or another macro I can use in this instance).
+Hope this helps,
 
-Worse, I can't simply change the struct input_dev *dev to struct
-input_dev dev, because the input subsystem's input_register_device
-expects to have a struct input_dev * pointer allocated with
-input_allocate_device, which does both a kzalloc AND initialization.
-Trying to hack my driver by incorporating the initialization logic in
-input_allocate_device would be stupid, since the result would be
-unmaintainable. So the route out of this mess, going in the direction
-of device attributes, would be to modify drivers/input/input.c to
-factor the initialization away from the allocation.
-
-So which is the lesser of two evils? Allocating a new kobject, or
-mucking around with more of the input subsystem? Or am I missing
-something?
-
-Thanks,
-Mike
--- 
-Mike Murphy
-Ph.D. Candidate and NSF Graduate Research Fellow
-Clemson University School of Computing
-120 McAdams Hall
-Clemson, SC 29634-0974 USA
-Tel: +1 864.656.2838   Fax: +1 864.656.0145
-http://cirg.cs.clemson.edu/~mamurph
+greg k-h

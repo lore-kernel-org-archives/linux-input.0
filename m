@@ -1,84 +1,36 @@
-From: Oliver Neukum <oliver@neukum.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 Subject: Re: linux-next: USB mouse won't work after resume.
-Date: Tue, 17 Feb 2009 21:42:55 +0100
-Message-ID: <200902172142.57302.oliver@neukum.org>
-References: <20090216172016.f1d159a7.sfr@canb.auug.org.au> <200902171135.13329.oliver@neukum.org> <499ABD80.9020904@free.fr>
+Date: Tue, 17 Feb 2009 16:05:09 -0500 (EST)
+Message-ID: <Pine.LNX.4.44L0.0902171602510.18399-100000@iolanthe.rowland.org>
+References: <200902172142.57302.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_RFymJVBcFduBUWG"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:40283 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753236AbZBQUlN (ORCPT
+Received: from iolanthe.rowland.org ([192.131.102.54]:57682 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751723AbZBQVFL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2009 15:41:13 -0500
-In-Reply-To: <499ABD80.9020904@free.fr>
+	Tue, 17 Feb 2009 16:05:11 -0500
+In-Reply-To: <200902172142.57302.oliver@neukum.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: linux-input@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
+To: Jiri Slaby <jirislaby@gmail.com>, Oliver Neukum <oliver@neukum.org>
+Cc: Laurent Riffard <laurent.riffard@free.fr>, linux-input@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
 
---Boundary-00=_RFymJVBcFduBUWG
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Tue, 17 Feb 2009, Oliver Neukum wrote:
 
-Am Tuesday 17 February 2009 14:37:04 schrieb Laurent Riffard:
-> Le 17.02.2009 11:35, Oliver Neukum a =C3=A9crit :
-> > Am Tuesday 17 February 2009 10:55:57 schrieb Laurent Riffard:
-> >> My USB mouse won't work after suspend to disk and resume. I must unloa=
-d and reload the ohci_hcd module to get it back.
-> >=20
-> > Please recompile your kernel with CONFIG_USB_DEBUG and
-> > send me your dmesg.
-> >=20
-> > 	Regards
-> > 		Oliver
-> >=20
->=20
-> Here is it:
->=20
+> Please try the attached patch.
+> 
+> 	Regards
+> 		Oliver
 
-Please try the attached patch.
+Jiri,
 
-	Regards
-		Oliver
+It seems likely that you are seeing the same problem as Laurent in your
+mmotm 2009-02-10-16-35 kernel.  You should try Oliver's patch,
+available here:
 
---Boundary-00=_RFymJVBcFduBUWG
-Content-Type: text/x-diff;
-  charset="iso 8859-15";
-  name="hid_reset_resume.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="hid_reset_resume.diff"
+	http://marc.info/?l=linux-usb&m=123490330326229&w=2
 
---- nexttree/drivers/hid/usbhid/hid-core.c.alt	2009-02-17 21:39:45.000000000 +0100
-+++ nexttree/drivers/hid/usbhid/hid-core.c	2009-02-17 21:39:57.000000000 +0100
-@@ -1333,6 +1333,15 @@ static int hid_post_reset(struct usb_int
- 	return 0;
- }
- 
-+static int hid_reset_resume(struct usb_interface *intf)
-+{
-+	struct hid_device *hid = usb_get_intfdata(intf);
-+	struct usbhid_device *usbhid = hid->driver_data;
-+
-+	clear_bit(HID_REPORTED_IDLE, &usbhid->iofl);
-+	return hid_post_reset(intf);
-+}
-+
- int usbhid_get_power(struct hid_device *hid)
- {
- 	struct usbhid_device *usbhid = hid->driver_data;
-@@ -1362,7 +1371,7 @@ static struct usb_driver hid_driver = {
- #ifdef CONFIG_PM
- 	.suspend =	hid_suspend,
- 	.resume =	hid_resume,
--	.reset_resume =	hid_post_reset,
-+	.reset_resume =	hid_reset_resume,
- #endif
- 	.pre_reset =	hid_pre_reset,
- 	.post_reset =	hid_post_reset,
+Alan Stern
 
---Boundary-00=_RFymJVBcFduBUWG--

@@ -1,35 +1,80 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: linux-next: USB mouse won't work after resume.
-Date: Tue, 17 Feb 2009 10:12:03 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0902171011240.3195-100000@iolanthe.rowland.org>
-References: <499ABD80.9020904@free.fr>
+From: Mike Murphy <mamurph@cs.clemson.edu>
+Subject: Re: [PATCH] input: xpad.c - Xbox 360 wireless and sysfs support
+Date: Tue, 17 Feb 2009 13:27:48 -0500
+Message-ID: <5aa163d00902171027o139ba751r8103f948f3f492bb@mail.gmail.com>
+References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com>
+	 <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com>
+	 <20090216161331.GB5008@kroah.com>
+	 <5aa163d00902161009l15dae120le96436d40f998d33@mail.gmail.com>
+	 <20090216185914.GA6239@kroah.com>
+	 <5aa163d00902161130r2030adb8h6eb1ec08bda92744@mail.gmail.com>
+	 <20090216202215.GA6543@kroah.com>
+	 <5aa163d00902161853x27d98a83l3c2c02abe651fe1e@mail.gmail.com>
+	 <20090217031813.GD8343@kroah.com>
+	 <5aa163d00902162057l106c001bo519a5241c79b5e96@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <499ABD80.9020904@free.fr>
-Sender: linux-next-owner@vger.kernel.org
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-input@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f222.google.com ([209.85.217.222]:46053 "EHLO
+	mail-gx0-f222.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752203AbZBQS1u (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Feb 2009 13:27:50 -0500
+In-Reply-To: <5aa163d00902162057l106c001bo519a5241c79b5e96@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, 17 Feb 2009, Laurent Riffard wrote:
+On Mon, Feb 16, 2009 at 11:57 PM, Mike Murphy <mamurph@cs.clemson.edu> wrote:
+> Unless that is some common error that is obvious from its description,
+> I will have to chase the bug down tomorrow or Wednesday. It's getting
+> a bit late here.
+>
 
-> Le 17.02.2009 11:35, Oliver Neukum a =C3=A9crit :
-> > Am Tuesday 17 February 2009 10:55:57 schrieb Laurent Riffard:
-> >> My USB mouse won't work after suspend to disk and resume. I must u=
-nload and reload the ohci_hcd module to get it back.
-> >=20
-> > Please recompile your kernel with CONFIG_USB_DEBUG and
-> > send me your dmesg.
-> >=20
-> > 	Regards
-> > 		Oliver
-> >=20
->=20
-> Here is it:
+Fixed... the function signature was wrong. Should have been:
 
-Maybe there's a bug in the way the HID autosuspend patch cooperates=20
-with reset-resume.
+static ssize_t xpad_show_dead_zone(struct device *dev, struct
+device_attribute *attr, char *buf)
 
-Alan Stern
+Incidentally, both Documentation/driver-model/device.txt and
+Documentation/filesystems/sysfs.txt appear to be wrong. The former
+defines the device attribute structure as:
+
+struct device_attribute {
+        struct attribute        attr;
+        ssize_t (*show)(struct device * dev, char * buf, size_t count,
+loff_t off);
+        ssize_t (*store)(struct device * dev, const char * buf, size_t
+count, loff_t off);
+};
+
+while the latter (that I followed last night) defines it as:
+
+struct device_attribute {
+        struct attribute        attr;
+        ssize_t (*show)(struct device * dev, char * buf);
+        ssize_t (*store)(struct device * dev, const char * buf);
+};
+
+I finally got the correct one out of include/linux/device.h:
+
+struct device_attribute {
+	struct attribute	attr;
+	ssize_t (*show)(struct device *dev, struct device_attribute *attr,
+			char *buf);
+	ssize_t (*store)(struct device *dev, struct device_attribute *attr,
+			 const char *buf, size_t count);
+};
+
+Thanks,
+Mike
+-- 
+Mike Murphy
+Ph.D. Candidate and NSF Graduate Research Fellow
+Clemson University School of Computing
+120 McAdams Hall
+Clemson, SC 29634-0974 USA
+Tel: +1 864.656.2838   Fax: +1 864.656.0145
+http://cirg.cs.clemson.edu/~mamurph

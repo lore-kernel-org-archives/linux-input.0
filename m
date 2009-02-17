@@ -1,36 +1,200 @@
-From: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: linux-next: USB mouse won't work after resume.
-Date: Tue, 17 Feb 2009 16:05:09 -0500 (EST)
-Message-ID: <Pine.LNX.4.44L0.0902171602510.18399-100000@iolanthe.rowland.org>
-References: <200902172142.57302.oliver@neukum.org>
+From: Frederic Weisbecker <fweisbec@gmail.com>
+Subject: Re: [PATCH v2] psmouse: run kpsmoused only while needed
+Date: Tue, 17 Feb 2009 23:33:17 +0100
+Message-ID: <20090217223316.GB5194@nowhere>
+References: <4984ec6a.0637560a.3217.4534@mx.google.com> <20090213160526.b5d619e6.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from iolanthe.rowland.org ([192.131.102.54]:57682 "HELO
-	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1751723AbZBQVFL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Feb 2009 16:05:11 -0500
-In-Reply-To: <200902172142.57302.oliver@neukum.org>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754686AbZBQWdg@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20090213160526.b5d619e6.akpm@linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>, Oliver Neukum <oliver@neukum.org>
-Cc: Laurent Riffard <laurent.riffard@free.fr>, linux-input@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
 
-On Tue, 17 Feb 2009, Oliver Neukum wrote:
-
-> Please try the attached patch.
+On Fri, Feb 13, 2009 at 04:05:26PM -0800, Andrew Morton wrote:
+> On Sat, 31 Jan 2009 16:27:22 -0800 (PST)
+> Frederic Weisbecker <fweisbec@gmail.com> wrote:
 > 
-> 	Regards
-> 		Oliver
+> > While looking at the workqueue tracer, I noticed that kpsmoused receives
+> > rarely (if not never) events.
+> > 
+> > Currently, when a mouse has to resync, it uses the kpsmoused singlethreaded
+> > workqueue. But resync are rare. While reading an old discussion, it seems
+> > that usual workqueue events can't be used for that purpose because resync
+> > can take too much time and could delay the other works in queue.
+> > 
+> > But if you have built psmouse driver, this workqueue will always be present
+> > whether you have a ps/2 port or not. And its events are rare.
+> > 
+> > To avoid this pointless task, this patch makes the kpsmoused a kernel
+> > thread only created on the fly when a resync is needed. Once the resync is done,
+> > this thread will die. So you will almost never see it, and it will not be
+> > an inactive task anymore.
+> > 
+> > This thread is created through a usual workqueue event (because we can't create
+> > it from interrupt).
+> > 
+> > Changes in V2:
+> > 
+> > _ fix the "resync" mispelled in the patch and the changelog
+> > _ don't schedule more than one resync in case of concurrent interrupts
+> > _ if resync_pending is not cleared after a few time before disconnect, print a warning.
+> > 
+> 
+> This patch seems complicated.
 
-Jiri,
 
-It seems likely that you are seeing the same problem as Laurent in your
-mmotm 2009-02-10-16-35 kernel.  You should try Oliver's patch,
-available here:
+Yeah, I know :-/
 
-	http://marc.info/?l=linux-usb&m=123490330326229&w=2
+ 
+> 
+> > 
+> > diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
+> > index f8f86de..fc4490e 100644
+> > --- a/drivers/input/mouse/psmouse-base.c
+> > +++ b/drivers/input/mouse/psmouse-base.c
+> > @@ -20,6 +20,7 @@
+> >  #include <linux/init.h>
+> >  #include <linux/libps2.h>
+> >  #include <linux/mutex.h>
+> > +#include <linux/kthread.h>
+> >  
+> >  #include "psmouse.h"
+> >  #include "synaptics.h"
+> > @@ -104,8 +105,6 @@ static struct attribute_group psmouse_attribute_group = {
+> >   */
+> >  static DEFINE_MUTEX(psmouse_mutex);
+> >  
+> > -static struct workqueue_struct *kpsmoused_wq;
+> > -
+> >  struct psmouse_protocol {
+> >  	enum psmouse_type type;
+> >  	const char *name;
+> > @@ -203,11 +202,6 @@ static psmouse_ret_t psmouse_process_byte(struct psmouse *psmouse)
+> >  	return PSMOUSE_FULL_PACKET;
+> >  }
+> >  
+> > -void psmouse_queue_work(struct psmouse *psmouse, struct delayed_work *work,
+> > -		unsigned long delay)
+> > -{
+> > -	queue_delayed_work(kpsmoused_wq, work, delay);
+> > -}
+> >  
+> >  /*
+> >   * __psmouse_set_state() sets new psmouse state and resets all flags.
+> > @@ -313,7 +307,10 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+> >  		       psmouse->name, psmouse->phys, psmouse->pktcnt);
+> >  		psmouse->badbyte = psmouse->packet[0];
+> >  		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
+> > -		psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
+> > +		if (atomic_inc_return(&psmouse->resync_pending) == 1)
+> > +			schedule_work(&psmouse->resync_work);
+> > +		else
+> > +			atomic_dec(&psmouse->resync_pending);
+> >  		goto out;
+> >  	}
+> 
+> This little trick looks inherently racy.  Suppose
+> psmouse_resync_thread_helper() is concurrently fiddling with
+> ->resync_pending.
+> 
+> Dunno - maybe it isn't racy.  I can't really be bothered working it
+> out, because it should be obviosuly non-racy!
+> 
+> Can we remove ->resync_pending?  Just unconditionally do the
+> schedule_work()?  schedule_work() will take care of things
+> appropriately, won't it?
+> There is, I guess, a small possibility that we'll end up with two (or
+> more!) kernel threads running at the same time.  But the psmouse code
+> should be able to handle that appropriately.
 
-Alan Stern
 
+Well, that's ok. But I still need to keep a reference counting of the threads
+created, just to be sure all is finished and avoid freeing the mouse struct too early.
+
+ 
+> > @@ -350,7 +347,11 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
+> >  	    time_after(jiffies, psmouse->last + psmouse->resync_time * HZ)) {
+> >  		psmouse->badbyte = psmouse->packet[0];
+> >  		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
+> > -		psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
+> > +
+> > +		if (atomic_inc_return(&psmouse->resync_pending) == 1)
+> > +			schedule_work(&psmouse->resync_work);
+> > +		else
+> > +			atomic_dec(&psmouse->resync_pending);
+> >  		goto out;
+> >  	}
+> >  
+> 
+> etc.
+> 
+> >  
+> >  
+> >  /*
+> > - * psmouse_resync() attempts to re-validate current protocol.
+> > + * psmouse_resync_thread() attempts to re-validate current protocol.
+> > + * This thread is created on the fly when needed because its job can take too
+> > + * much time on events workqueues, and the resync is rare enough to avoid
+> > + * the need of a private workqueue.
+> >   */
+> >  
+> > -static void psmouse_resync(struct work_struct *work)
+> > +static int psmouse_resync_thread(void *v)
+> >  {
+> > -	struct psmouse *parent = NULL, *psmouse =
+> > -		container_of(work, struct psmouse, resync_work.work);
+> > +	struct psmouse *psmouse = v;
+> > +	struct psmouse *parent = NULL;
+> >  	struct serio *serio = psmouse->ps2dev.serio;
+> >  	psmouse_ret_t rc = PSMOUSE_GOOD_DATA;
+> >  	int failed = 0, enabled = 0;
+> > @@ -1072,6 +1076,30 @@ static void psmouse_resync(struct work_struct *work)
+> >  		psmouse_activate(parent);
+> >   out:
+> >  	mutex_unlock(&psmouse_mutex);
+> > +
+> > +	/*
+> > +	 * While disconnecting, the driver wants to be sure all resync are done
+> > +	 */
+> > +	atomic_dec(&psmouse->resync_pending);
+> > +	wake_up(&psmouse->resync_pending_queue);
+> > +	return 0;
+> > +}
+> > +
+> > +/* Launch the resync thread */
+> > +static void psmouse_resync_thread_helper(struct work_struct *work)
+> > +{
+> > +	struct task_struct *t;
+> > +	struct psmouse *psmouse;
+> > +
+> > +	psmouse = container_of(work, struct psmouse, resync_work);
+> > +
+> > +	t = kthread_run(psmouse_resync_thread, psmouse, "kpsmoused");
+> > +	if (t == ERR_PTR(-ENOMEM)) {
+> > +		printk(KERN_WARNING "psmouse.c: failed to create kpsmoused"
+> > +				    " thread\n");
+> > +		atomic_dec(&psmouse->resync_pending);
+> > +		wake_up(&psmouse->resync_pending_queue);
+> > +	}
+> >  }
+> 
+> I expect I asked before "can we use the kernel/async.c code for this".
+> It's such an obvious question that it should be covered in the
+> changelog.
+
+
+Yes, I answered you about that on the V1 discussion of this patch.
+The problem with async is that we don't have any guarantee that the job
+will be executed asynchronously. If we are running low on memory, or if there are too
+much jobs pending, async can decide to execute synchronously the function.
+
+That would have been handy: I would just need to call async_synchronize_cookie_special()
+to ensure all is finished.
+
+
+> 
+> 
+> 

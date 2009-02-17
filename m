@@ -1,25 +1,40 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: linux-next: USB mouse won't work after resume.
-Date: Tue, 17 Feb 2009 11:35:11 +0100
-Message-ID: <200902171135.13329.oliver@neukum.org>
-References: <20090216172016.f1d159a7.sfr@canb.auug.org.au> <499A89AD.6010704@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-next-owner@vger.kernel.org>
-In-Reply-To: <499A89AD.6010704@free.fr>
-Content-Disposition: inline
-Sender: linux-next-owner@vger.kernel.org
-To: Laurent Riffard <laurent.riffard@free.fr>, linux-input@vger.kernel.org
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
+From: jirislaby@gmail.com
+Subject: [PATCH 1/1] HID: fix bus handling in scripts/mod/file2alias.c
+Date: Tue, 17 Feb 2009 12:35:28 +0100
+Message-ID: <1234870528-24562-1-git-send-email-jirislaby@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:51198 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751377AbZBQLf1 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 17 Feb 2009 06:35:27 -0500
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org, nyet@mrv.com, linux-kernel@vger.kernel.org, Jiri Slaby <jirislaby@gmail.com>
 
-Am Tuesday 17 February 2009 10:55:57 schrieb Laurent Riffard:
-> My USB mouse won't work after suspend to disk and resume. I must unload and reload the ohci_hcd module to get it back.
+From: Jiri Slaby <jirislaby@gmail.com>
 
-Please recompile your kernel with CONFIG_USB_DEBUG and
-send me your dmesg.
+Fix endianness of bus member of hid_device_id in modpost.
 
-	Regards
-		Oliver
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Reported-by: Nye Liu <nyet@mrv.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
+---
+ scripts/mod/file2alias.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/scripts/mod/file2alias.c b/scripts/mod/file2alias.c
+index 82a1011..a334428 100644
+--- a/scripts/mod/file2alias.c
++++ b/scripts/mod/file2alias.c
+@@ -210,6 +210,7 @@ static void do_usb_table(void *symval, unsigned long size,
+ static int do_hid_entry(const char *filename,
+ 			     struct hid_device_id *id, char *alias)
+ {
++	id->bus = TO_NATIVE(id->bus);
+ 	id->vendor = TO_NATIVE(id->vendor);
+ 	id->product = TO_NATIVE(id->product);
+ 
+-- 
+1.6.1.3
+

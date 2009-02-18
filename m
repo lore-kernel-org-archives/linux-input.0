@@ -1,56 +1,64 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH] Input: wm97xx: add BTN_TOUCH event to wm97xx to use it
- with Android
-Date: Wed, 18 Feb 2009 09:29:41 +0200
-Message-ID: <499BB8E5.9050801@compulab.co.il>
-References: <1234863813-12211-1-git-send-email-mike@compulab.co.il> <20090217100246.GB16303@rakim.wolfsonmicro.main> <499AA29B.8090803@compulab.co.il> <20090217133028.GD16303@rakim.wolfsonmicro.main>
+From: Oliver Neukum <oliver@neukum.org>
+Subject: [patch]fix USB HID devices after STD with autosuspend
+Date: Wed, 18 Feb 2009 09:46:14 +0100
+Message-ID: <200902180946.15593.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cathcart.site5.com ([74.54.107.137]:48559 "EHLO
-	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750936AbZBRH3x (ORCPT
+Received: from smtp-out002.kontent.com ([81.88.40.216]:38240 "EHLO
+	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751659AbZBRIob (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2009 02:29:53 -0500
-In-Reply-To: <20090217133028.GD16303@rakim.wolfsonmicro.main>
+	Wed, 18 Feb 2009 03:44:31 -0500
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: lrg@slimlogic.co.uk, linux-input@vger.kernel.org
+To: jikos@jikos.cz, linux-input@vger.kernel.org, USB list <linux-usb@vger.kernel.org>
 
+This patch fixes a bug caused by reset_resume not changing the internal
+status flags for a device that is resumed via reset_resume. To do so the
+reset handlers, which correctly assume that a device is awake, can no longer
+do all the work of reset_resume handling.
 
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Tested-by: Laurent Riffard <laurent.riffard@free.fr>
 
-Mark Brown wrote:
-> On Tue, Feb 17, 2009 at 01:42:19PM +0200, Mike Rapoport wrote:
-> 
->> The difficulty here is to find out when BTN_TOUCH should be generated and what
->> should be its value. As far as I can see from different drivers, there's no
->> one-to-one correspondence between ABS_PRESSURE and BTN_TOUCH. For instance,
->> drivers/input/mouse/synaptics.c has
-> 
-> As a default it should be fine to check for zero/non-zero.  Anything
-> that wants to override the behaviour could supply their own BTN_TOUCH.
-> Another option would be to change Android user space to support pressure
-> only touchscreens.
+Hi,
 
-Android uses test_bit(BTN_TOUCH) to detect a touchscreen. So, adding generated
-BTN_TOUCH event in the input core without changing the input_dev->keybit won't
-help. And if we force BTN_TOUCH set in the input core there would be no way to
-differentiate between devices that supply their own BTN_TOUCH and devices that
-don't.
-Apparently the most correct way would be to change Android touchscreen detection
-and BTN_TOUCH/ABS_PRESSURE handling. But until it's done I'd prefer wm97xx to
-report BTN_TOUCH :)
+this is a patch for the linux-next tree and fixes a regression reported
+for that tree.
 
-> Like I say, I'm fine with the patch itself so it's got my ack - it just
-> feels like it fixes the problem at the wrong level.   From that PoV
-> consider it to have
-> 
-> Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
-> 
+	Regards
+		Oliver
 
--- 
-Sincerely yours,
-Mike.
+--
 
+--- nexttree/drivers/hid/usbhid/hid-core.c.alt	2009-02-17 21:39:45.000000000 +0100
++++ nexttree/drivers/hid/usbhid/hid-core.c	2009-02-17 21:39:57.000000000 +0100
+@@ -1333,6 +1333,15 @@ static int hid_post_reset(struct usb_int
+ 	return 0;
+ }
+ 
++static int hid_reset_resume(struct usb_interface *intf)
++{
++	struct hid_device *hid = usb_get_intfdata(intf);
++	struct usbhid_device *usbhid = hid->driver_data;
++
++	clear_bit(HID_REPORTED_IDLE, &usbhid->iofl);
++	return hid_post_reset(intf);
++}
++
+ int usbhid_get_power(struct hid_device *hid)
+ {
+ 	struct usbhid_device *usbhid = hid->driver_data;
+@@ -1362,7 +1371,7 @@ static struct usb_driver hid_driver = {
+ #ifdef CONFIG_PM
+ 	.suspend =	hid_suspend,
+ 	.resume =	hid_resume,
+-	.reset_resume =	hid_post_reset,
++	.reset_resume =	hid_reset_resume,
+ #endif
+ 	.pre_reset =	hid_pre_reset,
+ 	.post_reset =	hid_post_reset,

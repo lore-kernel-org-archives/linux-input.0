@@ -1,41 +1,31 @@
-From: Oliver Neukum <oliver@neukum.org>
+From: Jiri Slaby <jirislaby@gmail.com>
 Subject: Re: linux-next: USB mouse won't work after resume.
-Date: Wed, 18 Feb 2009 09:47:16 +0100
-Message-ID: <200902180947.17338.oliver@neukum.org>
-References: <20090216172016.f1d159a7.sfr@canb.auug.org.au> <200902172142.57302.oliver@neukum.org> <499B56D3.3080701@free.fr>
+Date: Wed, 18 Feb 2009 10:51:06 +0100
+Message-ID: <499BDA0A.5000904@gmail.com>
+References: <Pine.LNX.4.44L0.0902171602510.18399-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:52134 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751246AbZBRIp2 convert rfc822-to-8bit (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.156]:55812 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750859AbZBRJvL (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2009 03:45:28 -0500
-In-Reply-To: <499B56D3.3080701@free.fr>
-Content-Disposition: inline
+	Wed, 18 Feb 2009 04:51:11 -0500
+In-Reply-To: <Pine.LNX.4.44L0.0902171602510.18399-100000@iolanthe.rowland.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: linux-input@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, Laurent Riffard <laurent.riffard@free.fr>, linux-input@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, USB list <linux-usb@vger.kernel.org>
 
-Am Wednesday 18 February 2009 01:31:15 schrieb Laurent Riffard:
-> > Please try the attached patch.
-> >=20
-> > =A0=A0=A0=A0=A0=A0Regards
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0Oliver
-> >=20
->=20
-> This patch does fix the behaviour, my USB mouse now works after suspe=
-nd/resume. Thanks.
+On 17.2.2009 22:05, Alan Stern wrote:
+> On Tue, 17 Feb 2009, Oliver Neukum wrote:
+>> Please try the attached patch.
+>
+> It seems likely that you are seeing the same problem as Laurent in your
+> mmotm 2009-02-10-16-35 kernel.  You should try Oliver's patch,
+> available here:
+>
+> 	http://marc.info/?l=linux-usb&m=123490330326229&w=2
 
-Very good. I've submitted the patch.
-
-	Thanks
-		Oliver
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Fixes the problem for me. Thanks.

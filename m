@@ -1,73 +1,61 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: lockdep report at resume
-Date: Wed, 18 Feb 2009 14:17:15 +0100
-Message-ID: <1234963035.4023.7.camel@johannes.local>
-References: <1234022517.4175.107.camel@johannes.local>
-	 <alpine.LRH.1.10.0902111246040.22097@twin.jikos.cz>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Wed, 18 Feb 2009 17:45:38 +0200
+Message-ID: <499C2D22.8020005@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <78f5d6bf0902110112o434d43d3ycd473c7b803e8297@mail.gmail.com>	 <4992FC79.80106@gmail.com>	 <78f5d6bf0902121006r460ba8d6m61126af161358c19@mail.gmail.com>	 <49946D7A.408@gmail.com>	 <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>	 <4995CD44.5000808@gmail.com>	 <78f5d6bf0902141125m1bf9ac00xb2b414e81d81b869@mail.gmail.com>	 <49972478.3060207@gmail.com>	 <78f5d6bf0902141433hca696fdo87140907cc358fbf@mail.gmail.com> <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-DrvBaKL9AXzAJqp1cdyB"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:57012 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751559AbZBROVh (ORCPT
+Received: from gw03.mail.saunalahti.fi ([195.197.172.111]:47082 "EHLO
+	gw03.mail.saunalahti.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752624AbZBRPps (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2009 09:21:37 -0500
-In-Reply-To: <alpine.LRH.1.10.0902111246040.22097@twin.jikos.cz>
+	Wed, 18 Feb 2009 10:45:48 -0500
+In-Reply-To: <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, Jiri Slaby <jslaby@suse.cz>
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
+Dmitriy Geels wrote:
+>>>>> Notice the difference in length of report 22 on windows and linux. Try
+>>>>> this in pidff_init():
+>>>>> pidff->reports[PID_BLOCK_LOAD]->size += 8;
+>>>> That's it!
+>>>> I didn't pay attention to length value. Looks like a missing usage in
+>>>> report descriptor!
+>>>> So, quirk with report fix is needed for this device.
+> I'm trying to understand better way to make this descriptor fix. Can
+> you give me an advice on this?
+> Or it's better to wait for patch discussed in "Allow drivers to
+> replace report descriptors" topic?
 
---=-DrvBaKL9AXzAJqp1cdyB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I see there are two options:
+a) Add a device-specific quirk in pidff_init(), or
+b) Add hid-saitek.c that does the adjustment.
 
-On Wed, 2009-02-11 at 13:03 +0100, Jiri Kosina wrote:
+Jiri (CCd, HID maintainer), WDYT?
 
-> OK, so we are calling usb_reset_device() from hid_reset() workqueue. You=20
-> have a composite device, mouse interface being handled by bcm5974 driver,=
-=20
-> and keyboard interface being handled by usbhid driver.
->=20
-> bcm5974 driver doesn't have _pre_reset() and _post_reset() callbacks, so=20
-> full unbind/bind cycle is performed by USB core. bcm5974_disconnect()=20
-> calls input_unregister_device(), which creates reset_work ->=20
-> input_dev->mutex dependency.
->=20
-> Unfortunately I don't seem to see from the lockdep dumps where does the=20
-> input_dev->mutex -> reset_work dependency come from, am I just completely=
-=20
-> blind?
+>>> Hmm, this says problems start with "fftest".
+>>> [10054.751832] HID: implement() called with too large value 47113! (fftest)
+>>>
+>>> Could you print all the values set in pidff_set_effect_report() just
+>>> before the usbhid_submit_report() call, and try to reproduce the WARNING
+>>> with fftest.
+> Problem in fftest is simple: using uninitialized structures. That also
+> was causing slow path warning.
+> But running ffmvforce after fftest brings device to unconsistent
+> state, causing messages "usb 1-1: ctrl urb status -62 received".
 
-Any news on this? I just got it again on -rc5, entirely the same report,
-though it seems I need to have a mouse plugged in, then hibernate,  then
-unplug mouse and finally resume to get this report. IOW it doesn't seem
-to happen if I don't change the hid devices during hibernate.
+Does this happen also with fixed fftest?
 
-johannes
+Of course hid-pidff should also check the values provided, I'll fix this 
+as well.
 
---=-DrvBaKL9AXzAJqp1cdyB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I'll try to provide the discussed patch(es) next weekend.
 
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iQIcBAABAgAGBQJJnApYAAoJEKVg1VMiehFYDcIQALQTYjXivL+r7aCMrQM8rTN6
-zGBN9GNX4YjAu4QjnbQfB5Ze44WIRYyafxX81zN5azkainjQ2ROc8aeRS3aVZljt
-yPCPs6xs5aM9MNjAUzb3A/EbwI0NXdnJOhE0Vl5sl/EvOOEknk6p6zabB946wNDW
-IQRUb3vjmsjoPFlTrbCFDKSvMOAmXhof66t0GFD8e/RIxMOWbpmnEVXDJLLs4hY6
-Cks5/M9Vw2kju/GBj4XaeZ9z2vDdpFNxCDBrVhwyzUcWnq2luJI+8x/JB+AoObMj
-e0qPxrNr6NGIra98B4/Wu6drEMKP/jG+5W5JgxVkiCiMH3/55wdJWwByIxyFyCHc
-aqa09GdsoQjYFSFeU9idZZvQ9Ozi0zbA5rGxVcenT+wrmlXSkJYE/sPKUZ3UfPL+
-m/VFDoCvezedR291QEVvPyHdru8KWoum6eBQvdkE+h1vT0kz4aAvD0EGdqiMVroA
-Q8xl5m5qAM1H5ZNN88NrX51XupPMzjhExv1tiyZOF7gH60rQYi8K6u3/S904DTe+
-CqBHI0H7zWcqKF1gfFHk1yKzeb8oK/ZCOyT6vFICzzzRFARCQxfK84DHFY1+oz1g
-xQABGbXPgD6wWm7wY+Wq+HMcRWFvd5+Gy6t/1JXEyHlaTcJK11SrNd2yJ6gSQIQG
-ZdyvwKyulhkJuIsPS3RA
-=+HKh
------END PGP SIGNATURE-----
-
---=-DrvBaKL9AXzAJqp1cdyB--
+-- 
+Anssi Hannula
 

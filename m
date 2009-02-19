@@ -1,54 +1,45 @@
-From: Mike Murphy <mamurph@cs.clemson.edu>
-Subject: Re: [PATCH] input: xpad.c - Xbox 360 wireless and sysfs support
-Date: Wed, 18 Feb 2009 23:04:48 -0500
-Message-ID: <5aa163d00902182004v1ad42498w9fbe5a74bf5f41d2@mail.gmail.com>
-References: <5aa163d00902142008g138826br80d3ea989e7af691@mail.gmail.com>
-	 <200902160931.34771.oliver@neukum.org>
-	 <5aa163d00902160522r3a22412je3f5202076f57a0a@mail.gmail.com>
-	 <200902161621.28142.oliver@neukum.org>
+From: Dmitriy Geels <dmitriy.geels@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+	gamepad
+Date: Thu, 19 Feb 2009 09:56:14 +0300
+Message-ID: <78f5d6bf0902182256r4ea8525dn94caa84b4b447574@mail.gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
+	 <78f5d6bf0902121006r460ba8d6m61126af161358c19@mail.gmail.com>
+	 <49946D7A.408@gmail.com>
+	 <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>
+	 <4995CD44.5000808@gmail.com>
+	 <78f5d6bf0902141125m1bf9ac00xb2b414e81d81b869@mail.gmail.com>
+	 <49972478.3060207@gmail.com>
+	 <78f5d6bf0902141433hca696fdo87140907cc358fbf@mail.gmail.com>
+	 <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>
+	 <499C2D22.8020005@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.241]:19171 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751170AbZBSEEv (ORCPT
+Received: from fg-out-1718.google.com ([72.14.220.158]:64323 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752230AbZBSG4P (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Feb 2009 23:04:51 -0500
-In-Reply-To: <200902161621.28142.oliver@neukum.org>
+	Thu, 19 Feb 2009 01:56:15 -0500
+Received: by fg-out-1718.google.com with SMTP id 16so1076725fgg.17
+        for <linux-input@vger.kernel.org>; Wed, 18 Feb 2009 22:56:14 -0800 (PST)
+In-Reply-To: <499C2D22.8020005@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
-On Mon, Feb 16, 2009 at 10:21 AM, Oliver Neukum <oliver@neukum.org> wrote:
->> tests seemed to verify this claim... as sending LED commands
->> GFP_KERNEL while holding the mutex resulted in BUGs (scheduling while
->> atomic) in dmesg. Switching those GFP_KERNELs to GFP_ATOMICs
->> eliminated that particular BUG.
+2009/2/18 Anssi Hannula <anssi.hannula@gmail.com>:
+>> Problem in fftest is simple: using uninitialized structures. That also
+>> was causing slow path warning.
+>> But running ffmvforce after fftest brings device to unconsistent
+>> state, causing messages "usb 1-1: ctrl urb status -62 received".
 >
-> Please post that BUG.
->
+> Does this happen also with fixed fftest?
+Yes. That's the problem.
+Exactly this sequence: run fftest, play all effects, then run
+ffmvforce. ffmvforce itself is working well.
 
-I switched back to GFP_KERNEL on the functions in question.
-
-After further testing, I have determined that the BUG only occurs on
-my Ubuntu (2.6.27) system, and only when using the rumble function. I
-am unable to reproduce the BUG on my Arch (2.6.28) system, so it is
-either an artifact of some patch to this kernel, or it got fixed
-somewhere between 2.6.27 and 2.6.28.
-
-Based on this analysis, and (more importantly) an inability to
-reproduce the behavior on a more vanilla kernel, I have removed the
-comments about it from the TODO section of the driver. It isn't a true
-kernel bug at least with a more recent stable kernel.
-
-Mike
--- 
-Mike Murphy
-Ph.D. Candidate and NSF Graduate Research Fellow
-Clemson University School of Computing
-120 McAdams Hall
-Clemson, SC 29634-0974 USA
-Tel: +1 864.656.2838   Fax: +1 864.656.0145
-http://cirg.cs.clemson.edu/~mamurph
+> Of course hid-pidff should also check the values provided, I'll fix this as
+> well.
+I think it'd be also good to look what could cause slow path warning.

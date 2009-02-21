@@ -1,55 +1,32 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input: keyboard: introduce lm8323 driver
-Date: Sat, 21 Feb 2009 13:20:00 +0530
-Message-ID: <5d5443650902202350p206e58ebvcd9becfd04a4133@mail.gmail.com>
-References: <1235046677-29959-1-git-send-email-me@felipebalbi.com>
-	 <20090220141505.d1d53e4b.akpm@linux-foundation.org>
-	 <20090220222911.GV32564@gandalf> <20090220225247.GY32564@gandalf>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: [patch] hid: move tmff and zpff devices from ignore_list to blacklist
+Date: Sat, 21 Feb 2009 09:55:41 +0200
+Message-ID: <499FB37D.8020409@gmail.com>
+References: <499692A1.6030303@gmail.com> <alpine.LNX.1.10.0902161203320.18110@jikos.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.239]:50393 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752174AbZBUHuC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Feb 2009 02:50:02 -0500
-In-Reply-To: <20090220225247.GY32564@gandalf>
+Received: from mta-out.inet.fi ([195.156.147.13]:38936 "EHLO jenni2.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752596AbZBUH4A (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 21 Feb 2009 02:56:00 -0500
+In-Reply-To: <alpine.LNX.1.10.0902161203320.18110@jikos.suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: me@felipebalbi.com
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, felipe.balbi@nokia.com
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-input@vger.kernel.org
 
-Hi Felipe,
+Jiri Kosina wrote:
+> On Sat, 14 Feb 2009, Anssi Hannula wrote:
+> 
+>> The devices handled by hid-tmff and hid-zpff were added in the
+>> hid_ignore_list[] instead of hid_blacklist[] in 
+> 
+> Good catch, thanks for cathing this overlook. I have applied your patch to 
+> my tree.
 
-On Sat, Feb 21, 2009 at 4:22 AM, Felipe Balbi <me@felipebalbi.com> wrote:
-> On Sat, Feb 21, 2009 at 12:29:12AM +0200, Felipe Balbi wrote:
->> On Fri, Feb 20, 2009 at 02:15:05PM -0800, Andrew Morton wrote:
->> > On Thu, 19 Feb 2009 14:31:17 +0200
->> > Felipe Balbi <me@felipebalbi.com> wrote:
->> >
->> > > +struct lm8323_platform_data {
->> > > + int debounce_time; /* Time to watch for key bouncing, in ms. */
->> > > + int active_time; /* Idle time until sleep, in ms. */
->> > > +
->> > > + int size_x;
->> > > + int size_y;
->> > > + int repeat : 1;
->> >
->> > lm8323_platform_data.repeat appears to be never-written-to?
->>
->> Nobody is using that yet, still it's used in the driver:
->>       if (pdata->repeat)
->>               __set_bit(EV_REP, idev->evbit);
->>
-
-Thanks for addressing my review comments to this patch and of course Andrew's.
-
-Happy to add
-
-Reviewed-by: Trilok Soni <soni.trilok@gmail.com>
+Maybe this should also go to the stable 2.6.29 tree?
 
 -- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+Anssi Hannula

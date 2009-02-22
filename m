@@ -1,1126 +1,1792 @@
-From: Mike Murphy <mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org>
-Subject: [PATCH] (revision 1) input: xpad.c - Xbox 360 wireless and sysfs
-	support
-Date: Sun, 22 Feb 2009 00:31:27 -0500
-Message-ID: <5aa163d00902212131g7cf9218ewd8a6396a7f1c95fd@mail.gmail.com>
+From: Frederic Weisbecker <fweisbec@gmail.com>
+Subject: Re: [PATCH] (revision 1) input: xpad.c - Xbox 360 wireless and
+	sysfs support
+Date: Sun, 22 Feb 2009 07:48:08 +0100
+Message-ID: <20090222064806.GC8494@nowhere>
+References: <5aa163d00902212131g7cf9218ewd8a6396a7f1c95fd@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=0016363b7a9c9bcc1c04637b326f
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from nf-out-0910.google.com ([64.233.182.185]:6544 "EHLO
+	nf-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752006AbZBVGsP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 22 Feb 2009 01:48:15 -0500
+Content-Disposition: inline
+In-Reply-To: <5aa163d00902212131g7cf9218ewd8a6396a7f1c95fd@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mike Murphy <mamurph@cs.clemson.edu>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Oliver Neukum <oliver@neukum.org>, Greg KH <greg@kroah.com>
 
---0016363b7a9c9bcc1c04637b326f
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Sun, Feb 22, 2009 at 12:31:27AM -0500, Mike Murphy wrote:
+> Greetings,
+> 
+> Attached is a revised version of my previous patch to
+> drivers/input/joystick/xpad.c, which should apply without issues to
+> the current stable tree (2.6.28.7 at the time of this writing). I have
+> made a number of major changes since the original:
+> 
+> 1. Removed kobject and used input device's existing kobject for sysfs
+> via DEVICE_ATTR. All attributes are part of a game_device group, which
+> I will document once this patch has been reviewed. Thanks to Greg K-H
+> for his help with the sysfs interface and helpful feedback. Return
+> values for sscanf are also now checked, and the ugly strcmp code has
+> been replaced by a cleaner solution (thanks Oliver Neukum). Wireless
+> 360 controllers now produce an online/offline uevent when
+> connecting/disconnecting, for later userspace use. Additionally, the
+> whole sysfs interface is now dependent upon CONFIG_SYSFS (the driver
+> should continue to work without it).
+> 
+> 2. urb submissions while holding mutexes have been reverted to
+> GFP_KERNEL, and fixes have been made to the shared workqueue code to
+> account for possible adverse events (such as removal of the device
+> before the work gets done). Thanks to Oliver Neukum for his feedback.
+> 
+> 3. Re-factored the code a bit and split it into two pieces (xpad.h and
+> xpad.c). The division of the main data structures into a header file
+> makes development on the main body much easier.
+> 
+> 4. After extensive testing and debugging with a popular fighting game
+> in an emulator (with 3-4 concurrent players on wireless 360
+> controllers), I changed the original square axis algorithm to an axis
+> limiting and scaling algorithm that works on a per-stick basis. This
+> new algorithm is substantially less jumpy when using a square axis,
+> and it permits the size of the inscribed square to be adjusted on a
+> per-controller basis. The nominal value to use to achieve the largest
+> possible inscribed square on "perfect" hardware is 23170, but
+> manufacturing variations in the controllers might require a smaller
+> number.
+> 
+> Comments and feedback on this revision are greatly appreciated, and I
+> plan to test all the supported hardware I can get my hands on (need to
+> borrow some wired classic and 360 devices) to be sure the new code
+> doesn't break support for older devices. I will also document the
+> userspace interface by submitting a Documentation/ABI/testing patch
+> with the "final" version of the driver, once it has been nailed down.
+> 
+> Thanks,
+> Mike
+> -- 
+> Mike Murphy
+> Ph.D. Candidate and NSF Graduate Research Fellow
+> Clemson University School of Computing
+> 120 McAdams Hall
+> Clemson, SC 29634-0974 USA
+> Tel: +1 864.656.2838   Fax: +1 864.656.0145
+> http://cirg.cs.clemson.edu/~mamurph
 
-Greetings,
+> diff -uNr origdrv/drivers/input/joystick/xpad.c newdrv/drivers/input/joystick/xpad.c
+> --- origdrv/drivers/input/joystick/xpad.c	2009-02-14 22:39:20.000000000 -0500
+> +++ newdrv/drivers/input/joystick/xpad.c	2009-02-21 23:58:21.000000000 -0500
+> @@ -1,5 +1,8 @@
+>  /*
+> - * X-Box gamepad driver
+> + * Xbox gamepad driver with Xbox 360 wired/wireless support
+> + *
+> + * Last Modified:	21 February 2009
+> + *			Mike Murphy <mamurph@cs.clemson.edu>
+>   *
+>   * Copyright (c) 2002 Marko Friedemann <mfr@bmx-chemnitz.de>
+>   *               2004 Oliver Schwartz <Oliver.Schwartz@gmx.de>,
+> @@ -9,6 +12,8 @@
+>   *               2005 Dominic Cerquetti <binary1230@yahoo.com>
+>   *               2006 Adam Buchbinder <adam.buchbinder@gmail.com>
+>   *               2007 Jan Kratochvil <honza@jikos.cz>
+> + *               2009 Clemson University
+> + *		      (contact: Mike Murphy <mamurph@cs.clemson.edu>)
+>   *
+>   * This program is free software; you can redistribute it and/or
+>   * modify it under the terms of the GNU General Public License as
+> @@ -24,224 +29,305 @@
+>   * along with this program; if not, write to the Free Software
+>   * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+>   *
+> + * Please see xbox.h for the ChangeLog.
+> + */
+> +
+> +
+> +
+> +#include "xpad.h"
+> +
+> +
+> +/* The dead zone and stick limit both affect the behavior of the corresponding
+> + * analog stick, since the output values reported for the stick inputs will
+> + * be scaled onto [0,32767]. It is thus necessary to ensure that the dead zone
+> + * is never larger than the stick limit. In fact, a minimal amount of stick
+> + * travel space (1024) is maintained between the two values. In practice,
+> + * however, the stick limit should always be much greater than the dead zone.
+> + */
+> +
+> +static void set_dead_zone(unsigned int new_size, unsigned int *dz, unsigned int stick_limit)
+> +{
+> +	if ((new_size + 1024) >= stick_limit)
+> +		new_size = (stick_limit > 1024) ? stick_limit - 1024 : 0;
+> +	*dz = new_size;
+> +}
+> +
+> +static void set_stick_limit(unsigned int new_size, unsigned int *sl, unsigned int dead_zone)
+> +{
+> +	if (new_size < (dead_zone + 1024))
+> +		new_size = dead_zone + 1024;
+> +	if (new_size > 32767)
+> +		new_size = 32767;
+> +	*sl = new_size;
+> +}
+> +
+> +
+> +/****************************************************************************/
+> +/*
+> + * SysFs interface functions
+>   *
+> - * This driver is based on:
+> - *  - information from     http://euc.jp/periphs/xbox-controller.ja.html
+> - *  - the iForce driver    drivers/char/joystick/iforce.c
+> - *  - the skeleton-driver  drivers/usb/usb-skeleton.c
+> - *  - Xbox 360 information http://www.free60.org/wiki/Gamepad
+> - *
+> - * Thanks to:
+> - *  - ITO Takayuki for providing essential xpad information on his website
+> - *  - Vojtech Pavlik     - iforce driver / input subsystem
+> - *  - Greg Kroah-Hartman - usb-skeleton driver
+> - *  - XBOX Linux project - extra USB id's
+> - *
+> - * TODO:
+> - *  - fine tune axes (especially trigger axes)
+> - *  - fix "analog" buttons (reported as digital now)
+> - *  - get rumble working
+> - *  - need USB IDs for other dance pads
+> - *
+> - * History:
+> - *
+> - * 2002-06-27 - 0.0.1 : first version, just said "XBOX HID controller"
+> - *
+> - * 2002-07-02 - 0.0.2 : basic working version
+> - *  - all axes and 9 of the 10 buttons work (german InterAct device)
+> - *  - the black button does not work
+> - *
+> - * 2002-07-14 - 0.0.3 : rework by Vojtech Pavlik
+> - *  - indentation fixes
+> - *  - usb + input init sequence fixes
+> - *
+> - * 2002-07-16 - 0.0.4 : minor changes, merge with Vojtech's v0.0.3
+> - *  - verified the lack of HID and report descriptors
+> - *  - verified that ALL buttons WORK
+> - *  - fixed d-pad to axes mapping
+> - *
+> - * 2002-07-17 - 0.0.5 : simplified d-pad handling
+> - *
+> - * 2004-10-02 - 0.0.6 : DDR pad support
+> - *  - borrowed from the XBOX linux kernel
+> - *  - USB id's for commonly used dance pads are present
+> - *  - dance pads will map D-PAD to buttons, not axes
+> - *  - pass the module paramater 'dpad_to_buttons' to force
+> - *    the D-PAD to map to buttons if your pad is not detected
+> - *
+> - * Later changes can be tracked in SCM.
+> - */
+> -
+> -#include <linux/kernel.h>
+> -#include <linux/init.h>
+> -#include <linux/slab.h>
+> -#include <linux/stat.h>
+> -#include <linux/module.h>
+> -#include <linux/usb/input.h>
+> -
+> -#define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
+> -#define DRIVER_DESC "X-Box pad driver"
+> -
+> -#define XPAD_PKT_LEN 32
+> -
+> -/* xbox d-pads should map to buttons, as is required for DDR pads
+> -   but we map them to axes when possible to simplify things */
+> -#define MAP_DPAD_TO_BUTTONS    0
+> -#define MAP_DPAD_TO_AXES       1
+> -#define MAP_DPAD_UNKNOWN       2
+> -
+> -#define XTYPE_XBOX        0
+> -#define XTYPE_XBOX360     1
+> -#define XTYPE_XBOX360W    2
+> -#define XTYPE_UNKNOWN     3
+> -
+> -static int dpad_to_buttons;
+> -module_param(dpad_to_buttons, bool, S_IRUGO);
+> -MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
+> -
+> -static const struct xpad_device {
+> -	u16 idVendor;
+> -	u16 idProduct;
+> -	char *name;
+> -	u8 dpad_mapping;
+> -	u8 xtype;
+> -} xpad_device[] = {
+> -	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
+> -	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> -	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x046d, 0xc242, "Logitech Chillstream Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+> -	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0738, 0x4516, "Mad Catz Control Pad", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0738, 0x4522, "Mad Catz LumiCON", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0738, 0x4526, "Mad Catz Control Pad Pro", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0738, 0x4536, "Mad Catz MicroCON", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0738, 0x4540, "Mad Catz Beat Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> -	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+> -	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> -	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0c12, 0x8810, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0e4c, 0x1097, "Radica Gamester Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0e4c, 0x2390, "Radica Games Jtech Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0e6f, 0x0003, "Logic3 Freebird wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0e6f, 0x0006, "Edge wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0e6f, 0x0006, "Pelican 'TSZ' Wired Xbox 360 Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+> -	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0f30, 0x0202, "Joytech Advanced Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x12ab, 0x8809, "Xbox DDR dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> -	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+> -	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX },
+> -	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", MAP_DPAD_TO_AXES, XTYPE_XBOX360 },
+> -	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX },
+> -	{ 0x0000, 0x0000, "Generic X-Box pad", MAP_DPAD_UNKNOWN, XTYPE_UNKNOWN }
+> -};
+> -
+> -/* buttons shared with xbox and xbox360 */
+> -static const signed short xpad_common_btn[] = {
+> -	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
+> -	BTN_START, BTN_BACK, BTN_THUMBL, BTN_THUMBR,	/* start/back/sticks */
+> -	-1						/* terminating entry */
+> -};
+> -
+> -/* original xbox controllers only */
+> -static const signed short xpad_btn[] = {
+> -	BTN_C, BTN_Z,		/* "analog" buttons */
+> -	-1			/* terminating entry */
+> -};
+> -
+> -/* only used if MAP_DPAD_TO_BUTTONS */
+> -static const signed short xpad_btn_pad[] = {
+> -	BTN_LEFT, BTN_RIGHT,		/* d-pad left, right */
+> -	BTN_0, BTN_1,			/* d-pad up, down (XXX names??) */
+> -	-1				/* terminating entry */
+> -};
+> -
+> -static const signed short xpad360_btn[] = {  /* buttons for x360 controller */
+> -	BTN_TL, BTN_TR,		/* Button LB/RB */
+> -	BTN_MODE,		/* The big X button */
+> -	-1
+> -};
+> -
+> -static const signed short xpad_abs[] = {
+> -	ABS_X, ABS_Y,		/* left stick */
+> -	ABS_RX, ABS_RY,		/* right stick */
+> -	ABS_Z, ABS_RZ,		/* triggers left/right */
+> -	-1			/* terminating entry */
+> -};
+> -
+> -/* only used if MAP_DPAD_TO_AXES */
+> -static const signed short xpad_abs_pad[] = {
+> -	ABS_HAT0X, ABS_HAT0Y,	/* d-pad axes */
+> -	-1			/* terminating entry */
+> -};
+> -
+> -/* Xbox 360 has a vendor-specific class, so we cannot match it with only
+> - * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
+> - * match against vendor id as well. Wired Xbox 360 devices have protocol 1,
+> - * wireless controllers have protocol 129. */
+> -#define XPAD_XBOX360_VENDOR_PROTOCOL(vend,pr) \
+> -	.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
+> -	.idVendor = (vend), \
+> -	.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
+> -	.bInterfaceSubClass = 93, \
+> -	.bInterfaceProtocol = (pr)
+> -#define XPAD_XBOX360_VENDOR(vend) \
+> -	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,1) }, \
+> -	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,129) }
+> -
+> -static struct usb_device_id xpad_table [] = {
+> -	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+> -	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+> -	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
+> -	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
+> -	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+> -	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+> -	{ }
+> -};
+> -
+> -MODULE_DEVICE_TABLE (usb, xpad_table);
+> -
+> -struct usb_xpad {
+> -	struct input_dev *dev;		/* input device interface */
+> -	struct usb_device *udev;	/* usb device */
+> -
+> -	int pad_present;
+> -
+> -	struct urb *irq_in;		/* urb for interrupt in report */
+> -	unsigned char *idata;		/* input data */
+> -	dma_addr_t idata_dma;
+> + * We use common functions, where possible, to implement the show/store
+> + * routines. This design saves on code and reduces the burden of adding to or
+> + * changing the interface.
+> + */
+> + 
+> +#if defined(CONFIG_SYSFS)
+>  
+> -	struct urb *bulk_out;
+> -	unsigned char *bdata;
+> +static ssize_t xpad_show_uint(struct device *dev, struct device_attribute *attr,
+> +		char *buf)
+> +{
+> +	struct usb_xpad *xpad = to_xpad(dev);
+> +	unsigned int value;
+> +	if (attr == &dev_attr_left_dead_zone)
+> +		value = xpad->left_dead_zone;
+> +	else if (attr == &dev_attr_right_dead_zone)
+> +		value = xpad->right_dead_zone;
+> +	else if (attr == &dev_attr_left_stick_limit)
+> +		value = xpad->left_stick_limit;
+> +	else if (attr == &dev_attr_right_stick_limit)
+> +		value = xpad->right_stick_limit;
+> +	else
+> +		return -EIO;
+> +	return snprintf(buf, PAGE_SIZE, "%u\n", value);
+> +}
+>  
+> -#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> -	struct urb *irq_out;		/* urb for interrupt out report */
+> -	unsigned char *odata;		/* output data */
+> -	dma_addr_t odata_dma;
+> -	struct mutex odata_mutex;
+> -#endif
+>  
+> -#if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> -	struct xpad_led *led;
+> +static ssize_t xpad_store_uint(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count)
+> +{
+> +	struct usb_xpad *xpad = to_xpad(dev);
+> +	unsigned int new_value;
+> +	if (1 != sscanf(buf, "%u", &new_value)) {
+> +		return -EIO;
+> +	}
+> +	if (attr == &dev_attr_left_dead_zone)
+> +		set_dead_zone(new_value, &xpad->left_dead_zone, xpad->left_stick_limit);
+> +	else if (attr == &dev_attr_right_dead_zone)
+> +		set_dead_zone(new_value, &xpad->right_dead_zone, xpad->right_stick_limit);
+> +	else if (attr == &dev_attr_left_stick_limit)
+> +		set_stick_limit(new_value, &xpad->left_stick_limit, xpad->left_dead_zone);
+> +	else if (attr == &dev_attr_right_stick_limit)
+> +		set_stick_limit(new_value, &xpad->right_stick_limit, xpad->right_dead_zone);
+> +	else
+> +		return -EIO;
+> +	return strnlen(buf, PAGE_SIZE);
+> +}
+> +
+> +
+> +static ssize_t xpad_store_rumble_enable(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count)
+> +{
+> +	struct usb_xpad *xpad = to_xpad(dev);
+> +	int newrumble = xpad->rumble_enable;
+> +	if (1 == sscanf(buf, "%d", &newrumble))
 
-Attached is a revised version of my previous patch to
-drivers/input/joystick/xpad.c, which should apply without issues to
-the current stable tree (2.6.28.7 at the time of this writing). I have
-made a number of major changes since the original:
 
-1. Removed kobject and used input device's existing kobject for sysfs
-via DEVICE_ATTR. All attributes are part of a game_device group, which
-I will document once this patch has been reviewed. Thanks to Greg K-H
-for his help with the sysfs interface and helpful feedback. Return
-values for sscanf are also now checked, and the ugly strcmp code has
-been replaced by a cleaner solution (thanks Oliver Neukum). Wireless
-360 controllers now produce an online/offline uevent when
-connecting/disconnecting, for later userspace use. Additionally, the
-whole sysfs interface is now dependent upon CONFIG_SYSFS (the driver
-should continue to work without it).
+Oh, that's not wrong but it looks weird, usually, a code reader would
+expect to see if (sscanf(...) == 1)
 
-2. urb submissions while holding mutexes have been reverted to
-GFP_KERNEL, and fixes have been made to the shared workqueue code to
-account for possible adverse events (such as removal of the device
-before the work gets done). Thanks to Oliver Neukum for his feedback.
 
-3. Re-factored the code a bit and split it into two pieces (xpad.h and
-xpad.c). The division of the main data structures into a header file
-makes development on the main body much easier.
+> +		xpad->rumble_enable = (newrumble) ? 1 : 0;
+> +	return count;
+> +}
+> +
+> +
+> +/* read-only attributes share a common store function that returns an error */
+> +static ssize_t xpad_store_ro(struct device *dev, struct device_attribute *attr,
+> +		const char *buf, size_t count)
+> +{
+> +	return -EIO;
+> +}
+> +
+> +
+> +static ssize_t xpad_show_int(struct device *dev, struct device_attribute *attr,
+> +		char *buf)
+> +{
+> +	struct usb_xpad *xpad = to_xpad(dev);
+> +	int value;
+> +	if (attr == &dev_attr_rumble_enable)
+> +		value = xpad->rumble_enable;
+> +	else if (attr == &dev_attr_controller_number)
+> +		value = xpad->controller_number;
+> +	else if (attr == &dev_attr_controller_present)
+> +		value = xpad->controller_present;
+> +	else if (attr == &dev_attr_controller_type)
+> +		value = xpad->controller_type;
+> +	else
+> +		return -EIO;
+> +	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+> +}
+> +
+> +
+> +static ssize_t xpad_show_id(struct device *dev,
+> +		struct device_attribute *attr, char *buf)
+> +{
+> +	struct usb_xpad *xpad = to_xpad(dev);
+> +	return snprintf(buf, PAGE_SIZE, "%s\n", xpad->controller_unique_id);
+> +}
+> +
+>  #endif
+> +/* end of sysfs interface */
+> +/*****************************************************************************/
+> +
+> +/* Input section */
+> +
+> +/*	xpad_init_controller
+> + *
+> + *	Performs controller setup based on controller type.
+> + *
+> + *	NOTE: xpad->controller_data->controller_type needs to be set BEFORE
+> + *	calling this function!
+> + */
+> + 
+> +static void xpad_init_controller(struct usb_xpad *xpad)
+> +{
+> +	set_stick_limit(XSTICK_LIMIT_DEFAULT, &xpad->left_stick_limit, xpad->left_dead_zone);
+> +	set_stick_limit(XSTICK_LIMIT_DEFAULT, &xpad->right_stick_limit, xpad->right_dead_zone);
+> +	set_dead_zone(XDEAD_ZONE_DEFAULT, &xpad->left_dead_zone, xpad->left_stick_limit);
+> +	set_dead_zone(XDEAD_ZONE_DEFAULT, &xpad->right_dead_zone, xpad->right_stick_limit);
+> +	
+> +	if (xpad->controller_type == XCONTROLLER_TYPE_GUITAR) {
+> +		xpad->rumble_enable = 0;
+> +	}
+> +	else if (xpad->controller_type == XCONTROLLER_TYPE_DANCE_PAD) {
+> +		xpad->rumble_enable = 0;
+> +	}
+> +	else {
+> +		xpad->rumble_enable = 1;
+> +	}
 
-4. After extensive testing and debugging with a popular fighting game
-in an emulator (with 3-4 concurrent players on wireless 360
-controllers), I changed the original square axis algorithm to an axis
-limiting and scaling algorithm that works on a per-stick basis. This
-new algorithm is substantially less jumpy when using a square axis,
-and it permits the size of the inscribed square to be adjusted on a
-per-controller basis. The nominal value to use to achieve the largest
-possible inscribed square on "perfect" hardware is 23170, but
-manufacturing variations in the controllers might require a smaller
-number.
 
-Comments and feedback on this revision are greatly appreciated, and I
-plan to test all the supported hardware I can get my hands on (need to
-borrow some wired classic and 360 devices) to be sure the new code
-doesn't break support for older devices. I will also document the
-userspace interface by submitting a Documentation/ABI/testing patch
-with the "final" version of the driver, once it has been nailed down.
+The brackets are not needed in these checks, may be you should run
+scripts/checkpatch.pl to check obvious coding styles issues.
 
-Thanks,
-Mike
--- 
-Mike Murphy
-Ph.D. Candidate and NSF Graduate Research Fellow
-Clemson University School of Computing
-120 McAdams Hall
-Clemson, SC 29634-0974 USA
-Tel: +1 864.656.2838   Fax: +1 864.656.0145
-http://cirg.cs.clemson.edu/~mamurph
 
---0016363b7a9c9bcc1c04637b326f
-Content-Type: text/x-patch; charset=US-ASCII; name="xpad.patch"
-Content-Disposition: attachment; filename="xpad.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_frh9fswz0
+> +}
+> +
+>  
+> -	char phys[64];			/* physical device path */
+> +/*
+> + *	xpad_work_controller
+> + *
+> + *	Submits command to set pad number on LED display of wireless 360
+> + *	controllers. The shared workqueue is used for this purpose, so that
+> + *	the interrupt handler is kept short.
+> + */
+> + 
+> +static void xpad_work_controller(struct work_struct *w)
+> +{
+> +   struct usb_xpad * xpad = container_of(w, struct usb_xpad, work);
+> +   xpad_send_led_command(xpad, xpad->controller_number + 1);
+> +   xpad->work_pending = 0;
+> +}
+> +
+> +
+> +/*
+> + *	xpad_process_sticks
+> + *
+> + *	Handles stick input, accounting for dead zones and square axes. Based
+> + *	on the original handlers for the Xbox and Xbox 360 in
+> + *	xpad_process_packet and xpad360_process_packet, but unified to avoid
+> + *	duplication.
+> + *
+> + *	Whenever a dead zone is used, each axis is scaled so that moving the
+> + *	stick slightly out of the dead zone range results in a low axis
+> + *	value in jstest(1), while moving the stick to the maximum position
+> + *	along any axis still results in 32767.
+> + *
+> + *	In order to provide the ability to map inputs to a square axis (used
+> + *	by older games), the left_stick_limit and right_stick_limit can be
+> + *	set. These limits specify at what point in the raw input coordinates
+> + *	an axis is reported to be at maximum value (32767 or -32767).
+> + *
+> + *	Both the dead zone and stick limit algorithms are implemented
+> + *	together as a coordinate transformation from "effective coordinates"
+> + *	onto the output coordinates (which have absolute values from 0 to
+> + *	32767 and are positive or negative based on direction). Effective
+> + *	coordinates are defined as those input values that are greater than
+> + *	the dead zone but less than the stick limit on the axis in question.
+> + *
+> + *	DANGER: All denominator values in division operations MUST be checked
+> + *	for non-zero condition. Dividing by zero inside the kernel can cause
+> + *	a system deadlock.
+> + */
+> +
+> +static void xpad_process_sticks(struct usb_xpad *xpad, unsigned char *data)
+> +{
+> +	struct input_dev *dev = xpad->dev;
+> +	int coords[4];    /* x, y, rx, ry */
+> +	int x_offset, y_offset, rx_offset, ry_offset;
+> +	int c;
+> +	int range;
+> +	int abs_magnitude, adjusted_magnitude, difference, scale_fraction;
+> +	int dead_zone[2], stick_limit[2];
+> +	
+> +	dead_zone[0] = xpad->left_dead_zone;
+> +	dead_zone[1] = xpad->right_dead_zone;
+> +	stick_limit[0] = xpad->left_stick_limit;
+> +	stick_limit[1] = xpad->right_stick_limit;
+> +	
+> +	if (xpad->xtype == XTYPE_XBOX) {
+> +		x_offset = 12;
+> +		y_offset = 14;
+> +		rx_offset = 16;
+> +		ry_offset = 18;
+> +	}
+> +	else {
+> +		x_offset = 6;
+> +		y_offset = 8;
+> +		rx_offset = 10;
+> +		ry_offset = 12;
+> +	}
+> +	
+> +	coords[0] = (__s16) le16_to_cpup((__le16 *)(data + x_offset));
+> +	coords[1] = ~(__s16) le16_to_cpup((__le16 *)(data + y_offset));
+> +	coords[2] = (__s16) le16_to_cpup((__le16 *)(data + rx_offset));
+> +	coords[3] = ~(__s16) le16_to_cpup((__le16 *)(data + ry_offset));
+> +	
+> +	/* Adjustment for dead zone and square axis */
+> +	for (c = 0; c < 4; c++) {
+> +		abs_magnitude = (int) coords[c];
+> +		if (abs_magnitude < 0)
+> +			abs_magnitude = -abs_magnitude;
+> +		adjusted_magnitude = abs_magnitude;
+> +		
+> +		range = (stick_limit[c/2] - dead_zone[c/2]);
+> +		
+> +		if (abs_magnitude >= stick_limit[c/2]) {
+> +			adjusted_magnitude = 32767;
+> +		}
+> +		else if (abs_magnitude <= dead_zone[c/2]) {
+> +			adjusted_magnitude = 0;
+> +		}
+> +		else if (range > 0) {
+> +			difference = 32767 - range;
+> +			if (difference) {
+> +				/* DIVISION: difference non-zero */
+> +				scale_fraction = range / difference;
+> +				adjusted_magnitude = abs_magnitude - dead_zone[c/2];
+> +				
+> +				/* Approximate floating-point division with a
+> +				 * "catch-up" scaling algorithm that adds back
+> +				 * to the adjusted_magnitude based on distance
+> +				 * from the origin (0 in adjusted coordinates).
+> +				 * If the range / difference is at least 1,
+> +				 * then 1 needs to be added to the adjusted
+> +				 * magnitude for every scale_fraction units
+> +				 * from the origin. If the range / difference
+> +				 * is less than 1 (0 in integer division),
+> +				 * then divide the difference by the range to
+> +				 * obtain the number of units to add per unit
+> +				 * from the adjusted origin.
+> +				 */
+> +				if (scale_fraction) {
+> +					/* DIVISION: scale_fraction non-zero */
+> +					adjusted_magnitude += adjusted_magnitude / scale_fraction;
+> +				}
+> +				else {
+> +					/* DIVISION: range non-zero */
+> +					scale_fraction = difference / range;
+> +					adjusted_magnitude += adjusted_magnitude * scale_fraction;
+> +				}
+> +				if (adjusted_magnitude > 32767)
+> +					adjusted_magnitude = 32767;
+> +			}
+> +		}
+> +		coords[c] = (coords[c] < 0) ? -adjusted_magnitude : adjusted_magnitude;
+> +	}
+> +	
+> +	input_report_abs(dev, ABS_X, (__s16) coords[0]);
+> +	input_report_abs(dev, ABS_Y, (__s16) coords[1]);
+> +	input_report_abs(dev, ABS_RX, (__s16) coords[2]);
+> +	input_report_abs(dev, ABS_RY, (__s16) coords[3]);
+> +}
+>  
+> -	int dpad_mapping;		/* map d-pad to buttons or to axes */
+> -	int xtype;			/* type of xbox device */
+> -};
+>  
+>  /*
+>   *	xpad_process_packet
+> @@ -256,18 +342,9 @@
+>  static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
+>  {
+>  	struct input_dev *dev = xpad->dev;
+> -
+> -	/* left stick */
+> -	input_report_abs(dev, ABS_X,
+> -			 (__s16) le16_to_cpup((__le16 *)(data + 12)));
+> -	input_report_abs(dev, ABS_Y,
+> -			 ~(__s16) le16_to_cpup((__le16 *)(data + 14)));
+> -
+> -	/* right stick */
+> -	input_report_abs(dev, ABS_RX,
+> -			 (__s16) le16_to_cpup((__le16 *)(data + 16)));
+> -	input_report_abs(dev, ABS_RY,
+> -			 ~(__s16) le16_to_cpup((__le16 *)(data + 18)));
+> +	
+> +	/* left and right sticks */
+> +	xpad_process_sticks(xpad, data);
+>  
+>  	/* triggers left/right */
+>  	input_report_abs(dev, ABS_Z, data[10]);
+> @@ -305,6 +382,7 @@
+>  	input_sync(dev);
+>  }
+>  
+> +
+>  /*
+>   *	xpad360_process_packet
+>   *
+> @@ -350,18 +428,9 @@
+>  	input_report_key(dev, BTN_TL,	data[3] & 0x01);
+>  	input_report_key(dev, BTN_TR,	data[3] & 0x02);
+>  	input_report_key(dev, BTN_MODE,	data[3] & 0x04);
+> -
+> -	/* left stick */
+> -	input_report_abs(dev, ABS_X,
+> -			 (__s16) le16_to_cpup((__le16 *)(data + 6)));
+> -	input_report_abs(dev, ABS_Y,
+> -			 ~(__s16) le16_to_cpup((__le16 *)(data + 8)));
+> -
+> -	/* right stick */
+> -	input_report_abs(dev, ABS_RX,
+> -			 (__s16) le16_to_cpup((__le16 *)(data + 10)));
+> -	input_report_abs(dev, ABS_RY,
+> -			 ~(__s16) le16_to_cpup((__le16 *)(data + 12)));
+> +	
+> +	/* left and right sticks */
+> +	xpad_process_sticks(xpad, data);
+>  
+>  	/* triggers left/right */
+>  	input_report_abs(dev, ABS_Z, data[4]);
+> @@ -370,6 +439,33 @@
+>  	input_sync(dev);
+>  }
+>  
+> +
+> +static void xpad360w_identify_controller(struct usb_xpad *xpad, unsigned char *data)
+> +{
+> +	u32 id;
+> +	int i;
+> +	
+> +	snprintf(xpad->controller_unique_id, 17,
+> +		"%02x%02x%02x%02x%02x%02x%02x%02x",
+> +		data[8], data[9], data[10], data[11], data[12], data[13],
+> +		data[14], data[15]);
+> +			
+> +	/* Identify controller type */
+> +	id = (u32) *(data + 22);
+> +	xpad->controller_type = XCONTROLLER_TYPE_OTHER;
+> +	for (i = 0; w360_id[i].id_bytes; i++) {
+> +		if (id == w360_id[i].id_bytes) {
+> +			xpad->controller_type =
+> +				w360_id[i].controller_type;
+> +			break;
+> +		}
+> +	}
+> +	
+> +	if (id == XCONTROLLER_TYPE_OTHER)
+> +		printk(KERN_INFO "xpad: unknown wireless controller type: %08x\n", id);
+> +}
+> +
+> +
+>  /*
+>   * xpad360w_process_packet
+>   *
+> @@ -379,6 +475,7 @@
+>   * Byte.Bit
+>   * 00.1 - Status change: The controller or headset has connected/disconnected
+>   *                       Bits 01.7 and 01.6 are valid
+> + * 01.f - Some kind of unique identifier message (see above)
+>   * 01.7 - Controller present
+>   * 01.6 - Headset present
+>   * 01.1 - Pad state (Bytes 4+) valid
+> @@ -387,22 +484,53 @@
+>  
+>  static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data)
+>  {
+> -	/* Presence change */
+> +	int padnum = 0;
+> +
+> +	/* Presence change */	
+>  	if (data[0] & 0x08) {
+> +		padnum = xpad->controller_number;
+>  		if (data[1] & 0x80) {
+> -			xpad->pad_present = 1;
+> -			usb_submit_urb(xpad->bulk_out, GFP_ATOMIC);
+> -		} else
+> -			xpad->pad_present = 0;
+> +			/* ignore duplicates */
+> +			if (!xpad->controller_present) {
+> +				xpad->controller_present = 1;
+> +				
+> +				if (xpad->work_pending)
+> +					PREPARE_WORK(&xpad->work, &xpad_work_controller);
+> +				else
+> +					INIT_WORK(&xpad->work, &xpad_work_controller);
+> +				xpad->work_pending = 1;
+> +				schedule_work(&xpad->work);
+> +				kobject_uevent(&xpad->dev->dev.kobj, KOBJ_ONLINE);
+> +			}
+> +		}
+> +		else {
+> +			kobject_uevent(&xpad->dev->dev.kobj, KOBJ_OFFLINE);
+> +			xpad->controller_present = 0;
+> +			xpad->controller_unique_id[0] = '\0';
+> +			xpad->controller_type = XCONTROLLER_TYPE_NONE;
+> +			/* We do NOT flush the shared workqueue here, because
+> +			 * this function is called from an interrupt handler.
+> +			 * If the controller has disconnected from the receiver,
+> +			 * the worst that will happen from the work task running
+> +			 * is that a packet will be transmitted from the
+> +			 * receiver to a non-listening controller
+> +			 */
+> +		}
+>  	}
+>  
+> -	/* Valid pad data */
+> -	if (!(data[1] & 0x1))
+> -		return;
+> -
+> -	xpad360_process_packet(xpad, cmd, &data[4]);
+> +	/* Process packets according to type */
+> +	if (data[1] == 0x0f) {
+> +		if (! xpad->controller_unique_id[0]) {
+> +			xpad360w_identify_controller(xpad, data);
+> +			xpad_init_controller(xpad);
+> +		}
+> +	}
+> +	else if (data[1] & 0x1) {
+> +		xpad360_process_packet(xpad, cmd, &data[4]);
+> +	}
+>  }
+>  
+> +
+>  static void xpad_irq_in(struct urb *urb)
+>  {
+>  	struct usb_xpad *xpad = urb->context;
+> @@ -445,24 +573,16 @@
+>  		     __func__, retval);
+>  }
+>  
+> -static void xpad_bulk_out(struct urb *urb)
+> -{
+> -	switch (urb->status) {
+> -	case 0:
+> -		/* success */
+> -		break;
+> -	case -ECONNRESET:
+> -	case -ENOENT:
+> -	case -ESHUTDOWN:
+> -		/* this urb is terminated, clean up */
+> -		dbg("%s - urb shutting down with status: %d", __func__, urb->status);
+> -		break;
+> -	default:
+> -		dbg("%s - nonzero urb status received: %d", __func__, urb->status);
+> -	}
+> -}
+>  
+> +/* end input section */
+> +
+> +/*****************************************************************************/
+> +/* IRQ output section: present in object code only if the force feedback or
+> + * LED interface is enabled.
+> + */
+> + 
+>  #if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> +
+>  static void xpad_irq_out(struct urb *urb)
+>  {
+>  	int retval, status;
+> @@ -493,12 +613,13 @@
+>  		    __func__, retval);
+>  }
+>  
+> +
+>  static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad)
+>  {
+>  	struct usb_endpoint_descriptor *ep_irq_out;
+>  	int error = -ENOMEM;
+>  
+> -	if (xpad->xtype != XTYPE_XBOX360)
+> +	if ((xpad->xtype != XTYPE_XBOX360) && (xpad->xtype != XTYPE_XBOX360W))
+>  		return 0;
+>  
+>  	xpad->odata = usb_buffer_alloc(xpad->udev, XPAD_PKT_LEN,
+> @@ -526,45 +647,82 @@
+>   fail1:	return error;
+>  }
+>  
+> +
+>  static void xpad_stop_output(struct usb_xpad *xpad)
+>  {
+> -	if (xpad->xtype == XTYPE_XBOX360)
+> +	if ((xpad->xtype == XTYPE_XBOX360) || (xpad->xtype == XTYPE_XBOX360W))
+>  		usb_kill_urb(xpad->irq_out);
+>  }
+>  
+> +
+>  static void xpad_deinit_output(struct usb_xpad *xpad)
+>  {
+> -	if (xpad->xtype == XTYPE_XBOX360) {
+> +	if ((xpad->xtype == XTYPE_XBOX360) || (xpad->xtype == XTYPE_XBOX360W)) {
+>  		usb_free_urb(xpad->irq_out);
+>  		usb_buffer_free(xpad->udev, XPAD_PKT_LEN,
+>  				xpad->odata, xpad->odata_dma);
+>  	}
+>  }
+> +
+>  #else
+> +/* Dummy implementations for xpad_probe and xpad_disconnect */
+>  static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad) { return 0; }
+>  static void xpad_deinit_output(struct usb_xpad *xpad) {}
+>  static void xpad_stop_output(struct usb_xpad *xpad) {}
+>  #endif
+>  
+> -#ifdef CONFIG_JOYSTICK_XPAD_FF
+> +/* end output section */
+> +
+> +/*****************************************************************************/
+> +
+> +/* Force feedback (rumble effect) section, depends on CONFIG_JOYSTICK_XPAD_FF */
+> +
+> +#if defined(CONFIG_JOYSTICK_XPAD_FF)
+> +
+> +/* Rumble support for wireless controllers follows protocol description
+> + * from xboxdrv userspace driver:
+> + *       http://pingus.seul.org/~grumbel/xboxdrv/
+> + */
+>  static int xpad_play_effect(struct input_dev *dev, void *data,
+>  			    struct ff_effect *effect)
+>  {
+>  	struct usb_xpad *xpad = input_get_drvdata(dev);
+> +	
+> +	if (! xpad->rumble_enable)
+> +		return 0;
+>  
+>  	if (effect->type == FF_RUMBLE) {
+>  		__u16 strong = effect->u.rumble.strong_magnitude;
+>  		__u16 weak = effect->u.rumble.weak_magnitude;
+> -		xpad->odata[0] = 0x00;
+> -		xpad->odata[1] = 0x08;
+> -		xpad->odata[2] = 0x00;
+> -		xpad->odata[3] = strong / 256;
+> -		xpad->odata[4] = weak / 256;
+> -		xpad->odata[5] = 0x00;
+> -		xpad->odata[6] = 0x00;
+> -		xpad->odata[7] = 0x00;
+> -		xpad->irq_out->transfer_buffer_length = 8;
+> +		mutex_lock(&xpad->odata_mutex);
+> +		if (xpad->xtype == XTYPE_XBOX360W) {
+> +			xpad->odata[0] = 0x00;
+> +			xpad->odata[1] = 0x01;
+> +			xpad->odata[2] = 0x0f;
+> +			xpad->odata[3] = 0xc0;
+> +			xpad->odata[4] = 0x00;
+> +			xpad->odata[5] = strong / 256;
+> +			xpad->odata[6] = weak / 256;
+> +			xpad->odata[7] = 0x00;
+> +			xpad->odata[8] = 0x00;
+> +			xpad->odata[9] = 0x00;
+> +			xpad->odata[10] = 0x00;
+> +			xpad->odata[11] = 0x00;
+> +			xpad->irq_out->transfer_buffer_length = 12;
+> +		}
+> +		else {
+> +			xpad->odata[0] = 0x00;
+> +			xpad->odata[1] = 0x08;
+> +			xpad->odata[2] = 0x00;
+> +			xpad->odata[3] = strong / 256;
+> +			xpad->odata[4] = weak / 256;
+> +			xpad->odata[5] = 0x00;
+> +			xpad->odata[6] = 0x00;
+> +			xpad->odata[7] = 0x00;
+> +			xpad->irq_out->transfer_buffer_length = 8;
+> +		}
+>  		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+> +		mutex_unlock(&xpad->odata_mutex);
+>  	}
+>  
+>  	return 0;
+> @@ -572,7 +730,7 @@
+>  
+>  static int xpad_init_ff(struct usb_xpad *xpad)
+>  {
+> -	if (xpad->xtype != XTYPE_XBOX360)
+> +	if ((xpad->xtype != XTYPE_XBOX360) && (xpad->xtype != XTYPE_XBOX360W))
+>  		return 0;
+>  
+>  	input_set_capability(xpad->dev, EV_FF, FF_RUMBLE);
+> @@ -581,26 +739,50 @@
+>  }
+>  
+>  #else
+> +/* dummy implementation for xpad_probe */
+>  static int xpad_init_ff(struct usb_xpad *xpad) { return 0; }
+>  #endif
+>  
+> +
+> +/* end force feedback section */
+> +
+> +/*****************************************************************************/
+> +
+> +/* LED handling section: provides support for the ring of LEDs on the 360
+> + * controllers. */
+> +
+>  #if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> -#include <linux/leds.h>
+>  
+> -struct xpad_led {
+> -	char name[16];
+> -	struct led_classdev led_cdev;
+> -	struct usb_xpad *xpad;
+> -};
+>  
+> +/* XBox 360 wireless controller follows protocol from xboxdrv userspace
+> + * driver:
+> + *    http://pingus.seul.org/~grumbel/xboxdrv/
+> + */
+>  static void xpad_send_led_command(struct usb_xpad *xpad, int command)
+>  {
+>  	if (command >= 0 && command < 14) {
+>  		mutex_lock(&xpad->odata_mutex);
+> -		xpad->odata[0] = 0x01;
+> -		xpad->odata[1] = 0x03;
+> -		xpad->odata[2] = command;
+> -		xpad->irq_out->transfer_buffer_length = 3;
+> +		if (xpad->xtype == XTYPE_XBOX360W) {
+> +			xpad->odata[0] = 0x00;
+> +			xpad->odata[1] = 0x00;
+> +			xpad->odata[2] = 0x08;
+> +			xpad->odata[3] = 0x40 + (command % 0x0e);
+> +			xpad->odata[4] = 0x00;
+> +			xpad->odata[5] = 0x00;
+> +			xpad->odata[6] = 0x00;
+> +			xpad->odata[7] = 0x00;
+> +			xpad->odata[8] = 0x00;
+> +			xpad->odata[9] = 0x00;
+> +			xpad->odata[10] = 0x00;
+> +			xpad->odata[11] = 0x00;
+> +			xpad->irq_out->transfer_buffer_length = 12;
+> +		}
+> +		else {
+> +			xpad->odata[0] = 0x01;
+> +			xpad->odata[1] = 0x03;
+> +			xpad->odata[2] = command;
+> +			xpad->irq_out->transfer_buffer_length = 3;
+> +		}
+>  		usb_submit_urb(xpad->irq_out, GFP_KERNEL);
+>  		mutex_unlock(&xpad->odata_mutex);
+>  	}
+> @@ -615,6 +797,7 @@
+>  	xpad_send_led_command(xpad_led->xpad, value);
+>  }
+>  
+> +
+>  static int xpad_led_probe(struct usb_xpad *xpad)
+>  {
+>  	static atomic_t led_seq	= ATOMIC_INIT(0);
+> @@ -623,7 +806,7 @@
+>  	struct led_classdev *led_cdev;
+>  	int error;
+>  
+> -	if (xpad->xtype != XTYPE_XBOX360)
+> +	if ((xpad->xtype != XTYPE_XBOX360) && (xpad->xtype != XTYPE_XBOX360W))
+>  		return 0;
+>  
+>  	xpad->led = led = kzalloc(sizeof(struct xpad_led), GFP_KERNEL);
+> @@ -664,10 +847,16 @@
+>  	}
+>  }
+>  #else
+> +/* dummies for xpad_probe and xpad_disconnect */
+>  static int xpad_led_probe(struct usb_xpad *xpad) { return 0; }
+>  static void xpad_led_disconnect(struct usb_xpad *xpad) { }
+>  #endif
+>  
+> +/* end LED section */
+> +
+> +/*****************************************************************************/
+> +
+> +/* Module and device functions */
+>  
+>  static int xpad_open(struct input_dev *dev)
+>  {
+> @@ -721,6 +910,7 @@
+>  	struct usb_xpad *xpad;
+>  	struct input_dev *input_dev;
+>  	struct usb_endpoint_descriptor *ep_irq_in;
+> +	int controller_type;
+>  	int i;
+>  	int error = -ENOMEM;
+>  
+> @@ -747,6 +937,7 @@
+>  	xpad->udev = udev;
+>  	xpad->dpad_mapping = xpad_device[i].dpad_mapping;
+>  	xpad->xtype = xpad_device[i].xtype;
+> +	controller_type = xpad_device[i].controller_type;
+>  	if (xpad->dpad_mapping == MAP_DPAD_UNKNOWN)
+>  		xpad->dpad_mapping = !dpad_to_buttons;
+>  	if (xpad->xtype == XTYPE_UNKNOWN) {
+> @@ -819,6 +1010,10 @@
+>  		goto fail4;
+>  
+>  	usb_set_intfdata(intf, xpad);
+> +	
+> +	xpad->controller_type = controller_type;
+> +	if (controller_type != XCONTROLLER_TYPE_NONE)
+> +		xpad_init_controller(xpad);
+>  
+>  	/*
+>  	 * Submit the int URB immediatly rather than waiting for open
+> @@ -828,48 +1023,38 @@
+>  	 * we're waiting for.
+>  	 */
+>  	if (xpad->xtype == XTYPE_XBOX360W) {
+> +		xpad->controller_present = 0;
+> +		xpad->controller_unique_id[0] = '\0';
+> +		xpad->controller_number =
+> +			(intf->cur_altsetting->desc.bInterfaceNumber / 2) + 1;
+>  		xpad->irq_in->dev = xpad->udev;
+>  		error = usb_submit_urb(xpad->irq_in, GFP_KERNEL);
+>  		if (error)
+> -			goto fail4;
+> -
+> -		/*
+> -		 * Setup the message to set the LEDs on the
+> -		 * controller when it shows up
+> -		 */
+> -		xpad->bulk_out = usb_alloc_urb(0, GFP_KERNEL);
+> -		if(!xpad->bulk_out)
+>  			goto fail5;
+> -
+> -		xpad->bdata = kzalloc(XPAD_PKT_LEN, GFP_KERNEL);
+> -		if(!xpad->bdata)
+> -			goto fail6;
+> -
+> -		xpad->bdata[2] = 0x08;
+> -		switch (intf->cur_altsetting->desc.bInterfaceNumber) {
+> -		case 0:
+> -			xpad->bdata[3] = 0x42;
+> -			break;
+> -		case 2:
+> -			xpad->bdata[3] = 0x43;
+> -			break;
+> -		case 4:
+> -			xpad->bdata[3] = 0x44;
+> -			break;
+> -		case 6:
+> -			xpad->bdata[3] = 0x45;
+> -		}
+> -
+> -		ep_irq_in = &intf->cur_altsetting->endpoint[1].desc;
+> -		usb_fill_bulk_urb(xpad->bulk_out, udev,
+> -				usb_sndbulkpipe(udev, ep_irq_in->bEndpointAddress),
+> -				xpad->bdata, XPAD_PKT_LEN, xpad_bulk_out, xpad);
+>  	}
+> +	else {
+> +		xpad->controller_present = 1;
+> +		strncpy(xpad->controller_unique_id, "wired", 17);
+> +		xpad->controller_number = 0;
+> +	}
+> +	
+> +	/* Set up device attributes */
+> +#ifdef CONFIG_SYSFS
+> +	xpad->sysfs_ok = 1;
+> +	error = sysfs_create_group(&input_dev->dev.kobj, &xpad_default_attr_group);
+> +	if (error) {
+> +		/* Driver will work without the sysfs interface, but parameters
+> +		 * will not be adjustable, so this failure is a warning. */
+> +		printk(KERN_WARNING "xpad: sysfs_create_group failed with error %d\n", error);
+> +		xpad->sysfs_ok = 0;
+> +	}
+> +#endif
 
-ZGlmZiAtdU5yIG9yaWdkcnYvZHJpdmVycy9pbnB1dC9qb3lzdGljay94cGFkLmMgbmV3ZHJ2L2Ry
-aXZlcnMvaW5wdXQvam95c3RpY2sveHBhZC5jCi0tLSBvcmlnZHJ2L2RyaXZlcnMvaW5wdXQvam95
-c3RpY2sveHBhZC5jCTIwMDktMDItMTQgMjI6Mzk6MjAuMDAwMDAwMDAwIC0wNTAwCisrKyBuZXdk
-cnYvZHJpdmVycy9pbnB1dC9qb3lzdGljay94cGFkLmMJMjAwOS0wMi0yMSAyMzo1ODoyMS4wMDAw
-MDAwMDAgLTA1MDAKQEAgLTEsNSArMSw4IEBACiAvKgotICogWC1Cb3ggZ2FtZXBhZCBkcml2ZXIK
-KyAqIFhib3ggZ2FtZXBhZCBkcml2ZXIgd2l0aCBYYm94IDM2MCB3aXJlZC93aXJlbGVzcyBzdXBw
-b3J0CisgKgorICogTGFzdCBNb2RpZmllZDoJMjEgRmVicnVhcnkgMjAwOQorICoJCQlNaWtlIE11
-cnBoeSA8bWFtdXJwaEBjcy5jbGVtc29uLmVkdT4KICAqCiAgKiBDb3B5cmlnaHQgKGMpIDIwMDIg
-TWFya28gRnJpZWRlbWFubiA8bWZyQGJteC1jaGVtbml0ei5kZT4KICAqICAgICAgICAgICAgICAg
-MjAwNCBPbGl2ZXIgU2Nod2FydHogPE9saXZlci5TY2h3YXJ0ekBnbXguZGU+LApAQCAtOSw2ICsx
-Miw4IEBACiAgKiAgICAgICAgICAgICAgIDIwMDUgRG9taW5pYyBDZXJxdWV0dGkgPGJpbmFyeTEy
-MzBAeWFob28uY29tPgogICogICAgICAgICAgICAgICAyMDA2IEFkYW0gQnVjaGJpbmRlciA8YWRh
-bS5idWNoYmluZGVyQGdtYWlsLmNvbT4KICAqICAgICAgICAgICAgICAgMjAwNyBKYW4gS3JhdG9j
-aHZpbCA8aG9uemFAamlrb3MuY3o+CisgKiAgICAgICAgICAgICAgIDIwMDkgQ2xlbXNvbiBVbml2
-ZXJzaXR5CisgKgkJICAgICAgKGNvbnRhY3Q6IE1pa2UgTXVycGh5IDxtYW11cnBoQGNzLmNsZW1z
-b24uZWR1PikKICAqCiAgKiBUaGlzIHByb2dyYW0gaXMgZnJlZSBzb2Z0d2FyZTsgeW91IGNhbiBy
-ZWRpc3RyaWJ1dGUgaXQgYW5kL29yCiAgKiBtb2RpZnkgaXQgdW5kZXIgdGhlIHRlcm1zIG9mIHRo
-ZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSBhcwpAQCAtMjQsMjI0ICsyOSwzMDUgQEAKICAq
-IGFsb25nIHdpdGggdGhpcyBwcm9ncmFtOyBpZiBub3QsIHdyaXRlIHRvIHRoZSBGcmVlIFNvZnR3
-YXJlCiAgKiBGb3VuZGF0aW9uLCBJbmMuLCA1OSBUZW1wbGUgUGxhY2UsIFN1aXRlIDMzMCwgQm9z
-dG9uLCBNQSAwMjExMS0xMzA3IFVTQQogICoKKyAqIFBsZWFzZSBzZWUgeGJveC5oIGZvciB0aGUg
-Q2hhbmdlTG9nLgorICovCisKKworCisjaW5jbHVkZSAieHBhZC5oIgorCisKKy8qIFRoZSBkZWFk
-IHpvbmUgYW5kIHN0aWNrIGxpbWl0IGJvdGggYWZmZWN0IHRoZSBiZWhhdmlvciBvZiB0aGUgY29y
-cmVzcG9uZGluZworICogYW5hbG9nIHN0aWNrLCBzaW5jZSB0aGUgb3V0cHV0IHZhbHVlcyByZXBv
-cnRlZCBmb3IgdGhlIHN0aWNrIGlucHV0cyB3aWxsCisgKiBiZSBzY2FsZWQgb250byBbMCwzMjc2
-N10uIEl0IGlzIHRodXMgbmVjZXNzYXJ5IHRvIGVuc3VyZSB0aGF0IHRoZSBkZWFkIHpvbmUKKyAq
-IGlzIG5ldmVyIGxhcmdlciB0aGFuIHRoZSBzdGljayBsaW1pdC4gSW4gZmFjdCwgYSBtaW5pbWFs
-IGFtb3VudCBvZiBzdGljaworICogdHJhdmVsIHNwYWNlICgxMDI0KSBpcyBtYWludGFpbmVkIGJl
-dHdlZW4gdGhlIHR3byB2YWx1ZXMuIEluIHByYWN0aWNlLAorICogaG93ZXZlciwgdGhlIHN0aWNr
-IGxpbWl0IHNob3VsZCBhbHdheXMgYmUgbXVjaCBncmVhdGVyIHRoYW4gdGhlIGRlYWQgem9uZS4K
-KyAqLworCitzdGF0aWMgdm9pZCBzZXRfZGVhZF96b25lKHVuc2lnbmVkIGludCBuZXdfc2l6ZSwg
-dW5zaWduZWQgaW50ICpkeiwgdW5zaWduZWQgaW50IHN0aWNrX2xpbWl0KQoreworCWlmICgobmV3
-X3NpemUgKyAxMDI0KSA+PSBzdGlja19saW1pdCkKKwkJbmV3X3NpemUgPSAoc3RpY2tfbGltaXQg
-PiAxMDI0KSA/IHN0aWNrX2xpbWl0IC0gMTAyNCA6IDA7CisJKmR6ID0gbmV3X3NpemU7Cit9CisK
-K3N0YXRpYyB2b2lkIHNldF9zdGlja19saW1pdCh1bnNpZ25lZCBpbnQgbmV3X3NpemUsIHVuc2ln
-bmVkIGludCAqc2wsIHVuc2lnbmVkIGludCBkZWFkX3pvbmUpCit7CisJaWYgKG5ld19zaXplIDwg
-KGRlYWRfem9uZSArIDEwMjQpKQorCQluZXdfc2l6ZSA9IGRlYWRfem9uZSArIDEwMjQ7CisJaWYg
-KG5ld19zaXplID4gMzI3NjcpCisJCW5ld19zaXplID0gMzI3Njc7CisJKnNsID0gbmV3X3NpemU7
-Cit9CisKKworLyoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKiovCisvKgorICogU3lzRnMgaW50ZXJmYWNlIGZ1
-bmN0aW9ucwogICoKLSAqIFRoaXMgZHJpdmVyIGlzIGJhc2VkIG9uOgotICogIC0gaW5mb3JtYXRp
-b24gZnJvbSAgICAgaHR0cDovL2V1Yy5qcC9wZXJpcGhzL3hib3gtY29udHJvbGxlci5qYS5odG1s
-Ci0gKiAgLSB0aGUgaUZvcmNlIGRyaXZlciAgICBkcml2ZXJzL2NoYXIvam95c3RpY2svaWZvcmNl
-LmMKLSAqICAtIHRoZSBza2VsZXRvbi1kcml2ZXIgIGRyaXZlcnMvdXNiL3VzYi1za2VsZXRvbi5j
-Ci0gKiAgLSBYYm94IDM2MCBpbmZvcm1hdGlvbiBodHRwOi8vd3d3LmZyZWU2MC5vcmcvd2lraS9H
-YW1lcGFkCi0gKgotICogVGhhbmtzIHRvOgotICogIC0gSVRPIFRha2F5dWtpIGZvciBwcm92aWRp
-bmcgZXNzZW50aWFsIHhwYWQgaW5mb3JtYXRpb24gb24gaGlzIHdlYnNpdGUKLSAqICAtIFZvanRl
-Y2ggUGF2bGlrICAgICAtIGlmb3JjZSBkcml2ZXIgLyBpbnB1dCBzdWJzeXN0ZW0KLSAqICAtIEdy
-ZWcgS3JvYWgtSGFydG1hbiAtIHVzYi1za2VsZXRvbiBkcml2ZXIKLSAqICAtIFhCT1ggTGludXgg
-cHJvamVjdCAtIGV4dHJhIFVTQiBpZCdzCi0gKgotICogVE9ETzoKLSAqICAtIGZpbmUgdHVuZSBh
-eGVzIChlc3BlY2lhbGx5IHRyaWdnZXIgYXhlcykKLSAqICAtIGZpeCAiYW5hbG9nIiBidXR0b25z
-IChyZXBvcnRlZCBhcyBkaWdpdGFsIG5vdykKLSAqICAtIGdldCBydW1ibGUgd29ya2luZwotICog
-IC0gbmVlZCBVU0IgSURzIGZvciBvdGhlciBkYW5jZSBwYWRzCi0gKgotICogSGlzdG9yeToKLSAq
-Ci0gKiAyMDAyLTA2LTI3IC0gMC4wLjEgOiBmaXJzdCB2ZXJzaW9uLCBqdXN0IHNhaWQgIlhCT1gg
-SElEIGNvbnRyb2xsZXIiCi0gKgotICogMjAwMi0wNy0wMiAtIDAuMC4yIDogYmFzaWMgd29ya2lu
-ZyB2ZXJzaW9uCi0gKiAgLSBhbGwgYXhlcyBhbmQgOSBvZiB0aGUgMTAgYnV0dG9ucyB3b3JrIChn
-ZXJtYW4gSW50ZXJBY3QgZGV2aWNlKQotICogIC0gdGhlIGJsYWNrIGJ1dHRvbiBkb2VzIG5vdCB3
-b3JrCi0gKgotICogMjAwMi0wNy0xNCAtIDAuMC4zIDogcmV3b3JrIGJ5IFZvanRlY2ggUGF2bGlr
-Ci0gKiAgLSBpbmRlbnRhdGlvbiBmaXhlcwotICogIC0gdXNiICsgaW5wdXQgaW5pdCBzZXF1ZW5j
-ZSBmaXhlcwotICoKLSAqIDIwMDItMDctMTYgLSAwLjAuNCA6IG1pbm9yIGNoYW5nZXMsIG1lcmdl
-IHdpdGggVm9qdGVjaCdzIHYwLjAuMwotICogIC0gdmVyaWZpZWQgdGhlIGxhY2sgb2YgSElEIGFu
-ZCByZXBvcnQgZGVzY3JpcHRvcnMKLSAqICAtIHZlcmlmaWVkIHRoYXQgQUxMIGJ1dHRvbnMgV09S
-SwotICogIC0gZml4ZWQgZC1wYWQgdG8gYXhlcyBtYXBwaW5nCi0gKgotICogMjAwMi0wNy0xNyAt
-IDAuMC41IDogc2ltcGxpZmllZCBkLXBhZCBoYW5kbGluZwotICoKLSAqIDIwMDQtMTAtMDIgLSAw
-LjAuNiA6IEREUiBwYWQgc3VwcG9ydAotICogIC0gYm9ycm93ZWQgZnJvbSB0aGUgWEJPWCBsaW51
-eCBrZXJuZWwKLSAqICAtIFVTQiBpZCdzIGZvciBjb21tb25seSB1c2VkIGRhbmNlIHBhZHMgYXJl
-IHByZXNlbnQKLSAqICAtIGRhbmNlIHBhZHMgd2lsbCBtYXAgRC1QQUQgdG8gYnV0dG9ucywgbm90
-IGF4ZXMKLSAqICAtIHBhc3MgdGhlIG1vZHVsZSBwYXJhbWF0ZXIgJ2RwYWRfdG9fYnV0dG9ucycg
-dG8gZm9yY2UKLSAqICAgIHRoZSBELVBBRCB0byBtYXAgdG8gYnV0dG9ucyBpZiB5b3VyIHBhZCBp
-cyBub3QgZGV0ZWN0ZWQKLSAqCi0gKiBMYXRlciBjaGFuZ2VzIGNhbiBiZSB0cmFja2VkIGluIFND
-TS4KLSAqLwotCi0jaW5jbHVkZSA8bGludXgva2VybmVsLmg+Ci0jaW5jbHVkZSA8bGludXgvaW5p
-dC5oPgotI2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4KLSNpbmNsdWRlIDxsaW51eC9zdGF0Lmg+Ci0j
-aW5jbHVkZSA8bGludXgvbW9kdWxlLmg+Ci0jaW5jbHVkZSA8bGludXgvdXNiL2lucHV0Lmg+Ci0K
-LSNkZWZpbmUgRFJJVkVSX0FVVEhPUiAiTWFya28gRnJpZWRlbWFubiA8bWZyQGJteC1jaGVtbml0
-ei5kZT4iCi0jZGVmaW5lIERSSVZFUl9ERVNDICJYLUJveCBwYWQgZHJpdmVyIgotCi0jZGVmaW5l
-IFhQQURfUEtUX0xFTiAzMgotCi0vKiB4Ym94IGQtcGFkcyBzaG91bGQgbWFwIHRvIGJ1dHRvbnMs
-IGFzIGlzIHJlcXVpcmVkIGZvciBERFIgcGFkcwotICAgYnV0IHdlIG1hcCB0aGVtIHRvIGF4ZXMg
-d2hlbiBwb3NzaWJsZSB0byBzaW1wbGlmeSB0aGluZ3MgKi8KLSNkZWZpbmUgTUFQX0RQQURfVE9f
-QlVUVE9OUyAgICAwCi0jZGVmaW5lIE1BUF9EUEFEX1RPX0FYRVMgICAgICAgMQotI2RlZmluZSBN
-QVBfRFBBRF9VTktOT1dOICAgICAgIDIKLQotI2RlZmluZSBYVFlQRV9YQk9YICAgICAgICAwCi0j
-ZGVmaW5lIFhUWVBFX1hCT1gzNjAgICAgIDEKLSNkZWZpbmUgWFRZUEVfWEJPWDM2MFcgICAgMgot
-I2RlZmluZSBYVFlQRV9VTktOT1dOICAgICAzCi0KLXN0YXRpYyBpbnQgZHBhZF90b19idXR0b25z
-OwotbW9kdWxlX3BhcmFtKGRwYWRfdG9fYnV0dG9ucywgYm9vbCwgU19JUlVHTyk7Ci1NT0RVTEVf
-UEFSTV9ERVNDKGRwYWRfdG9fYnV0dG9ucywgIk1hcCBELVBBRCB0byBidXR0b25zIHJhdGhlciB0
-aGFuIGF4ZXMgZm9yIHVua25vd24gcGFkcyIpOwotCi1zdGF0aWMgY29uc3Qgc3RydWN0IHhwYWRf
-ZGV2aWNlIHsKLQl1MTYgaWRWZW5kb3I7Ci0JdTE2IGlkUHJvZHVjdDsKLQljaGFyICpuYW1lOwot
-CXU4IGRwYWRfbWFwcGluZzsKLQl1OCB4dHlwZTsKLX0geHBhZF9kZXZpY2VbXSA9IHsKLQl7IDB4
-MDQ1ZSwgMHgwMjAyLCAiTWljcm9zb2Z0IFgtQm94IHBhZCB2MSAoVVMpIiwgTUFQX0RQQURfVE9f
-QVhFUywgWFRZUEVfWEJPWCB9LAotCXsgMHgwNDVlLCAweDAyODksICJNaWNyb3NvZnQgWC1Cb3gg
-cGFkIHYyIChVUykiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDA0NWUs
-IDB4MDI4NSwgIk1pY3Jvc29mdCBYLUJveCBwYWQgKEphcGFuKSIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1ggfSwKLQl7IDB4MDQ1ZSwgMHgwMjg3LCAiTWljcm9zb2Z0IFhib3ggQ29udHJv
-bGxlciBTIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCB9LAotCXsgMHgwNDVlLCAweDA3
-MTksICJYYm94IDM2MCBXaXJlbGVzcyBSZWNlaXZlciIsIE1BUF9EUEFEX1RPX0JVVFRPTlMsIFhU
-WVBFX1hCT1gzNjBXIH0sCi0JeyAweDBjMTIsIDB4ODgwOSwgIlJlZE9jdGFuZSBYYm94IERhbmNl
-IFBhZCIsIE1BUF9EUEFEX1RPX0JVVFRPTlMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4MDQ0ZiwgMHgw
-ZjA3LCAiVGhydXN0bWFzdGVyLCBJbmMuIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBY
-VFlQRV9YQk9YIH0sCi0JeyAweDA0NmQsIDB4YzI0MiwgIkxvZ2l0ZWNoIENoaWxsc3RyZWFtIENv
-bnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YMzYwIH0sCi0JeyAweDA0NmQs
-IDB4Y2E4NCwgIkxvZ2l0ZWNoIFhib3ggQ29yZGxlc3MgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RP
-X0FYRVMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4MDQ2ZCwgMHhjYTg4LCAiTG9naXRlY2ggQ29tcGFj
-dCBDb250cm9sbGVyIGZvciBYYm94IiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCB9LAot
-CXsgMHgwNWZkLCAweDEwMDcsICJNYWQgQ2F0eiBDb250cm9sbGVyICh1bnZlcmlmaWVkKSIsIE1B
-UF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4MDVmZCwgMHgxMDdhLCAiSW50ZXJB
-Y3QgJ1Bvd2VyUGFkIFBybycgWC1Cb3ggcGFkIChHZXJtYW55KSIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1ggfSwKLQl7IDB4MDczOCwgMHg0NTE2LCAiTWFkIENhdHogQ29udHJvbCBQYWQi
-LCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDA3MzgsIDB4NDUyMiwgIk1h
-ZCBDYXR6IEx1bWlDT04iLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDA3
-MzgsIDB4NDUyNiwgIk1hZCBDYXR6IENvbnRyb2wgUGFkIFBybyIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1ggfSwKLQl7IDB4MDczOCwgMHg0NTM2LCAiTWFkIENhdHogTWljcm9DT04iLCBN
-QVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDA3MzgsIDB4NDU0MCwgIk1hZCBD
-YXR6IEJlYXQgUGFkIiwgTUFQX0RQQURfVE9fQlVUVE9OUywgWFRZUEVfWEJPWCB9LAotCXsgMHgw
-NzM4LCAweDQ1NTYsICJNYWQgQ2F0eiBMeW54IFdpcmVsZXNzIENvbnRyb2xsZXIiLCBNQVBfRFBB
-RF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDA3MzgsIDB4NDcxNiwgIk1hZCBDYXR6IFdp
-cmVkIFhib3ggMzYwIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YMzYw
-IH0sCi0JeyAweDA3MzgsIDB4NjA0MCwgIk1hZCBDYXR6IEJlYXQgUGFkIFBybyIsIE1BUF9EUEFE
-X1RPX0JVVFRPTlMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4MGMxMiwgMHg4ODAyLCAiWmVyb3BsdXMg
-WGJveCBDb250cm9sbGVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCB9LAotCXsgMHgw
-YzEyLCAweDg4MGEsICJQZWxpY2FuIEVjbGlwc2UgUEwtMjAyMyIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1ggfSwKLQl7IDB4MGMxMiwgMHg4ODEwLCAiWmVyb3BsdXMgWGJveCBDb250cm9s
-bGVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCB9LAotCXsgMHgwYzEyLCAweDk5MDIs
-ICJIQU1BIFZpYnJhWCAtICpGQVVMVFkgSEFSRFdBUkUqIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZ
-UEVfWEJPWCB9LAotCXsgMHgwZTRjLCAweDEwOTcsICJSYWRpY2EgR2FtZXN0ZXIgQ29udHJvbGxl
-ciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4MGU0YywgMHgyMzkwLCAi
-UmFkaWNhIEdhbWVzIEp0ZWNoIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9Y
-Qk9YIH0sCi0JeyAweDBlNmYsIDB4MDAwMywgIkxvZ2ljMyBGcmVlYmlyZCB3aXJlbGVzcyBDb250
-cm9sbGVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCB9LAotCXsgMHgwZTZmLCAweDAw
-MDUsICJFY2xpcHNlIHdpcmVsZXNzIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQ
-RV9YQk9YIH0sCi0JeyAweDBlNmYsIDB4MDAwNiwgIkVkZ2Ugd2lyZWxlc3MgQ29udHJvbGxlciIs
-IE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4MGU2ZiwgMHgwMDA2LCAiUGVs
-aWNhbiAnVFNaJyBXaXJlZCBYYm94IDM2MCBDb250cm9sbGVyIiwgTUFQX0RQQURfVE9fQVhFUywg
-WFRZUEVfWEJPWDM2MCB9LAotCXsgMHgwZThmLCAweDAyMDEsICJTbWFydEpveSBGcmFnIFhwYWQv
-UFMyIGFkYXB0b3IiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDBmMzAs
-IDB4MDIwMiwgIkpveXRlY2ggQWR2YW5jZWQgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1ggfSwKLQl7IDB4MGYzMCwgMHg4ODg4LCAiQmlnQmVuIFhCTWluaVBhZCBDb250
-cm9sbGVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCB9LAotCXsgMHgxMDJjLCAweGZm
-MGMsICJKb3l0ZWNoIFdpcmVsZXNzIEFkdmFuY2VkIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19B
-WEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDEyYWIsIDB4ODgwOSwgIlhib3ggRERSIGRhbmNlcGFk
-IiwgTUFQX0RQQURfVE9fQlVUVE9OUywgWFRZUEVfWEJPWCB9LAotCXsgMHgxNDMwLCAweDQ3NDgs
-ICJSZWRPY3RhbmUgR3VpdGFyIEhlcm8gWC1wbG9yZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQ
-RV9YQk9YMzYwIH0sCi0JeyAweDE0MzAsIDB4ODg4OCwgIlRYNjUwMCsgRGFuY2UgUGFkIChmaXJz
-dCBnZW5lcmF0aW9uKSIsIE1BUF9EUEFEX1RPX0JVVFRPTlMsIFhUWVBFX1hCT1ggfSwKLQl7IDB4
-MDQ1ZSwgMHgwMjhlLCAiTWljcm9zb2Z0IFgtQm94IDM2MCBwYWQiLCBNQVBfRFBBRF9UT19BWEVT
-LCBYVFlQRV9YQk9YMzYwIH0sCi0JeyAweGZmZmYsIDB4ZmZmZiwgIkNoaW5lc2UtbWFkZSBYYm94
-IENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YIH0sCi0JeyAweDAwMDAs
-IDB4MDAwMCwgIkdlbmVyaWMgWC1Cb3ggcGFkIiwgTUFQX0RQQURfVU5LTk9XTiwgWFRZUEVfVU5L
-Tk9XTiB9Ci19OwotCi0vKiBidXR0b25zIHNoYXJlZCB3aXRoIHhib3ggYW5kIHhib3gzNjAgKi8K
-LXN0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBhZF9jb21tb25fYnRuW10gPSB7Ci0JQlROX0Es
-IEJUTl9CLCBCVE5fWCwgQlROX1ksCQkJLyogImFuYWxvZyIgYnV0dG9ucyAqLwotCUJUTl9TVEFS
-VCwgQlROX0JBQ0ssIEJUTl9USFVNQkwsIEJUTl9USFVNQlIsCS8qIHN0YXJ0L2JhY2svc3RpY2tz
-ICovCi0JLTEJCQkJCQkvKiB0ZXJtaW5hdGluZyBlbnRyeSAqLwotfTsKLQotLyogb3JpZ2luYWwg
-eGJveCBjb250cm9sbGVycyBvbmx5ICovCi1zdGF0aWMgY29uc3Qgc2lnbmVkIHNob3J0IHhwYWRf
-YnRuW10gPSB7Ci0JQlROX0MsIEJUTl9aLAkJLyogImFuYWxvZyIgYnV0dG9ucyAqLwotCS0xCQkJ
-LyogdGVybWluYXRpbmcgZW50cnkgKi8KLX07Ci0KLS8qIG9ubHkgdXNlZCBpZiBNQVBfRFBBRF9U
-T19CVVRUT05TICovCi1zdGF0aWMgY29uc3Qgc2lnbmVkIHNob3J0IHhwYWRfYnRuX3BhZFtdID0g
-ewotCUJUTl9MRUZULCBCVE5fUklHSFQsCQkvKiBkLXBhZCBsZWZ0LCByaWdodCAqLwotCUJUTl8w
-LCBCVE5fMSwJCQkvKiBkLXBhZCB1cCwgZG93biAoWFhYIG5hbWVzPz8pICovCi0JLTEJCQkJLyog
-dGVybWluYXRpbmcgZW50cnkgKi8KLX07Ci0KLXN0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBh
-ZDM2MF9idG5bXSA9IHsgIC8qIGJ1dHRvbnMgZm9yIHgzNjAgY29udHJvbGxlciAqLwotCUJUTl9U
-TCwgQlROX1RSLAkJLyogQnV0dG9uIExCL1JCICovCi0JQlROX01PREUsCQkvKiBUaGUgYmlnIFgg
-YnV0dG9uICovCi0JLTEKLX07Ci0KLXN0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBhZF9hYnNb
-XSA9IHsKLQlBQlNfWCwgQUJTX1ksCQkvKiBsZWZ0IHN0aWNrICovCi0JQUJTX1JYLCBBQlNfUlks
-CQkvKiByaWdodCBzdGljayAqLwotCUFCU19aLCBBQlNfUlosCQkvKiB0cmlnZ2VycyBsZWZ0L3Jp
-Z2h0ICovCi0JLTEJCQkvKiB0ZXJtaW5hdGluZyBlbnRyeSAqLwotfTsKLQotLyogb25seSB1c2Vk
-IGlmIE1BUF9EUEFEX1RPX0FYRVMgKi8KLXN0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBhZF9h
-YnNfcGFkW10gPSB7Ci0JQUJTX0hBVDBYLCBBQlNfSEFUMFksCS8qIGQtcGFkIGF4ZXMgKi8KLQkt
-MQkJCS8qIHRlcm1pbmF0aW5nIGVudHJ5ICovCi19OwotCi0vKiBYYm94IDM2MCBoYXMgYSB2ZW5k
-b3Itc3BlY2lmaWMgY2xhc3MsIHNvIHdlIGNhbm5vdCBtYXRjaCBpdCB3aXRoIG9ubHkKLSAqIFVT
-Ql9JTlRFUkZBQ0VfSU5GTyAoYWxzbyBzcGVjaWZpY2FsbHkgcmVmdXNlZCBieSBVU0Igc3Vic3lz
-dGVtKSwgc28gd2UKLSAqIG1hdGNoIGFnYWluc3QgdmVuZG9yIGlkIGFzIHdlbGwuIFdpcmVkIFhi
-b3ggMzYwIGRldmljZXMgaGF2ZSBwcm90b2NvbCAxLAotICogd2lyZWxlc3MgY29udHJvbGxlcnMg
-aGF2ZSBwcm90b2NvbCAxMjkuICovCi0jZGVmaW5lIFhQQURfWEJPWDM2MF9WRU5ET1JfUFJPVE9D
-T0wodmVuZCxwcikgXAotCS5tYXRjaF9mbGFncyA9IFVTQl9ERVZJQ0VfSURfTUFUQ0hfVkVORE9S
-IHwgVVNCX0RFVklDRV9JRF9NQVRDSF9JTlRfSU5GTywgXAotCS5pZFZlbmRvciA9ICh2ZW5kKSwg
-XAotCS5iSW50ZXJmYWNlQ2xhc3MgPSBVU0JfQ0xBU1NfVkVORE9SX1NQRUMsIFwKLQkuYkludGVy
-ZmFjZVN1YkNsYXNzID0gOTMsIFwKLQkuYkludGVyZmFjZVByb3RvY29sID0gKHByKQotI2RlZmlu
-ZSBYUEFEX1hCT1gzNjBfVkVORE9SKHZlbmQpIFwKLQl7IFhQQURfWEJPWDM2MF9WRU5ET1JfUFJP
-VE9DT0wodmVuZCwxKSB9LCBcCi0JeyBYUEFEX1hCT1gzNjBfVkVORE9SX1BST1RPQ09MKHZlbmQs
-MTI5KSB9Ci0KLXN0YXRpYyBzdHJ1Y3QgdXNiX2RldmljZV9pZCB4cGFkX3RhYmxlIFtdID0gewot
-CXsgVVNCX0lOVEVSRkFDRV9JTkZPKCdYJywgJ0InLCAwKSB9LAkvKiBYLUJveCBVU0ItSUYgbm90
-IGFwcHJvdmVkIGNsYXNzICovCi0JWFBBRF9YQk9YMzYwX1ZFTkRPUigweDA0NWUpLAkJLyogTWlj
-cm9zb2Z0IFgtQm94IDM2MCBjb250cm9sbGVycyAqLwotCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgw
-NDZkKSwJCS8qIExvZ2l0ZWNoIFgtQm94IDM2MCBzdHlsZSBjb250cm9sbGVycyAqLwotCVhQQURf
-WEJPWDM2MF9WRU5ET1IoMHgwNzM4KSwJCS8qIE1hZCBDYXR6IFgtQm94IDM2MCBjb250cm9sbGVy
-cyAqLwotCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgwZTZmKSwJCS8qIDB4MGU2ZiBYLUJveCAzNjAg
-Y29udHJvbGxlcnMgKi8KLQlYUEFEX1hCT1gzNjBfVkVORE9SKDB4MTQzMCksCQkvKiBSZWRPY3Rh
-bmUgWC1Cb3ggMzYwIGNvbnRyb2xsZXJzICovCi0JeyB9Ci19OwotCi1NT0RVTEVfREVWSUNFX1RB
-QkxFICh1c2IsIHhwYWRfdGFibGUpOwotCi1zdHJ1Y3QgdXNiX3hwYWQgewotCXN0cnVjdCBpbnB1
-dF9kZXYgKmRldjsJCS8qIGlucHV0IGRldmljZSBpbnRlcmZhY2UgKi8KLQlzdHJ1Y3QgdXNiX2Rl
-dmljZSAqdWRldjsJLyogdXNiIGRldmljZSAqLwotCi0JaW50IHBhZF9wcmVzZW50OwotCi0Jc3Ry
-dWN0IHVyYiAqaXJxX2luOwkJLyogdXJiIGZvciBpbnRlcnJ1cHQgaW4gcmVwb3J0ICovCi0JdW5z
-aWduZWQgY2hhciAqaWRhdGE7CQkvKiBpbnB1dCBkYXRhICovCi0JZG1hX2FkZHJfdCBpZGF0YV9k
-bWE7CisgKiBXZSB1c2UgY29tbW9uIGZ1bmN0aW9ucywgd2hlcmUgcG9zc2libGUsIHRvIGltcGxl
-bWVudCB0aGUgc2hvdy9zdG9yZQorICogcm91dGluZXMuIFRoaXMgZGVzaWduIHNhdmVzIG9uIGNv
-ZGUgYW5kIHJlZHVjZXMgdGhlIGJ1cmRlbiBvZiBhZGRpbmcgdG8gb3IKKyAqIGNoYW5naW5nIHRo
-ZSBpbnRlcmZhY2UuCisgKi8KKyAKKyNpZiBkZWZpbmVkKENPTkZJR19TWVNGUykKIAotCXN0cnVj
-dCB1cmIgKmJ1bGtfb3V0OwotCXVuc2lnbmVkIGNoYXIgKmJkYXRhOworc3RhdGljIHNzaXplX3Qg
-eHBhZF9zaG93X3VpbnQoc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0
-ZSAqYXR0ciwKKwkJY2hhciAqYnVmKQoreworCXN0cnVjdCB1c2JfeHBhZCAqeHBhZCA9IHRvX3hw
-YWQoZGV2KTsKKwl1bnNpZ25lZCBpbnQgdmFsdWU7CisJaWYgKGF0dHIgPT0gJmRldl9hdHRyX2xl
-ZnRfZGVhZF96b25lKQorCQl2YWx1ZSA9IHhwYWQtPmxlZnRfZGVhZF96b25lOworCWVsc2UgaWYg
-KGF0dHIgPT0gJmRldl9hdHRyX3JpZ2h0X2RlYWRfem9uZSkKKwkJdmFsdWUgPSB4cGFkLT5yaWdo
-dF9kZWFkX3pvbmU7CisJZWxzZSBpZiAoYXR0ciA9PSAmZGV2X2F0dHJfbGVmdF9zdGlja19saW1p
-dCkKKwkJdmFsdWUgPSB4cGFkLT5sZWZ0X3N0aWNrX2xpbWl0OworCWVsc2UgaWYgKGF0dHIgPT0g
-JmRldl9hdHRyX3JpZ2h0X3N0aWNrX2xpbWl0KQorCQl2YWx1ZSA9IHhwYWQtPnJpZ2h0X3N0aWNr
-X2xpbWl0OworCWVsc2UKKwkJcmV0dXJuIC1FSU87CisJcmV0dXJuIHNucHJpbnRmKGJ1ZiwgUEFH
-RV9TSVpFLCAiJXVcbiIsIHZhbHVlKTsKK30KIAotI2lmIGRlZmluZWQoQ09ORklHX0pPWVNUSUNL
-X1hQQURfRkYpIHx8IGRlZmluZWQoQ09ORklHX0pPWVNUSUNLX1hQQURfTEVEUykKLQlzdHJ1Y3Qg
-dXJiICppcnFfb3V0OwkJLyogdXJiIGZvciBpbnRlcnJ1cHQgb3V0IHJlcG9ydCAqLwotCXVuc2ln
-bmVkIGNoYXIgKm9kYXRhOwkJLyogb3V0cHV0IGRhdGEgKi8KLQlkbWFfYWRkcl90IG9kYXRhX2Rt
-YTsKLQlzdHJ1Y3QgbXV0ZXggb2RhdGFfbXV0ZXg7Ci0jZW5kaWYKIAotI2lmIGRlZmluZWQoQ09O
-RklHX0pPWVNUSUNLX1hQQURfTEVEUykKLQlzdHJ1Y3QgeHBhZF9sZWQgKmxlZDsKK3N0YXRpYyBz
-c2l6ZV90IHhwYWRfc3RvcmVfdWludChzdHJ1Y3QgZGV2aWNlICpkZXYsCisJCXN0cnVjdCBkZXZp
-Y2VfYXR0cmlidXRlICphdHRyLCBjb25zdCBjaGFyICpidWYsIHNpemVfdCBjb3VudCkKK3sKKwlz
-dHJ1Y3QgdXNiX3hwYWQgKnhwYWQgPSB0b194cGFkKGRldik7CisJdW5zaWduZWQgaW50IG5ld192
-YWx1ZTsKKwlpZiAoMSAhPSBzc2NhbmYoYnVmLCAiJXUiLCAmbmV3X3ZhbHVlKSkgeworCQlyZXR1
-cm4gLUVJTzsKKwl9CisJaWYgKGF0dHIgPT0gJmRldl9hdHRyX2xlZnRfZGVhZF96b25lKQorCQlz
-ZXRfZGVhZF96b25lKG5ld192YWx1ZSwgJnhwYWQtPmxlZnRfZGVhZF96b25lLCB4cGFkLT5sZWZ0
-X3N0aWNrX2xpbWl0KTsKKwllbHNlIGlmIChhdHRyID09ICZkZXZfYXR0cl9yaWdodF9kZWFkX3pv
-bmUpCisJCXNldF9kZWFkX3pvbmUobmV3X3ZhbHVlLCAmeHBhZC0+cmlnaHRfZGVhZF96b25lLCB4
-cGFkLT5yaWdodF9zdGlja19saW1pdCk7CisJZWxzZSBpZiAoYXR0ciA9PSAmZGV2X2F0dHJfbGVm
-dF9zdGlja19saW1pdCkKKwkJc2V0X3N0aWNrX2xpbWl0KG5ld192YWx1ZSwgJnhwYWQtPmxlZnRf
-c3RpY2tfbGltaXQsIHhwYWQtPmxlZnRfZGVhZF96b25lKTsKKwllbHNlIGlmIChhdHRyID09ICZk
-ZXZfYXR0cl9yaWdodF9zdGlja19saW1pdCkKKwkJc2V0X3N0aWNrX2xpbWl0KG5ld192YWx1ZSwg
-JnhwYWQtPnJpZ2h0X3N0aWNrX2xpbWl0LCB4cGFkLT5yaWdodF9kZWFkX3pvbmUpOworCWVsc2UK
-KwkJcmV0dXJuIC1FSU87CisJcmV0dXJuIHN0cm5sZW4oYnVmLCBQQUdFX1NJWkUpOworfQorCisK
-K3N0YXRpYyBzc2l6ZV90IHhwYWRfc3RvcmVfcnVtYmxlX2VuYWJsZShzdHJ1Y3QgZGV2aWNlICpk
-ZXYsCisJCXN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLCBjb25zdCBjaGFyICpidWYsIHNp
-emVfdCBjb3VudCkKK3sKKwlzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQgPSB0b194cGFkKGRldik7CisJ
-aW50IG5ld3J1bWJsZSA9IHhwYWQtPnJ1bWJsZV9lbmFibGU7CisJaWYgKDEgPT0gc3NjYW5mKGJ1
-ZiwgIiVkIiwgJm5ld3J1bWJsZSkpCisJCXhwYWQtPnJ1bWJsZV9lbmFibGUgPSAobmV3cnVtYmxl
-KSA/IDEgOiAwOworCXJldHVybiBjb3VudDsKK30KKworCisvKiByZWFkLW9ubHkgYXR0cmlidXRl
-cyBzaGFyZSBhIGNvbW1vbiBzdG9yZSBmdW5jdGlvbiB0aGF0IHJldHVybnMgYW4gZXJyb3IgKi8K
-K3N0YXRpYyBzc2l6ZV90IHhwYWRfc3RvcmVfcm8oc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3Qg
-ZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwKKwkJY29uc3QgY2hhciAqYnVmLCBzaXplX3QgY291bnQp
-Cit7CisJcmV0dXJuIC1FSU87Cit9CisKKworc3RhdGljIHNzaXplX3QgeHBhZF9zaG93X2ludChz
-dHJ1Y3QgZGV2aWNlICpkZXYsIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLAorCQljaGFy
-ICpidWYpCit7CisJc3RydWN0IHVzYl94cGFkICp4cGFkID0gdG9feHBhZChkZXYpOworCWludCB2
-YWx1ZTsKKwlpZiAoYXR0ciA9PSAmZGV2X2F0dHJfcnVtYmxlX2VuYWJsZSkKKwkJdmFsdWUgPSB4
-cGFkLT5ydW1ibGVfZW5hYmxlOworCWVsc2UgaWYgKGF0dHIgPT0gJmRldl9hdHRyX2NvbnRyb2xs
-ZXJfbnVtYmVyKQorCQl2YWx1ZSA9IHhwYWQtPmNvbnRyb2xsZXJfbnVtYmVyOworCWVsc2UgaWYg
-KGF0dHIgPT0gJmRldl9hdHRyX2NvbnRyb2xsZXJfcHJlc2VudCkKKwkJdmFsdWUgPSB4cGFkLT5j
-b250cm9sbGVyX3ByZXNlbnQ7CisJZWxzZSBpZiAoYXR0ciA9PSAmZGV2X2F0dHJfY29udHJvbGxl
-cl90eXBlKQorCQl2YWx1ZSA9IHhwYWQtPmNvbnRyb2xsZXJfdHlwZTsKKwllbHNlCisJCXJldHVy
-biAtRUlPOworCXJldHVybiBzbnByaW50ZihidWYsIFBBR0VfU0laRSwgIiVkXG4iLCB2YWx1ZSk7
-Cit9CisKKworc3RhdGljIHNzaXplX3QgeHBhZF9zaG93X2lkKHN0cnVjdCBkZXZpY2UgKmRldiwK
-KwkJc3RydWN0IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsIGNoYXIgKmJ1ZikKK3sKKwlzdHJ1Y3Qg
-dXNiX3hwYWQgKnhwYWQgPSB0b194cGFkKGRldik7CisJcmV0dXJuIHNucHJpbnRmKGJ1ZiwgUEFH
-RV9TSVpFLCAiJXNcbiIsIHhwYWQtPmNvbnRyb2xsZXJfdW5pcXVlX2lkKTsKK30KKwogI2VuZGlm
-CisvKiBlbmQgb2Ygc3lzZnMgaW50ZXJmYWNlICovCisvKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiovCisK
-Ky8qIElucHV0IHNlY3Rpb24gKi8KKworLyoJeHBhZF9pbml0X2NvbnRyb2xsZXIKKyAqCisgKglQ
-ZXJmb3JtcyBjb250cm9sbGVyIHNldHVwIGJhc2VkIG9uIGNvbnRyb2xsZXIgdHlwZS4KKyAqCisg
-KglOT1RFOiB4cGFkLT5jb250cm9sbGVyX2RhdGEtPmNvbnRyb2xsZXJfdHlwZSBuZWVkcyB0byBi
-ZSBzZXQgQkVGT1JFCisgKgljYWxsaW5nIHRoaXMgZnVuY3Rpb24hCisgKi8KKyAKK3N0YXRpYyB2
-b2lkIHhwYWRfaW5pdF9jb250cm9sbGVyKHN0cnVjdCB1c2JfeHBhZCAqeHBhZCkKK3sKKwlzZXRf
-c3RpY2tfbGltaXQoWFNUSUNLX0xJTUlUX0RFRkFVTFQsICZ4cGFkLT5sZWZ0X3N0aWNrX2xpbWl0
-LCB4cGFkLT5sZWZ0X2RlYWRfem9uZSk7CisJc2V0X3N0aWNrX2xpbWl0KFhTVElDS19MSU1JVF9E
-RUZBVUxULCAmeHBhZC0+cmlnaHRfc3RpY2tfbGltaXQsIHhwYWQtPnJpZ2h0X2RlYWRfem9uZSk7
-CisJc2V0X2RlYWRfem9uZShYREVBRF9aT05FX0RFRkFVTFQsICZ4cGFkLT5sZWZ0X2RlYWRfem9u
-ZSwgeHBhZC0+bGVmdF9zdGlja19saW1pdCk7CisJc2V0X2RlYWRfem9uZShYREVBRF9aT05FX0RF
-RkFVTFQsICZ4cGFkLT5yaWdodF9kZWFkX3pvbmUsIHhwYWQtPnJpZ2h0X3N0aWNrX2xpbWl0KTsK
-KwkKKwlpZiAoeHBhZC0+Y29udHJvbGxlcl90eXBlID09IFhDT05UUk9MTEVSX1RZUEVfR1VJVEFS
-KSB7CisJCXhwYWQtPnJ1bWJsZV9lbmFibGUgPSAwOworCX0KKwllbHNlIGlmICh4cGFkLT5jb250
-cm9sbGVyX3R5cGUgPT0gWENPTlRST0xMRVJfVFlQRV9EQU5DRV9QQUQpIHsKKwkJeHBhZC0+cnVt
-YmxlX2VuYWJsZSA9IDA7CisJfQorCWVsc2UgeworCQl4cGFkLT5ydW1ibGVfZW5hYmxlID0gMTsK
-Kwl9Cit9CisKIAotCWNoYXIgcGh5c1s2NF07CQkJLyogcGh5c2ljYWwgZGV2aWNlIHBhdGggKi8K
-Ky8qCisgKgl4cGFkX3dvcmtfY29udHJvbGxlcgorICoKKyAqCVN1Ym1pdHMgY29tbWFuZCB0byBz
-ZXQgcGFkIG51bWJlciBvbiBMRUQgZGlzcGxheSBvZiB3aXJlbGVzcyAzNjAKKyAqCWNvbnRyb2xs
-ZXJzLiBUaGUgc2hhcmVkIHdvcmtxdWV1ZSBpcyB1c2VkIGZvciB0aGlzIHB1cnBvc2UsIHNvIHRo
-YXQKKyAqCXRoZSBpbnRlcnJ1cHQgaGFuZGxlciBpcyBrZXB0IHNob3J0LgorICovCisgCitzdGF0
-aWMgdm9pZCB4cGFkX3dvcmtfY29udHJvbGxlcihzdHJ1Y3Qgd29ya19zdHJ1Y3QgKncpCit7Cisg
-ICBzdHJ1Y3QgdXNiX3hwYWQgKiB4cGFkID0gY29udGFpbmVyX29mKHcsIHN0cnVjdCB1c2JfeHBh
-ZCwgd29yayk7CisgICB4cGFkX3NlbmRfbGVkX2NvbW1hbmQoeHBhZCwgeHBhZC0+Y29udHJvbGxl
-cl9udW1iZXIgKyAxKTsKKyAgIHhwYWQtPndvcmtfcGVuZGluZyA9IDA7Cit9CisKKworLyoKKyAq
-CXhwYWRfcHJvY2Vzc19zdGlja3MKKyAqCisgKglIYW5kbGVzIHN0aWNrIGlucHV0LCBhY2NvdW50
-aW5nIGZvciBkZWFkIHpvbmVzIGFuZCBzcXVhcmUgYXhlcy4gQmFzZWQKKyAqCW9uIHRoZSBvcmln
-aW5hbCBoYW5kbGVycyBmb3IgdGhlIFhib3ggYW5kIFhib3ggMzYwIGluCisgKgl4cGFkX3Byb2Nl
-c3NfcGFja2V0IGFuZCB4cGFkMzYwX3Byb2Nlc3NfcGFja2V0LCBidXQgdW5pZmllZCB0byBhdm9p
-ZAorICoJZHVwbGljYXRpb24uCisgKgorICoJV2hlbmV2ZXIgYSBkZWFkIHpvbmUgaXMgdXNlZCwg
-ZWFjaCBheGlzIGlzIHNjYWxlZCBzbyB0aGF0IG1vdmluZyB0aGUKKyAqCXN0aWNrIHNsaWdodGx5
-IG91dCBvZiB0aGUgZGVhZCB6b25lIHJhbmdlIHJlc3VsdHMgaW4gYSBsb3cgYXhpcworICoJdmFs
-dWUgaW4ganN0ZXN0KDEpLCB3aGlsZSBtb3ZpbmcgdGhlIHN0aWNrIHRvIHRoZSBtYXhpbXVtIHBv
-c2l0aW9uCisgKglhbG9uZyBhbnkgYXhpcyBzdGlsbCByZXN1bHRzIGluIDMyNzY3LgorICoKKyAq
-CUluIG9yZGVyIHRvIHByb3ZpZGUgdGhlIGFiaWxpdHkgdG8gbWFwIGlucHV0cyB0byBhIHNxdWFy
-ZSBheGlzICh1c2VkCisgKglieSBvbGRlciBnYW1lcyksIHRoZSBsZWZ0X3N0aWNrX2xpbWl0IGFu
-ZCByaWdodF9zdGlja19saW1pdCBjYW4gYmUKKyAqCXNldC4gVGhlc2UgbGltaXRzIHNwZWNpZnkg
-YXQgd2hhdCBwb2ludCBpbiB0aGUgcmF3IGlucHV0IGNvb3JkaW5hdGVzCisgKglhbiBheGlzIGlz
-IHJlcG9ydGVkIHRvIGJlIGF0IG1heGltdW0gdmFsdWUgKDMyNzY3IG9yIC0zMjc2NykuCisgKgor
-ICoJQm90aCB0aGUgZGVhZCB6b25lIGFuZCBzdGljayBsaW1pdCBhbGdvcml0aG1zIGFyZSBpbXBs
-ZW1lbnRlZAorICoJdG9nZXRoZXIgYXMgYSBjb29yZGluYXRlIHRyYW5zZm9ybWF0aW9uIGZyb20g
-ImVmZmVjdGl2ZSBjb29yZGluYXRlcyIKKyAqCW9udG8gdGhlIG91dHB1dCBjb29yZGluYXRlcyAo
-d2hpY2ggaGF2ZSBhYnNvbHV0ZSB2YWx1ZXMgZnJvbSAwIHRvCisgKgkzMjc2NyBhbmQgYXJlIHBv
-c2l0aXZlIG9yIG5lZ2F0aXZlIGJhc2VkIG9uIGRpcmVjdGlvbikuIEVmZmVjdGl2ZQorICoJY29v
-cmRpbmF0ZXMgYXJlIGRlZmluZWQgYXMgdGhvc2UgaW5wdXQgdmFsdWVzIHRoYXQgYXJlIGdyZWF0
-ZXIgdGhhbgorICoJdGhlIGRlYWQgem9uZSBidXQgbGVzcyB0aGFuIHRoZSBzdGljayBsaW1pdCBv
-biB0aGUgYXhpcyBpbiBxdWVzdGlvbi4KKyAqCisgKglEQU5HRVI6IEFsbCBkZW5vbWluYXRvciB2
-YWx1ZXMgaW4gZGl2aXNpb24gb3BlcmF0aW9ucyBNVVNUIGJlIGNoZWNrZWQKKyAqCWZvciBub24t
-emVybyBjb25kaXRpb24uIERpdmlkaW5nIGJ5IHplcm8gaW5zaWRlIHRoZSBrZXJuZWwgY2FuIGNh
-dXNlCisgKglhIHN5c3RlbSBkZWFkbG9jay4KKyAqLworCitzdGF0aWMgdm9pZCB4cGFkX3Byb2Nl
-c3Nfc3RpY2tzKHN0cnVjdCB1c2JfeHBhZCAqeHBhZCwgdW5zaWduZWQgY2hhciAqZGF0YSkKK3sK
-KwlzdHJ1Y3QgaW5wdXRfZGV2ICpkZXYgPSB4cGFkLT5kZXY7CisJaW50IGNvb3Jkc1s0XTsgICAg
-LyogeCwgeSwgcngsIHJ5ICovCisJaW50IHhfb2Zmc2V0LCB5X29mZnNldCwgcnhfb2Zmc2V0LCBy
-eV9vZmZzZXQ7CisJaW50IGM7CisJaW50IHJhbmdlOworCWludCBhYnNfbWFnbml0dWRlLCBhZGp1
-c3RlZF9tYWduaXR1ZGUsIGRpZmZlcmVuY2UsIHNjYWxlX2ZyYWN0aW9uOworCWludCBkZWFkX3pv
-bmVbMl0sIHN0aWNrX2xpbWl0WzJdOworCQorCWRlYWRfem9uZVswXSA9IHhwYWQtPmxlZnRfZGVh
-ZF96b25lOworCWRlYWRfem9uZVsxXSA9IHhwYWQtPnJpZ2h0X2RlYWRfem9uZTsKKwlzdGlja19s
-aW1pdFswXSA9IHhwYWQtPmxlZnRfc3RpY2tfbGltaXQ7CisJc3RpY2tfbGltaXRbMV0gPSB4cGFk
-LT5yaWdodF9zdGlja19saW1pdDsKKwkKKwlpZiAoeHBhZC0+eHR5cGUgPT0gWFRZUEVfWEJPWCkg
-eworCQl4X29mZnNldCA9IDEyOworCQl5X29mZnNldCA9IDE0OworCQlyeF9vZmZzZXQgPSAxNjsK
-KwkJcnlfb2Zmc2V0ID0gMTg7CisJfQorCWVsc2UgeworCQl4X29mZnNldCA9IDY7CisJCXlfb2Zm
-c2V0ID0gODsKKwkJcnhfb2Zmc2V0ID0gMTA7CisJCXJ5X29mZnNldCA9IDEyOworCX0KKwkKKwlj
-b29yZHNbMF0gPSAoX19zMTYpIGxlMTZfdG9fY3B1cCgoX19sZTE2ICopKGRhdGEgKyB4X29mZnNl
-dCkpOworCWNvb3Jkc1sxXSA9IH4oX19zMTYpIGxlMTZfdG9fY3B1cCgoX19sZTE2ICopKGRhdGEg
-KyB5X29mZnNldCkpOworCWNvb3Jkc1syXSA9IChfX3MxNikgbGUxNl90b19jcHVwKChfX2xlMTYg
-KikoZGF0YSArIHJ4X29mZnNldCkpOworCWNvb3Jkc1szXSA9IH4oX19zMTYpIGxlMTZfdG9fY3B1
-cCgoX19sZTE2ICopKGRhdGEgKyByeV9vZmZzZXQpKTsKKwkKKwkvKiBBZGp1c3RtZW50IGZvciBk
-ZWFkIHpvbmUgYW5kIHNxdWFyZSBheGlzICovCisJZm9yIChjID0gMDsgYyA8IDQ7IGMrKykgewor
-CQlhYnNfbWFnbml0dWRlID0gKGludCkgY29vcmRzW2NdOworCQlpZiAoYWJzX21hZ25pdHVkZSA8
-IDApCisJCQlhYnNfbWFnbml0dWRlID0gLWFic19tYWduaXR1ZGU7CisJCWFkanVzdGVkX21hZ25p
-dHVkZSA9IGFic19tYWduaXR1ZGU7CisJCQorCQlyYW5nZSA9IChzdGlja19saW1pdFtjLzJdIC0g
-ZGVhZF96b25lW2MvMl0pOworCQkKKwkJaWYgKGFic19tYWduaXR1ZGUgPj0gc3RpY2tfbGltaXRb
-Yy8yXSkgeworCQkJYWRqdXN0ZWRfbWFnbml0dWRlID0gMzI3Njc7CisJCX0KKwkJZWxzZSBpZiAo
-YWJzX21hZ25pdHVkZSA8PSBkZWFkX3pvbmVbYy8yXSkgeworCQkJYWRqdXN0ZWRfbWFnbml0dWRl
-ID0gMDsKKwkJfQorCQllbHNlIGlmIChyYW5nZSA+IDApIHsKKwkJCWRpZmZlcmVuY2UgPSAzMjc2
-NyAtIHJhbmdlOworCQkJaWYgKGRpZmZlcmVuY2UpIHsKKwkJCQkvKiBESVZJU0lPTjogZGlmZmVy
-ZW5jZSBub24temVybyAqLworCQkJCXNjYWxlX2ZyYWN0aW9uID0gcmFuZ2UgLyBkaWZmZXJlbmNl
-OworCQkJCWFkanVzdGVkX21hZ25pdHVkZSA9IGFic19tYWduaXR1ZGUgLSBkZWFkX3pvbmVbYy8y
-XTsKKwkJCQkKKwkJCQkvKiBBcHByb3hpbWF0ZSBmbG9hdGluZy1wb2ludCBkaXZpc2lvbiB3aXRo
-IGEKKwkJCQkgKiAiY2F0Y2gtdXAiIHNjYWxpbmcgYWxnb3JpdGhtIHRoYXQgYWRkcyBiYWNrCisJ
-CQkJICogdG8gdGhlIGFkanVzdGVkX21hZ25pdHVkZSBiYXNlZCBvbiBkaXN0YW5jZQorCQkJCSAq
-IGZyb20gdGhlIG9yaWdpbiAoMCBpbiBhZGp1c3RlZCBjb29yZGluYXRlcykuCisJCQkJICogSWYg
-dGhlIHJhbmdlIC8gZGlmZmVyZW5jZSBpcyBhdCBsZWFzdCAxLAorCQkJCSAqIHRoZW4gMSBuZWVk
-cyB0byBiZSBhZGRlZCB0byB0aGUgYWRqdXN0ZWQKKwkJCQkgKiBtYWduaXR1ZGUgZm9yIGV2ZXJ5
-IHNjYWxlX2ZyYWN0aW9uIHVuaXRzCisJCQkJICogZnJvbSB0aGUgb3JpZ2luLiBJZiB0aGUgcmFu
-Z2UgLyBkaWZmZXJlbmNlCisJCQkJICogaXMgbGVzcyB0aGFuIDEgKDAgaW4gaW50ZWdlciBkaXZp
-c2lvbiksCisJCQkJICogdGhlbiBkaXZpZGUgdGhlIGRpZmZlcmVuY2UgYnkgdGhlIHJhbmdlIHRv
-CisJCQkJICogb2J0YWluIHRoZSBudW1iZXIgb2YgdW5pdHMgdG8gYWRkIHBlciB1bml0CisJCQkJ
-ICogZnJvbSB0aGUgYWRqdXN0ZWQgb3JpZ2luLgorCQkJCSAqLworCQkJCWlmIChzY2FsZV9mcmFj
-dGlvbikgeworCQkJCQkvKiBESVZJU0lPTjogc2NhbGVfZnJhY3Rpb24gbm9uLXplcm8gKi8KKwkJ
-CQkJYWRqdXN0ZWRfbWFnbml0dWRlICs9IGFkanVzdGVkX21hZ25pdHVkZSAvIHNjYWxlX2ZyYWN0
-aW9uOworCQkJCX0KKwkJCQllbHNlIHsKKwkJCQkJLyogRElWSVNJT046IHJhbmdlIG5vbi16ZXJv
-ICovCisJCQkJCXNjYWxlX2ZyYWN0aW9uID0gZGlmZmVyZW5jZSAvIHJhbmdlOworCQkJCQlhZGp1
-c3RlZF9tYWduaXR1ZGUgKz0gYWRqdXN0ZWRfbWFnbml0dWRlICogc2NhbGVfZnJhY3Rpb247CisJ
-CQkJfQorCQkJCWlmIChhZGp1c3RlZF9tYWduaXR1ZGUgPiAzMjc2NykKKwkJCQkJYWRqdXN0ZWRf
-bWFnbml0dWRlID0gMzI3Njc7CisJCQl9CisJCX0KKwkJY29vcmRzW2NdID0gKGNvb3Jkc1tjXSA8
-IDApID8gLWFkanVzdGVkX21hZ25pdHVkZSA6IGFkanVzdGVkX21hZ25pdHVkZTsKKwl9CisJCisJ
-aW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19YLCAoX19zMTYpIGNvb3Jkc1swXSk7CisJaW5wdXRf
-cmVwb3J0X2FicyhkZXYsIEFCU19ZLCAoX19zMTYpIGNvb3Jkc1sxXSk7CisJaW5wdXRfcmVwb3J0
-X2FicyhkZXYsIEFCU19SWCwgKF9fczE2KSBjb29yZHNbMl0pOworCWlucHV0X3JlcG9ydF9hYnMo
-ZGV2LCBBQlNfUlksIChfX3MxNikgY29vcmRzWzNdKTsKK30KIAotCWludCBkcGFkX21hcHBpbmc7
-CQkvKiBtYXAgZC1wYWQgdG8gYnV0dG9ucyBvciB0byBheGVzICovCi0JaW50IHh0eXBlOwkJCS8q
-IHR5cGUgb2YgeGJveCBkZXZpY2UgKi8KLX07CiAKIC8qCiAgKgl4cGFkX3Byb2Nlc3NfcGFja2V0
-CkBAIC0yNTYsMTggKzM0Miw5IEBACiBzdGF0aWMgdm9pZCB4cGFkX3Byb2Nlc3NfcGFja2V0KHN0
-cnVjdCB1c2JfeHBhZCAqeHBhZCwgdTE2IGNtZCwgdW5zaWduZWQgY2hhciAqZGF0YSkKIHsKIAlz
-dHJ1Y3QgaW5wdXRfZGV2ICpkZXYgPSB4cGFkLT5kZXY7Ci0KLQkvKiBsZWZ0IHN0aWNrICovCi0J
-aW5wdXRfcmVwb3J0X2FicyhkZXYsIEFCU19YLAotCQkJIChfX3MxNikgbGUxNl90b19jcHVwKChf
-X2xlMTYgKikoZGF0YSArIDEyKSkpOwotCWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfWSwKLQkJ
-CSB+KF9fczE2KSBsZTE2X3RvX2NwdXAoKF9fbGUxNiAqKShkYXRhICsgMTQpKSk7Ci0KLQkvKiBy
-aWdodCBzdGljayAqLwotCWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfUlgsCi0JCQkgKF9fczE2
-KSBsZTE2X3RvX2NwdXAoKF9fbGUxNiAqKShkYXRhICsgMTYpKSk7Ci0JaW5wdXRfcmVwb3J0X2Fi
-cyhkZXYsIEFCU19SWSwKLQkJCSB+KF9fczE2KSBsZTE2X3RvX2NwdXAoKF9fbGUxNiAqKShkYXRh
-ICsgMTgpKSk7CisJCisJLyogbGVmdCBhbmQgcmlnaHQgc3RpY2tzICovCisJeHBhZF9wcm9jZXNz
-X3N0aWNrcyh4cGFkLCBkYXRhKTsKIAogCS8qIHRyaWdnZXJzIGxlZnQvcmlnaHQgKi8KIAlpbnB1
-dF9yZXBvcnRfYWJzKGRldiwgQUJTX1osIGRhdGFbMTBdKTsKQEAgLTMwNSw2ICszODIsNyBAQAog
-CWlucHV0X3N5bmMoZGV2KTsKIH0KIAorCiAvKgogICoJeHBhZDM2MF9wcm9jZXNzX3BhY2tldAog
-ICoKQEAgLTM1MCwxOCArNDI4LDkgQEAKIAlpbnB1dF9yZXBvcnRfa2V5KGRldiwgQlROX1RMLAlk
-YXRhWzNdICYgMHgwMSk7CiAJaW5wdXRfcmVwb3J0X2tleShkZXYsIEJUTl9UUiwJZGF0YVszXSAm
-IDB4MDIpOwogCWlucHV0X3JlcG9ydF9rZXkoZGV2LCBCVE5fTU9ERSwJZGF0YVszXSAmIDB4MDQp
-OwotCi0JLyogbGVmdCBzdGljayAqLwotCWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfWCwKLQkJ
-CSAoX19zMTYpIGxlMTZfdG9fY3B1cCgoX19sZTE2ICopKGRhdGEgKyA2KSkpOwotCWlucHV0X3Jl
-cG9ydF9hYnMoZGV2LCBBQlNfWSwKLQkJCSB+KF9fczE2KSBsZTE2X3RvX2NwdXAoKF9fbGUxNiAq
-KShkYXRhICsgOCkpKTsKLQotCS8qIHJpZ2h0IHN0aWNrICovCi0JaW5wdXRfcmVwb3J0X2Ficyhk
-ZXYsIEFCU19SWCwKLQkJCSAoX19zMTYpIGxlMTZfdG9fY3B1cCgoX19sZTE2ICopKGRhdGEgKyAx
-MCkpKTsKLQlpbnB1dF9yZXBvcnRfYWJzKGRldiwgQUJTX1JZLAotCQkJIH4oX19zMTYpIGxlMTZf
-dG9fY3B1cCgoX19sZTE2ICopKGRhdGEgKyAxMikpKTsKKwkKKwkvKiBsZWZ0IGFuZCByaWdodCBz
-dGlja3MgKi8KKwl4cGFkX3Byb2Nlc3Nfc3RpY2tzKHhwYWQsIGRhdGEpOwogCiAJLyogdHJpZ2dl
-cnMgbGVmdC9yaWdodCAqLwogCWlucHV0X3JlcG9ydF9hYnMoZGV2LCBBQlNfWiwgZGF0YVs0XSk7
-CkBAIC0zNzAsNiArNDM5LDMzIEBACiAJaW5wdXRfc3luYyhkZXYpOwogfQogCisKK3N0YXRpYyB2
-b2lkIHhwYWQzNjB3X2lkZW50aWZ5X2NvbnRyb2xsZXIoc3RydWN0IHVzYl94cGFkICp4cGFkLCB1
-bnNpZ25lZCBjaGFyICpkYXRhKQoreworCXUzMiBpZDsKKwlpbnQgaTsKKwkKKwlzbnByaW50Zih4
-cGFkLT5jb250cm9sbGVyX3VuaXF1ZV9pZCwgMTcsCisJCSIlMDJ4JTAyeCUwMnglMDJ4JTAyeCUw
-MnglMDJ4JTAyeCIsCisJCWRhdGFbOF0sIGRhdGFbOV0sIGRhdGFbMTBdLCBkYXRhWzExXSwgZGF0
-YVsxMl0sIGRhdGFbMTNdLAorCQlkYXRhWzE0XSwgZGF0YVsxNV0pOworCQkJCisJLyogSWRlbnRp
-ZnkgY29udHJvbGxlciB0eXBlICovCisJaWQgPSAodTMyKSAqKGRhdGEgKyAyMik7CisJeHBhZC0+
-Y29udHJvbGxlcl90eXBlID0gWENPTlRST0xMRVJfVFlQRV9PVEhFUjsKKwlmb3IgKGkgPSAwOyB3
-MzYwX2lkW2ldLmlkX2J5dGVzOyBpKyspIHsKKwkJaWYgKGlkID09IHczNjBfaWRbaV0uaWRfYnl0
-ZXMpIHsKKwkJCXhwYWQtPmNvbnRyb2xsZXJfdHlwZSA9CisJCQkJdzM2MF9pZFtpXS5jb250cm9s
-bGVyX3R5cGU7CisJCQlicmVhazsKKwkJfQorCX0KKwkKKwlpZiAoaWQgPT0gWENPTlRST0xMRVJf
-VFlQRV9PVEhFUikKKwkJcHJpbnRrKEtFUk5fSU5GTyAieHBhZDogdW5rbm93biB3aXJlbGVzcyBj
-b250cm9sbGVyIHR5cGU6ICUwOHhcbiIsIGlkKTsKK30KKworCiAvKgogICogeHBhZDM2MHdfcHJv
-Y2Vzc19wYWNrZXQKICAqCkBAIC0zNzksNiArNDc1LDcgQEAKICAqIEJ5dGUuQml0CiAgKiAwMC4x
-IC0gU3RhdHVzIGNoYW5nZTogVGhlIGNvbnRyb2xsZXIgb3IgaGVhZHNldCBoYXMgY29ubmVjdGVk
-L2Rpc2Nvbm5lY3RlZAogICogICAgICAgICAgICAgICAgICAgICAgIEJpdHMgMDEuNyBhbmQgMDEu
-NiBhcmUgdmFsaWQKKyAqIDAxLmYgLSBTb21lIGtpbmQgb2YgdW5pcXVlIGlkZW50aWZpZXIgbWVz
-c2FnZSAoc2VlIGFib3ZlKQogICogMDEuNyAtIENvbnRyb2xsZXIgcHJlc2VudAogICogMDEuNiAt
-IEhlYWRzZXQgcHJlc2VudAogICogMDEuMSAtIFBhZCBzdGF0ZSAoQnl0ZXMgNCspIHZhbGlkCkBA
-IC0zODcsMjIgKzQ4NCw1MyBAQAogCiBzdGF0aWMgdm9pZCB4cGFkMzYwd19wcm9jZXNzX3BhY2tl
-dChzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQsIHUxNiBjbWQsIHVuc2lnbmVkIGNoYXIgKmRhdGEpCiB7
-Ci0JLyogUHJlc2VuY2UgY2hhbmdlICovCisJaW50IHBhZG51bSA9IDA7CisKKwkvKiBQcmVzZW5j
-ZSBjaGFuZ2UgKi8JCiAJaWYgKGRhdGFbMF0gJiAweDA4KSB7CisJCXBhZG51bSA9IHhwYWQtPmNv
-bnRyb2xsZXJfbnVtYmVyOwogCQlpZiAoZGF0YVsxXSAmIDB4ODApIHsKLQkJCXhwYWQtPnBhZF9w
-cmVzZW50ID0gMTsKLQkJCXVzYl9zdWJtaXRfdXJiKHhwYWQtPmJ1bGtfb3V0LCBHRlBfQVRPTUlD
-KTsKLQkJfSBlbHNlCi0JCQl4cGFkLT5wYWRfcHJlc2VudCA9IDA7CisJCQkvKiBpZ25vcmUgZHVw
-bGljYXRlcyAqLworCQkJaWYgKCF4cGFkLT5jb250cm9sbGVyX3ByZXNlbnQpIHsKKwkJCQl4cGFk
-LT5jb250cm9sbGVyX3ByZXNlbnQgPSAxOworCQkJCQorCQkJCWlmICh4cGFkLT53b3JrX3BlbmRp
-bmcpCisJCQkJCVBSRVBBUkVfV09SSygmeHBhZC0+d29yaywgJnhwYWRfd29ya19jb250cm9sbGVy
-KTsKKwkJCQllbHNlCisJCQkJCUlOSVRfV09SSygmeHBhZC0+d29yaywgJnhwYWRfd29ya19jb250
-cm9sbGVyKTsKKwkJCQl4cGFkLT53b3JrX3BlbmRpbmcgPSAxOworCQkJCXNjaGVkdWxlX3dvcmso
-JnhwYWQtPndvcmspOworCQkJCWtvYmplY3RfdWV2ZW50KCZ4cGFkLT5kZXYtPmRldi5rb2JqLCBL
-T0JKX09OTElORSk7CisJCQl9CisJCX0KKwkJZWxzZSB7CisJCQlrb2JqZWN0X3VldmVudCgmeHBh
-ZC0+ZGV2LT5kZXYua29iaiwgS09CSl9PRkZMSU5FKTsKKwkJCXhwYWQtPmNvbnRyb2xsZXJfcHJl
-c2VudCA9IDA7CisJCQl4cGFkLT5jb250cm9sbGVyX3VuaXF1ZV9pZFswXSA9ICdcMCc7CisJCQl4
-cGFkLT5jb250cm9sbGVyX3R5cGUgPSBYQ09OVFJPTExFUl9UWVBFX05PTkU7CisJCQkvKiBXZSBk
-byBOT1QgZmx1c2ggdGhlIHNoYXJlZCB3b3JrcXVldWUgaGVyZSwgYmVjYXVzZQorCQkJICogdGhp
-cyBmdW5jdGlvbiBpcyBjYWxsZWQgZnJvbSBhbiBpbnRlcnJ1cHQgaGFuZGxlci4KKwkJCSAqIElm
-IHRoZSBjb250cm9sbGVyIGhhcyBkaXNjb25uZWN0ZWQgZnJvbSB0aGUgcmVjZWl2ZXIsCisJCQkg
-KiB0aGUgd29yc3QgdGhhdCB3aWxsIGhhcHBlbiBmcm9tIHRoZSB3b3JrIHRhc2sgcnVubmluZwor
-CQkJICogaXMgdGhhdCBhIHBhY2tldCB3aWxsIGJlIHRyYW5zbWl0dGVkIGZyb20gdGhlCisJCQkg
-KiByZWNlaXZlciB0byBhIG5vbi1saXN0ZW5pbmcgY29udHJvbGxlcgorCQkJICovCisJCX0KIAl9
-CiAKLQkvKiBWYWxpZCBwYWQgZGF0YSAqLwotCWlmICghKGRhdGFbMV0gJiAweDEpKQotCQlyZXR1
-cm47Ci0KLQl4cGFkMzYwX3Byb2Nlc3NfcGFja2V0KHhwYWQsIGNtZCwgJmRhdGFbNF0pOworCS8q
-IFByb2Nlc3MgcGFja2V0cyBhY2NvcmRpbmcgdG8gdHlwZSAqLworCWlmIChkYXRhWzFdID09IDB4
-MGYpIHsKKwkJaWYgKCEgeHBhZC0+Y29udHJvbGxlcl91bmlxdWVfaWRbMF0pIHsKKwkJCXhwYWQz
-NjB3X2lkZW50aWZ5X2NvbnRyb2xsZXIoeHBhZCwgZGF0YSk7CisJCQl4cGFkX2luaXRfY29udHJv
-bGxlcih4cGFkKTsKKwkJfQorCX0KKwllbHNlIGlmIChkYXRhWzFdICYgMHgxKSB7CisJCXhwYWQz
-NjBfcHJvY2Vzc19wYWNrZXQoeHBhZCwgY21kLCAmZGF0YVs0XSk7CisJfQogfQogCisKIHN0YXRp
-YyB2b2lkIHhwYWRfaXJxX2luKHN0cnVjdCB1cmIgKnVyYikKIHsKIAlzdHJ1Y3QgdXNiX3hwYWQg
-KnhwYWQgPSB1cmItPmNvbnRleHQ7CkBAIC00NDUsMjQgKzU3MywxNiBAQAogCQkgICAgIF9fZnVu
-Y19fLCByZXR2YWwpOwogfQogCi1zdGF0aWMgdm9pZCB4cGFkX2J1bGtfb3V0KHN0cnVjdCB1cmIg
-KnVyYikKLXsKLQlzd2l0Y2ggKHVyYi0+c3RhdHVzKSB7Ci0JY2FzZSAwOgotCQkvKiBzdWNjZXNz
-ICovCi0JCWJyZWFrOwotCWNhc2UgLUVDT05OUkVTRVQ6Ci0JY2FzZSAtRU5PRU5UOgotCWNhc2Ug
-LUVTSFVURE9XTjoKLQkJLyogdGhpcyB1cmIgaXMgdGVybWluYXRlZCwgY2xlYW4gdXAgKi8KLQkJ
-ZGJnKCIlcyAtIHVyYiBzaHV0dGluZyBkb3duIHdpdGggc3RhdHVzOiAlZCIsIF9fZnVuY19fLCB1
-cmItPnN0YXR1cyk7Ci0JCWJyZWFrOwotCWRlZmF1bHQ6Ci0JCWRiZygiJXMgLSBub256ZXJvIHVy
-YiBzdGF0dXMgcmVjZWl2ZWQ6ICVkIiwgX19mdW5jX18sIHVyYi0+c3RhdHVzKTsKLQl9Ci19CiAK
-Ky8qIGVuZCBpbnB1dCBzZWN0aW9uICovCisKKy8qKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKi8KKy8qIElS
-USBvdXRwdXQgc2VjdGlvbjogcHJlc2VudCBpbiBvYmplY3QgY29kZSBvbmx5IGlmIHRoZSBmb3Jj
-ZSBmZWVkYmFjayBvcgorICogTEVEIGludGVyZmFjZSBpcyBlbmFibGVkLgorICovCisgCiAjaWYg
-ZGVmaW5lZChDT05GSUdfSk9ZU1RJQ0tfWFBBRF9GRikgfHwgZGVmaW5lZChDT05GSUdfSk9ZU1RJ
-Q0tfWFBBRF9MRURTKQorCiBzdGF0aWMgdm9pZCB4cGFkX2lycV9vdXQoc3RydWN0IHVyYiAqdXJi
-KQogewogCWludCByZXR2YWwsIHN0YXR1czsKQEAgLTQ5MywxMiArNjEzLDEzIEBACiAJCSAgICBf
-X2Z1bmNfXywgcmV0dmFsKTsKIH0KIAorCiBzdGF0aWMgaW50IHhwYWRfaW5pdF9vdXRwdXQoc3Ry
-dWN0IHVzYl9pbnRlcmZhY2UgKmludGYsIHN0cnVjdCB1c2JfeHBhZCAqeHBhZCkKIHsKIAlzdHJ1
-Y3QgdXNiX2VuZHBvaW50X2Rlc2NyaXB0b3IgKmVwX2lycV9vdXQ7CiAJaW50IGVycm9yID0gLUVO
-T01FTTsKIAotCWlmICh4cGFkLT54dHlwZSAhPSBYVFlQRV9YQk9YMzYwKQorCWlmICgoeHBhZC0+
-eHR5cGUgIT0gWFRZUEVfWEJPWDM2MCkgJiYgKHhwYWQtPnh0eXBlICE9IFhUWVBFX1hCT1gzNjBX
-KSkKIAkJcmV0dXJuIDA7CiAKIAl4cGFkLT5vZGF0YSA9IHVzYl9idWZmZXJfYWxsb2MoeHBhZC0+
-dWRldiwgWFBBRF9QS1RfTEVOLApAQCAtNTI2LDQ1ICs2NDcsODIgQEAKICBmYWlsMToJcmV0dXJu
-IGVycm9yOwogfQogCisKIHN0YXRpYyB2b2lkIHhwYWRfc3RvcF9vdXRwdXQoc3RydWN0IHVzYl94
-cGFkICp4cGFkKQogewotCWlmICh4cGFkLT54dHlwZSA9PSBYVFlQRV9YQk9YMzYwKQorCWlmICgo
-eHBhZC0+eHR5cGUgPT0gWFRZUEVfWEJPWDM2MCkgfHwgKHhwYWQtPnh0eXBlID09IFhUWVBFX1hC
-T1gzNjBXKSkKIAkJdXNiX2tpbGxfdXJiKHhwYWQtPmlycV9vdXQpOwogfQogCisKIHN0YXRpYyB2
-b2lkIHhwYWRfZGVpbml0X291dHB1dChzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQpCiB7Ci0JaWYgKHhw
-YWQtPnh0eXBlID09IFhUWVBFX1hCT1gzNjApIHsKKwlpZiAoKHhwYWQtPnh0eXBlID09IFhUWVBF
-X1hCT1gzNjApIHx8ICh4cGFkLT54dHlwZSA9PSBYVFlQRV9YQk9YMzYwVykpIHsKIAkJdXNiX2Zy
-ZWVfdXJiKHhwYWQtPmlycV9vdXQpOwogCQl1c2JfYnVmZmVyX2ZyZWUoeHBhZC0+dWRldiwgWFBB
-RF9QS1RfTEVOLAogCQkJCXhwYWQtPm9kYXRhLCB4cGFkLT5vZGF0YV9kbWEpOwogCX0KIH0KKwog
-I2Vsc2UKKy8qIER1bW15IGltcGxlbWVudGF0aW9ucyBmb3IgeHBhZF9wcm9iZSBhbmQgeHBhZF9k
-aXNjb25uZWN0ICovCiBzdGF0aWMgaW50IHhwYWRfaW5pdF9vdXRwdXQoc3RydWN0IHVzYl9pbnRl
-cmZhY2UgKmludGYsIHN0cnVjdCB1c2JfeHBhZCAqeHBhZCkgeyByZXR1cm4gMDsgfQogc3RhdGlj
-IHZvaWQgeHBhZF9kZWluaXRfb3V0cHV0KHN0cnVjdCB1c2JfeHBhZCAqeHBhZCkge30KIHN0YXRp
-YyB2b2lkIHhwYWRfc3RvcF9vdXRwdXQoc3RydWN0IHVzYl94cGFkICp4cGFkKSB7fQogI2VuZGlm
-CiAKLSNpZmRlZiBDT05GSUdfSk9ZU1RJQ0tfWFBBRF9GRgorLyogZW5kIG91dHB1dCBzZWN0aW9u
-ICovCisKKy8qKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKi8KKworLyogRm9yY2UgZmVlZGJhY2sgKHJ1bWJs
-ZSBlZmZlY3QpIHNlY3Rpb24sIGRlcGVuZHMgb24gQ09ORklHX0pPWVNUSUNLX1hQQURfRkYgKi8K
-KworI2lmIGRlZmluZWQoQ09ORklHX0pPWVNUSUNLX1hQQURfRkYpCisKKy8qIFJ1bWJsZSBzdXBw
-b3J0IGZvciB3aXJlbGVzcyBjb250cm9sbGVycyBmb2xsb3dzIHByb3RvY29sIGRlc2NyaXB0aW9u
-CisgKiBmcm9tIHhib3hkcnYgdXNlcnNwYWNlIGRyaXZlcjoKKyAqICAgICAgIGh0dHA6Ly9waW5n
-dXMuc2V1bC5vcmcvfmdydW1iZWwveGJveGRydi8KKyAqLwogc3RhdGljIGludCB4cGFkX3BsYXlf
-ZWZmZWN0KHN0cnVjdCBpbnB1dF9kZXYgKmRldiwgdm9pZCAqZGF0YSwKIAkJCSAgICBzdHJ1Y3Qg
-ZmZfZWZmZWN0ICplZmZlY3QpCiB7CiAJc3RydWN0IHVzYl94cGFkICp4cGFkID0gaW5wdXRfZ2V0
-X2RydmRhdGEoZGV2KTsKKwkKKwlpZiAoISB4cGFkLT5ydW1ibGVfZW5hYmxlKQorCQlyZXR1cm4g
-MDsKIAogCWlmIChlZmZlY3QtPnR5cGUgPT0gRkZfUlVNQkxFKSB7CiAJCV9fdTE2IHN0cm9uZyA9
-IGVmZmVjdC0+dS5ydW1ibGUuc3Ryb25nX21hZ25pdHVkZTsKIAkJX191MTYgd2VhayA9IGVmZmVj
-dC0+dS5ydW1ibGUud2Vha19tYWduaXR1ZGU7Ci0JCXhwYWQtPm9kYXRhWzBdID0gMHgwMDsKLQkJ
-eHBhZC0+b2RhdGFbMV0gPSAweDA4OwotCQl4cGFkLT5vZGF0YVsyXSA9IDB4MDA7Ci0JCXhwYWQt
-Pm9kYXRhWzNdID0gc3Ryb25nIC8gMjU2OwotCQl4cGFkLT5vZGF0YVs0XSA9IHdlYWsgLyAyNTY7
-Ci0JCXhwYWQtPm9kYXRhWzVdID0gMHgwMDsKLQkJeHBhZC0+b2RhdGFbNl0gPSAweDAwOwotCQl4
-cGFkLT5vZGF0YVs3XSA9IDB4MDA7Ci0JCXhwYWQtPmlycV9vdXQtPnRyYW5zZmVyX2J1ZmZlcl9s
-ZW5ndGggPSA4OworCQltdXRleF9sb2NrKCZ4cGFkLT5vZGF0YV9tdXRleCk7CisJCWlmICh4cGFk
-LT54dHlwZSA9PSBYVFlQRV9YQk9YMzYwVykgeworCQkJeHBhZC0+b2RhdGFbMF0gPSAweDAwOwor
-CQkJeHBhZC0+b2RhdGFbMV0gPSAweDAxOworCQkJeHBhZC0+b2RhdGFbMl0gPSAweDBmOworCQkJ
-eHBhZC0+b2RhdGFbM10gPSAweGMwOworCQkJeHBhZC0+b2RhdGFbNF0gPSAweDAwOworCQkJeHBh
-ZC0+b2RhdGFbNV0gPSBzdHJvbmcgLyAyNTY7CisJCQl4cGFkLT5vZGF0YVs2XSA9IHdlYWsgLyAy
-NTY7CisJCQl4cGFkLT5vZGF0YVs3XSA9IDB4MDA7CisJCQl4cGFkLT5vZGF0YVs4XSA9IDB4MDA7
-CisJCQl4cGFkLT5vZGF0YVs5XSA9IDB4MDA7CisJCQl4cGFkLT5vZGF0YVsxMF0gPSAweDAwOwor
-CQkJeHBhZC0+b2RhdGFbMTFdID0gMHgwMDsKKwkJCXhwYWQtPmlycV9vdXQtPnRyYW5zZmVyX2J1
-ZmZlcl9sZW5ndGggPSAxMjsKKwkJfQorCQllbHNlIHsKKwkJCXhwYWQtPm9kYXRhWzBdID0gMHgw
-MDsKKwkJCXhwYWQtPm9kYXRhWzFdID0gMHgwODsKKwkJCXhwYWQtPm9kYXRhWzJdID0gMHgwMDsK
-KwkJCXhwYWQtPm9kYXRhWzNdID0gc3Ryb25nIC8gMjU2OworCQkJeHBhZC0+b2RhdGFbNF0gPSB3
-ZWFrIC8gMjU2OworCQkJeHBhZC0+b2RhdGFbNV0gPSAweDAwOworCQkJeHBhZC0+b2RhdGFbNl0g
-PSAweDAwOworCQkJeHBhZC0+b2RhdGFbN10gPSAweDAwOworCQkJeHBhZC0+aXJxX291dC0+dHJh
-bnNmZXJfYnVmZmVyX2xlbmd0aCA9IDg7CisJCX0KIAkJdXNiX3N1Ym1pdF91cmIoeHBhZC0+aXJx
-X291dCwgR0ZQX0tFUk5FTCk7CisJCW11dGV4X3VubG9jaygmeHBhZC0+b2RhdGFfbXV0ZXgpOwog
-CX0KIAogCXJldHVybiAwOwpAQCAtNTcyLDcgKzczMCw3IEBACiAKIHN0YXRpYyBpbnQgeHBhZF9p
-bml0X2ZmKHN0cnVjdCB1c2JfeHBhZCAqeHBhZCkKIHsKLQlpZiAoeHBhZC0+eHR5cGUgIT0gWFRZ
-UEVfWEJPWDM2MCkKKwlpZiAoKHhwYWQtPnh0eXBlICE9IFhUWVBFX1hCT1gzNjApICYmICh4cGFk
-LT54dHlwZSAhPSBYVFlQRV9YQk9YMzYwVykpCiAJCXJldHVybiAwOwogCiAJaW5wdXRfc2V0X2Nh
-cGFiaWxpdHkoeHBhZC0+ZGV2LCBFVl9GRiwgRkZfUlVNQkxFKTsKQEAgLTU4MSwyNiArNzM5LDUw
-IEBACiB9CiAKICNlbHNlCisvKiBkdW1teSBpbXBsZW1lbnRhdGlvbiBmb3IgeHBhZF9wcm9iZSAq
-Lwogc3RhdGljIGludCB4cGFkX2luaXRfZmYoc3RydWN0IHVzYl94cGFkICp4cGFkKSB7IHJldHVy
-biAwOyB9CiAjZW5kaWYKIAorCisvKiBlbmQgZm9yY2UgZmVlZGJhY2sgc2VjdGlvbiAqLworCisv
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKiovCisKKy8qIExFRCBoYW5kbGluZyBzZWN0aW9uOiBwcm92aWRl
-cyBzdXBwb3J0IGZvciB0aGUgcmluZyBvZiBMRURzIG9uIHRoZSAzNjAKKyAqIGNvbnRyb2xsZXJz
-LiAqLworCiAjaWYgZGVmaW5lZChDT05GSUdfSk9ZU1RJQ0tfWFBBRF9MRURTKQotI2luY2x1ZGUg
-PGxpbnV4L2xlZHMuaD4KIAotc3RydWN0IHhwYWRfbGVkIHsKLQljaGFyIG5hbWVbMTZdOwotCXN0
-cnVjdCBsZWRfY2xhc3NkZXYgbGVkX2NkZXY7Ci0Jc3RydWN0IHVzYl94cGFkICp4cGFkOwotfTsK
-IAorLyogWEJveCAzNjAgd2lyZWxlc3MgY29udHJvbGxlciBmb2xsb3dzIHByb3RvY29sIGZyb20g
-eGJveGRydiB1c2Vyc3BhY2UKKyAqIGRyaXZlcjoKKyAqICAgIGh0dHA6Ly9waW5ndXMuc2V1bC5v
-cmcvfmdydW1iZWwveGJveGRydi8KKyAqLwogc3RhdGljIHZvaWQgeHBhZF9zZW5kX2xlZF9jb21t
-YW5kKHN0cnVjdCB1c2JfeHBhZCAqeHBhZCwgaW50IGNvbW1hbmQpCiB7CiAJaWYgKGNvbW1hbmQg
-Pj0gMCAmJiBjb21tYW5kIDwgMTQpIHsKIAkJbXV0ZXhfbG9jaygmeHBhZC0+b2RhdGFfbXV0ZXgp
-OwotCQl4cGFkLT5vZGF0YVswXSA9IDB4MDE7Ci0JCXhwYWQtPm9kYXRhWzFdID0gMHgwMzsKLQkJ
-eHBhZC0+b2RhdGFbMl0gPSBjb21tYW5kOwotCQl4cGFkLT5pcnFfb3V0LT50cmFuc2Zlcl9idWZm
-ZXJfbGVuZ3RoID0gMzsKKwkJaWYgKHhwYWQtPnh0eXBlID09IFhUWVBFX1hCT1gzNjBXKSB7CisJ
-CQl4cGFkLT5vZGF0YVswXSA9IDB4MDA7CisJCQl4cGFkLT5vZGF0YVsxXSA9IDB4MDA7CisJCQl4
-cGFkLT5vZGF0YVsyXSA9IDB4MDg7CisJCQl4cGFkLT5vZGF0YVszXSA9IDB4NDAgKyAoY29tbWFu
-ZCAlIDB4MGUpOworCQkJeHBhZC0+b2RhdGFbNF0gPSAweDAwOworCQkJeHBhZC0+b2RhdGFbNV0g
-PSAweDAwOworCQkJeHBhZC0+b2RhdGFbNl0gPSAweDAwOworCQkJeHBhZC0+b2RhdGFbN10gPSAw
-eDAwOworCQkJeHBhZC0+b2RhdGFbOF0gPSAweDAwOworCQkJeHBhZC0+b2RhdGFbOV0gPSAweDAw
-OworCQkJeHBhZC0+b2RhdGFbMTBdID0gMHgwMDsKKwkJCXhwYWQtPm9kYXRhWzExXSA9IDB4MDA7
-CisJCQl4cGFkLT5pcnFfb3V0LT50cmFuc2Zlcl9idWZmZXJfbGVuZ3RoID0gMTI7CisJCX0KKwkJ
-ZWxzZSB7CisJCQl4cGFkLT5vZGF0YVswXSA9IDB4MDE7CisJCQl4cGFkLT5vZGF0YVsxXSA9IDB4
-MDM7CisJCQl4cGFkLT5vZGF0YVsyXSA9IGNvbW1hbmQ7CisJCQl4cGFkLT5pcnFfb3V0LT50cmFu
-c2Zlcl9idWZmZXJfbGVuZ3RoID0gMzsKKwkJfQogCQl1c2Jfc3VibWl0X3VyYih4cGFkLT5pcnFf
-b3V0LCBHRlBfS0VSTkVMKTsKIAkJbXV0ZXhfdW5sb2NrKCZ4cGFkLT5vZGF0YV9tdXRleCk7CiAJ
-fQpAQCAtNjE1LDYgKzc5Nyw3IEBACiAJeHBhZF9zZW5kX2xlZF9jb21tYW5kKHhwYWRfbGVkLT54
-cGFkLCB2YWx1ZSk7CiB9CiAKKwogc3RhdGljIGludCB4cGFkX2xlZF9wcm9iZShzdHJ1Y3QgdXNi
-X3hwYWQgKnhwYWQpCiB7CiAJc3RhdGljIGF0b21pY190IGxlZF9zZXEJPSBBVE9NSUNfSU5JVCgw
-KTsKQEAgLTYyMyw3ICs4MDYsNyBAQAogCXN0cnVjdCBsZWRfY2xhc3NkZXYgKmxlZF9jZGV2Owog
-CWludCBlcnJvcjsKIAotCWlmICh4cGFkLT54dHlwZSAhPSBYVFlQRV9YQk9YMzYwKQorCWlmICgo
-eHBhZC0+eHR5cGUgIT0gWFRZUEVfWEJPWDM2MCkgJiYgKHhwYWQtPnh0eXBlICE9IFhUWVBFX1hC
-T1gzNjBXKSkKIAkJcmV0dXJuIDA7CiAKIAl4cGFkLT5sZWQgPSBsZWQgPSBremFsbG9jKHNpemVv
-ZihzdHJ1Y3QgeHBhZF9sZWQpLCBHRlBfS0VSTkVMKTsKQEAgLTY2NCwxMCArODQ3LDE2IEBACiAJ
-fQogfQogI2Vsc2UKKy8qIGR1bW1pZXMgZm9yIHhwYWRfcHJvYmUgYW5kIHhwYWRfZGlzY29ubmVj
-dCAqLwogc3RhdGljIGludCB4cGFkX2xlZF9wcm9iZShzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQpIHsg
-cmV0dXJuIDA7IH0KIHN0YXRpYyB2b2lkIHhwYWRfbGVkX2Rpc2Nvbm5lY3Qoc3RydWN0IHVzYl94
-cGFkICp4cGFkKSB7IH0KICNlbmRpZgogCisvKiBlbmQgTEVEIHNlY3Rpb24gKi8KKworLyoqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqLworCisvKiBNb2R1bGUgYW5kIGRldmljZSBmdW5jdGlvbnMgKi8KIAog
-c3RhdGljIGludCB4cGFkX29wZW4oc3RydWN0IGlucHV0X2RldiAqZGV2KQogewpAQCAtNzIxLDYg
-KzkxMCw3IEBACiAJc3RydWN0IHVzYl94cGFkICp4cGFkOwogCXN0cnVjdCBpbnB1dF9kZXYgKmlu
-cHV0X2RldjsKIAlzdHJ1Y3QgdXNiX2VuZHBvaW50X2Rlc2NyaXB0b3IgKmVwX2lycV9pbjsKKwlp
-bnQgY29udHJvbGxlcl90eXBlOwogCWludCBpOwogCWludCBlcnJvciA9IC1FTk9NRU07CiAKQEAg
-LTc0Nyw2ICs5MzcsNyBAQAogCXhwYWQtPnVkZXYgPSB1ZGV2OwogCXhwYWQtPmRwYWRfbWFwcGlu
-ZyA9IHhwYWRfZGV2aWNlW2ldLmRwYWRfbWFwcGluZzsKIAl4cGFkLT54dHlwZSA9IHhwYWRfZGV2
-aWNlW2ldLnh0eXBlOworCWNvbnRyb2xsZXJfdHlwZSA9IHhwYWRfZGV2aWNlW2ldLmNvbnRyb2xs
-ZXJfdHlwZTsKIAlpZiAoeHBhZC0+ZHBhZF9tYXBwaW5nID09IE1BUF9EUEFEX1VOS05PV04pCiAJ
-CXhwYWQtPmRwYWRfbWFwcGluZyA9ICFkcGFkX3RvX2J1dHRvbnM7CiAJaWYgKHhwYWQtPnh0eXBl
-ID09IFhUWVBFX1VOS05PV04pIHsKQEAgLTgxOSw2ICsxMDEwLDEwIEBACiAJCWdvdG8gZmFpbDQ7
-CiAKIAl1c2Jfc2V0X2ludGZkYXRhKGludGYsIHhwYWQpOworCQorCXhwYWQtPmNvbnRyb2xsZXJf
-dHlwZSA9IGNvbnRyb2xsZXJfdHlwZTsKKwlpZiAoY29udHJvbGxlcl90eXBlICE9IFhDT05UUk9M
-TEVSX1RZUEVfTk9ORSkKKwkJeHBhZF9pbml0X2NvbnRyb2xsZXIoeHBhZCk7CiAKIAkvKgogCSAq
-IFN1Ym1pdCB0aGUgaW50IFVSQiBpbW1lZGlhdGx5IHJhdGhlciB0aGFuIHdhaXRpbmcgZm9yIG9w
-ZW4KQEAgLTgyOCw0OCArMTAyMywzOCBAQAogCSAqIHdlJ3JlIHdhaXRpbmcgZm9yLgogCSAqLwog
-CWlmICh4cGFkLT54dHlwZSA9PSBYVFlQRV9YQk9YMzYwVykgeworCQl4cGFkLT5jb250cm9sbGVy
-X3ByZXNlbnQgPSAwOworCQl4cGFkLT5jb250cm9sbGVyX3VuaXF1ZV9pZFswXSA9ICdcMCc7CisJ
-CXhwYWQtPmNvbnRyb2xsZXJfbnVtYmVyID0KKwkJCShpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZGVz
-Yy5iSW50ZXJmYWNlTnVtYmVyIC8gMikgKyAxOwogCQl4cGFkLT5pcnFfaW4tPmRldiA9IHhwYWQt
-PnVkZXY7CiAJCWVycm9yID0gdXNiX3N1Ym1pdF91cmIoeHBhZC0+aXJxX2luLCBHRlBfS0VSTkVM
-KTsKIAkJaWYgKGVycm9yKQotCQkJZ290byBmYWlsNDsKLQotCQkvKgotCQkgKiBTZXR1cCB0aGUg
-bWVzc2FnZSB0byBzZXQgdGhlIExFRHMgb24gdGhlCi0JCSAqIGNvbnRyb2xsZXIgd2hlbiBpdCBz
-aG93cyB1cAotCQkgKi8KLQkJeHBhZC0+YnVsa19vdXQgPSB1c2JfYWxsb2NfdXJiKDAsIEdGUF9L
-RVJORUwpOwotCQlpZigheHBhZC0+YnVsa19vdXQpCiAJCQlnb3RvIGZhaWw1OwotCi0JCXhwYWQt
-PmJkYXRhID0ga3phbGxvYyhYUEFEX1BLVF9MRU4sIEdGUF9LRVJORUwpOwotCQlpZigheHBhZC0+
-YmRhdGEpCi0JCQlnb3RvIGZhaWw2OwotCi0JCXhwYWQtPmJkYXRhWzJdID0gMHgwODsKLQkJc3dp
-dGNoIChpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZGVzYy5iSW50ZXJmYWNlTnVtYmVyKSB7Ci0JCWNh
-c2UgMDoKLQkJCXhwYWQtPmJkYXRhWzNdID0gMHg0MjsKLQkJCWJyZWFrOwotCQljYXNlIDI6Ci0J
-CQl4cGFkLT5iZGF0YVszXSA9IDB4NDM7Ci0JCQlicmVhazsKLQkJY2FzZSA0OgotCQkJeHBhZC0+
-YmRhdGFbM10gPSAweDQ0OwotCQkJYnJlYWs7Ci0JCWNhc2UgNjoKLQkJCXhwYWQtPmJkYXRhWzNd
-ID0gMHg0NTsKLQkJfQotCi0JCWVwX2lycV9pbiA9ICZpbnRmLT5jdXJfYWx0c2V0dGluZy0+ZW5k
-cG9pbnRbMV0uZGVzYzsKLQkJdXNiX2ZpbGxfYnVsa191cmIoeHBhZC0+YnVsa19vdXQsIHVkZXYs
-Ci0JCQkJdXNiX3NuZGJ1bGtwaXBlKHVkZXYsIGVwX2lycV9pbi0+YkVuZHBvaW50QWRkcmVzcyks
-Ci0JCQkJeHBhZC0+YmRhdGEsIFhQQURfUEtUX0xFTiwgeHBhZF9idWxrX291dCwgeHBhZCk7CiAJ
-fQorCWVsc2UgeworCQl4cGFkLT5jb250cm9sbGVyX3ByZXNlbnQgPSAxOworCQlzdHJuY3B5KHhw
-YWQtPmNvbnRyb2xsZXJfdW5pcXVlX2lkLCAid2lyZWQiLCAxNyk7CisJCXhwYWQtPmNvbnRyb2xs
-ZXJfbnVtYmVyID0gMDsKKwl9CisJCisJLyogU2V0IHVwIGRldmljZSBhdHRyaWJ1dGVzICovCisj
-aWZkZWYgQ09ORklHX1NZU0ZTCisJeHBhZC0+c3lzZnNfb2sgPSAxOworCWVycm9yID0gc3lzZnNf
-Y3JlYXRlX2dyb3VwKCZpbnB1dF9kZXYtPmRldi5rb2JqLCAmeHBhZF9kZWZhdWx0X2F0dHJfZ3Jv
-dXApOworCWlmIChlcnJvcikgeworCQkvKiBEcml2ZXIgd2lsbCB3b3JrIHdpdGhvdXQgdGhlIHN5
-c2ZzIGludGVyZmFjZSwgYnV0IHBhcmFtZXRlcnMKKwkJICogd2lsbCBub3QgYmUgYWRqdXN0YWJs
-ZSwgc28gdGhpcyBmYWlsdXJlIGlzIGEgd2FybmluZy4gKi8KKwkJcHJpbnRrKEtFUk5fV0FSTklO
-RyAieHBhZDogc3lzZnNfY3JlYXRlX2dyb3VwIGZhaWxlZCB3aXRoIGVycm9yICVkXG4iLCBlcnJv
-cik7CisJCXhwYWQtPnN5c2ZzX29rID0gMDsKKwl9CisjZW5kaWYKIAogCXJldHVybiAwOwogCi0g
-ZmFpbDY6CXVzYl9mcmVlX3VyYih4cGFkLT5idWxrX291dCk7Ci0gZmFpbDU6CXVzYl9raWxsX3Vy
-Yih4cGFkLT5pcnFfaW4pOworIGZhaWw1OiB1c2Jfc2V0X2ludGZkYXRhKGludGYsIE5VTEwpOwor
-IAlpbnB1dF91bnJlZ2lzdGVyX2RldmljZSh4cGFkLT5kZXYpOworIAl4cGFkX2xlZF9kaXNjb25u
-ZWN0KHhwYWQpOwogIGZhaWw0Ogl1c2JfZnJlZV91cmIoeHBhZC0+aXJxX2luKTsKICBmYWlsMzoJ
-eHBhZF9kZWluaXRfb3V0cHV0KHhwYWQpOwogIGZhaWwyOgl1c2JfYnVmZmVyX2ZyZWUodWRldiwg
-WFBBRF9QS1RfTEVOLCB4cGFkLT5pZGF0YSwgeHBhZC0+aWRhdGFfZG1hKTsKQEAgLTg4NSwxMiAr
-MTA3MCwxOSBAQAogCiAJdXNiX3NldF9pbnRmZGF0YShpbnRmLCBOVUxMKTsKIAlpZiAoeHBhZCkg
-eworCQkvKiBJZiBhIHdvcmsgdGFzayByZW1haW5zLCBnZXQgcmlkIG9mIGl0IGJ5IGZsdXNoaW5n
-IHRoZQorCQkgKiBzaGFyZWQgd29yayBxdWV1ZS4KKwkJICovCisJCWlmICh4cGFkLT53b3JrX3Bl
-bmRpbmcpCisJCQlmbHVzaF9zY2hlZHVsZWRfd29yaygpOworI2lmZGVmIENPTkZJR19TWVNGUwor
-CQlpZiAoeHBhZC0+c3lzZnNfb2spCisJCQlzeXNmc19yZW1vdmVfZ3JvdXAoJnhwYWQtPmRldi0+
-ZGV2LmtvYmosICZ4cGFkX2RlZmF1bHRfYXR0cl9ncm91cCk7CisjZW5kaWYKIAkJeHBhZF9sZWRf
-ZGlzY29ubmVjdCh4cGFkKTsKIAkJaW5wdXRfdW5yZWdpc3Rlcl9kZXZpY2UoeHBhZC0+ZGV2KTsK
-IAkJeHBhZF9kZWluaXRfb3V0cHV0KHhwYWQpOwogCQlpZiAoeHBhZC0+eHR5cGUgPT0gWFRZUEVf
-WEJPWDM2MFcpIHsKLQkJCXVzYl9raWxsX3VyYih4cGFkLT5idWxrX291dCk7Ci0JCQl1c2JfZnJl
-ZV91cmIoeHBhZC0+YnVsa19vdXQpOwogCQkJdXNiX2tpbGxfdXJiKHhwYWQtPmlycV9pbik7CiAJ
-CX0KIAkJdXNiX2ZyZWVfdXJiKHhwYWQtPmlycV9pbik7CkBAIC05MDAsMTIgKzEwOTIsNyBAQAog
-CX0KIH0KIAotc3RhdGljIHN0cnVjdCB1c2JfZHJpdmVyIHhwYWRfZHJpdmVyID0gewotCS5uYW1l
-CQk9ICJ4cGFkIiwKLQkucHJvYmUJCT0geHBhZF9wcm9iZSwKLQkuZGlzY29ubmVjdAk9IHhwYWRf
-ZGlzY29ubmVjdCwKLQkuaWRfdGFibGUJPSB4cGFkX3RhYmxlLAotfTsKKwogCiBzdGF0aWMgaW50
-IF9faW5pdCB1c2JfeHBhZF9pbml0KHZvaWQpCiB7CkBAIC05MjAsOSArMTEwNyw0IEBACiAJdXNi
-X2RlcmVnaXN0ZXIoJnhwYWRfZHJpdmVyKTsKIH0KIAotbW9kdWxlX2luaXQodXNiX3hwYWRfaW5p
-dCk7Ci1tb2R1bGVfZXhpdCh1c2JfeHBhZF9leGl0KTsKIAotTU9EVUxFX0FVVEhPUihEUklWRVJf
-QVVUSE9SKTsKLU1PRFVMRV9ERVNDUklQVElPTihEUklWRVJfREVTQyk7Ci1NT0RVTEVfTElDRU5T
-RSgiR1BMIik7CmRpZmYgLXVOciBvcmlnZHJ2L2RyaXZlcnMvaW5wdXQvam95c3RpY2sveHBhZC5o
-IG5ld2Rydi9kcml2ZXJzL2lucHV0L2pveXN0aWNrL3hwYWQuaAotLS0gb3JpZ2Rydi9kcml2ZXJz
-L2lucHV0L2pveXN0aWNrL3hwYWQuaAkxOTY5LTEyLTMxIDE5OjAwOjAwLjAwMDAwMDAwMCAtMDUw
-MAorKysgbmV3ZHJ2L2RyaXZlcnMvaW5wdXQvam95c3RpY2sveHBhZC5oCTIwMDktMDItMjEgMjM6
-NDk6MzYuMDAwMDAwMDAwIC0wNTAwCkBAIC0wLDAgKzEsNTc4IEBACisvKgorICogWGJveCBnYW1l
-cGFkIGRyaXZlciB3aXRoIFhib3ggMzYwIHdpcmVkL3dpcmVsZXNzIHN1cHBvcnQKKyAqCisgKiBM
-YXN0IE1vZGlmaWVkOgkyMSBGZWJydWFyeSAyMDA5CisgKgkJCU1pa2UgTXVycGh5IDxtYW11cnBo
-QGNzLmNsZW1zb24uZWR1PgorICoKKyAqIENvcHlyaWdodCAoYykgMjAwMiBNYXJrbyBGcmllZGVt
-YW5uIDxtZnJAYm14LWNoZW1uaXR6LmRlPgorICogICAgICAgICAgICAgICAyMDA0IE9saXZlciBT
-Y2h3YXJ0eiA8T2xpdmVyLlNjaHdhcnR6QGdteC5kZT4sCisgKiAgICAgICAgICAgICAgICAgICAg
-U3RldmVuIFRvdGggPHN0ZXZlQHRvdGguZGVtb24uY28udWs+LAorICogICAgICAgICAgICAgICAg
-ICAgIEZyYW56IExlaG5lciA8ZnJhbnpAY2Fvcy5hdD4sCisgKiAgICAgICAgICAgICAgICAgICAg
-SXZhbiBIYXdrZXMgPGJsYWNraGF3a0BpdmFuaGF3a2VzLmNvbT4KKyAqICAgICAgICAgICAgICAg
-MjAwNSBEb21pbmljIENlcnF1ZXR0aSA8YmluYXJ5MTIzMEB5YWhvby5jb20+CisgKiAgICAgICAg
-ICAgICAgIDIwMDYgQWRhbSBCdWNoYmluZGVyIDxhZGFtLmJ1Y2hiaW5kZXJAZ21haWwuY29tPgor
-ICogICAgICAgICAgICAgICAyMDA3IEphbiBLcmF0b2NodmlsIDxob256YUBqaWtvcy5jej4KKyAq
-ICAgICAgICAgICAgICAgMjAwOSBDbGVtc29uIFVuaXZlcnNpdHkKKyAqCQkgICAgICAoY29udGFj
-dDogTWlrZSBNdXJwaHkgPG1hbXVycGhAY3MuY2xlbXNvbi5lZHU+KQorICoKKyAqIFRoaXMgcHJv
-Z3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IKKyAq
-IG1vZGlmeSBpdCB1bmRlciB0aGUgdGVybXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNl
-bnNlIGFzCisgKiBwdWJsaXNoZWQgYnkgdGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0
-aGVyIHZlcnNpb24gMiBvZgorICogdGhlIExpY2Vuc2UsIG9yIChhdCB5b3VyIG9wdGlvbikgYW55
-IGxhdGVyIHZlcnNpb24uCisgKgorICogVGhpcyBwcm9ncmFtIGlzIGRpc3RyaWJ1dGVkIGluIHRo
-ZSBob3BlIHRoYXQgaXQgd2lsbCBiZSB1c2VmdWwsCisgKiBidXQgV0lUSE9VVCBBTlkgV0FSUkFO
-VFk7IHdpdGhvdXQgZXZlbiB0aGUgaW1wbGllZCB3YXJyYW50eSBvZgorICogTUVSQ0hBTlRBQklM
-SVRZIG9yIEZJVE5FU1MgRk9SIEEgUEFSVElDVUxBUiBQVVJQT1NFLiAgU2VlIHRoZQorICogR05V
-IEdlbmVyYWwgUHVibGljIExpY2Vuc2UgZm9yIG1vcmUgZGV0YWlscy4KKyAqCisgKiBZb3Ugc2hv
-dWxkIGhhdmUgcmVjZWl2ZWQgYSBjb3B5IG9mIHRoZSBHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5z
-ZQorICogYWxvbmcgd2l0aCB0aGlzIHByb2dyYW07IGlmIG5vdCwgd3JpdGUgdG8gdGhlIEZyZWUg
-U29mdHdhcmUKKyAqIEZvdW5kYXRpb24sIEluYy4sIDU5IFRlbXBsZSBQbGFjZSwgU3VpdGUgMzMw
-LCBCb3N0b24sIE1BIDAyMTExLTEzMDcgVVNBCisgKgorICoKKyAqIFRoaXMgZHJpdmVyIGlzIGJh
-c2VkIG9uOgorICogIC0gaW5mb3JtYXRpb24gZnJvbSAgICAgaHR0cDovL2V1Yy5qcC9wZXJpcGhz
-L3hib3gtY29udHJvbGxlci5qYS5odG1sCisgKiAgLSB0aGUgaUZvcmNlIGRyaXZlciAgICBkcml2
-ZXJzL2NoYXIvam95c3RpY2svaWZvcmNlLmMKKyAqICAtIHRoZSBza2VsZXRvbi1kcml2ZXIgIGRy
-aXZlcnMvdXNiL3VzYi1za2VsZXRvbi5jCisgKiAgLSBYYm94IDM2MCBpbmZvcm1hdGlvbiBodHRw
-Oi8vd3d3LmZyZWU2MC5vcmcvd2lraS9HYW1lcGFkCisgKiAgLSB4Ym94ZHJ2IGRvY3MgICAgICAg
-ICBodHRwOi8vcGluZ3VzLnNldWwub3JnL35ncnVtYmVsL3hib3hkcnYvCisgKgorICogVGhhbmtz
-IHRvOgorICogIC0gSVRPIFRha2F5dWtpIGZvciBwcm92aWRpbmcgZXNzZW50aWFsIHhwYWQgaW5m
-b3JtYXRpb24gb24gaGlzIHdlYnNpdGUKKyAqICAtIFZvanRlY2ggUGF2bGlrICAgICAtIGlmb3Jj
-ZSBkcml2ZXIgLyBpbnB1dCBzdWJzeXN0ZW0KKyAqICAtIEdyZWcgS3JvYWgtSGFydG1hbiAtIHVz
-Yi1za2VsZXRvbiBkcml2ZXIKKyAqICAtIFhCT1ggTGludXggcHJvamVjdCAtIGV4dHJhIFVTQiBp
-ZCdzCisgKgorICogVE9ETzoKKyAqICAtIGZpeCAiYW5hbG9nIiBidXR0b25zIChyZXBvcnRlZCBh
-cyBkaWdpdGFsIG5vdykKKyAqICAtIG5lZWQgVVNCIElEcyBmb3Igb3RoZXIgZGFuY2UgcGFkcwor
-ICoKKyAqIERyaXZlciBoaXN0b3J5IGlzIGxvY2F0ZWQgYXQgdGhlIGJvdHRvbSBvZiB0aGlzIGZp
-bGUuCisgKi8KKworI2lmbmRlZiBfWFBBRF9ICisjZGVmaW5lIF9YUEFEX0gKKworI2luY2x1ZGUg
-PGxpbnV4L2tlcm5lbC5oPgorI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KKyNpbmNsdWRlIDxsaW51
-eC9zbGFiLmg+CisjaW5jbHVkZSA8bGludXgvc3RhdC5oPgorI2luY2x1ZGUgPGxpbnV4L21vZHVs
-ZS5oPgorI2luY2x1ZGUgPGxpbnV4L3VzYi9pbnB1dC5oPgorI2luY2x1ZGUgPGxpbnV4L3dvcmtx
-dWV1ZS5oPgorCisjaWYgZGVmaW5lZChDT05GSUdfU1lTRlMpCisjaW5jbHVkZSA8bGludXgva29i
-amVjdC5oPgorI2luY2x1ZGUgPGxpbnV4L3N5c2ZzLmg+CisjaW5jbHVkZSA8bGludXgvc3RyaW5n
-Lmg+CisjZW5kaWYKKworI2lmIGRlZmluZWQoQ09ORklHX0pPWVNUSUNLX1hQQURfTEVEUykKKyNp
-bmNsdWRlIDxsaW51eC9sZWRzLmg+CisKK3N0cnVjdCB4cGFkX2xlZCB7CisJY2hhciBuYW1lWzE2
-XTsKKwlzdHJ1Y3QgbGVkX2NsYXNzZGV2IGxlZF9jZGV2OworCXN0cnVjdCB1c2JfeHBhZCAqeHBh
-ZDsKK307CisjZW5kaWYKKworCisjZGVmaW5lIERSSVZFUl9BVVRIT1IgIk1hcmtvIEZyaWVkZW1h
-bm4gPG1mckBibXgtY2hlbW5pdHouZGU+IgorI2RlZmluZSBEUklWRVJfREVTQyAiWGJveC8zNjAg
-cGFkIGRyaXZlciIKKworI2RlZmluZSBYUEFEX1BLVF9MRU4gMzIKKworCisvKiB4Ym94IGQtcGFk
-cyBzaG91bGQgbWFwIHRvIGJ1dHRvbnMsIGFzIGlzIHJlcXVpcmVkIGZvciBERFIgcGFkcworICAg
-YnV0IHdlIG1hcCB0aGVtIHRvIGF4ZXMgd2hlbiBwb3NzaWJsZSB0byBzaW1wbGlmeSB0aGluZ3Mg
-Ki8KKyNkZWZpbmUgTUFQX0RQQURfVE9fQlVUVE9OUyAgICAwCisjZGVmaW5lIE1BUF9EUEFEX1RP
-X0FYRVMgICAgICAgMQorI2RlZmluZSBNQVBfRFBBRF9VTktOT1dOICAgICAgIDIKKworLyogVHlw
-ZSBvZiBjb250cm9sbGVyICppbnRlcmZhY2UqIChvcmlnaW5hbCwgd2lyZWQgMzYwLCB3aXJlbGVz
-cyAzNjApICovCisjZGVmaW5lIFhUWVBFX1hCT1ggICAgICAgIDAKKyNkZWZpbmUgWFRZUEVfWEJP
-WDM2MCAgICAgMQorI2RlZmluZSBYVFlQRV9YQk9YMzYwVyAgICAyCisjZGVmaW5lIFhUWVBFX1VO
-S05PV04gICAgIDMKKworLyogVHlwZSBvZiBjb250cm9sbGVyIChlLmcuIHBhZCwgZ3VpdGFyLCBv
-dGhlciBpbnB1dCBkZXZpY2UpICovCisjZGVmaW5lIFhDT05UUk9MTEVSX1RZUEVfTk9ORQkJMAor
-I2RlZmluZSBYQ09OVFJPTExFUl9UWVBFX1BBRAkJMQorI2RlZmluZSBYQ09OVFJPTExFUl9UWVBF
-X0dVSVRBUgkJMgorI2RlZmluZSBYQ09OVFJPTExFUl9UWVBFX0RBTkNFX1BBRAkzCisjZGVmaW5l
-IFhDT05UUk9MTEVSX1RZUEVfT1RIRVIJCTI1NQorCisKKy8qIFRoZSBYYm94IDM2MCBjb250cm9s
-bGVycyBoYXZlIHNlbnNpdGl2ZSBzdGlja3MgdGhhdCBvZnRlbiBkbyBub3QgY2VudGVyCisgKiBl
-eGFjdGx5LiBBIGRlYWQgem9uZSBjYXVzZXMgc3RpY2sgZXZlbnRzIGJlbG93IGEgY2VydGFpbiB0
-aHJlc2hob2xkIHRvIGJlCisgKiByZXBvcnRlZCBhcyB6ZXJvLgorICoKKyAqIFRoZSBkZWZhdWx0
-IGRlYWQgem9uZSBzaXplIGlzIDgxOTIsIHdoaWNoIHdhcyBvYnRhaW5lZCBieSB0ZXN0aW5nIGEK
-KyAqIHdpcmVsZXNzIDM2MCBjb250cm9sbGVyIHdpdGgganN0ZXN0KDEpIGFuZCBjb25zdWx0aW5n
-IGdhbWluZyBmb3J1bXMgZm9yCisgKiBhIHJlY29tbWVuZGVkIGRlYWQgem9uZSBmb3IgdGhpcyBj
-b250cm9sbGVyLiBUaGUgY29uc2Vuc3VzIG9waW5pb24gd2FzCisgKiAwLjI1IChvbiBhIHNjYWxl
-IGZyb20gMCB0byAxKSwgd2hpY2ggY29ycmVzcG9uZHMgdG8gODE5MiAob3V0IG9mIDMyNzY3KS4K
-KyAqLworI2RlZmluZSBYREVBRF9aT05FX0RFRkFVTFQgICA4MTkyCisKKy8qIERlZmF1bHQgbGlt
-aXQgZm9yIHRoZSBzdGlja3MgaXMgdGhlIG1heGltdW0gYXhpcyB2YWx1ZSAoMzI3NjcpLCB3aGlj
-aCB3aWxsCisgKiBjYXVzZSB0aGUgc3RpY2tzIHRvIGhhdmUgYSByYWRpYWwgYXhpcyBhcyBkZXNp
-Z25lZCBpbiB0aGUgaGFyZHdhcmUuIFRvCisgKiBlbmFibGUgc3F1YXJlIGF4aXMgc3VwcG9ydCwg
-c2V0IHRoZSBzdGljayBsaW1pdHMgdG8gMjMxNzAgb3IgbG93ZXIgYXQgcnVuCisgKiB0aW1lIHZp
-YSB0aGUgc3lzZnMgaW50ZXJmYWNlLiAqLworI2RlZmluZSBYU1RJQ0tfTElNSVRfREVGQVVMVCAz
-Mjc2NworCisvKiBSdW1ibGUgbm9ybWFsbHkgZW5hYmxlZCAqLworI2RlZmluZSBYUlVNQkxFX0RF
-RkFVTFQJCTEKKworCisvKiBUaGlzIG1vZHVsZSBwYXJhbWV0ZXIgaXMgc29tZXRoaW5nIG9mIGEg
-cmVsaWMsIGJ1dCBpdCByZW1haW5zIGZvcgorICogY29tcGF0aWJpbGl0eS4gSW1wb3J0YW50bHks
-IHRoZSBvcHRpb24gdG8gbWFwIHRoZSBELVBBRCBidXR0b25zIGFwcGxpZXMKKyAqIG9ubHkgdG8g
-Y29udHJvbGxlciAqaW50ZXJmYWNlcyogKGkuZS4gdmVuZG9yIGFuZCBwcm9kdWN0IGNvZGVzKSBu
-b3QKKyAqIGV4cGxpY2l0bHkgcHJlc2VudCBpbiB4cGFkX2RldmljZVtdLiAqLworc3RhdGljIGlu
-dCBkcGFkX3RvX2J1dHRvbnMgPSAwOworbW9kdWxlX3BhcmFtKGRwYWRfdG9fYnV0dG9ucywgYm9v
-bCwgU19JUlVHTyk7CitNT0RVTEVfUEFSTV9ERVNDKGRwYWRfdG9fYnV0dG9ucywgIk1hcCBELVBB
-RCB0byBidXR0b25zIHJhdGhlciB0aGFuIGF4ZXMgZm9yIHVua25vd24gcGFkcyIpOworCisKKy8q
-IFRhYmxlIG9mIHZhcmlvdXMgZGV2aWNlIGludGVyZmFjZXMgcmVjb2duaXplZCBieSB0aGlzIGRy
-aXZlci4gRWFjaCBzdXBwb3J0ZWQKKyAqIGRldmljZSBoYXMgYSBkaXJlY3Rpb25hbCBwYWQgbWFw
-cGluZywgaW50ZXJmYWNlIHR5cGUsIGFuZCBjb250cm9sbGVyIHR5cGUuCisgKiBOb3RlIHRoYXQg
-d2lyZWxlc3MgMzYwIGRldmljZXMgaGF2ZSBYQ09OVFJPTExFUl9UWVBFX05PTkUsIGFzIHRoZSBh
-Y3R1YWwKKyAqIHR5cGUgb2YgdGhlIGdhbWluZyBjb250cm9sbGVyIGlzIG5vdCBrbm93biB1bnRp
-bCB0aGUgY29udHJvbGxlciBiaW5kcworICogd2lyZWxlc3NseSB3aXRoIHRoZSByZWNlaXZlcgor
-ICovCitzdGF0aWMgY29uc3Qgc3RydWN0IHhwYWRfZGV2aWNlIHsKKwl1MTYgaWRWZW5kb3I7CisJ
-dTE2IGlkUHJvZHVjdDsKKwljaGFyICpuYW1lOworCXU4IGRwYWRfbWFwcGluZzsKKwl1OCB4dHlw
-ZTsKKwl1OCBjb250cm9sbGVyX3R5cGU7Cit9IHhwYWRfZGV2aWNlW10gPSB7CisJeyAweDA0NWUs
-IDB4MDIwMiwgIk1pY3Jvc29mdCBYLUJveCBwYWQgdjEgKFVTKSIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA0NWUsIDB4MDI4
-OSwgIk1pY3Jvc29mdCBYLUJveCBwYWQgdjIgKFVTKSIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBF
-X1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA0NWUsIDB4MDI4NSwgIk1p
-Y3Jvc29mdCBYLUJveCBwYWQgKEphcGFuKSIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gs
-CisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA0NWUsIDB4MDI4NywgIk1pY3Jvc29m
-dCBYYm94IENvbnRyb2xsZXIgUyIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJCVhD
-T05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA0NWUsIDB4MDcxOSwgIlhib3ggMzYwIFdpcmVs
-ZXNzIFJlY2VpdmVyIiwgTUFQX0RQQURfVE9fQlVUVE9OUywgWFRZUEVfWEJPWDM2MFcsCisJCVhD
-T05UUk9MTEVSX1RZUEVfTk9ORSB9LAorCXsgMHgwYzEyLCAweDg4MDksICJSZWRPY3RhbmUgWGJv
-eCBEYW5jZSBQYWQiLCBNQVBfRFBBRF9UT19CVVRUT05TLCBYVFlQRV9YQk9YLAorCQlYQ09OVFJP
-TExFUl9UWVBFX0RBTkNFX1BBRCB9LAorCXsgMHgwNDRmLCAweDBmMDcsICJUaHJ1c3RtYXN0ZXIs
-IEluYy4gQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJCVhDT05U
-Uk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA0NmQsIDB4YzI0MiwgIkxvZ2l0ZWNoIENoaWxsc3Ry
-ZWFtIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YMzYwLAorCQlYQ09O
-VFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHgwNDZkLCAweGNhODQsICJMb2dpdGVjaCBYYm94IENv
-cmRsZXNzIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YLAorCQlYQ09O
-VFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHgwNDZkLCAweGNhODgsICJMb2dpdGVjaCBDb21wYWN0
-IENvbnRyb2xsZXIgZm9yIFhib3giLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YLAorCQlY
-Q09OVFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHgwNWZkLCAweDEwMDcsICJNYWQgQ2F0eiBDb250
-cm9sbGVyICh1bnZlcmlmaWVkKSIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJCVhD
-T05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA1ZmQsIDB4MTA3YSwgIkludGVyQWN0ICdQb3dl
-clBhZCBQcm8nIFgtQm94IHBhZCAoR2VybWFueSkiLCBNQVBfRFBBRF9UT19BWEVTLAorCQlYVFlQ
-RV9YQk9YLCBYQ09OVFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHgwNzM4LCAweDQ1MTYsICJNYWQg
-Q2F0eiBDb250cm9sIFBhZCIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJCVhDT05U
-Uk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA3MzgsIDB4NDUyMiwgIk1hZCBDYXR6IEx1bWlDT04i
-LCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YLAorCQlYQ09OVFJPTExFUl9UWVBFX1BBRCB9
-LAorCXsgMHgwNzM4LCAweDQ1MjYsICJNYWQgQ2F0eiBDb250cm9sIFBhZCBQcm8iLCBNQVBfRFBB
-RF9UT19BWEVTLCBYVFlQRV9YQk9YLAorCQlYQ09OVFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHgw
-NzM4LCAweDQ1MzYsICJNYWQgQ2F0eiBNaWNyb0NPTiIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBF
-X1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA3MzgsIDB4NDU0MCwgIk1h
-ZCBDYXR6IEJlYXQgUGFkIiwgTUFQX0RQQURfVE9fQlVUVE9OUywgWFRZUEVfWEJPWCwKKwkJWENP
-TlRST0xMRVJfVFlQRV9EQU5DRV9QQUQgfSwKKwl7IDB4MDczOCwgMHg0NTU2LCAiTWFkIENhdHog
-THlueCBXaXJlbGVzcyBDb250cm9sbGVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCwK
-KwkJWENPTlRST0xMRVJfVFlQRV9QQUQgfSwKKwl7IDB4MDczOCwgMHg0NzE2LCAiTWFkIENhdHog
-V2lyZWQgWGJveCAzNjAgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gz
-NjAsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDA3MzgsIDB4NjA0MCwgIk1hZCBD
-YXR6IEJlYXQgUGFkIFBybyIsIE1BUF9EUEFEX1RPX0JVVFRPTlMsIFhUWVBFX1hCT1gsCisJCVhD
-T05UUk9MTEVSX1RZUEVfREFOQ0VfUEFEIH0sCisJeyAweDBjMTIsIDB4ODgwMiwgIlplcm9wbHVz
-IFhib3ggQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJCVhDT05U
-Uk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBjMTIsIDB4ODgwYSwgIlBlbGljYW4gRWNsaXBzZSBQ
-TC0yMDIzIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCwKKwkJWENPTlRST0xMRVJfVFlQ
-RV9QQUQgfSwKKwl7IDB4MGMxMiwgMHg4ODEwLCAiWmVyb3BsdXMgWGJveCBDb250cm9sbGVyIiwg
-TUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCwKKwkJWENPTlRST0xMRVJfVFlQRV9QQUQgfSwK
-Kwl7IDB4MGMxMiwgMHg5OTAyLCAiSEFNQSBWaWJyYVggLSAqRkFVTFRZIEhBUkRXQVJFKiIsIE1B
-UF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJ
-eyAweDBlNGMsIDB4MTA5NywgIlJhZGljYSBHYW1lc3RlciBDb250cm9sbGVyIiwgTUFQX0RQQURf
-VE9fQVhFUywgWFRZUEVfWEJPWCwKKwkJWENPTlRST0xMRVJfVFlQRV9QQUQgfSwKKwl7IDB4MGU0
-YywgMHgyMzkwLCAiUmFkaWNhIEdhbWVzIEp0ZWNoIENvbnRyb2xsZXIiLCBNQVBfRFBBRF9UT19B
-WEVTLCBYVFlQRV9YQk9YLAorCQlYQ09OVFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHgwZTZmLCAw
-eDAwMDMsICJMb2dpYzMgRnJlZWJpcmQgd2lyZWxlc3MgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RP
-X0FYRVMsIFhUWVBFX1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBlNmYs
-IDB4MDAwNSwgIkVjbGlwc2Ugd2lyZWxlc3MgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMs
-IFhUWVBFX1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBlNmYsIDB4MDAw
-NiwgIkVkZ2Ugd2lyZWxlc3MgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hC
-T1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBlNmYsIDB4MDAwNiwgIlBlbGlj
-YW4gJ1RTWicgV2lyZWQgWGJveCAzNjAgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsCisJ
-CVhUWVBFX1hCT1gzNjAsIFhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBlOGYsIDB4MDIw
-MSwgIlNtYXJ0Sm95IEZyYWcgWHBhZC9QUzIgYWRhcHRvciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhU
-WVBFX1hCT1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBmMzAsIDB4MDIwMiwg
-IkpveXRlY2ggQWR2YW5jZWQgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hC
-T1gsCisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDBmMzAsIDB4ODg4OCwgIkJpZ0Jl
-biBYQk1pbmlQYWQgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gsCisJ
-CVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDEwMmMsIDB4ZmYwYywgIkpveXRlY2ggV2ly
-ZWxlc3MgQWR2YW5jZWQgQ29udHJvbGxlciIsIE1BUF9EUEFEX1RPX0FYRVMsIFhUWVBFX1hCT1gs
-CisJCVhDT05UUk9MTEVSX1RZUEVfUEFEIH0sCisJeyAweDEyYWIsIDB4ODgwOSwgIlhib3ggRERS
-IGRhbmNlcGFkIiwgTUFQX0RQQURfVE9fQlVUVE9OUywgWFRZUEVfWEJPWCwKKwkJWENPTlRST0xM
-RVJfVFlQRV9EQU5DRV9QQUQgfSwKKwl7IDB4MTQzMCwgMHg0NzQ4LCAiUmVkT2N0YW5lIEd1aXRh
-ciBIZXJvIFgtcGxvcmVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWDM2MCwKKwkJWENP
-TlRST0xMRVJfVFlQRV9HVUlUQVIgfSwKKwl7IDB4MTQzMCwgMHg4ODg4LCAiVFg2NTAwKyBEYW5j
-ZSBQYWQgKGZpcnN0IGdlbmVyYXRpb24pIiwgTUFQX0RQQURfVE9fQlVUVE9OUywgWFRZUEVfWEJP
-WCwKKwkJWENPTlRST0xMRVJfVFlQRV9EQU5DRV9QQUQgfSwKKwl7IDB4MDQ1ZSwgMHgwMjhlLCAi
-TWljcm9zb2Z0IFgtQm94IDM2MCBwYWQiLCBNQVBfRFBBRF9UT19BWEVTLCBYVFlQRV9YQk9YMzYw
-LAorCQlYQ09OVFJPTExFUl9UWVBFX1BBRCB9LAorCXsgMHhmZmZmLCAweGZmZmYsICJDaGluZXNl
-LW1hZGUgWGJveCBDb250cm9sbGVyIiwgTUFQX0RQQURfVE9fQVhFUywgWFRZUEVfWEJPWCwKKwkJ
-WENPTlRST0xMRVJfVFlQRV9QQUQgfSwKKwl7IDB4MDAwMCwgMHgwMDAwLCAiR2VuZXJpYyBYLUJv
-eCBwYWQiLCBNQVBfRFBBRF9VTktOT1dOLCBYVFlQRV9VTktOT1dOLAorCQlYQ09OVFJPTExFUl9U
-WVBFX1BBRCB9Cit9OworCisKKy8qIGJ1dHRvbnMgc2hhcmVkIHdpdGggeGJveCBhbmQgeGJveDM2
-MCAqLworc3RhdGljIGNvbnN0IHNpZ25lZCBzaG9ydCB4cGFkX2NvbW1vbl9idG5bXSA9IHsKKwlC
-VE5fQSwgQlROX0IsIEJUTl9YLCBCVE5fWSwJCQkvKiAiYW5hbG9nIiBidXR0b25zICovCisJQlRO
-X1NUQVJULCBCVE5fQkFDSywgQlROX1RIVU1CTCwgQlROX1RIVU1CUiwJLyogc3RhcnQvYmFjay9z
-dGlja3MgKi8KKwktMQkJCQkJCS8qIHRlcm1pbmF0aW5nIGVudHJ5ICovCit9OworCisvKiBvcmln
-aW5hbCB4Ym94IGNvbnRyb2xsZXJzIG9ubHkgKi8KK3N0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQg
-eHBhZF9idG5bXSA9IHsKKwlCVE5fQywgQlROX1osCQkvKiAiYW5hbG9nIiBidXR0b25zICovCisJ
-LTEJCQkvKiB0ZXJtaW5hdGluZyBlbnRyeSAqLworfTsKKworLyogb25seSB1c2VkIGlmIE1BUF9E
-UEFEX1RPX0JVVFRPTlMgKi8KK3N0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBhZF9idG5fcGFk
-W10gPSB7CisJQlROX0xFRlQsIEJUTl9SSUdIVCwJCS8qIGQtcGFkIGxlZnQsIHJpZ2h0ICovCisJ
-QlROXzAsIEJUTl8xLAkJCS8qIGQtcGFkIHVwLCBkb3duIChYWFggbmFtZXM/PykgKi8KKwktMQkJ
-CQkvKiB0ZXJtaW5hdGluZyBlbnRyeSAqLworfTsKKworLyogYnV0dG9ucyBmb3IgeDM2MCBjb250
-cm9sbGVyICovCitzdGF0aWMgY29uc3Qgc2lnbmVkIHNob3J0IHhwYWQzNjBfYnRuW10gPSB7CisJ
-QlROX1RMLCBCVE5fVFIsCQkvKiBCdXR0b24gTEIvUkIgKi8KKwlCVE5fTU9ERSwJCS8qIFRoZSBi
-aWcgWCBidXR0b24gKi8KKwktMQorfTsKKworLyogc3RpY2tzIGFuZCB0cmlnZ2VycyBjb21tb24g
-dG8gYWxsIGRldmljZXMgKi8KK3N0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBhZF9hYnNbXSA9
-IHsKKwlBQlNfWCwgQUJTX1ksCQkvKiBsZWZ0IHN0aWNrICovCisJQUJTX1JYLCBBQlNfUlksCQkv
-KiByaWdodCBzdGljayAqLworCUFCU19aLCBBQlNfUlosCQkvKiB0cmlnZ2VycyBsZWZ0L3JpZ2h0
-ICovCisJLTEJCQkvKiB0ZXJtaW5hdGluZyBlbnRyeSAqLworfTsKKworLyogb25seSB1c2VkIGlm
-IE1BUF9EUEFEX1RPX0FYRVMgKi8KK3N0YXRpYyBjb25zdCBzaWduZWQgc2hvcnQgeHBhZF9hYnNf
-cGFkW10gPSB7CisJQUJTX0hBVDBYLCBBQlNfSEFUMFksCS8qIGQtcGFkIGF4ZXMgKi8KKwktMQkJ
-CS8qIHRlcm1pbmF0aW5nIGVudHJ5ICovCit9OworCisKKy8qIFhib3ggMzYwIGhhcyBhIHZlbmRv
-ci1zcGVjaWZpYyBjbGFzcywgc28gd2UgY2Fubm90IG1hdGNoIGl0IHdpdGggb25seQorICogVVNC
-X0lOVEVSRkFDRV9JTkZPIChhbHNvIHNwZWNpZmljYWxseSByZWZ1c2VkIGJ5IFVTQiBzdWJzeXN0
-ZW0pLCBzbyB3ZQorICogbWF0Y2ggYWdhaW5zdCB2ZW5kb3IgaWQgYXMgd2VsbC4gV2lyZWQgWGJv
-eCAzNjAgZGV2aWNlcyBoYXZlIHByb3RvY29sIDEsCisgKiB3aXJlbGVzcyBjb250cm9sbGVycyBo
-YXZlIHByb3RvY29sIDEyOS4gKi8KKyNkZWZpbmUgWFBBRF9YQk9YMzYwX1ZFTkRPUl9QUk9UT0NP
-TCh2ZW5kLHByKSBcCisJLm1hdGNoX2ZsYWdzID0gVVNCX0RFVklDRV9JRF9NQVRDSF9WRU5ET1Ig
-fCBVU0JfREVWSUNFX0lEX01BVENIX0lOVF9JTkZPLCBcCisJLmlkVmVuZG9yID0gKHZlbmQpLCBc
-CisJLmJJbnRlcmZhY2VDbGFzcyA9IFVTQl9DTEFTU19WRU5ET1JfU1BFQywgXAorCS5iSW50ZXJm
-YWNlU3ViQ2xhc3MgPSA5MywgXAorCS5iSW50ZXJmYWNlUHJvdG9jb2wgPSAocHIpCisjZGVmaW5l
-IFhQQURfWEJPWDM2MF9WRU5ET1IodmVuZCkgXAorCXsgWFBBRF9YQk9YMzYwX1ZFTkRPUl9QUk9U
-T0NPTCh2ZW5kLDEpIH0sIFwKKwl7IFhQQURfWEJPWDM2MF9WRU5ET1JfUFJPVE9DT0wodmVuZCwx
-MjkpIH0KKworc3RhdGljIHN0cnVjdCB1c2JfZGV2aWNlX2lkIHhwYWRfdGFibGUgW10gPSB7CisJ
-eyBVU0JfSU5URVJGQUNFX0lORk8oJ1gnLCAnQicsIDApIH0sCS8qIFgtQm94IFVTQi1JRiBub3Qg
-YXBwcm92ZWQgY2xhc3MgKi8KKwlYUEFEX1hCT1gzNjBfVkVORE9SKDB4MDQ1ZSksCQkvKiBNaWNy
-b3NvZnQgWC1Cb3ggMzYwIGNvbnRyb2xsZXJzICovCisJWFBBRF9YQk9YMzYwX1ZFTkRPUigweDA0
-NmQpLAkJLyogTG9naXRlY2ggWC1Cb3ggMzYwIHN0eWxlIGNvbnRyb2xsZXJzICovCisJWFBBRF9Y
-Qk9YMzYwX1ZFTkRPUigweDA3MzgpLAkJLyogTWFkIENhdHogWC1Cb3ggMzYwIGNvbnRyb2xsZXJz
-ICovCisJWFBBRF9YQk9YMzYwX1ZFTkRPUigweDBlNmYpLAkJLyogMHgwZTZmIFgtQm94IDM2MCBj
-b250cm9sbGVycyAqLworCVhQQURfWEJPWDM2MF9WRU5ET1IoMHgxNDMwKSwJCS8qIFJlZE9jdGFu
-ZSBYLUJveCAzNjAgY29udHJvbGxlcnMgKi8KKwl7IH0KK307CisKK01PRFVMRV9ERVZJQ0VfVEFC
-TEUgKHVzYiwgeHBhZF90YWJsZSk7CisKKworLyogV2lyZWxlc3MgMzYwIGRldmljZSBpZGVudGlm
-aWNhdGlvbi4KKyAqCisgKiBXaGVuIGEgd2lyZWxlc3MgY29udHJvbGxlciBjb25uZWN0cywgdGhl
-IDJuZCBwYWNrZXQgaXQgc2VuZHMgU0VFTVMgdG8KKyAqIGJlIHNvbWUga2luZCBvZiB1bmlxdWUg
-Y29udHJvbGxlciBpZGVudGlmaWNhdGlvbiBtZXNzYWdlLiBVc2luZyB1c2Jtb24KKyAqIChzZWUg
-RG9jdW1lbnRhdGlvbi91c2IvdXNibW9uLnR4dCksIEkgdHJpZWQgNCBnYW1lcGFkcyBhbmQgYSBn
-dWl0YXIsIGFuZAorICogSSBjb2xsZWN0ZWQgdGhlIGZvbGxvd2luZyA1IElEIHBhY2tldHMgZnJv
-bSB0aGUgNSBkZXZpY2VzOgorICoKKyAqIDAwMGYwMGYwIDAwY2NmZDI3IDAwNjBlMjI2IDYzNzAw
-MDEwIDEzZTMyMDFkIDMwMDM0MDAxIDUwMDFmZmZmIGZmCisgKiAwMDBmMDBmMCBmMGNjZmQyNyAw
-MDYwZDhjNCBlOTYwMDAwOSAxM2U3MjAxZCAzMDAzNDAwMSA1MDAxZmZmZiBmZgorICogMDAwZjAw
-ZjAgMDBjY2ZkMjcgMDA2MDU3OGIgODJmMDAwMTAgMTNlMzIwMWQgMzAwMzQwMDEgNTAwMWZmZmYg
-ZmYKKyAqIDAwMGYwMGYwIGYwY2NmZDI3IDAwNjBkYTFjIGIxNTAwMDA5IDEzZTcyMDFkIDMwMDM0
-MDAxIDUwMDFmZmZmIGZmCisgKiAwMDBmMDBmMCBmMGNjZmQyNyAwMDYwMDJkMSA3MWQxMDAwMCAx
-M2UzMjAxZCAzMDAzNDQzMCA1MTA3ZmZmZiBmZgorICoKKyAqIEZyb20gdGhpcyB0cmFjZSBkYXRh
-LCBJIGNvbmNvY3RlZCB0aGUgZm9sbG93aW5nIChwb3RlbnRpYWxseSBpbmNvcnJlY3QpCisgKiBz
-Y2hlbWUgZm9yIGRldGVjdGluZyB0eXBlIGFuZCB1bmlxdWUgSUQ6CisgKgorICogKioqKioqKiog
-eHgqKioqeHggeHh4eHh4eHggeHh4eCoqeHggKip4eCoqKiogKioqKnR0dHQgdHR0dCoqKiogKioK
-KyAqICAgICAgICAgICAgICAgIHwgIHVuaXF1ZSBpZCB8ICAgICAgICAgICAgICAgICAgICB8ICB0
-eXBlIHwKKyAqCisgKiBJdCBhcHBlYXJzIHRoYXQgc29tZSBvZiB0aGUgYnl0ZXMgaW4gdGhlIGZp
-cnN0IGhhbGYgb2YgdGhlIG1lc3NhZ2UsIG5vdGVkCisgKiBhYm92ZSBhcyAidW5pcXVlIGlkIiBh
-cmUgc29tZSBzb3J0IG9mIHNlcmlhbCBudW1iZXIsIHRob3VnaCBJIGNhbm5vdCB3b3JrCisgKiBv
-dXQgYW55IGNvcnJlc3BvbmRlbmNlIGJldHdlZW4gdGhlc2UgYnl0ZXMgYW5kIHRoZSBzZXJpYWwg
-bnVtYmVyIHByaW50ZWQKKyAqIHVuZGVyIHRoZSBiYXR0ZXJ5IHBhY2suIE1hbnkgb2YgdGhlIGJ5
-dGVzIGluIHRoaXMgcG9zc2libHkgdW5pcXVlIGZpZWxkCisgKiBhcmUgbm90IHVuaXF1ZSBhY3Jv
-c3MgbXkgY29udHJvbGxlcnMsIGFuZCBtYXkgbm90IGluIGZhY3QgYmUgcGFydCBvZiB0aGUKKyAq
-IGNvbnRyb2xsZXIncyB1bmlxdWUgaWRlbnRpZmljYXRpb24sIGJ1dCBJIGZpZ3VyZWQgaXQgd2Fz
-IGJldHRlciB0byBoYXZlCisgKiBleHRyYSBieXRlcyBvbiBlaXRoZXIgZW5kIG9mIHRoZSB1bmlx
-dWUgYnl0ZSBzdHJpbmcgaW5zdGVhZCBvZiB0aGUKKyAqIGFsdGVybmF0aXZlLiBJbiBhZGRpdGlv
-biwgdGhlIHBhY2tldCBhcHBlYXJzIHRvIGluZGljYXRlIHRoZSB0eXBlIG9mCisgKiB0aGUgY29u
-dHJvbGxlciB0b3dhcmQgdGhlIGVuZDogdGhlIHBhZHMgYWxsIHNlbmQgNDAwMSA1MDAxLCB3aGls
-ZSB0aGUKKyAqIGd1aXRhciBzZW5kcyA0NDMwIDUxMDcuCisgKgorICogRnVydGhlciB0ZXN0aW5n
-IG92ZXIgYSB3aWRlciB2YXJpZXR5IG9mIGRldmljZXMgaXMgcHJvYmFibHkgbmVlZGVkIHRvCisg
-KiBkZXRlcm1pbmUgaWYgY2hhbmdlcyBuZWVkIHRvIGJlIG1hZGUgdG8gdGhpcyBzY2hlbWUuCisg
-Ki8KK3N0YXRpYyBjb25zdCBzdHJ1Y3QgdzM2MF9pZCB7CisJdTMyIGlkX2J5dGVzOworCXU4IGNv
-bnRyb2xsZXJfdHlwZTsKK30gdzM2MF9pZFtdID0geworCXsgMHg0MDAxNTAwMSwgWENPTlRST0xM
-RVJfVFlQRV9QQUQgfSwKKwl7IDB4NDQzMDUxMDcsIFhDT05UUk9MTEVSX1RZUEVfR1VJVEFSIH0s
-CisJeyAweDAwMDAwMDAwLCBYQ09OVFJPTExFUl9UWVBFX05PTkUgfQorfTsKKworCisvKiBTb21l
-IG9mIHRoZSBmaWVsZHMgaW4gdGhlIGZvbGxvd2luZyBzdHJ1Y3R1cmUgYXJlIGZvciBsYXRlciB1
-c2Ugd2l0aAorICogdXNlcnNwYWNlIGFwcGxpY2F0aW9ucyB0byByZWNvZ25pemUgaW5kaXZpZHVh
-bCBjb250cm9sbGVycy4gVGhlIGRlYWQgem9uZXMKKyAqIGFuZCBheGlzIGxpbWl0cyBjYW4gYmUg
-Y2hhbmdlZCAib24gdGhlIGZseSIgYW5kIGFyZSBlZmZlY3RpdmUgaW1tZWRpYXRlbHkuCisgKgor
-ICogVGhlIGZpZWxkcyBsYWJlbGVkICJybyIgYW5kICJydyIgYXJlIGludGVuZGVkIHRvIGJlIHJl
-YWQtb25seSBhbmQKKyAqIHJlYWQtd3JpdGUsIHJlc3BlY3RpdmVseSwgd2hlbiBleHBvc2VkIGlu
-IHN5c2ZzLiBNb3N0IG9mIHRoZSByZWFkLW9ubHkKKyAqIGZpZWxkcyBhcmUgdG8gc3VwcG9ydCAq
-d2lyZWxlc3MqIDM2MCBjb250cm9sbGVycy4gVGhlIGNvbnRyb2xsZXJfbnVtYmVyCisgKiBpcyB1
-c2VkIHRvIHNldCB0aGUgTEVELCB3aGlsZSBjb250cm9sbGVyX3ByZXNlbnQgdHJhY2tzIHdoZXRo
-ZXIgdGhlCisgKiBjb250cm9sbGVyIGlzIGNvbm5lY3RlZCB0byB0aGUgd2lyZWxlc3MgcmVjZWl2
-ZXIuIENvbnRyb2xsZXIgdHlwZSBhcHBsaWVzCisgKiB0byBhbGwgbW9kZWxzICh3aXJlZCBhbmQg
-d2lyZWxlc3MpLCBhbmQgdHJhY2tzIHdoZXRoZXIgdGhlIGRldmljZSBpcyBhIHBhZCwKKyAqIGd1
-aXRhciwgZXRjLiBmb3IgbGF0ZXIgdXNlcnNwYWNlIHVzZS4gU2VlIHRoZSBjb21tZW50IGFib3Zl
-IHJlZ2FyZGluZworICogdHlwZSBhbmQgdW5pcXVlIElEIGRldGVjdGlvbiBvbiB3aXJlbGVzcyAz
-NjAgcmVjZWl2ZXJzLgorICovCitzdHJ1Y3QgdXNiX3hwYWQgeworCXN0cnVjdCBpbnB1dF9kZXYg
-KmRldjsJCS8qIGlucHV0IGRldmljZSBpbnRlcmZhY2UgKi8KKwlzdHJ1Y3QgdXNiX2RldmljZSAq
-dWRldjsJLyogdXNiIGRldmljZSAqLworCisJc3RydWN0IHVyYiAqaXJxX2luOwkJLyogdXJiIGZv
-ciBpbnRlcnJ1cHQgaW4gcmVwb3J0ICovCisJdW5zaWduZWQgY2hhciAqaWRhdGE7CQkvKiBpbnB1
-dCBkYXRhICovCisJZG1hX2FkZHJfdCBpZGF0YV9kbWE7CisKKyNpZiBkZWZpbmVkKENPTkZJR19K
-T1lTVElDS19YUEFEX0ZGKSB8fCBkZWZpbmVkKENPTkZJR19KT1lTVElDS19YUEFEX0xFRFMpCisJ
-c3RydWN0IHVyYiAqaXJxX291dDsJCS8qIHVyYiBmb3IgaW50ZXJydXB0IG91dCByZXBvcnQgKi8K
-Kwl1bnNpZ25lZCBjaGFyICpvZGF0YTsJCS8qIG91dHB1dCBkYXRhICovCisJZG1hX2FkZHJfdCBv
-ZGF0YV9kbWE7CisJc3RydWN0IG11dGV4IG9kYXRhX211dGV4OworI2VuZGlmCisKKyNpZiBkZWZp
-bmVkKENPTkZJR19KT1lTVElDS19YUEFEX0xFRFMpCisJc3RydWN0IHhwYWRfbGVkICpsZWQ7Cisj
-ZW5kaWYKKworCWNoYXIgcGh5c1s2NF07CQkJLyogcGh5c2ljYWwgZGV2aWNlIHBhdGggKi8KKwor
-CWludCBkcGFkX21hcHBpbmc7CQkvKiBtYXAgZC1wYWQgdG8gYnV0dG9ucyBvciB0byBheGVzICov
-CisJaW50IHh0eXBlOwkJCS8qIHR5cGUgb2YgeGJveCBkZXZpY2UgKi8KKwkKKwkvKiBXb3JrIHN0
-cnVjdHVyZSBmb3IgbW92aW5nIHRoZSBjYWxsIHRvIHhwYWRfc2VuZF9sZWRfY29tbWFuZAorCSAq
-IG91dHNpZGUgdGhlIGludGVycnVwdCBoYW5kbGVyIGZvciBwYWNrZXQgcHJvY2Vzc2luZyAqLwor
-CXN0cnVjdCB3b3JrX3N0cnVjdCB3b3JrOworCWludCB3b3JrX3BlbmRpbmc7CisJCisJaW50IGNv
-bnRyb2xsZXJfbnVtYmVyOwkJLyogY29udHJvbGxlciBudW1iZXIgKDEtNCkgZm9yIDM2MHcuIHJv
-ICovCisJaW50IGNvbnRyb2xsZXJfcHJlc2VudDsgICAgICAgICAvKiAzNjB3IGNvbnRyb2xsZXIg
-cHJlc2VuY2UgZGV0ZWN0aW9uLiBybyAqLworCWludCBjb250cm9sbGVyX3R5cGU7ICAgICAgICAg
-ICAgLyogY29udHJvbGxlciB0eXBlLiBybyAqLworCWNoYXIgY29udHJvbGxlcl91bmlxdWVfaWRb
-MTddOyAgLyogdW5pcXVlIElEIG9mIGNvbnRyb2xsZXIgKDM2MHcpLiBybyAqLworCXVuc2lnbmVk
-IGludCBsZWZ0X2RlYWRfem9uZTsgICAgLyogZGVhZCB6b25lIGZvciBsZWZ0IHN0aWNrLiBydyAq
-LworCXVuc2lnbmVkIGludCByaWdodF9kZWFkX3pvbmU7ICAgLyogZGVhZCB6b25lIGZvciByaWdo
-dCBzdGljay4gcncgKi8KKwl1bnNpZ25lZCBpbnQgbGVmdF9zdGlja19saW1pdDsgIC8qIHN0aWNr
-IGF4aXMgbGltaXQgZm9yIGxlZnQgc3RpY2suIHJ3ICovCisJdW5zaWduZWQgaW50IHJpZ2h0X3N0
-aWNrX2xpbWl0OyAvKiBzdGljayBheGlzIGxpbWl0IGZvciByaWdodCBzdGljay4gcncgKi8KKwlp
-bnQgcnVtYmxlX2VuYWJsZTsgICAgICAgICAgICAgIC8qIGVuYWJsZS9kaXNhYmxlIHJ1bWJsZS4g
-cncgKi8KKwkKKyNpZiBkZWZpbmVkKENPTkZJR19TWVNGUykKKwlpbnQgc3lzZnNfb2s7ICAgICAg
-ICAgICAgICAgICAgIC8qIHN5c2ZzIGludGVyZmFjZSBPSyAqLworI2VuZGlmCit9OworI2RlZmlu
-ZSB0b194cGFkKGQpIGlucHV0X2dldF9kcnZkYXRhKHRvX2lucHV0X2RldihkKSkKKworCisvKiBG
-dW5jdGlvbiBwcm90b3R5cGVzIGZvciBub24tc3lzZnMgaW50ZXJmYWNlIGZ1bmN0aW9ucyAqLwor
-c3RhdGljIHZvaWQgc2V0X2RlYWRfem9uZSh1bnNpZ25lZCBpbnQgbmV3X3NpemUsIHVuc2lnbmVk
-IGludCAqZHosIHVuc2lnbmVkIGludCBzdGlja19saW1pdCk7CitzdGF0aWMgdm9pZCBzZXRfc3Rp
-Y2tfbGltaXQodW5zaWduZWQgaW50IG5ld19zaXplLCB1bnNpZ25lZCBpbnQgKnNsLCB1bnNpZ25l
-ZCBpbnQgZGVhZF96b25lKTsKK3N0YXRpYyB2b2lkIHhwYWRfaW5pdF9jb250cm9sbGVyKHN0cnVj
-dCB1c2JfeHBhZCAqeHBhZCk7CitzdGF0aWMgdm9pZCB4cGFkX3NlbmRfbGVkX2NvbW1hbmQoc3Ry
-dWN0IHVzYl94cGFkICp4cGFkLCBpbnQgY29tbWFuZCk7CitzdGF0aWMgdm9pZCB4cGFkX3dvcmtf
-Y29udHJvbGxlcihzdHJ1Y3Qgd29ya19zdHJ1Y3QgKncpOworc3RhdGljIHZvaWQgeHBhZF9wcm9j
-ZXNzX3N0aWNrcyhzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQsIHVuc2lnbmVkIGNoYXIgKmRhdGEpOwor
-c3RhdGljIHZvaWQgeHBhZF9wcm9jZXNzX3BhY2tldChzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQsIHUx
-NiBjbWQsIHVuc2lnbmVkIGNoYXIgKmRhdGEpOworc3RhdGljIHZvaWQgeHBhZDM2MF9wcm9jZXNz
-X3BhY2tldChzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQsCisJCQkJICAgdTE2IGNtZCwgdW5zaWduZWQg
-Y2hhciAqZGF0YSk7CitzdGF0aWMgdm9pZCB4cGFkMzYwd19pZGVudGlmeV9jb250cm9sbGVyKHN0
-cnVjdCB1c2JfeHBhZCAqeHBhZCwgdW5zaWduZWQgY2hhciAqZGF0YSk7CitzdGF0aWMgdm9pZCB4
-cGFkMzYwd19wcm9jZXNzX3BhY2tldChzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQsIHUxNiBjbWQsIHVu
-c2lnbmVkIGNoYXIgKmRhdGEpOworc3RhdGljIHZvaWQgeHBhZF9pcnFfaW4oc3RydWN0IHVyYiAq
-dXJiKTsKK3N0YXRpYyB2b2lkIHhwYWRfaXJxX291dChzdHJ1Y3QgdXJiICp1cmIpOworc3RhdGlj
-IGludCB4cGFkX2luaXRfb3V0cHV0KHN0cnVjdCB1c2JfaW50ZXJmYWNlICppbnRmLCBzdHJ1Y3Qg
-dXNiX3hwYWQgKnhwYWQpOworc3RhdGljIHZvaWQgeHBhZF9zdG9wX291dHB1dChzdHJ1Y3QgdXNi
-X3hwYWQgKnhwYWQpOworc3RhdGljIHZvaWQgeHBhZF9zdG9wX291dHB1dChzdHJ1Y3QgdXNiX3hw
-YWQgKnhwYWQpOworc3RhdGljIGludCB4cGFkX3BsYXlfZWZmZWN0KHN0cnVjdCBpbnB1dF9kZXYg
-KmRldiwgdm9pZCAqZGF0YSwKKwkJCSAgICBzdHJ1Y3QgZmZfZWZmZWN0ICplZmZlY3QpOworc3Rh
-dGljIGludCB4cGFkX2luaXRfZmYoc3RydWN0IHVzYl94cGFkICp4cGFkKTsKK3N0YXRpYyB2b2lk
-IHhwYWRfc2VuZF9sZWRfY29tbWFuZChzdHJ1Y3QgdXNiX3hwYWQgKnhwYWQsIGludCBjb21tYW5k
-KTsKK3N0YXRpYyB2b2lkIHhwYWRfbGVkX3NldChzdHJ1Y3QgbGVkX2NsYXNzZGV2ICpsZWRfY2Rl
-diwgZW51bSBsZWRfYnJpZ2h0bmVzcyB2YWx1ZSk7CitzdGF0aWMgaW50IHhwYWRfbGVkX3Byb2Jl
-KHN0cnVjdCB1c2JfeHBhZCAqeHBhZCk7CitzdGF0aWMgdm9pZCB4cGFkX2xlZF9kaXNjb25uZWN0
-KHN0cnVjdCB1c2JfeHBhZCAqeHBhZCk7CitzdGF0aWMgaW50IHhwYWRfb3BlbihzdHJ1Y3QgaW5w
-dXRfZGV2ICpkZXYpOworc3RhdGljIHZvaWQgeHBhZF9jbG9zZShzdHJ1Y3QgaW5wdXRfZGV2ICpk
-ZXYpOworc3RhdGljIHZvaWQgeHBhZF9zZXRfdXBfYWJzKHN0cnVjdCBpbnB1dF9kZXYgKmlucHV0
-X2Rldiwgc2lnbmVkIHNob3J0IGFicyk7CitzdGF0aWMgaW50IHhwYWRfcHJvYmUoc3RydWN0IHVz
-Yl9pbnRlcmZhY2UgKmludGYsIGNvbnN0IHN0cnVjdCB1c2JfZGV2aWNlX2lkICppZCk7CitzdGF0
-aWMgdm9pZCB4cGFkX2Rpc2Nvbm5lY3Qoc3RydWN0IHVzYl9pbnRlcmZhY2UgKmludGYpOworc3Rh
-dGljIGludCBfX2luaXQgdXNiX3hwYWRfaW5pdCh2b2lkKTsKK3N0YXRpYyB2b2lkIF9fZXhpdCB1
-c2JfeHBhZF9leGl0KHZvaWQpOworCisKKy8qIHN5c2ZzIGludGVyZmFjZSAqLworI2lmIGRlZmlu
-ZWQoQ09ORklHX1NZU0ZTKQorc3RhdGljIHNzaXplX3QgeHBhZF9zaG93X3VpbnQoc3RydWN0IGRl
-dmljZSAqZGV2LCBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwKKwkJY2hhciAqYnVmKTsK
-K3N0YXRpYyBzc2l6ZV90IHhwYWRfc3RvcmVfdWludChzdHJ1Y3QgZGV2aWNlICpkZXYsCisJCXN0
-cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLCBjb25zdCBjaGFyICpidWYsIHNpemVfdCBjb3Vu
-dCk7CitzdGF0aWMgc3NpemVfdCB4cGFkX3N0b3JlX3J1bWJsZV9lbmFibGUoc3RydWN0IGRldmlj
-ZSAqZGV2LAorCQlzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwgY29uc3QgY2hhciAqYnVm
-LCBzaXplX3QgY291bnQpOworc3RhdGljIHNzaXplX3QgeHBhZF9zdG9yZV9ybyhzdHJ1Y3QgZGV2
-aWNlICpkZXYsIHN0cnVjdCBkZXZpY2VfYXR0cmlidXRlICphdHRyLAorCQljb25zdCBjaGFyICpi
-dWYsIHNpemVfdCBjb3VudCk7CitzdGF0aWMgc3NpemVfdCB4cGFkX3Nob3dfaW50KHN0cnVjdCBk
-ZXZpY2UgKmRldiwgc3RydWN0IGRldmljZV9hdHRyaWJ1dGUgKmF0dHIsCisJCWNoYXIgKmJ1Zik7
-CitzdGF0aWMgc3NpemVfdCB4cGFkX3Nob3dfaWQoc3RydWN0IGRldmljZSAqZGV2LAorCQlzdHJ1
-Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwgY2hhciAqYnVmKTsKKworCQorCisvKiBEZXZpY2Ug
-YXR0cmlidXRlcyAqLworc3RhdGljIERFVklDRV9BVFRSKGxlZnRfZGVhZF96b25lLCAwNjY2LCB4
-cGFkX3Nob3dfdWludCwgeHBhZF9zdG9yZV91aW50KTsKK3N0YXRpYyBERVZJQ0VfQVRUUihyaWdo
-dF9kZWFkX3pvbmUsIDA2NjYsIHhwYWRfc2hvd191aW50LCB4cGFkX3N0b3JlX3VpbnQpOworc3Rh
-dGljIERFVklDRV9BVFRSKGxlZnRfc3RpY2tfbGltaXQsIDA2NjYsIHhwYWRfc2hvd191aW50LCB4
-cGFkX3N0b3JlX3VpbnQpOworc3RhdGljIERFVklDRV9BVFRSKHJpZ2h0X3N0aWNrX2xpbWl0LCAw
-NjY2LCB4cGFkX3Nob3dfdWludCwgeHBhZF9zdG9yZV91aW50KTsKK3N0YXRpYyBERVZJQ0VfQVRU
-UihydW1ibGVfZW5hYmxlLCAwNjY2LCB4cGFkX3Nob3dfaW50LCB4cGFkX3N0b3JlX3J1bWJsZV9l
-bmFibGUpOworc3RhdGljIERFVklDRV9BVFRSKGNvbnRyb2xsZXJfbnVtYmVyLCAwNDQ0LCB4cGFk
-X3Nob3dfaW50LCB4cGFkX3N0b3JlX3JvKTsKK3N0YXRpYyBERVZJQ0VfQVRUUihjb250cm9sbGVy
-X3ByZXNlbnQsIDA0NDQsIHhwYWRfc2hvd19pbnQsIHhwYWRfc3RvcmVfcm8pOworc3RhdGljIERF
-VklDRV9BVFRSKGNvbnRyb2xsZXJfdHlwZSwgMDQ0NCwgeHBhZF9zaG93X2ludCwgeHBhZF9zdG9y
-ZV9ybyk7CitzdGF0aWMgREVWSUNFX0FUVFIoaWQsIDA0NDQsIHhwYWRfc2hvd19pZCwgeHBhZF9z
-dG9yZV9ybyk7CisKK3N0YXRpYyBzdHJ1Y3QgYXR0cmlidXRlICp4cGFkX2RlZmF1bHRfYXR0cnNb
-XSA9IHsKKwkmZGV2X2F0dHJfbGVmdF9kZWFkX3pvbmUuYXR0ciwKKwkmZGV2X2F0dHJfcmlnaHRf
-ZGVhZF96b25lLmF0dHIsCisJJmRldl9hdHRyX2xlZnRfc3RpY2tfbGltaXQuYXR0ciwKKwkmZGV2
-X2F0dHJfcmlnaHRfc3RpY2tfbGltaXQuYXR0ciwKKwkmZGV2X2F0dHJfcnVtYmxlX2VuYWJsZS5h
-dHRyLAorCSZkZXZfYXR0cl9jb250cm9sbGVyX251bWJlci5hdHRyLAorCSZkZXZfYXR0cl9jb250
-cm9sbGVyX3ByZXNlbnQuYXR0ciwKKwkmZGV2X2F0dHJfY29udHJvbGxlcl90eXBlLmF0dHIsCisJ
-JmRldl9hdHRyX2lkLmF0dHIsCisJTlVMTAorfTsKKworc3RhdGljIHN0cnVjdCBhdHRyaWJ1dGVf
-Z3JvdXAgeHBhZF9kZWZhdWx0X2F0dHJfZ3JvdXAgPSB7CisJLmF0dHJzID0geHBhZF9kZWZhdWx0
-X2F0dHJzLAorCS5uYW1lID0gImdhbWVfZGV2aWNlIiwKK307CisjZW5kaWYKKworCitzdGF0aWMg
-c3RydWN0IHVzYl9kcml2ZXIgeHBhZF9kcml2ZXIgPSB7CisJLm5hbWUJCT0gInhwYWQiLAorCS5w
-cm9iZQkJPSB4cGFkX3Byb2JlLAorCS5kaXNjb25uZWN0CT0geHBhZF9kaXNjb25uZWN0LAorCS5p
-ZF90YWJsZQk9IHhwYWRfdGFibGUsCit9OworCittb2R1bGVfaW5pdCh1c2JfeHBhZF9pbml0KTsK
-K21vZHVsZV9leGl0KHVzYl94cGFkX2V4aXQpOworCitNT0RVTEVfQVVUSE9SKERSSVZFUl9BVVRI
-T1IpOworTU9EVUxFX0RFU0NSSVBUSU9OKERSSVZFUl9ERVNDKTsKK01PRFVMRV9MSUNFTlNFKCJH
-UEwiKTsKKworI2VuZGlmCisKKy8qIERyaXZlciBIaXN0b3J5OgorICoKKyAqIDIwMDktMDItMjEg
-OiBSZWZhY3RvcmVkIGFuZCBjaGFuZ2VkIHN0aWNrIGhhbmRsaW5nCisgKiAgLSBzcGxpdCBjb2Rl
-IGludG8gdHdvIHBpZWNlcyAoeHBhZC5oIGFuZCB4cGFkLmMpCisgKiAgLSBjbGVhbmVkIHVwIHN5
-c2ZzIGludGVyZmFjZQorICogIC0gY2hhbmdlZCBzcXVhcmUgYXhpcyBhbGdvcml0aG0gdG8gYW4g
-YXhpcyBsaW1pdCBhbGdvcml0aG0sIHdoaWNoIGFsbG93cworICogICAgc2l6ZSBvZiBpbnNjcmli
-ZWQgc3F1YXJlIHRvIGJlIGFkanVzdGVkOyBhdmFpbGFibGUgZm9yIGJvdGggc3RpY2tzCisgKiAg
-LSBkZWFkIHpvbmVzIG5vdyBwZXItc3RpY2sKKyAqCisgKiAyMDA5LTAyLTE4IDogQ2hhbmdlcyBw
-ZXIgbWFpbGluZyBsaXN0IChhbmQgc29tZSBhZGRpdGlvbnMpCisgKiAgLSByZXZpc2VkIHN5c2Zz
-IGludGVyZmFjZSAodGhhbmtzIEdyZWcgSy1IKQorICogIC0gY2hlY2sgcmV0dXJuIHZhbHVlcyBv
-ZiBzc2NhbmYgKHRoYW5rcyBPbGl2ZXIgTmV1a3VtKQorICogIC0gdXJiIHN1Ym1pc3Npb24gd2hp
-bGUgaG9sZGluZyBtdXRleCBub3cgb25jZSBhZ2FpbiBHRlBfS0VSTkVMICh0aGFua3MgT2xpdmVy
-IE5ldWt1bSkKKyAqICAtIHdvcmsgc3RydWN0dXJlIGZpeGVzICh0aGFua3MgT2xpdmVyIE5ldWt1
-bSkKKyAqICAtIHVldmVudHMgZ2VuZXJhdGVkIGZvciB3aXJlbGVzcyBjb250cm9sbGVyIG9ubGlu
-ZS9vZmZsaW5lCisgKiAgLSBzeXNmcyBpbnRlcmZhY2Ugb25seSBpZiBDT05GSUdfU1lTRlMgaXMg
-c2V0CisgKgorICogMjAwOS0wMi0xNSA6IE1pbm9yIGFkanVzdG1lbnRzCisgKiAgLSBhZGRlZCBL
-T0JKX09OTElORS9LT0JKX09GRkxJTkUgZXZlbnRzIHdoZW4gY29udHJvbGxlcnMgYXJlIGNvbm5l
-Y3RlZCB0bworICogICAgb3IgZGlzY29ubmVjdGVkIGZyb20gdGhlIHdpcmVsZXNzIDM2MCByZWNl
-aXZlcgorICogIC0gaWdub3JlIGR1cGxpY2F0ZSBjb25uZWN0IG1lc3NhZ2VzIG9uIHRoZSBzYW1l
-IGNvbm5lY3Rpb24KKyAqICAtIGFkZGVkIG9wdGlvbiB0byBlbmFibGUvZGlzYWJsZSBydW1ibGUg
-b24gYSBwZXItY29udHJvbGxlciBiYXNpcworICogIC0gcnVtYmxlIGV2ZW50cyBhcmUgbm90IHNl
-bnQgdG8gZ3VpdGFyIG9yIGRhbmNlIHBhZCBkZXZpY2VzCisgKgorICogMjAwOS0wMi0xNCA6IEFk
-ZGVkIHN5c2ZzIGludGVyZmFjZQorICogIC0gZGVhZCB6b25lcyBhbmQgc3F1YXJlIGF4aXMgc2V0
-dGluZ3MgY2FuIG5vdyBiZSBtYWRlIHBlci1jb250cm9sbGVyCisgKiAgLSByZW1vdmVkIGRlYWRf
-em9uZSBhbmQgc3F1YXJlX2F4aXMgbW9kdWxlIHBhcmFtZXRlcnMgKHVzZSBzeXNmcykKKyAqICAt
-IG5ldyBzcXVhcmUgYXhpcyBhbGdvcml0aG0KKyAqCisgKiAyMDA5LTAyLTEzIDogRGlzYWJsZSBz
-cXVhcmUgYXhpcyBmb3IgcmlnaHQgc3RpY2sKKyAqICAtIHNxdWFyZSBheGlzIGFwcGxpZXMgdG8g
-bGVmdCBzdGljayBvbmx5CisgKgorICogMjAwOS0wMi0xMiA6IFNjYWxpbmcgZm9yIGRlYWQgem9u
-ZSBhbmQgc3F1YXJlIGF4aXMgc3VwcG9ydAorICogIC0gYXhlcyBub3cgc2NhbGUgZnJvbSAwIHRv
-IDMyNzY3IHN0YXJ0aW5nIGF0IGVkZ2Ugb2YgZGVhZCB6b25lCisgKiAgLSBpbmNyZWFzZWQgZGVm
-YXVsdCBkZWFkIHpvbmUgdG8gODE5MgorICogIC0gaW5pdGlhbCBzcXVhcmUgYXhpcyBzdXBwb3J0
-IChyZWxpYWJsZSBvbmx5IHdpdGggbGVmdCBzdGljaykKKyAqCisgKiAyMDA5LTAyLTA3IDogTW9y
-ZSB3aXJlbGVzcyAzNjAgY29udHJvbGxlciBmaXhlcworICogIC0gcmVtb3ZlZCBidWxrIHVyYiBj
-b21wbGV0ZWx5CisgKiAgLSB1c2UgeHBhZF9zZW5kX2xlZF9jb21tYW5kIHRvIHNldCBjb250cm9s
-bGVyIG51bWJlciBvbiBMRUQgZGlzcGxheQorICogICAgKHdpcmVsZXNzIDM2MCBjb250cm9sbGVy
-KQorICogIC0gZGVhZF96b25lIGlzIG5vdyBhbiBhZGp1c3RhYmxlIG1vZHVsZSBwYXJhbWV0ZXIK
-KyAqCisgKiAyMDA5LTAyLTA2IDogQXhpcyBoYW5kbGluZyBpbXByb3ZlbWVudHMKKyAqICAtIHVu
-aWZpZWQgaGFuZGxlciBmb3IgbGVmdCBhbmQgcmlnaHQgc3RpY2tzCisgKiAgLSBpbml0aWFsIHN1
-cHBvcnQgZm9yIGRlYWQgem9uZXMKKyAqCisgKiAyMDA5LTAyLTAyIDogV2lyZWxlc3MgMzYwIGNv
-bnRyb2xsZXIgZml4ZXMKKyAqICAtIGZvbGxvd2VkIFBST1RPQ09MIGRlc2NyaXB0aW9uIGZyb20g
-eGJveGRydiB1c2Vyc3BhY2UgZHJpdmVyCisgKiAgLSBMRUQgYW5kIHJ1bWJsZSBzdXBwb3J0IGFk
-ZGVkIGZvciB3aXJlbGVzcyAzNjAgY29udHJvbGxlciAocHJvdG9jb2wKKyAqICAgIGlzIGRpZmZl
-cmVudCBmcm9tIHdpcmVkISkKKyAqCisgKiAyMDA0LTEwLTAyIC0gMC4wLjYgOiBERFIgcGFkIHN1
-cHBvcnQKKyAqICAtIGJvcnJvd2VkIGZyb20gdGhlIFhCT1ggbGludXgga2VybmVsCisgKiAgLSBV
-U0IgaWQncyBmb3IgY29tbW9ubHkgdXNlZCBkYW5jZSBwYWRzIGFyZSBwcmVzZW50CisgKiAgLSBk
-YW5jZSBwYWRzIHdpbGwgbWFwIEQtUEFEIHRvIGJ1dHRvbnMsIG5vdCBheGVzCisgKiAgLSBwYXNz
-IHRoZSBtb2R1bGUgcGFyYW1hdGVyICdkcGFkX3RvX2J1dHRvbnMnIHRvIGZvcmNlCisgKiAgICB0
-aGUgRC1QQUQgdG8gbWFwIHRvIGJ1dHRvbnMgaWYgeW91ciBwYWQgaXMgbm90IGRldGVjdGVkCisg
-KgorICogMjAwMi0wNy0xNyAtIDAuMC41IDogc2ltcGxpZmllZCBkLXBhZCBoYW5kbGluZworICoK
-KyAqIDIwMDItMDctMTYgLSAwLjAuNCA6IG1pbm9yIGNoYW5nZXMsIG1lcmdlIHdpdGggVm9qdGVj
-aCdzIHYwLjAuMworICogIC0gdmVyaWZpZWQgdGhlIGxhY2sgb2YgSElEIGFuZCByZXBvcnQgZGVz
-Y3JpcHRvcnMKKyAqICAtIHZlcmlmaWVkIHRoYXQgQUxMIGJ1dHRvbnMgV09SSworICogIC0gZml4
-ZWQgZC1wYWQgdG8gYXhlcyBtYXBwaW5nCisgKgorICogMjAwMi0wNy0xNCAtIDAuMC4zIDogcmV3
-b3JrIGJ5IFZvanRlY2ggUGF2bGlrCisgKiAgLSBpbmRlbnRhdGlvbiBmaXhlcworICogIC0gdXNi
-ICsgaW5wdXQgaW5pdCBzZXF1ZW5jZSBmaXhlcworICoKKyAqIDIwMDItMDctMDIgLSAwLjAuMiA6
-IGJhc2ljIHdvcmtpbmcgdmVyc2lvbgorICogIC0gYWxsIGF4ZXMgYW5kIDkgb2YgdGhlIDEwIGJ1
-dHRvbnMgd29yayAoZ2VybWFuIEludGVyQWN0IGRldmljZSkKKyAqICAtIHRoZSBibGFjayBidXR0
-b24gZG9lcyBub3Qgd29yaworICoKKyAqIDIwMDItMDYtMjcgLSAwLjAuMSA6IGZpcnN0IHZlcnNp
-b24sIGp1c3Qgc2FpZCAiWEJPWCBISUQgY29udHJvbGxlciIKKyAqCisgKi8K
---0016363b7a9c9bcc1c04637b326f--
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+No need to check for CONFIG_SYSFS, sysfs_create_group will be a no-op which returns 0
+if not built.
+
+
+>  
+>  	return 0;
+>  
+> - fail6:	usb_free_urb(xpad->bulk_out);
+> - fail5:	usb_kill_urb(xpad->irq_in);
+> + fail5: usb_set_intfdata(intf, NULL);
+> + 	input_unregister_device(xpad->dev);
+> + 	xpad_led_disconnect(xpad);
+>   fail4:	usb_free_urb(xpad->irq_in);
+>   fail3:	xpad_deinit_output(xpad);
+>   fail2:	usb_buffer_free(udev, XPAD_PKT_LEN, xpad->idata, xpad->idata_dma);
+> @@ -885,12 +1070,19 @@
+>  
+>  	usb_set_intfdata(intf, NULL);
+>  	if (xpad) {
+> +		/* If a work task remains, get rid of it by flushing the
+> +		 * shared work queue.
+> +		 */
+> +		if (xpad->work_pending)
+> +			flush_scheduled_work();
+> +#ifdef CONFIG_SYSFS
+> +		if (xpad->sysfs_ok)
+> +			sysfs_remove_group(&xpad->dev->dev.kobj, &xpad_default_attr_group);
+> +#endif
+
+
+Ditto.
+
+
+>  		xpad_led_disconnect(xpad);
+>  		input_unregister_device(xpad->dev);
+>  		xpad_deinit_output(xpad);
+>  		if (xpad->xtype == XTYPE_XBOX360W) {
+> -			usb_kill_urb(xpad->bulk_out);
+> -			usb_free_urb(xpad->bulk_out);
+>  			usb_kill_urb(xpad->irq_in);
+>  		}
+>  		usb_free_urb(xpad->irq_in);
+> @@ -900,12 +1092,7 @@
+>  	}
+>  }
+>  
+> -static struct usb_driver xpad_driver = {
+> -	.name		= "xpad",
+> -	.probe		= xpad_probe,
+> -	.disconnect	= xpad_disconnect,
+> -	.id_table	= xpad_table,
+> -};
+> +
+>  
+>  static int __init usb_xpad_init(void)
+>  {
+> @@ -920,9 +1107,4 @@
+>  	usb_deregister(&xpad_driver);
+>  }
+>  
+> -module_init(usb_xpad_init);
+> -module_exit(usb_xpad_exit);
+>  
+> -MODULE_AUTHOR(DRIVER_AUTHOR);
+> -MODULE_DESCRIPTION(DRIVER_DESC);
+> -MODULE_LICENSE("GPL");
+> diff -uNr origdrv/drivers/input/joystick/xpad.h newdrv/drivers/input/joystick/xpad.h
+> --- origdrv/drivers/input/joystick/xpad.h	1969-12-31 19:00:00.000000000 -0500
+> +++ newdrv/drivers/input/joystick/xpad.h	2009-02-21 23:49:36.000000000 -0500
+> @@ -0,0 +1,578 @@
+> +/*
+> + * Xbox gamepad driver with Xbox 360 wired/wireless support
+> + *
+> + * Last Modified:	21 February 2009
+> + *			Mike Murphy <mamurph@cs.clemson.edu>
+> + *
+> + * Copyright (c) 2002 Marko Friedemann <mfr@bmx-chemnitz.de>
+> + *               2004 Oliver Schwartz <Oliver.Schwartz@gmx.de>,
+> + *                    Steven Toth <steve@toth.demon.co.uk>,
+> + *                    Franz Lehner <franz@caos.at>,
+> + *                    Ivan Hawkes <blackhawk@ivanhawkes.com>
+> + *               2005 Dominic Cerquetti <binary1230@yahoo.com>
+> + *               2006 Adam Buchbinder <adam.buchbinder@gmail.com>
+> + *               2007 Jan Kratochvil <honza@jikos.cz>
+> + *               2009 Clemson University
+> + *		      (contact: Mike Murphy <mamurph@cs.clemson.edu>)
+> + *
+> + * This program is free software; you can redistribute it and/or
+> + * modify it under the terms of the GNU General Public License as
+> + * published by the Free Software Foundation; either version 2 of
+> + * the License, or (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + *
+> + *
+> + * This driver is based on:
+> + *  - information from     http://euc.jp/periphs/xbox-controller.ja.html
+> + *  - the iForce driver    drivers/char/joystick/iforce.c
+> + *  - the skeleton-driver  drivers/usb/usb-skeleton.c
+> + *  - Xbox 360 information http://www.free60.org/wiki/Gamepad
+> + *  - xboxdrv docs         http://pingus.seul.org/~grumbel/xboxdrv/
+> + *
+> + * Thanks to:
+> + *  - ITO Takayuki for providing essential xpad information on his website
+> + *  - Vojtech Pavlik     - iforce driver / input subsystem
+> + *  - Greg Kroah-Hartman - usb-skeleton driver
+> + *  - XBOX Linux project - extra USB id's
+> + *
+> + * TODO:
+> + *  - fix "analog" buttons (reported as digital now)
+> + *  - need USB IDs for other dance pads
+> + *
+> + * Driver history is located at the bottom of this file.
+> + */
+> +
+> +#ifndef _XPAD_H
+> +#define _XPAD_H
+> +
+> +#include <linux/kernel.h>
+> +#include <linux/init.h>
+> +#include <linux/slab.h>
+> +#include <linux/stat.h>
+> +#include <linux/module.h>
+> +#include <linux/usb/input.h>
+> +#include <linux/workqueue.h>
+> +
+> +#if defined(CONFIG_SYSFS)
+> +#include <linux/kobject.h>
+> +#include <linux/sysfs.h>
+> +#include <linux/string.h>
+> +#endif
+
+
+Same here, conditionally including these files is not necessary.
+
+
+> +
+> +#if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> +#include <linux/leds.h>
+> +
+> +struct xpad_led {
+> +	char name[16];
+> +	struct led_classdev led_cdev;
+> +	struct usb_xpad *xpad;
+> +};
+> +#endif
+> +
+
+
+Ditto. Actually it's useful for data which consume memory,
+or fields inside structures, but not for types themselves.
+
+But well, these parts are a removing, not new code.
+
+Anyway, looks like a nice work.
+
+
+Frederic.
+
+
+> +#define DRIVER_AUTHOR "Marko Friedemann <mfr@bmx-chemnitz.de>"
+> +#define DRIVER_DESC "Xbox/360 pad driver"
+> +
+> +#define XPAD_PKT_LEN 32
+> +
+> +
+> +/* xbox d-pads should map to buttons, as is required for DDR pads
+> +   but we map them to axes when possible to simplify things */
+> +#define MAP_DPAD_TO_BUTTONS    0
+> +#define MAP_DPAD_TO_AXES       1
+> +#define MAP_DPAD_UNKNOWN       2
+> +
+> +/* Type of controller *interface* (original, wired 360, wireless 360) */
+> +#define XTYPE_XBOX        0
+> +#define XTYPE_XBOX360     1
+> +#define XTYPE_XBOX360W    2
+> +#define XTYPE_UNKNOWN     3
+> +
+> +/* Type of controller (e.g. pad, guitar, other input device) */
+> +#define XCONTROLLER_TYPE_NONE		0
+> +#define XCONTROLLER_TYPE_PAD		1
+> +#define XCONTROLLER_TYPE_GUITAR		2
+> +#define XCONTROLLER_TYPE_DANCE_PAD	3
+> +#define XCONTROLLER_TYPE_OTHER		255
+> +
+> +
+> +/* The Xbox 360 controllers have sensitive sticks that often do not center
+> + * exactly. A dead zone causes stick events below a certain threshhold to be
+> + * reported as zero.
+> + *
+> + * The default dead zone size is 8192, which was obtained by testing a
+> + * wireless 360 controller with jstest(1) and consulting gaming forums for
+> + * a recommended dead zone for this controller. The consensus opinion was
+> + * 0.25 (on a scale from 0 to 1), which corresponds to 8192 (out of 32767).
+> + */
+> +#define XDEAD_ZONE_DEFAULT   8192
+> +
+> +/* Default limit for the sticks is the maximum axis value (32767), which will
+> + * cause the sticks to have a radial axis as designed in the hardware. To
+> + * enable square axis support, set the stick limits to 23170 or lower at run
+> + * time via the sysfs interface. */
+> +#define XSTICK_LIMIT_DEFAULT 32767
+> +
+> +/* Rumble normally enabled */
+> +#define XRUMBLE_DEFAULT		1
+> +
+> +
+> +/* This module parameter is something of a relic, but it remains for
+> + * compatibility. Importantly, the option to map the D-PAD buttons applies
+> + * only to controller *interfaces* (i.e. vendor and product codes) not
+> + * explicitly present in xpad_device[]. */
+> +static int dpad_to_buttons = 0;
+> +module_param(dpad_to_buttons, bool, S_IRUGO);
+> +MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
+> +
+> +
+> +/* Table of various device interfaces recognized by this driver. Each supported
+> + * device has a directional pad mapping, interface type, and controller type.
+> + * Note that wireless 360 devices have XCONTROLLER_TYPE_NONE, as the actual
+> + * type of the gaming controller is not known until the controller binds
+> + * wirelessly with the receiver
+> + */
+> +static const struct xpad_device {
+> +	u16 idVendor;
+> +	u16 idProduct;
+> +	char *name;
+> +	u8 dpad_mapping;
+> +	u8 xtype;
+> +	u8 controller_type;
+> +} xpad_device[] = {
+> +	{ 0x045e, 0x0202, "Microsoft X-Box pad v1 (US)", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x045e, 0x0289, "Microsoft X-Box pad v2 (US)", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x045e, 0x0285, "Microsoft X-Box pad (Japan)", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x045e, 0x0287, "Microsoft Xbox Controller S", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W,
+> +		XCONTROLLER_TYPE_NONE },
+> +	{ 0x0c12, 0x8809, "RedOctane Xbox Dance Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_DANCE_PAD },
+> +	{ 0x044f, 0x0f07, "Thrustmaster, Inc. Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x046d, 0xc242, "Logitech Chillstream Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x046d, 0xca84, "Logitech Xbox Cordless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x046d, 0xca88, "Logitech Compact Controller for Xbox", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x05fd, 0x1007, "Mad Catz Controller (unverified)", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x05fd, 0x107a, "InterAct 'PowerPad Pro' X-Box pad (Germany)", MAP_DPAD_TO_AXES,
+> +		XTYPE_XBOX, XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x4516, "Mad Catz Control Pad", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x4522, "Mad Catz LumiCON", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x4526, "Mad Catz Control Pad Pro", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x4536, "Mad Catz MicroCON", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x4540, "Mad Catz Beat Pad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_DANCE_PAD },
+> +	{ 0x0738, 0x4556, "Mad Catz Lynx Wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x4716, "Mad Catz Wired Xbox 360 Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX360,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0738, 0x6040, "Mad Catz Beat Pad Pro", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_DANCE_PAD },
+> +	{ 0x0c12, 0x8802, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0c12, 0x880a, "Pelican Eclipse PL-2023", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0c12, 0x8810, "Zeroplus Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0c12, 0x9902, "HAMA VibraX - *FAULTY HARDWARE*", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e4c, 0x1097, "Radica Gamester Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e4c, 0x2390, "Radica Games Jtech Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e6f, 0x0003, "Logic3 Freebird wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e6f, 0x0005, "Eclipse wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e6f, 0x0006, "Edge wireless Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e6f, 0x0006, "Pelican 'TSZ' Wired Xbox 360 Controller", MAP_DPAD_TO_AXES,
+> +		XTYPE_XBOX360, XCONTROLLER_TYPE_PAD },
+> +	{ 0x0e8f, 0x0201, "SmartJoy Frag Xpad/PS2 adaptor", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0f30, 0x0202, "Joytech Advanced Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0f30, 0x8888, "BigBen XBMiniPad Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x102c, 0xff0c, "Joytech Wireless Advanced Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x12ab, 0x8809, "Xbox DDR dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_DANCE_PAD },
+> +	{ 0x1430, 0x4748, "RedOctane Guitar Hero X-plorer", MAP_DPAD_TO_AXES, XTYPE_XBOX360,
+> +		XCONTROLLER_TYPE_GUITAR },
+> +	{ 0x1430, 0x8888, "TX6500+ Dance Pad (first generation)", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_DANCE_PAD },
+> +	{ 0x045e, 0x028e, "Microsoft X-Box 360 pad", MAP_DPAD_TO_AXES, XTYPE_XBOX360,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", MAP_DPAD_TO_AXES, XTYPE_XBOX,
+> +		XCONTROLLER_TYPE_PAD },
+> +	{ 0x0000, 0x0000, "Generic X-Box pad", MAP_DPAD_UNKNOWN, XTYPE_UNKNOWN,
+> +		XCONTROLLER_TYPE_PAD }
+> +};
+> +
+> +
+> +/* buttons shared with xbox and xbox360 */
+> +static const signed short xpad_common_btn[] = {
+> +	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
+> +	BTN_START, BTN_BACK, BTN_THUMBL, BTN_THUMBR,	/* start/back/sticks */
+> +	-1						/* terminating entry */
+> +};
+> +
+> +/* original xbox controllers only */
+> +static const signed short xpad_btn[] = {
+> +	BTN_C, BTN_Z,		/* "analog" buttons */
+> +	-1			/* terminating entry */
+> +};
+> +
+> +/* only used if MAP_DPAD_TO_BUTTONS */
+> +static const signed short xpad_btn_pad[] = {
+> +	BTN_LEFT, BTN_RIGHT,		/* d-pad left, right */
+> +	BTN_0, BTN_1,			/* d-pad up, down (XXX names??) */
+> +	-1				/* terminating entry */
+> +};
+> +
+> +/* buttons for x360 controller */
+> +static const signed short xpad360_btn[] = {
+> +	BTN_TL, BTN_TR,		/* Button LB/RB */
+> +	BTN_MODE,		/* The big X button */
+> +	-1
+> +};
+> +
+> +/* sticks and triggers common to all devices */
+> +static const signed short xpad_abs[] = {
+> +	ABS_X, ABS_Y,		/* left stick */
+> +	ABS_RX, ABS_RY,		/* right stick */
+> +	ABS_Z, ABS_RZ,		/* triggers left/right */
+> +	-1			/* terminating entry */
+> +};
+> +
+> +/* only used if MAP_DPAD_TO_AXES */
+> +static const signed short xpad_abs_pad[] = {
+> +	ABS_HAT0X, ABS_HAT0Y,	/* d-pad axes */
+> +	-1			/* terminating entry */
+> +};
+> +
+> +
+> +/* Xbox 360 has a vendor-specific class, so we cannot match it with only
+> + * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
+> + * match against vendor id as well. Wired Xbox 360 devices have protocol 1,
+> + * wireless controllers have protocol 129. */
+> +#define XPAD_XBOX360_VENDOR_PROTOCOL(vend,pr) \
+> +	.match_flags = USB_DEVICE_ID_MATCH_VENDOR | USB_DEVICE_ID_MATCH_INT_INFO, \
+> +	.idVendor = (vend), \
+> +	.bInterfaceClass = USB_CLASS_VENDOR_SPEC, \
+> +	.bInterfaceSubClass = 93, \
+> +	.bInterfaceProtocol = (pr)
+> +#define XPAD_XBOX360_VENDOR(vend) \
+> +	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,1) }, \
+> +	{ XPAD_XBOX360_VENDOR_PROTOCOL(vend,129) }
+> +
+> +static struct usb_device_id xpad_table [] = {
+> +	{ USB_INTERFACE_INFO('X', 'B', 0) },	/* X-Box USB-IF not approved class */
+> +	XPAD_XBOX360_VENDOR(0x045e),		/* Microsoft X-Box 360 controllers */
+> +	XPAD_XBOX360_VENDOR(0x046d),		/* Logitech X-Box 360 style controllers */
+> +	XPAD_XBOX360_VENDOR(0x0738),		/* Mad Catz X-Box 360 controllers */
+> +	XPAD_XBOX360_VENDOR(0x0e6f),		/* 0x0e6f X-Box 360 controllers */
+> +	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+> +	{ }
+> +};
+> +
+> +MODULE_DEVICE_TABLE (usb, xpad_table);
+> +
+> +
+> +/* Wireless 360 device identification.
+> + *
+> + * When a wireless controller connects, the 2nd packet it sends SEEMS to
+> + * be some kind of unique controller identification message. Using usbmon
+> + * (see Documentation/usb/usbmon.txt), I tried 4 gamepads and a guitar, and
+> + * I collected the following 5 ID packets from the 5 devices:
+> + *
+> + * 000f00f0 00ccfd27 0060e226 63700010 13e3201d 30034001 5001ffff ff
+> + * 000f00f0 f0ccfd27 0060d8c4 e9600009 13e7201d 30034001 5001ffff ff
+> + * 000f00f0 00ccfd27 0060578b 82f00010 13e3201d 30034001 5001ffff ff
+> + * 000f00f0 f0ccfd27 0060da1c b1500009 13e7201d 30034001 5001ffff ff
+> + * 000f00f0 f0ccfd27 006002d1 71d10000 13e3201d 30034430 5107ffff ff
+> + *
+> + * From this trace data, I concocted the following (potentially incorrect)
+> + * scheme for detecting type and unique ID:
+> + *
+> + * ******** xx****xx xxxxxxxx xxxx**xx **xx**** ****tttt tttt**** **
+> + *                |  unique id |                    |  type |
+> + *
+> + * It appears that some of the bytes in the first half of the message, noted
+> + * above as "unique id" are some sort of serial number, though I cannot work
+> + * out any correspondence between these bytes and the serial number printed
+> + * under the battery pack. Many of the bytes in this possibly unique field
+> + * are not unique across my controllers, and may not in fact be part of the
+> + * controller's unique identification, but I figured it was better to have
+> + * extra bytes on either end of the unique byte string instead of the
+> + * alternative. In addition, the packet appears to indicate the type of
+> + * the controller toward the end: the pads all send 4001 5001, while the
+> + * guitar sends 4430 5107.
+> + *
+> + * Further testing over a wider variety of devices is probably needed to
+> + * determine if changes need to be made to this scheme.
+> + */
+> +static const struct w360_id {
+> +	u32 id_bytes;
+> +	u8 controller_type;
+> +} w360_id[] = {
+> +	{ 0x40015001, XCONTROLLER_TYPE_PAD },
+> +	{ 0x44305107, XCONTROLLER_TYPE_GUITAR },
+> +	{ 0x00000000, XCONTROLLER_TYPE_NONE }
+> +};
+> +
+> +
+> +/* Some of the fields in the following structure are for later use with
+> + * userspace applications to recognize individual controllers. The dead zones
+> + * and axis limits can be changed "on the fly" and are effective immediately.
+> + *
+> + * The fields labeled "ro" and "rw" are intended to be read-only and
+> + * read-write, respectively, when exposed in sysfs. Most of the read-only
+> + * fields are to support *wireless* 360 controllers. The controller_number
+> + * is used to set the LED, while controller_present tracks whether the
+> + * controller is connected to the wireless receiver. Controller type applies
+> + * to all models (wired and wireless), and tracks whether the device is a pad,
+> + * guitar, etc. for later userspace use. See the comment above regarding
+> + * type and unique ID detection on wireless 360 receivers.
+> + */
+> +struct usb_xpad {
+> +	struct input_dev *dev;		/* input device interface */
+> +	struct usb_device *udev;	/* usb device */
+> +
+> +	struct urb *irq_in;		/* urb for interrupt in report */
+> +	unsigned char *idata;		/* input data */
+> +	dma_addr_t idata_dma;
+> +
+> +#if defined(CONFIG_JOYSTICK_XPAD_FF) || defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> +	struct urb *irq_out;		/* urb for interrupt out report */
+> +	unsigned char *odata;		/* output data */
+> +	dma_addr_t odata_dma;
+> +	struct mutex odata_mutex;
+> +#endif
+> +
+> +#if defined(CONFIG_JOYSTICK_XPAD_LEDS)
+> +	struct xpad_led *led;
+> +#endif
+> +
+> +	char phys[64];			/* physical device path */
+> +
+> +	int dpad_mapping;		/* map d-pad to buttons or to axes */
+> +	int xtype;			/* type of xbox device */
+> +	
+> +	/* Work structure for moving the call to xpad_send_led_command
+> +	 * outside the interrupt handler for packet processing */
+> +	struct work_struct work;
+> +	int work_pending;
+> +	
+> +	int controller_number;		/* controller number (1-4) for 360w. ro */
+> +	int controller_present;         /* 360w controller presence detection. ro */
+> +	int controller_type;            /* controller type. ro */
+> +	char controller_unique_id[17];  /* unique ID of controller (360w). ro */
+> +	unsigned int left_dead_zone;    /* dead zone for left stick. rw */
+> +	unsigned int right_dead_zone;   /* dead zone for right stick. rw */
+> +	unsigned int left_stick_limit;  /* stick axis limit for left stick. rw */
+> +	unsigned int right_stick_limit; /* stick axis limit for right stick. rw */
+> +	int rumble_enable;              /* enable/disable rumble. rw */
+> +	
+> +#if defined(CONFIG_SYSFS)
+> +	int sysfs_ok;                   /* sysfs interface OK */
+> +#endif
+> +};
+> +#define to_xpad(d) input_get_drvdata(to_input_dev(d))
+> +
+> +
+> +/* Function prototypes for non-sysfs interface functions */
+> +static void set_dead_zone(unsigned int new_size, unsigned int *dz, unsigned int stick_limit);
+> +static void set_stick_limit(unsigned int new_size, unsigned int *sl, unsigned int dead_zone);
+> +static void xpad_init_controller(struct usb_xpad *xpad);
+> +static void xpad_send_led_command(struct usb_xpad *xpad, int command);
+> +static void xpad_work_controller(struct work_struct *w);
+> +static void xpad_process_sticks(struct usb_xpad *xpad, unsigned char *data);
+> +static void xpad_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data);
+> +static void xpad360_process_packet(struct usb_xpad *xpad,
+> +				   u16 cmd, unsigned char *data);
+> +static void xpad360w_identify_controller(struct usb_xpad *xpad, unsigned char *data);
+> +static void xpad360w_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char *data);
+> +static void xpad_irq_in(struct urb *urb);
+> +static void xpad_irq_out(struct urb *urb);
+> +static int xpad_init_output(struct usb_interface *intf, struct usb_xpad *xpad);
+> +static void xpad_stop_output(struct usb_xpad *xpad);
+> +static void xpad_stop_output(struct usb_xpad *xpad);
+> +static int xpad_play_effect(struct input_dev *dev, void *data,
+> +			    struct ff_effect *effect);
+> +static int xpad_init_ff(struct usb_xpad *xpad);
+> +static void xpad_send_led_command(struct usb_xpad *xpad, int command);
+> +static void xpad_led_set(struct led_classdev *led_cdev, enum led_brightness value);
+> +static int xpad_led_probe(struct usb_xpad *xpad);
+> +static void xpad_led_disconnect(struct usb_xpad *xpad);
+> +static int xpad_open(struct input_dev *dev);
+> +static void xpad_close(struct input_dev *dev);
+> +static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs);
+> +static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id);
+> +static void xpad_disconnect(struct usb_interface *intf);
+> +static int __init usb_xpad_init(void);
+> +static void __exit usb_xpad_exit(void);
+> +
+> +
+> +/* sysfs interface */
+> +#if defined(CONFIG_SYSFS)
+> +static ssize_t xpad_show_uint(struct device *dev, struct device_attribute *attr,
+> +		char *buf);
+> +static ssize_t xpad_store_uint(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count);
+> +static ssize_t xpad_store_rumble_enable(struct device *dev,
+> +		struct device_attribute *attr, const char *buf, size_t count);
+> +static ssize_t xpad_store_ro(struct device *dev, struct device_attribute *attr,
+> +		const char *buf, size_t count);
+> +static ssize_t xpad_show_int(struct device *dev, struct device_attribute *attr,
+> +		char *buf);
+> +static ssize_t xpad_show_id(struct device *dev,
+> +		struct device_attribute *attr, char *buf);
+> +
+> +	
+> +
+> +/* Device attributes */
+> +static DEVICE_ATTR(left_dead_zone, 0666, xpad_show_uint, xpad_store_uint);
+> +static DEVICE_ATTR(right_dead_zone, 0666, xpad_show_uint, xpad_store_uint);
+> +static DEVICE_ATTR(left_stick_limit, 0666, xpad_show_uint, xpad_store_uint);
+> +static DEVICE_ATTR(right_stick_limit, 0666, xpad_show_uint, xpad_store_uint);
+> +static DEVICE_ATTR(rumble_enable, 0666, xpad_show_int, xpad_store_rumble_enable);
+> +static DEVICE_ATTR(controller_number, 0444, xpad_show_int, xpad_store_ro);
+> +static DEVICE_ATTR(controller_present, 0444, xpad_show_int, xpad_store_ro);
+> +static DEVICE_ATTR(controller_type, 0444, xpad_show_int, xpad_store_ro);
+> +static DEVICE_ATTR(id, 0444, xpad_show_id, xpad_store_ro);
+> +
+> +static struct attribute *xpad_default_attrs[] = {
+> +	&dev_attr_left_dead_zone.attr,
+> +	&dev_attr_right_dead_zone.attr,
+> +	&dev_attr_left_stick_limit.attr,
+> +	&dev_attr_right_stick_limit.attr,
+> +	&dev_attr_rumble_enable.attr,
+> +	&dev_attr_controller_number.attr,
+> +	&dev_attr_controller_present.attr,
+> +	&dev_attr_controller_type.attr,
+> +	&dev_attr_id.attr,
+> +	NULL
+> +};
+> +
+> +static struct attribute_group xpad_default_attr_group = {
+> +	.attrs = xpad_default_attrs,
+> +	.name = "game_device",
+> +};
+> +#endif
+> +
+> +
+> +static struct usb_driver xpad_driver = {
+> +	.name		= "xpad",
+> +	.probe		= xpad_probe,
+> +	.disconnect	= xpad_disconnect,
+> +	.id_table	= xpad_table,
+> +};
+> +
+> +module_init(usb_xpad_init);
+> +module_exit(usb_xpad_exit);
+> +
+> +MODULE_AUTHOR(DRIVER_AUTHOR);
+> +MODULE_DESCRIPTION(DRIVER_DESC);
+> +MODULE_LICENSE("GPL");
+> +
+> +#endif
+> +
+> +/* Driver History:
+> + *
+> + * 2009-02-21 : Refactored and changed stick handling
+> + *  - split code into two pieces (xpad.h and xpad.c)
+> + *  - cleaned up sysfs interface
+> + *  - changed square axis algorithm to an axis limit algorithm, which allows
+> + *    size of inscribed square to be adjusted; available for both sticks
+> + *  - dead zones now per-stick
+> + *
+> + * 2009-02-18 : Changes per mailing list (and some additions)
+> + *  - revised sysfs interface (thanks Greg K-H)
+> + *  - check return values of sscanf (thanks Oliver Neukum)
+> + *  - urb submission while holding mutex now once again GFP_KERNEL (thanks Oliver Neukum)
+> + *  - work structure fixes (thanks Oliver Neukum)
+> + *  - uevents generated for wireless controller online/offline
+> + *  - sysfs interface only if CONFIG_SYSFS is set
+> + *
+> + * 2009-02-15 : Minor adjustments
+> + *  - added KOBJ_ONLINE/KOBJ_OFFLINE events when controllers are connected to
+> + *    or disconnected from the wireless 360 receiver
+> + *  - ignore duplicate connect messages on the same connection
+> + *  - added option to enable/disable rumble on a per-controller basis
+> + *  - rumble events are not sent to guitar or dance pad devices
+> + *
+> + * 2009-02-14 : Added sysfs interface
+> + *  - dead zones and square axis settings can now be made per-controller
+> + *  - removed dead_zone and square_axis module parameters (use sysfs)
+> + *  - new square axis algorithm
+> + *
+> + * 2009-02-13 : Disable square axis for right stick
+> + *  - square axis applies to left stick only
+> + *
+> + * 2009-02-12 : Scaling for dead zone and square axis support
+> + *  - axes now scale from 0 to 32767 starting at edge of dead zone
+> + *  - increased default dead zone to 8192
+> + *  - initial square axis support (reliable only with left stick)
+> + *
+> + * 2009-02-07 : More wireless 360 controller fixes
+> + *  - removed bulk urb completely
+> + *  - use xpad_send_led_command to set controller number on LED display
+> + *    (wireless 360 controller)
+> + *  - dead_zone is now an adjustable module parameter
+> + *
+> + * 2009-02-06 : Axis handling improvements
+> + *  - unified handler for left and right sticks
+> + *  - initial support for dead zones
+> + *
+> + * 2009-02-02 : Wireless 360 controller fixes
+> + *  - followed PROTOCOL description from xboxdrv userspace driver
+> + *  - LED and rumble support added for wireless 360 controller (protocol
+> + *    is different from wired!)
+> + *
+> + * 2004-10-02 - 0.0.6 : DDR pad support
+> + *  - borrowed from the XBOX linux kernel
+> + *  - USB id's for commonly used dance pads are present
+> + *  - dance pads will map D-PAD to buttons, not axes
+> + *  - pass the module paramater 'dpad_to_buttons' to force
+> + *    the D-PAD to map to buttons if your pad is not detected
+> + *
+> + * 2002-07-17 - 0.0.5 : simplified d-pad handling
+> + *
+> + * 2002-07-16 - 0.0.4 : minor changes, merge with Vojtech's v0.0.3
+> + *  - verified the lack of HID and report descriptors
+> + *  - verified that ALL buttons WORK
+> + *  - fixed d-pad to axes mapping
+> + *
+> + * 2002-07-14 - 0.0.3 : rework by Vojtech Pavlik
+> + *  - indentation fixes
+> + *  - usb + input init sequence fixes
+> + *
+> + * 2002-07-02 - 0.0.2 : basic working version
+> + *  - all axes and 9 of the 10 buttons work (german InterAct device)
+> + *  - the black button does not work
+> + *
+> + * 2002-06-27 - 0.0.1 : first version, just said "XBOX HID controller"
+> + *
+> + */
+
+

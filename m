@@ -1,47 +1,42 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: i2c keyboard
-Date: Mon, 23 Feb 2009 12:05:38 +0100
-Message-ID: <200902231205.38255.marek.vasut@gmail.com>
-References: <49A2636C.10502@kaa.org.ua>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+From: Andy Whitcroft <apw@canonical.com>
+Subject: [PATCH 1/1] psmouse: add newline to OLPC HGPK touchpad debugging
+Date: Mon, 23 Feb 2009 18:16:43 +0000
+Message-ID: <1235413003-5286-1-git-send-email-apw@canonical.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mu-out-0910.google.com ([209.85.134.185]:41920 "EHLO
-	mu-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752929AbZBWLFi (ORCPT
+Received: from adelie.canonical.com ([91.189.90.139]:53609 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753565AbZBWSQt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Feb 2009 06:05:38 -0500
-Received: by mu-out-0910.google.com with SMTP id i10so1149595mue.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Feb 2009 03:05:35 -0800 (PST)
-In-Reply-To: <49A2636C.10502@kaa.org.ua>
-Content-Disposition: inline
+	Mon, 23 Feb 2009 13:16:49 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oleg Kravchenko <oleg@kaa.org.ua>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
+Cc: linux-input@vger.kernel.org, Matt Zimmerman <mdz@canonical.com>, Andy Whitcroft <apw@canonical.com>
 
-On Monday 23 of February 2009 09:50:52 Oleg Kravchenko wrote:
-> Hello, everyone.
-> We are porting the Linux kernel to our PDA, Asus P525/P535. This device
-> has a pca9535 gpio extender. The keyboard is connected to it. The
-> extender has only one irq. At the moment, the pca9535 is handled by
-> pca953x gpio driver. We need to have the access to its registers from
-> our keyboard driver (so as not to read 13 gpios, but decode the register
-> containing gpio states). If i try to read each of these 13 gpios after
-> the interrupt from the extender comes, the kernel crashes. Is there a
-> solution to read i2c client addresses when there is a client registered
-> already?
->
-There was some discussion about implementing batch GPIO reads in 
-linux-arm-kernel mailing list, that's probably what you want.
+When probing for the OLPC HGPK touchpad the ID of the probed touchpad is
+emitted, but the debug is missing the terminating newline.  This causes
+later information to run into it, and for that to be categorised
+incorrectly at KERN_DBG.  Fix this up.
 
->
-> http://www.kaa.org.ua/asus-p535/hardware.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reported-by: Matt Zimmerman <mdz@canonical.com>
+Signed-off-by: Andy Whitcroft <apw@canonical.com>
+---
+ drivers/input/mouse/hgpk.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/input/mouse/hgpk.c b/drivers/input/mouse/hgpk.c
+index 81e6ebf..a14a6b0 100644
+--- a/drivers/input/mouse/hgpk.c
++++ b/drivers/input/mouse/hgpk.c
+@@ -472,7 +472,7 @@ static enum hgpk_model_t hgpk_get_model(struct psmouse *psmouse)
+ 		return -EIO;
+ 	}
+ 
+-	hgpk_dbg(psmouse, "ID: %02x %02x %02x", param[0], param[1], param[2]);
++	hgpk_dbg(psmouse, "ID: %02x %02x %02x\n", param[0], param[1], param[2]);
+ 
+ 	/* HGPK signature: 0x67, 0x00, 0x<model> */
+ 	if (param[0] != 0x67 || param[1] != 0x00)
+-- 
+1.6.1.2.419.g0d87e
 

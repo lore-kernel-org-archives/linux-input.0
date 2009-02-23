@@ -1,126 +1,34 @@
-From: Mike Murphy <mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org>
-Subject: Re: [PATCH] (revision 1) input: xpad.c - Xbox 360 wireless and sysfs
-	support
-Date: Sun, 22 Feb 2009 12:21:10 -0500
-Message-ID: <5aa163d00902220921s7c42f307xda6df7b071849fe4@mail.gmail.com>
-References: <5aa163d00902212131g7cf9218ewd8a6396a7f1c95fd@mail.gmail.com>
-	 <20090222064806.GC8494@nowhere>
+From: Oleg Kravchenko <oleg@kaa.org.ua>
+Subject: i2c keyboard
+Date: Mon, 23 Feb 2009 10:50:52 +0200
+Message-ID: <49A2636C.10502@kaa.org.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090222064806.GC8494@nowhere>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Frederic Weisbecker <fweisbec-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kaa.org.ua ([193.178.146.73]:35756 "EHLO kaa.org.ua"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751525AbZBWJAv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Feb 2009 04:00:51 -0500
+Received: from [192.168.1.80] (unknown [213.160.132.3])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by kaa.org.ua (Postfix) with ESMTPSA id C90BAC1592
+	for <linux-input@vger.kernel.org>; Mon, 23 Feb 2009 10:40:24 +0200 (EET)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-On Sun, Feb 22, 2009 at 1:48 AM, Frederic Weisbecker <fweisbec-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-...
->> +static ssize_t xpad_store_rumble_enable(struct device *dev,
->> +             struct device_attribute *attr, const char *buf, size_t count)
->> +{
->> +     struct usb_xpad *xpad = to_xpad(dev);
->> +     int newrumble = xpad->rumble_enable;
->> +     if (1 == sscanf(buf, "%d", &newrumble))
->
->
-> Oh, that's not wrong but it looks weird, usually, a code reader would
-> expect to see if (sscanf(...) == 1)
->
+Hello, everyone.
+We are porting the Linux kernel to our PDA, Asus P525/P535. This device 
+has a pca9535 gpio extender. The keyboard is connected to it. The 
+extender has only one irq. At the moment, the pca9535 is handled by 
+pca953x gpio driver. We need to have the access to its registers from 
+our keyboard driver (so as not to read 13 gpios, but decode the register 
+containing gpio states). If i try to read each of these 13 gpios after 
+the interrupt from the extender comes, the kernel crashes. Is there a 
+solution to read i2c client addresses when there is a client registered 
+already?
 
-Oops... I changed some stuff around (deleted an unneeded variable) and
-didn't change the test form back.
 
-The "backwards" expression is a trick that some of us teach when
-teaching C, for the specific case of comparing a variable to a
-constant. It allows the compiler to check for an unintentional "="
-where a "==" was desired. (foo = 4) is not an error or a warning, but
-(4 = foo) is. But in this case, I now effectively have constants on
-both sides of the expression, so it just looks funny.
-
-...
->> +
->> +static void xpad_init_controller(struct usb_xpad *xpad)
->> +{
->> +     set_stick_limit(XSTICK_LIMIT_DEFAULT, &xpad->left_stick_limit, xpad->left_dead_zone);
->> +     set_stick_limit(XSTICK_LIMIT_DEFAULT, &xpad->right_stick_limit, xpad->right_dead_zone);
->> +     set_dead_zone(XDEAD_ZONE_DEFAULT, &xpad->left_dead_zone, xpad->left_stick_limit);
->> +     set_dead_zone(XDEAD_ZONE_DEFAULT, &xpad->right_dead_zone, xpad->right_stick_limit);
->> +
->> +     if (xpad->controller_type == XCONTROLLER_TYPE_GUITAR) {
->> +             xpad->rumble_enable = 0;
->> +     }
->> +     else if (xpad->controller_type == XCONTROLLER_TYPE_DANCE_PAD) {
->> +             xpad->rumble_enable = 0;
->> +     }
->> +     else {
->> +             xpad->rumble_enable = 1;
->> +     }
->
->
-> The brackets are not needed in these checks, may be you should run
-> scripts/checkpatch.pl to check obvious coding styles issues.
-
-Will do. This is not yet a "final" patch I'm ready to ask for
-inclusion... I want to do some more testing first.
-
-...
->> +#ifdef CONFIG_SYSFS
->> +     xpad->sysfs_ok = 1;
->> +     error = sysfs_create_group(&input_dev->dev.kobj, &xpad_default_attr_group);
->> +     if (error) {
->> +             /* Driver will work without the sysfs interface, but parameters
->> +              * will not be adjustable, so this failure is a warning. */
->> +             printk(KERN_WARNING "xpad: sysfs_create_group failed with error %d\n", error);
->> +             xpad->sysfs_ok = 0;
->> +     }
->> +#endif
->
->
-> No need to check for CONFIG_SYSFS, sysfs_create_group will be a no-op which returns 0
-> if not built.
->
-
-Regarding this check and the others, if I remove them, the struct
-usb_xpad instances will be slightly larger, and the code will be a bit
-bigger than necessary (unless gcc optimizes away the un-called
-functions), on systems where CONFIG_SYSFS is not set. In theory, I
-don't see a need to have a system that uses this driver but does not
-use the sysfs interface. In practice, however, I used to do all kinds
-of crazy things when building systems for environmental sensing, so I
-guess it could happen.
-
-...
->
->
-> Ditto. Actually it's useful for data which consume memory,
-> or fields inside structures, but not for types themselves.
->
-> But well, these parts are a removing, not new code.
->
-> Anyway, looks like a nice work.
->
->
-> Frederic.
->
-
-Thanks for the feedback! I will clean up those issues and run the code
-through the style checks. Tentatively, I'm hoping to have the final
-revision of the patch by around mid-week for maybe one more round of
-comments, then I'll post it "for real."
-
-Thanks,
-Mike
--- 
-Mike Murphy
-Ph.D. Candidate and NSF Graduate Research Fellow
-Clemson University School of Computing
-120 McAdams Hall
-Clemson, SC 29634-0974 USA
-Tel: +1 864.656.2838   Fax: +1 864.656.0145
-http://cirg.cs.clemson.edu/~mamurph
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+http://www.kaa.org.ua/asus-p535/hardware.html

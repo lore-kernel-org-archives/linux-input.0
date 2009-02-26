@@ -1,13 +1,15 @@
 From: Daniel Mack <daniel@caiaq.de>
 Subject: [PATCH] generic driver for rotary encoders on GPIOs
-Date: Thu, 26 Feb 2009 19:00:28 +0100
-Message-ID: <1235671228-29552-1-git-send-email-daniel@caiaq.de>
+Date: Thu, 26 Feb 2009 19:42:44 +0100
+Message-ID: <1235673764-5540-1-git-send-email-daniel@caiaq.de>
+References: <1235671228-29552-1-git-send-email-daniel@caiaq.de>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:41562 "EHLO
+Received: from buzzloop.caiaq.de ([212.112.241.133]:48997 "EHLO
 	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750894AbZBZSHm (ORCPT
+	with ESMTP id S1752091AbZBZSm6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Feb 2009 13:07:42 -0500
+	Thu, 26 Feb 2009 13:42:58 -0500
+In-Reply-To: <1235671228-29552-1-git-send-email-daniel@caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
@@ -20,11 +22,13 @@ how to use the driver.
 
 Signed-off-by: Daniel Mack <daniel@caiaq.de>
 ---
+ new version with a stupid bug fixed.
+
  Documentation/input/rotary-encoder.txt |  110 +++++++++++++++
  drivers/input/misc/Kconfig             |   11 ++
  drivers/input/misc/Makefile            |    2 +
- drivers/input/misc/rotary_encoder.c    |  238 ++++++++++++++++++++++++++++++++
- 4 files changed, 361 insertions(+), 0 deletions(-)
+ drivers/input/misc/rotary_encoder.c    |  233 ++++++++++++++++++++++++++++++++
+ 4 files changed, 356 insertions(+), 0 deletions(-)
  create mode 100644 Documentation/input/rotary-encoder.txt
  create mode 100644 drivers/input/misc/rotary_encoder.c
 
@@ -176,10 +180,10 @@ index bb62e6e..e86cee6 100644
 +
 diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
 new file mode 100644
-index 0000000..1de1152
+index 0000000..4f970dc
 --- /dev/null
 +++ b/drivers/input/misc/rotary_encoder.c
-@@ -0,0 +1,238 @@
+@@ -0,0 +1,233 @@
 +/*
 + * rotary_encoder.c
 + *
@@ -188,7 +192,7 @@ index 0000000..1de1152
 + * state machine code inspired by code from Tim Ruetz
 + *
 + * A generic driver for rotary encoders connected to GPIO lines.
-+ * See file:Documentation/input/rotary_encoder for more information
++ * See file:Documentation/input/rotary_encoder.txt for more information
 + *
 + * This program is free software; you can redistribute it and/or modify
 + * it under the terms of the GNU General Public License version 2 as
@@ -258,19 +262,14 @@ index 0000000..1de1152
 +		encoder->armed = 0;
 +		break;
 +	case 0x1:
++	case 0x2:
 +		if (!encoder->armed)
 +			break;
 +
-+		encoder->dir = 0;
-+		break;
-+	case 0x2:
-+		encoder->armed = 1;
++		encoder->dir = state - 1;
 +		break;
 +	case 0x3:
-+		if (!encoder->armed)
-+			break;
-+
-+		encoder->dir = 1;
++		encoder->armed = 1;
 +		break;
 +	}
 +

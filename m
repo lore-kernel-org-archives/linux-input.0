@@ -1,71 +1,52 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] Input notifier support
-Date: Fri, 27 Feb 2009 18:05:37 +0530
-Message-ID: <5d5443650902270435y38a006datc6767524e7290fb0@mail.gmail.com>
-References: <20090225044730.GA9106@july>
-	 <5d5443650902252301l19d08e67t54c1cea004442be2@mail.gmail.com>
-	 <9c9fda240902261811g49483f9fk9ac7945834b8764@mail.gmail.com>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Fri, 27 Feb 2009 18:24:43 +0200
+Message-ID: <49A813CB.3080805@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <78f5d6bf0902130033k7d0089cfo857bb48a19da1630@mail.gmail.com>	 <4995CD44.5000808@gmail.com>	 <78f5d6bf0902141125m1bf9ac00xb2b414e81d81b869@mail.gmail.com>	 <49972478.3060207@gmail.com>	 <78f5d6bf0902141433hca696fdo87140907cc358fbf@mail.gmail.com>	 <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>	 <499C2D22.8020005@gmail.com>	 <78f5d6bf0902182254v191cc485x62eb211baaddd36@mail.gmail.com>	 <499D7C66.6090000@gmail.com> <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.228]:2000 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751341AbZB0Mfj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2009 07:35:39 -0500
-In-Reply-To: <9c9fda240902261811g49483f9fk9ac7945834b8764@mail.gmail.com>
+Received: from mta-out.inet.fi ([195.156.147.13]:43555 "EHLO jenni1.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753321AbZB0QYs (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 27 Feb 2009 11:24:48 -0500
+In-Reply-To: <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kyungmin Park <kmpark@infradead.org>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Kyungmin,
+Dmitriy Geels wrote:
+> 2009/2/19 Anssi Hannula <anssi.hannula@gmail.com>
+>> Dmitriy Geels wrote:
+>>> Yes. That's the problem.
+>>> Exactly this sequence: run fftest, play all effects, then run
+>>> ffmvforce. ffmvforce itself is working well.
+>> Could you provide the log with fixed fftest+ffmvforce?
+> 
+> Sorry for making you waiting so long, here is it:
+> http://paste.org.ru/index.pl?p584s9
+> 
+> Nothing special -- running fftest, playing 0, 1, 2, 3, 4, 5 (2 and 3
+> does nothing), then -1, then run ffmvforce, click somewhere inside
+> it's window -- then first "pid_block_load requested" appears, after
+> "pid_block_load failed 20 times" (I decreased retries counter)
+> ffmvforce continues to work, but ioctl() call always return -1
+> 
+> That's all. Running fftest again repeats "pid_block_load requested"
+> scenario. Device (or driver?) stuck.
 
-On Fri, Feb 27, 2009 at 7:41 AM, Kyungmin Park <kmpark@infradead.org> w=
-rote:
-> Hi,
->
-> On Thu, Feb 26, 2009 at 4:01 PM, Trilok Soni <soni.trilok@gmail.com> =
-wrote:
->> Hi Kyungmin,
->>
->>> diff --git a/drivers/input/input.c b/drivers/input/input.c
->>> index 1730d73..7e96635 100644
->>> --- a/drivers/input/input.c
->>> +++ b/drivers/input/input.c
->>> @@ -274,6 +274,8 @@ void input_event(struct input_dev *dev,
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0add_input_randomness(type, code, val=
-ue);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_handle_event(dev, type, code, =
-value);
->>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0spin_unlock_irqrestore(&dev->event_l=
-ock, flags);
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (type =3D=3D EV_KEY)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_notifier_call_c=
-hain(value, &code);
->>
->> This check will be done for every input_report_xxx calls, even for
->> touchscreen events (in which case of course it will fail), and I don=
-'t
->> think this is optimal solution. Users should be given an option to
->> disable this if they don't need this notification mechanism.
->>
->> How about moving this to input_report_key?
->
-> Good, Thank you for point it. I will move it to input_report_key.
+These seem strange:
+[ 5108.143241] usbhid:hid-pidff: create_new_effect sent, type: 4
+[ 5108.161645] usbhid:hid-pidff: create_new_effect sent, type: 1
+[ 5108.251905] usbhid:hid-pidff: create_new_effect sent, type: 4
+[ 5108.338133] usbhid:hid-pidff: create_new_effect sent, type: 4
 
-As most of the other platforms may not need input_notify as standard
-in-built feature, it is better to add Kconfig symbol for this, so that
-it can be compiled out when not needed.
+Type 4 means FF_SINE for your device. However, fftest does test only one
+FF_SINE effect. Have you altered fftest? If not, could you post the
+output of fftest?
 
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Anssi Hannula

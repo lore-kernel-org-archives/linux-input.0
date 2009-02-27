@@ -1,49 +1,77 @@
 From: Kyungmin Park <kmpark@infradead.org>
-Subject: Re: [PATCH] Input notifier support
-Date: Fri, 27 Feb 2009 11:11:27 +0900
-Message-ID: <9c9fda240902261811g49483f9fk9ac7945834b8764@mail.gmail.com>
-References: <20090225044730.GA9106@july>
-	 <5d5443650902252301l19d08e67t54c1cea004442be2@mail.gmail.com>
+Subject: Re: [PATCH] LED key trigger support
+Date: Fri, 27 Feb 2009 11:13:02 +0900
+Message-ID: <9c9fda240902261813s70189795hd7fe7c79151d6f87@mail.gmail.com>
+References: <20090225093440.GA5414@july>
+	 <5d5443650902252305h6e221b4epd724d8331607eebb@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756455AbZB0CLp@vger.kernel.org>
-In-Reply-To: <5d5443650902252301l19d08e67t54c1cea004442be2@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f174.google.com ([209.85.217.174]:40396 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751967AbZB0CNF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Feb 2009 21:13:05 -0500
+In-Reply-To: <5d5443650902252305h6e221b4epd724d8331607eebb@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rpurdie@rpsys.net
 
-Hi,
-
-On Thu, Feb 26, 2009 at 4:01 PM, Trilok Soni <soni.trilok@gmail.com> wr=
+On Thu, Feb 26, 2009 at 4:05 PM, Trilok Soni <soni.trilok@gmail.com> wr=
 ote:
 > Hi Kyungmin,
 >
->> diff --git a/drivers/input/input.c b/drivers/input/input.c
->> index 1730d73..7e96635 100644
->> --- a/drivers/input/input.c
->> +++ b/drivers/input/input.c
->> @@ -274,6 +274,8 @@ void input_event(struct input_dev *dev,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0add_input_randomness(type, code, valu=
-e);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_handle_event(dev, type, code, v=
-alue);
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0spin_unlock_irqrestore(&dev->event_lo=
-ck, flags);
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (type =3D=3D EV_KEY)
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_notifier_call_ch=
-ain(value, &code);
+>> +
+>> +static int key_notifier_callback(struct notifier_block *nb,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsign=
+ed long event, void *data)
+>> +{
+>> + =A0 =A0 =A0 struct key_trigger_notifier *kn =3D container_of(nb,
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 struct key_trigger_notifier, notifier);
+>> + =A0 =A0 =A0 struct led_classdev *led =3D kn->led;
+>> + =A0 =A0 =A0 unsigned int *key_value =3D (unsigned int *) data;
 >
-> This check will be done for every input_report_xxx calls, even for
-> touchscreen events (in which case of course it will fail), and I don'=
-t
-> think this is optimal solution. Users should be given an option to
-> disable this if they don't need this notification mechanism.
+> No need of casting from void *.
 >
-> How about moving this to input_report_key?
+>> +
+>> + =A0 =A0 =A0 /* In case of touchscreen, just skip it */
+>> + =A0 =A0 =A0 if (*key_value =3D=3D BTN_TOUCH)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
+>
+> I think this filtering is already done by notification patch.
 
-Good, Thank you for point it. I will move it to input_report_key.
+No, touchscreen also use input_report_key function so it passed BTN_TOU=
+CH value.
+I don't want to key led blink at touchscreen.
+>
+>> +
+>> + =A0 =A0 =A0 led_set_brightness(led, event);
+>> + =A0 =A0 =A0 return 0;
+>> +
+>> +}
+>> +
+>> +static void key_led_activate(struct led_classdev *led)
+>> +{
+>> + =A0 =A0 =A0 struct key_trigger_notifier *kn;
+>> + =A0 =A0 =A0 int ret;
+>> +
+>> + =A0 =A0 =A0 kn =3D kzalloc(sizeof(struct key_trigger_notifier), GF=
+P_KERNEL);
+>> + =A0 =A0 =A0 if (!kn) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(led->dev, "unable to allocatat=
+e key trigger\n");
+>
+> s/allocatate/allocate
+
+Sorry for typo, I will fix it.
 
 Thank you,
 Kyungmin Park
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

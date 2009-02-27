@@ -1,60 +1,78 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 2/2] mfd: twl4030: add twl4030-pwrbutton as our child
-Date: Fri, 27 Feb 2009 14:12:12 -0800
-Message-ID: <20090227141212.a2bc4a01.akpm@linux-foundation.org>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	<1235762883-20870-2-git-send-email-me@felipebalbi.com>
-	<20090227123649.d2d6408c.akpm@linux-foundation.org>
-	<200902271358.46863.david-b@pacbell.net>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Fri, 27 Feb 2009 15:18:57 -0800
+Message-ID: <200902271518.58246.david-b@pacbell.net>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902271350.32380.david-b@pacbell.net> <20090227140907.f159be9b.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:57646 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755281AbZB0WMa (ORCPT
+Received: from n18.bullet.mail.mud.yahoo.com ([68.142.206.145]:20095 "HELO
+	n18.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1753744AbZB0XTD (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2009 17:12:30 -0500
-In-Reply-To: <200902271358.46863.david-b@pacbell.net>
+	Fri, 27 Feb 2009 18:19:03 -0500
+In-Reply-To: <20090227140907.f159be9b.akpm@linux-foundation.org>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, sameo@openedhand.com
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl, tglx@linutronix.de
 
-On Fri, 27 Feb 2009 13:58:46 -0800
-David Brownell <david-b@pacbell.net> wrote:
+On Friday 27 February 2009, Andrew Morton wrote:
+>=20
+> > There are actually two issues. =A0The lockdep issue is
+> > one ... the above #ifdef suffices to work around it
+> > for all the TWL4030 (family) IRQs.
 
-> On Friday 27 February 2009, Andrew Morton wrote:
-> > > --- a/drivers/mfd/twl4030-core.c
-> > > +++ b/drivers/mfd/twl4030-core.c
-> > > @@ -101,6 +101,12 @@
-> > > __#define twl_has_usb()________________false
-> > > __#endif
-> > > __
-> > > +#if defined(CONFIG_INPUT_TWL4030_PWRBUTTON) \
-> > > +__________|| defined(CONFIG_INPUT_TWL4030_PWBUTTON_MODULE)
-> > 
-> > OK, this is "wrong". __The core shouldn't need to know about specific
-> > clients.
-> 
-> This is a pretty standard idiom:
+(And other similar cases, of course, including those
+MMC cases that crap out in the ARM memory management
+code when lockdep wrongly disables IRQs.)
 
-That doesn't make it right.
 
->  only create the device
-> nodes a system actually uses.
+> > The other is that Linux needs real support for threaded
+> > interrupts. =A0Almost every I2C (or SPI) device that raises
+> > an IRQ needs its IRQ handler to run in a thread, and most
+> > of them have the same type of workqueue-based hack to
+> > get such a thread. =A0(Some others have bugs instead...)
+> >=20
+> > Obviously, if any threaded IRQ handler grabs a mutex,
+> > but lockdep has disabled IRQs, trouble ensues...
+>=20
+> What's going on here? =A0hardirq handlers cannot take mutexes and can=
+not
+> sleep, period. =A0
 
-That happens automatically if the nodes are made when the client
-registers itself with the core.
+But these handlers are *NOT* running in hardirq context;
+so such thought doesn't apply.  The hardirq bit of the
+IRQ-handling activity completed quite a bit earlier.
 
-> > 
-> > What has gone wrong here?
-> 
-> Not much I can see.  It's registering a platform_device,
-> but only if it could be used on this system.
+Being able to sleep and grab mutexes is one of the main
+reasons for wanting threaded IRQ handlers.  For common
+(embedded) I2C hardware, if threaded IRQ handlers can't
+sleep they're completely useless.
 
-Again, that all gets fixed if this is done the right way around.  Run
-your probe function.  If the hardware is there, register with the core
-and all the nodes appear.  If the hardware is not present: bale.
+And something that may eventually matter for mainline:
+in RT contexts, thread priority applies to mutex grabbing,
+and helps manage priority inversion.  That's equivalent
+to sleeping.
 
-The design of the whole subsystem appears to be upside down :(
+This stuff just pokes at some annoying current gaps in the
+IRQ framework.  I'll be glad when eventually there's no
+need to work around those weaknesses ... that is, when
+real threaded IRQ support is available.
+
+
+> Enabling local interrupts might shut up some warning,=20
+> but won't fix the deadlocks which that warning is there to warn us
+> about.
+
+Wrong; all such warnings are false, in these cases.
+
+- Dave
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

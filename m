@@ -1,56 +1,51 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH] generic driver for rotary encoders on GPIOs
-Date: Fri, 27 Feb 2009 07:43:14 +0100
-Message-ID: <20090227064314.GB32470@buzzloop.caiaq.de>
-References: <1235671228-29552-1-git-send-email-daniel@caiaq.de> <1235673764-5540-1-git-send-email-daniel@caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901348F62@mi8nycmail19.Mi8.com>
+From: Paul Mundt <lethal@linux-sh.org>
+Subject: Re: [PATCH] sh: maple: Update the maple bus driver to support block reads and writes
+Date: Fri, 27 Feb 2009 16:06:34 +0900
+Message-ID: <20090227070634.GC28802@linux-sh.org>
+References: <1234641948.6609.13.camel@localhost.localdomain> <1234642605.6609.17.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:43528 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752474AbZB0Gn2 (ORCPT
+Received: from 124x34x33x190.ap124.ftth.ucom.ne.jp ([124.34.33.190]:35448 "EHLO
+	master.linux-sh.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756563AbZB0HKS (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2009 01:43:28 -0500
+	Fri, 27 Feb 2009 02:10:18 -0500
 Content-Disposition: inline
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901348F62@mi8nycmail19.Mi8.com>
+In-Reply-To: <1234642605.6609.17.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: hartleys <hartleys@visionengravers.com>
-Cc: linux-input@vger.kernel.org
+To: Adrian McMenamin <adrian@newgolddream.dyndns.info>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-sh <linux-sh@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 
-On Thu, Feb 26, 2009 at 10:18:40PM -0500, hartleys wrote:
-> +static struct rotary_encoder_platform_data my_rotary_encoder_info = {
-> +	.steps = 24,
-> +	.gpio_a = GPIO_ROTARY_A,
-> +	.gpio_b = GPIO_ROTARY_B,
-> +	.inverted_a = 0,
-> +	.inverted_b = 0,
-> +};
-> +
-> +static struct platform_device rotary_encoder_device = {
-> +	.name		= "rotary-encoder",
-> +	.id		= 0,
-> +	.num_resources	= ARRAY_SIZE(rotary_encoder_resources),
-> +	.resource	= rotary_encoder_resources,
-> +	.dev		= {
-> +		.platform_data = &my_rotary_encoder_info,
-> +	}
-> +};
-> +
+On Sat, Feb 14, 2009 at 08:16:45PM +0000, Adrian McMenamin wrote:
+> On Sat, 2009-02-14 at 20:06 +0000, Adrian McMenamin wrote:
+> > Greg,
+> > 
+> > This patch updates the maple bus to support asynchronous block reads and
+> > writes as well as generally improving the quality of the code and
+> > supporting concurrency (all needed to support the Dreamcast visual
+> > memory unit - a driver will also be posted for that).
+> > 
+> > I have posted versions of this before but am here following the patch
+> > grouping suggested and have also tested this code and unlike earlier
+> > versions it shows no signs of suffering from race conditions - so I hope
+> > you will be happy to queue it for inclusion.
+> > 
+> > Changes in the bus driver necessitate some changes in the two maple bus
+> > input drivers that are currently in mainline.
+> > 
+> > (Maple is SEGA's proprietary serial bus for the Dreamcast. It is capable
+> > of comm speeds of up to 2Mbs.)
+> > 
+> > As well as supporting block reads and writes this code clean up removes
+> > some poor handling of locks, uses an atomic status variable to serialise
+> > access to devices and more robusly handles the general performance
+> > problems of the bus.
+> > 
+> Apologies, some of the VMU patch slipped into that. Here is a completely
+> clean version.
 > 
-> IRQ_GPIO appears to be only defined for mach-imx and mach-pxa.
-> 
-> Why not just use the platform_data information to get the irq for the
-> gpio at runtime with gpio_to_irq()?
+> Signed-off-by: Adrian McMenamin <adrian@mcmen.demon.co.uk>
 
-Yes, true. But wouldn't be using the resources only and irq_to_gpio() be
-the even cleaner solution?
-
-> +#include <linux/rotary-encoder.h>
-> 
-> This file is missing in the patch.
-
-Will be added in the next version.
-
-Thanks,
-Daniel
+Applied, thanks.

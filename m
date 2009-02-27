@@ -1,77 +1,76 @@
-From: Kyungmin Park <kmpark@infradead.org>
-Subject: Re: [PATCH] LED key trigger support
-Date: Fri, 27 Feb 2009 11:13:02 +0900
-Message-ID: <9c9fda240902261813s70189795hd7fe7c79151d6f87@mail.gmail.com>
-References: <20090225093440.GA5414@july>
-	 <5d5443650902252305h6e221b4epd724d8331607eebb@mail.gmail.com>
+From: "hartleys" <hartleys@visionengravers.com>
+Subject: RE: [PATCH] generic driver for rotary encoders on GPIOs
+Date: Thu, 26 Feb 2009 22:18:40 -0500
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901348F62@mi8nycmail19.Mi8.com>
+References: <1235671228-29552-1-git-send-email-daniel@caiaq.de> <1235673764-5540-1-git-send-email-daniel@caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f174.google.com ([209.85.217.174]:40396 "EHLO
-	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751967AbZB0CNF convert rfc822-to-8bit (ORCPT
+Received: from exprod6og101.obsmtp.com ([64.18.1.181]:54892 "HELO
+	exprod6og101.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1753900AbZB0DTb convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Feb 2009 21:13:05 -0500
-In-Reply-To: <5d5443650902252305h6e221b4epd724d8331607eebb@mail.gmail.com>
+	Thu, 26 Feb 2009 22:19:31 -0500
+Content-class: urn:content-classes:message
+In-Reply-To: <1235673764-5540-1-git-send-email-daniel@caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, rpurdie@rpsys.net
+To: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
 
-On Thu, Feb 26, 2009 at 4:05 PM, Trilok Soni <soni.trilok@gmail.com> wr=
-ote:
-> Hi Kyungmin,
+On Thursday, February 26, 2009 11:43 AM, Daniel Mack wrote:
+> This patch adds a generic driver for rotary encoders connected
+> to GPIO pins of a system. It relies on gpiolib and generic
+> hardware irqs. The documentation that also comes with this patch
+> explains the concept and how to use the driver.
 >
->> +
->> +static int key_notifier_callback(struct notifier_block *nb,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsign=
-ed long event, void *data)
->> +{
->> + =A0 =A0 =A0 struct key_trigger_notifier *kn =3D container_of(nb,
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 struct key_trigger_notifier, notifier);
->> + =A0 =A0 =A0 struct led_classdev *led =3D kn->led;
->> + =A0 =A0 =A0 unsigned int *key_value =3D (unsigned int *) data;
->
-> No need of casting from void *.
->
->> +
->> + =A0 =A0 =A0 /* In case of touchscreen, just skip it */
->> + =A0 =A0 =A0 if (*key_value =3D=3D BTN_TOUCH)
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
->
-> I think this filtering is already done by notification patch.
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
 
-No, touchscreen also use input_report_key function so it passed BTN_TOU=
-CH value.
-I don't want to key led blink at touchscreen.
->
->> +
->> + =A0 =A0 =A0 led_set_brightness(led, event);
->> + =A0 =A0 =A0 return 0;
->> +
->> +}
->> +
->> +static void key_led_activate(struct led_classdev *led)
->> +{
->> + =A0 =A0 =A0 struct key_trigger_notifier *kn;
->> + =A0 =A0 =A0 int ret;
->> +
->> + =A0 =A0 =A0 kn =3D kzalloc(sizeof(struct key_trigger_notifier), GF=
-P_KERNEL);
->> + =A0 =A0 =A0 if (!kn) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(led->dev, "unable to allocatat=
-e key trigger\n");
->
-> s/allocatate/allocate
++
++/* board support file example */
++
++#define GPIO_ROTARY_A 1
++#define GPIO_ROTARY_B 2
++
++static struct resource rotary_encoder_resources[] = {
++	[0] = {
++		.flags = IORESOURCE_IRQ,
++		.start = IRQ_GPIO(GPIO_ROTARY_A)
++	},
++	[1] = {
++		.flags = IORESOURCE_IRQ,
++		.start = IRQ_GPIO(GPIO_ROTARY_B)
++	}
++};
++
++static struct rotary_encoder_platform_data my_rotary_encoder_info = {
++	.steps = 24,
++	.gpio_a = GPIO_ROTARY_A,
++	.gpio_b = GPIO_ROTARY_B,
++	.inverted_a = 0,
++	.inverted_b = 0,
++};
++
++static struct platform_device rotary_encoder_device = {
++	.name		= "rotary-encoder",
++	.id		= 0,
++	.num_resources	= ARRAY_SIZE(rotary_encoder_resources),
++	.resource	= rotary_encoder_resources,
++	.dev		= {
++		.platform_data = &my_rotary_encoder_info,
++	}
++};
++
 
-Sorry for typo, I will fix it.
+IRQ_GPIO appears to be only defined for mach-imx and mach-pxa.
 
-Thank you,
-Kyungmin Park
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Why not just use the platform_data information to get the irq for the
+gpio at runtime with gpio_to_irq()?
+
++#include <linux/rotary-encoder.h>
+
+This file is missing in the patch.
+
+Regards,
+Hartley

@@ -1,52 +1,37 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Sat, 28 Feb 2009 14:37:05 -0800
-Message-ID: <200902281437.05827.david-b@pacbell.net>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain> <alpine.LFD.2.00.0902282209450.29264@localhost.localdomain>
+From: Andi Kleen <andi@firstfloor.org>
+Subject: Re: [PATCH] Input notifier support
+Date: Sun, 01 Mar 2009 00:34:38 +0100
+Message-ID: <87skly16gh.fsf@basil.nowhere.org>
+References: <20090225044730.GA9106@july>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp121.sbc.mail.sp1.yahoo.com ([69.147.64.94]:33666 "HELO
-	smtp121.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753407AbZB1WhJ (ORCPT
+Received: from one.firstfloor.org ([213.235.205.2]:45223 "EHLO
+	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751085AbZB1Xgb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 17:37:09 -0500
-In-Reply-To: <alpine.LFD.2.00.0902282209450.29264@localhost.localdomain>
-Content-Disposition: inline
+	Sat, 28 Feb 2009 18:36:31 -0500
+In-Reply-To: <20090225044730.GA9106@july> (Kyungmin Park's message of "Wed, 25 Feb 2009 13:47:30 +0900")
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
 
-On Saturday 28 February 2009, Thomas Gleixner wrote:
-> > needs to run in a thread as well. Usually demux handlers just have a
-> > fast path kicking the particular real handlers.
-> 
-> I looked at the code in twl4030-irq.c and I don't think that the demux
-> handler needs to be setup as a chained handler at all. 
-> 
-> Just register it as a standard handler and let it wakeup the other irq
-> threads
+Kyungmin Park <kmpark@infradead.org> writes:
 
-Not clear what you mean by that.  Did I miss a "wakeup an
-irq thread" operation?  You've coupled the task to the
-irqaction, not to the irq_desc.
+> Some hardware doesn't connected with key button and led. In this case key should be connected with led by software. Of course each application can control it however it's too big burden to application programmer.
+>
+> So add input notifier and then use it at other frameworks such as led.
+> Of course, other input device can use this one.
+>
+> Any commnets are welcome.
 
+It looks like the perfect interface for a password stealing root kit.
 
-> or is there a particular requirement that the demuxed handlers 
-> need to run in the same thread context as the demux handler itself ?
+Yes there are probably other ways to do this, but still this seems to
+make it very easy.
 
-The toplevel IRQ shouldn't be re-enabled until all the chained
-handlers have actually handled their events ... some of those
-events are level triggered too.  That needs synchronization, and
-the simplest synch is to just process those demuxed events in
-the same thread.
+-Andi
 
-The TWL4030 family chips are a little bit quirky with respect
-to IRQ handling (PIH vs SIH, SIH_CTRL.COR inconsistency, etc),
-but they aren't the only chips with such requirements for their
-internal IRQ controllers.
-
-- Dave
+-- 
+ak@linux.intel.com -- Speaking for myself only.

@@ -1,120 +1,43 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
-Date: Sat, 28 Feb 2009 14:23:03 -0800
-Message-ID: <20090228141725.ZZRA012@mailhub.coreip.homeip.net>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
+Subject: Re: [PATCH] Input notifier support
+Date: Sat, 28 Feb 2009 14:30:05 -0800
+Message-ID: <20090228223004.GB16208@dtor-d630.eng.vmware.com>
+References: <20090225044730.GA9106@july>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.29]:39992 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752849AbZB1WXQ (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.246]:34060 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754480AbZB1WaR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 17:23:16 -0500
+	Sat, 28 Feb 2009 17:30:17 -0500
 Content-Disposition: inline
-In-Reply-To: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
+In-Reply-To: <20090225044730.GA9106@july>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <me@felipebalbi.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Samuel Ortiz <sameo@openedhand.com>
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Trilok Soni <soni.trilok@gmail.com>
 
-Hi Felipe,
+Hi Kyungmin,
 
-On Fri, Feb 27, 2009 at 09:28:02PM +0200, Felipe Balbi wrote:
-> From: Felipe Balbi <felipe.balbi@nokia.com>
+On Wed, Feb 25, 2009 at 01:47:30PM +0900, Kyungmin Park wrote:
+> Some hardware doesn't connected with key button and led. In this case
+> key should be connected with led by software. Of course each application
+> can control it however it's too big burden to application programmer.
 > 
-> This is part of the twl4030 multifunction device driver.
+> So add input notifier and then use it at other frameworks such as led.
+> Of course, other input device can use this one.
 > 
-> With this driver we add support for reporting KEY_POWER
-> events via the input layer.
-
-...
-
+> Any commnets are welcome.
 > 
-> +
-> +	err = twl4030_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
-> +				  STS_HW_CONDITIONS);
-> +	if (!err)  {
-> +		input_report_key(powerbutton_dev, KEY_POWER,
-> +				 value & PWR_PWRON_IRQ);
 
-input_sync() here please.
+I don't think we need to do the notifier route. It is very easy to add
+another input handler in style of rfkill-input or apm-power that would
+listen to events from all ungrabbed input devices and act accordingly.
+Your LED trigger example should work very well if implemented as another
+input handler.
 
-> +	} else {
-> +		dev_err(dbg_dev, "twl4030: i2c error %d while reading TWL4030"
-> +			" PM_MASTER STS_HW_CONDITIONS register\n", err);
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int __devinit twl4030_pwrbutton_probe(struct platform_device *pdev)
-> +{
-> +	int err = 0;
-> +	int irq = platform_get_irq(pdev, 0);
-> +
-> +	dbg_dev = &pdev->dev;
-> +
-> +	/* PWRBTN == PWRON */
-> +	err = request_irq(irq, powerbutton_irq,
-> +			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
-> +			"twl4030-pwrbutton", NULL);
-
-Requesting IRQ before allocating input device seems unsafe. If IRQ
-arrives right now we'll go boom.
-
-
-> +	if (err < 0) {
-> +		dev_dbg(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
-> +		goto out;
-> +	}
-> +
-> +	powerbutton_dev = input_allocate_device();
-> +	if (!powerbutton_dev) {
-> +		dev_dbg(&pdev->dev, "Can't allocate power button\n");
-> +		err = -ENOMEM;
-> +		goto free_irq_and_out;
-> +	}
-> +
-> +	powerbutton_dev->evbit[0] = BIT_MASK(EV_KEY);
-> +	powerbutton_dev->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
-> +	powerbutton_dev->name = "triton2-pwrbutton";
-
-powerbutton_dev->dev.parent = &pdev->dev;
-
-Any chance we could set up phys as well? BUS_I2C seems to be in order as
-well.
-
-> +
-> +	err = input_register_device(powerbutton_dev);
-> +	if (err) {
-> +		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
-> +		goto free_input_dev;
-> +	}
-> +
-> +	dev_info(&pdev->dev, "triton2 power button driver initialized\n");
-> +
-> +	return 0;
-> +
-> +
-> +free_input_dev:
-> +	input_free_device(powerbutton_dev);
-> +free_irq_and_out:
-> +	free_irq(TWL4030_PWRIRQ_PWRBTN, NULL);
-> +out:
-> +	return err;
-> +}
-> +
-> +static int __devexit twl4030_pwrbutton_remove(struct platform_device *pdev)
-> +{
-> +	int irq = platform_get_irq(pdev, 0);
-> +
-> +	free_irq(irq, NULL);
-> +	input_unregister_device(powerbutton_dev);
-> +	input_free_device(powerbutton_dev);
-
-Do not call free after unregistering, unregister will drop last
-reference and will cause device structure be freed.
+Thanks.
 
 -- 
 Dmitry

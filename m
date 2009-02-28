@@ -1,59 +1,68 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 2/2] mfd: twl4030: add twl4030-pwrbutton as our child
-Date: Fri, 27 Feb 2009 15:42:20 -0800
-Message-ID: <20090227154220.7099f339.akpm@linux-foundation.org>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Fri, 27 Feb 2009 16:01:10 -0800
+Message-ID: <20090227160110.8cf8cd6e.akpm@linux-foundation.org>
 References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	<200902271358.46863.david-b@pacbell.net>
-	<20090227141212.a2bc4a01.akpm@linux-foundation.org>
-	<200902271520.56696.david-b@pacbell.net>
+	<200902271350.32380.david-b@pacbell.net>
+	<20090227140907.f159be9b.akpm@linux-foundation.org>
+	<200902271518.58246.david-b@pacbell.net>
+	<20090227153204.fc9c579c.akpm@linux-foundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:36333 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:52194 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752488AbZB0Xmw (ORCPT
+	by vger.kernel.org with ESMTP id S1753852AbZB1ABd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 27 Feb 2009 18:42:52 -0500
-In-Reply-To: <200902271520.56696.david-b@pacbell.net>
+	Fri, 27 Feb 2009 19:01:33 -0500
+In-Reply-To: <20090227153204.fc9c579c.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, sameo@openedhand.com
+To: david-b@pacbell.net, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlst
 
-On Fri, 27 Feb 2009 15:20:56 -0800
-David Brownell <david-b@pacbell.net> wrote:
+On Fri, 27 Feb 2009 15:32:04 -0800
+Andrew Morton <akpm@linux-foundation.org> wrote:
 
-> On Friday 27 February 2009, Andrew Morton wrote:
-> > > > 
-> > > > What has gone wrong here?
-> > > 
-> > > Not much I can see. __It's registering a platform_device,
-> > > but only if it could be used on this system.
-> > 
-> > Again, that all gets fixed if this is done the right way around. __Run
-> > your probe function. __If the hardware is there, register with the core
-> > and all the nodes appear. __If the hardware is not present: bale.
+> Why does this function:
 > 
-> Right.  If there's no button hooked up to its "power button"
-> signal, don't register that "twl4030-pwrbutton" node.
+> static irqreturn_t powerbutton_irq(int irq, void *dev_id)
+> {
+> 	int err;
+> 	u8 value;
 > 
+> #ifdef CONFIG_LOCKDEP
+> 	/* WORKAROUND for lockdep forcing IRQF_DISABLED on us, which
+> 	 * we don't want and can't tolerate.  Although it might be
+> 	 * friendlier not to borrow this thread context...
+> 	 */
+> 	local_irq_enable();
+> #endif
 > 
-> > The design of the whole subsystem appears to be upside down :(
+> 	err = twl4030_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
+> 				  STS_HW_CONDITIONS);
+> 	if (!err)  {
+> 		input_report_key(powerbutton_dev, KEY_POWER,
+> 				 value & PWR_PWRON_IRQ);
+> 	} else {
+> 		dev_err(dbg_dev, "twl4030: i2c error %d while reading TWL4030"
+> 			" PM_MASTER STS_HW_CONDITIONS register\n", err);
+> 	}
 > 
-> You seem to be missing something.  Is it only the lack of that
-> tweak Felipe sent?
+> 	return IRQ_HANDLED;
+> }
+> 
+> Which is connected up via this statement:
+> 
+> 	err = request_irq(irq, powerbutton_irq,
+> 			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
+> 			"twl4030-pwrbutton", NULL);
+> 
+> reenable local interrupts?
 
-I generally just delete unchangelogged patches.
+ah, OK, twl4030_i2c_read_u8() does i2c I/O.
 
-<goes back and finds it>
-
-
-That doesn't address the problem at all.  A function called
-"add_children" just shouldn't exist.  The general kernel design is for
-client drivers to register themselves with the core, so the core does
-not have any hard-wired knowledge of any client drivers.
-
-IOW, twl4030_pwrbutton_probe() should call into twl4030-core,
-registering the powerbutton driver.
+Can't do that.  If some random process currently holds
+mutex_lock(&twl->xfer_lock) and an interrupt occurs then this interrupt
+handler will try to acquire mutex_lock(&twl->xfer_lock).  Deadlock.
 

@@ -1,61 +1,120 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: DragonRise Inc. game controller force feedback
-	support
-Date: Sat, 28 Feb 2009 14:15:50 -0800
-Message-ID: <20090228141046.ZZRA012@mailhub.coreip.homeip.net>
-References: <167575d80902261744h3d133416g1afeb5b68d760cbf@mail.gmail.com>
+Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
+Date: Sat, 28 Feb 2009 14:23:03 -0800
+Message-ID: <20090228141725.ZZRA012@mailhub.coreip.homeip.net>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.243]:38707 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754297AbZB1WQE (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.29]:39992 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752849AbZB1WXQ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 17:16:04 -0500
-Received: by an-out-0708.google.com with SMTP id c2so1298323anc.1
-        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2009 14:16:00 -0800 (PST)
+	Sat, 28 Feb 2009 17:23:16 -0500
 Content-Disposition: inline
-In-Reply-To: <167575d80902261744h3d133416g1afeb5b68d760cbf@mail.gmail.com>
+In-Reply-To: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Richard Walmsley <richwalm@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Felipe Balbi <me@felipebalbi.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Samuel Ortiz <sameo@openedhand.com>
 
-Hi Richard,
+Hi Felipe,
 
-On Fri, Feb 27, 2009 at 02:44:11PM +1300, Richard Walmsley wrote:
-> Adds force feedback support for USB DragonRise Inc. game controllers.
-> These devices are mass produced in China and distributed under several vendors.
+On Fri, Feb 27, 2009 at 09:28:02PM +0200, Felipe Balbi wrote:
+> From: Felipe Balbi <felipe.balbi@nokia.com>
 > 
+> This is part of the twl4030 multifunction device driver.
+> 
+> With this driver we add support for reporting KEY_POWER
+> events via the input layer.
 
-Looks pretty good, however it shoudl go through Jiri Kosina (CCed).
+...
 
+> 
 > +
-> +static int drff_init(struct hid_device *hid)
-> +{
-> +	struct drff_device *drff;
-> +	struct hid_report *report;
-> +	struct hid_input *hidinput = list_entry(hid->inputs.next,
-> +						struct hid_input, list);
+> +	err = twl4030_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
+> +				  STS_HW_CONDITIONS);
+> +	if (!err)  {
+> +		input_report_key(powerbutton_dev, KEY_POWER,
+> +				 value & PWR_PWRON_IRQ);
 
-list_first_entry()?
+input_sync() here please.
 
-> +	struct list_head *report_list =
-> +			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
-> +	struct list_head *report_ptr = report_list;
-> +	struct input_dev *dev = hidinput->input;
-> +	int error;
-> +
-> +	if (list_empty(report_list)) {
-> +		dev_err(&hid->dev, "no output reports found\n");
-> +		return -ENODEV;
+> +	} else {
+> +		dev_err(dbg_dev, "twl4030: i2c error %d while reading TWL4030"
+> +			" PM_MASTER STS_HW_CONDITIONS register\n", err);
 > +	}
 > +
-> +	report_ptr = report_ptr->next;
+> +	return IRQ_HANDLED;
+> +}
 > +
-> +	report = list_entry(report_ptr, struct hid_report, list);
+> +static int __devinit twl4030_pwrbutton_probe(struct platform_device *pdev)
+> +{
+> +	int err = 0;
+> +	int irq = platform_get_irq(pdev, 0);
+> +
+> +	dbg_dev = &pdev->dev;
+> +
+> +	/* PWRBTN == PWRON */
+> +	err = request_irq(irq, powerbutton_irq,
+> +			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
+> +			"twl4030-pwrbutton", NULL);
 
-You might want to simply use list_first_entry() for this.
+Requesting IRQ before allocating input device seems unsafe. If IRQ
+arrives right now we'll go boom.
+
+
+> +	if (err < 0) {
+> +		dev_dbg(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
+> +		goto out;
+> +	}
+> +
+> +	powerbutton_dev = input_allocate_device();
+> +	if (!powerbutton_dev) {
+> +		dev_dbg(&pdev->dev, "Can't allocate power button\n");
+> +		err = -ENOMEM;
+> +		goto free_irq_and_out;
+> +	}
+> +
+> +	powerbutton_dev->evbit[0] = BIT_MASK(EV_KEY);
+> +	powerbutton_dev->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
+> +	powerbutton_dev->name = "triton2-pwrbutton";
+
+powerbutton_dev->dev.parent = &pdev->dev;
+
+Any chance we could set up phys as well? BUS_I2C seems to be in order as
+well.
+
+> +
+> +	err = input_register_device(powerbutton_dev);
+> +	if (err) {
+> +		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
+> +		goto free_input_dev;
+> +	}
+> +
+> +	dev_info(&pdev->dev, "triton2 power button driver initialized\n");
+> +
+> +	return 0;
+> +
+> +
+> +free_input_dev:
+> +	input_free_device(powerbutton_dev);
+> +free_irq_and_out:
+> +	free_irq(TWL4030_PWRIRQ_PWRBTN, NULL);
+> +out:
+> +	return err;
+> +}
+> +
+> +static int __devexit twl4030_pwrbutton_remove(struct platform_device *pdev)
+> +{
+> +	int irq = platform_get_irq(pdev, 0);
+> +
+> +	free_irq(irq, NULL);
+> +	input_unregister_device(powerbutton_dev);
+> +	input_free_device(powerbutton_dev);
+
+Do not call free after unregistering, unregister will drop last
+reference and will cause device structure be freed.
 
 -- 
 Dmitry

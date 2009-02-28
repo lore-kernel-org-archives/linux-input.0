@@ -1,102 +1,61 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.29-rc6
-Date: Sat, 28 Feb 2009 14:08:36 -0800
-Message-ID: <20090228220835.GA16208@dtor-d630.eng.vmware.com>
+Subject: Re: [PATCH] input: DragonRise Inc. game controller force feedback
+	support
+Date: Sat, 28 Feb 2009 14:15:50 -0800
+Message-ID: <20090228141046.ZZRA012@mailhub.coreip.homeip.net>
+References: <167575d80902261744h3d133416g1afeb5b68d760cbf@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.29]:36100 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753934AbZB1WIt (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.243]:38707 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754297AbZB1WQE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 17:08:49 -0500
+	Sat, 28 Feb 2009 17:16:04 -0500
+Received: by an-out-0708.google.com with SMTP id c2so1298323anc.1
+        for <linux-input@vger.kernel.org>; Sat, 28 Feb 2009 14:16:00 -0800 (PST)
 Content-Disposition: inline
+In-Reply-To: <167575d80902261744h3d133416g1afeb5b68d760cbf@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Richard Walmsley <richwalm@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Linus,
+Hi Richard,
 
-Please pull from:
+On Fri, Feb 27, 2009 at 02:44:11PM +1300, Richard Walmsley wrote:
+> Adds force feedback support for USB DragonRise Inc. game controllers.
+> These devices are mass produced in China and distributed under several vendors.
+> 
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+Looks pretty good, however it shoudl go through Jiri Kosina (CCed).
 
-to receive updates for the input subsystem. Nothing exciting, just a fe=
-w
-small fixups.
+> +
+> +static int drff_init(struct hid_device *hid)
+> +{
+> +	struct drff_device *drff;
+> +	struct hid_report *report;
+> +	struct hid_input *hidinput = list_entry(hid->inputs.next,
+> +						struct hid_input, list);
 
-Changelog:
----------
+list_first_entry()?
 
-Andy Whitcroft (1):
-      Input: synaptics - ensure we reset the device on resume
+> +	struct list_head *report_list =
+> +			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+> +	struct list_head *report_ptr = report_list;
+> +	struct input_dev *dev = hidinput->input;
+> +	int error;
+> +
+> +	if (list_empty(report_list)) {
+> +		dev_err(&hid->dev, "no output reports found\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	report_ptr = report_ptr->next;
+> +
+> +	report = list_entry(report_ptr, struct hid_report, list);
 
-Arjan Opmeer (1):
-      Input: elantech - touchpad driver miss-recognising logitech mice
+You might want to simply use list_first_entry() for this.
 
-Bastien Nocera (1):
-      Input: uvc - the button on the camera is KEY_CAMERA
-
-Dan Streetman (1):
-      Input: usbtouchscreen - allow reporting calibrated data
-
-Daniel Mierswa (1):
-      Input: atkbd - make forced_release_keys[] static
-
-Daniel Ritz (1):
-      Input: usbtouchscreen - fix eGalax HID ignoring
-
-Jean Delvare (1):
-      Input: psmouse - make MOUSE_PS2_LIFEBOOK depend on X86
-
-Kay Sievers (1):
-      Input: struct device - replace bus_id with dev_name(), dev_set_na=
-me()
-
-Roel Kluin (3):
-      Input: bf54x-keys - fix debounce time validation
-      Input: pxa930_trkball - fix write timeout handling
-      Input: ambakmi - fix timeout handling in amba_kmi_write()
-
-Uwe Kleine-K=F6nig (4):
-      Input: corgikbd - mark probe function as __devinit
-      Input: corgi_ts - mark probe function as __devinit
-      Input: omap-keypad - mark probe function as __devinit
-      Input: spitzkbd - mark probe function as __devinit
-
-
-Diffstat:
---------
-
- drivers/input/keyboard/atkbd.c             |    4 +-
- drivers/input/keyboard/bf54x-keys.c        |    4 +-
- drivers/input/keyboard/corgikbd.c          |    8 +++---
- drivers/input/keyboard/omap-keypad.c       |    8 +++---
- drivers/input/keyboard/spitzkbd.c          |    8 +++---
- drivers/input/mouse/Kconfig                |    2 +-
- drivers/input/mouse/elantech.c             |   32 ++++++++++++++++++++=
-+-------
- drivers/input/mouse/pxa930_trkball.c       |    2 +-
- drivers/input/mouse/synaptics.c            |    9 +++----
- drivers/input/serio/ambakmi.c              |    6 ++--
- drivers/input/serio/gscps2.c               |    2 +-
- drivers/input/serio/sa1111ps2.c            |    4 +-
- drivers/input/touchscreen/atmel_tsadcc.c   |    2 +-
- drivers/input/touchscreen/corgi_ts.c       |    9 ++++---
- drivers/input/touchscreen/tsc2007.c        |    3 +-
- drivers/input/touchscreen/usbtouchscreen.c |   20 +++++++++++++++-
- drivers/media/video/uvc/uvc_status.c       |   10 +++++---
- 17 files changed, 84 insertions(+), 49 deletions(-)
-
---=20
+-- 
 Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

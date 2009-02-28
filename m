@@ -1,74 +1,102 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Sat, 28 Feb 2009 14:05:41 -0800
-Message-ID: <200902281405.42080.david-b@pacbell.net>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902281202.36804.david-b@pacbell.net> <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.29-rc6
+Date: Sat, 28 Feb 2009 14:08:36 -0800
+Message-ID: <20090228220835.GA16208@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp121.sbc.mail.sp1.yahoo.com ([69.147.64.94]:29263 "HELO
-	smtp121.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1754696AbZB1WFq (ORCPT
+Received: from yw-out-2324.google.com ([74.125.46.29]:36100 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753934AbZB1WIt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 17:05:46 -0500
-In-Reply-To: <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain>
+	Sat, 28 Feb 2009 17:08:49 -0500
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Saturday 28 February 2009, Thomas Gleixner wrote:
-> On Sat, 28 Feb 2009, David Brownell wrote:
-> > Got a version that applies to mainline GIT?
-> 
-> http://tglx.de/~tglx/patches.tar.bz2 
+Hi Linus,
 
-Got it, thanks.
+Please pull from:
+
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Nothing exciting, just a fe=
+w
+small fixups.
+
+Changelog:
+---------
+
+Andy Whitcroft (1):
+      Input: synaptics - ensure we reset the device on resume
+
+Arjan Opmeer (1):
+      Input: elantech - touchpad driver miss-recognising logitech mice
+
+Bastien Nocera (1):
+      Input: uvc - the button on the camera is KEY_CAMERA
+
+Dan Streetman (1):
+      Input: usbtouchscreen - allow reporting calibrated data
+
+Daniel Mierswa (1):
+      Input: atkbd - make forced_release_keys[] static
+
+Daniel Ritz (1):
+      Input: usbtouchscreen - fix eGalax HID ignoring
+
+Jean Delvare (1):
+      Input: psmouse - make MOUSE_PS2_LIFEBOOK depend on X86
+
+Kay Sievers (1):
+      Input: struct device - replace bus_id with dev_name(), dev_set_na=
+me()
+
+Roel Kluin (3):
+      Input: bf54x-keys - fix debounce time validation
+      Input: pxa930_trkball - fix write timeout handling
+      Input: ambakmi - fix timeout handling in amba_kmi_write()
+
+Uwe Kleine-K=F6nig (4):
+      Input: corgikbd - mark probe function as __devinit
+      Input: corgi_ts - mark probe function as __devinit
+      Input: omap-keypad - mark probe function as __devinit
+      Input: spitzkbd - mark probe function as __devinit
 
 
-> > At a quick glance it looks like these patches don't cover
-> > set_irq_chained_handler(), which would be trouble since
-> > __setup_irq() doesn't get called in those cases.
-> 
-> Hmm, I did not think about chained handlers where the demux handler
-> needs to run in a thread as well. Usually demux handlers just have a
-> fast path kicking the particular real handlers.
+Diffstat:
+--------
 
-That can't work when the demux needs to access state across
-I2C in order to see which "real" handlers to kick.  :)
+ drivers/input/keyboard/atkbd.c             |    4 +-
+ drivers/input/keyboard/bf54x-keys.c        |    4 +-
+ drivers/input/keyboard/corgikbd.c          |    8 +++---
+ drivers/input/keyboard/omap-keypad.c       |    8 +++---
+ drivers/input/keyboard/spitzkbd.c          |    8 +++---
+ drivers/input/mouse/Kconfig                |    2 +-
+ drivers/input/mouse/elantech.c             |   32 ++++++++++++++++++++=
++-------
+ drivers/input/mouse/pxa930_trkball.c       |    2 +-
+ drivers/input/mouse/synaptics.c            |    9 +++----
+ drivers/input/serio/ambakmi.c              |    6 ++--
+ drivers/input/serio/gscps2.c               |    2 +-
+ drivers/input/serio/sa1111ps2.c            |    4 +-
+ drivers/input/touchscreen/atmel_tsadcc.c   |    2 +-
+ drivers/input/touchscreen/corgi_ts.c       |    9 ++++---
+ drivers/input/touchscreen/tsc2007.c        |    3 +-
+ drivers/input/touchscreen/usbtouchscreen.c |   20 +++++++++++++++-
+ drivers/media/video/uvc/uvc_status.c       |   10 +++++---
+ 17 files changed, 84 insertions(+), 49 deletions(-)
 
+--=20
+Dmitry
 
-> > They should however handle simpler cases, like I2C devices
-> > that only expose one IRQ instead of needing to demux several
-> > dozen IRQs going to different drivers and subsystems.
-> > 
-> > And, not touching lockdep, the original ugliness will still
-> > be needed (re-enabling IRQs in threaded handlers).
-> 
-> Err ? The threaded handlers run with interrupts enabled.
-
-Hmm, I'll have a closer look.  You changed handle_IRQ_event()
-which is where the relevant IRQF_DISABLED test kicks in.  In
-your updated code, that pokes any quick_check_handler() and
-then maybe pokes a per-IRQ thread.
-
-That seems to presume a hardirq-to-taskirq handoff.  But the
-problem case is taskirq-to-taskirq chaining, through e.g.
-what set_irq_chip_and_handler() provided.  (Details not very
-amenable to brief emails, just UTSL.)
-
-Thing is, I'm not sure a per-IRQ thread can work easily with
-that chaining.  The chained IRQs can need to be handled before
-the top-level IRQ gets re-enabled.  That's why the twl4030-irq
-code uses just one taskirq thread for all incoming events.
-
-(Which of course is rarely more than one at a time, so there's
-little reason not to share that task between the demuxing code
-and the events being demuxed.  Interrupts that need processing
-via I2C/SPI/etc are more or less by definition not frequent or
-performance-critical.)
-
-- Dave
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

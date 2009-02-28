@@ -1,71 +1,92 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Fri, 27 Feb 2009 21:12:03 -0800
-Message-ID: <20090227211203.4ebb0524.akpm@linux-foundation.org>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
+Date: Sat, 28 Feb 2009 11:21:39 +0530
+Message-ID: <5d5443650902272151g7595deb4gc91145a4c6938b74@mail.gmail.com>
 References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	<200902271830.37207.david-b@pacbell.net>
-	<20090227183949.90f231e6.akpm@linux-foundation.org>
-	<200902272046.50572.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:39106 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750790AbZB1FMi (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 00:12:38 -0500
-In-Reply-To: <200902272046.50572.david-b@pacbell.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1751916AbZB1Fvv@vger.kernel.org>
+In-Reply-To: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Felipe Balbi <me@felipebalbi.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Samuel Ortiz <sameo@openedhand.com>
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl, tglx@linutronix.de
 
-On Fri, 27 Feb 2009 20:46:50 -0800 David Brownell <david-b@pacbell.net> wrote:
+Hi Felipe,
 
->   drivers/mfd/twl4030-irq.c
-> 
-> Where you'll observe twl_init_irq() at line 688 setting
-> up the thread and the Primary IRQ Handler (PIH) dispatch.
-> That's pretty much bog-standard chained IRQ setup code,
-> except that it chains through a thread.
+> +++ b/drivers/input/misc/twl4030-pwrbutton.c
+> @@ -0,0 +1,147 @@
+> +/**
+> + * drivers/i2c/chips/twl4030-pwrbutton.c
+> + *
 
-OK, that's clever.  I never knew that anyone was doing that.  afaict
-MFD is the only such place...
+Please remove this file path.
 
-Yes, it's regrettable that it's a private-to-mfd implementation.  I
-expect a lot of i2c clients (at least) would like this.
+> +
+> +static struct input_dev *powerbutton_dev;
+> +static struct device *dbg_dev;
+> +
+> +static irqreturn_t powerbutton_irq(int irq, void *dev_id)
+> +{
+> + =A0 =A0 =A0 int err;
+> + =A0 =A0 =A0 u8 value;
+> +
+> +#ifdef CONFIG_LOCKDEP
+> + =A0 =A0 =A0 /* WORKAROUND for lockdep forcing IRQF_DISABLED on us, =
+which
+> + =A0 =A0 =A0 =A0* we don't want and can't tolerate. =A0Although it m=
+ight be
+> + =A0 =A0 =A0 =A0* friendlier not to borrow this thread context...
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 local_irq_enable();
+> +#endif
+> +
+> + =A0 =A0 =A0 err =3D twl4030_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &=
+value,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 STS=
+_HW_CONDITIONS);
+> + =A0 =A0 =A0 if (!err) =A0{
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(powerbutton_dev, KEY_P=
+OWER,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0valu=
+e & PWR_PWRON_IRQ);
 
-> When an IRQ comes in, handle_twl4030_pih() acks and masks
-> that top level IRQ.  Then it wakes twl4030_irq_thread(),
-> which issues I2C operations to read the IRQ status from
-> the chip ... first PIH to find out which SIH modules are
-> raising an IRQ, then SIH to dispatch that status.  Then
-> handle_irq() from that thread to invoke the handler in
-> that thread context; it will issue more I2C ops.
 
-yup.
+input_sync(...) please.
 
-> And the lockdep thing kicks in through handle_irq(),
-> where the IRQ handler wrongly gets invoked with the
-> IRQs disabled -- iff lockdep is enabled.  Otherwise,
-> that IRQ thread is just like any other thread.
+> + =A0 =A0 =A0 } else {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(dbg_dev, "twl4030: i2c error %d=
+ while reading TWL4030"
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 " PM_MASTER STS_HW_COND=
+ITIONS register\n", err);
+> + =A0 =A0 =A0 }
+> +
 
-OK.
+> +static int __devexit twl4030_pwrbutton_remove(struct platform_device=
+ *pdev)
+> +{
+> + =A0 =A0 =A0 int irq =3D platform_get_irq(pdev, 0);
+> +
+> + =A0 =A0 =A0 free_irq(irq, NULL);
+> + =A0 =A0 =A0 input_unregister_device(powerbutton_dev);
+> + =A0 =A0 =A0 input_free_device(powerbutton_dev);
 
-Perhaps it would be somewhat less dirty to do something like
+No need of input_free_device after input_unregister_device.
 
---- a/kernel/irq/manage.c~a
-+++ a/kernel/irq/manage.c
-@@ -689,7 +689,8 @@ int request_irq(unsigned int irq, irq_ha
- 	/*
- 	 * Lockdep wants atomic interrupt handlers:
- 	 */
--	irqflags |= IRQF_DISABLED;
-+	if (!(irqflags & IRQF_NO_LOCKDEP_HACK))
-+		irqflags |= IRQF_DISABLED;
- #endif
- 	/*
- 	 * Sanity-check: shared interrupts must pass in a real dev-ID,
-_
+> +
+> + =A0 =A0 =A0 return 0;
+> +}
+> +
+> +struct platform_driver twl4030_pwrbutton_driver =3D {
+> + =A0 =A0 =A0 .probe =A0 =A0 =A0 =A0 =A0=3D twl4030_pwrbutton_probe,
+> + =A0 =A0 =A0 .remove =A0 =A0 =A0 =A0 =3D twl4030_pwrbutton_remove,
 
+__devexit_p(...)
+
+
+
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

@@ -1,39 +1,44 @@
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: Re: lockdep and threaded IRQs
-Date: Sat, 28 Feb 2009 22:10:14 +0100
-Message-ID: <49A9A836.3070205@s5r6.in-berlin.de>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902272046.50572.david-b@pacbell.net> <49A92487.3020108@s5r6.in-berlin.de> <200902281219.54200.david-b@pacbell.net>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Sat, 28 Feb 2009 22:13:37 +0100 (CET)
+Message-ID: <alpine.LFD.2.00.0902282209450.29264@localhost.localdomain>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902280416.26687.david-b@pacbell.net> <alpine.LFD.2.00.0902281741560.29264@localhost.localdomain> <200902281202.36804.david-b@pacbell.net>
+ <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from einhorn.in-berlin.de ([192.109.42.8]:44455 "EHLO
-	einhorn.in-berlin.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753118AbZB1VK5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 16:10:57 -0500
-In-Reply-To: <200902281219.54200.david-b@pacbell.net>
+Received: from www.tglx.de ([62.245.132.106]:42273 "EHLO www.tglx.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754028AbZB1VOO (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Feb 2009 16:14:14 -0500
+In-Reply-To: <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: David Brownell <david-b@pacbell.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl, tglx@linutronix.de
+Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
 
-David Brownell wrote:
->> Why don't these drivers simply use <linux/workqueue.h>?
+On Sat, 28 Feb 2009, Thomas Gleixner wrote:
+
+> On Sat, 28 Feb 2009, David Brownell wrote:
+> > Got a version that applies to mainline GIT?
 > 
-> Most do.  In fact, that one *does* ... what's your point?
+> http://tglx.de/~tglx/patches.tar.bz2 
+>  
+> > At a quick glance it looks like these patches don't cover
+> > set_irq_chained_handler(), which would be trouble since
+> > __setup_irq() doesn't get called in those cases.
+> 
+> Hmm, I did not think about chained handlers where the demux handler
+> needs to run in a thread as well. Usually demux handlers just have a
+> fast path kicking the particular real handlers.
 
-Workqueue jobs are rarely seen doing
-#ifdef CONFIG_LOCKDEP
-	local_irq_enable();
-#endif
+I looked at the code in twl4030-irq.c and I don't think that the demux
+handler needs to be setup as a chained handler at all.
 
-> If I hadn't know that more generic threaded IRQ support
-> was already on the way, I might have done more with that
-> particular driver than just massive cleanup.
+Just register it as a standard handler and let it wakeup the other irq
+threads or is there a particular requirement that the demuxed handlers
+need to run in the same thread context as the demux handler itself ?
 
-OK, makes sense.
--- 
-Stefan Richter
--=====-==--= --=- ===--
-http://arcgraph.de/sr/
+Thanks,
+
+	tglx

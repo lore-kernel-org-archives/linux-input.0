@@ -1,69 +1,55 @@
-From: Alessio Sangalli <alesan@manoweb.com>
-Subject: Re: Notification when a new device is added or removed
-Date: Sat, 28 Feb 2009 18:58:05 -0800
-Message-ID: <49A9F9BD.2090604@manoweb.com>
-References: <49A8BEF7.9060602@manoweb.com> <20090228183917.ZZRA012@mailhub.coreip.homeip.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input notifier support
+Date: Sat, 28 Feb 2009 19:07:45 -0800
+Message-ID: <20090228190644.ZZRA012@mailhub.coreip.homeip.net>
+References: <20090225044730.GA9106@july> <87skly16gh.fsf@basil.nowhere.org> <20090228164126.ZZRA012@mailhub.coreip.homeip.net> <9c9fda240902281852n32b41cc7ref61dff7d5c1249f@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.177]:55340 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751234AbZCAC6R (ORCPT
+Received: from an-out-0708.google.com ([209.85.132.244]:44357 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753471AbZCADH6 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 21:58:17 -0500
-In-Reply-To: <20090228183917.ZZRA012@mailhub.coreip.homeip.net>
+	Sat, 28 Feb 2009 22:07:58 -0500
+Content-Disposition: inline
+In-Reply-To: <9c9fda240902281852n32b41cc7ref61dff7d5c1249f@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: Andi Kleen <andi@firstfloor.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
+On Sun, Mar 01, 2009 at 11:52:56AM +0900, Kyungmin Park wrote:
+> On Sun, Mar 1, 2009 at 9:42 AM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Sun, Mar 01, 2009 at 12:34:38AM +0100, Andi Kleen wrote:
+> >> Kyungmin Park <kmpark@infradead.org> writes:
+> >>
+> >> > Some hardware doesn't connected with key button and led. In this case key should be connected with led by software. Of course each application can control it however it's too big burden to application programmer.
+> >> >
+> >> > So add input notifier and then use it at other frameworks such as led.
+> >> > Of course, other input device can use this one.
+> >> >
+> >> > Any commnets are welcome.
+> >>
+> >> It looks like the perfect interface for a password stealing root kit.
+> >>
+> >> Yes there are probably other ways to do this, but still this seems to
+> >> make it very easy.
+> >>
+> >
+> > We already have good interface for that. That's why you want to limit
+> > access to /dev/input/eventX ;) and not make it world-readable.
+> >
+> 
+> Hi Dmitry,
+> 
+> Could you tell me know which interface you're talking?
+> I agreed it's not good idea to pass key code value to drivers. it
+> caused security issues.
+> 
 
-> You should be able to poll (select) /proc/bus/input/devices.
+The interface to steal the root password. One can simply open all input
+devices and read all events (if the process has sufficient rights).
 
-Yeah that would be great; anyway, I tried and... well nothing happens. I
-am obviously missing something here:
-
-
-#include <poll.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-
-int main()
-{
-        int fd, c;
-        struct pollfd pfd;
-
-        fd=open("/proc/bus/input/devices", O_RDONLY);
-        if(fd==-1)
-                return -1;
-        pfd.fd=fd;
-        pfd.events=POLLIN;
-        while(1) {
-                c=poll(&pfd, 1, 20000);
-                if(c==-1)
-                        printf("Error polling\n");
-                else if(c==0)
-                        printf("Timeout\n");
-                else
-                        printf("Something changed");
-        }
-}
-
-
-
-The result, while I detach or attach new devices is:
-
-Timeout
-Timeout
-Timeout
-Timeout
-Timeout
-
-
-
-bye
-Alessio
-
+-- 
+Dmitry

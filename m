@@ -1,93 +1,74 @@
-From: Mike Murphy <mamurph@cs.clemson.edu>
-Subject: PATCH [3/3] Documentation/ABI/testing/game_device-sysfs-interface:
-	Document game_device interface added to xpad driver
-Date: Sat, 28 Feb 2009 23:57:09 -0500
-Message-ID: <5aa163d00902282057n6a1f1cd9mecf3a2b5bb493d2d@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input notifier support
+Date: Sat, 28 Feb 2009 22:29:23 -0800
+Message-ID: <20090228222816.ZZRA012@mailhub.coreip.homeip.net>
+References: <20090225044730.GA9106@july> <87skly16gh.fsf@basil.nowhere.org> <20090228164126.ZZRA012@mailhub.coreip.homeip.net> <9c9fda240902281852n32b41cc7ref61dff7d5c1249f@mail.gmail.com> <20090228190644.ZZRA012@mailhub.coreip.homeip.net> <9c9fda240902281916m221e1996gbfccd1d53b2ffa75@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=0016363b872cd0ca3a0464078827
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.28]:5922 "EHLO
+Received: from yx-out-2324.google.com ([74.125.44.29]:21645 "EHLO
 	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755034AbZCAE5M (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Feb 2009 23:57:12 -0500
+	with ESMTP id S1751692AbZCAG3g (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Mar 2009 01:29:36 -0500
+Content-Disposition: inline
+In-Reply-To: <9c9fda240902281916m221e1996gbfccd1d53b2ffa75@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.org>, Frederic Weisbecker <fweisbec@gmail.com>, torvalds@linux-foundation.org
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: Andi Kleen <andi@firstfloor.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
---0016363b872cd0ca3a0464078827
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Sun, Mar 01, 2009 at 12:16:24PM +0900, Kyungmin Park wrote:
+> Hi,
+> 
+> On Sun, Mar 1, 2009 at 12:07 PM, Dmitry Torokhov
+> <dmitry.torokhov@gmail.com> wrote:
+> > On Sun, Mar 01, 2009 at 11:52:56AM +0900, Kyungmin Park wrote:
+> >> On Sun, Mar 1, 2009 at 9:42 AM, Dmitry Torokhov
+> >> <dmitry.torokhov@gmail.com> wrote:
+> >> > On Sun, Mar 01, 2009 at 12:34:38AM +0100, Andi Kleen wrote:
+> >> >> Kyungmin Park <kmpark@infradead.org> writes:
+> >> >>
+> >> >> > Some hardware doesn't connected with key button and led. In this case key should be connected with led by software. Of course each application can control it however it's too big burden to application programmer.
+> >> >> >
+> >> >> > So add input notifier and then use it at other frameworks such as led.
+> >> >> > Of course, other input device can use this one.
+> >> >> >
+> >> >> > Any commnets are welcome.
+> >> >>
+> >> >> It looks like the perfect interface for a password stealing root kit.
+> >> >>
+> >> >> Yes there are probably other ways to do this, but still this seems to
+> >> >> make it very easy.
+> >> >>
+> >> >
+> >> > We already have good interface for that. That's why you want to limit
+> >> > access to /dev/input/eventX ;) and not make it world-readable.
+> >> >
+> >>
+> >> Hi Dmitry,
+> >>
+> >> Could you tell me know which interface you're talking?
+> >> I agreed it's not good idea to pass key code value to drivers. it
+> >> caused security issues.
+> >>
+> >
+> > The interface to steal the root password. One can simply open all input
+> > devices and read all events (if the process has sufficient rights).
+> >
+> "I don't think we need to do the notifier route. It is very easy to add
+> another input handler in style of rfkill-input or apm-power that would
+> listen to events from all ungrabbed input devices and act accordingly.
+> Your LED trigger example should work very well if implemented as another
+> input handler."
+> 
+> Ah, I mean the this one, sorry for confusing you. You mean add led
+> trigger using input handler.
+> Then my question how to know which input device is connected trigger
+> As know it's input device is allocated by dynamically then how do we
+> know which input event is used and set?
+> 
 
-Add documentation for the game_device sysfs interface that was added
-to the xpad driver in this patchset.
+Umm, I am sorry, you lost me. Could you rephrase your question please?
 
-Signed-off-by: Mike Murphy <mamurph[at]cs.clemson.edu>
-
---0016363b872cd0ca3a0464078827
-Content-Type: text/x-patch; charset=US-ASCII; name="gamedevice.patch"
-Content-Disposition: attachment; filename="gamedevice.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_frr92h530
-
-ZGlmZiAtdU5yIG9yaWdkcnYvRG9jdW1lbnRhdGlvbi9BQkkvdGVzdGluZy9nYW1lX2RldmljZS1z
-eXNmcy1pbnRlcmZhY2UgbmV3ZHJ2L0RvY3VtZW50YXRpb24vQUJJL3Rlc3RpbmcvZ2FtZV9kZXZp
-Y2Utc3lzZnMtaW50ZXJmYWNlCi0tLSBvcmlnZHJ2L0RvY3VtZW50YXRpb24vQUJJL3Rlc3Rpbmcv
-Z2FtZV9kZXZpY2Utc3lzZnMtaW50ZXJmYWNlCTE5NjktMTItMzEgMTk6MDA6MDAuMDAwMDAwMDAw
-IC0wNTAwCisrKyBuZXdkcnYvRG9jdW1lbnRhdGlvbi9BQkkvdGVzdGluZy9nYW1lX2RldmljZS1z
-eXNmcy1pbnRlcmZhY2UJMjAwOS0wMi0yOCAyMTowMjo1NS4wMDAwMDAwMDAgLTA1MDAKQEAgLTAs
-MCArMSw4NiBAQAorV2hhdDoJCS9zeXMvY2xhc3MvaW5wdXQvaW5wdXRYWC9nYW1lX2RldmljZQor
-CQkoZXhhY3QgbG9jYXRpb24gZGVwZW5kcyBvbiBrZXJuZWwgYW5kIHVzZXJzcGFjZSBydWxlcykK
-K0RhdGU6CQlGZWJydWFyeSAyMDA5CitLZXJuZWxWZXJzaW9uOgkyLjYuMjgKK0NvbnRhY3Q6CU1p
-a2UgTXVycGh5IDxtYW11cnBoQGNzLmNsZW1zb24uZWR1PgorRGVzY3JpcHRpb246CVRoZSBnYW1l
-X2RldmljZSBzdWJkaXJlY3RvcnkgcHJvdmlkZXMgYSBtZWNoYW5pc20gZm9yIGdhbWluZworCQlk
-ZXZpY2VzLCBzdWNoIGFzIGpveXN0aWNrcyBhbmQgZ2FtZXBhZHMsIHRvIHJlcG9ydCBpbmZvcm1h
-dGlvbgorCQlhbmQgYWxsb3cgY2hhbmdlcyB0byBjYWxpYnJhdGlvbiBhbmQgYmVoYXZpb3IuIFRo
-ZSBuYW1lIG9mCisJCXRoaXMgZGlyZWN0b3J5IFNIT1VMRCBiZSBnYW1lX2RldmljZSBmb3IgYWxs
-IGRyaXZlcnMgdGhhdAorCQlzdXBwb3J0IGl0LCBhbmQgdGhvc2UgZHJpdmVycyBTSE9VTEQgaGF2
-ZSBBQkkgZG9jdW1lbnRhdGlvbgorCQlpbiB0aGlzIGZpbGUuIEhvd2V2ZXIsIHRoZSBleGFjdCBj
-b250ZW50cyBvZiB0aGUgZGlyZWN0b3J5CisJCU1BWSB2YXJ5IGJ5IGRldmljZSB0eXBlLCBzbyB0
-aGF0IGRldmljZXMgY2FuIGV4cG9zZSB3aGF0ZXZlcgorCQlwcm9wZXJ0aWVzIGFuZCBzZXR0aW5n
-cyBhcmUgYXBwcm9wcmlhdGUgZm9yIHRoZSBoYXJkd2FyZQorCQlhbmQvb3IgZHJpdmVyIHNvZnR3
-YXJlLgorCisKK1doYXQ6CQlnYW1lX2RldmljZSBpbnRlcmZhY2UgZm9yIHRoZSB4cGFkIGRyaXZl
-cgorCQkoZHJpdmVycy9pbnB1dC9qb3lzdGljay94cGFkLmMpCitEYXRlOgkJRmVicnVhcnkgMjAw
-OQorS2VybmVsVmVyc2lvbjoJMi42LjI4CitDb250YWN0OglNaWtlIE11cnBoeSA8bWFtdXJwaEBj
-cy5jbGVtc29uLmVkdT4KK0Rlc2NyaXB0aW9uOglUaGUgZ2FtZV9kZXZpY2Ugc3ViZGlyZWN0b3J5
-IGZvciB0aGUgWGJveC8zNjAgY29udHJvbGxlcgorCQlkcml2ZXIgcHJvdmlkZXMgdGhlIGZvbGxv
-d2luZyBmaWxlcyBmb3IgcmV0cmlldmluZyBpbmZvcm1hdGlvbgorCQlhbmQgc2V0dGluZyBwcm9w
-ZXJ0aWVzOgorCisJCWxlZnRfZGVhZF96b25lCQkJdWludCwgcmVhZC93cml0ZQorCQlyaWdodF9k
-ZWFkX3pvbmUJCQl1aW50LCByZWFkL3dyaXRlCisKKwkJCVNldCB0aGUgc2l6ZSBvZiB0aGUgYW5h
-bG9nIHN0aWNrIGRlYWQgem9uZXMgZm9yIHRoZQorCQkJbGVmdCBhbmQgcmlnaHQgc3RpY2tzLCBy
-ZXNwZWN0aXZlbHkuIE1pbmltdW0gdmFsdWUKKwkJCTAsIGRlZmF1bHQgODE5MiwgbWF4aW11bSAz
-MTc0MyAob3IgMTAyNCBsZXNzIHRoYW4KKwkJCXRoZSBzdGlja19saW1pdCBmb3IgdGhlIGNvcnJl
-c3BvbmRpbmcgc3RpY2spLgorCisJCWxlZnRfc3RpY2tfbGltaXQJCXVpbnQsIHJlYWQvd3JpdGUK
-KwkJcmlnaHRfc3RpY2tfbGltaXQJCXVpbnQsIHJlYWQvd3JpdGUKKworCQkJU2V0IHRoZSBzcXVh
-cmUtYXhpcyBsaW1pdHMgb2YgdGhlIGFuYWxvZyBsZWZ0IGFuZAorCQkJcmlnaHQgc3RpY2tzLCBy
-ZXNwZWN0aXZlbHkuIE1pbmltdW0gdmFsdWUgMTAyNCwKKwkJCWRlZmF1bHQgMzI3NjcsIG1heGlt
-dW0gMzI3NjcuIFRoZSBtaW5pbXVtIGlzCisJCQljb25zdHJhaW5lZCB0byBiZSB0aGUgc2l6ZSBv
-ZiB0aGUgZGVhZCB6b25lIHBsdXMKKwkJCTEwMjQuIFNlZSBEb2N1bWVudGF0aW9uL2lucHV0L3hw
-YWQudHh0IGZvciBtb3JlCisJCQlpbmZvcm1hdGlvbi4KKworCQlydW1ibGVfZW5hYmxlCQkJYm9v
-bCwgcmVhZC93cml0ZQorCisJCQlFbmFibGUgb3IgZGlzYWJsZSB0aGUgY29udHJvbGxlcidzIHJ1
-bWJsZSBlZmZlY3QuCisJCQlEZWZhdWx0IDEgKGVuYWJsZWQpLgorCisJCWxlZnRfdHJpZ2dlcl9m
-dWxsX2F4aXMJCWJvb2wsIHJlYWQvd3JpdGUKKwkJcmlnaHRfdHJpZ2dlcl9mdWxsX2F4aXMJCWJv
-b2wsIHJlYWQvd3JpdGUKKworCQkJRW5hYmxlIG9yIGRpc2FibGUgdXNlIG9mIGEgZnVsbCBheGlz
-ICgtMzI3NjcgdG8KKwkJCSszMjc2NykgZm9yIGVhY2ggb2YgdGhlIGxlZnQgYW5kIHJpZ2h0IHRy
-aWdnZXJzLAorCQkJcmVzcGVjdGl2ZWx5LiBEZWZhdWx0IDAgKGRpc2FibGVkOiB1c2UgYSBoYWxm
-IGF4aXMKKwkJCWZyb20gMCB0byArMzI3NjcpLgorCisJCWNvbnRyb2xsZXJfbnVtYmVyCQl1aW50
-LCByZWFkLW9ubHkKKworCQkJQ29udHJvbGxlciBzbG90IG51bWJlciAoMS00KSBmb3IgYSB3aXJl
-bGVzcyBYYm94CisJCQkzNjAgZ2FtaW5nIHJlY2VpdmVyLiBUaGlzIHZhbHVlIHdpbGwgYmUgemVy
-byBmb3IgYWxsCisJCQl3aXJlZCBkZXZpY2VzLgorCisJCWNvbnRyb2xsZXJfcHJlc2VudAkJYm9v
-bCwgcmVhZC1vbmx5CisKKwkJCUNvbnRyb2xsZXIgcHJlc2VuY2UgaW5kaWNhdG9yIGZvciBhIHdp
-cmVsZXNzIFhib3gKKwkJCTM2MCBnYW1pbmcgcmVjZWl2ZXIuIEhhcyB0aGUgdmFsdWUgMSB3aGVu
-ZXZlciB0aGUKKwkJCWNvbnRyb2xsZXIgaXMgdHVybmVkIG9uIGFuZCBjb25uZWN0ZWQgdG8gdGhl
-IHJlY2VpdmVyCisJCQlzbG90IGNvcnJlc3BvbmRpbmcgdG8gdGhlIGlucHV0IGRldmljZS4gVGhp
-cyB2YWx1ZQorCQkJd2lsbCBhbHdheXMgYmUgMSBmb3IgYWxsIHdpcmVkIGRldmljZXMuCisKKwkJ
-Y29udHJvbGxlcl90eXBlCQkJdWludCwgcmVhZC1vbmx5CisKKwkJCVR5cGUgb2YgY29udHJvbGxl
-ciB0aGF0IGlzIGNvbm5lY3RlZDoKKworCQkJMAlObyBjb250cm9sbGVyIGNvbm5lY3RlZAorCQkJ
-MQlQYWQKKwkJCTIJR3VpdGFyCisJCQkzCURhbmNlIHBhZAorCQkJMjU1CU90aGVyL3Vua25vd24g
-dHlwZQorCisJCWlkCQkJCXN0cmluZyBbMTddLCByZWFkLW9ubHkKKworCQkJMTYtY2hhcmFjdGVy
-IChwbHVzIE5VTCBieXRlKSBwcmVzdW1hYmx5IHVuaXF1ZQorCQkJaWRlbnRpZmllciBmb3IgZWFj
-aCBjb25uZWN0ZWQgV0lSRUxFU1MgY29udHJvbGxlci4KKwkJCVByZXNlbnRseSwgdGhpcyB2YWx1
-ZSBpcyBhbiBlbXB0eSBzdHJpbmcgZm9yIGFsbAorCQkJd2lyZWQgZGV2aWNlcy4K
---0016363b872cd0ca3a0464078827--
+-- 
+Dmitry

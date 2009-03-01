@@ -1,74 +1,46 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input notifier support
-Date: Sat, 28 Feb 2009 22:29:23 -0800
-Message-ID: <20090228222816.ZZRA012@mailhub.coreip.homeip.net>
-References: <20090225044730.GA9106@july> <87skly16gh.fsf@basil.nowhere.org> <20090228164126.ZZRA012@mailhub.coreip.homeip.net> <9c9fda240902281852n32b41cc7ref61dff7d5c1249f@mail.gmail.com> <20090228190644.ZZRA012@mailhub.coreip.homeip.net> <9c9fda240902281916m221e1996gbfccd1d53b2ffa75@mail.gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Sun, 1 Mar 2009 10:43:02 +0100 (CET)
+Message-ID: <alpine.LFD.2.00.0903011035360.29264@localhost.localdomain>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902281202.36804.david-b@pacbell.net> <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain> <200902281405.42080.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.29]:21645 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751692AbZCAG3g (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Mar 2009 01:29:36 -0500
-Content-Disposition: inline
-In-Reply-To: <9c9fda240902281916m221e1996gbfccd1d53b2ffa75@mail.gmail.com>
+Received: from www.tglx.de ([62.245.132.106]:48717 "EHLO www.tglx.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755660AbZCAJoE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 1 Mar 2009 04:44:04 -0500
+In-Reply-To: <200902281405.42080.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kyungmin Park <kmpark@infradead.org>
-Cc: Andi Kleen <andi@firstfloor.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
 
-On Sun, Mar 01, 2009 at 12:16:24PM +0900, Kyungmin Park wrote:
-> Hi,
+On Sat, 28 Feb 2009, David Brownell wrote:
+> That seems to presume a hardirq-to-taskirq handoff.  But the
+> problem case is taskirq-to-taskirq chaining, through e.g.
+> what set_irq_chip_and_handler() provided.  (Details not very
+> amenable to brief emails, just UTSL.)
 > 
-> On Sun, Mar 1, 2009 at 12:07 PM, Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> > On Sun, Mar 01, 2009 at 11:52:56AM +0900, Kyungmin Park wrote:
-> >> On Sun, Mar 1, 2009 at 9:42 AM, Dmitry Torokhov
-> >> <dmitry.torokhov@gmail.com> wrote:
-> >> > On Sun, Mar 01, 2009 at 12:34:38AM +0100, Andi Kleen wrote:
-> >> >> Kyungmin Park <kmpark@infradead.org> writes:
-> >> >>
-> >> >> > Some hardware doesn't connected with key button and led. In this case key should be connected with led by software. Of course each application can control it however it's too big burden to application programmer.
-> >> >> >
-> >> >> > So add input notifier and then use it at other frameworks such as led.
-> >> >> > Of course, other input device can use this one.
-> >> >> >
-> >> >> > Any commnets are welcome.
-> >> >>
-> >> >> It looks like the perfect interface for a password stealing root kit.
-> >> >>
-> >> >> Yes there are probably other ways to do this, but still this seems to
-> >> >> make it very easy.
-> >> >>
-> >> >
-> >> > We already have good interface for that. That's why you want to limit
-> >> > access to /dev/input/eventX ;) and not make it world-readable.
-> >> >
-> >>
-> >> Hi Dmitry,
-> >>
-> >> Could you tell me know which interface you're talking?
-> >> I agreed it's not good idea to pass key code value to drivers. it
-> >> caused security issues.
-> >>
-> >
-> > The interface to steal the root password. One can simply open all input
-> > devices and read all events (if the process has sufficient rights).
-> >
-> "I don't think we need to do the notifier route. It is very easy to add
-> another input handler in style of rfkill-input or apm-power that would
-> listen to events from all ungrabbed input devices and act accordingly.
-> Your LED trigger example should work very well if implemented as another
-> input handler."
-> 
-> Ah, I mean the this one, sorry for confusing you. You mean add led
-> trigger using input handler.
-> Then my question how to know which input device is connected trigger
-> As know it's input device is allocated by dynamically then how do we
-> know which input event is used and set?
-> 
+> Thing is, I'm not sure a per-IRQ thread can work easily with
+> that chaining.  The chained IRQs can need to be handled before
+> the top-level IRQ gets re-enabled.  That's why the twl4030-irq
+> code uses just one taskirq thread for all incoming events.
 
-Umm, I am sorry, you lost me. Could you rephrase your question please?
+This can be solved by a completion as well.
+ 
+> (Which of course is rarely more than one at a time, so there's
+> little reason not to share that task between the demuxing code
+> and the events being demuxed.  Interrupts that need processing
+> via I2C/SPI/etc are more or less by definition not frequent or
+> performance-critical.)
 
--- 
-Dmitry
+Then all we need to provide in the generic code is a function which
+does not go through the handle_IRQ_event() logic and calls the action
+handler directly. Not rocket science to do that and better than using
+a facility which is designed to run in hardirq context and expect that
+it works in thread context without complaints.
+
+Thanks,
+
+	tglx

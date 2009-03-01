@@ -1,260 +1,203 @@
-From: Felipe Balbi <me@felipebalbi.com>
-Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
-Date: Sun, 1 Mar 2009 16:40:19 +0200
-Message-ID: <20090301144018.GA23581@frodo>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <20090228141725.ZZRA012@mailhub.coreip.homeip.net> <20090301003014.GA22673@frodo> <20090228165156.ZZRA012@mailhub.coreip.homeip.net>
-Reply-To: me@felipebalbi.com
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Sun, 1 Mar 2009 14:11:43 -0800
+Message-ID: <200903011411.43881.david-b@pacbell.net>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902281202.36804.david-b@pacbell.net> <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ns1.siteground211.com ([209.62.36.12]:54926 "EHLO
-	serv01.siteground211.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752277AbZCAOk3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Mar 2009 09:40:29 -0500
+Received: from smtp119.sbc.mail.sp1.yahoo.com ([69.147.64.92]:36565 "HELO
+	smtp119.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1755282AbZCAWLr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 1 Mar 2009 17:11:47 -0500
+In-Reply-To: <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain>
 Content-Disposition: inline
-In-Reply-To: <20090228165156.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Felipe Balbi <me@felipebalbi.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Samuel Ortiz <sameo@openedhand.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
 
-On Sat, Feb 28, 2009 at 04:58:01PM -0800, Dmitry Torokhov wrote:
-> On Sun, Mar 01, 2009 at 02:30:18AM +0200, Felipe Balbi wrote:
-> > On Sat, Feb 28, 2009 at 02:23:03PM -0800, Dmitry Torokhov wrote:
-> > > Hi Felipe,
-> > > 
-> > > On Fri, Feb 27, 2009 at 09:28:02PM +0200, Felipe Balbi wrote:
-> > > > From: Felipe Balbi <felipe.balbi@nokia.com>
-> > > > 
-> > > > This is part of the twl4030 multifunction device driver.
-> > > > 
-> > > > With this driver we add support for reporting KEY_POWER
-> > > > events via the input layer.
-> > > 
-> > > ...
-> > 
-> > thanks for reviewing, how about the version below:
-> > 
+On Saturday 28 February 2009, Thomas Gleixner wrote:
+> > Got a version that applies to mainline GIT?
 > 
-> Looks good, couple more items...
+> http://tglx.de/~tglx/patches.tar.bz2
 
-Fixed the extra comments and also got rid of the global input_dev
-structure. It could be fetched by passing it to request_irq() and
-platform_set/get_drvdata():
+Very lightly tested patch appended ... it works
+with the RTC IRQs, and there's no reason to think
+any of the other not-chained-any-longer IRQs would
+fail.  This doesn't change anything the irqthread
+does, just how it's created and accessed.
 
-==================== cut here ======================
+- Dave
 
->From 8d424e1775a5c7a1d76bf2ce4907c3d416ff2fb9 Mon Sep 17 00:00:00 2001
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Date: Fri, 27 Feb 2009 21:18:15 +0200
-Subject: [PATCH] input: misc: add twl4030-pwrbutton driver
 
-This is part of the twl4030 multifunction device driver.
+=====
+Minimalist patch to twl4030-irq.c to use the new threaded IRQ
+stuff.  For review, not merge; the original irq thread isn't
+properly formatted any more -- to make the patch be as small as
+possible.
 
-With this driver we add support for reporting KEY_POWER
-events via the input layer.
+This makes creating the IRQ thread a bit simpler, but the lack
+of irq chaining support makes /proc/interrupts be wrong.  The
+quickcheck code path necessarily grew longer than the previous
+irq_desc.handle() code path.
 
-Cc: David Brownell <dbrownell@users.sourceforge.net>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Samuel Ortiz <sameo@openedhand.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@nokia.com>
 ---
-Thanks to Andrew Morton and Dmitry Torokhov for reviewing this driver.
+ drivers/mfd/twl4030-irq.c |   88 +++++++++++---------------------------------
+ 1 file changed, 23 insertions(+), 65 deletions(-)
 
- drivers/input/misc/Kconfig             |   10 ++
- drivers/input/misc/Makefile            |    1 +
- drivers/input/misc/twl4030-pwrbutton.c |  146 ++++++++++++++++++++++++++++++++
- 3 files changed, 157 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/twl4030-pwrbutton.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 67e5553..6fa9e38 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -193,6 +193,16 @@ config INPUT_CM109
- 	  To compile this driver as a module, choose M here: the module will be
- 	  called cm109.
+--- a/drivers/mfd/twl4030-irq.c
++++ b/drivers/mfd/twl4030-irq.c
+@@ -172,46 +172,23 @@ static const struct sih sih_modules[6] =
  
-+config INPUT_TWL4030_PWRBUTTON
-+	tristate "TWL4030 Power button Driver"
-+	depends on TWL4030_CORE
-+	help
-+	  Say Y here if you want to enable power key reporting via the
-+	  TWL4030 family of chips.
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called twl4030_pwrbutton.
-+
- config INPUT_UINPUT
- 	tristate "User level driver support"
- 	help
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index bb62e6e..2fabcdb 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -19,6 +19,7 @@ obj-$(CONFIG_INPUT_YEALINK)		+= yealink.o
- obj-$(CONFIG_INPUT_CM109)		+= cm109.o
- obj-$(CONFIG_HP_SDC_RTC)		+= hp_sdc_rtc.o
- obj-$(CONFIG_INPUT_UINPUT)		+= uinput.o
-+obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
- obj-$(CONFIG_INPUT_APANEL)		+= apanel.o
- obj-$(CONFIG_INPUT_SGI_BTNS)		+= sgi_btns.o
- obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
-diff --git a/drivers/input/misc/twl4030-pwrbutton.c b/drivers/input/misc/twl4030-pwrbutton.c
-new file mode 100644
-index 0000000..7150830
---- /dev/null
-+++ b/drivers/input/misc/twl4030-pwrbutton.c
-@@ -0,0 +1,146 @@
-+/**
-+ * twl4030-pwrbutton.c - TWL4030 Power Button Input Driver
-+ *
-+ * Copyright (C) 2008-2009 Nokia Corporation
-+ *
-+ * Written by Peter De Schrijver <peter.de-schrijver@nokia.com>
-+ * Several fixes by Felipe Balbi <felipe.balbi@nokia.com>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of this
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/errno.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/i2c/twl4030.h>
-+
-+#define PWR_PWRON_IRQ (1 << 0)
-+
-+#define STS_HW_CONDITIONS 0xf
-+
-+static irqreturn_t powerbutton_irq(int irq, void *_pwr)
-+{
-+	struct input_dev *pwr = _pwr;
-+	int err;
-+	u8 value;
-+
-+#ifdef CONFIG_LOCKDEP
-+	/* WORKAROUND for lockdep forcing IRQF_DISABLED on us, which
-+	 * we don't want and can't tolerate since this is a threaded
-+	 * IRQ and can sleep due to the i2c reads it has to issue.
-+	 * Although it might be friendlier not to borrow this thread
-+	 * context...
-+	 */
-+	local_irq_enable();
-+#endif
-+
-+	err = twl4030_i2c_read_u8(TWL4030_MODULE_PM_MASTER, &value,
-+				  STS_HW_CONDITIONS);
-+	if (!err)  {
-+		input_report_key(pwr, KEY_POWER, value & PWR_PWRON_IRQ);
-+		input_sync(pwr);
-+	} else {
-+		dev_err(pwr->dev.parent, "twl4030: i2c error %d while reading"
-+			" TWL4030 PM_MASTER STS_HW_CONDITIONS register\n", err);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit twl4030_pwrbutton_probe(struct platform_device *pdev)
-+{
-+	struct input_dev *pwr;
-+	int irq = platform_get_irq(pdev, 0);
-+	int err;
-+
-+	pwr = input_allocate_device();
-+	if (!pwr) {
-+		dev_dbg(&pdev->dev, "Can't allocate power button\n");
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	err = request_irq(irq, powerbutton_irq,
-+			IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
-+			"twl4030_pwrbutton", pwr);
-+	if (err < 0) {
-+		dev_dbg(&pdev->dev, "Can't get IRQ for pwrbutton: %d\n", err);
-+		goto free_input_dev;
-+	}
-+
-+	pwr->evbit[0] = BIT_MASK(EV_KEY);
-+	pwr->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
-+	pwr->name = "twl4030_pwrbutton";
-+	pwr->phys = "twl4030_pwrbutton/input0";
-+	pwr->dev.parent = &pdev->dev;
-+	platform_set_drvdata(pdev, pwr);
-+
-+	err = input_register_device(pwr);
-+	if (err) {
-+		dev_dbg(&pdev->dev, "Can't register power button: %d\n", err);
-+		goto free_irq_and_out;
-+	}
-+
-+	return 0;
-+
-+free_irq_and_out:
-+	free_irq(irq, NULL);
-+free_input_dev:
-+	input_free_device(pwr);
-+out:
-+	return err;
-+}
-+
-+static int __devexit twl4030_pwrbutton_remove(struct platform_device *pdev)
-+{
-+	struct input_dev *pwr = platform_get_drvdata(pdev);
-+	int irq = platform_get_irq(pdev, 0);
-+
-+	free_irq(irq, pwr);
-+	input_unregister_device(pwr);
-+
-+	return 0;
-+}
-+
-+struct platform_driver twl4030_pwrbutton_driver = {
-+	.probe		= twl4030_pwrbutton_probe,
-+	.remove		= __devexit_p(twl4030_pwrbutton_remove),
-+	.driver		= {
-+		.name	= "twl4030_pwrbutton",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __init twl4030_pwrbutton_init(void)
-+{
-+	return platform_driver_register(&twl4030_pwrbutton_driver);
-+}
-+module_init(twl4030_pwrbutton_init);
-+
-+static void __exit twl4030_pwrbutton_exit(void)
-+{
-+	platform_driver_unregister(&twl4030_pwrbutton_driver);
-+}
-+module_exit(twl4030_pwrbutton_exit);
-+
-+MODULE_ALIAS("platform:twl4030_pwrbutton");
-+MODULE_DESCRIPTION("Triton2 Power Button");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Peter De Schrijver <peter.de-schrijver@nokia.com>");
-+MODULE_AUTHOR("Felipe Balbi <felipe.balbi@nokia.com>");
-+
--- 
-1.6.2.rc0.61.g5cd12
-
-
--- 
-balbi
+ static unsigned twl4030_irq_base;
+ 
+-static struct completion irq_event;
+-
+ /*
+- * This thread processes interrupts reported by the Primary Interrupt Handler.
++ * Threaded IRQ handler, processing interrupts reported by
++ * the Primary Interrupt Handler module.
+  */
+-static int twl4030_irq_thread(void *data)
++static irqreturn_t twl4030_pih_handler(int irq, void *unused)
+ {
+-	long irq = (long)data;
+-	struct irq_desc *desc = irq_to_desc(irq);
+-	static unsigned i2c_errors;
+-	const static unsigned max_i2c_errors = 100;
+-
+-	if (!desc) {
+-		pr_err("twl4030: Invalid IRQ: %ld\n", irq);
+-		return -EINVAL;
+-	}
+-
+-	current->flags |= PF_NOFREEZE;
+-
+-	while (!kthread_should_stop()) {
+ 		int ret;
+ 		int module_irq;
+ 		u8 pih_isr;
+ 
+-		/* Wait for IRQ, then read PIH irq status (also blocking) */
+-		wait_for_completion_interruptible(&irq_event);
+-
++		ret = IRQ_NONE;
+ 		ret = twl4030_i2c_read_u8(TWL4030_MODULE_PIH, &pih_isr,
+ 					  REG_PIH_ISR_P1);
+ 		if (ret) {
+ 			pr_warning("twl4030: I2C error %d reading PIH ISR\n",
+ 					ret);
+-			if (++i2c_errors >= max_i2c_errors) {
+-				printk(KERN_ERR "Maximum I2C error count"
+-						" exceeded.  Terminating %s.\n",
+-						__func__);
+-				break;
+-			}
+-			complete(&irq_event);
+-			continue;
++			goto done;
+ 		}
+ 
+ 		/* these handlers deal with the relevant SIH irq status */
+@@ -225,7 +202,7 @@ static int twl4030_irq_thread(void *data
+ 				if (!d) {
+ 					pr_err("twl4030: Invalid SIH IRQ: %d\n",
+ 					       module_irq);
+-					return -EINVAL;
++					continue;
+ 				}
+ 
+ 				/* These can't be masked ... always warn
+@@ -234,44 +211,31 @@ static int twl4030_irq_thread(void *data
+ 				if (d->status & IRQ_DISABLED)
+ 					note_interrupt(module_irq, d,
+ 							IRQ_NONE);
+-				else
++				else {
+ 					d->handle_irq(module_irq, d);
++					ret = IRQ_HANDLED;
++				}
+ 			}
+ 		}
+ 		local_irq_enable();
+ 
+-		desc->chip->unmask(irq);
+-	}
+-
+-	return 0;
++done:
++	/* unmask the IRQ; it retriggers as needed */
++	enable_irq(irq);
++	return ret;
+ }
+ 
+ /*
+- * handle_twl4030_pih() is the desc->handle method for the twl4030 interrupt.
+- * This is a chained interrupt, so there is no desc->action method for it.
+  * Now we need to query the interrupt controller in the twl4030 to determine
+  * which module is generating the interrupt request.  However, we can't do i2c
+  * transactions in interrupt context, so we must defer that work to a kernel
+- * thread.  All we do here is acknowledge and mask the interrupt and wakeup
++ * thread.  All we do here is mask the active-low interrupt and wakeup
+  * the kernel thread.
+  */
+-static void handle_twl4030_pih(unsigned int irq, irq_desc_t *desc)
+-{
+-	/* Acknowledge, clear *AND* mask the interrupt... */
+-	desc->chip->ack(irq);
+-	complete(&irq_event);
+-}
+-
+-static struct task_struct *start_twl4030_irq_thread(long irq)
++static irqreturn_t twl4030_pih_quickcheck(int irq, void *unused)
+ {
+-	struct task_struct *thread;
+-
+-	init_completion(&irq_event);
+-	thread = kthread_run(twl4030_irq_thread, (void *)irq, "twl4030-irq");
+-	if (!thread)
+-		pr_err("twl4030: could not create irq %ld thread!\n", irq);
+-
+-	return thread;
++	disable_irq(irq);
++	return IRQ_WAKE_THREAD;
+ }
+ 
+ /*----------------------------------------------------------------------*/
+@@ -691,7 +655,6 @@ int twl_init_irq(int irq_num, unsigned i
+ 
+ 	int			status;
+ 	int			i;
+-	struct task_struct	*task;
+ 
+ 	/*
+ 	 * Mask and clear all TWL4030 interrupts since initially we do
+@@ -733,18 +696,13 @@ int twl_init_irq(int irq_num, unsigned i
+ 		goto fail;
+ 	}
+ 
+-	/* install an irq handler to demultiplex the TWL4030 interrupt */
+-	task = start_twl4030_irq_thread(irq_num);
+-	if (!task) {
+-		pr_err("twl4030: irq thread FAIL\n");
+-		status = -ESRCH;
+-		goto fail;
+-	}
+-
+-	set_irq_data(irq_num, task);
+-	set_irq_chained_handler(irq_num, handle_twl4030_pih);
++	/* FIXME should be a "chained" handler else irq statistics lie */
++	status = request_threaded_irq(irq_num,
++			twl4030_pih_handler, twl4030_pih_quickcheck,
++			IRQF_THREADED, "twl4030", NULL);
+ 
+-	return status;
++	if (status == 0)
++		return status;
+ 
+ fail:
+ 	for (i = irq_base; i < irq_end; i++)

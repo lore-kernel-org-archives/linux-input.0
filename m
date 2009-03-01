@@ -1,46 +1,64 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Sun, 1 Mar 2009 10:43:02 +0100 (CET)
-Message-ID: <alpine.LFD.2.00.0903011035360.29264@localhost.localdomain>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902281202.36804.david-b@pacbell.net> <alpine.LFD.2.00.0902282149290.29264@localhost.localdomain> <200902281405.42080.david-b@pacbell.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Notification when a new device is added or removed
+Date: Sun, 1 Mar 2009 02:23:19 -0800
+Message-ID: <20090301022212.ZZRA012@mailhub.coreip.homeip.net>
+References: <49A8BEF7.9060602@manoweb.com> <20090228183917.ZZRA012@mailhub.coreip.homeip.net> <49A9F9BD.2090604@manoweb.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:48717 "EHLO www.tglx.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755660AbZCAJoE (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 1 Mar 2009 04:44:04 -0500
-In-Reply-To: <200902281405.42080.david-b@pacbell.net>
+Received: from mail-gx0-f174.google.com ([209.85.217.174]:51381 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750772AbZCAKXd (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 1 Mar 2009 05:23:33 -0500
+Received: by gxk22 with SMTP id 22so3952932gxk.13
+        for <linux-input@vger.kernel.org>; Sun, 01 Mar 2009 02:23:30 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <49A9F9BD.2090604@manoweb.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
+To: Alessio Sangalli <alesan@manoweb.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, 28 Feb 2009, David Brownell wrote:
-> That seems to presume a hardirq-to-taskirq handoff.  But the
-> problem case is taskirq-to-taskirq chaining, through e.g.
-> what set_irq_chip_and_handler() provided.  (Details not very
-> amenable to brief emails, just UTSL.)
+On Sat, Feb 28, 2009 at 06:58:05PM -0800, Alessio Sangalli wrote:
+> Dmitry Torokhov wrote:
 > 
-> Thing is, I'm not sure a per-IRQ thread can work easily with
-> that chaining.  The chained IRQs can need to be handled before
-> the top-level IRQ gets re-enabled.  That's why the twl4030-irq
-> code uses just one taskirq thread for all incoming events.
+> > You should be able to poll (select) /proc/bus/input/devices.
+> 
+> Yeah that would be great; anyway, I tried and... well nothing happens. I
+> am obviously missing something here:
+> 
 
-This can be solved by a completion as well.
+Hmm, it turns out poll is completely busted. The patch below should
+help.
+
+-- 
+Dmitry
+
+Input: fix polling of /proc/bus/input/devices
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/input/input.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 46e9ce1..913392f 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -744,11 +744,11 @@ static inline void input_wakeup_procfs_readers(void)
  
-> (Which of course is rarely more than one at a time, so there's
-> little reason not to share that task between the demuxing code
-> and the events being demuxed.  Interrupts that need processing
-> via I2C/SPI/etc are more or less by definition not frequent or
-> performance-critical.)
-
-Then all we need to provide in the generic code is a function which
-does not go through the handle_IRQ_event() logic and calls the action
-handler directly. Not rocket science to do that and better than using
-a facility which is designed to run in hardirq context and expect that
-it works in thread context without complaints.
-
-Thanks,
-
-	tglx
+ static unsigned int input_proc_devices_poll(struct file *file, poll_table *wait)
+ {
+-	int state = input_devices_state;
+-
+ 	poll_wait(file, &input_devices_poll_wait, wait);
+-	if (state != input_devices_state)
++	if (file->f_version != input_devices_state) {
++		file->f_version = input_devices_state;
+ 		return POLLIN | POLLRDNORM;
++	}
+ 
+ 	return 0;
+ }

@@ -1,86 +1,44 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: PATCH [1/3] drivers/input/xpad.c: Improve Xbox 360 wireless
-	support  and add sysfs interface
-Date: Mon, 2 Mar 2009 13:59:10 -0800
-Message-ID: <20090302215910.GA31164@kroah.com>
-References: <5aa163d00902282053h38b0febbyb37fc30855fdc985@mail.gmail.com> <20090302130425.23cc628d.akpm@linux-foundation.org> <20090302211820.GA21489@kroah.com> <20090302133551.1266f725.akpm@linux-foundation.org>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Mon, 2 Mar 2009 14:09:20 -0800
+Message-ID: <200903021409.21344.david-b@pacbell.net>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021337.20887.david-b@pacbell.net> <1236030106.5330.1553.camel@laptop>
+Reply-To: dbrownell@users.sourceforge.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756478AbZCBWJg@vger.kernel.org>
+In-Reply-To: <1236030106.5330.1553.camel@laptop>
 Content-Disposition: inline
-In-Reply-To: <20090302133551.1266f725.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org, fweisbec-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
 List-Id: linux-input@vger.kernel.org
 
-On Mon, Mar 02, 2009 at 01:35:51PM -0800, Andrew Morton wrote:
-> On Mon, 2 Mar 2009 13:18:20 -0800
-> Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org> wrote:
-> 
-> > On Mon, Mar 02, 2009 at 01:04:25PM -0800, Andrew Morton wrote:
-> > > On Sat, 28 Feb 2009 23:53:03 -0500
-> > > Mike Murphy <mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org> wrote:
-> > > > ...
-> > > >
-> > > > +static ssize_t xpad_show_int(struct device *dev, struct device_attribute *attr,
-> > > > +		char *buf)
-> > > > +{
-> > > > +	struct usb_xpad *xpad = to_xpad(dev);
-> > > > +	int value;
-> > > > +	if (attr == &dev_attr_rumble_enable)
-> > > > +		value = xpad->rumble_enable;
-> > > > +	else if (attr == &dev_attr_controller_number)
-> > > > +		value = xpad->controller_number;
-> > > > +	else if (attr == &dev_attr_controller_present)
-> > > > +		value = xpad->controller_present;
-> > > > +	else if (attr == &dev_attr_controller_type)
-> > > > +		value = xpad->controller_type;
-> > > > +	else if (attr == &dev_attr_left_trigger_full_axis)
-> > > > +		value = xpad->left_trigger_full_axis;
-> > > > +	else if (attr == &dev_attr_right_trigger_full_axis)
-> > > > +		value = xpad->right_trigger_full_axis;
-> > > > +	else
-> > > > +		return -EIO;
-> > > > +	return snprintf(buf, PAGE_SIZE, "%d\n", value);
-> > > > +}
-> > > 
-> > > The code's a bit unusual.  Most drivers don't have all that
-> > > if-then-else stuff.  They use a separate function for each sysfs file
-> > > and then they wrap it all up into a macro which emits all the data and
-> > > code for each file.
+On Monday 02 March 2009, Peter Zijlstra wrote:
+> > > How so?, its the natural extension of that work.
 > > 
-> > Yes, most don't, but that is because we used to not pass the attribute
-> > variable to the show/store functions.  It was added so that we could
-> > reduce the huge numbers of functions needed, to do stuff like this.  The
-> > hwmon drivers are examples of other drivers that do their show/store
-> > like this.
-> > 
-> > There's nothing wrong with it that I can see.
-> > 
+> > Not the work to shrink the amount of time IRQ latencies
+> > by shrinking the amount of time IRQs are disabled by
+> > IRQ handlers.
 > 
-> OK.  I think.
-> 
-> - This approach will require a large number of edits each time an
->   attribute is added/removed.
+> Ugh, that's done by pushing work out of the hardirq context,
 
-That's really not a big dea.
+That's one of many techniques currently used.
 
-> - otoh, removing nasty macros is always nice.
-> 
-> - This approach will generate slower code (which doesn't matter
->   here).
+Tradeoffs don't always favor larger driver updates
+and re-validation though.  Sometimes it's simpler
+to just leverage the reality that "hardirq context"
+does not require using IRQF_DISABLED.
 
-True.
 
-> - Was it demonstrated that this approach generates less code?
+> not by doing silly things like enabling irqs from hardirq context.
 
-Yes it was.  I can go dig through the archives if you want real numbers.
+Somehow I'm certain you have NOT analysed every one of the
+thousands of IRQ handlers in various Linux drivers to know
+with certainty that's not the reason IRQ_DISABLED is cleared.
 
-thanks,
+There are also *other* reasons to leave IRQ_DISABLED clear.
 
-greg k-h
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+- Dave

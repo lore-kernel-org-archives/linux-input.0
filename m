@@ -1,43 +1,86 @@
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
 Subject: Re: PATCH [1/3] drivers/input/xpad.c: Improve Xbox 360 wireless
- support and add sysfs interface
-Date: Mon, 2 Mar 2009 14:00:14 -0800
-Message-ID: <20090302140014.47b60178.akpm@linux-foundation.org>
-References: <5aa163d00902282053h38b0febbyb37fc30855fdc985@mail.gmail.com>
-	<20090302130425.23cc628d.akpm@linux-foundation.org>
-	<5aa163d00903021346g59d90241v11f384eb97641e43@mail.gmail.com>
+	support  and add sysfs interface
+Date: Mon, 2 Mar 2009 13:59:10 -0800
+Message-ID: <20090302215910.GA31164@kroah.com>
+References: <5aa163d00902282053h38b0febbyb37fc30855fdc985@mail.gmail.com> <20090302130425.23cc628d.akpm@linux-foundation.org> <20090302211820.GA21489@kroah.com> <20090302133551.1266f725.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:38838 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1751618AbZCBWAr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Mar 2009 17:00:47 -0500
-In-Reply-To: <5aa163d00903021346g59d90241v11f384eb97641e43@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20090302133551.1266f725.akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org, fweisbec-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Murphy <mamurph@cs.clemson.edu>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, greg@kroah.com, oliver@neukum.org, fweisbec@gmail.com, torvalds@linux-foundation.org
 
-On Mon, 2 Mar 2009 16:46:01 -0500
-Mike Murphy <mamurph@cs.clemson.edu> wrote:
+On Mon, Mar 02, 2009 at 01:35:51PM -0800, Andrew Morton wrote:
+> On Mon, 2 Mar 2009 13:18:20 -0800
+> Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org> wrote:
+> 
+> > On Mon, Mar 02, 2009 at 01:04:25PM -0800, Andrew Morton wrote:
+> > > On Sat, 28 Feb 2009 23:53:03 -0500
+> > > Mike Murphy <mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org> wrote:
+> > > > ...
+> > > >
+> > > > +static ssize_t xpad_show_int(struct device *dev, struct device_attribute *attr,
+> > > > +		char *buf)
+> > > > +{
+> > > > +	struct usb_xpad *xpad = to_xpad(dev);
+> > > > +	int value;
+> > > > +	if (attr == &dev_attr_rumble_enable)
+> > > > +		value = xpad->rumble_enable;
+> > > > +	else if (attr == &dev_attr_controller_number)
+> > > > +		value = xpad->controller_number;
+> > > > +	else if (attr == &dev_attr_controller_present)
+> > > > +		value = xpad->controller_present;
+> > > > +	else if (attr == &dev_attr_controller_type)
+> > > > +		value = xpad->controller_type;
+> > > > +	else if (attr == &dev_attr_left_trigger_full_axis)
+> > > > +		value = xpad->left_trigger_full_axis;
+> > > > +	else if (attr == &dev_attr_right_trigger_full_axis)
+> > > > +		value = xpad->right_trigger_full_axis;
+> > > > +	else
+> > > > +		return -EIO;
+> > > > +	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+> > > > +}
+> > > 
+> > > The code's a bit unusual.  Most drivers don't have all that
+> > > if-then-else stuff.  They use a separate function for each sysfs file
+> > > and then they wrap it all up into a macro which emits all the data and
+> > > code for each file.
+> > 
+> > Yes, most don't, but that is because we used to not pass the attribute
+> > variable to the show/store functions.  It was added so that we could
+> > reduce the huge numbers of functions needed, to do stuff like this.  The
+> > hwmon drivers are examples of other drivers that do their show/store
+> > like this.
+> > 
+> > There's nothing wrong with it that I can see.
+> > 
+> 
+> OK.  I think.
+> 
+> - This approach will require a large number of edits each time an
+>   attribute is added/removed.
 
-> I had looked up another driver that used a header file in the stable
-> tree
+That's really not a big dea.
 
-Yup, there's lots of crappy code in the tree, and it is regrettable
-that maintainers continue to go ahead and merge that crappy code.
+> - otoh, removing nasty macros is always nice.
+> 
+> - This approach will generate slower code (which doesn't matter
+>   here).
 
-There's no easy fix for this - you need to be aware of what is right
-and what is wrong, but you cannot look at existing code to determine
-this :(
+True.
 
-If the code which you're modifying is known (by you) to be wrong then
-there are two schools of thought.  Some people do like to "match the
-existing code".  I disagree with that.  The code's wrong dammit - we
-might as well make the new code "right".  If that results in
-inconsistent-looking code, well, so be it.  We shouldn't have merged
-the wrong code in the first place.
+> - Was it demonstrated that this approach generates less code?
 
+Yes it was.  I can go dig through the archives if you want real numbers.
+
+thanks,
+
+greg k-h
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

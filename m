@@ -1,79 +1,72 @@
-From: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Subject: Re: PATCH [1/3] drivers/input/xpad.c: Improve Xbox 360 wireless
- support  and add sysfs interface
-Date: Mon, 2 Mar 2009 13:35:51 -0800
-Message-ID: <20090302133551.1266f725.akpm@linux-foundation.org>
-References: <5aa163d00902282053h38b0febbyb37fc30855fdc985@mail.gmail.com>
-	<20090302130425.23cc628d.akpm@linux-foundation.org>
-	<20090302211820.GA21489@kroah.com>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Mon, 2 Mar 2009 13:37:20 -0800
+Message-ID: <200903021337.20887.david-b@pacbell.net>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021304.56881.david-b@pacbell.net> <1236028617.18955.14.camel@twins>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090302211820.GA21489-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Cc: mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org, fweisbec-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from n27.bullet.mail.mud.yahoo.com ([68.142.206.222]:47663 "HELO
+	n27.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752634AbZCBVhZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Mar 2009 16:37:25 -0500
+In-Reply-To: <1236028617.18955.14.camel@twins>
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
 
-On Mon, 2 Mar 2009 13:18:20 -0800
-Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org> wrote:
-
-> On Mon, Mar 02, 2009 at 01:04:25PM -0800, Andrew Morton wrote:
-> > On Sat, 28 Feb 2009 23:53:03 -0500
-> > Mike Murphy <mamurph-ZCNwHF9ErpZ2icitjWtXSw@public.gmane.org> wrote:
-> > > ...
-> > >
-> > > +static ssize_t xpad_show_int(struct device *dev, struct device_attribute *attr,
-> > > +		char *buf)
-> > > +{
-> > > +	struct usb_xpad *xpad = to_xpad(dev);
-> > > +	int value;
-> > > +	if (attr == &dev_attr_rumble_enable)
-> > > +		value = xpad->rumble_enable;
-> > > +	else if (attr == &dev_attr_controller_number)
-> > > +		value = xpad->controller_number;
-> > > +	else if (attr == &dev_attr_controller_present)
-> > > +		value = xpad->controller_present;
-> > > +	else if (attr == &dev_attr_controller_type)
-> > > +		value = xpad->controller_type;
-> > > +	else if (attr == &dev_attr_left_trigger_full_axis)
-> > > +		value = xpad->left_trigger_full_axis;
-> > > +	else if (attr == &dev_attr_right_trigger_full_axis)
-> > > +		value = xpad->right_trigger_full_axis;
-> > > +	else
-> > > +		return -EIO;
-> > > +	return snprintf(buf, PAGE_SIZE, "%d\n", value);
-> > > +}
+On Monday 02 March 2009, Peter Zijlstra wrote:
+> On Mon, 2009-03-02 at 13:04 -0800, David Brownell wrote:
+> > On Monday 02 March 2009, Peter Zijlstra wrote:
+> > > IRQF_DISABLED is bonkers,
 > > 
-> > The code's a bit unusual.  Most drivers don't have all that
-> > if-then-else stuff.  They use a separate function for each sysfs file
-> > and then they wrap it all up into a macro which emits all the data and
-> > code for each file.
+> > Hmm, after all the work that's been done to get Linux
+> > to the point where *most* drivers run without IRQs
+
+Typo:  "drivers run *with* IRQs enabled".  Not "without".
+Should be evident from context.
+
+
+> > enabled ... that sentiment surprises me.
+> > 
+> > And I suspect it would surprise most driver developers.
 > 
-> Yes, most don't, but that is because we used to not pass the attribute
-> variable to the show/store functions.  It was added so that we could
-> reduce the huge numbers of functions needed, to do stuff like this.  The
-> hwmon drivers are examples of other drivers that do their show/store
-> like this.
+> How so?, its the natural extension of that work.
+
+Not the work to shrink the amount of time IRQ latencies
+by shrinking the amount of time IRQs are disabled by
+IRQ handlers.
+
+
+> > > we should simply always disable interrupts for 
+> > > interrupt handlers.
+> > 
+> > That would be why you have refused to fix the bug
+> > in lockdep, whereby it forcibly enables that flag?
+> > 
+> > I've been wondering for some months now why you've
+> > left that bug unfixed.
 > 
-> There's nothing wrong with it that I can see.
-> 
+> Because running irq handlers with irqs enabled it plain silly.
 
-OK.  I think.
+Not if you have hardware-prioritized IRQs, which are
+fairly common in some environments ... handling an IRQ
+for high priority device A needn't interfere with the
+handler for lower priority device B, and the system
+overall can work better.
 
-- This approach will require a large number of edits each time an
-  attribute is added/removed.
+Not if you need to shrink IRQ latencies by minimizing
+irqs-off critical sections everywhere ... IRQ handlers
+being common offenders for keeping IRQs off too long.
 
-- otoh, removing nasty macros is always nice.
-
-- This approach will generate slower code (which doesn't matter
-  here).
-
-- Was it demonstrated that this approach generates less code?
+Not when IRQs can be disabled selectively around the
+real critical sections ... so drivers can leave IRQs
+enabled except in those brief sections.
+ 
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

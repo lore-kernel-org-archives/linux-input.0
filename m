@@ -1,56 +1,43 @@
-From: Ingo Molnar <mingo@elte.hu>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Tue, 3 Mar 2009 00:58:17 +0100
-Message-ID: <20090302235817.GC19084@elte.hu>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021520.30826.david-b@pacbell.net> <20090302232650.GA14515@elte.hu> <200903021548.19504.david-b@pacbell.net>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: lockdep and threaded IRQs
+Date: Mon, 2 Mar 2009 14:57:57 -0800
+Message-ID: <20090302145757.38a44307.akpm@linux-foundation.org>
+References: <1236030106.5330.1553.camel@laptop>
+	<200903021409.21344.david-b@pacbell.net>
+	<1236032371.5330.1654.camel@laptop>
+	<20090302.144647.116847598.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx3.mail.elte.hu ([157.181.1.138]:45526 "EHLO mx3.mail.elte.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751580AbZCBX6h (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 2 Mar 2009 18:58:37 -0500
-Content-Disposition: inline
-In-Reply-To: <200903021548.19504.david-b@pacbell.net>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:36810 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1755273AbZCBX71 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Mar 2009 18:59:27 -0500
+In-Reply-To: <20090302.144647.116847598.davem@davemloft.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
+To: David Miller <davem@davemloft.net>
+Cc: a.p.zijlstra@chello.nl, dbrownell@users.sourceforge.net, tglx@linutronix.de, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
 
+On Mon, 02 Mar 2009 14:46:47 -0800 (PST)
+David Miller <davem@davemloft.net> wrote:
 
-* David Brownell <david-b@pacbell.net> wrote:
+> From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> Date: Mon, 02 Mar 2009 23:19:31 +0100
+> 
+> > I state that every !IRQF_DISABLED usage is a bug, either due to broken
+> > hardware or broken drivers.
+> 
+> We'll send you the bill to have everyone's hardware
+> replaced :-)
 
-> On Monday 02 March 2009, Ingo Molnar wrote:
-> >=20
-> > > > > What's unfortunate is that you prefer not to fix that
-> > > > > IRQF_DISABLED bug in lockdep, which you co-"maintain".
-> > > > > When running with lockdep, that bug (a) introduces bugs
-> > > > > in some drivers and (b) hides bugs in others. =A0You've
-> > > > > rejected even a minimal warning fix, to help minimize
-> > > > > the amount of time developers waste on (a) and (b).
-> > > >=20
-> > > > I've come to the conclusion that the only technically sound sol=
-ution is
-> > > > to do as I proposed today, utterly eliminate !IRQF_DISABLED han=
-dlers.
-> > >=20
-> > > As you announced today. =A0If you truly believe that, then
-> > > you should at least submit a warning patch for 2.6.29-rc
-> > > ("driver X isn't setting IRQF_DISABLED, reimplement!")
-> >=20
-> > i have changed the BUG_ON() to a WARN_ONCE() message so the=20
-> > warning is in place now.
->=20
-> The patch Peter sent doesn't relate in the least to removing=20
-> the IRQF_DISABLED flag though.  Patches addressing that would=20
-> be in setup_irq() code paths not IRQ dispatch.
+yes, but with what?
 
-yes, i referred to the BUG_ON(!irq_irq()) patch.
+No matter how fast all our interrupt handlers are, running them with
+local interrupts disabled has to worsen the worst-case interrupt
+latency.
 
-	Ingo
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I don't see how removing !IRQF_DISABLED improves the kernel - in fact
+there's a latency argument for making !IRQF_DISABLED the default.

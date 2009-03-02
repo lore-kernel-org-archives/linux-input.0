@@ -1,58 +1,46 @@
 From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Mon, 02 Mar 2009 23:19:31 +0100
-Message-ID: <1236032371.5330.1654.camel@laptop>
+Date: Mon, 02 Mar 2009 23:25:22 +0100
+Message-ID: <1236032722.5330.1675.camel@laptop>
 References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	 <200903021337.20887.david-b@pacbell.net>
-	 <1236030106.5330.1553.camel@laptop>
-	 <200903021409.21344.david-b@pacbell.net>
+	 <200902271518.58246.david-b@pacbell.net> <1235999770.5330.367.camel@laptop>
+	 <200903021410.25889.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:35420 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754173AbZCBWUD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 17:20:03 -0500
-In-Reply-To: <200903021409.21344.david-b@pacbell.net>
+Received: from casper.infradead.org ([85.118.1.10]:55413 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751208AbZCBWZq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 17:25:46 -0500
+In-Reply-To: <200903021410.25889.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dbrownell@users.sourceforge.net
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
+To: David Brownell <david-b@pacbell.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
 
-On Mon, 2009-03-02 at 14:09 -0800, David Brownell wrote:
-> On Monday 02 March 2009, Peter Zijlstra wrote:
-> > > > How so?, its the natural extension of that work.
-> > > 
-> > > Not the work to shrink the amount of time IRQ latencies
-> > > by shrinking the amount of time IRQs are disabled by
-> > > IRQ handlers.
-> > 
-> > Ugh, that's done by pushing work out of the hardirq context,
-> 
-> That's one of many techniques currently used.
-> 
-> Tradeoffs don't always favor larger driver updates
-> and re-validation though.  Sometimes it's simpler
-> to just leverage the reality that "hardirq context"
-> does not require using IRQF_DISABLED.
+On Mon, 2009-03-02 at 14:10 -0800, David Brownell wrote:
 
-Simpler doesn't mean its a good idea, it opens the door to stack
-overruns for one.
+> What's unfortunate is that you prefer not to fix that
+> IRQF_DISABLED bug in lockdep, which you co-"maintain".
+> When running with lockdep, that bug (a) introduces bugs
+> in some drivers and (b) hides bugs in others.  You've
+> rejected even a minimal warning fix, to help minimize
+> the amount of time developers waste on (a) and (b).
 
-Its very unfortunate that people think its a good idea.
+I've come to the conclusion that the only technically sound solution is
+to do as I proposed today, utterly eliminate !IRQF_DISABLED handlers.
 
-> > not by doing silly things like enabling irqs from hardirq context.
-> 
-> Somehow I'm certain you have NOT analysed every one of the
-> thousands of IRQ handlers in various Linux drivers to know
-> with certainty that's not the reason IRQ_DISABLED is cleared.
-> 
-> There are also *other* reasons to leave IRQ_DISABLED clear.
+Apparently you had enough time to come up with the creative genirq abuse
+of twl4030, I think that with a similar effort you could have
+implemented generic threaded irq stuff like proposed by Thomas.
 
-There might be reasons to do so, that doesn't mean its a good idea and
-the desired thing to do.
+> Attacking folk for having to cope with such bugs escalates
+> things beyond "unfortunate".  If lockdep is "maintained",
+> your response should be fixing that lockdep bug.  Once
+> that's done, all workarounds for that bug can be removed.
 
-I state that every !IRQF_DISABLED usage is a bug, either due to broken
-hardware or broken drivers.
+I state there is no lockdep bug in this respect. The bug is trying to
+enable interrupts from hardirq context and running code that assumes
+hardirq context from task context.
 

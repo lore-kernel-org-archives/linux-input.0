@@ -1,66 +1,41 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 2/2] Input: add wm97xx accelerated driver for AVR32 AT32AP700X
- microprocessors
-Date: Mon, 02 Mar 2009 15:34:43 +0100
-Message-ID: <49ABEE83.904@gmail.com>
-References: <1236000228-13025-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1236000228-13025-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] generic driver for rotary encoders on GPIOs
+Date: Mon, 2 Mar 2009 15:43:08 +0100
+Message-ID: <20090302144308.GB11072@buzzloop.caiaq.de>
+References: <20090227064314.GB32470@buzzloop.caiaq.de> <1235757652-16514-1-git-send-email-daniel@caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901349198@mi8nycmail19.Mi8.com> <20090227183449.GD8855@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901349253@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.156]:30563 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752062AbZCBOes (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 09:34:48 -0500
-In-Reply-To: <1236000228-13025-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+Received: from buzzloop.caiaq.de ([212.112.241.133]:53540 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751948AbZCBOnN (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 09:43:13 -0500
+Content-Disposition: inline
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901349253@mi8nycmail19.Mi8.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/at32-wm97xx.c
-> +static void at32_wm97xx_pen_timer(unsigned long data)
+On Fri, Feb 27, 2009 at 03:15:23PM -0500, hartleys wrote:
+> Not sure if it matters but you can add my Tested-by if you like.
+> 
+> Tested-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> 
+> >> I have a minor patch to it that allows the platform init to
+> >> configure the absolute/relative axis to report the encoder on.
+> >> If you would like to see it I can put together a patch.
+> >
+> > Yes, and probably just post it as follow-up as soon as this one
+> > has been commited. I'm new to this list, so I don't know who
+> > can/will/wants to do this?
+> 
+> Dmitry Torokhov is listed as the maintainer of the input drivers.  I
+> think he needs to Ack the driver in order for it to be accepted and then
+> committed to the kernel.
 
-Wouldn't be delayed_work more appropriate (and convenient) here?
+Dmitry, are you willing to take this patch? Just wanted to make sure
+it's not getting lost :)
 
-> +{
-> +	struct at32_wm97xx *at32_wm97xx = (struct at32_wm97xx *)data;
-> +	struct wm97xx *wm = at32_wm97xx->wm;
-> +	int pen_down = gpio_get_value(at32_wm97xx->gpio_pen);
-> +
-> +	if (pen_down != 0) {
-> +		mod_timer(&at32_wm97xx->pen_timer, jiffies
-> +				+ msecs_to_jiffies(1));
-> +	} else {
-> +		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-> +		input_sync(wm->input_dev);
-> +	}
-> +}
+Daniel
 
-> +static int __init at32_wm97xx_probe(struct platform_device *pdev)
-> +{
-[...]
-> +	at32_wm97xx->regs	= (void *)AT32_WM97XX_AC97C_IOMEM;
-
-(void __iomem *)?
-Did you feed it through sparse?
-
-> +	ret = request_irq(at32_wm97xx->ac97c_irq,
-> +			at32_wm97xx_channel_b_interrupt,
-> +			IRQF_SHARED, "at32-wm97xx-ch-b", at32_wm97xx);
-[...]
-> +	return wm97xx_register_mach_ops(wm,&at32_mach_ops);
-
-In case it fails, irq remains set up.
-
-> +#ifdef CONFIG_PM
-> +static int at32_wm97xx_suspend(struct platform_device *pdev, pm_message_t msg)
-> +{
-> +	struct at32_wm97xx *at32_wm97xx = platform_get_drvdata(pdev);
-> +
-> +	ac97c_writel(at32_wm97xx, IDR, AC97C_INT_CBEVT);
-> +	disable_irq(at32_wm97xx->gpio_irq);
-
-Here, you should call disable_irq_sync() (that's what I meant by _sync 
-in the last post).

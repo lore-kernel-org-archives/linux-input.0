@@ -1,74 +1,72 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Sun, 1 Mar 2009 14:54:21 -0800
-Message-ID: <200903011454.22280.david-b@pacbell.net>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200902281405.42080.david-b@pacbell.net> <alpine.LFD.2.00.0903011035360.29264@localhost.localdomain>
+From: Richard Hughes <hughsient@gmail.com>
+Subject: suspend / hibernate nomenclature
+Date: Mon, 02 Mar 2009 11:13:49 +0000
+Message-ID: <1235992429.3858.58.camel@hughsie-work.lan>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp126.sbc.mail.sp1.yahoo.com ([69.147.65.185]:24186 "HELO
-	smtp126.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1758322AbZCAWyZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 1 Mar 2009 17:54:25 -0500
-In-Reply-To: <alpine.LFD.2.00.0903011035360.29264@localhost.localdomain>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-acpi <linux-acpi@vger.kernel.org>
+Cc: Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, a.p.zijlstra@chello.nl
 
-On Sunday 01 March 2009, Thomas Gleixner wrote:
-> On Sat, 28 Feb 2009, David Brownell wrote:
-> > That seems to presume a hardirq-to-taskirq handoff.  But the
-> > problem case is taskirq-to-taskirq chaining, through e.g.
-> > what set_irq_chip_and_handler() provided.  (Details not very
-> > amenable to brief emails, just UTSL.)
-> > 
-> > Thing is, I'm not sure a per-IRQ thread can work easily with
-> > that chaining.  The chained IRQs can need to be handled before
-> > the top-level IRQ gets re-enabled.  That's why the twl4030-irq
-> > code uses just one taskirq thread for all incoming events.
-> 
-> This can be solved by a completion as well.
+In the last couple of years, I've been striving to make consistent the
+mapping of sleep states consistent. I don't care what we call things in
+a UI, but we need to make sure we're not arguing about whether:
 
-One of many potential solutions; it's probably a better
-use case for a counting semaphore though, especially if
-they were all going in parallel.  And of course there's
-the issue of where that synch code lives...
+KEY_SUSPEND should be mapped to XF86Standby, XF86Hibernate or XF86Sleep
+KEY_SLEEP should be mapped to XF86Hibernate or XF86Standby
 
-Though I still don't see any real issue with keeping it
-simple and serializing them without creating new threads.
-In terms of resource consumption, that simple solution is
-clearly superior.
+You see it's a mess.
 
+In userspace we've agreed with the following nomenclature:
 
-> > (Which of course is rarely more than one at a time, so there's
-> > little reason not to share that task between the demuxing code
-> > and the events being demuxed.  Interrupts that need processing
-> > via I2C/SPI/etc are more or less by definition not frequent or
-> > performance-critical.)
-> 
-> Then all we need to provide in the generic code is a function which
-> does not go through the handle_IRQ_event() logic and calls the action
-> handler directly.
+standby = sleep CPU and devices (not really used any more)
+suspend = sleep to memory (quite fast)
+hibernate = sleep to disk (slow)
+hybrid = sleep to both (slow, but fast resume)
 
-That is, something to replace handle_simple_irq() and
-handle_edge_irq() flow handlers?  (irq_desc.handle_irq)
+In X, and evdev we've also fixed the mapping, so that:
 
+XF86Sleep : suspend _or_ hibernate (configured in session policy)
+XF86Suspend: suspend
+XF86Hibernate: hibernate
 
-> Not rocket science to do that and better than using 
-> a facility which is designed to run in hardirq context and expect that
-> it works in thread context without complaints.
+This means that if a key on a keyboard can be sleep (but the user can
+choose which), the application handles XF86Sleep. If the button decal is
+marked with a disk, or the ram symbol, then we choose XF86Hibernate or
+XF86Suspend as appropriate.
 
-The main "complaint" is the pre-existing lockdep breakage.  :)
+We've changed this in HAL a few years ago, xproto, libX11 and
+xkeyboard-config last year, and nearly all of the session software in
+use uses the same nomenclature for the last few years.
 
-The need to call irq_desc.handle_irq() with IRQs disabled is a
-bit strange, but not really a problem; and it ensures consistent
-locking for the irq_desc statistics and flag updates.
+After reviewing the platform drivers in ACPI, it appears few of them
+know whether KEY_SLEEP corresponds to suspend or hibernate, and
+KEY_SUSPEND seems to be used for hibernate. Basically, it's a mess.
 
-- Dave
+I propose that we add a KEY_HIBERNATE (key 247), and then we can just
+do:
+
+KEY_HIBERNATE -> XF86Hibernate -> sleep to disk
+KEY_SUSPEND   -> XF86Suspend   -> sleep to ram
+KEY_SLEEP     -> XF86Sleep     -> sleep (configurable)
+
+Then the drivers can be patched so everyone is doing the same thing. At
+the moment I'm diagnosing bugs and trying to work around the brokenness
+in userspace hal-info every few days, and it's getting tiresome.
+
+Feedback welcome, although please don't comment on things like "suspend
+sounds more like a suspend to disk" as we spent years talking with
+userspace people working for a compromise, and this is what we've
+settled on. It's not to everyones taste, but we _do_ need to agree on
+something, even if its just an agreed bodge.
+
+Would patches be accepted to fix this?
+
+Thanks,
+
+Richard Hughes.
 
 

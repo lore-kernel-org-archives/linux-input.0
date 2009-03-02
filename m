@@ -1,42 +1,63 @@
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Mon, 02 Mar 2009 22:16:57 +0100
-Message-ID: <1236028617.18955.14.camel@twins>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	 <200903011454.22280.david-b@pacbell.net> <1235999772.5330.368.camel@laptop>
-	 <200903021304.56881.david-b@pacbell.net>
+From: Greg KH <greg@kroah.com>
+Subject: Re: PATCH [1/3] drivers/input/xpad.c: Improve Xbox 360 wireless
+	support  and add sysfs interface
+Date: Mon, 2 Mar 2009 13:18:20 -0800
+Message-ID: <20090302211820.GA21489@kroah.com>
+References: <5aa163d00902282053h38b0febbyb37fc30855fdc985@mail.gmail.com> <20090302130425.23cc628d.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754913AbZCBVRi@vger.kernel.org>
-In-Reply-To: <200903021304.56881.david-b@pacbell.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from kroah.org ([198.145.64.141]:49973 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1752654AbZCBVUa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Mar 2009 16:20:30 -0500
+Content-Disposition: inline
+In-Reply-To: <20090302130425.23cc628d.akpm@linux-foundation.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mike Murphy <mamurph@cs.clemson.edu>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, oliver@neukum.org, fweisbec@gmail.com, torvalds@linux-foundation.org
 
-On Mon, 2009-03-02 at 13:04 -0800, David Brownell wrote:
-> On Monday 02 March 2009, Peter Zijlstra wrote:
-> > IRQF_DISABLED is bonkers,
+On Mon, Mar 02, 2009 at 01:04:25PM -0800, Andrew Morton wrote:
+> On Sat, 28 Feb 2009 23:53:03 -0500
+> Mike Murphy <mamurph@cs.clemson.edu> wrote:
+> > ...
+> >
+> > +static ssize_t xpad_show_int(struct device *dev, struct device_attribute *attr,
+> > +		char *buf)
+> > +{
+> > +	struct usb_xpad *xpad = to_xpad(dev);
+> > +	int value;
+> > +	if (attr == &dev_attr_rumble_enable)
+> > +		value = xpad->rumble_enable;
+> > +	else if (attr == &dev_attr_controller_number)
+> > +		value = xpad->controller_number;
+> > +	else if (attr == &dev_attr_controller_present)
+> > +		value = xpad->controller_present;
+> > +	else if (attr == &dev_attr_controller_type)
+> > +		value = xpad->controller_type;
+> > +	else if (attr == &dev_attr_left_trigger_full_axis)
+> > +		value = xpad->left_trigger_full_axis;
+> > +	else if (attr == &dev_attr_right_trigger_full_axis)
+> > +		value = xpad->right_trigger_full_axis;
+> > +	else
+> > +		return -EIO;
+> > +	return snprintf(buf, PAGE_SIZE, "%d\n", value);
+> > +}
 > 
-> Hmm, after all the work that's been done to get Linux
-> to the point where *most* drivers run without IRQs
-> enabled ... that sentiment surprises me.
-> 
-> And I suspect it would surprise most driver developers.
+> The code's a bit unusual.  Most drivers don't have all that
+> if-then-else stuff.  They use a separate function for each sysfs file
+> and then they wrap it all up into a macro which emits all the data and
+> code for each file.
 
-How so?, its the natural extension of that work.
+Yes, most don't, but that is because we used to not pass the attribute
+variable to the show/store functions.  It was added so that we could
+reduce the huge numbers of functions needed, to do stuff like this.  The
+hwmon drivers are examples of other drivers that do their show/store
+like this.
 
-> > we should simply always disable interrupts for 
-> > interrupt handlers.
-> 
-> That would be why you have refused to fix the bug
-> in lockdep, whereby it forcibly enables that flag?
-> 
-> I've been wondering for some months now why you've
-> left that bug unfixed.
+There's nothing wrong with it that I can see.
 
-Because running irq handlers with irqs enabled it plain silly.
+thanks,
 
-Except it turns out there is some really broken ass hardware out there.
-But supposedly IDE PIO could be done from a threaded handler.
+greg k-h

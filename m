@@ -1,75 +1,43 @@
-From: Mike Murphy <mamurph@cs.clemson.edu>
+From: Andrew Morton <akpm@linux-foundation.org>
 Subject: Re: PATCH [1/3] drivers/input/xpad.c: Improve Xbox 360 wireless
-	support and add sysfs interface
-Date: Mon, 2 Mar 2009 16:59:48 -0500
-Message-ID: <5aa163d00903021359x3a4693f5tbb7f1e3fec4d88b8@mail.gmail.com>
+ support and add sysfs interface
+Date: Mon, 2 Mar 2009 14:00:14 -0800
+Message-ID: <20090302140014.47b60178.akpm@linux-foundation.org>
 References: <5aa163d00902282053h38b0febbyb37fc30855fdc985@mail.gmail.com>
-	 <20090302130425.23cc628d.akpm@linux-foundation.org>
-	 <20090302211820.GA21489@kroah.com>
-	 <20090302133551.1266f725.akpm@linux-foundation.org>
+	<20090302130425.23cc628d.akpm@linux-foundation.org>
+	<5aa163d00903021346g59d90241v11f384eb97641e43@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.28]:9678 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750786AbZCBV7w convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 16:59:52 -0500
-In-Reply-To: <20090302133551.1266f725.akpm@linux-foundation.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:38838 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751618AbZCBWAr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Mar 2009 17:00:47 -0500
+In-Reply-To: <5aa163d00903021346g59d90241v11f384eb97641e43@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, oliver@neukum.org, fweisbec@gmail.com, torvalds@linux-foundation.org
+To: Mike Murphy <mamurph@cs.clemson.edu>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, linux-usb@vger.kernel.org, greg@kroah.com, oliver@neukum.org, fweisbec@gmail.com, torvalds@linux-foundation.org
 
-On Mon, Mar 2, 2009 at 4:35 PM, Andrew Morton <akpm@linux-foundation.or=
-g> wrote:
->
-> OK. =A0I think.
->
-> - This approach will require a large number of edits each time an
-> =A0attribute is added/removed.
->
-> - otoh, removing nasty macros is always nice.
->
-> - This approach will generate slower code (which doesn't matter
-> =A0here).
->
-> - Was it demonstrated that this approach generates less code?
->
+On Mon, 2 Mar 2009 16:46:01 -0500
+Mike Murphy <mamurph@cs.clemson.edu> wrote:
 
-It should generate less code, as compared to having two functions
-(show and store) per attribute, in which each function has about 4
-lines and a local variable for the store functions (which is there for
-type validation). For both show and store functions, there still has
-to be code to get to the struct usb_xpad instance.
+> I had looked up another driver that used a header file in the stable
+> tree
 
-As I was coding this interface, I found myself wishing for a
-macro-based system like module parameters have. For example, it would
-be nice to be able to do something like the following:
+Yup, there's lots of crappy code in the tree, and it is regrettable
+that maintainers continue to go ahead and merge that crappy code.
 
-DECLARE_SYSFS_INTERFACE(&xpad->dead_zone, uint, &check_dead_zone);
+There's no easy fix for this - you need to be aware of what is right
+and what is wrong, but you cannot look at existing code to determine
+this :(
 
-which would create the needed show/store functions that worked with an
-unsigned int. The check_dead_zone function would be a validator
-function inside the module that would check the validity on a
-user-supplied value on store (in this case, to be sure it was at least
-1024 below the stick limit) and return an error code if the value were
-out of range. Yes, the validator would be an extra function call, but
-this code doesn't run in an interrupt context, so the benefit of being
-able to centralize the functionality and simplify drivers might be
-worth the extra overhead.
+If the code which you're modifying is known (by you) to be wrong then
+there are two schools of thought.  Some people do like to "match the
+existing code".  I disagree with that.  The code's wrong dammit - we
+might as well make the new code "right".  If that results in
+inconsistent-looking code, well, so be it.  We shouldn't have merged
+the wrong code in the first place.
 
-Mike
---=20
-Mike Murphy
-Ph.D. Candidate and NSF Graduate Research Fellow
-Clemson University School of Computing
-120 McAdams Hall
-Clemson, SC 29634-0974 USA
-Tel: +1 864.656.2838   Fax: +1 864.656.0145
-http://cirg.cs.clemson.edu/~mamurph
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

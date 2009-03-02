@@ -1,41 +1,29 @@
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Mon, 2 Mar 2009 23:35:26 +0000
-Message-ID: <20090302233526.3c694e22@lxorguk.ukuu.org.uk>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	<200903011454.22280.david-b@pacbell.net>
-	<1235999772.5330.368.camel@laptop>
-	<200903021304.56881.david-b@pacbell.net>
-	<1236028617.18955.14.camel@twins>
+From: Alessio Sangalli <alesan@manoweb.com>
+Subject: Re: Notification when a new device is added or removed
+Date: Mon, 02 Mar 2009 15:41:49 -0800
+Message-ID: <49AC6EBD.4090206@manoweb.com>
+References: <49A8BEF7.9060602@manoweb.com> <20090228183917.ZZRA012@mailhub.coreip.homeip.net> <49A9F9BD.2090604@manoweb.com> <20090301022212.ZZRA012@mailhub.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from earthlight.etchedpixels.co.uk ([81.2.110.250]:57518 "EHLO
-	www.etchedpixels.co.uk" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-	with ESMTP id S1754706AbZCBXfK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 18:35:10 -0500
-In-Reply-To: <1236028617.18955.14.camel@twins>
+Received: from moutng.kundenserver.de ([212.227.17.8]:59343 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752738AbZCBXl5 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 18:41:57 -0500
+In-Reply-To: <20090301022212.ZZRA012@mailhub.coreip.homeip.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: David Brownell <david-b@pacbell.net>, Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-> Because running irq handlers with irqs enabled it plain silly.
+Dmitry Torokhov wrote:
 
-It makes enormous sense to run with the ability to mask *just* the IRQ
-that occurred and not others so that long lasting interrupts. 
+> Hmm, it turns out poll is completely busted. The patch below should
+> help.
 
-There is another reason not to do this of course - the real time work
-makes it essentially irrelevant by doing the job right and reducing the
-entire problem space to software priority management.
- 
-> Except it turns out there is some really broken ass hardware out there.
-> But supposedly IDE PIO could be done from a threaded handler.
+Testing shows that patch solves the problem.
 
-Only if you support reliable masking of a single IRQ *after* the IRQ
-handler returns. The real time patches can do that for some chipsets but
-on the PC at least you are into the realms of deepest darkest APIC
-weirdness and that requires Ingo's pointy hat and wand..
+bye!
+as
 
-Alan

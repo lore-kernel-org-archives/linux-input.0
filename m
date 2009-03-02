@@ -1,41 +1,48 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH] generic driver for rotary encoders on GPIOs
-Date: Mon, 2 Mar 2009 15:43:08 +0100
-Message-ID: <20090302144308.GB11072@buzzloop.caiaq.de>
-References: <20090227064314.GB32470@buzzloop.caiaq.de> <1235757652-16514-1-git-send-email-daniel@caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901349198@mi8nycmail19.Mi8.com> <20090227183449.GD8855@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901349253@mi8nycmail19.Mi8.com>
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: [PATCH] genirq: assert that irq handlers are indeed run in hardirq
+ context.
+Date: Mon, 02 Mar 2009 16:13:32 +0100
+Message-ID: <1236006812.5330.632.camel@laptop>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
+	 <200902271350.32380.david-b@pacbell.net>
+	 <20090227140907.f159be9b.akpm@linux-foundation.org>
+	 <200902271518.58246.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:53540 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751948AbZCBOnN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 09:43:13 -0500
-Content-Disposition: inline
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901349253@mi8nycmail19.Mi8.com>
+Received: from bombadil.infradead.org ([18.85.46.34]:52628 "EHLO
+	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755900AbZCBPOS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 10:14:18 -0500
+In-Reply-To: <200902271518.58246.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>
 
-On Fri, Feb 27, 2009 at 03:15:23PM -0500, hartleys wrote:
-> Not sure if it matters but you can add my Tested-by if you like.
-> 
-> Tested-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-> 
-> >> I have a minor patch to it that allows the platform init to
-> >> configure the absolute/relative axis to report the encoder on.
-> >> If you would like to see it I can put together a patch.
-> >
-> > Yes, and probably just post it as follow-up as soon as this one
-> > has been commited. I'm new to this list, so I don't know who
-> > can/will/wants to do this?
-> 
-> Dmitry Torokhov is listed as the maintainer of the input drivers.  I
-> think he needs to Ack the driver in order for it to be accepted and then
-> committed to the kernel.
+On Fri, 2009-02-27 at 15:18 -0800, David Brownell wrote:
+> But these handlers are *NOT* running in hardirq context;
 
-Dmitry, are you willing to take this patch? Just wanted to make sure
-it's not getting lost :)
+Ah, let us stop this tinkering dead in its tracks
 
-Daniel
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ kernel/irq/handle.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/kernel/irq/handle.c b/kernel/irq/handle.c
+index c87d146..b75d73b 100644
+--- a/kernel/irq/handle.c
++++ b/kernel/irq/handle.c
+@@ -354,6 +354,8 @@ irqreturn_t handle_IRQ_event(unsigned int irq, struct irqaction *action)
+ 	irqreturn_t ret, retval = IRQ_NONE;
+ 	unsigned int status = 0;
+ 
++	BUG_ON(!in_irq());
++
+ 	if (!(action->flags & IRQF_DISABLED))
+ 		local_irq_enable_in_hardirq();
+ 
+
 

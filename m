@@ -1,86 +1,74 @@
-From: Jiri Slaby <jirislaby@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Subject: Re: [PATCH 1/2] Input: Accelerated touchscreen support for Marvell
- Zylonite
-Date: Mon, 02 Mar 2009 14:44:28 +0100
-Message-ID: <49ABE2BC.9010401@gmail.com>
-References: <1236000228-13025-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Zylonite
+Date: Mon, 2 Mar 2009 14:00:44 +0000
+Message-ID: <20090302140044.GA23038@rakim.wolfsonmicro.main>
+References: <1236000228-13025-1-git-send-email-broonie@opensource.wolfsonmicro.com> <49ABE2BC.9010401@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.156]:19714 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751777AbZCBNod (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 2 Mar 2009 08:44:33 -0500
-In-Reply-To: <1236000228-13025-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:43554 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1751789AbZCBOAr (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 2 Mar 2009 09:00:47 -0500
+Content-Disposition: inline
+In-Reply-To: <49ABE2BC.9010401@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Jiri Slaby <jirislaby@gmail.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 2.3.2009 14:23, Mark Brown wrote:
-> index 0000000..b016021
-> --- /dev/null
-> +++ b/drivers/input/touchscreen/zylonite-wm97xx.c
-[...]
-> +/*
-> + * Pressure readback.
-> + *
-> + * Set to 1 to read back pen down pressure
-> + */
-> +static int pressure;
-> +module_param(pressure, int, 1);
+On Mon, Mar 02, 2009 at 02:44:28PM +0100, Jiri Slaby wrote:
+> On 2.3.2009 14:23, Mark Brown wrote:
 
-Weird permissions.
+>> +static int pressure;
+>> +module_param(pressure, int, 1);
 
-> +/* flush AC97 slot 5 FIFO machines */
-> +static void wm97xx_acc_pen_up(struct wm97xx *wm)
-> +{
-> +	int count = 16;
-> +	schedule_timeout_uninterruptible(1);
+> Weird permissions.
 
-You meant ssleep(1)?
+Fixed.
 
-> +
-> +	while (count<  16) {
+>> +	int count = 16;
+>> +	schedule_timeout_uninterruptible(1);
 
-Weird condition.
-+ conding style
+> You meant ssleep(1)?
 
-> +		MODR;
-> +		count--;
-> +	}
-> +}
-> +
-> +static int wm97xx_acc_pen_down(struct wm97xx *wm)
-> +{
-> +	u16 x, y, p = 0x100 | WM97XX_ADCSEL_PRES;
-> +	int reads = 0;
-> +
-> +	/* When the AC97 queue has been drained we need to allow time
-> +	 * to buffer up samples otherwise we end up spinning polling
-> +	 * for samples.  The controller can't have a suitably low
-> +	 * threashold set to use the notifications it gives.
-> +	 */
-> +	schedule_timeout_uninterruptible(1);
+msleep, but yes.  Shows how old the code is - I'll update.
 
-ssleep
+>> +
+>> +	while (count<  16) {
 
-> +	if (tries>  5) {
+> Weird condition.
+> + conding style
 
-Where is tries defined?
+Hrm.  This appears to have been mangled somewhere in the mail path to 
+you - the indentation is normal in my send-mail folder and in the copy I
+got back from the list.
 
-> +static int wm97xx_acc_startup(struct wm97xx *wm)
-> +{
-> +	int idx = 0;
 
-No need to initialize.
+>> +	if (tries>  5) {
 
-> +static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
-> +{
-> +	if (enable)
-> +		enable_irq(wm->pen_irq);
-> +	else
-> +		disable_irq(wm->pen_irq);
+> Where is tries defined?
 
-sync?
+Further up the file as a global static.  I've pulled the variables into
+the function since it's the only place they're used.
+
+>> +static int wm97xx_acc_startup(struct wm97xx *wm)
+>> +{
+>> +	int idx = 0;
+
+> No need to initialize.
+
+Fixed.
+
+>> +static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
+>> +{
+>> +	if (enable)
+>> +		enable_irq(wm->pen_irq);
+>> +	else
+>> +		disable_irq(wm->pen_irq);
+
+> sync?
+
+Could you expand on this, please?

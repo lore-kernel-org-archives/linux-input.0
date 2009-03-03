@@ -1,65 +1,81 @@
-From: Ingo Molnar <mingo@elte.hu>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Tue, 3 Mar 2009 12:33:13 +0100
-Message-ID: <20090303113313.GA23980@elte.hu>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu> <200903021837.08635.david-b@pacbell.net> <1236072446.18955.44.camel@twins> <20090303094743.030b2507@lxorguk.ukuu.org.uk> <20090303100329.GA5050@elte.hu> <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk> <20090303104836.GA11532@elte.hu> <20090303111353.5d9e4a8d@lxorguk.ukuu.org.uk>
+Date: Tue, 3 Mar 2009 12:53:02 +0100 (CET)
+Message-ID: <alpine.LFD.2.00.0903031207240.29264@localhost.localdomain>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021520.30826.david-b@pacbell.net> <20090302232650.GA14515@elte.hu> <200903021542.25153.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx3.mail.elte.hu ([157.181.1.138]:56318 "EHLO mx3.mail.elte.hu"
+Received: from www.tglx.de ([62.245.132.106]:51090 "EHLO www.tglx.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753369AbZCCLdx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Mar 2009 06:33:53 -0500
-Content-Disposition: inline
-In-Reply-To: <20090303111353.5d9e4a8d@lxorguk.ukuu.org.uk>
+	id S1751139AbZCCLyJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Mar 2009 06:54:09 -0500
+In-Reply-To: <200903021542.25153.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
+To: David Brownell <david-b@pacbell.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
 
+On Mon, 2 Mar 2009, David Brownell wrote:
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-
-> > Hm, that reads like the boot IRQ erratas of certain chipsets 
-> > - the APIC could throw a fit essentially locking up the 
-> > system. FYI, we have fixes for that upstream already.
+> On Monday 02 March 2009, Ingo Molnar wrote:
+> > If you want to work on genirq threaded IRQ handlers them please 
+> > check out and test the threaded IRQ handlers patches that are 
+> > being worked on at lkml. See:
+> > 
+> > [patch 0/4] genirq: add infrastructure for threaded interrupt handlers V2
 > 
-> Good - certainly it used to be the case that masking APIC IRQs 
-> and leaving them masked from the IRQ handled used to do funny 
-> things sometimes.
-
-I think being careful is definitely warranted in the case of 
-IDE. I'd not be surprised if not all chipsets are mapped via the 
-boot-IRQ quirks: those quirks are opt-in based on PCI IDs - 
-those tend to be the quirk mechanisms with the least coverage. 
-(The IDs were also derived from enterprise testing of -rt, which 
-tends to under-emphasise cheap broken chipsets.)
-
-Plus the erratum you described about doing an IRQ masking 
-mid-PIO-transfer confusing the chipset can also be a separate 
-standalone bug not permitting an irq-masking based IRQ flow at 
-all on such hardware.
-
-So your worries are spot on IMO and are not being dismissed 
-forcibly.
-
-> > i think you severely over-estimate the importance and ratio 
-> > of drivers that enable irqs within irq handlers. (Nor does 
-> > anyone want to break them really - we want to have a sane 
-> > default and we want to flag the broken cases as broken.)
+> I did check them out, as noted earlier in this thread.
 > 
-> IDE. A lot less people use the IDE stack nowdays but its a big 
-> item and getting it wrong tends to eat your files.
-> 
-> I do object to the attitude shown about "forcing" people. It's 
-> a community project built by a large number of people on a mix 
-> of pragmatic and elegant design balances. Maybe it's just 
-> unfortunate choice of wording but it is the wrong sentiment.
+> The significant omission is lack of support for chaining
+> such threads.  Example, an I2C device that exposes
+> several dozen IRQs with mask/ack/... operations that
+> require I2C access.
 
-It was in the heat of the argument i think ...
+Well, the significant omission is on your side. Instead of talking to
+us about the problems and possible shortcomings of the genirq code you
+went there and created your private form of abuse and now you are
+complaining about that. The lockdep issue is not caused by lockdep,
+it's caused by your using code which is designed to run in hardirq
+context from a thread context. It does not become more correct just
+because it works fine w/o lockdep.
 
-(I do think we need to be somewhat less permissive in terms of 
-weird driver practices, but that's just my opinion and not 
-'enforced' via any artificial way.)
+> I'm not sure what Thomas intends to do with that issue,
 
-	Ingo
+I can do something about that, when I know about it, but I have just
+learned about the details in the last few days.
+
+> if anything.  It does touch on messy bits of genirq.
+
+Which mess are you referring to ? 
+
+The problem you described is straight forward and as I said before
+it's not rocket science to provide support for that in the genirq
+code. Your use case does not need to use the chained handler setup at
+all, it just needs to request the main IRQ as a simple type and handle
+the ack/mask/unmask from the two handler parts.
+
+irqreturn_t hardirq_handler()
+{
+	ack_mask(irq);
+	return IRQ_WAKE_THREAD;
+}    
+
+irqreturn_t thread_handler()
+{
+	pending = read_i2c_pending_irqs();
+
+	while (pending) {
+	      ....
+	      d->handle_irq(module_irq, d);
+	}
+	unmask(irq);
+}
+
+The only change in the generic code which is needed is a new handler
+function for the chained irqs "handle_irq_simple_threaded()" which is
+designed to handle the calls from thread context.
+
+Thanks,
+
+	tglx

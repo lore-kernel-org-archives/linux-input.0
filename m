@@ -1,45 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 2/2] Input: add wm97xx accelerated driver for AVR32
-	AT32AP700X microprocessors
-Date: Tue, 3 Mar 2009 01:13:23 -0800
-Message-ID: <20090303091322.GA14557@dtor-d630.eng.vmware.com>
-References: <1236000228-13025-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1236000228-13025-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Tue, 03 Mar 2009 10:27:26 +0100
+Message-ID: <1236072446.18955.44.camel@twins>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
+	 <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu>
+	 <200903021837.08635.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:55885 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750800AbZCCJNf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 04:13:35 -0500
-Content-Disposition: inline
-In-Reply-To: <1236000228-13025-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+Received: from viefep13-int.chello.at ([62.179.121.33]:64496 "EHLO
+	viefep13-int.chello.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751234AbZCCJ14 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 04:27:56 -0500
+In-Reply-To: <200903021837.08635.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
 
-Hi Mark,
+On Mon, 2009-03-02 at 18:37 -0800, David Brownell wrote:
+> No.  But I did get a non-response that didn't include any
+> explanation, and relied totally on unfounded assertions
+> combined with the presumption that someday IRQF_DISABLED
+> will be forced on in all drivers.
 
-On Mon, Mar 02, 2009 at 01:23:48PM +0000, Mark Brown wrote:
-> +
-> +		if (!pressure && source == WM97XX_ADCSEL_Y) {
-> +			input_report_abs(wm->input_dev, ABS_X, at32_wm97xx->x);
-> +			input_report_abs(wm->input_dev, ABS_Y, at32_wm97xx->y);
-> +			input_report_abs(wm->input_dev, ABS_PRESSURE, pen_down);
+Enabling IRQs in hardirq context is BAD because:
 
-Please do not report pressure (and don't advertise ABS_PRESSURE) if you don't
-actually read it. I have seen a follow-up patch that adds BTN_TOUCH that should
-work just fine here. The usage below is good since there you actually do provide
-true pressure readings. BTW, why would one not want pressure readings?
+ - IRQ handler nesting leads to stack overflow
+ - It gives the false impression its OK for IRQ handlers to be slow,
+   it is _NOT_, as you still generate horrible preemption latency.
 
-> +			input_sync(wm->input_dev);
-> +		} else if (pressure && source == WM97XX_ADCSEL_PRES) {
-> +			input_report_abs(wm->input_dev, ABS_X, at32_wm97xx->x);
-> +			input_report_abs(wm->input_dev, ABS_Y, at32_wm97xx->y);
-> +			input_report_abs(wm->input_dev, ABS_PRESSURE, value);
-> +			input_sync(wm->input_dev);
+Therefore IRQF_DISABLED _will_ be forced on everybody some day soon, and
+I'll provide an IRQF_ENABLED for use by broken hardware only (and make a
+TAINT flag for that too).
 
-Thanks.
 
--- 
-Dmitry
+

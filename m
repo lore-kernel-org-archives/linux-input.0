@@ -1,81 +1,200 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Tue, 3 Mar 2009 12:53:02 +0100 (CET)
-Message-ID: <alpine.LFD.2.00.0903031207240.29264@localhost.localdomain>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021520.30826.david-b@pacbell.net> <20090302232650.GA14515@elte.hu> <200903021542.25153.david-b@pacbell.net>
+From: Marcin Slusarz <marcin.slusarz@gmail.com>
+Subject: Re: [RFC PATCH 2/2] Add virtual "idle" device
+Date: Tue, 3 Mar 2009 15:17:01 +0100
+Message-ID: <20090303141652.GA31091@joi>
+References: <1236033772-20329-2-git-send-email-marcin.slusarz@gmail.com> <10f740e80903030200y3f055c28u6a01f279a53cacc1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:51090 "EHLO www.tglx.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751139AbZCCLyJ (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Mar 2009 06:54:09 -0500
-In-Reply-To: <200903021542.25153.david-b@pacbell.net>
+Received: from mail-bw0-f178.google.com ([209.85.218.178]:51925 "EHLO
+	mail-bw0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752028AbZCCORP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 09:17:15 -0500
+Content-Disposition: inline
+In-Reply-To: <10f740e80903030200y3f055c28u6a01f279a53cacc1@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Mon, 2 Mar 2009, David Brownell wrote:
-
-> On Monday 02 March 2009, Ingo Molnar wrote:
-> > If you want to work on genirq threaded IRQ handlers them please 
-> > check out and test the threaded IRQ handlers patches that are 
-> > being worked on at lkml. See:
-> > 
-> > [patch 0/4] genirq: add infrastructure for threaded interrupt handlers V2
+On Tue, Mar 03, 2009 at 11:00:04AM +0100, Geert Uytterhoeven wrote:
+> On Mon, Mar 2, 2009 at 23:42, Marcin Slusarz <marcin.slusarz@gmail.com> wrote:
+> > --- /dev/null
+> > +++ b/drivers/char/idle.c
+> > @@ -0,0 +1,445 @@
 > 
-> I did check them out, as noted earlier in this thread.
+> > +#ifdef DEBUG
+> > +#define idle_printk(args...) printk(KERN_DEBUG "IDLEDEV: " args)
+> > +#else
+> > +#define idle_printk(args...) do {} while (0)
+> > +#endif
 > 
-> The significant omission is lack of support for chaining
-> such threads.  Example, an I2C device that exposes
-> several dozen IRQs with mask/ack/... operations that
-> require I2C access.
+> Please use the standard debug interface, i.e.
+> 
+> #define pr_fmt(fmt) "IDLEDEV: " fmt
+> 
+> and use pr_debug() everywhere, to always have printf()-style format checking.
 
-Well, the significant omission is on your side. Instead of talking to
-us about the problems and possible shortcomings of the genirq code you
-went there and created your private form of abuse and now you are
-complaining about that. The lockdep issue is not caused by lockdep,
-it's caused by your using code which is designed to run in hardirq
-context from a thread context. It does not become more correct just
-because it works fine w/o lockdep.
+Thanks for looking at the patch!
 
-> I'm not sure what Thomas intends to do with that issue,
+And here's a patch implementing your request:
 
-I can do something about that, when I know about it, but I have just
-learned about the details in the last few days.
+---
+From: Marcin Slusarz <marcin.slusarz@gmail.com>
+Subject: [PATCH] idle: convert idle_printk to pr_debug
 
-> if anything.  It does touch on messy bits of genirq.
+Signed-off-by: Marcin Slusarz <marcin.slusarz@gmail.com>
+---
+ drivers/char/idle.c |   40 +++++++++++++++++++---------------------
+ 1 files changed, 19 insertions(+), 21 deletions(-)
 
-Which mess are you referring to ? 
-
-The problem you described is straight forward and as I said before
-it's not rocket science to provide support for that in the genirq
-code. Your use case does not need to use the chained handler setup at
-all, it just needs to request the main IRQ as a simple type and handle
-the ack/mask/unmask from the two handler parts.
-
-irqreturn_t hardirq_handler()
-{
-	ack_mask(irq);
-	return IRQ_WAKE_THREAD;
-}    
-
-irqreturn_t thread_handler()
-{
-	pending = read_i2c_pending_irqs();
-
-	while (pending) {
-	      ....
-	      d->handle_irq(module_irq, d);
-	}
-	unmask(irq);
-}
-
-The only change in the generic code which is needed is a new handler
-function for the chained irqs "handle_irq_simple_threaded()" which is
-designed to handle the calls from thread context.
-
-Thanks,
-
-	tglx
+diff --git a/drivers/char/idle.c b/drivers/char/idle.c
+index 5fe792d..d2b6b2b 100644
+--- a/drivers/char/idle.c
++++ b/drivers/char/idle.c
+@@ -13,11 +13,17 @@
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU General Public License for more details.
+  */
++
++/* these 2 defines must be before include linux/kernel.h */
++/*#define DEBUG*/
++#define pr_fmt(fmt) "IDLEDEV: " fmt
++
+ #include <linux/bug.h>
+ #include <linux/device.h>
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ #include <linux/hrtimer.h>
++#include <linux/kernel.h>
+ #include <linux/keyboard.h>
+ #include <linux/ktime.h>
+ #include <linux/module.h>
+@@ -32,14 +38,6 @@
+ 
+ /* TODO: support all input devices */
+ 
+-/*#define DEBUG*/
+-
+-#ifdef DEBUG
+-#define idle_printk(args...) printk(KERN_DEBUG "IDLEDEV: " args)
+-#else
+-#define idle_printk(args...) do {} while (0)
+-#endif
+-
+ /* spinlock protecting all data */
+ static DEFINE_SPINLOCK(idle_events_lock);
+ 
+@@ -66,7 +64,7 @@ static int idle_kb_event(struct notifier_block *this,
+ {
+ 	unsigned long flags;
+ 
+-	idle_printk("kb_event\n");
++	pr_debug("kb_event\n");
+ 
+ 	spin_lock_irqsave(&idle_events_lock, flags);
+ 
+@@ -124,7 +122,7 @@ static enum hrtimer_restart idle_timer_timeout(struct hrtimer *timer)
+ 			container_of(timer, struct idle_file_data, timer);
+ 	unsigned long flags;
+ 
+-	idle_printk("timeout\n");
++	pr_debug("timeout\n");
+ 
+ 	spin_lock_irqsave(&idle_events_lock, flags);
+ 
+@@ -147,7 +145,7 @@ static int idle_get_event(struct idle_file_data *d, u8 __user *user_event)
+ 	bool wakeup;
+ 	u8 event;
+ 
+-	idle_printk("idle_get_event\n");
++	pr_debug("idle_get_event\n");
+ 
+ 	spin_lock_irq(&idle_events_lock);
+ 
+@@ -187,7 +185,7 @@ static int idle_set_timeout(struct idle_file_data *d, u32 secs)
+ 	if (ktime_compare(timeout, d->timeout) == 0)
+ 		return -EALREADY;
+ 
+-	idle_printk("setting timeout to %u\n", secs);
++	pr_debug("setting timeout to %u\n", secs);
+ 
+ 	hrtimer_cancel(&d->timer);
+ 
+@@ -204,7 +202,7 @@ static int idle_set_timeout(struct idle_file_data *d, u32 secs)
+ 
+ static int idle_remove_timeout(struct idle_file_data *d)
+ {
+-	idle_printk("removing timeout\n");
++	pr_debug("removing timeout\n");
+ 
+ 	hrtimer_cancel(&d->timer);
+ 
+@@ -260,13 +258,13 @@ static unsigned int idle_poll(struct file *f, poll_table *pt)
+ 	unsigned int mask = POLLOUT | POLLWRNORM;
+ 	struct idle_file_data *d = f->private_data;
+ 
+-	idle_printk("idle_poll\n");
++	pr_debug("idle_poll\n");
+ 
+ 	spin_lock_irq(&idle_events_lock);
+ 
+ 	if (event_available(d)) {
+ 		mask |= POLLIN | POLLRDNORM;
+-		idle_printk("idle data available\n");
++		pr_debug("idle data available\n");
+ 	}
+ 
+ 	if (d->waiting_for_wakeup)
+@@ -296,7 +294,7 @@ static int idle_new_client(void)
+ 	mutex_lock(&open_counter_mutex);
+ 
+ 	if (open_counter == 0) {
+-		idle_printk("first client connected\n");
++		pr_debug("first client connected\n");
+ 
+ 		last_input_event_time = ktime_get_real();
+ 
+@@ -344,7 +342,7 @@ static void idle_client_leaving(void)
+ 	mutex_lock(&open_counter_mutex);
+ 
+ 	if (--open_counter == 0) {
+-		idle_printk("last client disconnected\n");
++		pr_debug("last client disconnected\n");
+ 
+ 		WARN_ON(unregister_keyboard_notifier(&idle_nb));
+ 	}
+@@ -381,11 +379,11 @@ static int __init idle_init(void)
+ {
+ 	int err = 0;
+ 
+-	idle_printk("starting\n");
++	pr_debug("starting\n");
+ 
+ 	idle_major = register_chrdev(0, "idle", &idle_ops);
+ 	if (idle_major < 0) {
+-		idle_printk("cannot register device\n");
++		pr_debug("cannot register device\n");
+ 		return idle_major;
+ 	}
+ 
+@@ -402,7 +400,7 @@ static int __init idle_init(void)
+ 		goto out_device;
+ 	}
+ 
+-	idle_printk("device major: %d\n", idle_major);
++	pr_debug("device major: %d\n", idle_major);
+ 
+ 	if (daemon_mode) {
+ 		err = idle_new_client();
+@@ -423,7 +421,7 @@ out_class:
+ 
+ static void __exit idle_exit(void)
+ {
+-	idle_printk("exiting\n");
++	pr_debug("exiting\n");
+ 
+ 	if (daemon_mode)
+ 		idle_client_leaving();
+-- 
+1.6.0.6

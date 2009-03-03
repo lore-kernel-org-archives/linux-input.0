@@ -1,66 +1,45 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 1/5] Input: wm97xx: add BTN_TOUCH event to wm97xx to use it with Android
-Date: Tue,  3 Mar 2009 18:24:40 +0000
-Message-ID: <1236104684-30214-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <20090303182402.GA29542@rakim.wolfsonmicro.main>
+From: Dmitriy Geels <dmitriy.geels@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+	gamepad
+Date: Tue, 3 Mar 2009 21:35:12 +0300
+Message-ID: <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
+	 <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>
+	 <499C2D22.8020005@gmail.com>
+	 <78f5d6bf0902182254v191cc485x62eb211baaddd36@mail.gmail.com>
+	 <499D7C66.6090000@gmail.com>
+	 <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>
+	 <49A813CB.3080805@gmail.com>
+	 <78f5d6bf0903021041o24155b7dg89a5fb975e60c320@mail.gmail.com>
+	 <49AC4300.5090002@gmail.com>
+	 <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50241 "EHLO
-	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752849AbZCCSYr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Mar 2009 13:24:47 -0500
-In-Reply-To: <20090303182402.GA29542@rakim.wolfsonmicro.main>
+Received: from mail-fx0-f176.google.com ([209.85.220.176]:32833 "EHLO
+	mail-fx0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753184AbZCCSfP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 13:35:15 -0500
+Received: by fxm24 with SMTP id 24so2564454fxm.37
+        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2009 10:35:12 -0800 (PST)
+In-Reply-To: <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Rapoport <mike@compulab.co.il>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Anssi Hannula <anssi.hannula@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-From: Mike Rapoport <mike@compulab.co.il>
+2009/3/3 Dmitriy Geels <dmitriy.geels@gmail.com>:
+>> What about running fftest two times in succession, or just ffmvforce two
+>> times in succession, does it trigger the problem?
+> Tried already. No problem. Same with ffmvforce.
+I was wrong: running ffmvforce twice leads to stuck device. There
+should be some initialization/deinitialization problem in it.
 
-Please CC me, I'm not subscribed to linux-input
+>> Also, try removing some effects from fftest one-by-one, and see if the
+>> problem is still triggered.
+> Will try this later, this evening.
+ffmvforce gets stuck after any effect played in fftest.
 
-Android expects BTN_TOUCH events when pen state changes. Add BTN_TOUCH
-event reporting to allow use of wm97xx touchscreen controller wiht
-Android devices.
-
-Signed-off-by: Mike Rapoport <mike@compulab.co.il>
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/touchscreen/wm97xx-core.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index d15aa11..4551f88 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -409,6 +409,7 @@ static int wm97xx_read_samples(struct wm97xx *wm)
- 			wm->pen_is_down = 0;
- 			dev_dbg(wm->dev, "pen up\n");
- 			input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-+			input_report_key(wm->input_dev, BTN_TOUCH, 0);
- 			input_sync(wm->input_dev);
- 		} else if (!(rc & RC_AGAIN)) {
- 			/* We need high frequency updates only while
-@@ -433,6 +434,7 @@ static int wm97xx_read_samples(struct wm97xx *wm)
- 		input_report_abs(wm->input_dev, ABS_X, data.x & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_Y, data.y & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_PRESSURE, data.p & 0xfff);
-+		input_report_key(wm->input_dev, BTN_TOUCH, 1);
- 		input_sync(wm->input_dev);
- 		wm->pen_is_down = 1;
- 		wm->ts_reader_interval = wm->ts_reader_min_interval;
-@@ -629,9 +631,11 @@ static int wm97xx_probe(struct device *dev)
- 	wm->input_dev->open = wm97xx_ts_input_open;
- 	wm->input_dev->close = wm97xx_ts_input_close;
- 	set_bit(EV_ABS, wm->input_dev->evbit);
-+	set_bit(EV_KEY, wm->input_dev->evbit);
- 	set_bit(ABS_X, wm->input_dev->absbit);
- 	set_bit(ABS_Y, wm->input_dev->absbit);
- 	set_bit(ABS_PRESSURE, wm->input_dev->absbit);
-+	set_bit(BTN_TOUCH, wm->input_dev->keybit);
- 	input_set_abs_params(wm->input_dev, ABS_X, abs_x[0], abs_x[1],
- 			     abs_x[2], 0);
- 	input_set_abs_params(wm->input_dev, ABS_Y, abs_y[0], abs_y[1],
--- 
-1.6.1.3
-
+Here is it's source, may be you'll see the problem:
+http://paste.org.ru/index.pl?s8x9x5

@@ -1,46 +1,80 @@
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Tue, 03 Mar 2009 11:39:58 +0100
-Message-ID: <1236076799.22914.31.camel@twins>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	 <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu>
-	 <200903021837.08635.david-b@pacbell.net> <1236072446.18955.44.camel@twins>
-	 <20090303094743.030b2507@lxorguk.ukuu.org.uk>
-	 <20090303100329.GA5050@elte.hu>
-	 <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk>
+Date: Tue, 3 Mar 2009 11:48:36 +0100
+Message-ID: <20090303104836.GA11532@elte.hu>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu> <200903021837.08635.david-b@pacbell.net> <1236072446.18955.44.camel@twins> <20090303094743.030b2507@lxorguk.ukuu.org.uk> <20090303100329.GA5050@elte.hu> <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from viefep15-int.chello.at ([62.179.121.35]:32292 "EHLO
-	viefep15-int.chello.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753381AbZCCKkY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 05:40:24 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:56164 "EHLO mx3.mail.elte.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750711AbZCCKtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Mar 2009 05:49:10 -0500
+Content-Disposition: inline
 In-Reply-To: <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
 
-On Tue, 2009-03-03 at 10:30 +0000, Alan Cox wrote:
+
+* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+
+> > _without_ IRQF_ENABLED: where an IRQ handler can take a long 
+> > time to execute, the handler can be converted to a threaded 
+> > IRQ handler - where it's fine to enable IRQs as there are no 
+> > stack nesting issues.
 > 
+> Only if you can mask the interrupt on the APIC without losing 
+> it or having the APIC throw a fit.
+
+Hm, that reads like the boot IRQ erratas of certain chipsets - 
+the APIC could throw a fit essentially locking up the system. 
+FYI, we have fixes for that upstream already.
+
+Do you have any description about that problem, which hardware 
+it affects, whether it's manufactured today and any (ballpark 
+figure) estimation about the Linux installed base on it? Can 
+they live with the quirk flag?
+
 > > So there's no real technical problem here.
 > 
-> In the long term no - but forcing people to make sudden changes to
-> critical I/O drivers isn't the right way to do it.
+> In the long term no - but forcing people to make sudden 
+> changes to critical I/O drivers isn't the right way to do it.
 
-My plan is:
- 1) find all drivers that do not use IRQF_DISABLED
- 2) add IRQF_LEGACY_ENABLED to those
- 3) make IRQF_DISABLED 0 and remove its functionality
-    while adding IRQF_LEGACY_ENABLED
- 4) make request_irq() print a warning for IRQF_LEGACY_ENABLED
- 5) make an actual IRQF_LEGACY_ENABLED irq firing taint the kernel
+i think you severely over-estimate the importance and ratio of 
+drivers that enable irqs within irq handlers. (Nor does anyone 
+want to break them really - we want to have a sane default and 
+we want to flag the broken cases as broken.)
 
-After that its cleanup time, and I'll try to help out converting some of
-these to threaded IRQs where appropriate.
+The thing is, while you seem to spend precious resources on 
+weird legacy cases, we have a _lot_ of everyday systems in 
+bugzilla that do not boot or do not work for one reason or 
+another. Most of that is not in the weird-hardware category at 
+all.
 
-This will not break any driver, nor force sudden change. Stuff will
-continue working as expected, just a little more boot noise for those
-with crappy drivers/hardware.
+You might also have noticed that over the past 2-3 years the 
+term "hard lockup" in regression reports has gone down by about 
+an order of magnitude - and much of that can be attributed to 
+the lockdep coverage we have in place. So in terms of real 
+everyday quality impact on Linux Peter is very, very, very 
+efficient.
 
+And frankly, while Peter's patch here needs modifications, as a 
+maintainer i prefer Peter as a contributor so much not only 
+because he is fantastically productive in terms of fixing 
+locking crap all over the kernel, but also because he 
+concentrates on the big picture and on the common case and on 
+the net effect on Linux instead of just stubbornly concentrating 
+on an extreme-0.01% of the hardware space.
+
+So your attack on him is quite misguided and unfair:
+
+>> [..] You can talk about forcing things all you like but 
+>> "force" used that way generally means "new maintainer 
+>> required" [...]
+
+Btw., Peter submitted a genirq patch and FYI he does not 
+maintain the genirq subsystem and never maintained it.
+
+	Ingo

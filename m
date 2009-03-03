@@ -1,46 +1,41 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [RFC PATCH 2/2] Add virtual "idle" device
-Date: Tue, 3 Mar 2009 11:00:04 +0100
-Message-ID: <10f740e80903030200y3f055c28u6a01f279a53cacc1@mail.gmail.com>
-References: <1236033772-20329-2-git-send-email-marcin.slusarz@gmail.com>
+From: Ingo Molnar <mingo@elte.hu>
+Subject: Re: lockdep and threaded IRQs (was: ...)
+Date: Tue, 3 Mar 2009 11:03:29 +0100
+Message-ID: <20090303100329.GA5050@elte.hu>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu> <200903021837.08635.david-b@pacbell.net> <1236072446.18955.44.camel@twins> <20090303094743.030b2507@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f178.google.com ([209.85.218.178]:40709 "EHLO
-	mail-bw0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753147AbZCCKAI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 05:00:08 -0500
-In-Reply-To: <1236033772-20329-2-git-send-email-marcin.slusarz@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756087AbZCCKET@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20090303094743.030b2507@lxorguk.ukuu.org.uk>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
 List-Id: linux-input@vger.kernel.org
-To: Marcin Slusarz <marcin.slusarz@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
-On Mon, Mar 2, 2009 at 23:42, Marcin Slusarz <marcin.slusarz@gmail.com> wrote:
-> --- /dev/null
-> +++ b/drivers/char/idle.c
-> @@ -0,0 +1,445 @@
 
-> +#ifdef DEBUG
-> +#define idle_printk(args...) printk(KERN_DEBUG "IDLEDEV: " args)
-> +#else
-> +#define idle_printk(args...) do {} while (0)
-> +#endif
+* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-Please use the standard debug interface, i.e.
+> > Therefore IRQF_DISABLED _will_ be forced on everybody some 
+> > day soon, and I'll provide an IRQF_ENABLED for use by broken 
+> > hardware only (and make a TAINT flag for that too).
+> 
+> I don't think you understand how the kernel project works. If 
+> everyone thinks your change is inappropriate it won't get in.
 
-#define pr_fmt(fmt) "IDLEDEV: " fmt
+The change that people had a problem with was the immediate 
+removal of IRQF_ENABLED, and that's not on the plate anymore.
 
-and use pr_debug() everywhere, to always have printf()-style format checking.
+I dont think anyone offered any example where IRQF_ENABLED is 
+used in a healthy way - they are all legacy or special hw quirks 
+where we limp along with enabling IRQs in a hacky way.
 
-Gr{oetje,eeting}s,
+Furthermore, even these quirky cases can be supported cleanly 
+_without_ IRQF_ENABLED: where an IRQ handler can take a long 
+time to execute, the handler can be converted to a threaded IRQ 
+handler - where it's fine to enable IRQs as there are no stack 
+nesting issues.
 
-						Geert
+So there's no real technical problem here.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+	Ingo

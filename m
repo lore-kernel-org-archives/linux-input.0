@@ -1,52 +1,65 @@
 From: Ingo Molnar <mingo@elte.hu>
 Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Tue, 3 Mar 2009 12:19:03 +0100
-Message-ID: <20090303111903.GA21902@elte.hu>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu> <200903021837.08635.david-b@pacbell.net> <1236072446.18955.44.camel@twins> <20090303094743.030b2507@lxorguk.ukuu.org.uk> <20090303100329.GA5050@elte.hu> <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk> <20090303104836.GA11532@elte.hu>
+Date: Tue, 3 Mar 2009 12:33:13 +0100
+Message-ID: <20090303113313.GA23980@elte.hu>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903021633.08736.david-b@pacbell.net> <20090303004427.GA8638@elte.hu> <200903021837.08635.david-b@pacbell.net> <1236072446.18955.44.camel@twins> <20090303094743.030b2507@lxorguk.ukuu.org.uk> <20090303100329.GA5050@elte.hu> <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk> <20090303104836.GA11532@elte.hu> <20090303111353.5d9e4a8d@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx3.mail.elte.hu ([157.181.1.138]:44771 "EHLO mx3.mail.elte.hu"
+Received: from mx3.mail.elte.hu ([157.181.1.138]:56318 "EHLO mx3.mail.elte.hu"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751335AbZCCLTf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 3 Mar 2009 06:19:35 -0500
+	id S1753369AbZCCLdx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 3 Mar 2009 06:33:53 -0500
 Content-Disposition: inline
-In-Reply-To: <20090303104836.GA11532@elte.hu>
+In-Reply-To: <20090303111353.5d9e4a8d@lxorguk.ukuu.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+* Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
+> > Hm, that reads like the boot IRQ erratas of certain chipsets 
+> > - the APIC could throw a fit essentially locking up the 
+> > system. FYI, we have fixes for that upstream already.
 > 
-> * Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> > > _without_ IRQF_ENABLED: where an IRQ handler can take a long 
-> > > time to execute, the handler can be converted to a threaded 
-> > > IRQ handler - where it's fine to enable IRQs as there are no 
-> > > stack nesting issues.
-> > 
-> > Only if you can mask the interrupt on the APIC without 
-> > losing it or having the APIC throw a fit.
-> 
-> Hm, that reads like the boot IRQ erratas of certain chipsets - 
-> the APIC could throw a fit essentially locking up the system. 
-> FYI, we have fixes for that upstream already.
-> 
-> Do you have any description about that problem, which hardware 
-> it affects, whether it's manufactured today and any (ballpark 
-> figure) estimation about the Linux installed base on it? Can 
-> they live with the quirk flag?
+> Good - certainly it used to be the case that masking APIC IRQs 
+> and leaving them masked from the IRQ handled used to do funny 
+> things sometimes.
 
-btw., i definitely do not say that threaded IRQ handlers will 
-work in each an every case (it changes the hardware programming 
-pattern and as such it can bring out new erratas) so i 
-definitely agree with the argument that the conversion has to be 
-careful and case by case.
+I think being careful is definitely warranted in the case of 
+IDE. I'd not be surprised if not all chipsets are mapped via the 
+boot-IRQ quirks: those quirks are opt-in based on PCI IDs - 
+those tend to be the quirk mechanisms with the least coverage. 
+(The IDs were also derived from enterprise testing of -rt, which 
+tends to under-emphasise cheap broken chipsets.)
 
-The plan Peter outlined looks sane. In case you worry about a 
-forced removal of irq-enable - you should not.
+Plus the erratum you described about doing an IRQ masking 
+mid-PIO-transfer confusing the chipset can also be a separate 
+standalone bug not permitting an irq-masking based IRQ flow at 
+all on such hardware.
+
+So your worries are spot on IMO and are not being dismissed 
+forcibly.
+
+> > i think you severely over-estimate the importance and ratio 
+> > of drivers that enable irqs within irq handlers. (Nor does 
+> > anyone want to break them really - we want to have a sane 
+> > default and we want to flag the broken cases as broken.)
+> 
+> IDE. A lot less people use the IDE stack nowdays but its a big 
+> item and getting it wrong tends to eat your files.
+> 
+> I do object to the attitude shown about "forcing" people. It's 
+> a community project built by a large number of people on a mix 
+> of pragmatic and elegant design balances. Maybe it's just 
+> unfortunate choice of wording but it is the wrong sentiment.
+
+It was in the heat of the argument i think ...
+
+(I do think we need to be somewhat less permissive in terms of 
+weird driver practices, but that's just my opinion and not 
+'enforced' via any artificial way.)
 
 	Ingo

@@ -1,200 +1,102 @@
-From: Marcin Slusarz <marcin.slusarz@gmail.com>
-Subject: Re: [RFC PATCH 2/2] Add virtual "idle" device
-Date: Tue, 3 Mar 2009 15:17:01 +0100
-Message-ID: <20090303141652.GA31091@joi>
-References: <1236033772-20329-2-git-send-email-marcin.slusarz@gmail.com> <10f740e80903030200y3f055c28u6a01f279a53cacc1@mail.gmail.com>
+From: Richard Hughes <hughsient@gmail.com>
+Subject: [patch] add KEY_HIBERNATE and clarify the uses of KEY_SUSPEND and
+ KEY_SLEEP
+Date: Tue, 03 Mar 2009 17:20:18 +0000
+Message-ID: <1236100818.3900.36.camel@hughsie-work.lan>
+References: <1235992429.3858.58.camel@hughsie-work.lan>
+	 <20090302112400.GA2356@khazad-dum.debian.net>
+	 <1235995903.3858.83.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="=-qXNgvHX/aF4F/8ss5Hcn"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f178.google.com ([209.85.218.178]:51925 "EHLO
-	mail-bw0-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752028AbZCCORP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 09:17:15 -0500
-Content-Disposition: inline
-In-Reply-To: <10f740e80903030200y3f055c28u6a01f279a53cacc1@mail.gmail.com>
+Received: from mail-ew0-f177.google.com ([209.85.219.177]:59243 "EHLO
+	mail-ew0-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752864AbZCCRVM (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 12:21:12 -0500
+In-Reply-To: <1235995903.3858.83.camel@localhost.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 
-On Tue, Mar 03, 2009 at 11:00:04AM +0100, Geert Uytterhoeven wrote:
-> On Mon, Mar 2, 2009 at 23:42, Marcin Slusarz <marcin.slusarz@gmail.com> wrote:
-> > --- /dev/null
-> > +++ b/drivers/char/idle.c
-> > @@ -0,0 +1,445 @@
-> 
-> > +#ifdef DEBUG
-> > +#define idle_printk(args...) printk(KERN_DEBUG "IDLEDEV: " args)
-> > +#else
-> > +#define idle_printk(args...) do {} while (0)
-> > +#endif
-> 
-> Please use the standard debug interface, i.e.
-> 
-> #define pr_fmt(fmt) "IDLEDEV: " fmt
-> 
-> and use pr_debug() everywhere, to always have printf()-style format checking.
 
-Thanks for looking at the patch!
+--=-qXNgvHX/aF4F/8ss5Hcn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-And here's a patch implementing your request:
+I've attached a patch that adds KEY_HIBERNATE and clarifies the uses of
+KEY_SUSPEND and KEY_SLEEP.
 
+Please consider. Thanks.
+
+Richard Hughes
+
+
+--=-qXNgvHX/aF4F/8ss5Hcn
+Content-Disposition: attachment; filename*0=0001-INPUT-add-KEY_HIBERNATE-and-clarify-the-uses-of-KEY.patc; filename*1=h
+Content-Type: text/x-patch; name="0001-INPUT-add-KEY_HIBERNATE-and-clarify-the-uses-of-KEY.patch"; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+>From bc161c6e4253d94dee3b1c42dfcf32a0120921a1 Mon Sep 17 00:00:00 2001
+From: Richard Hughes <richard@hughsie.com>
+Date: Tue, 3 Mar 2009 17:16:49 +0000
+Subject: [PATCH] INPUT: add KEY_HIBERNATE and clarify the uses of KEY_SUSPEND and KEY_SLEEP
+
+Add a new key define that is used for sleeping to disk.
+
+In userspace we've agreed with the following nomenclature:
+ - standby = sleep CPU and devices (not really used any more)
+ - suspend = sleep to memory (quite fast)
+ - hibernate = sleep to disk (slow)
+
+We've already converted Xorg, HAL, and most of userspace to use the same names.
+Adding a new key should reduce the confusion where:
+
+KEY_SUSPEND was mapped to XF86Standby, XF86Hibernate or XF86Sleep
+KEY_SLEEP was mapped to XF86Hibernate or XF86Standby
+
+With this patch, the sleep keys can be labeled consistently all the way
+through the stack. Other patches to device drivers are to follow.
+
+Signed-off-by: Richard Hughes <hughsient@gmail.com>
 ---
-From: Marcin Slusarz <marcin.slusarz@gmail.com>
-Subject: [PATCH] idle: convert idle_printk to pr_debug
+ include/linux/input.h |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
 
-Signed-off-by: Marcin Slusarz <marcin.slusarz@gmail.com>
----
- drivers/char/idle.c |   40 +++++++++++++++++++---------------------
- 1 files changed, 19 insertions(+), 21 deletions(-)
-
-diff --git a/drivers/char/idle.c b/drivers/char/idle.c
-index 5fe792d..d2b6b2b 100644
---- a/drivers/char/idle.c
-+++ b/drivers/char/idle.c
-@@ -13,11 +13,17 @@
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU General Public License for more details.
-  */
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 1249a0c..f5dee33 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -263,7 +263,7 @@ struct input_absinfo {
+ #define KEY_MENU		139	/* Menu (show menu) */
+ #define KEY_CALC		140	/* AL Calculator */
+ #define KEY_SETUP		141
+-#define KEY_SLEEP		142	/* SC System Sleep */
++#define KEY_SLEEP		142	/* SC System Sleep (either RAM or disk) */
+ #define KEY_WAKEUP		143	/* System Wake Up */
+ #define KEY_FILE		144	/* AL Local Machine Browser */
+ #define KEY_SENDFILE		145
+@@ -324,7 +324,7 @@ struct input_absinfo {
+ #define KEY_PROG3		202
+ #define KEY_PROG4		203
+ #define KEY_DASHBOARD		204	/* AL Dashboard */
+-#define KEY_SUSPEND		205
++#define KEY_SUSPEND		205	/* Sleep state, typically to RAM */
+ #define KEY_CLOSE		206	/* AC Close */
+ #define KEY_PLAY		207
+ #define KEY_FASTFORWARD		208
+@@ -375,6 +375,8 @@ struct input_absinfo {
+ 
+ #define KEY_WIMAX		246
+ 
++#define KEY_HIBERNATE		247	/* Sleep state, typically to disk */
 +
-+/* these 2 defines must be before include linux/kernel.h */
-+/*#define DEBUG*/
-+#define pr_fmt(fmt) "IDLEDEV: " fmt
-+
- #include <linux/bug.h>
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/fs.h>
- #include <linux/hrtimer.h>
-+#include <linux/kernel.h>
- #include <linux/keyboard.h>
- #include <linux/ktime.h>
- #include <linux/module.h>
-@@ -32,14 +38,6 @@
+ /* Range 248 - 255 is reserved for special needs of AT keyboard driver */
  
- /* TODO: support all input devices */
- 
--/*#define DEBUG*/
--
--#ifdef DEBUG
--#define idle_printk(args...) printk(KERN_DEBUG "IDLEDEV: " args)
--#else
--#define idle_printk(args...) do {} while (0)
--#endif
--
- /* spinlock protecting all data */
- static DEFINE_SPINLOCK(idle_events_lock);
- 
-@@ -66,7 +64,7 @@ static int idle_kb_event(struct notifier_block *this,
- {
- 	unsigned long flags;
- 
--	idle_printk("kb_event\n");
-+	pr_debug("kb_event\n");
- 
- 	spin_lock_irqsave(&idle_events_lock, flags);
- 
-@@ -124,7 +122,7 @@ static enum hrtimer_restart idle_timer_timeout(struct hrtimer *timer)
- 			container_of(timer, struct idle_file_data, timer);
- 	unsigned long flags;
- 
--	idle_printk("timeout\n");
-+	pr_debug("timeout\n");
- 
- 	spin_lock_irqsave(&idle_events_lock, flags);
- 
-@@ -147,7 +145,7 @@ static int idle_get_event(struct idle_file_data *d, u8 __user *user_event)
- 	bool wakeup;
- 	u8 event;
- 
--	idle_printk("idle_get_event\n");
-+	pr_debug("idle_get_event\n");
- 
- 	spin_lock_irq(&idle_events_lock);
- 
-@@ -187,7 +185,7 @@ static int idle_set_timeout(struct idle_file_data *d, u32 secs)
- 	if (ktime_compare(timeout, d->timeout) == 0)
- 		return -EALREADY;
- 
--	idle_printk("setting timeout to %u\n", secs);
-+	pr_debug("setting timeout to %u\n", secs);
- 
- 	hrtimer_cancel(&d->timer);
- 
-@@ -204,7 +202,7 @@ static int idle_set_timeout(struct idle_file_data *d, u32 secs)
- 
- static int idle_remove_timeout(struct idle_file_data *d)
- {
--	idle_printk("removing timeout\n");
-+	pr_debug("removing timeout\n");
- 
- 	hrtimer_cancel(&d->timer);
- 
-@@ -260,13 +258,13 @@ static unsigned int idle_poll(struct file *f, poll_table *pt)
- 	unsigned int mask = POLLOUT | POLLWRNORM;
- 	struct idle_file_data *d = f->private_data;
- 
--	idle_printk("idle_poll\n");
-+	pr_debug("idle_poll\n");
- 
- 	spin_lock_irq(&idle_events_lock);
- 
- 	if (event_available(d)) {
- 		mask |= POLLIN | POLLRDNORM;
--		idle_printk("idle data available\n");
-+		pr_debug("idle data available\n");
- 	}
- 
- 	if (d->waiting_for_wakeup)
-@@ -296,7 +294,7 @@ static int idle_new_client(void)
- 	mutex_lock(&open_counter_mutex);
- 
- 	if (open_counter == 0) {
--		idle_printk("first client connected\n");
-+		pr_debug("first client connected\n");
- 
- 		last_input_event_time = ktime_get_real();
- 
-@@ -344,7 +342,7 @@ static void idle_client_leaving(void)
- 	mutex_lock(&open_counter_mutex);
- 
- 	if (--open_counter == 0) {
--		idle_printk("last client disconnected\n");
-+		pr_debug("last client disconnected\n");
- 
- 		WARN_ON(unregister_keyboard_notifier(&idle_nb));
- 	}
-@@ -381,11 +379,11 @@ static int __init idle_init(void)
- {
- 	int err = 0;
- 
--	idle_printk("starting\n");
-+	pr_debug("starting\n");
- 
- 	idle_major = register_chrdev(0, "idle", &idle_ops);
- 	if (idle_major < 0) {
--		idle_printk("cannot register device\n");
-+		pr_debug("cannot register device\n");
- 		return idle_major;
- 	}
- 
-@@ -402,7 +400,7 @@ static int __init idle_init(void)
- 		goto out_device;
- 	}
- 
--	idle_printk("device major: %d\n", idle_major);
-+	pr_debug("device major: %d\n", idle_major);
- 
- 	if (daemon_mode) {
- 		err = idle_new_client();
-@@ -423,7 +421,7 @@ out_class:
- 
- static void __exit idle_exit(void)
- {
--	idle_printk("exiting\n");
-+	pr_debug("exiting\n");
- 
- 	if (daemon_mode)
- 		idle_client_leaving();
+ #define BTN_MISC		0x100
 -- 
-1.6.0.6
+1.6.1.3
+
+
+--=-qXNgvHX/aF4F/8ss5Hcn--
+

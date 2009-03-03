@@ -1,104 +1,55 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH RESEND] Input: wm97xx: add BTN_TOUCH event to wm97xx to
- use it with Android
-Date: Tue, 03 Mar 2009 10:30:45 +0200
-Message-ID: <49ACEAB5.6040404@compulab.co.il>
-References: <49ABE938.8040502@compulab.co.il> <20090302142838.GA23342@rakim.wolfsonmicro.main> <49AC0677.7040102@compulab.co.il> <20090302162151.GA24717@rakim.wolfsonmicro.main>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] generic driver for rotary encoders on GPIOs
+Date: Tue, 3 Mar 2009 00:52:00 -0800
+Message-ID: <20090303085200.GA13793@dtor-d630.eng.vmware.com>
+References: <20090227064314.GB32470@buzzloop.caiaq.de> <1235757652-16514-1-git-send-email-daniel@caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901349198@mi8nycmail19.Mi8.com> <20090227183449.GD8855@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901349253@mi8nycmail19.Mi8.com> <20090302144308.GB11072@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cathcart.site5.com ([74.54.107.137]:36661 "EHLO
-	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751686AbZCCIat (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 03:30:49 -0500
-In-Reply-To: <20090302162151.GA24717@rakim.wolfsonmicro.main>
+Received: from el-out-1112.google.com ([209.85.162.183]:46918 "EHLO
+	el-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752988AbZCCIwO (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 03:52:14 -0500
+Received: by el-out-1112.google.com with SMTP id b25so2044326elf.1
+        for <linux-input@vger.kernel.org>; Tue, 03 Mar 2009 00:52:11 -0800 (PST)
+Content-Disposition: inline
+In-Reply-To: <20090302144308.GB11072@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: dmitry.torokhov@gmail.com, LKML <linux-kernel@vger.kernel.org>, linux-input <linux-input@vger.kernel.org>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-input@vger.kernel.org
 
-Mark,
+Hi Daniel,
 
-Mark Brown wrote:
-> On Mon, Mar 02, 2009 at 06:16:55PM +0200, Mike Rapoport wrote:
+On Mon, Mar 02, 2009 at 03:43:08PM +0100, Daniel Mack wrote:
+> On Fri, Feb 27, 2009 at 03:15:23PM -0500, hartleys wrote:
+> > Not sure if it matters but you can add my Tested-by if you like.
+> > 
+> > Tested-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> > 
+> > >> I have a minor patch to it that allows the platform init to
+> > >> configure the absolute/relative axis to report the encoder on.
+> > >> If you would like to see it I can put together a patch.
+> > >
+> > > Yes, and probably just post it as follow-up as soon as this one
+> > > has been commited. I'm new to this list, so I don't know who
+> > > can/will/wants to do this?
+> > 
+> > Dmitry Torokhov is listed as the maintainer of the input drivers.  I
+> > think he needs to Ack the driver in order for it to be accepted and then
+> > committed to the kernel.
 > 
->> Most touchscreen drivers already have BTN_TOUCH event generation:
+> Dmitry, are you willing to take this patch? Just wanted to make sure
+> it's not getting lost :)
 > 
-> Hrm, I'd found some other hits but I could well have been working on a
-> platform tree with additional drivers merged at the time.
-> 
->> If there no objection I can make a similar patch for mainstone-wm97xx.c and ucb1400_ts.c
-> 
-> No problem for me.  Please see the other two accelerated WM97xx drivers
-> I posted today too.
 
-The below patch adds BTN_TOUCH event reporting for two accelerated drivers
-you've posted yesterday [1] and [2]. This patch is incremental vs. the first spin.
+I am willing, however I would like you to change it so you call
+input_unregister_device() instead of input_free_device() in cases
+when input device was successfully registered with the input core.
+When input_register_device() fails (or if it wasn't invoked) then
+you should call input_free_device().
 
-
-[1] http://lkml.org/lkml/2009/3/2/49
-[2] http://lkml.org/lkml/2009/3/2/50
-
-Signed-off-by: Mike Rapoport <mike@compulab.co.il>
-
- drivers/input/touchscreen/at32-wm97xx.c     |    6 ++++++
- drivers/input/touchscreen/zylonite-wm97xx.c |    1 +
- 2 files changed, 7 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/touchscreen/at32-wm97xx.c b/drivers/input/touchscreen/at32-wm97xx.c
-index 96eeb2d..e34edcd 100644
---- a/drivers/input/touchscreen/at32-wm97xx.c
-+++ b/drivers/input/touchscreen/at32-wm97xx.c
-@@ -145,11 +145,15 @@ static irqreturn_t at32_wm97xx_channel_b_interrupt(int irq, void *dev_id)
- 			input_report_abs(wm->input_dev, ABS_X, at32_wm97xx->x);
- 			input_report_abs(wm->input_dev, ABS_Y, at32_wm97xx->y);
- 			input_report_abs(wm->input_dev, ABS_PRESSURE, pen_down);
-+			input_report_key(wm->input_dev, BTN_TOUCH,
-+					 (pen_down != 0));
- 			input_sync(wm->input_dev);
- 		} else if (pressure && source == WM97XX_ADCSEL_PRES) {
- 			input_report_abs(wm->input_dev, ABS_X, at32_wm97xx->x);
- 			input_report_abs(wm->input_dev, ABS_Y, at32_wm97xx->y);
- 			input_report_abs(wm->input_dev, ABS_PRESSURE, value);
-+			input_report_key(wm->input_dev, BTN_TOUCH,
-+					 (value != 0));
- 			input_sync(wm->input_dev);
- 		}
-
-@@ -170,6 +174,7 @@ static void at32_wm97xx_pen_timer(unsigned long data)
- 				+ msecs_to_jiffies(1));
- 	} else {
- 		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-+		input_report_key(wm->input_dev, BTN_TOUCH, 0);
- 		input_sync(wm->input_dev);
- 	}
- }
-@@ -184,6 +189,7 @@ static void at32_wm97xx_acc_pen_up(struct wm97xx *wm)
- 				+ msecs_to_jiffies(1));
- 	} else {
- 		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-+		input_report_key(wm->input_dev, BTN_TOUCH, 0);
- 		input_sync(wm->input_dev);
- 	}
- }
-diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
-index b016021..609c23c 100644
---- a/drivers/input/touchscreen/zylonite-wm97xx.c
-+++ b/drivers/input/touchscreen/zylonite-wm97xx.c
-@@ -130,6 +130,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- 		input_report_abs(wm->input_dev, ABS_X, x & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_PRESSURE, p & 0xfff);
-+		input_report_key(wm->input_dev, BTN_TOUCH, (p != 0));
- 		input_sync(wm->input_dev);
- 		reads++;
- 	} while (reads < cinfo[sp_idx].reads);
-
+Thanks!
 
 -- 
-Sincerely yours,
-Mike.
-
-
-
+Dmitry

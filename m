@@ -1,76 +1,43 @@
 From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH 2/5] Input: add BTN_TOUCH event
-Date: Tue,  3 Mar 2009 18:24:41 +0000
-Message-ID: <1236104684-30214-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 3/5] Input: Use disable_irq_nosync() for Mainstone
+Date: Tue,  3 Mar 2009 18:24:42 +0000
+Message-ID: <1236104684-30214-3-git-send-email-broonie@opensource.wolfsonmicro.com>
 References: <20090303182402.GA29542@rakim.wolfsonmicro.main>
  <1236104684-30214-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <1236104684-30214-2-git-send-email-broonie@opensource.wolfsonmicro.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50246 "EHLO
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:50243 "EHLO
 	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
-	by vger.kernel.org with ESMTP id S1752918AbZCCSYs (ORCPT
+	by vger.kernel.org with ESMTP id S1752867AbZCCSYs (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Tue, 3 Mar 2009 13:24:48 -0500
-In-Reply-To: <1236104684-30214-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+In-Reply-To: <1236104684-30214-2-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Slaby <jirislaby@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Rapoport <mike@compulab.co.il>, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-From: Mike Rapoport <mike@compulab.co.il>
+This should make no practical difference since the Mainstone can't be
+SMP but it is more correct.
 
-Add BTN_TOUCH event reporting to ucb1400_ts and accelerated mainstone-wm97xx
-touchscreen drivers. Together with previously posted similar patch for
-wm97xx-core this will make all touchscreen drivers behave consistently wrt.
-BTN_TOUCH.
-
-Signed-off-by: Mike Rapoport <mike@compulab.co.il>
 Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 ---
- drivers/input/touchscreen/mainstone-wm97xx.c |    1 +
- drivers/input/touchscreen/ucb1400_ts.c       |    5 ++++-
- 2 files changed, 5 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/mainstone-wm97xx.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-index 1d11e2b..4d49690 100644
+index 4d49690..dfa6a84 100644
 --- a/drivers/input/touchscreen/mainstone-wm97xx.c
 +++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -162,6 +162,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- 		input_report_abs(wm->input_dev, ABS_X, x & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_Y, y & 0xfff);
- 		input_report_abs(wm->input_dev, ABS_PRESSURE, p & 0xfff);
-+		input_report_key(wm->input_dev, BTN_TOUCH, (p != 0));
- 		input_sync(wm->input_dev);
- 		reads++;
- 	} while (reads < cinfo[sp_idx].reads);
-diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
-index 5498662..e868264 100644
---- a/drivers/input/touchscreen/ucb1400_ts.c
-+++ b/drivers/input/touchscreen/ucb1400_ts.c
-@@ -151,12 +151,14 @@ static void ucb1400_ts_evt_add(struct input_dev *idev, u16 pressure, u16 x, u16
- 	input_report_abs(idev, ABS_X, x);
- 	input_report_abs(idev, ABS_Y, y);
- 	input_report_abs(idev, ABS_PRESSURE, pressure);
-+	input_report_key(idev, BTN_TOUCH, 1);
- 	input_sync(idev);
+@@ -246,7 +246,7 @@ static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
+ 	if (enable)
+ 		enable_irq(wm->pen_irq);
+ 	else
+-		disable_irq(wm->pen_irq);
++		disable_irq_nosync(wm->pen_irq);
  }
  
- static void ucb1400_ts_event_release(struct input_dev *idev)
- {
- 	input_report_abs(idev, ABS_PRESSURE, 0);
-+	input_report_key(idev, BTN_TOUCH, 0);
- 	input_sync(idev);
- }
- 
-@@ -377,7 +379,8 @@ static int ucb1400_ts_probe(struct platform_device *dev)
- 	ucb->ts_idev->id.product	= ucb->id;
- 	ucb->ts_idev->open		= ucb1400_ts_open;
- 	ucb->ts_idev->close		= ucb1400_ts_close;
--	ucb->ts_idev->evbit[0]		= BIT_MASK(EV_ABS);
-+	ucb->ts_idev->evbit[0]		= BIT_MASK(EV_ABS) | BIT_MASK(EV_KEY);
-+	ucb->ts_idev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
- 
- 	ucb1400_adc_enable(ucb->ac97);
- 	x_res = ucb1400_ts_read_xres(ucb);
+ static struct wm97xx_mach_ops mainstone_mach_ops = {
 -- 
 1.6.1.3
 

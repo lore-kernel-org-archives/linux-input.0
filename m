@@ -1,85 +1,40 @@
-From: Richard Hughes <hughsient@gmail.com>
-Subject: Re: [PATCH] DVB-USB: correct the comment about KEY_SLEEP
-Date: Wed, 04 Mar 2009 11:09:37 +0000
-Message-ID: <1236164977.3936.30.camel@hughsie-work.lan>
-References: <1235992429.3858.58.camel@hughsie-work.lan>
-	 <20090302112400.GA2356@khazad-dum.debian.net>
-	 <1236164049.3936.17.camel@hughsie-work.lan>
+From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+Subject: Re: [PATCH 0/5] WM97xx updates
+Date: Wed, 04 Mar 2009 12:29:03 +0100
+Message-ID: <49AE65FF.2060309@atmel.com>
+References: <20090303182402.GA29542@rakim.wolfsonmicro.main> <20090304091538.GD7394@dtor-d630.eng.vmware.com> <49AE492F.6020006@atmel.com> <20090304105358.GA32107@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-eg88bVTcU++du7cL5R28"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.248]:24248 "EHLO
-	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750768AbZCDLKc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 06:10:32 -0500
-In-Reply-To: <1236164049.3936.17.camel@hughsie-work.lan>
+Received: from relay.atmel.no ([80.232.32.139]:56381 "EHLO relay.atmel.no"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751903AbZCDL3W (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 4 Mar 2009 06:29:22 -0500
+In-Reply-To: <20090304105358.GA32107@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Antti Palosaari <crope@iki.fi>
-Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
 
-
---=-eg88bVTcU++du7cL5R28
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Wed, 2009-03-04 at 10:54 +0000, Richard Hughes wrote:
-> On Mon, 2009-03-02 at 08:24 -0300, Henrique de Moraes Holschuh wrote:
-> > FWIW, I think it is a good idea, and I'd take patches for
-> > thinkpad-acpi.
+Mark Brown wrote:
+> On Wed, Mar 04, 2009 at 10:26:07AM +0100, Hans-Christian Egtvedt wrote:
 > 
-> Patch attached for thinkpad-acpi. KEY_HIBERNATE is already in
-> linux-next, but has not yet been pushed to master. Please review,
-> thanks.
+>> The only thing catched by review was a leaking irq line, do you plan to  
+>> fixup that Mark?
+> 
+> Jiri also had some further comments from the initial posting (mail
+> attached).  I can probably try to fix up most things blind but I'll need
+> to at least set up an at32 toolchain to build test.  The workqueue thing
+> might be better to test on hardware, though, just in case there's some
+> noticable performance impact.  I wouldn't expect so but it'd be safer.
+> 
 
-Antti, I've included a fix to the Afatech AF9015 DVB-T USB2.0 receiver
-header file. It corrects the comment about KEY_SLEEP. Please review.
+I'll see what I can manage to squeeze in of testing, there is always the 
+in-between-time.
 
-Thanks,
+What is this patch based against? Linus tree, master branch?
 
-Richard.
-
-
---=-eg88bVTcU++du7cL5R28
-Content-Disposition: attachment; filename*0=0004-DVB-USB-use-correct-key-names-for-sleep-keys-in-dri.patc; filename*1=h
-Content-Type: text/x-patch; name="0004-DVB-USB-use-correct-key-names-for-sleep-keys-in-dri.patch"; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-
->From 839a18f6663f416b484d496824beb7ad9cfe9215 Mon Sep 17 00:00:00 2001
-From: Richard Hughes <richard@hughsie.com>
-Date: Wed, 4 Mar 2009 11:01:31 +0000
-Subject: DVB-USB: correct the comment about KEY_SLEEP
-
-KEY_HIBERNATE is used when the decal on the key indicates sleep to disk,
-KEY_SUSPEND is used when the decal indicates sleep to memory, and
-KEY_SLEEP is used when the sleep type is unknown or unspecified
-
-We've already converted Xorg, HAL, and most of userspace to use the same names.
-
-With this patch, the sleep keys can be labeled consistently all the way
-through the stack. More patches to other device drivers are to follow.
-
-Signed-off-by: Richard Hughes <hughsient@gmail.com>
----
- drivers/media/dvb/dvb-usb/af9015.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/media/dvb/dvb-usb/af9015.h b/drivers/media/dvb/dvb-usb/af9015.h
-index 21c7782..e01587c 100644
---- a/drivers/media/dvb/dvb-usb/af9015.h
-+++ b/drivers/media/dvb/dvb-usb/af9015.h
-@@ -244,7 +244,7 @@ static struct dvb_usb_rc_key af9015_rc_keys_twinhan[] = {
- 	{ 0x01, 0x17, KEY_SUBTITLE },     /* Subtitle / CC */
- 	{ 0x00, 0x10, KEY_MUTE },
- 	{ 0x01, 0x19, KEY_AUDIO },        /* L/R */ /* TODO better event */
--	{ 0x01, 0x16, KEY_SLEEP },        /* Hibernate */
-+	{ 0x01, 0x16, KEY_SLEEP },        /* Sleep */
- 	{ 0x01, 0x16, KEY_SWITCHVIDEOMODE },
- 					  /* A/V */ /* TODO does not work */
- 	{ 0x00, 0x06, KEY_AGAIN },        /* Recall */
 -- 
-1.6.1.3
-
-
---=-eg88bVTcU++du7cL5R28--
-
+Best regards,
+Hans-Christian Egtvedt

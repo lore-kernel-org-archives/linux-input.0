@@ -1,92 +1,34 @@
-From: Mike Murphy <mamurph@cs.clemson.edu>
-Subject: PATCH [UPDATED] [3/3] Documentation/ABI/testing/game_device-sysfs-interface:
-	Document game_device interface added to xpad driver
-Date: Tue, 3 Mar 2009 23:01:25 -0500
-Message-ID: <5aa163d00903032001h5b2ba80el7d9d284c5407edb6@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [patch] add KEY_HIBERNATE and clarify the uses of KEY_SUSPEND
+	and KEY_SLEEP
+Date: Wed, 4 Mar 2009 00:42:15 -0800
+Message-ID: <20090304084214.GA7394@dtor-d630.eng.vmware.com>
+References: <1235992429.3858.58.camel@hughsie-work.lan> <1235995903.3858.83.camel@localhost.localdomain> <1236100818.3900.36.camel@hughsie-work.lan> <200903032053.04931.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=001636284c7405b47a0464431bed
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.30]:34302 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751777AbZCDEB2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 23:01:28 -0500
+Received: from qw-out-2122.google.com ([74.125.92.25]:52561 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751286AbZCDImZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 03:42:25 -0500
+Content-Disposition: inline
+In-Reply-To: <200903032053.04931.rjw@sisk.pl>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Greg KH <greg@kroah.com>, Andrew Morton <akpm@linux-foundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Oliver Neukum <oliver@neukum.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Richard Hughes <hughsient@gmail.com>, Henrique de Moraes Holschuh <hmh@hmh.eng.br>, linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 
---001636284c7405b47a0464431bed
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Tue, Mar 03, 2009 at 08:53:04PM +0100, Rafael J. Wysocki wrote:
+> On Tuesday 03 March 2009, Richard Hughes wrote:
+> > I've attached a patch that adds KEY_HIBERNATE and clarifies the uses of
+> > KEY_SUSPEND and KEY_SLEEP.
+> > 
+> > Please consider. Thanks.
+> 
+> FWIW, I agree with the naming.
+> 
 
-Add documentation for the game_device sysfs interface that was added
-to the xpad driver in this patchset.
+Applied to next, thank you Richard.
 
-Signed-off-by: Mike Murphy <mamurph[at]cs.clemson.edu>
-
---001636284c7405b47a0464431bed
-Content-Type: application/octet-stream; name="gamedevice.patch"
-Content-Disposition: attachment; filename="gamedevice.patch"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_frvheir40
-
-ZGlmZiAtdU5yIG9yaWdkcnYvRG9jdW1lbnRhdGlvbi9BQkkvdGVzdGluZy9nYW1lX2RldmljZS1z
-eXNmcy1pbnRlcmZhY2UgbmV3ZHJ2L0RvY3VtZW50YXRpb24vQUJJL3Rlc3RpbmcvZ2FtZV9kZXZp
-Y2Utc3lzZnMtaW50ZXJmYWNlCi0tLSBvcmlnZHJ2L0RvY3VtZW50YXRpb24vQUJJL3Rlc3Rpbmcv
-Z2FtZV9kZXZpY2Utc3lzZnMtaW50ZXJmYWNlCTE5NjktMTItMzEgMTk6MDA6MDAuMDAwMDAwMDAw
-IC0wNTAwCisrKyBuZXdkcnYvRG9jdW1lbnRhdGlvbi9BQkkvdGVzdGluZy9nYW1lX2RldmljZS1z
-eXNmcy1pbnRlcmZhY2UJMjAwOS0wMi0yOCAyMTowMjo1NS4wMDAwMDAwMDAgLTA1MDAKQEAgLTAs
-MCArMSw4NiBAQAorV2hhdDoJCS9zeXMvY2xhc3MvaW5wdXQvaW5wdXRYWC9nYW1lX2RldmljZQor
-CQkoZXhhY3QgbG9jYXRpb24gZGVwZW5kcyBvbiBrZXJuZWwgYW5kIHVzZXJzcGFjZSBydWxlcykK
-K0RhdGU6CQlGZWJydWFyeSAyMDA5CitLZXJuZWxWZXJzaW9uOgkyLjYuMjgKK0NvbnRhY3Q6CU1p
-a2UgTXVycGh5IDxtYW11cnBoQGNzLmNsZW1zb24uZWR1PgorRGVzY3JpcHRpb246CVRoZSBnYW1l
-X2RldmljZSBzdWJkaXJlY3RvcnkgcHJvdmlkZXMgYSBtZWNoYW5pc20gZm9yIGdhbWluZworCQlk
-ZXZpY2VzLCBzdWNoIGFzIGpveXN0aWNrcyBhbmQgZ2FtZXBhZHMsIHRvIHJlcG9ydCBpbmZvcm1h
-dGlvbgorCQlhbmQgYWxsb3cgY2hhbmdlcyB0byBjYWxpYnJhdGlvbiBhbmQgYmVoYXZpb3IuIFRo
-ZSBuYW1lIG9mCisJCXRoaXMgZGlyZWN0b3J5IFNIT1VMRCBiZSBnYW1lX2RldmljZSBmb3IgYWxs
-IGRyaXZlcnMgdGhhdAorCQlzdXBwb3J0IGl0LCBhbmQgdGhvc2UgZHJpdmVycyBTSE9VTEQgaGF2
-ZSBBQkkgZG9jdW1lbnRhdGlvbgorCQlpbiB0aGlzIGZpbGUuIEhvd2V2ZXIsIHRoZSBleGFjdCBj
-b250ZW50cyBvZiB0aGUgZGlyZWN0b3J5CisJCU1BWSB2YXJ5IGJ5IGRldmljZSB0eXBlLCBzbyB0
-aGF0IGRldmljZXMgY2FuIGV4cG9zZSB3aGF0ZXZlcgorCQlwcm9wZXJ0aWVzIGFuZCBzZXR0aW5n
-cyBhcmUgYXBwcm9wcmlhdGUgZm9yIHRoZSBoYXJkd2FyZQorCQlhbmQvb3IgZHJpdmVyIHNvZnR3
-YXJlLgorCisKK1doYXQ6CQlnYW1lX2RldmljZSBpbnRlcmZhY2UgZm9yIHRoZSB4cGFkIGRyaXZl
-cgorCQkoZHJpdmVycy9pbnB1dC9qb3lzdGljay94cGFkLmMpCitEYXRlOgkJRmVicnVhcnkgMjAw
-OQorS2VybmVsVmVyc2lvbjoJMi42LjI4CitDb250YWN0OglNaWtlIE11cnBoeSA8bWFtdXJwaEBj
-cy5jbGVtc29uLmVkdT4KK0Rlc2NyaXB0aW9uOglUaGUgZ2FtZV9kZXZpY2Ugc3ViZGlyZWN0b3J5
-IGZvciB0aGUgWGJveC8zNjAgY29udHJvbGxlcgorCQlkcml2ZXIgcHJvdmlkZXMgdGhlIGZvbGxv
-d2luZyBmaWxlcyBmb3IgcmV0cmlldmluZyBpbmZvcm1hdGlvbgorCQlhbmQgc2V0dGluZyBwcm9w
-ZXJ0aWVzOgorCisJCWxlZnRfZGVhZF96b25lCQkJdWludCwgcmVhZC93cml0ZQorCQlyaWdodF9k
-ZWFkX3pvbmUJCQl1aW50LCByZWFkL3dyaXRlCisKKwkJCVNldCB0aGUgc2l6ZSBvZiB0aGUgYW5h
-bG9nIHN0aWNrIGRlYWQgem9uZXMgZm9yIHRoZQorCQkJbGVmdCBhbmQgcmlnaHQgc3RpY2tzLCBy
-ZXNwZWN0aXZlbHkuIE1pbmltdW0gdmFsdWUKKwkJCTAsIGRlZmF1bHQgODE5MiwgbWF4aW11bSAz
-MTc0MyAob3IgMTAyNCBsZXNzIHRoYW4KKwkJCXRoZSBzdGlja19saW1pdCBmb3IgdGhlIGNvcnJl
-c3BvbmRpbmcgc3RpY2spLgorCisJCWxlZnRfc3RpY2tfbGltaXQJCXVpbnQsIHJlYWQvd3JpdGUK
-KwkJcmlnaHRfc3RpY2tfbGltaXQJCXVpbnQsIHJlYWQvd3JpdGUKKworCQkJU2V0IHRoZSBzcXVh
-cmUtYXhpcyBsaW1pdHMgb2YgdGhlIGFuYWxvZyBsZWZ0IGFuZAorCQkJcmlnaHQgc3RpY2tzLCBy
-ZXNwZWN0aXZlbHkuIE1pbmltdW0gdmFsdWUgMTAyNCwKKwkJCWRlZmF1bHQgMzI3NjcsIG1heGlt
-dW0gMzI3NjcuIFRoZSBtaW5pbXVtIGlzCisJCQljb25zdHJhaW5lZCB0byBiZSB0aGUgc2l6ZSBv
-ZiB0aGUgZGVhZCB6b25lIHBsdXMKKwkJCTEwMjQuIFNlZSBEb2N1bWVudGF0aW9uL2lucHV0L3hw
-YWQudHh0IGZvciBtb3JlCisJCQlpbmZvcm1hdGlvbi4KKworCQlydW1ibGVfZW5hYmxlCQkJYm9v
-bCwgcmVhZC93cml0ZQorCisJCQlFbmFibGUgb3IgZGlzYWJsZSB0aGUgY29udHJvbGxlcidzIHJ1
-bWJsZSBlZmZlY3QuCisJCQlEZWZhdWx0IDEgKGVuYWJsZWQpLgorCisJCWxlZnRfdHJpZ2dlcl9m
-dWxsX2F4aXMJCWJvb2wsIHJlYWQvd3JpdGUKKwkJcmlnaHRfdHJpZ2dlcl9mdWxsX2F4aXMJCWJv
-b2wsIHJlYWQvd3JpdGUKKworCQkJRW5hYmxlIG9yIGRpc2FibGUgdXNlIG9mIGEgZnVsbCBheGlz
-ICgtMzI3NjcgdG8KKwkJCSszMjc2NykgZm9yIGVhY2ggb2YgdGhlIGxlZnQgYW5kIHJpZ2h0IHRy
-aWdnZXJzLAorCQkJcmVzcGVjdGl2ZWx5LiBEZWZhdWx0IDAgKGRpc2FibGVkOiB1c2UgYSBoYWxm
-IGF4aXMKKwkJCWZyb20gMCB0byArMzI3NjcpLgorCisJCWNvbnRyb2xsZXJfbnVtYmVyCQl1aW50
-LCByZWFkLW9ubHkKKworCQkJQ29udHJvbGxlciBzbG90IG51bWJlciAoMS00KSBmb3IgYSB3aXJl
-bGVzcyBYYm94CisJCQkzNjAgZ2FtaW5nIHJlY2VpdmVyLiBUaGlzIHZhbHVlIHdpbGwgYmUgemVy
-byBmb3IgYWxsCisJCQl3aXJlZCBkZXZpY2VzLgorCisJCWNvbnRyb2xsZXJfcHJlc2VudAkJYm9v
-bCwgcmVhZC1vbmx5CisKKwkJCUNvbnRyb2xsZXIgcHJlc2VuY2UgaW5kaWNhdG9yIGZvciBhIHdp
-cmVsZXNzIFhib3gKKwkJCTM2MCBnYW1pbmcgcmVjZWl2ZXIuIEhhcyB0aGUgdmFsdWUgMSB3aGVu
-ZXZlciB0aGUKKwkJCWNvbnRyb2xsZXIgaXMgdHVybmVkIG9uIGFuZCBjb25uZWN0ZWQgdG8gdGhl
-IHJlY2VpdmVyCisJCQlzbG90IGNvcnJlc3BvbmRpbmcgdG8gdGhlIGlucHV0IGRldmljZS4gVGhp
-cyB2YWx1ZQorCQkJd2lsbCBhbHdheXMgYmUgMSBmb3IgYWxsIHdpcmVkIGRldmljZXMuCisKKwkJ
-Y29udHJvbGxlcl90eXBlCQkJdWludCwgcmVhZC1vbmx5CisKKwkJCVR5cGUgb2YgY29udHJvbGxl
-ciB0aGF0IGlzIGNvbm5lY3RlZDoKKworCQkJMAlObyBjb250cm9sbGVyIGNvbm5lY3RlZAorCQkJ
-MQlQYWQKKwkJCTIJR3VpdGFyCisJCQkzCURhbmNlIHBhZAorCQkJMjU1CU90aGVyL3Vua25vd24g
-dHlwZQorCisJCWlkCQkJCXN0cmluZyBbMTddLCByZWFkLW9ubHkKKworCQkJMTYtY2hhcmFjdGVy
-IChwbHVzIE5VTCBieXRlKSBwcmVzdW1hYmx5IHVuaXF1ZQorCQkJaWRlbnRpZmllciBmb3IgZWFj
-aCBjb25uZWN0ZWQgV0lSRUxFU1MgY29udHJvbGxlci4KKwkJCVByZXNlbnRseSwgdGhpcyB2YWx1
-ZSBpcyBhbiBlbXB0eSBzdHJpbmcgZm9yIGFsbAorCQkJd2lyZWQgZGV2aWNlcy4K
---001636284c7405b47a0464431bed--
+-- 
+Dmitry

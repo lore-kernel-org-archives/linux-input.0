@@ -1,58 +1,61 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: Touchpad on Dell Latitude XT (alps 73 00 14)
-Date: Tue, 03 Mar 2009 16:09:31 -0500
-Message-ID: <49AD9C8B.1000009@seas.upenn.edu>
-References: <4967E317.6040407@seas.upenn.edu> <20090111235407.ZZRA012@mailhub.coreip.homeip.net>
+From: Mike Murphy <mamurph@cs.clemson.edu>
+Subject: PATCH [UPDATED] [0/3] input: xpad.c - Xbox 360 wireless and sysfs
+	support
+Date: Tue, 3 Mar 2009 22:55:26 -0500
+Message-ID: <5aa163d00903031955m42fc3583s3fc784dc3a8a1725@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from stag.seas.upenn.edu ([158.130.70.79]:51758 "EHLO
-	stag.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754474AbZCCVUg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 16:20:36 -0500
-Received: from [158.130.38.88] (SEASNet-38-079.seas.upenn.edu [158.130.38.88])
-	(authenticated bits=0)
-	by stag.seas.upenn.edu (8.13.6/8.13.6) with ESMTP id n23L9avn011817
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <linux-input@vger.kernel.org>; Tue, 3 Mar 2009 16:09:37 -0500
-In-Reply-To: <20090111235407.ZZRA012@mailhub.coreip.homeip.net>
+Received: from mail-gx0-f174.google.com ([209.85.217.174]:62261 "EHLO
+	mail-gx0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752289AbZCDDz3 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 3 Mar 2009 22:55:29 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, Frederic Weisbecker <fweisbec@gmail.com>, Greg KH <greg@kroah.com>, Oliver Neukum <oliver@neukum.org>, Andrew Morton <akpm@linux-foundation.org>
 
->> { { 0x73, 0x00, 0x14 }, 0xf8, 0xf8, 0 }
->>
->> How can I determine what values to use for those last three fields?
->>
-> 
-> f your touchpad works (you don't see any messages from psmouse in dmesg
-> and every button works fine) then these are correct values.
+Greetings,
 
-I took another look at it and would appreciate a little more advice.
+The following patchset is an update to my prior submission, which
+addresses the code division, typecasting, and internal function
+non-use issues present in the previous version of the patch. This
+patch has not been changed since last night in the prior thread...
+testing this evening confirmed that it is working correctly for the
+Xbox 360 wireless hardware. Thanks to Andrew Morton, Greg K-H, and
+Linus Torvalds for their help.
 
-First off, it seems that regardless of which flags I use (except for
-ALPS_PASS), the first byte is 0xff for all packets.  So those masks
-don't seem to do anything useful for my device.
+--- Original Description ---
 
-The touchpad does work fine.  And with ALPS_DUALPOINT, packet[5] always
-comes out as 127.  However those 4 bytes in the middle act a little
-weird.  It looks to me like they are just rotating as if the packet size
-is incorrect.
+This patchset improves the in-kernel xpad.c driver by improving
+support for the Xbox 360 wireless controllers, and by adding a number
+of features that can be controlled via a new sysfs interface. Rumble
+is now enabled on the wireless 360 controllers, and the LED display is
+set properly instead of flashing constantly. New features include
+implementation of a dead zone for the analog sticks, ability to map
+the stick inputs onto a square axis, ability to turn rumble off on a
+per-controller basis, and a mechanism for identifying the controller
+type and (presumably) unique ID of wireless controllers. In addition,
+and as a change to the most recent development patch, I have adjusted
+the triggers so that they both implement half-axes instead of full
+axes. In other words, they report a range from 0 to +32767, instead of
+-32767 to +32767. This change improves behavior on some gaming
+emulators, and it can be turned off via the sysfs interface.
 
-[ 1325.709029] alps packet: ff 02 00 00 08 7f
-[ 1325.722834] alps packet: ff 00 08 02 02 7f
-[ 1325.737028] alps packet: ff 08 02 00 00 7f
-[ 1325.760152] alps packet: ff 01 00 00 08 7f
-[ 1325.773963] alps packet: ff 00 08 01 00 7f
-[ 1325.824228] alps packet: ff 00 01 00 08 7f
-[ 1325.838144] alps packet: ff 01 08 00 00 7f
+In addition to the core patch, I have updated
+Documentation/input/xpad.txt, and I have added
+Documentation/ABI/testing/game_device-sysfs-interface to document the
+added sysfs interface. I'd like to thank Oliver Neukum, Greg
+Kroah-Hartman, and Frederic Weisbecker for their helpful feedback
+during the development process.
 
-
-
-Where do the first and last bytes come from?  Are they being sent by the
-device, or added by a driver?
-
-Any thoughts?
-
-Rafi
+Mike
+-- 
+Mike Murphy
+Ph.D. Candidate and NSF Graduate Research Fellow
+Clemson University School of Computing
+120 McAdams Hall
+Clemson, SC 29634-0974 USA
+Tel: +1 864.656.2838   Fax: +1 864.656.0145
+http://cirg.cs.clemson.edu/~mamurph

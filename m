@@ -1,146 +1,57 @@
 From: akpm@linux-foundation.org
-Subject: [patch 08/22] input: bcm5974: Prepare for a new trackpad header type
-Date: Wed, 04 Mar 2009 11:58:58 -0800
-Message-ID: <200903041958.n24JwxEt028421@imap1.linux-foundation.org>
+Subject: [patch 18/22] ads7846: pin change interrupt support
+Date: Wed, 04 Mar 2009 11:59:07 -0800
+Message-ID: <200903041959.n24Jx8JK028469@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:34991 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:32775 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755844AbZCDUGb (ORCPT
+	by vger.kernel.org with ESMTP id S1756103AbZCDUIR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Mar 2009 15:06:31 -0500
+	Wed, 4 Mar 2009 15:08:17 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, mroth@nessie.de, imre.deak@nokia.com
 
-From: "Henrik Rydberg" <rydberg@euromail.se>
+From: Michael Roth <mroth@nessie.de>
 
-The new unibody Macbooks are equipped with an integrated button and
-trackpad.  The package header of the trackpad interface has changed to
-also contain information about the integrated button.  This patch performs
-the necessary preparations to allow for the new package header.
+Some SoC supports only pin change interrupts on GPIO pins used as irq
+lines.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+The ads7846 core is not affected from the additional irqs on the rising
+edge because the code accounts touch bounce anyway by kicking in a timer
+and disabling the irq after the first request and reenabling the irq after
+a timeout when there is no longer pen down detected.
+
+Signed-off-by: Michael Roth <mroth@nessie.de>
 Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Imre Deak <imre.deak@nokia.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/bcm5974.c |   42 +++++++++++++++++---------------
- 1 file changed, 23 insertions(+), 19 deletions(-)
+ drivers/input/touchscreen/ads7846.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-prepare-for-a-new-trackpad-header-type drivers/input/mouse/bcm5974.c
---- a/drivers/input/mouse/bcm5974.c~input-bcm5974-prepare-for-a-new-trackpad-header-type
-+++ a/drivers/input/mouse/bcm5974.c
-@@ -96,13 +96,14 @@ struct bt_data {
- 	u8 rel_y;		/* relative y coordinate */
- };
+diff -puN drivers/input/touchscreen/ads7846.c~ads7846-pin-change-interrupt-support drivers/input/touchscreen/ads7846.c
+--- a/drivers/input/touchscreen/ads7846.c~ads7846-pin-change-interrupt-support
++++ a/drivers/input/touchscreen/ads7846.c
+@@ -1133,9 +1133,15 @@ static int __devinit ads7846_probe(struc
  
--/* trackpad header structure */
--struct tp_header {
--	u8 unknown1[16];	/* constants, timers, etc */
--	u8 fingers;		/* number of fingers on trackpad */
--	u8 unknown2[9];		/* constants, timers, etc */
-+/* trackpad header types */
-+enum tp_type {
-+	TYPE1			/* plain trackpad */
- };
- 
-+/* trackpad finger data offsets */
-+#define FINGER_TYPE1		26
-+
- /* trackpad finger structure */
- struct tp_finger {
- 	__le16 origin;		/* zero when switching track finger */
-@@ -119,11 +120,9 @@ struct tp_finger {
- 	__le16 multi;		/* one finger: varies, more fingers: constant */
- };
- 
--/* trackpad data structure, empirically at least ten fingers */
--struct tp_data {
--	struct tp_header header;
--	struct tp_finger finger[16];
--};
-+/* trackpad finger data size, empirically at least ten fingers */
-+#define SIZEOF_FINGER		sizeof(struct tp_finger)
-+#define SIZEOF_ALL_FINGERS	(16 * SIZEOF_FINGER)
- 
- /* device-specific parameters */
- struct bcm5974_param {
-@@ -139,6 +138,8 @@ struct bcm5974_config {
- 	int bt_ep;		/* the endpoint of the button interface */
- 	int bt_datalen;		/* data length of the button interface */
- 	int tp_ep;		/* the endpoint of the trackpad interface */
-+	enum tp_type tp_type;	/* type of trackpad interface */
-+	int tp_offset;		/* offset to trackpad finger data */
- 	int tp_datalen;		/* data length of the trackpad interface */
- 	struct bcm5974_param p;	/* finger pressure limits */
- 	struct bcm5974_param w;	/* finger width limits */
-@@ -158,7 +159,7 @@ struct bcm5974 {
- 	struct urb *bt_urb;		/* button usb request block */
- 	struct bt_data *bt_data;	/* button transferred data */
- 	struct urb *tp_urb;		/* trackpad usb request block */
--	struct tp_data *tp_data;	/* trackpad transferred data */
-+	u8 *tp_data;			/* trackpad transferred data */
- 	int fingers;			/* number of fingers on trackpad */
- };
- 
-@@ -184,7 +185,7 @@ static const struct bcm5974_config bcm59
- 		USB_DEVICE_ID_APPLE_WELLSPRING_ISO,
- 		USB_DEVICE_ID_APPLE_WELLSPRING_JIS,
- 		0x84, sizeof(struct bt_data),
--		0x81, sizeof(struct tp_data),
-+		0x81, TYPE1, FINGER_TYPE1, FINGER_TYPE1 + SIZEOF_ALL_FINGERS,
- 		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 256 },
- 		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
- 		{ DIM_X, DIM_X / SN_COORD, -4824, 5342 },
-@@ -195,7 +196,7 @@ static const struct bcm5974_config bcm59
- 		USB_DEVICE_ID_APPLE_WELLSPRING2_ISO,
- 		USB_DEVICE_ID_APPLE_WELLSPRING2_JIS,
- 		0x84, sizeof(struct bt_data),
--		0x81, sizeof(struct tp_data),
-+		0x81, TYPE1, FINGER_TYPE1, FINGER_TYPE1 + SIZEOF_ALL_FINGERS,
- 		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 256 },
- 		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
- 		{ DIM_X, DIM_X / SN_COORD, -4824, 4824 },
-@@ -276,18 +277,20 @@ static int report_bt_state(struct bcm597
- static int report_tp_state(struct bcm5974 *dev, int size)
- {
- 	const struct bcm5974_config *c = &dev->cfg;
--	const struct tp_finger *f = dev->tp_data->finger;
-+	const struct tp_finger *f;
- 	struct input_dev *input = dev->input;
--	const int fingers = (size - 26) / 28;
--	int raw_p, raw_w, raw_x, raw_y;
-+	int raw_p, raw_w, raw_x, raw_y, raw_n;
- 	int ptest = 0, origin = 0, nmin = 0, nmax = 0;
- 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
- 
--	if (size < 26 || (size - 26) % 28 != 0)
-+	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
- 		return -EIO;
- 
-+	f = (const struct tp_finger *)(dev->tp_data + c->tp_offset);
-+	raw_n = (size - c->tp_offset) / SIZEOF_FINGER;
-+
- 	/* always track the first finger; when detached, start over */
--	if (fingers) {
-+	if (raw_n) {
- 		raw_p = raw2int(f->force_major);
- 		raw_w = raw2int(f->size_major);
- 		raw_x = raw2int(f->abs_x);
-@@ -307,12 +310,13 @@ static int report_tp_state(struct bcm597
- 		abs_w = int2bound(&c->w, raw_w);
- 		abs_x = int2bound(&c->x, raw_x - c->x.devmin);
- 		abs_y = int2bound(&c->y, c->y.devmax - raw_y);
--		for (; f != dev->tp_data->finger + fingers; f++) {
-+		while (raw_n--) {
- 			ptest = int2bound(&c->p, raw2int(f->force_major));
- 			if (ptest > PRESSURE_LOW)
- 				nmax++;
- 			if (ptest > PRESSURE_HIGH)
- 				nmin++;
-+			f++;
- 		}
+ 	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
+ 			spi->dev.driver->name, ts)) {
+-		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-		err = -EBUSY;
+-		goto err_free_gpio;
++		dev_info(&spi->dev,
++			"trying pin change workaround on irq %d\n", spi->irq);
++		if (request_irq(spi->irq, ads7846_irq,
++				IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
++				spi->dev.driver->name, ts)) {
++			dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
++			err = -EBUSY;
++			goto err_free_gpio;
++		}
  	}
  
+ 	err = ads784x_hwmon_register(spi, ts);
 _

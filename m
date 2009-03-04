@@ -1,69 +1,66 @@
 From: akpm@linux-foundation.org
-Subject: [patch 07/22] drivers/input/keyboard/atkbd.c: Fujitsu Siemens Amilo PA 1510 quirks
-Date: Wed, 04 Mar 2009 11:58:57 -0800
-Message-ID: <200903041958.n24Jww3f028412@imap1.linux-foundation.org>
+Subject: [patch 09/22] input: bcm5974: Add quad-finger tapping
+Date: Wed, 04 Mar 2009 11:58:59 -0800
+Message-ID: <200903041958.n24JwxKa028424@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:54464 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:55991 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758180AbZCDUDe (ORCPT
+	by vger.kernel.org with ESMTP id S1756057AbZCDUFF (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Mar 2009 15:03:34 -0500
+	Wed, 4 Mar 2009 15:05:05 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, impulze@impulze.org
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se
 
-From: Daniel Mierswa <impulze@impulze.org>
+From: "Henrik Rydberg" <rydberg@euromail.se>
 
-The volume up and down keys on the Fujitsu Siemens Amilo PA 1510 laptop
-won't generate release events, so we have to do that. Use the same
-way that is already used with other models.
+The integrated button on the new unibody Macbooks presents a need to
+report explicit four-finger actions.  Evidently, the finger pressing the
+button is also touching the trackpad, so in order to fully support
+three-finger actions, the driver must be able to report four-finger
+actions.  This patch adds a new button, BTN_TOOL_QUADTAP, which achieves
+this.
 
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/keyboard/atkbd.c |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/input/mouse/bcm5974.c |    4 +++-
+ include/linux/input.h         |    1 +
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-fujitsu-siemens-amilo-pa-1510-quirks drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-fujitsu-siemens-amilo-pa-1510-quirks
-+++ a/drivers/input/keyboard/atkbd.c
-@@ -924,6 +924,20 @@ static void atkbd_samsung_keymap_fixup(s
+diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-add-quad-finger-tapping drivers/input/mouse/bcm5974.c
+--- a/drivers/input/mouse/bcm5974.c~input-bcm5974-add-quad-finger-tapping
++++ a/drivers/input/mouse/bcm5974.c
+@@ -258,6 +258,7 @@ static void setup_events_to_report(struc
+ 	__set_bit(BTN_TOOL_FINGER, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
+ 	__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
++	__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
+ 	__set_bit(BTN_LEFT, input_dev->keybit);
  }
  
- /*
-+ * The volume up and volume down special keys on a Fujitsu Amilo PA 1510 laptop
-+ * do not generate release events so we have to do it ourselves.
-+ */
-+static void atkbd_amilopa1510_keymap_fixup(struct atkbd *atkbd)
-+{
-+	static const unsigned int forced_release_keys[] = {
-+		0xb0, 0xae,
-+	};
-+
-+	atkbd_gen_release_event(atkbd, forced_release_keys,
-+		ARRAY_SIZE(forced_release_keys));
-+}
-+
-+/*
-  * atkbd_set_keycode_table() initializes keyboard's keycode table
-  * according to the selected scancode set
-  */
-@@ -1560,6 +1574,15 @@ static struct dmi_system_id atkbd_dmi_qu
- 		.callback = atkbd_setup_fixup,
- 		.driver_data = atkbd_samsung_keymap_fixup,
- 	},
-+	{
-+		.ident = "Fujitsu Amilo PA 1510",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU SIEMENS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "AMILO Pa 1510"),
-+		},
-+		.callback = atkbd_setup_fixup,
-+		.driver_data = atkbd_amilopa1510_keymap_fixup,
-+	},
- 	{ }
- };
+@@ -328,7 +329,8 @@ static int report_tp_state(struct bcm597
+ 	input_report_key(input, BTN_TOUCH, dev->fingers > 0);
+ 	input_report_key(input, BTN_TOOL_FINGER, dev->fingers == 1);
+ 	input_report_key(input, BTN_TOOL_DOUBLETAP, dev->fingers == 2);
+-	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers > 2);
++	input_report_key(input, BTN_TOOL_TRIPLETAP, dev->fingers == 3);
++	input_report_key(input, BTN_TOOL_QUADTAP, dev->fingers > 3);
  
+ 	input_report_abs(input, ABS_PRESSURE, abs_p);
+ 	input_report_abs(input, ABS_TOOL_WIDTH, abs_w);
+diff -puN include/linux/input.h~input-bcm5974-add-quad-finger-tapping include/linux/input.h
+--- a/include/linux/input.h~input-bcm5974-add-quad-finger-tapping
++++ a/include/linux/input.h
+@@ -445,6 +445,7 @@ struct input_absinfo {
+ #define BTN_STYLUS2		0x14c
+ #define BTN_TOOL_DOUBLETAP	0x14d
+ #define BTN_TOOL_TRIPLETAP	0x14e
++#define BTN_TOOL_QUADTAP	0x14f	/* Four fingers on trackpad */
+ 
+ #define BTN_WHEEL		0x150
+ #define BTN_GEAR_DOWN		0x150
 _

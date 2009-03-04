@@ -1,38 +1,78 @@
 From: akpm@linux-foundation.org
-Subject: [patch 05/22] input: ads7846.c sparse lock annotation
-Date: Wed, 04 Mar 2009 11:58:56 -0800
-Message-ID: <200903041958.n24JwuU8028406@imap1.linux-foundation.org>
+Subject: [patch 06/22] drivers/input/keyboard/atkbd.c: use function for generation of keyrelease events
+Date: Wed, 04 Mar 2009 11:58:57 -0800
+Message-ID: <200903041958.n24Jwvws028409@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:44842 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:52837 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758051AbZCDUCt (ORCPT
+	by vger.kernel.org with ESMTP id S1756100AbZCDUEP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Mar 2009 15:02:49 -0500
+	Wed, 4 Mar 2009 15:04:15 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, harvey.harrison@gmail.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, impulze@impulze.org
 
-From: Harvey Harrison <harvey.harrison@gmail.com>
+From: Daniel Mierswa <impulze@impulze.org>
 
-Signed-off-by: Harvey Harrison <harvey.harrison@gmail.com>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/touchscreen/ads7846.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/keyboard/atkbd.c |   27 +++++++++++++++++----------
+ 1 file changed, 17 insertions(+), 10 deletions(-)
 
-diff -puN drivers/input/touchscreen/ads7846.c~input-ads7846c-sparse-lock-annotation drivers/input/touchscreen/ads7846.c
---- a/drivers/input/touchscreen/ads7846.c~input-ads7846c-sparse-lock-annotation
-+++ a/drivers/input/touchscreen/ads7846.c
-@@ -761,6 +761,8 @@ static irqreturn_t ads7846_irq(int irq, 
+diff -puN drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-use-function-for-generation-of-keyrelease-events drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c~drivers-input-keyboard-atkbdc-use-function-for-generation-of-keyrelease-events
++++ a/drivers/input/keyboard/atkbd.c
+@@ -834,6 +834,19 @@ static void atkbd_disconnect(struct seri
+ }
  
- /* Must be called with ts->lock held */
- static void ads7846_disable(struct ads7846 *ts)
-+__releases(&ts->lock)
-+__acquires(&ts->lock)
- {
- 	if (ts->disabled)
- 		return;
+ /*
++ * generate release events for the keycodes given in keys[]
++ */
++static void atkbd_gen_release_event(struct atkbd* atkbd, const unsigned int *keys,
++			unsigned int nr_keys)
++{
++	unsigned int i;
++
++	if (atkbd->set == 2)
++		for (i = 0; i < nr_keys; i++)
++			__set_bit(keys[i], atkbd->force_release_mask);
++}
++
++/*
+  * Most special keys (Fn+F?) on Dell laptops do not generate release
+  * events so we have to do it ourselves.
+  */
+@@ -842,12 +855,9 @@ static void atkbd_dell_laptop_keymap_fix
+ 	static const unsigned int forced_release_keys[] = {
+ 		0x85, 0x86, 0x87, 0x88, 0x89, 0x8a, 0x8b, 0x8f, 0x93,
+ 	};
+-	int i;
+ 
+-	if (atkbd->set == 2)
+-		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
+-			__set_bit(forced_release_keys[i],
+-				  atkbd->force_release_mask);
++	atkbd_gen_release_event(atkbd, forced_release_keys,
++		ARRAY_SIZE(forced_release_keys));
+ }
+ 
+ /*
+@@ -859,12 +869,9 @@ static void atkbd_hp_keymap_fixup(struct
+ 	static const unsigned int forced_release_keys[] = {
+ 		0x94,
+ 	};
+-	int i;
+ 
+-	if (atkbd->set == 2)
+-		for (i = 0; i < ARRAY_SIZE(forced_release_keys); i++)
+-			__set_bit(forced_release_keys[i],
+-					atkbd->force_release_mask);
++	atkbd_gen_release_event(atkbd, forced_release_keys,
++		ARRAY_SIZE(forced_release_keys));
+ }
+ 
+ /*
 _

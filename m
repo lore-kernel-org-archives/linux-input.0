@@ -1,148 +1,116 @@
 From: akpm@linux-foundation.org
-Subject: [patch 10/22] input: bcm5974: Add support for the Macbook 5 (Unibody)
-Date: Wed, 04 Mar 2009 11:59:00 -0800
-Message-ID: <200903041959.n24Jx0Rd028427@imap1.linux-foundation.org>
+Subject: [patch for 2.6.29? 2/3] input: add a DMI table for the i8042.reset option; make MSI Wind U-100 work
+Date: Wed, 04 Mar 2009 12:10:54 -0800
+Message-ID: <200903042010.n24KAt06029852@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:49557 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:32852 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755353AbZCDULA (ORCPT
+	by vger.kernel.org with ESMTP id S1757520AbZCDUL2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Mar 2009 15:11:00 -0500
+	Wed, 4 Mar 2009 15:11:28 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, rydberg@euromail.se, dmlary@gmail.com
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, arjan@linux.intel.com
 
-From: "Henrik Rydberg" <rydberg@euromail.se>
+From: Arjan van de Ven <arjan@linux.intel.com>
 
-Add support for the new unibody Macbook, with physically integrated button
-and trackpad.  A new button, BTN_TOOL_PRESS, is introduced to allow for
-non-trivial handling of this device in user space.
+There are several DMI tables in the i8042 (keyboard) driver already, but
+not one for the i8042.reset option.  This patch adds such an option (which
+also sets the nonfatal flag so that if the reset fails, the keyboard still
+works).
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
-Tested-by: David M. Lary <dmlary@gmail.com>
+Two users for this table are added as well, the MSI Wind U-100 and the LG
+X110.  The MSI Wind also needs to be in the "don't trust the pnp data" for
+the touchpad to work on my machine.
+
+[akpm@linux-foundation.org: fix build warning]
+Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/bcm5974.c |   42 ++++++++++++++++++++++++++++++--
- include/linux/input.h         |    1 
- 2 files changed, 41 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042-x86ia64io.h |   56 ++++++++++++++++++------
+ 1 file changed, 43 insertions(+), 13 deletions(-)
 
-diff -puN drivers/input/mouse/bcm5974.c~input-bcm5974-add-support-for-the-macbook-5-unibody drivers/input/mouse/bcm5974.c
---- a/drivers/input/mouse/bcm5974.c~input-bcm5974-add-support-for-the-macbook-5-unibody
-+++ a/drivers/input/mouse/bcm5974.c
-@@ -51,6 +51,10 @@
- #define USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI	0x0230
- #define USB_DEVICE_ID_APPLE_WELLSPRING2_ISO	0x0231
- #define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS	0x0232
-+/* Macbook5,1 (unibody), aka wellspring3 */
-+#define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
-+#define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
-+#define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
- 
- #define BCM5974_DEVICE(prod) {					\
- 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
-@@ -72,6 +76,10 @@ static const struct usb_device_id bcm597
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_ISO),
- 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
-+	/* Macbook5,1 */
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
-+	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
- 	/* Terminating entry */
- 	{}
- };
-@@ -98,11 +106,19 @@ struct bt_data {
- 
- /* trackpad header types */
- enum tp_type {
--	TYPE1			/* plain trackpad */
-+	TYPE1,			/* plain trackpad */
-+	TYPE2			/* button integrated in trackpad */
+diff -puN drivers/input/serio/i8042-x86ia64io.h~input-add-a-dmi-table-for-the-i8042reset-option-make-msi-wind-u-100-work drivers/input/serio/i8042-x86ia64io.h
+--- a/drivers/input/serio/i8042-x86ia64io.h~input-add-a-dmi-table-for-the-i8042reset-option-make-msi-wind-u-100-work
++++ a/drivers/input/serio/i8042-x86ia64io.h
+@@ -369,19 +369,6 @@ static struct dmi_system_id __initdata i
+ 	{ }
  };
  
- /* trackpad finger data offsets */
- #define FINGER_TYPE1		26
-+#define FINGER_TYPE2		30
-+
-+/* trackpad button data offsets */
-+#define BUTTON_TYPE2		15
-+
-+/* integrated button capability by configuration */
-+#define HAS_INTEGRATED_BUTTON(c)	(c->tp_type == TYPE2)
+-#ifdef CONFIG_PNP
+-static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
+-	{
+-		.ident = "Intel MBO Desktop D845PESV",
+-		.matches = {
+-			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
+-			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
+-		},
+-	},
+-	{ }
+-};
+-#endif
+-
+ /*
+  * Some Wistron based laptops need us to explicitly enable the 'Dritek
+  * keyboard extension' to make their extra keys start generating scancodes.
+@@ -466,6 +453,44 @@ static int i8042_pnp_aux_irq;
+ static char i8042_pnp_kbd_name[32];
+ static char i8042_pnp_aux_name[32];
  
- /* trackpad finger structure */
- struct tp_finger {
-@@ -202,6 +218,17 @@ static const struct bcm5974_config bcm59
- 		{ DIM_X, DIM_X / SN_COORD, -4824, 4824 },
- 		{ DIM_Y, DIM_Y / SN_COORD, -172, 4290 }
- 	},
++#ifdef CONFIG_X86
++static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
 +	{
-+		USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI,
-+		USB_DEVICE_ID_APPLE_WELLSPRING3_ISO,
-+		USB_DEVICE_ID_APPLE_WELLSPRING3_JIS,
-+		0x84, sizeof(struct bt_data),
-+		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
-+		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
-+		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
-+		{ DIM_X, DIM_X / SN_COORD, -4460, 5166 },
-+		{ DIM_Y, DIM_Y / SN_COORD, -75, 6700 }
++		.ident = "Intel MBO Desktop D845PESV",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
++		},
 +	},
- 	{}
- };
- 
-@@ -259,6 +286,8 @@ static void setup_events_to_report(struc
- 	__set_bit(BTN_TOOL_DOUBLETAP, input_dev->keybit);
- 	__set_bit(BTN_TOOL_TRIPLETAP, input_dev->keybit);
- 	__set_bit(BTN_TOOL_QUADTAP, input_dev->keybit);
-+	if (HAS_INTEGRATED_BUTTON(cfg))
-+		__set_bit(BTN_TOOL_PRESS, input_dev->keybit);
- 	__set_bit(BTN_LEFT, input_dev->keybit);
- }
- 
-@@ -281,7 +310,7 @@ static int report_tp_state(struct bcm597
- 	const struct tp_finger *f;
- 	struct input_dev *input = dev->input;
- 	int raw_p, raw_w, raw_x, raw_y, raw_n;
--	int ptest = 0, origin = 0, nmin = 0, nmax = 0;
-+	int ptest = 0, origin = 0, ibt = 0, nmin = 0, nmax = 0;
- 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
- 
- 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
-@@ -303,6 +332,10 @@ static int report_tp_state(struct bcm597
- 
- 		ptest = int2bound(&c->p, raw_p);
- 		origin = raw2int(f->origin);
++	{
++		.ident = "MSI Wind U-100",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
++		},
++	},
++	{ }
++};
 +
-+		/* set the integrated button if applicable */
-+		if (c->tp_type == TYPE2)
-+			ibt = raw2int(dev->tp_data[BUTTON_TYPE2]);
- 	}
- 
- 	/* while tracking finger still valid, count all fingers */
-@@ -346,6 +379,11 @@ static int report_tp_state(struct bcm597
- 
- 	}
- 
-+	if (HAS_INTEGRATED_BUTTON(c)) {
-+		input_report_key(input, BTN_TOOL_PRESS, ibt);
-+		input_report_key(input, BTN_LEFT, ibt);
++static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
++	{
++		.ident = "MSI Wind U-100",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
++		},
++	},
++	{
++		.ident = "LG Electronics X110",
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "X110"),
++			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
++		},
++	},
++	{ }
++};
++#endif
++
+ static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
+ {
+ 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
+@@ -562,6 +587,11 @@ static int __init i8042_pnp_init(void)
+ #ifdef CONFIG_X86
+ 	if (dmi_check_system(i8042_dmi_nopnp_table))
+ 		i8042_nopnp = 1;
++
++	if (dmi_check_system(i8042_dmi_reset_table)) {
++		i8042_reset = 1;
++		i8042_nonfatal = 1;
 +	}
-+
- 	input_sync(input);
+ #endif
  
- 	return 0;
-diff -puN include/linux/input.h~input-bcm5974-add-support-for-the-macbook-5-unibody include/linux/input.h
---- a/include/linux/input.h~input-bcm5974-add-support-for-the-macbook-5-unibody
-+++ a/include/linux/input.h
-@@ -440,6 +440,7 @@ struct input_absinfo {
- #define BTN_TOOL_FINGER		0x145
- #define BTN_TOOL_MOUSE		0x146
- #define BTN_TOOL_LENS		0x147
-+#define BTN_TOOL_PRESS		0x148	/* The trackpad is a physical button */
- #define BTN_TOUCH		0x14a
- #define BTN_STYLUS		0x14b
- #define BTN_STYLUS2		0x14c
+ 	if (i8042_nopnp) {
 _

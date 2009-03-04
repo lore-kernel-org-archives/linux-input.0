@@ -1,11 +1,11 @@
 From: akpm@linux-foundation.org
-Subject: [patch for 2.6.29? 2/3] input: add a DMI table for the i8042.reset option; make MSI Wind U-100 work
-Date: Wed, 04 Mar 2009 12:10:54 -0800
-Message-ID: <200903042010.n24KAt06029852@imap1.linux-foundation.org>
+Subject: [patch for 2.6.29? 1/3] input: introduce a tougher i8042.reset
+Date: Wed, 04 Mar 2009 12:10:53 -0800
+Message-ID: <200903042010.n24KAsRQ029849@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:32852 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:54679 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1757520AbZCDUL2 (ORCPT
+	by vger.kernel.org with ESMTP id S1756142AbZCDUL2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Wed, 4 Mar 2009 15:11:28 -0500
 Sender: linux-input-owner@vger.kernel.org
@@ -15,102 +15,89 @@ Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, arjan@linux.intel.co
 
 From: Arjan van de Ven <arjan@linux.intel.com>
 
-There are several DMI tables in the i8042 (keyboard) driver already, but
-not one for the i8042.reset option.  This patch adds such an option (which
-also sets the nonfatal flag so that if the reset fails, the keyboard still
-works).
+Some touchpads don't reset right the first time (MSI Wind U-100 for
+example).  This patch will retry the reset up to 5 times.
 
-Two users for this table are added as well, the MSI Wind U-100 and the LG
-X110.  The MSI Wind also needs to be in the "don't trust the pnp data" for
-the touchpad to work on my machine.
+In addition, this patch also adds a module parameter to not treat reset
+failures as fatal to the usage of the device.  This prevents a touchpad
+failure from also disabling the keyboard.
 
-[akpm@linux-foundation.org: fix build warning]
 Signed-off-by: Arjan van de Ven <arjan@linux.intel.com>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/serio/i8042-x86ia64io.h |   56 ++++++++++++++++++------
- 1 file changed, 43 insertions(+), 13 deletions(-)
+ Documentation/kernel-parameters.txt |    2 +
+ drivers/input/serio/i8042.c         |   33 ++++++++++++++++++--------
+ 2 files changed, 26 insertions(+), 9 deletions(-)
 
-diff -puN drivers/input/serio/i8042-x86ia64io.h~input-add-a-dmi-table-for-the-i8042reset-option-make-msi-wind-u-100-work drivers/input/serio/i8042-x86ia64io.h
---- a/drivers/input/serio/i8042-x86ia64io.h~input-add-a-dmi-table-for-the-i8042reset-option-make-msi-wind-u-100-work
-+++ a/drivers/input/serio/i8042-x86ia64io.h
-@@ -369,19 +369,6 @@ static struct dmi_system_id __initdata i
- 	{ }
- };
+diff -puN Documentation/kernel-parameters.txt~input-introduce-a-tougher-i8042reset Documentation/kernel-parameters.txt
+--- a/Documentation/kernel-parameters.txt~input-introduce-a-tougher-i8042reset
++++ a/Documentation/kernel-parameters.txt
+@@ -852,6 +852,8 @@ and is between 256 and 4096 characters. 
+ 			[HW] Frequency with which keyboard LEDs should blink
+ 			     when kernel panics (default is 0.5 sec)
+ 	i8042.reset	[HW] Reset the controller during init and cleanup
++	i8042.nonfatal  [HW] Don't treat i8042.reset failures as fatal for the
++			     device initialization.
+ 	i8042.unlock	[HW] Unlock (ignore) the keylock
  
--#ifdef CONFIG_PNP
--static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
--	{
--		.ident = "Intel MBO Desktop D845PESV",
--		.matches = {
--			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
--			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
--		},
--	},
--	{ }
--};
--#endif
--
- /*
-  * Some Wistron based laptops need us to explicitly enable the 'Dritek
-  * keyboard extension' to make their extra keys start generating scancodes.
-@@ -466,6 +453,44 @@ static int i8042_pnp_aux_irq;
- static char i8042_pnp_kbd_name[32];
- static char i8042_pnp_aux_name[32];
+ 	i810=		[HW,DRM]
+diff -puN drivers/input/serio/i8042.c~input-introduce-a-tougher-i8042reset drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c~input-introduce-a-tougher-i8042reset
++++ a/drivers/input/serio/i8042.c
+@@ -47,6 +47,10 @@ static unsigned int i8042_reset;
+ module_param_named(reset, i8042_reset, bool, 0);
+ MODULE_PARM_DESC(reset, "Reset controller during init and cleanup.");
  
-+#ifdef CONFIG_X86
-+static struct dmi_system_id __initdata i8042_dmi_nopnp_table[] = {
-+	{
-+		.ident = "Intel MBO Desktop D845PESV",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "D845PESV"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Intel Corporation"),
-+		},
-+	},
-+	{
-+		.ident = "MSI Wind U-100",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
-+		},
-+	},
-+	{ }
-+};
++static unsigned int i8042_nonfatal;
++module_param_named(nonfatal, i8042_nonfatal, bool, 0);
++MODULE_PARM_DESC(reset, "Treat controller test failures as non-fatal.");
 +
-+static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
-+	{
-+		.ident = "MSI Wind U-100",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "U-100"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "MICRO-STAR INTERNATIONAL CO., LTD"),
-+		},
-+	},
-+	{
-+		.ident = "LG Electronics X110",
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "X110"),
-+			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
-+		},
-+	},
-+	{ }
-+};
-+#endif
-+
- static int i8042_pnp_kbd_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
+ static unsigned int i8042_direct;
+ module_param_named(direct, i8042_direct, bool, 0);
+ MODULE_PARM_DESC(direct, "Put keyboard port into non-translated mode.");
+@@ -712,22 +716,33 @@ static int i8042_controller_check(void)
+ static int i8042_controller_selftest(void)
  {
- 	if (pnp_port_valid(dev, 0) && pnp_port_len(dev, 0) == 1)
-@@ -562,6 +587,11 @@ static int __init i8042_pnp_init(void)
- #ifdef CONFIG_X86
- 	if (dmi_check_system(i8042_dmi_nopnp_table))
- 		i8042_nopnp = 1;
-+
-+	if (dmi_check_system(i8042_dmi_reset_table)) {
-+		i8042_reset = 1;
-+		i8042_nonfatal = 1;
-+	}
- #endif
+ 	unsigned char param;
++	int i = 0;
  
- 	if (i8042_nopnp) {
+ 	if (!i8042_reset)
+ 		return 0;
+ 
+-	if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+-		printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
+-		return -ENODEV;
+-	}
++	/*
++	 * We try this 5 times; on some really fragile systems this does not
++	 * take the first time...
++	 */
++	do {
++
++		if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
++			printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
++			return -ENODEV;
++		}
++
++		if (param == I8042_RET_CTL_TEST)
++			return 0;
+ 
+-	if (param != I8042_RET_CTL_TEST) {
+ 		printk(KERN_ERR "i8042.c: i8042 controller selftest failed. (%#x != %#x)\n",
+-			 param, I8042_RET_CTL_TEST);
+-		return -EIO;
+-	}
++			param, I8042_RET_CTL_TEST);
++		msleep(50);
++	} while (i++ < 5);
+ 
+-	return 0;
++	if (i8042_nonfatal)
++		return 0;
++	return -EIO;
+ }
+ 
+ /*
 _

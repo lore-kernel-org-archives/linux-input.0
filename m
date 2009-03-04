@@ -1,65 +1,65 @@
 From: akpm@linux-foundation.org
-Subject: [patch 04/22] input/mouse/alps.c: handle touchpoints buttons correctly
-Date: Wed, 04 Mar 2009 11:58:55 -0800
-Message-ID: <200903041958.n24JwtZw028403@imap1.linux-foundation.org>
+Subject: [patch 19/22] input: elantech touchpad driver miss-recognising logitech mice
+Date: Wed, 04 Mar 2009 11:59:09 -0800
+Message-ID: <200903041959.n24Jx9cY028481@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:59544 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:48983 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754904AbZCDUIy (ORCPT
+	by vger.kernel.org with ESMTP id S1756365AbZCDUKA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Mar 2009 15:08:54 -0500
+	Wed, 4 Mar 2009 15:10:00 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, uli-kernel@spamt.net, uli@spamt.net
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, arjan@opmeer.net, apw@shadowen.org
 
-From: Ulrich Dangel <uli-kernel@spamt.net>
+From: Arjan Opmeer <arjan@opmeer.net>
 
-When pressing any button belonging to the touchpoint, the generated click
-events dont belong to the touchpoint but to the touchpad.
+Some Logitech mice react to the magic knock like an Elantech touchpad would.
+This leads to those mice being misdetected as Elantech touchpads.  Add a
+version query to elantech_detect() to distinguish the two.
 
-This patch fixes this behaviour, the events will be sent via the correct
-device, so scrolling with touchpoint is possible.
-
-The patch compiles cleanly and has been tested successfully on my machine.
-
-Signed-off-by: Ulrich Dangel <uli@spamt.net>
+Signed-off-by: Arjan Opmeer <arjan@opmeer.net>
+Cc: Andy Whitcroft <apw@shadowen.org>
 Cc: Dmitry Torokhov <dtor@mail.ru>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/alps.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/input/mouse/elantech.c |   19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff -puN drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly drivers/input/mouse/alps.c
---- a/drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly
-+++ a/drivers/input/mouse/alps.c
-@@ -131,18 +131,23 @@ static void alps_process_packet(struct p
- 	ges = packet[2] & 1;
- 	fin = packet[2] & 2;
- 
--	input_report_key(dev, BTN_LEFT, left);
--	input_report_key(dev, BTN_RIGHT, right);
--	input_report_key(dev, BTN_MIDDLE, middle);
--
- 	if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
- 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
- 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
-+
-+		input_report_key(dev2, BTN_LEFT, left);
-+		input_report_key(dev2, BTN_RIGHT, right);
-+		input_report_key(dev2, BTN_MIDDLE, middle);
-+
- 		input_sync(dev);
- 		input_sync(dev2);
- 		return;
+diff -puN drivers/input/mouse/elantech.c~input-elantech-touchpad-driver-miss-recognising-logitech-mice drivers/input/mouse/elantech.c
+--- a/drivers/input/mouse/elantech.c~input-elantech-touchpad-driver-miss-recognising-logitech-mice
++++ a/drivers/input/mouse/elantech.c
+@@ -567,14 +567,27 @@ int elantech_detect(struct psmouse *psmo
+ 		return -1;
  	}
  
-+	input_report_key(dev, BTN_LEFT, left);
-+	input_report_key(dev, BTN_RIGHT, right);
-+	input_report_key(dev, BTN_MIDDLE, middle);
-+
- 	/* Convert hardware tap to a reasonable Z value */
- 	if (ges && !fin) z = 40;
+-	pr_debug("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
+-		 param[0], param[1], param[2]);
+-
+ 	if (param[0] == 0 || param[1] != 0) {
+ 		pr_debug("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
+ 		return -1;
+ 	}
  
++	/*
++	 * There are Logitech mice that react to the magic knock exactly
++	 * like an Elantech touchpad would, so do a version query here to
++	 * try to distinguish the two
++	 */
++	if (synaptics_send_cmd(psmouse, ETP_FW_VERSION_QUERY, param)) {
++		pr_err("elantech.c: failed to query firmware version.\n");
++		return -1;
++	}
++	pr_info("elantech.c: Elantech version query result 0x%02x, 0x%02x, 0x%02x.\n",
++		param[0], param[1], param[2]);
++	if (param[0] == 0 || param[1] != 0) {
++		pr_info("elantech.c: Probably not a real Elantech touchpad. Aborting.\n");
++		return -1;
++	}
++
+ 	if (set_properties) {
+ 		psmouse->vendor = "Elantech";
+ 		psmouse->name = "Touchpad";
 _

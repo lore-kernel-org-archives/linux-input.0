@@ -1,66 +1,57 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH] generic driver for rotary encoders on GPIOs
-Date: Wed, 4 Mar 2009 10:50:53 +0100
-Message-ID: <20090304095053.GA6098@buzzloop.caiaq.de>
-References: <20090303090317.GA14246@dtor-d630.eng.vmware.com> <1236074367-23172-1-git-send-email-daniel@caiaq.de> <20090304084851.GB7394@dtor-d630.eng.vmware.com>
+From: Felipe Balbi <felipe.balbi@nokia.com>
+Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
+Date: Wed, 4 Mar 2009 12:12:31 +0200
+Message-ID: <20090304101231.GS4640@scadufax.research.nokia.com>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <20090228141725.ZZRA012@mailhub.coreip.homeip.net> <20090301003014.GA22673@frodo> <20090228165156.ZZRA012@mailhub.coreip.homeip.net> <20090301144018.GA23581@frodo> <20090304090026.GC7394@dtor-d630.eng.vmware.com>
+Reply-To: felipe.balbi@nokia.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:45641 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753940AbZCDJu7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 04:50:59 -0500
+Received: from smtp.nokia.com ([192.100.122.230]:18597 "EHLO
+	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751991AbZCDK3Z (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 05:29:25 -0500
 Content-Disposition: inline
-In-Reply-To: <20090304084851.GB7394@dtor-d630.eng.vmware.com>
+In-Reply-To: <20090304090026.GC7394@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, H Hartley Sweeten <hsweeten@visionengravers.com>
+To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Felipe Balbi <me@felipebalbi.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Balbi Felipe (Nokia-D/Helsinki)" <felipe.balbi@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Samuel Ortiz <sameo@openedhand.com>
 
-On Wed, Mar 04, 2009 at 12:48:52AM -0800, Dmitry Torokhov wrote:
-> On Tue, Mar 03, 2009 at 10:59:27AM +0100, Daniel Mack wrote:
-> > This patch adds a generic driver for rotary encoders connected to GPIO
-> > pins of a system. It relies on gpiolib and generic hardware irqs. The
-> > documentation that also comes with this patch explains the concept and
-> > how to use the driver.
+On Wed, Mar 04, 2009 at 10:00:27AM +0100, ext Dmitry Torokhov wrote:
+> On Sun, Mar 01, 2009 at 04:40:19PM +0200, Felipe Balbi wrote:
+> > On Sat, Feb 28, 2009 at 04:58:01PM -0800, Dmitry Torokhov wrote:
+> > > On Sun, Mar 01, 2009 at 02:30:18AM +0200, Felipe Balbi wrote:
+> > > > On Sat, Feb 28, 2009 at 02:23:03PM -0800, Dmitry Torokhov wrote:
+> > > > > Hi Felipe,
+> > > > > 
+> > > > > On Fri, Feb 27, 2009 at 09:28:02PM +0200, Felipe Balbi wrote:
+> > > > > > From: Felipe Balbi <felipe.balbi@nokia.com>
+> > > > > > 
+> > > > > > This is part of the twl4030 multifunction device driver.
+> > > > > > 
+> > > > > > With this driver we add support for reporting KEY_POWER
+> > > > > > events via the input layer.
+> > > > > 
+> > > > > ...
+> > > > 
+> > > > thanks for reviewing, how about the version below:
+> > > > 
+> > > 
+> > > Looks good, couple more items...
 > > 
-> > Signed-off-by: Daniel Mack <daniel@caiaq.de>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: H Hartley Sweeten <hsweeten@visionengravers.com>
-> > ---
-> >  New version with Dmitry's change requests included:
-> > 
-> >   * calling input_free_device() in case input_register_device() fails
-> >   * calling input_unregister_device() in all other cases
-> >   * made the axis information part of the platform data
+> > Fixed the extra comments and also got rid of the global input_dev
+> > structure. It could be fetched by passing it to request_irq() and
+> > platform_set/get_drvdata():
 > > 
 > 
-> I fiddled with the driver a little bit more changing formatting, please
-> take a look and if you are still OK with it I will apply to 'next'.
+> Cool, I will keep it in my tree pending the threaded IRQ issue
+> resolution.
 
-Ok for me, except for one thing ...
+I guess the threaded IRQ issue will still take a while to be solved and
+this driver is working as is, so there's no big problem in pushing it
+and fixing the threaded irq on later patches. But I'd like to hear from
+Andrew, Dave and the others about that.
 
-> +	case 0x0:
-> +		if (encoder->armed) {
-> +			if (encoder->dir) {
-> +				/* turning counter-clockwise */
-> +				encoder->pos += pdata->steps;
-> +				encoder->pos--;
-> +				encoder->pos %= pdata->steps;
-> +			} else {
-> +				/* turning clockwise */
-> +				encoder->pos++;
-> +				encoder->pos %= pdata->steps;
-> +			}
-> +			input_report_abs(encoder->input,
-> +					 pdata->axis, encoder->pos);
-> +			input_sync(encoder->input);
-> +			encoder->armed = 0;
-> +		}
-
-I really prefer early exits ("if (!encoder->armed) break;") as it saves
-one indentation level and makes the code more readable.
-
-Thanks,
-Daniel
-
+-- 
+balbi

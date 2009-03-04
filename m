@@ -1,40 +1,76 @@
-From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
-Subject: Re: [PATCH 0/5] WM97xx updates
-Date: Wed, 04 Mar 2009 12:29:03 +0100
-Message-ID: <49AE65FF.2060309@atmel.com>
-References: <20090303182402.GA29542@rakim.wolfsonmicro.main> <20090304091538.GD7394@dtor-d630.eng.vmware.com> <49AE492F.6020006@atmel.com> <20090304105358.GA32107@rakim.wolfsonmicro.main>
+From: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: Re: [PATCH] thinkpad-acpi: use correct key names for sleep states
+	in driver
+Date: Wed, 4 Mar 2009 09:04:40 -0300
+Message-ID: <20090304120439.GA31850@khazad-dum.debian.net>
+References: <1235992429.3858.58.camel@hughsie-work.lan> <20090302112400.GA2356@khazad-dum.debian.net> <1236164049.3936.17.camel@hughsie-work.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.atmel.no ([80.232.32.139]:56381 "EHLO relay.atmel.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751903AbZCDL3W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 4 Mar 2009 06:29:22 -0500
-In-Reply-To: <20090304105358.GA32107@rakim.wolfsonmicro.main>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1236164049.3936.17.camel@hughsie-work.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Richard Hughes <hughsient@gmail.com>
+Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
 
-Mark Brown wrote:
-> On Wed, Mar 04, 2009 at 10:26:07AM +0100, Hans-Christian Egtvedt wrote:
+On Wed, 04 Mar 2009, Richard Hughes wrote:
+> >From d3ce499f80ba7526e83e7b16f85124ccf77ac1f4 Mon Sep 17 00:00:00 2001
+> From: Richard Hughes <richard@hughsie.com>
+> Date: Wed, 4 Mar 2009 10:51:52 +0000
+> Subject: thinkpad-acpi: use correct key names for sleep keys in driver
 > 
->> The only thing catched by review was a leaking irq line, do you plan to  
->> fixup that Mark?
+> Use the new key KEY_HIBERNATE and correct the use of KEY_SUSPEND.
 > 
-> Jiri also had some further comments from the initial posting (mail
-> attached).  I can probably try to fix up most things blind but I'll need
-> to at least set up an at32 toolchain to build test.  The workqueue thing
-> might be better to test on hardware, though, just in case there's some
-> noticable performance impact.  I wouldn't expect so but it'd be safer.
+> KEY_HIBERNATE is used when the decal on the key indicates sleep to disk,
+> KEY_SUSPEND is used when the decal indicates sleep to memory, and
+> KEY_SLEEP is used when the sleep type is unknown or unspecified
 > 
+> We've already converted Xorg, HAL, and most of userspace to use the same names.
+> 
+> With this patch, the sleep keys can be labeled consistently all the way
+> through the stack. More patches to other device drivers are to follow.
+> 
+> Signed-off-by: Richard Hughes <hughsient@gmail.com>
 
-I'll see what I can manage to squeeze in of testing, there is always the 
-in-between-time.
+Acked-by: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
 
-What is this patch based against? Linus tree, master branch?
+> ---
+>  drivers/platform/x86/thinkpad_acpi.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+> index bcbc051..d89015d 100644
+> --- a/drivers/platform/x86/thinkpad_acpi.c
+> +++ b/drivers/platform/x86/thinkpad_acpi.c
+> @@ -2241,9 +2241,9 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+>  	 */
+>  	static u16 ibm_keycode_map[] __initdata = {
+>  		/* Scan Codes 0x00 to 0x0B: ACPI HKEY FN+F1..F12 */
+> -		KEY_FN_F1,	KEY_FN_F2,	KEY_COFFEE,	KEY_SLEEP,
+> +		KEY_FN_F1,	KEY_FN_F2,	KEY_COFFEE,	KEY_SUSPEND,
+>  		KEY_WLAN,	KEY_FN_F6, KEY_SWITCHVIDEOMODE, KEY_FN_F8,
+> -		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_SUSPEND,
+> +		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_HIBERNATE,
+>  
+>  		/* Scan codes 0x0C to 0x1F: Other ACPI HKEY hot keys */
+>  		KEY_UNKNOWN,	/* 0x0C: FN+BACKSPACE */
+> @@ -2277,9 +2277,9 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
+>  	};
+>  	static u16 lenovo_keycode_map[] __initdata = {
+>  		/* Scan Codes 0x00 to 0x0B: ACPI HKEY FN+F1..F12 */
+> -		KEY_FN_F1,	KEY_COFFEE,	KEY_BATTERY,	KEY_SLEEP,
+> +		KEY_FN_F1,	KEY_COFFEE,	KEY_BATTERY,	KEY_SUSPEND,
+>  		KEY_WLAN,	KEY_FN_F6, KEY_SWITCHVIDEOMODE, KEY_FN_F8,
+> -		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_SUSPEND,
+> +		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_HIBERNATE,
+>  
+>  		/* Scan codes 0x0C to 0x1F: Other ACPI HKEY hot keys */
+>  		KEY_UNKNOWN,	/* 0x0C: FN+BACKSPACE */
+
 
 -- 
-Best regards,
-Hans-Christian Egtvedt
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

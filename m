@@ -1,44 +1,66 @@
-From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
-Subject: Re: [PATCH 0/5] WM97xx updates
-Date: Wed, 04 Mar 2009 10:26:07 +0100
-Message-ID: <49AE492F.6020006@atmel.com>
-References: <20090303182402.GA29542@rakim.wolfsonmicro.main> <20090304091538.GD7394@dtor-d630.eng.vmware.com>
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] generic driver for rotary encoders on GPIOs
+Date: Wed, 4 Mar 2009 10:50:53 +0100
+Message-ID: <20090304095053.GA6098@buzzloop.caiaq.de>
+References: <20090303090317.GA14246@dtor-d630.eng.vmware.com> <1236074367-23172-1-git-send-email-daniel@caiaq.de> <20090304084851.GB7394@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756627AbZCDJ0p@vger.kernel.org>
-In-Reply-To: <20090304091538.GD7394@dtor-d630.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from buzzloop.caiaq.de ([212.112.241.133]:45641 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753940AbZCDJu7 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 04:50:59 -0500
+Content-Disposition: inline
+In-Reply-To: <20090304084851.GB7394@dtor-d630.eng.vmware.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, H Hartley Sweeten <hsweeten@visionengravers.com>
 
-Dmitry Torokhov wrote:
-> On Tue, Mar 03, 2009 at 06:24:03PM +0000, Mark Brown wrote:
->> This patch series updates the review feedback from the first round and
->> rolls in the additional patches from Mike Rapoport.  I've not addressed
->> any of the comments for the at32 driver since I have no ability to test
->> any changes to that driver but repost it for completeness.
->>
+On Wed, Mar 04, 2009 at 12:48:52AM -0800, Dmitry Torokhov wrote:
+> On Tue, Mar 03, 2009 at 10:59:27AM +0100, Daniel Mack wrote:
+> > This patch adds a generic driver for rotary encoders connected to GPIO
+> > pins of a system. It relies on gpiolib and generic hardware irqs. The
+> > documentation that also comes with this patch explains the concept and
+> > how to use the driver.
+> > 
+> > Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: H Hartley Sweeten <hsweeten@visionengravers.com>
+> > ---
+> >  New version with Dmitry's change requests included:
+> > 
+> >   * calling input_free_device() in case input_register_device() fails
+> >   * calling input_unregister_device() in all other cases
+> >   * made the axis information part of the platform data
+> > 
 > 
-> I applied first 4 patches to 'next' and will wait for Hans-Christian
-> comments on the at32 driver.
-> 
+> I fiddled with the driver a little bit more changing formatting, please
+> take a look and if you are still OK with it I will apply to 'next'.
 
-The only thing catched by review was a leaking irq line, do you plan to 
-fixup that Mark?
+Ok for me, except for one thing ...
 
-I also think the header file could go into the source code, to make it 
-one file less.
+> +	case 0x0:
+> +		if (encoder->armed) {
+> +			if (encoder->dir) {
+> +				/* turning counter-clockwise */
+> +				encoder->pos += pdata->steps;
+> +				encoder->pos--;
+> +				encoder->pos %= pdata->steps;
+> +			} else {
+> +				/* turning clockwise */
+> +				encoder->pos++;
+> +				encoder->pos %= pdata->steps;
+> +			}
+> +			input_report_abs(encoder->input,
+> +					 pdata->axis, encoder->pos);
+> +			input_sync(encoder->input);
+> +			encoder->armed = 0;
+> +		}
 
-Also, please note that I've gotten a new email address. The old one is 
-quite annoying since it sends email back about my new address...
+I really prefer early exits ("if (!encoder->armed) break;") as it saves
+one indentation level and makes the code more readable.
 
-I'll not be able to test the driver immediately, my hardware is out at 
-customers and the eight new prototypes needs some resoldering before I 
-can work with them. Nothing has changed in hardware though, so it should 
-fly out of the box.
+Thanks,
+Daniel
 
--- 
-Best regards,
-Hans-Christian Egtvedt

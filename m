@@ -1,50 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
-Date: Wed, 4 Mar 2009 01:00:27 -0800
-Message-ID: <20090304090026.GC7394@dtor-d630.eng.vmware.com>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <20090228141725.ZZRA012@mailhub.coreip.homeip.net> <20090301003014.GA22673@frodo> <20090228165156.ZZRA012@mailhub.coreip.homeip.net> <20090301144018.GA23581@frodo>
+Subject: Re: [PATCH 0/5] WM97xx updates
+Date: Wed, 4 Mar 2009 01:15:39 -0800
+Message-ID: <20090304091538.GD7394@dtor-d630.eng.vmware.com>
+References: <20090303182402.GA29542@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.26]:58365 "EHLO
+Received: from qw-out-2122.google.com ([74.125.92.27]:57906 "EHLO
 	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754482AbZCDJAh (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 04:00:37 -0500
+	with ESMTP id S1750756AbZCDJPs (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 04:15:48 -0500
 Content-Disposition: inline
-In-Reply-To: <20090301144018.GA23581@frodo>
+In-Reply-To: <20090303182402.GA29542@rakim.wolfsonmicro.main>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Felipe Balbi <me@felipebalbi.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, David Brownell <dbrownell@users.sourceforge.net>, Samuel Ortiz <sameo@openedhand.com>
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
 
-On Sun, Mar 01, 2009 at 04:40:19PM +0200, Felipe Balbi wrote:
-> On Sat, Feb 28, 2009 at 04:58:01PM -0800, Dmitry Torokhov wrote:
-> > On Sun, Mar 01, 2009 at 02:30:18AM +0200, Felipe Balbi wrote:
-> > > On Sat, Feb 28, 2009 at 02:23:03PM -0800, Dmitry Torokhov wrote:
-> > > > Hi Felipe,
-> > > > 
-> > > > On Fri, Feb 27, 2009 at 09:28:02PM +0200, Felipe Balbi wrote:
-> > > > > From: Felipe Balbi <felipe.balbi@nokia.com>
-> > > > > 
-> > > > > This is part of the twl4030 multifunction device driver.
-> > > > > 
-> > > > > With this driver we add support for reporting KEY_POWER
-> > > > > events via the input layer.
-> > > > 
-> > > > ...
-> > > 
-> > > thanks for reviewing, how about the version below:
-> > > 
-> > 
-> > Looks good, couple more items...
-> 
-> Fixed the extra comments and also got rid of the global input_dev
-> structure. It could be fetched by passing it to request_irq() and
-> platform_set/get_drvdata():
+Hi Mark,
+
+On Tue, Mar 03, 2009 at 06:24:03PM +0000, Mark Brown wrote:
+> This patch series updates the review feedback from the first round and
+> rolls in the additional patches from Mike Rapoport.  I've not addressed
+> any of the comments for the at32 driver since I have no ability to test
+> any changes to that driver but repost it for completeness.
 > 
 
-Cool, I will keep it in my tree pending the threaded IRQ issue
-resolution.
+I applied first 4 patches to 'next' and will wait for Hans-Christian
+comments on the at32 driver.
+
+Thanks!
 
 -- 
 Dmitry

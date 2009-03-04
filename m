@@ -1,48 +1,69 @@
-From: Arjan Opmeer <arjan@opmeer.net>
-Subject: How to handle Elantech touchpad that occasionally sends bogus
-	coordinates?
-Date: Wed, 4 Mar 2009 22:55:56 +0100
-Message-ID: <20090304215556.GA16612@adopmeer.homeip.net>
+From: Harald Welte <laforge@gnumonks.org>
+Subject: Re: [PATCH] panasonic-laptop: use correct key names for sleep
+	states in driver
+Date: Thu, 5 Mar 2009 00:58:30 +0100
+Message-ID: <20090304235830.GE3974@prithivi.gnumonks.org>
+References: <1235992429.3858.58.camel@hughsie-work.lan> <20090302112400.GA2356@khazad-dum.debian.net> <1236164049.3936.17.camel@hughsie-work.lan> <1236164306.3936.20.camel@hughsie-work.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="WIyZ46R2i8wDzkSu"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out1.tiscali.nl ([195.241.79.176]:50694 "EHLO
-	smtp-out1.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754950AbZCDVz7 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 16:55:59 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:39057 "EHLO
+	ganesha.gnumonks.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750950AbZCEA3R (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 19:29:17 -0500
 Content-Disposition: inline
+In-Reply-To: <1236164306.3936.20.camel@hughsie-work.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Richard Hughes <hughsient@gmail.com>
+Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 
 
-Recently a user complained that when using the Elantech driver the mouse
-pointer would occasionally jump some distance away, or that when scrolling
-the scrolled page would suddenly jump back a bit.
+--WIyZ46R2i8wDzkSu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It turns out that when starting a new touch action on this particular model
-the touchpad does not reliably emit the new coordinates but can repeat one
-or two of the coordinates of the last release point. This misreporting can
-last several motion packets depending on the number of fingers that are
-touching.
+On Wed, Mar 04, 2009 at 10:58:26AM +0000, Richard Hughes wrote:
+> On Wed, 2009-03-04 at 10:54 +0000, Richard Hughes wrote:
+> > On Mon, 2009-03-02 at 08:24 -0300, Henrique de Moraes Holschuh wrote:
+> > > FWIW, I think it is a good idea, and I'd take patches for
+> > > thinkpad-acpi.
+> >=20
+> > Patch attached for thinkpad-acpi. KEY_HIBERNATE is already in
+> > linux-next, but has not yet been pushed to master. Please review,
+> > thanks.
+>=20
+> Patch also attached for panasonic-laptop. Harald, can you please review
+> this. Thanks.
 
-We came up with a workaround that basically discards mouse packets as long
-as the number of fingers is increasing. Like so:
+Acked-by: Harald Welte <laforge@gnumonks.org>
 
+(I've just started three weeks vacation and won't be able to respond to mai=
+ls
+until March 26th)
 
-   if (fingers > old_fingers) {
-       discard packet
-   }
+--=20
+- Harald Welte <laforge@gnumonks.org>           http://laforge.gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
 
-With this fix in place the user no longer suffers from the jumpy mouse
-cursor or the jumpy scrolling. He reports no impact on the responsiveness of
-the touchpad.
+--WIyZ46R2i8wDzkSu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-My question now is whether this is the right approach to fix this issue? Is
-such a workaround acceptable and should it live in the kernel? Can or should
-this problem be better solved in the Xorg Synaptics driver?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
 
-Comments please! :)
+iD8DBQFJrxWmXaXGVTD0i/8RAuNdAJ9LIYvsxGoKMbv8iCmZpjoPTtNWaACfVolG
+8R95UwzkUfkzyPaocV1b0Po=
+=trLt
+-----END PGP SIGNATURE-----
 
-
-Arjan
+--WIyZ46R2i8wDzkSu--

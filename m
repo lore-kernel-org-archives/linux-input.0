@@ -1,26 +1,25 @@
 From: Richard Hughes <hughsient@gmail.com>
-Subject: [PATCH] panasonic-laptop: use correct key names for sleep states
- in driver
-Date: Wed, 04 Mar 2009 10:58:26 +0000
-Message-ID: <1236164306.3936.20.camel@hughsie-work.lan>
+Subject: Re: [PATCH] DVB-USB: correct the comment about KEY_SLEEP
+Date: Wed, 04 Mar 2009 11:09:37 +0000
+Message-ID: <1236164977.3936.30.camel@hughsie-work.lan>
 References: <1235992429.3858.58.camel@hughsie-work.lan>
 	 <20090302112400.GA2356@khazad-dum.debian.net>
 	 <1236164049.3936.17.camel@hughsie-work.lan>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-pTTjnuC1JjDoeYHU7nk4"
+Content-Type: multipart/mixed; boundary="=-eg88bVTcU++du7cL5R28"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from an-out-0708.google.com ([209.85.132.244]:30271 "EHLO
+Received: from an-out-0708.google.com ([209.85.132.248]:24248 "EHLO
 	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752020AbZCDK7V (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 05:59:21 -0500
+	with ESMTP id S1750768AbZCDLKc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 06:10:32 -0500
 In-Reply-To: <1236164049.3936.17.camel@hughsie-work.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Harald Welte <laforge@gnumonks.org>
+To: Antti Palosaari <crope@iki.fi>
 Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 
 
---=-pTTjnuC1JjDoeYHU7nk4
+--=-eg88bVTcU++du7cL5R28
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
@@ -33,23 +32,23 @@ On Wed, 2009-03-04 at 10:54 +0000, Richard Hughes wrote:
 > linux-next, but has not yet been pushed to master. Please review,
 > thanks.
 
-Patch also attached for panasonic-laptop. Harald, can you please review
-this. Thanks.
+Antti, I've included a fix to the Afatech AF9015 DVB-T USB2.0 receiver
+header file. It corrects the comment about KEY_SLEEP. Please review.
 
-Richard
+Thanks,
+
+Richard.
 
 
---=-pTTjnuC1JjDoeYHU7nk4
-Content-Disposition: attachment; filename*0=0003-panasonic-laptop-use-correct-key-names-for-sleep-ke.patc; filename*1=h
-Content-Type: text/x-patch; name="0003-panasonic-laptop-use-correct-key-names-for-sleep-ke.patch"; charset="UTF-8"
+--=-eg88bVTcU++du7cL5R28
+Content-Disposition: attachment; filename*0=0004-DVB-USB-use-correct-key-names-for-sleep-keys-in-dri.patc; filename*1=h
+Content-Type: text/x-patch; name="0004-DVB-USB-use-correct-key-names-for-sleep-keys-in-dri.patch"; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 
->From 11df58e5c55e6286f03b29b6b9820ed4b13095db Mon Sep 17 00:00:00 2001
+>From 839a18f6663f416b484d496824beb7ad9cfe9215 Mon Sep 17 00:00:00 2001
 From: Richard Hughes <richard@hughsie.com>
-Date: Wed, 4 Mar 2009 10:57:36 +0000
-Subject: panasonic-laptop: use correct key names for sleep keys in driver
-
-Use the new key KEY_HIBERNATE and correct the use of KEY_SUSPEND.
+Date: Wed, 4 Mar 2009 11:01:31 +0000
+Subject: DVB-USB: correct the comment about KEY_SLEEP
 
 KEY_HIBERNATE is used when the decal on the key indicates sleep to disk,
 KEY_SUSPEND is used when the decal indicates sleep to memory, and
@@ -62,29 +61,25 @@ through the stack. More patches to other device drivers are to follow.
 
 Signed-off-by: Richard Hughes <hughsient@gmail.com>
 ---
- drivers/platform/x86/panasonic-laptop.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/dvb/dvb-usb/af9015.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
-index c47a44d..63a1828 100644
---- a/drivers/platform/x86/panasonic-laptop.c
-+++ b/drivers/platform/x86/panasonic-laptop.c
-@@ -205,10 +205,10 @@ static const int initial_keymap[KEYMAP_SIZE] = {
- 	/*  4 */ KEY_MUTE,
- 	/*  5 */ KEY_VOLUMEDOWN,
- 	/*  6 */ KEY_VOLUMEUP,
--	/*  7 */ KEY_SLEEP,
-+	/*  7 */ KEY_SUSPEND,
- 	/*  8 */ KEY_PROG1, /* Change CPU boost */
- 	/*  9 */ KEY_BATTERY,
--	/* 10 */ KEY_SUSPEND,
-+	/* 10 */ KEY_HIBERNATE,
- };
- 
- struct pcc_acpi {
+diff --git a/drivers/media/dvb/dvb-usb/af9015.h b/drivers/media/dvb/dvb-usb/af9015.h
+index 21c7782..e01587c 100644
+--- a/drivers/media/dvb/dvb-usb/af9015.h
++++ b/drivers/media/dvb/dvb-usb/af9015.h
+@@ -244,7 +244,7 @@ static struct dvb_usb_rc_key af9015_rc_keys_twinhan[] = {
+ 	{ 0x01, 0x17, KEY_SUBTITLE },     /* Subtitle / CC */
+ 	{ 0x00, 0x10, KEY_MUTE },
+ 	{ 0x01, 0x19, KEY_AUDIO },        /* L/R */ /* TODO better event */
+-	{ 0x01, 0x16, KEY_SLEEP },        /* Hibernate */
++	{ 0x01, 0x16, KEY_SLEEP },        /* Sleep */
+ 	{ 0x01, 0x16, KEY_SWITCHVIDEOMODE },
+ 					  /* A/V */ /* TODO does not work */
+ 	{ 0x00, 0x06, KEY_AGAIN },        /* Recall */
 -- 
 1.6.1.3
 
 
---=-pTTjnuC1JjDoeYHU7nk4--
+--=-eg88bVTcU++du7cL5R28--
 

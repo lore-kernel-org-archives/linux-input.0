@@ -1,48 +1,53 @@
 From: Richard Hughes <hughsient@gmail.com>
-Subject: [PATCH] thinkpad-acpi: use correct key names for sleep states in
- driver
-Date: Wed, 04 Mar 2009 10:54:09 +0000
-Message-ID: <1236164049.3936.17.camel@hughsie-work.lan>
+Subject: [PATCH] panasonic-laptop: use correct key names for sleep states
+ in driver
+Date: Wed, 04 Mar 2009 10:58:26 +0000
+Message-ID: <1236164306.3936.20.camel@hughsie-work.lan>
 References: <1235992429.3858.58.camel@hughsie-work.lan>
 	 <20090302112400.GA2356@khazad-dum.debian.net>
+	 <1236164049.3936.17.camel@hughsie-work.lan>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-gmpBpN7VSYuGdwrHzJYC"
+Content-Type: multipart/mixed; boundary="=-pTTjnuC1JjDoeYHU7nk4"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.29]:43320 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753445AbZCDKzZ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 05:55:25 -0500
-In-Reply-To: <20090302112400.GA2356@khazad-dum.debian.net>
+Received: from an-out-0708.google.com ([209.85.132.244]:30271 "EHLO
+	an-out-0708.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752020AbZCDK7V (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 4 Mar 2009 05:59:21 -0500
+In-Reply-To: <1236164049.3936.17.camel@hughsie-work.lan>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+To: Harald Welte <laforge@gnumonks.org>
 Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
 
 
---=-gmpBpN7VSYuGdwrHzJYC
+--=-pTTjnuC1JjDoeYHU7nk4
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 
-On Mon, 2009-03-02 at 08:24 -0300, Henrique de Moraes Holschuh wrote:
-> FWIW, I think it is a good idea, and I'd take patches for
-> thinkpad-acpi.
+On Wed, 2009-03-04 at 10:54 +0000, Richard Hughes wrote:
+> On Mon, 2009-03-02 at 08:24 -0300, Henrique de Moraes Holschuh wrote:
+> > FWIW, I think it is a good idea, and I'd take patches for
+> > thinkpad-acpi.
+> 
+> Patch attached for thinkpad-acpi. KEY_HIBERNATE is already in
+> linux-next, but has not yet been pushed to master. Please review,
+> thanks.
 
-Patch attached for thinkpad-acpi. KEY_HIBERNATE is already in
-linux-next, but has not yet been pushed to master. Please review,
-thanks.
+Patch also attached for panasonic-laptop. Harald, can you please review
+this. Thanks.
 
-Richard.
+Richard
 
 
---=-gmpBpN7VSYuGdwrHzJYC
-Content-Disposition: attachment; filename="0002-thinkpad-acpi-use-correct-key-names-for-sleep-keys.patch"
-Content-Type: text/x-patch; name="0002-thinkpad-acpi-use-correct-key-names-for-sleep-keys.patch"; charset="UTF-8"
+--=-pTTjnuC1JjDoeYHU7nk4
+Content-Disposition: attachment; filename*0=0003-panasonic-laptop-use-correct-key-names-for-sleep-ke.patc; filename*1=h
+Content-Type: text/x-patch; name="0003-panasonic-laptop-use-correct-key-names-for-sleep-ke.patch"; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 
->From d3ce499f80ba7526e83e7b16f85124ccf77ac1f4 Mon Sep 17 00:00:00 2001
+>From 11df58e5c55e6286f03b29b6b9820ed4b13095db Mon Sep 17 00:00:00 2001
 From: Richard Hughes <richard@hughsie.com>
-Date: Wed, 4 Mar 2009 10:51:52 +0000
-Subject: thinkpad-acpi: use correct key names for sleep keys in driver
+Date: Wed, 4 Mar 2009 10:57:36 +0000
+Subject: panasonic-laptop: use correct key names for sleep keys in driver
 
 Use the new key KEY_HIBERNATE and correct the use of KEY_SUSPEND.
 
@@ -57,40 +62,29 @@ through the stack. More patches to other device drivers are to follow.
 
 Signed-off-by: Richard Hughes <hughsient@gmail.com>
 ---
- drivers/platform/x86/thinkpad_acpi.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/platform/x86/panasonic-laptop.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index bcbc051..d89015d 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -2241,9 +2241,9 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 	 */
- 	static u16 ibm_keycode_map[] __initdata = {
- 		/* Scan Codes 0x00 to 0x0B: ACPI HKEY FN+F1..F12 */
--		KEY_FN_F1,	KEY_FN_F2,	KEY_COFFEE,	KEY_SLEEP,
-+		KEY_FN_F1,	KEY_FN_F2,	KEY_COFFEE,	KEY_SUSPEND,
- 		KEY_WLAN,	KEY_FN_F6, KEY_SWITCHVIDEOMODE, KEY_FN_F8,
--		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_SUSPEND,
-+		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_HIBERNATE,
+diff --git a/drivers/platform/x86/panasonic-laptop.c b/drivers/platform/x86/panasonic-laptop.c
+index c47a44d..63a1828 100644
+--- a/drivers/platform/x86/panasonic-laptop.c
++++ b/drivers/platform/x86/panasonic-laptop.c
+@@ -205,10 +205,10 @@ static const int initial_keymap[KEYMAP_SIZE] = {
+ 	/*  4 */ KEY_MUTE,
+ 	/*  5 */ KEY_VOLUMEDOWN,
+ 	/*  6 */ KEY_VOLUMEUP,
+-	/*  7 */ KEY_SLEEP,
++	/*  7 */ KEY_SUSPEND,
+ 	/*  8 */ KEY_PROG1, /* Change CPU boost */
+ 	/*  9 */ KEY_BATTERY,
+-	/* 10 */ KEY_SUSPEND,
++	/* 10 */ KEY_HIBERNATE,
+ };
  
- 		/* Scan codes 0x0C to 0x1F: Other ACPI HKEY hot keys */
- 		KEY_UNKNOWN,	/* 0x0C: FN+BACKSPACE */
-@@ -2277,9 +2277,9 @@ static int __init hotkey_init(struct ibm_init_struct *iibm)
- 	};
- 	static u16 lenovo_keycode_map[] __initdata = {
- 		/* Scan Codes 0x00 to 0x0B: ACPI HKEY FN+F1..F12 */
--		KEY_FN_F1,	KEY_COFFEE,	KEY_BATTERY,	KEY_SLEEP,
-+		KEY_FN_F1,	KEY_COFFEE,	KEY_BATTERY,	KEY_SUSPEND,
- 		KEY_WLAN,	KEY_FN_F6, KEY_SWITCHVIDEOMODE, KEY_FN_F8,
--		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_SUSPEND,
-+		KEY_FN_F9,	KEY_FN_F10,	KEY_FN_F11,	KEY_HIBERNATE,
- 
- 		/* Scan codes 0x0C to 0x1F: Other ACPI HKEY hot keys */
- 		KEY_UNKNOWN,	/* 0x0C: FN+BACKSPACE */
+ struct pcc_acpi {
 -- 
 1.6.1.3
 
 
---=-gmpBpN7VSYuGdwrHzJYC--
+--=-pTTjnuC1JjDoeYHU7nk4--
 

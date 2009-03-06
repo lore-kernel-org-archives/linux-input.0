@@ -1,39 +1,37 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
-Date: Thu, 5 Mar 2009 15:54:40 -0800
-Message-ID: <200903051554.40655.david-b@pacbell.net>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <20090301144018.GA23581@frodo> <20090304090026.GC7394@dtor-d630.eng.vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Bryan Wu <cooloney@kernel.org>
+Subject: [PATCH] Input: bf54x-keys: Fix typo
+Date: Fri,  6 Mar 2009 11:34:51 +0800
+Message-ID: <1236310491-24387-1-git-send-email-cooloney@kernel.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from n21.bullet.mail.mud.yahoo.com ([68.142.206.160]:30984 "HELO
-	n21.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1751809AbZCEXyo (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 5 Mar 2009 18:54:44 -0500
-In-Reply-To: <20090304090026.GC7394@dtor-d630.eng.vmware.com>
-Content-Disposition: inline
+Received: from nwd2mail10.analog.com ([137.71.25.55]:44098 "EHLO
+	nwd2mail10.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751500AbZCFDcm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 5 Mar 2009 22:32:42 -0500
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Felipe Balbi <me@felipebalbi.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, Samuel Ortiz <sameo@openedhand.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-On Wednesday 04 March 2009, Dmitry Torokhov wrote:
-> Cool, I will keep it in my tree pending the threaded IRQ issue
-> resolution.
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-Speaking of which ... I'd like to confirm that you
-already have the twl4030_keypad.c driver in your tree.
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
+---
+ drivers/input/keyboard/bf54x-keys.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-That was (re) submitted via linux-input on 6-Feb, after
-addressing feedback from the previous version (and cc'd to
-the OMAP list), but I've not heard anything ...
-
-http://marc.info/?l=linux-omap&m=123391069411717&w=2
-
-I don't know of a good linux-input archive or I'd
-reference the post from there.
-
-
+diff --git a/drivers/input/keyboard/bf54x-keys.c b/drivers/input/keyboard/bf54x-keys.c
+index ee855c5..c6f4e16 100644
+--- a/drivers/input/keyboard/bf54x-keys.c
++++ b/drivers/input/keyboard/bf54x-keys.c
+@@ -212,7 +212,7 @@ static int __devinit bfin_kpad_probe(struct platform_device *pdev)
+ 	if (!pdata->debounce_time || pdata->debounce_time > MAX_MULT ||
+ 	    !pdata->coldrive_time || pdata->coldrive_time > MAX_MULT) {
+ 		printk(KERN_ERR DRV_NAME
+-			": Invalid Debounce/Columdrive Time from pdata\n");
++			": Invalid Debounce/Columndrive Time from platform data\n");
+ 		bfin_write_KPAD_MSEL(0xFF0);	/* Default MSEL	*/
+ 	} else {
+ 		bfin_write_KPAD_MSEL(
+-- 
+1.5.6.3

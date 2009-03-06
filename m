@@ -1,45 +1,42 @@
-From: Paul Collins <paul@burly.ondioline.org>
-Subject: Re: [PATCH] hid/apple: add module parameter to swap the Command and Option keys
-Date: Fri, 06 Mar 2009 18:55:29 +1300
-Message-ID: <87vdqn8ab2.fsf@burly.wgtn.ondioline.org>
-References: <87zlfz8bc1.fsf@burly.wgtn.ondioline.org>
-	<49B0B785.4010806@oracle.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/2] input: misc: add twl4030-pwrbutton driver
+Date: Fri, 6 Mar 2009 01:43:13 -0800
+Message-ID: <20090306094312.GB24864@dtor-d630.eng.vmware.com>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <20090301144018.GA23581@frodo> <20090304090026.GC7394@dtor-d630.eng.vmware.com> <200903051554.40655.david-b@pacbell.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jenny.ondioline.org ([66.220.1.122]:45610 "EHLO
-	jenny.ondioline.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751225AbZCFFzb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2009 00:55:31 -0500
-In-Reply-To: <49B0B785.4010806@oracle.com> (Randy Dunlap's message of "Thu, 05
-	Mar 2009 21:41:25 -0800")
+Received: from yw-out-2324.google.com ([74.125.46.29]:33338 "EHLO
+	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755167AbZCFJnX (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2009 04:43:23 -0500
+Content-Disposition: inline
+In-Reply-To: <200903051554.40655.david-b@pacbell.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Randy Dunlap <randy.dunlap@oracle.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: David Brownell <david-b@pacbell.net>
+Cc: Felipe Balbi <me@felipebalbi.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, Felipe Balbi <felipe.balbi@nokia.com>, Samuel Ortiz <sameo@openedhand.com>
 
-Randy Dunlap <randy.dunlap@oracle.com> writes:
+On Thu, Mar 05, 2009 at 03:54:40PM -0800, David Brownell wrote:
+> On Wednesday 04 March 2009, Dmitry Torokhov wrote:
+> > Cool, I will keep it in my tree pending the threaded IRQ issue
+> > resolution.
+> 
+> Speaking of which ... I'd like to confirm that you
+> already have the twl4030_keypad.c driver in your tree.
+> 
+> That was (re) submitted via linux-input on 6-Feb, after
+> addressing feedback from the previous version (and cc'd to
+> the OMAP list), but I've not heard anything ...
+> 
+> http://marc.info/?l=linux-omap&m=123391069411717&w=2
+> 
+> I don't know of a good linux-input archive or I'd
+> reference the post from there.
+> 
+> 
 
-> Paul Collins wrote:
->> Apple keyboards have the Command keys (a.k.a. the Apple or "waffle" key)
->> in the positions normally occupied on PC keyboards by the Alt/AltGr keys,
->> and the Option or Alt keys in the position occupied by the so-called
->> Windows keys.  Folks who have been using PC-type computers for too long
->> generally have insurmountable muscle memory in this regard.
->> 
->> This patch adds a module parameter, defaulting to off, that swaps these keys.
->
-> Where do you suggest that this option be documented?
-
-Existing practice is to not document hid-apple options
-
-        [burly(linux-2.6)] grep -r fnmode Documentation/ | wc -l
-        0
-
-so I'm open to suggestions.
+Yep, I have it now. Thanks David.
 
 -- 
-Paul Collins
-Wellington, New Zealand
-
-Dag vijandelijk luchtschip de huismeester is dood
+Dmitry

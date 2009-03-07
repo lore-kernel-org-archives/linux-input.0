@@ -1,84 +1,79 @@
-From: Paul Collins <paul@burly.ondioline.org>
-Subject: [PATCH 1/2] hid/apple: add module parameter to swap Command and Option keys
-Date: Sat,  7 Mar 2009 17:07:14 +1300
-Message-ID: <1236398835-8211-1-git-send-email-paul@burly.ondioline.org>
-References: <49B19FF3.2000605@gmail.com>
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from jenny.ondioline.org ([66.220.1.122]:44050 "EHLO
-	jenny.ondioline.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750728AbZCGEIP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2009 23:08:15 -0500
-In-Reply-To: <49B19FF3.2000605@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+Subject: Re: suspend / hibernate nomenclature
+Date: Sat, 07 Mar 2009 11:37:24 +0300
+Message-ID: <E1Lfs2C-0005Eu-00.arvidjaar-mail-ru@mx33.mail.ru>
+References: <1235992429.3858.58.camel@hughsie-work.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, hal@lists.freedesktop.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Apple keyboards have the Command keys (a.k.a. the Apple or "waffle" key)
-in the positions normally occupied on PC keyboards by the Alt/AltGr keys,
-and the Option or Alt keys in the position occupied by the so-called
-Windows keys.  Folks who have been using PC-type computers for too long
-generally have insurmountable muscle memory in this regard.
+Richard Hughes wrote:
 
-This patch adds a module parameter, defaulting to off, that swaps these keys.
+> In the last couple of years, I've been striving to make consistent the
+> mapping of sleep states consistent. I don't care what we call things in
+> a UI, but we need to make sure we're not arguing about whether:
+> 
+> KEY_SUSPEND should be mapped to XF86Standby, XF86Hibernate or XF86Sleep
+> KEY_SLEEP should be mapped to XF86Hibernate or XF86Standby
+> 
+> You see it's a mess.
+> 
+> In userspace we've agreed with the following nomenclature:
+> 
+> standby = sleep CPU and devices (not really used any more)
+> suspend = sleep to memory (quite fast)
+> hibernate = sleep to disk (slow)
+> hybrid = sleep to both (slow, but fast resume)
+> 
+> In X, and evdev we've also fixed the mapping, so that:
+> 
+> XF86Sleep : suspend _or_ hibernate (configured in session policy)
+> XF86Suspend: suspend
+> XF86Hibernate: hibernate
+> 
+> This means that if a key on a keyboard can be sleep (but the user can
+> choose which), the application handles XF86Sleep. If the button decal is
+> marked with a disk, or the ram symbol, then we choose XF86Hibernate or
+> XF86Suspend as appropriate.
+> 
+> We've changed this in HAL a few years ago, 
 
-The same effect can also be achieved by changing the console and X
-keymaps, but this approach does not scale.  For example, I don't want to
-have to learn how to reconfigure Wayland's keymaps when the future
-arrives and we all start using it, and there may be applications I don't
-know about that also read keyboard events directly.
+As of "git pull" made five minutes ago, HAL emits "sleep" for KEY_SLEEP and 
+"hibernate" for KEY_SUSPEND. So changing kernel semantic of KEY_SUSPEND will 
+break any older HAL installation.
 
-Signed-off-by: Paul Collins <paul@ondioline.org>
----
- drivers/hid/hid-apple.c |   21 +++++++++++++++++++++
- 1 files changed, 21 insertions(+), 0 deletions(-)
+> xproto, libX11 and
+> xkeyboard-config last year, and nearly all of the session software in
+> use uses the same nomenclature for the last few years.
+> 
+> After reviewing the platform drivers in ACPI, it appears few of them
+> know whether KEY_SLEEP corresponds to suspend or hibernate, and
+> KEY_SUSPEND seems to be used for hibernate. Basically, it's a mess.
+> 
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index aa28aed..74429cc 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -40,6 +40,11 @@ module_param(fnmode, uint, 0644);
- MODULE_PARM_DESC(fnmode, "Mode of fn key on Apple keyboards (0 = disabled, "
- 		"[1] = fkeyslast, 2 = fkeysfirst)");
- 
-+static int swapmodifiers;
-+module_param(swapmodifiers, bool, 0644);
-+MODULE_PARM_DESC(swapmodifiers, "Modifiers match labels or positions "
-+		 "([0] = labels, 1 = positions)");
-+
- struct apple_sc {
- 	unsigned long quirks;
- 	unsigned int fn_on;
-@@ -123,6 +128,14 @@ static struct apple_key_translation apple_iso_keyboard[] = {
- 	{ }
- };
- 
-+static struct apple_key_translation apple_swap_modifiers[] = {
-+	{ KEY_LEFTALT,	KEY_LEFTMETA },
-+	{ KEY_RIGHTALT,	KEY_RIGHTMETA },
-+	{ KEY_LEFTMETA,	KEY_LEFTALT },
-+	{ KEY_RIGHTMETA, KEY_RIGHTALT },
-+	{ }
-+};
-+
- static struct apple_key_translation *apple_find_translation(
- 		struct apple_key_translation *table, u16 from)
- {
-@@ -199,6 +212,14 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		}
- 	}
- 
-+	if (swapmodifiers) {
-+		trans = apple_find_translation(apple_swap_modifiers, usage->code);
-+		if (trans) {
-+			input_event(input, usage->type, trans->to, value);
-+			return 1;
-+		}
-+	}
-+
- 	if (asc->quirks & APPLE_ISO_KEYBOARD) {
- 		trans = apple_find_translation(apple_iso_keyboard, usage->code);
- 		if (trans) {
--- 
-1.6.2
+This is exactly what current HAL does :)
 
+> I propose that we add a KEY_HIBERNATE (key 247), and then we can just
+> do:
+> 
+> KEY_HIBERNATE -> XF86Hibernate -> sleep to disk
+> KEY_SUSPEND   -> XF86Suspend   -> sleep to ram
+> KEY_SLEEP     -> XF86Sleep     -> sleep (configurable)
+> 
+> Then the drivers can be patched so everyone is doing the same thing. At
+> the moment I'm diagnosing bugs and trying to work around the brokenness
+> in userspace hal-info every few days, and it's getting tiresome.
+> 
+> Feedback welcome, although please don't comment on things like "suspend
+> sounds more like a suspend to disk" as we spent years talking with
+> userspace people working for a compromise, and this is what we've
+> settled on. It's not to everyones taste, but we _do_ need to agree on
+> something, even if its just an agreed bodge.
+> 
+
+This all sounds very reasonable except it is not clear how HAL transition 
+should be handled.

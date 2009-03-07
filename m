@@ -1,55 +1,107 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH] hid/apple: add module parameter to swap the Command and
- Option keys
-Date: Fri, 06 Mar 2009 23:13:07 +0100
-Message-ID: <49B19FF3.2000605@gmail.com>
-References: <87zlfz8bc1.fsf@burly.wgtn.ondioline.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Paul Collins <paul@burly.ondioline.org>
+Subject: [PATCH 2/2] hid/apple: constify arrays of struct apple_key_translation and adjust users
+Date: Sat,  7 Mar 2009 17:07:15 +1300
+Message-ID: <1236398835-8211-2-git-send-email-paul@burly.ondioline.org>
+References: <49B19FF3.2000605@gmail.com>
+ <1236398835-8211-1-git-send-email-paul@burly.ondioline.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fg-out-1718.google.com ([72.14.220.158]:50596 "EHLO
-	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754658AbZCFWNP (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2009 17:13:15 -0500
-In-Reply-To: <87zlfz8bc1.fsf@burly.wgtn.ondioline.org>
+Received: from jenny.ondioline.org ([66.220.1.122]:44051 "EHLO
+	jenny.ondioline.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750967AbZCGEIP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 6 Mar 2009 23:08:15 -0500
+In-Reply-To: <1236398835-8211-1-git-send-email-paul@burly.ondioline.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Paul Collins <paul@burly.ondioline.org>
+To: Jiri Slaby <jirislaby@gmail.com>
 Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On 6.3.2009 06:33, Paul Collins wrote:
-> --- a/drivers/hid/hid-apple.c
-> +++ b/drivers/hid/hid-apple.c
-> @@ -40,6 +40,11 @@ module_param(fnmode, uint, 0644);
->   MODULE_PARM_DESC(fnmode, "Mode of fn key on Apple keyboards (0 = disabled, "
->   		"[1] = fkeyslast, 2 = fkeysfirst)");
->
-> +static unsigned int swapmodifiers = 0;
+Mark arrays of struct apple_key_translation const so that they may be placed in
+.rodata, and adjust users to suit.
 
-Nowadays compilers optimize this away already, but no need to initialize 
-.bss stuff to zero anyway.
+Signed-off-by: Paul Collins <paul@ondioline.org>
+---
+ drivers/hid/hid-apple.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
 
-> +module_param(swapmodifiers, uint, 0644);
-> +MODULE_PARM_DESC(fnmode, "Modifiers match labels or positions "
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 74429cc..04604df 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -58,7 +58,7 @@ struct apple_key_translation {
+ 	u8 flags;
+ };
+ 
+-static struct apple_key_translation apple_fn_keys[] = {
++static const struct apple_key_translation apple_fn_keys[] = {
+ 	{ KEY_BACKSPACE, KEY_DELETE },
+ 	{ KEY_ENTER,	KEY_INSERT },
+ 	{ KEY_F1,	KEY_BRIGHTNESSDOWN, APPLE_FLAG_FKEY },
+@@ -80,7 +80,7 @@ static struct apple_key_translation apple_fn_keys[] = {
+ 	{ }
+ };
+ 
+-static struct apple_key_translation powerbook_fn_keys[] = {
++static const struct apple_key_translation powerbook_fn_keys[] = {
+ 	{ KEY_BACKSPACE, KEY_DELETE },
+ 	{ KEY_F1,	KEY_BRIGHTNESSDOWN,     APPLE_FLAG_FKEY },
+ 	{ KEY_F2,	KEY_BRIGHTNESSUP,       APPLE_FLAG_FKEY },
+@@ -99,7 +99,7 @@ static struct apple_key_translation powerbook_fn_keys[] = {
+ 	{ }
+ };
+ 
+-static struct apple_key_translation powerbook_numlock_keys[] = {
++static const struct apple_key_translation powerbook_numlock_keys[] = {
+ 	{ KEY_J,	KEY_KP1 },
+ 	{ KEY_K,	KEY_KP2 },
+ 	{ KEY_L,	KEY_KP3 },
+@@ -122,13 +122,13 @@ static struct apple_key_translation powerbook_numlock_keys[] = {
+ 	{ }
+ };
+ 
+-static struct apple_key_translation apple_iso_keyboard[] = {
++static const struct apple_key_translation apple_iso_keyboard[] = {
+ 	{ KEY_GRAVE,	KEY_102ND },
+ 	{ KEY_102ND,	KEY_GRAVE },
+ 	{ }
+ };
+ 
+-static struct apple_key_translation apple_swap_modifiers[] = {
++static const struct apple_key_translation apple_swap_modifiers[] = {
+ 	{ KEY_LEFTALT,	KEY_LEFTMETA },
+ 	{ KEY_RIGHTALT,	KEY_RIGHTMETA },
+ 	{ KEY_LEFTMETA,	KEY_LEFTALT },
+@@ -136,10 +136,10 @@ static struct apple_key_translation apple_swap_modifiers[] = {
+ 	{ }
+ };
+ 
+-static struct apple_key_translation *apple_find_translation(
+-		struct apple_key_translation *table, u16 from)
++static const struct apple_key_translation *apple_find_translation(
++		const struct apple_key_translation *table, u16 from)
+ {
+-	struct apple_key_translation *trans;
++	const struct apple_key_translation *trans;
+ 
+ 	/* Look for the translation */
+ 	for (trans = table; trans->from; trans++)
+@@ -153,7 +153,7 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
+ 		struct hid_usage *usage, __s32 value)
+ {
+ 	struct apple_sc *asc = hid_get_drvdata(hid);
+-	struct apple_key_translation *trans;
++	const struct apple_key_translation *trans;
+ 
+ 	if (usage->code == KEY_FN) {
+ 		asc->fn_on = !!value;
+@@ -274,7 +274,7 @@ static void apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 
+ static void apple_setup_input(struct input_dev *input)
+ {
+-	struct apple_key_translation *trans;
++	const struct apple_key_translation *trans;
+ 
+ 	set_bit(KEY_NUMLOCK, input->keybit);
+ 
+-- 
+1.6.2
 
-Weird first parameter => swapmodifiers.
-
-Maybe this should rather be a bool instead of uint.
-
-> +		 "([0] = labels, 1 = positions)");
-> +
->   struct apple_sc {
->   	unsigned long quirks;
->   	unsigned int fn_on;
-> @@ -123,6 +128,14 @@ static struct apple_key_translation apple_iso_keyboard[] = {
->   	{ }
->   };
->
-> +static struct apple_key_translation apple_swap_modifiers[] = {
-
-This might go into .rodata, right? => const
-
-Anyway this is not feasible to do in this patch. Would you like to post 
-a followup patch which will also modify the functions which use the 
-translation tables?

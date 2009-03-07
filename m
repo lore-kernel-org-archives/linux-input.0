@@ -1,79 +1,44 @@
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: suspend / hibernate nomenclature
-Date: Sat, 07 Mar 2009 11:37:24 +0300
-Message-ID: <E1Lfs2C-0005Eu-00.arvidjaar-mail-ru@mx33.mail.ru>
-References: <1235992429.3858.58.camel@hughsie-work.lan>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Sat, 07 Mar 2009 16:38:35 +0200
+Message-ID: <49B286EB.8000300@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <78f5d6bf0902170416j39cced63i23a712c754fd4445@mail.gmail.com>	 <499C2D22.8020005@gmail.com>	 <78f5d6bf0902182254v191cc485x62eb211baaddd36@mail.gmail.com>	 <499D7C66.6090000@gmail.com>	 <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>	 <49A813CB.3080805@gmail.com>	 <78f5d6bf0903021041o24155b7dg89a5fb975e60c320@mail.gmail.com>	 <49AC4300.5090002@gmail.com>	 <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com> <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Richard Hughes <hughsient@gmail.com>, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, hal@lists.freedesktop.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mta-out.inet.fi ([195.156.147.13]:38269 "EHLO jenni2.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753983AbZCGOij (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 7 Mar 2009 09:38:39 -0500
+In-Reply-To: <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Richard Hughes wrote:
+Dmitriy Geels wrote:
+> 2009/3/3 Dmitriy Geels <dmitriy.geels@gmail.com>:
+>>> What about running fftest two times in succession, or just ffmvforce two
+>>> times in succession, does it trigger the problem?
+>> Tried already. No problem. Same with ffmvforce.
+> I was wrong: running ffmvforce twice leads to stuck device. There
+> should be some initialization/deinitialization problem in it.
+> 
+>>> Also, try removing some effects from fftest one-by-one, and see if the
+>>> problem is still triggered.
+>> Will try this later, this evening.
+> ffmvforce gets stuck after any effect played in fftest.
 
-> In the last couple of years, I've been striving to make consistent the
-> mapping of sleep states consistent. I don't care what we call things in
-> a UI, but we need to make sure we're not arguing about whether:
-> 
-> KEY_SUSPEND should be mapped to XF86Standby, XF86Hibernate or XF86Sleep
-> KEY_SLEEP should be mapped to XF86Hibernate or XF86Standby
-> 
-> You see it's a mess.
-> 
-> In userspace we've agreed with the following nomenclature:
-> 
-> standby = sleep CPU and devices (not really used any more)
-> suspend = sleep to memory (quite fast)
-> hibernate = sleep to disk (slow)
-> hybrid = sleep to both (slow, but fast resume)
-> 
-> In X, and evdev we've also fixed the mapping, so that:
-> 
-> XF86Sleep : suspend _or_ hibernate (configured in session policy)
-> XF86Suspend: suspend
-> XF86Hibernate: hibernate
-> 
-> This means that if a key on a keyboard can be sleep (but the user can
-> choose which), the application handles XF86Sleep. If the button decal is
-> marked with a disk, or the ram symbol, then we choose XF86Hibernate or
-> XF86Suspend as appropriate.
-> 
-> We've changed this in HAL a few years ago, 
+Does this mean it does not get stuck if you start fftest but do not play
+any effects?
 
-As of "git pull" made five minutes ago, HAL emits "sleep" for KEY_SLEEP and 
-"hibernate" for KEY_SUSPEND. So changing kernel semantic of KEY_SUSPEND will 
-break any older HAL installation.
+> Here is it's source, may be you'll see the problem:
+> http://paste.org.ru/index.pl?s8x9x5
 
-> xproto, libX11 and
-> xkeyboard-config last year, and nearly all of the session software in
-> use uses the same nomenclature for the last few years.
-> 
-> After reviewing the platform drivers in ACPI, it appears few of them
-> know whether KEY_SLEEP corresponds to suspend or hibernate, and
-> KEY_SUSPEND seems to be used for hibernate. Basically, it's a mess.
-> 
+Provide the kernel log again, this time with debug=2 set for hid module
+and having run "fftest" with only one effect and then "ffmvforce".
 
-This is exactly what current HAL does :)
-
-> I propose that we add a KEY_HIBERNATE (key 247), and then we can just
-> do:
-> 
-> KEY_HIBERNATE -> XF86Hibernate -> sleep to disk
-> KEY_SUSPEND   -> XF86Suspend   -> sleep to ram
-> KEY_SLEEP     -> XF86Sleep     -> sleep (configurable)
-> 
-> Then the drivers can be patched so everyone is doing the same thing. At
-> the moment I'm diagnosing bugs and trying to work around the brokenness
-> in userspace hal-info every few days, and it's getting tiresome.
-> 
-> Feedback welcome, although please don't comment on things like "suspend
-> sounds more like a suspend to disk" as we spent years talking with
-> userspace people working for a compromise, and this is what we've
-> settled on. It's not to everyones taste, but we _do_ need to agree on
-> something, even if its just an agreed bodge.
-> 
-
-This all sounds very reasonable except it is not clear how HAL transition 
-should be handled.
+-- 
+Anssi Hannula

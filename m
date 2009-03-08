@@ -1,73 +1,128 @@
-From: Richard Hughes <hughsient@gmail.com>
-Subject: Re: suspend / hibernate nomenclature
-Date: Sun, 8 Mar 2009 08:45:59 +0000
-Message-ID: <15e53e180903080045x5874f05cv5ea836d73e3855b1@mail.gmail.com>
-References: <1235992429.3858.58.camel@hughsie-work.lan>
-	 <20090307154842.GA3947@srcf.ucam.org>
-	 <20090307164151.GB24668@khazad-dum.debian.net>
-	 <20090307164840.GA4800@srcf.ucam.org>
-	 <15e53e180903071225h47bcdbaj83986b50f06135c3@mail.gmail.com>
-	 <20090307203946.GA9942@srcf.ucam.org>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Sun, 08 Mar 2009 12:16:53 +0200
+Message-ID: <49B39B15.6060609@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <78f5d6bf0902182254v191cc485x62eb211baaddd36@mail.gmail.com>	 <499D7C66.6090000@gmail.com>	 <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>	 <49A813CB.3080805@gmail.com>	 <78f5d6bf0903021041o24155b7dg89a5fb975e60c320@mail.gmail.com>	 <49AC4300.5090002@gmail.com>	 <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com>	 <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>	 <49B286EB.8000300@gmail.com> <78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/mixed;
+ boundary="------------070902030707030508030409"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.190]:15191 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751269AbZCHIqD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 8 Mar 2009 04:46:03 -0400
-In-Reply-To: <20090307203946.GA9942@srcf.ucam.org>
+Received: from mta-out.inet.fi ([195.156.147.13]:42443 "EHLO jenni2.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751002AbZCHKQ6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 8 Mar 2009 06:16:58 -0400
+In-Reply-To: <78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: Henrique de Moraes Holschuh <hmh@hmh.eng.br>, linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Sat, Mar 7, 2009 at 8:39 PM, Matthew Garrett <mjg@redhat.com> wrote:
-> We don't have to at all - as far as I've been able to tell, the kerne=
-l
-> is utterly consistent in its current usage. The only drivers that emi=
-t
-> KEY_SLEEP are either embedded-specific (where it's clearly suspend to
-> RAM and not hibernate), the ACPI driver (where usage in other operati=
-ng
-> systems is consistent with it being suspent to RAM) and the panasonic
-> and thinkpad drivers which use it consistently. If there's any
-> confusion, it's over the fact that KEY_SUSPEND is is used for suspend=
- to
-> RAM in a (smaller) number of places.
+This is a multi-part message in MIME format.
+--------------070902030707030508030409
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The fact that we're mapping x->y and y->x is the reason people keep
-getting it wrong.
+Dmitriy Geels wrote:
+> 2009/3/7 Anssi Hannula <anssi.hannula@gmail.com>:
+>> Provide the kernel log again, this time with debug=2 set for hid module
+>> and having run "fftest" with only one effect and then "ffmvforce".
+> here is it: http://paste.org.ru/index.pl?4bwah8
 
-> I'd suggest reverting these current patches and doing something like =
-the
-> following and then changing any drivers where it's worth clarifying
-> things. This has exactly the same effect with the advantage that no
-> userspace needs to be changed.
+Apply attached patch that adds more debug output and try this again.
 
-So how do we specify a sleep button where policy is to be decided by
-userspace? For instance, the sleep button on a remote control? Do we
-hardcode policy in the kernel?
+-- 
+Anssi Hannula
 
-> -#define KEY_SLEEP =A0 =A0 =A0 =A0 =A0 =A0 =A0142 =A0 =A0 /* SC Syste=
-m Sleep */
-> +#define KEY_SUSPEND_TO_RAM =A0 =A0 142 =A0 =A0 /* SC System Sleep */
+--------------070902030707030508030409
+Content-Type: text/plain;
+ name="hid-queue-debugging.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="hid-queue-debugging.diff"
 
-I deliberately avoided using the terms DISK and RAM in the key defines
-used in my patch.
-
-> +/* Deprecated - use KEY_SUSPEND_TO_RAM and KEY_HIBERNATE instead */
-> +#define KEY_SLEEP =A0 =A0 =A0 =A0 =A0 =A0 =A0KEY_SUSPEND_TO_RAM
-> +#define KEY_SUSPEND =A0 =A0 =A0 =A0 =A0 =A0KEY_HIBERNATE
-
-Yet more confusion. Can't we sort this mess out once and for all? If
-you're that bothered about userspace using the bodged mappings, I
-would suggest changing my patch so that KEY_SLEEP is 247,
-KEY_HIBERNATE is 205 and KEY_SUSPEND is 142.
-
-Richard.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+LS0tIGxpbnV4LTI2MjktcGlkZmYvZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1jb3JlLmMJMjAw
+OS0wMi0xMyAwMzo0NzoxNS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTI2MjktcGlkZmYv
+ZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1jb3JlLWNsZWFyLmMJMjAwOS0wMy0wOCAxMjoxMzoz
+OC4wMDAwMDAwMDAgKzAyMDAKQEAgLTI0NCw3ICsyNDQsNyBAQCBzdGF0aWMgaW50IGhpZF9z
+dWJtaXRfb3V0KHN0cnVjdCBoaWRfZGV2CiAJbWVtY3B5KHVzYmhpZC0+b3V0YnVmLCByYXdf
+cmVwb3J0LCB1c2JoaWQtPnVyYm91dC0+dHJhbnNmZXJfYnVmZmVyX2xlbmd0aCk7CiAJa2Zy
+ZWUocmF3X3JlcG9ydCk7CiAKLQlkYmdfaGlkKCJzdWJtaXR0aW5nIG91dCB1cmJcbiIpOwor
+CWRiZ19oaWQoInN1Ym1pdHRpbmcgb3V0IHVyYiAlZFxuIiwgdXNiaGlkLT5vdXR0YWlsKTsK
+IAogCWlmICh1c2Jfc3VibWl0X3VyYih1c2JoaWQtPnVyYm91dCwgR0ZQX0FUT01JQykpIHsK
+IAkJZXJyX2hpZCgidXNiX3N1Ym1pdF91cmIob3V0KSBmYWlsZWQiKTsKQEAgLTI5OCw2ICsy
+OTgsNyBAQCBzdGF0aWMgaW50IGhpZF9zdWJtaXRfY3RybChzdHJ1Y3QgaGlkX2RlCiAJCXVz
+YmhpZC0+Y3ItPmJSZXF1ZXN0ID09IEhJRF9SRVFfU0VUX1JFUE9SVCA/ICJTZXRfUmVwb3J0
+IiA6ICJHZXRfUmVwb3J0IiwKIAkJdXNiaGlkLT5jci0+d1ZhbHVlLCB1c2JoaWQtPmNyLT53
+SW5kZXgsIHVzYmhpZC0+Y3ItPndMZW5ndGgpOwogCisJZGJnX2hpZCgicXVldWUgbnVtYmVy
+ICVkXG4iLCB1c2JoaWQtPmN0cmx0YWlsKTsKIAlpZiAodXNiX3N1Ym1pdF91cmIodXNiaGlk
+LT51cmJjdHJsLCBHRlBfQVRPTUlDKSkgewogCQllcnJfaGlkKCJ1c2Jfc3VibWl0X3VyYihj
+dHJsKSBmYWlsZWQiKTsKIAkJcmV0dXJuIC0xOwpAQCAtMzMzLDE0ICszMzQsMTYgQEAgc3Rh
+dGljIHZvaWQgaGlkX2lycV9vdXQoc3RydWN0IHVyYiAqdXJiKQogCX0KIAogCXNwaW5fbG9j
+a19pcnFzYXZlKCZ1c2JoaWQtPm91dGxvY2ssIGZsYWdzKTsKLQorZGJnX2hpZCgiaGlkX2ly
+cV9vdXQgY2FsbGJhY2sgZm9yICVkXG4iLCB1c2JoaWQtPm91dHRhaWwpOwogCWlmICh1bnBs
+dWcpCiAJCXVzYmhpZC0+b3V0dGFpbCA9IHVzYmhpZC0+b3V0aGVhZDsKIAllbHNlCiAJCXVz
+YmhpZC0+b3V0dGFpbCA9ICh1c2JoaWQtPm91dHRhaWwgKyAxKSAmIChISURfT1VUUFVUX0ZJ
+Rk9fU0laRSAtIDEpOwogCiAJaWYgKHVzYmhpZC0+b3V0aGVhZCAhPSB1c2JoaWQtPm91dHRh
+aWwpIHsKKwkJZGJnX2hpZCgic2VuZGluZyBuZXh0IHJlcG9ydCwgbm90IHJlbGVhc2luZyBs
+b2NrLCBuZXh0IGlzICVkXG4iLCB1c2JoaWQtPm91dHRhaWwpOwogCQlpZiAoaGlkX3N1Ym1p
+dF9vdXQoaGlkKSkgeworCQkJZGJnX2hpZCgiSElEX09VVF9SVU5OSU5HIHJlbGVhc2VkIGlu
+IGhpZF9pcnFfb3V0KCksIGhpZF9zdWJtaXRfb3V0IGZhaWx1cmVcbiIpOwogCQkJY2xlYXJf
+Yml0KEhJRF9PVVRfUlVOTklORywgJnVzYmhpZC0+aW9mbCk7CiAJCQl3YWtlX3VwKCZ1c2Jo
+aWQtPndhaXQpOwogCQl9CkBAIC0zNDgsNiArMzUxLDcgQEAgc3RhdGljIHZvaWQgaGlkX2ly
+cV9vdXQoc3RydWN0IHVyYiAqdXJiKQogCQlyZXR1cm47CiAJfQogCisJZGJnX2hpZCgiY2xl
+YXJpbmcgSElEX09VVF9SVU5OSU5HIGluIGhpZF9pcnFfb3V0KCksIHRyYW5zZmVycyBkb25l
+XG4iKTsKIAljbGVhcl9iaXQoSElEX09VVF9SVU5OSU5HLCAmdXNiaGlkLT5pb2ZsKTsKIAlz
+cGluX3VubG9ja19pcnFyZXN0b3JlKCZ1c2JoaWQtPm91dGxvY2ssIGZsYWdzKTsKIAl3YWtl
+X3VwKCZ1c2JoaWQtPndhaXQpOwpAQCAtMzg2LDEzICszOTAsMTYgQEAgc3RhdGljIHZvaWQg
+aGlkX2N0cmwoc3RydWN0IHVyYiAqdXJiKQogCQkJCSJyZWNlaXZlZFxuIiwgdXJiLT5zdGF0
+dXMpOwogCX0KIAorCWRiZ19oaWQoImhpZF9jdHJsKCkgZm9yIGZlYXR1cmUgcmVwb3J0ICVk
+XG4iLCB1c2JoaWQtPmN0cmx0YWlsKTsKIAlpZiAodW5wbHVnKQogCQl1c2JoaWQtPmN0cmx0
+YWlsID0gdXNiaGlkLT5jdHJsaGVhZDsKIAllbHNlCiAJCXVzYmhpZC0+Y3RybHRhaWwgPSAo
+dXNiaGlkLT5jdHJsdGFpbCArIDEpICYgKEhJRF9DT05UUk9MX0ZJRk9fU0laRSAtIDEpOwog
+CiAJaWYgKHVzYmhpZC0+Y3RybGhlYWQgIT0gdXNiaGlkLT5jdHJsdGFpbCkgeworCQlkYmdf
+aGlkKCJzdWJtaXR0aW5nIG5leHQgY3RybCByZXBvcnQsIG5yIGlzICVkXG4iLCB1c2JoaWQt
+PmN0cmx0YWlsKTsKIAkJaWYgKGhpZF9zdWJtaXRfY3RybChoaWQpKSB7CisJCQlkYmdfaGlk
+KCJISURfQ1RSTF9SVU5OSU5HIHJlbGVhc2VkIGluIGhpZF9jdHJsKCksIGhpZF9zdWJtaXRf
+Y3RybCBmYWlsdXJlXG4iKTsKIAkJCWNsZWFyX2JpdChISURfQ1RSTF9SVU5OSU5HLCAmdXNi
+aGlkLT5pb2ZsKTsKIAkJCXdha2VfdXAoJnVzYmhpZC0+d2FpdCk7CiAJCX0KQEAgLTQwMCw2
+ICs0MDcsNyBAQCBzdGF0aWMgdm9pZCBoaWRfY3RybChzdHJ1Y3QgdXJiICp1cmIpCiAJCXJl
+dHVybjsKIAl9CiAKKwlkYmdfaGlkKCJjbGVhcmluZyBISURfQ1RSTF9SVU5OSU5HIGluIGhp
+ZF9jdHJsKCksIHRyYW5zZmVycyBkb25lXG4iKTsKIAljbGVhcl9iaXQoSElEX0NUUkxfUlVO
+TklORywgJnVzYmhpZC0+aW9mbCk7CiAJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmdXNiaGlk
+LT5jdHJsbG9jaywgZmxhZ3MpOwogCXdha2VfdXAoJnVzYmhpZC0+d2FpdCk7CkBAIC00MzUs
+OSArNDQzLDE0IEBAIHZvaWQgdXNiaGlkX3N1Ym1pdF9yZXBvcnQoc3RydWN0IGhpZF9kZXYK
+IAkJdXNiaGlkLT5vdXRbdXNiaGlkLT5vdXRoZWFkXS5yZXBvcnQgPSByZXBvcnQ7CiAJCXVz
+YmhpZC0+b3V0aGVhZCA9IGhlYWQ7CiAKLQkJaWYgKCF0ZXN0X2FuZF9zZXRfYml0KEhJRF9P
+VVRfUlVOTklORywgJnVzYmhpZC0+aW9mbCkpCi0JCQlpZiAoaGlkX3N1Ym1pdF9vdXQoaGlk
+KSkKKwkJZGJnX2hpZCgidXNiaGlkX3N1Ym1pdF9yZXBvcnQoKSBkb25lIGZvciBvdXRwdXQg
+cmVwb3J0ICVkXG4iLCBoZWFkIC0gMSk7CisJCWlmICghdGVzdF9hbmRfc2V0X2JpdChISURf
+T1VUX1JVTk5JTkcsICZ1c2JoaWQtPmlvZmwpKSB7CisJCQlkYmdfaGlkKCJsb2NrZWQgSElE
+X09VVF9SVU5OSU5HIGluIHVzYmhpZF9zdWJtaXRfcmVwb3J0KClcbiIpCisJCQlpZiAoaGlk
+X3N1Ym1pdF9vdXQoaGlkKSkgeworCQkJCWRiZ19oaWQoImNsZWFyZWQgSElEX09VVF9SVU5O
+SU5HIGluIHVzYmhpZF9zdWJtaXRfcmVwb3J0KCksIGZhaWx1cmUgaW4gaGlkX3N1Ym1pdF9v
+dXRcbiIpOwogCQkJCWNsZWFyX2JpdChISURfT1VUX1JVTk5JTkcsICZ1c2JoaWQtPmlvZmwp
+OworCQkJfQorCQl9CiAKIAkJc3Bpbl91bmxvY2tfaXJxcmVzdG9yZSgmdXNiaGlkLT5vdXRs
+b2NrLCBmbGFncyk7CiAJCXJldHVybjsKQEAgLTQ2MywxMCArNDc2LDE0IEBAIHZvaWQgdXNi
+aGlkX3N1Ym1pdF9yZXBvcnQoc3RydWN0IGhpZF9kZXYKIAl1c2JoaWQtPmN0cmxbdXNiaGlk
+LT5jdHJsaGVhZF0ucmVwb3J0ID0gcmVwb3J0OwogCXVzYmhpZC0+Y3RybFt1c2JoaWQtPmN0
+cmxoZWFkXS5kaXIgPSBkaXI7CiAJdXNiaGlkLT5jdHJsaGVhZCA9IGhlYWQ7Ci0KLQlpZiAo
+IXRlc3RfYW5kX3NldF9iaXQoSElEX0NUUkxfUlVOTklORywgJnVzYmhpZC0+aW9mbCkpCi0J
+CWlmIChoaWRfc3VibWl0X2N0cmwoaGlkKSkKKwlkYmdfaGlkKCJ1c2JoaWRfc3VibWl0X3Jl
+cG9ydCgpIGRvbmUgZm9yIGZlYXR1cmUgcmVwb3J0ICVkXG4iLCBoZWFkIC0gMSk7CisJaWYg
+KCF0ZXN0X2FuZF9zZXRfYml0KEhJRF9DVFJMX1JVTk5JTkcsICZ1c2JoaWQtPmlvZmwpKSB7
+CisJCWRiZ19oaWQoImxvY2tlZCBISURfQ1RSTF9SVU5OSU5HIGluIHVzYmhpZF9zdWJtaXRf
+cmVwb3J0KClcbiIpOworCQlpZiAoaGlkX3N1Ym1pdF9jdHJsKGhpZCkpIHsKKwkJCWRiZ19o
+aWQoImNsZWFyZWQgSElEX0NUUkxfUlVOTklORyBpbiB1c2JoaWRfc3VibWl0X3JlcG9ydCgp
+LCBmYWlsdXJlIGluIGhpZF9zdWJtaXRfY3RybFxuIik7CiAJCQljbGVhcl9iaXQoSElEX0NU
+UkxfUlVOTklORywgJnVzYmhpZC0+aW9mbCk7CisJCX0KKwl9CiAKIAlzcGluX3VubG9ja19p
+cnFyZXN0b3JlKCZ1c2JoaWQtPmN0cmxsb2NrLCBmbGFncyk7CiB9CkBAIC01MDMsNyArNTIw
+LDcgQEAgaW50IHVzYmhpZF93YWl0X2lvKHN0cnVjdCBoaWRfZGV2aWNlICpoaQogCQkJCSgh
+dGVzdF9iaXQoSElEX0NUUkxfUlVOTklORywgJnVzYmhpZC0+aW9mbCkgJiYKIAkJCQkhdGVz
+dF9iaXQoSElEX09VVF9SVU5OSU5HLCAmdXNiaGlkLT5pb2ZsKSksCiAJCQkJCTEwKkhaKSkg
+ewotCQlkYmdfaGlkKCJ0aW1lb3V0IHdhaXRpbmcgZm9yIGN0cmwgb3Igb3V0IHF1ZXVlIHRv
+IGNsZWFyXG4iKTsKKwkJZGJnX2hpZCgidGltZW91dCB3YWl0aW5nIGZvciBjdHJsIG9yIG91
+dCBxdWV1ZSB0byBjbGVhciwgJWQsICVkXG4iLCB0ZXN0X2JpdChISURfQ1RSTF9SVU5OSU5H
+LCAmdXNiaGlkLT5pb2ZsKSwgdGVzdF9iaXQoSElEX09VVF9SVU5OSU5HLCAmdXNiaGlkLT5p
+b2ZsKSk7CiAJCXJldHVybiAtMTsKIAl9CiAK
+--------------070902030707030508030409--

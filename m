@@ -1,596 +1,847 @@
-From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
-Subject: Re: [PATCH 0/5] WM97xx updates
-Date: Mon, 9 Mar 2009 16:48:46 +0100
-Message-ID: <20090309164846.75152a9a@hcegtvedt>
-References: <20090303182402.GA29542@rakim.wolfsonmicro.main>
-	<20090304091538.GD7394@dtor-d630.eng.vmware.com>
-	<49AE492F.6020006@atmel.com>
-	<20090304105358.GA32107@rakim.wolfsonmicro.main>
-	<49AE65FF.2060309@atmel.com>
+From: "Hennerich, Michael" <Michael.Hennerich@analog.com>
+Subject: RE: [patch 03/22] input: AD7879 Touchscreen driver
+Date: Mon, 9 Mar 2009 15:50:40 -0000
+Message-ID: <8A42379416420646B9BFAC9682273B6D094E3A2B@limkexm3.ad.analog.com>
+References: <200903041958.n24Jws9R028400@imap1.linux-foundation.org> <8A42379416420646B9BFAC9682273B6D09407D59@limkexm3.ad.analog.com> <20090306100510.GC24864@dtor-d630.eng.vmware.com> <8A42379416420646B9BFAC9682273B6D09407E53@limkexm3.ad.analog.com> <20090308072450.GB7102@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MP_/SZAPkWxEMY_xs0t=dLKibAZ"
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C9A0CE.CD158371"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.atmel.no ([80.232.32.139]:52267 "EHLO relay.atmel.no"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752107AbZCIPs6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 9 Mar 2009 11:48:58 -0400
-In-Reply-To: <49AE65FF.2060309@atmel.com>
+Received: from nwd2mail11.analog.com ([137.71.25.57]:53840 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753841AbZCIPur (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2009 11:50:47 -0400
+Content-class: urn:content-classes:message
+In-Reply-To: <20090308072450.GB7102@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: akpm@linux-foundation.org, linux-input@vger.kernel.org, cooloney@kernel.org, randy.dunlap@oracle.com
 
---MP_/SZAPkWxEMY_xs0t=dLKibAZ
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+This is a multi-part message in MIME format.
 
-On Wed, 04 Mar 2009 12:29:03 +0100
-Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com> wrote:
+------_=_NextPart_001_01C9A0CE.CD158371
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-> Mark Brown wrote:
-> > On Wed, Mar 04, 2009 at 10:26:07AM +0100, Hans-Christian Egtvedt
-> > wrote:
-> > 
-> >> The only thing catched by review was a leaking irq line, do you
-> >> plan to fixup that Mark?
-> > 
+Hi Dmitry,
 
-I fixed that in the attached patch, along with using an irqreturn_t
-instead of an int for the return value from the interrupt handler.
+>I see, it is indeed much better. I have same comment about mutual
+>exclusion between enable and disable as with 7877 driver. Could you
+>please try the patch below and let me know if I broke the driver or
+>not? ;)
 
-> > Jiri also had some further comments from the initial posting (mail
-> > attached).  I can probably try to fix up most things blind but I'll
-> > need to at least set up an at32 toolchain to build test.  The
-> > workqueue thing might be better to test on hardware, though, just
-> > in case there's some noticable performance impact.  I wouldn't
-> > expect so but it'd be safer.
-> > 
-> 
-> I'll see what I can manage to squeeze in of testing, there is always
-> the in-between-time.
-> 
+Thanks for your efforts.
+The driver still works. Please apply the patch below, on top of your
+patch.
+It fixes a build error and a typo. (ad7879_setup referenced before
+defined)=20
 
-Please see attached patch. A bit unsure if I should have done an
-incremental instead. Mark?
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
 
-I also made the driver more generic, as it should work fine on AT91
-devices as well. AT91 and AVR32 share the same AC97C module.
-
-> What is this patch based against? Linus tree, master branch?
-> 
-
-This is against my master branch, but it managed to accept the original
-patch so I guess it should go okay the other way as well. Sorry for the
-inconvenience.
-
--- 
 Best regards,
-Hans-Christian Egtvedt
---MP_/SZAPkWxEMY_xs0t=dLKibAZ
-Content-Type: text/x-patch;
- name=0001-Input-add-wm97xx-accelerated-driver-for-Atmel-micro.patch
-Content-Transfer-Encoding: 7bit
+Michael
+
+--- drivers/input/touchscreen/ad7879_dtor.c     2009-03-09
+16:13:06.000000000 +0100
+
++++ drivers/input/touchscreen/ad7879.c  2009-03-09 16:14:20.000000000
++0100
+
+@@ -234,6 +234,31 @@ static irqreturn_t ad7879_irq(int irq, v
+
+        return IRQ_HANDLED;
+
+ }
+
+=20
+
++static void ad7879_setup(struct ad7879 *ts)
+
++{
+
++       ts->cmd_crtl3 =3D AD7879_YPLUS_BIT |
+
++                       AD7879_XPLUS_BIT |
+
++                       AD7879_Z2_BIT |
+
++                       AD7879_Z1_BIT |
+
++                       AD7879_TEMPMASK_BIT |
+
++                       AD7879_AUXVBATMASK_BIT |
+
++                       AD7879_GPIOALERTMASK_BIT;
+
++
+
++       ts->cmd_crtl2 =3D AD7879_PM(AD7879_PM_DYN) | AD7879_DFR |
+
++                       AD7879_AVG(ts->averaging) |
+
++                       AD7879_MFS(ts->median) |
+
++                       AD7879_FCD(ts->first_conversion_delay) |
+
++                       ts->gpio_init;
+
++
+
++       ts->cmd_crtl1 =3D AD7879_MODE_INT | AD7879_MODE_SEQ1 |
+
++                       AD7879_ACQ(ts->acquisition_time) |
+
++                       AD7879_TMR(ts->pen_down_acc_interval);
+
++
+
++       ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
+
++       ad7879_write(ts->bus, AD7879_REG_CTRL3, ts->cmd_crtl3);
+
++       ad7879_write(ts->bus, AD7879_REG_CTRL1, ts->cmd_crtl1);
+
++}
+
++
+
+ static void ad7879_disable(struct ad7879 *ts)
+
+ {
+
+        mutex_lock(&ts->mutex);
+
+@@ -341,31 +366,6 @@ static const struct attribute_group ad78
+
+        .attrs =3D ad7879_attributes,
+
+ };
+
+=20
+
+-static void ad7879_setup(struct ad7879 *ts)
+
+-{
+
+-       ts->cmd_crtl3 =3D AD7879_YPLUS_BIT |
+
+-                       AD7879_XPLUS_BIT |
+
+-                       AD7879_Z2_BIT |
+
+-                       AD7879_Z1_BIT |
+
+-                       AD7879_TEMPMASK_BIT |
+
+-                       AD7879_AUXVBATMASK_BIT |
+
+-                       AD7879_GPIOALERTMASK_BIT;
+
+-
+
+-       ts->cmd_crtl2 =3D AD7879_PM(AD7879_PM_DYN) | AD7879_DFR |
+
+-                       AD7879_AVG(ts->averaging) |
+
+-                       AD7879_MFS(ts->median) |
+
+-                       AD7879_FCD(ts->first_conversion_delay) |
+
+-                       ts->gpio_init;
+
+-
+
+-       ts->cmd_crtl1 =3D AD7879_MODE_INT | AD7879_MODE_SEQ1 |
+
+-                       AD7879_ACQ(ts->acquisition_time) |
+
+-                       AD7879_TMR(ts->pen_down_acc_interval);
+-
+-       ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
+-       ad7879_write(ts->bus, AD7879_REG_CTRL3, ts->cmd_crtl3);
+-       ad7879_write(ts->bus, AD7879_REG_CTRL1, ts->cmd_crtl1);
+-}
+-
+ static int __devinit ad7879_construct(bus_device *bus, struct ad7879
+*ts)
+ {
+        struct input_dev *input_dev;
+@@ -746,11 +746,11 @@ static int __devexit ad7879_remove(struc
+        return 0;
+ }
+
+-static const struct i2c_device_id ad7979_id[] =3D {
++static const struct i2c_device_id ad7879_id[] =3D {
+        { "ad7879", 0 },
+        { }
+ };
+-MODULE_DEVICE_TABLE(i2c, ad7979_id);
++MODULE_DEVICE_TABLE(i2c, ad7879_id);
+
+ static struct i2c_driver ad7879_driver =3D {
+        .driver =3D {
+@@ -761,7 +761,7 @@ static struct i2c_driver ad7879_driver =3D
+        .remove         =3D __devexit_p(ad7879_remove),
+        .suspend        =3D ad7879_suspend,
+        .resume         =3D ad7879_resume,
+-       .id_table       =3D ad7979_id,
++       .id_table       =3D ad7879_id,
+ };
+
+ static int __init ad7879_init(void)
+
+>-----Original Message-----
+>From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>Sent: Sunday, March 08, 2009 8:25 AM
+>To: Hennerich, Michael
+>Cc: akpm@linux-foundation.org; linux-input@vger.kernel.org;
+>cooloney@kernel.org; randy.dunlap@oracle.com
+>Subject: Re: [patch 03/22] input: AD7879 Touchscreen driver
+>
+>On Fri, Mar 06, 2009 at 10:07:36AM -0000, Hennerich, Michael wrote:
+>>
+>>
+>> >From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
+>> >
+>> >Hi Michael,
+>> >
+>> >On Fri, Mar 06, 2009 at 09:48:17AM -0000, Hennerich, Michael wrote:
+>> >>
+>> >> Hi Dmitry,
+>> >>
+>> >> Is there a schedule when this and my other patch get merged
+mainline?
+>> >>
+>> >> [patch 01/22] input/touchscreen driver: add support AD7877
+>> touchscreen
+>> >> driver
+>> >>
+>> >> Do you have any concerns or is there something that should be done
+>> >> differently?
+>> >
+>> >I have some concerns with regard to locking in the driver. I had a
+>> >preliminary patch but I need to look at it again.
+>> >
+>> >--
+>> >Dmitry
+>>
+>> Hi Dmitry,
+>>
+>> I reworked the locking, it's now done differently.
+>>
+>
+>I see, it is indeed much better. I have same comment about mutual
+>exclusion between enable and disable as with 7877 driver. Could you
+>please try the patch below and let me know if I broke the driver or
+>not? ;)
+>
+>Thanks!
+>
+>--
+>Dmitry
+>
+>Input: ad7879 fixups
+>
+>Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+>---
+>
+> drivers/input/touchscreen/ad7879.c |  193
++++++++++++++++++---------------
+>----
+> 1 files changed, 89 insertions(+), 104 deletions(-)
+>
+>
+>diff --git a/drivers/input/touchscreen/ad7879.c
+>b/drivers/input/touchscreen/ad7879.c
+>index 19287af..30b0159 100644
+>--- a/drivers/input/touchscreen/ad7879.c
+>+++ b/drivers/input/touchscreen/ad7879.c
+>@@ -1,7 +1,5 @@
+> /*
+>- * File:        drivers/input/touchscreen/ad7879.c
+>- *
+>- *		Copyright (C) 2008 Michael Hennerich, Analog Devices
+Inc.
+>+ * Copyright (C) 2008 Michael Hennerich, Analog Devices Inc.
+>  *
+>  * Description:	AD7879 based touchscreen, and GPIO driver
+(I2C/SPI
+>Interface)
+>  *
+>@@ -35,7 +33,7 @@
+>  *	Copyright (C) 2004 Texas Instruments
+>  *	Copyright (C) 2005 Dirk Behme
+>  *  - ad7877.c
+>- * 	Copyright (C) 2006-2008 Analog Devices Inc.
+>+ *	Copyright (C) 2006-2008 Analog Devices Inc.
+>  */
+>
+> #include <linux/device.h>
+>@@ -70,11 +68,11 @@
+> /* Control REG 1 */
+> #define AD7879_TMR(x)			((x & 0xFF) << 0)
+> #define AD7879_ACQ(x)			((x & 0x3) << 8)
+>-#define AD7879_MODE_NOC  		(0 << 10)	/* Do not
+convert */
+>-#define AD7879_MODE_SCC  		(1 << 10)	/* Single
+channel
+>conversion */
+>-#define AD7879_MODE_SEQ0 		(2 << 10)	/* Sequence 0 in
+Slave Mode
+>*/
+>-#define AD7879_MODE_SEQ1 		(3 << 10)	/* Sequence 1 in
+Master
+>Mode */
+>-#define AD7879_MODE_INT 		(1 << 15)	/* PENIRQ
+disabled INT
+>enabled */
+>+#define AD7879_MODE_NOC			(0 << 10)	/* Do
+not convert */
+>+#define AD7879_MODE_SCC			(1 << 10)	/*
+Single channel
+>conversion */
+>+#define AD7879_MODE_SEQ0		(2 << 10)	/* Sequence 0 in
+Slave Mode
+>*/
+>+#define AD7879_MODE_SEQ1		(3 << 10)	/* Sequence 1 in
+Master
+>Mode */
+>+#define AD7879_MODE_INT			(1 << 15)	/*
+PENIRQ disabled
+>INT enabled */
+>
+> /* Control REG 2 */
+> #define AD7879_FCD(x)			((x & 0x3) << 0)
+>@@ -129,18 +127,20 @@ typedef struct i2c_client	bus_device;
+> #endif
+>
+> struct ad7879 {
+>-	bus_device 		*bus;
+>+	bus_device		*bus;
+> 	struct input_dev	*input;
+> 	struct work_struct	work;
+> 	struct timer_list	timer;
+>-	spinlock_t		lock;
+>+
+>+	struct mutex		mutex;
+>+	unsigned		disabled:1;	/* P: mutex */
+>
+> #if defined(CONFIG_TOUCHSCREEN_AD7879_SPI) ||
+>defined(CONFIG_TOUCHSCREEN_AD7879_SPI_MODULE)
+> 	struct spi_message	msg;
+> 	struct spi_transfer	xfer[AD7879_NR_SENSE + 1];
+> 	u16			cmd;
+> #endif
+>-	u16 			conversion_data[AD7879_NR_SENSE];
+>+	u16			conversion_data[AD7879_NR_SENSE];
+> 	char			phys[32];
+> 	u8			first_conversion_delay;
+> 	u8			acquisition_time;
+>@@ -153,7 +153,6 @@ struct ad7879 {
+> 	u16			cmd_crtl1;
+> 	u16			cmd_crtl2;
+> 	u16			cmd_crtl3;
+>-	unsigned		disabled:1;	/* P: lock */
+> 	unsigned		gpio:1;
+> };
+>
+>@@ -163,9 +162,9 @@ static void ad7879_collect(struct ad7879 *);
+>
+> static void ad7879_report(struct ad7879 *ts)
+> {
+>-	struct input_dev	*input_dev =3D ts->input;
+>-	unsigned		Rt;
+>-	u16			x, y, z1, z2;
+>+	struct input_dev *input_dev =3D ts->input;
+>+	unsigned Rt;
+>+	u16 x, y, z1, z2;
+>
+> 	x =3D ts->conversion_data[AD7879_SEQ_XPOS] & MAX_12BIT;
+> 	y =3D ts->conversion_data[AD7879_SEQ_YPOS] & MAX_12BIT;
+>@@ -187,10 +186,7 @@ static void ad7879_report(struct ad7879 *ts)
+> 		Rt =3D (z2 - z1) * x * ts->x_plate_ohms;
+> 		Rt /=3D z1;
+> 		Rt =3D (Rt + 2047) >> 12;
+>-	} else
+>-		Rt =3D 0;
+>
+>-	if (Rt) {
+> 		input_report_abs(input_dev, ABS_X, x);
+> 		input_report_abs(input_dev, ABS_Y, y);
+> 		input_report_abs(input_dev, ABS_PRESSURE, Rt);
+>@@ -218,7 +214,7 @@ static void ad7879_ts_event_release(struct ad7879
+*ts)
+>
+> static void ad7879_timer(unsigned long handle)
+> {
+>-	struct ad7879	*ts =3D (void *)handle;
+>+	struct ad7879 *ts =3D (void *)handle;
+>
+> 	ad7879_ts_event_release(ts);
+> }
+>@@ -240,40 +236,36 @@ static irqreturn_t ad7879_irq(int irq, void
+*handle)
+>
+> static void ad7879_disable(struct ad7879 *ts)
+> {
+>-	unsigned long flags;
+>+	mutex_lock(&ts->mutex);
+>
+>-	spin_lock_irqsave(&ts->lock, flags);
+>-	if (ts->disabled) {
+>-		spin_unlock_irqrestore(&ts->lock, flags);
+>-		return;
+>-	}
+>+	if (!ts->disabled) {
+>
+>-	ts->disabled =3D 1;
+>-	disable_irq(ts->bus->irq);
+>-	spin_unlock_irqrestore(&ts->lock, flags);
+>+		ts->disabled =3D 1;
+>+		disable_irq(ts->bus->irq);
+>
+>-	cancel_work_sync(&ts->work);
+>+		cancel_work_sync(&ts->work);
+>
+>-	if (del_timer_sync(&ts->timer))
+>-		ad7879_ts_event_release(ts);
+>+		if (del_timer_sync(&ts->timer))
+>+			ad7879_ts_event_release(ts);
+>
+>-	/* we know the chip's in lowpower mode since we always
+>-	 * leave it that way after every request
+>-	 */
+>+		ad7879_write(ts->bus, AD7879_REG_CTRL2,
+>+			     AD7879_PM(AD7879_PM_SHUTDOWN));
+>+	}
+>+
+>+	mutex_unlock(&ts->mutex);
+> }
+>
+> static void ad7879_enable(struct ad7879 *ts)
+> {
+>-	unsigned long flags;
+>+	mutex_lock(&ts->mutex);
+>
+>-	spin_lock_irqsave(&ts->lock, flags);
+> 	if (ts->disabled) {
+>-		spin_unlock_irqrestore(&ts->lock, flags);
+>-		return;
+>+		ad7879_setup(ts);
+>+		ts->disabled =3D 0;
+>+		enable_irq(ts->bus->irq);
+> 	}
+>-	ts->disabled =3D 0;
+>-	enable_irq(ts->bus->irq);
+>-	spin_unlock_irqrestore(&ts->lock, flags);
+>+
+>+	mutex_unlock(&ts->mutex);
+> }
+>
+> static ssize_t ad7879_disable_show(struct device *dev,
+>@@ -290,12 +282,11 @@ static ssize_t ad7879_disable_store(struct device
+>*dev,
+> {
+> 	struct ad7879 *ts =3D dev_get_drvdata(dev);
+> 	unsigned long val;
+>-	int ret;
+>-
+>-	ret =3D strict_strtoul(buf, 10, &val);
+>+	int error;
+>
+>-	if (ret)
+>-		return ret;
+>+	error =3D strict_strtoul(buf, 10, &val);
+>+	if (error)
+>+		return error;
+>
+> 	if (val)
+> 		ad7879_disable(ts);
+>@@ -321,22 +312,21 @@ static ssize_t ad7879_gpio_store(struct device
+*dev,
+> {
+> 	struct ad7879 *ts =3D dev_get_drvdata(dev);
+> 	unsigned long val;
+>-	int ret;
+>+	int error;
+>
+>-	ret =3D strict_strtoul(buf, 10, &val);
+>-	if (ret)
+>-		return ret;
+>+	error =3D strict_strtoul(buf, 10, &val);
+>+	if (error)
+>+		return error;
+>
+>+	mutex_lock(&ts->mutex);
+> 	ts->gpio =3D !!val;
+>+	error =3D ad7879_write(ts->bus, AD7879_REG_CTRL2,
+>+			   ts->gpio ?
+>+				ts->cmd_crtl2 & ~AD7879_GPIO_DATA :
+>+				ts->cmd_crtl2 | AD7879_GPIO_DATA);
+>+	mutex_unlock(&ts->mutex);
+>
+>-	ret =3D ad7879_write(ts->bus, AD7879_REG_CTRL2,
+>-			ts->gpio ? ts->cmd_crtl2 & ~AD7879_GPIO_DATA
+>-			: ts->cmd_crtl2 | AD7879_GPIO_DATA);
+>-
+>-	if (ret)
+>-		return ret;
+>-
+>-	return count;
+>+	return error ? : count;
+> }
+>
+> static DEVICE_ATTR(gpio, 0664, ad7879_gpio_show, ad7879_gpio_store);
+>@@ -351,7 +341,7 @@ static const struct attribute_group
+ad7879_attr_group =3D
+>{
+> 	.attrs =3D ad7879_attributes,
+> };
+>
+>-static void ad7879_setup(bus_device *bus, struct ad7879 *ts)
+>+static void ad7879_setup(struct ad7879 *ts)
+> {
+> 	ts->cmd_crtl3 =3D AD7879_YPLUS_BIT |
+> 			AD7879_XPLUS_BIT |
+>@@ -371,9 +361,9 @@ static void ad7879_setup(bus_device *bus, struct
+ad7879
+>*ts)
+> 			AD7879_ACQ(ts->acquisition_time) |
+> 			AD7879_TMR(ts->pen_down_acc_interval);
+>
+>-	ad7879_write(bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
+>-	ad7879_write(bus, AD7879_REG_CTRL3, ts->cmd_crtl3);
+>-	ad7879_write(bus, AD7879_REG_CTRL1, ts->cmd_crtl1);
+>+	ad7879_write(ts->bus, AD7879_REG_CTRL2, ts->cmd_crtl2);
+>+	ad7879_write(ts->bus, AD7879_REG_CTRL3, ts->cmd_crtl3);
+>+	ad7879_write(ts->bus, AD7879_REG_CTRL1, ts->cmd_crtl1);
+> }
+>
+> static int __devinit ad7879_construct(bus_device *bus, struct ad7879
+*ts)
+>@@ -401,7 +391,7 @@ static int __devinit ad7879_construct(bus_device
+*bus,
+>struct ad7879 *ts)
+>
+> 	setup_timer(&ts->timer, ad7879_timer, (unsigned long) ts);
+> 	INIT_WORK(&ts->work, ad7879_work);
+>-	spin_lock_init(&ts->lock);
+>+	mutex_init(&ts->mutex);
+>
+> 	ts->x_plate_ohms =3D pdata->x_plate_ohms ? : 400;
+> 	ts->pressure_max =3D pdata->pressure_max ? : ~0;
+>@@ -418,7 +408,7 @@ static int __devinit ad7879_construct(bus_device
+*bus,
+>struct ad7879 *ts)
+> 	else
+> 		ts->gpio_init =3D AD7879_GPIO_EN | AD7879_GPIODIR;
+>
+>-	snprintf(ts->phys, sizeof(ts->phys), "%s/inputX", dev_name(&bus-
+>>dev));
+>+	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&bus-
+>>dev));
+>
+> 	input_dev->name =3D "AD7879 Touchscreen";
+> 	input_dev->phys =3D ts->phys;
+>@@ -455,10 +445,11 @@ static int __devinit ad7879_construct(bus_device
+>*bus, struct ad7879 *ts)
+> 		goto err_free_mem;
+> 	}
+>
+>-	ad7879_setup(bus, ts);
+>+	ad7879_setup(ts);
+>
+>-	err =3D request_irq(bus->irq, ad7879_irq, IRQF_TRIGGER_FALLING |
+>-		IRQF_SAMPLE_RANDOM, bus->dev.driver->name, ts);
+>+	err =3D request_irq(bus->irq, ad7879_irq,
+>+			  IRQF_TRIGGER_FALLING | IRQF_SAMPLE_RANDOM,
+>+			  bus->dev.driver->name, ts);
+>
+> 	if (err) {
+> 		dev_err(&bus->dev, "irq %d busy?\n", bus->irq);
+>@@ -474,7 +465,7 @@ static int __devinit ad7879_construct(bus_device
+*bus,
+>struct ad7879 *ts)
+> 		goto err_remove_attr;
+>
+> 	dev_info(&bus->dev, "Rev.%d touchscreen, irq %d\n",
+>-		revid >> 8, bus->irq);
+>+		 revid >> 8, bus->irq);
+>
+> 	return 0;
+>
+>@@ -491,8 +482,6 @@ err_free_mem:
+> static int __devexit ad7879_destroy(bus_device *bus, struct ad7879
+*ts)
+> {
+> 	ad7879_disable(ts);
+>-	ad7879_write(ts->bus, AD7879_REG_CTRL2,
+>-			AD7879_PM(AD7879_PM_SHUTDOWN));
+> 	sysfs_remove_group(&ts->bus->dev.kobj, &ad7879_attr_group);
+> 	free_irq(ts->bus->irq, ts);
+> 	input_unregister_device(ts->input);
+>@@ -507,8 +496,6 @@ static int ad7879_suspend(bus_device *bus,
+pm_message_t
+>message)
+> 	struct ad7879 *ts =3D dev_get_drvdata(&bus->dev);
+>
+> 	ad7879_disable(ts);
+>-	ad7879_write(bus, AD7879_REG_CTRL2,
+>-			AD7879_PM(AD7879_PM_SHUTDOWN));
+>
+> 	return 0;
+> }
+>@@ -517,7 +504,6 @@ static int ad7879_resume(bus_device *bus)
+> {
+> 	struct ad7879 *ts =3D dev_get_drvdata(&bus->dev);
+>
+>-	ad7879_setup(bus, ts);
+> 	ad7879_enable(ts);
+>
+> 	return 0;
+>@@ -531,8 +517,8 @@ static int ad7879_resume(bus_device *bus)
+> #define MAX_SPI_FREQ_HZ		5000000
+> #define AD7879_CMD_MAGIC	0xE000
+> #define AD7879_CMD_READ		(1 << 10)
+>-#define AD7879_WRITECMD(reg)  	(AD7879_CMD_MAGIC | (reg & 0xF))
+>-#define AD7879_READCMD(reg)  	(AD7879_CMD_MAGIC | AD7879_CMD_READ |
+>(reg & 0xF))
+>+#define AD7879_WRITECMD(reg)	(AD7879_CMD_MAGIC | (reg & 0xF))
+>+#define AD7879_READCMD(reg)	(AD7879_CMD_MAGIC | AD7879_CMD_READ |
+(reg &
+>0xF))
+>
+> struct ser_req {
+> 	u16			command;
+>@@ -548,9 +534,10 @@ struct ser_req {
+>
+> static int ad7879_read(struct spi_device *spi, u8 reg)
+> {
+>-	struct ser_req *req =3D kzalloc(sizeof *req, GFP_KERNEL);
+>+	struct ser_req *req;
+> 	int status, ret;
+>
+>+	req =3D kzalloc(sizeof *req, GFP_KERNEL);
+> 	if (!req)
+> 		return -ENOMEM;
+>
+>@@ -567,11 +554,8 @@ static int ad7879_read(struct spi_device *spi, u8
+reg)
+> 	spi_message_add_tail(&req->xfer[1], &req->msg);
+>
+> 	status =3D spi_sync(spi, &req->msg);
+>+	ret =3D status ? : req->data;
+>
+>-	if (status =3D=3D 0)
+>-		status =3D req->msg.status;
+>-
+>-	ret =3D status ? status : req->data;
+> 	kfree(req);
+>
+> 	return ret;
+>@@ -579,9 +563,10 @@ static int ad7879_read(struct spi_device *spi, u8
+reg)
+>
+> static int ad7879_write(struct spi_device *spi, u8 reg, u16 val)
+> {
+>-	struct ser_req *req =3D kzalloc(sizeof *req, GFP_KERNEL);
+>+	struct ser_req *req;
+> 	int status;
+>
+>+	req =3D kzalloc(sizeof *req, GFP_KERNEL);
+> 	if (!req)
+> 		return -ENOMEM;
+>
+>@@ -600,9 +585,6 @@ static int ad7879_write(struct spi_device *spi, u8
+reg,
+>u16 val)
+>
+> 	status =3D spi_sync(spi, &req->msg);
+>
+>-	if (status =3D=3D 0)
+>-		status =3D req->msg.status;
+>-
+> 	kfree(req);
+>
+> 	return status;
+>@@ -611,6 +593,7 @@ static int ad7879_write(struct spi_device *spi, u8
+reg,
+>u16 val)
+> static void ad7879_collect(struct ad7879 *ts)
+> {
+> 	int status =3D spi_sync(ts->bus, &ts->msg);
+>+
+> 	if (status)
+> 		dev_err(&ts->bus->dev, "spi_sync --> %d\n", status);
+> }
+>@@ -639,7 +622,7 @@ static void ad7879_setup_ts_def_msg(struct ad7879
+*ts)
+> static int __devinit ad7879_probe(struct spi_device *spi)
+> {
+> 	struct ad7879 *ts;
+>-	int ret;
+>+	int error;
+>
+> 	/* don't exceed max specified SPI CLK frequency */
+> 	if (spi->max_speed_hz > MAX_SPI_FREQ_HZ) {
+>@@ -656,14 +639,13 @@ static int __devinit ad7879_probe(struct
+spi_device
+>*spi)
+>
+> 	ad7879_setup_ts_def_msg(ts);
+>
+>-	ret =3D ad7879_construct(spi, ts);
+>-	if (!ret)
+>-		return ret;
+>-
+>-	dev_set_drvdata(&spi->dev, NULL);
+>-	kfree(ts);
+>+	error =3D ad7879_construct(spi, ts);
+>+	if (error) {
+>+		dev_set_drvdata(&spi->dev, NULL);
+>+		kfree(ts);
+>+	}
+>
+>-	return ret;
+>+	return 0;
+> }
+>
+> static int __devexit ad7879_remove(struct spi_device *spi)
+>@@ -673,6 +655,7 @@ static int __devexit ad7879_remove(struct
+spi_device
+>*spi)
+> 	ad7879_destroy(spi, ts);
+> 	dev_set_drvdata(&spi->dev, NULL);
+> 	kfree(ts);
+>+
+> 	return 0;
+> }
+>
+>@@ -718,16 +701,17 @@ static int ad7879_write(struct i2c_client
+*client, u8
+>reg, u16 val)
+> static void ad7879_collect(struct ad7879 *ts)
+> {
+> 	int i;
+>+
+> 	for (i =3D 0; i < AD7879_NR_SENSE; i++)
+>-		ts->conversion_data[i] =3D
+>-			ad7879_read(ts->bus, AD7879_REG_XPLUS + i);
+>+		ts->conversion_data[i] =3D ad7879_read(ts->bus,
+>+						     AD7879_REG_XPLUS +
+i);
+> }
+>
+> static int __devinit ad7879_probe(struct i2c_client *client,
+> 					const struct i2c_device_id *id)
+> {
+> 	struct ad7879 *ts;
+>-	int ret;
+>+	int error;
+>
+> 	if (!i2c_check_functionality(client->adapter,
+> 					I2C_FUNC_SMBUS_WORD_DATA)) {
+>@@ -742,14 +726,13 @@ static int __devinit ad7879_probe(struct
+i2c_client
+>*client,
+> 	i2c_set_clientdata(client, ts);
+> 	ts->bus =3D client;
+>
+>-	ret =3D ad7879_construct(client, ts);
+>-	if (!ret)
+>-		return ret;
+>-
+>-	i2c_set_clientdata(client, NULL);
+>-	kfree(ts);
+>+	error =3D ad7879_construct(client, ts);
+>+	if (error) {
+>+		i2c_set_clientdata(client, NULL);
+>+		kfree(ts);
+>+	}
+>
+>-	return ret;
+>+	return 0;
+> }
+>
+> static int __devexit ad7879_remove(struct i2c_client *client)
+>@@ -759,8 +742,10 @@ static int __devexit ad7879_remove(struct
+i2c_client
+>*client)
+> 	ad7879_destroy(client, ts);
+> 	i2c_set_clientdata(client, NULL);
+> 	kfree(ts);
+>+
+> 	return 0;
+> }
+>+
+> static const struct i2c_device_id ad7979_id[] =3D {
+> 	{ "ad7879", 0 },
+> 	{ }
+>@@ -776,7 +761,7 @@ static struct i2c_driver ad7879_driver =3D {
+> 	.remove		=3D __devexit_p(ad7879_remove),
+> 	.suspend	=3D ad7879_suspend,
+> 	.resume		=3D ad7879_resume,
+>-	.id_table 	=3D ad7979_id,
+>+	.id_table	=3D ad7979_id,
+> };
+>
+> static int __init ad7879_init(void)
+
+------_=_NextPart_001_01C9A0CE.CD158371
+Content-Type: application/octet-stream;
+	name="input-ad7879-fixups-fix-typos.patch"
+Content-Transfer-Encoding: base64
+Content-Description: input-ad7879-fixups-fix-typos.patch
 Content-Disposition: attachment;
- filename=0001-Input-add-wm97xx-accelerated-driver-for-Atmel-micro.patch
+	filename="input-ad7879-fixups-fix-typos.patch"
 
->From ff36d7c4ed71901b745eaf8b104c59a13a00374f Mon Sep 17 00:00:00 2001
-From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
-Date: Mon, 9 Mar 2009 16:39:42 +0100
-Subject: [PATCH v2 1/1] Input: add wm97xx accelerated driver for Atmel microprocessors
+LS0tIGRyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vYWQ3ODc5X2R0b3IuYwkyMDA5LTAzLTA5IDE2
+OjEzOjA2LjAwMDAwMDAwMCArMDEwMAorKysgZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hZDc4
+NzkuYwkyMDA5LTAzLTA5IDE2OjE0OjIwLjAwMDAwMDAwMCArMDEwMApAQCAtMjM0LDYgKzIzNCwz
+MSBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgYWQ3ODc5X2lycShpbnQgaXJxLCB2CiAJcmV0dXJuIElS
+UV9IQU5ETEVEOwogfQogCitzdGF0aWMgdm9pZCBhZDc4Nzlfc2V0dXAoc3RydWN0IGFkNzg3OSAq
+dHMpCit7CisJdHMtPmNtZF9jcnRsMyA9IEFENzg3OV9ZUExVU19CSVQgfAorCQkJQUQ3ODc5X1hQ
+TFVTX0JJVCB8CisJCQlBRDc4NzlfWjJfQklUIHwKKwkJCUFENzg3OV9aMV9CSVQgfAorCQkJQUQ3
+ODc5X1RFTVBNQVNLX0JJVCB8CisJCQlBRDc4NzlfQVVYVkJBVE1BU0tfQklUIHwKKwkJCUFENzg3
+OV9HUElPQUxFUlRNQVNLX0JJVDsKKworCXRzLT5jbWRfY3J0bDIgPSBBRDc4NzlfUE0oQUQ3ODc5
+X1BNX0RZTikgfCBBRDc4NzlfREZSIHwKKwkJCUFENzg3OV9BVkcodHMtPmF2ZXJhZ2luZykgfAor
+CQkJQUQ3ODc5X01GUyh0cy0+bWVkaWFuKSB8CisJCQlBRDc4NzlfRkNEKHRzLT5maXJzdF9jb252
+ZXJzaW9uX2RlbGF5KSB8CisJCQl0cy0+Z3Bpb19pbml0OworCisJdHMtPmNtZF9jcnRsMSA9IEFE
+Nzg3OV9NT0RFX0lOVCB8IEFENzg3OV9NT0RFX1NFUTEgfAorCQkJQUQ3ODc5X0FDUSh0cy0+YWNx
+dWlzaXRpb25fdGltZSkgfAorCQkJQUQ3ODc5X1RNUih0cy0+cGVuX2Rvd25fYWNjX2ludGVydmFs
+KTsKKworCWFkNzg3OV93cml0ZSh0cy0+YnVzLCBBRDc4NzlfUkVHX0NUUkwyLCB0cy0+Y21kX2Ny
+dGwyKTsKKwlhZDc4Nzlfd3JpdGUodHMtPmJ1cywgQUQ3ODc5X1JFR19DVFJMMywgdHMtPmNtZF9j
+cnRsMyk7CisJYWQ3ODc5X3dyaXRlKHRzLT5idXMsIEFENzg3OV9SRUdfQ1RSTDEsIHRzLT5jbWRf
+Y3J0bDEpOworfQorCiBzdGF0aWMgdm9pZCBhZDc4NzlfZGlzYWJsZShzdHJ1Y3QgYWQ3ODc5ICp0
+cykKIHsKIAltdXRleF9sb2NrKCZ0cy0+bXV0ZXgpOwpAQCAtMzQxLDMxICszNjYsNiBAQCBzdGF0
+aWMgY29uc3Qgc3RydWN0IGF0dHJpYnV0ZV9ncm91cCBhZDc4CiAJLmF0dHJzID0gYWQ3ODc5X2F0
+dHJpYnV0ZXMsCiB9OwogCi1zdGF0aWMgdm9pZCBhZDc4Nzlfc2V0dXAoc3RydWN0IGFkNzg3OSAq
+dHMpCi17Ci0JdHMtPmNtZF9jcnRsMyA9IEFENzg3OV9ZUExVU19CSVQgfAotCQkJQUQ3ODc5X1hQ
+TFVTX0JJVCB8Ci0JCQlBRDc4NzlfWjJfQklUIHwKLQkJCUFENzg3OV9aMV9CSVQgfAotCQkJQUQ3
+ODc5X1RFTVBNQVNLX0JJVCB8Ci0JCQlBRDc4NzlfQVVYVkJBVE1BU0tfQklUIHwKLQkJCUFENzg3
+OV9HUElPQUxFUlRNQVNLX0JJVDsKLQotCXRzLT5jbWRfY3J0bDIgPSBBRDc4NzlfUE0oQUQ3ODc5
+X1BNX0RZTikgfCBBRDc4NzlfREZSIHwKLQkJCUFENzg3OV9BVkcodHMtPmF2ZXJhZ2luZykgfAot
+CQkJQUQ3ODc5X01GUyh0cy0+bWVkaWFuKSB8Ci0JCQlBRDc4NzlfRkNEKHRzLT5maXJzdF9jb252
+ZXJzaW9uX2RlbGF5KSB8Ci0JCQl0cy0+Z3Bpb19pbml0OwotCi0JdHMtPmNtZF9jcnRsMSA9IEFE
+Nzg3OV9NT0RFX0lOVCB8IEFENzg3OV9NT0RFX1NFUTEgfAotCQkJQUQ3ODc5X0FDUSh0cy0+YWNx
+dWlzaXRpb25fdGltZSkgfAotCQkJQUQ3ODc5X1RNUih0cy0+cGVuX2Rvd25fYWNjX2ludGVydmFs
+KTsKLQotCWFkNzg3OV93cml0ZSh0cy0+YnVzLCBBRDc4NzlfUkVHX0NUUkwyLCB0cy0+Y21kX2Ny
+dGwyKTsKLQlhZDc4Nzlfd3JpdGUodHMtPmJ1cywgQUQ3ODc5X1JFR19DVFJMMywgdHMtPmNtZF9j
+cnRsMyk7Ci0JYWQ3ODc5X3dyaXRlKHRzLT5idXMsIEFENzg3OV9SRUdfQ1RSTDEsIHRzLT5jbWRf
+Y3J0bDEpOwotfQotCiBzdGF0aWMgaW50IF9fZGV2aW5pdCBhZDc4NzlfY29uc3RydWN0KGJ1c19k
+ZXZpY2UgKmJ1cywgc3RydWN0IGFkNzg3OSAqdHMpCiB7CiAJc3RydWN0IGlucHV0X2RldiAqaW5w
+dXRfZGV2OwpAQCAtNzQ2LDExICs3NDYsMTEgQEAgc3RhdGljIGludCBfX2RldmV4aXQgYWQ3ODc5
+X3JlbW92ZShzdHJ1YwogCXJldHVybiAwOwogfQogCi1zdGF0aWMgY29uc3Qgc3RydWN0IGkyY19k
+ZXZpY2VfaWQgYWQ3OTc5X2lkW10gPSB7CitzdGF0aWMgY29uc3Qgc3RydWN0IGkyY19kZXZpY2Vf
+aWQgYWQ3ODc5X2lkW10gPSB7CiAJeyAiYWQ3ODc5IiwgMCB9LAogCXsgfQogfTsKLU1PRFVMRV9E
+RVZJQ0VfVEFCTEUoaTJjLCBhZDc5NzlfaWQpOworTU9EVUxFX0RFVklDRV9UQUJMRShpMmMsIGFk
+Nzg3OV9pZCk7CiAKIHN0YXRpYyBzdHJ1Y3QgaTJjX2RyaXZlciBhZDc4NzlfZHJpdmVyID0gewog
+CS5kcml2ZXIgPSB7CkBAIC03NjEsNyArNzYxLDcgQEAgc3RhdGljIHN0cnVjdCBpMmNfZHJpdmVy
+IGFkNzg3OV9kcml2ZXIgPQogCS5yZW1vdmUJCT0gX19kZXZleGl0X3AoYWQ3ODc5X3JlbW92ZSks
+CiAJLnN1c3BlbmQJPSBhZDc4Nzlfc3VzcGVuZCwKIAkucmVzdW1lCQk9IGFkNzg3OV9yZXN1bWUs
+Ci0JLmlkX3RhYmxlCT0gYWQ3OTc5X2lkLAorCS5pZF90YWJsZQk9IGFkNzg3OV9pZCwKIH07CiAK
+IHN0YXRpYyBpbnQgX19pbml0IGFkNzg3OV9pbml0KHZvaWQpCg==
 
-This patch adds an accelerated driver for Atmel AVR32 AT32AP700X
-microprocessors. It uses interrupts on the channel B in the AC97
-controller. Thus, offloading the work queue in the wm97xx-ts driver.
-
-The driver has been tested with Atmel AVR32 AT32AP7000 and Wolfson
-WM9712 codec.
-
-The driver can also be easily modified to support Atmel AT91 devices, as
-AT91 and AVR32 share the same AC97C module.
-
-Signed-off-by: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
----
- drivers/input/touchscreen/Kconfig        |   15 +
- drivers/input/touchscreen/Makefile       |    1 +
- drivers/input/touchscreen/atmel-wm97xx.c |  450 ++++++++++++++++++++++++++++++
- 3 files changed, 466 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/touchscreen/atmel-wm97xx.c
-
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index bb6486a..c475679 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -296,6 +296,21 @@ config TOUCHSCREEN_WM9713
- 	  Say Y here to enable support for the Wolfson Microelectronics
- 	  WM9713 touchscreen controller.
- 
-+config TOUCHSCREEN_WM97XX_ATMEL
-+	tristate "WM97xx Atmel accelerated touch"
-+	depends on TOUCHSCREEN_WM97XX && (AVR32 || ARCH_AT91)
-+	help
-+	  Say Y here for support for streaming mode with WM97xx touchscreens
-+	  on Atmel AT91 or AVR32 systems with an AC97C module.
-+
-+	  Be aware that this will use channel B in the controller for
-+	  streaming data, this must not conflict with other AC97C drivers.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the module will
-+	  be called atmel-wm97xx.
-+
- config TOUCHSCREEN_WM97XX_MAINSTONE
- 	tristate "WM97xx Mainstone accelerated touch"
- 	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index d3375af..4cc4225 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -33,4 +33,5 @@ obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)	+= wm9705.o
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713)	+= wm9713.o
-+obj-$(CONFIG_TOUCHSCREEN_WM97XX_ATMEL)	+= atmel-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)	+= mainstone-wm97xx.o
-diff --git a/drivers/input/touchscreen/atmel-wm97xx.c b/drivers/input/touchscreen/atmel-wm97xx.c
-new file mode 100644
-index 0000000..82b3366
---- /dev/null
-+++ b/drivers/input/touchscreen/atmel-wm97xx.c
-@@ -0,0 +1,450 @@
-+/*
-+ * Atmel AT91 and AVR32 continuous touch screen driver for Wolfson WM97xx AC97
-+ * codecs.
-+ *
-+ * Copyright (C) 2008 - 2009 Atmel Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-+ */
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/wm97xx.h>
-+#include <linux/timer.h>
-+#include <linux/gpio.h>
-+#include <linux/io.h>
-+
-+#define AC97C_ICA		0x10
-+#define AC97C_CBRHR		0x30
-+#define AC97C_CBSR		0x38
-+#define AC97C_CBMR		0x3c
-+#define AC97C_IER		0x54
-+#define AC97C_IDR		0x58
-+
-+#define AC97C_RXRDY		(1 << 4)
-+#define AC97C_OVRUN		(1 << 5)
-+
-+#define AC97C_CMR_SIZE_20	(0 << 16)
-+#define AC97C_CMR_SIZE_18	(1 << 16)
-+#define AC97C_CMR_SIZE_16	(2 << 16)
-+#define AC97C_CMR_SIZE_10	(3 << 16)
-+#define AC97C_CMR_CEM_LITTLE	(1 << 18)
-+#define AC97C_CMR_CEM_BIG	(0 << 18)
-+#define AC97C_CMR_CENA		(1 << 21)
-+
-+#define AC97C_INT_CBEVT		(1 << 4)
-+
-+#define AC97C_SR_CAEVT		(1 << 3)
-+
-+#define AC97C_CH_MASK(slot)						\
-+	(0x7 << (3 * (slot - 3)))
-+#define AC97C_CH_ASSIGN(slot, channel)					\
-+	(AC97C_CHANNEL_##channel << (3 * (slot - 3)))
-+#define AC97C_CHANNEL_NONE	0x0
-+#define AC97C_CHANNEL_B		0x2
-+
-+#define ac97c_writel(chip, reg, val)			\
-+	__raw_writel((val), (chip)->regs + AC97C_##reg)
-+#define ac97c_readl(chip, reg)				\
-+	__raw_readl((chip)->regs + AC97C_##reg)
-+
-+#ifdef CONFIG_CPU_AT32AP700X
-+#define ATMEL_WM97XX_AC97C_IOMEM	(0xfff02800)
-+#define ATMEL_WM97XX_AC97C_IRQ		(29)
-+#define ATMEL_WM97XX_GPIO_DEFAULT	(32+16) /* Pin 16 on port B. */
-+#else
-+#error Unkown CPU, this driver only supports AT32AP700X CPUs.
-+#endif
-+
-+struct continuous {
-+	u16 id;    /* codec id */
-+	u8 code;   /* continuous code */
-+	u8 reads;  /* number of coord reads per read cycle */
-+	u32 speed; /* number of coords per second */
-+};
-+
-+#define WM_READS(sp) ((sp / HZ) + 1)
-+
-+static const struct continuous cinfo[] = {
-+	{WM9705_ID2, 0, WM_READS(94), 94},
-+	{WM9705_ID2, 1, WM_READS(188), 188},
-+	{WM9705_ID2, 2, WM_READS(375), 375},
-+	{WM9705_ID2, 3, WM_READS(750), 750},
-+	{WM9712_ID2, 0, WM_READS(94), 94},
-+	{WM9712_ID2, 1, WM_READS(188), 188},
-+	{WM9712_ID2, 2, WM_READS(375), 375},
-+	{WM9712_ID2, 3, WM_READS(750), 750},
-+	{WM9713_ID2, 0, WM_READS(94), 94},
-+	{WM9713_ID2, 1, WM_READS(120), 120},
-+	{WM9713_ID2, 2, WM_READS(154), 154},
-+	{WM9713_ID2, 3, WM_READS(188), 188},
-+};
-+
-+/* Continuous speed index. */
-+static int sp_idx;
-+
-+/*
-+ * Pen sampling frequency (Hz) in continuous mode.
-+ */
-+static int cont_rate = 188;
-+module_param(cont_rate, int, 0);
-+MODULE_PARM_DESC(cont_rate, "Sampling rate in continuous mode (Hz)");
-+
-+/*
-+ * Pen down detection.
-+ *
-+ * This driver can either poll or use an interrupt to indicate a pen down
-+ * event. If the irq request fails then it will fall back to polling mode.
-+ */
-+static int pen_int = 1;
-+module_param(pen_int, int, 0);
-+MODULE_PARM_DESC(pen_int, "Pen down detection (1 = interrupt, 0 = polling)");
-+
-+/*
-+ * Pressure readback.
-+ *
-+ * Set to 1 to read back pen down pressure.
-+ */
-+static int pressure;
-+module_param(pressure, int, 0);
-+MODULE_PARM_DESC(pressure, "Pressure readback (1 = pressure, 0 = no pressure)");
-+
-+/*
-+ * AC97 touch data slot.
-+ *
-+ * Touch screen readback data ac97 slot.
-+ */
-+static int ac97_touch_slot = 5;
-+module_param(ac97_touch_slot, int, 0);
-+MODULE_PARM_DESC(ac97_touch_slot, "Touch screen data slot AC97 number");
-+
-+/*
-+ * GPIO line number.
-+ *
-+ * Set to GPIO number where the signal from the WM97xx device is hooked up.
-+ */
-+static int atmel_gpio_line = ATMEL_WM97XX_GPIO_DEFAULT;
-+module_param(atmel_gpio_line, int, 0);
-+MODULE_PARM_DESC(atmel_gpio_line, "GPIO line number connected to WM97xx");
-+
-+struct atmel_wm97xx {
-+	struct wm97xx		*wm;
-+	struct timer_list	pen_timer;
-+	void __iomem		*regs;
-+	unsigned long		ac97c_irq;
-+	unsigned long		gpio_pen;
-+	unsigned long		gpio_irq;
-+	unsigned short		x;
-+	unsigned short		y;
-+};
-+
-+static irqreturn_t atmel_wm97xx_channel_b_interrupt(int irq, void *dev_id)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = dev_id;
-+	struct wm97xx *wm = atmel_wm97xx->wm;
-+	int status = ac97c_readl(atmel_wm97xx, CBSR);
-+	irqreturn_t retval = IRQ_NONE;
-+
-+	if (status & AC97C_OVRUN) {
-+		dev_dbg(&wm->touch_dev->dev, "AC97C overrun\n");
-+		ac97c_readl(atmel_wm97xx, CBRHR);
-+		retval = IRQ_HANDLED;
-+	} else if (status & AC97C_RXRDY) {
-+		u16 data;
-+		u16 value;
-+		u16 source;
-+		u16 pen_down;
-+
-+		data = ac97c_readl(atmel_wm97xx, CBRHR);
-+		value = data & 0x0fff;
-+		source = data & WM97XX_ADCSRC_MASK;
-+		pen_down = (data & WM97XX_PEN_DOWN) >> 8;
-+
-+		if (source == WM97XX_ADCSEL_X)
-+			atmel_wm97xx->x = value;
-+		if (source == WM97XX_ADCSEL_Y)
-+			atmel_wm97xx->y = value;
-+
-+		if (!pressure && source == WM97XX_ADCSEL_Y) {
-+			input_report_abs(wm->input_dev, ABS_X, atmel_wm97xx->x);
-+			input_report_abs(wm->input_dev, ABS_Y, atmel_wm97xx->y);
-+			input_report_abs(wm->input_dev, ABS_PRESSURE, pen_down);
-+			input_report_key(wm->input_dev, BTN_TOUCH,
-+					 (pen_down != 0));
-+			input_sync(wm->input_dev);
-+		} else if (pressure && source == WM97XX_ADCSEL_PRES) {
-+			input_report_abs(wm->input_dev, ABS_X, atmel_wm97xx->x);
-+			input_report_abs(wm->input_dev, ABS_Y, atmel_wm97xx->y);
-+			input_report_abs(wm->input_dev, ABS_PRESSURE, value);
-+			input_report_key(wm->input_dev, BTN_TOUCH,
-+					 (value != 0));
-+			input_sync(wm->input_dev);
-+		}
-+
-+		retval = IRQ_HANDLED;
-+	}
-+
-+	return retval;
-+}
-+
-+static void atmel_wm97xx_pen_timer(unsigned long data)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = (struct atmel_wm97xx *)data;
-+	struct wm97xx *wm = atmel_wm97xx->wm;
-+	int pen_down = gpio_get_value(atmel_wm97xx->gpio_pen);
-+
-+	if (pen_down != 0) {
-+		mod_timer(&atmel_wm97xx->pen_timer, jiffies
-+				+ msecs_to_jiffies(1));
-+	} else {
-+		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-+		input_report_key(wm->input_dev, BTN_TOUCH, 0);
-+		input_sync(wm->input_dev);
-+	}
-+}
-+
-+static void atmel_wm97xx_acc_pen_up(struct wm97xx *wm)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = platform_get_drvdata(wm->touch_dev);
-+	int pen_down = gpio_get_value(atmel_wm97xx->gpio_pen);
-+
-+	if (pen_down != 0) {
-+		mod_timer(&atmel_wm97xx->pen_timer, jiffies
-+				+ msecs_to_jiffies(1));
-+	} else {
-+		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
-+		input_report_key(wm->input_dev, BTN_TOUCH, 0);
-+		input_sync(wm->input_dev);
-+	}
-+}
-+
-+static int atmel_wm97xx_acc_startup(struct wm97xx *wm)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = platform_get_drvdata(wm->touch_dev);
-+	int idx = 0;
-+
-+	if (wm->ac97 == NULL)
-+		return -ENODEV;
-+
-+	for (idx = 0; idx < ARRAY_SIZE(cinfo); idx++) {
-+		if (wm->id != cinfo[idx].id)
-+			continue;
-+
-+		sp_idx = idx;
-+
-+		if (cont_rate <= cinfo[idx].speed)
-+			break;
-+	}
-+
-+	wm->acc_rate = cinfo[sp_idx].code;
-+	wm->acc_slot = ac97_touch_slot;
-+	dev_info(&wm->touch_dev->dev, "atmel accelerated touchscreen driver, "
-+			"%d samples/sec\n", cinfo[sp_idx].speed);
-+
-+	if (pen_int) {
-+		unsigned long reg;
-+
-+		wm->pen_irq = atmel_wm97xx->gpio_irq;
-+
-+		switch (wm->id) {
-+		case WM9712_ID2: /* Fall through. */
-+		case WM9713_ID2:
-+			/*
-+			 * Use GPIO 13 (PEN_DOWN) to assert GPIO line 3
-+			 * (PENDOWN).
-+			 */
-+			wm97xx_config_gpio(wm, WM97XX_GPIO_13, WM97XX_GPIO_IN,
-+					WM97XX_GPIO_POL_HIGH,
-+					WM97XX_GPIO_STICKY,
-+					WM97XX_GPIO_WAKE);
-+			wm97xx_config_gpio(wm, WM97XX_GPIO_3, WM97XX_GPIO_OUT,
-+					WM97XX_GPIO_POL_HIGH,
-+					WM97XX_GPIO_NOTSTICKY,
-+					WM97XX_GPIO_NOWAKE);
-+		case WM9705_ID2: /* Fall through. */
-+			/*
-+			 * Enable touch data slot in AC97 controller channel B.
-+			 */
-+			reg = ac97c_readl(atmel_wm97xx, ICA);
-+			reg &= ~AC97C_CH_MASK(wm->acc_slot);
-+			reg |= AC97C_CH_ASSIGN(wm->acc_slot, B);
-+			ac97c_writel(atmel_wm97xx, ICA, reg);
-+
-+			/*
-+			 * Enable channel and interrupt for RXRDY and OVERRUN.
-+			 */
-+			ac97c_writel(atmel_wm97xx, CBMR, AC97C_CMR_CENA
-+					| AC97C_CMR_CEM_BIG
-+					| AC97C_CMR_SIZE_16
-+					| AC97C_OVRUN
-+					| AC97C_RXRDY);
-+			/* Dummy read to empty RXRHR. */
-+			ac97c_readl(atmel_wm97xx, CBRHR);
-+			/*
-+			 * Enable interrupt for channel B in the AC97
-+			 * controller.
-+			 */
-+			ac97c_writel(atmel_wm97xx, IER, AC97C_INT_CBEVT);
-+			break;
-+		default:
-+			dev_err(&wm->touch_dev->dev, "pen down irq not "
-+					"supported on this device\n");
-+			pen_int = 0;
-+			break;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void atmel_wm97xx_acc_shutdown(struct wm97xx *wm)
-+{
-+	if (pen_int) {
-+		struct atmel_wm97xx *atmel_wm97xx =
-+			platform_get_drvdata(wm->touch_dev);
-+		unsigned long ica;
-+
-+		switch (wm->id & 0xffff) {
-+		case WM9705_ID2: /* Fall through. */
-+		case WM9712_ID2: /* Fall through. */
-+		case WM9713_ID2:
-+			/* Disable slot and turn off channel B interrupts. */
-+			ica = ac97c_readl(atmel_wm97xx, ICA);
-+			ica &= ~AC97C_CH_MASK(wm->acc_slot);
-+			ac97c_writel(atmel_wm97xx, ICA, ica);
-+			ac97c_writel(atmel_wm97xx, IDR, AC97C_INT_CBEVT);
-+			ac97c_writel(atmel_wm97xx, CBMR, 0);
-+			wm->pen_irq = 0;
-+			break;
-+		default:
-+			dev_err(&wm->touch_dev->dev, "unknown codec\n");
-+			break;
-+		}
-+	}
-+}
-+
-+static void atmel_wm97xx_irq_enable(struct wm97xx *wm, int enable)
-+{
-+	/* Intentionally left empty. */
-+}
-+
-+static struct wm97xx_mach_ops atmel_mach_ops = {
-+	.acc_enabled	= 1,
-+	.acc_pen_up	= atmel_wm97xx_acc_pen_up,
-+	.acc_startup	= atmel_wm97xx_acc_startup,
-+	.acc_shutdown	= atmel_wm97xx_acc_shutdown,
-+	.irq_enable	= atmel_wm97xx_irq_enable,
-+	.irq_gpio	= WM97XX_GPIO_3,
-+};
-+
-+static int __init atmel_wm97xx_probe(struct platform_device *pdev)
-+{
-+	struct wm97xx *wm = platform_get_drvdata(pdev);
-+	struct atmel_wm97xx *atmel_wm97xx;
-+	int ret;
-+
-+	atmel_wm97xx = kzalloc(sizeof(struct atmel_wm97xx), GFP_KERNEL);
-+	if (!atmel_wm97xx) {
-+		dev_dbg(&pdev->dev, "out of memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	atmel_wm97xx->wm	= wm;
-+	atmel_wm97xx->regs	= (void *)ATMEL_WM97XX_AC97C_IOMEM;
-+	atmel_wm97xx->ac97c_irq	= ATMEL_WM97XX_AC97C_IRQ;
-+	atmel_wm97xx->gpio_pen	= atmel_gpio_line;
-+	atmel_wm97xx->gpio_irq	= gpio_to_irq(atmel_wm97xx->gpio_pen);
-+
-+	setup_timer(&atmel_wm97xx->pen_timer, atmel_wm97xx_pen_timer,
-+			(unsigned long)atmel_wm97xx);
-+
-+	ret = request_irq(atmel_wm97xx->ac97c_irq,
-+			atmel_wm97xx_channel_b_interrupt,
-+			IRQF_SHARED, "atmel-wm97xx-ch-b", atmel_wm97xx);
-+	if (ret) {
-+		dev_dbg(&pdev->dev, "could not request ac97c irq\n");
-+		return ret;
-+	}
-+
-+	platform_set_drvdata(pdev, atmel_wm97xx);
-+
-+	ret = wm97xx_register_mach_ops(wm, &atmel_mach_ops);
-+	if (ret)
-+		free_irq(atmel_wm97xx->ac97c_irq, atmel_wm97xx);
-+
-+	return ret;
-+}
-+
-+static int __exit atmel_wm97xx_remove(struct platform_device *pdev)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = platform_get_drvdata(pdev);
-+	struct wm97xx *wm = atmel_wm97xx->wm;
-+
-+	ac97c_writel(atmel_wm97xx, IDR, AC97C_INT_CBEVT);
-+	free_irq(atmel_wm97xx->ac97c_irq, atmel_wm97xx);
-+	wm97xx_unregister_mach_ops(wm);
-+	kfree(atmel_wm97xx);
-+
-+	platform_set_drvdata(wm->touch_dev, wm);
-+
-+	return 0;
-+}
-+
-+#ifdef CONFIG_PM
-+static int atmel_wm97xx_suspend(struct platform_device *pdev, pm_message_t msg)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = platform_get_drvdata(pdev);
-+
-+	ac97c_writel(atmel_wm97xx, IDR, AC97C_INT_CBEVT);
-+	disable_irq(atmel_wm97xx->gpio_irq);
-+
-+	return 0;
-+}
-+
-+static int atmel_wm97xx_resume(struct platform_device *pdev)
-+{
-+	struct atmel_wm97xx *atmel_wm97xx = platform_get_drvdata(pdev);
-+	struct wm97xx *wm = atmel_wm97xx->wm;
-+
-+	if (wm->input_dev->users) {
-+		enable_irq(atmel_wm97xx->gpio_irq);
-+		ac97c_writel(atmel_wm97xx, IER, AC97C_INT_CBEVT);
-+	}
-+
-+	return 0;
-+}
-+#else
-+#define atmel_wm97xx_suspend	NULL
-+#define atmel_wm97xx_resume	NULL
-+#endif
-+
-+static struct platform_driver atmel_wm97xx_driver = {
-+	.remove		= __exit_p(atmel_wm97xx_remove),
-+	.driver		= {
-+		.name = "wm97xx-touch",
-+	},
-+	.suspend	= atmel_wm97xx_suspend,
-+	.resume		= atmel_wm97xx_resume,
-+};
-+
-+static int __init atmel_wm97xx_init(void)
-+{
-+	return platform_driver_probe(&atmel_wm97xx_driver, atmel_wm97xx_probe);
-+}
-+module_init(atmel_wm97xx_init);
-+
-+static void __exit atmel_wm97xx_exit(void)
-+{
-+	platform_driver_unregister(&atmel_wm97xx_driver);
-+}
-+module_exit(atmel_wm97xx_exit);
-+
-+MODULE_AUTHOR("Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>");
-+MODULE_DESCRIPTION("wm97xx continuous touch driver for Atmel AT91 and AVR32");
-+MODULE_LICENSE("GPL");
--- 
-1.5.6.3
-
-
---MP_/SZAPkWxEMY_xs0t=dLKibAZ--
+------_=_NextPart_001_01C9A0CE.CD158371--

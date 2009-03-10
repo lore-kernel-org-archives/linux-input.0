@@ -1,67 +1,36 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] input: add suspend wakeup support to sh_keysc
-Date: Tue, 10 Mar 2009 19:01:58 +0900
-Message-ID: <aec7e5c30903100301n3ed24395i3d72fd956b4b7f@mail.gmail.com>
-References: <20090310062421.22328.68726.sendpatchset@rx1.opensource.se>
-	 <5d5443650903100124g2bbc4837gaa5d9a9f17cd56f0@mail.gmail.com>
+From: Antti Palosaari <crope@iki.fi>
+Subject: Re: [PATCH] DVB-USB: correct the comment about KEY_SLEEP
+Date: Tue, 10 Mar 2009 12:31:52 +0200
+Message-ID: <49B64198.6050201@iki.fi>
+References: <1235992429.3858.58.camel@hughsie-work.lan>	 <20090302112400.GA2356@khazad-dum.debian.net>	 <1236164049.3936.17.camel@hughsie-work.lan> <1236164977.3936.30.camel@hughsie-work.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.30]:54285 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752146AbZCJKCB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2009 06:02:01 -0400
-In-Reply-To: <5d5443650903100124g2bbc4837gaa5d9a9f17cd56f0@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <1236164977.3936.30.camel@hughsie-work.lan>
+Sender: linux-media-owner@vger.kernel.org
+To: Richard Hughes <hughsient@gmail.com>
+Cc: linux-acpi <linux-acpi@vger.kernel.org>, Peter Hutterer <peter.hutterer@redhat.com>, mjg <mjg@redhat.com>, linux-input <linux-input@vger.kernel.org>, Matthias Clasen <mclasen@redhat.com>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: linux-input@vger.kernel.org, lethal@linux-sh.org, linux-sh@vger.kernel.org
 
-Hi Trilok,
+Richard Hughes wrote:
+> On Wed, 2009-03-04 at 10:54 +0000, Richard Hughes wrote:
+>> On Mon, 2009-03-02 at 08:24 -0300, Henrique de Moraes Holschuh wrote:
+>>> FWIW, I think it is a good idea, and I'd take patches for
+>>> thinkpad-acpi.
+>> Patch attached for thinkpad-acpi. KEY_HIBERNATE is already in
+>> linux-next, but has not yet been pushed to master. Please review,
+>> thanks.
+> 
+> Antti, I've included a fix to the Afatech AF9015 DVB-T USB2.0 receiver
+> header file. It corrects the comment about KEY_SLEEP. Please review.
 
-Thanks for your comments!
+It is not correct. Comment "Hibernate" for that button comes from the 
+remote controller, where "Z^z" is printed to the top of the button and 
+"Hibernate" below the button. Replacing KEY_SLEEP with KEY_HIBERNATE 
+seems to be correct solution for me.
 
-On Tue, Mar 10, 2009 at 5:24 PM, Trilok Soni <soni.trilok@gmail.com> wr=
-ote:
-> Hi Magnus,
->
->> +
->> + =A0 =A0 =A0 device_init_wakeup(&pdev->dev, 1);
->> =A0 =A0 =A0 =A0return 0;
->
->
-> Please add device_init_wakeup(&pdev->dev, 0) in sh_keysc_remove.
-
-Isn't this just flagging the device as wakeup capable? My first guess
-would be that the the wakeup state of a removed device is irrelevant
-since it won't be suspended anyway. Or am I misunderstanding? Please
-explain in more detail.
-
->> =A0err5:
->> =A0 =A0 =A0 =A0free_irq(irq, pdev);
->> @@ -253,17 +255,36 @@ static int __devexit sh_keysc_remove(str
->> =A0 =A0 =A0 =A0return 0;
->> =A0}
->>
->> +static int sh_keysc_suspend(struct device *dev)
->> +{
->> + =A0 =A0 =A0 struct platform_device *pdev;
->> + =A0 =A0 =A0 struct sh_keysc_priv *priv;
->> + =A0 =A0 =A0 unsigned short value;
->> +
->> + =A0 =A0 =A0 pdev =3D container_of(dev, struct platform_device, dev=
-);
->> + =A0 =A0 =A0 priv =3D platform_get_drvdata(pdev);
->
-> to_platform_device(...) ?
-
-Thanks, much better!
-
-/ magnus
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+regards
+Antti
+-- 
+http://palosaari.fi/

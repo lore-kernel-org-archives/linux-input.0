@@ -1,40 +1,80 @@
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: Re: hid-pidff bug: fails to find all required reports of saitek
-	gamepad
-Date: Mon, 9 Mar 2009 22:08:00 +0300
-Message-ID: <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com>
-References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
-	 <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>
-	 <49A813CB.3080805@gmail.com>
-	 <78f5d6bf0903021041o24155b7dg89a5fb975e60c320@mail.gmail.com>
-	 <49AC4300.5090002@gmail.com>
-	 <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com>
-	 <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>
-	 <49B286EB.8000300@gmail.com>
-	 <78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>
-	 <49B39B15.6060609@gmail.com>
+From: Neil Brown <neilb@suse.de>
+Subject: Advice requested on reporting 'tap' events from accelerometers.
+Date: Tue, 10 Mar 2009 11:15:57 +1100
+Message-ID: <18869.45373.570953.22321@notabene.brown>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f176.google.com ([209.85.220.176]:55495 "EHLO
-	mail-fx0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751426AbZCITIE (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 9 Mar 2009 15:08:04 -0400
-Received: by fxm24 with SMTP id 24so1371239fxm.37
-        for <linux-input@vger.kernel.org>; Mon, 09 Mar 2009 12:08:00 -0700 (PDT)
-In-Reply-To: <49B39B15.6060609@gmail.com>
+Received: from mx2.suse.de ([195.135.220.15]:32807 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751760AbZCJAQB (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 9 Mar 2009 20:16:01 -0400
+Received: from Relay2.suse.de (relay-ext.suse.de [195.135.221.8])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by mx2.suse.de (Postfix) with ESMTP id 6AE3B46CC8
+	for <linux-input@vger.kernel.org>; Tue, 10 Mar 2009 01:15:59 +0100 (CET)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
-2009/3/8 Anssi Hannula <anssi.hannula@gmail.com>:
-> Dmitriy Geels wrote:
->> 2009/3/7 Anssi Hannula <anssi.hannula@gmail.com>:
->>> Provide the kernel log again, this time with debug=2 set for hid module
->>> and having run "fftest" with only one effect and then "ffmvforce".
->> here is it: http://paste.org.ru/index.pl?4bwah8
->
-> Apply attached patch that adds more debug output and try this again.
-Here is log: http://paste.org.ru/index.pl?0mtjuz
+
+Hi experts in the 'input' subsystem...
+
+I have been playing with the Neo Freerunner from Openmoko, and
+particularly with the accelerometers lately.
+
+The device has two accelerometers (in slightly different orientations)
+which can, among other things, detect taps and double-taps.
+A 'tap' involves the acceleration in a particular access crossing a
+given threshold and going back below that threshold within a given
+time.
+A 'double tap' includes 2 such events within a set window.
+
+I would like to program the accelerometers to detect those events and
+report them through the input subsystem.
+
+The obvious choice for event type is EV_KEY as it is much like a key
+press.  What is less obvious, and what I seek advice on, is what event
+codes to use.
+
+Each accelerometer has 2 axes (x,y,z) and can detect taps and double
+taps on each axis.  So that is a total of 6 different event codes
+needed.
+I don't think the device distinguished between taps from one direction
+and taps from the opposite direction - if it did we would need 12!!
+
+Looking through the values defined in input.h,
+  BTN_X BTN_Y BTN_Z
+seem like they could reasonably be used for single taps.
+Nothing stands out for double taps, though it did cross my mind to use 
+ BTX_A BTN_B BTN_C :-)
+
+I guess I could just report two consecutive BTN_X up/down events...
+
+So my questions are:
+
+1/ Is it best to use EV_KEY for these tap events?
+
+2/ Is it reasonable to use BTN_{X,Y,Z} for taps on the 3 axes?
+
+3/ If there anything better for double-tap than just repeating the
+   event?
+
+4/ If I could e.g. differentiate taps from one direction against taps
+   from the opposite direction and so needed 6 tap events, what would I
+   use?
+
+5/ Turning the device over, and hence reversing the acceleration in
+   one axis, is a bit like turning a switch.  It has occurred to me
+   that it could be useful to generate EV_SW events on this sort of
+   action.   Might this be a reasonable thing to do?  If so what
+   event codes might be appropriate?  Is it possible to increase
+   SW_MAX  and add some directional switches (SW_X SW_Y SW_Z) ??
+
+
+Thanks for your time.
+
+NeilBrown
+

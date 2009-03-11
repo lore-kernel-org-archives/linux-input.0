@@ -1,42 +1,44 @@
-From: Scott James Remnant <scott@canonical.com>
-Subject: [PATCH 13/31] input: Auto-load mousedev module when /dev/input/mice opened.
-Date: Mon, 2 Mar 2009 18:16:04 +0000
-Message-ID: <3d6d5cb4a350d9202ee4a36c076eaab69c8bdfc8.1236702228.git.scott@canonical.com>
-References: <cover.1236702228.git.scott@canonical.com>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] input: sh_keysc suspend can use to_platform_device()
+Date: Wed, 11 Mar 2009 17:04:23 +0900
+Message-ID: <20090311080423.2006.22858.sendpatchset@rx1.opensource.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from zelda.netsplit.com ([87.194.19.211]:34601 "EHLO
-	zelda.netsplit.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754967AbZCJQnj (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.180]:11412 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751043AbZCKIGw (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 10 Mar 2009 12:43:39 -0400
-In-Reply-To: <cover.1236702228.git.scott@canonical.com>
+	Wed, 11 Mar 2009 04:06:52 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: soni.trilok@gmail.com, Magnus Damm <magnus.damm@gmail.com>, lethal@linux-sh.org, linux-sh@vger.kernel.org
 
-The mousedev module is missing the char-major-13-31 alias that would
-cause it to be auto-loaded when the /dev/input/mice device is opened.
-This patch adds the alias.
+From: Magnus Damm <damm@igel.co.jp>
 
-Signed-off-by: Scott James Remnant <scott@canonical.com>
-Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+This patch changes sh_keysc to use to_platform_device()
+for suspend. Thanks to Trilok Soni for this suggestion.
+
+Signed-off-by: Magnus Damm <damm@igel.co.jp>
 ---
- drivers/input/mousedev.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
-index dfde8ee..a290e90 100644
---- a/drivers/input/mousedev.c
-+++ b/drivers/input/mousedev.c
-@@ -29,6 +29,7 @@
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Mouse (ExplorerPS/2) device interfaces");
- MODULE_LICENSE("GPL");
-+MODULE_ALIAS_CHARDEV(INPUT_MAJOR, MOUSEDEV_MIX);
+ drivers/input/keyboard/sh_keysc.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+--- 0001/drivers/input/keyboard/sh_keysc.c
++++ work/drivers/input/keyboard/sh_keysc.c	2009-03-11 13:33:14.000000000 +0900
+@@ -257,13 +257,10 @@ static int __devexit sh_keysc_remove(str
  
- #ifndef CONFIG_INPUT_MOUSEDEV_SCREEN_X
- #define CONFIG_INPUT_MOUSEDEV_SCREEN_X	1024
--- 
-1.6.0.5
-
+ static int sh_keysc_suspend(struct device *dev)
+ {
+-	struct platform_device *pdev;
+-	struct sh_keysc_priv *priv;
++	struct platform_device *pdev = to_platform_device(dev);
++	struct sh_keysc_priv *priv = platform_get_drvdata(pdev);
+ 	unsigned short value;
+ 
+-	pdev = container_of(dev, struct platform_device, dev);
+-	priv = platform_get_drvdata(pdev);
+-
+ 	value = ioread16(priv->iomem_base + KYCR1_OFFS);
+ 
+ 	if (device_may_wakeup(dev))

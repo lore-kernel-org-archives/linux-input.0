@@ -1,29 +1,42 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] input: sh_keysc suspend can use to_platform_device()
-Date: Wed, 11 Mar 2009 17:29:14 +0900
-Message-ID: <20090311082914.GD6281@linux-sh.org>
-References: <20090311080423.2006.22858.sendpatchset@rx1.opensource.se>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH 1/2] hid/apple: add module parameter to swap Command and
+ Option keys
+Date: Wed, 11 Mar 2009 13:31:44 +0100 (CET)
+Message-ID: <alpine.LRH.2.00.0903111329170.26691@twin.jikos.cz>
+References: <49B19FF3.2000605@gmail.com> <1236398835-8211-1-git-send-email-paul@burly.ondioline.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 124x34x33x190.ap124.ftth.ucom.ne.jp ([124.34.33.190]:51712 "EHLO
-	master.linux-sh.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752954AbZCKIdQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 11 Mar 2009 04:33:16 -0400
-Content-Disposition: inline
-In-Reply-To: <20090311080423.2006.22858.sendpatchset@rx1.opensource.se>
+Received: from mx2.suse.de ([195.135.220.15]:55110 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751641AbZCKMbx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 11 Mar 2009 08:31:53 -0400
+In-Reply-To: <1236398835-8211-1-git-send-email-paul@burly.ondioline.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-input@vger.kernel.org, soni.trilok@gmail.com, linux-sh@vger.kernel.org
+To: Paul Collins <paul@burly.ondioline.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Mar 11, 2009 at 05:04:23PM +0900, Magnus Damm wrote:
-> From: Magnus Damm <damm@igel.co.jp>
-> 
-> This patch changes sh_keysc to use to_platform_device()
-> for suspend. Thanks to Trilok Soni for this suggestion.
-> 
-> Signed-off-by: Magnus Damm <damm@igel.co.jp>
+On Sat, 7 Mar 2009, Paul Collins wrote:
 
-Applied on top of the earlier patch, with Trilok's Reviewed-by, thanks.
+> Apple keyboards have the Command keys (a.k.a. the Apple or "waffle" key) 
+> in the positions normally occupied on PC keyboards by the Alt/AltGr 
+> keys, and the Option or Alt keys in the position occupied by the 
+> so-called Windows keys.  Folks who have been using PC-type computers for 
+> too long generally have insurmountable muscle memory in this regard.
+> This patch adds a module parameter, defaulting to off, that swaps these keys.
+
+Hi Paul,
+
+as this looks like "usability" thing (i.e. nothing that would be implied 
+by the actual hardware design), wouldn't it make more sense to do the 
+remapping from userspace using EVIOCSKEYCODE ioctl()? HID devices support 
+it for quite some time already.
+
+There are various tools to do this in a user-friendly way. Keytouch, to 
+pick one -- http://keytouch.sourceforge.net/
+
+-- 
+Jiri Kosina
+SUSE Labs
+

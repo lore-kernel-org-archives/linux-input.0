@@ -1,83 +1,72 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 22/22] input: ads7846: introduce platform specific way
+From: Eric Miao <ymiao3@marvell.com>
+Subject: RE: [patch 22/22] input: ads7846: introduce platform specific way
 	to synchronize sampling
-Date: Thu, 12 Mar 2009 19:34:01 -0700
-Message-ID: <20090313023400.GA16163@dtor-d630.eng.vmware.com>
+Date: Thu, 12 Mar 2009 19:42:22 -0700
+Message-ID: <F71A24FDAED97E4CB6D3A8E8A97D5C544A38E1D6@SC-VEXCH1.marvell.com>
 References: <200903041959.n24JxDIQ028495@imap1.linux-foundation.org>
+ <20090313023400.GA16163@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f122.google.com ([209.85.221.122]:56375 "EHLO
-	mail-qy0-f122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750852AbZCMCeL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 12 Mar 2009 22:34:11 -0400
-Received: by qyk28 with SMTP id 28so2724452qyk.33
-        for <linux-input@vger.kernel.org>; Thu, 12 Mar 2009 19:34:08 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <200903041959.n24JxDIQ028495@imap1.linux-foundation.org>
+Received: from host2.marvell.com ([65.219.4.2]:24075 "EHLO maili.marvell.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1758592AbZCMCmf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 12 Mar 2009 22:42:35 -0400
+In-Reply-To: <20090313023400.GA16163@dtor-d630.eng.vmware.com>
+Content-Language: en-US
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: linux-input@vger.kernel.org, eric.miao@marvell.com, david-b@pacbell.net
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "david-b@pacbell.net" <david-b@pacbell.net>
 
-Hi,
-
-On Wed, Mar 04, 2009 at 11:59:13AM -0800, akpm@linux-foundation.org wrote:
-> From: Eric Miao <eric.miao@marvell.com>
-> 
-> Noises can be introduced when LCD signals are being driven, some platforms
-> provide a signal to assist the synchronization of this sampling procedure.
-> 
-> Signed-off-by: Eric Miao <eric.miao@marvell.com>
-> Cc: David Brownell <david-b@pacbell.net>
-> Cc: Dmitry Torokhov <dtor@mail.ru>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> ---
-> 
->  drivers/input/touchscreen/ads7846.c |   10 ++++++++++
->  include/linux/spi/ads7846.h         |    2 ++
->  2 files changed, 12 insertions(+)
-> 
-> diff -puN drivers/input/touchscreen/ads7846.c~input-ads7846-introduce-platform-specific-way-to-synchronize-sampling drivers/input/touchscreen/ads7846.c
-> --- a/drivers/input/touchscreen/ads7846.c~input-ads7846-introduce-platform-specific-way-to-synchronize-sampling
-> +++ a/drivers/input/touchscreen/ads7846.c
-> @@ -127,6 +127,8 @@ struct ads7846 {
->  	void			(*filter_cleanup)(void *data);
->  	int			(*get_pendown_state)(void);
->  	int			gpio_pendown;
-> +
-> +	void			(*wait_for_sync)(void);
->  };
->  
->  /* leave chip selected when we're done, for quicker re-select? */
-> @@ -511,6 +513,10 @@ static int get_pendown_state(struct ads7
->  	return !gpio_get_value(ts->gpio_pendown);
->  }
->  
-> +static void null_wait_for_sync(void)
-> +{
-> +}
-> +
->  /*
->   * PENIRQ only kicks the timer.  The timer only reissues the SPI transfer,
->   * to retrieve touchscreen status.
-> @@ -686,6 +692,7 @@ static void ads7846_rx_val(void *ads)
->  	default:
->  		BUG();
->  	}
-> +	ts->wait_for_sync();
->  	status = spi_async(ts->spi, m);
->  	if (status)
->  		dev_err(&ts->spi->dev, "spi_async --> %d\n",
-> @@ -723,6 +730,7 @@ static enum hrtimer_restart ads7846_time
->  	} else {
->  		/* pen is still down, continue with the measurement */
->  		ts->msg_idx = 0;
-> +		ts->wait_for_sync();
-
-We are in hard IRQ context here. What is the expectation of
-wait_for_sync()? How long are we waiting here?
-
--- 
-Dmitry
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogRG1pdHJ5IFRvcm9raG92
+IFttYWlsdG86ZG1pdHJ5LnRvcm9raG92QGdtYWlsLmNvbV0NCj4gU2VudDogMjAwOcTqM9TCMTPI
+1SAxMDozNA0KPiBUbzogYWtwbUBsaW51eC1mb3VuZGF0aW9uLm9yZw0KPiBDYzogbGludXgtaW5w
+dXRAdmdlci5rZXJuZWwub3JnOyBFcmljIE1pYW87IGRhdmlkLWJAcGFjYmVsbC5uZXQNCj4gU3Vi
+amVjdDogUmU6IFtwYXRjaCAyMi8yMl0gaW5wdXQ6IGFkczc4NDY6IGludHJvZHVjZSBwbGF0Zm9y
+bSBzcGVjaWZpYyB3YXkNCj4gdG8gc3luY2hyb25pemUgc2FtcGxpbmcNCj4NCj4gSGksDQo+DQo+
+IE9uIFdlZCwgTWFyIDA0LCAyMDA5IGF0IDExOjU5OjEzQU0gLTA4MDAsIGFrcG1AbGludXgtZm91
+bmRhdGlvbi5vcmcgd3JvdGU6DQo+ID4gRnJvbTogRXJpYyBNaWFvIDxlcmljLm1pYW9AbWFydmVs
+bC5jb20+DQo+ID4NCj4gPiBOb2lzZXMgY2FuIGJlIGludHJvZHVjZWQgd2hlbiBMQ0Qgc2lnbmFs
+cyBhcmUgYmVpbmcgZHJpdmVuLCBzb21lIHBsYXRmb3Jtcw0KPiA+IHByb3ZpZGUgYSBzaWduYWwg
+dG8gYXNzaXN0IHRoZSBzeW5jaHJvbml6YXRpb24gb2YgdGhpcyBzYW1wbGluZyBwcm9jZWR1cmUu
+DQo+ID4NCj4gPiBTaWduZWQtb2ZmLWJ5OiBFcmljIE1pYW8gPGVyaWMubWlhb0BtYXJ2ZWxsLmNv
+bT4NCj4gPiBDYzogRGF2aWQgQnJvd25lbGwgPGRhdmlkLWJAcGFjYmVsbC5uZXQ+DQo+ID4gQ2M6
+IERtaXRyeSBUb3Jva2hvdiA8ZHRvckBtYWlsLnJ1Pg0KPiA+IFNpZ25lZC1vZmYtYnk6IEFuZHJl
+dyBNb3J0b24gPGFrcG1AbGludXgtZm91bmRhdGlvbi5vcmc+DQo+ID4gLS0tDQo+ID4NCj4gPiAg
+ZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9hZHM3ODQ2LmMgfCAgIDEwICsrKysrKysrKysNCj4g
+PiAgaW5jbHVkZS9saW51eC9zcGkvYWRzNzg0Ni5oICAgICAgICAgfCAgICAyICsrDQo+ID4gIDIg
+ZmlsZXMgY2hhbmdlZCwgMTIgaW5zZXJ0aW9ucygrKQ0KPiA+DQo+ID4gZGlmZiAtcHVOIGRyaXZl
+cnMvaW5wdXQvdG91Y2hzY3JlZW4vYWRzNzg0Ni5jfmlucHV0LWFkczc4NDYtaW50cm9kdWNlLQ0K
+PiBwbGF0Zm9ybS1zcGVjaWZpYy13YXktdG8tc3luY2hyb25pemUtc2FtcGxpbmcNCj4gZHJpdmVy
+cy9pbnB1dC90b3VjaHNjcmVlbi9hZHM3ODQ2LmMNCj4gPiAtLS0gYS9kcml2ZXJzL2lucHV0L3Rv
+dWNoc2NyZWVuL2Fkczc4NDYuY35pbnB1dC1hZHM3ODQ2LWludHJvZHVjZS0NCj4gcGxhdGZvcm0t
+c3BlY2lmaWMtd2F5LXRvLXN5bmNocm9uaXplLXNhbXBsaW5nDQo+ID4gKysrIGEvZHJpdmVycy9p
+bnB1dC90b3VjaHNjcmVlbi9hZHM3ODQ2LmMNCj4gPiBAQCAtMTI3LDYgKzEyNyw4IEBAIHN0cnVj
+dCBhZHM3ODQ2IHsNCj4gPiAgICAgICB2b2lkICAgICAgICAgICAgICAgICAgICAoKmZpbHRlcl9j
+bGVhbnVwKSh2b2lkICpkYXRhKTsNCj4gPiAgICAgICBpbnQgICAgICAgICAgICAgICAgICAgICAo
+KmdldF9wZW5kb3duX3N0YXRlKSh2b2lkKTsNCj4gPiAgICAgICBpbnQgICAgICAgICAgICAgICAg
+ICAgICBncGlvX3BlbmRvd247DQo+ID4gKw0KPiA+ICsgICAgIHZvaWQgICAgICAgICAgICAgICAg
+ICAgICgqd2FpdF9mb3Jfc3luYykodm9pZCk7DQo+ID4gIH07DQo+ID4NCj4gPiAgLyogbGVhdmUg
+Y2hpcCBzZWxlY3RlZCB3aGVuIHdlJ3JlIGRvbmUsIGZvciBxdWlja2VyIHJlLXNlbGVjdD8gKi8N
+Cj4gPiBAQCAtNTExLDYgKzUxMywxMCBAQCBzdGF0aWMgaW50IGdldF9wZW5kb3duX3N0YXRlKHN0
+cnVjdCBhZHM3DQo+ID4gICAgICAgcmV0dXJuICFncGlvX2dldF92YWx1ZSh0cy0+Z3Bpb19wZW5k
+b3duKTsNCj4gPiAgfQ0KPiA+DQo+ID4gK3N0YXRpYyB2b2lkIG51bGxfd2FpdF9mb3Jfc3luYyh2
+b2lkKQ0KPiA+ICt7DQo+ID4gK30NCj4gPiArDQo+ID4gIC8qDQo+ID4gICAqIFBFTklSUSBvbmx5
+IGtpY2tzIHRoZSB0aW1lci4gIFRoZSB0aW1lciBvbmx5IHJlaXNzdWVzIHRoZSBTUEkgdHJhbnNm
+ZXIsDQo+ID4gICAqIHRvIHJldHJpZXZlIHRvdWNoc2NyZWVuIHN0YXR1cy4NCj4gPiBAQCAtNjg2
+LDYgKzY5Miw3IEBAIHN0YXRpYyB2b2lkIGFkczc4NDZfcnhfdmFsKHZvaWQgKmFkcykNCj4gPiAg
+ICAgICBkZWZhdWx0Og0KPiA+ICAgICAgICAgICAgICAgQlVHKCk7DQo+ID4gICAgICAgfQ0KPiA+
+ICsgICAgIHRzLT53YWl0X2Zvcl9zeW5jKCk7DQo+ID4gICAgICAgc3RhdHVzID0gc3BpX2FzeW5j
+KHRzLT5zcGksIG0pOw0KPiA+ICAgICAgIGlmIChzdGF0dXMpDQo+ID4gICAgICAgICAgICAgICBk
+ZXZfZXJyKCZ0cy0+c3BpLT5kZXYsICJzcGlfYXN5bmMgLS0+ICVkXG4iLA0KPiA+IEBAIC03MjMs
+NiArNzMwLDcgQEAgc3RhdGljIGVudW0gaHJ0aW1lcl9yZXN0YXJ0IGFkczc4NDZfdGltZQ0KPiA+
+ICAgICAgIH0gZWxzZSB7DQo+ID4gICAgICAgICAgICAgICAvKiBwZW4gaXMgc3RpbGwgZG93biwg
+Y29udGludWUgd2l0aCB0aGUgbWVhc3VyZW1lbnQgKi8NCj4gPiAgICAgICAgICAgICAgIHRzLT5t
+c2dfaWR4ID0gMDsNCj4gPiArICAgICAgICAgICAgIHRzLT53YWl0X2Zvcl9zeW5jKCk7DQo+DQo+
+IFdlIGFyZSBpbiBoYXJkIElSUSBjb250ZXh0IGhlcmUuIFdoYXQgaXMgdGhlIGV4cGVjdGF0aW9u
+IG9mDQo+IHdhaXRfZm9yX3N5bmMoKT8gSG93IGxvbmcgYXJlIHdlIHdhaXRpbmcgaGVyZT8NCj4N
+Cg0KVGhpcyBzaG91bGQgYmUgYSB3b3JrYXJvdW5kIGZvciBicm9rZW4gaGFyZHdhcmUgYW5kIEkg
+ZG9uJ3QgZXhwZWN0DQp0aGlzIHN5bmMgdGltZSBvbiBldmVyeSBib2FyZHMuDQoNCj4gLS0NCj4g
+RG1pdHJ5DQo=

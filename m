@@ -1,45 +1,372 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] input/joystick: add driver fortius 1942
-Date: Mon, 16 Mar 2009 15:39:31 -0700
-Message-ID: <20090316223931.GA4759@kroah.com>
-References: <739e73230903161446k1c8326dfwa817f14afb3749ee@mail.gmail.com> <739e73230903161520j154edf4eq9fb308d4a67b001c@mail.gmail.com>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: [PATCH] Wacom Graphire Bluetooth driver
+Date: Mon, 16 Mar 2009 23:55:55 +0000
+Message-ID: <1237247755.32264.10664.camel@cookie.hadess.net>
+References: <1236988799.32264.6310.camel@cookie.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:47790 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1760940AbZCPWmO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Mar 2009 18:42:14 -0400
-Content-Disposition: inline
-In-Reply-To: <739e73230903161520j154edf4eq9fb308d4a67b001c@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1236988799.32264.6310.camel-MYKcRh6MmTE/Ra3EetS/fF6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: mjg <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Peter Hutterer <peter.hutterer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, zap-ez6wqqBRKvoox3rIn2DAYQ@public.gmane.org, BlueZ development <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Peta Blaha <blahapeta@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Mon, Mar 16, 2009 at 11:20:09PM +0100, Peta Blaha wrote:
-> Driver for Fortius 1942 device.
-> 
-> Signed-off-by: Petr Blaha <blahapeta@gmail.com>
-> 
-> ---
-> 
-> Hi,
->  i wrote driver for Fortius 1942 by re-ingeneering original driver for
-> win.This is a bicycle from Tacx company, they have their own virtual
-> reality sw. There is not linux support from this company.
-> http://www.tacxvr.com/en/products/tacx-virtual-reality
-> This driver handle bike as normal joystick, it is connected thru USB,
-> this driver isn't for initializating, it is too complex for me.
-> here is more info
-> http://code.google.com/p/fortius/
-> 
-> I would like to merge my work into kernel, is it ok?
+>From 3495e3be72d1df6132d5f5d978d2def3e4d57fc3 Mon Sep 17 00:00:00 2001
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Date: Mon, 16 Mar 2009 23:36:54 +0000
+Subject: [PATCH] Wacom Graphire Bluetooth driver
 
-Yes, that would be great, but can you resend the driver with the proper
-"Signed-off-by:" line as documented in the file,
-Documentation/SubmittingPatches?
+Signed-off-by: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
 
-thanks,
+Based on the work by Andrew Zabolotny, an HID driver for the Bluetooth
+Wacom tablet. This is required as it uses a slightly different
+protocols from what's currently support by the drivers/input/wacom*
+driver, and those only support USB.
 
-greg k-h
+A user-space patch is required to activate mode 2 of the Wacom tablet,
+as hidp does not support hid_output_raw_report.
+---
+ drivers/hid/Kconfig     |    7 ++
+ drivers/hid/Makefile    |    1 +
+ drivers/hid/hid-core.c  |    1 +
+ drivers/hid/hid-ids.h   |    1 +
+ drivers/hid/hid-wacom.c |  272 +++++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 282 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hid/hid-wacom.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index e85c8fe..f3244e3 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -261,6 +261,13 @@ config THRUSTMASTER_FF
+ 	  Say Y here if you have a THRUSTMASTER FireStore Dual Power 2 or
+ 	  a THRUSTMASTER Ferrari GT Rumble Force or Force Feedback Wheel.
+ 
++config HID_WACOM
++	tristate "Wacom Bluetooth devices support" if EMBEDDED
++	depends on BT_HIDP
++	default !EMBEDDED
++	---help---
++	Support for Wacom Graphire Bluetooth tablet.
++
+ config ZEROPLUS_FF
+ 	tristate "Zeroplus based game controller support"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index fbd021f..410b302 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -41,6 +41,7 @@ obj-$(CONFIG_GREENASIA_FF)	+= hid-gaff.o
+ obj-$(CONFIG_THRUSTMASTER_FF)	+= hid-tmff.o
+ obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
+ obj-$(CONFIG_ZEROPLUS_FF)	+= hid-zpff.o
++obj-$(CONFIG_HID_WACOM)		+= hid-wacom.o
+ 
+ obj-$(CONFIG_USB_HID)		+= usbhid/
+ obj-$(CONFIG_USB_MOUSE)		+= usbhid/
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 1cc9674..d134f5d 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1305,6 +1305,7 @@ static const struct hid_device_id hid_blacklist[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb651) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_THRUSTMASTER, 0xb654) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_TOPSEED, USB_DEVICE_ID_TOPSEED_CYBERLINK) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0005) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ZEROPLUS, 0x0030) },
+ 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 8851197..e8f96c2 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -400,6 +400,7 @@
+ #define USB_DEVICE_ID_VERNIER_LCSPEC	0x0006
+ 
+ #define USB_VENDOR_ID_WACOM		0x056a
++#define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH	0x81
+ 
+ #define USB_VENDOR_ID_WISEGROUP		0x0925
+ #define USB_DEVICE_ID_1_PHIDGETSERVO_20	0x8101
+diff --git a/drivers/hid/hid-wacom.c b/drivers/hid/hid-wacom.c
+new file mode 100644
+index 0000000..8f9783f
+--- /dev/null
++++ b/drivers/hid/hid-wacom.c
+@@ -0,0 +1,272 @@
++/*
++ *  Bluetooth Wacom Tablet support
++ *
++ *  Copyright (c) 1999 Andreas Gal
++ *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>
++ *  Copyright (c) 2005 Michael Haboustak <mike--vDbLwGUA7lNWk0Htik3J/w@public.gmane.org> for Concept2, Inc
++ *  Copyright (c) 2006-2007 Jiri Kosina
++ *  Copyright (c) 2007 Paul Walmsley
++ *  Copyright (c) 2008 Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
++ *  Copyright (c) 2006 Andrew Zabolotny <zap-ez6wqqBRKvoox3rIn2DAYQ@public.gmane.org>
++ *  Copyright (c) 2009 Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
++ */
++
++/*
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License as published by the Free
++ * Software Foundation; either version 2 of the License, or (at your option)
++ * any later version.
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++struct wacom_data {
++	__u16 tool;
++	unsigned char butstate;
++};
++
++static int wacom_raw_event(struct hid_device *hdev, struct hid_report *report,
++		u8 *raw_data, int size)
++{
++	struct wacom_data *wdata = hid_get_drvdata(hdev);
++	struct hid_input *hidinput;
++	struct input_dev *input;
++	unsigned char *data = (unsigned char *) raw_data;
++	int tool, x, y, rw, need_sync;
++
++	if (!(hdev->claimed & HID_CLAIMED_INPUT))
++		return 0;
++
++	tool = 0;
++	need_sync = 0;
++	hidinput = list_entry(hdev->inputs.next, struct hid_input, list);
++	input = hidinput->input;
++
++	/* Check if this is a tablet report */
++	if (data[0] != 0x03)
++		return 0;
++
++	/* Get X & Y positions */
++	x = le16_to_cpu(*(__le16 *) &data[2]);
++	y = le16_to_cpu(*(__le16 *) &data[4]);
++
++	/* Get current tool identifier */
++	if (data[1] & 0x90) { /* If pen is in the in/active area */
++		switch ((data[1] >> 5) & 3) {
++		case 0:	/* Pen */
++			tool = BTN_TOOL_PEN;
++			break;
++
++		case 1: /* Rubber */
++			tool = BTN_TOOL_RUBBER;
++			break;
++
++		case 2: /* Mouse with wheel */
++		case 3: /* Mouse without wheel */
++			tool = BTN_TOOL_MOUSE;
++			break;
++		}
++
++		/* Reset tool if out of active tablet area */
++		if (!(data[1] & 0x10))
++			tool = 0;
++	}
++
++	/* If tool changed, notify input subsystem */
++	if (wdata->tool != tool) {
++		if (wdata->tool) {
++			/* Completely reset old tool state */
++			if (wdata->tool == BTN_TOOL_MOUSE) {
++				input_report_key(input, BTN_LEFT, 0);
++				input_report_key(input, BTN_RIGHT, 0);
++				input_report_key(input, BTN_MIDDLE, 0);
++				input_report_abs(input, ABS_DISTANCE,
++						input->absmax[ABS_DISTANCE]);
++			} else {
++				input_report_key(input, BTN_TOUCH, 0);
++				input_report_key(input, BTN_STYLUS, 0);
++				input_report_key(input, BTN_STYLUS2, 0);
++				input_report_abs(input, ABS_PRESSURE, 0);
++			}
++			input_sync(input);
++			input_report_key(input, wdata->tool, 0);
++			input_sync(input);
++		}
++		wdata->tool = tool;
++		if (tool) {
++			input_report_key(input, tool, 1);
++			need_sync = 1;
++		}
++	}
++
++	if (tool) {
++		input_report_abs(input, ABS_X, x);
++		input_report_abs(input, ABS_Y, y);
++		need_sync = 1;
++
++		switch ((data[1] >> 5) & 3) {
++		case 2: /* Mouse with wheel */
++			input_report_key(input, BTN_MIDDLE, data[1] & 0x04);
++			rw = (data[6] & 0x01) ? -1 :
++				(data[6] & 0x02) ? 1 : 0;
++			input_report_rel(input, REL_WHEEL, rw);
++			/* fall through */
++
++		case 3: /* Mouse without wheel */
++			input_report_key(input, BTN_LEFT, data[1] & 0x01);
++			input_report_key(input, BTN_RIGHT, data[1] & 0x02);
++			/* Compute distance between mouse and tablet */
++			rw = 44 - (data[6] >> 2);
++			if (rw < 0)
++				rw = 0;
++			else if (rw > 31)
++				rw = 31;
++			input_report_abs(input, ABS_DISTANCE, rw);
++			break;
++
++		default:
++			input_report_abs(input, ABS_PRESSURE,
++					data[6] | (((__u16) (data[1] & 0x08)) << 5));
++			input_report_key(input, BTN_TOUCH, data[1] & 0x01);
++			input_report_key(input, BTN_STYLUS, data[1] & 0x02);
++			input_report_key(input, BTN_STYLUS2, data[1] & 0x04);
++			break;
++		}
++	}
++
++	if (need_sync) {
++		input_sync(input);
++		need_sync = 0;
++	}
++
++	/* Report the state of the two buttons at the top of the tablet
++	 * as two extra fingerpad keys (buttons 4 & 5). */
++	rw = data[7] & 0x03;
++	if (rw != wdata->butstate) {
++		wdata->butstate = rw;
++		input_report_key(input, BTN_0, rw & 0x02);
++		input_report_key(input, BTN_1, rw & 0x01);
++		need_sync = 1;
++	}
++
++	if (need_sync) {
++		input_event(input, EV_MSC, MSC_SERIAL, 0xf0);
++		input_sync(input);
++	}
++
++	return 1;
++}
++
++static int wacom_probe(struct hid_device *hdev,
++		const struct hid_device_id *id)
++{
++	struct hid_input *hidinput;
++	struct input_dev *input;
++	struct wacom_data *wdata;
++	int ret;
++
++	wdata = kzalloc(sizeof(*wdata), GFP_KERNEL);
++	if (wdata == NULL) {
++		dev_err(&hdev->dev, "can't alloc wacom descriptor\n");
++		return -ENOMEM;
++	}
++
++	hid_set_drvdata(hdev, wdata);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		dev_err(&hdev->dev, "parse failed\n");
++		goto err_free;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		dev_err(&hdev->dev, "hw start failed\n");
++		goto err_free;
++	}
++
++	hidinput = list_entry(hdev->inputs.next, struct hid_input, list);
++	input = hidinput->input;
++
++	/* Basics */
++	input->evbit[0] |= BIT(EV_KEY) | BIT(EV_ABS) | BIT(EV_REL);
++	input->absbit[0] |= BIT(ABS_X) | BIT(ABS_Y) |
++		BIT(ABS_PRESSURE) | BIT(ABS_DISTANCE);
++	input->relbit[0] |= BIT(REL_WHEEL);
++	set_bit(BTN_TOOL_PEN, input->keybit);
++	set_bit(BTN_TOUCH, input->keybit);
++	set_bit(BTN_STYLUS, input->keybit);
++	set_bit(BTN_STYLUS2, input->keybit);
++	set_bit(BTN_LEFT, input->keybit);
++	set_bit(BTN_RIGHT, input->keybit);
++	set_bit(BTN_MIDDLE, input->keybit);
++
++	/* Pad */
++	input->evbit[0] |= BIT(EV_MSC);
++	input->mscbit[0] |= BIT(MSC_SERIAL);
++
++	/* Distance, rubber and mouse */
++	input->absbit[0] |= BIT(ABS_DISTANCE);
++	set_bit(BTN_TOOL_RUBBER, input->keybit);
++	set_bit(BTN_TOOL_MOUSE, input->keybit);
++
++	input->absmax[ABS_PRESSURE] = 511;
++	input->absmax[ABS_DISTANCE] = 32;
++
++	input->absmax[ABS_X] = 16704;
++	input->absmax[ABS_Y] = 12064;
++	input->absfuzz[ABS_X] = 4;
++	input->absfuzz[ABS_Y] = 4;
++
++	return 0;
++err_free:
++	kfree(wdata);
++	return ret;
++}
++
++static void wacom_remove(struct hid_device *hdev)
++{
++	hid_hw_stop(hdev);
++	kfree(hid_get_drvdata(hdev));
++}
++
++static const struct hid_device_id wacom_devices[] = {
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) },
++
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, wacom_devices);
++
++static struct hid_driver wacom_driver = {
++	.name = "wacom",
++	.id_table = wacom_devices,
++	.probe = wacom_probe,
++	.remove = wacom_remove,
++	.raw_event = wacom_raw_event,
++};
++
++static int wacom_init(void)
++{
++	int ret;
++
++	ret = hid_register_driver(&wacom_driver);
++	if (ret)
++		printk(KERN_ERR "can't register wacom driver\n");
++	printk(KERN_ERR "wacom driver registered\n");
++	return ret;
++}
++
++static void wacom_exit(void)
++{
++	hid_unregister_driver(&wacom_driver);
++}
++
++module_init(wacom_init);
++module_exit(wacom_exit);
++MODULE_LICENSE("GPL");
++
++HID_COMPAT_LOAD_DRIVER(wacom);
+-- 
+1.6.2

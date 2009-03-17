@@ -1,71 +1,60 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: RFC: Wacom Bluetooth HID driver, first pass
-Date: Mon, 16 Mar 2009 23:58:54 +0000
-Message-ID: <1237247934.32264.10670.camel@cookie.hadess.net>
-References: <1236988799.32264.6310.camel@cookie.hadess.net>
-	 <1237200912.32264.9867.camel@cookie.hadess.net>
-	 <93531296-64B0-4D4B-A4A9-26F3D67DF579@holtmann.org>
-	 <1237213799.32264.10090.camel@cookie.hadess.net>
+From: Louai Al-Khanji <louai.khanji@gmail.com>
+Subject: Re: Support for Logitech Dinovo Edge special keys
+Date: Tue, 17 Mar 2009 02:27:14 +0200
+Message-ID: <f4a2642e0903161727o1e6d00a6xb0458b05952ff627@mail.gmail.com>
+References: <f4a2642e0903161453v447f5fe8idf1e3c58fd800548@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx1.redhat.com ([66.187.233.31]:34336 "EHLO mx1.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754451AbZCQASg (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 16 Mar 2009 20:18:36 -0400
-In-Reply-To: <1237213799.32264.10090.camel@cookie.hadess.net>
+Received: from mail-bw0-f175.google.com ([209.85.218.175]:34747 "EHLO
+	mail-bw0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755229AbZCQA1R (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 16 Mar 2009 20:27:17 -0400
+Received: by bwz23 with SMTP id 23so1184192bwz.37
+        for <linux-input@vger.kernel.org>; Mon, 16 Mar 2009 17:27:14 -0700 (PDT)
+In-Reply-To: <f4a2642e0903161453v447f5fe8idf1e3c58fd800548@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-input <linux-input@vger.kernel.org>, BlueZ development <linux-bluetooth@vger.kernel.org>, mjg <mjg@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, zap@homelink.ru
+To: linux-input@vger.kernel.org
 
-On Mon, 2009-03-16 at 14:29 +0000, Bastien Nocera wrote:
-> On Mon, 2009-03-16 at 15:00 +0100, Marcel Holtmann wrote:
-<snip>
-> > > A couple of notes:
-> > > - the wheel action is reversed, it's a simple fix, done locally
-> > > - hidp and the Bluetooth sub-system says it can't probe the device  
-> > > with
-> > > error "-14" when hid-wacom.ko isn't already loaded
+On Mon, Mar 16, 2009 at 11:53 PM, Louai Al-Khanji
+<louai.khanji@gmail.com> wrote:
+> Hi,
+>
+> I recently bought a Logitech Dinovo Edge keyboard. However, it seems
+> that not all keys are supported by the current HID layer as of
+> 2.6.28.7 - at least, in X I get no reports of keypresses, and for the
+> special keys that do generate key presses no keycode info is
+> available. I wonder if anyone can point me in the right direction on
+> how to fix this, and indeed confirm that this needs to be fixed in the
+> HID layer rather than in X somewhere.
+>
+> I did look in hid-input.c, where in the hidinput_configure_usage
+> function there is a case HID_UP_LOGIVENDOR which is ignored. hid-lg.c
+> seems to contain some fixes for Logitech keyboards, but I don't quite
+> see how it all fits together.
+>
+> I have not worked extensively in kernel space before, so please bear with me. :)
 
-Bluetooth: HIDP (Human Interface Emulation) ver 1.2 
-wacom 0005:056A:0081.0001: parse failed
-wacom: probe of 0005:056A:0081.0001 failed with error -14 
-wacom driver registered
+Sorry to reply to myself, but I'm not certain my first mail went
+through as I wasn't signed up on the list.
 
-> > what was the reason for not forcing HID to load the generic driver?
-> 
-> What generic driver? If you're talking about the default Wacom driver,
-> it isn't an HID driver, and requires a USB device.
-> 
-> >  I  
-> > lost track on how HID is suppose to handle these. You could also  
-> > introduce a phony export like we do with L2CAP to ensure it is loaded  
-> > even if userspace isn't ready to handle this dependency.
-> 
-> Well, the problem is that the driver _does_ load, but I'm not certain
-> about the sequence of events between the Bluetooth sub-system, the
-> user-space enabling (see the linked patch to bluetoothd), and the HID
-> sub-system.
+I've also gathered some information on the keyboard and the missing
+keys. Attached are two files, with some dmesg info as output when the
+hid driver is loaded with the option debug=2.
 
-Turning the device off and on again works though. No idea what's
-happening.
+logitech-dinovo-edge-keys-log contains dmesg output when pressing the
+keys that do not work. I've entered a key description followed by the
+info from dmesg. Some keys do not generate any output, those are
+followed by a blank line.
 
-> > > - I'm getting oopses in hci_conn_del() when the device goes away  
-> > > (eg. I
-> > > turn it off).
-> > 
-> > Try to run a net-next-2.6 or bluetooth-next-2.6 kernel. Kyle should  
-> > have merged these patches into the latest rawhide kernel.
-> 
-> I was hoping this would be fixed in the latest linus-2.6 tree, guess
-> not.
+logitech-dinovo-edge-plug-log contains the dmesg output when the
+keyboard's receiver is plugged in.
 
-No more crashes. Great stuff.
+If anyone can give me any pointers on where and how to specify these
+keys, and why some keys are completely dead, I would be very grateful.
 
-I sent a fixed up patch to the list earlier.
-
-Cheers
-
-
+-- 
+- Louai Al-Khanji

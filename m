@@ -1,39 +1,158 @@
 From: David Brownell <david-b@pacbell.net>
 Subject: Re: lockdep and threaded IRQs (was: ...)
-Date: Tue, 17 Mar 2009 18:04:39 -0700
-Message-ID: <200903171804.39557.david-b@pacbell.net>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <20090303103041.0ba4aebd@lxorguk.ukuu.org.uk> <20090303104836.GA11532@elte.hu>
+Date: Tue, 17 Mar 2009 20:06:01 -0700
+Message-ID: <200903172006.01936.david-b@pacbell.net>
+References: <1235762883-20870-1-git-send-email-me@felipebalbi.com> <200903041850.00108.david-b@pacbell.net> <alpine.LFD.2.00.0903061313470.29264@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from n21.bullet.mail.mud.yahoo.com ([68.142.206.160]:29497 "HELO
-	n21.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753029AbZCRDGI (ORCPT
+Received: from n30.bullet.mail.mud.yahoo.com ([68.142.207.49]:43264 "HELO
+	n30.bullet.mail.mud.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1756795AbZCRDGM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 17 Mar 2009 23:06:08 -0400
-In-Reply-To: <20090303104836.GA11532@elte.hu>
+	Tue, 17 Mar 2009 23:06:12 -0400
+In-Reply-To: <alpine.LFD.2.00.0903061313470.29264@localhost.localdomain>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com, tglx@linutronix.de
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>, Andrew Morton <akpm@linux-foundation.org>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, dmitry.torokhov@gmail.com, sameo@openedhand.com
 
-On Tuesday 03 March 2009, Ingo Molnar wrote:
-> i think you severely over-estimate the importance and ratio of 
-> drivers that enable irqs within irq handlers. (Nor does anyone 
-> want to break them really - we want to have a sane default and 
-> we want to flag the broken cases as broken.)
+On Friday 06 March 2009, Thomas Gleixner wrote:
+> > > The only change in the generic code which is needed is a new handler
+> > > function for the chained irqs "handle_irq_simple_threaded()" which is
+> > > designed to handle the calls from thread context.
+> > 
+> > I'm not 100% sure that's right; the dispatching is a bit quirky.
+> > That is however where I'll start.
 
-For the record, I've been running for some time now
-with a patch that issues a warning for each IRQ that
-lockdep forces to use IRQF_DISABLED.
+I just sent a pair of patches for that.
 
-On my x86 systems, pretty much every driver triggers
-that warning.  Which makes me think maybe that shoe
-is being placed on the wrong foot:  use of IRQF_DISABLED
-is the *EXCEPTION* not the rule.  At least on one major
-Linux platform...
+They address only part of the chaining issue ...
+dispatching from the top level IRQ task, not how
+to set it up so that toplevel IRQ doesn't wrongly
+appear in interrupt statistics.
+
+
+> > The top level handler (for the PIH module) could easily use a
+> > "handle_irq_simple_threaded()", yes ... but the secondary (SIH)
+> > handlers have a few oddball behaviors including mixes of edge
+> > and level trigger modes. 
+> 
+> I took a closer look at this code and the more I look the more it
+> confuses me.
+
+Good thing you didn't see the earlier versions!!  ;)
+
+
+> You told me that the demux handler runs the secondary handlers in its
+> thread context, but looking at the code there is a work queue as well.
+
+The workqueue is for irq_chip methods.
+
+THAT is the fundamental squishy thing here:  when registers
+associated with an irq_chip (not just the interrupting device)
+are inaccessible except in task/sleeping contexts.
+
+It means that three different things must always run in task
+context:  (a) irq_chip methods, (b) IRQ flow handlers, and
+(c) IRQ action handlers.
+
+
+Overstating things somewhat ... your irq threading patches
+are best suited for offloading code from hardirq context
+into task context -- related to case (c), except here the
+state needed by the action handler *can't* be accessed in
+hardirq context.  But they don't much help with cases (a)
+or (b), where such hardirq context was never relevant in
+the first place because the irq management registers aren't
+accessible there.
+
+ 
+> The mask/unmask functions which are called for the secondary handlers
+> are just queueing work. I really do not understand the logic here:
+> 
+>     primary interrupt happens
+>       ->primary thread is woken up
+> 
+>     primary thread runs
+>       -> primary thread raises secondary irq via 
+>          generic_handle_irq(irq), which results in:
+> 	 	 desc->handle_irq(irq, desc);
+
+That's not quite exact; there can be more than one level
+of dispatch.  In more detail (it affects answers to your
+questions):
+
+ 1) Primary thread queries the PIH module (up to 8 IRQ
+    status bits) to determine which SIH module(s) raised
+    an interrupt.
+
+ 2) Then it does a normal dispatch -- desc->handle_irq(),
+    maybe wrapped in a convenience function -- to the
+    next level, specific to that SIH (not limited to
+    just 8 status bits).
+
+ 3) Now, depending on how that SIH was set up, one
+    of two things will happen:
+
+    A) Dispatch through generic SIH module code; as
+       with GPIO and "power" IRQs.  Interrupts for
+       MMC card detect, RTC alarm, USB transciver,
+       "power button", and a few other things go
+       this way.  Dispatched by another indirection
+       through a desc->handle_irq() invocation.
+
+    B) Dispatch through non-generic SIH module code.
+       That's how the keypad and ADC drivers work
+       right now; also the battery charger, but that
+       driver isn't used much yet due to HW issues.
+  
+
+> The secondary handler has is set to: handle_edge_irq and
+> handle_edge_irq() does: desc->chip->ack(irq);
+
+That's the (3A) case above.  I was never certain that
+needed to be dispatched with the "edge" flow handler
+instead of the "simple" one.  And it turns out that
+something like "simple" can work fine, as it currently
+does in case (3B).
+
+(The trigger type for those IRQs is typically "edge".
+But the "edge" flow handler doesn't seem to be the
+best match.)
+
+
+> But the irqchip, which is set for those secondary irqs has a NULL ack
+> function. How can this work at all ?
+
+For the PIH level, this hardware is quite odd:  there
+are no ack or mask primitives at all.  At that level,
+the only way to clear IRQ status is through the the
+child (SIH) level status.
+
+For the SIH level, these chips have a mode you may well
+have seen on other hardware.  Reading the SIH IRQ status
+register implicitly acks the pending IRQs ... "clear on
+read" (COR) mode mentioned in the driver.  So no separate
+ack() is needed in that case either.
+
+
+> I'm probably missing something and I would appreciate if you could
+> shed some light on this. An abstract description of the requirements
+> of the hardware w/o any reference to the current implementation would
+> be definitely helpful.
+
+You're probably trying to avoid reading over 900 pages
+of the tps65930 (public flavor of twl4030) technical
+reference manual ... ;)
+
+I'm not sure how abstract you want.  I'll hope my words
+above -- possibly in conjunction with comments in the
+current twl4030-irq.c code -- clarify.
+
+- Dave
 
 

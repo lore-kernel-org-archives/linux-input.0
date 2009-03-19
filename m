@@ -1,35 +1,35 @@
-From: Peta Blaha <blahapeta@gmail.com>
-Subject: [PATCH] input/joystick: add driver fortius 1942
-Date: Thu, 19 Mar 2009 14:51:07 +0100
-Message-ID: <739e73230903190651w4fff7aaen818a42540ffbdc8d@mail.gmail.com>
+From: Felipe Balbi <felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] input/joystick: add driver fortius 1942
+Date: Thu, 19 Mar 2009 15:39:54 +0200
+Message-ID: <20090319133953.GB18295@scadufax.research.nokia.com>
+References: <739e73230903190651w4fff7aaen818a42540ffbdc8d@mail.gmail.com>
+Reply-To: felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f169.google.com ([209.85.218.169]:62484 "EHLO
-	mail-bw0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752884AbZCSNvL (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2009 09:51:11 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <739e73230903190651w4fff7aaen818a42540ffbdc8d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ext Peta Blaha <blahapeta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
 
-Driver for Fortius 1942 device.
+On Thu, Mar 19, 2009 at 02:51:07PM +0100, ext Peta Blaha wrote:
+> Driver for Fortius 1942 device.
+> 
+> Signed-off-by: Petr Blaha <blahapeta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Petr Blaha <blahapeta@gmail.com>
+It's not that long. you can send it to the list.
 
----
+It also makes our life easier when trying to comment on the patch. Just
+run scripts/checkpatch.pl --strict on your patch file before sending it
+and solve any issues reported by that tool.
 
-This is driver for bycicle Fortius 1942. checked, patch is signed.
-It's a bit long. Patch for linux kernel and source are on page
+Also, that Signed-off-by line is not needed in the driver itself.
 
-http://code.google.com/p/fortius/
-
-fortius_1942.patch2  is the patch
- fortius_1942.0.0.2_doc.c  is kernel module
-
-It should be ok now.
-
-Petr
+-- 
+balbi
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,59 +1,46 @@
-From: Andrew Zabolotny <zap@homelink.ru>
-Subject: Re: [PATCH] Wacom Graphire Bluetooth driver (updated with a few
- fixes)
-Date: Thu, 19 Mar 2009 00:28:38 +0300
-Message-ID: <20090319002838.5b0132b4@zap.home.lan>
-References: <1236988799.32264.6310.camel@cookie.hadess.net>
-	<1237247755.32264.10664.camel@cookie.hadess.net>
-	<1237335112.15346.118.camel@cookie.hadess.net>
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Question about usage of RCU in the input layer
+Date: Wed, 18 Mar 2009 21:58:12 -0700
+Message-ID: <20090318215812.15496a86@infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/wXkGfS_7xauNadimz8KgS9j";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.eltel.net ([81.9.101.72]:34284 "EHLO relay.eltel.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753371AbZCRXVR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 18 Mar 2009 19:21:17 -0400
-In-Reply-To: <1237335112.15346.118.camel@cookie.hadess.net>
+Received: from casper.infradead.org ([85.118.1.10]:48891 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752662AbZCSE5Q (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2009 00:57:16 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input <linux-input@vger.kernel.org>, mjg <mjg@redhat.com>, Peter Hutterer <peter.hutterer@redhat.com>, BlueZ development <linux-bluetooth@vger.kernel.org>
+To: linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
 
---Sig_/wXkGfS_7xauNadimz8KgS9j
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-=46rom Wed, 18 Mar 2009 00:11:52 +0000
-Bastien Nocera <hadess@hadess.net> wrote:
+the input layer does a "synchronize_rcu()" after a list_add_tail_rcu(), which
+is costing me 1 second of boot time.....
+And based on my understanding of the RCU concept, you only need to synchronize on delete,
+not on addition... so I think the synchronize is entirely redundant here...
 
-> Based on the work by Andrew Zabolotny, an HID driver for the Bluetooth
-> Wacom tablet.
-Great to see my old work was finally useful :) I tried in the past to
-contact the bluetooth stack author to submit my patch, but got no answer
-and gave up.
+Can I have my second of boot time back please ? 
 
-Also I like the fact that you have dropped my wicked out-of-active-area
-pseudo-buttons support. Such kind of things should be implemented, if
-needed, in the x11 driver (but the driver would need a way to report
-out-of-active area stylus presses).
 
-What's that "mode 2 patch" you're talking about? Should it be applied
-to hidd, and is it available somewhere?
 
---=20
-Andrew
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 1730d73..d69ec56 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -1544,7 +1544,6 @@ int input_register_handle(struct input_handle *handle)
+ 		return error;
+ 	list_add_tail_rcu(&handle->d_node, &dev->h_list);
+ 	mutex_unlock(&dev->mutex);
+-	synchronize_rcu();
+ 
+ 	/*
+ 	 * Since we are supposed to be called from ->connect()
 
---Sig_/wXkGfS_7xauNadimz8KgS9j
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.10 (GNU/Linux)
-
-iEYEARECAAYFAknBZ4YACgkQ6/fZ6v/j5fcFNACfXq44FCNOdIrU5hy4dpLBp8vT
-vQMAniXm9nzAZiacX1B1llYSOwuluVf8
-=e6Ur
------END PGP SIGNATURE-----
-
---Sig_/wXkGfS_7xauNadimz8KgS9j--
+-- 
+Arjan van de Ven 	Intel Open Source Technology Centre
+For development, discussion and tips for power savings, 
+visit http://www.lesswatts.org

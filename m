@@ -1,35 +1,44 @@
-From: Felipe Balbi <felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] input/joystick: add driver fortius 1942
-Date: Thu, 19 Mar 2009 15:39:54 +0200
-Message-ID: <20090319133953.GB18295@scadufax.research.nokia.com>
-References: <739e73230903190651w4fff7aaen818a42540ffbdc8d@mail.gmail.com>
-Reply-To: felipe.balbi-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Question about usage of RCU in the input layer
+Date: Thu, 19 Mar 2009 07:02:21 -0700
+Message-ID: <20090319070221.6aca7245@infradead.org>
+References: <20090318215812.15496a86@infradead.org>
+	<200903190023.56929.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <739e73230903190651w4fff7aaen818a42540ffbdc8d-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ext Peta Blaha <blahapeta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from casper.infradead.org ([85.118.1.10]:52618 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755379AbZCSOB1 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 19 Mar 2009 10:01:27 -0400
+In-Reply-To: <200903190023.56929.dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, dipankar@in.ibm.com, linux-kernel@vger.kernel.org
 
-On Thu, Mar 19, 2009 at 02:51:07PM +0100, ext Peta Blaha wrote:
-> Driver for Fortius 1942 device.
+On Thu, 19 Mar 2009 00:23:56 -0700
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> Hi Arjan,
 > 
-> Signed-off-by: Petr Blaha <blahapeta-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> On Wednesday 18 March 2009 21:58:12 Arjan van de Ven wrote:
+> > Hi,
+> >
+> > the input layer does a "synchronize_rcu()" after a
+> > list_add_tail_rcu(), which is costing me 1 second of boot time.....
+> > And based on my understanding of the RCU concept, you only need to
+> > synchronize on delete, not on addition... so I think the
+> > synchronize is entirely redundant here...
+> 
+> 
+> It is there to guarantee that once we registered the handle all
+> subsequent input events will be delivered through it.
 
-It's not that long. you can send it to the list.
 
-It also makes our life easier when trying to comment on the patch. Just
-run scripts/checkpatch.pl --strict on your patch file before sending it
-and solve any issues reported by that tool.
-
-Also, that Signed-off-by line is not needed in the driver itself.
-
--- 
-balbi
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+afaik rcu already guarantees that even without a synchronize;
+the only reason you would need a synchronize is to guarantee that
+people STOPPED using your memory. Or am I now totally misunderstanding
+RCU ?

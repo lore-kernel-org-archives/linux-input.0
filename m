@@ -1,46 +1,72 @@
-From: Arjan van de Ven <arjan@infradead.org>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
 Subject: Re: Question about usage of RCU in the input layer
-Date: Fri, 20 Mar 2009 06:50:58 -0700
-Message-ID: <20090320065058.65d01771@infradead.org>
-References: <20090318215812.15496a86@infradead.org>
-	<20090319085628.GA6167@in.ibm.com>
-	<20090319071841.63334eff@infradead.org>
-	<20090320020750.GA6807@linux.vnet.ibm.com>
-	<20090319202032.4c971d92@infradead.org>
-	<20090320044541.GE6807@linux.vnet.ibm.com>
+Date: Fri, 20 Mar 2009 07:31:04 -0700
+Message-ID: <20090320143104.GA6698@linux.vnet.ibm.com>
+References: <20090318215812.15496a86@infradead.org> <20090319085628.GA6167@in.ibm.com> <20090319071841.63334eff@infradead.org> <20090320020750.GA6807@linux.vnet.ibm.com> <20090319202032.4c971d92@infradead.org> <20090320044541.GE6807@linux.vnet.ibm.com> <20090320065058.65d01771@infradead.org>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from casper.infradead.org ([85.118.1.10]:51051 "EHLO
-	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751981AbZCTNuD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Mar 2009 09:50:03 -0400
-In-Reply-To: <20090320044541.GE6807@linux.vnet.ibm.com>
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:39316 "EHLO e4.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751060AbZCTObK (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Mar 2009 10:31:10 -0400
+Content-Disposition: inline
+In-Reply-To: <20090320065058.65d01771@infradead.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: paulmck@linux.vnet.ibm.com
+To: Arjan van de Ven <arjan@infradead.org>
 Cc: dipankar@in.ibm.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Thu, 19 Mar 2009 21:45:41 -0700
-"Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
-
-> > single CPU is soooo last decade ;-)
-> > But seriously I no longer have systems that aren't dual core or SMT
-> > in some form... 
+On Fri, Mar 20, 2009 at 06:50:58AM -0700, Arjan van de Ven wrote:
+> On Thu, 19 Mar 2009 21:45:41 -0700
+> "Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
 > 
-> OK, I will ask the stupid question...
+> > > single CPU is soooo last decade ;-)
+> > > But seriously I no longer have systems that aren't dual core or SMT
+> > > in some form... 
+> > 
+> > OK, I will ask the stupid question...
+> > 
+> > Why not delay bringing up the non-boot CPUs until later in boot?
 > 
-> Why not delay bringing up the non-boot CPUs until later in boot?
+> that'd be throwing out the baby with the bathwater... I'm trying to use 
+> the other cpus to do some of the boot work (so that the total goes
+> faster); not using the other cpus would be counter productive to that.
+> (As is just sitting in synchronize_rcu() when the other cpu is
+> working.. hence this discussion ;-)
 
-that'd be throwing out the baby with the bathwater... I'm trying to use 
-the other cpus to do some of the boot work (so that the total goes
-faster); not using the other cpus would be counter productive to that.
-(As is just sitting in synchronize_rcu() when the other cpu is
-working.. hence this discussion ;-)
+OK, so you are definitely running multiple CPUs when the offending
+synchronize_rcu() executes, then?
 
--- 
-Arjan van de Ven 	Intel Open Source Technology Centre
-For development, discussion and tips for power savings, 
-visit http://www.lesswatts.org
+If so, here are some follow-on questions:
+
+1.	How many synchronize_rcu() calls are you seeing on the
+	critical boot path and what value of HZ are you running?
+
+	If each synchronize_rcu() is taking (say) tens of jiffies, then,
+	as Peter Zijlstra notes earlier in this thread, we need to focus
+	on what is taking too long to get through its RCU read-side
+	critical sections.  Otherwise, if each synchronize_rcu() is
+	in the 3-5 jiffy range, I may finally be forced to create an
+	expedited version of the synchronize_rcu() API.
+
+2.	If expediting is required, then the code calling synchronize_rcu()
+	might or might not have any idea whether or not expediting is
+	appropriate.  If it does not, then we would need some sort of way
+	to tell synchronize_rcu() that it should act more aggressively,
+	perhaps /proc flag or kernel global variable indicating that
+	boot is in progress.
+
+	No, we do not want to make synchronize_rcu() aggressive all the
+	time, as this would harm performance and energy efficiency in
+	the normal runtime situation.
+
+	So, if it turns out that synchronize_rcu()'s caller does not
+	know whether or not expediting is appropriate, can the boot path
+	manipulate such a flag or variable?
+
+3.	Which RCU implementation are you using?  CONFIG_CLASSIC_RCU,
+	CONFIG_TREE_RCU, or CONFIG_PREEMPT_RCU?
+
+							Thanx, Paul

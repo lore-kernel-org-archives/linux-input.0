@@ -1,74 +1,39 @@
-From: Arjan Opmeer <arjan@opmeer.net>
-Subject: [PATCH] input: elantech.c make sure touchpad is really in absolute
-	mode
-Date: Fri, 20 Mar 2009 06:52:39 +0100
-Message-ID: <20090320055239.GA19800@adopmeer.homeip.net>
+From: Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: Question about usage of RCU in the input layer
+Date: Fri, 20 Mar 2009 11:31:28 +0530
+Message-ID: <20090320060128.GC6167@in.ibm.com>
+References: <20090318215812.15496a86@infradead.org> <20090319085628.GA6167@in.ibm.com> <20090319071841.63334eff@infradead.org> <20090320020750.GA6807@linux.vnet.ibm.com> <20090319202032.4c971d92@infradead.org> <20090320044541.GE6807@linux.vnet.ibm.com> <49C3296B.1020209@cosmosbay.com>
+Reply-To: dipankar@in.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out2.tiscali.nl ([195.241.79.177]:38140 "EHLO
-	smtp-out2.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751030AbZCTFwn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Mar 2009 01:52:43 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:43340 "EHLO e3.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751720AbZCTGBi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 20 Mar 2009 02:01:38 -0400
 Content-Disposition: inline
+In-Reply-To: <49C3296B.1020209@cosmosbay.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: paulmck@linux.vnet.ibm.com, Arjan van de Ven <arjan@infradead.org>, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-From: Arjan Opmeer <arjan@opmeer.net>
+On Fri, Mar 20, 2009 at 06:28:11AM +0100, Eric Dumazet wrote:
+> Paul E. McKenney a =E9crit :
+> Hmm... point is to make linux boot as fast as possible, so ...
+>=20
+> Use a special variant of udelay() in offending drivers that make appr=
+opriate
+> RCU call to increment quiescent state ?
 
-There exist laptops with Elantech touchpads where switching to absolute mode
-does not happen, although writing the configuration register succeeds
-without error. Reading back the register afterwards reveils that the
-absolute mode bit is not set as if masked out by the touchpad firmware.
+It may not be safe to do this it is in a RCU read-side critical section=
+=2E
 
-Always read back register 0x10, make sure that for hardware version 1 the
-absolute mode bit is actually set and fail otherwise. This prevents the case
-where the touchpad is claimed by the Elantech driver but is nonetheless not
-working.
-
-Signed-off-by: Arjan Opmeer <arjan@opmeer.net>
----
-
-diff --git a/drivers/input/mouse/elantech.c b/drivers/input/mouse/elantech.c
-index 6ab0eb1..1de6fd6 100644
---- a/drivers/input/mouse/elantech.c
-+++ b/drivers/input/mouse/elantech.c
-@@ -363,9 +363,14 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
- 			rc = -1;
- 			break;
- 		}
-+	}
-+
-+	if (rc == 0) {
- 		/*
--		 * Read back reg 0x10. The touchpad is probably initalising
--		 * and not ready until we read back the value we just wrote.
-+		 * Read back reg 0x10. For hardware version 1 we must make
-+		 * sure the absolute mode bit is set. For hardware version 2
-+		 * the touchpad is probably initalising and not ready until
-+		 * we read back the value we just wrote.
- 		 */
- 		do {
- 			rc = elantech_read_reg(psmouse, 0x10, &val);
-@@ -376,9 +381,17 @@ static int elantech_set_absolute_mode(struct psmouse *psmouse)
- 				tries);
- 			msleep(ETP_READ_BACK_DELAY);
- 		} while (tries > 0);
--		if (rc)
-+
-+		if (rc) {
- 			pr_err("elantech.c: failed to read back register 0x10.\n");
--		break;
-+		} else {
-+			if (etd->hw_version == 1 &&
-+			    val & ETP_R10_ABSOLUTE_MODE == 0) {
-+				pr_err("elantech.c: touchpad refuses "
-+					"to have absolute mode bit set\n");
-+				rc = -1;
-+			}
-+		}
- 	}
- 
- 	if (rc)
+Thanks
+Dipankar
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,87 +1,97 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: lockdep report at resume
-Date: Fri, 20 Mar 2009 15:39:57 +0100
-Message-ID: <1237559997.5100.159.camel@johannes.local>
-References: <1234022517.4175.107.camel@johannes.local>
-	 <1237536764.5100.124.camel@johannes.local>
-	 <alpine.LNX.2.00.0903201535470.14346@wotan.suse.de>
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Question about usage of RCU in the input layer
+Date: Fri, 20 Mar 2009 11:13:54 -0700
+Message-ID: <20090320111354.679ab53d@infradead.org>
+References: <20090318215812.15496a86@infradead.org>
+	<20090319085628.GA6167@in.ibm.com>
+	<20090319071841.63334eff@infradead.org>
+	<20090320020750.GA6807@linux.vnet.ibm.com>
+	<20090319202032.4c971d92@infradead.org>
+	<20090320044541.GE6807@linux.vnet.ibm.com>
+	<20090320065058.65d01771@infradead.org>
+	<20090320143104.GA6698@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-sDQBNVdRw0l98v+bo5Cm"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:43265 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751315AbZCTOkD (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:54263 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751981AbZCTSMz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Mar 2009 10:40:03 -0400
-In-Reply-To: <alpine.LNX.2.00.0903201535470.14346@wotan.suse.de>
+	Fri, 20 Mar 2009 14:12:55 -0400
+In-Reply-To: <20090320143104.GA6698@linux.vnet.ibm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
+To: paulmck@linux.vnet.ibm.com
+Cc: dipankar@in.ibm.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
+On Fri, 20 Mar 2009 07:31:04 -0700
+"Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
+> > 
+> > that'd be throwing out the baby with the bathwater... I'm trying to
+> > use the other cpus to do some of the boot work (so that the total
+> > goes faster); not using the other cpus would be counter productive
+> > to that. (As is just sitting in synchronize_rcu() when the other
+> > cpu is working.. hence this discussion ;-)
+> 
+> OK, so you are definitely running multiple CPUs when the offending
+> synchronize_rcu() executes, then?
 
---=-sDQBNVdRw0l98v+bo5Cm
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+absolutely. 
+(and I'm using bootgraph.pl in scripts to track who's stalling etc)
+> 
+> If so, here are some follow-on questions:
+> 
+> 1.	How many synchronize_rcu() calls are you seeing on the
+> 	critical boot path
 
-On Fri, 2009-03-20 at 15:37 +0100, Jiri Kosina wrote:
-> On Fri, 20 Mar 2009, Johannes Berg wrote:
->=20
-> > > [20920.458587] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > [20920.458944] [ INFO: possible circular locking dependency detected =
-]
-> > > [20920.459231] 2.6.29-rc3-wl-12787-g17d9115-dirty #38
-> > > [20920.459449] ------------------------------------------------------=
--
-> > > [20920.459736] events/0/9 is trying to acquire lock:
-> > > [20920.459951]  (&dev->mutex){--..}, at: [<ffffffff804be0ac>] input_d=
-isconnect_device+0x2c/0xf0
-> > > [20920.460369]=20
-> > > [20920.460370] but task is already holding lock:
-> > > [20920.460637]  (&usbhid->reset_work){--..}, at: [<ffffffff8025a933>]=
- run_workqueue+0xb3/0x250
-> > > [20920.461049]=20
-> > > [20920.461050] which lock already depends on the new lock.
-> > Ping? I just ran into it again on 2.6.29-rc8-wl-18593-gef1cb6f-dirty.
->=20
-> I haven't still fully gone through the whole dependency chain, was quite=20
-> overloaded lately, sorry.
->=20
-> There is a patch from Oliver Neukum, that fixes workqueue usage semantics=
-=20
-> around hid_reset() on [1], could you please check whether it also fixes=20
-> the report you are seeing? Thanks.
+I've seen only this (input) one to take a long time
+>  and what value of HZ are you running?
 
-I can't seem to reproduce this completely reliably for some reason (or
-it's because my own development sometimes runs into lock problems
-elsewhere and lockdep disables itself), but I'll try to find a way to
-reproduce it and test the patch, thanks.
+1000
 
-johannes
+> 
+> 	If each synchronize_rcu() is taking (say) tens of jiffies,
+> then, as Peter Zijlstra notes earlier in this thread, we need to focus
+> 	on what is taking too long to get through its RCU read-side
+> 	critical sections
 
---=-sDQBNVdRw0l98v+bo5Cm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
+I know that "the other guy" is not optimal and takes waaay too long.
 
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
+>  Otherwise, if each synchronize_rcu() is
+> 	in the 3-5 jiffy range, I may finally be forced to create an
+> 	expedited version of the synchronize_rcu() API.
 
-iQIcBAABAgAGBQJJw6q6AAoJEKVg1VMiehFYblEQALTSPLXg/ZgSJn31dIrn5yRi
-F8i9YuF858wb5XFqyDn66jT2BIPIrgG+KbGF9SwZVGDGf29r7lRuQILZtYItI1u+
-z7zS9VQjro6KmVTAOeu315gxLyrGtJEr8lfsZizSDPtfnLMy6DriKbHuvOjFUKkG
-6tfsROR63fzsnUe1rJcuO3FMlLK+8/wQdyJkm+JBryFM9cXU4KIlZ/2LZLPwq6Xq
-lFaQOFEsRHuUokcdzNRTDE08yHghS5PUeNn95Nz1TMV5NzQZAD2eaRZ7yk+S3Nq0
-Cvs/N645eT9QPoVhvy6Nuc6kjiPIeySawjPh39ZQm0anedF7zgUGn6FV75Suob0/
-oLd8wiJadvW8QBFJS22U3jOR0A7GyBwSeh8TLzP38uyPYcncLNCadQts6uzAcAQ4
-uOhr47EqKgP+lf36VE58cbBLlt6GXolS3AbzoGYKg2MrUsv4FEcdEvrWhsRfBhKC
-XZWam6JuFcY4Gu7YyLm1tmjKUz6lKfKS3O644vOKbuHFS1DS/zRS25Gk3G2ethAg
-pHVnr7aicRWl2L9RK428mWBnYQaeHBdGBsG4EkWIZznA/Ly07VEuEg3rUpfVx61u
-/QXHbLg0tQApLVPClpUNAhSwasQlJ5po4Sd17zivwS8kqvhZL31ItsGlWQjbekbQ
-vFgnkWtAike1/YuvBX3R
-=jlvk
------END PGP SIGNATURE-----
+I think a simplified API for the "add to a list" case might make sense.
+Because the request isn't for a full sync for sure...
 
---=-sDQBNVdRw0l98v+bo5Cm--
+(independent of that .. the open question is if this specific case is
+even needed; I think the code confused "send to others" with "wait
+until everyone sees"; afaik synchronize_rcu() has no pushing behavior
+at all, nor should it)
 
+> 
+> 2.	If expediting is required, then the code calling
+> synchronize_rcu() might or might not have any idea whether or not
+> expediting is appropriate.  If it does not, then we would need some
+> sort of way to tell synchronize_rcu() that it should act more
+> aggressively, perhaps /proc flag or kernel global variable indicating
+> that boot is in progress.
+> 
+> 	No, we do not want to make synchronize_rcu() aggressive all
+> the time, as this would harm performance and energy efficiency in
+> 	the normal runtime situation.
+> 
+> 	So, if it turns out that synchronize_rcu()'s caller does not
+> 	know whether or not expediting is appropriate, can the boot
+> path manipulate such a flag or variable?
+> 
+> 3.	Which RCU implementation are you using?  CONFIG_CLASSIC_RCU,
+> 	CONFIG_TREE_RCU, or CONFIG_PREEMPT_RCU?
+
+CLASSIC
+
+-- 
+Arjan van de Ven 	Intel Open Source Technology Centre
+For development, discussion and tips for power savings, 
+visit http://www.lesswatts.org

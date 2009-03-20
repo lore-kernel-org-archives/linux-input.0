@@ -1,17 +1,17 @@
 From: Siemens Award Online Promo <wpdesign@la.twcbc.com>
 Subject: Final Notification
-Date: Thu, 19 Mar 2009 19:10:59 -0500
-Message-ID: <7h9gbp$ch7anf@rrcs-agw-01b.hrndva.rr.com>
+Date: Thu, 19 Mar 2009 19:11:00 -0500
+Message-ID: <7h9gbp$ch7ang__6635.27179644934$1237507972$gmane$org@rrcs-agw-01b.hrndva.rr.com>
 Reply-To: sosiemens3@googlemail.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from hrndva-commlb.mail.rr.com ([71.74.57.9]:53941 "EHLO
+Received: from hrndva-commlb.mail.rr.com ([71.74.57.8]:54018 "EHLO
 	hrndva-commlb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752797AbZCTALC (ORCPT
+	with ESMTP id S1753566AbZCTALE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 19 Mar 2009 20:11:02 -0400
+	Thu, 19 Mar 2009 20:11:04 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: info@lotto.com

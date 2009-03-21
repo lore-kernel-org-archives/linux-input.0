@@ -1,40 +1,47 @@
-From: Richie Ward <richies@gmail.com>
-Subject: G25 and Saitek Evo Force
-Date: Sat, 21 Mar 2009 01:36:59 +0000
-Message-ID: <6b33c0ac0903201836qb6dc872pdadb56679bce0b15@mail.gmail.com>
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Question about usage of RCU in the input layer
+Date: Fri, 20 Mar 2009 21:58:25 -0700
+Message-ID: <20090320215825.19b8baae@infradead.org>
+References: <20090318215812.15496a86@infradead.org>
+	<20090319085628.GA6167@in.ibm.com>
+	<20090319071841.63334eff@infradead.org>
+	<20090320020750.GA6807@linux.vnet.ibm.com>
+	<20090319202032.4c971d92@infradead.org>
+	<20090320044541.GE6807@linux.vnet.ibm.com>
+	<20090320065058.65d01771@infradead.org>
+	<20090320143104.GA6698@linux.vnet.ibm.com>
+	<20090320111354.679ab53d@infradead.org>
+	<20090321012746.GM6698@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.186]:58979 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751735AbZCUBhD (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:42566 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750706AbZCUE51 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 20 Mar 2009 21:37:03 -0400
-Received: by fk-out-0910.google.com with SMTP id 18so489320fkq.5
-        for <linux-input@vger.kernel.org>; Fri, 20 Mar 2009 18:37:00 -0700 (PDT)
+	Sat, 21 Mar 2009 00:57:27 -0400
+In-Reply-To: <20090321012746.GM6698@linux.vnet.ibm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: paulmck@linux.vnet.ibm.com
+Cc: dipankar@in.ibm.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-Hello, I have 2.6.28 with jaunty beta and I have managed to get my
-g25's force feedback working in compatibility mode (Bus 003 Device
-007: ID 046d:c294 Logitech, Inc. Driving Force) but when in native
-mode, it does not work (Bus 003 Device 010: ID 046d:c299 Logitech,
-Inc.).
+On Fri, 20 Mar 2009 18:27:46 -0700
+"Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
 
-Since it just says Logitech, Inc, does this mean support is missing in kernel?
+> > I've seen only this (input) one to take a long time
+> 
+> Ouch!!!  A -single- synchronize_rcu() taking a full second???  That
+> indicates breakage.
 
-Also I cannot seem to get force feedback working with my Saitek Evo
-Force (Bus 004 Device 002: ID 06a3:ffb5 Saitek PLC Cyborg Evo Force
-Joystick), it does not respond at all.
+I'll do a debug mode tomorrow and visualize it as part of the bootgraph;
+hopefully it'll be an interesting result.
+I'll share the graph when I have it....
 
-I am using input-utils from svn co
-https://linuxconsole.svn.sourceforge.net/svnroot/linuxconsole/trunk/utils
-input-utils
 
-Furthermore, ffmvforce is the only tool that can make my g25's force
-feedback work.
 
 -- 
-Thanks, Richie Ward
+Arjan van de Ven 	Intel Open Source Technology Centre
+For development, discussion and tips for power savings, 
+visit http://www.lesswatts.org

@@ -1,40 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: elantech.c provide a workaround for jumpy cursor on firmware 2.34
-Date: Fri, 20 Mar 2009 22:46:37 -0700
-Message-ID: <200903202246.37383.dmitry.torokhov@gmail.com>
-References: <20090320053509.GA3633@adopmeer.homeip.net>
+Subject: Re: [PATCH 12/31] input: Auto-load mousedev module when psaux device opened.
+Date: Fri, 20 Mar 2009 22:46:44 -0700
+Message-ID: <200903202246.44458.dmitry.torokhov@gmail.com>
+References: <cover.1236702228.git.scott@canonical.com> <6c577b415dffe0df86954f2f3971e15a9336d6c6.1236702228.git.scott@canonical.com>
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.28]:14565 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752123AbZCUFqn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Mar 2009 01:46:43 -0400
-In-Reply-To: <20090320053509.GA3633@adopmeer.homeip.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760768AbZCUFr7@vger.kernel.org>
+In-Reply-To: <6c577b415dffe0df86954f2f3971e15a9336d6c6.1236702228.git.scott@canonical.com>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Scott James Remnant <scott@canonical.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arjan Opmeer <arjan@opmeer.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Arjan,
+Hi Scott,
 
-On Thursday 19 March 2009 22:35:09 Arjan Opmeer wrote:
+On Tuesday 03 March 2009 07:32:15 Scott James Remnant wrote:
+> The mousedev module is missing the char-major-10-1 alias that would cause
+> it to be auto-loaded when the /dev/psaux device is opened.  This patch
+> adds the alias.
 >
-> +	if (etd->jumpy_cursor) {
-> +		/* Discard packets that are likely to have bogus coordinates */
-> +		if (fingers > old_fingers) {
-> +			elantech_debug("elantech.c: discarding packet\n");
-> +			goto discard_packet_v1;
 
-Can we do this unconditionally for the v1 protocol and not have an
-extra konb? Do you have access to boxes with unbroken V1 to test?
+I think we are trying to go in the different direction that what you are
+proposing - we should automatically load mousedev and other input handlers
+when input device that is compatible with that handler is registered with
+input core, not the other way around. This way you won't need static device
+node in your /dev, udev will create it for you as needed.
 
-Thanks.
+Same goes for your other patch.
 
 -- 
 Dmitry
-

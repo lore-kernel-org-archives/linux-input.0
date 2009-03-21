@@ -1,50 +1,45 @@
 From: Arjan Opmeer <arjan@opmeer.net>
-Subject: Re: [PATCH] input: elantech.c make sure touchpad is really in
-	absolute mode
-Date: Sat, 21 Mar 2009 13:04:50 +0100
-Message-ID: <20090321120450.GA24247@adopmeer.homeip.net>
-References: <20090320055239.GA19800@adopmeer.homeip.net> <200903202246.31493.dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: elantech.c provide a workaround for jumpy
+	cursor on firmware 2.34
+Date: Sat, 21 Mar 2009 13:17:57 +0100
+Message-ID: <20090321121757.GB24247@adopmeer.homeip.net>
+References: <20090320053509.GA3633@adopmeer.homeip.net> <200903202246.37383.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out0.tiscali.nl ([195.241.79.175]:58360 "EHLO
+Received: from smtp-out0.tiscali.nl ([195.241.79.175]:47937 "EHLO
 	smtp-out0.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752878AbZCUME5 (ORCPT
+	with ESMTP id S1751049AbZCUMSA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Mar 2009 08:04:57 -0400
+	Sat, 21 Mar 2009 08:18:00 -0400
 Content-Disposition: inline
-In-Reply-To: <200903202246.31493.dmitry.torokhov@gmail.com>
+In-Reply-To: <200903202246.37383.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-
-On Fri, Mar 20, 2009 at 10:46:31PM -0700, Dmitry Torokhov wrote:
-> On Thursday 19 March 2009 22:52:39 Arjan Opmeer wrote:
+On Fri, Mar 20, 2009 at 10:46:37PM -0700, Dmitry Torokhov wrote:
+> On Thursday 19 March 2009 22:35:09 Arjan Opmeer wrote:
 > >
-> > There exist laptops with Elantech touchpads where switching to absolute
-> > mode does not happen, although writing the configuration register
-> > succeeds without error. Reading back the register afterwards reveils
-> > that the absolute mode bit is not set as if masked out by the touchpad
-> > firmware.
-> >
-> > Always read back register 0x10, make sure that for hardware version 1
-> > the absolute mode bit is actually set and fail otherwise. This prevents
-> > the case where the touchpad is claimed by the Elantech driver but is
-> > nonetheless not working.
+> > +	if (etd->jumpy_cursor) {
+> > +		/* Discard packets that are likely to have bogus coordinates */
+> > +		if (fingers > old_fingers) {
+> > +			elantech_debug("elantech.c: discarding packet\n");
+> > +			goto discard_packet_v1;
 > 
-> Makes sense, will apply. Although, have you tried repeating the switch or
-> maybe issuing full reset before trying again?
+> Can we do this unconditionally for the v1 protocol and not have an extra
+> konb?
 
-No. I am sorry. I had this problem reported by two different users that both
-kind of lost interest when I pointed out that the driver as it stands was
-not able to support their laptops. Without access to the hardware and
-without users willing to test I am rather stuck.
+That is of course possible, although I am not sure it will not have any
+negative side effects.
 
-So I thought the sensible thing left to do was to put an extra check and
-warning in the driver to prevent other users from falling in that trap where
-their touchpad isn't working.
+> Do you have access to boxes with unbroken V1 to test?
+
+Nope. I am sorry. I don't have access to any machine with an Elantech
+touchpad after my laptop died. I am trying to give the best support I can by
+using 'remote development' where users have to report and test changes to
+the driver. As you can imagine it is slow going.
 
 
 Arjan

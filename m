@@ -1,72 +1,50 @@
-From: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: Question about usage of RCU in the input layer
-Date: Sat, 21 Mar 2009 10:13:38 +0100
-Message-ID: <49C4AFC2.500@cosmosbay.com>
-References: <20090318215812.15496a86@infradead.org> <20090320020750.GA6807@linux.vnet.ibm.com> <20090319202032.4c971d92@infradead.org> <200903202246.15772.dmitry.torokhov@gmail.com>
+From: Arjan Opmeer <arjan@opmeer.net>
+Subject: Re: [PATCH] input: elantech.c make sure touchpad is really in
+	absolute mode
+Date: Sat, 21 Mar 2009 13:04:50 +0100
+Message-ID: <20090321120450.GA24247@adopmeer.homeip.net>
+References: <20090320055239.GA19800@adopmeer.homeip.net> <200903202246.31493.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from gw1.cosmosbay.com ([212.99.114.194]:33975 "EHLO
-	gw1.cosmosbay.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752698AbZCUJOL convert rfc822-to-8bit (ORCPT
+Received: from smtp-out0.tiscali.nl ([195.241.79.175]:58360 "EHLO
+	smtp-out0.tiscali.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752878AbZCUME5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 21 Mar 2009 05:14:11 -0400
-In-Reply-To: <200903202246.15772.dmitry.torokhov@gmail.com>
+	Sat, 21 Mar 2009 08:04:57 -0400
+Content-Disposition: inline
+In-Reply-To: <200903202246.31493.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, paulmck@linux.vnet.ibm.com, dipankar@in.ibm.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-
-Dmitry Torokhov a =E9crit :
-> On Thursday 19 March 2009 20:20:32 Arjan van de Ven wrote:
->>> I don't claim to understand the code in question, so it is entirely
->>> possible that the following is irrelevant.  But one other reason fo=
-r
->>> synchronize_rcu() is:
->>>
->>> 1.    Make change.
->>>
->>> 2.    synchronize_rcu()
->>>
->>> 3.    Now you are guaranteed that all CPUs/tasks/whatever
->>> currently running either are not messing with you on the one hand, =
-or
->>>       have seen the change on the other.
->> ok so this is for the case where someone is already iterating the li=
-st.
->>
->> I don't see anything in the code that assumes this..
->=20
-> This is something that input core guarantees to its users: by the tim=
-e
-> input core calls hander->start() or, in its absence, by the time
-> input_register_handle() returns, events from input drivers will be
-> passed into the handle being registered, i.e. the presence of the
-> new item in the list is noticed by all CPUs.
->=20
-> Now, it is possible to stop using RCU primitives in the input core
-> but I think that you'd want to figure out why synchronize_rcu()
-> takes so long first, otheriwse you may find another "abuser"
-> down the road.
->=20
-
-If a cpu does a loop, it nearly impossible that synchronize_rcu() can
-be fast.
-
-We had same problem in ksoftirqd(), where I had to add a call
-to rcu_qsctr_inc() to unblock other threads blocked in synchronize_rcu(=
-)
-
-http://git2.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
-commit;h=3D64ca5ab913f1594ef316556e65f5eae63ff50cee
-
-If a driver does a loop with no call to scheduler, it might have same p=
-roblem
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Fri, Mar 20, 2009 at 10:46:31PM -0700, Dmitry Torokhov wrote:
+> On Thursday 19 March 2009 22:52:39 Arjan Opmeer wrote:
+> >
+> > There exist laptops with Elantech touchpads where switching to absolute
+> > mode does not happen, although writing the configuration register
+> > succeeds without error. Reading back the register afterwards reveils
+> > that the absolute mode bit is not set as if masked out by the touchpad
+> > firmware.
+> >
+> > Always read back register 0x10, make sure that for hardware version 1
+> > the absolute mode bit is actually set and fail otherwise. This prevents
+> > the case where the touchpad is claimed by the Elantech driver but is
+> > nonetheless not working.
+> 
+> Makes sense, will apply. Although, have you tried repeating the switch or
+> maybe issuing full reset before trying again?
+
+No. I am sorry. I had this problem reported by two different users that both
+kind of lost interest when I pointed out that the driver as it stands was
+not able to support their laptops. Without access to the hardware and
+without users willing to test I am rather stuck.
+
+So I thought the sensible thing left to do was to put an extra check and
+warning in the driver to prevent other users from falling in that trap where
+their touchpad isn't working.
+
+
+Arjan

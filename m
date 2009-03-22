@@ -1,36 +1,48 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: [patch]fix lockup of hid on reset
-Date: Sun, 22 Mar 2009 18:01:49 +0100
-Message-ID: <200903221801.49658.oliver@neukum.org>
+From: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: Question about usage of RCU in the input layer
+Date: Sun, 22 Mar 2009 12:46:32 -0700
+Message-ID: <20090322124632.5d5d6266@infradead.org>
+References: <20090320111354.679ab53d@infradead.org>
+	<20090321012746.GM6698@linux.vnet.ibm.com>
+	<20090321125115.0a76ac27@infradead.org>
+	<49C54D60.80306@cosmosbay.com>
+	<20090321210745.GE7148@linux.vnet.ibm.com>
+	<20090321204045.4a9022fd@infradead.org>
+	<20090322043838.GF7148@linux.vnet.ibm.com>
+	<20090321215109.717a3f12@infradead.org>
+	<20090322051822.GG7148@linux.vnet.ibm.com>
+	<20090321225318.5b25f0a7@infradead.org>
+	<20090322165324.GH7148@linux.vnet.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:47197 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751388AbZCVQ5I (ORCPT
+Received: from casper.infradead.org ([85.118.1.10]:57978 "EHLO
+	casper.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754592AbZCVTqB (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Mar 2009 12:57:08 -0400
-Content-Disposition: inline
+	Sun, 22 Mar 2009 15:46:01 -0400
+In-Reply-To: <20090322165324.GH7148@linux.vnet.ibm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+To: paulmck@linux.vnet.ibm.com
+Cc: Eric Dumazet <dada1@cosmosbay.com>, dipankar@in.ibm.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-VGhpcyBmaXhlcyBhIHVzZSBvZiBmbHVzaF9zY2hlZHVsZWRfd29yaygpIGluIFVTQiBISUQncyAg
-cmVzZXQgbG9naWMgdGhhdCBjYW4gCmRlYWRsb2NrLiBJdCdzIGFnYWluc3QgdGhlIG5leHQgdHJl
-ZS4KClNpZ25lZC1vZmYtYnk6IE9saXZlciBOZXVrdW0gPG9saXZlckBuZXVrdW0ubmFtZT4KVGVz
-dGVkLWJ5OiBWYWxkaXMgS2xldG5pa3MgPFZhbGRpcy5LbGV0bmlla3NAdnQuZWR1PgoJUmVnYXJk
-cwoJCU9saXZlcgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1jb3JlLmMgYi9k
-cml2ZXJzL2hpZC91c2JoaWQvaGlkLWNvcmUuYwppbmRleCBiYzAxN2NkLi40MzA2Y2IxIDEwMDY0
-NAotLS0gYS9kcml2ZXJzL2hpZC91c2JoaWQvaGlkLWNvcmUuYworKysgYi9kcml2ZXJzL2hpZC91
-c2JoaWQvaGlkLWNvcmUuYwpAQCAtMTIxMCw3ICsxMjEwLDYgQEAgc3RhdGljIHZvaWQgaGlkX2Nl
-YXNlX2lvKHN0cnVjdCB1c2JoaWRfZGV2aWNlICp1c2JoaWQpCiAJdXNiX2tpbGxfdXJiKHVzYmhp
-ZC0+dXJiaW4pOwogCXVzYl9raWxsX3VyYih1c2JoaWQtPnVyYmN0cmwpOwogCXVzYl9raWxsX3Vy
-Yih1c2JoaWQtPnVyYm91dCk7Ci0JZmx1c2hfc2NoZWR1bGVkX3dvcmsoKTsKIH0KIAogLyogVHJl
-YXQgVVNCIHJlc2V0IHByZXR0eSBtdWNoIHRoZSBzYW1lIGFzIHN1c3BlbmQvcmVzdW1lICovCkBA
-IC0xMjIyLDYgKzEyMjEsNyBAQCBzdGF0aWMgaW50IGhpZF9wcmVfcmVzZXQoc3RydWN0IHVzYl9p
-bnRlcmZhY2UgKmludGYpCiAJc3Bpbl9sb2NrX2lycSgmdXNiaGlkLT5sb2NrKTsKIAlzZXRfYml0
-KEhJRF9SRVNFVF9QRU5ESU5HLCAmdXNiaGlkLT5pb2ZsKTsKIAlzcGluX3VubG9ja19pcnEoJnVz
-YmhpZC0+bG9jayk7CisJY2FuY2VsX3dvcmtfc3luYygmdXNiaGlkLT5yZXN0YXJ0X3dvcmspOwog
-CWhpZF9jZWFzZV9pbyh1c2JoaWQpOwogCiAJcmV0dXJuIDA7CgAKCg==
+On Sun, 22 Mar 2009 09:53:24 -0700
+"Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
+
+> > > How many synchronize_rcu() calls are you seeing on the boot path?
+> > 
+> > I see 20 that hit the above code path (eg ones that wait) until
+> > userspace starts.
+> 
+> So with well-behaved readers, the full sequence would be worth
+> something like 50-60 milliseconds.
+
+yeah it's about 10% if the total kernel boot time.. so it does start to
+matter
+
+-- 
+Arjan van de Ven 	Intel Open Source Technology Centre
+For development, discussion and tips for power savings, 
+visit http://www.lesswatts.org

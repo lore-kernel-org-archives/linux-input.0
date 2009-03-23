@@ -1,68 +1,86 @@
-From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
-Subject: Re: Question about usage of RCU in the input layer
-Date: Sun, 22 Mar 2009 18:27:37 -0700
-Message-ID: <20090323012737.GO7148@linux.vnet.ibm.com>
-References: <20090322043838.GF7148@linux.vnet.ibm.com> <20090321215109.717a3f12@infradead.org> <20090322051822.GG7148@linux.vnet.ibm.com> <20090321225318.5b25f0a7@infradead.org> <20090322165324.GH7148@linux.vnet.ibm.com> <20090322124632.5d5d6266@infradead.org> <20090322205212.GI7148@linux.vnet.ibm.com> <20090322154433.1b2cb1b1@infradead.org> <20090322230331.GM7148@linux.vnet.ibm.com> <20090322161637.056a43c5@infradead.org>
-Reply-To: paulmck@linux.vnet.ibm.com
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: lockdep report at resume
+Date: Mon, 23 Mar 2009 10:29:32 +0100
+Message-ID: <1237800572.19647.97.camel@johannes.local>
+References: <1234022517.4175.107.camel@johannes.local>
+	 <1237536764.5100.124.camel@johannes.local>
+	 <alpine.LNX.2.00.0903201535470.14346@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-J6kDHZkYrhinGrUp21D9"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:43927 "EHLO e2.ny.us.ibm.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753524AbZCWB1h (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 22 Mar 2009 21:27:37 -0400
-Content-Disposition: inline
-In-Reply-To: <20090322161637.056a43c5@infradead.org>
+Received: from xc.sipsolutions.net ([83.246.72.84]:41516 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750983AbZCWJ3k (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 23 Mar 2009 05:29:40 -0400
+In-Reply-To: <alpine.LNX.2.00.0903201535470.14346@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Eric Dumazet <dada1@cosmosbay.com>, dipankar@in.ibm.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-On Sun, Mar 22, 2009 at 04:16:37PM -0700, Arjan van de Ven wrote:
-> On Sun, 22 Mar 2009 16:03:31 -0700
-> "Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
-> 
-> > On Sun, Mar 22, 2009 at 03:44:33PM -0700, Arjan van de Ven wrote:
-> > > On Sun, 22 Mar 2009 13:52:12 -0700
-> > > "Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
-> > > 
-> > > > On Sun, Mar 22, 2009 at 12:46:32PM -0700, Arjan van de Ven wrote:
-> > > > > On Sun, 22 Mar 2009 09:53:24 -0700
-> > > > > "Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
-> > > > > 
-> > > > > > > > How many synchronize_rcu() calls are you seeing on the
-> > > > > > > > boot path?
-> > > > > > > 
-> > > > > > > I see 20 that hit the above code path (eg ones that wait)
-> > > > > > > until userspace starts.
-> > > > > > 
-> > > > > > So with well-behaved readers, the full sequence would be worth
-> > > > > > something like 50-60 milliseconds.
-> > > > > 
-> > > > > yeah it's about 10% if the total kernel boot time.. so it does
-> > > > > start to matter
-> > > > 
-> > > > Half-second boot, eh?  That would indeed be impressive.
-> > > 
-> > > half a second until calling init.. that's what I have today (with
-> > > all drivers built in).. nothing really special needed for it
-> > > (well a few small patches that are pending for 2.6.30 ;-)
-> > 
-> > I thought the measurement was until the desktop was running with no
-> > more disk activity.  ;-)
-> 
-> yeah that's like 2 seconds after that ;)
 
-I must confess that I still dream of it booting faster than I perceive.
-Of course, this is becoming ever easier to achieve as I continue to
-grow older...  ;-)
+--=-J6kDHZkYrhinGrUp21D9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > But in any case, I will see what I can do about speeding up
-> > synchronize_rcu().  I will likely start with TREE_RCU, and I may need
-> > some sort of indication that boot is in progress.
-> 
-> system_state == SYSTEM_BOOTING is not a very elegant test but it works
+On Fri, 2009-03-20 at 15:37 +0100, Jiri Kosina wrote:
+> On Fri, 20 Mar 2009, Johannes Berg wrote:
+>=20
+> > > [20920.458587] =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> > > [20920.458944] [ INFO: possible circular locking dependency detected =
+]
+> > > [20920.459231] 2.6.29-rc3-wl-12787-g17d9115-dirty #38
+> > > [20920.459449] ------------------------------------------------------=
+-
+> > > [20920.459736] events/0/9 is trying to acquire lock:
+> > > [20920.459951]  (&dev->mutex){--..}, at: [<ffffffff804be0ac>] input_d=
+isconnect_device+0x2c/0xf0
+> > > [20920.460369]=20
+> > > [20920.460370] but task is already holding lock:
+> > > [20920.460637]  (&usbhid->reset_work){--..}, at: [<ffffffff8025a933>]=
+ run_workqueue+0xb3/0x250
+> > > [20920.461049]=20
+> > > [20920.461050] which lock already depends on the new lock.
+> > Ping? I just ran into it again on 2.6.29-rc8-wl-18593-gef1cb6f-dirty.
+>=20
+> I haven't still fully gone through the whole dependency chain, was quite=20
+> overloaded lately, sorry.
+>=20
+> There is a patch from Oliver Neukum, that fixes workqueue usage semantics=
+=20
+> around hid_reset() on [1], could you please check whether it also fixes=20
+> the report you are seeing? Thanks.
+>=20
+> [1] http://lkml.org/lkml/2009/3/18/39
 
-Fair enough...  This would be until init, correct?
+That patch doesn't even apply against a current tree.
 
-							Thanx, Paul
+johannes
+
+--=-J6kDHZkYrhinGrUp21D9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIcBAABAgAGBQJJx1Z5AAoJEKVg1VMiehFYMhkQAJlkbcn5YTdKY4eQna95eK2S
+3uAUeeGqygrwv0EhJH/5S/UXuykIMg6m9lsimeKdHrFEwFQcFszefBNdjQEx5e2V
+LG4kFnxvc3hAul2fMHRHnmjouMqghVV0Y4zPZhU1sv9zLX/17WKT1e3cEHt5ebhY
+vih7nteve9T4xM1008UIqtN9KQd+8AfDU+K44ZE2XiowKeVVxiKcPCuaTNbvXFxz
+TQgQ9GXp3QBg6LpNsHuJxVpbxkVuOrOewCeYuvlna8OCcPSTkM4W+hsMGqLBHmUc
+GtzN5ExTx6J476g4Z7v/3WdYh+gpc+F3N6qU69NTTx8EAGGuLvg17oeSXKCk5dR4
+63ax7qGywDuz9JMtvvLkpnKhNNUJaZmlSA/i8lnWi6i0i6PmmrfU/TJOD3PrUchK
+B3Vo1uA9o13pd5kpMbDEWxdnpwHDYC6PXgww9o6mvSbqGO6UtOKDsnbCgO4Nw5mA
+qX93eu/BDSEWts7aay8uISVnLLzWtTgeCgS+IfxrsT7hTBDu1UL+3I6/TRZLLC54
+qG5VKk7lRY4v2EtCc/5d4HQ4p+Qm8YcQKSRA1uWdzgK7M4Gvre7CiCuelS3lPB/a
+PwjimSn9RN3zX9e1rccsdlCgMKsJr8ksSZZCr8ncDCHo6XR4gKTCV9PtjwOVGnNN
+3rzdLTscoRrlrzS9Wz11
+=re6U
+-----END PGP SIGNATURE-----
+
+--=-J6kDHZkYrhinGrUp21D9--
+

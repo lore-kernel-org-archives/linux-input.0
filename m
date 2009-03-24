@@ -1,40 +1,25 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: question on device registration
-Date: Sat, 21 Mar 2009 10:42:24 -0700
-Message-ID: <200903211042.26685.dmitry.torokhov@gmail.com>
-References: <200807022208.57032.oliver@neukum.org>
+From: Siemens News Center <tuscoffice@rrbiznet.com>
+Subject: Siemens Award Notification
+Date: Tue, 24 Mar 2009 17:46:27 -0500
+Message-ID: <7h9gbp$cjcsd1@rrcs-agw-01b.hrndva.rr.com>
+Reply-To: sosiemens3@gmail.com
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yx-out-2324.google.com ([74.125.44.29]:48600 "EHLO
-	yx-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757405AbZCWPHO (ORCPT
+Received: from hrndva-commlb.mail.rr.com ([71.74.57.9]:33286 "EHLO
+	hrndva-commlb.mail.rr.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750699AbZCXWq3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 23 Mar 2009 11:07:14 -0400
-Received: by yx-out-2324.google.com with SMTP id 31so2126132yxl.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Mar 2009 08:07:12 -0700 (PDT)
-In-Reply-To: <200807022208.57032.oliver@neukum.org>
-Content-Disposition: inline
+	Tue, 24 Mar 2009 18:46:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-input@vger.kernel.org
+To: info@lotto.com
 
-On Wednesday 02 July 2008 13:08:56 Oliver Neukum wrote:
-> Hi,
->
-> what happens if you call input_report_key(), input_report_rel() or
-> input_sync() for a device before you call input_register_device() ?
->
+Your email ID has been awarded 750,000,00 GBP in our recent Siemens draw 2009,Contact this office via: sosiemens3@gmail.com
 
-Well, this surely be a blast from the past for you but I was going
-through my old mail...
-
-You can safely use input_report* on an unrefistered input device as
-long as it was alloocated with input_allocate_device(). The reported
-events will simply be dropped by the input core.
-
--- 
-Dmitry
+Name:....................
+Country:.................
+Sex:.....................
+Age: .....................
+Address:...................

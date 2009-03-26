@@ -1,53 +1,58 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch]fix lockup of hid on reset
-Date: Wed, 25 Mar 2009 11:32:07 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.0903251131420.14346@wotan.suse.de>
-References: <200903221801.49658.oliver@neukum.org>
+From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
+Subject: Rawmode keyboard for your....
+Date: Thu, 26 Mar 2009 18:59:25 +0100
+Message-ID: <20090326185925.79ca6833.kristoffer.ericson@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__26_Mar_2009_18_59_25_+0100_ZGvKiHs2RgoDnQJh"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:58667 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752242AbZCYKcK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 25 Mar 2009 06:32:10 -0400
-In-Reply-To: <200903221801.49658.oliver@neukum.org>
+Received: from fg-out-1718.google.com ([72.14.220.153]:49464 "EHLO
+	fg-out-1718.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760096AbZCZR61 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 26 Mar 2009 13:58:27 -0400
+Received: by fg-out-1718.google.com with SMTP id 16so970643fgg.17
+        for <linux-input@vger.kernel.org>; Thu, 26 Mar 2009 10:58:24 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, Valdis Kletniks <Valdis.Kletnieks@vt.edu>
+To: Dmitry <dmitry.torokhov@gmail.com>
+Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Sun, 22 Mar 2009, Oliver Neukum wrote:
+--Signature=_Thu__26_Mar_2009_18_59_25_+0100_ZGvKiHs2RgoDnQJh
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> This fixes a use of flush_scheduled_work() in USB HID's  reset logic that can 
-> deadlock. It's against the next tree.
-> 
-> Signed-off-by: Oliver Neukum <oliver@neukum.name>
-> Tested-by: Valdis Kletniks <Valdis.Kletnieks@vt.edu>
-> 	Regards
-> 		Oliver
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index bc017cd..4306cb1 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -1210,7 +1210,6 @@ static void hid_cease_io(struct usbhid_device *usbhid)
->  	usb_kill_urb(usbhid->urbin);
->  	usb_kill_urb(usbhid->urbctrl);
->  	usb_kill_urb(usbhid->urbout);
-> -	flush_scheduled_work();
->  }
->  
->  /* Treat USB reset pretty much the same as suspend/resume */
-> @@ -1222,6 +1221,7 @@ static int hid_pre_reset(struct usb_interface *intf)
->  	spin_lock_irq(&usbhid->lock);
->  	set_bit(HID_RESET_PENDING, &usbhid->iofl);
->  	spin_unlock_irq(&usbhid->lock);
-> +	cancel_work_sync(&usbhid->restart_work);
->  	hid_cease_io(usbhid);
->  
->  	return 0;
+Greetings,
 
-Applied to autosuspend branch, thanks a lot Oliver.
+What exactly does this build warning imply?
+We have a fully working keyboard driver for the Jornada 700-series
+and would really like to get rid of this.
 
--- 
-Jiri Kosina
-SUSE Labs
+
+  CC      drivers/char/keyboard.o
+drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate rawmode =
+keyboard for your architecture yet."
+drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate rawmode =
+keyboard for your architecture yet."
+
+Best wishes
+Kristoffer
+
+
+--=20
+Kristoffer Ericson <kristoffer.ericson@gmail.com>
+
+--Signature=_Thu__26_Mar_2009_18_59_25_+0100_ZGvKiHs2RgoDnQJh
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEARECAAYFAknLwn0ACgkQPQls10ERAGfd6wCaAkAZNa6SNkAfT4mwJyA4nBv9
+AygAoIL+WGOERVecGemFEbqspsMKHz+A
+=ngus
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__26_Mar_2009_18_59_25_+0100_ZGvKiHs2RgoDnQJh--

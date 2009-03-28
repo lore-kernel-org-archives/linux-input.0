@@ -1,48 +1,68 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: Rawmode keyboard for your....
-Date: Thu, 26 Mar 2009 14:30:43 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909014E279A@mi8nycmail19.Mi8.com>
-References: <20090326185925.79ca6833.kristoffer.ericson@gmail.com>
+From: Andrew Zabolotny <zap@homelink.ru>
+Subject: Re: [PATCH] Wacom Graphire Bluetooth driver (updated with a few
+ fixes)
+Date: Sat, 28 Mar 2009 22:35:48 +0300
+Message-ID: <20090328223548.1896fa41@zap.home.lan>
+References: <1236988799.32264.6310.camel@cookie.hadess.net>
+	<1237247755.32264.10664.camel@cookie.hadess.net>
+	<1237335112.15346.118.camel@cookie.hadess.net>
+	<20090319002838.5b0132b4@zap.home.lan>
+	<1237416448.15346.1483.camel@cookie.hadess.net>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; boundary="Sig_/UYPS_kz28PcXVfTDBqIe2H7";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og110.obsmtp.com ([64.18.1.25]:43803 "HELO
-	exprod6og110.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755769AbZCZSb2 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 26 Mar 2009 14:31:28 -0400
-Content-class: urn:content-classes:message
-In-Reply-To: <20090326185925.79ca6833.kristoffer.ericson@gmail.com>
+Received: from relay.eltel.net ([81.9.101.72]:56328 "EHLO relay.eltel.net"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753291AbZC1TgH (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 28 Mar 2009 15:36:07 -0400
+In-Reply-To: <1237416448.15346.1483.camel@cookie.hadess.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kristoffer Ericson <kristoffer.ericson@gmail.com>, Dmitry <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Bastien Nocera <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
 
-On Thursday, March 26, 2009 10:59 AM, Kristoffer Ericson wrote:
-> Greetings,
+--Sig_/UYPS_kz28PcXVfTDBqIe2H7
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Hello
+=46rom Wed, 18 Mar 2009 22:47:28 +0000
+Bastien Nocera <hadess@hadess.net> wrote:
 
-> What exactly does this build warning imply?
-> We have a fully working keyboard driver for the Jornada 700-series
-> and would really like to get rid of this.
->
->
->  CC      drivers/char/keyboard.o
-> drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
-rawmode keyboard for your architecture yet."
-> drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
-rawmode keyboard for your architecture yet."
+> I think that the main problem was because, at that time, there was no
+> such thing as the HID sub-system to avoid having to reimplement things
+> twice for Bluetooth and USB devices.
+Yes, that was the main problem and I hoped to discuss it with the
+bluetooth stack developers... The solution, as I was seeing it, is to
+make the bluetooth stack implement a "bluetooth bus": this would allow
+to emit udev events when devices are connected/disconnected, thus using
+the normal udev module autoloading stuff.
 
-It means just what it says, if you put the keyboard into VC_RAW mode you
-will not get the expected key codes.
+However, I see that the bluetooth stuff chose another path, by using a
+user-space daemon. I'm very far from bluetooth developement to
+understand why this choice was made, however I'm pretty sure there were
+serious arguments in favour of that.
 
-But... Hmm... Jornada 700-series is arm/mach-sa1100 (CONFIG_ARM)...
+> And it's a patch to input plugin for bluetoothd, not hidd. hidd is the
+> BlueZ 3.x daemon, we've been at BlueZ 4.x for a while.
+Aha, it's the stuff for low-level tablet protocol initialization. Why
+separating it from the driver itself? It's kind of tricky having
+hardware initialization in a user-space daemon, and working with
+hardware in the driver itself. Isn't there an analogue of the
+hidp_send_ctrl_message() call for the new hid driver architecture?
 
-Looks like if you enable CONFIG_KEYBOARD_ATKBD the build warning message
-will go away. 
+--=20
+Andrew
 
-Just my 2 cents...
-Hartley
+--Sig_/UYPS_kz28PcXVfTDBqIe2H7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.10 (GNU/Linux)
+
+iEYEARECAAYFAknOfBUACgkQ6/fZ6v/j5feTtACdEf1IqWcQdHn1IUn/nryPfD1U
+WwsAn0qZZb1w29IuvjIQP/sDGKFf1Ss5
+=cjqK
+-----END PGP SIGNATURE-----
+
+--Sig_/UYPS_kz28PcXVfTDBqIe2H7--

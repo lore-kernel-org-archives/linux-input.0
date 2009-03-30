@@ -1,68 +1,53 @@
-From: Andrew Zabolotny <zap@homelink.ru>
-Subject: Re: [PATCH] Wacom Graphire Bluetooth driver (updated with a few
- fixes)
-Date: Sat, 28 Mar 2009 22:35:48 +0300
-Message-ID: <20090328223548.1896fa41@zap.home.lan>
-References: <1236988799.32264.6310.camel@cookie.hadess.net>
-	<1237247755.32264.10664.camel@cookie.hadess.net>
-	<1237335112.15346.118.camel@cookie.hadess.net>
-	<20090319002838.5b0132b4@zap.home.lan>
-	<1237416448.15346.1483.camel@cookie.hadess.net>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: bcm5974 patches for unibody macbook?
+Date: Mon, 30 Mar 2009 13:04:34 +0200
+Message-ID: <1238411074.24972.38.camel@johannes.local>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/UYPS_kz28PcXVfTDBqIe2H7";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-Upg8Y3LB6jHXrv7JsX+J"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from relay.eltel.net ([81.9.101.72]:56328 "EHLO relay.eltel.net"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753291AbZC1TgH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 28 Mar 2009 15:36:07 -0400
-In-Reply-To: <1237416448.15346.1483.camel@cookie.hadess.net>
+Received: from xc.sipsolutions.net ([83.246.72.84]:35287 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752799AbZC3LEj (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 30 Mar 2009 07:04:39 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>, linux-input <linux-input@vger.kernel.org>
+To: Henrik Rydberg <rydberg@euromail.se>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
---Sig_/UYPS_kz28PcXVfTDBqIe2H7
-Content-Type: text/plain; charset=US-ASCII
+
+--=-Upg8Y3LB6jHXrv7JsX+J
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-=46rom Wed, 18 Mar 2009 22:47:28 +0000
-Bastien Nocera <hadess@hadess.net> wrote:
+Hi,
 
-> I think that the main problem was because, at that time, there was no
-> such thing as the HID sub-system to avoid having to reimplement things
-> twice for Bluetooth and USB devices.
-Yes, that was the main problem and I hoped to discuss it with the
-bluetooth stack developers... The solution, as I was seeing it, is to
-make the bluetooth stack implement a "bluetooth bus": this would allow
-to emit udev events when devices are connected/disconnected, thus using
-the normal udev module autoloading stuff.
+Just wondering if those need chasing up or are on track somewhere -- I
+don't see them in the dtor/input.git tree.
 
-However, I see that the bluetooth stuff chose another path, by using a
-user-space daemon. I'm very far from bluetooth developement to
-understand why this choice was made, however I'm pretty sure there were
-serious arguments in favour of that.
+johannes
 
-> And it's a patch to input plugin for bluetoothd, not hidd. hidd is the
-> BlueZ 3.x daemon, we've been at BlueZ 4.x for a while.
-Aha, it's the stuff for low-level tablet protocol initialization. Why
-separating it from the driver itself? It's kind of tricky having
-hardware initialization in a user-space daemon, and working with
-hardware in the driver itself. Isn't there an analogue of the
-hidp_send_ctrl_message() call for the new hid driver architecture?
-
---=20
-Andrew
-
---Sig_/UYPS_kz28PcXVfTDBqIe2H7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+--=-Upg8Y3LB6jHXrv7JsX+J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.10 (GNU/Linux)
+Comment: Johannes Berg (powerbook)
 
-iEYEARECAAYFAknOfBUACgkQ6/fZ6v/j5feTtACdEf1IqWcQdHn1IUn/nryPfD1U
-WwsAn0qZZb1w29IuvjIQP/sDGKFf1Ss5
-=cjqK
+iQIcBAABAgAGBQJJ0Kc/AAoJEKVg1VMiehFYUsYP/0Qp+L208GL4KkiInEDAubs2
+eRWojzFLVqvbe1OT0f5PSirOw7KL7M8hIg0nhLfA5ubgVNDRC9wyq1Qt80hjelgX
+5F76sia+MCQYlRQ7c8//StajEY8gG++fWg6U4j2Yuz+zohXiY1ZdGZcJF5WAfu6i
+xtyvsXTOp759FX51GFS5ptT9cvpfoCJ66QQKI4jpAxJ9w/kLxXx3acRfztz3RXC2
+hxKJQusibFArJ45ZK+UIuxV8Wi3m68ZYNla1cWaCsesCJuB6qOKPoD8+tshB887s
+6NaSeT7m6PW1EYW6W7NnQxZwgpZ+7uJGNOKHyqEdOYNuTNTUDbvyhVTr0mvyt4xn
+pnTLeUFMS4wwM4gSz0iCDn/FQn1id0btxliCpBaG9NIkEshZdEnijLypawPlem5E
+zDswMYFp65vHBVxK0AF7A/j9dyt6k7wU+P06w77e1cTJXdjj1eW2oS+k3VOorFT3
+hS6QRq5dsM1WIUloQd27zGwFz1F3XtnvAv5ClZnj/yiqNpVrrGCC2wqGqKCfP5iK
+QIbsaE2JTq96K91AriK4nleJn6WXFPnEOdi+LTp2ODISVLADCz19lzE28L36t5JS
+9wtGUnRsvSH0i453QngXx7V0XngSGqMXxzeVyZuzUknWO4cd0S9kVUuQf72gp3Px
+34UI2Su6lGabKcOnPK3h
+=kYlu
 -----END PGP SIGNATURE-----
 
---Sig_/UYPS_kz28PcXVfTDBqIe2H7--
+--=-Upg8Y3LB6jHXrv7JsX+J--
+

@@ -1,46 +1,57 @@
-From: Daniel Silverstone <dsilvers@simtec.co.uk>
-Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
-Date: Tue, 31 Mar 2009 10:52:53 +0100
-Message-ID: <1238493173.12873.6.camel@petitemort>
-References: <20090109121026.052643915@fluff.org.uk>
-	 <20090111234903.ZZRA012@mailhub.coreip.homeip.net>
-	 <1231751234.23618.6.camel@petitemort>
-	 <20090112212907.ZZRA012@mailhub.coreip.homeip.net>
-	 <1231838958.30531.3.camel@petitemort>
-	 <20090114053515.GC4375@dtor-d630.eng.vmware.com>
-	 <1231954613.9219.8.camel@ataraxia>
-	 <20090115151228.GU15238@trinity.fluff.org>
-	 <1233226516.29200.1.camel@petitemort>
-Reply-To: dsilvers@simtec.co.uk
+From: Dan Carpenter <error27@gmail.com>
+Subject: [patch] hiddraw.c missing unlocks in unlocked_ioctl
+Date: Tue, 31 Mar 2009 15:54:06 +0300 (EAT)
+Message-ID: <Pine.LNX.4.64.0903311200080.4103@usbsys.site>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from flounder.pepperfish.net ([87.237.62.181]:43680 "EHLO
-	flounder.pepperfish.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756662AbZCaKwA (ORCPT
+Received: from mail-fx0-f158.google.com ([209.85.220.158]:60825 "EHLO
+	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757371AbZCaM6Z (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Mar 2009 06:52:00 -0400
-In-Reply-To: <1233226516.29200.1.camel@petitemort>
+	Tue, 31 Mar 2009 08:58:25 -0400
+Received: by fxm2 with SMTP id 2so2422175fxm.37
+        for <linux-input@vger.kernel.org>; Tue, 31 Mar 2009 05:58:22 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, vince@simtec.co.uk
+To: jkosina@suse.cz
+Cc: linux-input@vger.kernel.org
 
-On Thu, 2009-01-29 at 10:55 +0000, Daniel Silverstone wrote:
-> Here is a patch with the fake pressure support removed, as Dmitry tells
-> me there is now support in TSLib for that. It also updates the comment
-> as suggested by Ben Dooks.
+There were 2 places that returned directly instead of releasing their 
+locks.  I sent a fix for this file earlier but ended up missing these 
+spots.  I think what happened is that I have improved my checker script 
+since then...  Or maybe I just screwed up.
 
-Has anyone had chance to review and possibly merge this patch? I've not
-heard anything since January.
+regards,
+dan carpenter
 
-Regards,
+Signed-off-by: Dan Carpenter <error27@gmail.com>
 
-Daniel.
-
--- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
-
-
+--- orig/drivers/hid/hidraw.c	2009-03-30 21:16:07.000000000 +0300
++++ devel/drivers/hid/hidraw.c	2009-03-30 21:18:37.000000000 +0300
+@@ -274,8 +274,10 @@
+ 
+ 				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWNAME(0))) {
+ 					int len;
+-					if (!hid->name)
+-						return 0;
++					if (!hid->name) {
++						ret = 0;
++						break;
++					}
+ 					len = strlen(hid->name) + 1;
+ 					if (len > _IOC_SIZE(cmd))
+ 						len = _IOC_SIZE(cmd);
+@@ -286,8 +288,10 @@
+ 
+ 				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWPHYS(0))) {
+ 					int len;
+-					if (!hid->phys)
+-						return 0;
++					if (!hid->phys) {
++						ret = 0;
++						break;
++					}
+ 					len = strlen(hid->phys) + 1;
+ 					if (len > _IOC_SIZE(cmd))
+ 						len = _IOC_SIZE(cmd);

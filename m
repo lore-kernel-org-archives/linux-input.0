@@ -1,57 +1,26 @@
-From: Dan Carpenter <error27@gmail.com>
-Subject: [patch] hiddraw.c missing unlocks in unlocked_ioctl
-Date: Tue, 31 Mar 2009 15:54:06 +0300 (EAT)
-Message-ID: <Pine.LNX.4.64.0903311200080.4103@usbsys.site>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH] Wacom Graphire Bluetooth driver
+Date: Tue, 31 Mar 2009 23:35:36 +0100
+Message-ID: <1238538936.3545.1453.camel@cookie.hadess.net>
+References: <1236988799.32264.6310.camel@cookie.hadess.net>
+	 <1237247755.32264.10664.camel@cookie.hadess.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f158.google.com ([209.85.220.158]:60825 "EHLO
-	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757371AbZCaM6Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 31 Mar 2009 08:58:25 -0400
-Received: by fxm2 with SMTP id 2so2422175fxm.37
-        for <linux-input@vger.kernel.org>; Tue, 31 Mar 2009 05:58:22 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1237247755.32264.10664.camel-MYKcRh6MmTE/Ra3EetS/fF6hYfS7NtTn@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: mjg <mjg-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Peter Hutterer <peter.hutterer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, zap-ez6wqqBRKvoox3rIn2DAYQ@public.gmane.org, BlueZ development <linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz
-Cc: linux-input@vger.kernel.org
 
-There were 2 places that returned directly instead of releasing their 
-locks.  I sent a fix for this file earlier but ended up missing these 
-spots.  I think what happened is that I have improved my checker script 
-since then...  Or maybe I just screwed up.
+On Mon, 2009-03-16 at 23:55 +0000, Bastien Nocera wrote:
+> >From 3495e3be72d1df6132d5f5d978d2def3e4d57fc3 Mon Sep 17 00:00:00 2001
+> From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+> Date: Mon, 16 Mar 2009 23:36:54 +0000
+> Subject: [PATCH] Wacom Graphire Bluetooth driver
 
-regards,
-dan carpenter
+Any news on the patch? Matthew kindly added it to the Fedora 11 kernel:
+http://cvs.fedoraproject.org/viewvc/rpms/kernel/F-11/linux-2.6-input-wacom-bluetooth.patch?view=log
 
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-
---- orig/drivers/hid/hidraw.c	2009-03-30 21:16:07.000000000 +0300
-+++ devel/drivers/hid/hidraw.c	2009-03-30 21:18:37.000000000 +0300
-@@ -274,8 +274,10 @@
- 
- 				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWNAME(0))) {
- 					int len;
--					if (!hid->name)
--						return 0;
-+					if (!hid->name) {
-+						ret = 0;
-+						break;
-+					}
- 					len = strlen(hid->name) + 1;
- 					if (len > _IOC_SIZE(cmd))
- 						len = _IOC_SIZE(cmd);
-@@ -286,8 +288,10 @@
- 
- 				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWPHYS(0))) {
- 					int len;
--					if (!hid->phys)
--						return 0;
-+					if (!hid->phys) {
-+						ret = 0;
-+						break;
-+					}
- 					len = strlen(hid->phys) + 1;
- 					if (len > _IOC_SIZE(cmd))
- 						len = _IOC_SIZE(cmd);
+Cheers

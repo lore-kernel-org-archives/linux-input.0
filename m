@@ -1,184 +1,104 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: lockdep report at resume
-Date: Wed, 01 Apr 2009 12:00:41 +0200
-Message-ID: <1238580041.5970.180.camel@johannes.local>
-References: <1234022517.4175.107.camel@johannes.local>
-	 <1237536764.5100.124.camel@johannes.local>
-	 <alpine.LNX.2.00.0903201535470.14346@wotan.suse.de>
-	 <1237800572.19647.97.camel@johannes.local>
-	 <alpine.LNX.2.00.0903311034560.14346@wotan.suse.de>
-	 <1238488692.5970.80.camel@johannes.local>
-	 <alpine.LNX.2.00.0903311039480.14346@wotan.suse.de>
-	 <1238578840.5970.178.camel@johannes.local>
+From: "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>
+Subject: Re: Question about usage of RCU in the input layer
+Date: Thu, 2 Apr 2009 18:27:33 -0700
+Message-ID: <20090403012733.GA26871@linux.vnet.ibm.com>
+References: <20090321215109.717a3f12@infradead.org> <20090322051822.GG7148@linux.vnet.ibm.com> <20090321225318.5b25f0a7@infradead.org> <20090322165324.GH7148@linux.vnet.ibm.com> <20090322124632.5d5d6266@infradead.org> <20090322205212.GI7148@linux.vnet.ibm.com> <20090322154433.1b2cb1b1@infradead.org> <20090322230331.GM7148@linux.vnet.ibm.com> <20090322161637.056a43c5@infradead.org> <20090323012737.GO7148@linux.vnet.ibm.com>
+Reply-To: paulmck@linux.vnet.ibm.com
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:57644 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755795AbZDAKBQ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Apr 2009 06:01:16 -0400
-In-Reply-To: <1238578840.5970.178.camel@johannes.local>
+Received: from e9.ny.us.ibm.com ([32.97.182.139]:50604 "EHLO e9.ny.us.ibm.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754140AbZDCB1f (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 2 Apr 2009 21:27:35 -0400
+Content-Disposition: inline
+In-Reply-To: <20090323012737.GO7148@linux.vnet.ibm.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Oleg Nesterov <oleg@redhat.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, dipankar@in.ibm.com, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
 
-On Wed, 2009-04-01 at 11:41 +0200, Johannes Berg wrote:
-> On Tue, 2009-03-31 at 10:40 +0200, Jiri Kosina wrote:
+On Sun, Mar 22, 2009 at 06:27:37PM -0700, Paul E. McKenney wrote:
+> On Sun, Mar 22, 2009 at 04:16:37PM -0700, Arjan van de Ven wrote:
+> > On Sun, 22 Mar 2009 16:03:31 -0700
+> > "Paul E. McKenney" <paulmck@linux.vnet.ibm.com> wrote:
+
+[ . . . ]
+
+> > > But in any case, I will see what I can do about speeding up
+> > > synchronize_rcu().  I will likely start with TREE_RCU, and I may need
+> > > some sort of indication that boot is in progress.
+> > 
+> > system_state == SYSTEM_BOOTING is not a very elegant test but it works
 > 
-> > > > Could you please send me your config?
-> > > Sure, attached. I haven't yet tried to reproduce on .29 though, which 
-> > > this config is for (but I haven't changed it since, only taken it 
-> > > forward).
-> 
-> I've now gotten it again on 2.6.29-wl-20327-g8f2487d-dirty.
+> Fair enough...  This would be until init, correct?
 
-I guess I should've posted the entire report:
+Here is a first attempt.  The idea is to accelerate grace-period
+detection when all but one of the CPUs is in nohz state by checking
+for nohz CPUs immediately upon starting a grace period, instead of
+waiting for three jiffies in that case.  Lightly tested.
 
-=======================================================
-[ INFO: possible circular locking dependency detected ]
-2.6.29-wl-20327-g8f2487d-dirty #71
--------------------------------------------------------
-events/0/9 is trying to acquire lock:
- (&dev->mutex){--..}, at: [<ffffffff804d19e1>] input_disconnect_device+0x31/0xf0
+Not for inclusion.
 
-but task is already holding lock:
- (&usbhid->reset_work){--..}, at: [<ffffffff8025d23b>] run_workqueue+0xbb/0x250
+Signed-off-by: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+---
 
-which lock already depends on the new lock.
-
-
-the existing dependency chain (in reverse order) is:
-
--> #4 (&usbhid->reset_work){--..}:
-       [<ffffffff802771e7>] check_prev_add+0x3b7/0x770
-       [<ffffffff80277b96>] validate_chain+0x5f6/0x6b0
-       [<ffffffff8027808f>] __lock_acquire+0x43f/0xa10
-       [<ffffffff802786f1>] lock_acquire+0x91/0xc0
-       [<ffffffff8025d287>] run_workqueue+0x107/0x250
-       [<ffffffff8025d47f>] worker_thread+0xaf/0x130
-       [<ffffffff80261dae>] kthread+0x4e/0x90
-       [<ffffffff8020cfba>] child_rip+0xa/0x20
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #3 (events){--..}:
-       [<ffffffff802771e7>] check_prev_add+0x3b7/0x770
-       [<ffffffff80277b96>] validate_chain+0x5f6/0x6b0
-       [<ffffffff8027808f>] __lock_acquire+0x43f/0xa10
-       [<ffffffff802786f1>] lock_acquire+0x91/0xc0
-       [<ffffffff8025d722>] cleanup_workqueue_thread+0x42/0x90
-       [<ffffffff805bca8d>] workqueue_cpu_callback+0x9d/0x132
-       [<ffffffff805d1205>] notifier_call_chain+0x65/0xa0
-       [<ffffffff80267626>] raw_notifier_call_chain+0x16/0x20
-       [<ffffffff805ba91b>] _cpu_down+0x1db/0x350
-       [<ffffffff8024a5b5>] disable_nonboot_cpus+0xe5/0x170
-       [<ffffffff80287ef5>] hibernation_snapshot+0x135/0x170
-       [<ffffffff8028b8a5>] snapshot_ioctl+0x425/0x620
-       [<ffffffff802f27a6>] vfs_ioctl+0x36/0xb0
-       [<ffffffff802f2b89>] do_vfs_ioctl+0x89/0x350
-       [<ffffffff802f2e9f>] sys_ioctl+0x4f/0x80
-       [<ffffffff8020bf0b>] system_call_fastpath+0x16/0x1b
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #2 (cpu_add_remove_lock){--..}:
-       [<ffffffff802771e7>] check_prev_add+0x3b7/0x770
-       [<ffffffff80277b96>] validate_chain+0x5f6/0x6b0
-       [<ffffffff8027808f>] __lock_acquire+0x43f/0xa10
-       [<ffffffff802786f1>] lock_acquire+0x91/0xc0
-       [<ffffffff805cb56c>] mutex_lock_nested+0xfc/0x390
-       [<ffffffff8024a447>] cpu_maps_update_begin+0x17/0x20
-       [<ffffffff8025d7c8>] destroy_workqueue+0x38/0xb0
-       [<ffffffffa0058115>] input_close_polled_device+0x45/0x60 [input_polldev]
-       [<ffffffff804d145c>] input_close_device+0x5c/0x90
-       [<ffffffffa009f1e9>] evdev_release+0xa9/0xd0 [evdev]
-       [<ffffffff802e4e25>] __fput+0xd5/0x1e0
-       [<ffffffff802e4f55>] fput+0x25/0x30
-       [<ffffffff802e14f8>] filp_close+0x58/0x90
-       [<ffffffff802e15ee>] sys_close+0xbe/0x120
-       [<ffffffff8020bf0b>] system_call_fastpath+0x16/0x1b
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #1 (polldev_mutex){--..}:
-       [<ffffffff802771e7>] check_prev_add+0x3b7/0x770
-       [<ffffffff80277b96>] validate_chain+0x5f6/0x6b0
-       [<ffffffff8027808f>] __lock_acquire+0x43f/0xa10
-       [<ffffffff802786f1>] lock_acquire+0x91/0xc0
-       [<ffffffff805cb12c>] mutex_lock_interruptible_nested+0xec/0x430
-       [<ffffffffa0058151>] input_open_polled_device+0x21/0xd0 [input_polldev]
-       [<ffffffff804d1528>] input_open_device+0x98/0xc0
-       [<ffffffffa009f468>] evdev_open+0x1c8/0x1f0 [evdev]
-       [<ffffffff804d099f>] input_open_file+0x10f/0x200
-       [<ffffffff802e6e47>] chrdev_open+0x147/0x220
-       [<ffffffff802e18eb>] __dentry_open+0x11b/0x350
-       [<ffffffff802e1c37>] nameidata_to_filp+0x57/0x70
-       [<ffffffff802f0e6e>] do_filp_open+0x1fe/0x970
-       [<ffffffff802e16d0>] do_sys_open+0x80/0x110
-       [<ffffffff802e17a0>] sys_open+0x20/0x30
-       [<ffffffff8020bf0b>] system_call_fastpath+0x16/0x1b
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
--> #0 (&dev->mutex){--..}:
-       [<ffffffff80276e87>] check_prev_add+0x57/0x770
-       [<ffffffff80277b96>] validate_chain+0x5f6/0x6b0
-       [<ffffffff8027808f>] __lock_acquire+0x43f/0xa10
-       [<ffffffff802786f1>] lock_acquire+0x91/0xc0
-       [<ffffffff805cb56c>] mutex_lock_nested+0xfc/0x390
-       [<ffffffff804d19e1>] input_disconnect_device+0x31/0xf0
-       [<ffffffff804d1aba>] input_unregister_device+0x1a/0x110
-       [<ffffffffa00df329>] bcm5974_disconnect+0x29/0x90 [bcm5974]
-       [<ffffffffa001c9ed>] usb_unbind_interface+0x6d/0x180 [usbcore]
-       [<ffffffff80498661>] __device_release_driver+0x81/0xc0
-       [<ffffffff804987c0>] device_release_driver+0x30/0x50
-       [<ffffffffa001ce48>] usb_driver_release_interface+0xc8/0xf0 [usbcore]
-       [<ffffffffa001cf99>] usb_forced_unbind_intf+0x39/0x90 [usbcore]
-       [<ffffffffa00121a5>] usb_reset_device+0xd5/0x220 [usbcore]
-       [<ffffffffa00957fa>] hid_reset+0x18a/0x280 [usbhid]
-       [<ffffffff8025d28d>] run_workqueue+0x10d/0x250
-       [<ffffffff8025d47f>] worker_thread+0xaf/0x130
-       [<ffffffff80261dae>] kthread+0x4e/0x90
-       [<ffffffff8020cfba>] child_rip+0xa/0x20
-       [<ffffffffffffffff>] 0xffffffffffffffff
-
-other info that might help us debug this:
-
-2 locks held by events/0/9:
- #0:  (events){--..}, at: [<ffffffff8025d23b>] run_workqueue+0xbb/0x250
- #1:  (&usbhid->reset_work){--..}, at: [<ffffffff8025d23b>] run_workqueue+0xbb/0x250
-
-stack backtrace:
-Pid: 9, comm: events/0 Not tainted 2.6.29-wl-20327-g8f2487d-dirty #71
-Call Trace:
- [<ffffffff80276930>] print_circular_bug_tail+0xe0/0xf0
- [<ffffffff80276e87>] check_prev_add+0x57/0x770
- [<ffffffff802191bf>] ? save_stack_trace+0x2f/0x50
- [<ffffffff80277b96>] validate_chain+0x5f6/0x6b0
- [<ffffffff8027808f>] __lock_acquire+0x43f/0xa10
- [<ffffffff802780ad>] ? __lock_acquire+0x45d/0xa10
- [<ffffffff802786f1>] lock_acquire+0x91/0xc0
- [<ffffffff804d19e1>] ? input_disconnect_device+0x31/0xf0
- [<ffffffff805cb56c>] mutex_lock_nested+0xfc/0x390
- [<ffffffff804d19e1>] ? input_disconnect_device+0x31/0xf0
- [<ffffffff804d19e1>] ? input_disconnect_device+0x31/0xf0
- [<ffffffff804d19e1>] input_disconnect_device+0x31/0xf0
- [<ffffffff804d1aba>] input_unregister_device+0x1a/0x110
- [<ffffffffa00df329>] bcm5974_disconnect+0x29/0x90 [bcm5974]
- [<ffffffffa001c9ed>] usb_unbind_interface+0x6d/0x180 [usbcore]
- [<ffffffff80498661>] __device_release_driver+0x81/0xc0
- [<ffffffff804987c0>] device_release_driver+0x30/0x50
- [<ffffffffa001ce48>] usb_driver_release_interface+0xc8/0xf0 [usbcore]
- [<ffffffffa001cf99>] usb_forced_unbind_intf+0x39/0x90 [usbcore]
- [<ffffffffa00121a5>] usb_reset_device+0xd5/0x220 [usbcore]
- [<ffffffffa00957fa>] hid_reset+0x18a/0x280 [usbhid]
- [<ffffffffa0095670>] ? hid_reset+0x0/0x280 [usbhid]
- [<ffffffff8025d28d>] run_workqueue+0x10d/0x250
- [<ffffffff8025d23b>] ? run_workqueue+0xbb/0x250
- [<ffffffff8025d47f>] worker_thread+0xaf/0x130
- [<ffffffff80262280>] ? autoremove_wake_function+0x0/0x40
- [<ffffffff8025d3d0>] ? worker_thread+0x0/0x130
- [<ffffffff80261dae>] kthread+0x4e/0x90
- [<ffffffff8020cfba>] child_rip+0xa/0x20
-
-
-johannes
-
+diff --git a/kernel/rcutree.c b/kernel/rcutree.c
+index 97ce315..77ce937 100644
+--- a/kernel/rcutree.c
++++ b/kernel/rcutree.c
+@@ -373,7 +373,26 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
+ 	return rcu_implicit_offline_qs(rdp);
+ }
+ 
+-#endif /* #ifdef CONFIG_SMP */
++/*
++ * If almost all the other CPUs are in dyntick-idle mode, invoke
++ * force_quiescent_state() in order to make the RCU grace period
++ * happen more quickly.  The main purpose is to speed up boot
++ * on multiprocessor machines with CONFIG_NO_HZ.
++ */
++static void accelerate_almost_idle(struct rcu_state *rsp)
++{
++	if (cpumask_weight(cpu_online_mask) -
++	    cpumask_weight(nohz_cpu_mask) <= 1)
++		force_quiescent_state(rsp, 0);
++}
++
++#else /* #ifdef CONFIG_SMP */
++
++static void accelerate_almost_idle(struct rcu_state *rsp)
++{
++}
++
++#endif /* #else #ifdef CONFIG_SMP */
+ 
+ #else /* #ifdef CONFIG_NO_HZ */
+ 
+@@ -407,6 +426,10 @@ static int rcu_implicit_dynticks_qs(struct rcu_data *rdp)
+ 
+ #endif /* #ifdef CONFIG_SMP */
+ 
++static void accelerate_almost_idle(struct rcu_state *rsp)
++{
++}
++
+ #endif /* #else #ifdef CONFIG_NO_HZ */
+ 
+ #ifdef CONFIG_RCU_CPU_STALL_DETECTOR
+@@ -577,6 +600,7 @@ rcu_start_gp(struct rcu_state *rsp, unsigned long flags)
+ 		rnp->qsmask = rnp->qsmaskinit;
+ 		rsp->signaled = RCU_SIGNAL_INIT; /* force_quiescent_state OK. */
+ 		spin_unlock_irqrestore(&rnp->lock, flags);
++		accelerate_almost_idle(rsp);
+ 		return;
+ 	}
+ 
+@@ -627,6 +651,7 @@ rcu_start_gp(struct rcu_state *rsp, unsigned long flags)
+ 
+ 	rsp->signaled = RCU_SIGNAL_INIT; /* force_quiescent_state now OK. */
+ 	spin_unlock_irqrestore(&rsp->onofflock, flags);
++	accelerate_almost_idle(rsp);
+ }
+ 
+ /*

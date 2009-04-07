@@ -1,52 +1,64 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: [PATCH 2/3] Matrix keypad
-Date: Tue, 7 Apr 2009 15:59:59 +0200
-Message-ID: <200904071559.59668.marek.vasut@gmail.com>
-References: <200807090341.20397.marek.vasut@gmail.com> <200904071516.51773.marek.vasut@gmail.com> <5d5443650904070641w49ff0a3fo4826833d21032a02@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [patch] hiddraw.c missing unlocks in unlocked_ioctl
+Date: Tue, 7 Apr 2009 16:35:11 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0904071635000.5327@wotan.suse.de>
+References: <Pine.LNX.4.64.0903311200080.4103@usbsys.site>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f169.google.com ([209.85.218.169]:45002 "EHLO
-	mail-bw0-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753372AbZDGN7y (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Apr 2009 09:59:54 -0400
-Received: by bwz17 with SMTP id 17so2324157bwz.37
-        for <linux-input@vger.kernel.org>; Tue, 07 Apr 2009 06:59:52 -0700 (PDT)
-In-Reply-To: <5d5443650904070641w49ff0a3fo4826833d21032a02@mail.gmail.com>
-Content-Disposition: inline
+Received: from cantor.suse.de ([195.135.220.2]:60875 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754161AbZDGOfM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 7 Apr 2009 10:35:12 -0400
+In-Reply-To: <Pine.LNX.4.64.0903311200080.4103@usbsys.site>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, linux-input@vger.kernel.org
+To: Dan Carpenter <error27@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-On Tuesday 07 of April 2009 15:41:05 Trilok Soni wrote:
-> Hi Marek,
->
-> On Tue, Apr 7, 2009 at 6:46 PM, Marek Vasut <marek.vasut@gmail.com> wrote:
-> > On Tuesday 07 of April 2009 13:37:50 Trilok Soni wrote:
-> >> Hi Marek Vasut,
-> >>
-> >> On Wed, Jul 9, 2008 at 7:11 AM, Marek Vasut <marek.vasut@gmail.com> 
-wrote:
-> >> > Hi,
-> >> > this is the gpio driven matrix keypad. Final version.
-> >> > I also CCed it to linux-input since it might interest them.
-> >>
-> >> Is there any interest for this patch to get mainlined through input
-> >> subsystem ?
-> >
-> > Yes, I'd like to see it mainlined as I need it on some devices. I haven't
-> > gotten to rewriting it as Dmitry Torokhov requested me to (see his reply
-> > in linux-input) though.
->
-> I found only this thread where Dmitry Baryshkov had given some comments.
->
-> http://marc.info/?t=121732956800006&r=1&w=2
->
-> AFAIK, there is no need to give irqf_sample_random for input drivers
-> interrupts, as it is already done by input subsystem. Could you please
-> point to the exact thread where Dmitry Torokhov commented?
+On Tue, 31 Mar 2009, Dan Carpenter wrote:
 
-http://article.gmane.org/gmane.linux.kernel.input/5551 try here
+> There were 2 places that returned directly instead of releasing their 
+> locks.  I sent a fix for this file earlier but ended up missing these 
+> spots.  I think what happened is that I have improved my checker script 
+> since then...  Or maybe I just screwed up.
+> 
+> regards,
+> dan carpenter
+> 
+> Signed-off-by: Dan Carpenter <error27@gmail.com>
+> 
+> --- orig/drivers/hid/hidraw.c	2009-03-30 21:16:07.000000000 +0300
+> +++ devel/drivers/hid/hidraw.c	2009-03-30 21:18:37.000000000 +0300
+> @@ -274,8 +274,10 @@
+>  
+>  				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWNAME(0))) {
+>  					int len;
+> -					if (!hid->name)
+> -						return 0;
+> +					if (!hid->name) {
+> +						ret = 0;
+> +						break;
+> +					}
+>  					len = strlen(hid->name) + 1;
+>  					if (len > _IOC_SIZE(cmd))
+>  						len = _IOC_SIZE(cmd);
+> @@ -286,8 +288,10 @@
+>  
+>  				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWPHYS(0))) {
+>  					int len;
+> -					if (!hid->phys)
+> -						return 0;
+> +					if (!hid->phys) {
+> +						ret = 0;
+> +						break;
+> +					}
+>  					len = strlen(hid->phys) + 1;
+>  					if (len > _IOC_SIZE(cmd))
+>  						len = _IOC_SIZE(cmd);
+
+Applied, thanks Dan.
+
+-- 
+Jiri Kosina
+SUSE Labs

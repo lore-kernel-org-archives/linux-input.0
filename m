@@ -1,64 +1,126 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [patch] hiddraw.c missing unlocks in unlocked_ioctl
-Date: Tue, 7 Apr 2009 16:35:11 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0904071635000.5327@wotan.suse.de>
-References: <Pine.LNX.4.64.0903311200080.4103@usbsys.site>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.30-rc1
+Date: Wed, 8 Apr 2009 00:29:36 -0700
+Message-ID: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:60875 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754161AbZDGOfM (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 7 Apr 2009 10:35:12 -0400
-In-Reply-To: <Pine.LNX.4.64.0903311200080.4103@usbsys.site>
+Received: from rv-out-0506.google.com ([209.85.198.231]:30092 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1763365AbZDHH3o (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2009 03:29:44 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dan Carpenter <error27@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tue, 31 Mar 2009, Dan Carpenter wrote:
+Hi Linus,
 
-> There were 2 places that returned directly instead of releasing their 
-> locks.  I sent a fix for this file earlier but ended up missing these 
-> spots.  I think what happened is that I have improved my checker script 
-> since then...  Or maybe I just screwed up.
-> 
-> regards,
-> dan carpenter
-> 
-> Signed-off-by: Dan Carpenter <error27@gmail.com>
-> 
-> --- orig/drivers/hid/hidraw.c	2009-03-30 21:16:07.000000000 +0300
-> +++ devel/drivers/hid/hidraw.c	2009-03-30 21:18:37.000000000 +0300
-> @@ -274,8 +274,10 @@
->  
->  				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWNAME(0))) {
->  					int len;
-> -					if (!hid->name)
-> -						return 0;
-> +					if (!hid->name) {
-> +						ret = 0;
-> +						break;
-> +					}
->  					len = strlen(hid->name) + 1;
->  					if (len > _IOC_SIZE(cmd))
->  						len = _IOC_SIZE(cmd);
-> @@ -286,8 +288,10 @@
->  
->  				if (_IOC_NR(cmd) == _IOC_NR(HIDIOCGRAWPHYS(0))) {
->  					int len;
-> -					if (!hid->phys)
-> -						return 0;
-> +					if (!hid->phys) {
-> +						ret = 0;
-> +						break;
-> +					}
->  					len = strlen(hid->phys) + 1;
->  					if (len > _IOC_SIZE(cmd))
->  						len = _IOC_SIZE(cmd);
+Please pull from:
 
-Applied, thanks Dan.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. Bunch of new drivers plus
+some cleanups to existing ones, nothing too exciting. It looks like I
+managed to miss the merge window. Oh well...
+
+Changelog:
+---------
+
+Adrian McMenamin (1):
+      Input: add support for the Maple mouse on the SEGA Dreamcast
+
+Andy Whitcroft (1):
+      Input: psmouse - add newline to OLPC HGPK touchpad debugging
+
+Daniel Mack (1):
+      Input: generic driver for rotary encoders on GPIOs
+
+Daniel Mierswa (2):
+      Input: atkbd - consolidate force release quirk setup
+      Input: atkbd - add quirk for Fujitsu Siemens Amilo PA 1510
+
+Dmitry Torokhov (3):
+      Input: fix polling of /proc/bus/input/devices
+      Input: arrange drivers/input/misc/Makefile in alphabetical order
+      Input: i8042 - add HP DV9700 to the noloop list
+
+Helge Deller (1):
+      Input: hilkbd - fix crash when removing hilkbd module
+
+Johannes Berg (1):
+      Input: stop autorepeat timer on key release
+
+Mark Brown (2):
+      Input: wm97xx - use disable_irq_nosync() for Mainstone
+      Input: add accelerated touchscreen support for Marvell Zylonite
+
+Michael Hennerich (3):
+      Input: bf54x-keys - fix typo in warning
+      Input: add AD7877 touchscreen driver
+      Input: add AD7879 Touchscreen driver
+
+Mike Rapoport (2):
+      Input: wm97xx - add BTN_TOUCH event to wm97xx to use it with Android
+      Input: ucb1400_ts, mainstone-wm97xx - add BTN_TOUCH events
+
+Phil Sutter (1):
+      Input: add driver for S1 button of rb532
+
+Roel Kluin (1):
+      Input: pc110pad - use no_pci_devices()
+
+Ville Syrjala (3):
+      Input: ati_remote2 - complete suspend support
+      Input: ati_remote2 - add per device attrs
+      Input: ati_remote2 - check module params
+
+
+Diffstat:
+--------
+
+ Documentation/input/rotary-encoder.txt       |  101 +++
+ arch/mips/include/asm/mach-rc32434/gpio.h    |    3 +
+ arch/mips/rb532/devices.c                    |   19 +-
+ drivers/input/input.c                        |   13 +-
+ drivers/input/keyboard/atkbd.c               |  135 ++---
+ drivers/input/keyboard/bf54x-keys.c          |    4 +-
+ drivers/input/keyboard/hilkbd.c              |  140 +++--
+ drivers/input/misc/Kconfig                   |   23 +
+ drivers/input/misc/Makefile                  |   28 +-
+ drivers/input/misc/ati_remote2.c             |  277 ++++++++-
+ drivers/input/misc/rb532_button.c            |  120 ++++
+ drivers/input/misc/rotary_encoder.c          |  221 +++++++
+ drivers/input/mouse/Kconfig                  |   11 +
+ drivers/input/mouse/Makefile                 |    9 +-
+ drivers/input/mouse/hgpk.c                   |    2 +-
+ drivers/input/mouse/maplemouse.c             |  147 +++++
+ drivers/input/mouse/pc110pad.c               |    5 +-
+ drivers/input/serio/i8042-x86ia64io.h        |    8 +
+ drivers/input/touchscreen/Kconfig            |   58 ++
+ drivers/input/touchscreen/Makefile           |    3 +
+ drivers/input/touchscreen/ad7877.c           |  844 ++++++++++++++++++++++++++
+ drivers/input/touchscreen/ad7879.c           |  782 ++++++++++++++++++++++++
+ drivers/input/touchscreen/mainstone-wm97xx.c |    3 +-
+ drivers/input/touchscreen/ucb1400_ts.c       |    5 +-
+ drivers/input/touchscreen/wm97xx-core.c      |   13 +-
+ drivers/input/touchscreen/zylonite-wm97xx.c  |  240 ++++++++
+ include/linux/rotary_encoder.h               |   13 +
+ include/linux/spi/ad7879.h                   |   35 ++
+ 28 files changed, 3062 insertions(+), 200 deletions(-)
+ create mode 100644 Documentation/input/rotary-encoder.txt
+ create mode 100644 drivers/input/misc/rb532_button.c
+ create mode 100644 drivers/input/misc/rotary_encoder.c
+ create mode 100644 drivers/input/mouse/maplemouse.c
+ create mode 100644 drivers/input/touchscreen/ad7877.c
+ create mode 100644 drivers/input/touchscreen/ad7879.c
+ create mode 100644 drivers/input/touchscreen/zylonite-wm97xx.c
+ create mode 100644 include/linux/rotary_encoder.h
+ create mode 100644 include/linux/spi/ad7879.h
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry
+

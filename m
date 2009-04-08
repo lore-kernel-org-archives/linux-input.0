@@ -1,77 +1,161 @@
-From: Nuno Lucas <ntlucas@gmail.com>
-Subject: usbtouchscreen: eGalax (clone?) not being ignored by the
-	usbtouchscreen driver
-Date: Wed, 8 Apr 2009 14:50:45 +0100
-Message-ID: <c4f20e170904080650v34def3a0neb5e09f402c202a1@mail.gmail.com>
+From: Mark Lord <lkml@rtr.ca>
+Subject: Input driver for Twinhan USB 6253:0100 remote control
+Date: Wed, 08 Apr 2009 13:28:09 -0400
+Message-ID: <49DCDEA9.2020502@rtr.ca>
+References: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f158.google.com ([209.85.220.158]:60754 "EHLO
-	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754536AbZDHNvF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2009 09:51:05 -0400
+Received: from rtr.ca ([76.10.145.34]:40939 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753520AbZDHR2L (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 8 Apr 2009 13:28:11 -0400
+In-Reply-To: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, daniel.ritz@gmx.ch
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-In a recent patch [1], Daniel Ritz added
-USB_DEVICE_ID_MATCH_INT_PROTOCOL for the "match_flags" of the
-USB_DEVICE_HID_CLASS macro, but I have another "eGalax" controller
-with the same USB properties but that needs to be handled by the
-usbhid driver.
+Dmitry,
 
-My "/proc/bus/usb/devices" part:
+I briefly had access to a Twinhan remote control (for Mythtv et al.)
+and cobbled something together quickly to make it work.
 
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0eef ProdID=0001 Rev= 1.00
-S:  Manufacturer=eGalax Inc.
-S:  Product=Touch
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 44mA
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+But I really don't understand the new hid/input stuff,
+so this is undoubtedly a total abomination to your eyes. :)
 
-If I remove the USB_DEVICE_ID_MATCH_INT_PROTOCOL then the
-usbtouchscreen driver ignores the device and usbhid takes over as it
-should be. But with the current code, usbtouchscreen claims the device
-and as it doesn't understand the protocol makes the device unusable.
+But if somebody could give *exact* and *detailed* instructions as
+to what to do to make it "fit" the new model better, then I may still
+have time (before I have to return it) to clean things up enough.
 
-The device mentioned on the thread that needs the usbtouchscreen
-driver was this:
+I don't want to hear about 80-column limits,
+but rather how to properly integrate this into
+the newly refurbished hid stuff. 
 
-T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 13 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0eef ProdID=0001 Rev= 1.00
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 44mA
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=5ms
-
-It seems the eGalax USB ID (0eef:0001) is being (ab)used by a lot of
-different manufacturers, but shouldn't the default be to let the
-usbhid driver to decide if it can or not use the device if the device
-class is HID? All other "eGalax" devices I have seen that really need
-the usbtouchscreen driver have the 0xff class, like the one below:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0eef ProdID=0001 Rev= 1.00
-S:  Manufacturer=eGalax Inc.
-S:  Product=USB TouchController
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=usbtouchscreen
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=5ms
-
-If there are devices that need to use usbtouchscreen and have the HID
-class then, in my view, are plain broken. Maybe the solution would be
-to somehow allow the user to re-attach the device to a different
-driver.
-
-As I'm no kernel programmer, anyone care to comment?
+Have a look.  Currently it's just this single source file,
+which has to be loaded before usbhid (not on the quirks list there yet).
 
 
-Regards,
-~Nuno Lucas
 
-[1] http://lkml.org/lkml/2009/2/8/70
+/*
+ *  HID driver for Twinhan remote control
+ *
+ *  Copyright (c) 2009 Mark Lord
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
+ */
+
+#include <linux/device.h>
+#include <linux/input.h>
+#include <linux/hid.h>
+#include <linux/module.h>
+
+#ifndef HID_USB_DEVICE
+#error "This driver requires a 2.6.28 (or higher) Linux kernel"
+#endif
+
+/* See /usr/include/linux/input.h for all possible KEY_* definitions */
+
+static unsigned int twinhan_keymap (unsigned int key)
+{
+	switch (key) {
+	case 0x04: key = KEY_RESERVED   ; break; // Teletext	()
+	case 0x06: key = KEY_ESC        ; break; // Recall	(myth Escape/Cancel/Back)
+	case 0x08: key = KEY_S          ; break; // EPG		(myth guide)
+	case 0x0c: key = KEY_HOME       ; break; // Rewind	(myth commskip back)
+	case 0x0e: key = KEY_P          ; break; // Preview	(myth playback)
+	case 0x0f: key = KEY_F3         ; break; // RecordList	(myth DVD root menu)
+	case 0x10: key = KEY_F9         ; break; // Mute	(myth mute ??)
+	case 0x11: key = KEY_END        ; break; // Forward	(myth commskip forward)
+	case 0x13: key = KEY_RESERVED   ; break; // Capture	()
+	case 0x17: key = KEY_P          ; break; // Pause	(myth Pause)
+	case 0x19: key = KEY_M          ; break; // Favorite	(myth Menu)
+	case 0x1d: key = KEY_W          ; break; // FullScreen	(myth aspect ratio zoom)
+	case 0x1e: key = KEY_1          ; break; // 1		(myth 1)
+	case 0x1f: key = KEY_2          ; break; // 2		(myth 2)
+	case 0x20: key = KEY_3          ; break; // 3		(myth 3)
+	case 0x21: key = KEY_4          ; break; // 4		(myth 4)
+	case 0x22: key = KEY_5          ; break; // 5		(myth 5)
+	case 0x23: key = KEY_6          ; break; // 6		(myth 6)
+	case 0x24: key = KEY_7          ; break; // 7		(myth 7)
+	case 0x25: key = KEY_8          ; break; // 8		(myth 8)
+	case 0x26: key = KEY_9          ; break; // 9		(myth 9)
+	case 0x27: key = KEY_0          ; break; // 0		(myth 0)
+	case 0x29: key = KEY_ESC        ; break; // Cancel	(myth Escape/Cancel/Back)
+	case 0x28: key = KEY_ENTER      ; break; // Play	(myth Okay/Play)
+	case 0x2b: key = KEY_RESERVED   ; break; // Tab		()
+	case 0x3f: key = KEY_F2         ; break; // Power	(myth function key 2)
+	case 0x4a: key = KEY_R          ; break; // Record	(myth record)
+	case 0x4b: key = KEY_UP         ; break; // Up/CH+	(myth up)
+	case 0x4d: key = KEY_B          ; break; // Stop	(myth adjust audio sync)
+	case 0x4e: key = KEY_DOWN       ; break; // Down/CH-	(myth down)
+	case 0x51: key = KEY_LEFT       ; break; // Left/VOL-	(myth left)
+	case 0x52: key = KEY_RIGHT      ; break; // Right/VOL+	(myth right)
+	//case 0xe0:	// excess code from Power button
+	//case 0xe1:	// excess code from Power,Left,Right buttons
+	//case 0xe2:	// excess code from Power button
+	//case 0xef:	// excess code from Power button
+	default:   key = KEY_RESERVED   ; break; // ignored
+	}
+	return key;
+}
+
+static int twinhan_event(struct hid_device *hdev, struct hid_field *field,
+			 struct hid_usage *usage, __s32 value)
+{
+	struct input_dev *input = field->hidinput->input;
+	static unsigned int last_key = 0;
+	unsigned int key;
+	int ret = 0;
+
+	if (!(hdev->claimed & HID_CLAIMED_INPUT) || !field->hidinput || !usage->type)
+		return 0;
+	if ((usage->hid & HID_USAGE_PAGE) != HID_UP_KEYBOARD)
+		return 0;
+
+	if (last_key) {
+		input_event(input, usage->type, last_key, 0);
+		last_key = 0;
+		ret = 1;
+	}
+	if (value) {
+		unsigned int val = usage->hid & HID_USAGE;
+		key = twinhan_keymap(val);
+		if (key) {
+			input_event(input, usage->type, key, 1);
+			last_key = key;
+		}
+		ret = 1;
+	}
+	return ret;
+}
+
+static const struct hid_device_id twinhan_devices[] = {
+	{ HID_USB_DEVICE(0x6253, 0x0100) },
+	{ }
+};
+MODULE_DEVICE_TABLE(hid, twinhan_devices);
+
+static struct hid_driver twinhan_driver = {
+	.name		= "twinhan",
+	.id_table	= twinhan_devices,
+	.event		= twinhan_event,
+};
+
+static int twinhan_init(void)
+{
+	return hid_register_driver(&twinhan_driver);
+}
+
+static void twinhan_exit(void)
+{
+	hid_unregister_driver(&twinhan_driver);
+}
+
+module_init(twinhan_init);
+module_exit(twinhan_exit);
+MODULE_LICENSE("GPL");

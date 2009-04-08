@@ -1,126 +1,77 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.30-rc1
-Date: Wed, 8 Apr 2009 00:29:36 -0700
-Message-ID: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
+From: Nuno Lucas <ntlucas@gmail.com>
+Subject: usbtouchscreen: eGalax (clone?) not being ignored by the
+	usbtouchscreen driver
+Date: Wed, 8 Apr 2009 14:50:45 +0100
+Message-ID: <c4f20e170904080650v34def3a0neb5e09f402c202a1@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.231]:30092 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1763365AbZDHH3o (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2009 03:29:44 -0400
-Content-Disposition: inline
+Received: from mail-fx0-f158.google.com ([209.85.220.158]:60754 "EHLO
+	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754536AbZDHNvF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Apr 2009 09:51:05 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, daniel.ritz@gmx.ch
 
-Hi Linus,
+In a recent patch [1], Daniel Ritz added
+USB_DEVICE_ID_MATCH_INT_PROTOCOL for the "match_flags" of the
+USB_DEVICE_HID_CLASS macro, but I have another "eGalax" controller
+with the same USB properties but that needs to be handled by the
+usbhid driver.
 
-Please pull from:
+My "/proc/bus/usb/devices" part:
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0eef ProdID=0001 Rev= 1.00
+S:  Manufacturer=eGalax Inc.
+S:  Product=Touch
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 44mA
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
 
-to receive updates for the input subsystem. Bunch of new drivers plus
-some cleanups to existing ones, nothing too exciting. It looks like I
-managed to miss the merge window. Oh well...
+If I remove the USB_DEVICE_ID_MATCH_INT_PROTOCOL then the
+usbtouchscreen driver ignores the device and usbhid takes over as it
+should be. But with the current code, usbtouchscreen claims the device
+and as it doesn't understand the protocol makes the device unusable.
 
-Changelog:
----------
+The device mentioned on the thread that needs the usbtouchscreen
+driver was this:
 
-Adrian McMenamin (1):
-      Input: add support for the Maple mouse on the SEGA Dreamcast
+T:  Bus=02 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 13 Spd=1.5 MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0eef ProdID=0001 Rev= 1.00
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr= 44mA
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=5ms
 
-Andy Whitcroft (1):
-      Input: psmouse - add newline to OLPC HGPK touchpad debugging
+It seems the eGalax USB ID (0eef:0001) is being (ab)used by a lot of
+different manufacturers, but shouldn't the default be to let the
+usbhid driver to decide if it can or not use the device if the device
+class is HID? All other "eGalax" devices I have seen that really need
+the usbtouchscreen driver have the 0xff class, like the one below:
 
-Daniel Mack (1):
-      Input: generic driver for rotary encoders on GPIOs
+T:  Bus=01 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
+D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
+P:  Vendor=0eef ProdID=0001 Rev= 1.00
+S:  Manufacturer=eGalax Inc.
+S:  Product=USB TouchController
+C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=usbtouchscreen
+E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=5ms
 
-Daniel Mierswa (2):
-      Input: atkbd - consolidate force release quirk setup
-      Input: atkbd - add quirk for Fujitsu Siemens Amilo PA 1510
+If there are devices that need to use usbtouchscreen and have the HID
+class then, in my view, are plain broken. Maybe the solution would be
+to somehow allow the user to re-attach the device to a different
+driver.
 
-Dmitry Torokhov (3):
-      Input: fix polling of /proc/bus/input/devices
-      Input: arrange drivers/input/misc/Makefile in alphabetical order
-      Input: i8042 - add HP DV9700 to the noloop list
-
-Helge Deller (1):
-      Input: hilkbd - fix crash when removing hilkbd module
-
-Johannes Berg (1):
-      Input: stop autorepeat timer on key release
-
-Mark Brown (2):
-      Input: wm97xx - use disable_irq_nosync() for Mainstone
-      Input: add accelerated touchscreen support for Marvell Zylonite
-
-Michael Hennerich (3):
-      Input: bf54x-keys - fix typo in warning
-      Input: add AD7877 touchscreen driver
-      Input: add AD7879 Touchscreen driver
-
-Mike Rapoport (2):
-      Input: wm97xx - add BTN_TOUCH event to wm97xx to use it with Android
-      Input: ucb1400_ts, mainstone-wm97xx - add BTN_TOUCH events
-
-Phil Sutter (1):
-      Input: add driver for S1 button of rb532
-
-Roel Kluin (1):
-      Input: pc110pad - use no_pci_devices()
-
-Ville Syrjala (3):
-      Input: ati_remote2 - complete suspend support
-      Input: ati_remote2 - add per device attrs
-      Input: ati_remote2 - check module params
+As I'm no kernel programmer, anyone care to comment?
 
 
-Diffstat:
---------
+Regards,
+~Nuno Lucas
 
- Documentation/input/rotary-encoder.txt       |  101 +++
- arch/mips/include/asm/mach-rc32434/gpio.h    |    3 +
- arch/mips/rb532/devices.c                    |   19 +-
- drivers/input/input.c                        |   13 +-
- drivers/input/keyboard/atkbd.c               |  135 ++---
- drivers/input/keyboard/bf54x-keys.c          |    4 +-
- drivers/input/keyboard/hilkbd.c              |  140 +++--
- drivers/input/misc/Kconfig                   |   23 +
- drivers/input/misc/Makefile                  |   28 +-
- drivers/input/misc/ati_remote2.c             |  277 ++++++++-
- drivers/input/misc/rb532_button.c            |  120 ++++
- drivers/input/misc/rotary_encoder.c          |  221 +++++++
- drivers/input/mouse/Kconfig                  |   11 +
- drivers/input/mouse/Makefile                 |    9 +-
- drivers/input/mouse/hgpk.c                   |    2 +-
- drivers/input/mouse/maplemouse.c             |  147 +++++
- drivers/input/mouse/pc110pad.c               |    5 +-
- drivers/input/serio/i8042-x86ia64io.h        |    8 +
- drivers/input/touchscreen/Kconfig            |   58 ++
- drivers/input/touchscreen/Makefile           |    3 +
- drivers/input/touchscreen/ad7877.c           |  844 ++++++++++++++++++++++++++
- drivers/input/touchscreen/ad7879.c           |  782 ++++++++++++++++++++++++
- drivers/input/touchscreen/mainstone-wm97xx.c |    3 +-
- drivers/input/touchscreen/ucb1400_ts.c       |    5 +-
- drivers/input/touchscreen/wm97xx-core.c      |   13 +-
- drivers/input/touchscreen/zylonite-wm97xx.c  |  240 ++++++++
- include/linux/rotary_encoder.h               |   13 +
- include/linux/spi/ad7879.h                   |   35 ++
- 28 files changed, 3062 insertions(+), 200 deletions(-)
- create mode 100644 Documentation/input/rotary-encoder.txt
- create mode 100644 drivers/input/misc/rb532_button.c
- create mode 100644 drivers/input/misc/rotary_encoder.c
- create mode 100644 drivers/input/mouse/maplemouse.c
- create mode 100644 drivers/input/touchscreen/ad7877.c
- create mode 100644 drivers/input/touchscreen/ad7879.c
- create mode 100644 drivers/input/touchscreen/zylonite-wm97xx.c
- create mode 100644 include/linux/rotary_encoder.h
- create mode 100644 include/linux/spi/ad7879.h
-
--- 
-Dmitry
-
+[1] http://lkml.org/lkml/2009/2/8/70

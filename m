@@ -1,38 +1,49 @@
-From: Daniel Silverstone <dsilvers@simtec.co.uk>
-Subject: Re: usbtouchscreen: Add support for Zytronic capacitive touchscreen
-Date: Thu, 09 Apr 2009 09:20:32 +0100
-Message-ID: <1239265232.23861.0.camel@petitemort>
-References: <20090109121026.052643915@fluff.org.uk>
-	 <1233226516.29200.1.camel@petitemort> <1238493173.12873.6.camel@petitemort>
-	 <200904081333.17529.dmitry.torokhov@gmail.com>
-Reply-To: dsilvers@simtec.co.uk
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: hp_sdc_rtc should depend on serio
+Date: Thu, 9 Apr 2009 09:35:15 -0700
+Message-ID: <20090409163514.GB15250@dtor-d630.eng.vmware.com>
+References: <20090403111621.GA29023@orion>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from flounder.pepperfish.net ([87.237.62.181]:48313 "EHLO
-	flounder.pepperfish.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757380AbZDIIUg (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2009 04:20:36 -0400
-In-Reply-To: <200904081333.17529.dmitry.torokhov@gmail.com>
+Received: from rv-out-0506.google.com ([209.85.198.238]:28180 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S935971AbZDIQfZ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Apr 2009 12:35:25 -0400
+Content-Disposition: inline
+In-Reply-To: <20090403111621.GA29023@orion>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-input@vger.kernel.org, vince@simtec.co.uk
+To: Alexander Beregalov <a.beregalov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, 2009-04-08 at 13:33 -0700, Dmitry Torokhov wrote:
-> > Has anyone had chance to review and possibly merge this patch? I've not
-> > heard anything since January.
-> It's been sitting in my tree and will be merged next time Linus pulls from me.
+Hi Alexander,
 
-Wonderful, thanks for this.
+On Fri, Apr 03, 2009 at 03:16:21PM +0400, Alexander Beregalov wrote:
+> Fix this build error when CONFIG_SERIO is not set
+> hp_sdc_rtc.c:691: undefined reference to `hp_sdc_request_timer_irq'
+> and so on..
+> 
+> "select should be used with care. select will force
+> a symbol to a value without visiting the dependencies."
+> 
+> Signed-off-by: Alexander Beregalov <a.beregalov@gmail.com>
+> ---
+> 
+>  drivers/input/misc/Kconfig |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+> index 203abac..ae5d7dc 100644
+> --- a/drivers/input/misc/Kconfig
+> +++ b/drivers/input/misc/Kconfig
+> @@ -215,6 +215,7 @@ config INPUT_SGI_BTNS
+>  config HP_SDC_RTC
+>  	tristate "HP SDC Real Time Clock"
+>  	depends on GSC || HP300
+> +	select SERIO
 
-Regards,
-
-Daniel.
+Why don'we make it "depend on SERIO"?
 
 -- 
-Daniel Silverstone                              http://www.simtec.co.uk/
-PGP mail accepted and encouraged.            Key Id: 2BC8 4016 2068 7895
-
-
+Dmitry

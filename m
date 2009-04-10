@@ -1,42 +1,85 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: [PATCH] Input: Don't use IRQF_SAMPLE_RANDOM in wm97xx driver
-Date: Fri, 10 Apr 2009 10:53:12 +0100
-Message-ID: <1239357192-27726-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1239357192-27726-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH 2/3] Matrix keypad
+Date: Fri, 10 Apr 2009 21:36:16 +0530
+Message-ID: <5d5443650904100906k49c7bd33ye27ee1c1a4ef6de5@mail.gmail.com>
+References: <200807090341.20397.marek.vasut@gmail.com>
+	 <5d5443650904070641w49ff0a3fo4826833d21032a02@mail.gmail.com>
+	 <200904071559.59668.marek.vasut@gmail.com>
+	 <200904091857.27054.marek.vasut@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:48351 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S934919AbZDJJxW (ORCPT
+Received: from wf-out-1314.google.com ([209.85.200.168]:46330 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762574AbZDJQGR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Apr 2009 05:53:22 -0400
-In-Reply-To: <1239357192-27726-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+	Fri, 10 Apr 2009 12:06:17 -0400
+Received: by wf-out-1314.google.com with SMTP id 29so1129592wff.4
+        for <linux-input@vger.kernel.org>; Fri, 10 Apr 2009 09:06:16 -0700 (PDT)
+In-Reply-To: <200904091857.27054.marek.vasut@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Slaby <jirislaby@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+To: Marek Vasut <marek.vasut@gmail.com>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Russell King - ARM Linux <linux@arm.linux.org.uk>, linux-input@vger.kernel.org
 
-The input core will add entropy to the pool without this flag being
-used.
+Hi Marek,
 
-Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
----
- drivers/input/touchscreen/wm97xx-core.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+On Thu, Apr 9, 2009 at 10:27 PM, Marek Vasut <marek.vasut@gmail.com> wrote:
+> On Tuesday 07 of April 2009 15:59:59 Marek Vasut wrote:
+>> On Tuesday 07 of April 2009 15:41:05 Trilok Soni wrote:
+>> > Hi Marek,
+>> >
+>> > On Tue, Apr 7, 2009 at 6:46 PM, Marek Vasut <marek.vasut@gmail.com> wrote:
+>> > > On Tuesday 07 of April 2009 13:37:50 Trilok Soni wrote:
+>> > >> Hi Marek Vasut,
+>> > >>
+>> > >> On Wed, Jul 9, 2008 at 7:11 AM, Marek Vasut <marek.vasut@gmail.com>
+>>
+>> wrote:
+>> > >> > Hi,
+>> > >> > this is the gpio driven matrix keypad. Final version.
+>> > >> > I also CCed it to linux-input since it might interest them.
+>> > >>
+>> > >> Is there any interest for this patch to get mainlined through input
+>> > >> subsystem ?
+>> > >
+>> > > Yes, I'd like to see it mainlined as I need it on some devices. I
+>> > > haven't gotten to rewriting it as Dmitry Torokhov requested me to (see
+>> > > his reply in linux-input) though.
+>> >
+>> > I found only this thread where Dmitry Baryshkov had given some comments.
+>> >
+>> > http://marc.info/?t=121732956800006&r=1&w=2
+>> >
+>> > AFAIK, there is no need to give irqf_sample_random for input drivers
+>> > interrupts, as it is already done by input subsystem. Could you please
+>> > point to the exact thread where Dmitry Torokhov commented?
+>>
+>> http://article.gmane.org/gmane.linux.kernel.input/5551 try here
+>
+> just wondering ... do you need that driver or something ? or are you willing
+> to do the final fixes ? :)
+>
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index cec480b..69af838 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -370,8 +370,7 @@ static int wm97xx_init_pen_irq(struct wm97xx *wm)
- 	 * provided. */
- 	BUG_ON(!wm->mach_ops->irq_enable);
- 
--	if (request_irq(wm->pen_irq, wm97xx_pen_interrupt,
--			IRQF_SHARED | IRQF_SAMPLE_RANDOM,
-+	if (request_irq(wm->pen_irq, wm97xx_pen_interrupt, IRQF_SHARED,
- 			"wm97xx-pen", wm)) {
- 		dev_err(wm->dev,
- 			"Failed to register pen down interrupt, polling");
+Actually both as time permits.
+
+1. input_polldev support for gpios which can't be configured for irqs
+2. hopefully removing kthread with timer
+
+I was also comparing this driver with one written for matrix gpio
+keypad in android-msm-kernel. You might want to have look at it.
+
+gpio_matrix.c:
+
+http://android.git.kernel.org/?p=kernel/msm.git;a=blob;f=drivers/input/misc/gpio_matrix.c;h=c1f47651a4937d5c976a9625ca5da389dd7e4a7c;hb=HEAD
+
+gpio_input.c:
+
+http://android.git.kernel.org/?p=kernel/msm.git;a=blob;f=drivers/input/misc/gpio_input.c;h=7e307f267a2a059b64a3fb9c8a379b149016b2f8;hb=HEAD
+
+
 -- 
-1.5.6.3
-
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

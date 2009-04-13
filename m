@@ -1,69 +1,105 @@
 From: Eric Miao <eric.y.miao@gmail.com>
-Subject: [PATCH 1/3] input: add ABS_PRESSURE to da9034 touchscreen
-Date: Mon, 13 Apr 2009 12:08:33 +0800
-Message-ID: <f17812d70904122108r7b951b95o45ad9735722d8e7b@mail.gmail.com>
+Subject: [PATCH 2/3] input: workaround pen {down,up} events not reliable after
+	stopping TSI
+Date: Mon, 13 Apr 2009 12:09:10 +0800
+Message-ID: <f17812d70904122109w4d14ab4frc66d95aad123d7a7@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f118.google.com ([209.85.221.118]:45565 "EHLO
-	mail-qy0-f118.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751098AbZDMEIf (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.24]:3300 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751226AbZDMEJM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Apr 2009 00:08:35 -0400
-Received: by qyk16 with SMTP id 16so3776899qyk.33
-        for <linux-input@vger.kernel.org>; Sun, 12 Apr 2009 21:08:33 -0700 (PDT)
+	Mon, 13 Apr 2009 00:09:12 -0400
+Received: by qw-out-2122.google.com with SMTP id 8so2200875qwh.37
+        for <linux-input@vger.kernel.org>; Sun, 12 Apr 2009 21:09:10 -0700 (PDT)
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 Cc: Bin Yang <bin.yang@marvell.com>
 
->From 509bb071200cfe582199ba3ce2533e81949f42f0 Mon Sep 17 00:00:00 2001
+>From 424ea166ef37e3f69883ef5aeaf14f1489e9f085 Mon Sep 17 00:00:00 2001
 From: Eric Miao <eric.miao@marvell.com>
-Date: Mon, 13 Apr 2009 10:52:59 +0800
-Subject: [PATCH 1/3] input: add ABS_PRESSURE to da9034 touchscreen
+Date: Mon, 13 Apr 2009 11:04:51 +0800
+Subject: [PATCH 2/3] input: workaround pen {down,up} events not
+reliable after stopping TSI
+
+PEN_{UP/DOWN} events are expected to be available soon after stopping TSI
+auto measurement, but this is found not always true. Workaround this by
+delay and simulate such an event (according to pen down status bit).
 
 Signed-off-by: Bin Yang <bin.yang@marvell.com>
 Signed-off-by: Eric Miao <eric.miao@marvell.com>
 ---
- drivers/input/touchscreen/da9034-ts.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletions(-)
+ drivers/input/touchscreen/da9034-ts.c |   25 +++++++++++++++----------
+ 1 files changed, 15 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/input/touchscreen/da9034-ts.c
 b/drivers/input/touchscreen/da9034-ts.c
-index fa67d78..eac2905 100644
+index eac2905..37f5df2 100644
 --- a/drivers/input/touchscreen/da9034-ts.c
 +++ b/drivers/input/touchscreen/da9034-ts.c
-@@ -127,9 +127,10 @@ static inline void report_pen_down(struct
-da9034_touch *touch)
- 	if (touch->y_inverted)
- 		y = 1024 - y;
+@@ -177,6 +177,15 @@ static void da9034_event_handler(struct
+da9034_touch *touch, int event)
+ 			goto err_reset;
 
-+	input_report_key(touch->input_dev, BTN_TOUCH, 1);
- 	input_report_abs(touch->input_dev, ABS_X, x);
- 	input_report_abs(touch->input_dev, ABS_Y, y);
--	input_report_key(touch->input_dev, BTN_TOUCH, 1);
-+	input_report_abs(touch->input_dev, ABS_PRESSURE, 255);
+ 		touch->state = STATE_STOP;
++
++		/* FIXME: PEN_{UP/DOWN} events are expected to be
++		 * available by stopping TSI, but this is found not
++		 * always true, delay and simulate such an event
++		 * here is more reliable
++		 */
++		mdelay(1);
++		da9034_event_handler(touch, is_pen_down(touch) ?
++				EVENT_PEN_DOWN : EVENT_PEN_UP);
+ 		break;
 
- 	input_sync(touch->input_dev);
+ 	case STATE_STOP:
+@@ -191,8 +200,6 @@ static void da9034_event_handler(struct
+da9034_touch *touch, int event)
+ 			report_pen_up(touch);
+ 			touch->state = STATE_IDLE;
+ 		}
+-
+-		input_sync(touch->input_dev);
+ 		break;
+
+ 	case STATE_WAIT:
+@@ -202,8 +209,10 @@ static void da9034_event_handler(struct
+da9034_touch *touch, int event)
+ 		if (is_pen_down(touch)) {
+ 			start_tsi(touch);
+ 			touch->state = STATE_BUSY;
+-		} else
++		} else {
++			report_pen_up(touch);
+ 			touch->state = STATE_IDLE;
++		}
+ 		break;
+ 	}
+ 	return;
+@@ -228,16 +237,12 @@ static int da9034_touch_notifier(struct
+notifier_block *nb,
+ 	struct da9034_touch *touch =
+ 		container_of(nb, struct da9034_touch, notifier);
+
+-	if (event & DA9034_EVENT_PEN_DOWN) {
+-		if (is_pen_down(touch))
+-			da9034_event_handler(touch, EVENT_PEN_DOWN);
+-		else
+-			da9034_event_handler(touch, EVENT_PEN_UP);
+-	}
+-
+ 	if (event & DA9034_EVENT_TSI_READY)
+ 		da9034_event_handler(touch, EVENT_TSI_READY);
+
++	if (event & DA9034_EVENT_PEN_DOWN && touch->state == STATE_IDLE)
++		da9034_event_handler(touch, EVENT_PEN_DOWN);
++
+ 	return 0;
  }
-@@ -137,6 +138,7 @@ static inline void report_pen_down(struct
-da9034_touch *touch)
- static inline void report_pen_up(struct da9034_touch *touch)
- {
- 	input_report_key(touch->input_dev, BTN_TOUCH, 0);
-+	input_report_abs(touch->input_dev, ABS_PRESSURE, 0);
- 	input_sync(touch->input_dev);
- }
 
-@@ -332,6 +334,7 @@ static int __devinit da9034_touch_probe(struct
-platform_device *pdev)
- 	__set_bit(ABS_Y, input_dev->absbit);
- 	input_set_abs_params(input_dev, ABS_X, 0, 1023, 0, 0);
- 	input_set_abs_params(input_dev, ABS_Y, 0, 1023, 0, 0);
-+	input_set_abs_params(input_dev, ABS_PRESSURE, 0, 255, 0, 0);
-
- 	__set_bit(EV_KEY, input_dev->evbit);
- 	__set_bit(BTN_TOUCH, input_dev->keybit);
 -- 
 1.6.0.4

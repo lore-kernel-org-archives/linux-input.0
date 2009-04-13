@@ -1,35 +1,24 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [git pull] Input updates for 2.6.30-rc1
-Date: Sun, 12 Apr 2009 18:03:49 -0700
-Message-ID: <20090413010345.GA11041@dtor-d630.eng.vmware.com>
-References: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: [PATCH 0/3] input: fixes to da9034 touchscreen driver and update
+	author info
+Date: Mon, 13 Apr 2009 12:07:29 +0800
+Message-ID: <f17812d70904122107j460821b1laaa442ef8388e345@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753225AbZDMBET@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from qw-out-2122.google.com ([74.125.92.26]:58840 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750796AbZDMEHb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Apr 2009 00:07:31 -0400
+Received: by qw-out-2122.google.com with SMTP id 8so2200517qwh.37
+        for <linux-input@vger.kernel.org>; Sun, 12 Apr 2009 21:07:29 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Bin Yang <bin.yang@marvell.com>
 
-On Wed, Apr 08, 2009 at 12:29:35AM -0700, Dmitry Torokhov wrote:
-> Hi Linus,
-> 
-> Please pull from:
-> 
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-> or
-> 	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-> 
-> to receive updates for the input subsystem. Bunch of new drivers plus
-> some cleanups to existing ones, nothing too exciting. It looks like I
-> managed to miss the merge window. Oh well...
-> 
+Dmitry,
 
-*ping* Any chance this could still be pulled? There were no significant
-changes to the core code, just simple bugfixes and a few new drivers,
-and the changes has been in the linux-next forever...
-
--- 
-Dmitry
+Please help review and merge these 3 patches into your input tree, thanks.

@@ -1,31 +1,35 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Don't use IRQF_SAMPLE_RANDOM in wm97xx driver
-Date: Sat, 11 Apr 2009 17:12:12 -0700
-Message-ID: <20090412001212.GA30710@dtor-d630.eng.vmware.com>
-References: <1239357192-27726-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1239357192-27726-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+Subject: Re: [git pull] Input updates for 2.6.30-rc1
+Date: Sun, 12 Apr 2009 18:03:49 -0700
+Message-ID: <20090413010345.GA11041@dtor-d630.eng.vmware.com>
+References: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.228]:2381 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752372AbZDLAMV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 11 Apr 2009 20:12:21 -0400
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753225AbZDMBET@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1239357192-27726-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Hi Mark,
-
-On Fri, Apr 10, 2009 at 10:53:12AM +0100, Mark Brown wrote:
-> The input core will add entropy to the pool without this flag being
-> used.
+On Wed, Apr 08, 2009 at 12:29:35AM -0700, Dmitry Torokhov wrote:
+> Hi Linus,
+> 
+> Please pull from:
+> 
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> or
+> 	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> 
+> to receive updates for the input subsystem. Bunch of new drivers plus
+> some cleanups to existing ones, nothing too exciting. It looks like I
+> managed to miss the merge window. Oh well...
 > 
 
-Apllied this and the atmel driver one, thank you.
+*ping* Any chance this could still be pulled? There were no significant
+changes to the core code, just simple bugfixes and a few new drivers,
+and the changes has been in the linux-next forever...
 
 -- 
 Dmitry

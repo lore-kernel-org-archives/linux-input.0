@@ -1,60 +1,60 @@
-From: "J.R. Mauro" <jrm8005@gmail.com>
-Subject: Re: Apple Wireless Mighty Mouse HWheel quirk
-Date: Tue, 14 Apr 2009 17:15:28 -0400
-Message-ID: <3aaafc130904141415i676e82bew188eeb3404dd3867@mail.gmail.com>
-References: <3aaafc130904141224w3bb76cc1ic39c8c4fd738a458@mail.gmail.com>
-	 <49E4E7E1.7040109@gmail.com>
-	 <alpine.LNX.2.00.0904142307260.13028@wotan.suse.de>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH] Input: add wm97xx accelerated driver for Atmel
+ microprocessors
+Date: Tue, 14 Apr 2009 15:53:57 -0700
+Message-ID: <20090414155357.76501a93.akpm@linux-foundation.org>
+References: <1239357192-27726-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from yw-out-2324.google.com ([74.125.46.28]:6802 "EHLO
-	yw-out-2324.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752271AbZDNVP3 (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:56198 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751132AbZDNW6I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Apr 2009 17:15:29 -0400
-Received: by yw-out-2324.google.com with SMTP id 5so2840592ywb.1
-        for <linux-input@vger.kernel.org>; Tue, 14 Apr 2009 14:15:28 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.0904142307260.13028@wotan.suse.de>
+	Tue, 14 Apr 2009 18:58:08 -0400
+In-Reply-To: <1239357192-27726-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Marcel Holtmann <marcel@holtmann.org>, linux-input@vger.kernel.org
+Cc: dmitry.torokhov@gmail.com, jirislaby@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, hans-christian.egtvedt@atmel.com, broonie@opensource.wolfsonmicro.com
 
-On Tue, Apr 14, 2009 at 5:09 PM, Jiri Kosina <jkosina@suse.cz> wrote:
-> On Tue, 14 Apr 2009, Jiri Slaby wrote:
->
->> > I have an Apple bluetooth mouse (info below) and have noticed that the
->> > horizontal scrolling is inverted. I've noticed some bug reports from
->> > others getting the same behavior. I looked at drivers/hid/hid-apple.c
->> > , and around line 444 I see that APPLE_INVERT_HWHEEL gets ORed in. I
->> > tried to trace the origins of the code, but I lost track of it before
->> > 8c19a515, where you moved Apple quirks to their own file. Is this
->> > quirk definitely correct?
->> > Mouse's entry in /proc/bus/input/devices
->> > I: Bus=0005 Vendor=05ac Product=030c Version=0200
->> > I'm running Gentoo, vanilla 2.6.29 with no patches.
->> I have no idea whether the inversion is correct or not. Or where the
->> information comes from :).
->> It was added in
->> cb3fecc2f29056e89658e7eb371e7f9be66cda6d
->> by Jiri Kosina, maybe he may shed some light on it?
->
-> I created this patch based solely on a bugreport, I didn't physically own
-> the hardware at that time.
->
-> I think I have it somewhere. I will try to find it tomorrow or the day
-> after tomorrow and verify whether the quirk is really needed. Maybe the
-> original bug reporter messed up, or he had different hardware revision.
->
-> --
-> Jiri Kosina
-> SUSE Labs
->
+On Fri, 10 Apr 2009 10:53:11 +0100
+Mark Brown <broonie@opensource.wolfsonmicro.com> wrote:
 
-Just for reference, it seems that other people have been having the
-same problems, and finger the same quirk:
-https://bugs.launchpad.net/ubuntu/+source/linux/+bug/291408
+> From: Hans-Christian Egtvedt <hans-christian.egtvedt@atmel.com>
+> 
+> This patch adds an accelerated driver for Atmel AVR32 AT32AP700X
+> microprocessors. It uses interrupts on the channel B in the AC97
+> controller. Thus, offloading the work queue in the wm97xx-ts driver.
+> 
+> The driver has been tested with Atmel AVR32 AT32AP7000 and Wolfson
+> WM9712 codec.
+> 
+> The driver can also be easily modified to support Atmel AT91 devices, as
+> AT91 and AVR32 share the same AC97C module.
+> 
+> [Fixed leak of atmel_wm97xx when probe fails. -- broonie]
+> 
+>
+> ...
+>
+> +static void atmel_wm97xx_acc_pen_up(struct wm97xx *wm)
+> +{
+> +	struct atmel_wm97xx *atmel_wm97xx = platform_get_drvdata(wm->touch_dev);
+> +	int pen_down = gpio_get_value(atmel_wm97xx->gpio_pen);
+> +
+> +	if (pen_down != 0) {
+> +		mod_timer(&atmel_wm97xx->pen_timer, jiffies
+> +				+ msecs_to_jiffies(1));
 
-Thanks for looking into this.
+I'd be more comfortable if there was a del_timer_sync() somewhere in
+this driver?
+
+> +	} else {
+> +		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
+> +		input_report_key(wm->input_dev, BTN_TOUCH, 0);
+> +		input_sync(wm->input_dev);
+> +	}
+> +}
+> +
+

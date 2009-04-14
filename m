@@ -1,51 +1,58 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Mark Lord <lkml@rtr.ca>
 Subject: Re: Input driver for Twinhan USB 6253:0100 remote control
-Date: Tue, 14 Apr 2009 09:45:13 -0700
-Message-ID: <200904140945.14652.dmitry.torokhov@gmail.com>
-References: <20090408072935.GA27920@dtor-d630.eng.vmware.com> <200904131931.24009.dmitry.torokhov@gmail.com> <49E4B678.9030508@rtr.ca>
+Date: Tue, 14 Apr 2009 13:37:19 -0400
+Message-ID: <49E4C9CF.5060504@rtr.ca>
+References: <20090408072935.GA27920@dtor-d630.eng.vmware.com> <200904131931.24009.dmitry.torokhov@gmail.com> <49E4B678.9030508@rtr.ca> <200904140945.14652.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755681AbZDNQqB@vger.kernel.org>
-In-Reply-To: <49E4B678.9030508@rtr.ca>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Lord <lkml@rtr.ca>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rtr.ca ([76.10.145.34]:44431 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754061AbZDNRhV (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Apr 2009 13:37:21 -0400
+In-Reply-To: <200904140945.14652.dmitry.torokhov@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Tuesday 14 April 2009 09:14:48 Mark Lord wrote:
-> Dmitry Torokhov wrote:
-> > Hi Mark,
-> >
-> > On Wednesday 08 April 2009 10:28:09 Mark Lord wrote:
-> >> Dmitry,
-> >>
-> >> I briefly had access to a Twinhan remote control (for Mythtv et al.)
-> >> and cobbled something together quickly to make it work.
-> >>
-> >> But I really don't understand the new hid/input stuff,
-> >> so this is undoubtedly a total abomination to your eyes. :)
-> >
-> > Actually HID is Juri's baby so let's see what he says ;). From my POV
-> > we need to update keymap to make it emit proper codes instead of Myth
-> > specific ones, but that is a lesser issue.
->
-> ..
->
-> That's one thing I haven't figured out:  how to make this compatible
-> with the userspace intput-kbd interface for loading new key maps and stuff.
->
+Dmitry Torokhov wrote:
+> On Tuesday 14 April 2009 09:14:48 Mark Lord wrote:
+>> Dmitry Torokhov wrote:
+>>> Hi Mark,
+>>>
+>>> On Wednesday 08 April 2009 10:28:09 Mark Lord wrote:
+>>>> Dmitry,
+>>>>
+>>>> I briefly had access to a Twinhan remote control (for Mythtv et al.)
+>>>> and cobbled something together quickly to make it work.
+>>>>
+>>>> But I really don't understand the new hid/input stuff,
+>>>> so this is undoubtedly a total abomination to your eyes. :)
+>>> Actually HID is Juri's baby so let's see what he says ;). From my POV
+>>> we need to update keymap to make it emit proper codes instead of Myth
+>>> specific ones, but that is a lesser issue.
+>> ..
+>>
+>> That's one thing I haven't figured out:  how to make this compatible
+>> with the userspace intput-kbd interface for loading new key maps and stuff.
+>>
+> 
+> You will need to convert your patch into proper hid_driver and
+> implement drv->input_mapping() method instead of overriding emitted
+> events. Then, once HID core is aware about proper mapping, normal
+> EVIOCGKEYCODE/EVIOCSKEYCODE will work and will allow adjusting
+> keymap from user space.
+..
 
-You will need to convert your patch into proper hid_driver and
-implement drv->input_mapping() method instead of overriding emitted
-events. Then, once HID core is aware about proper mapping, normal
-EVIOCGKEYCODE/EVIOCSKEYCODE will work and will allow adjusting
-keymap from user space.
+I tried that earlier, but input-kbd only ever listed a single (wrong)
+key in the keymap, and wouldn't allow changing anything.
+Obviously there's more to it somewhere, I guess.
 
-I think if you take drivers/hid/hid-belkin.c as a template the
-conversion will take you no time.
+> I think if you take drivers/hid/hid-belkin.c as a template the
+> conversion will take you no time.
+..
 
--- 
-Dmitry
+Okay, I can have a look at that one.  Thanks.
+

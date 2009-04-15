@@ -1,27 +1,38 @@
-From: Mark Brown <broonie@sirena.org.uk>
-Subject: Re: [PATCH 1/1] INPUT: mainstone-wm97xx, fix condition in pen_up
-Date: Wed, 15 Apr 2009 13:00:32 +0100
-Message-ID: <20090415120032.GC9311@sirena.org.uk>
-References: <1239777830-17826-1-git-send-email-jirislaby@gmail.com>
+From: Mark Lord <lkml@rtr.ca>
+Subject: Re: Input driver for Twinhan USB 6253:0100 remote control
+Date: Wed, 15 Apr 2009 10:10:31 -0400
+Message-ID: <49E5EAD7.7000309@rtr.ca>
+References: <20090408072935.GA27920@dtor-d630.eng.vmware.com> <200904131931.24009.dmitry.torokhov@gmail.com> <49E4B678.9030508@rtr.ca> <200904140945.14652.dmitry.torokhov@gmail.com> <49E4C9CF.5060504@rtr.ca> <alpine.LNX.2.00.0904151022170.13028@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:46842 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753965AbZDOMAd (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Apr 2009 08:00:33 -0400
-Content-Disposition: inline
-In-Reply-To: <1239777830-17826-1-git-send-email-jirislaby@gmail.com>
+Received: from rtr.ca ([76.10.145.34]:55178 "EHLO mail.rtr.ca"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752366AbZDOOKe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Apr 2009 10:10:34 -0400
+In-Reply-To: <alpine.LNX.2.00.0904151022170.13028@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Liam Girdwood <lrg@slimlogic.co.uk>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Wed, Apr 15, 2009 at 08:43:50AM +0200, Jiri Slaby wrote:
-> The loop body was never executed, because the condition is
-> always false. Convert to for with more obvious condition.
+Jiri Kosina wrote:
+> On Tue, 14 Apr 2009, Mark Lord wrote:
+> 
+>>> I think if you take drivers/hid/hid-belkin.c as a template the 
+>>> conversion will take you no time.
+>> Okay, I can have a look at that one.  Thanks.
+> 
+> Yes, hid-belking is a good example of trivial driver that sits on a HID 
+> bus for you, as it utilizes the ->input_mapping() callback, which is 
+> probably the only callback from HID core you'd need.
+..
 
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Actually, the input-mapping() alone won't do the job here.
 
-Acked-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+This Twinhan remote control sends single-byte codes for most buttons,
+but some buttons send multi-byte codes, and we have to discard the
+extraneous bytes somehow.
+
+Cheers

@@ -1,22 +1,49 @@
-From: Lillie <bingham@force4.net>
-Subject: =?iso-8859-1?b?Z2V0IGluIHRvIGEgaGVhbHRoeSBsaWZlc3R5bGUgd2l0aCBBY2FpIEI=?=
- =?iso-8859-1?b?ZXJyeSA=?=
-Date: Tue, 14 Apr 2009 20:48:39 +0200
-Message-ID: <090414204839BC.03220.bingham@force4.net>
+From: "=?ISO-8859-1?Q?Ilpo_J=E4rvinen?=" <ilpo.jarvinen@helsinki.fi>
+Subject: [PATCH] Input: pc110pad - remove unused variable dev
+Date: Wed, 15 Apr 2009 13:38:51 +0300 (EEST)
+Message-ID: <Pine.LNX.4.64.0904151334270.10088@wrl-59.cs.helsinki.fi>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: base64
+Content-Type: MULTIPART/MIXED; BOUNDARY="-696208474-1873646702-1239791931=:10088"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from solcza.etanetas.lt ([82.135.221.82]:32942 "EHLO
-	solcza.etanetas.lt" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751927AbZDOIn5 (ORCPT
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:38362 "EHLO
+	mail.cs.helsinki.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752297AbZDOKiy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Apr 2009 04:43:57 -0400
-Content-Disposition: inline
+	Wed, 15 Apr 2009 06:38:54 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-wireless@vger.kernel.org, linux-input@vger.kernel.org
-Cc: linux-acpi@vger.kernel.orglinux-acpi@vger.kernel.orglinux-acpi@vger.kernel.org
+To: Dmitry Torokhov <dtor@mail.ru>, linux-input@vger.kernel.org, Roel Kluin <roel.kluin@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
 
-aGVsMTANCg0KQWNhaSBpcyBhIGRlbGlxZXRlIGZydWl0IHRoYXQgaXMgb25seSBmb3VuZCBpbiBzb3V0aCBhbWVyaWNhbiByYWluIGZvcmVzdC4gVGhlIGZydWl0IGhhcyBiZWVuIGZlYXR1cmVkIG9uIE9wcmFoIGFuZCBvbmNlIGVhdGVuIHdpbGwgcmVzdWx0IGluIGhpZ2ggZW5lcmd5LiBBY2FpIERpZXQgaXMgcGFja2VkIHdpdGggYW50aW94aWRhbnRzICwgYW1pbm8gYWNpZHMgLCB2aXRhbWlucyBhbmQgTWluZXJhbHMgYWxsIHRoaXMgZ29vZCBzdHVmZiB3aWxsIHJlc3VsdCBpbiB3ZWlnaHQgbG9zcyBmb3IgeW91LiBHZXQgeW91ciBmcmVlIHRyaWFsIG5vdy4NCnZpc2l0IHNpdGUgaHR0cDovL2dyb3Vwcy55YWhvby5jb20vZ3JvdXAvamlneWtlc3VmeXBlaDQ1L21lc3NhZ2UvMQ0KDQpjb2RlIG1zZyByeWl1eWlwaQ0KaWQgNzY1Nw==
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+---696208474-1873646702-1239791931=:10088
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+
+
+dev is leftover from b0ee0d3eb31a163c958f2960906c44bcdfdc607b
+(Input: pc110pad - use no_pci_devices()).
+
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@helsinki.fi>
+---
+ drivers/input/mouse/pc110pad.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/mouse/pc110pad.c b/drivers/input/mouse/pc110pad.c
+index f63995f..3941f97 100644
+--- a/drivers/input/mouse/pc110pad.c
++++ b/drivers/input/mouse/pc110pad.c
+@@ -108,7 +108,6 @@ static int pc110pad_open(struct input_dev *dev)
+  */
+ static int __init pc110pad_init(void)
+ {
+-	struct pci_dev *dev;
+ 	int err;
+ 
+ 	if (!no_pci_devices())
+-- 
+1.5.2.2
+
+---696208474-1873646702-1239791931=:10088--

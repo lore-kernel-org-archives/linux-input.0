@@ -1,17 +1,17 @@
 From: Ben Nizette <bn@niasdigital.com>
-Subject: [PATCH 4/9] sa1111ps2: Use disable_irq_nosync() from within irq
+Subject: [PATCH 6/9] ucb1400: Use disable_irq_nosync() from within irq
 	handlers.
-Date: Thu, 16 Apr 2009 15:54:43 +1000
-Message-ID: <1239861283.29831.120.camel@linux-51e8.site>
+Date: Thu, 16 Apr 2009 15:54:58 +1000
+Message-ID: <1239861298.29831.124.camel@linux-51e8.site>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outbound.icp-qv1-irony-out2.iinet.net.au ([203.59.1.107]:64304
+Received: from outbound.icp-qv1-irony-out2.iinet.net.au ([203.59.1.107]:64546
 	"EHLO outbound.icp-qv1-irony-out2.iinet.net.au" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755959AbZDPFzJ (ORCPT
+	by vger.kernel.org with ESMTP id S1756207AbZDPFzZ (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2009 01:55:09 -0400
+	Thu, 16 Apr 2009 01:55:25 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -26,19 +26,19 @@ have this problem.
 
 Signed-off-by: Ben Nizette <bn@niasdigital.com>
 ---
-diff --git a/drivers/input/serio/sa1111ps2.c b/drivers/input/serio/sa1111ps2.c
-index 57953c0..f412c69 100644
---- a/drivers/input/serio/sa1111ps2.c
-+++ b/drivers/input/serio/sa1111ps2.c
-@@ -77,7 +77,7 @@ static irqreturn_t ps2_txint(int irq, void *dev_id)
- 	spin_lock(&ps2if->lock);
- 	status = sa1111_readl(ps2if->base + SA1111_PS2STAT);
- 	if (ps2if->head == ps2if->tail) {
--		disable_irq(irq);
-+		disable_irq_nosync(irq);
- 		/* done */
- 	} else if (status & PS2STAT_TXE) {
- 		sa1111_writel(ps2if->buf[ps2if->tail], ps2if->base + SA1111_PS2DATA);
+diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
+index e868264..f100c7f 100644
+--- a/drivers/input/touchscreen/ucb1400_ts.c
++++ b/drivers/input/touchscreen/ucb1400_ts.c
+@@ -256,7 +256,7 @@ static irqreturn_t ucb1400_hard_irq(int irqnr, void *devid)
+ 	struct ucb1400_ts *ucb = devid;
+ 
+ 	if (irqnr == ucb->irq) {
+-		disable_irq(ucb->irq);
++		disable_irq_nosync(ucb->irq);
+ 		ucb->irq_pending = 1;
+ 		wake_up(&ucb->ts_wait);
+ 		return IRQ_HANDLED;
 -- 
 1.6.0.2
 

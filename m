@@ -1,46 +1,64 @@
-From: Ben Nizette <bn@niasdigital.com>
-Subject: [PATCH 5/9] tsc2007: Use disable_irq_nosync() from within irq
-	handlers.
-Date: Thu, 16 Apr 2009 15:54:51 +1000
-Message-ID: <1239861291.29831.122.camel@linux-51e8.site>
+From: Heiko Schocher <hs@denx.de>
+Subject: HowTo write a driver for 2 multiplexed PS/2 ports over 1 UART?
+Date: Thu, 16 Apr 2009 08:22:34 +0200
+Message-ID: <49E6CEAA.9060608@denx.de>
+References: <1239861274.29831.118.camel@linux-51e8.site>
+Reply-To: hs@denx.de
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from outbound.icp-qv1-irony-out3.iinet.net.au ([203.59.1.148]:7409
-	"EHLO outbound.icp-qv1-irony-out3.iinet.net.au" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1756164AbZDPFzT (ORCPT
+Received: from mail-out.m-online.net ([212.18.0.10]:47020 "EHLO
+	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751059AbZDPGfI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2009 01:55:19 -0400
+	Thu, 16 Apr 2009 02:35:08 -0400
+In-Reply-To: <1239861274.29831.118.camel@linux-51e8.site>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
 
+Hello,
 
-disable_irq() should wait for all running handlers to complete
-before returning.  As such, if it's used to disable an interrupt
-from that interrupt's handler it will deadlock.  This replaces
-the dangerous instances with the _nosync() variant which doesn't
-have this problem.
+I maybe get a projekt, where I have 2 PS/2 ports (a keyboard and a mousse)
+connected to one UART and the multiplexing is done by a PIC.
 
-Signed-off-by: Ben Nizette <bn@niasdigital.com>
----
-diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscreen/tsc2007.c
-index 4ab0702..536668f 100644
---- a/drivers/input/touchscreen/tsc2007.c
-+++ b/drivers/input/touchscreen/tsc2007.c
-@@ -235,7 +235,7 @@ static irqreturn_t tsc2007_irq(int irq, void *handle)
- 	spin_lock_irqsave(&ts->lock, flags);
- 
- 	if (likely(ts->get_pendown_state())) {
--		disable_irq(ts->irq);
-+		disable_irq_nosync(ts->irq);
- 		hrtimer_start(&ts->timer, ktime_set(0, TS_POLL_DELAY),
- 					HRTIMER_MODE_REL);
- 	}
+I searched in actual 2.6 Kernel sources for such a solution, but
+couln;t find one. Overlooked I something?
+
+For 2.4er Kernel there was such a driver, see
+
+http://git.denx.de/?p=linuxppc_2_4_devel.git;a=blob;f=drivers/char/ps2mult.c
+
+but, I think, this is no longer portable to 2.6.
+
+So, thats why I am here and want to ask the experts how to solve
+this problem in a mainline acceptable way, before I make a hack,
+that never has a chance to go in mainline.
+
+Some suggestions from me (maybe they are all bad)
+
+I looked in drivers/input/serio/serio.c and could think of adding
+the multiplexing in serio_interrupt(), and call serio_driver specific
+serio->drv->interrupt functions, when I know, which byte come from
+which device. But, if I see it right, I can only add one "struct
+serio_driver *drv;" driver to one serio port, so it is not possible
+to handle 2 or more devices over one serio port :-(
+Maybe we enhance this too ... ?
+
+Or I make a combinated (keyboard/mousse) driver which uses one
+serio port ... but I think thats a bad idea, also no idea, in which
+directory i have to add such a driver.
+
+So I think it would nice to have the possibility to add more than
+one serio_driver to a serio_port and add a "multiplexer" layer ...
+but I am new to the input layer, so I ask the experts.
+
+Hopefully I just missed something in actual code, and there is
+better/easier way? ;-)
+
+TIA
+Heiko
 -- 
-1.6.0.2
-
-
-
+DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany

@@ -1,39 +1,60 @@
 From: Ben Nizette <bn@niasdigital.com>
-Subject: [PATCH 0/9] Fix unsafe disable_irq usage
-Date: Thu, 16 Apr 2009 15:54:05 +1000
-Message-ID: <1239861245.29831.113.camel@linux-51e8.site>
+Subject: [PATCH 3/9] omap-keypad: Use disable_irq_nosync() from within irq
+	handlers.
+Date: Thu, 16 Apr 2009 15:54:34 +1000
+Message-ID: <1239861274.29831.118.camel@linux-51e8.site>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755511AbZDPFyu@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: dan.j.williams@intel.com, Eric Miao <eric.miao@marvell.com>, linux@arm.linux.org.uk, dmitry.torokhov@gmail.com, p_gortmaker@yahoo.com, David Brownell <david-b@pacbell.net>, sameo@linux.intel.com, linux-omap@vger.kernel.org, pierre@ossman.eu, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from outbound.icp-qv1-irony-out2.iinet.net.au ([203.59.1.107]:64304
+	"EHLO outbound.icp-qv1-irony-out2.iinet.net.au" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756112AbZDPFzB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Apr 2009 01:55:01 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-
-After being bitten by unsafe usage of disable_irq from within that irq's
-handler [1], I went through and used Coccinelle to audit the rest of
-drivers/ too.  This turned up 9 more unsafe usages.
-
-As Haavard pointed out in that thread, disable_irq waits for running
-handlers of an irq to complete before returning.  When a handler
-disable_irq's its own irq then we see a deadlock.
-
-Note that this wasn't actually observed in the wild until the recent
-merge of
-
-commit 3aa551c9b4c40018f0e261a178e3d25478dc04a9
-Author: Thomas Gleixner <tglx@linutronix.de>
-Date:   Mon Mar 23 18:28:15 2009 +0100
-
-    genirq: add threaded interrupt handler support
-
-    Add support for threaded interrupt handlers
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 
 
+disable_irq() should wait for all running handlers to complete
+before returning.  As such, if it's used to disable an interrupt
+from that interrupt's handler it will deadlock.  This replaces
+the dangerous instances with the _nosync() variant which doesn't
+have this problem.
 
-Regards,
-	--Ben.
+This patch may be overly paranoid, it'd be cleaner to just
+disable all the row irqs _nosync() but it wouldn't be as
+correct.  Up to $MAINTAINER :-)
+
+Signed-off-by: Ben Nizette <bn@niasdigital.com>
+---
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index 058fa8b..9606a1c 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -100,8 +100,16 @@ static irqreturn_t omap_kp_interrupt(int irq, void *dev_id)
+ 	/* disable keyboard interrupt and schedule for handling */
+ 	if (cpu_is_omap24xx()) {
+ 		int i;
+-		for (i = 0; i < omap_kp->rows; i++)
+-			disable_irq(gpio_to_irq(row_gpios[i]));
++		for (i = 0; i < omap_kp->rows; i++) {
++			/* The interrupt which we're currently handling should
++			 * be disabled _nosync() to avoid deadlocks waiting
++			 * for this handler to complete.  All others should
++			 * be disabled the regular way for SMP safety. */
++			if (gpio_to_irq(row_gpios[i]) == irq)
++				disable_irq_nosync(gpio_to_irq(row_gpios[i]));
++			else
++				disable_irq(gpio_to_irq(row_gpios[i]));
++		}
+ 	} else
+ 		/* disable keyboard interrupt and schedule for handling */
+ 		omap_writew(1, OMAP_MPUIO_BASE + OMAP_MPUIO_KBD_MASKIT);
+-- 
+1.6.0.2
 
 
-[1] http://lkml.org/lkml/2009/4/15/498
+

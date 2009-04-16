@@ -1,64 +1,217 @@
-From: Heiko Schocher <hs@denx.de>
-Subject: HowTo write a driver for 2 multiplexed PS/2 ports over 1 UART?
-Date: Thu, 16 Apr 2009 08:22:34 +0200
-Message-ID: <49E6CEAA.9060608@denx.de>
-References: <1239861274.29831.118.camel@linux-51e8.site>
-Reply-To: hs@denx.de
+From: Daniel Mack <daniel@caiaq.de>
+Subject: Re: [PATCH] add REL_* axes support to the rotary encoder driver
+Date: Thu, 16 Apr 2009 08:35:36 +0200
+Message-ID: <20090416063536.GA8674@buzzloop.caiaq.de>
+References: <20090303090317.GA14246@dtor-d630.eng.vmware.com> <20090416020836.GB2413@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE1909015F8DFD@mi8nycmail19.Mi8.com> <200904151933.06721.dmitry.torokhov@gmail.com> <BD79186B4FD85F4B8E60E381CAEE1909015F8DFF@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.10]:47020 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751059AbZDPGfI (ORCPT
+Received: from buzzloop.caiaq.de ([212.112.241.133]:39638 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752471AbZDPGfx (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2009 02:35:08 -0400
-In-Reply-To: <1239861274.29831.118.camel@linux-51e8.site>
+	Thu, 16 Apr 2009 02:35:53 -0400
+Content-Disposition: inline
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909015F8DFF@mi8nycmail19.Mi8.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hello,
+On Wed, Apr 15, 2009 at 11:11:41PM -0400, H Hartley Sweeten wrote:
+> >> Your changes look good to me.
+> >>
+> >> The only issue I can see is that absolute axis encoders wrap.
+> >>
+> >> If you have an encoder of something like ABS_VOLUME you would
+> >> probably want the "pos" to go from 0 to "steps" and then clamp.
+> >> The encoder could actually rotate multiple times depending on
+> >> it's actual line count, but the effect would be correct.
+> >
+> > I see. Care to prepare a patch? Thanks!
+> 
+> Dmitry,
+> 
+> How's this?  I left the ability for the original ABS_* axis
+> operation since that might be what Daniel Mack needed.
 
-I maybe get a projekt, where I have 2 PS/2 ports (a keyboard and a mousse)
-connected to one UART and the multiplexing is done by a PIC.
+Yep, thanks. Even though now as axis can be relative, I realize this
+actually makes a lot more sense in my application, too :) But we should
+still leave it in for others. The more versatile the driver is, the
+better.
 
-I searched in actual 2.6 Kernel sources for such a solution, but
-couln;t find one. Overlooked I something?
+Acked-by: Daniel Mack <daniel@caiaq.de>
 
-For 2.4er Kernel there was such a driver, see
 
-http://git.denx.de/?p=linuxppc_2_4_devel.git;a=blob;f=drivers/char/ps2mult.c
-
-but, I think, this is no longer portable to 2.6.
-
-So, thats why I am here and want to ask the experts how to solve
-this problem in a mainline acceptable way, before I make a hack,
-that never has a chance to go in mainline.
-
-Some suggestions from me (maybe they are all bad)
-
-I looked in drivers/input/serio/serio.c and could think of adding
-the multiplexing in serio_interrupt(), and call serio_driver specific
-serio->drv->interrupt functions, when I know, which byte come from
-which device. But, if I see it right, I can only add one "struct
-serio_driver *drv;" driver to one serio port, so it is not possible
-to handle 2 or more devices over one serio port :-(
-Maybe we enhance this too ... ?
-
-Or I make a combinated (keyboard/mousse) driver which uses one
-serio port ... but I think thats a bad idea, also no idea, in which
-directory i have to add such a driver.
-
-So I think it would nice to have the possibility to add more than
-one serio_driver to a serio_port and add a "multiplexer" layer ...
-but I am new to the input layer, so I ask the experts.
-
-Hopefully I just missed something in actual code, and there is
-better/easier way? ;-)
-
-TIA
-Heiko
--- 
-DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+> Input: rotary_encoder - add support for REL_* axes
+> 
+> From: H Hartley Sweeten <hartleys@visionengravers.com>
+> 
+> The rotary encoder driver only supports returning input events
+> for ABS_* axes, this adds support for REL_* axes.  The relative
+> axis input event is reported as -1 for each counter-clockwise
+> step and +1 for each clockwise step.
+> 
+> The ability to clamp the position of ABS_* axes between 0 and
+> a maximum of "steps" has also been added.
+> 
+> Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> Cc: Daniel Mack <daniel@caiaq.de>
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> 
+> ---
+> 
+> diff --git a/Documentation/input/rotary-encoder.txt
+> b/Documentation/input/rotary-encoder.txt
+> index 435102a..3a6aec4 100644
+> --- a/Documentation/input/rotary-encoder.txt
+> +++ b/Documentation/input/rotary-encoder.txt
+> @@ -67,7 +67,12 @@ data with it.
+>  struct rotary_encoder_platform_data is declared in
+>  include/linux/rotary-encoder.h and needs to be filled with the number
+> of
+>  steps the encoder has and can carry information about externally
+> inverted
+> -signals (because of used invertig buffer or other reasons).
+> +signals (because of an inverting buffer or other reasons). The encoder
+> +can be set up to deliver input information as either an absolute or
+> relative
+> +axes. For relative axes the input event returns +/-1 for each step. For
+> +absolute axes the position of the encoder can either roll over between
+> zero
+> +and the number of steps or will clamp at the maximum and zero depending
+> on
+> +the configuration.
+>  
+>  Because GPIO to IRQ mapping is platform specific, this information must
+>  be given in seperately to the driver. See the example below.
+> @@ -85,6 +90,8 @@ be given in seperately to the driver. See the example
+> below.
+>  static struct rotary_encoder_platform_data my_rotary_encoder_info = {
+>  	.steps		= 24,
+>  	.axis		= ABS_X,
+> +	.relative_axis	= false,
+> +	.rollover	= false,
+>  	.gpio_a		= GPIO_ROTARY_A,
+>  	.gpio_b		= GPIO_ROTARY_B,
+>  	.inverted_a	= 0,
+> diff --git a/drivers/input/misc/rotary_encoder.c
+> b/drivers/input/misc/rotary_encoder.c
+> index 5bb3ab5..4a6a72a 100644
+> --- a/drivers/input/misc/rotary_encoder.c
+> +++ b/drivers/input/misc/rotary_encoder.c
+> @@ -26,13 +26,17 @@
+>  #define DRV_NAME "rotary-encoder"
+>  
+>  struct rotary_encoder {
+> -	unsigned int irq_a;
+> -	unsigned int irq_b;
+> -	unsigned int pos;
+> -	unsigned int armed;
+> -	unsigned int dir;
+>  	struct input_dev *input;
+>  	struct rotary_encoder_platform_data *pdata;
+> +
+> +	unsigned int axis;
+> +	unsigned int pos;
+> +
+> +	unsigned int irq_a;
+> +	unsigned int irq_b;
+> +
+> +	bool armed;
+> +	unsigned char dir;	/* 0 - clockwise, 1 - CCW */
+>  };
+>  
+>  static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
+> @@ -53,21 +57,32 @@ static irqreturn_t rotary_encoder_irq(int irq, void
+> *dev_id)
+>  		if (!encoder->armed)
+>  			break;
+>  
+> -		if (encoder->dir) {
+> -			/* turning counter-clockwise */
+> -			encoder->pos += pdata->steps;
+> -			encoder->pos--;
+> -			encoder->pos %= pdata->steps;
+> +		if (pdata->relative_axis) {
+> +			input_report_rel(encoder->input, pdata->axis,
+> +					 encoder->dir ? -1 : 1);
+>  		} else {
+> -			/* turning clockwise */
+> -			encoder->pos++;
+> -			encoder->pos %= pdata->steps;
+> +			unsigned int pos = encoder->pos;
+> +
+> +			if (encoder->dir) {
+> +				/* turning counter-clockwise */
+> +				if (encoder->rollover)
+> +					pos += pdata->steps;
+> +				if (pos)
+> +					pos--;
+> +			} else {
+> +				/* turning clockwise */
+> +				if (encoder->rollover || pos <
+> pdata->steps)
+> +					pos++;
+> +			}
+> +			if (encoder->rollover)
+> +				pos %= pdata->steps;
+> +			encoder->pos = pos;
+> +			input_report_abs(encoder->input, pdata->axis,
+> +					 encoder->pos);
+>  		}
+> -
+> -		input_report_abs(encoder->input, pdata->axis,
+> encoder->pos);
+>  		input_sync(encoder->input);
+>  
+> -		encoder->armed = 0;
+> +		encoder->armed = false;
+>  		break;
+>  
+>  	case 0x1:
+> @@ -77,7 +92,7 @@ static irqreturn_t rotary_encoder_irq(int irq, void
+> *dev_id)
+>  		break;
+>  
+>  	case 0x3:
+> -		encoder->armed = 1;
+> +		encoder->armed = true;
+>  		break;
+>  	}
+>  
+> @@ -113,9 +128,15 @@ static int __devinit rotary_encoder_probe(struct
+> platform_device *pdev)
+>  	input->name = pdev->name;
+>  	input->id.bustype = BUS_HOST;
+>  	input->dev.parent = &pdev->dev;
+> -	input->evbit[0] = BIT_MASK(EV_ABS);
+> -	input_set_abs_params(encoder->input,
+> -			     pdata->axis, 0, pdata->steps, 0, 1);
+> +
+> +	if (pdata->relative_axis) {
+> +		input->evbit[0] = BIT_MASK(EV_ABS);
+> +		input_set_abs_params(encoder->input,
+> +				     pdata->axis, 0, pdata->steps, 0,
+> 1);
+> +	} else {
+> +		input->evbit[0] = BIT_MASK(EV_REL);
+> +		input->relbit[0] = BIT_MASK(pdata->axis);
+> +	}
+>  
+>  	err = input_register_device(input);
+>  	if (err) {
+> diff --git a/include/linux/rotary_encoder.h
+> b/include/linux/rotary_encoder.h
+> index 12d63a3..215278b 100644
+> --- a/include/linux/rotary_encoder.h
+> +++ b/include/linux/rotary_encoder.h
+> @@ -8,6 +8,8 @@ struct rotary_encoder_platform_data {
+>  	unsigned int gpio_b;
+>  	unsigned int inverted_a;
+>  	unsigned int inverted_b;
+> +	bool relative_axis;
+> +	bool rollover;
+>  };
+>  
+>  #endif /* __ROTARY_ENCODER_H__ */ 

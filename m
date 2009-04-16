@@ -1,16 +1,16 @@
 From: Daniel Mack <daniel@caiaq.de>
 Subject: Re: [PATCH] add REL_* axes support to the rotary encoder driver
-Date: Thu, 16 Apr 2009 10:05:00 +0200
-Message-ID: <20090416080500.GA16792@buzzloop.caiaq.de>
+Date: Thu, 16 Apr 2009 10:39:38 +0200
+Message-ID: <20090416083938.GB16792@buzzloop.caiaq.de>
 References: <20090303090317.GA14246@dtor-d630.eng.vmware.com> <20090416020836.GB2413@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE1909015F8DFD@mi8nycmail19.Mi8.com> <200904151933.06721.dmitry.torokhov@gmail.com> <BD79186B4FD85F4B8E60E381CAEE1909015F8DFF@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:39088 "EHLO
+Received: from buzzloop.caiaq.de ([212.112.241.133]:36040 "EHLO
 	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750881AbZDPIFO (ORCPT
+	with ESMTP id S1752305AbZDPIjq (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2009 04:05:14 -0400
+	Thu, 16 Apr 2009 04:39:46 -0400
 Content-Disposition: inline
 In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909015F8DFF@mi8nycmail19.Mi8.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -19,31 +19,23 @@ To: H Hartley Sweeten <hartleys@visionengravers.com>
 Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
 On Wed, Apr 15, 2009 at 11:11:41PM -0400, H Hartley Sweeten wrote:
-> How's this?  I left the ability for the original ABS_* axis
-> operation since that might be what Daniel Mack needed.
+> +	if (pdata->relative_axis) {
+> +		input->evbit[0] = BIT_MASK(EV_ABS);
+> +		input_set_abs_params(encoder->input,
+> +				     pdata->axis, 0, pdata->steps, 0,
+> 1);
+> +	} else {
+> +		input->evbit[0] = BIT_MASK(EV_REL);
+> +		input->relbit[0] = BIT_MASK(pdata->axis);
+> +	}
 
-Erm, applying this patch gives me
+Ah, and this is obviously wrong, too. One more round.
 
-  CC      drivers/input/misc/rotary_encoder.o
-  drivers/input/misc/rotary_encoder.c: In function 'rotary_encoder_irq':
-  drivers/input/misc/rotary_encoder.c:68: error: 'struct rotary_encoder'
-  has no member named 'rollover'
-  drivers/input/misc/rotary_encoder.c:74: error: 'struct rotary_encoder'
-  has no member named 'rollover'
-  drivers/input/misc/rotary_encoder.c:77: error: 'struct rotary_encoder'
-  has no member named 'rollover'
-  make[3]: *** [drivers/input/misc/rotary_encoder.o] Error 1
-  make[2]: *** [drivers/input/misc] Error 2
-  make[1]: *** [drivers/input] Error 2
-  make: *** [drivers] Error 2
-
-You could at least have compiled it ;) Below is a clean version of that
-patch.
 
 Daniel
 
 
->From f1d72c5511ea65263c82d16521b2436f91af743c Mon Sep 17 00:00:00 2001
+>From c127d44df63e558bbb6af465b960f96b3293b3aa Mon Sep 17 00:00:00 2001
 From: Daniel Mack <daniel@caiaq.de>
 Date: Thu, 16 Apr 2009 09:56:37 +0200
 Subject: [PATCH] Input: rotary_encoder - add support for REL_* axes
@@ -95,7 +87,7 @@ index 435102a..3a6aec4 100644
  	.gpio_b		= GPIO_ROTARY_B,
  	.inverted_a	= 0,
 diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index 5bb3ab5..1aebf9a 100644
+index 5bb3ab5..c806fbf 100644
 --- a/drivers/input/misc/rotary_encoder.c
 +++ b/drivers/input/misc/rotary_encoder.c
 @@ -26,13 +26,17 @@
@@ -183,12 +175,12 @@ index 5bb3ab5..1aebf9a 100644
 -			     pdata->axis, 0, pdata->steps, 0, 1);
 +
 +	if (pdata->relative_axis) {
++		input->evbit[0] = BIT_MASK(EV_REL);
++		input->relbit[0] = BIT_MASK(pdata->axis);
++	} else {
 +		input->evbit[0] = BIT_MASK(EV_ABS);
 +		input_set_abs_params(encoder->input,
 +				     pdata->axis, 0, pdata->steps, 0, 1);
-+	} else {
-+		input->evbit[0] = BIT_MASK(EV_REL);
-+		input->relbit[0] = BIT_MASK(pdata->axis);
 +	}
  
  	err = input_register_device(input);

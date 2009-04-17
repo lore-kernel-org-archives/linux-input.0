@@ -1,205 +1,102 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: [PATCH] add REL_* axes support to the rotary encoder driver
-Date: Thu, 16 Apr 2009 13:09:32 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909015F8F43@mi8nycmail19.Mi8.com>
-References: <20090303090317.GA14246@dtor-d630.eng.vmware.com> <20090416020836.GB2413@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE1909015F8DFD@mi8nycmail19.Mi8.com> <200904151933.06721.dmitry.torokhov@gmail.com> <BD79186B4FD85F4B8E60E381CAEE1909015F8DFF@mi8nycmail19.Mi8.com> <20090416083938.GB16792@buzzloop.caiaq.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.30-rc2
+Date: Thu, 16 Apr 2009 19:29:15 -0700
+Message-ID: <20090417022915.GA7594@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og103.obsmtp.com ([64.18.1.185]:57945 "HELO
-	exprod6og103.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1755687AbZDPRJs convert rfc822-to-8bit (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.178]:12971 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753225AbZDQC3X (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2009 13:09:48 -0400
-Content-class: urn:content-classes:message
-In-Reply-To: <20090416083938.GB16792@buzzloop.caiaq.de>
+	Thu, 16 Apr 2009 22:29:23 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Input: rotary_encoder - add support for REL_* axes
+Hi Linus,
 
-From: H Hartley Sweeten <hartleys@visionengravers.com>
+Please pull from:
 
-The rotary encoder driver only supports returning input events
-for ABS_* axes, this adds support for REL_* axes.  The relative
-axis input event is reported as -1 for each counter-clockwise
-step and +1 for each clockwise step.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-The ability to clamp the position of ABS_* axes between 0 and
-a maximum of "steps" has also been added.
+to receive updates for the input subsystem.
 
-The rotary-encoder documentation has been updated to provide
-additional information on the new available usage.
+Changelog:
+---------
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
-Signed-off-by: Daniel Mack <daniel@caiaq.de>
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Alexander Beregalov (1):
+      Input: hp_sdc_rtc should depend on serio
 
----
+Arjan van de Ven (3):
+      Input: i8042 - introduce a tougher reset
+      Input: i8042 - add a DMI table for the i8042.reset option
+      Input: remove unnecessary synchronize_rcu() call
 
-diff --git a/Documentation/input/rotary-encoder.txt
-b/Documentation/input/rotary-encoder.txt
-index 435102a..ae4f1a4 100644
---- a/Documentation/input/rotary-encoder.txt
-+++ b/Documentation/input/rotary-encoder.txt
-@@ -67,7 +67,17 @@ data with it.
- struct rotary_encoder_platform_data is declared in
- include/linux/rotary-encoder.h and needs to be filled with the number
-of
- steps the encoder has and can carry information about externally
-inverted
--signals (because of used invertig buffer or other reasons).
-+signals (because of an inverting buffer or other reasons). The encoder
-+can be set up to deliver input information as either an absolute or
-relative
-+axis. For a relative axis the input event returns +/-1 for each step.
-For an
-+absolute axis the position of the encoder can either rollover between
-zero
-+and the number of steps or will clamp at the maximum and zero depending
-on
-+the configuration.
+Barry Carroll (1):
+      Input: atkbd - add forced release keys quirk for Samsung NC20
+
+Ben Nizette (1):
+      Input: ads7846 - fix unsafe disable_irq
+
+Dmitry Torokhov (2):
+      Input: gameport - fix attach driver code
+      Input: atkbd - add forced release keys quirk for Samsung Q45
+
+Eric Miao (3):
+      Input: ads7846 - introduce platform specific way to synchronize s=
+ampling
+      Input: da9034-ts - add Bin Yang as co-author of the driver
+      Input: da9034-ts - make pen {down,up} events more reliable
+
+Ilpo J=E4rvinen (1):
+      Input: pc110pad - remove unused variable dev
+
+Jiri Slaby (1):
+      Input: mainstone-wm97xx - fix condition in pen_up
+
+Mark Brown (1):
+      Input: wm97xx - don't specify IRQF_SAMPLE_RANDOM
+
+Michael Hennerich (2):
+      Input: ad7877, ad7879 - remove depreciated IRQF_SAMPLE_RANDOM fla=
+g
+      Input: bf54x-keys - remove depreciated IRQF_SAMPLE_RANDOM flag
+
+
+Diffstat:
+--------
+
+ drivers/input/gameport/gameport.c            |   14 ++++-----
+ drivers/input/input.c                        |    1 -
+ drivers/input/keyboard/atkbd.c               |   20 +++++++++++++-
+ drivers/input/keyboard/bf54x-keys.c          |    2 +-
+ drivers/input/misc/Kconfig                   |    2 +-
+ drivers/input/mouse/pc110pad.c               |    1 -
+ drivers/input/serio/i8042-x86ia64io.h        |   28 ++++++++++++++++++=
 +
-+Note that for an absolute axis that does not rollover, the steps value
-does
-+not have to match the actual encoder line count. A larger value will
-make
-+the encoder behave like a multi-turn potentiometer that returns input
-+positions from 0 (full CCW) to "steps" (full CW).
- 
- Because GPIO to IRQ mapping is platform specific, this information must
- be given in seperately to the driver. See the example below.
-@@ -85,6 +95,8 @@ be given in seperately to the driver. See the example
-below.
- static struct rotary_encoder_platform_data my_rotary_encoder_info = {
- 	.steps		= 24,
- 	.axis		= ABS_X,
-+	.relative_axis	= false,
-+	.rollover	= false,
- 	.gpio_a		= GPIO_ROTARY_A,
- 	.gpio_b		= GPIO_ROTARY_B,
- 	.inverted_a	= 0,
-diff --git a/drivers/input/misc/rotary_encoder.c
-b/drivers/input/misc/rotary_encoder.c
-index 5bb3ab5..c806fbf 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -26,13 +26,17 @@
- #define DRV_NAME "rotary-encoder"
- 
- struct rotary_encoder {
--	unsigned int irq_a;
--	unsigned int irq_b;
--	unsigned int pos;
--	unsigned int armed;
--	unsigned int dir;
- 	struct input_dev *input;
- 	struct rotary_encoder_platform_data *pdata;
-+
-+	unsigned int axis;
-+	unsigned int pos;
-+
-+	unsigned int irq_a;
-+	unsigned int irq_b;
-+
-+	bool armed;
-+	unsigned char dir;	/* 0 - clockwise, 1 - CCW */
- };
- 
- static irqreturn_t rotary_encoder_irq(int irq, void *dev_id)
-@@ -53,21 +57,32 @@ static irqreturn_t rotary_encoder_irq(int irq, void
-*dev_id)
- 		if (!encoder->armed)
- 			break;
- 
--		if (encoder->dir) {
--			/* turning counter-clockwise */
--			encoder->pos += pdata->steps;
--			encoder->pos--;
--			encoder->pos %= pdata->steps;
-+		if (pdata->relative_axis) {
-+			input_report_rel(encoder->input, pdata->axis,
-+					 encoder->dir ? -1 : 1);
- 		} else {
--			/* turning clockwise */
--			encoder->pos++;
--			encoder->pos %= pdata->steps;
-+			unsigned int pos = encoder->pos;
-+
-+			if (encoder->dir) {
-+				/* turning counter-clockwise */
-+				if (pdata->rollover)
-+					pos += pdata->steps;
-+				if (pos)
-+					pos--;
-+			} else {
-+				/* turning clockwise */
-+				if (pdata->rollover || pos <
-pdata->steps)
-+					pos++;
-+			}
-+			if (pdata->rollover)
-+				pos %= pdata->steps;
-+			encoder->pos = pos;
-+			input_report_abs(encoder->input, pdata->axis,
-+					 encoder->pos);
- 		}
+ drivers/input/serio/i8042.c                  |   37 ++++++++++++++++++=
+++-----
+ drivers/input/touchscreen/ad7877.c           |    4 +-
+ drivers/input/touchscreen/ad7879.c           |    3 +-
+ drivers/input/touchscreen/ads7846.c          |   12 +++++++-
+ drivers/input/touchscreen/da9034-ts.c        |   29 ++++++++++++------=
 -
--		input_report_abs(encoder->input, pdata->axis,
-encoder->pos);
- 		input_sync(encoder->input);
- 
--		encoder->armed = 0;
-+		encoder->armed = false;
- 		break;
- 
- 	case 0x1:
-@@ -77,7 +92,7 @@ static irqreturn_t rotary_encoder_irq(int irq, void
-*dev_id)
- 		break;
- 
- 	case 0x3:
--		encoder->armed = 1;
-+		encoder->armed = true;
- 		break;
- 	}
- 
-@@ -113,9 +128,15 @@ static int __devinit rotary_encoder_probe(struct
-platform_device *pdev)
- 	input->name = pdev->name;
- 	input->id.bustype = BUS_HOST;
- 	input->dev.parent = &pdev->dev;
--	input->evbit[0] = BIT_MASK(EV_ABS);
--	input_set_abs_params(encoder->input,
--			     pdata->axis, 0, pdata->steps, 0, 1);
-+
-+	if (pdata->relative_axis) {
-+		input->evbit[0] = BIT_MASK(EV_REL);
-+		input->relbit[0] = BIT_MASK(pdata->axis);
-+	} else {
-+		input->evbit[0] = BIT_MASK(EV_ABS);
-+		input_set_abs_params(encoder->input,
-+				     pdata->axis, 0, pdata->steps, 0,
-1);
-+	}
- 
- 	err = input_register_device(input);
- 	if (err) {
-diff --git a/include/linux/rotary_encoder.h
-b/include/linux/rotary_encoder.h
-index 12d63a3..215278b 100644
---- a/include/linux/rotary_encoder.h
-+++ b/include/linux/rotary_encoder.h
-@@ -8,6 +8,8 @@ struct rotary_encoder_platform_data {
- 	unsigned int gpio_b;
- 	unsigned int inverted_a;
- 	unsigned int inverted_b;
-+	bool relative_axis;
-+	bool rollover;
- };
- 
- #endif /* __ROTARY_ENCODER_H__ */ 
+ drivers/input/touchscreen/mainstone-wm97xx.c |    7 ++---
+ drivers/input/touchscreen/wm97xx-core.c      |    3 +-
+ include/linux/spi/ads7846.h                  |    1 +
+ 15 files changed, 121 insertions(+), 43 deletions(-)
+
+--=20
+Dmitry
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

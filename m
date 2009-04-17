@@ -1,102 +1,35 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.30-rc2
-Date: Thu, 16 Apr 2009 19:29:15 -0700
-Message-ID: <20090417022915.GA7594@dtor-d630.eng.vmware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: [PATCH] Input: Fix documentation. Event type is EV_KEY, not REL_KEY.
+Date: Fri, 17 Apr 2009 06:30:23 -0300
+Message-ID: <1239960623-28133-1-git-send-email-cascardo@holoscopio.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.178]:12971 "EHLO
-	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753225AbZDQC3X (ORCPT
+Received: from liberdade.minaslivre.org ([72.232.18.203]:37063 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756433AbZDQJ7I (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Apr 2009 22:29:23 -0400
-Content-Disposition: inline
+	Fri, 17 Apr 2009 05:59:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 
-Hi Linus,
+---
+ Documentation/input/input.txt |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Please pull from:
+diff --git a/Documentation/input/input.txt b/Documentation/input/input.txt
+index 686ee99..b93c084 100644
+--- a/Documentation/input/input.txt
++++ b/Documentation/input/input.txt
+@@ -278,7 +278,7 @@ struct input_event {
+ };
+ 
+   'time' is the timestamp, it returns the time at which the event happened.
+-Type is for example EV_REL for relative moment, REL_KEY for a keypress or
++Type is for example EV_REL for relative moment, EV_KEY for a keypress or
+ release. More types are defined in include/linux/input.h.
+ 
+   'code' is event code, for example REL_X or KEY_BACKSPACE, again a complete
+-- 
+1.6.2.2
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
-
-to receive updates for the input subsystem.
-
-Changelog:
----------
-
-Alexander Beregalov (1):
-      Input: hp_sdc_rtc should depend on serio
-
-Arjan van de Ven (3):
-      Input: i8042 - introduce a tougher reset
-      Input: i8042 - add a DMI table for the i8042.reset option
-      Input: remove unnecessary synchronize_rcu() call
-
-Barry Carroll (1):
-      Input: atkbd - add forced release keys quirk for Samsung NC20
-
-Ben Nizette (1):
-      Input: ads7846 - fix unsafe disable_irq
-
-Dmitry Torokhov (2):
-      Input: gameport - fix attach driver code
-      Input: atkbd - add forced release keys quirk for Samsung Q45
-
-Eric Miao (3):
-      Input: ads7846 - introduce platform specific way to synchronize s=
-ampling
-      Input: da9034-ts - add Bin Yang as co-author of the driver
-      Input: da9034-ts - make pen {down,up} events more reliable
-
-Ilpo J=E4rvinen (1):
-      Input: pc110pad - remove unused variable dev
-
-Jiri Slaby (1):
-      Input: mainstone-wm97xx - fix condition in pen_up
-
-Mark Brown (1):
-      Input: wm97xx - don't specify IRQF_SAMPLE_RANDOM
-
-Michael Hennerich (2):
-      Input: ad7877, ad7879 - remove depreciated IRQF_SAMPLE_RANDOM fla=
-g
-      Input: bf54x-keys - remove depreciated IRQF_SAMPLE_RANDOM flag
-
-
-Diffstat:
---------
-
- drivers/input/gameport/gameport.c            |   14 ++++-----
- drivers/input/input.c                        |    1 -
- drivers/input/keyboard/atkbd.c               |   20 +++++++++++++-
- drivers/input/keyboard/bf54x-keys.c          |    2 +-
- drivers/input/misc/Kconfig                   |    2 +-
- drivers/input/mouse/pc110pad.c               |    1 -
- drivers/input/serio/i8042-x86ia64io.h        |   28 ++++++++++++++++++=
-+
- drivers/input/serio/i8042.c                  |   37 ++++++++++++++++++=
-++-----
- drivers/input/touchscreen/ad7877.c           |    4 +-
- drivers/input/touchscreen/ad7879.c           |    3 +-
- drivers/input/touchscreen/ads7846.c          |   12 +++++++-
- drivers/input/touchscreen/da9034-ts.c        |   29 ++++++++++++------=
--
- drivers/input/touchscreen/mainstone-wm97xx.c |    7 ++---
- drivers/input/touchscreen/wm97xx-core.c      |    3 +-
- include/linux/spi/ads7846.h                  |    1 +
- 15 files changed, 121 insertions(+), 43 deletions(-)
-
---=20
-Dmitry
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

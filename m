@@ -1,68 +1,36 @@
-From: =?iso-8859-15?q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
+From: Paulius Zaleckas <paulius.zaleckas@teltonika.lt>
 Subject: Re: [PATCH, v2] input/imx2x: generic keypad handler for i.MX SoCs
-Date: Fri, 17 Apr 2009 17:47:40 +0200
-Message-ID: <18920.42140.160633.645220@ipc1.ka-ro>
+Date: Fri, 17 Apr 2009 18:58:03 +0300
+Message-ID: <49E8A70B.3020209@teltonika.lt>
 References: <200904171640.14294.hs4233@mail.mn-solutions.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 81-7-68-229.static.zebra.lt ([81.7.68.229]:38263 "EHLO
+	teltonika.lt" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1758035AbZDQP6J (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Apr 2009 11:58:09 -0400
 In-Reply-To: <200904171640.14294.hs4233@mail.mn-solutions.de>
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
 To: Holger Schurig <hs4233@mail.mn-solutions.de>
 Cc: linux-input@vger.kernel.org, s.hauer@pengutronix.de, linux-arm-kernel@lists.arm.linux.org.uk
-List-Id: linux-input@vger.kernel.org
 
-Hi,
+Holger Schurig wrote:
+> The i.MX21 SoC has a built-in keypad controller, which this driver
+> utilizes. As the keypad usually doesn't connect to a standard PC
+> keyboard, but to the keyboard of a PDA-like device, I wrote the
+> driver in a keyboard-layout agnostic way.
+> 
+> Instead, the driver reports each row/column key press and release
+> via a platform-data supplied function. Board-specific code can than
+> decode the input events from this and submit them.
 
-> +#if 0
-> +static int mxc_keypad_open(struct input_dev *dev)
-> +{
-> +	struct mxc_keypad *kp =3D input_get_drvdata(dev);
-> +	struct clk *clk;
-> +
-> +	/* Enable unit clock */
-> +	clk =3D clk_get(&pdev->dev, "kpp");
-> +	if (IS_ERR(clk))
-> +		return -ENODEV;
->
-Why do you invent your own error code instead of reporting the error
-that clk_get() returned?
+IMO it would be better if board code would not provide "handle"
+function, but instead it would provide 'keyboard <-> input event' map
+structure/array.
 
-> +	clk =3D clk_get(&dev->dev, "kpp");
-> +	if (clk)
->
-'if (!IS_ERR(clk))' please!
-
-> +	clk =3D clk_get(&pdev->dev, "kpp");
-> +	if (IS_ERR(clk)) {
-> +		error =3D -ENODEV;
-See above.
-
-
-
-Lothar Wa=DFmann
--- =
-
-___________________________________________________________
-
-Ka-Ro electronics GmbH | Pascalstra=DFe 22 | D - 52076 Aachen
-Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
-Gesch=E4ftsf=FChrer: Matthias Kaussen
-Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
-
-www.karo-electronics.de | info@karo-electronics.de
-___________________________________________________________
-
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php
+> See the comments at the top of drivers/input/keyboard/mxc_keypad.c
+> 
+> Signed-off-by: Holger Schurig <hs4233@mail.mn-solutions.de>

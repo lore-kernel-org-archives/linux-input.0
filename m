@@ -1,29 +1,46 @@
-From: Holger Schurig <hs4233@mail.mn-solutions.de>
-Subject: Re: [PATCH, v2] input/imx2x: generic keypad handler for i.MX SoCs
-Date: Fri, 17 Apr 2009 16:55:46 +0200
-Message-ID: <200904171655.46515.hs4233@mail.mn-solutions.de>
-References: <200904171640.14294.hs4233@mail.mn-solutions.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] Input: Fix documentation. Event type is EV_KEY, not
+	REL_KEY.
+Date: Fri, 17 Apr 2009 08:36:45 -0700
+Message-ID: <20090417153645.GA20999@dtor-d630.eng.vmware.com>
+References: <1239960623-28133-1-git-send-email-cascardo@holoscopio.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx51.mymxserver.com ([85.199.173.110]:45703 "EHLO
-	mx51.mymxserver.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754820AbZDQO4L (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.229]:52636 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753911AbZDQPhA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Apr 2009 10:56:11 -0400
-In-Reply-To: <200904171640.14294.hs4233@mail.mn-solutions.de>
+	Fri, 17 Apr 2009 11:37:00 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so962273rvb.1
+        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2009 08:36:59 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <1239960623-28133-1-git-send-email-cascardo@holoscopio.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: s.hauer@pengutronix.de
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Cc: linux-input@vger.kernel.org
 
-Little notes:
+On Fri, Apr 17, 2009 at 06:30:23AM -0300, Thadeu Lima de Souza Cascardo wrote:
+> ---
+>  Documentation/input/input.txt |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/Documentation/input/input.txt b/Documentation/input/input.txt
+> index 686ee99..b93c084 100644
+> --- a/Documentation/input/input.txt
+> +++ b/Documentation/input/input.txt
+> @@ -278,7 +278,7 @@ struct input_event {
+>  };
+>  
+>    'time' is the timestamp, it returns the time at which the event happened.
+> -Type is for example EV_REL for relative moment, REL_KEY for a keypress or
+> +Type is for example EV_REL for relative moment, EV_KEY for a keypress or
+>  release. More types are defined in include/linux/input.h.
+>  
+>    'code' is event code, for example REL_X or KEY_BACKSPACE, again a complete
 
-* I forgot dmitry.torokhov@gmail.com, but sent him the mail
-  afterwards.
-* Sascha, can you ack?  If you want, I can can split that patch
-  into the driver/Kconfig/Makefile and another one for the
-  stuff in arch/arm/mach-mx2. That might reduce merge conflicts.
+Will apply, thank you.
+
+-- 
+Dmitry

@@ -1,46 +1,68 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: Fix documentation. Event type is EV_KEY, not
-	REL_KEY.
-Date: Fri, 17 Apr 2009 08:36:45 -0700
-Message-ID: <20090417153645.GA20999@dtor-d630.eng.vmware.com>
-References: <1239960623-28133-1-git-send-email-cascardo@holoscopio.com>
+From: =?iso-8859-15?q?Lothar_Wa=DFmann?= <LW@KARO-electronics.de>
+Subject: Re: [PATCH, v2] input/imx2x: generic keypad handler for i.MX SoCs
+Date: Fri, 17 Apr 2009 17:47:40 +0200
+Message-ID: <18920.42140.160633.645220@ipc1.ka-ro>
+References: <200904171640.14294.hs4233@mail.mn-solutions.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.229]:52636 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753911AbZDQPhA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 17 Apr 2009 11:37:00 -0400
-Received: by rv-out-0506.google.com with SMTP id f9so962273rvb.1
-        for <linux-input@vger.kernel.org>; Fri, 17 Apr 2009 08:36:59 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <1239960623-28133-1-git-send-email-cascardo@holoscopio.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+In-Reply-To: <200904171640.14294.hs4233@mail.mn-solutions.de>
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: Holger Schurig <hs4233@mail.mn-solutions.de>
+Cc: linux-input@vger.kernel.org, s.hauer@pengutronix.de, linux-arm-kernel@lists.arm.linux.org.uk
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: linux-input@vger.kernel.org
 
-On Fri, Apr 17, 2009 at 06:30:23AM -0300, Thadeu Lima de Souza Cascardo wrote:
-> ---
->  Documentation/input/input.txt |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/Documentation/input/input.txt b/Documentation/input/input.txt
-> index 686ee99..b93c084 100644
-> --- a/Documentation/input/input.txt
-> +++ b/Documentation/input/input.txt
-> @@ -278,7 +278,7 @@ struct input_event {
->  };
->  
->    'time' is the timestamp, it returns the time at which the event happened.
-> -Type is for example EV_REL for relative moment, REL_KEY for a keypress or
-> +Type is for example EV_REL for relative moment, EV_KEY for a keypress or
->  release. More types are defined in include/linux/input.h.
->  
->    'code' is event code, for example REL_X or KEY_BACKSPACE, again a complete
+Hi,
 
-Will apply, thank you.
+> +#if 0
+> +static int mxc_keypad_open(struct input_dev *dev)
+> +{
+> +	struct mxc_keypad *kp =3D input_get_drvdata(dev);
+> +	struct clk *clk;
+> +
+> +	/* Enable unit clock */
+> +	clk =3D clk_get(&pdev->dev, "kpp");
+> +	if (IS_ERR(clk))
+> +		return -ENODEV;
+>
+Why do you invent your own error code instead of reporting the error
+that clk_get() returned?
 
--- 
-Dmitry
+> +	clk =3D clk_get(&dev->dev, "kpp");
+> +	if (clk)
+>
+'if (!IS_ERR(clk))' please!
+
+> +	clk =3D clk_get(&pdev->dev, "kpp");
+> +	if (IS_ERR(clk)) {
+> +		error =3D -ENODEV;
+See above.
+
+
+
+Lothar Wa=DFmann
+-- =
+
+___________________________________________________________
+
+Ka-Ro electronics GmbH | Pascalstra=DFe 22 | D - 52076 Aachen
+Phone: +49 2408 1402-0 | Fax: +49 2408 1402-10
+Gesch=E4ftsf=FChrer: Matthias Kaussen
+Handelsregistereintrag: Amtsgericht Aachen, HRB 4996
+
+www.karo-electronics.de | info@karo-electronics.de
+___________________________________________________________
+
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

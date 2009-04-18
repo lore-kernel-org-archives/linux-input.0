@@ -1,206 +1,196 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH/RFC 10/16] m68k: amiga - Keyboard platform device conversion
-Date: Sat, 18 Apr 2009 20:52:18 +0200
-Message-ID: <1240080744-14995-11-git-send-email-geert@linux-m68k.org>
-References: <1240080744-14995-1-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-2-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-3-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-4-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-5-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-6-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-7-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-8-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-9-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-10-git-send-email-geert@linux-m68k.org>
-Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <1240080744-14995-10-git-send-email-geert@linux-m68k.org>
-Sender: linux-m68k-owner@vger.kernel.org
-To: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/5] [ARM] pxa: lx: add keyboard driver
+Date: Sat, 18 Apr 2009 16:10:28 -0700
+Message-ID: <20090418231018.GA32346@dtor-d630.eng.vmware.com>
+References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from wa-out-1112.google.com ([209.85.146.176]:61412 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753105AbZDRXKh (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sat, 18 Apr 2009 19:10:37 -0400
+Received: by wa-out-1112.google.com with SMTP id j5so785349wah.21
+        for <linux-input@vger.kernel.org>; Sat, 18 Apr 2009 16:10:35 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Russell King <linux@arm.linux.org.uk>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: linux-input@vger.kernel.org
----
- arch/m68k/amiga/platform.c      |    5 ++
- drivers/input/keyboard/amikbd.c |   97 +++++++++++++++++++++++----------------
- 2 files changed, 63 insertions(+), 39 deletions(-)
+Hi Russell,
 
-diff --git a/arch/m68k/amiga/platform.c b/arch/m68k/amiga/platform.c
-index 907f6f5..d427de2 100644
---- a/arch/m68k/amiga/platform.c
-+++ b/arch/m68k/amiga/platform.c
-@@ -160,6 +160,11 @@ static int __init amiga_init_devices(void)
- 					 sizeof(a4000_ide_pdata));
- 	}
- 
-+
-+	/* other I/O hardware */
-+	if (AMIGAHW_PRESENT(AMI_KEYBOARD))
-+		platform_device_register_simple("amiga-keyboard", -1, NULL, 0);
-+
- 	return 0;
- }
- 
-diff --git a/drivers/input/keyboard/amikbd.c b/drivers/input/keyboard/amikbd.c
-index 35149ec..79172af 100644
---- a/drivers/input/keyboard/amikbd.c
-+++ b/drivers/input/keyboard/amikbd.c
-@@ -35,6 +35,7 @@
- #include <linux/delay.h>
- #include <linux/interrupt.h>
- #include <linux/keyboard.h>
-+#include <linux/platform_device.h>
- 
- #include <asm/amigaints.h>
- #include <asm/amigahw.h>
-@@ -154,10 +155,9 @@ static const char *amikbd_messages[8] = {
- 	[7] = KERN_WARNING "amikbd: keyboard interrupt\n"
- };
- 
--static struct input_dev *amikbd_dev;
--
--static irqreturn_t amikbd_interrupt(int irq, void *dummy)
-+static irqreturn_t amikbd_interrupt(int irq, void *data)
- {
-+	struct input_dev *dev = data;
- 	unsigned char scancode, down;
- 
- 	scancode = ~ciaa.sdr;		/* get and invert scancode (keyboard is active low) */
-@@ -170,47 +170,42 @@ static irqreturn_t amikbd_interrupt(int irq, void *dummy)
- 
- 	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
- 		if (scancode == 98) {	/* CapsLock is a toggle switch key on Amiga */
--			input_report_key(amikbd_dev, scancode, 1);
--			input_report_key(amikbd_dev, scancode, 0);
-+			input_report_key(dev, scancode, 1);
-+			input_report_key(dev, scancode, 0);
- 		} else {
--			input_report_key(amikbd_dev, scancode, down);
-+			input_report_key(dev, scancode, down);
- 		}
- 
--		input_sync(amikbd_dev);
-+		input_sync(dev);
- 	} else				/* scancodes >= 0x78 are error codes */
- 		printk(amikbd_messages[scancode - 0x78]);
- 
- 	return IRQ_HANDLED;
- }
- 
--static int __init amikbd_init(void)
-+static int __init amikbd_probe(struct platform_device *pdev)
- {
-+	struct input_dev *dev;
- 	int i, j, err;
- 
--	if (!AMIGAHW_PRESENT(AMI_KEYBOARD))
--		return -ENODEV;
--
--	if (!request_mem_region(CIAA_PHYSADDR-1+0xb00, 0x100, "amikeyb"))
--		return -EBUSY;
--
--	amikbd_dev = input_allocate_device();
--	if (!amikbd_dev) {
--		printk(KERN_ERR "amikbd: not enough memory for input device\n");
--		err = -ENOMEM;
--		goto fail1;
-+	dev = input_allocate_device();
-+	if (!dev) {
-+		dev_err(&pdev->dev, "Not enough memory for input device\n");
-+		return -ENOMEM;
- 	}
- 
--	amikbd_dev->name = "Amiga Keyboard";
--	amikbd_dev->phys = "amikbd/input0";
--	amikbd_dev->id.bustype = BUS_AMIGA;
--	amikbd_dev->id.vendor = 0x0001;
--	amikbd_dev->id.product = 0x0001;
--	amikbd_dev->id.version = 0x0100;
-+	dev->name = pdev->name;
-+	dev->phys = "amikbd/input0";
-+	dev->id.bustype = BUS_AMIGA;
-+	dev->id.vendor = 0x0001;
-+	dev->id.product = 0x0001;
-+	dev->id.version = 0x0100;
-+	dev->dev.parent = &pdev->dev;
- 
--	amikbd_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
-+	dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
- 
- 	for (i = 0; i < 0x78; i++)
--		set_bit(i, amikbd_dev->keybit);
-+		set_bit(i, dev->keybit);
- 
- 	for (i = 0; i < MAX_NR_KEYMAPS; i++) {
- 		static u_short temp_map[NR_KEYS] __initdata;
-@@ -229,30 +224,54 @@ static int __init amikbd_init(void)
- 		memcpy(key_maps[i], temp_map, sizeof(temp_map));
- 	}
- 	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
--	if (request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd",
--			amikbd_interrupt)) {
--		err = -EBUSY;
-+	err = request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd",
-+			  dev);
-+	if (err)
- 		goto fail2;
--	}
- 
--	err = input_register_device(amikbd_dev);
-+	err = input_register_device(dev);
- 	if (err)
- 		goto fail3;
- 
-+	platform_set_drvdata(pdev, dev);
-+
- 	return 0;
- 
-- fail3:	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
-- fail2:	input_free_device(amikbd_dev);
-- fail1:	release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
-+ fail3:	free_irq(IRQ_AMIGA_CIAA_SP, dev);
-+ fail2:	input_free_device(dev);
- 	return err;
- }
- 
--static void __exit amikbd_exit(void)
-+static int __exit amikbd_remove(struct platform_device *pdev)
-+{
-+	struct input_dev *dev = platform_get_drvdata(pdev);
-+
-+	platform_set_drvdata(pdev, NULL);
-+	free_irq(IRQ_AMIGA_CIAA_SP, dev);
-+	input_unregister_device(dev);
-+	return 0;
-+}
-+
-+static struct platform_driver amikbd_driver = {
-+	.remove = __exit_p(amikbd_remove),
-+	.driver   = {
-+		.name	= "amiga-keyboard",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __init amikbd_init(void)
- {
--	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
--	input_unregister_device(amikbd_dev);
--	release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
-+	return platform_driver_probe(&amikbd_driver, amikbd_probe);
- }
- 
- module_init(amikbd_init);
-+
-+static void __exit amikbd_exit(void)
-+{
-+	platform_driver_unregister(&amikbd_driver);
-+}
-+
- module_exit(amikbd_exit);
-+
-+MODULE_ALIAS("platform:amiga-keyboard");
+On Sat, Apr 18, 2009 at 03:20:50PM +0100, Russell King wrote:
+> This adds support for the keyboard support on the LX platform.
+> We aren't directly connected to the keyboard itself, but the
+> keyboard is managed by PCON via the system I2C bus.
+> 
+
+Very nice driver. I prefer input devices having a private copy of keymap
+but I suppose there is just such device in the system anyways...
+
+>  
+> +config KEYBOARD_LX
+> +	tristate "LX Keyboard support"
+> +	depends on MACH_NETBOOKPRO && INPUT && INPUT_KEYBOARD
+
+Dependancy on INPUT_KEYBOARD is not needed, strictly speaking.
+INPUT_KEYBOARD is only [menu]config syntactic sugar, there is no meat
+behind the option.
+
+> +
+> +	/*
+> +	 * Some keys have additional operations after we have
+> +	 * decoded them.  We don't report these "special" keys
+> +	 * to the input layer.
+> +	 */
+> +	switch (key) {
+> +	case KEY_BRIGHTNESSUP:
+> +	case KEY_BRIGHTNESSDOWN:
+> +		input_event(kbd, EV_PWR, key, !up);
+
+Umm... some userspace apps might still want to get these. Strictly
+speaking KEY_* codes belong to EV_KEY namespace.
+
+> +		break;
+> +
+> +	case KEY_SUSPEND:
+> +		input_event(kbd, EV_PWR, key, !up);
+> +#if defined(CONFIG_APM_EMULATION) && !defined(CONFIG_INPUT_APMPOWER)
+> +		if (!up)
+> +			apm_queue_event(APM_SYS_SUSPEND);
+> +#endif
+> +		break;
+> +
+> +	default:
+> +		input_report_key(kbd, key, !up);
+> +		break;
+> +	}
+> +}
+> +
+> +static void lx_keyb_reset(struct input_dev *kbd)
+> +{
+> +	unsigned char *map;
+> +	int key;
+> +
+> +	for (key = 0; key < LX_NUMKEYCODES; key++)
+> +		if (keystate[key] & KP_DOWN) {
+> +			map = normal_map;
+> +			if (keystate[key] & KP_FN)
+> +				map = fn_map;
+> +			else if (keystate[key] & KP_NUMLCK)
+> +				map = numlck_map;
+> +			keystate[key] = KP_NONE;
+> +			input_report_key(kbd, map[key], 0);
+> +		}
+
+Why don't you just send 'up' event for all known keys? Input core will
+filter out the ones that have not been 'down'ed... Better yet, don't do
+anything here, I should finish adding forced release at suspend/resume
+to the input core shortly.
+
+> +
+> +	num_lck = 0;
+> +}
+> +
+> +static void lx_keyb_write(void *data, unsigned int addr, unsigned char val)
+> +{
+> +	struct input_dev *kbd = data;
+
+Blank line between variables and the code is always appreciated ;)
+
+> +	pcon_kbd_ack();
+> +	lx_keyb_process_key(kbd, val);
+> +}
+> +
+> +static struct lx_i2cslave_watcher lx_keyb_watcher = {
+> +	.start	= PHST_KEYBOARD_START,
+> +	.size	= PHST_KEYBOARD_SIZE,
+> +	.write	= lx_keyb_write,
+> +};
+> +
+> +static int lx_keyb_probe(struct platform_device *dev)
+> +{
+> +	struct input_dev *kbd;
+> +	int i, ret;
+> +
+> +	kbd = input_allocate_device();
+> +	if (!kbd)
+> +		return -ENOMEM;
+> +
+> +	kbd->name        = "LX Keyboard";
+> +	kbd->phys        = "pcon/input0";
+> +	kbd->dev.parent  = &dev->dev;
+> +	kbd->evbit[0]    = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
+> +			   BIT_MASK(EV_PWR);
+> +	kbd->keycode     = normal_map;
+> +	kbd->keycodesize = sizeof(unsigned char);
+> +	kbd->keycodemax  = ARRAY_SIZE(normal_map);
+> +
+
+So we have 3 keymaps but only one can be changed form userspace... I
+suppose it is OK given how special the other 2 keymaps are. Or we could
+provide an alternative {get,set}keycode methods.
+
+> +	for (i = 0; i < ARRAY_SIZE(normal_map); i++) {
+> +		if (normal_map[i])
+> +			__set_bit(normal_map[i], kbd->keybit);
+> +	}
+> +	for (i = 0; i < ARRAY_SIZE(numlck_map); i++) {
+> +		if (numlck_map[i])
+> +			__set_bit(numlck_map[i], kbd->keybit);
+> +	}
+> +	for (i = 0; i < ARRAY_SIZE(fn_map); i++) {
+> +		if (fn_map[i])
+> +			__set_bit(fn_map[i], kbd->keybit);
+> +	}
+> +
+> +	ret = input_register_device(kbd);
+> +	if (ret == 0) {
+> +		platform_set_drvdata(dev, kbd);
+> +		lx_i2cslave_addwatcher(&lx_keyb_watcher, kbd);
+> +	} else {
+> +		input_free_device(kbd);
+> +	}
+> +	return ret;
+> +}
+> +
+> +static int __devexit lx_keyb_remove(struct platform_device *dev)
+> +{
+> +	struct input_dev *kbd = platform_get_drvdata(dev);
+> +	platform_set_drvdata(dev, NULL);
+> +	lx_i2cslave_delwatcher(&lx_keyb_watcher, kbd);
+> +	input_unregister_device(kbd);
+> +	return 0;
+> +}
+> +
+> +static int lx_keyb_resume(struct platform_device *dev)
+> +{
+> +	struct input_dev *kbd = platform_get_drvdata(dev);
+> +	lx_keyb_reset(kbd);
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver lx_kbd = {
+> +	.driver = {
+> +		.name	= "lx-kbd",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +	.probe	= lx_keyb_probe,
+> +	.remove	= __devexit_p(lx_keyb_remove),
+> +	.resume	= lx_keyb_resume,
+> +};
+> +
+> +static int __init lx_keyb_init(void)
+> +{
+> +	printk(KERN_INFO "LX Keyboard Driver, (c) 2004 Simtec Electronics\n");
+
+Is this needed? Input core will already add printk when input device is
+added and our boot is already chatty enough...
+
+Thanks!
+
 -- 
-1.6.2.3
-
+Dmitry

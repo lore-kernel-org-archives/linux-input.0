@@ -1,196 +1,113 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 3/5] [ARM] pxa: lx: add keyboard driver
-Date: Sat, 18 Apr 2009 16:10:28 -0700
-Message-ID: <20090418231018.GA32346@dtor-d630.eng.vmware.com>
-References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk>
+Subject: Re: [PATCH, v2] input/imx2x: generic keypad handler for i.MX SoCs
+Date: Sat, 18 Apr 2009 16:15:49 -0700
+Message-ID: <20090418231549.GB32346@dtor-d630.eng.vmware.com>
+References: <200904171640.14294.hs4233@mail.mn-solutions.de> <20090417160409.GB20999@dtor-d630.eng.vmware.com> <200904172140.33542.hs4233@mail.mn-solutions.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wa-out-1112.google.com ([209.85.146.176]:61412 "EHLO
-	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753105AbZDRXKh (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.237]:1952 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752360AbZDRXP5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Apr 2009 19:10:37 -0400
-Received: by wa-out-1112.google.com with SMTP id j5so785349wah.21
-        for <linux-input@vger.kernel.org>; Sat, 18 Apr 2009 16:10:35 -0700 (PDT)
+	Sat, 18 Apr 2009 19:15:57 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so1385972rvb.1
+        for <linux-input@vger.kernel.org>; Sat, 18 Apr 2009 16:15:56 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk>
+In-Reply-To: <200904172140.33542.hs4233@mail.mn-solutions.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Russell King <linux@arm.linux.org.uk>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
+To: Holger Schurig <hs4233@mail.mn-solutions.de>
+Cc: linux-input@vger.kernel.org, s.hauer@pengutronix.de, linux-arm-kernel@lists.arm.linux.org.uk
 
-Hi Russell,
+On Fri, Apr 17, 2009 at 09:40:33PM +0200, Holger Schurig wrote:
+> > It looks very nice, thank you. I wonder however whether a
+> > separate method for scancode to keycode conversion is really
+> > needed. Why can't you have platform code supply a keymap table
+> > and set up keycode, keycodesize and keycodemax fields of the
+> > input_dev structure? The generic code can easily set up
+> > keybits based on provided keymap. If you do this then input
+> > core will allow changing keymap at runtime with
+> > EVIOCGKEYCODE/EVIOCSKEYCODE.
+> 
+> For my application this wouldn't work, because my mapping from 
+> row/column pairs to input events is stateful. AFAIK the current 
+> kernel code cannot emulate the function of a cell-phone like 
+> keyboard.
+> 
+> See my mail to Paulius in this thread.
 
-On Sat, Apr 18, 2009 at 03:20:50PM +0100, Russell King wrote:
-> This adds support for the keyboard support on the LX platform.
-> We aren't directly connected to the keyboard itself, but the
-> keyboard is managed by PCON via the system I2C bus.
+I see. Then I would say that you need to supply both - kemap and an
+optional function to mangle scancode if needed.
+
+> 
+> > I don't think you need both linux/input.h and forward
+> > declaration of input_dev.
+> 
+> Ok.
+> 
+> 
+> > > +#if 0
+> >
+> > Why is this code disabled?
+> 
+> Opps, I submitted the wrong version of the patch. Normally I 
+> don't submit things with #if 0 experimental code in it.
+> 
+> At first, I thought that the open function should do this kind of 
+> initialization. However, later I found that the open function 
+> was actually never called (with imxfb as framebuffer and a 
+> busybox-shell without login running there). So I moved the code 
+> away, inside the probe function.
+
+open() method is guaranteed to be called when first handler attaches to
+an input device. You probably forgot to assign your implementations to
+your input device.
+
+> 
+> > Hmm.. I wonder if the init() method should be returning error
+> > code. We don't really know the extent of setup needed by a
+> > particular board and whetehr any of the steps could fail.
+> 
+> In my case, I don't need that, but to get this more general 
+> usable, that would be a good idea.
+> 
+> > > +	if (kp) {
+> >
+> > Can' kp actually ever be NULL when this function is invoked?
+> 
+> I don't know. Do you?
 > 
 
-Very nice driver. I prefer input devices having a private copy of keymap
-but I suppose there is just such device in the system anyways...
+I am sure it can not.
 
->  
-> +config KEYBOARD_LX
-> +	tristate "LX Keyboard support"
-> +	depends on MACH_NETBOOKPRO && INPUT && INPUT_KEYBOARD
+> 
+> 
+> > Hmm, we do init() before requesting IRQ and enabling clock...
+> > Maybe move exit() after disabling clock?
+> 
+> It might be the case that the exit code will still need to 
+> program the keypad function block, e.g. setting rows or colums 
+> to some definite state. If this case should happen AND if the 
+> clock is already turned off, your SoC might hang.
 
-Dependancy on INPUT_KEYBOARD is not needed, strictly speaking.
-INPUT_KEYBOARD is only [menu]config syntactic sugar, there is no meat
-behind the option.
+What about init then? May it need clock to be active? All I am looking
+for is a symmetry between probe() nad remove() methods.
 
-> +
-> +	/*
-> +	 * Some keys have additional operations after we have
-> +	 * decoded them.  We don't report these "special" keys
-> +	 * to the input layer.
-> +	 */
-> +	switch (key) {
-> +	case KEY_BRIGHTNESSUP:
-> +	case KEY_BRIGHTNESSDOWN:
-> +		input_event(kbd, EV_PWR, key, !up);
+> 
+> > With this code is likely being used in a PDA does it need
+> > suspendresume handlers by any chance?
+> 
+> Yes, it might. I actually think it's very desirable to have this 
+> feature. I event want to be able to use they keypad to get my 
+> system out of suspend.
+> 
+> However, my board currently doesn't yet do suspend/resume at all, 
+> so I wasn't able to code this. Should I add a FIXME/TODO/REVISIT 
+> marker?
 
-Umm... some userspace apps might still want to get these. Strictly
-speaking KEY_* codes belong to EV_KEY namespace.
-
-> +		break;
-> +
-> +	case KEY_SUSPEND:
-> +		input_event(kbd, EV_PWR, key, !up);
-> +#if defined(CONFIG_APM_EMULATION) && !defined(CONFIG_INPUT_APMPOWER)
-> +		if (!up)
-> +			apm_queue_event(APM_SYS_SUSPEND);
-> +#endif
-> +		break;
-> +
-> +	default:
-> +		input_report_key(kbd, key, !up);
-> +		break;
-> +	}
-> +}
-> +
-> +static void lx_keyb_reset(struct input_dev *kbd)
-> +{
-> +	unsigned char *map;
-> +	int key;
-> +
-> +	for (key = 0; key < LX_NUMKEYCODES; key++)
-> +		if (keystate[key] & KP_DOWN) {
-> +			map = normal_map;
-> +			if (keystate[key] & KP_FN)
-> +				map = fn_map;
-> +			else if (keystate[key] & KP_NUMLCK)
-> +				map = numlck_map;
-> +			keystate[key] = KP_NONE;
-> +			input_report_key(kbd, map[key], 0);
-> +		}
-
-Why don't you just send 'up' event for all known keys? Input core will
-filter out the ones that have not been 'down'ed... Better yet, don't do
-anything here, I should finish adding forced release at suspend/resume
-to the input core shortly.
-
-> +
-> +	num_lck = 0;
-> +}
-> +
-> +static void lx_keyb_write(void *data, unsigned int addr, unsigned char val)
-> +{
-> +	struct input_dev *kbd = data;
-
-Blank line between variables and the code is always appreciated ;)
-
-> +	pcon_kbd_ack();
-> +	lx_keyb_process_key(kbd, val);
-> +}
-> +
-> +static struct lx_i2cslave_watcher lx_keyb_watcher = {
-> +	.start	= PHST_KEYBOARD_START,
-> +	.size	= PHST_KEYBOARD_SIZE,
-> +	.write	= lx_keyb_write,
-> +};
-> +
-> +static int lx_keyb_probe(struct platform_device *dev)
-> +{
-> +	struct input_dev *kbd;
-> +	int i, ret;
-> +
-> +	kbd = input_allocate_device();
-> +	if (!kbd)
-> +		return -ENOMEM;
-> +
-> +	kbd->name        = "LX Keyboard";
-> +	kbd->phys        = "pcon/input0";
-> +	kbd->dev.parent  = &dev->dev;
-> +	kbd->evbit[0]    = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-> +			   BIT_MASK(EV_PWR);
-> +	kbd->keycode     = normal_map;
-> +	kbd->keycodesize = sizeof(unsigned char);
-> +	kbd->keycodemax  = ARRAY_SIZE(normal_map);
-> +
-
-So we have 3 keymaps but only one can be changed form userspace... I
-suppose it is OK given how special the other 2 keymaps are. Or we could
-provide an alternative {get,set}keycode methods.
-
-> +	for (i = 0; i < ARRAY_SIZE(normal_map); i++) {
-> +		if (normal_map[i])
-> +			__set_bit(normal_map[i], kbd->keybit);
-> +	}
-> +	for (i = 0; i < ARRAY_SIZE(numlck_map); i++) {
-> +		if (numlck_map[i])
-> +			__set_bit(numlck_map[i], kbd->keybit);
-> +	}
-> +	for (i = 0; i < ARRAY_SIZE(fn_map); i++) {
-> +		if (fn_map[i])
-> +			__set_bit(fn_map[i], kbd->keybit);
-> +	}
-> +
-> +	ret = input_register_device(kbd);
-> +	if (ret == 0) {
-> +		platform_set_drvdata(dev, kbd);
-> +		lx_i2cslave_addwatcher(&lx_keyb_watcher, kbd);
-> +	} else {
-> +		input_free_device(kbd);
-> +	}
-> +	return ret;
-> +}
-> +
-> +static int __devexit lx_keyb_remove(struct platform_device *dev)
-> +{
-> +	struct input_dev *kbd = platform_get_drvdata(dev);
-> +	platform_set_drvdata(dev, NULL);
-> +	lx_i2cslave_delwatcher(&lx_keyb_watcher, kbd);
-> +	input_unregister_device(kbd);
-> +	return 0;
-> +}
-> +
-> +static int lx_keyb_resume(struct platform_device *dev)
-> +{
-> +	struct input_dev *kbd = platform_get_drvdata(dev);
-> +	lx_keyb_reset(kbd);
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver lx_kbd = {
-> +	.driver = {
-> +		.name	= "lx-kbd",
-> +		.owner	= THIS_MODULE,
-> +	},
-> +	.probe	= lx_keyb_probe,
-> +	.remove	= __devexit_p(lx_keyb_remove),
-> +	.resume	= lx_keyb_resume,
-> +};
-> +
-> +static int __init lx_keyb_init(void)
-> +{
-> +	printk(KERN_INFO "LX Keyboard Driver, (c) 2004 Simtec Electronics\n");
-
-Is this needed? Input core will already add printk when input device is
-added and our boot is already chatty enough...
-
-Thanks!
+Given that you have stateful key mapping you at least need to reset it
+to known state when suspending I think.
 
 -- 
 Dmitry

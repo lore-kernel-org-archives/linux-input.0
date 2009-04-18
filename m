@@ -1,51 +1,76 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/9] Fix unsafe disable_irq usage
-Date: Sat, 18 Apr 2009 16:38:30 -0700
-Message-ID: <200904181638.30794.dmitry.torokhov@gmail.com>
-References: <1239861245.29831.113.camel@linux-51e8.site>
+Subject: Re: HowTo write a driver for 2 multiplexed PS/2 ports over 1 UART?
+Date: Sat, 18 Apr 2009 16:46:00 -0700
+Message-ID: <20090418234559.GD32346@dtor-d630.eng.vmware.com>
+References: <1239861274.29831.118.camel@linux-51e8.site> <49E6CEAA.9060608@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.227]:3726 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.239]:6827 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754879AbZDRXih (ORCPT
+	with ESMTP id S1755191AbZDRXqH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Apr 2009 19:38:37 -0400
-In-Reply-To: <1239861245.29831.113.camel@linux-51e8.site>
+	Sat, 18 Apr 2009 19:46:07 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so1390214rvb.1
+        for <linux-input@vger.kernel.org>; Sat, 18 Apr 2009 16:46:06 -0700 (PDT)
 Content-Disposition: inline
+In-Reply-To: <49E6CEAA.9060608@denx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ben Nizette <bn@niasdigital.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, dan.j.williams@intel.com, Eric Miao <eric.miao@marvell.com>, linux@arm.linux.org.uk, p_gortmaker@yahoo.com, David Brownell <david-b@pacbell.net>, sameo@linux.intel.com, linux-omap@vger.kernel.org, pierre@ossman.eu, linux-input@vger.kernel.org
+To: Heiko Schocher <hs@denx.de>
+Cc: linux-input@vger.kernel.org
 
-Hi Ben,
+Hi Heiko,
 
-On Wednesday 15 April 2009 22:54:05 Ben Nizette wrote:
-> After being bitten by unsafe usage of disable_irq from within that irq's
-> handler [1], I went through and used Coccinelle to audit the rest of
-> drivers/ too.  This turned up 9 more unsafe usages.
->
-> As Haavard pointed out in that thread, disable_irq waits for running
-> handlers of an irq to complete before returning.  When a handler
-> disable_irq's its own irq then we see a deadlock.
->
-> Note that this wasn't actually observed in the wild until the recent
-> merge of
->
-> commit 3aa551c9b4c40018f0e261a178e3d25478dc04a9
-> Author: Thomas Gleixner <tglx@linutronix.de>
-> Date:   Mon Mar 23 18:28:15 2009 +0100
->
->     genirq: add threaded interrupt handler support
->
->     Add support for threaded interrupt handlers
->
+On Thu, Apr 16, 2009 at 08:22:34AM +0200, Heiko Schocher wrote:
+> Hello,
+> 
+> I maybe get a projekt, where I have 2 PS/2 ports (a keyboard and a mousse)
+> connected to one UART and the multiplexing is done by a PIC.
+> 
+> I searched in actual 2.6 Kernel sources for such a solution, but
+> couln;t find one. Overlooked I something?
+> 
+> For 2.4er Kernel there was such a driver, see
+> 
+> http://git.denx.de/?p=linuxppc_2_4_devel.git;a=blob;f=drivers/char/ps2mult.c
+> 
+> but, I think, this is no longer portable to 2.6.
+> 
+> So, thats why I am here and want to ask the experts how to solve
+> this problem in a mainline acceptable way, before I make a hack,
+> that never has a chance to go in mainline.
+> 
+> Some suggestions from me (maybe they are all bad)
+> 
+> I looked in drivers/input/serio/serio.c and could think of adding
+> the multiplexing in serio_interrupt(), and call serio_driver specific
+> serio->drv->interrupt functions, when I know, which byte come from
+> which device. But, if I see it right, I can only add one "struct
+> serio_driver *drv;" driver to one serio port, so it is not possible
+> to handle 2 or more devices over one serio port :-(
+> Maybe we enhance this too ... ?
+> 
+> Or I make a combinated (keyboard/mousse) driver which uses one
+> serio port ... but I think thats a bad idea, also no idea, in which
+> directory i have to add such a driver.
+> 
+> So I think it would nice to have the possibility to add more than
+> one serio_driver to a serio_port and add a "multiplexer" layer ...
+> but I am new to the input layer, so I ask the experts.
+> 
+> Hopefully I just missed something in actual code, and there is
+> better/easier way? ;-)
 >
 
-Applied all 4 patches affecting input devices, they should show up next
-time Linus pulls from me. Thank you.
+You need to create 2 serio ports in your driver and have it send data
+into appropriate port, depending on what device it came from. If you
+take a look at i8042 driver it does exactly that. We have 1 serio port
+for keyboard and eithe 1 or 4 AUX serio ports. In i8042_interrupt we
+check the status bit to figure to which serio port incoming byte should
+be routed and act accordingly.
+
+Hope this helps.
 
 -- 
 Dmitry

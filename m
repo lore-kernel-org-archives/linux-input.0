@@ -1,7 +1,7 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH/RFC 11/16] m68k: amiga - Mouse platform device conversion
-Date: Sat, 18 Apr 2009 20:52:19 +0200
-Message-ID: <1240080744-14995-12-git-send-email-geert@linux-m68k.org>
+Subject: [PATCH/RFC 10/16] m68k: amiga - Keyboard platform device conversion
+Date: Sat, 18 Apr 2009 20:52:18 +0200
+Message-ID: <1240080744-14995-11-git-send-email-geert@linux-m68k.org>
 References: <1240080744-14995-1-git-send-email-geert@linux-m68k.org>
  <1240080744-14995-2-git-send-email-geert@linux-m68k.org>
  <1240080744-14995-3-git-send-email-geert@linux-m68k.org>
@@ -12,9 +12,8 @@ References: <1240080744-14995-1-git-send-email-geert@linux-m68k.org>
  <1240080744-14995-8-git-send-email-geert@linux-m68k.org>
  <1240080744-14995-9-git-send-email-geert@linux-m68k.org>
  <1240080744-14995-10-git-send-email-geert@linux-m68k.org>
- <1240080744-14995-11-git-send-email-geert@linux-m68k.org>
 Return-path: <linux-m68k-owner@vger.kernel.org>
-In-Reply-To: <1240080744-14995-11-git-send-email-geert@linux-m68k.org>
+In-Reply-To: <1240080744-14995-10-git-send-email-geert@linux-m68k.org>
 Sender: linux-m68k-owner@vger.kernel.org
 To: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Geert Uytterhoeven <geert@linux-m68k.org>, linux-input@vger.kernel.org
@@ -23,188 +22,185 @@ List-Id: linux-input@vger.kernel.org
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Cc: linux-input@vger.kernel.org
 ---
- arch/m68k/amiga/platform.c     |    3 +
- drivers/input/mouse/amimouse.c |   98 +++++++++++++++++++++++++--------------
- 2 files changed, 66 insertions(+), 35 deletions(-)
+ arch/m68k/amiga/platform.c      |    5 ++
+ drivers/input/keyboard/amikbd.c |   97 +++++++++++++++++++++++----------------
+ 2 files changed, 63 insertions(+), 39 deletions(-)
 
 diff --git a/arch/m68k/amiga/platform.c b/arch/m68k/amiga/platform.c
-index d427de2..269bafc 100644
+index 907f6f5..d427de2 100644
 --- a/arch/m68k/amiga/platform.c
 +++ b/arch/m68k/amiga/platform.c
-@@ -165,6 +165,9 @@ static int __init amiga_init_devices(void)
- 	if (AMIGAHW_PRESENT(AMI_KEYBOARD))
- 		platform_device_register_simple("amiga-keyboard", -1, NULL, 0);
+@@ -160,6 +160,11 @@ static int __init amiga_init_devices(void)
+ 					 sizeof(a4000_ide_pdata));
+ 	}
  
-+	if (AMIGAHW_PRESENT(AMI_MOUSE))
-+		platform_device_register_simple("amiga-mouse", -1, NULL, 0);
++
++	/* other I/O hardware */
++	if (AMIGAHW_PRESENT(AMI_KEYBOARD))
++		platform_device_register_simple("amiga-keyboard", -1, NULL, 0);
 +
  	return 0;
  }
  
-diff --git a/drivers/input/mouse/amimouse.c b/drivers/input/mouse/amimouse.c
-index a185ac7..ff5f61a 100644
---- a/drivers/input/mouse/amimouse.c
-+++ b/drivers/input/mouse/amimouse.c
-@@ -21,6 +21,7 @@
- #include <linux/init.h>
- #include <linux/input.h>
+diff --git a/drivers/input/keyboard/amikbd.c b/drivers/input/keyboard/amikbd.c
+index 35149ec..79172af 100644
+--- a/drivers/input/keyboard/amikbd.c
++++ b/drivers/input/keyboard/amikbd.c
+@@ -35,6 +35,7 @@
+ #include <linux/delay.h>
  #include <linux/interrupt.h>
+ #include <linux/keyboard.h>
 +#include <linux/platform_device.h>
  
- #include <asm/irq.h>
- #include <asm/setup.h>
-@@ -34,10 +35,10 @@ MODULE_DESCRIPTION("Amiga mouse driver");
- MODULE_LICENSE("GPL");
+ #include <asm/amigaints.h>
+ #include <asm/amigahw.h>
+@@ -154,10 +155,9 @@ static const char *amikbd_messages[8] = {
+ 	[7] = KERN_WARNING "amikbd: keyboard interrupt\n"
+ };
  
- static int amimouse_lastx, amimouse_lasty;
--static struct input_dev *amimouse_dev;
- 
--static irqreturn_t amimouse_interrupt(int irq, void *dummy)
-+static irqreturn_t amimouse_interrupt(int irq, void *data)
+-static struct input_dev *amikbd_dev;
+-
+-static irqreturn_t amikbd_interrupt(int irq, void *dummy)
++static irqreturn_t amikbd_interrupt(int irq, void *data)
  {
 +	struct input_dev *dev = data;
- 	unsigned short joy0dat, potgor;
- 	int nx, ny, dx, dy;
+ 	unsigned char scancode, down;
  
-@@ -59,14 +60,14 @@ static irqreturn_t amimouse_interrupt(int irq, void *dummy)
+ 	scancode = ~ciaa.sdr;		/* get and invert scancode (keyboard is active low) */
+@@ -170,47 +170,42 @@ static irqreturn_t amikbd_interrupt(int irq, void *dummy)
  
- 	potgor = amiga_custom.potgor;
+ 	if (scancode < 0x78) {		/* scancodes < 0x78 are keys */
+ 		if (scancode == 98) {	/* CapsLock is a toggle switch key on Amiga */
+-			input_report_key(amikbd_dev, scancode, 1);
+-			input_report_key(amikbd_dev, scancode, 0);
++			input_report_key(dev, scancode, 1);
++			input_report_key(dev, scancode, 0);
+ 		} else {
+-			input_report_key(amikbd_dev, scancode, down);
++			input_report_key(dev, scancode, down);
+ 		}
  
--	input_report_rel(amimouse_dev, REL_X, dx);
--	input_report_rel(amimouse_dev, REL_Y, dy);
-+	input_report_rel(dev, REL_X, dx);
-+	input_report_rel(dev, REL_Y, dy);
- 
--	input_report_key(amimouse_dev, BTN_LEFT,   ciaa.pra & 0x40);
--	input_report_key(amimouse_dev, BTN_MIDDLE, potgor & 0x0100);
--	input_report_key(amimouse_dev, BTN_RIGHT,  potgor & 0x0400);
-+	input_report_key(dev, BTN_LEFT,   ciaa.pra & 0x40);
-+	input_report_key(dev, BTN_MIDDLE, potgor & 0x0100);
-+	input_report_key(dev, BTN_RIGHT,  potgor & 0x0400);
- 
--	input_sync(amimouse_dev);
-+	input_sync(dev);
+-		input_sync(amikbd_dev);
++		input_sync(dev);
+ 	} else				/* scancodes >= 0x78 are error codes */
+ 		printk(amikbd_messages[scancode - 0x78]);
  
  	return IRQ_HANDLED;
  }
-@@ -74,63 +75,90 @@ static irqreturn_t amimouse_interrupt(int irq, void *dummy)
- static int amimouse_open(struct input_dev *dev)
+ 
+-static int __init amikbd_init(void)
++static int __init amikbd_probe(struct platform_device *pdev)
  {
- 	unsigned short joy0dat;
-+	int error;
- 
- 	joy0dat = amiga_custom.joy0dat;
- 
- 	amimouse_lastx = joy0dat & 0xff;
- 	amimouse_lasty = joy0dat >> 8;
- 
--	if (request_irq(IRQ_AMIGA_VERTB, amimouse_interrupt, 0, "amimouse", amimouse_interrupt)) {
--                printk(KERN_ERR "amimouse.c: Can't allocate irq %d\n", IRQ_AMIGA_VERTB);
--                return -EBUSY;
--        }
-+	error = request_irq(IRQ_AMIGA_VERTB, amimouse_interrupt, 0, "amimouse",
-+			    dev);
-+	if (error)
-+		dev_err(&dev->dev, "Can't allocate irq %d\n", IRQ_AMIGA_VERTB);
- 
--        return 0;
-+	return error;
- }
- 
- static void amimouse_close(struct input_dev *dev)
- {
--	free_irq(IRQ_AMIGA_VERTB, amimouse_interrupt);
-+	free_irq(IRQ_AMIGA_VERTB, dev);
- }
- 
--static int __init amimouse_init(void)
-+static int __init amimouse_probe(struct platform_device *pdev)
- {
- 	int err;
 +	struct input_dev *dev;
+ 	int i, j, err;
  
--	if (!MACH_IS_AMIGA || !AMIGAHW_PRESENT(AMI_MOUSE))
+-	if (!AMIGAHW_PRESENT(AMI_KEYBOARD))
 -		return -ENODEV;
 -
--	amimouse_dev = input_allocate_device();
--	if (!amimouse_dev)
+-	if (!request_mem_region(CIAA_PHYSADDR-1+0xb00, 0x100, "amikeyb"))
+-		return -EBUSY;
+-
+-	amikbd_dev = input_allocate_device();
+-	if (!amikbd_dev) {
+-		printk(KERN_ERR "amikbd: not enough memory for input device\n");
+-		err = -ENOMEM;
+-		goto fail1;
 +	dev = input_allocate_device();
-+	if (!dev)
- 		return -ENOMEM;
++	if (!dev) {
++		dev_err(&pdev->dev, "Not enough memory for input device\n");
++		return -ENOMEM;
+ 	}
  
--	amimouse_dev->name = "Amiga mouse";
--	amimouse_dev->phys = "amimouse/input0";
--	amimouse_dev->id.bustype = BUS_AMIGA;
--	amimouse_dev->id.vendor = 0x0001;
--	amimouse_dev->id.product = 0x0002;
--	amimouse_dev->id.version = 0x0100;
+-	amikbd_dev->name = "Amiga Keyboard";
+-	amikbd_dev->phys = "amikbd/input0";
+-	amikbd_dev->id.bustype = BUS_AMIGA;
+-	amikbd_dev->id.vendor = 0x0001;
+-	amikbd_dev->id.product = 0x0001;
+-	amikbd_dev->id.version = 0x0100;
 +	dev->name = pdev->name;
-+	dev->phys = "amimouse/input0";
++	dev->phys = "amikbd/input0";
 +	dev->id.bustype = BUS_AMIGA;
 +	dev->id.vendor = 0x0001;
-+	dev->id.product = 0x0002;
++	dev->id.product = 0x0001;
 +	dev->id.version = 0x0100;
- 
--	amimouse_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
--	amimouse_dev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
--	amimouse_dev->keybit[BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) |
-+	dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REL);
-+	dev->relbit[0] = BIT_MASK(REL_X) | BIT_MASK(REL_Y);
-+	dev->keybit[BIT_WORD(BTN_LEFT)] = BIT_MASK(BTN_LEFT) |
- 		BIT_MASK(BTN_MIDDLE) | BIT_MASK(BTN_RIGHT);
--	amimouse_dev->open = amimouse_open;
--	amimouse_dev->close = amimouse_close;
-+	dev->open = amimouse_open;
-+	dev->close = amimouse_close;
 +	dev->dev.parent = &pdev->dev;
  
--	err = input_register_device(amimouse_dev);
-+	err = input_register_device(dev);
- 	if (err) {
--		input_free_device(amimouse_dev);
-+		input_free_device(dev);
- 		return err;
+-	amikbd_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
++	dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
+ 
+ 	for (i = 0; i < 0x78; i++)
+-		set_bit(i, amikbd_dev->keybit);
++		set_bit(i, dev->keybit);
+ 
+ 	for (i = 0; i < MAX_NR_KEYMAPS; i++) {
+ 		static u_short temp_map[NR_KEYS] __initdata;
+@@ -229,30 +224,54 @@ static int __init amikbd_init(void)
+ 		memcpy(key_maps[i], temp_map, sizeof(temp_map));
  	}
+ 	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
+-	if (request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd",
+-			amikbd_interrupt)) {
+-		err = -EBUSY;
++	err = request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd",
++			  dev);
++	if (err)
+ 		goto fail2;
+-	}
+ 
+-	err = input_register_device(amikbd_dev);
++	err = input_register_device(dev);
+ 	if (err)
+ 		goto fail3;
  
 +	platform_set_drvdata(pdev, dev);
 +
  	return 0;
+ 
+- fail3:	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
+- fail2:	input_free_device(amikbd_dev);
+- fail1:	release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
++ fail3:	free_irq(IRQ_AMIGA_CIAA_SP, dev);
++ fail2:	input_free_device(dev);
+ 	return err;
  }
  
--static void __exit amimouse_exit(void)
-+static int __exit amimouse_remove(struct platform_device *pdev)
- {
--        input_unregister_device(amimouse_dev);
+-static void __exit amikbd_exit(void)
++static int __exit amikbd_remove(struct platform_device *pdev)
++{
 +	struct input_dev *dev = platform_get_drvdata(pdev);
 +
 +	platform_set_drvdata(pdev, NULL);
++	free_irq(IRQ_AMIGA_CIAA_SP, dev);
 +	input_unregister_device(dev);
 +	return 0;
 +}
 +
-+static struct platform_driver amimouse_driver = {
-+	.remove = __exit_p(amimouse_remove),
++static struct platform_driver amikbd_driver = {
++	.remove = __exit_p(amikbd_remove),
 +	.driver   = {
-+		.name	= "amiga-mouse",
++		.name	= "amiga-keyboard",
 +		.owner	= THIS_MODULE,
 +	},
 +};
 +
-+static int __init amimouse_init(void)
-+{
-+	return platform_driver_probe(&amimouse_driver, amimouse_probe);
++static int __init amikbd_init(void)
+ {
+-	free_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt);
+-	input_unregister_device(amikbd_dev);
+-	release_mem_region(CIAA_PHYSADDR - 1 + 0xb00, 0x100);
++	return platform_driver_probe(&amikbd_driver, amikbd_probe);
  }
  
- module_init(amimouse_init);
+ module_init(amikbd_init);
 +
-+static void __exit amimouse_exit(void)
++static void __exit amikbd_exit(void)
 +{
-+	platform_driver_unregister(&amimouse_driver);
++	platform_driver_unregister(&amikbd_driver);
 +}
 +
- module_exit(amimouse_exit);
+ module_exit(amikbd_exit);
 +
-+MODULE_ALIAS("platform:amiga-mouse");
++MODULE_ALIAS("platform:amiga-keyboard");
 -- 
 1.6.2.3
 

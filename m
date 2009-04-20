@@ -1,90 +1,32 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Rawmode keyboard for your....
-Date: Mon, 20 Apr 2009 00:04:49 -0700
-Message-ID: <200904200004.49651.dmitry.torokhov@gmail.com>
-References: <20090326185925.79ca6833.kristoffer.ericson@gmail.com> <BD79186B4FD85F4B8E60E381CAEE1909014E279A@mi8nycmail19.Mi8.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH 3/5] [ARM] pxa: lx: add keyboard driver
+Date: Mon, 20 Apr 2009 09:25:13 +0100
+Message-ID: <20090420082513.GC21187@n2100.arm.linux.org.uk>
+References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk> <20090418231018.GA32346@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.239]:10237 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751813AbZDTHFA (ORCPT
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:44843 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750884AbZDTIZn (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Apr 2009 03:05:00 -0400
-Received: by rv-out-0506.google.com with SMTP id f9so1760722rvb.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Apr 2009 00:04:58 -0700 (PDT)
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909014E279A@mi8nycmail19.Mi8.com>
+	Mon, 20 Apr 2009 04:25:43 -0400
 Content-Disposition: inline
+In-Reply-To: <20090418231018.GA32346@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Ben Dooks <ben-linux-arm@fluff.org>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
 
-On Thursday 26 March 2009 11:30:43 H Hartley Sweeten wrote:
-> On Thursday, March 26, 2009 10:59 AM, Kristoffer Ericson wrote:
-> > Greetings,
->
-> Hello
->
-> > What exactly does this build warning imply?
-> > We have a fully working keyboard driver for the Jornada 700-series
-> > and would really like to get rid of this.
-> >
-> >
-> >  CC      drivers/char/keyboard.o
-> > drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
->
-> rawmode keyboard for your architecture yet."
->
-> > drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
->
-> rawmode keyboard for your architecture yet."
->
-> It means just what it says, if you put the keyboard into VC_RAW mode you
-> will not get the expected key codes.
->
-> But... Hmm... Jornada 700-series is arm/mach-sa1100 (CONFIG_ARM)...
->
-> Looks like if you enable CONFIG_KEYBOARD_ATKBD the build warning message
-> will go away.
->
+On Sat, Apr 18, 2009 at 04:10:28PM -0700, Dmitry Torokhov wrote:
+> Hi Russell,
+> 
+> On Sat, Apr 18, 2009 at 03:20:50PM +0100, Russell King wrote:
+> > +static int __init lx_keyb_init(void)
+> > +{
+> > +	printk(KERN_INFO "LX Keyboard Driver, (c) 2004 Simtec Electronics\n");
+> 
+> Is this needed? Input core will already add printk when input device is
+> added and our boot is already chatty enough...
 
-I think we should just remove the warning. It does not make much sense
-anymore. I intend to apply the patch below.
-
--- 
-Dmitry
-
-Input: keyboard - remove warning about raw mode not supported
-
-This warning made sense when legacy keyboard driver was preferred
-driver in X, but now that evdev driver is the default we can remove
-the warning.
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/char/keyboard.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-
-diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-index de26a97..737be95 100644
---- a/drivers/char/keyboard.c
-+++ b/drivers/char/keyboard.c
-@@ -1123,8 +1123,6 @@ static int emulate_raw(struct vc_data *vc, unsigned int 
-keycode,
- 
- #define HW_RAW(dev)	0
- 
--#warning "Cannot generate rawmode keyboard for your architecture yet."
--
- static int emulate_raw(struct vc_data *vc, unsigned int keycode, unsigned 
-char up_flag)
- {
- 	if (keycode > 127)
-
-
-
+Simtec themselves would need to remove that line.

@@ -1,100 +1,110 @@
-From: Kristoffer Ericson <kristoffer.ericson@gmail.com>
-Subject: Re: Rawmode keyboard for your....
-Date: Mon, 20 Apr 2009 13:04:30 +0200
-Message-ID: <20090420130430.cf95a039.kristoffer.ericson@gmail.com>
-References: <20090326185925.79ca6833.kristoffer.ericson@gmail.com>
-	<BD79186B4FD85F4B8E60E381CAEE1909014E279A@mi8nycmail19.Mi8.com>
-	<200904200004.49651.dmitry.torokhov@gmail.com>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH 3/5] [ARM] pxa: lx: add keyboard driver
+Date: Mon, 20 Apr 2009 12:06:40 +0100
+Message-ID: <20090420110640.GC3653@n2100.arm.linux.org.uk>
+References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk> <20090418231018.GA32346@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from fk-out-0910.google.com ([209.85.128.189]:15754 "EHLO
-	fk-out-0910.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753773AbZDTLAI (ORCPT
+Received: from caramon.arm.linux.org.uk ([78.32.30.218]:42733 "EHLO
+	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754803AbZDTLGt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Apr 2009 07:00:08 -0400
-Received: by fk-out-0910.google.com with SMTP id 18so866003fkq.5
-        for <linux-input@vger.kernel.org>; Mon, 20 Apr 2009 04:00:06 -0700 (PDT)
-In-Reply-To: <200904200004.49651.dmitry.torokhov@gmail.com>
+	Mon, 20 Apr 2009 07:06:49 -0400
+Content-Disposition: inline
+In-Reply-To: <20090418231018.GA32346@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: H Hartley Sweeten <hartleys@visionengravers.com>, linux-input@vger.kernel.org
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
 
-On Mon, 20 Apr 2009 00:04:49 -0700
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+On Sat, Apr 18, 2009 at 04:10:28PM -0700, Dmitry Torokhov wrote:
+> > +config KEYBOARD_LX
+> > +	tristate "LX Keyboard support"
+> > +	depends on MACH_NETBOOKPRO && INPUT && INPUT_KEYBOARD
+> 
+> Dependancy on INPUT_KEYBOARD is not needed, strictly speaking.
+> INPUT_KEYBOARD is only [menu]config syntactic sugar, there is no meat
+> behind the option.
 
-> On Thursday 26 March 2009 11:30:43 H Hartley Sweeten wrote:
-> > On Thursday, March 26, 2009 10:59 AM, Kristoffer Ericson wrote:
-> > > Greetings,
-> >
-> > Hello
-> >
-> > > What exactly does this build warning imply?
-> > > We have a fully working keyboard driver for the Jornada 700-series
-> > > and would really like to get rid of this.
-> > >
-> > >
-> > >  CC      drivers/char/keyboard.o
-> > > drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
-> >
-> > rawmode keyboard for your architecture yet."
-> >
-> > > drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
-> >
-> > rawmode keyboard for your architecture yet."
-> >
-> > It means just what it says, if you put the keyboard into VC_RAW mode you
-> > will not get the expected key codes.
-> >
-> > But... Hmm... Jornada 700-series is arm/mach-sa1100 (CONFIG_ARM)...
-> >
-> > Looks like if you enable CONFIG_KEYBOARD_ATKBD the build warning message
-> > will go away.
-> >
-> 
-> I think we should just remove the warning. It does not make much sense
-> anymore. I intend to apply the patch below.
+Gone.
 
-Sounds like a good idea. Thanks!
+> > +
+> > +	/*
+> > +	 * Some keys have additional operations after we have
+> > +	 * decoded them.  We don't report these "special" keys
+> > +	 * to the input layer.
+> > +	 */
+> > +	switch (key) {
+> > +	case KEY_BRIGHTNESSUP:
+> > +	case KEY_BRIGHTNESSDOWN:
+> > +		input_event(kbd, EV_PWR, key, !up);
+> 
+> Umm... some userspace apps might still want to get these. Strictly
+> speaking KEY_* codes belong to EV_KEY namespace.
 
-> 
-> -- 
-> Dmitry
-> 
-> Input: keyboard - remove warning about raw mode not supported
-> 
-> This warning made sense when legacy keyboard driver was preferred
-> driver in X, but now that evdev driver is the default we can remove
-> the warning.
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  drivers/char/keyboard.c |    2 --
->  1 files changed, 0 insertions(+), 2 deletions(-)
-> 
-> 
-> diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
-> index de26a97..737be95 100644
-> --- a/drivers/char/keyboard.c
-> +++ b/drivers/char/keyboard.c
-> @@ -1123,8 +1123,6 @@ static int emulate_raw(struct vc_data *vc, unsigned int 
-> keycode,
->  
->  #define HW_RAW(dev)	0
->  
-> -#warning "Cannot generate rawmode keyboard for your architecture yet."
-> -
->  static int emulate_raw(struct vc_data *vc, unsigned int keycode, unsigned 
-> char up_flag)
->  {
->  	if (keycode > 127)
-> 
-> 
-> 
+Maybe, if someone wants it I guess they can modify the driver.
 
+> > +static void lx_keyb_reset(struct input_dev *kbd)
+> > +{
+> > +	unsigned char *map;
+> > +	int key;
+> > +
+> > +	for (key = 0; key < LX_NUMKEYCODES; key++)
+> > +		if (keystate[key] & KP_DOWN) {
+> > +			map = normal_map;
+> > +			if (keystate[key] & KP_FN)
+> > +				map = fn_map;
+> > +			else if (keystate[key] & KP_NUMLCK)
+> > +				map = numlck_map;
+> > +			keystate[key] = KP_NONE;
+> > +			input_report_key(kbd, map[key], 0);
+> > +		}
+> 
+> Why don't you just send 'up' event for all known keys? Input core will
+> filter out the ones that have not been 'down'ed... Better yet, don't do
+> anything here, I should finish adding forced release at suspend/resume
+> to the input core shortly.
 
--- 
-Kristoffer Ericson <kristoffer.ericson@gmail.com>
+I'll leave it as is until you've decided what to do with the input core.
+
+> > +static void lx_keyb_write(void *data, unsigned int addr, unsigned char val)
+> > +{
+> > +	struct input_dev *kbd = data;
+> 
+> Blank line between variables and the code is always appreciated ;)
+
+Added.
+
+> > +	kbd->name        = "LX Keyboard";
+> > +	kbd->phys        = "pcon/input0";
+> > +	kbd->dev.parent  = &dev->dev;
+> > +	kbd->evbit[0]    = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
+> > +			   BIT_MASK(EV_PWR);
+> > +	kbd->keycode     = normal_map;
+> > +	kbd->keycodesize = sizeof(unsigned char);
+> > +	kbd->keycodemax  = ARRAY_SIZE(normal_map);
+> > +
+> 
+> So we have 3 keymaps but only one can be changed form userspace... I
+> suppose it is OK given how special the other 2 keymaps are. Or we could
+> provide an alternative {get,set}keycode methods.
+
+Yes, not sure what to do about those.  It is a rather specialised
+keyboard in itself, so the standard maps wouldn't work with it.
+
+The other issue here is that changing what's published may break the
+existing userspace (and since I didn't take a copy of the userspace
+build for this platform before the server was taken down, that could
+present something of a problem resulting in my use of the device being
+crippled.)  Let's leave it as is and if someone does want to change it
+later...
+
+> > +static int __init lx_keyb_init(void)
+> > +{
+> > +	printk(KERN_INFO "LX Keyboard Driver, (c) 2004 Simtec Electronics\n");
+> 
+> Is this needed? Input core will already add printk when input device is
+> added and our boot is already chatty enough...
+
+As mentioned in the other mail, now removed.

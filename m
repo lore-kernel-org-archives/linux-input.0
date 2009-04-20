@@ -1,64 +1,90 @@
-From: Heiko Schocher <hs@denx.de>
-Subject: Re: HowTo write a driver for 2 multiplexed PS/2 ports over 1 UART?
-Date: Mon, 20 Apr 2009 06:45:11 +0200
-Message-ID: <49EBFDD7.4020201@denx.de>
-References: <1239861274.29831.118.camel@linux-51e8.site> <20090418234559.GD32346@dtor-d630.eng.vmware.com> <49EAF729.2010603@denx.de> <200904191748.32287.dmitry.torokhov@gmail.com>
-Reply-To: hs@denx.de
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: Rawmode keyboard for your....
+Date: Mon, 20 Apr 2009 00:04:49 -0700
+Message-ID: <200904200004.49651.dmitry.torokhov@gmail.com>
+References: <20090326185925.79ca6833.kristoffer.ericson@gmail.com> <BD79186B4FD85F4B8E60E381CAEE1909014E279A@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-out.m-online.net ([212.18.0.9]:57752 "EHLO
-	mail-out.m-online.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752527AbZDTFf1 (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.239]:10237 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751813AbZDTHFA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Apr 2009 01:35:27 -0400
-In-Reply-To: <200904191748.32287.dmitry.torokhov@gmail.com>
+	Mon, 20 Apr 2009 03:05:00 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so1760722rvb.1
+        for <linux-input@vger.kernel.org>; Mon, 20 Apr 2009 00:04:58 -0700 (PDT)
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909014E279A@mi8nycmail19.Mi8.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: H Hartley Sweeten <hartleys@visionengravers.com>
+Cc: Kristoffer Ericson <kristoffer.ericson@gmail.com>, linux-input@vger.kernel.org
 
-Hello Dmitry,
+On Thursday 26 March 2009 11:30:43 H Hartley Sweeten wrote:
+> On Thursday, March 26, 2009 10:59 AM, Kristoffer Ericson wrote:
+> > Greetings,
+>
+> Hello
+>
+> > What exactly does this build warning imply?
+> > We have a fully working keyboard driver for the Jornada 700-series
+> > and would really like to get rid of this.
+> >
+> >
+> >  CC      drivers/char/keyboard.o
+> > drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
+>
+> rawmode keyboard for your architecture yet."
+>
+> > drivers/char/keyboard.c:1126:2: warning: #warning "Cannot generate
+>
+> rawmode keyboard for your architecture yet."
+>
+> It means just what it says, if you put the keyboard into VC_RAW mode you
+> will not get the expected key codes.
+>
+> But... Hmm... Jornada 700-series is arm/mach-sa1100 (CONFIG_ARM)...
+>
+> Looks like if you enable CONFIG_KEYBOARD_ATKBD the build warning message
+> will go away.
+>
 
-Dmitry Torokhov wrote:
-> On Sunday 19 April 2009 03:04:25 Heiko Schocher wrote:
->> Hello Dmitry,
->>
->> Dmitry Torokhov wrote:
->>> You need to create 2 serio ports in your driver and have it send data
->>> into appropriate port, depending on what device it came from. If you
->>> take a look at i8042 driver it does exactly that. We have 1 serio port
->>> for keyboard and eithe 1 or 4 AUX serio ports. In i8042_interrupt we
->>> check the status bit to figure to which serio port incoming byte should
->>> be routed and act accordingly.
->> Ah, thanks for this hint :-)
->>
->> OK, so I have to write a serial driver for the uart on my hardware,
->> and add this in drivers/serio, right?
->>
->> Hmm.. spontaneous I think (maybe it is a bad thought), what do you
->> think to the following approach:
->>
->> I didn;t want to write a new serio driver for my uart (mpc5200 internal
->> PSC Uart), because there is a working tty driver for this, and the multi-
->> plexing functionality is just a protocoll ... so I think of using
->> the drivers/serio/serport.c and add this "multiplexing" functionality
->> to the serport.c driver ... is this worth about to think?
->>
->> this should be a more general approach then writting a special serial
->> driver for "my" UART ... what do you think?
->>
-> 
-> Yes, this is definitely better solution. I did not realize that there
-> was a working driver for your UART. It would be best if your solution
-> extended (and was compatible with) current N_MOUSE line discipline.
+I think we should just remove the warning. It does not make much sense
+anymore. I intend to apply the patch below.
 
-OK, thanks for your info, I hope I get this project, so I can do this
-job.
-
-bye
-Heiko
 -- 
-DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Dmitry
+
+Input: keyboard - remove warning about raw mode not supported
+
+This warning made sense when legacy keyboard driver was preferred
+driver in X, but now that evdev driver is the default we can remove
+the warning.
+
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
+
+ drivers/char/keyboard.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+
+diff --git a/drivers/char/keyboard.c b/drivers/char/keyboard.c
+index de26a97..737be95 100644
+--- a/drivers/char/keyboard.c
++++ b/drivers/char/keyboard.c
+@@ -1123,8 +1123,6 @@ static int emulate_raw(struct vc_data *vc, unsigned int 
+keycode,
+ 
+ #define HW_RAW(dev)	0
+ 
+-#warning "Cannot generate rawmode keyboard for your architecture yet."
+-
+ static int emulate_raw(struct vc_data *vc, unsigned int keycode, unsigned 
+char up_flag)
+ {
+ 	if (keycode > 127)
+
+
+

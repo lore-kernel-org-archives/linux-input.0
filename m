@@ -1,115 +1,131 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: [PATCH 1/4] driver core: use string format when name is another device's name
-Date: Mon, 20 Apr 2009 21:17:13 -0300
-Message-ID: <2289cd3dcbe25046472d90cd0b25e57fbef92dc1.1240272929.git.cascardo@holoscopio.com>
-References: <1240273036-5995-1-git-send-email-cascardo@holoscopio.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 3/5] [ARM] pxa: lx: add keyboard driver
+Date: Mon, 20 Apr 2009 19:15:24 -0700
+Message-ID: <20090421021524.GA13617@dtor-d630.eng.vmware.com>
+References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk> <20090418231018.GA32346@dtor-d630.eng.vmware.com> <20090420110640.GC3653@n2100.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade.minaslivre.org ([72.232.18.203]:57954 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756556AbZDUBLV (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.182]:9375 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752709AbZDUCPd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Apr 2009 21:11:21 -0400
-In-Reply-To: <1240273036-5995-1-git-send-email-cascardo@holoscopio.com>
-In-Reply-To: <cover.1240272928.git.cascardo@holoscopio.com>
-References: <cover.1240272928.git.cascardo@holoscopio.com>
+	Mon, 20 Apr 2009 22:15:33 -0400
+Received: by wa-out-1112.google.com with SMTP id j5so1214630wah.21
+        for <linux-input@vger.kernel.org>; Mon, 20 Apr 2009 19:15:31 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20090420110640.GC3653@n2100.arm.linux.org.uk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, gregkh@suse.de, kay.sievers@vrfy.org, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
 
-When using a construct like dev_set_name(&xdev, "%s", dev_name(&dev)),
-make sure the string specification is used as the format instead of
-directly using the device name. This protects both against the case
-where device name is NULL or includes any string specification.
+On Mon, Apr 20, 2009 at 12:06:40PM +0100, Russell King - ARM Linux wrote:
+> On Sat, Apr 18, 2009 at 04:10:28PM -0700, Dmitry Torokhov wrote:
+> > > +config KEYBOARD_LX
+> > > +	tristate "LX Keyboard support"
+> > > +	depends on MACH_NETBOOKPRO && INPUT && INPUT_KEYBOARD
+> > 
+> > Dependancy on INPUT_KEYBOARD is not needed, strictly speaking.
+> > INPUT_KEYBOARD is only [menu]config syntactic sugar, there is no meat
+> > behind the option.
+> 
+> Gone.
+> 
+> > > +
+> > > +	/*
+> > > +	 * Some keys have additional operations after we have
+> > > +	 * decoded them.  We don't report these "special" keys
+> > > +	 * to the input layer.
+> > > +	 */
+> > > +	switch (key) {
+> > > +	case KEY_BRIGHTNESSUP:
+> > > +	case KEY_BRIGHTNESSDOWN:
+> > > +		input_event(kbd, EV_PWR, key, !up);
+> > 
+> > Umm... some userspace apps might still want to get these. Strictly
+> > speaking KEY_* codes belong to EV_KEY namespace.
+> 
+> Maybe, if someone wants it I guess they can modify the driver.
+> 
 
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
----
- drivers/base/attribute_container.c |    2 +-
- drivers/base/firmware_class.c      |    2 +-
- drivers/ide/ide-cd.c               |    2 +-
- drivers/ide/ide-gd.c               |    2 +-
- drivers/ide/ide-tape.c             |    2 +-
- drivers/scsi/sd.c                  |    2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
+OK.
 
-diff --git a/drivers/base/attribute_container.c b/drivers/base/attribute_container.c
-index b9cda05..e0f7859 100644
---- a/drivers/base/attribute_container.c
-+++ b/drivers/base/attribute_container.c
-@@ -167,7 +167,7 @@ attribute_container_add_device(struct device *dev,
- 		ic->classdev.parent = get_device(dev);
- 		ic->classdev.class = cont->class;
- 		cont->class->dev_release = attribute_container_release;
--		dev_set_name(&ic->classdev, dev_name(dev));
-+		dev_set_name(&ic->classdev, "%s", dev_name(dev));
- 		if (fn)
- 			fn(cont, dev, &ic->classdev);
- 		else
-diff --git a/drivers/base/firmware_class.c b/drivers/base/firmware_class.c
-index d3a59c6..f770811 100644
---- a/drivers/base/firmware_class.c
-+++ b/drivers/base/firmware_class.c
-@@ -315,7 +315,7 @@ static int fw_register_device(struct device **dev_p, const char *fw_name,
- 	fw_priv->timeout.data = (u_long) fw_priv;
- 	init_timer(&fw_priv->timeout);
- 
--	dev_set_name(f_dev, dev_name(device));
-+	dev_set_name(f_dev, "%s", dev_name(device));
- 	f_dev->parent = device;
- 	f_dev->class = &firmware_class;
- 	dev_set_drvdata(f_dev, fw_priv);
-diff --git a/drivers/ide/ide-cd.c b/drivers/ide/ide-cd.c
-index 3aec19d..5c1efef 100644
---- a/drivers/ide/ide-cd.c
-+++ b/drivers/ide/ide-cd.c
-@@ -1817,7 +1817,7 @@ static int ide_cd_probe(ide_drive_t *drive)
- 
- 	info->dev.parent = &drive->gendev;
- 	info->dev.release = ide_cd_release;
--	dev_set_name(&info->dev, dev_name(&drive->gendev));
-+	dev_set_name(&info->dev, "%s", dev_name(&drive->gendev));
- 
- 	if (device_register(&info->dev))
- 		goto out_free_disk;
-diff --git a/drivers/ide/ide-gd.c b/drivers/ide/ide-gd.c
-index 1aebdf1..f91031a 100644
---- a/drivers/ide/ide-gd.c
-+++ b/drivers/ide/ide-gd.c
-@@ -345,7 +345,7 @@ static int ide_gd_probe(ide_drive_t *drive)
- 
- 	idkp->dev.parent = &drive->gendev;
- 	idkp->dev.release = ide_disk_release;
--	dev_set_name(&idkp->dev, dev_name(&drive->gendev));
-+	dev_set_name(&idkp->dev, "%s", dev_name(&drive->gendev));
- 
- 	if (device_register(&idkp->dev))
- 		goto out_free_disk;
-diff --git a/drivers/ide/ide-tape.c b/drivers/ide/ide-tape.c
-index cb942a9..e5b6bea 100644
---- a/drivers/ide/ide-tape.c
-+++ b/drivers/ide/ide-tape.c
-@@ -2384,7 +2384,7 @@ static int ide_tape_probe(ide_drive_t *drive)
- 
- 	tape->dev.parent = &drive->gendev;
- 	tape->dev.release = ide_tape_release;
--	dev_set_name(&tape->dev, dev_name(&drive->gendev));
-+	dev_set_name(&tape->dev, "%s", dev_name(&drive->gendev));
- 
- 	if (device_register(&tape->dev))
- 		goto out_free_disk;
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index 3fcb64b..254bc3e 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -1918,7 +1918,7 @@ static void sd_probe_async(void *data, async_cookie_t cookie)
- 	device_initialize(&sdkp->dev);
- 	sdkp->dev.parent = &sdp->sdev_gendev;
- 	sdkp->dev.class = &sd_disk_class;
--	dev_set_name(&sdkp->dev, dev_name(&sdp->sdev_gendev));
-+	dev_set_name(&sdkp->dev, "%s", dev_name(&sdp->sdev_gendev));
- 
- 	if (device_add(&sdkp->dev))
- 		goto out_free_index;
+> > > +static void lx_keyb_reset(struct input_dev *kbd)
+> > > +{
+> > > +	unsigned char *map;
+> > > +	int key;
+> > > +
+> > > +	for (key = 0; key < LX_NUMKEYCODES; key++)
+> > > +		if (keystate[key] & KP_DOWN) {
+> > > +			map = normal_map;
+> > > +			if (keystate[key] & KP_FN)
+> > > +				map = fn_map;
+> > > +			else if (keystate[key] & KP_NUMLCK)
+> > > +				map = numlck_map;
+> > > +			keystate[key] = KP_NONE;
+> > > +			input_report_key(kbd, map[key], 0);
+> > > +		}
+> > 
+> > Why don't you just send 'up' event for all known keys? Input core will
+> > filter out the ones that have not been 'down'ed... Better yet, don't do
+> > anything here, I should finish adding forced release at suspend/resume
+> > to the input core shortly.
+> 
+> I'll leave it as is until you've decided what to do with the input core.
+>
+
+Fair enough.
+
+> > > +static void lx_keyb_write(void *data, unsigned int addr, unsigned char val)
+> > > +{
+> > > +	struct input_dev *kbd = data;
+> > 
+> > Blank line between variables and the code is always appreciated ;)
+> 
+> Added.
+> 
+> > > +	kbd->name        = "LX Keyboard";
+> > > +	kbd->phys        = "pcon/input0";
+> > > +	kbd->dev.parent  = &dev->dev;
+> > > +	kbd->evbit[0]    = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
+> > > +			   BIT_MASK(EV_PWR);
+> > > +	kbd->keycode     = normal_map;
+> > > +	kbd->keycodesize = sizeof(unsigned char);
+> > > +	kbd->keycodemax  = ARRAY_SIZE(normal_map);
+> > > +
+> > 
+> > So we have 3 keymaps but only one can be changed form userspace... I
+> > suppose it is OK given how special the other 2 keymaps are. Or we could
+> > provide an alternative {get,set}keycode methods.
+> 
+> Yes, not sure what to do about those.  It is a rather specialised
+> keyboard in itself, so the standard maps wouldn't work with it.
+> 
+> The other issue here is that changing what's published may break the
+> existing userspace (and since I didn't take a copy of the userspace
+> build for this platform before the server was taken down, that could
+> present something of a problem resulting in my use of the device being
+> crippled.)  Let's leave it as is and if someone does want to change it
+> later...
+> 
+
+I did not mean we would change anything as far as default setup is
+concerned and is visible from userspace; it would be all internal
+adjustment that would also allow changing numlck_map and fn_map mapping
+in addition to changing normal_map. I will just put it on my TODO
+list...
+
+> > > +static int __init lx_keyb_init(void)
+> > > +{
+> > > +	printk(KERN_INFO "LX Keyboard Driver, (c) 2004 Simtec Electronics\n");
+> > 
+> > Is this needed? Input core will already add printk when input device is
+> > added and our boot is already chatty enough...
+> 
+> As mentioned in the other mail, now removed.
+
+Thanks.
+
 -- 
-1.6.2.3
-
+Dmitry

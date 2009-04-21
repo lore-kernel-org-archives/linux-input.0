@@ -1,33 +1,39 @@
-From: "Ba, Zheng" <zheng.ba@intel.com>
-Subject: Questions on keypad driver upstream submission
-Date: Tue, 21 Apr 2009 15:06:09 +0800
-Message-ID: <61563CE63B4F854986A895DA7AD3C1771573BC57@pdsmsx502.ccr.corp.intel.com>
+From: Alessio Sangalli <alesan@manoweb.com>
+Subject: "soft" USB keyboard and mouse driver
+Date: Tue, 21 Apr 2009 01:48:23 -0700
+Message-ID: <49ED8857.9010809@manoweb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:61895 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750850AbZDUHHq convert rfc822-to-8bit (ORCPT
+Received: from moutng.kundenserver.de ([212.227.126.187]:61507 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754830AbZDUIsb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Apr 2009 03:07:46 -0400
-Content-Language: en-US
+	Tue, 21 Apr 2009 04:48:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org
 
-Hi guys,
+Hi I would need a hint what is best to do; I have an embedded device
+that can do a "soft" implementation of USB for embedded
+applications. The aim is to be compatible with low-speed HID USB
+devices.
 
-I am going to submit a keypad SW driver which is based on next-gen Intel Low Power IA architecture, and it will be put under directory "drivers/input/keyboard/". Since I am really a newbie to upstream submission, I'd like to hear from you and have your inputs on the following questions:
+The fact is, it does not implement a full USB stack but only
+point-to-point communication with the aforementioned devices. I know it
+sounds weird but it's more like a "PS/2" port than a USB thing.
 
-1. What is the process of upstream submission for input drivers? 
+Now, I have a generic character device driver that can read keyboard and
+mouse data. Of course I get what a USB device would send when you press
+keys etc.
 
-2. What are the acceptance criteria? Should the driver be workable or just compliable?
+How do you think it would be the best way to integrate it with the input
+subsystem?
 
-3. How to resolve dependencies? Keypad driver I am going to submit depends on other part of SW drivers for LPIA and the APIs from which are not standard. 
+Any idea would be appreciated.
 
-I really appreciate your help on this and look forward to your response.
+Thank you!
+Alessio
 
-Thanks,
-Zheng
 

@@ -1,39 +1,35 @@
-From: Alessio Sangalli <alesan@manoweb.com>
-Subject: "soft" USB keyboard and mouse driver
-Date: Tue, 21 Apr 2009 01:48:23 -0700
-Message-ID: <49ED8857.9010809@manoweb.com>
+From: <primecare@bellnet.ca>
+Subject: Winner
+Date: Tue, 21 Apr 2009 7:46:06 -0400
+Message-ID: <20090421114606.XLAW1652.simmts6-srv.bellnexxia.net__47143.0297395729$1240314468$gmane$org@simip9-ac.srvr.bell.ca>
+Reply-To: jerry.smith33@onlineprocessingdept.co.uk
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from moutng.kundenserver.de ([212.227.126.187]:61507 "EHLO
-	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754830AbZDUIsb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Apr 2009 04:48:31 -0400
+Received: from simmts6.bellnexxia.net ([206.47.199.164]:44271 "EHLO
+	simmts6-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754187AbZDULqI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Apr 2009 07:46:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: info@lotto.org
 
-Hi I would need a hint what is best to do; I have an embedded device
-that can do a "soft" implementation of USB for embedded
-applications. The aim is to be compatible with low-speed HID USB
-devices.
+The Global Award Programme.Therefore you have been approve for a lump s=
+um payout of (=A3950.000.00  GBP) by your E-ID send your details=20
 
-The fact is, it does not implement a full USB stack but only
-point-to-point communication with the aforementioned devices. I know it
-sounds weird but it's more like a "PS/2" port than a USB thing.
+Name:.......................
+Address:....................
+Country:....................
+Occupation:................
+Phone Number:...............
 
-Now, I have a generic character device driver that can read keyboard and
-mouse data. Of course I get what a USB device would send when you press
-keys etc.
+Yours faithfully,
+Mrs Joan Thomas
 
-How do you think it would be the best way to integrate it with the input
-subsystem?
-
-Any idea would be appreciated.
-
-Thank you!
-Alessio
-
-
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

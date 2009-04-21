@@ -1,16 +1,17 @@
 From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: [PATCH 2/4] driver core: use string format when name is given to an exported function
-Date: Mon, 20 Apr 2009 21:17:14 -0300
-Message-ID: <9027a3b74e49f79b7138880e2cffd9bc2947ca21.1240272929.git.cascardo@holoscopio.com>
+Subject: [PATCH 3/4] input: set the device's name and copy it to private version
+Date: Mon, 20 Apr 2009 21:17:15 -0300
+Message-ID: <144d7cc77af406a1da178a50d9bc0b87b41d2884.1240272929.git.cascardo@holoscopio.com>
 References: <1240273036-5995-1-git-send-email-cascardo@holoscopio.com>
  <2289cd3dcbe25046472d90cd0b25e57fbef92dc1.1240272929.git.cascardo@holoscopio.com>
+ <9027a3b74e49f79b7138880e2cffd9bc2947ca21.1240272929.git.cascardo@holoscopio.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade.minaslivre.org ([72.232.18.203]:45818 "EHLO
+Received: from liberdade.minaslivre.org ([72.232.18.203]:44688 "EHLO
 	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756661AbZDUBLV (ORCPT
+	with ESMTP id S1756710AbZDUBLV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
 	Mon, 20 Apr 2009 21:11:21 -0400
-In-Reply-To: <2289cd3dcbe25046472d90cd0b25e57fbef92dc1.1240272929.git.cascardo@holoscopio.com>
+In-Reply-To: <9027a3b74e49f79b7138880e2cffd9bc2947ca21.1240272929.git.cascardo@holoscopio.com>
 In-Reply-To: <cover.1240272928.git.cascardo@holoscopio.com>
 References: <cover.1240272928.git.cascardo@holoscopio.com>
 Sender: linux-input-owner@vger.kernel.org
@@ -18,176 +19,89 @@ List-Id: linux-input@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org, gregkh@suse.de, kay.sievers@vrfy.org, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 
-Many functions that are directly or indirectly exported use a given name
-as parameter (or as a member of a struct parameter) as the format when
-setting the device's name. Using the string specification format avoids
-a possible NULL dereference in some cases and a invalid format
-processing in other cases. These are easily done since the functions are
-exported and some module or driver could give a NULL or a string format
-as a name.
+For evdev, joydev and mousedev, instead of formatting the name and
+setting the device name, which will process the name for formatting
+again, sets the device name and, then, copy it to the private version in
+struct evdev, joydev and mousedev.
 
 Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 ---
- arch/microblaze/kernel/of_device.c  |    2 +-
- arch/powerpc/kernel/of_device.c     |    2 +-
- drivers/base/core.c                 |    4 ++--
- drivers/base/platform.c             |    2 +-
- drivers/isdn/mISDN/dsp_pipeline.c   |    2 +-
- drivers/misc/enclosure.c            |    4 ++--
- drivers/video/backlight/backlight.c |    2 +-
- drivers/video/backlight/lcd.c       |    2 +-
- drivers/video/output.c              |    2 +-
- fs/partitions/check.c               |    2 +-
- 10 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/input/evdev.c    |    4 ++--
+ drivers/input/joydev.c   |    4 ++--
+ drivers/input/mousedev.c |    8 ++++----
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/microblaze/kernel/of_device.c b/arch/microblaze/kernel/of_device.c
-index 9a0f763..deebaec 100644
---- a/arch/microblaze/kernel/of_device.c
-+++ b/arch/microblaze/kernel/of_device.c
-@@ -56,7 +56,7 @@ struct of_device *of_device_alloc(struct device_node *np,
- 	dev->dev.archdata.of_node = np;
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 7a7a026..9ae6e0f 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -807,7 +807,8 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+ 	mutex_init(&evdev->mutex);
+ 	init_waitqueue_head(&evdev->wait);
  
- 	if (bus_id)
--		dev_set_name(&dev->dev, bus_id);
-+		dev_set_name(&dev->dev, "%s", bus_id);
- 	else
- 		of_device_make_bus_id(dev);
+-	snprintf(evdev->name, sizeof(evdev->name), "event%d", minor);
++	dev_set_name(&evdev->dev, "event%d", minor);
++	strncpy(evdev->name, dev_name(&evdev->dev), sizeof(evdev->name));
+ 	evdev->exist = 1;
+ 	evdev->minor = minor;
  
-diff --git a/arch/powerpc/kernel/of_device.c b/arch/powerpc/kernel/of_device.c
-index fa983a5..a359cb0 100644
---- a/arch/powerpc/kernel/of_device.c
-+++ b/arch/powerpc/kernel/of_device.c
-@@ -76,7 +76,7 @@ struct of_device *of_device_alloc(struct device_node *np,
- 	dev->dev.archdata.of_node = np;
+@@ -816,7 +817,6 @@ static int evdev_connect(struct input_handler *handler, struct input_dev *dev,
+ 	evdev->handle.handler = handler;
+ 	evdev->handle.private = evdev;
  
- 	if (bus_id)
--		dev_set_name(&dev->dev, bus_id);
-+		dev_set_name(&dev->dev, "%s", bus_id);
- 	else
- 		of_device_make_bus_id(dev);
+-	dev_set_name(&evdev->dev, evdev->name);
+ 	evdev->dev.devt = MKDEV(INPUT_MAJOR, EVDEV_MINOR_BASE + minor);
+ 	evdev->dev.class = &input_class;
+ 	evdev->dev.parent = &dev->dev;
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 4224f01..c216311 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -742,7 +742,8 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 	mutex_init(&joydev->mutex);
+ 	init_waitqueue_head(&joydev->wait);
  
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index d230ff4..d54eef4 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -874,7 +874,7 @@ int device_add(struct device *dev)
- 	 * the name, and force the use of dev_name()
- 	 */
- 	if (dev->init_name) {
--		dev_set_name(dev, dev->init_name);
-+		dev_set_name(dev, "%s", dev->init_name);
- 		dev->init_name = NULL;
+-	snprintf(joydev->name, sizeof(joydev->name), "js%d", minor);
++	dev_set_name(&joydev->dev, "js%d", minor);
++	strncpy(joydev->name, dev_name(&joydev->dev), sizeof(joydev->name));
+ 	joydev->exist = 1;
+ 	joydev->minor = minor;
+ 
+@@ -797,7 +798,6 @@ static int joydev_connect(struct input_handler *handler, struct input_dev *dev,
+ 		}
  	}
  
-@@ -1267,7 +1267,7 @@ struct device *__root_device_register(const char *name, struct module *owner)
- 	if (!root)
- 		return ERR_PTR(err);
+-	dev_set_name(&joydev->dev, joydev->name);
+ 	joydev->dev.devt = MKDEV(INPUT_MAJOR, JOYDEV_MINOR_BASE + minor);
+ 	joydev->dev.class = &input_class;
+ 	joydev->dev.parent = &dev->dev;
+diff --git a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+index 17fd6d4..ceac911 100644
+--- a/drivers/input/mousedev.c
++++ b/drivers/input/mousedev.c
+@@ -863,10 +863,11 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+ 	init_waitqueue_head(&mousedev->wait);
  
--	err = dev_set_name(&root->dev, name);
-+	err = dev_set_name(&root->dev, "%s", name);
- 	if (err) {
- 		kfree(root);
- 		return ERR_PTR(err);
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index b5b6c97..ec0f436 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -245,7 +245,7 @@ int platform_device_add(struct platform_device *pdev)
- 	if (pdev->id != -1)
- 		dev_set_name(&pdev->dev, "%s.%d", pdev->name,  pdev->id);
+ 	if (minor == MOUSEDEV_MIX)
+-		strlcpy(mousedev->name, "mice", sizeof(mousedev->name));
++		dev_set_name(&mousedev->dev, "mice");
  	else
--		dev_set_name(&pdev->dev, pdev->name);
-+		dev_set_name(&pdev->dev, "%s", pdev->name);
+-		snprintf(mousedev->name, sizeof(mousedev->name),
+-			 "mouse%d", minor);
++		dev_set_name(&mousedev->dev, "mouse%d", minor);
++	strncpy(mousedev->name, dev_name(&mousedev->dev),
++		sizeof(mousedev->name));
  
- 	/* We will remove platform_data field from struct device
- 	* if all platform devices pass its platform specific data
-diff --git a/drivers/isdn/mISDN/dsp_pipeline.c b/drivers/isdn/mISDN/dsp_pipeline.c
-index 18cf87c..0b51eb0 100644
---- a/drivers/isdn/mISDN/dsp_pipeline.c
-+++ b/drivers/isdn/mISDN/dsp_pipeline.c
-@@ -101,7 +101,7 @@ int mISDN_dsp_element_register(struct mISDN_dsp_element *elem)
- 	entry->dev.class = elements_class;
- 	entry->dev.release = mISDN_dsp_dev_release;
- 	dev_set_drvdata(&entry->dev, elem);
--	dev_set_name(&entry->dev, elem->name);
-+	dev_set_name(&entry->dev, "%s", elem->name);
- 	ret = device_register(&entry->dev);
- 	if (ret) {
- 		printk(KERN_ERR "%s: failed to register %s\n",
-diff --git a/drivers/misc/enclosure.c b/drivers/misc/enclosure.c
-index 3cf61ec..74a78d4 100644
---- a/drivers/misc/enclosure.c
-+++ b/drivers/misc/enclosure.c
-@@ -119,7 +119,7 @@ enclosure_register(struct device *dev, const char *name, int components,
- 	edev->edev.class = &enclosure_class;
- 	edev->edev.parent = get_device(dev);
- 	edev->cb = cb;
--	dev_set_name(&edev->edev, name);
-+	dev_set_name(&edev->edev, "%s", name);
- 	err = device_register(&edev->edev);
- 	if (err)
- 		goto err;
-@@ -256,7 +256,7 @@ enclosure_component_register(struct enclosure_device *edev,
- 	cdev = &ecomp->cdev;
- 	cdev->parent = get_device(&edev->edev);
- 	if (name)
--		dev_set_name(cdev, name);
-+		dev_set_name(cdev, "%s", name);
- 	else
- 		dev_set_name(cdev, "%u", number);
+ 	mousedev->minor = minor;
+ 	mousedev->exist = 1;
+@@ -875,7 +876,6 @@ static struct mousedev *mousedev_create(struct input_dev *dev,
+ 	mousedev->handle.handler = handler;
+ 	mousedev->handle.private = mousedev;
  
-diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-index 157057c..71d65fb 100644
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -244,7 +244,7 @@ struct backlight_device *backlight_device_register(const char *name,
- 	new_bd->dev.class = backlight_class;
- 	new_bd->dev.parent = parent;
- 	new_bd->dev.release = bl_device_release;
--	dev_set_name(&new_bd->dev, name);
-+	dev_set_name(&new_bd->dev, "%s", name);
- 	dev_set_drvdata(&new_bd->dev, devdata);
- 
- 	rc = device_register(&new_bd->dev);
-diff --git a/drivers/video/backlight/lcd.c b/drivers/video/backlight/lcd.c
-index b644947..306ba00 100644
---- a/drivers/video/backlight/lcd.c
-+++ b/drivers/video/backlight/lcd.c
-@@ -208,7 +208,7 @@ struct lcd_device *lcd_device_register(const char *name, struct device *parent,
- 	new_ld->dev.class = lcd_class;
- 	new_ld->dev.parent = parent;
- 	new_ld->dev.release = lcd_device_release;
--	dev_set_name(&new_ld->dev, name);
-+	dev_set_name(&new_ld->dev, "%s", name);
- 	dev_set_drvdata(&new_ld->dev, devdata);
- 
- 	rc = device_register(&new_ld->dev);
-diff --git a/drivers/video/output.c b/drivers/video/output.c
-index 5e6439a..82a5bb5 100644
---- a/drivers/video/output.c
-+++ b/drivers/video/output.c
-@@ -96,7 +96,7 @@ struct output_device *video_output_register(const char *name,
- 	new_dev->props = op;
- 	new_dev->dev.class = &video_output_class;
- 	new_dev->dev.parent = dev;
--	dev_set_name(&new_dev->dev, name);
-+	dev_set_name(&new_dev->dev, "%s", name);
- 	dev_set_drvdata(&new_dev->dev, devdata);
- 	ret_code = device_register(&new_dev->dev);
- 	if (ret_code) {
-diff --git a/fs/partitions/check.c b/fs/partitions/check.c
-index 99e33ef..a89b37e 100644
---- a/fs/partitions/check.c
-+++ b/fs/partitions/check.c
-@@ -456,7 +456,7 @@ void register_disk(struct gendisk *disk)
- 
- 	ddev->parent = disk->driverfs_dev;
- 
--	dev_set_name(ddev, disk->disk_name);
-+	dev_set_name(ddev, "%s", disk->disk_name);
- 
- 	/* delay uevents, until we scanned partition table */
- 	dev_set_uevent_suppress(ddev, 1);
+-	dev_set_name(&mousedev->dev, mousedev->name);
+ 	mousedev->dev.class = &input_class;
+ 	if (dev)
+ 		mousedev->dev.parent = &dev->dev;
 -- 
 1.6.2.3
 

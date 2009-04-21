@@ -1,38 +1,72 @@
-From: Oliver Neukum <oliver@neukum.org>
+From: Johannes Berg <johannes@sipsolutions.net>
 Subject: Re: lockdep report at resume
-Date: Tue, 21 Apr 2009 16:14:56 +0200
-Message-ID: <200904211614.57288.oliver@neukum.org>
-References: <1234022517.4175.107.camel@johannes.local> <200904211559.43497.oliver@neukum.org> <alpine.LNX.2.00.0904211609220.13028@wotan.suse.de>
+Date: Tue, 21 Apr 2009 16:26:08 +0200
+Message-ID: <1240323968.17388.22.camel@johannes.local>
+References: <1234022517.4175.107.camel@johannes.local>
+	 <1238578840.5970.178.camel@johannes.local>
+	 <alpine.LNX.2.00.0904211550280.13028@wotan.suse.de>
+	 <200904211559.43497.oliver@neukum.org>
+	 <alpine.LNX.2.00.0904211609220.13028@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-hxvv4Op8630SQVt5Ws4h"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out002.kontent.com ([81.88.40.216]:58409 "EHLO
-	smtp-out002.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750842AbZDUOO7 (ORCPT
+Received: from xc.sipsolutions.net ([83.246.72.84]:56917 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753704AbZDUO0p (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Apr 2009 10:14:59 -0400
+	Tue, 21 Apr 2009 10:26:45 -0400
 In-Reply-To: <alpine.LNX.2.00.0904211609220.13028@wotan.suse.de>
-Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Jiri Kosina <jkosina@suse.cz>
-Cc: Johannes Berg <johannes@sipsolutions.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Oleg Nesterov <oleg@redhat.com>
+Cc: Oliver Neukum <oliver@neukum.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Oleg Nesterov <oleg@redhat.com>
 
-Am Dienstag 21 April 2009 16:11:03 schrieb Jiri Kosina:
+
+--=-hxvv4Op8630SQVt5Ws4h
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2009-04-21 at 16:11 +0200, Jiri Kosina wrote:
 > On Tue, 21 Apr 2009, Oliver Neukum wrote:
-> > > [ thanks for the analysis Johannes ... involving also Oliver here;
-> > > really seems like a false positive to me ]
-> >
-> > I think he's right. But as a matter of principle I'd like to see
+>=20
+> > > [ thanks for the analysis Johannes ... involving also Oliver here; re=
+ally
+> > >   seems like a false positive to me ]
+> > I think he's right. But as a matter of principle I'd like to see=20
 > > flush_scheduled_work() avoided where possible, hence the patch.
->
-> I am not entirely sure that this is the same issue as the one from #13136
+>=20
+> I am not entirely sure that this is the same issue as the one from #13136=
+=20
 > of kernel.org bugzilla.
+>=20
+> Anyway, for reference, the patch Oliver mentioned here is below.
 
-Which flush_scheduled_work() do you think triggers it?
+Thanks. Unfortunately I have another problem that turns off lockdep so I
+can't test this right now, sorry.
 
-	Regards
-		Oliver
+johannes
+
+--=-hxvv4Op8630SQVt5Ws4h
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIbBAABAgAGBQJJ7dd9AAoJEKVg1VMiehFYzA0P+JKCA1O0sfht1jZqVb0MLpEZ
+/VXsEMxe58PLUqQEGPgyjqN6yDr8yRulISRrYrll4k6yer+pr6JBzwOVLPXr/tI7
+dU/0HsVpEpwVRAPNv2EemNS1X/iQFapyHsSuIARklnGP2Tu2zpjTEi/HNdELepWc
+bIFWIpAIMhX5Wf7eex/Lnr+uq6Er6ylHKmuh+JgEWO5MzE5pdQZA0MC1STX7ZiDo
+rshQSJ5EU4Q9gxfdMZot7ANB0bBhqjCSKJnpzLweWnZjKHS12pIq/JWOr2mXY6s4
+LQTNBTP5MUqVgVpdApt28IyO0OZvvNrgCOek3dvDAyh7A8jvhdXyOOWfcs91xg4d
+IyJFKG82tHuMTGKtNuwTs/U9yU80XXNwC+UZJX2jaOhYs2W9R9qrAke9ndKgB0aC
+Oo7+y+kJpxu7zejwxvXBqkEgk3MyH/EDo4PK7YGG8OrC2z3nodM4WXxy7eet9s0T
+vjbby3FRNR01a1fUWJ0WlXV5326z41SRC7D3lrCkIFWGlWFDHZJePvbb2yvwo634
+qBR4hjfCebbd5YooDRy8KXKf8Vmp0CAAc5BHCtYcrcj8HRhrbnC1VQTOk/+DOCV5
+QwhCBaFjNwcnmuK+ZJUtQnnXbVkd5BXJO2wBI+XJVVCBgTF+kEBfysJa/JvLHJMo
+L5jdIgVyEBmmdkTn+OI=
+=FnhA
+-----END PGP SIGNATURE-----
+
+--=-hxvv4Op8630SQVt5Ws4h--
 

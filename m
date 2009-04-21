@@ -1,422 +1,193 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH 3/5 UPDATED] [ARM] pxa: lx: add keyboard driver
-Date: Mon, 20 Apr 2009 12:13:47 +0100
-Message-ID: <20090420111347.GD3653@n2100.arm.linux.org.uk>
-References: <20090418141932.GA1236@n2100.arm.linux.org.uk> <1240064452-14691-3-git-send-email-linux@arm.linux.org.uk> <20090418231018.GA32346@dtor-d630.eng.vmware.com> <20090420110640.GC3653@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Subject: [PATCH 2/4] driver core: use string format when name is given to an exported function
+Date: Mon, 20 Apr 2009 21:17:14 -0300
+Message-ID: <9027a3b74e49f79b7138880e2cffd9bc2947ca21.1240272929.git.cascardo@holoscopio.com>
+References: <1240273036-5995-1-git-send-email-cascardo@holoscopio.com>
+ <2289cd3dcbe25046472d90cd0b25e57fbef92dc1.1240272929.git.cascardo@holoscopio.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:52349 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754353AbZDTLN5 (ORCPT
+Received: from liberdade.minaslivre.org ([72.232.18.203]:45818 "EHLO
+	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756661AbZDUBLV (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Apr 2009 07:13:57 -0400
-Content-Disposition: inline
-In-Reply-To: <20090420110640.GC3653@n2100.arm.linux.org.uk>
+	Mon, 20 Apr 2009 21:11:21 -0400
+In-Reply-To: <2289cd3dcbe25046472d90cd0b25e57fbef92dc1.1240272929.git.cascardo@holoscopio.com>
+In-Reply-To: <cover.1240272928.git.cascardo@holoscopio.com>
+References: <cover.1240272928.git.cascardo@holoscopio.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-input@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-input@vger.kernel.org, gregkh@suse.de, kay.sievers@vrfy.org, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 
-This adds support for the keyboard support on the LX platform.
-We aren't directly connected to the keyboard itself, but the
-keyboard is managed by PCON via the system I2C bus.
+Many functions that are directly or indirectly exported use a given name
+as parameter (or as a member of a struct parameter) as the format when
+setting the device's name. Using the string specification format avoids
+a possible NULL dereference in some cases and a invalid format
+processing in other cases. These are easily done since the functions are
+exported and some module or driver could give a NULL or a string format
+as a name.
 
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-CC: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC: <linux-input@vger.kernel.org>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 ---
- drivers/input/keyboard/Kconfig  |    9 +
- drivers/input/keyboard/Makefile |    1 +
- drivers/input/keyboard/lx-kbd.c |  347 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 357 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/lx-kbd.c
+ arch/microblaze/kernel/of_device.c  |    2 +-
+ arch/powerpc/kernel/of_device.c     |    2 +-
+ drivers/base/core.c                 |    4 ++--
+ drivers/base/platform.c             |    2 +-
+ drivers/isdn/mISDN/dsp_pipeline.c   |    2 +-
+ drivers/misc/enclosure.c            |    4 ++--
+ drivers/video/backlight/backlight.c |    2 +-
+ drivers/video/backlight/lcd.c       |    2 +-
+ drivers/video/output.c              |    2 +-
+ fs/partitions/check.c               |    2 +-
+ 10 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index ea2638b..996ff38 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -289,6 +289,15 @@ config KEYBOARD_AAED2000
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called aaed2000_kbd.
+diff --git a/arch/microblaze/kernel/of_device.c b/arch/microblaze/kernel/of_device.c
+index 9a0f763..deebaec 100644
+--- a/arch/microblaze/kernel/of_device.c
++++ b/arch/microblaze/kernel/of_device.c
+@@ -56,7 +56,7 @@ struct of_device *of_device_alloc(struct device_node *np,
+ 	dev->dev.archdata.of_node = np;
  
-+config KEYBOARD_LX
-+	tristate "LX Keyboard support"
-+	depends on MACH_NETBOOKPRO && INPUT
-+	help
-+	  Say Y here if you want to use the LX keyboard integrated in
-+	  your system.
-+
-+	  If you have a LX platform, you should say Y.
-+
- config KEYBOARD_GPIO
- 	tristate "GPIO Buttons"
- 	depends on GENERIC_GPIO
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 36351e1..c475f79 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -22,6 +22,7 @@ obj-$(CONFIG_KEYBOARD_OMAP)		+= omap-keypad.o
- obj-$(CONFIG_KEYBOARD_PXA27x)		+= pxa27x_keypad.o
- obj-$(CONFIG_KEYBOARD_PXA930_ROTARY)	+= pxa930_rotary.o
- obj-$(CONFIG_KEYBOARD_AAED2000)		+= aaed2000_kbd.o
-+obj-$(CONFIG_KEYBOARD_LX)		+= lx-kbd.o
- obj-$(CONFIG_KEYBOARD_GPIO)		+= gpio_keys.o
- obj-$(CONFIG_KEYBOARD_HP6XX)		+= jornada680_kbd.o
- obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
-diff --git a/drivers/input/keyboard/lx-kbd.c b/drivers/input/keyboard/lx-kbd.c
-new file mode 100644
-index 0000000..2fa000b
---- /dev/null
-+++ b/drivers/input/keyboard/lx-kbd.c
-@@ -0,0 +1,347 @@
-+/*
-+ * drivers/input/keyboard/lx-kbd.c
-+ *
-+ * Copyright (c) 2004 Simtec Electronics
-+ * Written by Ben Dooks
-+ *
-+ * http://armlinux.simtec.co.uk/
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2 as
-+ * published by the Free Software Foundation.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/apm-emulation.h>
-+
-+#include <mach/lx-pcon.h>
-+
-+#define LX_NUMKEYCODES (0x80)
-+
-+static unsigned char normal_map[LX_NUMKEYCODES] = {
-+	[0x5b]  = KEY_ESC,
-+	[0x5c]  = KEY_1,
-+	[0x5d]  = KEY_2,
-+	[0x47]  = KEY_3,
-+	[0x36]  = KEY_4,
-+	[0x37]  = KEY_5,
-+	[0x5e]  = KEY_6,
-+	[0x2d]  = KEY_7,
-+	[0x1d]  = KEY_8,
-+	[0x1e]  = KEY_9,
-+	[0x11]  = KEY_0,
-+	[0x0f]  = KEY_MINUS,
-+	[0x0d]  = KEY_BACKSPACE,  /* delete or backspace? */
-+
-+	[0x02]  = KEY_TAB,
-+	[0x4f]  = KEY_Q,
-+	[0x53]  = KEY_W,
-+	[0x46]  = KEY_E,
-+	[0x35]  = KEY_R,
-+	[0x38]  = KEY_T,
-+	[0x03]  = KEY_Y,
-+	[0x2c]  = KEY_U,
-+	[0x1c]  = KEY_I,
-+	[0x1f]  = KEY_O,
-+	[0x12]  = KEY_P,
-+	[0x10]  = KEY_EQUAL,
-+	[0x00]  = KEY_ENTER,
-+
-+	[0x3f]  = KEY_BACKSLASH,   /* ? correct */
-+	[0x50]  = KEY_A,
-+	[0x52]  = KEY_S,
-+	[0x45]  = KEY_D,
-+	[0x42]  = KEY_F,
-+	[0x39]  = KEY_G,
-+	[0x61]  = KEY_H,
-+	[0x2b]  = KEY_J,
-+	[0x1b]  = KEY_K,
-+	[0x20]  = KEY_L,
-+	[0x13]  = KEY_SEMICOLON,
-+	[0x29]  = KEY_APOSTROPHE,
-+
-+	[0x07]  = KEY_LEFTSHIFT,
-+	[0x51]  = KEY_Z,
-+	[0x54]  = KEY_X,
-+	[0x44]  = KEY_C,
-+	[0x43]  = KEY_V,
-+	[0x3a]  = KEY_B,
-+	[0x06]  = KEY_N,
-+	[0x2a]  = KEY_M,
-+	[0x28]  = KEY_COMMA,
-+	[0x5f]  = KEY_DOT,
-+	[0x60]  = KEY_UP,
-+	[0x15]  = KEY_RIGHTSHIFT,
-+
-+	[0x23]  = KEY_LEFTCTRL,
-+	[0x41]  = KEY_LEFTALT,
-+	[0x31]  = KEY_LEFTMETA,
-+	[0x34]  = KEY_SPACE,
-+	[0x4d]  = KEY_SLASH,
-+	[0x04]  = KEY_LEFT,
-+	[0x05]  = KEY_DOWN,
-+	[0x01]  = KEY_RIGHT,
-+};
-+
-+/*
-+ * Numlock mappings.  This table defines only the special keys
-+ * which are affected by the numlock mode.  Other keys are mapped
-+ * by the above table.
-+ */
-+static unsigned char numlck_map[LX_NUMKEYCODES] = {
-+	[0x2d]      = KEY_KP7,
-+	[0x1d]      = KEY_KP8,
-+	[0x1e]      = KEY_KP9,
-+	[0x11]      = KEY_KPSLASH,
-+
-+	[0x2c]      = KEY_KP4,
-+	[0x1c]      = KEY_KP5,
-+	[0x1f]      = KEY_KP6,
-+	[0x12]      = KEY_KPASTERISK,
-+
-+	[0x2b]      = KEY_KP1,
-+	[0x1b]      = KEY_KP2,
-+	[0x20]      = KEY_KP3,
-+	[0x13]      = KEY_KPMINUS,
-+
-+	[0x2a]      = KEY_KP0,
-+	[0x28]      = KEY_KPDOT,
-+	[0x5f]      = KEY_KPPLUS,
-+};
-+
-+/*
-+ * mappings for function key - note *ONLY* keys that produce a unique
-+ * keycode should be here - others should be handled in userspace as
-+ * keymap modifiers , fn is the left meta modifier
-+ */
-+static unsigned char fn_map[LX_NUMKEYCODES] = {
-+	[0x02]	= KEY_CAPSLOCK,
-+	[0x41]	= KEY_UNKNOWN,
-+	[0x4d]	= KEY_F1,
-+	[0x04]	= KEY_HOME,
-+	[0x60]	= KEY_PAGEUP,
-+	[0x05]	= KEY_PAGEDOWN,
-+	[0x01]	= KEY_END,
-+	[0x28]	= KEY_BRIGHTNESSDOWN,
-+	[0x5f]	= KEY_BRIGHTNESSUP,
-+	[0x5b]	= KEY_SUSPEND,
-+};
-+
-+/*
-+ * Record the state of key presses, so that we can do the right thing
-+ * after the FN key is released.
-+ */
-+#define KP_NONE		(0)
-+#define KP_DOWN		(1 << 0)
-+#define KP_FN		(1 << 1)
-+#define KP_NUMLCK	(1 << 2)
-+
-+static unsigned char keystate[LX_NUMKEYCODES];
-+
-+static int num_lck;
-+
-+#define key_fn		(keystate[0x31] & KP_DOWN)
-+#define key_shift	(keystate[0x15] & KP_DOWN)
-+#define key_alt		(keystate[0x41] & KP_DOWN)
-+
-+static void lx_keyb_process_key(struct input_dev *kbd, unsigned int key)
-+{
-+	unsigned char *map = normal_map;
-+	unsigned int up;
-+
-+	up = key & 0x80;
-+	key &= 0x7f;
-+
-+	if (key >= LX_NUMKEYCODES)
-+		return;
-+
-+	/*
-+	 * Use the Fn map if the function key is pressed and this
-+	 * is a key press, or the key is currently in "pressed Fn"
-+	 * state.  We do not want to map a press without Fn and a
-+	 * subsequent release of the same key with Fn to different
-+	 * keycodes.
-+	 *
-+	 * Ditto for the numlock state.
-+	 */
-+	if (fn_map[key] && ((key_fn && !up) || keystate[key] & KP_FN)) {
-+		keystate[key] |= KP_FN;
-+		map = fn_map;
-+	} else if (numlck_map[key] &&
-+		   ((num_lck && !up) || keystate[key] & KP_NUMLCK)) {
-+		keystate[key] |= KP_NUMLCK;
-+		map = numlck_map;
-+	}
-+
-+	/*
-+	 * The KP_DOWN bit always indicates whether a key is
-+	 * pressed or released.  Releases always clear all
-+	 * state about the key.
-+	 */
-+	if (up)
-+		keystate[key] = KP_NONE;
-+	else
-+		keystate[key] |= KP_DOWN;
-+
-+	/*
-+	 * Now handle the special right-shift + alt combination
-+	 * for numlock.
-+	 */
-+	if (key == 0x41 && key_shift && key_alt) /* alt key */
-+		num_lck ^= 1;
-+
-+	/*
-+	 * Map the keycode from the LX keyboard code to the input
-+	 * subsystem keycode, using the appropriate mapping table.
-+	 */
-+	key = map[key];
-+
-+	/*
-+	 * Some keys have additional operations after we have
-+	 * decoded them.  We don't report these "special" keys
-+	 * to the input layer.
-+	 */
-+	switch (key) {
-+	case KEY_BRIGHTNESSUP:
-+	case KEY_BRIGHTNESSDOWN:
-+		input_event(kbd, EV_PWR, key, !up);
-+		break;
-+
-+	case KEY_SUSPEND:
-+		input_event(kbd, EV_PWR, key, !up);
-+#if defined(CONFIG_APM_EMULATION) && !defined(CONFIG_INPUT_APMPOWER)
-+		if (!up)
-+			apm_queue_event(APM_SYS_SUSPEND);
-+#endif
-+		break;
-+
-+	default:
-+		input_report_key(kbd, key, !up);
-+		break;
-+	}
-+}
-+
-+static void lx_keyb_reset(struct input_dev *kbd)
-+{
-+	unsigned char *map;
-+	int key;
-+
-+	for (key = 0; key < LX_NUMKEYCODES; key++)
-+		if (keystate[key] & KP_DOWN) {
-+			map = normal_map;
-+			if (keystate[key] & KP_FN)
-+				map = fn_map;
-+			else if (keystate[key] & KP_NUMLCK)
-+				map = numlck_map;
-+			keystate[key] = KP_NONE;
-+			input_report_key(kbd, map[key], 0);
-+		}
-+
-+	num_lck = 0;
-+}
-+
-+static void lx_keyb_write(void *data, unsigned int addr, unsigned char val)
-+{
-+	struct input_dev *kbd = data;
-+
-+	pcon_kbd_ack();
-+	lx_keyb_process_key(kbd, val);
-+}
-+
-+static struct lx_i2cslave_watcher lx_keyb_watcher = {
-+	.start	= PHST_KEYBOARD_START,
-+	.size	= PHST_KEYBOARD_SIZE,
-+	.write	= lx_keyb_write,
-+};
-+
-+static int lx_keyb_probe(struct platform_device *dev)
-+{
-+	struct input_dev *kbd;
-+	int i, ret;
-+
-+	kbd = input_allocate_device();
-+	if (!kbd)
-+		return -ENOMEM;
-+
-+	kbd->name        = "LX Keyboard";
-+	kbd->phys        = "pcon/input0";
-+	kbd->dev.parent  = &dev->dev;
-+	kbd->evbit[0]    = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP) |
-+			   BIT_MASK(EV_PWR);
-+	kbd->keycode     = normal_map;
-+	kbd->keycodesize = sizeof(unsigned char);
-+	kbd->keycodemax  = ARRAY_SIZE(normal_map);
-+
-+	for (i = 0; i < ARRAY_SIZE(normal_map); i++) {
-+		if (normal_map[i])
-+			__set_bit(normal_map[i], kbd->keybit);
-+	}
-+	for (i = 0; i < ARRAY_SIZE(numlck_map); i++) {
-+		if (numlck_map[i])
-+			__set_bit(numlck_map[i], kbd->keybit);
-+	}
-+	for (i = 0; i < ARRAY_SIZE(fn_map); i++) {
-+		if (fn_map[i])
-+			__set_bit(fn_map[i], kbd->keybit);
-+	}
-+
-+	ret = input_register_device(kbd);
-+	if (ret == 0) {
-+		platform_set_drvdata(dev, kbd);
-+		lx_i2cslave_addwatcher(&lx_keyb_watcher, kbd);
-+	} else {
-+		input_free_device(kbd);
-+	}
-+	return ret;
-+}
-+
-+static int __devexit lx_keyb_remove(struct platform_device *dev)
-+{
-+	struct input_dev *kbd = platform_get_drvdata(dev);
-+
-+	platform_set_drvdata(dev, NULL);
-+	lx_i2cslave_delwatcher(&lx_keyb_watcher, kbd);
-+	input_unregister_device(kbd);
-+	return 0;
-+}
-+
-+static int lx_keyb_resume(struct platform_device *dev)
-+{
-+	struct input_dev *kbd = platform_get_drvdata(dev);
-+
-+	lx_keyb_reset(kbd);
-+	return 0;
-+}
-+
-+static struct platform_driver lx_kbd = {
-+	.driver = {
-+		.name	= "lx-kbd",
-+		.owner	= THIS_MODULE,
-+	},
-+	.probe	= lx_keyb_probe,
-+	.remove	= __devexit_p(lx_keyb_remove),
-+	.resume	= lx_keyb_resume,
-+};
-+
-+static int __init lx_keyb_init(void)
-+{
-+	return platform_driver_register(&lx_kbd);
-+}
-+
-+static void __exit lx_keyb_exit(void)
-+{
-+	platform_driver_unregister(&lx_kbd);
-+}
-+
-+module_init(lx_keyb_init);
-+module_exit(lx_keyb_exit);
-+
-+MODULE_AUTHOR("Ben Dooks, Simtec Electronics <ben@simtec.co.uk>");
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("LX Keyboard Driver");
+ 	if (bus_id)
+-		dev_set_name(&dev->dev, bus_id);
++		dev_set_name(&dev->dev, "%s", bus_id);
+ 	else
+ 		of_device_make_bus_id(dev);
+ 
+diff --git a/arch/powerpc/kernel/of_device.c b/arch/powerpc/kernel/of_device.c
+index fa983a5..a359cb0 100644
+--- a/arch/powerpc/kernel/of_device.c
++++ b/arch/powerpc/kernel/of_device.c
+@@ -76,7 +76,7 @@ struct of_device *of_device_alloc(struct device_node *np,
+ 	dev->dev.archdata.of_node = np;
+ 
+ 	if (bus_id)
+-		dev_set_name(&dev->dev, bus_id);
++		dev_set_name(&dev->dev, "%s", bus_id);
+ 	else
+ 		of_device_make_bus_id(dev);
+ 
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index d230ff4..d54eef4 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -874,7 +874,7 @@ int device_add(struct device *dev)
+ 	 * the name, and force the use of dev_name()
+ 	 */
+ 	if (dev->init_name) {
+-		dev_set_name(dev, dev->init_name);
++		dev_set_name(dev, "%s", dev->init_name);
+ 		dev->init_name = NULL;
+ 	}
+ 
+@@ -1267,7 +1267,7 @@ struct device *__root_device_register(const char *name, struct module *owner)
+ 	if (!root)
+ 		return ERR_PTR(err);
+ 
+-	err = dev_set_name(&root->dev, name);
++	err = dev_set_name(&root->dev, "%s", name);
+ 	if (err) {
+ 		kfree(root);
+ 		return ERR_PTR(err);
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index b5b6c97..ec0f436 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -245,7 +245,7 @@ int platform_device_add(struct platform_device *pdev)
+ 	if (pdev->id != -1)
+ 		dev_set_name(&pdev->dev, "%s.%d", pdev->name,  pdev->id);
+ 	else
+-		dev_set_name(&pdev->dev, pdev->name);
++		dev_set_name(&pdev->dev, "%s", pdev->name);
+ 
+ 	/* We will remove platform_data field from struct device
+ 	* if all platform devices pass its platform specific data
+diff --git a/drivers/isdn/mISDN/dsp_pipeline.c b/drivers/isdn/mISDN/dsp_pipeline.c
+index 18cf87c..0b51eb0 100644
+--- a/drivers/isdn/mISDN/dsp_pipeline.c
++++ b/drivers/isdn/mISDN/dsp_pipeline.c
+@@ -101,7 +101,7 @@ int mISDN_dsp_element_register(struct mISDN_dsp_element *elem)
+ 	entry->dev.class = elements_class;
+ 	entry->dev.release = mISDN_dsp_dev_release;
+ 	dev_set_drvdata(&entry->dev, elem);
+-	dev_set_name(&entry->dev, elem->name);
++	dev_set_name(&entry->dev, "%s", elem->name);
+ 	ret = device_register(&entry->dev);
+ 	if (ret) {
+ 		printk(KERN_ERR "%s: failed to register %s\n",
+diff --git a/drivers/misc/enclosure.c b/drivers/misc/enclosure.c
+index 3cf61ec..74a78d4 100644
+--- a/drivers/misc/enclosure.c
++++ b/drivers/misc/enclosure.c
+@@ -119,7 +119,7 @@ enclosure_register(struct device *dev, const char *name, int components,
+ 	edev->edev.class = &enclosure_class;
+ 	edev->edev.parent = get_device(dev);
+ 	edev->cb = cb;
+-	dev_set_name(&edev->edev, name);
++	dev_set_name(&edev->edev, "%s", name);
+ 	err = device_register(&edev->edev);
+ 	if (err)
+ 		goto err;
+@@ -256,7 +256,7 @@ enclosure_component_register(struct enclosure_device *edev,
+ 	cdev = &ecomp->cdev;
+ 	cdev->parent = get_device(&edev->edev);
+ 	if (name)
+-		dev_set_name(cdev, name);
++		dev_set_name(cdev, "%s", name);
+ 	else
+ 		dev_set_name(cdev, "%u", number);
+ 
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 157057c..71d65fb 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -244,7 +244,7 @@ struct backlight_device *backlight_device_register(const char *name,
+ 	new_bd->dev.class = backlight_class;
+ 	new_bd->dev.parent = parent;
+ 	new_bd->dev.release = bl_device_release;
+-	dev_set_name(&new_bd->dev, name);
++	dev_set_name(&new_bd->dev, "%s", name);
+ 	dev_set_drvdata(&new_bd->dev, devdata);
+ 
+ 	rc = device_register(&new_bd->dev);
+diff --git a/drivers/video/backlight/lcd.c b/drivers/video/backlight/lcd.c
+index b644947..306ba00 100644
+--- a/drivers/video/backlight/lcd.c
++++ b/drivers/video/backlight/lcd.c
+@@ -208,7 +208,7 @@ struct lcd_device *lcd_device_register(const char *name, struct device *parent,
+ 	new_ld->dev.class = lcd_class;
+ 	new_ld->dev.parent = parent;
+ 	new_ld->dev.release = lcd_device_release;
+-	dev_set_name(&new_ld->dev, name);
++	dev_set_name(&new_ld->dev, "%s", name);
+ 	dev_set_drvdata(&new_ld->dev, devdata);
+ 
+ 	rc = device_register(&new_ld->dev);
+diff --git a/drivers/video/output.c b/drivers/video/output.c
+index 5e6439a..82a5bb5 100644
+--- a/drivers/video/output.c
++++ b/drivers/video/output.c
+@@ -96,7 +96,7 @@ struct output_device *video_output_register(const char *name,
+ 	new_dev->props = op;
+ 	new_dev->dev.class = &video_output_class;
+ 	new_dev->dev.parent = dev;
+-	dev_set_name(&new_dev->dev, name);
++	dev_set_name(&new_dev->dev, "%s", name);
+ 	dev_set_drvdata(&new_dev->dev, devdata);
+ 	ret_code = device_register(&new_dev->dev);
+ 	if (ret_code) {
+diff --git a/fs/partitions/check.c b/fs/partitions/check.c
+index 99e33ef..a89b37e 100644
+--- a/fs/partitions/check.c
++++ b/fs/partitions/check.c
+@@ -456,7 +456,7 @@ void register_disk(struct gendisk *disk)
+ 
+ 	ddev->parent = disk->driverfs_dev;
+ 
+-	dev_set_name(ddev, disk->disk_name);
++	dev_set_name(ddev, "%s", disk->disk_name);
+ 
+ 	/* delay uevents, until we scanned partition table */
+ 	dev_set_uevent_suppress(ddev, 1);
 -- 
-1.6.0.6
+1.6.2.3
 

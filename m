@@ -1,43 +1,54 @@
-From: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 0/4] fix some improper uses of dev_set_name
-Date: Tue, 21 Apr 2009 22:45:31 -0700
-Message-ID: <20090422054531.GD9009@kroah.com>
-References: <1240273036-5995-1-git-send-email-cascardo@holoscopio.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: "soft" USB keyboard and mouse driver
+Date: Wed, 22 Apr 2009 13:22:17 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0904221319520.18261@twin.jikos.cz>
+References: <49ED8857.9010809@manoweb.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:37193 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1752533AbZDVGIw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Apr 2009 02:08:52 -0400
-Content-Disposition: inline
-In-Reply-To: <1240273036-5995-1-git-send-email-cascardo@holoscopio.com>
+Received: from cantor2.suse.de ([195.135.220.15]:38914 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751511AbZDVLWT (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Apr 2009 07:22:19 -0400
+In-Reply-To: <49ED8857.9010809@manoweb.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, gregkh@suse.de, kay.sievers@vrfy.org
+To: Alessio Sangalli <alesan@manoweb.com>
+Cc: linux-input@vger.kernel.org
 
-On Mon, Apr 20, 2009 at 09:17:12PM -0300, Thadeu Lima de Souza Cascardo wrote:
-> dev_set_name expects a format string. Many of its uses, however, blindly
-> call it with a string variable that comes from some external, perhaps
-> unreliable source. Some of those uses are safe, like those in the third
-> patch in the series and most of those not fixed by any of them. Some few
-> remaining uses may require some more attention to decide if a patch is
-> really required. Perhaps converting all of them for safeness is a good
-> compromise.
+On Tue, 21 Apr 2009, Alessio Sangalli wrote:
+
+> Hi I would need a hint what is best to do; I have an embedded device 
+> that can do a "soft" implementation of USB for embedded applications. 
+> The aim is to be compatible with low-speed HID USB devices.
 > 
-> Thadeu Lima de Souza Cascardo (4):
->   driver core: use string format when name is another device's name
->   driver core: use string format when name is given to an exported
->     function
+> The fact is, it does not implement a full USB stack but only 
+> point-to-point communication with the aforementioned devices. I know it 
+> sounds weird but it's more like a "PS/2" port than a USB thing.
+> 
+> Now, I have a generic character device driver that can read keyboard and
+> mouse data. Of course I get what a USB device would send when you press
+> keys etc.
+> 
+> How do you think it would be the best way to integrate it with the input
+> subsystem?
 
-These two patches were a bit more than just the "driver core".  Care to
-split them up into the subsystem-proper sections and send them to the
-different subsystem maintainers?
+I am not really sure I understand very well. So you have the device the 
+provides some "crippled" implementation of USB and provides some HID 
+devices on top of it, and you would like to have this compliant with the 
+kernel Input/HID infrastructure?
 
-I don't see anything here that can come from a user supplied string, do
-you?  So it's a pretty low priority.
+If the devices are really HID (i.e. the protocol on the wire is proper HID 
+as defined by HID specification), you'd only need to implement a 
+specialized "transport" HID code for this transport protocol, and let the 
+HID core do the rest.
 
-thanks,
+Currently there are implementations for USB and Bluetooth which you can 
+look at.
 
-greg k-h
+Or maybe I just misunderstood your situation completely?
+
+-- 
+Jiri Kosina
+SUSE Labs
+

@@ -1,54 +1,50 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Alessio Sangalli <alesan@manoweb.com>
 Subject: Re: "soft" USB keyboard and mouse driver
-Date: Wed, 22 Apr 2009 13:22:17 +0200 (CEST)
-Message-ID: <alpine.LRH.2.00.0904221319520.18261@twin.jikos.cz>
-References: <49ED8857.9010809@manoweb.com>
+Date: Wed, 22 Apr 2009 09:01:38 -0700
+Message-ID: <49EF3F62.6020300@manoweb.com>
+References: <49ED8857.9010809@manoweb.com> <alpine.LRH.2.00.0904221319520.18261@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:38914 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751511AbZDVLWT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Apr 2009 07:22:19 -0400
-In-Reply-To: <49ED8857.9010809@manoweb.com>
+Received: from moutng.kundenserver.de ([212.227.126.171]:59770 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753457AbZDVQBt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 22 Apr 2009 12:01:49 -0400
+In-Reply-To: <alpine.LRH.2.00.0904221319520.18261@twin.jikos.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessio Sangalli <alesan@manoweb.com>
+To: Jiri Kosina <jkosina@suse.cz>
 Cc: linux-input@vger.kernel.org
 
-On Tue, 21 Apr 2009, Alessio Sangalli wrote:
+Jiri Kosina wrote:
 
-> Hi I would need a hint what is best to do; I have an embedded device 
-> that can do a "soft" implementation of USB for embedded applications. 
-> The aim is to be compatible with low-speed HID USB devices.
-> 
-> The fact is, it does not implement a full USB stack but only 
-> point-to-point communication with the aforementioned devices. I know it 
-> sounds weird but it's more like a "PS/2" port than a USB thing.
-> 
-> Now, I have a generic character device driver that can read keyboard and
-> mouse data. Of course I get what a USB device would send when you press
-> keys etc.
-> 
-> How do you think it would be the best way to integrate it with the input
-> subsystem?
+> I am not really sure I understand very well. So you have the device the 
+> provides some "crippled" implementation of USB and provides some HID 
+> devices on top of it, and you would like to have this compliant with the 
+> kernel Input/HID infrastructure?
 
-I am not really sure I understand very well. So you have the device the 
-provides some "crippled" implementation of USB and provides some HID 
-devices on top of it, and you would like to have this compliant with the 
-kernel Input/HID infrastructure?
+Yeah we can define it that way. It basically provides a low-speed USB
+port to chips that do not have a USB controller and PHY. Yes, it sounds
+disgusting, but sometimes it's the only way to use USB input devices to
+embedded systems that do not have USB connectivity.
 
-If the devices are really HID (i.e. the protocol on the wire is proper HID 
-as defined by HID specification), you'd only need to implement a 
-specialized "transport" HID code for this transport protocol, and let the 
-HID core do the rest.
+> If the devices are really HID (i.e. the protocol on the wire is proper HID 
+> as defined by HID specification), you'd only need to implement a 
+> specialized "transport" HID code for this transport protocol, and let the 
+> HID core do the rest.
 
-Currently there are implementations for USB and Bluetooth which you can 
-look at.
+Well those are standard USB keyboard and mice, so what goes on the wire
+is what is expected by those devices.
 
-Or maybe I just misunderstood your situation completely?
 
--- 
-Jiri Kosina
-SUSE Labs
+> Currently there are implementations for USB and Bluetooth which you can 
+> look at.
+
+Could you point me to a more specific example?
+
+Thank you
+Alessio
+
 

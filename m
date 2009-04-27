@@ -1,370 +1,154 @@
-From: Wan ZongShun <mcuos.com@gmail.com>
-Subject: [PATCH] Add support for touch screen on W90P910 ARM platform
-Date: Mon, 27 Apr 2009 23:03:20 +0800
-Message-ID: <e68bb3470904270803q5e69a5f4n74ff58848f397f28@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.168]:28900 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754044AbZD0PDV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 27 Apr 2009 11:03:21 -0400
-Received: by wf-out-1314.google.com with SMTP id 26so1817694wfd.4
-        for <linux-input@vger.kernel.org>; Mon, 27 Apr 2009 08:03:20 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH rev2] input: bcm5974: Add support for the Macbook 5 (Unibody)
+Date: Mon, 27 Apr 2009 23:11:51 +0200
+Message-ID: <1240866711-6468-1-git-send-email-rydberg@euromail.se>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761085AbZD0VMX@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Dear sirs,
+This patch adds support for the new unibody Macbook, with physically
+integrated button and trackpad. Since the integrated button changes
+the logic for touch-and-click, a device capability bit mask is now
+reported in input_id.version, which can be picked up by user space
+via a EVIOCGID call.
 
-The patch adds this  touch screen  driver to w90p910 ARM  platform.
-It is based on version of 2.6.30-rc3.
-would you please give me some advice about this patch?
-
- arch/arm/mach-w90x900/include/mach/regs-adc.h |   57 +++
- drivers/input/touchscreen/Kconfig             |    6
- drivers/input/touchscreen/Makefile            |    1
- drivers/input/touchscreen/w90p910_ts.c        |  229 ++++++++++++++++
- 4 files changed, 293 insertions(+)
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+Tested-by: David M. Lary <dmlary@gmail.com>
 ---
-Add this touch screen driver c file for W90P910 platform.
-It is only one part of patch,the other such as maping,
-device register will be submitted soon after.
+ drivers/input/mouse/bcm5974.c |   45 +++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 43 insertions(+), 2 deletions(-)
 
-Signed-off-by: Wan ZongShun <mcuos.com@gmail.com>
-
-diff -Npur linux-2.6.29/arch/arm/mach-w90x900/include/mach/regs-adc.h
-linux-2.6.30-rc3/arch/arm/mach-w90x900/include/mach/regs-adc.h
---- linux-2.6.29/arch/arm/mach-w90x900/include/mach/regs-adc.h  1970-01-01
-08:00:00.000000000 +0800
-+++ linux-2.6.30-rc3/arch/arm/mach-w90x900/include/mach/regs-adc.h
- 2009-04-27
-20:53:57.000000000 +0800
-@@ -0,0 +1,57 @@
-+/*
-+ * arch/arm/mach-w90x900/include/mach/regs-adc.h
-+ *
-+ * Copyright (c) 2008 Nuvoton technology corporation
-+ * All rights reserved.
-+ *
-+ * Wan ZongShun <mcuos.com@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
+diff --git a/drivers/input/mouse/bcm5974.c b/drivers/input/mouse/bcm5974.c
+index a170574..7c44199 100644
+--- a/drivers/input/mouse/bcm5974.c
++++ b/drivers/input/mouse/bcm5974.c
+@@ -51,6 +51,10 @@
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI	0x0230
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_ISO	0x0231
+ #define USB_DEVICE_ID_APPLE_WELLSPRING2_JIS	0x0232
++/* Macbook5,1 (unibody), aka wellspring3 */
++#define USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI	0x0236
++#define USB_DEVICE_ID_APPLE_WELLSPRING3_ISO	0x0237
++#define USB_DEVICE_ID_APPLE_WELLSPRING3_JIS	0x0238
+ 
+ #define BCM5974_DEVICE(prod) {					\
+ 	.match_flags = (USB_DEVICE_ID_MATCH_DEVICE |		\
+@@ -72,6 +76,10 @@ static const struct usb_device_id bcm5974_table[] = {
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_ISO),
+ 	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
++	/* Macbook5,1 */
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
++	BCM5974_DEVICE(USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 	/* Terminating entry */
+ 	{}
+ };
+@@ -98,11 +106,19 @@ struct bt_data {
+ 
+ /* trackpad header types */
+ enum tp_type {
+-	TYPE1			/* plain trackpad */
++	TYPE1,			/* plain trackpad */
++	TYPE2			/* button integrated in trackpad */
+ };
+ 
+ /* trackpad finger data offsets */
+ #define FINGER_TYPE1		26
++#define FINGER_TYPE2		30
 +
-+#ifndef __ASM_ARM_REGS_ADC_H
-+#define __ASM_ARM_REGS_ADC_H
++/* trackpad button data offsets */
++#define BUTTON_TYPE2		15
 +
-+/* ADC Control Registers */
-+#define ADC_BA         W90X900_VA_ADC
-+#define REG_ADC_CON    (ADC_BA+0x00)
-+#define REG_ADC_TSC    (ADC_BA+0x04)
-+#define REG_ADC_DLY    (ADC_BA+0x08)
-+#define REG_ADC_XDATA  (ADC_BA+0x0C)
-+#define REG_ADC_YDATA  (ADC_BA+0x10)
-+#define REG_ADC_LV_CON (ADC_BA+0x14)
-+#define REG_ADC_LV_STS (ADC_BA+0x18)
-+#define ADC_INT                0x040000
-+#define WT_INT         0x100000
-+#define ADC_RESOULTION 1024
++/* list of device capability bits */
++#define HAS_INTEGRATED_BUTTON	1
+ 
+ /* trackpad finger structure */
+ struct tp_finger {
+@@ -135,6 +151,7 @@ struct bcm5974_param {
+ /* device-specific configuration */
+ struct bcm5974_config {
+ 	int ansi, iso, jis;	/* the product id of this device */
++	int caps;		/* device capability bitmask */
+ 	int bt_ep;		/* the endpoint of the button interface */
+ 	int bt_datalen;		/* data length of the button interface */
+ 	int tp_ep;		/* the endpoint of the trackpad interface */
+@@ -184,6 +201,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
+ 		USB_DEVICE_ID_APPLE_WELLSPRING_ANSI,
+ 		USB_DEVICE_ID_APPLE_WELLSPRING_ISO,
+ 		USB_DEVICE_ID_APPLE_WELLSPRING_JIS,
++		0,
+ 		0x84, sizeof(struct bt_data),
+ 		0x81, TYPE1, FINGER_TYPE1, FINGER_TYPE1 + SIZEOF_ALL_FINGERS,
+ 		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 256 },
+@@ -195,6 +213,7 @@ static const struct bcm5974_config bcm5974_config_table[] = {
+ 		USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI,
+ 		USB_DEVICE_ID_APPLE_WELLSPRING2_ISO,
+ 		USB_DEVICE_ID_APPLE_WELLSPRING2_JIS,
++		0,
+ 		0x84, sizeof(struct bt_data),
+ 		0x81, TYPE1, FINGER_TYPE1, FINGER_TYPE1 + SIZEOF_ALL_FINGERS,
+ 		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 256 },
+@@ -202,6 +221,18 @@ static const struct bcm5974_config bcm5974_config_table[] = {
+ 		{ DIM_X, DIM_X / SN_COORD, -4824, 4824 },
+ 		{ DIM_Y, DIM_Y / SN_COORD, -172, 4290 }
+ 	},
++	{
++		USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI,
++		USB_DEVICE_ID_APPLE_WELLSPRING3_ISO,
++		USB_DEVICE_ID_APPLE_WELLSPRING3_JIS,
++		HAS_INTEGRATED_BUTTON,
++		0x84, sizeof(struct bt_data),
++		0x81, TYPE2, FINGER_TYPE2, FINGER_TYPE2 + SIZEOF_ALL_FINGERS,
++		{ DIM_PRESSURE, DIM_PRESSURE / SN_PRESSURE, 0, 300 },
++		{ DIM_WIDTH, DIM_WIDTH / SN_WIDTH, 0, 2048 },
++		{ DIM_X, DIM_X / SN_COORD, -4460, 5166 },
++		{ DIM_Y, DIM_Y / SN_COORD, -75, 6700 }
++	},
+ 	{}
+ };
+ 
+@@ -281,7 +312,7 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 	const struct tp_finger *f;
+ 	struct input_dev *input = dev->input;
+ 	int raw_p, raw_w, raw_x, raw_y, raw_n;
+-	int ptest = 0, origin = 0, nmin = 0, nmax = 0;
++	int ptest = 0, origin = 0, ibt = 0, nmin = 0, nmax = 0;
+ 	int abs_p = 0, abs_w = 0, abs_x = 0, abs_y = 0;
+ 
+ 	if (size < c->tp_offset || (size - c->tp_offset) % SIZEOF_FINGER != 0)
+@@ -303,6 +334,10 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 
+ 		ptest = int2bound(&c->p, raw_p);
+ 		origin = raw2int(f->origin);
 +
-+#define ADC_WRITE(addr, val)   __raw_writel(val, addr)
-+#define ADC_READ(addr)         __raw_readl(addr)
-+#define DEV_NAME               "ADC"
++		/* set the integrated button if applicable */
++		if (c->tp_type == TYPE2)
++			ibt = raw2int(dev->tp_data[BUTTON_TYPE2]);
+ 	}
+ 
+ 	/* while tracking finger still valid, count all fingers */
+@@ -346,6 +381,10 @@ static int report_tp_state(struct bcm5974 *dev, int size)
+ 
+ 	}
+ 
++	/* type 2 reports button events via ibt only */
++	if (c->tp_type == TYPE2)
++		input_report_key(input, BTN_LEFT, ibt);
 +
-+#define TSDEV_SCREEN_X         320
-+#define TSDEV_SCREEN_Y         240
-+
-+unsigned int  INTERVAL_TIME = 4;
-+unsigned int  pre_x, pre_y, STATE;
-+unsigned int  nRadioWidth1, nRadioWidth2, nRadioHeight1, nRadioHeight2;
-+int adc_get = 0, adc_block = 1;
-+
-+static struct input_dev *w90p910_dev;
-+static DECLARE_MUTEX(sem);
-+static DEFINE_SPINLOCK(w90x900_touch_lock);
-+static struct timer_list ts_timer1;
-+
-+struct _pointmap{
-+       int x;
-+       int y;
-+       int status;
-+};
-+
-+struct _pointmap point;
-+
-+#endif/*__ASM_ARM_REGS_ADC_H*/
-diff -Npur linux-2.6.29/drivers/input/touchscreen/Kconfig
-linux-2.6.30-rc3/drivers/input/touchscreen/Kconfig
---- linux-2.6.29/drivers/input/touchscreen/Kconfig      2009-04-27
-14:10:36.000000000 +0800
-+++ linux-2.6.30-rc3/drivers/input/touchscreen/Kconfig  2009-04-27
-19:50:36.000000000 +0800
-@@ -466,4 +466,10 @@ config TOUCHSCREEN_TSC2007
-         To compile this driver as a module, choose M here: the
-         module will be called tsc2007.
-
-+config TOUCHSCREEN_W90X900
-+       tristate "W90P910 touchscreens"
-+       depends on CPU_W90P910
-+       help
-+               Compile this driver to support W90P910 touchscreen.
-+
- endif
-diff -Npur linux-2.6.29/drivers/input/touchscreen/Makefile
-linux-2.6.30-rc3/drivers/input/touchscreen/Makefile
---- linux-2.6.29/drivers/input/touchscreen/Makefile     2009-04-27
-14:10:36.000000000 +0800
-+++ linux-2.6.30-rc3/drivers/input/touchscreen/Makefile 2009-04-27
-19:50:49.000000000 +0800
-@@ -37,3 +37,4 @@ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)        +
- wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713) += wm9713.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)     += mainstone-wm97xx.o
- obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)      += zylonite-wm97xx.o
-+obj-$(CONFIG_TOUCHSCREEN_W90X900)      += w90p910_ts.o
-diff -Npur linux-2.6.29/drivers/input/touchscreen/w90p910_ts.c
-linux-2.6.30-rc3/drivers/input/touchscreen/w90p910_ts.c
---- linux-2.6.29/drivers/input/touchscreen/w90p910_ts.c 1970-01-01
-08:00:00.000000000 +0800
-+++ linux-2.6.30-rc3/drivers/input/touchscreen/w90p910_ts.c     2009-04-27
-20:55:21.000000000 +0800
-@@ -0,0 +1,229 @@
-+/*
-+ * linux/driver/input/w90x900_ts.c
-+ *
-+ * Copyright (c) 2008 Nuvoton technology corporation
-+ * All rights reserved.
-+ *
-+ * Wan ZongShun <mcuos.com@gmail.com>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/io.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+
-+#include <mach/hardware.h>
-+#include <mach/regs-clock.h>
-+#include <mach/regs-adc.h>
-+
-+short ADCDataIn(void)
-+{
-+       pre_x = ((ADC_READ(REG_ADC_XDATA)*TSDEV_SCREEN_X)/ADC_RESOULTION);
-+       pre_y = ((ADC_READ(REG_ADC_YDATA)*TSDEV_SCREEN_Y)/ADC_RESOULTION);
-+
-+       input_report_key(w90p910_dev, BTN_TOUCH, 1);
-+       input_report_abs(w90p910_dev, ABS_X, pre_x);
-+       input_report_abs(w90p910_dev, ABS_Y, pre_y);
-+       input_report_abs(w90p910_dev, ABS_PRESSURE, 1000);
-+       input_sync(w90p910_dev);
-+       return 0;
-+}
-+
-+static void wb_sensitivity(unsigned long  sensi)
-+{
-+       unsigned long flags;
-+       down_interruptible(&sem);
-+       spin_lock_irqsave(&w90x900_touch_lock, flags);
-+
-+       if ((ADC_READ(REG_ADC_TSC)&0x1) == 0x1) {
-+
-+               ADC_WRITE(REG_ADC_TSC, 0x0);
-+               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
-+                                               0x00206000)&0xFF7F7FFF);
-+               STATE = 1;
-+       } else{
-+               input_sync(w90p910_dev);
-+               input_report_key(w90p910_dev, BTN_TOUCH, 0);
-+               input_report_abs(w90p910_dev, ABS_PRESSURE, 0);
-+               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
-+                                               0x0080C000)&0xFFCBFFFF);
-+               STATE = 0;
-+               point.status = 0;
-+       }
-+       up(&sem);
-+       spin_unlock_irqrestore(&w90x900_touch_lock, flags);
-+}
-+
-+static irqreturn_t wb_adc_irq(int irq, void *dev_id)
-+{
-+       unsigned long flags;
-+
-+       down_interruptible(&sem);
-+       spin_lock_irqsave(&w90x900_touch_lock, flags);
-+       adc_get = 1;
-+
-+       if (((ADC_READ(REG_ADC_CON)&WT_INT)>>20) == 1 && STATE == 0) {
-+               STATE = 1;
-+               ADC_WRITE(REG_ADC_TSC, 0x0);
-+               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
-+                                               0x00206000)&0xFF6F7FFF);
-+       }
-+
-+       if (((ADC_READ(REG_ADC_CON)&ADC_INT)>>18) == 1 && STATE == 1) {
-+               STATE = 2;
-+               ADC_WRITE(REG_ADC_TSC, 0x100);
-+               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
-+                                               0x00206000)&0xFF7B7FFF);
-+       }
-+
-+       if (((ADC_READ(REG_ADC_CON)&ADC_INT)>>18) == 1 && STATE == 2) {
-+               ADCDataIn();
-+               point.status = 1;
-+               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
-+                                               0x0000C000)&0xFF5BFFFF);
-+
-+               del_timer(&ts_timer1);
-+               ts_timer1.expires = jiffies+INTERVAL_TIME;
-+               ts_timer1.data = 0UL;
-+               add_timer(&ts_timer1);
-+
-+       }
-+       up(&sem);
-+       spin_unlock_irqrestore(&w90x900_touch_lock, flags);
-+       return IRQ_HANDLED;
-+}
-+
-+static int wb_adc_open(struct input_dev *dev)
-+{
-+
-+       adc_block = 1;
-+       adc_get = 1;
-+       init_timer(&ts_timer1);
-+       ts_timer1.function = wb_sensitivity;
-+       /* reset */
-+       ADC_WRITE(REG_ADC_CON, 0x00010000);
-+       udelay(1000);
-+       ADC_WRITE(REG_ADC_CON, 0x00000000);
-+       udelay(1000);
-+       /* ADC setting */
-+       /* set delay and screen type */
-+       ADC_WRITE(REG_ADC_TSC, ADC_READ(REG_CLKSEL) & 0xFFFFFFF9);
-+       ADC_WRITE(REG_ADC_DLY, 0xF00);
-+       /* waitting for trigger mode */
-+       ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
-+                                       0x0082C008) & 0xFFEBFF09);
-+       STATE = 0;
-+       pre_x = pre_y = 0;
-+       return 0;
-+}
-+
-+static void  wb_adc_close(struct input_dev *dev)
-+{
-+       free_irq(IRQ_ADC, NULL);
-+}
-+
-+static int __init w90x900ts_probe(struct platform_device *pdev)
-+{
-+       int irq, result, err;
-+       unsigned int tmp32;
-+       struct resource *res;
-+       irq = platform_get_irq(pdev, 0);
-+       if (irq < 0) {
-+               dev_err(&pdev->dev, "no irq for device\n");
-+               return -ENOENT;
-+       }
-+
-+       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+       if (!res)
-+               return -ENXIO;
-+
-+       if (!request_mem_region(res->start, res->end - res->start + 1,
-+                               pdev->name)) {
-+               dev_err(&pdev->dev, "Memory region busy\n");
-+               err = -EBUSY;
-+               goto fail;
-+       }
-+
-+       /* enable the ADC clock */
-+       tmp32 = ADC_READ(REG_CLKEN);
-+       tmp32 = tmp32 | 0x10000000;
-+       ADC_WRITE(REG_CLKEN, tmp32);
-+
-+       w90p910_dev = input_allocate_device();
-+
-+       if (!w90p910_dev) {
-+               printk(KERN_ERR "w90p910_dev: not enough memory\n");
-+               err = -ENOMEM;
-+               goto fail;
-+       }
-+
-+       w90p910_dev->name = "W90P910 TouchScreen";
-+       w90p910_dev->phys = "input/event0";
-+       w90p910_dev->id.bustype = BUS_HOST;
-+       w90p910_dev->id.vendor  = 0x0005;
-+       w90p910_dev->id.product = 0x0001;
-+       w90p910_dev->id.version = 0x0100;
-+
-+       w90p910_dev->open  = wb_adc_open;
-+       w90p910_dev->close = wb_adc_close;
-+
-+       w90p910_dev->evbit[0] = BIT_MASK(EV_KEY)|
-+                               BIT_MASK(EV_ABS) | BIT_MASK(EV_SYN);
-+       w90p910_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
-+
-+       input_set_abs_params(w90p910_dev, ABS_X, 0, 0x400, 0, 0);
-+       input_set_abs_params(w90p910_dev, ABS_Y, 0, 0x400, 0, 0);
-+       input_set_abs_params(w90p910_dev, ABS_PRESSURE, 0, 1000, 0, 0);
-+
-+       result = request_irq(irq, wb_adc_irq, IRQF_DISABLED, DEV_NAME, NULL);
-+       if (result != 0)
-+               printk(KERN_ERR"register the wb_adc_irq failed!\n");
-+
-+       input_register_device(w90p910_dev);
-+       return 0;
-+
-+fail:
-+       input_free_device(w90p910_dev);
-+       return err;
-+}
-+
-+static int w90x900ts_remove(struct platform_device *pdev)
-+{
-+
-+       input_unregister_device(w90p910_dev);
-+       return 0;
-+}
-+
-+static struct platform_driver w90x900ts_driver = {
-+       .probe          = w90x900ts_probe,
-+       .remove         = w90x900ts_remove,
-+       .driver         = {
-+               .name   = "w90x900-ts",
-+               .owner  = THIS_MODULE,
-+       },
-+};
-+
-+int __init w90x900ts_init(void)
-+{
-+       return platform_driver_register(&w90x900ts_driver);
-+}
-+
-+static void __exit w90x900ts_exit(void)
-+{
-+       platform_driver_unregister(&w90x900ts_driver);
-+}
-+
-+module_init(w90x900ts_init);
-+module_exit(w90x900ts_exit);
-+
-+MODULE_AUTHOR("PT50 zswan <mcuos.com@gmail.com>");
-+MODULE_DESCRIPTION("w90p910 touch screen driver!");
-+MODULE_LICENSE("GPL");
-
+ 	input_sync(input);
+ 
+ 	return 0;
+@@ -655,6 +694,8 @@ static int bcm5974_probe(struct usb_interface *iface,
+ 	input_dev->name = "bcm5974";
+ 	input_dev->phys = dev->phys;
+ 	usb_to_input_id(dev->udev, &input_dev->id);
++	/* report driver capabilities via the version field */
++	input_dev->id.version = cfg->caps;
+ 	input_dev->dev.parent = &iface->dev;
+ 
+ 	input_set_drvdata(input_dev, dev);
 -- 
-embedded forum
-http://mcuos.com
+1.5.6.3

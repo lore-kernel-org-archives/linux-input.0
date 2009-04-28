@@ -1,60 +1,136 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH 6/6] input: Add a detailed multi-touch finger data report
- protocol (rev2)
-Date: Tue, 28 Apr 2009 10:00:02 +0200
-Message-ID: <49F6B782.8030205@euromail.se>
-References: <266E0723-B689-4472-8A2F-D93FC6819E04@gmail.com>
+From: Johannes Berg <johannes@sipsolutions.net>
+Subject: Re: [PATCH] appletouch: fix DMA to/from stack buffer
+Date: Tue, 28 Apr 2009 10:44:54 +0200
+Message-ID: <1240908294.19534.2.camel@johannes.local>
+References: <20090428015844.GA16190@hash.localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-aClLdoYWDh0LEjgoPiLM"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:49315 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1758342AbZD1IBG (ORCPT
+Received: from xc.sipsolutions.net ([83.246.72.84]:37135 "EHLO
+	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755165AbZD1Io7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Apr 2009 04:01:06 -0400
-In-Reply-To: <266E0723-B689-4472-8A2F-D93FC6819E04@gmail.com>
+	Tue, 28 Apr 2009 04:44:59 -0400
+In-Reply-To: <20090428015844.GA16190@hash.localnet>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Bob Copeland <me@bobcopeland.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> Hi Henrik,
-> 
-> On Wed, Jan 28, 2009 at 11:23:49AM +0100, Henrik Rydberg wrote:
->> +
->> +#define ABS_MT_TOUCH        0x30    /* Diameter of touching circle */
->> +#define ABS_MT_TOUCH_MAJOR    0x30    /* Major axis of touching
->> ellipse */
-> 
-> It looks like we are overriding the same event code to trasnmit 2
-> slightly different kinds of data. I Am concerned that people would get
-> confused, maybe we should get rid of ABS_MT_TOUCH and either require
-> drvices always transmit ABS_MT_TOUCH_MAJOR and ABS_MT_TOUCH_MINOR or
-> document that for curcular objects ABS_MT_TOUCH_MINOR may be omitted.
 
-Done.
+--=-aClLdoYWDh0LEjgoPiLM
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->> @@ -744,6 +758,14 @@ struct input_absinfo {
->> #define BUS_ATARI        0x1B
->>
->> /*
->> + * MT_TOOL types
->> + */
->> +#define MT_TOOL_FINGER        0
->> +#define MT_TOOL_PEN        1
->> +#define MT_TOOL_MAX        9
->> +#define MT_TOOL_CNT        (MT_TOOL_MAX + 1)
-> 
-> MT_TOOL_FINGER/MT_TOOL_PEN are documented values of ABS_MT_TOOL_TYPE, so
-> I don't understand why we need MT_TOOL_MAX/MT_TOOL_CNT definitions.
+On Mon, 2009-04-27 at 21:58 -0400, Bob Copeland wrote:
+> CONFIG_DMA_API_DEBUG spotted an instance of appletouch using
+> an array on the stack as a DMA buffer for certain hardware.
+> Change it to use a kmalloc()ed buffer instead.
+>=20
+> This fixes the following error:
 
-Ah! It is a remnant from a much earlier version which used a separate MT
-event type. It slipped through, my bad. Remedied. Thanks.
+> Signed-off-by: Bob Copeland <me@bobcopeland.com>
 
-Revision three of the patch has been sent.
+Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
 
-Cheers,
-Henrik
+Interestingly, I first thought the GFP_KERNEL is wrong due to
+atp_reinit, but the GFP_ATOMIC in that is wrong instead :)
+
+> ---
+>  drivers/input/mouse/appletouch.c |   24 ++++++++++++++++++------
+>  1 files changed, 18 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/apple=
+touch.c
+> index 454b961..e0140fd 100644
+> --- a/drivers/input/mouse/appletouch.c
+> +++ b/drivers/input/mouse/appletouch.c
+> @@ -255,15 +255,22 @@ MODULE_PARM_DESC(debug, "Activate debugging output"=
+);
+>   */
+>  static int atp_geyser_init(struct usb_device *udev)
+>  {
+> -	char data[8];
+> +	char *data;
+>  	int size;
+>  	int i;
+> +	int ret;
+> +
+> +	data =3D kmalloc(8, GFP_KERNEL);
+> +	if (!data) {
+> +		err("Out of memory");
+> +		return -ENOMEM;
+> +	}
+> =20
+>  	size =3D usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
+>  			ATP_GEYSER_MODE_READ_REQUEST_ID,
+>  			USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+>  			ATP_GEYSER_MODE_REQUEST_VALUE,
+> -			ATP_GEYSER_MODE_REQUEST_INDEX, &data, 8, 5000);
+> +			ATP_GEYSER_MODE_REQUEST_INDEX, data, 8, 5000);
+> =20
+>  	if (size !=3D 8) {
+>  		dprintk("atp_geyser_init: read error\n");
+> @@ -271,7 +278,8 @@ static int atp_geyser_init(struct usb_device *udev)
+>  			dprintk("appletouch[%d]: %d\n", i, data[i]);
+> =20
+>  		err("Failed to read mode from device.");
+> -		return -EIO;
+> +		ret =3D -EIO;
+> +		goto out_free;
+>  	}
+> =20
+>  	/* Apply the mode switch */
+> @@ -281,7 +289,7 @@ static int atp_geyser_init(struct usb_device *udev)
+>  			ATP_GEYSER_MODE_WRITE_REQUEST_ID,
+>  			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+>  			ATP_GEYSER_MODE_REQUEST_VALUE,
+> -			ATP_GEYSER_MODE_REQUEST_INDEX, &data, 8, 5000);
+> +			ATP_GEYSER_MODE_REQUEST_INDEX, data, 8, 5000);
+> =20
+>  	if (size !=3D 8) {
+>  		dprintk("atp_geyser_init: write error\n");
+> @@ -289,9 +297,13 @@ static int atp_geyser_init(struct usb_device *udev)
+>  			dprintk("appletouch[%d]: %d\n", i, data[i]);
+> =20
+>  		err("Failed to request geyser raw mode");
+> -		return -EIO;
+> +		ret =3D -EIO;
+> +		goto out_free;
+>  	}
+> -	return 0;
+> +	ret =3D 0;
+> +out_free:
+> +	kfree(data);
+> +	return ret;
+>  }
+> =20
+>  /*
+> --=20
+> 1.6.0.6
+>=20
+
+--=-aClLdoYWDh0LEjgoPiLM
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (powerbook)
+
+iQIcBAABAgAGBQJJ9sIEAAoJEKVg1VMiehFYkjoP/2YsxPTHDu0VBopQJHJvn9X5
+8s+Wwec7vAOKCy+NN4sTBNgzbsZB2IjdTNVPnSf4GN9iBqvN4+tqw79jIpNLy/od
+nhS68Pw3EP3LtHZh8uWde9t0uevCgDuvx6beWjrYZQWfzvsUHMCKdVvB10VcO3U9
+7pPT/AncHrNMogk0ARoRxKWyXkzNTYsUX9YCcf4euSkXFE1hNaIgcb56fqISKKDM
+jywAZiZzz4G6qfPCmqaZv8JN4bExrrKZ2P1F+choj5UFnBKc2zMrUhWdaCtOkS4p
+lqvIx353w9cyU4oMooT3P6Wgnz+LMtvVUgzyDXj6Tf1zv2raEWZHIAPJvqz29NfY
+JdhRII2jtBf0z7+ebHU1bejEFIMA6Etcygsp+7ZY4EFjIpBpHAQaT4XMpoXhCM/D
+iNPbid6lZXntXw9K/U6J5iI4ZKDQ5/kwyGg0ayeQfWyGfbk4/xove2OAou++3nQQ
+OjFD7Dv5u702CuEFfRwuvBrF9BduvO3AB86sgousu7bNTSFtpKGCh9RT5P3I/uH4
+Dy4Nqg7OBiTz6OVBPsI8L3jikQqNBcAl5DA1hpx3TRJGSWzuQBdQ/7/ODUQ4kSuf
+9VPwrjiBhTYq8crOYH8P5otHWAiepBV0BQ02pCecbGeoZPOX5oFrn70/FX+yZk5z
+eF5hzKlmnbPrsuUtn0WT
+=apZP
+-----END PGP SIGNATURE-----
+
+--=-aClLdoYWDh0LEjgoPiLM--
 

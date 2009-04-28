@@ -1,136 +1,175 @@
-From: Johannes Berg <johannes@sipsolutions.net>
-Subject: Re: [PATCH] appletouch: fix DMA to/from stack buffer
-Date: Tue, 28 Apr 2009 10:44:54 +0200
-Message-ID: <1240908294.19534.2.camel@johannes.local>
-References: <20090428015844.GA16190@hash.localnet>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-aClLdoYWDh0LEjgoPiLM"
+From: "Henrik Rydberg" <rydberg@euromail.se>
+Subject: [PATCH] input: Document the multi-touch (MT) protocol
+Date: Tue, 28 Apr 2009 13:06:57 +0200
+Message-ID: <1240916817-18995-2-git-send-email-rydberg@euromail.se>
+References: <1240916817-18995-1-git-send-email-rydberg@euromail.se>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from xc.sipsolutions.net ([83.246.72.84]:37135 "EHLO
-	sipsolutions.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755165AbZD1Io7 (ORCPT
+Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:37512 "EHLO
+	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1756472AbZD1LHR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Apr 2009 04:44:59 -0400
-In-Reply-To: <20090428015844.GA16190@hash.localnet>
+	Tue, 28 Apr 2009 07:07:17 -0400
+In-Reply-To: <1240916817-18995-1-git-send-email-rydberg@euromail.se>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bob Copeland <me@bobcopeland.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
+This patchs adds documentation for the multi-touch protocol to
+Documentation/input/.
 
---=-aClLdoYWDh0LEjgoPiLM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
+---
+ Documentation/input/multi-touch-protocol.txt |  140 ++++++++++++++++++++++++++
+ 1 files changed, 140 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/input/multi-touch-protocol.txt
 
-On Mon, 2009-04-27 at 21:58 -0400, Bob Copeland wrote:
-> CONFIG_DMA_API_DEBUG spotted an instance of appletouch using
-> an array on the stack as a DMA buffer for certain hardware.
-> Change it to use a kmalloc()ed buffer instead.
->=20
-> This fixes the following error:
-
-> Signed-off-by: Bob Copeland <me@bobcopeland.com>
-
-Reviewed-by: Johannes Berg <johannes@sipsolutions.net>
-
-Interestingly, I first thought the GFP_KERNEL is wrong due to
-atp_reinit, but the GFP_ATOMIC in that is wrong instead :)
-
-> ---
->  drivers/input/mouse/appletouch.c |   24 ++++++++++++++++++------
->  1 files changed, 18 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/input/mouse/appletouch.c b/drivers/input/mouse/apple=
-touch.c
-> index 454b961..e0140fd 100644
-> --- a/drivers/input/mouse/appletouch.c
-> +++ b/drivers/input/mouse/appletouch.c
-> @@ -255,15 +255,22 @@ MODULE_PARM_DESC(debug, "Activate debugging output"=
-);
->   */
->  static int atp_geyser_init(struct usb_device *udev)
->  {
-> -	char data[8];
-> +	char *data;
->  	int size;
->  	int i;
-> +	int ret;
-> +
-> +	data =3D kmalloc(8, GFP_KERNEL);
-> +	if (!data) {
-> +		err("Out of memory");
-> +		return -ENOMEM;
-> +	}
-> =20
->  	size =3D usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
->  			ATP_GEYSER_MODE_READ_REQUEST_ID,
->  			USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
->  			ATP_GEYSER_MODE_REQUEST_VALUE,
-> -			ATP_GEYSER_MODE_REQUEST_INDEX, &data, 8, 5000);
-> +			ATP_GEYSER_MODE_REQUEST_INDEX, data, 8, 5000);
-> =20
->  	if (size !=3D 8) {
->  		dprintk("atp_geyser_init: read error\n");
-> @@ -271,7 +278,8 @@ static int atp_geyser_init(struct usb_device *udev)
->  			dprintk("appletouch[%d]: %d\n", i, data[i]);
-> =20
->  		err("Failed to read mode from device.");
-> -		return -EIO;
-> +		ret =3D -EIO;
-> +		goto out_free;
->  	}
-> =20
->  	/* Apply the mode switch */
-> @@ -281,7 +289,7 @@ static int atp_geyser_init(struct usb_device *udev)
->  			ATP_GEYSER_MODE_WRITE_REQUEST_ID,
->  			USB_DIR_OUT | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
->  			ATP_GEYSER_MODE_REQUEST_VALUE,
-> -			ATP_GEYSER_MODE_REQUEST_INDEX, &data, 8, 5000);
-> +			ATP_GEYSER_MODE_REQUEST_INDEX, data, 8, 5000);
-> =20
->  	if (size !=3D 8) {
->  		dprintk("atp_geyser_init: write error\n");
-> @@ -289,9 +297,13 @@ static int atp_geyser_init(struct usb_device *udev)
->  			dprintk("appletouch[%d]: %d\n", i, data[i]);
-> =20
->  		err("Failed to request geyser raw mode");
-> -		return -EIO;
-> +		ret =3D -EIO;
-> +		goto out_free;
->  	}
-> -	return 0;
-> +	ret =3D 0;
-> +out_free:
-> +	kfree(data);
-> +	return ret;
->  }
-> =20
->  /*
-> --=20
-> 1.6.0.6
->=20
-
---=-aClLdoYWDh0LEjgoPiLM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (powerbook)
-
-iQIcBAABAgAGBQJJ9sIEAAoJEKVg1VMiehFYkjoP/2YsxPTHDu0VBopQJHJvn9X5
-8s+Wwec7vAOKCy+NN4sTBNgzbsZB2IjdTNVPnSf4GN9iBqvN4+tqw79jIpNLy/od
-nhS68Pw3EP3LtHZh8uWde9t0uevCgDuvx6beWjrYZQWfzvsUHMCKdVvB10VcO3U9
-7pPT/AncHrNMogk0ARoRxKWyXkzNTYsUX9YCcf4euSkXFE1hNaIgcb56fqISKKDM
-jywAZiZzz4G6qfPCmqaZv8JN4bExrrKZ2P1F+choj5UFnBKc2zMrUhWdaCtOkS4p
-lqvIx353w9cyU4oMooT3P6Wgnz+LMtvVUgzyDXj6Tf1zv2raEWZHIAPJvqz29NfY
-JdhRII2jtBf0z7+ebHU1bejEFIMA6Etcygsp+7ZY4EFjIpBpHAQaT4XMpoXhCM/D
-iNPbid6lZXntXw9K/U6J5iI4ZKDQ5/kwyGg0ayeQfWyGfbk4/xove2OAou++3nQQ
-OjFD7Dv5u702CuEFfRwuvBrF9BduvO3AB86sgousu7bNTSFtpKGCh9RT5P3I/uH4
-Dy4Nqg7OBiTz6OVBPsI8L3jikQqNBcAl5DA1hpx3TRJGSWzuQBdQ/7/ODUQ4kSuf
-9VPwrjiBhTYq8crOYH8P5otHWAiepBV0BQ02pCecbGeoZPOX5oFrn70/FX+yZk5z
-eF5hzKlmnbPrsuUtn0WT
-=apZP
------END PGP SIGNATURE-----
-
---=-aClLdoYWDh0LEjgoPiLM--
+diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentation/input/multi-touch-protocol.txt
+new file mode 100644
+index 0000000..2e99cd6
+--- /dev/null
++++ b/Documentation/input/multi-touch-protocol.txt
+@@ -0,0 +1,140 @@
++Multi-touch (MT) Protocol
++-------------------------
++	Copyright (C) 2009	Henrik Rydberg <rydberg@euromail.se>
++
++
++Introduction
++------------
++
++In order to utilize the full power of the new multi-touch devices, a way to
++report detailed finger data to user space is needed. This document
++describes the multi-touch (MT) protocol which allows kernel drivers to
++report details for an arbitrary number of fingers.
++
++
++Usage
++-----
++
++Anonymous finger details are sent sequentially as separate packets of ABS
++events. Only the ABS_MT events are recognized as part of a finger
++packet. The end of a packet is marked by calling the input_mt_sync()
++function, which generates a SYN_MT_REPORT event. The end of multi-touch
++transfer is marked by calling the usual input_sync() function.
++
++A set of ABS_MT events with the desired properties are defined. The events
++are divided into categories, to allow for partial implementation.  The
++minimum set consists of ABS_MT_TOUCH_MAJOR, ABS_MT_POSITION_X and
++ABS_MT_POSITION_Y, which allows for multiple fingers to be tracked.  If the
++device supports it, the ABS_MT_WIDTH_MAJOR may be used to provide the size
++of the approaching finger. Anisotropy and direction may be specified with
++ABS_MT_TOUCH_MINOR, ABS_MT_WIDTH_MINOR and ABS_MT_ORIENTATION. Devices with
++more granular information may specify general shapes as blobs, i.e., as a
++sequence of rectangular shapes grouped together by a
++ABS_MT_BLOB_ID. Finally, the ABS_MT_TOOL_TYPE may be used to specify
++whether the touching tool is a finger or a pen or something else.
++
++
++Event Semantics
++---------------
++
++The word "contact" is used to describe a tool which is in direct contact
++with the surface. A finger, a pen or a rubber all classify as contacts.
++
++ABS_MT_TOUCH_MAJOR
++
++The length of the major axis of the contact. The length should be given in
++surface units. If the surface has a X time Y resolution, the largest
++possible value of ABS_MT_TOUCH_MAJOR is sqrt(X^2 + Y^2), the diameter.
++
++ABS_MT_TOUCH_MINOR
++
++The length, in surface units, of the minor axis of the contact. If the
++contact is circular, this event can be omitted.
++
++ABS_MT_WIDTH_MAJOR
++
++The length, in surface units, of the major axis of the approaching
++tool. This should be understood as the size of the tool itself. The
++orientation of the contact and the approaching tool are assumed to be the
++same.
++
++ABS_MT_WIDTH_MINOR
++
++The length, in surface units, of the minor axis of the approaching
++tool. Omit if circular.
++
++The above four values can be used to derive additional information about
++the contact. The ratio ABS_MT_TOUCH_MAJOR / ABS_MT_WIDTH_MAJOR approximates
++the notion of pressure. The fingers of the hand and the palm all have
++different characteristic widths [1].
++
++ABS_MT_ORIENTATION
++
++The orientation of the ellipse. The value should describe half a revolution
++clockwise around the touch center. The scale of the value is arbitrary, but
++zero should be returned for an ellipse aligned along the Y axis of the
++surface. As an example, an index finger placed straight onto the axis could
++return zero orientation, something negative when twisted to the left, and
++something positive when twisted to the right. This value can be omitted if
++the touching object is circular, or if the information is not available in
++the kernel driver.
++
++ABS_MT_POSITION_X
++
++The surface X coordinate of the center of the touching ellipse.
++
++ABS_MT_POSITION_Y
++
++The surface Y coordinate of the center of the touching ellipse.
++
++ABS_MT_TOOL_TYPE
++
++The type of approaching tool. A lot of kernel drivers cannot distinguish
++between different tool types, such as a finger or a pen. I such cases, the
++event should be omitted. The protocol currently supports MT_TOOL_FINGER and
++MT_TOOL_PEN [2].
++
++ABS_MT_BLOB_ID
++
++The BLOB_ID groups several packets together into one arbitrarily shaped
++contact. This is a low-level anonymous grouping, and should not be confused
++with the high-level contactID, explained below. Most kernel drivers will
++not have this capability, and can safely omit the event.
++
++
++Finger Tracking
++---------------
++
++The kernel driver should generate an arbitrary enumeration of the set of
++anonymous contacts currently on the surface. The order in which the packets
++appear in the event stream is not important.
++
++The process of finger tracking, i.e., to assign a unique contactID to each
++initiated contact on the surface, is left to user space; preferably the
++multi-touch X driver [3]. In that driver, the contactID stays the same and
++unique until the contact vanishes (when the finger leaves the surface). The
++problem of assigning a set of anonymous fingers to a set of identified
++fingers is a euclidian bipartite matching problem at each event update, and
++relies on a sufficiently rapid update rate.
++
++Notes
++-----
++
++In order to stay compatible with existing applications, the data
++reported in a finger packet must not be recognized as single-touch
++events. In addition, all finger data must bypass input filtering,
++since subsequent events of the same type refer to different fingers.
++
++The first kernel driver to utilize the MT protocol is the bcm5974 driver,
++where examples can be found.
++
++[1] With the extension ABS_MT_APPROACH_X and ABS_MT_APPROACH_Y, the
++difference between the contact position and the approaching tool position
++could be used to derive tilt.
++[2] The list can of course be extended.
++[3] The multi-touch X driver is currently in the prototyping stage. At the
++time of writing (April 2009), the MT protocol is not yet merged, and the
++prototype implements finger matching, basic mouse support and two-finger
++scrolling. The project aims at improving the quality of current multi-touch
++functionality available in the synaptics X driver, and in addition
++implement more advanced gestures.
+-- 
+1.5.6.3
 

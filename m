@@ -1,97 +1,86 @@
-From: "Henrik Rydberg" <rydberg@euromail.se>
-Subject: [PATCH] input: Document the bcm5974 driver (rev2)
-Date: Tue, 28 Apr 2009 15:15:41 +0200
-Message-ID: <1240924541-20673-1-git-send-email-rydberg@euromail.se>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: problem of writing a virtual ps2 mouse driver
+Date: Tue, 28 Apr 2009 06:18:24 -0700
+Message-ID: <200904280618.24663.dmitry.torokhov@gmail.com>
+References: <9A03B08F-52D1-4A83-B060-D0DE111E0064@cic.org.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp01.sth.basefarm.net ([80.76.149.212]:36927 "EHLO
-	ch-smtp01.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1754039AbZD1NPr (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 28 Apr 2009 09:15:47 -0400
+Received: from smtp-outbound-2.vmware.com ([65.115.85.73]:38651 "EHLO
+	smtp-outbound-2.vmware.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753762AbZD1NSZ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 28 Apr 2009 09:18:25 -0400
+Content-Disposition: inline
+In-Reply-To: <9A03B08F-52D1-4A83-B060-D0DE111E0064@cic.org.tw>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+To: chang yao chung <yaochung@cic.org.tw>
+Cc: linux-input@vger.kernel.org
 
-This patch adds documentation for the bcm5974 to Documentation/input/.
+Hi,
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
----
- Documentation/input/bcm5974.txt |   65 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 65 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/input/bcm5974.txt
+On Mon, Apr 27, 2009 at 03:18:07PM +0800, chang yao chung wrote:
+> Hi all
+>
+> I want to write a virtual PS/2 mouse driver to hook to the input core=
+, =20
+> after I load the driver
+> The psmouse input device driver probes my virtual device as a =E2=80=9C=
+Generic =20
+> PS/2 mouse=E2=80=9D in /dev/input/mouse1
+> And sent a F4 (mouse enable command) to my pseudo device.
+>
+> I use a user space program to send the following mouse movement packe=
+t =20
+> and launch
+> gpm =E2=80=93m /dev/input/mouse1 =E2=80=93t ps2
+>
+> but when I run the user space program , there is no mouse movement ev=
+ent=20
+> occurred,
 
-diff --git a/Documentation/input/bcm5974.txt b/Documentation/input/bcm5974.txt
-new file mode 100644
-index 0000000..5e22dcf
---- /dev/null
-+++ b/Documentation/input/bcm5974.txt
-@@ -0,0 +1,65 @@
-+BCM5974 Driver (bcm5974)
-+------------------------
-+	Copyright (C) 2008-2009	Henrik Rydberg <rydberg@euromail.se>
-+
-+The USB initialization and package decoding was made by Scott Shawcroft as
-+part of the touchd user-space driver project:
-+	Copyright (C) 2008	Scott Shawcroft (scott.shawcroft@gmail.com)
-+
-+The BCM5974 driver is based on the appletouch driver:
-+	Copyright (C) 2001-2004	Greg Kroah-Hartman (greg@kroah.com)
-+	Copyright (C) 2005	Johannes Berg (johannes@sipsolutions.net)
-+	Copyright (C) 2005	Stelian Pop (stelian@popies.net)
-+	Copyright (C) 2005	Frank Arnold (frank@scirocco-5v-turbo.de)
-+	Copyright (C) 2005	Peter Osterlund (petero2@telia.com)
-+	Copyright (C) 2005	Michael Hanselmann (linux-kernel@hansmi.ch)
-+	Copyright (C) 2006	Nicolas Boichat (nicolas@boichat.ch)
-+
-+This driver adds support for the multi-touch trackpad on the new Apple
-+Macbook Air and Macbook Pro laptops. It replaces the appletouch driver on
-+those computers, and integrates well with the synaptics driver of the Xorg
-+system.
-+
-+Known to work on Macbook Air, Macbook Pro Penryn and the new unibody
-+Macbook 5 and Macbook Pro 5.
-+
-+Usage
-+-----
-+
-+The driver loads automatically for the supported usb device ids, and
-+becomes available both as an event device (/dev/input/event*) and as a
-+mouse via the mousedev driver (/dev/input/mice).
-+
-+USB Race
-+--------
-+
-+The Apple multi-touch trackpads report both mouse and keyboard events via
-+different interfaces of the same usb device. This creates a race condition
-+with the HID driver, which, if not told otherwise, will find the standard
-+HID mouse and keyboard, and claim the whole device. To remedy, the usb
-+product id must be listed in the mouse_ignore list of the hid driver.
-+
-+Debug output
-+------------
-+
-+To ease the development for new hardware version, verbose packet output can
-+be switched on with the debug kernel module parameter. The range [1-9]
-+yields different levels of verbosity. Example (as root):
-+
-+echo -n 9 > /sys/module/bcm5974/parameters/debug
-+
-+tail -f /var/log/debug
-+
-+echo -n 0 > /sys/module/bcm5974/parameters/debug
-+
-+Trivia
-+------
-+
-+The driver was developed at the ubuntu forums in June 2008 [1], and now has
-+a more permanent home at bitmath.org [2].
-+
-+Links
-+-----
-+
-+[1] http://ubuntuforums.org/showthread.php?t=840040
-+[2] http://http://bitmath.org/code/
--- 
-1.5.6.3
+Do you see any data coming out if you just do a 'cat /dev/input/mouse1'=
+?
+Are you positive that mouse1 is bound to your virtual device?
 
+> is there anything wrong with my code using serio_interrupt () ?
+>
+
+=2E..
+
+>
+> static ssize_t
+> write_vms (struct device *dev, struct device_attribute *attr, const c=
+har=20
+> *buffer, size_t count)
+> {
+>         int x, y;
+>         sscanf (buffer, "%x", &x);
+
+You don't read 'y' coordinate and below pass garbage to serio, users
+is likely to reject packets that are suspicious.
+
+>         serio_interrupt (dev, 0x8, 0 , NULL);
+>         serio_interrupt (dev, x, NULL);
+
+=46irst question - does it even compile? I don't think so given that yo=
+u
+trying to pass either 3 or 4 arguments to it.
+
+>         serio_interrupt (dev, y, 0, NULL);
+>         serio_interrupt (dev, 0, 0, NULL);
+
+You also need to decide the flavor of PS/2 protocol you are trying to
+support. You seem to be aiming for ImPS/2 with 0 4th byte but don't
+respond to ImPS/2 probes which will confuse users.
+
+--=20
+Dmitry
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

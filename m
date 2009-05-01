@@ -1,44 +1,58 @@
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH] input: remove driver_data direct access of struct device
-Date: Thu, 30 Apr 2009 15:17:30 -0700
-Message-ID: <20090430221730.GA18512@kroah.com>
+From: Bastien Nocera <hadess@hadess.net>
+Subject: Re: Subject: Re: [PATCH] Wacom Graphire Bluetooth driver (updated
+ with a  few fixes)
+Date: Fri, 01 May 2009 14:15:34 +0100
+Message-ID: <1241183734.20413.123.camel@cookie.hadess.net>
+References: <167e8a330904280834i23dac0e0n3f859ced30a3e4a7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:55435 "EHLO coco.kroah.org"
+Received: from mx2.redhat.com ([66.187.237.31]:34285 "EHLO mx2.redhat.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751306AbZD3W3d (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 30 Apr 2009 18:29:33 -0400
-Content-Disposition: inline
+	id S1751223AbZEANQc (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 1 May 2009 09:16:32 -0400
+In-Reply-To: <167e8a330904280834i23dac0e0n3f859ced30a3e4a7@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, Greg KH <greg@kroah.com>
+To: Ping <pinglinux@gmail.com>
+Cc: Andrew Zabolotny <zap@homelink.ru>, linux-input@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+On Tue, 2009-04-28 at 08:34 -0700, Ping wrote:
+> Hi Bastien,
+> 
+> Thank you for putting the Wacom Bluethooth support together.  I have
+> two questions (I have to admit that I know nothing about Bluethooth.
+> I know something about Wacom devices though :):
+> 
+> 1.          Should we follow the USB way to blacklist all Wacom
+> Bluetooth devices so we don't have to add each product ID later on?
+> Something like this should work (correct me if I am wrong):
+> 
+> { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, HID_ANY_ID) }, 
+> 
+> instead of 
+> 
+>  { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM,
+> USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) }, 
 
-In the near future, the driver core is going to not allow direct access
-to the driver_data pointer in struct device.  Instead, the functions
-dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
-have been around since the beginning, so are backwards compatible with
-all older kernel versions.
+We don't know whether the other Bluetooth tablets that appear will use
+the same protocol. New devices wouldn't work as tablets, and they
+wouldn't work as mice either, because we blacklisted them.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 2.         Is it possible to merge hid/hid-wacom.c into
+> input/tablet/wacom*?  From maintenance point of view, this would be
+> easier for people to update the driver with future support (one place
+> handles all common data between USB and Bluetooth devices of the
+> similar models).
 
----
- drivers/input/touchscreen/wm97xx-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yes, that's really what should happen, but until somebody actually does
+the job, it's unlikely to happen. It's not that big a problem right now,
+as the Bluetooth and USB devices don't share a protocol.
 
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -569,7 +569,7 @@ static int wm97xx_probe(struct device *d
- 	mutex_init(&wm->codec_mutex);
- 
- 	wm->dev = dev;
--	dev->driver_data = wm;
-+	dev_set_drvdata(dev, wm);
- 	wm->ac97 = to_ac97_t(dev);
- 
- 	/* check that we have a supported codec */
+> I am glad to see that Wacom Bluetooth support is getting into the main
+> stream.  
+
+I'm actually still waiting for the patch to make it into the input
+tree...
+

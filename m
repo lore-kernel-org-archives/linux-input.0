@@ -1,58 +1,36 @@
-From: Bastien Nocera <hadess@hadess.net>
-Subject: Re: Subject: Re: [PATCH] Wacom Graphire Bluetooth driver (updated
- with a  few fixes)
-Date: Fri, 01 May 2009 14:15:34 +0100
-Message-ID: <1241183734.20413.123.camel@cookie.hadess.net>
-References: <167e8a330904280834i23dac0e0n3f859ced30a3e4a7@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] input: remove driver_data direct access of struct
+	device
+Date: Fri, 1 May 2009 06:30:03 -0700
+Message-ID: <20090501133003.GA20000@dtor-d630.eng.vmware.com>
+References: <20090430221730.GA18512@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx2.redhat.com ([66.187.237.31]:34285 "EHLO mx2.redhat.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751223AbZEANQc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 1 May 2009 09:16:32 -0400
-In-Reply-To: <167e8a330904280834i23dac0e0n3f859ced30a3e4a7@mail.gmail.com>
+Received: from rv-out-0506.google.com ([209.85.198.227]:5301 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762398AbZEANaJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Fri, 1 May 2009 09:30:09 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so1871191rvb.1
+        for <linux-input@vger.kernel.org>; Fri, 01 May 2009 06:30:09 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20090430221730.GA18512@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Ping <pinglinux@gmail.com>
-Cc: Andrew Zabolotny <zap@homelink.ru>, linux-input@vger.kernel.org
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-input@vger.kernel.org, Greg KH <greg@kroah.com>
 
-On Tue, 2009-04-28 at 08:34 -0700, Ping wrote:
-> Hi Bastien,
+On Thu, Apr 30, 2009 at 03:17:30PM -0700, Greg Kroah-Hartman wrote:
+> From: Greg Kroah-Hartman <gregkh@suse.de>
 > 
-> Thank you for putting the Wacom Bluethooth support together.  I have
-> two questions (I have to admit that I know nothing about Bluethooth.
-> I know something about Wacom devices though :):
+> In the near future, the driver core is going to not allow direct access
+> to the driver_data pointer in struct device.  Instead, the functions
+> dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
+> have been around since the beginning, so are backwards compatible with
+> all older kernel versions.
 > 
-> 1.          Should we follow the USB way to blacklist all Wacom
-> Bluetooth devices so we don't have to add each product ID later on?
-> Something like this should work (correct me if I am wrong):
-> 
-> { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM, HID_ANY_ID) }, 
-> 
-> instead of 
-> 
->  { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_WACOM,
-> USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH) }, 
 
-We don't know whether the other Bluetooth tablets that appear will use
-the same protocol. New devices wouldn't work as tablets, and they
-wouldn't work as mice either, because we blacklisted them.
+Applied to my 'next' branch, thanks Greg.
 
-> 2.         Is it possible to merge hid/hid-wacom.c into
-> input/tablet/wacom*?  From maintenance point of view, this would be
-> easier for people to update the driver with future support (one place
-> handles all common data between USB and Bluetooth devices of the
-> similar models).
-
-Yes, that's really what should happen, but until somebody actually does
-the job, it's unlikely to happen. It's not that big a problem right now,
-as the Bluetooth and USB devices don't share a protocol.
-
-> I am glad to see that Wacom Bluetooth support is getting into the main
-> stream.  
-
-I'm actually still waiting for the patch to make it into the input
-tree...
-
+-- 
+Dmitry

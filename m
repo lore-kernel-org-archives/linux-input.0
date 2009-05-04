@@ -1,74 +1,80 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input: Add support for the TSC2003 controller.
-Date: Mon, 4 May 2009 22:51:21 +0530
-Message-ID: <5d5443650905041021n1f709ce1y382440d1285b09ec@mail.gmail.com>
-References: <1241006627-22811-1-git-send-email-thierry.reding@avionic-design.de>
-	 <5d5443650904290623n3712cd7dja653a139cff2cf6d@mail.gmail.com>
-	 <483a38b80904291835p51044741p9bd83d33a40031c@mail.gmail.com>
-	 <20090504113751.GA22603@avionic-design.de>
-	 <5d5443650905040503n501e3b47qc890dc4c71a85b1c@mail.gmail.com>
-	 <20090504145700.GA875@avionic-design.de>
+From: Stefan Bader <stefan.bader@canonical.com>
+Subject: [PATCH] input: Blacklist digitizers from joydev.c
+Date: Mon, 04 May 2009 19:25:56 +0200
+Message-ID: <49FF2524.8090708@canonical.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20090504145700.GA875@avionic-design.de>
-Sender: linux-omap-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: Kwangwoo Lee <kwangwoo.lee@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: multipart/mixed;
+ boundary="------------020907050309020004020908"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from adelie.canonical.com ([91.189.90.139]:59321 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753514AbZEDRZ4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2009 13:25:56 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: dtor@mail.ru
 
-Hi Therry,
+This is a multi-part message in MIME format.
+--------------020907050309020004020908
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 4, 2009 at 8:27 PM, Thierry Reding
-<thierry.reding@avionic-design.de> wrote:
-> * Trilok Soni wrote:
->> Hi Thierry,
->>
->> On Mon, May 4, 2009 at 5:07 PM, Thierry Reding
->> <thierry.reding@avionic-design.de> wrote:
->> > * Kwangwoo Lee wrote:
->> >> Hi Thierry and Trilok,
->> >>
->> >> On Wed, Apr 29, 2009 at 10:23 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
->> >> > Hi Thierry,
->> >> >
->> >> > I have added linux-omap community. How different is this chip from
->> >> > tsc2007. It looks to me that this chip is not much different from
->> >> > tsc2007 (this is just quick look at the driver). If they
->> >> > are similar please consider using i2c_device_id feature in tsc2007 to
->> >> > accommodate this chip.
->> >>
->> >> I agree with the Trilok's opinion.
->> > [snip]
->> >
->> > I only noticed the tsc2007 driver some time ago, when the tsc2003 was already
->> > finished (it's actually pretty old, I just never got around to submitting
->> > it). However I never got the tsc2007 to work on my platform because it uses
->> > sleeping functions inside the timer handler, which results in an oops right
->> > after the first touchscreen interrupt.
->> >
->> > I guess I could try and fix the tsc2007 properly instead of having a second,
->> > pretty similar driver in the tree.
->> >
->>
->> This could be because of improper locking? If you share a crash we can
->> have look at it.
->
-> Attached is a patch that fixes things for me. The problem was that the I2C
-> transfers were done in interrupt context which fails for the controller I use
-> (PXA270). The attached patch uses a struct work_struct to schedule the I2C
-> transfers so they are executed in non-interrupt context.
->
-> I've tested the patch on a minimal system with tslib and it work fine with
-> ts_calibrate and friends.
+This patch has been included in Ubuntu. Does it look sensible for upstream 
+inclusion?
 
-Thanks for the patch. It looks good. Let's wait for Kwangwoo Lee to
-verify it on his platform. Also please add "tsc2003" entry into
-i2c_device_ids so that i2c_board_info can specify the .name as
-"tsc2003".
+Stefan
 
+
+
+--------------020907050309020004020908
+Content-Type: text/x-diff;
+ name="0001-UBUNTU-SAUCE-input-Blacklist-digitizers-from-joyd.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename*0="0001-UBUNTU-SAUCE-input-Blacklist-digitizers-from-joyd.patch"
+
+>From 79d826fd1e314846b889fd524eab0a9445f0f70a Mon Sep 17 00:00:00 2001
+From: Stefan Bader <stefan.bader@canonical.com>
+Date: Tue, 28 Apr 2009 16:44:18 +0200
+Subject: [PATCH] UBUNTU: SAUCE: input: Blacklist digitizers from joydev.c
+
+Bug: #300143
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/300143
+
+BTN_TOUCH is not set by the wacom driver which causes it to be handled by the
+joydev driver while the resulting device is broken. This causes problems
+with applications that try to use a joystick device.
+
+Signed-off-by: Tim Cole <tim.cole@canonical.com>
+Signed-off-by: Stefan Bader <stefan.bader@canonical.com>
+Acked-by: Tim Gardner <tim.gardner@canonical.com>
+Acked-by: Amit Kucheria <amit.kucheria@canonical.com>
+---
+ drivers/input/joydev.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index a85b148..cef2333 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -846,7 +846,13 @@ static const struct input_device_id joydev_blacklist[] = {
+ 				INPUT_DEVICE_ID_MATCH_KEYBIT,
+ 		.evbit = { BIT_MASK(EV_KEY) },
+ 		.keybit = { [BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH) },
+-	},	/* Avoid itouchpads, touchscreens and tablets */
++	},	/* Avoid itouchpads and touchscreens */
++	{
++		.flags = INPUT_DEVICE_ID_MATCH_EVBIT |
++				INPUT_DEVICE_ID_MATCH_KEYBIT,
++		.evbit = { BIT_MASK(EV_KEY) },
++		.keybit = { [BIT_WORD(BTN_DIGI)] = BIT_MASK(BTN_DIGI) },
++	},	/* Avoid tablets, digitisers and similar devices */
+ 	{ }	/* Terminating entry */
+ };
+ 
 -- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+1.5.4.3
+
+
+--------------020907050309020004020908--

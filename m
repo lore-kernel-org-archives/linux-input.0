@@ -1,52 +1,74 @@
-From: Zoltan Karcagi <zkr@freemail.hu>
-Subject: [PATCH] HID: Fix dropped device-specific quirks
-Date: Mon, 04 May 2009 18:57:55 +0200
-Message-ID: <49FF1E93.7010704@freemail.hu>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] input: Add support for the TSC2003 controller.
+Date: Mon, 4 May 2009 22:51:21 +0530
+Message-ID: <5d5443650905041021n1f709ce1y382440d1285b09ec@mail.gmail.com>
+References: <1241006627-22811-1-git-send-email-thierry.reding@avionic-design.de>
+	 <5d5443650904290623n3712cd7dja653a139cff2cf6d@mail.gmail.com>
+	 <483a38b80904291835p51044741p9bd83d33a40031c@mail.gmail.com>
+	 <20090504113751.GA22603@avionic-design.de>
+	 <5d5443650905040503n501e3b47qc890dc4c71a85b1c@mail.gmail.com>
+	 <20090504145700.GA875@avionic-design.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from viefep18-int.chello.at ([62.179.121.38]:62628 "EHLO
-	viefep18-int.chello.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752320AbZEDRN0 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2009 13:13:26 -0400
-Received: from edge02.upc.biz ([192.168.13.237]) by viefep16-int.chello.at
-          (InterMail vM.7.09.01.00 201-2219-108-20080618) with ESMTP
-          id <20090504165757.HKCT3549.viefep16-int.chello.at@edge02.upc.biz>
-          for <linux-input@vger.kernel.org>; Mon, 4 May 2009 18:57:57 +0200
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20090504145700.GA875@avionic-design.de>
+Sender: linux-omap-owner@vger.kernel.org
+To: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Kwangwoo Lee <kwangwoo.lee@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hi,
+Hi Therry,
 
-(Originally sent to linux-usb, description slightly rephrased.)
+On Mon, May 4, 2009 at 8:27 PM, Thierry Reding
+<thierry.reding@avionic-design.de> wrote:
+> * Trilok Soni wrote:
+>> Hi Thierry,
+>>
+>> On Mon, May 4, 2009 at 5:07 PM, Thierry Reding
+>> <thierry.reding@avionic-design.de> wrote:
+>> > * Kwangwoo Lee wrote:
+>> >> Hi Thierry and Trilok,
+>> >>
+>> >> On Wed, Apr 29, 2009 at 10:23 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
+>> >> > Hi Thierry,
+>> >> >
+>> >> > I have added linux-omap community. How different is this chip from
+>> >> > tsc2007. It looks to me that this chip is not much different from
+>> >> > tsc2007 (this is just quick look at the driver). If they
+>> >> > are similar please consider using i2c_device_id feature in tsc2007 to
+>> >> > accommodate this chip.
+>> >>
+>> >> I agree with the Trilok's opinion.
+>> > [snip]
+>> >
+>> > I only noticed the tsc2007 driver some time ago, when the tsc2003 was already
+>> > finished (it's actually pretty old, I just never got around to submitting
+>> > it). However I never got the tsc2007 to work on my platform because it uses
+>> > sleeping functions inside the timer handler, which results in an oops right
+>> > after the first touchscreen interrupt.
+>> >
+>> > I guess I could try and fix the tsc2007 properly instead of having a second,
+>> > pretty similar driver in the tree.
+>> >
+>>
+>> This could be because of improper locking? If you share a crash we can
+>> have look at it.
+>
+> Attached is a patch that fixes things for me. The problem was that the I2C
+> transfers were done in interrupt context which fails for the controller I use
+> (PXA270). The attached patch uses a struct work_struct to schedule the I2C
+> transfers so they are executed in non-interrupt context.
+>
+> I've tested the patch on a minimal system with tslib and it work fine with
+> ts_calibrate and friends.
 
-Please consider for merging. Without this patch, the device below does not work at all on kernel 2.6.28
-and upwards.
+Thanks for the patch. It looks good. Let's wait for Kwangwoo Lee to
+verify it on his platform. Also please add "tsc2003" entry into
+i2c_device_ids so that i2c_board_info can specify the .name as
+"tsc2003".
 
-Device-specific quirks are set up correctly in their respective vendor-specific driver, then
-get overwritten in usbhid_parse().
-Found on a Microsoft Wireless Optical Desktop 3.0 [045e:009d].
-
-Signed-off-by: Zoltan Karcagi <zkr@freemail.hu>
-
-diff -r -U 5 linux-2.6.30-rc4/drivers/hid/usbhid/hid-core.c linux-2.6.30-rc4-fixed/drivers/hid/usbhid/hid-core.c
---- linux-2.6.30-rc4/drivers/hid/usbhid/hid-core.c    2009-05-01 12:06:18.000000000 +0200
-+++ linux-2.6.30-rc4-fixed/drivers/hid/usbhid/hid-core.c    2009-05-03 14:43:47.000000000 +0200
-@@ -896,11 +896,11 @@
- if (ret) {
-     dbg_hid("parsing report descriptor failed\n");
-     goto err;
- }
-
--    hid->quirks = quirks;
-+    hid->quirks |= quirks;
-
- return 0;
-err:
- return ret;
-}
-
-
-
+-- 
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

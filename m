@@ -1,17 +1,19 @@
 From: Tero Saarni <tero.saarni@gmail.com>
 Subject: [PATCH] Input: synaptics - add support for reporting x/y resolution
-Date: Mon, 04 May 2009 21:06:09 +0300
-Message-ID: <1241460369.29685.6.camel@hp>
+Date: Mon, 04 May 2009 21:19:05 +0300
+Message-ID: <1241461145.29685.13.camel@hp>
+References: <1241460369.29685.6.camel@hp>
 Mime-Version: 1.0
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f158.google.com ([209.85.220.158]:37463 "EHLO
-	mail-fx0-f158.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754760AbZEDSGN (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2009 14:06:13 -0400
-Received: by fxm2 with SMTP id 2so3971244fxm.37
-        for <linux-input@vger.kernel.org>; Mon, 04 May 2009 11:06:12 -0700 (PDT)
+Received: from mail-bw0-f174.google.com ([209.85.218.174]:52097 "EHLO
+	mail-bw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751733AbZEDSTJ (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2009 14:19:09 -0400
+Received: by bwz22 with SMTP id 22so626693bwz.37
+        for <linux-input@vger.kernel.org>; Mon, 04 May 2009 11:19:07 -0700 (PDT)
+In-Reply-To: <1241460369.29685.6.camel@hp>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dmitry.torokhov@gmail.com
@@ -25,18 +27,19 @@ available so that differences can be compensated.
 Signed-off-by: Tero Saarni <tero.saarni@gmail.com>
 
 ---
+
+I'm reposting this to fix the line wrapping problems, sorry!
+
  drivers/input/mouse/synaptics.c |   27 +++++++++++++++++++++++++++
  drivers/input/mouse/synaptics.h |    2 ++
  include/linux/input.h           |    2 ++
  3 files changed, 31 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c
-b/drivers/input/mouse/synaptics.c
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
 index f3e4f7b..9363953 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -180,6 +180,29 @@ static int synaptics_identify(struct psmouse
-*psmouse)
+@@ -180,6 +180,29 @@ static int synaptics_identify(struct psmouse *psmouse)
  	return -1;
  }
  
@@ -66,8 +69,7 @@ index f3e4f7b..9363953 100644
  static int synaptics_query_hardware(struct psmouse *psmouse)
  {
  	if (synaptics_identify(psmouse))
-@@ -188,6 +211,8 @@ static int synaptics_query_hardware(struct psmouse
-*psmouse)
+@@ -188,6 +211,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
  		return -1;
  	if (synaptics_capability(psmouse))
  		return -1;
@@ -76,8 +78,7 @@ index f3e4f7b..9363953 100644
  
  	return 0;
  }
-@@ -534,6 +559,8 @@ static void set_input_params(struct input_dev *dev,
-struct synaptics_data *priv)
+@@ -534,6 +559,8 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
  	set_bit(EV_ABS, dev->evbit);
  	input_set_abs_params(dev, ABS_X, XMIN_NOMINAL, XMAX_NOMINAL, 0, 0);
  	input_set_abs_params(dev, ABS_Y, YMIN_NOMINAL, YMAX_NOMINAL, 0, 0);
@@ -86,8 +87,7 @@ struct synaptics_data *priv)
  	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
  	set_bit(ABS_TOOL_WIDTH, dev->absbit);
  
-diff --git a/drivers/input/mouse/synaptics.h
-b/drivers/input/mouse/synaptics.h
+diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
 index 02aa4cf..e9a69c9 100644
 --- a/drivers/input/mouse/synaptics.h
 +++ b/drivers/input/mouse/synaptics.h
@@ -115,5 +115,6 @@ index 0e6ff5d..53db780 100644
  #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
 -- 
 1.6.0.4
+
 
 

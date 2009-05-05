@@ -1,120 +1,116 @@
-From: Tero Saarni <tero.saarni@gmail.com>
-Subject: [PATCH] Input: synaptics - add support for reporting x/y resolution
-Date: Mon, 04 May 2009 21:19:05 +0300
-Message-ID: <1241461145.29685.13.camel@hp>
-References: <1241460369.29685.6.camel@hp>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [PATCH] input: Add support for the TSC2003 controller.
+Date: Tue, 5 May 2009 08:22:05 +0200
+Message-ID: <20090505062205.GA28440@avionic-design.de>
+References: <1241006627-22811-1-git-send-email-thierry.reding@avionic-design.de> <5d5443650904290623n3712cd7dja653a139cff2cf6d@mail.gmail.com> <483a38b80904291835p51044741p9bd83d33a40031c@mail.gmail.com> <20090504113751.GA22603@avionic-design.de> <5d5443650905040503n501e3b47qc890dc4c71a85b1c@mail.gmail.com> <20090504145700.GA875@avionic-design.de> <5d5443650905041021n1f709ce1y382440d1285b09ec@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="A6N2fC+uXW/VQSAv"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f174.google.com ([209.85.218.174]:52097 "EHLO
-	mail-bw0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751733AbZEDSTJ (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 4 May 2009 14:19:09 -0400
-Received: by bwz22 with SMTP id 22so626693bwz.37
-        for <linux-input@vger.kernel.org>; Mon, 04 May 2009 11:19:07 -0700 (PDT)
-In-Reply-To: <1241460369.29685.6.camel@hp>
+Received: from moutng.kundenserver.de ([212.227.126.188]:62768 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752000AbZEEGU4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2009 02:20:56 -0400
+Content-Disposition: inline
+In-Reply-To: <5d5443650905041021n1f709ce1y382440d1285b09ec@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com
-Cc: linux-input@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Kwangwoo Lee <kwangwoo.lee@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 
-Synaptics uses anisotropic coordinate system.  On wide touchpads
-vertical coordinate resolution can be twice as high as horizontal
-leading to unequal sensitivity.  Make x and y coordinate resolution
-available so that differences can be compensated.
 
-Signed-off-by: Tero Saarni <tero.saarni@gmail.com>
+--A6N2fC+uXW/VQSAv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+* Trilok Soni wrote:
+> Hi Therry,
+> 
+> On Mon, May 4, 2009 at 8:27 PM, Thierry Reding
+> <thierry.reding@avionic-design.de> wrote:
+> > * Trilok Soni wrote:
+> >> Hi Thierry,
+> >>
+> >> On Mon, May 4, 2009 at 5:07 PM, Thierry Reding
+> >> <thierry.reding@avionic-design.de> wrote:
+> >> > * Kwangwoo Lee wrote:
+> >> >> Hi Thierry and Trilok,
+> >> >>
+> >> >> On Wed, Apr 29, 2009 at 10:23 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
+> >> >> > Hi Thierry,
+> >> >> >
+> >> >> > I have added linux-omap community. How different is this chip from
+> >> >> > tsc2007. It looks to me that this chip is not much different from
+> >> >> > tsc2007 (this is just quick look at the driver). If they
+> >> >> > are similar please consider using i2c_device_id feature in tsc2007 to
+> >> >> > accommodate this chip.
+> >> >>
+> >> >> I agree with the Trilok's opinion.
+> >> > [snip]
+> >> >
+> >> > I only noticed the tsc2007 driver some time ago, when the tsc2003 was already
+> >> > finished (it's actually pretty old, I just never got around to submitting
+> >> > it). However I never got the tsc2007 to work on my platform because it uses
+> >> > sleeping functions inside the timer handler, which results in an oops right
+> >> > after the first touchscreen interrupt.
+> >> >
+> >> > I guess I could try and fix the tsc2007 properly instead of having a second,
+> >> > pretty similar driver in the tree.
+> >> >
+> >>
+> >> This could be because of improper locking? If you share a crash we can
+> >> have look at it.
+> >
+> > Attached is a patch that fixes things for me. The problem was that the I2C
+> > transfers were done in interrupt context which fails for the controller I use
+> > (PXA270). The attached patch uses a struct work_struct to schedule the I2C
+> > transfers so they are executed in non-interrupt context.
+> >
+> > I've tested the patch on a minimal system with tslib and it work fine with
+> > ts_calibrate and friends.
+> 
+> Thanks for the patch. It looks good. Let's wait for Kwangwoo Lee to
+> verify it on his platform. Also please add "tsc2003" entry into
+> i2c_device_ids so that i2c_board_info can specify the .name as
+> "tsc2003".
+
+A second patch is attached that merely adds the tsc2003 to the list of
+supported device IDs. I've split the patch off because it has nothing to do
+with the other changes.
+
+Thierry
+
+
+--A6N2fC+uXW/VQSAv
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: inline; filename="tsc003.patch"
+Content-Transfer-Encoding: quoted-printable
+
+=46rom: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: [PATCH] tsc2007: Add support for TSC2003 chips.
+
+The TSC2003 is very similar to the TSC2007 an can be supported by the same
+driver with no additional changes.
+
+Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
 
 ---
+ drivers/input/touchscreen/tsc2007.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-I'm reposting this to fix the line wrapping problems, sorry!
-
- drivers/input/mouse/synaptics.c |   27 +++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |    2 ++
- include/linux/input.h           |    2 ++
- 3 files changed, 31 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index f3e4f7b..9363953 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -180,6 +180,29 @@ static int synaptics_identify(struct psmouse *psmouse)
- 	return -1;
- }
- 
-+/*
-+ * Read touchpad resolution
-+ * Resolution is left zero if touchpad does not support the query
-+ */
-+static int synaptics_resolution(struct psmouse *psmouse)
-+{
-+	struct synaptics_data *priv = psmouse->private;
-+	unsigned char res[3];
-+
-+	if (SYN_ID_MAJOR(priv->identity) < 4)
-+		return 0;
-+
-+	if (synaptics_send_cmd(psmouse, SYN_QUE_RESOLUTION, res))
-+		return 0;
-+
-+	if (res[1] == 0x80) {
-+		priv->x_res = res[0];
-+		priv->y_res = res[2];
-+	}
-+
-+	return 0;
-+}
-+
- static int synaptics_query_hardware(struct psmouse *psmouse)
- {
- 	if (synaptics_identify(psmouse))
-@@ -188,6 +211,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
- 		return -1;
- 	if (synaptics_capability(psmouse))
- 		return -1;
-+	if (synaptics_resolution(psmouse))
-+		return -1;
- 
- 	return 0;
- }
-@@ -534,6 +559,8 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- 	set_bit(EV_ABS, dev->evbit);
- 	input_set_abs_params(dev, ABS_X, XMIN_NOMINAL, XMAX_NOMINAL, 0, 0);
- 	input_set_abs_params(dev, ABS_Y, YMIN_NOMINAL, YMAX_NOMINAL, 0, 0);
-+	input_set_abs_params(dev, ABS_RESX, 0, priv->x_res, 0, 0);
-+	input_set_abs_params(dev, ABS_RESY, 0, priv->y_res, 0, 0);
- 	input_set_abs_params(dev, ABS_PRESSURE, 0, 255, 0, 0);
- 	set_bit(ABS_TOOL_WIDTH, dev->absbit);
- 
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 02aa4cf..e9a69c9 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -101,6 +101,8 @@ struct synaptics_data {
- 	unsigned char pkt_type;			/* packet type - old, new, etc */
- 	unsigned char mode;			/* current mode byte */
- 	int scroll;
-+	int x_res;                              /* x resolution in units/mm */
-+	int y_res;                              /* y resolution in units/mm */
+diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touchscree=
+n/tsc2007.c
+index 6efb54d..599aa67 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -360,6 +360,7 @@ static int tsc2007_remove(struct i2c_client *client)
+=20
+ static struct i2c_device_id tsc2007_idtable[] =3D {
+ 	{ "tsc2007", 0 },
++	{ "tsc2003", 0 },
+ 	{ }
  };
- 
- int synaptics_detect(struct psmouse *psmouse, int set_properties);
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 0e6ff5d..53db780 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -645,6 +645,8 @@ struct input_absinfo {
- #define ABS_TILT_Y		0x1b
- #define ABS_TOOL_WIDTH		0x1c
- #define ABS_VOLUME		0x20
-+#define ABS_RESX                0x26
-+#define ABS_RESY                0x27
- #define ABS_MISC		0x28
- 
- #define ABS_MT_TOUCH_MAJOR	0x30	/* Major axis of touching ellipse */
--- 
-1.6.0.4
+=20
+--=20
+tg: (84e274c..) adx/input/tsc2003 (depends on: adx/input/tsc2007)
 
-
-
+--A6N2fC+uXW/VQSAv--

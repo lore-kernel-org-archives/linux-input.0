@@ -1,34 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Stefan Bader <stefan.bader@canonical.com>
 Subject: Re: [PATCH] input: Blacklist digitizers from joydev.c
-Date: Tue, 5 May 2009 10:02:33 -0700
-Message-ID: <20090505170232.GA9889@dtor-d630.eng.vmware.com>
-References: <49FF2524.8090708@canonical.com>
+Date: Tue, 05 May 2009 19:18:17 +0200
+Message-ID: <4A0074D9.8050408@canonical.com>
+References: <49FF2524.8090708@canonical.com> <20090505170232.GA9889@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.235]:52062 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753187AbZEERCu (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2009 13:02:50 -0400
-Received: by rv-out-0506.google.com with SMTP id f9so3569939rvb.1
-        for <linux-input@vger.kernel.org>; Tue, 05 May 2009 10:02:50 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <49FF2524.8090708@canonical.com>
+Received: from adelie.canonical.com ([91.189.90.139]:35063 "EHLO
+	adelie.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751943AbZEERSR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 5 May 2009 13:18:17 -0400
+In-Reply-To: <20090505170232.GA9889@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Stefan Bader <stefan.bader@canonical.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org
 
-On Mon, May 04, 2009 at 07:25:56PM +0200, Stefan Bader wrote:
-> This patch has been included in Ubuntu. Does it look sensible for 
-> upstream inclusion?
->
+Dmitry Torokhov wrote:
+> On Mon, May 04, 2009 at 07:25:56PM +0200, Stefan Bader wrote:
+>> This patch has been included in Ubuntu. Does it look sensible for 
+>> upstream inclusion?
+>>
+> 
+> Will apply, thanks. It is a bit unclear who is the author of the patch;
+> it looks like Tim submitted it to the launchpad... who do I mark down as
+> the guilty party? ;)
+> 
+Yes, that would be my take as well. I put him to the signed-off for that 
+reason. The only thing I did was adding a little description and headers.
 
-Will apply, thanks. It is a bit unclear who is the author of the patch;
-it looks like Tim submitted it to the launchpad... who do I mark down as
-the guilty party? ;)
-
-Thanks!
+Cheers,
+Stefan
 
 -- 
-Dmitry
+
+When all other means of communication fail, try words!
+
+

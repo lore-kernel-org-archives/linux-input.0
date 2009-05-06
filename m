@@ -1,36 +1,61 @@
-From: =?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP0YjQvtCy?=
-	<sergey.belyashov@gmail.com>
-Subject: Force feedback (axis information)
-Date: Wed, 6 May 2009 22:42:07 +0400
-Message-ID: <bb829a0b0905061142k7fd5e384h4a39c516e4084dc3@mail.gmail.com>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: [PATCH] USBHID: add NOGET quirk for devices from CH Products
+Date: Wed, 6 May 2009 15:48:49 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0905061543290.4430-100000@iolanthe.rowland.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.24]:2735 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752350AbZEFSmI (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 6 May 2009 14:42:08 -0400
-Received: by ey-out-2122.google.com with SMTP id 9so121771eyd.37
-        for <linux-input@vger.kernel.org>; Wed, 06 May 2009 11:42:07 -0700 (PDT)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: Sean Hildebrand <silverwraithii-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sid Boyce <sboyce-QgLWrMLu8clzjhtm8Ag3mw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, USB list <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
-Hello
-   I look code of ff-utils (fftest.c) and found that this program
-checks axis information for FF effects. For example, if kernel
-provides an ABS_X (also supported ABS_Y and ABS_WHEEL) via
-EVIOCGBIT(EV_FF, ...), then fftest shows "Axes query: Axis X". But I
-cannot found this feature in any existing driver. Moreover,
-documentation does not contain any information about it. So, is it
-really neccessary feature (I think yes)?
-   I am ready to create autocenter support patch for Logitech Force 3D
-Pro (046d:c286). But all tested by me Logitech Joysticks with FF has
-support for autocentering in same way. May be it is good idea to add
-this feature for all joysticks in hid-lgff.c? If some joystick do not
-support it (users reported), then it is possible to exclude
-autocentering for this joystick later.
+This patch (as1240) adds the NOGET quirk for three devices from CH
+Products: the Pro pedals, the Combatstick joystick, and the Flight-Sim
+yoke.  Without these quirks, the devices haven't worked for many
+kernel releases.  Sometimes replugging them after boot-up would get
+them to work and sometimes they wouldn't work at all.
 
-Best regards,
-Sergey Belyashov
+Signed-off-by: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Reported-by: Sean Hildebrand <silverwraithii-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Reported-by: Sid Boyce <sboyce-QgLWrMLu8clzjhtm8Ag3mw@public.gmane.org>
+Tested-by: Sean Hildebrand <silverwraithii-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Tested-by: Sid Boyce <sboyce-QgLWrMLu8clzjhtm8Ag3mw@public.gmane.org>
+
+---
+
+Index: usb-2.6/drivers/hid/hid-ids.h
+===================================================================
+--- usb-2.6.orig/drivers/hid/hid-ids.h
++++ usb-2.6/drivers/hid/hid-ids.h
+@@ -113,6 +113,11 @@
+ #define USB_VENDOR_ID_BERKSHIRE		0x0c98
+ #define USB_DEVICE_ID_BERKSHIRE_PCWD	0x1140
+ 
++#define USB_VENDOR_ID_CH		0x068e
++#define USB_DEVICE_ID_CH_PRO_PEDALS	0x00f2
++#define USB_DEVICE_ID_CH_COMBATSTICK	0x00f4
++#define USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE	0x00ff
++
+ #define USB_VENDOR_ID_CHERRY		0x046a
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+ 
+Index: usb-2.6/drivers/hid/usbhid/hid-quirks.c
+===================================================================
+--- usb-2.6.orig/drivers/hid/usbhid/hid-quirks.c
++++ usb-2.6/drivers/hid/usbhid/hid-quirks.c
+@@ -50,6 +50,9 @@ static const struct hid_blacklist {
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_2PORTKVM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVM, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ATEN, USB_DEVICE_ID_ATEN_4PORTKVMC, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_COMBATSTICK, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_DMI, USB_DEVICE_ID_DMI_ENC, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_TS2700, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_SUN, USB_DEVICE_ID_RARITAN_KVM_DONGLE, HID_QUIRK_NOGET },
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,75 +1,123 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Thu, 7 May 2009 14:21:29 +0530
-Message-ID: <5d5443650905070151s2cba17ecm1f829e2fdfb0d0c9@mail.gmail.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
-	 <5d5443650905070141k2d6e3cb8r9e923c71c5474e43@mail.gmail.com>
-	 <f17812d70905070148s47045998mfcbbe65b0d8d07b0@mail.gmail.com>
+From: Kim Kyuwon <chammoru@gmail.com>
+Subject: Re: Input: add MAX7359 key switch controller driver
+Date: Thu, 7 May 2009 19:03:11 +0900
+Message-ID: <4d34a0a70905070303r55c2c681yf58680de2f3d4a9f@mail.gmail.com>
+References: <4A012C64.1020101@samsung.com> <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f125.google.com ([209.85.221.125]:51531 "EHLO
+Received: from mail-qy0-f125.google.com ([209.85.221.125]:48432 "EHLO
 	mail-qy0-f125.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752232AbZEGIv3 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 04:51:29 -0400
-Received: by qyk31 with SMTP id 31so1129082qyk.33
-        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 01:51:29 -0700 (PDT)
-In-Reply-To: <f17812d70905070148s47045998mfcbbe65b0d8d07b0@mail.gmail.com>
+	with ESMTP id S1750981AbZEGKDc (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 06:03:32 -0400
+In-Reply-To: <5d5443650905060638l52b3c17dle0d138b689a23252@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Kim Kyuwon <q1.kim@samsung.com>, LKML <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Andrew Morton <akpm@linux-foundation.org>
 
-Hi Eric,
+Hi Trilok,
 
-On Thu, May 7, 2009 at 2:18 PM, Eric Miao <eric.y.miao@gmail.com> wrote:
-> On Thu, May 7, 2009 at 4:41 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
->> Hi Eric,
->>
->> On Thu, May 7, 2009 at 1:30 PM, Eric Miao <eric.y.miao@gmail.com> wrote:
->>> Original patch by Marek Vasut, modified by Eric in:
->>>
->>> 1. use delayed work to simplify the debouncing
->>> 2. build keycode array for fast lookup
->>> 3. combine col_polarity/row_polarity into a single active_low field
->>> (are there some cases where the GPIOs are externally connected
->>> with an inverter and thus causing two different polarity requirement??)
->>> 4. use a generic bit array based XOR algorithm to detect key press/release,
->>> which should make the column assertion time shorter and code a bit
->>> cleaner
->>> 5. remove the ALT_FN handling, which is no way generic, the ALT_FN
->>> key should be treated as no different from other keys, and translation
->>> will be done by user space by commands like 'loadkeys'.
->>>
->>> Patch tested on Littleton/PXA310 (though PXA310 has a dedicate keypad
->>> controller, I have to configure those pins as generic GPIO to use this
->>> driver, works quite well, though ;-)
->>
->> Any support about removing/clearing ghost/phantom keys? Also we assume
->> that all gpios in the matrix should be able to generate interrupts so
->> no polldev support required.
+Thank you for reviewing this driver and I have something to make sure
+for the next better patch :)
+
+On Wed, May 6, 2009 at 10:38 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
+> Hi Kim,
+>
+> On Wed, May 6, 2009 at 11:51 AM, Kim Kyuwon <q1.kim@samsung.com> wrote:
+>> The Maxim MAX7359 is a I2C interfaced key switch controller which provides microprocessors with management of up to 64 key switches.
+>> This patch adds support for the MAX7359 key switch controller.
 >>
 >
-> Is there some info about such ghost/phantom keys? Otherwise I'll
-> assume these are something like sticky control keys?
+> Could you please restrict the commit text line to 80/72 columns? It
+> will look good.
+
+Is this restriction for commit text mandatory? It seems like I got an
+email from Andrew Morton that my patch was wordwraped even commit
+text.
+
+>> +static irqreturn_t max7359_interrupt(int irq, void *dev_id)
+>> +{
+>> +       struct max7359_keypad *keypad = (struct max7359_keypad *) dev_id;
 >
-> I'm not sure if there're any such support in console tools and in
-> input subsystem. Hard to say...
+> No need of casting. Please remove.
+
+Ok, Thanks I'll remove it.
+
+>> +
+>> +       if (!work_pending(&keypad->work)) {
+>> +               disable_irq_nosync(keypad->irq);
+>> +               schedule_work(&keypad->work);
+>> +       } else {
+>> +               dev_err(&keypad->client->dev,
+>> +                               "Another job is currently pending \n");
+>> +       }
+>> +
+>> +       return IRQ_HANDLED;
+>> +}
+>> +
 >
-> And the comments below are of great value, I'll incorporate these
-> suggestions in later submission. Thanks very much.
+>> +
+>> +static int __devinit max7359_probe(struct i2c_client *client,
+>> +                                       const struct i2c_device_id *id)
 >
+> You may want to remove __devinit as it is i2c client driver . I have
+> added linux-i2c for i2c specific review.
 
-Could you please have look at following gpio_matrix driver?
+Actually I don't want to remove it :), Is there any reason why you think so?
 
-gpio_matrix.c:
-http://android.git.kernel.org/?p=kernel/msm.git;a=blob;f=drivers/input/misc/gpio_matrix.c;h=c1f47651a4937d5c976a9625ca5da389dd7e4a7c;hb=HEAD
+>> +static int max7359_suspend(struct i2c_client *client, pm_message_t mesg)
+>> +{
+>> +       /* If no keys are pressed, enter sleep mode for 8192 ms */
+>> +       max7359_write_reg(client, MAX7359_REG_SLEEP, 0x01);
+>> +
+>> +       return 0;
+>> +}
+>> +
+>> +static int max7359_resume(struct i2c_client *client)
+>> +{
+>> +       /* Restore the default setting (autosleep for 256 ms) */
+>> +       max7359_write_reg(client, MAX7359_REG_SLEEP, 0x07);
+>> +
+>> +       return 0;
+>> +}
+>
+> Protect these two function with #ifdef CONFIG_PM please.
 
-gpio_input.c:
-http://android.git.kernel.org/?p=kernel/msm.git;a=blob;f=drivers/input/misc/gpio_input.c;h=7e307f267a2a059b64a3fb9c8a379b149016b2f8;hb=HEAD
+This is what I really wanted to ask. I'm trying not to use '#ifdef'.
+By the way, why most of drivers use protect suspend/resume functions
+with #ifdef? Just for saving code size?
 
--- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+>> +
+>
+>> +
+>> +static struct i2c_driver max7359_i2c_driver = {
+>> +       .driver = {
+>> +               .name = "max7359",
+>> +       },
+>> +       .probe          = max7359_probe,
+>> +       .remove         = __exit_p(max7359_remove),
+>
+>
+>> +};
+>> +
+>> +
+>> +MODULE_AUTHOR("Kim Kyuwon <q1.kim@samsung.com>");
+>> +MODULE_DESCRIPTION("MAX7359 Key Switch Controller Driver");
+>> +MODULE_LICENSE("GPL v2");
+>
+> MODULE_ALIAS ??
+
+In 'include/linux/module.h'
+
+ 96 /* For userspace: you can also call me... */
+ 97 #define MODULE_ALIAS(_alias) MODULE_INFO(alias, _alias)
+
+>From comment above, I think MODULE_ALIAS is optional. Do you still
+think MODULE_ALIAS needs?
+
+And when I send new version of patch, I will add [PATCH] in front of subject.
+Thank you for reviewing and letting me ask.
+
+Regards,

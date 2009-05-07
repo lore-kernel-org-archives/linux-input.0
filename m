@@ -1,115 +1,58 @@
 From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: hid-pidff bug: fails to find all required reports of saitek
- gamepad
-Date: Fri, 08 May 2009 02:45:20 +0300
-Message-ID: <4A037290.60602@gmail.com>
-References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>	 <49A813CB.3080805@gmail.com>	 <78f5d6bf0903021041o24155b7dg89a5fb975e60c320@mail.gmail.com>	 <49AC4300.5090002@gmail.com>	 <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com>	 <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>	 <49B286EB.8000300@gmail.com>	 <78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>	 <49B39B15.6060609@gmail.com> <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com>
+Subject: Re: [PATCH] ff-memless: fix signed to unsigned bit overflow in	ml_combile_effects()
+Date: Fri, 08 May 2009 02:53:50 +0300
+Message-ID: <4A03748E.3060709@gmail.com>
+References: <20090507193206.9342.15843.stgit@fate.lan>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------090609090400020306070908"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta-out.inet.fi ([195.156.147.13]:53717 "EHLO jenni2.inet.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751689AbZEGXpW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 May 2009 19:45:22 -0400
-In-Reply-To: <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Dmitriy Geels <dmitriy.geels@gmail.com>
-Cc: linux-input@vger.kernel.org
-
-This is a multi-part message in MIME format.
---------------090609090400020306070908
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mta-out.inet.fi ([195.156.147.13]:47337 "EHLO kirsi1.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750938AbZEGXx6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 7 May 2009 19:53:58 -0400
+In-Reply-To: <20090507193206.9342.15843.stgit@fate.lan>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Dmitriy Geels wrote:
-> 2009/3/8 Anssi Hannula <anssi.hannula@gmail.com>:
->> Dmitriy Geels wrote:
->>> 2009/3/7 Anssi Hannula <anssi.hannula@gmail.com>:
->>>> Provide the kernel log again, this time with debug=2 set for hid module
->>>> and having run "fftest" with only one effect and then "ffmvforce".
->>> here is it: http://paste.org.ru/index.pl?4bwah8
->> Apply attached patch that adds more debug output and try this again.
-> Here is log: http://paste.org.ru/index.pl?0mtjuz
+Jussi Kivilinna wrote:
+> When userspace sets effect->u.rumble.strong_magnitude to 0x8001 or larger,
+> ml_combine_effects() would always return strong_magnitude 0xffff.
+> 
+> Problem is that 'gain' is passed in as signed integer. Multiplying magnitude
+> (__u16) with gain (int) causes magnitude read as signed and results negative
+> value (with magnitude > 0x8000). This signed integer is then divided and
+> value, still negative, converted to 32bit unsigned integer. Finally checking
+> combine overflow min(new+old, 0xffff) gives out 0xffff.
+> 
+> Fix is to simply change 'gain' to unsigned int.
+> 
+> Signed-off-by: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+
+Acked-by: Anssi Hannula <anssi.hannula@gmail.com>
+
+> ---
+> 
+>  drivers/input/ff-memless.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/input/ff-memless.c b/drivers/input/ff-memless.c
+> index bc4e40f..2d1415e 100644
+> --- a/drivers/input/ff-memless.c
+> +++ b/drivers/input/ff-memless.c
+> @@ -226,7 +226,7 @@ static int get_compatible_type(struct ff_device *ff, int effect_type)
+>   */
+>  static void ml_combine_effects(struct ff_effect *effect,
+>  			       struct ml_effect_state *state,
+> -			       int gain)
+> +			       unsigned int gain)
+>  {
+>  	struct ff_effect *new = state->effect;
+>  	unsigned int strong, weak, i;
 > 
 
-Sorry for the long delay.
-
-Try the attached (untested) patch. It adds a simple timeout to the hid
-ctrl and out urbs, discarding the faulty urb instead of getting stuck.
 
 -- 
 Anssi Hannula
-
---------------090609090400020306070908
-Content-Type: text/plain;
- name="hid-usb-add-urb-timeout.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="hid-usb-add-urb-timeout.diff"
-
-LS0tCiBkcml2ZXJzL2hpZC91c2JoaWQvaGlkLWNvcmUuYyB8ICAgMTggKysrKysrKysrKysr
-KysrKysrCiBkcml2ZXJzL2hpZC91c2JoaWQvdXNiaGlkLmggICB8ICAgIDIgKysKIDIgZmls
-ZXMgY2hhbmdlZCwgMjAgaW5zZXJ0aW9ucygrKQoKSW5kZXg6IGxpbnV4LTI2MjktcGlkZmYv
-ZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1jb3JlLmMKPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgt
-MjYyOS1waWRmZi5vcmlnL2RyaXZlcnMvaGlkL3VzYmhpZC9oaWQtY29yZS5jCTIwMDktMDIt
-MTMgMDM6NDc6MTUuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yNjI5LXBpZGZmL2RyaXZl
-cnMvaGlkL3VzYmhpZC9oaWQtY29yZS5jCTIwMDktMDUtMDggMDI6NDA6NDcuMDAwMDAwMDAw
-ICswMzAwCkBAIC0yNTEsNiArMjUxLDggQEAgc3RhdGljIGludCBoaWRfc3VibWl0X291dChz
-dHJ1Y3QgaGlkX2RldgogCQlyZXR1cm4gLTE7CiAJfQogCisJYWRkX3RpbWVyKCZ1c2JoaWQt
-PnVyYl9vdXRfdGltZW91dCwgamlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMoODAwMCkpOwor
-CiAJcmV0dXJuIDA7CiB9CiAKQEAgLTMwMyw2ICszMDUsOCBAQCBzdGF0aWMgaW50IGhpZF9z
-dWJtaXRfY3RybChzdHJ1Y3QgaGlkX2RlCiAJCXJldHVybiAtMTsKIAl9CiAKKwlhZGRfdGlt
-ZXIoJnVzYmhpZC0+dXJiX2N0cmxfdGltZW91dCwgamlmZmllcyArIG1zZWNzX3RvX2ppZmZp
-ZXMoODAwMCkpOworCiAJcmV0dXJuIDA7CiB9CiAKQEAgLTMxNyw2ICszMjEsOCBAQCBzdGF0
-aWMgdm9pZCBoaWRfaXJxX291dChzdHJ1Y3QgdXJiICp1cmIpCiAJdW5zaWduZWQgbG9uZyBm
-bGFnczsKIAlpbnQgdW5wbHVnID0gMDsKIAorCWRlbF90aW1lcih1c2JoaWQtPnVyYl9vdXRf
-dGltZW91dCk7CisKIAlzd2l0Y2ggKHVyYi0+c3RhdHVzKSB7CiAJY2FzZSAwOgkJCS8qIHN1
-Y2Nlc3MgKi8KIAkJYnJlYWs7CkBAIC0zNjQsNiArMzcwLDcgQEAgc3RhdGljIHZvaWQgaGlk
-X2N0cmwoc3RydWN0IHVyYiAqdXJiKQogCXVuc2lnbmVkIGxvbmcgZmxhZ3M7CiAJaW50IHVu
-cGx1ZyA9IDA7CiAKKwlkZWxfdGltZXIodXNiaGlkLT51cmJfY3RybF90aW1lb3V0KTsKIAlz
-cGluX2xvY2tfaXJxc2F2ZSgmdXNiaGlkLT5jdHJsbG9jaywgZmxhZ3MpOwogCiAJc3dpdGNo
-ICh1cmItPnN0YXR1cykgewpAQCAtNDA1LDYgKzQxMiwxMyBAQCBzdGF0aWMgdm9pZCBoaWRf
-Y3RybChzdHJ1Y3QgdXJiICp1cmIpCiAJd2FrZV91cCgmdXNiaGlkLT53YWl0KTsKIH0KIAor
-c3RhdGljIHZvaWQgaGlkX3VyYl90aW1lb3V0KHVuc2lnbmVkIGxvbmcgdGltZXJfZGF0YSkK
-K3sKKwlzdHJ1Y3QgdXJiICpoaWRfdXJiID0gKHN0cnVjdCB1cmIgKil0aW1lcl9kYXRhOwor
-CWRldl93YXJuKCZoaWRfdXJiLT5kZXYtPmRldiwgImhpZCB1cmIgdGltZW91dFxuIik7CisJ
-dXNiX3VubGlua191cmIoaGlkX3VyYik7Cit9CisKIHZvaWQgdXNiaGlkX3N1Ym1pdF9yZXBv
-cnQoc3RydWN0IGhpZF9kZXZpY2UgKmhpZCwgc3RydWN0IGhpZF9yZXBvcnQgKnJlcG9ydCwg
-dW5zaWduZWQgY2hhciBkaXIpCiB7CiAJaW50IGhlYWQ7CkBAIC04NTEsNiArODY1LDggQEAg
-c3RhdGljIGludCB1c2JoaWRfc3RhcnQoc3RydWN0IGhpZF9kZXZpYwogCWluaXRfd2FpdHF1
-ZXVlX2hlYWQoJnVzYmhpZC0+d2FpdCk7CiAJSU5JVF9XT1JLKCZ1c2JoaWQtPnJlc2V0X3dv
-cmssIGhpZF9yZXNldCk7CiAJc2V0dXBfdGltZXIoJnVzYmhpZC0+aW9fcmV0cnksIGhpZF9y
-ZXRyeV90aW1lb3V0LCAodW5zaWduZWQgbG9uZykgaGlkKTsKKwlzZXR1cF90aW1lcigmdXNi
-aGlkLT51cmJfb3V0X3RpbWVvdXQsIGhpZF91cmJfdGltZW91dCwgKHVuc2lnbmVkIGxvbmcp
-IHVzYmhpZC0+dXJib3V0KTsKKwlzZXR1cF90aW1lcigmdXNiaGlkLT51cmJfY3RybF90aW1l
-b3V0LCBoaWRfdXJiX3RpbWVvdXQsICh1bnNpZ25lZCBsb25nKSB1c2JoaWQtPnVyYmN0cmwp
-OwogCiAJc3Bpbl9sb2NrX2luaXQoJnVzYmhpZC0+aW5sb2NrKTsKIAlzcGluX2xvY2tfaW5p
-dCgmdXNiaGlkLT5vdXRsb2NrKTsKQEAgLTkxNSw2ICs5MzEsOCBAQCBzdGF0aWMgdm9pZCB1
-c2JoaWRfc3RvcChzdHJ1Y3QgaGlkX2RldmljCiAKIAlkZWxfdGltZXJfc3luYygmdXNiaGlk
-LT5pb19yZXRyeSk7CiAJY2FuY2VsX3dvcmtfc3luYygmdXNiaGlkLT5yZXNldF93b3JrKTsK
-KwlkZWxfdGltZXJfc3luYygmdXNiaGlkLT5oaWRfb3V0X3RpbWVvdXQpOworCWRlbF90aW1l
-cl9zeW5jKCZ1c2JoaWQtPmhpZF9jdHJsX3RpbWVvdXQpOwogCiAJaWYgKGhpZC0+Y2xhaW1l
-ZCAmIEhJRF9DTEFJTUVEX0lOUFVUKQogCQloaWRpbnB1dF9kaXNjb25uZWN0KGhpZCk7Cklu
-ZGV4OiBsaW51eC0yNjI5LXBpZGZmL2RyaXZlcnMvaGlkL3VzYmhpZC91c2JoaWQuaAo9PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09Ci0tLSBsaW51eC0yNjI5LXBpZGZmLm9yaWcvZHJpdmVycy9oaWQvdXNiaGlk
-L3VzYmhpZC5oCTIwMDktMDUtMDggMDE6NTM6MzMuMDAwMDAwMDAwICswMzAwCisrKyBsaW51
-eC0yNjI5LXBpZGZmL2RyaXZlcnMvaGlkL3VzYmhpZC91c2JoaWQuaAkyMDA5LTA1LTA4IDAx
-OjU0OjAyLjAwMDAwMDAwMCArMDMwMApAQCAtODUsNiArODUsOCBAQCBzdHJ1Y3QgdXNiaGlk
-X2RldmljZSB7CiAJc3BpbmxvY2tfdCBvdXRsb2NrOyAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIC8qIE91dHB1dCBmaWZvIHNwaW5sb2NrICovCiAKIAl1
-bnNpZ25lZCBsb25nIGlvZmw7ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgLyogSS9PIGZsYWdzIChDVFJMX1JVTk5JTkcsIE9VVF9SVU5OSU5HKSAqLwor
-CXN0cnVjdCB0aW1lcl9saXN0IHVyYl9vdXRfdGltZW91dDsgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAvKiBUaW1lb3V0IGZvciBvdXQgdXJiICovCisJc3RydWN0IHRpbWVyX2xp
-c3QgdXJiX2N0cmxfdGltZW91dDsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qIFRp
-bWVvdXQgZm9yIGN0cmwgdXJiICovCiAJc3RydWN0IHRpbWVyX2xpc3QgaW9fcmV0cnk7ICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8qIFJldHJ5IHRpbWVyICovCiAJ
-dW5zaWduZWQgbG9uZyBzdG9wX3JldHJ5OyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgIC8qIFRpbWUgdG8gZ2l2ZSB1cCwgaW4gamlmZmllcyAqLwogCXVuc2lnbmVk
-IGludCByZXRyeV9kZWxheTsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAvKiBEZWxheSBsZW5ndGggaW4gbXMgKi8K
---------------090609090400020306070908--

@@ -1,476 +1,197 @@
-From: Eric Miao <eric.y.miao@gmail.com>
-Subject: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Thu, 7 May 2009 16:00:28 +0800
-Message-ID: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
+Date: Thu, 7 May 2009 14:11:24 +0530
+Message-ID: <5d5443650905070141k2d6e3cb8r9e923c71c5474e43@mail.gmail.com>
+References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.25]:23398 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752975AbZEGIA2 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 04:00:28 -0400
-Received: by qw-out-2122.google.com with SMTP id 5so466356qwd.37
-        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 01:00:28 -0700 (PDT)
+Received: from mail-qy0-f125.google.com ([209.85.221.125]:61079 "EHLO
+	mail-qy0-f125.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753887AbZEGIlY convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 04:41:24 -0400
+Received: by qyk31 with SMTP id 31so1122666qyk.33
+        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 01:41:24 -0700 (PDT)
+In-Reply-To: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
 
-Original patch by Marek Vasut, modified by Eric in:
+Hi Eric,
 
-1. use delayed work to simplify the debouncing
-2. build keycode array for fast lookup
-3. combine col_polarity/row_polarity into a single active_low field
-(are there some cases where the GPIOs are externally connected
-with an inverter and thus causing two different polarity requirement??)
-4. use a generic bit array based XOR algorithm to detect key press/release,
-which should make the column assertion time shorter and code a bit
-cleaner
-5. remove the ALT_FN handling, which is no way generic, the ALT_FN
-key should be treated as no different from other keys, and translation
-will be done by user space by commands like 'loadkeys'.
+On Thu, May 7, 2009 at 1:30 PM, Eric Miao <eric.y.miao@gmail.com> wrote=
+:
+> Original patch by Marek Vasut, modified by Eric in:
+>
+> 1. use delayed work to simplify the debouncing
+> 2. build keycode array for fast lookup
+> 3. combine col_polarity/row_polarity into a single active_low field
+> (are there some cases where the GPIOs are externally connected
+> with an inverter and thus causing two different polarity requirement?=
+?)
+> 4. use a generic bit array based XOR algorithm to detect key press/re=
+lease,
+> which should make the column assertion time shorter and code a bit
+> cleaner
+> 5. remove the ALT_FN handling, which is no way generic, the ALT_FN
+> key should be treated as no different from other keys, and translatio=
+n
+> will be done by user space by commands like 'loadkeys'.
+>
+> Patch tested on Littleton/PXA310 (though PXA310 has a dedicate keypad
+> controller, I have to configure those pins as generic GPIO to use thi=
+s
+> driver, works quite well, though ;-)
 
-Patch tested on Littleton/PXA310 (though PXA310 has a dedicate keypad
-controller, I have to configure those pins as generic GPIO to use this
-driver, works quite well, though ;-)
+Any support about removing/clearing ghost/phantom keys? Also we assume
+that all gpios in the matrix should be able to generate interrupts so
+no polldev support required.
 
-I might left some points to make this generic and ideally simplified,
-please feel free to add comments.
 
-Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
-Signed-off-by: Eric Miao <eric.miao@marvell.com>
----
- drivers/input/keyboard/Kconfig         |   10 +
- drivers/input/keyboard/Makefile        |    1 +
- drivers/input/keyboard/matrix_keypad.c |  345 ++++++++++++++++++++++++++++++++
- include/linux/input/matrix_keypad.h    |   34 +++
- 4 files changed, 390 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/keyboard/matrix_keypad.c
- create mode 100644 include/linux/input/matrix_keypad.h
+> diff --git a/drivers/input/keyboard/matrix_keypad.c
+> b/drivers/input/keyboard/matrix_keypad.c
+> new file mode 100644
+> index 0000000..da9a3fc
+> --- /dev/null
+> +++ b/drivers/input/keyboard/matrix_keypad.c
+> @@ -0,0 +1,345 @@
+> +/*
+> + * drivers/input/keyboard/matrix_keypad.c
+> + *
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index ea2638b..6b9f89c 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -332,4 +332,14 @@ config KEYBOARD_SH_KEYSC
+Better to remove full path and just write matrix_keypad.c
 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sh_keysc.
-+
-+config KEYBOARD_MATRIX
-+	tristate "GPIO driven matrix keypad support"
-+	depends on GENERIC_GPIO
-+	help
-+	  Enable support for GPIO driven matrix keypad
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called matrix_keypad.
-+
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index 36351e1..1349408 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -28,3 +28,4 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-+obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
-diff --git a/drivers/input/keyboard/matrix_keypad.c
-b/drivers/input/keyboard/matrix_keypad.c
-new file mode 100644
-index 0000000..da9a3fc
---- /dev/null
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -0,0 +1,345 @@
-+/*
-+ * drivers/input/keyboard/matrix_keypad.c
-+ *
-+ *  GPIO driven matrix keyboard driver
-+ *
-+ *  Copyright (c) 2008 Marek Vasut <marek.vasut@gmail.com>
-+ *
-+ *  Based on corgikbd.c
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/platform_device.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/jiffies.h>
-+#include <linux/module.h>
-+#include <linux/gpio.h>
-+#include <linux/input/matrix_keypad.h>
-+
-+struct matrix_keypad {
-+	struct matrix_keypad_platform_data *pdata;
-+	struct input_dev *input_dev;
-+
-+	uint32_t last_key_state[MATRIX_MAX_COLS];
-+	uint32_t *keycodes;
-+	struct delayed_work work;
-+};
-+
-+static void build_keycodes(struct matrix_keypad *keypad)
-+{
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	struct input_dev *input_dev = keypad->input_dev;
-+	uint32_t *key;
-+	int i;
-+
-+	keypad->keycodes = kzalloc(MATRIX_MAX_KEYS * sizeof(int), GFP_KERNEL);
-+
-+	key = &pdata->key_map[0];
-+	for (i = 0; i < pdata->key_map_size; i++, key++) {
-+		keypad->keycodes[KEY_ROWCOL(*key)] = KEY_VAL(*key);
-+		set_bit(KEY_VAL(*key), input_dev->keybit);
-+	}
-+}
-+
-+static unsigned int lookup_keycode(struct matrix_keypad *keypad,
-+				   int row, int col)
-+{
-+	return keypad->keycodes[(row << 4) + col];
-+}
-+
-+static void activate_all_cols(struct matrix_keypad_platform_data
-*pdata, int on)
-+{
-+	int i;
-+	
-+	for (i = 0; i < pdata->num_col_gpios; i++)
-+		gpio_set_value(pdata->col_gpios[i],
-+			(on) ? !pdata->active_low : pdata->active_low);
-+}
-+
-+static void activate_col(struct matrix_keypad_platform_data *pdata,
-+			 int col, int on)
-+{
-+	gpio_set_value(pdata->col_gpios[col],
-+			(on) ? !pdata->active_low : pdata->active_low);
-+
-+	if (on && pdata->col_scan_delay_us)
-+		udelay(pdata->col_scan_delay_us);
-+}
-+
-+static int row_asserted(struct matrix_keypad_platform_data *pdata, int row)
-+{
-+	return gpio_get_value(pdata->row_gpios[row]) ?
-+			!pdata->active_low : pdata->active_low;
-+}
-+
-+static void enable_row_irqs(struct matrix_keypad *keypad)
-+{
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	int i;
-+
-+	for (i = 0; i < pdata->num_row_gpios; i++)
-+		enable_irq(gpio_to_irq(pdata->row_gpios[i]));
-+}
-+
-+static void disable_row_irqs(struct matrix_keypad *keypad)
-+{
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	int i;
-+
-+	for (i = 0; i < pdata->num_row_gpios; i++)
-+		disable_irq_nosync(gpio_to_irq(pdata->row_gpios[i]));
-+}
-+
-+/*
-+ * This gets the keys from keyboard and reports it to input subsystem
-+ */
-+static void matrix_keypad_scan(struct work_struct *work)
-+{
-+	struct matrix_keypad *keypad =
-+	       	container_of(work, struct matrix_keypad, work.work);
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	uint32_t new_state[MATRIX_MAX_COLS];
-+	int row, col;
-+
-+	/* de-activate all columns for scanning */
-+	activate_all_cols(pdata, 0);
-+
-+	memset(new_state, 0, sizeof(new_state));
-+
-+	/* assert each column and read the row status out */
-+	for (col = 0; col < pdata->num_col_gpios; col++) {
-+
-+		activate_col(pdata, col, 1);
-+
-+		for (row = 0; row < pdata->num_row_gpios; row++)
-+			new_state[col] |= row_asserted(pdata, row) ?
-+						(1 << row) : 0;
-+		activate_col(pdata, col, 0);
-+	}
-+
-+	for (col = 0; col < pdata->num_col_gpios; col++) {
-+		uint32_t bits_changed;
-+		
-+		bits_changed = keypad->last_key_state[col] ^ new_state[col];
-+		if (bits_changed == 0)
-+			continue;
-+
-+		for (row = 0; row < pdata->num_row_gpios; row++) {
-+			if ((bits_changed & (1 << row)) == 0)
-+				continue;
-+
-+			input_report_key(keypad->input_dev,
-+					lookup_keycode(keypad, row, col),
-+					new_state[col] & (1 << row));
-+		}
-+	}
-+	input_sync(keypad->input_dev);
-+	memcpy(keypad->last_key_state, new_state, sizeof(new_state));
-+
-+	activate_all_cols(pdata, 1);
-+	enable_row_irqs(keypad);
-+}
-+
-+static irqreturn_t matrix_keypad_interrupt(int irq, void *id)
-+{
-+	struct matrix_keypad *keypad = id;
-+
-+	disable_row_irqs(keypad);
-+	schedule_delayed_work(&keypad->work,
-+			msecs_to_jiffies(keypad->pdata->debounce_ms));
-+	return IRQ_HANDLED;
-+}
-+
-+#ifdef CONFIG_PM
-+static int matrix_keypad_suspend(struct platform_device *pdev,
-pm_message_t state)
-+{
-+	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	int i;
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			enable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
-+
-+	return 0;
-+}
-+
-+static int matrix_keypad_resume(struct platform_device *pdev)
-+{
-+	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	int i;
-+
-+	if (device_may_wakeup(&pdev->dev))
-+		for (i = 0; i < pdata->num_row_gpios; i++)
-+			disable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
-+
-+	return 0;
-+}
-+#else
-+#define matrix_keypad_suspend	NULL
-+#define matrix_keypad_resume	NULL
-+#endif
-+
-+static int __devinit init_matrix_gpio(struct matrix_keypad *keypad)
-+{
-+	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-+	int i, err = -EINVAL;
-+
-+	/* initialized strobe lines as outputs, activated */
-+	for (i = 0; i < pdata->num_col_gpios; i++) {
-+		err = gpio_request(pdata->col_gpios[i], "matrix_kbd_col");
-+		if (err) {
-+			pr_err("failed to request GPIO%d for COL%d\n",
-+					pdata->col_gpios[i], i);
-+			goto err_free_cols;
-+		}
-+
-+		gpio_direction_output(pdata->col_gpios[i], !pdata->active_low);
-+	}
-+
-+	for (i = 0; i < pdata->num_row_gpios; i++) {
-+		err = gpio_request(pdata->row_gpios[i], "matrix_kbd_row");
-+		if (err) {
-+			pr_err("failed to request GPIO%d for ROW%d\n",
-+					pdata->row_gpios[i], i);
-+			goto err_free_rows;
-+		}
-+
-+		gpio_direction_input(pdata->row_gpios[i]);
-+	}
-+
-+	for (i = 0; i < pdata->num_row_gpios; i++) {
-+		err = request_irq(gpio_to_irq(pdata->row_gpios[i]),
-+				matrix_keypad_interrupt, IRQF_DISABLED |
-+				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
-+				"matrix-keypad", keypad);
-+		if (err) {
-+			pr_err("Unable to acquire interrupt for GPIO line %i\n",
-+				pdata->row_gpios[i]);
-+			goto err_free_irqs;
-+		}
-+	}
-+	return 0;
-+
-+err_free_irqs:
-+	for (i = i - 1; i >= 0; i--)
-+		free_irq(gpio_to_irq(pdata->row_gpios[i]), keypad);
-+
-+err_free_rows:
-+	for (i = i - 1; i >= 0; i--)
-+		gpio_free(pdata->row_gpios[i]);
-+
-+err_free_cols:
-+	for (i = i - 1; i >= 0; i--)
-+		gpio_free(pdata->col_gpios[i]);
-+
-+	return err;
-+}
-+
-+static int __devinit matrix_keypad_probe(struct platform_device *pdev)
-+{
-+	struct matrix_keypad_platform_data *pdata;
-+	struct matrix_keypad *keypad;
-+	struct input_dev *input_dev;
-+	int err = -ENOMEM;
-+
-+	if ((pdata = pdev->dev.platform_data) == NULL) {
-+		dev_err(&pdev->dev, "no platform data defined\n");
-+		return -EINVAL;
-+	}
-+
-+	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
-+	if (keypad == NULL)
-+		return -ENOMEM;
-+
-+	input_dev = input_allocate_device();
-+	if (!input_dev)
-+		goto err_free_keypad;
-+
-+	platform_set_drvdata(pdev, keypad);
-+
-+	keypad->input_dev = input_dev;
-+	keypad->pdata = pdata;
-+	INIT_DELAYED_WORK(&keypad->work, matrix_keypad_scan);
-+
-+	input_dev->name		= pdev->name;
-+	input_dev->id.bustype	= BUS_HOST;
-+	input_dev->dev.parent	= &pdev->dev;
-+	input_dev->evbit[0]	= BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
-+
-+	build_keycodes(keypad);
-+
-+	err = input_register_device(keypad->input_dev);
-+	if (err)
-+		goto err_free_input;
-+
-+	err = init_matrix_gpio(keypad);
-+	if (err)
-+		goto err_unregister;
-+
-+	return 0;
-+
-+err_unregister:
-+	input_unregister_device(input_dev);
-+err_free_input:
-+	input_free_device(input_dev);
-+err_free_keypad:
-+	kfree(keypad);
-+	return err;
-+}
-+
-+static int matrix_keypad_remove(struct platform_device *pdev)
-+{
-+	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
-+	int i;
-+
-+	for (i = 0; i < keypad->pdata->num_row_gpios; i++) {
-+		free_irq(gpio_to_irq(keypad->pdata->row_gpios[i]), keypad);
-+		gpio_free(keypad->pdata->row_gpios[i]);
-+	}
-+
-+	for (i = 0; i < keypad->pdata->num_col_gpios; i++)
-+		gpio_free(keypad->pdata->col_gpios[i]);
-+
-+	input_unregister_device(keypad->input_dev);
-+	kfree(keypad);
-+	return 0;
-+}
-+
-+static struct platform_driver matrix_keypad_driver = {
-+	.probe		= matrix_keypad_probe,
-+	.remove		= matrix_keypad_remove,
-+	.suspend	= matrix_keypad_suspend,
-+	.resume		= matrix_keypad_resume,
-+	.driver		= {
-+		.name	= "matrix-keypad",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __devinit matrix_keypad_init(void)
-+{
-+	return platform_driver_register(&matrix_keypad_driver);
-+}
-+
-+static void __exit matrix_keypad_exit(void)
-+{
-+	platform_driver_unregister(&matrix_keypad_driver);
-+}
-+
-+module_init(matrix_keypad_init);
-+module_exit(matrix_keypad_exit);
-+
-+MODULE_AUTHOR("Marek Vasut <marek.vasut@gmail.com>");
-+MODULE_DESCRIPTION("GPIO Driven Matrix Keypad Driver");
-+MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:matrix-keypad");
-diff --git a/include/linux/input/matrix_keypad.h
-b/include/linux/input/matrix_keypad.h
-new file mode 100644
-index 0000000..8b661cb
---- /dev/null
-+++ b/include/linux/input/matrix_keypad.h
-@@ -0,0 +1,34 @@
-+#ifndef _MATRIX_KEYPAD_H
-+#define _MATRIX_KEYPAD_H
-+
-+#include <linux/input.h>
-+
-+#define MATRIX_MAX_ROWS		16
-+#define MATRIX_MAX_COLS		16
-+#define MATRIX_MAX_KEYS		(MATRIX_MAX_ROWS * MATRIX_MAX_COLS)
-+
-+struct matrix_keypad_platform_data {
-+	/* scancode map for the matrix keys */
-+	uint32_t	*key_map;
-+	int		key_map_size;
-+
-+	unsigned	row_gpios[MATRIX_MAX_ROWS];
-+	unsigned	col_gpios[MATRIX_MAX_COLS];
-+	int		num_row_gpios;
-+	int		num_col_gpios;
-+
-+	unsigned int	active_low;
-+	unsigned int	col_scan_delay_us;
-+
-+	/* key debounce interval in milli-second */
-+	unsigned int	debounce_ms;
-+};
-+
-+#define KEY(row, col, val)	((((row) & (MATRIX_MAX_ROWS - 1)) << 28) |\
-+				 (((col) & (MATRIX_MAX_COLS - 1)) << 24) |\
-+				 (val & 0xffffff))
-+
-+#define KEY_ROWCOL(k)		(((k) >> 24) & 0xff)
-+#define KEY_VAL(k)		((k) & 0xffffff)
-+
-+#endif /* _MATRIX_KEYPAD_H */
--- 
-1.6.0.4
+> + * =A0GPIO driven matrix keyboard driver
+> + *
+> + * =A0Copyright (c) 2008 Marek Vasut <marek.vasut@gmail.com>
+
+You may want to add your Copyright here.
+
+> + *
+> + * =A0Based on corgikbd.c
+> + *
+> + * =A0This program is free software; you can redistribute it and/or =
+modify
+> + * =A0it under the terms of the GNU General Public License version 2=
+ as
+> + * =A0published by the Free Software Foundation.
+> + *
+> + */
+> +
+> +#include <linux/delay.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/init.h>
+> +#include <linux/input.h>
+> +#include <linux/irq.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/module.h>
+> +#include <linux/gpio.h>
+> +#include <linux/input/matrix_keypad.h>
+> +
+
+
+> +
+> +static void build_keycodes(struct matrix_keypad *keypad)
+> +{
+> + =A0 =A0 =A0 struct matrix_keypad_platform_data *pdata =3D keypad->p=
+data;
+> + =A0 =A0 =A0 struct input_dev *input_dev =3D keypad->input_dev;
+> + =A0 =A0 =A0 uint32_t *key;
+> + =A0 =A0 =A0 int i;
+> +
+> + =A0 =A0 =A0 keypad->keycodes =3D kzalloc(MATRIX_MAX_KEYS * sizeof(i=
+nt), GFP_KERNEL);
+> +
+> + =A0 =A0 =A0 key =3D &pdata->key_map[0];
+> + =A0 =A0 =A0 for (i =3D 0; i < pdata->key_map_size; i++, key++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keypad->keycodes[KEY_ROWCOL(*key)] =3D =
+KEY_VAL(*key);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_bit(KEY_VAL(*key), input_dev->keybi=
+t);
+
+__set_bit
+
+
+> +
+> +
+> +#ifdef CONFIG_PM
+> +static int matrix_keypad_suspend(struct platform_device *pdev,
+> pm_message_t state)
+> +{
+> + =A0 =A0 =A0 struct matrix_keypad *keypad =3D platform_get_drvdata(p=
+dev);
+> + =A0 =A0 =A0 struct matrix_keypad_platform_data *pdata =3D keypad->p=
+data;
+> + =A0 =A0 =A0 int i;
+> +
+> + =A0 =A0 =A0 if (device_may_wakeup(&pdev->dev))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios;=
+ i++)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 enable_irq_wake(gpio_to=
+_irq(pdata->row_gpios[i]));
+> +
+> + =A0 =A0 =A0 return 0;
+> +}
+> +
+> +static int matrix_keypad_resume(struct platform_device *pdev)
+> +{
+> + =A0 =A0 =A0 struct matrix_keypad *keypad =3D platform_get_drvdata(p=
+dev);
+> + =A0 =A0 =A0 struct matrix_keypad_platform_data *pdata =3D keypad->p=
+data;
+> + =A0 =A0 =A0 int i;
+> +
+> + =A0 =A0 =A0 if (device_may_wakeup(&pdev->dev))
+
+I think I have not seen device_init_wakeup anywhere in this code.
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (i =3D 0; i < pdata->num_row_gpios;=
+ i++)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 disable_irq_wake(gpio_t=
+o_irq(pdata->row_gpios[i]));
+> +
+> + =A0 =A0 =A0 return 0;
+> +}
+> +#else
+> +#define matrix_keypad_suspend =A0NULL
+> +#define matrix_keypad_resume =A0 NULL
+> +#endif
+> +
+> +
+> +static int __devinit matrix_keypad_probe(struct platform_device *pde=
+v)
+> +{
+
+
+> +
+> +err_unregister:
+> + =A0 =A0 =A0 input_unregister_device(input_dev);
+> +err_free_input:
+> + =A0 =A0 =A0 input_free_device(input_dev);
+
+No need of input_free_device after input_unregister_device(..). You
+can just do input_dev =3D NULL after input_unregister_device instead?
+
+
+> +
+> +static struct platform_driver matrix_keypad_driver =3D {
+> + =A0 =A0 =A0 .probe =A0 =A0 =A0 =A0 =A0=3D matrix_keypad_probe,
+> + =A0 =A0 =A0 .remove =A0 =A0 =A0 =A0 =3D matrix_keypad_remove,
+
+__exit_p ?
+
+
+
+
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,118 +1,76 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: hid-pidff bug: fails to find all required reports of saitek
- gamepad
-Date: Fri, 08 May 2009 02:57:32 +0300
-Message-ID: <4A03756C.6020703@gmail.com>
-References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>	 <78f5d6bf0902261321m62b423c6hed04c693e03f569e@mail.gmail.com>	 <49A813CB.3080805@gmail.com>	 <78f5d6bf0903021041o24155b7dg89a5fb975e60c320@mail.gmail.com>	 <49AC4300.5090002@gmail.com>	 <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com>	 <78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com>	 <49B286EB.8000300@gmail.com>	 <78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>	 <49B39B15.6060609@gmail.com> <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com> <4A037290.60602@gmail.com>
+From: Eric Miao <eric.y.miao@gmail.com>
+Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
+Date: Fri, 8 May 2009 09:29:22 +0800
+Message-ID: <f17812d70905071829j758ee376gbf5564881f186937@mail.gmail.com>
+References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
+	 <5d5443650905070141k2d6e3cb8r9e923c71c5474e43@mail.gmail.com>
+	 <f17812d70905070148s47045998mfcbbe65b0d8d07b0@mail.gmail.com>
+	 <5d5443650905070151s2cba17ecm1f829e2fdfb0d0c9@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------000700070302080001080604"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta-out.inet.fi ([195.156.147.13]:35924 "EHLO kirsi1.inet.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751284AbZEGX5g (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 7 May 2009 19:57:36 -0400
-In-Reply-To: <4A037290.60602@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-List-Id: linux-input@vger.kernel.org
-To: Dmitriy Geels <dmitriy.geels@gmail.com>
-Cc: linux-input@vger.kernel.org
-
-This is a multi-part message in MIME format.
---------------000700070302080001080604
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-gx0-f166.google.com ([209.85.217.166]:54364 "EHLO
+	mail-gx0-f166.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751813AbZEHB3W (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 21:29:22 -0400
+Received: by gxk10 with SMTP id 10so2141218gxk.13
+        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 18:29:22 -0700 (PDT)
+In-Reply-To: <5d5443650905070151s2cba17ecm1f829e2fdfb0d0c9@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
+List-Id: linux-input@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
 
-Anssi Hannula wrote:
-> Dmitriy Geels wrote:
->> 2009/3/8 Anssi Hannula <anssi.hannula@gmail.com>:
->>> Dmitriy Geels wrote:
->>>> 2009/3/7 Anssi Hannula <anssi.hannula@gmail.com>:
->>>>> Provide the kernel log again, this time with debug=2 set for hid module
->>>>> and having run "fftest" with only one effect and then "ffmvforce".
->>>> here is it: http://paste.org.ru/index.pl?4bwah8
->>> Apply attached patch that adds more debug output and try this again.
->> Here is log: http://paste.org.ru/index.pl?0mtjuz
+On Thu, May 7, 2009 at 4:51 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
+> Hi Eric,
+>
+> On Thu, May 7, 2009 at 2:18 PM, Eric Miao <eric.y.miao@gmail.com> wrote:
+>> On Thu, May 7, 2009 at 4:41 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
+>>> Hi Eric,
+>>>
+>>> On Thu, May 7, 2009 at 1:30 PM, Eric Miao <eric.y.miao@gmail.com> wrote:
+>>>> Original patch by Marek Vasut, modified by Eric in:
+>>>>
+>>>> 1. use delayed work to simplify the debouncing
+>>>> 2. build keycode array for fast lookup
+>>>> 3. combine col_polarity/row_polarity into a single active_low field
+>>>> (are there some cases where the GPIOs are externally connected
+>>>> with an inverter and thus causing two different polarity requirement??)
+>>>> 4. use a generic bit array based XOR algorithm to detect key press/release,
+>>>> which should make the column assertion time shorter and code a bit
+>>>> cleaner
+>>>> 5. remove the ALT_FN handling, which is no way generic, the ALT_FN
+>>>> key should be treated as no different from other keys, and translation
+>>>> will be done by user space by commands like 'loadkeys'.
+>>>>
+>>>> Patch tested on Littleton/PXA310 (though PXA310 has a dedicate keypad
+>>>> controller, I have to configure those pins as generic GPIO to use this
+>>>> driver, works quite well, though ;-)
+>>>
+>>> Any support about removing/clearing ghost/phantom keys? Also we assume
+>>> that all gpios in the matrix should be able to generate interrupts so
+>>> no polldev support required.
+>>>
 >>
-> 
-> Sorry for the long delay.
-> 
-> Try the attached (untested) patch. It adds a simple timeout to the hid
-> ctrl and out urbs, discarding the faulty urb instead of getting stuck.
+>> Is there some info about such ghost/phantom keys? Otherwise I'll
+>> assume these are something like sticky control keys?
+>>
+>> I'm not sure if there're any such support in console tools and in
+>> input subsystem. Hard to say...
+>>
+>> And the comments below are of great value, I'll incorporate these
+>> suggestions in later submission. Thanks very much.
+>>
+>
+> Could you please have look at following gpio_matrix driver?
+>
+> gpio_matrix.c:
+> http://android.git.kernel.org/?p=kernel/msm.git;a=blob;f=drivers/input/misc/gpio_matrix.c;h=c1f47651a4937d5c976a9625ca5da389dd7e4a7c;hb=HEAD
+>
+> gpio_input.c:
+> http://android.git.kernel.org/?p=kernel/msm.git;a=blob;f=drivers/input/misc/gpio_input.c;h=7e307f267a2a059b64a3fb9c8a379b149016b2f8;hb=HEAD
+>
 
-And of course there was an error, attached is a fixed patch :)
-
--- 
-Anssi Hannula
-
---------------000700070302080001080604
-Content-Type: text/plain;
- name="hid-usb-add-urb-timeout.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="hid-usb-add-urb-timeout.diff"
-
-LS0tCiBkcml2ZXJzL2hpZC91c2JoaWQvaGlkLWNvcmUuYyB8ICAgMTggKysrKysrKysrKysr
-KysrKysrCiBkcml2ZXJzL2hpZC91c2JoaWQvdXNiaGlkLmggICB8ICAgIDIgKysKIDIgZmls
-ZXMgY2hhbmdlZCwgMjAgaW5zZXJ0aW9ucygrKQoKSW5kZXg6IGxpbnV4LTI2MjktcGlkZmYv
-ZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1jb3JlLmMKPT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgt
-MjYyOS1waWRmZi5vcmlnL2RyaXZlcnMvaGlkL3VzYmhpZC9oaWQtY29yZS5jCTIwMDktMDIt
-MTMgMDM6NDc6MTUuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yNjI5LXBpZGZmL2RyaXZl
-cnMvaGlkL3VzYmhpZC9oaWQtY29yZS5jCTIwMDktMDUtMDggMDI6NTU6NTkuMDAwMDAwMDAw
-ICswMzAwCkBAIC0yNTEsNiArMjUxLDggQEAgc3RhdGljIGludCBoaWRfc3VibWl0X291dChz
-dHJ1Y3QgaGlkX2RldgogCQlyZXR1cm4gLTE7CiAJfQogCisJYWRkX3RpbWVyKCZ1c2JoaWQt
-PnVyYl9vdXRfdGltZW91dCwgamlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMoODAwMCkpOwor
-CiAJcmV0dXJuIDA7CiB9CiAKQEAgLTMwMyw2ICszMDUsOCBAQCBzdGF0aWMgaW50IGhpZF9z
-dWJtaXRfY3RybChzdHJ1Y3QgaGlkX2RlCiAJCXJldHVybiAtMTsKIAl9CiAKKwlhZGRfdGlt
-ZXIoJnVzYmhpZC0+dXJiX2N0cmxfdGltZW91dCwgamlmZmllcyArIG1zZWNzX3RvX2ppZmZp
-ZXMoODAwMCkpOworCiAJcmV0dXJuIDA7CiB9CiAKQEAgLTMxNyw2ICszMjEsOCBAQCBzdGF0
-aWMgdm9pZCBoaWRfaXJxX291dChzdHJ1Y3QgdXJiICp1cmIpCiAJdW5zaWduZWQgbG9uZyBm
-bGFnczsKIAlpbnQgdW5wbHVnID0gMDsKIAorCWRlbF90aW1lcigmdXNiaGlkLT51cmJfb3V0
-X3RpbWVvdXQpOworCiAJc3dpdGNoICh1cmItPnN0YXR1cykgewogCWNhc2UgMDoJCQkvKiBz
-dWNjZXNzICovCiAJCWJyZWFrOwpAQCAtMzY0LDYgKzM3MCw3IEBAIHN0YXRpYyB2b2lkIGhp
-ZF9jdHJsKHN0cnVjdCB1cmIgKnVyYikKIAl1bnNpZ25lZCBsb25nIGZsYWdzOwogCWludCB1
-bnBsdWcgPSAwOwogCisJZGVsX3RpbWVyKCZ1c2JoaWQtPnVyYl9jdHJsX3RpbWVvdXQpOwog
-CXNwaW5fbG9ja19pcnFzYXZlKCZ1c2JoaWQtPmN0cmxsb2NrLCBmbGFncyk7CiAKIAlzd2l0
-Y2ggKHVyYi0+c3RhdHVzKSB7CkBAIC00MDUsNiArNDEyLDEzIEBAIHN0YXRpYyB2b2lkIGhp
-ZF9jdHJsKHN0cnVjdCB1cmIgKnVyYikKIAl3YWtlX3VwKCZ1c2JoaWQtPndhaXQpOwogfQog
-CitzdGF0aWMgdm9pZCBoaWRfdXJiX3RpbWVvdXQodW5zaWduZWQgbG9uZyB0aW1lcl9kYXRh
-KQoreworCXN0cnVjdCB1cmIgKmhpZF91cmIgPSAoc3RydWN0IHVyYiAqKXRpbWVyX2RhdGE7
-CisJZGV2X3dhcm4oJmhpZF91cmItPmRldi0+ZGV2LCAiaGlkIHVyYiB0aW1lb3V0XG4iKTsK
-Kwl1c2JfdW5saW5rX3VyYihoaWRfdXJiKTsKK30KKwogdm9pZCB1c2JoaWRfc3VibWl0X3Jl
-cG9ydChzdHJ1Y3QgaGlkX2RldmljZSAqaGlkLCBzdHJ1Y3QgaGlkX3JlcG9ydCAqcmVwb3J0
-LCB1bnNpZ25lZCBjaGFyIGRpcikKIHsKIAlpbnQgaGVhZDsKQEAgLTg1MSw2ICs4NjUsOCBA
-QCBzdGF0aWMgaW50IHVzYmhpZF9zdGFydChzdHJ1Y3QgaGlkX2RldmljCiAJaW5pdF93YWl0
-cXVldWVfaGVhZCgmdXNiaGlkLT53YWl0KTsKIAlJTklUX1dPUksoJnVzYmhpZC0+cmVzZXRf
-d29yaywgaGlkX3Jlc2V0KTsKIAlzZXR1cF90aW1lcigmdXNiaGlkLT5pb19yZXRyeSwgaGlk
-X3JldHJ5X3RpbWVvdXQsICh1bnNpZ25lZCBsb25nKSBoaWQpOworCXNldHVwX3RpbWVyKCZ1
-c2JoaWQtPnVyYl9vdXRfdGltZW91dCwgaGlkX3VyYl90aW1lb3V0LCAodW5zaWduZWQgbG9u
-ZykgdXNiaGlkLT51cmJvdXQpOworCXNldHVwX3RpbWVyKCZ1c2JoaWQtPnVyYl9jdHJsX3Rp
-bWVvdXQsIGhpZF91cmJfdGltZW91dCwgKHVuc2lnbmVkIGxvbmcpIHVzYmhpZC0+dXJiY3Ry
-bCk7CiAKIAlzcGluX2xvY2tfaW5pdCgmdXNiaGlkLT5pbmxvY2spOwogCXNwaW5fbG9ja19p
-bml0KCZ1c2JoaWQtPm91dGxvY2spOwpAQCAtOTE1LDYgKzkzMSw4IEBAIHN0YXRpYyB2b2lk
-IHVzYmhpZF9zdG9wKHN0cnVjdCBoaWRfZGV2aWMKIAogCWRlbF90aW1lcl9zeW5jKCZ1c2Jo
-aWQtPmlvX3JldHJ5KTsKIAljYW5jZWxfd29ya19zeW5jKCZ1c2JoaWQtPnJlc2V0X3dvcmsp
-OworCWRlbF90aW1lcl9zeW5jKCZ1c2JoaWQtPmhpZF9vdXRfdGltZW91dCk7CisJZGVsX3Rp
-bWVyX3N5bmMoJnVzYmhpZC0+aGlkX2N0cmxfdGltZW91dCk7CiAKIAlpZiAoaGlkLT5jbGFp
-bWVkICYgSElEX0NMQUlNRURfSU5QVVQpCiAJCWhpZGlucHV0X2Rpc2Nvbm5lY3QoaGlkKTsK
-SW5kZXg6IGxpbnV4LTI2MjktcGlkZmYvZHJpdmVycy9oaWQvdXNiaGlkL3VzYmhpZC5oCj09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT0KLS0tIGxpbnV4LTI2MjktcGlkZmYub3JpZy9kcml2ZXJzL2hpZC91c2Jo
-aWQvdXNiaGlkLmgJMjAwOS0wNS0wOCAwMTo1MzozMy4wMDAwMDAwMDAgKzAzMDAKKysrIGxp
-bnV4LTI2MjktcGlkZmYvZHJpdmVycy9oaWQvdXNiaGlkL3VzYmhpZC5oCTIwMDktMDUtMDgg
-MDE6NTQ6MDIuMDAwMDAwMDAwICswMzAwCkBAIC04NSw2ICs4NSw4IEBAIHN0cnVjdCB1c2Jo
-aWRfZGV2aWNlIHsKIAlzcGlubG9ja190IG91dGxvY2s7ICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgLyogT3V0cHV0IGZpZm8gc3BpbmxvY2sgKi8KIAog
-CXVuc2lnbmVkIGxvbmcgaW9mbDsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAvKiBJL08gZmxhZ3MgKENUUkxfUlVOTklORywgT1VUX1JVTk5JTkcpICov
-CisJc3RydWN0IHRpbWVyX2xpc3QgdXJiX291dF90aW1lb3V0OyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIC8qIFRpbWVvdXQgZm9yIG91dCB1cmIgKi8KKwlzdHJ1Y3QgdGltZXJf
-bGlzdCB1cmJfY3RybF90aW1lb3V0OyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLyog
-VGltZW91dCBmb3IgY3RybCB1cmIgKi8KIAlzdHJ1Y3QgdGltZXJfbGlzdCBpb19yZXRyeTsg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLyogUmV0cnkgdGltZXIgKi8K
-IAl1bnNpZ25lZCBsb25nIHN0b3BfcmV0cnk7ICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgLyogVGltZSB0byBnaXZlIHVwLCBpbiBqaWZmaWVzICovCiAJdW5zaWdu
-ZWQgaW50IHJldHJ5X2RlbGF5OyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgIC8qIERlbGF5IGxlbmd0aCBpbiBtcyAqLwo=
---------------000700070302080001080604--
+Mmm... looks not so generic, though. And I still have no idea
+about how its phantom key works unless I see its hw.

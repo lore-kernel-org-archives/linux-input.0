@@ -1,34 +1,63 @@
-From: Oliver Neukum <oliver@neukum.org>
-Subject: Re: [PATCH] hid: add force feedback support for SmartJoy PLUS PS2/USB adapter
-Date: Fri, 8 May 2009 10:02:56 +0200
-Message-ID: <200905081002.56647.oliver@neukum.org>
+From: "Jussi Kivilinna" <jussi.kivilinna-E01nCVcF24I@public.gmane.org>
+Subject: Re: [PATCH] hid: add force feedback support for SmartJoy PLUS
+	PS2/USB adapter
+Date: Fri, 08 May 2009 11:37:16 +0300
+Message-ID: <20090508113716.10603mzp3jmcfry8@hayate.sektori.org>
 References: <20090508074636.16912.55839.stgit@fate.lan>
+	<200905081002.56647.oliver@neukum.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp-out003.kontent.com ([81.88.40.217]:34528 "EHLO
-	smtp-out003.kontent.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1761531AbZEHICs (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Fri, 8 May 2009 04:02:48 -0400
-In-Reply-To: <20090508074636.16912.55839.stgit@fate.lan>
+Content-Type: text/plain; charset=UTF-8;
+	DelSp=Yes	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200905081002.56647.oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Oliver Neukum <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>
+Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
-Cc: linux-usb@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
 
-QW0gRnJlaXRhZywgOC4gTWFpIDIwMDkgMDk6NDY6MzYgc2NocmllYiBKdXNzaSBLaXZpbGlubmE6
-Cj4gK3N0YXRpYyBpbnQgc2pfcHJvYmUoc3RydWN0IGhpZF9kZXZpY2UgKmhkZXYsIGNvbnN0IHN0
-cnVjdCBoaWRfZGV2aWNlX2lkCj4gKmlkKSArewo+ICvCoMKgwqDCoMKgwqDCoGludCByZXQ7Cj4g
-Kwo+ICvCoMKgwqDCoMKgwqDCoHJldCA9IGhpZF9wYXJzZShoZGV2KTsKPiArwqDCoMKgwqDCoMKg
-wqBpZiAocmV0KSB7Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGRldl9lcnIoJmhk
-ZXYtPmRldiwgInBhcnNlIGZhaWxlZFxuIik7Cj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoGdvdG8gZXJyOwo+ICvCoMKgwqDCoMKgwqDCoH0KPiArCj4gK8KgwqDCoMKgwqDCoMKgcmV0
-ID0gaGlkX2h3X3N0YXJ0KGhkZXYsIEhJRF9DT05ORUNUX0RFRkFVTFQgJiB+SElEX0NPTk5FQ1Rf
-RkYpOwo+ICvCoMKgwqDCoMKgwqDCoGlmIChyZXQpIHsKPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgZGV2X2VycigmaGRldi0+ZGV2LCAiaHcgc3RhcnQgZmFpbGVkXG4iKTsKPiArwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZ290byBlcnI7Cj4gK8KgwqDCoMKgwqDCoMKgfQo+
-ICsKPiArwqDCoMKgwqDCoMKgwqBzam95ZmZfaW5pdChoZGV2KTsKCkRvIHlvdSByZWFsbHkgd2Fu
-dCB0byBpZ25vcmUgZXJyb3JzIHRoaXMgcmV0dXJucz8KCglSZWdhcmRzCgkJT2xpdmVyCgo=
+Quoting "Oliver Neukum" <oliver-GvhC2dPhHPQdnm+yROfE0A@public.gmane.org>:
+
+> Am Freitag, 8. Mai 2009 09:46:36 schrieb Jussi Kivilinna:
+>> +static int sj_probe(struct hid_device *hdev, const struct hid_devic=
+e_id
+>> *id) +{
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0int ret;
+>> +
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D hid_parse(hdev);
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret) {
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0dev_err(&hdev->dev, "parse failed\n");
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0goto err;
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+>> +
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0ret =3D hid_hw_start(hdev=
+, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0if (ret) {
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0dev_err(&hdev->dev, "hw start failed\n");
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0goto err;
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0}
+>> +
+>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0sjoyff_init(hdev);
+>
+> Do you really want to ignore errors this returns?
+>
+> 	Regards
+> 		Oliver
+>
+
+It's done same in hid-pl.c & hid-gaff.c which I used base for this =20
+driver. I'd say yes, ignoring return sjoyff_init is ok. If ff-setup =20
+fails adapter will still be usable (but without ff). This is actually =20
+what happened when I tried this driver with other Wisegroup adapter.
+
+-Jussi
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

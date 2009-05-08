@@ -1,45 +1,73 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] ff-memless: fix signed to unsigned bit overflow
-	in?ml_combile_effects()
-Date: Thu, 7 May 2009 19:10:45 -0700
-Message-ID: <20090508021045.GA30616@dtor-d630.eng.vmware.com>
-References: <20090507193206.9342.15843.stgit@fate.lan> <4A03748E.3060709@gmail.com>
+Subject: Re: [PATCH] input: add driver for EETI touchpanels
+Date: Thu, 7 May 2009 19:29:54 -0700
+Message-ID: <20090508022950.GB30616@dtor-d630.eng.vmware.com>
+References: <1241002247-23923-1-git-send-email-daniel@caiaq.de> <1241019084-19204-1-git-send-email-daniel@caiaq.de> <20090507173502.GA12946@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.171]:62536 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755753AbZEHCKv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 22:10:51 -0400
-Received: by wf-out-1314.google.com with SMTP id 26so1038614wfd.4
-        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 19:10:52 -0700 (PDT)
+Received: from rv-out-0506.google.com ([209.85.198.231]:45198 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752041AbZEHCaB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 22:30:01 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so900775rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 19:30:01 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4A03748E.3060709@gmail.com>
+In-Reply-To: <20090507173502.GA12946@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Anssi Hannula <anssi.hannula@gmail.com>
-Cc: linux-input@vger.kernel.org, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: linux-input@vger.kernel.org
 
-On Thursday 07 May 2009 16:53:50 Anssi Hannula wrote:
-> Jussi Kivilinna wrote:
-> > When userspace sets effect->u.rumble.strong_magnitude to 0x8001 or
-> > larger, ml_combine_effects() would always return strong_magnitude 0xffff.
-> >
-> > Problem is that 'gain' is passed in as signed integer. Multiplying
-> > magnitude (__u16) with gain (int) causes magnitude read as signed and
-> > results negative value (with magnitude > 0x8000). This signed integer is
-> > then divided and value, still negative, converted to 32bit unsigned
-> > integer. Finally checking combine overflow min(new+old, 0xffff) gives out
-> > 0xffff.
-> >
-> > Fix is to simply change 'gain' to unsigned int.
-> >
-> > Signed-off-by: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>
->
-> Acked-by: Anssi Hannula <anssi.hannula@gmail.com>
->
+Hi Daniel,
 
-Applied, thank you.
+On Thu, May 07, 2009 at 07:35:02PM +0200, Daniel Mack wrote:
+> > +
+> > +	if (buf[0] & REPORT_BIT_HAS_PRESSURE)
+> > +		input_report_abs(priv->input, ABS_PRESSURE, buf[5]);
+> > +
+> > +	input_report_key(priv->input, BTN_TOUCH, !!pressed);
+> > +	input_report_abs(priv->input, ABS_X, x);
+> > +	input_report_abs(priv->input, ABS_Y, y);
+> > +	input_sync(priv->input);
+
+I think you should also do:
+
+	if (!pressed)
+		input_report_abs(priv->input, ABS_PRESSURE, 0);
+
+for the benefit of applications that use purely pressure data to
+determine touch points.
+
+> > +	enable_irq(priv->irq);
+> > +}
+> > +
+> > +static irqreturn_t eeti_ts_isr(int irq, void *dev_id)
+> > +{
+> > +	struct eeti_ts_priv *priv = dev_id;
+> > +
+> > +	 /* postpone I2C transactions as we are atomic */
+> > +	disable_irq_nosync(irq);
+> > +	schedule_delayed_work(&priv->work, HZ / 100);
+> > +
+> > +	return IRQ_HANDLED;
+> > +}
+> > +
+> > +static int eeti_ts_open(struct input_dev *dev)
+> > +{
+> > +	struct eeti_ts_priv *priv = input_get_drvdata(dev);
+
+Blank line after declarations, pretty please. Also, is it mailer's fault
+or you need to use tabs for identation.
+
+> > +	/* Read the events once to arm the IRQ */
+> > +	eeti_ts_read(&priv->work.work);
+> > +
+> > +	return 0;
+> > +}
+> > +
+
+Thanks.
 
 -- 
 Dmitry

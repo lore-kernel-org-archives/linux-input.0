@@ -1,445 +1,442 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: Input: add MAX7359 key switch controller driver
-Date: Thu, 7 May 2009 20:19:12 -0700
-Message-ID: <20090508031859.GE30616@dtor-d630.eng.vmware.com>
-References: <4A012C64.1020101@samsung.com>
+Subject: Re: [PATCH] Add support for touch screen on W90P910 ARM platform
+Date: Thu, 7 May 2009 20:41:51 -0700
+Message-ID: <20090508034148.GF30616@dtor-d630.eng.vmware.com>
+References: <e68bb3470904270803q5e69a5f4n74ff58848f397f28@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.230]:65186 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.236]:56667 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753885AbZEHDTW (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 23:19:22 -0400
+	with ESMTP id S1752351AbZEHDmA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 7 May 2009 23:42:00 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so925439rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 07 May 2009 20:42:00 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4A012C64.1020101@samsung.com>
+In-Reply-To: <e68bb3470904270803q5e69a5f4n74ff58848f397f28@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Kim Kyuwon <q1.kim@samsung.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+To: Wan ZongShun <mcuos.com@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Kim,
+Hi,
 
-On Wed, May 06, 2009 at 03:21:24PM +0900, Kim Kyuwon wrote:
-> The Maxim MAX7359 is a I2C interfaced key switch controller which provides microprocessors with management of up to 64 key switches.
-> This patch adds support for the MAX7359 key switch controller.
+On Mon, Apr 27, 2009 at 11:03:20PM +0800, Wan ZongShun wrote:
+> Dear sirs,
 > 
-> Signed-off-by: Kim Kyuwon <q1.kim@samsung.com>
+> The patch adds this  touch screen  driver to w90p910 ARM  platform.
+> It is based on version of 2.6.30-rc3.
+> would you please give me some advice about this patch?
+> 
+
+Thank you very much for your patch. Some comments below.
+
+>  arch/arm/mach-w90x900/include/mach/regs-adc.h |   57 +++
+>  drivers/input/touchscreen/Kconfig             |    6
+>  drivers/input/touchscreen/Makefile            |    1
+>  drivers/input/touchscreen/w90p910_ts.c        |  229 ++++++++++++++++
+>  4 files changed, 293 insertions(+)
 > ---
->  drivers/input/keyboard/Kconfig          |    8 +
->  drivers/input/keyboard/Makefile         |    1 +
->  drivers/input/keyboard/max7359_keypad.c |  300 +++++++++++++++++++++++++++++++
->  include/linux/max7359_keypad.h          |   30 +++
->  4 files changed, 339 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/input/keyboard/max7359_keypad.c
->  create mode 100644 include/linux/max7359_keypad.h
+> Add this touch screen driver c file for W90P910 platform.
+> It is only one part of patch,the other such as maping,
+> device register will be submitted soon after.
 > 
-> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-> index ea2638b..fb2dc08 100644
-> --- a/drivers/input/keyboard/Kconfig
-> +++ b/drivers/input/keyboard/Kconfig
-> @@ -332,4 +332,12 @@ config KEYBOARD_SH_KEYSC
->  
->  	  To compile this driver as a module, choose M here: the
->  	  module will be called sh_keysc.
+> Signed-off-by: Wan ZongShun <mcuos.com@gmail.com>
+> 
+> diff -Npur linux-2.6.29/arch/arm/mach-w90x900/include/mach/regs-adc.h
+> linux-2.6.30-rc3/arch/arm/mach-w90x900/include/mach/regs-adc.h
+> --- linux-2.6.29/arch/arm/mach-w90x900/include/mach/regs-adc.h  1970-01-01
+> 08:00:00.000000000 +0800
+> +++ linux-2.6.30-rc3/arch/arm/mach-w90x900/include/mach/regs-adc.h
+>  2009-04-27
+> 20:53:57.000000000 +0800
+> @@ -0,0 +1,57 @@
+> +/*
+> + * arch/arm/mach-w90x900/include/mach/regs-adc.h
+> + *
+> + * Copyright (c) 2008 Nuvoton technology corporation
+> + * All rights reserved.
+> + *
+> + * Wan ZongShun <mcuos.com@gmail.com>
+> + *
+> + * This program is free software; you can redistribute it and/or modify
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + */
 > +
-> +config KEYBOARD_MAX7359
-> +	tristate "Maxim MAX7359 Key Switch Controller"
-> +	depends on I2C
-> +	help
-> +	  If you say yes here you get support for the Maxim MAX7359 Key
-> +	  Switch Controller chip. This providers microprocessors with
-> +	  management of up to 64 key switches
+> +#ifndef __ASM_ARM_REGS_ADC_H
+> +#define __ASM_ARM_REGS_ADC_H
+> +
+> +/* ADC Control Registers */
+> +#define ADC_BA         W90X900_VA_ADC
+> +#define REG_ADC_CON    (ADC_BA+0x00)
+> +#define REG_ADC_TSC    (ADC_BA+0x04)
+> +#define REG_ADC_DLY    (ADC_BA+0x08)
+> +#define REG_ADC_XDATA  (ADC_BA+0x0C)
+> +#define REG_ADC_YDATA  (ADC_BA+0x10)
+> +#define REG_ADC_LV_CON (ADC_BA+0x14)
+> +#define REG_ADC_LV_STS (ADC_BA+0x18)
+> +#define ADC_INT                0x040000
+> +#define WT_INT         0x100000
+> +#define ADC_RESOULTION 1024
+> +
+> +#define ADC_WRITE(addr, val)   __raw_writel(val, addr)
+> +#define ADC_READ(addr)         __raw_readl(addr)
+> +#define DEV_NAME               "ADC"
+> +
+> +#define TSDEV_SCREEN_X         320
+> +#define TSDEV_SCREEN_Y         240
+> +
+> +unsigned int  INTERVAL_TIME = 4;
+> +unsigned int  pre_x, pre_y, STATE;
+> +unsigned int  nRadioWidth1, nRadioWidth2, nRadioHeight1, nRadioHeight2;
+> +int adc_get = 0, adc_block = 1;
+> +
+> +static struct input_dev *w90p910_dev;
+> +static DECLARE_MUTEX(sem);
+> +static DEFINE_SPINLOCK(w90x900_touch_lock);
+> +static struct timer_list ts_timer1;
+> +
 
-"To compile this driver as a module..."
+All of this does not belong in a header file.
 
+> +struct _pointmap{
+> +       int x;
+> +       int y;
+> +       int status;
+> +};
+> +
+> +struct _pointmap point;
+> +
+> +#endif/*__ASM_ARM_REGS_ADC_H*/
+> diff -Npur linux-2.6.29/drivers/input/touchscreen/Kconfig
+> linux-2.6.30-rc3/drivers/input/touchscreen/Kconfig
+> --- linux-2.6.29/drivers/input/touchscreen/Kconfig      2009-04-27
+> 14:10:36.000000000 +0800
+> +++ linux-2.6.30-rc3/drivers/input/touchscreen/Kconfig  2009-04-27
+> 19:50:36.000000000 +0800
+> @@ -466,4 +466,10 @@ config TOUCHSCREEN_TSC2007
+>          To compile this driver as a module, choose M here: the
+>          module will be called tsc2007.
+> 
+> +config TOUCHSCREEN_W90X900
+> +       tristate "W90P910 touchscreens"
+> +       depends on CPU_W90P910
+> +       help
+> +               Compile this driver to support W90P910 touchscreen.
+> +
 >  endif
-> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-> index 36351e1..a9e7502 100644
-> --- a/drivers/input/keyboard/Makefile
-> +++ b/drivers/input/keyboard/Makefile
-> @@ -28,3 +28,4 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada720_kbd.o
->  obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
->  obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
->  obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-> +obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
-> diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
-> new file mode 100644
-> index 0000000..3c2ec01
-> --- /dev/null
-> +++ b/drivers/input/keyboard/max7359_keypad.c
-> @@ -0,0 +1,300 @@
+> diff -Npur linux-2.6.29/drivers/input/touchscreen/Makefile
+> linux-2.6.30-rc3/drivers/input/touchscreen/Makefile
+> --- linux-2.6.29/drivers/input/touchscreen/Makefile     2009-04-27
+> 14:10:36.000000000 +0800
+> +++ linux-2.6.30-rc3/drivers/input/touchscreen/Makefile 2009-04-27
+> 19:50:49.000000000 +0800
+> @@ -37,3 +37,4 @@ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)        +
+>  wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9713) += wm9713.o
+>  obj-$(CONFIG_TOUCHSCREEN_WM97XX_MAINSTONE)     += mainstone-wm97xx.o
+>  obj-$(CONFIG_TOUCHSCREEN_WM97XX_ZYLONITE)      += zylonite-wm97xx.o
+> +obj-$(CONFIG_TOUCHSCREEN_W90X900)      += w90p910_ts.o
+> diff -Npur linux-2.6.29/drivers/input/touchscreen/w90p910_ts.c
+> linux-2.6.30-rc3/drivers/input/touchscreen/w90p910_ts.c
+> --- linux-2.6.29/drivers/input/touchscreen/w90p910_ts.c 1970-01-01
+> 08:00:00.000000000 +0800
+> +++ linux-2.6.30-rc3/drivers/input/touchscreen/w90p910_ts.c     2009-04-27
+> 20:55:21.000000000 +0800
+> @@ -0,0 +1,229 @@
 > +/*
-> + * max7359_keypad.c - MAX7359 Key Switch Controller Driver
+> + * linux/driver/input/w90x900_ts.c
 > + *
-> + * Copyright (C) 2009 Samsung Electronics
-> + * Kim Kyuwon <q1.kim@samsung.com>
+> + * Copyright (c) 2008 Nuvoton technology corporation
+> + * All rights reserved.
 > + *
-> + * Based on pxa27x_keypad.c
+> + * Wan ZongShun <mcuos.com@gmail.com>
 > + *
 > + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
+> + * it under the terms of the GNU General Public License as published by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
 > + *
-> + * Datasheet: http://www.maxim-ic.com/quick_view2.cfm/qv_pk/5456
 > + */
 > +
+> +#include <linux/delay.h>
 > +#include <linux/module.h>
-> +#include <linux/i2c.h>
-> +#include <linux/interrupt.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/io.h>
 > +#include <linux/input.h>
-> +#include <linux/max7359_keypad.h>
+> +#include <linux/interrupt.h>
 > +
-> +#define MAX_KEY_NUM			(8 * 8)
+> +#include <mach/hardware.h>
+> +#include <mach/regs-clock.h>
+> +#include <mach/regs-adc.h>
+> +
+> +short ADCDataIn(void)
 
-Please do:
+No camel-case in the kernel, please.
 
-#define MAX_KEY_NUM	(MAX_MATRIX_KEY_ROWS * MAX_MATRIX_KEY_COLS)
+> +{
+> +       pre_x = ((ADC_READ(REG_ADC_XDATA)*TSDEV_SCREEN_X)/ADC_RESOULTION);
+> +       pre_y = ((ADC_READ(REG_ADC_YDATA)*TSDEV_SCREEN_Y)/ADC_RESOULTION);
+
+Why do we need to scale?
 
 > +
-> +/*
-> + * MAX7359 registers
-> + */
-> +#define MAX7359_REG_KEYFIFO		0x00
-> +#define MAX7359_REG_CONFIG		0x01
-> +#define MAX7359_REG_DEBOUNCE		0x02
-> +#define MAX7359_REG_INTERRUPT		0x03
-> +#define MAX7359_REG_PORTS		0x04
-> +#define MAX7359_REG_KEYREP		0x05
-> +#define MAX7359_REG_SLEEP		0x06
+> +       input_report_key(w90p910_dev, BTN_TOUCH, 1);
+> +       input_report_abs(w90p910_dev, ABS_X, pre_x);
+> +       input_report_abs(w90p910_dev, ABS_Y, pre_y);
+> +       input_report_abs(w90p910_dev, ABS_PRESSURE, 1000);
+
+If your device does not provide true pressure readings to not fake them.
+
+> +       input_sync(w90p910_dev);
+> +       return 0;
+> +}
 > +
-> +/*
-> + * Configuration register bits
-> + */
-> +#define MAX7359_CFG_SLEEP		(1 << 7)
-> +#define MAX7359_CFG_INTERRUPT		(1 << 5)
-> +#define MAX7359_CFG_KEY_RELEASE		(1 << 3)
-> +#define MAX7359_CFG_WAKEUP		(1 << 1)
-> +#define MAX7359_CFG_TIMEOUT		(1 << 0)
+> +static void wb_sensitivity(unsigned long  sensi)
+> +{
+> +       unsigned long flags;
+> +       down_interruptible(&sem);
+> +       spin_lock_irqsave(&w90x900_touch_lock, flags);
 > +
-> +struct max7359_keypad {
-> +	/* matrix key code map */
-> +	u16					keycodes[MAX_KEY_NUM];
+> +       if ((ADC_READ(REG_ADC_TSC)&0x1) == 0x1) {
 > +
-> +	struct work_struct			work;
+> +               ADC_WRITE(REG_ADC_TSC, 0x0);
+> +               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
+> +                                               0x00206000)&0xFF7F7FFF);
+> +               STATE = 1;
+> +       } else{
+> +               input_sync(w90p910_dev);
+
+You should report events, then issue EV_SYN, not the other way around.
+
+> +               input_report_key(w90p910_dev, BTN_TOUCH, 0);
+> +               input_report_abs(w90p910_dev, ABS_PRESSURE, 0);
+> +               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
+> +                                               0x0080C000)&0xFFCBFFFF);
+> +               STATE = 0;
+> +               point.status = 0;
+> +       }
+> +       up(&sem);
+> +       spin_unlock_irqrestore(&w90x900_touch_lock, flags);
+> +}
 > +
-> +	struct max7359_keypad_platform_data	*pdata;
-> +	struct input_dev			*input_dev;
-> +	struct i2c_client			*client;
+> +static irqreturn_t wb_adc_irq(int irq, void *dev_id)
+> +{
+> +       unsigned long flags;
 > +
-> +	u32					irq;
+> +       down_interruptible(&sem);
+
+Down_interruptible in an IRQ context? That is... interesting...
+
+> +       spin_lock_irqsave(&w90x900_touch_lock, flags);
+> +       adc_get = 1;
+> +
+> +       if (((ADC_READ(REG_ADC_CON)&WT_INT)>>20) == 1 && STATE == 0) {
+> +               STATE = 1;
+> +               ADC_WRITE(REG_ADC_TSC, 0x0);
+> +               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
+> +                                               0x00206000)&0xFF6F7FFF);
+
+Magic values... Can we have proper #defines here?
+
+> +       }
+> +
+> +       if (((ADC_READ(REG_ADC_CON)&ADC_INT)>>18) == 1 && STATE == 1) {
+> +               STATE = 2;
+> +               ADC_WRITE(REG_ADC_TSC, 0x100);
+> +               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
+> +                                               0x00206000)&0xFF7B7FFF);
+> +       }
+> +
+> +       if (((ADC_READ(REG_ADC_CON)&ADC_INT)>>18) == 1 && STATE == 2) {
+> +               ADCDataIn();
+> +               point.status = 1;
+> +               ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
+> +                                               0x0000C000)&0xFF5BFFFF);
+> +
+> +               del_timer(&ts_timer1);
+> +               ts_timer1.expires = jiffies+INTERVAL_TIME;
+> +               ts_timer1.data = 0UL;
+> +               add_timer(&ts_timer1);
+
+This can be exprerssed as mod_timer().
+
+> +
+> +       }
+> +       up(&sem);
+> +       spin_unlock_irqrestore(&w90x900_touch_lock, flags);
+> +       return IRQ_HANDLED;
+> +}
+> +
+> +static int wb_adc_open(struct input_dev *dev)
+> +{
+> +
+> +       adc_block = 1;
+> +       adc_get = 1;
+> +       init_timer(&ts_timer1);
+> +       ts_timer1.function = wb_sensitivity;
+> +       /* reset */
+> +       ADC_WRITE(REG_ADC_CON, 0x00010000);
+> +       udelay(1000);
+> +       ADC_WRITE(REG_ADC_CON, 0x00000000);
+> +       udelay(1000);
+> +       /* ADC setting */
+> +       /* set delay and screen type */
+> +       ADC_WRITE(REG_ADC_TSC, ADC_READ(REG_CLKSEL) & 0xFFFFFFF9);
+> +       ADC_WRITE(REG_ADC_DLY, 0xF00);
+> +       /* waitting for trigger mode */
+> +       ADC_WRITE(REG_ADC_CON, (ADC_READ(REG_ADC_CON)|
+> +                                       0x0082C008) & 0xFFEBFF09);
+> +       STATE = 0;
+> +       pre_x = pre_y = 0;
+> +       return 0;
+> +}
+> +
+> +static void  wb_adc_close(struct input_dev *dev)
+> +{
+> +       free_irq(IRQ_ADC, NULL);
+
+Uh-oh... What will happen if we try to open the device again? Don't free
+IRQ here, do that in w90x900ts_remove().
+
+> +}
+> +
+> +static int __init w90x900ts_probe(struct platform_device *pdev)
+
+__devinit.
+
+> +{
+> +       int irq, result, err;
+> +       unsigned int tmp32;
+> +       struct resource *res;
+
+Blank line after declarations.
+
+> +       irq = platform_get_irq(pdev, 0);
+> +       if (irq < 0) {
+> +               dev_err(&pdev->dev, "no irq for device\n");
+> +               return -ENOENT;
+> +       }
+> +
+> +       res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       if (!res)
+> +               return -ENXIO;
+> +
+> +       if (!request_mem_region(res->start, res->end - res->start + 1,
+> +                               pdev->name)) {
+> +               dev_err(&pdev->dev, "Memory region busy\n");
+> +               err = -EBUSY;
+> +               goto fail;
+> +       }
+> +
+> +       /* enable the ADC clock */
+> +       tmp32 = ADC_READ(REG_CLKEN);
+> +       tmp32 = tmp32 | 0x10000000;
+> +       ADC_WRITE(REG_CLKEN, tmp32);
+> +
+> +       w90p910_dev = input_allocate_device();
+> +
+> +       if (!w90p910_dev) {
+> +               printk(KERN_ERR "w90p910_dev: not enough memory\n");
+> +               err = -ENOMEM;
+> +               goto fail;
+
+'fail' does not free the memory region you requested though...
+
+> +       }
+> +
+> +       w90p910_dev->name = "W90P910 TouchScreen";
+> +       w90p910_dev->phys = "input/event0";
+
+Umm, not specific enough for 'phys'... "w90p910_ts/input0" maybe?
+
+> +       w90p910_dev->id.bustype = BUS_HOST;
+> +       w90p910_dev->id.vendor  = 0x0005;
+> +       w90p910_dev->id.product = 0x0001;
+> +       w90p910_dev->id.version = 0x0100;
+
+w90p910_dev->dev.parent = &pdev->dev;
+
+> +
+> +       w90p910_dev->open  = wb_adc_open;
+> +       w90p910_dev->close = wb_adc_close;
+> +
+> +       w90p910_dev->evbit[0] = BIT_MASK(EV_KEY)|
+> +                               BIT_MASK(EV_ABS) | BIT_MASK(EV_SYN);
+> +       w90p910_dev->keybit[BIT_WORD(BTN_TOUCH)] = BIT_MASK(BTN_TOUCH);
+> +
+> +       input_set_abs_params(w90p910_dev, ABS_X, 0, 0x400, 0, 0);
+> +       input_set_abs_params(w90p910_dev, ABS_Y, 0, 0x400, 0, 0);
+> +       input_set_abs_params(w90p910_dev, ABS_PRESSURE, 0, 1000, 0, 0);
+> +
+> +       result = request_irq(irq, wb_adc_irq, IRQF_DISABLED, DEV_NAME, NULL);
+> +       if (result != 0)
+> +               printk(KERN_ERR"register the wb_adc_irq failed!\n");
+
+And..? Do we really want to continue?
+
+> +
+> +       input_register_device(w90p910_dev);
+
+Error handling please.
+
+> +       return 0;
+> +
+> +fail:
+> +       input_free_device(w90p910_dev);
+> +       return err;
+> +}
+> +
+> +static int w90x900ts_remove(struct platform_device *pdev)
+
+__devexit
+
+> +{
+> +
+
+Extra blank line
+
+> +       input_unregister_device(w90p910_dev);
+> +       return 0;
+> +}
+> +
+> +static struct platform_driver w90x900ts_driver = {
+> +       .probe          = w90x900ts_probe,
+> +       .remove         = w90x900ts_remove,
+
+__devexit_p()
+
+> +       .driver         = {
+> +               .name   = "w90x900-ts",
+> +               .owner  = THIS_MODULE,
+> +       },
 > +};
 > +
-> +static int max7359_write_reg(struct i2c_client *client, u8 reg, u8 val)
-> +{
-> +	int ret = i2c_smbus_write_byte_data(client, reg, val);
+> +int __init w90x900ts_init(void)
 
-Empty line after declarations please.
-
-> +	if (ret >= 0)
-> +		return 0;
-> +
-> +	dev_err(&client->dev, "%s: reg 0x%x, val 0x%x, err %d\n",
-> +						__func__, reg, val, ret);
-> +
-> +	return ret;
-> +}
-> +
-> +static int max7359_read_reg(struct i2c_client *client, int reg)
-> +{
-> +	int ret = i2c_smbus_read_byte_data(client, reg);
-> +	if (ret < 0)
-> +		dev_err(&client->dev, "%s: reg 0x%x, err %d\n",
-> +						__func__, reg, ret);
-> +	return ret;
-> +}
-> +
-> +static void max7359_build_keycode(struct max7359_keypad *keypad)
-> +{
-> +	struct max7359_keypad_platform_data *pdata = keypad->pdata;
-> +	struct input_dev *input_dev = keypad->input_dev;
-> +	unsigned int *key;
-> +	int i;
-> +
-> +	key = pdata->key_map;
-> +	for (i = 0; i < pdata->key_map_size; i++, key++) {
-> +		int row = ((*key) >> 28) & 0xf;
-> +		int col = ((*key) >> 24) & 0xf;
-> +		short code = (*key) & 0xffff;
-> +
-> +		keypad->keycodes[(row << 3) + col] = code;
-> +		set_bit(code, input_dev->keybit);
-> +	}
-> +}
-> +
-> +static inline unsigned int max7359_lookup_matrix_keycode(
-> +			struct max7359_keypad *keypad, int row, int col)
-> +{
-> +	return keypad->keycodes[(row << 3) + col];
-> +}
-> +
-> +static void max7359_worker(struct work_struct *work)
-> +{
-> +	struct max7359_keypad *keypad =
-> +			container_of(work, struct max7359_keypad, work);
-> +	int val, row, col, release;
-> +
-> +	val = max7359_read_reg(keypad->client, MAX7359_REG_KEYFIFO);
-> +	row = val & 0x7;
-> +	col = (val >> 3) & 0x7;
-> +	release = val & 0x40;
-> +
-> +	input_report_key(keypad->input_dev,
-> +		max7359_lookup_matrix_keycode(keypad, row, col), !release);
-> +	input_sync(keypad->input_dev);
-> +
-> +	enable_irq(keypad->irq);
-> +
-> +	dev_dbg(&keypad->client->dev, "key[%d:%d] %s\n", row, col,
-> +					(release ? "release" : "press"));
-> +}
-> +
-> +static irqreturn_t max7359_interrupt(int irq, void *dev_id)
-> +{
-> +	struct max7359_keypad *keypad = (struct max7359_keypad *) dev_id;
-> +
-> +	if (!work_pending(&keypad->work)) {
-> +		disable_irq_nosync(keypad->irq);
-> +		schedule_work(&keypad->work);
-> +	} else {
-> +		dev_err(&keypad->client->dev,
-> +				"Another job is currently pending \n");
-
-Is this truly an error?
-
-> +	}
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static void max7359_initialize(struct i2c_client *client)
-> +{
-> +	max7359_write_reg(client, MAX7359_REG_CONFIG,
-> +		MAX7359_CFG_INTERRUPT | /* Irq clears after host read */
-> +		MAX7359_CFG_KEY_RELEASE | /* Key release enable */
-> +		MAX7359_CFG_WAKEUP); /* Key press wakeup enable */
-> +
-> +	/* Full key-scan functionality */
-> +	max7359_write_reg(client, MAX7359_REG_DEBOUNCE, 0x1F);
-> +
-> +	/* nINT asserts every debounce cycles */
-> +	max7359_write_reg(client, MAX7359_REG_INTERRUPT, 0x01);
-> +}
-> +
-> +static int __devinit max7359_probe(struct i2c_client *client,
-> +					const struct i2c_device_id *id)
-> +{
-> +	struct max7359_keypad *keypad;
-> +	struct max7359_keypad_platform_data *pdata;
-> +	struct input_dev *input_dev;
-> +	int ret;
-> +
-> +	keypad = kzalloc(sizeof(struct max7359_keypad), GFP_KERNEL);
-> +	if (keypad == NULL) {
-> +		dev_err(&client->dev, "failed to allocate driver data\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	keypad->client = client;
-> +	pdata = keypad->pdata = client->dev.platform_data;
-> +	i2c_set_clientdata(client, keypad);
-> +
-> +	/* Detect MAX7359: The initial Keys FIFO value is '0x3F' */
-> +	ret = max7359_read_reg(client, MAX7359_REG_KEYFIFO);
-> +	if (ret < 0) {
-> +		dev_err(&client->dev, "failed to detect device\n");
-> +		goto failed_free;
-> +	} else {
-> +		dev_info(&client->dev, "keys FIFO is 0x%02x"
-> +				", succeeded in detecting device\n", ret);
-> +	}
-> +
-> +	/* Initialize MAX7359 */
-> +	max7359_initialize(client);
-> +
-> +	/* Create and register the input driver. */
-> +	input_dev = input_allocate_device();
-> +	if (!input_dev) {
-> +		dev_err(&client->dev, "failed to allocate input device\n");
-> +		ret = -ENOMEM;
-> +		goto failed_free;
-> +	}
-> +
-> +	input_dev->name = client->name;
-> +	input_dev->id.bustype = BUS_I2C;
-> +	input_dev->dev.parent = &client->dev;
-> +
-> +	input_set_drvdata(input_dev, keypad);
-> +
-> +	input_dev->evbit[0] = BIT_MASK(EV_KEY) | BIT_MASK(EV_REP);
-> +	input_dev->keycodesize = sizeof(keypad->keycodes[0]);
-> +	input_dev->keycodemax = ARRAY_SIZE(keypad->keycodes);
-> +	input_dev->keycode = keypad->keycodes;
-> +
-> +	keypad->input_dev = input_dev;
-> +
-> +	max7359_build_keycode(keypad);
-> +
-> +	INIT_WORK(&keypad->work, max7359_worker);
-> +
-> +	keypad->irq = client->irq;
-> +	if (!keypad->irq) {
-> +		dev_err(&client->dev, "The irq number should not be zero\n");
-> +		goto failed_free_dev;
-> +	}
-> +
-> +	ret = request_irq(keypad->irq, max7359_interrupt,
-> +				IRQF_TRIGGER_LOW, client->name, keypad);
-> +	if (ret) {
-> +		dev_err(&client->dev, "failed to register interrupt\n");
-> +		goto failed_free_dev;
-> +	}
-> +
-> +	/* Register the input device */
-> +	ret = input_register_device(input_dev);
-> +	if (ret) {
-> +		dev_err(&client->dev, "failed to register input device\n");
-> +		goto failed_free_irq;
-> +	}
-> +
-> +	return 0;
-> +
-> +failed_free_irq:
-> +	free_irq(keypad->irq, keypad);
-> +failed_free_dev:
-> +	input_free_device(input_dev);
-> +failed_free:
-> +	i2c_set_clientdata(client, NULL);
-> +	kfree(keypad);
-> +	return ret;
-> +}
-> +
-> +static int __exit max7359_remove(struct i2c_client *client)
-
-__devexit, not __exit.
+static
 
 > +{
-> +	struct max7359_keypad *keypad = i2c_get_clientdata(client);
-> +
-> +	cancel_work_sync(&keypad->work);
-> +	input_unregister_device(keypad->input_dev);
-> +	free_irq(keypad->irq, keypad);
-> +	i2c_set_clientdata(client, NULL);
-> +	kfree(keypad);
-> +
-> +	return 0;
+> +       return platform_driver_register(&w90x900ts_driver);
 > +}
 > +
-> +static int max7359_suspend(struct i2c_client *client, pm_message_t mesg)
+> +static void __exit w90x900ts_exit(void)
 > +{
-> +	/* If no keys are pressed, enter sleep mode for 8192 ms */
-
-What happens if there are keys that are pressed?
-
-> +	max7359_write_reg(client, MAX7359_REG_SLEEP, 0x01);
-> +
-> +	return 0;
+> +       platform_driver_unregister(&w90x900ts_driver);
 > +}
 > +
-> +static int max7359_resume(struct i2c_client *client)
-> +{
-> +	/* Restore the default setting (autosleep for 256 ms) */
-> +	max7359_write_reg(client, MAX7359_REG_SLEEP, 0x07);
+> +module_init(w90x900ts_init);
+> +module_exit(w90x900ts_exit);
 > +
-> +	return 0;
-> +}
+> +MODULE_AUTHOR("PT50 zswan <mcuos.com@gmail.com>");
+> +MODULE_DESCRIPTION("w90p910 touch screen driver!");
+> +MODULE_LICENSE("GPL");
+> 
 
-Could we also have similar open and close? It seems prudent to be in low
-power mode if there are no users of the device.
-
-> +
-> +static const struct i2c_device_id max7359_ids[] = {
-> +	{ "max7359", 0 },
-> +	{ }
-> +};
-> +MODULE_DEVICE_TABLE(i2c, max7359_ids);
-> +
-> +static struct i2c_driver max7359_i2c_driver = {
-> +	.driver = {
-> +		.name = "max7359",
-> +	},
-> +	.probe		= max7359_probe,
-> +	.remove		= __exit_p(max7359_remove),
-
-__devexit_p();
-
-> +	.suspend	= max7359_suspend,
-> +	.resume		= max7359_resume,
-
-Guard suspend/resume with #ifdef CONFIG_PM please.
-
-> +	.id_table	= max7359_ids,
-> +};
-> +
-> +static int __init max7359_init(void)
-> +{
-> +	return i2c_add_driver(&max7359_i2c_driver);
-> +}
-> +module_init(max7359_init);
-> +
-> +static void __exit max7359_exit(void)
-> +{
-> +	i2c_del_driver(&max7359_i2c_driver);
-> +}
-> +module_exit(max7359_exit);
-> +
-> +MODULE_AUTHOR("Kim Kyuwon <q1.kim@samsung.com>");
-> +MODULE_DESCRIPTION("MAX7359 Key Switch Controller Driver");
-> +MODULE_LICENSE("GPL v2");
-
-> diff --git a/include/linux/max7359_keypad.h b/include/linux/max7359_keypad.h
-> new file mode 100644
-> index 0000000..c9477a5
-> --- /dev/null
-> +++ b/include/linux/max7359_keypad.h
-> @@ -0,0 +1,30 @@
-> +/*
-> + * max7359_keypad.h - MAX7359 Keypad Controller Driver
-> + *
-> + * Copyright (C) 2009 Samsung Electronics
-> + * Kim Kyuwon <q1.kim@samsung.com>
-> + *
-> + * Based on pxa27x_keypad.c
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
-> + *
-> + * Datasheet: http://www.maxim-ic.com/quick_view2.cfm/qv_pk/5456
-> + */
-> +
-> +#ifndef _MAX7359_KEYPAD_H_
-> +#define _MAX7359_KEYPAD_H_
-> +
-> +#define MAX_MATRIX_KEY_ROWS	8
-> +#define MAX_MATRIX_KEY_COLS	8
-
-These names are too generic, may clash with other #includes
-eventially... adding MAX7359_ prefix seems prudent.
-
-> +
-> +struct max7359_keypad_platform_data {
-> +	/* code map for the keys */
-> +	unsigned int	*key_map;
-> +	unsigned int	key_map_size;
-> +};
-> +
-> +#define KEY(row, col, val)	(((row) << 28) | ((col) << 24) | (val))
-> +
-> +#endif /* _MAX7359_KEYPAD_H_ */
-> -- 
-> 1.5.2.5
-
-Thanks.
+Also, please run the patch through scripts/checkpatch.pl and make sure
+it does not complain. Thanks!
 
 -- 
 Dmitry

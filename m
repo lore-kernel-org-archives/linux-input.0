@@ -1,39 +1,32 @@
-From: =?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP0YjQvtCy?=
-	<sergey.belyashov@gmail.com>
-Subject: Re: [PATCH] autocentering support for Logitech Force 3D Pro
-Date: Mon, 11 May 2009 20:13:56 +0400
-Message-ID: <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com>
-References: <bb829a0b0905081244j36d069bfre73eba5d170494b3@mail.gmail.com>
-	 <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de>
+From: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] hid: add force feedback support for SmartJoy PLUS
+	PS2/USB adapter
+Date: Mon, 11 May 2009 14:46:20 -0700
+Message-ID: <20090511214620.GA22717@kroah.com>
+References: <20090508074636.16912.55839.stgit@fate.lan> <alpine.LNX.2.00.0905111712410.22712@wotan.suse.de> <4A0848E7.9080301@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ey-out-2122.google.com ([74.125.78.27]:37612 "EHLO
-	ey-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751441AbZEKQN4 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 May 2009 12:13:56 -0400
-Received: by ey-out-2122.google.com with SMTP id 9so913364eyd.37
-        for <linux-input@vger.kernel.org>; Mon, 11 May 2009 09:13:56 -0700 (PDT)
-In-Reply-To: <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de>
+Received: from kroah.org ([198.145.64.141]:43337 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753198AbZEKVzx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 11 May 2009 17:55:53 -0400
+Content-Disposition: inline
+In-Reply-To: <4A0848E7.9080301@suse.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org
+To: Jiri Slaby <jslaby@suse.cz>
+Cc: Jiri Kosina <jkosina@suse.cz>, Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-   Of course I agree.
-   How about axes information in EVIOCGBIT(EV_FF,...)?
+On Mon, May 11, 2009 at 05:48:55PM +0200, Jiri Slaby wrote:
+> Here comes some of my comments to the rest:
+> 
+> +#define debug(format, arg...) pr_debug("hid-sjoyff: " format "\n" , ## arg)
+> 
+> Define pr_fmt instead of this.
 
-Best regards,
-Sergey Belyashov
+No, please use dev_dbg() instead of creating a new macro.
 
-2009/5/11 Jiri Kosina <jkosina@suse.cz>:
-> On Fri, 8 May 2009, ?????? ??????? wrote:
->
-> Therefore, I would propose merging your patch no. 1, if you agree.
->
-> Thanks,
->
-> --
-> Jiri Kosina
-> SUSE Labs
+thanks,
+
+greg k-h

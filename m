@@ -1,45 +1,49 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] Wacom Graphire Bluetooth driver (updated with a few
- fixes)
-Date: Mon, 11 May 2009 17:20:32 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0905111719140.22712@wotan.suse.de>
-References: <1236988799.32264.6310.camel@cookie.hadess.net>  <1237247755.32264.10664.camel@cookie.hadess.net> <1241622842.2535.8267.camel@cookie.hadess.net>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 2/2] Input: tsc2007: do I2C transfers in non-interrupt
+	context
+Date: Mon, 11 May 2009 08:38:09 -0700
+Message-ID: <20090511153808.GA6973@dtor-d630.eng.vmware.com>
+References: <483a38b80905110444n7d55b967j70cf2639dff1c706@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:43485 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751404AbZEKPUc (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 11 May 2009 11:20:32 -0400
-In-Reply-To: <1241622842.2535.8267.camel@cookie.hadess.net>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <483a38b80905110444n7d55b967j70cf2639dff1c706@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+Cc: Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Bastien Nocera <hadess@hadess.net>
-Cc: linux-input <linux-input@vger.kernel.org>
 
-On Wed, 6 May 2009, Bastien Nocera wrote:
+Hi,
 
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+On Mon, May 11, 2009 at 08:44:00PM +0900, Kwangwoo Lee wrote:
+> From d5de0d22109de7564f9bf1df688acbe6b18f41db Mon Sep 17 00:00:00 2001
+> From: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+> Date: Mon, 11 May 2009 20:05:50 +0900
+> Subject: [PATCH 2/2] Input: tsc2007: do I2C transfers in non-interrupt context.
 > 
-> Based on the work by Andrew Zabolotny, an HID driver for the Bluetooth
-> Wacom tablet. This is required as it uses a slightly different
-> protocols from what's currently support by the drivers/input/wacom*
-> driver, and those only support USB.
+> This patch enhances pointer movements much smoother.
+> The original patch is written by Thierry.
+> 
+> Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+> Signed-off-by: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+> ---
+>  drivers/input/touchscreen/tsc2007.c |   18 ++++++++++++++----
+>  1 files changed, 14 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/tsc2007.c
+> b/drivers/input/touchscreen/tsc2007.c
+> index 948e167..03bbe58 100644
+> --- a/drivers/input/touchscreen/tsc2007.c
+> +++ b/drivers/input/touchscreen/tsc2007.c
+> @@ -70,6 +70,7 @@ struct ts_event {
+>  struct tsc2007 {
+>  	struct input_dev	*input;
+>  	char			phys[32];
+> +	struct work_struct	work;
 
-Hi Bastien,
-
-thanks for the driver.
-
-> +HID_COMPAT_LOAD_DRIVER(wacom);
-
-We don't need this one anymore, the HID_COMPAT stuff has gone away 
-completely already.
-
-Otherwise, it looks good. So if you agree, I will remove the COMPAT stuff 
-and queue it in my tree.
-
-Thanks,
+Every time I see a work_struct in a driver and don't see
+cancel_work_sync() anywhere I know there are issues...
 
 -- 
-Jiri Kosina
-SUSE Labs
+Dmitry

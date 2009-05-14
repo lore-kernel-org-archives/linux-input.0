@@ -1,57 +1,61 @@
-From: Harvey Harrison <harvey.harrison@gmail.com>
-Subject: Re: [patch 3/9] input: ads7846.c sparse lock annotation
-Date: Wed, 13 May 2009 20:34:27 -0700
-Message-ID: <1242272067.23058.3.camel@brick>
-References: <200905122102.n4CL2L95006887@imap1.linux-foundation.org>
-	 <20090514032404.GC12778@dtor-d630.eng.vmware.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [linux 2.6] new mouse driver looking for review and
+	integration (fwd)
+Date: Wed, 13 May 2009 20:40:13 -0700
+Message-ID: <20090514034004.GE12778@dtor-d630.eng.vmware.com>
+References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz> <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz> <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-pz0-f115.google.com ([209.85.222.115]:45796 "EHLO
-	mail-pz0-f115.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753628AbZENDea (ORCPT
+Received: from wf-out-1314.google.com ([209.85.200.170]:28020 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753261AbZENDkW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 May 2009 23:34:30 -0400
-Received: by pzk13 with SMTP id 13so442948pzk.33
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2009 20:34:31 -0700 (PDT)
-In-Reply-To: <20090514032404.GC12778@dtor-d630.eng.vmware.com>
+	Wed, 13 May 2009 23:40:22 -0400
+Received: by wf-out-1314.google.com with SMTP id 26so656115wfd.4
+        for <linux-input@vger.kernel.org>; Wed, 13 May 2009 20:40:23 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: akpm@linux-foundation.org, linux-input@vger.kernel.org
+To: Tai-hwa Liang <avatar@sentelic.com>
+Cc: linux-input@vger.kernel.org
 
-On Wed, 2009-05-13 at 20:24 -0700, Dmitry Torokhov wrote:
-> On Tue, May 12, 2009 at 01:43:06PM -0700, akpm@linux-foundation.org wrote:
-> > From: Harvey Harrison <harvey.harrison@gmail.com>
-> > 
-> > Signed-off-by: Harvey Harrison <harvey.harrison@gmail.com>
-> > Cc: Dmitry Torokhov <dtor@mail.ru>
-> > Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> > ---
-> >  
-> >  /* Must be called with ts->lock held */
-> >  static void ads7846_disable(struct ads7846 *ts)
-> > +__releases(&ts->lock)
-> > +__acquires(&ts->lock)
-> >  {
-> 
-> I still haven't gotten any explanation why this is needed and also I am
-> still getting sparce warnings with this patch applied. Please drop.
-> 
+On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
+> On Fri, 8 May 2009, Dmitry Torokhov wrote:
+>> Hi Tai-hwa,
+>>
+>> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
+>> > Hi, Dmitry,
+>> >
+>> >    I'm wondering about the status of the patch you submitted to git.  Will
+>> > it being merged into 2.6.31?
+>> >
+>>
+>> I really need to get back to it. The weekend is coming up, I should 
+>> have time to go over it, I shall respond by Monday.
+>
+>   Thanks.  Where is the git repository I can use to retrieve the code you've
+> submitted?  I have a few changes for your patched code.
+>
 
-Sorry, I didn't realize I had a local patchset doing extra context checking
-of what lock is passed in to spin_lock/unlock...it helps to document when a
-function requires a lock held (see the comment)
+I have created "sentelic" branch here:
 
-The culprit in this function:
-		while (ts->pending) {
-			spin_unlock_irq(&ts->lock);
-			msleep(1);
-			spin_lock_irq(&ts->lock);
-		}
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
 
-Anyways, as current sparse will still warn please drop.
+I fetched the latest version of the driver off the sourceforge page and
+used it as the baseline.
 
-Harvey
+The idea is to implement full absolute packet support and not rely on
+relative packets because users will expect Synaptics X driver work with
+this device as it works with all other touchpads (Synaptics, ALPS,
+Elantec, BCM, appletouch).
 
+BTW, I have a few questions regarding protocol:
+
+What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
+
+Thanks!
+
+-- 
+Dmitry

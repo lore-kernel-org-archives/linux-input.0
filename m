@@ -1,1014 +1,230 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH] input: add synaptics_i2c driver
-Date: Thu, 14 May 2009 12:04:02 +0300
-Message-ID: <4A0BDE82.5070006@compulab.co.il>
-References: <1242225003-8049-1-git-send-email-mike@compulab.co.il>	<20090514025030.GB9461@dtor-d630.eng.vmware.com> <20090514092818.39a83282@hyperion.delvare>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] TSC2007: private data for platform callbacks.
+Date: Thu, 14 May 2009 15:58:19 +0530
+Message-ID: <5d5443650905140328v319e673o2f7b865e21619486@mail.gmail.com>
+References: <20090514100909.GA23626@roarinelk.homelinux.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cathcart.site5.com ([74.54.107.137]:54409 "EHLO
-	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752422AbZENJEK (ORCPT
+Received: from mail-qy0-f133.google.com ([209.85.221.133]:56360 "EHLO
+	mail-qy0-f133.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752811AbZENK2U convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 May 2009 05:04:10 -0400
-In-Reply-To: <20090514092818.39a83282@hyperion.delvare>
+	Thu, 14 May 2009 06:28:20 -0400
+In-Reply-To: <20090514100909.GA23626@roarinelk.homelinux.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, grinberg@compulab.co.il, linux-input@vger.kernel.org
+To: Manuel Lauss <mano@roarinelk.homelinux.net>
+Cc: Kwangwoo Lee <kwlee@mtekvision.com>, linux-kernel@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Hi Jean,
+Hi Manuel,
 
-Jean Delvare wrote:
-> Hi Mike, Dmitry,
-> 
-> On Wed, 13 May 2009 19:50:39 -0700, Dmitry Torokhov wrote:
->> On Wed, May 13, 2009 at 05:30:03PM +0300, Mike Rapoport wrote:
->>> From: Igor Grinberg <grinberg@compulab.co.il>
->>>
->>> This patch adds support for Synaptics i2c touchpad controller found on
->>> eXeda machine.
->> I am CCing Jean Delvare for review of I2C bits.
-> 
-> Here you go:
+CCing linux-input mailing list, so not deleting any code from this
+e-mail while replying.
 
->>> +
->>> +	return 	i2c_smbus_read_byte_data(client, reg & 0xff);
-> 
-> Doubled space.
+On Thu, May 14, 2009 at 3:39 PM, Manuel Lauss
+<mano@roarinelk.homelinux.net> wrote:
+> Add a private data field to the tsc2007 platform data and pass this
+> to the callbacks.
 
-Fixed.
+I hope that you have created this patch on top of two recently posted
+patches by Kwangwoo Lee
+to merge changes from Thierry.
 
->>> +}
->>> +
->>> +static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
->>> +
->>> +static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
->>> +
->>> +static s32 synaptics_i2c_block_read(struct i2c_client *client,
->>> +				    u16 reg, u8 length, u8 *values)
-> 
-> Function name is a little inconsistent (_read vs. _get/_set).
-
-I've changed it to block_get as well.
-
->>> +{
->>> +	int ret;
->>> +
->>> +	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
->>> +	if (ret)
->>> +		return ret;
->>> +
->>> +	return i2c_smbus_read_i2c_block_data(client, reg & 0xff,
->>> +					     length, values);
->>> +}
-> 
-> All the functions above lack a common locking mechanism. As register
-> access needs to select a page beforehand, this is not atomic at the bus
-> level so you need to serialize access yourself. Unless concurrent call
-> of the functions above is never possible by design, of course, but you
-> should add a comment explaining this then.
-
-Added mutex to all the _get/_set methods.
-
->>> +
->>> +static int synaptics_i2c_query(struct i2c_client *client)
->>> +	}
->>> +	if (retry_count >= 5)
->>> +		dev_warn(&client->dev,
->>> +			  "Query command failed: block read failed\n");
-> 
-> ... but only warn about errors after 5 failures. This is never going to
-> happen. I suggest moving all the dev_info() calls out of the above loop
-> and changing the second test to make the code more robust:
-
-Done. Thanks for the code.
-
-> 	for (retry_count = 0; retry_count < 3; retry_count++) {
-
->>> (...)
->>> +struct synaptics_i2c *synaptics_i2c_touch_create(struct i2c_client *client)
->>> +{
->>> +	struct synaptics_i2c *touch;
->>> +
->>> +	touch = kzalloc(sizeof(struct synaptics_i2c), GFP_KERNEL);
->>> +	if (!touch)
->>> +		return NULL;
->>> +
->>> +	memset(touch, 0, sizeof(struct synaptics_i2c));
-> 
-> That's pointless, kzalloc() already did it for you.
-
-Fixed.
-
->>> +	touch->client = client;
->>> +	touch->no_decel_param = no_decel;
->>> +	touch->scan_rate_param = scan_rate;
->>> +	set_scan_rate(touch, scan_rate);
->>> +	touch->accel_param = accel;
->>> +	set_acceleration(touch, accel);
->>> +	init_completion(&touch->touch_completion);
->>> +	init_completion(&touch->thread_completion);
->>> +
->>> +	return touch;
->>> +}
->>> +
-> 
->>> (...)
->>> +static const struct i2c_device_id synaptics_i2c_id_table[] = {
->>> +	{ DRIVER_NAME, 0 },
 >
-> This is conceptually wrong, what goes in this table are _device_ names
-> and not _driver_ names - even though it might happen to be the same
-> string in your case.
+> Signed-off-by: Manuel Lauss <mano@roarinelk.homelinux.net>
+> ---
+> =A0drivers/input/touchscreen/tsc2007.c | =A0 52 +++++++++++++++++++++=
+++-----------
+> =A0include/linux/i2c/tsc2007.h =A0 =A0 =A0 =A0 | =A0 10 ++++---
+> =A02 files changed, 41 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/touc=
+hscreen/tsc2007.c
+> index 948e167..5c4242d 100644
+> --- a/drivers/input/touchscreen/tsc2007.c
+> +++ b/drivers/input/touchscreen/tsc2007.c
+> @@ -83,10 +83,35 @@ struct tsc2007 {
+> =A0 =A0 =A0 =A0unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pendown;
+> =A0 =A0 =A0 =A0int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 irq;
+>
+> - =A0 =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (*get_pendo=
+wn_state)(void);
+> - =A0 =A0 =A0 void =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(*clear_pen=
+irq)(void);
+> + =A0 =A0 =A0 struct tsc2007_platform_data *pd;
+> =A0};
+>
+> +/* ask platform for pendown state */
+> +static inline int ts_get_pendown_state(struct tsc2007 *ts)
+> +{
+> + =A0 =A0 =A0 return ts->pd->get_pendown_state(ts->pd->priv);
 
-Fixed.
+So, we don't need check here, like this:
 
->>> +	{ },
->>> +};
->>> +MODULE_DEVICE_TABLE(i2c, synaptics_i2c_id_table);
->>> +
->>> +static int synaptics_i2c_probe(struct i2c_client *client,
->>> +			       const struct i2c_device_id *dev_id)
->>> +{
->>> +	int ret;
->>> +	struct synaptics_i2c *touch = NULL;
-> 
-> Initialization not needed AFAICS.
+if (ts->pd->get_pendown_state)
+          ret =3D  ts->pd->get_pendown_state(ts->pd->priv);
 
-Fixed.
+> +}
+> +
+> +/* ask platform to clear pendown irq if available */
+> +static inline void ts_clear_penirq(struct tsc2007 *ts)
+> +{
+> + =A0 =A0 =A0 if (ts->pd->clear_penirq)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->pd->clear_penirq(ts->pd->priv);
+> +}
+> +
+> +static inline void ts_init_platform_hw(struct tsc2007 *ts)
+> +{
+> + =A0 =A0 =A0 if (ts->pd->init_platform_hw)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->pd->init_platform_hw(ts->pd->priv);
+> +}
+> +
+> +static inline void ts_exit_platform_hw(struct tsc2007 *ts)
+> +{
+> + =A0 =A0 =A0 if (ts->pd->exit_platform_hw)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->pd->exit_platform_hw(ts->pd->priv);
+> +}
+> +
+> +
+> =A0static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
+> =A0{
+> =A0 =A0 =A0 =A0s32 data;
+> @@ -129,7 +154,7 @@ static void tsc2007_send_event(void *tsc)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt =3D z2;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt -=3D z1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt *=3D x;
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 rt *=3D ts->x_plate_ohms;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 rt *=3D ts->pd->x_plate_ohms;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt /=3D z1;
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt =3D (rt + 2047) >> 12;
+> =A0 =A0 =A0 =A0} else
+> @@ -204,7 +229,7 @@ static enum hrtimer_restart tsc2007_timer(struct =
+hrtimer *handle)
+>
+> =A0 =A0 =A0 =A0spin_lock_irqsave(&ts->lock, flags);
+>
+> - =A0 =A0 =A0 if (unlikely(!ts->get_pendown_state() && ts->pendown)) =
+{
+> + =A0 =A0 =A0 if (unlikely(!ts_get_pendown_state(ts) && ts->pendown))=
+ {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct input_dev *input =3D ts->input;
+>
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&ts->client->dev, "UP\n");
+> @@ -235,14 +260,13 @@ static irqreturn_t tsc2007_irq(int irq, void *h=
+andle)
+>
+> =A0 =A0 =A0 =A0spin_lock_irqsave(&ts->lock, flags);
+>
+> - =A0 =A0 =A0 if (likely(ts->get_pendown_state())) {
+> + =A0 =A0 =A0 if (likely(ts_get_pendown_state(ts))) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0disable_irq_nosync(ts->irq);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hrtimer_start(&ts->timer, ktime_set(0,=
+ TS_POLL_DELAY),
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0HRTIMER_MODE_REL);
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 if (ts->clear_penirq)
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->clear_penirq();
+> + =A0 =A0 =A0 ts_clear_penirq(ts);
+>
+> =A0 =A0 =A0 =A0spin_unlock_irqrestore(&ts->lock, flags);
+>
+> @@ -253,7 +277,7 @@ static int tsc2007_probe(struct i2c_client *clien=
+t,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0const struct i2c_devic=
+e_id *id)
+> =A0{
+> =A0 =A0 =A0 =A0struct tsc2007 *ts;
+> - =A0 =A0 =A0 struct tsc2007_platform_data *pdata =3D pdata =3D clien=
+t->dev.platform_data;
+> + =A0 =A0 =A0 struct tsc2007_platform_data *pdata =3D client->dev.pla=
+tform_data;
 
->>> +
->>> +	ret = synaptics_i2c_reset_config(client);
->>> +
->>> +err_mem:
->>> +	dev_err(&client->dev, "Insufficient memory\n");
->>> +	ret = -ENOMEM;
->>> +
->>> +err_free:
->>> +	input_free_device(touch->input);
-> 
-> touch may be NULL at this point, in which case your driver will crash.
-> This whole error path is weird, you should really just undo things in
-> the reverse order the function did them to avoid that kind of mistake.
+This change shows that you need to rebase based on two patches
+submitted by Lee recently.
 
-Fixed.
-
->>> +	i2c_set_clientdata(client, NULL);
->>> +	kfree(touch);
->>> +
->>> +	return ret;
->>> +}
-> 
-> The rest looks OK.
-> 
-
-Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
-Signed-off-by: Mike Rapoport <mike@compulab.co.il>
----
- drivers/input/mouse/Kconfig         |    9 +
- drivers/input/mouse/Makefile        |    1 +
- drivers/input/mouse/synaptics_i2c.c |  793 +++++++++++++++++++++++++++++++++++
- 3 files changed, 803 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/mouse/synaptics_i2c.c
-
-diff --git a/drivers/input/mouse/Kconfig b/drivers/input/mouse/Kconfig
-index c66cc3d..89192f5 100644
---- a/drivers/input/mouse/Kconfig
-+++ b/drivers/input/mouse/Kconfig
-@@ -303,4 +303,13 @@ config MOUSE_MAPLE
- 	  To compile this driver as a module choose M here: the module will be
- 	  called maplemouse.
-
-+config MOUSE_SYNAPTICS_I2C
-+	tristate "Synaptics I2C Touchpad support"
-+	depends on I2C
-+	help
-+	  Say y here if you want to use a Synaptics I2C Touchpad.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called synaptics_i2c.
-+
- endif
-diff --git a/drivers/input/mouse/Makefile b/drivers/input/mouse/Makefile
-index 4721894..010f265 100644
---- a/drivers/input/mouse/Makefile
-+++ b/drivers/input/mouse/Makefile
-@@ -18,6 +18,7 @@ obj-$(CONFIG_MOUSE_PS2)			+= psmouse.o
- obj-$(CONFIG_MOUSE_PXA930_TRKBALL)	+= pxa930_trkball.o
- obj-$(CONFIG_MOUSE_RISCPC)		+= rpcmouse.o
- obj-$(CONFIG_MOUSE_SERIAL)		+= sermouse.o
-+obj-$(CONFIG_MOUSE_SYNAPTICS_I2C)	+= synaptics_i2c.o
- obj-$(CONFIG_MOUSE_VSXXXAA)		+= vsxxxaa.o
-
- psmouse-objs := psmouse-base.o synaptics.o
-diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-new file mode 100644
-index 0000000..7e153a8
---- /dev/null
-+++ b/drivers/input/mouse/synaptics_i2c.c
-@@ -0,0 +1,793 @@
-+/*
-+ * Synaptics touchpad with I2C interface
-+ *
-+ * Copyright (C) 2009 Compulab, Ltd.
-+ * Mike Rapoport <mike@compulab.co.il>
-+ * Igor Grinberg <grinberg@compulab.co.il>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file COPYING in the main directory of this archive for
-+ * more details.
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/ctype.h>
-+#include <linux/uaccess.h>
-+#include <linux/i2c.h>
-+#include <linux/irq.h>
-+#include <linux/interrupt.h>
-+#include <linux/input.h>
-+#include <linux/delay.h>
-+#include <linux/kthread.h>
-+#include <linux/completion.h>
-+#include <linux/freezer.h>
-+
-+#define DRIVER_NAME		"synaptics_i2c"
-+/* According to RMI manual, maximum product id is 15 characters */
-+#define PRODUCT_ID_LENGTH	15
-+#define REGISTER_LENGTH		8
-+
-+/* According to RMI manual, after soft reset, we should */
-+/* wait for 1 ms before the device becomes operational */
-+#define SOFT_RESET_DELAY_MS	3
-+/* and after hard reset, we should wait for max 500ms */
-+#define HARD_RESET_DELAY_MS	500
-+
-+/* Define Registers by SMBus address */
-+#define PAGE_SEL_REG		0xff
-+#define DEVICE_STATUS_REG	0x09
-+
-+/* Define Registers by RMI address */
-+#define DEV_CONTROL_REG		0x0000
-+#define INTERRUPT_EN_REG	0x0001
-+#define ERR_STAT_REG		0x0002
-+#define INT_REQ_STAT_REG	0x0003
-+#define DEV_COMMAND_REG		0x0004
-+
-+#define RMI_PROT_VER_REG	0x0200
-+#define MANUFACT_ID_REG		0x0201
-+#define PHYS_INT_VER_REG	0x0202
-+#define PROD_PROPERTY_REG	0x0203
-+#define INFO_QUERY_REG0		0x0204
-+#define INFO_QUERY_REG1		(INFO_QUERY_REG0 + 1)
-+#define INFO_QUERY_REG2		(INFO_QUERY_REG0 + 2)
-+#define INFO_QUERY_REG3		(INFO_QUERY_REG0 + 3)
-+
-+#define PRODUCT_ID_REG0		0x0210
-+#define PRODUCT_ID_REG1		(PRODUCT_ID_REG0 + 1)
-+#define PRODUCT_ID_REG2		(PRODUCT_ID_REG0 + 2)
-+#define PRODUCT_ID_REG3		(PRODUCT_ID_REG0 + 3)
-+#define PRODUCT_ID_REG4		(PRODUCT_ID_REG0 + 4)
-+#define PRODUCT_ID_REG5		(PRODUCT_ID_REG0 + 5)
-+#define PRODUCT_ID_REG6		(PRODUCT_ID_REG0 + 6)
-+#define PRODUCT_ID_REG7		(PRODUCT_ID_REG0 + 7)
-+#define PRODUCT_ID_REG8		(PRODUCT_ID_REG0 + 8)
-+#define PRODUCT_ID_REG9		(PRODUCT_ID_REG0 + 9)
-+#define PRODUCT_ID_REG10	(PRODUCT_ID_REG0 + 10)
-+#define PRODUCT_ID_REG11	(PRODUCT_ID_REG0 + 11)
-+#define PRODUCT_ID_REG12	(PRODUCT_ID_REG0 + 12)
-+#define PRODUCT_ID_REG13	(PRODUCT_ID_REG0 + 13)
-+#define PRODUCT_ID_REG14	(PRODUCT_ID_REG0 + 14)
-+#define PRODUCT_ID_REG15	(PRODUCT_ID_REG0 + 15)
-+
-+#define DATA_REG0		0x0400
-+#define ABS_PRESSURE_REG	0x0401
-+#define ABS_MSB_X_REG		0x0402
-+#define ABS_LSB_X_REG		(ABS_MSB_X_REG + 1)
-+#define ABS_MSB_Y_REG		0x0404
-+#define ABS_LSB_Y_REG		(ABS_MSB_Y_REG + 1)
-+#define REL_X_REG		0x0406
-+#define REL_Y_REG		0x0407
-+
-+#define DEV_QUERY_REG0		0x1000
-+#define DEV_QUERY_REG1		(DEV_QUERY_REG0 + 1)
-+#define DEV_QUERY_REG2		(DEV_QUERY_REG0 + 2)
-+#define DEV_QUERY_REG3		(DEV_QUERY_REG0 + 3)
-+#define DEV_QUERY_REG4		(DEV_QUERY_REG0 + 4)
-+#define DEV_QUERY_REG5		(DEV_QUERY_REG0 + 5)
-+#define DEV_QUERY_REG6		(DEV_QUERY_REG0 + 6)
-+#define DEV_QUERY_REG7		(DEV_QUERY_REG0 + 7)
-+#define DEV_QUERY_REG8		(DEV_QUERY_REG0 + 8)
-+
-+#define GENERAL_2D_CONTROL_REG	0x1041
-+#define SENSOR_SENSITIVITY_REG	0x1044
-+#define SENS_MAX_POS_MSB_REG	0x1046
-+#define SENS_MAX_POS_LSB_REG	(SENS_MAX_POS_UPPER_REG + 1)
-+
-+/* Define Register bits */
-+/* Device Control Register Bits */
-+#define REPORT_RATE_1ST_BIT	6
-+
-+/* Interrupt Enable Register Bits (INTERRUPT_EN_REG) */
-+#define F10_ABS_INT_ENA		0
-+#define F10_REL_INT_ENA		1
-+#define F20_INT_ENA		2
-+
-+/* Interrupt Request Register Bits (INT_REQ_STAT_REG | DEVICE_STATUS_REG) */
-+#define F10_ABS_INT_REQ		0
-+#define F10_REL_INT_REQ		1
-+#define F20_INT_REQ		2
-+/* Device Status Register Bits (DEVICE_STATUS_REG) */
-+#define STAT_CONFIGURED		6
-+#define STAT_ERROR		7
-+
-+/* Device Command Register Bits (DEV_COMMAND_REG) */
-+#define RESET_COMMAND		0x01
-+#define REZERO_COMMAND		0x02
-+
-+/* Data Register 0 Bits (DATA_REG0) */
-+#define GESTURE			3
-+
-+/* Device Query Registers Bits */
-+/* DEV_QUERY_REG3 */
-+#define HAS_PALM_DETECT		1
-+#define HAS_MULTI_FING		2
-+#define HAS_SCROLLER		4
-+#define HAS_2D_SCROLL		5
-+
-+/* General 2D Control Register Bits (GENERAL_2D_CONTROL_REG) */
-+#define NO_DECELERATION		1
-+#define REDUCE_REPORTING	3
-+#define NO_FILTER		5
-+
-+#define GET_BIT(bit, val)	(((val) >> (bit)) & 0x01)
-+
-+/* Define Function Masks */
-+/* Device Control Register Masks (DEV_CONTROL_REG) */
-+#define REPORT_RATE_MSK		0xc0
-+#define SLEEP_MODE_MSK		0x07
-+
-+/* Interrupt Register Mask */
-+/* (INT_REQ_STAT_REG | DEVICE_STATUS_REG | INTERRUPT_EN_REG) */
-+#define INT_ENA_REQ_MSK		0x07
-+#define INT_ENA_ABS_MSK		0x01
-+#define INT_ENA_REL_MSK		0x02
-+#define INT_ENA_F20_MSK		0x04
-+
-+/* Device Status Register Masks (DEVICE_STATUS_REG) */
-+#define CONFIGURED_MSK		0x40
-+#define ERROR_MSK		0x80
-+
-+/* Data Register 0 Masks */
-+#define FINGER_WIDTH_MSK	0xf0
-+#define GESTURE_MSK		0x08
-+#define SENSOR_STATUS_MSK	0x07
-+
-+/* MSB Position Register Masks */
-+/* ABS_MSB_X_REG | ABS_MSB_Y_REG | SENS_MAX_POS_MSB_REG |  */
-+/* DEV_QUERY_REG3 | DEV_QUERY_REG5 */
-+#define MSB_POSITION_MSK	0x1f
-+
-+/* Device Query Registers Masks */
-+/* DEV_QUERY_REG2 */
-+#define NUM_EXTRA_POS_MSK	0x07
-+
-+/* When in IRQ mode read the device every THREAD_IRQ_SLEEP_SECS */
-+#define THREAD_IRQ_SLEEP_SECS	2
-+#define THREAD_IRQ_SLEEP_MSECS	(THREAD_IRQ_SLEEP_SECS * MSEC_PER_SEC)
-+
-+/* When in Polling mode and no data received for NO_DATA_THRES msecs*/
-+/* reduce the polling rate to NO_DATA_SLEEP_MSECS */
-+#define NO_DATA_THRES		(MSEC_PER_SEC)
-+#define NO_DATA_SLEEP_MSECS	(MSEC_PER_SEC / 4)
-+
-+/* The Acceleration Factor:
-+ * from 0.5 (1) to 4 (8) in dozes of 0.5
-+ * the transformation is done in order to get 0.5 resolution.
-+ * values above 8 will affect poor performance without proper smoothing.
-+ */
-+#define ACCEL_DIVIDER 10
-+#define ACCEL_DOZE 2
-+static int accel = 4;
-+module_param(accel, int, 0644);
-+MODULE_PARM_DESC(accel, "Set Acceleration parameter 1..8. Default = 4");
-+
-+/* Control touchpad's No Deceleration option */
-+static int no_decel = 1;
-+module_param(no_decel, bool, 0644);
-+MODULE_PARM_DESC(no_decel, "No Deceleration. Default = 1 (on)");
-+
-+/* Control touchpad's Reduced Reporting option */
-+static int reduce_report;
-+module_param(reduce_report, bool, 0644);
-+MODULE_PARM_DESC(reduce_report, "Reduced Reporting. Default = 0 (off)");
-+
-+/* Control touchpad's No Filter option */
-+static int no_filter;
-+module_param(no_filter, bool, 0644);
-+MODULE_PARM_DESC(no_filter, "No Filter. Default = 0 (off)");
-+
-+/* According to Synaptics manual the Attention line is Active Low */
-+/* and Open Drain, therefore should be connected to pulled up line */
-+/* and the irq configuration should be set to Falling Edge Trigger */
-+/* Control IRQ / Polling option */
-+static int polling_req;
-+module_param(polling_req, bool, 0444);
-+MODULE_PARM_DESC(polling_req, "Request Polling. Default = 0 (use irq)");
-+
-+/* Control Polling Rate */
-+static int scan_rate = 80;
-+module_param(scan_rate, int, 0644);
-+MODULE_PARM_DESC(scan_rate, "Polling rate in times/sec. Default = 80");
-+
-+/* Print Device Info */
-+static int query;
-+module_param(query, bool, 0444);
-+MODULE_PARM_DESC(query, "Print Device Query. Default = 0");
-+
-+/* The main device structure */
-+struct synaptics_i2c {
-+	struct i2c_client	*client;
-+	struct input_dev	*input;
-+	struct task_struct	*thread;
-+	struct mutex		mutex;
-+
-+	struct completion	touch_completion;
-+	struct completion	thread_completion;
-+	int			thread_stop;
-+	int			suspend_link;
-+	int			users_count;
-+	int			no_data_count;
-+	int			no_decel_param;
-+	int			reduce_report_param;
-+	int			no_filter_param;
-+	int			scan_rate_param;
-+	int			accel_param;
-+	int			accel;	/* Transformed acceleration */
-+	int			scan_ms;
-+};
-+
-+static inline void set_acceleration(struct synaptics_i2c *touch, int accel)
-+{
-+	int acc = (accel < 1) ? 1 : ((accel > 8) ? 8 : accel);
-+	touch->accel = (acc * ACCEL_DIVIDER) / ACCEL_DOZE;
-+	touch->accel_param = accel;
-+}
-+
-+static inline void set_scan_rate(struct synaptics_i2c *touch, int scan_rate)
-+{
-+	touch->scan_ms = MSEC_PER_SEC / scan_rate;
-+	touch->scan_rate_param = scan_rate;
-+}
-+
-+static s32 synaptics_i2c_reg_get(struct i2c_client *client, u16 reg)
-+{
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+	int ret;
-+
-+	mutex_lock(&touch->mutex);
-+
-+	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
-+	if (!ret)
-+		ret = i2c_smbus_read_byte_data(client, reg & 0xff);
-+
-+	mutex_unlock(&touch->mutex);
-+
-+	return ret;
-+}
-+
-+static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
-+{
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+	int ret;
-+
-+	mutex_lock(&touch->mutex);
-+
-+	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
-+	if (!ret)
-+		ret = i2c_smbus_write_byte_data(client, reg & 0xff, val);
-+
-+	mutex_unlock(&touch->mutex);
-+
-+	return ret;
-+}
-+
-+static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
-+{
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+	int ret;
-+
-+	mutex_lock(&touch->mutex);
-+
-+	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
-+	if (!ret)
-+		ret = i2c_smbus_read_word_data(client, reg & 0xff);
-+
-+	mutex_unlock(&touch->mutex);
-+
-+	return ret;
-+}
-+
-+static s32 synaptics_i2c_block_get(struct i2c_client *client,
-+				    u16 reg, u8 length, u8 *values)
-+{
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+	int ret;
-+
-+	mutex_lock(&touch->mutex);
-+
-+	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
-+	if (!ret)
-+		ret = i2c_smbus_read_i2c_block_data(client, reg & 0xff,
-+						    length, values);
-+
-+	mutex_unlock(&touch->mutex);
-+
-+	return ret < 0 ? : 0;
-+}
-+
-+static int synaptics_i2c_query(struct i2c_client *client)
-+{
-+	u8 data[7];
-+	char id[PRODUCT_ID_LENGTH + 1];
-+	int ret, retry_count, control, status, sens;
-+
-+	/* DEV_QUERY_REG0 is the Function Query area for 2D devices. */
-+	/* We're only interested in entries DEV_QUERY_REG2 */
-+	/* and following registers right now. */
-+	for (retry_count = 0; retry_count < 3; retry_count++) {
-+		ret = synaptics_i2c_block_get(client, DEV_QUERY_REG2,
-+					       sizeof(data), data);
-+		if (ret == sizeof(data))
-+			break;
-+	}
-+
-+	if (ret == sizeof(data)) {
-+		dev_warn(&client->dev,
-+			  "Query command failed: block read failed\n");
-+	} else {
-+		dev_info(&client->dev, "Number of extra positions: %d\n",
-+			  data[0] & NUM_EXTRA_POS_MSK);
-+		dev_info(&client->dev, "Has 2D Scroll: %d\n",
-+			  GET_BIT(HAS_2D_SCROLL, data[1]));
-+		dev_info(&client->dev, "Has Scroller: %d\n",
-+			  GET_BIT(HAS_SCROLLER, data[1]));
-+		dev_info(&client->dev, "Has Multifing: %d\n",
-+			  GET_BIT(HAS_MULTI_FING, data[1]));
-+		dev_info(&client->dev, "Has Palm Det: %d\n",
-+			  GET_BIT(HAS_PALM_DETECT, data[1]));
-+		dev_info(&client->dev, "Sensor Max X: %d\n",
-+			((data[2] & MSB_POSITION_MSK) << REGISTER_LENGTH)
-+			| data[3]);
-+		dev_info(&client->dev, "Sensor Max Y: %d\n",
-+			((data[4] & MSB_POSITION_MSK) << REGISTER_LENGTH)
-+			| data[5]);
-+		dev_info(&client->dev, "Sensor Resolution: %d\n", data[6]);
-+	}
-+
-+	control = synaptics_i2c_reg_get(client, DEV_CONTROL_REG);
-+	dev_info(&client->dev, "Default Report Rate: 0x%x\n",
-+		  (control & REPORT_RATE_MSK) >> REPORT_RATE_1ST_BIT);
-+	dev_info(&client->dev, "Sleep Mode: 0x%x\n",
-+		  control & SLEEP_MODE_MSK);
-+
-+	/* The Touchpad's manual doesn't document the RMI address of the */
-+	/* Device Status Register and niether does RMI manual, */
-+	/* so we use the SMBus address */
-+	status = i2c_smbus_read_byte_data(client, DEVICE_STATUS_REG);
-+	dev_info(&client->dev, "Device Status Register: 0x%x\n", status);
-+
-+	sens = synaptics_i2c_reg_get(client, SENSOR_SENSITIVITY_REG);
-+	dev_info(&client->dev, "Sensor Sensitivity: 0x%x\n", sens);
-+
-+	for (retry_count = 0; retry_count < 3; retry_count++) {
-+		ret = synaptics_i2c_block_get(client, PRODUCT_ID_REG0,
-+					       sizeof(id), id);
-+		if (ret == sizeof(id)) {
-+			dev_info(&client->dev, "Product ID: %s\n", id);
-+			break;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int synaptics_i2c_config(struct i2c_client *client)
-+{
-+	int ret, control;
-+	u8 int_en;
-+
-+	/* set Report Rate to 40 and Sleep to normal */
-+	ret = synaptics_i2c_reg_set(client, DEV_CONTROL_REG, 0x41);
-+	if (ret)
-+		return ret;
-+
-+	/* set Interrupt Disable to Func20 / Enable to Func10) */
-+	int_en = (polling_req) ? 0 : INT_ENA_ABS_MSK | INT_ENA_REL_MSK;
-+	ret = synaptics_i2c_reg_set(client, INTERRUPT_EN_REG, int_en);
-+	if (ret)
-+		return ret;
-+
-+	control = synaptics_i2c_reg_get(client, GENERAL_2D_CONTROL_REG);
-+	/* No Deceleration */
-+	control |= (no_decel) ? 1 << NO_DECELERATION : 0;
-+	/* Reduced Reporting */
-+	control |= (reduce_report) ? 1 << REDUCE_REPORTING : 0;
-+	/* No Filter */
-+	control |= (no_filter) ? 1 << NO_FILTER : 0;
-+	ret = synaptics_i2c_reg_set(client, GENERAL_2D_CONTROL_REG, control);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int synaptics_i2c_reset_config(struct i2c_client *client)
-+{
-+	int ret;
-+	/* Reset the Touchpad */
-+	ret = synaptics_i2c_reg_set(client, DEV_COMMAND_REG, RESET_COMMAND);
-+	if (ret) {
-+		dev_err(&client->dev, "Unable to reset device\n");
-+	} else {
-+		mdelay(SOFT_RESET_DELAY_MS);
-+		ret = synaptics_i2c_config(client);
-+		if (ret)
-+			dev_err(&client->dev, "Unable to config device\n");
-+	}
-+
-+	return ret;
-+}
-+
-+static int synaptics_i2c_check_error(struct i2c_client *client)
-+{
-+	int status, ret = 0;
-+
-+	status = i2c_smbus_read_byte_data(client, DEVICE_STATUS_REG) &
-+		(CONFIGURED_MSK | ERROR_MSK);
-+	if (status != CONFIGURED_MSK)
-+		ret = synaptics_i2c_reset_config(client);
-+
-+	return ret;
-+}
-+
-+static int synaptics_i2c_get_input(struct synaptics_i2c *touch)
-+{
-+	struct input_dev *input = touch->input;
-+	int xy_delta, gesture;
-+	s8 x_delta, y_delta;
-+
-+	/* Deal with spontanious resets and errors */
-+	if (synaptics_i2c_check_error(touch->client))
-+		return 0;
-+
-+	/* Get Gesture Bit */
-+	gesture = GET_BIT(GESTURE,
-+			  synaptics_i2c_reg_get(touch->client, DATA_REG0));
-+
-+	/* Get Relative axes. According to RMI Manual, we have to get */
-+	/* them in one shot, so we get 2 bytes starting from REL_X_REG. */
-+	xy_delta = synaptics_i2c_word_get(touch->client, REL_X_REG) & 0xffff;
-+
-+	/* Separate X from Y */
-+	x_delta = xy_delta & 0xff;
-+	y_delta = (xy_delta >> REGISTER_LENGTH) & 0xff;
-+
-+	/* Report the button event */
-+	if (gesture)
-+		input_report_key(input, BTN_LEFT, 1);
-+	else
-+		input_report_key(input, BTN_LEFT, 0);
-+
-+	/* Report the deltas multiplied by acceleration factor */
-+	input_report_rel(input, REL_X,
-+			 (touch->accel * (s16) x_delta) / ACCEL_DIVIDER);
-+	input_report_rel(input, REL_Y,
-+			 -((touch->accel * (s16) y_delta) / ACCEL_DIVIDER));
-+	input_sync(input);
-+
-+	return (xy_delta || gesture) ? 1 : 0;
-+}
-+
-+static irqreturn_t synaptics_i2c_irq(int irq, void *_touch)
-+{
-+	struct synaptics_i2c *touch = _touch;
-+
-+	complete(&touch->touch_completion);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void synaptics_i2c_check_params(struct synaptics_i2c *touch)
-+{
-+	int reset = 0;
-+	if (accel != touch->accel_param)
-+		set_acceleration(touch, accel);
-+
-+	if (scan_rate != touch->scan_rate_param)
-+		set_scan_rate(touch, scan_rate);
-+
-+	if (no_decel != touch->no_decel_param) {
-+		touch->no_decel_param = no_decel;
-+		reset = 1;
-+	}
-+	if (no_filter != touch->no_filter_param) {
-+		touch->no_filter_param = no_filter;
-+		reset = 1;
-+	}
-+	if (reduce_report != touch->reduce_report_param) {
-+		touch->reduce_report_param = reduce_report;
-+		reset = 1;
-+	}
-+	if (reset)
-+		synaptics_i2c_reset_config(touch->client);
-+}
-+
-+/* Control the Thread sleep time */
-+unsigned long synaptics_i2c_fix_delay(struct synaptics_i2c *touch, int data)
-+{
-+	int delay, nodata_count_thres;
-+
-+	if (polling_req) {
-+		delay = touch->scan_ms;
-+		if (data)
-+			touch->no_data_count = 0;
-+		else {
-+			nodata_count_thres = NO_DATA_THRES / touch->scan_ms;
-+			if (touch->no_data_count < nodata_count_thres)
-+				touch->no_data_count++;
-+			else
-+				delay = NO_DATA_SLEEP_MSECS;
-+		}
-+	} else
-+		delay = THREAD_IRQ_SLEEP_MSECS;
-+
-+	return msecs_to_jiffies(delay);
-+}
-+
-+/* The Thread */
-+static int synaptics_i2c_touchd(void *_touch)
-+{
-+	struct synaptics_i2c *touch = _touch;
-+	unsigned long sleep_delay;
-+	int data = 1;
-+
-+	sleep_delay = synaptics_i2c_fix_delay(touch, data);
-+
-+	daemonize("synaptics_i2cd");
-+	while (!kthread_should_stop()) {
-+		if (touch->thread_stop)
-+			break;
-+		synaptics_i2c_check_params(touch);
-+
-+		wait_for_completion_interruptible_timeout(&touch->touch_completion, sleep_delay);
-+
-+		if (touch->thread_stop)
-+			break;
-+
-+		try_to_freeze();
-+		if (!touch->suspend_link) {
-+			do {
-+				data = synaptics_i2c_get_input(touch);
-+				sleep_delay = synaptics_i2c_fix_delay(touch,
-+								      data);
-+			} while (data);
-+		}
-+	}
-+	complete_and_exit(&touch->thread_completion, 0);
-+}
-+
-+struct synaptics_i2c *synaptics_i2c_touch_create(struct i2c_client *client)
-+{
-+	struct synaptics_i2c *touch;
-+
-+	touch = kzalloc(sizeof(struct synaptics_i2c), GFP_KERNEL);
-+	if (!touch)
-+		return NULL;
-+
-+	touch->client = client;
-+	touch->no_decel_param = no_decel;
-+	touch->scan_rate_param = scan_rate;
-+	set_scan_rate(touch, scan_rate);
-+	touch->accel_param = accel;
-+	set_acceleration(touch, accel);
-+	init_completion(&touch->touch_completion);
-+	init_completion(&touch->thread_completion);
-+	mutex_init(&touch->mutex);
-+
-+	return touch;
-+}
-+
-+static int synaptics_i2c_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+
-+	/* We don't want timeouts on i2c bus */
-+	touch->suspend_link = 1;
-+
-+	return 0;
-+}
-+
-+static int synaptics_i2c_resume(struct i2c_client *client)
-+{
-+	int ret;
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+
-+	ret = synaptics_i2c_reset_config(client);
-+	touch->suspend_link = 0;
-+
-+	return ret;
-+}
-+
-+static int synaptics_i2c_open(struct input_dev *input)
-+{
-+	int ret = 0;
-+	struct synaptics_i2c *touch = input_get_drvdata(input);
-+
-+	if (touch->users_count++)
-+		return 0;
-+
-+	ret = synaptics_i2c_reset_config(touch->client);
-+	if (ret)
-+		return ret;
-+
-+	if (!polling_req) {
-+		ret = request_irq(touch->client->irq, synaptics_i2c_irq,
-+				  IRQF_DISABLED|IRQ_TYPE_EDGE_FALLING,
-+				  DRIVER_NAME, touch);
-+		if (ret) {
-+			dev_warn(&touch->client->dev,
-+				  "IRQ request failed: %d\n"
-+				  "Trying to use polling...\n", ret);
-+			polling_req = 1;
-+		}
-+	}
-+	touch->thread_stop = 0;
-+	touch->thread = kthread_run(&synaptics_i2c_touchd,
-+				     touch, "synaptics_i2cd");
-+	if (IS_ERR(touch->thread)) {
-+		ret = PTR_ERR(touch->thread);
-+		touch->thread = NULL;
-+	}
-+	/* FIXME: Should we do something with the device here? */
-+
-+	return ret;
-+}
-+
-+static void synaptics_i2c_close(struct input_dev *input)
-+{
-+	struct synaptics_i2c *touch = input_get_drvdata(input);
-+
-+	if (--touch->users_count)
-+		return;
-+
-+	if (!touch->users_count) {
-+		touch->thread_stop = 1;
-+		complete(&touch->touch_completion); /* Awake the thread */
-+		wait_for_completion(&touch->thread_completion);
-+		touch->thread = NULL;
-+
-+		if (!polling_req)
-+			free_irq(touch->client->irq, touch);
-+
-+	/* FIXME: Should we do something with the device here? */
-+	}
-+}
-+
-+static void synaptics_i2c_set_input_params(struct synaptics_i2c *touch)
-+{
-+	struct input_dev *input = touch->input;
-+
-+	input->name = touch->client->name;
-+	input->phys = touch->client->adapter->name;
-+	input->id.bustype = BUS_I2C;
-+	input->id.version = synaptics_i2c_word_get(touch->client,
-+						   INFO_QUERY_REG0);
-+	input->dev.parent = &touch->client->dev;
-+	input->open = synaptics_i2c_open;
-+	input->close = synaptics_i2c_close;
-+	input_set_drvdata(input, touch);
-+
-+	/* Register the device as mouse */
-+	set_bit(EV_REL, input->evbit);
-+	set_bit(REL_X, input->relbit);
-+	set_bit(REL_Y, input->relbit);
-+
-+	/* Register device's buttons and keys */
-+	set_bit(EV_KEY, input->evbit);
-+	set_bit(BTN_LEFT, input->keybit);
-+}
-+
-+static const struct i2c_device_id synaptics_i2c_id_table[] = {
-+	{ "synaptics_i2c", 0 },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(i2c, synaptics_i2c_id_table);
-+
-+static int synaptics_i2c_probe(struct i2c_client *client,
-+			       const struct i2c_device_id *dev_id)
-+{
-+	int ret;
-+	struct synaptics_i2c *touch;
-+
-+	touch = synaptics_i2c_touch_create(client);
-+	if (!touch)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, touch);
-+
-+	ret = synaptics_i2c_reset_config(client);
-+	if (ret)
-+		goto err_mem_free;
-+
-+	if (query) {
-+		ret = synaptics_i2c_query(client);
-+		if (ret)
-+			goto err_mem_free;
-+	}
-+
-+	if (client->irq < 1)
-+		polling_req = 1;
-+
-+	touch->input = input_allocate_device();
-+	if (!touch->input)
-+		goto err_mem_free;
-+
-+	synaptics_i2c_set_input_params(touch);
-+
-+	if (!polling_req)
-+		dev_info(&touch->client->dev,
-+			  "IRQ will be used: %d\n", touch->client->irq);
-+	else
-+		dev_info(&touch->client->dev,
-+			  "Using polling at rate: %d times/sec\n", scan_rate);
-+
-+	/* Register the device in input subsystem */
-+	ret = input_register_device(touch->input);
-+	if (ret) {
-+		dev_err(&client->dev,
-+			 "Input device register failed: %d\n", ret);
-+		goto err_input_free;
-+	}
-+	return 0;
-+
-+err_input_free:
-+	input_free_device(touch->input);
-+err_mem_free:
-+	i2c_set_clientdata(client, NULL);
-+	kfree(touch);
-+
-+	return ret;
-+}
-+
-+static int __devexit synaptics_i2c_remove(struct i2c_client *client)
-+{
-+	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-+
-+	input_unregister_device(touch->input);
-+	i2c_set_clientdata(client, NULL);
-+	kfree(touch);
-+
-+	return 0;
-+}
-+
-+static struct i2c_driver synaptics_i2c_driver = {
-+	.driver = {
-+		.name	= DRIVER_NAME,
-+		.owner	= THIS_MODULE,
-+	},
-+
-+	.probe		= synaptics_i2c_probe,
-+	.remove		= synaptics_i2c_remove,
-+
-+	.suspend	= synaptics_i2c_suspend,
-+	.resume		= synaptics_i2c_resume,
-+	.id_table	= synaptics_i2c_id_table,
-+};
-+
-+static int __init synaptics_i2c_init(void)
-+{
-+	return i2c_add_driver(&synaptics_i2c_driver);
-+}
-+
-+static void __exit synaptics_i2c_exit(void)
-+{
-+	i2c_del_driver(&synaptics_i2c_driver);
-+}
-+
-+module_init(synaptics_i2c_init);
-+module_exit(synaptics_i2c_exit);
-+
-+MODULE_DESCRIPTION("Synaptics I2C touchpad driver");
-+MODULE_AUTHOR("Mike Rapoport, Igor Grinberg, Compulab");
-+MODULE_LICENSE("GPL");
--- 
-1.6.0.6
+> =A0 =A0 =A0 =A0struct input_dev *input_dev;
+> =A0 =A0 =A0 =A0int err;
+>
+> @@ -283,12 +307,8 @@ static int tsc2007_probe(struct i2c_client *clie=
+nt,
+>
+> =A0 =A0 =A0 =A0spin_lock_init(&ts->lock);
+>
+> - =A0 =A0 =A0 ts->model =A0 =A0 =A0 =A0 =A0 =A0 =3D pdata->model;
+> - =A0 =A0 =A0 ts->x_plate_ohms =A0 =A0 =A0=3D pdata->x_plate_ohms;
+> - =A0 =A0 =A0 ts->get_pendown_state =3D pdata->get_pendown_state;
+> - =A0 =A0 =A0 ts->clear_penirq =A0 =A0 =A0=3D pdata->clear_penirq;
+> -
+> - =A0 =A0 =A0 pdata->init_platform_hw();
+> + =A0 =A0 =A0 ts->pd =3D pdata;
+> + =A0 =A0 =A0 ts_init_platform_hw(ts);
+>
+> =A0 =A0 =A0 =A0snprintf(ts->phys, sizeof(ts->phys),
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s/input0", dev_name(&client->dev));
+> @@ -335,10 +355,8 @@ static int tsc2007_probe(struct i2c_client *clie=
+nt,
+> =A0static int tsc2007_remove(struct i2c_client *client)
+> =A0{
+> =A0 =A0 =A0 =A0struct tsc2007 =A0*ts =3D i2c_get_clientdata(client);
+> - =A0 =A0 =A0 struct tsc2007_platform_data *pdata;
+>
+> - =A0 =A0 =A0 pdata =3D client->dev.platform_data;
+> - =A0 =A0 =A0 pdata->exit_platform_hw();
+> + =A0 =A0 =A0 ts_exit_platform_hw(ts);
+>
+> =A0 =A0 =A0 =A0free_irq(ts->irq, ts);
+> =A0 =A0 =A0 =A0hrtimer_cancel(&ts->timer);
+> diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007.=
+h
+> index c6361fb..45582b3 100644
+> --- a/include/linux/i2c/tsc2007.h
+> +++ b/include/linux/i2c/tsc2007.h
+> @@ -7,11 +7,13 @@ struct tsc2007_platform_data {
+> =A0 =A0 =A0 =A0u16 =A0 =A0 model; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0/* 2007. */
+> =A0 =A0 =A0 =A0u16 =A0 =A0 x_plate_ohms;
+>
+> - =A0 =A0 =A0 int =A0 =A0 (*get_pendown_state)(void);
+> - =A0 =A0 =A0 void =A0 =A0(*clear_penirq)(void); =A0 =A0 =A0 =A0 =A0/=
+* If needed, clear 2nd level
+> + =A0 =A0 =A0 int =A0 =A0 (*get_pendown_state)(void *priv);
+> + =A0 =A0 =A0 void =A0 =A0(*clear_penirq)(void *priv); =A0 =A0/* If n=
+eeded, clear 2nd level
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 interrupt source */
+> - =A0 =A0 =A0 int =A0 =A0 (*init_platform_hw)(void);
+> - =A0 =A0 =A0 void =A0 =A0(*exit_platform_hw)(void);
+> + =A0 =A0 =A0 int =A0 =A0 (*init_platform_hw)(void *priv);
+> + =A0 =A0 =A0 void =A0 =A0(*exit_platform_hw)(void *priv);
+> +
+> + =A0 =A0 =A0 void =A0 =A0*priv; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0/* passed to callbacks */
+> =A0};
+>
+> =A0#endif
+> --
+> 1.6.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at =A0http://www.tux.org/lkml/
+>
 
 
 
--- 
-Sincerely yours,
-Mike.
-
-
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

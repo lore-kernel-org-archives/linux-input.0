@@ -1,142 +1,118 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: add synaptics_i2c driver
-Date: Thu, 14 May 2009 08:03:08 -0700
-Message-ID: <20090514150305.GA30027@dtor-d630.eng.vmware.com>
-References: <1242225003-8049-1-git-send-email-mike@compulab.co.il> <20090514025030.GB9461@dtor-d630.eng.vmware.com> <4A0C28AB.9030802@compulab.co.il>
+Subject: Re: [PATCH] Input: add touchscreen driver for MELFAS MCS-5000
+	controller
+Date: Thu, 14 May 2009 08:09:48 -0700
+Message-ID: <20090514150947.GB30027@dtor-d630.eng.vmware.com>
+References: <4A0819EE.2050209@samsung.com> <20090512020921.GA1965@dtor-d630.eng.vmware.com> <4A0C1419.5070604@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.224]:25714 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751600AbZENPDP (ORCPT
+Received: from mail-px0-f123.google.com ([209.85.216.123]:50451 "EHLO
+	mail-px0-f123.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751010AbZENPKA (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 May 2009 11:03:15 -0400
-Received: by rv-out-0506.google.com with SMTP id f9so770905rvb.1
-        for <linux-input@vger.kernel.org>; Thu, 14 May 2009 08:03:16 -0700 (PDT)
+	Thu, 14 May 2009 11:10:00 -0400
+Received: by pxi29 with SMTP id 29so614104pxi.33
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2009 08:10:01 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <4A0C28AB.9030802@compulab.co.il>
+In-Reply-To: <4A0C1419.5070604@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Rapoport <mike@compulab.co.il>
-Cc: grinberg@compulab.co.il, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+To: Joonyoung Shim <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com
 
-On Thu, May 14, 2009 at 05:20:27PM +0300, Mike Rapoport wrote:
+On Thu, May 14, 2009 at 09:52:41PM +0900, Joonyoung Shim wrote:
+> Hi,
 > 
+> Thank you for your review.
 > 
-> Dmitry Torokhov wrote:
+> > Hi,
 > > 
-> > Also please add long long explanantion that the driver will _not_ work
-> > with Synaptics X driver. There is no chance to enable absolute mode, is
-> > there?
-> 
-> I tried :)
-> 
-
-;( That's too bad.
-
-> 
-> >> +/* The Acceleration Factor:
-> >> + * from 0.5 (1) to 4 (8) in dozes of 0.5
-> >> + * the transformation is done in order to get 0.5 resolution.
-> >> + * values above 8 will affect poor performance without proper smoothing.
-> >> + */
-> >> +#define ACCEL_DIVIDER 10
-> >> +#define ACCEL_DOZE 2
-> >> +static int accel = 4;
-> >> +module_param(accel, int, 0644);
-> >> +MODULE_PARM_DESC(accel, "Set Acceleration parameter 1..8. Default = 4");
+> > On Mon, May 11, 2009 at 09:28:30PM +0900, Joonyoung Shim wrote:
+> >> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
+> >> controller can see at the following website:
+> >>
+> >> http://www.melfas.com/product/product01.asp?k_r=eng_
+> >>
+> >> This patch supports only the i2c interface.
+> >>
+> > 
+> > Thank you for the patch. Some comments below.
+> > 
 > >> +
-> >> +/* Control touchpad's No Deceleration option */
-> >> +static int no_decel = 1;
-> >> +module_param(no_decel, bool, 0644);
-> >> +MODULE_PARM_DESC(no_decel, "No Deceleration. Default = 1 (on)");
+> >> +/* Touchscreen absolute values */
+> >> +static int abs_x[3] = {0, 1024, 0};
+> >> +module_param_array(abs_x, int, NULL, 0);
+> >> +MODULE_PARM_DESC(abs_x, "Touchscreen absolute X min, max, fuzz");
+> >> +
+> >> +static int abs_y[3] = {0, 1024, 0};
+> >> +module_param_array(abs_y, int, NULL, 0);
+> >> +MODULE_PARM_DESC(abs_y, "Touchscreen absolute Y min, max, fuzz");
 > >> +
 > > 
-> > Accelkeration and deceleration handling should be done in userspace. X
-> > already does this, does it not?
+> > Do we need to have these as module parameters give the fact that we can
+> > set them dynamically with EVIOCSABS? I'd =say they should go.
 > 
-> AFAIK Xfbdev does not really takes care of it. I think the acceleration and
-> deceleration comes from xf86-input drivers.
-
-Huh? "xset m" does not work?
-
-> Besides, it's quite possible that
-> the device will be used without X and we still want to be able to control
-> acceleration and deceleration.
-
-GPM supports that too and anything else that works with mice really.
-
-> 
-> Although the acceleration and deceleration are module_param, they cannot be
-> changed in the runtime via /sys/module/synaptics_i2c/parameters.
+> I think that this part is unnecessary, we can get resolution of
+> touchscreen from platform_data or i will use the defined values.
 > 
 
-I think you meant "can" rather than "cannot" but I still believe it does
-not belong in the kernel driver.
+Ok, that would work as well.
 
-> 
+> >> +	case INPUT_TYPE_SINGLE:
+> >> +		x = (buffer[READ_X_POS_UPPER] << 8) | buffer[READ_X_POS_LOWER];
+> >> +		y = (buffer[READ_Y_POS_UPPER] << 8) | buffer[READ_Y_POS_LOWER];
 > >> +
-> >> +/* The Thread */
-> >> +static int synaptics_i2c_touchd(void *_touch)
+> >> +		input_report_key(data->input_dev, BTN_TOUCH, 1);
+> >> +		input_report_abs(data->input_dev, ABS_X, x);
+> >> +		input_report_abs(data->input_dev, ABS_Y, y);
+> >> +		input_report_abs(data->input_dev, ABS_PRESSURE,
+> >> +				DEFAULT_PRESSURE);
+> > 
+> > If the hardware does not support pressure reading don't fake it.
+> > BTN_TOUCH should be enough to signal touch.
+> 
+> MCS-5000 supports pressure reading, but the value of pressure is unstable in
+> my target, so i used the static value defined.
+> I will add pressure reading after more test.
+
+OK. Alternatively you may indicate in the platform data if pressure
+reading is supported and set ABS_PRESSURE bit and report pressure only
+when you know it works well.
+> 
+> signal touch? Do you mean single touch?
+
+I meant "signal" as "convey", "indicate".
+
+> >> +
+> >> +	if (request_irq(data->irq, mcs5000_ts_interrupt,
+> >> +			IRQF_TRIGGER_LOW, "mcs5000_ts_input", data)) {
+> >> +		dev_err(&data->client->dev, "Failed to register interrupt\n");
+> >> +		ret = -EINVAL;
+> > 
+> > Why EINVAL and not EBUSY? Or better yet, why don't you propagate what
+> > reqiest_irq returned?
+> 
+> Hmm, EINVAL is used in wm97xx-core.c file, but you are right.
+
+I am always taking patches ;))
+
+> 
+> > 
 > >> +{
-> >> +	struct synaptics_i2c *touch = _touch;
-> >> +	unsigned long sleep_delay;
-> >> +	int data = 1;
+> >> +	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
 > >> +
-> >> +	sleep_delay = synaptics_i2c_fix_delay(touch, data);
-> >> +
-> >> +	daemonize("synaptics_i2cd");
-> >> +	while (!kthread_should_stop()) {
-> >> +		if (touch->thread_stop)
-> >> +			break;
-> >> +		synaptics_i2c_check_params(touch);
-> >> +
-> >> +		wait_for_completion_interruptible_timeout(&touch->touch_completion, sleep_delay);
-> >> +
-> >> +		if (touch->thread_stop)
-> >> +			break;
-> >> +
-> >> +		try_to_freeze();
-> >> +		if (!touch->suspend_link) {
-> >> +			do {
-> >> +				data = synaptics_i2c_get_input(touch);
-> >> +				sleep_delay = synaptics_i2c_fix_delay(touch, data);
-> >> +			} while (data);
-> >> +		}
-> >> +	}
-> >> +	complete_and_exit(&touch->thread_completion, 0);
+> >> +	cancel_work_sync(&data->ts_event_work);
 > > 
-> > Why don't you just use workqueue (keventd)?
+> > There is a race here, IRQ handler may resubmit work after
+> > cancel_work_sync() returns. You need to  make sure that
+> > IRQ handler does not resubmit work while device is being shut down.
 > 
-> We tried to use workqueue. Probably we did something entirely wrong, but with
-> workqueue implementation we've got strange artefacts and random delays on
-> "pen-down" events...
+> ok, how about doing free_irq() before cancel_work_sync() call?
 > 
 
-You need to revisit this topic - your thread does not request elevated
-priority so the artifacts that you have seen should not have been result
-of the scheduling. It is possible that something else is hogging keventd
-but that can be resolved by creating a dedicated singkethreaded workqueue,
-but I don't think it would be needed either.
-
-I guess the reason for great responsivness of your current
-implementation is because you never re-initialize touch_completion so
-your polling thread never sleeps and polls the device constntly without
-any delays.
-
-> +
-> +	/* Report the button event */
-> +	if (gesture)
-> +		input_report_key(input, BTN_LEFT, 1);
-> +	else
-> +		input_report_key(input, BTN_LEFT, 0);
-> +
-
-That can be written simply as:
-
-	input_report_key(input, BYN_LEFT, gesture);
-
-Thanks.
+Then there is a risk that your work will try to enable_irq() on irq that
+was freed. I am not sure if IRQ core will be happy with it,
 
 -- 
 Dmitry

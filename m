@@ -1,28 +1,398 @@
-From: <jolmills@nbnet.nb.ca>
-Subject: Contact Mr. Bryn Anderson
-Date: Thu, 14 May 2009 7:51:41 -0400
-Message-ID: <20090514115142.FHXU1670.simmts8-srv.bellnexxia.net__35468.414767138$1242301927$gmane$org@simip9-ac.srvr.bell.ca>
-Reply-To: bryn.anderson1@8u8.hk
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH] Input: add touchscreen driver for MELFAS MCS-5000
+	controller
+Date: Thu, 14 May 2009 21:52:41 +0900
+Message-ID: <4A0C1419.5070604@samsung.com>
+References: <4A0819EE.2050209@samsung.com>
+ <20090512020921.GA1965@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from simmts8-qfe0.srvr.bell.ca ([206.47.199.166]:54021 "EHLO
-	simmts8-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1752510AbZENLvl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 May 2009 07:51:41 -0400
+Received: from mailout4.samsung.com ([203.254.224.34]:37145 "EHLO
+	mailout4.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1756069AbZENMwv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 May 2009 08:52:51 -0400
+Received: from epmmp1 (mailout4.samsung.com [203.254.224.34])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KJM003SNX3TA8@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 14 May 2009 21:52:41 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KJM00BPLX3T5V@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Thu, 14 May 2009 21:52:41 +0900 (KST)
+In-reply-to: <20090512020921.GA1965@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: info@winner.net
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com
 
-You were selected for the sum of  =A31,230,310.00 GBP . Verify this mai=
-l immediately by sending in your information. This will include your na=
-me, address, age, phone number etc to Mr Bryn Anderson
-bryn.anderson1@8u8.hk
+Hi,
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thank you for your review.
+
+> Hi,
+> 
+> On Mon, May 11, 2009 at 09:28:30PM +0900, Joonyoung Shim wrote:
+>> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
+>> controller can see at the following website:
+>>
+>> http://www.melfas.com/product/product01.asp?k_r=eng_
+>>
+>> This patch supports only the i2c interface.
+>>
+> 
+> Thank you for the patch. Some comments below.
+> 
+>> +
+>> +/* Touchscreen absolute values */
+>> +static int abs_x[3] = {0, 1024, 0};
+>> +module_param_array(abs_x, int, NULL, 0);
+>> +MODULE_PARM_DESC(abs_x, "Touchscreen absolute X min, max, fuzz");
+>> +
+>> +static int abs_y[3] = {0, 1024, 0};
+>> +module_param_array(abs_y, int, NULL, 0);
+>> +MODULE_PARM_DESC(abs_y, "Touchscreen absolute Y min, max, fuzz");
+>> +
+> 
+> Do we need to have these as module parameters give the fact that we can
+> set them dynamically with EVIOCSABS? I'd =say they should go.
+
+I think that this part is unnecessary, we can get resolution of
+touchscreen from platform_data or i will use the defined values.
+
+> 
+>> +static int abs_p[3] = {0, 256, 0};
+>> +module_param_array(abs_p, int, NULL, 0);
+>> +MODULE_PARM_DESC(abs_p, "Touchscreen absolute Pressure min, max, fuzz");
+>> +
+>> +/* Each client has this additional data */
+>> +struct mcs5000_ts_data {
+>> +	struct i2c_client *client;
+>> +	struct input_dev *input_dev;
+>> +	struct work_struct ts_event_work;
+>> +	struct mcs5000_ts_platform_data *platform_data;
+>> +
+>> +	unsigned int irq;
+>> +};
+>> +
+>> +static struct i2c_driver mcs5000_ts_driver;
+>> +
+>> +static void mcs5000_ts_input_read(struct mcs5000_ts_data *data)
+>> +{
+>> +	struct i2c_client *client = data->client;
+>> +	u8 buffer[READ_BLOCK_SIZE];
+>> +	int err;
+>> +	int x;
+>> +	int y;
+>> +
+>> +	err = i2c_smbus_read_i2c_block_data(client, MCS5000_TS_INPUT_INFO,
+>> +			READ_BLOCK_SIZE, buffer);
+>> +	if (err < 0) {
+>> +		dev_err(&client->dev, "%s, err[%d]\n", __func__, err);
+>> +		return;
+>> +	}
+>> +
+>> +	switch (buffer[READ_INPUT_INFO]) {
+>> +	case INPUT_TYPE_NONTOUCH:
+>> +		input_report_abs(data->input_dev, ABS_PRESSURE, 0);
+>> +		input_report_key(data->input_dev, BTN_TOUCH, 0);
+>> +		input_sync(data->input_dev);
+>> +		break;
+>> +	case INPUT_TYPE_SINGLE:
+>> +		x = (buffer[READ_X_POS_UPPER] << 8) | buffer[READ_X_POS_LOWER];
+>> +		y = (buffer[READ_Y_POS_UPPER] << 8) | buffer[READ_Y_POS_LOWER];
+>> +
+>> +		input_report_key(data->input_dev, BTN_TOUCH, 1);
+>> +		input_report_abs(data->input_dev, ABS_X, x);
+>> +		input_report_abs(data->input_dev, ABS_Y, y);
+>> +		input_report_abs(data->input_dev, ABS_PRESSURE,
+>> +				DEFAULT_PRESSURE);
+> 
+> If the hardware does not support pressure reading don't fake it.
+> BTN_TOUCH should be enough to signal touch.
+
+MCS-5000 supports pressure reading, but the value of pressure is unstable in
+my target, so i used the static value defined.
+I will add pressure reading after more test.
+
+signal touch? Do you mean single touch?
+
+> 
+>> +		input_sync(data->input_dev);
+>> +		break;
+>> +	case INPUT_TYPE_DUAL:
+>> +		/* TODO */
+>> +		break;
+>> +	case INPUT_TYPE_PALM:
+>> +		/* TODO */
+>> +		break;
+>> +	case INPUT_TYPE_PROXIMITY:
+>> +		/* TODO */
+>> +		break;
+>> +	default:
+>> +		dev_err(&client->dev, "Unknown ts input type %d\n",
+>> +				buffer[READ_INPUT_INFO]);
+>> +		break;
+>> +	}
+>> +}
+>> +
+>> +static void mcs5000_ts_irq_worker(struct work_struct *work)
+>> +{
+>> +	struct mcs5000_ts_data *data = container_of(work,
+>> +			struct mcs5000_ts_data, ts_event_work);
+>> +
+>> +	mcs5000_ts_input_read(data);
+>> +
+>> +	enable_irq(data->irq);
+>> +}
+>> +
+>> +static irqreturn_t mcs5000_ts_interrupt(int irq, void *dev_id)
+>> +{
+>> +	struct mcs5000_ts_data *data = dev_id;
+>> +
+>> +	if (!work_pending(&data->ts_event_work)) {
+>> +		disable_irq_nosync(data->irq);
+>> +		schedule_work(&data->ts_event_work);
+>> +	}
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int mcs5000_ts_input_init(struct mcs5000_ts_data *data)
+>> +{
+>> +	struct input_dev *input_dev;
+>> +	int ret = 0;
+>> +
+>> +	INIT_WORK(&data->ts_event_work, mcs5000_ts_irq_worker);
+>> +
+>> +	data->input_dev = input_allocate_device();
+>> +	if (data->input_dev == NULL) {
+>> +		ret = -ENOMEM;
+>> +		goto err_input;
+>> +	}
+>> +
+>> +	input_dev = data->input_dev;
+>> +	input_dev->name = "MELPAS MCS-5000 Touchscreen";
+> 
+> input_dev->id.bustype = BUS_I2C;
+> input_dev->dev.parent = <i2c device>;
+
+ok, i will add it.
+
+> 
+> 
+>> +	set_bit(EV_ABS, input_dev->evbit);
+>> +	set_bit(ABS_X, input_dev->absbit);
+>> +	set_bit(ABS_Y, input_dev->absbit);
+>> +	set_bit(ABS_PRESSURE, input_dev->absbit);
+>> +	input_set_abs_params(input_dev, ABS_X, abs_x[0], abs_x[1], abs_x[2], 0);
+>> +	input_set_abs_params(input_dev, ABS_Y, abs_y[0], abs_y[1], abs_y[2], 0);
+>> +	input_set_abs_params(input_dev, ABS_PRESSURE, abs_p[0], abs_p[1],
+>> +			abs_p[2], 0);
+> 
+> This line should go.
+> 
+>> +	set_bit(EV_KEY, input_dev->evbit);
+>> +	set_bit(BTN_TOUCH, input_dev->keybit);
+>> +
+>> +	ret = input_register_device(data->input_dev);
+>> +	if (ret < 0)
+>> +		goto err_register;
+>> +
+>> +	if (request_irq(data->irq, mcs5000_ts_interrupt,
+>> +			IRQF_TRIGGER_LOW, "mcs5000_ts_input", data)) {
+>> +		dev_err(&data->client->dev, "Failed to register interrupt\n");
+>> +		ret = -EINVAL;
+> 
+> Why EINVAL and not EBUSY? Or better yet, why don't you propagate what
+> reqiest_irq returned?
+
+Hmm, EINVAL is used in wm97xx-core.c file, but you are right.
+I will fix it using the latter.
+
+> 
+>> +		goto err_irq;
+>> +	}
+>> +
+>> +	input_set_drvdata(input_dev, data);
+>> +
+>> +	return 0;
+>> +err_irq:
+>> +	input_unregister_device(data->input_dev);
+>> +err_register:
+>> +	input_free_device(data->input_dev);
+> 
+> Do not call input_free_device() after input_unregister_device(), it will
+> cause double-free. EIther rearrange initialization order or do
+> data->input_dev = NULL; right after calling input_unregister_device().
+
+ok, i will fix it.
+
+> 
+>> +err_input:
+>> +	return ret;
+>> +}
+>> +
+>> +static void mcs5000_ts_phys_init(struct mcs5000_ts_data *data)
+>> +{
+>> +	struct i2c_client *client = data->client;
+>> +	struct mcs5000_ts_platform_data *platform_data = data->platform_data;
+>> +
+>> +	/* Touch reset & sleep mode */
+>> +	i2c_smbus_write_byte_data(client, MCS5000_TS_OP_MODE,
+>> +			RESET_EXT_SOFT | OP_MODE_SLEEP);
+>> +
+>> +	/* Touch size */
+>> +	i2c_smbus_write_byte_data(client, MCS5000_TS_X_SIZE_UPPER,
+>> +			platform_data->x_size >> 8);
+>> +	i2c_smbus_write_byte_data(client, MCS5000_TS_X_SIZE_LOWER,
+>> +			platform_data->x_size & 0xff);
+>> +	i2c_smbus_write_byte_data(client, MCS5000_TS_Y_SIZE_UPPER,
+>> +			platform_data->y_size >> 8);
+>> +	i2c_smbus_write_byte_data(client, MCS5000_TS_Y_SIZE_LOWER,
+>> +			platform_data->y_size & 0xff);
+>> +
+>> +	/* Touch active mode & 80 report rate */
+>> +	i2c_smbus_write_byte_data(data->client, MCS5000_TS_OP_MODE,
+>> +			OP_MODE_ACTIVE | REPORT_RATE_80);
+>> +}
+>> +
+>> +static int mcs5000_ts_probe(struct i2c_client *client,
+>> +		const struct i2c_device_id *idp)
+> 
+> This should be marked __devinit.
+
+ok, i will add it.
+
+> 
+>> +{
+>> +	struct mcs5000_ts_data *data;
+>> +	int ret;
+>> +
+>> +	data = kzalloc(sizeof(struct mcs5000_ts_data), GFP_KERNEL);
+>> +	if (!data)
+>> +		dev_err(&client->dev, "Failed to allocate driver data\n");
+>> +		ret = -ENOMEM;
+>> +		goto exit;
+>> +	}
+>> +
+>> +	data->client = client;
+>> +	data->irq = client->irq;
+>> +	data->platform_data = client->dev.platform_data;
+>> +
+>> +	i2c_set_clientdata(client, data);
+>> +
+>> +	if (data->platform_data->set_pin)
+>> +		data->platform_data->set_pin();
+>> +
+>> +	ret = mcs5000_ts_input_init(data);
+>> +	if (ret)
+>> +		goto exit_free;
+>> +
+>> +	mcs5000_ts_phys_init(data);
+>> +
+>> +	return 0;
+>> +
+>> +exit_free:
+>> +	kfree(data);
+>> +	i2c_set_clientdata(client, NULL);
+>> +exit:
+>> +	return ret;
+>> +}
+>> +
+>> +static int mcs5000_ts_remove(struct i2c_client *client)
+> 
+> This should be marked __devexit.
+
+ok, i will add it.
+
+> 
+>> +{
+>> +	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
+>> +
+>> +	cancel_work_sync(&data->ts_event_work);
+> 
+> There is a race here, IRQ handler may resubmit work after
+> cancel_work_sync() returns. You need to  make sure that
+> IRQ handler does not resubmit work while device is being shut down.
+
+ok, how about doing free_irq() before cancel_work_sync() call?
+
+
+> 
+>> +	free_irq(data->irq, data);
+>> +	input_unregister_device(data->input_dev);
+>> +	input_free_device(data->input_dev);
+> 
+> Just input_unregister_device() is enough.
+
+ok.
+
+> 
+>> +	kfree(data);
+>> +
+>> +	i2c_set_clientdata(client, NULL);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +#ifdef CONFIG_PM
+>> +static int mcs5000_ts_suspend(struct i2c_client *client, pm_message_t mesg)
+>> +{
+>> +	/* Touch sleep mode */
+>> +	i2c_smbus_write_byte_data(client, MCS5000_TS_OP_MODE, OP_MODE_SLEEP);
+>> +
+>> +	return 0;
+>> +}
+>> +
+>> +static int mcs5000_ts_resume(struct i2c_client *client)
+>> +{
+>> +	struct mcs5000_ts_data *data;
+>> +
+>> +	data = i2c_get_clientdata(client);
+>> +	mcs5000_ts_phys_init(data);
+>> +
+>> +	return 0;
+>> +}
+>> +#else
+>> +#define mcs5000_ts_suspend	NULL
+>> +#define mcs5000_ts_resume	NULL
+>> +#endif
+>> +
+>> +static const struct i2c_device_id mcs5000_ts_id[] = {
+>> +	{ "mcs5000_ts", 0 },
+>> +	{ }
+>> +};
+>> +MODULE_DEVICE_TABLE(i2c, mcs5000_ts_id);
+>> +
+>> +static struct i2c_driver mcs5000_ts_driver = {
+>> +	.driver = {
+>> +		.name = "mcs5000_ts",
+>> +	},
+>> +	.probe		= mcs5000_ts_probe,
+>> +	.remove		= mcs5000_ts_remove,
+> 
+> __devexit_p()
+
+ok.
+
+> 
+> #ifdef CONFIG_PM
+>> +	.suspend	= mcs5000_ts_suspend,
+>> +	.resume		= mcs5000_ts_resume,
+> #endif
+
+ok, i will add it.
+
+> 
+>> +	.id_table	= mcs5000_ts_id,
+>> +};
+>> +
+> 
+> Thanks.
+> 
+
+Thanks, too.

@@ -1,66 +1,107 @@
-From: Manuel Lauss <mano@roarinelk.homelinux.net>
-Subject: Re: [PATCH] TSC2007: private data for platform callbacks.
-Date: Thu, 14 May 2009 12:37:31 +0200
-Message-ID: <20090514103731.GA23814@roarinelk.homelinux.net>
-References: <20090514100909.GA23626@roarinelk.homelinux.net> <5d5443650905140328v319e673o2f7b865e21619486@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] input: add synaptics_i2c driver
+Date: Thu, 14 May 2009 13:00:34 +0200
+Message-ID: <20090514130034.2119c883@hyperion.delvare>
+References: <1242225003-8049-1-git-send-email-mike@compulab.co.il>
+	<20090514025030.GB9461@dtor-d630.eng.vmware.com>
+	<20090514092818.39a83282@hyperion.delvare>
+	<4A0BDE82.5070006@compulab.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754551AbZENKho@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5d5443650905140328v319e673o2f7b865e21619486@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Kwangwoo Lee <kwlee@mtekvision.com>, linux-kernel@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from zone0.gcu-squad.org ([212.85.147.21]:27925 "EHLO
+	services.gcu-squad.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753868AbZENLAm (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 14 May 2009 07:00:42 -0400
+In-Reply-To: <4A0BDE82.5070006@compulab.co.il>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mike Rapoport <mike@compulab.co.il>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, grinberg@compulab.co.il, linux-input@vger.kernel.org
 
-Hi Trilok,
+Hi Mike,
 
-On Thu, May 14, 2009 at 03:58:19PM +0530, Trilok Soni wrote:
-> CCing linux-input mailing list, so not deleting any code from this
-> e-mail while replying.
-> 
-> On Thu, May 14, 2009 at 3:39 PM, Manuel Lauss
-> <mano@roarinelk.homelinux.net> wrote:
-> > Add a private data field to the tsc2007 platform data and pass this
-> > to the callbacks.
-> 
-> I hope that you have created this patch on top of two recently posted
-> patches by Kwangwoo Lee
-> to merge changes from Thierry.
+On Thu, 14 May 2009 12:04:02 +0300, Mike Rapoport wrote:
+> Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
+> Signed-off-by: Mike Rapoport <mike@compulab.co.il>
+> ---
+>  drivers/input/mouse/Kconfig         |    9 +
+>  drivers/input/mouse/Makefile        |    1 +
+>  drivers/input/mouse/synaptics_i2c.c |  793 +++++++++++++++++++++++++++++++++++
+>  3 files changed, 803 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/mouse/synaptics_i2c.c
 
-No; it's against Linux's git. Will rediff.
+I think you introduced a new bug in this version:
 
+> (...)
+> +static s32 synaptics_i2c_block_get(struct i2c_client *client,
+> +				    u16 reg, u8 length, u8 *values)
+> +{
+> +	struct synaptics_i2c *touch = i2c_get_clientdata(client);
+> +	int ret;
+> +
+> +	mutex_lock(&touch->mutex);
+> +
+> +	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
+> +	if (!ret)
+> +		ret = i2c_smbus_read_i2c_block_data(client, reg & 0xff,
+> +						    length, values);
+> +
+> +	mutex_unlock(&touch->mutex);
+> +
+> +	return ret < 0 ? : 0;
+> +}
 
- 
-> > - ? ? ? int ? ? ? ? ? ? ? ? ? ? (*get_pendown_state)(void);
-> > - ? ? ? void ? ? ? ? ? ? ? ? ? ?(*clear_penirq)(void);
-> > + ? ? ? struct tsc2007_platform_data *pd;
-> > ?};
-> >
-> > +/* ask platform for pendown state */
-> > +static inline int ts_get_pendown_state(struct tsc2007 *ts)
-> > +{
-> > + ? ? ? return ts->pd->get_pendown_state(ts->pd->priv);
-> 
-> So, we don't need check here, like this:
-> 
-> if (ts->pd->get_pendown_state)
->           ret =  ts->pd->get_pendown_state(ts->pd->priv);
+Here you return 0 on success...
 
-The driver doesn't work right without that callback so the check
-in here is kind of pointless. Better to check for it in the
-probe function and refuse to probe if it isn't there.  All other
-callbacks seem optional to me.
+> +
+> +static int synaptics_i2c_query(struct i2c_client *client)
+> +{
+> +	u8 data[7];
+> +	char id[PRODUCT_ID_LENGTH + 1];
+> +	int ret, retry_count, control, status, sens;
+> +
+> +	/* DEV_QUERY_REG0 is the Function Query area for 2D devices. */
+> +	/* We're only interested in entries DEV_QUERY_REG2 */
+> +	/* and following registers right now. */
+> +	for (retry_count = 0; retry_count < 3; retry_count++) {
+> +		ret = synaptics_i2c_block_get(client, DEV_QUERY_REG2,
+> +					       sizeof(data), data);
+> +		if (ret == sizeof(data))
 
- 
-> > ? ? ? ?struct tsc2007 *ts;
-> > - ? ? ? struct tsc2007_platform_data *pdata = pdata = client->dev.platform_data;
-> > + ? ? ? struct tsc2007_platform_data *pdata = client->dev.platform_data;
-> 
-> This change shows that you need to rebase based on two patches
-> submitted by Lee recently.
+... but here you expect the number of read values.
 
-Ah, that shouldn't be in there in the first place.
+> +			break;
+> +	}
+> +
+> +	if (ret == sizeof(data)) {
+> +		dev_warn(&client->dev,
+> +			  "Query command failed: block read failed\n");
+> +	} else {
 
-Thanks!
-	Manuel Lauss
+> (...)
+> +static struct i2c_driver synaptics_i2c_driver = {
+> +	.driver = {
+> +		.name	= DRIVER_NAME,
+> +		.owner	= THIS_MODULE,
+> +	},
+> +
+> +	.probe		= synaptics_i2c_probe,
+> +	.remove		= synaptics_i2c_remove,
+
+Still missing __devexit_p() as Dmitry wrote.
+
+> +
+> +	.suspend	= synaptics_i2c_suspend,
+> +	.resume		= synaptics_i2c_resume,
+> +	.id_table	= synaptics_i2c_id_table,
+> +};
+
+The rest looks OK to me. After fixing the 2 errors above, you can add
+
+Acked-by: Jean Delvare <khali@linux-fr.org>
+
+-- 
+Jean Delvare

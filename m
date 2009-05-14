@@ -1,61 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [linux 2.6] new mouse driver looking for review and
-	integration (fwd)
-Date: Wed, 13 May 2009 20:40:13 -0700
-Message-ID: <20090514034004.GE12778@dtor-d630.eng.vmware.com>
-References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz> <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz> <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [patch 9/9] serios: async shutdown
+Date: Wed, 13 May 2009 20:49:57 -0700
+Message-ID: <20090513204957.39f42059.akpm@linux-foundation.org>
+References: <200905122102.n4CL2RUY006919@imap1.linux-foundation.org>
+	<20090514032055.GA12778@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.170]:28020 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753261AbZENDkW (ORCPT
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37543 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1754664AbZENDuH (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 13 May 2009 23:40:22 -0400
-Received: by wf-out-1314.google.com with SMTP id 26so656115wfd.4
-        for <linux-input@vger.kernel.org>; Wed, 13 May 2009 20:40:23 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
+	Wed, 13 May 2009 23:50:07 -0400
+In-Reply-To: <20090514032055.GA12778@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Tai-hwa Liang <avatar@sentelic.com>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, shaohua.li@intel.com, arjan@infradead.org, Greg KH <greg@kroah.com>
 
-On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
-> On Fri, 8 May 2009, Dmitry Torokhov wrote:
->> Hi Tai-hwa,
->>
->> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
->> > Hi, Dmitry,
->> >
->> >    I'm wondering about the status of the patch you submitted to git.  Will
->> > it being merged into 2.6.31?
->> >
->>
->> I really need to get back to it. The weekend is coming up, I should 
->> have time to go over it, I shall respond by Monday.
->
->   Thanks.  Where is the git repository I can use to retrieve the code you've
-> submitted?  I have a few changes for your patched code.
->
+On Wed, 13 May 2009 20:20:56 -0700 Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-I have created "sentelic" branch here:
+> On Tue, May 12, 2009 at 01:43:11PM -0700, akpm@linux-foundation.org wrote:
+> > From: Shaohua Li <shaohua.li@intel.com>
+> > 
+> > serio shutdown is quite slow. It sometimes will take 0.2s for each port.
+> > 
+> 
+> This depends on the other patch you sent to Greg,
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+synchronize-device-shutdown.patch, I assume.
 
-I fetched the latest version of the driver off the sourceforge page and
-used it as the baseline.
+> I think these should
+> go together. But I am uncomfortable at the ide of blasting all ports on
+> i8042 simultaneously during shutdown. I'd be more comfortable if we were
+> taking serio_mutex in serio_cleanup() so only one port is being worked
+> on at a time.
 
-The idea is to implement full absolute packet support and not rely on
-relative packets because users will expect Synaptics X driver work with
-this device as it works with all other touchpads (Synaptics, ALPS,
-Elantec, BCM, appletouch).
-
-BTW, I have a few questions regarding protocol:
-
-What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
-
-Thanks!
-
--- 
-Dmitry
+OK, more thought is needed.  I dropped the patches.

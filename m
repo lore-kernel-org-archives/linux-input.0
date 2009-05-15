@@ -1,42 +1,33 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH v3] hid: add force feedback support for SmartJoy PLUS
- PS2/USB adapter
-Date: Fri, 15 May 2009 12:25:15 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0905151224050.22712@wotan.suse.de>
-References: <20090513085438.2458.6988.stgit@fate.lan>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] autocentering support for Logitech Force 3D Pro
+Date: Fri, 15 May 2009 16:08:52 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0905151607240.22712@wotan.suse.de>
+References: <bb829a0b0905081244j36d069bfre73eba5d170494b3@mail.gmail.com>  <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de> <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090513085438.2458.6988.stgit-q/85JClnwdg@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jussi Kivilinna <jussi.kivilinna-E01nCVcF24I@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:44353 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750944AbZEOOIw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 May 2009 10:08:52 -0400
+In-Reply-To: <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: =?KOI8-R?B?88XSx8XKIOLFzNHbz9c=?= <sergey.belyashov@gmail.com>
+Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Wed, 13 May 2009, Jussi Kivilinna wrote:
+On Mon, 11 May 2009, ?????? ??????? wrote:
 
-> This driver adds force feedback support for SmartJoy PLUS PS2/USB adapter. I made this driver
-> one device spesific instead of making generic 'wisegroup-ff' because I have another Wisegroup
-> PS2/USB adapter that doesn't work same way as SmartJoy PLUS. If another device that is
-> compatible pops up, this driver could be then renamed to something more generic.
-> 
-> v2 changes:
->  - use pr_fmt
->  - remove #ifdef from hid-core.c and made driver unable-to-disable if !EMBEDDED
-> 
-> v3 changes:
->  - use dev_dbg, not pr_fmt
+>    Of course I agree.
 
-I will apply this one and fix the other hid-ff drivers to work in a 
-similar fashion (i.e. make the device working without FF effects if only 
-the FF driver for this particular device has been disabled).
+I have applied the autocentering support patch for 0x286, thanks.
+
+>    How about axes information in EVIOCGBIT(EV_FF,...)?
+
+Anssi, Dmitry, what do you think?
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,94 +1,64 @@
 From: Kwangwoo Lee <kwangwoo.lee@gmail.com>
-Subject: Re: [PATCH] TSC2007: private data for platform callbacks.
-Date: Fri, 15 May 2009 13:32:43 +0900
-Message-ID: <483a38b80905142132q7642c57w1d12812bda6f845@mail.gmail.com>
-References: <20090514100909.GA23626@roarinelk.homelinux.net>
-	 <5d5443650905140328v319e673o2f7b865e21619486@mail.gmail.com>
-	 <20090514103731.GA23814@roarinelk.homelinux.net>
+Subject: [PATCH] Input: tsc2007: Remove a useless code and check a necessary
+	function is provided or not
+Date: Fri, 15 May 2009 14:47:12 +0900
+Message-ID: <483a38b80905142247l31dc77f6sd3deb511fc171f5e@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1760517AbZEOEc5@vger.kernel.org>
-In-Reply-To: <20090514103731.GA23814@roarinelk.homelinux.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Manuel Lauss <mano@roarinelk.homelinux.net>
-Cc: Trilok Soni <soni.trilok@gmail.com>, Kwangwoo Lee <kwlee@mtekvision.com>, linux-kernel@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mail-px0-f123.google.com ([209.85.216.123]:36397 "EHLO
+	mail-px0-f123.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1757223AbZEOFrL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 May 2009 01:47:11 -0400
+Received: by pxi29 with SMTP id 29so882030pxi.33
+        for <linux-input@vger.kernel.org>; Thu, 14 May 2009 22:47:13 -0700 (PDT)
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Thierry Reding <thierry.reding@avionic-design.de>, Manuel Lauss <mano@roarinelk.homelinux.net>, Trilok Soni <soni.trilok@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thu, May 14, 2009 at 7:37 PM, Manuel Lauss
-<mano@roarinelk.homelinux.net> wrote:
-> Hi Trilok,
->
-> On Thu, May 14, 2009 at 03:58:19PM +0530, Trilok Soni wrote:
->> CCing linux-input mailing list, so not deleting any code from this
->> e-mail while replying.
->>
->> On Thu, May 14, 2009 at 3:39 PM, Manuel Lauss
->> <mano@roarinelk.homelinux.net> wrote:
->> > Add a private data field to the tsc2007 platform data and pass thi=
-s
->> > to the callbacks.
->>
->> I hope that you have created this patch on top of two recently poste=
-d
->> patches by Kwangwoo Lee
->> to merge changes from Thierry.
->
-> No; it's against Linux's git. Will rediff.
->
->
->
->> > - ? ? ? int ? ? ? ? ? ? ? ? ? ? (*get_pendown_state)(void);
->> > - ? ? ? void ? ? ? ? ? ? ? ? ? ?(*clear_penirq)(void);
->> > + ? ? ? struct tsc2007_platform_data *pd;
->> > ?};
->> >
->> > +/* ask platform for pendown state */
->> > +static inline int ts_get_pendown_state(struct tsc2007 *ts)
->> > +{
->> > + ? ? ? return ts->pd->get_pendown_state(ts->pd->priv);
->>
->> So, we don't need check here, like this:
->>
->> if (ts->pd->get_pendown_state)
->> =A0 =A0 =A0 =A0 =A0 ret =3D =A0ts->pd->get_pendown_state(ts->pd->pri=
-v);
->
-> The driver doesn't work right without that callback so the check
-> in here is kind of pointless. Better to check for it in the
-> probe function and refuse to probe if it isn't there. =A0All other
-> callbacks seem optional to me.
+Hi Dmitry,
 
-I agree. This function should be checked in the probe one.
+This patch contains a trivial removal and check the existence of a
+platform specific function.
 
->
->
->> > ? ? ? ?struct tsc2007 *ts;
->> > - ? ? ? struct tsc2007_platform_data *pdata =3D pdata =3D client->=
-dev.platform_data;
->> > + ? ? ? struct tsc2007_platform_data *pdata =3D client->dev.platfo=
-rm_data;
->>
->> This change shows that you need to rebase based on two patches
->> submitted by Lee recently.
->
-> Ah, that shouldn't be in there in the first place.
+Regards,
+Kwangwoo Lee
 
-This should be fixed.
+>From bc18ba8c71027ca58d1242149eee9919bdaa069b Mon Sep 17 00:00:00 2001
+From: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+Date: Fri, 15 May 2009 13:43:55 +0900
+Subject: [PATCH] Input: tsc2007: remove useless code and check a
+necessary function is provided or not.
 
->
-> Thanks!
-> =A0 =A0 =A0 =A0Manuel Lauss
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at =A0http://www.tux.org/lkml/
->
+Remove a useless code and check a necessary function is implemented or not.
+The platform codes must provide get_pendown_state() to work properly.
 
-Thanks,
+Signed-off-by: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+---
+ drivers/input/touchscreen/tsc2007.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
---=20
-Kwangwoo Lee <kwangwoo.lee@gmail.com>
+diff --git a/drivers/input/touchscreen/tsc2007.c
+b/drivers/input/touchscreen/tsc2007.c
+index 948e167..da35adb 100644
+--- a/drivers/input/touchscreen/tsc2007.c
++++ b/drivers/input/touchscreen/tsc2007.c
+@@ -253,11 +253,11 @@ static int tsc2007_probe(struct i2c_client *client,
+ 			const struct i2c_device_id *id)
+ {
+ 	struct tsc2007 *ts;
+-	struct tsc2007_platform_data *pdata = pdata = client->dev.platform_data;
++	struct tsc2007_platform_data *pdata = client->dev.platform_data;
+ 	struct input_dev *input_dev;
+ 	int err;
+
+-	if (!pdata) {
++	if (!pdata || !pdata->get_pendown_state) {
+ 		dev_err(&client->dev, "platform data is required!\n");
+ 		return -EINVAL;
+ 	}
+-- 
+1.5.6.5

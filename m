@@ -1,33 +1,37 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] autocentering support for Logitech Force 3D Pro
-Date: Fri, 15 May 2009 16:08:52 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0905151607240.22712@wotan.suse.de>
-References: <bb829a0b0905081244j36d069bfre73eba5d170494b3@mail.gmail.com>  <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de> <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com>
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: How to choeck for a gpio-keys based switch state?
+Date: Fri, 15 May 2009 17:47:55 +0200
+Message-ID: <4A0D8EAB.6070900@tis.icnet.pl>
+Reply-To: postmaster@icnet.pl
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:44353 "EHLO mx1.suse.de"
+Received: from d1.icnet.pl ([212.160.220.21]:57638 "EHLO d1.icnet.pl"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750944AbZEOOIw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 May 2009 10:08:52 -0400
-In-Reply-To: <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com>
+	id S1754652AbZEOQVk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 15 May 2009 12:21:40 -0400
+Received: from ic0101.ic.hcp.icnet ([172.16.2.8])
+	by d1.icnet.pl with asmtp (Exim 4.34)
+	id 1M4zfV-0005Hh-4Z
+	for linux-input@vger.kernel.org; Fri, 15 May 2009 17:49:53 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?KOI8-R?B?88XSx8XKIOLFzNHbz9c=?= <sergey.belyashov@gmail.com>
-Cc: linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: linux-input@vger.kernel.org
 
-On Mon, 11 May 2009, ?????? ??????? wrote:
+Hi,
 
->    Of course I agree.
+Greetings from new list member.
 
-I have applied the autocentering support patch for 0x286, thanks.
-
->    How about axes information in EVIOCGBIT(EV_FF,...)?
-
-Anssi, Dmitry, what do you think?
+I am trying to create a gpio-keys based platform device driver for a 
+hook switch. I am wondering if there is a possibility to check for the 
+switch state before the first event comes up. I think this feature could 
+be essential for correct user experience - an application should know 
+the switch state from the start.
+As I am not able to find such functionality in the current gpio-keys 
+driver, I wonder if this could be done over gpiolib sysfs interface by 
+adding optional gpio_export() call to the driver init function. I can 
+try to provide a patch if this sounds reasonable to you.
 
 Thanks,
-
--- 
-Jiri Kosina
-SUSE Labs
+Janusz

@@ -1,117 +1,258 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: add touchscreen driver for MELFAS MCS-5000 controller
-Date: Thu, 14 May 2009 19:52:42 -0700
-Message-ID: <200905141952.43442.dmitry.torokhov@gmail.com>
-References: <4A0819EE.2050209@samsung.com> <20090514150947.GB30027@dtor-d630.eng.vmware.com> <4A0CBC24.2060605@samsung.com>
+From: Kwangwoo Lee <kwangwoo.lee@gmail.com>
+Subject: Re: [PATCH] TSC2007: private data for platform callbacks.
+Date: Fri, 15 May 2009 13:25:41 +0900
+Message-ID: <483a38b80905142125l6f3be674m3b7ef9083cfcbdeb@mail.gmail.com>
+References: <20090514100909.GA23626@roarinelk.homelinux.net>
+	 <5d5443650905140328v319e673o2f7b865e21619486@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f123.google.com ([209.85.216.123]:64211 "EHLO
-	mail-px0-f123.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753761AbZEOCwt (ORCPT
+Received: from wf-out-1314.google.com ([209.85.200.173]:34683 "EHLO
+	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750958AbZEOEZk convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 14 May 2009 22:52:49 -0400
-Received: by pxi29 with SMTP id 29so835458pxi.33
-        for <linux-input@vger.kernel.org>; Thu, 14 May 2009 19:52:50 -0700 (PDT)
-In-Reply-To: <4A0CBC24.2060605@samsung.com>
-Content-Disposition: inline
+	Fri, 15 May 2009 00:25:40 -0400
+In-Reply-To: <5d5443650905140328v319e673o2f7b865e21619486@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com
+To: Manuel Lauss <mano@roarinelk.homelinux.net>
+Cc: Trilok Soni <soni.trilok@gmail.com>, Kwangwoo Lee <kwangwoo.lee@gmail.com>, linux-kernel@vger.kernel.org, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-On Thursday 14 May 2009 17:49:40 Joonyoung Shim wrote:
-> >>>> +	case INPUT_TYPE_SINGLE:
-> >>>> +		x = (buffer[READ_X_POS_UPPER] << 8) | buffer[READ_X_POS_LOWER];
-> >>>> +		y = (buffer[READ_Y_POS_UPPER] << 8) | buffer[READ_Y_POS_LOWER];
-> >>>> +
-> >>>> +		input_report_key(data->input_dev, BTN_TOUCH, 1);
-> >>>> +		input_report_abs(data->input_dev, ABS_X, x);
-> >>>> +		input_report_abs(data->input_dev, ABS_Y, y);
-> >>>> +		input_report_abs(data->input_dev, ABS_PRESSURE,
-> >>>> +				DEFAULT_PRESSURE);
-> >>>
-> >>> If the hardware does not support pressure reading don't fake it.
-> >>> BTN_TOUCH should be enough to signal touch.
-> >>
-> >> MCS-5000 supports pressure reading, but the value of pressure is
-> >> unstable in my target, so i used the static value defined.
-> >> I will add pressure reading after more test.
-> >
-> > OK. Alternatively you may indicate in the platform data if pressure
-> > reading is supported and set ABS_PRESSURE bit and report pressure only
-> > when you know it works well.
->
-> OK, i will add the thing about pressure in the platform data.
->
-> >> signal touch? Do you mean single touch?
-> >
-> > I meant "signal" as "convey", "indicate".
->
-> I see :)
->
-> >>>> +
-> >>>> +	if (request_irq(data->irq, mcs5000_ts_interrupt,
-> >>>> +			IRQF_TRIGGER_LOW, "mcs5000_ts_input", data)) {
-> >>>> +		dev_err(&data->client->dev, "Failed to register interrupt\n");
-> >>>> +		ret = -EINVAL;
-> >>>
-> >>> Why EINVAL and not EBUSY? Or better yet, why don't you propagate what
-> >>> reqiest_irq returned?
-> >>
-> >> Hmm, EINVAL is used in wm97xx-core.c file, but you are right.
-> >
-> > I am always taking patches ;))
->
-> OK, i will send the patch about it.
->
-> >>>> +{
-> >>>> +	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
-> >>>> +
-> >>>> +	cancel_work_sync(&data->ts_event_work);
-> >>>
-> >>> There is a race here, IRQ handler may resubmit work after
-> >>> cancel_work_sync() returns. You need to  make sure that
-> >>> IRQ handler does not resubmit work while device is being shut down.
-> >>
-> >> ok, how about doing free_irq() before cancel_work_sync() call?
-> >
-> > Then there is a risk that your work will try to enable_irq() on irq that
-> > was freed. I am not sure if IRQ core will be happy with it,
->
-> Oh, i didn't think about that, then, how about the following patch?
-> The work handler decides trying to enable_irq() by whether irq is NULL or
-> not.
->
-> @@ -179,7 +179,8 @@ static void mcs5000_ts_irq_worker(struct work_struct
-> *work)
->
->  	mcs5000_ts_input_read(data);
->
-> -	enable_irq(data->irq);
-> +	if (data->irq)
-> +		enable_irq(data->irq);
->  }
->
->  static irqreturn_t mcs5000_ts_interrupt(int irq, void *dev_id)
-> @@ -307,8 +308,9 @@ static int mcs5000_ts_remove(struct i2c_client *client)
->  {
->  	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
->
-> -	cancel_work_sync(&data->ts_event_work);
->  	free_irq(data->irq, data);
-> +	data->irq = 0;
+Hi Manual,
 
-Not if you want to enable IRQ 0 every once in a while. I think a separate 
-flag, the check in the IRQ handler as opposed to workqueue handler and a 
-memory barrier should work though.
+On Thu, May 14, 2009 at 7:28 PM, Trilok Soni <soni.trilok@gmail.com> wr=
+ote:
+> Hi Manuel,
+>
+> CCing linux-input mailing list, so not deleting any code from this
+> e-mail while replying.
+>
+> On Thu, May 14, 2009 at 3:39 PM, Manuel Lauss
+> <mano@roarinelk.homelinux.net> wrote:
+>> Add a private data field to the tsc2007 platform data and pass this
+>> to the callbacks.
+>
+> I hope that you have created this patch on top of two recently posted
+> patches by Kwangwoo Lee
+> to merge changes from Thierry.
+>
+>>
+>> Signed-off-by: Manuel Lauss <mano@roarinelk.homelinux.net>
+>> ---
+>> =A0drivers/input/touchscreen/tsc2007.c | =A0 52 ++++++++++++++++++++=
++++-----------
+>> =A0include/linux/i2c/tsc2007.h =A0 =A0 =A0 =A0 | =A0 10 ++++---
+>> =A02 files changed, 41 insertions(+), 21 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/tsc2007.c b/drivers/input/tou=
+chscreen/tsc2007.c
+>> index 948e167..5c4242d 100644
+>> --- a/drivers/input/touchscreen/tsc2007.c
+>> +++ b/drivers/input/touchscreen/tsc2007.c
+>> @@ -83,10 +83,35 @@ struct tsc2007 {
+>> =A0 =A0 =A0 =A0unsigned =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pendown;
+>> =A0 =A0 =A0 =A0int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 irq;
+>>
+>> - =A0 =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (*get_pend=
+own_state)(void);
+>> - =A0 =A0 =A0 void =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(*clear_pe=
+nirq)(void);
+>> + =A0 =A0 =A0 struct tsc2007_platform_data *pd;
 
-> +	cancel_work_sync(&data->ts_event_work);
->  	input_unregister_device(data->input_dev);
->  	input_free_device(data->input_dev);
->  	kfree(data);
+Why is this pd is contained in struct tsc2007?
 
--- 
-Dmitry
+>> =A0};
+>>
+>> +/* ask platform for pendown state */
+>> +static inline int ts_get_pendown_state(struct tsc2007 *ts)
+>> +{
+>> + =A0 =A0 =A0 return ts->pd->get_pendown_state(ts->pd->priv);
+
+Is it required in get_pendown_state() function in your platform?
+The function just return true/false indicating the pendown state.
+
+>
+> So, we don't need check here, like this:
+>
+> if (ts->pd->get_pendown_state)
+> =A0 =A0 =A0 =A0 =A0ret =3D =A0ts->pd->get_pendown_state(ts->pd->priv)=
+;
+>
+>> +}
+>> +
+>> +/* ask platform to clear pendown irq if available */
+>> +static inline void ts_clear_penirq(struct tsc2007 *ts)
+>> +{
+>> + =A0 =A0 =A0 if (ts->pd->clear_penirq)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->pd->clear_penirq(ts->pd->priv);
+>> +}
+>> +
+>> +static inline void ts_init_platform_hw(struct tsc2007 *ts)
+>> +{
+>> + =A0 =A0 =A0 if (ts->pd->init_platform_hw)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->pd->init_platform_hw(ts->pd->priv)=
+;
+>> +}
+>> +
+>> +static inline void ts_exit_platform_hw(struct tsc2007 *ts)
+>> +{
+>> + =A0 =A0 =A0 if (ts->pd->exit_platform_hw)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->pd->exit_platform_hw(ts->pd->priv)=
+;
+>> +}
+>> +
+>> +
+>> =A0static inline int tsc2007_xfer(struct tsc2007 *tsc, u8 cmd)
+>> =A0{
+>> =A0 =A0 =A0 =A0s32 data;
+>> @@ -129,7 +154,7 @@ static void tsc2007_send_event(void *tsc)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt =3D z2;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt -=3D z1;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt *=3D x;
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 rt *=3D ts->x_plate_ohms;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 rt *=3D ts->pd->x_plate_ohms;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt /=3D z1;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0rt =3D (rt + 2047) >> 12;
+>> =A0 =A0 =A0 =A0} else
+>> @@ -204,7 +229,7 @@ static enum hrtimer_restart tsc2007_timer(struct=
+ hrtimer *handle)
+>>
+>> =A0 =A0 =A0 =A0spin_lock_irqsave(&ts->lock, flags);
+>>
+>> - =A0 =A0 =A0 if (unlikely(!ts->get_pendown_state() && ts->pendown))=
+ {
+>> + =A0 =A0 =A0 if (unlikely(!ts_get_pendown_state(ts) && ts->pendown)=
+) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0struct input_dev *input =3D ts->input=
+;
+>>
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_dbg(&ts->client->dev, "UP\n");
+>> @@ -235,14 +260,13 @@ static irqreturn_t tsc2007_irq(int irq, void *=
+handle)
+>>
+>> =A0 =A0 =A0 =A0spin_lock_irqsave(&ts->lock, flags);
+>>
+>> - =A0 =A0 =A0 if (likely(ts->get_pendown_state())) {
+>> + =A0 =A0 =A0 if (likely(ts_get_pendown_state(ts))) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0disable_irq_nosync(ts->irq);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0hrtimer_start(&ts->timer, ktime_set(0=
+, TS_POLL_DELAY),
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0HRTIMER_MODE_REL);
+>> =A0 =A0 =A0 =A0}
+>>
+>> - =A0 =A0 =A0 if (ts->clear_penirq)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 ts->clear_penirq();
+>> + =A0 =A0 =A0 ts_clear_penirq(ts);
+>>
+>> =A0 =A0 =A0 =A0spin_unlock_irqrestore(&ts->lock, flags);
+>>
+>> @@ -253,7 +277,7 @@ static int tsc2007_probe(struct i2c_client *clie=
+nt,
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0const struct i2c_devi=
+ce_id *id)
+>> =A0{
+>> =A0 =A0 =A0 =A0struct tsc2007 *ts;
+>> - =A0 =A0 =A0 struct tsc2007_platform_data *pdata =3D pdata =3D clie=
+nt->dev.platform_data;
+>> + =A0 =A0 =A0 struct tsc2007_platform_data *pdata =3D client->dev.pl=
+atform_data;
+>
+> This change shows that you need to rebase based on two patches
+> submitted by Lee recently.
+>
+>> =A0 =A0 =A0 =A0struct input_dev *input_dev;
+>> =A0 =A0 =A0 =A0int err;
+>>
+>> @@ -283,12 +307,8 @@ static int tsc2007_probe(struct i2c_client *cli=
+ent,
+>>
+>> =A0 =A0 =A0 =A0spin_lock_init(&ts->lock);
+>>
+>> - =A0 =A0 =A0 ts->model =A0 =A0 =A0 =A0 =A0 =A0 =3D pdata->model;
+>> - =A0 =A0 =A0 ts->x_plate_ohms =A0 =A0 =A0=3D pdata->x_plate_ohms;
+>> - =A0 =A0 =A0 ts->get_pendown_state =3D pdata->get_pendown_state;
+>> - =A0 =A0 =A0 ts->clear_penirq =A0 =A0 =A0=3D pdata->clear_penirq;
+>> -
+>> - =A0 =A0 =A0 pdata->init_platform_hw();
+>> + =A0 =A0 =A0 ts->pd =3D pdata;
+>> + =A0 =A0 =A0 ts_init_platform_hw(ts);
+>>
+>> =A0 =A0 =A0 =A0snprintf(ts->phys, sizeof(ts->phys),
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "%s/input0", dev_name(&client->dev))=
+;
+>> @@ -335,10 +355,8 @@ static int tsc2007_probe(struct i2c_client *cli=
+ent,
+>> =A0static int tsc2007_remove(struct i2c_client *client)
+>> =A0{
+>> =A0 =A0 =A0 =A0struct tsc2007 =A0*ts =3D i2c_get_clientdata(client);
+>> - =A0 =A0 =A0 struct tsc2007_platform_data *pdata;
+>>
+>> - =A0 =A0 =A0 pdata =3D client->dev.platform_data;
+>> - =A0 =A0 =A0 pdata->exit_platform_hw();
+>> + =A0 =A0 =A0 ts_exit_platform_hw(ts);
+>>
+>> =A0 =A0 =A0 =A0free_irq(ts->irq, ts);
+>> =A0 =A0 =A0 =A0hrtimer_cancel(&ts->timer);
+>> diff --git a/include/linux/i2c/tsc2007.h b/include/linux/i2c/tsc2007=
+=2Eh
+>> index c6361fb..45582b3 100644
+>> --- a/include/linux/i2c/tsc2007.h
+>> +++ b/include/linux/i2c/tsc2007.h
+>> @@ -7,11 +7,13 @@ struct tsc2007_platform_data {
+>> =A0 =A0 =A0 =A0u16 =A0 =A0 model; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0/* 2007. */
+>> =A0 =A0 =A0 =A0u16 =A0 =A0 x_plate_ohms;
+>>
+>> - =A0 =A0 =A0 int =A0 =A0 (*get_pendown_state)(void);
+>> - =A0 =A0 =A0 void =A0 =A0(*clear_penirq)(void); =A0 =A0 =A0 =A0 =A0=
+/* If needed, clear 2nd level
+>> + =A0 =A0 =A0 int =A0 =A0 (*get_pendown_state)(void *priv);
+>> + =A0 =A0 =A0 void =A0 =A0(*clear_penirq)(void *priv); =A0 =A0/* If =
+needed, clear 2nd level
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 interrupt source */
+>> - =A0 =A0 =A0 int =A0 =A0 (*init_platform_hw)(void);
+>> - =A0 =A0 =A0 void =A0 =A0(*exit_platform_hw)(void);
+>> + =A0 =A0 =A0 int =A0 =A0 (*init_platform_hw)(void *priv);
+>> + =A0 =A0 =A0 void =A0 =A0(*exit_platform_hw)(void *priv);
+>> +
+>> + =A0 =A0 =A0 void =A0 =A0*priv; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0/* passed to callbacks */
+>> =A0};
+>>
+>> =A0#endif
+>> --
+>> 1.6.3
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-kern=
+el" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at =A0http://www.tux.org/lkml/
+>>
+>
+>
+>
+> --
+> ---Trilok Soni
+> http://triloksoni.wordpress.com
+> http://www.linkedin.com/in/triloksoni
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
+
+Regards,
+
+--=20
+Kwangwoo Lee <kwangwoo.lee@gmail.com>
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

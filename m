@@ -1,26 +1,88 @@
 From: Daniel Mack <daniel@caiaq.de>
-Subject: [PATCH] input: add driver for EETI touchpanels [v3]
-Date: Fri, 15 May 2009 11:36:33 +0200
-Message-ID: <1242380193-15924-1-git-send-email-daniel@caiaq.de>
+Subject: Re: [PATCH] input: add driver for EETI touchpanels [v3]
+Date: Fri, 15 May 2009 11:41:11 +0200
+Message-ID: <20090515094111.GD19808@buzzloop.caiaq.de>
+References: <1242380193-15924-1-git-send-email-daniel@caiaq.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:37628 "EHLO
+Received: from buzzloop.caiaq.de ([212.112.241.133]:41080 "EHLO
 	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762159AbZEOJgp (ORCPT
+	with ESMTP id S1758253AbZEOJlP (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 May 2009 05:36:45 -0400
+	Fri, 15 May 2009 05:41:15 -0400
+Received: from localhost (localhost [127.0.0.1])
+	by buzzloop.caiaq.de (Postfix) with ESMTP id 4481A7C801A
+	for <linux-input@vger.kernel.org>; Fri, 15 May 2009 11:41:15 +0200 (CEST)
+Received: from buzzloop.caiaq.de ([127.0.0.1])
+	by localhost (buzzloop.caiaq.de [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Cm4qU+u1Eykv for <linux-input@vger.kernel.org>;
+	Fri, 15 May 2009 11:41:11 +0200 (CEST)
+Content-Disposition: inline
+In-Reply-To: <1242380193-15924-1-git-send-email-daniel@caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Daniel Mack <daniel@caiaq.de>
+
+On Fri, May 15, 2009 at 11:36:33AM +0200, Daniel Mack wrote:
+> This patch adds a driver for EETI's I2C connected touchscreens.
+> 
+> Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> ---
+>  drivers/input/touchscreen/eeti_ts.c |  290 +++++++++++++++++++++++++++++++++++
+>  1 files changed, 290 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/input/touchscreen/eeti_ts.c
+
+Oops, forgot to add Makefile and Kconfig to the index, sorry.
+
+
+>From 3f3cf56c1a35a4b97b5af9a146eac769c227b94c Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@caiaq.de>
+Date: Wed, 6 May 2009 13:10:14 +0200
+Subject: [PATCH] input: add driver for EETI touchpanels [v3]
 
 This patch adds a driver for EETI's I2C connected touchscreens.
 
 Signed-off-by: Daniel Mack <daniel@caiaq.de>
 ---
+ drivers/input/touchscreen/Kconfig   |    9 +
+ drivers/input/touchscreen/Makefile  |    1 +
  drivers/input/touchscreen/eeti_ts.c |  290 +++++++++++++++++++++++++++++++++++
- 1 files changed, 290 insertions(+), 0 deletions(-)
+ 3 files changed, 300 insertions(+), 0 deletions(-)
  create mode 100644 drivers/input/touchscreen/eeti_ts.c
 
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index b01fd61..53edad0 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -111,6 +111,15 @@ config TOUCHSCREEN_DA9034
+ 	  Say Y here to enable the support for the touchscreen found
+ 	  on Dialog Semiconductor DA9034 PMIC.
+ 
++config TOUCHSCREEN_EETI
++	tristate "EETI touchscreen panel support"
++	depends on I2C
++	help
++	  Say Y here to enable support for I2C connected EETI touch panels.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called eeti_ts.
++
+ config TOUCHSCREEN_FUJITSU
+ 	tristate "Fujitsu serial touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 6700f7b..91292cf 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -13,6 +13,7 @@ obj-$(CONFIG_TOUCHSCREEN_ATMEL_TSADCC)	+= atmel_tsadcc.o
+ obj-$(CONFIG_TOUCHSCREEN_BITSY)		+= h3600_ts_input.o
+ obj-$(CONFIG_TOUCHSCREEN_CORGI)		+= corgi_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_GUNZE)		+= gunze.o
++obj-$(CONFIG_TOUCHSCREEN_EETI)		+= eeti_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_ELO)		+= elo.o
+ obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_INEXIO)	+= inexio.o
 diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
 new file mode 100644
 index 0000000..72800e1

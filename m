@@ -1,78 +1,40 @@
-From: Felipe Balbi <felipe.balbi@nokia.com>
-Subject: Re: [RFC] Add Input IOCTL for accelerometer devices
-Date: Fri, 15 May 2009 23:02:35 +0300
-Message-ID: <20090515200235.GA11829@nokia.com>
-References: <20090515131636.GE4443@nokia.com> <5d5443650905151106v2fe7ad1ci6c966463a991e732@mail.gmail.com> <45cc95260905151230j5485995dpbbd882dc91b25339@mail.gmail.com>
-Reply-To: felipe.balbi@nokia.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] autocentering support for Logitech Force 3D Pro
+Date: Fri, 15 May 2009 17:50:12 -0700
+Message-ID: <20090516005012.GA9564@dtor-d630.eng.vmware.com>
+References: <bb829a0b0905081244j36d069bfre73eba5d170494b3@mail.gmail.com> <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de> <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com> <alpine.LNX.2.00.0905151607240.22712@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.nokia.com ([192.100.122.230]:26710 "EHLO
-	mgw-mx03.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751423AbZEOUNg (ORCPT
+Received: from mail-pz0-f115.google.com ([209.85.222.115]:48584 "EHLO
+	mail-pz0-f115.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755530AbZEPAu3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 15 May 2009 16:13:36 -0400
+	Fri, 15 May 2009 20:50:29 -0400
+Received: by pzk13 with SMTP id 13so1310976pzk.33
+        for <linux-input@vger.kernel.org>; Fri, 15 May 2009 17:50:30 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <45cc95260905151230j5485995dpbbd882dc91b25339@mail.gmail.com>
+In-Reply-To: <alpine.LNX.2.00.0905151607240.22712@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: ext Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, "Balbi Felipe (Nokia-D/Helsinki)" <felipe.balbi@nokia.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Cameron <jic23@cam.ac.uk>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: =?utf-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP0YjQvtCy?= <sergey.belyashov@gmail.com>, linux-input@vger.kernel.org, Anssi Hannula <anssi.hannula@gmail.com>
 
-Hi all,
-
-
-On Fri, May 15, 2009 at 09:30:41PM +0200, ext Mohamed Ikbel Boulabiar wrote:
-> I am really interested about that.
+On Fri, May 15, 2009 at 04:08:52PM +0200, Jiri Kosina wrote:
+> On Mon, 11 May 2009, ?????? ??????? wrote:
 > 
-> But I want to know more about the device, its type, name, ...
-> The device isn't HID (Human Interface Device) ? If so, we should
-> rethink adding such thing but modify/use hid-input instead.
+> >    Of course I agree.
 > 
-> Because, I have an accelerometer phidget device and it is HID.
-> Handling should be the same.
+> I have applied the autocentering support patch for 0x286, thanks.
+> 
+> >    How about axes information in EVIOCGBIT(EV_FF,...)?
+> 
+> Anssi, Dmitry, what do you think?
+> 
 
-Yeah, let's try to define the best way to expose accelerometers with
-linux kernel and avoid a sysfs hell. Better sooner than later.
-
-> On Fri, May 15, 2009 at 7:06 PM, Trilok Soni <soni.trilok@gmail.com> wrote:
-> > Hi Felipe,
-> >
-> > Adding linux-input and Jonathan, so not deleting any lines from this e-mail.
-> >
-> > On Fri, May 15, 2009 at 6:46 PM, Felipe Balbi <felipe.balbi@nokia.com> wrote:
-> >> Hi all,
-> >>
-> >> the following patch is just an idea to see how the community feels about
-> >> it. Considering accelerometer devices, you might have different use
-> >> cases for it while running different applications. You could be using it
-> >> for screen rotation in one case but when opening a game, you could use
-> >> it as a game controller by turning the device side-by-side.
-> >
-> > There was one proposal from Jonathan called Industrial IO patchset
-> > which tried to address these sensor devices. Please grep in your
-> > linux-kernel archieve. I believe there are accelerometer drivers under
-> > drivers/hwmon.
-
-The problem is that it doesn't really seem to me that all accelerometers
-will be doing hw monitoring. The ones used in laptops, for sure, trying
-to prevent the hd from drying during a fall. But imagine the
-accelerometers used in, say, wii-mote, or cellphones, or such stuff ?
-
-Say we wanna use the accelerometer for both screen rotation and gaming,
-that device isn't doing hw monitoring and still we _do_ want to set
-different thresholds and irq requests/types for different use cases,
-right ?
-
-I'll grep around the Industrial IO patchset if that's supposed to a
-'sensor fw' sorta thing. Hope it does report the devices as input
-devices. I'm pretty sure we're gonna fall into similar issues when
-dealing with magnetometers, for instance, what's the best way to expose
-those device with current linux frameworks ? It's not really user input
-data...
-
-Well, let's see where this discussion takes us. Willing to hear from
-Jonatha, Dmitry and all of you guys
+I'd say no... Can we guarantee that all stated FF effects would be
+always applicable to every one of the ABS events types returned by
+EVIOCGBIT(EV_FF,...)?
 
 -- 
-balbi
+Dmitry

@@ -1,48 +1,37 @@
-From: Michael Roth <mroth@nessie.de>
-Subject: [PATCH 1/2] Input: ads7846 - more detailed model name in sysfs
-Date: Mon, 18 May 2009 20:23:12 +0200
-Message-ID: <1242670993-6846-2-git-send-email-mroth@nessie.de>
-References: <1242670993-6846-1-git-send-email-mroth@nessie.de>
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: [PATCH  2/3] hid: Multitouch support for the N-Trig touchscreen
+Date: Tue, 19 May 2009 00:10:43 +0200
+Message-ID: <2DB714C8-82E9-411A-881D-5327C521B5FC@enac.fr>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from monster.nessie.de ([84.200.20.120]:34912 "EHLO
-	monster.nessie.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751910AbZERS2T (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:51459 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753506AbZERWj5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 18 May 2009 14:28:19 -0400
-In-Reply-To: <1242670993-6846-1-git-send-email-mroth@nessie.de>
+	Mon, 18 May 2009 18:39:57 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dtor@mail.ru, imre.deak@nokia.com, mroth@nessie.de
+To: linux-input@vger.kernel.org, jkosina@suze.cz, Henrik Rydberg <rydberg@euromail.se>
+Cc: Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>
 
-Signed-off-by: Michael Roth <mroth@nessie.de>
----
- drivers/input/touchscreen/ads7846.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+Exported hidinput_hid_event, so as to be able to call it from device- 
+specific drivers.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 4f190dc..642f37d 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -83,6 +83,7 @@ struct ads7846_packet {
- struct ads7846 {
- 	struct input_dev	*input;
- 	char			phys[32];
-+	char			name[32];
- 
- 	struct spi_device	*spi;
- 
-@@ -958,8 +959,9 @@ static int __devinit ads7846_probe(struct spi_device *spi)
- 	ts->wait_for_sync = pdata->wait_for_sync ? : null_wait_for_sync;
- 
- 	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(&spi->dev));
-+	snprintf(ts->name, sizeof(ts->name), "ADS%d Touchscreen", ts->model);
- 
--	input_dev->name = "ADS784x Touchscreen";
-+	input_dev->name = ts->name;
- 	input_dev->phys = ts->phys;
- 	input_dev->dev.parent = &spi->dev;
- 
--- 
-1.6.0.6
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
+
+diff -rupN a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+--- a/drivers/hid/hid-input.c	2009-05-09 02:14:14.000000000 +0200
++++ b/drivers/hid/hid-input.c	2009-05-16 16:10:39.000000000 +0200
+@@ -653,6 +653,7 @@ void hidinput_hid_event(struct hid_devic
+  	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type ==  
+EV_KEY))
+  		input_event(input, usage->type, usage->code, 0);
+  }
++EXPORT_SYMBOL_GPL(hidinput_hid_event);
+
+  void hidinput_report_event(struct hid_device *hid, struct  
+hid_report *report)
+  {
 

@@ -1,79 +1,57 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: [RFC] Add Input IOCTL for accelerometer devices
-Date: Tue, 19 May 2009 14:34:15 +0200
-Message-ID: <45cc95260905190534m561d666ds1fd5d38b4a08ba5b@mail.gmail.com>
-References: <20090515131636.GE4443@nokia.com> <5d5443650905151106v2fe7ad1ci6c966463a991e732@mail.gmail.com>
-	<45cc95260905151230j5485995dpbbd882dc91b25339@mail.gmail.com>
-	<20090515200235.GA11829@nokia.com> <4d34a0a70905180045u6619773dt1563fe38b13d46fb@mail.gmail.com>
-	<20090518091236.GH4443@nokia.com> <4A121C54.2040205@samsung.com>
-	<20090519104202.GB30597@nokia.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH  2/3] hid: Multitouch support for the N-Trig
+ touchscreen
+Date: Tue, 19 May 2009 16:46:00 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0905191643290.22712@wotan.suse.de>
+References: <2DB714C8-82E9-411A-881D-5327C521B5FC@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-1678057659-1242744360=:22712"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f224.google.com ([209.85.219.224]:52971 "EHLO
-	mail-ew0-f224.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751051AbZESMef convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2009 08:34:35 -0400
-In-Reply-To: <20090519104202.GB30597@nokia.com>
+Received: from cantor.suse.de ([195.135.220.2]:46746 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753864AbZESOqE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 19 May 2009 10:46:04 -0400
+In-Reply-To: <2DB714C8-82E9-411A-881D-5327C521B5FC@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: felipe.balbi@nokia.com
-Cc: ext Kim Kyuwon <q1.kim@samsung.com>, ext Kim Kyuwon <chammoru@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Cameron <jic23@cam.ac.uk>, Kyungmin Park <kyungmin.park@samsung.com>, Jean Delvare <khali@linux-fr.org>
+To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
->>  > But then comes another question: what to do with
->> > magnetometers, gyroscopes, etc etc ??
->>
->> If we make a extensible sensor driver, I think we can add these new =
-etc
->> sensors in the future. step by step.
->
-> agreed here. But we have to think that this might get extended, so we
-> should start thinking of an abstraction layer that could evolve for
-> magnetometers, gyroscopes and other sensors
-
-Agree with you, there should be an abstraction layer.
-
-According to this, we should collect similar functionalities in one
-module and make sub-module describing exceptions devices or ones that
-needs special handling.
-But in the end for the user space apps, they should "see" an
-accelerometer in a standard way. All exceptions and pre-handling
-should be done in the abstraction layer as described.
-We can't bring as many full drivers as devices found, but one driver
-serving for a group and that can load submodules when necessary.
-The way HID is coded in Linux is an example for that, dealing with
-many types of devices.
-It isn't perfect, but its architecture can be used for other devices.
-
-To stay with accelerometers, they are sensors, and sensors sense
-physical properties.
-Every device use its own methods but in the end they sense the same
-thing and user wait for a similar feedback.
-
-I post a link describing the HID standard, you can see in page 37 to
-39 how they define units, and exponents for sensors.
-http://www.usb.org/developers/devclass_docs/HID1_11.pdf
-
-Also, we can't imagine all use cases and scenarios, we should bring
-useful information to userspace apps and they do what they want with
-these informations.
-KDE developers may use sensors to automatically rotate the screen
-90=B0/180=B0 if the laptop is rotated. Others will use it to play games=
-,
-Some others will use light sensors to lighten the keyboard or to
-change the brightness of the screen,...
+--168427776-1678057659-1242744360=:22712
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 
 
-What do you think ?
+[ added Rafi Rubin to CC ]
 
-_
-ikbel
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+On Tue, 19 May 2009, Stéphane Chatty wrote:
+
+> Exported hidinput_hid_event, so as to be able to call it from device-specific
+> drivers.
+> 
+> Signed-off-by: Stephane Chatty <chatty@enac.fr>
+> 
+> diff -rupN a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+> --- a/drivers/hid/hid-input.c	2009-05-09 02:14:14.000000000 +0200
+> +++ b/drivers/hid/hid-input.c	2009-05-16 16:10:39.000000000 +0200
+> @@ -653,6 +653,7 @@ void hidinput_hid_event(struct hid_devic
+> 	if ((field->flags & HID_MAIN_ITEM_RELATIVE) && (usage->type ==
+> 	EV_KEY))
+> 		input_event(input, usage->type, usage->code, 0);
+> }
+> +EXPORT_SYMBOL_GPL(hidinput_hid_event);
+
+Why is this needed? ->event() callback is called for every HID driver 
+which has this callback registered, and fallback to hidinput_hid_event() 
+is performed in cases the driver-specific ->event() handler returns return 
+value > 0 , signalizing that the event hasn't been fully processed and 
+processing by generic layer is needed.
+
+-- 
+Jiri Kosina
+SUSE Labs
+--168427776-1678057659-1242744360=:22712--

@@ -1,43 +1,53 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH] input: add driver for EETI touchpanels [v5]
-Date: Tue, 19 May 2009 11:01:43 +0200
-Message-ID: <20090519090143.GC25674@buzzloop.caiaq.de>
-References: <20090516173226.GA1448@buzzloop.caiaq.de> <1242495290-11497-1-git-send-email-daniel@caiaq.de> <20090516205719.15fbec97@hyperion.delvare>
+From: Felipe Balbi <felipe.balbi@nokia.com>
+Subject: Re: [RFC] Add Input IOCTL for accelerometer devices
+Date: Tue, 19 May 2009 13:42:02 +0300
+Message-ID: <20090519104202.GB30597@nokia.com>
+References: <20090515131636.GE4443@nokia.com> <5d5443650905151106v2fe7ad1ci6c966463a991e732@mail.gmail.com> <45cc95260905151230j5485995dpbbd882dc91b25339@mail.gmail.com> <20090515200235.GA11829@nokia.com> <4d34a0a70905180045u6619773dt1563fe38b13d46fb@mail.gmail.com> <20090518091236.GH4443@nokia.com> <4A121C54.2040205@samsung.com>
+Reply-To: felipe.balbi@nokia.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:48652 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753176AbZESJBp (ORCPT
+Received: from smtp.nokia.com ([192.100.122.233]:64451 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750849AbZESKml (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2009 05:01:45 -0400
+	Tue, 19 May 2009 06:42:41 -0400
 Content-Disposition: inline
-In-Reply-To: <20090516205719.15fbec97@hyperion.delvare>
+In-Reply-To: <4A121C54.2040205@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-input@vger.kernel.org
+To: ext Kim Kyuwon <q1.kim@samsung.com>
+Cc: "Balbi Felipe (Nokia-D/Helsinki)" <felipe.balbi@nokia.com>, ext Kim Kyuwon <chammoru@gmail.com>, ext Mohamed Ikbel Boulabiar <boulabiar@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Jonathan Cameron <jic23@cam.ac.uk>, Kyungmin Park <kyungmin.park@samsung.com>, Jean Delvare <khali@linux-fr.org>
 
-On Sat, May 16, 2009 at 08:57:19PM +0200, Jean Delvare wrote:
-> On Sat, 16 May 2009 19:34:50 +0200, Daniel Mack wrote:
-> > This patch adds a driver for EETI's I2C connected touchscreens.
-> > 
-> > Signed-off-by: Daniel Mack <daniel@caiaq.de>
-> > Tested-by: Sven Neumann <s.neumann@raumfeld.com>
-> > Cc: Jean Delvare <khali@linux-fr.org>
-> > ---
-> >  drivers/input/touchscreen/Kconfig   |    9 +
-> >  drivers/input/touchscreen/Makefile  |    1 +
-> >  drivers/input/touchscreen/eeti_ts.c |  286 +++++++++++++++++++++++++++++++++++
-> >  3 files changed, 296 insertions(+), 0 deletions(-)
-> >  create mode 100644 drivers/input/touchscreen/eeti_ts.c
+Hi,
+
+On Tue, May 19, 2009 at 04:41:24AM +0200, ext Kim Kyuwon wrote:
+> > what if you wanna use the accelerometer as joystick for gaming ? Imagine
+> > a portable device...
 > 
-> For the i2c part:
-> Acked-by: Jean Delvare <khali@linux-fr.org>
+> So I said that accelerometer driver can use input_register_device, 
+> input_register_polled_device functions.
 
-Thanks!
+exactly...
 
-Dmitry, any more thoughts about that, or is it ready for your tree?
+> Good point. We should consider the extensibility. I agree a sensor 
+> framework that abstracts input_dev. However we should discuss with Jean 
+> Delvare about the boundary between lm-sensors and input(?)-sensors
+> 
+> * However we should first confirm and review that Jonathan's iio can be 
+> the solution for input(?)-sensors *
 
-Daniel
+sure, makes sense to me
 
+>  > But then comes another question: what to do with
+> > magnetometers, gyroscopes, etc etc ??
+> 
+> If we make a extensible sensor driver, I think we can add these new etc 
+> sensors in the future. step by step.
+
+agreed here. But we have to think that this might get extended, so we
+should start thinking of an abstraction layer that could evolve for
+magnetometers, gyroscopes and other sensors
+
+-- 
+balbi

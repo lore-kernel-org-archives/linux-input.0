@@ -1,59 +1,42 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@intuilab.com>
-Subject: Re: [PATCH  2/3] hid: Multitouch support for the N-Trig touchscreen
-Date: Tue, 19 May 2009 18:46:10 +0200
-Message-ID: <68FED2BD-5101-4F92-9074-9ABFB2F2FF26@intuilab.com>
-References: <2DB714C8-82E9-411A-881D-5327C521B5FC@enac.fr> <alpine.LNX.2.00.0905191643290.22712@wotan.suse.de> <9C1D49A6-194E-4504-ACDA-573DF7E8F7E1@enac.fr>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH  3/3] hid: Multitouch support for the N-Trig touchscreen
+ [v2]
+Date: Tue, 19 May 2009 14:34:18 -0400
+Message-ID: <4A12FBAA.302@seas.upenn.edu>
+References: <3EF4E25A-E606-4056-BBF0-4BC2B31001F1@enac.fr> <alpine.LNX.2.00.0905191646130.22712@wotan.suse.de> <7DB10F0C-6528-43B9-B816-61368904D798@enac.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from intuilab.pck.nerim.net ([213.41.234.186]:59048 "EHLO
-	smtp.intuilab.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751177AbZESRMJ convert rfc822-to-8bit (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:41528 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753347AbZESSeb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2009 13:12:09 -0400
-In-Reply-To: <9C1D49A6-194E-4504-ACDA-573DF7E8F7E1@enac.fr>
+	Tue, 19 May 2009 14:34:31 -0400
+In-Reply-To: <7DB10F0C-6528-43B9-B816-61368904D798@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>
+To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
 
+I used hid-lg.c as a reference/example for what was needed and style.
+Taking the side of caution, I simply copied the copyright lines from
+that file.  I have no objection to pruning it as long as there are no
+objections.  Jiri, you're on that list, what's your feeling on this?
 
-Le 19 mai 09 =E0 17:20, St=E9phane Chatty a =E9crit :
+Rafi
 
->
-> Le 19 mai 09 =E0 16:46, Jiri Kosina a =E9crit :
->>
->> On Tue, 19 May 2009, St=E9phane Chatty wrote:
->>
->>> Exported hidinput_hid_event, so as to be able to call it from =20
->>> device-specific
->>> drivers.
->>>
->> Why is this needed? ->event() callback is called for every HID drive=
-r
->> which has this callback registered, and fallback to =20
->> hidinput_hid_event()
->> is performed in cases the driver-specific ->event() handler =20
->> returns return
->> value > 0 , signalizing that the event hasn't been fully processed =20
->> and
->> processing by generic layer is needed.
->
-> Correct me if I am wrong, but if ->event() is called and returns 1, =20
-> then hiddev_hid_event gets no chance to be called from =20
-> hid_process_event. Is hidinput exclusive of hiddev?
-
-OK, actually there's a way of doing it without calling =20
-hidinput_hid_event() at all, even if we want to make sure that hiddev-=20
-hid-event() gets a chance to be called. Then there's no use for a =20
-patch to hid-input.c. New version coming for the patch to hid-=20
-ntrig.c, taking this into account.
-
-
-St.
-
+St=E9phane Chatty wrote:
+> Added support for multitouch interaction on the N-Trig touchscreen,
+> using the new ABS_MT_* input constants.  Single touch support works a=
+s
+> previously. This code was tested against two versions of the N-Trig
+> firmware: one that supports dual pen/finger single touch, and one tha=
+t
+> supports finger multitouch  but no pen at all. Copyright notices that
+> looked wrong were removed, as it seems that there is only code writte=
+n
+> in 2009 by Rafin Rubin and Stephane Chatty in this file.
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

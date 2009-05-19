@@ -1,44 +1,45 @@
 From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH  3/3] hid: Multitouch support for the N-Trig touchscreen
- [v2]
-Date: Tue, 19 May 2009 14:34:18 -0400
-Message-ID: <4A12FBAA.302@seas.upenn.edu>
-References: <3EF4E25A-E606-4056-BBF0-4BC2B31001F1@enac.fr> <alpine.LNX.2.00.0905191646130.22712@wotan.suse.de> <7DB10F0C-6528-43B9-B816-61368904D798@enac.fr>
+Subject: Re: [PATCH 1/3 ] hid: Multitouch support for the N-Trig touchscreen
+Date: Tue, 19 May 2009 16:16:08 -0400
+Message-ID: <4A131388.1030709@seas.upenn.edu>
+References: <2DCAF4CF-1408-4C2E-9713-5BD901899953@enac.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:41528 "EHLO
+Received: from LION.seas.upenn.edu ([158.130.12.194]:54860 "EHLO
 	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753347AbZESSeb (ORCPT
+	with ESMTP id S1753705AbZESUQo (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2009 14:34:31 -0400
-In-Reply-To: <7DB10F0C-6528-43B9-B816-61368904D798@enac.fr>
+	Tue, 19 May 2009 16:16:44 -0400
+In-Reply-To: <2DCAF4CF-1408-4C2E-9713-5BD901899953@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>
+Cc: linux-input@vger.kernel.org, jkosina@suze.cz, Henrik Rydberg <rydberg@euromail.se>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>
 
-I used hid-lg.c as a reference/example for what was needed and style.
-Taking the side of caution, I simply copied the copyright lines from
-that file.  I have no objection to pruning it as long as there are no
-objections.  Jiri, you're on that list, what's your feeling on this?
+I suggest adding a comment that these usages are tentative or at least not yet mentioned in the official docs:
+http://www.usb.org/developers/hidpage#HID_Usage
+
+Anyway, very cool that you figured out all those fields.  I haven't even seen any of those codes in the 50's.
 
 Rafi
 
-St=E9phane Chatty wrote:
-> Added support for multitouch interaction on the N-Trig touchscreen,
-> using the new ABS_MT_* input constants.  Single touch support works a=
-s
-> previously. This code was tested against two versions of the N-Trig
-> firmware: one that supports dual pen/finger single touch, and one tha=
-t
-> supports finger multitouch  but no pen at all. Copyright notices that
-> looked wrong were removed, as it seems that there is only code writte=
-n
-> in 2009 by Rafin Rubin and Stephane Chatty in this file.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +    {0, 0x47, "Confidence"},
+> +    {0, 0x48, "Width"},
+> +    {0, 0x49, "Height"},
+> +    {0, 0x51, "ContactID"},
+> +    {0, 0x52, "InputMode"},
+> +    {0, 0x53, "DeviceIndex"},
+> +    {0, 0x54, "ContactCount"},
+> +    {0, 0x55, "ContactMaximumNumber"},
+
+> +#define HID_DG_CONFIDENCE    0x000d0047
+> +#define HID_DG_WIDTH        0x000d0048
+> +#define HID_DG_HEIGHT        0x000d0049
+> +#define HID_DG_CONTACTID    0x000d0051
+> +#define HID_DG_INPUTMODE    0x000d0052
+> +#define HID_DG_DEVICEINDEX    0x000d0053
+> +#define HID_DG_CONTACTCOUNT    0x000d0054
+> +#define HID_DG_CONTACTMAX    0x000d0055
+

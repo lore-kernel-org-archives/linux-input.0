@@ -1,211 +1,205 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: [PATCH] input: mt: Add MT Events reporting to evtest
-Date: Tue, 19 May 2009 23:42:45 +0100
-Message-ID: <45cc95260905191542x557a88ect8563eb25937b5dae@mail.gmail.com>
-References: <45cc95260905191520w7d834124k2c8f970d82981809@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Jeremy Huddleston <jeremyhu@freedesktop.org>
+Subject: Re: hid_apple bug: arrow keys interpreted as Fn
+Date: Tue, 19 May 2009 18:04:04 -0700
+Message-ID: <B9186545-9C33-4ADA-A3D9-8B5A5DA377CE@freedesktop.org>
+References: <3E66E0E0-3B2B-4F78-9A62-87015A842A47@freedesktop.org> <C3870FA0-209F-4D40-8923-34D594B75EB1@freedesktop.org> <4A132540.7070409@gmail.com>
+Mime-Version: 1.0 (Apple Message framework v935.3)
+Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f176.google.com ([209.85.219.176]:59592 "EHLO
-	mail-ew0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754026AbZESWnF convert rfc822-to-8bit (ORCPT
+Received: from cloud.CS.Berkeley.EDU ([128.32.36.234]:58680 "EHLO
+	mail.outersquare.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754888AbZETBEK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 19 May 2009 18:43:05 -0400
-Received: by ewy24 with SMTP id 24so130647ewy.37
-        for <linux-input@vger.kernel.org>; Tue, 19 May 2009 15:43:05 -0700 (PDT)
-In-Reply-To: <45cc95260905191520w7d834124k2c8f970d82981809@mail.gmail.com>
+	Tue, 19 May 2009 21:04:10 -0400
+In-Reply-To: <4A132540.7070409@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: USB list <linux-input@vger.kernel.org>
-
-This patch adds new MT events reporting capabilities to evtest tool.
-New multi-touch events were added by Henrik Rydberg in the kernel-2.6.3=
-0-rc5.
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
 
 
-=46rom: Mohamed-Ikbel Boulabiar <ikbel.boulabiar@enac.fr>
-Tested-by: St=E9phane Chatty <chatty@enac.fr>
+On May 19, 2009, at 14:31, Jiri Slaby wrote:
+
+> On 05/19/2009 07:13 AM, Jeremy Huddleston wrote:
+>> I'm sending this to you since you're the most recent maintainer  
+>> listed
+>> in hid_apple.c ... please let me know if I should look somewhere  
+>> else...
+>>
+>> I've found a weird issue using hid_apple in a recent linux-2.6 git.
+>> Pressing 3 arrow keys at once causes a problem whereby the third  
+>> press
+>> and the first release are interpreted as Fn instead of the actual  
+>> key.
+>>
+>> From evtest.c (http://people.freedesktop.org/~whot/evtest.c):
+>
+> Could you rebuild your kernel with HID_DEBUG enabled, modprobe hid
+> module with hid_debug=2, retry and send the resulting dmesg output?
+>
+> To me it now looks like the FN is sent from the kbd, but I might be
+> wrong again.
 
 
+I used debug=2 since hid doesn't know about hid_debug on my kernel  
+(linux-2.6 git master as of a few hours ago)
 
-diff -rupN a/utils/evtest.c b/utils/evtest.c
---- a/utils/evtest.c =A0 =A02009-05-19 23:42:18.000000000 +0100
-+++ b/utils/evtest.c =A0 =A02009-05-19 23:37:11.000000000 +0100
-@@ -2,7 +2,7 @@
-=A0* $Id$
-=A0*
-=A0* =A0Copyright (c) 1999-2000 Vojtech Pavlik
-- *
-+ * =A0 =A0 =A0 =A0 =A0 =A0 =A0 2009 Mohamed-Ikbel Boulabiar
-=A0* =A0Event device test program
-=A0*/
+starting, no keys pressed
 
-@@ -49,6 +49,21 @@ char *events[EV_MAX + 1] =3D {
-=A0 =A0 =A0 =A0[EV_FF_STATUS] =3D "ForceFeedbackStatus",
-=A0};
+press right:
+May 19 18:01:14 aeris kernel: [  256.453247] drivers/hid/hid-core.c:  
+report (size 8) (unnumbered)
+May 19 18:01:14 aeris kernel: [  256.453259] drivers/hid/hid-core.c:  
+report 0 (size 8) =  00 00 4f 00 00 00 00 00
+May 19 18:01:14 aeris kernel: [  256.453278] hid-debug: input Keyboard. 
+00e0 = 0
+May 19 18:01:14 aeris kernel: [  256.453295] hid-debug: input Keyboard. 
+00e1 = 0
+May 19 18:01:14 aeris kernel: [  256.453304] hid-debug: input Keyboard. 
+00e2 = 0
+May 19 18:01:14 aeris kernel: [  256.453313] hid-debug: input Keyboard. 
+00e3 = 0
+May 19 18:01:14 aeris kernel: [  256.453322] hid-debug: input Keyboard. 
+00e4 = 0
+May 19 18:01:14 aeris kernel: [  256.453331] hid-debug: input Keyboard. 
+00e5 = 0
+May 19 18:01:14 aeris kernel: [  256.453340] hid-debug: input Keyboard. 
+00e6 = 0
+May 19 18:01:14 aeris kernel: [  256.453349] hid-debug: input Keyboard. 
+00e7 = 0
+May 19 18:01:14 aeris kernel: [  256.453359] hid-debug: input Keyboard. 
+004f = 1
+May 19 18:01:14 aeris kernel: [  256.453373] hid-debug: input 00ff. 
+0003 = 0
 
-+int ev_max[EV_MAX + 1] =3D {
-+ =A0 =A0 =A0 [EV_SYN] =3D 2, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 [EV_KEY] =3D KEY_MAX,
-+ =A0 =A0 =A0 [EV_REL] =3D REL_MAX, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 [EV_ABS] =3D ABS_MAX,
-+ =A0 =A0 =A0 [EV_MSC] =3D MSC_MAX, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 [EV_LED] =3D LED_MAX,
-+ =A0 =A0 =A0 [EV_SND] =3D SND_MAX, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 [EV_REP] =3D REP_MAX,
-+ =A0 =A0 =A0 [EV_FF] =3D FF_MAX, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 [EV_PWR] =3D -1,
-+ =A0 =A0 =A0 [EV_FF_STATUS] =3D FF_STATUS_MAX,
-+};
-+
-+char *syncs[3] =3D {
-+ =A0 =A0 =A0 [SYN_REPORT] =3D "Report Sync", =A0 =A0 =A0 =A0 =A0 [SYN_=
-CONFIG] =3D "Config Sync",
-+ =A0 =A0 =A0 [SYN_MT_REPORT] =3D "MT Report Sync"
-+};
-+
-+
-=A0char *keys[KEY_MAX + 1] =3D {
-=A0 =A0 =A0 =A0[0 ... KEY_MAX] =3D NULL,
-=A0 =A0 =A0 =A0[KEY_RESERVED] =3D "Reserved", =A0 =A0 =A0 =A0 =A0 =A0[K=
-EY_ESC] =3D "Esc",
-@@ -239,19 +254,24 @@ char *relatives[REL_MAX + 1] =3D {
+press down:
+May 19 18:01:17 aeris kernel: [  259.429256] drivers/hid/hid-core.c:  
+report (size 8) (unnumbered)
+May 19 18:01:17 aeris kernel: [  259.429268] drivers/hid/hid-core.c:  
+report 0 (size 8) =  00 00 4f 51 00 00 00 00
+May 19 18:01:17 aeris kernel: [  259.429288] hid-debug: input Keyboard. 
+00e0 = 0
+May 19 18:01:17 aeris kernel: [  259.429305] hid-debug: input Keyboard. 
+00e1 = 0
+May 19 18:01:17 aeris kernel: [  259.429315] hid-debug: input Keyboard. 
+00e2 = 0
+May 19 18:01:17 aeris kernel: [  259.429324] hid-debug: input Keyboard. 
+00e3 = 0
+May 19 18:01:17 aeris kernel: [  259.429333] hid-debug: input Keyboard. 
+00e4 = 0
+May 19 18:01:17 aeris kernel: [  259.429341] hid-debug: input Keyboard. 
+00e5 = 0
+May 19 18:01:17 aeris kernel: [  259.429350] hid-debug: input Keyboard. 
+00e6 = 0
+May 19 18:01:17 aeris kernel: [  259.429359] hid-debug: input Keyboard. 
+00e7 = 0
+May 19 18:01:17 aeris kernel: [  259.429370] hid-debug: input Keyboard. 
+0051 = 1
+May 19 18:01:17 aeris kernel: [  259.429423] hid-debug: input 00ff. 
+0003 = 0
 
-=A0char *absolutes[ABS_MAX + 1] =3D {
-=A0 =A0 =A0 =A0[0 ... ABS_MAX] =3D NULL,
-- =A0 =A0 =A0 [ABS_X] =3D "X", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0[ABS_=
-Y] =3D "Y",
-- =A0 =A0 =A0 [ABS_Z] =3D "Z", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0[ABS_=
-RX] =3D "Rx",
-- =A0 =A0 =A0 [ABS_RY] =3D "Ry", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0[ABS_RZ=
-] =3D "Rz",
-- =A0 =A0 =A0 [ABS_THROTTLE] =3D "Throttle", =A0 =A0[ABS_RUDDER] =3D "R=
-udder",
-- =A0 =A0 =A0 [ABS_WHEEL] =3D "Wheel", =A0 =A0 =A0 =A0 =A0[ABS_GAS] =3D=
- "Gas",
-- =A0 =A0 =A0 [ABS_BRAKE] =3D "Brake", =A0 =A0 =A0 =A0 =A0[ABS_HAT0X] =3D=
- "Hat0X",
-- =A0 =A0 =A0 [ABS_HAT0Y] =3D "Hat0Y", =A0 =A0 =A0 =A0 =A0[ABS_HAT1X] =3D=
- "Hat1X",
-- =A0 =A0 =A0 [ABS_HAT1Y] =3D "Hat1Y", =A0 =A0 =A0 =A0 =A0[ABS_HAT2X] =3D=
- "Hat2X",
-- =A0 =A0 =A0 [ABS_HAT2Y] =3D "Hat2Y", =A0 =A0 =A0 =A0 =A0[ABS_HAT3X] =3D=
- "Hat3X",
-- =A0 =A0 =A0 [ABS_HAT3Y] =3D "Hat 3Y", =A0 =A0 =A0 =A0 [ABS_PRESSURE] =
-=3D "Pressure",
-- =A0 =A0 =A0 [ABS_DISTANCE] =3D "Distance", =A0 =A0[ABS_TILT_X] =3D "X=
-Tilt",
-- =A0 =A0 =A0 [ABS_TILT_Y] =3D "YTilt", =A0 =A0 =A0 =A0 [ABS_TOOL_WIDTH=
-] =3D "Tool Width",
-- =A0 =A0 =A0 [ABS_VOLUME] =3D "Volume", =A0 =A0 =A0 =A0[ABS_MISC] =3D =
-"Misc",
-+ =A0 =A0 =A0 [ABS_X] =3D "X", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0[ABS_Y] =3D "Y",
-+ =A0 =A0 =A0 [ABS_Z] =3D "Z", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0[ABS_RX] =3D "Rx",
-+ =A0 =A0 =A0 [ABS_RY] =3D "Ry", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0[ABS_RZ] =3D "Rz",
-+ =A0 =A0 =A0 [ABS_THROTTLE] =3D "Throttle", =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0[ABS_RUDDER] =3D "Rudder",
-+ =A0 =A0 =A0 [ABS_WHEEL] =3D "Wheel", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0[ABS_GAS] =3D "Gas",
-+ =A0 =A0 =A0 [ABS_BRAKE] =3D "Brake", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0[ABS_HAT0X] =3D "Hat0X",
-+ =A0 =A0 =A0 [ABS_HAT0Y] =3D "Hat0Y", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0[ABS_HAT1X] =3D "Hat1X",
-+ =A0 =A0 =A0 [ABS_HAT1Y] =3D "Hat1Y", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0[ABS_HAT2X] =3D "Hat2X",
-+ =A0 =A0 =A0 [ABS_HAT2Y] =3D "Hat2Y", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0[ABS_HAT3X] =3D "Hat3X",
-+ =A0 =A0 =A0 [ABS_HAT3Y] =3D "Hat 3Y", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 [ABS_PRESSURE]
-=3D "Pressure",
-+ =A0 =A0 =A0 [ABS_DISTANCE] =3D "Distance", =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0[ABS_TILT_X] =3D "XTilt",
-+ =A0 =A0 =A0 [ABS_TILT_Y] =3D "YTilt",
-[ABS_TOOL_WIDTH] =3D "Tool Width",
-+ =A0 =A0 =A0 [ABS_VOLUME] =3D "Volume", =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0[ABS_MISC] =3D "Misc",
-+ =A0 =A0 =A0 [ABS_MT_TOUCH_MAJOR] =3D "MT Touch Major",
-[ABS_MT_TOUCH_MINOR] =3D "MT
-Touch Minor",
-+ =A0 =A0 =A0 [ABS_MT_WIDTH_MAJOR] =3D "MT Major Width",
-[ABS_MT_WIDTH_MINOR] =3D "MT
-Minor Width",
-+ =A0 =A0 =A0 [ABS_MT_POSITION_X] =3D "MT Position X",
-[ABS_MT_POSITION_Y] =3D "MT Position Y",
-+ =A0 =A0 =A0 [ABS_MT_TOOL_TYPE] =3D "MT Tool Type",
-[ABS_MT_BLOB_ID] =3D "MT Blob Id",
-+ =A0 =A0 =A0 [ABS_MT_ORIENTATION] =3D "MT Orientation",
-=A0};
+press left:
+May 19 18:01:20 aeris kernel: [  262.469256] drivers/hid/hid-core.c:  
+report (size 8) (unnumbered)
+May 19 18:01:20 aeris kernel: [  262.469269] drivers/hid/hid-core.c:  
+report 0 (size 8) =  00 00 01 01 01 01 01 01
+May 19 18:01:20 aeris kernel: [  262.469289] hid-debug: input Keyboard. 
+00e0 = 0
+May 19 18:01:20 aeris kernel: [  262.469307] hid-debug: input Keyboard. 
+00e1 = 0
+May 19 18:01:20 aeris kernel: [  262.469316] hid-debug: input Keyboard. 
+00e2 = 0
+May 19 18:01:20 aeris kernel: [  262.469326] hid-debug: input Keyboard. 
+00e3 = 0
+May 19 18:01:20 aeris kernel: [  262.469334] hid-debug: input Keyboard. 
+00e4 = 0
+May 19 18:01:20 aeris kernel: [  262.469343] hid-debug: input Keyboard. 
+00e5 = 0
+May 19 18:01:20 aeris kernel: [  262.469352] hid-debug: input Keyboard. 
+00e6 = 0
+May 19 18:01:20 aeris kernel: [  262.469361] hid-debug: input Keyboard. 
+00e7 = 0
+May 19 18:01:20 aeris kernel: [  262.469372] hid-debug: input 00ff. 
+0003 = 1
 
-=A0char *misc[MSC_MAX + 1] =3D {
-@@ -283,7 +303,7 @@ char *sounds[SND_MAX + 1] =3D {
+release right:
+May 19 18:01:22 aeris kernel: [  264.981247] drivers/hid/hid-core.c:  
+report (size 8) (unnumbered)
+May 19 18:01:22 aeris kernel: [  264.981258] drivers/hid/hid-core.c:  
+report 0 (size 8) =  00 00 51 50 00 00 00 00
+May 19 18:01:22 aeris kernel: [  264.981278] hid-debug: input Keyboard. 
+00e0 = 0
+May 19 18:01:22 aeris kernel: [  264.981295] hid-debug: input Keyboard. 
+00e1 = 0
+May 19 18:01:22 aeris kernel: [  264.981304] hid-debug: input Keyboard. 
+00e2 = 0
+May 19 18:01:22 aeris kernel: [  264.981313] hid-debug: input Keyboard. 
+00e3 = 0
+May 19 18:01:22 aeris kernel: [  264.981322] hid-debug: input Keyboard. 
+00e4 = 0
+May 19 18:01:22 aeris kernel: [  264.981331] hid-debug: input Keyboard. 
+00e5 = 0
+May 19 18:01:22 aeris kernel: [  264.981340] hid-debug: input Keyboard. 
+00e6 = 0
+May 19 18:01:22 aeris kernel: [  264.981349] hid-debug: input Keyboard. 
+00e7 = 0
+May 19 18:01:22 aeris kernel: [  264.981359] hid-debug: input Keyboard. 
+004f = 0
+May 19 18:01:22 aeris kernel: [  264.981369] hid-debug: input Keyboard. 
+0050 = 1
+May 19 18:01:22 aeris kernel: [  264.981411] hid-debug: input 00ff. 
+0003 = 0
 
-=A0char **names[EV_MAX + 1] =3D {
-=A0 =A0 =A0 =A0[0 ... EV_MAX] =3D NULL,
-- =A0 =A0 =A0 [EV_SYN] =3D events, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0[EV_KEY] =3D keys,
-+ =A0 =A0 =A0 [EV_SYN] =3D syncs, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 [EV_KEY] =3D keys,
-=A0 =A0 =A0 =A0[EV_REL] =3D relatives, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 [EV_ABS] =3D absolutes,
-=A0 =A0 =A0 =A0[EV_MSC] =3D misc, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0[EV_LED] =3D leds,
-=A0 =A0 =A0 =A0[EV_SND] =3D sounds, =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0[EV_REP] =3D repeats,
-@@ -339,9 +359,9 @@ int main (int argc, char **argv)
-=A0 =A0 =A0 =A0for (i =3D 0; i < EV_MAX; i++)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (test_bit(i, bit[0])) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0printf(" =A0Event type %=
-d (%s)\n", i, events[i] ?
-events[i] : "?");
-- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!i) continue;
-+// =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (!i) continue;
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ioctl(fd, EVIOCGBIT(i, K=
-EY_MAX), bit[i]);
-- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (j =3D 0; j < KEY_MAX=
-; j++)
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (j =3D 0; j <=3D ev_m=
-ax[i]; j++)
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (test=
-_bit(j, bit[i])) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0printf(" =A0 =A0Event code %d
-(%s)\n", j, names[i] ? (names[i][j] ?
-names[i][j] : "?") : "?");
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0if (i =3D=3D EV_ABS) {
-@@ -369,7 +389,8 @@ int main (int argc, char **argv)
+release down:
+May 19 18:01:25 aeris kernel: [  267.405254] drivers/hid/hid-core.c:  
+report (size 8) (unnumbered)
+May 19 18:01:25 aeris kernel: [  267.405267] drivers/hid/hid-core.c:  
+report 0 (size 8) =  00 00 50 00 00 00 00 00
+May 19 18:01:25 aeris kernel: [  267.405288] hid-debug: input Keyboard. 
+00e0 = 0
+May 19 18:01:25 aeris kernel: [  267.405304] hid-debug: input Keyboard. 
+00e1 = 0
+May 19 18:01:25 aeris kernel: [  267.405314] hid-debug: input Keyboard. 
+00e2 = 0
+May 19 18:01:25 aeris kernel: [  267.405323] hid-debug: input Keyboard. 
+00e3 = 0
+May 19 18:01:25 aeris kernel: [  267.405332] hid-debug: input Keyboard. 
+00e4 = 0
+May 19 18:01:25 aeris kernel: [  267.405340] hid-debug: input Keyboard. 
+00e5 = 0
+May 19 18:01:25 aeris kernel: [  267.405349] hid-debug: input Keyboard. 
+00e6 = 0
+May 19 18:01:25 aeris kernel: [  267.405359] hid-debug: input Keyboard. 
+00e7 = 0
+May 19 18:01:25 aeris kernel: [  267.405369] hid-debug: input Keyboard. 
+0051 = 0
+May 19 18:01:25 aeris kernel: [  267.405424] hid-debug: input 00ff. 
+0003 = 0
 
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (ev[i].type =3D=3D EV=
-_SYN) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0printf("=
-Event: time %ld.%06ld,
--------------- %s ------------\n",
-- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 ev[i].time.tv_sec,
-ev[i].time.tv_usec, ev[i].code ? "Config
-Sync" : "Report Sync" );
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 ev[i].time.tv_sec, ev[i].time.tv_usec,
-+ =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 names[ev[i].type] ?
-(names[ev[i].type][ev[i].code] ?
-names[ev[i].type][ev[i].code] : "?") : "?");
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0} else if (ev[i].type =3D=
-=3D EV_MSC && (ev[i].code
-=3D=3D MSC_RAW ||
-ev[i].code =3D=3D MSC_SCAN)) {
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0printf("=
-Event: time %ld.%06ld, type %d
-(%s), code %d (%s), value %02x\n",
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0ev[i].time.tv_sec,
-ev[i].time.tv_usec, ev[i].type,
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+release left:
+May 19 18:01:26 aeris kernel: [  269.277246] drivers/hid/hid-core.c:  
+report (size 8) (unnumbered)
+May 19 18:01:26 aeris kernel: [  269.277258] drivers/hid/hid-core.c:  
+report 0 (size 8) =  00 00 00 00 00 00 00 00
+May 19 18:01:26 aeris kernel: [  269.277278] hid-debug: input Keyboard. 
+00e0 = 0
+May 19 18:01:26 aeris kernel: [  269.277295] hid-debug: input Keyboard. 
+00e1 = 0
+May 19 18:01:26 aeris kernel: [  269.277304] hid-debug: input Keyboard. 
+00e2 = 0
+May 19 18:01:26 aeris kernel: [  269.277313] hid-debug: input Keyboard. 
+00e3 = 0
+May 19 18:01:26 aeris kernel: [  269.277322] hid-debug: input Keyboard. 
+00e4 = 0
+May 19 18:01:26 aeris kernel: [  269.277331] hid-debug: input Keyboard. 
+00e5 = 0
+May 19 18:01:26 aeris kernel: [  269.277340] hid-debug: input Keyboard. 
+00e6 = 0
+May 19 18:01:26 aeris kernel: [  269.277349] hid-debug: input Keyboard. 
+00e7 = 0
+May 19 18:01:26 aeris kernel: [  269.277359] hid-debug: input Keyboard. 
+0050 = 0
+May 19 18:01:26 aeris kernel: [  269.277401] hid-debug: input 00ff. 
+0003 = 0
+

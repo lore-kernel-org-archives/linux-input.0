@@ -1,44 +1,39 @@
-From: Jeremy Huddleston <jeremyhu@freedesktop.org>
-Subject: Re: hid_apple bug: arrow keys interpreted as Fn
-Date: Wed, 20 May 2009 10:41:03 -0700
-Message-ID: <4A1440AF.7090807@freedesktop.org>
-References: <3E66E0E0-3B2B-4F78-9A62-87015A842A47@freedesktop.org> <C3870FA0-209F-4D40-8923-34D594B75EB1@freedesktop.org> <4A132540.7070409@gmail.com> <B9186545-9C33-4ADA-A3D9-8B5A5DA377CE@freedesktop.org> <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: IS_INPUT_APPLICATION and tablets
+Date: Wed, 20 May 2009 23:30:07 +0200
+Message-ID: <33210D89-9534-4B12-B7C3-E7FAEA3C4A5D@enac.fr>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cloud.CS.Berkeley.EDU ([128.32.36.234]:47994 "EHLO
-	mail.outersquare.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754618AbZETRlI (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:46232 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753914AbZETVaM (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 13:41:08 -0400
-In-Reply-To: <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
+	Wed, 20 May 2009 17:30:12 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>, jirislaby@gmail.com
+Cc: Greg KH <greg@kroah.com>, linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Dear Jiris, dear Greg,
 
-Jiri Kosina wrote:
+I just saw a message in the linux-input ml about a USB tablet that is  
+not registered in the input layer. Someone proposed that there might  
+be no useful application in the HID report descriptors.
 
-> Looks like the state machine inside the keyboard gets a little bit crazy 
-> when you press the third button. The data that HID core sees coming on USB 
-> bus really don't represent [right,down,left] being pressed.
-> 
-> Do you have any chance to verify whether this works properly in a 
-> different operating system? It would require very specific handling 
-> violating the standard.
+There is an other possibility: the IS_INPUT_APPLICATION in hid.h  
+might fail to capture a legitimate application. I am currently  
+working on a HID driver for a multitouch surface by Stantum that has  
+application usage 0x000d0004 (Digitizer / Touchscreen), and I had to  
+change IS_INPUT_APPLICATION to have it registered in the input layer.  
+The N-Trig surface is registered only because it declares two  
+application collections: a Pen and a Touchscreen.
 
-I *belive* it worked fine on OSX.  I don't have it installed on this
-machine at the moment, so I can't verify right now.  I'll install it on
-a firewire drive soon and get back to you.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+The comment that accompanies the definition of the macro looks very  
+old. Is there another reason why the definition of input applications  
+is so restrictive? I had in mind to add the range  
+0x000d0002-0x000d0006 at least. Is there any contraindication to this?
 
-iD8DBQFKFECvjC1Anjf1NmMRAuFOAJ4wwHJi2B27r82e6yB5gfwiG2h/EgCfZ79g
-shiwKCxclIpjz1NXodZ0/No=
-=Owmi
------END PGP SIGNATURE-----
+St.
+

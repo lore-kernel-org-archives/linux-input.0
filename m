@@ -1,38 +1,44 @@
-From: Anssi Hannula <anssi.hannula@gmail.com>
-Subject: Re: [PATCH] autocentering support for Logitech Force 3D Pro
-Date: Wed, 20 May 2009 20:32:28 +0300
-Message-ID: <4A143EAC.2000505@gmail.com>
-References: <bb829a0b0905081244j36d069bfre73eba5d170494b3@mail.gmail.com> <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de> <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com> <alpine.LNX.2.00.0905151607240.22712@wotan.suse.de> <20090516005012.GA9564@dtor-d630.eng.vmware.com>
+From: Jeremy Huddleston <jeremyhu@freedesktop.org>
+Subject: Re: hid_apple bug: arrow keys interpreted as Fn
+Date: Wed, 20 May 2009 10:41:03 -0700
+Message-ID: <4A1440AF.7090807@freedesktop.org>
+References: <3E66E0E0-3B2B-4F78-9A62-87015A842A47@freedesktop.org> <C3870FA0-209F-4D40-8923-34D594B75EB1@freedesktop.org> <4A132540.7070409@gmail.com> <B9186545-9C33-4ADA-A3D9-8B5A5DA377CE@freedesktop.org> <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mta-out.inet.fi ([195.156.147.13]:44385 "EHLO jenni2.inet.fi"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753210AbZETRcp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 13:32:45 -0400
-In-Reply-To: <20090516005012.GA9564@dtor-d630.eng.vmware.com>
+Received: from cloud.CS.Berkeley.EDU ([128.32.36.234]:47994 "EHLO
+	mail.outersquare.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754618AbZETRlI (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2009 13:41:08 -0400
+In-Reply-To: <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, =?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP?= =?UTF-8?B?0YjQvtCy?= <sergey.belyashov@gmail.com>, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> On Fri, May 15, 2009 at 04:08:52PM +0200, Jiri Kosina wrote:
->> On Mon, 11 May 2009, ?????? ??????? wrote:
->>
->>>    Of course I agree.
->> I have applied the autocentering support patch for 0x286, thanks.
->>
->>>    How about axes information in EVIOCGBIT(EV_FF,...)?
->> Anssi, Dmitry, what do you think?
->>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Jiri Kosina wrote:
+
+> Looks like the state machine inside the keyboard gets a little bit crazy 
+> when you press the third button. The data that HID core sees coming on USB 
+> bus really don't represent [right,down,left] being pressed.
 > 
-> I'd say no... Can we guarantee that all stated FF effects would be
-> always applicable to every one of the ABS events types returned by
-> EVIOCGBIT(EV_FF,...)?
+> Do you have any chance to verify whether this works properly in a 
+> different operating system? It would require very specific handling 
+> violating the standard.
 
-I agree with no.
+I *belive* it worked fine on OSX.  I don't have it installed on this
+machine at the moment, so I can't verify right now.  I'll install it on
+a firewire drive soon and get back to you.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
--- 
-Anssi Hannula
+iD8DBQFKFECvjC1Anjf1NmMRAuFOAJ4wwHJi2B27r82e6yB5gfwiG2h/EgCfZ79g
+shiwKCxclIpjz1NXodZ0/No=
+=Owmi
+-----END PGP SIGNATURE-----

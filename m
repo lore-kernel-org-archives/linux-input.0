@@ -1,162 +1,119 @@
-From: Henrik Rydberg <rydberg@euromail.se>
-Subject: Re: [PATCH] input: mt: Augment the event semantics documentation
-Date: Wed, 20 May 2009 10:58:16 +0200
-Message-ID: <4A13C628.7030402@euromail.se>
-References: <1242593479-9238-1-git-send-email-rydberg@euromail.se> <20090520025957.GE17649@dtor-d630.eng.vmware.com> <4A13BC50.4010705@euromail.se> <200905200144.22454.dmitry.torokhov@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH 1/3 ] hid: Multitouch support for the N-Trig touchscreen [v2]
+Date: Wed, 20 May 2009 11:42:03 +0200
+Message-ID: <D8BE82D0-E301-4C65-A05C-D9B1CC925E14@enac.fr>
+References: <2DCAF4CF-1408-4C2E-9713-5BD901899953@enac.fr>  <4A131388.1030709@seas.upenn.edu>  <1F279E42-BCE3-48DE-AFF3-1108BA000843@enac.fr> <4A131E89.7070208@seas.upenn.edu>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from ch-smtp02.sth.basefarm.net ([80.76.149.213]:59539 "EHLO
-	ch-smtp02.sth.basefarm.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753980AbZETI60 (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:55001 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753985AbZETJmI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 04:58:26 -0400
-In-Reply-To: <200905200144.22454.dmitry.torokhov@gmail.com>
+	Wed, 20 May 2009 05:42:08 -0400
+In-Reply-To: <4A131E89.7070208@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suze.cz, Henrik Rydberg <rydberg@euromail.se>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>
 
-Dmitry Torokhov wrote:
-> On Wednesday 20 May 2009 01:16:16 Henrik Rydberg wrote:
->> Dmitry Torokhov wrote:
->>> Hi Henrik,
->>>
->>> On Sun, May 17, 2009 at 10:51:19PM +0200, Henrik Rydberg wrote:
->>>> Through the collaboration to adapt the N-trig and Stantum HID
->>>> drivers to the MT protocol, some semantic clarifications to the
->>>> protocol have been made. This patch adds them to the MT documentat=
-ion.
->>>>
->>>> Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
->>>> Tested-by: St=C3=A9phane Chatty <chatty@enac.fr>
->>> I was wondering if the following changes would not make the text a =
-bit
->>> better:
->> They do, thanks. I got more comments on the text, perhaps it is easi=
-est
->> if I send an additional patch on top of this one, with your changes
->> included? It seems folding a patch is easier than to find out what
->> changes were made to the changes.
->>
->
-> Sure, send it along.
->
+Added constants to hid.h for all digitizer usages (including the new  
+multitouch ones), and updated hid-debug.c to support the new MT input  
+constants such as ABS_MT_POSITION_X.
 
-Signed-off-by: Henrik Rydberg <rydberg@euromail.se>
 
-diff --git a/Documentation/input/multi-touch-protocol.txt b/Documentati=
-on/input/multi-touch-protocol.txt
-index dd755c2..a12ea3b 100644
---- a/Documentation/input/multi-touch-protocol.txt
-+++ b/Documentation/input/multi-touch-protocol.txt
-@@ -21,9 +21,9 @@ packet. The end of a packet is marked by calling the =
-input_mt_sync()
- function, which generates a SYN_MT_REPORT event. This instructs the
- receiver to accept the data for the current finger and prepare to rece=
-ive
- another. The end of a multi-touch transfer is marked by calling the us=
-ual
--input_sync() function. This instructs the receiver to perform actions =
-based
--on the received packets, and prepare to receive a new set of finger
--packets.
-+input_sync() function. This instructs the receiver to act upon events
-+accumulated since last EV_SYN/SYN_REPORT and prepare to receive a new
-+set of events/packets.
+Signed-off-by: Stephane Chatty <chatty@enac.fr>
 
- A set of ABS_MT events with the desired properties is defined. The eve=
-nts
- are divided into categories, to allow for partial implementation.  The
-@@ -39,6 +39,19 @@ shapes grouped together by an ABS_MT_BLOB_ID. Finall=
-y, for the few devices
- that currently support it, the ABS_MT_TRACKING_ID event may be used to
- report finger tracking from hardware [5].
+diff -rupN a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+--- a/drivers/hid/hid-debug.c	2009-05-09 02:14:14.000000000 +0200
++++ b/drivers/hid/hid-debug.c	2009-05-20 09:20:20.000000000 +0200
+@@ -137,6 +137,14 @@ static const struct hid_usage_entry hid_
+      {0, 0x44, "BarrelSwitch"},
+      {0, 0x45, "Eraser"},
+      {0, 0x46, "TabletPick"},
++    {0, 0x47, "Confidence"},
++    {0, 0x48, "Width"},
++    {0, 0x49, "Height"},
++    {0, 0x51, "ContactID"},
++    {0, 0x52, "InputMode"},
++    {0, 0x53, "DeviceIndex"},
++    {0, 0x54, "ContactCount"},
++    {0, 0x55, "ContactMaximumNumber"},
+    { 15, 0, "PhysicalInterfaceDevice" },
+      {0, 0x00, "Undefined"},
+      {0, 0x01, "Physical_Interface_Device"},
+@@ -514,9 +522,11 @@ static const char *events[EV_MAX + 1] =
+  	[EV_FF_STATUS] = "ForceFeedbackStatus",
+  };
 
-+Here is what a minimal event sequence for a two-finger touch would loo=
-k
-+like:
+-static const char *syncs[2] = {
++static const char *syncs[3] = {
+  	[SYN_REPORT] = "Report",		[SYN_CONFIG] = "Config",
++	[SYN_MT_REPORT] = "MT Report",
+  };
 +
-+   ABS_MT_TOUCH_MAJOR
-+   ABS_MT_POSITION_X
-+   ABS_MT_POSITION_Y
-+   SYN_MT_REPORT
-+   ABS_MT_TOUCH_MAJOR
-+   ABS_MT_POSITION_X
-+   ABS_MT_POSITION_Y
-+   SYN_MT_REPORT
-+   SYN_REPORT
+  static const char *keys[KEY_MAX + 1] = {
+  	[KEY_RESERVED] = "Reserved",		[KEY_ESC] = "Esc",
+  	[KEY_1] = "1",				[KEY_2] = "2",
+@@ -734,8 +744,17 @@ static const char *absolutes[ABS_MAX + 1
+  	[ABS_HAT2Y] = "Hat2Y",		[ABS_HAT3X] = "Hat3X",
+  	[ABS_HAT3Y] = "Hat 3Y",		[ABS_PRESSURE] = "Pressure",
+  	[ABS_DISTANCE] = "Distance",	[ABS_TILT_X] = "XTilt",
+-	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "Tool Width",
++	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "ToolWidth",
+  	[ABS_VOLUME] = "Volume",	[ABS_MISC] = "Misc",
++	[ABS_MT_TOUCH_MAJOR] = "MTMajor",
++	[ABS_MT_TOUCH_MINOR] = "MTMinor",
++	[ABS_MT_WIDTH_MAJOR] = "MTMajorW",
++	[ABS_MT_WIDTH_MINOR] = "MTMinorW",
++	[ABS_MT_ORIENTATION] = "MTOrientation",
++	[ABS_MT_POSITION_X] = "MTPositionX",
++	[ABS_MT_POSITION_Y] = "MTPositionY",
++	[ABS_MT_TOOL_TYPE] = "MTToolType",
++	[ABS_MT_BLOB_ID] = "MTBlobID",
+  };
+
+  static const char *misc[MSC_MAX + 1] = {
+diff -rupN a/include/linux/hid.h b/include/linux/hid.h
+--- a/include/linux/hid.h	2009-05-09 02:14:14.000000000 +0200
++++ b/include/linux/hid.h	2009-05-16 16:44:24.000000000 +0200
+@@ -238,6 +238,37 @@ struct hid_item {
+  #define HID_GD_RIGHT		0x00010092
+  #define HID_GD_LEFT		0x00010093
+
++#define HID_DG_DIGITIZER	0x000d0001
++#define HID_DG_PEN		0x000d0002
++#define HID_DG_LIGHTPEN		0x000d0003
++#define HID_DG_TOUCHSCREEN	0x000d0004
++#define HID_DG_TOUCHPAD		0x000d0005
++#define HID_DG_STYLUS		0x000d0020
++#define HID_DG_PUCK		0x000d0021
++#define HID_DG_FINGER		0x000d0022
++#define HID_DG_TIPPRESSURE	0x000d0030
++#define HID_DG_BARRELPRESSURE	0x000d0031
++#define HID_DG_INRANGE		0x000d0032
++#define HID_DG_TOUCH		0x000d0033
++#define HID_DG_UNTOUCH		0x000d0034
++#define HID_DG_TAP		0x000d0035
++#define HID_DG_TABLETFUNCTIONKEY	0x000d0039
++#define HID_DG_PROGRAMCHANGEKEY	0x000d003a
++#define HID_DG_INVERT		0x000d003c
++#define HID_DG_TIPSWITCH	0x000d0042
++#define HID_DG_TIPSWITCH2	0x000d0043
++#define HID_DG_BARRELSWITCH	0x000d0044
++#define HID_DG_ERASER		0x000d0045
++#define HID_DG_TABLETPICK	0x000d0046
++#define HID_DG_CONFIDENCE	0x000d0047
++#define HID_DG_WIDTH		0x000d0048
++#define HID_DG_HEIGHT		0x000d0049
++#define HID_DG_CONTACTID	0x000d0051
++#define HID_DG_INPUTMODE	0x000d0052
++#define HID_DG_DEVICEINDEX	0x000d0053
++#define HID_DG_CONTACTCOUNT	0x000d0054
++#define HID_DG_CONTACTMAX	0x000d0055
 +
+  /*
+   * HID report types --- Ouch! HID spec says 1 2 3!
+   */
 
- Event Semantics
- ---------------
-@@ -79,8 +92,8 @@ ABS_MT_ORIENTATION
- The orientation of the ellipse. The value should describe a signed qua=
-rter
- of a revolution clockwise around the touch center. The signed value ra=
-nge
- is arbitrary, but zero should be returned for a finger aligned along t=
-he Y
--axis of the surface, something negative when twisted to the left, and
--something positive when twisted to the right. When completely aligned =
-with
-+axis of the surface, a negative value when finger is turned to the lef=
-t, and
-+a positive value when finger turned to the right. When completely alig=
-ned with
- the X axis, the range max should be returned.  Orientation can be omit=
-ted
- if the touching object is circular, or if the information is not avail=
-able
- in the kernel driver. Partial orientation support is possible if the d=
-evice
-@@ -107,7 +120,7 @@ ABS_MT_BLOB_ID
-
- The BLOB_ID groups several packets together into one arbitrarily shape=
-d
- contact. This is a low-level anonymous grouping, and should not be con=
-fused
--with the high-level trackingID [5]. Most kernel drivers will not have =
-this
-+with the high-level trackingID [5]. Most kernel drivers will not have =
-blob
- capability, and can safely omit the event.
-
- ABS_MT_TRACKING_ID
-@@ -153,9 +166,9 @@ problem of assigning a set of anonymous fingers to =
-a set of identified
- fingers is a euclidian bipartite matching problem at each event update=
-, and
- relies on a sufficiently rapid update rate.
-
--There are a few devices that support trackingID in hardware. The X dri=
-ver
--can make use of these native identifiers to reduce evdev bandwidth and=
- cpu
--usage.
-+There are a few devices that support trackingID in hardware. User spac=
-e can
-+make use of these native identifiers to reduce bandwidth and cpu usage=
-=2E
-+
-
- Notes
- -----
-@@ -176,7 +189,7 @@ could be used to derive tilt.
- time of writing (April 2009), the MT protocol is not yet merged, and t=
-he
- prototype implements finger matching, basic mouse support and two-fing=
-er
- scrolling. The project aims at improving the quality of current multi-=
-touch
--functionality available in the synaptics X driver, and in addition
-+functionality available in the Synaptics X driver, and in addition
- implement more advanced gestures.
- [4] See the section on event computation.
- [5] See the section on finger tracking.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

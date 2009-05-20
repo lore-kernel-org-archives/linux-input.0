@@ -1,57 +1,46 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH  3/3] hid: Multitouch support for the N-Trig
- touchscreen
-Date: Wed, 20 May 2009 13:00:25 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0905201257370.13917@wotan.suse.de>
-References: <3EF4E25A-E606-4056-BBF0-4BC2B31001F1@enac.fr> <alpine.LNX.2.00.0905191646130.22712@wotan.suse.de> <5696FC49-3530-4D5B-B5B5-924973AD3120@enac.fr>
+Subject: Re: [PATCH 1/3 ] hid: Multitouch support for the N-Trig touchscreen
+ [v2]
+Date: Wed, 20 May 2009 13:01:54 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0905201300360.29030@twin.jikos.cz>
+References: <2DCAF4CF-1408-4C2E-9713-5BD901899953@enac.fr>  <4A131388.1030709@seas.upenn.edu>  <1F279E42-BCE3-48DE-AFF3-1108BA000843@enac.fr> <4A131E89.7070208@seas.upenn.edu> <D8BE82D0-E301-4C65-A05C-D9B1CC925E14@enac.fr>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-1875085502-1242817225=:13917"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-16515712-1242817318=:29030"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:56740 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:56791 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753715AbZETLAY (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 07:00:24 -0400
-In-Reply-To: <5696FC49-3530-4D5B-B5B5-924973AD3120@enac.fr>
+	id S1752811AbZETLB5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2009 07:01:57 -0400
+In-Reply-To: <D8BE82D0-E301-4C65-A05C-D9B1CC925E14@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, Henrik Rydberg <rydberg@euromail.se>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>
 
   This message is in MIME format.  The first part should be readable text,
   while the remaining parts are likely unreadable without MIME-aware tools.
 
---168427776-1875085502-1242817225=:13917
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+---1747641777-16515712-1242817318=:29030
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
 Content-Transfer-Encoding: 8BIT
 
+On Wed, 20 May 2009, Stéphane Chatty wrote:
 
-[ BTW, in all your mails you have @suze.cz as my recepient domain, but 
-  it's in fact @suse.cz, you must be getting bounces for that one :) ]
+> Added constants to hid.h for all digitizer usages (including the new 
+> multitouch ones), and updated hid-debug.c to support the new MT input 
+> constants such as ABS_MT_POSITION_X.
 
-On Tue, 19 May 2009, Stéphane Chatty wrote:
+Could you please also shortly describe in the changelog and in the hid.h 
+as a comment, that these constants have not yet propagated into official 
+HID standard (which is unfortunately quite outdated), but it is on it's 
+way being pushed by Microsoft (and preferably reference the document).
 
-> > >+	static __s32 x, y, id, w, h;
-> > >+	static char reading_a_point = 0, found_contact_id = 0;
-> > >+	struct input_dev *input = field->hidinput->input;
-> >Why are these variables static? This will break horribly if multiple 
-> >devices are connected to the system, right?
-> You're right. But so far these devices are sold only as embedded in a 
-> notebook, and I doubt we will see standalone devices in the near future. 
-> Do you think it is worth planning ahead for this eventuality?
-
-But we should at least be consistent. So at least the driver should 
-explicitly check whether it is driving more than one device, and if so, 
-report that this is unsupported configuration.
-
-But I would really prefer doing this cleanly from the start (let's say 
-allocating per-device structure during probe and storing all these data in 
-it, let's say). 
-
-Would that be possible please?
+Besides that, I think it is fine.
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
---168427776-1875085502-1242817225=:13917--
+
+---1747641777-16515712-1242817318=:29030--

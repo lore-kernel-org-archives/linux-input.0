@@ -1,31 +1,38 @@
-From: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Subject: Re: A tablet driver question
-Date: Wed, 20 May 2009 17:50:37 +0100
-Message-ID: <45cc95260905200950n4d57b3emb21f09cd0c90a28f@mail.gmail.com>
-References: <7f83a3ba0905192149k338f3932u25e2d0f1b2d70e2f@mail.gmail.com>
-	<20090520051222.GA11638@kroah.com> <7f83a3ba0905192316u4753fbefi37257a7e3d20f3ef@mail.gmail.com>
-	<4A13AEEC.7010707@gmail.com> <7f83a3ba0905200858l7f78e5c7s675fea46b4ceb1c5@mail.gmail.com>
-	<4A142EC4.70202@gmail.com>
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: [PATCH] autocentering support for Logitech Force 3D Pro
+Date: Wed, 20 May 2009 20:32:28 +0300
+Message-ID: <4A143EAC.2000505@gmail.com>
+References: <bb829a0b0905081244j36d069bfre73eba5d170494b3@mail.gmail.com> <alpine.LNX.2.00.0905111705540.22712@wotan.suse.de> <bb829a0b0905110913o1a1c20hb73c7ba0f3905bd5@mail.gmail.com> <alpine.LNX.2.00.0905151607240.22712@wotan.suse.de> <20090516005012.GA9564@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-ew0-f176.google.com ([209.85.219.176]:64892 "EHLO
-	mail-ew0-f176.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753897AbZETQu5 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 12:50:57 -0400
-Received: by ewy24 with SMTP id 24so649924ewy.37
-        for <linux-input@vger.kernel.org>; Wed, 20 May 2009 09:50:57 -0700 (PDT)
-In-Reply-To: <4A142EC4.70202@gmail.com>
+Received: from mta-out.inet.fi ([195.156.147.13]:44385 "EHLO jenni2.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753210AbZETRcp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 20 May 2009 13:32:45 -0400
+In-Reply-To: <20090516005012.GA9564@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Steven Hunt <srhlefty@gmail.com>, Greg KH <greg@kroah.com>, devel@linuxdriverproject.org, linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>, =?UTF-8?B?0KHQtdGA0LPQtdC5INCR0LXQu9GP?= =?UTF-8?B?0YjQvtCy?= <sergey.belyashov@gmail.com>, linux-input@vger.kernel.org
 
-> You still can read the events through hidraw (or via
-> deprecated hiddev).
+Dmitry Torokhov wrote:
+> On Fri, May 15, 2009 at 04:08:52PM +0200, Jiri Kosina wrote:
+>> On Mon, 11 May 2009, ?????? ??????? wrote:
+>>
+>>>    Of course I agree.
+>> I have applied the autocentering support patch for 0x286, thanks.
+>>
+>>>    How about axes information in EVIOCGBIT(EV_FF,...)?
+>> Anssi, Dmitry, what do you think?
+>>
+> 
+> I'd say no... Can we guarantee that all stated FF effects would be
+> always applicable to every one of the ABS events types returned by
+> EVIOCGBIT(EV_FF,...)?
 
-Why hiddev is deprecated ?
+I agree with no.
 
-ikbel
+-- 
+Anssi Hannula

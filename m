@@ -1,128 +1,299 @@
 From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH 1/3 ] hid: Multitouch support for the N-Trig touchscreen [v3]
-Date: Wed, 20 May 2009 14:19:21 +0200
-Message-ID: <3E9831E1-5478-4A5E-9BA2-EF25D20BA519@enac.fr>
-References: <2DCAF4CF-1408-4C2E-9713-5BD901899953@enac.fr>   <4A131388.1030709@seas.upenn.edu>   <1F279E42-BCE3-48DE-AFF3-1108BA000843@enac.fr>  <4A131E89.7070208@seas.upenn.edu>  <D8BE82D0-E301-4C65-A05C-D9B1CC925E14@enac.fr> <alpine.LRH.2.00.0905201300360.29030@twin.jikos.cz>
+Subject: Re: [PATCH  3/3] hid: Multitouch support for the N-Trig touchscreen [v3]
+Date: Wed, 20 May 2009 14:30:28 +0200
+Message-ID: <9D116766-5CC3-4FF4-8EAE-15398CBBCD97@enac.fr>
+References: <3EF4E25A-E606-4056-BBF0-4BC2B31001F1@enac.fr> <alpine.LNX.2.00.0905191646130.22712@wotan.suse.de>
 Mime-Version: 1.0 (Apple Message framework v752.3)
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:47153 "EHLO
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:38216 "EHLO
 	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756256AbZETMTY (ORCPT
+	with ESMTP id S1754979AbZETMab (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 08:19:24 -0400
-In-Reply-To: <alpine.LRH.2.00.0905201300360.29030@twin.jikos.cz>
+	Wed, 20 May 2009 08:30:31 -0400
+In-Reply-To: <alpine.LNX.2.00.0905191646130.22712@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: Henrik Rydberg <rydberg@euromail.se>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>, Rafi Rubin <rafi@seas.upenn.edu>, Jiri Kosina <jkosina@suse.cz>
+Cc: Henrik Rydberg <rydberg@euromail.se>, Rafi Rubin <rafi@seas.upenn.edu>, Jiri Kosina <jkosina@suse.cz>, Mohamed Ikbel Boulabiar <medikbel@lii-enac.fr>, Sebastien Hamdani <sebastien.hamdani@gmail.com>
 
-Added constants to hid.h for all digitizer usages (including the new  
-multitouch ones that are not yet in the official USB spec but are  
-being pushed by Microsft as described in their paper "Digitizer  
-Drivers for Windows Touch and Pen-Based Computers"). Updated hid- 
-debug.c to support the new MT input constants such as ABS_MT_POSITION_X.
-
+Added support for multitouch interaction on the N-Trig touchscreen,  
+using the new ABS_MT_* input constants. Single touch support works as  
+previously. This code was tested against two versions of the N- Trig  
+firmware: one that supports dual pen/finger single touch, and one  
+that supports finger multitouch but no pen at all. Copyright notices  
+that looked wrong were removed, as it seems that there is only code  
+written in 2009 by Rafin Rubin and Stephane Chatty in this file.
 
 Signed-off-by: Stephane Chatty <chatty@enac.fr>
 
-diff -rupN a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
---- a/drivers/hid/hid-debug.c	2009-05-09 02:14:14.000000000 +0200
-+++ b/drivers/hid/hid-debug.c	2009-05-20 09:20:20.000000000 +0200
-@@ -137,6 +137,14 @@ static const struct hid_usage_entry hid_
-      {0, 0x44, "BarrelSwitch"},
-      {0, 0x45, "Eraser"},
-      {0, 0x46, "TabletPick"},
-+    {0, 0x47, "Confidence"},
-+    {0, 0x48, "Width"},
-+    {0, 0x49, "Height"},
-+    {0, 0x51, "ContactID"},
-+    {0, 0x52, "InputMode"},
-+    {0, 0x53, "DeviceIndex"},
-+    {0, 0x54, "ContactCount"},
-+    {0, 0x55, "ContactMaximumNumber"},
-    { 15, 0, "PhysicalInterfaceDevice" },
-      {0, 0x00, "Undefined"},
-      {0, 0x01, "Physical_Interface_Device"},
-@@ -514,9 +522,11 @@ static const char *events[EV_MAX + 1] =
-  	[EV_FF_STATUS] = "ForceFeedbackStatus",
-  };
-
--static const char *syncs[2] = {
-+static const char *syncs[3] = {
-  	[SYN_REPORT] = "Report",		[SYN_CONFIG] = "Config",
-+	[SYN_MT_REPORT] = "MT Report",
-  };
-+
-  static const char *keys[KEY_MAX + 1] = {
-  	[KEY_RESERVED] = "Reserved",		[KEY_ESC] = "Esc",
-  	[KEY_1] = "1",				[KEY_2] = "2",
-@@ -734,8 +744,17 @@ static const char *absolutes[ABS_MAX + 1
-  	[ABS_HAT2Y] = "Hat2Y",		[ABS_HAT3X] = "Hat3X",
-  	[ABS_HAT3Y] = "Hat 3Y",		[ABS_PRESSURE] = "Pressure",
-  	[ABS_DISTANCE] = "Distance",	[ABS_TILT_X] = "XTilt",
--	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "Tool Width",
-+	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "ToolWidth",
-  	[ABS_VOLUME] = "Volume",	[ABS_MISC] = "Misc",
-+	[ABS_MT_TOUCH_MAJOR] = "MTMajor",
-+	[ABS_MT_TOUCH_MINOR] = "MTMinor",
-+	[ABS_MT_WIDTH_MAJOR] = "MTMajorW",
-+	[ABS_MT_WIDTH_MINOR] = "MTMinorW",
-+	[ABS_MT_ORIENTATION] = "MTOrientation",
-+	[ABS_MT_POSITION_X] = "MTPositionX",
-+	[ABS_MT_POSITION_Y] = "MTPositionY",
-+	[ABS_MT_TOOL_TYPE] = "MTToolType",
-+	[ABS_MT_BLOB_ID] = "MTBlobID",
-  };
-
-  static const char *misc[MSC_MAX + 1] = {
-diff -rupN a/include/linux/hid.h b/include/linux/hid.h
---- a/include/linux/hid.h	2009-05-09 02:14:14.000000000 +0200
-+++ b/include/linux/hid.h	2009-05-20 14:13:51.000000000 +0200
-@@ -238,6 +238,42 @@ struct hid_item {
-  #define HID_GD_RIGHT		0x00010092
-  #define HID_GD_LEFT		0x00010093
-
-+#define HID_DG_DIGITIZER	0x000d0001
-+#define HID_DG_PEN		0x000d0002
-+#define HID_DG_LIGHTPEN		0x000d0003
-+#define HID_DG_TOUCHSCREEN	0x000d0004
-+#define HID_DG_TOUCHPAD		0x000d0005
-+#define HID_DG_STYLUS		0x000d0020
-+#define HID_DG_PUCK		0x000d0021
-+#define HID_DG_FINGER		0x000d0022
-+#define HID_DG_TIPPRESSURE	0x000d0030
-+#define HID_DG_BARRELPRESSURE	0x000d0031
-+#define HID_DG_INRANGE		0x000d0032
-+#define HID_DG_TOUCH		0x000d0033
-+#define HID_DG_UNTOUCH		0x000d0034
-+#define HID_DG_TAP		0x000d0035
-+#define HID_DG_TABLETFUNCTIONKEY	0x000d0039
-+#define HID_DG_PROGRAMCHANGEKEY	0x000d003a
-+#define HID_DG_INVERT		0x000d003c
-+#define HID_DG_TIPSWITCH	0x000d0042
-+#define HID_DG_TIPSWITCH2	0x000d0043
-+#define HID_DG_BARRELSWITCH	0x000d0044
-+#define HID_DG_ERASER		0x000d0045
-+#define HID_DG_TABLETPICK	0x000d0046
-+/*
-+ * as of May 20, 2009 the usages below are not yet in the official  
-USB spec
-+ * but are being pushed by Microsft as described in their paper  
-"Digitizer
-+ * Drivers for Windows Touch and Pen-Based Computers"
-+ */
-+#define HID_DG_CONFIDENCE	0x000d0047
-+#define HID_DG_WIDTH		0x000d0048
-+#define HID_DG_HEIGHT		0x000d0049
-+#define HID_DG_CONTACTID	0x000d0051
-+#define HID_DG_INPUTMODE	0x000d0052
-+#define HID_DG_DEVICEINDEX	0x000d0053
-+#define HID_DG_CONTACTCOUNT	0x000d0054
-+#define HID_DG_CONTACTMAX	0x000d0055
-+
+diff -rupN a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+--- a/drivers/hid/hid-ntrig.c	2009-05-09 02:14:14.000000000 +0200
++++ b/drivers/hid/hid-ntrig.c	2009-05-19 22:46:41.000000000 +0200
+@@ -1,13 +1,8 @@
   /*
-   * HID report types --- Ouch! HID spec says 1 2 3!
+- *  HID driver for some ntrig "special" devices
++ *  HID driver for N-Trig touchscreens
+   *
+- *  Copyright (c) 1999 Andreas Gal
+- *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+- *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for  
+Concept2, Inc
+- *  Copyright (c) 2006-2007 Jiri Kosina
+- *  Copyright (c) 2007 Paul Walmsley
+- *  Copyright (c) 2008 Jiri Slaby
+   *  Copyright (c) 2008 Rafi Rubin
++ *  Copyright (c) 2009 Stephane Chatty
+   *
    */
+
+@@ -29,15 +24,79 @@
+  #define nt_map_key_clear(c)	hid_map_usage_clear(hi, usage, bit, max, \
+  					EV_KEY, (c))
+
++struct ntrig_data {
++	__s32 x, y, id, w, h;
++	char reading_a_point, found_contact_id;
++};
++
++/*
++ * this driver is aimed at two firmware versions in circulation:
++ *  - dual pen/finger single touch
++ *  - finger multitouch, pen not working
++ */
++
+  static int ntrig_input_mapping(struct hid_device *hdev, struct  
+hid_input *hi,
+  		struct hid_field *field, struct hid_usage *usage,
+  		unsigned long **bit, int *max)
+  {
+-	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_DIGITIZER &&
+-			(usage->hid & 0xff) == 0x47) {
+-		nt_map_key_clear(BTN_TOOL_DOUBLETAP);
+-		return 1;
++	switch (usage->hid & HID_USAGE_PAGE) {
++
++	case HID_UP_GENDESK:
++		switch (usage->hid) {
++		case HID_GD_X:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_X);
++			input_set_abs_params(hi->input, ABS_X,
++					field->logical_minimum,
++					field->logical_maximum, 0, 0);
++			return 1;
++		case HID_GD_Y:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_POSITION_Y);
++			input_set_abs_params(hi->input, ABS_Y,
++					field->logical_minimum,
++					field->logical_maximum, 0, 0);
++			return 1;
++		}
++		return 0;
++
++	case HID_UP_DIGITIZER:
++		switch (usage->hid) {
++		/* we do not want to map these for now */
++		case HID_DG_INVERT: /* value is always 0 */
++		case HID_DG_ERASER: /* value is always 0 */
++		case HID_DG_CONTACTID: /* value is useless */
++		case HID_DG_BARRELSWITCH:  /* doubtful */
++		case HID_DG_INPUTMODE:
++		case HID_DG_DEVICEINDEX:
++		case HID_DG_CONTACTCOUNT:
++		case HID_DG_CONTACTMAX:
++			return -1;
++
++		/* original mapping by Rafi Rubin */
++		case HID_DG_CONFIDENCE:
++			nt_map_key_clear(BTN_TOOL_DOUBLETAP);
++			return 1;
++
++		/* width/height mapped on TouchMajor/TouchMinor/Orientation */
++		case HID_DG_WIDTH:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MAJOR);
++			return 1;
++		case HID_DG_HEIGHT:
++			hid_map_usage(hi, usage, bit, max,
++					EV_ABS, ABS_MT_TOUCH_MINOR);
++			input_set_abs_params(hi->input, ABS_MT_ORIENTATION,
++					0, 1, 0, 0);
++			return 1;
++		}
++		return 0;
++
++	case 0xff000000:
++		/* we do not want to map these: no input-oriented meaning */
++		return -1;
+  	}
++
+  	return 0;
+  }
+
+@@ -51,6 +110,138 @@ static int ntrig_input_mapped(struct hid
+
+  	return 0;
+  }
++
++/*
++ * this function is called upon all reports
++ * so that we can filter contact point information,
++ * decide whether we are in multi or single touch mode
++ * and call input_mt_sync after each point if necessary
++ */
++static int ntrig_event (struct hid_device *hid, struct hid_field  
+*field,
++		                        struct hid_usage *usage, __s32 value)
++{
++	struct input_dev *input = field->hidinput->input;
++	struct ntrig_data *nd = hid_get_drvdata(hid);
++
++        if (hid->claimed & HID_CLAIMED_INPUT) {
++		switch (usage->hid) {
++		case HID_GD_X:
++			nd->x = value;
++			nd->reading_a_point = 1;
++			break;
++		case HID_GD_Y:
++			nd->y = value;
++			break;
++		case HID_DG_CONTACTID:
++			nd->id = value;
++			/* we receive this only when in multitouch mode */
++			nd->found_contact_id = 1;
++			break;
++		case HID_DG_WIDTH:
++			nd->w = value;
++			break;
++		case HID_DG_HEIGHT:
++			nd->h = value;
++			/*
++			 * when in single touch mode, this is the last
++			 * report received in a finger event. We want
++			 * to emit a normal (X, Y) position
++			 */
++			if (! nd->found_contact_id) {
++				input_event(input, EV_ABS, ABS_X, nd->x);
++				input_event(input, EV_ABS, ABS_Y, nd->y);
++			}
++			break;
++		case HID_DG_TIPPRESSURE:
++			/*
++			 * when in single touch mode, this is the last
++			 * report received in a pen event. We want
++			 * to emit a normal (X, Y) position
++			 */
++			if (! nd->found_contact_id) {
++				input_event(input, EV_ABS, ABS_X, nd->x);
++				input_event(input, EV_ABS, ABS_Y, nd->y);
++				input_event(input, EV_ABS, ABS_PRESSURE, value);
++			}
++			break;
++		case 0xff000002:
++			/*
++			 * we receive this when the device is in multitouch
++			 * mode. The first of the three values tagged with
++			 * this usage tells if the contact point is real
++			 * or a placeholder
++			 */
++			if (!nd->reading_a_point || value != 1)
++				break;
++			/* emit a normal (X, Y) for the first point only */
++			if (nd->id == 0) {
++				input_event(input, EV_ABS, ABS_X, nd->x);
++				input_event(input, EV_ABS, ABS_Y, nd->y);
++			}
++			input_event(input, EV_ABS, ABS_MT_POSITION_X, nd->x);
++			input_event(input, EV_ABS, ABS_MT_POSITION_Y, nd->y);
++			if (nd->w > nd->h) {
++				input_event(input, EV_ABS,
++						ABS_MT_ORIENTATION, 1);
++				input_event(input, EV_ABS,
++						ABS_MT_TOUCH_MAJOR, nd->w);
++				input_event(input, EV_ABS,
++						ABS_MT_TOUCH_MINOR, nd->h);
++			} else {
++				input_event(input, EV_ABS,
++						ABS_MT_ORIENTATION, 0);
++				input_event(input, EV_ABS,
++						ABS_MT_TOUCH_MAJOR, nd->h);
++				input_event(input, EV_ABS,
++						ABS_MT_TOUCH_MINOR, nd->w);
++			}
++			input_mt_sync(field->hidinput->input);
++			nd->reading_a_point = 0;
++			nd->found_contact_id = 0;
++			break;
++
++		default:
++			/* fallback to the generic hidinput handling */
++			return 0;
++		}
++	}
++
++	/* we have handled the hidinput part, now remains hiddev */
++        if (hid->claimed & HID_CLAIMED_HIDDEV && hid->hiddev_hid_event)
++                hid->hiddev_hid_event(hid, field, usage, value);
++
++	return 1;
++}
++
++static int ntrig_probe(struct hid_device *hdev, const struct  
+hid_device_id *id)
++{
++	int ret;
++	struct ntrig_data *nd;
++
++	nd = kmalloc(sizeof(struct ntrig_data), GFP_KERNEL);
++	if (!nd) {
++		dev_err(&hdev->dev, "cannot allocate N-Trig data\n");
++		return -ENOMEM;
++	}
++	nd->reading_a_point = 0;
++	nd->found_contact_id = 0;
++	hid_set_drvdata(hdev, nd);
++
++	ret = hid_parse(hdev);
++	if (!ret)
++		ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++
++	if (ret)
++		kfree (nd);
++	return ret;
++}
++
++static void ntrig_remove(struct hid_device *hdev)
++{
++	hid_hw_stop(hdev);
++	kfree(hid_get_drvdata(hdev));
++}
++
+  static const struct hid_device_id ntrig_devices[] = {
+  	{ HID_USB_DEVICE(USB_VENDOR_ID_NTRIG,  
+USB_DEVICE_ID_NTRIG_TOUCH_SCREEN),
+  		.driver_data = NTRIG_DUPLICATE_USAGES },
+@@ -58,11 +249,20 @@ static const struct hid_device_id ntrig_
+  };
+  MODULE_DEVICE_TABLE(hid, ntrig_devices);
+
++static const struct hid_usage_id ntrig_grabbed_usages[] = {
++	{ HID_ANY_ID, HID_ANY_ID, HID_ANY_ID },
++	{ HID_ANY_ID - 1, HID_ANY_ID - 1, HID_ANY_ID - 1}
++};
++
+  static struct hid_driver ntrig_driver = {
+  	.name = "ntrig",
+  	.id_table = ntrig_devices,
++	.probe = ntrig_probe,
++	.remove = ntrig_remove,
+  	.input_mapping = ntrig_input_mapping,
+  	.input_mapped = ntrig_input_mapped,
++	.usage_table = ntrig_grabbed_usages,
++	.event = ntrig_event,
+  };
+
+  static int ntrig_init(void)
 

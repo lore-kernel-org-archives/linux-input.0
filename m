@@ -1,96 +1,133 @@
-From: Jeremy Huddleston <jeremyhu@freedesktop.org>
-Subject: Re: hid_apple bug: arrow keys interpreted as Fn
-Date: Wed, 20 May 2009 17:39:45 -0700
-Message-ID: <2784A223-EE31-41FF-BD44-45E5BBDC9B75@freedesktop.org>
-References: <3E66E0E0-3B2B-4F78-9A62-87015A842A47@freedesktop.org> <C3870FA0-209F-4D40-8923-34D594B75EB1@freedesktop.org> <4A132540.7070409@gmail.com> <B9186545-9C33-4ADA-A3D9-8B5A5DA377CE@freedesktop.org> <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
-Mime-Version: 1.0 (Apple Message framework v935.3)
-Content-Type: text/plain; charset=US-ASCII; format=flowed; delsp=yes
-Content-Transfer-Encoding: 7bit
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: Re: [linux 2.6] new mouse driver looking for review and  integration
+  (fwd)
+Date: Thu, 21 May 2009 15:58:14 +0800 (CST)
+Message-ID: <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
+References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz>
+ <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz>
+ <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
+ <20090514034004.GE12778@dtor-d630.eng.vmware.com> <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cloud.CS.Berkeley.EDU ([128.32.36.234]:40345 "EHLO
-	mail.outersquare.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753210AbZEUAjy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 20 May 2009 20:39:54 -0400
-In-Reply-To: <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
+Received: from www.sentelic.com ([203.69.18.19]:17521 "EHLO www.sentelic.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1750924AbZEUH6U (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 May 2009 03:58:20 -0400
+In-Reply-To: <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-
-On May 20, 2009, at 07:19, Jiri Kosina wrote:
-
-> On Tue, 19 May 2009, Jeremy Huddleston wrote:
+On Thu, 14 May 2009, Tai-hwa Liang wrote:
+> On Wed, 13 May 2009, Dmitry Torokhov wrote:
+>> On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
+>> > On Fri, 8 May 2009, Dmitry Torokhov wrote:
+>> >> Hi Tai-hwa,
+>> >>
+>> >> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
+>> >> > Hi, Dmitry,
+>> >> >
+>> >> >    I'm wondering about the status of the patch you submitted to git. 
+>> Will
+>> >> > it being merged into 2.6.31?
+>> >> >
+>> >>
+>> >> I really need to get back to it. The weekend is coming up, I should >> 
+>> have time to go over it, I shall respond by Monday.
+>> >
+>> >   Thanks.  Where is the git repository I can use to retrieve the code 
+>> you've
+>> > submitted?  I have a few changes for your patched code.
+>> >
+>> 
+>> I have created "sentelic" branch here:
+>>
+>> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+>> 
+>> I fetched the latest version of the driver off the sourceforge page and
+>> used it as the baseline.
 >
->> press right:
->> May 19 18:01:14 aeris kernel: [  256.453247] drivers/hid/hid- 
->> core.c: report (size 8) (unnumbered)
->> May 19 18:01:14 aeris kernel: [  256.453259] drivers/hid/hid- 
->> core.c: report 0 (size 8) =  00 00 4f 00 00 00 00 00
-> [ ... ]
->> press down:
->> May 19 18:01:17 aeris kernel: [  259.429256] drivers/hid/hid- 
->> core.c: report (size 8) (unnumbered)
->> May 19 18:01:17 aeris kernel: [  259.429268] drivers/hid/hid- 
->> core.c: report 0 (size 8) =  00 00 4f 51 00 00 00 00
-> [ ... ]
->> press left:
->> May 19 18:01:20 aeris kernel: [  262.469256] drivers/hid/hid- 
->> core.c: report (size 8) (unnumbered)
->> May 19 18:01:20 aeris kernel: [  262.469269] drivers/hid/hid- 
->> core.c: report 0 (size 8) =  00 00 01 01 01 01 01 01
-> [ ... ]
->> release right:
->> May 19 18:01:22 aeris kernel: [  264.981247] drivers/hid/hid- 
->> core.c: report (size 8) (unnumbered)
->> May 19 18:01:22 aeris kernel: [  264.981258] drivers/hid/hid- 
->> core.c: report 0 (size 8) =  00 00 51 50 00 00 00 00
-> [ ... ]
->> release down:
->> May 19 18:01:25 aeris kernel: [  267.405254] drivers/hid/hid- 
->> core.c: report (size 8) (unnumbered)
->> May 19 18:01:25 aeris kernel: [  267.405267] drivers/hid/hid- 
->> core.c: report 0 (size 8) =  00 00 50 00 00 00 00 00
-> [ ... ]
->> release left:
->> May 19 18:01:26 aeris kernel: [  269.277246] drivers/hid/hid- 
->> core.c: report (size 8) (unnumbered)
->> May 19 18:01:26 aeris kernel: [  269.277258] drivers/hid/hid- 
->> core.c: report 0 (size 8) =  00 00 00 00 00 00 00 00
+>  Thank you.  I'm reading through the differences.  Looks good to me so far.
 >
-> Looks like the state machine inside the keyboard gets a little bit  
-> crazy
-> when you press the third button. The data that HID core sees coming  
-> on USB
-> bus really don't represent [right,down,left] being pressed.
+>> The idea is to implement full absolute packet support and not rely on
+>> relative packets because users will expect Synaptics X driver work with
+>> this device as it works with all other touchpads (Synaptics, ALPS,
+>> Elantec, BCM, appletouch).
 >
-> Do you have any chance to verify whether this works properly in a
-> different operating system? It would require very specific handling
-> violating the standard.
+>  I can understand that; however, absolute coordinates returned by
+> current FSP hardware isn't suitable for cursor movement, which makes
+> relative packet necessary if you want to have a functional hardware.
+>
+>> BTW, I have a few questions regarding protocol:
+>> 
+>> What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
+>
+>  Those are obsoleted information which used to represent finger tracks.
 
-So in OSX, I certainly don't see the Fn misinterpretation.  There is  
-another odd behavior in OSX that is probably related to an underlying  
-hardware quirk that OSX just deals with more elegantly.
+Hi, Dmitry,
 
-In OSX, I see this behavior:
+   Following are a few changes based on the sentelic branch you've created:
 
-press right:
-    event received that right arrow pressed
-press down:
-    event received that down arrow pressed
-press left:
-    no event
-release right:
-    event received that right arrow released
-    event received that left arrow pressed
-release down:
-    event received that down arrow released
-release left:
-    event received that left arrow released
+- Returning EIO instead of ENODEV when fsp_page_reg_read() failed;
+- Reverting onpadicon and pktfmt sysfs node to world writable as userland
+   application needs to write it without root privilege;
+- Removing unused variables from fsp_hw_state.
 
-So there seems to be an underlying problem that needs to be worked  
-around.  Perhaps we can figure out a way to handle it in a way results  
-in similar behavior to the OSX...
+Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
 
+diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+index 5999378..d98c4d6 100644
+--- a/drivers/input/mouse/sentelic.c
++++ b/drivers/input/mouse/sentelic.c
+@@ -30,7 +30,7 @@
+  #include "psmouse.h"
+  #include "sentelic.h"
 
+-/*
++/**
+   * Timeout for FSP PS/2 command only (in milliseconds).
+   */
+  #define	FSP_CMD_TIMEOUT		200
+@@ -615,7 +615,7 @@ static ssize_t fsp_attr_show_pagereg(struct psmouse *psmouse,
+  	int val = 0;
+
+  	if (fsp_page_reg_read(psmouse, &val))
+-		return -ENODEV;
++		return -EIO;
+
+  	return sprintf(buf, "%02x\n", val);
+  }
+@@ -712,7 +712,7 @@ static ssize_t fsp_attr_set_onpadicon(struct psmouse *psmouse, void *data,
+  	return count;
+  }
+
+-PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO, NULL,
++PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
+  			fsp_attr_show_onpadicon, fsp_attr_set_onpadicon);
+
+  static ssize_t fsp_attr_show_pktfmt(struct psmouse *psmouse,
+@@ -738,7 +738,7 @@ static ssize_t fsp_attr_set_pktfmt(struct psmouse *psmouse, void *data,
+  	return count;
+  }
+
+-PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO, NULL,
++PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
+  			fsp_attr_show_pktfmt, fsp_attr_set_pktfmt);
+
+  static ssize_t fsp_attr_show_flags(struct psmouse *psmouse,
+diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
+index 03d7ab8..9c00c19 100644
+--- a/drivers/input/mouse/sentelic.h
++++ b/drivers/input/mouse/sentelic.h
+@@ -83,9 +83,6 @@ struct fsp_data {
+  #define	FSPDRV_FLAG_AUTO_SWITCH	(0x400)	/* software on-pad icon auto switch */
+  #define	FSPDRV_FLAG_EN_OPC	(0x800)	/* enable on-pad clicking */
+  #define FSP_RESP_PKT_MAXLEN	(8)	/* The max response packet size. */
+-	unsigned char		cmd;	/* The buffer used to store the sending PS/2 command */
+-	unsigned char		resp[FSP_RESP_PKT_MAXLEN]; /* The buffer used to store the response of PS/2 command */
+-	int			resp_cnt;	/* The command count in resp buffer */
+  	unsigned char		buttons;	/* Number of buttons */
+  	unsigned char		ver;		/* hardware version */
+  	unsigned char		rev;		/* hardware revison */

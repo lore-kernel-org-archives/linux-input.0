@@ -1,34 +1,63 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: A tablet driver question
-Date: Thu, 21 May 2009 10:35:05 +0200 (CEST)
-Message-ID: <alpine.LRH.2.00.0905211033450.29030@twin.jikos.cz>
-References: <7f83a3ba0905192149k338f3932u25e2d0f1b2d70e2f@mail.gmail.com>  <20090520051222.GA11638@kroah.com> <7f83a3ba0905192316u4753fbefi37257a7e3d20f3ef@mail.gmail.com>  <4A13AEEC.7010707@gmail.com> <7f83a3ba0905200858l7f78e5c7s675fea46b4ceb1c5@mail.gmail.com>
-  <4A142EC4.70202@gmail.com> <45cc95260905200950n4d57b3emb21f09cd0c90a28f@mail.gmail.com>
+Subject: Re: IS_INPUT_APPLICATION and tablets
+Date: Thu, 21 May 2009 10:42:11 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0905211038350.13917@wotan.suse.de>
+References: <33210D89-9534-4B12-B7C3-E7FAEA3C4A5D@enac.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-182605341-1242895331=:13917"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:53940 "EHLO mx2.suse.de"
+Received: from cantor2.suse.de ([195.135.220.15]:54105 "EHLO mx2.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751482AbZEUIfH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2009 04:35:07 -0400
-In-Reply-To: <45cc95260905200950n4d57b3emb21f09cd0c90a28f@mail.gmail.com>
+	id S1751427AbZEUImN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 May 2009 04:42:13 -0400
+In-Reply-To: <33210D89-9534-4B12-B7C3-E7FAEA3C4A5D@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mohamed Ikbel Boulabiar <boulabiar@gmail.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, Steven Hunt <srhlefty@gmail.com>, Greg KH <greg@kroah.com>, devel@driverdev.osuosl.org, linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: jirislaby@gmail.com, Greg KH <greg@kroah.com>, linux-input@vger.kernel.org
 
-On Wed, 20 May 2009, Mohamed Ikbel Boulabiar wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> > You still can read the events through hidraw (or via
-> > deprecated hiddev).
-> Why hiddev is deprecated ?
+--168427776-182605341-1242895331=:13917
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 
-Well, "deprecated" is maybe too strong expression. It's not flexible 
-enough -- it is USB-only, it interprets the data "too much" (parses them 
-according to the device report descriptor), which sometimes makes it 
-harder to write specialized drivers which require no parsing at all, etc.
+On Wed, 20 May 2009, Stéphane Chatty wrote:
+
+> I just saw a message in the linux-input ml about a USB tablet that is 
+> not registered in the input layer. Someone proposed that there might be 
+> no useful application in the HID report descriptors.
+>
+> There is an other possibility: the IS_INPUT_APPLICATION in hid.h might 
+> fail to capture a legitimate application. I am currently working on a 
+> HID driver for a multitouch surface by Stantum that has application 
+> usage 0x000d0004 (Digitizer / Touchscreen), and I had to change 
+> IS_INPUT_APPLICATION to have it registered in the input layer. The 
+> N-Trig surface is registered only because it declares two application 
+> collections: a Pen and a Touchscreen.
+> 
+> The comment that accompanies the definition of the macro looks very old. 
+> Is there another reason why the definition of input applications is so 
+> restrictive? I had in mind to add the range 0x000d0002-0x000d0006 at 
+> least. Is there any contraindication to this?
+
+Hi Stephane,
+
+we definitely want to extend the IS_INPUT_APPLICATION() macro to reflect 
+the current hardware -- the contants used in the macro are quite old 
+indeed.
+
+On the other hand we must be careful not to break any userspace drivers -- 
+because currently hiddev node (which userspace drivers use) is created 
+when the device has at least one application which is not recognized as 
+input application by IS_INPUT_APPLICATION macro.
+
+If we change semantics of this macro, it might happen that hiddev node 
+would stop appearing for certain devices, thus breaking backwards 
+compatibility for userspace drivers.
 
 -- 
 Jiri Kosina
 SUSE Labs
-
+--168427776-182605341-1242895331=:13917--

@@ -1,133 +1,51 @@
-From: Tai-hwa Liang <avatar@sentelic.com>
-Subject: Re: [linux 2.6] new mouse driver looking for review and  integration
-  (fwd)
-Date: Thu, 21 May 2009 15:58:14 +0800 (CST)
-Message-ID: <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
-References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz>
- <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz>
- <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
- <20090514034004.GE12778@dtor-d630.eng.vmware.com> <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: A tablet driver question
+Date: Thu, 21 May 2009 10:33:35 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0905211029230.29030@twin.jikos.cz>
+References: <7f83a3ba0905192149k338f3932u25e2d0f1b2d70e2f@mail.gmail.com>  <20090520051222.GA11638@kroah.com>  <7f83a3ba0905192316u4753fbefi37257a7e3d20f3ef@mail.gmail.com>  <4A13AEEC.7010707@gmail.com> <7f83a3ba0905200858l7f78e5c7s675fea46b4ceb1c5@mail.gmail.com>
+ <4A142EC4.70202@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.sentelic.com ([203.69.18.19]:17521 "EHLO www.sentelic.com"
+Received: from cantor.suse.de ([195.135.220.2]:44744 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750924AbZEUH6U (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 21 May 2009 03:58:20 -0400
-In-Reply-To: <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
+	id S1751503AbZEUIdi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 21 May 2009 04:33:38 -0400
+In-Reply-To: <4A142EC4.70202@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Steven Hunt <srhlefty@gmail.com>, Greg KH <greg@kroah.com>, devel@driverdev.osuosl.org, linux-input@vger.kernel.org
 
-On Thu, 14 May 2009, Tai-hwa Liang wrote:
-> On Wed, 13 May 2009, Dmitry Torokhov wrote:
->> On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
->> > On Fri, 8 May 2009, Dmitry Torokhov wrote:
->> >> Hi Tai-hwa,
->> >>
->> >> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
->> >> > Hi, Dmitry,
->> >> >
->> >> >    I'm wondering about the status of the patch you submitted to git. 
->> Will
->> >> > it being merged into 2.6.31?
->> >> >
->> >>
->> >> I really need to get back to it. The weekend is coming up, I should >> 
->> have time to go over it, I shall respond by Monday.
->> >
->> >   Thanks.  Where is the git repository I can use to retrieve the code 
->> you've
->> > submitted?  I have a few changes for your patched code.
->> >
->> 
->> I have created "sentelic" branch here:
->>
->> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->> 
->> I fetched the latest version of the driver off the sourceforge page and
->> used it as the baseline.
->
->  Thank you.  I'm reading through the differences.  Looks good to me so far.
->
->> The idea is to implement full absolute packet support and not rely on
->> relative packets because users will expect Synaptics X driver work with
->> this device as it works with all other touchpads (Synaptics, ALPS,
->> Elantec, BCM, appletouch).
->
->  I can understand that; however, absolute coordinates returned by
-> current FSP hardware isn't suitable for cursor movement, which makes
-> relative packet necessary if you want to have a functional hardware.
->
->> BTW, I have a few questions regarding protocol:
->> 
->> What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
->
->  Those are obsoleted information which used to represent finger tracks.
+On Wed, 20 May 2009, Jiri Slaby wrote:
 
-Hi, Dmitry,
+> >>> Full output from 2.6.28-11-generic at device connect:
+> >>> [ 1673.776066] usb 2-2: new low speed USB device using uhci_hcd and address 5
+> >>> [ 1673.961620] usb 2-2: configuration #1 chosen from 1 choice
+> >>> [ 1673.982901] generic-usb 0003:0B57:8019.0005: hiddev96,hidraw1: USB
+> >>> HID v1.00 Device [HanWang co. HW Micro Drawing Tablet] on
+> >>> usb-0000:00:1d.0-2/input0
+> >> Hmm, It looks like it is a standard HID device and got registered in the
+> >> input layer. Could you attach lsusb -v of that device and
+> >> /proc/bus/input/devices?
+> Actually I missed there is no "input" at 1673.982901, so the input is 
+> not claimed. You still can read the events through hidraw (or via 
+> deprecated hiddev).
+> Jiri, any ideas? Looks like there are no useful applications. A report
+> dump will tell us whether we can handle it through standard path (with
+> forced connect) or it has to be handled by hidraw, am I correct?
 
-   Following are a few changes based on the sentelic branch you've created:
+Exactly. The device probably doesn't provide any applications that would 
+pass through IS_INPUT_APPLICATION() macro (see include/linux/hid.h).
 
-- Returning EIO instead of ENODEV when fsp_page_reg_read() failed;
-- Reverting onpadicon and pktfmt sysfs node to world writable as userland
-   application needs to write it without root privilege;
-- Removing unused variables from fsp_hw_state.
+We might well be extending this definition, as it is quite outdated (and 
+doesn't for example deal with new digitizers very well).
 
-Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
+Report descriptor dump would absolutely be necessary (i.e. compiling the 
+kernel with CONFIG_HID_DEBUG and modprobing the 'hid' module with 
+'debug=2' parameter).
 
-diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-index 5999378..d98c4d6 100644
---- a/drivers/input/mouse/sentelic.c
-+++ b/drivers/input/mouse/sentelic.c
-@@ -30,7 +30,7 @@
-  #include "psmouse.h"
-  #include "sentelic.h"
+-- 
+Jiri Kosina
+SUSE Labs
 
--/*
-+/**
-   * Timeout for FSP PS/2 command only (in milliseconds).
-   */
-  #define	FSP_CMD_TIMEOUT		200
-@@ -615,7 +615,7 @@ static ssize_t fsp_attr_show_pagereg(struct psmouse *psmouse,
-  	int val = 0;
-
-  	if (fsp_page_reg_read(psmouse, &val))
--		return -ENODEV;
-+		return -EIO;
-
-  	return sprintf(buf, "%02x\n", val);
-  }
-@@ -712,7 +712,7 @@ static ssize_t fsp_attr_set_onpadicon(struct psmouse *psmouse, void *data,
-  	return count;
-  }
-
--PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO, NULL,
-+PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
-  			fsp_attr_show_onpadicon, fsp_attr_set_onpadicon);
-
-  static ssize_t fsp_attr_show_pktfmt(struct psmouse *psmouse,
-@@ -738,7 +738,7 @@ static ssize_t fsp_attr_set_pktfmt(struct psmouse *psmouse, void *data,
-  	return count;
-  }
-
--PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO, NULL,
-+PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
-  			fsp_attr_show_pktfmt, fsp_attr_set_pktfmt);
-
-  static ssize_t fsp_attr_show_flags(struct psmouse *psmouse,
-diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
-index 03d7ab8..9c00c19 100644
---- a/drivers/input/mouse/sentelic.h
-+++ b/drivers/input/mouse/sentelic.h
-@@ -83,9 +83,6 @@ struct fsp_data {
-  #define	FSPDRV_FLAG_AUTO_SWITCH	(0x400)	/* software on-pad icon auto switch */
-  #define	FSPDRV_FLAG_EN_OPC	(0x800)	/* enable on-pad clicking */
-  #define FSP_RESP_PKT_MAXLEN	(8)	/* The max response packet size. */
--	unsigned char		cmd;	/* The buffer used to store the sending PS/2 command */
--	unsigned char		resp[FSP_RESP_PKT_MAXLEN]; /* The buffer used to store the response of PS/2 command */
--	int			resp_cnt;	/* The command count in resp buffer */
-  	unsigned char		buttons;	/* Number of buttons */
-  	unsigned char		ver;		/* hardware version */
-  	unsigned char		rev;		/* hardware revison */

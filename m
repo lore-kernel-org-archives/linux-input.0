@@ -1,52 +1,100 @@
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Subject: [PATCH] usb1400_ts: fix access to "device data" in resume function
-Date: Tue, 26 May 2009 19:04:40 +0200
-Message-ID: <20090526170440.GA4993@www.tglx.de>
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: [RFC][PATCH] Add support for hook switch on ams-delta
+Date: Tue, 26 May 2009 20:57:20 +0200
+Message-ID: <200905262057.21890.jkrzyszt@tis.icnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:55747 "EHLO www.tglx.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751263AbZEZREr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 26 May 2009 13:04:47 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_RuDHKJJO7NO0xZd"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Manuel Traut <manut@linutronix.de>, linux-input@vger.kernel.org, dtor@mail.ru, Marek Vasiut <marek.vasut@gmail.com>
 
-From: Manuel Traut <manut@linutronix.de>
+--Boundary-00=_RuDHKJJO7NO0xZd
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-platform_data != driver_data
+Hi,
 
-driver data is actually the "correct" place of the struct however it is
-not placed there due to the need of the ac97 struct. This is broken since
-d9105c2b01 aka "[ARM] 5184/1: Split ucb1400_ts into core and touchscreen"
+This trivial patch adds gpio-keys compatible platform device definition to 
+ams-delta board, that supports hook switch found on this videophone. It is 
+derived from similiar definitions found in other boards code. The patch is 
+based on linux-2.6.30-rc5. Any comments are welcome.
 
-Signed-off-by: Manuel Traut <manut@linutronix.de>
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
----
-This is suspend/resume tested.
-What happend actually to [0]? It is not merged.
+Cheers,
+Janusz
 
-[0] http://markmail.org/message/cp5koxmiotxrf4xl
+--Boundary-00=_RuDHKJJO7NO0xZd
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ams-delta-hook-switch.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ams-delta-hook-switch.patch"
 
- drivers/input/touchscreen/ucb1400_ts.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ucb1400_ts.c b/drivers/input/touchscreen/ucb1400_ts.c
-index 1647bc4..a42226e 100644
---- a/drivers/input/touchscreen/ucb1400_ts.c
-+++ b/drivers/input/touchscreen/ucb1400_ts.c
-@@ -418,7 +418,7 @@ static int ucb1400_ts_remove(struct platform_device *dev)
- #ifdef CONFIG_PM
- static int ucb1400_ts_resume(struct platform_device *dev)
- {
--	struct ucb1400_ts *ucb = platform_get_drvdata(dev);
-+	struct ucb1400_ts *ucb = dev->dev.platform_data;
+diff -Npru a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
+--- a/arch/arm/mach-omap1/board-ams-delta.c	2009-05-17 17:58:18.000000000 +0200
++++ b/arch/arm/mach-omap1/board-ams-delta.c	2009-05-17 16:22:59.000000000 +0200
+@@ -15,6 +15,7 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/input.h>
++#include <linux/gpio_keys.h>
+ #include <linux/platform_device.h>
  
- 	if (ucb->ts_task) {
- 		/*
--- 
-1.6.0.6
+ #include <mach/hardware.h>
+@@ -213,10 +214,35 @@ static struct platform_device ams_delta_
+ 	.id	= -1
+ };
+ 
++static struct gpio_keys_button ams_delta_gpio_keys_buttons[] = {
++	[0] = {
++		.desc		= "hook_switch",
++		.type		= EV_SW,		/* or EV_KEY ? */
++		.code		= SW_HEADPHONE_INSERT,	/* or a new one ? */
++		.active_low	= 1,
++		.gpio		= AMS_DELTA_GPIO_PIN_HOOK_SWITCH,
++		.debounce_interval = 10,
++	},
++};
++
++static struct gpio_keys_platform_data ams_delta_gpio_keys = {
++	.buttons		= ams_delta_gpio_keys_buttons,
++	.nbuttons		= ARRAY_SIZE(ams_delta_gpio_keys_buttons),
++};
++
++static struct platform_device ams_delta_gpio_keys_device = {
++	.name			= "gpio-keys",
++	.id			= -1,
++	.dev			= {
++		.platform_data	= &ams_delta_gpio_keys,
++	},
++};
++
+ static struct platform_device *ams_delta_devices[] __initdata = {
+ 	&ams_delta_kp_device,
+ 	&ams_delta_lcd_device,
+ 	&ams_delta_led_device,
++	&ams_delta_gpio_keys_device,
+ };
+ 
+ static void __init ams_delta_init(void)
+@@ -233,6 +259,13 @@ static void __init ams_delta_init_irq(vo
+ 
+ 	omap_usb_init(&ams_delta_usb_config);
+ 	platform_add_devices(ams_delta_devices, ARRAY_SIZE(ams_delta_devices));
++
++	omap_cfg_reg(P20_1610_GPIO4); /* is this required? */
++
++	/* The hook switch state could be exposed over sysfs with gpio_export().
++	 * This should be done after the gpio-keys driver calls gpio_request(),
++	 * but I don't know how to do this from outside of the driver. */
++	/* gpio_export(AMS_DELTA_GPIO_PIN_HOOK_SWITCH, 0); */
+ }
+ 
+ static void __init ams_delta_map_io(void)
 
+--Boundary-00=_RuDHKJJO7NO0xZd--

@@ -1,29 +1,47 @@
-From: Amanda <bengalfinancial@bellnet.ca>
-Subject: Winner
-Date: Wed, 27 May 2009 7:27:16 -0400
-Message-ID: <20090527112720.UODG1557.tomts45-srv.bellnexxia.net__44249.8194207021$1243423692$gmane$org@toip52-bus.srvr.bell.ca>
-Reply-To: edward.brown66@btinternet.com
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH] usb1400_ts: fix access to "device data" in resume
+	function
+Date: Wed, 27 May 2009 06:28:21 -0700
+Message-ID: <20090527132821.GA3741@dtor-d630.eng.vmware.com>
+References: <20090526170440.GA4993@www.tglx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tomts45-srv.bellnexxia.net ([209.226.175.112]:36713 "EHLO
-	tomts45-srv.bellnexxia.net" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1759586AbZE0L11 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 27 May 2009 07:27:27 -0400
+Received: from rv-out-0506.google.com ([209.85.198.225]:36026 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760642AbZE0N3J (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 27 May 2009 09:29:09 -0400
+Received: by rv-out-0506.google.com with SMTP id f9so1454307rvb.1
+        for <linux-input@vger.kernel.org>; Wed, 27 May 2009 06:29:10 -0700 (PDT)
+Content-Disposition: inline
+In-Reply-To: <20090526170440.GA4993@www.tglx.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: info@lotto.org
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Manuel Traut <manut@linutronix.de>, linux-input@vger.kernel.org, Marek Vasiut <marek.vasut@gmail.com>
 
-You have just been awarded,the sum of  =A3950.000.00 in the Global  Awa=
-rd 2009, Anniversary Bonanza.. held in May.
+On Tue, May 26, 2009 at 07:04:40PM +0200, Sebastian Andrzej Siewior wrote:
+> From: Manuel Traut <manut@linutronix.de>
+> 
+> platform_data != driver_data
+> 
+> driver data is actually the "correct" place of the struct however it is
+> not placed there due to the need of the ac97 struct. This is broken since
+> d9105c2b01 aka "[ARM] 5184/1: Split ucb1400_ts into core and touchscreen"
+> 
+> Signed-off-by: Manuel Traut <manut@linutronix.de>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-Names:............. Address:..............
-Country:................ Age:..........
+Applied, to 'for-linus' branch, thank you Sebastian.
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> ---
+> This is suspend/resume tested.
+> What happend actually to [0]? It is not merged.
+> 
+> [0] http://markmail.org/message/cp5koxmiotxrf4xl
+
+Just applied it to my 'next' branch.
+
+-- 
+Dmitry

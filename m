@@ -1,78 +1,56 @@
-From: Uli Luckas <u.luckas@road.de>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Wed, 27 May 2009 15:26:58 +0200
-Message-ID: <200905271526.59064.u.luckas@road.de>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.30-rc7
+Date: Thu, 28 May 2009 12:02:30 -0700
+Message-ID: <20090528190230.GD18589@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
-In-Reply-To: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rv-out-0506.google.com ([209.85.198.232]:48030 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755677AbZE1TCe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 28 May 2009 15:02:34 -0400
 Content-Disposition: inline
-List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
-List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
-List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
-List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
-List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
-To: linux-arm-kernel@lists.arm.linux.org.uk
-Cc: Eric Miao <eric.y.miao@gmail.com>, Marek Vasut <marek.vasut@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Thursday, 7. May 2009, Eric Miao wrote:
->+static int matrix_keypad_suspend(struct platform_device *pdev,
->pm_message_t state)
->+{
->+       struct matrix_keypad *keypad = platform_get_drvdata(pdev);
->+       struct matrix_keypad_platform_data *pdata = keypad->pdata;
->+       int i;
->+
->+       if (device_may_wakeup(&pdev->dev))
->+               for (i = 0; i < pdata->num_row_gpios; i++)
->+                       enable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
->+
->+       return 0;
->+}
->+
-Hi Eric,
-what about the workqueue and interrupts? Shouldn't the interrupts be disabled and then the wq flushed?
+Hi Linus,
 
-> +static int matrix_keypad_resume(struct platform_device *pdev)
-> +{
-> +	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
-> +	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-> +	int i;
-> +
-> +	if (device_may_wakeup(&pdev->dev))
-> +		for (i = 0; i < pdata->num_row_gpios; i++)
-> +			disable_irq_wake(gpio_to_irq(pdata->row_gpios[i]));
-> +
-> +	return 0;
-> +}
->+
-You should probably schedule an imediate key scan as all key state changes where lost while the device was suspended.
+Please pull from:
 
-Uli
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+
+to receive updates for the input subsystem. It contains couple small
+tweaks and an update to mutlitouch protocol and its documentation.
+
+Changelog:
+---------
+
+Dmitry Torokhov (1):
+      Input: libps2 - better handle bad scheduler decisions
+
+Henrik Rydberg (2):
+      Input: multitouch - add tracking ID to the protocol
+      Input: multitouch - augment event semantics documentation
+
+Manuel Traut (1):
+      Input: usb1400_ts - fix access to "device data" in resume function
+
+
+Diffstat:
+--------
+
+ Documentation/input/multi-touch-protocol.txt |  103 ++++++++++++++++++++------
+ drivers/input/input.c                        |    1 +
+ drivers/input/serio/libps2.c                 |    2 +-
+ drivers/input/touchscreen/ucb1400_ts.c       |    2 +-
+ include/linux/input.h                        |    1 +
+ 5 files changed, 83 insertions(+), 26 deletions(-)
 
 -- 
+Dmitry
 
-------- ROAD ...the handyPC Company - - -  ) ) )
-
-Uli Luckas
-Head of Software Development
-
-ROAD GmbH
-Bennigsenstr. 14 | 12159 Berlin | Germany
-fon: +49 (30) 230069 - 62 | fax: +49 (30) 230069 - 69
-url: www.road.de
-
-Amtsgericht Charlottenburg: HRB 96688 B
-Managing director: Hans-Peter Constien
-
--------------------------------------------------------------------
-List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
-FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
-Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

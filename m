@@ -1,89 +1,101 @@
-From: Robert Jarzmik <robert.jarzmik@free.fr>
+From: Eric Miao <eric.y.miao@gmail.com>
 Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Sun, 31 May 2009 19:39:01 +0200
-Message-ID: <87bpp9qiiy.fsf@free.fr>
+Date: Mon, 1 Jun 2009 11:43:57 +0800
+Message-ID: <f17812d70905312043q4d8e18pf9e2daaa4aeed641@mail.gmail.com>
 References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
-	<200905271526.59064.u.luckas@road.de>
-	<f17812d70905310712n4aa12acfm6c8d5c9cab4c3179@mail.gmail.com>
-	<20090531142027.GA22540@n2100.arm.linux.org.uk>
-	<f17812d70905310729r501ed41fja622392c187c5cbb@mail.gmail.com>
+	 <20090531142027.GA22540@n2100.arm.linux.org.uk>
+	 <f17812d70905310729r501ed41fja622392c187c5cbb@mail.gmail.com>
+	 <200905311038.23807.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp6-g21.free.fr ([212.27.42.6]:52914 "EHLO smtp6-g21.free.fr"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1750866AbZEaRjO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 31 May 2009 13:39:14 -0400
+Received: from qw-out-2122.google.com ([74.125.92.24]:40851 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754351AbZFADn4 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Sun, 31 May 2009 23:43:56 -0400
+Received: by qw-out-2122.google.com with SMTP id 5so4887351qwd.37
+        for <linux-input@vger.kernel.org>; Sun, 31 May 2009 20:43:57 -0700 (PDT)
+In-Reply-To: <200905311038.23807.dmitry.torokhov@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Uli Luckas <u.luckas@road.de>, linux-arm-kernel@lists.arm.linux.org.uk, Marek Vasut <marek.vasut@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Uli Luckas <u.luckas@road.de>, linux-arm-kernel@lists.arm.linux.org.uk, Marek Vasut <marek.vasut@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-Eric Miao <eric.y.miao@gmail.com> writes:
+On Mon, Jun 1, 2009 at 1:38 AM, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+> On Sunday 31 May 2009 07:29:08 Eric Miao wrote:
+>> On Sun, May 31, 2009 at 10:20 PM, Russell King - ARM Linux
+>>
+>> <linux@arm.linux.org.uk> wrote:
+>> > On Sun, May 31, 2009 at 10:12:25PM +0800, Eric Miao wrote:
+>> >> +static void __devinit build_keycodes(struct matrix_keypad *keypa=
+d)
+>> >> +{
+>> >> + =C2=A0 =C2=A0 struct matrix_keypad_platform_data *pdata =3D key=
+pad->pdata;
+>> >> + =C2=A0 =C2=A0 struct input_dev *input_dev =3D keypad->input_dev=
+;
+>> >> + =C2=A0 =C2=A0 uint32_t *key;
+>> >> + =C2=A0 =C2=A0 int i;
+>> >> +
+>> >> + =C2=A0 =C2=A0 keypad->keycodes =3D kzalloc(MATRIX_MAX_KEYS * si=
+zeof(int),
+>> >> GFP_KERNEL);
+>> >
+>> > This doesn't check for failure...
+>>
+>> Oops, updated (together with the release) as below:
+>
+> Eric, could you please send me this patch as a diff to the original
+> one you sent?
+>
 
-Hi Eric, some minor cosmetic points ...
+Sorry, I used 'git commit --amend' for this and I'm not sure if I can
+recover the diff. I'll paste the changed part here instead:
 
-<snip>
-
-> +static void activate_all_cols(struct matrix_keypad_platform_data
-> *pdata, int on)
-That function declaration spacing looks suspicious, looks like my mailer (or
-yours) ate a bit out of it, and patch doesn't accept to apply it.
-
-<snip>
-
-+static void activate_col(struct matrix_keypad_platform_data *pdata,
-+			 int col, int on)
-+{
-+	__activate_col(pdata, col, on);
++	keypad->keycodes =3D kzalloc(MATRIX_MAX_KEYS * sizeof(int), GFP_KERNE=
+L);
++	if (keypad->keycodes =3D=3D NULL)
++		return -ENOMEM;
 +
-+	if (on && pdata->col_scan_delay_us)
-+		udelay(pdata->col_scan_delay_us);
-+}
-That function is called is the worst case 16 times in a row (if I understood
-correctly matrix_keypad_scan()). If delay is 100us, that makes 1.6ms for a
-keystroke with all kernel blocked (udelay).
-I didn't follow the discussion before, so maybe that's the only way. Still,
-that's too bad ...
++	key =3D &pdata->key_map[0];
++	for (i =3D 0; i < pdata->key_map_size; i++, key++) {
++		keypad->keycodes[KEY_ROWCOL(*key)] =3D KEY_VAL(*key);
++		set_bit(KEY_VAL(*key), input_dev->keybit);
++	}
++	return 0;
 
-<snip>
+returns something in 'build_keycodes()'.
 
-> +/*
-> + * This gets the keys from keyboard and reports it to input subsystem
-> + */
-> +static void matrix_keypad_scan(struct work_struct *work)
-> +{
-> +	struct matrix_keypad *keypad =
-> +	       	container_of(work, struct matrix_keypad, work.work);
-> +	struct matrix_keypad_platform_data *pdata = keypad->pdata;
-> +	uint32_t new_state[MATRIX_MAX_COLS];
-> +	int row, col;
-> +
-> +	/* de-activate all columns for scanning */
-> +	activate_all_cols(pdata, 0);
-> +
-> +	memset(new_state, 0, sizeof(new_state));
-> +
-> +	/* assert each column and read the row status out */
-> +	for (col = 0; col < pdata->num_col_gpios; col++) {
-> +
-> +		activate_col(pdata, col, 1);
-> +
-> +		for (row = 0; row < pdata->num_row_gpios; row++)
-> +			new_state[col] |= row_asserted(pdata, row) ?
-> +						(1 << row) : 0;
-> +		activate_col(pdata, col, 0);
-> +	}
-> +
-> +	for (col = 0; col < pdata->num_col_gpios; col++) {
-> +		uint32_t bits_changed;
-> +		
-Nitpicking: extra space on that line.
++	err =3D build_keycodes(keypad);
++	if (err)
++		goto err_free_input;
++
+=2E..
++
++err_unregister:
++	input_unregister_device(input_dev);
++err_free_keycodes:
++	kfree(keypad->keycodes);
++err_free_input:
++	input_free_device(input_dev);
++err_free_keypad:
++	kfree(keypad);
++	return err;
 
-<snip>
+add one more exiting path when build_keycodes() failed
 
-Cheers.
++
++	input_unregister_device(keypad->input_dev);
++	kfree(keypad->keycodes);
++	kfree(keypad);
++	return 0;
 
+kfree(keypad->keycodes) in matrix_keypad_remove()
 --
-Robert
-
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

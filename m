@@ -1,52 +1,50 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH v2] input: add synaptics_i2c driver
-Date: Tue, 02 Jun 2009 08:40:52 +0300
-Message-ID: <4A24BB64.2050804@compulab.co.il>
-References: <4A13F941.7040301@compulab.co.il> <20090520144949.15fa457b@hyperion.delvare>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] hid: add force feedback support for SmartJoy PLUS PS2/USB
+ adapter
+Date: Tue, 2 Jun 2009 11:16:09 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906021113030.7457@wotan.suse.de>
+References: <20090508074636.16912.55839.stgit@fate.lan> <alpine.LNX.2.00.0905111712410.22712@wotan.suse.de> <4A0848E7.9080301@suse.cz> <alpine.LNX.2.00.0905111749530.22712@wotan.suse.de> <4A084A0C.3070500@suse.cz> <4A1A700B.8020805@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cathcart.site5.com ([74.54.107.137]:41337 "EHLO
-	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754198AbZFBFky (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jun 2009 01:40:54 -0400
-In-Reply-To: <20090520144949.15fa457b@hyperion.delvare>
+Received: from cantor2.suse.de ([195.135.220.15]:56468 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753635AbZFBJQI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 2 Jun 2009 05:16:08 -0400
+In-Reply-To: <4A1A700B.8020805@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, grinberg <grinberg@compulab.co.il>, linux-input <linux-input@vger.kernel.org>
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: Jussi Kivilinna <jussi.kivilinna@mbnet.fi>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Dmitry,
-Any updates on this?
+On Mon, 25 May 2009, Jiri Slaby wrote:
 
-Jean Delvare wrote:
-> On Wed, 20 May 2009 15:36:17 +0300, Mike Rapoport wrote:
->> This patch adds support for Synaptics i2c touchpad controller found on
->> eXeda machine.
->>
->> Signed-off-by: Igor Grinberg <grinberg@compulab.co.il>
->> Signed-off-by: Mike Rapoport <mike@compulab.co.il>
->> CC: Jean Delvare <khali@linux-fr.org>
->>
->> ---
->> v2 changelog:
->>   - fix bugs and issues pointed out by Jean and Dmitry
->>   - use workqueue instead of kthread
->>   - reorganize methods order to something more logical
->>
->> ---
->>  drivers/input/mouse/Kconfig         |   18 +
->>  drivers/input/mouse/Makefile        |    1 +
->>  drivers/input/mouse/synaptics_i2c.c |  700 +++++++++++++++++++++++++++++++++++
->>  3 files changed, 719 insertions(+), 0 deletions(-)
->>  create mode 100644 drivers/input/mouse/synaptics_i2c.c
-> 
-> (I2C parts:)
-> Acked-by: Jean Delvare <khali@linux-fr.org>
-> 
+> This will cover most of current drivers and hence we might eliminate 
+> almost all blacklisted entries (except the ones for drivers with 
+> report_fixup).
+
+Which is OK, as usually they wouldn't work at all anyway without fixed 
+report descriptor (or will be behaving in unexpected bogus way). The other 
+features (force feedback and missing mappings) are not that crucial 
+anyway.
+
+Plus, my longer-term intention is to move all the special mapping into 
+HAL.
+
+> Caveats:
+> * events come even when stopped: drop (or hold) events until inputs are
+>   connected again
+
+By this you mean the short window start-stop-start during bootup, or 
+something else?
+
+> * complexity: added complexity, slowdown in initialization and handling
+
+The slowdown shouldn't really be problem in case of HID, the devices 
+themselves are usually pretty slow.
+
+Thanks,
 
 -- 
-Sincerely yours,
-Mike.
-
+Jiri Kosina
+SUSE Labs

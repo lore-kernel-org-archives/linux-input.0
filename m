@@ -1,179 +1,472 @@
-From: Tero Saarni <tero.saarni@gmail.com>
-Subject: [PATCH] Input: synaptics - add support for reporting x/y resolution
-Date: Tue, 02 Jun 2009 18:35:05 +0300
-Message-ID: <1243956905.7556.5.camel@hp>
-References: <1241460369.29685.6.camel@hp> <1241461145.29685.13.camel@hp>
-	 <20090507164859.GB6450@dtor-d630.eng.vmware.com>
-	 <ad348feb0905071159i68138a6cyef0d98410fc752cb@mail.gmail.com>
-	 <20090508030345.GD30616@dtor-d630.eng.vmware.com>
-	 <1242461298.10555.24.camel@hp>
+From: =?UTF-8?B?UmljaGFyZCBSwprDtmpmb3Jz?=
+	<richard.rojfors.ext@mocean-labs.com>
+Subject: [PATCH] input: Added TSC2003
+Date: Tue, 02 Jun 2009 21:19:34 +0200
+Message-ID: <4A257B46.2040709@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-bw0-f222.google.com ([209.85.218.222]:58920 "EHLO
-	mail-bw0-f222.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753357AbZFBPfK (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jun 2009 11:35:10 -0400
-Received: by bwz22 with SMTP id 22so8243542bwz.37
-        for <linux-input@vger.kernel.org>; Tue, 02 Jun 2009 08:35:11 -0700 (PDT)
-In-Reply-To: <1242461298.10555.24.camel@hp>
+Received: from proxy1.bredband.net ([195.54.101.71]:56554 "EHLO
+	proxy1.bredband.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751300AbZFBTTt (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 2 Jun 2009 15:19:49 -0400
+Received: from ironport.bredband.com (195.54.101.120) by proxy1.bredband.net (7.3.140.3)
+        id 49F5A15200EE32CB for linux-input@vger.kernel.org; Tue, 2 Jun 2009 21:19:50 +0200
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: =?UTF-8?B?J1JpY2hhcmQgUsKaw7ZqZm9ycyc=?= <richard.rojfors.ext@mocean-labs.com>
 
-Synaptics uses anisotropic coordinate system.  On some wide touchpads
-vertical resolution can be twice as high as horizontal which causes
-unequal sensitivity on x/y directions.  Add support for reading the
-resolution with EVIOCGABS ioctl.
+Supplied is a driver for the TSC2003. There is actually a driver for TS=
+C2007 which can be used in some cases.
+The platform struct is reused from the TSC2007.
+There is a big difference in the implementation between the drivers, th=
+is one does not use HR timers.
+The TSC2007 driver performs synchronous I2C in the timer callback (SW I=
+RQ context) which is bad when
+the I2C driver is interrupt driven.
 
-Signed-off-by: Tero Saarni <tero.saarni@gmail.com>
+
+Signed-off-by: Richard R=C3=B6jfors <richard.rojfors.ext@mocean-labs.co=
+m>
 ---
-
-Hi again, 
-I'm reposting this patch in case it got lost or buried somewhere!
-
--------
-Here's a new version of the patch I posted last week.  I've revised
-it according to comments from Dmitry.  Please comment if I got the
-idea completely wrong or if there's something I could fine tune.
-
-I had some doubts regarding my change in set_input_params() where the
-parameters generally seemed to be set to input_dev by calling
-input_set_abs_params() helper function.  I did not add new resolution
-parameter to this function since its use was so wide spread.  I just
-assign the resolution parameters directly which seemed more practical
-for me.
-
- drivers/input/evdev.c           |    8 ++++++--
- drivers/input/mouse/synaptics.c |   28 ++++++++++++++++++++++++++++
- drivers/input/mouse/synaptics.h |    2 ++
- include/linux/input.h           |    2 ++
- 4 files changed, 38 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 7a7a026..f2df97f 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -626,8 +626,10 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 				abs.maximum = dev->absmax[t];
- 				abs.fuzz = dev->absfuzz[t];
- 				abs.flat = dev->absflat[t];
-+				abs.resolution = dev->absres[t];
- 
--				if (copy_to_user(p, &abs, sizeof(struct input_absinfo)))
-+				if (copy_to_user(p, &abs,
-+						min(_IOC_SIZE(cmd), sizeof(struct input_absinfo))))
- 					return -EFAULT;
- 
- 				return 0;
-@@ -655,7 +657,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 				t = _IOC_NR(cmd) & ABS_MAX;
- 
- 				if (copy_from_user(&abs, p,
--						sizeof(struct input_absinfo)))
-+						min(_IOC_SIZE(cmd), sizeof(struct input_absinfo))))
- 					return -EFAULT;
- 
- 				/*
-@@ -670,6 +672,8 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 				dev->absmax[t] = abs.maximum;
- 				dev->absfuzz[t] = abs.fuzz;
- 				dev->absflat[t] = abs.flat;
-+				dev->absres[t] = (_IOC_SIZE(cmd) < sizeof(struct input_absinfo)) ?
-+					0 : abs.resolution;
- 
- 				spin_unlock_irq(&dev->event_lock);
- 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index f3e4f7b..19984bf 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -180,6 +180,29 @@ static int synaptics_identify(struct psmouse *psmouse)
- 	return -1;
- }
- 
+Index: linux-2.6.30-rc7/drivers/input/touchscreen/tsc2003.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.30-rc7/drivers/input/touchscreen/tsc2003.c	(revision 0)
++++ linux-2.6.30-rc7/drivers/input/touchscreen/tsc2003.c	(revision 869)
+@@ -0,0 +1,387 @@
 +/*
-+ * Read touchpad resolution
-+ * Resolution is left zero if touchpad does not support the query
++ * tsc2003.c Driver for TI TSC2003 touch screen controller
++ * Copyright (c) 2009 Intel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 + */
-+static int synaptics_resolution(struct psmouse *psmouse)
++
++/* Supports:
++ * TI TSC2003
++ *
++ * Inspired by tsc2007, Copyright (c) 2008 MtekVision Co., Ltd.
++ */
++#include <linux/module.h>
++#include <linux/input.h>
++#include <linux/interrupt.h>
++#include <linux/i2c.h>
++#include <linux/i2c/tsc2007.h>
++#include <linux/kthread.h>
++#include <linux/semaphore.h>
++
++#define TSC2003_DRIVER_NAME		"tsc2003"
++
++#define TS_POLL_PERIOD	20		/* ms delay between samples */
++
++#define TSC2003_MEASURE_TEMP0		(0x0 << 4)
++#define TSC2003_MEASURE_AUX		(0x2 << 4)
++#define TSC2003_MEASURE_TEMP1		(0x4 << 4)
++#define TSC2003_ACTIVATE_XN		(0x8 << 4)
++#define TSC2003_ACTIVATE_YN		(0x9 << 4)
++#define TSC2003_ACTIVATE_YP_XN		(0xa << 4)
++#define TSC2003_SETUP			(0xb << 4)
++#define TSC2003_MEASURE_X		(0xc << 4)
++#define TSC2003_MEASURE_Y		(0xd << 4)
++#define TSC2003_MEASURE_Z1		(0xe << 4)
++#define TSC2003_MEASURE_Z2		(0xf << 4)
++
++#define TSC2003_POWER_OFF_IRQ_EN	(0x0 << 2)
++#define TSC2003_ADC_ON_IRQ_DIS0		(0x1 << 2)
++#define TSC2003_ADC_OFF_IRQ_EN		(0x2 << 2)
++#define TSC2003_ADC_ON_IRQ_DIS1		(0x3 << 2)
++
++#define TSC2003_12BIT			(0x0 << 1)
++#define TSC2003_8BIT			(0x1 << 1)
++
++#define	MAX_12BIT			((1 << 12) - 1)
++
++#define ADC_ON_12BIT	(TSC2003_12BIT | TSC2003_ADC_ON_IRQ_DIS0)
++
++#define READ_Y		(ADC_ON_12BIT | TSC2003_MEASURE_Y)
++#define READ_Z1		(ADC_ON_12BIT | TSC2003_MEASURE_Z1)
++#define READ_Z2		(ADC_ON_12BIT | TSC2003_MEASURE_Z2)
++#define READ_X		(ADC_ON_12BIT | TSC2003_MEASURE_X)
++#define PWRDOWN		(TSC2003_12BIT | TSC2003_POWER_OFF_IRQ_EN)
++
++struct ts_event {
++	int	x;
++	int	y;
++	int	z1, z2;
++};
++
++struct tsc2003 {
++	struct input_dev	*input;
++	char			phys[32];
++	struct task_struct	*task;
++	struct ts_event		tc;
++	struct completion 	penirq_completion;
++
++	struct i2c_client	*client;
++
++	u16			model;
++	u16			x_plate_ohms;
++
++	unsigned		pendown;
++};
++
++static inline int tsc2003_xfer(struct tsc2003 *tsc, u8 cmd)
 +{
-+	struct synaptics_data *priv = psmouse->private;
-+	unsigned char res[3];
++	s32 data;
++	u16 val;
 +
-+	if (SYN_ID_MAJOR(priv->identity) < 4)
-+		return 0;
++	data =3D i2c_smbus_read_word_data(tsc->client, cmd);
++	if (data < 0) {
++		dev_err(&tsc->client->dev, "i2c io error: %d\n", data);
++		return data;
++	}
 +
-+	if (synaptics_send_cmd(psmouse, SYN_QUE_RESOLUTION, res))
-+		return 0;
++	/* The protocol and raw data format from i2c interface:
++	 * S Addr Wr [A] Comm [A] S Addr Rd [A] [DataLow] A [DataHigh] NA P
++	 * Where DataLow has [D11-D4], DataHigh has [D3-D0 << 4 | Dummy 4bit]=
+=2E
++	 */
++	val =3D swab16(data) >> 4;
 +
-+	if ((res[0] != 0) && (res[1] & 0x80) && (res[2] != 0)) {
-+		priv->x_res = res[0]; /* x resolution in units/mm */
-+		priv->y_res = res[2]; /* y resolution in units/mm */
++	dev_dbg(&tsc->client->dev, "data: 0x%x, val: 0x%x\n", data, val);
++
++	return val;
++}
++
++static void tsc2003_send_event(void *tsc)
++{
++	struct tsc2003	*ts =3D tsc;
++	struct input_dev *input =3D ts->input;
++	u32		rt =3D 0;
++	u16		x, y, z1, z2;
++
++	x =3D ts->tc.x;
++	y =3D ts->tc.y;
++	z1 =3D ts->tc.z1;
++	z2 =3D ts->tc.z2;
++
++	/* range filtering */
++	if (x =3D=3D MAX_12BIT)
++		x =3D 0;
++
++	if (likely(x && z1)) {
++		/* compute touch pressure resistance using equation #1 */
++		rt =3D z2;
++		rt -=3D z1;
++		rt *=3D x;
++		rt *=3D ts->x_plate_ohms;
++		rt /=3D z1;
++		rt =3D (rt + 2047) >> 12;
++	}
++
++	/* Sample found inconsistent by debouncing or pressure is beyond
++	 * the maximum. Don't report it to user space, repeat at least
++	 * once more the measurement
++	 */
++	if (rt > MAX_12BIT)
++		return;
++
++	/* NOTE: We can't rely on the pressure to determine the pen down
++	 * state, even this controller has a pressure sensor.  The pressure
++	 * value can fluctuate for quite a while after lifting the pen and
++	 * in some cases may not even settle at the expected value.
++	 *
++	 * The only safe way to check for the pen up condition is in the
++	 * timer by reading the pen signal state (it's a GPIO _and_ IRQ).
++	 */
++	if (rt) {
++		if (!ts->pendown) {
++			dev_dbg(&ts->client->dev, "DOWN\n");
++
++			input_report_key(input, BTN_TOUCH, 1);
++			ts->pendown =3D 1;
++		}
++
++		input_report_abs(input, ABS_X, x);
++		input_report_abs(input, ABS_Y, y);
++		input_report_abs(input, ABS_PRESSURE, rt);
++
++		input_sync(input);
++
++		dev_dbg(&ts->client->dev, "point(%4d,%4d), pressure (%4u)\n",
++			x, y, rt);
++	} else if (ts->pendown) {
++		/* pen up */
++		dev_dbg(&ts->client->dev, "UP\n");
++		input_report_key(input, BTN_TOUCH, 0);
++		input_report_abs(input, ABS_PRESSURE, 0);
++		input_sync(input);
++
++		ts->pendown =3D 0;
++	}
++}
++
++static int tsc2003_power_off_irq_en(struct tsc2003 *tsc)
++{
++	/* power down */
++	return tsc2003_xfer(tsc, PWRDOWN);
++}
++
++static int tsc2003_read_values(struct tsc2003 *tsc)
++{
++	/* y- still on; turn on only y+ (and ADC) */
++	tsc->tc.y =3D tsc2003_xfer(tsc, READ_Y);
++	if (tsc->tc.y < 0)
++		return tsc->tc.y;
++
++	/* turn y- off, x+ on, then leave in lowpower */
++	tsc->tc.x =3D tsc2003_xfer(tsc, READ_X);
++	if (tsc->tc.x < 0)
++		return tsc->tc.x;
++
++	/* turn y+ off, x- on; we'll use formula #1 */
++	tsc->tc.z1 =3D tsc2003_xfer(tsc, READ_Z1);
++	if (tsc->tc.z1 < 0)
++		return tsc->tc.z1;
++
++	tsc->tc.z2 =3D tsc2003_xfer(tsc, READ_Z2);
++	if (tsc->tc.z2 < 0)
++		return tsc->tc.z2;
++
++	return 0;
++}
++
++
++static irqreturn_t tsc2003_irq(int irq, void *handle)
++{
++	struct tsc2003 *ts =3D handle;
++
++	/* do not call the synced version -> deadlock */
++	disable_irq_nosync(irq);
++	/* signal the thread to continue */
++	complete(&ts->penirq_completion);
++
++	return IRQ_HANDLED;
++}
++
++static int tsc2003_thread(void *d)
++{
++	struct tsc2003 *ts =3D (struct tsc2003 *)d;
++	int ret;
++
++	allow_signal(SIGKILL);
++
++	while (!signal_pending(current)) {
++		/* power down and wait for interrupt */
++		do {
++			/* loop because the I2C bus might be busy */
++			ret =3D msleep_interruptible(TS_POLL_PERIOD);
++			if (!ret)
++				ret =3D tsc2003_power_off_irq_en(ts);
++		} while (ret =3D=3D -EAGAIN && !signal_pending(current));
++
++		if (signal_pending(current))
++			break;
++
++		ret =3D wait_for_completion_interruptible(&ts->penirq_completion);
++		if (!ret) {
++			int first =3D 1;
++			/* got IRQ, start poll, until pen is up */
++			while (!ret && !signal_pending(current)
++				&& (first || ts->pendown)) {
++				ret =3D tsc2003_read_values(ts);
++				if (!ret)
++					tsc2003_send_event(ts);
++				ret =3D msleep_interruptible(TS_POLL_PERIOD);
++				first =3D 0;
++			}
++
++			/* we re enable the interrupt */
++			if (!signal_pending(current))
++				enable_irq(ts->client->irq);
++		}
 +	}
 +
 +	return 0;
 +}
 +
- static int synaptics_query_hardware(struct psmouse *psmouse)
- {
- 	if (synaptics_identify(psmouse))
-@@ -188,6 +211,8 @@ static int synaptics_query_hardware(struct psmouse *psmouse)
- 		return -1;
- 	if (synaptics_capability(psmouse))
- 		return -1;
-+	if (synaptics_resolution(psmouse))
-+		return -1;
- 
- 	return 0;
- }
-@@ -563,6 +588,9 @@ static void set_input_params(struct input_dev *dev, struct synaptics_data *priv)
- 	clear_bit(EV_REL, dev->evbit);
- 	clear_bit(REL_X, dev->relbit);
- 	clear_bit(REL_Y, dev->relbit);
++static int tsc2003_probe(struct i2c_client *client,
++			const struct i2c_device_id *id)
++{
++	struct tsc2003 *ts;
++	struct tsc2007_platform_data *pdata =3D client->dev.platform_data;
++	struct input_dev *input_dev;
++	int err;
 +
-+	dev->absres[ABS_X] = priv->x_res;
-+	dev->absres[ABS_Y] = priv->y_res;
- }
- 
- static void synaptics_disconnect(struct psmouse *psmouse)
-diff --git a/drivers/input/mouse/synaptics.h b/drivers/input/mouse/synaptics.h
-index 02aa4cf..3023821 100644
---- a/drivers/input/mouse/synaptics.h
-+++ b/drivers/input/mouse/synaptics.h
-@@ -97,6 +97,8 @@ struct synaptics_data {
- 	unsigned long int capabilities;		/* Capabilities */
- 	unsigned long int ext_cap;		/* Extended Capabilities */
- 	unsigned long int identity;		/* Identification */
-+	int x_res;				/* X resolution in units/mm */
-+	int y_res;				/* Y resolution in units/mm */
- 
- 	unsigned char pkt_type;			/* packet type - old, new, etc */
- 	unsigned char mode;			/* current mode byte */
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 0e6ff5d..351638d 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -53,6 +53,7 @@ struct input_absinfo {
- 	__s32 maximum;
- 	__s32 fuzz;
- 	__s32 flat;
-+	__s32 resolution;
- };
- 
- #define EVIOCGVERSION		_IOR('E', 0x01, int)			/* get driver version */
-@@ -1108,6 +1109,7 @@ struct input_dev {
- 	int absmin[ABS_MAX + 1];
- 	int absfuzz[ABS_MAX + 1];
- 	int absflat[ABS_MAX + 1];
-+	int absres[ABS_MAX + 1];
- 
- 	int (*open)(struct input_dev *dev);
- 	void (*close)(struct input_dev *dev);
--- 
-1.6.0.4
++	if (!pdata) {
++		dev_err(&client->dev, "platform data is required!\n");
++		return -EINVAL;
++	}
++
++	if (!i2c_check_functionality(client->adapter,
++				     I2C_FUNC_SMBUS_READ_WORD_DATA))
++		return -EIO;
++
++	ts =3D kzalloc(sizeof(struct tsc2003), GFP_KERNEL);
++	input_dev =3D input_allocate_device();
++	if (!ts || !input_dev) {
++		err =3D -ENOMEM;
++		goto err_free_mem;
++	}
++
++	ts->client =3D client;
++	i2c_set_clientdata(client, ts);
++
++	ts->input =3D input_dev;
++
++	ts->model             =3D pdata->model;
++	ts->x_plate_ohms      =3D pdata->x_plate_ohms;
++
++	snprintf(ts->phys, sizeof(ts->phys),
++		 "%s/input0", dev_name(&client->dev));
++
++	input_dev->name =3D TSC2003_DRIVER_NAME" Touchscreen";
++	input_dev->phys =3D ts->phys;
++	input_dev->id.bustype =3D BUS_I2C;
++
++	input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_ABS);
++	input_dev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN_TOUCH);
++
++	input_set_abs_params(input_dev, ABS_X, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_Y, 0, MAX_12BIT, 0, 0);
++	input_set_abs_params(input_dev, ABS_PRESSURE, 0, MAX_12BIT, 0, 0);
++
++	init_completion(&ts->penirq_completion);
++
++	ts->task =3D kthread_run(tsc2003_thread, ts, TSC2003_DRIVER_NAME);
++	if (IS_ERR(ts->task)) {
++		err =3D PTR_ERR(ts->task);
++		goto err_free_mem;
++	}
++
++	err =3D request_irq(client->irq, tsc2003_irq, 0,
++			client->dev.driver->name, ts);
++	if (err < 0) {
++		dev_err(&client->dev, "irq %d busy?\n", client->irq);
++		goto err_free_thread;
++	}
++
++	err =3D input_register_device(input_dev);
++	if (err)
++		goto err_free_irq;
++
++	dev_info(&client->dev, "registered with irq (%d)\n", client->irq);
++
++	return 0;
++
++ err_free_irq:
++	free_irq(client->irq, ts);
++ err_free_thread:
++	kthread_stop(ts->task);
++ err_free_mem:
++	input_free_device(input_dev);
++	kfree(ts);
++	return err;
++}
++
++static int tsc2003_remove(struct i2c_client *client)
++{
++	struct tsc2003 *ts =3D i2c_get_clientdata(client);
++
++	free_irq(client->irq, ts);
++	send_sig(SIGKILL, ts->task, 1);
++	kthread_stop(ts->task);
++	input_unregister_device(ts->input);
++	kfree(ts);
++
++	return 0;
++}
++
++static struct i2c_device_id tsc2003_idtable[] =3D {
++	{ TSC2003_DRIVER_NAME, 0 },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(i2c, tsc2003_idtable);
++
++static struct i2c_driver tsc2003_driver =3D {
++	.driver =3D {
++		.owner	=3D THIS_MODULE,
++		.name	=3D TSC2003_DRIVER_NAME,
++		.bus =3D &i2c_bus_type,
++	},
++	.id_table	=3D tsc2003_idtable,
++	.probe		=3D tsc2003_probe,
++	.remove		=3D tsc2003_remove,
++};
++
++static int __init tsc2003_init(void)
++{
++	return i2c_add_driver(&tsc2003_driver);
++}
++
++static void __exit tsc2003_exit(void)
++{
++	i2c_del_driver(&tsc2003_driver);
++}
++
++module_init(tsc2003_init);
++module_exit(tsc2003_exit);
++
++MODULE_AUTHOR("Mocean Laboratories <info@mocean-labs.com>");
++MODULE_DESCRIPTION("TSC2003 TouchScreen Driver");
++MODULE_LICENSE("GPL v2");
++
+Index: linux-2.6.30-rc7/drivers/input/touchscreen/Kconfig
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.30-rc7/drivers/input/touchscreen/Kconfig	(revision 861)
++++ linux-2.6.30-rc7/drivers/input/touchscreen/Kconfig	(revision 869)
+@@ -455,6 +455,17 @@
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called touchit213.
 
-
-
++config TOUCHSCREEN_TSC2003
++	tristate "TSC2003 based touchscreens"
++	depends on I2C
++	help
++	  Say Y here if you have a TSC2003 based touchscreen.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called tsc2003.
++
+ config TOUCHSCREEN_TSC2007
+ 	tristate "TSC2007 based touchscreens"
+ 	depends on I2C
+Index: linux-2.6.30-rc7/drivers/input/touchscreen/Makefile
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.30-rc7/drivers/input/touchscreen/Makefile	(revision 861)
++++ linux-2.6.30-rc7/drivers/input/touchscreen/Makefile	(revision 869)
+@@ -27,6 +27,7 @@
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHIT213)	+=3D touchit213.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHRIGHT)	+=3D touchright.o
+ obj-$(CONFIG_TOUCHSCREEN_TOUCHWIN)	+=3D touchwin.o
++obj-$(CONFIG_TOUCHSCREEN_TSC2003)	+=3D tsc2003.o
+ obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+=3D tsc2007.o
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+=3D ucb1400_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+=3D wacom_w8001.o
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

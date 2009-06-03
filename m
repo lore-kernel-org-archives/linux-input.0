@@ -1,112 +1,77 @@
-From: Jonathan McDowell <noodles@earth.li>
-Subject: Re: [RFC][PATCH] Add support for hook switch on ams-delta
-Date: Tue, 2 Jun 2009 23:04:33 +0100
-Message-ID: <20090602220433.GD31770@earth.li>
-References: <200905262057.21890.jkrzyszt@tis.icnet.pl>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH] Input: add touchscreen driver for MELFAS MCS-5000
+	controller
+Date: Wed, 03 Jun 2009 14:16:15 +0900
+Message-ID: <4A26071F.6050906@samsung.com>
+References: <4A0819EE.2050209@samsung.com>
+ <20090512020921.GA1965@dtor-d630.eng.vmware.com>
+ <4A0C1419.5070604@samsung.com>
+ <20090514150947.GB30027@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from the.earth.li ([217.147.81.2]:41605 "EHLO the.earth.li"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751901AbZFBWih (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 2 Jun 2009 18:38:37 -0400
-Content-Disposition: inline
-In-Reply-To: <200905262057.21890.jkrzyszt@tis.icnet.pl>
+Received: from mailout1.samsung.com ([203.254.224.24]:41534 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750970AbZFCFQP (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Jun 2009 01:16:15 -0400
+Received: from epmmp2 (mailout1.samsung.com [203.254.224.24])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KKN00MXPDB3YN@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 03 Jun 2009 14:16:15 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KKN00IO3DB37S@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 03 Jun 2009 14:16:15 +0900 (KST)
+In-reply-to: <20090514150947.GB30027@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com
 
-On Tue, May 26, 2009 at 08:57:20PM +0200, Janusz Krzysztofik wrote:
-> This trivial patch adds gpio-keys compatible platform device definition to 
-> ams-delta board, that supports hook switch found on this videophone. It is 
-> derived from similiar definitions found in other boards code. The patch is 
-> based on linux-2.6.30-rc5. Any comments are welcome.
+Hi, sorry for long time no reponse.
 
-I'm obviously too late as I've seen the "Applied" mail, but some
-comments:
+>>>> +	case INPUT_TYPE_SINGLE:
+>>>> +		x = (buffer[READ_X_POS_UPPER] << 8) | buffer[READ_X_POS_LOWER];
+>>>> +		y = (buffer[READ_Y_POS_UPPER] << 8) | buffer[READ_Y_POS_LOWER];
+>>>> +
+>>>> +		input_report_key(data->input_dev, BTN_TOUCH, 1);
+>>>> +		input_report_abs(data->input_dev, ABS_X, x);
+>>>> +		input_report_abs(data->input_dev, ABS_Y, y);
+>>>> +		input_report_abs(data->input_dev, ABS_PRESSURE,
+>>>> +				DEFAULT_PRESSURE);
+>>> If the hardware does not support pressure reading don't fake it.
+>>> BTN_TOUCH should be enough to signal touch.
+>> MCS-5000 supports pressure reading, but the value of pressure is unstable in
+>> my target, so i used the static value defined.
+>> I will add pressure reading after more test.
+> 
+> OK. Alternatively you may indicate in the platform data if pressure
+> reading is supported and set ABS_PRESSURE bit and report pressure only
+> when you know it works well.
 
-* I don't think SW_HEADPHONE_INSERT is appropriate. input guys, is it
-  not reasonable to have SW_PHONE_HOOK or similar? I can't find anything
-  else in tree I know to be a VOIP phone that has the concept of a hook
-  switch except perhaps the TuxScreen and it doesn't have anything set
-  up that I could find. I think you're correct that EV_SW is
-  appropriate; it may remain in the off-hook state for some time and
-  AFAICT the gpio-key driver would produce a repeating key press if you
-  used EV_KEY.
+This is my mistake, the MCS-5000 does not support pressure. I confused pressure
+and proximity.
 
-* We assume the bootloader does the appropriate GPIO pin setup for us,
-  so I don't think your omap_cfg_reg is required but it doesn't hurt in
-  the unlikely event we ever replace the Amstrad PBL.
+>>>> +{
+>>>> +	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
+>>>> +
+>>>> +	cancel_work_sync(&data->ts_event_work);
+>>> There is a race here, IRQ handler may resubmit work after
+>>> cancel_work_sync() returns. You need to  make sure that
+>>> IRQ handler does not resubmit work while device is being shut down.
+>> ok, how about doing free_irq() before cancel_work_sync() call?
+>>
+> 
+> Then there is a risk that your work will try to enable_irq() on irq that
+> was freed. I am not sure if IRQ core will be happy with it,
+> 
 
-* The commented out code to include the GPIO status in sysfs shouldn't
-  be included. Does the input layer not provide a way to obtain the
-  state of the switch?
+It is no problem to try to enable_irq() on irq that was freed, but a new
+problem is balance of disable_irq() and enable_irq().
+I refered drivers/net/phy/phy.c file.
 
-> diff -Npru a/arch/arm/mach-omap1/board-ams-delta.c b/arch/arm/mach-omap1/board-ams-delta.c
-> --- a/arch/arm/mach-omap1/board-ams-delta.c	2009-05-17 17:58:18.000000000 +0200
-> +++ b/arch/arm/mach-omap1/board-ams-delta.c	2009-05-17 16:22:59.000000000 +0200
-> @@ -15,6 +15,7 @@
->  #include <linux/kernel.h>
->  #include <linux/init.h>
->  #include <linux/input.h>
-> +#include <linux/gpio_keys.h>
->  #include <linux/platform_device.h>
->  
->  #include <mach/hardware.h>
-> @@ -213,10 +214,35 @@ static struct platform_device ams_delta_
->  	.id	= -1
->  };
->  
-> +static struct gpio_keys_button ams_delta_gpio_keys_buttons[] = {
-> +	[0] = {
-> +		.desc		= "hook_switch",
-> +		.type		= EV_SW,		/* or EV_KEY ? */
-> +		.code		= SW_HEADPHONE_INSERT,	/* or a new one ? */
-> +		.active_low	= 1,
-> +		.gpio		= AMS_DELTA_GPIO_PIN_HOOK_SWITCH,
-> +		.debounce_interval = 10,
-> +	},
-> +};
-> +
-> +static struct gpio_keys_platform_data ams_delta_gpio_keys = {
-> +	.buttons		= ams_delta_gpio_keys_buttons,
-> +	.nbuttons		= ARRAY_SIZE(ams_delta_gpio_keys_buttons),
-> +};
-> +
-> +static struct platform_device ams_delta_gpio_keys_device = {
-> +	.name			= "gpio-keys",
-> +	.id			= -1,
-> +	.dev			= {
-> +		.platform_data	= &ams_delta_gpio_keys,
-> +	},
-> +};
-> +
->  static struct platform_device *ams_delta_devices[] __initdata = {
->  	&ams_delta_kp_device,
->  	&ams_delta_lcd_device,
->  	&ams_delta_led_device,
-> +	&ams_delta_gpio_keys_device,
->  };
->  
->  static void __init ams_delta_init(void)
-> @@ -233,6 +259,13 @@ static void __init ams_delta_init_irq(vo
->  
->  	omap_usb_init(&ams_delta_usb_config);
->  	platform_add_devices(ams_delta_devices, ARRAY_SIZE(ams_delta_devices));
-> +
-> +	omap_cfg_reg(P20_1610_GPIO4); /* is this required? */
-> +
-> +	/* The hook switch state could be exposed over sysfs with gpio_export().
-> +	 * This should be done after the gpio-keys driver calls gpio_request(),
-> +	 * but I don't know how to do this from outside of the driver. */
-> +	/* gpio_export(AMS_DELTA_GPIO_PIN_HOOK_SWITCH, 0); */
->  }
->  
->  static void __init ams_delta_map_io(void)
+I will post patch v2.
 
-
-J.
-
--- 
-Revd. Jonathan McDowell, ULC | I don't sleep, I dream.
+thanks.

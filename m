@@ -1,58 +1,87 @@
-From: Andres Salomon <dilinger@collabora.co.uk>
-Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
-Date: Thu, 4 Jun 2009 00:17:40 -0400
-Message-ID: <20090604001740.490f747e@mycelium.queued.net>
-References: <3026.1243972079@foxharp.boston.ma.us>
-	<200906030804.57340.dmitry.torokhov@gmail.com>
-	<19417.1244087913@foxharp.boston.ma.us>
+From: Jonathan McDowell <noodles@earth.li>
+Subject: Re: [RFC][PATCH] Add support for hook switch on ams-delta
+Date: Thu, 4 Jun 2009 19:18:33 +0100
+Message-ID: <20090604181833.GG31770@earth.li>
+References: <200905262057.21890.jkrzyszt@tis.icnet.pl> <20090602220433.GD31770@earth.li> <200906031103.21758.jkrzyszt@tis.icnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754779AbZFDER7@vger.kernel.org>
-In-Reply-To: <19417.1244087913@foxharp.boston.ma.us>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paul Fox <pgf@laptop.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dsaxena@laptop.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <200906031103.21758.jkrzyszt@tis.icnet.pl>
+Sender: linux-omap-owner@vger.kernel.org
+To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Cc: linux-omap@vger.kernel.org, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-On Wed, 03 Jun 2009 23:58:33 -0400
-Paul Fox <pgf@laptop.org> wrote:
+On Wed, Jun 03, 2009 at 11:03:20AM +0200, Janusz Krzysztofik wrote:
+> Wednesday 03 June 2009 00:04:33 Jonathan McDowell napisa=C5=82(a):
+> > I'm obviously too late as I've seen the "Applied" mail,
+>=20
+> No problem, I'm glad to hear from you.
+>=20
+> > but some=20
+> > comments:
+> >
+> > * I don't think SW_HEADPHONE_INSERT is appropriate. input guys, is =
+it=20
+> >   not reasonable to have SW_PHONE_HOOK or similar?
+>=20
+> I do share you point of view. However, I didn't want to start a discu=
+ssion if=20
+> there is a need for another symbol or not before the patch got any=20
+> acceptance.
+>=20
+> > * We assume the bootloader does the appropriate GPIO pin setup for =
+us,
+> >   so I don't think your omap_cfg_reg is required but it doesn't hur=
+t in
+> >   the unlikely event we ever replace the Amstrad PBL.
+>=20
+> OK, let it stay there. Do you see a need for replaceing it with a new=
+=20
+> ams_delta_hook_switch_init() function call that just calls omap_cfg_r=
+eg()?
 
-> dmitry wrote:
->  > Hi Paul,
->  > 
->  > On Tuesday 02 June 2009 12:47:59 pgf@laptop.org wrote:
->  > > The OLPC XO laptop incorporates a combination touchpad/tablet
->  > > device which unfortunately requires frequent recalibration.  The
->  > > driver will force this automatically when various suspicious
->  > > behaviors are observed, and the user can recalibrate manually
->  > > (with a special keyboard sequence).  There's currently no way,
->  > > however, for an external program to cause recalibration.
->  > >
->  > > This patch creates a new node in /sys which, when written with
->  > > '1', will force a touchpad recalibration.  No other writes (or
->  > > reads) of this node are supported.
->  > >
->  > 
->  > 
->  > Instead of creating a new sysfs attribute maybe we should make
->  > the touchpad recalibrate upon resume (reconnect)? Userspace can
->  > already request reconnect via sysfs.
-> 
-> dmitry -- thanks for the suggestion.
-> 
-> i took a look, and tried it.  the problem is that doing a full
-> reset of the touchpad takes quite a long time -- 1.1 or 1.2
-> seconds.  recalibration deprives the user of their touchpad for
-> long enough as it is -- i don't think we can afford that time.
-> (remember that this is a workaround for bad hardware -- the XO
-> no longer uses this touchpad at least partly due to this very
-> issue, but there are enough in use that we're still trying to
-> improve things.)
-> 
+I don't see a need for this; it's always present and not a lot of code
+to have in the init function as it stands.
 
-I do like the idea of having a sysfs trigger for recalibrations.  We've
-never been successful in having the kernel driver handle recalibrations
-seamlessly.  Perhaps touchpad hardware screwups would be easier to
-detect in userspace, given a daemon that can keep a history of the last
-N touchpad coordinates?
+> > * The commented out code to include the GPIO status in sysfs should=
+n't
+> >   be included.
+>=20
+> Yes, I put it there to get a feedback.
+>=20
+> >   Does the input layer not provide a way to obtain the=20
+> >   state of the switch?
+>=20
+> Yes, it does, with EVIOCGSW ioctl()[1]. I personally don't like this =
+way of=20
+> getting the switch status and would rather see it available over sysf=
+s.=20
+> However, input guys may have their own preferences and gpio-keys driv=
+er=20
+> belongs to them.
+=20
+I think that's a discussion to have with the input guys rather than
+putting a hack in the platform file then.
+
+So really the only issue with the patch that remains is if it justifies
+adding a new SW_PHONE_HOOK switch type?
+
+J.
+
+--=20
+] http://www.earth.li/~noodles/ []  Purranoia: The fear that your cat  =
+[
+]  PGP/GPG Key @ the.earth.li   []         is up to something.         =
+[
+] via keyserver, web or email.  []                                     =
+[
+] RSA: 4096/2DA8B985            []                                     =
+[
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

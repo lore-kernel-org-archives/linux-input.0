@@ -1,146 +1,54 @@
-From: Tai-hwa Liang <avatar@sentelic.com>
-Subject: Re: [linux 2.6] new mouse driver looking for review and  integration
-   (fwd)
-Date: Thu, 4 Jun 2009 10:16:39 +0800 (CST)
-Message-ID: <0906041016045.2587@cnaqrzbavhz.fragryvp.pbz>
-References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz>
- <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz>
- <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
- <20090514034004.GE12778@dtor-d630.eng.vmware.com> <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
- <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
+From: Paul Fox <pgf@laptop.org>
+Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
+Date: Wed, 03 Jun 2009 23:58:33 -0400
+Message-ID: <19417.1244087913@foxharp.boston.ma.us>
+References: <3026.1243972079@foxharp.boston.ma.us> <200906030804.57340.dmitry.torokhov@gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.sentelic.com ([203.69.18.19]:44029 "EHLO www.sentelic.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751677AbZFDCQp (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 3 Jun 2009 22:16:45 -0400
-In-Reply-To: <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
+Received: from colo3.heeltoe.com ([207.210.106.184]:36180 "EHLO
+	colo3.heeltoe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751153AbZFDD6b (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 3 Jun 2009 23:58:31 -0400
+In-reply-to: <200906030804.57340.dmitry.torokhov@gmail.com> 
+Content-ID: <19414.1244087913.1@foxharp.boston.ma.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dilinger@laptop.org, dsaxena@laptop.org
 
-Hi, Dmitry,
+dmitry wrote:
+ > Hi Paul,
+ > 
+ > On Tuesday 02 June 2009 12:47:59 pgf@laptop.org wrote:
+ > > The OLPC XO laptop incorporates a combination touchpad/tablet
+ > > device which unfortunately requires frequent recalibration.  The
+ > > driver will force this automatically when various suspicious
+ > > behaviors are observed, and the user can recalibrate manually
+ > > (with a special keyboard sequence).  There's currently no way,
+ > > however, for an external program to cause recalibration.
+ > >
+ > > This patch creates a new node in /sys which, when written with '1',
+ > > will force a touchpad recalibration.  No other writes (or reads)
+ > > of this node are supported.
+ > >
+ > 
+ > 
+ > Instead of creating a new sysfs attribute maybe we should make
+ > the touchpad recalibrate upon resume (reconnect)? Userspace can
+ > already request reconnect via sysfs.
 
-   Any status update on this one?
+dmitry -- thanks for the suggestion.
 
-On Thu, 21 May 2009, Tai-hwa Liang wrote:
-> On Thu, 14 May 2009, Tai-hwa Liang wrote:
->> On Wed, 13 May 2009, Dmitry Torokhov wrote:
->>> On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
->>> > On Fri, 8 May 2009, Dmitry Torokhov wrote:
->>> >> Hi Tai-hwa,
->>> >>
->>> >> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
->>> >> > Hi, Dmitry,
->>> >> >
->>> >> >    I'm wondering about the status of the patch you submitted to git. 
->>> Will
->>> >> > it being merged into 2.6.31?
->>> >> >
->>> >>
->>> >> I really need to get back to it. The weekend is coming up, I should >> 
->>> have time to go over it, I shall respond by Monday.
->>> >
->>> >   Thanks.  Where is the git repository I can use to retrieve the code 
->>> you've
->>> > submitted?  I have a few changes for your patched code.
->>> >
->>> 
->>> I have created "sentelic" branch here:
->>>
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->>> 
->>> I fetched the latest version of the driver off the sourceforge page and
->>> used it as the baseline.
->>
->>  Thank you.  I'm reading through the differences.  Looks good to me so far.
->> 
->>> The idea is to implement full absolute packet support and not rely on
->>> relative packets because users will expect Synaptics X driver work with
->>> this device as it works with all other touchpads (Synaptics, ALPS,
->>> Elantec, BCM, appletouch).
->>
->>  I can understand that; however, absolute coordinates returned by
->> current FSP hardware isn't suitable for cursor movement, which makes
->> relative packet necessary if you want to have a functional hardware.
->> 
->>> BTW, I have a few questions regarding protocol:
->>> 
->>> What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
->>
->>  Those are obsoleted information which used to represent finger tracks.
->
-> Hi, Dmitry,
->
->  Following are a few changes based on the sentelic branch you've created:
->
-> - Returning EIO instead of ENODEV when fsp_page_reg_read() failed;
-> - Reverting onpadicon and pktfmt sysfs node to world writable as userland
->  application needs to write it without root privilege;
-> - Removing unused variables from fsp_hw_state.
->
-> Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
->
-> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> index 5999378..d98c4d6 100644
-> --- a/drivers/input/mouse/sentelic.c
-> +++ b/drivers/input/mouse/sentelic.c
-> @@ -30,7 +30,7 @@
-> #include "psmouse.h"
-> #include "sentelic.h"
->
-> -/*
-> +/**
->  * Timeout for FSP PS/2 command only (in milliseconds).
->  */
-> #define	FSP_CMD_TIMEOUT		200
-> @@ -615,7 +615,7 @@ static ssize_t fsp_attr_show_pagereg(struct psmouse 
-> *psmouse,
-> 	int val = 0;
->
-> 	if (fsp_page_reg_read(psmouse, &val))
-> -		return -ENODEV;
-> +		return -EIO;
->
-> 	return sprintf(buf, "%02x\n", val);
-> }
-> @@ -712,7 +712,7 @@ static ssize_t fsp_attr_set_onpadicon(struct psmouse 
-> *psmouse, void *data,
-> 	return count;
-> }
->
-> -PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO, NULL,
-> +PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
-> 			fsp_attr_show_onpadicon, fsp_attr_set_onpadicon);
->
-> static ssize_t fsp_attr_show_pktfmt(struct psmouse *psmouse,
-> @@ -738,7 +738,7 @@ static ssize_t fsp_attr_set_pktfmt(struct psmouse 
-> *psmouse, void *data,
-> 	return count;
-> }
->
-> -PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO, NULL,
-> +PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
-> 			fsp_attr_show_pktfmt, fsp_attr_set_pktfmt);
->
-> static ssize_t fsp_attr_show_flags(struct psmouse *psmouse,
-> diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
-> index 03d7ab8..9c00c19 100644
-> --- a/drivers/input/mouse/sentelic.h
-> +++ b/drivers/input/mouse/sentelic.h
-> @@ -83,9 +83,6 @@ struct fsp_data {
-> #define	FSPDRV_FLAG_AUTO_SWITCH	(0x400)	/* software on-pad icon auto 
-> switch */
-> #define	FSPDRV_FLAG_EN_OPC	(0x800)	/* enable on-pad clicking */
-> #define FSP_RESP_PKT_MAXLEN	(8)	/* The max response packet size. */
-> -	unsigned char		cmd;	/* The buffer used to store the 
-> sending PS/2 command */
-> -	unsigned char		resp[FSP_RESP_PKT_MAXLEN]; /* The buffer used 
-> to store the response of PS/2 command */
-> -	int			resp_cnt;	/* The command count in resp 
-> buffer */
-> 	unsigned char		buttons;	/* Number of buttons */
-> 	unsigned char		ver;		/* hardware version */
-> 	unsigned char		rev;		/* hardware revison */
+i took a look, and tried it.  the problem is that doing a full
+reset of the touchpad takes quite a long time -- 1.1 or 1.2
+seconds.  recalibration deprives the user of their touchpad for
+long enough as it is -- i don't think we can afford that time.
+(remember that this is a workaround for bad hardware -- the XO
+no longer uses this touchpad at least partly due to this very
+issue, but there are enough in use that we're still trying to
+improve things.)
+
+paul
+=---------------------
+ paul fox, pgf@laptop.org

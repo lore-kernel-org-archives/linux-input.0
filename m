@@ -1,135 +1,126 @@
-From: "NTNU.EDU.TW&#37038;&#23616;Uprade&#38431;" <customercare@8u8.us>
-Subject: &#35242;&#24859;&#30340;NTNU.EDU.TW Webmail&#24115;&#25142;&#30340;
-     &#29992;&#25142;
-Date: Fri, 5 Jun 2009 15:12:45 -0400 (CLT)
-Message-ID: <37134.78.138.34.162.1244229165.squirrel@webmail.inp.cl>
-Reply-To: customercarecenter@8u8.us
+From: Anssi Hannula <anssi.hannula@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+ gamepad
+Date: Sat, 06 Jun 2009 15:14:06 +0300
+Message-ID: <4A2A5D8E.1050309@gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com> 	<49AC4300.5090002@gmail.com> <78f5d6bf0903022228l30c53db1k5d51ed7aeeb76e51@mail.gmail.com> 	<78f5d6bf0903031035r44a9c655n2cb0408ddf10d7d1@mail.gmail.com> 	<49B286EB.8000300@gmail.com> <78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com> 	<49B39B15.6060609@gmail.com> <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com> 	<4A037290.60602@gmail.com> <4A03756C.6020703@gmail.com> <78f5d6bf0906041227w3a58bde0u554a3d3336e17fa6@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/mixed;
+ boundary="------------060906030106010206020205"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [163.247.62.120] ([163.247.62.120]:48342 "EHLO mail.inp.cl"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1754420AbZFETUk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 5 Jun 2009 15:20:40 -0400
+Received: from mta-out.inet.fi ([195.156.147.13]:56684 "EHLO jenni2.inet.fi"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753239AbZFFMOI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 6 Jun 2009 08:14:08 -0400
+In-Reply-To: <78f5d6bf0906041227w3a58bde0u554a3d3336e17fa6@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitriy Geels <dmitriy.geels@gmail.com>
+Cc: linux-input@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060906030106010206020205
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
+Dmitriy Geels wrote:
+> 2009/5/8 Anssi Hannula <anssi.hannula@gmail.com>:
+>> Anssi Hannula wrote:
+>>> Dmitriy Geels wrote:
+>>>> 2009/3/8 Anssi Hannula <anssi.hannula@gmail.com>:
+>>>>> Dmitriy Geels wrote:
+>>>>>> 2009/3/7 Anssi Hannula <anssi.hannula@gmail.com>:
+>>>>>>> Provide the kernel log again, this time with debug=2 set for hid module
+>>>>>>> and having run "fftest" with only one effect and then "ffmvforce".
+>>>>>> here is it: http://paste.org.ru/index.pl?4bwah8
+>>>>> Apply attached patch that adds more debug output and try this again.
+>>>> Here is log: http://paste.org.ru/index.pl?0mtjuz
+>>>>
+>>> Sorry for the long delay.
+>>>
+>>> Try the attached (untested) patch. It adds a simple timeout to the hid
+>>> ctrl and out urbs, discarding the faulty urb instead of getting stuck.
+>> And of course there was an error, attached is a fixed patch :)
+> Just tried to build module with your patch. It doesn't build.
+> 
 
+Fixed patch attached.
 
-&#35242;&#24859;&#30340;NTNU.EDU.TW
-Webmail&#24115;&#25142;&#30340;&#29992;&#25142;,
- &#27492;&#28040;&#24687;&#26159;&#24418;&#24335;NTNU.EDU.TW&#38651;&#3=
-7109;&#36890;&#35338;&#20013;&#24515;&#21521;&#25152;&#26377;NTNU.EDU.T=
-W
-Webmail&#24115;&#25142;&#30340;&#29992;&#25142;,&#25105;&#20497;&#24456=
-;&#25265;&#27465;&#36896;&#25104;&#24744;&#30340;&#19981;&#20415;,&#251=
-05;&#20497;&#35731;&#20320;&#36890;&#36942;,&#25105;&#20497;&#26377;&#2=
-1839;&#38988;,&#25105;&#20497;&#30340;&#25976;&#25818;&#24235;&#20013;,=
-&#30001;&#26044;&#25105;&#20497;&#26368;&#36817;&#30340;&#21319;&#32026=
-;&#21644;&#25105;&#20497;&#28961;&#27861;&#25214;&#21040;&#24744;&#3034=
-0;&#25976;&#25818;&#12290;
-   &#35531;&#24744;&#29702;&#35299;,&#25105;&#20497;&#24517;&#38920;&#3=
-1435;&#21363;&#31998;&#27491;&#36889;&#19968;&#21839;&#38988;,&#20854;&=
-#20182;&#19968;&#20999;,&#24744;&#21487;&#33021;&#28961;&#27861;&#30332=
-;&#36865;&#25110;&#25509;&#25910;&#38651;&#23376;&#37109;&#20214;&#3328=
-7;&#24744;&#30340;NTNU.EDU.TW
-Webmail&#24115;&#25142;E - mail&#22320;&#22336;&#12290;
-  &#35531;&#25552;&#20379;&#24744;&#30340;&#24115;&#25142;,&#19979;&#38=
-754;&#35443;&#32048;&#35498;&#26126;,&#20197;&#20415;&#25105;&#20497;&#=
-33021;&#22816;&#31998;&#27491;&#36889;&#19968;&#21839;&#38988;&#30433;&=
-#24555;:
-&#29992;&#25142;&#21517;: (*********)
-&#23494;&#30908;: *********)
-&#20986;&#29983;&#26085;&#26399;(&#20986;&#29983;&#26085;&#26399;)*****=
-****)
-&#22283;&#23478;*********)
-  **&#27880;**
-:&#24744;&#30340;&#25976;&#25818;&#21644;&#20449;&#24687;&#23559;&#1998=
-1;&#26371;&#34987;&#31713;&#25913;&#25110;&#24178;&#25854;,&#25105;&#20=
-497;&#23601;&#26371;&#35352;&#37636;&#24744;&#30340;&#25976;&#25818;&#2=
-0633;&#20221;&#21040;&#25105;&#20497;&#30340;&#25976;&#25818;&#24235;,&=
-#20006;&#23492;&#32102;&#24744;&#19968;&#20491;&#26032;&#30340;&#30906;=
-&#35469;&#23383;&#27597;&#25976;&#23383;&#28151;&#21512;&#23494;&#30908=
-;,&#21482;&#26371;&#26377;&#25928;,&#22312;&#27492;&#26399;&#38291;,&#2=
-1487;&#25913;&#35722;&#24744;&#30340;&#21839;&#38988;&#24460;,&#24050;&=
-#24471;&#21040;&#31998;&#27491;&#12290;
-&#27880;&#24847;&#20107;&#38917;:
-  &#27794;&#26377;&#21521;&#25105;&#20497;&#25552;&#20379;&#19978;&#368=
-48;&#24517;&#35201;&#26781;&#20214;&#30433;&#21487;&#33021;&#30701;&#30=
-340;&#26178;&#38291;&#20839;&#37117;&#23559;&#23566;&#33268;&#22833;&#2=
-5943;&#30340;&#20837;&#31449;&#21644;&#20986;&#31449;&#30340;email.This=
-&#23559;&#38459;&#27490;&#24744;&#30332;&#36865;&#25110;&#25509;&#25910=
-;&#38651;&#23376;&#37109;&#20214;&#12290;
- &#35531;&#24171;&#21161;&#20659;&#25773;&#36889;&#20491;&#37325;&#3520=
-1;&#30340;&#20449;&#24687;&#36681;&#30332;&#32102;&#20854;&#20182;&#299=
-92;&#25142;&#12290;
-&#24863;&#35613;&#24744;&#29702;&#35299;&#25105;&#20497;&#30340;&#22256=
-;&#22659;&#12290;
-=AE NTNU.EDU.TW&#37109;&#23616;&#23458;&#25142;&#38364;&#20418;&#12290;
-                      &#29256;&#27402;&#25152;&#26377;=A9
-2009&#24180;&#12290;&#20445;&#30041;&#25152;&#26377;&#27402;&#21033;&#1=
-2290;
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-&#20146;&#29233;&#30340;NTNU.EDU.TW
-Webmail&#24080;&#25143;&#30340;&#29992;&#25143;,
- &#27492;&#28040;&#24687;&#26159;&#24418;&#24335;NTNU.EDU.TW&#30005;&#3=
-7038;&#36890;&#35759;&#20013;&#24515;&#21521;&#25152;&#26377;NTNU.EDU.T=
-W
-Webmail&#24080;&#25143;&#30340;&#29992;&#25143;,&#25105;&#20204;&#24456=
-;&#25265;&#27465;&#36896;&#25104;&#24744;&#30340;&#19981;&#20415;,&#251=
-05;&#20204;&#35753;&#20320;&#36890;&#36807;,&#25105;&#20204;&#26377;&#3=
-8382;&#39064;,&#25105;&#20204;&#30340;&#25968;&#25454;&#24211;&#20013;,=
-&#30001;&#20110;&#25105;&#20204;&#26368;&#36817;&#30340;&#21319;&#32423=
-;&#21644;&#25105;&#20204;&#26080;&#27861;&#25214;&#21040;&#24744;&#3034=
-0;&#25968;&#25454;&#12290;
-   &#35831;&#24744;&#29702;&#35299;,&#25105;&#20204;&#24517;&#39035;&#3=
-1435;&#21363;&#32416;&#27491;&#36825;&#19968;&#38382;&#39064;,&#20854;&=
-#20182;&#19968;&#20999;,&#24744;&#21487;&#33021;&#26080;&#27861;&#21457=
-;&#36865;&#25110;&#25509;&#25910;&#30005;&#23376;&#37038;&#20214;&#1998=
-2;&#24744;&#30340;NTNU.EDU.TW
-Webmail&#24080;&#25143;E - mail&#22320;&#22336;&#12290;
-  &#35831;&#25552;&#20379;&#24744;&#30340;&#24080;&#25143;,&#19979;&#38=
-754;&#35814;&#32454;&#35828;&#26126;,&#20197;&#20415;&#25105;&#20204;&#=
-33021;&#22815;&#32416;&#27491;&#36825;&#19968;&#38382;&#39064;&#23613;&=
-#24555;:
-&#29992;&#25143;&#21517;: (*********)
-&#23494;&#30721;: *********)
-&#20986;&#29983;&#26085;&#26399;(&#20986;&#29983;&#26085;&#26399;)*****=
-****)
-&#22269;&#23478;*********)
-  **&#27880;**
-:&#24744;&#30340;&#25968;&#25454;&#21644;&#20449;&#24687;&#23558;&#1998=
-1;&#20250;&#34987;&#31713;&#25913;&#25110;&#24178;&#25200;,&#25105;&#20=
-204;&#23601;&#20250;&#35760;&#24405;&#24744;&#30340;&#25968;&#25454;&#2=
-2791;&#20221;&#21040;&#25105;&#20204;&#30340;&#25968;&#25454;&#24211;,&=
-#24182;&#23492;&#32473;&#24744;&#19968;&#20010;&#26032;&#30340;&#30830;=
-&#35748;&#23383;&#27597;&#25968;&#23383;&#28151;&#21512;&#23494;&#30721=
-;,&#21482;&#20250;&#26377;&#25928;,&#22312;&#27492;&#26399;&#38388;,&#2=
-1487;&#25913;&#21464;&#24744;&#30340;&#38382;&#39064;&#21518;,&#24050;&=
-#24471;&#21040;&#32416;&#27491;&#12290;
-&#27880;&#24847;&#20107;&#39033;:
-  &#27809;&#26377;&#21521;&#25105;&#20204;&#25552;&#20379;&#19978;&#368=
-48;&#24517;&#35201;&#26465;&#20214;&#23613;&#21487;&#33021;&#30701;&#30=
-340;&#26102;&#38388;&#20869;&#37117;&#23558;&#23548;&#33268;&#22833;&#3=
-6133;&#30340;&#20837;&#31449;&#21644;&#20986;&#31449;&#30340;email.This=
-&#23558;&#38459;&#27490;&#24744;&#21457;&#36865;&#25110;&#25509;&#25910=
-;&#30005;&#23376;&#37038;&#20214;&#12290;
- &#35831;&#24110;&#21161;&#20256;&#25773;&#36825;&#20010;&#37325;&#3520=
-1;&#30340;&#20449;&#24687;&#36716;&#21457;&#32473;&#20854;&#20182;&#299=
-92;&#25143;&#12290;
-&#24863;&#35874;&#24744;&#29702;&#35299;&#25105;&#20204;&#30340;&#22256=
-;&#22659;&#12290;
-=AE NTNU.EDU.TW&#37038;&#23616;&#23458;&#25143;&#20851;&#31995;&#12290;
-                      &#29256;&#26435;&#25152;&#26377;=A9
-2009&#24180;&#12290;&#20445;&#30041;&#25152;&#26377;&#26435;&#21033;&#1=
-2290;
+-- 
+Anssi Hannula
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--------------060906030106010206020205
+Content-Type: text/plain;
+ name="hid-usb-add-urb-timeout.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="hid-usb-add-urb-timeout.diff"
+
+LS0tCiBkcml2ZXJzL2hpZC91c2JoaWQvaGlkLWNvcmUuYyB8ICAgMjEgKysrKysrKysrKysr
+KysrKysrKysrCiBkcml2ZXJzL2hpZC91c2JoaWQvdXNiaGlkLmggICB8ICAgIDIgKysKIDIg
+ZmlsZXMgY2hhbmdlZCwgMjMgaW5zZXJ0aW9ucygrKQoKSW5kZXg6IGxpbnV4LTI2MjktcGlk
+ZmYvZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1jb3JlLmMKPT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGlu
+dXgtMjYyOS1waWRmZi5vcmlnL2RyaXZlcnMvaGlkL3VzYmhpZC9oaWQtY29yZS5jCTIwMDkt
+MDItMTMgMDM6NDc6MTUuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yNjI5LXBpZGZmL2Ry
+aXZlcnMvaGlkL3VzYmhpZC9oaWQtY29yZS5jCTIwMDktMDYtMDYgMTU6MDg6MDkuMDAwMDAw
+MDAwICswMzAwCkBAIC0yNyw2ICsyNyw3IEBACiAjaW5jbHVkZSA8YXNtL2J5dGVvcmRlci5o
+PgogI2luY2x1ZGUgPGxpbnV4L2lucHV0Lmg+CiAjaW5jbHVkZSA8bGludXgvd2FpdC5oPgor
+I2luY2x1ZGUgPGxpbnV4L3RpbWVyLmg+CiAKICNpbmNsdWRlIDxsaW51eC91c2IuaD4KIApA
+QCAtMjUxLDYgKzI1Miw5IEBAIHN0YXRpYyBpbnQgaGlkX3N1Ym1pdF9vdXQoc3RydWN0IGhp
+ZF9kZXYKIAkJcmV0dXJuIC0xOwogCX0KIAorCXVzYmhpZC0+dXJiX291dF90aW1lb3V0LmV4
+cGlyZXMgPSBqaWZmaWVzICsgbXNlY3NfdG9famlmZmllcyg4MDAwKTsKKwlhZGRfdGltZXIo
+JnVzYmhpZC0+dXJiX291dF90aW1lb3V0KTsKKwogCXJldHVybiAwOwogfQogCkBAIC0zMDMs
+NiArMzA3LDkgQEAgc3RhdGljIGludCBoaWRfc3VibWl0X2N0cmwoc3RydWN0IGhpZF9kZQog
+CQlyZXR1cm4gLTE7CiAJfQogCisJdXNiaGlkLT51cmJfY3RybF90aW1lb3V0LmV4cGlyZXMg
+PSBqaWZmaWVzICsgbXNlY3NfdG9famlmZmllcyg4MDAwKTsKKwlhZGRfdGltZXIoJnVzYmhp
+ZC0+dXJiX2N0cmxfdGltZW91dCk7CisKIAlyZXR1cm4gMDsKIH0KIApAQCAtMzE3LDYgKzMy
+NCw4IEBAIHN0YXRpYyB2b2lkIGhpZF9pcnFfb3V0KHN0cnVjdCB1cmIgKnVyYikKIAl1bnNp
+Z25lZCBsb25nIGZsYWdzOwogCWludCB1bnBsdWcgPSAwOwogCisJZGVsX3RpbWVyKCZ1c2Jo
+aWQtPnVyYl9vdXRfdGltZW91dCk7CisKIAlzd2l0Y2ggKHVyYi0+c3RhdHVzKSB7CiAJY2Fz
+ZSAwOgkJCS8qIHN1Y2Nlc3MgKi8KIAkJYnJlYWs7CkBAIC0zNjQsNiArMzczLDcgQEAgc3Rh
+dGljIHZvaWQgaGlkX2N0cmwoc3RydWN0IHVyYiAqdXJiKQogCXVuc2lnbmVkIGxvbmcgZmxh
+Z3M7CiAJaW50IHVucGx1ZyA9IDA7CiAKKwlkZWxfdGltZXIoJnVzYmhpZC0+dXJiX2N0cmxf
+dGltZW91dCk7CiAJc3Bpbl9sb2NrX2lycXNhdmUoJnVzYmhpZC0+Y3RybGxvY2ssIGZsYWdz
+KTsKIAogCXN3aXRjaCAodXJiLT5zdGF0dXMpIHsKQEAgLTQwNSw2ICs0MTUsMTMgQEAgc3Rh
+dGljIHZvaWQgaGlkX2N0cmwoc3RydWN0IHVyYiAqdXJiKQogCXdha2VfdXAoJnVzYmhpZC0+
+d2FpdCk7CiB9CiAKK3N0YXRpYyB2b2lkIGhpZF91cmJfdGltZW91dCh1bnNpZ25lZCBsb25n
+IHRpbWVyX2RhdGEpCit7CisJc3RydWN0IHVyYiAqaGlkX3VyYiA9IChzdHJ1Y3QgdXJiICop
+dGltZXJfZGF0YTsKKwlkZXZfd2FybigmaGlkX3VyYi0+ZGV2LT5kZXYsICJoaWQgdXJiIHRp
+bWVvdXRcbiIpOworCXVzYl91bmxpbmtfdXJiKGhpZF91cmIpOworfQorCiB2b2lkIHVzYmhp
+ZF9zdWJtaXRfcmVwb3J0KHN0cnVjdCBoaWRfZGV2aWNlICpoaWQsIHN0cnVjdCBoaWRfcmVw
+b3J0ICpyZXBvcnQsIHVuc2lnbmVkIGNoYXIgZGlyKQogewogCWludCBoZWFkOwpAQCAtODUx
+LDYgKzg2OCw4IEBAIHN0YXRpYyBpbnQgdXNiaGlkX3N0YXJ0KHN0cnVjdCBoaWRfZGV2aWMK
+IAlpbml0X3dhaXRxdWV1ZV9oZWFkKCZ1c2JoaWQtPndhaXQpOwogCUlOSVRfV09SSygmdXNi
+aGlkLT5yZXNldF93b3JrLCBoaWRfcmVzZXQpOwogCXNldHVwX3RpbWVyKCZ1c2JoaWQtPmlv
+X3JldHJ5LCBoaWRfcmV0cnlfdGltZW91dCwgKHVuc2lnbmVkIGxvbmcpIGhpZCk7CisJc2V0
+dXBfdGltZXIoJnVzYmhpZC0+dXJiX291dF90aW1lb3V0LCBoaWRfdXJiX3RpbWVvdXQsICh1
+bnNpZ25lZCBsb25nKSB1c2JoaWQtPnVyYm91dCk7CisJc2V0dXBfdGltZXIoJnVzYmhpZC0+
+dXJiX2N0cmxfdGltZW91dCwgaGlkX3VyYl90aW1lb3V0LCAodW5zaWduZWQgbG9uZykgdXNi
+aGlkLT51cmJjdHJsKTsKIAogCXNwaW5fbG9ja19pbml0KCZ1c2JoaWQtPmlubG9jayk7CiAJ
+c3Bpbl9sb2NrX2luaXQoJnVzYmhpZC0+b3V0bG9jayk7CkBAIC05MTUsNiArOTM0LDggQEAg
+c3RhdGljIHZvaWQgdXNiaGlkX3N0b3Aoc3RydWN0IGhpZF9kZXZpYwogCiAJZGVsX3RpbWVy
+X3N5bmMoJnVzYmhpZC0+aW9fcmV0cnkpOwogCWNhbmNlbF93b3JrX3N5bmMoJnVzYmhpZC0+
+cmVzZXRfd29yayk7CisJZGVsX3RpbWVyX3N5bmMoJnVzYmhpZC0+dXJiX291dF90aW1lb3V0
+KTsKKwlkZWxfdGltZXJfc3luYygmdXNiaGlkLT51cmJfY3RybF90aW1lb3V0KTsKIAogCWlm
+IChoaWQtPmNsYWltZWQgJiBISURfQ0xBSU1FRF9JTlBVVCkKIAkJaGlkaW5wdXRfZGlzY29u
+bmVjdChoaWQpOwpJbmRleDogbGludXgtMjYyOS1waWRmZi9kcml2ZXJzL2hpZC91c2JoaWQv
+dXNiaGlkLmgKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PQotLS0gbGludXgtMjYyOS1waWRmZi5vcmlnL2RyaXZl
+cnMvaGlkL3VzYmhpZC91c2JoaWQuaAkyMDA5LTA1LTA4IDAxOjUzOjMzLjAwMDAwMDAwMCAr
+MDMwMAorKysgbGludXgtMjYyOS1waWRmZi9kcml2ZXJzL2hpZC91c2JoaWQvdXNiaGlkLmgJ
+MjAwOS0wNS0wOCAwMTo1NDowMi4wMDAwMDAwMDAgKzAzMDAKQEAgLTg1LDYgKzg1LDggQEAg
+c3RydWN0IHVzYmhpZF9kZXZpY2UgewogCXNwaW5sb2NrX3Qgb3V0bG9jazsgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKiBPdXRwdXQgZmlmbyBzcGlu
+bG9jayAqLwogCiAJdW5zaWduZWQgbG9uZyBpb2ZsOyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIC8qIEkvTyBmbGFncyAoQ1RSTF9SVU5OSU5HLCBPVVRf
+UlVOTklORykgKi8KKwlzdHJ1Y3QgdGltZXJfbGlzdCB1cmJfb3V0X3RpbWVvdXQ7ICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgLyogVGltZW91dCBmb3Igb3V0IHVyYiAqLworCXN0
+cnVjdCB0aW1lcl9saXN0IHVyYl9jdHJsX3RpbWVvdXQ7ICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAvKiBUaW1lb3V0IGZvciBjdHJsIHVyYiAqLwogCXN0cnVjdCB0aW1lcl9saXN0
+IGlvX3JldHJ5OyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvKiBSZXRy
+eSB0aW1lciAqLwogCXVuc2lnbmVkIGxvbmcgc3RvcF9yZXRyeTsgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAvKiBUaW1lIHRvIGdpdmUgdXAsIGluIGppZmZpZXMg
+Ki8KIAl1bnNpZ25lZCBpbnQgcmV0cnlfZGVsYXk7ICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgLyogRGVsYXkgbGVuZ3RoIGluIG1zICovCg==
+--------------060906030106010206020205--

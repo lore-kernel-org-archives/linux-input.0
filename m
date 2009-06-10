@@ -1,36 +1,52 @@
-From: Iain Hibbert <plunky-+vE1BRBCC0GuOtvtkYNheg@public.gmane.org>
-Subject: Re: Apple Bluetooth devices: Battery level?
-Date: Wed, 10 Jun 2009 19:19:17 +0100 (BST)
-Message-ID: <1244657957.425041.1259.nullmailer@galant.ukfsn.org>
-References: <1244384236.30768.5690.camel@cookie.hadess.net>  <alpine.LRH.2.00.0906081530330.31685@twin.jikos.cz> <1244642769.2690.51.camel@cookie.hadess.net>
+From: Mark Butsch <mbutsch@syntech-fuelmaster.com>
+Subject: How do you keep input from a USB Mag card reader from going to
+ STDIN?
+Date: Wed, 10 Jun 2009 15:40:37 -0400
+Message-ID: <6C2434209962DC46B88345CA85C334A240E19D7CE2@Courier.syntech.org>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1244642769.2690.51.camel-MYKcRh6MmTE/Ra3EetS/fF6hYfS7NtTn@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exchsrvr.syntech-fuelmaster.com ([199.44.250.2]:32527 "EHLO
+	courier.syntech-fuelmaster.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S1754620AbZFJTqF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Jun 2009 15:46:05 -0400
+Content-Language: en-US
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
 
-On Wed, 10 Jun 2009, Bastien Nocera wrote:
+Hello,
 
-> Doesn't look very useful, and I have no idea what the 00ff.00c0 part
-> does.
+I hope this is the correct place to post this.
 
-I found this:
+I have both a USB keyboard and a USB Mag card reader (that works like a USB keyboard) connected to my system.
 
-http://www.opensource.apple.com/source/IOHIDFamily/IOHIDFamily-258.1/IOHIDFamily/AppleHIDUsageTables.h
+I would like to make it so the real keyboard is the only device that feeds STDIN and the mag card reader is only readable by reading that device directly.
 
-which labels it as "Reserved MouseData" and it seems to be related to the
-capacitance detectors. Run "hcidump -X" and place your fingers on the
-mouse top without actually clicking then move the mouse slightly. You will
-see 0x00 (no touching), 0x01 (left finger), 0x02 (right finger) and 0x03
-(both fingers). I didn't see any other values.
+If I "cat /proc/bus/input/devices" it shows:
 
-I think the battery strength is found by polling with the feature report
-id#71 but I don't know how you do that, libusb might be able to do it?
+I: Bus=0003 Vendor=04da Product=117c Version=0001
+N: Name="Panasonic Panasonic USB keyboard compliant Mag-CR"
+P: Phys=usb-0000:00:1d.3-1/input0
+S: Sysfs=/class/input/input37
+H: Handlers=kbd event5
+B: EV=120003
+B: KEY=10000 7 ff80007a 7ff febeffdf ffefffff ffffffff fffffffe
+B: LED=1f
 
-as I mentioned before, you will also get an input report id#42 sent before
-the mouse dies (but that is not listed in the HID descriptor)
+I: Bus=0003 Vendor=413c Product=2105 Version=0352
+N: Name="Dell Dell USB Keyboard"
+P: Phys=usb-0000:00:1d.0-1/input0
+S: Sysfs=/class/input/input38
+H: Handlers=kbd event2
+B: EV=120003
+B: KEY=10000 7 ff87207a c14057ff febeffdf ffefffff ffffffff fffffffe
+B: LED=7
 
-iain
+How would I disconnect the "kbd" handler from the mag card reader (and the mag card reader from the "kbd" handler) or is that the wrong approach?
+
+Thanks in advance.
+
+Mark Butsch

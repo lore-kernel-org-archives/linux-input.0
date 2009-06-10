@@ -1,454 +1,547 @@
 From: akpm@linux-foundation.org
-Subject: [patch 4/5] input: Documentation/input/xpad.txt: Update for new  driver functionality
+Subject: [patch 5/5] input: add wm97xx accelerated driver for AVR32 AT32AP700X microprocessors
 Date: Wed, 10 Jun 2009 12:48:18 -0700
-Message-ID: <200906101948.n5AJmI2H002628@imap1.linux-foundation.org>
+Message-ID: <200906101948.n5AJmJRR002631@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:34569 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:38365 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753959AbZFJTsu (ORCPT
+	by vger.kernel.org with ESMTP id S1759175AbZFJTsb (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2009 15:48:50 -0400
+	Wed, 10 Jun 2009 15:48:31 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, mamurph@cs.clemson.edu
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, hcegtvedt@atmel.com, broonie@opensource.wolfsonmicro.com, jirislaby@gmail.com, jkosina@suse.cz
 
-From: Mike Murphy <mamurph@cs.clemson.edu>
+From: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
 
-Update to Documentation/input/xpad.txt to describe new driver
-functionality in this patchset.
+Add an accelerated driver for Atmel AVR32 AT32AP700X microprocessors.  It
+uses interrupts on the channel B in the AC97 controller.  Thus, offloading
+the work queue in the wm97xx-ts driver.
 
-[akpm@linux-foundation.org: coding-style fixes]
-Signed-off-by: Mike Murphy <mamurph@cs.clemson.edu>
+The driver has been tested with Atmel AVR32 AT32AP7000 and Wolfson WM9712
+codec.
+
+Signed-off-by: Hans-Christian Egtvedt <hcegtvedt@atmel.com>
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Jiri Slaby <jirislaby@gmail.com>
+Cc: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- Documentation/ABI/testing/game_device-sysfs-interface |   86 +++
- Documentation/input/xpad.txt                          |  240 +++++++---
- 2 files changed, 274 insertions(+), 52 deletions(-)
+ drivers/input/touchscreen/Kconfig       |   15 
+ drivers/input/touchscreen/Makefile      |    1 
+ drivers/input/touchscreen/at32-wm97xx.c |  416 ++++++++++++++++++++++
+ drivers/input/touchscreen/at32-wm97xx.h |   48 ++
+ 4 files changed, 480 insertions(+)
 
-diff -puN /dev/null Documentation/ABI/testing/game_device-sysfs-interface
+diff -puN drivers/input/touchscreen/Kconfig~input-add-wm97xx-accelerated-driver-for-avr32-at32ap700x-microprocessors drivers/input/touchscreen/Kconfig
+--- a/drivers/input/touchscreen/Kconfig~input-add-wm97xx-accelerated-driver-for-avr32-at32ap700x-microprocessors
++++ a/drivers/input/touchscreen/Kconfig
+@@ -365,6 +365,21 @@ config TOUCHSCREEN_WM97XX_ATMEL
+ 	  To compile this driver as a module, choose M here: the module will
+ 	  be called atmel-wm97xx.
+ 
++config TOUCHSCREEN_WM97XX_AT32
++	tristate "WM97xx Atmel AVR32 accelerated touch"
++	depends on TOUCHSCREEN_WM97XX && AVR32
++	help
++	  Say Y here for support for streaming mode with WM97xx touchscreens on
++	  Atmel AVR32 systems with an AC97 controller.
++
++	  Be aware that this will use channel B in the controller for streaming
++	  data, this must not conflict with other AC97 drivers.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the module will be
++	  called at32-wm97xx.
++
+ config TOUCHSCREEN_WM97XX_MAINSTONE
+ 	tristate "WM97xx Mainstone accelerated touch"
+ 	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
+diff -puN drivers/input/touchscreen/Makefile~input-add-wm97xx-accelerated-driver-for-avr32-at32ap700x-microprocessors drivers/input/touchscreen/Makefile
+--- a/drivers/input/touchscreen/Makefile~input-add-wm97xx-accelerated-driver-for-avr32-at32ap700x-microprocessors
++++ a/drivers/input/touchscreen/Makefile
+@@ -32,6 +32,7 @@ obj-$(CONFIG_TOUCHSCREEN_TSC2007)	+= tsc
+ obj-$(CONFIG_TOUCHSCREEN_UCB1400)	+= ucb1400_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_WACOM_W8001)	+= wacom_w8001.o
+ obj-$(CONFIG_TOUCHSCREEN_WM97XX)	+= wm97xx-ts.o
++obj-$(CONFIG_TOUCHSCREEN_WM97XX_AT32)	+= at32-wm97xx.o
+ obj-$(CONFIG_TOUCHSCREEN_DA9034)	+= da9034-ts.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9705)	+= wm9705.o
+ wm97xx-ts-$(CONFIG_TOUCHSCREEN_WM9712)	+= wm9712.o
+diff -puN /dev/null drivers/input/touchscreen/at32-wm97xx.c
 --- /dev/null
-+++ a/Documentation/ABI/testing/game_device-sysfs-interface
-@@ -0,0 +1,86 @@
-+What:		/sys/class/input/inputXX/game_device
-+		(exact location depends on kernel and userspace rules)
-+Date:		February 2009
-+KernelVersion:	2.6.28
-+Contact:	Mike Murphy <mamurph@cs.clemson.edu>
-+Description:	The game_device subdirectory provides a mechanism for gaming
-+		devices, such as joysticks and gamepads, to report information
-+		and allow changes to calibration and behavior. The name of
-+		this directory SHOULD be game_device for all drivers that
-+		support it, and those drivers SHOULD have ABI documentation
-+		in this file. However, the exact contents of the directory
-+		MAY vary by device type, so that devices can expose whatever
-+		properties and settings are appropriate for the hardware
-+		and/or driver software.
++++ a/drivers/input/touchscreen/at32-wm97xx.c
+@@ -0,0 +1,416 @@
++/*
++ * Atmel AVR32 continuous touch screen driver for Wolfson WM97xx AC97 codecs.
++ *
++ * Copyright (C) 2008 Atmel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
 +
++#include <linux/module.h>
++#include <linux/moduleparam.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <linux/wm97xx.h>
++#include <linux/io.h>
++#include <linux/timer.h>
 +
-+What:		game_device interface for the xpad driver
-+		(drivers/input/joystick/xpad.c)
-+Date:		February 2009
-+KernelVersion:	2.6.28
-+Contact:	Mike Murphy <mamurph@cs.clemson.edu>
-+Description:	The game_device subdirectory for the Xbox/360 controller
-+		driver provides the following files for retrieving information
-+		and setting properties:
++#include <asm/gpio.h>
 +
-+		left_dead_zone			uint, read/write
-+		right_dead_zone			uint, read/write
++#include "at32-wm97xx.h"
 +
-+			Set the size of the analog stick dead zones for the
-+			left and right sticks, respectively. Minimum value
-+			0, default 8192, maximum 31743 (or 1024 less than
-+			the stick_limit for the corresponding stick).
++#ifdef CONFIG_CPU_AT32AP700X
++#define AT32_WM97XX_AC97C_IOMEM		0xfff02800
++#define AT32_WM97XX_AC97C_IRQ		29
++#define AT32_WM97XX_GPIO_DEFAULT	(32+16) /* Pin 16 on port B. */
++#else
++#error Unkown CPU, this driver only supports AT32AP700X CPUs.
++#endif
 +
-+		left_stick_limit		uint, read/write
-+		right_stick_limit		uint, read/write
++struct continuous {
++	u16 id;    /* codec id */
++	u8 code;   /* continuous code */
++	u8 reads;  /* number of coord reads per read cycle */
++	u32 speed; /* number of coords per second */
++};
 +
-+			Set the square-axis limits of the analog left and
-+			right sticks, respectively. Minimum value 1024,
-+			default 32767, maximum 32767. The minimum is
-+			constrained to be the size of the dead zone plus
-+			1024. See Documentation/input/xpad.txt for more
-+			information.
++#define WM_READS(sp) ((sp / HZ) + 1)
 +
-+		rumble_enable			bool, read/write
++static const struct continuous cinfo[] = {
++	{WM9705_ID2, 0, WM_READS(94), 94},
++	{WM9705_ID2, 1, WM_READS(188), 188},
++	{WM9705_ID2, 2, WM_READS(375), 375},
++	{WM9705_ID2, 3, WM_READS(750), 750},
++	{WM9712_ID2, 0, WM_READS(94), 94},
++	{WM9712_ID2, 1, WM_READS(188), 188},
++	{WM9712_ID2, 2, WM_READS(375), 375},
++	{WM9712_ID2, 3, WM_READS(750), 750},
++	{WM9713_ID2, 0, WM_READS(94), 94},
++	{WM9713_ID2, 1, WM_READS(120), 120},
++	{WM9713_ID2, 2, WM_READS(154), 154},
++	{WM9713_ID2, 3, WM_READS(188), 188},
++};
 +
-+			Enable or disable the controller's rumble effect.
-+			Default 1 (enabled).
++/* Continuous speed index. */
++static int sp_idx;
 +
-+		left_trigger_full_axis		bool, read/write
-+		right_trigger_full_axis		bool, read/write
++/*
++ * Pen sampling frequency (Hz) in continuous mode.
++ */
++static int cont_rate = 188;
++module_param(cont_rate, int, 0);
++MODULE_PARM_DESC(cont_rate, "Sampling rate in continuous mode (Hz)");
 +
-+			Enable or disable use of a full axis (-32767 to
-+			+32767) for each of the left and right triggers,
-+			respectively. Default 0 (disabled: use a half axis
-+			from 0 to +32767).
++/*
++ * Pen down detection.
++ *
++ * This driver can either poll or use an interrupt to indicate a pen down
++ * event. If the irq request fails then it will fall back to polling mode.
++ */
++static int pen_int = 1;
++module_param(pen_int, int, 0);
++MODULE_PARM_DESC(pen_int, "Pen down detection (1 = interrupt, 0 = polling)");
 +
-+		controller_number		uint, read-only
++/*
++ * Pressure readback.
++ *
++ * Set to 1 to read back pen down pressure.
++ */
++static int pressure;
++module_param(pressure, int, 0);
++MODULE_PARM_DESC(pressure, "Pressure readback (1 = pressure, 0 = no pressure)");
 +
-+			Controller slot number (1-4) for a wireless Xbox
-+			360 gaming receiver. This value will be zero for all
-+			wired devices.
++/*
++ * AC97 touch data slot.
++ *
++ * Touch screen readback data ac97 slot.
++ */
++static int ac97_touch_slot = 5;
++module_param(ac97_touch_slot, int, 0);
++MODULE_PARM_DESC(ac97_touch_slot, "Touch screen data slot AC97 number");
 +
-+		controller_present		bool, read-only
++/*
++ * AT32AP700X GPIO line number.
++ *
++ * Set to GPIO number where the signal from the WM97xx device is hooked up.
++ */
++static int at32_gpio_line = AT32_WM97XX_GPIO_DEFAULT;
++module_param(at32_gpio_line, int, 0);
++MODULE_PARM_DESC(at32_gpio_line,
++		"GPIO line number on AT32AP700X connected to WM97xx");
 +
-+			Controller presence indicator for a wireless Xbox
-+			360 gaming receiver. Has the value 1 whenever the
-+			controller is turned on and connected to the receiver
-+			slot corresponding to the input device. This value
-+			will always be 1 for all wired devices.
++struct at32_wm97xx {
++	struct wm97xx		*wm;
++	struct timer_list	pen_timer;
++	void __iomem		*regs;
++	unsigned long		ac97c_irq;
++	unsigned long		gpio_pen;
++	unsigned long		gpio_irq;
++	unsigned short		x;
++	unsigned short		y;
++};
 +
-+		controller_type			uint, read-only
++static irqreturn_t at32_wm97xx_channel_b_interrupt(int irq, void *dev_id)
++{
++	struct at32_wm97xx *at32_wm97xx = dev_id;
++	struct wm97xx *wm = at32_wm97xx->wm;
++	int status = ac97c_readl(at32_wm97xx, CBSR);
++	int retval = IRQ_NONE;
 +
-+			Type of controller that is connected:
++	if (status & AC97C_OVRUN) {
++		dev_dbg(&wm->touch_dev->dev, "AC97C overrun\n");
++		ac97c_readl(at32_wm97xx, CBRHR);
++		retval = IRQ_HANDLED;
++	} else if (status & AC97C_RXRDY) {
++		u16 data;
++		u16 value;
++		u16 source;
++		u16 pen_down;
 +
-+			0	No controller connected
-+			1	Pad
-+			2	Guitar
-+			3	Dance pad
-+			255	Other/unknown type
++		data = ac97c_readl(at32_wm97xx, CBRHR);
++		value = data & 0x0fff;
++		source = data & WM97XX_ADCSRC_MASK;
++		pen_down = (data & WM97XX_PEN_DOWN) >> 8;
 +
-+		id				string [17], read-only
++		if (source == WM97XX_ADCSEL_X)
++			at32_wm97xx->x = value;
++		if (source == WM97XX_ADCSEL_Y)
++			at32_wm97xx->y = value;
 +
-+			16-character (plus NUL byte) presumably unique
-+			identifier for each connected WIRELESS controller.
-+			Presently, this value is an empty string for all
-+			wired devices.
-diff -puN Documentation/input/xpad.txt~input-documentation-input-xpadtxt-update-for-new-driver-functionality Documentation/input/xpad.txt
---- a/Documentation/input/xpad.txt~input-documentation-input-xpadtxt-update-for-new-driver-functionality
-+++ a/Documentation/input/xpad.txt
-@@ -1,17 +1,19 @@
- xpad - Linux USB driver for X-Box gamepads
- 
--This is the very first release of a driver for X-Box gamepads.
--Basically, this was hacked away in just a few hours, so don't expect
--miracles.
--
--In particular, there is currently NO support for the rumble pack.
--You won't find many ff-aware linux applications anyway.
-+This is an updated version of the Xbox gamepad driver, which supports original
-+Xbox controllers, Xbox 360 wired controllers, and Xbox 360 wireless controllers
-+via the "Wireless Gaming Receiver for Windows" adapter from Microsoft.
++		if (!pressure && source == WM97XX_ADCSEL_Y) {
++			input_report_abs(wm->input_dev, ABS_X, at32_wm97xx->x);
++			input_report_abs(wm->input_dev, ABS_Y, at32_wm97xx->y);
++			input_report_abs(wm->input_dev, ABS_PRESSURE, pen_down);
++			input_report_key(wm->input_dev, BTN_TOUCH,
++					 (pen_down != 0));
++			input_sync(wm->input_dev);
++		} else if (pressure && source == WM97XX_ADCSEL_PRES) {
++			input_report_abs(wm->input_dev, ABS_X, at32_wm97xx->x);
++			input_report_abs(wm->input_dev, ABS_Y, at32_wm97xx->y);
++			input_report_abs(wm->input_dev, ABS_PRESSURE, value);
++			input_report_key(wm->input_dev, BTN_TOUCH,
++					 (value != 0));
++			input_sync(wm->input_dev);
++		}
 +
-+Rumble effects are supported by this version of the driver. You need a game
-+capable of producing ff effects, and the /dev/input/event* interface
-+corresponding to the controller you are using needs to be WRITABLE by your
-+user account.
- 
- 
- 0. Notes
- --------
- 
--Driver updated for kernel 2.6.17.11. (Based on a patch for 2.6.11.4.)
-+Driver updated for kernel 2.6.28.7.
- 
- The number of buttons/axes reported varies based on 3 things:
- - if you are using a known controller
-@@ -33,18 +35,19 @@ With a normal controller, the directiona
- The jstest-program from joystick-1.2.15 (jstest-version 2.1.0) will report 8
- axes and 10 buttons.
- 
--All 8 axes work, though they all have the same range (-32768..32767)
--and the zero-setting is not correct for the triggers (I don't know if that
--is some limitation of jstest, since the input device setup should be fine. I
--didn't have a look at jstest itself yet).
-+All 8 axes work. By default, the stick axes report values from -32767 to
-+32767, while the triggers report values from 0 to 32767. Prior versions
-+of this driver reported -32767 to 32767 for the triggers; this behavior
-+can be restored via the sysfs interface (see below).
- 
- All of the 10 buttons work (in digital mode). The six buttons on the
- right side (A, B, X, Y, black, white) are said to be "analog" and
- report their values as 8 bit unsigned, not sure what this is good for.
-+(For the Xbox 360 controllers, these are now simply digital buttons.)
- 
--I tested the controller with quake3, and configuration and
--in game functionality were OK. However, I find it rather difficult to
--play first person shooters with a pad. Your mileage may vary.
-+This version of the driver has been tested mostly with game emulators for
-+legacy console systems. While it "should" work with any games, your mileage
-+may vary.
- 
- 
- 0.2 Xbox Dance Pads
-@@ -65,7 +68,17 @@ of buttons, see section 0.3 - Unknown Co
- I've tested this with Stepmania, and it works quite well.
- 
- 
--0.3 Unknown Controllers
-+0.3 Wireless Guitars
-+--------------------
++		retval = IRQ_HANDLED;
++	}
 +
-+I have tested a RedOctane wireless guitar and have found it to work with
-+this driver. All events, except for the acclerometer, are reported as buttons.
-+Acclerometer inputs are reported as axes for both vertical and horizontal
-+displacement of the guitar itself; however, the horizontal displacement
-+sensor is extremely sensitive and might be useless in practice.
++	return retval;
++}
 +
++static void at32_wm97xx_pen_timer(unsigned long data)
++{
++	struct at32_wm97xx *at32_wm97xx = (struct at32_wm97xx *)data;
++	struct wm97xx *wm = at32_wm97xx->wm;
++	int pen_down = gpio_get_value(at32_wm97xx->gpio_pen);
 +
-+0.4 Unknown Controllers
- ----------------------
- If you have an unknown xbox controller, it should work just fine with
- the default settings.
-@@ -73,19 +86,13 @@ the default settings.
- HOWEVER if you have an unknown dance pad not listed below, it will not
- work UNLESS you set "dpad_to_buttons" to 1 in the module configuration.
- 
--PLEASE, if you have an unknown controller, email Dom <binary1230@yahoo.com> with
--a dump from /proc/bus/usb and a description of the pad (manufacturer, country,
--whether it is a dance pad or normal controller) so that we can add your pad
--to the list of supported devices, ensuring that it will work out of the
--box in the future.
--
- 
--1. USB adapter
----------------
-+1. USB adapter for ORIGINAL Xbox Controllers
-+--------------------------------------------
- 
--Before you can actually use the driver, you need to get yourself an
--adapter cable to connect the X-Box controller to your Linux-Box. You
--can buy these online fairly cheap, or build your own.
-+Before you can actually use the driver with an ORIGINAL Xbox controller, you
-+need to get yourself an adapter cable to connect the X-Box controller to
-+your Linux-Box. You can buy these online fairly cheap, or build your own.
- 
- Such a cable is pretty easy to build. The Controller itself is a USB
- compound device (a hub with three ports for two expansion slots and
-@@ -102,29 +109,55 @@ original one. You can buy an extension c
- you can still use the controller with your X-Box, if you have one ;)
- 
- 
--2. Driver Installation
-+2. Xbox 360 Controllers
-+-----------------------
++	if (pen_down != 0) {
++		mod_timer(&at32_wm97xx->pen_timer, jiffies
++				+ msecs_to_jiffies(1));
++	} else {
++		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
++		input_report_key(wm->input_dev, BTN_TOUCH, 0);
++		input_sync(wm->input_dev);
++	}
++}
 +
-+For Xbox 360 WIRED controllers (i.e. ones that come with a permanently attached
-+USB cable), you need only plug in the controller, and you're ready to play. The
-+LED ring display on the controller will illuminate 1-4 in response to which
-+joystick device (/dev/input/js1 to /dev/input/js4) the controller is attached.
-+The LED display will "wrap" around for /dev/input/js5 and higher.
++static void at32_wm97xx_acc_pen_up(struct wm97xx *wm)
++{
++	struct at32_wm97xx *at32_wm97xx = platform_get_drvdata(wm->touch_dev);
++	int pen_down = gpio_get_value(at32_wm97xx->gpio_pen);
 +
-+For Xbox 360 WIRELESS controllers, you need to purchase a "Wireless Gaming
-+Receiver for Windows" adapter* from Microsoft (about $20 in the US at the time
-+of this writing). Up to 4 wireless devices (controllers, guitars, etc.) can
-+be connected to a single "Wireless Gaming Receiver" -- just push the button
-+on the gaming receiver until the light on it blinks, then push the connect
-+button on the wireless controller until the leds show a circling pattern.
-+Once you make this connection, the controller will remember the receiver and
-+automatically reconnect to it, provided you don't associate the controller
-+with a different receiver or an actual Xbox 360.
++	if (pen_down != 0) {
++		mod_timer(&at32_wm97xx->pen_timer, jiffies
++				+ msecs_to_jiffies(1));
++	} else {
++		input_report_abs(wm->input_dev, ABS_PRESSURE, 0);
++		input_report_key(wm->input_dev, BTN_TOUCH, 0);
++		input_sync(wm->input_dev);
++	}
++}
 +
-+When a wireless 360 device is connected, the LED ring on the controller will
-+illuminate 1-4 in response to the "slot" on the wireless receiver to which
-+the device connects. The first device to connect will attach to slot 1, the
-+second to slot 2, and so forth. If you remove the batteries, then re-power
-+the controllers in a different order, you can change which controller
-+connects to which slot.
++static int at32_wm97xx_acc_startup(struct wm97xx *wm)
++{
++	struct at32_wm97xx *at32_wm97xx = platform_get_drvdata(wm->touch_dev);
++	int idx = 0;
 +
-+To power off a wireless controller, remove the battery pack. EVEN THOUGH A
-+WIRELESS CONTROLLER MAY GO INTO "STANDBY" MODE (no led display), it may STILL
-+DRAW POWER FROM THE BATTERIES.
++	if (wm->ac97 == NULL)
++		return -ENODEV;
 +
-+* Contrary to what might seem like a good idea, you CANNOT turn a wireless
-+360 controller into a wired controller. The "Play and Charge" cable ONLY
-+PROVIDES POWER to the controller, NOT a connection interface. The controller
-+still connects wirelessly, and so you still need a wireless receiver. Yes,
-+the "Play and Charge" cable will show up in lsusb and has a basic descriptor
-+on the bus, but there is no actual device to which to connect (I tried
-+modifying the driver to recognize it and wound up with a null pointer oops).
++	for (idx = 0; idx < ARRAY_SIZE(cinfo); idx++) {
++		if (wm->id != cinfo[idx].id)
++			continue;
 +
++		sp_idx = idx;
 +
-+3. Driver Installation
- ----------------------
- 
--Once you have the adapter cable and the controller is connected, you need
--to load your USB subsystem and should cat /proc/bus/usb/devices.
--There should be an entry like the one at the end [4].
--
--Currently (as of version 0.0.6), the following devices are included:
-- original Microsoft XBOX controller (US), vendor=0x045e, product=0x0202
-- smaller  Microsoft XBOX controller (US), vendor=0x045e, product=0x0289
-- original Microsoft XBOX controller (Japan), vendor=0x045e, product=0x0285
-- InterAct PowerPad Pro (Germany), vendor=0x05fd, product=0x107a
-- RedOctane Xbox Dance Pad (US), vendor=0x0c12, product=0x8809
--
--The driver should work with xbox pads not listed above as well, however
--you will need to do something extra for dance pads to work.
--
--If you have a controller not listed above, see 0.3 - Unknown Controllers
--
--If you compiled and installed the driver, test the functionality:
--> modprobe xpad
--> modprobe joydev
--> jstest /dev/js0
-+On a modern Linux system, the xpad driver should be loaded automatically.
-+You may need to make some userspace modifications to prevent X11 from picking
-+up your controller as a pointer device, and you might also need to set
-+permissions on /dev/input/js* and /dev/input/event* to enable reading (and
-+writing, if you want rumble effects) by your user account.
++		if (cont_rate <= cinfo[idx].speed)
++			break;
++	}
 +
-+See: http://cirg.cs.clemson.edu/~mamurph/pub/xpad
- 
- If you're using a normal controller, there should be a single line showing
- 18 inputs (8 axes, 10 buttons), and its values should change if you move
-@@ -133,26 +166,124 @@ show 20 inputs (6 axes, 14 buttons).
- 
- It works? Voila, you're done ;)
- 
-+Well, almost: there is now a sysfs interface for making changes to default
-+behaviors on the fly.
++	wm->acc_rate = cinfo[sp_idx].code;
++	wm->acc_slot = ac97_touch_slot;
++	dev_info(&wm->touch_dev->dev, "atmel accelerated touchscreen driver, "
++			"%d samples/sec\n", cinfo[sp_idx].speed);
 +
++	if (pen_int) {
++		unsigned long reg;
 +
-+4. SysFs Interface
-+------------------
++		wm->pen_irq = at32_wm97xx->gpio_irq;
 +
-+With this version of the xpad driver, there is a sysfs interface for making
-+changes and adjustments. The interface is documented in
-+Documentation/ABI/testing/game_device-sysfs-interface.
++		switch (wm->id) {
++		case WM9712_ID2: /* Fall through. */
++		case WM9713_ID2:
++			/*
++			 * Use GPIO 13 (PEN_DOWN) to assert GPIO line 3
++			 * (PENDOWN).
++			 */
++			wm97xx_config_gpio(wm, WM97XX_GPIO_13, WM97XX_GPIO_IN,
++					WM97XX_GPIO_POL_HIGH,
++					WM97XX_GPIO_STICKY,
++					WM97XX_GPIO_WAKE);
++			wm97xx_config_gpio(wm, WM97XX_GPIO_3, WM97XX_GPIO_OUT,
++					WM97XX_GPIO_POL_HIGH,
++					WM97XX_GPIO_NOTSTICKY,
++					WM97XX_GPIO_NOWAKE);
++		case WM9705_ID2: /* Fall through. */
++			/*
++			 * Enable touch data slot in AC97 controller channel B.
++			 */
++			reg = ac97c_readl(at32_wm97xx, ICA);
++			reg &= ~AC97C_CH_MASK(wm->acc_slot);
++			reg |= AC97C_CH_ASSIGN(wm->acc_slot, B);
++			ac97c_writel(at32_wm97xx, ICA, reg);
 +
-+For reading and making changes to the adjustable parameters (below), look
-+for a game_device directory in /sys/class/input/input* (there will be one
-+of these directories for each wired xpad device, and four such directories
-+with each wireless receiver).
++			/*
++			 * Enable channel and interrupt for RXRDY and OVERRUN.
++			 */
++			ac97c_writel(at32_wm97xx, CBMR, AC97C_CMR_CENA
++					| AC97C_CMR_CEM_BIG
++					| AC97C_CMR_SIZE_16
++					| AC97C_OVRUN
++					| AC97C_RXRDY);
++			/* Dummy read to empty RXRHR. */
++			ac97c_readl(at32_wm97xx, CBRHR);
++			/*
++			 * Enable interrupt for channel B in the AC97
++			 * controller.
++			 */
++			ac97c_writel(at32_wm97xx, IER, AC97C_INT_CBEVT);
++			break;
++		default:
++			dev_err(&wm->touch_dev->dev, "pen down irq not "
++					"supported on this device\n");
++			pen_int = 0;
++			break;
++		}
++	}
 +
++	return 0;
++}
 +
-+5. Adjustments
-+--------------
++static void at32_wm97xx_acc_shutdown(struct wm97xx *wm)
++{
++	if (pen_int) {
++		struct at32_wm97xx *at32_wm97xx =
++			platform_get_drvdata(wm->touch_dev);
++		unsigned long ica;
 +
-+A number of parameters can be adjusted via the sysfs interface, which are
-+documented below. First, however, we present a few concepts:
++		switch (wm->id & 0xffff) {
++		case WM9705_ID2: /* Fall through. */
++		case WM9712_ID2: /* Fall through. */
++		case WM9713_ID2:
++			/* Disable slot and turn off channel B interrupts. */
++			ica = ac97c_readl(at32_wm97xx, ICA);
++			ica &= ~AC97C_CH_MASK(wm->acc_slot);
++			ac97c_writel(at32_wm97xx, ICA, ica);
++			ac97c_writel(at32_wm97xx, IDR, AC97C_INT_CBEVT);
++			ac97c_writel(at32_wm97xx, CBMR, 0);
++			wm->pen_irq = 0;
++			break;
++		default:
++			dev_err(&wm->touch_dev->dev, "unknown codec\n");
++			break;
++		}
++	}
++}
 +
-+1. The range of an axis is 0 to 32767. Positive and negative values represent
-+   the DIRECTION in which the axis is deflected. All adjustable parameters
-+   deal with absolute magnitude, so they use positive numbers.
++static void at32_wm97xx_irq_enable(struct wm97xx *wm, int enable)
++{
++	/* Intentionally left empty. */
++}
 +
-+2. Xbox and Xbox 360 controllers are "radial axis" controllers. That is, the
-+   analog sticks are constrained (by the plastic of the stick opening) to a
-+   circular range, such that x**2 + y**2 <= 1 for all input values x and y.
-+   This behavior contrasts to PC joysticks and older console controllers,
-+   which had a "square axis" that kept the x and y values independent of one
-+   another.
++static struct wm97xx_mach_ops at32_mach_ops = {
++	.acc_enabled	= 1,
++	.acc_pen_up	= at32_wm97xx_acc_pen_up,
++	.acc_startup	= at32_wm97xx_acc_startup,
++	.acc_shutdown	= at32_wm97xx_acc_shutdown,
++	.irq_enable	= at32_wm97xx_irq_enable,
++	.irq_gpio	= WM97XX_GPIO_3,
++};
 +
- 
--3. Thanks
-+* Dead Zones
-+  ----------
++static int __init at32_wm97xx_probe(struct platform_device *pdev)
++{
++	struct wm97xx *wm = platform_get_drvdata(pdev);
++	struct at32_wm97xx *at32_wm97xx;
++	int ret;
 +
-+  A dead zone is a region around the center of the stick in which all inputs
-+  are ignored. They help to combat sticks that do not center perfectly, at the
-+  expense of reduced sensitivity. By default, the dead zones for both sticks
-+  are set at 8192 (out of a range from 0 to 31743; the controller reports a
-+  maximum absolute value of 32767).
++	at32_wm97xx = kzalloc(sizeof(struct at32_wm97xx), GFP_KERNEL);
++	if (!at32_wm97xx) {
++		dev_dbg(&pdev->dev, "out of memory\n");
++		return -ENOMEM;
++	}
 +
-+  Dead zones can be set per-stick by adjusting the left_dead_zone and
-+  right_dead_zone values in sysfs.
++	at32_wm97xx->wm		= wm;
++	at32_wm97xx->regs	= (void *)AT32_WM97XX_AC97C_IOMEM;
++	at32_wm97xx->ac97c_irq	= AT32_WM97XX_AC97C_IRQ;
++	at32_wm97xx->gpio_pen	= at32_gpio_line;
++	at32_wm97xx->gpio_irq	= gpio_to_irq(at32_wm97xx->gpio_pen);
 +
++	setup_timer(&at32_wm97xx->pen_timer, at32_wm97xx_pen_timer,
++			(unsigned long)at32_wm97xx);
 +
-+* Stick Limits (Square Axis Mapping)
-+  ----------------------------------
++	ret = request_irq(at32_wm97xx->ac97c_irq,
++			at32_wm97xx_channel_b_interrupt,
++			IRQF_SHARED, "at32-wm97xx-ch-b", at32_wm97xx);
++	if (ret) {
++		dev_dbg(&pdev->dev, "could not request ac97c irq\n");
++		return ret;
++	}
 +
-+  Stick limits allow the radial axes of the controller sticks to be mapped to
-+  square axes, for better performance in older games or emulators. This mapping
-+  occurs by inscribing a square inside the circle defined by the plastic
-+  housing of the controller. By default, the stick limits are set to 32767,
-+  which causes the plastic to take precedence, resulting in a radial axis.
++	platform_set_drvdata(pdev, at32_wm97xx);
 +
-+  Recall that x**2 + y**2 <= 1 for all x and y in a radial axis. Thus, the
-+  largest square that can be inscribed inside the circle is one whose corners
-+  have |x| = |y| (absolute values to ignore direction). Thus, solving for
-+  x = y, we have 2 * (x ** 2) = 1, or x = sqrt(1/2), which works out to around
-+  0.707. Multiplying by the maximum output of the controller (32767) gives
-+  a stick limit of 23170 for the size of the maximum inscribed square.
++	return wm97xx_register_mach_ops(wm, &at32_mach_ops);
++}
 +
-+  Unfortunately, hardware variations do exist between controllers, so a smaller
-+  stick limit by needed to achieve the desired square axis effect. In all
-+  cases, the driver will enforce the limitation that the stick limit must be
-+  greater than the size of the dead zone plus 1024.
++static int __exit at32_wm97xx_remove(struct platform_device *pdev)
++{
++	struct at32_wm97xx *at32_wm97xx = platform_get_drvdata(pdev);
++	struct wm97xx *wm = at32_wm97xx->wm;
 +
-+  Stick limits can be set per-stick by adjusting the left_stick_limit and
-+  right_stick_limit values in sysfs.
++	ac97c_writel(at32_wm97xx, IDR, AC97C_INT_CBEVT);
++	free_irq(at32_wm97xx->ac97c_irq, at32_wm97xx);
++	wm97xx_unregister_mach_ops(wm);
++	kfree(at32_wm97xx);
 +
++	platform_set_drvdata(wm->touch_dev, wm);
 +
-+* Rumble Enable/Disable
-+  ---------------------
++	return 0;
++}
 +
-+  Rumble effects can be disabled for a controller by setting the rumble_enable
-+  value in sysfs.
++#ifdef CONFIG_PM
++static int at32_wm97xx_suspend(struct platform_device *pdev, pm_message_t msg)
++{
++	struct at32_wm97xx *at32_wm97xx = platform_get_drvdata(pdev);
 +
++	ac97c_writel(at32_wm97xx, IDR, AC97C_INT_CBEVT);
++	disable_irq(at32_wm97xx->gpio_irq);
 +
-+* Full Trigger Axes
-+  -----------------
++	return 0;
++}
 +
-+  By default, both the left and right triggers will report 0 when not
-+  depressed, increasing to 32767 when depressed fully. In many cases, this
-+  behavior will be the desired behavior, as the game will see the axis as
-+  non-deflected when the trigger is not pressed.
++static int at32_wm97xx_resume(struct platform_device *pdev)
++{
++	struct at32_wm97xx *at32_wm97xx = platform_get_drvdata(pdev);
++	struct wm97xx *wm = at32_wm97xx->wm;
 +
-+  However, older versions of the driver mapped the triggers to full axes,
-+  such that -32767 was reported for a non-depressed trigger, increasing to
-+  32767 when depressed fully. This behavior might be desired by some users,
-+  and it can be re-enabled on a per-trigger basis by setting the
-+  left_trigger_full_axis and right_trigger_full_axis values in sysfs.
++	if (wm->input_dev->users) {
++		enable_irq(at32_wm97xx->gpio_irq);
++		ac97c_writel(at32_wm97xx, IER, AC97C_INT_CBEVT);
++	}
 +
++	return 0;
++}
++#else
++#define at32_wm97xx_suspend	NULL
++#define at32_wm97xx_resume	NULL
++#endif
 +
-+6. Thanks
- ---------
- 
- I have to thank ITO Takayuki for the detailed info on his site
-  http://euc.jp/periphs/xbox-controller.ja.html.
-- 
++static struct platform_driver at32_wm97xx_driver = {
++	.remove		= __exit_p(at32_wm97xx_remove),
++	.driver		= {
++		.name = "wm97xx-touch",
++	},
++	.suspend	= at32_wm97xx_suspend,
++	.resume		= at32_wm97xx_resume,
++};
 +
- His useful info and both the usb-skeleton as well as the iforce input driver
- (Greg Kroah-Hartmann; Vojtech Pavlik) helped a lot in rapid prototyping
- the basic functionality.
- 
-+Thanks to Oliver Neukum, Greg Kroah-Hartmann, and Frederic Weisbecker for
-+their assistance with the wireless 360 and sysfs enhancements.
- 
--4. References
++static int __init at32_wm97xx_init(void)
++{
++	return platform_driver_probe(&at32_wm97xx_driver, at32_wm97xx_probe);
++}
++module_init(at32_wm97xx_init);
 +
-+7. References
- -------------
- 
- 1. http://euc.jp/periphs/xbox-controller.ja.html (ITO Takayuki)
- 2. http://xpad.xbox-scene.com/
- 3. http://www.xboxhackz.com/Hackz-Reference.htm
-+4. http://pingus.seul.org/~grumbel/xboxdrv/
- 
--4. /proc/bus/usb/devices - dump from InterAct PowerPad Pro (Germany):
-+8. /proc/bus/usb/devices - dump from InterAct PowerPad Pro (Germany):
- 
- T:  Bus=01 Lev=03 Prnt=04 Port=00 Cnt=01 Dev#=  5 Spd=12  MxCh= 0
- D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=32 #Cfgs=  1
-@@ -162,7 +293,7 @@ I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) 
- E:  Ad=81(I) Atr=03(Int.) MxPS=  32 Ivl= 10ms
- E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl= 10ms
- 
--5. /proc/bus/usb/devices - dump from Redoctane Xbox Dance Pad (US):
-+9. /proc/bus/usb/devices - dump from Redoctane Xbox Dance Pad (US):
- 
- T:  Bus=01 Lev=02 Prnt=09 Port=00 Cnt=01 Dev#= 10 Spd=12  MxCh= 0
- D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-@@ -173,7 +304,7 @@ I:  If#= 0 Alt= 0 #EPs= 2 Cls=58(unk. ) 
- E:  Ad=82(I) Atr=03(Int.) MxPS=  32 Ivl=4ms
- E:  Ad=02(O) Atr=03(Int.) MxPS=  32 Ivl=4ms
- 
---- 
-+--
- Marko Friedemann <mfr@bmx-chemnitz.de>
- 2002-07-16
-  - original doc
-@@ -181,3 +312,7 @@ Marko Friedemann <mfr@bmx-chemnitz.de>
- Dominic Cerquetti <binary1230@yahoo.com>
- 2005-03-19
-  - added stuff for dance pads, new d-pad->axes mappings
++static void __exit at32_wm97xx_exit(void)
++{
++	platform_driver_unregister(&at32_wm97xx_driver);
++}
++module_exit(at32_wm97xx_exit);
 +
-+Mike Murphy <mamurph@cs.clemson.edu>
-+2009-02-28
-+- added sysfs interface and wireless 360 support
++MODULE_AUTHOR("Hans-Christian Egtvedt <hcegtvedt@atmel.com>");
++MODULE_DESCRIPTION("wm97xx continuous touch driver for Atmel AVR32");
++MODULE_LICENSE("GPL");
+diff -puN /dev/null drivers/input/touchscreen/at32-wm97xx.h
+--- /dev/null
++++ a/drivers/input/touchscreen/at32-wm97xx.h
+@@ -0,0 +1,48 @@
++/*
++ * Atmel AVR32 continuous touch screen driver for Wolfson WM97xx AC97 codecs.
++ *
++ * Copyright (C) 2008 Atmel Corporation
++ *
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License version 2 as published by
++ * the Free Software Foundation.
++ */
++
++#ifndef _AT32_WM97XX_H
++#define _AT32_WM97XX_H
++
++#define AC97C_ICA		0x10
++#define AC97C_CBRHR		0x30
++#define AC97C_CBSR		0x38
++#define AC97C_CBMR		0x3c
++#define AC97C_IER		0x54
++#define AC97C_IDR		0x58
++
++#define AC97C_RXRDY		(1 << 4)
++#define AC97C_OVRUN		(1 << 5)
++
++#define AC97C_CMR_SIZE_20	(0 << 16)
++#define AC97C_CMR_SIZE_18	(1 << 16)
++#define AC97C_CMR_SIZE_16	(2 << 16)
++#define AC97C_CMR_SIZE_10	(3 << 16)
++#define AC97C_CMR_CEM_LITTLE	(1 << 18)
++#define AC97C_CMR_CEM_BIG	(0 << 18)
++#define AC97C_CMR_CENA		(1 << 21)
++
++#define AC97C_INT_CBEVT		(1 << 4)
++
++#define AC97C_SR_CAEVT		(1 << 3)
++
++#define AC97C_CH_MASK(slot)						\
++	(0x7 << (3 * (slot - 3)))
++#define AC97C_CH_ASSIGN(slot, channel)					\
++	(AC97C_CHANNEL_##channel << (3 * (slot - 3)))
++#define AC97C_CHANNEL_NONE	0x0
++#define AC97C_CHANNEL_B		0x2
++
++#define ac97c_writel(chip, reg, val)			\
++	__raw_writel((val), (chip)->regs + AC97C_##reg)
++#define ac97c_readl(chip, reg)				\
++	__raw_readl((chip)->regs + AC97C_##reg)
++
++#endif /* _AT32_WM97XX_H */
 _

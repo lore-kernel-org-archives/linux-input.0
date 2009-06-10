@@ -1,40 +1,43 @@
-From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
-Subject: Re: Apple Bluetooth devices: Battery level?
-Date: Wed, 10 Jun 2009 09:25:24 +0100
-Message-ID: <1244622324.5973.2499.camel@cookie.hadess.net>
-References: <1244384236.30768.5690.camel@cookie.hadess.net>
-	 <alpine.LRH.2.00.0906081530330.31685@twin.jikos.cz>
-	 <1244589738.5973.1954.camel@cookie.hadess.net>
-	 <78f5d6bf0906100014r5b7f5c14p4544ef13442c8f0b@mail.gmail.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Apple Wireless Mighty Mouse HWheel quirk
+Date: Wed, 10 Jun 2009 10:55:17 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906101053490.7457@wotan.suse.de>
+References: <3aaafc130904141224w3bb76cc1ic39c8c4fd738a458@mail.gmail.com> <49E4E7E1.7040109@gmail.com> <alpine.LNX.2.00.0904142307260.13028@wotan.suse.de> <4A2ED39B.30100@gmail.com> <alpine.LNX.2.00.0906101020400.7457@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <78f5d6bf0906100014r5b7f5c14p4544ef13442c8f0b-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Dmitriy Geels <dmitriy.geels-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:60366 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1758228AbZFJIzS (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 10 Jun 2009 04:55:18 -0400
+In-Reply-To: <alpine.LNX.2.00.0906101020400.7457@wotan.suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Jiri Slaby <jirislaby@gmail.com>
+Cc: "J.R. Mauro" <jrm8005@gmail.com>, Marcel Holtmann <marcel@holtmann.org>, linux-input@vger.kernel.org, locoxella@gmail.com
 
-On Wed, 2009-06-10 at 11:14 +0400, Dmitriy Geels wrote:
-> Hi!
-> 
-> Kernel rebuilding is pretty easy, for ubuntu/debian it would be:
-<snip>
+On Wed, 10 Jun 2009, Jiri Kosina wrote:
 
-FWIW, I contributed drivers to those two lists, so I do know how to
-build my own kernels...
+> > > According to hid-ids.h, the ID 0x030c is a TDK mighty mouse. On my
+> > > Alu-iMac (last year edition), it's a Apple's owned mighty mouse (vendor
+> > > 0x05ac, ID 0x1000), which is not currently listed in hid-ids.h. My
+> > > mighty mouse anyway runs o.k. with the "wrong" ID, but since the start
+> > > withouth the mouse-wheel.
+> > > It did not help when I changed the ID's accordingly. So my question is:
+> > > Is there anything to be done in bluetooth driver area too to get this
+> > > mighty mouse fully supported (some quirks needed)?
+> Yes, 0x1000 is a different problem, the scrollwheel doesn't work there at 
+> all (it isn't even described in the report descriptor).
+> I currently have 0x05ac/0x1000 on my desk, I will look into it.
 
-> 2009/6/10 Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>:
-> > I found that for pretty much all the input problems, I'd need to do
-> > something like that. Problem is:
-> > - enabling CONFIG_HID_DEBUG requires rebuilding the kernel
-> > - most distributions build hid into the kernel
-> >
-> > Wouldn't there be a way to enable the debug at run-time without
-> > impacting too much on performance or binary size?
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Unfortunately I don't have, it's a slightly different model, for which the 
+scrollwheel works nicely.
+
+So HID debugging output from 0x1000, both from the time the mouse is 
+probed and when the non-working wheel is used would be welcome.
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs

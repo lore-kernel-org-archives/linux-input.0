@@ -1,45 +1,41 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: Apple Wireless Mighty Mouse HWheel quirk
-Date: Wed, 10 Jun 2009 15:15:58 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0906101514310.7457@wotan.suse.de>
-References: <3aaafc130904141224w3bb76cc1ic39c8c4fd738a458@mail.gmail.com>  <49E4E7E1.7040109@gmail.com>  <alpine.LNX.2.00.0904142307260.13028@wotan.suse.de>  <4A2ED39B.30100@gmail.com>  <alpine.LNX.2.00.0906101020400.7457@wotan.suse.de>
- <alpine.LNX.2.00.0906101053490.7457@wotan.suse.de> <1244639316.5003.8.camel@DellStudio>
+From: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>
+Subject: Re: Apple Bluetooth devices: Battery level?
+Date: Wed, 10 Jun 2009 15:06:09 +0100
+Message-ID: <1244642769.2690.51.camel@cookie.hadess.net>
+References: <1244384236.30768.5690.camel@cookie.hadess.net>
+	 <alpine.LRH.2.00.0906081530330.31685@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-2133507199-1244639758=:7457"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:47365 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754495AbZFJNP4 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2009 09:15:56 -0400
-In-Reply-To: <1244639316.5003.8.camel@DellStudio>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LRH.2.00.0906081530330.31685-1ReQVI26iDCaZKY3DrU6dA@public.gmane.org>
+Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Cc: linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Andr=E9s_Le=F3n_=C1lvarez?= <locoxella@gmail.com>
-Cc: Jiri Slaby <jirislaby@gmail.com>, "J.R. Mauro" <jrm8005@gmail.com>, Marcel Holtmann <marcel@holtmann.org>, linux-input@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 2009-06-08 at 15:33 +0200, Jiri Kosina wrote:
+> On Sun, 7 Jun 2009, Bastien Nocera wrote:
+> 
+> > I just got an Apple Bluetooth Mighty Mouse, and was wondering whether 
+> > anyone had information on how to get the battery level from the device 
+> > (the keyboard apparently also allows that): 
+> > http://support.apple.com/kb/TA27118?viewlocale=en_US
+> > 
+> > Anyone with an idea? An unparsed HID event? Does it need "poking"?
+> 
+> If the mouse is standard-compliant, it should be sending the battery level 
+> strength in usage 0x20 of device controls page (0x06).
+> 
+> Could you please obtain HID debug dump (CONFIG_HID_DEBUG + modprobe hid 
+> module with 'debug=2') and look at this usage both in the report 
+> descriptor itself, and also check whether it is present in the received 
+> reports?
 
---168427776-2133507199-1244639758=:7457
-Content-Type: TEXT/PLAIN; charset=utf-8
-Content-Transfer-Encoding: 8BIT
+This is the debug output:
+http://pastebin.com/m256a4187
 
-On Wed, 10 Jun 2009, Andrés León Álvarez wrote:
+Doesn't look very useful, and I have no idea what the 00ff.00c0 part
+does.
 
-> Off course, I think none of us really know about the other model of 
-> mouse, so it might be unresponsible keeping the 0x1000 (I don't know if 
-> a mouse can work "fine" with a different ID, for example). But so far, 
-> it seems that removing the quirk for the 0x030c will solve the only 
-> problem that the 0x1000 rise.
-
-There are two separate issues
-
-- quirk we have for 0x030c is apparently bogus, and will be removed, 
-  bringing axes orientation to the expected state
-- 0x1000 has a completely different problem -- scrollwheel doesn't work at 
-  all, and will need some special handling that has still to be discovered
-
--- 
-Jiri Kosina
-SUSE Labs
---168427776-2133507199-1244639758=:7457--
+Cheers

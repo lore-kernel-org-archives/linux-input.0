@@ -1,65 +1,57 @@
 From: akpm@linux-foundation.org
-Subject: [patch 1/5] input/mouse/alps.c: handle touchpoints buttons correctly
-Date: Wed, 10 Jun 2009 12:48:14 -0700
-Message-ID: <200906101948.n5AJmEV8002584@imap1.linux-foundation.org>
+Subject: [patch 2/5] ads7846: pin change interrupt support
+Date: Wed, 10 Jun 2009 12:48:15 -0700
+Message-ID: <200906101948.n5AJmFOf002604@imap1.linux-foundation.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:58632 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:34074 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1755379AbZFJTsW (ORCPT
+	by vger.kernel.org with ESMTP id S1759175AbZFJTs3 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 10 Jun 2009 15:48:22 -0400
+	Wed, 10 Jun 2009 15:48:29 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: dtor@mail.ru
-Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, uli-kernel@spamt.net, uli@spamt.net
+Cc: linux-input@vger.kernel.org, akpm@linux-foundation.org, mroth@nessie.de, imre.deak@nokia.com
 
-From: Ulrich Dangel <uli-kernel@spamt.net>
+From: Michael Roth <mroth@nessie.de>
 
-When pressing any button belonging to the touchpoint, the generated click
-events dont belong to the touchpoint but to the touchpad.
+Some SoC supports only pin change interrupts on GPIO pins used as irq
+lines.
 
-This patch fixes this behaviour, the events will be sent via the correct
-device, so scrolling with touchpoint is possible.
+The ads7846 core is not affected from the additional irqs on the rising
+edge because the code accounts touch bounce anyway by kicking in a timer
+and disabling the irq after the first request and reenabling the irq after
+a timeout when there is no longer pen down detected.
 
-The patch compiles cleanly and has been tested successfully on my machine.
-
-Signed-off-by: Ulrich Dangel <uli@spamt.net>
+Signed-off-by: Michael Roth <mroth@nessie.de>
 Cc: Dmitry Torokhov <dtor@mail.ru>
+Cc: Imre Deak <imre.deak@nokia.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- drivers/input/mouse/alps.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/ads7846.c |   12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff -puN drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly drivers/input/mouse/alps.c
---- a/drivers/input/mouse/alps.c~input-mouse-alpsc-handle-touchpoints-buttons-correctly
-+++ a/drivers/input/mouse/alps.c
-@@ -132,18 +132,23 @@ static void alps_process_packet(struct p
- 	ges = packet[2] & 1;
- 	fin = packet[2] & 2;
+diff -puN drivers/input/touchscreen/ads7846.c~ads7846-pin-change-interrupt-support drivers/input/touchscreen/ads7846.c
+--- a/drivers/input/touchscreen/ads7846.c~ads7846-pin-change-interrupt-support
++++ a/drivers/input/touchscreen/ads7846.c
+@@ -1150,9 +1150,15 @@ static int __devinit ads7846_probe(struc
  
--	input_report_key(dev, BTN_LEFT, left);
--	input_report_key(dev, BTN_RIGHT, right);
--	input_report_key(dev, BTN_MIDDLE, middle);
--
- 	if ((priv->i->flags & ALPS_DUALPOINT) && z == 127) {
- 		input_report_rel(dev2, REL_X,  (x > 383 ? (x - 768) : x));
- 		input_report_rel(dev2, REL_Y, -(y > 255 ? (y - 512) : y));
-+
-+		input_report_key(dev2, BTN_LEFT, left);
-+		input_report_key(dev2, BTN_RIGHT, right);
-+		input_report_key(dev2, BTN_MIDDLE, middle);
-+
- 		input_sync(dev);
- 		input_sync(dev2);
- 		return;
+ 	if (request_irq(spi->irq, ads7846_irq, IRQF_TRIGGER_FALLING,
+ 			spi->dev.driver->name, ts)) {
+-		dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
+-		err = -EBUSY;
+-		goto err_free_gpio;
++		dev_info(&spi->dev,
++			"trying pin change workaround on irq %d\n", spi->irq);
++		if (request_irq(spi->irq, ads7846_irq,
++				IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING,
++				spi->dev.driver->name, ts)) {
++			dev_dbg(&spi->dev, "irq %d busy?\n", spi->irq);
++			err = -EBUSY;
++			goto err_free_gpio;
++		}
  	}
  
-+	input_report_key(dev, BTN_LEFT, left);
-+	input_report_key(dev, BTN_RIGHT, right);
-+	input_report_key(dev, BTN_MIDDLE, middle);
-+
- 	/* Convert hardware tap to a reasonable Z value */
- 	if (ges && !fin) z = 40;
- 
+ 	err = ads784x_hwmon_register(spi, ts);
 _

@@ -1,64 +1,61 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: [PATCH v2] input: add synaptics_i2c driver
-Date: Thu, 11 Jun 2009 13:35:21 +0300
-Message-ID: <4A30DDE9.1050103@compulab.co.il>
-References: <4A13F941.7040301@compulab.co.il> <200906020458.56763.dmitry.torokhov@gmail.com> <4A262D5F.1070803@compulab.co.il> <20090611071428.GC8035@dtor-d630.eng.vmware.com>
+From: Alek Du <alek.du@intel.com>
+Subject: [PATCH] INPUT: Give more precise auto repeat control for gpio_keys
+ driver
+Date: Thu, 11 Jun 2009 20:07:54 +0800
+Message-ID: <20090611200754.572f8268@dxy.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cathcart.site5.com ([74.54.107.137]:54833 "EHLO
-	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1762542AbZFKKfX (ORCPT
+Received: from mga11.intel.com ([192.55.52.93]:1504 "EHLO mga11.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753201AbZFKMMY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2009 06:35:23 -0400
-In-Reply-To: <20090611071428.GC8035@dtor-d630.eng.vmware.com>
+	Thu, 11 Jun 2009 08:12:24 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jean Delvare <khali@linux-fr.org>, grinberg <grinberg@compulab.co.il>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+>From 99fbdefb4d9e74e5641e892bb9fbe7cae1c1e39a Mon Sep 17 00:00:00 2001
+From: Alek Du <alek.du@intel.com>
+Date: Fri, 8 May 2009 12:35:48 +0800
+Subject: [PATCH] INPUT: Give more precise auto repeat control for gpio_keys driver
 
-Dmitry Torokhov wrote:
-> Hi Mike,
-> 
-> On Wed, Jun 03, 2009 at 10:59:27AM +0300, Mike Rapoport wrote:
->> This driver supports Synaptics I2C touchpad controller on eXeda
->> mobile device.
->>
->>
-> 
-> Looks much better, one concern still though:
->  
->> +
->> +/* Work Handler */
->> +static void synaptics_i2c_work_handler(struct work_struct *work)
->> +{
->> +	int data = 1;
->> +	struct synaptics_i2c *touch =
->> +			container_of(work, struct synaptics_i2c, dwork.work);
->> +	unsigned long delay;
->> +
->> +	synaptics_i2c_check_params(touch);
->> +
->> +	do {
->> +		data = synaptics_i2c_get_input(touch);
->> +		delay = synaptics_i2c_fix_delay(touch, data);
->> +	} while (data);
->> +
-> 
-> This will spin in the work handler for the duration of the touch
-> hogging keventd on this CPU and delaying all other scheduled works. I
-> don't think we can do that.
-> 
-> Please try the patchg below and if it still works I will fold it all
-> together and queue for upstream. Thanks!
-> 
+We have a situation that for same gpio key driver, some keys can't be
+auto repeatable while most of other keys are repeatable. By adding a
+disable repeat flag for each button, we could precisely control that.
 
-Works Ok. Thanks for cleaning up the style :)
+Signed-off-by: Alek Du <alek.du@intel.com>
+---
+ drivers/input/keyboard/gpio_keys.c |    3 +++
+ include/linux/gpio_keys.h          |    1 +
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index 5e9fb79..bfde124 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -50,6 +50,9 @@ static void gpio_keys_report_event(struct work_struct *work)
+ 	int state = (gpio_get_value(button->gpio) ? 1 : 0) ^ button->active_low;
+ 
+ 	input_event(input, type, button->code, !!state);
++	/* if button disabled auto repeat */
++	if (state && test_bit(EV_REP, input->evbit) && button->norep)
++		input_event(input, type, button->code, 0);
+ 	input_sync(input);
+ }
+ 
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+index 1289fa7..ffda87c 100644
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -10,6 +10,7 @@ struct gpio_keys_button {
+ 	int type;		/* input event type (EV_KEY, EV_SW) */
+ 	int wakeup;		/* configure the button as a wake-up source */
+ 	int debounce_interval;	/* debounce ticks interval in msecs */
++	unsigned int norep:1;	/* more precise auto repeat control */
+ };
+ 
+ struct gpio_keys_platform_data {
 -- 
-Sincerely yours,
-Mike.
-
+1.6.0.4

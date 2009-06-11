@@ -1,324 +1,146 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v2] input: add synaptics_i2c driver
-Date: Thu, 11 Jun 2009 00:14:29 -0700
-Message-ID: <20090611071428.GC8035@dtor-d630.eng.vmware.com>
-References: <4A13F941.7040301@compulab.co.il> <200906020458.56763.dmitry.torokhov@gmail.com> <4A262D5F.1070803@compulab.co.il>
+From: Tai-hwa Liang <avatar@sentelic.com>
+Subject: Re: [linux 2.6] new mouse driver looking for review and  integration
+   (fwd)
+Date: Thu, 11 Jun 2009 15:25:29 +0800 (CST)
+Message-ID: <0906111524501.1941@cnaqrzbavhz.fragryvp.pbz>
+References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz>
+ <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz>
+ <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
+ <20090514034004.GE12778@dtor-d630.eng.vmware.com> <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
+ <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.230]:10439 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756379AbZFKHUY (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2009 03:20:24 -0400
-Received: by rv-out-0506.google.com with SMTP id k40so1849184rvb.5
-        for <linux-input@vger.kernel.org>; Thu, 11 Jun 2009 00:20:26 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4A262D5F.1070803@compulab.co.il>
+Received: from www.sentelic.com ([203.69.18.19]:48848 "EHLO www.sentelic.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1755931AbZFKHZb (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Jun 2009 03:25:31 -0400
+In-Reply-To: <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mike Rapoport <mike@compulab.co.il>
-Cc: Jean Delvare <khali@linux-fr.org>, grinberg <grinberg@compulab.co.il>, linux-input <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-Hi Mike,
+Hi, Dmitry,
 
-On Wed, Jun 03, 2009 at 10:59:27AM +0300, Mike Rapoport wrote:
-> 
-> This driver supports Synaptics I2C touchpad controller on eXeda
-> mobile device.
-> 
+   Any updates on this? Is it possible to get it into 2.6.31?
+
+On Thu, 21 May 2009, Tai-hwa Liang wrote:
+> On Thu, 14 May 2009, Tai-hwa Liang wrote:
+>> On Wed, 13 May 2009, Dmitry Torokhov wrote:
+>>> On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
+>>> > On Fri, 8 May 2009, Dmitry Torokhov wrote:
+>>> >> Hi Tai-hwa,
+>>> >>
+>>> >> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
+>>> >> > Hi, Dmitry,
+>>> >> >
+>>> >> >    I'm wondering about the status of the patch you submitted to git. 
+>>> Will
+>>> >> > it being merged into 2.6.31?
+>>> >> >
+>>> >>
+>>> >> I really need to get back to it. The weekend is coming up, I should >> 
+>>> have time to go over it, I shall respond by Monday.
+>>> >
+>>> >   Thanks.  Where is the git repository I can use to retrieve the code 
+>>> you've
+>>> > submitted?  I have a few changes for your patched code.
+>>> >
+>>> 
+>>> I have created "sentelic" branch here:
+>>>
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+>>> 
+>>> I fetched the latest version of the driver off the sourceforge page and
+>>> used it as the baseline.
+>>
+>>  Thank you.  I'm reading through the differences.  Looks good to me so far.
+>> 
+>>> The idea is to implement full absolute packet support and not rely on
+>>> relative packets because users will expect Synaptics X driver work with
+>>> this device as it works with all other touchpads (Synaptics, ALPS,
+>>> Elantec, BCM, appletouch).
+>>
+>>  I can understand that; however, absolute coordinates returned by
+>> current FSP hardware isn't suitable for cursor movement, which makes
+>> relative packet necessary if you want to have a functional hardware.
+>> 
+>>> BTW, I have a few questions regarding protocol:
+>>> 
+>>> What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
+>>
+>>  Those are obsoleted information which used to represent finger tracks.
 >
-
-Looks much better, one concern still though:
- 
-> +
-> +/* Work Handler */
-> +static void synaptics_i2c_work_handler(struct work_struct *work)
-> +{
-> +	int data = 1;
-> +	struct synaptics_i2c *touch =
-> +			container_of(work, struct synaptics_i2c, dwork.work);
-> +	unsigned long delay;
-> +
-> +	synaptics_i2c_check_params(touch);
-> +
-> +	do {
-> +		data = synaptics_i2c_get_input(touch);
-> +		delay = synaptics_i2c_fix_delay(touch, data);
-> +	} while (data);
-> +
-
-This will spin in the work handler for the duration of the touch
-hogging keventd on this CPU and delaying all other scheduled works. I
-don't think we can do that.
-
-Please try the patchg below and if it still works I will fold it all
-together and queue for upstream. Thanks!
-
--- 
-Dmitry
-
-Input: synaptics_i2c fixups
-
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/input/mouse/synaptics_i2c.c |   94 ++++++++++++++++++++---------------
- 1 files changed, 53 insertions(+), 41 deletions(-)
-
-
-diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
-index 32a5d87..eac9fdd 100644
---- a/drivers/input/mouse/synaptics_i2c.c
-+++ b/drivers/input/mouse/synaptics_i2c.c
-@@ -241,10 +241,10 @@ static s32 synaptics_i2c_reg_get(struct i2c_client *client, u16 reg)
- 	int ret;
- 
- 	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
--	if (ret)
--		return ret;
-+	if (ret == 0)
-+		ret = i2c_smbus_read_byte_data(client, reg & 0xff);
- 
--	return i2c_smbus_read_byte_data(client, reg & 0xff);
-+	return ret;
- }
- 
- static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
-@@ -252,10 +252,10 @@ static s32 synaptics_i2c_reg_set(struct i2c_client *client, u16 reg, u8 val)
- 	int ret;
- 
- 	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
--	if (ret)
--		return ret;
-+	if (ret == 0)
-+		ret = i2c_smbus_write_byte_data(client, reg & 0xff, val);
- 
--	return i2c_smbus_write_byte_data(client, reg & 0xff, val);
-+	return ret;
- }
- 
- static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
-@@ -263,10 +263,10 @@ static s32 synaptics_i2c_word_get(struct i2c_client *client, u16 reg)
- 	int ret;
- 
- 	ret = i2c_smbus_write_byte_data(client, PAGE_SEL_REG, reg >> 8);
--	if (ret)
--		return ret;
-+	if (ret == 0)
-+		ret = i2c_smbus_read_word_data(client, reg & 0xff);
- 
--	return i2c_smbus_read_word_data(client, reg & 0xff);
-+	return ret;
- }
- 
- static int synaptics_i2c_config(struct i2c_client *client)
-@@ -287,11 +287,11 @@ static int synaptics_i2c_config(struct i2c_client *client)
- 
- 	control = synaptics_i2c_reg_get(client, GENERAL_2D_CONTROL_REG);
- 	/* No Deceleration */
--	control |= (no_decel) ? 1 << NO_DECELERATION : 0;
-+	control |= no_decel ? 1 << NO_DECELERATION : 0;
- 	/* Reduced Reporting */
--	control |= (reduce_report) ? 1 << REDUCE_REPORTING : 0;
-+	control |= reduce_report ? 1 << REDUCE_REPORTING : 0;
- 	/* No Filter */
--	control |= (no_filter) ? 1 << NO_FILTER : 0;
-+	control |= no_filter ? 1 << NO_FILTER : 0;
- 	ret = synaptics_i2c_reg_set(client, GENERAL_2D_CONTROL_REG, control);
- 	if (ret)
- 		return ret;
-@@ -302,6 +302,7 @@ static int synaptics_i2c_config(struct i2c_client *client)
- static int synaptics_i2c_reset_config(struct i2c_client *client)
- {
- 	int ret;
-+
- 	/* Reset the Touchpad */
- 	ret = synaptics_i2c_reg_set(client, DEV_COMMAND_REG, RESET_COMMAND);
- 	if (ret) {
-@@ -329,10 +330,11 @@ static int synaptics_i2c_check_error(struct i2c_client *client)
- 	return ret;
- }
- 
--static int synaptics_i2c_get_input(struct synaptics_i2c *touch)
-+static bool synaptics_i2c_get_input(struct synaptics_i2c *touch)
- {
- 	struct input_dev *input = touch->input;
- 	int xy_delta, gesture;
-+	s32 data;
- 	s8 x_delta, y_delta;
- 
- 	/* Deal with spontanious resets and errors */
-@@ -340,8 +342,8 @@ static int synaptics_i2c_get_input(struct synaptics_i2c *touch)
- 		return 0;
- 
- 	/* Get Gesture Bit */
--	gesture = (synaptics_i2c_reg_get(touch->client, DATA_REG0)
--							>> GESTURE) & 0x1;
-+	data = synaptics_i2c_reg_get(touch->client, DATA_REG0);
-+	gesture = (data >> GESTURE) & 0x1;
- 
- 	/*
- 	 * Get Relative axes. we have to get them in one shot,
-@@ -361,7 +363,7 @@ static int synaptics_i2c_get_input(struct synaptics_i2c *touch)
- 	input_report_rel(input, REL_Y, -y_delta);
- 	input_sync(input);
- 
--	return (xy_delta || gesture) ? 1 : 0;
-+	return xy_delta || gesture;
- }
- 
- static irqreturn_t synaptics_i2c_irq(int irq, void *dev_id)
-@@ -369,8 +371,9 @@ static irqreturn_t synaptics_i2c_irq(int irq, void *dev_id)
- 	struct synaptics_i2c *touch = dev_id;
- 
- 	/*
--	 * This cancels the work scheduled in work handler.
--	 * See explanation on this in work handler func.
-+	 * We want to have the work run immediately but it might have
-+	 * already been scheduled with a delay, that's why we have to
-+	 * cancel it first.
- 	 */
- 	cancel_delayed_work(&touch->dwork);
- 	schedule_delayed_work(&touch->dwork, 0);
-@@ -380,34 +383,39 @@ static irqreturn_t synaptics_i2c_irq(int irq, void *dev_id)
- 
- static void synaptics_i2c_check_params(struct synaptics_i2c *touch)
- {
--	int reset = 0;
-+	bool reset = false;
-+
- 	if (scan_rate != touch->scan_rate_param)
- 		set_scan_rate(touch, scan_rate);
- 
- 	if (no_decel != touch->no_decel_param) {
- 		touch->no_decel_param = no_decel;
--		reset = 1;
-+		reset = true;
- 	}
-+
- 	if (no_filter != touch->no_filter_param) {
- 		touch->no_filter_param = no_filter;
--		reset = 1;
-+		reset = true;
- 	}
-+
- 	if (reduce_report != touch->reduce_report_param) {
- 		touch->reduce_report_param = reduce_report;
--		reset = 1;
-+		reset = true;
- 	}
-+
- 	if (reset)
- 		synaptics_i2c_reset_config(touch->client);
- }
- 
- /* Control the Device polling rate / Work Handler sleep time */
--unsigned long synaptics_i2c_fix_delay(struct synaptics_i2c *touch, int data)
-+unsigned long synaptics_i2c_adjust_delay(struct synaptics_i2c *touch,
-+					 bool have_data)
- {
--	int delay, nodata_count_thres;
-+	unsigned long delay, nodata_count_thres;
- 
- 	if (polling_req) {
- 		delay = touch->scan_ms;
--		if (data) {
-+		if (have_data) {
- 			touch->no_data_count = 0;
- 		} else {
- 			nodata_count_thres = NO_DATA_THRES / touch->scan_ms;
-@@ -416,26 +424,25 @@ unsigned long synaptics_i2c_fix_delay(struct synaptics_i2c *touch, int data)
- 			else
- 				delay = NO_DATA_SLEEP_MSECS;
- 		}
--	} else
--		delay = THREAD_IRQ_SLEEP_MSECS;
--
--	return msecs_to_jiffies(delay);
-+		return msecs_to_jiffies(delay);
-+	} else {
-+		delay = msecs_to_jiffies(THREAD_IRQ_SLEEP_MSECS);
-+		return round_jiffies_relative(delay);
-+	}
- }
- 
- /* Work Handler */
- static void synaptics_i2c_work_handler(struct work_struct *work)
- {
--	int data = 1;
-+	bool have_data;
- 	struct synaptics_i2c *touch =
- 			container_of(work, struct synaptics_i2c, dwork.work);
- 	unsigned long delay;
- 
- 	synaptics_i2c_check_params(touch);
- 
--	do {
--		data = synaptics_i2c_get_input(touch);
--		delay = synaptics_i2c_fix_delay(touch, data);
--	} while (data);
-+	have_data = synaptics_i2c_get_input(touch);
-+	delay = synaptics_i2c_adjust_delay(touch, have_data);
- 
- 	/*
- 	 * While interrupt driven, there is no real need to poll the device.
-@@ -450,8 +457,8 @@ static void synaptics_i2c_work_handler(struct work_struct *work)
- 
- static int synaptics_i2c_open(struct input_dev *input)
- {
--	int ret = 0;
- 	struct synaptics_i2c *touch = input_get_drvdata(input);
-+	int ret;
- 
- 	ret = synaptics_i2c_reset_config(touch->client);
- 	if (ret)
-@@ -461,7 +468,7 @@ static int synaptics_i2c_open(struct input_dev *input)
- 		schedule_delayed_work(&touch->dwork,
- 				       msecs_to_jiffies(NO_DATA_SLEEP_MSECS));
- 
--	return ret;
-+	return 0;
- }
- 
- static void synaptics_i2c_close(struct input_dev *input)
-@@ -492,13 +499,13 @@ static void synaptics_i2c_set_input_params(struct synaptics_i2c *touch)
- 	input_set_drvdata(input, touch);
- 
- 	/* Register the device as mouse */
--	set_bit(EV_REL, input->evbit);
--	set_bit(REL_X, input->relbit);
--	set_bit(REL_Y, input->relbit);
-+	__set_bit(EV_REL, input->evbit);
-+	__set_bit(REL_X, input->relbit);
-+	__set_bit(REL_Y, input->relbit);
- 
- 	/* Register device's buttons and keys */
--	set_bit(EV_KEY, input->evbit);
--	set_bit(BTN_LEFT, input->keybit);
-+	__set_bit(EV_KEY, input->evbit);
-+	__set_bit(BTN_LEFT, input->keybit);
- }
- 
- struct synaptics_i2c *synaptics_i2c_touch_create(struct i2c_client *client)
-@@ -598,6 +605,7 @@ static int __devexit synaptics_i2c_remove(struct i2c_client *client)
- 	return 0;
- }
- 
-+#ifdef CONFIG_PM
- static int synaptics_i2c_suspend(struct i2c_client *client, pm_message_t mesg)
- {
- 	struct synaptics_i2c *touch = i2c_get_clientdata(client);
-@@ -624,6 +632,10 @@ static int synaptics_i2c_resume(struct i2c_client *client)
- 
- 	return 0;
- }
-+#else
-+#define synaptics_i2c_suspend	NULL
-+#define synaptics_i2c_resume	NULL
-+#endif
- 
- static const struct i2c_device_id synaptics_i2c_id_table[] = {
- 	{ "synaptics_i2c", 0 },
+> Hi, Dmitry,
+>
+>  Following are a few changes based on the sentelic branch you've created:
+>
+> - Returning EIO instead of ENODEV when fsp_page_reg_read() failed;
+> - Reverting onpadicon and pktfmt sysfs node to world writable as userland
+>  application needs to write it without root privilege;
+> - Removing unused variables from fsp_hw_state.
+>
+> Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
+>
+> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
+> index 5999378..d98c4d6 100644
+> --- a/drivers/input/mouse/sentelic.c
+> +++ b/drivers/input/mouse/sentelic.c
+> @@ -30,7 +30,7 @@
+> #include "psmouse.h"
+> #include "sentelic.h"
+>
+> -/*
+> +/**
+>  * Timeout for FSP PS/2 command only (in milliseconds).
+>  */
+> #define	FSP_CMD_TIMEOUT		200
+> @@ -615,7 +615,7 @@ static ssize_t fsp_attr_show_pagereg(struct psmouse 
+> *psmouse,
+> 	int val = 0;
+>
+> 	if (fsp_page_reg_read(psmouse, &val))
+> -		return -ENODEV;
+> +		return -EIO;
+>
+> 	return sprintf(buf, "%02x\n", val);
+> }
+> @@ -712,7 +712,7 @@ static ssize_t fsp_attr_set_onpadicon(struct psmouse 
+> *psmouse, void *data,
+> 	return count;
+> }
+>
+> -PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO, NULL,
+> +PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
+> 			fsp_attr_show_onpadicon, fsp_attr_set_onpadicon);
+>
+> static ssize_t fsp_attr_show_pktfmt(struct psmouse *psmouse,
+> @@ -738,7 +738,7 @@ static ssize_t fsp_attr_set_pktfmt(struct psmouse 
+> *psmouse, void *data,
+> 	return count;
+> }
+>
+> -PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO, NULL,
+> +PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
+> 			fsp_attr_show_pktfmt, fsp_attr_set_pktfmt);
+>
+> static ssize_t fsp_attr_show_flags(struct psmouse *psmouse,
+> diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
+> index 03d7ab8..9c00c19 100644
+> --- a/drivers/input/mouse/sentelic.h
+> +++ b/drivers/input/mouse/sentelic.h
+> @@ -83,9 +83,6 @@ struct fsp_data {
+> #define	FSPDRV_FLAG_AUTO_SWITCH	(0x400)	/* software on-pad icon auto 
+> switch */
+> #define	FSPDRV_FLAG_EN_OPC	(0x800)	/* enable on-pad clicking */
+> #define FSP_RESP_PKT_MAXLEN	(8)	/* The max response packet size. */
+> -	unsigned char		cmd;	/* The buffer used to store the 
+> sending PS/2 command */
+> -	unsigned char		resp[FSP_RESP_PKT_MAXLEN]; /* The buffer used 
+> to store the response of PS/2 command */
+> -	int			resp_cnt;	/* The command count in resp 
+> buffer */
+> 	unsigned char		buttons;	/* Number of buttons */
+> 	unsigned char		ver;		/* hardware version */
+> 	unsigned char		rev;		/* hardware revison */

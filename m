@@ -1,146 +1,126 @@
-From: Tai-hwa Liang <avatar@sentelic.com>
-Subject: Re: [linux 2.6] new mouse driver looking for review and  integration
-   (fwd)
-Date: Thu, 11 Jun 2009 15:25:29 +0800 (CST)
-Message-ID: <0906111524501.1941@cnaqrzbavhz.fragryvp.pbz>
-References: <0810211135259.24686@cnaqrzbavhz.fragryvp.pbz>
- <20081030184450.GA18874@anvil.corenet.prv> <0905081258371.25111@cnaqrzbavhz.fragryvp.pbz>
- <200905082017.34300.dmitry.torokhov@gmail.com> <090513175501E.28934@cnaqrzbavhz.fragryvp.pbz>
- <20090514034004.GE12778@dtor-d630.eng.vmware.com> <090514151951F.14209@cnaqrzbavhz.fragryvp.pbz>
- <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
+From: Alek Du <alek.du@intel.com>
+Subject: [PATCH v2] INPUT: Change timer function to workqueue for gpio_keys
+ driver
+Date: Thu, 11 Jun 2009 15:41:29 +0800
+Message-ID: <20090611154129.29cb1e2d@dxy.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.sentelic.com ([203.69.18.19]:48848 "EHLO www.sentelic.com"
+Received: from mga03.intel.com ([143.182.124.21]:33511 "EHLO mga03.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755931AbZFKHZb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2009 03:25:31 -0400
-In-Reply-To: <090521155309C.2504@cnaqrzbavhz.fragryvp.pbz>
+	id S1751579AbZFKHrI convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 11 Jun 2009 03:47:08 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
 
-Hi, Dmitry,
+>From d1ed6162cf483968d2d22d9ae400f8dacd72dba8 Mon Sep 17 00:00:00 2001
+From: Alek Du <alek.du@intel.com>
+Date: Fri, 8 May 2009 12:25:34 +0800
+Subject: [PATCH] INPUT: Change timer function to workqueue for gpio_keys driver
 
-   Any updates on this? Is it possible to get it into 2.6.31?
+The gpio_get_value function of I2C/SPI GPIO expander may sleep thus this
+function call can not be called in a timer function.
 
-On Thu, 21 May 2009, Tai-hwa Liang wrote:
-> On Thu, 14 May 2009, Tai-hwa Liang wrote:
->> On Wed, 13 May 2009, Dmitry Torokhov wrote:
->>> On Wed, May 13, 2009 at 05:56:39PM +0800, Tai-hwa Liang wrote:
->>> > On Fri, 8 May 2009, Dmitry Torokhov wrote:
->>> >> Hi Tai-hwa,
->>> >>
->>> >> On Thursday 07 May 2009 22:30:52 Tai-hwa Liang wrote:
->>> >> > Hi, Dmitry,
->>> >> >
->>> >> >    I'm wondering about the status of the patch you submitted to git. 
->>> Will
->>> >> > it being merged into 2.6.31?
->>> >> >
->>> >>
->>> >> I really need to get back to it. The weekend is coming up, I should >> 
->>> have time to go over it, I shall respond by Monday.
->>> >
->>> >   Thanks.  Where is the git repository I can use to retrieve the code 
->>> you've
->>> > submitted?  I have a few changes for your patched code.
->>> >
->>> 
->>> I have created "sentelic" branch here:
->>>
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
->>> 
->>> I fetched the latest version of the driver off the sourceforge page and
->>> used it as the baseline.
->>
->>  Thank you.  I'm reading through the differences.  Looks good to me so far.
->> 
->>> The idea is to implement full absolute packet support and not rely on
->>> relative packets because users will expect Synaptics X driver work with
->>> this device as it works with all other touchpads (Synaptics, ALPS,
->>> Elantec, BCM, appletouch).
->>
->>  I can understand that; however, absolute coordinates returned by
->> current FSP hardware isn't suitable for cursor movement, which makes
->> relative packet necessary if you want to have a functional hardware.
->> 
->>> BTW, I have a few questions regarding protocol:
->>> 
->>> What is 'arc', x1_g, x2_g, y1_g, y2_g in the absolute packet data?
->>
->>  Those are obsoleted information which used to represent finger tracks.
->
-> Hi, Dmitry,
->
->  Following are a few changes based on the sentelic branch you've created:
->
-> - Returning EIO instead of ENODEV when fsp_page_reg_read() failed;
-> - Reverting onpadicon and pktfmt sysfs node to world writable as userland
->  application needs to write it without root privilege;
-> - Removing unused variables from fsp_hw_state.
->
-> Signed-off-by:	Tai-hwa Liang <avatar@sentelic.com>
->
-> diff --git a/drivers/input/mouse/sentelic.c b/drivers/input/mouse/sentelic.c
-> index 5999378..d98c4d6 100644
-> --- a/drivers/input/mouse/sentelic.c
-> +++ b/drivers/input/mouse/sentelic.c
-> @@ -30,7 +30,7 @@
-> #include "psmouse.h"
-> #include "sentelic.h"
->
-> -/*
-> +/**
->  * Timeout for FSP PS/2 command only (in milliseconds).
->  */
-> #define	FSP_CMD_TIMEOUT		200
-> @@ -615,7 +615,7 @@ static ssize_t fsp_attr_show_pagereg(struct psmouse 
-> *psmouse,
-> 	int val = 0;
->
-> 	if (fsp_page_reg_read(psmouse, &val))
-> -		return -ENODEV;
-> +		return -EIO;
->
-> 	return sprintf(buf, "%02x\n", val);
-> }
-> @@ -712,7 +712,7 @@ static ssize_t fsp_attr_set_onpadicon(struct psmouse 
-> *psmouse, void *data,
-> 	return count;
-> }
->
-> -PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO, NULL,
-> +PSMOUSE_DEFINE_ATTR(onpadicon, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
-> 			fsp_attr_show_onpadicon, fsp_attr_set_onpadicon);
->
-> static ssize_t fsp_attr_show_pktfmt(struct psmouse *psmouse,
-> @@ -738,7 +738,7 @@ static ssize_t fsp_attr_set_pktfmt(struct psmouse 
-> *psmouse, void *data,
-> 	return count;
-> }
->
-> -PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO, NULL,
-> +PSMOUSE_DEFINE_ATTR(pktfmt, S_IWUSR | S_IRUGO | S_IWUGO, NULL,
-> 			fsp_attr_show_pktfmt, fsp_attr_set_pktfmt);
->
-> static ssize_t fsp_attr_show_flags(struct psmouse *psmouse,
-> diff --git a/drivers/input/mouse/sentelic.h b/drivers/input/mouse/sentelic.h
-> index 03d7ab8..9c00c19 100644
-> --- a/drivers/input/mouse/sentelic.h
-> +++ b/drivers/input/mouse/sentelic.h
-> @@ -83,9 +83,6 @@ struct fsp_data {
-> #define	FSPDRV_FLAG_AUTO_SWITCH	(0x400)	/* software on-pad icon auto 
-> switch */
-> #define	FSPDRV_FLAG_EN_OPC	(0x800)	/* enable on-pad clicking */
-> #define FSP_RESP_PKT_MAXLEN	(8)	/* The max response packet size. */
-> -	unsigned char		cmd;	/* The buffer used to store the 
-> sending PS/2 command */
-> -	unsigned char		resp[FSP_RESP_PKT_MAXLEN]; /* The buffer used 
-> to store the response of PS/2 command */
-> -	int			resp_cnt;	/* The command count in resp 
-> buffer */
-> 	unsigned char		buttons;	/* Number of buttons */
-> 	unsigned char		ver;		/* hardware version */
-> 	unsigned char		rev;		/* hardware revison */
+Signed-off-by: Alek Du <alek.du@intel.com>
+---
+ drivers/input/keyboard/gpio_keys.c |   32 ++++++++++++++------------------
+ 1 files changed, 14 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index ad67d76..5e9fb79 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -22,13 +22,17 @@
+ #include <linux/platform_device.h>
+ #include <linux/input.h>
+ #include <linux/gpio_keys.h>
++#include <linux/workqueue.h>
+ 
+ #include <asm/gpio.h>
+ 
+ struct gpio_button_data {
+ 	struct gpio_keys_button *button;
+ 	struct input_dev *input;
+-	struct timer_list timer;
++/* Change timer func to workqueue func due to the fact that gpio_get_value
++ * may block for some i2c and spi GPIO expander
++ */
++	struct delayed_work work;
+ };
+ 
+ struct gpio_keys_drvdata {
+@@ -36,8 +40,10 @@ struct gpio_keys_drvdata {
+ 	struct gpio_button_data data[0];
+ };
+ 
+-static void gpio_keys_report_event(struct gpio_button_data *bdata)
++static void gpio_keys_report_event(struct work_struct *work)
+ {
++	struct gpio_button_data *bdata = container_of(work,
++			struct gpio_button_data, work.work);
+ 	struct gpio_keys_button *button = bdata->button;
+ 	struct input_dev *input = bdata->input;
+ 	unsigned int type = button->type ?: EV_KEY;
+@@ -47,13 +53,6 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
+ 	input_sync(input);
+ }
+ 
+-static void gpio_check_button(unsigned long _data)
+-{
+-	struct gpio_button_data *data = (struct gpio_button_data *)_data;
+-
+-	gpio_keys_report_event(data);
+-}
+-
+ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ {
+ 	struct gpio_button_data *bdata = dev_id;
+@@ -62,10 +61,10 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+ 	BUG_ON(irq != gpio_to_irq(button->gpio));
+ 
+ 	if (button->debounce_interval)
+-		mod_timer(&bdata->timer,
+-			jiffies + msecs_to_jiffies(button->debounce_interval));
++		schedule_delayed_work(&bdata->work,
++			msecs_to_jiffies(button->debounce_interval));
+ 	else
+-		gpio_keys_report_event(bdata);
++		schedule_delayed_work(&bdata->work, 0);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -112,8 +111,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+ 
+ 		bdata->input = input;
+ 		bdata->button = button;
+-		setup_timer(&bdata->timer,
+-			    gpio_check_button, (unsigned long)bdata);
++		INIT_DELAYED_WORK(&bdata->work, gpio_keys_report_event);
+ 
+ 		error = gpio_request(button->gpio, button->desc ?: "gpio_keys");
+ 		if (error < 0) {
+@@ -173,8 +171,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
+  fail2:
+ 	while (--i >= 0) {
+ 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
+-		if (pdata->buttons[i].debounce_interval)
+-			del_timer_sync(&ddata->data[i].timer);
++		cancel_delayed_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+@@ -198,8 +195,7 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
+ 	for (i = 0; i < pdata->nbuttons; i++) {
+ 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
+ 		free_irq(irq, &ddata->data[i]);
+-		if (pdata->buttons[i].debounce_interval)
+-			del_timer_sync(&ddata->data[i].timer);
++		cancel_delayed_work_sync(&ddata->data[i].work);
+ 		gpio_free(pdata->buttons[i].gpio);
+ 	}
+ 
+-- 
+1.6.0.4

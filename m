@@ -1,36 +1,64 @@
-From: Dmitriy Geels <dmitriy.geels@gmail.com>
-Subject: Re: hid-pidff bug: fails to find all required reports of saitek
-	gamepad
-Date: Thu, 11 Jun 2009 13:38:29 +0400
-Message-ID: <78f5d6bf0906110238w6f90331ex3cf8c0fdd44f3354@mail.gmail.com>
-References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
-	<78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>
-	<49B39B15.6060609@gmail.com> <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com>
-	<4A037290.60602@gmail.com> <4A03756C.6020703@gmail.com> <78f5d6bf0906041227w3a58bde0u554a3d3336e17fa6@mail.gmail.com>
-	<4A2A5D8E.1050309@gmail.com> <78f5d6bf0906082202g359afbcwd8bd58a451f9d034@mail.gmail.com>
-	<20090609140949.78d4448a@dxy.sh.intel.com>
+From: Mike Rapoport <mike@compulab.co.il>
+Subject: Re: [PATCH v2] input: add synaptics_i2c driver
+Date: Thu, 11 Jun 2009 13:35:21 +0300
+Message-ID: <4A30DDE9.1050103@compulab.co.il>
+References: <4A13F941.7040301@compulab.co.il> <200906020458.56763.dmitry.torokhov@gmail.com> <4A262D5F.1070803@compulab.co.il> <20090611071428.GC8035@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f213.google.com ([209.85.220.213]:64837 "EHLO
-	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758161AbZFKJiu (ORCPT
+Received: from cathcart.site5.com ([74.54.107.137]:54833 "EHLO
+	cathcart.site5.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1762542AbZFKKfX (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2009 05:38:50 -0400
-Received: by fxm9 with SMTP id 9so1388518fxm.37
-        for <linux-input@vger.kernel.org>; Thu, 11 Jun 2009 02:38:51 -0700 (PDT)
-In-Reply-To: <20090609140949.78d4448a@dxy.sh.intel.com>
+	Thu, 11 Jun 2009 06:35:23 -0400
+In-Reply-To: <20090611071428.GC8035@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alek Du <alek.du@intel.com>
-Cc: Anssi Hannula <anssi.hannula@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jean Delvare <khali@linux-fr.org>, grinberg <grinberg@compulab.co.il>, linux-input <linux-input@vger.kernel.org>
 
-2009/6/9 Alek Du <alek.du@intel.com>:
-> Seems your module was not compiled against your running kernel. Are you using the right tree and config?
+Hi Dmitry,
 
-Just found solution:
-make -C /lib/modules/`uname -r`/build M=drivers/hid/usbhid/
-instead of just make drivers/hid/usbhid/usbhid.ko
+Dmitry Torokhov wrote:
+> Hi Mike,
+> 
+> On Wed, Jun 03, 2009 at 10:59:27AM +0300, Mike Rapoport wrote:
+>> This driver supports Synaptics I2C touchpad controller on eXeda
+>> mobile device.
+>>
+>>
+> 
+> Looks much better, one concern still though:
+>  
+>> +
+>> +/* Work Handler */
+>> +static void synaptics_i2c_work_handler(struct work_struct *work)
+>> +{
+>> +	int data = 1;
+>> +	struct synaptics_i2c *touch =
+>> +			container_of(work, struct synaptics_i2c, dwork.work);
+>> +	unsigned long delay;
+>> +
+>> +	synaptics_i2c_check_params(touch);
+>> +
+>> +	do {
+>> +		data = synaptics_i2c_get_input(touch);
+>> +		delay = synaptics_i2c_fix_delay(touch, data);
+>> +	} while (data);
+>> +
+> 
+> This will spin in the work handler for the duration of the touch
+> hogging keventd on this CPU and delaying all other scheduled works. I
+> don't think we can do that.
+> 
+> Please try the patchg below and if it still works I will fold it all
+> together and queue for upstream. Thanks!
+> 
 
-Will post test results later.
+Works Ok. Thanks for cleaning up the style :)
+
+-- 
+Sincerely yours,
+Mike.
+

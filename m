@@ -1,126 +1,36 @@
-From: Alek Du <alek.du@intel.com>
-Subject: [PATCH v2] INPUT: Change timer function to workqueue for gpio_keys
- driver
-Date: Thu, 11 Jun 2009 15:41:29 +0800
-Message-ID: <20090611154129.29cb1e2d@dxy.sh.intel.com>
+From: Dmitriy Geels <dmitriy.geels@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+	gamepad
+Date: Thu, 11 Jun 2009 13:38:29 +0400
+Message-ID: <78f5d6bf0906110238w6f90331ex3cf8c0fdd44f3354@mail.gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
+	<78f5d6bf0903072118i19bc91a0taa4a5bda0fb19bf6@mail.gmail.com>
+	<49B39B15.6060609@gmail.com> <78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com>
+	<4A037290.60602@gmail.com> <4A03756C.6020703@gmail.com> <78f5d6bf0906041227w3a58bde0u554a3d3336e17fa6@mail.gmail.com>
+	<4A2A5D8E.1050309@gmail.com> <78f5d6bf0906082202g359afbcwd8bd58a451f9d034@mail.gmail.com>
+	<20090609140949.78d4448a@dxy.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga03.intel.com ([143.182.124.21]:33511 "EHLO mga03.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751579AbZFKHrI convert rfc822-to-8bit (ORCPT
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:64837 "EHLO
+	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1758161AbZFKJiu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 11 Jun 2009 03:47:08 -0400
+	Thu, 11 Jun 2009 05:38:50 -0400
+Received: by fxm9 with SMTP id 9so1388518fxm.37
+        for <linux-input@vger.kernel.org>; Thu, 11 Jun 2009 02:38:51 -0700 (PDT)
+In-Reply-To: <20090609140949.78d4448a@dxy.sh.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+To: Alek Du <alek.du@intel.com>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
->From d1ed6162cf483968d2d22d9ae400f8dacd72dba8 Mon Sep 17 00:00:00 2001
-From: Alek Du <alek.du@intel.com>
-Date: Fri, 8 May 2009 12:25:34 +0800
-Subject: [PATCH] INPUT: Change timer function to workqueue for gpio_keys driver
+2009/6/9 Alek Du <alek.du@intel.com>:
+> Seems your module was not compiled against your running kernel. Are you using the right tree and config?
 
-The gpio_get_value function of I2C/SPI GPIO expander may sleep thus this
-function call can not be called in a timer function.
+Just found solution:
+make -C /lib/modules/`uname -r`/build M=drivers/hid/usbhid/
+instead of just make drivers/hid/usbhid/usbhid.ko
 
-Signed-off-by: Alek Du <alek.du@intel.com>
----
- drivers/input/keyboard/gpio_keys.c |   32 ++++++++++++++------------------
- 1 files changed, 14 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index ad67d76..5e9fb79 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -22,13 +22,17 @@
- #include <linux/platform_device.h>
- #include <linux/input.h>
- #include <linux/gpio_keys.h>
-+#include <linux/workqueue.h>
- 
- #include <asm/gpio.h>
- 
- struct gpio_button_data {
- 	struct gpio_keys_button *button;
- 	struct input_dev *input;
--	struct timer_list timer;
-+/* Change timer func to workqueue func due to the fact that gpio_get_value
-+ * may block for some i2c and spi GPIO expander
-+ */
-+	struct delayed_work work;
- };
- 
- struct gpio_keys_drvdata {
-@@ -36,8 +40,10 @@ struct gpio_keys_drvdata {
- 	struct gpio_button_data data[0];
- };
- 
--static void gpio_keys_report_event(struct gpio_button_data *bdata)
-+static void gpio_keys_report_event(struct work_struct *work)
- {
-+	struct gpio_button_data *bdata = container_of(work,
-+			struct gpio_button_data, work.work);
- 	struct gpio_keys_button *button = bdata->button;
- 	struct input_dev *input = bdata->input;
- 	unsigned int type = button->type ?: EV_KEY;
-@@ -47,13 +53,6 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
- 	input_sync(input);
- }
- 
--static void gpio_check_button(unsigned long _data)
--{
--	struct gpio_button_data *data = (struct gpio_button_data *)_data;
--
--	gpio_keys_report_event(data);
--}
--
- static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- {
- 	struct gpio_button_data *bdata = dev_id;
-@@ -62,10 +61,10 @@ static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
- 	BUG_ON(irq != gpio_to_irq(button->gpio));
- 
- 	if (button->debounce_interval)
--		mod_timer(&bdata->timer,
--			jiffies + msecs_to_jiffies(button->debounce_interval));
-+		schedule_delayed_work(&bdata->work,
-+			msecs_to_jiffies(button->debounce_interval));
- 	else
--		gpio_keys_report_event(bdata);
-+		schedule_delayed_work(&bdata->work, 0);
- 
- 	return IRQ_HANDLED;
- }
-@@ -112,8 +111,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
- 
- 		bdata->input = input;
- 		bdata->button = button;
--		setup_timer(&bdata->timer,
--			    gpio_check_button, (unsigned long)bdata);
-+		INIT_DELAYED_WORK(&bdata->work, gpio_keys_report_event);
- 
- 		error = gpio_request(button->gpio, button->desc ?: "gpio_keys");
- 		if (error < 0) {
-@@ -173,8 +171,7 @@ static int __devinit gpio_keys_probe(struct platform_device *pdev)
-  fail2:
- 	while (--i >= 0) {
- 		free_irq(gpio_to_irq(pdata->buttons[i].gpio), &ddata->data[i]);
--		if (pdata->buttons[i].debounce_interval)
--			del_timer_sync(&ddata->data[i].timer);
-+		cancel_delayed_work_sync(&ddata->data[i].work);
- 		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
-@@ -198,8 +195,7 @@ static int __devexit gpio_keys_remove(struct platform_device *pdev)
- 	for (i = 0; i < pdata->nbuttons; i++) {
- 		int irq = gpio_to_irq(pdata->buttons[i].gpio);
- 		free_irq(irq, &ddata->data[i]);
--		if (pdata->buttons[i].debounce_interval)
--			del_timer_sync(&ddata->data[i].timer);
-+		cancel_delayed_work_sync(&ddata->data[i].work);
- 		gpio_free(pdata->buttons[i].gpio);
- 	}
- 
--- 
-1.6.0.4
+Will post test results later.

@@ -1,62 +1,41 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: [RFC] [PATCH] input: export gpio-keys driven switch status over gpiolib sysfs
-Date: Fri, 12 Jun 2009 13:19:09 +0200
-Message-ID: <200906121319.11005.jkrzyszt@tis.icnet.pl>
-References: <200906050039.40050.jkrzyszt@tis.icnet.pl> <20090611061855.GA8035@dtor-d630.eng.vmware.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Apple Bluetooth devices: Battery level?
+Date: Fri, 12 Jun 2009 15:25:10 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906121521490.7457@wotan.suse.de>
+References: <1244384236.30768.5690.camel@cookie.hadess.net>  <alpine.LRH.2.00.0906081530330.31685@twin.jikos.cz>  <1244589738.5973.1954.camel@cookie.hadess.net> <1244617386.3068.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20090611061855.GA8035@dtor-d630.eng.vmware.com>
-Content-Disposition: inline
-Sender: linux-omap-owner@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:41651 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753743AbZFLNZM (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Jun 2009 09:25:12 -0400
+In-Reply-To: <1244617386.3068.22.camel@localhost.localdomain>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-bluetooth@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
 
-Hi Dmitry,
+On Wed, 10 Jun 2009, Marcel Holtmann wrote:
 
-Thursday 11 June 2009 08:18:56 Dmitry Torokhov napisa=C5=82(a):
-> Hi Janusz,
->
-> On Fri, Jun 05, 2009 at 12:39:39AM +0200, Janusz Krzysztofik wrote:
-> > This patch adds support for exporting status of GPIO switches, conf=
-igured
-> > as gpio-keys buttons that generate events of type EV_SW, over stand=
-ard
-> > gpiolib sysfs interface. That way, switch state can be easily acces=
-sed
-> > from userspace via a modern sysfs API in addition to traditional io=
-clt
-> > API, without the need for adding a new, usualy controversial entry =
-to
-> > sysfs interface.
->
-> But this would make your application only work with devices using
-> gpio-keys driver and nothing else. I don't think it's a good idea.
+> there is no real downside in having this all times available since you
+> have to store that binary record somewhere anyway during runtime. We
+> should fix that and put it into debugfs, but nobody bothered so far
+> sending a patch for it. 
 
-No, my patch wouldn't make that, neither to mine nor any other applicat=
-ion.=20
-It's an application developer, not my patch, who can make the applicati=
-on=20
-limited, and I think he should be free to do this at his will. My patch=
- would=20
-only provide him with extra functionality, exposed by one of device dri=
-vers,=20
-designed for a specific group of devices, for his free use.
+JFYI, I have just pushed super-preliminary version of the code that moves 
+the whole HID-device debugging (report descriptor and report/event 
+dumping) into debugfs. It's 'debugfs' branch of my HID tree, for those who 
+are interested.
+Please bear in mind that this is more or less a snapshot of the current 
+code (which is working, though), not production quality yet. Hopefully 
+they will get properly polished for 2.6.31.
 
-I think that providing extra functionality for free use, without breaki=
-ng=20
-anything, neither in kernel nor user space, not adding any overhead, mo=
-reover,=20
-using an already existing kernel API designed for that specific purpose=
-, is a=20
-good idea.
+I will post the patches as a followup to this mail, if anyone is 
+interested.
 
-Thanks,
-Janusz
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Comments and patches welcome, as usual.
+
+-- 
+Jiri Kosina
+SUSE Labs

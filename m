@@ -1,572 +1,668 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: [PATCH 2/2] HID: use debugfs for events/reports dumping
-Date: Fri, 12 Jun 2009 15:27:03 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0906121526250.7457@wotan.suse.de>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 1/2] HID: use debugfs for report dumping descriptor
+Date: Fri, 12 Jun 2009 15:27:06 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906121525491.7457@wotan.suse.de>
 References: <1244384236.30768.5690.camel@cookie.hadess.net>  <alpine.LRH.2.00.0906081530330.31685@twin.jikos.cz>  <1244589738.5973.1954.camel@cookie.hadess.net> <1244617386.3068.22.camel@localhost.localdomain>
  <alpine.LNX.2.00.0906121521490.7457@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LNX.2.00.0906121521490.7457-B4tOwbsTzaBolqkO4TVVkw@public.gmane.org>
-Sender: linux-bluetooth-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marcel Holtmann <marcel-kz+m5ild9QBg9hUCZPvPmw@public.gmane.org>
-Cc: Bastien Nocera <hadess-0MeiytkfxGOsTnJN9+BGXg@public.gmane.org>, linux-bluetooth-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input <linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:47992 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1764691AbZFLN1G (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 12 Jun 2009 09:27:06 -0400
+In-Reply-To: <alpine.LNX.2.00.0906121521490.7457@wotan.suse.de>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Bastien Nocera <hadess@hadess.net>, linux-bluetooth@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
 
-This is a followup patch to the one implemeting rdesc representation in debugfs
-rather than being dependent on compile-time CONFIG_HID_DEBUG setting.
+It is a little bit inconvenient for people who have some non-standard
+HID hardware (usually violating the HID specification) to have to
+recompile kernel with CONFIG_HID_DEBUG to be able to see kernel's perspective
+of the HID report descriptor and observe the parsed events. Plus the messages
+are then mixed up inconveniently with the rest of the dmesg stuff.
 
-The API of the appropriate formatting functions is slightly modified -- if
-they are passed seq_file pointer, the one-shot output for 'rdesc' file mode
-is used, and therefore the message is formatted into the corresponding seq_file
-immediately.
+This patch implements /sys/kernel/debug/hid/<device>/rdesc file, which
+represents the kernel's view of report descriptor (both the raw report
+descriptor data and parsed contents).
 
-Otherwise the called function allocated a new buffer, formats the text into the
-buffer and returns the pointer to it, so that it can be queued into the ring-buffer
-of the processess blocked waiting on input on 'events' file in debugfs.
+With all the device-specific debug data being available through debugfs, there
+is no need for keeping CONFIG_HID_DEBUG, as the 'debug' parameter to the
+hid module will now only output only driver-specific debugging options, which has
+absolutely minimal memory footprint, just a few error messages and one global
+flag (hid_debug).
 
-'debug' parameter to the 'hid' module is now used solely for the prupose of inetrnal
-driver state debugging (parser, transport, etc).
+We use the current set of output formatting functions. The ones that need to be
+used both for one-shot rdesc seq_file and also for continuous flow of data
+(individual reports, as being sent by the device) distinguish according to the
+passed seq_file parameter, and if it is NULL, it still output to kernel ringbuffer,
+otherwise the corresponding seq_file is used for output.
 
-Signed-off-by: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+The format of the output is preserved.
+
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 ---
- drivers/hid/hid-core.c    |   42 ++++++--
- drivers/hid/hid-debug.c   |  239 +++++++++++++++++++++++++++++++++++++++++----
- include/linux/hid-debug.h |   18 +++-
- include/linux/hid.h       |   26 ++----
- 4 files changed, 276 insertions(+), 49 deletions(-)
+ drivers/hid/Kconfig           |   15 ---
+ drivers/hid/Makefile          |    5 +-
+ drivers/hid/hid-core.c        |   13 ++-
+ drivers/hid/hid-debug.c       |  227 ++++++++++++++++++++++++++++-------------
+ drivers/hid/hid-input.c       |   13 +--
+ drivers/hid/usbhid/hid-core.c |    8 +--
+ include/linux/hid-debug.h     |   32 ++++---
+ include/linux/hid.h           |    4 +
+ 8 files changed, 195 insertions(+), 122 deletions(-)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 7e67dcb..05950a7 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -31,21 +31,6 @@ config HID
+ 
+ 	  If unsure, say Y.
+ 
+-config HID_DEBUG
+-	bool "HID debugging support"
+-	default y
+-	depends on HID
+-	---help---
+-	This option lets the HID layer output diagnostics about its internal
+-	state, resolve HID usages, dump HID fields, etc. Individual HID drivers
+-	use this debugging facility to output information about individual HID
+-	devices, etc.
+-
+-	This feature is useful for those who are either debugging the HID parser
+-	or any HID hardware device.
+-
+-	If unsure, say Y.
+-
+ config HIDRAW
+ 	bool "/dev/hidraw raw HID device support"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 1f7cb0f..cf3687d 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -3,9 +3,12 @@
+ #
+ hid-objs			:= hid-core.o hid-input.o
+ 
++ifdef CONFIG_DEBUG_FS
++	hid-objs		+= hid-debug.o
++endif
++
+ obj-$(CONFIG_HID)		+= hid.o
+ 
+-hid-$(CONFIG_HID_DEBUG)		+= hid-debug.o
+ hid-$(CONFIG_HIDRAW)		+= hidraw.o
+ 
+ hid-logitech-objs		:= hid-lg.o
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index d4317db..449bd74 100644
+index 8551693..d4317db 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -46,7 +46,7 @@
+@@ -44,12 +44,10 @@
+ #define DRIVER_DESC "HID core driver"
+ #define DRIVER_LICENSE "GPL"
  
+-#ifdef CONFIG_HID_DEBUG
  int hid_debug = 0;
  module_param_named(debug, hid_debug, int, 0600);
--MODULE_PARM_DESC(debug, "HID debugging (0=off, 1=probing info, 2=continuous data dumping)");
-+MODULE_PARM_DESC(debug, "toggle HID debugging messages");
+ MODULE_PARM_DESC(debug, "HID debugging (0=off, 1=probing info, 2=continuous data dumping)");
  EXPORT_SYMBOL_GPL(hid_debug);
+-#endif
  
  /*
-@@ -859,7 +859,7 @@ static void hid_process_event(struct hid_device *hid, struct hid_field *field,
- 	struct hid_driver *hdrv = hid->driver;
- 	int ret;
- 
--	hid_dump_input(usage, value);
-+	hid_dump_input(hid, usage, value);
- 
- 	if (hdrv && hdrv->event && hid_match_usage(hid, usage)) {
- 		ret = hdrv->event(hid, field, usage, value);
-@@ -981,7 +981,7 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
- {
- 	unsigned size = field->report_size;
- 
--	hid_dump_input(field->usage + offset, value);
-+	hid_dump_input(field->report->device, field->usage + offset, value);
+  * Register a new report for a device.
+@@ -987,7 +985,6 @@ int hid_set_field(struct hid_field *field, unsigned offset, __s32 value)
  
  	if (offset >= field->report_count) {
  		dbg_hid("offset (%d) exceeds report_count (%d)\n", offset, field->report_count);
-@@ -1075,6 +1075,7 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
- 	struct hid_report_enum *report_enum = hid->report_enum + type;
- 	struct hid_driver *hdrv = hid->driver;
- 	struct hid_report *report;
-+	char *buf;
- 	unsigned int i;
- 	int ret;
- 
-@@ -1086,18 +1087,36 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+-		hid_dump_field(field, 8);
  		return -1;
  	}
+ 	if (field->logical_minimum < 0) {
+@@ -1721,6 +1718,8 @@ int hid_add_device(struct hid_device *hdev)
+ 	if (!ret)
+ 		hdev->status |= HID_STAT_ADDED;
  
--	dbg_hid("report (size %u) (%snumbered)\n", size, report_enum->numbered ? "" : "un");
-+	buf = kmalloc(sizeof(char) * HID_DEBUG_BUFSIZE,
-+			interrupt ? GFP_ATOMIC : GFP_KERNEL);
++	hid_debug_register(hdev, dev_name(&hdev->dev));
 +
-+	if (!buf) {
-+		report = hid_get_report(report_enum, data);
-+		goto nomem;
-+	}
-+
-+	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
-+			"\nreport (size %u) (%snumbered)\n", size, report_enum->numbered ? "" : "un");
-+	hid_debug_event(hid, buf);
- 
- 	report = hid_get_report(report_enum, data);
- 	if (!report)
- 		return -1;
- 
- 	/* dump the report */
--	dbg_hid("report %d (size %u) = ", report->id, size);
--	for (i = 0; i < size; i++)
--		dbg_hid_line(" %02x", data[i]);
--	dbg_hid_line("\n");
-+	snprintf(buf, HID_DEBUG_BUFSIZE - 1,
-+			"report %d (size %u) = ", report->id, size);
-+	hid_debug_event(hid, buf);
-+	for (i = 0; i < size; i++) {
-+		snprintf(buf, HID_DEBUG_BUFSIZE - 1,
-+				" %02x", data[i]);
-+		hid_debug_event(hid, buf);
-+	}
-+	hid_debug_event(hid, "\n");
-+
-+	kfree(buf);
- 
-+nomem:
- 	if (hdrv && hdrv->raw_event && hid_match_report(hid, report)) {
- 		ret = hdrv->raw_event(hid, report, data, size);
- 		if (ret != 0)
-@@ -1756,6 +1775,9 @@ struct hid_device *hid_allocate_device(void)
- 	for (i = 0; i < HID_REPORT_TYPES; i++)
- 		INIT_LIST_HEAD(&hdev->report_enum[i].report_list);
- 
-+	init_waitqueue_head(&hdev->debug_wait);
-+	INIT_LIST_HEAD(&hdev->debug_list);
-+
- 	return hdev;
- err:
- 	put_device(&hdev->dev);
-@@ -1844,8 +1866,8 @@ static int __init hid_init(void)
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(hid_add_device);
+@@ -1768,6 +1767,7 @@ static void hid_remove_device(struct hid_device *hdev)
+ {
+ 	if (hdev->status & HID_STAT_ADDED) {
+ 		device_del(&hdev->dev);
++		hid_debug_unregister(hdev);
+ 		hdev->status &= ~HID_STAT_ADDED;
+ 	}
+ }
+@@ -1843,6 +1843,10 @@ static int __init hid_init(void)
+ {
  	int ret;
  
- 	if (hid_debug)
--		printk(KERN_WARNING "HID: hid_debug parameter has been deprecated. "
--				"Debugging data are now provided via debugfs\n");
-+		printk(KERN_WARNING "HID: hid_debug is now used solely for parser and driver debugging.\n"
-+				"HID: debugfs is now used for inspecting the device (report descriptor, reports)\n");
- 
++	if (hid_debug)
++		printk(KERN_WARNING "HID: hid_debug parameter has been deprecated. "
++				"Debugging data are now provided via debugfs\n");
++
  	ret = bus_register(&hid_bus_type);
  	if (ret) {
+ 		printk(KERN_ERR "HID: can't register hid bus\n");
+@@ -1853,6 +1857,8 @@ static int __init hid_init(void)
+ 	if (ret)
+ 		goto err_bus;
+ 
++	hid_debug_init();
++
+ 	return 0;
+ err_bus:
+ 	bus_unregister(&hid_bus_type);
+@@ -1862,6 +1868,7 @@ err:
+ 
+ static void __exit hid_exit(void)
+ {
++	hid_debug_exit();
+ 	hidraw_exit();
+ 	bus_unregister(&hid_bus_type);
+ }
 diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index 067e173..a331a18 100644
+index 47ac1a7..067e173 100644
 --- a/drivers/hid/hid-debug.c
 +++ b/drivers/hid/hid-debug.c
-@@ -28,6 +28,10 @@
+@@ -1,9 +1,9 @@
+ /*
+  *  (c) 1999 Andreas Gal		<gal@cs.uni-magdeburg.de>
+  *  (c) 2000-2001 Vojtech Pavlik	<vojtech@ucw.cz>
+- *  (c) 2007 Jiri Kosina
++ *  (c) 2007-2009 Jiri Kosina
+  *
+- *  Some debug stuff for the HID parser.
++ *  HID debugging support
+  */
  
- #include <linux/debugfs.h>
- #include <linux/seq_file.h>
-+#include <linux/sched.h>
-+#include <linux/uaccess.h>
-+#include <linux/poll.h>
-+
+ /*
+@@ -26,9 +26,13 @@
+  * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
+  */
+ 
++#include <linux/debugfs.h>
++#include <linux/seq_file.h>
  #include <linux/hid.h>
  #include <linux/hid-debug.h>
  
-@@ -335,49 +339,86 @@ static const struct hid_usage_entry hid_usage_table[] = {
++static struct dentry *hid_debug_root;
++
+ struct hid_usage_entry {
+ 	unsigned  page;
+ 	unsigned  usage;
+@@ -331,72 +335,83 @@ static const struct hid_usage_entry hid_usage_table[] = {
    { 0, 0, NULL }
  };
  
--static void resolv_usage_page(unsigned page, struct seq_file *f) {
-+/* Either output directly into simple seq_file, or (if f == NULL)
-+ * allocate a separate buffer that will then be passed to the 'events'
-+ * ringbuffer.
-+ *
-+ * This is because these functions can be called both for "one-shot"
-+ * "rdesc" while resolving, or for blocking "events".
-+ *
-+ * This holds both for resolv_usage_page() and hid_resolv_usage().
-+ */
-+static char *resolv_usage_page(unsigned page, struct seq_file *f) {
+-static void resolv_usage_page(unsigned page) {
++static void resolv_usage_page(unsigned page, struct seq_file *f) {
  	const struct hid_usage_entry *p;
-+	char *buf = NULL;
-+
-+	if (!f) {
-+		buf = kzalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_ATOMIC);
-+		if (!buf)
-+			return ERR_PTR(-ENOMEM);
-+	}
  
  	for (p = hid_usage_table; p->description; p++)
  		if (p->page == page) {
--			if (!f)
--				printk("%s", p->description);
--			else
-+			if (!f) {
-+				snprintf(buf, HID_DEBUG_BUFSIZE, "%s",
-+						p->description);
-+				return buf;
-+			}
-+			else {
- 				seq_printf(f, "%s", p->description);
--			return;
-+				return NULL;
-+			}
+-			printk("%s", p->description);
++			if (!f)
++				printk("%s", p->description);
++			else
++				seq_printf(f, "%s", p->description);
+ 			return;
  		}
- 	if (!f)
--		printk("%04x", page);
-+		snprintf(buf, HID_DEBUG_BUFSIZE, "%04x", page);
- 	else
- 		seq_printf(f, "%04x", page);
-+	return buf;
+-	printk("%04x", page);
++	if (!f)
++		printk("%04x", page);
++	else
++		seq_printf(f, "%04x", page);
  }
  
--void hid_resolv_usage(unsigned usage, struct seq_file *f) {
-+char *hid_resolv_usage(unsigned usage, struct seq_file *f) {
+-void hid_resolv_usage(unsigned usage) {
++void hid_resolv_usage(unsigned usage, struct seq_file *f) {
  	const struct hid_usage_entry *p;
-+	char *buf = NULL;
-+	int len = 0;
  
--	resolv_usage_page(usage >> 16, f);
--	if (!f)
--		printk(".");
--	else
-+	buf = resolv_usage_page(usage >> 16, f);
-+	if (IS_ERR(buf)) {
-+		printk(KERN_ERR "error allocating HID debug buffer\n");
-+		return NULL;
-+	}
-+
-+
-+	if (!f) {
-+		len = strlen(buf);
-+		snprintf(buf+len, max(0, HID_DEBUG_BUFSIZE - len), ".");
-+		len++;
-+	}
-+	else {
- 		seq_printf(f, ".");
-+	}
+-	if (!hid_debug)
+-		return;
+-
+-	resolv_usage_page(usage >> 16);
+-	printk(".");
++	resolv_usage_page(usage >> 16, f);
++	if (!f)
++		printk(".");
++	else
++		seq_printf(f, ".");
  	for (p = hid_usage_table; p->description; p++)
  		if (p->page == (usage >> 16)) {
  			for(++p; p->description && p->usage != 0; p++)
  				if (p->usage == (usage & 0xffff)) {
- 					if (!f)
--						printk("%s", p->description);
-+						snprintf(buf + len,
-+							max(0,HID_DEBUG_BUFSIZE - len - 1),
-+							"%s", p->description);
- 					else
- 						seq_printf(f,
- 							"%s",
- 							p->description);
--					return;
-+					return buf;
+-					printk("%s", p->description);
++					if (!f)
++						printk("%s", p->description);
++					else
++						seq_printf(f,
++							"%s",
++							p->description);
+ 					return;
  				}
  			break;
  		}
- 	if (!f)
--		printk("%04x", usage & 0xffff);
-+		snprintf(buf + len, max(0, HID_DEBUG_BUFSIZE - len - 1),
-+				"%04x", usage & 0xffff);
- 	else
- 		seq_printf(f, "%04x", usage & 0xffff);
-+	return buf;
+-	printk("%04x", usage & 0xffff);
++	if (!f)
++		printk("%04x", usage & 0xffff);
++	else
++		seq_printf(f, "%04x", usage & 0xffff);
  }
  EXPORT_SYMBOL_GPL(hid_resolv_usage);
  
-@@ -508,13 +549,37 @@ void hid_dump_device(struct hid_device *device, struct seq_file *f)
+-static void tab(int n) {
+-	printk(KERN_DEBUG "%*s", n, "");
++static void tab(int n, struct seq_file *f) {
++	seq_printf(f, "%*s", n, "");
  }
- EXPORT_SYMBOL_GPL(hid_dump_device);
  
--void hid_dump_input(struct hid_usage *usage, __s32 value) {
--	if (hid_debug < 2)
-+/* enqueue string to 'events' ring buffer */
-+void hid_debug_event(struct hid_device *hdev, char *buf)
+-void hid_dump_field(struct hid_field *field, int n) {
++void hid_dump_field(struct hid_field *field, int n, struct seq_file *f) {
+ 	int j;
+ 
+-	if (!hid_debug)
+-		return;
+-
+ 	if (field->physical) {
+-		tab(n);
+-		printk("Physical(");
+-		hid_resolv_usage(field->physical); printk(")\n");
++		tab(n, f);
++		seq_printf(f, "Physical(");
++		hid_resolv_usage(field->physical, f); seq_printf(f, ")\n");
+ 	}
+ 	if (field->logical) {
+-		tab(n);
+-		printk("Logical(");
+-		hid_resolv_usage(field->logical); printk(")\n");
++		tab(n, f);
++		seq_printf(f, "Logical(");
++		hid_resolv_usage(field->logical, f); seq_printf(f, ")\n");
+ 	}
+-	tab(n); printk("Usage(%d)\n", field->maxusage);
++	tab(n, f); seq_printf(f, "Usage(%d)\n", field->maxusage);
+ 	for (j = 0; j < field->maxusage; j++) {
+-		tab(n+2); hid_resolv_usage(field->usage[j].hid); printk("\n");
++		tab(n+2, f); hid_resolv_usage(field->usage[j].hid, f); seq_printf(f, "\n");
+ 	}
+ 	if (field->logical_minimum != field->logical_maximum) {
+-		tab(n); printk("Logical Minimum(%d)\n", field->logical_minimum);
+-		tab(n); printk("Logical Maximum(%d)\n", field->logical_maximum);
++		tab(n, f); seq_printf(f, "Logical Minimum(%d)\n", field->logical_minimum);
++		tab(n, f); seq_printf(f, "Logical Maximum(%d)\n", field->logical_maximum);
+ 	}
+ 	if (field->physical_minimum != field->physical_maximum) {
+-		tab(n); printk("Physical Minimum(%d)\n", field->physical_minimum);
+-		tab(n); printk("Physical Maximum(%d)\n", field->physical_maximum);
++		tab(n, f); seq_printf(f, "Physical Minimum(%d)\n", field->physical_minimum);
++		tab(n, f); seq_printf(f, "Physical Maximum(%d)\n", field->physical_maximum);
+ 	}
+ 	if (field->unit_exponent) {
+-		tab(n); printk("Unit Exponent(%d)\n", field->unit_exponent);
++		tab(n, f); seq_printf(f, "Unit Exponent(%d)\n", field->unit_exponent);
+ 	}
+ 	if (field->unit) {
+ 		static const char *systems[5] = { "None", "SI Linear", "SI Rotation", "English Linear", "English Rotation" };
+@@ -417,77 +432,75 @@ void hid_dump_field(struct hid_field *field, int n) {
+ 		data >>= 4;
+ 
+ 		if(sys > 4) {
+-			tab(n); printk("Unit(Invalid)\n");
++			tab(n, f); seq_printf(f, "Unit(Invalid)\n");
+ 		}
+ 		else {
+ 			int earlier_unit = 0;
+ 
+-			tab(n); printk("Unit(%s : ", systems[sys]);
++			tab(n, f); seq_printf(f, "Unit(%s : ", systems[sys]);
+ 
+ 			for (i=1 ; i<sizeof(__u32)*2 ; i++) {
+ 				char nibble = data & 0xf;
+ 				data >>= 4;
+ 				if (nibble != 0) {
+ 					if(earlier_unit++ > 0)
+-						printk("*");
+-					printk("%s", units[sys][i]);
++						seq_printf(f, "*");
++					seq_printf(f, "%s", units[sys][i]);
+ 					if(nibble != 1) {
+ 						/* This is a _signed_ nibble(!) */
+ 
+ 						int val = nibble & 0x7;
+ 						if(nibble & 0x08)
+ 							val = -((0x7 & ~val) +1);
+-						printk("^%d", val);
++						seq_printf(f, "^%d", val);
+ 					}
+ 				}
+ 			}
+-			printk(")\n");
++			seq_printf(f, ")\n");
+ 		}
+ 	}
+-	tab(n); printk("Report Size(%u)\n", field->report_size);
+-	tab(n); printk("Report Count(%u)\n", field->report_count);
+-	tab(n); printk("Report Offset(%u)\n", field->report_offset);
++	tab(n, f); seq_printf(f, "Report Size(%u)\n", field->report_size);
++	tab(n, f); seq_printf(f, "Report Count(%u)\n", field->report_count);
++	tab(n, f); seq_printf(f, "Report Offset(%u)\n", field->report_offset);
+ 
+-	tab(n); printk("Flags( ");
++	tab(n, f); seq_printf(f, "Flags( ");
+ 	j = field->flags;
+-	printk("%s", HID_MAIN_ITEM_CONSTANT & j ? "Constant " : "");
+-	printk("%s", HID_MAIN_ITEM_VARIABLE & j ? "Variable " : "Array ");
+-	printk("%s", HID_MAIN_ITEM_RELATIVE & j ? "Relative " : "Absolute ");
+-	printk("%s", HID_MAIN_ITEM_WRAP & j ? "Wrap " : "");
+-	printk("%s", HID_MAIN_ITEM_NONLINEAR & j ? "NonLinear " : "");
+-	printk("%s", HID_MAIN_ITEM_NO_PREFERRED & j ? "NoPreferredState " : "");
+-	printk("%s", HID_MAIN_ITEM_NULL_STATE & j ? "NullState " : "");
+-	printk("%s", HID_MAIN_ITEM_VOLATILE & j ? "Volatile " : "");
+-	printk("%s", HID_MAIN_ITEM_BUFFERED_BYTE & j ? "BufferedByte " : "");
+-	printk(")\n");
++	seq_printf(f, "%s", HID_MAIN_ITEM_CONSTANT & j ? "Constant " : "");
++	seq_printf(f, "%s", HID_MAIN_ITEM_VARIABLE & j ? "Variable " : "Array ");
++	seq_printf(f, "%s", HID_MAIN_ITEM_RELATIVE & j ? "Relative " : "Absolute ");
++	seq_printf(f, "%s", HID_MAIN_ITEM_WRAP & j ? "Wrap " : "");
++	seq_printf(f, "%s", HID_MAIN_ITEM_NONLINEAR & j ? "NonLinear " : "");
++	seq_printf(f, "%s", HID_MAIN_ITEM_NO_PREFERRED & j ? "NoPreferredState " : "");
++	seq_printf(f, "%s", HID_MAIN_ITEM_NULL_STATE & j ? "NullState " : "");
++	seq_printf(f, "%s", HID_MAIN_ITEM_VOLATILE & j ? "Volatile " : "");
++	seq_printf(f, "%s", HID_MAIN_ITEM_BUFFERED_BYTE & j ? "BufferedByte " : "");
++	seq_printf(f, ")\n");
+ }
+ EXPORT_SYMBOL_GPL(hid_dump_field);
+ 
+-void hid_dump_device(struct hid_device *device) {
++void hid_dump_device(struct hid_device *device, struct seq_file *f)
 +{
-+	int i;
-+	struct hid_debug_list *list;
-+
-+	list_for_each_entry(list, &hdev->debug_list, node) {
-+		for (i = 0; i <= strlen(buf); i++)
-+			list->hid_debug_buf[(list->tail + i) % (HID_DEBUG_BUFSIZE - 1)] =
-+				buf[i];
-+		list->tail = (list->tail + i) % (HID_DEBUG_BUFSIZE - 1);
-+        }
-+}
-+EXPORT_SYMBOL_GPL(hid_debug_event);
-+
-+void hid_dump_input(struct hid_device *hdev, struct hid_usage *usage, __s32 value)
-+{
-+	char *buf;
-+	int len;
-+
-+	buf = hid_resolv_usage(usage->hid, NULL);
-+	if (!buf)
+ 	struct hid_report_enum *report_enum;
+ 	struct hid_report *report;
+ 	struct list_head *list;
+ 	unsigned i,k;
+ 	static const char *table[] = {"INPUT", "OUTPUT", "FEATURE"};
+ 
+-	if (!hid_debug)
+-		return;
+-
+ 	for (i = 0; i < HID_REPORT_TYPES; i++) {
+ 		report_enum = device->report_enum + i;
+ 		list = report_enum->report_list.next;
+ 		while (list != &report_enum->report_list) {
+ 			report = (struct hid_report *) list;
+-			tab(2);
+-			printk("%s", table[i]);
++			tab(2, f);
++			seq_printf(f, "%s", table[i]);
+ 			if (report->id)
+-				printk("(%d)", report->id);
+-			printk("[%s]", table[report->type]);
+-			printk("\n");
++				seq_printf(f, "(%d)", report->id);
++			seq_printf(f, "[%s]", table[report->type]);
++			seq_printf(f, "\n");
+ 			for (k = 0; k < report->maxfield; k++) {
+-				tab(4);
+-				printk("Field(%d)\n", k);
+-				hid_dump_field(report->field[k], 6);
++				tab(4, f);
++				seq_printf(f, "Field(%d)\n", k);
++				hid_dump_field(report->field[k], 6, f);
+ 			}
+ 			list = list->next;
+ 		}
+@@ -500,7 +513,7 @@ void hid_dump_input(struct hid_usage *usage, __s32 value) {
  		return;
-+	len = strlen(buf);
-+	snprintf(buf + len, HID_DEBUG_BUFSIZE - len - 1, " = %d\n", value);
-+
-+	hid_debug_event(hdev, buf);
-+
-+	kfree(buf);
-+        wake_up_interruptible(&hdev->debug_wait);
  
--	printk(KERN_DEBUG "hid-debug: input ");
--	hid_resolv_usage(usage->hid, NULL);
--	printk(" = %d\n", value);
+ 	printk(KERN_DEBUG "hid-debug: input ");
+-	hid_resolv_usage(usage->hid);
++	hid_resolv_usage(usage->hid, NULL);
+ 	printk(" = %d\n", value);
  }
  EXPORT_SYMBOL_GPL(hid_dump_input);
- 
-@@ -808,6 +873,7 @@ void hid_dump_input_mapping(struct hid_device *hid, struct seq_file *f)
- 
- }
- 
-+
- static int hid_debug_rdesc_show(struct seq_file *f, void *p)
- {
- 	struct hid_device *hdev = f->private;
-@@ -831,6 +897,126 @@ static int hid_debug_rdesc_open(struct inode *inode, struct file *file)
- 	return single_open(file, hid_debug_rdesc_show, inode->i_private);
- }
- 
-+static int hid_debug_events_open(struct inode *inode, struct file *file)
-+{
-+	int err = 0;
-+	struct hid_debug_list *list;
-+
-+	if (!(list = kzalloc(sizeof(struct hid_debug_list), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+
-+	if (!(list->hid_debug_buf = kzalloc(sizeof(char) * HID_DEBUG_BUFSIZE, GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto out;
-+	}
-+	list->hdev = (struct hid_device *) inode->i_private;
-+	file->private_data = list;
-+	mutex_init(&list->read_mutex);
-+
-+	list_add_tail(&list->node, &list->hdev->debug_list);
-+
-+out:
-+	return err;
-+}
-+
-+static ssize_t hid_debug_events_read(struct file *file, char __user *buffer,
-+		size_t count, loff_t *ppos)
-+{
-+	struct hid_debug_list *list = file->private_data;
-+	int ret = 0, len;
-+	DECLARE_WAITQUEUE(wait, current);
-+
-+	while (ret == 0) {
-+		mutex_lock(&list->read_mutex);
-+		if (list->head == list->tail) {
-+			add_wait_queue(&list->hdev->debug_wait, &wait);
-+			set_current_state(TASK_INTERRUPTIBLE);
-+
-+			while (list->head == list->tail) {
-+				if (file->f_flags & O_NONBLOCK) {
-+					ret = -EAGAIN;
-+					break;
-+				}
-+				if (signal_pending(current)) {
-+					ret = -ERESTARTSYS;
-+					break;
-+				}
-+
-+				if (!list->hdev || !list->hdev->debug) {
-+					ret = -EIO;
-+					break;
-+				}
-+
-+				/* allow O_NONBLOCK from other threads */
-+				mutex_unlock(&list->read_mutex);
-+				schedule();
-+				mutex_lock(&list->read_mutex);
-+				set_current_state(TASK_INTERRUPTIBLE);
-+			}
-+
-+			set_current_state(TASK_RUNNING);
-+			remove_wait_queue(&list->hdev->debug_wait, &wait);
-+		}
-+
-+		if (ret)
-+			goto out;
-+
-+		/* pass the ringbuffer contents to userspace */
-+copy_rest:
-+		if (list->tail == list->head)
-+			goto out;
-+		if (list->tail > list->head) {
-+			len = list->tail - list->head;
-+
-+			if (copy_to_user(buffer + ret, &list->hid_debug_buf[list->head], len)) {
-+				ret = -EFAULT;
-+				goto out;
-+			}
-+			ret += len;
-+			list->head += len;
-+		} else {
-+			len = HID_DEBUG_BUFSIZE - list->head;
-+
-+			if (copy_to_user(buffer, &list->hid_debug_buf[list->head], len)) {
-+				ret = -EFAULT;
-+				goto out;
-+			}
-+			list->head = 0;
-+			ret += len;
-+			goto copy_rest;
-+		}
-+
-+	}
-+out:
-+	mutex_unlock(&list->read_mutex);
-+	return ret;
-+}
-+
-+static unsigned int hid_debug_events_poll(struct file *file, poll_table *wait)
-+{
-+	struct hid_debug_list *list = file->private_data;
-+
-+	poll_wait(file, &list->hdev->debug_wait, wait);
-+	if (list->head != list->tail)
-+		return POLLIN | POLLRDNORM;
-+	if (!list->hdev->debug)
-+		return POLLERR | POLLHUP;
-+	return 0;
-+}
-+
-+static int hid_debug_events_release(struct inode *inode, struct file *file)
-+{
-+	struct hid_debug_list *list = file->private_data;
-+
-+	list_del(&list->node);
-+	kfree(list->hid_debug_buf);
-+	kfree(list);
-+
-+	return 0;
-+}
-+
- static const struct file_operations hid_debug_rdesc_fops = {
- 	.open           = hid_debug_rdesc_open,
- 	.read           = seq_read,
-@@ -838,16 +1024,31 @@ static const struct file_operations hid_debug_rdesc_fops = {
- 	.release        = single_release,
+@@ -767,12 +780,84 @@ static const char **names[EV_MAX + 1] = {
+ 	[EV_SND] = sounds,			[EV_REP] = repeats,
  };
  
-+static const struct file_operations hid_debug_events_fops = {
-+	.owner =        THIS_MODULE,
-+	.open           = hid_debug_events_open,
-+	.read           = hid_debug_events_read,
-+	.poll		= hid_debug_events_poll,
-+	.release        = hid_debug_events_release,
+-void hid_resolv_event(__u8 type, __u16 code) {
+-
+-	if (!hid_debug)
+-		return;
++void hid_resolv_event(__u8 type, __u16 code, struct seq_file *f) {
+ 
+-	printk("%s.%s", events[type] ? events[type] : "?",
++	seq_printf(f, "%s.%s", events[type] ? events[type] : "?",
+ 		names[type] ? (names[type][code] ? names[type][code] : "?") : "?");
+ }
+-EXPORT_SYMBOL_GPL(hid_resolv_event);
++
++void hid_dump_input_mapping(struct hid_device *hid, struct seq_file *f)
++{
++	int i, j, k;
++	struct hid_report *report;
++	struct hid_usage *usage;
++
++	for (k = HID_INPUT_REPORT; k <= HID_OUTPUT_REPORT; k++) {
++		list_for_each_entry(report, &hid->report_enum[k].report_list, list) {
++			for (i = 0; i < report->maxfield; i++) {
++				for ( j = 0; j < report->field[i]->maxusage; j++) {
++					usage = report->field[i]->usage + j;
++					hid_resolv_usage(usage->hid, f);
++					seq_printf(f, " ---> ");
++					hid_resolv_event(usage->type, usage->code, f);
++					seq_printf(f, "\n");
++				}
++			}
++		}
++	}
++
++}
++
++static int hid_debug_rdesc_show(struct seq_file *f, void *p)
++{
++	struct hid_device *hdev = f->private;
++	int i;
++
++	/* dump HID report descriptor */
++	for (i = 0; i < hdev->rsize; i++)
++		seq_printf(f, "%02x ", hdev->rdesc[i]);
++	seq_printf(f, "\n\n");
++
++	/* dump parsed data and input mappings */
++	hid_dump_device(hdev, f);
++	seq_printf(f, "\n");
++	hid_dump_input_mapping(hdev, f);
++
++	return 0;
++}
++
++static int hid_debug_rdesc_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, hid_debug_rdesc_show, inode->i_private);
++}
++
++static const struct file_operations hid_debug_rdesc_fops = {
++	.open           = hid_debug_rdesc_open,
++	.read           = seq_read,
++	.llseek         = seq_lseek,
++	.release        = single_release,
 +};
 +
++void hid_debug_register(struct hid_device *hdev, const char *name)
++{
++	hdev->debug_dir = debugfs_create_dir(name, hid_debug_root);
++	hdev->debug_rdesc = debugfs_create_file("rdesc", 0400,
++			hdev->debug_dir, hdev, &hid_debug_rdesc_fops);
++}
 +
- void hid_debug_register(struct hid_device *hdev, const char *name)
- {
- 	hdev->debug_dir = debugfs_create_dir(name, hid_debug_root);
- 	hdev->debug_rdesc = debugfs_create_file("rdesc", 0400,
- 			hdev->debug_dir, hdev, &hid_debug_rdesc_fops);
-+	hdev->debug_events = debugfs_create_file("events", 0400,
-+			hdev->debug_dir, hdev, &hid_debug_events_fops);
-+	hdev->debug = 1;
++void hid_debug_unregister(struct hid_device *hdev)
++{
++	debugfs_remove(hdev->debug_rdesc);
++	debugfs_remove(hdev->debug_dir);
++}
++
++void hid_debug_init(void)
++{
++	hid_debug_root = debugfs_create_dir("hid", NULL);
++}
++
++void hid_debug_exit(void)
++{
++	debugfs_remove_recursive(hid_debug_root);
++}
++
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 7f183b7..5862b0f 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -159,17 +159,12 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 
+ 	field->hidinput = hidinput;
+ 
+-	dbg_hid("Mapping: ");
+-	hid_resolv_usage(usage->hid);
+-	dbg_hid_line(" ---> ");
+-
+ 	if (field->flags & HID_MAIN_ITEM_CONSTANT)
+ 		goto ignore;
+ 
+ 	/* only LED usages are supported in output fields */
+ 	if (field->report_type == HID_OUTPUT_REPORT &&
+ 			(usage->hid & HID_USAGE_PAGE) != HID_UP_LED) {
+-		dbg_hid_line(" [non-LED output field] ");
+ 		goto ignore;
+ 	}
+ 
+@@ -561,15 +556,9 @@ mapped:
+ 		set_bit(MSC_SCAN, input->mscbit);
+ 	}
+ 
+-	hid_resolv_event(usage->type, usage->code);
+-
+-	dbg_hid_line("\n");
+-
+-	return;
+-
+ ignore:
+-	dbg_hid_line("IGNORED\n");
+ 	return;
++
  }
  
- void hid_debug_unregister(struct hid_device *hdev)
- {
-+	hdev->debug = 0;
-+	wake_up_interruptible(&hdev->debug_wait);
- 	debugfs_remove(hdev->debug_rdesc);
-+	debugfs_remove(hdev->debug_events);
- 	debugfs_remove(hdev->debug_dir);
- }
+ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct hid_usage *usage, __s32 value)
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index ac8049b..708aa52 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -4,8 +4,8 @@
+  *  Copyright (c) 1999 Andreas Gal
+  *  Copyright (c) 2000-2005 Vojtech Pavlik <vojtech@suse.cz>
+  *  Copyright (c) 2005 Michael Haboustak <mike-@cinci.rr.com> for Concept2, Inc
+- *  Copyright (c) 2006-2008 Jiri Kosina
+  *  Copyright (c) 2007-2008 Oliver Neukum
++ *  Copyright (c) 2006-2009 Jiri Kosina
+  */
+ 
+ /*
+@@ -886,11 +886,6 @@ static int usbhid_parse(struct hid_device *hid)
+ 		goto err;
+ 	}
+ 
+-	dbg_hid("report descriptor (size %u, read %d) = ", rsize, n);
+-	for (n = 0; n < rsize; n++)
+-		dbg_hid_line(" %02x", (unsigned char) rdesc[n]);
+-	dbg_hid_line("\n");
+-
+ 	ret = hid_parse_report(hid, rdesc, rsize);
+ 	kfree(rdesc);
+ 	if (ret) {
+@@ -1005,7 +1000,6 @@ static int usbhid_start(struct hid_device *hid)
+ 	usbhid->urbctrl->transfer_flags |= (URB_NO_TRANSFER_DMA_MAP | URB_NO_SETUP_DMA_MAP);
+ 
+ 	usbhid_init_reports(hid);
+-	hid_dump_device(hid);
+ 
+ 	set_bit(HID_STARTED, &usbhid->iofl);
  
 diff --git a/include/linux/hid-debug.h b/include/linux/hid-debug.h
-index 516e12c..ec08ac1 100644
+index 50d568e..516e12c 100644
 --- a/include/linux/hid-debug.h
 +++ b/include/linux/hid-debug.h
-@@ -24,14 +24,27 @@
+@@ -2,7 +2,7 @@
+ #define __HID_DEBUG_H
  
- #ifdef CONFIG_DEBUG_FS
+ /*
+- *  Copyright (c) 2007	Jiri Kosina
++ *  Copyright (c) 2007-2009	Jiri Kosina
+  */
  
--void hid_dump_input(struct hid_usage *, __s32);
-+void hid_dump_input(struct hid_device *, struct hid_usage *, __s32);
- void hid_dump_device(struct hid_device *, struct seq_file *);
- void hid_dump_field(struct hid_field *, int, struct seq_file *);
--void hid_resolv_usage(unsigned, struct seq_file *);
-+char *hid_resolv_usage(unsigned, struct seq_file *);
- void hid_debug_register(struct hid_device *, const char *);
- void hid_debug_unregister(struct hid_device *);
- void hid_debug_init(void);
- void hid_debug_exit(void);
-+void hid_debug_event(struct hid_device *, char *);
-+
-+#define HID_DEBUG_BUFSIZE 512
-+
-+struct hid_debug_list {
-+	char *hid_debug_buf;
-+	int head;
-+	int tail;
-+	struct fasync_struct *fasync;
-+	struct hid_device *hdev;
-+	struct list_head node;
-+	struct mutex read_mutex;
-+};
+ /*
+@@ -22,24 +22,30 @@
+  *
+  */
+ 
+-#ifdef CONFIG_HID_DEBUG
++#ifdef CONFIG_DEBUG_FS
+ 
+ void hid_dump_input(struct hid_usage *, __s32);
+-void hid_dump_device(struct hid_device *);
+-void hid_dump_field(struct hid_field *, int);
+-void hid_resolv_usage(unsigned);
+-void hid_resolv_event(__u8, __u16);
++void hid_dump_device(struct hid_device *, struct seq_file *);
++void hid_dump_field(struct hid_field *, int, struct seq_file *);
++void hid_resolv_usage(unsigned, struct seq_file *);
++void hid_debug_register(struct hid_device *, const char *);
++void hid_debug_unregister(struct hid_device *);
++void hid_debug_init(void);
++void hid_debug_exit(void);
  
  #else
  
-@@ -44,6 +57,7 @@ void hid_debug_exit(void);
- #define hid_debug_unregister(a)		do { } while (0)
- #define hid_debug_init()		do { } while (0)
- #define hid_debug_exit()		do { } while (0)
-+#define hid_debug_event(a,b)		do { } while (0)
+-#define hid_dump_input(a,b)     do { } while (0)
+-#define hid_dump_device(c)      do { } while (0)
+-#define hid_dump_field(a,b)     do { } while (0)
+-#define hid_resolv_usage(a)         do { } while (0)
+-#define hid_resolv_event(a,b)       do { } while (0)
+-
+-#endif /* CONFIG_HID_DEBUG */
++#define hid_dump_input(a,b)		do { } while (0)
++#define hid_dump_device(c)		do { } while (0)
++#define hid_dump_field(a,b)		do { } while (0)
++#define hid_resolv_usage(a)		do { } while (0)
++#define hid_resolv_event(a,b)		do { } while (0)
++#define hid_debug_register(a, b)	do { } while (0)
++#define hid_debug_unregister(a)		do { } while (0)
++#define hid_debug_init()		do { } while (0)
++#define hid_debug_exit()		do { } while (0)
+ 
++#endif
  
  #endif
  
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index da09ab1..60fa529 100644
+index a72876e..da09ab1 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -451,10 +451,6 @@ struct hid_device {							/* device report descriptor */
+@@ -451,6 +451,10 @@ struct hid_device {							/* device report descriptor */
  	char phys[64];							/* Device physical location */
  	char uniq[64];							/* Device unique identifier (serial #) */
  
--	/* debugfs */
--	struct dentry *debug_dir;
--	struct dentry *debug_rdesc;
--
++	/* debugfs */
++	struct dentry *debug_dir;
++	struct dentry *debug_rdesc;
++
  	void *driver_data;
  
  	/* temporary hid_ff handling (until moved to the drivers) */
-@@ -468,6 +464,14 @@ struct hid_device {							/* device report descriptor */
- 
- 	/* handler for raw output data, used by hidraw */
- 	int (*hid_output_raw_report) (struct hid_device *, __u8 *, size_t);
-+
-+	/* debugging support via debugfs */
-+	unsigned short debug;
-+	struct dentry *debug_dir;
-+	struct dentry *debug_rdesc;
-+	struct dentry *debug_events;
-+	struct list_head debug_list;
-+	wait_queue_head_t debug_wait;
- };
- 
- static inline void *hid_get_drvdata(struct hid_device *hdev)
-@@ -625,9 +629,7 @@ struct hid_ll_driver {
- 
- /* HID core API */
- 
--#ifdef CONFIG_HID_DEBUG
- extern int hid_debug;
--#endif
- 
- extern int hid_add_device(struct hid_device *);
- extern void hid_destroy_device(struct hid_device *);
-@@ -783,21 +785,9 @@ int hid_pidff_init(struct hid_device *hid);
- #define hid_pidff_init NULL
- #endif
- 
--#ifdef CONFIG_HID_DEBUG
- #define dbg_hid(format, arg...) if (hid_debug) \
- 				printk(KERN_DEBUG "%s: " format ,\
- 				__FILE__ , ## arg)
--#define dbg_hid_line(format, arg...) if (hid_debug) \
--				printk(format, ## arg)
--#else
--static inline int __attribute__((format(printf, 1, 2)))
--dbg_hid(const char *fmt, ...)
--{
--	return 0;
--}
--#define dbg_hid_line dbg_hid
--#endif /* HID_DEBUG */
--
- #define err_hid(format, arg...) printk(KERN_ERR "%s: " format "\n" , \
- 		__FILE__ , ## arg)
- #endif /* HID_FF */
 -- 
 1.5.6
+

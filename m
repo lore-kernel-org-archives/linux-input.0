@@ -1,89 +1,77 @@
-From: Paul Menzel <paulepanter@users.sourceforge.net>
-Subject: Re: [BUG] [input] Sometimes mouse gets detected as PS2++ Logitech
- Mouse instead of ImPS/2 Logitech Wheel Mouse
-Date: Sun, 14 Jun 2009 10:35:10 +0200
-Message-ID: <1244968510.5898.53.camel@mattotaupa.wohnung.familie-menzel.net>
-References: <1244788506.6039.41.camel@mattotaupa.wohnung.familie-menzel.net>
-	 <alpine.LRH.2.00.0906121649440.31685@twin.jikos.cz>
+From: Yan Li <yan.i.li@intel.com>
+Subject: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
+Date: Mon, 15 Jun 2009 22:16:13 +0800
+Message-ID: <20090615141613.GA7876@sage.bj.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-5+84C9hSv2tTiSYlYZ5L"
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755110AbZFNIf2@vger.kernel.org>
-In-Reply-To: <alpine.LRH.2.00.0906121649440.31685@twin.jikos.cz>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mga02.intel.com ([134.134.136.20]:14408 "EHLO mga02.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751506AbZFOOQP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 15 Jun 2009 10:16:15 -0400
+Content-Disposition: inline
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: yanli@infradead.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, greg@kroah.com
+
+When testing Moblin on various netbooks, we've got reports that many
+MSI Wind clones need the i8042 reset quirks for the keyboard and/or
+touchpad's proper function.
+
+Signed-off-by: Yan Li <yan.i.li@intel.com>
+---
+ drivers/input/serio/i8042-x86ia64io.h |   28 ++++++++++++++++++++++++++++
+ 1 files changed, 28 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index fb8a3cd..924e8ed 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -392,6 +392,34 @@ static struct dmi_system_id __initdata i8042_dmi_reset_table[] = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "LG Electronics Inc."),
+ 		},
+ 	},
++	{
++		.ident = "Acer Aspire One 150",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "AOA150"),
++		},
++	},
++	{
++		.ident = "Advent 4211",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "DIXONSXP"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Advent 4211"),
++		},
++	},
++	{
++		.ident = "Medion Akoya Mini E1210",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MEDION"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "E1210"),
++		},
++	},
++	{
++		.ident = "Mivvy M310",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "VIOOO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "N10"),
++		},
++	},
+ 	{ }
+ };
+ 
+-- 
+1.6.3.1
 
 
---=-5+84C9hSv2tTiSYlYZ5L
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+-- 
+Best regards,
+Li, Yan
 
-Am Freitag, den 12.06.2009, 16:51 +0200 schrieb Jiri Kosina:
-> [ added linux-input@ to CC ]
-
-Maybe the contact address in MAINTAINERS should be set to linux-input@?
-
-> On Fri, 12 Jun 2009, Paul Menzel wrote:
->=20
-> > arbitrarily (I would say every two month) my Logitech Cordless MouseMan
-> > Wheel gets detected as (in dmesg)
-> >=20
-> > PS2++ Logitech Mouse
-> >=20
-> > instead of
-> >=20
-> > ImPS/2 Logitech Wheel Mouse.
->=20
-> It would be nice if you could capture the dmesg output with i8042.debug=20
-> command-line from the situation the mouse gets mis-detected. But I=20
-> understand that with so low frequency of occurence, that would be a major=
-=20
-> pain.
-
-No problem. The problem has not yet surfaced again. But do I need to
-rebuild Linux or are those debug messages enough?
-
-Jun 14 10:34:16 x kernel: [ 4667.683375] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: 28 <- i8042 (interrupt, 1, 12) [1166664]
-Jun 14 10:34:16 x kernel: [ 4667.684331] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: 00 <- i8042 (interrupt, 1, 12) [1166665]
-Jun 14 10:34:16 x kernel: [ 4667.685311] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: fb <- i8042 (interrupt, 1, 12) [1166665]
-Jun 14 10:34:16 x kernel: [ 4667.686329] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: 00 <- i8042 (interrupt, 1, 12) [1166665]
-Jun 14 10:34:16 x kernel: [ 4667.703063] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: 28 <- i8042 (interrupt, 1, 12) [1166669]
-Jun 14 10:34:16 x kernel: [ 4667.704016] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: 00 <- i8042 (interrupt, 1, 12) [1166670]
-Jun 14 10:34:16 x kernel: [ 4667.704980] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: f9 <- i8042 (interrupt, 1, 12) [1166670]
-Jun 14 10:34:16 x kernel: [ 4667.705966] /build/buildd-linux-2.6_2.6.29-5-i=
-386-xtBC0n/linux-2.6-2.6.29/debian/build/source_i386_none/drivers/input/ser=
-io/i8042.c: 00 <- i8042 (interrupt, 1, 12) [1166670]
-
-
-Thanks,
-
-Paul
-
---=-5+84C9hSv2tTiSYlYZ5L
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAko0tj0ACgkQPX1aK2wOHVh55ACfY3727XYTkQs1VPimFEQO9c7j
-DBMAnAynsjysEleOpJfyFKBX3pY+97sc
-=BYCk
------END PGP SIGNATURE-----
-
---=-5+84C9hSv2tTiSYlYZ5L--
+Moblin Team, Opensource Technology Center, SSG, Intel
+Office tel.: +86-10-82171695 (inet: 8-758-1695)
+OpenPGP key: 5C6C31EF
+IRC: yanli on network irc.freenode.net

@@ -1,63 +1,36 @@
-From: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: Apple Bluetooth devices: Battery level?
-Date: Tue, 16 Jun 2009 15:37:08 +0200
-Message-ID: <1245159428.15367.22.camel@violet>
-References: <1244384236.30768.5690.camel@cookie.hadess.net>
-	 <alpine.LRH.2.00.0906081530330.31685@twin.jikos.cz>
-	 <1244642769.2690.51.camel@cookie.hadess.net>
-	 <alpine.LNX.2.00.0906121529210.7457@wotan.suse.de>
-	 <1244898975.477818.1961.nullmailer@galant.ukfsn.org>
-	 <alpine.LNX.2.00.0906161156470.7457@wotan.suse.de>
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
+Date: Tue, 16 Jun 2009 16:42:00 +0100
+Message-ID: <20090616154200.GA12715@srcf.ucam.org>
+References: <20090615141613.GA7876@sage.bj.intel.com> <20090615143446.GB19451@srcf.ucam.org> <20090615144748.GA25734@thyme.bj.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from senator.holtmann.net ([87.106.208.187]:44825 "EHLO
-	mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753881AbZFPNhL (ORCPT
+Received: from cavan.codon.org.uk ([93.93.128.6]:55965 "EHLO
+	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752911AbZFPPmW (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jun 2009 09:37:11 -0400
-In-Reply-To: <alpine.LNX.2.00.0906161156470.7457@wotan.suse.de>
+	Tue, 16 Jun 2009 11:42:22 -0400
+Content-Disposition: inline
+In-Reply-To: <20090615144748.GA25734@thyme.bj.intel.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Iain Hibbert <plunky@rya-online.net>, Bastien Nocera <hadess@hadess.net>, linux-bluetooth@vger.kernel.org, linux-input <linux-input@vger.kernel.org>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, greg@kroah.com, yan.i.li@intel.com
 
-Hi Jiri,
-
-> > Sorry, I posted a parsed version of the report descriptor previously
-> > though I failed to cross post:
+On Mon, Jun 15, 2009 at 10:47:48PM +0800, Li, Yan wrote:
+> On Mon, Jun 15, 2009 at 03:34:46PM +0100, Matthew Garrett wrote:
+> > On Mon, Jun 15, 2009 at 10:16:13PM +0800, Yan Li wrote:
+> > > When testing Moblin on various netbooks, we've got reports that many
+> > > MSI Wind clones need the i8042 reset quirks for the keyboard and/or
+> > > touchpad's proper function.
 > > 
-> > Collection page=Generic_Desktop usage=Mouse
-> >   Input id=2 size=1 count=1 page=Button usage=Button_1 Variable, logical range 0..1
-> >   Input id=2 size=1 count=1 page=Button usage=Button_2 Variable, logical range 0..1
-> >   Input id=2 size=1 count=1 page=Button usage=Button_3 Variable, logical range 0..1
-> >   Input id=2 size=1 count=1 page=Button usage=Button_4 Variable, logical range 0..1
-> >   Input id=2 size=4 count=1 page=0x0000 usage=0x0000 Const Variable, logical range 0..1
-> > Collection page=Generic_Desktop usage=Pointer
-> >   Input id=2 size=8 count=1 page=Generic_Desktop usage=X Variable Relative, logical range -127..127
-> >   Input id=2 size=8 count=1 page=Generic_Desktop usage=Y Variable Relative, logical range -127..127
-> >   Input id=2 size=8 count=1 page=Consumer usage=AC_Pan Variable Relative, logical range -127..127
-> >   Input id=2 size=8 count=1 page=Generic_Desktop usage=Wheel Variable Relative, logical range -127..127
-> > End collection
-> >   Input id=2 size=8 count=1 page=0x00ff usage=0x00c0 Variable, logical range -127..127
-> > Feature id=71 size=8 count=1 page=Device_Controls usage=Battery_Strength Variable NoPref Volatile, logical range 0..100
-> > End collection
-> > As you can see, there is a Feature report relating to the Battery 
-> > Strength, but I do not know what to do with that. I suppose that it is 
-> > to be polled in order to return a percentage value..
+> > Why are we not doing this unconditionally?
 > 
-> Yes, it has to be polled. But at least the initial value should be 
-> retrieved during the very initialization of the device -- both USB and 
-> Bluetooth implementations this in usbhid_init_reports()/hidp_start() -- 
-> they query INPUT and FEATURE reports during device initialization.
+> For the majority of sane machines this is not necessary.
 
-since the descriptors are the same, can we not do this inside the HID
-core with a specific quirk setting. And maybe even a timer that polls it
-every 30 minutes or so.
+So? If the alternative is machines that don't work until they're added 
+to a blacklist, then the correct thing to do is to do it 
+unconditionally.
 
-Regards
-
-Marcel
-
-
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

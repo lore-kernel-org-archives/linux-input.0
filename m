@@ -1,32 +1,45 @@
-From: "Li, Yan" <yanli@infradead.org>
-Subject: Re: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
-Date: Mon, 15 Jun 2009 22:47:48 +0800
-Message-ID: <20090615144748.GA25734@thyme.bj.intel.com>
-References: <20090615141613.GA7876@sage.bj.intel.com> <20090615143446.GB19451@srcf.ucam.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 42/64] input: remove driver_data direct access of struct device
+Date: Mon, 15 Jun 2009 22:46:31 -0700
+Message-ID: <1245131213-24168-42-git-send-email-gregkh@suse.de>
+References: <20090616051351.GA23627@kroah.com>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from bombadil.infradead.org ([18.85.46.34]:43141 "EHLO
-	bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751372AbZFPBml (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 15 Jun 2009 21:42:41 -0400
-Content-Disposition: inline
-In-Reply-To: <20090615143446.GB19451@srcf.ucam.org>
+Received: from kroah.org ([198.145.64.141]:48418 "EHLO coco.kroah.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S935840AbZFPFv2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Jun 2009 01:51:28 -0400
+In-Reply-To: <20090616051351.GA23627@kroah.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Matthew Garrett <mjg@redhat.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, greg@kroah.com, yan.i.li@intel.com
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Mon, Jun 15, 2009 at 03:34:46PM +0100, Matthew Garrett wrote:
-> On Mon, Jun 15, 2009 at 10:16:13PM +0800, Yan Li wrote:
-> > When testing Moblin on various netbooks, we've got reports that many
-> > MSI Wind clones need the i8042 reset quirks for the keyboard and/or
-> > touchpad's proper function.
-> 
-> Why are we not doing this unconditionally?
+In the near future, the driver core is going to not allow direct access
+to the driver_data pointer in struct device.  Instead, the functions
+dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
+have been around since the beginning, so are backwards compatible with
+all older kernel versions.
 
-For the majority of sane machines this is not necessary.
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ drivers/input/touchscreen/wm97xx-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
+index 69af838..2957d48 100644
+--- a/drivers/input/touchscreen/wm97xx-core.c
++++ b/drivers/input/touchscreen/wm97xx-core.c
+@@ -569,7 +569,7 @@ static int wm97xx_probe(struct device *dev)
+ 	mutex_init(&wm->codec_mutex);
+ 
+ 	wm->dev = dev;
+-	dev->driver_data = wm;
++	dev_set_drvdata(dev, wm);
+ 	wm->ac97 = to_ac97_t(dev);
+ 
+ 	/* check that we have a supported codec */
 -- 
-Li, Yan
+1.6.3.2
+

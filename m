@@ -1,31 +1,48 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
-Date: Tue, 16 Jun 2009 11:27:38 +0200 (CEST)
-Message-ID: <alpine.LRH.2.00.0906161126330.31685@twin.jikos.cz>
-References: <20090613230842.GA18347@gallifrey> <4A349B67.1070603@zytor.com> <20090614122734.GA1499@gallifrey>
+Subject: Re: [BUG] [input] Sometimes mouse gets detected as PS2++ Logitech
+ Mouse instead of ImPS/2 Logitech Wheel Mouse
+Date: Tue, 16 Jun 2009 11:43:53 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906161142340.7457@wotan.suse.de>
+References: <1244788506.6039.41.camel@mattotaupa.wohnung.familie-menzel.net>  <alpine.LRH.2.00.0906121649440.31685@twin.jikos.cz> <1244968510.5898.53.camel@mattotaupa.wohnung.familie-menzel.net>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756758AbZFPJ1r@vger.kernel.org>
-In-Reply-To: <20090614122734.GA1499@gallifrey>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor2.suse.de ([195.135.220.15]:41316 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752384AbZFPJnv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Jun 2009 05:43:51 -0400
+In-Reply-To: <1244968510.5898.53.camel@mattotaupa.wohnung.familie-menzel.net>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Paul Menzel <paulepanter@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On Sun, 14 Jun 2009, Dr. David Alan Gilbert wrote:
+On Sun, 14 Jun 2009, Paul Menzel wrote:
 
-> > > [    3.147416] PNP: No PS/2 controller found. Probing ports directly.
-> > > [    3.174456] serio: i8042 KBD port at 0x60,0x64 irq 1
-> > > [    3.174961] serio: i8042 AUX port at 0x60,0x64 irq 12
-> > > [    3.186312] mice: PS/2 mouse device common for all mice
-> > It does, correctly, identify the keyboard and mode port, so it's
-> > somewhat odd that it doesn't get used...
-> Indeed. The only other observation in the older kernel that works
-> it detects the AUX port first.
+> > [ added linux-input@ to CC ]
+> Maybe the contact address in MAINTAINERS should be set to linux-input@?
 
-Booting with 'i8042.debug' will spit some more output into dmesg, which 
-might help us to see if i8042 is really properly initialized, or something 
-strange is going on during initialization.
+I actually wanted to CC Dmitry as well, but forgot to do so.
+
+> > > arbitrarily (I would say every two month) my Logitech Cordless MouseMan
+> > > Wheel gets detected as (in dmesg)
+> > > 
+> > > PS2++ Logitech Mouse
+> > > 
+> > > instead of
+> > > 
+> > > ImPS/2 Logitech Wheel Mouse.
+> > It would be nice if you could capture the dmesg output with i8042.debug 
+> > command-line from the situation the mouse gets mis-detected. But I 
+> > understand that with so low frequency of occurence, that would be a major 
+> > pain.
+> No problem. The problem has not yet surfaced again. But do I need to
+> rebuild Linux or are those debug messages enough?
+
+No rebuilding needed, just booting with i8042.debug is enough. Please 
+provide us with the output once the bug triggers again.
+
+Thanks,
 
 -- 
 Jiri Kosina

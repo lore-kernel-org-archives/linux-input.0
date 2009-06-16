@@ -1,45 +1,53 @@
-From: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 42/64] input: remove driver_data direct access of struct device
-Date: Mon, 15 Jun 2009 22:46:31 -0700
-Message-ID: <1245131213-24168-42-git-send-email-gregkh@suse.de>
-References: <20090616051351.GA23627@kroah.com>
+From: Thierry Reding <thierry.reding@avionic-design.de>
+Subject: Re: [RESEND][PATCH] input: Added TSC2003
+Date: Tue, 16 Jun 2009 08:20:44 +0200
+Message-ID: <20090616062044.GA20209@avionic-design.de>
+References: <4A366439.70005@mocean-labs.com> <5d5443650906151110u3f7d9d1cm1990e767d29a45b6@mail.gmail.com> <4A36A1C2.2060805@mocean-labs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from kroah.org ([198.145.64.141]:48418 "EHLO coco.kroah.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S935840AbZFPFv2 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jun 2009 01:51:28 -0400
-In-Reply-To: <20090616051351.GA23627@kroah.com>
+Received: from moutng.kundenserver.de ([212.227.17.9]:63868 "EHLO
+	moutng.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751912AbZFPGUj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Jun 2009 02:20:39 -0400
+Content-Disposition: inline
+In-Reply-To: <4A36A1C2.2060805@mocean-labs.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+To: Richard =?utf-8?Q?R=C3=B6jfors?= <richard.rojfors.ext@mocean-labs.com>
+Cc: Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, linux-omap@vger.kernel.org
 
-In the near future, the driver core is going to not allow direct access
-to the driver_data pointer in struct device.  Instead, the functions
-dev_get_drvdata() and dev_set_drvdata() should be used.  These functions
-have been around since the beginning, so are backwards compatible with
-all older kernel versions.
+* Richard R=C3=B6jfors wrote:
+> On 09-06-15 20.10, Trilok Soni wrote:
+> > Hi,
+> >=20
+> > On Mon, Jun 15, 2009 at 8:39 PM, Richard
+> > R=C3=B6jfors<richard.rojfors.ext@mocean-labs.com> wrote:
+> >> Supplied is a driver for the TSC2003. There is actually a driver f=
+or TSC2007 which can be used in some cases.
+> >> The platform struct is reused from the TSC2007.
+> >> There is a big difference in the implementation between the driver=
+s, this one does not use HR timers.
+> >> The TSC2007 driver performs synchronous I2C in the timer callback =
+(SW IRQ context) which is bad when
+> >> the I2C driver is interrupt driven.
+> >>
+> >=20
+> > Meaning? I think I2C transaction can sleep.
+>=20
+> Yes that's what it means, and that's bad in a HR timer callback.
 
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/input/touchscreen/wm97xx-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Note that my patch to the tsc2007 to support the tsc2003 exactly fixes =
+this
+problem. It moves the actual I2C transfers into a workqueue, so no slee=
+ping
+functions are called from the hrtimer callback.
 
-diff --git a/drivers/input/touchscreen/wm97xx-core.c b/drivers/input/touchscreen/wm97xx-core.c
-index 69af838..2957d48 100644
---- a/drivers/input/touchscreen/wm97xx-core.c
-+++ b/drivers/input/touchscreen/wm97xx-core.c
-@@ -569,7 +569,7 @@ static int wm97xx_probe(struct device *dev)
- 	mutex_init(&wm->codec_mutex);
- 
- 	wm->dev = dev;
--	dev->driver_data = wm;
-+	dev_set_drvdata(dev, wm);
- 	wm->ac97 = to_ac97_t(dev);
- 
- 	/* check that we have a supported codec */
--- 
-1.6.3.2
-
+Thierry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

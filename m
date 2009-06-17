@@ -1,69 +1,41 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] ntrig tool separation
-Date: Wed, 17 Jun 2009 14:37:44 -0400
-Message-ID: <4A3937F8.9080606@seas.upenn.edu>
-References: <4A388422.7020802@seas.upenn.edu> <9A2A8015-912B-498D-B5E1-1D79B933DECD@enac.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Subject: Re: [PATCH] Restoring usages used by the pen.
+Date: Wed, 17 Jun 2009 21:29:22 +0200
+Message-ID: <58BC0DDC-EC89-4C4D-B688-079326B641E2@enac.fr>
+References: <4A385751.8000904@seas.upenn.edu>  <93BE517D-F863-4F80-8060-CC36562E02CC@enac.fr> <4A393750.7020706@seas.upenn.edu>
+Mime-Version: 1.0 (Apple Message framework v752.3)
+Content-Type: text/plain; charset=ISO-8859-1;
+	delsp=yes	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.SEAS.upenn.edu ([158.130.12.194]:45867 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759585AbZFQShr (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:41364 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755187AbZFQT3a convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2009 14:37:47 -0400
-In-Reply-To: <9A2A8015-912B-498D-B5E1-1D79B933DECD@enac.fr>
+	Wed, 17 Jun 2009 15:29:30 -0400
+In-Reply-To: <4A393750.7020706@seas.upenn.edu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+To: Rafi Rubin <rafi@seas.upenn.edu>
 Cc: linux-input@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Good point, that's actually what I did earlier in my much sloppier vers=
-ion.  I'll rewrite this patch.
+Le 17 juin 09 =E0 20:34, Rafi Rubin a =E9crit :
 
-St=E9phane Chatty wrote:
->=20
-> Le 17 juin 09 =E0 07:50, Rafi Rubin a =E9crit :
->=20
->> When both touch and pen are active send a tool announcement before
->> sending any status changes so that event users may differentiate
->> which tool is changing.
->>
->=20
-> With my multitouch-enabled TouchSmart tx2 (firwmare 4.2.17.8.5, final=
-ly
-> found it!) I get a series of ten BTN_TOOL_DOUBLETAP (value =3D 0 then=
- 1,
-> five times) in every event. This is because the device emits HID_GD_X
-> several times in every event, whatever the real number of touches on =
-the
-> screen.
->=20
-> The way to avoid this would be to delay the emission of your
-> BTN_TOOL_DOUBLETAP as I did for ABS_X and ABS_Y, that is when we rece=
-ive
-> HID_DG_HEIGHT (single touch firmware) or 0xff000002 (multi-touch firm=
-ware)
->=20
-> St.
->=20
-> --=20
-> To unsubscribe from this list: send the line "unsubscribe linux-input=
-" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->=20
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+> I did in fact submit a patch to linuxwacom a while ago specifically =20
+> to solve that problem.
+>
 
-iEYEARECAAYFAko5N/cACgkQwuRiAT9o609lZACfUyxsUSbrSXSsZtJFXLgBSU9B
-J0kAmwSeANwjprdqc6BTjIFozVWsfQxn
-=3D5z+v
------END PGP SIGNATURE-----
+Good!
+
+Then I have a minor suggestion: it would be better to just remove =20
+these lines. The point of this switch is to catch the values that we =20
+want to handle in a special way. All others (and that's quite a few) =20
+just make it through the switch.
+
+St.
+
+
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

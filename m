@@ -1,74 +1,46 @@
-From: Paul Fox <pgf@laptop.org>
-Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
-Date: Wed, 17 Jun 2009 16:16:11 -0400
-Message-ID: <31138.1245269771@foxharp.boston.ma.us>
-References: <3026.1243972079@foxharp.boston.ma.us> <200906030804.57340.dmitry.torokhov@gmail.com> <19417.1244087913@foxharp.boston.ma.us> <20090604001740.490f747e@mycelium.queued.net>
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: Re: [PATCH] Restoring usages used by the pen.
+Date: Wed, 17 Jun 2009 16:35:51 -0400
+Message-ID: <4A3953A7.2080608@seas.upenn.edu>
+References: <4A385751.8000904@seas.upenn.edu>  <93BE517D-F863-4F80-8060-CC36562E02CC@enac.fr> <4A393750.7020706@seas.upenn.edu> <58BC0DDC-EC89-4C4D-B688-079326B641E2@enac.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from colo3.heeltoe.com ([207.210.106.184]:47721 "EHLO
-	colo3.heeltoe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752742AbZFQUQK (ORCPT
+Received: from LION.SEAS.upenn.edu ([158.130.12.194]:42485 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752469AbZFQUfy (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2009 16:16:10 -0400
-In-reply-to: <20090604001740.490f747e@mycelium.queued.net> 
-Content-ID: <31135.1245269771.1@foxharp.boston.ma.us>
+	Wed, 17 Jun 2009 16:35:54 -0400
+In-Reply-To: <58BC0DDC-EC89-4C4D-B688-079326B641E2@enac.fr>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dsaxena@laptop.org, Andres Salomon <dilinger@collabora.co.uk>
+To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: linux-input@vger.kernel.org
 
-hi dmitry --
+St=E9phane Chatty wrote:
+>=20
+> Le 17 juin 09 =E0 20:34, Rafi Rubin a =E9crit :
+>=20
+>> I did in fact submit a patch to linuxwacom a while ago specifically =
+to
+>> solve that problem.
+>>
+>=20
+> Good!
+>=20
+> Then I have a minor suggestion: it would be better to just remove the=
+se
+> lines. The point of this switch is to catch the values that we want t=
+o
+> handle in a special way. All others (and that's quite a few) just mak=
+e
+> it through the switch.
 
-have you had a chance to think any more about this?  i'm open to
-suggestions on implementation detail, but i think that a full
-reset of the device won't really work, because of the time it
-adds to the recalibration.
-
-paul
-
-andres wrote:
- > On Wed, 03 Jun 2009 23:58:33 -0400
- > Paul Fox <pgf@laptop.org> wrote:
- > 
- > > dmitry wrote:
- > >  > Hi Paul,
- > >  > 
- > >  > On Tuesday 02 June 2009 12:47:59 pgf@laptop.org wrote:
- > >  > > The OLPC XO laptop incorporates a combination touchpad/tablet
- > >  > > device which unfortunately requires frequent recalibration.  The
- > >  > > driver will force this automatically when various suspicious
- > >  > > behaviors are observed, and the user can recalibrate manually
- > >  > > (with a special keyboard sequence).  There's currently no way,
- > >  > > however, for an external program to cause recalibration.
- > >  > >
- > >  > > This patch creates a new node in /sys which, when written with
- > >  > > '1', will force a touchpad recalibration.  No other writes (or
- > >  > > reads) of this node are supported.
- > >  > >
- > >  > 
- > >  > 
- > >  > Instead of creating a new sysfs attribute maybe we should make
- > >  > the touchpad recalibrate upon resume (reconnect)? Userspace can
- > >  > already request reconnect via sysfs.
- > > 
- > > dmitry -- thanks for the suggestion.
- > > 
- > > i took a look, and tried it.  the problem is that doing a full
- > > reset of the touchpad takes quite a long time -- 1.1 or 1.2
- > > seconds.  recalibration deprives the user of their touchpad for
- > > long enough as it is -- i don't think we can afford that time.
- > > (remember that this is a workaround for bad hardware -- the XO
- > > no longer uses this touchpad at least partly due to this very
- > > issue, but there are enough in use that we're still trying to
- > > improve things.)
- > > 
- > 
- > I do like the idea of having a sysfs trigger for recalibrations.  We've
- > never been successful in having the kernel driver handle recalibrations
- > seamlessly.  Perhaps touchpad hardware screwups would be easier to
- > detect in userspace, given a daemon that can keep a history of the last
- > N touchpad coordinates?
-
-=---------------------
- paul fox, pgf@laptop.org
+=46air enough.  I partly just wanted to document the behavior.  I'll ad=
+just shortly.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

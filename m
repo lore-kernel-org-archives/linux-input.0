@@ -1,118 +1,94 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] ntrig tool separation and pen usages
-Date: Wed, 17 Jun 2009 18:52:41 -0400
-Message-ID: <4A3973B9.4080904@seas.upenn.edu>
-References: <1245278886-11659-1-git-send-email-rafi@seas.upenn.edu>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
+Date: Thu, 18 Jun 2009 01:28:17 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906180126260.7457@wotan.suse.de>
+References: <20090613230842.GA18347@gallifrey> <4A349B67.1070603@zytor.com> <20090614122734.GA1499@gallifrey> <alpine.LRH.2.00.0906161126330.31685@twin.jikos.cz> <20090617193442.GA31944@gallifrey>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.SEAS.upenn.edu ([158.130.12.194]:40221 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753850AbZFQWwk (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2009 18:52:40 -0400
-Received: from [158.130.38.94] (SEASNet-38-085.seas.upenn.edu [158.130.38.94])
-	(authenticated bits=0)
-	by lion.seas.upenn.edu (8.13.6/8.13.6) with ESMTP id n5HMqg0m013187
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NOT)
-	for <linux-input@vger.kernel.org>; Wed, 17 Jun 2009 18:52:43 -0400
-In-Reply-To: <1245278886-11659-1-git-send-email-rafi@seas.upenn.edu>
+Received: from cantor2.suse.de ([195.135.220.15]:45297 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1757086AbZFQX2Q (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 17 Jun 2009 19:28:16 -0400
+In-Reply-To: <20090617193442.GA31944@gallifrey>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-This patch replaces the two I sent in last night.
+On Wed, 17 Jun 2009, Dr. David Alan Gilbert wrote:
 
-Rafi
+> > > > > [    3.147416] PNP: No PS/2 controller found. Probing ports directly.
+> > > > > [    3.174456] serio: i8042 KBD port at 0x60,0x64 irq 1
+> > > > > [    3.174961] serio: i8042 AUX port at 0x60,0x64 irq 12
+> > > > > [    3.186312] mice: PS/2 mouse device common for all mice
+> > > > It does, correctly, identify the keyboard and mode port, so it's
+> > > > somewhat odd that it doesn't get used...
+> > > Indeed. The only other observation in the older kernel that works
+> > > it detects the AUX port first.
+> > Booting with 'i8042.debug' will spit some more output into dmesg, which 
+> > might help us to see if i8042 is really properly initialized, or something 
+> > strange is going on during initialization.
+> Please find below the new dmesg created by appending i8042.debug; this was
+> taken from a slightly newer build of the same source kernel that I reported; this
+> build just had a few more things configured out (parallel port) but exhibits
+> the same symptom.
+[ ... snip ... ]
+> [    2.760232] drivers/input/serio/i8042.c: 20 -> i8042 (command) [3]
+> [    2.760496] drivers/input/serio/i8042.c: 65 <- i8042 (return) [3]
+> [    2.760586] drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
+> [    2.760725] drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [3]
+> [    2.760821] drivers/input/serio/i8042.c: d3 -> i8042 (command) [3]
+> [    2.760960] drivers/input/serio/i8042.c: 5a -> i8042 (parameter) [3]
+> [    2.763945] drivers/input/serio/i8042.c: fe <- i8042 (return) [3]
+> [    2.772060] drivers/input/serio/i8042.c: a9 -> i8042 (command) [5]
+> [    2.772360] drivers/input/serio/i8042.c: 00 <- i8042 (return) [5]
+> [    2.772449] drivers/input/serio/i8042.c: a7 -> i8042 (command) [5]
+> [    2.772588] drivers/input/serio/i8042.c: 20 -> i8042 (command) [5]
+> [    2.772781] drivers/input/serio/i8042.c: 74 <- i8042 (return) [5]
+> [    2.772870] drivers/input/serio/i8042.c: a8 -> i8042 (command) [5]
+> [    2.773008] drivers/input/serio/i8042.c: 20 -> i8042 (command) [5]
+> [    2.773252] drivers/input/serio/i8042.c: 54 <- i8042 (return) [5]
+> [    2.773340] drivers/input/serio/i8042.c: 60 -> i8042 (command) [5]
+> [    2.773478] drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [5]
+> [    2.773572] drivers/input/serio/i8042.c: d3 -> i8042 (command) [5]
+> [    2.773712] drivers/input/serio/i8042.c: f0 -> i8042 (parameter) [5]
+> [    2.775932] drivers/input/serio/i8042.c: fe <- i8042 (return) [5]
+> [    2.784650] drivers/input/serio/i8042.c: Interrupt 12, without any data [6]
+> [    2.784760] drivers/input/serio/i8042.c: 60 -> i8042 (command) [6]
+> [    2.784901] drivers/input/serio/i8042.c: 56 -> i8042 (parameter) [6]
+> [    2.785140] drivers/input/serio/i8042.c: Interrupt 1, without any data [6]
+> [    2.785247] drivers/input/serio/i8042.c: 60 -> i8042 (command) [6]
+> [    2.785387] drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [6]
+> [    2.785485] serio: i8042 KBD port at 0x60,0x64 irq 1
+> [    2.785964] serio: i8042 AUX port at 0x60,0x64 irq 12
+> [    2.795217] mice: PS/2 mouse device common for all mice
+> [    2.798180] drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [9]
+> [    2.800486] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [10]
+> [    2.801590] drivers/input/serio/i8042.c: ab <- i8042 (interrupt, 0, 1) [10]
+> [    2.802961] drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, 0, 1) [10]
+> [    2.803174] drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [10]
+> [    2.803363] input: PC Speaker as /devices/platform/pcspkr/input/input0
+> [    2.805812] evbug.c: Connected device: input0 (PC Speaker at isa0061/input0)
+> [    2.805957] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [11]
+> [    2.806619] drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [11]
+> [    2.808965] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [12]
+> [    2.809244] drivers/input/serio/i8042.c: f3 -> i8042 (kbd-data) [12]
+> [    2.812079] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [13]
+> [    2.812302] drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [13]
+> [    2.812676] rtc_cmos rtc_cmos: rtc core: registered rtc_cmos as rtc0
+> [    2.813249] rtc0: alarms up to one day, 114 bytes nvram
+> [    2.814610] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [13]
+> [    2.814817] drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [13]
+> [    2.817615] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [14]
+> [    2.823470] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input1
+> [    2.827716] evbug.c: Connected device: input1 (AT Translated Set 2 keyboard at isa0060/serio0/input0)
+> [    2.828278] drivers/input/serio/i8042.c: d4 -> i8042 (command) [17]
+> [    2.828427] drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [17]
 
-Rafi Rubin wrote:
-> When both touch and pen are active send a tool announcement before
-> sending any status changes so that event users may differentiate
-> which tool is changing.
-> 
-> Restored three usage codes used by the pen.
-> 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> ---
->  drivers/hid/hid-ntrig.c |   31 ++++++++++++++++++++++++++++---
->  1 files changed, 28 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 75ed9d2..7765970 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -27,6 +27,9 @@
->  struct ntrig_data {
->  	__s32 x, y, id, w, h;
->  	char reading_a_point, found_contact_id;
-> +	char pen_active;
-> +	char finger_active;
-> +	char inverted;
->  };
->  
->  /*
-> @@ -63,10 +66,7 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	case HID_UP_DIGITIZER:
->  		switch (usage->hid) {
->  		/* we do not want to map these for now */
-> -		case HID_DG_INVERT: /* value is always 0 */
-> -		case HID_DG_ERASER: /* value is always 0 */
->  		case HID_DG_CONTACTID: /* value is useless */
-> -		case HID_DG_BARRELSWITCH:  /* doubtful */
->  		case HID_DG_INPUTMODE:
->  		case HID_DG_DEVICEINDEX:
->  		case HID_DG_CONTACTCOUNT:
-> @@ -125,6 +125,18 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  
->          if (hid->claimed & HID_CLAIMED_INPUT) {
->  		switch (usage->hid) {
-> +
-> +		case HID_DG_INRANGE:
-> +			if(field->application & 0x3)
-> +				nd->pen_active = value!=0;
-> +			else
-> +				nd->finger_active = value!=0;
-> +			return 0;
-> +
-> +		case HID_DG_INVERT:
-> +			nd->inverted = value;
-> +			return 0;
-> +
->  		case HID_GD_X:
->  			nd->x = value;
->  			nd->reading_a_point = 1;
-> @@ -148,6 +160,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  			 * to emit a normal (X, Y) position
->  			 */
->  			if (! nd->found_contact_id) {
-> +				if(nd->pen_active && nd->finger_active) {
-> +					input_report_key(input, BTN_TOOL_DOUBLETAP, 0);
-> +					input_report_key(input, BTN_TOOL_DOUBLETAP, 1);
-> +				}
->  				input_event(input, EV_ABS, ABS_X, nd->x);
->  				input_event(input, EV_ABS, ABS_Y, nd->y);
->  			}
-> @@ -159,6 +175,14 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  			 * to emit a normal (X, Y) position
->  			 */
->  			if (! nd->found_contact_id) {
-> +				if(nd->pen_active && nd->finger_active) {
-> +					input_report_key(input,
-> +							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
-> +							, 0);
-> +					input_report_key(input,
-> +							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
-> +							, 1);
-> +				}
->  				input_event(input, EV_ABS, ABS_X, nd->x);
->  				input_event(input, EV_ABS, ABS_Y, nd->y);
->  				input_event(input, EV_ABS, ABS_PRESSURE, value);
-> @@ -233,6 +257,7 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  
->  	if (ret)
->  		kfree (nd);
-> +
->  	return ret;
->  }
->  
+Is there any change if you boot with 'i8042.noaux' kernel command-line 
+parameter?
+
+-- 
+Jiri Kosina
+SUSE Labs

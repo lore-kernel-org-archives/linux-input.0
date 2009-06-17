@@ -1,46 +1,28 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: Re: [PATCH] Restoring usages used by the pen.
-Date: Wed, 17 Jun 2009 16:35:51 -0400
-Message-ID: <4A3953A7.2080608@seas.upenn.edu>
-References: <4A385751.8000904@seas.upenn.edu>  <93BE517D-F863-4F80-8060-CC36562E02CC@enac.fr> <4A393750.7020706@seas.upenn.edu> <58BC0DDC-EC89-4C4D-B688-079326B641E2@enac.fr>
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
+Date: Wed, 17 Jun 2009 13:40:13 -0700
+Message-ID: <4A3954AD.8000305@zytor.com>
+References: <20090613230842.GA18347@gallifrey> <4A349B67.1070603@zytor.com> <20090614122734.GA1499@gallifrey> <alpine.LRH.2.00.0906161126330.31685@twin.jikos.cz> <20090617193442.GA31944@gallifrey>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.SEAS.upenn.edu ([158.130.12.194]:42485 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752469AbZFQUfy (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2009 16:35:54 -0400
-In-Reply-To: <58BC0DDC-EC89-4C4D-B688-079326B641E2@enac.fr>
-Sender: linux-input-owner@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1761389AbZFQUkf@vger.kernel.org>
+In-Reply-To: <20090617193442.GA31944@gallifrey>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Dr. David Alan Gilbert" <linux@treblig.org>
+Cc: Jiri Kosina <jkosina@suse.cz>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Cc: linux-input@vger.kernel.org
 
-St=E9phane Chatty wrote:
->=20
-> Le 17 juin 09 =E0 20:34, Rafi Rubin a =E9crit :
->=20
->> I did in fact submit a patch to linuxwacom a while ago specifically =
-to
->> solve that problem.
->>
->=20
-> Good!
->=20
-> Then I have a minor suggestion: it would be better to just remove the=
-se
-> lines. The point of this switch is to catch the values that we want t=
-o
-> handle in a special way. All others (and that's quite a few) just mak=
-e
-> it through the switch.
+Dr. David Alan Gilbert wrote:
+> 
+> Please find below the new dmesg created by appending i8042.debug; this was
+> taken from a slightly newer build of the same source kernel that I reported; this
+> build just had a few more things configured out (parallel port) but exhibits
+> the same symptom.
+> 
+> No more debug is generated as I press any keys.
+> 
 
-=46air enough.  I partly just wanted to document the behavior.  I'll ad=
-just shortly.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+What happens with the mouse?
+
+	-hpa

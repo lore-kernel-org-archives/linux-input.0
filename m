@@ -1,43 +1,74 @@
-From: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
-Subject: Re: [PATCH] Restoring usages used by the pen.
-Date: Wed, 17 Jun 2009 21:29:22 +0200
-Message-ID: <58BC0DDC-EC89-4C4D-B688-079326B641E2@enac.fr>
-References: <4A385751.8000904@seas.upenn.edu>  <93BE517D-F863-4F80-8060-CC36562E02CC@enac.fr> <4A393750.7020706@seas.upenn.edu>
-Mime-Version: 1.0 (Apple Message framework v752.3)
-Content-Type: text/plain; charset=ISO-8859-1;
-	delsp=yes	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Paul Fox <pgf@laptop.org>
+Subject: Re: [PATCH] forced recalibration for the OLPC hgpk touchpad
+Date: Wed, 17 Jun 2009 16:16:11 -0400
+Message-ID: <31138.1245269771@foxharp.boston.ma.us>
+References: <3026.1243972079@foxharp.boston.ma.us> <200906030804.57340.dmitry.torokhov@gmail.com> <19417.1244087913@foxharp.boston.ma.us> <20090604001740.490f747e@mycelium.queued.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:41364 "EHLO
-	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755187AbZFQT3a convert rfc822-to-8bit (ORCPT
+Received: from colo3.heeltoe.com ([207.210.106.184]:47721 "EHLO
+	colo3.heeltoe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752742AbZFQUQK (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2009 15:29:30 -0400
-In-Reply-To: <4A393750.7020706@seas.upenn.edu>
+	Wed, 17 Jun 2009 16:16:10 -0400
+In-reply-to: <20090604001740.490f747e@mycelium.queued.net> 
+Content-ID: <31135.1245269771.1@foxharp.boston.ma.us>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, dsaxena@laptop.org, Andres Salomon <dilinger@collabora.co.uk>
 
+hi dmitry --
 
-Le 17 juin 09 =E0 20:34, Rafi Rubin a =E9crit :
+have you had a chance to think any more about this?  i'm open to
+suggestions on implementation detail, but i think that a full
+reset of the device won't really work, because of the time it
+adds to the recalibration.
 
-> I did in fact submit a patch to linuxwacom a while ago specifically =20
-> to solve that problem.
->
+paul
 
-Good!
+andres wrote:
+ > On Wed, 03 Jun 2009 23:58:33 -0400
+ > Paul Fox <pgf@laptop.org> wrote:
+ > 
+ > > dmitry wrote:
+ > >  > Hi Paul,
+ > >  > 
+ > >  > On Tuesday 02 June 2009 12:47:59 pgf@laptop.org wrote:
+ > >  > > The OLPC XO laptop incorporates a combination touchpad/tablet
+ > >  > > device which unfortunately requires frequent recalibration.  The
+ > >  > > driver will force this automatically when various suspicious
+ > >  > > behaviors are observed, and the user can recalibrate manually
+ > >  > > (with a special keyboard sequence).  There's currently no way,
+ > >  > > however, for an external program to cause recalibration.
+ > >  > >
+ > >  > > This patch creates a new node in /sys which, when written with
+ > >  > > '1', will force a touchpad recalibration.  No other writes (or
+ > >  > > reads) of this node are supported.
+ > >  > >
+ > >  > 
+ > >  > 
+ > >  > Instead of creating a new sysfs attribute maybe we should make
+ > >  > the touchpad recalibrate upon resume (reconnect)? Userspace can
+ > >  > already request reconnect via sysfs.
+ > > 
+ > > dmitry -- thanks for the suggestion.
+ > > 
+ > > i took a look, and tried it.  the problem is that doing a full
+ > > reset of the touchpad takes quite a long time -- 1.1 or 1.2
+ > > seconds.  recalibration deprives the user of their touchpad for
+ > > long enough as it is -- i don't think we can afford that time.
+ > > (remember that this is a workaround for bad hardware -- the XO
+ > > no longer uses this touchpad at least partly due to this very
+ > > issue, but there are enough in use that we're still trying to
+ > > improve things.)
+ > > 
+ > 
+ > I do like the idea of having a sysfs trigger for recalibrations.  We've
+ > never been successful in having the kernel driver handle recalibrations
+ > seamlessly.  Perhaps touchpad hardware screwups would be easier to
+ > detect in userspace, given a daemon that can keep a history of the last
+ > N touchpad coordinates?
 
-Then I have a minor suggestion: it would be better to just remove =20
-these lines. The point of this switch is to catch the values that we =20
-want to handle in a special way. All others (and that's quite a few) =20
-just make it through the switch.
-
-St.
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+=---------------------
+ paul fox, pgf@laptop.org

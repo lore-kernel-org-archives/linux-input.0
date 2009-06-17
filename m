@@ -1,49 +1,49 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
+From: "Li, Yan I" <yan.i.li@intel.com>
 Subject: Re: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
-Date: Tue, 16 Jun 2009 18:17:32 +0100
-Message-ID: <20090616171732.GA14912@srcf.ucam.org>
-References: <20090615141613.GA7876@sage.bj.intel.com> <20090615143446.GB19451@srcf.ucam.org> <20090615144748.GA25734@thyme.bj.intel.com> <20090616154200.GA12715@srcf.ucam.org> <20090616173618.353901ee@lxorguk.ukuu.org.uk> <20090616164351.GA14353@srcf.ucam.org> <20090616181549.496ae0f2@lxorguk.ukuu.org.uk>
+Date: Wed, 17 Jun 2009 09:01:40 +0800
+Message-ID: <20090617010138.GA13479@thyme.bj.intel.com>
+References: <20090615141613.GA7876@sage.bj.intel.com> <20090615143446.GB19451@srcf.ucam.org> <20090615144748.GA25734@thyme.bj.intel.com> <20090616154200.GA12715@srcf.ucam.org> <20090616173618.353901ee@lxorguk.ukuu.org.uk> <20090616164351.GA14353@srcf.ucam.org> <20090616181549.496ae0f2@lxorguk.ukuu.org.uk> <20090616171732.GA14912@srcf.ucam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:37846 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1758811AbZFPRRc (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 16 Jun 2009 13:17:32 -0400
+Received: from mga01.intel.com ([192.55.52.88]:41634 "EHLO mga01.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751969AbZFQBBx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 16 Jun 2009 21:01:53 -0400
 Content-Disposition: inline
-In-Reply-To: <20090616181549.496ae0f2@lxorguk.ukuu.org.uk>
+In-Reply-To: <20090616171732.GA14912@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, greg@kroah.com, yan.i.li@intel.com
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "greg@kroah.com" <greg@kroah.com>, yanli@infradead.org
 
-On Tue, Jun 16, 2009 at 06:15:49PM +0100, Alan Cox wrote:
-> On Tue, 16 Jun 2009 17:43:51 +0100
-> Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> 
-> > On Tue, Jun 16, 2009 at 05:36:18PM +0100, Alan Cox wrote:
-> > > > So? If the alternative is machines that don't work until they're added 
-> > > > to a blacklist, then the correct thing to do is to do it 
-> > > > unconditionally.
-> > > 
-> > > I would disagree: that breaks a whole pile of other machines
-> > 
-> > I was under the impression that this was the reset path that Windows 
-> > followed. If not then that suggests that we're fixing it wrong in the 
-> > first place?
-> 
-> You need to magically divine what various random windows driver
-> patches do and also allow for the fact that your i8042 may be completely
-> faked SMM, partially faked, or just randomly confused. Resetting loses
-> various bits of config/status that get put back by windows drivers we
-> don't have enough info on and in machine specific ways.
+On Wed, Jun 17, 2009 at 01:17:32AM +0800, Matthew Garrett wrote:
+> So the touchpad on these machines doesn't work with generic Windows? I'm 
+> interested in the specifics, not general issues with i8042 
+> implementations. We've repeatedly seen that these quirk tables end up 
+> inadequately comprehensive and in several cases have masked the actual 
+> problem.
 
-So the touchpad on these machines doesn't work with generic Windows? I'm 
-interested in the specifics, not general issues with i8042 
-implementations. We've repeatedly seen that these quirk tables end up 
-inadequately comprehensive and in several cases have masked the actual 
-problem.
+Now we have more than 99% machines work well with current i8042 code
+path, and less than 1% of machines (those MSI Wind & clones) that
+don't work unless being added to this list.
+
+If we do multiple-resetting unconditionally (for all machines), we are
+effectively:
+1. fixing things that works well
+2. make >99% machines (the good citizens) untested
+
+This seems a change too aggressive for me. Do we have a good reason
+for taking this risk? 
+
+Of course if we found the "actual problem" we'd conjure up a better
+fix. But before that, I'd prefer the conservative way.
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Best regards,
+Li, Yan
+
+Moblin Team, Opensource Technology Center, SSG, Intel
+Office tel.: +86-10-82171695 (inet: 8-758-1695)
+OpenPGP key: 5C6C31EF
+IRC: yanli on network irc.freenode.net

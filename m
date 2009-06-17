@@ -1,83 +1,78 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH] ntrig tool separation
-Date: Wed, 17 Jun 2009 01:50:26 -0400
-Message-ID: <4A388422.7020802@seas.upenn.edu>
+From: Mohamed-Ikbel Boulabiar <medikbel@lii-enac.fr>
+Subject: [PATCH] input: mt: Add ABS_MT_* Events reporting to evtest
+Date: Wed, 17 Jun 2009 08:22:18 +0100
+Message-ID: <1245223338.22157.23.camel@linux-85bv>
+References: <1245222242.22157.6.camel@linux-85bv>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-LQWuKOibPmbQ8DlGxoGG"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.SEAS.upenn.edu ([158.130.12.194]:38544 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750846AbZFQFub (ORCPT
+Received: from 89-230.252-81.static-ip.oleane.fr ([81.252.230.89]:42786 "EHLO
+	smtp.lii-enac.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752047AbZFQGXr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 17 Jun 2009 01:50:31 -0400
+	Wed, 17 Jun 2009 02:23:47 -0400
+In-Reply-To: <1245222242.22157.6.camel@linux-85bv>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
-Cc: =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty@enac.fr>
+Cc: dmitry.torokhov@gmail.com, vojtech@suse.cz, chatty@enac.fr, rydberg@euromail.se, boulabiar@gmail.com
 
-When both touch and pen are active send a tool announcement before
-sending any status changes so that event users may differentiate
-which tool is changing.
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
----
- drivers/hid/hid-ntrig.c |   29 +++++++++++++++++++++++++++++
- 1 files changed, 29 insertions(+), 0 deletions(-)
+--=-LQWuKOibPmbQ8DlGxoGG
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index aeab973..46ece5e 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -27,6 +27,9 @@
- struct ntrig_data {
- 	__s32 x, y, id, w, h;
- 	char reading_a_point, found_contact_id;
-+	char pen_active;
-+	char finger_active;
-+	char inverted;
+This patch adds new multitouch events reporting capabilities to evtest
+tool.
+New multi-touch events (ABS_MT_*) were added by Henrik Rydberg in the
+kernel-2.6.30
+
+From: Mohamed-Ikbel Boulabiar <medikbel@lii-enac.fr>
+Tested-by: St=C3=A9phane Chatty <chatty@enac.fr>
+
+diff -rupN a/utils/evtest.c b/utils/evtest.c=20
+--- a/utils/evtest.c	2009-05-20 00:12:14.000000000 +0100
++++ b/utils/evtest.c	2009-06-17 08:16:15.000000000 +0100
+@@ -2,7 +2,7 @@
+  * $Id$
+  *
+  *  Copyright (c) 1999-2000 Vojtech Pavlik
+- *
++ *  		  2009 Mohamed-Ikbel Boulabiar
+  *  Event device test program
+  */
+=20
+@@ -252,6 +252,16 @@ char *absolutes[ABS_MAX + 1] =3D {
+ 	[ABS_DISTANCE] =3D "Distance",	[ABS_TILT_X] =3D "XTilt",
+ 	[ABS_TILT_Y] =3D "YTilt",		[ABS_TOOL_WIDTH] =3D "Tool Width",
+ 	[ABS_VOLUME] =3D "Volume",	[ABS_MISC] =3D "Misc",
++	[ABS_MT_TOUCH_MAJOR] =3D "MT Touch Major",
++	[ABS_MT_TOUCH_MINOR] =3D "MT Touch Minor",
++	[ABS_MT_WIDTH_MAJOR] =3D "MT Width Major",
++	[ABS_MT_WIDTH_MINOR] =3D "MT Width Minor",
++	[ABS_MT_POSITION_X] =3D "MT Position X",=09
++	[ABS_MT_POSITION_Y] =3D "MT Position Y",
++	[ABS_MT_TOOL_TYPE] =3D "MT Tool Type",=09
++	[ABS_MT_BLOB_ID] =3D "MT Blob ID",
++	[ABS_MT_ORIENTATION] =3D "MT Orientation",
++	[ABS_MT_TRACKING_ID] =3D "MT Tracking ID",
  };
+=20
+ char *misc[MSC_MAX + 1] =3D {
 
- /*
-@@ -127,11 +130,37 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 	struct input_dev *input = field->hidinput->input;
- 	struct ntrig_data *nd = hid_get_drvdata(hid);
 
-+	__u16 tool;
-+
-         if (hid->claimed & HID_CLAIMED_INPUT) {
- 		switch (usage->hid) {
-+
-+		case HID_DG_INRANGE:
-+			if(field->application & 0x3)
-+				nd->pen_active = value!=0;
-+			else
-+				nd->finger_active = value!=0;
-+			return 0;
-+
-+		case HID_DG_INVERT:
-+			nd->inverted = value;
-+			return 0;
-+
- 		case HID_GD_X:
- 			nd->x = value;
- 			nd->reading_a_point = 1;
-+			if(nd->pen_active && nd->finger_active)
-+			{
-+				if(field->application & 0x3)
-+				{
-+					tool = nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN;
-+				}
-+				else
-+					tool = BTN_TOOL_DOUBLETAP;
-+
-+				input_report_key(input, tool, 0);
-+				input_report_key(input, tool, 1);
-+			}
- 			break;
- 		case HID_GD_Y:
- 			nd->y = value;
--- 
-1.6.3.1
+--=-LQWuKOibPmbQ8DlGxoGG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Ceci est une partie de message
+ =?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.9 (GNU/Linux)
+
+iEYEABECAAYFAko4maoACgkQAD1+XQxLfcQGXACgkntLa5LIwDRO79T6HdA3kwap
+tjsAn3Jw4V5sQt11ey5cSopfHnV0Jynf
+=n0jU
+-----END PGP SIGNATURE-----
+
+--=-LQWuKOibPmbQ8DlGxoGG--
 

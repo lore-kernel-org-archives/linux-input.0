@@ -1,58 +1,54 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
-Date: Thu, 18 Jun 2009 16:42:50 +0100
-Message-ID: <20090618154250.GA30209@srcf.ucam.org>
-References: <20090615143446.GB19451@srcf.ucam.org> <20090615144748.GA25734@thyme.bj.intel.com> <20090616154200.GA12715@srcf.ucam.org> <20090616173618.353901ee@lxorguk.ukuu.org.uk> <20090616164351.GA14353@srcf.ucam.org> <20090616181549.496ae0f2@lxorguk.ukuu.org.uk> <20090616171732.GA14912@srcf.ucam.org> <20090617010138.GA13479@thyme.bj.intel.com> <20090617025101.GA27595@srcf.ucam.org> <20090618000809.GB16835@thyme.bj.intel.com>
+From: Pavel Machek <pavel@ucw.cz>
+Subject: defkeymap making machine useless (was Re: HTC Dream aka. t-mobile
+	g1 support)
+Date: Fri, 19 Jun 2009 01:07:04 +0200
+Message-ID: <20090618230704.GB8529@elf.ucw.cz>
+References: <d6200be20906171436y5280ed8do561d2d53d73ca78@mail.gmail.com> <20090618101309.GC28892@elf.ucw.cz> <a55d774e0906181233p35b60cd2ga401bd1304267643@mail.gmail.com> <20090618.123845.232783995.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:38135 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753057AbZFRPmy (ORCPT
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:47738 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751502AbZFRXHI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 18 Jun 2009 11:42:54 -0400
+	Thu, 18 Jun 2009 19:07:08 -0400
 Content-Disposition: inline
-In-Reply-To: <20090618000809.GB16835@thyme.bj.intel.com>
+In-Reply-To: <20090618.123845.232783995.davem@davemloft.net>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: yan.i.li@intel.com, Alan Cox <alan@lxorguk.ukuu.org.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>a
+To: David Miller <davem@davemloft.net>, dmitry.torokhov@gmail.com, linux-input@vger.kernel.org, jikos@suse.cz
+Cc: swetland@google.com, arve@android.com, linux@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk, san@android.com, rlove@google.com, greg@kroah.com
 
-On Thu, Jun 18, 2009 at 08:08:09AM +0800, Li, Yan wrote:
-> On Wed, Jun 17, 2009 at 03:51:01AM +0100, Matthew Garrett wrote:
-> > On Wed, Jun 17, 2009 at 09:01:40AM +0800, Li, Yan I wrote:
-> > > This seems a change too aggressive for me. Do we have a good reason
-> > > for taking this risk? 
-> > 
-> > It's generally much easier to find regressions (people complain) than it 
-> > is to find things that have never worked (people just assume Linux is 
-> > broken).
+Hi!
+
+Debate is about keymaps:
+
+ Ok, I created something useful in the meantime. Question is, what to
+ do with the new keymap? I can obviously keep it at local patch,
+ but...
+
+ PC defkeymap.map makes HTC Dream useless.
+
+ HTC Dream defkeymap.map makes PC useless :-(.
+
+> > Yeah, I wasn't sure how to handle this.  We try to keep the msm/dream
+> > stuff in a state that doesn't break other parts of the tree, but there
+> > doesn't seem to be support for different keymaps for different
+> > devices.
 > 
-> That's true. But we are not sure how many regressions we'll meet and
-> whether the efforts devoted to handle them is worthy. (How to handle
-> regressions? Perhaps, ironically, we'll need another 'whitelist' for
-> them!)
+> How it's supposed to work is that you have a specific keyboard driver
+> and that emits PC keyboard codes into the core kernel using a
+> translation table in your driver.
 
-If we hit regressions then it's the wrong fix and would have to be 
-reverted. Better a small blacklist than a large whitelist (though, in 
-the general case, the presence of either is an indication of a bug)
+Of course, Dream does  that.  But that's not _nearly_ enough. Dream
+lacks keys such as: esc, arrows, symbols (/;'[]\-=). That means that
+for +, you can't press shift-=, you need to press altgr-P.
 
-> > > Of course if we found the "actual problem" we'd conjure up a better 
-> > > fix. But before that, I'd prefer the conservative way.
-> > 
-> > Does stock Windows work on the machine? I think this really ought to be 
-> > a pretty obvious minimal test before adding quirks to the kernel.
-> 
-> Does this matter?  Does whether Windows fail or not affect our
-> decision here?  (Worse that I have no "stock Windows XP" for
-> testing. All I have are those companion Windows Recovery CDs that
-> include all drivers).
+So yes, mapping keycodes helps (at least you get a-z,0-9), but that's
+basically it, and keys it has are not enough to actually type loadkeys
+/foo/bar/baz.map :-(.
 
-Yes. If Windows works without hardware specific drivers then there's a 
-flaw in our i8042 setup code that's affecting an unknown number of 
-machines, and adding more entries to a static table tells us nothing 
-about what proportion of those machines are now fixed - it just tells us 
-that we've worked around the issue for the ones that Intel happen to be 
-testing.
-
+									Pavel
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

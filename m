@@ -1,42 +1,67 @@
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
-Date: Fri, 19 Jun 2009 13:37:38 +0100
-Message-ID: <20090619123738.GA21094@srcf.ucam.org>
-References: <20090616154200.GA12715@srcf.ucam.org> <20090616173618.353901ee@lxorguk.ukuu.org.uk> <20090616164351.GA14353@srcf.ucam.org> <20090616181549.496ae0f2@lxorguk.ukuu.org.uk> <20090616171732.GA14912@srcf.ucam.org> <20090617010138.GA13479@thyme.bj.intel.com> <20090617025101.GA27595@srcf.ucam.org> <20090618000809.GB16835@thyme.bj.intel.com> <20090618154250.GA30209@srcf.ucam.org> <20090619071634.GA7671@thyme.bj.intel.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] Input: add MAX7359 key switch controller driver, v2
+Date: Fri, 19 Jun 2009 23:08:57 +0530
+Message-ID: <5d5443650906191038o797e0c3eu8234a56ee247ea68@mail.gmail.com>
+References: <4A04E5EA.7000103@samsung.com>
+	 <5d5443650905091027w2b60f2ael520373790e6414c7@mail.gmail.com>
+	 <4d34a0a70905101934j320c03abl7e39af4fbfdf1f62@mail.gmail.com>
+	 <20090511031208.GA15208@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cavan.codon.org.uk ([93.93.128.6]:54634 "EHLO
-	vavatch.codon.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753054AbZFSMhi (ORCPT
+Received: from mail-qy0-f175.google.com ([209.85.221.175]:58905 "EHLO
+	mail-qy0-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751948AbZFSRrI (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Jun 2009 08:37:38 -0400
-Content-Disposition: inline
-In-Reply-To: <20090619071634.GA7671@thyme.bj.intel.com>
+	Fri, 19 Jun 2009 13:47:08 -0400
+In-Reply-To: <20090511031208.GA15208@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, akpm@linux-foundation
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Kim Kyuwon <chammoru@gmail.com>, Kim Kyuwon <q1.kim@samsung.com>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 
-On Fri, Jun 19, 2009 at 03:16:55PM +0800, Li, Yan I wrote:
+Hi,
 
-> Not necessarily if we had followed the spec (I'm not sure of this) of
-> using i8042.
+On Mon, May 11, 2009 at 8:42 AM, Dmitry
+Torokhov<dmitry.torokhov@gmail.com> wrote:
+> On Mon, May 11, 2009 at 11:34:54AM +0900, Kim Kyuwon wrote:
+>> Hi Trilok,
+>>
+>> On Sun, May 10, 2009 at 2:27 AM, Trilok Soni <soni.trilok@gmail.com> wrote:
+>> > Hi Kim,
+>> >
+>> > On Sat, May 9, 2009 at 7:39 AM, Kim Kyuwon <q1.kim@samsung.com> wrote:
+>> >> The Maxim MAX7359 is a I2C interfaced key switch controller which provides
+>> >> microprocessors with management of up to 64 key switches.
+>> >> This patch adds support for the MAX7359 key switch controller.
+>> >>
+>> >> Signed-off-by: Kim Kyuwon <q1.kim@samsung.com>
+>> >
+>> >
+>> > Thanks for implementing review comments. Please add
+>> >
+>> > Reviewed-by: Trilok Soni <soni.trilok@gmail.com>
+>>
+>> Sorry, I didn't know I should put the "Reviewed-by" in the reviewed
+>> patch.(I'm still kernelnewbie :) )
+>
+> You are not supposed to add it until somebody explicitely asks you to
+> do that, same with Acked-by... The reason is that these tags constitute
+> certain endorsement of the patch and while one person may review the
+> patch he/she may not yet feel that review process is complete. Hope this
+> makes some sense...
+>
+>> If possible, I want Dmitry to add
+>> "Reviewed-by" when he sends this driver to mainline, or I will send
+>> new patch again.
+>>
+>
+> I have it added to my copy.
 
-The spec is irrelevant. What matters is what's implemented. Canonical 
-found a case where our i8042 setup code varied from Windows and which 
-fixed some hardware. Our ACPI implementation deviates wildly from the 
-spec in some places because that's what the implemented platforms 
-expect. The kernel exists to drive hardware, not adhere to some platonic 
-ideal of how the hardware should behave.
+I was looking at Palm Pre released linux-2.6.24 patch today at their
+site http://palm.cdnetworks.net/opensource/1.0.1/linux-2.6.24-patch.gz
+and I found that Palm Pre also uses the same switch controller but
+they seems to have written another version of this driver.
 
-> Hope someone can help us do this test.  I have already found loads of
-> touchpad drivers on net so I guess Windows can't drive a touchpad
-> until a driver is installed.  Pure guess.
-
-Touchpads typically present as a PS/2 mouse until a specific driver is 
-loaded, at which point they switch to a protocol that provides absolute 
-cooirdinates and pressure. It would be virtually impossible to install 
-most operating systems otherwise.
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+---Trilok Soni

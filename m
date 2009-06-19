@@ -1,164 +1,88 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Fri, 19 Jun 2009 12:24:53 +0530
-Message-ID: <5d5443650906182354k7ab5d593y6419ca965a4f7e43@mail.gmail.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
-	 <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com>
-	 <f17812d70906070704s10f8eac6ybc353041e2db5a03@mail.gmail.com>
-	 <200906112103.54043.dmitry.torokhov@gmail.com>
-	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>
-	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
+From: "Li, Yan I" <yan.i.li@intel.com>
+Subject: Re: [PATCH] More i8042-reset quirks for MSI Wind-clone netbooks
+Date: Fri, 19 Jun 2009 15:16:55 +0800
+Message-ID: <20090619071634.GA7671@thyme.bj.intel.com>
+References: <20090615144748.GA25734@thyme.bj.intel.com>
+ <20090616154200.GA12715@srcf.ucam.org>
+ <20090616173618.353901ee@lxorguk.ukuu.org.uk>
+ <20090616164351.GA14353@srcf.ucam.org>
+ <20090616181549.496ae0f2@lxorguk.ukuu.org.uk>
+ <20090616171732.GA14912@srcf.ucam.org>
+ <20090617010138.GA13479@thyme.bj.intel.com>
+ <20090617025101.GA27595@srcf.ucam.org>
+ <20090618000809.GB16835@thyme.bj.intel.com>
+ <20090618154250.GA30209@srcf.ucam.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f195.google.com ([209.85.221.195]:48842 "EHLO
-	mail-qy0-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755931AbZFSGyv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 19 Jun 2009 02:54:51 -0400
-Received: by qyk33 with SMTP id 33so851116qyk.33
-        for <linux-input@vger.kernel.org>; Thu, 18 Jun 2009 23:54:53 -0700 (PDT)
-In-Reply-To: <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
+Received: from mga09.intel.com ([134.134.136.24]:8561 "EHLO mga09.intel.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751672AbZFSHRI (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Fri, 19 Jun 2009 03:17:08 -0400
+Content-Disposition: inline
+In-Reply-To: <20090618154250.GA30209@srcf.ucam.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "greg@kroah.com" <greg@kroah.com>, yanli@infradead.org
 
-On Fri, Jun 12, 2009 at 6:56 PM, Eric Miao<eric.y.miao@gmail.com> wrote=
-:
-> On Fri, Jun 12, 2009 at 9:01 PM, Trilok Soni<soni.trilok@gmail.com> w=
-rote:
->> Hi Dmitry,
->>
->>>
->>> Input: add support for generic GPIO-based matrix keypad
->>>
->>> From: Eric Miao <eric.y.miao@gmail.com>
->>>
->>> Original patch by Marek Vasut, modified by Eric in:
->>>
->>> 1. use delayed work to simplify the debouncing
->>> 2. combine col_polarity/row_polarity into a single active_low field
->>> 3. use a generic bit array based XOR algorithm to detect key
->>> =A0 press/release, which should make the column assertion time
->>> =A0 shorter and code a bit cleaner
->>> 4. remove the ALT_FN handling, which is no way generic, the ALT_FN
->>> =A0 key should be treated as no different from other keys, and
->>> =A0 translation will be done by user space by commands like 'loadke=
-ys'.
->>>
->>> [dtor@mail.ru: fix error unwinding path, support changing keymap
->>> =A0from userspace]
->>> Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
->>> Signed-off-by: Eric Miao <eric.miao@marvell.com>
->>> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
->>> ---
->>
->> Did you took latest patch submitted from Eric? Because it had more
->> signed-off and acked-by lines, like this.
->>
->> Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
->> Reviewed-by: Trilok Soni <soni.trilok@gmail.com>
->> Reviewed-by: Uli Luckas <u.luckas@road.de>
->> Reviewed-by: Russell King <linux@arm.linux.org.uk>
->> Reviewed-by: Robert Jarzmik <robert.jarzmik@free.fr>
->> Signed-off-by: Eric Miao <eric.miao@marvell.com>
->>
->> http://markmail.org/message/2wrr2b6mr6qsd4xs#query:+page:1+mid:fkkfx=
-lumfm4mjhk4+state:results
->>
->> Eric can confirm otherwise.
->>
->>>
->>> =A0config KEYBOARD_HIL_OLD
->>> =A0 =A0 =A0 =A0tristate "HP HIL keyboard support (simple driver)"
->>> @@ -254,7 +263,7 @@ config KEYBOARD_PXA27x
->>> =A0 =A0 =A0 =A0tristate "PXA27x/PXA3xx keypad support"
->>> =A0 =A0 =A0 =A0depends on PXA27x || PXA3xx
->>> =A0 =A0 =A0 =A0help
->>> - =A0 =A0 =A0 =A0 Enable support for PXA27x/PXA3xx keypad controlle=
-r
->>> + =A0 =A0 =A0 =A0 Enable support for PXA27x/PXA3xx keypad controlle=
-r.
->>
->> Why this change in this patch?
->>
->>> +
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 code =3D (row << 4) +=
- col;
->>
->> << 4 logic will break once MAX_ROWS increased, right?
->>
->
-> Hi Dmitry,
->
-> I've tested the driver code, and it's basically OK except for two min=
-or
-> fixes:
->
-> 1) GPIO and IRQs have to be initialized before input_register_device(=
-),
-> otherwise input->open() will be invoked before that, which will sched=
-ule
-> an immediate scan work and fail.
->
-> 2) disable_irq_rows() called in init_matrix_gpio() so that by default=
- it's
-> initialized to disabled - and will be enabled by input->open()
->
-> Diff follows:
->
-> --- drivers/input/keyboard/matrix_keypad.c.orig 2009-06-12
-> 21:18:20.000000000 +0800
-> +++ drivers/input/keyboard/matrix_keypad.c =A0 =A0 =A02009-06-12 21:0=
-7:26.000000000 +0800
-> @@ -290,6 +290,9 @@ static int __devinit init_matrix_gpio(st
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free_irqs;
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
-> =A0 =A0 =A0 =A0}
-> +
-> + =A0 =A0 =A0 /* initialized as disabled - enabled by input->open */
-> + =A0 =A0 =A0 disable_row_irqs(keypad);
-> =A0 =A0 =A0 =A0return 0;
->
-> =A0err_free_irqs:
-> @@ -376,22 +379,19 @@ static int __devinit matrix_keypad_probe
-> =A0 =A0 =A0 =A0input_set_capability(input_dev, EV_MSC, MSC_SCAN);
-> =A0 =A0 =A0 =A0input_set_drvdata(input_dev, keypad);
->
-> - =A0 =A0 =A0 err =3D input_register_device(keypad->input_dev);
-> + =A0 =A0 =A0 err =3D init_matrix_gpio(pdev, keypad);
-> =A0 =A0 =A0 =A0if (err)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free_mem;
->
-> - =A0 =A0 =A0 err =3D init_matrix_gpio(pdev, keypad);
-> + =A0 =A0 =A0 err =3D input_register_device(keypad->input_dev);
-> =A0 =A0 =A0 =A0if (err)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_unregister;
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_free_mem;
->
-> =A0 =A0 =A0 =A0device_init_wakeup(&pdev->dev, pdata->wakeup);
-> =A0 =A0 =A0 =A0platform_set_drvdata(pdev, keypad);
->
-> =A0 =A0 =A0 =A0return 0;
->
-> -err_unregister:
-> - =A0 =A0 =A0 input_unregister_device(input_dev);
-> - =A0 =A0 =A0 input_dev =3D NULL;
-> =A0err_free_mem:
-> =A0 =A0 =A0 =A0input_free_device(input_dev);
-> =A0 =A0 =A0 =A0kfree(keycodes);
->
+On Thu, Jun 18, 2009 at 11:42:50PM +0800, Matthew Garrett wrote:
+> On Thu, Jun 18, 2009 at 08:08:09AM +0800, Li, Yan wrote:
+> > That's true. But we are not sure how many regressions we'll meet and
+> > whether the efforts devoted to handle them is worthy. (How to handle
+> > regressions? Perhaps, ironically, we'll need another 'whitelist' for
+> > them!)
+> 
+> If we hit regressions then it's the wrong fix and would have to be 
+> reverted. 
 
-Ping? We are already half-way through open merge window.
+Still, I don't think we have enough reason to enable multi-reset of
+i8042 for all machines: the old code (sane and following specs) has
+been working well since long ago for most machines, and not until
+recently we have seen special cases, no more than half a dozen
+machines that needs special treating.  These few glitches can't
+justify a global move.
 
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Without a good reason, your move (try and revert if hit regressions)
+seems to be the trial-and-error approach, and not very good for the
+stable release (though perfectly safe for some testing branches).
+
+>           Better a small blacklist than a large whitelist (though, in 
+> the general case, the presence of either is an indication of a bug)
+
+We have no way to know which one is smaller one, the current list is
+very small (5 entries).  I'll change my mind if this
+i8042_dmi_reset_table[] keeps growing.
+
+The presence of {black,white}list (or more generally, quirks) is the
+software reflection of the complexity of the world, not necessarily a
+bug.  They are popular (if not ubiquitous) among the kernel.
+
+
+> > Does this matter?  Does whether Windows fail or not affect our
+> > decision here?  (Worse that I have no "stock Windows XP" for
+> > testing. All I have are those companion Windows Recovery CDs that
+> > include all drivers).
+> 
+> Yes. If Windows works without hardware specific drivers then there's a 
+> flaw in our i8042 setup code that's affecting an unknown number of 
+> machines, and adding more entries to a static table tells us nothing 
+> about what proportion of those machines are now fixed - it just tells us 
+> that we've worked around the issue for the ones that Intel happen to be 
+> testing.
+
+Not necessarily if we had followed the spec (I'm not sure of this) of
+using i8042.
+
+Hope someone can help us do this test.  I have already found loads of
+touchpad drivers on net so I guess Windows can't drive a touchpad
+until a driver is installed.  Pure guess.
+
+-- 
+Best regards,
+Li, Yan
+
+Moblin Team, Opensource Technology Center, SSG, Intel
+Office tel.: +86-10-82171695 (inet: 8-758-1695)
+OpenPGP key: 5C6C31EF
+IRC: yanli on network irc.freenode.net

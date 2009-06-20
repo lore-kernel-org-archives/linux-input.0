@@ -1,182 +1,125 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [git pull] Input updates for 2.6.31-rc0
-Date: Fri, 19 Jun 2009 23:10:24 -0700
-Message-ID: <20090620061024.GB7710@dtor-d630.eng.vmware.com>
+From: "Dr. David Alan Gilbert" <linux@treblig.org>
+Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
+Date: Sat, 20 Jun 2009 13:03:57 +0100
+Message-ID: <20090620120357.GA11272@gallifrey>
+References: <20090613230842.GA18347@gallifrey> <4A349B67.1070603@zytor.com> <20090614122734.GA1499@gallifrey> <alpine.LRH.2.00.0906161126330.31685@twin.jikos.cz> <20090617193442.GA31944@gallifrey> <alpine.LNX.2.00.0906180126260.7457@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f202.google.com ([209.85.216.202]:42728 "EHLO
-	mail-px0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751078AbZFTGK1 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Jun 2009 02:10:27 -0400
+Received: from mx.treblig.org ([80.68.94.177]:49857 "EHLO mx.treblig.org"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751205AbZFTLED (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sat, 20 Jun 2009 07:04:03 -0400
 Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.0906180126260.7457@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hi Linus,
+* Jiri Kosina (jkosina@suse.cz) wrote:
+> On Wed, 17 Jun 2009, Dr. David Alan Gilbert wrote:
+> 
+> > > > > > [    3.147416] PNP: No PS/2 controller found. Probing ports directly.
+> > > > > > [    3.174456] serio: i8042 KBD port at 0x60,0x64 irq 1
+> > > > > > [    3.174961] serio: i8042 AUX port at 0x60,0x64 irq 12
+> > > > > > [    3.186312] mice: PS/2 mouse device common for all mice
+> > > > > It does, correctly, identify the keyboard and mode port, so it's
+> > > > > somewhat odd that it doesn't get used...
+> > > > Indeed. The only other observation in the older kernel that works
+> > > > it detects the AUX port first.
+> > > Booting with 'i8042.debug' will spit some more output into dmesg, which 
+> > > might help us to see if i8042 is really properly initialized, or something 
+> > > strange is going on during initialization.
+> > Please find below the new dmesg created by appending i8042.debug; this was
+> > taken from a slightly newer build of the same source kernel that I reported; this
+> > build just had a few more things configured out (parallel port) but exhibits
+> > the same symptom.
 
-Please pull from:
+<old dmesg removed>
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
-or
-	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
+> Is there any change if you boot with 'i8042.noaux' kernel command-line 
+> parameter?
 
-to receive updates for the input subsystem. There are a couple of
-drivers that did not make into this pull request (gpio matrix in
-particular), I intend to submit it in -rc1. I so hope I won't be moving
-again for a while...
+Yes, with i8042.noaux it works; dmesg snippet included below.
 
-Changelog:
----------
+And in reply to hpa, it doesn't have a mouse port.
 
-Alek Du (1):
-      Input: gpio-keys - change timer to workqueue
-
-Aristeu Sergio Rozanski Filho (1):
-      Input: uinput - flush all pending ff effects before destroying device
-
-Daniel Mack (1):
-      Input: add driver for EETI touchpanels
-
-David Brownell (1):
-      Input: add dm355evm_keys driver
-
-Dmitry Torokhov (9):
-      Input: gtco - add MODULE_DESCRIPTION()
-      Input: fp801-gp - add MODULE_DESCRIPTION()
-      Input: gameport - rearrange EXPORT_SYMBOL() markings
-      Input: serio - rearrange EXPORT_SYMBOL() markings
-      Input: gpio-keys - remove depreciated IRQF_SAMPLE_RANDOM flag
-      Input: keyboard - remove warning about raw mode not supported
-      Input: ALPS - Dell Latitude D630/D800 have DualPoint
-      Input: lifebook - don't send incomplete events
-      Input: serio - do not use deprecated dev.power.power_state
-
-Felipe Balbi (2):
-      Input: add twl4030-pwrbutton driver
-      Input: introduce lm8323 keypad driver
-w
-Greg Kroah-Hartman (1):
-      Input: wm97xx - do not access dev->driver_data directly
-
-H Hartley Sweeten (2):
-      Input: rotary_encoder - add support for REL_* axes
-      Input: add matrix keypad driver for Cirrus EP93xx
-
-Hans-Christian Egtvedt (1):
-      Input: add wm97xx accelerated driver for Atmel microprocessors
-
-Jeremy Huddleston (1):
-      Input: appletouch - improve finger detection
-
-Kwangwoo Lee (1):
-      Input: tsc2007 - make sure platform provides get_pendown_state()
-
-Michael Roth (3):
-      Input: ads7846 - support swapping x and y axes
-      Input: ads7846 - more detailed model name in sysfs
-      Input: ads7846 - pin change interrupt support
-
-Mike Rapoport (1):
-      Input: add driver for Synaptics I2C touchpad
-
-Ping Cheng (2):
-      Input: wacom - add support for Intuos4 tablets
-      Input: wacom - clear Intuos4 wheel data when finger leaves proximity
-
-Sebastian Andrzej Siewior (1):
-      Input: ucb1400 - move static function from header into core
-
-Tero Saarni (1):
-      Input: synaptics - add support for reporting x/y resolution
-
-Thadeu Lima de Souza Cascardo (2):
-      Input: fix typo in documentation
-      Input: simplify name handling for certain input handles
-
-Ulrich Dangel (1):
-      Input: ALPS - handle touchpoints buttons correctly
-
-Ville Syrjala (1):
-      Input: ati_remote2 - use non-atomic bitops
-
-Wan ZongShun (1):
-      Input: add support for touchscreen on W90P910 ARM platform
-
-Zephaniah E. Hull (1):
-      Input: psmouse - ESD workaround fix for OLPC XO touchpad
+Dave
 
 
-Diffstat:
---------
+[    0.000000] Linux version 2.6.30-gort1 (dg@davros) (gcc version 4.4.0 (Ubuntu 4.4.0-5ubuntu1) ) #7 Sun Jun 14 17:36:35 BST 2009
 
- Documentation/input/input.txt                     |    2 +-
- Documentation/input/rotary-encoder.txt            |    9 +-
- arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h |   42 +
- drivers/char/keyboard.c                           |    2 -
- drivers/input/evdev.c                             |   21 +-
- drivers/input/gameport/fm801-gp.c                 |    1 +
- drivers/input/gameport/gameport.c                 |   25 +-
- drivers/input/joydev.c                            |   14 +-
- drivers/input/keyboard/Kconfig                    |   21 +
- drivers/input/keyboard/Makefile                   |    2 +
- drivers/input/keyboard/ep93xx_keypad.c            |  470 +++++++++++
- drivers/input/keyboard/gpio_keys.c                |   35 +-
- drivers/input/keyboard/lm8323.c                   |  878 +++++++++++++++++++++
- drivers/input/misc/Kconfig                        |   19 +
- drivers/input/misc/Makefile                       |    2 +
- drivers/input/misc/ati_remote2.c                  |   16 +-
- drivers/input/misc/dm355evm_keys.c                |  329 ++++++++
- drivers/input/misc/rotary_encoder.c               |   61 +-
- drivers/input/misc/twl4030-pwrbutton.c            |  145 ++++
- drivers/input/misc/uinput.c                       |   94 ++-
- drivers/input/mouse/Kconfig                       |   18 +
- drivers/input/mouse/Makefile                      |    1 +
- drivers/input/mouse/alps.c                        |   31 +-
- drivers/input/mouse/appletouch.c                  |    2 +-
- drivers/input/mouse/lifebook.c                    |   25 +-
- drivers/input/mouse/psmouse-base.c                |    4 +-
- drivers/input/mouse/synaptics.c                   |   28 +
- drivers/input/mouse/synaptics.h                   |    2 +
- drivers/input/mouse/synaptics_i2c.c               |  676 ++++++++++++++++
- drivers/input/mousedev.c                          |    9 +-
- drivers/input/serio/i8042.c                       |   17 +-
- drivers/input/serio/serio.c                       |   58 +-
- drivers/input/tablet/gtco.c                       |    1 +
- drivers/input/tablet/wacom.h                      |    5 +-
- drivers/input/tablet/wacom_sys.c                  |   13 +
- drivers/input/tablet/wacom_wac.c                  |  171 +++-
- drivers/input/tablet/wacom_wac.h                  |    3 +
- drivers/input/touchscreen/Kconfig                 |   32 +
- drivers/input/touchscreen/Makefile                |    3 +
- drivers/input/touchscreen/ads7846.c               |   23 +-
- drivers/input/touchscreen/atmel-wm97xx.c          |  446 +++++++++++
- drivers/input/touchscreen/eeti_ts.c               |  286 +++++++
- drivers/input/touchscreen/tsc2007.c               |    2 +-
- drivers/input/touchscreen/w90p910_ts.c            |  350 ++++++++
- drivers/mfd/ucb1400_core.c                        |   20 +
- include/linux/gameport.h                          |    3 +-
- include/linux/i2c/lm8323.h                        |   46 ++
- include/linux/input.h                             |    2 +
- include/linux/rotary_encoder.h                    |    2 +
- include/linux/serio.h                             |    9 +-
- include/linux/spi/ads7846.h                       |    1 +
- include/linux/ucb1400.h                           |   23 +-
- 52 files changed, 4256 insertions(+), 244 deletions(-)
- create mode 100644 arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h
- create mode 100644 drivers/input/keyboard/ep93xx_keypad.c
- create mode 100644 drivers/input/keyboard/lm8323.c
- create mode 100644 drivers/input/misc/dm355evm_keys.c
- create mode 100644 drivers/input/misc/twl4030-pwrbutton.c
- create mode 100644 drivers/input/mouse/synaptics_i2c.c
- create mode 100644 drivers/input/touchscreen/atmel-wm97xx.c
- create mode 100644 drivers/input/touchscreen/eeti_ts.c
- create mode 100644 drivers/input/touchscreen/w90p910_ts.c
- create mode 100644 include/linux/i2c/lm8323.h
+<snip>
 
+[    0.000000] Kernel command line: root=/dev/hda3 ro i8042.debug i8042.noaux
+
+<snip>
+
+[    3.077551] uli526x: ULi M5261/M5263 net driver, version 0.9.3 (2005-7-29)
+[    3.088908] PNP: No PS/2 controller found. Probing ports directly.
+[    3.093940] drivers/input/serio/i8042.c: 20 -> i8042 (command) [3]
+[    3.094208] drivers/input/serio/i8042.c: 65 <- i8042 (return) [3]
+[    3.094302] drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
+[    3.094448] drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [3]
+[    3.094747] drivers/input/serio/i8042.c: Interrupt 1, without any data [3]
+[    3.094862] drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
+[    3.095004] drivers/input/serio/i8042.c: 65 -> i8042 (parameter) [3]
+[    3.095109] serio: i8042 KBD port at 0x60,0x64 irq 1
+[    3.105959] mice: PS/2 mouse device common for all mice
+[    3.109928] drivers/input/serio/i8042.c: f2 -> i8042 (kbd-data) [7]
+[    3.112313] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [8]
+[    3.113456] drivers/input/serio/i8042.c: ab <- i8042 (interrupt, 0, 1) [8]
+[    3.114838] drivers/input/serio/i8042.c: 41 <- i8042 (interrupt, 0, 1) [8]
+[    3.115088] drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [8]
+[    3.116804] input: PC Speaker as /devices/platform/pcspkr/input/input0
+[    3.117798] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [9]
+[    3.118865] drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [9]
+[    3.120837] evbug.c: Connected device: input0 (PC Speaker at isa0061/input0)
+[    3.121351] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [10]
+[    3.121911] drivers/input/serio/i8042.c: f3 -> i8042 (kbd-data) [10]
+[    3.124399] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [11]
+[    3.125181] drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [11]
+[    3.127544] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [11]
+[    3.127943] drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [11]
+[    3.129976] rtc_cmos rtc_cmos: rtc core: registered rtc_cmos as rtc0
+[    3.130647] rtc0: alarms up to one day, 114 bytes nvram
+[    3.131110] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [12]
+[    3.139526] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input1
+[    3.145384] evbug.c: Connected device: input1 (AT Translated Set 2 keyboard at isa0060/serio0/input0)
+
+<snip>
+
+[   27.856504] drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, 0, 1) [6193]
+[   27.856868] evbug.c: Event. Dev: input1, Type: 4, Code: 4, Value: 58
+[   27.857066] evbug.c: Event. Dev: input1, Type: 1, Code: 58, Value: 1
+[   27.857202] evbug.c: Event. Dev: input1, Type: 0, Code: 0, Value: 0
+[   27.857401] evbug.c: Event. Dev: input1, Type: 17, Code: 1, Value: 1
+[   27.857510] evbug.c: Event. Dev: input1, Type: 0, Code: 0, Value: 0
+[   27.907539] drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [6206]
+[   27.909983] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [6206]
+[   27.910415] drivers/input/serio/i8042.c: 04 -> i8042 (kbd-data) [6206]
+[   27.912829] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [6207]
+[   27.942394] drivers/input/serio/i8042.c: ba <- i8042 (interrupt, 0, 1) [6214]
+[   27.942804] evbug.c: Event. Dev: input1, Type: 4, Code: 4, Value: 58
+[   27.943006] evbug.c: Event. Dev: input1, Type: 1, Code: 58, Value: 0
+[   27.943122] evbug.c: Event. Dev: input1, Type: 0, Code: 0, Value: 0
+[   28.053823] drivers/input/serio/i8042.c: 3a <- i8042 (interrupt, 0, 1) [6242]
+[   28.054182] evbug.c: Event. Dev: input1, Type: 4, Code: 4, Value: 58
+[   28.054383] evbug.c: Event. Dev: input1, Type: 1, Code: 58, Value: 1
+[   28.054520] evbug.c: Event. Dev: input1, Type: 0, Code: 0, Value: 0
+[   28.054708] evbug.c: Event. Dev: input1, Type: 17, Code: 1, Value: 0
+[   28.054815] evbug.c: Event. Dev: input1, Type: 0, Code: 0, Value: 0
+[   28.055613] drivers/input/serio/i8042.c: ed -> i8042 (kbd-data) [6243]
+[   28.058048] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [6243]
+[   28.058327] drivers/input/serio/i8042.c: 00 -> i8042 (kbd-data) [6243]
+[   28.060724] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [6244]
+[   28.117266] drivers/input/serio/i8042.c: ba <- i8042 (interrupt, 0, 1) [6258]
+[   28.117627] evbug.c: Event. Dev: input1, Type: 4, Code: 4, Value: 58
+[   28.117823] evbug.c: Event. Dev: input1, Type: 1, Code: 58, Value: 0
+[   28.117934] evbug.c: Event. Dev: input1, Type: 0, Code: 0, Value: 0
 -- 
-Dmitry
-
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

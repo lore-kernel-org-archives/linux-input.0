@@ -1,416 +1,592 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: [RESEND/x3 patch 2.6.30] input:  dm355evm_keys driver
-Date: Sun, 21 Jun 2009 17:39:30 -0700
-Message-ID: <200906211739.33310.david-b@pacbell.net>
-References: <200901171315.08019.david-b@pacbell.net> <200904202319.02590.david-b@pacbell.net>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [RFC][PATCH] DM365 Keypad Support
+Date: Mon, 22 Jun 2009 11:55:11 +0530
+Message-ID: <5d5443650906212325m35e71559i412a44407541f606@mail.gmail.com>
+References: <1245596804-28718-1-git-send-email-s-paulraj@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp105.sbc.mail.gq1.yahoo.com ([67.195.14.108]:25176 "HELO
-	smtp105.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1750996AbZFVAqS (ORCPT
+Received: from mail-qy0-f171.google.com ([209.85.221.171]:52725 "EHLO
+	mail-qy0-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752772AbZFVGZJ convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 21 Jun 2009 20:46:18 -0400
-In-Reply-To: <200904202319.02590.david-b@pacbell.net>
-Content-Disposition: inline
+	Mon, 22 Jun 2009 02:25:09 -0400
+Received: by qyk1 with SMTP id 1so803700qyk.33
+        for <linux-input@vger.kernel.org>; Sun, 21 Jun 2009 23:25:11 -0700 (PDT)
+In-Reply-To: <1245596804-28718-1-git-send-email-s-paulraj@ti.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, Dmitry Torokhov <dtor@mail.ru>
+To: s-paulraj@ti.com
+Cc: davinci-linux-open-source@linux.davincidsp.com, linux-input@vger.kernel.org
 
-From: David Brownell <dbrownell@users.sourceforge.net>
-Subject: input:  dm355evm_keys driver
-    
-Simple input driver support for the events reported by the
-MSP430 firmware on the DM355 EVM.  Verified using the RC5
-remote included with the kit; docs weren't quite right.
+Hi Sandeep,
 
-Some of the keycode selections might need improvement; they
-can be remapped, so there's at least a runtime workaround.
-(I also suspect Linux may someday merit more generic support
-for RC5 based remote controls.)
+CCing linux-input. You have to submit only keypad driver to
+linux-input again, once all the dependencies are mainlined first.
 
-These events don't distinguish key press vs release events,
-so this reports both and then skips the next event if it's
-identical.  The RC5 remote codes include a "toggle" bit that
-can help detect autorepeated keys; but this driver doesn't
-bother with those nuances.
+On Sun, Jun 21, 2009 at 8:36 PM, <s-paulraj@ti.com> wrote:
+> From: Sandeep Paulraj <s-paulraj@ti.com>
+>
+> Patch adds support for the Keypad on the DM365 EVM.
+> At present the driver comes up fine and the device gets
+> registered.
+>
 
-This driver relies on the drivers/mfd/dm355evm_msp.c code
-for core features, including sharing I2C access to this
-firmware with GPIO, LED, and RTC support.
+This is anyway expected. Do you want to keep this in commit text?
 
-[ Changes from the 21-January version include Kbuild
-tracking, and switching to threaded IRQ handler from the
-original workqueue version. ]
+> For the keypad to work, we need to enable with the help of the
+> CPLD on the DM365 EVM.
+> David Brownell has a patch ready(Thanks for sending me the patch Davi=
+d)
+>
+> The CPLD patch adds on top of my DM365 patches and also
+> re arranges a lot of my code that i submitted.
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Signed-off-by: Kevin Hilman <khilman@deeprootsystems.com>
----
-Note that the DM355 EVM is now in mainline.  The only
-change of note in the code, since its mid-January review
-on the input list, is using a threaded IRQ handler instead
-of a workqueue.
+All dependencies plus platform data header files should be first
+mainlined through davinci GIT tree and then you need to submit this
+keypad driver only to linux-input so that it go mainline through
+Dmitry's tree.
 
- drivers/input/keyboard/Kconfig         |    8 
- drivers/input/keyboard/Makefile        |    1 
- drivers/input/keyboard/dm355evm_keys.c |  330 +++++++++++++++++++++++++++++++
- 3 files changed, 339 insertions(+)
+> =A0create mode 100644 arch/arm/mach-davinci/include/mach/dm365_keypad=
+=2Eh
+> =A0create mode 100755 drivers/input/keyboard/dm365evm_keypad.c
 
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -332,4 +332,12 @@ config KEYBOARD_SH_KEYSC
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sh_keysc.
-+
-+config KEYBOARD_DM355EVM
-+	tristate "TI DaVinci DM355 EVM Keypad and IR Remote"
-+	depends on MFD_DM355EVM_MSP
-+	help
-+	  Supports the pushbuttons and IR remote used with
-+	  the DM355 EVM board.
-+
- endif
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -28,3 +28,4 @@ obj-$(CONFIG_KEYBOARD_HP7XX)		+= jornada
- obj-$(CONFIG_KEYBOARD_MAPLE)		+= maple_keyb.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+= bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+= sh_keysc.o
-+obj-$(CONFIG_KEYBOARD_DM355EVM)		+= dm355evm_keys.o
---- /dev/null
-+++ b/drivers/input/keyboard/dm355evm_keys.c
-@@ -0,0 +1,330 @@
-+/*
-+ * dm355evm_keys.c - support buttons and IR remote on DM355 EVM board
-+ *
-+ * Copyright (c) 2008 by David Brownell
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/platform_device.h>
-+#include <linux/interrupt.h>
-+
-+#include <linux/i2c/dm355evm_msp.h>
-+
-+
-+/*
-+ * The MSP430 firmware on the DM355 EVM monitors on-board pushbuttons
-+ * and an IR receptor used for the remote control.  When any key is
-+ * pressed, or its autorepeat kicks in, an event is sent.  This driver
-+ * read those events from the small (32 event) queue and reports them.
-+ *
-+ * Note that physically there can only be one of these devices.
-+ *
-+ * This driver was tested with firmware revision A4.
-+ */
-+struct dm355evm_keys {
-+	struct input_dev	*input;
-+	struct device		*dev;
-+	int			irq;
-+};
-+
-+/* These initial keycodes can be remapped by dm355evm_setkeycode(). */
-+static struct {
-+	u16	event;
-+	u16	keycode;
-+} dm355evm_keys[] = {
-+
-+	/*
-+	 * Pushbuttons on the EVM board ... note that the labels for these
-+	 * are SW10/SW11/etc on the PC board.  The left/right orientation
-+	 * comes only from the firmware's documentation, and presumes the
-+	 * power connector is immediately in front of you and the IR sensor
-+	 * is to the right.  (That is, rotate the board counter-clockwise
-+	 * by 90 degrees from the SW10/etc and "DM355 EVM" labels.)
-+	 */
-+	{ 0x00d8, KEY_OK, },		/* SW12 */
-+	{ 0x00b8, KEY_UP, },		/* SW13 */
-+	{ 0x00e8, KEY_DOWN, },		/* SW11 */
-+	{ 0x0078, KEY_LEFT, },		/* SW14 */
-+	{ 0x00f0, KEY_RIGHT, },		/* SW10 */
-+
-+	/*
-+	 * IR buttons ... codes assigned to match the universal remote
-+	 * provided with the EVM (Philips PM4S) using DVD code 0020.
-+	 *
-+	 * These event codes match firmware documentation, but other
-+	 * remote controls could easily send more RC5-encoded events.
-+	 * The PM4S manual was used in several cases to help select
-+	 * a keycode reflecting the intended usage.
-+	 *
-+	 * RC5 codes are 14 bits, with two start bits (0x3 prefix)
-+	 * and a toggle bit (masked out below).
-+	 */
-+	{ 0x300c, KEY_POWER, },		/* NOTE: docs omit this */
-+	{ 0x3000, KEY_NUMERIC_0, },
-+	{ 0x3001, KEY_NUMERIC_1, },
-+	{ 0x3002, KEY_NUMERIC_2, },
-+	{ 0x3003, KEY_NUMERIC_3, },
-+	{ 0x3004, KEY_NUMERIC_4, },
-+	{ 0x3005, KEY_NUMERIC_5, },
-+	{ 0x3006, KEY_NUMERIC_6, },
-+	{ 0x3007, KEY_NUMERIC_7, },
-+	{ 0x3008, KEY_NUMERIC_8, },
-+	{ 0x3009, KEY_NUMERIC_9, },
-+	{ 0x3022, KEY_ENTER, },
-+	{ 0x30ec, KEY_MODE, },		/* "tv/vcr/..." */
-+	{ 0x300f, KEY_SELECT, },	/* "info" */
-+	{ 0x3020, KEY_CHANNELUP, },	/* "up" */
-+	{ 0x302e, KEY_MENU, },		/* "in/out" */
-+	{ 0x3011, KEY_VOLUMEDOWN, },	/* "left" */
-+	{ 0x300d, KEY_MUTE, },		/* "ok" */
-+	{ 0x3010, KEY_VOLUMEUP, },	/* "right" */
-+	{ 0x301e, KEY_SUBTITLE, },	/* "cc" */
-+	{ 0x3021, KEY_CHANNELDOWN, },	/* "down" */
-+	{ 0x3022, KEY_PREVIOUS, },
-+	{ 0x3026, KEY_SLEEP, },
-+	{ 0x3172, KEY_REWIND, },	/* NOTE: docs wrongly say 0x30ca */
-+	{ 0x3175, KEY_PLAY, },
-+	{ 0x3174, KEY_FASTFORWARD, },
-+	{ 0x3177, KEY_RECORD, },
-+	{ 0x3176, KEY_STOP, },
-+	{ 0x3169, KEY_PAUSE, },
-+};
-+
-+/* runs in an IRQ thread -- can (and will!) sleep */
-+static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
-+{
-+	struct dm355evm_keys	*keys = _keys;
-+	int			status;
-+
-+	/* For simplicity we ignore INPUT_COUNT and just read
-+	 * events until we get the "queue empty" indicator.
-+	 * Reading INPUT_LOW decrements the count.
-+	 */
-+	for (;;) {
-+		static u16	last_event;
-+
-+		u16		event;
-+		int		keycode;
-+		int		i;
-+
-+		status = dm355evm_msp_read(DM355EVM_MSP_INPUT_HIGH);
-+		if (status < 0) {
-+			dev_dbg(keys->dev, "input high err %d\n",
-+					status);
-+			break;
-+		}
-+		event = status << 8;
-+
-+		status = dm355evm_msp_read(DM355EVM_MSP_INPUT_LOW);
-+		if (status < 0) {
-+			dev_dbg(keys->dev, "input low err %d\n",
-+					status);
-+			break;
-+		}
-+		event |= status;
-+		if (event == 0xdead)
-+			break;
-+
-+		/* Press and release a button:  two events, same code.
-+		 * Press and hold (autorepeat), then release: N events
-+		 * (N > 2), same code.  For RC5 buttons the toggle bits
-+		 * distinguish (for example) "1-autorepeat" from "1 1";
-+		 * but PCB buttons don't support that bit.
-+		 *
-+		 * So we must synthesize release events.  We do that by
-+		 * mapping events to a press/release event pair; then
-+		 * to avoid adding extra events, skip the second event
-+		 * of each pair.
-+		 */
-+		if (event == last_event) {
-+			last_event = 0;
-+			continue;
-+		}
-+		last_event = event;
-+
-+		/* ignore the RC5 toggle bit */
-+		event &= ~0x0800;
-+
-+		/* find the key, or leave it as unknown */
-+		keycode = KEY_UNKNOWN;
-+		for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++) {
-+			if (dm355evm_keys[i].event != event)
-+				continue;
-+			keycode = dm355evm_keys[i].keycode;
-+			break;
-+		}
-+		dev_dbg(keys->dev,
-+			"input event 0x%04x--> keycode %d\n",
-+			event, keycode);
-+
-+		/* report press + release */
-+		input_report_key(keys->input, keycode, 1);
-+		input_sync(keys->input);
-+		input_report_key(keys->input, keycode, 0);
-+		input_sync(keys->input);
-+	}
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Because we communicate with the MSP430 using I2C, and all I2C calls
-+ * in Linux sleep, we use a threaded IRQ handler.  The IRQ itself is
-+ * active low, but we go through the GPIO controller so we can trigger
-+ * on falling edges and not worry about enabling/disabling the IRQ in
-+ * the keypress handling path.
-+ */
-+static irqreturn_t dm355evm_keys_hardirq(int irq, void *_keys)
-+{
-+	return IRQ_WAKE_THREAD;
-+}
-+
-+static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
-+{
-+	u16		old_keycode;
-+	unsigned	i;
-+
-+	if (((unsigned)index) >= ARRAY_SIZE(dm355evm_keys))
-+		return -EINVAL;
-+
-+	old_keycode = dm355evm_keys[index].keycode;
-+	dm355evm_keys[index].keycode = keycode;
-+	set_bit(keycode, dev->keybit);
-+
-+	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++) {
-+		if (dm355evm_keys[index].keycode == old_keycode)
-+			goto done;
-+	}
-+	clear_bit(old_keycode, dev->keybit);
-+done:
-+	return 0;
-+}
-+
-+static int dm355evm_getkeycode(struct input_dev *dev, int index, int *keycode)
-+{
-+	if (((unsigned)index) >= ARRAY_SIZE(dm355evm_keys))
-+		return -EINVAL;
-+
-+	return dm355evm_keys[index].keycode;
-+}
-+
-+/*----------------------------------------------------------------------*/
-+
-+static int __devinit dm355evm_keys_probe(struct platform_device *pdev)
-+{
-+	struct dm355evm_keys	*keys;
-+	int			status = -ENOMEM;
-+	struct input_dev	*input;
-+	int			i;
-+
-+	/* allocate instance struct */
-+	keys = kzalloc(sizeof *keys, GFP_KERNEL);
-+	if (!keys)
-+		goto fail0;
-+	platform_set_drvdata(pdev, keys);
-+	keys->dev = &pdev->dev;
-+
-+	/* ... and input dev ... */
-+	input = input_allocate_device();
-+	if (!input)
-+		goto fail0;
-+	keys->input = input;
-+	input_set_drvdata(input, keys);
-+
-+	input->name = "DM355 EVM Controls";
-+	input->phys = "dm355evm/input0";
-+	input->dev.parent = &pdev->dev;
-+
-+	input->id.bustype = BUS_I2C;
-+	input->id.product = 0x0355;
-+	input->id.version = dm355evm_msp_read(DM355EVM_MSP_FIRMREV);
-+
-+	input->evbit[0] = BIT(EV_KEY);
-+	for (i = 0; i < ARRAY_SIZE(dm355evm_keys); i++)
-+		set_bit(dm355evm_keys[i].keycode, input->keybit);
-+
-+	input->keycode = dm355evm_keys;
-+	input->setkeycode = dm355evm_setkeycode;
-+	input->getkeycode = dm355evm_getkeycode;
-+
-+	/* set up "threaded IRQ handler" */
-+	status = platform_get_irq(pdev, 0);
-+	if (status < 0)
-+		goto fail1;
-+	keys->irq = status;
-+
-+	/* REVISIT:  flush the event queue? */
-+
-+	/* register */
-+	status = input_register_device(input);
-+	if (status < 0)
-+		goto fail0;
-+
-+	/* start reporting events */
-+	status = request_threaded_irq(keys->irq,
-+			dm355evm_keys_hardirq, dm355evm_keys_irq,
-+			IRQF_TRIGGER_FALLING,
-+			dev_name(&pdev->dev), keys);
-+	if (status < 0) {
-+		input_unregister_device(input);
-+		goto fail1;
-+	}
-+
-+	return 0;
-+
-+fail1:
-+	input_free_device(input);
-+fail0:
-+	kfree(keys);
-+	dev_err(&pdev->dev, "can't register, err %d\n", status);
-+
-+	return status;
-+}
-+
-+static int __devexit dm355evm_keys_remove(struct platform_device *pdev)
-+{
-+	struct dm355evm_keys	*keys = platform_get_drvdata(pdev);
-+
-+	free_irq(keys->irq, keys);
-+	input_unregister_device(keys->input);
-+	kfree(keys);
-+
-+	return 0;
-+}
-+
-+/* REVISIT:  add suspend/resume when DaVinci supports it.  The IRQ should
-+ * be able to wake up the system.  When device_may_wakeup(&pdev->dev), call
-+ * enable_irq_wake() on suspend, and disable_irq_wake() on resume.
-+ */
-+
-+/*
-+ * I2C is used to talk to the MSP430, but this platform device is
-+ * exposed by an MFD driver that manages I2C communications.
-+ */
-+static struct platform_driver dm355evm_keys_driver = {
-+	.probe		= dm355evm_keys_probe,
-+	.remove		= __devexit_p(dm355evm_keys_remove),
-+	.driver		= {
-+		.owner	= THIS_MODULE,
-+		.name	= "dm355evm_keys",
-+	},
-+};
-+
-+static int __init dm355evm_keys_init(void)
-+{
-+	return platform_driver_register(&dm355evm_keys_driver);
-+}
-+module_init(dm355evm_keys_init);
-+
-+static void __exit dm355evm_keys_exit(void)
-+{
-+	platform_driver_unregister(&dm355evm_keys_driver);
-+}
-+module_exit(dm355evm_keys_exit);
-+
-+MODULE_LICENSE("GPL");
+=46ile mode problem. Looks like you are editing from different $OS.
+
+
+>
+> +static int dm365evm_keymap[] =3D {
+> + =A0 =A0 =A0 KEY_DM365_KEY2,
+> + =A0 =A0 =A0 KEY_DM365_LEFT,
+> + =A0 =A0 =A0 KEY_DM365_EXIT,
+> + =A0 =A0 =A0 KEY_DM365_DOWN,
+> + =A0 =A0 =A0 KEY_DM365_ENTER,
+> + =A0 =A0 =A0 KEY_DM365_UP,
+> + =A0 =A0 =A0 KEY_DM365_KEY1,
+> + =A0 =A0 =A0 KEY_DM365_RIGHT,
+> + =A0 =A0 =A0 KEY_DM365_MENU,
+> + =A0 =A0 =A0 KEY_DM365_REC,
+> + =A0 =A0 =A0 KEY_DM365_REW,
+> + =A0 =A0 =A0 KEY_DM365_SKIPMINUS,
+> + =A0 =A0 =A0 KEY_DM365_STOP,
+> + =A0 =A0 =A0 KEY_DM365_FF,
+> + =A0 =A0 =A0 KEY_DM365_SKIPPLUL,
+> + =A0 =A0 =A0 KEY_DM365_PLAYPAUSE,
+> + =A0 =A0 =A0 0
+> +};
+
+As David suggested, it is better to convert it into the keymap format
+like other input driver do. You can grep for gpio matrix driver on
+linux-input archives.
+
+> +
+> +static struct dm365_kp_platform_data dm365evm_kp_data =3D {
+> + =A0 =A0 =A0 .keymap =A0 =A0 =A0 =A0 =3D dm365evm_keymap,
+> + =A0 =A0 =A0 .keymapsize =A0 =A0 =3D ARRAY_SIZE(dm365evm_keymap),
+> + =A0 =A0 =A0 .rep =A0 =A0 =A0 =A0 =A0 =A0=3D 1,
+> +};
+
+You might want to add more platform data here, like "scan time",
+"debounce_time" if your keypad controller has those configurable
+parameters.
+
+> =A0static struct davinci_uart_config uart_config __initdata =3D {
+> diff --git a/arch/arm/mach-davinci/include/mach/dm365_keypad.h b/arch=
+/arm/mach-davinci/include/mach/dm365_keypad.h
+> new file mode 100644
+> index 0000000..3d0b348
+> --- /dev/null
+> +++ b/arch/arm/mach-davinci/include/mach/dm365_keypad.h
+> @@ -0,0 +1,81 @@
+> +/*
+> + *
+> + * Copyright (C) 2009 Texas Instruments, Inc.
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License as published=
+ by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. =A0See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA =A002111=
+-1307 =A0USA
+> + */
+> +
+> +#ifndef __DM365_KEYPAD_H__
+> +#define __DM365_KEYPAD_H__
+> +
+> +struct dm365_kp_platform_data {
+> + =A0 =A0 =A0 int *keymap;
+> + =A0 =A0 =A0 unsigned int keymapsize;
+> + =A0 =A0 =A0 unsigned int rep:1;
+> +};
+> +
+> +/* Keypad registers */
+> +#define DM365_KEYSCAN_BASE =A0 =A0 =A0 =A0 =A0 =A0 0x01C69400
+> +#define KEYPAD_BASE =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0DM365_KEY=
+SCAN_BASE
+> +#define DM365_KEYPAD_KEYCTRL =A0 =A0 =A0 =A0 =A0 (0x0000)
+> +#define DM365_KEYPAD_INTENA =A0 =A0 =A0 =A0 =A0 =A0(0x0004)
+> +#define DM365_KEYPAD_INTFLAG =A0 =A0 =A0 =A0 =A0 (0x0008)
+> +#define DM365_KEYPAD_INTCLR =A0 =A0 =A0 =A0 =A0 =A0(0x000c)
+> +#define DM365_KEYPAD_STRBWIDTH =A0 =A0 =A0 =A0 (0x0010)
+> +#define DM365_KEYPAD_INTERVAL =A0 =A0 =A0 =A0 =A0(0x0014)
+> +#define DM365_KEYPAD_CONTTIME =A0 =A0 =A0 =A0 =A0(0x0018)
+> +#define DM365_KEYPAD_CURRENTST =A0 =A0 =A0 =A0 (0x001c)
+> +#define DM365_KEYPAD_PREVSTATE =A0 =A0 =A0 =A0 (0x0020)
+> +#define DM365_KEYPAD_EMUCTRL =A0 =A0 =A0 =A0 =A0 (0x0024)
+> +#define DM365_KEYPAD_IODFTCTRL =A0 =A0 =A0 =A0 (0x002c)
+> +
+> +/*Key Control Register (KEYCTRL)*/
+> +
+> +#define DM365_KEYPAD_KEYEN =A0 =A0 =A0 =A0 =A0 =A0 0x00000001
+> +#define DM365_KEYPAD_PREVMODE =A0 =A0 =A0 =A0 =A00x00000002
+> +#define DM365_KEYPAD_CHATOFF =A0 =A0 =A0 =A0 =A0 0x00000004
+> +#define DM365_KEYPAD_AUTODET =A0 =A0 =A0 =A0 =A0 0x00000008
+> +#define DM365_KEYPAD_SCANMODE =A0 =A0 =A0 =A0 =A00x00000010
+> +#define DM365_KEYPAD_OUTTYPE =A0 =A0 =A0 =A0 =A0 0x00000020
+> +#define DM365_KEYPAD_4X4 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x00000040
+> +
+> +/*Masks for the interrupts*/
+> +
+> +#define DM365_KEYPAD_INT_CONT =A0 =A0 =A0 =A0 =A0 0x00000008
+> +#define DM365_KEYPAD_INT_OFF =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0x0=
+0000004
+> +#define DM365_KEYPAD_INT_ON =A0 =A0 =A0 =A0 =A0 =A0 0x00000002
+> +#define DM365_KEYPAD_INT_CHANGE =A0 =A0 =A0 =A0 0x00000001
+> +#define DM365_KEYPAD_INT_ALL =A0 =A0 =A0 =A0 =A0 0x0000000f
+> +
+
+This is a wrong file for registers. You should keep them in ".c" file
+of driver itself.
+
+> +/*Masks for the various keys on the DM365*/
+> +
+> +#define =A0 =A0 =A0 =A0KEY_DM365_KEY2 =A0 =A0 =A0 =A0 =A00
+> +#define =A0 =A0 =A0 =A0KEY_DM365_LEFT =A0 =A0 =A0 =A0 =A01
+> +#define =A0 =A0 =A0 =A0KEY_DM365_EXIT =A0 =A0 =A0 =A0 =A02
+> +#define =A0 =A0 =A0 =A0KEY_DM365_DOWN =A0 =A0 =A0 =A0 =A03
+> +#define =A0 =A0 =A0 =A0KEY_DM365_ENTER =A0 =A0 =A0 =A0 4
+> +#define =A0 =A0 =A0 =A0KEY_DM365_UP =A0 =A0 =A0 =A0 =A0 =A05
+> +#define =A0 =A0 =A0 =A0KEY_DM365_KEY1 =A0 =A0 =A0 =A0 =A06
+> +#define =A0 =A0 =A0 =A0KEY_DM365_RIGHT =A0 =A0 =A0 =A0 7
+> +#define =A0 =A0 =A0 =A0KEY_DM365_MENU =A0 =A0 =A0 =A0 =A08
+> +#define =A0 =A0 =A0 =A0KEY_DM365_REC =A0 =A0 =A0 =A0 =A0 9
+> +#define =A0 =A0 =A0 =A0KEY_DM365_REW =A0 =A0 =A0 =A0 =A0 10
+> +#define =A0 =A0 =A0 =A0KEY_DM365_SKIPMINUS =A0 =A0 11
+> +#define =A0 =A0 =A0 =A0KEY_DM365_STOP =A0 =A0 =A0 =A0 =A012
+> +#define =A0 =A0 =A0 =A0KEY_DM365_FF =A0 =A0 =A0 =A0 =A0 =A013
+> +#define =A0 =A0 =A0 =A0KEY_DM365_SKIPPLUL =A0 =A0 =A014
+> +#define =A0 =A0 =A0 =A0KEY_DM365_PLAYPAUSE =A0 =A0 15
+> +
+> +#endif
+> diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/=
+Kconfig
+> index 5f09663..aee1790 100644
+> --- a/drivers/input/keyboard/Kconfig
+> +++ b/drivers/input/keyboard/Kconfig
+> @@ -340,4 +340,10 @@ config KEYBOARD_DM355EVM
+> =A0 =A0 =A0 =A0 =A0Supports the pushbuttons and IR remote used with
+> =A0 =A0 =A0 =A0 =A0the DM355 EVM board.
+>
+> +config KEYBOARD_DM365EVM
+> + =A0 =A0 =A0 tristate "TI DaVinci DM365 EVM Keypad"
+> + =A0 =A0 =A0 depends on ARCH_DAVINCI_DM365
+> + =A0 =A0 =A0 help
+> + =A0 =A0 =A0 =A0 Supports only the keypad Module on the DM365 EVM
+> +
+> =A0endif
+> diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard=
+/Makefile
+> index a698caa..77d547d 100644
+> --- a/drivers/input/keyboard/Makefile
+> +++ b/drivers/input/keyboard/Makefile
+> @@ -29,3 +29,4 @@ obj-$(CONFIG_KEYBOARD_MAPLE) =A0 =A0 =A0 =A0 =A0+=3D=
+ maple_keyb.o
+> =A0obj-$(CONFIG_KEYBOARD_BFIN) =A0 =A0 =A0 =A0 =A0 =A0+=3D bf54x-keys=
+=2Eo
+> =A0obj-$(CONFIG_KEYBOARD_SH_KEYSC) =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D=
+ sh_keysc.o
+> =A0obj-$(CONFIG_KEYBOARD_DM355EVM) =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D=
+ dm355evm_keys.o
+> +obj-$(CONFIG_KEYBOARD_DM365EVM) =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0+=3D =
+dm365evm_keypad.o
+> diff --git a/drivers/input/keyboard/dm365evm_keypad.c b/drivers/input=
+/keyboard/dm365evm_keypad.c
+> new file mode 100755
+> index 0000000..99b12e2
+> --- /dev/null
+> +++ b/drivers/input/keyboard/dm365evm_keypad.c
+> @@ -0,0 +1,279 @@
+> +/*
+> + *
+> + * Copyright (C) 2009 Texas Instruments, Inc
+> + *
+> + * This program is free software; you can redistribute it and/or mod=
+ify
+> + * it under the terms of the GNU General Public License as published=
+ by
+> + * the Free Software Foundation; either version 2 of the License, or
+> + * (at your option) any later version.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+> + * GNU General Public License for more details.
+> + *
+> + * You should have received a copy of the GNU General Public License
+> + * along with this program; if not, write to the Free Software
+> + * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-13=
+07 USA
+> + */
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/interrupt.h>
+> +#include <linux/types.h>
+> +#include <linux/input.h>
+> +#include <linux/kernel.h>
+> +#include <linux/delay.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/errno.h>
+> +#include <linux/mutex.h>
+> +#include <linux/io.h>
+> +#include <asm/irq.h>
+> +#include <mach/dm365_keypad.h>
+> +#include <mach/hardware.h>
+> +#include <mach/irqs.h>
+> +#include <mach/mux.h>
+> +
+> +#define dm365_keypad_write(val, addr) =A0__raw_writel(val, \
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 (unsigned int *)((u32)dm365_kp_base + (=
+u32)(addr)))
+> +#define dm365_keypad_read(addr) =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0__raw=
+_readl(\
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 (unsigned int *)((u32)dm365_kp_base + (=
+u32)(addr)))
+> +
+
+Please convert them into functions, so that you can have benefit of
+type checking.
+
+> +struct davinci_kp {
+> + =A0 =A0 =A0 struct input_dev =A0 =A0 =A0 =A0*input;
+> + =A0 =A0 =A0 int irq;
+> +};
+> +
+> +static void __iomem =A0 =A0*dm365_kp_base;
+> +static resource_size_t dm365_kp_pbase;
+> +static size_t =A0 =A0 =A0 =A0 =A0dm365_kp_base_size;
+> +static int *keymap;
+
+Someof this should go into your driver structure "davinci_kp" instead.
+
+> +
+> +void dm365_keypad_initialize(void)
+> +{
+> + =A0 =A0 =A0 /*Initializing the Keypad Module */
+> +
+> + =A0 =A0 =A0 /* Enable all interrupts */
+> + =A0 =A0 =A0 dm365_keypad_write(DM365_KEYPAD_INT_ALL, DM365_KEYPAD_I=
+NTENA);
+> +
+> + =A0 =A0 =A0 /* Clear interrupts if any */
+> + =A0 =A0 =A0 dm365_keypad_write(DM365_KEYPAD_INT_ALL, DM365_KEYPAD_I=
+NTCLR);
+> +
+> + =A0 =A0 =A0 /* Setup the scan period */
+> + =A0 =A0 =A0 dm365_keypad_write(0x05, DM365_KEYPAD_STRBWIDTH);
+> + =A0 =A0 =A0 dm365_keypad_write(0x02, DM365_KEYPAD_INTERVAL);
+> + =A0 =A0 =A0 dm365_keypad_write(0x01, DM365_KEYPAD_CONTTIME);
+
+As said above "scan" period should come from platform data instead.
+
+> +
+> + =A0 =A0 =A0 /* Enable Keyscan module and enable */
+> + =A0 =A0 =A0 dm365_keypad_write(DM365_KEYPAD_AUTODET | DM365_KEYPAD_=
+KEYEN,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0DM365_KEYPAD_KEY=
+CTRL);
+> +}
+> +
+> +static irqreturn_t dm365_kp_interrupt(int irq, void *dev_id)
+> +{
+> + =A0 =A0 =A0 int i;
+> + =A0 =A0 =A0 unsigned int status, temp, temp1;
+> + =A0 =A0 =A0 int keycode =3D KEY_UNKNOWN;
+> + =A0 =A0 =A0 struct davinci_kp *dm365_kp =3D dev_id;
+> +
+> + =A0 =A0 =A0 /* Reading the status of the Keypad */
+> + =A0 =A0 =A0 status =3D dm365_keypad_read(DM365_KEYPAD_PREVSTATE);
+> +
+> + =A0 =A0 =A0 temp =3D ~status;
+> +
+> + =A0 =A0 =A0 for (i =3D 0; i < 16; i++) {
+
+What is "16"?
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 temp1 =3D temp >> i;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (temp1 & 0x1) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 keycode =3D keymap[i];
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 /* report press + relea=
+se */
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(dm365_=
+kp->input, keycode, 1);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_sync(dm365_kp->in=
+put);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_report_key(dm365_=
+kp->input, keycode, 0);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 input_sync(dm365_kp->in=
+put);
+
+Why you want to send "release" just after "press"? This code needs some=
+ comment.
+
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 /* clearing interrupts */
+> + =A0 =A0 =A0 dm365_keypad_write(DM365_KEYPAD_INT_ALL, DM365_KEYPAD_I=
+NTCLR);
+> +
+> + =A0 =A0 =A0 return IRQ_HANDLED;
+> +}
+> +
+> +/*
+> + * Registers keypad device with input sub system
+> + * and configures DM365 keypad registers
+> + */
+> +static int dm365_kp_probe(struct platform_device *pdev)
+> +{
+> + =A0 =A0 =A0 struct davinci_kp *dm365_kp;
+> + =A0 =A0 =A0 struct input_dev *key_dev;
+> + =A0 =A0 =A0 struct resource *res, *mem;
+> + =A0 =A0 =A0 int ret, i;
+> + =A0 =A0 =A0 unsigned int val;
+> + =A0 =A0 =A0 struct dm365_kp_platform_data *pdata =3D pdev->dev.plat=
+form_data;
+> +
+> + =A0 =A0 =A0 /* Enabling pins for Keypad */
+> + =A0 =A0 =A0 davinci_cfg_reg(DM365_KEYPAD);
+> +
+> + =A0 =A0 =A0 /* TODO
+> + =A0 =A0 =A0 =A0* Enable the Keypad Module by writing appropriate va=
+lue
+> + =A0 =A0 =A0 =A0* to CPLD Register 3
+> + =A0 =A0 =A0 =A0* Will wait for David Brownell's CPLD patch
+> + =A0 =A0 =A0 =A0*/
+> +
+> + =A0 =A0 =A0 if (!pdata->keymap) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "No keymap from pdata\n=
+");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dm365_kp =3D kzalloc(sizeof *dm365_kp, GFP_KERNEL);
+> + =A0 =A0 =A0 key_dev =3D input_allocate_device();
+> +
+> + =A0 =A0 =A0 if (!dm365_kp || !key_dev) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "Could not allocate inp=
+ut device\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 platform_set_drvdata(pdev, dm365_kp);
+> +
+> + =A0 =A0 =A0 dm365_kp->input =3D key_dev;
+> +
+> + =A0 =A0 =A0 dm365_kp->irq =3D platform_get_irq(pdev, 0);
+> + =A0 =A0 =A0 if (dm365_kp->irq <=3D 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_debug("%s: No DM365 Keypad irq\n", p=
+dev->name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail1;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +
+> + =A0 =A0 =A0 dm365_kp_pbase =3D res->start;
+> + =A0 =A0 =A0 dm365_kp_base_size =3D res->end - res->start + 1;
+
+Please use resource_size.
+
+> +
+> + =A0 =A0 =A0 if (res)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 mem =3D request_mem_region(res->start,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0dm365_kp_base_size, pdev->name);
+> + =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 mem =3D NULL;
+> +
+> + =A0 =A0 =A0 if (!mem) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_debug("%s: KEYSCAN registers at %08x=
+ are not free\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0pdev->name, DM365_KE=
+YSCAN_BASE);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail1;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dm365_kp_base =3D ioremap(res->start, dm365_kp_base_siz=
+e);
+> + =A0 =A0 =A0 if (dm365_kp_base =3D=3D NULL) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_debug("%s: Can't ioremap MEM resourc=
+e.\n", pdev->name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail2;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 /* Enable auto repeat feature of Linux input subsystem =
+*/
+> + =A0 =A0 =A0 if (pdata->rep)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_bit(EV_REP, key_dev->evbit);
+
+Please use non-atomic version of this. __set_bit.
+
+> +
+> + =A0 =A0 =A0 /* setup input device */
+> + =A0 =A0 =A0 set_bit(EV_KEY, key_dev->evbit);
+
+__set_bit.
+
+> +
+> + =A0 =A0 =A0 /* Setup the keymap */
+> + =A0 =A0 =A0 keymap =3D pdata->keymap;
+> +
+> + =A0 =A0 =A0 for (i =3D 0; i < 16; i++)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 set_bit(keymap[i], key_dev->keybit);
+
+__set_bit.
+
+> +
+> + =A0 =A0 =A0 key_dev->name =3D "dm365_keypad";
+> + =A0 =A0 =A0 key_dev->phys =3D "dm365_keypad/input0";
+> + =A0 =A0 =A0 key_dev->dev.parent =3D &pdev->dev;
+> +
+> + =A0 =A0 =A0 key_dev->id.bustype =3D BUS_HOST;
+> + =A0 =A0 =A0 key_dev->id.vendor =3D 0x0001;
+> + =A0 =A0 =A0 key_dev->id.product =3D 0x0365;
+> + =A0 =A0 =A0 key_dev->id.version =3D 0x0001;
+> +
+> + =A0 =A0 =A0 key_dev->keycode =3D keymap;
+> + =A0 =A0 =A0 key_dev->keycodesize =3D sizeof(unsigned int);
+> + =A0 =A0 =A0 key_dev->keycodemax =3D pdata->keymapsize;
+
+Instead you should define max_keymap_size, which is supported for
+controller itself.
+
+> +
+> + =A0 =A0 =A0 ret =3D input_register_device(dm365_kp->input);
+> + =A0 =A0 =A0 if (ret < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"Unable to register DaVi=
+nci DM365 keypad device\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail3;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 ret =3D request_irq(dm365_kp->irq, dm365_kp_interrupt, =
+IRQF_DISABLED,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "dm365_keypad", dm3=
+65_kp);
+> + =A0 =A0 =A0 if (ret < 0) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"Unable to register DaVi=
+nci DM365 keypad Interrupt\n");
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail4;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 dm365_keypad_initialize();
+> +
+> + =A0 =A0 =A0 return 0;
+> +fail4:
+> + =A0 =A0 =A0 input_unregister_device(dm365_kp->input);
+> +fail3:
+> + =A0 =A0 =A0 iounmap(dm365_kp_base);
+> +fail2:
+> + =A0 =A0 =A0 release_mem_region(dm365_kp_pbase, dm365_kp_base_size);
+> +fail1:
+> + =A0 =A0 =A0 kfree(dm365_kp);
+> + =A0 =A0 =A0 input_free_device(key_dev);
+
+input_free_device after input_unregister_device is not required,
+before input_dev is refcounted. In above code put dm365_kp->input =3D
+NULL after input_unregister_device.
+
+> +
+> + =A0 =A0 =A0 /* TODO
+> + =A0 =A0 =A0 =A0* Re enabling other modules by doing a CPLD write
+> + =A0 =A0 =A0 =A0* Will wait for David Brownell's patch
+> + =A0 =A0 =A0 =A0*/
+> +
+> + =A0 =A0 =A0 return -EINVAL;
+> +}
+> +
+> +static int __devexit dm365_kp_remove(struct platform_device *pdev)
+> +{
+> + =A0 =A0 =A0 struct davinci_kp *dm365_kp =3D platform_get_drvdata(pd=
+ev);
+> +
+> + =A0 =A0 =A0 input_unregister_device(dm365_kp->input);
+> + =A0 =A0 =A0 free_irq(dm365_kp->irq, dm365_kp);
+> + =A0 =A0 =A0 kfree(dm365_kp);
+> +
+> + =A0 =A0 =A0 iounmap(dm365_kp_base);
+> + =A0 =A0 =A0 release_mem_region(dm365_kp_pbase, dm365_kp_base_size);
+> +
+> + =A0 =A0 =A0 platform_set_drvdata(pdev, NULL);
+> +
+> + =A0 =A0 =A0 /* TODO
+> + =A0 =A0 =A0 =A0* Re enabling other modules by doing a CPLD write
+> + =A0 =A0 =A0 =A0* Will wait for David Brownell's patch
+> + =A0 =A0 =A0 =A0*/
+> +
+> + =A0 =A0 =A0 return 0;
+> +}
+> +
+> +static struct platform_driver dm365_kp_driver =3D {
+> + =A0 =A0 =A0 .probe =3D dm365_kp_probe,
+> + =A0 =A0 =A0 .remove =3D __devexit_p(dm365_kp_remove),
+> + =A0 =A0 =A0 .driver =3D {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =3D "dm365_keypad",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =3D THIS_MODULE,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0},
+> +};
+> +
+> +static int __init dm365_kp_init(void)
+> +{
+> + =A0 =A0 =A0 printk(KERN_INFO "DaVinci DM365 Keypad Driver\n");
+> +
+
+No need of banner.
+
+> + =A0 =A0 =A0 return platform_driver_register(&dm365_kp_driver);
+> +}
+> +
+> +static void __exit dm365_kp_exit(void)
+> +{
+> + =A0 =A0 =A0 platform_driver_unregister(&dm365_kp_driver);
+> +}
+> +
+> +module_init(dm365_kp_init);
+> +module_exit(dm365_kp_exit);
+> +
+> +MODULE_AUTHOR("Sandeep Paulraj");
+> +MODULE_DESCRIPTION("Texas Instruments DaVinci DM365 EVM Keypad Drive=
+r");
+> +MODULE_LICENSE("GPL");
+
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

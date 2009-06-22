@@ -1,78 +1,154 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: [PATCH] ep93xx_keypad: remove macros and update clkdev support
-Date: Sat, 20 Jun 2009 18:36:12 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE1909019683A6@mi8nycmail19.Mi8.com>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 2.6.29-rc2] input:  dm355evm_keys driver
+Date: Sun, 21 Jun 2009 17:10:50 -0700
+Message-ID: <200906211710.50537.david-b@pacbell.net>
+References: <200901171315.08019.david-b@pacbell.net> <200904202319.02590.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6ob109.obsmtp.com ([64.18.1.22]:59766 "HELO psmtp.com"
-	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
-	id S1751888AbZFTWgM convert rfc822-to-8bit (ORCPT
+Received: from smtp125.sbc.mail.sp1.yahoo.com ([69.147.65.184]:48593 "HELO
+	smtp125.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1754279AbZFVAR2 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 20 Jun 2009 18:36:12 -0400
-Content-class: urn:content-classes:message
+	Sun, 21 Jun 2009 20:17:28 -0400
+In-Reply-To: <200904202319.02590.david-b@pacbell.net>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: linux-input@vger.kernel.org
+Cc: Kevin Hilman <khilman@deeprootsystems.com>, Dmitry Torokhov <dtor@mail.ru>
 
-The keypad_{readl|writel} macros are both only used once.  Remove
-them and just open code the __raw_{readl|writel}.
+On Monday 20 April 2009, David Brownell wrote:
+> On Saturday 17 January 2009, David Brownell wrote:
+> > From: David Brownell <dbrownell@users.sourceforge.net>
+> > Subject: input: =A0dm355evm_keys driver
+> > =A0 =A0=20
+>=20
+> PING?? =A0I was told this was in the input queue, but it does
+> not seem to be in
+>=20
+> =A0 http://git.kernel.org/?p=3Dlinux/kernel/git/dtor/input.git
+>=20
+> Current version of the patch is appended.
+>=20
+> - Dave
+>=20
 
-The ep93xx_keypad clock is matched based on the device ID.  Change
-the clk_get() call to reflect this.
+Hmm, still no response.  What's up, input team??
 
-Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Appended is a minor tweak to this code.  I'm going to resend
+the patch again.  Maybe one day, soon, I can take it out of
+my list of patches-due-to-hit-mainline ...
 
+- Dave
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D CUT HERE
+=46rom: David Brownell <dbrownell@users.sourceforge.net>
+
+Convert the dm355evm keys driver to use IRQ threading instead
+of a private workqueue ... that mechanism was added to Linux
+after the driver was first written.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 ---
+ drivers/input/keyboard/dm355evm_keys.c |   38 ++++++++++++++----------=
+-------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
-Note: a patch to add the necessary ep93xx clkdev support was recently
-submitted to linux-arm-kernel.  If anyone needs this patch right now
-please let me know.
-
-
-diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-index 181d30e..ebb0026 100644
---- a/drivers/input/keyboard/ep93xx_keypad.c
-+++ b/drivers/input/keyboard/ep93xx_keypad.c
-@@ -60,9 +60,6 @@
- #define KEY_REG_KEY1_MASK	(0x0000003f)
- #define KEY_REG_KEY1_SHIFT	(0)
- 
--#define keypad_readl(off)	__raw_readl(keypad->mmio_base + (off))
--#define keypad_writel(v, off)	__raw_writel((v), keypad->mmio_base + (off))
+--- a/drivers/input/keyboard/dm355evm_keys.c
++++ b/drivers/input/keyboard/dm355evm_keys.c
+@@ -23,30 +23,16 @@
+  * pressed, or its autorepeat kicks in, an event is sent.  This driver
+  * read those events from the small (32 event) queue and reports them.
+  *
+- * Because we communicate with the MSP430 using I2C, and all I2C calls
+- * in Linux sleep, we need to cons up a kind of threaded IRQ handler
+- * using a work_struct.  The IRQ is active low, but we use it through
+- * the GPIO controller so we can trigger on falling edges.
+- *
+  * Note that physically there can only be one of these devices.
+  *
+  * This driver was tested with firmware revision A4.
+  */
+ struct dm355evm_keys {
+-	struct work_struct	work;
+ 	struct input_dev	*input;
+ 	struct device		*dev;
+ 	int			irq;
+ };
+=20
+-static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
+-{
+-	struct dm355evm_keys	*keys =3D _keys;
 -
- #define MAX_MATRIX_KEY_NUM	(MAX_MATRIX_KEY_ROWS * MAX_MATRIX_KEY_COLS)
- 
- struct ep93xx_keypad {
-@@ -102,9 +99,11 @@ static irqreturn_t ep93xx_keypad_irq_handler(int irq, void *dev_id)
+-	schedule_work(&keys->work);
+-	return IRQ_HANDLED;
+-}
+-
+ /* These initial keycodes can be remapped by dm355evm_setkeycode(). */
+ static struct {
+ 	u16	event;
+@@ -110,13 +96,12 @@ static struct {
+ 	{ 0x3169, KEY_PAUSE, },
+ };
+=20
+-static void dm355evm_keys_work(struct work_struct *work)
++/* runs in an IRQ thread -- can (and will!) sleep */
++static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
  {
- 	struct ep93xx_keypad *keypad = dev_id;
- 	struct input_dev *input_dev = keypad->input_dev;
--	unsigned int status = keypad_readl(KEY_REG);
-+	unsigned int status;
- 	int keycode, key1, key2;
- 
-+	status = __raw_readl(keypad->mmio_base + KEY_REG);
-+
- 	keycode = (status & KEY_REG_KEY1_MASK) >> KEY_REG_KEY1_SHIFT;
- 	key1 = keypad->matrix_keycodes[keycode];
- 
-@@ -167,7 +166,7 @@ static void ep93xx_keypad_config(struct ep93xx_keypad *keypad)
- 
- 	val |= ((pdata->prescale << KEY_INIT_PRSCL_SHIFT) & KEY_INIT_PRSCL_MASK);
- 
--	keypad_writel(val, KEY_INIT);
-+	__raw_writel(val, keypad->mmio_base + KEY_INIT);
- }
- 
- static int ep93xx_keypad_open(struct input_dev *pdev)
-@@ -323,7 +322,7 @@ static int __devinit ep93xx_keypad_probe(struct platform_device *pdev)
- 		}
+-	struct dm355evm_keys	*keys;
++	struct dm355evm_keys	*keys =3D _keys;
+ 	int			status;
+=20
+-	keys =3D container_of(work, struct dm355evm_keys, work);
+-
+ 	/* For simplicity we ignore INPUT_COUNT and just read
+ 	 * events until we get the "queue empty" indicator.
+ 	 * Reading INPUT_LOW decrements the count.
+@@ -184,6 +169,19 @@ static void dm355evm_keys_work(struct wo
+ 		input_report_key(keys->input, keycode, 0);
+ 		input_sync(keys->input);
  	}
- 
--	keypad->clk = clk_get(&pdev->dev, "key_clk");
-+	keypad->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(keypad->clk)) {
- 		dev_err(&pdev->dev, "failed to get keypad clock\n");
- 		err = PTR_ERR(keypad->clk); 
++	return IRQ_HANDLED;
++}
++
++/*
++ * Because we communicate with the MSP430 using I2C, and all I2C calls
++ * in Linux sleep, we use a threaded IRQ handler.  The IRQ itself is
++ * active low, but we go through the GPIO controller so we can trigger
++ * on falling edges and not worry about enabling/disabling the IRQ in
++ * the keypress handling path.
++ */
++static irqreturn_t dm355evm_keys_hardirq(int irq, void *_keys)
++{
++	return IRQ_WAKE_THREAD;
+ }
+=20
+ static int dm355evm_setkeycode(struct input_dev *dev, int index, int k=
+eycode)
+@@ -259,7 +257,6 @@ static int __devinit dm355evm_keys_probe
+ 	if (status < 0)
+ 		goto fail1;
+ 	keys->irq =3D status;
+-	INIT_WORK(&keys->work, dm355evm_keys_work);
+=20
+ 	/* REVISIT:  flush the event queue? */
+=20
+@@ -269,7 +266,8 @@ static int __devinit dm355evm_keys_probe
+ 		goto fail0;
+=20
+ 	/* start reporting events */
+-	status =3D request_irq(keys->irq, dm355evm_keys_irq,
++	status =3D request_threaded_irq(keys->irq,
++			dm355evm_keys_hardirq, dm355evm_keys_irq,
+ 			IRQF_TRIGGER_FALLING,
+ 			dev_name(&pdev->dev), keys);
+ 	if (status < 0) {
+
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

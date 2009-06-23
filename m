@@ -1,49 +1,62 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH] HID: Avoid double spin_lock_init on usbhid->lock
- (resend)
-Date: Tue, 23 Jun 2009 15:33:45 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0906231532460.7457@wotan.suse.de>
-References: <20090623093324.GB3805@localdomain.by>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: How do you keep input from a USB Mag card reader from going to
+ STDIN?
+Date: Tue, 23 Jun 2009 16:02:17 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0906231600510.31685@twin.jikos.cz>
+References: <6C2434209962DC46B88345CA85C334A240E19D7CE2@Courier.syntech.org>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20090623093324.GB3805-AfQBxy1nhrTup4dJKg45FQ@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sergey Senozhatsky <sergey.senozhatsky-A/MS7pq9VAU@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:44557 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754225AbZFWOCP (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2009 10:02:15 -0400
+In-Reply-To: <6C2434209962DC46B88345CA85C334A240E19D7CE2@Courier.syntech.org>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Mark Butsch <mbutsch@syntech-fuelmaster.com>
+Cc: "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
 
-On Tue, 23 Jun 2009, Sergey Senozhatsky wrote:
+On Wed, 10 Jun 2009, Mark Butsch wrote:
 
-> Trivial: Avoid double spin_lock_init on usbhid->lock.
+> I would like to make it so the real keyboard is the only device that 
+> feeds STDIN and the mag card reader is only readable by reading that 
+> device directly.
 > 
-> Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky-A/MS7pq9VAU@public.gmane.org>
-> ---
-> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-> index 76c4bbe..c654b89 100644
-> --- a/drivers/hid/usbhid/hid-core.c
-> +++ b/drivers/hid/usbhid/hid-core.c
-> @@ -987,7 +987,6 @@ static int usbhid_start(struct hid_device *hid)
->  	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
->  
->  	spin_lock_init(&usbhid->lock);
-> -	spin_lock_init(&usbhid->lock);
->  
->  	usbhid->intf = intf;
->  	usbhid->ifnum = interface->desc.bInterfaceNumber;
+> If I "cat /proc/bus/input/devices" it shows:
+> 
+> I: Bus=0003 Vendor=04da Product=117c Version=0001
+> N: Name="Panasonic Panasonic USB keyboard compliant Mag-CR"
+> P: Phys=usb-0000:00:1d.3-1/input0
+> S: Sysfs=/class/input/input37
+> H: Handlers=kbd event5
+> B: EV=120003
+> B: KEY=10000 7 ff80007a 7ff febeffdf ffefffff ffffffff fffffffe
+> B: LED=1f
+> 
+> I: Bus=0003 Vendor=413c Product=2105 Version=0352
+> N: Name="Dell Dell USB Keyboard"
+> P: Phys=usb-0000:00:1d.0-1/input0
+> S: Sysfs=/class/input/input38
+> H: Handlers=kbd event2
+> B: EV=120003
+> B: KEY=10000 7 ff87207a c14057ff febeffdf ffefffff ffffffff fffffffe
+> B: LED=7
+> 
+> How would I disconnect the "kbd" handler from the mag card reader (and 
+> the mag card reader from the "kbd" handler) or is that the wrong 
+> approach?
 
-Hi Sergey,
+You can either unbind HID driver from the device completely, and write 
+your own userspace driver using libusb.
 
-I have applied the patch. Your mail hasn't reached my @suse.cz address 
-though, I have digged it from linux-input. Is your SMTP server or some 
-blacklist?
-
-Thanks,
+Or you can patch the HID driver not to attach this device to inpu 
+subsystem, and only trigger creation of /dev/hidraw (or /dev/hiddev 
+respectively), and write user-space application that will process the HID 
+events from these device nodes, and process them in your application as 
+needed.
 
 -- 
 Jiri Kosina
 SUSE Labs
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+

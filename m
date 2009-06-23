@@ -1,125 +1,126 @@
-From: =?ISO-8859-15?Q?Richard_R=F6jfors?=
-	<richard.rojfors.ext@mocean-labs.com>
-Subject: [PATCH 2/2] tsc2007: make platform callbacks optional
-Date: Tue, 23 Jun 2009 13:54:54 +0200
-Message-ID: <4A40C28E.1070109@mocean-labs.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH] ntrig tool separation and pen usages
+Date: Tue, 23 Jun 2009 14:01:49 +0200 (CEST)
+Message-ID: <alpine.LRH.2.00.0906231138400.31685@twin.jikos.cz>
+References: <1245278886-11659-1-git-send-email-rafi@seas.upenn.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1759276AbZFWLzV@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-1866813014-1245749980=:31685"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from cantor.suse.de ([195.135.220.2]:40562 "EHLO mx1.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752259AbZFWMBt (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2009 08:01:49 -0400
+In-Reply-To: <1245278886-11659-1-git-send-email-rafi@seas.upenn.edu>
+Content-ID: <alpine.LRH.2.00.0906231401440.31685@twin.jikos.cz>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Rafi Rubin <rafi@seas.upenn.edu>
+Cc: linux-input@vger.kernel.org, chatty@enac.fr
 
-The platform callbacks are only called if supplied. Makes the driver
-to fallback on only pressure calculation to decide when the pen is up.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Signed-off-by: Richard R=F6jfors <richard.rojfors.ext@mocean-labs.com>
----
-Index: linux-2.6.30/drivers/input/touchscreen/tsc2007.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
---- linux-2.6.30/drivers/input/touchscreen/tsc2007.c	(revision 943)
-+++ linux-2.6.30/drivers/input/touchscreen/tsc2007.c	(revision 945)
-@@ -59,6 +59,10 @@
- #define READ_X		(ADC_ON_12BIT | TSC2007_MEASURE_X)
- #define PWRDOWN		(TSC2007_12BIT | TSC2007_POWER_OFF_IRQ_EN)
+---1747641777-1866813014-1245749980=:31685
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Content-ID: <alpine.LRH.2.00.0906231401441.31685@twin.jikos.cz>
 
-+#define PEN_STATE_UP	0x00
-+#define PEN_STATE_DOWN	0x01
-+#define PEN_STATE_IRQ	0x01
-+
- struct ts_event {
- 	u16	x;
- 	u16	y;
-@@ -76,7 +80,7 @@
- 	u16			model;
- 	u16			x_plate_ohms;
+On Wed, 17 Jun 2009, Rafi Rubin wrote:
 
--	unsigned		pendown;
-+	unsigned		penstate;
- 	int			irq;
+> When both touch and pen are active send a tool announcement before
+> sending any status changes so that event users may differentiate
+> which tool is changing.
+> 
+> Restored three usage codes used by the pen.
+> 
+> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+> ---
+>  drivers/hid/hid-ntrig.c |   31 ++++++++++++++++++++++++++++---
+>  1 files changed, 28 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+> index 75ed9d2..7765970 100644
+> --- a/drivers/hid/hid-ntrig.c
+> +++ b/drivers/hid/hid-ntrig.c
+> @@ -27,6 +27,9 @@
+>  struct ntrig_data {
+>  	__s32 x, y, id, w, h;
+>  	char reading_a_point, found_contact_id;
+> +	char pen_active;
+> +	char finger_active;
+> +	char inverted;
+>  };
+>  
+>  /*
+> @@ -63,10 +66,7 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+>  	case HID_UP_DIGITIZER:
+>  		switch (usage->hid) {
+>  		/* we do not want to map these for now */
+> -		case HID_DG_INVERT: /* value is always 0 */
+> -		case HID_DG_ERASER: /* value is always 0 */
+>  		case HID_DG_CONTACTID: /* value is useless */
+> -		case HID_DG_BARRELSWITCH:  /* doubtful */
+>  		case HID_DG_INPUTMODE:
+>  		case HID_DG_DEVICEINDEX:
+>  		case HID_DG_CONTACTCOUNT:
+> @@ -125,6 +125,18 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  
+>          if (hid->claimed & HID_CLAIMED_INPUT) {
+>  		switch (usage->hid) {
+> +
+> +		case HID_DG_INRANGE:
+> +			if(field->application & 0x3)
+> +				nd->pen_active = value!=0;
+> +			else
+> +				nd->finger_active = value!=0;
 
- 	int			(*get_pendown_state)(void);
-@@ -149,15 +153,18 @@
- 	 *
- 	 * The only safe way to check for the pen up condition is in the
- 	 * work function by reading the pen signal state (it's a GPIO and IRQ=
-).
-+	 *
-+	 * But sadly we don't always have the possibility to use such callbac=
-k
-+	 * in that case rely on the pressure anyway
- 	 */
- 	if (rt) {
- 		struct input_dev *input =3D ts->input;
+Maybe putting brackets around the comparsion and putting spaces around 
+'!=' would make the code more readable and easy to understand on a first 
+sight?
 
--		if (!ts->pendown) {
-+		if (ts->penstate !=3D PEN_STATE_DOWN) {
- 			dev_dbg(&ts->client->dev, "DOWN\n");
+> +			return 0;
+> +
+> +		case HID_DG_INVERT:
+> +			nd->inverted = value;
+> +			return 0;
+> +
+>  		case HID_GD_X:
+>  			nd->x = value;
+>  			nd->reading_a_point = 1;
+> @@ -148,6 +160,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  			 * to emit a normal (X, Y) position
+>  			 */
+>  			if (! nd->found_contact_id) {
 
- 			input_report_key(input, BTN_TOUCH, 1);
--			ts->pendown =3D 1;
-+			ts->penstate =3D PEN_STATE_DOWN;
- 		}
+While at it, could you please remove the space after '!' to be compatible 
+with the kernel coding style?
 
- 		input_report_abs(input, ABS_X, x);
-@@ -168,7 +175,9 @@
+> +				if(nd->pen_active && nd->finger_active) {
 
- 		dev_dbg(&ts->client->dev, "point(%4d,%4d), pressure (%4u)\n",
- 			x, y, rt);
--	}
-+	} else if (!ts->get_pendown_state)
-+		/* no callback to check pendown state, use pressure */
-+		ts->penstate =3D PEN_STATE_UP;
+And insert a space after 'if' here.
 
- 	schedule_delayed_work(&ts->work, TS_POLL_PERIOD);
- }
-@@ -195,7 +204,14 @@
- {
- 	struct tsc2007 *ts =3D
- 		container_of(to_delayed_work(work), struct tsc2007, work);
--	if (unlikely(!ts->get_pendown_state() && ts->pendown)) {
-+
-+	/* either we have the pendown callback, and use it, otherwise
-+	 * we look at the pendown variable
-+	 */
-+	if ((ts->get_pendown_state && unlikely(!ts->get_pendown_state()) &&
-+		ts->penstate !=3D PEN_STATE_UP) ||
-+		(!ts->get_pendown_state &&
-+		unlikely(ts->penstate =3D=3D PEN_STATE_UP))) {
- 		struct input_dev *input =3D ts->input;
+> +					input_report_key(input, BTN_TOOL_DOUBLETAP, 0);
+> +					input_report_key(input, BTN_TOOL_DOUBLETAP, 1);
+> +				}
+>  				input_event(input, EV_ABS, ABS_X, nd->x);
+>  				input_event(input, EV_ABS, ABS_Y, nd->y);
+>  			}
+> @@ -159,6 +175,14 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+>  			 * to emit a normal (X, Y) position
+>  			 */
+>  			if (! nd->found_contact_id) {
+> +				if(nd->pen_active && nd->finger_active) {
 
- 		dev_dbg(&ts->client->dev, "UP\n");
-@@ -204,7 +220,7 @@
- 		input_report_abs(input, ABS_PRESSURE, 0);
- 		input_sync(input);
+And the same here.
 
--		ts->pendown =3D 0;
-+		ts->penstate =3D PEN_STATE_UP;
- 		enable_irq(ts->irq);
- 	} else {
- 		/* pen is still down, continue with the measurement */
-@@ -219,8 +235,9 @@
- {
- 	struct tsc2007 *ts =3D handle;
 
--	if (likely(ts->get_pendown_state())) {
-+	if (!ts->get_pendown_state || likely(ts->get_pendown_state())) {
- 		disable_irq_nosync(ts->irq);
-+		ts->penstate =3D PEN_STATE_IRQ;
- 		schedule_delayed_work(&ts->work, 0);
- 	}
 
-@@ -264,7 +281,8 @@
- 	ts->get_pendown_state =3D pdata->get_pendown_state;
- 	ts->clear_penirq      =3D pdata->clear_penirq;
+Stéphane, did you have chance to verify with your device, that everything 
+works as expected with this version of Rafi's patch?
 
--	pdata->init_platform_hw();
-+	if (pdata->init_platform_hw)
-+		pdata->init_platform_hw();
+Thanks,
 
- 	snprintf(ts->phys, sizeof(ts->phys),
- 		 "%s/input0", dev_name(&client->dev));
+-- 
+Jiri Kosina
+SUSE Labs
+---1747641777-1866813014-1245749980=:31685--

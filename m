@@ -1,109 +1,36 @@
-From: Rafi Rubin <rafi@seas.upenn.edu>
-Subject: [PATCH] ntrig tool separation and pen usages
-Date: Tue, 23 Jun 2009 14:09:26 -0400
-Message-ID: <1245780566-8541-1-git-send-email-rafi@seas.upenn.edu>
+From: Ferenc Wagner <wferi@niif.hu>
+Subject: multiple keys in one irq
+Date: Tue, 23 Jun 2009 20:15:31 +0200
+Message-ID: <87hby6ke9o.fsf@tac.ki.iif.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from LION.seas.upenn.edu ([158.130.12.194]:39044 "EHLO
-	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751948AbZFWSJt (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 14:09:49 -0400
+Received: from tac.ki.iif.hu ([193.6.222.43]:40345 "EHLO tac.ki.iif.hu"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1752255AbZFWSPa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2009 14:15:30 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: jkosina@suse.cz, chatty@enac.fr, Rafi Rubin <rafi@seas.upenn.edu>
+To: Uwe.Kleine-Koenig@digi.com
+Cc: linux-input@vger.kernel.org
 
-When both touch and pen are active send a tool announcement before
-sending any status changes so that event users may differentiate
-which tool is changing.
+Hi Uwe and linux-input folks,
 
-Restored three usage codes used by the pen.
+Commit 57ffe9d5 (Input: gpio-keys - optimize interrupt handler) moved
+into a rather unfortunate direction for me.  Of course regardless of
+this change the whole gpio_keys module isn't (and wasn't) prepared to
+handle multiple GPIO keys on the same irq.
 
-Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
----
- drivers/hid/hid-ntrig.c |   33 +++++++++++++++++++++++++++++----
- 1 files changed, 29 insertions(+), 4 deletions(-)
+Now I'd like to generalize to code to cope with this, but I'm not
+experienced in kernel hacking, so decided to ask for some commentary
+beforehand.  Are there any land mines around?
 
-diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-index 75ed9d2..d7b3e61 100644
---- a/drivers/hid/hid-ntrig.c
-+++ b/drivers/hid/hid-ntrig.c
-@@ -27,6 +27,9 @@
- struct ntrig_data {
- 	__s32 x, y, id, w, h;
- 	char reading_a_point, found_contact_id;
-+	char pen_active;
-+	char finger_active;
-+	char inverted;
- };
- 
- /*
-@@ -63,10 +66,7 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	case HID_UP_DIGITIZER:
- 		switch (usage->hid) {
- 		/* we do not want to map these for now */
--		case HID_DG_INVERT: /* value is always 0 */
--		case HID_DG_ERASER: /* value is always 0 */
- 		case HID_DG_CONTACTID: /* value is useless */
--		case HID_DG_BARRELSWITCH:  /* doubtful */
- 		case HID_DG_INPUTMODE:
- 		case HID_DG_DEVICEINDEX:
- 		case HID_DG_CONTACTCOUNT:
-@@ -125,6 +125,18 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 
-         if (hid->claimed & HID_CLAIMED_INPUT) {
- 		switch (usage->hid) {
-+
-+		case HID_DG_INRANGE:
-+			if (field->application & 0x3)
-+				nd->pen_active = (value != 0);
-+			else
-+				nd->finger_active = (value != 0);
-+			return 0;
-+
-+		case HID_DG_INVERT:
-+			nd->inverted = value;
-+			return 0;
-+
- 		case HID_GD_X:
- 			nd->x = value;
- 			nd->reading_a_point = 1;
-@@ -147,7 +159,11 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 			 * report received in a finger event. We want
- 			 * to emit a normal (X, Y) position
- 			 */
--			if (! nd->found_contact_id) {
-+			if (!nd->found_contact_id) {
-+				if (nd->pen_active && nd->finger_active) {
-+					input_report_key(input, BTN_TOOL_DOUBLETAP, 0);
-+					input_report_key(input, BTN_TOOL_DOUBLETAP, 1);
-+				}
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 			}
-@@ -159,6 +175,14 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
- 			 * to emit a normal (X, Y) position
- 			 */
- 			if (! nd->found_contact_id) {
-+				if (nd->pen_active && nd->finger_active) {
-+					input_report_key(input,
-+							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
-+							, 0);
-+					input_report_key(input,
-+							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
-+							, 1);
-+				}
- 				input_event(input, EV_ABS, ABS_X, nd->x);
- 				input_event(input, EV_ABS, ABS_Y, nd->y);
- 				input_event(input, EV_ABS, ABS_PRESSURE, value);
-@@ -233,6 +257,7 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	if (ret)
- 		kfree (nd);
-+
- 	return ret;
- }
- 
+For a start, I need shared irqs, are they best requested with a lone
+IRQF_SHARED flag?  Will they always be level triggered, or should I
+explicitly request that as well by additional flags?  A sample is
+already working for me, but I'd like to shake it into acceptable form.
+
+(Please Cc me, I'm not subscribed.)
 -- 
-1.6.3.1
-
+Thanks,
+Feri.

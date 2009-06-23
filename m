@@ -1,64 +1,48 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.29-rc2] input:  dm355evm_keys driver
-Date: Mon, 22 Jun 2009 22:05:19 -0700
-Message-ID: <20090623050519.GA14724@dtor-d630.eng.vmware.com>
-References: <200901171315.08019.david-b@pacbell.net> <200904202319.02590.david-b@pacbell.net> <200906211710.50537.david-b@pacbell.net>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v2] Input: add touchscreen driver for MELFAS MCS-5000
+ controller
+Date: Tue, 23 Jun 2009 14:13:59 +0900
+Message-ID: <4A406497.9010704@samsung.com>
+References: <4A2607E6.4030706@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.226]:44624 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751495AbZFWFFW (ORCPT
+Received: from mailout1.samsung.com ([203.254.224.24]:35097 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750775AbZFWFOE (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 01:05:22 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so15612rvb.1
-        for <linux-input@vger.kernel.org>; Mon, 22 Jun 2009 22:05:25 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <200906211710.50537.david-b@pacbell.net>
+	Tue, 23 Jun 2009 01:14:04 -0400
+Received: from epmmp1 (mailout1.samsung.com [203.254.224.24])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KLO009E5EJCF4@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 23 Jun 2009 14:14:00 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KLO003GYEJBLD@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 23 Jun 2009 14:14:00 +0900 (KST)
+In-reply-to: <4A2607E6.4030706@samsung.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-input@vger.kernel.org, Kevin Hilman <khilman@deeprootsystems.com>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com
 
-Hi David,
+On 6/3/2009 2:19 PM, Joonyoung Shim wrote:
+> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
+> controller can see at the following website:
+> 
+> http://www.melfas.com/product/product01.asp?k_r=eng_
+> 
+> This patch supports only the i2c interface.
+> 
+> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> ---
 
-On Sun, Jun 21, 2009 at 05:10:50PM -0700, David Brownell wrote:
-> On Monday 20 April 2009, David Brownell wrote:
-> > On Saturday 17 January 2009, David Brownell wrote:
-> > > From: David Brownell <dbrownell@users.sourceforge.net>
-> > > Subject: input: =A0dm355evm_keys driver
-> > > =A0 =A0=20
-> >=20
-> > PING?? =A0I was told this was in the input queue, but it does
-> > not seem to be in
-> >=20
-> > =A0 http://git.kernel.org/?p=3Dlinux/kernel/git/dtor/input.git
-> >=20
+Hi Dmitry,
 
-I just noticed that you are checking master branch of the input tree
-while I work with 'for-linus' and 'next' branches normally.
+I sent the patch v2 before, any updates on this?
 
-> > Current version of the patch is appended.
-> >=20
-> > - Dave
-> >=20
->=20
-> Hmm, still no response.  What's up, input team??
->=20
-> Appended is a minor tweak to this code.  I'm going to resend
-> the patch again.  Maybe one day, soon, I can take it out of
-> my list of patches-due-to-hit-mainline ...
 
-As you have noticed the driver is in mainline already; please submit
-additional changes to the driver as incremental patches.
-
-Thanks.
-
---=20
-Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards,
+Joonyoung

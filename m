@@ -1,36 +1,61 @@
-From: Ferenc Wagner <wferi@niif.hu>
-Subject: multiple keys in one irq
-Date: Tue, 23 Jun 2009 20:15:31 +0200
-Message-ID: <87hby6ke9o.fsf@tac.ki.iif.hu>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: Can a phone hook switch follow alsa jack model?
+Date: Tue, 23 Jun 2009 23:22:56 +0100
+Message-ID: <20090623222255.GA5617@sirena.org.uk>
+References: <4A40D896.8010208@tis.icnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from tac.ki.iif.hu ([193.6.222.43]:40345 "EHLO tac.ki.iif.hu"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752255AbZFWSPa (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 14:15:30 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <4A40D896.8010208@tis.icnet.pl>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Cc: alsa-devel@alsa-project.org, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Uwe.Kleine-Koenig@digi.com
-Cc: linux-input@vger.kernel.org
 
-Hi Uwe and linux-input folks,
+On Tue, Jun 23, 2009 at 03:28:54PM +0200, Janusz Krzysztofik wrote:
 
-Commit 57ffe9d5 (Input: gpio-keys - optimize interrupt handler) moved
-into a rather unfortunate direction for me.  Of course regardless of
-this change the whole gpio_keys module isn't (and wasn't) prepared to
-handle multiple GPIO keys on the same irq.
+> After my initial attempt to add support for the switch using gpio-keys 
+> driver, I am no longer sure if it is a good idea to follow the keyboard 
+> model, that the driver has been designed after, for driving a switch 
+> that has nothing to do with keyboards and may required a different approach.
 
-Now I'd like to generalize to code to cope with this, but I'm not
-experienced in kernel hacking, so decided to ask for some commentary
-beforehand.  Are there any land mines around?
+That approach was quite common in the past.
 
-For a start, I need shared irqs, are they best requested with a lone
-IRQF_SHARED flag?  Will they always be level triggered, or should I
-explicitly request that as well by additional flags?  A sample is
-already working for me, but I'd like to shake it into acceptable form.
+> However, I am not sure if the switch in question matches the alsa jack 
+> model closely enough. I see the switch usage not as simple as turning 
+> handset microphone/speaker on or off. It can be used for other purposes 
+> as well, like accepting a phone call or actually dialing a number that 
+> has been just typed in. Furthermore, it can be used to turn off a 
+> speakerphone function, while, in turn, the related handset 
+> microphone/speaker pair can be turned off not only with this switch, but 
+> with a handsfree button as well, for example.
 
-(Please Cc me, I'm not subscribed.)
--- 
-Thanks,
-Feri.
+That can all be accomodated within the ASoC jack framework (I'm assuming
+you'll be doing an ASoC rather than generic ALSA driver).  You get the
+input device just the same as you get with gpio-keys so you can do stuff
+in user space, the main difference is that you can also arrange for some
+of the power management within ASoC to be hooked up with the jack
+automatically as well.
+
+With what you're describing above I'd tie the mic and speaker in the
+headset to DAPM automatically.
+
+> All that extra functionality looks like belonging to userspace rather 
+> then kernel, not like other alsa jack implementations that seem to do 
+> all the job of switching media paths inside the kernel. That is why I am 
+> not sure if the jack model is suitable for the purpose.
+
+The switching in kernel for ASoC should generally be confined to marking
+outputs as powered or unpowered - things like marking a headphone jack
+as disabled when there's nothing plugged in to it that can be done
+unconditionally.  Everything else should get punted to user space.

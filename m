@@ -1,126 +1,104 @@
 From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] ntrig tool separation and pen usages
-Date: Tue, 23 Jun 2009 14:01:49 +0200 (CEST)
-Message-ID: <alpine.LRH.2.00.0906231138400.31685@twin.jikos.cz>
-References: <1245278886-11659-1-git-send-email-rafi@seas.upenn.edu>
+Subject: Re: hid_apple bug: arrow keys interpreted as Fn
+Date: Tue, 23 Jun 2009 15:07:51 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906231504480.7457@wotan.suse.de>
+References: <3E66E0E0-3B2B-4F78-9A62-87015A842A47@freedesktop.org> <C3870FA0-209F-4D40-8923-34D594B75EB1@freedesktop.org> <4A132540.7070409@gmail.com> <B9186545-9C33-4ADA-A3D9-8B5A5DA377CE@freedesktop.org> <alpine.LNX.2.00.0905201615490.13917@wotan.suse.de>
+ <2784A223-EE31-41FF-BD44-45E5BBDC9B75@freedesktop.org>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1747641777-1866813014-1245749980=:31685"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:40562 "EHLO mx1.suse.de"
+Received: from cantor.suse.de ([195.135.220.2]:42751 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752259AbZFWMBt (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 08:01:49 -0400
-In-Reply-To: <1245278886-11659-1-git-send-email-rafi@seas.upenn.edu>
-Content-ID: <alpine.LRH.2.00.0906231401440.31685@twin.jikos.cz>
+	id S1754348AbZFWNHv (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2009 09:07:51 -0400
+In-Reply-To: <2784A223-EE31-41FF-BD44-45E5BBDC9B75@freedesktop.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Rafi Rubin <rafi@seas.upenn.edu>
-Cc: linux-input@vger.kernel.org, chatty@enac.fr
+To: Jeremy Huddleston <jeremyhu@freedesktop.org>
+Cc: Jiri Slaby <jirislaby@gmail.com>, linux-input@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Wed, 20 May 2009, Jeremy Huddleston wrote:
 
----1747641777-1866813014-1245749980=:31685
-Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
-Content-ID: <alpine.LRH.2.00.0906231401441.31685@twin.jikos.cz>
-
-On Wed, 17 Jun 2009, Rafi Rubin wrote:
-
-> When both touch and pen are active send a tool announcement before
-> sending any status changes so that event users may differentiate
-> which tool is changing.
+> > >press right:
+> > >May 19 18:01:14 aeris kernel: [  256.453247] drivers/hid/hid-core.c: report
+> > >(size 8) (unnumbered)
+> > >May 19 18:01:14 aeris kernel: [  256.453259] drivers/hid/hid-core.c: report
+> > >0 (size 8) =  00 00 4f 00 00 00 00 00
+> >[ ... ]
+> > >press down:
+> > >May 19 18:01:17 aeris kernel: [  259.429256] drivers/hid/hid-core.c: report
+> > >(size 8) (unnumbered)
+> > >May 19 18:01:17 aeris kernel: [  259.429268] drivers/hid/hid-core.c: report
+> > >0 (size 8) =  00 00 4f 51 00 00 00 00
+> >[ ... ]
+> > >press left:
+> > >May 19 18:01:20 aeris kernel: [  262.469256] drivers/hid/hid-core.c: report
+> > >(size 8) (unnumbered)
+> > >May 19 18:01:20 aeris kernel: [  262.469269] drivers/hid/hid-core.c: report
+> > >0 (size 8) =  00 00 01 01 01 01 01 01
+> >[ ... ]
+> > >release right:
+> > >May 19 18:01:22 aeris kernel: [  264.981247] drivers/hid/hid-core.c: report
+> > >(size 8) (unnumbered)
+> > >May 19 18:01:22 aeris kernel: [  264.981258] drivers/hid/hid-core.c: report
+> > >0 (size 8) =  00 00 51 50 00 00 00 00
+> >[ ... ]
+> > >release down:
+> > >May 19 18:01:25 aeris kernel: [  267.405254] drivers/hid/hid-core.c: report
+> > >(size 8) (unnumbered)
+> > >May 19 18:01:25 aeris kernel: [  267.405267] drivers/hid/hid-core.c: report
+> > >0 (size 8) =  00 00 50 00 00 00 00 00
+> >[ ... ]
+> > >release left:
+> > >May 19 18:01:26 aeris kernel: [  269.277246] drivers/hid/hid-core.c: report
+> > >(size 8) (unnumbered)
+> > >May 19 18:01:26 aeris kernel: [  269.277258] drivers/hid/hid-core.c: report
+> > >0 (size 8) =  00 00 00 00 00 00 00 00
+> >Do you have any chance to verify whether this works properly in a
+> >different operating system? It would require very specific handling
+> >violating the standard.
+> So in OSX, I certainly don't see the Fn misinterpretation.  There is another
+> odd behavior in OSX that is probably related to an underlying hardware quirk
+> that OSX just deals with more elegantly.
 > 
-> Restored three usage codes used by the pen.
+> In OSX, I see this behavior:
 > 
-> Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
-> ---
->  drivers/hid/hid-ntrig.c |   31 ++++++++++++++++++++++++++++---
->  1 files changed, 28 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
-> index 75ed9d2..7765970 100644
-> --- a/drivers/hid/hid-ntrig.c
-> +++ b/drivers/hid/hid-ntrig.c
-> @@ -27,6 +27,9 @@
->  struct ntrig_data {
->  	__s32 x, y, id, w, h;
->  	char reading_a_point, found_contact_id;
-> +	char pen_active;
-> +	char finger_active;
-> +	char inverted;
->  };
->  
->  /*
-> @@ -63,10 +66,7 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
->  	case HID_UP_DIGITIZER:
->  		switch (usage->hid) {
->  		/* we do not want to map these for now */
-> -		case HID_DG_INVERT: /* value is always 0 */
-> -		case HID_DG_ERASER: /* value is always 0 */
->  		case HID_DG_CONTACTID: /* value is useless */
-> -		case HID_DG_BARRELSWITCH:  /* doubtful */
->  		case HID_DG_INPUTMODE:
->  		case HID_DG_DEVICEINDEX:
->  		case HID_DG_CONTACTCOUNT:
-> @@ -125,6 +125,18 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  
->          if (hid->claimed & HID_CLAIMED_INPUT) {
->  		switch (usage->hid) {
-> +
-> +		case HID_DG_INRANGE:
-> +			if(field->application & 0x3)
-> +				nd->pen_active = value!=0;
-> +			else
-> +				nd->finger_active = value!=0;
+> press right:
+>   event received that right arrow pressed
+> press down:
+>   event received that down arrow pressed
+> press left:
+>   no event
+> release right:
+>   event received that right arrow released
+>   event received that left arrow pressed
+> release down:
+>   event received that down arrow released
+> release left:
+>   event received that left arrow released
 
-Maybe putting brackets around the comparsion and putting spaces around 
-'!=' would make the code more readable and easy to understand on a first 
-sight?
+In fact, in your "press left" report, there is
 
-> +			return 0;
-> +
-> +		case HID_DG_INVERT:
-> +			nd->inverted = value;
-> +			return 0;
-> +
->  		case HID_GD_X:
->  			nd->x = value;
->  			nd->reading_a_point = 1;
-> @@ -148,6 +160,10 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  			 * to emit a normal (X, Y) position
->  			 */
->  			if (! nd->found_contact_id) {
+drivers/hid/hid-core.c: report (size 8) (unnumbered)
+drivers/hid/hid-core.c: report 0 (size 8) =  00 00 01 01 01 01 01 01
+hid-debug: input Keyboard.00e0 = 0
+hid-debug: input Keyboard.00e1 = 0
+hid-debug: input Keyboard.00e2 = 0
+hid-debug: input Keyboard.00e3 = 0
+hid-debug: input Keyboard.00e4 = 0
+hid-debug: input Keyboard.00e5 = 0
+hid-debug: input Keyboard.00e6 = 0
+hid-debug: input Keyboard.00e7 = 0
+hid-debug: input 00ff.0003 = 1
 
-While at it, could you please remove the space after '!' to be compatible 
-with the kernel coding style?
+Which signalizes that the keyboard thinks that "Fn" key has been pressed. 
+Can you please verify that pressing right-down-left-<something> works in a 
+same way as fn-<something>?
 
-> +				if(nd->pen_active && nd->finger_active) {
-
-And insert a space after 'if' here.
-
-> +					input_report_key(input, BTN_TOOL_DOUBLETAP, 0);
-> +					input_report_key(input, BTN_TOOL_DOUBLETAP, 1);
-> +				}
->  				input_event(input, EV_ABS, ABS_X, nd->x);
->  				input_event(input, EV_ABS, ABS_Y, nd->y);
->  			}
-> @@ -159,6 +175,14 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
->  			 * to emit a normal (X, Y) position
->  			 */
->  			if (! nd->found_contact_id) {
-> +				if(nd->pen_active && nd->finger_active) {
-
-And the same here.
-
-
-
-Stéphane, did you have chance to verify with your device, that everything 
-works as expected with this version of Rafi's patch?
+Preferably both in linux and other operating system.
 
 Thanks,
 
 -- 
 Jiri Kosina
 SUSE Labs
----1747641777-1866813014-1245749980=:31685--

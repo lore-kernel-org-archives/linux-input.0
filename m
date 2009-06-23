@@ -1,49 +1,49 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Can a phone hook switch follow alsa jack model?
-Date: Tue, 23 Jun 2009 15:28:54 +0200
-Message-ID: <4A40D896.8010208@tis.icnet.pl>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH] HID: Avoid double spin_lock_init on usbhid->lock
+ (resend)
+Date: Tue, 23 Jun 2009 15:33:45 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0906231532460.7457@wotan.suse.de>
+References: <20090623093324.GB3805@localdomain.by>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:45203 "EHLO d1.icnet.pl"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758987AbZFWN24 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 09:28:56 -0400
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090623093324.GB3805-AfQBxy1nhrTup4dJKg45FQ@public.gmane.org>
+Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sergey Senozhatsky <sergey.senozhatsky-A/MS7pq9VAU@public.gmane.org>
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: "alsa-devel@vger.kernel.org" <alsa-devel@vger.kernel.org>
-Cc: linux-input@vger.kernel.org, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 
-Hi,
+On Tue, 23 Jun 2009, Sergey Senozhatsky wrote:
 
-I am wondering if it is a good idea to create support for a phone hook 
-switch, or a handset pick up switch, like that found on Amstrad E3 
-(Delta) videophone, using alsa jack framework.
+> Trivial: Avoid double spin_lock_init on usbhid->lock.
+> 
+> Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky-A/MS7pq9VAU@public.gmane.org>
+> ---
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 76c4bbe..c654b89 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -987,7 +987,6 @@ static int usbhid_start(struct hid_device *hid)
+>  	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
+>  
+>  	spin_lock_init(&usbhid->lock);
+> -	spin_lock_init(&usbhid->lock);
+>  
+>  	usbhid->intf = intf;
+>  	usbhid->ifnum = interface->desc.bInterfaceNumber;
 
-After my initial attempt to add support for the switch using gpio-keys 
-driver, I am no longer sure if it is a good idea to follow the keyboard 
-model, that the driver has been designed after, for driving a switch 
-that has nothing to do with keyboards and may required a different approach.
+Hi Sergey,
 
-OTOH, the switch is closely related to a handset, and handsets can be 
-seen as sound devices, can't they? So maybe alsa jack would fit better 
-than keyboard?
-
-However, I am not sure if the switch in question matches the alsa jack 
-model closely enough. I see the switch usage not as simple as turning 
-handset microphone/speaker on or off. It can be used for other purposes 
-as well, like accepting a phone call or actually dialing a number that 
-has been just typed in. Furthermore, it can be used to turn off a 
-speakerphone function, while, in turn, the related handset 
-microphone/speaker pair can be turned off not only with this switch, but 
-with a handsfree button as well, for example.
-
-All that extra functionality looks like belonging to userspace rather 
-then kernel, not like other alsa jack implementations that seem to do 
-all the job of switching media paths inside the kernel. That is why I am 
-not sure if the jack model is suitable for the purpose.
+I have applied the patch. Your mail hasn't reached my @suse.cz address 
+though, I have digged it from linux-input. Is your SMTP server or some 
+blacklist?
 
 Thanks,
-Janusz
 
+-- 
+Jiri Kosina
+SUSE Labs
+--
+To unsubscribe from this list: send the line "unsubscribe linux-usb" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

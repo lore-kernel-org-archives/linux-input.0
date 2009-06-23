@@ -1,56 +1,109 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
-Date: Tue, 23 Jun 2009 11:06:36 -0700
-Message-ID: <200906231106.37460.dmitry.torokhov@gmail.com>
-References: <20090613230842.GA18347@gallifrey> <alpine.LNX.2.00.0906231038500.7457@wotan.suse.de> <20090623185814.GB24108@gallifrey>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Rafi Rubin <rafi@seas.upenn.edu>
+Subject: [PATCH] ntrig tool separation and pen usages
+Date: Tue, 23 Jun 2009 14:09:26 -0400
+Message-ID: <1245780566-8541-1-git-send-email-rafi@seas.upenn.edu>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f174.google.com ([209.85.216.174]:44065 "EHLO
-	mail-px0-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753558AbZFWSGj (ORCPT
+Received: from LION.seas.upenn.edu ([158.130.12.194]:39044 "EHLO
+	lion.seas.upenn.edu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751948AbZFWSJt (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 14:06:39 -0400
-In-Reply-To: <20090623185814.GB24108@gallifrey>
-Content-Disposition: inline
+	Tue, 23 Jun 2009 14:09:49 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: jkosina@suse.cz, chatty@enac.fr, Rafi Rubin <rafi@seas.upenn.edu>
 
-On Tuesday 23 June 2009 11:58:15 Dr. David Alan Gilbert wrote:
-> * Jiri Kosina (jkosina@suse.cz) wrote:
-> > On Mon, 22 Jun 2009, Dr. David Alan Gilbert wrote:
-> > > > Yes, with i8042.noaux it works; dmesg snippet included below.
-> > > > And in reply to hpa, it doesn't have a mouse port.
-> > >
-> > > I saw you also asked for a dmidecode -t system dmidecode says the
-> > > machine has 'No SMBIOS nor DMI entry point'.
-> >
-> > Hmm, that means that there is no easy way to identify your particular
-> > machine (which apparently has somewhat broken AUX i8042 port) in run-time
-> > for quirk to be applied. I am afraid you'll need to live with specifying
-> > the command-line kernel parameter on this machine.
->
-> Yep; I'm OK with the i8042.noaux from my point of view, but it's a
-> bit worrying that this used to work fine.  There's obviously been
-> a change somewhere since 2.6.18 (and as I remember from the dmesg
-> the keyboard and aux ports are being initialised in different orders).
-> (Actually I say obviously since 2.6.18 - but the 2.6.18 I tried
-> I think I only used the debian version - I should go back and
-> see if I can do a vanilla one), but this box has been running
-> Linux since the time it was originally bought with loads of distros
-> and clean kernels years ago.
->
-> While this machine is old, the motherboard was a pretty common one
-> at the time.
->
+When both touch and pen are active send a tool announcement before
+sending any status changes so that event users may differentiate
+which tool is changing.
 
-Any chance I could get dmesg with i8042.debug with 2.6.18? There was
-quite a large change back then when we got rid of the polling timer
-in i8042.
+Restored three usage codes used by the pen.
 
+Signed-off-by: Rafi Rubin <rafi@seas.upenn.edu>
+---
+ drivers/hid/hid-ntrig.c |   33 +++++++++++++++++++++++++++++----
+ 1 files changed, 29 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/hid/hid-ntrig.c b/drivers/hid/hid-ntrig.c
+index 75ed9d2..d7b3e61 100644
+--- a/drivers/hid/hid-ntrig.c
++++ b/drivers/hid/hid-ntrig.c
+@@ -27,6 +27,9 @@
+ struct ntrig_data {
+ 	__s32 x, y, id, w, h;
+ 	char reading_a_point, found_contact_id;
++	char pen_active;
++	char finger_active;
++	char inverted;
+ };
+ 
+ /*
+@@ -63,10 +66,7 @@ static int ntrig_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 	case HID_UP_DIGITIZER:
+ 		switch (usage->hid) {
+ 		/* we do not want to map these for now */
+-		case HID_DG_INVERT: /* value is always 0 */
+-		case HID_DG_ERASER: /* value is always 0 */
+ 		case HID_DG_CONTACTID: /* value is useless */
+-		case HID_DG_BARRELSWITCH:  /* doubtful */
+ 		case HID_DG_INPUTMODE:
+ 		case HID_DG_DEVICEINDEX:
+ 		case HID_DG_CONTACTCOUNT:
+@@ -125,6 +125,18 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 
+         if (hid->claimed & HID_CLAIMED_INPUT) {
+ 		switch (usage->hid) {
++
++		case HID_DG_INRANGE:
++			if (field->application & 0x3)
++				nd->pen_active = (value != 0);
++			else
++				nd->finger_active = (value != 0);
++			return 0;
++
++		case HID_DG_INVERT:
++			nd->inverted = value;
++			return 0;
++
+ 		case HID_GD_X:
+ 			nd->x = value;
+ 			nd->reading_a_point = 1;
+@@ -147,7 +159,11 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			 * report received in a finger event. We want
+ 			 * to emit a normal (X, Y) position
+ 			 */
+-			if (! nd->found_contact_id) {
++			if (!nd->found_contact_id) {
++				if (nd->pen_active && nd->finger_active) {
++					input_report_key(input, BTN_TOOL_DOUBLETAP, 0);
++					input_report_key(input, BTN_TOOL_DOUBLETAP, 1);
++				}
+ 				input_event(input, EV_ABS, ABS_X, nd->x);
+ 				input_event(input, EV_ABS, ABS_Y, nd->y);
+ 			}
+@@ -159,6 +175,14 @@ static int ntrig_event (struct hid_device *hid, struct hid_field *field,
+ 			 * to emit a normal (X, Y) position
+ 			 */
+ 			if (! nd->found_contact_id) {
++				if (nd->pen_active && nd->finger_active) {
++					input_report_key(input,
++							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
++							, 0);
++					input_report_key(input,
++							nd->inverted ? BTN_TOOL_RUBBER : BTN_TOOL_PEN
++							, 1);
++				}
+ 				input_event(input, EV_ABS, ABS_X, nd->x);
+ 				input_event(input, EV_ABS, ABS_Y, nd->y);
+ 				input_event(input, EV_ABS, ABS_PRESSURE, value);
+@@ -233,6 +257,7 @@ static int ntrig_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	if (ret)
+ 		kfree (nd);
++
+ 	return ret;
+ }
+ 
 -- 
-Dmitry
+1.6.3.1
+

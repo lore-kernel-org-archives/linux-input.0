@@ -1,37 +1,39 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: How do you keep input from a USB Mag card reader from going to
- STDIN?
-Date: Tue, 23 Jun 2009 16:22:57 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0906231621230.7457@wotan.suse.de>
-References: <6C2434209962DC46B88345CA85C334A240E19D7CE2@Courier.syntech.org> <alpine.LRH.2.00.0906231600510.31685@twin.jikos.cz> <4A40E46D.80303@tis.icnet.pl>
+From: Sergey Senozhatsky <sergey.senozhatsky@mail.by>
+Subject: Re: [PATCH] HID: Avoid double spin_lock_init on usbhid->lock
+ (resend)
+Date: Tue, 23 Jun 2009 17:34:02 +0300
+Message-ID: <20090623143402.GA14578@localdomain.by>
+References: <20090623093324.GB3805@localdomain.by>
+ <alpine.LNX.2.00.0906231532460.7457@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor.suse.de ([195.135.220.2]:45288 "EHLO mx1.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1753323AbZFWOWz (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 10:22:55 -0400
-In-Reply-To: <4A40E46D.80303@tis.icnet.pl>
+Received: from [212.98.175.89] ([212.98.175.89]:33725 "EHLO localdomain.by"
+	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1754962AbZFWOdQ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 23 Jun 2009 10:33:16 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.0906231532460.7457@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: Mark Butsch <mbutsch@syntech-fuelmaster.com>, "'linux-input@vger.kernel.org'" <linux-input@vger.kernel.org>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@mail.by>, Andrew Morton <akpm@linux-foundation.org>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-On Tue, 23 Jun 2009, Janusz Krzysztofik wrote:
+On (06/23/09 15:33), Jiri Kosina wrote:
 
-> > You can either unbind HID driver from the device completely, and write your
-> > own userspace driver using libusb.
-> > Or you can patch the HID driver not to attach this device to inpu subsystem,
-> > and only trigger creation of /dev/hidraw (or /dev/hiddev respectively), and
-> > write user-space application that will process the HID events from these
-> > device nodes, and process them in your application as needed.
-> I thouhgt this could be done from userspace without any kernel modification,
-> just the way "input-events -g" does it. Am I missing anything?
+Hello Jiri.
 
-Calling ioctl(EVIOCGRAB) is of course another possibility, if you are 
-perfectly fine with the work HID driver does and don't need any 
-modifications there (i.e. no changes in usage parsing, etc).
+> I have applied the patch. Your mail hasn't reached my @suse.cz address
+> though, I have digged it from linux-input
 
--- 
-Jiri Kosina
-SUSE Labs
+Thanks.
+
+
+> Is your SMTP server or some blacklist?
+>
+Yeah... Looks like...
+"Client host [XX.XX.XX.XX] blocked using pbl.spamhaus.org".
+I need to do something with it.
+
+Thanks,
+	Sergey

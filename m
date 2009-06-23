@@ -1,33 +1,25 @@
-From: Sergey Senozhatsky <sergey.senozhatsky@mail.by>
-Subject: [PATCH] HID: Avoid double spin_lock_init on usbhid->lock (resend)
-Date: Tue, 23 Jun 2009 12:33:25 +0300
-Message-ID: <20090623093324.GB3805@localdomain.by>
+From: =?ISO-8859-15?Q?Richard_R=F6jfors?=
+	<richard.rojfors.ext@mocean-labs.com>
+Subject: [PATCH 0/2] tsc2007: remove HR timer, make platform callbacks optional
+Date: Tue, 23 Jun 2009 13:54:40 +0200
+Message-ID: <4A40C280.2010801@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from [212.98.175.89] ([212.98.175.89]:39464 "EHLO localdomain.by"
-	rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-	id S1751136AbZFWJbx (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 23 Jun 2009 05:31:53 -0400
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1756443AbZFWLyu@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, Trilok Soni <soni.trilok@gmail.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-usb@vger.kernel.org
 
-Trivial: Avoid double spin_lock_init on usbhid->lock.
+This patch removes the HR timer, since it's bad to do synchronous I2C
+in the HR timer callback context. The new implementation makes use
+of the global workqueue. The work is scheduled every 5ms when polling
+rather than 5 us.
 
-Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@mail.by>
----
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 76c4bbe..c654b89 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -987,7 +987,6 @@ static int usbhid_start(struct hid_device *hid)
- 	setup_timer(&usbhid->io_retry, hid_retry_timeout, (unsigned long) hid);
- 
- 	spin_lock_init(&usbhid->lock);
--	spin_lock_init(&usbhid->lock);
- 
- 	usbhid->intf = intf;
- 	usbhid->ifnum = interface->desc.bInterfaceNumber;
+Secondly the platform callbacks are only called if supplied. Makes
+the driver to fallback on only pressure calculation to decide when
+the pen is up. This is not as accurate as having a function to call,
+but that's not possible on all hardware configurations.
+
+--Richard

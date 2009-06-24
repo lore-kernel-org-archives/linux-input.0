@@ -1,61 +1,47 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: Can a phone hook switch follow alsa jack model?
-Date: Tue, 23 Jun 2009 23:22:56 +0100
-Message-ID: <20090623222255.GA5617@sirena.org.uk>
-References: <4A40D896.8010208@tis.icnet.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-Content-Disposition: inline
-In-Reply-To: <4A40D896.8010208@tis.icnet.pl>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Cc: alsa-devel@alsa-project.org, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
+From: Saeed Bishara <saeed@marvell.com>
+Subject: [PATCH] gpio_mouse: use standard driver registration method
+Date: Wed, 24 Jun 2009 11:31:39 +0300
+Message-ID: <1245832299-23608-1-git-send-email-saeed@marvell.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from host2.marvell.com ([65.219.4.2]:61437 "EHLO maili.marvell.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+	id S1751721AbZFXIbi (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Wed, 24 Jun 2009 04:31:38 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: saeed.bishara@gmail.com, Saeed Bishara <saeed@marvell.com>
 
-On Tue, Jun 23, 2009 at 03:28:54PM +0200, Janusz Krzysztofik wrote:
+This patch is needed when the gpio's became available only at late
+stages, for example, when using i2c gpio expander.
 
-> After my initial attempt to add support for the switch using gpio-keys 
-> driver, I am no longer sure if it is a good idea to follow the keyboard 
-> model, that the driver has been designed after, for driving a switch 
-> that has nothing to do with keyboards and may required a different approach.
+Signed-off-by: Saeed Bishara <saeed@marvell.com>
+---
+ drivers/input/mouse/gpio_mouse.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-That approach was quite common in the past.
+diff --git a/drivers/input/mouse/gpio_mouse.c b/drivers/input/mouse/gpio_mouse.c
+index 5e5eb88..f468864 100644
+--- a/drivers/input/mouse/gpio_mouse.c
++++ b/drivers/input/mouse/gpio_mouse.c
+@@ -175,6 +175,7 @@ MODULE_ALIAS("platform:gpio_mouse");
+ 
+ static struct platform_driver gpio_mouse_device_driver = {
+ 	.remove		= __devexit_p(gpio_mouse_remove),
++	.probe		= gpio_mouse_probe,
+ 	.driver		= {
+ 		.name	= "gpio_mouse",
+ 		.owner	= THIS_MODULE,
+@@ -183,8 +184,7 @@ static struct platform_driver gpio_mouse_device_driver = {
+ 
+ static int __init gpio_mouse_init(void)
+ {
+-	return platform_driver_probe(&gpio_mouse_device_driver,
+-			gpio_mouse_probe);
++	return platform_driver_register(&gpio_mouse_device_driver);
+ }
+ module_init(gpio_mouse_init);
+ 
+-- 
+1.6.0.4
 
-> However, I am not sure if the switch in question matches the alsa jack 
-> model closely enough. I see the switch usage not as simple as turning 
-> handset microphone/speaker on or off. It can be used for other purposes 
-> as well, like accepting a phone call or actually dialing a number that 
-> has been just typed in. Furthermore, it can be used to turn off a 
-> speakerphone function, while, in turn, the related handset 
-> microphone/speaker pair can be turned off not only with this switch, but 
-> with a handsfree button as well, for example.
-
-That can all be accomodated within the ASoC jack framework (I'm assuming
-you'll be doing an ASoC rather than generic ALSA driver).  You get the
-input device just the same as you get with gpio-keys so you can do stuff
-in user space, the main difference is that you can also arrange for some
-of the power management within ASoC to be hooked up with the jack
-automatically as well.
-
-With what you're describing above I'd tie the mic and speaker in the
-headset to DAPM automatically.
-
-> All that extra functionality looks like belonging to userspace rather 
-> then kernel, not like other alsa jack implementations that seem to do 
-> all the job of switching media paths inside the kernel. That is why I am 
-> not sure if the jack model is suitable for the purpose.
-
-The switching in kernel for ASoC should generally be confined to marking
-outputs as powered or unpowered - things like marking a headphone jack
-as disabled when there's nothing plugged in to it that can be done
-unconditionally.  Everything else should get punted to user space.

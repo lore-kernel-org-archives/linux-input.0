@@ -1,126 +1,44 @@
 From: David Brownell <david-b@pacbell.net>
-Subject: [patch 2.6.30] input:  dm355evm_keys uses threaded IRQs
-Date: Wed, 24 Jun 2009 10:21:05 -0700
-Message-ID: <200906241021.06141.david-b@pacbell.net>
-References: <200901171315.08019.david-b@pacbell.net> <200906211710.50537.david-b@pacbell.net> <20090623050519.GA14724@dtor-d630.eng.vmware.com>
+Subject: Re: [patch 2.6.29-rc2] input:  dm355evm_keys driver
+Date: Wed, 24 Jun 2009 10:18:55 -0700
+Message-ID: <200906241018.55308.david-b@pacbell.net>
+References: <200901171315.08019.david-b@pacbell.net> <200906222240.01093.david-b@pacbell.net> <20090623060604.GB14724@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp123.sbc.mail.sp1.yahoo.com ([69.147.64.96]:44942 "HELO
-	smtp123.sbc.mail.sp1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1757445AbZFXRVD (ORCPT
+Received: from smtp104.sbc.mail.gq1.yahoo.com ([67.195.15.63]:35288 "HELO
+	smtp104.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1752602AbZFXRZd (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 24 Jun 2009 13:21:03 -0400
-In-Reply-To: <20090623050519.GA14724@dtor-d630.eng.vmware.com>
+	Wed, 24 Jun 2009 13:25:33 -0400
+In-Reply-To: <20090623060604.GB14724@dtor-d630.eng.vmware.com>
 Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, Kevin Hilman <khilman@deeprootsystems.com>
 
-From: David Brownell <dbrownell@users.sourceforge.net>
+On Monday 22 June 2009, Dmitry Torokhov wrote:
+>=20
+> > > As you have noticed the driver is in mainline already;
+> >=20
+> > Actually I didn't notice until just now. =A0It was moved
+> > from input/keyboard to input/misc. =A0And I wasn't cc'd
+> > on this at any point ... so it's no wonder I had no idea
+> > what was happening!
+> >=20
+>=20
+> Ah, sorry, it was me - all RC drivers live in input/misc,
+> that's why I moved it there.
 
-Convert the dm355evm keys driver to use IRQ threading instead of
-a private workqueue.  IRQ threads were added to Linux after this
-driver was written, and in this case fit what the driver needs.
-(Although the non-shared thread costs more runtime memory.)
+It's not purely an RC driver, but I can understand
+wanting to overlook the other five buttons.  ;)
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
----
- drivers/input/misc/dm355evm_keys.c |   42 ++++++++++++++++-------------------
- 1 file changed, 20 insertions(+), 22 deletions(-)
+- Dave
 
---- a/drivers/input/misc/dm355evm_keys.c
-+++ b/drivers/input/misc/dm355evm_keys.c
-@@ -23,30 +23,16 @@
-  * pressed, or its autorepeat kicks in, an event is sent.  This driver
-  * read those events from the small (32 event) queue and reports them.
-  *
-- * Because we communicate with the MSP430 using I2C, and all I2C calls
-- * in Linux sleep, we need to cons up a kind of threaded IRQ handler
-- * using a work_struct.  The IRQ is active low, but we use it through
-- * the GPIO controller so we can trigger on falling edges.
-- *
-  * Note that physically there can only be one of these devices.
-  *
-  * This driver was tested with firmware revision A4.
-  */
- struct dm355evm_keys {
--	struct work_struct	work;
- 	struct input_dev	*input;
- 	struct device		*dev;
- 	int			irq;
- };
- 
--static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
--{
--	struct dm355evm_keys	*keys = _keys;
--
--	schedule_work(&keys->work);
--	return IRQ_HANDLED;
--}
--
- /* These initial keycodes can be remapped by dm355evm_setkeycode(). */
- static struct {
- 	u16	event;
-@@ -110,13 +96,12 @@ static struct {
- 	{ 0x3169, KEY_PAUSE, },
- };
- 
--static void dm355evm_keys_work(struct work_struct *work)
-+/* runs in an IRQ thread -- can (and will!) sleep */
-+static irqreturn_t dm355evm_keys_irq(int irq, void *_keys)
- {
--	struct dm355evm_keys	*keys;
-+	struct dm355evm_keys	*keys = _keys;
- 	int			status;
- 
--	keys = container_of(work, struct dm355evm_keys, work);
--
- 	/* For simplicity we ignore INPUT_COUNT and just read
- 	 * events until we get the "queue empty" indicator.
- 	 * Reading INPUT_LOW decrements the count.
-@@ -183,6 +168,19 @@ static void dm355evm_keys_work(struct wo
- 		input_report_key(keys->input, keycode, 0);
- 		input_sync(keys->input);
- 	}
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Because we communicate with the MSP430 using I2C, and all I2C calls
-+ * in Linux sleep, we use a threaded IRQ handler.  The IRQ itself is
-+ * active low, but we go through the GPIO controller so we can trigger
-+ * on falling edges and not worry about enabling/disabling the IRQ in
-+ * the keypress handling path.
-+ */
-+static irqreturn_t dm355evm_keys_hardirq(int irq, void *_keys)
-+{
-+	return IRQ_WAKE_THREAD;
- }
- 
- static int dm355evm_setkeycode(struct input_dev *dev, int index, int keycode)
-@@ -233,7 +231,6 @@ static int __devinit dm355evm_keys_probe
- 
- 	keys->dev = &pdev->dev;
- 	keys->input = input;
--	INIT_WORK(&keys->work, dm355evm_keys_work);
- 
- 	/* set up "threaded IRQ handler" */
- 	status = platform_get_irq(pdev, 0);
-@@ -260,9 +257,10 @@ static int __devinit dm355evm_keys_probe
- 
- 	/* REVISIT:  flush the event queue? */
- 
--	status = request_irq(keys->irq, dm355evm_keys_irq,
--			     IRQF_TRIGGER_FALLING,
--			     dev_name(&pdev->dev), keys);
-+	status = request_threaded_irq(keys->irq,
-+			dm355evm_keys_hardirq, dm355evm_keys_irq,
-+			IRQF_TRIGGER_FALLING,
-+			dev_name(&pdev->dev), keys);
- 	if (status < 0)
- 		goto fail1;
- 
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

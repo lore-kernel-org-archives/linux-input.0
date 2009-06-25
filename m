@@ -1,32 +1,55 @@
-From: Alan Jenkins <alan-jenkins-cCz0Lq7MMjm9FHfhHBbuYA@public.gmane.org>
-Subject: Re: 2.6.30-rc1: touchpad disabled on hibernation
-Date: Thu, 25 Jun 2009 18:21:00 +0100
-Message-ID: <4A43B1FC.7060609@tuffmail.co.uk>
-References: <4A438BA7.9010800@tuffmail.co.uk> <8db1092f0906251016l5ac85bfdpbac841b939cfac2a@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 1/2] tsc2007: remove HR timer
+Date: Thu, 25 Jun 2009 14:20:10 -0700
+Message-ID: <20090625142010.bd656a9d.akpm@linux-foundation.org>
+References: <4A40C288.2060702@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <8db1092f0906251016l5ac85bfdpbac841b939cfac2a-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maciej Rutecki <maciej.rutecki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kernel Testers List <kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:55783 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1753021AbZFYVUe (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Jun 2009 17:20:34 -0400
+In-Reply-To: <4A40C288.2060702@mocean-labs.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Richard =?ISO-8859-1?Q?R=F6jfors?= <richard.rojfors.ext@mocean-labs.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kwangwoo.lee@gmail.com, thierry.reding@avionic-design.de, soni.trilok@gmail.com
 
-Maciej Rutecki wrote:
-> 2009/6/25 Alan Jenkins <alan-jenkins-cCz0Lq7MMjm9FHfhHBbuYA@public.gmane.org>:
->   
->> The synaptics touchpad on my EeePC 701 dies on hibernation.  2.6.30 was
->> fine, and it doesn't happen on suspend to ram either.  There are no
->> obvious error messages, but maybe this boot message is relevant:
->>
->> Platform driver 'i8042' needs updating, please use dev_pm_ops
->>
->>     
->
-> Similar on s2disk, HP/Compaq notebook. Try reload psmouse module. I
-> reported it, but nobody answer.
->   
-That works, thanks.
+On Tue, 23 Jun 2009 13:54:48 +0200
+Richard R__jfors <richard.rojfors.ext@mocean-labs.com> wrote:
 
-Alan
+> This patch removes the HR timer, since it's bad to do synchronous I2C
+> in the HR timer callback context. The new implementation makes use
+> of the global workqueue. The work is scheduled every 5ms when polling
+> rather than 5 us.
+> 
+
+"it's bad" isn't a very good description of the problem which the patch
+fixes.
+
+This matters.  People wish to make decisions about whether this patch
+is needed in 2.6.29.x, 2.6.30.x, 2.6.31, 2.6.32, etc.  Without knowing
+the effects of the problem which the patch fixes, we cannot make that
+decision!
+
+> 
+> +	/* cancel any work */
+> +	cancel_delayed_work(&ts->work);
+> +
+
+Should this have been cancel_delayed_work_sync()?
+
+
+/*
+ * Kill off a pending schedule_delayed_work().  Note that the work callback
+ * function may still be running on return from cancel_delayed_work(), unless
+ * it returns 1 and the work doesn't re-arm itself. Run flush_workqueue() or
+ * cancel_work_sync() to wait on it.
+ */
+static inline int cancel_delayed_work(struct delayed_work *work)
+
+
+

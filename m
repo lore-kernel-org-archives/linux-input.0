@@ -1,68 +1,88 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: [alsa-devel] Can a phone hook switch follow alsa jack model?
-Date: Thu, 25 Jun 2009 14:48:38 +0200
-Message-ID: <4A437226.4090202@tis.icnet.pl>
-References: <4A40D896.8010208@tis.icnet.pl> <20090623222255.GA5617@sirena.org.uk> <4A4229EB.2090606@tis.icnet.pl> <20090625110508.GF17812@sirena.org.uk>
+From: Alek Du <alek.du@intel.com>
+Subject: Re: [PATCH]input: Change timer function to workqueue for gpio_keys
+ 	driver
+Date: Thu, 25 Jun 2009 21:06:42 +0800
+Message-ID: <20090625210642.432e08a5@dxy.sh.intel.com>
+References: <20090608152420.0e76c302@dxy.sh.intel.com>
+	<5d5443650906121040n3f36c99eka01f5eb5274ee6ff@mail.gmail.com>
+	<359ed6810906250329x70cf380cy278f23e3ebc6a829@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from d1.icnet.pl ([212.160.220.21]:46632 "EHLO d1.icnet.pl"
+Received: from mga09.intel.com ([134.134.136.24]:22168 "EHLO mga09.intel.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751818AbZFYMtK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Jun 2009 08:49:10 -0400
-In-Reply-To: <20090625110508.GF17812@sirena.org.uk>
+	id S1752023AbZFYNLl convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 25 Jun 2009 09:11:41 -0400
+In-Reply-To: <359ed6810906250329x70cf380cy278f23e3ebc6a829@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>, Jonathan McDowell <noodles@earth.li>
-Cc: alsa-devel@alsa-project.org, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
+To: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Trilok Soni <soni.trilok@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>
 
-On 2009-06-25 13:05, Mark Brown wrote:
-> On Wed, Jun 24, 2009 at 03:28:11PM +0200, Janusz Krzysztofik wrote:
-> 
->> type. Don't you think that a new type like SND_JACK_PHONE_HOOK or 
->> SND_JACK_PHONE_HANDSET should be defined for the purpose? Even if 
->> HEADSET may not be very different from HANDSET, corresponding 
->> SW_HEADPHONE_INSERT and SW_MICROPHONE_INSERT event names seem have very 
->> little to do with picking up a phone.
-> 
-> Possibly, TBH I had thought I'd seen something for off-hook when I
-> looked at this originally but I can't seem to spot it now.
+On Thu, 25 Jun 2009 18:29:25 +0800
+Jani Nikula <ext-jani.1.nikula@nokia.com> wrote:
 
-As I am not native English, please somebody help me to choose best 
-names, both SW_... event name and SND_JACK_... jack type.
+> On Fri, Jun 12, 2009 at 8:40 PM, Trilok Soni<soni.trilok@gmail.com> w=
+rote:
+> >> =C2=A0static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
+> >> =C2=A0{
+> >> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct gpio_button_data *bdata =3D dev_=
+id;
+> >> @@ -62,10 +61,10 @@ static irqreturn_t gpio_keys_isr(int irq, void=
+ *dev_id)
+> >> =C2=A0 =C2=A0 =C2=A0 =C2=A0BUG_ON(irq !=3D gpio_to_irq(button->gpi=
+o));
+> >>
+> >> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (button->debounce_interval)
+> >> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 mod_timer(&bdat=
+a->timer,
+> >> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 jiffies + msecs_to_jiffies(button->debounce_interval));
+> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 schedule_delaye=
+d_work(&bdata->work,
+> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 msecs_to_jiffies(button->debounce_interval));
+> >> =C2=A0 =C2=A0 =C2=A0 =C2=A0else
+> >> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 gpio_keys_repor=
+t_event(bdata);
+> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 schedule_work(&=
+bdata->work.work);
+> >>
+> >> =C2=A0 =C2=A0 =C2=A0 =C2=A0return IRQ_HANDLED;
+> >> =C2=A0}
+>=20
+> Correct me if I'm wrong, but as far as I can tell,
+> schedule_delayed_work doesn't modify the timer if the work was alread=
+y
+> pending. The result is not the same as with the timer. This breaks th=
+e
+> debouncing.
 
-During my previous, gpio-keys based attempt, I submitted a patch that 
-added new SW_HANDSET_PICK_UP event definition to include/linux/input.h. 
-Even if not accepted because of no acompanying code that would make use 
-of it, there were no other comments, especially on the name I have 
-choosen. However, there were another name proposed by ams-delta board 
-maintainer, Jonathan McDowell - SW_PHONE_HOOK. Even if my wording may 
-better match those already existing ..._INSERT names, I am not sure 
-which one should I use.
+No. The workqueue is per button, if the work is already pending, then l=
+ast
+key press is not handled yet. That keeps the debouncing. Why you want t=
+he second
+key press to break the first one? The second key press should be ignore=
+d, that's
+the meaning of debouncing right?
 
-Please also note that SND_JACK_HEADSET, that I temporarily use for now, 
-is an alias for SND_JACK_HEADPHONE | SND_JACK_MICROPHONE. Those two can 
-be seen as matching what a handset actually is. On headset jack 
-insert/remove, two distinct reports/events are generated, one for a 
-microphone, and one for a headphone. Should this schema be used with a 
-handset? Even if it were possible to turn any of handset microphone or 
-headphone individually, would it make any sense?
+>=20
+> It looks like a slightly modified version of this patch has already
+> been committed [1], but it has the same problem.
+>=20
+> [1] 0b346838c5862bfe911432956a106d602535d030 Input: gpio-keys - chang=
+e
+> timer to workqueue
 
-Sorry for bothering you with all this stuff, but I'd like the changes to 
-existing code I am going to propose, if any, be as much reusable as 
-possible.
+Yes, the patch is already in Linus tree.
 
->> So, if I want to follow the ASoC jack model, my in-kernel hook switch 
->> handler should only power on/off the handset, not touching the 
->> speakerphone at all. The latter should be controlled from userspace. 
->> Please correct me if I am missing something.
-> 
-> That's my initial guess - I've not looked at your particular hardware
-> so it may not end up being the best way of dealing with your system but
-> from what you said it was the approach that sprang to mind.
 
-Mark,
-Thanks for now, all that seems clear enough for me.
-Janusz
-
+Thanks,
+Alek
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

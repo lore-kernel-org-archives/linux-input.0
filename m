@@ -1,55 +1,41 @@
 From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 1/2] tsc2007: remove HR timer
-Date: Thu, 25 Jun 2009 14:20:10 -0700
-Message-ID: <20090625142010.bd656a9d.akpm@linux-foundation.org>
-References: <4A40C288.2060702@mocean-labs.com>
+Subject: Re: [PATCH 2/2] tsc2007: make platform callbacks optional
+Date: Thu, 25 Jun 2009 14:23:44 -0700
+Message-ID: <20090625142344.d7c5b72d.akpm@linux-foundation.org>
+References: <4A40C28E.1070109@mocean-labs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:55783 "EHLO
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:45956 "EHLO
 	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753021AbZFYVUe (ORCPT
+	by vger.kernel.org with ESMTP id S1751684AbZFYVXu (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 25 Jun 2009 17:20:34 -0400
-In-Reply-To: <4A40C288.2060702@mocean-labs.com>
+	Thu, 25 Jun 2009 17:23:50 -0400
+In-Reply-To: <4A40C28E.1070109@mocean-labs.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Richard =?ISO-8859-1?Q?R=F6jfors?= <richard.rojfors.ext@mocean-labs.com>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kwangwoo.lee@gmail.com, thierry.reding@avionic-design.de, soni.trilok@gmail.com
 
-On Tue, 23 Jun 2009 13:54:48 +0200
+On Tue, 23 Jun 2009 13:54:54 +0200
 Richard R__jfors <richard.rojfors.ext@mocean-labs.com> wrote:
 
-> This patch removes the HR timer, since it's bad to do synchronous I2C
-> in the HR timer callback context. The new implementation makes use
-> of the global workqueue. The work is scheduled every 5ms when polling
-> rather than 5 us.
+> The platform callbacks are only called if supplied. Makes the driver
+> to fallback on only pressure calculation to decide when the pen is up.
 > 
 
-"it's bad" isn't a very good description of the problem which the patch
-fixes.
+Again, I don't understand the reason for the change from the above
+description.
 
-This matters.  People wish to make decisions about whether this patch
-is needed in 2.6.29.x, 2.6.30.x, 2.6.31, 2.6.32, etc.  Without knowing
-the effects of the problem which the patch fixes, we cannot make that
-decision!
+Is there some driver in the tree which does not implement
+->get_pendown_state()?  If so, it will oops, won't it?  Which driver is
+that?
 
-> 
-> +	/* cancel any work */
-> +	cancel_delayed_work(&ts->work);
-> +
+Or is there some other driver which you're developing which does not
+implement ->get_pendown_state()?
 
-Should this have been cancel_delayed_work_sync()?
+If the latter, why should the problem be solved in this way, rather
+than implementing an empty ->get_pendown_state() within that driver?
 
-
-/*
- * Kill off a pending schedule_delayed_work().  Note that the work callback
- * function may still be running on return from cancel_delayed_work(), unless
- * it returns 1 and the work doesn't re-arm itself. Run flush_workqueue() or
- * cancel_work_sync() to wait on it.
- */
-static inline int cancel_delayed_work(struct delayed_work *work)
-
-
-
+etc.   More details, please.

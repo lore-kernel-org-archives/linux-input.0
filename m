@@ -1,242 +1,110 @@
-From: Daniel Ribeiro <drwyrm@gmail.com>
-Subject: [PATCH] PCAP misc input driver (for 2.6.32)
-Date: Sat, 27 Jun 2009 14:09:52 -0300
-Message-ID: <1246122592.3727.20.camel@brutus>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] PCAP touchscreen driver (for 2.6.32)
+Date: Sun, 28 Jun 2009 12:45:17 +0530
+Message-ID: <5d5443650906280015x4bddefa5v9dd36f888c5f2e92@mail.gmail.com>
+References: <1246122138.3727.12.camel@brutus>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-ggtxgUtnlns3J6H7qiNa"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f193.google.com ([209.85.221.193]:47585 "EHLO
-	mail-qy0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752610AbZF0RKK (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.26]:33697 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751673AbZF1HPP convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sat, 27 Jun 2009 13:10:10 -0400
+	Sun, 28 Jun 2009 03:15:15 -0400
+In-Reply-To: <1246122138.3727.12.camel@brutus>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: inux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Samuel Ortiz <sameo@linux.intel.com>, Ilya Petrov <ilya.muromec@gmail.com>
+To: Daniel Ribeiro <drwyrm@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Harald Welte <laforge@gnumonks.org>, Samuel Ortiz <sameo@linux.intel.com>
 
+Hi Daniel,
 
---=-ggtxgUtnlns3J6H7qiNa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+2009/6/27 Daniel Ribeiro <drwyrm@gmail.com>:
+> Touchscreen driver for PCAP2 PMIC.
+>
 
-This is a driver for misc input events for the PCAP2 PMIC, it handles
-the power button, headphone insertion/removal and the headphone button.
+Some more description in commit text really helps.
 
-Signed-off-by: Ilya Petrov <ilya.muromec@gmail.com>
-Signed-off-by: Daniel Ribeiro <drwyrm@gmail.com>
+> +static irqreturn_t pcap_ts_event_touch(int pirq, void *data)
+> +{
+> + =A0 =A0 =A0 struct pcap_ts *pcap_ts =3D data;
+> +
+> + =A0 =A0 =A0 if (pcap_ts->read_state =3D=3D PCAP_ADC_TS_M_STANDBY) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pcap_ts->read_state =3D PCAP_ADC_TS_M_P=
+RESSURE;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 schedule_delayed_work(&pcap_ts->work, 0=
+);
+> + =A0 =A0 =A0 }
+> + =A0 =A0 =A0 return IRQ_HANDLED;
+> +}
+> +
+> +static int __devinit pcap_ts_probe(struct platform_device *pdev)
+> +{
+> + =A0 =A0 =A0 struct input_dev *input_dev;
+> + =A0 =A0 =A0 struct pcap_ts *pcap_ts;
+> + =A0 =A0 =A0 int err =3D -ENOMEM;
+> +
+> + =A0 =A0 =A0 pcap_ts =3D kzalloc(sizeof(*pcap_ts), GFP_KERNEL);
+> + =A0 =A0 =A0 if (!pcap_ts)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return err;
+> +
+> + =A0 =A0 =A0 pcap_ts->pcap =3D platform_get_drvdata(pdev);
+> + =A0 =A0 =A0 platform_set_drvdata(pdev, pcap_ts);
+> +
+> + =A0 =A0 =A0 input_dev =3D input_allocate_device();
+> + =A0 =A0 =A0 if (!pcap_ts || !input_dev)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail;
+> +
+> + =A0 =A0 =A0 INIT_DELAYED_WORK(&pcap_ts->work, pcap_ts_work);
+> +
+> + =A0 =A0 =A0 pcap_ts->read_state =3D PCAP_ADC_TS_M_STANDBY;
+> +
+> + =A0 =A0 =A0 pcap_ts->input =3D input_dev;
+> +
+> + =A0 =A0 =A0 input_dev->name =3D "pcap-touchscreen";
+> + =A0 =A0 =A0 input_dev->phys =3D "pcap_ts/input0";
+> + =A0 =A0 =A0 input_dev->id.bustype =3D BUS_HOST;
+> + =A0 =A0 =A0 input_dev->id.vendor =3D 0x0001;
+> + =A0 =A0 =A0 input_dev->id.product =3D 0x0002;
+> + =A0 =A0 =A0 input_dev->id.version =3D 0x0100;
+> + =A0 =A0 =A0 input_dev->dev.parent =3D &pdev->dev;
+> +
+> + =A0 =A0 =A0 input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_=
+ABS);
+> + =A0 =A0 =A0 input_dev->keybit[BIT_WORD(BTN_TOUCH)] =3D BIT_MASK(BTN=
+_TOUCH);
+> + =A0 =A0 =A0 input_set_abs_params(input_dev, ABS_X, X_AXIS_MIN, X_AX=
+IS_MAX, 0, 0);
+> + =A0 =A0 =A0 input_set_abs_params(input_dev, ABS_Y, Y_AXIS_MIN, Y_AX=
+IS_MAX, 0, 0);
+> + =A0 =A0 =A0 input_set_abs_params(input_dev, ABS_PRESSURE, PRESSURE_=
+MIN,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0PRESSURE_MAX=
+, 0, 0);
+> +
+> + =A0 =A0 =A0 err =3D request_irq(pcap_to_irq(pcap_ts->pcap, PCAP_IRQ=
+_TS),
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pcap_ts_event_touch, 0,=
+ "Touch Screen", pcap_ts);
+> + =A0 =A0 =A0 if (err)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail;
+> +
+> + =A0 =A0 =A0 err =3D input_register_device(pcap_ts->input);
+> + =A0 =A0 =A0 if (err)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail_touch;
 
----
- drivers/input/keyboard/Kconfig     |    7 ++
- drivers/input/keyboard/Makefile    |    1 +
- drivers/input/keyboard/pcap_keys.c |  152 ++++++++++++++++++++++++++++++++=
-++++
- 3 files changed, 160 insertions(+), 0 deletions(-)
+Please move request_irq after input_register_device, as IRQ can get
+fired before input device gets available, right?
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfi=
-g
-index 9d8f796..ea512b0 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -353,4 +353,11 @@ config KEYBOARD_EP93XX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called ep93xx_keypad.
-=20
-+config KEYBOARD_PCAP
-+        tristate "Motorola EZX PCAP events"
-+        depends on EZX_PCAP
-+        help
-+          Say Y here if you want to use power key and jack events
-+          on Motorola EZX 2nd generation phones
-+
- endif
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makef=
-ile
-index 156b647..06b77dd 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -30,3 +30,4 @@ obj-$(CONFIG_KEYBOARD_MAPLE)		+=3D maple_keyb.o
- obj-$(CONFIG_KEYBOARD_BFIN)		+=3D bf54x-keys.o
- obj-$(CONFIG_KEYBOARD_SH_KEYSC)		+=3D sh_keysc.o
- obj-$(CONFIG_KEYBOARD_EP93XX)		+=3D ep93xx_keypad.o
-+obj-$(CONFIG_KEYBOARD_PCAP)		+=3D pcap_keys.o
-diff --git a/drivers/input/keyboard/pcap_keys.c b/drivers/input/keyboard/pc=
-ap_keys.c
-new file mode 100644
-index 0000000..8a9b533
---- /dev/null
-+++ b/drivers/input/keyboard/pcap_keys.c
-@@ -0,0 +1,152 @@
-+/*
-+ *  Input driver for PCAP events:
-+ *   * Power key
-+ *   * Jack plug/unplug
-+ *   * Headphone button
-+ *
-+ *  Copyright (c) 2008,2009 Ilya Petrov <ilya.muromec@gmail.com>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation.
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/input.h>
-+#include <linux/mfd/ezx-pcap.h>
-+
-+struct pcap_keys {
-+	struct pcap_chip *pcap;
-+	struct input_dev *input;
-+};
-+
-+/* PCAP2 interrupts us on keypress */
-+static irqreturn_t pcap_keys_handler(int irq, void *_pcap_keys)
-+{
-+	struct pcap_keys *pcap_keys =3D _pcap_keys;
-+	int pirq =3D irq_to_pcap(pcap_keys->pcap, irq);
-+	u32 pstat;
-+
-+	ezx_pcap_read(pcap_keys->pcap, PCAP_REG_PSTAT, &pstat);
-+	pstat &=3D 1 << pirq;
-+
-+	switch (pirq) {
-+	case PCAP_IRQ_ONOFF:
-+		input_report_key(pcap_keys->input, KEY_POWER, !pstat);
-+		break;
-+	case PCAP_IRQ_HS:
-+		input_report_switch(pcap_keys->input,
-+				SW_HEADPHONE_INSERT, !pstat);
-+		break;
-+	case PCAP_IRQ_MIC:
-+		input_report_key(pcap_keys->input, KEY_HP, !pstat);
-+		break;
-+	}
-+
-+	input_sync(pcap_keys->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __init pcap_keys_probe(struct platform_device *pdev)
-+{
-+	int err =3D -ENOMEM;
-+	struct pcap_keys *pcap_keys;
-+
-+	pcap_keys =3D kmalloc(sizeof(struct pcap_keys), GFP_KERNEL);
-+	if (!pcap_keys)
-+		return err;
-+
-+	pcap_keys->pcap =3D platform_get_drvdata(pdev);
-+
-+	pcap_keys->input =3D input_allocate_device();
-+	if (!pcap_keys->input)
-+		goto fail;
-+
-+	platform_set_drvdata(pdev, pcap_keys);
-+	pcap_keys->input->name =3D pdev->name;
-+	pcap_keys->input->phys =3D "pcap-keys/input0";
-+	pcap_keys->input->dev.parent =3D &pdev->dev;
-+
-+	pcap_keys->input->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(EV_SW);
-+	set_bit(KEY_POWER, pcap_keys->input->keybit);
-+	set_bit(SW_HEADPHONE_INSERT, pcap_keys->input->swbit);
-+	set_bit(KEY_HP, pcap_keys->input->keybit);
-+
-+	err =3D request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF),
-+			pcap_keys_handler, 0, "Power key", pcap_keys);
-+	if (err)
-+		goto fail_dev;
-+
-+	err =3D request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_HS),
-+			pcap_keys_handler, 0, "Headphone jack", pcap_keys);
-+	if (err)
-+		goto fail_pwrkey;
-+
-+	err =3D request_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC),
-+			pcap_keys_handler, 0, "MIC jack/button", pcap_keys);
-+	if (err)
-+		goto fail_jack;
-+
-+	err =3D input_register_device(pcap_keys->input);
-+	if (err)
-+		goto fail_mic;
-+
-+	return 0;
-+
-+fail_mic:
-+	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC), pcap_keys);
-+fail_jack:
-+	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_HS), pcap_keys);
-+fail_pwrkey:
-+	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF), pcap_keys);
-+fail_dev:
-+	input_free_device(pcap_keys->input);
-+fail:
-+	kfree(pcap_keys);
-+	return err;
-+}
-+
-+static int pcap_keys_remove(struct platform_device *pdev)
-+{
-+	struct pcap_keys *pcap_keys =3D platform_get_drvdata(pdev);
-+
-+	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_ONOFF), pcap_keys);
-+	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_HS), pcap_keys);
-+	free_irq(pcap_to_irq(pcap_keys->pcap, PCAP_IRQ_MIC), pcap_keys);
-+
-+	input_unregister_device(pcap_keys->input);
-+	kfree(pcap_keys);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver pcap_keys_device_driver =3D {
-+	.probe		=3D pcap_keys_probe,
-+	.remove		=3D pcap_keys_remove,
-+	.driver		=3D {
-+		.name	=3D "pcap-keys",
-+		.owner	=3D THIS_MODULE,
-+	}
-+};
-+
-+static int __init pcap_keys_init(void)
-+{
-+	return platform_driver_register(&pcap_keys_device_driver);
-+};
-+
-+static void __exit pcap_keys_exit(void)
-+{
-+	platform_driver_unregister(&pcap_keys_device_driver);
-+};
-+
-+module_init(pcap_keys_init);
-+module_exit(pcap_keys_exit);
-+
-+MODULE_DESCRIPTION("Motorola PCAP2 input events driver");
-+MODULE_AUTHOR("Ilya Petrov <ilya.muromec@gmail.com>");
-+MODULE_LICENSE("GPL");
---=20
-tg: (22f99ae..) ezx/pcap_keys (depends on: ezx/local/pcap)
+Overall driver is nice and clean.
 
 --=20
-Daniel Ribeiro
-
---=-ggtxgUtnlns3J6H7qiNa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Esta =?ISO-8859-1?Q?=E9?= uma parte de mensagem
- assinada digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkpGUmAACgkQw3OYl0G0liSIjQCfTKItSPbuzLfyBzjHuk24w7vt
-byoAoJYg7aM+ro0cjyg3AZeIoC5qqMgo
-=hDwB
------END PGP SIGNATURE-----
-
---=-ggtxgUtnlns3J6H7qiNa--
-
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

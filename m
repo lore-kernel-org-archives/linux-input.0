@@ -1,45 +1,28 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
-Date: Mon, 29 Jun 2009 11:06:31 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0906291103140.18021@wotan.suse.de>
-References: <20090613230842.GA18347@gallifrey> <alpine.LNX.2.00.0906231038500.7457@wotan.suse.de> <20090623185814.GB24108@gallifrey> <200906231106.37460.dmitry.torokhov@gmail.com> <20090628140452.GA15816@gallifrey>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH] PCAP misc input driver (for 2.6.32)
+Date: Mon, 29 Jun 2009 10:46:59 +0100
+Message-ID: <20090629094658.GE11855@sirena.org.uk>
+References: <1246122592.3727.20.camel@brutus>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:51600 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751201AbZF2JG3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 05:06:29 -0400
-In-Reply-To: <20090628140452.GA15816@gallifrey>
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:47895 "EHLO
+	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751201AbZF2Jq4 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2009 05:46:56 -0400
+Content-Disposition: inline
+In-Reply-To: <1246122592.3727.20.camel@brutus>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: "Dr. David Alan Gilbert" <linux@treblig.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Daniel Ribeiro <drwyrm@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, inux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Samuel Ortiz <sameo@linux.intel.com>, Ilya Petrov <ilya.muromec@gmail.com>
 
-On Sun, 28 Jun 2009, Dr. David Alan Gilbert wrote:
+On Sat, Jun 27, 2009 at 02:09:52PM -0300, Daniel Ribeiro wrote:
+> This is a driver for misc input events for the PCAP2 PMIC, it handles
+> the power button, headphone insertion/removal and the headphone button.
 
-> Apologies for the delay; attached is the dmesg from the Debian 2.6.18
-> in which keyboard works as previously described.
-
-So the main difference is here:
-
-	drivers/input/serio/i8042.c: 20 -> i8042 (command) [3]
-	drivers/input/serio/i8042.c: 65 <- i8042 (return) [3]
-	drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
-	drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [3]
-	drivers/input/serio/i8042.c: Interrupt 1, without any data [3]
-
-compared to
-
-	drivers/input/serio/i8042.c: 20 -> i8042 (command) [1]
-	drivers/input/serio/i8042.c: 65 <- i8042 (return) [1]
-	drivers/input/serio/i8042.c: 60 -> i8042 (command) [2]
-	drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [2]
-	drivers/input/serio/i8042.c: d3 -> i8042 (command) [2]
-
-So it looks like it is really affected by the polling timer removal/early 
-IRQ registration.
-
--- 
-Jiri Kosina
-SUSE Labs
+Depending on the power management capabilities of the CODEC it may be
+better to support at laest the headphone insert/removal via the audio
+driver as a jack to allow automatic management of the power for the
+relevant paths within the CODEC.

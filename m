@@ -1,117 +1,44 @@
-From: Alek Du <alek.du@intel.com>
-Subject: Re: [PATCH 2/2] input: gpio-keys: avoid possibility of sleeping in
- timer function
-Date: Mon, 29 Jun 2009 18:30:38 +0800
-Message-ID: <20090629183038.000009c1@unknown>
-References: <cover.1246015395.git.ext-jani.1.nikula@nokia.com>
-	<7dbf3c1888fe61729b6c9e399971012611122a28.1246015395.git.ext-jani.1.nikula@nokia.com>
+From: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Subject: Re: [PATCH 0/2] fix gpio-keys debouncing and timer sleep issues
+Date: Mon, 29 Jun 2009 13:32:28 +0300
+Message-ID: <1246271548.20530.207.camel@jani-desktop>
+References: <20090626002345.07928230@dxy.sh.intel.com>
+	 <cover.1246015395.git.ext-jani.1.nikula@nokia.com>
+	 <20090629055940.GC12821@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mga11.intel.com ([192.55.52.93]:24466 "EHLO mga11.intel.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752373AbZF2KcH (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 06:32:07 -0400
-In-Reply-To: <7dbf3c1888fe61729b6c9e399971012611122a28.1246015395.git.ext-jani.1.nikula@nokia.com>
+Received: from smtp.nokia.com ([192.100.122.233]:55269 "EHLO
+	mgw-mx06.nokia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759259AbZF2Kct (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2009 06:32:49 -0400
+In-Reply-To: <20090629055940.GC12821@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "soni.trilok@gmail.com" <soni.trilok@gmail.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "ext-phil.2.carmody@nokia.com" <ext-phil.2.carmody@nokia.com>, "ext-jani.1.nikula@nokia.com" <ext-jani.1.nikula@nokia.com>
+To: ext Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "alek.du@intel.com" <alek.du@intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "soni.trilok@gmail.com" <soni.trilok@gmail.com>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "Carmody Phil.2 (EXT-Ixonos/Helsinki)" <ext-phil.2.carmody@nokia.com>
 
-On Fri, 26 Jun 2009 20:15:18 +0800
-Jani Nikula <ext-jani.1.nikula@nokia.com> wrote:
+On Mon, 2009-06-29 at 07:59 +0200, ext Dmitry Torokhov wrote:
+> I intend to apply the both patches. It is unfortunate that we need to
+> use both a timer and a workqueue, I wonder what would it take to
+> implement something like reschedule_delayed_work() that would adjust
+> the delay in the same fashion that mod_timer() does?
 
-> The gpio_get_value function may sleep, so it should not be called in a
-> timer function. Move gpio_get_value calls to workqueue.
-> 
-> Signed-off-by: Jani Nikula <ext-jani.1.nikula@nokia.com>
-> ---
->  drivers/input/keyboard/gpio_keys.c |   17 ++++++++++++-----
->  1 files changed, 12 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/input/keyboard/gpio_keys.c
-> b/drivers/input/keyboard/gpio_keys.c index 9767213..efed0c9 100644
-> --- a/drivers/input/keyboard/gpio_keys.c
-> +++ b/drivers/input/keyboard/gpio_keys.c
-> @@ -22,6 +22,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/input.h>
->  #include <linux/gpio_keys.h>
-> +#include <linux/workqueue.h>
->  
->  #include <asm/gpio.h>
->  
-> @@ -29,6 +30,7 @@ struct gpio_button_data {
->  	struct gpio_keys_button *button;
->  	struct input_dev *input;
->  	struct timer_list timer;
-> +	struct work_struct work;
->  };
->  
->  struct gpio_keys_drvdata {
-> @@ -36,8 +38,10 @@ struct gpio_keys_drvdata {
->  	struct gpio_button_data data[0];
->  };
->  
-> -static void gpio_keys_report_event(struct gpio_button_data *bdata)
-> +static void gpio_keys_report_event(struct work_struct *work)
->  {
-> +	struct gpio_button_data *bdata =
-> +		container_of(work, struct gpio_button_data, work);
->  	struct gpio_keys_button *button = bdata->button;
->  	struct input_dev *input = bdata->input;
->  	unsigned int type = button->type ?: EV_KEY;
-> @@ -47,11 +51,11 @@ static void gpio_keys_report_event(struct
-> gpio_button_data *bdata) input_sync(input);
->  }
->  
-> -static void gpio_check_button(unsigned long _data)
-> +static void gpio_keys_timer(unsigned long _data)
->  {
->  	struct gpio_button_data *data = (struct gpio_button_data
-> *)_data; 
-> -	gpio_keys_report_event(data);
-> +	schedule_work(&data->work);
->  }
->  
->  static irqreturn_t gpio_keys_isr(int irq, void *dev_id)
-> @@ -65,7 +69,7 @@ static irqreturn_t gpio_keys_isr(int irq, void
-> *dev_id) mod_timer(&bdata->timer,
->  			jiffies +
-> msecs_to_jiffies(button->debounce_interval)); else
-> -		gpio_keys_report_event(bdata);
-> +		schedule_work(&bdata->work);
->  
->  	return IRQ_HANDLED;
->  }
-> @@ -113,7 +117,8 @@ static int __devinit gpio_keys_probe(struct
-> platform_device *pdev) bdata->input = input;
->  		bdata->button = button;
->  		setup_timer(&bdata->timer,
-> -			    gpio_check_button, (unsigned long)bdata);
-> +			    gpio_keys_timer, (unsigned long)bdata);
-> +		INIT_WORK(&bdata->work, gpio_keys_report_event);
->  
->  		error = gpio_request(button->gpio, button->desc ?:
-> "gpio_keys"); if (error < 0) {
-> @@ -174,6 +179,7 @@ static int __devinit gpio_keys_probe(struct
-> platform_device *pdev) free_irq(gpio_to_irq(pdata->buttons[i].gpio),
-> &ddata->data[i]); if (pdata->buttons[i].debounce_interval)
->  			del_timer_sync(&ddata->data[i].timer);
-> +		cancel_work_sync(&ddata->data[i].work);
->  		gpio_free(pdata->buttons[i].gpio);
->  	}
->  
-> @@ -199,6 +205,7 @@ static int __devexit gpio_keys_remove(struct
-> platform_device *pdev) free_irq(irq, &ddata->data[i]);
->  		if (pdata->buttons[i].debounce_interval)
->  			del_timer_sync(&ddata->data[i].timer);
-> +		cancel_work_sync(&ddata->data[i].work);
->  		gpio_free(pdata->buttons[i].gpio);
->  	}
->  
+Hi Dmitry -
 
-Tested with my board, it works well. Dmitry, could you please consider
-to apply it?
+Since a delayed_work is simply a work_struct and a timer_list, the only
+overhead here is the one line timer function. A work_struct per button
+is of course an addition to the original in both Alek's patch and mine,
+but I guess there are no alternatives if gpio_get_value may sleep.
 
-Tested-by: Alek Du <alek.du@intel.com>
+I did think about something like reschedule_delayed_work myself, but
+tackling the locking issues seemed like too much work compared to this
+simple solution.
+
+
+BR,
+Jani.
+
+

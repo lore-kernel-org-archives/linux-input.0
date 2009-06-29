@@ -1,40 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH 0/2] fix gpio-keys debouncing and timer sleep issues
-Date: Sun, 28 Jun 2009 22:59:40 -0700
-Message-ID: <20090629055940.GC12821@dtor-d630.eng.vmware.com>
-References: <20090626002345.07928230@dxy.sh.intel.com> <cover.1246015395.git.ext-jani.1.nikula@nokia.com>
+Subject: Re: [PATCH] PCAP touchscreen driver (for 2.6.32)
+Date: Sun, 28 Jun 2009 23:19:55 -0700
+Message-ID: <20090629061955.GE12821@dtor-d630.eng.vmware.com>
+References: <1246122138.3727.12.camel@brutus> <5d5443650906280015x4bddefa5v9dd36f888c5f2e92@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.231]:44797 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751019AbZF2F7l (ORCPT
+Received: from mail-px0-f190.google.com ([209.85.216.190]:44527 "EHLO
+	mail-px0-f190.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750725AbZF2GT5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 01:59:41 -0400
+	Mon, 29 Jun 2009 02:19:57 -0400
 Content-Disposition: inline
-In-Reply-To: <cover.1246015395.git.ext-jani.1.nikula@nokia.com>
+In-Reply-To: <5d5443650906280015x4bddefa5v9dd36f888c5f2e92@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jani Nikula <ext-jani.1.nikula@nokia.com>
-Cc: alek.du@intel.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, ben-linux@fluff.org, ext-phil.2.carmody@nokia.com
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Daniel Ribeiro <drwyrm@gmail.com>, linux-input@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Harald Welte <laforge@gnumonks.org>, Samuel Ortiz <sameo@linux.intel.com>
 
-Hi Jani,
+On Sun, Jun 28, 2009 at 12:45:17PM +0530, Trilok Soni wrote:
+> Hi Daniel,
+>=20
+> 2009/6/27 Daniel Ribeiro <drwyrm@gmail.com>:
+> > +
+> > + =A0 =A0 =A0 err =3D request_irq(pcap_to_irq(pcap_ts->pcap, PCAP_I=
+RQ_TS),
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 pcap_ts_event_touch, =
+0, "Touch Screen", pcap_ts);
+> > + =A0 =A0 =A0 if (err)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail;
+> > +
+> > + =A0 =A0 =A0 err =3D input_register_device(pcap_ts->input);
+> > + =A0 =A0 =A0 if (err)
+> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto fail_touch;
+>=20
+> Please move request_irq after input_register_device, as IRQ can get
+> fired before input device gets available, right?
+>=20
 
-On Fri, Jun 26, 2009 at 03:15:16PM +0300, Jani Nikula wrote:
-> Alek, someone might depend on how debouncing worked before, so let's not 
-> break it. I, for one, am looking at using this in the future, and would 
-> want this to work as it was before.
-> 
-> Why don't we fix this instead of debating? For simplicity, here's first 
-> a revert of the original patch and then a fix to the sleep issue. 
-> Unfortunately, I do not have the equipment to properly test this right 
-> now.
-> 
+Actually it is OK to have IRQs fired before the device is registered.
+Input core guarantees that input device allocated with
+input_allocate_device() will survive if events are sent through it. The
+events will not be delivered anywhere, for obvious reason, but
+everything else should be fine. In fact, if device has an event()
+handler then it has to be fully operational (that includes IRQ reserved
+and ready, unless the driver implements open/close methods) before
+calling input_register_device - the handlers that will attach to the
+device have every right to start sending events back to the device righ=
+t
+away and expect them to be handled properly.
 
-I intend to apply the both patches. It is unfortunate that we need to
-use both a timer and a workqueue, I wonder what would it take to
-implement something like reschedule_delayed_work() that would adjust
-the delay in the same fashion that mod_timer() does?
-
--- 
+--=20
 Dmitry
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

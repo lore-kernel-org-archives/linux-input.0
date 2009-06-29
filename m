@@ -1,47 +1,39 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Mon, 29 Jun 2009 09:26:19 -0700
-Message-ID: <20090629162619.GB24533@dtor-d630.eng.vmware.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com> <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com> <f17812d70906070704s10f8eac6ybc353041e2db5a03@mail.gmail.com> <200906112103.54043.dmitry.torokhov@gmail.com> <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com> <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
+From: Ilya Petrov <ilya.muromec@gmail.com>
+Subject: Re: [PATCH] PCAP misc input driver (for 2.6.32)
+Date: Mon, 29 Jun 2009 19:27:24 +0300
+Message-ID: <800a98740906290927q5469f17fpcd74295e7ce40fb0@mail.gmail.com>
+References: <1246122592.3727.20.camel@brutus>
+	<20090629094658.GE11855@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.224]:20116 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754772AbZF2Q0f (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 12:26:35 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so1303510rvb.1
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 09:26:38 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <openezx-devel-bounces@lists.openezx.org>
+In-Reply-To: <20090629094658.GE11855@sirena.org.uk>
+List-Unsubscribe: <https://lists.openezx.org/mailman/listinfo/openezx-devel>,
+	<mailto:openezx-devel-request@lists.openezx.org?subject=unsubscribe>
+List-Archive: <http://lists.openezx.org/pipermail/openezx-devel>
+List-Post: <mailto:openezx-devel@lists.openezx.org>
+List-Help: <mailto:openezx-devel-request@lists.openezx.org?subject=help>
+List-Subscribe: <https://lists.openezx.org/mailman/listinfo/openezx-devel>,
+	<mailto:openezx-devel-request@lists.openezx.org?subject=subscribe>
+Sender: openezx-devel-bounces@lists.openezx.org
+Errors-To: openezx-devel-bounces@lists.openezx.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: openezx-devel <openezx-devel@lists.openezx.org>, Samuel Ortiz <sameo@linux.intel.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, inux-kernel <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Daniel Ribeiro <drwyrm@gmail.com>
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
 
-Hi Eric,
+2009/6/29 Mark Brown <broonie@opensource.wolfsonmicro.com>:
 
-On Fri, Jun 12, 2009 at 09:26:43PM +0800, Eric Miao wrote:
-> 
-> Hi Dmitry,
-> 
-> I've tested the driver code, and it's basically OK except for two minor
-> fixes:
-> 
-> 1) GPIO and IRQs have to be initialized before input_register_device(),
-> otherwise input->open() will be invoked before that, which will schedule
-> an immediate scan work and fail.
-> 
-> 2) disable_irq_rows() called in init_matrix_gpio() so that by default it's
-> initialized to disabled - and will be enabled by input->open()
-> 
+> Depending on the power management capabilities of the CODEC it may be
+> better to support at laest the headphone insert/removal via the audio
+> driver as a jack to allow automatic management of the power for the
+> relevant paths within the CODEC.
 
-Could you please take a look at the driver as it is commited to
-'for-linus' branch of my tree and let me know if you see anything wrong
-there? Otherwise I inted to submit it in my next update to Linus.
+we need to control this manually from userspace - for example, even with
+headphone plugged in ringtone should be played via speaker.
 
-Thanks!
+
 
 -- 
-Dmitry
+ wbr, Ilya
+ ICQ: none, Jabber: ilya.muromec@jabber.ru

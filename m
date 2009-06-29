@@ -1,34 +1,73 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] PCAP misc input driver (for 2.6.32)
-Date: Mon, 29 Jun 2009 17:33:23 +0100
-Message-ID: <20090629163323.GI11855@sirena.org.uk>
-References: <1246122592.3727.20.camel@brutus> <20090629094658.GE11855@sirena.org.uk> <800a98740906290927q5469f17fpcd74295e7ce40fb0@mail.gmail.com>
+From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Subject: Re: Can a phone hook switch follow alsa jack model?
+Date: Mon, 29 Jun 2009 18:35:58 +0200
+Message-ID: <200906291835.59534.jkrzyszt@tis.icnet.pl>
+References: <4A40D896.8010208@tis.icnet.pl> <4A437226.4090202@tis.icnet.pl>
+	<20090629143215.GA23835@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:56336 "EHLO
-	cassiel.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751515AbZF2QdV (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 12:33:21 -0400
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20090629143215.GA23835@rakim.wolfsonmicro.main>
 Content-Disposition: inline
-In-Reply-To: <800a98740906290927q5469f17fpcd74295e7ce40fb0@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, Jonathan McDowell <noodles@earth.li>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
 List-Id: linux-input@vger.kernel.org
-To: Ilya Petrov <ilya.muromec@gmail.com>
-Cc: Daniel Ribeiro <drwyrm@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, inux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Samuel Ortiz <sameo@linux.intel.com>
 
-On Mon, Jun 29, 2009 at 07:27:24PM +0300, Ilya Petrov wrote:
-> 2009/6/29 Mark Brown <broonie@opensource.wolfsonmicro.com>:
+On Monday 29 June 2009 16:32:15 Mark Brown wrote:
+> On Thu, Jun 25, 2009 at 02:48:38PM +0200, Janusz Krzysztofik wrote:
+> > During my previous, gpio-keys based attempt, I submitted a patch
+> > that added new SW_HANDSET_PICK_UP event definition to
+> > include/linux/input.h. Even if not accepted because of no
+>
+> Something like hook switch would be a more common name - the switch is
+> closed when the phone is on hook.
 
-> > Depending on the power management capabilities of the CODEC it may be
-> > better to support at laest the headphone insert/removal via the audio
-> > driver as a jack to allow automatic management of the power for the
-> > relevant paths within the CODEC.
+I guess so.
 
-> we need to control this manually from userspace - for example, even with
-> headphone plugged in ringtone should be played via speaker.
+> > comments, especially on the name I have choosen. However, there were
+> > another name proposed by ams-delta board maintainer, Jonathan
+> > McDowell - SW_PHONE_HOOK. Even if my wording may better match those
+> > already existing ..._INSERT names, I am not sure which one should I
+> > use.
+>
+> The _INSERT isn't at all appropriate since there's nothing being
+> inserted here - the _INSERT names refer to the fact that something is
+> being plugged in to a jack.
 
-ALSA jacks are still visible to user space as input devices.  The
-difference it will make here is that the kernel can autonomously control
-power for paths where that makes sense.
+Sure, that's why I tried to replace _INSERT with _PICK_UP, that probably can 
+closely refer to what can happen to a handset, while still following the 
+general trend of ending switch related event names with action names.
+
+> > Please also note that SND_JACK_HEADSET, that I temporarily use for
+> > now, is an alias for SND_JACK_HEADPHONE | SND_JACK_MICROPHONE. Those
+> > two can be seen as matching what a handset actually is. On headset
+> > jack insert/remove, two distinct reports/events are generated, one
+>
+> OTOH a phone going on hook tends to mean something rather different in
+> UI terms to having something plugged into a jack - it's part of the
+> normal flow of making a phone call.
+
+That's how I argued once in my message to Jonathan:
+> I have choosen a different name to distinguish the switch actual function
+> from what we know from telephony world as a switch that connects a phone to
+> a line in response to a handset pick up.
+
+Mark,
+Thanks for sharing your thoughts. I am not going to waste your time on this 
+linguistic debate any more. For now, I keep on using SND_JACK_HEADSET unless 
+somebody happens to hit upon a better idea. If there are no other votes, I 
+will try to work out a consistent set of symbols using one or another of 
+already considered names that would best match current naming schema.
+
+Cheers,
+Janusz

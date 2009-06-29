@@ -1,73 +1,116 @@
-From: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
-Subject: Re: Can a phone hook switch follow alsa jack model?
-Date: Mon, 29 Jun 2009 18:35:58 +0200
-Message-ID: <200906291835.59534.jkrzyszt@tis.icnet.pl>
-References: <4A40D896.8010208@tis.icnet.pl> <4A437226.4090202@tis.icnet.pl>
-	<20090629143215.GA23835@rakim.wolfsonmicro.main>
+From: Daniel Ribeiro <drwyrm@gmail.com>
+Subject: Re: [PATCH] PCAP misc input driver (for 2.6.32)
+Date: Mon, 29 Jun 2009 17:47:07 -0300
+Message-ID: <1246308427.18231.43.camel@brutus>
+References: <1246122592.3727.20.camel@brutus>
+	 <20090629061434.GD12821@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20090629143215.GA23835@rakim.wolfsonmicro.main>
-Content-Disposition: inline
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, Jonathan McDowell <noodles@earth.li>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
+Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-uNw0TazYwdnAlF41viYz"
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from rv-out-0506.google.com ([209.85.198.231]:28076 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752674AbZF2UrW (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Mon, 29 Jun 2009 16:47:22 -0400
+In-Reply-To: <20090629061434.GD12821@dtor-d630.eng.vmware.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, inux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Samuel Ortiz <sameo@linux.intel.com>, Ilya Petrov <ilya.muromec@gmail.com>
 
-On Monday 29 June 2009 16:32:15 Mark Brown wrote:
-> On Thu, Jun 25, 2009 at 02:48:38PM +0200, Janusz Krzysztofik wrote:
-> > During my previous, gpio-keys based attempt, I submitted a patch
-> > that added new SW_HANDSET_PICK_UP event definition to
-> > include/linux/input.h. Even if not accepted because of no
->
-> Something like hook switch would be a more common name - the switch is
-> closed when the phone is on hook.
 
-I guess so.
+--=-uNw0TazYwdnAlF41viYz
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> > comments, especially on the name I have choosen. However, there were
-> > another name proposed by ams-delta board maintainer, Jonathan
-> > McDowell - SW_PHONE_HOOK. Even if my wording may better match those
-> > already existing ..._INSERT names, I am not sure which one should I
-> > use.
->
-> The _INSERT isn't at all appropriate since there's nothing being
-> inserted here - the _INSERT names refer to the fact that something is
-> being plugged in to a jack.
+Em Dom, 2009-06-28 =C3=A0s 23:14 -0700, Dmitry Torokhov escreveu:
+> >  drivers/input/keyboard/Kconfig     |    7 ++
+> >  drivers/input/keyboard/Makefile    |    1 +
+> >  drivers/input/keyboard/pcap_keys.c |  152 ++++++++++++++++++++++++++++=
+++++++++
+> >  3 files changed, 160 insertions(+), 0 deletions(-)
+> >=20
+>=20
+> First of all I think the driver should live in misc, not in keyboard,
+> since it is not a full-fledged keyboard.
 
-Sure, that's why I tried to replace _INSERT with _PICK_UP, that probably can 
-closely refer to what can happen to a handset, while still following the 
-general trend of ending switch related event names with action names.
+Ok.
 
-> > Please also note that SND_JACK_HEADSET, that I temporarily use for
-> > now, is an alias for SND_JACK_HEADPHONE | SND_JACK_MICROPHONE. Those
-> > two can be seen as matching what a handset actually is. On headset
-> > jack insert/remove, two distinct reports/events are generated, one
->
-> OTOH a phone going on hook tends to mean something rather different in
-> UI terms to having something plugged into a jack - it's part of the
-> normal flow of making a phone call.
+> > +          Say Y here if you want to use power key and jack events
+> > +          on Motorola EZX 2nd generation phones
+> > +
+>=20
+> To compile this driver as a module...
 
-That's how I argued once in my message to Jonathan:
-> I have choosen a different name to distinguish the switch actual function
-> from what we know from telephony world as a switch that connects a phone to
-> a line in response to a handset pick up.
+Ok.
 
-Mark,
-Thanks for sharing your thoughts. I am not going to waste your time on this 
-linguistic debate any more. For now, I keep on using SND_JACK_HEADSET unless 
-somebody happens to hit upon a better idea. If there are no other votes, I 
-will try to work out a consistent set of symbols using one or another of 
-already considered names that would best match current naming schema.
+> > +	case PCAP_IRQ_MIC:
+> > +		input_report_key(pcap_keys->input, KEY_HP, !pstat);
+>=20
+> Why not SW_MICROPHONE_INSERT?
 
-Cheers,
-Janusz
+Its actually a button.
+
+The device has a single jack for headphone and microphone. And the
+headset that we connect to it has a button that you use to answer calls,
+or dial.
+
+> > +static int __init pcap_keys_probe(struct platform_device *pdev)
+>=20
+> __devinit, not __init should be used on driver's probe() methods.
+
+Ok.
+
+> > +	pcap_keys->input->name =3D pdev->name;
+> > +	pcap_keys->input->phys =3D "pcap-keys/input0";
+> > +	pcap_keys->input->dev.parent =3D &pdev->dev;
+>=20
+> I do like a temp for input_dev, it usually makes code a bit smaller.
+> Also it would be nice to have but type set (BUS_HOST I think).
+
+Ok.
+
+> > +	set_bit(KEY_HP, pcap_keys->input->keybit);
+
+> __set_bit() please, like Trolok said.
+
+Ok.
+
+> > +static int pcap_keys_remove(struct platform_device *pdev)
+>=20
+> __devexit here.
+
+Ok.
+
+> > +	.remove		=3D pcap_keys_remove,
+>=20
+> __devexit_p()
+
+Ok.
+
+> > +MODULE_DESCRIPTION("Motorola PCAP2 input events driver");
+> > +MODULE_AUTHOR("Ilya Petrov <ilya.muromec@gmail.com>");
+> > +MODULE_LICENSE("GPL");
+>=20
+> Do we need MODULE_ALIAS() here?
+
+Do we? I think we don't, but well... It costs nothing. ;)
+
+--=20
+Daniel Ribeiro
+
+--=-uNw0TazYwdnAlF41viYz
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Esta =?ISO-8859-1?Q?=E9?= uma parte de mensagem
+ assinada digitalmente
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+
+iEYEABECAAYFAkpJKEsACgkQw3OYl0G0liRwywCgmVlIMkIq1YVj13Wjq4roMk89
+WjIAn2RKQ4UxWpUgOEX0HucJ4v3WRz8O
+=h07W
+-----END PGP SIGNATURE-----
+
+--=-uNw0TazYwdnAlF41viYz--
+

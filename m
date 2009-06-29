@@ -1,56 +1,40 @@
-From: Minkyu Kang <promsoft@gmail.com>
-Subject: Re: [PATCH] hwmon: add GP2A002 proximity/ambient sensor
-Date: Mon, 29 Jun 2009 08:49:10 +0900
-Message-ID: <1f3430fb0906281649i1e4accdbh26efadc3f565a4e4@mail.gmail.com>
-References: <4A448926.1030701@samsung.com>
-	 <5d5443650906260322n3c4f5f79r3290ebce2e331234@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 0/2] fix gpio-keys debouncing and timer sleep issues
+Date: Sun, 28 Jun 2009 22:59:40 -0700
+Message-ID: <20090629055940.GC12821@dtor-d630.eng.vmware.com>
+References: <20090626002345.07928230@dxy.sh.intel.com> <cover.1246015395.git.ext-jani.1.nikula@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-gx0-f226.google.com ([209.85.217.226]:40581 "EHLO
-	mail-gx0-f226.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752445AbZF1XtI convert rfc822-to-8bit (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.231]:44797 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751019AbZF2F7l (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Sun, 28 Jun 2009 19:49:08 -0400
-In-Reply-To: <5d5443650906260322n3c4f5f79r3290ebce2e331234@mail.gmail.com>
+	Mon, 29 Jun 2009 01:59:41 -0400
+Content-Disposition: inline
+In-Reply-To: <cover.1246015395.git.ext-jani.1.nikula@nokia.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Minkyu Kang <mk7.kang@samsung.com>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, lm-sensors@lm-sensors.org, suchang.woo@samsung.com, kyungmin.park@samsung.com, linux-input@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+To: Jani Nikula <ext-jani.1.nikula@nokia.com>
+Cc: alek.du@intel.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, soni.trilok@gmail.com, ben-linux@fluff.org, ext-phil.2.carmody@nokia.com
 
-Hi Trilok,
+Hi Jani,
 
-2009/6/26 Trilok Soni <soni.trilok@gmail.com>:
-> Hi Minkyu,
->
-> Adding linux-input ML, as driver is using linux input subsystem.
->
-> On Fri, Jun 26, 2009 at 2:09 PM, Minkyu Kang<mk7.kang@samsung.com> wr=
-ote:
->> The GP2A002 is a I2C interfaced Sensor for Proximity/Ambient
->> This patch adds support the GP2A002 sensor
->>
->> Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
->> Signed-off-by: Suchang Woo <suchang.woo@samsung.com>
->> ---
->> =A0drivers/hwmon/Kconfig =A0 =A0| =A0 =A07 +
->> =A0drivers/hwmon/Makefile =A0 | =A0 =A01 +
->> =A0drivers/hwmon/gp2ap002.c | =A0471 +++++++++++++++++++++++++++++++=
-+++++++++++++++
->> =A0include/linux/gp2ap002.h | =A0 21 ++
->> =A04 files changed, 500 insertions(+), 0 deletions(-)
->> =A0create mode 100644 drivers/hwmon/gp2ap002.c
->> =A0create mode 100644 include/linux/gp2ap002.h
->>
+On Fri, Jun 26, 2009 at 03:15:16PM +0300, Jani Nikula wrote:
+> Alek, someone might depend on how debouncing worked before, so let's not 
+> break it. I, for one, am looking at using this in the future, and would 
+> want this to work as it was before.
+> 
+> Why don't we fix this instead of debating? For simplicity, here's first 
+> a revert of the original patch and then a fix to the sleep issue. 
+> Unfortunately, I do not have the equipment to properly test this right 
+> now.
+> 
 
-Thanks for review and I'll make new version as you said : )
+I intend to apply the both patches. It is unfortunate that we need to
+use both a timer and a workqueue, I wonder what would it take to
+implement something like reschedule_delayed_work() that would adjust
+the delay in the same fashion that mod_timer() does?
 
---=20
-from. prom.
-www.promsoft.net
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Dmitry

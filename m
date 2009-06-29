@@ -1,51 +1,46 @@
-From: Michael Tokarev <mjt@tls.msk.ru>
-Subject: Re: PC speaker beeps in 2.6.30?
-Date: Mon, 29 Jun 2009 18:29:21 +0400
-Message-ID: <4A48CFC1.2040103@msgid.tls.msk.ru>
-References: <4A365DA6.8000102@msgid.tls.msk.ru> <4A365DA6.8000102@msgid.tls.msk.ru> <4A4464CA.4060006@msgid.tls.msk.ru> <200906291447.08249.elendil@planet.nl>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [alsa-devel] Can a phone hook switch follow alsa jack model?
+Date: Mon, 29 Jun 2009 15:32:15 +0100
+Message-ID: <20090629143215.GA23835@rakim.wolfsonmicro.main>
+References: <4A40D896.8010208@tis.icnet.pl>
+ <20090623222255.GA5617@sirena.org.uk>
+ <4A4229EB.2090606@tis.icnet.pl>
+ <20090625110508.GF17812@sirena.org.uk>
+ <4A437226.4090202@tis.icnet.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from isrv.corpit.ru ([81.13.33.159]:51562 "EHLO isrv.corpit.ru"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1758859AbZF2O3W (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 10:29:22 -0400
-In-Reply-To: <200906291447.08249.elendil@planet.nl>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4A437226.4090202@tis.icnet.pl>
+Sender: linux-omap-owner@vger.kernel.org
+To: Janusz Krzysztofik <jkrzyszt@tis.icnet.pl>
+Cc: Jonathan McDowell <noodles@earth.li>, alsa-devel@alsa-project.org, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Frans Pop <elendil@planet.nl>
-Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, alsa-devel@vger.kernel.org
 
-Frans Pop wrote:
-> Michael Tokarev wrote:
->> Am I the only concerned about this?  My 2.6.30 is still
->> silent w.r.t. old good PC speaker beeps, and I wasn't
->> able to make it to produce any sound.  Yes, as pointed
->> out by others there is a control now, in alsa,
-> 
-> Did you actually try compiling a kernel without CONFIG_SND_HDA_INPUT_BEEP 
-> set? If you do, does your PC speaker work again?
+On Thu, Jun 25, 2009 at 02:48:38PM +0200, Janusz Krzysztofik wrote:
 
-Yes it works.  Even with CONFIG_SND_HDA_INPUT_BEEP set,
-but without the module loaded.  See all the details at
-http://bugzilla.kernel.org/show_bug.cgi?id=13651
+> During my previous, gpio-keys based attempt, I submitted a patch
+> that added new SW_HANDSET_PICK_UP event definition to
+> include/linux/input.h. Even if not accepted because of no
 
-> If it does work again, I don't think there is a bug, at least not in the 
-> fact that the old PC speaker beep no longer works: if you have a HDA 
-> soundcard in the system _and_ the driver is loaded _and_ 
-> CONFIG_SND_HDA_INPUT_BEEP is set, then it seems logical to me that that 
-> takes over system beeps.
-> The fact that the config option also existed in 2.6.29 but did not work 
-> the same seems a minor issue to me.
+Something like hook switch would be a more common name - the switch is
+closed when the phone is on hook.
 
-Original issue was that I didn't know what to do.
+> comments, especially on the name I have choosen. However, there were
+> another name proposed by ams-delta board maintainer, Jonathan
+> McDowell - SW_PHONE_HOOK. Even if my wording may better match those
+> already existing ..._INSERT names, I am not sure which one should I
+> use.
 
-[]
-> If it really does sound bad, maybe the ALSA developers could look into 
-> that, but you will have to describe it better (or maybe make a 
-> recording?).
+The _INSERT isn't at all appropriate since there's nothing being
+inserted here - the _INSERT names refer to the fact that something is
+being plugged in to a jack.
 
-There was another, unrelated bug, fixed for 2.6.31-tobe.
+> Please also note that SND_JACK_HEADSET, that I temporarily use for
+> now, is an alias for SND_JACK_HEADPHONE | SND_JACK_MICROPHONE. Those
+> two can be seen as matching what a handset actually is. On headset
+> jack insert/remove, two distinct reports/events are generated, one
 
-/mjt
+OTOH a phone going on hook tends to mean something rather different in
+UI terms to having something plugged into a jack - it's part of the
+normal flow of making a phone call.

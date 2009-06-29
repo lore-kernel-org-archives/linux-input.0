@@ -1,116 +1,56 @@
-From: Daniel Ribeiro <drwyrm@gmail.com>
-Subject: Re: [PATCH] PCAP misc input driver (for 2.6.32)
-Date: Mon, 29 Jun 2009 17:47:07 -0300
-Message-ID: <1246308427.18231.43.camel@brutus>
-References: <1246122592.3727.20.camel@brutus>
-	 <20090629061434.GD12821@dtor-d630.eng.vmware.com>
+From: Peter Hutterer <peter.hutterer@who-t.net>
+Subject: min/max and actual values on absolute axes
+Date: Tue, 30 Jun 2009 09:42:58 +1000
+Message-ID: <20090629234258.GA30771@dingo.bne.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature"; boundary="=-uNw0TazYwdnAlF41viYz"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.231]:28076 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752674AbZF2UrW (ORCPT
+Received: from leo.clearchain.com ([199.73.29.74]:61464 "EHLO
+	mail.clearchain.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760381AbZF3AG7 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 16:47:22 -0400
-In-Reply-To: <20090629061434.GD12821@dtor-d630.eng.vmware.com>
+	Mon, 29 Jun 2009 20:06:59 -0400
+Received: from leo.clearchain.com (localhost [127.0.0.1])
+	by mail.clearchain.com (8.14.3/8.14.3) with ESMTP id n5TNhQ00053127
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <linux-input@vger.kernel.org>; Tue, 30 Jun 2009 09:13:26 +0930 (CST)
+	(envelope-from peter.hutterer@who-t.net)
+Received: (from whot@localhost)
+	by leo.clearchain.com (8.14.3/8.14.3/Submit) id n5TNhQlL053126
+	for linux-input@vger.kernel.org; Tue, 30 Jun 2009 09:13:26 +0930 (CST)
+	(envelope-from peter.hutterer@who-t.net)
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, inux-kernel <linux-kernel@vger.kernel.org>, openezx-devel <openezx-devel@lists.openezx.org>, Samuel Ortiz <sameo@linux.intel.com>, Ilya Petrov <ilya.muromec@gmail.com>
+To: linux-input@vger.kernel.org
+
+Hi guys,
+
+A question regarding min/max values on absolute axes of input devices. I
+have a few bugreports related to the synaptics driver and the trigger for
+the bug are coordinates outside the min/max range.
+
+Example evtest output: http://bugs.freedesktop.org/attachment.cgi?id=27229
+
+ Event type 3 (Absolute)
+    Event code 0 (X)
+      Value   6044
+      Min     1472
+      Max     5472
+    Event code 1 (Y)
+      Value   1261
+      Min     1408
+      Max     4448
 
 
---=-uNw0TazYwdnAlF41viYz
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+>From Documentation/input/input-programming:
+"This setting would be appropriate for a joystick X axis, with the minimum of
+0, maximum of 255 (which the joystick *must* be able to reach, no problem if
+it sometimes reports more, but it must be able to always reach the min and
+max values), [...]"
 
-Em Dom, 2009-06-28 =C3=A0s 23:14 -0700, Dmitry Torokhov escreveu:
-> >  drivers/input/keyboard/Kconfig     |    7 ++
-> >  drivers/input/keyboard/Makefile    |    1 +
-> >  drivers/input/keyboard/pcap_keys.c |  152 ++++++++++++++++++++++++++++=
-++++++++
-> >  3 files changed, 160 insertions(+), 0 deletions(-)
-> >=20
->=20
-> First of all I think the driver should live in misc, not in keyboard,
-> since it is not a full-fledged keyboard.
+Do I read this correct that min/max is intended as guideline only and cannot
+be relied on for actual coordinate boundaries?
 
-Ok.
-
-> > +          Say Y here if you want to use power key and jack events
-> > +          on Motorola EZX 2nd generation phones
-> > +
->=20
-> To compile this driver as a module...
-
-Ok.
-
-> > +	case PCAP_IRQ_MIC:
-> > +		input_report_key(pcap_keys->input, KEY_HP, !pstat);
->=20
-> Why not SW_MICROPHONE_INSERT?
-
-Its actually a button.
-
-The device has a single jack for headphone and microphone. And the
-headset that we connect to it has a button that you use to answer calls,
-or dial.
-
-> > +static int __init pcap_keys_probe(struct platform_device *pdev)
->=20
-> __devinit, not __init should be used on driver's probe() methods.
-
-Ok.
-
-> > +	pcap_keys->input->name =3D pdev->name;
-> > +	pcap_keys->input->phys =3D "pcap-keys/input0";
-> > +	pcap_keys->input->dev.parent =3D &pdev->dev;
->=20
-> I do like a temp for input_dev, it usually makes code a bit smaller.
-> Also it would be nice to have but type set (BUS_HOST I think).
-
-Ok.
-
-> > +	set_bit(KEY_HP, pcap_keys->input->keybit);
-
-> __set_bit() please, like Trolok said.
-
-Ok.
-
-> > +static int pcap_keys_remove(struct platform_device *pdev)
->=20
-> __devexit here.
-
-Ok.
-
-> > +	.remove		=3D pcap_keys_remove,
->=20
-> __devexit_p()
-
-Ok.
-
-> > +MODULE_DESCRIPTION("Motorola PCAP2 input events driver");
-> > +MODULE_AUTHOR("Ilya Petrov <ilya.muromec@gmail.com>");
-> > +MODULE_LICENSE("GPL");
->=20
-> Do we need MODULE_ALIAS() here?
-
-Do we? I think we don't, but well... It costs nothing. ;)
-
---=20
-Daniel Ribeiro
-
---=-uNw0TazYwdnAlF41viYz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Esta =?ISO-8859-1?Q?=E9?= uma parte de mensagem
- assinada digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEABECAAYFAkpJKEsACgkQw3OYl0G0liRwywCgmVlIMkIq1YVj13Wjq4roMk89
-WjIAn2RKQ4UxWpUgOEX0HucJ4v3WRz8O
-=h07W
------END PGP SIGNATURE-----
-
---=-uNw0TazYwdnAlF41viYz--
-
+Cheers,
+  Peter

@@ -1,256 +1,144 @@
-From: Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH 2/2] Add a driver for the Winbond WPCD376I IR
- functionality.
-Date: Tue, 30 Jun 2009 14:23:45 -0700
-Message-ID: <20090630142345.58e97b50.akpm@linux-foundation.org>
-References: <1246079912-17619-1-git-send-email-david@hardeman.nu>
-	<1246079912-17619-3-git-send-email-david@hardeman.nu>
+From: Jamie Lentin <jamie@lentin.co.uk>
+Subject: [REPOST] [PATCH] Add support for OQO 01+ multimedia keys (fwd)
+Date: Tue, 30 Jun 2009 23:06:49 +0100 (BST)
+Message-ID: <alpine.DEB.1.10.0906302300290.9420@woodchuck.wormnet.eu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp1.linux-foundation.org ([140.211.169.13]:49589 "EHLO
-	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1753235AbZF3VXt (ORCPT
+Received: from woodchuck.wormnet.eu ([77.75.105.223]:56027 "EHLO
+	woodchuck.wormnet.eu" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754020AbZF3WGr (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Jun 2009 17:23:49 -0400
-In-Reply-To: <1246079912-17619-3-git-send-email-david@hardeman.nu>
+	Tue, 30 Jun 2009 18:06:47 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, jbarnes@virtuousgeek.org, david@hardeman.nu
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
 
-On Sat, 27 Jun 2009 07:18:32 +0200
-David H__rdeman <david@hardeman.nu> wrote:
+Apologies for reposting, but it'd be nice to get something along these 
+lines merged.  If there's suggestions of other things I could try, or 
+you'd prefer a patch to make the "up" and "down" keycodes auto-release, 
+please let me know.
 
-> This patch adds a driver for the the Consumer IR (CIR) functionality
-> of the Winbond WPCD376I chipset (found on e.g. Intel DG45FC
-> motherboards).
-> 
-> Changes since the driver was last posted to the list:
-> o Homebrew dprintk -> dev_dbg
-> o Some magic values changed to defines
-> o Fixed a bug where the wake-ir-command mask/value would not be
->   written properly
-> o Fixed the use of the invert parameter both for wake and normal
->   IR reception.
-> 
->
-> ...
->
-> +static void
-> +wbcir_set_bits(unsigned long addr, u8 bits, u8 mask)
-> +{
-> +	u8 val;
-> +
-> +	val = inb(addr);
-> +	val = ((val & ~mask) | (bits & mask));
-> +	outb(val, addr);
-> +}
+Many thanks,
 
-What locking prevents the races which could occur here?
+---------- Forwarded message ----------
+Date: Thu, 30 Apr 2009 22:35:51 +0100 (BST)
+From: Jamie Lentin <jm@lentin.co.uk>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org
+Subject: [PATCH] Add support for OQO 01+ multimedia keys
 
-Whatever it is, it would be good to document that here in a code
-comment.
+OQO 01+ multimedia keys produce 6x on press, e0 6x upon release. As a
+result, Linux thinks that another key has been pressed (or is repeating), 
+when it is actually a release of the same key.  Remap e0 6x to a release of 
+6x.
 
->
-> ...
->
-> +static u8
-> +wbcir_revbyte(u8 byte)
-> +{
-> +	byte = ((byte >> 1) & 0x55) | ((byte << 1) & 0xAA);
-> +	byte = ((byte >> 2) & 0x33) | ((byte << 2) & 0xCC);
-> +	return (byte >> 4) | (byte<<4);
-> +}
+Signed-off-by: Jamie Lentin <jm@lentin.co.uk>
+---
 
-Can this use the facilities in include/linux/bitrev.h?
+Comments welcome---I'm rather aware that I'm adding a fair chunk of extra
+code for 3 keys on a fairly obscure device and that my C is rusty to say
+the least, but I thought I'd give it a go anyway.  If there are major
+objections to this, my fallback plan is to make both 6x and e0 6x
+auto-release, which may in fact be preferred.  If I've missed something
+really obvious please point it out :)
 
-> +static u8
-> +wbcir_to_rc6cells(u8 val)
-> +{
-> +	u8 coded = 0x00;
-> +	int i;
-> +
-> +	val &= 0x0F;
-> +	for (i = 0; i < 4; i++) {
-> +		if (val & 0x01)
-> +			coded |= 0x02 << (i * 2);
-> +		else
-> +			coded |= 0x01 << (i * 2);
-> +		val >>= 1;
-> +	}
-> +
-> +	return coded;
-> +}
+  drivers/input/keyboard/atkbd.c |   41 
++++++++++++++++++++++++++++++++++++++++-
+  1 files changed, 40 insertions(+), 1 deletions(-)
 
-geeze, what does that do?
+diff --git a/drivers/input/keyboard/atkbd.c 
+b/drivers/input/keyboard/atkbd.c
+index 444dec0..ecf9e9d 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -227,10 +227,12 @@ struct atkbd {
+  };
 
-Code needs comments..
+  /*
+- * System-specific ketymap fixup routine
++ * System-specific keymap fixup routine
+   */
+  static void (*atkbd_platform_fixup)(struct atkbd *, const void *data);
+  static void *atkbd_platform_fixup_data;
++static unsigned int (*atkbd_platform_fixup_function)(struct atkbd *,
++				unsigned int);
 
->
-> ...
->
-> +static int
-> +wbcir_getkeycode(struct input_dev *dev, int sscancode, int *keycode)
-> +{
-> +	unsigned int scancode = (unsigned int)sscancode;
+  static ssize_t atkbd_attr_show_helper(struct device *dev, char *buf,
+  				ssize_t (*handler)(struct atkbd *, char 
+*));
+@@ -431,6 +433,12 @@ static irqreturn_t atkbd_interrupt(struct serio 
+*serio, unsigned char data,
 
-unneeded cast.
+  	code = atkbd_compat_scancode(atkbd, code);
 
-> +	struct wbcir_data *data = input_get_drvdata(dev);
-> +
-> +	if (scancode < 0 || scancode > 0xFFFFFFFF)
++	/*
++	 * Perform platform-specific fixups
++	 */
++	if (unlikely(atkbd_platform_fixup_function))
++		code = atkbd_platform_fixup_function(atkbd, code);
++
+  	if (atkbd->emul && --atkbd->emul)
+  		goto out;
 
-Neither of the comparisons in this expression can ever be true.
+@@ -895,6 +903,21 @@ static unsigned int 
+atkbd_amilo_pa1510_forced_release_keys[] = {
+  };
 
-> +		return -EINVAL;
-> +
-> +	*keycode = (int)wbcir_do_getkeycode(data, (u32)scancode);
+  /*
++ * OQO 01+ multimedia keys (64--66), say e0 6x when they mean f0 6x, i.e. 
+upon
++ * release. Remap e4--e6 (from compat_scancode) to a release of 64--66.
++ */
++static unsigned int atkbd_oqo_01plus_remap_release_keys(struct atkbd 
+*atkbd,
++				unsigned int code)
++{
++	if (code == 0xe4 || code == 0xe5 || code == 0xe6) {
++		atkbd->release = 1;
++		code &= 0x7f;
++	}
++
++	return code;
++}
++
++/*
+   * atkbd_set_keycode_table() initializes keyboard's keycode table
+   * according to the selected scancode set
+   */
+@@ -1478,6 +1501,13 @@ static int __init atkbd_setup_forced_release(const 
+struct dmi_system_id *id)
+  	return 0;
+  }
 
-uneeded casts.
++static int __init atkbd_setup_inline_fix(const struct dmi_system_id *id)
++{
++	atkbd_platform_fixup_function = id->driver_data;
++
++	return 0;
++}
++
+  static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+  	{
+  		.ident = "Dell Laptop",
+@@ -1560,6 +1590,15 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] 
+__initdata = {
+  		.callback = atkbd_setup_forced_release,
+  		.driver_data = atkbd_amilo_pa1510_forced_release_keys,
+  	},
++	{
++		.ident = "OQO Model 01+",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "OQO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZEPTO"),
++		},
++		.callback = atkbd_setup_inline_fix,
++		.driver_data = atkbd_oqo_01plus_remap_release_keys,
++	},
+  	{ }
+  };
 
-Something has gone wrong with the types here.  Where does the fault lie
-- this driver, or input core?
-
-> +	return 0;
-> +}
-> +
-> +static int
-> +wbcir_setkeycode(struct input_dev *dev, int sscancode, int keycode)
-> +{
-> +	struct wbcir_data *data = input_get_drvdata(dev);
-> +	struct wbcir_keyentry *keyentry;
-> +	struct wbcir_keyentry *new_keyentry;
-> +	unsigned long flags;
-> +	unsigned int old_keycode = KEY_RESERVED;
-> +	unsigned int scancode = (unsigned int)sscancode;
-> +
-> +	if (scancode < 0 || scancode > 0xFFFFFFFF)
-
-various dittoes.
-
-> +		return -EINVAL;
-> +
-> +	if (keycode < 0 || keycode > KEY_MAX)
-> +		return -EINVAL;
-> +
-> +	new_keyentry = kmalloc(sizeof(*new_keyentry), GFP_KERNEL);
-> +	if (!new_keyentry)
-> +		return -ENOMEM;
-> +
-> +	write_lock_irqsave(&keytable_lock, flags);
-> +
-> +	list_for_each_entry(keyentry, &data->keytable, list) {
-> +		if (keyentry->key.scancode != scancode)
-> +			continue;
-> +
-> +		old_keycode = keyentry->key.keycode;
-> +		keyentry->key.keycode = keycode;
-> +
-> +		if (keyentry->key.keycode == KEY_RESERVED) {
-> +			list_del(&keyentry->list);
-> +			kfree(keyentry);
-> +		}
-> +
-> +		break;
-> +	}
-> +
-> +	set_bit(keycode, dev->keybit);
-> +
-> +	if (old_keycode == KEY_RESERVED) {
-> +		new_keyentry->key.scancode = (u32)scancode;
-> +		new_keyentry->key.keycode = (unsigned int)keycode;
-> +		list_add(&new_keyentry->list, &data->keytable);
-> +	} else {
-> +		kfree(new_keyentry);
-> +		clear_bit(old_keycode, dev->keybit);
-> +		list_for_each_entry(keyentry, &data->keytable, list) {
-> +			if (keyentry->key.keycode == old_keycode) {
-> +				set_bit(old_keycode, dev->keybit);
-> +				break;
-> +			}
-> +		}
-> +	}
-> +
-> +	write_unlock_irqrestore(&keytable_lock, flags);
-> +	return 0;
-> +}
-> +
-> +static void
-> +wbcir_keyup(unsigned long cookie)
-
-It would be useful to add a comment telling the reader that this is a
-timer-handler function.
-
-> +{
-> +	struct wbcir_data *data = (struct wbcir_data *)cookie;
-> +	unsigned long flags;
-> +
-> +	/*
-> +	 * data->keyup_jiffies is used to prevent a race condition if a
-> +	 * hardware interrupt occurs at this point and the keyup timer
-> +	 * event is moved further into the future as a result.
-> +	 */
-
-hm.  I don't see what the race is, nor how the comparison fixes it.  If
-I _did_ understand this, perhaps I could suggest alternative fixes. 
-But I don't so I can't.  Oh well.
-
-> +	spin_lock_irqsave(&wbcir_lock, flags);
-> +
-> +	if (time_is_after_eq_jiffies(data->keyup_jiffies) && data->keypressed) {
-> +		data->keypressed = 0;
-> +		led_trigger_event(data->rxtrigger, LED_OFF);
-> +		input_report_key(data->input_dev, data->last_keycode, 0);
-> +		input_sync(data->input_dev);
-> +	}
-> +
-> +	spin_unlock_irqrestore(&wbcir_lock, flags);
-> +}
-> +
->
-> ...
->
-> +static void
-> +add_irdata_bit(struct wbcir_data *data, int set)
-> +{
-> +	if (set)
-> +		data->irdata[data->irdata_count / 8] |=
-> +			0x01 << (data->irdata_count % 8);
-
-Can/should this use generic___set_le_bit() or similar, rather than
-open-coding it?
-
-> +	data->irdata_count++;
-> +}
-> +
-> +/* Gets count bits of irdata */
-> +static u16
-> +get_bits(struct wbcir_data *data, int count)
-> +{
-> +	u16 val = 0x0;
-> +
-> +	if (data->irdata_count - data->irdata_off < count) {
-> +		data->irdata_error = 1;
-> +		return 0x0;
-> +	}
-> +
-> +	while (count > 0) {
-> +		val <<= 1;
-> +		if (data->irdata[data->irdata_off / 8] &
-> +		    (0x01 << (data->irdata_off % 8)))
-> +			val |= 0x1;
-
-ditto
-
-> +		count--;
-> +		data->irdata_off++;
-> +	}
-> +
-> +	return val;
-> +}
-> +
->
-> ...
->
+-- 
+1.6.2.1
 

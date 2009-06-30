@@ -1,60 +1,61 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: min/max and actual values on absolute axes
-Date: Mon, 29 Jun 2009 21:53:54 -0700
-Message-ID: <20090630045354.GG10652@dtor-d630.eng.vmware.com>
-References: <20090629234258.GA30771@dingo.bne.redhat.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
+Date: Tue, 30 Jun 2009 12:13:04 +0530
+Message-ID: <5d5443650906292343i5ac0452fq4232147fb4e419a3@mail.gmail.com>
+References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
+	 <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com>
+	 <f17812d70906070704s10f8eac6ybc353041e2db5a03@mail.gmail.com>
+	 <200906112103.54043.dmitry.torokhov@gmail.com>
+	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>
+	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
+	 <20090629162619.GB24533@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.230]:61474 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750990AbZF3Exz (ORCPT
+Received: from mail-qy0-f193.google.com ([209.85.221.193]:57823 "EHLO
+	mail-qy0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752151AbZF3GnC (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Jun 2009 00:53:55 -0400
-Received: by rv-out-0506.google.com with SMTP id k40so1182514rvb.5
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 21:53:58 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <20090629234258.GA30771@dingo.bne.redhat.com>
+	Tue, 30 Jun 2009 02:43:02 -0400
+Received: by qyk31 with SMTP id 31so5419405qyk.33
+        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 23:43:05 -0700 (PDT)
+In-Reply-To: <20090629162619.GB24533@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Peter Hutterer <peter.hutterer@who-t.net>
-Cc: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
 
-Hi Peter,
+Hi Dmitry,
 
-On Tue, Jun 30, 2009 at 09:42:58AM +1000, Peter Hutterer wrote:
-> Hi guys,
-> 
-> A question regarding min/max values on absolute axes of input devices. I
-> have a few bugreports related to the synaptics driver and the trigger for
-> the bug are coordinates outside the min/max range.
-> 
-> Example evtest output: http://bugs.freedesktop.org/attachment.cgi?id=27229
-> 
->  Event type 3 (Absolute)
->     Event code 0 (X)
->       Value   6044
->       Min     1472
->       Max     5472
->     Event code 1 (Y)
->       Value   1261
->       Min     1408
->       Max     4448
-> 
-> 
-> From Documentation/input/input-programming:
-> "This setting would be appropriate for a joystick X axis, with the minimum of
-> 0, maximum of 255 (which the joystick *must* be able to reach, no problem if
-> it sometimes reports more, but it must be able to always reach the min and
-> max values), [...]"
-> 
-> Do I read this correct that min/max is intended as guideline only and cannot
-> be relied on for actual coordinate boundaries?
-> 
+On Mon, Jun 29, 2009 at 9:56 PM, Dmitry
+Torokhov<dmitry.torokhov@gmail.com> wrote:
+> Hi Eric,
+>
+> On Fri, Jun 12, 2009 at 09:26:43PM +0800, Eric Miao wrote:
+>>
+>> Hi Dmitry,
+>>
+>> I've tested the driver code, and it's basically OK except for two minor
+>> fixes:
+>>
+>> 1) GPIO and IRQs have to be initialized before input_register_device(),
+>> otherwise input->open() will be invoked before that, which will schedule
+>> an immediate scan work and fail.
+>>
+>> 2) disable_irq_rows() called in init_matrix_gpio() so that by default it's
+>> initialized to disabled - and will be enabled by input->open()
+>>
+>
+> Could you please take a look at the driver as it is commited to
+> 'for-linus' branch of my tree and let me know if you see anything wrong
+> there? Otherwise I inted to submit it in my next update to Linus.
+>
 
-That is correct. Input core does not perform any "snapping" of the
-reported coordinates to the min/max boundaries, these values are
-advisory only.
+Are you planning to take "MAX7359 input switch controller driver" too
+for submission to Linus in -rc1?
 
 -- 
-Dmitry
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

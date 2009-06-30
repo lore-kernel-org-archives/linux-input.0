@@ -1,69 +1,46 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: RFC: Remote control sensors and Linux input layer
-Date: Tue, 30 Jun 2009 16:37:08 +0200
-Message-ID: <m3ab3prdnv.fsf@intrepid.localdomain>
+From: "H Hartley Sweeten" <hartleys@visionengravers.com>
+Subject: RE: [PATCH] Input: rotary_encoder cleanup
+Date: Tue, 30 Jun 2009 11:56:36 -0400
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901A1346C@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE1909019683A5@mi8nycmail19.Mi8.com> <20090623162126.GL29236@buzzloop.caiaq.de> <20090630023211.GC10652@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-Sender: linux-media-owner@vger.kernel.org
-To: linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exprod6ob114.obsmtp.com ([64.18.1.32]:53875 "HELO psmtp.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1751379AbZF3P4i convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Jun 2009 11:56:38 -0400
+Content-class: urn:content-classes:message
+In-Reply-To: <20090630023211.GC10652@dtor-d630.eng.vmware.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Mack <daniel@caiaq.de>
+Cc: linux-input@vger.kernel.org
 
-Hi,
+On Monday, June 29, 2009 7:32 PM, Dmitry Torokhov wrote:
+> On Tue, Jun 23, 2009 at 06:21:26PM +0200, Daniel Mack wrote:
+> > On Sat, Jun 20, 2009 at 06:15:51PM -0400, H Hartley Sweeten wrote:
+> > > There is no need to carry the two irq numbers in the allocated memory.
+> > > They are only needed for the free_irq() calls during the remove.  Since
+> > > the driver is already carrying the platform_data we can just call
+> > > gpio_to_irq() to get the irq number.
+> > > 
+> > > Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+> > 
+> > Acked-by: Daniel Mack <daniel@caiaq.de>
+> > 
+> 
+> Do we know how many encoders we need to have in the system to start
+> seeing the benefits (given that all these conversions increase text
+> size)?
 
-Any feedback, pointers etc. will be appreciated:
+Hmm.. Didn't think about that. How do you determine the text size?
 
-I'm currently implementing RC support for AverMedia Super 007 TV
-adapter. The hardware is apparently simple: a TSOP18xx-style sensor jack
-is connected almost directly to GPIO18 ball (active-low) of SAA7131E.
+I am trying to work out a clean way to pass an array of encoders from
+the platform init file so that multiple devices can be handled by the
+driver.  That was what prompted the change.
 
-I added mask_keyup = 0x40000 and rc5_gpio = 1 in saa7134-input.c but the
-existing code doesn't seem to work correctly for me. It looks like the
-timings of my RC (using TV set RC) are a bit different than those of the
-PC and it goes out of sync after. Currently the code depends on the
-timestamp of the first transmission (rising edge) and doesn't check the
-validity of all received bits. It doesn't process falling edges at all.
-I thought my RC uses a different "gap" value but it doesn't seem to be
-the case.
-
-1. I propose a bit different algorithm, the most important thing is the
-code would not depend on the absolute time from the first edge but it
-would use the "last bit" (or two bits) time instead. It would make it
-much more reliable and at the same time would allow detecting of many
-spurious / faulty transmissions (which currently can't be detected).
-
-I also considered acting on both (rising and falling) edges but it would
-means twice as many IRQs. Another idea is acting on falling edge
-(instead of rising), that would mean the last bit (in case it's 0) could
-be detected by the IRQ handler instead of "timeout" routine. Will think
-about it.
-SAA713x is able to act on either (or both edges), but the code is also
-used by the bttv driver, does it have the same capability?
-
-Now this changed algorithm recognizes my RC5 remote's codes perfectly.
-
-
-2. Currently a single board type seems to be limited to a particular RC
-type. This is a problem with HTPC approach, where using the display's RC
-would be natural (most TV set RCs have additional "modes" to work with
-VCRs, SATs etc). I'm thinking about something similar to the keyboards
-map (which can be modified on the fly).
-Or perhaps there is something like that already available?
-
-
-3. The existing RC5 decoder(s) assume 2-bit start, 1 toggle bit, 5-bit
-"group code" and 6-bit command. This assumption doesn't seem valid
-anymore - now the second start bit became MSB of command (it's inverted
-for compatibility). Modifications to the decoder are trivial, though.
-
-
-4. The raw "key" value (i.e., raw RC5). Is it available via the input
-layer? That would make sense for multiple RCs, with LIRC daemon or
-something similar. The current code only supports one RC5 "group" code
-for each input (i.e., one RC or RC "mode").
-
-I'm attaching a test patch for "1" and "3". It's incomplete, breaks
-bttv, but it currently works with my Philips RC and Super 007 DVB-T
-board.
--- 
-Krzysztof Halasa
+Regards,
+Hartley

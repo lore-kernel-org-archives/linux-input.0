@@ -1,51 +1,37 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: X window don't read my input device automatically
-Date: Mon, 29 Jun 2009 19:31:39 -0700
-Message-ID: <20090630023139.GA10652@dtor-d630.eng.vmware.com>
-References: <e715744d0906181955h646e5941y4d54056b1ea4d27e@mail.gmail.com>
+Subject: Re: [PATCH] gpio_mouse: use standard driver registration method
+Date: Mon, 29 Jun 2009 19:31:56 -0700
+Message-ID: <20090630023156.GB10652@dtor-d630.eng.vmware.com>
+References: <1245832299-23608-1-git-send-email-saeed@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from wf-out-1314.google.com ([209.85.200.175]:31109 "EHLO
-	wf-out-1314.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752837AbZF3Cbn (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.232]:55006 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753709AbZF3Cb5 (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 22:31:43 -0400
-Received: by wf-out-1314.google.com with SMTP id 26so1093066wfd.4
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 19:31:44 -0700 (PDT)
+	Mon, 29 Jun 2009 22:31:57 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so1390435rvb.1
+        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 19:32:00 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <e715744d0906181955h646e5941y4d54056b1ea4d27e@mail.gmail.com>
+In-Reply-To: <1245832299-23608-1-git-send-email-saeed@marvell.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: guo jerry <mimi0213kimo@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: Saeed Bishara <saeed@marvell.com>
+Cc: linux-input@vger.kernel.org, saeed.bishara@gmail.com
 
-On Fri, Jun 19, 2009 at 10:55:20AM +0800, guo jerry wrote:
-> Hi all,
-> =A0=A0=A0=A0=A0=A0=A0 I have written my multi-touch panel device driv=
-er and register
-> two input devices.
-> =A0=A0=A0=A0=A0=A0=A0 they appear in /dev/input/event7 & /dev/input/e=
-vent8. The
-> problem is that why
-> =A0=A0=A0=A0=A0=A0=A0 X window can read other mouse devices automatic=
-ally and work under X
-> =A0=A0=A0=A0=A0=A0=A0 environment but the device driver written by my=
- own cannot.
-> =A0=A0=A0=A0=A0=A0=A0 I guess that if the evbit and keybit which I se=
-t is not correctly.
-> =A0=A0=A0=A0=A0=A0=A0 I set my evbit & keybit as following:
->=20
-> =A0=A0=A0=A0=A0=A0=A0 input->evbit[0] =3D BIT_MASK(EV_KEY) || BIT_MAS=
-K(EV_ABS);
+Hi Saeed,
 
-I don't think you want 'logical or' here but rather a bitwise one.
+On Wed, Jun 24, 2009 at 11:31:39AM +0300, Saeed Bishara wrote:
+> This patch is needed when the gpio's became available only at late
+> stages, for example, when using i2c gpio expander.
+> 
 
---=20
+When changing from platform_driver_probe() to platform_driver_register()
+you also need to convert markings on the driver's probe() method from
+__init to __devinit.
+
+Applied.
+
+-- 
 Dmitry
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

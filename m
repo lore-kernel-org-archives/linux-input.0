@@ -1,372 +1,374 @@
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Subject: Re: RFC: Remote control sensors and Linux input layer
-Date: Tue, 30 Jun 2009 20:04:05 +0200
-Message-ID: <m34otxr42y.fsf@intrepid.localdomain>
-References: <m3ab3prdnv.fsf@intrepid.localdomain>
+From: "H Hartley Sweeten" <hartleys@visionengravers.com>
+Subject: RE: [PATCH] ep93xx_keypad: remove macros and update clkdev support
+Date: Tue, 30 Jun 2009 14:31:46 -0400
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901A13523@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE1909019683A6@mi8nycmail19.Mi8.com> <BD79186B4FD85F4B8E60E381CAEE1909019BDB3A@mi8nycmail19.Mi8.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <m3ab3prdnv.fsf@intrepid.localdomain> (Krzysztof Halasa's message of "Tue\, 30 Jun 2009 16\:37\:08 +0200")
-Sender: linux-media-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-media@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from exprod6ob113.obsmtp.com ([64.18.1.30]:33317 "HELO psmtp.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1752019AbZF3Sbq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 30 Jun 2009 14:31:46 -0400
+Content-class: urn:content-classes:message
+In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE1909019BDB3A@mi8nycmail19.Mi8.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-> I'm attaching a test patch for "1" and "3". It's incomplete, breaks
-> bttv, but it currently works with my Philips RC and Super 007 DVB-T
-> board.
+Ping...
 
-Well, the patch (against 2.6.30):
+Any comments?
 
---- a/drivers/media/common/ir-functions.c
-+++ b/drivers/media/common/ir-functions.c
-@@ -260,47 +260,12 @@ int ir_decode_biphase(u32 *samples, int count, int low, int high)
- }
- EXPORT_SYMBOL_GPL(ir_decode_biphase);
+Regards,
+Hartley
+
+-----Original Message-----
+From: linux-input-owner@vger.kernel.org [mailto:linux-input-owner@vger.kernel.org] On Behalf Of H Hartley Sweeten
+Sent: Monday, June 22, 2009 4:35 PM
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov
+Subject: RE: [PATCH] ep93xx_keypad: remove macros and update clkdev support
+
+Update the ep93xx_keypad driver.
+
+Most of these changes are to put this driver inline with my
+local version of the source.
+
+1) Add generic macros for matrix keypads (ep93xx_keypad.h).
+2) Add missing include.
+3) Cleanup and rename the register defines to avoid namespace
+   problems.
+4) The keypad_{readl|writel} macros are both only used once.
+   Remove them and just open code the __raw_{readl|writel}.
+5) Reorganize the private ep93xx_keypad data.
+6) Update ep93xx_keypad_build_keycode() to use the generic
+   matrix keypad macros.
+7) Split ep93xx_keypad_irq_handler() into more logical pieces.
+8) Update ep93xx_keypad_config() to correctly use the clkdev API.
+9) The ep93xx_keypad clock is matched based on the device ID.
+   Change the clk_get() call to reflect this.
+
+Signed-off-by: H Hartley Sweeten <hsweeten@visionengravers.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+---
+
+Patch is attached in case of word wrap problems.
+
+If we can get a consensus on the generic macros for matrix keypads I
+will create a patch to move this to linux/input.h and update all the
+in tree users.
+
+Note: a patch to add the necessary ep93xx clkdev support was recently
+submitted to linux-arm-kernel.  If anyone needs this patch right now
+please let me know.
+
+
+diff --git a/arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h b/arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h
+index 83f31cd..dc1f4f5 100644
+--- a/arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h
++++ b/arch/arm/mach-ep93xx/include/mach/ep93xx_keypad.h
+@@ -5,9 +5,6 @@
+ #ifndef __ASM_ARCH_EP93XX_KEYPAD_H
+ #define __ASM_ARCH_EP93XX_KEYPAD_H
  
--/* RC5 decoding stuff, moved from bttv-input.c to share it with
-- * saa7134 */
+-#define MAX_MATRIX_KEY_ROWS		(8)
+-#define MAX_MATRIX_KEY_COLS		(8)
 -
--/* decode raw bit pattern to RC5 code */
--static u32 ir_rc5_decode(unsigned int code)
--{
--	unsigned int org_code = code;
--	unsigned int pair;
--	unsigned int rc5 = 0;
--	int i;
--
--	for (i = 0; i < 14; ++i) {
--		pair = code & 0x3;
--		code >>= 2;
--
--		rc5 <<= 1;
--		switch (pair) {
--		case 0:
--		case 2:
--			break;
--		case 1:
--			rc5 |= 1;
--			break;
--		case 3:
--			dprintk(1, "ir-common: ir_rc5_decode(%x) bad code\n", org_code);
--			return 0;
--		}
--	}
--	dprintk(1, "ir-common: code=%x, rc5=%x, start=%x, toggle=%x, address=%x, "
--		"instr=%x\n", rc5, org_code, RC5_START(rc5),
--		RC5_TOGGLE(rc5), RC5_ADDR(rc5), RC5_INSTR(rc5));
--	return rc5;
--}
--
- void ir_rc5_timer_end(unsigned long data)
- {
- 	struct card_ir *ir = (struct card_ir *)data;
- 	struct timeval tv;
- 	unsigned long current_jiffies, timeout;
- 	u32 gap;
--	u32 rc5 = 0;
+ /* flags for the ep93xx_keypad driver */
+ #define EP93XX_KEYPAD_DISABLE_3_KEY	(1<<0)	/* disable 3-key reset */
+ #define EP93XX_KEYPAD_DIAG_MODE		(1<<1)	/* diagnostic mode */
+@@ -36,7 +33,22 @@ struct ep93xx_keypad_platform_data {
+ 	unsigned int	flags;
+ };
  
- 	/* get time */
- 	current_jiffies = jiffies;
-@@ -317,46 +282,46 @@ void ir_rc5_timer_end(unsigned long data)
- 	/* signal we're ready to start a new code */
- 	ir->active = 0;
- 
--	/* Allow some timer jitter (RC5 is ~24ms anyway so this is ok) */
--	if (gap < 28000) {
--		dprintk(1, "ir-common: spurious timer_end\n");
-+	if (ir->last_bit == 1 && (ir->code & 2))
-+		ir->last_bit--; /* bit1: 1 -> bit0: 0 doesn't generate an IRQ */
+-/* macro for creating the matrix_key_map table */
+-#define KEY(row, col, val)	(((row) << 28) | ((col) << 24) | (val))
++#define MAX_MATRIX_KEY_ROWS	(8)
++#define MAX_MATRIX_KEY_COLS	(8)
 +
-+	if (ir->last_bit) {
-+		/* ignore spurious codes (caused by light/other remotes) */
-+		dprintk(1, "ir-common: short code: %X\n", ir->code);
- 		return;
- 	}
- 
--	if (ir->last_bit < 20) {
--		/* ignore spurious codes (caused by light/other remotes) */
--		dprintk(1, "ir-common: short code: %x\n", ir->code);
--	} else {
--		ir->code = (ir->code << ir->shift_by) | 1;
--		rc5 = ir_rc5_decode(ir->code);
--
--		/* two start bits? */
--		if (RC5_START(rc5) != ir->start) {
--			dprintk(1, "ir-common: rc5 start bits invalid: %u\n", RC5_START(rc5));
--
--			/* right address? */
--		} else if (RC5_ADDR(rc5) == ir->addr) {
--			u32 toggle = RC5_TOGGLE(rc5);
--			u32 instr = RC5_INSTR(rc5);
--
--			/* Good code, decide if repeat/repress */
--			if (toggle != RC5_TOGGLE(ir->last_rc5) ||
--			    instr != RC5_INSTR(ir->last_rc5)) {
--				dprintk(1, "ir-common: instruction %x, toggle %x\n", instr,
--					toggle);
--				ir_input_nokey(ir->dev, &ir->ir);
--				ir_input_keydown(ir->dev, &ir->ir, instr,
--						 instr);
--			}
-+	//ir->code = (ir->code << ir->shift_by) | 1; /* FIXME check bttv */
- 
--			/* Set/reset key-up timer */
--			timeout = current_jiffies +
--				  msecs_to_jiffies(ir->rc5_key_timeout);
--			mod_timer(&ir->timer_keyup, timeout);
-+	if (!RC5_ADDR(ir->code)) {
-+		dprintk(1, "ir-common: bad RC5 code 0x%x\n", ir->code);
-+		return;
-+	}
- 
--			/* Save code for repeat test */
--			ir->last_rc5 = rc5;
-+	dprintk(1, "ir-common: rc5=0x%X, toggle=0x%X, address=0x%X, instr=%x\n",
-+		ir->code, RC5_TOGGLE(ir->code), RC5_ADDR(ir->code),
-+		RC5_INSTR(ir->code));
-+
-+	if (RC5_ADDR(ir->code) == ir->addr) {
-+		u32 toggle = RC5_TOGGLE(ir->code);
-+		u32 instr = RC5_INSTR(ir->code);
-+
-+		/* Good code, decide if repeat/repress */
-+		if (toggle != RC5_TOGGLE(ir->last_rc5) ||
-+		    instr != RC5_INSTR(ir->last_rc5)) {
-+			dprintk(1, "ir-common: instruction %x, toggle %x\n",
-+				instr, toggle);
-+			ir_input_nokey(ir->dev, &ir->ir);
-+			ir_input_keydown(ir->dev, &ir->ir, instr, instr);
- 		}
-+
-+		/* Set/reset key-up timer */
-+		timeout = current_jiffies +
-+			msecs_to_jiffies(ir->rc5_key_timeout);
-+		mod_timer(&ir->timer_keyup, timeout);
-+
-+		/* Save code for repeat test */
-+		ir->last_rc5 = ir->code;
- 	}
- }
- EXPORT_SYMBOL_GPL(ir_rc5_timer_end);
---- a/drivers/media/common/ir-keymaps.c
-+++ b/drivers/media/common/ir-keymaps.c
-@@ -1487,6 +1487,53 @@ IR_KEYTAB_TYPE ir_codes_pv951[IR_KEYTAB_SIZE] = {
- 
- EXPORT_SYMBOL_GPL(ir_codes_pv951);
- 
 +/*
-+  Philips RC2592 with MODE pressed, used by Philips TV sets
-+  RC5 group = 8, commands are 7-bit wide (1 start bit)
-+*/
-+IR_KEYTAB_TYPE ir_codes_rc2592_sat[IR_KEYTAB_SIZE] = {
-+	[ 0x00 ] = KEY_0,
-+	[ 0x01 ] = KEY_1,
-+	[ 0x02 ] = KEY_2,
-+	[ 0x03 ] = KEY_3,
-+	[ 0x04 ] = KEY_4,
-+	[ 0x05 ] = KEY_5,
-+	[ 0x06 ] = KEY_6,
-+	[ 0x07 ] = KEY_7,
-+	[ 0x08 ] = KEY_8,
-+	[ 0x09 ] = KEY_9,
++ * Macro to pack the row/col of a key on a matrix keypad and it's associated
++ * KEY_* code into into an array.  4 bits are used for both the row and column
++ * allowing for up to a 16x16 keypad.  The row (_r) and column (_c) are
++ * interchangable depending on a keypad drivers usage.
++ */
++#define MATRIX_KEY(_r, _c, _v)	(((_r) << 28) | ((_c) << 24) | (_v))
 +
-+	[ 0x0C ] = KEY_SUSPEND,
++#define MATRIX_ROWCOL_MASK	MATRIX_KEY(0x0f, 0x0f, 0)
++#define MATRIX_KEYCODE_MASK	(~MATRIX_ROWCOL_MASK)
 +
-+	[ 0x6B ] = KEY_RED,
-+	[ 0x6C ] = KEY_GREEN,
-+	[ 0x6D ] = KEY_YELLOW,
-+	[ 0x6E ] = KEY_BLUE,
-+	[ 0x6F ] = KEY_OPTION,		/* white */
++#define MATRIX_ROW(_k)		(((_k) >> 28) & 0x0f)
++#define MATRIX_COL(_k)		(((_k) >> 24) & 0x0f)
++#define MATRIX_KEYCODE(_k)	((_k) & MATRIX_KEYCODE_MASK)
+ 
+ #endif	/* __ASM_ARCH_EP93XX_KEYPAD_H */
+diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
+index 181d30e..acb79d5 100644
+--- a/drivers/input/keyboard/ep93xx_keypad.c
++++ b/drivers/input/keyboard/ep93xx_keypad.c
+@@ -24,125 +24,144 @@
+ #include <linux/interrupt.h>
+ #include <linux/input.h>
+ #include <linux/clk.h>
++#include <linux/io.h>
+ 
+ #include <mach/hardware.h>
+ #include <mach/gpio.h>
+ #include <mach/ep93xx_keypad.h>
+ 
+ /*
+- * Keypad Interface Register offsets
++ * Keypad Interface register offsets and bit defines
+  */
+-#define KEY_INIT		0x00	/* Key Scan Initialization register */
+-#define KEY_DIAG		0x04	/* Key Scan Diagnostic register */
+-#define KEY_REG			0x08	/* Key Value Capture register */
+-
+-/* Key Scan Initialization Register bit defines */
+-#define KEY_INIT_DBNC_MASK	(0x00ff0000)
+-#define KEY_INIT_DBNC_SHIFT	(16)
+-#define KEY_INIT_DIS3KY		(1<<15)
+-#define KEY_INIT_DIAG		(1<<14)
+-#define KEY_INIT_BACK		(1<<13)
+-#define KEY_INIT_T2		(1<<12)
+-#define KEY_INIT_PRSCL_MASK	(0x000003ff)
+-#define KEY_INIT_PRSCL_SHIFT	(0)
+-
+-/* Key Scan Diagnostic Register bit defines */
+-#define KEY_DIAG_MASK		(0x0000003f)
+-#define KEY_DIAG_SHIFT		(0)
+-
+-/* Key Value Capture Register bit defines */
+-#define KEY_REG_K		(1<<15)
+-#define KEY_REG_INT		(1<<14)
+-#define KEY_REG_2KEYS		(1<<13)
+-#define KEY_REG_1KEY		(1<<12)
+-#define KEY_REG_KEY2_MASK	(0x00000fc0)
+-#define KEY_REG_KEY2_SHIFT	(6)
+-#define KEY_REG_KEY1_MASK	(0x0000003f)
+-#define KEY_REG_KEY1_SHIFT	(0)
+-
+-#define keypad_readl(off)	__raw_readl(keypad->mmio_base + (off))
+-#define keypad_writel(v, off)	__raw_writel((v), keypad->mmio_base + (off))
+-
+-#define MAX_MATRIX_KEY_NUM	(MAX_MATRIX_KEY_ROWS * MAX_MATRIX_KEY_COLS)
++#define EP93XX_KEY_INIT			0x00
++#define   EP93XX_KEY_INIT_DBNC_MASK	  0x00ff0000
++#define   EP93XX_KEY_INIT_DBNC_SHIFT	  16
++#define   EP93XX_KEY_INIT_DIS3KY	  (1<<15)
++#define   EP93XX_KEY_INIT_DIAG		  (1<<14)
++#define   EP93XX_KEY_INIT_BACK		  (1<<13)
++#define   EP93XX_KEY_INIT_T2		  (1<<12)
++#define   EP93XX_KEY_INIT_PRSCL_MASK	  0x000003ff
++#define   EP93XX_KEY_INIT_PRSCL_SHIFT	  0
++#define EP93XX_KEY_DIAG			0x04
++#define   EP93XX_KEY_DIAG_MASK		  0x0000003f
++#define   EP93XX_KEY_DIAG_SHIFT		  0
++#define EP93XX_KEY_REG			0x08
++#define   EP93XX_KEY_REG_K		  (1<<15)
++#define   EP93XX_KEY_REG_INT		  (1<<14)
++#define   EP93XX_KEY_REG_2KEYS		  (1<<13)
++#define   EP93XX_KEY_REG_1KEY		  (1<<12)
++#define   EP93XX_KEY_REG_KEY2_MASK	  0x00000fc0
++#define   EP93XX_KEY_REG_KEY2_SHIFT	  6
++#define   EP93XX_KEY_REG_KEY1_MASK	  0x0000003f
++#define   EP93XX_KEY_REG_KEY1_SHIFT	  0
 +
-+	[ 0x2A ] = KEY_TIME,
-+	[ 0x2C ] = KEY_QUESTION,
-+	[ 0x2B ] = KEY_ZOOM,
-+	[ 0x3C ] = KEY_TEXT,
++#define EP93XX_KEYTCHCLKDIV_4		(EP93XX_EXT_CLK_RATE / 4)
++#define EP93XX_KEYTCHCLKDIV_16		(EP93XX_EXT_CLK_RATE / 16)
 +
-+	[ 0x52 ] = KEY_MENU,
-+	[ 0x57 ] = KEY_OK,
-+	[ 0x50 ] = KEY_UP,
-+	[ 0x51 ] = KEY_DOWN,
-+	[ 0x55 ] = KEY_LEFT,
-+	[ 0x56 ] = KEY_RIGHT,
++#define MAX_MATRIX_KEY_NUM		(MAX_MATRIX_KEY_ROWS * MAX_MATRIX_KEY_COLS)
+ 
+ struct ep93xx_keypad {
+ 	struct ep93xx_keypad_platform_data *pdata;
+-
+-	struct clk *clk;
+ 	struct input_dev *input_dev;
++	struct clk *clk;
 +
-+	[ 0x20 ] = KEY_CHANNELUP,
-+	[ 0x21 ] = KEY_CHANNELDOWN,
-+
-+	[ 0x0F ] = KEY_INFO,		/* i+ */
-+	[ 0x22 ] = KEY_PREVIOUS,	/* P<P */
-+	[ 0x23 ] = KEY_LANGUAGE,	/* I-II */
-+	[ 0x38 ] = KEY_SUBTITLE		/* [1][2] */
-+};
-+
-+EXPORT_SYMBOL_GPL(ir_codes_rc2592_sat);
-+
- /* generic RC5 keytable                                          */
- /* see http://users.pandora.be/nenya/electronics/rc5/codes00.htm */
- /* used by old (black) Hauppauge remotes                         */
---- a/drivers/media/video/saa7134/saa7134-cards.c
-+++ b/drivers/media/video/saa7134/saa7134-cards.c
-@@ -6105,6 +6105,7 @@ int saa7134_board_init1(struct saa7134_dev *dev)
- 	case SAA7134_BOARD_AVERMEDIA_307:
- 	case SAA7134_BOARD_AVERMEDIA_STUDIO_507:
- 	case SAA7134_BOARD_AVERMEDIA_GO_007_FM:
-+	case SAA7134_BOARD_AVERMEDIA_SUPER_007:
- 	case SAA7134_BOARD_AVERMEDIA_777:
- 	case SAA7134_BOARD_AVERMEDIA_M135A:
- /*      case SAA7134_BOARD_SABRENT_SBTTVFM:  */ /* not finished yet */
---- a/drivers/media/video/saa7134/saa7134-core.c
-+++ b/drivers/media/video/saa7134/saa7134-core.c
-@@ -695,9 +695,9 @@ static int saa7134_hw_enable2(struct saa7134_dev *dev)
- 	if (dev->has_remote == SAA7134_REMOTE_GPIO && dev->remote) {
- 		if (dev->remote->mask_keydown & 0x10000)
- 			irq2_mask |= SAA7134_IRQ2_INTE_GPIO16;
--		else if (dev->remote->mask_keydown & 0x40000)
-+		if (dev->remote->mask_keydown & 0x40000)
- 			irq2_mask |= SAA7134_IRQ2_INTE_GPIO18;
--		else if (dev->remote->mask_keyup & 0x40000)
-+		if (dev->remote->mask_keyup & 0x40000)
- 			irq2_mask |= SAA7134_IRQ2_INTE_GPIO18A;
+ 	void __iomem *mmio_base;
+ 
+-	int irq;
+-	int enabled;
++	unsigned int matrix_keycodes[MAX_MATRIX_KEY_NUM];
+ 
+ 	int key1;
+ 	int key2;
+ 
+-	unsigned int matrix_keycodes[MAX_MATRIX_KEY_NUM];
++	int irq;
++	int enabled;
+ };
+ 
+ static void ep93xx_keypad_build_keycode(struct ep93xx_keypad *keypad)
+ {
+ 	struct ep93xx_keypad_platform_data *pdata = keypad->pdata;
+ 	struct input_dev *input_dev = keypad->input_dev;
++	unsigned int *key;
+ 	int i;
+ 
+-	for (i = 0; i < pdata->matrix_key_map_size; i++) {
+-		unsigned int key = pdata->matrix_key_map[i];
+-		int row = (key >> 28) & 0xf;
+-		int col = (key >> 24) & 0xf;
+-		int code = key & 0xffffff;
++	key = &pdata->matrix_key_map[0];
++	for (i = 0; i < pdata->matrix_key_map_size; i++, key++) {
++		int row = MATRIX_ROW(*key);
++		int col = MATRIX_COL(*key);
++		int code = MATRIX_KEYCODE(*key);
+ 
+ 		keypad->matrix_keycodes[(row << 3) + col] = code;
+ 		__set_bit(code, input_dev->keybit);
  	}
- 
---- a/drivers/media/video/saa7134/saa7134-input.c
-+++ b/drivers/media/video/saa7134/saa7134-input.c
-@@ -374,7 +374,6 @@ void saa7134_ir_start(struct saa7134_dev *dev, struct card_ir *ir)
- 		ir->timer_keyup.data = (unsigned long)ir;
- 		ir->shift_by = 2;
- 		ir->start = 0x2;
--		ir->addr = 0x17;
- 		ir->rc5_key_timeout = ir_rc5_key_timeout;
- 		ir->rc5_remote_gap = ir_rc5_remote_gap;
- 	} else if (ir->nec_gpio) {
-@@ -402,6 +401,7 @@ int saa7134_input_init1(struct saa7134_dev *dev)
- 	int rc5_gpio	 = 0;
- 	int nec_gpio	 = 0;
- 	int ir_type      = IR_TYPE_OTHER;
-+	int addr         = 0;
- 	int err;
- 
- 	if (dev->has_remote != SAA7134_REMOTE_GPIO)
-@@ -483,6 +483,12 @@ int saa7134_input_init1(struct saa7134_dev *dev)
- 		saa_setb(SAA7134_GPIO_GPMODE1, 0x1);
- 		saa_setb(SAA7134_GPIO_GPSTATUS1, 0x1);
- 		break;
-+	case SAA7134_BOARD_AVERMEDIA_SUPER_007:
-+		ir_codes     = ir_codes_rc2592_sat;
-+		addr         = 8;
-+		mask_keyup   = 0x40000;
-+		rc5_gpio     = 1;
-+		break;
- 	case SAA7134_BOARD_KWORLD_TERMINATOR:
- 		ir_codes     = ir_codes_pixelview;
- 		mask_keycode = 0x00001f;
-@@ -562,6 +568,7 @@ int saa7134_input_init1(struct saa7134_dev *dev)
- 	case SAA7134_BOARD_ASUSTeK_P7131_HYBRID_LNA:
-        case SAA7134_BOARD_ASUSTeK_P7131_ANALOG:
- 		ir_codes     = ir_codes_asus_pc39;
-+		addr         = 0x17;
- 		mask_keydown = 0x0040000;
- 		rc5_gpio = 1;
- 		break;
-@@ -623,6 +630,7 @@ int saa7134_input_init1(struct saa7134_dev *dev)
- 	ir->mask_keyup   = mask_keyup;
- 	ir->polling      = polling;
- 	ir->rc5_gpio	 = rc5_gpio;
-+	ir->addr	 = addr;
- 	ir->nec_gpio	 = nec_gpio;
- 
- 	/* init input device */
-@@ -748,26 +756,60 @@ static int saa7134_rc5_irq(struct saa7134_dev *dev)
- 		    tv.tv_usec - ir->base_time.tv_usec;
- 	}
- 
-+	/* rising SAA7134_GPIO_GPRESCAN reads the status */
-+	saa_clearb(SAA7134_GPIO_GPMODE3,SAA7134_GPIO_GPRESCAN);
-+	saa_setb(SAA7134_GPIO_GPMODE3,SAA7134_GPIO_GPRESCAN);
-+	printk(KERN_DEBUG "rc5 irq: %lu %lu %u gap %u\n", tv.tv_sec, tv.tv_usec,
-+	       (saa_readl(SAA7134_GPIO_GPSTATUS0 >> 2) / 0x40000) & 1, gap);
-+
- 	/* active code => add bit */
- 	if (ir->active) {
- 		/* only if in the code (otherwise spurious IRQ or timer
- 		   late) */
--		if (ir->last_bit < 28) {
--			ir->last_bit = (gap - ir_rc5_remote_gap / 2) /
--			    ir_rc5_remote_gap;
--			ir->code |= 1 << ir->last_bit;
-+		gap = (gap + ir_rc5_remote_gap / 2) / ir_rc5_remote_gap;
-+		if (ir->last_bit && ir->code) {
-+			u32 last = ir->code >> ir->last_bit;
-+
-+			printk(KERN_DEBUG "RC5 gap %u last %X last_bit %u code "
-+			       "0x%X\n", gap, last, ir->last_bit, ir->code);
-+
-+			if ((last & 1) == 1) {
-+				if (gap == 2)		/* 1 -> 1 */
-+					ir->code |= 1 << --ir->last_bit;
-+				else if (gap == 3)	/* 1 -> 00 */
-+					ir->last_bit -= 2;
-+				else if (gap == 4)	/* 1 -> 01 */
-+					ir->code |= 1 << (ir->last_bit -= 2);
-+				else
-+					goto invalid;
-+			} else if ((last & 3) == 0) {
-+				if (gap == 2)		/* 00 -> 0 */
-+					ir->last_bit--;
-+				else if (gap == 3)	/* 00 -> 1 */
-+					ir->code |= 1 << --ir->last_bit;
-+				else
-+					goto invalid;
-+			} else
-+				goto invalid;
-+
-+			printk(KERN_DEBUG "RC5: last_bit %u, code 0x%X\n",
-+			       ir->last_bit, ir->code);
- 		}
- 		/* starting new code */
- 	} else {
- 		ir->active = 1;
--		ir->code = 0;
--		ir->base_time = tv;
--		ir->last_bit = 0;
-+		ir->code = 0x2000; /* start bit is always '1' */
-+		ir->last_bit = 13;
- 
- 		timeout = current_jiffies + (500 + 30 * HZ) / 1000;
- 		mod_timer(&ir->timer_end, timeout);
- 	}
- 
-+	ir->base_time = tv;
-+	return 1;
-+
-+invalid:
-+	ir->code = 0; /* mark as invalid */
- 	return 1;
  }
  
---- a/include/media/ir-common.h
-+++ b/include/media/ir-common.h
-@@ -37,10 +37,10 @@
- #define IR_KEYCODE(tab,code)	(((unsigned)code < IR_KEYTAB_SIZE) \
- 				 ? tab[code] : KEY_RESERVED)
+-static irqreturn_t ep93xx_keypad_irq_handler(int irq, void *dev_id)
++static void ep93xx_keypad_report(struct ep93xx_keypad *keypad, int key, int press)
+ {
+-	struct ep93xx_keypad *keypad = dev_id;
+ 	struct input_dev *input_dev = keypad->input_dev;
+-	unsigned int status = keypad_readl(KEY_REG);
+-	int keycode, key1, key2;
  
--#define RC5_START(x)	(((x)>>12)&3)
-+#define RC5_START(x)	(((x) >> 13) & 1)
- #define RC5_TOGGLE(x)	(((x)>>11)&1)
- #define RC5_ADDR(x)	(((x)>>6)&31)
--#define RC5_INSTR(x)	((x)&63)
-+#define RC5_INSTR(x)	((((~(x)) >> 6) & 0x40) | ((x) & 0x3F))
+-	keycode = (status & KEY_REG_KEY1_MASK) >> KEY_REG_KEY1_SHIFT;
+-	key1 = keypad->matrix_keycodes[keycode];
++	if (key) {
++		input_report_key(input_dev, key, press);
++		input_sync(input_dev);
++	}
++}
  
- struct ir_input_state {
- 	/* configuration */
-@@ -136,6 +136,7 @@ extern IR_KEYTAB_TYPE ir_codes_gotview7135[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_purpletv[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_pctv_sedna[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_pv951[IR_KEYTAB_SIZE];
-+extern IR_KEYTAB_TYPE ir_codes_rc2592_sat[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_rc5_tv[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTAB_SIZE];
- extern IR_KEYTAB_TYPE ir_codes_pinnacle_color[IR_KEYTAB_SIZE];
-
--- 
-Krzysztof Halasa
+-	keycode = (status & KEY_REG_KEY2_MASK) >> KEY_REG_KEY2_SHIFT;
+-	key2 = keypad->matrix_keycodes[keycode];
++static void ep93xx_keypad_release(struct ep93xx_keypad *keypad, int *key)
++{
++	ep93xx_keypad_report(keypad, *key, 0);
++	*key = 0;
++}
++
++static void ep93xx_keypad_press(struct ep93xx_keypad *keypad, int *key, int code)
++{
++	*key = code;
++	ep93xx_keypad_report(keypad, *key, 1);
++}
+ 
+-	if (status & KEY_REG_2KEYS) {
+-		if (keypad->key1 && key1 != keypad->key1 && key2 != keypad->key1)
+-			input_report_key(input_dev, keypad->key1, 0);
++static void ep93xx_keypad_process(struct ep93xx_keypad *keypad,
++				int key1, int key2)
++{
++	int old_key1 = keypad->key1;
++	int old_key2 = keypad->key2;
+ 
+-		if (keypad->key2 && key1 != keypad->key2 && key2 != keypad->key2)
+-			input_report_key(input_dev, keypad->key2, 0);
++	if (old_key1 != key1 && old_key1 != key2)
++		ep93xx_keypad_release(keypad, &keypad->key1);
+ 
+-		input_report_key(input_dev, key1, 1);
+-		input_report_key(input_dev, key2, 1);
++	if (old_key2 != key1 && old_key2 != key2)
++		ep93xx_keypad_release(keypad, &keypad->key2);
+ 
++	if (old_key1 != key1 && old_key2 != key1)
++		ep93xx_keypad_press(keypad, &keypad->key1, key1);
++	else
+ 		keypad->key1 = key1;
++
++	if (old_key1 != key2 && old_key2 != key2)
++		ep93xx_keypad_press(keypad, &keypad->key2, key2);
++	else
+ 		keypad->key2 = key2;
++}
+ 
+-	} else if (status & KEY_REG_1KEY) {
+-		if (keypad->key1 && key1 != keypad->key1)
+-			input_report_key(input_dev, keypad->key1, 0);
++static irqreturn_t ep93xx_keypad_irq_handler(int irq, void *dev_id)
++{
++	struct ep93xx_keypad *keypad = dev_id;
++	unsigned int status;
++	int keycode, key1, key2;
+ 
+-		if (keypad->key2 && key1 != keypad->key2)
+-			input_report_key(input_dev, keypad->key2, 0);
++	status = __raw_readl(keypad->mmio_base + EP93XX_KEY_REG);
+ 
+-		input_report_key(input_dev, key1, 1);
++	keycode = (status & EP93XX_KEY_REG_KEY1_MASK) >>
++				EP93XX_KEY_REG_KEY1_SHIFT;
++	key1 = keypad->matrix_keycodes[keycode];
+ 
+-		keypad->key1 = key1;
+-		keypad->key2 = 0;
++	keycode = (status & EP93XX_KEY_REG_KEY2_MASK) >>
++				EP93XX_KEY_REG_KEY2_SHIFT;
++	key2 = keypad->matrix_keycodes[keycode];
+ 
++	if (status & EP93XX_KEY_REG_2KEYS) {
++		ep93xx_keypad_process(keypad, key1, key2);
++	} else if (status & EP93XX_KEY_REG_1KEY) {
++		ep93xx_keypad_process(keypad, key1, 0);
+ 	} else {
+-		input_report_key(input_dev, keypad->key1, 0);
+-		input_report_key(input_dev, keypad->key2, 0);
+-
+-		keypad->key1 = keypad->key2 = 0;
++		ep93xx_keypad_process(keypad, 0, 0);
+ 	}
+-	input_sync(input_dev);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -152,22 +171,27 @@ static void ep93xx_keypad_config(struct ep93xx_keypad *keypad)
+ 	struct ep93xx_keypad_platform_data *pdata = keypad->pdata;
+ 	unsigned int val = 0;
+ 
+-	clk_set_rate(keypad->clk, pdata->flags & EP93XX_KEYPAD_KDIV);
++	if (pdata->flags & EP93XX_KEYPAD_KDIV)
++		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLKDIV_4);
++	else
++		clk_set_rate(keypad->clk, EP93XX_KEYTCHCLKDIV_16);
+ 
+ 	if (pdata->flags & EP93XX_KEYPAD_DISABLE_3_KEY)
+-		val |= KEY_INIT_DIS3KY;
++		val |= EP93XX_KEY_INIT_DIS3KY;
+ 	if (pdata->flags & EP93XX_KEYPAD_DIAG_MODE)
+-		val |= KEY_INIT_DIAG;
++		val |= EP93XX_KEY_INIT_DIAG;
+ 	if (pdata->flags & EP93XX_KEYPAD_BACK_DRIVE)
+-		val |= KEY_INIT_BACK;
++		val |= EP93XX_KEY_INIT_BACK;
+ 	if (pdata->flags & EP93XX_KEYPAD_TEST_MODE)
+-		val |= KEY_INIT_T2;
++		val |= EP93XX_KEY_INIT_T2;
+ 
+-	val |= ((pdata->debounce << KEY_INIT_DBNC_SHIFT) & KEY_INIT_DBNC_MASK);
++	val |= ((pdata->debounce << EP93XX_KEY_INIT_DBNC_SHIFT) &
++		EP93XX_KEY_INIT_DBNC_MASK);
+ 
+-	val |= ((pdata->prescale << KEY_INIT_PRSCL_SHIFT) & KEY_INIT_PRSCL_MASK);
++	val |= ((pdata->prescale << EP93XX_KEY_INIT_PRSCL_SHIFT) &
++		EP93XX_KEY_INIT_PRSCL_MASK);
+ 
+-	keypad_writel(val, KEY_INIT);
++	__raw_writel(val, keypad->mmio_base + EP93XX_KEY_INIT);
+ }
+ 
+ static int ep93xx_keypad_open(struct input_dev *pdev)
+@@ -323,7 +347,7 @@ static int __devinit ep93xx_keypad_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
+-	keypad->clk = clk_get(&pdev->dev, "key_clk");
++	keypad->clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(keypad->clk)) {
+ 		dev_err(&pdev->dev, "failed to get keypad clock\n");
+ 		err = PTR_ERR(keypad->clk); 

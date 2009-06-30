@@ -1,61 +1,69 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Tue, 30 Jun 2009 12:13:04 +0530
-Message-ID: <5d5443650906292343i5ac0452fq4232147fb4e419a3@mail.gmail.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
-	 <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com>
-	 <f17812d70906070704s10f8eac6ybc353041e2db5a03@mail.gmail.com>
-	 <200906112103.54043.dmitry.torokhov@gmail.com>
-	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>
-	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
-	 <20090629162619.GB24533@dtor-d630.eng.vmware.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Subject: RFC: Remote control sensors and Linux input layer
+Date: Tue, 30 Jun 2009 16:37:08 +0200
+Message-ID: <m3ab3prdnv.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-qy0-f193.google.com ([209.85.221.193]:57823 "EHLO
-	mail-qy0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752151AbZF3GnC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 30 Jun 2009 02:43:02 -0400
-Received: by qyk31 with SMTP id 31so5419405qyk.33
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 23:43:05 -0700 (PDT)
-In-Reply-To: <20090629162619.GB24533@dtor-d630.eng.vmware.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-media@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi,
 
-On Mon, Jun 29, 2009 at 9:56 PM, Dmitry
-Torokhov<dmitry.torokhov@gmail.com> wrote:
-> Hi Eric,
->
-> On Fri, Jun 12, 2009 at 09:26:43PM +0800, Eric Miao wrote:
->>
->> Hi Dmitry,
->>
->> I've tested the driver code, and it's basically OK except for two minor
->> fixes:
->>
->> 1) GPIO and IRQs have to be initialized before input_register_device(),
->> otherwise input->open() will be invoked before that, which will schedule
->> an immediate scan work and fail.
->>
->> 2) disable_irq_rows() called in init_matrix_gpio() so that by default it's
->> initialized to disabled - and will be enabled by input->open()
->>
->
-> Could you please take a look at the driver as it is commited to
-> 'for-linus' branch of my tree and let me know if you see anything wrong
-> there? Otherwise I inted to submit it in my next update to Linus.
->
+Any feedback, pointers etc. will be appreciated:
 
-Are you planning to take "MAX7359 input switch controller driver" too
-for submission to Linus in -rc1?
+I'm currently implementing RC support for AverMedia Super 007 TV
+adapter. The hardware is apparently simple: a TSOP18xx-style sensor jack
+is connected almost directly to GPIO18 ball (active-low) of SAA7131E.
 
+I added mask_keyup = 0x40000 and rc5_gpio = 1 in saa7134-input.c but the
+existing code doesn't seem to work correctly for me. It looks like the
+timings of my RC (using TV set RC) are a bit different than those of the
+PC and it goes out of sync after. Currently the code depends on the
+timestamp of the first transmission (rising edge) and doesn't check the
+validity of all received bits. It doesn't process falling edges at all.
+I thought my RC uses a different "gap" value but it doesn't seem to be
+the case.
+
+1. I propose a bit different algorithm, the most important thing is the
+code would not depend on the absolute time from the first edge but it
+would use the "last bit" (or two bits) time instead. It would make it
+much more reliable and at the same time would allow detecting of many
+spurious / faulty transmissions (which currently can't be detected).
+
+I also considered acting on both (rising and falling) edges but it would
+means twice as many IRQs. Another idea is acting on falling edge
+(instead of rising), that would mean the last bit (in case it's 0) could
+be detected by the IRQ handler instead of "timeout" routine. Will think
+about it.
+SAA713x is able to act on either (or both edges), but the code is also
+used by the bttv driver, does it have the same capability?
+
+Now this changed algorithm recognizes my RC5 remote's codes perfectly.
+
+
+2. Currently a single board type seems to be limited to a particular RC
+type. This is a problem with HTPC approach, where using the display's RC
+would be natural (most TV set RCs have additional "modes" to work with
+VCRs, SATs etc). I'm thinking about something similar to the keyboards
+map (which can be modified on the fly).
+Or perhaps there is something like that already available?
+
+
+3. The existing RC5 decoder(s) assume 2-bit start, 1 toggle bit, 5-bit
+"group code" and 6-bit command. This assumption doesn't seem valid
+anymore - now the second start bit became MSB of command (it's inverted
+for compatibility). Modifications to the decoder are trivial, though.
+
+
+4. The raw "key" value (i.e., raw RC5). Is it available via the input
+layer? That would make sense for multiple RCs, with LIRC daemon or
+something similar. The current code only supports one RC5 "group" code
+for each input (i.e., one RC or RC "mode").
+
+I'm attaching a test patch for "1" and "3". It's incomplete, breaks
+bttv, but it currently works with my Philips RC and Super 007 DVB-T
+board.
 -- 
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+Krzysztof Halasa

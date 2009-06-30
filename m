@@ -1,35 +1,60 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [patch 2.6.30] input:  dm355evm_keys uses threaded IRQs
-Date: Mon, 29 Jun 2009 19:32:59 -0700
-Message-ID: <20090630023259.GF10652@dtor-d630.eng.vmware.com>
-References: <200901171315.08019.david-b@pacbell.net> <200906211710.50537.david-b@pacbell.net> <20090623050519.GA14724@dtor-d630.eng.vmware.com> <200906241021.06141.david-b@pacbell.net>
+Subject: Re: min/max and actual values on absolute axes
+Date: Mon, 29 Jun 2009 21:53:54 -0700
+Message-ID: <20090630045354.GG10652@dtor-d630.eng.vmware.com>
+References: <20090629234258.GA30771@dingo.bne.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f190.google.com ([209.85.216.190]:56034 "EHLO
-	mail-px0-f190.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752783AbZF3Cc7 (ORCPT
+Received: from rv-out-0506.google.com ([209.85.198.230]:61474 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750990AbZF3Exz (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 29 Jun 2009 22:32:59 -0400
-Received: by mail-px0-f190.google.com with SMTP id 28so3762523pxi.33
-        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 19:33:03 -0700 (PDT)
+	Tue, 30 Jun 2009 00:53:55 -0400
+Received: by rv-out-0506.google.com with SMTP id k40so1182514rvb.5
+        for <linux-input@vger.kernel.org>; Mon, 29 Jun 2009 21:53:58 -0700 (PDT)
 Content-Disposition: inline
-In-Reply-To: <200906241021.06141.david-b@pacbell.net>
+In-Reply-To: <20090629234258.GA30771@dingo.bne.redhat.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-input@vger.kernel.org, Kevin Hilman <khilman@deeprootsystems.com>
+To: Peter Hutterer <peter.hutterer@who-t.net>
+Cc: linux-input@vger.kernel.org
 
-On Wed, Jun 24, 2009 at 10:21:05AM -0700, David Brownell wrote:
-> From: David Brownell <dbrownell@users.sourceforge.net>
+Hi Peter,
+
+On Tue, Jun 30, 2009 at 09:42:58AM +1000, Peter Hutterer wrote:
+> Hi guys,
 > 
-> Convert the dm355evm keys driver to use IRQ threading instead of
-> a private workqueue.  IRQ threads were added to Linux after this
-> driver was written, and in this case fit what the driver needs.
-> (Although the non-shared thread costs more runtime memory.)
+> A question regarding min/max values on absolute axes of input devices. I
+> have a few bugreports related to the synaptics driver and the trigger for
+> the bug are coordinates outside the min/max range.
+> 
+> Example evtest output: http://bugs.freedesktop.org/attachment.cgi?id=27229
+> 
+>  Event type 3 (Absolute)
+>     Event code 0 (X)
+>       Value   6044
+>       Min     1472
+>       Max     5472
+>     Event code 1 (Y)
+>       Value   1261
+>       Min     1408
+>       Max     4448
+> 
+> 
+> From Documentation/input/input-programming:
+> "This setting would be appropriate for a joystick X axis, with the minimum of
+> 0, maximum of 255 (which the joystick *must* be able to reach, no problem if
+> it sometimes reports more, but it must be able to always reach the min and
+> max values), [...]"
+> 
+> Do I read this correct that min/max is intended as guideline only and cannot
+> be relied on for actual coordinate boundaries?
 > 
 
-Applied the 'next' branch, thank you David.
+That is correct. Input core does not perform any "snapping" of the
+reported coordinates to the min/max boundaries, these values are
+advisory only.
 
 -- 
 Dmitry

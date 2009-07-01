@@ -1,64 +1,158 @@
-From: Kim Kyuwon <chammoru@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Wed, 1 Jul 2009 21:14:26 +0900
-Message-ID: <4d34a0a70907010514u177feb34m6725bc6e531db91b@mail.gmail.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
-	 <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com>
-	 <f17812d70906070704s10f8eac6ybc353041e2db5a03@mail.gmail.com>
-	 <200906112103.54043.dmitry.torokhov@gmail.com>
-	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>
-	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
-	 <20090629162619.GB24533@dtor-d630.eng.vmware.com>
-	 <5d5443650906292343i5ac0452fq4232147fb4e419a3@mail.gmail.com>
+From: Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH 2/2] Add a driver for the Winbond WPCD376I IR
+ functionality.
+Date: Wed, 1 Jul 2009 11:06:16 -0700
+Message-ID: <20090701110616.60c05a5d.akpm@linux-foundation.org>
+References: <1246079912-17619-1-git-send-email-david@hardeman.nu>
+	<1246079912-17619-3-git-send-email-david@hardeman.nu>
+	<20090630142345.58e97b50.akpm@linux-foundation.org>
+	<35c700707581a42af21dd9edc82a5e84.squirrel@www.hardeman.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-vw0-f202.google.com ([209.85.212.202]:50727 "EHLO
-	mail-vw0-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750888AbZGAMTn (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jul 2009 08:19:43 -0400
-Received: by vwj40 with SMTP id 40so389879vwj.33
-        for <linux-input@vger.kernel.org>; Wed, 01 Jul 2009 05:19:46 -0700 (PDT)
-In-Reply-To: <5d5443650906292343i5ac0452fq4232147fb4e419a3@mail.gmail.com>
+Received: from smtp1.linux-foundation.org ([140.211.169.13]:37890 "EHLO
+	smtp1.linux-foundation.org" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751791AbZGASGS (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 1 Jul 2009 14:06:18 -0400
+In-Reply-To: <35c700707581a42af21dd9edc82a5e84.squirrel@www.hardeman.nu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Eric Miao <eric.y.miao@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
+To: David =?ISO-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, jbarnes@virtuousgeek.org
 
-On Tue, Jun 30, 2009 at 3:43 PM, Trilok Soni<soni.trilok@gmail.com> wrote:
-> Hi Dmitry,
->
-> On Mon, Jun 29, 2009 at 9:56 PM, Dmitry
-> Torokhov<dmitry.torokhov@gmail.com> wrote:
->> Hi Eric,
->>
->> On Fri, Jun 12, 2009 at 09:26:43PM +0800, Eric Miao wrote:
->>>
->>> Hi Dmitry,
->>>
->>> I've tested the driver code, and it's basically OK except for two minor
->>> fixes:
->>>
->>> 1) GPIO and IRQs have to be initialized before input_register_device(),
->>> otherwise input->open() will be invoked before that, which will schedule
->>> an immediate scan work and fail.
->>>
->>> 2) disable_irq_rows() called in init_matrix_gpio() so that by default it's
->>> initialized to disabled - and will be enabled by input->open()
->>>
->>
->> Could you please take a look at the driver as it is commited to
->> 'for-linus' branch of my tree and let me know if you see anything wrong
->> there? Otherwise I inted to submit it in my next update to Linus.
->>
->
-> Are you planning to take "MAX7359 input switch controller driver" too
-> for submission to Linus in -rc1?
+On Wed, 1 Jul 2009 09:47:46 +0200 (CEST)
+David H__rdeman <david@hardeman.nu> wrote:
 
-Thanks, Trilok
+> >> +	struct wbcir_data *data = input_get_drvdata(dev);
+> >> +
+> >> +	if (scancode < 0 || scancode > 0xFFFFFFFF)
+> >
+> > Neither of the comparisons in this expression can ever be true.
+> 
+> Didn't know if I could be certain that int is always 32 bit on all
+> platforms which use/might use the chip...can I?
 
-Dmitry, can I know when MAX7359 keypad driver will be merged to mainline?
+Yep, int and unsigned int are always 32-bit.
 
-Regards,
-Kyuwon
+It's not a big deal at all - the compiler will optimise the tests away
+completely.  The tests may have some value as code commentary, and they
+provide robustness should someone change the type of `scancode'.
+
+> >> +		return -EINVAL;
+> >> +
+> >> +	*keycode = (int)wbcir_do_getkeycode(data, (u32)scancode);
+> >
+> > uneeded casts.
+> >
+> > Something has gone wrong with the types here.  Where does the fault lie
+> > - this driver, or input core?
+> 
+> Two issues:
+> 
+> a) the input layer API confused me
+> 
+> include/linux/input.h provides:
+> 
+> struct input_event {
+>          struct timeval time;
+>          __u16 type;
+>          __u16 code;
+>          __s32 value;
+> };
+> 
+> (keycode is an unsigned 16 bit integer)
+> 
+> int input_get_keycode(struct input_dev *dev, int scancode, int *keycode);
+> int input_set_keycode(struct input_dev *dev, int scancode, int keycode);
+> 
+> (keycode is an int)
+> 
+> static inline void input_report_key(struct input_dev *dev,
+>                                     unsigned int code,
+>                                     int value)
+> {
+>         input_event(dev, EV_KEY, code, !!value);
+> }
+> 
+> (keycode is an uint)
+> 
+> 
+> b) 32 bit scancodes
+> 
+> I wanted to use 32 bit scancodes in my driver since the largest IR message
+> supported by the driver is RC6 mode 6A which can potentially have a 1 + 15
+> bits "customer" field + 8 bits address + 8 bits command = 32 bits.
+> 
+> Casting the int scancode passed to input_[get__set]_keycode to an uint and
+> assuming it would be at least 32 bits on all platforms using the chip was
+> the best solution I could come up with without changing the input API.
+
+erp.  Hopefully this is all something which Dmitry can help us with.
+
+> >> +{
+> >> +        struct wbcir_data *data = (struct wbcir_data *)cookie;
+> >> +        unsigned long flags;
+> >> +
+> >> +        /*
+> >> +         * data->keyup_jiffies is used to prevent a race condition if a
+> >> +         * hardware interrupt occurs at this point and the keyup timer
+> >> +         * event is moved further into the future as a result.
+> >> +         */
+> >
+> >hm.  I don't see what the race is, nor how the comparison fixes it.  If
+> >I _did_ understand this, perhaps I could suggest alternative fixes.
+> >But I don't so I can't.  Oh well.
+> 
+> When the interrupt service routine detects an IR command it reports a
+> keydown event and sets a timer to report a keyup event in the future if no
+> repeated ir messages are detected (in which case the timer-driven keyup
+> should be pushed further into the future to allow the input core to do its
+> auto-repeat-handling magic).
+> 
+> What I wanted to protect against was something like this:
+> 
+> Thread 1                        Thread 2
+> --------                        --------
+> ISR called, grabs
+> wbcir_lock, reports
+> keydown for key X,
+> sets up keyup timer,
+> releases lock, exits
+> 
+>                     (many ms later)
+> 
+>                                 keyup timer function called
+>                                 and preempted before grabbing
+>                                 wbcir_lock
+> 
+> ISR called, grabs wbcir_lock,
+> notices a repeat event for
+> key X, pushes the keyup timer
+> further into the future using
+> mod_timer (thus reenabling the
+> timer), releases lock, exits
+>                                 keyup timer function grabs
+>                                 wbcir_lock, reports keyup,
+>                                 exits.
+>                     (many ms later)
+> 
+>                                 keyup timer function called *again*,
+>                                 reports keyup, exits.
+> 
+> The result would be (if I understood the timer implementation correctly)
+> that a keyup event is reported immediately after the second ISR even
+> though the "first" timer function call should have been cancelled/pushed
+> further into the future at that point.
+> 
+> Does this make any sense? :)
+
+yes.  The timer will be rescheduledin the scenario which you describe.
+
+Here's my problem: often when I ask a question about some code, what I
+_really_ mean is "if I didn't understand this code today, others
+probably won't understand it when reading it a year from now.  Hence it
+perhaps needs additional commentary to prevent this".  But I tire of
+complaining about code comments ;)
+

@@ -1,39 +1,50 @@
-From: Daniel Mack <daniel@caiaq.de>
-Subject: Re: [PATCH] Input: rotary_encoder cleanup
-Date: Wed, 1 Jul 2009 20:49:59 +0200
-Message-ID: <20090701184959.GC9464@buzzloop.caiaq.de>
-References: <BD79186B4FD85F4B8E60E381CAEE1909019683A5@mi8nycmail19.Mi8.com> <20090623162126.GL29236@buzzloop.caiaq.de> <20090630023211.GC10652@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE190901A1346C@mi8nycmail19.Mi8.com> <20090701183347.GB9464@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901A13867@mi8nycmail19.Mi8.com>
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+Subject: Re: [PATCH 2/2] Add a driver for the Winbond WPCD376I IR
+ functionality.
+Date: Wed, 1 Jul 2009 23:45:15 +0200
+Message-ID: <20090701214515.GA5946@hardeman.nu>
+References: <1246079912-17619-1-git-send-email-david@hardeman.nu>
+ <1246079912-17619-3-git-send-email-david@hardeman.nu>
+ <20090630142345.58e97b50.akpm@linux-foundation.org>
+ <35c700707581a42af21dd9edc82a5e84.squirrel@www.hardeman.nu>
+ <20090701110616.60c05a5d.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from buzzloop.caiaq.de ([212.112.241.133]:40179 "EHLO
-	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752456AbZGASuA (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 1 Jul 2009 14:50:00 -0400
+Content-Type: text/plain; charset=iso-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901A13867@mi8nycmail19.Mi8.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20090701110616.60c05a5d.akpm@linux-foundation.org>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, jbarnes@virtuousgeek.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-On Wed, Jul 01, 2009 at 02:45:58PM -0400, H Hartley Sweeten wrote:
-> > Hmm, and then report them all via the very same input device? Or
-> > register one for each encoder? The latter could easily be done by
-> > registering multiple platform_devices with different platform_data,
-> > right?
-> 
-> I suppose each encoder could be registered individually.  Then each would
-> report as a unique input device.  This should work with the driver as it
-> is now.  Then drawback is if there are a number of encoders and a
-> userspace app is opening all of them and doing a EVIOCGRAB it makes the
-> app a bit messy.
+On Wed, Jul 01, 2009 at 11:06:16AM -0700, Andrew Morton wrote:
+>On Wed, 1 Jul 2009 09:47:46 +0200 (CEST)
+>David H=E4rdeman <david@hardeman.nu> wrote:
+>>> Something has gone wrong with the types here.  Where does the fault=
+ lie
+>>> - this driver, or input core?
+>>
+>> Two issues:
+>>
+>> a) the input layer API confused me
+>> ...
+>> b) 32 bit scancodes
+>> ...
 >
-> I was thinking more or passing an array of encoders to the driver and then
-> having it report all of them as one input device.  That ends up being a
-> lot cleaner.
+>erp.  Hopefully this is all something which Dmitry can help us with.
 
-I'd be fine with such a change. Just curious: how many encoders do you
-have on your board?
+I'll wait for feedback from Bjorn Helgaas and Dmitry, meanwhile I've=20
+updated the patch to (hopefully) fix all the other issues you've raised=
+,=20
+I'll send it in a separate mail.
 
-Daniel
+--=20
+David H=E4rdeman
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

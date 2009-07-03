@@ -1,36 +1,55 @@
-From: Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH] hid: adding __init/__exit macros to several hids
-Date: Fri, 3 Jul 2009 11:59:34 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0907031159210.4994@wotan.suse.de>
-References: <200907021908.39275.PeterHuewe@gmx.de>
+From: hermann pitton <hermann-pitton@arcor.de>
+Subject: Re: RFC: Remote control sensors and Linux input layer
+Date: Sat, 04 Jul 2009 01:06:11 +0200
+Message-ID: <1246662371.5236.4.camel@pc07.localdom.local>
+References: <m3ab3prdnv.fsf@intrepid.localdomain>
+	 <m34otxr42y.fsf@intrepid.localdomain>
+	 <1246404739.12087.40.camel@pc07.localdom.local>
+	 <m3my7obqrd.fsf@intrepid.localdomain>
 Mime-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-624173346-1246615174=:4994"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:60597 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756279AbZGCJ7c (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Jul 2009 05:59:32 -0400
-In-Reply-To: <200907021908.39275.PeterHuewe@gmx.de>
+Received: from mail-in-10.arcor-online.net ([151.189.21.50]:58168 "EHLO
+	mail-in-10.arcor-online.net" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1751067AbZGCXOp (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 3 Jul 2009 19:14:45 -0400
+In-Reply-To: <m3my7obqrd.fsf@intrepid.localdomain>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?ISO-8859-15?Q?Peter_H=FCwe?= <PeterHuewe@gmx.de>
-Cc: kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-input@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>, linux-media@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Hi,
 
---168427776-624173346-1246615174=:4994
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+Am Mittwoch, den 01.07.2009, 13:13 +0200 schrieb Krzysztof Halasa:
+> hermann pitton <hermann-pitton@arcor.de> writes:
+> 
+> > your prior mail with the RFC is only on linux-input.
+> 
+> Well, I posted it to linux-input, -media, -kernel.
 
-On Thu, 2 Jul 2009, Peter Hüwe wrote:
+Krzysztof, sorry, my bad.
 
-> Trivial patch which adds the __init and __exit macros to the module_init /
-> module_exit functions of several hids from drivers/hid/
+Mails did not arrive in timely manner as usual after some heavy
+thunderstorms here.
 
-Applied, thanks Peter.
+> > I wonder, why you don't start with the remote coming with your Avermedia
+> > card, but with some Philips remote coming with your TV.
+> 
+> Because I use the later. I will capture the AverMedia codes for complete
+> support but it's lower priority for me.
+> 
+> > It is years back, but we don't know until today, waiting nine months or
+> > so then, if we did break the bttv device ... Please keep the comments.
+> 
+> I will, of course, keep the ones which still apply.
 
--- 
-Jiri Kosina
-SUSE Labs
---168427776-624173346-1246615174=:4994--
+And of course it would be very nice to have RC5 support on transmitters
+and receivers capable for it.
+
+Cheers,
+Hermann
+
+

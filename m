@@ -1,88 +1,51 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Sat, 4 Jul 2009 07:54:27 +0200
-Message-ID: <200907040754.28010.marek.vasut@gmail.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com> <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com> <5d5443650906092110j1ed0914fn791039c4a4746bda@mail.gmail.com>
+From: guo jerry <mimi0213kimo@gmail.com>
+Subject: Re: X window don't read my input device automatically
+Date: Sun, 5 Jul 2009 01:12:29 +0800
+Message-ID: <e715744d0907041012x293b656eue405eac4a4fc438c@mail.gmail.com>
+References: <e715744d0906181955h646e5941y4d54056b1ea4d27e@mail.gmail.com>
+	 <20090630023139.GA10652@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-fx0-f218.google.com ([209.85.220.218]:59385 "EHLO
-	mail-fx0-f218.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750909AbZGDFyb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jul 2009 01:54:31 -0400
-Received: by fxm18 with SMTP id 18so2514183fxm.37
-        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2009 22:54:33 -0700 (PDT)
-In-Reply-To: <5d5443650906092110j1ed0914fn791039c4a4746bda@mail.gmail.com>
-Content-Disposition: inline
+Received: from mail-px0-f190.google.com ([209.85.216.190]:45984 "EHLO
+	mail-px0-f190.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750702AbZGDRM0 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jul 2009 13:12:26 -0400
+Received: by pxi28 with SMTP id 28so2744033pxi.33
+        for <linux-input@vger.kernel.org>; Sat, 04 Jul 2009 10:12:30 -0700 (PDT)
+In-Reply-To: <20090630023139.GA10652@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-arm-kernel@lists.arm.linux.org.uk, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Dne St 10. =C4=8Dervna 2009 06:10:31 Trilok Soni napsal(a):
-> Hi Dmitry,
+thanks for your corrections :)
+
+2009/6/30 Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+> On Fri, Jun 19, 2009 at 10:55:20AM +0800, guo jerry wrote:
+>> Hi all,
+>> =A0=A0=A0=A0=A0=A0=A0 I have written my multi-touch panel device dri=
+ver and register
+>> two input devices.
+>> =A0=A0=A0=A0=A0=A0=A0 they appear in /dev/input/event7 & /dev/input/=
+event8. The
+>> problem is that why
+>> =A0=A0=A0=A0=A0=A0=A0 X window can read other mouse devices automati=
+cally and work under X
+>> =A0=A0=A0=A0=A0=A0=A0 environment but the device driver written by m=
+y own cannot.
+>> =A0=A0=A0=A0=A0=A0=A0 I guess that if the evbit and keybit which I s=
+et is not correctly.
+>> =A0=A0=A0=A0=A0=A0=A0 I set my evbit & keybit as following:
+>>
+>> =A0=A0=A0=A0=A0=A0=A0 input->evbit[0] =3D BIT_MASK(EV_KEY) || BIT_MA=
+SK(EV_ABS);
 >
-> > Sounds good, patch updated again, with attachment.
-> >
-> > >From 76776dfc468dc35f0d8394a2331e1a91f390e642 Mon Sep 17 00:00:00 =
-2001
-> >
-> > From: Marek Vasut <marek.vasut@gmail.com>
-> > Date: Thu, 7 May 2009 15:49:32 +0800
-> > Subject: [PATCH] input: add support for generic GPIO-based matrix k=
-eypad
+> I don't think you want 'logical or' here but rather a bitwise one.
 >
-> Could you please review this patch and see if it can be acked as merg=
-e
-> window will open in couple of days? Thanks.
-
-Hi, I have but one comment (see further), otherwise works well on Palm=20
-Tungsten C (PXA255A0 CPU).
-
-btw Eric, please add yourself to the credits, you did most of the work =
-on it=20
-anyway ;-) .
+> --
+> Dmitry
 >
-> > Original patch by Marek Vasut, modified by Eric in:
-> >
-> > 1. use delayed work to simplify the debouncing process
-
-=2E..
-
-> > diff --git a/include/linux/input/matrix_keypad.h
-> > b/include/linux/input/matrix_keypad.h
-> > new file mode 100644
-> > index 0000000..8b661cb
-> > --- /dev/null
-> > +++ b/include/linux/input/matrix_keypad.h
-> > @@ -0,0 +1,34 @@
-> > +#ifndef _MATRIX_KEYPAD_H
-> > +#define _MATRIX_KEYPAD_H
-> > +
-> > +#include <linux/input.h>
-> > +
-> > +#define MATRIX_MAX_ROWS                16
-> > +#define MATRIX_MAX_COLS                16
-> > +#define MATRIX_MAX_KEYS                (MATRIX_MAX_ROWS *
-> > MATRIX_MAX_COLS) +
-> > +struct matrix_keypad_platform_data {
-> > +       /* scancode map for the matrix keys */
-> > +       uint32_t        *key_map;
-> > +       int             key_map_size;
-> > +
-> > +       unsigned        row_gpios[MATRIX_MAX_ROWS];
-> > +       unsigned        col_gpios[MATRIX_MAX_COLS];
-
-Why not doing the above like the following?
-+       unsigned        *row_gpios;
-+       unsigned        *col_gpios;
-
-> > +       int             num_row_gpios;
-> > +       int             num_col_gpios;
-> > +
-> > +       unsigned int    active_low;
-
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

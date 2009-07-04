@@ -1,88 +1,90 @@
-From: "Dr. David Alan Gilbert" <linux@treblig.org>
-Subject: Re: 2.6.{28,30} Keyboard not working on oldish machine
-Date: Sat, 4 Jul 2009 02:24:03 +0100
-Message-ID: <20090704012403.GA31026@gallifrey>
-References: <alpine.LNX.2.00.0906291103140.18021@wotan.suse.de>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
+Date: Sat, 4 Jul 2009 07:54:27 +0200
+Message-ID: <200907040754.28010.marek.vasut@gmail.com>
+References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com> <f17812d70906022324x160dfcf2x5c89830341abff15@mail.gmail.com> <5d5443650906092110j1ed0914fn791039c4a4746bda@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mx.treblig.org ([80.68.94.177]:59792 "EHLO mx.treblig.org"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1757898AbZGDAYI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Fri, 3 Jul 2009 20:24:08 -0400
+Received: from mail-fx0-f218.google.com ([209.85.220.218]:59385 "EHLO
+	mail-fx0-f218.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750909AbZGDFyb convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sat, 4 Jul 2009 01:54:31 -0400
+Received: by fxm18 with SMTP id 18so2514183fxm.37
+        for <linux-input@vger.kernel.org>; Fri, 03 Jul 2009 22:54:33 -0700 (PDT)
+In-Reply-To: <5d5443650906092110j1ed0914fn791039c4a4746bda@mail.gmail.com>
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0906291103140.18021@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Eric Miao <eric.y.miao@gmail.com>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Uli Luckas <u.luckas@road.de>, linux-arm-kernel@lists.arm.linux.org.uk, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-* Jiri Kosina (jkosina@suse.cz) wrote:
-> On Sun, 28 Jun 2009, Dr. David Alan Gilbert wrote:
-> 
-> > Apologies for the delay; attached is the dmesg from the Debian 2.6.18
-> > in which keyboard works as previously described.
-> 
-> So the main difference is here:
-> 
-> 	drivers/input/serio/i8042.c: 20 -> i8042 (command) [3]
-> 	drivers/input/serio/i8042.c: 65 <- i8042 (return) [3]
-> 	drivers/input/serio/i8042.c: 60 -> i8042 (command) [3]
-> 	drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [3]
-> 	drivers/input/serio/i8042.c: Interrupt 1, without any data [3]
-> 
-> compared to
-> 
-> 	drivers/input/serio/i8042.c: 20 -> i8042 (command) [1]
-> 	drivers/input/serio/i8042.c: 65 <- i8042 (return) [1]
-> 	drivers/input/serio/i8042.c: 60 -> i8042 (command) [2]
-> 	drivers/input/serio/i8042.c: 74 -> i8042 (parameter) [2]
-> 	drivers/input/serio/i8042.c: d3 -> i8042 (command) [2]
-> 
-> So it looks like it is really affected by the polling timer removal/early 
-> IRQ registration.
+Dne St 10. =C4=8Dervna 2009 06:10:31 Trilok Soni napsal(a):
+> Hi Dmitry,
+>
+> > Sounds good, patch updated again, with attachment.
+> >
+> > >From 76776dfc468dc35f0d8394a2331e1a91f390e642 Mon Sep 17 00:00:00 =
+2001
+> >
+> > From: Marek Vasut <marek.vasut@gmail.com>
+> > Date: Thu, 7 May 2009 15:49:32 +0800
+> > Subject: [PATCH] input: add support for generic GPIO-based matrix k=
+eypad
+>
+> Could you please review this patch and see if it can be acked as merg=
+e
+> window will open in couple of days? Thanks.
 
-While that is different it does carry on; and, if I'm reading it
-right, the last thing it does in my 2.6.30 logs is enable the keyboard
-and then prod the mouse:
+Hi, I have but one comment (see further), otherwise works well on Palm=20
+Tungsten C (PXA255A0 CPU).
 
-[    2.814817] drivers/input/serio/i8042.c: f4 -> i8042 (kbd-data) [13]
-[    2.817615] drivers/input/serio/i8042.c: fa <- i8042 (interrupt, 0, 1) [14]
-[    2.823470] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input1
-[    2.827716] evbug.c: Connected device: input1 (AT Translated Set 2 keyboard at isa0060/serio0/input0)
-[    2.828278] drivers/input/serio/i8042.c: d4 -> i8042 (command) [17]
-[    2.828427] drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [17]
+btw Eric, please add yourself to the credits, you did most of the work =
+on it=20
+anyway ;-) .
+>
+> > Original patch by Marek Vasut, modified by Eric in:
+> >
+> > 1. use delayed work to simplify the debouncing process
 
-The 'ack' to the f4 presumably means the keyboard is reasonably happy?
+=2E..
 
-That 'd4, f2' write-to-mouse times out on the 2.6.18 version, but no other 8042 debug
-comes out on the 2.6.30. Here's the matching 2.6.18:
+> > diff --git a/include/linux/input/matrix_keypad.h
+> > b/include/linux/input/matrix_keypad.h
+> > new file mode 100644
+> > index 0000000..8b661cb
+> > --- /dev/null
+> > +++ b/include/linux/input/matrix_keypad.h
+> > @@ -0,0 +1,34 @@
+> > +#ifndef _MATRIX_KEYPAD_H
+> > +#define _MATRIX_KEYPAD_H
+> > +
+> > +#include <linux/input.h>
+> > +
+> > +#define MATRIX_MAX_ROWS                16
+> > +#define MATRIX_MAX_COLS                16
+> > +#define MATRIX_MAX_KEYS                (MATRIX_MAX_ROWS *
+> > MATRIX_MAX_COLS) +
+> > +struct matrix_keypad_platform_data {
+> > +       /* scancode map for the matrix keys */
+> > +       uint32_t        *key_map;
+> > +       int             key_map_size;
+> > +
+> > +       unsigned        row_gpios[MATRIX_MAX_ROWS];
+> > +       unsigned        col_gpios[MATRIX_MAX_COLS];
 
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [7]
-drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [7]
-EISA: Probing bus 0 at eisa.0
-EISA: Detected 0 cards.
-TCP bic registered
-NET: Registered protocol family 1
-NET: Registered protocol family 17
-NET: Registered protocol family 8
-NET: Registered protocol family 20
-Using IPI Shortcut mode
-Time: tsc clocksource has been installed.
-Freeing unused kernel memory: 256k freed
-drivers/input/serio/i8042.c: fe <- i8042 (interrupt, AUX, 0, timeout) [19]
-drivers/input/serio/i8042.c: d4 -> i8042 (command) [19]
-drivers/input/serio/i8042.c: ed -> i8042 (parameter) [19]
-drivers/input/serio/i8042.c: fe <- i8042 (interrupt, AUX, 0, timeout) [31]
-drivers/input/serio/i8042.c: 60 -> i8042 (command) [31]
-drivers/input/serio/i8042.c: 44 -> i8042 (parameter) [31]
+Why not doing the above like the following?
++       unsigned        *row_gpios;
++       unsigned        *col_gpios;
 
-(Although it's a bit difficult to compare since it seems 2.6.18 tends to do
-mouse first and only keyboard after the mouse times out).
+> > +       int             num_row_gpios;
+> > +       int             num_col_gpios;
+> > +
+> > +       unsigned int    active_low;
 
-Dave
--- 
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

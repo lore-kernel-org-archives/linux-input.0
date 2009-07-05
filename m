@@ -1,123 +1,52 @@
-From: Jim Persson <jim-linux@nurd.se>
-Subject: [PATCH] usbtouchscreen: support for JASTEC/DigiTech DTR-02U USB
-	touch controllers
-Date: Sun, 5 Jul 2009 15:13:06 +0200
-Message-ID: <20090705131306.GC23869@nurd.se>
+From: Giuseppe <g.mazzotta@iragan.com>
+Subject: [PATCH 1/1] wistron_btns DMI info to recognize Maxdata Pro 7000 notebooks
+Date: Sun, 05 Jul 2009 19:19:02 +0200
+Message-ID: <4A50E086.5090206@iragan.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mtah21.telenor.se ([195.54.99.196]:53626 "EHLO
-	mtah21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751386AbZGEObv (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jul 2009 10:31:51 -0400
-Content-Disposition: inline
+Received: from m-04.th.seeweb.it ([217.64.195.227]:54225 "EHLO
+	m-04.th.seeweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752146AbZGERi6 (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jul 2009 13:38:58 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Daniel Ritz <daniel.ritz@gmx.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
+To: mitr@volny.cz, stable@kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-add support for the JASTEC/DigiTech DTR-02U USB touch screen
-controllers. 
+This patch adds DMI recognition information to automatically load the 
+correct layout for the Maxdata Pro 7000X/DX notebook models. Such 
+notebooks are clones of Fujitsu Amilo V2000, the hook for the v2000 is 
+being used and I have tested that perfectly works.
 
-Signed-off-by: Jim Persson <jim-linux@nurd.se>
----
- drivers/input/touchscreen/Kconfig          |    6 +++++
- drivers/input/touchscreen/usbtouchscreen.c |   30 ++++++++++++++++++++++++++++
- 2 files changed, 36 insertions(+), 0 deletions(-)
+The immediate result of integrating this patch is that the five special 
+buttons will work on these specific notebook models and that the RF 
+killswitch will not be activated after suspend. This patch definitively 
+obsoletes the fsam7400 module which I was still needing to enable wifi 
+and to fix the RF killswitch suspend problem; in the current 2.6.30 
+kernel it is necessary to load the wistron_btns module with options 
+'force=1 keymap=1557/MS2141', which was not anyway a complete workaround.
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 72e2712..a66e50a 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -406,6 +406,7 @@ config TOUCHSCREEN_USB_COMPOSITE
- 	  - IRTOUCHSYSTEMS/UNITOP
- 	  - IdealTEK URTC1000
- 	  - GoTop Super_Q2/GogoPen/PenPower tablets
-+	  - JASTEC USB Touch Controller/DigiTech DTR-02U
- 
- 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
- 	  a usage description and the required user-space stuff.
-@@ -468,6 +469,11 @@ config TOUCHSCREEN_USB_GOTOP
- 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EMBEDDED
- 	depends on TOUCHSCREEN_USB_COMPOSITE
- 
-+config TOUCHSCREEN_USB_JASTEC
-+	default y
-+	bool "JASTEC/DigiTech DTR-02U USB touch controller device support" if EMBEDDED
-+	depends on TOUCHSCREEN_USB_COMPOSITE
-+
- config TOUCHSCREEN_TOUCHIT213
- 	tristate "Sahara TouchIT-213 touchscreen"
- 	select SERIO
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index fb7cb9b..07c78c8 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -13,6 +13,7 @@
-  *  - IdealTEK URTC1000
-  *  - General Touch
-  *  - GoTop Super_Q2/GogoPen/PenPower tablets
-+ *  - JASTEC USB touch controller/DigiTech DTR-02U
-  *
-  * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
-  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
-@@ -118,6 +119,7 @@ enum {
- 	DEVTYPE_IDEALTEK,
- 	DEVTYPE_GENERAL_TOUCH,
- 	DEVTYPE_GOTOP,
-+	DEVTYPE_JASTEC,
- };
- 
- #define USB_DEVICE_HID_CLASS(vend, prod) \
-@@ -191,6 +193,10 @@ static struct usb_device_id usbtouch_devices[] = {
- 	{USB_DEVICE(0x08f2, 0x00f4), .driver_info = DEVTYPE_GOTOP},
- #endif
- 
-+#ifdef CONFIG_TOUCHSCREEN_USB_JASTEC
-+	{USB_DEVICE(0x0f92, 0x0001), .driver_info = DEVTYPE_JASTEC},
-+#endif
-+
- 	{}
- };
- 
-@@ -563,6 +569,19 @@ static int gotop_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
- }
- #endif
- 
-+/*****************************************************************************
-+ * JASTEC Part
-+ */
-+#ifdef CONFIG_TOUCHSCREEN_USB_JASTEC
-+static int jastec_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
-+{
-+	dev->x = ((pkt[0] & 0x3f) << 6) | (pkt[2] & 0x3f);
-+	dev->y = ((pkt[1] & 0x3f) << 6) | (pkt[3] & 0x3f);
-+	dev->touch = (pkt[0] & 0x40) >> 6;
-+	return 1;
-+}
-+#endif
-+
- 
- /*****************************************************************************
-  * the different device descriptors
-@@ -702,6 +721,17 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
- 		.read_data	= gotop_read_data,
- 	},
- #endif
-+
-+#ifdef CONFIG_TOUCHSCREEN_USB_JASTEC
-+	[DEVTYPE_JASTEC] = {
-+		.min_xc		= 0x0,
-+		.max_xc		= 0x0fff,
-+		.min_yc		= 0x0,
-+		.max_yc		= 0x0fff,
-+		.rept_size	= 4,
-+		.read_data	= jastec_read_data,
-+	},
-+#endif
- };
- 
- 
--- 
-1.6.0.4
+Signed-off-by: Giuseppe Mazzotta <g.mazzotta@iragan.com>
 
+--- linux-2.6.30/drivers/input/misc/wistron_btns.c.orig 2009-07-05 
+14:07:10.000000000 +0200
++++ linux-2.6.30/drivers/input/misc/wistron_btns.c      2009-07-05 
+14:07:36.000000000 +0200
+@@ -646,6 +646,15 @@ static struct dmi_system_id dmi_ids[] __
+         },
+         {
+                 .callback = dmi_matched,
++               .ident = "Maxdata Pro 7000 DX",
++               .matches = {
++                       DMI_MATCH(DMI_SYS_VENDOR, "MAXDATA"),
++                       DMI_MATCH(DMI_PRODUCT_NAME, "Pro 7000"),
++               },
++               .driver_data = keymap_fs_amilo_pro_v2000
++       },
++       {
++               .callback = dmi_matched,
+                 .ident = "Fujitsu N3510",
+                 .matches = {
+                         DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU"),

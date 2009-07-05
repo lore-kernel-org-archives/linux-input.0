@@ -1,64 +1,140 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: [PATCH] Input: mark serio and i8042 as suspended when hibernating too.
-Date: Sat,  4 Jul 2009 23:13:39 -0300
-Message-ID: <1246760019-4120-1-git-send-email-cascardo@holoscopio.com>
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753914AbZGECOL@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com, rjw@sisk.pl, maciej.rutecki@gmail.com, alan-jenkins@tuffmail.co.uk, linux-kernel@vger.kernel.org, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 2/5] drivers/input: Use resource_size
+Date: Sun, 5 Jul 2009 08:36:22 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0907050835530.27464@ask.diku.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from mgw2.diku.dk ([130.225.96.92]:48512 "EHLO mgw2.diku.dk"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1751487AbZGEGgW (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 5 Jul 2009 02:36:22 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-serio ports are not being restarted any longer because resume operations
-after hibernate do nothing, since the device has not been marked as
-suspended. This happens because suspend is only considering the SUSPEND
-event but not the FREEZE event.
+From: Julia Lawall <julia@diku.dk>
 
-Note that this driver has still to migrate to dev_pm_ops, but this fixes
-this particular bug now.
+Use the function resource_size, which reduces the chance of introducing
+off-by-one errors in calculating the resource size.
 
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+The semantic patch that makes this change is as follows:
+(http://www.emn.fr/x-info/coccinelle/)
+
+// <smpl>
+@@
+struct resource *res;
+@@
+
+- (res->end - res->start) + 1
++ resource_size(res)
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
 ---
- drivers/input/serio/i8042.c |    7 ++++---
- drivers/input/serio/serio.c |    7 ++++---
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ drivers/input/misc/cobalt_btns.c         |    2 +-
+ drivers/input/serio/at32psif.c           |    2 +-
+ drivers/input/touchscreen/atmel_tsadcc.c |    8 ++++----
+ drivers/input/touchscreen/w90p910_ts.c   |    8 ++++----
+ 4 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-index f919bf5..582245c 100644
---- a/drivers/input/serio/i8042.c
-+++ b/drivers/input/serio/i8042.c
-@@ -934,10 +934,11 @@ static bool i8042_suspended;
+diff -u -p a/drivers/input/misc/cobalt_btns.c b/drivers/input/misc/cobalt_btns.c
+--- a/drivers/input/misc/cobalt_btns.c 2009-07-04 21:32:44.000000000 +0200
++++ b/drivers/input/misc/cobalt_btns.c 2009-07-04 21:37:23.000000000 +0200
+@@ -116,7 +116,7 @@ static int __devinit cobalt_buttons_prob
+ 	}
  
- static int i8042_suspend(struct platform_device *dev, pm_message_t state)
- {
--	if (!i8042_suspended && state.event == PM_EVENT_SUSPEND) {
-+	if (!i8042_suspended && state.event == PM_EVENT_SUSPEND)
- 		i8042_controller_reset();
--		i8042_suspended = true;
--	}
-+
-+	i8042_suspended = state.event == PM_EVENT_SUSPEND ||
-+			  state.event == PM_EVENT_FREEZE;
+ 	bdev->poll_dev = poll_dev;
+-	bdev->reg = ioremap(res->start, res->end - res->start + 1);
++	bdev->reg = ioremap(res->start, resource_size(res));
+ 	dev_set_drvdata(&pdev->dev, bdev);
  
- 	return 0;
- }
-diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-index fb17573..d66f494 100644
---- a/drivers/input/serio/serio.c
-+++ b/drivers/input/serio/serio.c
-@@ -935,10 +935,11 @@ static int serio_suspend(struct device *dev, pm_message_t state)
- {
- 	struct serio *serio = to_serio_port(dev);
+ 	error = input_register_polled_device(poll_dev);
+diff -u -p a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
+--- a/drivers/input/serio/at32psif.c 2008-12-07 19:29:06.000000000 +0100
++++ b/drivers/input/serio/at32psif.c 2009-07-04 21:37:23.000000000 +0200
+@@ -231,7 +231,7 @@ static int __init psif_probe(struct plat
+ 		goto out_free_io;
+ 	}
  
--	if (!serio->suspended && state.event == PM_EVENT_SUSPEND) {
-+	if (!serio->suspended && state.event == PM_EVENT_SUSPEND)
- 		serio_cleanup(serio);
--		serio->suspended = true;
--	}
-+
-+	serio->suspended = state.event == PM_EVENT_SUSPEND ||
-+			   state.event == PM_EVENT_FREEZE;
+-	psif->regs = ioremap(regs->start, regs->end - regs->start + 1);
++	psif->regs = ioremap(regs->start, resource_size(regs));
+ 	if (!psif->regs) {
+ 		ret = -ENOMEM;
+ 		dev_dbg(&pdev->dev, "could not map I/O memory\n");
+diff -u -p a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
+--- a/drivers/input/touchscreen/atmel_tsadcc.c 2009-03-13 13:37:47.000000000 +0100
++++ b/drivers/input/touchscreen/atmel_tsadcc.c 2009-07-04 21:37:23.000000000 +0200
+@@ -204,14 +204,14 @@ static int __devinit atmel_tsadcc_probe(
+ 		goto err_free_dev;
+ 	}
  
- 	return 0;
- }
--- 
-1.6.3
+-	if (!request_mem_region(res->start, res->end - res->start + 1,
++	if (!request_mem_region(res->start, resource_size(res),
+ 				"atmel tsadcc regs")) {
+ 		dev_err(&pdev->dev, "resources is unavailable.\n");
+ 		err = -EBUSY;
+ 		goto err_free_dev;
+ 	}
+ 
+-	tsc_base = ioremap(res->start, res->end - res->start + 1);
++	tsc_base = ioremap(res->start, resource_size(res));
+ 	if (!tsc_base) {
+ 		dev_err(&pdev->dev, "failed to map registers.\n");
+ 		err = -ENOMEM;
+@@ -286,7 +286,7 @@ err_free_irq:
+ err_unmap_regs:
+ 	iounmap(tsc_base);
+ err_release_mem:
+-	release_mem_region(res->start, res->end - res->start + 1);
++	release_mem_region(res->start, resource_size(res));
+ err_free_dev:
+ 	input_free_device(ts_dev->input);
+ err_free_mem:
+@@ -305,7 +305,7 @@ static int __devexit atmel_tsadcc_remove
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	iounmap(tsc_base);
+-	release_mem_region(res->start, res->end - res->start + 1);
++	release_mem_region(res->start, resource_size(res));
+ 
+ 	clk_disable(ts_dev->clk);
+ 	clk_put(ts_dev->clk);
+diff -u -p a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
+--- a/drivers/input/touchscreen/w90p910_ts.c 2009-06-24 21:18:49.000000000 +0200
++++ b/drivers/input/touchscreen/w90p910_ts.c 2009-07-04 21:37:23.000000000 +0200
+@@ -241,13 +241,13 @@ static int __devinit w90x900ts_probe(str
+ 		goto fail1;
+ 	}
+ 
+-	if (!request_mem_region(res->start, res->end - res->start + 1,
++	if (!request_mem_region(res->start, resource_size(res),
+ 				pdev->name)) {
+ 		err = -EBUSY;
+ 		goto fail1;
+ 	}
+ 
+-	w90p910_ts->ts_reg = ioremap(res->start, res->end - res->start + 1);
++	w90p910_ts->ts_reg = ioremap(res->start, resource_size(res));
+ 	if (!w90p910_ts->ts_reg) {
+ 		err = -ENOMEM;
+ 		goto fail2;
+@@ -296,7 +296,7 @@ static int __devinit w90x900ts_probe(str
+ 
+ fail4:	free_irq(w90p910_ts->irq_num, w90p910_ts);
+ fail3:	iounmap(w90p910_ts->ts_reg);
+-fail2:	release_mem_region(res->start, res->end - res->start + 1);
++fail2:	release_mem_region(res->start, resource_size(res));
+ fail1:	input_free_device(input_dev);
+ 	kfree(w90p910_ts);
+ 	return err;
+@@ -312,7 +312,7 @@ static int __devexit w90x900ts_remove(st
+ 	iounmap(w90p910_ts->ts_reg);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	release_mem_region(res->start, res->end - res->start + 1);
++	release_mem_region(res->start, resource_size(res));
+ 
+ 	input_unregister_device(w90p910_ts->input);
+ 	kfree(w90p910_ts);

@@ -1,140 +1,123 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 2/5] drivers/input: Use resource_size
-Date: Sun, 5 Jul 2009 08:36:22 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0907050835530.27464@ask.diku.dk>
+From: Jim Persson <jim-linux@nurd.se>
+Subject: [PATCH] usbtouchscreen: support for JASTEC/DigiTech DTR-02U USB
+	touch controllers
+Date: Sun, 5 Jul 2009 15:13:06 +0200
+Message-ID: <20090705131306.GC23869@nurd.se>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw2.diku.dk ([130.225.96.92]:48512 "EHLO mgw2.diku.dk"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751487AbZGEGgW (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 5 Jul 2009 02:36:22 -0400
+Received: from mtah21.telenor.se ([195.54.99.196]:53626 "EHLO
+	mtah21.telenor.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751386AbZGEObv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Sun, 5 Jul 2009 10:31:51 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: dmitry.torokhov@gmail.com, dtor@mail.ru, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Cc: Daniel Ritz <daniel.ritz@gmx.ch>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Dmitry Torokhov <dtor@mail.ru>
 
-From: Julia Lawall <julia@diku.dk>
+add support for the JASTEC/DigiTech DTR-02U USB touch screen
+controllers. 
 
-Use the function resource_size, which reduces the chance of introducing
-off-by-one errors in calculating the resource size.
-
-The semantic patch that makes this change is as follows:
-(http://www.emn.fr/x-info/coccinelle/)
-
-// <smpl>
-@@
-struct resource *res;
-@@
-
-- (res->end - res->start) + 1
-+ resource_size(res)
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
+Signed-off-by: Jim Persson <jim-linux@nurd.se>
 ---
- drivers/input/misc/cobalt_btns.c         |    2 +-
- drivers/input/serio/at32psif.c           |    2 +-
- drivers/input/touchscreen/atmel_tsadcc.c |    8 ++++----
- drivers/input/touchscreen/w90p910_ts.c   |    8 ++++----
- 4 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/Kconfig          |    6 +++++
+ drivers/input/touchscreen/usbtouchscreen.c |   30 ++++++++++++++++++++++++++++
+ 2 files changed, 36 insertions(+), 0 deletions(-)
 
-diff -u -p a/drivers/input/misc/cobalt_btns.c b/drivers/input/misc/cobalt_btns.c
---- a/drivers/input/misc/cobalt_btns.c 2009-07-04 21:32:44.000000000 +0200
-+++ b/drivers/input/misc/cobalt_btns.c 2009-07-04 21:37:23.000000000 +0200
-@@ -116,7 +116,7 @@ static int __devinit cobalt_buttons_prob
- 	}
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 72e2712..a66e50a 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -406,6 +406,7 @@ config TOUCHSCREEN_USB_COMPOSITE
+ 	  - IRTOUCHSYSTEMS/UNITOP
+ 	  - IdealTEK URTC1000
+ 	  - GoTop Super_Q2/GogoPen/PenPower tablets
++	  - JASTEC USB Touch Controller/DigiTech DTR-02U
  
- 	bdev->poll_dev = poll_dev;
--	bdev->reg = ioremap(res->start, res->end - res->start + 1);
-+	bdev->reg = ioremap(res->start, resource_size(res));
- 	dev_set_drvdata(&pdev->dev, bdev);
+ 	  Have a look at <http://linux.chapter7.ch/touchkit/> for
+ 	  a usage description and the required user-space stuff.
+@@ -468,6 +469,11 @@ config TOUCHSCREEN_USB_GOTOP
+ 	bool "GoTop Super_Q2/GogoPen/PenPower tablet device support" if EMBEDDED
+ 	depends on TOUCHSCREEN_USB_COMPOSITE
  
- 	error = input_register_polled_device(poll_dev);
-diff -u -p a/drivers/input/serio/at32psif.c b/drivers/input/serio/at32psif.c
---- a/drivers/input/serio/at32psif.c 2008-12-07 19:29:06.000000000 +0100
-+++ b/drivers/input/serio/at32psif.c 2009-07-04 21:37:23.000000000 +0200
-@@ -231,7 +231,7 @@ static int __init psif_probe(struct plat
- 		goto out_free_io;
- 	}
++config TOUCHSCREEN_USB_JASTEC
++	default y
++	bool "JASTEC/DigiTech DTR-02U USB touch controller device support" if EMBEDDED
++	depends on TOUCHSCREEN_USB_COMPOSITE
++
+ config TOUCHSCREEN_TOUCHIT213
+ 	tristate "Sahara TouchIT-213 touchscreen"
+ 	select SERIO
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index fb7cb9b..07c78c8 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -13,6 +13,7 @@
+  *  - IdealTEK URTC1000
+  *  - General Touch
+  *  - GoTop Super_Q2/GogoPen/PenPower tablets
++ *  - JASTEC USB touch controller/DigiTech DTR-02U
+  *
+  * Copyright (C) 2004-2007 by Daniel Ritz <daniel.ritz@gmx.ch>
+  * Copyright (C) by Todd E. Johnson (mtouchusb.c)
+@@ -118,6 +119,7 @@ enum {
+ 	DEVTYPE_IDEALTEK,
+ 	DEVTYPE_GENERAL_TOUCH,
+ 	DEVTYPE_GOTOP,
++	DEVTYPE_JASTEC,
+ };
  
--	psif->regs = ioremap(regs->start, regs->end - regs->start + 1);
-+	psif->regs = ioremap(regs->start, resource_size(regs));
- 	if (!psif->regs) {
- 		ret = -ENOMEM;
- 		dev_dbg(&pdev->dev, "could not map I/O memory\n");
-diff -u -p a/drivers/input/touchscreen/atmel_tsadcc.c b/drivers/input/touchscreen/atmel_tsadcc.c
---- a/drivers/input/touchscreen/atmel_tsadcc.c 2009-03-13 13:37:47.000000000 +0100
-+++ b/drivers/input/touchscreen/atmel_tsadcc.c 2009-07-04 21:37:23.000000000 +0200
-@@ -204,14 +204,14 @@ static int __devinit atmel_tsadcc_probe(
- 		goto err_free_dev;
- 	}
+ #define USB_DEVICE_HID_CLASS(vend, prod) \
+@@ -191,6 +193,10 @@ static struct usb_device_id usbtouch_devices[] = {
+ 	{USB_DEVICE(0x08f2, 0x00f4), .driver_info = DEVTYPE_GOTOP},
+ #endif
  
--	if (!request_mem_region(res->start, res->end - res->start + 1,
-+	if (!request_mem_region(res->start, resource_size(res),
- 				"atmel tsadcc regs")) {
- 		dev_err(&pdev->dev, "resources is unavailable.\n");
- 		err = -EBUSY;
- 		goto err_free_dev;
- 	}
++#ifdef CONFIG_TOUCHSCREEN_USB_JASTEC
++	{USB_DEVICE(0x0f92, 0x0001), .driver_info = DEVTYPE_JASTEC},
++#endif
++
+ 	{}
+ };
  
--	tsc_base = ioremap(res->start, res->end - res->start + 1);
-+	tsc_base = ioremap(res->start, resource_size(res));
- 	if (!tsc_base) {
- 		dev_err(&pdev->dev, "failed to map registers.\n");
- 		err = -ENOMEM;
-@@ -286,7 +286,7 @@ err_free_irq:
- err_unmap_regs:
- 	iounmap(tsc_base);
- err_release_mem:
--	release_mem_region(res->start, res->end - res->start + 1);
-+	release_mem_region(res->start, resource_size(res));
- err_free_dev:
- 	input_free_device(ts_dev->input);
- err_free_mem:
-@@ -305,7 +305,7 @@ static int __devexit atmel_tsadcc_remove
+@@ -563,6 +569,19 @@ static int gotop_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
+ }
+ #endif
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	iounmap(tsc_base);
--	release_mem_region(res->start, res->end - res->start + 1);
-+	release_mem_region(res->start, resource_size(res));
++/*****************************************************************************
++ * JASTEC Part
++ */
++#ifdef CONFIG_TOUCHSCREEN_USB_JASTEC
++static int jastec_read_data(struct usbtouch_usb *dev, unsigned char *pkt)
++{
++	dev->x = ((pkt[0] & 0x3f) << 6) | (pkt[2] & 0x3f);
++	dev->y = ((pkt[1] & 0x3f) << 6) | (pkt[3] & 0x3f);
++	dev->touch = (pkt[0] & 0x40) >> 6;
++	return 1;
++}
++#endif
++
  
- 	clk_disable(ts_dev->clk);
- 	clk_put(ts_dev->clk);
-diff -u -p a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
---- a/drivers/input/touchscreen/w90p910_ts.c 2009-06-24 21:18:49.000000000 +0200
-+++ b/drivers/input/touchscreen/w90p910_ts.c 2009-07-04 21:37:23.000000000 +0200
-@@ -241,13 +241,13 @@ static int __devinit w90x900ts_probe(str
- 		goto fail1;
- 	}
+ /*****************************************************************************
+  * the different device descriptors
+@@ -702,6 +721,17 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
+ 		.read_data	= gotop_read_data,
+ 	},
+ #endif
++
++#ifdef CONFIG_TOUCHSCREEN_USB_JASTEC
++	[DEVTYPE_JASTEC] = {
++		.min_xc		= 0x0,
++		.max_xc		= 0x0fff,
++		.min_yc		= 0x0,
++		.max_yc		= 0x0fff,
++		.rept_size	= 4,
++		.read_data	= jastec_read_data,
++	},
++#endif
+ };
  
--	if (!request_mem_region(res->start, res->end - res->start + 1,
-+	if (!request_mem_region(res->start, resource_size(res),
- 				pdev->name)) {
- 		err = -EBUSY;
- 		goto fail1;
- 	}
  
--	w90p910_ts->ts_reg = ioremap(res->start, res->end - res->start + 1);
-+	w90p910_ts->ts_reg = ioremap(res->start, resource_size(res));
- 	if (!w90p910_ts->ts_reg) {
- 		err = -ENOMEM;
- 		goto fail2;
-@@ -296,7 +296,7 @@ static int __devinit w90x900ts_probe(str
- 
- fail4:	free_irq(w90p910_ts->irq_num, w90p910_ts);
- fail3:	iounmap(w90p910_ts->ts_reg);
--fail2:	release_mem_region(res->start, res->end - res->start + 1);
-+fail2:	release_mem_region(res->start, resource_size(res));
- fail1:	input_free_device(input_dev);
- 	kfree(w90p910_ts);
- 	return err;
-@@ -312,7 +312,7 @@ static int __devexit w90x900ts_remove(st
- 	iounmap(w90p910_ts->ts_reg);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	release_mem_region(res->start, res->end - res->start + 1);
-+	release_mem_region(res->start, resource_size(res));
- 
- 	input_unregister_device(w90p910_ts->input);
- 	kfree(w90p910_ts);
+-- 
+1.6.0.4
+

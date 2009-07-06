@@ -1,132 +1,72 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Re: [PATCH] Input: mark serio and i8042 as suspended when
-	hibernating too.
-Date: Mon, 6 Jul 2009 20:33:48 -0300
-Message-ID: <20090706233346.GA32726@vespa.holoscopio.com>
-References: <1246760019-4120-1-git-send-email-cascardo@holoscopio.com> <200907070040.43299.rjw@sisk.pl>
+From: Justin Madru <jdm64-u1xxEuL7cY4AvxtiuMwx3w@public.gmane.org>
+Subject: Re: 2.6.30-rc1: touchpad disabled on hibernation
+Date: Mon, 06 Jul 2009 16:55:17 -0700
+Message-ID: <4A528EE5.5090901@gawab.com>
+References: <4A438BA7.9010800@tuffmail.co.uk> <8db1092f0906251016l5ac85bfdpbac841b939cfac2a@mail.gmail.com> <4A43B1FC.7060609@tuffmail.co.uk> <200907070040.14796.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade.minaslivre.org ([72.232.18.203]:46923 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753222AbZGFXeD (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Mon, 6 Jul 2009 19:34:03 -0400
-Content-Disposition: inline
-In-Reply-To: <200907070040.43299.rjw@sisk.pl>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200907070040.14796.rjw-KKrjLPT3xs0@public.gmane.org>
+Sender: kernel-testers-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Alan Jenkins <alan-jenkins-cCz0Lq7MMjm9FHfhHBbuYA@public.gmane.org>, Maciej Rutecki <maciej.rutecki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kernel Testers List <kernel-testers-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Thadeu Lima de Souza Cascardo <cascardo-DmMZpsCg3uxeGPcbtGPokg@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, maciej.rutecki@gmail.com, alan-jenkins@tuffmail.co.uk, linux-kernel@vger.kernel.org, pm list <linux-pm@lists.linux-foundation.org>
 
-
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jul 07, 2009 at 12:40:42AM +0200, Rafael J. Wysocki wrote:
-> On Sunday 05 July 2009, Thadeu Lima de Souza Cascardo wrote:
-> > serio ports are not being restarted any longer because resume operations
-> > after hibernate do nothing, since the device has not been marked as
-> > suspended. This happens because suspend is only considering the SUSPEND
-> > event but not the FREEZE event.
-> >=20
-> > Note that this driver has still to migrate to dev_pm_ops, but this fixes
-> > this particular bug now.
->=20
-> Hmm, this looks like a fix for:
-> http://bugzilla.kernel.org/show_bug.cgi?id=3D13643
->=20
-> Any objections to merging it through the suspend tree?
->=20
-> Best,
+Rafael J. Wysocki wrote:
+> On Thursday 25 June 2009, Alan Jenkins wrote:
+>   
+>> Maciej Rutecki wrote:
+>>     
+>>> 2009/6/25 Alan Jenkins <alan-jenkins-cCz0Lq7MMjm9FHfhHBbuYA@public.gmane.org>:
+>>>   
+>>>       
+>>>> The synaptics touchpad on my EeePC 701 dies on hibernation.  2.6.30 was
+>>>> fine, and it doesn't happen on suspend to ram either.  There are no
+>>>> obvious error messages, but maybe this boot message is relevant:
+>>>>
+>>>> Platform driver 'i8042' needs updating, please use dev_pm_ops
+>>>>
+>>>>     
+>>>>         
+>>> Similar on s2disk, HP/Compaq notebook. Try reload psmouse module. I
+>>> reported it, but nobody answer.
+>>>   
+>>>       
+>> That works, thanks.
+>>     
+>
+> Alan, Maciej, can you both try the patch at
+> http://patchwork.kernel.org/patch/34075/, please?
+>
 > Rafael
->=20
->=20
+>
+>   
+I've been having the same issue (laptop touchpad not working after resume).
+Your patch seams to fix the problem. I no longer have to reload the 
+psmouse module after resume.
 
-I even got to this bug report myself, but 1) I wasn't sure it would fix
-the original problem; 2) I didn't know how to include the patch as a
-solution in the report and submit it to the lists in one tackle and was
-too lazy to do it through the web interface.
+$ modinfo psmouse
 
-I found out the two references before I could find the bug report by
-looking into the mailing list archives (both for linux-input and
-linux-kernel). And since no one pointed out a solution, I've tried to
-solve it myself. Fortunately, those references told me that was a
-problem not found at 2.6.30 and that I should look for commits since
-then, not since the last git after that I couldn't find the problem in,
-and that hibernate was the problem. The fact is that I had hibernate
-totally failing for me for that git version and hibernate was the first
-thing I've tried, even before using the mouse.
+filename:      
+/lib/modules/2.6.31-rc2-git/kernel/drivers/input/mouse/psmouse.ko
+license:        GPL
+description:  PS/2 mouse driver
+author:         Vojtech Pavlik <vojtech-AlSwsSmVLrQ@public.gmane.org>
+alias:            serio:ty05pr*id*ex*
+alias:            serio:ty01pr*id*ex*
+depends:
+vermagic:     2.6.31-rc2-git SMP preempt mod_unload modversions PENTIUM4 
+4KSTACKS
+parm:           proto:Highest protocol extension to probe (bare, imps, 
+exps, any). Useful for KVM switches. (proto_abbrev)
+parm:           resolution:Resolution, in dpi. (uint)
+parm:           rate:Report rate, in reports per second. (uint)
+parm:           smartscroll:Logitech Smartscroll autorepeat, 1 = enabled 
+(default), 0 = disabled. (bool)
+parm:           resetafter:Reset device after so many bad packets (0 = 
+never). (uint)
+parm:           resync_time:How long can mouse stay idle before forcing 
+resync (in seconds, 0 = never). (uint)
 
-Anyway, since you are the PM maintainer and had submitted messages to
-the bug report and one of the messages, I've decided to copy you and I
-would be very glad that the merge was done throught your tree as any
-other tree. As long as this enters rc3, for sure.  :-D
-
-My best and any tips as to get these regression fixes more noticeable,
-I'll be glad.
-Cascardo.
-
-> > Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> > ---
-> >  drivers/input/serio/i8042.c |    7 ++++---
-> >  drivers/input/serio/serio.c |    7 ++++---
-> >  2 files changed, 8 insertions(+), 6 deletions(-)
-> >=20
-> > diff --git a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
-> > index f919bf5..582245c 100644
-> > --- a/drivers/input/serio/i8042.c
-> > +++ b/drivers/input/serio/i8042.c
-> > @@ -934,10 +934,11 @@ static bool i8042_suspended;
-> > =20
-> >  static int i8042_suspend(struct platform_device *dev, pm_message_t sta=
-te)
-> >  {
-> > -	if (!i8042_suspended && state.event =3D=3D PM_EVENT_SUSPEND) {
-> > +	if (!i8042_suspended && state.event =3D=3D PM_EVENT_SUSPEND)
-> >  		i8042_controller_reset();
-> > -		i8042_suspended =3D true;
-> > -	}
-> > +
-> > +	i8042_suspended =3D state.event =3D=3D PM_EVENT_SUSPEND ||
-> > +			  state.event =3D=3D PM_EVENT_FREEZE;
-> > =20
-> >  	return 0;
-> >  }
-> > diff --git a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
-> > index fb17573..d66f494 100644
-> > --- a/drivers/input/serio/serio.c
-> > +++ b/drivers/input/serio/serio.c
-> > @@ -935,10 +935,11 @@ static int serio_suspend(struct device *dev, pm_m=
-essage_t state)
-> >  {
-> >  	struct serio *serio =3D to_serio_port(dev);
-> > =20
-> > -	if (!serio->suspended && state.event =3D=3D PM_EVENT_SUSPEND) {
-> > +	if (!serio->suspended && state.event =3D=3D PM_EVENT_SUSPEND)
-> >  		serio_cleanup(serio);
-> > -		serio->suspended =3D true;
-> > -	}
-> > +
-> > +	serio->suspended =3D state.event =3D=3D PM_EVENT_SUSPEND ||
-> > +			   state.event =3D=3D PM_EVENT_FREEZE;
-> > =20
-> >  	return 0;
-> >  }
-
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
-
-iEYEARECAAYFAkpSidoACgkQyTpryRcqtS0d6ACfeUFTnwX+bgOrPMG/StqKnrB+
-TVgAnjRynPtLHEjmhML2NgysaBrH9ncZ
-=eZWm
------END PGP SIGNATURE-----
-
---0OAP2g/MAC+5xKAE--
+Justin Madru

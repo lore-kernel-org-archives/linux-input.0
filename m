@@ -1,44 +1,50 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input:Add clk api support for w90p910 touchscreen
-Date: Tue, 7 Jul 2009 22:49:52 +0530
-Message-ID: <5d5443650907071019w45474b2dhd0a175a0ffac4f3a@mail.gmail.com>
-References: <4A535B97.4010700@gmail.com>
+From: "H Hartley Sweeten" <hartleys@visionengravers.com>
+Subject: RE: [PATCH] Input: rotary_encoder cleanup
+Date: Tue, 7 Jul 2009 14:32:42 -0400
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901A68522@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE1909019683A5@mi8nycmail19.Mi8.com> <20090623162126.GL29236@buzzloop.caiaq.de> <20090630023211.GC10652@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE190901A1346C@mi8nycmail19.Mi8.com> <20090701183347.GB9464@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901A13867@mi8nycmail19.Mi8.com> <20090701184959.GC9464@buzzloop.caiaq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.24]:32014 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751418AbZGGRTx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jul 2009 13:19:53 -0400
-Received: by qw-out-2122.google.com with SMTP id 9so2067965qwb.37
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2009 10:19:52 -0700 (PDT)
-In-Reply-To: <4A535B97.4010700@gmail.com>
+Received: from exprod6og107.obsmtp.com ([64.18.1.208]:49176 "HELO
+	exprod6og107.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1751356AbZGGScp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Tue, 7 Jul 2009 14:32:45 -0400
+Content-class: urn:content-classes:message
+In-Reply-To: <20090701184959.GC9464@buzzloop.caiaq.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wan ZongShun <mcuos.com@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Daniel Mack <daniel@caiaq.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
 
-Hi,
+On Wednesday, July 01, 2009 11:50 AM, Daniel Mack wrote:
+> On Wed, Jul 01, 2009 at 02:45:58PM -0400, H Hartley Sweeten wrote:
+> > > Hmm, and then report them all via the very same input device? Or
+> > > register one for each encoder? The latter could easily be done by
+> > > registering multiple platform_devices with different platform_data,
+> > > right?
+> > 
+> > I suppose each encoder could be registered individually.  Then each would
+> > report as a unique input device.  This should work with the driver as it
+> > is now.  Then drawback is if there are a number of encoders and a
+> > userspace app is opening all of them and doing a EVIOCGRAB it makes the
+> > app a bit messy.
+> > 
+> > I was thinking more or passing an array of encoders to the driver and then
+> > having it report all of them as one input device.  That ends up being a
+> > lot cleaner.
+> 
+> I'd be fine with such a change. Just curious: how many encoders do you
+> have on your board?
 
-> + =A0 =A0 =A0 w90p910_ts->clk =3D clk_get(&pdev->dev, pdev->name);
+I haven't had a chance to figure out a way to pass the array of encoders yet.
 
-Having clk_name coming from pdev->name looks strange to me. I feel it
-should either  "NULL" or const string.
+But, to answer your question, I have a couple different control panels with
+2, 3, or 4 rotary encoders on them.  To go beyond 4 I think I will need to
+work out a patch that only requires 1 interrupt line for each encoder.  My
+platform has 24 gpio's that can generate interrupts but I am using a number
+of them for other purposes.
 
-> + =A0 =A0 =A0 if (IS_ERR(w90p910_ts->clk)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 err =3D PTR_ERR(w90p910_ts->clk);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto fail3;
-> =A0 =A0 =A0 =A0}
->
-
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Regards,
+Hartley

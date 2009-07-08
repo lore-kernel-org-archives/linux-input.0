@@ -1,45 +1,115 @@
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH 1/2] ACPI: reintroduce acpi_device_ops .shutdown method
-Date: Wed, 8 Jul 2009 10:52:19 -0600
-Message-ID: <200907081052.20142.bjorn.helgaas@hp.com>
-References: <1246079912-17619-1-git-send-email-david@hardeman.nu> <200906301711.34074.bjorn.helgaas@hp.com> <737c7bd0a2f550d21d45b347d018a1ac.squirrel@www.hardeman.nu>
+From: "H Hartley Sweeten" <hartleys@visionengravers.com>
+Subject: RE: [PATCH] Input: rotary_encoder cleanup
+Date: Wed, 8 Jul 2009 17:47:07 -0400
+Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901A689B9@mi8nycmail19.Mi8.com>
+References: <BD79186B4FD85F4B8E60E381CAEE1909019683A5@mi8nycmail19.Mi8.com> <20090623162126.GL29236@buzzloop.caiaq.de> <20090630023211.GC10652@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE190901A1346C@mi8nycmail19.Mi8.com> <20090701183347.GB9464@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901A13867@mi8nycmail19.Mi8.com> <20090708065650.GG3309@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from g4t0015.houston.hp.com ([15.201.24.18]:23068 "EHLO
-	g4t0015.houston.hp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753428AbZGHQwX (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 12:52:23 -0400
-In-Reply-To: <737c7bd0a2f550d21d45b347d018a1ac.squirrel@www.hardeman.nu>
-Content-Disposition: inline
+Received: from exprod6ob113.obsmtp.com ([64.18.1.30]:52343 "HELO psmtp.com"
+	rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with SMTP
+	id S1754393AbZGHVrL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 17:47:11 -0400
+Content-class: urn:content-classes:message
+In-Reply-To: <20090708065650.GG3309@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: David =?iso-8859-1?q?H=E4rdeman?= <david@hardeman.nu>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, jbarnes@virtuousgeek.org, Len Brown <lenb@kernel.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
 
-On Wednesday 01 July 2009 02:20:59 am David H=E4rdeman wrote:
-> On Wed, July 1, 2009 01:11, Bjorn Helgaas wrote:
-> > The winbond driver does not use any ACPI-specific functionality, so
-> > it might be simpler to write it as a PNP driver (which would depend
-> > on PNPACPI, of course).
->=20
-> As far as I could tell from a quick look at include/linux/pnp.h, a
-> pnp_driver doesn't seem to have any .shutdown methods either, so I'm =
-not
-> sure how it would help?
+On Tuesday, July 07, 2009 11:57 PM, Dmitry Torokhov wrote:
+> On Wed, Jul 01, 2009 at 02:45:58PM -0400, H Hartley Sweeten wrote:
+>> On Wednesday, July 01, 2009 11:34 AM, Daniel Mack wrote:
+>>> On Tue, Jun 30, 2009 at 11:56:36AM -0400, H Hartley Sweeten wrote:
+>>>> On Monday, June 29, 2009 7:32 PM, Dmitry Torokhov wrote:
+>>>>> Do we know how many encoders we need to have in the system to start
+>>>>> seeing the benefits (given that all these conversions increase text
+>>>>> size)?
+>>>> 
+>>>> Hmm.. Didn't think about that. How do you determine the text size?
+>>> 
+>>> 'objdump -h'?
+>> 
+>> Thanks.
+>> 
+>>>> I am trying to work out a clean way to pass an array of encoders
+>>>> from the platform init file so that multiple devices can be handled
+>>>> by the driver.  That was what prompted the change.
+>>> 
+>>> Hmm, and then report them all via the very same input device? Or
+>>> register one for each encoder? The latter could easily be done by
+>>> registering multiple platform_devices with different platform_data,
+>>> right?
+>> 
+>> I suppose each encoder could be registered individually.  Then each
+>> would report as a unique input device.  This should work with the
+>> driver as it is now.  Then drawback is if there are a number of
+>> encoders and a userspace app is opening all of them and doing a
+>> EVIOCGRAB it makes the app a bit messy.
+>> 
+>> I was thinking more or passing an array of encoders to the driver and
+>> then having it report all of them as one input device.  That ends up
+>> being a lot cleaner.
+>>
+>
+> Hmm, what axis will they be reporting though? Seems like very
+> specialized [ab]use if they all share the same input device...
 
-PNPACPI parses the device resources for you, so you could get rid
-of the _CRS stuff in your driver.
+Each encoder reports as a unique axis.  They just all share one input
+device.
 
-The only reason PNP and ACPI don't have .shutdown is because nobody
-has needed it yet.  If you need it (and it sounds like you do), I
-think the cleanest thing would be to add it to PNP and turn your
-driver into a PNP driver.
+If two encoders are reporting on the same axis they would have to be
+on different input devices.
 
-Bjorn
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+I was hoping to pass something like this to the rotary_encoder driver
+from my platform init:
+
+static struct rotary_encoder_platform_data my_rotary_encoder_info[] = {
+	{
+		.gpio_a		= GPIO_ROTARY1_A,
+		.gpio_b		= GPIO_ROTARY1_B,
+		.axis			= REL_X,
+		.relative_axis	= true,
+	}, {
+		.gpio_a		= GPIO_ROTARY2_A,
+		.gpio_b		= GPIO_ROTARY2_B,
+		.axis			= REL_Y,
+		.relative_axis	= true,	
+	}, {
+		.gpio_a		= GPIO_ROTARY3_A,
+		.gpio_b		= GPIO_ROTARY3_B,
+		.axis			= REL_Z,
+		.relative_axis	= true,	
+	}, {
+		.gpio_a		= GPIO_ROTARY4_A,
+		.gpio_b		= GPIO_ROTARY4_B,
+		.axis			= ABS_THROTTLE,
+		.steps		= 1024,
+		.rollover		= false,
+		.relative_axis	= false,
+	},
+	( 0 }
+};
+
+static struct platform_device rotary_encoder_device = {
+	.name		= "rotary-encoder",
+	.id		= 0,
+	.dev		= {
+		.platform_data = my_rotary_encoder_info,
+	},
+};
+
+The rotary_encoder_probe() function would then just loop thru the
+plaform_data and OR in either BIT_MASK(EV_REL) or BIT_MASK(EV_ABS)
+as appropriate and either set the input->relbit[0] or call
+input_set_abs_params() for the axis.
+
+I just need to figure out a way to pass the correct cookie to the
+irq function so that the right axis is processed.
+
+Does this sound resonable?
+
+Regards,
+Hartley
+

@@ -1,32 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input:Add clk api support for w90p910 touchscreen
-Date: Tue, 7 Jul 2009 23:51:30 -0700
-Message-ID: <20090708065130.GD3309@dtor-d630.eng.vmware.com>
-References: <4A535B97.4010700@gmail.com> <5d5443650907071019w45474b2dhd0a175a0ffac4f3a@mail.gmail.com> <4A542D30.2040003@gmail.com>
+Subject: Re: [regression] 2.6.30 leaking keys on console switch
+Date: Tue, 7 Jul 2009 23:53:25 -0700
+Message-ID: <20090708065325.GE3309@dtor-d630.eng.vmware.com>
+References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.233]:60878 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.234]:53532 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759106AbZGHGvf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 02:51:35 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so1675108rvb.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2009 23:51:35 -0700 (PDT)
+	with ESMTP id S1759570AbZGHGxb (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 02:53:31 -0400
 Content-Disposition: inline
-In-Reply-To: <4A542D30.2040003@gmail.com>
+In-Reply-To: <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wan ZongShun <mcuos.com@gmail.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, linux-input@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andi Kleen <andi@firstfloor.org>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Wed, Jul 08, 2009 at 01:22:56PM +0800, Wan ZongShun wrote:
-> Dear Trilok,
+On Tue, Jul 07, 2009 at 10:50:01AM +0200, Jiri Kosina wrote:
 > 
-> You are right, here should be put "NULL",thanks for your help.
-> Now, I fixed up my patch.
+> [added Dmitry to CC]
+> 
+> On Tue, 7 Jul 2009, Andi Kleen wrote:
+> 
+> > One new issue I see in 2.6.30 (I think I saw it in some rc*s) too is 
+> > that console switch often leaks the Fkey of the console switch into the 
+> > target console.
+> > 
+> > The symptome is that e.g. firefox if it was active and you're switching
+> > into X displays its help screen (F1 = help). It happens on non X 
+> > consoles too, but of course the symptoms are different here.
+> > 
+> > That's a regression against 2.6.29; I don't remember it in .29
+> > 
+> > Haven't investigated code.
+> 
+> Are you seeing with a specific keyboard type(s), or is this a general 
+> problem? Could you confirm whether it is specific either 
+> to PS2 or USB keyboards only, or it does happen for both?
 > 
 
-It looks like clocken can be removed as well?
+Can't think of any input chnages in this timeftrame that would cause
+such effect. Maybe TTY changes?
 
 -- 
 Dmitry

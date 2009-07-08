@@ -1,47 +1,47 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Tue, 7 Jul 2009 23:53:25 -0700
-Message-ID: <20090708065325.GE3309@dtor-d630.eng.vmware.com>
-References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de>
+Subject: Re: [PATCH] Input: mark serio and i8042 as suspended
+	when	hibernating too.
+Date: Tue, 7 Jul 2009 23:54:36 -0700
+Message-ID: <20090708065435.GF3309@dtor-d630.eng.vmware.com>
+References: <1246760019-4120-1-git-send-email-cascardo@holoscopio.com>
+	<200907070040.43299.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.234]:53532 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759570AbZGHGxb (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 02:53:31 -0400
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <200907070040.43299.rjw@sisk.pl>
+List-Unsubscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linux-foundation.org/pipermail/linux-pm>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linux-foundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>, linux-kernel@vger.kernel.org, alan-jenkins@tuffmail.co.uk, linux-input@vger.kernel.org, pm list <linux-pm@lists.linux-foundation.org>, maciej.rutecki@gmail.com
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andi Kleen <andi@firstfloor.org>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Tue, Jul 07, 2009 at 10:50:01AM +0200, Jiri Kosina wrote:
-> 
-> [added Dmitry to CC]
-> 
-> On Tue, 7 Jul 2009, Andi Kleen wrote:
-> 
-> > One new issue I see in 2.6.30 (I think I saw it in some rc*s) too is 
-> > that console switch often leaks the Fkey of the console switch into the 
-> > target console.
+On Tue, Jul 07, 2009 at 12:40:42AM +0200, Rafael J. Wysocki wrote:
+> On Sunday 05 July 2009, Thadeu Lima de Souza Cascardo wrote:
+> > serio ports are not being restarted any longer because resume operations
+> > after hibernate do nothing, since the device has not been marked as
+> > suspended. This happens because suspend is only considering the SUSPEND
+> > event but not the FREEZE event.
 > > 
-> > The symptome is that e.g. firefox if it was active and you're switching
-> > into X displays its help screen (F1 = help). It happens on non X 
-> > consoles too, but of course the symptoms are different here.
-> > 
-> > That's a regression against 2.6.29; I don't remember it in .29
-> > 
-> > Haven't investigated code.
+> > Note that this driver has still to migrate to dev_pm_ops, but this fixes
+> > this particular bug now.
 > 
-> Are you seeing with a specific keyboard type(s), or is this a general 
-> problem? Could you confirm whether it is specific either 
-> to PS2 or USB keyboards only, or it does happen for both?
+> Hmm, this looks like a fix for:
+> http://bugzilla.kernel.org/show_bug.cgi?id=13643
+> 
+> Any objections to merging it through the suspend tree?
 > 
 
-Can't think of any input chnages in this timeftrame that would cause
-such effect. Maybe TTY changes?
+Oops, just applied it to mine before reading your mail... I hope Linus
+will pick my pull request soon so it won't matter thoough.
 
 -- 
 Dmitry

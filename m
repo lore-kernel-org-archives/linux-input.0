@@ -1,60 +1,30 @@
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: rotary_encoder cleanup
-Date: Tue, 7 Jul 2009 23:56:50 -0700
-Message-ID: <20090708065650.GG3309@dtor-d630.eng.vmware.com>
-References: <BD79186B4FD85F4B8E60E381CAEE1909019683A5@mi8nycmail19.Mi8.com> <20090623162126.GL29236@buzzloop.caiaq.de> <20090630023211.GC10652@dtor-d630.eng.vmware.com> <BD79186B4FD85F4B8E60E381CAEE190901A1346C@mi8nycmail19.Mi8.com> <20090701183347.GB9464@buzzloop.caiaq.de> <BD79186B4FD85F4B8E60E381CAEE190901A13867@mi8nycmail19.Mi8.com>
+Subject: Re: [PATCH 2/5] drivers/input: Use resource_size
+Date: Tue, 7 Jul 2009 23:51:05 -0700
+Message-ID: <20090708065105.GB3309@dtor-d630.eng.vmware.com>
+References: <Pine.LNX.4.64.0907050835530.27464@ask.diku.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.224]:58731 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.232]:2012 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757770AbZGHG44 (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 02:56:56 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so1676194rvb.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2009 23:56:55 -0700 (PDT)
+	with ESMTP id S1759222AbZGHG5t (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 02:57:49 -0400
 Content-Disposition: inline
-In-Reply-To: <BD79186B4FD85F4B8E60E381CAEE190901A13867@mi8nycmail19.Mi8.com>
+In-Reply-To: <Pine.LNX.4.64.0907050835530.27464@ask.diku.dk>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: H Hartley Sweeten <hartleys@visionengravers.com>
-Cc: Daniel Mack <daniel@caiaq.de>, linux-input@vger.kernel.org
+To: Julia Lawall <julia@diku.dk>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 
-On Wed, Jul 01, 2009 at 02:45:58PM -0400, H Hartley Sweeten wrote:
-> On Wednesday, July 01, 2009 11:34 AM, Daniel Mack wrote:
-> > On Tue, Jun 30, 2009 at 11:56:36AM -0400, H Hartley Sweeten wrote:
-> > > On Monday, June 29, 2009 7:32 PM, Dmitry Torokhov wrote:
-> > > > Do we know how many encoders we need to have in the system to start
-> > > > seeing the benefits (given that all these conversions increase text
-> > > > size)?
-> > > 
-> > > Hmm.. Didn't think about that. How do you determine the text size?
-> > 
-> > 'objdump -h'?
+On Sun, Jul 05, 2009 at 08:36:22AM +0200, Julia Lawall wrote:
+> From: Julia Lawall <julia@diku.dk>
 > 
-> Thanks.
+> Use the function resource_size, which reduces the chance of introducing
+> off-by-one errors in calculating the resource size.
 > 
-> > > I am trying to work out a clean way to pass an array of encoders from
-> > > the platform init file so that multiple devices can be handled by the
-> > > driver.  That was what prompted the change.
-> > 
-> > Hmm, and then report them all via the very same input device? Or
-> > register one for each encoder? The latter could easily be done by
-> > registering multiple platform_devices with different platform_data,
-> > right?
-> 
-> I suppose each encoder could be registered individually.  Then each would
-> report as a unique input device.  This should work with the driver as it
-> is now.  Then drawback is if there are a number of encoders and a
-> userspace app is opening all of them and doing a EVIOCGRAB it makes the
-> app a bit messy.
-> 
-> I was thinking more or passing an array of encoders to the driver and then
-> having it report all of them as one input device.  That ends up being a
-> lot cleaner.
->
 
-Hmm, what axis will they be reporting though? Seems like very
-specialized [ab]use if they all share the same input device...
- 
+Applied, thank you Julia.
+
 -- 
 Dmitry

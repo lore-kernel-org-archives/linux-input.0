@@ -1,117 +1,79 @@
-From: Wan ZongShun <mcuos.com@gmail.com>
-Subject: Re: [PATCH] input:Add clk api support for w90p910 touchscreen
-Date: Wed, 08 Jul 2009 13:22:56 +0800
-Message-ID: <4A542D30.2040003@gmail.com>
-References: <4A535B97.4010700@gmail.com> <5d5443650907071019w45474b2dhd0a175a0ffac4f3a@mail.gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [git pull] Input updates for 2.6.31-rc0
+Date: Tue, 7 Jul 2009 23:50:47 -0700
+Message-ID: <20090708065046.GA3309@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.229]:57099 "EHLO
+Received: from rv-out-0506.google.com ([209.85.198.233]:60878 "EHLO
 	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750871AbZGHFXC (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 01:23:02 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so1661281rvb.1
-        for <linux-input@vger.kernel.org>; Tue, 07 Jul 2009 22:23:02 -0700 (PDT)
-In-Reply-To: <5d5443650907071019w45474b2dhd0a175a0ffac4f3a@mail.gmail.com>
+	with ESMTP id S1750819AbZGHGuz (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Wed, 8 Jul 2009 02:50:55 -0400
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Dear Trilok,
+Hi Linus,
 
-You are right, here should be put "NULL",thanks for your help.
-Now, I fixed up my patch.
+Please pull from:
 
-Add clk api support for w90p910 touchscreen.
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+or
+	master.kernel.org:/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-Signed-off-by: Wan ZongShun <mcuos.com@gmail.com>
+to receive updates for the input subsystem. It contains a few bugfixes
+and also a driver for GPIO-based matrix keyboards that's been cooking
+for quite a time.
 
----
- drivers/input/touchscreen/w90p910_ts.c |   22 ++++++++++++----------
- 1 files changed, 12 insertions(+), 10 deletions(-)
+Changelog:
+---------
 
-diff --git a/drivers/input/touchscreen/w90p910_ts.c b/drivers/input/touchscreen/w90p910_ts.c
-index 6071f58..bf8dd52 100644
---- a/drivers/input/touchscreen/w90p910_ts.c
-+++ b/drivers/input/touchscreen/w90p910_ts.c
-@@ -13,6 +13,7 @@
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/io.h>
-+#include <linux/clk.h>
- #include <linux/input.h>
- #include <linux/interrupt.h>
- 
-@@ -47,6 +48,7 @@ enum ts_state {
- struct w90p910_ts {
- 	struct input_dev *input;
- 	struct timer_list timer;
-+	struct clk *clk;
- 	int irq_num;
- 	void __iomem *clocken;
- 	void __iomem *ts_reg;
-@@ -166,8 +168,7 @@ static int w90p910_open(struct input_dev *dev)
- 	unsigned long val;
- 
- 	/* enable the ADC clock */
--	val = __raw_readl(w90p910_ts->clocken);
--	__raw_writel(val | ADC_CLK_EN, w90p910_ts->clocken);
-+	clk_enable(w90p910_ts->clk);
- 
- 	__raw_writel(ADC_RST1, w90p910_ts->ts_reg);
- 	msleep(1);
-@@ -211,8 +212,8 @@ static void w90p910_close(struct input_dev *dev)
- 	del_timer_sync(&w90p910_ts->timer);
- 
- 	/* stop the ADC clock */
--	val = __raw_readl(w90p910_ts->clocken);
--	__raw_writel(val & ~ADC_CLK_EN, w90p910_ts->clocken);
-+	clk_disable(w90p910_ts->clk);
-+	clk_put(w90p910_ts->clk);
- }
- 
- static int __devinit w90x900ts_probe(struct platform_device *pdev)
-@@ -253,9 +254,9 @@ static int __devinit w90x900ts_probe(struct platform_device *pdev)
- 		goto fail2;
- 	}
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 1);
--	if (!res) {
--		err = -ENXIO;
-+	w90p910_ts->clk = clk_get(&pdev->dev, NULL);
-+	if (IS_ERR(w90p910_ts->clk)) {
-+		err = PTR_ERR(w90p910_ts->clk);
- 		goto fail3;
- 	}
- 
-@@ -283,18 +284,19 @@ static int __devinit w90x900ts_probe(struct platform_device *pdev)
- 	if (request_irq(w90p910_ts->irq_num, w90p910_ts_interrupt,
- 			IRQF_DISABLED, "w90p910ts", w90p910_ts)) {
- 		err = -EBUSY;
--		goto fail3;
-+		goto fail4;
- 	}
- 
- 	err = input_register_device(w90p910_ts->input);
- 	if (err)
--		goto fail4;
-+		goto fail5;
- 
- 	platform_set_drvdata(pdev, w90p910_ts);
- 
- 	return 0;
- 
--fail4:	free_irq(w90p910_ts->irq_num, w90p910_ts);
-+fail5:	free_irq(w90p910_ts->irq_num, w90p910_ts);
-+fail4:	clk_put(w90p910_ts->clk);
- fail3:	iounmap(w90p910_ts->ts_reg);
- fail2:	release_mem_region(res->start, res->end - res->start + 1);
- fail1:	input_free_device(input_dev);
+David Brownell (1):
+      Input: dm355evm_keys - fix kconfig symbol names
+
+Dmitry Torokhov (1):
+      Input: arrange keyboards alphabetically
+
+Eric Miao (1):
+      Input: add support for generic GPIO-based matrix keypad
+
+Jani Nikula (2):
+      Input: gpio-keys - revert 'change timer to workqueue'
+      Input: gpio-keys - avoid possibility of sleeping in timer function
+
+Ping Cheng (1):
+      Input: wacom - add DTF720a support and fix rotation on Intuos3
+
+Saeed Bishara (1):
+      Input: gpio_mouse - use standard driver registration method
+
+Thadeu Lima de Souza Cascardo (1):
+      Input: mark serio and i8042 as suspended when hibernating too
+
+Yan Li (1):
+      Input: i8042 - more reset quirks for MSI Wind-clone netbooks
+
+
+Diffstat:
+--------
+
+ drivers/input/keyboard/Kconfig         |  294 +++++++++++----------
+ drivers/input/keyboard/Makefile        |   33 ++--
+ drivers/input/keyboard/gpio_keys.c     |   33 ++-
+ drivers/input/keyboard/matrix_keypad.c |  453 ++++++++++++++++++++++++++++++++
+ drivers/input/mouse/gpio_mouse.c       |   11 +-
+ drivers/input/serio/i8042-x86ia64io.h  |   28 ++
+ drivers/input/serio/i8042.c            |    7 +-
+ drivers/input/serio/serio.c            |    7 +-
+ drivers/input/tablet/wacom_wac.c       |    6 +-
+ drivers/mfd/dm355evm_msp.c             |    3 +-
+ include/linux/input/matrix_keypad.h    |   65 +++++
+ 11 files changed, 757 insertions(+), 183 deletions(-)
+ create mode 100644 drivers/input/keyboard/matrix_keypad.c
+ create mode 100644 include/linux/input/matrix_keypad.h
+
 -- 
-1.5.6.3
-
-B&R
-Wan.
+Dmitry
 

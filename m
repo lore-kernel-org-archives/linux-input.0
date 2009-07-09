@@ -1,52 +1,67 @@
 From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
 	<richard.rojfors.ext@mocean-labs.com>
-Subject: Re: [PATCH 1/2] tsc2007: remove HR timer
-Date: Thu, 09 Jul 2009 18:51:56 +0200
-Message-ID: <4A56202C.9020809@mocean-labs.com>
-References: <4A40C288.2060702@mocean-labs.com> <20090625142010.bd656a9d.akpm@linux-foundation.org>
+Subject: [PATCH 1/1] tsc2007: Cancel work sync, increase polling frequency,
+ make exit platform hw callback optional
+Date: Thu, 09 Jul 2009 18:53:07 +0200
+Message-ID: <4A562073.1080703@mocean-labs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from av12-2-sn2.hy.skanova.net ([81.228.8.186]:60297 "EHLO
-	av12-2-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1759720AbZGIQwF (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 12:52:05 -0400
-In-Reply-To: <20090625142010.bd656a9d.akpm@linux-foundation.org>
+Received: from av11-1-sn2.hy.skanova.net ([81.228.8.183]:38662 "EHLO
+	av11-1-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760852AbZGIQxL (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 12:53:11 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kwangwoo.lee@gmail.com, thierry.reding@avionic-design.de, soni.trilok@gmail.com
+To: linux-input@vger.kernel.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, soni.trilok@gmail.com
 
-On 6/25/09 11:20 PM, Andrew Morton wrote:
-> On Tue, 23 Jun 2009 13:54:48 +0200
-> Richard R__jfors<richard.rojfors.ext@mocean-labs.com>  wrote:
->
->> This patch removes the HR timer, since it's bad to do synchronous I2C
->> in the HR timer callback context. The new implementation makes use
->> of the global workqueue. The work is scheduled every 5ms when polling
->> rather than 5 us.
->>
->
-> "it's bad" isn't a very good description of the problem which the patch
-> fixes.
+In the remove function, ancel the work using the _sync version,
+to make sure any running "work" is finished. Make the
+exit_platform_hw callback optional since it's not needed on all
+platforms.
 
-The problem is that the synchronous I2C calls in HR-timer callback 
-context might end up in a deadlock.
+When the screen is touched, the polling frequency is increased
+to reduce the risk of missing taps.
 
->
-> This matters.  People wish to make decisions about whether this patch
-> is needed in 2.6.29.x, 2.6.30.x, 2.6.31, 2.6.32, etc.  Without knowing
-> the effects of the problem which the patch fixes, we cannot make that
-> decision!
->
->> +	/* cancel any work */
->> +	cancel_delayed_work(&ts->work);
->> +
->
-> Should this have been cancel_delayed_work_sync()?
+Signed-off-by: Richard R=F6jfors <richard.rojfors.ext@mocean-labs.com>
+---
+Index: linux-2.6.30/drivers/input/touchscreen/tsc2007.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.30/drivers/input/touchscreen/tsc2007.c	(revision 945)
++++ linux-2.6.30/drivers/input/touchscreen/tsc2007.c	(revision 999)
+@@ -27,7 +27,7 @@
+  #include <linux/i2c.h>
+  #include <linux/i2c/tsc2007.h>
 
-It should, I will post a new patch shortly which should be applied after 
-these two which fixes this.
+-#define TS_POLL_PERIOD	msecs_to_jiffies(5) /* ms delay between samples=
+ */
++#define TS_POLL_PERIOD	msecs_to_jiffies(1) /* ms delay between samples=
+ */
 
---Richard
+  #define TSC2007_MEASURE_TEMP0		(0x0 << 4)
+  #define TSC2007_MEASURE_AUX		(0x2 << 4)
+@@ -332,11 +332,11 @@
+  	struct tsc2007	*ts =3D i2c_get_clientdata(client);
+  	struct tsc2007_platform_data *pdata;
+
+-	/* cancel any work */
+-	cancel_delayed_work(&ts->work);
++	cancel_delayed_work_sync(&ts->work);
+
+  	pdata =3D client->dev.platform_data;
+-	pdata->exit_platform_hw();
++	if (pdata->exit_platform_hw)
++		pdata->exit_platform_hw();
+
+  	free_irq(ts->irq, ts);
+  	input_unregister_device(ts->input);
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

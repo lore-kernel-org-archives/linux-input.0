@@ -1,58 +1,52 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: [PATCH] input: Add keypad support for w90p910 evb
-Date: Thu, 9 Jul 2009 12:46:19 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901A68B96@mi8nycmail19.Mi8.com>
-References: <4A546443.9030907@gmail.com>	 <5d5443650907080332t4156cabdu267d28c6c486f372@mail.gmail.com>	 <4A55901B.6070805@gmail.com> <5d5443650907082347i40f5f39bn63e2683046155eb@mail.gmail.com> <4A55B8E0.6020909@gmail.com>
+From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
+	<richard.rojfors.ext@mocean-labs.com>
+Subject: Re: [PATCH 1/2] tsc2007: remove HR timer
+Date: Thu, 09 Jul 2009 18:51:56 +0200
+Message-ID: <4A56202C.9020809@mocean-labs.com>
+References: <4A40C288.2060702@mocean-labs.com> <20090625142010.bd656a9d.akpm@linux-foundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og112.obsmtp.com ([64.18.1.29]:53433 "HELO
-	exprod6og112.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1759260AbZGIQqW convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 12:46:22 -0400
-Content-class: urn:content-classes:message
-In-Reply-To: <4A55B8E0.6020909@gmail.com>
+Received: from av12-2-sn2.hy.skanova.net ([81.228.8.186]:60297 "EHLO
+	av12-2-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1759720AbZGIQwF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 12:52:05 -0400
+In-Reply-To: <20090625142010.bd656a9d.akpm@linux-foundation.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wan ZongShun <mcuos.com@gmail.com>, Trilok Soni <soni.trilok@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kwangwoo.lee@gmail.com, thierry.reding@avionic-design.de, soni.trilok@gmail.com
 
-On Thursday, July 09, 2009 2:31 AM, Wan ZongShun wrote:
-> Dear sirs,
-> 
-> According to Trilok's suggestion, I fixed up my driver and
-> resubmitted it.
-> 
-> patch text:
-> 
-> Add w90p910 keypad driver for w90p910 evalution board
-> based on w90p910,there is a 4X4 keypad on my board.
-> 
-> Signed-off-by: Wan ZongShun <mcuos.com@gmail.com>
+On 6/25/09 11:20 PM, Andrew Morton wrote:
+> On Tue, 23 Jun 2009 13:54:48 +0200
+> Richard R__jfors<richard.rojfors.ext@mocean-labs.com>  wrote:
 >
-> ---
-+
-+#define keypad_readl(off)	__raw_readl(keypad->mmio_base + (off))
-+#define keypad_writel(off, v)	__raw_writel((v), keypad->mmio_base + (off))
-+
+>> This patch removes the HR timer, since it's bad to do synchronous I2C
+>> in the HR timer callback context. The new implementation makes use
+>> of the global workqueue. The work is scheduled every 5ms when polling
+>> rather than 5 us.
+>>
+>
+> "it's bad" isn't a very good description of the problem which the patch
+> fixes.
 
-You might want to make these two macro's inline functions instead.
+The problem is that the synchronous I2C calls in HR-timer callback 
+context might end up in a deadlock.
 
-Depending on having the local variable 'keypad' is prone to breakage.
-See Documentation/CodingStyle, Chapter 12.
+>
+> This matters.  People wish to make decisions about whether this patch
+> is needed in 2.6.29.x, 2.6.30.x, 2.6.31, 2.6.32, etc.  Without knowing
+> the effects of the problem which the patch fixes, we cannot make that
+> decision!
+>
+>> +	/* cancel any work */
+>> +	cancel_delayed_work(&ts->work);
+>> +
+>
+> Should this have been cancel_delayed_work_sync()?
 
-+	input_dev->name = pdev->name;
-+	input_dev->id.bustype = BUS_HOST;
-+	input_dev->open = w90p910_keypad_open;
-+	input_dev->close = w90p910_keypad_close;
-+	input_dev->dev.parent = &pdev->dev;
+It should, I will post a new patch shortly which should be applied after 
+these two which fixes this.
 
-If you add the following the keymap can be changed from userspace:
-
-	input_dev->keycode = keypad->matrix_keycodes;
-	input_dev->keycodesize = sizeof(keypad->matrix_keycodes[0]);
-	input_dev->keycodemax = ARRAY_SIZE(keypad->matrix_keycodes);
-
-Regards,
-Hartley
+--Richard

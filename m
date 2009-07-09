@@ -1,36 +1,39 @@
-From: =?ISO-8859-1?Q?Richard_R=F6jfors?=
-	<richard.rojfors.ext@mocean-labs.com>
-Subject: [PATCH 0/1] tsc2007: Cancel work sync, increase polling frequency,
- make exit platform hw callback optional
-Date: Thu, 09 Jul 2009 18:52:58 +0200
-Message-ID: <4A56206A.5020601@mocean-labs.com>
+From: Dmitriy Geels <dmitriy.geels@gmail.com>
+Subject: Re: hid-pidff bug: fails to find all required reports of saitek
+	gamepad
+Date: Thu, 9 Jul 2009 21:41:54 +0400
+Message-ID: <78f5d6bf0907091041o3f8b712cxdc674c9c553a9f4@mail.gmail.com>
+References: <78f5d6bf0901301145g591a713agc8aafa66fe27b19f@mail.gmail.com>
+	<78f5d6bf0903091208i71aadc0od7b89ab9a4037b4d@mail.gmail.com>
+	<4A037290.60602@gmail.com> <4A03756C.6020703@gmail.com> <78f5d6bf0906041227w3a58bde0u554a3d3336e17fa6@mail.gmail.com>
+	<4A2A5D8E.1050309@gmail.com> <78f5d6bf0906082202g359afbcwd8bd58a451f9d034@mail.gmail.com>
+	<20090609140949.78d4448a@dxy.sh.intel.com> <78f5d6bf0906110238w6f90331ex3cf8c0fdd44f3354@mail.gmail.com>
+	<78f5d6bf0906111311p37620e53scc5ed8a695b5be94@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from av10-2-sn2.hy.skanova.net ([81.228.8.182]:34620 "EHLO
-	av10-2-sn2.hy.skanova.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1757792AbZGIQxH (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 12:53:07 -0400
+Received: from mail-fx0-f218.google.com ([209.85.220.218]:34886 "EHLO
+	mail-fx0-f218.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753587AbZGIRmR (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 13:42:17 -0400
+Received: by fxm18 with SMTP id 18so344944fxm.37
+        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2009 10:42:14 -0700 (PDT)
+In-Reply-To: <78f5d6bf0906111311p37620e53scc5ed8a695b5be94@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@linux-foundation.org>, kwangwoo.lee@gmail.com, Thierry Reding <thierry.reding@avionic-design.de>, soni.trilok@gmail.com
+To: Alek Du <alek.du@intel.com>
+Cc: Anssi Hannula <anssi.hannula@gmail.com>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
 
-This patch is to be applied after my previous two for the
-TSC2007.
+2009/6/12 Dmitriy Geels <dmitriy.geels@gmail.com>:
+> Hmm... first try failed. After running fftest, then ffmvforce got
+> system hang in virtual machine. X is completely unresponsive. May be
+> kernel is still alive, have to find out, how to press ctrl-alt-fx in
+> virtualbox.
 
-I send it as a new patch, since my previous two are applied
-to the -mm-tree.
+Bad... Can't get something out of driver with last patch. Running
+ffmvforce after fftest/ffcstresstest hangs VM after few seconds (looks
+like some timeout) with 100% cpu load.
 
-The idea is to:
-cancel the work using the _sync version, to make sure any
-running "work" is finished.
-Increase the polling frequency while the screen is touched,
-to reduce the risk of missing taps.
-Make the exit_platform_hw callback optional since it's not
-needed on all platforms.
-
-The changes are one-liners so they are all in one patch.
-
---Richard
+May be it's possible to get logs via serial cable, but will they
+contain something useful?

@@ -1,115 +1,67 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH] input: Add keypad support for w90p910 evb
-Date: Thu, 9 Jul 2009 12:17:12 +0530
-Message-ID: <5d5443650907082347i40f5f39bn63e2683046155eb@mail.gmail.com>
-References: <4A546443.9030907@gmail.com>
-	 <5d5443650907080332t4156cabdu267d28c6c486f372@mail.gmail.com>
-	 <4A55901B.6070805@gmail.com>
+From: Wan ZongShun <mcuos.com@gmail.com>
+Subject: Re: [PATCH v2] input:Add clk api support for w90p910 touchscreen
+Date: Thu, 09 Jul 2009 15:01:42 +0800
+Message-ID: <4A5595D6.8060501@gmail.com>
+References: <4A555B9E.8060508@gmail.com> <20090709051143.GA14516@dtor-d630.eng.vmware.com> <4A557CBC.3000507@gmail.com> <20090709062929.GD14516@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:7140 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751266AbZGIGrO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 02:47:14 -0400
-Received: by qw-out-2122.google.com with SMTP id 9so2508219qwb.37
-        for <linux-input@vger.kernel.org>; Wed, 08 Jul 2009 23:47:12 -0700 (PDT)
-In-Reply-To: <4A55901B.6070805@gmail.com>
+Received: from rv-out-0506.google.com ([209.85.198.228]:45124 "EHLO
+	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1760260AbZGIHBv (ORCPT
+	<rfc822;linux-input@vger.kernel.org>); Thu, 9 Jul 2009 03:01:51 -0400
+Received: by rv-out-0506.google.com with SMTP id f6so1880897rvb.1
+        for <linux-input@vger.kernel.org>; Thu, 09 Jul 2009 00:01:47 -0700 (PDT)
+In-Reply-To: <20090709062929.GD14516@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Wan ZongShun <mcuos.com@gmail.com>
-Cc: linux-input@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.arm.linux.org.uk>, linux-input@vger.kernel.org, Trilok Soni <soni.trilok@gmail.com>
 
-Hi Wan ZongShun,
+Dear Dmitry,
 
->>> +static void w90p910_keypad_scan_matrix(struct w90p910_keypad *keyp=
-ad,
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
- =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int status)
->>> +{
->>> + =A0 =A0 =A0 unsigned int row, col, val;
->>> +
->>> + =A0 =A0 =A0 row =3D KGET_RAW(status);
->>> + =A0 =A0 =A0 col =3D KGET_COLUMN(status);
->>> +
->>> + =A0 =A0 =A0 val =3D lookup_matrix_keycode(keypad, row, col);
->>> +
->>> + =A0 =A0 =A0 input_report_key(keypad->input_dev, val, 1);
->>> +
->>> + =A0 =A0 =A0 input_sync(keypad->input_dev);
->>> +
->>> + =A0 =A0 =A0 input_report_key(keypad->input_dev, val, 0);
+Please see below.
+
+
+Dmitry Torokhov:
+> On Thu, Jul 09, 2009 at 01:14:36PM +0800, Wan ZongShun wrote:
+>> Dmitry Torokhov =E5=86=99=E9=81=93:
+>>> Hi Wan,
+>>>
+>>> On Thu, Jul 09, 2009 at 10:53:18AM +0800, Wan ZongShun wrote:
+>>>> @@ -311,6 +309,9 @@ static int __devexit w90x900ts_remove(struct p=
+latform_device *pdev)
+>>>>  	del_timer_sync(&w90p910_ts->timer);
+>>>>  	iounmap(w90p910_ts->ts_reg);
+>>>> =20
+>>>> +	clk_disable(w90p910_ts->clk);
+>>> This disable is unneeded since we already disable clock in close().=
+ I
+>>> will fix locally and apply, there is no need to resubmit. I will al=
+so
+>>> fix pxa27 driver.
+>> Okay, got it, thanks for your help!
 >>
->> So, we don't get interrupt on key release?
->
-> In w90p910,there is no way to identify whether the key was released o=
-r not,so I have to put above code here to report the key has been relea=
-sed.
->
+>=20
+> Umm, one more thing - we need to add "depends on" to Kconfig since
+> clk API is not implemented on every platform. Any ideas what is the
+> most wide dependency is?
+>=20
 
-Ok.
+Do you mean that w90p910 ts have missed this "depends on"?
+Adding this depends as following:
 
->>> +
->>> +static void w90p910_keypad_close(struct input_dev *dev)
->>> +{
->>> + =A0 =A0 =A0 struct w90p910_keypad *keypad =3D input_get_drvdata(d=
-ev);
->>> +
->>> + =A0 =A0 =A0 /* Disable clock unit */
->>> + =A0 =A0 =A0 clk_disable(keypad->clk);
->>
->> So this controller doesn't support putting controller FSM into IDLE
->> state by writing some bits into it or is it doing auto-sleep?
->
-> What you said not be supporting in w90p910,
-> When to disable this clk,I think the controller will be power down.
+config TOUCHSCREEN_W90X900
+	tristate "W90P910 touchscreen driver"
+	depends on ARCH_W90X900
+	help
+	  Say Y here if you have a W90P910 based touchscreen.
 
-Ok.
+	  To compile this driver as a module, choose M here: the
+	  module will be called w90p910_ts.
 
->>> +
->>> + =A0 =A0 =A0 /* set multi-function pin for w90p910 kpi. */
->>> + =A0 =A0 =A0 mfp_set_groupi(&pdev->dev);
->>> +
->>
->> Could you please point me to implementation of this API? I believe
->> this is pin-multiplexing code.
->
-> Sure, it is a muti-function pin API, which was defined in /mach-w90x9=
-00/mfp-w90p910.c.
-> What's wrong?
-
-I prefer pin-multiplexing being done from board-xxx.c files, as
-pin-multiplexing differs for every board design. I will look at this
-API.
-
->
->>
->>> + =A0 =A0 =A0 input_dev->name =3D pdev->name;
->>> + =A0 =A0 =A0 input_dev->id.bustype =3D BUS_HOST;
->>> + =A0 =A0 =A0 input_dev->open =3D w90p910_keypad_open;
->>> + =A0 =A0 =A0 input_dev->close =3D w90p910_keypad_close;
->>> + =A0 =A0 =A0 input_dev->dev.parent =3D &pdev->dev;
->>> +
->>> + =A0 =A0 =A0 keypad->input_dev =3D input_dev;
->>> + =A0 =A0 =A0 input_set_drvdata(input_dev, keypad);
->>> +
->>> + =A0 =A0 =A0 input_dev->evbit[0] =3D BIT_MASK(EV_KEY) | BIT_MASK(E=
-V_REP);
->>
->> EV_REP can be done as per platform data, but not a problem to enable
->> by default if keypad controller itself is not supporting it
->
->
-> This is not suitable to w90p910?
-> Maybe I have a mistake to understand EV_REP, how to do for me here?.
-
-No problem, keep EV_REP as is.
-
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+Is it okay, now?
 --
 To unsubscribe from this list: send the line "unsubscribe linux-input" =
 in

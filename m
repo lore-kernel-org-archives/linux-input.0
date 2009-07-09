@@ -1,44 +1,45 @@
-From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Thu, 9 Jul 2009 22:03:18 +0200
-Message-ID: <20090709200318.GB16355@basil.fritz.box>
-References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de>
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: [PATCH 0/2] Winbond driver as PNP
+Date: Thu, 9 Jul 2009 15:38:21 -0600
+Message-ID: <200907091538.21685.bjorn.helgaas@hp.com>
+References: <1246079912-17619-1-git-send-email-david@hardeman.nu> <737c7bd0a2f550d21d45b347d018a1ac.squirrel@www.hardeman.nu> <200907081052.20142.bjorn.helgaas@hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1755573AbZGIUDa@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <200907081052.20142.bjorn.helgaas@hp.com>
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Andi Kleen <andi@firstfloor.org>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Sender: linux-acpi-owner@vger.kernel.org
+To: David =?iso-8859-1?q?H=E4rdeman?= <david@hardeman.nu>
+Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, jbarnes@virtuousgeek.org, Len Brown <lenb@kernel.org>
 List-Id: linux-input@vger.kernel.org
 
-On Thu, Jul 09, 2009 at 01:20:56PM +0200, Jiri Kosina wrote:
-> On Tue, 7 Jul 2009, Dmitry Torokhov wrote:
-> 
-> > > Are you seeing with a specific keyboard type(s), or is this a general 
-> > > problem? Could you confirm whether it is specific either to PS2 or USB 
-> > > keyboards only, or it does happen for both?
-> > Can't think of any input chnages in this timeftrame that would cause
-> > such effect. Maybe TTY changes?
-> 
-> By the way, if I understand it correctly, Andi is able to see the very 
-> same effect even inside X, so tty can be possibly ruled out, right?
-> 
-> Still, I don't see the leaking F key in the evtest output (see the mail 
-> from yesterday), which is quite puzzling.
+On Wednesday 08 July 2009 10:52:19 am Bjorn Helgaas wrote:
+> On Wednesday 01 July 2009 02:20:59 am David H=E4rdeman wrote:
+> > On Wed, July 1, 2009 01:11, Bjorn Helgaas wrote:
+> > > The winbond driver does not use any ACPI-specific functionality, =
+so
+> > > it might be simpler to write it as a PNP driver (which would depe=
+nd
+> > > on PNPACPI, of course).
+> >=20
+> > As far as I could tell from a quick look at include/linux/pnp.h, a
+> > pnp_driver doesn't seem to have any .shutdown methods either, so I'=
+m not
+> > sure how it would help?
+>=20
+> PNPACPI parses the device resources for you, so you could get rid
+> of the _CRS stuff in your driver.
+>=20
+> The only reason PNP and ACPI don't have .shutdown is because nobody
+> has needed it yet.  If you need it (and it sounds like you do), I
+> think the cleanest thing would be to add it to PNP and turn your
+> driver into a PNP driver.
 
-Everything quite puzzling.
-
-I find it puzzling that people cannot reproduce this. I see this on two
-quite different systems (different keyboard, system). Does really nobody
-else see it?
-
-I checked now and it happens with both when I switch with Alt-Fx
-and Ctrl-Alt-Fx (at least on SUSE the later works from the consoles
-too, so i usually use that)
-
--Andi
-
--- 
-ak@linux.intel.com -- Speaking for myself only.
+Here are two sample patches to show you what I was suggesting.  These
+apply on top of the two Winbond patches currently in -mm.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

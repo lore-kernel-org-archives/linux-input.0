@@ -1,37 +1,29 @@
-From: Frans Pop <elendil-EIBgga6/0yRmR6Xm/wNWPw@public.gmane.org>
-Subject: Re: usb mouse not responding after resume
-Date: Fri, 10 Jul 2009 12:28:40 +0200
-Message-ID: <200907101228.42047.elendil@planet.nl>
-References: <E1MPCb9-0007w0-BK@pomaz-ex.szeredi.hu>
+From: "MITSUBISHI COMPANY UK" <info@mitsubishi.com>
+Subject: Your E-mail Attach To category\\"A\\" 870,000GBP&#8207;
+Date: Fri, 10 Jul 2009 20:30:03 +0800
+Message-ID: <20090710122911.M51719__34197.7974902422$1247227574$gmane$org@mitsubishi.com>
+Reply-To: infomitscombonanza@googlemail.com
 Mime-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-To: <E1MPCb9-0007w0-BK-8f8m9JG5TPIdUIPVzhDTVZP2KDSNp7ea@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Miklos Szeredi <miklos-sUDqSbJrdHQHWmgEVkV9KA@public.gmane.org>
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+	charset=big5
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from 220-128-130-175.HINET-IP.hinet.net ([220.128.130.175]:35973
+	"EHLO mail.hbhousing.com.tw" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with ESMTP id S1750983AbZGJMFA (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Jul 2009 08:05:00 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 
-Miklos Szeredi wrote:
-> Sometimes after resume the usb mouse plugged into my T60 notebook
-> isn't working.  Unplugging and replugging it fixes the problem.  A
-> keyboard is also plugged in, which works normally every time.
-> 
-> This has been happening on and off from about 2.6.30-rc* but in
-> 2.6.31-rc* seems to be getting more frequent.
-> 
-> Here's the suspend-resume-replug part of the dmesg.  Not sure if it is
-> enough, I'd be happy to provide more info.
+MITSUBISHI COMPANY UK.
+28 TANFIELD ROAD,LONDON, UK.
 
-The most obvious first question is: is there any difference in the 
-messages between resumes where the mouse works and where it does not.
+You have just been awarded,the sum of  &pound;870.000.00 in the  MITSUBISHI COMPANY 
+Award 2009, Anniversary Bonanza. held in July.
 
-Cheers,
-FJP
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Names:............. Address:..............
+Country:................ Age:..........
+Phone Number............ Occupation.......Sex
+
+Regards.Felke Courtney.
+Online Co-ordinator.

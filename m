@@ -1,29 +1,47 @@
-From: "MITSUBISHI COMPANY UK" <info@mitsubishi.com>
-Subject: Your E-mail Attach To category\\"A\\" 870,000GBP&#8207;
-Date: Fri, 10 Jul 2009 20:30:03 +0800
-Message-ID: <20090710122911.M51719__34197.7974902422$1247227574$gmane$org@mitsubishi.com>
-Reply-To: infomitscombonanza@googlemail.com
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: usb mouse not responding after resume
+Date: Fri, 10 Jul 2009 10:56:42 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0907101052500.2906-100000@iolanthe.rowland.org>
+References: <E1MPCb9-0007w0-BK@pomaz-ex.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=big5
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from 220-128-130-175.HINET-IP.hinet.net ([220.128.130.175]:35973
-	"EHLO mail.hbhousing.com.tw" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with ESMTP id S1750983AbZGJMFA (ORCPT
+Received: from iolanthe.rowland.org ([192.131.102.54]:43817 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752032AbZGJO4n (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Fri, 10 Jul 2009 08:05:00 -0400
+	Fri, 10 Jul 2009 10:56:43 -0400
+In-Reply-To: <E1MPCb9-0007w0-BK@pomaz-ex.szeredi.hu>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-MITSUBISHI COMPANY UK.
-28 TANFIELD ROAD,LONDON, UK.
+On Fri, 10 Jul 2009, Miklos Szeredi wrote:
 
-You have just been awarded,the sum of  &pound;870.000.00 in the  MITSUBISHI COMPANY 
-Award 2009, Anniversary Bonanza. held in July.
+> Sometimes after resume the usb mouse plugged into my T60 notebook
+> isn't working.  Unplugging and replugging it fixes the problem.  A
+> keyboard is also plugged in, which works normally every time.
+> 
+> This has been happening on and off from about 2.6.30-rc* but in
+> 2.6.31-rc* seems to be getting more frequent.
 
-Names:............. Address:..............
-Country:................ Age:..........
-Phone Number............ Occupation.......Sex
+Looks like something is wrong with the mouse itself.
 
-Regards.Felke Courtney.
-Online Co-ordinator.
+> Here's the suspend-resume-replug part of the dmesg.  Not sure if it is
+> enough, I'd be happy to provide more info.
+
+The log showed that the mouse disconnected itself during the suspend.  
+But then after the resume it reconnected -- presumably this log shows a
+cycle where the mouse _was_ working afterward.
+
+Can you provide a similar log for a cycle where the mouse _didn't_ 
+respond afterward?  It might not help much, however; most likely it 
+will show that the mouse disconnects itself during the suspend and then 
+doesn't reconnect.
+
+Have you tried plugging the mouse into a different USB port?  It might 
+help.
+
+Alan Stern
+

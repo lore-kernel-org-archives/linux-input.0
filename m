@@ -1,46 +1,29 @@
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: [PATCH 0/2] Winbond driver as PNP
-Date: Fri, 10 Jul 2009 10:01:21 -0600
-Message-ID: <200907101001.22122.bjorn.helgaas@hp.com>
-References: <1246079912-17619-1-git-send-email-david@hardeman.nu> <200907091538.21685.bjorn.helgaas@hp.com> <11512ed726f2d6754f46e76c7db191a8.squirrel@www.hardeman.nu>
+From: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: usb mouse not responding after resume
+Date: Fri, 10 Jul 2009 15:09:00 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.0907101507480.4183-100000@iolanthe.rowland.org>
+References: <12e16730907101144y57d5b348n9be6c2d37d7ad764@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <11512ed726f2d6754f46e76c7db191a8.squirrel@www.hardeman.nu>
-Content-Disposition: inline
-Sender: linux-acpi-owner@vger.kernel.org
-To: David =?iso-8859-1?q?H=E4rdeman?= <david@hardeman.nu>
-Cc: Andrew Morton <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, linux-input@vger.kernel.org, jbarnes@virtuousgeek.org, Len Brown <lenb@kernel.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from iolanthe.rowland.org ([192.131.102.54]:38995 "HELO
+	iolanthe.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with SMTP id S1752859AbZGJTJB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 10 Jul 2009 15:09:01 -0400
+In-Reply-To: <12e16730907101144y57d5b348n9be6c2d37d7ad764@mail.gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: K R I S K <kdbbox@gmail.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-usb@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 
-On Friday 10 July 2009 01:55:27 am David H=E4rdeman wrote:
-> On Thu, July 9, 2009 23:38, Bjorn Helgaas wrote:
-> > Here are two sample patches to show you what I was suggesting.  The=
-se
-> > apply on top of the two Winbond patches currently in -mm.
->=20
-> Thanks, great service :)
->=20
-> I'll test the patches as soon as I have time and access to the hardwa=
-re.
->=20
-> One question though, the resulting patch series (if AKPM merges these
-> patches in addition to the existing ones and drops the patch adding
-> .shutdown to acpi_driver) will be git bisect unfriendly.
->=20
-> Should I roll two new patches instead to replace the three patches
-> currently in -mm?
+On Fri, 10 Jul 2009, K R I S K wrote:
 
-If you like the approach and it works, I would take the latter
-approach (replace the three patches with two new ones -- e.g.,
-add-pnp-shutdown-method and add-winbond-pnp-driver).  I don't
-think we have to worry about bisectability until they show up
-in a git tree.
+> How many USB devices are attached along with the mouse?
+> Are they high speed and full speed devices?
 
-Bjorn
---
-To unsubscribe from this list: send the line "unsubscribe linux-acpi" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If you read through Miklos's log extract you'll see that there are two 
+other devices: one full speed and one low speed.
+
+Alan Stern
+

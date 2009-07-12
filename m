@@ -1,58 +1,46 @@
-From: Julia Lawall <julia@diku.dk>
-Subject: [PATCH 1/3] drivers/hid: Drop NULL test on list_entry result
-Date: Sun, 12 Jul 2009 09:42:47 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.0907120942070.17416@ask.diku.dk>
+From: Hector Martin <hector@marcansoft.com>
+Subject: [PATCH] input: add Hold on/off and volume event keys
+Date: Sun, 12 Jul 2009 17:33:37 +0200
+Message-ID: <4A5A0251.8010803@marcansoft.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mgw1.diku.dk ([130.225.96.91]:52325 "EHLO mgw1.diku.dk"
+Received: from marcansoft.com ([80.68.93.119]:49554 "EHLO smtp.marcansoft.com"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1751247AbZGLHnR (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sun, 12 Jul 2009 03:43:17 -0400
+	id S1754334AbZGLPdl (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Sun, 12 Jul 2009 11:33:41 -0400
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: jkosina@suse.cz, linux-input@vger.kernel.org, gregkh@suse.de, jirislaby@gmail.com, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
-From: Julia Lawall <julia@diku.dk>
+Recent Acer laptops produce key events when the Hold button on the media
+control panel is activated and deactivated. These events are relevant
+for software that wishes to interact with the media panel beyond just
+using the media control keys.
 
-list_entry, which is an alias for container_of, cannot return NULL, as
-there is no way to add a NULL value to a doubly linked list.
+There's also a volume notification key event that replaces the usual
+volume-up/down events when the panel is in software-controlled mode.
+Software can react to this to detect volume level changes instead of
+polling.
 
-A simplified version of the semantic match that findds this problem is as
-follows:
-(http://www.emn.fr/x-info/coccinelle/)
-
-// <smpl>
-@r@
-expression x,E;
-statement S1,S2;
-position p,p1;
-@@
-
-*x = list_entry@p(...)
-... when != x = E
-*if@p1 (x == NULL) S1 else S2
-// </smpl>
-
-Signed-off-by: Julia Lawall <julia@diku.dk>
-
----
- drivers/hid/hid-lgff.c              |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/hid-lgff.c b/drivers/hid/hid-lgff.c
-index 95835ea..987abeb 100644
---- a/drivers/hid/hid-lgff.c
-+++ b/drivers/hid/hid-lgff.c
-@@ -151,11 +151,6 @@ int lgff_init(struct hid_device* hid)
+Signed-off-by: Hector Martin <hector@marcansoft.com>
+--- linux-2.6.30/include/linux/input.h.old	2009-07-12 17:22:53.000000000 +0200
++++ linux-2.6.30/include/linux/input.h	2009-07-12 17:25:01.000000000 +0200
+@@ -543,6 +543,10 @@
+ #define KEY_CONTEXT_MENU	0x1b6	/* GenDesc - system context menu */
+ #define KEY_MEDIA_REPEAT	0x1b7	/* Consumer - transport control */
  
- 	/* Check that the report looks ok */
- 	report = list_entry(report_list->next, struct hid_report, list);
--	if (!report) {
--		err_hid("NULL output report");
--		return -1;
--	}
--
- 	field = report->field[0];
- 	if (!field) {
- 		err_hid("NULL field");
++#define KEY_VOLUME_EVENT	0x1b8	/* Generic volume change event */
++#define KEY_HOLDON		0x1b9	
++#define KEY_HOLDOFF		0x1ba
++
+ #define KEY_DEL_EOL		0x1c0
+ #define KEY_DEL_EOS		0x1c1
+ #define KEY_INS_LINE		0x1c2
+
+-- 
+Hector Martin (hector@marcansoft.com)
+Public Key: http://www.marcansoft.com/marcan.asc
+

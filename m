@@ -1,72 +1,74 @@
-From: Hector Martin <hector@marcansoft.com>
-Subject: Re: [PATCH] input: add Hold on/off and volume event keys
-Date: Mon, 13 Jul 2009 11:59:30 +0200
-Message-ID: <4A5B0582.4010709@marcansoft.com>
-References: <4A5A0251.8010803@marcansoft.com> <20090713034359.GB10819@dtor-d630.eng.vmware.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: Input driver for Twinhan USB 6253:0100 remote control
+Date: Mon, 13 Jul 2009 13:21:15 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0907131316420.10476@wotan.suse.de>
+References: <20090408072935.GA27920@dtor-d630.eng.vmware.com> <200904131931.24009.dmitry.torokhov@gmail.com> <49E4B678.9030508@rtr.ca> <200904140945.14652.dmitry.torokhov@gmail.com> <49E4C9CF.5060504@rtr.ca> <alpine.LNX.2.00.0904151022170.13028@wotan.suse.de>
+ <49E5EAD7.7000309@rtr.ca> <alpine.LNX.2.00.0904161123180.13028@wotan.suse.de> <20090712182026.7a09c736@neptune.home> <alpine.LNX.2.00.0907131048110.10476@wotan.suse.de> <20090713113157.701ba027@neptune.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: MULTIPART/MIXED; BOUNDARY="168427776-1772455402-1247483934=:10476"
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from marcansoft.com ([80.68.93.119]:44790 "EHLO smtp.marcansoft.com"
+Received: from cantor.suse.de ([195.135.220.2]:40167 "EHLO mx1.suse.de"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1755138AbZGMJ7e (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2009 05:59:34 -0400
-In-Reply-To: <20090713034359.GB10819@dtor-d630.eng.vmware.com>
+	id S1755339AbZGMLVX (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jul 2009 07:21:23 -0400
+In-Reply-To: <20090713113157.701ba027@neptune.home>
+Content-ID: <alpine.LNX.2.00.0907131319470.10476@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org
+To: =?ISO-8859-15?Q?Bruno_Pr=E9mont?= <bonbons@linux-vserver.org>
+Cc: Mark Lord <lkml@rtr.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Hi Dmitry,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Dmitry Torokhov wrote:
-> On Sun, Jul 12, 2009 at 05:33:37PM +0200, Hector Martin wrote:
->> Recent Acer laptops produce key events when the Hold button on the media
->> control panel is activated and deactivated. These events are relevant
->> for software that wishes to interact with the media panel beyond just
->> using the media control keys.
+--168427776-1772455402-1247483934=:10476
+Content-Type: TEXT/PLAIN; CHARSET=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+Content-ID: <alpine.LNX.2.00.0907131319471.10476@wotan.suse.de>
+
+On Mon, 13 Jul 2009, Bruno Prémont wrote:
+
+> > > +	// set_bit(EV_REP, hi->input->evbit);
+> > Why is this commented out?
+> That was a remaining line from basing on hid-gyration.c Don't know what 
+> it does, looks like related to key repeating but I've not read enough of 
+> HID/Input code to find out. (all my tests were run with it commented 
+> out, so I will drop it unless there is a good reason to uncomment it)
+
+Yes, EV_REP is a flag which signals whether the keys produced by the 
+device in question should be auto-repreated.
+
+> With my patch it seems the mappings don't show up for EVIOCGKEYCODE:
 > 
-> What exactly is supposed to happen when you press hold key? Also, is it
-> tuly a key or a switch?
-
-It's a toggle-button: you hit it once to enable the hold, and again to
-disable it. It produces a press-release scancode pair when it is
-enabled, and a press-release scancode pair for a different scancode when
-it is released. It also has direct hardware effects (LED turns on and
-the rest of the buttons on the media panel stop responding). This hold
-state cannot be queried using the Acer proprietary hardware interfaces,
-which is why reacting to these two different scancodes is the only way
-of knowing what the actual Hold state is. Software needs to be able to
-react to these events to handle the media panel properly (basically
-because their firmware is broken and it does some "interesting" things
-when hold is engaged which need to be ignored).
-
-This behavior is also shared by a few other keys (bluetooth toggle, WiFi
-toggle, touchpad enable toggle), but for Bluetooth and WiFi the state
-*can* be queried from their hardware (and they already work as rfkill
-devices via the acer-wmi driver and can even be toggled by software, so
-I just map both scancodes to the existing KEY_BLUETOOTH and KEY_WLAN
-events which no one is reacting to anyway). I don't see a use for
-software to react to the touchpad enable key.
-
+> int codes[2];
+> for (codes[0] = 0; codes[0] < 1024; codes[0]++)
+>   if (ioctl(evdev, EVIOCGKEYCODE, codes) >= 0) {
+>     // display
+>   } else
+>     break;
 > 
->> There's also a volume notification key event that replaces the usual
->> volume-up/down events when the panel is in software-controlled mode.
->> Software can react to this to detect volume level changes instead of
->> polling.
->>
+> Code block above only displays for codes[0] == 0:
+>  codes = { 0, 388 /* KEY_TEXT */ }
 > 
-> No, I don't think this kind of notification belongs to input layer.
+> For all other values of codes[0] ioctl returns EINVAL.
+> 
+> Is this expected or should complete mapping table be returned
+> as it is for generic PS2 PC keyboard (if so, what changes does the
+> patch need for it)?
 
-It's a key event delivered by the EC just like all other keyboard events
-(the EC is also the keyboard controller, as is typical). Where else
-would it belong? To the kernel it just looks like yet another PS/2
-keyboard scancode. Short of somehow hooking into the atkbd driver from
-the acer-wmi driver to special-case this key, I don't see what other way
-there is of dealing with this. Of course it's ugly, but I didn't design
-this hardware :)
+The HID core's perception of scancode is the actual HID usage as reported 
+by the device, inlcuding the page number.
+
+I.e. for your device, the usages would be in 0x70004 - 0x70052 range, not 
+0-1024 (which is what your current code is checking for).
+
+Also, looking at the patch again -- could you please keep the usage 
+numbers sorted in the switch-case in twinhan_input_mapping(), so that it's 
+more readable and compatible with other drivers?
+
+Thanks,
 
 -- 
-Hector Martin (hector@marcansoft.com)
-Public Key: http://www.marcansoft.com/marcan.asc
-
+Jiri Kosina
+SUSE Labs
+--168427776-1772455402-1247483934=:10476--

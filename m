@@ -1,143 +1,97 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] Input: add MAX7359 key switch controller driver, v2
-Date: Mon, 13 Jul 2009 02:31:47 -0700
-Message-ID: <20090713093147.GJ10819@dtor-d630.eng.vmware.com>
-References: <4A04E5EA.7000103@samsung.com> <5d5443650905091027w2b60f2ael520373790e6414c7@mail.gmail.com> <4d34a0a70905101934j320c03abl7e39af4fbfdf1f62@mail.gmail.com> <20090511031208.GA15208@dtor-d630.eng.vmware.com> <5d5443650906191038o797e0c3eu8234a56ee247ea68@mail.gmail.com> <5d5443650907130152t420e9426q762c24bdb1b29aae@mail.gmail.com>
+From: Bruno =?UTF-8?B?UHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
+Subject: Re: Input driver for Twinhan USB 6253:0100 remote control
+Date: Mon, 13 Jul 2009 11:31:57 +0200
+Message-ID: <20090713113157.701ba027@neptune.home>
+References: <20090408072935.GA27920@dtor-d630.eng.vmware.com>
+	<200904131931.24009.dmitry.torokhov@gmail.com>
+	<49E4B678.9030508@rtr.ca>
+	<200904140945.14652.dmitry.torokhov@gmail.com>
+	<49E4C9CF.5060504@rtr.ca>
+	<alpine.LNX.2.00.0904151022170.13028@wotan.suse.de>
+	<49E5EAD7.7000309@rtr.ca>
+	<alpine.LNX.2.00.0904161123180.13028@wotan.suse.de>
+	<20090712182026.7a09c736@neptune.home>
+	<alpine.LNX.2.00.0907131048110.10476@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f185.google.com ([209.85.216.185]:43479 "EHLO
-	mail-px0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754767AbZGMJbx (ORCPT
+Received: from ppp-145-35.adsl.restena.lu ([158.64.145.35]:49427 "EHLO
+	bonbons.gotdns.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754853AbZGMJjV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2009 05:31:53 -0400
-Content-Disposition: inline
-In-Reply-To: <5d5443650907130152t420e9426q762c24bdb1b29aae@mail.gmail.com>
+	Mon, 13 Jul 2009 05:39:21 -0400
+In-Reply-To: <alpine.LNX.2.00.0907131048110.10476@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Trilok Soni <soni.trilok@gmail.com>
-Cc: Kim Kyuwon <chammoru@gmail.com>, Kim Kyuwon <q1.kim@samsung.com>, LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Mark Lord <lkml@rtr.ca>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-On Mon, Jul 13, 2009 at 02:22:10PM +0530, Trilok Soni wrote:
-> Hi Dmitry,
-> 
-> 
-> I don't see this driver picked up yet in your -next branch. We should
-> target this driver to be mainlined in next merge window. This is very
-> important driver for some of the embedded systems, including palm pre
-> :)
-> 
+On Mon, 13 July 2009 Jiri Kosina <jkosina@suse.cz> wrote:
+> On Sun, 12 Jul 2009, Bruno Pr=C3=A9mont wrote:
+>=20
+> > I wrote the below patch to adjust it's key mappings, though I'm not
+> > sure if/how I should deal with the number keys (0..9) with regard t=
+o
+> > keyboard layout and/or numlock key.
+> >=20
+> > I tried with KEY_0..KEY_9 (default) as well as KEY_KP0..KEY_KP9 but
+> > neither produces optimal results on my machine (laptop with numlock
+> > disabled and belgian keyboard layout, e.g. KEY_1 =3D> '&' unless sh=
+ift
+> > is down)
+> >=20
+> > KEY_NUMERIC_0..KEY_NUMERIC_9 are not recognized by Linux console
+> > (don't know if/how userspace understands them)
+>=20
+> Are they incorporated in the keymap you have loaded?
 
-I was wondering if somebody could test the patch below and if it still
-works then I will apply to the next branch. Thanks!
+Probably not though I have not checked (using be-latin1 from
+sys-apps/kbd-1.13-r1, Gentoo) Possibly this kbd version is too old to
+know about those keys.
 
--- 
-Dmitry
+> > +	// set_bit(EV_REP, hi->input->evbit);
+>=20
+> Why is this commented out?
+
+That was a remaining line from basing on hid-gyration.c
+Don't know what it does, looks like related to key repeating but I've
+not read enough of HID/Input code to find out. (all my tests were run
+with it commented out, so I will drop it unless there is a good reason
+to uncomment it)
+
+> Otherwise the patch looks good, so if you send it with proper=20
+> Signed-off-by line, I am OK with merging it.
+
+Will do, using KEY_NUMERIC_*.
+
+> Do you have any idea whether lirc folks have plans to integrate
+> support for this device to lirc eventually?
+
+I don't know
 
 
-Input: max7359 - use threaded IRQs
+With my patch it seems the mappings don't show up for EVIOCGKEYCODE:
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+int codes[2];
+for (codes[0] =3D 0; codes[0] < 1024; codes[0]++)
+  if (ioctl(evdev, EVIOCGKEYCODE, codes) >=3D 0) {
+    // display
+  } else
+    break;
 
-Convert max7359 driver to use IRQ threading instead of using
-workqueue.
+Code block above only displays for codes[0] =3D=3D 0:
+ codes =3D { 0, 388 /* KEY_TEXT */ }
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+=46or all other values of codes[0] ioctl returns EINVAL.
 
- drivers/input/keyboard/max7359_keypad.c |   34 +++++++++++++------------------
- 1 files changed, 14 insertions(+), 20 deletions(-)
+Is this expected or should complete mapping table be returned
+as it is for generic PS2 PC keyboard (if so, what changes does the
+patch need for it)?
 
-
-diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
-index e359db3..c823c0b 100644
---- a/drivers/input/keyboard/max7359_keypad.c
-+++ b/drivers/input/keyboard/max7359_keypad.c
-@@ -57,8 +57,6 @@ struct max7359_keypad {
- 	/* matrix key code map */
- 	unsigned short keycodes[MAX7359_MAX_KEY_NUM];
- 
--	struct work_struct work;
--
- 	struct input_dev *input_dev;
- 	struct i2c_client *client;
- 
-@@ -103,10 +101,10 @@ static void max7359_build_keycode(struct max7359_keypad *keypad,
- 	__clear_bit(KEY_RESERVED, input_dev->keybit);
- }
- 
--static void max7359_worker(struct work_struct *work)
-+/* runs in an IRQ thread -- can (and will!) sleep */
-+static irqreturn_t max7359_interrupt(int irq, void *dev_id)
- {
--	struct max7359_keypad *keypad =
--			container_of(work, struct max7359_keypad, work);
-+	struct max7359_keypad *keypad = dev_id;
- 	struct input_dev *input_dev = keypad->input_dev;
- 	int val, row, col, release, code;
- 
-@@ -116,26 +114,23 @@ static void max7359_worker(struct work_struct *work)
- 	release = val & 0x40;
- 	code = (row << 3) + col;
- 
-+	dev_dbg(&keypad->client->dev,
-+		"key[%d:%d] %s\n", row, col, release ? "release" : "press");
-+
- 	input_event(input_dev, EV_MSC, MSC_SCAN, code);
- 	input_report_key(input_dev, keypad->keycodes[code], !release);
- 	input_sync(input_dev);
- 
- 	enable_irq(keypad->irq);
--
--	dev_dbg(&keypad->client->dev, "key[%d:%d] %s\n", row, col,
--					(release ? "release" : "press"));
-+	return IRQ_HANDLED;
- }
- 
--static irqreturn_t max7359_interrupt(int irq, void *dev_id)
-+static irqreturn_t max7359_hardirq(int irq, void *dev_id)
- {
- 	struct max7359_keypad *keypad = dev_id;
- 
--	if (!work_pending(&keypad->work)) {
--		disable_irq_nosync(keypad->irq);
--		schedule_work(&keypad->work);
--	}
--
--	return IRQ_HANDLED;
-+	disable_irq_nosync(keypad->irq);
-+	return IRQ_WAKE_THREAD;
- }
- 
- /*
-@@ -223,7 +218,6 @@ static int __devinit max7359_probe(struct i2c_client *client,
- 	keypad->client = client;
- 	keypad->input_dev = input_dev;
- 	keypad->irq = client->irq;
--	INIT_WORK(&keypad->work, max7359_worker);
- 
- 	input_dev->name = client->name;
- 	input_dev->id.bustype = BUS_I2C;
-@@ -241,8 +235,9 @@ static int __devinit max7359_probe(struct i2c_client *client,
- 
- 	max7359_build_keycode(keypad, keymap_data);
- 
--	error = request_irq(keypad->irq, max7359_interrupt,
--			    IRQF_TRIGGER_LOW, client->name, keypad);
-+	error = request_threaded_irq(keypad->irq,
-+				     max7359_hardirq, max7359_interrupt,
-+				     IRQF_TRIGGER_LOW, client->name, keypad);
- 	if (error) {
- 		dev_err(&client->dev, "failed to register interrupt\n");
- 		goto failed_free_mem;
-@@ -275,9 +270,8 @@ static int __devexit max7359_remove(struct i2c_client *client)
- {
- 	struct max7359_keypad *keypad = i2c_get_clientdata(client);
- 
--	cancel_work_sync(&keypad->work);
--	input_unregister_device(keypad->input_dev);
- 	free_irq(keypad->irq, keypad);
-+	input_unregister_device(keypad->input_dev);
- 	i2c_set_clientdata(client, NULL);
- 	kfree(keypad);
- 
+Bruno
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

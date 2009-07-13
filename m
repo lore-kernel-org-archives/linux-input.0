@@ -1,164 +1,143 @@
-From: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-Subject: Re: [PATCH] input: fix EVIOCGNAME regression
-Date: Mon, 13 Jul 2009 17:45:31 -0300
-Message-ID: <20090713204531.GA4305@vespa.holoscopio.com>
-References: <1247503151-15615-1-git-send-email-daniel@caiaq.de> <20090713165205.GA28063@dtor-d630.eng.vmware.com> <20090713171130.GH19257@buzzloop.caiaq.de>
+From: Hector Martin <hector@marcansoft.com>
+Subject: Re: [PATCH] input: add Hold on/off and volume event keys
+Date: Tue, 14 Jul 2009 00:56:40 +0200
+Message-ID: <4A5BBBA8.7080303@marcansoft.com>
+References: <4A5A0251.8010803@marcansoft.com> <20090713034359.GB10819@dtor-d630.eng.vmware.com> <4A5B0582.4010709@marcansoft.com> <20090713165221.GB28063@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from liberdade.minaslivre.org ([72.232.18.203]:59871 "EHLO
-	liberdade.minaslivre.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755725AbZGMUpf (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2009 16:45:35 -0400
-Content-Disposition: inline
-In-Reply-To: <20090713171130.GH19257@buzzloop.caiaq.de>
+Received: from marcansoft.com ([80.68.93.119]:54774 "EHLO smtp.marcansoft.com"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1753342AbZGMW4n (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Mon, 13 Jul 2009 18:56:43 -0400
+In-Reply-To: <20090713165221.GB28063@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org, s.neumann@raumfeld.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 
+Dmitry Torokhov wrote:
+>>> On Sun, Jul 12, 2009 at 05:33:37PM +0200, Hector Martin wrote:
+>>>> Recent Acer laptops produce key events when the Hold button on the media
+>>>> control panel is activated and deactivated. These events are relevant
+>>>> for software that wishes to interact with the media panel beyond just
+>>>> using the media control keys.
+>>> What exactly is supposed to happen when you press hold key? Also, is it
+>>> tuly a key or a switch?
+>> It's a toggle-button: you hit it once to enable the hold, and again to
+>> disable it. It produces a press-release scancode pair when it is
+>> enabled, and a press-release scancode pair for a different scancode when
+>> it is released. It also has direct hardware effects (LED turns on and
+>> the rest of the buttons on the media panel stop responding). This hold
+>> state cannot be queried using the Acer proprietary hardware interfaces,
+>> which is why reacting to these two different scancodes is the only way
+>> of knowing what the actual Hold state is.
+> 
+> Hmm... you still need to query the state somehow at startup, otherwise
+> how do you know what behavior user expects before she presses hold
+> button for the first time.
+> 
+> What exactly does your application do when Hold is engaged?
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The specific use case is covered by just getting hold on/off
+notifications - the current state does not matter, only that it was
+"recently" changed. The firmware does not reliably report the other
+information when hold was recently disengaged. Apparently it does a
+little LED blink and that blink sometimes can get picked up by the
+software as an actual volume event (clearly due to crappy EC firmware -
+what should be a purely visual effect isn't). In fact, if you repeatedly
+toggle Hold in rapid succession sometimes that broken off state can even
+be latched as the current state and stick there. The only way to work
+around this (either in userspace or in the kernel) is to react to the
+Hold-off event and ignore any changes in the volume value for about a
+second afterwards, possibly correcting a sudden jump to volume 0 afterwards.
 
-On Mon, Jul 13, 2009 at 07:11:30PM +0200, Daniel Mack wrote:
-> On Mon, Jul 13, 2009 at 09:52:05AM -0700, Dmitry Torokhov wrote:
-> > On Mon, Jul 13, 2009 at 06:39:11PM +0200, Daniel Mack wrote:
-> > > Commit 3d5cb60e ("Input: simplify name handling for certain input
-> > > handles") introduced a regression for the EVIOCGNAME ioctl.
-> > >=20
-> > > Before this, patch, the platform device's name was given back to
-> > > userspace which was good to identify devices. After this patch, the
-> > > device was ("event%d", minor) which is not descriptive at all.
-> > >=20
-> > > This fixes the behaviour by taking input_dev->name.
-> > >=20
-> > > Signed-off-by: Daniel Mack <daniel@caiaq.de>
-> > > Reported-by: Sven Neumann <s.neumann@raumfeld.com>
-> > > Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> > > Cc: Dmitry Torokhov <dtor@mail.ru>
-> > > ---
-> > >  drivers/input/evdev.c |    6 +++---
-> > >  1 files changed, 3 insertions(+), 3 deletions(-)
-> > >=20
-> > > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> > > index 114efd8..c81e042 100644
-> > > --- a/drivers/input/evdev.c
-> > > +++ b/drivers/input/evdev.c
-> > > @@ -608,8 +608,8 @@ static long evdev_do_ioctl(struct file *file, uns=
-igned int cmd,
-> > >  						    p, compat_mode);
-> > > =20
-> > >  			if (_IOC_NR(cmd) =3D=3D _IOC_NR(EVIOCGNAME(0)))
-> > > -				return str_to_user(dev_name(&evdev->dev),
-> > > -						   _IOC_SIZE(cmd), p);
-> > > +				return str_to_user(evdev->handle.name,
-> > > +						    _IOC_SIZE(cmd), p);
-> >=20
-> > No, this actually should be just dev->name, handle names were always in
-> > the form of eventX or jsX. The change below is not needed either.
-> > Btw, there is the similar issue in joydev.c as well.
->=20
-> Ok, how about the one below?
->=20
-> Daniel
+The actual Hold functionality operates in hardware, so it doesn't really
+matter whether we know if Hold is engaged initially or not. All I care
+about is the side effects when the state transitions. Again, yes, I know
+this is fugly. Shame on whoever made this hardware/firmware.
 
-My bad. Those two reverts work for me.
+I need to listen for key input events in my daemon anyway. For example,
+Mute is reported the usual way, not via this "volume change"
+notification - worse, there's a regular mute key on the keyboard which
+does *not* affect the "media control" mute state, but they both report
+the same scancode. So software needs to specifically check for Mute key
+events: if it sees the hardware state has changed, it needs to update
+the software ALSA state to match the hardware, whereas if the hardware
+state is the same (the other mute key was used), it needs to toggle the
+hardware state and make the ALSA state match. More ugliness. I figure if
+I have to listen to key events anyway it wouldn't hurt to just make the
+extra three scancodes that I need key events too (they already are,
+anyway - just not mapped to correct KEY_* values because there aren't any).
 
-Tested-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+> 
+>> This behavior is also shared by a few other keys (bluetooth toggle, WiFi
+>> toggle, touchpad enable toggle), but for Bluetooth and WiFi the state
+>> *can* be queried from their hardware (and they already work as rfkill
+>> devices via the acer-wmi driver and can even be toggled by software, so
+>> I just map both scancodes to the existing KEY_BLUETOOTH and KEY_WLAN
+>> events which no one is reacting to anyway). I don't see a use for
+>> software to react to the touchpad enable key.
+>>
+>>>> There's also a volume notification key event that replaces the usual
+>>>> volume-up/down events when the panel is in software-controlled mode.
+>>>> Software can react to this to detect volume level changes instead of
+>>>> polling.
+>>>>
+>>> No, I don't think this kind of notification belongs to input layer.
+>> It's a key event delivered by the EC just like all other keyboard events
+>> (the EC is also the keyboard controller, as is typical). Where else
+>> would it belong? To the kernel it just looks like yet another PS/2
+>> keyboard scancode. Short of somehow hooking into the atkbd driver from
+>> the acer-wmi driver to special-case this key, I don't see what other way
+>> there is of dealing with this. Of course it's ugly, but I didn't design
+>> this hardware :)
+> 
+> It is kernels task to convert ugly hardware implementations into a nice
+> abstractions ;) Really, this kind notification does not belong to the
+> input layer, same as with battery notification and network card
+> pluggin/unplugging. Since it is delivered through keyboard controller
+> I think you'll need to hack into i8042 interrupt routine and "syphon"
+> off data from there.
 
-I have also reviewed my own patch and understand what I did wrong and
-that I did mess with the input device name instead of keeping only to
-the event device naming. Regarding what I did intend to "fix" with the
-patch, it is all OK. So, if you want to, you may also consider my
-review. Although after this shame, you may not consider it worth enough.
-:-D
+Well, it's actually pretty close to volume change notifications though.
+In fact, this "volume notification" replaces the usual volume up/down
+keys (it gets triggered in almost exactly the same way) except, when in
+this mode, it fixes a broken case: normal volume up/down notifications
+are not properly issued when the volume slider is dragged from a
+non-endpoint position to a non-endpoint position, while this generic
+"changed" notification is when in this mode.
 
-Reviewed-by: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Either way, I wonder what the ideal kernel interface for this kind of
+hardware is. For input only it sounds like, in fact, input would be a
+good candidate: have an axis that represents the position of the
+hardware volume slider. However, this doesn't take into account changing
+that volume level in software (in reaction to, say, manually using
+alsamixer). Does the input layer offer "feedback" functions like this
+able to tell a hardware axis to go to a certain value? Do you think this
+might be the way to go? Mute could probably be represented by a switch
+in the same way... but I'm not sure I'm comfortable hacking the keyboard
+driver for this.
 
->=20
->=20
-> From 0c754925117421778bd9adf1bd8f4e818fc65c74 Mon Sep 17 00:00:00 2001
-> From: Daniel Mack <daniel@caiaq.de>
-> Date: Mon, 13 Jul 2009 18:33:53 +0200
-> Subject: [PATCH] input: fix EVIOCGNAME/JSIOCGNAME regression
->=20
-> Commit 3d5cb60e ("Input: simplify name handling for certain input
-> handles") introduced a regression for the EVIOCGNAME/JSIOCGNAME
-> ioctl.
->=20
-> Before this, patch, the platform device's name was given back to
-> userspace which was good to identify devices. After this patch, the
-> device is ("event%d", minor) which is not descriptive at all.
->=20
-> This fixes the behaviour by taking dev->name.
->=20
-> Signed-off-by: Daniel Mack <daniel@caiaq.de>
-> Reported-by: Sven Neumann <s.neumann@raumfeld.com>
-> Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> Cc: Dmitry Torokhov <dtor@mail.ru>
-> ---
->  drivers/input/evdev.c  |    3 +--
->  drivers/input/joydev.c |    7 +++----
->  2 files changed, 4 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 114efd8..1148140 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -608,8 +608,7 @@ static long evdev_do_ioctl(struct file *file, unsigne=
-d int cmd,
->  						    p, compat_mode);
-> =20
->  			if (_IOC_NR(cmd) =3D=3D _IOC_NR(EVIOCGNAME(0)))
-> -				return str_to_user(dev_name(&evdev->dev),
-> -						   _IOC_SIZE(cmd), p);
-> +				return str_to_user(dev->name, _IOC_SIZE(cmd), p);
-> =20
->  			if (_IOC_NR(cmd) =3D=3D _IOC_NR(EVIOCGPHYS(0)))
->  				return str_to_user(dev->phys, _IOC_SIZE(cmd), p);
-> diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> index 0e12f89..16397aa 100644
-> --- a/drivers/input/joydev.c
-> +++ b/drivers/input/joydev.c
-> @@ -536,14 +536,13 @@ static int joydev_ioctl_common(struct joydev *joyde=
-v,
->  	default:
->  		if ((cmd & ~IOCSIZE_MASK) =3D=3D JSIOCGNAME(0)) {
->  			int len;
-> -			const char *name =3D dev_name(&dev->dev);
-> =20
-> -			if (!name)
-> +			if (!dev->name)
->  				return 0;
-> -			len =3D strlen(name) + 1;
-> +			len =3D strlen(dev->name) + 1;
->  			if (len > _IOC_SIZE(cmd))
->  				len =3D _IOC_SIZE(cmd);
-> -			if (copy_to_user(argp, name, len))
-> +			if (copy_to_user(argp, dev->name, len))
->  				return -EFAULT;
->  			return len;
->  		}
-> --=20
-> 1.6.3.1
->=20
+Otherwise, do you have a better suggestion for just feeding the "change"
+notification to software? Currently, for the actual value
+getting/setting I'm just using sysfs files (as is already done for other
+acer-wmi functions - I'm just adding on to the existing driver). This
+doesn't take into account actively notifying userspace of the change though.
 
---dDRMvlgZJXvWKvBx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+I'm not too comfortable with making more intrusive changes to the kernel
+at the moment, and as you can see a lot of this is working around weird
+Acer quirks, which is why I was trying to go for the obvious
+implementation with simple kernel changes (add the relevant hardware
+support to acer-wmi, add the two input events, and then make hal map the
+scancodes right and have a daemon do the job of syncing keyboard events,
+media state, and ALSA together). This is all Acer-specific anyway
+(unless we want to develop some sort of kernel standard for
+"volume/media widgets" and a generic daemon for it), so dealing with
+bugs and oddities in userspace isn't that bad.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.9 (GNU/Linux)
+-- 
+Hector Martin (hector@marcansoft.com)
+Public Key: http://www.marcansoft.com/marcan.asc
 
-iEYEARECAAYFAkpbnOsACgkQyTpryRcqtS37wgCfdCkOoSGs3JcwPuBMjJUN+zTR
-27cAn1x6/sbZ2cIiv40BAre1XZvxK/qU
-=DU9x
------END PGP SIGNATURE-----
-
---dDRMvlgZJXvWKvBx--

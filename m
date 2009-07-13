@@ -1,62 +1,124 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Daniel Mack <daniel@caiaq.de>
 Subject: Re: [PATCH] input: fix EVIOCGNAME regression
-Date: Mon, 13 Jul 2009 09:52:05 -0700
-Message-ID: <20090713165205.GA28063@dtor-d630.eng.vmware.com>
-References: <1247503151-15615-1-git-send-email-daniel@caiaq.de>
+Date: Mon, 13 Jul 2009 19:11:30 +0200
+Message-ID: <20090713171130.GH19257@buzzloop.caiaq.de>
+References: <1247503151-15615-1-git-send-email-daniel@caiaq.de> <20090713165205.GA28063@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f185.google.com ([209.85.216.185]:54152 "EHLO
-	mail-px0-f185.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752905AbZGMQwN (ORCPT
+Received: from buzzloop.caiaq.de ([212.112.241.133]:48378 "EHLO
+	buzzloop.caiaq.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1753597AbZGMRLh (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 13 Jul 2009 12:52:13 -0400
-Received: by pxi15 with SMTP id 15so640708pxi.33
-        for <linux-input@vger.kernel.org>; Mon, 13 Jul 2009 09:52:12 -0700 (PDT)
+	Mon, 13 Jul 2009 13:11:37 -0400
 Content-Disposition: inline
-In-Reply-To: <1247503151-15615-1-git-send-email-daniel@caiaq.de>
+In-Reply-To: <20090713165205.GA28063@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Daniel Mack <daniel@caiaq.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-input@vger.kernel.org, s.neumann@raumfeld.com, Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
 
-Hi Daniel,
-
-On Mon, Jul 13, 2009 at 06:39:11PM +0200, Daniel Mack wrote:
-> Commit 3d5cb60e ("Input: simplify name handling for certain input
-> handles") introduced a regression for the EVIOCGNAME ioctl.
+On Mon, Jul 13, 2009 at 09:52:05AM -0700, Dmitry Torokhov wrote:
+> On Mon, Jul 13, 2009 at 06:39:11PM +0200, Daniel Mack wrote:
+> > Commit 3d5cb60e ("Input: simplify name handling for certain input
+> > handles") introduced a regression for the EVIOCGNAME ioctl.
+> > 
+> > Before this, patch, the platform device's name was given back to
+> > userspace which was good to identify devices. After this patch, the
+> > device was ("event%d", minor) which is not descriptive at all.
+> > 
+> > This fixes the behaviour by taking input_dev->name.
+> > 
+> > Signed-off-by: Daniel Mack <daniel@caiaq.de>
+> > Reported-by: Sven Neumann <s.neumann@raumfeld.com>
+> > Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+> > Cc: Dmitry Torokhov <dtor@mail.ru>
+> > ---
+> >  drivers/input/evdev.c |    6 +++---
+> >  1 files changed, 3 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+> > index 114efd8..c81e042 100644
+> > --- a/drivers/input/evdev.c
+> > +++ b/drivers/input/evdev.c
+> > @@ -608,8 +608,8 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+> >  						    p, compat_mode);
+> >  
+> >  			if (_IOC_NR(cmd) == _IOC_NR(EVIOCGNAME(0)))
+> > -				return str_to_user(dev_name(&evdev->dev),
+> > -						   _IOC_SIZE(cmd), p);
+> > +				return str_to_user(evdev->handle.name,
+> > +						    _IOC_SIZE(cmd), p);
 > 
-> Before this, patch, the platform device's name was given back to
-> userspace which was good to identify devices. After this patch, the
-> device was ("event%d", minor) which is not descriptive at all.
-> 
-> This fixes the behaviour by taking input_dev->name.
-> 
-> Signed-off-by: Daniel Mack <daniel@caiaq.de>
-> Reported-by: Sven Neumann <s.neumann@raumfeld.com>
-> Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
-> Cc: Dmitry Torokhov <dtor@mail.ru>
-> ---
->  drivers/input/evdev.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-> index 114efd8..c81e042 100644
-> --- a/drivers/input/evdev.c
-> +++ b/drivers/input/evdev.c
-> @@ -608,8 +608,8 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
->  						    p, compat_mode);
->  
->  			if (_IOC_NR(cmd) == _IOC_NR(EVIOCGNAME(0)))
-> -				return str_to_user(dev_name(&evdev->dev),
-> -						   _IOC_SIZE(cmd), p);
-> +				return str_to_user(evdev->handle.name,
-> +						    _IOC_SIZE(cmd), p);
+> No, this actually should be just dev->name, handle names were always in
+> the form of eventX or jsX. The change below is not needed either.
+> Btw, there is the similar issue in joydev.c as well.
 
-No, this actually should be just dev->name, handle names were always in
-the form of eventX or jsX. The change below is not needed either.
+Ok, how about the one below?
 
-Btw, there is the similar issue in joydev.c as well.
+Daniel
 
+
+>From 0c754925117421778bd9adf1bd8f4e818fc65c74 Mon Sep 17 00:00:00 2001
+From: Daniel Mack <daniel@caiaq.de>
+Date: Mon, 13 Jul 2009 18:33:53 +0200
+Subject: [PATCH] input: fix EVIOCGNAME/JSIOCGNAME regression
+
+Commit 3d5cb60e ("Input: simplify name handling for certain input
+handles") introduced a regression for the EVIOCGNAME/JSIOCGNAME
+ioctl.
+
+Before this, patch, the platform device's name was given back to
+userspace which was good to identify devices. After this patch, the
+device is ("event%d", minor) which is not descriptive at all.
+
+This fixes the behaviour by taking dev->name.
+
+Signed-off-by: Daniel Mack <daniel@caiaq.de>
+Reported-by: Sven Neumann <s.neumann@raumfeld.com>
+Cc: Thadeu Lima de Souza Cascardo <cascardo@holoscopio.com>
+Cc: Dmitry Torokhov <dtor@mail.ru>
+---
+ drivers/input/evdev.c  |    3 +--
+ drivers/input/joydev.c |    7 +++----
+ 2 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 114efd8..1148140 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -608,8 +608,7 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 						    p, compat_mode);
+ 
+ 			if (_IOC_NR(cmd) == _IOC_NR(EVIOCGNAME(0)))
+-				return str_to_user(dev_name(&evdev->dev),
+-						   _IOC_SIZE(cmd), p);
++				return str_to_user(dev->name, _IOC_SIZE(cmd), p);
+ 
+ 			if (_IOC_NR(cmd) == _IOC_NR(EVIOCGPHYS(0)))
+ 				return str_to_user(dev->phys, _IOC_SIZE(cmd), p);
+diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
+index 0e12f89..16397aa 100644
+--- a/drivers/input/joydev.c
++++ b/drivers/input/joydev.c
+@@ -536,14 +536,13 @@ static int joydev_ioctl_common(struct joydev *joydev,
+ 	default:
+ 		if ((cmd & ~IOCSIZE_MASK) == JSIOCGNAME(0)) {
+ 			int len;
+-			const char *name = dev_name(&dev->dev);
+ 
+-			if (!name)
++			if (!dev->name)
+ 				return 0;
+-			len = strlen(name) + 1;
++			len = strlen(dev->name) + 1;
+ 			if (len > _IOC_SIZE(cmd))
+ 				len = _IOC_SIZE(cmd);
+-			if (copy_to_user(argp, name, len))
++			if (copy_to_user(argp, dev->name, len))
+ 				return -EFAULT;
+ 			return len;
+ 		}
 -- 
-Dmitry
+1.6.3.1
+

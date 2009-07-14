@@ -1,57 +1,72 @@
-From: =?ISO-8859-1?Q?Ortwin_Gl=FCck?= <odi@odi.ch>
-Subject: [PATCH] HID: re-add support for apple mighty mouse
-Date: Wed, 15 Jul 2009 00:14:24 +0200
-Message-ID: <4A5D0340.1050201@odi.ch>
+From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] input/joystick: new AD7142
+	driver
+Date: Tue, 14 Jul 2009 18:56:45 -0400
+Message-ID: <8bd0f97a0907141556j59a7143fwfd6211a9d52d826@mail.gmail.com>
+References: <1247592827-16878-1-git-send-email-vapier@gentoo.org>
+	<20090714180309.GC14661@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from viefep21-int.chello.at ([62.179.121.41]:17277 "EHLO
-	viefep21-int.chello.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1756191AbZGNWea (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2009 18:34:30 -0400
-Received: from edge01.upc.biz ([192.168.13.236]) by viefep16-int.chello.at
-          (InterMail vM.7.09.01.00 201-2219-108-20080618) with ESMTP
-          id <20090714221426.YRSO16750.viefep16-int.chello.at@edge01.upc.biz>
-          for <linux-input@vger.kernel.org>;
-          Wed, 15 Jul 2009 00:14:26 +0200
-Received: from [192.168.111.10] (mithril [192.168.111.10])
-	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
-	(No client certificate requested)
-	by gollum.odi.ch (Postfix) with ESMTPSA id 427F590AB8
-	for <linux-input@vger.kernel.org>; Wed, 15 Jul 2009 00:14:24 +0200 (CEST)
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20090714180309.GC14661-wUGeVx6es1+Q2O5dskk9LyLysJ1jNyTM@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org
 
->From 9b59854782833766f1e10bf3363f9d7c320dff78 Mon Sep 17 00:00:00 2001
-From: Ortwin Glueck <odi@odi.ch>
-Date: Wed, 15 Jul 2009 00:08:09 +0200
-Subject: HID: re-add support for apple mighty mouse
-
-commit fa047e4f6fa63a6e9d0ae4d7749538830d14a343 removed the whole mighty mouse
-support instead of just removing a single quirk.
-
-Signed-of-by: Ortwin Glueck <odi@odi.ch>
----
- drivers/hid/hid-apple.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 303ccce..b0d9bbb 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -436,6 +436,10 @@ static const struct hid_device_id apple_devices[] = {
-        { HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER1_TP_ONLY),
-                .driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
-
-+       /* Apple wireless Mighty Mouse */
-+       { HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE, 0x030c),
-+               .driver_data = APPLE_MIGHTYMOUSE },
-+
-        { }
- };
- MODULE_DEVICE_TABLE(hid, apple_devices);
---
-1.6.3.3
+T24gVHVlLCBKdWwgMTQsIDIwMDkgYXQgMTQ6MDMsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiBP
+biBUdWUsIEp1bCAxNCwgMjAwOSBhdCAwMTozMzo0NlBNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3
+cm90ZToKPj4gK3N0YXRpYyBpbnQgYWQ3MTQyX3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGll
+bnQsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgKmlkKQo+Cj4gX19kZXZpbml0CgpmaXhl
+ZAoKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCByYyA9IHJlcXVlc3RfaXJxKGNsaWVudC0+aXJxLCBh
+ZDcxNDJfaW50ZXJydXB0LAo+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIElSUUZfVFJJR0dFUl9MT1csICJhZDcxNDJfam95c3RpY2siLCBkYXRhKTsKPgo+IExl
+dCdzIHVzZSB0aHJlYWRlZCBJUlFzLCB0aGV5IGFyZSBzbyBuaWNlIGZvciBkZXZpY2VzIGxpa2Ug
+dGhpcyBvbmUuCgppJ2xsIG9wZW4gYSB0cmFja2VyIGl0ZW0gZm9yIHNvbWVvbmUgdG8gbG9vayBh
+dCB0aGlzIC4uLiBCcnlhbiBoYXMgbGVmdCBvdXIgdGVhbQoKPj4gKyAgICAgICAgICAgICBkaXNh
+YmxlX2lycV9ub3N5bmMoY2xpZW50LT5pcnEpOwo+Cj4gV2h5IG5vc3luYyBoZXJlPwoKbm8gaWRl
+YSAtLSBjaGFuZ2VkIHRvIG5vcm1hbCB2ZXJzaW9uCgo+PiArICAgICAvKiBBbGxvY2F0ZSBhbmQg
+cmVnaXN0ZXIgQUQ3MTQyIGlucHV0IGRldmljZSAqLwo+PiArICAgICBkYXRhLT5pbnB1dCA9IGlu
+cHV0X2FsbG9jYXRlX2RldmljZSgpOwo+PiArICAgICBpZiAoIWRhdGEtPmlucHV0KSB7Cj4+ICsg
+ICAgICAgICAgICAgZGV2X2VycigmY2xpZW50LT5kZXYsICJDYW4ndCBhbGxvY2F0ZSBpbnB1dCBk
+ZXZpY2VcbiIpOwo+PiArICAgICAgICAgICAgIHJjID0gLUVOT01FTTsKPj4gKyAgICAgICAgICAg
+ICBnb3RvIGZhaWxfYWxsb2NhdGU7Cj4+ICsgICAgIH0KPgo+IEFsbG9jYXRlIHRoZSBkZXZpY2Ug
+YmVmb3JlIHlvdSByZXF1ZXN0IElSUS4uIEV2ZW4gaWYgeW91IGRpc2FibGVkIGl0Cj4gdGhlcmUg
+aXMgc3RpbGwgYSB3aW5kb3cgd2hlcmUgaXQgY2FuIGJlIHJhaXNlZCB3aXRob3V0IGlucHV0IGRl
+dmljZQo+IGFsbG9jYXRlZC4KCmZpeGVkIC4uLiBzdXJlIHdvdWxkIGJlIG5pY2UgdG8gaGF2ZSBh
+IElSUUZfeHh4IGZsYWcgdG8gcmVxdWVzdCBhbiBJUlEKaW4gdGhlIGRpc2FibGVkIHN0YXRlCgo+
+PiArIMKgIMKgIGlucHV0LT5ldmJpdFswXSA9IEJJVF9NQVNLKEVWX0tFWSk7Cj4+ICsgwqAgwqAg
+aW5wdXQtPmtleWJpdFtCSVRfV09SRChCVE5fQkFTRSldID0gQklUX01BU0soQlROX0JBU0UpIHwK
+Pj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCBCSVRfTUFTSyhCVE5fQkFTRTIpIHwKPj4gKyDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBCSVRfTUFT
+SyhCVE5fQkFTRTMpIHwKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBCSVRfTUFTSyhCVE5fQkFTRTQpOwo+PiArIMKg
+IMKgIGlucHV0LT5rZXliaXRbQklUX1dPUkQoS0VZX1VQKV0gfD0gwqBCSVRfTUFTSyhLRVlfVVAp
+IHwKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
+oCDCoCDCoCDCoCDCoCDCoCBCSVRfTUFTSyhLRVlfRE9XTikgfAo+PiArIMKgIMKgIMKgIMKgIMKg
+IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIEJJVF9N
+QVNLKEtFWV9MRUZUKSB8Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
+wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgQklUX01BU0soS0VZX1JJR0hUKTsKPj4gKwo+
+Cj4gSSBhbSByZWFsbHkgbm90IHN1cmUgd2h5IHlvdSBjYWxsIGl0IGEgam95c3RpY2sgc2luY2Ug
+aXQgZG9lcyBub3QgcmVwb3J0Cj4gcmVsYXRpdmUgYXhlcy4uLiBMZXQncyBwdXQgaXQgaW4gbWlz
+YyBhbmQganVzdCBhbm90aGVyIGJ1dHRvbiBkZXZpY2UuCgppZiB0aGUgaGFyZHdhcmUgZG9lc250
+IGFjdHVhbGx5IHN1cHBvcnQgcmVsYXRpdmUgZXZlbnRzLCBzdXJlIC4uLgpvdGhlcndpc2Ugd2Un
+bGwgYWRkIHN1cHBvcnQgZm9yIGl0Cgo+PiArc3RhdGljIGludCBfX2V4aXQgYWQ3MTQyX3JlbW92
+ZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQo+Cj4gX19kZXZleGl0KCkKCmZpeGVkCgo+PiAr
+IMKgIMKgIC5yZW1vdmUgPSBfX2V4aXRfcChhZDcxNDJfcmVtb3ZlKSwKPgo+IF9fZGV2ZXhpdF9w
+KCkKCmZpeGVkCgo+IEFueSBQTSBzdXBwb3J0PwoKZ3Vlc3Mgd2UnbGwgYWRkIGl0Ci1taWtlCgpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpVY2xpbnV4LWRp
+c3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZlbEBibGFja2Zpbi51Y2xpbnV4
+Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxtYW4vbGlzdGluZm8vdWNsaW51
+eC1kaXN0LWRldmVs

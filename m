@@ -1,531 +1,404 @@
 From: Mike Frysinger <vapier@gentoo.org>
-Subject: [PATCH 1/2] input/joystick: new AD7142 driver
-Date: Tue, 14 Jul 2009 13:33:46 -0400
-Message-ID: <1247592827-16878-1-git-send-email-vapier@gentoo.org>
+Subject: [PATCH 2/2] input/joystick: new Blackfin rotary input driver
+Date: Tue, 14 Jul 2009 13:33:47 -0400
+Message-ID: <1247592827-16878-2-git-send-email-vapier@gentoo.org>
+References: <1247592827-16878-1-git-send-email-vapier@gentoo.org>
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp.gentoo.org ([140.211.166.183]:55400 "EHLO smtp.gentoo.org"
+Received: from smtp.gentoo.org ([140.211.166.183]:55388 "EHLO smtp.gentoo.org"
 	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752597AbZGNRdv (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2009 13:33:51 -0400
+	id S1752361AbZGNRdu (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jul 2009 13:33:50 -0400
+In-Reply-To: <1247592827-16878-1-git-send-email-vapier@gentoo.org>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: uclinux-dist-devel@blackfin.uclinux.org, Bryan Wu <cooloney@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>
+Cc: uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Bryan Wu <cooloney@kernel.org>
 
-From: Bryan Wu <cooloney@kernel.org>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-Signed-off-by: Bryan Wu <cooloney@kernel.org>
+New driver for the Blackfin on-chip rotary peripheral.
+
 Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Bryan Wu <cooloney@kernel.org>
 Signed-off-by: Mike Frysinger <vapier@gentoo.org>
 ---
- drivers/input/joystick/Kconfig  |    9 +
- drivers/input/joystick/Makefile |    1 +
- drivers/input/joystick/ad7142.c |  466 +++++++++++++++++++++++++++++++++++++++
- 3 files changed, 476 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/joystick/ad7142.c
+ arch/blackfin/include/asm/bfin_rotary.h |   39 ++++
+ drivers/input/joystick/Kconfig          |    9 +
+ drivers/input/joystick/Makefile         |    1 +
+ drivers/input/joystick/bfin_rotary.c    |  288 +++++++++++++++++++++++++++++++
+ 4 files changed, 337 insertions(+), 0 deletions(-)
+ create mode 100644 arch/blackfin/include/asm/bfin_rotary.h
+ create mode 100644 drivers/input/joystick/bfin_rotary.c
 
+diff --git a/arch/blackfin/include/asm/bfin_rotary.h b/arch/blackfin/include/asm/bfin_rotary.h
+new file mode 100644
+index 0000000..425ece6
+--- /dev/null
++++ b/arch/blackfin/include/asm/bfin_rotary.h
+@@ -0,0 +1,39 @@
++/*
++ * board initialization should put one of these structures into platform_data
++ * and place the bfin-rotary onto platform_bus named "bfin-rotary".
++ */
++
++#ifndef _BFIN_ROTARY_H
++#define _BFIN_ROTARY_H
++
++/* mode bitmasks */
++#define ROT_QUAD_ENC	CNTMODE_QUADENC	/* quadrature/grey code encoder mode */
++#define ROT_BIN_ENC	CNTMODE_BINENC	/* binary encoder mode */
++#define ROT_UD_CNT	CNTMODE_UDCNT	/* rotary counter mode */
++#define ROT_DIR_CNT	CNTMODE_DIRCNT	/* direction counter mode */
++
++#define ROT_DEBE	DEBE		/* Debounce Enable */
++
++#define ROT_CDGINV	CDGINV		/* CDG Pin Polarity Invert */
++#define ROT_CUDINV	CUDINV		/* CUD Pin Polarity Invert */
++#define ROT_CZMINV	CZMINV		/* CZM Pin Polarity Invert */
++
++struct bfin_rotary_platform_data {
++	/* set rotary UP KEY_### or BTN_### in case you prefer
++	 * bfin-rotary to send EV_KEY otherwise set 0
++	 */
++	unsigned int rotary_up_key;
++	/* set rotary DOWN KEY_### or BTN_### in case you prefer
++	 * bfin-rotary to send EV_KEY otherwise set 0
++	 */
++	unsigned int rotary_down_key;
++	/* set rotary BUTTON KEY_### or BTN_### */
++	unsigned int rotary_button_key;
++	/* set rotary Relative Axis REL_### in case you prefer
++	 * bfin-rotary to send EV_REL otherwise set 0
++	 */
++	unsigned int rotary_rel_code;
++	unsigned short debounce;	/* 0..17 */
++	unsigned short mode;
++};
++#endif
 diff --git a/drivers/input/joystick/Kconfig b/drivers/input/joystick/Kconfig
-index b114195..0014bd1 100644
+index 0014bd1..875e373 100644
 --- a/drivers/input/joystick/Kconfig
 +++ b/drivers/input/joystick/Kconfig
-@@ -318,4 +318,13 @@ config JOYSTICK_MAPLE
- 	  To compile this as a module choose M here: the module will be called
- 	  maplecontrol.
+@@ -327,4 +327,13 @@ config JOYSTICK_AD7142
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called ad7142.
  
-+config JOYSTICK_AD7142
-+	tristate "Analog Devices AD7142 Joystick support"
-+	depends on I2C
-+	---help---
-+	  Say Y here if you want to support an AD7142 joystick
++config JOYSTICK_BFIN_ROTARY
++	tristate "Blackfin Rotary support"
++	depends on (BF54x || BF52x)
++	help
++	  Say Y here if you want to use the Blackfin Rotary.
 +
 +	  To compile this driver as a module, choose M here: the
-+	  module will be called ad7142.
++	  module will be called bfin-rotary.
 +
  endif
 diff --git a/drivers/input/joystick/Makefile b/drivers/input/joystick/Makefile
-index f3a8cbe..a62a667 100644
+index a62a667..0bf4cbc 100644
 --- a/drivers/input/joystick/Makefile
 +++ b/drivers/input/joystick/Makefile
-@@ -5,6 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_JOYSTICK_A3D)		+= a3d.o
-+obj-$(CONFIG_JOYSTICK_AD7142)		+= ad7142.o
+@@ -9,6 +9,7 @@ obj-$(CONFIG_JOYSTICK_AD7142)		+= ad7142.o
  obj-$(CONFIG_JOYSTICK_ADI)		+= adi.o
  obj-$(CONFIG_JOYSTICK_AMIGA)		+= amijoy.o
  obj-$(CONFIG_JOYSTICK_ANALOG)		+= analog.o
-diff --git a/drivers/input/joystick/ad7142.c b/drivers/input/joystick/ad7142.c
++obj-$(CONFIG_JOYSTICK_BFIN_ROTARY)	+= bfin_rotary.o
+ obj-$(CONFIG_JOYSTICK_COBRA)		+= cobra.o
+ obj-$(CONFIG_JOYSTICK_DB9)		+= db9.o
+ obj-$(CONFIG_JOYSTICK_GAMECON)		+= gamecon.o
+diff --git a/drivers/input/joystick/bfin_rotary.c b/drivers/input/joystick/bfin_rotary.c
 new file mode 100644
-index 0000000..c7b69f9
+index 0000000..d75365c
 --- /dev/null
-+++ b/drivers/input/joystick/ad7142.c
-@@ -0,0 +1,466 @@
++++ b/drivers/input/joystick/bfin_rotary.c
+@@ -0,0 +1,288 @@
 +/*
-+ * I2C Based AD7142 Joystick Input Device Driver
++ * Rotary counter driver for Analog Devices Blackfin Processors
 + *
-+ * Copyright 2005-2008 Analog Devices Inc.
-+ *
-+ * Enter bugs at http://blackfin.uclinux.org/
-+ *
++ * Copyright 2008-2009 Analog Devices Inc.
 + * Licensed under the GPL-2 or later.
 + */
 +
 +#include <linux/module.h>
++#include <linux/version.h>
 +#include <linux/init.h>
-+#include <linux/input.h>
 +#include <linux/interrupt.h>
-+#include <linux/i2c.h>
-+#include <linux/workqueue.h>
++#include <linux/irq.h>
++#include <linux/pm.h>
++#include <linux/platform_device.h>
++#include <linux/input.h>
 +
-+MODULE_AUTHOR("Bryan Wu <cooloney@kernel.org>");
-+MODULE_DESCRIPTION("Driver for AD7142 Joysticks");
-+MODULE_LICENSE("GPL");
++#include <asm/portmux.h>
++#include <asm/bfin_rotary.h>
 +
-+#define AD7142_I2C_ID		0xE620
-+#define AD7147_I2C_ID		0x1470
-+
-+/*
-+ * Ram map - these registers are defined as we go along
-+ */
-+/* RW   Power & conversion control */
-+#define PWRCONVCTL		0x00
-+
-+/* RW   Ambient compensation control register 0 - 3 */
-+#define AMBCOMPCTL_REG0		0x01
-+#define AMBCOMPCTL_REG1		0x02
-+#define AMBCOMPCTL_REG2		0x03
-+#define AMBCOMPCTL_REG3		0x04
-+
-+/* RW   Interrupt enable register 0 - 2 */
-+#define INTEN_REG0		0x05
-+#define INTEN_REG1		0x06
-+#define INTEN_REG2		0x07
-+
-+/* R    Low limit interrupt status register 0 */
-+#define INTSTAT_REG0		0x08
-+/* R    High limit interrupt status register 1 */
-+#define INTSTAT_REG1		0x09
-+/* R    Interrupt status register 2 */
-+#define INTSTAT_REG2		0x0A
-+
-+/* R    ADC stage 0 - 11 result (uncompensated) actually located in SRAM */
-+#define ADCRESULT_S0		0x0B
-+#define ADCRESULT_S1		0x0C
-+#define ADCRESULT_S2		0x0D
-+#define ADCRESULT_S3		0x0E
-+#define ADCRESULT_S4		0x0F
-+#define ADCRESULT_S5		0x10
-+#define ADCRESULT_S6		0x11
-+#define ADCRESULT_S7		0x12
-+#define ADCRESULT_S8		0x13
-+#define ADCRESULT_S9		0x14
-+#define ADCRESULT_S10		0x15
-+#define ADCRESULT_S11		0x16
-+
-+/* R    I.D. Register */
-+#define DEVID			0x17
-+
-+/* R    Current threshold status register 0, 1 */
-+#define THRES_STAT_REG0		0x40
-+#define THRES_STAT_REG1		0x41
-+/* R    Current proximity status register 2 */
-+#define PROX_STAT_REG		0x42
-+
-+#define STAGE0_CONNECTION	0x80
-+#define STAGE1_CONNECTION	0x88
-+#define STAGE2_CONNECTION	0x90
-+#define STAGE3_CONNECTION	0x98
-+#define STAGE4_CONNECTION	0xA0
-+#define STAGE5_CONNECTION	0xA8
-+#define STAGE6_CONNECTION	0xB0
-+#define STAGE7_CONNECTION	0xB8
-+#define STAGE8_CONNECTION	0xC0
-+#define STAGE9_CONNECTION	0xC8
-+#define STAGE10_CONNECTION	0xD0
-+#define STAGE11_CONNECTION	0xD8
-+
-+/*
-+ *	STAGE0: Button1   <----> CIN6(+)	Button2    <----> CIN5(-)
-+ *	STAGE1: Button3   <----> CIN4(-)	Button4    <----> CIN3(+)
-+ *	STAGE2: Axes.Left <----> CIN11(-)	Axes.Right <----> CIN13(+)
-+ *	STAGE3: Axes.Up   <----> CIN12(-)	Axes.Down  <----> CIN10(+)
-+ */
-+static const unsigned short stage[5][8] = {
-+	{0xE7FF, 0x3FFF, 0x0005, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
-+	{0xFDBF, 0x3FFF, 0x0001, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
-+	{0xFFFF, 0x2DFF, 0x0001, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
-+	{0xFFFF, 0x37BF, 0x0001, 0x2626, 0x01F4, 0x01F4, 0x028A, 0x028A},
-+	{0xFFFF, 0x3FFF, 0x0000, 0x0606, 0x01F4, 0x01F4, 0x0320, 0x0320},
++static const u16 per_cnt[] = {
++	P_CNT_CUD,
++	P_CNT_CDG,
++	P_CNT_CZM,
++	0
 +};
 +
-+struct ad7142_data {
++struct bfin_rot {
 +	struct input_dev *input;
-+	struct i2c_client *client;
-+
-+	struct work_struct work;
-+	int is_open;
-+
-+	unsigned short old_status_low;
-+	unsigned short old_status_high;
++	int irq;
++	unsigned int rotary_up_key;
++	unsigned int rotary_down_key;
++	unsigned int rotary_button_key;
++	unsigned int rotary_rel_code;
++	unsigned short cnt_config;
++	unsigned short cnt_imask;
++	unsigned short cnt_debounce;
 +};
 +
-+static irqreturn_t ad7142_interrupt(int irq, void *_data)
++static inline void report_marker_event(struct bfin_rot *rotary)
 +{
-+	struct ad7142_data *data = _data;
++	struct input_dev *input = rotary->input;
++	int keycode = rotary->rotary_button_key;
 +
-+	disable_irq_nosync(irq);
-+	if (data->is_open)
-+		schedule_work(&data->work);
++	input_report_key(input, keycode, 1);
++	input_sync(input);
++	input_report_key(input, keycode, 0);
++	input_sync(input);
++}
++
++static void report_rotary_event(struct bfin_rot *rotary, int delta)
++{
++	struct input_dev *input = rotary->input;
++
++	if (delta == 0)
++		return;
++
++	if (rotary->rotary_up_key && rotary->rotary_down_key) {
++		int keycode = (delta > 0) ? rotary->rotary_up_key :
++					    rotary->rotary_down_key;
++
++		/* simulate a press-n-release */
++		input_report_key(input, keycode, 1);
++		input_sync(input);
++		input_report_key(input, keycode, 0);
++		input_sync(input);
++	} else {
++		input_report_rel(input, rotary->rotary_rel_code, delta);
++		input_sync(input);
++	}
++}
++
++static irqreturn_t bfin_rotary_isr(int irq, void *dev_id)
++{
++	struct platform_device *pdev = dev_id;
++	struct bfin_rot *rotary = platform_get_drvdata(pdev);
++	unsigned short status = bfin_read_CNT_STATUS();
++
++	switch (status) {
++	case ICII:
++		break;
++	case UCII:
++	case DCII:
++		report_rotary_event(rotary, bfin_read_CNT_COUNTER());
++		break;
++	case CZMII:
++		report_marker_event(rotary);
++		break;
++	default:
++		break;
++	}
++
++	bfin_write_CNT_COMMAND(W1LCNT_ZERO);	/* Clear COUNTER */
++	bfin_write_CNT_STATUS(-1);	/* Clear STATUS */
 +
 +	return IRQ_HANDLED;
 +}
 +
-+static int ad7142_i2c_write(struct i2c_client *client, unsigned short offset,
-+			const unsigned short *data, unsigned int len)
++static int __devinit bfin_rotary_probe(struct platform_device *pdev)
 +{
-+	int ret = -1;
-+	int i;
-+	u8 block_data[34];
-+
-+	if (len < 1 || len > 16) {
-+		dev_err(&client->dev, "Write data length error\n");
-+		return ret;
-+	}
-+
-+	/* Do raw I2C, not smbus compatible */
-+	block_data[0] = (offset & 0xFF00) >> 8;
-+	block_data[1] = (offset & 0x00FF);
-+
-+	for (i = 0; i < len; i++) {
-+		block_data[2 * i + 2] = (*data & 0xFF00) >> 8;
-+		block_data[2 * i + 3] = *data++ & 0x00FF;
-+	}
-+
-+	ret = i2c_master_send(client, block_data, (len * 2 + 2));
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C write error\n");
-+		return ret;
-+	}
-+
-+	return ret;
-+}
-+
-+static int ad7142_i2c_read(struct i2c_client *client, unsigned short offset,
-+		unsigned short *data, unsigned int len)
-+{
-+	int ret = -1;
-+	int i;
-+	u8 block_data[32];
-+
-+	if (len < 1 || len > 16) {
-+		dev_err(&client->dev, "read data length error\n");
-+		return ret;
-+	}
-+
-+	/* Do raw I2C, not smbus compatible */
-+	block_data[0] = (offset & 0xFF00) >> 8;
-+	block_data[1] = (offset & 0x00FF);
-+
-+	ret = i2c_master_send(client, block_data, 2);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C read error\n");
-+		return ret;
-+	}
-+
-+	ret = i2c_master_recv(client, block_data, len * 2);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "I2C transfer error\n");
-+		return ret;
-+	}
-+
-+	for (i = 0; i < len; i++) {
-+		unsigned short temp;
-+		temp = block_data[2 * i];
-+		temp = (temp << 8) & 0xFF00;
-+		*data++ = temp | block_data[2 * i + 1];
-+	}
-+
-+	return ret;
-+}
-+
-+static void ad7142_work(struct work_struct *work)
-+{
-+	struct ad7142_data *data = container_of(work,
-+						struct ad7142_data,
-+						work);
-+	struct i2c_client *client = data->client;
-+	struct input_dev *input = data->input;
-+	unsigned short irqno_low, irqno_high;
-+	unsigned short temp;
-+
-+	ad7142_i2c_read(client, INTSTAT_REG0, &irqno_low, 1);
-+	temp = irqno_low ^ data->old_status_low;
-+	switch (temp) {
-+	case 0x0001:
-+		input_report_key(input, BTN_BASE, (irqno_low & 0x0001));
-+		break;
-+	case 0x0002:
-+		input_report_key(input, BTN_BASE4,
-+					((irqno_low & 0x0002) >> 1));
-+		break;
-+	case 0x0004:
-+		input_report_key(input, KEY_UP,
-+					((irqno_low & 0x0004) >> 2));
-+		break;
-+	case 0x0008:
-+		input_report_key(input, KEY_RIGHT,
-+					((irqno_low & 0x0008) >> 3));
-+		break;
-+	}
-+	data->old_status_low = irqno_low;
-+
-+	ad7142_i2c_read(client, INTSTAT_REG1, &irqno_high, 1);
-+	temp = irqno_high ^ data->old_status_high;
-+	switch (temp) {
-+	case 0x0001:
-+		input_report_key(input, BTN_BASE2, irqno_high & 0x0001);
-+		break;
-+	case 0x0002:
-+		input_report_key(input, BTN_BASE3,
-+					((irqno_high & 0x0002) >> 1));
-+		break;
-+	case 0x0004:
-+		input_report_key(input, KEY_DOWN,
-+					((irqno_high & 0x0004) >> 2));
-+		break;
-+	case 0x0008:
-+		input_report_key(input, KEY_LEFT,
-+					((irqno_high & 0x0008) >> 3));
-+		break;
-+	}
-+	data->old_status_high = irqno_high;
-+
-+	input_sync(input);
-+
-+	enable_irq(client->irq);
-+}
-+
-+static int ad7142_open(struct input_dev *dev)
-+{
-+	struct ad7142_data *data = input_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	unsigned short id, value;
-+
-+	ad7142_i2c_read(client, DEVID, &id, 1);
-+
-+	switch (id & 0xFFF0) {
-+	case AD7147_I2C_ID:
-+		dev_info(&client->dev, "Open AD7147 Rev 0.%d\n", id & 0xF);
-+		dev_warn(&client->dev, "AD7147 only partially supported");
-+		break;
-+	case AD7142_I2C_ID:
-+		dev_info(&client->dev, "Open AD7142 Rev 0.%d\n", id & 0xF);
-+		break;
-+	default:
-+		dev_err(&client->dev, "Open AD7142 error\n");
-+		return -ENODEV;
-+	}
-+
-+	ad7142_i2c_write(client, STAGE0_CONNECTION, stage[0], 8);
-+	ad7142_i2c_write(client, STAGE1_CONNECTION, stage[1], 8);
-+	ad7142_i2c_write(client, STAGE2_CONNECTION, stage[2], 8);
-+	ad7142_i2c_write(client, STAGE3_CONNECTION, stage[3], 8);
-+	ad7142_i2c_write(client, STAGE4_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE5_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE6_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE7_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE8_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE9_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE10_CONNECTION, stage[4], 8);
-+	ad7142_i2c_write(client, STAGE11_CONNECTION, stage[4], 8);
-+
-+	/* In full power mode */
-+	value = 0x00B0;
-+	ad7142_i2c_write(client, PWRCONVCTL, &value, 1);
-+
-+	value = 0x0690;
-+	ad7142_i2c_write(client, AMBCOMPCTL_REG1, &value, 1);
-+
-+	value = 0x0664;
-+	ad7142_i2c_write(client, AMBCOMPCTL_REG2, &value, 1);
-+
-+	value = 0x290F;
-+	ad7142_i2c_write(client, AMBCOMPCTL_REG3, &value, 1);
-+
-+	value = 0x000F;
-+	ad7142_i2c_write(client, INTEN_REG0, &value, 1);
-+	ad7142_i2c_write(client, INTEN_REG1, &value, 1);
-+
-+	value = 0x0000;
-+	ad7142_i2c_write(client, INTEN_REG2, &value, 1);
-+
-+	ad7142_i2c_read(client, AMBCOMPCTL_REG1, &value, 1);
-+
-+	value = 0x000F;
-+	ad7142_i2c_write(client, AMBCOMPCTL_REG0, &value, 1);
-+
-+	data->is_open = 1;
-+	enable_irq(client->irq);
-+	return 0;
-+}
-+
-+static void ad7142_close(struct input_dev *dev)
-+{
-+	struct ad7142_data *data = input_get_drvdata(dev);
-+	struct i2c_client *client = data->client;
-+	unsigned short value;
-+
-+	disable_irq(client->irq);
-+	data->is_open = 0;
-+
-+	flush_scheduled_work();
-+
-+	/*
-+	 * Turn AD7142 to full shutdown mode
-+	 * No CDC conversions
-+	 */
-+	value = 0x0001;
-+	ad7142_i2c_write(client, PWRCONVCTL, &value, 1);
-+}
-+
-+static int ad7142_probe(struct i2c_client *client,
-+					const struct i2c_device_id *id)
-+{
-+	struct ad7142_data *data;
++	struct bfin_rot *rotary;
++	struct bfin_rotary_platform_data *pdata = pdev->dev.platform_data;
 +	struct input_dev *input;
-+	int rc;
++	int ret;
 +
-+	/*
-+	 * The ADV7142 has an autoincrement function,
-+	 * use it if the adapter understands raw I2C
-+	 */
-+	rc = i2c_check_functionality(client->adapter, I2C_FUNC_I2C);
-+	if (!rc) {
-+		dev_err(&client->dev,
-+			"This bus doesn't support raw I2C operation\n");
-+		return -EINVAL;
-+	}
-+
-+	data = kzalloc(sizeof(struct ad7142_data), GFP_KERNEL);
-+	if (!data)
++	rotary = kzalloc(sizeof(struct bfin_rot), GFP_KERNEL);
++	if (!rotary)
 +		return -ENOMEM;
-+	data->client = client;
 +
-+	i2c_set_clientdata(client, data);
++	platform_set_drvdata(pdev, rotary);
 +
-+	/* Start workqueue for defer message transfer */
-+	INIT_WORK(&data->work, ad7142_work);
-+
-+	if (client->irq > 0) {
-+		rc = request_irq(client->irq, ad7142_interrupt,
-+				IRQF_TRIGGER_LOW, "ad7142_joystick", data);
-+		if (rc) {
-+			dev_err(&client->dev, "Can't allocate irq %d\n",
-+				client->irq);
-+			goto fail_irq;
-+		}
-+		disable_irq_nosync(client->irq);
-+	} else
-+		dev_warn(&client->dev, "IRQ not configured!\n");
-+
-+	dev_info(&client->dev, "is attached at 0x%02x\n", client->addr);
-+
-+	/* Allocate and register AD7142 input device */
-+	data->input = input_allocate_device();
-+	if (!data->input) {
-+		dev_err(&client->dev, "Can't allocate input device\n");
-+		rc = -ENOMEM;
-+		goto fail_allocate;
++	ret = peripheral_request_list(per_cnt, dev_name(&pdev->dev));
++	if (ret) {
++		dev_err(&pdev->dev, "requesting peripherals failed\n");
++		goto out1;
 +	}
 +
-+	input = data->input;
-+	input->open = ad7142_open;
-+	input->close = ad7142_close;
-+	input->evbit[0] = BIT_MASK(EV_KEY);
-+	input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
-+						BIT_MASK(BTN_BASE2) |
-+						BIT_MASK(BTN_BASE3) |
-+						BIT_MASK(BTN_BASE4);
-+	input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
-+						BIT_MASK(KEY_DOWN) |
-+						BIT_MASK(KEY_LEFT) |
-+						BIT_MASK(KEY_RIGHT);
++	ret = rotary->irq = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		goto out2;
 +
-+	input->name = "ad7142 joystick";
-+	input->phys = "ad7142/input0";
-+	input->id.bustype = BUS_I2C;
++	ret = request_irq(rotary->irq, bfin_rotary_isr,
++				 0, dev_name(&pdev->dev), pdev);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"unable to claim irq %d; error %d\n",
++			rotary->irq, ret);
++		goto out2;
++	}
++
++	input = input_allocate_device();
++	if (!input) {
++		ret = -ENOMEM;
++		goto out3;
++	}
++
++	rotary->input = input;
++
++	input->name = pdev->name;
++	input->phys = "bfin-rotary/inputX";
++	input->dev.parent = &pdev->dev;
++
++	input_set_drvdata(input, rotary);
++
++	input->id.bustype = BUS_HOST;
 +	input->id.vendor = 0x0001;
 +	input->id.product = 0x0001;
 +	input->id.version = 0x0100;
 +
-+	input_set_drvdata(input, data);
++	/* setup input device */
 +
-+	rc = input_register_device(input);
-+	if (rc) {
-+		dev_err(&client->dev,
-+			"Failed to register AD7142 input device!\n");
-+		goto fail_register;
++	rotary->rotary_up_key = pdata->rotary_up_key;
++	rotary->rotary_down_key = pdata->rotary_down_key;
++	rotary->rotary_button_key = pdata->rotary_button_key;
++	rotary->rotary_rel_code = pdata->rotary_rel_code;
++
++	if (pdata->rotary_up_key && pdata->rotary_down_key) {
++		__set_bit(EV_KEY, input->evbit);
++		__set_bit(pdata->rotary_up_key, input->keybit);
++		__set_bit(pdata->rotary_down_key, input->keybit);
++	} else if (pdata->rotary_rel_code) {
++		__set_bit(EV_REL, input->evbit);
++		__set_bit(pdata->rotary_rel_code, input->relbit);
++	} else {
++		ret = -EINVAL;
++		goto out4;
 +	}
 +
++	if (pdata->rotary_button_key) {
++		__set_bit(EV_KEY, input->evbit);
++		__set_bit(pdata->rotary_button_key, input->keybit);
++		bfin_write_CNT_IMASK(CZMIE);
++	}
++
++	if (pdata->mode & ROT_DEBE)
++		bfin_write_CNT_DEBOUNCE(pdata->debounce & DPRESCALE);
++
++	if (pdata->mode)
++		bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() |
++					(pdata->mode & ~CNTE));
++
++	ret = input_register_device(input);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"unable to register input device (%d)\n", ret);
++		goto out4;
++	}
++
++	bfin_write_CNT_IMASK(bfin_read_CNT_IMASK() | UCIE | DCIE);
++	bfin_write_CNT_CONFIG(bfin_read_CNT_CONFIG() | CNTE);
++	device_init_wakeup(&pdev->dev, 1);
++
++	dev_info(&pdev->dev,
++		"Blackfin Rotary Driver registered IRQ %d\n", rotary->irq);
 +	return 0;
 +
-+fail_register:
-+	input_set_drvdata(input, NULL);
++out4:
 +	input_free_device(input);
-+fail_allocate:
-+	free_irq(client->irq, data);
-+fail_irq:
-+	i2c_set_clientdata(client, NULL);
-+	kfree(data);
-+	return rc;
++out3:
++	free_irq(rotary->irq, pdev);
++out2:
++	peripheral_free_list(per_cnt);
++out1:
++	kfree(rotary);
++	platform_set_drvdata(pdev, NULL);
++
++	return ret;
 +}
 +
-+static int __exit ad7142_remove(struct i2c_client *client)
++static int __devexit bfin_rotary_remove(struct platform_device *pdev)
 +{
-+	struct ad7142_data *data = i2c_get_clientdata(client);
++	struct bfin_rot *rotary = platform_get_drvdata(pdev);
 +
-+	if (client->irq > 0)
-+		free_irq(client->irq, data);
++	bfin_write_CNT_CONFIG(0);
++	bfin_write_CNT_IMASK(0);
 +
-+	flush_scheduled_work();
++	free_irq(rotary->irq, pdev);
++	input_unregister_device(rotary->input);
++	peripheral_free_list(per_cnt);
 +
-+	input_set_drvdata(data->input, NULL);
-+	input_unregister_device(data->input);
++	kfree(rotary);
++	platform_set_drvdata(pdev, NULL);
 +
-+	kfree(data);
-+
-+	i2c_set_clientdata(client, NULL);
 +	return 0;
 +}
 +
-+static const struct i2c_device_id ad7142_id[] = {
-+	{ "ad7142_joystick", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, ad7142_id);
++#ifdef CONFIG_PM
++static int bfin_rotary_suspend(struct platform_device *pdev, pm_message_t state)
++{
++	struct bfin_rot *rotary = platform_get_drvdata(pdev);
 +
-+static struct i2c_driver ad7142_driver = {
-+	.driver = {
-+		.name = "ad7142_joystick",
++	rotary->cnt_config = bfin_read_CNT_CONFIG();
++	rotary->cnt_imask = bfin_read_CNT_IMASK();
++	rotary->cnt_debounce = bfin_read_CNT_DEBOUNCE();
++
++	if (device_may_wakeup(&pdev->dev))
++		enable_irq_wake(rotary->irq);
++
++	return 0;
++}
++
++static int bfin_rotary_resume(struct platform_device *pdev)
++{
++	struct bfin_rot *rotary = platform_get_drvdata(pdev);
++
++	bfin_write_CNT_DEBOUNCE(rotary->cnt_debounce);
++	bfin_write_CNT_IMASK(rotary->cnt_imask);
++	bfin_write_CNT_CONFIG(rotary->cnt_config & ~CNTE);
++
++	if (device_may_wakeup(&pdev->dev))
++		disable_irq_wake(rotary->irq);
++
++	if (rotary->cnt_config & CNTE)
++		bfin_write_CNT_CONFIG(rotary->cnt_config);
++
++	return 0;
++}
++#else
++#define bfin_rotary_suspend NULL
++#define bfin_rotary_resume  NULL
++#endif
++
++struct platform_driver bfin_rotary_device_driver = {
++	.probe		= bfin_rotary_probe,
++	.remove		= __devexit_p(bfin_rotary_remove),
++	.suspend	= bfin_rotary_suspend,
++	.resume		= bfin_rotary_resume,
++	.driver		= {
++		.name	= "bfin-rotary",
++		.owner	= THIS_MODULE,
 +	},
-+	.probe = ad7142_probe,
-+	.remove = __exit_p(ad7142_remove),
-+	.id_table = ad7142_id,
 +};
 +
-+static int __init ad7142_init(void)
++static int __init bfin_rotary_init(void)
 +{
-+	return i2c_add_driver(&ad7142_driver);
++	return platform_driver_register(&bfin_rotary_device_driver);
 +}
++module_init(bfin_rotary_init);
 +
-+static void __exit ad7142_exit(void)
++static void __exit bfin_rotary_exit(void)
 +{
-+	i2c_del_driver(&ad7142_driver);
++	platform_driver_unregister(&bfin_rotary_device_driver);
 +}
++module_exit(bfin_rotary_exit);
 +
-+module_init(ad7142_init);
-+module_exit(ad7142_exit);
-+
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Michael Hennerich <hennerich@blackfin.uclinux.org>");
++MODULE_DESCRIPTION("Rotary Counter driver for Blackfin Processors");
++MODULE_ALIAS("platform:bfin-rotary");
 -- 
 1.6.3.3
 

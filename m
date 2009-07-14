@@ -1,55 +1,76 @@
 From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: RE: [PATCH] Input: add MAX7359 key switch controller driver, v2
-Date: Tue, 14 Jul 2009 08:28:05 +0200
-Message-ID: <001801ca044c$428839d0$c798ad70$%szyprowski@samsung.com>
-References: <4A04E5EA.7000103@samsung.com>
- <5d5443650905091027w2b60f2ael520373790e6414c7@mail.gmail.com>
- <4d34a0a70905101934j320c03abl7e39af4fbfdf1f62@mail.gmail.com>
- <20090511031208.GA15208@dtor-d630.eng.vmware.com>
- <5d5443650906191038o797e0c3eu8234a56ee247ea68@mail.gmail.com>
- <5d5443650907130152t420e9426q762c24bdb1b29aae@mail.gmail.com>
- <20090713093147.GJ10819@dtor-d630.eng.vmware.com>
- <4A5BF6F0.6020403@samsung.com>
+Subject: RE: [PATCH v3] Input: add touchscreen driver for MELFAS MCS-5000
+	controller
+Date: Tue, 14 Jul 2009 08:47:48 +0200
+Message-ID: <001901ca044f$0314e930$093ebb90$%szyprowski@samsung.com>
+References: <4A56A304.3050009@samsung.com>
+ <20090714060403.GE2822@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout5.samsung.com ([203.254.224.35]:44995 "EHLO
+Received: from mailout5.samsung.com ([203.254.224.35]:49380 "EHLO
 	mailout5.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1753580AbZGNG3E (ORCPT
+	with ESMTP id S1753833AbZGNGsk (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2009 02:29:04 -0400
-In-reply-to: <4A5BF6F0.6020403@samsung.com>
+	Tue, 14 Jul 2009 02:48:40 -0400
+Received: from epmmp1 (mailout5.samsung.com [203.254.224.35])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KMR008FKEWK4J@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 14 Jul 2009 15:48:20 +0900 (KST)
+Received: from AMDC159 ([106.116.37.153])
+ by mmp1.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KMR0051MEW6SV@mmp1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 14 Jul 2009 15:48:20 +0900 (KST)
+In-reply-to: <20090714060403.GE2822@dtor-d630.eng.vmware.com>
 Content-language: pl
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Kim Kyuwon' <q1.kim@samsung.com>, 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>
-Cc: 'Trilok Soni' <soni.trilok@gmail.com>, 'Kim Kyuwon' <chammoru@gmail.com>, 'LKML' <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, 'Kyungmin Park' <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+To: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Joonyoung Shim' <jy0922.shim@samsung.com>
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, Tomasz Fujak <t.fujak@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
 
 Hello,
 
-On Tuesday, July 14, 2009 5:10 AM, Kim Kyuwon wrote:
-> Dmitry Torokhov wrote:
-> > On Mon, Jul 13, 2009 at 02:22:10PM +0530, Trilok Soni wrote:
-> >> I don't see this driver picked up yet in your -next branch. We should
-> >> target this driver to be mainlined in next merge window. This is very
-> >> important driver for some of the embedded systems, including palm pre
-> >> :)
-> > I was wondering if somebody could test the patch below and if it still
-> > works then I will apply to the next branch. Thanks!
+On Tuesday, July 14, 2009 8:04 AM, Dmitry Torokhov wrote:
+
+> Hi Joonyoung,
+> 
+> On Fri, Jul 10, 2009 at 11:10:12AM +0900, Joonyoung Shim wrote:
+> > The MELPAS MCS-5000 is the touchscreen controller. The overview of this
+> > controller can see at the following website:
+> >
+> > http://www.melfas.com/product/product01.asp?k_r=eng_
+> >
+> > This driver is tested on s3c6410 NCP board and supports only the i2c
+> > interface.
+> >
+> > Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+> > ---
+> > Dear Dmitry,
+> >
+> > I sent the patch v2, but couldn't get any response.
+> > This patch v3 is updated a little bit from v2.
 > >
 > 
-> Dear Marek,
-> 
-> Because I don't have the NCP board(which includes the max7359 keypad)
-> now, I can't test this patch. Marek, could you please test this patch?
+> While I was sittign on the patch mainline acquired threaded IRQ support
+> which fits the bill here and simplifies logic quite a bit, could you
+> please try the patch below and tell me if the touchscreen still works?
 
-I would like to, but I could not find the base version to which I can apply
-that patch. I've tried v2 version posted in '[PATCH] Input: add MAX7359 key
-switch controller driver, v2' mail from Sat 2009-05-09 04:10 with 2 patches
-posted in replies to that main, but the latest patch still fails to apply.
+I have no idea what I do wrong, but this patch also does not apply here:
 
-Could someone send me a complete patch, so I can do a test?
+$ git apply touchscreen-update.diff
+error: patch failed: drivers/input/touchscreen/mcs5000_ts.c:259
+error: drivers/input/touchscreen/mcs5000_ts.c: patch does not apply
+
+$ patch -p1 < touchscreen-update.diff
+patching file drivers/input/touchscreen/mcs5000_ts.c
+Hunk #6 FAILED at 196.
+1 out of 7 hunks FAILED -- saving rejects to file drivers/input/touchscreen/mcs5000_ts.c.rej
+
+I've tried it on clean 'v3' patch posted in '[PATCH v3] Input: add
+touchscreen driver for MELFAS MCS-5000 controller' mail on Friday 
+2009-07-10 04:10.
 
 Best regards
 --

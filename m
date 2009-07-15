@@ -1,70 +1,76 @@
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [Uclinux-dist-devel] [PATCH 1/2] input/joystick: new AD7142driver
-Date: Tue, 14 Jul 2009 23:42:28 -0400
-Message-ID: <200907142342.29177.rgetz@blackfin.uclinux.org>
-References: <1247592827-16878-1-git-send-email-vapier@gentoo.org> <20090714180309.GC14661@dtor-d630.eng.vmware.com>
+From: Trilok Soni <soni.trilok@gmail.com>
+Subject: Re: HTC: touchscreen driver
+Date: Wed, 15 Jul 2009 11:51:44 +0530
+Message-ID: <5d5443650907142321r1a4381eel96b955d85cd87114@mail.gmail.com>
+References: <20090710084323.GA6522@elf.ucw.cz>
+	 <a55d774e0907100431j3fdc4671i6b185019594367fa@mail.gmail.com>
+	 <20090713202302.GC2569@elf.ucw.cz> <20090713205749.GE2569@elf.ucw.cz>
+	 <20090713220726.GA28375@elf.ucw.cz>
+	 <d6200be20907131829o77bce3d8w8f238bc079478368@mail.gmail.com>
+	 <20090714094629.GB2076@elf.ucw.cz>
+	 <d6200be20907141507s39b54cccq9f0cedc325d3a203@mail.gmail.com>
+	 <20090714221638.GA6512@elf.ucw.cz>
+	 <d6200be20907141545k2b40b790x1af853b89517891c@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from nwd2mail11.analog.com ([137.71.25.57]:58018 "EHLO
-	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751853AbZGODjG (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2009 23:39:06 -0400
-In-Reply-To: <20090714180309.GC14661@dtor-d630.eng.vmware.com>
-Content-Disposition: inline
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1752217AbZGOGVs@vger.kernel.org>
+In-Reply-To: <d6200be20907141545k2b40b790x1af853b89517891c@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Brian Swetland <swetland@google.com>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: uclinux-dist-devel@blackfin.uclinux.org
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, "Hennerich, Michael" <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-On Tue 14 Jul 2009 14:03, Dmitry Torokhov pondered:
-> Hi Bryan,
-> 
-> On Tue, Jul 14, 2009 at 01:33:46PM -0400, Mike Frysinger wrote:
-> > From: Bryan Wu <cooloney@kernel.org>
-> > 
-> > Signed-off-by: Bryan Wu <cooloney@kernel.org>
-> > Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-> > Signed-off-by: Mike Frysinger <vapier@gentoo.org>
-> > ---
-> >  drivers/input/joystick/Kconfig  |    9 +
-> >  drivers/input/joystick/Makefile |    1 +
-> >  drivers/input/joystick/ad7142.c |  466
-> +++++++++++++++++++++++++++++++++++++++
+Hi Arve,
 
-[snip]
+2009/7/15 Arve Hj=F8nnev=E5g <arve@android.com>:
+> On Tue, Jul 14, 2009 at 3:16 PM, Pavel Machek<pavel@ucw.cz> wrote:
+> ...
+>>> >> This driver only supports a subset of Synaptics' devices so a mo=
+re
+>>> >> generic driver will eventually be needed. The patch below adds s=
+upport
+>>> >> for a more recent but similar panel.
+>>> >
+>>> > Ok, that should be simple enough to apply, but lets do improvemen=
+ts
+>>> > when we cleaned the code enough for the mainline...?
+>>>
+>>> We need this change now. Your cleanup will cause conflicts for anyo=
+ne
+>>> using our driver, so it would be better if it includes all our fixe=
+s.
+>>
+>> Well, I don't expect you to use the cleaned-up driver as-is: I had t=
+o
+>> remove the wakelocks functionality as infrastructure is not in
+>> mainline.
+>
+> OK. The driver does not use wakelocks tough, only earlysuspend, so
+> your cleaned up version should be fully functional. The early suspend
+> hooks are only used to save power in idle when the screen is off.
+>
+>> (Plus, I do not have hardware to test your latest version).
+>
+> True, but the protocol documentation is available:
+> http://www.synaptics.com/sites/default/files/511_000099_01F.pdf
+>
+>>
+>> Applying small patch on top of cleaned up driver should be better th=
+an
+>> carrying whole driver itself, right?
+>
+> Perhaps, but the only problem I encountered with this driver so far
+> was when calling disable_irq from the interrupt handler stopped
+> working on non-smp systems in 2.6.30 (which is another patch you
+> should probably apply first).
 
-> > +	input = data->input;
-> > +	input->open = ad7142_open;
-> > +	input->close = ad7142_close;
-> > +	input->evbit[0] = BIT_MASK(EV_KEY);
-> > +	input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
-> > +						BIT_MASK(BTN_BASE2) |
-> > +						BIT_MASK(BTN_BASE3) |
-> > +						BIT_MASK(BTN_BASE4);
-> > +	input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
-> > +						BIT_MASK(KEY_DOWN) |
-> > +						BIT_MASK(KEY_LEFT) |
-> > +						BIT_MASK(KEY_RIGHT);
-> > +
-> 
-> I am really not sure why you call it a joystick since it does not report
-> relative axes... Let's put it in misc and just another button device.
-> 
-> > +	input->name = "ad7142 joystick";
-> > +	input->phys = "ad7142/input0";
-> > +	input->id.bustype = BUS_I2C;
-> > +	input->id.vendor = 0x0001;
-> > +	input->id.product = 0x0001;
-> > +	input->id.version = 0x0100;
+disable_irq review comment is already given in the patch posted on
+linux-input by Pavel. We should convert this driver to
+request_threaded_irq infrastructure instead. I have added linux-input
+ML in CC.
 
-Since most people use it as a joypad - but I guess joypad isn't joystick...
-
-However - the device in question is multi-purpose - depending on the PCB, it 
-can be any of buttons, wheels, scroll-bar, slider, joypad, or touchpad.
-
-https://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors
-
-So -- maybe misc would be better...
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni

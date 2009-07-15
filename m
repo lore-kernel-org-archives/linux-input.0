@@ -1,49 +1,78 @@
-From: Alessandro Rubini <rubini-list@gnudd.com>
-Subject: Re: [PATCH] ads7846: allocate separate cache lines for tx and rx
-	data
-Date: Wed, 15 Jul 2009 21:33:26 +0200
-Message-ID: <20090715193326.GA13306@mail.gnudd.com>
-References: <200907151106.47917.david-b@pacbell.net>
-	<20090715093313.GA2897@mail.gnudd.com>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve@android.com>
+Subject: Re: Support for synaptic touchscreen in HTC dream
+Date: Wed, 15 Jul 2009 13:24:49 -0700
+Message-ID: <d6200be20907151324t7c133d49ofedf02efda4054cd@mail.gmail.com>
+References: <20090714100634.GA4054@elf.ucw.cz>
+	 <20090714175201.GB14661@dtor-d630.eng.vmware.com>
+	 <20090715134855.GB2538@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail2.gnudd.com ([213.203.150.91]:63016 "EHLO mail.gnudd.com"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1756093AbZGOTdr (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2009 15:33:47 -0400
-Content-Disposition: inline
-In-Reply-To: <200907151106.47917.david-b@pacbell.net>
+Received: from mail-qy0-f192.google.com ([209.85.221.192]:46485 "EHLO
+	mail-qy0-f192.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S932266AbZGOUYu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Jul 2009 16:24:50 -0400
+In-Reply-To: <20090715134855.GB2538@elf.ucw.cz>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: david-b@pacbell.net
-Cc: linux-input@vger.kernel.org, linux@arm.linux.org.uk, linux-arm-kernel@lists.arm.linux.org.uk
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 
->> Since the SPI master might use DMA, tx and rx buffers must live on
->> different cache lines.
-> 
-> Not true.  Full duplex tranfsers using a single buffer are
-> explicitly allowed.
+On Wed, Jul 15, 2009 at 6:48 AM, Pavel Machek<pavel@ucw.cz> wrote:
+> On Tue 2009-07-14 10:52:12, Dmitry Torokhov wrote:
+>> On Tue, Jul 14, 2009 at 12:06:34PM +0200, Pavel Machek wrote:
+>> > From: Arve Hj?nnev?g <arve@android.com>
+>> >
+>> > This adds support for synaptic touchscreen, used in HTC dream
+>> > cellphone.
+>> >
+>> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
+>>
+>> This is pretty large body of code, could we get a sign-off from Arve=
+ as
+>> well since he seems to be the author?
+>
+> Arve?
+>
 
-Ok, thanks.
+The original patches has my sign-offs. Can you just keep that and add
+a line describing your changes before your sign-off?
 
-> If that spi_master driver mis-handles this, it's a bug in that
-> driver.
+=2E..
+>> > +static struct workqueue_struct *synaptics_wq;
+>>
+>> Do we need a separate workqueue? Is reading the device that slow tha=
+t we
+>> can use keventd?
+>
 
-Well, the driver receives one spi message made of 4 or 6 transfers.
-It does one at a time, shouldn't it?  If the transfer description is
-intermixed with the data buffer, we fetch a line from ram with
-not-yet-filled input buffers. So I get invalid data from the analog
-inputs -- usually zero, as the structure is kzalloced.
+keventd has two problems. First, other work runs on it that can take
+more than 12.5ms. This will case dropped events. Second, the i2c bus
+sometimes locks up, which in turns would cause this driver to block
+keventd for seconds.
 
->> The issue was discussed with Russell King on linux-arm-kernel.
-> 
-> Gee, but not with the author of that driver or the maintainer of
-> the SPI framework.   Who could have pointed out instantly where
-> the true bug resides.
+=2E..
+>> > + =A0 if (client->irq) {
+>> > + =A0 =A0 =A0 =A0 =A0 ret =3D request_irq(client->irq, synaptics_t=
+s_irq_handler,
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 0, clien=
+t->name, ts);
+>>
+>> I think threaded IRQ will fit the bill and will take care of
+>> IRQ/workqueue shutdown races. Of course you still need to use workqu=
+eue
+>> if polling.
+>
+> I guess we'll just strip polling version for now?
 
-So, where is it? I don't get it I'm sorry.
+Sounds good to me.
 
-ps: yes, it's a revB silicon.
-
-/alessandro
+--=20
+Arve Hj=F8nnev=E5g
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

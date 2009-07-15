@@ -1,72 +1,53 @@
-From: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] input/joystick: new AD7142
-	driver
-Date: Tue, 14 Jul 2009 18:56:45 -0400
-Message-ID: <8bd0f97a0907141556j59a7143fwfd6211a9d52d826@mail.gmail.com>
-References: <1247592827-16878-1-git-send-email-vapier@gentoo.org>
-	<20090714180309.GC14661@dtor-d630.eng.vmware.com>
+From: Subrata Modak <subrata@linux.vnet.ibm.com>
+Subject: [PATCH 04/06] Fix compilation warning for drivers/input/touchscreen/htcpen.c
+Date: Wed, 15 Jul 2009 07:50:08 +0530
+Message-ID: <20090715022005.4244.67703.sendpatchset@subratamodak.linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-In-Reply-To: <20090714180309.GC14661-wUGeVx6es1+Q2O5dskk9LyLysJ1jNyTM@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Michael Hennerich <michael.hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42660 "EHLO
+	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1750879AbZGOCUV (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 14 Jul 2009 22:20:21 -0400
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Pau Oliva Fora <pof@eslack.org>, linux-input@vger.kernel.org
+Cc: Sachin P Sant <sachinp@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Subrata Modak <subrata@linux.vnet.ibm.com>, Balbir Singh <balbir@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>
 
-T24gVHVlLCBKdWwgMTQsIDIwMDkgYXQgMTQ6MDMsIERtaXRyeSBUb3Jva2hvdiB3cm90ZToKPiBP
-biBUdWUsIEp1bCAxNCwgMjAwOSBhdCAwMTozMzo0NlBNIC0wNDAwLCBNaWtlIEZyeXNpbmdlciB3
-cm90ZToKPj4gK3N0YXRpYyBpbnQgYWQ3MTQyX3Byb2JlKHN0cnVjdCBpMmNfY2xpZW50ICpjbGll
-bnQsCj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgY29uc3Qgc3RydWN0IGkyY19kZXZpY2VfaWQgKmlkKQo+Cj4gX19kZXZpbml0CgpmaXhl
-ZAoKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCByYyA9IHJlcXVlc3RfaXJxKGNsaWVudC0+aXJxLCBh
-ZDcxNDJfaW50ZXJydXB0LAo+PiArIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIElSUUZfVFJJR0dFUl9MT1csICJhZDcxNDJfam95c3RpY2siLCBkYXRhKTsKPgo+IExl
-dCdzIHVzZSB0aHJlYWRlZCBJUlFzLCB0aGV5IGFyZSBzbyBuaWNlIGZvciBkZXZpY2VzIGxpa2Ug
-dGhpcyBvbmUuCgppJ2xsIG9wZW4gYSB0cmFja2VyIGl0ZW0gZm9yIHNvbWVvbmUgdG8gbG9vayBh
-dCB0aGlzIC4uLiBCcnlhbiBoYXMgbGVmdCBvdXIgdGVhbQoKPj4gKyAgICAgICAgICAgICBkaXNh
-YmxlX2lycV9ub3N5bmMoY2xpZW50LT5pcnEpOwo+Cj4gV2h5IG5vc3luYyBoZXJlPwoKbm8gaWRl
-YSAtLSBjaGFuZ2VkIHRvIG5vcm1hbCB2ZXJzaW9uCgo+PiArICAgICAvKiBBbGxvY2F0ZSBhbmQg
-cmVnaXN0ZXIgQUQ3MTQyIGlucHV0IGRldmljZSAqLwo+PiArICAgICBkYXRhLT5pbnB1dCA9IGlu
-cHV0X2FsbG9jYXRlX2RldmljZSgpOwo+PiArICAgICBpZiAoIWRhdGEtPmlucHV0KSB7Cj4+ICsg
-ICAgICAgICAgICAgZGV2X2VycigmY2xpZW50LT5kZXYsICJDYW4ndCBhbGxvY2F0ZSBpbnB1dCBk
-ZXZpY2VcbiIpOwo+PiArICAgICAgICAgICAgIHJjID0gLUVOT01FTTsKPj4gKyAgICAgICAgICAg
-ICBnb3RvIGZhaWxfYWxsb2NhdGU7Cj4+ICsgICAgIH0KPgo+IEFsbG9jYXRlIHRoZSBkZXZpY2Ug
-YmVmb3JlIHlvdSByZXF1ZXN0IElSUS4uIEV2ZW4gaWYgeW91IGRpc2FibGVkIGl0Cj4gdGhlcmUg
-aXMgc3RpbGwgYSB3aW5kb3cgd2hlcmUgaXQgY2FuIGJlIHJhaXNlZCB3aXRob3V0IGlucHV0IGRl
-dmljZQo+IGFsbG9jYXRlZC4KCmZpeGVkIC4uLiBzdXJlIHdvdWxkIGJlIG5pY2UgdG8gaGF2ZSBh
-IElSUUZfeHh4IGZsYWcgdG8gcmVxdWVzdCBhbiBJUlEKaW4gdGhlIGRpc2FibGVkIHN0YXRlCgo+
-PiArIMKgIMKgIGlucHV0LT5ldmJpdFswXSA9IEJJVF9NQVNLKEVWX0tFWSk7Cj4+ICsgwqAgwqAg
-aW5wdXQtPmtleWJpdFtCSVRfV09SRChCVE5fQkFTRSldID0gQklUX01BU0soQlROX0JBU0UpIHwK
-Pj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCBCSVRfTUFTSyhCVE5fQkFTRTIpIHwKPj4gKyDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBCSVRfTUFT
-SyhCVE5fQkFTRTMpIHwKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCBCSVRfTUFTSyhCVE5fQkFTRTQpOwo+PiArIMKg
-IMKgIGlucHV0LT5rZXliaXRbQklUX1dPUkQoS0VZX1VQKV0gfD0gwqBCSVRfTUFTSyhLRVlfVVAp
-IHwKPj4gKyDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDCoCDC
-oCDCoCDCoCDCoCDCoCDCoCBCSVRfTUFTSyhLRVlfRE9XTikgfAo+PiArIMKgIMKgIMKgIMKgIMKg
-IMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIMKgIEJJVF9N
-QVNLKEtFWV9MRUZUKSB8Cj4+ICsgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAg
-wqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgwqAgQklUX01BU0soS0VZX1JJR0hUKTsKPj4gKwo+
-Cj4gSSBhbSByZWFsbHkgbm90IHN1cmUgd2h5IHlvdSBjYWxsIGl0IGEgam95c3RpY2sgc2luY2Ug
-aXQgZG9lcyBub3QgcmVwb3J0Cj4gcmVsYXRpdmUgYXhlcy4uLiBMZXQncyBwdXQgaXQgaW4gbWlz
-YyBhbmQganVzdCBhbm90aGVyIGJ1dHRvbiBkZXZpY2UuCgppZiB0aGUgaGFyZHdhcmUgZG9lc250
-IGFjdHVhbGx5IHN1cHBvcnQgcmVsYXRpdmUgZXZlbnRzLCBzdXJlIC4uLgpvdGhlcndpc2Ugd2Un
-bGwgYWRkIHN1cHBvcnQgZm9yIGl0Cgo+PiArc3RhdGljIGludCBfX2V4aXQgYWQ3MTQyX3JlbW92
-ZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KQo+Cj4gX19kZXZleGl0KCkKCmZpeGVkCgo+PiAr
-IMKgIMKgIC5yZW1vdmUgPSBfX2V4aXRfcChhZDcxNDJfcmVtb3ZlKSwKPgo+IF9fZGV2ZXhpdF9w
-KCkKCmZpeGVkCgo+IEFueSBQTSBzdXBwb3J0PwoKZ3Vlc3Mgd2UnbGwgYWRkIGl0Ci1taWtlCgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpVY2xpbnV4LWRp
-c3QtZGV2ZWwgbWFpbGluZyBsaXN0ClVjbGludXgtZGlzdC1kZXZlbEBibGFja2Zpbi51Y2xpbnV4
-Lm9yZwpodHRwczovL2JsYWNrZmluLnVjbGludXgub3JnL21haWxtYW4vbGlzdGluZm8vdWNsaW51
-eC1kaXN0LWRldmVs
+gcc 4.4.1 generates the following build warning on i386:
+
+CC drivers/input/touchscreen/htcpen.o
+drivers/input/touchscreen/htcpen.c:50: warning: =E2=80=98pnp_ids=E2=80=99=
+ defined but not used
+
+=46ix this by removing the static keyword when you are actually
+exporting that structure.
+
+Signed-off-by: Subrata Modak<subrata@linux.vnet.ibm.com>,
+---
+
+--- a/drivers/input/touchscreen/htcpen.c	2009-05-20 10:40:54.000000000 =
++0530
++++ b/drivers/input/touchscreen/htcpen.c	2009-07-15 06:15:34.000000000 =
++0530
+@@ -47,7 +47,7 @@ static int invert_y;
+ module_param(invert_y, bool, 0644);
+ MODULE_PARM_DESC(invert_y, "If set, Y axis is inverted");
+=20
+-static struct pnp_device_id pnp_ids[] =3D {
++struct pnp_device_id pnp_ids[] =3D {
+ 	{ .id =3D "PNP0cc0" },
+ 	{ .id =3D "" }
+ };
+
+---
+Regards--
+Subrata
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

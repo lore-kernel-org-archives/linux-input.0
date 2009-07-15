@@ -1,140 +1,214 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+From: Pavel Machek <pavel@ucw.cz>
 Subject: Re: Support for synaptic touchscreen in HTC dream
-Date: Wed, 15 Jul 2009 15:36:27 +0200
-Message-ID: <20090715133627.GA2538@elf.ucw.cz>
-References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com>
+Date: Wed, 15 Jul 2009 15:48:55 +0200
+Message-ID: <20090715134855.GB2538@elf.ucw.cz>
+References: <20090714100634.GA4054@elf.ucw.cz> <20090714175201.GB14661@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:40296 "EHLO
+	atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754104AbZGONtF (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Wed, 15 Jul 2009 09:49:05 -0400
 Content-Disposition: inline
-In-Reply-To: <5d5443650907140320w334864f4uc1ee13ed32fdb874-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20090714175201.GB14661@dtor-d630.eng.vmware.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 
-Hi!
+On Tue 2009-07-14 10:52:12, Dmitry Torokhov wrote:
+> On Tue, Jul 14, 2009 at 12:06:34PM +0200, Pavel Machek wrote:
+> > From: Arve Hj?nnev?g <arve@android.com>
+> > 
+> > This adds support for synaptic touchscreen, used in HTC dream
+> > cellphone.
+> > 
+> > Signed-off-by: Pavel Machek <pavel@ucw.cz>
+> 
+> This is pretty large body of code, could we get a sign-off from Arve as
+> well since he seems to be the author?
 
-> > +static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
-> > +{
->=20
-> some documentation about this logic would be great.
+Arve?
 
-Arve, can you help here?
-
-
-> > + =A0 =A0 =A0 int pos[2][2];
-> > + =A0 =A0 =A0 int f, a;
-> > + =A0 =A0 =A0 int base =3D 2;
-> > + =A0 =A0 =A0 int z =3D buf[1];
-> > + =A0 =A0 =A0 int w =3D buf[0] >> 4;
-> > + =A0 =A0 =A0 int finger =3D buf[0] & 7;
-> > + =A0 =A0 =A0 int finger2_pressed;
+> > +config TOUCHSCREEN_SYNAPTICS_I2C_RMI
+> > +	tristate "Synaptics i2c touchscreen"
+> > +	depends on I2C
+> > +	help
+> > +	  This enables support for Synaptics RMI over I2C based touchscreens.
+> > +	  Such touchscreen is used in HTC Dream.
 > > +
-> > + =A0 =A0 =A0 for (f =3D 0; f < 2; f++) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 flip_flag =3D SYNAPTICS_FLIP_X;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (a =3D 0; a < 2; a++) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D buf[base + =
-1];
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p |=3D (u16)(buf[base=
-] & 0x1f) << 8;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & flip_=
-flag)
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p =3D=
- ts->max[a] - p;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & SYNAP=
-TICS_SNAP_TO_INACTIVE_EDGE) {
+> 
+> To compile this driver as a module...
 
+Done.
 
-> > +static irqreturn_t synaptics_ts_irq_handler(int irq, void *dev_id)
-> > +{
-> > + =A0 =A0 =A0 struct synaptics_ts_data *ts =3D dev_id;
-> > +
-> > + =A0 =A0 =A0 disable_irq(ts->client->irq);
->=20
-> disable_irq_nosync or convert this to request_threaded_irq(...).
-> Please see recent discussion on linux-input for MAX key switch
-> controller.
+> > +static struct workqueue_struct *synaptics_wq;
+> 
+> Do we need a separate workqueue? Is reading the device that slow that we
+> can use keventd?
 
-Do you have a link? (I replaced it with disable_irq_nosync, if that is
-enough...)
+Arve?
 
-> > +static int synaptics_ts_probe(
-> > + =A0 =A0 =A0 struct i2c_client *client, const struct i2c_device_id=
- *id)
-> > +{
->=20
-> __devinit ?
+> > +	int snap_up_on[2];
+> > +	int snap_up_off[2];
+> > +	int snap_down[2];
+> > +	int snap_up[2];
+> > +	u32 flags;
+> > +	int (*power)(int on);
+> 
+> 'bool on'?
 
 Ok.
 
-> > + =A0 =A0 =A0 if (!i2c_check_functionality(client->adapter, I2C_FUN=
-C_I2C)) {
->=20
-> check for SMBUS? I have added linux-i2c as this driver has i2c bits,
-> so not removing any code.
+> > +static int i2c_read(struct synaptics_ts_data *ts, u8 reg, char *msg)
+> > +{
+> > +	int ret = i2c_smbus_read_byte_data(ts->client, 0xf0);
+> 
+> We are not using 'reg'?
 
-I guess this driver is only probed on mach-pxa... on machines that
-have the neccessary hardware.
+Uff... I thought I actually tested it?!
 
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "synaptics_ts_probe: =
-need I2C_FUNC_I2C\n");
->=20
-> dev_xxx/pr_xxx friends?
+> > +	input_report_abs(ts->input_dev, ABS_PRESSURE, z);
+> > +	input_report_abs(ts->input_dev, ABS_TOOL_WIDTH, w);
+> > +	input_report_key(ts->input_dev, BTN_TOUCH, finger);
+> > +	finger2_pressed = finger > 1 && finger != 7;
+> > +	input_report_key(ts->input_dev, BTN_2, finger2_pressed);
+> > +	if (finger2_pressed) {
+> > +		input_report_abs(ts->input_dev, ABS_HAT0X, pos[1][0]);
+> > +		input_report_abs(ts->input_dev, ABS_HAT0Y, pos[1][1]);
+> 
+> ABS_HAT is pretty unusual for a touchscreen...
 
-=46ixed all occurences.
+It is trying to do something useful for multitouch. People actually
+use multitouch on HTC dream. I guess I can strip it from version being
+merged...
 
+> > +		if ((buf[14] & 0xc0) != 0x40) {
+> > +			printk(KERN_WARNING "synaptics_ts_work_func:"
+> > +			       " bad read %x %x %x %x %x %x %x %x %x"
+> > +			       " %x %x %x %x %x %x, ret %d\n",
+> > +			       buf[0], buf[1], buf[2], buf[3],
+> > +			       buf[4], buf[5], buf[6], buf[7],
+> > +			       buf[8], buf[9], buf[10], buf[11],
+> > +			       buf[12], buf[13], buf[14], ret);
+> 
+> Umm... for ()?
 
-> > + =A0 =A0 =A0 ts->input_dev =3D input_allocate_device();
-> > + =A0 =A0 =A0 if (ts->input_dev =3D=3D NULL) {
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("synaptics: Failed to allocate=
- input device\n");
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_input_dev_alloc_failed;
-> > + =A0 =A0 =A0 }
-> > + =A0 =A0 =A0 ts->input_dev->name =3D "synaptics-rmi-touchscreen";
->=20
-> other parameters of input_dev, like vendor, bus etc.,
-
-Ok, what are those for? I can probably invent some dummy values, but...
-
-> > + =A0 =A0 =A0 set_bit(EV_SYN, ts->input_dev->evbit);
-> > + =A0 =A0 =A0 set_bit(EV_KEY, ts->input_dev->evbit);
-> > + =A0 =A0 =A0 set_bit(BTN_TOUCH, ts->input_dev->keybit);
-> > + =A0 =A0 =A0 set_bit(BTN_2, ts->input_dev->keybit);
-> > + =A0 =A0 =A0 set_bit(EV_ABS, ts->input_dev->evbit);
+> > +static enum hrtimer_restart synaptics_ts_timer_func(struct hrtimer *timer)
+> > +{
+> > +	struct synaptics_ts_data *ts =
+> > +		container_of(timer, struct synaptics_ts_data, timer);
 > > +
->=20
-> __set_bit or input_set_capability please.
+> > +	queue_work(synaptics_wq, &ts->work);
+> > +
+> > +	hrtimer_start(&ts->timer, ktime_set(0, 12500000), HRTIMER_MODE_REL);
+> 
+> I was always wondering why use high-resolution timer and then offload to
+> a workqueue which scheduling we have no idea about. Why can't we simply
+> reschedule work in case when we are in polling mode?
 
-__set_bit is easier, done.
 
-> > +static int synaptics_ts_remove(struct i2c_client *client)
+> > +	INIT_WORK(&ts->work, synaptics_ts_work_func);
+> > +	ts->client = client;
+> > +	i2c_set_clientdata(client, ts);
+> > +	pdata = client->dev.platform_data;
+> > +	if (pdata)
+> > +		ts->power = pdata->power;
+> > +	else
+> > +		pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+> 
+> Where is it freed?
+
+It is not, but this should not trigger. Converted to static fake_pdata.
+
+> > +	ts->input_dev->name = "synaptics-rmi-touchscreen";
+> 
+> BUS_I2C, etc.
+
+I figured out BUS_I2C. Anything else I need to set?
+
+> > +	set_bit(EV_SYN, ts->input_dev->evbit);
+> 
+> __set_bit(), no need to lock the bus.
+
+Ok.
+
+> > +	set_bit(EV_KEY, ts->input_dev->evbit);
+> > +	set_bit(BTN_TOUCH, ts->input_dev->keybit);
+> > +	set_bit(BTN_2, ts->input_dev->keybit);
+> 
+> BTN_2 is kinda generic... Normally joysticks use it... 
+
+Ok, what is the recommended protocol for multitouch? Should I strip it
+out from merge version?
+
+> > +	if (client->irq) {
+> > +		ret = request_irq(client->irq, synaptics_ts_irq_handler,
+> > +				  0, client->name, ts);
+> 
+> I think threaded IRQ will fit the bill and will take care of
+> IRQ/workqueue shutdown races. Of course you still need to use workqueue
+> if polling.
+
+I guess we'll just strip polling version for now?
+
+> > +	if (!ts->use_irq) {
+> > +		hrtimer_init(&ts->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+> > +		ts->timer.function = synaptics_ts_timer_func;
+> > +		hrtimer_start(&ts->timer, ktime_set(1, 0), HRTIMER_MODE_REL);
+> > +	}
+> > +
+> > +	pr_info("synaptics: Start touchscreen %s in %s mode\n", 
+> 
+> Probably "synaptics_ts" throughout so nobody is confused?
+
+Well, there's no other hardware from synaptics in those machines :-).
+
+> > +		ts->input_dev->name, ts->use_irq ? "interrupt" : "polling");
+> > +
+> > +	return 0;
+> > +
+> > + err_input_register_device_failed:
+> > +	input_free_device(ts->input_dev);
+> > +
+> 
+> Don't see canceling timer nor shutting off WQ here. Also, maybe
+> implement open() and close() so we don't reschedule WQ while polling?
+
 > > +{
->=20
-> __devexit
+> > +	struct synaptics_ts_data *ts = i2c_get_clientdata(client);
+> > +
+> > +	if (ts->use_irq)
+> > +		free_irq(client->irq, ts);
+> > +	else
+> > +		hrtimer_cancel(&ts->timer);
+> 
+> What about the work?
 
-Applied.
-
-
-> > +static int synaptics_ts_suspend(struct i2c_client *client, pm_mess=
-age_t mesg)
+> > +static void __exit synaptics_ts_exit(void)
 > > +{
->=20
-> #ifdef CONFIG_PM ?
-
-Yep.
-
+> > +	i2c_del_driver(&synaptics_ts_driver);
+> > +	if (synaptics_wq)
+> > +		destroy_workqueue(synaptics_wq);
+> > +}
+> > +
+> > +module_init(synaptics_ts_init);
+> > +module_exit(synaptics_ts_exit);
+> > +
 > > +MODULE_DESCRIPTION("Synaptics Touchscreen Driver");
 > > +MODULE_LICENSE("GPL");
->=20
-> MODULE_ALIAS?
+> 
+> MODULE_AUTHOR()?
 
-Umm, why? This is loaded from board-*.c files, and I don't think i2c
-has enumeration capabilities.
+Ok.
+
+> Thanks.
+
+Thanks for review!
 									Pavel
---=20
+
+-- 
 (english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses=
-/blog.html
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,68 +1,121 @@
-From: Trilok Soni <soni.trilok@gmail.com>
+From: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: Support for synaptic touchscreen in HTC dream
-Date: Wed, 15 Jul 2009 22:56:42 +0530
-Message-ID: <5d5443650907151026y670087fesa3022e37f68e2d8@mail.gmail.com>
+Date: Wed, 15 Jul 2009 23:03:02 +0530
+Message-ID: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
 References: <20090714100634.GA4054@elf.ucw.cz>
-	 <20090714175201.GB14661@dtor-d630.eng.vmware.com>
-	 <20090715134855.GB2538@elf.ucw.cz>
-	 <20090715152702.GB21611@dtor-d630.eng.vmware.com>
-	 <a55d774e0907150833g494dc91dxe7695543b61b2e50@mail.gmail.com>
+	 <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com>
+	 <20090715133627.GA2538@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from qw-out-2122.google.com ([74.125.92.27]:38129 "EHLO
-	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755199AbZGOR0n convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2009 13:26:43 -0400
-In-Reply-To: <a55d774e0907150833g494dc91dxe7695543b61b2e50@mail.gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20090715133627.GA2538-I/5MKhXcvmPrBKCeMvbIDA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dtor-JGs/UdohzUI@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-input@vger.kernel.org
-To: Brian Swetland <swetland@google.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 
-Hi Brian,
+Hi Pavel,
 
-On Wed, Jul 15, 2009 at 9:03 PM, Brian Swetland<swetland@google.com> wr=
-ote:
-> On Wed, Jul 15, 2009 at 8:27 AM, Dmitry
-> Torokhov<dmitry.torokhov@gmail.com> wrote:
->> On Wed, Jul 15, 2009 at 03:48:55PM +0200, Pavel Machek wrote:
->>> On Tue 2009-07-14 10:52:12, Dmitry Torokhov wrote:
->>> >
->>> > ABS_HAT is pretty unusual for a touchscreen...
->>>
->>> It is trying to do something useful for multitouch. People actually
->>> use multitouch on HTC dream. I guess I can strip it from version be=
-ing
->>> merged...
+On Wed, Jul 15, 2009 at 7:06 PM, Pavel Machek<pavel-+ZI9xUNit7I@public.gmane.org> wrote:
+> Hi!
+>
+>> > +static void decode_report(struct synaptics_ts_data *ts, u8 *buf)
+>> > +{
 >>
->> What about converting it to emit ABS_MT_* events added specifically
->> for the multitouch protocol?
+>> some documentation about this logic would be great.
 >
-> I believe at the time the driver was written, those events did not
-> exist. =A0If the input framework has more appropriate events for the
-> "2nd finger" (which is how synaptics represents MT on this panel), we
-> should definitely switch to them.
+> Arve, can you help here?
+>
+>
+>> > + =A0 =A0 =A0 int pos[2][2];
+>> > + =A0 =A0 =A0 int f, a;
+>> > + =A0 =A0 =A0 int base =3D 2;
+>> > + =A0 =A0 =A0 int z =3D buf[1];
+>> > + =A0 =A0 =A0 int w =3D buf[0] >> 4;
+>> > + =A0 =A0 =A0 int finger =3D buf[0] & 7;
+>> > + =A0 =A0 =A0 int finger2_pressed;
+>> > +
+>> > + =A0 =A0 =A0 for (f =3D 0; f < 2; f++) {
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 u32 flip_flag =3D SYNAPTICS_FLIP_X;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 for (a =3D 0; a < 2; a++) {
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 int p =3D buf[base +=
+ 1];
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p |=3D (u16)(buf[bas=
+e] & 0x1f) << 8;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & flip=
+_flag)
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 p =3D=
+ ts->max[a] - p;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (ts->flags & SYNA=
+PTICS_SNAP_TO_INACTIVE_EDGE) {
+>
+>
+>> > +static irqreturn_t synaptics_ts_irq_handler(int irq, void *dev_id=
+)
+>> > +{
+>> > + =A0 =A0 =A0 struct synaptics_ts_data *ts =3D dev_id;
+>> > +
+>> > + =A0 =A0 =A0 disable_irq(ts->client->irq);
+>>
+>> disable_irq_nosync or convert this to request_threaded_irq(...).
+>> Please see recent discussion on linux-input for MAX key switch
+>> controller.
+>
+> Do you have a link? (I replaced it with disable_irq_nosync, if that i=
+s
+> enough...)
 >
 
-Yes, MT events were added recently and they are working. Please check
-this demo based on MT events.
+link: http://patchwork.kernel.org/patch/35515/
 
-http://www.linuxfordevices.com/c/a/News/Linux-multitouch-technology-dem=
-od/
+>> > +static int synaptics_ts_probe(
+>> > + =A0 =A0 =A0 struct i2c_client *client, const struct i2c_device_i=
+d *id)
+>> > +{
+>>
+>> __devinit ?
+>
+> Ok.
+>
+>> > + =A0 =A0 =A0 if (!i2c_check_functionality(client->adapter, I2C_FU=
+NC_I2C)) {
+>>
+>> check for SMBUS? I have added linux-i2c as this driver has i2c bits,
+>> so not removing any code.
+>
+> I guess this driver is only probed on mach-pxa... on machines that
+> have the neccessary hardware.
 
-Also, please confirm if polling mode is really used in some h/w
-configuration, if not as said by Dmitry, we can remove it and do clean
-integration with threaded irq.
+Because this driver is using smbus i2c apis, it will be good to add
+that check too.
+
+>
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 printk(KERN_ERR "synaptics_ts_probe:=
+ need I2C_FUNC_I2C\n");
+>>
+>> dev_xxx/pr_xxx friends?
+>
+> Fixed all occurences.
+>
+>
+>> > + =A0 =A0 =A0 ts->input_dev =3D input_allocate_device();
+>> > + =A0 =A0 =A0 if (ts->input_dev =3D=3D NULL) {
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_err("synaptics: Failed to allocat=
+e input device\n");
+>> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto err_input_dev_alloc_failed;
+>> > + =A0 =A0 =A0 }
+>> > + =A0 =A0 =A0 ts->input_dev->name =3D "synaptics-rmi-touchscreen";
+>>
+>> other parameters of input_dev, like vendor, bus etc.,
+>
+> Ok, what are those for? I can probably invent some dummy values, but.=
+=2E.
+
+May be vendor, product, version would be good to add.
 
 --=20
 ---Trilok Soni
 http://triloksoni.wordpress.com
 http://www.linkedin.com/in/triloksoni
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

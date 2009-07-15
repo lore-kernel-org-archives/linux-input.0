@@ -1,59 +1,43 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH v3] Input: add touchscreen driver for MELFAS MCS-5000
-	controller
-Date: Wed, 15 Jul 2009 08:30:02 -0700
-Message-ID: <20090715153001.GD21611@dtor-d630.eng.vmware.com>
-References: <4A56A304.3050009@samsung.com> <20090714060403.GE2822@dtor-d630.eng.vmware.com> <4A5D8A73.4040707@samsung.com>
+From: Brian Swetland <swetland@google.com>
+Subject: Re: Support for synaptic touchscreen in HTC dream
+Date: Wed, 15 Jul 2009 08:33:38 -0700
+Message-ID: <a55d774e0907150833g494dc91dxe7695543b61b2e50@mail.gmail.com>
+References: <20090714100634.GA4054@elf.ucw.cz>
+	 <20090714175201.GB14661@dtor-d630.eng.vmware.com>
+	 <20090715134855.GB2538@elf.ucw.cz>
+	 <20090715152702.GB21611@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.233]:63002 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1755483AbZGOPaG (ORCPT
+Received: from smtp-out.google.com ([216.239.45.13]:41893 "EHLO
+	smtp-out.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755423AbZGOPdm (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2009 11:30:06 -0400
-Received: by rv-out-0506.google.com with SMTP id k40so2044308rvb.5
-        for <linux-input@vger.kernel.org>; Wed, 15 Jul 2009 08:30:06 -0700 (PDT)
-Content-Disposition: inline
-In-Reply-To: <4A5D8A73.4040707@samsung.com>
+	Wed, 15 Jul 2009 11:33:42 -0400
+In-Reply-To: <20090715152702.GB21611@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Joonyoung Shim <jy0922.shim@samsung.com>
-Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.fujak@samsung.com
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 
-On Wed, Jul 15, 2009 at 04:51:15PM +0900, Joonyoung Shim wrote:
-> On 7/14/2009 3:04 PM, Dmitry Torokhov wrote:
-> > Hi Joonyoung,
-> > 
-> > On Fri, Jul 10, 2009 at 11:10:12AM +0900, Joonyoung Shim wrote:
-> >> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
-> >> controller can see at the following website:
-> >>
-> >> http://www.melfas.com/product/product01.asp?k_r=eng_
-> >>
-> >> This driver is tested on s3c6410 NCP board and supports only the i2c
-> >> interface.
-> >>
-> >> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-> >> ---
-> >> Dear Dmitry,
-> >>
-> >> I sent the patch v2, but couldn't get any response.
-> >> This patch v3 is updated a little bit from v2.
-> >>
-> > 
-> > While I was sittign on the patch mainline acquired threaded IRQ support
-> > which fits the bill here and simplifies logic quite a bit, could you
-> > please try the patch below and tell me if the touchscreen still works?
-> > 
-> 
-> I've tested your patch, but it does not work. If i touch the pannel,
-> mcs5000_ts_hardirq is called once, but mcs5000_ts_interrupt is not
-> called, so the interrupt is not occurred any longer.
-> 
+On Wed, Jul 15, 2009 at 8:27 AM, Dmitry
+Torokhov<dmitry.torokhov@gmail.com> wrote:
+> On Wed, Jul 15, 2009 at 03:48:55PM +0200, Pavel Machek wrote:
+>> On Tue 2009-07-14 10:52:12, Dmitry Torokhov wrote:
+>> >
+>> > ABS_HAT is pretty unusual for a touchscreen...
+>>
+>> It is trying to do something useful for multitouch. People actually
+>> use multitouch on HTC dream. I guess I can strip it from version being
+>> merged...
+>
+> What about converting it to emit ABS_MT_* events added specifically
+> for the multitouch protocol?
 
-Hmm, wierd... I guess since threaded IRQs are pretty new there could be
-some issues there.
+I believe at the time the driver was written, those events did not
+exist.  If the input framework has more appropriate events for the
+"2nd finger" (which is how synaptics represents MT on this panel), we
+should definitely switch to them.
 
--- 
-Dmitry
+Brian

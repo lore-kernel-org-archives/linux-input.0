@@ -1,53 +1,70 @@
-From: Subrata Modak <subrata@linux.vnet.ibm.com>
-Subject: [PATCH 04/06] Fix compilation warning for drivers/input/touchscreen/htcpen.c
-Date: Wed, 15 Jul 2009 07:50:08 +0530
-Message-ID: <20090715022005.4244.67703.sendpatchset@subratamodak.linux.ibm.com>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [Uclinux-dist-devel] [PATCH 1/2] input/joystick: new AD7142driver
+Date: Tue, 14 Jul 2009 23:42:28 -0400
+Message-ID: <200907142342.29177.rgetz@blackfin.uclinux.org>
+References: <1247592827-16878-1-git-send-email-vapier@gentoo.org> <20090714180309.GC14661@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from e34.co.us.ibm.com ([32.97.110.152]:42660 "EHLO
-	e34.co.us.ibm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1750879AbZGOCUV (ORCPT
+Received: from nwd2mail11.analog.com ([137.71.25.57]:58018 "EHLO
+	nwd2mail11.analog.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751853AbZGODjG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 14 Jul 2009 22:20:21 -0400
+	Tue, 14 Jul 2009 23:39:06 -0400
+In-Reply-To: <20090714180309.GC14661@dtor-d630.eng.vmware.com>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Pau Oliva Fora <pof@eslack.org>, linux-input@vger.kernel.org
-Cc: Sachin P Sant <sachinp@linux.vnet.ibm.com>, David Howells <dhowells@redhat.com>, Subrata Modak <subrata@linux.vnet.ibm.com>, Balbir Singh <balbir@linux.vnet.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+To: uclinux-dist-devel@blackfin.uclinux.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mike Frysinger <vapier@gentoo.org>, "Hennerich, Michael" <michael.hennerich@analog.com>, linux-input@vger.kernel.org
 
-gcc 4.4.1 generates the following build warning on i386:
+On Tue 14 Jul 2009 14:03, Dmitry Torokhov pondered:
+> Hi Bryan,
+> 
+> On Tue, Jul 14, 2009 at 01:33:46PM -0400, Mike Frysinger wrote:
+> > From: Bryan Wu <cooloney@kernel.org>
+> > 
+> > Signed-off-by: Bryan Wu <cooloney@kernel.org>
+> > Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+> > Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+> > ---
+> >  drivers/input/joystick/Kconfig  |    9 +
+> >  drivers/input/joystick/Makefile |    1 +
+> >  drivers/input/joystick/ad7142.c |  466
+> +++++++++++++++++++++++++++++++++++++++
 
-CC drivers/input/touchscreen/htcpen.o
-drivers/input/touchscreen/htcpen.c:50: warning: =E2=80=98pnp_ids=E2=80=99=
- defined but not used
+[snip]
 
-=46ix this by removing the static keyword when you are actually
-exporting that structure.
+> > +	input = data->input;
+> > +	input->open = ad7142_open;
+> > +	input->close = ad7142_close;
+> > +	input->evbit[0] = BIT_MASK(EV_KEY);
+> > +	input->keybit[BIT_WORD(BTN_BASE)] = BIT_MASK(BTN_BASE) |
+> > +						BIT_MASK(BTN_BASE2) |
+> > +						BIT_MASK(BTN_BASE3) |
+> > +						BIT_MASK(BTN_BASE4);
+> > +	input->keybit[BIT_WORD(KEY_UP)] |=  BIT_MASK(KEY_UP) |
+> > +						BIT_MASK(KEY_DOWN) |
+> > +						BIT_MASK(KEY_LEFT) |
+> > +						BIT_MASK(KEY_RIGHT);
+> > +
+> 
+> I am really not sure why you call it a joystick since it does not report
+> relative axes... Let's put it in misc and just another button device.
+> 
+> > +	input->name = "ad7142 joystick";
+> > +	input->phys = "ad7142/input0";
+> > +	input->id.bustype = BUS_I2C;
+> > +	input->id.vendor = 0x0001;
+> > +	input->id.product = 0x0001;
+> > +	input->id.version = 0x0100;
 
-Signed-off-by: Subrata Modak<subrata@linux.vnet.ibm.com>,
----
+Since most people use it as a joypad - but I guess joypad isn't joystick...
 
---- a/drivers/input/touchscreen/htcpen.c	2009-05-20 10:40:54.000000000 =
-+0530
-+++ b/drivers/input/touchscreen/htcpen.c	2009-07-15 06:15:34.000000000 =
-+0530
-@@ -47,7 +47,7 @@ static int invert_y;
- module_param(invert_y, bool, 0644);
- MODULE_PARM_DESC(invert_y, "If set, Y axis is inverted");
-=20
--static struct pnp_device_id pnp_ids[] =3D {
-+struct pnp_device_id pnp_ids[] =3D {
- 	{ .id =3D "PNP0cc0" },
- 	{ .id =3D "" }
- };
+However - the device in question is multi-purpose - depending on the PCB, it 
+can be any of buttons, wheels, scroll-bar, slider, joypad, or touchpad.
 
----
-Regards--
-Subrata
+https://docs.blackfin.uclinux.org/doku.php?id=capacitance_touch_sensors
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+So -- maybe misc would be better...

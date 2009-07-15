@@ -1,76 +1,170 @@
-From: Joonyoung Shim <jy0922.shim@samsung.com>
-Subject: Re: [PATCH v3] Input: add touchscreen driver for MELFAS MCS-5000
- controller
-Date: Wed, 15 Jul 2009 16:51:15 +0900
-Message-ID: <4A5D8A73.4040707@samsung.com>
-References: <4A56A304.3050009@samsung.com>
- <20090714060403.GE2822@dtor-d630.eng.vmware.com>
+From: Alessandro Rubini <rubini-list@gnudd.com>
+Subject: [PATCH] ads7846: allocate separate cache lines for tx and rx data
+Date: Wed, 15 Jul 2009 11:33:13 +0200
+Message-ID: <20090715093313.GA2897@mail.gnudd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout2.samsung.com ([203.254.224.25]:43213 "EHLO
-	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752492AbZGOHvR (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2009 03:51:17 -0400
-Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
- by mailout1.samsung.com
- (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTP id <0KMT001PSCHF88@mailout1.samsung.com> for
- linux-input@vger.kernel.org; Wed, 15 Jul 2009 16:51:16 +0900 (KST)
-Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
- by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
- with ESMTPA id <0KMT00A84CHFY0@mmp2.samsung.com> for
- linux-input@vger.kernel.org; Wed, 15 Jul 2009 16:51:15 +0900 (KST)
-In-reply-to: <20090714060403.GE2822@dtor-d630.eng.vmware.com>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=unsubscribe>
+List-Archive: <http://lists.arm.linux.org.uk/lurker/list/linux-arm-kernel.html>
+List-Post: <mailto:linux-arm-kernel@lists.arm.linux.org.uk>
+List-Help: <mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=help>
+List-Subscribe: <http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.arm.linux.org.uk?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.arm.linux.org.uk
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.arm.linux.org.uk
+To: linux-input@vger.kernel.org
+Cc: linux@arm.linux.org.uk, linux-arm-kernel@lists.arm.linux.org.uk, dbrownell@users.sourceforge.net
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.fujak@samsung.com
 
-On 7/14/2009 3:04 PM, Dmitry Torokhov wrote:
-> Hi Joonyoung,
-> 
-> On Fri, Jul 10, 2009 at 11:10:12AM +0900, Joonyoung Shim wrote:
->> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
->> controller can see at the following website:
->>
->> http://www.melfas.com/product/product01.asp?k_r=eng_
->>
->> This driver is tested on s3c6410 NCP board and supports only the i2c
->> interface.
->>
->> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
->> ---
->> Dear Dmitry,
->>
->> I sent the patch v2, but couldn't get any response.
->> This patch v3 is updated a little bit from v2.
->>
-> 
-> While I was sittign on the patch mainline acquired threaded IRQ support
-> which fits the bill here and simplifies logic quite a bit, could you
-> please try the patch below and tell me if the touchscreen still works?
-> 
+From: Alessandro Rubini <rubini@gnudd.com>
 
-I've tested your patch, but it does not work. If i touch the pannel,
-mcs5000_ts_hardirq is called once, but mcs5000_ts_interrupt is not
-called, so the interrupt is not occurred any longer.
+Since the SPI master might use DMA, tx and rx buffers must live on
+different cache lines.  Here one cache line is used for all tx and
+another for all rx.  This will work whether the SPI master maps/unmaps
+one buffer at a time or all together.  The patch only fixes the analog
+inputs, as touch screen operation is not affected, although I didn't
+check why.  I tested on at91sam9263, where buffers are all mapped
+initially and unmapped individually at irq time.
 
->> I have one question. The MCS-5000 controller don't support PRESSURE, so
->> i removed a fake PRESSURE report on driver, but tslib v1.0
->> (http://tslib.berlios.de) require the PRESSURE report from driver. I
->> wonder whether it is make sense to report a fake PRESSURE for tslib.
->>
-> 
-> I believe the adjustments to use BTN_TOUCH in absebse of ABS_PRESSURE
-> has been applied to tslib, you need to talk to the maintainers about
-> releasing updated version instead of adding fake events to the kernel.
-> 
+The issue was discussed with Russell King on linux-arm-kernel.
 
-I see, thank you.
+Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
+Cc: Russell King <linux@arm.linux.org.uk>
+Cc: David Brownell <dbrownell@users.sourceforge.net>
+---
+ drivers/input/touchscreen/ads7846.c |   53 +++++++++++++++++++++++++----------
+ 1 files changed, 38 insertions(+), 15 deletions(-)
 
-> Thanks.
-> 
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index ba9d38c..6c940c9 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -27,6 +27,7 @@
+ #include <linux/gpio.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/ads7846.h>
++#include <linux/dma-mapping.h>
+ #include <asm/irq.h>
+ 
+ 
+@@ -196,13 +197,20 @@ struct ads7846 {
+  */
+ 
+ struct ser_req {
++	struct spi_message	msg;
++	struct spi_transfer	xfer[6];
++	/* data buffers must live on different cache lines, for DMA access */
++	struct tx_data		*tx;
++	struct rx_data		*rx;
++};
++struct tx_data {
+ 	u8			ref_on;
+ 	u8			command;
+ 	u8			ref_off;
+-	u16			scratch;
++};
++struct rx_data {
+ 	__be16			sample;
+-	struct spi_message	msg;
+-	struct spi_transfer	xfer[6];
++	__be16			scratch;
+ };
+ 
+ static void ads7846_enable(struct ads7846 *ts);
+@@ -218,12 +226,27 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ {
+ 	struct spi_device	*spi = to_spi_device(dev);
+ 	struct ads7846		*ts = dev_get_drvdata(dev);
+-	struct ser_req		*req = kzalloc(sizeof *req, GFP_KERNEL);
++	struct ser_req		*req;
++	void			*ptr;
+ 	int			status;
+ 	int			use_internal;
++	int			cacheline = dma_get_cache_alignment();
++	int			size;
++
++	/*
++	 * allocate the request and two different cache lines for tx and rx.
++	 * Use a single kmalloc and some simple quasi-constant aritmetics
++	 */
++	size = ALIGN(sizeof *req, cacheline)
++		+ ALIGN(sizeof *req->tx, cacheline)
++		+ ALIGN(sizeof *req->rx, cacheline);
+ 
+-	if (!req)
++	ptr = kzalloc(size, GFP_KERNEL);
++	if (!ptr)
+ 		return -ENOMEM;
++	req = ptr;
++	req->tx = ptr + ALIGN(sizeof *req, cacheline);
++	req->rx = (void *)req->tx + ALIGN(sizeof *req->tx, cacheline);
+ 
+ 	spi_message_init(&req->msg);
+ 
+@@ -232,12 +255,12 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ 
+ 	/* maybe turn on internal vREF, and let it settle */
+ 	if (use_internal) {
+-		req->ref_on = REF_ON;
+-		req->xfer[0].tx_buf = &req->ref_on;
++		req->tx->ref_on = REF_ON;
++		req->xfer[0].tx_buf = &req->tx->ref_on;
+ 		req->xfer[0].len = 1;
+ 		spi_message_add_tail(&req->xfer[0], &req->msg);
+ 
+-		req->xfer[1].rx_buf = &req->scratch;
++		req->xfer[1].rx_buf = &req->rx->scratch;
+ 		req->xfer[1].len = 2;
+ 
+ 		/* for 1uF, settle for 800 usec; no cap, 100 usec.  */
+@@ -246,24 +269,24 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ 	}
+ 
+ 	/* take sample */
+-	req->command = (u8) command;
+-	req->xfer[2].tx_buf = &req->command;
++	req->tx->command = (u8) command;
++	req->xfer[2].tx_buf = &req->tx->command;
+ 	req->xfer[2].len = 1;
+ 	spi_message_add_tail(&req->xfer[2], &req->msg);
+ 
+-	req->xfer[3].rx_buf = &req->sample;
++	req->xfer[3].rx_buf = &req->rx->sample;
+ 	req->xfer[3].len = 2;
+ 	spi_message_add_tail(&req->xfer[3], &req->msg);
+ 
+ 	/* REVISIT:  take a few more samples, and compare ... */
+ 
+ 	/* converter in low power mode & enable PENIRQ */
+-	req->ref_off = PWRDOWN;
+-	req->xfer[4].tx_buf = &req->ref_off;
++	req->tx->ref_off = PWRDOWN;
++	req->xfer[4].tx_buf = &req->tx->ref_off;
+ 	req->xfer[4].len = 1;
+ 	spi_message_add_tail(&req->xfer[4], &req->msg);
+ 
+-	req->xfer[5].rx_buf = &req->scratch;
++	req->xfer[5].rx_buf = &req->rx->scratch;
+ 	req->xfer[5].len = 2;
+ 	CS_CHANGE(req->xfer[5]);
+ 	spi_message_add_tail(&req->xfer[5], &req->msg);
+@@ -276,7 +299,7 @@ static int ads7846_read12_ser(struct device *dev, unsigned command)
+ 
+ 	if (status == 0) {
+ 		/* on-wire is a must-ignore bit, a BE12 value, then padding */
+-		status = be16_to_cpu(req->sample);
++		status = be16_to_cpu(req->rx->sample);
+ 		status = status >> 3;
+ 		status &= 0x0fff;
+ 	}
+-- 
+1.6.0.2
 
+-------------------------------------------------------------------
+List admin: http://lists.arm.linux.org.uk/mailman/listinfo/linux-arm-kernel
+FAQ:        http://www.arm.linux.org.uk/mailinglists/faq.php
+Etiquette:  http://www.arm.linux.org.uk/mailinglists/etiquette.php

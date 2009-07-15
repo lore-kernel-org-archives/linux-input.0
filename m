@@ -1,198 +1,76 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: RE: [PATCH] Input: add MAX7359 key switch controller driver, v2
-Date: Wed, 15 Jul 2009 09:15:34 +0200
-Message-ID: <003f01ca051c$0e8d12b0$2ba73810$%szyprowski@samsung.com>
-References: <4A04E5EA.7000103@samsung.com>
- <5d5443650906191038o797e0c3eu8234a56ee247ea68@mail.gmail.com>
- <5d5443650907130152t420e9426q762c24bdb1b29aae@mail.gmail.com>
- <20090713093147.GJ10819@dtor-d630.eng.vmware.com>
- <4A5BF6F0.6020403@samsung.com>
- <001801ca044c$428839d0$c798ad70$%szyprowski@samsung.com>
- <20090714082452.GH2822@dtor-d630.eng.vmware.com>
- <002a01ca0462$8b750a90$a25f1fb0$%szyprowski@samsung.com>
- <5d5443650907140211i4c6e4a49q9c055dc1e91071da@mail.gmail.com>
- <002b01ca046c$7f9fd240$7edf76c0$%szyprowski@samsung.com>
- <5d5443650907140323l6cc06151nbec94d5d8646c60a@mail.gmail.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v3] Input: add touchscreen driver for MELFAS MCS-5000
+ controller
+Date: Wed, 15 Jul 2009 16:51:15 +0900
+Message-ID: <4A5D8A73.4040707@samsung.com>
+References: <4A56A304.3050009@samsung.com>
+ <20090714060403.GE2822@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mailout3.samsung.com ([203.254.224.33]:51564 "EHLO
-	mailout3.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1752649AbZGOHQX convert rfc822-to-8bit (ORCPT
+Received: from mailout2.samsung.com ([203.254.224.25]:43213 "EHLO
+	mailout2.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1752492AbZGOHvR (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 15 Jul 2009 03:16:23 -0400
-In-reply-to: <5d5443650907140323l6cc06151nbec94d5d8646c60a@mail.gmail.com>
-Content-language: pl
+	Wed, 15 Jul 2009 03:51:17 -0400
+Received: from epmmp2 (mailout2.samsung.com [203.254.224.25])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KMT001PSCHF88@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 15 Jul 2009 16:51:16 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KMT00A84CHFY0@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Wed, 15 Jul 2009 16:51:15 +0900 (KST)
+In-reply-to: <20090714060403.GE2822@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: 'Trilok Soni' <soni.trilok@gmail.com>
-Cc: 'Dmitry Torokhov' <dmitry.torokhov@gmail.com>, 'Kim Kyuwon' <q1.kim@samsung.com>, 'Kim Kyuwon' <chammoru@gmail.com>, 'LKML' <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org, 'Kyungmin Park' <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.fujak@samsung.com
 
-Hello,
+On 7/14/2009 3:04 PM, Dmitry Torokhov wrote:
+> Hi Joonyoung,
+> 
+> On Fri, Jul 10, 2009 at 11:10:12AM +0900, Joonyoung Shim wrote:
+>> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
+>> controller can see at the following website:
+>>
+>> http://www.melfas.com/product/product01.asp?k_r=eng_
+>>
+>> This driver is tested on s3c6410 NCP board and supports only the i2c
+>> interface.
+>>
+>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>> ---
+>> Dear Dmitry,
+>>
+>> I sent the patch v2, but couldn't get any response.
+>> This patch v3 is updated a little bit from v2.
+>>
+> 
+> While I was sittign on the patch mainline acquired threaded IRQ support
+> which fits the bill here and simplifies logic quite a bit, could you
+> please try the patch below and tell me if the touchscreen still works?
+> 
 
-On Tuesday, July 14, 2009 12:23 PM Trilok Soni wrote:
+I've tested your patch, but it does not work. If i touch the pannel,
+mcs5000_ts_hardirq is called once, but mcs5000_ts_interrupt is not
+called, so the interrupt is not occurred any longer.
 
-> On Tue, Jul 14, 2009 at 3:48 PM, Marek
-> Szyprowski<m.szyprowski@samsung.com> wrote:
-> > Hello,
-> >
-> > On Tuesday, July 14, 2009 11:12 AM, Trilok Soni wrote:
-> >
-> >> On Tue, Jul 14, 2009 at 2:37 PM, Marek
-> >> Szyprowski<m.szyprowski@samsung.com> wrote:
-> >> > Hello,
-> >> >
-> >> > On Tuesday, July 14, 2009 10:25 AM, Dmitry Torokhov wrote:
-> >> >
-> >> >> On Tue, Jul 14, 2009 at 08:28:05AM +0200, Marek Szyprowski wrot=
-e:
-> >> >> > Hello,
-> >> >> > On Tuesday, July 14, 2009 5:10 AM, Kim Kyuwon wrote:
-> >> >> > > Dmitry Torokhov wrote:
-> >> >> > > > On Mon, Jul 13, 2009 at 02:22:10PM +0530, Trilok Soni wro=
-te:
-> >> >> > > >> I don't see this driver picked up yet in your -next bran=
-ch. We should
-> >> >> > > >> target this driver to be mainlined in next merge window.=
- This is very
-> >> >> > > >> important driver for some of the embedded systems, inclu=
-ding palm pre
-> >> >> > > >> :)
-> >> >> > > > I was wondering if somebody could test the patch below an=
-d if it still
-> >> >> > > > works then I will apply to the next branch. Thanks!
-> >> >> > > >
-> >> >> > >
-> >> >> > > Dear Marek,
-> >> >> > >
-> >> >> > > Because I don't have the NCP board(which includes the max73=
-59 keypad)
-> >> >> > > now, I can't test this patch. Marek, could you please test =
-this patch?
-> >> >> >
-> >> >> > I would like to, but I could not find the base version to whi=
-ch I can apply
-> >> >> > that patch. I've tried v2 version posted in '[PATCH] Input: a=
-dd MAX7359 key
-> >> >> > switch controller driver, v2' mail from Sat 2009-05-09 04:10 =
-with 2 patches
-> >> >> > posted in replies to that main, but the latest patch still fa=
-ils to apply.
-> >> >> >
-> >> >> > Could someone send me a complete patch, so I can do a test?
-> >> >> >
-> >> >>
-> >> >> Sending everything as attachments, maybe that will help...
-> >> >
-> >> > Ok. I've did the tests.
-> >> >
-> >> > MAX7359 keypad driver works after your patch, but reports much m=
-ore events than
-> >> > the previous version. In this test I pressed quickly the first b=
-utton on the
-> >> > keypad.
-> >> >
-> >> > Old version:
-> >> > NCP:~# hexdump /dev/input/event0
-> >> > 0000000 0037 0000 e733 000b 0001 00e7 0001 0000
-> >> > 0000010 0037 0000 e748 000b 0000 0000 0000 0000
-> >> > 0000020 0037 0000 94e2 000d 0001 00e7 0000 0000
-> >> > 0000030 0037 0000 94f3 000d 0000 0000 0000 0000
-> >> >
-> >>
-> >> Please use evtest instead. It will give better output atleast.
-> >
-> > Ok.
-> >
-> > Old version (clean v2 patch):
-> >
-> > NCP:~# evtest /dev/input/event0
-> > Input driver version is 1.0.0
-> > Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
-> > Input device name: "max7359"
-> > Supported events:
-> > =A0Event type 0 (Sync)
-> > =A0Event type 1 (Key)
-> > =A0 =A0Event code 107 (End)
-> > =A0 =A0Event code 139 (Menu)
-> > =A0 =A0Event code 148 (Prog1)
-> > =A0 =A0Event code 149 (Prog2)
-> > =A0 =A0Event code 177 (ScrollUp)
-> > =A0 =A0Event code 178 (ScrollDown)
-> > =A0 =A0Event code 212 (Camera)
-> > =A0 =A0Event code 231 (?)
-> > =A0 =A0Event code 474 (?)
-> > =A0Event type 20 (Repeat)
-> > Testing ... (interrupt to exit)
-> > Event: time 38.740081, type 1 (Key), code 139 (Menu), value 1
-> > Event: time 38.740101, -------------- Report Sync ------------
-> > Event: time 38.850061, type 1 (Key), code 139 (Menu), value 0
-> > Event: time 38.850077, -------------- Report Sync ------------
-> >
-> > New version (updated platform definition to use struct matrix_keyma=
-p_data instead of
-> max7359_keypad_platform_data):
-> >
-> > NCP:~# evtest /dev/input/event0
-> > Input driver version is 1.0.0
-> > Input device ID: bus 0x18 vendor 0x0 product 0x0 version 0x0
-> > Input device name: "max7359"
-> > Supported events:
-> > =A0Event type 0 (Sync)
-> > =A0Event type 1 (Key)
-> > =A0 =A0Event code 107 (End)
-> > =A0 =A0Event code 139 (Menu)
-> > =A0 =A0Event code 148 (Prog1)
-> > =A0 =A0Event code 149 (Prog2)
-> > =A0 =A0Event code 177 (ScrollUp)
-> > =A0 =A0Event code 178 (ScrollDown)
-> > =A0 =A0Event code 212 (Camera)
-> > =A0 =A0Event code 231 (?)
-> > =A0 =A0Event code 474 (?)
-> > =A0Event type 4 (Misc)
-> > =A0 =A0Event code 4 (ScanCode)
-> > =A0Event type 20 (Repeat)
-> > Testing ... (interrupt to exit)
-> > Event: time 75.680066, type 4 (Misc), code 4 (ScanCode), value 01
-> > Event: time 75.680095, type 1 (Key), code 139 (Menu), value 1
-> > Event: time 75.680107, -------------- Report Sync ------------
-> > Event: time 75.700072, type 4 (Misc), code 4 (ScanCode), value 3f
-> > Event: time 75.700095, -------------- Report Sync ------------
-> > Event: time 75.830064, type 4 (Misc), code 4 (ScanCode), value 01
-> > Event: time 75.830093, type 1 (Key), code 139 (Menu), value 0
-> > Event: time 75.830100, -------------- Report Sync ------------
-> > Event: time 75.850073, type 4 (Misc), code 4 (ScanCode), value 3f
-> > Event: time 75.850097, -------------- Report Sync ------------
-> >
-> > Something is definitely different. It looks that I missed a patch t=
-hat added some additional events,
-> because I don't think that the
-> > threaded irq patch would cause this.
-> >
->=20
-> Nope, it is not because of threaded irq patch but MSC_SCAN event
-> generation. Not to worry.
+>> I have one question. The MCS-5000 controller don't support PRESSURE, so
+>> i removed a fake PRESSURE report on driver, but tslib v1.0
+>> (http://tslib.berlios.de) require the PRESSURE report from driver. I
+>> wonder whether it is make sense to report a fake PRESSURE for tslib.
+>>
+> 
+> I believe the adjustments to use BTN_TOUCH in absebse of ABS_PRESSURE
+> has been applied to tslib, you need to talk to the maintainers about
+> releasing updated version instead of adding fake events to the kernel.
+> 
 
-I'm sorry for the commotion, but I did the test in a wrong way. I thoug=
-ht Dmitry has sent me a patch with the threaded irq already
-integrated. Joonyoung Shim has pointed me that I was wrong. I had to ap=
-ply the threaded irq patch on top of the patch Dmitry has
-sent me.
+I see, thank you.
 
-To sum up - the threaded irq version does not work here on ARM S3C6410 =
-NCP board. In /proc/interrupts I only noticed that only 1
-interrupt has been triggered. No events are reported. Same was with Mel=
-fas Touchscreen driver (also only 1 interrupt triggered).
+> Thanks.
+> 
 
-Best regards
---
-Marek Szyprowski
-Samsung Poland R&D Center
-
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html

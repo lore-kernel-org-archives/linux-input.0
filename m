@@ -1,56 +1,42 @@
-From: Jiri Kosina <jkosina@suse.cz>
+From: Andi Kleen <andi@firstfloor.org>
 Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Thu, 16 Jul 2009 11:02:47 +0200 (CEST)
-Message-ID: <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de>
-References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de> <20090713040528.GH10819@dtor-d630.eng.vmware.com>
- <alpine.LNX.2.00.0907130906140.10476@wotan.suse.de> <20090713082527.GA26638@basil.fritz.box>
+Date: Thu, 16 Jul 2009 11:24:06 +0200
+Message-ID: <20090716092406.GC8046@one.firstfloor.org>
+References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de> <20090713040528.GH10819@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907130906140.10476@wotan.suse.de> <20090713082527.GA26638@basil.fritz.box> <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from cantor2.suse.de ([195.135.220.15]:35681 "EHLO mx2.suse.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754082AbZGPJCw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2009 05:02:52 -0400
-In-Reply-To: <20090713082527.GA26638@basil.fritz.box>
+Received: from one.firstfloor.org ([213.235.205.2]:46318 "EHLO
+	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754294AbZGPJYK (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jul 2009 05:24:10 -0400
+Content-Disposition: inline
+In-Reply-To: <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Andi Kleen <andi@firstfloor.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Andi Kleen <andi@firstfloor.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
 
-On Mon, 13 Jul 2009, Andi Kleen wrote:
+> Andi, are you absolutely sure that this appeared between .29 and .30 for 
+> you?
 
-> > > > > > Are you seeing with a specific keyboard type(s), or is this a 
-> > > > > > general problem? Could you confirm whether it is specific either 
-> > > > > > to PS2 or USB keyboards only, or it does happen for both?
-> > > > > Can't think of any input chnages in this timeftrame that would cause
-> > > > > such effect. Maybe TTY changes?
-> > > > By the way, if I understand it correctly, Andi is able to see the very 
-> > > > same effect even inside X, so tty can be possibly ruled out, right?
-> > > Umm, doesn't SuSE still use legacy keyboard driver instead of evdev in
-> > > X? Thomas mentioned recently it still did...
-> > 
-> > It does.
-> > 
-> > If I understand Andi's problem though, he is able to trigger the problem 
-> > even solely on console, with X not being involved at all.
+I only noticed it after the .30 update at least.
+
+> And if so, is there any chance you could try bisecting it?
+
+Ok.
+
 > 
-> Sorry, I tried again and I can't reproduce the console misbehaviour anymore.
-> Only see it in X.  I thought I had seen it in links resetting to the first
-> page, but I don't see that now.
+> (*) have been on virtual desktop where firefox was running, switched to 
+> console using Ctrl-Alt-F1, and switched back to X using F7. Firefox then 
+> popped up some dialog about configuring some feature that is triggered by 
+> pressing F7/AltF7, or whatever. Is that what you are seeing?
 
-So by total coincidence I reproduced exactly this behavior (*) (while not 
-trying to do so) on system running 2.6.24-rc3, with PS/2 keyboard. 
+Yes, I typically see it with the help screen. It also happens with
+other applications, not just firefox.
 
-Andi, are you absolutely sure that this appeared between .29 and .30 for 
-you?
-
-And if so, is there any chance you could try bisecting it?
-
-(*) have been on virtual desktop where firefox was running, switched to 
-console using Ctrl-Alt-F1, and switched back to X using F7. Firefox then 
-popped up some dialog about configuring some feature that is triggered by 
-pressing F7/AltF7, or whatever. Is that what you are seeing?
+-Andi
 
 -- 
-Jiri Kosina
-SUSE Labs
+ak@linux.intel.com -- Speaking for myself only.

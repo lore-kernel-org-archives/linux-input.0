@@ -1,42 +1,49 @@
-From: Andi Kleen <andi@firstfloor.org>
-Subject: Re: [regression] 2.6.30 leaking keys on console switch
-Date: Thu, 16 Jul 2009 11:24:06 +0200
-Message-ID: <20090716092406.GC8046@one.firstfloor.org>
-References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de> <20090713040528.GH10819@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907130906140.10476@wotan.suse.de> <20090713082527.GA26638@basil.fritz.box> <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de>
+From: Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: [PATCH] ads7846: allocate separate cache lines for tx and rx data
+Date: Thu, 16 Jul 2009 12:00:00 +0200
+Message-ID: <200907161200.01020.marek.vasut@gmail.com>
+References: <200907151106.47917.david-b@pacbell.net> <20090716071529.GA28840@n2100.arm.linux.org.uk> <200907160028.05114.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from one.firstfloor.org ([213.235.205.2]:46318 "EHLO
-	one.firstfloor.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754294AbZGPJYK (ORCPT
+Received: from mail-fx0-f213.google.com ([209.85.220.213]:42397 "EHLO
+	mail-fx0-f213.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1754719AbZGPKAT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2009 05:24:10 -0400
+	Thu, 16 Jul 2009 06:00:19 -0400
+Received: by fxm9 with SMTP id 9so4427fxm.1
+        for <linux-input@vger.kernel.org>; Thu, 16 Jul 2009 03:00:17 -0700 (PDT)
+In-Reply-To: <200907160028.05114.david-b@pacbell.net>
 Content-Disposition: inline
-In-Reply-To: <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Andi Kleen <andi@firstfloor.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: Russell King - ARM Linux <linux@arm.linux.org.uk>, Alessandro Rubini <rubini-list@gnudd.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
-> Andi, are you absolutely sure that this appeared between .29 and .30 for 
-> you?
+Dne =C4=8Ct 16. =C4=8Dervence 2009 09:28:04 David Brownell napsal(a):
+> On Thursday 16 July 2009, Russell King - ARM Linux wrote:
+> > Clearly David has no knowledge of DMA cache line handing and has no=
+t
+> > read the DMA API document.  I really suggest that you ignore him un=
+til
+> > he gets a fucking clue.
+>
+> Clearly common courtesy is too much for Russell.  I suggest you
+> ignore him until he learns to restrain his baser impulses ...
+> his personal attacks have no place in technical discussions.
 
-I only noticed it after the .30 update at least.
+It's very interesting. I experienced no problems when it came to commun=
+icating=20
+with him (which I cant say about you though).
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-input=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-> And if so, is there any chance you could try bisecting it?
-
-Ok.
-
-> 
-> (*) have been on virtual desktop where firefox was running, switched to 
-> console using Ctrl-Alt-F1, and switched back to X using F7. Firefox then 
-> popped up some dialog about configuring some feature that is triggered by 
-> pressing F7/AltF7, or whatever. Is that what you are seeing?
-
-Yes, I typically see it with the help screen. It also happens with
-other applications, not just firefox.
-
--Andi
-
--- 
-ak@linux.intel.com -- Speaking for myself only.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

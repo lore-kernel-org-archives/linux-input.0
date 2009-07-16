@@ -1,55 +1,67 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH] ads7846: allocate separate cache lines for tx and rx
-	data
-Date: Thu, 16 Jul 2009 21:06:28 +0100
-Message-ID: <20090716200628.GA22111@n2100.arm.linux.org.uk>
-References: <200907151106.47917.david-b@pacbell.net> <20090716071529.GA28840@n2100.arm.linux.org.uk> <200907160028.05114.david-b@pacbell.net> <200907161200.01020.marek.vasut@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:33341 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S932816AbZGPUGw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2009 16:06:52 -0400
-Content-Disposition: inline
-In-Reply-To: <200907161200.01020.marek.vasut@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+From: timg@tpi.com (Tim Gardner)
+Subject: [PATCH] atkbd - Fix Soltech TA12 volume hotkeys not sending key release
+Date: Thu, 16 Jul 2009 14:08:44 -0600 (MDT)
+Message-ID: <20090716200844.89EC7F8A01@sepang.rtg.net>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S933265AbZGPUIv@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org, linux-kernel@Vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Marek Vasut <marek.vasut@gmail.com>
-Cc: David Brownell <david-b@pacbell.net>, Alessandro Rubini <rubini-list@gnudd.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
-On Thu, Jul 16, 2009 at 12:00:00PM +0200, Marek Vasut wrote:
-> Dne =C4=8Ct 16. =C4=8Dervence 2009 09:28:04 David Brownell napsal(a):
-> > On Thursday 16 July 2009, Russell King - ARM Linux wrote:
-> > > Clearly David has no knowledge of DMA cache line handing and has =
-not
-> > > read the DMA API document.  I really suggest that you ignore him =
-until
-> > > he gets a fucking clue.
-> >
-> > Clearly common courtesy is too much for Russell.  I suggest you
-> > ignore him until he learns to restrain his baser impulses ...
-> > his personal attacks have no place in technical discussions.
->=20
-> It's very interesting. I experienced no problems when it came to
-> communicating with him (which I cant say about you though).
+>From 8b172a3c3f976f85ddea136ac0cffe32295cfd61 Mon Sep 17 00:00:00 2001
+From: Tim Gardner <tim.gardner@canonical.com>
+Date: Thu, 16 Jul 2009 13:06:12 -0600
+Subject: [PATCH] atkbd - Fix Soltech TA12 volume hotkeys not sending key release
 
-David and myself have a history of communication problems, to the
-extent that I try to avoid reading his witterings.
+BugLink: https://bugs.launchpad.net//bugs/397499
 
-However, the observant will notice that David has cut out the part
-I quoted which elicited my response which I found offensive.
+Impact: Netbooks based on the Soltech TA12 do not send a key release
+for volume keys causing Linux to think the key is constantly being
+pressed forever.
 
-It would also be nice that if David knows the answer to something,
-he doesn't spout unhelpful claptrap like "Who could have pointed out
-instantly where the true bug resides" and instead be useful and
-state the answer.
+Added quirk data for forced release keys.
 
-But, I guess such things are too much for some people.
---
-To unsubscribe from this list: send the line "unsubscribe linux-input" =
-in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+OriginalAuthor: Jerone Young <jerone.young@canonical.com>
+
+Signed-off-by: Jerone Young <jerone.young@canonical.com>
+Signed-off-by: Tim Gardner <tim.gardner@canonical.com>
+---
+ drivers/input/keyboard/atkbd.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index 777d01a..f5c40d7 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -909,6 +909,13 @@ static unsigned int atkbd_amilo_xi_2428_forced_release_keys[] = {
+ };
+ 
+ /*
++ * Soltech TA12 system with broken key release on volume keys and mute key
++ */
++static unsigned int atkdb_soltech_ta12_forced_release_keys[] = {
++	0xa0, 0xae, 0xb0, -1U
++};
++
++/*
+  * atkbd_set_keycode_table() initializes keyboard's keycode table
+  * according to the selected scancode set
+  */
+@@ -1611,6 +1618,15 @@ static struct dmi_system_id atkbd_dmi_quirk_table[] __initdata = {
+ 		.callback = atkbd_setup_forced_release,
+ 		.driver_data = atkbd_amilo_xi_2428_forced_release_keys,
+ 	},
++	{
++		.ident = "Soltech Corporation TA12",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Soltech Corporation"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "TA12"),
++		},
++		.callback = atkbd_setup_forced_release,
++		.driver_data = atkdb_soltech_ta12_forced_release_keys,
++	},
+ 	{ }
+ };
+ 
+-- 
+1.6.2.4

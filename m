@@ -1,39 +1,35 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH] ads7846: allocate separate cache lines for tx and rx
-	data
-Date: Thu, 16 Jul 2009 08:22:26 +0100
-Message-ID: <20090716072226.GA8113@n2100.arm.linux.org.uk>
-References: <200907151106.47917.david-b@pacbell.net> <20090715093313.GA2897@mail.gnudd.com> <20090715193326.GA13306@mail.gnudd.com> <20090716071529.GA28840@n2100.arm.linux.org.uk>
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH] ads7846: allocate separate cache lines for tx and rx data
+Date: Thu, 16 Jul 2009 00:28:04 -0700
+Message-ID: <200907160028.05114.david-b@pacbell.net>
+References: <200907151106.47917.david-b@pacbell.net> <20090715193326.GA13306@mail.gnudd.com> <20090716071529.GA28840@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from caramon.arm.linux.org.uk ([78.32.30.218]:52984 "EHLO
-	caramon.arm.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751586AbZGPHWn (ORCPT
+Received: from smtp107.sbc.mail.gq1.yahoo.com ([67.195.14.110]:34538 "HELO
+	smtp107.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+	by vger.kernel.org with SMTP id S1751323AbZGPH2H (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2009 03:22:43 -0400
-Content-Disposition: inline
+	Thu, 16 Jul 2009 03:28:07 -0400
 In-Reply-To: <20090716071529.GA28840@n2100.arm.linux.org.uk>
+Content-Disposition: inline
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessandro Rubini <rubini-list@gnudd.com>
-Cc: david-b@pacbell.net, linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+To: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Cc: Alessandro Rubini <rubini-list@gnudd.com>, linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 
-On Thu, Jul 16, 2009 at 08:15:29AM +0100, Russell King - ARM Linux wrote:
-> On Wed, Jul 15, 2009 at 09:33:26PM +0200, Alessandro Rubini wrote:
-> > >> The issue was discussed with Russell King on linux-arm-kernel.
-> > > 
-> > > Gee, but not with the author of that driver or the maintainer of
-> > > the SPI framework.   Who could have pointed out instantly where
-> > > the true bug resides.
-> > 
-> > So, where is it? I don't get it I'm sorry.
-> 
+On Thursday 16 July 2009, Russell King - ARM Linux wrote:
 > Clearly David has no knowledge of DMA cache line handing and has not
-> read the DMA API document.  I really suggest that you ignore him until
+> read the DMA API document. =A0I really suggest that you ignore him un=
+til
 > he gets a fucking clue.
 
-... and until that happens, I suggest you remove the ADS7846 chip from
-your hardware; as that DMA stuff in the driver currently stands, it
-can NEVER work on ARM or any other DMA cache incoherent CPU which uses
-DMA for SPI transfers.
+Clearly common courtesy is too much for Russell.  I suggest you
+ignore him until he learns to restrain his baser impulses ...
+his personal attacks have no place in technical discussions.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

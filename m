@@ -1,37 +1,56 @@
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] ads7846: allocate separate cache lines for tx and rx data
-Date: Thu, 16 Jul 2009 01:35:51 -0700
-Message-ID: <200907160135.51307.david-b@pacbell.net>
-References: <200907160051.04506.david-b@pacbell.net> <20090715193326.GA13306@mail.gnudd.com> <20090716081527.GA29374@mail.gnudd.com>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [regression] 2.6.30 leaking keys on console switch
+Date: Thu, 16 Jul 2009 11:02:47 +0200 (CEST)
+Message-ID: <alpine.LNX.2.00.0907161057120.11648@wotan.suse.de>
+References: <87eiss7uhb.fsf@basil.nowhere.org> <alpine.LNX.2.00.0907071048210.4994@wotan.suse.de> <20090708065325.GE3309@dtor-d630.eng.vmware.com> <alpine.LNX.2.00.0907091319480.27327@wotan.suse.de> <20090713040528.GH10819@dtor-d630.eng.vmware.com>
+ <alpine.LNX.2.00.0907130906140.10476@wotan.suse.de> <20090713082527.GA26638@basil.fritz.box>
 Mime-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from smtp110.sbc.mail.gq1.yahoo.com ([67.195.14.95]:30078 "HELO
-	smtp110.sbc.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-	by vger.kernel.org with SMTP id S1753098AbZGPIfw (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Thu, 16 Jul 2009 04:35:52 -0400
-In-Reply-To: <20090716081527.GA29374@mail.gnudd.com>
-Content-Disposition: inline
+Received: from cantor2.suse.de ([195.135.220.15]:35681 "EHLO mx2.suse.de"
+	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+	id S1754082AbZGPJCw (ORCPT <rfc822;linux-input@vger.kernel.org>);
+	Thu, 16 Jul 2009 05:02:52 -0400
+In-Reply-To: <20090713082527.GA26638@basil.fritz.box>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Alessandro Rubini <rubini-list@gnudd.com>
-Cc: linux-input@vger.kernel.org, linux@arm.linux.org.uk, linux-arm-kernel@lists.arm.linux.org.uk
+To: Andi Kleen <andi@firstfloor.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, rjw@sisk.pl, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, Mike Galbraith <efault@gmx.de>
 
-On Thursday 16 July 2009, Alessandro Rubini wrote:
-> > Note that this issue is unrelated to full duplex DMA support.
+On Mon, 13 Jul 2009, Andi Kleen wrote:
+
+> > > > > > Are you seeing with a specific keyboard type(s), or is this a 
+> > > > > > general problem? Could you confirm whether it is specific either 
+> > > > > > to PS2 or USB keyboards only, or it does happen for both?
+> > > > > Can't think of any input chnages in this timeftrame that would cause
+> > > > > such effect. Maybe TTY changes?
+> > > > By the way, if I understand it correctly, Andi is able to see the very 
+> > > > same effect even inside X, so tty can be possibly ruled out, right?
+> > > Umm, doesn't SuSE still use legacy keyboard driver instead of evdev in
+> > > X? Thomas mentioned recently it still did...
+> > 
+> > It does.
+> > 
+> > If I understand Andi's problem though, he is able to trigger the problem 
+> > even solely on console, with X not being involved at all.
 > 
-> Yes, that's right. But full duplex is not involved here, it's
-> just 2 or 3 rounds of "one byte tx then two bytes rx".
+> Sorry, I tried again and I can't reproduce the console misbehaviour anymore.
+> Only see it in X.  I thought I had seen it in links resetting to the first
+> page, but I don't see that now.
 
-Then your patch description was *seriously* misleading:
+So by total coincidence I reproduced exactly this behavior (*) (while not 
+trying to do so) on system running 2.6.24-rc3, with PS/2 keyboard. 
 
-> > > Since the SPI master might use DMA, tx and rx buffers must live on
-> > > different cache lines. ...
+Andi, are you absolutely sure that this appeared between .29 and .30 for 
+you?
 
-I'll have another look at that patch to see if it could make
-sense after I discard the description.
+And if so, is there any chance you could try bisecting it?
 
-- dave
+(*) have been on virtual desktop where firefox was running, switched to 
+console using Ctrl-Alt-F1, and switched back to X using F7. Firefox then 
+popped up some dialog about configuring some feature that is triggered by 
+pressing F7/AltF7, or whatever. Is that what you are seeing?
+
+-- 
+Jiri Kosina
+SUSE Labs

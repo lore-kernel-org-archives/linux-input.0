@@ -1,40 +1,43 @@
-From: Marek Vasut <marek.vasut@gmail.com>
-Subject: Re: [PATCH 2/2] Add possibility to control the
-	GPIO_STATUS shift
-Date: Fri, 17 Jul 2009 13:53:59 +0200
-Message-ID: <200907171353.59356.marek.vasut@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 2/2] Add possibility to control the GPIO_STATUS shift
+Date: Fri, 17 Jul 2009 13:11:59 +0100
+Message-ID: <20090717121159.GA20904@rakim.wolfsonmicro.main>
 References: <200907171001.16889.marek.vasut@gmail.com>
-	<200907171326.08512.marek.vasut@gmail.com>
-	<20090717114312.GA20492@rakim.wolfsonmicro.main>
+ <200907171326.08512.marek.vasut@gmail.com>
+ <20090717114312.GA20492@rakim.wolfsonmicro.main>
+ <200907171353.59356.marek.vasut@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20090717114312.GA20492@rakim.wolfsonmicro.main>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-input-owner@vger.kernel.org>
+Received: from opensource.wolfsonmicro.com ([80.75.67.52]:33810 "EHLO
+	opensource2.wolfsonmicro.com" rhost-flags-OK-OK-OK-FAIL)
+	by vger.kernel.org with ESMTP id S934451AbZGQMMB (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Fri, 17 Jul 2009 08:12:01 -0400
 Content-Disposition: inline
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+In-Reply-To: <200907171353.59356.marek.vasut@gmail.com>
+Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
+To: Marek Vasut <marek.vasut@gmail.com>
+Cc: linux-input@vger.kernel.org, alsa-devel@alsa-project.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-RG5lIFDDoSAxNy4gxI1lcnZlbmNlIDIwMDkgMTM6NDM6MTIgTWFyayBCcm93biBuYXBzYWwoYSk6
-Cj4gT24gRnJpLCBKdWwgMTcsIDIwMDkgYXQgMDE6MjY6MDhQTSArMDIwMCwgTWFyZWsgVmFzdXQg
-d3JvdGU6Cj4gPiBCdXQgaG93IHRoZSBoZWNrIGFtIEkgc3VwcG9zZWQgdG8gZGV0ZWN0IGl0J3Mg
-d20xNjEzIGlmIGl0IHJlcG9ydHMgaXRzZWxmCj4gPiBhcyB3bTk3MTIgPyBBcHBhcmVudGx5LCBv
-biB0cmVvNjgwIGl0IHJlcG9ydHMgaXRzZWxmIGFzIHdtOTcxMyAoZXZlbgo+ID4gYmV0dGVyKS4K
-Pgo+IFRoZSBzYW1lIHdheSB5b3VyIGN1cnJlbnQgcGF0Y2ggZG9lcyBpdC4gIEknbSBqdXN0IHNh
-eWluZyB5b3Ugc2hvdWxkCj4gY2hhbmdlIHRoZSB3YXkgdGhlIGNvbmZpZ3VyYXRpb24gaXMgcGFz
-c2VkIGluIHNvIHRoYXQgaXQgaXMgY2xlYXIgdGhhdAo+IHRoaXMgaXMgb25seSB1c2VmdWwgZm9y
-IFdNMTYxMy4KCkJ1dCB0aGVyZSBtaWdodCBhcHBlYXIgc29tZSBvdGhlciBjaGlwcyB0aGF0IGhh
-dmUgdGhpcyBpc3N1ZS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KQWxzYS1kZXZlbCBtYWlsaW5nIGxpc3QKQWxzYS1kZXZlbEBhbHNhLXByb2plY3Qub3Jn
-Cmh0dHA6Ly9tYWlsbWFuLmFsc2EtcHJvamVjdC5vcmcvbWFpbG1hbi9saXN0aW5mby9hbHNhLWRl
-dmVsCg==
+On Fri, Jul 17, 2009 at 01:53:59PM +0200, Marek Vasut wrote:
+> Dne P=C3=A1 17. =C4=8Dervence 2009 13:43:12 Mark Brown napsal(a):
+
+> > The same way your current patch does it.  I'm just saying you shoul=
+d
+> > change the way the configuration is passed in so that it is clear t=
+hat
+> > this is only useful for WM1613.
+
+> But there might appear some other chips that have this issue.
+
+Then they can get handled the same way - it might be an idea to have th=
+e
+data that's passed in be a chip number to allow for this.
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

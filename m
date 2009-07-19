@@ -1,26 +1,65 @@
-From: Mark Lord <lkml@rtr.ca>
-Subject: Re: [PATCH] HID: Input driver for Twinhan USB 6253:0100 remote control
-Date: Sat, 18 Jul 2009 10:50:23 -0400
-Message-ID: <4A61E12F.6040502@rtr.ca>
-References: <20090408072935.GA27920@dtor-d630.eng.vmware.com>	<200904131931.24009.dmitry.torokhov@gmail.com>	<49E4B678.9030508@rtr.ca>	<200904140945.14652.dmitry.torokhov@gmail.com>	<49E4C9CF.5060504@rtr.ca>	<alpine.LNX.2.00.0904151022170.13028@wotan.suse.de>	<49E5EAD7.7000309@rtr.ca>	<alpine.LNX.2.00.0904161123180.13028@wotan.suse.de>	<20090712182026.7a09c736@neptune.home>	<alpine.LNX.2.00.0907131048110.10476@wotan.suse.de>	<20090713113157.701ba027@neptune.home>	<alpine.LNX.2.00.0907131316420.10476@wotan.suse.de> <20090713141958.4d17f32a@neptune.home>
+From: Julia Lawall <julia@diku.dk>
+Subject: [PATCH 3/10] drivers/hid: Move dereferences below a NULL test
+Date: Sun, 19 Jul 2009 17:26:13 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.0907191725530.16542@ask.diku.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rtr.ca ([76.10.145.34]:45061 "EHLO mail.rtr.ca"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1752183AbZGROu0 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Sat, 18 Jul 2009 10:50:26 -0400
-In-Reply-To: <20090713141958.4d17f32a@neptune.home>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754671AbZGSP0T@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: jkosina@suse.cz, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: =?UTF-8?B?QnJ1bm8gUHLDqW1vbnQ=?= <bonbons@linux-vserver.org>
-Cc: Jiri Kosina <jkosina@suse.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 
-Good work, Bruno (and Jiri and Dmitry)!
+From: Julia Lawall <julia@diku.dk>
 
-I know of three people locally that are using my original driver,
-and when they next upgrade kernels, they now have Bruno's version
-to replace that with.
+If the NULL test is necessary, then the dereferences should be moved below
+the NULL test.
 
-Thanks!
+The semantic patch that makes this change is as follows:
+(http://www.emn.fr/x-info/coccinelle/)
+
+// <smpl>
+@@
+type T;
+expression E,E1;
+identifier i,fld;
+statement S;
+@@
+
+- T i = E->fld;
++ T i;
+  ... when != E=E1
+      when != i
+  if (E == NULL||...) S
++ i = E->fld;
+// </smpl>
+
+Signed-off-by: Julia Lawall <julia@diku.dk>
+
+---
+ drivers/hid/hid-core.c              |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 5ebbb8a..ca69cc3 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1072,8 +1072,8 @@ EXPORT_SYMBOL_GPL(hid_report_raw_event);
+  */
+ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int interrupt)
+ {
+-	struct hid_report_enum *report_enum = hid->report_enum + type;
+-	struct hid_driver *hdrv = hid->driver;
++	struct hid_report_enum *report_enum;
++	struct hid_driver *hdrv;
+ 	struct hid_report *report;
+ 	char *buf;
+ 	unsigned int i;
+@@ -1081,6 +1081,8 @@ int hid_input_report(struct hid_device *hid, int type, u8 *data, int size, int i
+ 
+ 	if (!hid || !hid->driver)
+ 		return -ENODEV;
++	report_enum = hid->report_enum + type;
++	hdrv = hid->driver;
+ 
+ 	if (!size) {
+ 		dbg_hid("empty report\n");

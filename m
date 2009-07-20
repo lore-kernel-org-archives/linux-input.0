@@ -1,170 +1,166 @@
-From: Eric Miao <eric.y.miao@gmail.com>
+From: Trilok Soni <soni.trilok@gmail.com>
 Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Mon, 20 Jul 2009 18:37:04 +0800
-Message-ID: <4A6448D0.6050002@gmail.com>
-References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>	 <f17812d70906070704s10f8eac6ybc353041e2db5a03@mail.gmail.com>	 <200906112103.54043.dmitry.torokhov@gmail.com>	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>	 <20090629162619.GB24533@dtor-d630.eng.vmware.com>	 <4A55BC78.6010206@gmail.com> <4A602D6D.1090707@teltonika.lt>	 <5d5443650907170132rfea7649o31bb3a84d3c7c79c@mail.gmail.com>	 <4A60425D.9@teltonika.lt> <5d5443650907200012o4c84b0fm4a03cfb18f7fd738@mail.gmail.com>
+Date: Mon, 20 Jul 2009 16:13:23 +0530
+Message-ID: <5d5443650907200343l3f1f4f9clac79b60847830209@mail.gmail.com>
+References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>
+	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>
+	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>
+	 <20090629162619.GB24533@dtor-d630.eng.vmware.com>
+	 <4A55BC78.6010206@gmail.com> <4A602D6D.1090707@teltonika.lt>
+	 <5d5443650907170132rfea7649o31bb3a84d3c7c79c@mail.gmail.com>
+	 <4A60425D.9@teltonika.lt>
+	 <5d5443650907200012o4c84b0fm4a03cfb18f7fd738@mail.gmail.com>
+	 <4A6448D0.6050002@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.237]:15924 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751739AbZGTKhW (ORCPT
+Received: from qw-out-2122.google.com ([74.125.92.24]:17154 "EHLO
+	qw-out-2122.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751970AbZGTKnY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2009 06:37:22 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so616585rvb.1
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2009 03:37:21 -0700 (PDT)
-In-Reply-To: <5d5443650907200012o4c84b0fm4a03cfb18f7fd738@mail.gmail.com>
+	Mon, 20 Jul 2009 06:43:24 -0400
+Received: by qw-out-2122.google.com with SMTP id 8so809454qwh.37
+        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2009 03:43:23 -0700 (PDT)
+In-Reply-To: <4A6448D0.6050002@gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
+To: Eric Miao <eric.y.miao@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
 
+Hi Eric,
 
->>> Did you tried assigning max_keypmap_size in platform data to
->>> MATRIX_MAX_COLS * MATRIX_MAX_ROWS ?
+On Mon, Jul 20, 2009 at 4:07 PM, Eric Miao<eric.y.miao@gmail.com> wrote=
+:
+>
+>>>> Did you tried assigning max_keypmap_size in platform data to
+>>>> MATRIX_MAX_COLS * MATRIX_MAX_ROWS ?
+>>>>
+>>> Yes, this fixes crashes. But this is just workaround for bug in dri=
+ver.
 >>>
->> Yes, this fixes crashes. But this is just workaround for bug in driver.
 >>
-> 
-> As you have access to h/w, care to submit a patch which fixes this?
-> 
+>> As you have access to h/w, care to submit a patch which fixes this?
+>>
+>
+> Dmitry & Trilok,
+>
+> How about this? =A0Due to the fact that we are not able to sort out t=
+he
+> proper solution for a dynamic maximum of columns/rows, let's simplify
+> the fix to the patch below:
+>
+>
+> From 61ea1bd16a3636f526fb12619e84a75fa16b7f38 Mon Sep 17 00:00:00 200=
+1
+> From: Eric Miao <eric.y.miao@gmail.com>
+> Date: Mon, 20 Jul 2009 11:31:08 +0800
+> Subject: [PATCH] input: matrix keymap size fixed to maximum
+>
+> Introduced KEY_IDX(), merged keymap_data into 'matrix_keypad_platform=
+_data'.
+>
+> Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+> ---
+> =A0drivers/input/keyboard/matrix_keypad.c | =A0 22 ++++++------------=
+----
+> =A0include/linux/input/matrix_keypad.h =A0 =A0| =A0 21 +++++---------=
+-------
+> =A02 files changed, 11 insertions(+), 32 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/k=
+eyboard/matrix_keypad.c
+> index e9b2e7c..a0ba134 100644
+> --- a/drivers/input/keyboard/matrix_keypad.c
+> +++ b/drivers/input/keyboard/matrix_keypad.c
+> @@ -136,7 +136,7 @@ static void matrix_keypad_scan(struct work_struct=
+ *work)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if ((bits_changed & (1=
+ << row)) =3D=3D 0)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0contin=
+ue;
+>
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 code =3D (row << 4) + c=
+ol;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 code =3D KEY_IDX(row, c=
+ol);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_event(input_dev,=
+ EV_MSC, MSC_SCAN, code);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0input_report_key(input=
+_dev,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 keypad->keycodes[code],
+> @@ -313,7 +313,6 @@ err_free_cols:
+> =A0static int __devinit matrix_keypad_probe(struct platform_device *p=
+dev)
+> =A0{
+> =A0 =A0 =A0 =A0const struct matrix_keypad_platform_data *pdata;
+> - =A0 =A0 =A0 const struct matrix_keymap_data *keymap_data;
+> =A0 =A0 =A0 =A0struct matrix_keypad *keypad;
+> =A0 =A0 =A0 =A0struct input_dev *input_dev;
+> =A0 =A0 =A0 =A0unsigned short *keycodes;
+> @@ -326,20 +325,13 @@ static int __devinit matrix_keypad_probe(struct=
+ platform_device *pdev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EINVAL;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 keymap_data =3D pdata->keymap_data;
+> - =A0 =A0 =A0 if (!keymap_data) {
+> + =A0 =A0 =A0 if (!pdata->keymap) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_err(&pdev->dev, "no keymap data de=
+fined\n");
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -EINVAL;
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 if (!keymap_data->max_keymap_size) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&pdev->dev, "invalid keymap dat=
+a supplied\n");
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> - =A0 =A0 =A0 }
+> -
+> =A0 =A0 =A0 =A0keypad =3D kzalloc(sizeof(struct matrix_keypad), GFP_K=
+ERNEL);
+> - =A0 =A0 =A0 keycodes =3D kzalloc(keymap_data->max_keymap_size *
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sizeof(=
+keypad->keycodes),
+> + =A0 =A0 =A0 keycodes =3D kzalloc(sizeof(keypad->keycodes) * MATRIX_=
+MAX_KEYS,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 GFP_KERNEL);
+> =A0 =A0 =A0 =A0input_dev =3D input_allocate_device();
+> =A0 =A0 =A0 =A0if (!keypad || !keycodes || !input_dev) {
+> @@ -362,16 +354,14 @@ static int __devinit matrix_keypad_probe(struct=
+ platform_device *pdev)
+> =A0 =A0 =A0 =A0input_dev->close =A0 =A0 =A0 =A0=3D matrix_keypad_stop=
+;
+>
+> =A0 =A0 =A0 =A0input_dev->keycode =A0 =A0 =A0=3D keycodes;
+> - =A0 =A0 =A0 input_dev->keycodesize =A0=3D sizeof(*keycodes);
+> - =A0 =A0 =A0 input_dev->keycodemax =A0 =3D keymap_data->max_keymap_s=
+ize;
+>
+> - =A0 =A0 =A0 for (i =3D 0; i < keymap_data->keymap_size; i++) {
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int key =3D keymap_data->keyma=
+p[i];
+> + =A0 =A0 =A0 for (i =3D 0; i < pdata->keymap_size; i++) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 unsigned int key =3D pdata->keymap[i];
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0unsigned int row =3D KEY_ROW(key);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0unsigned int col =3D KEY_COL(key);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0unsigned short code =3D KEY_VAL(key);
+>
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 keycodes[(row << 4) + col] =3D code;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 keycodes[KEY_IDX(row, col)] =3D code;
 
-Dmitry & Trilok,
 
-How about this?  Due to the fact that we are not able to sort out the
-proper solution for a dynamic maximum of columns/rows, let's simplify
-the fix to the patch below:
+How about just doing like this
 
+keycodes[(row << ((fls(MATRIX_MAX_COLS) - 1))) + col] ?
 
->From 61ea1bd16a3636f526fb12619e84a75fa16b7f38 Mon Sep 17 00:00:00 2001
-From: Eric Miao <eric.y.miao@gmail.com>
-Date: Mon, 20 Jul 2009 11:31:08 +0800
-Subject: [PATCH] input: matrix keymap size fixed to maximum
-
-Introduced KEY_IDX(), merged keymap_data into 'matrix_keypad_platform_data'.
-
-Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
----
- drivers/input/keyboard/matrix_keypad.c |   22 ++++++----------------
- include/linux/input/matrix_keypad.h    |   21 +++++----------------
- 2 files changed, 11 insertions(+), 32 deletions(-)
-
-diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
-index e9b2e7c..a0ba134 100644
---- a/drivers/input/keyboard/matrix_keypad.c
-+++ b/drivers/input/keyboard/matrix_keypad.c
-@@ -136,7 +136,7 @@ static void matrix_keypad_scan(struct work_struct *work)
- 			if ((bits_changed & (1 << row)) == 0)
- 				continue;
- 
--			code = (row << 4) + col;
-+			code = KEY_IDX(row, col);
- 			input_event(input_dev, EV_MSC, MSC_SCAN, code);
- 			input_report_key(input_dev,
- 					 keypad->keycodes[code],
-@@ -313,7 +313,6 @@ err_free_cols:
- static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- {
- 	const struct matrix_keypad_platform_data *pdata;
--	const struct matrix_keymap_data *keymap_data;
- 	struct matrix_keypad *keypad;
- 	struct input_dev *input_dev;
- 	unsigned short *keycodes;
-@@ -326,20 +325,13 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
- 
--	keymap_data = pdata->keymap_data;
--	if (!keymap_data) {
-+	if (!pdata->keymap) {
- 		dev_err(&pdev->dev, "no keymap data defined\n");
- 		return -EINVAL;
- 	}
- 
--	if (!keymap_data->max_keymap_size) {
--		dev_err(&pdev->dev, "invalid keymap data supplied\n");
--		return -EINVAL;
--	}
--
- 	keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
--	keycodes = kzalloc(keymap_data->max_keymap_size *
--				sizeof(keypad->keycodes),
-+	keycodes = kzalloc(sizeof(keypad->keycodes) * MATRIX_MAX_KEYS,
- 			   GFP_KERNEL);
- 	input_dev = input_allocate_device();
- 	if (!keypad || !keycodes || !input_dev) {
-@@ -362,16 +354,14 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
- 	input_dev->close	= matrix_keypad_stop;
- 
- 	input_dev->keycode	= keycodes;
--	input_dev->keycodesize	= sizeof(*keycodes);
--	input_dev->keycodemax	= keymap_data->max_keymap_size;
- 
--	for (i = 0; i < keymap_data->keymap_size; i++) {
--		unsigned int key = keymap_data->keymap[i];
-+	for (i = 0; i < pdata->keymap_size; i++) {
-+		unsigned int key = pdata->keymap[i];
- 		unsigned int row = KEY_ROW(key);
- 		unsigned int col = KEY_COL(key);
- 		unsigned short code = KEY_VAL(key);
- 
--		keycodes[(row << 4) + col] = code;
-+		keycodes[KEY_IDX(row, col)] = code;
- 		__set_bit(code, input_dev->keybit);
- 	}
- 	__clear_bit(KEY_RESERVED, input_dev->keybit);
-diff --git a/include/linux/input/matrix_keypad.h b/include/linux/input/matrix_keypad.h
-index 7964516..59173c9 100644
---- a/include/linux/input/matrix_keypad.h
-+++ b/include/linux/input/matrix_keypad.h
-@@ -6,6 +6,7 @@
- 
- #define MATRIX_MAX_ROWS		16
- #define MATRIX_MAX_COLS		16
-+#define MATRIX_MAX_KEYS		(MATRIX_MAX_ROWS * MATRIX_MAX_COLS)
- 
- #define KEY(row, col, val)	((((row) & (MATRIX_MAX_ROWS - 1)) << 24) |\
- 				 (((col) & (MATRIX_MAX_COLS - 1)) << 16) |\
-@@ -14,26 +15,13 @@
- #define KEY_ROW(k)		(((k) >> 24) & 0xff)
- #define KEY_COL(k)		(((k) >> 16) & 0xff)
- #define KEY_VAL(k)		((k) & 0xffff)
-+#define KEY_IDX(row, col)	(((row) << 4) + (col))
- 
- /**
-- * struct matrix_keymap_data - keymap for matrix keyboards
-+ * struct matrix_keypad_platform_data - platform-dependent keypad data
-  * @keymap: pointer to array of uint32 values encoded with KEY() macro
-  *	representing keymap
-  * @keymap_size: number of entries (initialized) in this keymap
-- * @max_keymap_size: maximum size of keymap supported by the device
-- *
-- * This structure is supposed to be used by platform code to supply
-- * keymaps to drivers that implement matrix-like keypads/keyboards.
-- */
--struct matrix_keymap_data {
--	const uint32_t *keymap;
--	unsigned int	keymap_size;
--	unsigned int	max_keymap_size;
--};
--
--/**
-- * struct matrix_keypad_platform_data - platform-dependent keypad data
-- * @keymap_data: pointer to &matrix_keymap_data
-  * @row_gpios: array of gpio numbers reporesenting rows
-  * @col_gpios: array of gpio numbers reporesenting colums
-  * @num_row_gpios: actual number of row gpios used by device
-@@ -46,7 +34,8 @@ struct matrix_keymap_data {
-  * matrix_keypad driver to perform proper initialization.
-  */
- struct matrix_keypad_platform_data {
--	const struct matrix_keymap_data *keymap_data;
-+	const uint32_t *keymap;
-+	unsigned int	keymap_size;
- 
- 	unsigned int	row_gpios[MATRIX_MAX_ROWS];
- 	unsigned int	col_gpios[MATRIX_MAX_COLS];
--- 
-1.6.0.4
-
+--=20
+---Trilok Soni
+http://triloksoni.wordpress.com
+http://www.linkedin.com/in/triloksoni
+--
+To unsubscribe from this list: send the line "unsubscribe linux-input" =
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

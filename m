@@ -1,172 +1,122 @@
 From: Eric Miao <eric.y.miao@gmail.com>
-Subject: [PATCH] [ARM] pxa/spitz: use GPIO matrix keypad driver
-Date: Mon, 20 Jul 2009 19:41:54 +0800
-Message-ID: <1248090115-20571-1-git-send-email-eric.y.miao@gmail.com>
+Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
+Date: Mon, 20 Jul 2009 19:43:56 +0800
+Message-ID: <4A64587C.4040109@gmail.com>
+References: <f17812d70905070100u406614cag1ea1ea913577bbd8@mail.gmail.com>	 <5d5443650906120601g2e0a563eq270095d5a001d0a1@mail.gmail.com>	 <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com>	 <20090629162619.GB24533@dtor-d630.eng.vmware.com>	 <4A55BC78.6010206@gmail.com> <4A602D6D.1090707@teltonika.lt>	 <5d5443650907170132rfea7649o31bb3a84d3c7c79c@mail.gmail.com>	 <4A60425D.9@teltonika.lt>	 <5d5443650907200012o4c84b0fm4a03cfb18f7fd738@mail.gmail.com>	 <4A6448D0.6050002@gmail.com> <5d5443650907200343l3f1f4f9clac79b60847830209@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from mail-px0-f193.google.com ([209.85.216.193]:54764 "EHLO
-	mail-px0-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1751601AbZGTLmM (ORCPT
+Received: from wa-out-1112.google.com ([209.85.146.181]:36527 "EHLO
+	wa-out-1112.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1751829AbZGTLoG (ORCPT
 	<rfc822;linux-input@vger.kernel.org>);
-	Mon, 20 Jul 2009 07:42:12 -0400
-Received: by pxi31 with SMTP id 31so354365pxi.33
-        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2009 04:42:11 -0700 (PDT)
+	Mon, 20 Jul 2009 07:44:06 -0400
+Received: by wa-out-1112.google.com with SMTP id j5so365563wah.21
+        for <linux-input@vger.kernel.org>; Mon, 20 Jul 2009 04:44:06 -0700 (PDT)
+In-Reply-To: <5d5443650907200343l3f1f4f9clac79b60847830209@mail.gmail.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
-To: linux-input@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
-Cc: Eric Miao <eric.y.miao@gmail.com>
+To: Trilok Soni <soni.trilok@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
 
-Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
----
- arch/arm/mach-pxa/spitz.c |  120 ++++++++++++++++++++++++++++++++++++++++++++-
- 1 files changed, 119 insertions(+), 1 deletions(-)
+Trilok Soni wrote:
+> Hi Eric,
+> 
+> On Mon, Jul 20, 2009 at 4:07 PM, Eric Miao<eric.y.miao@gmail.com> wrote:
+>>>>> Did you tried assigning max_keypmap_size in platform data to
+>>>>> MATRIX_MAX_COLS * MATRIX_MAX_ROWS ?
+>>>>>
+>>>> Yes, this fixes crashes. But this is just workaround for bug in driver.
+>>>>
+>>> As you have access to h/w, care to submit a patch which fixes this?
+>>>
+>> Dmitry & Trilok,
+>>
+>> How about this?  Due to the fact that we are not able to sort out the
+>> proper solution for a dynamic maximum of columns/rows, let's simplify
+>> the fix to the patch below:
+>>
+>>
+>> From 61ea1bd16a3636f526fb12619e84a75fa16b7f38 Mon Sep 17 00:00:00 2001
+>> From: Eric Miao <eric.y.miao@gmail.com>
+>> Date: Mon, 20 Jul 2009 11:31:08 +0800
+>> Subject: [PATCH] input: matrix keymap size fixed to maximum
+>>
+>> Introduced KEY_IDX(), merged keymap_data into 'matrix_keypad_platform_data'.
+>>
+>> Signed-off-by: Eric Miao <eric.y.miao@gmail.com>
+>> ---
+>>  drivers/input/keyboard/matrix_keypad.c |   22 ++++++----------------
+>>  include/linux/input/matrix_keypad.h    |   21 +++++----------------
+>>  2 files changed, 11 insertions(+), 32 deletions(-)
+>>
+>> diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+>> index e9b2e7c..a0ba134 100644
+>> --- a/drivers/input/keyboard/matrix_keypad.c
+>> +++ b/drivers/input/keyboard/matrix_keypad.c
+>> @@ -136,7 +136,7 @@ static void matrix_keypad_scan(struct work_struct *work)
+>>                        if ((bits_changed & (1 << row)) == 0)
+>>                                continue;
+>>
+>> -                       code = (row << 4) + col;
+>> +                       code = KEY_IDX(row, col);
+>>                        input_event(input_dev, EV_MSC, MSC_SCAN, code);
+>>                        input_report_key(input_dev,
+>>                                         keypad->keycodes[code],
+>> @@ -313,7 +313,6 @@ err_free_cols:
+>>  static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+>>  {
+>>        const struct matrix_keypad_platform_data *pdata;
+>> -       const struct matrix_keymap_data *keymap_data;
+>>        struct matrix_keypad *keypad;
+>>        struct input_dev *input_dev;
+>>        unsigned short *keycodes;
+>> @@ -326,20 +325,13 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+>>                return -EINVAL;
+>>        }
+>>
+>> -       keymap_data = pdata->keymap_data;
+>> -       if (!keymap_data) {
+>> +       if (!pdata->keymap) {
+>>                dev_err(&pdev->dev, "no keymap data defined\n");
+>>                return -EINVAL;
+>>        }
+>>
+>> -       if (!keymap_data->max_keymap_size) {
+>> -               dev_err(&pdev->dev, "invalid keymap data supplied\n");
+>> -               return -EINVAL;
+>> -       }
+>> -
+>>        keypad = kzalloc(sizeof(struct matrix_keypad), GFP_KERNEL);
+>> -       keycodes = kzalloc(keymap_data->max_keymap_size *
+>> -                               sizeof(keypad->keycodes),
+>> +       keycodes = kzalloc(sizeof(keypad->keycodes) * MATRIX_MAX_KEYS,
+>>                           GFP_KERNEL);
+>>        input_dev = input_allocate_device();
+>>        if (!keypad || !keycodes || !input_dev) {
+>> @@ -362,16 +354,14 @@ static int __devinit matrix_keypad_probe(struct platform_device *pdev)
+>>        input_dev->close        = matrix_keypad_stop;
+>>
+>>        input_dev->keycode      = keycodes;
+>> -       input_dev->keycodesize  = sizeof(*keycodes);
+>> -       input_dev->keycodemax   = keymap_data->max_keymap_size;
+>>
+>> -       for (i = 0; i < keymap_data->keymap_size; i++) {
+>> -               unsigned int key = keymap_data->keymap[i];
+>> +       for (i = 0; i < pdata->keymap_size; i++) {
+>> +               unsigned int key = pdata->keymap[i];
+>>                unsigned int row = KEY_ROW(key);
+>>                unsigned int col = KEY_COL(key);
+>>                unsigned short code = KEY_VAL(key);
+>>
+>> -               keycodes[(row << 4) + col] = code;
+>> +               keycodes[KEY_IDX(row, col)] = code;
+> 
+> 
+> How about just doing like this
+> 
+> keycodes[(row << ((fls(MATRIX_MAX_COLS) - 1))) + col] ?
+> 
 
-diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
-index dda310f..e3156a0 100644
---- a/arch/arm/mach-pxa/spitz.c
-+++ b/arch/arm/mach-pxa/spitz.c
-@@ -24,6 +24,7 @@
- #include <linux/spi/ads7846.h>
- #include <linux/spi/corgi_lcd.h>
- #include <linux/mtd/sharpsl.h>
-+#include <linux/input/matrix_keypad.h>
- 
- #include <asm/setup.h>
- #include <asm/mach-types.h>
-@@ -111,6 +112,26 @@ static unsigned long spitz_pin_config[] __initdata = {
- 	GPIO105_GPIO,	/* SPITZ_GPIO_CF_IRQ */
- 	GPIO106_GPIO,	/* SPITZ_GPIO_CF2_IRQ */
- 
-+	/* GPIO matrix keypad */
-+	GPIO88_GPIO,	/* column 0 */
-+	GPIO23_GPIO,	/* column 1 */
-+	GPIO24_GPIO,	/* column 2 */
-+	GPIO25_GPIO,	/* column 3 */
-+	GPIO26_GPIO,	/* column 4 */
-+	GPIO27_GPIO,	/* column 5 */
-+	GPIO52_GPIO,	/* column 6 */
-+	GPIO103_GPIO,	/* column 7 */
-+	GPIO107_GPIO,	/* column 8 */
-+	GPIO108_GPIO,	/* column 9 */
-+	GPIO114_GPIO,	/* column 10 */
-+	GPIO12_GPIO,	/* row 0 */
-+	GPIO17_GPIO,	/* row 1 */
-+	GPIO91_GPIO,	/* row 2 */
-+	GPIO34_GPIO,	/* row 3 */
-+	GPIO36_GPIO,	/* row 4 */
-+	GPIO38_GPIO,	/* row 5 */
-+	GPIO39_GPIO,	/* row 6 */
-+
- 	/* I2C */
- 	GPIO117_I2C_SCL,
- 	GPIO118_I2C_SDA,
-@@ -242,9 +263,106 @@ EXPORT_SYMBOL(spitzscoop2_device);
- /*
-  * Spitz Keyboard Device
-  */
-+#define SPITZ_KEY_CALENDAR	KEY_F1
-+#define SPITZ_KEY_ADDRESS	KEY_F2
-+#define SPITZ_KEY_FN		KEY_F3
-+#define SPITZ_KEY_CANCEL	KEY_F4
-+#define SPITZ_KEY_EXOK		KEY_F5
-+#define SPITZ_KEY_EXCANCEL	KEY_F6
-+#define SPITZ_KEY_EXJOGDOWN	KEY_F7
-+#define SPITZ_KEY_EXJOGUP	KEY_F8
-+#define SPITZ_KEY_JAP1		KEY_LEFTALT
-+#define SPITZ_KEY_JAP2		KEY_RIGHTCTRL
-+#define SPITZ_KEY_SYNC		KEY_F9
-+#define SPITZ_KEY_MAIL		KEY_F10
-+#define SPITZ_KEY_OK		KEY_F11
-+#define SPITZ_KEY_MENU		KEY_F12
-+
-+static const uint32_t spitzkbd_keymap[] = {
-+	KEY(0, 0, KEY_LEFTCTRL),
-+	KEY(0, 1, KEY_1),
-+	KEY(0, 2, KEY_3),
-+	KEY(0, 3, KEY_5),
-+	KEY(0, 4, KEY_6),
-+	KEY(0, 5, KEY_7),
-+	KEY(0, 6, KEY_9),
-+	KEY(0, 7, KEY_0),
-+	KEY(0, 8, KEY_BACKSPACE),
-+	KEY(0, 9, SPITZ_KEY_EXOK),	/* EXOK */
-+	KEY(0, 10, SPITZ_KEY_EXCANCEL),	/* EXCANCEL */
-+	KEY(1, 1, KEY_2),
-+	KEY(1, 2, KEY_4),
-+	KEY(1, 3, KEY_R),
-+	KEY(1, 4, KEY_Y),
-+	KEY(1, 5, KEY_8),
-+	KEY(1, 6, KEY_I),
-+	KEY(1, 7, KEY_O),
-+	KEY(1, 8, KEY_P),
-+	KEY(1, 9, SPITZ_KEY_EXJOGDOWN),	/* EXJOGDOWN */
-+	KEY(1, 10, SPITZ_KEY_EXJOGUP),	/* EXJOGUP */
-+	KEY(2, 0, KEY_TAB),
-+	KEY(2, 1, KEY_Q),
-+	KEY(2, 2, KEY_E),
-+	KEY(2, 3, KEY_T),
-+	KEY(2, 4, KEY_G),
-+	KEY(2, 5, KEY_U),
-+	KEY(2, 6, KEY_J),
-+	KEY(2, 7, KEY_K),
-+	KEY(3, 0, SPITZ_KEY_ADDRESS),	/* ADDRESS */
-+	KEY(3, 1, KEY_W),
-+	KEY(3, 2, KEY_S),
-+	KEY(3, 3, KEY_F),
-+	KEY(3, 4, KEY_V),
-+	KEY(3, 5, KEY_H),
-+	KEY(3, 6, KEY_M),
-+	KEY(3, 7, KEY_L),
-+	KEY(3, 9, KEY_RIGHTSHIFT),
-+	KEY(4, 0, SPITZ_KEY_CALENDAR),	/* CALENDAR */
-+	KEY(4, 1, KEY_A),
-+	KEY(4, 2, KEY_D),
-+	KEY(4, 3, KEY_C),
-+	KEY(4, 4, KEY_B),
-+	KEY(4, 5, KEY_N),
-+	KEY(4, 6, KEY_DOT),
-+	KEY(4, 8, KEY_ENTER),
-+	KEY(4, 9, KEY_LEFTSHIFT),
-+	KEY(5, 0, SPITZ_KEY_MAIL),	/* MAIL */
-+	KEY(5, 1, KEY_Z),
-+	KEY(5, 2, KEY_X),
-+	KEY(5, 3, KEY_MINUS),
-+	KEY(5, 4, KEY_SPACE),
-+	KEY(5, 5, KEY_COMMA),
-+	KEY(5, 7, KEY_UP),
-+	KEY(5, 10, SPITZ_KEY_FN),	/* FN */
-+	KEY(6, 0, KEY_SYSRQ),
-+	KEY(6, 1, SPITZ_KEY_JAP1),	/* JAP1 */
-+	KEY(6, 2, SPITZ_KEY_JAP2),	/* JAP2 */
-+	KEY(6, 3, SPITZ_KEY_CANCEL),	/* CANCEL */
-+	KEY(6, 4, SPITZ_KEY_OK),	/* OK */
-+	KEY(6, 5, SPITZ_KEY_MENU),	/* MENU */
-+	KEY(6, 6, KEY_LEFT),
-+	KEY(6, 7, KEY_DOWN),
-+	KEY(6, 8, KEY_RIGHT),
-+};
-+
-+static struct matrix_keypad_platform_data spitzkbd_pdata = {
-+	.keymap		= spitzkbd_keymap,
-+	.keymap_size	= ARRAY_SIZE(spitzkbd_keymap),
-+	.col_gpios	= {88, 23, 24, 25, 26, 27, 52, 103, 107, 108, 114, -1},
-+	.row_gpios	= {12, 17, 91, 34, 36, 38, 39, -1},
-+	.num_col_gpios	= 11,
-+	.num_row_gpios	= 7,
-+	.col_scan_delay_us	= 10,
-+	.debounce_ms		= 10,
-+	.wakeup			= 1,
-+};
-+
- static struct platform_device spitzkbd_device = {
--	.name		= "spitz-keyboard",
-+	.name		= "matrix-keypad",
- 	.id		= -1,
-+	.dev		= {
-+		.platform_data = &spitzkbd_pdata,
-+	},
- };
- 
- 
--- 
-1.6.0.4
-
+I doubt this will work correctly if MATRIX_MAX_COLS isn't something 2 ^ N

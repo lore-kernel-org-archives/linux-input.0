@@ -1,125 +1,59 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input: add support for generic GPIO-based matrix keypad
-Date: Tue, 21 Jul 2009 08:58:14 -0700
-Message-ID: <20090721155814.GC4352@dtor-d630.eng.vmware.com>
-References: <f17812d70906120626o4220fb04ra96037014e77aaab@mail.gmail.com> <20090629162619.GB24533@dtor-d630.eng.vmware.com> <4A55BC78.6010206@gmail.com> <4A602D6D.1090707@teltonika.lt> <5d5443650907170132rfea7649o31bb3a84d3c7c79c@mail.gmail.com> <4A60425D.9@teltonika.lt> <5d5443650907200012o4c84b0fm4a03cfb18f7fd738@mail.gmail.com> <4A6448D0.6050002@gmail.com> <20090721080036.GA10168@dtor-d630.eng.vmware.com> <4A657BC7.8090904@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Tue, 21 Jul 2009 09:04:37 -0700
+Message-ID: <20090721160436.GD4352@dtor-d630.eng.vmware.com>
+References: <20090714100634.GA4054@elf.ucw.cz> <5d5443650907140320w334864f4uc1ee13ed32fdb874@mail.gmail.com> <20090715133627.GA2538@elf.ucw.cz> <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk> <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com> <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com> <20090721124933.GA5668@rakim.wolfsonmicro.main>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from rv-out-0506.google.com ([209.85.198.237]:19819 "EHLO
-	rv-out-0506.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with ESMTP id S1754616AbZGUP6Z (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jul 2009 11:58:25 -0400
-Received: by rv-out-0506.google.com with SMTP id f6so868366rvb.1
-        for <linux-input@vger.kernel.org>; Tue, 21 Jul 2009 08:58:24 -0700 (PDT)
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4A657BC7.8090904@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
+In-Reply-To: <20090721124933.GA5668-HF5t3jzXg/6ND3a5+9QAFujbO/Zr0HzV@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Eric Miao <eric.y.miao@gmail.com>
-Cc: Trilok Soni <soni.trilok@gmail.com>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Uli Luckas <u.luckas@road.de>, linux-input@vger.kernel.org
 
-On Tue, Jul 21, 2009 at 04:26:47PM +0800, Eric Miao wrote:
-> Dmitry Torokhov wrote:
-> > Hi Eric,
-> > 
-> > On Mon, Jul 20, 2009 at 06:37:04PM +0800, Eric Miao wrote:
-> >>>>> Did you tried assigning max_keypmap_size in platform data to
-> >>>>> MATRIX_MAX_COLS * MATRIX_MAX_ROWS ?
-> >>>>>
-> >>>> Yes, this fixes crashes. But this is just workaround for bug in driver.
-> >>>>
-> >>> As you have access to h/w, care to submit a patch which fixes this?
-> >>>
-> >> Dmitry & Trilok,
-> >>
-> >> How about this?  Due to the fact that we are not able to sort out the
-> >> proper solution for a dynamic maximum of columns/rows, let's simplify
-> >> the fix to the patch below:
-> >>
-> >>
-> >> From 61ea1bd16a3636f526fb12619e84a75fa16b7f38 Mon Sep 17 00:00:00 2001
-> >> From: Eric Miao <eric.y.miao@gmail.com>
-> >> Date: Mon, 20 Jul 2009 11:31:08 +0800
-> >> Subject: [PATCH] input: matrix keymap size fixed to maximum
-> >>
-> >> Introduced KEY_IDX(), merged keymap_data into 'matrix_keypad_platform_data'.
-> >>
-> > 
-> > I would like to keep definitions in matrix_keymap.h useable to other
-> > drivers so we either make KEY_IDX() work with different number of
-> > columns or drop it.
+On Tue, Jul 21, 2009 at 01:49:33PM +0100, Mark Brown wrote:
+> On Tue, Jul 21, 2009 at 06:00:07PM +0530, Trilok Soni wrote:
 > 
-> What about:
+> > Hopefully, this thread can give all details about threaded irq discussion.
 > 
-> #define KEY_IDX(row, col)	(((row) * keypad->num_columns) + (col))
+> > http://lkml.org/lkml/2009/2/27/255
 > 
-> if we want to make it dynamic.
+> Yes, I'm aware of that - I read it at the time.  It seemed to peter out
+> without any satisfactory solution, unfortunately.  There's two separate
+> issues here:
+> 
+>  - Ordinary devices on interrupt driven or slow buses like I2C.  These
+>    need something along the lines of request_threaded_irq() that's allows
+>    them to schedule the main IRQ handler outside hardirq context so
+>    that they can interact with the device.  They need to do something in
+>    hardirq context to disable the interrupt if it's level triggered but
+>    most of the time the only option they've got is to disable the IRQ
+>    and reenable it when the worker thread is done.  This is the issue
+>    here.
+> 
+>    My immediate thought when I noticed this was that we should probably
+>    fix request_threaded_irq() so that it's useful for them; I'd been
+>    intending to do some digging and try to understand why it is
+>    currently implemented as it is.
+> 
+>  - Multi-function devices like the twl4030 which have an interrupt
+>    controller on them and would like to expose that interrupt controller
+>    via the generic IRQ subsystem.  This was a large part of the
+>    discussion in the thread above is a much trickier problem.
+> 
+> I've added the folks from Samsung posting the MELFAS MCS-5000 driver to
+> the thread since they're running into the same issue.
 > 
 
-I'd rather not have any references to particular data structures there,
-so something like KEY_IDX(row, col, shift) or KEY_IDX(row, col, maxcol).
-Would that work for you?
+Let's also add Thomas and David since I believe they worked on the
+feature.
 
-
-> > I would also like to keep keymap data separate so
-> > drivers that don't use matrix encoding could still use it.
-> > 
-> 
-> Do you mean there are possibilities that some drivers are not going to
-> define any matrix keycodes, and depend on EV_MSC to know the position
-> happened? That way, we may want to omit the ->keycodes[] accesses.
-> 
-
-Poorly spoken on my part. I should have said "not use entire structure
-from the matrix_keymap.h" but only the keymap part.
-
-> > Overall, I don't quite understand what the problem with the current
-> > drive is since it works fine as long as we set up max_keymap_size
-> > properly.
-> 
-> I think the root of this problem lies in the code below:
-> 
->                         code = (row << 4) + col;
->                         input_event(input_dev, EV_MSC, MSC_SCAN, code);
->                         input_report_key(input_dev,
->                                          keypad->keycodes[code],
->                                          new_state[col] & (1 << row));
-> 
-> that 'code = (row << 4) + col;' is hardcoded to shift left by '4', and
-> is then used to index into keypad->keycodes[] array, the size of which
-> in turn is specified by 'max_keymap_size'. This is a bit inconsistent.
-
-Right, I agree.
-
-> 
-> If written as (row << 4) + col, it means the max_keymap_size should be
-> setup as 'max_rows * 16', instead of expected 'max_rows * max_cols'.
-> 
-
-Yes, at the moment... I guess we need to put the true dimensions instead
-of max size into the keymap data, right? Then we'd be able to calculate
-proper shift value.
-
-> And there seems to be a typo in the allocation:
-> 
->         keycodes = kzalloc(keymap_data->max_keymap_size *
->                                 sizeof(keypad->keycodes),
->                            GFP_KERNEL);
-> 
-> that, 'sizeof(keypad->keycodes)' should be written as
-> 'sizeof(keypad->keycodes[0])' if I guess it correct.
-
-It should not hurt anything (since sizeof(keypad->keycodes) is 4 bytes)
-but indeed I need to fix that.
-
-> 
-> > We could improve diagnostic by checking row and cols values
-> > and warning users when they supply suspicious data and maybe adjust the
-> > documentation, right?
-> > 
-> 
+>From my part I would like to have the threaded IRQ available to all
+drivers since it seens to be hanlding driver shutdown cleanly and
+without races which is a big plus for me since very few drivers get it
+right.
 
 -- 
 Dmitry

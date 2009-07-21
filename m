@@ -1,214 +1,103 @@
-From: Mike Rapoport <mike@compulab.co.il>
-Subject: Re: A few changes to pxa27x_keypad
-Date: Tue, 21 Jul 2009 13:44:56 +0300
-Message-ID: <4A659C28.3040305@compulab.co.il>
-References: <20090721080845.GD10168@dtor-d630.eng.vmware.com>
+From: Joonyoung Shim <jy0922.shim@samsung.com>
+Subject: Re: [PATCH v3] Input: add touchscreen driver for MELFAS MCS-5000
+ controller
+Date: Tue, 21 Jul 2009 21:15:43 +0900
+Message-ID: <4A65B16F.7010902@samsung.com>
+References: <4A56A304.3050009@samsung.com>
+ <20090714060403.GE2822@dtor-d630.eng.vmware.com>
+ <4A5D8A73.4040707@samsung.com>
+ <20090715153001.GD21611@dtor-d630.eng.vmware.com>
+ <4A655253.7050501@samsung.com> <20090721074508.GA9778@dtor-d630.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-input-owner@vger.kernel.org>
-Received: from compulab.site5.com ([67.18.134.219]:39182 "EHLO compulab.co.il"
-	rhost-flags-OK-FAIL-OK-OK) by vger.kernel.org with ESMTP
-	id S1752832AbZGUMCn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Tue, 21 Jul 2009 08:02:43 -0400
-In-Reply-To: <20090721080845.GD10168@dtor-d630.eng.vmware.com>
+Received: from mailout1.samsung.com ([203.254.224.24]:58704 "EHLO
+	mailout1.samsung.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+	with ESMTP id S1755464AbZGUMPq (ORCPT
+	<rfc822;linux-input@vger.kernel.org>);
+	Tue, 21 Jul 2009 08:15:46 -0400
+Received: from epmmp2 (mailout1.samsung.com [203.254.224.24])
+ by mailout1.samsung.com
+ (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTP id <0KN400ENOSQ7VL@mailout1.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 21 Jul 2009 21:15:43 +0900 (KST)
+Received: from TNRNDGASPAPP1.tn.corp.samsungelectronics.net ([165.213.149.150])
+ by mmp2.samsung.com (iPlanet Messaging Server 5.2 Patch 2 (built Jul 14 2004))
+ with ESMTPA id <0KN400IE6SQ70B@mmp2.samsung.com> for
+ linux-input@vger.kernel.org; Tue, 21 Jul 2009 21:15:43 +0900 (KST)
+In-reply-to: <20090721074508.GA9778@dtor-d630.eng.vmware.com>
 Sender: linux-input-owner@vger.kernel.org
 List-Id: linux-input@vger.kernel.org
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Eric Miao <eric.y.miao@gmail.com>, linux-input@vger.kernel.org
+Cc: linux-input@vger.kernel.org, kyungmin.park@samsung.com, m.szyprowski@samsung.com, t.fujak@samsung.com
 
-Hi Dmitry,
+On 7/21/2009 4:45 PM, Dmitry Torokhov wrote:
+> On Tue, Jul 21, 2009 at 02:29:55PM +0900, Joonyoung Shim wrote:
+>> On 7/16/2009 12:30 AM, Dmitry Torokhov wrote:
+>>> On Wed, Jul 15, 2009 at 04:51:15PM +0900, Joonyoung Shim wrote:
+>>>> On 7/14/2009 3:04 PM, Dmitry Torokhov wrote:
+>>>>> Hi Joonyoung,
+>>>>>
+>>>>> On Fri, Jul 10, 2009 at 11:10:12AM +0900, Joonyoung Shim wrote:
+>>>>>> The MELPAS MCS-5000 is the touchscreen controller. The overview of this
+>>>>>> controller can see at the following website:
+>>>>>>
+>>>>>> http://www.melfas.com/product/product01.asp?k_r=eng_
+>>>>>>
+>>>>>> This driver is tested on s3c6410 NCP board and supports only the i2c
+>>>>>> interface.
+>>>>>>
+>>>>>> Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+>>>>>> ---
+>>>>>> Dear Dmitry,
+>>>>>>
+>>>>>> I sent the patch v2, but couldn't get any response.
+>>>>>> This patch v3 is updated a little bit from v2.
+>>>>>>
+>>>>> While I was sittign on the patch mainline acquired threaded IRQ support
+>>>>> which fits the bill here and simplifies logic quite a bit, could you
+>>>>> please try the patch below and tell me if the touchscreen still works?
+>>>>>
+>>>> I've tested your patch, but it does not work. If i touch the pannel,
+>>>> mcs5000_ts_hardirq is called once, but mcs5000_ts_interrupt is not
+>>>> called, so the interrupt is not occurred any longer.
+>>>>
+>>> Hmm, wierd... I guess since threaded IRQs are pretty new there could be
+>>> some issues there.
+>>>
+>> I wonder, are there drivers using the threaded IRQs at present?
+>> I want to refer another driver but i can't find it.
+> 
+> I have drivers/input/misc/dm355evm_keys.c in my tree.
 
-Dmitry Torokhov wrote:
-> Hi Eric,
-> 
-> I made a few adjustments to the pxa27x_keypad driver and was wondering
-> if you would be able to give it a sping and check if I broke it or not.
+I found it.
 
-Apparently not :)
-Tested-by: Mike Rapoport <mike@compulab.co.il>
+> 
+> Anyways, I reviewed the code again and the problem with both patches is
+> that we should not be disabling IRQ in the hard IRQ handler as it
+> inhibits running the thread, so we need to move disable_irq_nosync to be
+> the very first thing we do in the threaded handler.
+> 
 
-> Thanks!
-> 
-> -- 
-> Dmitry
-> 
-> Input: pxa27x_keypad - remove extra clk_disable
-> 
-> From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> 
-> clk_disable() in remove method is not needed since we already
-> have clk_disable in pxa27x_keypad_close().
-> 
-> Also make sure the driver uses resource_size() and helpers from
-> include/input/matrix_keypad.h
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
-> 
->  arch/arm/mach-pxa/include/mach/pxa27x_keypad.h |    3 +-
->  drivers/input/keyboard/pxa27x_keypad.c         |   43 +++++++++++-------------
->  2 files changed, 21 insertions(+), 25 deletions(-)
-> 
-> 
-> diff --git a/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h b/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
-> index d5a48a9..63e8965 100644
-> --- a/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
-> +++ b/arch/arm/mach-pxa/include/mach/pxa27x_keypad.h
-> @@ -2,6 +2,7 @@
->  #define __ASM_ARCH_PXA27x_KEYPAD_H
->  
->  #include <linux/input.h>
-> +#include <linux/input/matrix_keypad.h>
->  
->  #define MAX_MATRIX_KEY_ROWS	(8)
->  #define MAX_MATRIX_KEY_COLS	(8)
-> @@ -51,8 +52,6 @@ struct pxa27x_keypad_platform_data {
->  	unsigned int	debounce_interval;
->  };
->  
-> -#define KEY(row, col, val)	(((row) << 28) | ((col) << 24) | (val))
-> -
->  extern void pxa_set_keypad_info(struct pxa27x_keypad_platform_data *info);
->  
->  #endif /* __ASM_ARCH_PXA27x_KEYPAD_H */
-> diff --git a/drivers/input/keyboard/pxa27x_keypad.c b/drivers/input/keyboard/pxa27x_keypad.c
-> index 0d2fc64..0943238 100644
-> --- a/drivers/input/keyboard/pxa27x_keypad.c
-> +++ b/drivers/input/keyboard/pxa27x_keypad.c
-> @@ -25,6 +25,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/clk.h>
->  #include <linux/err.h>
-> +#include <linux/input/matrix_keypad.h>
->  
->  #include <asm/mach/arch.h>
->  #include <asm/mach/map.h>
-> @@ -107,7 +108,7 @@ struct pxa27x_keypad {
->  	int irq;
->  
->  	/* matrix key code map */
-> -	unsigned int matrix_keycodes[MAX_MATRIX_KEY_NUM];
-> +	unsigned short matrix_keycodes[MAX_MATRIX_KEY_NUM];
->  
->  	/* state row bits of each column scan */
->  	uint32_t matrix_key_state[MAX_MATRIX_KEY_COLS];
-> @@ -124,21 +125,21 @@ static void pxa27x_keypad_build_keycode(struct pxa27x_keypad *keypad)
->  {
->  	struct pxa27x_keypad_platform_data *pdata = keypad->pdata;
->  	struct input_dev *input_dev = keypad->input_dev;
-> -	unsigned int *key;
->  	int i;
->  
-> -	key = &pdata->matrix_key_map[0];
-> -	for (i = 0; i < pdata->matrix_key_map_size; i++, key++) {
-> -		int row = ((*key) >> 28) & 0xf;
-> -		int col = ((*key) >> 24) & 0xf;
-> -		int code = (*key) & 0xffffff;
-> +	for (i = 0; i < pdata->matrix_key_map_size; i++) {
-> +		unsigned int key = pdata->matrix_key_map[i];
-> +		unsigned int row = KEY_ROW(key);
-> +		unsigned int col = KEY_COL(key);
-> +		unsigned short code = KEY_VAL(key);
->  
->  		keypad->matrix_keycodes[(row << 3) + col] = code;
-> -		set_bit(code, input_dev->keybit);
-> +		__set_bit(code, input_dev->keybit);
->  	}
-> +	__clear_bit(KEY_RESERVED, input_dev->keybit);
->  
->  	for (i = 0; i < pdata->direct_key_num; i++)
-> -		set_bit(pdata->direct_key_map[i], input_dev->keybit);
-> +		__set_bit(pdata->direct_key_map[i], input_dev->keybit);
->  
->  	keypad->rotary_up_key[0] = pdata->rotary0_up_key;
->  	keypad->rotary_up_key[1] = pdata->rotary1_up_key;
-> @@ -149,18 +150,18 @@ static void pxa27x_keypad_build_keycode(struct pxa27x_keypad *keypad)
->  
->  	if (pdata->enable_rotary0) {
->  		if (pdata->rotary0_up_key && pdata->rotary0_down_key) {
-> -			set_bit(pdata->rotary0_up_key, input_dev->keybit);
-> -			set_bit(pdata->rotary0_down_key, input_dev->keybit);
-> +			__set_bit(pdata->rotary0_up_key, input_dev->keybit);
-> +			__set_bit(pdata->rotary0_down_key, input_dev->keybit);
->  		} else
-> -			set_bit(pdata->rotary0_rel_code, input_dev->relbit);
-> +			__set_bit(pdata->rotary0_rel_code, input_dev->relbit);
->  	}
->  
->  	if (pdata->enable_rotary1) {
->  		if (pdata->rotary1_up_key && pdata->rotary1_down_key) {
-> -			set_bit(pdata->rotary1_up_key, input_dev->keybit);
-> -			set_bit(pdata->rotary1_down_key, input_dev->keybit);
-> +			__set_bit(pdata->rotary1_up_key, input_dev->keybit);
-> +			__set_bit(pdata->rotary1_down_key, input_dev->keybit);
->  		} else
-> -			set_bit(pdata->rotary1_rel_code, input_dev->relbit);
-> +			__set_bit(pdata->rotary1_rel_code, input_dev->relbit);
->  	}
->  }
->  
-> @@ -425,8 +426,6 @@ static int pxa27x_keypad_resume(struct platform_device *pdev)
->  #define pxa27x_keypad_resume	NULL
->  #endif
->  
-> -#define res_size(res)	((res)->end - (res)->start + 1)
-> -
->  static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
->  {
->  	struct pxa27x_keypad *keypad;
-> @@ -461,14 +460,14 @@ static int __devinit pxa27x_keypad_probe(struct platform_device *pdev)
->  		goto failed_free;
->  	}
->  
-> -	res = request_mem_region(res->start, res_size(res), pdev->name);
-> +	res = request_mem_region(res->start, resource_size(res), pdev->name);
->  	if (res == NULL) {
->  		dev_err(&pdev->dev, "failed to request I/O memory\n");
->  		error = -EBUSY;
->  		goto failed_free;
->  	}
->  
-> -	keypad->mmio_base = ioremap(res->start, res_size(res));
-> +	keypad->mmio_base = ioremap(res->start, resource_size(res));
->  	if (keypad->mmio_base == NULL) {
->  		dev_err(&pdev->dev, "failed to remap I/O memory\n");
->  		error = -ENXIO;
-> @@ -540,7 +539,7 @@ failed_put_clk:
->  failed_free_io:
->  	iounmap(keypad->mmio_base);
->  failed_free_mem:
-> -	release_mem_region(res->start, res_size(res));
-> +	release_mem_region(res->start, resource_size(res));
->  failed_free:
->  	kfree(keypad);
->  	return error;
-> @@ -552,8 +551,6 @@ static int __devexit pxa27x_keypad_remove(struct platform_device *pdev)
->  	struct resource *res;
->  
->  	free_irq(keypad->irq, pdev);
-> -
-> -	clk_disable(keypad->clk);
->  	clk_put(keypad->clk);
->  
->  	input_unregister_device(keypad->input_dev);
-> @@ -562,7 +559,7 @@ static int __devexit pxa27x_keypad_remove(struct platform_device *pdev)
->  	iounmap(keypad->mmio_base);
->  
->  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	release_mem_region(res->start, res_size(res));
-> +	release_mem_region(res->start, resource_size(res));
->  
->  	platform_set_drvdata(pdev, NULL);
->  	kfree(keypad);
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-input" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+This has one problem.
 
+The MCS5000 detects interrupt at low level. After interrupt occurs, the 
+interrupt signal of the MCS5000 maintains the low level. It needs an i2c
+operation to change to high the interrupt signal.
 
--- 
-Sincerely yours,
-Mike.
+If we do disbling IRQ in the threaded handler instead of the hard IRQ
+handler, the interrupt occurs infinitely because the interrupt signal is
+low.
 
+I have tested your new patch, and it appeared above result. It will 
+maybe need a dummy i2c operation in the hard IRQ handler, but the i2c
+operation cannot use in the IRQ handler.
 
+> Updated patch below; please give it a spin. If it works the MAX driver
+> will need the same adjustment.
+> 
+
+I'm not sure about the MAX7359 keypad driver, but I think we need some
+thing disabling IRQ in hard IRQ handler to change to driver using
+threaded irq.

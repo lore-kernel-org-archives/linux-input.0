@@ -1,43 +1,38 @@
-From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+From: David Brownell <david-b@pacbell.net>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 10:13:31 -0700
-Message-ID: <200907221013.32087.david-b@pacbell.net>
-References: <20090721113642.GC13286@sirena.org.uk> <20090722155811.GA2775@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907221830410.2813@localhost.localdomain>
+Date: Wed, 22 Jul 2009 10:34:04 -0700
+Message-ID: <200907221034.05410.david-b@pacbell.net>
+References: <20090714100634.GA4054@elf.ucw.cz> <200907220939.33399.david-b@pacbell.net> <alpine.LFD.2.00.0907221841340.2813@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LFD.2.00.0907221830410.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754051AbZGVReI@vger.kernel.org>
+In-Reply-To: <alpine.LFD.2.00.0907221841340.2813@localhost.localdomain>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Peter Zijlstra <peterz@infradead.org>
 List-Id: linux-input@vger.kernel.org
 
 On Wednesday 22 July 2009, Thomas Gleixner wrote:
 > 
-> > I do think this should be set up by the driver - the platform/arch code
-> > can't be 100% certain what model of servicing interrupts driver will
-> > chose, nor the driver can know whether arch code set things up for
-> > threaded or classic interrupt handling.
-> > 
-> > Since handle_level_oneshot_irq requires drivers to use threaded IRQ
-> > model (in absence of thread interrupt will never be unmasked) it would
-> > be better if we did set it up automatically, right there in
-> > request_threaded_irq(). This would reduce maintenance issues between
-> > platform and driver code.
+> > Can that be cleaned up a bit, so that the handle_level_oneshot_irq()
+> > and unmask_oneshot_irq() stuff kicks in automatically when needed,
+> > instead of requiring board-specific (or driver-specific) code to get
+> > that stuff right?
 > 
-> No, it's the wrong way round. 
+> The only way I can see is to set a special trigger flag like
+> IRQF_TRIGGER_RISING & Co. 
 > 
-> The platform code sets up the platform devices. So there is no real
-> good reason that the platform code does not know about the details.
+> i.e. IRQF_TRIGGER_LEVEL | IRQF_TRIGGER_ONESHOT
+> 
+> That might work.
 
-Except for the "development board" family of exceptions to
-such rules ... or the "Processor-on-Card" model, where the
-same platform/card gets used in a variety of different
-chassis configurations, with different peripherals.
+That direction, yes ... request_threaded_irq() can't infer ONESHOT
+from IRQF_TRIGGER_{LOW,HIGH} since the hardirq handler might be
+able to get Real Work (tm) done in some non-I2C/non-SPI cases.
 
-It may not be possible to know *which* configuration is
-being used at board setup time.  However it most certainly
-is known by the time a driver is configuring.
+Another alternative syntax:  magic cookies for the hardirq handler.
+Example, pass NULL to get a default punt-to-irqthread behavior, with
+ONESHOT set up if it sees IRQF_TRIGGER_HIGH or IRQF_TRIGGER_LOW.

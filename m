@@ -1,72 +1,88 @@
-From: "H Hartley Sweeten" <hartleys@visionengravers.com>
-Subject: RE: drivers/usb/class/cdc-acm.c patch kernel 2.6.31.-rc1
-Date: Wed, 22 Jul 2009 17:43:11 -0400
-Message-ID: <BD79186B4FD85F4B8E60E381CAEE190901B1F567@mi8nycmail19.Mi8.com>
-References: <C01FCF206F5D8D4C89B210408D7DB39C12ED1F@mail2.oerlikon.ca>
+From: =?ISO-8859-1?Q?Arve_Hj=F8nnev=E5g?= <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Wed, 22 Jul 2009 14:57:09 -0700
+Message-ID: <d6200be20907221457r4e2f6d29g57146586fd13776a@mail.gmail.com>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
+	 <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
+	 <1248269443.27058.1449.camel@twins>
+	 <200907220957.16499.david-b@pacbell.net>
+	 <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from exprod6og116.obsmtp.com ([64.18.1.37]:50839 "HELO
-	exprod6og116.obsmtp.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-	with SMTP id S1753828AbZGVVnO convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2009 17:43:14 -0400
-Content-class: urn:content-classes:message
-In-Reply-To: <C01FCF206F5D8D4C89B210408D7DB39C12ED1F@mail2.oerlikon.ca>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LFD.2.00.0907222226270.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: "Weng, Wending" <WWeng@rheinmetall.ca>, linux-input@vger.kernel.org
 
-On Wednesday, July 22, 2009 2:09 PM, Wending Weng wrote:
-> From 39e8558a114297ee9192f406d63f423aded05288 Mon Sep 17 00:00:00 2001
-> From: root <root@SBC_PC_3.localdomain>
-> Date: Tue, 21 Jul 2009 10:48:15 -0400
-> vers/usb/class/cdc-acm.cSubject: [PATCH]
-> When the usb-serial cable is unpluged, the usb host controller driver returns
-> all scheduled URBs to usb-serial driver(cdc-acm.c), and the usb-serial driver
-> (cdc-acm.c) doesn't detect this exception, continues to schedule the URBs, it
->  causes a dead loop.
-> This change fixes this problem.
-> 
-> Signed-off-by: Wending Weng <wweng@rheinmetall.ca>
-> ---
->  drivers/usb/class/cdc-acm.c |   11 +++++++++--
->  1 files changed, 9 insertions(+), 2 deletions(-)
+On Wed, Jul 22, 2009 at 2:04 PM, Thomas Gleixner<tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wr=
+ote:
+> On Wed, 22 Jul 2009, David Brownell wrote:
+>> On Wednesday 22 July 2009, Peter Zijlstra wrote:
+>> > Wouldn't it be better if we could express the nesting property fro=
+m
+>> > within genirq, so that we can do things like:
+>> >
+>> > =A0 register_chip_nested(parent_chip, parent_irq, slave_chip);
+>> >
+>> > And let genirq set-up the needed magic to make the nesting work.
+>>
+>> I've been requesting such IRQ chaining support for some time
+>> now ... if the ears are now listening, that kind of direction
+>> should be pursued.
+>
+> Well, I was all ear back then, but the disconnect between "embedded
+> only needs X be happy" and my repsonsibility to keep that all working
+> for everyone was way larger. :)
+>
+>> > Also, how important is it that subhandler1..n run in their own thr=
+ead?
+>>
+>> Completely unimportant in a practical sense. =A0Undesirable, even;
+>> wasteful to allocate all those stack pages and keep them idle
+>> most of the time.
+>>
+>> There might be an argument that the design isn't technicaly done
+>> until that model *can* be supported. =A0On the flip side, last time
+>> this came up there was no "customer demand" for that ... it was
+>> all "supplier push".
+>>
+>>
+>> > That is, can't we let them run from the thread that is otherwise w=
+aiting
+>> > for the completino anyway?
+>>
+>> That would be far preferable, yes.
+>
+> Ok, so let me summarize what we came up with so far.
+>
+> 1) handle_level_oneshot_irq is the correct answer to the problem of
+> those "I'm behind a slow bus" interrupt controllers.
+>
+> 2) Some mechanism to request ONESHOT from the driver level is
+> required. Preferrably via a flag on request_threaded_irq
+>
+> 3) a function which allows to express the nested thread irq nature of
+> the interrupt controller and its subdevices.
+>
+> 4) a generic serializing mechanism which is implemented via irq_chip
+> functions to solve the chip->mask/unmask issue for the demultiplexed
+> interrupts. Something like the bus_lock/bus_sync_unlock patch I poste=
+d
+> earlier.
+>
+> 5) a common function which allows to call the thread handler of the
+> subdevice interrupts in the context of the main thread which takes
+> care of serialization against disable/enable/request/free irq et al.
+>
+> Any more ?
 
-I really don't have any comments on what this patch fixes but...
+It would also be useful to mask an edge triggered interrupt until the
+thread handler has finished. The touchscreen on the G1 is connected to
+an edge triggered interrupt, and the touchscreen may toggle the
+interrupt line while reading its registers.
 
-> diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-> index 38bfdb0..3cc3e18 100644
-> --- a/drivers/usb/class/cdc-acm.c
-> +++ b/drivers/usb/class/cdc-acm.c
-> @@ -372,8 +372,15 @@ static void acm_read_bulk(struct urb *urb)
->                 list_add_tail(&rcv->list, &acm->spare_read_urbs);
->                 list_add(&buf->list, &acm->spare_read_bufs);
->                 spin_unlock(&acm->read_lock);
-> -               /* nevertheless the tasklet must be kicked unconditionally
-> -               so the queue cannot dry up */
-> +
-> +               /* Normally, the tasklet must be kicked unconditionally
-> +               so the queue cannot dry up, however, if the cable is disconnected,
-> +               or whatever fatal error, it must not reschedule any URB */
-
-This multi-line comment is not in the typical kernel style.  Granted the previous
-one isn't either.
-
-> +
-> +                // Stop rescheduling any URB in case the connection is shutdown
-
-C++ comments are generally frowned upon.  This one should be like:
-
-> +                /* Stop rescheduling any URB in case the connection is shutdown */
-
-> +                if ((urb->status == -ESHUTDOWN) || (urb->status == -EPROTO))
-> +                        return;
-> +
->         }
->         if (likely(!acm->susp_count))
->                 tasklet_schedule(&acm->urb_task);
-
-Regards,
-Hartley
+--=20
+Arve Hj=F8nnev=E5g

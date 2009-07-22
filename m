@@ -1,38 +1,43 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+From: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 18:08:37 +0100
-Message-ID: <20090722170837.GC21186@rakim.wolfsonmicro.main>
-References: <20090721113642.GC13286@sirena.org.uk>
- <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
- <20090722133131.GA28355@rakim.wolfsonmicro.main>
- <200907221004.11100.david-b@pacbell.net>
+Date: Wed, 22 Jul 2009 10:13:31 -0700
+Message-ID: <200907221013.32087.david-b@pacbell.net>
+References: <20090721113642.GC13286@sirena.org.uk> <20090722155811.GA2775@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907221830410.2813@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1754013AbZGVRIm@vger.kernel.org>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LFD.2.00.0907221830410.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <200907221004.11100.david-b@pacbell.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Brownell <david-b@pacbell.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, Peter Zijlstra <peterz@infradead.org>, Daniel Ribeiro <drwyrm@gmail.com>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-On Wed, Jul 22, 2009 at 10:04:10AM -0700, David Brownell wrote:
-> On Wednesday 22 July 2009, Mark Brown wrote:
+On Wednesday 22 July 2009, Thomas Gleixner wrote:
+> 
+> > I do think this should be set up by the driver - the platform/arch code
+> > can't be 100% certain what model of servicing interrupts driver will
+> > chose, nor the driver can know whether arch code set things up for
+> > threaded or classic interrupt handling.
+> > 
+> > Since handle_level_oneshot_irq requires drivers to use threaded IRQ
+> > model (in absence of thread interrupt will never be unmasked) it would
+> > be better if we did set it up automatically, right there in
+> > request_threaded_irq(). This would reduce maintenance issues between
+> > platform and driver code.
+> 
+> No, it's the wrong way round. 
+> 
+> The platform code sets up the platform devices. So there is no real
+> good reason that the platform code does not know about the details.
 
-> > source for a PMIC then we've got generic code that expects to just take
-> > a gpio/irq and interact with it.
+Except for the "development board" family of exceptions to
+such rules ... or the "Processor-on-Card" model, where the
+same platform/card gets used in a variety of different
+chassis configurations, with different peripherals.
 
-> Is there a problem with how it works now?  GPIO calls come in
-> sleeping (e.g. over I2C or SPI) and non-sleeping (classic SoC
-> GPIOs) varieties.  And it's not gpiolib which would handle any
-
-I don't think there's any problem at all with gpiolib at all, it's just
-an example user here.
-
-> IRQ support ... it's the driver for the GPIO chip, which would
-> expose both irq_chip and gpio_chip facets.  (Just like classic
-> SoC GPIO drivers.)
-
-Ah, yeah.  If the chip IRQ driver handles the waking of the core thread 
-then this'd not be a problem.  For some reason I was thinking of the
-driver using gpiolib when I read Thomas' post.
+It may not be possible to know *which* configuration is
+being used at board setup time.  However it most certainly
+is known by the time a driver is configuring.

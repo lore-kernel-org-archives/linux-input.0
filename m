@@ -1,123 +1,83 @@
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
 Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
-Date: Wed, 22 Jul 2009 14:58:24 +0200 (CEST)
-Message-ID: <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
-References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk> <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com> <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com>
- <20090721124933.GA5668@rakim.wolfsonmicro.main> <20090721160436.GD4352@dtor-d630.eng.vmware.com> <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain> <20090721222547.GA1948@opensource.wolfsonmicro.com> <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
- <20090722121800.GD21171@rakim.wolfsonmicro.main>
+Date: Wed, 22 Jul 2009 15:30:43 +0200
+Message-ID: <1248269443.27058.1449.camel@twins>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com>
+	 <20090721105924.GK4133@elf.ucw.cz> <20090721113642.GC13286@sirena.org.uk>
+	 <5d5443650907210518i6ee4df1evdc04d9ae9453707c@mail.gmail.com>
+	 <5d5443650907210530x4aaa03d6gd47ef5f79a3ef8a4@mail.gmail.com>
+	 <20090721124933.GA5668@rakim.wolfsonmicro.main>
+	 <20090721160436.GD4352@dtor-d630.eng.vmware.com>
+	 <alpine.LFD.2.00.0907212225030.2813@localhost.localdomain>
+	 <20090721222547.GA1948@opensource.wolfsonmicro.com>
+	 <alpine.LFD.2.00.0907221022190.2813@localhost.localdomain>
+	 <20090722121800.GD21171@rakim.wolfsonmicro.main>
+	 <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-input-owner@vger.kernel.org>
-Received: from www.tglx.de ([62.245.132.106]:58583 "EHLO www.tglx.de"
-	rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-	id S1754683AbZGVM7B (ORCPT <rfc822;linux-input@vger.kernel.org>);
-	Wed, 22 Jul 2009 08:59:01 -0400
-In-Reply-To: <20090722121800.GD21171@rakim.wolfsonmicro.main>
-Sender: linux-input-owner@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.LFD.2.00.0907221427380.2813-bi+AKbBUZKY6gyzm1THtWbp2dZbC/Bob@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Trilok Soni <soni.trilok@gmail.com>, Pavel Machek <pavel@ucw.cz>, Arve Hj?nnev?g <arve@android.com>, kernel list <linux-kernel@vger.kernel.org>, Brian Swetland <swetland@google.com>, linux-input@vger.kernel.org, Andrew Morton <akpm@osdl.org>, linux-i2c@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>, m.szyprowski@samsung.com, t.fujak@samsung.com, kyungmin.park@samsung.com, David Brownell <david-b@pacbell.net>, Peter Zijlstra <peterz@infradead.org>, Daniel Ribeiro <drwyrm@gmail.com>
 
-Mark,
-
-On Wed, 22 Jul 2009, Mark Brown wrote:
-
-> On Wed, Jul 22, 2009 at 12:44:01PM +0200, Thomas Gleixner wrote:
-> > On Tue, 21 Jul 2009, Mark Brown wrote:
+On Wed, 2009-07-22 at 14:58 +0200, Thomas Gleixner wrote:
+>  One
+> thing which I definitely want to change is the thread_eoi function. We
+> probably want to have it customizable for the following reason:
 > 
-> > > I'll need to have a more detailed look at that but it's not immediately
-> > > clear to me how a driver (or even machine) should use that code - it
-> > > looks more like it's intended to be called from within the IRQ
-> > > infrastructure than from random driver code.
+> main interrupt
+>      hardirq handler wakes main thread handler
 > 
-> > All it needs is to set handle_level_oneshot_irq for the interrupt line
-> > of your I2C or whatever devices. 
+> main thread handler
+>     bus magic
+>    	subdevice1 "hardirq" handler wakes subdevice1 irq thread
+>    	subdevice2 "hardirq" handler wakes subdevice2 irq thread
+>     main thread handler waits for subdevice1/2 handlers to complete
 > 
-> >    set_irq_handler(irq, handle_level_oneshot_irq);
+> subdevice1 thread handler
+>     bus magic
+>     ....
+>     thread_fn returns
+>     signal main thread handler via completion
 > 
-> Yeah, I know - the issue I was having was that the use of set_irq_handler()
-> seemed rather rude for driver code.  Grepping around I see that there
-> are actually a small number of drivers using it already but at first
-> glance most of them appear to be implementing interrupt controllers.  It
-> was setting off alarm bells about abstraction layer violation like
-> set_irq_type() does.
-
-I don't think it belongs into the driver code. It belongs into the
-platform code which sets up the system and knows what's on which
-interrupt line.
- 
-> > > Nothing if the above works, though I guess more documentation wouldn't
-> > > hurt (and possibly a more friendly wrapper).  From the name and
+> subdevice2 thread handler
+>     bus magic
+>     ....
+>     thread_fn returns
+>     signal main thread handler via completion
 > 
-> > Wrapper for what ? 
+> main thread handler resumes
+>     bus magic
+>     main thread handler returns from thread_fn
+>     unmask main interrupt
 > 
-> Something to package up the set_irq_handler() and request_threaded_irq()
-> (possibly a flag for request_threaded_irq()).  This is such a common
-> thing and request_threaded_irq() looks so much like it should Just Work
-> that I'd expect it'll help usability a lot to have a single function
-> which says "this is the idiomatic way to implement this".
-
-Yeah, we might do with a flag, but I'd prefer that the platform code
-aka arch/xxx/yourmachine/setup.c does this. That's the canonical place.
-
-> > After that bus_sync_unlock() is called outside the atomic context. Now
-> > the chip implementation issues the bus commands, waits for completion
-> > and unlocks the interrupt controller bus.
+> So the thread_eoi function is useful for both the main and the
+> subdevice handlers. The main handler probably just issues the unmask
+> while the subdevice handlers probably want to call a completion to
+> notify the main thread handler that they are done. That would be a
+> fairly proper design I think and would encourage driver writers to
+> follow the common scheme instead of doing their own black magic.
 > 
-> I'll try to find time to implement some use of it and give it a spin -
-> it looks good at first glance but I'll need to convert one of my drivers
-> to genirq in order to test.  Someone working on a chip that already uses
-> genirq might get there first.
+> Thinking further we should even provide some infrastructure for that
+> in the common code which would handle the completion and attach it to
+> the interrupts in question, so the driver authors would not have to
+> deal with that at all. They just would return from thread_fn and let
+> the generic code deal with the notification. The notification has to
+> be set up by the interrupt controller code. That way you can use the
+> same device driver code w/o knowledge of the interrupt controller
+> implementation it is attached to.
 
-That'd be great to get some feedback. Both patches need some more
-thought, but I think they are a good start to do some testing. One
-thing which I definitely want to change is the thread_eoi function. We
-probably want to have it customizable for the following reason:
+Wouldn't it be better if we could express the nesting property from
+within genirq, so that we can do things like:
 
-main interrupt
-     hardirq handler wakes main thread handler
+  register_chip_nested(parent_chip, parent_irq, slave_chip);
 
-main thread handler
-    bus magic
-   	subdevice1 "hardirq" handler wakes subdevice1 irq thread
-   	subdevice2 "hardirq" handler wakes subdevice2 irq thread
-    main thread handler waits for subdevice1/2 handlers to complete
+And let genirq set-up the needed magic to make the nesting work.
 
-subdevice1 thread handler
-    bus magic
-    ....
-    thread_fn returns
-    signal main thread handler via completion
 
-subdevice2 thread handler
-    bus magic
-    ....
-    thread_fn returns
-    signal main thread handler via completion
-
-main thread handler resumes
-    bus magic
-    main thread handler returns from thread_fn
-    unmask main interrupt
-
-So the thread_eoi function is useful for both the main and the
-subdevice handlers. The main handler probably just issues the unmask
-while the subdevice handlers probably want to call a completion to
-notify the main thread handler that they are done. That would be a
-fairly proper design I think and would encourage driver writers to
-follow the common scheme instead of doing their own black magic.
-
-Thinking further we should even provide some infrastructure for that
-in the common code which would handle the completion and attach it to
-the interrupts in question, so the driver authors would not have to
-deal with that at all. They just would return from thread_fn and let
-the generic code deal with the notification. The notification has to
-be set up by the interrupt controller code. That way you can use the
-same device driver code w/o knowledge of the interrupt controller
-implementation it is attached to.
-
-Thoughts ?
-
-Thanks,
-
-	tglx
+Also, how important is it that subhandler1..n run in their own thread?
+That is, can't we let them run from the thread that is otherwise waiting
+for the completino anyway?

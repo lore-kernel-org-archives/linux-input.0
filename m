@@ -1,84 +1,81 @@
-From: Trilok Soni <soni.trilok@gmail.com>
-Subject: Re: [PATCH 2/2] mfd: twl4030: add twl4030-pwrbutton as our child
-Date: Thu, 23 Jul 2009 00:57:48 +0530
-Message-ID: <5d5443650907221227w72768b3cna145cea00f1baa05@mail.gmail.com>
-References: <1235762883-20870-1-git-send-email-me@felipebalbi.com>
-	 <200902271358.46863.david-b@pacbell.net>
-	 <20090227141212.a2bc4a01.akpm@linux-foundation.org>
-	 <200902271520.56696.david-b@pacbell.net>
-	 <20090227154220.7099f339.akpm@linux-foundation.org>
+From: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: Re: Threaded interrupts for synaptic touchscreen in HTC dream
+Date: Wed, 22 Jul 2009 23:04:33 +0200 (CEST)
+Message-ID: <alpine.LFD.2.00.0907222226270.2813@localhost.localdomain>
+References: <5d5443650907151033w36008b71pe4b32bcea9489b75@mail.gmail.com> <alpine.LFD.2.00.0907221427380.2813@localhost.localdomain> <1248269443.27058.1449.camel@twins> <200907220957.16499.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner+glk-linux-kernel-3=40m.gmane.org-S1753846AbZGVT1w@vger.kernel.org>
-In-Reply-To: <20090227154220.7099f339.akpm@linux-foundation.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Brownell <david-b@pacbell.net>, me@felipebalbi.com, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, felipe.balbi@nokia.com, Samuel Ortiz <sameo@linux.intel.com>
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1473729042-1248296676=:2813"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <200907220957.16499.david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Brownell <david-b-yBeKhBN/0LDR7s880joybQ@public.gmane.org>
+Cc: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Trilok Soni <soni.trilok-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Arve Hj?nnev?g <arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Brian Swetland <swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-3NddpPZAyC0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joonyoung Shim <jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, t.fujak-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Daniel Ribeiro <drwyrm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-input@vger.kernel.org
 
-Hi Andrew/Samuel,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-On Sat, Feb 28, 2009 at 5:12 AM, Andrew Morton<akpm@linux-foundation.or=
-g> wrote:
-> On Fri, 27 Feb 2009 15:20:56 -0800
-> David Brownell <david-b@pacbell.net> wrote:
->
->> On Friday 27 February 2009, Andrew Morton wrote:
->> > > >
->> > > > What has gone wrong here?
->> > >
->> > > Not much I can see. __It's registering a platform_device,
->> > > but only if it could be used on this system.
->> >
->> > Again, that all gets fixed if this is done the right way around. _=
-_Run
->> > your probe function. __If the hardware is there, register with the=
- core
->> > and all the nodes appear. __If the hardware is not present: bale.
->>
->> Right. =A0If there's no button hooked up to its "power button"
->> signal, don't register that "twl4030-pwrbutton" node.
->>
->>
->> > The design of the whole subsystem appears to be upside down :(
->>
->> You seem to be missing something. =A0Is it only the lack of that
->> tweak Felipe sent?
->
-> I generally just delete unchangelogged patches.
->
-> <goes back and finds it>
->
->
-> That doesn't address the problem at all. =A0A function called
-> "add_children" just shouldn't exist. =A0The general kernel design is =
-for
-> client drivers to register themselves with the core, so the core does
-> not have any hard-wired knowledge of any client drivers.
->
-> IOW, twl4030_pwrbutton_probe() should call into twl4030-core,
-> registering the powerbutton driver.
->
+--8323328-1473729042-1248296676=:2813
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 
-Reviving this very old thread.
+On Wed, 22 Jul 2009, David Brownell wrote:
+> On Wednesday 22 July 2009, Peter Zijlstra wrote:
+> > Wouldn't it be better if we could express the nesting property from
+> > within genirq, so that we can do things like:
+> > 
+> >   register_chip_nested(parent_chip, parent_irq, slave_chip);
+> > 
+> > And let genirq set-up the needed magic to make the nesting work.
+> 
+> I've been requesting such IRQ chaining support for some time
+> now ... if the ears are now listening, that kind of direction
+> should be pursued.
 
-Andrew,
+Well, I was all ear back then, but the disconnect between "embedded
+only needs X be happy" and my repsonsibility to keep that all working
+for everyone was way larger. :)
 
-It seems that every driver under "mfd" is following the more or less
-approach like twl4030, where the core driver is creating sub-device
-driver's platform devices based on either some conditions like
-platform data for that sub-device driver is available or not, or
-sub-device array with it's "name" and "id" is passed from arch/ board
-files.
+> > Also, how important is it that subhandler1..n run in their own thread?
+> 
+> Completely unimportant in a practical sense.  Undesirable, even;
+> wasteful to allocate all those stack pages and keep them idle
+> most of the time.
+> 
+> There might be an argument that the design isn't technicaly done
+> until that model *can* be supported.  On the flip side, last time
+> this came up there was no "customer demand" for that ... it was
+> all "supplier push".
+> 
+> 
+> > That is, can't we let them run from the thread that is otherwise waiting
+> > for the completino anyway?
+> 
+> That would be far preferable, yes.
 
-Samuel,
+Ok, so let me summarize what we came up with so far.
 
-I don't see any further discussion of points raised by Andrew in this d=
-river.
+1) handle_level_oneshot_irq is the correct answer to the problem of
+those "I'm behind a slow bus" interrupt controllers.
 
+2) Some mechanism to request ONESHOT from the driver level is
+required. Preferrably via a flag on request_threaded_irq
 
---=20
----Trilok Soni
-http://triloksoni.wordpress.com
-http://www.linkedin.com/in/triloksoni
+3) a function which allows to express the nested thread irq nature of
+the interrupt controller and its subdevices.
+
+4) a generic serializing mechanism which is implemented via irq_chip
+functions to solve the chip->mask/unmask issue for the demultiplexed
+interrupts. Something like the bus_lock/bus_sync_unlock patch I posted
+earlier.
+
+5) a common function which allows to call the thread handler of the
+subdevice interrupts in the context of the main thread which takes
+care of serialization against disable/enable/request/free irq et al.
+
+Any more ?
+
+Thanks,
+
+	tglx
+--8323328-1473729042-1248296676=:2813--
